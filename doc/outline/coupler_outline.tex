@@ -1,0 +1,283 @@
+%        File: coupling_outline.tex
+%     Created: Friday March 4 12:24:15 2011
+% Last Change: Friday March 4 12:24:20 2011
+%
+\documentclass[letterpaper]{article}
+\usepackage[top=1.0in,bottom=1.0in,left=1.0in,right=1.0in]{geometry}
+\usepackage{verbatim}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[usenames]{color}
+\usepackage[
+naturalnames = true, 
+colorlinks = true, 
+linkcolor = black,
+anchorcolor = black,
+citecolor = black,
+menucolor = black,
+urlcolor = blue
+]{hyperref}
+\usepackage{listings}
+\usepackage{textcomp}
+\definecolor{listinggray}{gray}{0.9}
+\definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
+\lstset{
+  backgroundcolor=\color{lbcolor},
+  tabsize=4,
+  rulecolor=,
+  language=c++,
+        basicstyle=\scriptsize,
+        upquote=true,
+        aboveskip={1.5\baselineskip},
+        columns=fixed,
+        showstringspaces=false,
+        extendedchars=true,
+        breaklines=true,
+        prebreak =
+        \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+        frame=single,
+        showtabs=false,
+        showspaces=false,
+        showstringspaces=false,
+        identifierstyle=\ttfamily,
+        keywordstyle=\color[rgb]{0,0,1},
+        commentstyle=\color[rgb]{0.133,0.545,0.133},
+        stringstyle=\color[rgb]{0.627,0.126,0.941},
+}
+
+\author{Stuart R. Slattery
+\\ \href{mailto:sslattery@wisc.edu}{\texttt{sslattery@wisc.edu}}
+}
+
+\date{Wednesday, October 12 2011}
+\title{Outline of the Coupling Package}
+\begin{document}
+\maketitle
+
+\section{Introduction}
+For most multiphysics simulations, some form of data transfer between
+physics codes is required. In general, data transfer can be performed
+through an ad-hoc coupling of the codes with custom software designed
+for the specific simulation. However, it is useful to consider a
+common framework and an associated interface for data transfer
+operations. This common interface, to be fulfilled by each code that
+desires to participate in coupling under this framework, should reduce
+repeated effort and define generic and reusable software that can be
+applied to many forms of multiphysics simulation.
+
+The coupling package aims to define such an interface for coupling in
+addition to providing concrete implementations of algorithms and
+communication patterns for parallel data transfer using the
+information acquired through this interface. This document discusses
+the design requirements that will shape this interface along with the
+implementation of fundamental transfer algorithms in a simple example.
+It should not be the aim of the coupling package to eliminate other
+forms of multiphysics data transfer. Rather, it should attempt to
+define a useful interface that provides value by simplifying the
+coupling process and reducing the barrier of entry for a physics code
+to participate in coupling. 
+
+\section{Design Requirements for the Coupling Package}
+The coupling package should fulfill the follwing design
+requirements:
+
+\begin{itemize}
+\item Be able to couple multiple codes that have implemented the
+  interface.
+\item Be independent of the underlying data structures of the physics
+  codes using the interface.
+\item Be aware of the potential mesh entity structures that are
+  associated with the fields being transferred (i.e. vertices, faces,
+  elements, etc.) in the case of multi-dimensional transfers.
+\item Be aware of the parallel communication objects that operate the
+  codes being coupled.
+\item Be able to generate a parallel topology map using information
+  made available through the interface.
+\item Be able to transfer multiple fields using the topology map and
+  information made available through the interface.
+\end{itemize}
+
+\section{Preliminary Design of the Coupling Package}
+
+\subsection{Coupling Package Interface}
+As part of the requirements listed in the previous section, it is
+necessary to define an interface for the coupling package that will
+allow access to information held by each physics code being coupled in
+order to meet the coupling algorithm requirements in concrete data
+transfer implementations.
+
+In its current form, the interface to the coupling package exists as
+an abstract interface contained by the Transfer\_Evaluator class. This
+interface should be fulfilled by each physics code that desires to
+participate in coupling under this framework by creating its own
+implementation of the Transfer\_Evaluator. By implementing a transfer
+evaluator, a code will provide the necessary information to implement
+coupling algorithms.
+
+\subsection{Coupling Package Map}
+The topology map for parallel transfer of a field (or potentially a
+portion of the field) is stored in the Transfer\_Map class. Although
+this class is initially presented as a concrete implementation, in the
+future the Transfer\_Map should instead represent an interface for
+many forms of mapping corresponding to many forms of coupling
+(e.g. point to volume or surface to surface couplings).
+
+\subsection{Coupling Package Manager}
+The coupling problem is managed by the Data\_Transfer\_Manager
+class. This class is aware of the Transfer\_Evaluator implementations
+for each code being coupled as well as topology maps for each type of 
+transfer being performed. The Data\_Transfer\_Manager should
+ultimately drive how various coupling and transfer algorithms interact
+with the physics codes through the Transfer\_Evaluator and the mapping
+through the Transfer\_Map. 
+
+\section{Simple Example}
+A simple mesh based data transfer example was constructed as a
+means of both demonstrating and developing capability for the coupling
+package. In terms of the coupling package description presented in the
+previous section, this example can be represented by the following
+class diagram presented in Fig.\ref{fig:example_domain}. Here, the
+coupling package contains the transfer evaluator interface, the
+transfer map, and the data transfer manager. In the example package,
+codes A and B along with their implementations of the transfer
+evaluator can be found. The only link between the coupling package and
+the example package is the implementation of the transfer evaluator
+interface by each code. 
+
+\begin{figure}[htpb!]
+  \begin{center}
+    \includegraphics[width=6in]{images/Example_Diagram.png}
+  \end{center}
+  \caption{\small \sl Class diagram for the simple peaks transfer
+    example. The coupling package contains the core classes while the
+    example contains codes A and B and their implementations of the
+    transfer evaluator.}
+  \label{fig:example_domain}
+\end{figure}
+
+In this example, code A populates a solution vector with the
+peaks function on a fine quad mesh at the center of its mesh cells
+with a solve method. Fig.\ref{fig:sol_A} gives the code A mesh and its 
+solution. After the solve, the coupling package transfers the solution
+from code A to the appropriate data vector associated with the code B
+coarse mesh vertices.
+
+\begin{figure}[htpb!]
+  \begin{center}
+    \includegraphics[width=6in]{images/sol_A.png}
+  \end{center}
+  \caption{\small \sl Fine quad mesh (left) and peaks function
+    solution (right) computed by code A at the center of its mesh
+    cells.} 
+  \label{fig:sol_A}
+\end{figure}
+
+To participate in coupling using the interface described above, both
+codes A and B in this example implement their own transfer evaluator
+deriving from the Transfer\_Evaluator class defined in the coupling
+package core interface.
+
+This simple example using the coupling package is operated by the
+driver presented in the following listing.
+
+\begin{lstlisting}
+//----------------------------------*-C++-*----------------------------------//
+/*!
+ * \file   example/driver.cc
+ * \author Stuart Slattery
+ * \date   Wed Oct 05 09:38:59 2011
+ * \brief  Driver for super simple mesh based data transfer example.
+ */
+//---------------------------------------------------------------------------//
+// $Id: template.cc,v 1.3 2008/01/02 17:18:47 9te Exp $
+//---------------------------------------------------------------------------//
+
+#include "Physics_A.hh"
+#include "Physics_B.hh"
+#include "TE_Physics_A.hh"
+#include "TE_Physics_B.hh"
+#include "../../src/core/Transfer_Evaluator.hh"
+#include "../../src/core/Data_Transfer_Manager.hh"
+
+//---------------------------------------------------------------------------//
+// Main function driver.
+int main()
+{
+    // Initialize Physics A.
+    physics_A::Physics_A* a = new physics_A::Physics_A(-3.0, 3.0,
+						       -3.0, 3.0,
+						       250, 250);
+
+    // Initialize Physics B.
+    physics_B::Physics_B* b = new physics_B::Physics_B(-3.0, 3.0,
+						       -3.0, 3.0,
+						       75, 75);
+
+    // Initialize Physics A Transfer_Evaluator.
+    dtransfer::Transfer_Evaluator* te_a = new dtransfer::TE_Physics_A(a);
+
+    // Initialize Physics B Transfer_Evaluator.
+    dtransfer::Transfer_Evaluator* te_b = new dtransfer::TE_Physics_B(b);
+
+    // Initialize the Data_Transfer_Manager.
+    dtransfer::Data_Transfer_Manager manager(te_a, te_b);
+
+    // Build a mapping to transfer the solution vector from physics A to the
+    // physics B data vector.
+    manager.map_A2B();
+
+    // Physics A solve.
+    a->solve();
+
+    // Transfer physics A solution to physics B.
+    manager.transfer_A2B();
+
+    return 0;
+}
+
+//---------------------------------------------------------------------------//
+//                 end of driver.cc
+//---------------------------------------------------------------------------//
+\end{lstlisting}
+
+In this driver, both code A and code B are initialized with mesh
+parameters in their constructors. The two transfer evaluators for
+these codes are then setup and passed to the data transfer
+manager which then applies a simple mapping between the two
+meshes. Following the code A solve, the manager then transfers the
+solution vector from A to B using the map that was previously
+generated. Fig.\ref{fig:sol_B} gives the code B mesh and its solution
+as a result of this data transfer.
+
+\begin{figure}[htpb!]
+  \begin{center}
+    \includegraphics[width=6in]{images/sol_B.png}
+  \end{center}
+  \caption{\small \sl Coarse quad mesh (left) and peaks
+    function solution (right) transferred to the code B mesh
+    vertices.}
+  \label{fig:sol_B}
+\end{figure}
+
+\section{Future Work}
+It should be noted here that this example performed serial data
+transfer. Furthermore, the transfer evaluator interface at present is
+specifically defined for point coupling, both requesting from and
+querying meshes for cartesian point coordinates. Future efforts should
+include generalizing this package to operate on multiple forms of mesh
+objects per the listed design requirements.
+
+In addition to this, most other design requirements have not been
+fulfilled. However, many of these requirements may be met by moving
+the data structures, communication patterns, and algorithms already
+existing in the coupler under the Denovo framework.
+
+\pagebreak
+\bibliographystyle{ieeetr}
+\bibliography{paper}
+\end{document}
+
+
