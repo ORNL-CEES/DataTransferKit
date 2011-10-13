@@ -14,7 +14,6 @@ AC_NEMESIS_PREREQ
 
 AC_ALL_VENDORS_SETUP
 AC_NEMESIS_ARGS
-AC_DENOVO_ARGS
 
 # other arguments
 AC_ARG_WITH(timing-diag,
@@ -24,7 +23,7 @@ AC_ARG_WITH(timing-diag,
 # The packages may depend on other packages to the left of them
 # in the list.
 
-AC_CONFIG_SUBDIRS(src)
+AC_CONFIG_SUBDIRS(tools src)
 
 # make the head makefile
 AC_HEAD_MAKEFILE
