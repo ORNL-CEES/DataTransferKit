@@ -1,0 +1,97 @@
+#!/bin/sh
+##---------------------------------------------------------------------------##
+## denovo_config
+##
+## build aclocal.m4/configure scripts in each directory that has a
+## configure.ac
+##
+## if this is run in nemesis then no arguments are required; if not then
+## the relative (or absolute) path of the config directory must be
+## given, ie. if running in denovo/src, ../denovo_config ..
+##
+## This version includes the pkg_config directory macros.
+##
+## $Id: denovo_config,v 1.1 2007/07/10 17:22:29 9te Exp $
+##---------------------------------------------------------------------------##
+
+## Build the configure scripts
+
+build_config ()
+{
+    # build a configure script if configure.ac is present
+    if test -f configure.ac; then
+	echo ">>> Building configure in $1"
+	aclocal -I $config_dir -I $pkg_config_dir
+	autoconf
+    fi
+}
+
+##---------------------------------------------------------------------------##
+
+## Recursively go through each directory
+
+dive()
+{
+    # find the directories
+    dirs=`ls`
+    real_dirs=''
+    for d in $dirs
+    do
+	if test -d $d && test "${d}" != CVS; then
+	    real_dirs="$real_dirs $d"
+	fi
+    done 
+
+    # dive into each directory
+    for d in $real_dirs
+    do
+	# dive and build configures
+	cd $d
+	dd=`pwd`
+	build_config $dd
+
+	# recursively dive to the next level
+	dive
+	
+    done
+
+    # once we hit bottom, come up one directory level
+    cd ..
+}
+
+##---------------------------------------------------------------------------##
+
+# home dir
+home=`pwd`
+
+# find the config directory
+
+if test -d config; then
+    config_dir="`pwd`/config"
+    pkg_config_dir="`pwd`/pkg_config"
+else
+    config_dir="`cd $1;pwd`/config"
+    pkg_config_dir="`cd $1;pwd`/pkg_config"
+fi
+
+if test ! -d $config_dir || test ! -d $pkg_config_dir; then
+    echo "Cannot find $config_dir or $pkg_config_dir"
+    exit 1
+fi
+
+cd $config_dir
+if test ! -f ac_nemesis_env.m4; then
+    echo "Improperly specfied config directory."
+    exit 1
+fi
+
+# build the configures
+cd $home
+build_config $home
+dive
+
+##---------------------------------------------------------------------------##
+## end of denovo_config
+##---------------------------------------------------------------------------##
+
+

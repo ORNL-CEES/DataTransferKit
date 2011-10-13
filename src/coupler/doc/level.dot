@@ -1,0 +1,40 @@
+digraph coupler_package_level {
+    /* graph attributes */
+    center=1;
+    size="8,14";
+    ranksep=1.25;
+
+    /* nodes */
+    node0 [shape=box, label="Base_Map"];
+    node1 [shape=box, label="Point_Map"];
+    node2 [shape=box, label="Map_Node"];
+    node3 [shape=box, label="STAR_File_IO"];
+    node4 [shape=box, label="Coupler"];
+    node5 [shape=box, label="Messenger"];
+    node6 [shape=box, label="STAR_Data"];
+
+    /* level dependencies */
+    node0 -> { node2 };
+    node1 -> { node2  node2  node0 };
+    node2 -> {};
+    node3 -> { node6  node1 };
+    node4 -> { node3  node6  node2  node1 };
+    node5 -> { node0  node2 };
+    node6 -> {};
+
+    /* Levels */
+    l5 [shape=plaintext, label="Level 5", fontsize=18];
+    l4 [shape=plaintext, label="Level 4", fontsize=18];
+    l3 [shape=plaintext, label="Level 3", fontsize=18];
+    l2 [shape=plaintext, label="Level 2", fontsize=18];
+    l1 [shape=plaintext, label="Level 1", fontsize=18];
+
+    l5 -> l4 -> l3 -> l2 -> l1
+
+    {rank=same; l1 node2 node6};
+    {rank=same; l2 node0};
+    {rank=same; l3 node1 node5};
+    {rank=same; l4 node3};
+    {rank=same; l5 node4};
+
+}

@@ -1,0 +1,58 @@
+#!/bin/sh
+##---------------------------------------------------------------------------##
+## GIT clone nemesis and setup for configuration/building
+##---------------------------------------------------------------------------##
+
+git=`which git`
+
+# default git directory
+gitdir='ssh://angmar/data/git'
+
+# options
+set -- `getopt "hd:" "$@"`
+while :
+do
+    case "$1" in
+        -d)
+            # git repository location
+            shift
+            gitdir="$1"
+            ;;
+        -h)
+            echo "Sets up nemesis build system and components."
+            echo "Use -d to set location of nemesis.git."
+            echo "Default: (ssh://angmar/data/git)"
+            ;;
+        --)
+            break
+            ;;
+    esac
+    shift
+done
+shift # remote trailing --
+
+# remove old nemesis
+if test -d nemesis; then
+    echo ">>> removing local nemesis"
+    rm -rf nemesis
+fi
+
+links='config tools src/comm src/harness'
+for l in $links; do
+    if test -h $l; then
+        echo ">>> removing $l link"
+        rm -f $l
+    fi
+done
+    
+# clone nemesis
+$git clone $gitdir/nemesis.git nemesis
+
+# add links
+ln -s nemesis/config .
+
+##---------------------------------------------------------------------------##
+## end of setup_nemesis
+##---------------------------------------------------------------------------##
+
+

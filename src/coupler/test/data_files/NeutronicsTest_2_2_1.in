@@ -1,0 +1,8 @@
+eq_set: sc 
+hpc_input: NeutronicsTest
+num_blocks_i: 2
+num_blocks_j: 2
+num_z_blocks: 1 
+num_sets: 1
+Pn_order: 0
+silo_off: 1

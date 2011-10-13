@@ -1,0 +1,34 @@
+###############################################################################
+# coupler Makefile.target
+# gqe
+# Tue May 24 16:18:08 2011
+# $Id: Makefile.test,v 1.3 2008/01/02 17:18:47 9te Exp $
+###############################################################################
+# Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
+###############################################################################
+# General Makefile.target for coupler
+###############################################################################
+
+testdeps := ${PKG_DEPENDS} ${NEMESIS_TEST_DEPENDS} ${NEMESIS_DEPENDS} \
+		${VENDOR_TEST_DEPENDS} ${VENDOR_DEPENDS}
+testlibs := ${PKG_LIBS} ${NEMESIS_TEST_LIBS} ${NEMESIS_LIBS} \
+		${VENDOR_TEST_LIBS} ${VENDOR_LIBS} ${LIBS}
+
+thistestdep := libcoupler_test${libsuffix}
+thistestlib := -L. -lcoupler_test
+thistestlib_dep := coupler_test.o 
+
+${test_alltarget}: ${thistestdep} ${testdeps}
+
+%: %.o
+	${LD} ${LDFLAGS} -o $@ $< ${thistestlib} ${testlibs}
+
+${thistestdep}: ${thistestlib_dep} ${testdeps}
+	${AR} ${ARFLAGS} $@ ${thistestlib_dep} ${ARTESTLIBS}
+	${RANLIB} $@
+
+objs += ${thistestdep}
+
+###############################################################################
+#			 end of coupler Makefile.target
+###############################################################################
