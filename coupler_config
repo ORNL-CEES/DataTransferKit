@@ -88,6 +88,12 @@ fi
 # build the configures
 cd $home
 build_config $home
+cd $home/tools
+build_config $home/tools
+cd $home/autodoc
+build_config $home/autodoc
+cd $home/src
+build_config $home/src
 dive
 
 ##---------------------------------------------------------------------------##
