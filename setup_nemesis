@@ -37,7 +37,13 @@ if test -d nemesis; then
     rm -rf nemesis
 fi
 
-links='config tools src/comm src/harness'
+# remove old nemesis
+if test -d denovo; then
+    echo ">>> removing local denovo"
+    rm -rf denovo
+fi
+
+links='config tools src/comm src/harness src/utils'
 for l in $links; do
     if test -h $l; then
         echo ">>> removing $l link"
@@ -48,8 +54,16 @@ done
 # clone nemesis
 $git clone $gitdir/nemesis.git nemesis
 
+# clone denovo
+$git clone $gitdir/denovo.git denovo
+
 # add links
 ln -s nemesis/config .
+ln -s nemesis/tools .
+cd src
+ln -s ../nemesis/src/harness .
+ln -s ../nemesis/src/comm .
+ln -s ../denovo/src/utils .
 
 ##---------------------------------------------------------------------------##
 ## end of setup_nemesis

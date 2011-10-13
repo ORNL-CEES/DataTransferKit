@@ -2,6 +2,7 @@ configure
 aclocal.m4
 autom4te.cache
 nemesis
+denovo
 config
 src/nemesis
 src/comm
