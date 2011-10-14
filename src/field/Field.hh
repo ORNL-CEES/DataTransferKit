@@ -28,16 +28,17 @@ namespace field
  * Test of Field.
  */
 //===========================================================================//
-
+template<class FieldType_T>
 class Field 
 {
   public:
     
     //@{
     //! Useful typedefs.
-    typedef std::vector<double>                    Data_Vector;
-    typedef Data_Vector::iterator                  Iterator;
-    typedef Data_Vector::const_iterator            Const_Iterator;
+    typedef FieldType_T                            FieldType;
+    typedef typename FieldType::value_type         ValueType;
+    typedef ValueType::iterator                    Iterator;
+    typedef ValueType::const_iterator              Const_Iterator;
     //@}
 
   private:

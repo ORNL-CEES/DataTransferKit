@@ -33,8 +33,8 @@ class Transfer_Evaluator
     //! Useful typedefs.
     typedef FieldType_T                                   FieldType;
     typedef typename FieldType::value_type                ValueType;
-    typedef typename FieldType::iterator                  Data_Iterator;
-    typedef typename FieldType::const_iterator            Const_Data_Iterator;
+    typedef typename ValueType::iterator                  Iterator;
+    typedef typename ValueType::const_iterator            Const_Iterator;
     //@}
 
     //! Constructor.
@@ -54,13 +54,13 @@ class Transfer_Evaluator
 
     //! Register the domain of a field.
     virtual void register_domain(std::string field_name,
-	                         Const_Data_Iterator &begin, 
-				 Const_Data_Iterator &end) = 0;
+	                         Const_Iterator &begin, 
+				 Const_Iterator &end) = 0;
 
     //! Register the range of a field.
     virtual void register_range(std::string field_name,
-				Data_Iterator &begin, 
-				Data_Iterator &end) = 0;
+				Iterator &begin, 
+				Iterator &end) = 0;
 
     //! Given (x,y,z) coordinates, return the local process rank in which that
     //! point exists and the index into the local data vector that will be

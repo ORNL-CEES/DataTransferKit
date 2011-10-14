@@ -57,16 +57,17 @@ void Data_Transfer_Manager::map_A2B()
     d_te_b->register_xyz(points);
 
     // For every point in B, determine the topological relationship to A.
-    assert( points.size() % 3 == 0 )
+    assert( points.size() % 3 == 0 );
+    std::vector<double>::const_iterator pt_it;
     int num_points = points.size() / 3;
     int rank = 0;
     int index = 0;    
     bool domain = false;
-    for (int i = 0; i < num_points; ++i)
+    for (pt_it = points.begin(); pt_it != points.end(); pt_it += 3)
     {
-	d_te_a->find_xyz( points[3*i],
-			  points[3*i + 1],
-			  points[3*i + 2],
+	d_te_a->find_xyz( *(pt_it),
+			  *(pt_it + 1),
+			  *(pt_it + 2),
 			  rank,
 			  index,
 			  domain);
@@ -86,19 +87,26 @@ void Data_Transfer_Manager::transfer_A2B(std::string field_name)
 
     // Register the domain of A. We want to do this every time because it may
     // have changed.
-    Const_Data_Iterator domain_begin;
-    Const_Data_Iterator domain_end;
+    Data_Iterator domain_begin;
+    Data_Iterator domain_end;
     d_te_a->register_domain(field_name, domain_begin, domain_end);    
     
     // Register the range of B. We want to do this every time because it may
     // have changed.
-    Data_Iterator range_begin;
-    Data_Iterator range_end;
+    Iterator range_begin;
+    Iterator range_end;
     d_te_a->register_range(field_name, range_begin, range_end);
 
     // Transfer A to B.
-    Data_Vector data;
+    ValueType data;
+
+    // Pull the data from A.
+    d_te_a->pull_data(field_name, data);
     
+    // Modify it with the map before pushing it to B.
+    
+    // Push the data to B.
+    d_te_b->push_data(field_name, data);
 
 //    d_te_a->pull_data(index[i], data);
 //    d_te_b->push_data(i, data);
