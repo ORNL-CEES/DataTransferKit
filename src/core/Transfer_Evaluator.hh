@@ -80,13 +80,13 @@ class Transfer_Evaluator
 			  int &rank,
 			  Const_Iterator &value_iterator) = 0;
 
-    //! Pull data from a field.
-    virtual void pull_data(std::string field_name,
-			   Data_Vector &data) = 0;
+    //! Perfom a global integration on a field for rebalance.
+    virtual void integrate_field(std::string field_name,
+				 ValueType &field_norm) = 0;
 
-    //! Push data onto a field.
-    virtual void push_data(std::string field_name,
-			   Data_Vector data) = 0;
+    //! Perform a rebalance on a field for global/local conservation.
+    virtual void rebalance(std::string field_name,
+			   ValueType field_norm) = 0;
 };
 
 } // end namespace dtransfer
