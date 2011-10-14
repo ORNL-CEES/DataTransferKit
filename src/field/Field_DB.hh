@@ -32,13 +32,16 @@ namespace field
  */
 //===========================================================================//
 
+template<class FieldType_T>
 class Field_DB 
 {
   public:
     
     //@{
     //! Useful typedefs.
-    std::map<std::string,Field>                   Database;
+    typedef Field_Type_T                          FieldType;
+    typedef typename FieldType::value_type        ValueType;
+    std::map<std::string,Field<ValueType> >       Database;
     //@}
 
   private:

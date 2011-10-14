@@ -18,7 +18,7 @@ namespace field
 //---------------------------------------------------------------------------//
 void Field_DB::add_field(std::string field_name)
 {
-    Field new_field;
+    Field<ValueType> new_field;
     d_db.insert( std::make_pair(field_name,new_field) );
 }
 

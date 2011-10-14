@@ -40,7 +40,7 @@ void Data_Transfer_Manager::add_field(std::string field_name)
 {
     // Check that the field is supported by the each code.
     assert( d_te_a->register_field(field_name) );
-    assert( d_te_a->register_field(field_name) );
+    assert( d_te_b->register_field(field_name) );
 
     // Add the new field to the database.
     d_f_db.add_field(field_name);
@@ -79,8 +79,12 @@ void Data_Transfer_Manager::map_A2B()
 
 //---------------------------------------------------------------------------//
 // Transfer data from A to B.
+template<class ValueType>
 void Data_Transfer_Manager::transfer_A2B(std::string field_name)
 {
+    // Get the field we are operating on.
+    d_f_db
+
     // Get the map contents.
     Transfer_Map::Vector_Int index = d_map_A2B->get_index();
     Transfer_Map::Vector_Int rank = d_map_A2B->get_rank();
@@ -89,27 +93,30 @@ void Data_Transfer_Manager::transfer_A2B(std::string field_name)
     // have changed.
     Data_Iterator domain_begin;
     Data_Iterator domain_end;
-    d_te_a->register_domain(field_name, domain_begin, domain_end);    
+    d_te_a->register_domain(field_name, domain_begin, domain_end);
+    int domain_size = domain_end - domain_begin;
     
     // Register the range of B. We want to do this every time because it may
     // have changed.
     Iterator range_begin;
     Iterator range_end;
     d_te_a->register_range(field_name, range_begin, range_end);
+    int range_size = range_end - range_begin;
 
     // Transfer A to B.
-    ValueType data;
+    std::vector<ValueType> data(domain_size);
 
     // Pull the data from A.
-    d_te_a->pull_data(field_name, data);
+    std::copy(domain_begin, domain_end, data.begin());
     
     // Modify it with the map before pushing it to B.
     
-    // Push the data to B.
-    d_te_b->push_data(field_name, data);
 
-//    d_te_a->pull_data(index[i], data);
-//    d_te_b->push_data(i, data);
+    // Check the data vector size before copy.
+    assert( data.size() == range_end - range_begin );
+    
+    // Push the data to B.
+    std::copy(data.begin(), data.end(), range_begin);
 }
 
 //---------------------------------------------------------------------------//

@@ -14,7 +14,8 @@
 
 #include "Transfer_Evaluator.hh"
 #include "Transfer_Map.hh"
-#include "Field_DB.hh"
+#include "fields/Field_DB.hh"
+#include "utils/SP.hh"
 
 namespace dtransfer
 {
@@ -32,34 +33,34 @@ namespace dtransfer
  */
 //===========================================================================//
 
+template<class FieldType_T>
 class Data_Transfer_Manager 
 {
   public:
     
     //@{
     //! Useful typedefs.
-    typedef Transfer_Evaluator::Data_Vector              Data_Vector;
-    typedef Data_Vector::iterator                        Data_Iterator;
-    typedef Data_Vector::const_iterator                  Const_Data_Iterator;
-    //@}
-
+    typedef Field_Type_T                           FieldType;
+    typedef typename FieldType::value_type         ValueType;
+    typedef nemesis::SP<Transfer_Evaluator>        SP_Transfer_Evaluator;
+    typedef nemesis::SP<Transfer_Map>              SP_Transfer_Map;
 
   private:
 
     // Reference to Physics A transfer evaluator.
-    Transfer_Evaluator* d_te_a;
+    SP_Transfer_Evaluator d_te_a;
 
     // Reference to Physics B transfer evaluator.
-    Transfer_Evaluator* d_te_b;
+    SP_Transfer_Evaluator d_te_b;
 
     // Topology map for transfer from A to B.
-    Transfer_Map* d_map_A2B;
+    SP_Transfer_Map d_map_A2B;
 
     // Topology map for transfer from B to A.
-    Transfer_Map* d_map_B2A;
+    SP_Transfer_Map d_map_B2A;
 
     // Field database.
-    Field_DB d_f_db;
+    Field_DB<ValueType> d_f_db;
 
   public:
 
@@ -70,7 +71,7 @@ class Data_Transfer_Manager
     // Destructor.
     ~Data_Transfer_Manager();
 
-    // Register a field to be controlled by the manager.
+    // Register a field to the manager.
     void add_field(std::string field_name);
 
     // Build the topology map for transfer from A to B.

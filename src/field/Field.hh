@@ -28,6 +28,7 @@ namespace field
  * Test of Field.
  */
 //===========================================================================//
+
 template<class FieldType_T>
 class Field 
 {
