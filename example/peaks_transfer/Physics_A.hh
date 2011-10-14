@@ -74,10 +74,7 @@ class Physics_A
     bool get_xy_info(double x, 
 		     double y, 
 		     int &rank,
-		     int &index);
-
-    // Get an element in the state vector.
-    void get_state(int index, double &state);
+		     Vector_Dbl::const_iterator &data_iterator);
 
     // Plot the state vector.
     void plot_state();

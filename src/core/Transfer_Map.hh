@@ -12,7 +12,6 @@
 #ifndef dtransfer_Transfer_Map_hh
 #define dtransfer_Transfer_Map_hh
 
-#include "Transfer_Evaluator.hh"
 #include <vector>
 
 namespace dtransfer
@@ -22,7 +21,8 @@ namespace dtransfer
 /*!
  * \class Transfer_Map
  * \brief A basic map data structure to hold topological relationships between
- * meshes.
+ * meshes. The domain_index and domain_rank vector elements correspond to each
+ * element in the associated range.
  */
 //===========================================================================//
 
@@ -31,40 +31,33 @@ class Transfer_Map
   public:
     //@{
     // Useful typedefs.
-    typedef std::vector<int>                             Vector_Int;
-    typedef const Transfer_Evaluator*                    Const_TE;
+    typedef std::vector<int>                          Vector_Int;
     //@}
 
   private:
-    
-    // Transfer_Evaluator pointer.
-    Const_TE te;
 
-    // Element index vector.
-    Vector_Int element_index;
+    // Domain index vector.
+    Vector_Int domain_index;
 
-    // Element rank vector.
-    Vector_Int element_rank;
+    // Domain rank vector.
+    Vector_Int domain_rank;
 
   public:
 
     // Constructor.
-    Transfer_Map(Const_TE te_);
+    Transfer_Map();
 
     // Destructor.
     ~Transfer_Map();
 
-    // Add an index to the map.
-    void add_index(int index);
-
-    // Add a rank to the map.
-    void add_rank(int rank);
+    // Add a rank/index pair to the map.
+    void add_pair(int rank, int index);
 
     // Return the index vector.
-    const Vector_Int get_index() { return element_index; }
+    const Vector_Int get_index() { return domain_index; }
 
     // Return the rank vector.
-    const Vector_Int get_rank() { return element_rank; }
+    const Vector_Int get_rank() { return domain_rank; }
 };
 
 } // end namespace dtransfer

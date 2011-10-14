@@ -12,6 +12,7 @@
 #ifndef dtransfer_Transfer_Evaluator_hh
 #define dtransfer_Transfer_Evaluator_hh
 
+#include "comm/global.hh"
 #include <vector>
 #include <string>
 
@@ -35,6 +36,7 @@ class Transfer_Evaluator
     typedef typename FieldType::value_type                ValueType;
     typedef typename ValueType::iterator                  Iterator;
     typedef typename ValueType::const_iterator            Const_Iterator;
+    typedef nemesis::Communicator_t                       Communicator_t;
     //@}
 
     //! Constructor.
@@ -45,33 +47,38 @@ class Transfer_Evaluator
     virtual ~Transfer_Evaluator()
     { /* ... */ }
 
-    //! Register entities.
-    virtual void register_xyz(std::vector<double> &points) = 0;
+    //! Register communicator object.
+    virtual void register_comm(Communicator_t &comm) = 0;
 
     //! Register a field associated with the entities. Return false if this
     //! field is not supported.
     virtual bool register_field(std::string field_name) = 0;
 
-    //! Register the domain of a field.
+    //! Register entities with a field.
+    virtual void register_xyz(std::string field_name,
+			      std::vector<double> &points) = 0;
+
+    //! Register the domain of a field. Return false if domain not supported
+    //! for the field.
     virtual void register_domain(std::string field_name,
 	                         Const_Iterator &begin, 
 				 Const_Iterator &end) = 0;
 
-    //! Register the range of a field.
+    //! Register the range of a field. Return false if range not supported for
+    //! the field.
     virtual void register_range(std::string field_name,
 				Iterator &begin, 
 				Iterator &end) = 0;
 
     //! Given (x,y,z) coordinates, return the local process rank in which that
-    //! point exists and the index into the local data vector that will be
+    //! point exists and the iterator into the local data vector that will be
     //! applied at that point. Return true if point is in the local domain,
     //! false if not. 
-    virtual void find_xyz(double x, 
+    virtual bool find_xyz(double x, 
 			  double y, 
 			  double z,
 			  int &rank,
-			  int index,
-			  bool domain) = 0;
+			  Const_Iterator &value_iterator) = 0;
 
     //! Pull data from a field.
     virtual void pull_data(std::string field_name,

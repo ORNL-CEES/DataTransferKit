@@ -10,14 +10,14 @@
 //---------------------------------------------------------------------------//
 
 #include "Transfer_Map.hh"
+#include "harness/DBC.hh"
 
 namespace dtransfer
 {
 
 //---------------------------------------------------------------------------//
 // Constructor.
-Transfer_Map::Transfer_Map(Const_TE te_)
-    : te(te_)
+Transfer_Map::Transfer_Map()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -26,17 +26,12 @@ Transfer_Map::~Transfer_Map()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Add an index to the map.
-void Transfer_Map::add_index(int index)
-{
-    element_index.push_back(index);
-}
-
-//---------------------------------------------------------------------------//
-// Add a rank to the map.
-void Transfer_Map::add_rank(int rank)
+// Add a rank/index to the map.
+void Transfer_Map::add_pair(int rank, int index)
 {
     element_rank.push_back(rank);
+    element_index.push_back(index);
+    Check( index.size() == rank.size() );
 }
 
 //---------------------------------------------------------------------------//

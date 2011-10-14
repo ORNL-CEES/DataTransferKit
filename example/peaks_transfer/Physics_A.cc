@@ -111,7 +111,7 @@ void Physics_A::solve()
 bool Physics_A::get_xy_info(double x, 
 			    double y, 
 			    int &rank,
-			    int &index)
+			    Vector_Dbl::const_iterator &data_iterator)
 {
     // Search the x domain.
     int i;
@@ -125,21 +125,14 @@ bool Physics_A::get_xy_info(double x,
 	- y_edges.begin();
     if (j > y_edges.size() - 2) j = y_edges.size() - 2;
 
-    // Compute the index into the state vector.
-    index = i + j*(x_edges.size() - 1);
+    // Get the iterator into the state vector.
+    int index = i + j*(x_edges.size() - 1);
+    data_iterator = &( X[index] );
 
     // Return rank = 0. This is a serial implementation.
     rank = 0;
 
     return true;
-}
-
-//---------------------------------------------------------------------------//
-// Get an element in the state vector.
-void Physics_A::get_state(int index, double &state)
-{
-    assert( index < X.size() );
-    state = X[index];
 }
 
 //---------------------------------------------------------------------------//

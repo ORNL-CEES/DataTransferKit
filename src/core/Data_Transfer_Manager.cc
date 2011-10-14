@@ -10,23 +10,25 @@
 //---------------------------------------------------------------------------//
 
 #include "Data_Transfer_Manager.hh"
+#include "harness/DBC.hh"
 #include <vector>
 #include <algorithm>
-#include <iostream>
 
 namespace dtransfer
 {
 
 //---------------------------------------------------------------------------//
 // Constructor.
-Data_Transfer_Manager::Data_Transfer_Manager(Transfer_Evaluator* TE_A_,
-					     Transfer_Evaluator* TE_B_)
-    : d_te_a(TE_A_)
-    , d_te_b(TE_B_)
+Data_Transfer_Manager::Data_Transfer_Manager(Transfer_Evaluator* TE_A,
+					     Transfer_Evaluator* TE_B)
 {
-    // Initialize maps.
-    d_map_A2B = new Transfer_Map(d_te_a);
-    d_map_B2A = new Transfer_Map(d_te_b);
+    // Wrap the raw pointers.
+    d_te_a = TE_A;
+    d_te_b = TE_B;
+
+    // Get the physics' subcommunicators.
+    d_te_a->register_comm(comm_A);
+    d_te_b->register_comm(comm_B);
 }
 
 //---------------------------------------------------------------------------//
@@ -39,8 +41,8 @@ Data_Transfer_Manager::~Data_Transfer_Manager()
 void Data_Transfer_Manager::add_field(std::string field_name)
 {
     // Check that the field is supported by the each code.
-    assert( d_te_a->register_field(field_name) );
-    assert( d_te_b->register_field(field_name) );
+    Require( d_te_a->register_field(field_name) );
+    Require( d_te_b->register_field(field_name) );
 
     // Add the new field to the database.
     d_f_db.add_field(field_name);
@@ -50,14 +52,18 @@ void Data_Transfer_Manager::add_field(std::string field_name)
 // Build the topology map for transfer from A to B.
 void Data_Transfer_Manager::map_A2B()
 {
+    // Initialize maps.
+    d_map_A2B = new Transfer_Map(d_te_a);    
+    d_map_B2A = new Transfer_Map(d_te_b);
+
     // Point coordinate vector.
     std::vector<double> points;
 
     // Physics B registers its points to be mapped.
     d_te_b->register_xyz(points);
+    Check( points.size() % 3 == 0 );
 
     // For every point in B, determine the topological relationship to A.
-    assert( points.size() % 3 == 0 );
     std::vector<double>::const_iterator pt_it;
     int num_points = points.size() / 3;
     int rank = 0;
@@ -100,7 +106,7 @@ void Data_Transfer_Manager::transfer_A2B(std::string field_name)
     // have changed.
     Iterator range_begin;
     Iterator range_end;
-    d_te_a->register_range(field_name, range_begin, range_end);
+    if (d_te_a->register_range(field_name, range_begin, range_end) )
     int range_size = range_end - range_begin;
 
     // Transfer A to B.

@@ -44,24 +44,17 @@ class TE_Physics_A : public Transfer_Evaluator
     void register_xyz(std::vector<double> &points);
 
     //! Register a field associated with the entities.
-    void register_field(std::string field_name);
+    bool register_field(std::string field_name);
 
     // Given a (x,y,z) coordinates, return the local process rank in
     // which that point exists and the index into the local state vector that
     // will be applied at that point. Return true if point is in the local
     // domain, false if not.
-    void find_xyz(double x, 
+    bool find_xyz(double x, 
 		  double y, 
 		  double z, 
 		  int &rank,
-		  int &index,
-		  bool domain);
-
-    // Pull data from a field.
-    void pull_data(int index, double &data);
-
-    // Push data onto a field.
-    void push_data(int index, double source);
+                  Const_Iterator &value_iterator)
 };
 
 } // end namespace dtransfer

@@ -32,9 +32,9 @@ void TE_Physics_A::register_xyz(std::vector<double> &points)
 
 //---------------------------------------------------------------------------//
 //! Register a field associated with the entities.
-void TE_Physics_A::register_field(std::string field_name)
+bool TE_Physics_A::register_field(std::string field_name)
 {
-
+    return true;
 }
 
 //---------------------------------------------------------------------------//
@@ -42,12 +42,11 @@ void TE_Physics_A::register_field(std::string field_name)
 // which that point exists and the index into the local state vector that
 // will be applied at that point. Return true if point is in the local
 // domain, false if not.
-void TE_Physics_A::find_xyz(double x, 
+bool TE_Physics_A::find_xyz(double x, 
 			    double y, 
 			    double z, 
 			    int &rank,
-			    int &index,
-			    bool domain)
+			    Const_Iterator &value_iterator)
 {
     domain = a->get_xy_info(x, y, rank, index);
 }

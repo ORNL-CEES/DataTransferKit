@@ -16,6 +16,7 @@
 #include "Transfer_Map.hh"
 #include "fields/Field_DB.hh"
 #include "utils/SP.hh"
+#include "comm/global.hh"
 
 namespace dtransfer
 {
@@ -40,17 +41,28 @@ class Data_Transfer_Manager
     
     //@{
     //! Useful typedefs.
-    typedef Field_Type_T                           FieldType;
-    typedef typename FieldType::value_type         ValueType;
-    typedef nemesis::SP<Transfer_Evaluator>        SP_Transfer_Evaluator;
-    typedef nemesis::SP<Transfer_Map>              SP_Transfer_Map;
+    typedef Field_Type_T                             FieldType;
+    typedef typename FieldType::value_type           ValueType;
+    typedef nemesis::SP<Transfer_Evaluator>          SP_Transfer_Evaluator;
+    typedef nemesis::SP<Transfer_Map>                SP_Transfer_Map;
+    typedef nemesis::Communicator_t                  Communicator_t;
+    //@}
 
   private:
 
-    // Reference to Physics A transfer evaluator.
+    // Global communicator.
+    Communicator_t comm_global;
+
+    // Physics A communicator.
+    Communicator_t comm_A;
+   
+    // Physics B communicator.
+    Communicator_t comm_B;
+
+    // Physics A transfer evaluator.
     SP_Transfer_Evaluator d_te_a;
 
-    // Reference to Physics B transfer evaluator.
+    // Physics B transfer evaluator.
     SP_Transfer_Evaluator d_te_b;
 
     // Topology map for transfer from A to B.
@@ -65,8 +77,8 @@ class Data_Transfer_Manager
   public:
 
     // Constructor.
-    Data_Transfer_Manager(Transfer_Evaluator* TE_A_,
-			  Transfer_Evaluator* TE_B_);
+    Data_Transfer_Manager(Transfer_Evaluator* TE_A,
+			  Transfer_Evaluator* TE_B);
 
     // Destructor.
     ~Data_Transfer_Manager();
@@ -75,10 +87,10 @@ class Data_Transfer_Manager
     void add_field(std::string field_name);
 
     // Build the topology map for transfer from A to B.
-    void map_A2B();
+    void map_A2B(std::string field_name);
 
     // Build the topology map for transfer from B to A.
-    void map_B2A();
+    void map_B2A(std::string field_name);
 
     // Transfer data from A to B.
     void transfer_A2B(std::string field_name);
