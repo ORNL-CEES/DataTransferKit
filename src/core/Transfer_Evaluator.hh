@@ -70,7 +70,7 @@ class Transfer_Evaluator
 				Iterator &begin, 
 				Iterator &end) = 0;
 
-    //! Given (x,y,z) coordinates, return the local process rank in which that
+    //! Given (x,y,z) coordinates, return the process rank on which that
     //! point exists and the iterator into the local data vector that will be
     //! applied at that point. Return true if point is in the local domain,
     //! false if not. 

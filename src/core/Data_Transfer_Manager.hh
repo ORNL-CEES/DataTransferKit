@@ -29,8 +29,7 @@ namespace dtransfer
  *
  * This initial implementation is limited to 2 codes for now but could
  * easily be expanded to many coupled codes operated by the same manager by
- * taking advantage of a common parallel topology map data
- * structure.
+ * taking advantage of a common parallel topology map data structure.
  */
 //===========================================================================//
 
