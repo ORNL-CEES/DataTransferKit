@@ -40,21 +40,21 @@ class TE_Physics_A : public Transfer_Evaluator
     // Destructor
     ~TE_Physics_A();
 
-    // Register a vector of interleaved point coordinates.
-    void register_xyz(std::vector<double> &points);
-
     //! Register a field associated with the entities.
     bool register_field(std::string field_name);
 
-    // Given a (x,y,z) coordinates, return the local process rank in
-    // which that point exists and the index into the local state vector that
-    // will be applied at that point. Return true if point is in the local
-    // domain, false if not.
+    // Given a (x,y,z) coordinates, return true if point is in the local
+    // domain, false if not. Provide a handle to the entity it was located in.
     bool find_xyz(double x, 
 		  double y, 
-		  double z, 
-		  int &rank,
-                  Const_Iterator &value_iterator)
+		  double z,
+		  Handle &handle);
+
+    // Given an entity handle, get the field data associated with that
+    // handle. 
+    void pull_data(std::string field_name,
+		   Handle handle,
+		   DataType &data);
 };
 
 } // end namespace dtransfer

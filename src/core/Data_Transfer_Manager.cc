@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   src/Data_Transfer_Manager.cc
+ * \file   core/Data_Transfer_Manager.cc
  * \author Stuart Slattery
  * \date   Wed Oct 05 11:02:44 2011
  * \brief  Data_Transfer_Manager member definitons.
@@ -14,7 +14,7 @@
 #include <vector>
 #include <algorithm>
 
-namespace dtransfer
+namespace coupler
 {
 
 //---------------------------------------------------------------------------//
@@ -127,7 +127,7 @@ void Data_Transfer_Manager::transfer_A2B(std::string field_name)
 
 //---------------------------------------------------------------------------//
 
-} // end namespace dtransfer
+} // end namespace coupler
 
 //---------------------------------------------------------------------------//
 //                 end of Data_Transfer_Manager.cc

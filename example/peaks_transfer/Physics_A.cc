@@ -104,14 +104,12 @@ void Physics_A::solve()
 }
 
 //---------------------------------------------------------------------------//
-// Given a (x,y,z) coordinates, return the local process rank in
-// which that point exists and the index into the local state vector that
-// will be applied at that point. Return true if point is in the local
-// domain, false if not.
+// Given a (x,y) coordinates, return true if in the local domain, false if
+// not. If in the local domain, populate a handle argument with an indicator
+// to the cell that we found the point in.
 bool Physics_A::get_xy_info(double x, 
 			    double y, 
-			    int &rank,
-			    Vector_Dbl::const_iterator &data_iterator)
+			    int handle)
 {
     // Search the x domain.
     int i;
@@ -125,14 +123,17 @@ bool Physics_A::get_xy_info(double x,
 	- y_edges.begin();
     if (j > y_edges.size() - 2) j = y_edges.size() - 2;
 
-    // Get the iterator into the state vector.
-    int index = i + j*(x_edges.size() - 1);
-    data_iterator = &( X[index] );
-
-    // Return rank = 0. This is a serial implementation.
-    rank = 0;
-
+    // Get the handle into the state vector and assign this as the handle.
+    handle = i + j*(x_edges.size() - 1);
+    
     return true;
+}
+
+//---------------------------------------------------------------------------//
+// Given a handle, get that part of the state vector.
+void Physics_A::get_state(int handle, double data)
+{
+    data = X[handle];
 }
 
 //---------------------------------------------------------------------------//
@@ -142,7 +143,7 @@ void Physics_A::plot_state()
     // Make a new post-processing object.
     utils::Post_Proc post_proc(x_edges, y_edges);
 
-    // Tag the state vector onto the mesh.
+    // Tag the state vector onto the mesh elements.
     post_proc.add_quad_tag(X, "X");
 
     // Write the database to file.

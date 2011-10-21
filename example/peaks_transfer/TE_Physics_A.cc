@@ -34,7 +34,8 @@ void TE_Physics_A::register_xyz(std::vector<double> &points)
 //! Register a field associated with the entities.
 bool TE_Physics_A::register_field(std::string field_name)
 {
-    return true;
+    if (field_name == "PEAKS") return true;
+    else return false;
 }
 
 //---------------------------------------------------------------------------//
@@ -44,25 +45,22 @@ bool TE_Physics_A::register_field(std::string field_name)
 // domain, false if not.
 bool TE_Physics_A::find_xyz(double x, 
 			    double y, 
-			    double z, 
-			    int &rank,
-			    Const_Iterator &value_iterator)
+			    double z,
+			    Handle &handle)
 {
-    domain = a->get_xy_info(x, y, rank, index);
+    return a->get_xy_info(x, y, handle);
 }
 
 //---------------------------------------------------------------------------//
-// Pull data from a field.
-void TE_Physics_A::pull_data(int index, double &data)
+// Given an entity handle, get the field data associated with that handle.
+void TE_Physics_A::pull_data(std::string field_name,
+			     Handle handle,
+			     double &data)
 {
-    a->get_state(index, data);
-}
-
-//---------------------------------------------------------------------------//
-// Push data onto a field.
-void TE_Physics_A::push_data(int index, double data)
-{
-
+    if (field_name == "PEAKS")
+    {
+	a->get_state(handle, data);
+    }
 }
 
 //---------------------------------------------------------------------------//

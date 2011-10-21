@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   src/Transfer_Evaluator.hh
+ * \file   core/Transfer_Evaluator.hh
  * \author Stuart Slattery
  * \date   Wed Oct 05 11:02:59 2011
  * \brief  Transfer_Evaluator class definition.
@@ -9,20 +9,22 @@
 // $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
-#ifndef dtransfer_Transfer_Evaluator_hh
-#define dtransfer_Transfer_Evaluator_hh
+#ifndef coupler_Transfer_Evaluator_hh
+#define coupler_Transfer_Evaluator_hh
 
 #include "comm/global.hh"
 #include <vector>
 #include <string>
 
-namespace dtransfer
+namespace coupler
 {
 
 //===========================================================================//
 /*!
  * \class Transfer_Evaluator
  * \brief Base class definition of the transfer evaluator interface.
+ *
+ * This interface is templated on the type of data being transfered.
  */
 //===========================================================================//
 template<class FieldType_T>
@@ -33,10 +35,10 @@ class Transfer_Evaluator
     //@{
     //! Useful typedefs.
     typedef FieldType_T                                   FieldType;
-    typedef typename FieldType::value_type                ValueType;
-    typedef typename ValueType::iterator                  Iterator;
-    typedef typename ValueType::const_iterator            Const_Iterator;
+    typedef FieldType::value_type                         DataType;
     typedef nemesis::Communicator_t                       Communicator_t;
+    typedef long int                                      Handle;
+    typedef std::vector<Handle>                           Vec_Handle;
     //@}
 
     //! Constructor.
@@ -54,45 +56,43 @@ class Transfer_Evaluator
     //! field is not supported.
     virtual bool register_field(std::string field_name) = 0;
 
-    //! Register entities with a field.
+    //! Register coordinates with a field.
     virtual void register_xyz(std::string field_name,
-			      std::vector<double> &points) = 0;
+			      std::vector<double> &points,
+			      Vec_Handle &handles) = 0;
 
-    //! Register the domain of a field. Return false if domain not supported
-    //! for the field.
-    virtual void register_domain(std::string field_name,
-	                         Const_Iterator &begin, 
-				 Const_Iterator &end) = 0;
-
-    //! Register the range of a field. Return false if range not supported for
-    //! the field.
-    virtual void register_range(std::string field_name,
-				Iterator &begin, 
-				Iterator &end) = 0;
-
-    //! Given (x,y,z) coordinates, return the process rank on which that
-    //! point exists and the iterator into the local data vector that will be
-    //! applied at that point. Return true if point is in the local domain,
-    //! false if not. 
+    //! Given (x,y,z) coordinates, return true if in the local domain, false
+    //! if not. Provide a handle to the entity it was located in.
     virtual bool find_xyz(double x, 
 			  double y, 
 			  double z,
-			  int &rank,
-			  Const_Iterator &value_iterator) = 0;
+			  Handle &handle) = 0;
+
+    //! Given an entity handle, get the field data associated with that
+    //! handle.
+    virtual void pull_data(std::string field_name,
+			   Handle handle,
+			   DataType &data);
+
+    //! Given an entity handle, set the field data associated with that
+    //! handle.
+    virtual void push_data(std::string field_name,
+			   Handle handle, 
+			   DataType data);
 
     //! Perfom a global integration on a field for rebalance.
     virtual void integrate_field(std::string field_name,
-				 ValueType &field_norm) = 0;
+				 DataType &field_norm) = 0;
 
-    //! Perform a rebalance on a field for global/local conservation.
+    //! Perform a rebalance on a field for conservation.
     virtual void rebalance(std::string field_name,
-			   ValueType field_norm) = 0;
+			   DataType field_norm) = 0;
 };
 
-} // end namespace dtransfer
+} // end namespace coupler
 
-#endif // dtransfer_Transfer_Evaluator_hh
+#endif // coupler_Transfer_Evaluator_hh
 
 //---------------------------------------------------------------------------//
-//              end of src/Transfer_Evaluator.hh
+//              end of core/Transfer_Evaluator.hh
 //---------------------------------------------------------------------------//

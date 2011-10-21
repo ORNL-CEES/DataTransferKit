@@ -13,6 +13,7 @@
 #define field_Field_hh
 
 #include <vector>
+#include <map>
 
 namespace field
 {
@@ -37,9 +38,9 @@ class Field
     //@{
     //! Useful typedefs.
     typedef FieldType_T                            FieldType;
-    typedef typename FieldType::value_type         ValueType;
-    typedef ValueType::iterator                    Iterator;
-    typedef ValueType::const_iterator              Const_Iterator;
+    typedef typename FieldType::value_type         DataType;
+    typedef DataType::iterator                     Iterator;
+    typedef DataType::const_iterator               Const_Iterator;
     //@}
 
   private:

@@ -73,7 +73,7 @@ void Physics_B::plot_source()
     // Make a new post-processing object.
     utils::Post_Proc post_proc(x_edges, y_edges);
 
-    // Tag the state vector onto the mesh.
+    // Tag the state vector onto the mesh vertices.
     post_proc.add_vertex_tag(b, "b");
 
     // Write the database to file.

@@ -73,8 +73,10 @@ class Physics_A
     // domain, false if not.
     bool get_xy_info(double x, 
 		     double y, 
-		     int &rank,
-		     Vector_Dbl::const_iterator &data_iterator);
+		     int handle);
+
+    // Given a handle, get that part of the state vector.
+    void get_state(int handle, double data);
 
     // Plot the state vector.
     void plot_state();

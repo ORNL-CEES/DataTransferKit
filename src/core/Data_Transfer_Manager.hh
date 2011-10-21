@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   src/Data_Transfer_Manager.hh
+ * \file   core/Data_Transfer_Manager.hh
  * \author Stuart Slattery
  * \date   Wed Oct 05 11:02:44 2011
  * \brief  Data_Transfer_Manager class definiton.
@@ -9,8 +9,8 @@
 // $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
-#ifndef dtransfer_Data_Transfer_Manager_hh
-#define dtransfer_Data_Transfer_Manager_hh
+#ifndef coupler_Data_Transfer_Manager_hh
+#define coupler_Data_Transfer_Manager_hh
 
 #include "Transfer_Evaluator.hh"
 #include "Transfer_Map.hh"
@@ -18,7 +18,7 @@
 #include "utils/SP.hh"
 #include "comm/global.hh"
 
-namespace dtransfer
+namespace coupler
 {
 
 //===========================================================================//
@@ -27,9 +27,8 @@ namespace dtransfer
  * \brief The Data_Transfer_Manager manages the data transfer problem between
  * codes. 
  *
- * This initial implementation is limited to 2 codes for now but could
- * easily be expanded to many coupled codes operated by the same manager by
- * taking advantage of a common parallel topology map data structure.
+ * All objects required for coupling are organized by the manager. The manager
+ * is the top level mechanism for interacting with the coupling package.
  */
 //===========================================================================//
 
@@ -41,9 +40,13 @@ class Data_Transfer_Manager
     //@{
     //! Useful typedefs.
     typedef Field_Type_T                             FieldType;
-    typedef typename FieldType::value_type           ValueType;
+    typedef typename FieldType::value_type           DataType;
     typedef nemesis::SP<Transfer_Evaluator>          SP_Transfer_Evaluator;
     typedef nemesis::SP<Transfer_Map>                SP_Transfer_Map;
+    typedef Field_DB<DataType>                       DB;
+    typedef nemesis::SP<DB>                          SP_DB;
+    typedef nemesis::SP<LG_Indexer>                  SP_LG_Indexer;
+    typedef nemesis::SP<Messenger>                   SP_Messenger;
     typedef nemesis::Communicator_t                  Communicator_t;
     //@}
 
@@ -64,19 +67,32 @@ class Data_Transfer_Manager
     // Physics B transfer evaluator.
     SP_Transfer_Evaluator d_te_b;
 
+    // Physics A local to global indexer.
+    SP_LG_Indexer d_indexer_A;
+
+    // Physics B local to global indexer.
+    SP_LG_Indexer d_indexer_B;
+
     // Topology map for transfer from A to B.
     SP_Transfer_Map d_map_A2B;
 
     // Topology map for transfer from B to A.
     SP_Transfer_Map d_map_B2A;
 
+    // Physics A messenger object.
+    SP_Messenger d_messenger_A;
+
+    // Physics B messenger object.
+    SP_Messenger d_messenger_B;
+
     // Field database.
-    Field_DB<ValueType> d_f_db;
+    SP_DB d_f_db;
 
   public:
 
     // Constructor.
-    Data_Transfer_Manager(Transfer_Evaluator* TE_A,
+    Data_Transfer_Manager(Communicator_t comm_global_,
+	                  Transfer_Evaluator* TE_A,
 			  Transfer_Evaluator* TE_B);
 
     // Destructor.
@@ -98,10 +114,10 @@ class Data_Transfer_Manager
     void transfer_B2A(std::string field_name);
 };
 
-} // end namespace dtransfer
+} // end namespace coupler
 
-#endif // dtransfer_Data_Transfer_Manager_hh
+#endif // coupler_Data_Transfer_Manager_hh
 
 //---------------------------------------------------------------------------//
-//              end of src/Data_Transfer_Manager.hh
+//              end of core/Data_Transfer_Manager.hh
 //---------------------------------------------------------------------------//
