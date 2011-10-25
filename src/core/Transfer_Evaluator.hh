@@ -37,7 +37,7 @@ class Transfer_Evaluator
     typedef FieldType_T                                   FieldType;
     typedef FieldType::value_type                         DataType;
     typedef nemesis::Communicator_t                       Communicator_t;
-    typedef long int                                      Handle;
+    typedef int                                           Handle;
     typedef std::vector<Handle>                           Vec_Handle;
     //@}
 

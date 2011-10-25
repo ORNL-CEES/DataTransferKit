@@ -19,16 +19,34 @@ namespace coupler
 
 //---------------------------------------------------------------------------//
 // Constructor.
-Data_Transfer_Manager::Data_Transfer_Manager(Transfer_Evaluator* TE_A,
+Data_Transfer_Manager::Data_Transfer_Manager(Communicator_t comm_global,
+					     Transfer_Evaluator* TE_A,
 					     Transfer_Evaluator* TE_B)
+    : d_comm_global(comm_global)
 {
+    // operate on the global communicator
+    nemesis::set_internal_comm(d_comm_global);
+
     // Wrap the raw pointers.
     d_te_a = TE_A;
     d_te_b = TE_B;
 
     // Get the physics' subcommunicators.
-    d_te_a->register_comm(comm_A);
-    d_te_b->register_comm(comm_B);
+    d_te_a->register_comm(d_comm_a);
+    d_te_b->register_comm(d_comm_b);
+
+    // Generate local to global indexers.
+    if(d_te_a || d_te_b)
+    {
+	d_indexer_A = new LG_Indexer(d_comm_global, d_comm_a, d_te_a);
+	Ensure( d_indexer_a );
+
+	d_indexer_B = new LG_Indexer(d_comm_global, d_comm_b, d_te_b);
+	Ensure( d_indexer_b );
+    }
+
+    // reset the internal communicator
+    nemesis::reset_internal_comm();
 }
 
 //---------------------------------------------------------------------------//
@@ -49,47 +67,33 @@ void Data_Transfer_Manager::add_field(std::string field_name)
 }
 
 //---------------------------------------------------------------------------//
-// Build the topology map for transfer from A to B.
-void Data_Transfer_Manager::map_A2B()
+// Build the topology map for transfer from A to B for a particular field. B
+// provides the target points and A is the source.
+void Data_Transfer_Manager::map_A2B(std::string field_name)
 {
-    // Initialize maps.
-    d_map_A2B = new Transfer_Map(d_te_a);    
-    d_map_B2A = new Transfer_Map(d_te_b);
+    // Initialize map.
+    d_map_A2B = new Transfer_Map();    
 
-    // Point coordinate vector.
+    // Target point coordinate vector.
     std::vector<double> points;
 
-    // Physics B registers its points to be mapped.
-    d_te_b->register_xyz(points);
+    // Target point handle vector.
+    std::vector<Handle> handles;
+
+    // Physics B registers its target points.
+    d_te_b->register_xyz(field_name, points, handles);
     Check( points.size() % 3 == 0 );
+    Check( points.size() / handles.size() == 3 );
 
-    // For every point in B, determine the topological relationship to A.
-    std::vector<double>::const_iterator pt_it;
-    int num_points = points.size() / 3;
-    int rank = 0;
-    int index = 0;    
-    bool domain = false;
-    for (pt_it = points.begin(); pt_it != points.end(); pt_it += 3)
-    {
-	d_te_a->find_xyz( *(pt_it),
-			  *(pt_it + 1),
-			  *(pt_it + 2),
-			  rank,
-			  index,
-			  domain);
 
-	d_map_A2B->add_rank(rank);
-	d_map_A2B->add_index(index);
-    }
 }
 
 //---------------------------------------------------------------------------//
 // Transfer data from A to B.
-template<class ValueType>
 void Data_Transfer_Manager::transfer_A2B(std::string field_name)
 {
     // Get the field we are operating on.
-    d_f_db
+    d_f_db;
 
     // Get the map contents.
     Transfer_Map::Vector_Int index = d_map_A2B->get_index();

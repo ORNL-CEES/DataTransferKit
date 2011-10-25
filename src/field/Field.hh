@@ -39,23 +39,11 @@ class Field
     //! Useful typedefs.
     typedef FieldType_T                            FieldType;
     typedef typename FieldType::value_type         DataType;
-    typedef DataType::iterator                     Iterator;
-    typedef DataType::const_iterator               Const_Iterator;
     //@}
 
   private:
+
     
-    //@{
-    //! Domain iterators.
-    Const_Iterator d_domain_begin;
-    Const_Iterator d_domain_end;
-    //@}
-    
-    //@{
-    //! Range iterators.
-    Iterator d_range_begin;
-    Iterator d_range_end;
-    //@}
 
   public:
 
@@ -67,17 +55,6 @@ class Field
     ~Field()
     { /* ... */ }
 
-    //! Set the domain of the field.
-    inline void set_domain(Const_Iterator begin, Const_Iterator end);
-
-    //! Set the range of the field.
-    inline void set_range(Iterator begin, Iterator end);
-
-    //! Get the domain of the field.
-    inline void get_domain(Const_Iterator &begin, Const_Iterator &end);
-
-    //! Set the range of the field.
-    inline void set_range(Iterator &begin, Iterator &end);    
 };
 
 #include "Field.i.hh"

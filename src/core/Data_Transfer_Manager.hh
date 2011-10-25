@@ -48,18 +48,20 @@ class Data_Transfer_Manager
     typedef nemesis::SP<LG_Indexer>                  SP_LG_Indexer;
     typedef nemesis::SP<Messenger>                   SP_Messenger;
     typedef nemesis::Communicator_t                  Communicator_t;
+    typedef std::vector<char>                        Buffer;
+    typedef int                                      Handle;
     //@}
 
   private:
 
     // Global communicator.
-    Communicator_t comm_global;
+    Communicator_t d_comm_global;
 
     // Physics A communicator.
-    Communicator_t comm_A;
+    Communicator_t d_comm_a;
    
     // Physics B communicator.
-    Communicator_t comm_B;
+    Communicator_t d_comm_b;
 
     // Physics A transfer evaluator.
     SP_Transfer_Evaluator d_te_a;
@@ -68,22 +70,22 @@ class Data_Transfer_Manager
     SP_Transfer_Evaluator d_te_b;
 
     // Physics A local to global indexer.
-    SP_LG_Indexer d_indexer_A;
+    SP_LG_Indexer d_indexer_a;
 
     // Physics B local to global indexer.
-    SP_LG_Indexer d_indexer_B;
+    SP_LG_Indexer d_indexer_b;
 
     // Topology map for transfer from A to B.
-    SP_Transfer_Map d_map_A2B;
+    SP_Transfer_Map d_map_a2b;
 
     // Topology map for transfer from B to A.
-    SP_Transfer_Map d_map_B2A;
+    SP_Transfer_Map d_map_b2a;
 
     // Physics A messenger object.
-    SP_Messenger d_messenger_A;
+    SP_Messenger d_messenger_a;
 
     // Physics B messenger object.
-    SP_Messenger d_messenger_B;
+    SP_Messenger d_messenger_b;
 
     // Field database.
     SP_DB d_f_db;
@@ -91,7 +93,7 @@ class Data_Transfer_Manager
   public:
 
     // Constructor.
-    Data_Transfer_Manager(Communicator_t comm_global_,
+    Data_Transfer_Manager(Communicator_t comm_global,
 	                  Transfer_Evaluator* TE_A,
 			  Transfer_Evaluator* TE_B);
 
@@ -112,6 +114,13 @@ class Data_Transfer_Manager
 
     // Transfer data from B to A.
     void transfer_B2A(std::string field_name);
+
+  private:
+
+    template<class X>
+    void build_buffer(Buffer &buffer, 
+		      X::value_type::const_iterator begin,
+		      X::value_type::const_iterator end);
 };
 
 } // end namespace coupler

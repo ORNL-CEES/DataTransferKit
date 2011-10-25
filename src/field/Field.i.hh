@@ -15,40 +15,6 @@
 namespace field
 {
 
-//---------------------------------------------------------------------------//
-// Set the domain of the field.
-void Field::set_domain(Const_Iterator begin, Const_Iterator end)
-{
-    d_domain_begin = begin;
-    d_domain_end = end;
-}
-
-//---------------------------------------------------------------------------//
-// Set the range of the field.
-void Field::set_range(Iterator begin, Iterator end)
-{
-    d_range_begin = begin;
-    d_range_end = end;
-}
-
-//---------------------------------------------------------------------------//
-// Get the domain of the field.
-void Field::get_domain(Const_Iterator &begin, Const_Iterator &end)
-{
-    begin = d_domain_begin;
-    end = d_domain_end;
-}
-
-//---------------------------------------------------------------------------//
-// Set the range of the field.
-void Field::set_range(Iterator &begin, Iterator &end)
-{
-    begin = d_range_begin;
-    end = d_range_end;
-}
-
-//---------------------------------------------------------------------------//
-
 } // end namespace field
 
 #endif // field_Field_i_hh
