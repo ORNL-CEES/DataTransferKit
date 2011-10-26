@@ -116,7 +116,8 @@ class Data_Transfer_Manager
     void transfer_B2A(std::string field_name);
 
   private:
-
+    
+    // Generate a buffer and pack it with data.
     template<class X>
     void build_buffer(Buffer &buffer, 
 		      X::value_type::const_iterator begin,

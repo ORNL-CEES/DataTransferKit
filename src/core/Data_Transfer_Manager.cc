@@ -38,10 +38,10 @@ Data_Transfer_Manager::Data_Transfer_Manager(Communicator_t comm_global,
     // Generate local to global indexers.
     if(d_te_a || d_te_b)
     {
-	d_indexer_A = new LG_Indexer(d_comm_global, d_comm_a, d_te_a);
+	d_indexer_a = new LG_Indexer(d_comm_global, d_comm_a, d_te_a);
 	Ensure( d_indexer_a );
 
-	d_indexer_B = new LG_Indexer(d_comm_global, d_comm_b, d_te_b);
+	d_indexer_b = new LG_Indexer(d_comm_global, d_comm_b, d_te_b);
 	Ensure( d_indexer_b );
     }
 
@@ -71,8 +71,22 @@ void Data_Transfer_Manager::add_field(std::string field_name)
 // provides the target points and A is the source.
 void Data_Transfer_Manager::map_A2B(std::string field_name)
 {
+    // operator on the global communicator
+    nemesis::set_internal_comm(d_comm_global);
+
     // Initialize map.
-    d_map_A2B = new Transfer_Map();    
+    d_map_a2b = new Transfer_Map();    
+
+    // Set the iteration bounds for loops over the A and B process ids.
+    int begin_a = 0;
+    int end_a = 0;
+    int begin_b = 0;
+    int end_b = 0;
+    if( d_te_a || d_te_b )
+    {
+	end_a = d_indexer_a->size();
+	end_b = d_indexer_b->size();
+    }
 
     // Target point coordinate vector.
     std::vector<double> points;
@@ -80,12 +94,93 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
     // Target point handle vector.
     std::vector<Handle> handles;
 
-    // Physics B registers its target points.
+    // B registers its target points.
     d_te_b->register_xyz(field_name, points, handles);
     Check( points.size() % 3 == 0 );
-    Check( points.size() / handles.size() == 3 );
+    Check( points.size() / 3 == handles.size() );
 
+    // B sends all of its target points to each A process.
+    if (d_te_b)
+    {
+	// Build a buffer of the local points to send to A.
+	Buffer buffer;
+	build_buffer(buffer, points.begin(), points.end());
+	int buffer_size = buffer.size();
 
+	// Send the local points to all processes of A.
+	for (int i = begin_a; i < end_a; ++i)
+	{
+	    // Get the global index for A that the buffer is going to.
+	    int destination = d_indexer_a->l2g(i);
+
+	    // Send a message to A with the size of the buffer that it will
+	    // get. 
+	    nemesis::send_async(&buffer_size, 1, destination);
+
+	    // Send the buffer of points.
+	    if (buffer_size > 0)
+	    {
+		nemesis::send_async(&buffer[0], buffer_size, destination);
+	    }
+	}
+    }
+
+    // A receives all of the target points from A and builds the topology
+    // map. 
+    if (d_te_a)
+    {
+	// A will get a message with target points from every B process.
+	for (int i = begin_b; i < end_b; ++i)
+	{
+	    // Get the global index of the B process.
+	    int source = d_indexer_b->l2g(i);
+
+	    // Get the size of the incoming target point buffer.
+	    int buffer_size;
+	    nemesis::receive(&buffer_size, 1, source);
+
+	    // Unpack the points and add them to the map.
+	    if (buffer_size > 0)
+	    {
+		// Receive the buffer from B.
+		Buffer buffer(buffer_size);
+		nemesis::receive(&buffer[0], buffer_size, source);
+
+		// Compute the number of points in the buffer.
+		int num_points = buffer_size / 
+				 ( sizeof(double) * 3 );
+
+		// Unpack the buffer.
+		denovo::Unpacker u;
+		u.set_buffer(buffer_size, &buffer[0]);
+		for (int j = 0; j < num_points; ++j)
+		{
+		    double x, y, z;
+		    u >> x;
+		    u >> y;
+		    u >> z;
+
+		    // See if this point is in the spatial domain of A.
+		    Handle local_handle;
+		    if ( d_te_a->find_xyz(x, y, z, local_handle) )
+		    {
+			// Add the local handle to the map with the target
+			// rank.
+			map_a2b->add_domain_pair(source, local_handle);
+		    }
+		}
+	    }
+	}
+    }
+
+    // Barrier after sending target points from B to A.
+    nemesis::global_barrier();
+
+    // Send all target points found in A back to B to complete the map.
+    if (d_te_a)
+    {
+	
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -127,6 +222,45 @@ void Data_Transfer_Manager::transfer_A2B(std::string field_name)
     
     // Push the data to B.
     std::copy(data.begin(), data.end(), range_begin);
+}
+
+//---------------------------------------------------------------------------//
+// Generate a buffer and pack it with data.
+template<class X>
+void Data_Transfer_Manager::build_buffer(Buffer &buffer, 
+					 X::value_type::const_iterator begin,
+					 X::value_type::const_iterator end)
+{
+    // Clear the buffer to make sure it's empty.
+    buffer.clear();
+
+    // Create a packer.
+    denovo::Packer p;
+
+    // Data iterator.
+    typename X::value_type::const_iterator iter;
+
+    // Compute the size of the buffer.
+    p.compute_buffer_size_mode();
+    for (iter = begin, iter != end; ++iter)
+    {
+	p << *iter;
+    }
+    int buffer_size = p.size();
+
+    // Set the size of the buffer.
+    buffer.resize(buffer_size);
+
+    // Pack the data into the buffer.
+    Check( buffer.size() == buffer_size );
+    if (buffer_size > 0)
+    {
+	p.set_buffer(buffer_size, &buffer[0]);
+	for (iter = begin, iter != end; ++iter)
+	{
+	    p << *iter;
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
