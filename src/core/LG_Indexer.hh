@@ -25,12 +25,10 @@ namespace coupler
  * \class LG_Indexer
  * \brief Convert local-to-application process ID's to global process ID's
  *
- * \sa LG_Indexer.cc for detailed descriptions.
  */
 /*! 
- * \example coupler/test/tstLG_Indexer.cc
+ * \example core/test/tstLG_Indexer.cc
  *
- * Test of LG_Indexer.
  */
 //===========================================================================//
 

@@ -14,6 +14,8 @@
 
 #include "Transfer_Evaluator.hh"
 #include "Transfer_Map.hh"
+#include "LG_Indexer.hh"
+#include "Messenger.hh"
 #include "fields/Field_DB.hh"
 #include "utils/SP.hh"
 #include "comm/global.hh"

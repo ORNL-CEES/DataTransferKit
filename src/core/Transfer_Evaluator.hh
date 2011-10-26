@@ -56,7 +56,9 @@ class Transfer_Evaluator
     //! field is not supported.
     virtual bool register_field(std::string field_name) = 0;
 
-    //! Register coordinates with a field.
+    //! Register cartesian coordinates with a field. The coordinate vector
+    //! should be interleaved. The handle vector should consist of locally
+    //! unique handles. 
     virtual void register_xyz(std::string field_name,
 			      std::vector<double> &points,
 			      Vec_Handle &handles) = 0;
@@ -72,17 +74,17 @@ class Transfer_Evaluator
     //! handle.
     virtual void pull_data(std::string field_name,
 			   Handle handle,
-			   DataType &data);
+			   DataType &data) = 0;
 
     //! Given an entity handle, set the field data associated with that
     //! handle.
     virtual void push_data(std::string field_name,
 			   Handle handle, 
-			   DataType data);
+			   DataType data) = 0;
 
     //! Perfom a global integration on a field for rebalance.
-    virtual void integrate_field(std::string field_name,
-				 DataType &field_norm) = 0;
+    virtual void integrate(std::string field_name,
+			   DataType &field_norm) = 0;
 
     //! Perform a rebalance on a field for conservation.
     virtual void rebalance(std::string field_name,

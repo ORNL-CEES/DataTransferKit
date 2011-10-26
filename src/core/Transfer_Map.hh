@@ -93,12 +93,12 @@ class Transfer_Map
     //! Get the iterator pair for the source domain of a target rank. This
     //! correlates to the local source handles that exist in the range of the
     //! target rank.
-    Iterator_Pair source_domain(int target_rank);
+    Iterator_Pair domain(int target_rank);
 
     //! Get the iterator pair for the target range of a source rank. This
     //! correlates to the local target handles that exist in the domain of the
     //! source rank.
-    Iterator_Pair target_range(int source_rank);
+    Iterator_Pair range(int source_rank);
 
     //! Return a const_iterator to the beginning of the source rank set.
     Set_Iterator source_set_begin();

@@ -27,7 +27,7 @@ Data_Transfer_Manager::Data_Transfer_Manager(Communicator_t comm_global,
     // operate on the global communicator
     nemesis::set_internal_comm(d_comm_global);
 
-    // Wrap the raw pointers.
+    // Wrap the raw Transfer_Evaluator pointers.
     d_te_a = TE_A;
     d_te_b = TE_B;
 
@@ -35,7 +35,7 @@ Data_Transfer_Manager::Data_Transfer_Manager(Communicator_t comm_global,
     d_te_a->register_comm(d_comm_a);
     d_te_b->register_comm(d_comm_b);
 
-    // Generate local to global indexers.
+    // Generate local to global rank indexers.
     if(d_te_a || d_te_b)
     {
 	d_indexer_a = new LG_Indexer(d_comm_global, d_comm_a, d_te_a);
@@ -108,10 +108,11 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 	int buffer_size = buffer.size();
 
 	// Send the local points to all processes of A.
+	int destination;
 	for (int i = begin_a; i < end_a; ++i)
 	{
 	    // Get the global index for A that the buffer is going to.
-	    int destination = d_indexer_a->l2g(i);
+	    destination = d_indexer_a->l2g(i);
 
 	    // Send a message to A with the size of the buffer that it will
 	    // get. 
@@ -140,6 +141,7 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 	    nemesis::receive(&buffer_size, 1, source);
 
 	    // Unpack the points and add them to the map.
+	    int num_points;
 	    if (buffer_size > 0)
 	    {
 		// Receive the buffer from B.
@@ -147,26 +149,25 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 		nemesis::receive(&buffer[0], buffer_size, source);
 
 		// Compute the number of points in the buffer.
-		int num_points = buffer_size / 
-				 ( sizeof(double) * 3 );
+		num_points = buffer_size / ( sizeof(double) * 3 );
 
 		// Unpack the buffer.
+		Handle local_handle;
+		double x, y, z;
 		denovo::Unpacker u;
 		u.set_buffer(buffer_size, &buffer[0]);
 		for (int j = 0; j < num_points; ++j)
 		{
-		    double x, y, z;
 		    u >> x;
 		    u >> y;
 		    u >> z;
 
 		    // See if this point is in the spatial domain of A.
-		    Handle local_handle;
 		    if ( d_te_a->find_xyz(x, y, z, local_handle) )
 		    {
 			// Add the local handle to the map with the target
 			// rank.
-			map_a2b->add_domain_pair(source, local_handle);
+			d_map_a2b->add_domain_pair(source, local_handle);
 		    }
 		}
 	    }
@@ -179,7 +180,17 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
     // Send all target points found in A back to B to complete the map.
     if (d_te_a)
     {
-	
+	// For every unique B in the map, send back the points found in the
+	// local domain.
+	typename Transfer_Map::Set_Iterator sit;
+	for (sit = d_map_a2b->target_set_begin(); 
+	     sit != d_map_a2b->target_set_end(); 
+	     ++sit)
+	{
+	    // Build a buffer.
+	    Buffer buffer;
+	    
+	}
     }
 }
 
