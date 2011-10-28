@@ -44,7 +44,7 @@ class Data_Transfer_Manager
     typedef Field_Type_T                             FieldType;
     typedef nemesis::SP<Transfer_Evaluator>          SP_Transfer_Evaluator;
     typedef nemesis::SP<Transfer_Map>                SP_Transfer_Map;
-    typedef Field_DB<DataType>                       DB;
+    typedef Field_DB<FieldType>                      DB;
     typedef nemesis::SP<DB>                          SP_DB;
     typedef nemesis::SP<LG_Indexer>                  SP_LG_Indexer;
     typedef nemesis::SP<Messenger>                   SP_Messenger;

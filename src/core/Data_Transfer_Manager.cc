@@ -128,7 +128,7 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 	if (buffer_size > 0)
 	{
 	    p.set_buffer(buffer_size, &buffer[0]);
-	    for (handle_iter = handles_begin, handle_iter != handels_end; ++iter)
+	    for (handle_iter = handles_begin, handle_iter != handles_end; ++iter)
 	    {
 		p << *coord_iter;
 		coord_iter++;
@@ -139,7 +139,6 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 		p << *handle_iter;
 	    }
 	}
-
 	int buffer_size = buffer.size();
 
 	// Send the local points to all processes of A.
@@ -184,7 +183,7 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 		nemesis::receive(&buffer[0], buffer_size, source);
 
 		// Compute the number of points in the buffer.
-		num_points = buffer_size / ( sizeof(double) * 3 );
+		num_points = buffer_size / ( sizeof(double) * 3 + sizeof(int));
 
 		// Unpack the buffer.
 		Handle handle;
@@ -270,8 +269,31 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 
 	    // Receive the buffer size.
 	    int buffer_size;
-	    nemesis::receive(&bufer_size, 1, source);
+	    nemesis::receive(&buffer_size, 1, source);
 
+	    // Unpack the buffer.
+	    if (buffer_size > 0)
+	    {
+		// Create a buffer.
+		Buffer buffer(buffer_size);
+
+		// Receive the buffer.
+		nemesis::receive(&buffer[0], buffer_size, source);
+		
+		// Get the number of handles in the buffer.
+		int num_handles = buffer_size / sizeof(int);
+
+		// Unpack the handle and put it in the map.
+		denovo::Unpacker u;
+		u.set_buffer(buffer_size, &buffer[0]);
+		for (int j = 0; j < num_handles; ++j)
+		{
+		    Handle handle;
+		    u >> handle;
+
+		    map_a2b->add_target_pair(source, handle);
+		}
+	    }
 	}
     }
 }

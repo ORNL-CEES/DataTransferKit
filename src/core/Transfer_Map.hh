@@ -34,17 +34,20 @@ namespace coupler
  */
 //===========================================================================//
 
+template<class HandleType_T, class OrdinateType_T>
 class Transfer_Map 
 {
   public:
 
     //@{
     //! Useful typedefs.
-    typedef std::multimap<int,int>                       Map;
+    typedef HandleType_T                                 HandleType;
+    typedef OridinateType_T                              OrdinateType;
+    typedef std::multimap<OrdinateType,HandleType>       Map;
     typedef typename Map::const_iterator                 Map_Iterator;
     typedef std::pair<Map_Iterator, Map_Iterator>        Iterator_Pair;
-    typedef std::pair<int,int>                           Map_Pair;
-    typedef std::set<int>                                Set;
+    typedef std::pair<OrdinateType,HandleType>           Map_Pair;
+    typedef std::set<OrdinateType>                       Set;
     typedef typename Set::const_iterator                 Set_Iterator;
     //@}
 
@@ -75,30 +78,32 @@ class Transfer_Map
     //! Add a pair to the source map. The source handle corresponding to an
     //! entity in the local domain correlates to the range owned by the
     //! target rank.
-    inline void add_domain_pair(int target_rank, int source_handle);
+    inline void add_domain_pair(OrdinateType target_rank, 
+				HandleType source_handle);
 
     //! Add a pair to the target map. The target handle corresponding to an
     //! entity in the local range correlates to the domain owned by the
     //! source rank.
-    inline void add_range_pair(int source_rank, int target_handle);
+    inline void add_range_pair(OrdinateType source_rank, 
+			       HandleType target_handle);
 
     //! Get the number of source handles with a specific target rank. This is
     //! the size of the local domain correlating to the target rank.
-    inline int domain_size(int target_rank);
+    inline int domain_size(OrdinateType target_rank);
     
     //! Get the number of target handles with a specific source rank. This is
     //! the size of the local range correlating to the source rank.
-    inline int range_size(int source_rank);
+    inline int range_size(OrdinateType source_rank);
 
     //! Get the iterator pair for the source domain of a target rank. This
     //! correlates to the local source handles that exist in the range of the
     //! target rank.
-    inline Iterator_Pair domain(int target_rank);
+    inline Iterator_Pair domain(OrdinateType target_rank);
 
     //! Get the iterator pair for the target range of a source rank. This
     //! correlates to the local target handles that exist in the domain of the
     //! source rank.
-    inline Iterator_Pair range(int source_rank);
+    inline Iterator_Pair range(OrdinateType source_rank);
 
     //! Return a const_iterator to the beginning of the source rank set.
     inline Set_Iterator source_set_begin();
