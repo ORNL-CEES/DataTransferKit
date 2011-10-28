@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   example/TE_Physics_A.cc
+ * \file   peaks_example/TE_Physics_A.cc
  * \author Stuart Slattery 
  * \date   Wed Oct 05 10:57:30 2011
  * \brief  Transfer Evaluator for Physics_A.
@@ -11,7 +11,7 @@
 
 #include "TE_Physics_A.hh"
 
-namespace dtransfer
+namespace peaks_example
 {
 //---------------------------------------------------------------------------//
 // Constructor.
@@ -24,13 +24,7 @@ TE_Physics_A::TE_Physics_A(physics_A::Physics_A* a_)
 TE_Physics_A::~TE_Physics_A()
 { /* ... */ }
 
-//---------------------------------------------------------------------------//
-// Register a vector of interleaved point coordinates.
-void TE_Physics_A::register_xyz(std::vector<double> &points)
-{
-}
-
-//---------------------------------------------------------------------------//
+x//---------------------------------------------------------------------------//
 //! Register a field associated with the entities.
 bool TE_Physics_A::register_field(std::string field_name)
 {
@@ -39,14 +33,12 @@ bool TE_Physics_A::register_field(std::string field_name)
 }
 
 //---------------------------------------------------------------------------//
-// Given a (x,y,z) coordinates, return the local process rank in
-// which that point exists and the index into the local state vector that
-// will be applied at that point. Return true if point is in the local
-// domain, false if not.
+// Given (x,y,z) coordinates and an associated globally unique handle,
+// return true if in the local domain, false if not.
 bool TE_Physics_A::find_xyz(double x, 
 			    double y, 
 			    double z,
-			    Handle &handle)
+			    Handle handle)
 {
     return a->get_xy_info(x, y, handle);
 }
@@ -65,7 +57,7 @@ void TE_Physics_A::pull_data(std::string field_name,
 
 //---------------------------------------------------------------------------//
 
-} // end namespace dtransfer
+} // end namespace peaks_example
 
 //---------------------------------------------------------------------------//
 //                 end of TE_Physics_A.cc

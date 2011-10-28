@@ -42,16 +42,18 @@ class Data_Transfer_Manager
     //@{
     //! Useful typedefs.
     typedef Field_Type_T                             FieldType;
-    typedef typename FieldType::value_type           DataType;
     typedef nemesis::SP<Transfer_Evaluator>          SP_Transfer_Evaluator;
     typedef nemesis::SP<Transfer_Map>                SP_Transfer_Map;
     typedef Field_DB<DataType>                       DB;
     typedef nemesis::SP<DB>                          SP_DB;
     typedef nemesis::SP<LG_Indexer>                  SP_LG_Indexer;
     typedef nemesis::SP<Messenger>                   SP_Messenger;
-    typedef nemesis::Communicator_t                  Communicator_t;
+    typedef nemesis::Communicator_t                  Communicator;
     typedef std::vector<char>                        Buffer;
     typedef int                                      Handle;
+    typedef const Handle*                            Handle_Iterator;
+    typedef double                                   Coordinate;
+    typedef const Coordinate*                        Coord_Iterator;
     //@}
 
   private:
@@ -116,14 +118,6 @@ class Data_Transfer_Manager
 
     // Transfer data from B to A.
     void transfer_B2A(std::string field_name);
-
-  private:
-    
-    // Generate a buffer and pack it with data.
-    template<class X>
-    void build_buffer(Buffer &buffer, 
-		      X::value_type::const_iterator begin,
-		      X::value_type::const_iterator end);
 };
 
 } // end namespace coupler

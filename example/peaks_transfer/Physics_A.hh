@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   example/Physics_A.hh
+ * \file   peaks_example/Physics_A.hh
  * \author Stuart Slattery
  * \date   Wed Oct 05 09:38:34 2011
  * \brief  Physics_A class definition.
@@ -13,6 +13,7 @@
 #define example_Physics_A_hh
 
 #include <vector>
+#include <map>
 
 namespace physics_A
 {
@@ -47,6 +48,9 @@ class Physics_A
 
     // Source Vector.
     Vector_Dbl b;
+
+    // Solution transfer map.
+    std::map<int,int> handle_map;
 
   public:
 

@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   example/Physics_A.cc
+ * \file   peaks_example/Physics_A.cc
  * \author Stuart Slattery
  * \date   Wed Oct 05 09:38:34 2011
  * \brief  Physics_A member definitions.
@@ -123,9 +123,11 @@ bool Physics_A::get_xy_info(double x,
 	- y_edges.begin();
     if (j > y_edges.size() - 2) j = y_edges.size() - 2;
 
-    // Get the handle into the state vector and assign this as the handle.
-    handle = i + j*(x_edges.size() - 1);
-    
+    // Get the index into the state vector and associate this with the given
+    // handle. 
+    int index = i + j*(x_edges.size() - 1);
+    handle_map.insert( std::pair<int,int>(handle, index);
+
     return true;
 }
 
@@ -133,7 +135,7 @@ bool Physics_A::get_xy_info(double x,
 // Given a handle, get that part of the state vector.
 void Physics_A::get_state(int handle, double data)
 {
-    data = X[handle];
+    data = X[ handle_map[handle] ];
 }
 
 //---------------------------------------------------------------------------//

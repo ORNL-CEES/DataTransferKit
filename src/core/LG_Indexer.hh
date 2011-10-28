@@ -14,6 +14,7 @@
 #define coupler_LG_Indexer_hh
 
 #include <map>
+#include <vector>
 #include "utils/SP.hh"
 #include "comm/global.hh"
 
@@ -24,7 +25,6 @@ namespace coupler
 /*!
  * \class LG_Indexer
  * \brief Convert local-to-application process ID's to global process ID's
- *
  */
 /*! 
  * \example core/test/tstLG_Indexer.cc
@@ -37,17 +37,19 @@ class LG_Indexer
   public:
     //@{
     //! Useful typedefs.
-    typedef nemesis::Communicator_t     Communicator_t;
+    typedef nemesis::Communicator_t             Communicator_t;
+    typedef std::map<int, int>                  Indexer_Map;
+    typedef std::vector<int>                    Vec_Int;
+    typedef typename Vec_Int::const_iterator    Vec_Int_Iterator;
     //@}
 
   private:
-    // Private typedef.
-    typedef std::map<int, int>          Indexer_Map;
 
     // Local to global map
     Indexer_Map d_l2g_map;
 
   public:
+
     //! Constructor.
     template<class LocalApp>
     LG_Indexer(const Communicator_t &comm_world, 

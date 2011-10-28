@@ -13,8 +13,6 @@
 #ifndef coupler_LG_Indexer_i_hh
 #define coupler_LG_Indexer_i_hh
 
-#include "utils/Definitions.hh"
-
 namespace coupler
 {
 
@@ -32,35 +30,31 @@ LG_Indexer::LG_Indexer(const Communicator_t &comm_world,
                        const Communicator_t &comm_local,
                        denovo::SP<LocalApp> local_app)
 {
-    // Define some useful typedefs
-    typedef def::Vec_Int                        Vec_Int;
-    typedef typename Vec_Int::const_iterator    Vec_Int_Iter;
-
-    // Indicate whether we have the local app
+    // Indicate whether we have the local app.
     int local_app_indicator = 0;
     if(local_app)
     {
         local_app_indicator = 1;
     }
 
-    // get the local id from comm_local
+    // Get the local id from comm_local.
     nemesis::set_internal_comm(comm_local);
     int local_id = nemesis::node();
 
-    // get global information from comm_world
+    // Get global information from comm_world.
     nemesis::set_internal_comm(comm_world);
 
-    // make a vector of local ids everywhere
+    // Make a vector of local ids everywhere.
     Vec_Int local_ids(nemesis::nodes(), 0);
     local_ids[nemesis::node()] = local_id;
     nemesis::global_sum(&local_ids[0], nemesis::nodes());
 
-    // make a vector of application indicators
+    // Make a vector of application indicators.
     Vec_Int app_ids(nemesis::nodes(), 0);
     app_ids[nemesis::node()] = local_app_indicator;
     nemesis::global_sum(&app_ids[0], nemesis::nodes());
 
-    // make a vector of global ids everywhere
+    // Make a vector of global ids everywhere.
     Vec_Int global_ids(nemesis::nodes(), 0);
     global_ids[nemesis::node()] = nemesis::node();
     nemesis::global_sum(&global_ids[0], nemesis::nodes());
@@ -68,7 +62,7 @@ LG_Indexer::LG_Indexer(const Communicator_t &comm_world,
     Check( local_ids.size() == global_ids.size() );
     Check( app_ids.size() == global_ids.size() );
 
-    // make the map
+    // Make the map.
     Vec_Int_Iter app_iter = app_ids.begin();
     Vec_Int_Iter global_iter = global_ids.begin();
     for (Vec_Int_Iter local_iter = local_ids.begin(), 

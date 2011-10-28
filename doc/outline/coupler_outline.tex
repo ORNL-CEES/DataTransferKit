@@ -4,6 +4,7 @@
 %
 \documentclass[letterpaper]{article}
 \usepackage[top=1.0in,bottom=1.0in,left=1.0in,right=1.0in]{geometry}
+\usepackage{appendix}
 \usepackage{verbatim}
 \usepackage{amssymb}
 \usepackage{graphicx}
@@ -274,6 +275,294 @@ In addition to this, most other design requirements have not been
 fulfilled. However, many of these requirements may be met by moving
 the data structures, communication patterns, and algorithms already
 existing in the coupler under the Denovo framework.
+
+\appendix
+\section{Transfer\_Evaluator Interface}
+\begin{lstlisting}
+//----------------------------------*-C++-*----------------------------------//
+/*!
+ * \file   core/Transfer_Evaluator.hh
+ * \author Stuart Slattery
+ * \date   Wed Oct 05 11:02:59 2011
+ * \brief  Transfer_Evaluator class definition.
+ */
+//---------------------------------------------------------------------------//
+// $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
+//---------------------------------------------------------------------------//
+
+#ifndef coupler_Transfer_Evaluator_hh
+#define coupler_Transfer_Evaluator_hh
+
+#include "comm/global.hh"
+#include <vector>
+#include <string>
+
+namespace coupler
+{
+
+//===========================================================================//
+/*!
+ * \class Transfer_Evaluator
+ * \brief Base class definition of the transfer evaluator interface.
+ *
+ * This interface is templated on the type of field data being
+ * transfered. Handle type is fixed to integer and coordinate type is fixed to
+ * double. These could be templated in the future.
+ */
+//===========================================================================//
+template<class FieldType_T>
+class Transfer_Evaluator 
+{
+  public:
+
+    //@{
+    //! Useful typedefs.
+    typedef FieldType_T                              FieldType;
+    typedef nemesis::Communicator_t                  Communicator;
+    typedef int                                      Handle;
+    typedef const Handle*                            Handle_Iterator;
+    typedef double                                   Coordinate;
+    typedef const Coordinate*                        Coord_Iterator;
+    //@}
+
+    //! Constructor.
+    Transfer_Evaluator()
+    { /* ... */ }
+
+    //! Destructor.
+    virtual ~Transfer_Evaluator()
+    { /* ... */ }
+
+    //! Register communicator object.
+    virtual void register_comm(Communicator &comm) = 0;
+
+    //! Register a field associated with the entities. Return false if this
+    //! field is not supported.
+    virtual bool register_field(std::string field_name) = 0;
+
+    //! Register cartesian coordinates with a field. The coordinate vector
+    //! should be interleaved. The handle vector should consist of globally
+    //! unique handles. These iterators imply contiguous memory storage.
+    virtual void register_xyz(std::string field_name,
+			      Coord_Iterator &points_begin,
+			      Coord_Iterator &points_end,
+			      Handle_Iterator &handles_begin,
+			      Handle_Iterator &handles_end) = 0;
+
+    //! Given (x,y,z) coordinates and an associated globally unique handle,
+    //! return true if in the local domain, false if not.
+    virtual bool find_xyz(Coordinate x, 
+			  Coordinate y,
+			  Coordinate z,
+			  Handle handle) = 0;
+
+    //! Given an entity handle, get the field data associated with that
+    //! handle.
+    virtual void pull_data(std::string field_name,
+			   Handle handle,
+			   FieldType &data) = 0;
+
+    //! Given an entity handle, set the field data associated with that
+    //! handle.
+    virtual void push_data(std::string field_name,
+			   Handle handle, 
+			   FieldType data) = 0;
+
+    //! Perfom a global integration on a field for rebalance.
+    virtual void integrate(std::string field_name,
+			   FieldType &field_norm) = 0;
+
+    //! Perform a rebalance on a field for conservation.
+    virtual void rebalance(std::string field_name,
+			   FieldType field_norm) = 0;
+};
+
+} // end namespace coupler
+
+#endif // coupler_Transfer_Evaluator_hh
+
+//---------------------------------------------------------------------------//
+//              end of core/Transfer_Evaluator.hh
+//---------------------------------------------------------------------------//
+\end{lstlisting}
+
+\section{Simple Example Listings}
+
+\begin{lstlisting}
+//----------------------------------*-C++-*----------------------------------//
+/*!
+ * \file   peaks_example/TE_Physics_A.cc
+ * \author Stuart Slattery 
+ * \date   Wed Oct 05 10:57:30 2011
+ * \brief  Transfer Evaluator for Physics_A.
+ */
+//---------------------------------------------------------------------------//
+// $Id: template.cc,v 1.3 2008/01/02 17:18:47 9te Exp $
+//---------------------------------------------------------------------------//
+
+#include "TE_Physics_A.hh"
+
+namespace peaks_example
+{
+//---------------------------------------------------------------------------//
+// Constructor.
+TE_Physics_A::TE_Physics_A(physics_A::Physics_A* a_)
+    : a(a_)
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Destructor.
+TE_Physics_A::~TE_Physics_A()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+//! Register a field associated with the entities.
+bool TE_Physics_A::register_field(std::string field_name)
+{
+    if (field_name == "PEAKS") return true;
+    else return false;
+}
+
+//---------------------------------------------------------------------------//
+// Given (x,y,z) coordinates and an associated globally unique handle,
+// return true if in the local domain, false if not.
+bool TE_Physics_A::find_xyz(double x, 
+			    double y, 
+			    double z,
+			    Handle handle)
+{
+    return a->get_xy_info(x, y, handle);
+}
+
+//---------------------------------------------------------------------------//
+// Given an entity handle, get the field data associated with that handle.
+void TE_Physics_A::pull_data(std::string field_name,
+			     Handle handle,
+			     double &data)
+{
+    if (field_name == "PEAKS")
+    {
+	a->get_state(handle, data);
+    }
+}
+
+//---------------------------------------------------------------------------//
+
+} // end namespace peaks_example
+
+//---------------------------------------------------------------------------//
+//                 end of TE_Physics_A.cc
+//---------------------------------------------------------------------------//
+\end{lstlisting}
+
+\begin{lstlisting}
+//----------------------------------*-C++-*----------------------------------//
+/*!
+ * \file   peaks_example/TE_Physics_B.cc
+ * \author Stuart Slattery
+ * \date   Wed Oct 05 10:57:33 2011
+ * \brief  Transfer Evaluator for Physics_B.
+ */
+//---------------------------------------------------------------------------//
+// $Id: template.cc,v 1.3 2008/01/02 17:18:47 9te Exp $
+//---------------------------------------------------------------------------//
+
+#include "TE_Physics_B.hh"
+
+namespace peaks_example
+{
+
+//---------------------------------------------------------------------------//
+// Constructor.
+TE_Physics_B::TE_Physics_B(physics_B::Physics_B* b_)
+    : b(b_)
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Destructor.
+TE_Physics_B::~TE_Physics_B()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+//! Register a field associated with the entities.
+bool TE_Physics_B::register_field(std::string field_name)
+{
+    if (field_name == "PEAKS") return true;
+    else return false;
+}
+
+//---------------------------------------------------------------------------//
+// Register cartesian coordinates with a field. The coordinate vector
+// should be interleaved. The handle vector should consist of globally
+// unique handles. These iterators imply contiguous memory storage.
+void TE_Physics_B::register_xyz(std::string field_name,
+				Coord_Iterator &points_begin,
+				Coord_Iterator &points_end,
+				Handle_Iterator &handles_begin,
+				Handle_Iterator &handles_end)
+{
+    if (field_name == "PEAKS")
+    {
+	// Vector setup.
+	points.resize( 3*(b->x_domain().size())*(b->y_domain().size()) );
+	handles.resize( points.size() / 3 );
+
+	// Set iterators.
+	Coord_Iterator x_it;
+	Coord_Iterator y_it;
+	Coord_Iterator coord_it = points.begin();
+	Handle_Iterator handle_it = handles.begin();
+
+	// Populate the coordinate and handle vectors.
+	int handle_counter = 0;
+	for (y_it = b->y_domain().begin(); 
+	     y_it != b->y_domain().end(); 
+	     ++y_it)
+	{
+	    for (x_it = b->x_domain().begin(); 
+		 x_it != b->x_domain().end(); 
+		 ++x_it)
+	    {
+		*coord_it = *x_it;
+		++coord_it;
+
+		*coord_it = *y_it;
+		++coord_it;
+
+		*coord_it = 0.0;
+		++coord_it;
+
+		*handle_it = handle_counter;
+		++handle_it;
+		++handle_counter;
+	    }
+	}
+
+	// Return the iterators.
+	points_begin = points.begin();
+	points_end = points.end();
+	handles_begin = handles.begin();
+	handles_end = handles.end();
+    }
+}
+
+//---------------------------------------------------------------------------//
+// Push data onto a field.
+void TE_Physics_B::push_data(std::string field_name,
+			     Handle handle, 
+			     double data)
+{
+    b->set_source(handle, data);
+}
+
+//---------------------------------------------------------------------------//
+
+} // end namespace peaks_example
+
+//---------------------------------------------------------------------------//
+//                 end of TE_Physics_B.cc
+//---------------------------------------------------------------------------//
+\end{lstlisting}
 
 \pagebreak
 \bibliographystyle{ieeetr}

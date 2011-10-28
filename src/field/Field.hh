@@ -38,8 +38,7 @@ class Field
     //@{
     //! Useful typedefs.
     typedef FieldType_T                            FieldType;
-    typedef typename FieldType::value_type         DataType;
-    //@}
+   //@}
 
   private:
 

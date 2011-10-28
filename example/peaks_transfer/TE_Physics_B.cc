@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   example/TE_Physics_B.cc
+ * \file   peaks_example/TE_Physics_B.cc
  * \author Stuart Slattery
  * \date   Wed Oct 05 10:57:33 2011
  * \brief  Transfer Evaluator for Physics_B.
@@ -11,7 +11,7 @@
 
 #include "TE_Physics_B.hh"
 
-namespace dtransfer
+namespace peaks_example
 {
 
 //---------------------------------------------------------------------------//
@@ -34,26 +34,36 @@ bool TE_Physics_B::register_field(std::string field_name)
 }
 
 //---------------------------------------------------------------------------//
-// Register a vector of interleaved point coordinates.
+// Register cartesian coordinates with a field. The coordinate vector
+// should be interleaved. The handle vector should consist of globally
+// unique handles. These iterators imply contiguous memory storage.
 void TE_Physics_B::register_xyz(std::string field_name,
-				std::vector<double> &points,
-				std::vector<Handle> &handles)
+				Coord_Iterator &points_begin,
+				Coord_Iterator &points_end,
+				Handle_Iterator &handles_begin,
+				Handle_Iterator &handles_end)
 {
     if (field_name == "PEAKS")
     {
-	// Coordinate vector.
+	// Vector setup.
 	points.resize( 3*(b->x_domain().size())*(b->y_domain().size()) );
+	handles.resize( points.size() / 3 );
 
 	// Set iterators.
-	physics_B::Physics_B::Vector_Dbl::const_iterator x_it;
-	physics_B::Physics_B::Vector_Dbl::const_iterator y_it;
-	std::vector<double>::iterator coord_it = points.begin();
-	Vec_Handle::iterator handle_it = handles.begin();
+	Coord_Iterator x_it;
+	Coord_Iterator y_it;
+	Coord_Iterator coord_it = points.begin();
+	Handle_Iterator handle_it = handles.begin();
+
+	// Populate the coordinate and handle vectors.
 	int handle_counter = 0;
-	// Populate the coordinate vector.
-	for (y_it = b->y_domain().begin(); y_it != b->y_domain().end(); ++y_it)
+	for (y_it = b->y_domain().begin(); 
+	     y_it != b->y_domain().end(); 
+	     ++y_it)
 	{
-	    for (x_it = b->x_domain().begin(); x_it != b->x_domain().end(); ++x_it)
+	    for (x_it = b->x_domain().begin(); 
+		 x_it != b->x_domain().end(); 
+		 ++x_it)
 	    {
 		*coord_it = *x_it;
 		++coord_it;
@@ -69,6 +79,12 @@ void TE_Physics_B::register_xyz(std::string field_name,
 		++handle_counter;
 	    }
 	}
+
+	// Return the iterators.
+	points_begin = points.begin();
+	points_end = points.end();
+	handles_begin = handles.begin();
+	handles_end = handles.end();
     }
 }
 
@@ -83,7 +99,7 @@ void TE_Physics_B::push_data(std::string field_name,
 
 //---------------------------------------------------------------------------//
 
-} // end namespace dtransfer
+} // end namespace peaks_example
 
 //---------------------------------------------------------------------------//
 //                 end of TE_Physics_B.cc

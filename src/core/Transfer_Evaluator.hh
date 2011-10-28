@@ -24,7 +24,9 @@ namespace coupler
  * \class Transfer_Evaluator
  * \brief Base class definition of the transfer evaluator interface.
  *
- * This interface is templated on the type of data being transfered.
+ * This interface is templated on the type of field data being
+ * transfered. Handle type is fixed to integer and coordinate type is fixed to
+ * double. These could be templated in the future.
  */
 //===========================================================================//
 template<class FieldType_T>
@@ -34,11 +36,12 @@ class Transfer_Evaluator
 
     //@{
     //! Useful typedefs.
-    typedef FieldType_T                                   FieldType;
-    typedef FieldType::value_type                         DataType;
-    typedef nemesis::Communicator_t                       Communicator_t;
-    typedef int                                           Handle;
-    typedef std::vector<Handle>                           Vec_Handle;
+    typedef FieldType_T                              FieldType;
+    typedef nemesis::Communicator_t                  Communicator;
+    typedef int                                      Handle;
+    typedef const Handle*                            Handle_Iterator;
+    typedef double                                   Coordinate;
+    typedef const Coordinate*                        Coord_Iterator;
     //@}
 
     //! Constructor.
@@ -50,45 +53,47 @@ class Transfer_Evaluator
     { /* ... */ }
 
     //! Register communicator object.
-    virtual void register_comm(Communicator_t &comm) = 0;
+    virtual void register_comm(Communicator &comm) = 0;
 
     //! Register a field associated with the entities. Return false if this
     //! field is not supported.
     virtual bool register_field(std::string field_name) = 0;
 
     //! Register cartesian coordinates with a field. The coordinate vector
-    //! should be interleaved. The handle vector should consist of locally
-    //! unique handles. 
+    //! should be interleaved. The handle vector should consist of globally
+    //! unique handles. These iterators imply contiguous memory storage.
     virtual void register_xyz(std::string field_name,
-			      std::vector<double> &points,
-			      Vec_Handle &handles) = 0;
+			      Coord_Iterator &points_begin,
+			      Coord_Iterator &points_end,
+			      Handle_Iterator &handles_begin,
+			      Handle_Iterator &handles_end) = 0;
 
-    //! Given (x,y,z) coordinates, return true if in the local domain, false
-    //! if not. Provide a handle to the entity it was located in.
-    virtual bool find_xyz(double x, 
-			  double y, 
-			  double z,
-			  Handle &handle) = 0;
+    //! Given (x,y,z) coordinates and an associated globally unique handle,
+    //! return true if in the local domain, false if not.
+    virtual bool find_xyz(Coordinate x, 
+			  Coordinate y,
+			  Coordinate z,
+			  Handle handle) = 0;
 
     //! Given an entity handle, get the field data associated with that
     //! handle.
     virtual void pull_data(std::string field_name,
 			   Handle handle,
-			   DataType &data) = 0;
+			   FieldType &data) = 0;
 
     //! Given an entity handle, set the field data associated with that
     //! handle.
     virtual void push_data(std::string field_name,
 			   Handle handle, 
-			   DataType data) = 0;
+			   FieldType data) = 0;
 
     //! Perfom a global integration on a field for rebalance.
     virtual void integrate(std::string field_name,
-			   DataType &field_norm) = 0;
+			   FieldType &field_norm) = 0;
 
     //! Perform a rebalance on a field for conservation.
     virtual void rebalance(std::string field_name,
-			   DataType field_norm) = 0;
+			   FieldType field_norm) = 0;
 };
 
 } // end namespace coupler

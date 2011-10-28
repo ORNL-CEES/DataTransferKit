@@ -14,6 +14,7 @@
 
 #include "Physics_B.hh"
 #include "../../src/core/Transfer_Evaluator.hh"
+#include <vector>
 
 namespace peaks_transfer
 {
@@ -32,6 +33,12 @@ class TE_Physics_B : public Transfer_Evaluator
     // Pointer to physics_A object
     physics_B::Physics_B* b;
 
+    // Point coordinate vector.
+    std::vector<double> points;
+
+    // Handle vector.
+    std::vector<double> handles;
+
   public:
 
     // Constructor.
@@ -45,8 +52,10 @@ class TE_Physics_B : public Transfer_Evaluator
 
     // Register a vector of interleaved point coordinates.
     void register_xyz(std::string field_name,
-		      std::vector<double> &points,
-		      Vec_Handle &handles);
+		      Coord_Iterator &points_begin,
+		      Coord_Iterator &points_end,
+		      Handle_Iterator &handles_begin,
+		      Handle_Iterator &handles_end);
 
     // Push data onto a field.
     void push_data(std::string field_name,
