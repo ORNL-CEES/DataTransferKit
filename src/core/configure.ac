@@ -1,23 +1,23 @@
 dnl-------------------------------------------------------------------------dnl
-dnl coupler/configure.ac
-dnl gqe
+dnl core/configure.ac
+dnl Stuart Slattery
 dnl Tue May 24 16:18:08 2011
 dnl $Id: configure.package.ac,v 1.7 2009/09/09 14:59:15 9te Exp $
 dnl-------------------------------------------------------------------------dnl
 dnl Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
 dnl-------------------------------------------------------------------------dnl
-dnl configure.ac for coupler
+dnl configure.ac for core
 dnl-------------------------------------------------------------------------dnl
 
 AC_INIT
 
 dnl As an argument to this macro provide the name of a file that
 dnl exists in the local package directory.  
-AC_CONFIG_SRCDIR([Base_Map.hh])  
+AC_CONFIG_SRCDIR([Transfer_Evaluator.hh])  
 
 AC_CONFIG_AUX_DIR(../../config)
-AC_CONFIG_HEADER(coupler/config.h:config.h.in)
-package="coupler"
+AC_CONFIG_HEADER(core/config.h:config.h.in)
+package="core"
 AC_COMPONENT_BANNER
 
 dnl Nemesis version
@@ -92,15 +92,7 @@ dnl parallel package the number of processors should be a an integer.
 dnl If this is a scalar package, the number of processors required
 dnl should be listed as "scalar".
 
-AC_RUNTESTS(tstLG_Indexer           \
-            tstMap_Node     	    \
-            tstPoint_Map            \
-#	    tstMessenger            \
-#            tstSTAR_Data            \
-#	    tstSTAR_File_IO         \
-#            tstStar_Denovo_Coupling \
-#	    tstCoupler_Map_Gen      \
-#	    tstCoupler              \
+AC_RUNTESTS(tstTransfer_Map           \
             , 1 2 4)
 
 dnl ----------------------------------------
@@ -128,5 +120,5 @@ AC_OUTPUT
 cp ${srcdir}/test/data_files/*  test
 
 dnl-------------------------------------------------------------------------dnl
-dnl			 end of coupler/configure.ac
+dnl			 end of core/configure.ac
 dnl-------------------------------------------------------------------------dnl
