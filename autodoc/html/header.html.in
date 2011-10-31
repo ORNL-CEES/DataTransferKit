@@ -1,0 +1,19 @@
+<HTML>
+<HEAD>
+   <TITLE> $title </TITLE>
+   <LINK HREF="doxygen.css" REL="stylesheet" TYPE="text/css" >
+   <LINK HREF="tabs.css" REL="stylesheet" TYPE="text/css" >
+   <LINK HREF="nemesis.css" REL="stylesheet" TYPE="text/css" >
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+<div class="header">
+   <img src="denovo.jpg" align=center height=300>
+</div>
+
+<p class="menuitems">
+<a class="menuitems" href="@rel_package_html@/index.html"> Denovo Autodoc Home </a> &nbsp;
+<a class="menuitems" href="./index.html"> Main Index </a>
+<hr size=4 color=#336699>
+
+
