@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
         ut.numFails++;
     }
     return ut.numFails;
-}   
+}
 
 //---------------------------------------------------------------------------//
 //                        end of tstLG_Indexer.cc

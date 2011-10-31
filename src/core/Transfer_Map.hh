@@ -28,9 +28,14 @@ namespace coupler
  * mesh entities, identified here by a handle, must map onto a mesh entity in
  * the target application and on what parallel process rank of that target
  * application that entity exists. The target application must know the
- * inverse of this; for its local target points, it needs to know which source
- * processes will be sending data to map onto those points, and which pieces
- * of data correspond to those points.
+ * inverse of this; for its local target entities, it needs to know which
+ * source processes will be sending data to map onto those entities, and which
+ * pieces of data correspond to those entities.
+ *
+ * In the nomenclature used here, the domain of a target rank consists of the
+ * mesh entity handles in the source domain that belong to that target
+ * rank. The range of a source rank consists of the mesh entity handles in the
+ * target domain that belong to that source rank.
  */
 //===========================================================================//
 
@@ -45,7 +50,7 @@ class Transfer_Map
     typedef OridinateType_T                              OrdinateType;
     typedef std::multimap<OrdinateType,HandleType>       Map;
     typedef typename Map::const_iterator                 Map_Iterator;
-    typedef std::pair<Map_Iterator, Map_Iterator>        Iterator_Pair;
+    typedef std::pair<Map_Iterator,Map_Iterator>         Iterator_Pair;
     typedef std::pair<OrdinateType,HandleType>           Map_Pair;
     typedef std::set<OrdinateType>                       Set;
     typedef typename Set::const_iterator                 Set_Iterator;

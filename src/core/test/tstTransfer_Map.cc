@@ -16,6 +16,7 @@
 #include <sstream>
 #include <map>
 #include <set>
+#include <iterator>
 
 #include "harness/DBC.hh"
 #include "harness/Soft_Equivalence.hh"
@@ -66,22 +67,22 @@ void map_test(Parallel_Unit_Test &ut)
     // Check the contents of the domains.
     Iterator_Pair domain_1 = tmap.domain(1);
     UNIT_TEST( std::distance(domain_1.first(), domain_1.second()) == 3 );
-    UNIT_TEST( *(domain_1.first().second()) == 12 );
-    UNIT_TEST( *(domain_1.first().second()+1) == 21 );
-    UNIT_TEST( *(domain_1.first().second()+2) == 32 );
-
+    UNIT_TEST( *((domain_1.first())->second()) == 12 );
+    UNIT_TEST( *((domain_1.first()+1)->second()) == 21 );
+    UNIT_TEST( *((domain_1.first()+2)->second()) == 32 );
+    
     Iterator_Pair domain_2 = tmap.domain(2);
-    UNIT_TEST( std::distance(domain_2.first().second(), domain_2.second()) == 1 );
-    UNIT_TEST( *(domain_2.first().second()) == 54 );
+    UNIT_TEST( std::distance(domain_2.first(), domain_2.second()) == 1 );
+    UNIT_TEST( *((domain_2.first())->second()) == 54 );
 
     Iterator_Pair domain_3 = tmap.domain(3);
-    UNIT_TEST( std::distance(domain_3.first().second(), domain_3.second()) == 2 );
-    UNIT_TEST( *(domain_3.first().second()) == 2 );
-    UNIT_TEST( *(domain_3.first().second()+1) == 5 );
+    UNIT_TEST( std::distance(domain_3.first(), domain_3.second()) == 2 );
+    UNIT_TEST( *((domain_3.first())->second()) == 2 );
+    UNIT_TEST( *((domain_3.first()+1)->second()) == 5 );
 
     Iterator_Pair domain_4 = tmap.domain(4);
-    UNIT_TEST( std::distance(domain_4.first().second(), domain_4.second()) == 1 );
-    UNIT_TEST( *(domain_4.first().second()) == 22 );
+    UNIT_TEST( std::distance(domain_4.first(), domain_4.second()) == 1 );
+    UNIT_TEST( *((domain_4.first())->second()) == 22 );
 
     // Add range pairs.
     tmap.add_range_pair(8, 9);
@@ -96,27 +97,27 @@ void map_test(Parallel_Unit_Test &ut)
 
     // Check the contents of the ranges.
     Iterator_Pair range_8 = tmap.range(8);
-    UNIT_TEST( std::distance(range_8.first().second(),range_8.second()) == 3 );
-    UNIT_TEST( *(range_8.first().second()) == 4 );
-    UNIT_TEST( *(range_8.first().second()+1) == 9 );
-    UNIT_TEST( *(range_8.first().second()+2) == 34 );
+    UNIT_TEST( std::distance(range_8.first(),range_8.second()) == 3 );
+    UNIT_TEST( *((range_8.first())->second()) == 4 );
+    UNIT_TEST( *((range_8.first()+1)->second()) == 9 );
+    UNIT_TEST( *((range_8.first()+2)->second()) == 34 );
 
     Iterator_Pair range_32 = tmap.range(32);
-    UNIT_TEST( std::distance(range_32.first().second(),range_32.second()) == 2 );
-    UNIT_TEST( *(range_32.first().second()) == 1 );
-    UNIT_TEST( *(range_32.first().second()+1) == 3 );
+    UNIT_TEST( std::distance(range_32.first(),range_32.second()) == 2 );
+    UNIT_TEST( *((range_32.first())->second()) == 1 );
+    UNIT_TEST( *((range_32.first()+1)->second()) == 3 );
 
     // Check the source and target sets.
     Set_Iterator source_begin = tmap.source_set_begin();
     Set_Iterator source_end = tmap.source_set_end();
     UNIT_TEST( std::distance(source_begin, source_end) == 2 );
-    UNIT_TEST( *source_begin == 8 );
+    UNIT_TEST( *(source_begin) == 8 );
     UNIT_TEST( *(source_begin+1) == 32 );
 
     Set_Iterator target_begin = tmap.target_set_begin();
     Set_Iterator target_end = tmap.target_set_end();
     UNIT_TEST( std::distance(target_begin, target_end) == 4 );
-    UNIT_TEST( *target_begin == 1 );
+    UNIT_TEST( *(target_begin) == 1 );
     UNIT_TEST( *(target_begin+1) == 2 );
     UNIT_TEST( *(target_begin+2) == 3 );
     UNIT_TEST( *(target_begin+3) == 4 );
