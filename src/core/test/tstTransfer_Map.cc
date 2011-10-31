@@ -1,9 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   core/test/tstTransfer_Map.cc
- * \author stuart
+ * \author Stuart Slattery
  * \date   Mon Oct 31 12:15:31 2011
- * \brief  
+ * \brief  Unit test for the transfer map.
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
 //---------------------------------------------------------------------------//
@@ -19,7 +19,7 @@
 #include "harness/Soft_Equivalence.hh"
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
-#include "../Release.hh"
+#include "release/Release.hh"
 
 using namespace std;
 using nemesis::Parallel_Unit_Test;
