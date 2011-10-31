@@ -42,18 +42,19 @@ class Data_Transfer_Manager
     //@{
     //! Useful typedefs.
     typedef Field_Type_T                             FieldType;
+    typedef int                                      Handle;
+    typedef const Handle*                            Handle_Iterator;
+    typedef double                                   Coordinate;
+    typedef const Coordinate*                        Coord_Iterator;
     typedef nemesis::SP<Transfer_Evaluator>          SP_Transfer_Evaluator;
-    typedef nemesis::SP<Transfer_Map>                SP_Transfer_Map;
+    typedef Transfer_Map<Handle,int>                 Map;
+    typedef nemesis::SP<Map>                         SP_Transfer_Map;
     typedef Field_DB<FieldType>                      DB;
     typedef nemesis::SP<DB>                          SP_DB;
     typedef nemesis::SP<LG_Indexer>                  SP_LG_Indexer;
     typedef nemesis::SP<Messenger>                   SP_Messenger;
     typedef nemesis::Communicator_t                  Communicator;
     typedef std::vector<char>                        Buffer;
-    typedef int                                      Handle;
-    typedef const Handle*                            Handle_Iterator;
-    typedef double                                   Coordinate;
-    typedef const Coordinate*                        Coord_Iterator;
     //@}
 
   private:

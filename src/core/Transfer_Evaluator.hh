@@ -91,7 +91,7 @@ class Transfer_Evaluator
     virtual void integrate(std::string field_name,
 			   FieldType &field_norm) = 0;
 
-    //! Perform a rebalance on a field for conservation.
+    //! Perform a rebalance on a field for global conservation.
     virtual void rebalance(std::string field_name,
 			   FieldType field_norm) = 0;
 };

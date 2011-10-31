@@ -1,8 +1,8 @@
 dnl-------------------------------------------------------------------------dnl
-dnl denovo configure.ac
+dnl coupler configure.ac
 dnl $Id: configure.ac,v 1.6 2009/07/28 21:33:34 9te Exp $
 dnl-------------------------------------------------------------------------dnl
-dnl @> configure.in for denovo
+dnl @> configure.in for coupler
 dnl-------------------------------------------------------------------------dnl
 
 AC_INIT
@@ -31,5 +31,5 @@ AC_HEAD_MAKEFILE
 AC_OUTPUT
 
 dnl-------------------------------------------------------------------------dnl
-dnl			 end of denovo configure.ac
+dnl			 end of coupler configure.ac
 dnl-------------------------------------------------------------------------dnl
