@@ -145,12 +145,7 @@ int main(int argc, char *argv[])
         int gpass = 0;
         int gfail = 0;
 
-	// The map only needs to be tested in serial
-	if (node == 0)
-	{
-	    map_test(ut);
-	}
-
+	map_test(ut);
 	gpass += ut.numPasses;
 	gfail += ut.numFails;
 	ut.reset();

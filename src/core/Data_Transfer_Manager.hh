@@ -16,6 +16,7 @@
 #include "Transfer_Map.hh"
 #include "LG_Indexer.hh"
 #include "Messenger.hh"
+#include "field/Field.hh"
 #include "fields/Field_DB.hh"
 #include "utils/SP.hh"
 #include "comm/global.hh"
@@ -41,14 +42,12 @@ class Data_Transfer_Manager
     
     //@{
     //! Useful typedefs.
-    typedef Field_Type_T                             FieldType;
+    typedef FieldType_T                              FieldType;
     typedef int                                      Handle;
     typedef const Handle*                            Handle_Iterator;
     typedef double                                   Coordinate;
     typedef const Coordinate*                        Coord_Iterator;
     typedef nemesis::SP<Transfer_Evaluator>          SP_Transfer_Evaluator;
-    typedef Transfer_Map<Handle,int>                 Map;
-    typedef nemesis::SP<Map>                         SP_Transfer_Map;
     typedef Field_DB<FieldType>                      DB;
     typedef nemesis::SP<DB>                          SP_DB;
     typedef nemesis::SP<LG_Indexer>                  SP_LG_Indexer;
@@ -60,13 +59,13 @@ class Data_Transfer_Manager
   private:
 
     // Global communicator.
-    Communicator_t d_comm_global;
+    Communicator d_comm_global;
 
     // Physics A communicator.
-    Communicator_t d_comm_a;
+    Communicator d_comm_a;
    
     // Physics B communicator.
-    Communicator_t d_comm_b;
+    Communicator d_comm_b;
 
     // Physics A transfer evaluator.
     SP_Transfer_Evaluator d_te_a;
@@ -80,12 +79,6 @@ class Data_Transfer_Manager
     // Physics B local to global indexer.
     SP_LG_Indexer d_indexer_b;
 
-    // Topology map for transfer from A to B.
-    SP_Transfer_Map d_map_a2b;
-
-    // Topology map for transfer from B to A.
-    SP_Transfer_Map d_map_b2a;
-
     // Physics A messenger object.
     SP_Messenger d_messenger_a;
 
@@ -98,7 +91,7 @@ class Data_Transfer_Manager
   public:
 
     // Constructor.
-    Data_Transfer_Manager(Communicator_t comm_global,
+    Data_Transfer_Manager(Communicator comm_global,
 	                  Transfer_Evaluator* TE_A,
 			  Transfer_Evaluator* TE_B);
 

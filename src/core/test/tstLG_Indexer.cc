@@ -106,7 +106,6 @@ int main(int argc, char *argv[])
         int gfail = 0;
  
         indexer_test(ut);
-
         gpass += ut.numPasses;
         gfail += ut.numFails;
         ut.reset();

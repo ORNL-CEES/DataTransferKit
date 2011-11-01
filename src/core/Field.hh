@@ -12,6 +12,7 @@
 #ifndef field_Field_hh
 #define field_Field_hh
 
+#include "Transfer_Map.hh"
 
 namespace field
 {
@@ -36,22 +37,33 @@ class Field
     //@{
     //! Useful typedefs.
     typedef FieldType_T                            FieldType;
+    typedef int                                    Handle;
+    typedef int                                    Ordinate;
+    typedef Transfer_Map<Handle,Ordinate>          Map;
+    typedef nemesis::SP<Map>                       SP_Transfer_Map;
     //@}
 
   private:
 
-    
+    // Topology map for transfer from A to B.
+    SP_Transfer_Map d_map_a2b;
+
+    // Topology map for transfer from B to A.
+    SP_Transfer_Map d_map_b2a;
 
   public:
 
     //! Constructor.
-    Field()
-    { /* ... */ }
+    Field();
 
     //! Destructor.
-    ~Field()
-    { /* ... */ }
+    ~Field();
 
+    //! Get the map for A to B.
+    SP_Transfer_Map map_a2b();
+
+    //! Get the map for B to A.
+    SP_Transfer_Map map_b2a();
 };
 
 #include "Field.i.hh"

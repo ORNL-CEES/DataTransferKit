@@ -41,6 +41,9 @@ Data_Transfer_Manager::Data_Transfer_Manager(Communicator comm_global,
 	d_indexer_b = new LG_Indexer(d_comm_global, d_comm_b, d_te_b);
 	Ensure( d_indexer_b );
     }
+
+    // Initialize the field database.
+    d_f_db = new Field_DB<FieldType>();
 }
 
 //---------------------------------------------------------------------------//
@@ -68,8 +71,8 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
     // Operate on the global communicator.
     nemesis::set_internal_comm(d_comm_global);
 
-    // Initialize map.
-    d_map_a2b = new Transfer_Map();    
+    // Get the field that we are mapping.
+    denovo::SP<Field<FieldType> > field = d_f_db.get_field(field_name);
 
     // Set the iteration bounds for loops over the A and B process ids.
     int begin_a = 0;
@@ -88,12 +91,12 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
     // Target point handle vector iterators.
     Handle_Iterator handles_begin, handles_end;
 
-    // B registers its target points.
+    // B registers its target points for the field being mapped.
     d_te_b->register_xyz(field_name, 
 			 points_begin, points_end, 
 			 handles_begin, handles_end);
-    Check( std::distance(points_end, points_begin) % 3 == 0 );
-    Check( std::distance(points_end,points_begin) / 3 == 
+    Check( std::distance(points_begin, points_end) % 3 == 0 );
+    Check( std::distance(points_begin, points_end) / 3 == 
 	   std::distance(handles_begin, handles_end) );
 
     // B sends all of its target points to each A process.
@@ -202,7 +205,7 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 		    if ( d_te_a->find_xyz(x, y, z, handle) )
 		    {
 			// Add the handle to the map with the target rank.
-			d_map_a2b->add_domain_pair(source, handle);
+			field->map_a2b()->add_domain_pair(source, handle);
 		    }
 		}
 	    }
@@ -218,12 +221,12 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 	// For every unique B in the map, send back the points found in the
 	// local domain.
 	Set_Iterator destination;
-	for (destination = d_map_a2b->target_set_begin(); 
-	     destination != d_map_a2b->target_set_end(); 
+	for (destination = field->map_a2b()->target_set_begin(); 
+	     destination != field->map_a2b()->target_set_end(); 
 	     ++destination)
 	{
 	    // Get the domain iterators for this target rank.
-	    Iterator_Pair domain_pair = map_a2b->domain(*destination);
+	    Iterator_Pair domain_pair = field->map_a2b()->domain(*destination);
 	    std::multimap<int,int>::const_iterator mapit;
 	    
 	    // Create a packer.
@@ -292,7 +295,7 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 		    Handle handle;
 		    u >> handle;
 
-		    map_a2b->add_target_pair(source, handle);
+		    field->map_a2b()->add_target_pair(source, handle);
 		}
 	    }
 	}

@@ -13,6 +13,7 @@
 #define field_Field_DB_hh
 
 #include "Field.hh"
+#include "utils/SP.hh"
 #include <string>
 #include <map>
 
@@ -39,8 +40,11 @@ class Field_DB
     
     //@{
     //! Useful typedefs.
-    typedef Field_Type_T                          FieldType;
-    std::map<std::string,Field<FieldType> >       Database;
+    typedef FieldType_T                           FieldType;
+    typedef Field<FieldType>                      ValueType;
+    typedef denovo::SP<ValueType>                 SP_ValueType;
+    typedef std::string                           KeyType;
+    std::map<KeyType,SP_ValueType>                Database;
     //@}
 
   private:
@@ -59,10 +63,10 @@ class Field_DB
     { /* ... */ }
 
     //! Add a field to the database.
-    inline void add_field(std::string field_name);
+    inline void add_field(KeyType key);
 
     //! Get a field from the database.
-    inline void get_field(std::string field_name, Field &return_field);
+    inline SP_ValueType get_field(KeyType key);
 };
 
 } // end namespace field

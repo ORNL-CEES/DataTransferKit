@@ -16,16 +16,16 @@ namespace field
 {
 
 //---------------------------------------------------------------------------//
-void Field_DB::add_field(std::string field_name)
+void Field_DB::add_field(KeyType field_name)
 {
-    Field<ValueType> new_field;
+    ValueType new_field;
     d_db.insert( std::make_pair(field_name,new_field) );
 }
 
 //---------------------------------------------------------------------------//
-void Field_DB::get_field(std::string field_name, Field &return_field)
+Field_DB::SP_ValueType Field_DB::get_field(KeyType field_name)
 {
-    return_field = d_db(field_name);
+    return d_db[field_name];
 }
 
 //---------------------------------------------------------------------------//

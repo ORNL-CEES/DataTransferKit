@@ -1,9 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   core/test/tstField.cc
- * \author stuart
+ * \author Stuart Slattery
  * \date   Mon Oct 31 12:15:17 2011
- * \brief  
+ * \brief  Unit tests for the Field class.
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
 //---------------------------------------------------------------------------//
@@ -19,7 +19,8 @@
 #include "harness/Soft_Equivalence.hh"
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
-#include "../Release.hh"
+#include "release/Release.hh"
+#include "../Field.hh"
 
 using namespace std;
 using nemesis::Parallel_Unit_Test;
@@ -35,7 +36,31 @@ int nodes = 0;
 // TESTS
 //---------------------------------------------------------------------------//
 
+// Test the constructor to check map initialization.
+void constructor_test(Parallel_Unit_Test &ut)
+{
+    // Build a field.
+    Field<double> dbl_field;
 
+    // Check that the maps have been constructed.
+    UNIT_TEST( dbl_field.map_a2b() );
+    UNIT_TEST( dbl_field.map_b2a() );
+}
+
+// Test that we can manipulate the map through the field.
+void map_test(Parallel_Unit_Test &ut)
+{
+    // build a field
+    Field<double> dbl_field;
+    
+    // Add a domain pair to the map.
+    dbl_field.map_a2b()->add_domain_pair(2, 32);
+
+    // Check the map to see that the domain pair was properly added.
+    UNIT_TEST( dbl_field.map_a2b()->domain_size(2) == 1 );
+    UNIT_TEST( dbl_field.map_a2b()->domain(2).first().second() == 32 );
+    UNIT_TEST( *(dbl_field.map_a2b()->target_set_begin()) == 2 );
+}
 
 //---------------------------------------------------------------------------//
 
@@ -51,6 +76,16 @@ int main(int argc, char *argv[])
         // >>> UNIT TESTS
         int gpass = 0;
         int gfail = 0;
+
+	constructor_test(ut);
+	gpass += ut.numPasses;
+        gfail += ut.numFails;
+        ut.reset();
+
+	map_test(ut);
+	gpass += ut.numPasses;
+        gfail += ut.numFails;
+        ut.reset();
         
         // add up global passes and fails
         nemesis::global_sum(gpass);
