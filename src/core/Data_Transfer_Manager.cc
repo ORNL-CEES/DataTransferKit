@@ -33,14 +33,11 @@ Data_Transfer_Manager::Data_Transfer_Manager(Communicator comm_global,
     d_te_b->register_comm(d_comm_b);
 
     // Generate local to global rank indexers.
-    if(d_te_a || d_te_b)
-    {
-	d_indexer_a = new LG_Indexer(d_comm_global, d_comm_a, d_te_a);
-	Ensure( d_indexer_a );
+    d_indexer_a = new LG_Indexer(d_comm_global, d_comm_a, d_te_a);
+    Ensure( d_indexer_a );
 
-	d_indexer_b = new LG_Indexer(d_comm_global, d_comm_b, d_te_b);
-	Ensure( d_indexer_b );
-    }
+    d_indexer_b = new LG_Indexer(d_comm_global, d_comm_b, d_te_b);
+    Ensure( d_indexer_b );
 
     // Initialize the field database.
     d_f_db = new Field_DB<FieldType>();
@@ -55,7 +52,7 @@ Data_Transfer_Manager::~Data_Transfer_Manager()
 // Register a field to be controlled by the manager.
 void Data_Transfer_Manager::add_field(std::string field_name)
 {
-    // Check that the field is supported by the each code.
+    // Require that the field is supported by the each code.
     Require( d_te_a->register_field(field_name) );
     Require( d_te_b->register_field(field_name) );
 

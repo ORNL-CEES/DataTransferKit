@@ -47,11 +47,11 @@ class Data_Transfer_Manager
     typedef const Handle*                            Handle_Iterator;
     typedef double                                   Coordinate;
     typedef const Coordinate*                        Coord_Iterator;
-    typedef nemesis::SP<Transfer_Evaluator>          SP_Transfer_Evaluator;
+    typedef denovo::SP<Transfer_Evaluator>           SP_Transfer_Evaluator;
     typedef Field_DB<FieldType>                      DB;
-    typedef nemesis::SP<DB>                          SP_DB;
-    typedef nemesis::SP<LG_Indexer>                  SP_LG_Indexer;
-    typedef nemesis::SP<Messenger>                   SP_Messenger;
+    typedef denovo::SP<DB>                           SP_DB;
+    typedef denovo::SP<LG_Indexer>                   SP_LG_Indexer;
+    typedef denovo::SP<Messenger>                    SP_Messenger;
     typedef nemesis::Communicator_t                  Communicator;
     typedef std::vector<char>                        Buffer;
     //@}
@@ -98,7 +98,7 @@ class Data_Transfer_Manager
     // Destructor.
     ~Data_Transfer_Manager();
 
-    // Register a field to the manager.
+    // Register a field with the manager.
     void add_field(std::string field_name);
 
     // Build the topology map for transfer from A to B.
