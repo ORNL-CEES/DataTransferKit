@@ -145,10 +145,11 @@ void Data_Transfer_Manager::map(std::string field_name,
 	int destination;
 	for (int i = begin_source; i < end_source; ++i)
 	{
-	    // Get the global index for the source physics that the buffer is going to.
+	    // Get the global index for the source physics that the buffer is
+	    // going to.
 	    destination = source->indexer()->l2g(i);
 
-	    // Send a message to A with the size of the buffer that it will
+	    // Send a message to the source with the size of the buffer that it will
 	    // get. 
 	    nemesis::send_async(&buffer_size, 1, destination);
 

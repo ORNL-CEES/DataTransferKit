@@ -1,9 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/test/tstField_DB.cc
- * \author Stuart Slattery
- * \date   Mon Oct 31 12:15:22 2011
- * \brief  Unit tests for the Field_DB class.
+ * \file   core/test/tstTransfer_Evaluator.cc
+ * \author stuart
+ * \date   Wed Nov 02 12:40:20 2011
+ * \brief  
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
 //---------------------------------------------------------------------------//
@@ -19,10 +19,7 @@
 #include "harness/Soft_Equivalence.hh"
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
-#include "release/Release.hh"
-#include "../SP.hh"
-#include "../Field.hh"
-#include "../Field_DB.hh"
+#include "../Release.hh"
 
 using namespace std;
 using nemesis::Parallel_Unit_Test;
@@ -38,22 +35,7 @@ int nodes = 0;
 // TESTS
 //---------------------------------------------------------------------------//
 
-// Database test.
-void db_test(Parallel_Unit_Test &ut)
-{
-    // Build a field database.
-    Field_DB<double> field_db;
 
-    // Add the field to the database.
-    field_db.add_field("TEST_FIELD");
-
-    // Get the field we made.
-    denovo::SP<Field<double> > field = field_db.get_field("TEST_FIELD");
-
-    // Check that the field has its maps.
-    UNIT_TEST( field->map_a2b() );
-    UNIT_TEST( field->map_b2a() );
-}
 
 //---------------------------------------------------------------------------//
 
@@ -78,14 +60,14 @@ int main(int argc, char *argv[])
     }
     catch (std::exception &err)
     {
-        std::cout << "ERROR: While testing tstField_DB, " 
+        std::cout << "ERROR: While testing tstTransfer_Evaluator, " 
                   << err.what()
                   << endl;
         ut.numFails++;
     }
     catch( ... )
     {
-        std::cout << "ERROR: While testing tstField_DB, " 
+        std::cout << "ERROR: While testing tstTransfer_Evaluator, " 
                   << "An unknown exception was thrown."
                   << endl;
         ut.numFails++;
@@ -94,5 +76,5 @@ int main(int argc, char *argv[])
 }   
 
 //---------------------------------------------------------------------------//
-//                        end of tstField_DB.cc
+//                        end of tstTransfer_Evaluator.cc
 //---------------------------------------------------------------------------//
