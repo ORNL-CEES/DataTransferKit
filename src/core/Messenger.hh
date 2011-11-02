@@ -35,9 +35,9 @@ class Receive_Buffer
   public:
     //@{
     //! Useful Typedefs.
-    typedef OrdinateType_T    OrdinateType;
-    typedef nemesis::Request    Request;
-    typedef std::vector<char>   Buffer;
+    typedef OrdinateType_T              OrdinateType;
+    typedef nemesis::Request            Request;
+    typedef std::vector<char>           Buffer;
     //@}
 
   private:
