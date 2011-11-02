@@ -1,27 +1,27 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   field/Field.t.hh
+ * \file   core/Physics.t.hh
  * \author stuart
- * \date   Thu Oct 13 09:42:01 2011
- * \brief  
+ * \date   Wed Nov 02 11:01:32 2011
+ * \brief  Physics template member definitions.
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
 //---------------------------------------------------------------------------//
 // $Id: template.t.hh,v 1.3 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
-#ifndef field_Field_t_hh
-#define field_Field_t_hh
+#ifndef core_Physics_t_hh
+#define core_Physics_t_hh
 
-#include "Field.hh"
+#include "Physics.hh"
 
-namespace field
+namespace coupler
 {
 
-} // end namespace field
+} // end namespace coupler
 
-#endif // field_Field_t_hh
+#endif // core_Physics_t_hh
 
 //---------------------------------------------------------------------------//
-//                   end of field/Field.t.hh
+//                   end of core/Physics.t.hh
 //---------------------------------------------------------------------------//

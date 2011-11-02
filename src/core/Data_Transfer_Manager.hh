@@ -51,11 +51,7 @@ class Data_Transfer_Manager
     typedef const Handle*                            Handle_Iterator;
     typedef double                                   Coordinate;
     typedef const Coordinate*                        Coord_Iterator;
-    typedef denovo::SP<Transfer_Evaluator>           SP_Transfer_Evaluator;
     typedef denovo::SP<Physics>                      SP_Physics;
-    typedef Field_DB<FieldType>                      DB;
-    typedef denovo::SP<DB>                           SP_DB;
-    typedef denovo::SP<LG_Indexer>                   SP_LG_Indexer;
     typedef denovo::SP<Messenger>                    SP_Messenger;
     typedef nemesis::Communicator_t                  Communicator;
     typedef std::vector<char>                        Buffer;
@@ -66,24 +62,6 @@ class Data_Transfer_Manager
 
     // Global communicator.
     Communicator d_comm_global;
-
-    // Physics A communicator.
-    Communicator d_comm_a;
-   
-    // Physics B communicator.
-    Communicator d_comm_b;
-
-    // Physics A transfer evaluator.
-    SP_Transfer_Evaluator d_te_a;
-
-    // Physics B transfer evaluator.
-    SP_Transfer_Evaluator d_te_b;
-
-    // Physics A local to global indexer.
-    SP_LG_Indexer d_indexer_a;
-
-    // Physics B local to global indexer.
-    SP_LG_Indexer d_indexer_b;
 
     // Physics A messenger object.
     SP_Messenger d_messenger_a;

@@ -19,34 +19,22 @@ namespace coupler
 
 //---------------------------------------------------------------------------//
 // Constructor.
-Data_Transfer_Manager::Data_Transfer_Manager(Communicator comm_global,
-					     Transfer_Evaluator* TE_A,
-					     Transfer_Evaluator* TE_B)
+Data_Transfer_Manager::Data_Transfer_Manager(Communicator comm_global)
     : d_comm_global(comm_global)
-{
-    // Wrap the raw Transfer_Evaluator pointers.
-    d_te_a = TE_A;
-    d_te_b = TE_B;
-
-    // Get the physics' subcommunicators.
-    d_te_a->register_comm(d_comm_a);
-    d_te_b->register_comm(d_comm_b);
-
-    // Generate local to global rank indexers.
-    d_indexer_a = new LG_Indexer(d_comm_global, d_comm_a, d_te_a);
-    Ensure( d_indexer_a );
-
-    d_indexer_b = new LG_Indexer(d_comm_global, d_comm_b, d_te_b);
-    Ensure( d_indexer_b );
-
-    // Initialize the field database.
-    d_f_db = new Field_DB<FieldType>();
-}
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Destructor.
 Data_Transfer_Manager::~Data_Transfer_Manager()
 { /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Register a physics to be controlled by the manager.
+void Data_Transfer_Manager::add_physics(std::string physics_name,
+					Transfer_Evaluator *te)
+{
+
+}
 
 //---------------------------------------------------------------------------//
 // Register a field to be controlled by the manager.

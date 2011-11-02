@@ -1,22 +1,25 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   field/Field_DB.cc
+ * \file   core/Physics.i.hh
  * \author stuart
- * \date   Thu Oct 13 09:42:22 2011
- * \brief  
+ * \date   Wed Nov 02 11:01:32 2011
+ * \brief  Member definitions of class Physics.
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
 //---------------------------------------------------------------------------//
-// $Id: template.cc,v 1.3 2008/01/02 17:18:47 9te Exp $
+// $Id: template.i.hh,v 1.4 2008/01/04 22:50:12 9te Exp $
 //---------------------------------------------------------------------------//
 
-#include "Field_DB.hh"
+#ifndef core_Physics_i_hh
+#define core_Physics_i_hh
 
-namespace field
+namespace coupler
 {
 
-} // end namespace field
+} // end namespace coupler
+
+#endif // core_Physics_i_hh
 
 //---------------------------------------------------------------------------//
-//                 end of Field_DB.cc
+//              end of core/Physics.i.hh
 //---------------------------------------------------------------------------//
