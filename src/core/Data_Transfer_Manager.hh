@@ -14,12 +14,16 @@
 
 #include "Transfer_Evaluator.hh"
 #include "Transfer_Map.hh"
+#include "Physics.hh"
 #include "LG_Indexer.hh"
 #include "Messenger.hh"
 #include "field/Field.hh"
 #include "fields/Field_DB.hh"
 #include "utils/SP.hh"
 #include "comm/global.hh"
+#include <vector>
+#include <map>
+#include <string>
 
 namespace coupler
 {
@@ -48,12 +52,14 @@ class Data_Transfer_Manager
     typedef double                                   Coordinate;
     typedef const Coordinate*                        Coord_Iterator;
     typedef denovo::SP<Transfer_Evaluator>           SP_Transfer_Evaluator;
+    typedef denovo::SP<Physics>                      SP_Physics;
     typedef Field_DB<FieldType>                      DB;
     typedef denovo::SP<DB>                           SP_DB;
     typedef denovo::SP<LG_Indexer>                   SP_LG_Indexer;
     typedef denovo::SP<Messenger>                    SP_Messenger;
     typedef nemesis::Communicator_t                  Communicator;
     typedef std::vector<char>                        Buffer;
+    typedef std::map<std::string,SP_Physics>         Physics_DB;
     //@}
 
   private:
@@ -88,30 +94,35 @@ class Data_Transfer_Manager
     // Field database.
     SP_DB d_f_db;
 
+    // Physics database.
+    Physics_DB d_physics_db;
+    
+
   public:
 
     // Constructor.
-    Data_Transfer_Manager(Communicator comm_global,
-	                  Transfer_Evaluator* TE_A,
-			  Transfer_Evaluator* TE_B);
+    Data_Transfer_Manager(Communicator comm_global);
 
     // Destructor.
     ~Data_Transfer_Manager();
 
+    // Register a physics with the manager.
+    void add_physics(std::string physics_name, 
+		     Transfer_Evaluator* te);
+
     // Register a field with the manager.
     void add_field(std::string field_name);
 
-    // Build the topology map for transfer from A to B.
-    void map_A2B(std::string field_name);
+    // Build the topology map for transfer from a source physics to a target
+    // physics.
+    void map(std::string field_name,
+	     std::string source_physics,
+	     std::string target_physics);
 
-    // Build the topology map for transfer from B to A.
-    void map_B2A(std::string field_name);
-
-    // Transfer data from A to B.
-    void transfer_A2B(std::string field_name);
-
-    // Transfer data from B to A.
-    void transfer_B2A(std::string field_name);
+    // Transfer data from a source physics to a target physics.
+    void transfer(std::string field_name,
+		  std::string source_physics,
+		  std::string target_physics);
 };
 
 } // end namespace coupler
