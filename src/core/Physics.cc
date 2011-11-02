@@ -43,12 +43,12 @@ void Physics::set_map(std::string target_physics,
 		      std::string field_name,
 		      SP_Transfer_Map transfer_map)
 {
-    // Check if the target physics already has a map.
     if ( d_target_map[target_physics] )
     {
 	d_target_map[target_physics].insert(
 	    std::pair<std::string,SP_Transfer_Map>(field_name,transfer_map) );
     }
+
     else
     {
 	Field_Map new_map;
@@ -57,6 +57,8 @@ void Physics::set_map(std::string target_physics,
 	d_target_map.insert(
 	    std::pair<std::string,Field_Map(target_physics,new_map) );
     }
+
+    Ensure( (d_target_map[target_physics])[field_name] );
 }
 
 //---------------------------------------------------------------------------//

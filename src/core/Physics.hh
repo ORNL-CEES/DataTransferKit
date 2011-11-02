@@ -13,13 +13,14 @@
 #ifndef core_Physics_hh
 #define core_Physics_hh
 
+#include <string>
+#include <map>
+
 #include "Transfer_Evaluator.hh"
 #include "Transfer_Map.hh"
 #include "LG_Indexer.hh"
 #include "Messenger.hh"
 #include "comm/global.hh"
-#include <string>
-#include <map>
 
 namespace coupler
 {
@@ -73,7 +74,7 @@ class Physics
     ~Physics();
 
     //! Return the transfer evaluator implementation.
-    const SP_Transfer_Evaluator transfer_evaluator() { return d_te; }
+    const SP_Transfer_Evaluator te() { return d_te; }
 
     //! Return the communicator.
     const Communicator comm() { return d_comm; }

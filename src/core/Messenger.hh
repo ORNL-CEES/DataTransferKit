@@ -15,8 +15,7 @@
 
 #include <string>
 
-#include "Base_Map.hh"
-#include "Map_Node.hh"
+#include "Transfer_Map.hh"
 #include "utils/SP.hh"
 #include "utils/Packing_Utils.hh"
 #include "comm/global.hh"
@@ -36,7 +35,7 @@ class Receive_Buffer
   public:
     //@{
     //! Useful Typedefs.
-    typedef OrdinateType_T      OrdinateType;
+    typedef OrdinateType_T    OrdinateType;
     typedef nemesis::Request    Request;
     typedef std::vector<char>   Buffer;
     //@}

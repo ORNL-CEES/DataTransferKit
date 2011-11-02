@@ -12,6 +12,10 @@
 #ifndef coupler_Data_Transfer_Manager_hh
 #define coupler_Data_Transfer_Manager_hh
 
+#include <vector>
+#include <map>
+#include <string>
+
 #include "Transfer_Evaluator.hh"
 #include "Transfer_Map.hh"
 #include "Physics.hh"
@@ -21,9 +25,6 @@
 #include "fields/Field_DB.hh"
 #include "utils/SP.hh"
 #include "comm/global.hh"
-#include <vector>
-#include <map>
-#include <string>
 
 namespace coupler
 {
@@ -52,7 +53,8 @@ class Data_Transfer_Manager
     typedef double                                   Coordinate;
     typedef const Coordinate*                        Coord_Iterator;
     typedef denovo::SP<Physics>                      SP_Physics;
-    typedef denovo::SP<Messenger>                    SP_Messenger;
+    typedef denovo::SP<Messenger<FieldType> >        SP_Messenger;
+    typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
     typedef nemesis::Communicator_t                  Communicator;
     typedef std::vector<char>                        Buffer;
     typedef std::map<std::string,SP_Physics>         Physics_DB;
@@ -63,41 +65,32 @@ class Data_Transfer_Manager
     // Global communicator.
     Communicator d_comm_global;
 
-    // Physics A messenger object.
-    SP_Messenger d_messenger_a;
-
-    // Physics B messenger object.
-    SP_Messenger d_messenger_b;
-
-    // Field database.
-    SP_DB d_f_db;
-
     // Physics database.
     Physics_DB d_physics_db;
     
-
   public:
 
-    // Constructor.
+    //! Constructor.
     Data_Transfer_Manager(Communicator comm_global);
 
-    // Destructor.
+    //! Destructor.
     ~Data_Transfer_Manager();
 
-    // Register a physics with the manager.
+    //! Register a physics with the manager.
     void add_physics(std::string physics_name, 
-		     Transfer_Evaluator* te);
+		     Transfer_Evaluator *te);
 
-    // Register a field with the manager.
+    //! Register a field with the manager.
     void add_field(std::string field_name);
 
-    // Build the topology map for transfer from a source physics to a target
-    // physics.
+    //! Build the topology map for transfer from a source physics to a target
+    //! physics for a particular field.
     void map(std::string field_name,
 	     std::string source_physics,
 	     std::string target_physics);
 
-    // Transfer data from a source physics to a target physics.
+    //! Transfer data associated with a field from a source physics to a target
+    //! physics. 
     void transfer(std::string field_name,
 		  std::string source_physics,
 		  std::string target_physics);

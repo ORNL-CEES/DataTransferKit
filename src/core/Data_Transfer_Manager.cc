@@ -33,7 +33,12 @@ Data_Transfer_Manager::~Data_Transfer_Manager()
 void Data_Transfer_Manager::add_physics(std::string physics_name,
 					Transfer_Evaluator *te)
 {
+    // Make a physics object.
+    SP_Physics new_physics = new Physics(te, d_comm_global);
 
+    // Add it to the physics database.
+    d_physics_db.insert( 
+	std::pair<std::string,SP_Physics>(physics_name, new_physics) );
 }
 
 //---------------------------------------------------------------------------//
@@ -43,31 +48,36 @@ void Data_Transfer_Manager::add_field(std::string field_name)
     // Require that the field is supported by the each code.
     Require( d_te_a->register_field(field_name) );
     Require( d_te_b->register_field(field_name) );
-
-    // Add the new field to the database.
-    d_f_db.add_field(field_name);
 }
 
 //---------------------------------------------------------------------------//
-// Build the topology map for transfer from A to B for a particular field. B
-// provides the target points and A is the source.
-void Data_Transfer_Manager::map_A2B(std::string field_name)
+// Build the topology map for transfer from a source physics to a target
+// physics for a particular field.
+void Data_Transfer_Manager::map(std::string field_name,
+				std::string source_physics,
+				std::string target_physics);
 {
     // Operate on the global communicator.
     nemesis::set_internal_comm(d_comm_global);
 
-    // Get the field that we are mapping.
-    denovo::SP<Field<FieldType> > field = d_f_db.get_field(field_name);
+    // Make a transfer map.
+    SP_Transfer_Map new_map = new Transfer_Map();
 
-    // Set the iteration bounds for loops over the A and B process ids.
-    int begin_a = 0;
-    int end_a = 0;
-    int begin_b = 0;
-    int end_b = 0;
-    if( d_te_a || d_te_b )
+    // Get the transfer evaluator implementations for the physics we are
+    // operating on.
+    SP_Physics source = d_physics_db[source_physics];
+    SP_Physics target = d_physics_db[target_physics];
+
+    // Set the iteration bounds for loops over the source and target process
+    // ids.
+    int begin_source = 0;
+    int end_source = 0;
+    int begin_target = 0;
+    int end_target = 0;
+    if( source->te() || target->te() )
     {
-	end_a = d_indexer_a->size();
-	end_b = d_indexer_b->size();
+	end_source = source->indexer()->size();
+	end_target = target->indexer()->size();
     }
 
     // Target point coordinate vector iterators.
@@ -76,18 +86,19 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
     // Target point handle vector iterators.
     Handle_Iterator handles_begin, handles_end;
 
-    // B registers its target points for the field being mapped.
-    d_te_b->register_xyz(field_name, 
-			 points_begin, points_end, 
-			 handles_begin, handles_end);
+    // Target physics registers its target points for the field being mapped.
+    target->te()->register_xyz(field_name, 
+			       points_begin, points_end, 
+			       handles_begin, handles_end);
     Check( std::distance(points_begin, points_end) % 3 == 0 );
     Check( std::distance(points_begin, points_end) / 3 == 
 	   std::distance(handles_begin, handles_end) );
 
-    // B sends all of its target points to each A process.
-    if (d_te_b)
+    // Target physics sends all of its target points to each source physics
+    // process.
+    if (target->te())
     {
-	// Build a buffer of the local points to send to A.
+	// Build a buffer of the local points to send to the source physics.
 	Buffer buffer;
 
 	// Create a packer.
@@ -130,12 +141,12 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 	}
 	int buffer_size = buffer.size();
 
-	// Send the local points to all processes of A.
+	// Send the local target points to all processes of the source physics.
 	int destination;
-	for (int i = begin_a; i < end_a; ++i)
+	for (int i = begin_source; i < end_source; ++i)
 	{
-	    // Get the global index for A that the buffer is going to.
-	    destination = d_indexer_a->l2g(i);
+	    // Get the global index for the source physics that the buffer is going to.
+	    destination = source->indexer()->l2g(i);
 
 	    // Send a message to A with the size of the buffer that it will
 	    // get. 
@@ -149,27 +160,27 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 	}
     }
 
-    // A receives all of the target points from A and builds the topology
-    // map. 
-    if (d_te_a)
+    // Source physics receives all of the target points from the target
+    // physics and builds the topology map. 
+    if (source->te())
     {
-	// A will get a message with target points from every B process.
-	for (int i = begin_b; i < end_b; ++i)
+	// Source will get a message with target points from every target process.
+	for (int i = begin_target; i < end_target; ++i)
 	{
-	    // Get the global index of the B process.
-	    int source = d_indexer_b->l2g(i);
+	    // Get the global index of the target process.
+	    int src = target->indexer()->l2g(i);
 
 	    // Get the size of the incoming target point buffer.
 	    int buffer_size;
-	    nemesis::receive(&buffer_size, 1, source);
+	    nemesis::receive(&buffer_size, 1, src);
 
 	    // Unpack the points and add them to the map.
 	    int num_points;
 	    if (buffer_size > 0)
 	    {
-		// Receive the buffer from B.
+		// Receive the buffer from the target process.
 		Buffer buffer(buffer_size);
-		nemesis::receive(&buffer[0], buffer_size, source);
+		nemesis::receive(&buffer[0], buffer_size, src);
 
 		// Compute the number of points in the buffer.
 		num_points = buffer_size / ( sizeof(double) * 3 + sizeof(int));
@@ -186,32 +197,35 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 		    u >> z;
 		    u >> handle;
 
-		    // See if this point is in the spatial domain of A.
-		    if ( d_te_a->find_xyz(x, y, z, handle) )
+		    // See if this point is in the spatial domain of this
+		    // source process.
+		    if ( source->te()->find_xyz(x, y, z, handle) )
 		    {
 			// Add the handle to the map with the target rank.
-			field->map_a2b()->add_domain_pair(source, handle);
+			new_map->add_domain_pair(src, handle);
 		    }
 		}
 	    }
 	}
     }
 
-    // Barrier after sending target points from B to A.
+    // Barrier after sending target points from the target physics to the
+    // source physics.
     nemesis::global_barrier();
 
-    // Send all target points found in A back to B to complete the map.
-    if (d_te_a)
+    // Send all target points found in the source physics back to the target
+    // physics to complete the map.
+    if (source->te())
     {
-	// For every unique B in the map, send back the points found in the
-	// local domain.
+	// For every unique target physics rank in the map, send back the
+	// points found in the local domain.
 	Set_Iterator destination;
-	for (destination = field->map_a2b()->target_set_begin(); 
-	     destination != field->map_a2b()->target_set_end(); 
+	for (destination = new_map->target_set_begin(); 
+	     destination != new_map->target_set_end(); 
 	     ++destination)
 	{
 	    // Get the domain iterators for this target rank.
-	    Iterator_Pair domain_pair = field->map_a2b()->domain(*destination);
+	    Iterator_Pair domain_pair = new_map->domain(*destination);
 	    std::multimap<int,int>::const_iterator mapit;
 	    
 	    // Create a packer.
@@ -245,20 +259,21 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 	}
     }
 
-    // B gets a message from A with the handles to its target points that A
-    // found. B associates these handles with the rank of A that they came
-    // from to complete the map.
-    if (d_te_b)
+    // The target physics gets a message from the source physics with the
+    // handles to its target points that the source found. The target
+    // associates these handles with the rank of the source that they came
+    // from to complete the map. 
+    if (target->te())
     {
-	// Get a buffer from all A processes.
-	for (int i = begin_a; i < end_a; ++i)
+	// Get a buffer from all source processes.
+	for (int i = begin_source; i < end_source; ++i)
 	{
 	    // Get the global rank of A we are receiving from.
-	    int source = d_indexer_a->l2g(i);
+	    int src = source->indexer()->l2g(i);
 
 	    // Receive the buffer size.
 	    int buffer_size;
-	    nemesis::receive(&buffer_size, 1, source);
+	    nemesis::receive(&buffer_size, 1, src);
 
 	    // Unpack the buffer.
 	    if (buffer_size > 0)
@@ -267,7 +282,7 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 		Buffer buffer(buffer_size);
 
 		// Receive the buffer.
-		nemesis::receive(&buffer[0], buffer_size, source);
+		nemesis::receive(&buffer[0], buffer_size, src);
 		
 		// Get the number of handles in the buffer.
 		int num_handles = buffer_size / sizeof(int);
@@ -280,16 +295,22 @@ void Data_Transfer_Manager::map_A2B(std::string field_name)
 		    Handle handle;
 		    u >> handle;
 
-		    field->map_a2b()->add_target_pair(source, handle);
+		    new_map->add_target_pair(source, handle);
 		}
 	    }
 	}
     }
+
+    // Add the new map to the source physics database.
+    source->set_map(target_physics, field_name, new_map);
 }
 
 //---------------------------------------------------------------------------//
-// Transfer data from A to B.
-void Data_Transfer_Manager::transfer_A2B(std::string field_name)
+// Transfer data associated with a field from a source physics to a target
+// physics. 
+void Data_Transfer_Manager::transfer(std::string field_name,
+				     std::string source_physics,
+				     std::string target_physics)
 {
 
 }

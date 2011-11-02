@@ -12,9 +12,10 @@
 #ifndef coupler_Transfer_Evaluator_hh
 #define coupler_Transfer_Evaluator_hh
 
-#include "comm/global.hh"
 #include <vector>
 #include <string>
+
+#include "comm/global.hh"
 
 namespace coupler
 {

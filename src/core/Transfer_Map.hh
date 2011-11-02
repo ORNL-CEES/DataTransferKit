@@ -40,15 +40,14 @@ namespace coupler
  */
 //===========================================================================//
 
-template<class HandleType_T, class OrdinateType_T>
 class Transfer_Map 
 {
   public:
 
     //@{
     //! Useful typedefs.
-    typedef HandleType_T                                 HandleType;
-    typedef OridinateType_T                              OrdinateType;
+    typedef int                                          HandleType;
+    typedef int                                          OrdinateType;
     typedef std::multimap<OrdinateType,HandleType>       Map;
     typedef typename Map::const_iterator                 Map_Iterator;
     typedef std::pair<Map_Iterator,Map_Iterator>         Iterator_Pair;
