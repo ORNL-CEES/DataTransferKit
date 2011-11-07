@@ -89,8 +89,8 @@ class Data_Transfer_Manager
 	     std::string source_physics,
 	     std::string target_physics);
 
-    //! Transfer data associated with a field from a source physics to a target
-    //! physics. 
+    //! Transfer data associated with a field from a source physics to a
+    //! target physics. 
     void transfer(std::string field_name,
 		  std::string source_physics,
 		  std::string target_physics);

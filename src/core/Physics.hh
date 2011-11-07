@@ -62,7 +62,8 @@ class Physics
 
     // Map database. This physics is the source. The key value designates the
     // target physics. The return value provides another database which is in
-    // turn queried by the field.
+    // turn queried by using the field as the key value. This returns a
+    // transfer map.
     Target_Map d_target_map;
 
   public:
