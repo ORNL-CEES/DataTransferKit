@@ -82,7 +82,7 @@ coupling process and reducing the barrier of entry for a physics code
 to participate in coupling. 
 
 \section{Design Requirements for the Coupling Package}
-The coupling package should fulfill the follwing design
+The coupling package should fulfill the following design
 requirements:
 
 \begin{itemize}
@@ -111,36 +111,37 @@ order to meet the coupling algorithm requirements in concrete data
 transfer implementations.
 
 In its current form, the interface to the coupling package exists as
-an abstract interface contained by the Transfer\_Evaluator class. This
-interface should be fulfilled by each physics code that desires to
-participate in coupling under this framework by creating its own
-implementation of the Transfer\_Evaluator. By implementing a transfer
-evaluator, a code will provide the necessary information to implement
-coupling algorithms.
+an abstract interface contained by the {\sl Transfer\_Evaluator}
+class. This interface should be fulfilled by each physics code that
+desires to participate in coupling under this framework by creating
+its own implementation of the Transfer\_Evaluator. By implementing a
+transfer evaluator, a code will provide the necessary information to
+implement coupling algorithms.
 
 \subsection{Coupling Package Map}
 The topology map for parallel transfer of a field (or potentially a
-portion of the field) is stored in the Transfer\_Map class. Although
-this class is initially presented as a concrete implementation, in the
-future the Transfer\_Map should instead represent an interface for
-many forms of mapping corresponding to many forms of coupling
-(e.g. point to volume or surface to surface couplings).
+portion of the field) is stored in the {\sl Transfer\_Map}
+class. Although this class is initially presented as a concrete
+implementation, in the future the {\sl Transfer\_Map} should instead
+represent an interface for many forms of mapping corresponding to many
+forms of coupling (e.g. point to volume or surface to surface
+couplings). 
 
 \subsection{Coupling Package Manager}
-The coupling problem is managed by the Data\_Transfer\_Manager
-class. This class is aware of the Transfer\_Evaluator implementations
+The coupling problem is managed by the {\sl Data\_Transfer\_Manager}
+class. This class is aware of the {\sl Transfer\_Evaluator} implementations
 for each code being coupled as well as topology maps for each type of 
-transfer being performed. The Data\_Transfer\_Manager should
+transfer being performed. The {\sl Data\_Transfer\_Manager} should
 ultimately drive how various coupling and transfer algorithms interact
-with the physics codes through the Transfer\_Evaluator and the mapping
-through the Transfer\_Map. 
+with the physics codes through the {\sl Transfer\_Evaluator} and the mapping
+through the {\sl Transfer\_Map}. 
 
 \section{Simple Example}
 A simple mesh based data transfer example was constructed as a
 means of both demonstrating and developing capability for the coupling
 package. In terms of the coupling package description presented in the
 previous section, this example can be represented by the following
-class diagram presented in Fig.\ref{fig:example_domain}. Here, the
+class diagram presented in Fig. \ref{fig:example_domain}. Here, the
 coupling package contains the transfer evaluator interface, the
 transfer map, and the data transfer manager. In the example package,
 codes A and B along with their implementations of the transfer
@@ -161,7 +162,7 @@ interface by each code.
 
 In this example, code A populates a solution vector with the
 peaks function on a fine quad mesh at the center of its mesh cells
-with a solve method. Fig.\ref{fig:sol_A} gives the code A mesh and its 
+with a solve method. Fig. \ref{fig:sol_A} gives the code A mesh and its 
 solution. After the solve, the coupling package transfers the solution
 from code A to the appropriate data vector associated with the code B
 coarse mesh vertices.
@@ -178,7 +179,7 @@ coarse mesh vertices.
 
 To participate in coupling using the interface described above, both
 codes A and B in this example implement their own transfer evaluator
-deriving from the Transfer\_Evaluator class defined in the coupling
+deriving from the {\sl Transfer\_Evaluator} class defined in the coupling
 package core interface.
 
 This simple example using the coupling package is operated by the
@@ -250,7 +251,7 @@ these codes are then setup and passed to the data transfer
 manager which then applies a simple mapping between the two
 meshes. Following the code A solve, the manager then transfers the
 solution vector from A to B using the map that was previously
-generated. Fig.\ref{fig:sol_B} gives the code B mesh and its solution
+generated. Fig. \ref{fig:sol_B} gives the code B mesh and its solution
 as a result of this data transfer.
 
 \begin{figure}[htpb!]
@@ -267,7 +268,7 @@ as a result of this data transfer.
 It should be noted here that this example performed serial data
 transfer. Furthermore, the transfer evaluator interface at present is
 specifically defined for point coupling, both requesting from and
-querying meshes for cartesian point coordinates. Future efforts should
+querying meshes for Cartesian point coordinates. Future efforts should
 include generalizing this package to operate on multiple forms of mesh
 objects per the listed design requirements.
 
@@ -277,7 +278,7 @@ the data structures, communication patterns, and algorithms already
 existing in the coupler under the Denovo framework.
 
 \appendix
-\section{Transfer\_Evaluator Interface}
+\section{ {\sl Transfer\_Evaluator} Interface}
 \begin{lstlisting}
 //----------------------------------*-C++-*----------------------------------//
 /*!
