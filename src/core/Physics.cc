@@ -18,7 +18,10 @@ namespace coupler
 
 //---------------------------------------------------------------------------//
 // Constructor.
-Physics::Physics(Transfer_Evaluator *te, Communicator comm_global)
+Physics::Physics(const std::string &physics_name,
+		 Transfer_Evaluator *te, 
+		 Communicator comm_global)
+    : d_name(physics_name)
 {
     // Wrap the raw transfer evaluator pointer.
     d_te = te;

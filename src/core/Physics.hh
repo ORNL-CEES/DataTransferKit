@@ -51,6 +51,9 @@ class Physics
 
   private:
 
+    // Physics name.
+    std::string d_name;
+
     // Transfer evaluator implementation.
     SP_Transfer_Evaluator d_te;
 
@@ -69,10 +72,15 @@ class Physics
   public:
 
     //! Constructor.
-    Physics(Transfer_Evaluator *te, Communicator comm_global);
+    Physics(const std::string &physics_name, 
+	    Transfer_Evaluator *te, 
+	    Communicator comm_global);
 
     //! Destructor.
     ~Physics();
+
+    //! Return the name of this physics.
+    const std::string& name() { return d_name; }
 
     //! Return the transfer evaluator implementation.
     const SP_Transfer_Evaluator te() { return d_te; }

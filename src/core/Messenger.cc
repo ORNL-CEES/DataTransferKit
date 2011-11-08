@@ -31,8 +31,8 @@ Messenger::Messenger(const Communicator &comm_global,
     , d_source(source)
     , d_target(target)
 {  
-    Ensure ( d_map );
-    Ensure ( d_map->status() );
+    // Make sure there is a map to operate with.
+    Ensure ( d_source->get_map( d_target->get_name(), field_name ) );
 
     // Create the buffer vector and compute their sizes
     calculate_buffer_sizes();
@@ -45,13 +45,10 @@ Messenger::Messenger(const Communicator &comm_global,
 /*!
  * \brief Send and receive information stored in the map nodes.
  */
-void Messenger::communicate(const KeyType &key)
+void Messenger::communicate()
 {
-    // Sort the map by partition (makes it easier to fill the nodes)
-    d_map->sort_nodes_by_partition();
-
     // Set the internal communicator
-    nemesis::set_internal_comm(d_communicator);
+    nemesis::set_internal_comm(d_comm_global);
 
     // Create an empty list of receive buffers
     std::list<Message_Buffer_t> buffer_list;
@@ -159,8 +156,8 @@ void Messenger::send(const KeyType& key)
     typename Vec_Node::const_iterator node_iter = d_map->nodes().begin();
     typename Vec_Node::const_iterator node_iter_end = d_map->nodes().end();
 
-    // make a Packer
-    Packer p;
+    // make a packer
+    denovo::Packer p;
 
     // Create a buffer for the packer
     Buffer buffer;
@@ -210,8 +207,8 @@ void Messenger::fill_nodes(BufferList &buffer_list,
     typedef typename BufferList::iterator   BufferList_Iter;
     typedef typename Vec_Node::iterator     Node_Iterator;
 
-    // make a new Unpacker
-    Unpacker u;
+    // make a new denovo::Unpacker
+    denovo::Unpacker u;
 
     // Make a piece of data to write into
     DataType data;
