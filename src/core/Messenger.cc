@@ -33,9 +33,6 @@ Messenger::Messenger(const Communicator &comm_global,
 {  
     // Make sure there is a map to operate with.
     Ensure ( d_source->get_map( d_target->name(), d_field_name ) );
-
-    // Create the buffer vector and compute their sizes
-    calculate_buffer_sizes();
 }
 
 
@@ -51,7 +48,7 @@ void Messenger::communicate()
     nemesis::set_internal_comm(d_comm_global);
 
     // Create an empty list of message buffers.
-    std::list<Message_Buffer_t> buffer_list;
+    BufferList buffer_list;
 
     // Target physics posts receives.
     if ( d_target->te() )
@@ -65,7 +62,7 @@ void Messenger::communicate()
 	send();
     }
 
-    // Target physics receives buffers from target physics.
+    // Target physics receives buffers from source physics.
     if ( d_target->te() )
     {
 	receive(buffer_list);
@@ -84,12 +81,13 @@ void Messenger::communicate()
  */
 void Messenger::post_receives(BufferList &buffer_list)
 {
-    // Create the buffers and post the receives for each source process
-    // sending to this target process.
+    // Initialize.
     Message_Buffer_t &buffer;
     int buffer_size = 0;
     Set_Iterator src;
 
+    // Create the buffers and post the receives for each source process
+    // sending to this target process.
     Set_Pair src_bound = 
 	d_source->get_map( d_target->name(), d_field_name )->source_set(); 
 
@@ -99,17 +97,18 @@ void Messenger::post_receives(BufferList &buffer_list)
     {
 	Check ( src < nemesis::nodes() );
 
-        // Create the buffer
+        // Compute the size of the buffer.
 	buffer_size = d_source->get_map( 
 	    d_target->name(), d_field_name )->range_size(src) 
 		      * ( sizeof(HandleType) + sizeof(DataType) );
 
+	// Create the buffer and add it to the list.
         buffer_list.push_back( Message_Buffer_t(*src, buffer_size) );
 
-        // Get the request buffer
+        // Get the request buffer.
         buffer = buffer_list.back();
 
-        // Post asynchronous receive with this receive buffer
+        // Post asynchronous receive with this receive buffer.
         nemesis::receive_async(buffer.request(), 
 			       &buffer.buffer()[0], 
                                buffer.buffer().size(), 
@@ -158,10 +157,10 @@ void Messenger::send()
 
 	buffer.resize(buffer_size);
 
-        // register the current buffer with the packer
+        // Register the current buffer with the packer
         p.set_buffer( buffer.size(), &buffer[0] );
 
-        // Pack the data we pull from the physics transfer evaluator.
+        // Pack the data we pull from the source physics transfer evaluator.
 	domain_bound = 
 	    d_source->get_map( d_target->name(), d_field_name )->domain();
 
@@ -178,9 +177,6 @@ void Messenger::send()
 
         // blocking send the buffer to the remote process
         nemesis::send_async( &buffer[0], buffer.size(), destination );
-
-        // Increment the partition and size iterators
-        ++size_iter;
     }
 }
 
@@ -191,9 +187,6 @@ void Messenger::send()
 void Messenger::fill_nodes(BufferList &buffer_list, 
                                        const KeyType& key)
 {
-    typedef typename BufferList::iterator   BufferList_Iter;
-    typedef typename Vec_Node::iterator     Node_Iterator;
-
     // make a new denovo::Unpacker
     denovo::Unpacker u;
 

@@ -50,6 +50,8 @@ class Messenger
     typedef int                                 HandleType;
     typedef Message_Buffer<OrdinateType>        Message_Buffer_t;
     typedef typename Message_Buffer_t::Buffer   Buffer;
+    typedef std::list<Message_Buffer_t>         BufferList;
+    typedef typename BufferList::iterator       BufferList_Iter;
     typedef denovo::SP<Physics>                 SP_Physics;
     typedef nemesis::Communicator_t             Communicator;
     //@}
@@ -81,17 +83,14 @@ class Messenger
 
   private:
 
-    // Private typedefs
-    typedef std::list<Message_Buffer_t>    BufferList;
-
     // Post the receives
     void post_receives(BufferList &buffer_list);
 
     // Send the data
-    void send(const KeyType& key);
+    void send();
 
     // Fill the map with the received data
-    void fill_nodes(BufferList &buffer_list, const KeyType &key);
+    void fill_nodes(BufferList &buffer_list);
 };
 
 } // end namespace coupler
