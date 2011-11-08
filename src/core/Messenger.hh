@@ -14,6 +14,7 @@
 #define core_Messenger_hh
 
 #include <string>
+#include <list>
 
 #include "Transfer_Map.hh"
 #include "Message_Buffer.hh"
@@ -46,12 +47,12 @@ class Messenger
     //@{
     //! Useful Typedefs.
     typedef DataType_T                          DataType;
-    typedef int                                 OrdinateType;
     typedef int                                 HandleType;
+    typedef int                                 OrdinateType;
     typedef Message_Buffer<OrdinateType>        Message_Buffer_t;
     typedef typename Message_Buffer_t::Buffer   Buffer;
     typedef std::list<Message_Buffer_t>         BufferList;
-    typedef typename BufferList::iterator       BufferList_Iter;
+    typedef typename BufferList::iterator       BufferList_Iterator;
     typedef denovo::SP<Physics>                 SP_Physics;
     typedef nemesis::Communicator_t             Communicator;
     //@}
@@ -83,21 +84,17 @@ class Messenger
 
   private:
 
-    // Post the receives
+    // Post the receives.
     void post_receives(BufferList &buffer_list);
 
-    // Send the data
+    // Send the data.
     void send();
 
-    // Fill the map with the received data
-    void fill_nodes(BufferList &buffer_list);
+    // Process the fulfilled requests.
+    void process_requests(BufferList &buffer_list);
 };
 
 } // end namespace coupler
-
-//---------------------------------------------------------------------------//
-// TEMPLATE DEFINITIONS
-//---------------------------------------------------------------------------//
 
 #endif // core_Messenger_hh
 

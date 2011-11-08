@@ -62,10 +62,10 @@ void Messenger::communicate()
 	send();
     }
 
-    // Target physics receives buffers from source physics.
+    // Target physics processes buffers from source physics.
     if ( d_target->te() )
     {
-	receive(buffer_list);
+	process_requests(buffer_list);
     }
 
     // reset the internal communicator
@@ -117,19 +117,17 @@ void Messenger::post_receives(BufferList &buffer_list)
     
     // Make sure we made all of the buffers we're going to send.
     Ensure ( buffer_list.size() == 
-	     std::distance( src_bound.first(), src_bound.second() );
+	     std::distance( src_bound.first(), src_bound.second() ) );
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Do synchronous sends of data.
+ * \brief Do synchronous sends of data from source to target.
  */
 void Messenger::send()
 {
-    // Make a packer.
+    // Initialize.
     denovo::Packer p;
-
-    // Loop over the partitions and send.
     DataType data;
     HandleType handle;
     Buffer buffer;
@@ -137,7 +135,8 @@ void Messenger::send()
     Map_Iterator map_it;
     Map_Pair domain_bound;
     Set_Iterator destination;
-    
+
+    // Loop over the target partitions and send the data.    
     Set_Pair destination_bound = 
 	d_source->get_map( d_target->name(), d_field_name )->target_set();
 
@@ -160,9 +159,9 @@ void Messenger::send()
         // Register the current buffer with the packer
         p.set_buffer( buffer.size(), &buffer[0] );
 
-        // Pack the data we pull from the source physics transfer evaluator.
-	domain_bound = 
-	    d_source->get_map( d_target->name(), d_field_name )->domain();
+        // Pack the data we pull from the source physics.
+	domain_bound = d_source->get_map( 
+	    d_target->name(), d_field_name )->domain(destination);
 
 	for (map_it = domain_bound.first(); 
 	     map_it != domain_bound.second();
@@ -182,60 +181,55 @@ void Messenger::send()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Fill the map with the received data.
+ * \brief Fulfil the target requests and push the data onto the targets.
  */
-void Messenger::fill_nodes(BufferList &buffer_list, 
-                                       const KeyType& key)
+void Messenger::process_requests(BufferList &buffer_list)
 {
-    // make a new denovo::Unpacker
+    // Initialize.
     denovo::Unpacker u;
-
-    // Make a piece of data to write into
+    HandleType handle;
     DataType data;
-
-    // Keep going until all requests have been processed
+    OrdinateType src;
+    BufferList_Iterator buffer_iter;
+    Buffer &buffer;
+    Map_Iterator map_it;
+    Map_Pair range_bound;
+    
+    // Keep going until all requests have been processed.
     while( !buffer_list.empty() )
     {
-        // Find a buffer with a completed communication request
-        BufferList_Iter buffer_iter = 
-            std::find_if(buffer_list.begin(), buffer_list.end(), 
-                         &Message_Buffer_t::complete);
+        // Find a buffer with a completed communication request.
+        buffer_iter = std::find_if(buffer_list.begin(), 
+				   buffer_list.end(), 
+				   &Message_Buffer_t::complete);
 
-        // If a completed communication request was found, process it
+        // If a completed communication request was found, process it.
         if( buffer_iter != buffer_list.end() )
         {
-            // Get the source partition
-            int source = buffer_iter->source();
+            // Get the source partition.
+            src = buffer_iter->ordinate();
 
-            // Get the range of nodes that belong to this source partition
-            std::pair<Node_Iterator, Node_Iterator> node_range = 
-                d_map->find_node_range(source);
+            // Get the buffer.
+            buffer = buffer_iter->buffer();
 
-            // Get the buffer
-            Buffer &buffer = buffer_iter->buffer();
-
-            // Set the buffer for the unpacker
+            // Set the buffer for the unpacker.
             u.set_buffer( buffer.size(), &buffer[0] );
             
-            // Loop over the nodes and insert the information
-            for(Node_Iterator node_iter = node_range.first; 
-                node_iter != node_range.second; ++node_iter)
+            // Loop over the target handles and push the data.
+	    range_bound = d_source->get_map( 
+		d_target->name(), d_field_name )->range(src);	    
+
+            for( map_it = range_bound.first();
+		 map_it != range_bound.second();
+		 ++map_it)
             {
-                // Unpack the data
+		u >> handle;
                 u >> data;
 
-                // Insert into the node
-                if( !node_iter->data_exists(key) )
-                {
-                    node_iter->register_data(key, data);
-                }
-                else
-                {
-                    node_iter->get_data(key) = data;
-                }
+		d_target->te()->push_data(field_name, handle, data);
             }
 
-            // Remove this buffer from the list
+            // Remove this buffer from the list.
             buffer_list.erase(buffer_iter);
         }
     }
