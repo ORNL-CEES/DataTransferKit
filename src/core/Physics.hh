@@ -72,7 +72,7 @@ class Physics
   public:
 
     //! Constructor.
-    Physics(const std::string &physics_name, 
+    Physics(std::string physics_name, 
 	    Transfer_Evaluator *te, 
 	    Communicator comm_global);
 
@@ -86,10 +86,10 @@ class Physics
     const SP_Transfer_Evaluator te() { return d_te; }
 
     //! Return the communicator.
-    const Communicator comm() { return d_comm; }
+    const Communicator& comm() { return d_comm; }
 
     //! Return the indexer.
-    const SP_LG_Indexer indexer() { return d_indexer; }
+    const SP_LG_Indexer& indexer() { return d_indexer; }
 
     //! Given a target physics and a field, add the mapping for which this
     //! physics is the source.

@@ -32,7 +32,7 @@ Messenger::Messenger(const Communicator &comm_global,
     , d_target(target)
 {  
     // Make sure there is a map to operate with.
-    Ensure ( d_source->get_map( d_target->get_name(), field_name ) );
+    Ensure ( d_source->get_map( d_target->name(), field_name ) );
 
     // Create the buffer vector and compute their sizes
     calculate_buffer_sizes();
@@ -43,23 +43,23 @@ Messenger::Messenger(const Communicator &comm_global,
 // PUBLIC FUNCTIONS
 //---------------------------------------------------------------------------//
 /*!
- * \brief Send and receive information stored in the map nodes.
+ * \brief Transfer data.
  */
 void Messenger::communicate()
 {
-    // Set the internal communicator
+    // Set the internal communicator.
     nemesis::set_internal_comm(d_comm_global);
 
-    // Create an empty list of receive buffers
+    // Create an empty list of message buffers.
     std::list<Message_Buffer_t> buffer_list;
 
-    // Create the buffers and post the receives
+    // Target physics posts receives.
     post_receives(buffer_list);
 
-    // Send the local data to the other partitions
-    send(key);
+    // Source physics sends buffers to target physics.
+    send();
 
-    // Fill the nodes as the receives come in
+    // Target physics receives buffers from target physics.
     fill_nodes(buffer_list, key);
 
     // reset the internal communicator
