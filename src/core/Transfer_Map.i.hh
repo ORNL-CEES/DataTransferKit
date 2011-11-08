@@ -33,7 +33,7 @@ void Transfer_Map::add_domain_pair(OrdinateType target_rank,
 				   HandleType source_handle)
 {
     target_set.insert(target_rank);
-    source_map.insert( Map_Pair(target_rank, source_handle) );
+    source_map.insert( Map_Element(target_rank, source_handle) );
 }
 
 //---------------------------------------------------------------------------//
@@ -42,7 +42,7 @@ void Transfer_Map::add_range_pair(OrdinateType source_rank,
 				  HandleType target_handle)
 {
     source_set.insert(source_rank);
-    target_map.insert( Map_Pair(source_rank, target_handle) );
+    target_map.insert( Map_Element(source_rank, target_handle) );
 }
 
 //---------------------------------------------------------------------------//
@@ -61,7 +61,7 @@ int Transfer_Map::range_size(OrdinateType source_rank)
 
 //---------------------------------------------------------------------------//
 // Get the iterator pair for the source domain of a target rank.
-Transfer_Map::Iterator_Pair 
+Transfer_Map::Map_Pair 
 Transfer_Map::source_domain(OrdinateType target_rank)
 {
     return source_map.equal_range(target_rank);
@@ -69,40 +69,29 @@ Transfer_Map::source_domain(OrdinateType target_rank)
 
 //---------------------------------------------------------------------------//
 // Get the iterator pair for the target range of a source rank.
-Transfer_Map::Iterator_Pair 
+Transfer_Map::Map_Pair 
 Transfer_Map::target_range(OrdinateType source_rank)
 {
     return target_map.equal_range(source_rank);
 }
 
 //---------------------------------------------------------------------------//
-// Return a const_iterator to the beginning of the source rank set.
-Transfer_Map::Set_Iterator Transfer_Map::source_set_begin()
+// Return a const_iterator pair to the beginning and end of the source rank
+// set. 
+Transfer_Map::Set_Pair Transfer_Map::source_set()
 {
-    return source_set.begin();
+    
+    return Set_Pair( source_set.begin(), source_set.end() );
 }
 
 //---------------------------------------------------------------------------//
-// Return a const_iterator to the end of the source rank set.
-Transfer_Map::Set_Iterator Transfer_Map::source_set_end()
+// Return a const_iterator pair to the beginning and end of the target rank
+// set. 
+Transfer_Map::Set_Pair Transfer_Map::target_set()
 {
-    return source_set.end();
-}
-
-//---------------------------------------------------------------------------//
-// Return a const_iterator to the beginning of the target rank set.
-Transfer_Map::Set_Iterator Transfer_Map::target_set_begin()
-{
-    return target_set.begin();
+    return Set_Pair( target_set.begin() );
 }
     
-//---------------------------------------------------------------------------//
-// Return a const_iterator to the end of the target rank set.
-Transfer_Map::Set_Iterator Transfer_Map::target_set_end()
-{
-    return target_set.end()
-}
-
 //---------------------------------------------------------------------------//
 
 } // end namespace coupler

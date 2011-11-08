@@ -50,7 +50,7 @@ class Message_Buffer
 
   public:
     //! Constructor.
-    explicit Receive_Buffer(OrdinateType ordinate, OrdinateType buffer_size)
+    explicit Receive_Buffer(OrdinateType ordinate, int buffer_size)
         : d_ordinate(ordinate)
         , d_buffer(buffer_size)
     { /* ... */ }

@@ -32,7 +32,7 @@ Messenger::Messenger(const Communicator &comm_global,
     , d_target(target)
 {  
     // Make sure there is a map to operate with.
-    Ensure ( d_source->get_map( d_target->name(), field_name ) );
+    Ensure ( d_source->get_map( d_target->name(), d_field_name ) );
 
     // Create the buffer vector and compute their sizes
     calculate_buffer_sizes();
@@ -43,7 +43,7 @@ Messenger::Messenger(const Communicator &comm_global,
 // PUBLIC FUNCTIONS
 //---------------------------------------------------------------------------//
 /*!
- * \brief Transfer data.
+ * \brief Communicate the field from the source to the target.
  */
 void Messenger::communicate()
 {
@@ -54,13 +54,22 @@ void Messenger::communicate()
     std::list<Message_Buffer_t> buffer_list;
 
     // Target physics posts receives.
-    post_receives(buffer_list);
+    if ( d_target->te() )
+    {
+	post_receives(buffer_list);
+    }
 
     // Source physics sends buffers to target physics.
-    send();
+    if ( d_source->te() )
+    {
+	send();
+    }
 
     // Target physics receives buffers from target physics.
-    fill_nodes(buffer_list, key);
+    if ( d_target->te() )
+    {
+	receive(buffer_list);
+    }
 
     // reset the internal communicator
     nemesis::reset_internal_comm();
@@ -71,122 +80,100 @@ void Messenger::communicate()
 // PRIVATE FUNCTIONS
 //---------------------------------------------------------------------------//
 /*!
- * \brief Create empty buffers for packing and unpacking data.
- */
-void Messenger::calculate_buffer_sizes()
-{
-    Require (d_map);
-    Require ( d_map->partitions().size() == d_map->partition_pts().size() );
-
-    // set the total number of buffers
-    d_buffer_sizes.resize(d_map->partitions().size(), 0);
-
-    // Get an iterator into the buffer size vector
-    typename Vec_Ord::iterator size_iter = d_buffer_sizes.begin();
-
-    // Get the partition_pts ordinate vector
-    const Vec_Ord partition_pts = d_map->partition_pts();
-
-    // Get an iterator into the map's partition pts
-    for(typename Vec_Ord::const_iterator iter = partition_pts.begin(),
-                                     iter_end = partition_pts.end();
-        iter != iter_end; ++iter)
-    {
-        Check ( size_iter != d_buffer_sizes.end() );
-
-        // Calculate the size and store it
-        *size_iter = (*iter) * sizeof(DataType);
-
-        // Increment the size iterator
-        ++size_iter;
-    }
-}
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Post asynchronous receives for the buffers.
  */
 void Messenger::post_receives(BufferList &buffer_list)
 {
-    Check ( d_buffer_sizes.size() == d_map->partitions().size() );
+    // Create the buffers and post the receives for each source process
+    // sending to this target process.
+    Message_Buffer_t &buffer;
+    int buffer_size = 0;
+    Set_Iterator src;
 
-    // Create an iterator over the partitions
-    typename Vec_Ord::const_iterator partition_iter = 
-        d_map->partitions().begin();
+    Set_Pair src_bound = 
+	d_source->get_map( d_target->name(), d_field_name )->source_set(); 
 
-    // Loop over the buffer sizes, create the buffers, and post the receives
-    for (typename Vec_Ord::iterator iter = d_buffer_sizes.begin(), 
-                                iter_end = d_buffer_sizes.end(); 
-         iter != iter_end; ++iter) 
+    for ( src = src_bound.first();
+	  src != src_bound.second();
+	  ++src) 
     {
-        Check ( partition_iter != d_map->partitions().end() );
-
-        // Buffer source PID
-        OrdinateType source = *partition_iter;
+	Check ( src < nemesis::nodes() );
 
         // Create the buffer
-        buffer_list.push_back( Message_Buffer_t(source, *iter) );
+	buffer_size = d_source->get_map( 
+	    d_target->name(), d_field_name )->range_size(src) 
+		      * ( sizeof(HandleType) + sizeof(DataType) );
+
+        buffer_list.push_back( Message_Buffer_t(*src, buffer_size) );
 
         // Get the request buffer
-        Message_Buffer_t& buffer = buffer_list.back();
+        buffer = buffer_list.back();
 
         // Post asynchronous receive with this receive buffer
-        nemesis::receive_async(buffer.request(), &buffer.buffer()[0], 
-                               buffer.buffer().size(), buffer.ordinate());
-
-        // Increment the partition iterators
-        ++partition_iter;
+        nemesis::receive_async(buffer.request(), 
+			       &buffer.buffer()[0], 
+                               buffer.buffer().size(), 
+			       buffer.ordinate());
     }
-
-    Ensure ( buffer_list.size() == d_map->partitions().size() );
+    
+    // Make sure we made all of the buffers we're going to send.
+    Ensure ( buffer_list.size() == 
+	     std::distance( src_bound.first(), src_bound.second() );
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Do synchronous sends of data with key \a key.
+ * \brief Do synchronous sends of data.
  */
-void Messenger::send(const KeyType& key)
+void Messenger::send()
 {
-    typedef typename Vec_Ord::const_iterator        Vec_Ord_Iter;
-
-    // Create an iterator into the buffer sizes
-    Vec_Ord_Iter size_iter = d_buffer_sizes.begin();
-
-    // Create an iterator into the map nodes
-    typename Vec_Node::const_iterator node_iter = d_map->nodes().begin();
-    typename Vec_Node::const_iterator node_iter_end = d_map->nodes().end();
-
-    // make a packer
+    // Make a packer.
     denovo::Packer p;
 
-    // Create a buffer for the packer
+    // Loop over the partitions and send.
+    DataType data;
+    HandleType handle;
     Buffer buffer;
+    int buffer_size;
+    Map_Iterator map_it;
+    Map_Pair domain_bound;
+    Set_Iterator destination;
+    
+    Set_Pair destination_bound = 
+	d_source->get_map( d_target->name(), d_field_name )->target_set();
 
-    // Loop over the partitions and send
-    for (Vec_Ord_Iter partition_iter = d_map->partitions().begin(),
-                  partition_iter_end = d_map->partitions().end();
-         partition_iter != partition_iter_end; ++partition_iter)
+    for ( destination = destination_bound.first();
+	  destination != destination_bound.second();
+	  ++destination) 
     {
-        Check ( size_iter != d_buffer_sizes.end() );
+        Check ( destination < nemesis::nodes() );
+	
+	// Clear the buffer.
+	buffer.clear();
 
-        // resize the buffer
-        buffer.resize(*size_iter);
+        // Resize the buffer.
+	buffer_size = d_source->get_map( 
+	    d_target->name(), d_field_name )->domain_size(destination) 
+		      * ( sizeof(HandleType) + sizeof(DataType) );
 
-        // buffer destination PID
-        OrdinateType destination = *partition_iter;
-        Check (destination < nemesis::nodes());
+	buffer.resize(buffer_size);
 
         // register the current buffer with the packer
         p.set_buffer( buffer.size(), &buffer[0] );
 
-        // Pack the data
-        while(node_iter->partition() == *partition_iter && 
-              node_iter != node_iter_end)
-        {
-            Check ( node_iter->data_exists(key) );
-            p << node_iter->get_data(key);
+        // Pack the data we pull from the physics transfer evaluator.
+	domain_bound = 
+	    d_source->get_map( d_target->name(), d_field_name )->domain();
 
-            ++node_iter;
+	for (map_it = domain_bound.first(); 
+	     map_it != domain_bound.second();
+	     ++map_it)
+        {
+	    handle = (*map_it)[destination];
+	    data = d_source->te()->pull_data(field_name, handle, data);
+
+            p << handle;
+	    p << data; 
         }
 
         // blocking send the buffer to the remote process

@@ -76,16 +76,13 @@ class Messenger
 	      SP_Physics source,
 	      SP_Physics target);
 
-    // Communicate.
+    // Communicate the field from the source to the target.
     void communicate();
 
   private:
 
     // Private typedefs
     typedef std::list<Message_Buffer_t>    BufferList;
-
-    // Create empty buffers for packing and unpacking data
-    void calculate_buffer_sizes();
 
     // Post the receives
     void post_receives(BufferList &buffer_list);

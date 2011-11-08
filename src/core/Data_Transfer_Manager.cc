@@ -108,7 +108,7 @@ void Data_Transfer_Manager::map(const std::string &field_name,
 	Coord_Iterator coord_iter = points_begin;
 	Handle_Iterator handle_iter;
 	p.compute_buffer_size_mode();
-	for (handle_iter = handles_begin, handle_iter != handels_end; ++iter)
+	for (handle_iter = handles_begin, handle_iter != handles_end; ++iter)
 	{
 	    p << *coord_iter;
 	    coord_iter++;

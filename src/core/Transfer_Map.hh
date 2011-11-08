@@ -48,12 +48,13 @@ class Transfer_Map
     //! Useful typedefs.
     typedef int                                          HandleType;
     typedef int                                          OrdinateType;
+    typedef std::pair<OrdinateType,HandleType>           Map_Element;
     typedef std::multimap<OrdinateType,HandleType>       Map;
     typedef typename Map::const_iterator                 Map_Iterator;
-    typedef std::pair<Map_Iterator,Map_Iterator>         Iterator_Pair;
-    typedef std::pair<OrdinateType,HandleType>           Map_Pair;
+    typedef std::pair<Map_Iterator,Map_Iterator>         Map_Pair;
     typedef std::set<OrdinateType>                       Set;
     typedef typename Set::const_iterator                 Set_Iterator;
+    typedef std::pair<Set_Iterator,Set_Iterator>         Set_Pair;
     //@}
 
   private:
@@ -103,25 +104,21 @@ class Transfer_Map
     //! Get the iterator pair for the source domain of a target rank. This
     //! correlates to the local source handles that exist in the range of the
     //! target rank.
-    inline Iterator_Pair domain(OrdinateType target_rank);
+    inline Map_Pair domain(OrdinateType target_rank);
 
     //! Get the iterator pair for the target range of a source rank. This
     //! correlates to the local target handles that exist in the domain of the
     //! source rank.
-    inline Iterator_Pair range(OrdinateType source_rank);
+    inline Map_Pair range(OrdinateType source_rank);
 
-    //! Return a const_iterator to the beginning of the source rank set.
-    inline Set_Iterator source_set_begin();
+    //! Return a const_iterator pair to the beginning and end of the source
+    //! rank set. 
+    inline Set_Pair source_set();
 
-    //! Return a const_iterator to the end of the source rank set.
-    inline Set_Iterator source_set_end();
-
-    //! Return a const_iterator to the beginning of the target rank set.
-    inline Set_Iterator target_set_begin();
-    
-    //! Return a const_iterator to the end of the target rank set.
-    inline Set_Iterator target_set_end();
-};
+    //! Return a const_iterator pair to the beginning and end of the target
+    //! rank set. 
+    inline Set_Pair target_set();
+;
 
 } // end namespace coupler
 
