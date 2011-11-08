@@ -48,12 +48,7 @@ class Data_Transfer_Manager
     //@{
     //! Useful typedefs.
     typedef DataType_T                               DataType;
-    typedef int                                      Handle;
-    typedef const Handle*                            Handle_Iterator;
-    typedef double                                   Coordinate;
-    typedef const Coordinate*                        Coord_Iterator;
     typedef denovo::SP<Physics>                      SP_Physics;
-    typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
     typedef nemesis::Communicator_t                  Communicator;
     typedef std::map<std::string,SP_Physics>         Physics_DB;
     //@}
@@ -77,9 +72,6 @@ class Data_Transfer_Manager
     //! Register a physics with the manager.
     void add_physics(const std::string &physics_name, 
 		     Transfer_Evaluator *te);
-
-    //! Register a field with the manager.
-    void add_field(const std::string &field_name);
 
     //! Build the topology map for transfer from a source physics to a target
     //! physics for a particular field.

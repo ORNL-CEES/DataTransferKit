@@ -44,8 +44,9 @@ template<class DataType_T>
 class Messenger 
 {
   public:   
+
     //@{
-    //! Useful Typedefs.
+    //! Useful typedefs.
     typedef DataType_T                            DataType;
     typedef int                                   HandleType;
     typedef int                                   OrdinateType;
@@ -55,6 +56,7 @@ class Messenger
     typedef typename BufferList::iterator         BufferList_Iterator;
     typedef denovo::SP<Physics>                   SP_Physics;
     typedef nemesis::Communicator_t               Communicator;
+    typedef denovo::SP<Transfer_Map>              SP_Transfer_Map;
     typedef typename Transfer_Map::Map_Iterator   Map_Iterator;
     typedef typename Transfer_Map::Map_Pair       Map_Pair;
     typedef typename Transfer_Map::Set_Iterator   Set_Iterator;
@@ -82,6 +84,9 @@ class Messenger
 	      const std::string &field_name,
 	      SP_Physics source,
 	      SP_Physics target);
+
+    // Destructor.
+    ~Messenger();
 
     // Communicate the field from the source to the target.
     void communicate();

@@ -17,7 +17,7 @@ namespace coupler
 {
 
 //---------------------------------------------------------------------------//
-// CONSTRUCTOR
+// CONSTRUCTOR and DESTRUCTOR
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
@@ -30,11 +30,17 @@ Messenger::Messenger(const Communicator &comm_global,
     , d_field_name(field_name)
     , d_source(source)
     , d_target(target)
-{  
+{
     // Make sure there is a map to operate with.
     Ensure ( d_source->get_map( d_target->name(), d_field_name ) );
 }
 
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Destructor.
+ */
+Messenger::~Messenger()
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // PUBLIC FUNCTIONS
