@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   coupler/Messenger.i.hh
+ * \file   coupler/Messenger.cc
  * \author Stuart R. Slattery
  * \date   Thu May 26 11:02:57 2011
  * \brief  Messenger class member definitions
@@ -10,12 +10,10 @@
 // $Id: template.cc,v 1.3 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
-#ifndef coupler_Messenger_i_hh
-#define coupler_Messenger_i_hh
-
 #include <vector>
 #include <functional>
 
+#include "Messenger.hh"
 #include "harness/DBC.hh"
 #include "comm/global.hh"
 
@@ -273,8 +271,6 @@ void Messenger<DataType_T>::fill_nodes(BufferList &buffer_list,
 
 } // end namespace coupler
 
-#endif // coupler_Messenger_i_hh
-
 //---------------------------------------------------------------------------//
-//                 end of Messenger.i.hh
+//                 end of Messenger.cc
 //---------------------------------------------------------------------------//

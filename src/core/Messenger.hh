@@ -16,63 +16,13 @@
 #include <string>
 
 #include "Transfer_Map.hh"
+#include "Message_Buffer.hh"
 #include "utils/SP.hh"
 #include "utils/Packing_Utils.hh"
 #include "comm/global.hh"
 
 namespace coupler
 {
-
-//===========================================================================//
-/*!
- * \class Receive_Buffer
- * \brief Holds a buffer and request handle.
- */
-//===========================================================================//
-template<class OrdinateType_T>
-class Receive_Buffer
-{
-  public:
-    //@{
-    //! Useful Typedefs.
-    typedef OrdinateType_T              OrdinateType;
-    typedef nemesis::Request            Request;
-    typedef std::vector<char>           Buffer;
-    //@}
-
-  private:
-    // Map node index.
-    OrdinateType d_source_node;
-
-    // Buffer for storing data.
-    Buffer d_buffer;
-
-    // Request handle.
-    Request d_request;
-
-  public:
-    //! Constructor.
-    explicit Receive_Buffer(OrdinateType source, OrdinateType buffer_size)
-        : d_source_node(source)
-        , d_buffer(buffer_size)
-    {   }
-
-    //! Get the source node.
-    OrdinateType source() const { return d_source_node; }
-
-    //! Get the requests.
-    Request& request() { return d_request; }
-
-    //! Get the buffer.
-    Buffer& buffer() { return d_buffer; }
-
-    //! Return whether given request is complete.
-    static bool complete(Receive_Buffer<OrdinateType>& buf) 
-    { 
-        return buf.request().complete(); 
-    }
-};
-
 
 //===========================================================================//
 /*!
@@ -147,8 +97,6 @@ class Messenger
 //---------------------------------------------------------------------------//
 // TEMPLATE DEFINITIONS
 //---------------------------------------------------------------------------//
-
-#include "Messenger.i.hh"
 
 #endif // coupler_Messenger_hh
 

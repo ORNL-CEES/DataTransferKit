@@ -54,7 +54,7 @@ class Transfer_Evaluator
     { /* ... */ }
 
     //! Register communicator object.
-    virtual void register_comm(Communicator &comm) = 0;
+    virtual void register_comm(const Communicator &comm) = 0;
 
     //! Register a field associated with the entities. Return false if this
     //! field is not supported.

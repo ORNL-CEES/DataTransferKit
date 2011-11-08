@@ -19,7 +19,7 @@ namespace coupler
 
 //---------------------------------------------------------------------------//
 // Constructor.
-Data_Transfer_Manager::Data_Transfer_Manager(Communicator comm_global)
+Data_Transfer_Manager::Data_Transfer_Manager(const Communicator &comm_global)
     : d_comm_global(comm_global)
 { /* ... */ }
 
@@ -30,7 +30,7 @@ Data_Transfer_Manager::~Data_Transfer_Manager()
 
 //---------------------------------------------------------------------------//
 // Register a physics to be controlled by the manager.
-void Data_Transfer_Manager::add_physics(std::string physics_name,
+void Data_Transfer_Manager::add_physics(const std::string &physics_name,
 					Transfer_Evaluator *te)
 {
     // Make a physics object.
@@ -43,7 +43,7 @@ void Data_Transfer_Manager::add_physics(std::string physics_name,
 
 //---------------------------------------------------------------------------//
 // Register a field to be controlled by the manager.
-void Data_Transfer_Manager::add_field(std::string field_name)
+void Data_Transfer_Manager::add_field(const std::string &field_name)
 {
     // Require that the field is supported by the each code.
     Require( d_te_a->register_field(field_name) );
@@ -53,9 +53,9 @@ void Data_Transfer_Manager::add_field(std::string field_name)
 //---------------------------------------------------------------------------//
 // Build the topology map for transfer from a source physics to a target
 // physics for a particular field.
-void Data_Transfer_Manager::map(std::string field_name,
-				std::string source_physics,
-				std::string target_physics);
+void Data_Transfer_Manager::map(const std::string &field_name,
+				const std::string &source_physics,
+				const std::string &target_physics);
 {
     // Operate on the global communicator.
     nemesis::set_internal_comm(d_comm_global);
@@ -309,9 +309,9 @@ void Data_Transfer_Manager::map(std::string field_name,
 //---------------------------------------------------------------------------//
 // Transfer data associated with a field from a source physics to a target
 // physics. 
-void Data_Transfer_Manager::transfer(std::string field_name,
-				     std::string source_physics,
-				     std::string target_physics)
+void Data_Transfer_Manager::transfer(const std::string &field_name,
+				     const std::string &source_physics,
+				     const std::string &target_physics)
 {
 
 }
