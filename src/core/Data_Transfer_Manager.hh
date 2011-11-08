@@ -40,23 +40,21 @@ namespace coupler
  */
 //===========================================================================//
 
-template<class FieldType_T>
+template<class DataType_T>
 class Data_Transfer_Manager 
 {
   public:
     
     //@{
     //! Useful typedefs.
-    typedef FieldType_T                              FieldType;
+    typedef DataType_T                               DataType;
     typedef int                                      Handle;
     typedef const Handle*                            Handle_Iterator;
     typedef double                                   Coordinate;
     typedef const Coordinate*                        Coord_Iterator;
     typedef denovo::SP<Physics>                      SP_Physics;
-    typedef denovo::SP<Messenger<FieldType> >        SP_Messenger;
     typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
     typedef nemesis::Communicator_t                  Communicator;
-    typedef std::vector<char>                        Buffer;
     typedef std::map<std::string,SP_Physics>         Physics_DB;
     //@}
 

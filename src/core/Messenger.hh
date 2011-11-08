@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   coupler/Messenger.hh
+ * \file   core/Messenger.hh
  * \author Stuart R. Slattery
  * \date   Thu May 26 11:02:57 2011
  * \brief  Messenger class definition.
@@ -10,13 +10,14 @@
 // $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
-#ifndef coupler_Messenger_hh
-#define coupler_Messenger_hh
+#ifndef core_Messenger_hh
+#define core_Messenger_hh
 
 #include <string>
 
 #include "Transfer_Map.hh"
 #include "Message_Buffer.hh"
+#include "Physics.hh"
 #include "utils/SP.hh"
 #include "utils/Packing_Utils.hh"
 #include "comm/global.hh"
@@ -46,38 +47,42 @@ class Messenger
     //! Useful Typedefs.
     typedef DataType_T                          DataType;
     typedef int                                 OrdinateType;
-    typedef Receive_Buffer<OrdinateType>        Receive_Buffer_t;
-    typedef typename Receive_Buffer_t::Buffer   Buffer;
-    typedef Base_Map<OrdinateType, DataType>    Map_t;
-    typedef typename Map_t::KeyType             KeyType;
-    typedef typename Map_t::Vec_Ord             Vec_Ord;
-    typedef typename Map_t::Vec_Node            Vec_Node;
-    typedef denovo::SP<Map_t>                   SP_Map;
-    typedef denovo::Packer                      Packer;
-    typedef denovo::Unpacker                    Unpacker;
-    typedef nemesis::Communicator_t             Communicator_t;
+    typedef int                                 HandleType;
+    typedef Message_Buffer<OrdinateType>        Message_Buffer_t;
+    typedef typename Message_Buffer_t::Buffer   Buffer;
+    typedef denovo::SP<Physics>                 SP_Physics;
+    typedef nemesis::Communicator_t             Communicator;
     //@}
     
   private:
-    // The communicator the corresponds to the map PID's.
-    const Communicator_t &d_communicator;
 
-    // Base_Map object.
-    SP_Map d_map;
+    // Global communicator.
+    const Communicator &d_comm_global;
 
-    // Store the sizes of the request buffers
-    Vec_Ord d_buffer_sizes;
+    // Field name.
+    const std::string &d_field_name;
+
+    // Source physics.
+    SP_Physics d_source;
+
+    // Target physics.
+    SP_Physics d_target;
 
  public:
-    // Constructor
-    Messenger(const Communicator_t &comm_world, SP_Map map);
 
-    // Communicate
-    void communicate(const KeyType &key);
+    // Constructor.
+    Messenger(const Communicator &comm_global,
+	      const std::string &field_name,
+	      SP_Physics source,
+	      SP_Physics target);
+
+    // Communicate.
+    void communicate();
 
   private:
+
     // Private typedefs
-    typedef std::list<Receive_Buffer_t>    BufferList;
+    typedef std::list<Message_Buffer_t>    BufferList;
 
     // Create empty buffers for packing and unpacking data
     void calculate_buffer_sizes();
@@ -98,8 +103,8 @@ class Messenger
 // TEMPLATE DEFINITIONS
 //---------------------------------------------------------------------------//
 
-#endif // coupler_Messenger_hh
+#endif // core_Messenger_hh
 
 //---------------------------------------------------------------------------//
-//              end of coupler/Messenger.hh
+//              end of core/Messenger.hh
 //---------------------------------------------------------------------------//

@@ -313,7 +313,19 @@ void Data_Transfer_Manager::transfer(const std::string &field_name,
 				     const std::string &source_physics,
 				     const std::string &target_physics)
 {
+    // Operate on the global communicator.
+    nemesis::set_internal_comm(d_comm_global);
 
+    // Get the transfer evaluator implementations for the physics we are
+    // operating on.
+    SP_Physics source = d_physics_db[source_physics];
+    SP_Physics target = d_physics_db[target_physics];
+    
+    // Create a messenger.
+    Messenger<DataType> msgr(d_comm_global, field_name, source, target);
+
+    // Transfer the field.
+    msgr.communicate();
 }
 
 //---------------------------------------------------------------------------//

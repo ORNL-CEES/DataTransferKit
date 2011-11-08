@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   coupler/Messenger.cc
+ * \file   core/Messenger.cc
  * \author Stuart R. Slattery
  * \date   Thu May 26 11:02:57 2011
  * \brief  Messenger class member definitions
@@ -10,12 +10,8 @@
 // $Id: template.cc,v 1.3 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
-#include <vector>
-#include <functional>
-
 #include "Messenger.hh"
 #include "harness/DBC.hh"
-#include "comm/global.hh"
 
 namespace coupler
 {
@@ -26,12 +22,16 @@ namespace coupler
 /*!
  * \brief Constructor.
  */
-template<class DataType_T>
-Messenger<DataType_T>::Messenger(const Communicator_t &comm_world, SP_Map map)
-    : d_communicator(comm_world)
-    , d_map(map)
+Messenger::Messenger(const Communicator &comm_global,
+		     const std::string &field_name,
+		     SP_Physics source,
+		     SP_Physics target)
+    : d_comm_global(comm_global)
+    , d_field_name(field_name)
+    , d_source(source)
+    , d_target(target)
 {  
-    Ensure (d_map);
+    Ensure ( d_map );
     Ensure ( d_map->status() );
 
     // Create the buffer vector and compute their sizes
@@ -45,8 +45,7 @@ Messenger<DataType_T>::Messenger(const Communicator_t &comm_world, SP_Map map)
 /*!
  * \brief Send and receive information stored in the map nodes.
  */
-template<class DataType_T>
-void Messenger<DataType_T>::communicate(const KeyType &key)
+void Messenger::communicate(const KeyType &key)
 {
     // Sort the map by partition (makes it easier to fill the nodes)
     d_map->sort_nodes_by_partition();
@@ -55,7 +54,7 @@ void Messenger<DataType_T>::communicate(const KeyType &key)
     nemesis::set_internal_comm(d_communicator);
 
     // Create an empty list of receive buffers
-    std::list<Receive_Buffer_t> buffer_list;
+    std::list<Message_Buffer_t> buffer_list;
 
     // Create the buffers and post the receives
     post_receives(buffer_list);
@@ -77,8 +76,7 @@ void Messenger<DataType_T>::communicate(const KeyType &key)
 /*!
  * \brief Create empty buffers for packing and unpacking data.
  */
-template<class DataType_T>
-void Messenger<DataType_T>::calculate_buffer_sizes()
+void Messenger::calculate_buffer_sizes()
 {
     Require (d_map);
     Require ( d_map->partitions().size() == d_map->partition_pts().size() );
@@ -111,8 +109,7 @@ void Messenger<DataType_T>::calculate_buffer_sizes()
 /*!
  * \brief Post asynchronous receives for the buffers.
  */
-template<class DataType_T>
-void Messenger<DataType_T>::post_receives(BufferList &buffer_list)
+void Messenger::post_receives(BufferList &buffer_list)
 {
     Check ( d_buffer_sizes.size() == d_map->partitions().size() );
 
@@ -131,14 +128,14 @@ void Messenger<DataType_T>::post_receives(BufferList &buffer_list)
         OrdinateType source = *partition_iter;
 
         // Create the buffer
-        buffer_list.push_back( Receive_Buffer_t(source, *iter) );
+        buffer_list.push_back( Message_Buffer_t(source, *iter) );
 
         // Get the request buffer
-        Receive_Buffer_t& buffer = buffer_list.back();
+        Message_Buffer_t& buffer = buffer_list.back();
 
         // Post asynchronous receive with this receive buffer
         nemesis::receive_async(buffer.request(), &buffer.buffer()[0], 
-                               buffer.buffer().size(), buffer.source());
+                               buffer.buffer().size(), buffer.ordinate());
 
         // Increment the partition iterators
         ++partition_iter;
@@ -151,8 +148,7 @@ void Messenger<DataType_T>::post_receives(BufferList &buffer_list)
 /*!
  * \brief Do synchronous sends of data with key \a key.
  */
-template<class DataType_T>
-void Messenger<DataType_T>::send(const KeyType& key)
+void Messenger::send(const KeyType& key)
 {
     typedef typename Vec_Ord::const_iterator        Vec_Ord_Iter;
 
@@ -208,8 +204,7 @@ void Messenger<DataType_T>::send(const KeyType& key)
 /*!
  * \brief Fill the map with the received data.
  */
-template<class DataType_T>
-void Messenger<DataType_T>::fill_nodes(BufferList &buffer_list, 
+void Messenger::fill_nodes(BufferList &buffer_list, 
                                        const KeyType& key)
 {
     typedef typename BufferList::iterator   BufferList_Iter;
@@ -227,7 +222,7 @@ void Messenger<DataType_T>::fill_nodes(BufferList &buffer_list,
         // Find a buffer with a completed communication request
         BufferList_Iter buffer_iter = 
             std::find_if(buffer_list.begin(), buffer_list.end(), 
-                         &Receive_Buffer_t::complete);
+                         &Message_Buffer_t::complete);
 
         // If a completed communication request was found, process it
         if( buffer_iter != buffer_list.end() )

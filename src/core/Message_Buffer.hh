@@ -29,6 +29,7 @@ template<class OrdinateType_T>
 class Message_Buffer 
 {
   public:
+
     //@{
     //! Useful Typedefs.
     typedef OrdinateType_T              OrdinateType;
@@ -37,10 +38,11 @@ class Message_Buffer
     //@}
 
   private:
-    // Map node index.
-    OrdinateType d_source_node;
 
-    // Buffer for storing data.
+    // MPI ordinate.
+    OrdinateType d_ordinate;
+
+    // Buffer for storing POD.
     Buffer d_buffer;
 
     // Request handle.
@@ -48,13 +50,13 @@ class Message_Buffer
 
   public:
     //! Constructor.
-    explicit Receive_Buffer(OrdinateType source, OrdinateType buffer_size)
-        : d_source_node(source)
+    explicit Receive_Buffer(OrdinateType ordinate, OrdinateType buffer_size)
+        : d_ordinate(ordinate)
         , d_buffer(buffer_size)
     { /* ... */ }
 
-    //! Get the source node.
-    OrdinateType source() const { return d_source_node; }
+    //! Get the ordinate.
+    OrdinateType ordinate() const { return d_ordinate; }
 
     //! Get the requests.
     Request& request() { return d_request; }
