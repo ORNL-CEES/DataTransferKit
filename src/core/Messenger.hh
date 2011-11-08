@@ -46,15 +46,19 @@ class Messenger
   public:   
     //@{
     //! Useful Typedefs.
-    typedef DataType_T                          DataType;
-    typedef int                                 HandleType;
-    typedef int                                 OrdinateType;
-    typedef Message_Buffer<OrdinateType>        Message_Buffer_t;
-    typedef typename Message_Buffer_t::Buffer   Buffer;
-    typedef std::list<Message_Buffer_t>         BufferList;
-    typedef typename BufferList::iterator       BufferList_Iterator;
-    typedef denovo::SP<Physics>                 SP_Physics;
-    typedef nemesis::Communicator_t             Communicator;
+    typedef DataType_T                            DataType;
+    typedef int                                   HandleType;
+    typedef int                                   OrdinateType;
+    typedef Message_Buffer<OrdinateType>          Message_Buffer_t;
+    typedef typename Message_Buffer_t::Buffer     Buffer;
+    typedef std::list<Message_Buffer_t>           BufferList;
+    typedef typename BufferList::iterator         BufferList_Iterator;
+    typedef denovo::SP<Physics>                   SP_Physics;
+    typedef nemesis::Communicator_t               Communicator;
+    typedef typename Transfer_Map::Map_Iterator   Map_Iterator;
+    typedef typename Transfer_Map::Map_Pair       Map_Pair;
+    typedef typename Transfer_Map::Set_Iterator   Set_Iterator;
+    typedef typename Transfer_Map::Set_Pair       Set_Pair;
     //@}
     
   private:
