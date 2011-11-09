@@ -61,6 +61,7 @@ class Mapper
     typedef Physics<DataType>                     Physics_t;
     typedef denovo::SP<Physics_t>                 SP_Physics;
     typedef nemesis::Communicator_t               Communicator;
+    typedef denovo::SP<Transfer_Map>              SP_Transfer_Map;
     typedef typename Transfer_Map::Map_Iterator   Map_Iterator;
     typedef typename Transfer_Map::Map_Pair       Map_Pair;
     typedef typename Transfer_Map::Set_Iterator   Set_Iterator;
@@ -83,18 +84,36 @@ class Mapper
 
   public:
 
-    // Constructor.
+    //! Constructor.
     Mapper(const Communicator &comm_global,
 	   const std::string &field_name,
 	   SP_Physics source,
 	   SP_Physics target);
 
-    // Map the field from the source onto the target.
+    //! Map the field from the source onto the target.
     void map();
 
   private:
 
+    //! Source physics post receives.
+    void source_post_receives(BufferList &buffer_list);
+
+    //! Target physics send to source.
+    void target_send();
+
+    //! Source physics process requests.
+    void source_process_requests(BufferList &buffer_list, 
+				 SP_Transfer_Map new_map);
     
+    //! Target physics post receives.
+    void target_post_receives(BufferList &buffer_list);
+
+    //! Source physics send to target.
+    void source_send();
+
+    //! Target physics process requests.
+    void source_process_requests(BufferList &buffer_list,
+				 SP_Transfer_Map new_map);
 
 };
 

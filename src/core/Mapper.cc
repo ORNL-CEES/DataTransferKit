@@ -47,6 +47,61 @@ Mapper::~Mapper()
  */
 void Mapper::map()
 {
+    //  Set the internal communicator.
+    nemesis::set_internal_communicator(d_comm_global);
+
+    // Initialize a map.
+    SP_Transfer_Map new_map = new Transfer_Map();
+
+    // Create an empty list of message buffers.
+    BufferList buffer_list;
+
+    // Source physics post receives.
+    if ( d_source->te() )
+    {
+	source_post_receives(buffer_list);
+    }
+
+    // Target physics sends to the source.
+    if ( d_target->te() )
+    {
+	target_send();
+    }
+
+    // Source physics processes buffers from target and adds to the map.
+    if ( d_source->te() )
+    {
+	source_process_requests(buffer_list, new_map);
+    }
+
+    // Barrier before continuing.
+    nemesis::global_barrier();
+    buffer_list.clear();
+
+    // Target physics post receives.
+    if ( d_target->te() )
+    {
+	target_post_receives(buffer_list);
+    }
+
+    // Source physics sends to the target.
+    if ( d_source->te() )
+    {
+	source_send();
+    }
+
+    // Target physics processes buffers from source and finishes the map.
+    if ( d_target->te() )
+    {
+	target_process_requests(buffer_list, new_map);
+    }
+    
+    // Reset the internal communicator.
+    nemesis::reset_internal_comm();
+}
+
+
+
     // Set the iteration bounds for loops over the source and target process
     // ids.
     int begin_source = 0;
@@ -59,25 +114,26 @@ void Mapper::map()
 	end_target = d_target->indexer()->size();
     }
 
-    // Target point coordinate vector iterators.
-    Coord_Iterator points_begin, points_end;
-
-    // Target point handle vector iterators.
-    Handle_Iterator handles_begin, handles_end;
-
-    // Target physics registers its target points for the field being mapped.
-    d_target->te()->register_xyz(field_name, 
-				 points_begin, points_end, 
-				 handles_begin, handles_end);
-
-    Check( std::distance(points_begin, points_end) % 3 == 0 );
-    Check( std::distance(points_begin, points_end) / 3 == 
-	   std::distance(handles_begin, handles_end) );
 
     // Target physics sends all of its target points to each source physics
     // process.
     if (d_target->te())
     {
+	// Target point coordinate vector iterators.
+	Coord_Iterator points_begin, points_end;
+
+	// Target point handle vector iterators.
+	Handle_Iterator handles_begin, handles_end;
+
+	// Target physics registers its target points for the field being mapped.
+	d_target->te()->register_xyz(field_name, 
+				     points_begin, points_end, 
+				     handles_begin, handles_end);
+
+	Check( std::distance(points_begin, points_end) % 3 == 0 );
+	Check( std::distance(points_begin, points_end) / 3 == 
+	       std::distance(handles_begin, handles_end) );
+
 	// Build a buffer of the local points to send to the source physics.
 	Buffer buffer;
 
@@ -287,6 +343,47 @@ void Mapper::map()
     // Add the new map to the source physics database.
     d_source->set_map(target_physics, field_name, new_map);
 } 
+
+
+//---------------------------------------------------------------------------//
+// PRIVATE FUNCTIONS
+//---------------------------------------------------------------------------//
+// Source physics post receives.
+void source_post_receives()
+{
+
+}
+
+// Target physics send to source.
+void target_send()
+{
+
+}
+
+// Source physics process requests.
+void source_process_requests()
+{
+
+}
+    
+// Target physics post receives.
+void target_post_receives()
+{
+
+}
+
+// Source physics send to target.
+void source_send()
+{
+
+}
+
+// Target physics process requests.
+void source_process_requests()
+{
+
+}
+
 
 // end namespace coupler
 

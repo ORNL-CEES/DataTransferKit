@@ -10,6 +10,8 @@
 //---------------------------------------------------------------------------//
 
 #include "Data_Transfer_Manager.hh"
+#include "Mapper.hh"
+#include "Messenger.hh"
 #include "harness/DBC.hh"
 
 namespace coupler

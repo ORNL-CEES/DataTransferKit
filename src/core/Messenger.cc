@@ -74,7 +74,7 @@ void Messenger::communicate()
 	process_requests(buffer_list);
     }
 
-    // reset the internal communicator
+    // Reset the internal communicator.
     nemesis::reset_internal_comm();
 }
 
