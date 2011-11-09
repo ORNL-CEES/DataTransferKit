@@ -41,12 +41,14 @@ namespace coupler
  */
 //===========================================================================//
 
+template<class DataType_T>
 class Mapper 
 {
   public:
 
     //@{
     //! Useful typedefs.
+    typedef DataType_T                            DataType;
     typedef int                                   HandleType;
     typedef const HandleType*                     Handle_Iterator;
     typedef int                                   OrdinateType;
@@ -56,7 +58,8 @@ class Mapper
     typedef typename Message_Buffer_t::Buffer     Buffer;
     typedef std::list<Message_Buffer_t>           BufferList;
     typedef typename BufferList::iterator         BufferList_Iterator;
-    typedef denovo::SP<Physics>                   SP_Physics;
+    typedef Physics<DataType>                     Physics_t;
+    typedef denovo::SP<Physics_t>                 SP_Physics;
     typedef nemesis::Communicator_t               Communicator;
     typedef typename Transfer_Map::Map_Iterator   Map_Iterator;
     typedef typename Transfer_Map::Map_Pair       Map_Pair;
@@ -86,7 +89,7 @@ class Mapper
 	   SP_Physics source,
 	   SP_Physics target);
 
-    // Map the field from the source onto the physics.
+    // Map the field from the source onto the target.
     void map();
 
   private:

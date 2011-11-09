@@ -54,7 +54,8 @@ class Messenger
     typedef typename Message_Buffer_t::Buffer     Buffer;
     typedef std::list<Message_Buffer_t>           BufferList;
     typedef typename BufferList::iterator         BufferList_Iterator;
-    typedef denovo::SP<Physics>                   SP_Physics;
+    typedef Physics<DataType>                     Physics_t;
+    typedef denovo::SP<Physics_t>                 SP_Physics;
     typedef nemesis::Communicator_t               Communicator;
     typedef denovo::SP<Transfer_Map>              SP_Transfer_Map;
     typedef typename Transfer_Map::Map_Iterator   Map_Iterator;

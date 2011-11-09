@@ -32,7 +32,7 @@ void Data_Transfer_Manager::add_physics(const std::string &physics_name,
 					Transfer_Evaluator<DataType> *te)
 {
     // Make a physics object.
-    SP_Physics new_physics = new Physics(te, d_comm_global);
+    SP_Physics new_physics = new Physics<DataType>(te, d_comm_global);
 
     // Add it to the physics database.
     d_physics_db.insert( Physics_Pair(physics_name, new_physics) );
@@ -53,11 +53,11 @@ void Data_Transfer_Manager::map(const std::string &field_name,
     SP_Physics target = d_physics_db[target_physics];
 
     // Require that these physics support this field.
-    Insist( source->field_supported(field_name) &&
-	    target->field_supported(field_name) );
+    Insist( source->te()->field_supported(field_name) &&
+	    target->te()->field_supported(field_name) );
 
     // Create a mapper.
-    Mapper mapper(d_comm_global, field_name, source, target);
+    Mapper<DataType> mapper(d_comm_global, field_name, source, target);
 
     // Generate the map.
     mapper.map();
@@ -78,8 +78,8 @@ void Data_Transfer_Manager::transfer(const std::string &field_name,
     SP_Physics target = d_physics_db[target_physics];
 
     // Require that these physics support this field.
-    Insist( source->field_supported(field_name) &&
-	    target->field_supported(field_name) );
+    Insist( source->te()->field_supported(field_name) &&
+	    target->te()->field_supported(field_name) );
     
     // Create a messenger.
     Messenger<DataType> msgr(d_comm_global, field_name, source, target);

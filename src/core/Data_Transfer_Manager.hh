@@ -48,7 +48,8 @@ class Data_Transfer_Manager
     //@{
     //! Useful typedefs.
     typedef DataType_T                               DataType;
-    typedef denovo::SP<Physics>                      SP_Physics;
+    typedef Physics<DataType>                        Physics_t;
+    typedef denovo::SP<Physics_t>                    SP_Physics;
     typedef nemesis::Communicator_t                  Communicator;
     typedef std::pair<std::string,SP_Physics>        Physics_Pair;
     typedef std::map<std::string,SP_Physics>         Physics_DB;

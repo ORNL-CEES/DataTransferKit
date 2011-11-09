@@ -15,6 +15,8 @@
 
 #include "comm/global.hh"
 
+#include <vector>
+
 namespace coupler
 {
 
