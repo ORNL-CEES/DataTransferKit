@@ -33,7 +33,7 @@ namespace coupler
 /*!
  * \class Data_Transfer_Manager
  * \brief The Data_Transfer_Manager manages the data transfer problem between
- * codes. 
+ * physics. 
  *
  * All objects required for coupling are organized by the manager. The manager
  * is the top level mechanism for interacting with the coupling package.
@@ -50,6 +50,7 @@ class Data_Transfer_Manager
     typedef DataType_T                               DataType;
     typedef denovo::SP<Physics>                      SP_Physics;
     typedef nemesis::Communicator_t                  Communicator;
+    typedef std::pair<std::string,SP_Physics>        Physics_Pair;
     typedef std::map<std::string,SP_Physics>         Physics_DB;
     //@}
 
@@ -71,7 +72,7 @@ class Data_Transfer_Manager
 
     //! Register a physics with the manager.
     void add_physics(const std::string &physics_name, 
-		     Transfer_Evaluator *te);
+		     Transfer_Evaluator<DataType> *te);
 
     //! Build the topology map for transfer from a source physics to a target
     //! physics for a particular field.

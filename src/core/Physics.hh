@@ -35,14 +35,17 @@ namespace coupler
  */
 //===========================================================================//
 
+template<class DataType_T>
 class Physics 
 {
   public:
 
     //@{
     //! Useful typedefs.
+    typedef DataType_T                               DataType;
     typedef nemesis::Communicator_t                  Communicator;
-    typedef denovo::SP<Transfer_Evaluator>           SP_Transfer_Evaluator;
+    typedef Transfer_Evaluator<DataType>             Transfer_Evaluator_t;
+    typedef denovo::SP<Transfer_Evaluator_t>         SP_Transfer_Evaluator;
     typedef denovo::SP<LG_Indexer>                   SP_LG_Indexer;
     typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
     typedef std::map<std::string,SP_Transfer_Map>    Field_Map;
@@ -73,7 +76,7 @@ class Physics
 
     //! Constructor.
     Physics(std::string physics_name, 
-	    Transfer_Evaluator *te, 
+	    Transfer_Evaluator_t *te, 
 	    Communicator comm_global);
 
     //! Destructor.

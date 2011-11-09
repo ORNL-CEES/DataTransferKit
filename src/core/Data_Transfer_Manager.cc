@@ -29,14 +29,13 @@ Data_Transfer_Manager::~Data_Transfer_Manager()
 //---------------------------------------------------------------------------//
 // Register a physics to be controlled by the manager.
 void Data_Transfer_Manager::add_physics(const std::string &physics_name,
-					Transfer_Evaluator *te)
+					Transfer_Evaluator<DataType> *te)
 {
     // Make a physics object.
     SP_Physics new_physics = new Physics(te, d_comm_global);
 
     // Add it to the physics database.
-    d_physics_db.insert( 
-	std::pair<std::string,SP_Physics>(physics_name, new_physics) );
+    d_physics_db.insert( Physics_Pair(physics_name, new_physics) );
 }
 
 //---------------------------------------------------------------------------//

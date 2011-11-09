@@ -19,7 +19,7 @@ namespace coupler
 //---------------------------------------------------------------------------//
 // Constructor.
 Physics::Physics(const std::string &physics_name,
-		 Transfer_Evaluator *te, 
+		 Transfer_Evaluator_t *te, 
 		 Communicator comm_global)
     : d_name(physics_name)
 {
