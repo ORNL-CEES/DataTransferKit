@@ -56,44 +56,88 @@ void Mapper::map()
     // Create an empty list of message buffers.
     BufferList buffer_list;
 
-    // Source physics post receives.
+    // True if we are sending buffer sizes, false if we are sending the
+    // actual buffers.
+    bool send_size;
+
+    // Send the size of the target buffers to the source.
     if ( d_source->te() )
     {
-	source_post_receives(buffer_list);
+	send_size = true;
+	source_post_receives(buffer_list, send_size);
     }
 
-    // Target physics sends to the source.
     if ( d_target->te() )
     {
-	target_send();
+	send_size = true;
+	target_send(send_size);
     }
 
-    // Source physics processes buffers from target and adds to the map.
     if ( d_source->te() )
     {
-	source_process_requests(buffer_list, new_map);
+	send_size = true;
+	source_process_requests(buffer_list, new_map, send_size);
+    }
+
+    // Send the target buffers to the source.
+    if ( d_source->te() )
+    {
+	send_size = false;
+	source_post_receives(buffer_list, send_size);
+    }
+
+    if ( d_target->te() )
+    {
+	send_size = false;
+	target_send(send_size);
+    }
+
+    if ( d_source->te() )
+    {
+	send_size = false;
+	source_process_requests(buffer_list, new_map, send_size);
     }
 
     // Barrier before continuing.
     nemesis::global_barrier();
     buffer_list.clear();
 
-    // Target physics post receives.
+    // Send the size of the source buffers to the target.
     if ( d_target->te() )
     {
-	target_post_receives(buffer_list);
+	send_size = true;
+	target_post_receives(buffer_list, send_size);
     }
 
-    // Source physics sends to the target.
     if ( d_source->te() )
     {
-	source_send();
+	send_size = true;
+	source_send(send_size);
     }
 
-    // Target physics processes buffers from source and finishes the map.
     if ( d_target->te() )
     {
-	target_process_requests(buffer_list, new_map);
+	send_size = true;
+	target_process_requests(buffer_list, new_map, send_size);
+    }
+
+    // Send the source buffers to the target.
+    if ( d_target->te() )
+    {
+	send_size = false;
+	target_post_receives(buffer_list, send_size);
+    }
+
+    if ( d_source->te() )
+    {
+	send_size = false;
+	source_send(send_size);
+    }
+
+    if ( d_target->te() )
+    {
+	send_size = false;
+	target_process_requests(buffer_list, new_map, send_size);
     }
 
     // Barrier before completion.
@@ -351,30 +395,8 @@ void Mapper::map()
 //---------------------------------------------------------------------------//
 // PRIVATE FUNCTIONS
 //---------------------------------------------------------------------------//
-// Communicate the size of a group of buffers.
-void communicate_size()
-{
-    // Receiving physics posts receives.
-
-    // Sending application sends.
-    
-    // Receiving application processes requests.
-}
-
-//---------------------------------------------------------------------------//
-// Communicate a group of buffers.
-void communicate_buffers()
-{
-    // Receiving physics posts receives.
-
-    // Sending application sends.
-    
-    // Receiving application processes requests.
-}
-
-//---------------------------------------------------------------------------//
 // Source physics post receives.
-void source_post_receives(BufferList &buffer_list)
+void source_post_receives(BufferList &buffer_list, bool send_size)
 {
     // Initialize.
     Message_Buffer_t &buffer;
@@ -385,39 +407,63 @@ void source_post_receives(BufferList &buffer_list)
     OrdinateType begin_target = 0;
     OrdinateType end_target = d_target->indexer()->size();
     
-    for ( src = begin_target; src != end_target; ++src)
+    // If we are sending the size of the buffers.
+    if ( send_size )
     {
-	Check ( src < nemesis::nodes() );
+	for ( src = begin_target; src != end_target; ++src)
+	{
+	    Check ( src < nemesis::nodes() );
 
+	    // Create the buffer and add it to the list.
+	    buffer_list.push_back( Message_Buffer_t(src,1) );
+
+	    // Get the request buffer.
+	    buffer = buffer_list.back();
+
+	    // Post asynchronous receive with this receive buffer.
+	    nemesis::receive_async(buffer.request(),
+				   &buffer.buffer()[0],
+				   buffer.buffer().size(),
+				   buffer.ordinate());
+	}
+
+	// Make sure we made all of the buffers we're going to receive.
+	Ensure ( buffer_list.size() == d_target->indexer()->size() );
+    }
+
+    // Else we are sending the actual buffers.
+    else
+    {
 
     }
 }
 
 //---------------------------------------------------------------------------//
 // Target physics send to source.
-void target_send()
+void target_send(bool send_size)
 {
-
+    
 }
 
 //---------------------------------------------------------------------------//
 // Source physics process requests.
 void source_process_requests(BufferList &buffer_list,
-			     SP_Transfer_Map new_map)
+			     SP_Transfer_Map new_map,
+			     bool send_size)
 {
 
 }
     
 //---------------------------------------------------------------------------//
 // Target physics post receives.
-void target_post_receives(BufferList &buffer_list)
+void target_post_receives(BufferList &buffer_list, bool send_size)
 {
 
 }
 
 //---------------------------------------------------------------------------//
 // Source physics send to target.
-void source_send()
+void source_send(bool send_size)
 {
 
 }
@@ -425,7 +471,8 @@ void source_send()
 //---------------------------------------------------------------------------//
 // Target physics process requests.
 void source_process_requests(BufferList &buffer_list,
-			     SP_Transfer_Map new_map)
+			     SP_Transfer_Map new_map,
+			     bool send_size)
 {
 
 }

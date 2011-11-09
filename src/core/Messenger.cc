@@ -119,7 +119,7 @@ void Messenger::post_receives(BufferList &buffer_list)
 			       buffer.ordinate());
     }
     
-    // Make sure we made all of the buffers we're going to send.
+    // Make sure we made all of the buffers we're going to receive.
     Ensure ( buffer_list.size() == 
 	     std::distance( src_bound.first(), src_bound.second() ) );
 }
