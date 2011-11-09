@@ -13,9 +13,9 @@
 #ifndef core_Message_Buffer_hh
 #define core_Message_Buffer_hh
 
-#include "comm/global.hh"
-
 #include <vector>
+
+#include "comm/global.hh"
 
 namespace coupler
 {

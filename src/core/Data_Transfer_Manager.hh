@@ -9,20 +9,17 @@
 // $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
-#ifndef coupler_Data_Transfer_Manager_hh
-#define coupler_Data_Transfer_Manager_hh
+#ifndef core_Data_Transfer_Manager_hh
+#define core_Data_Transfer_Manager_hh
 
 #include <vector>
 #include <map>
 #include <string>
 
 #include "Transfer_Evaluator.hh"
-#include "Transfer_Map.hh"
 #include "Physics.hh"
-#include "LG_Indexer.hh"
+#include "Mapper.hh"
 #include "Messenger.hh"
-#include "field/Field.hh"
-#include "fields/Field_DB.hh"
 #include "utils/SP.hh"
 #include "comm/global.hh"
 
@@ -48,11 +45,12 @@ class Data_Transfer_Manager
     //@{
     //! Useful typedefs.
     typedef DataType_T                               DataType;
+    typedef Transfer_Evaluator<DataType>             Transfer_Evaluator_t;
     typedef Physics<DataType>                        Physics_t;
     typedef denovo::SP<Physics_t>                    SP_Physics;
-    typedef nemesis::Communicator_t                  Communicator;
     typedef std::pair<std::string,SP_Physics>        Physics_Pair;
     typedef std::map<std::string,SP_Physics>         Physics_DB;
+    typedef nemesis::Communicator_t                  Communicator;
     //@}
 
   private:
@@ -73,7 +71,7 @@ class Data_Transfer_Manager
 
     //! Register a physics with the manager.
     void add_physics(const std::string &physics_name, 
-		     Transfer_Evaluator<DataType> *te);
+		     Transfer_Evaluator_t *te);
 
     //! Build the topology map for transfer from a source physics to a target
     //! physics for a particular field.
@@ -90,7 +88,7 @@ class Data_Transfer_Manager
 
 } // end namespace coupler
 
-#endif // coupler_Data_Transfer_Manager_hh
+#endif // core_Data_Transfer_Manager_hh
 
 //---------------------------------------------------------------------------//
 //              end of core/Data_Transfer_Manager.hh

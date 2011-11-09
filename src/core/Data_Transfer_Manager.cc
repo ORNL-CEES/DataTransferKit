@@ -29,13 +29,15 @@ Data_Transfer_Manager::~Data_Transfer_Manager()
 //---------------------------------------------------------------------------//
 // Register a physics to be controlled by the manager.
 void Data_Transfer_Manager::add_physics(const std::string &physics_name,
-					Transfer_Evaluator<DataType> *te)
+					Transfer_Evaluator_t *te)
 {
     // Make a physics object.
     SP_Physics new_physics = new Physics<DataType>(te, d_comm_global);
 
     // Add it to the physics database.
     d_physics_db.insert( Physics_Pair(physics_name, new_physics) );
+    
+    Ensure( d_physics_db[physics_name] );
 }
 
 //---------------------------------------------------------------------------//
@@ -52,7 +54,7 @@ void Data_Transfer_Manager::map(const std::string &field_name,
     SP_Physics source = d_physics_db[source_physics];
     SP_Physics target = d_physics_db[target_physics];
 
-    // Require that these physics support this field.
+    // Require that these physics support the field being mapped.
     Insist( source->te()->field_supported(field_name) &&
 	    target->te()->field_supported(field_name) );
 
@@ -61,6 +63,8 @@ void Data_Transfer_Manager::map(const std::string &field_name,
 
     // Generate the map.
     mapper.map();
+
+    Ensure( source->get_map(target_physics, field_name) );
 }
 
 //---------------------------------------------------------------------------//
@@ -77,15 +81,15 @@ void Data_Transfer_Manager::transfer(const std::string &field_name,
     SP_Physics source = d_physics_db[source_physics];
     SP_Physics target = d_physics_db[target_physics];
 
-    // Require that these physics support this field.
+    // Require that these physics support the field being transferred.
     Insist( source->te()->field_supported(field_name) &&
 	    target->te()->field_supported(field_name) );
     
     // Create a messenger.
-    Messenger<DataType> msgr(d_comm_global, field_name, source, target);
+    Messenger<DataType> messenger(d_comm_global, field_name, source, target);
 
     // Transfer the field.
-    msgr.communicate();
+    messenger.communicate();
 }
 
 //---------------------------------------------------------------------------//
