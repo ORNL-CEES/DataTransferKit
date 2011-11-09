@@ -90,16 +90,14 @@ void Messenger::post_receives(BufferList &buffer_list)
     // Initialize.
     Message_Buffer_t &buffer;
     int buffer_size = 0;
-    Set_Iterator src;
 
     // Create the buffers and post the receives for each source process
     // sending to this target process.
+    Set_Iterator src;
     Set_Pair src_bound = 
 	d_source->get_map( d_target->name(), d_field_name )->source_set(); 
 
-    for ( src = src_bound.first();
-	  src != src_bound.second();
-	  ++src) 
+    for ( src = src_bound.first(); src != src_bound.second(); ++src) 
     {
 	Check ( src < nemesis::nodes() );
 
@@ -128,7 +126,7 @@ void Messenger::post_receives(BufferList &buffer_list)
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Do synchronous sends of data from source to target.
+ * \brief Do asynchronous sends of data from source to target.
  */
 void Messenger::send()
 {
@@ -140,9 +138,9 @@ void Messenger::send()
     int buffer_size;
     Map_Iterator map_it;
     Map_Pair domain_bound;
-    Set_Iterator destination;
 
     // Loop over the target partitions and send the data.    
+    Set_Iterator destination;
     Set_Pair destination_bound = 
 	d_source->get_map( d_target->name(), d_field_name )->target_set();
 
@@ -187,7 +185,7 @@ void Messenger::send()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Fulfil the target requests and push the data onto the targets.
+ * \brief Process the target requests and push the data onto the targets.
  */
 void Messenger::process_requests(BufferList &buffer_list)
 {

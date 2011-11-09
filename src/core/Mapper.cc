@@ -95,6 +95,12 @@ void Mapper::map()
     {
 	target_process_requests(buffer_list, new_map);
     }
+
+    // Barrier before completion.
+    nemesis::global_barrier();
+
+    // Add the new map to the source physics database.
+    d_source->set_map(target_physics, field_name, new_map);
     
     // Reset the internal communicator.
     nemesis::reset_internal_comm();
@@ -114,7 +120,6 @@ void Mapper::map()
 	end_source = d_source->indexer()->size();
 	end_target = d_target->indexer()->size();
     }
-
 
     // Target physics sends all of its target points to each source physics
     // process.
@@ -340,51 +345,92 @@ void Mapper::map()
 	    }
 	}
     }
-
-    // Add the new map to the source physics database.
-    d_source->set_map(target_physics, field_name, new_map);
 } 
 
 
 //---------------------------------------------------------------------------//
 // PRIVATE FUNCTIONS
 //---------------------------------------------------------------------------//
-// Source physics post receives.
-void source_post_receives()
+// Communicate the size of a group of buffers.
+void communicate_size()
 {
+    // Receiving physics posts receives.
 
+    // Sending application sends.
+    
+    // Receiving application processes requests.
 }
 
+//---------------------------------------------------------------------------//
+// Communicate a group of buffers.
+void communicate_buffers()
+{
+    // Receiving physics posts receives.
+
+    // Sending application sends.
+    
+    // Receiving application processes requests.
+}
+
+//---------------------------------------------------------------------------//
+// Source physics post receives.
+void source_post_receives(BufferList &buffer_list)
+{
+    // Initialize.
+    Message_Buffer_t &buffer;
+    int buffer_size = 0;
+
+    // Post receives for each target process.
+    OrdinateType src;
+    OrdinateType begin_target = 0;
+    OrdinateType end_target = d_target->indexer()->size();
+    
+    for ( src = begin_target; src != end_target; ++src)
+    {
+	Check ( src < nemesis::nodes() );
+
+
+    }
+}
+
+//---------------------------------------------------------------------------//
 // Target physics send to source.
 void target_send()
 {
 
 }
 
+//---------------------------------------------------------------------------//
 // Source physics process requests.
-void source_process_requests()
+void source_process_requests(BufferList &buffer_list,
+			     SP_Transfer_Map new_map)
 {
 
 }
     
+//---------------------------------------------------------------------------//
 // Target physics post receives.
-void target_post_receives()
+void target_post_receives(BufferList &buffer_list)
 {
 
 }
 
+//---------------------------------------------------------------------------//
 // Source physics send to target.
 void source_send()
 {
 
 }
 
+//---------------------------------------------------------------------------//
 // Target physics process requests.
-void source_process_requests()
+void source_process_requests(BufferList &buffer_list,
+			     SP_Transfer_Map new_map)
 {
 
 }
 
+//---------------------------------------------------------------------------//
 
 // end namespace coupler
 

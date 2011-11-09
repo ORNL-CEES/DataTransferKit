@@ -95,6 +95,12 @@ class Mapper
 
   private:
 
+    //! Communicate the size of a group of buffers.
+    void communicate_size();
+
+    //! Communicate the actual buffers.
+    void communicate_buffers();
+
     //! Source physics post receives.
     void source_post_receives(BufferList &buffer_list);
 
@@ -114,7 +120,6 @@ class Mapper
     //! Target physics process requests.
     void source_process_requests(BufferList &buffer_list,
 				 SP_Transfer_Map new_map);
-
 };
 
 } // end namespace coupler

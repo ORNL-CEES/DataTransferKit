@@ -94,13 +94,13 @@ class Messenger
 
   private:
 
-    // Post the receives.
+    // Target post receives.
     void post_receives(BufferList &buffer_list);
 
-    // Send the data.
+    // Source send data.
     void send();
 
-    // Process the fulfilled requests.
+    // Process the target requests.
     void process_requests(BufferList &buffer_list);
 };
 
