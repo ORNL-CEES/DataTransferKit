@@ -74,12 +74,12 @@ class Physics
 
   public:
 
-    //! Constructor.
+    // Constructor.
     Physics(std::string physics_name, 
 	    Transfer_Evaluator_t *te, 
 	    Communicator comm_global);
 
-    //! Destructor.
+    // Destructor.
     ~Physics();
 
     //! Return the name of this physics.
@@ -94,14 +94,14 @@ class Physics
     //! Return the indexer.
     const SP_LG_Indexer& indexer() { return d_indexer; }
 
-    //! Given a target physics and a field, add the mapping for which this
-    //! physics is the source.
+    // Given a target physics and a field, add the mapping for which this
+    // physics is the source.
     void set_map(std::string target_physics, 
 		 std::string field_name,
 		 SP_Transfer_Map transfer_map);
 
-    //! Given a target physics and a field, return the mapping for which this
-    //! physics is the source.
+    // Given a target physics and a field, return the mapping for which this
+    // physics is the source.
     const SP_Transfer_Map get_map(std::string target_physics,
 				  std::string field_name);
 };

@@ -1,7 +1,7 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   core/Physics.i.hh
- * \author stuart
+ * \author Stuart Slattery
  * \date   Wed Nov 02 11:01:32 2011
  * \brief  Member definitions of class Physics.
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.

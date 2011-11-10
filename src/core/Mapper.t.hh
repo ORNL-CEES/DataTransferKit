@@ -1,9 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   core/Mapper.t.hh
- * \author stuart
+ * \author Stuart Slattery
  * \date   Tue Nov 08 12:31:05 2011
- * \brief  
+ * \brief  Mapper template definitions.
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
 //---------------------------------------------------------------------------//

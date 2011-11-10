@@ -24,6 +24,10 @@ namespace coupler
 /*!
  * \class Message_Buffer
  * \brief A simple container for buffers to be sent in MPI messages.
+ *
+ * The Message_Buffer class holds onto the data buffer, its associated
+ * ordinate (where it will be send or from where it will be received), and a
+ * request handle.
  */
 //===========================================================================//
 

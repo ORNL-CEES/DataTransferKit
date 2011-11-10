@@ -34,7 +34,7 @@ Messenger::Messenger(const Communicator &comm_global,
     , d_target(target)
 {
     // Make sure there is a map to operate with.
-    Ensure ( d_source->get_map( d_target->name(), d_field_name ) );
+    Require ( d_source->get_map( d_target->name(), d_field_name ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -86,6 +86,7 @@ void Messenger::communicate()
 //---------------------------------------------------------------------------//
 /*!
  * \brief Post asynchronous receives for the buffers.
+ * \param buffer_list List of buffers containing data.
  */
 void Messenger::post_receives(BufferList &buffer_list)
 {
@@ -188,6 +189,7 @@ void Messenger::send()
 //---------------------------------------------------------------------------//
 /*!
  * \brief Process the target requests and push the data onto the targets.
+ * \param buffer_list List of buffers containing data.
  */
 void Messenger::process_requests(BufferList &buffer_list)
 {

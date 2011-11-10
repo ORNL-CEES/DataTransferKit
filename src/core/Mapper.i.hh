@@ -1,7 +1,7 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   core/Mapper.i.hh
- * \author stuart
+ * \author Stuart Slattery
  * \date   Tue Nov 08 12:31:05 2011
  * \brief  Member definitions of class Mapper.
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.

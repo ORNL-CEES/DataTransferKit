@@ -9,8 +9,8 @@
 // $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
-#ifndef coupler_Transfer_Map_hh
-#define coupler_Transfer_Map_hh
+#ifndef core_Transfer_Map_hh
+#define core_Transfer_Map_hh
 
 #include <map>
 #include <set>
@@ -75,48 +75,38 @@ class Transfer_Map
 
   public:
 
-    //! Constructor.
+    // Constructor.
     inline Transfer_Map();
 
-    //! Destructor.
+    // Destructor.
     inline ~Transfer_Map();
 
-    //! Add a pair to the source map. The source handle corresponding to an
-    //! entity in the local domain correlates to the range owned by the
-    //! target rank.
+    // Add a pair to the source map. 
     inline void add_domain_pair(OrdinateType target_rank, 
-				HandleType source_handle);
+				HandleType handle);
 
-    //! Add a pair to the target map. The target handle corresponding to an
-    //! entity in the local range correlates to the domain owned by the
-    //! source rank.
+    // Add a pair to the target map.
     inline void add_range_pair(OrdinateType source_rank, 
-			       HandleType target_handle);
+			       HandleType handle);
 
-    //! Get the number of source handles with a specific target rank. This is
-    //! the size of the local domain correlating to the target rank.
+    // Get the number of source handles with a specific target rank.
     inline int domain_size(OrdinateType target_rank);
     
-    //! Get the number of target handles with a specific source rank. This is
-    //! the size of the local range correlating to the source rank.
+    // Get the number of target handles with a specific source rank. 
     inline int range_size(OrdinateType source_rank);
 
-    //! Get the iterator pair for the source domain of a target rank. This
-    //! correlates to the local source handles that exist in the range of the
-    //! target rank.
+    // Get the iterator pair for the source domain of a target rank. 
     inline Map_Pair domain(OrdinateType target_rank);
 
-    //! Get the iterator pair for the target range of a source rank. This
-    //! correlates to the local target handles that exist in the domain of the
-    //! source rank.
+    // Get the iterator pair for the target range of a source rank.
     inline Map_Pair range(OrdinateType source_rank);
 
-    //! Return a const_iterator pair to the beginning and end of the source
-    //! rank set. 
+    // Return a const_iterator pair to the beginning and end of the source
+    // rank set. 
     inline Set_Pair source_set();
 
-    //! Return a const_iterator pair to the beginning and end of the target
-    //! rank set. 
+    // Return a const_iterator pair to the beginning and end of the target
+    // rank set. 
     inline Set_Pair target_set();
 ;
 
@@ -128,7 +118,7 @@ class Transfer_Map
 
 #include "Transfer_Map.i.hh"
 
-#endif // coupler_Transfer_Map_hh
+#endif // core_Transfer_Map_hh
 
 //---------------------------------------------------------------------------//
 //              end of core/Transfer_Map.hh

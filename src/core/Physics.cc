@@ -1,7 +1,7 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   core/Physics.cc
- * \author stuart
+ * \author Stuart Slattery
  * \date   Wed Nov 02 11:01:32 2011
  * \brief  Physics member definitions.
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
@@ -17,7 +17,13 @@ namespace coupler
 {
 
 //---------------------------------------------------------------------------//
-// Constructor.
+/*!
+ * \brief Constructor.
+ * \param physics_name The name of this physics.
+ * \param te Transfer evaluator implementation for this physics.
+ * \param comm_global The global communicator encapsulating all physics being
+ * coupled. 
+ */
 Physics::Physics(const std::string &physics_name,
 		 Transfer_Evaluator_t *te, 
 		 Communicator comm_global)
@@ -35,13 +41,21 @@ Physics::Physics(const std::string &physics_name,
 }
 
 //---------------------------------------------------------------------------//
-// Destructor.
+/*!
+ * \brief Destructor.
+ */
 Physics::~Physics()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Given a target physics and a field, add the mapping for which this
-// physics is the source.
+/*!
+ * \brief Given a target physics and a field, add the mapping for which this
+ * physics is the source. 
+ * \param target_physics The name of the target physics being mapped to.
+ * \param field_name The name of the field being mapped.
+ * \param transfer_map Smart pointer to the Transfer_Map to be assigned to
+ * this physics. 
+ */
 void Physics::set_map(std::string target_physics, 
 		      std::string field_name,
 		      SP_Transfer_Map transfer_map)
@@ -65,8 +79,14 @@ void Physics::set_map(std::string target_physics,
 }
 
 //---------------------------------------------------------------------------//
-// Given a target physics and a field, return the mapping for which this
-// physics is the source.
+/*!
+ * \brief Given a target physics and a field, return the mapping for which
+ * this physics is the source.
+ * \param target_physics The name of the target physics.
+ * \param field_name The name of the mapped field.
+ * \return Returns a smart pointer to the Transfer_Map for the given target
+ * physics and field.
+ */
 const Physics::SP_Transfer_Map Physics::get_map(std::string target_physics,
 						std::string field_name)
 {

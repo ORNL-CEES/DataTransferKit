@@ -18,18 +18,30 @@ namespace coupler
 {
 
 //---------------------------------------------------------------------------//
-// Constructor.
+/*!
+ * \brief Constructor.
+ * \param comm_global Global communicator the encompasses all processes
+ * participating in coupling. All methods driven by the manager will operate
+ * on this communicator.
+ */
 Data_Transfer_Manager::Data_Transfer_Manager(const Communicator &comm_global)
     : d_comm_global(comm_global)
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
+/*!
+ * \brief Destructor.
+ */
 Data_Transfer_Manager::~Data_Transfer_Manager()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Register a physics to be controlled by the manager.
+/*!
+ * \brief Register a physics to be controlled by the manager.
+ * \param physics_name Name of the physics being registered.
+ * \param te Transfer_Evaluator implementation for the phyiscs being
+ * registered.
+ */
 void Data_Transfer_Manager::add_physics(const std::string &physics_name,
 					Transfer_Evaluator_t *te)
 {
@@ -43,15 +55,17 @@ void Data_Transfer_Manager::add_physics(const std::string &physics_name,
 }
 
 //---------------------------------------------------------------------------//
-// Build the topology map for transfer from a source physics to a target
-// physics for a particular field.
+/*!
+ * \brief Build the topology map for transfer from a source physics to a
+ * target physics for a particular field.
+ * \param field_name the name of the field being mapped.
+ * \param source_physics The name of the source physics used for the mapping.
+ * \param target_physics The name of the target physics used for the mapping,
+ */
 void Data_Transfer_Manager::map(const std::string &field_name,
 				const std::string &source_physics,
 				const std::string &target_physics);
 {
-    // Operate on the global communicator.
-    nemesis::set_internal_comm(d_comm_global);
-
     // Get the physics that we are operating on.
     SP_Physics source = d_physics_db[source_physics];
     SP_Physics target = d_physics_db[target_physics];
@@ -70,15 +84,17 @@ void Data_Transfer_Manager::map(const std::string &field_name,
 }
 
 //---------------------------------------------------------------------------//
-// Transfer data associated with a field from a source physics to a target
-// physics. 
+/*!
+ * \brief Transfer data associated with a field from a source physics to a
+ * target physics.
+ * \param field_name The name of the field being transferred.
+ * \param source_physics The name of the source physics for the transfer.
+ * \param target_physics The name of the target physics for the transfer.
+ */
 void Data_Transfer_Manager::transfer(const std::string &field_name,
 				     const std::string &source_physics,
 				     const std::string &target_physics)
 {
-    // Operate on the global communicator.
-    nemesis::set_internal_comm(d_comm_global);
-
     // Get the physics we are operating on.
     SP_Physics source = d_physics_db[source_physics];
     SP_Physics target = d_physics_db[target_physics];
@@ -92,6 +108,33 @@ void Data_Transfer_Manager::transfer(const std::string &field_name,
 
     // Transfer the field.
     messenger.communicate();
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Perform a global rebalance on a field for conservation.
+ * \param field_name The name of the field being balanced.
+ * \param source_physics The name of the source physics.
+ * \param target_physics The name of the target physics.
+ */
+void Data_Transfer_Manager::balance(const std::string &field_name,
+				    const std::string &source_physics,
+				    const std::string &target_physics)
+{
+    // Get the physics we are operating on.
+    SP_Physics source = d_physics_db[source_physics];
+    SP_Physics target = d_physics_db[target_physics];
+
+    // Require that these physics support the field being balanced.
+    Insist( source->te()->field_supported(field_name) &&
+	    target->te()->field_supported(field_name) );
+
+    // Get the normalization factor from the source.
+    DataType norm;
+    source->te()->integrate(field_name, norm);
+
+    // Rebalance the target with the norm.
+    target->te()->rebalance(field_name, norm);
 }
 
 //---------------------------------------------------------------------------//

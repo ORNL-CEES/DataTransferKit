@@ -61,27 +61,32 @@ class Data_Transfer_Manager
     
   public:
 
-    //! Constructor.
+    // Constructor.
     Data_Transfer_Manager(const Communicator &comm_global);
 
-    //! Destructor.
+    // Destructor.
     ~Data_Transfer_Manager();
 
-    //! Register a physics with the manager.
+    // Register a physics with the manager.
     void add_physics(const std::string &physics_name, 
 		     Transfer_Evaluator_t *te);
 
-    //! Build the topology map for transfer from a source physics to a target
-    //! physics for a particular field.
+    // Build the topology map for transfer from a source physics to a target
+    // physics for a particular field.
     void map(const std::string &field_name,
 	     const std::string &source_physics,
 	     const std::string &target_physics);
 
-    //! Transfer data associated with a field from a source physics to a
-    //! target physics. 
+    // Transfer data associated with a field from a source physics to a
+    // target physics. 
     void transfer(const std::string &field_name,
 		  const std::string &source_physics,
 		  const std::string &target_physics);
+
+    // Perform a global rebalance on a field for conservation.
+    void balance(const std::string &field_name,
+		 const std::string &source_physics,
+		 const std::string &target_physics);
 };
 
 } // end namespace coupler

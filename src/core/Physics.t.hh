@@ -1,7 +1,7 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   core/Physics.t.hh
- * \author stuart
+ * \author Stuart Slattery
  * \date   Wed Nov 02 11:01:32 2011
  * \brief  Physics template member definitions.
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.

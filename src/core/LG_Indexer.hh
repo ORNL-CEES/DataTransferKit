@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   coupler/LG_Indexer.hh
+ * \file   core/LG_Indexer.hh
  * \author Stuart R. Slattery
  * \date   Thu Jun 16 16:23:46 2011
  * \brief  LG_Indexer class definition
@@ -10,8 +10,8 @@
 // $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
-#ifndef coupler_LG_Indexer_hh
-#define coupler_LG_Indexer_hh
+#ifndef core_LG_Indexer_hh
+#define core_LG_Indexer_hh
 
 #include <map>
 #include <vector>
@@ -51,7 +51,7 @@ class LG_Indexer
 
   public:
 
-    //! Constructor.
+    // Constructor.
     template<class LocalApp>
     LG_Indexer(const Communicator_t &comm_world, 
                const Communicator_t &comm_local,
@@ -72,8 +72,8 @@ class LG_Indexer
 
 #include "LG_Indexer.i.hh"
 
-#endif // coupler_LG_Indexer_hh
+#endif // core_LG_Indexer_hh
 
 //---------------------------------------------------------------------------//
-//              end of coupler/LG_Indexer.hh
+//              end of core/LG_Indexer.hh
 //---------------------------------------------------------------------------//

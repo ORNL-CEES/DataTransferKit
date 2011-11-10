@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   coupler/LG_Indexer.i.hh
+ * \file   core/LG_Indexer.i.hh
  * \author Stuart R. Slattery
  * \date   Thu Jun 16 16:23:46 2011
  * \brief  Member definitions of class LG_Indexer.
@@ -10,8 +10,8 @@
 // $Id: template.i.hh,v 1.4 2008/01/04 22:50:12 9te Exp $
 //---------------------------------------------------------------------------//
 
-#ifndef coupler_LG_Indexer_i_hh
-#define coupler_LG_Indexer_i_hh
+#ifndef core_LG_Indexer_i_hh
+#define core_LG_Indexer_i_hh
 
 namespace coupler
 {
@@ -32,7 +32,7 @@ LG_Indexer::LG_Indexer(const Communicator_t &comm_world,
 {
     // Indicate whether we have the local app.
     int local_app_indicator = 0;
-    if(local_app)
+    if ( local_app )
     {
         local_app_indicator = 1;
     }
@@ -80,8 +80,8 @@ LG_Indexer::LG_Indexer(const Communicator_t &comm_world,
 
 } // end namespace coupler
 
-#endif // coupler_LG_Indexer_i_hh
+#endif // core_LG_Indexer_i_hh
 
 //---------------------------------------------------------------------------//
-//              end of coupler/LG_Indexer.i.hh
+//              end of core/LG_Indexer.i.hh
 //---------------------------------------------------------------------------//
