@@ -247,7 +247,7 @@ void Mapper::target_send_point_size(Coord_Iterator &points_begin,
 // Source physics process requests for message sizes and post receives
 // for buffers.
 void Mapper::source_post_receive_buffer(BufferList &buffer_size_list,
-				BufferList &buffer_list)
+					BufferList &buffer_list)
 {
     // Initialize.
     OrdinateType src;
