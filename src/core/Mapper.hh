@@ -92,6 +92,50 @@ class Mapper
 
     //! Map the field from the source onto the target.
     void map();
+
+  private:
+
+    //! Source physics post receives for buffer sizes.
+    void source_post_receive_size(BufferList &buffer_size_list);
+
+    //! Target physics sends point sizes to source.
+    void target_send_point_size(Coord_Iterator &points_begin,
+				Coord_Iterator &points_end,
+				Handle_Iterator &handles_begin,
+				Handle_Iterator &handles_end);
+
+    //! Source physics process requests for message sizes and post receives
+    //! for buffers.
+    void source_post_receive_buffer(BufferList &buffer_size_list,
+				    BufferList &buffer_list);
+
+    //! Target send points to source.
+    void target_send_points(Coord_Iterator points_begin,
+			    Coord_Iterator points_end,
+			    Handle_Iterator handles_begin,
+			    Handle_Iterator handles_end);
+
+    //! Source physics process request and build part of the map.
+    void source_process_points(BufferList &buffer_list,
+			       SP_Transfer_Map new_map);
+
+    //! Target physics post receives for return buffer size.
+    void target_post_receive_size(BufferList &buffer_size_list);
+
+    //! Source physics sends back the number of points it found in its domain
+    //! back to the target.
+    void source_send_point_size();
+
+    //! Target physics process request for message sizes and post receives.
+    void target_post_receive_buffer(BufferList &buffer_size_list,
+				    BufferList &buffer_list);
+
+    //! Source physics sends its point handles to the targets.
+    void source_send_handles(SP_Transfer_Map new_map);
+    
+    //! Target physics processes handle requests and completes the mapping.
+    void target_process_handles(BufferList &buffer_list,
+				SP_Transfer_Map new_map);
 };
 
 } // end namespace coupler
