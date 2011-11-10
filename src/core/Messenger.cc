@@ -10,6 +10,8 @@
 // $Id: template.cc,v 1.3 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
+#include <algorithm>
+
 #include "Messenger.hh"
 #include "harness/DBC.hh"
 

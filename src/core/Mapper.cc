@@ -10,6 +10,8 @@
 // $Id: template.cc,v 1.3 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
+#include <algorithm>
+
 #include "Mapper.hh"
 #include "harness/DBC.hh"
 
@@ -54,127 +56,51 @@ void Mapper::map()
     SP_Transfer_Map new_map = new Transfer_Map();
 
     // Create an empty list of message buffers.
+    BufferList buffer_size_list;
     BufferList buffer_list;
 
-    // True if we are sending buffer sizes, false if we are sending the
-    // actual buffers.
-    bool send_size;
-
-    // Send the size of the target buffers to the source.
+    // Source physics post receives for the message buffer size.
     if ( d_source->te() )
     {
-	send_size = true;
-	source_post_receives(buffer_list, send_size);
-    }
+	// Initialize.
+	Message_Buffer_t &buffer;
+	int buffer_size = 0;
 
-    if ( d_target->te() )
-    {
-	send_size = true;
-	target_send(send_size);
-    }
-
-    if ( d_source->te() )
-    {
-	send_size = true;
-	source_process_requests(buffer_list, new_map, send_size);
-    }
-
-    // Send the target buffers to the source.
-    if ( d_source->te() )
-    {
-	send_size = false;
-	source_post_receives(buffer_list, send_size);
-    }
-
-    if ( d_target->te() )
-    {
-	send_size = false;
-	target_send(send_size);
-    }
-
-    if ( d_source->te() )
-    {
-	send_size = false;
-	source_process_requests(buffer_list, new_map, send_size);
-    }
-
-    // Barrier before continuing.
-    nemesis::global_barrier();
-    buffer_list.clear();
-
-    // Send the size of the source buffers to the target.
-    if ( d_target->te() )
-    {
-	send_size = true;
-	target_post_receives(buffer_list, send_size);
-    }
-
-    if ( d_source->te() )
-    {
-	send_size = true;
-	source_send(send_size);
-    }
-
-    if ( d_target->te() )
-    {
-	send_size = true;
-	target_process_requests(buffer_list, new_map, send_size);
-    }
-
-    // Send the source buffers to the target.
-    if ( d_target->te() )
-    {
-	send_size = false;
-	target_post_receives(buffer_list, send_size);
-    }
-
-    if ( d_source->te() )
-    {
-	send_size = false;
-	source_send(send_size);
-    }
-
-    if ( d_target->te() )
-    {
-	send_size = false;
-	target_process_requests(buffer_list, new_map, send_size);
-    }
-
-    // Barrier before completion.
-    nemesis::global_barrier();
-
-    // Add the new map to the source physics database.
-    d_source->set_map(target_physics, field_name, new_map);
+	// Post receives for each target process.
+	OrdinateType src;
+	OrdinateType begin_target = 0;
+	OrdinateType end_target = d_target->indexer()->size();
     
-    // Reset the internal communicator.
-    nemesis::reset_internal_comm();
-}
+	for ( src = begin_target; src != end_target; ++src)
+	{
+	    Check ( src < nemesis::nodes() );
 
+	    // Create the buffer and add it to the list.
+	    buffer_size_list.push_back( Message_Buffer_t(src, 1) );
 
+	    // Get the request buffer.
+	    buffer = buffer_size_list.back();
 
+	    // Post asynchronous receive with this receive buffer.
+	    nemesis::receive_async(buffer.request(),
+				   &buffer.buffer()[0],
+				   buffer.buffer().size(),
+				   buffer.ordinate());
+	}
 
-    // Set the iteration bounds for loops over the source and target process
-    // ids.
-    int begin_source = 0;
-    int end_source = 0;
-    int begin_target = 0;
-    int end_target = 0;
-    if( d_source->te() || d_target->te() )
-    {
-	end_source = d_source->indexer()->size();
-	end_target = d_target->indexer()->size();
+	// Make sure we made all of the buffers we're going to receive.
+	Check ( buffer_size_list.size() == d_target->indexer()->size() );
     }
 
-    // Target physics sends all of its target points to each source physics
-    // process.
-    if (d_target->te())
+    // Target point coordinate vector iterators.
+    Coord_Iterator points_begin, points_end;
+
+    // Target point handle vector iterators.
+    Handle_Iterator handles_begin, handles_end;
+
+    // Target physics sends message buffer sizes to source.
+    if ( d_target->te() )
     {
-	// Target point coordinate vector iterators.
-	Coord_Iterator points_begin, points_end;
-
-	// Target point handle vector iterators.
-	Handle_Iterator handles_begin, handles_end;
-
 	// Target physics registers its target points for the field being mapped.
 	d_target->te()->register_xyz(field_name, 
 				     points_begin, points_end, 
@@ -184,12 +110,107 @@ void Mapper::map()
 	Check( std::distance(points_begin, points_end) / 3 == 
 	       std::distance(handles_begin, handles_end) );
 
-	// Build a buffer of the local points to send to the source physics.
-	Buffer buffer;
-
 	// Create a packer.
 	denovo::Packer p;
 
+	// Compute the size of the buffer.
+	Coord_Iterator coord_iter = points_begin;
+	Handle_Iterator handle_iter;
+	p.compute_buffer_size_mode();
+
+	for (handle_iter = handles_begin, handle_iter != handles_end; ++iter)
+	{
+	    p << *coord_iter;
+	    coord_iter++;
+	    p << *coord_iter;
+	    coord_iter++;
+	    p << *coord_iter;
+	    coord_iter++;
+	    p << *handle_iter;
+	}
+
+	int buffer_size = p.size();
+
+	// Send the local target points to all processes of the source physics.
+	OrdinateType destination;
+	OrdinateType begin_source = 0;
+	OrdinateType end_source = d_source->indexer()->size();
+
+	for (int i = begin_source; i < end_source; ++i)
+	{
+	    // Get the global index for the source physics that the buffer is
+	    // going to.
+	    destination = d_source->indexer()->l2g(i);
+
+	    // Send a message to the source with the size of the buffer that
+	    // it will get. 
+	    nemesis::send_async(&buffer_size, 1, destination);
+	}
+    }
+
+    // Source physics processes requests and posts receives for the buffers.
+    if ( d_source->te() )
+    {
+	// Initialize.
+	OrdinateType src;
+	BufferList_Iterator buffer_iter;
+	Buffer &buffer;
+	int buffer_size;
+	denovo::Unpacker u;
+	
+	// Keep going until all requests have been processed.
+	while( !buffer_list.empty() )
+	{
+	    // Find a buffer with a completed communication request.
+	    buffer_iter = std::find_if(buffer_size_list.begin(), 
+				       buffer_size_list.end(), 
+				       &Message_Buffer_t::complete);
+
+	    // If a completed communication request was found, process it.
+	    if( buffer_iter != buffer_size_list.end() )
+	    {
+		// Get the source partition.
+		src = buffer_iter->ordinate();
+
+		// Get the buffer.
+		buffer = buffer_iter->buffer();
+
+		// Set the buffer for the unpacker.
+		u.set_buffer( buffer.size(), &buffer[0] );
+
+		// Get the size of the next buffer we will receive.
+		u >> buffer_size;
+
+		// Remove this buffer from the size list.
+		buffer_size_list.erase(buffer_iter);
+
+		// Create the buffer and add it to the list.
+		buffer_list.push_back( Message_Buffer_t(src, buffer_size) );
+
+		// Clear the buffer just to be safe.
+		buffer.clear();
+
+		// Get the request buffer.
+		buffer = buffer_list.back();
+
+		// Post asynchronous receive with this receive buffer.
+		nemesis::receive_async(buffer.request(),
+				       &buffer.buffer()[0],
+				       buffer.buffer().size(),
+				       buffer.ordinate());
+	    }
+
+	    // Make sure we made all of the buffers we're going to receive.
+	    Check ( buffer_list.size() == d_target->indexer()->size() );
+	}
+    }
+
+    // Target send buffers with points to the source.
+    if ( d_target->te() )
+    {
+	// Build a buffer of the local points to send to the source physics.
+	Buffer buffer;
+    
 	// Compute the size of the buffer.
 	Coord_Iterator coord_iter = points_begin;
 	Handle_Iterator handle_iter;
@@ -237,10 +258,6 @@ void Mapper::map()
 	    // going to.
 	    destination = d_source->indexer()->l2g(i);
 
-	    // Send a message to the source with the size of the buffer that
-	    // it will get. 
-	    nemesis::send_async(&buffer_size, 1, destination);
-
 	    // Send the buffer of points.
 	    if (buffer_size > 0)
 	    {
@@ -249,50 +266,67 @@ void Mapper::map()
 	}
     }
 
-    // Source physics receives all of the target points from the target
+    // Source physics processes requests of target points from the target
     // physics and builds the topology map. 
     if (d_source->te())
     {
-	// Source will get a message with target points from every target process.
-	for (int i = begin_target; i < end_target; ++i)
+	// Initialize.
+	OrdinateType src;
+	BufferList_Iterator buffer_iter;
+	Buffer &buffer;
+	int buffer_size;
+	int num_points;
+	int j;
+	denovo::Unpacker u;
+	HandleType handle;
+	Coordinate x, y, z;
+
+	while ( buffer_list.empty() )
 	{
-	    // Get the global index of the target process.
-	    int src = d_target->indexer()->l2g(i);
+	    // Find a buffer with a completed communication request.
+	    buffer_iter = std::find_if(buffer_size_list.begin(), 
+				       buffer_size_list.end(), 
+				       &Message_Buffer_t::complete);
 
-	    // Get the size of the incoming target point buffer.
-	    int buffer_size;
-	    nemesis::receive(&buffer_size, 1, src);
-
-	    // Unpack the points and add them to the map.
-	    int num_points;
-	    if (buffer_size > 0)
+	    // If a completed communication request was found, process it.
+	    if( buffer_iter != buffer_size_list.end() )
 	    {
-		// Receive the buffer from the target process.
-		Buffer buffer(buffer_size);
-		nemesis::receive(&buffer[0], buffer_size, src);
+		// Get the source partition.
+		src = buffer_iter->ordinate();
 
-		// Compute the number of points in the buffer.
-		num_points = buffer_size / ( sizeof(double) * 3 + sizeof(int));
+		// Get the buffer.
+		buffer = buffer_iter->buffer();
 
-		// Unpack the buffer.
-		HandleType handle;
-		Coordinate x, y, z;
-		denovo::Unpacker u;
-		u.set_buffer(buffer_size, &buffer[0]);
-		for (int j = 0; j < num_points; ++j)
+		// Get the buffer size.
+		buffer_size = buffer.size();
+
+		// Unpack the points and add them to the map.
+		if (buffer_size > 0)
 		{
-		    u >> x;
-		    u >> y;
-		    u >> z;
-		    u >> handle;
+		    // Compute the number of points in the buffer.
+		    num_points = buffer_size / ( sizeof(double) * 3 + sizeof(int));
 
-		    // See if this point is in the spatial domain of this
-		    // source process.
-		    if ( d_source->te()->find_xyz(x, y, z, handle) )
+		    // Unpack the buffer.
+		    u.set_buffer(buffer_size, &buffer[0]);
+
+		    for (j = 0; j < num_points; ++j)
 		    {
-			// Add the handle to the map with the target rank.
-			new_map->add_domain_pair(src, handle);
+			u >> x;
+			u >> y;
+			u >> z;
+			u >> handle;
+
+			// See if this point is in the spatial domain of this
+			// source process.
+			if ( d_source->te()->find_xyz(x, y, z, handle) )
+			{
+			    // Add the handle to the map with the target rank.
+			    new_map->add_domain_pair(src, handle);
+			}
 		    }
+
+		    // Remove this buffer from the list.
+		    buffer_list.erase(buffer_iter);
 		}
 	    }
 	}
@@ -302,123 +336,33 @@ void Mapper::map()
     // source physics.
     nemesis::global_barrier();
 
-    // Send all target points found in the source physics back to the target
-    // physics to complete the map.
-    if (d_source->te())
+    // Clear the buffer lists to be safe.
+    buffer_size_list.clear();
+    buffer_list.clear();
+
+    // Target physics post receives for the return communication of which
+    // handles were found in the source domain. These are requests are for the
+    // size of that communication.
+    if ( d_target->te() )
     {
-	// For every unique target physics rank in the map, send back the
-	// points found in the local domain.
-	Set_Iterator destination;
-	for (destination = new_map->target_set_begin(); 
-	     destination != new_map->target_set_end(); 
-	     ++destination)
-	{
-	    // Get the domain iterators for this target rank.
-	    Iterator_Pair domain_pair = new_map->domain(*destination);
-	    std::multimap<int,int>::const_iterator mapit;
-	    
-	    // Create a packer.
-	    denovo::Packer p;
+	// Initialize.
+	Message_Buffer_t &buffer;
+	int buffer_size = 0;
 
-	    // Compute the size of the buffer.
-	    p.compute_buffer_size_mode();
-	    for (map_it = domain_pair.first(); 
-		 map_it != domain_pair.second;
-		 ++map_it)
-	    {
-		p << (*map_it).second;
-	    }
-	    int buffer_size = p.size();
-
-	    // Pack the buffer.
-	    Buffer buffer(buffer_size);
-	    p.set_buffer(buffer_size, &buffer[0]);
-	    for (map_it = domain_pair.first(); 
-		 map_it != domain_pair.second;
-		 ++map_it)
-	    {
-		p << (*map_it).second;
-	    }
-
-	    // Send the size of the buffer.
-	    nemesis::send_async(&buffer_size, 1, *destination);
-
-	    // Send the buffer.
-	    nemesis::send_async(&buffer[0], buffer_size, *destination);
-	}
-    }
-
-    // The target physics gets a message from the source physics with the
-    // handles to its target points that the source found. The target
-    // associates these handles with the rank of the source that they came
-    // from to complete the map. 
-    if (d_target->te())
-    {
-	// Get a buffer from all source processes.
-	for (int i = begin_source; i < end_source; ++i)
-	{
-	    // Get the global rank of A we are receiving from.
-	    int src = d_source->indexer()->l2g(i);
-
-	    // Receive the buffer size.
-	    int buffer_size;
-	    nemesis::receive(&buffer_size, 1, src);
-
-	    // Unpack the buffer.
-	    if (buffer_size > 0)
-	    {
-		// Create a buffer.
-		Buffer buffer(buffer_size);
-
-		// Receive the buffer.
-		nemesis::receive(&buffer[0], buffer_size, src);
-		
-		// Get the number of handles in the buffer.
-		int num_handles = buffer_size / sizeof(int);
-
-		// Unpack the handle and put it in the map.
-		denovo::Unpacker u;
-		u.set_buffer(buffer_size, &buffer[0]);
-		for (int j = 0; j < num_handles; ++j)
-		{
-		    HandleType handle;
-		    u >> handle;
-
-		    new_map->add_target_pair(source, handle);
-		}
-	    }
-	}
-    }
-} 
-
-
-//---------------------------------------------------------------------------//
-// PRIVATE FUNCTIONS
-//---------------------------------------------------------------------------//
-// Source physics post receives.
-void source_post_receives(BufferList &buffer_list, bool send_size)
-{
-    // Initialize.
-    Message_Buffer_t &buffer;
-    int buffer_size = 0;
-
-    // Post receives for each target process.
-    OrdinateType src;
-    OrdinateType begin_target = 0;
-    OrdinateType end_target = d_target->indexer()->size();
+	// Post receives for each source process.
+	OrdinateType src;
+	OrdinateType begin_source = 0;
+	OrdinateType end_source = d_source->indexer()->size();
     
-    // If we are sending the size of the buffers.
-    if ( send_size )
-    {
-	for ( src = begin_target; src != end_target; ++src)
+	for ( src = begin_source; src != end_source; ++src)
 	{
 	    Check ( src < nemesis::nodes() );
 
 	    // Create the buffer and add it to the list.
-	    buffer_list.push_back( Message_Buffer_t(src,1) );
+	    buffer_size_list.push_back( Message_Buffer_t(src, 1) );
 
 	    // Get the request buffer.
-	    buffer = buffer_list.back();
+	    buffer = buffer_size_list.back();
 
 	    // Post asynchronous receive with this receive buffer.
 	    nemesis::receive_async(buffer.request(),
@@ -428,54 +372,203 @@ void source_post_receives(BufferList &buffer_list, bool send_size)
 	}
 
 	// Make sure we made all of the buffers we're going to receive.
-	Ensure ( buffer_list.size() == d_target->indexer()->size() );
+	Check ( buffer_size_list.size() == d_source->indexer()->size() );
     }
 
-    // Else we are sending the actual buffers.
-    else
+    // Source physics sends the number of points it found in its domain back
+    // to the target.
+    if ( d_source->te() )
     {
+	// Send the number of local points belonging to each target process.
+	OrdinateType destination;
+	OrdinateType begin_target = 0;
+	OrdinateType end_target = d_target->indexer()->size();
+	int buffer_size;
 
+	for (int i = begin_target; i < end_target; ++i)
+	{
+	    // Get the global index for the target physics that the buffer is
+	    // going to.
+	    destination = d_target->indexer()->l2g(i);
+
+	    // Get the number of points in the domain.
+	    buffer_size = new_map->domain_size(destination);
+
+	    // Send a message to the target with the size of the buffer that
+	    // it will get. 
+	    nemesis::send_async(&buffer_size, 1, destination);
+	}
     }
-}
 
-//---------------------------------------------------------------------------//
-// Target physics send to source.
-void target_send(bool send_size)
-{
+    // Target physics processes requests for the number of points from the
+    // source and then posts receives if that number is greater than zero.
+    if ( d_target->te() )
+    {
+	// Initialize.
+	OrdinateType src;
+	BufferList_Iterator buffer_iter;
+	Buffer &buffer;
+	int buffer_size;
+	denovo::Unpacker u;
+	
+	// Keep going until all requests have been processed.
+	while( !buffer_list.empty() )
+	{
+	    // Find a buffer with a completed communication request.
+	    buffer_iter = std::find_if(buffer_size_list.begin(), 
+				       buffer_size_list.end(), 
+				       &Message_Buffer_t::complete);
+
+	    // If a completed communication request was found, process it.
+	    if( buffer_iter != buffer_size_list.end() )
+	    {
+		// Get the source partition.
+		src = buffer_iter->ordinate();
+
+		// Get the buffer.
+		buffer = buffer_iter->buffer();
+
+		// Set the buffer for the unpacker.
+		u.set_buffer( buffer.size(), &buffer[0] );
+
+		// Get the size of the next buffer we will receive.
+		u >> buffer_size;
+
+		// Remove this buffer from the size list.
+		buffer_size_list.erase(buffer_iter);
+
+		// If there is something to receive, post a request.
+		if ( buffer_size > 0 )
+		{
+		    // Create the buffer and add it to the list.
+		    buffer_list.push_back( Message_Buffer_t(src, buffer_size) );
+
+		    // Clear the buffer just to be safe.
+		    buffer.clear();
+
+		    // Get the request buffer.
+		    buffer = buffer_list.back();
+
+		    // Post asynchronous receive with this receive buffer.
+		    nemesis::receive_async(buffer.request(),
+					   &buffer.buffer()[0],
+					   buffer.buffer().size(),
+					   buffer.ordinate());
+		}
+	    }
+	}
+    }
+
+    // Source physics sends target point handles it found in its domain back
+    // to the target.
+    if ( d_source->te() )
+    {
+	// For every unique target physics rank in the map, send back the
+	// points found in the local domain.
+	Set_Iterator destination;
+	for (destination = new_map->target_set_begin(); 
+	     destination != new_map->target_set_end(); 
+	     ++destination)
+	{
+	    // Get the domain iterators for this target rank.
+	    Map_Pair domain_pair = new_map->domain(*destination);
+	    Map_Iterator map_it;
+	    
+	    // Create a packer.
+	    denovo::Packer p;
+
+	    // Compute the size of the buffer.
+	    p.compute_buffer_size_mode();
+	    for (map_it = domain_pair.first(); 
+		 map_it != domain_pair.second();
+		 ++map_it)
+	    {
+		p << (*map_it).second();
+	    }
+	    int buffer_size = p.size();
+
+	    // Pack the buffer with the handles.
+	    Buffer buffer(buffer_size);
+	    p.set_buffer(buffer_size, &buffer[0]);
+	    for (map_it = domain_pair.first(); 
+		 map_it != domain_pair.second();
+		 ++map_it)
+	    {
+		p << (*map_it).second();
+	    }
+
+	    // Send the buffer.
+	    nemesis::send_async(&buffer[0], buffer_size, *destination);
+	}
+    }
+
+    // Target physics processes requests for handles from the source and
+    // completes the map.
+    if (d_target->te())
+    {
+	// Initialize.
+	OrdinateType src;
+	BufferList_Iterator buffer_iter;
+	Buffer &buffer;
+	int buffer_size;
+	int num_handles;
+	int j;
+	denovo::Unpacker u;
+	HandleType handle;
+
+	while ( buffer_list.empty() )
+	{
+	    // Find a buffer with a completed communication request.
+	    buffer_iter = std::find_if(buffer_size_list.begin(), 
+				       buffer_size_list.end(), 
+				       &Message_Buffer_t::complete);
+
+	    // If a completed communication request was found, process it.
+	    if( buffer_iter != buffer_size_list.end() )
+	    {
+		// Get the source partition.
+		src = buffer_iter->ordinate();
+
+		// Get the buffer.
+		buffer = buffer_iter->buffer();
+
+		// Get the buffer size.
+		buffer_size = buffer.size();
+
+		// Unpack the buffer.
+		if (buffer_size > 0)
+		{
+		    // Get the number of handles in the buffer.
+		    num_handles = buffer_size / sizeof(int);
+
+		    // Unpack the handle and put it in the map.
+		    u.set_buffer(buffer_size, &buffer[0]);
+
+		    for (int j = 0; j < num_handles; ++j)
+		    {
+			u >> handle;
+
+			new_map->add_target_pair(source, handle);
+		    }
+		}
+	    }
+	}
+    }
+
+    // Barrier after completion.
+    nemesis::global_barrier();
+
+    // Add the new map to the source physics database.
+    d_source->set_map(target_physics, field_name, new_map);
     
+    // Reset the internal communicator.
+    nemesis::reset_internal_comm();
 }
+
 
 //---------------------------------------------------------------------------//
-// Source physics process requests.
-void source_process_requests(BufferList &buffer_list,
-			     SP_Transfer_Map new_map,
-			     bool send_size)
-{
-
-}
-    
+// PRIVATE FUNCTIONS
 //---------------------------------------------------------------------------//
-// Target physics post receives.
-void target_post_receives(BufferList &buffer_list, bool send_size)
-{
-
-}
-
-//---------------------------------------------------------------------------//
-// Source physics send to target.
-void source_send(bool send_size)
-{
-
-}
-
-//---------------------------------------------------------------------------//
-// Target physics process requests.
-void source_process_requests(BufferList &buffer_list,
-			     SP_Transfer_Map new_map,
-			     bool send_size)
-{
-
-}
 
 //---------------------------------------------------------------------------//
 
