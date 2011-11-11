@@ -60,7 +60,9 @@ $git clone $gitdir/denovo.git denovo
 # add links
 ln -s nemesis/config .
 ln -s nemesis/tools .
-cd src
+cd denovo
+ln -s ../nemesis/config .
+cd ../src
 ln -s ../nemesis/src/harness .
 ln -s ../nemesis/src/comm .
 ln -s ../denovo/src/utils .
