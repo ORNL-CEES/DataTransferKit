@@ -389,6 +389,13 @@ Physics_A::~Physics_A()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Get the communicator.
+const Communicator& Physics_A::comm()
+{
+    return d_comm;
+}
+
+//---------------------------------------------------------------------------//
 // Do standalone solve.
 void Physics_A::solve()
 {

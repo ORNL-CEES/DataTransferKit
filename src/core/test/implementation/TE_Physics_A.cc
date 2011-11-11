@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   peaks_example/TE_Physics_A.cc
+ * \file   implementation/TE_Physics_A.cc
  * \author Stuart Slattery 
  * \date   Wed Oct 05 10:57:30 2011
  * \brief  Transfer Evaluator for Physics_A.
@@ -11,7 +11,7 @@
 
 #include "TE_Physics_A.hh"
 
-namespace peaks_example
+namespace coupler
 {
 //---------------------------------------------------------------------------//
 // Constructor.
@@ -24,11 +24,18 @@ TE_Physics_A::TE_Physics_A(physics_A::Physics_A* a_)
 TE_Physics_A::~TE_Physics_A()
 { /* ... */ }
 
-x//---------------------------------------------------------------------------//
+//---------------------------------------------------------------------------//
+//! Register a communication object.
+void TE_Physics_A::register_comm(Communicator &comm)
+{
+    comm = a->comm();
+}
+
+//---------------------------------------------------------------------------//
 //! Register a field associated with the entities.
 bool TE_Physics_A::register_field(std::string field_name)
 {
-    if (field_name == "PEAKS") return true;
+    if (field_name == "ORDINATE") return true;
     else return false;
 }
 
@@ -49,7 +56,8 @@ void TE_Physics_A::pull_data(std::string field_name,
 			     Handle handle,
 			     double &data)
 {
-    if (field_name == "PEAKS")
+
+    if (field_name == "ORDINATE")
     {
 	a->get_state(handle, data);
     }
@@ -57,7 +65,7 @@ void TE_Physics_A::pull_data(std::string field_name,
 
 //---------------------------------------------------------------------------//
 
-} // end namespace peaks_example
+} // end namespace coupler
 
 //---------------------------------------------------------------------------//
 //                 end of TE_Physics_A.cc

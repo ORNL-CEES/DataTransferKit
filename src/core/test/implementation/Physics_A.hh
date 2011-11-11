@@ -66,6 +66,9 @@ class Physics_A
     // Destructor.
     ~Physics_A();
 
+    // Get the communicator.
+    const Communicator& comm();
+
     // Standalone solve.
     void solve();
 

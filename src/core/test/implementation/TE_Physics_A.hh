@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   example/TE_Physics_A.hh
+ * \file   implementation/TE_Physics_A.hh
  * \author Stuart Slattery
  * \date   Wed Oct 05 10:57:30 2011
  * \brief  Transfer Evaluator for Physics_A.
@@ -9,13 +9,14 @@
 // $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
-#ifndef example_TE_Physics_A_hh
-#define example_TE_Physics_A_hh
+#ifndef implementation_TE_Physics_A_hh
+#define implementation_TE_Physics_A_hh
 
 #include "Physics_A.hh"
-#include "../../src/core/Transfer_Evaluator.hh"
+#include "core/Transfer_Evaluator.hh"
+#include "comm/global.hh"
 
-namespace dtransfer
+namespace coupler
 {
 
 //===========================================================================//
@@ -27,6 +28,10 @@ namespace dtransfer
 
 class TE_Physics_A : public Transfer_Evaluator
 {
+  public:
+
+    typedef nemesis::Communicator_t            Communicator;
+
   private:
 
     // Pointer to physics_A object
@@ -39,6 +44,9 @@ class TE_Physics_A : public Transfer_Evaluator
 
     // Destructor
     ~TE_Physics_A();
+
+    //! Register the communicator.
+    void register_comm(Communicator &comm);
 
     //! Register a field associated with the entities.
     bool register_field(std::string field_name);
@@ -57,10 +65,10 @@ class TE_Physics_A : public Transfer_Evaluator
 		   DataType &data);
 };
 
-} // end namespace dtransfer
+} // end namespace coupler
 
-#endif // example_TE_Physics_A_hh
+#endif // implementation_TE_Physics_A_hh
 
 //---------------------------------------------------------------------------//
-//              end of example/TE_Physics_A.hh
+//              end of implementation/TE_Physics_A.hh
 //---------------------------------------------------------------------------//

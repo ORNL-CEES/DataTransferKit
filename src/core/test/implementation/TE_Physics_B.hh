@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   peaks_transfer/TE_Physics_B.hh
+ * \file   implemenation/TE_Physics_B.hh
  * \author Stuart Slattery
  * \date   Wed Oct 05 10:57:33 2011
  * \brief  Transfer Evaluator for Physics_B.
@@ -9,14 +9,16 @@
 // $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
-#ifndef peaks_transfer_TE_Physics_B_hh
-#define peaks_transfer_TE_Physics_B_hh
+#ifndef implementation_TE_Physics_B_hh
+#define implementation_TE_Physics_B_hh
 
-#include "Physics_B.hh"
-#include "../../src/core/Transfer_Evaluator.hh"
 #include <vector>
 
-namespace peaks_transfer
+#include "Physics_B.hh"
+#include "core/Transfer_Evaluator.hh"
+#include "comm/global.hh"
+
+namespace coupler
 {
 
 //===========================================================================//
@@ -28,6 +30,11 @@ namespace peaks_transfer
 
 class TE_Physics_B : public Transfer_Evaluator
 {
+
+  public:
+
+    typedef nemesis::Communicator_t          Communicator;
+
   private:
 
     // Pointer to physics_A object
@@ -47,6 +54,9 @@ class TE_Physics_B : public Transfer_Evaluator
     // Destructor
     ~TE_Physics_B();
 
+    //! Register the communicator.
+    void register_comm(Communicator &comm);
+
     //! Register a field associated with the entities.
     bool register_field(std::string field_name);
 
@@ -63,10 +73,10 @@ class TE_Physics_B : public Transfer_Evaluator
 		   double data);
 };
 
-} // end namespace peaks_transfer
+} // end namespace coupler
 
-#endif // peaks_transfer_TE_Physics_B_hh
+#endif // implmentation_TE_Physics_B_hh
 
 //---------------------------------------------------------------------------//
-//              end of peaks_transfer/TE_Physics_B.hh
+//              end of implemenation/TE_Physics_B.hh
 //---------------------------------------------------------------------------//

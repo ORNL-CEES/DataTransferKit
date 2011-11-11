@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   peaks_example/TE_Physics_B.cc
+ * \file   implemenation/TE_Physics_B.cc
  * \author Stuart Slattery
  * \date   Wed Oct 05 10:57:33 2011
  * \brief  Transfer Evaluator for Physics_B.
@@ -11,7 +11,7 @@
 
 #include "TE_Physics_B.hh"
 
-namespace peaks_example
+namespace coupler
 {
 
 //---------------------------------------------------------------------------//
@@ -24,6 +24,13 @@ TE_Physics_B::TE_Physics_B(physics_B::Physics_B* b_)
 // Destructor.
 TE_Physics_B::~TE_Physics_B()
 { /* ... */ }
+
+//---------------------------------------------------------------------------//
+//! Register the communicator.
+void TE_Physics_B::register_comm(Communicator &comm)
+{
+    comm = b->comm();
+}
 
 //---------------------------------------------------------------------------//
 //! Register a field associated with the entities.
@@ -99,7 +106,7 @@ void TE_Physics_B::push_data(std::string field_name,
 
 //---------------------------------------------------------------------------//
 
-} // end namespace peaks_example
+} // end namespace coupler
 
 //---------------------------------------------------------------------------//
 //                 end of TE_Physics_B.cc

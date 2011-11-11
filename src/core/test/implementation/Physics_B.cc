@@ -386,6 +386,13 @@ Physics_B::~Physics_B()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Get the communicator.
+const Communicator& Physics_B::comm()
+{
+    return d_comm;
+}
+
+//---------------------------------------------------------------------------//
 // Set an element in the source vector.
 void Physics_B::set_data(int handle, double data)
 {

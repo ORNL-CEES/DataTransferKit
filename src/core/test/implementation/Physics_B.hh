@@ -62,6 +62,9 @@ class Physics_B
     // Destructor.
     ~Physics_B();
 
+    // Return the communicator.
+    const Communicator& comm();
+
     // Set an element in the source vector.
     void set_data(int handle, double data);
 
