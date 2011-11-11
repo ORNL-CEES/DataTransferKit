@@ -71,8 +71,6 @@ AC_NEEDS_LIBS_NEMESIS(utils \
                       harness \
                       release)
 
-dnl AC_NEEDS_LIBS_NEMESIS(harness)
-
 dnl ----------------------------------------
 dnl Setup for unit tests:
 dnl ----------------------------------------
@@ -93,7 +91,6 @@ dnl If this is a scalar package, the number of processors required
 dnl should be listed as "scalar".
 
 AC_RUNTESTS(tstLG_Indexer             \
-	    tstTransfer_Map           \
             , 1 2 4)
 
 dnl ----------------------------------------
@@ -101,7 +98,7 @@ dnl Finish Nemesis setup:
 dnl ----------------------------------------
 
 AC_NEMESIS_ENV
-AC_NEMESIS_AUTODOC
+AC_NEMESIS_AUTODOC(coupler-0_0_1)
 
 dnl Define FORTRAN name-mangling
 AC_FORTRAN_SETUP
@@ -117,8 +114,6 @@ AC_CHECK_FILE($srcdir/test/Makefile.options.in, \
               AC_CONFIG_FILES([test/Makefile.options:test/Makefile.options.in]))
 
 AC_OUTPUT
-
-cp ${srcdir}/test/data_files/*  test
 
 dnl-------------------------------------------------------------------------dnl
 dnl			 end of core/configure.ac
