@@ -17,40 +17,367 @@ namespace physics_B
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-Physics_B::Physics_B(double x_min, double x_max,
+Physics_B::Physics_B(Communicator comm,
+		     double x_min, double x_max,
 		     double y_min, double y_max,
 		     double x_nodes, double y_nodes)
+    : d_comm(comm)
 {
+    nemesis::set_internal_comm(d_comm);
+
     // Make sure max > min.
     assert(x_max > x_min);
     assert(y_max > y_min);
 
     // Generate the mesh (regular cartesian grid).
-    x_edges.resize(x_nodes);
-    y_edges.resize(y_nodes);
+    double x_width = (x_max - x_min) / x_cells;
+    double y_width = (y_max - y_min) / y_cells;
 
-    // x_edges
-    double x_width = (x_max - x_min) / (x_nodes-1);
-    for (int i = 0; i < x_nodes; ++i)
+    // Local mesh bounds.
+    double x_min_local;
+    double x_max_local;
+    double y_min_local;
+    double y_max_local;
+
+    // 1 process partitioning
+    if ( nemesis::nodes() == 1 )
     {
-	x_edges[i] = x_min + i*x_width;
+	x_edges.resize(x_cells+1);
+	y_edges.resize(y_cells+1);
+
+	// x_edges
+	for (int i = 0; i < x_cells+1; ++i)
+	{
+	    x_edges[i] = x_min + i*x_width;
+	}
+
+	// y_edges
+	for (int j = 0; j < y_cells+1; ++j)
+	{
+	    y_edges[j] = y_min + j*y_width;
+	}
+
+	// Resize the data vector to correspond to cell-centered values and fill
+	// with 0.
+	X.resize(x_cells*y_cells);
+	Vector_Dbl::iterator it;
+	for (it = X.begin(); it != X.end(); ++it)
+	{
+	    *it = 0.0;
+	}
     }
 
-    // y_edges
-    double y_width = (y_max - y_min) / (y_nodes-1);
-    for (int j = 0; j < y_nodes; ++j)
+    // 2 process partitioning
+    else if ( nemesis::nodes() == 2 )
     {
-	y_edges[j] = y_min + j*y_width;
+
+	// process 0
+	if ( nemesis::node() == 0 )
+	{
+	    x_edges.resize( (int) (x_cells+1) / 2);
+	    y_edges.resize(y_cells+1);
+
+	    x_min_local = x_min;
+	    x_max_local = x_min_local + (x_edges.size() - 1)*x_width;
+	    y_min_local = y_min;
+	    y_max_local = y_max;
+
+	    // x_edges
+	    for (int i = 0; i < x_cells+1; ++i)
+	    {
+		x_edges[i] = x_min_local + i*x_width;
+	    }
+
+	    // y_edges
+	    for (int j = 0; j < y_cells+1; ++j)
+	    {
+		y_edges[j] = y_min_local + j*y_width;
+	    }
+
+	    // Resize the data vector to correspond to cell-centered values and fill
+	    // with 0.
+	    X.resize(x_cells*y_cells);
+	    Vector_Dbl::iterator it;
+	    for (it = X.begin(); it != X.end(); ++it)
+	    {
+		*it = 0.0;
+	    }
+	}
+
+	// process 1
+	if ( nemesis::node() == 1 )
+	{
+	    x_edges.resize( (int) x_cells+1 - (x_cells+1) / 2 );
+	    y_edges.resize(y_cells+1);
+
+	    x_min_local = x_min_local + (x_edges.size() - 1)*x_width;
+	    x_max_local = x_max;
+	    y_min_local = y_min;
+	    y_max_local = y_max;
+
+	    // x_edges
+	    for (int i = 0; i < x_cells+1; ++i)
+	    {
+		x_edges[i] = x_min_local + i*x_width;
+	    }
+
+	    // y_edges
+	    for (int j = 0; j < y_cells+1; ++j)
+	    {
+		y_edges[j] = y_min_local + j*y_width;
+	    }
+
+	    // Resize the data vector to correspond to cell-centered values and fill
+	    // with 0.
+	    X.resize(x_cells*y_cells);
+	    Vector_Dbl::iterator it;
+	    for (it = X.begin(); it != X.end(); ++it)
+	    {
+		*it = 0.0;
+	    }
+	}
     }
 
-    // Resize the source vector to correspond to nodal values and fill
-    // with 0.
-    b.resize(x_nodes*y_nodes);
-    Vector_Dbl::iterator it;
-    for (it = b.begin(); it != b.end(); ++it)
+    // 3 process partitioning
+    else if ( nemesis::nodes() == 3 )
     {
-	*it = 0.0;
+	// process 0
+	if ( nemesis::node() == 0 )
+	{
+	    x_edges.resize( (int) (x_cells+1) / 2);
+	    y_edges.resize( (int) (y_cells+1) / 2);
+
+	    x_min_local = x_min;
+	    x_max_local = x_min_local + (x_edges.size() - 1)*x_width;
+	    y_min_local = y_min;
+	    y_max_local = y_min_local + (y_edges.size() - 1)*y_width;
+
+	    // x_edges
+	    for (int i = 0; i < x_cells+1; ++i)
+	    {
+		x_edges[i] = x_min_local + i*x_width;
+	    }
+
+	    // y_edges
+	    for (int j = 0; j < y_cells+1; ++j)
+	    {
+		y_edges[j] = y_min_local + j*y_width;
+	    }
+
+	    // Resize the data vector to correspond to cell-centered values and fill
+	    // with 0.
+	    X.resize(x_cells*y_cells);
+	    Vector_Dbl::iterator it;
+	    for (it = X.begin(); it != X.end(); ++it)
+	    {
+		*it = 0.0;
+	    }
+	}
+
+	// process 1
+	if ( nemesis::node() == 1 )
+	{
+	    x_edges.resize( (int) x_cells+1 - (x_cells+1) / 2 );
+	    y_edges.resize( (int) (y_cells+1) / 2 );
+
+	    x_min_local = x_min_local + (x_edges.size() - 1)*x_width;
+	    x_max_local = x_max;
+	    y_min_local = y_min;
+	    y_max_local = y_min_local + (y_edges.size() - 1)*y_width;
+
+	    // x_edges
+	    for (int i = 0; i < x_cells+1; ++i)
+	    {
+		x_edges[i] = x_min_local + i*x_width;
+	    }
+
+	    // y_edges
+	    for (int j = 0; j < y_cells+1; ++j)
+	    {
+		y_edges[j] = y_min_local + j*y_width;
+	    }
+
+	    // Resize the data vector to correspond to cell-centered values and fill
+	    // with 0.
+	    X.resize(x_cells*y_cells);
+	    Vector_Dbl::iterator it;
+	    for (it = X.begin(); it != X.end(); ++it)
+	    {
+		*it = 0.0;
+	    }
+	}
+
+	// process 2
+	if ( nemesis::node() == 2 )
+	{
+	    x_edges.resize( x_cells+1 );
+	    y_edges.resize( (int) y_cells+1 - (y_cells+1) / 2 );
+
+	    x_min_local = x_min;
+	    x_max_local = x_max;
+	    y_min_local = y_min + (y_edges.size() - 1)*y_width;
+	    y_max_local = y_max;
+
+	    // x_edges
+	    for (int i = 0; i < x_cells+1; ++i)
+	    {
+		x_edges[i] = x_min_local + i*x_width;
+	    }
+
+	    // y_edges
+	    for (int j = 0; j < y_cells+1; ++j)
+	    {
+		y_edges[j] = y_min_local + j*y_width;
+	    }
+
+	    // Resize the data vector to correspond to cell-centered values and fill
+	    // with 0.
+	    X.resize(x_cells*y_cells);
+	    Vector_Dbl::iterator it;
+	    for (it = X.begin(); it != X.end(); ++it)
+	    {
+		*it = 0.0;
+	    }
+	}
     }
+
+    // 4 process partitioning
+    else if ( nemesis::nodes() == 4 )
+    {
+	// process 0
+	if ( nemesis::node() == 0 )
+	{
+	    x_edges.resize( x_cells+1 );
+	    y_edges.resize( (int) y_cells+1 - (y_cells+1) / 2);
+
+	    x_min_local = x_min;
+	    x_max_local = x_min_local + (x_edges.size() - 1)*x_width;
+	    y_min_local = y_min;
+	    y_max_local = y_min_local + (y_edges.size() - 1)*y_width;
+
+	    // x_edges
+	    for (int i = 0; i < x_cells+1; ++i)
+	    {
+		x_edges[i] = x_min_local + i*x_width;
+	    }
+
+	    // y_edges
+	    for (int j = 0; j < y_cells+1; ++j)
+	    {
+		y_edges[j] = y_min_local + j*y_width;
+	    }
+
+	    // Resize the data vector to correspond to cell-centered values and fill
+	    // with 0.
+	    X.resize(x_cells*y_cells);
+	    Vector_Dbl::iterator it;
+	    for (it = X.begin(); it != X.end(); ++it)
+	    {
+		*it = 0.0;
+	    }
+	}
+
+	// process 1
+	if ( nemesis::node() == 1 )
+	{
+	    x_edges.resize( (int) x_cells - (x_cells+1) / 2 );
+	    y_edges.resize( (int) y_cells - (y_cells+1) / 2 );
+
+	    x_min_local = x_min_local + (x_edges.size() - 1)*x_width;
+	    x_max_local = x_max;
+	    y_min_local = y_min;
+	    y_max_local = y_min_local + (y_edges.size() - 1)*y_width;
+
+	    // x_edges
+	    for (int i = 0; i < x_cells+1; ++i)
+	    {
+		x_edges[i] = x_min_local + i*x_width;
+	    }
+
+	    // y_edges
+	    for (int j = 0; j < y_cells+1; ++j)
+	    {
+		y_edges[j] = y_min_local + j*y_width;
+	    }
+
+	    // Resize the data vector to correspond to cell-centered values and fill
+	    // with 0.
+	    X.resize(x_cells*y_cells);
+	    Vector_Dbl::iterator it;
+	    for (it = X.begin(); it != X.end(); ++it)
+	    {
+		*it = 0.0;
+	    }
+	}
+
+	// process 2
+	if ( nemesis::node() == 2 )
+	{
+	    x_edges.resize( x_cells+1 );
+	    y_edges.resize( (int) y_cells - (y_cells+1) / 2 );
+
+	    x_min_local = x_min;
+	    x_max_local = x_max;
+	    y_min_local = y_min;
+	    y_max_local = y_min + (y_edges.size() - 1)*y_width;
+
+	    // x_edges
+	    for (int i = 0; i < x_cells+1; ++i)
+	    {
+		x_edges[i] = x_min_local + i*x_width;
+	    }
+
+	    // y_edges
+	    for (int j = 0; j < y_cells+1; ++j)
+	    {
+		y_edges[j] = y_min_local + j*y_width;
+	    }
+
+	    // Resize the data vector to correspond to cell-centered values and fill
+	    // with 0.
+	    X.resize(x_cells*y_cells);
+	    Vector_Dbl::iterator it;
+	    for (it = X.begin(); it != X.end(); ++it)
+	    {
+		*it = 0.0;
+	    }
+	}
+	
+	// process 3
+	if (nemesis::node() == 3)
+	{
+	    x_edges.resize( x_cells+1 );
+	    y_edges.resize( (int) y_cells - (y_cells+1) / 2 );
+
+	    x_min_local = x_min;
+	    x_max_local = x_max;
+	    y_min_local = y_min + (y_edges.size() - 1)*y_width;
+	    y_max_local = y_max;
+
+	    // x_edges
+	    for (int i = 0; i < x_cells+1; ++i)
+	    {
+		x_edges[i] = x_min_local + i*x_width;
+	    }
+
+	    // y_edges
+	    for (int j = 0; j < y_cells+1; ++j)
+	    {
+		y_edges[j] = y_min_local + j*y_width;
+	    }
+
+	    // Resize the data vector to correspond to cell-centered values and fill
+	    // with 0.
+	    X.resize(x_cells*y_cells);
+	    Vector_Dbl::iterator it;
+	    for (it = X.begin(); it != X.end(); ++it)
+	    {
+		*it = 0.0;
+	    }
+	}
+    }
+
+    Nemesis::reset_internal_comm();
 }
 
 //---------------------------------------------------------------------------//
@@ -60,24 +387,10 @@ Physics_B::~Physics_B()
 
 //---------------------------------------------------------------------------//
 // Set an element in the source vector.
-void Physics_B::set_source(int index, double source)
+void Physics_B::set_data(int handle, double data)
 {
-    assert( index < b.size() );
-    b[index] = source;
-}
-
-//---------------------------------------------------------------------------//
-// Plot the source term.
-void Physics_B::plot_source()
-{
-    // Make a new post-processing object.
-    utils::Post_Proc post_proc(x_edges, y_edges);
-
-    // Tag the state vector onto the mesh vertices.
-    post_proc.add_vertex_tag(b, "b");
-
-    // Write the database to file.
-    post_proc.write("Physics_B.vtk");
+    assert( handle < b.size() );
+    b[handle] = data;
 }
 
 } // end namespace physics_B
