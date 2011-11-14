@@ -66,10 +66,10 @@ dnl AC_NEEDS_LIBS.  If this is a Nemesis client (i.e.: a part of
 dnl Capsaicin, Milagro, etc.), the dependencies on Nemesis libraries
 dnl should be listed as arguments to AC_NEEDS_LIBS_NEMESIS.
 
-AC_NEEDS_LIBS_NEMESIS(utils \
+AC_NEEDS_LIBS_NEMESIS(harness \
                       comm \
-                      harness \
-                      release)
+                      release \
+                      utils)
 
 dnl ----------------------------------------
 dnl Setup for unit tests:
