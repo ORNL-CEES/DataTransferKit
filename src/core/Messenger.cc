@@ -98,7 +98,7 @@ void Messenger::post_receives(BufferList &buffer_list)
     // sending to this target process.
     Set_Iterator src;
     Set_Pair src_bound = 
-	d_source->get_map( d_target->name(), d_field_name )->source_set(); 
+	d_source->get_map( d_target->name(), d_field_name )->sources(); 
 
     for ( src = src_bound.first(); src != src_bound.second(); ++src) 
     {
@@ -145,7 +145,7 @@ void Messenger::send()
     // Loop over the target partitions and send the data.    
     Set_Iterator destination;
     Set_Pair destination_bound = 
-	d_source->get_map( d_target->name(), d_field_name )->target_set();
+	d_source->get_map( d_target->name(), d_field_name )->targets();
 
     for ( destination = destination_bound.first();
 	  destination != destination_bound.second();

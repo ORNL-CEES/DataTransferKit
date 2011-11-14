@@ -103,12 +103,12 @@ class Transfer_Map
 
     // Return a const_iterator pair to the beginning and end of the source
     // rank set. 
-    inline Set_Pair source_set();
+    inline Set_Pair sources();
 
     // Return a const_iterator pair to the beginning and end of the target
     // rank set. 
-    inline Set_Pair target_set();
-;
+    inline Set_Pair targets();
+};
 
 } // end namespace coupler
 

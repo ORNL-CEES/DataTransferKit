@@ -47,21 +47,21 @@ class Messenger
 
     //@{
     //! Useful typedefs.
-    typedef DataType_T                            DataType;
-    typedef int                                   HandleType;
-    typedef int                                   OrdinateType;
-    typedef Message_Buffer<OrdinateType>          Message_Buffer_t;
-    typedef typename Message_Buffer_t::Buffer     Buffer;
-    typedef std::list<Message_Buffer_t>           BufferList;
-    typedef typename BufferList::iterator         BufferList_Iterator;
-    typedef Physics<DataType>                     Physics_t;
-    typedef denovo::SP<Physics_t>                 SP_Physics;
-    typedef nemesis::Communicator_t               Communicator;
-    typedef denovo::SP<Transfer_Map>              SP_Transfer_Map;
-    typedef typename Transfer_Map::Map_Iterator   Map_Iterator;
-    typedef typename Transfer_Map::Map_Pair       Map_Pair;
-    typedef typename Transfer_Map::Set_Iterator   Set_Iterator;
-    typedef typename Transfer_Map::Set_Pair       Set_Pair;
+    typedef DataType_T                               DataType;
+    typedef int                                      HandleType;
+    typedef int                                      OrdinateType;
+    typedef Message_Buffer<OrdinateType>             Message_Buffer_t;
+    typedef typename Message_Buffer_t::Buffer        Buffer;
+    typedef std::list<Message_Buffer_t>              BufferList;
+    typedef typename BufferList::iterator            BufferList_Iterator;
+    typedef Physics<DataType>                        Physics_t;
+    typedef denovo::SP<Physics_t>                    SP_Physics;
+    typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
+    typedef typename Transfer_Map::Map_Iterator      Map_Iterator;
+    typedef typename Transfer_Map::Map_Pair          Map_Pair;
+    typedef typename Transfer_Map::Set_Iterator      Set_Iterator;
+    typedef typename Transfer_Map::Set_Pair          Set_Pair;
+    typedef nemesis::Communicator_t                  Communicator;
     //@}
     
   private:

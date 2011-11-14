@@ -125,7 +125,7 @@ void Mapper::map()
     {
 	source_send_point_size();
     }
-
+    
     // Target physics processes requests for the number of points from the
     // source and then posts receives if that number is greater than zero.
     if ( d_target->te() )
@@ -613,7 +613,10 @@ void Mapper::source_send_handles(SP_Transfer_Map new_map)
     // For every unique target physics rank in the map, send back the
     // points found in the local domain.
     Set_Iterator destination;
-    for (destination = new_map->target_set_begin(); 
+    Set_Pair destination_bound 	= 
+	d_source->get_map( d_target->name(), d_field_name )->targets();
+
+    for (destination = new_map->targets_begin(); 
 	 destination != new_map->target_set_end(); 
 	 ++destination)
     {

@@ -56,7 +56,7 @@ class Message_Buffer
 
   public:
     //! Constructor.
-    explicit Receive_Buffer(OrdinateType ordinate, int buffer_size)
+    explicit Message_Buffer(OrdinateType ordinate, int buffer_size)
         : d_ordinate(ordinate)
         , d_buffer(buffer_size)
     { /* ... */ }
@@ -71,7 +71,7 @@ class Message_Buffer
     Buffer& buffer() { return d_buffer; }
 
     //! Return whether given request is complete.
-    static bool complete(Receive_Buffer<OrdinateType>& buf) 
+    static bool complete(Message_Buffer<OrdinateType>& buf) 
     { 
         return buf.request().complete(); 
     }

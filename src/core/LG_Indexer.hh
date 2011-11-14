@@ -38,7 +38,7 @@ class LG_Indexer
   public:
     //@{
     //! Useful typedefs.
-    typedef nemesis::Communicator_t             Communicator_t;
+    typedef nemesis::Communicator_t             Communicator;
     typedef std::map<int, int>                  Indexer_Map;
     typedef std::vector<int>                    Vec_Int;
     typedef typename Vec_Int::const_iterator    Vec_Int_Iterator;
@@ -53,8 +53,8 @@ class LG_Indexer
 
     // Constructor.
     template<class LocalApp>
-    LG_Indexer(const Communicator_t &comm_world, 
-               const Communicator_t &comm_local,
+    LG_Indexer(const Communicator &comm_world, 
+               const Communicator &comm_local,
                denovo::SP<LocalApp> local_app);
 
     //! Convert application-local PID to global PID.

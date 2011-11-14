@@ -24,7 +24,9 @@ namespace coupler
  * participating in coupling. All methods driven by the manager will operate
  * on this communicator.
  */
-Data_Transfer_Manager::Data_Transfer_Manager(const Communicator &comm_global)
+template<class DataType_T>
+Data_Transfer_Manager<DataType_T>::Data_Transfer_Manager(
+    const Communicator &comm_global)
     : d_comm_global(comm_global)
 { /* ... */ }
 
@@ -32,7 +34,8 @@ Data_Transfer_Manager::Data_Transfer_Manager(const Communicator &comm_global)
 /*!
  * \brief Destructor.
  */
-Data_Transfer_Manager::~Data_Transfer_Manager()
+template<class DataType_T>
+Data_Transfer_Manager<DataType_T>::~Data_Transfer_Manager()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -42,8 +45,10 @@ Data_Transfer_Manager::~Data_Transfer_Manager()
  * \param te Transfer_Evaluator implementation for the phyiscs being
  * registered.
  */
-void Data_Transfer_Manager::add_physics(const std::string &physics_name,
-					Transfer_Evaluator_t *te)
+template<class DataType_T>
+void Data_Transfer_Manager<DataType_T>::add_physics(
+    const std::string &physics_name,
+    Transfer_Evaluator_t *te)
 {
     // Make a physics object.
     SP_Physics new_physics = new Physics<DataType>(te, d_comm_global);
@@ -62,17 +67,19 @@ void Data_Transfer_Manager::add_physics(const std::string &physics_name,
  * \param source_physics The name of the source physics used for the mapping.
  * \param target_physics The name of the target physics used for the mapping,
  */
-void Data_Transfer_Manager::map(const std::string &field_name,
-				const std::string &source_physics,
-				const std::string &target_physics);
+template<class DataType_T>
+void Data_Transfer_Manager<DataType_T>::map(
+    const std::string &field_name,
+    const std::string &source_physics,
+    const std::string &target_physics)
 {
     // Get the physics that we are operating on.
     SP_Physics source = d_physics_db[source_physics];
     SP_Physics target = d_physics_db[target_physics];
 
     // Require that these physics support the field being mapped.
-    Insist( source->te()->field_supported(field_name) &&
-	    target->te()->field_supported(field_name) );
+    Require( source->te()->field_supported(field_name) &&
+	     target->te()->field_supported(field_name) );
 
     // Create a mapper.
     Mapper<DataType> mapper(d_comm_global, field_name, source, target);
@@ -91,17 +98,19 @@ void Data_Transfer_Manager::map(const std::string &field_name,
  * \param source_physics The name of the source physics for the transfer.
  * \param target_physics The name of the target physics for the transfer.
  */
-void Data_Transfer_Manager::transfer(const std::string &field_name,
-				     const std::string &source_physics,
-				     const std::string &target_physics)
+template<class DataType_T>
+void Data_Transfer_Manager<DataType_T>::transfer(
+    const std::string &field_name,
+    const std::string &source_physics,
+    const std::string &target_physics)
 {
     // Get the physics we are operating on.
     SP_Physics source = d_physics_db[source_physics];
     SP_Physics target = d_physics_db[target_physics];
 
     // Require that these physics support the field being transferred.
-    Insist( source->te()->field_supported(field_name) &&
-	    target->te()->field_supported(field_name) );
+    Require( source->te()->field_supported(field_name) &&
+	     target->te()->field_supported(field_name) );
     
     // Create a messenger.
     Messenger<DataType> messenger(d_comm_global, field_name, source, target);
@@ -117,17 +126,19 @@ void Data_Transfer_Manager::transfer(const std::string &field_name,
  * \param source_physics The name of the source physics.
  * \param target_physics The name of the target physics.
  */
-void Data_Transfer_Manager::balance(const std::string &field_name,
-				    const std::string &source_physics,
-				    const std::string &target_physics)
+template<class DataType_T>
+void Data_Transfer_Manager<DataType_T>::balance(
+    const std::string &field_name,
+    const std::string &source_physics,
+    const std::string &target_physics)
 {
     // Get the physics we are operating on.
     SP_Physics source = d_physics_db[source_physics];
     SP_Physics target = d_physics_db[target_physics];
 
     // Require that these physics support the field being balanced.
-    Insist( source->te()->field_supported(field_name) &&
-	    target->te()->field_supported(field_name) );
+    Require( source->te()->field_supported(field_name) &&
+	     target->te()->field_supported(field_name) );
 
     // Get the normalization factor from the source.
     DataType norm;

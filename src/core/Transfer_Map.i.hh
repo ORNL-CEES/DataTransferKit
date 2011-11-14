@@ -43,7 +43,7 @@ void Transfer_Map::add_domain_pair(OrdinateType target_rank,
 				   HandleType handle)
 {
     target_set.insert(target_rank);
-    source_map.insert( Map_Element(target_rank, source_handle) );
+    source_map.insert( Map_Element(target_rank, handle) );
 }
 
 //---------------------------------------------------------------------------//
@@ -58,7 +58,7 @@ void Transfer_Map::add_range_pair(OrdinateType source_rank,
 				  HandleType handle)
 {
     source_set.insert(source_rank);
-    target_map.insert( Map_Element(source_rank, target_handle) );
+    target_map.insert( Map_Element(source_rank, handle) );
 }
 
 //---------------------------------------------------------------------------//
@@ -96,7 +96,7 @@ int Transfer_Map::range_size(OrdinateType source_rank)
  * desired. 
  * \return An iterator pair over the local domain for the given target rank.
  */
-Transfer_Map::Map_Pair Transfer_Map::source_domain(OrdinateType target_rank)
+Transfer_Map::Map_Pair Transfer_Map::domain(OrdinateType target_rank)
 {
     return source_map.equal_range(target_rank);
 }
@@ -110,7 +110,7 @@ Transfer_Map::Map_Pair Transfer_Map::source_domain(OrdinateType target_rank)
  * desired. 
  * \return An iterator pair over the local range for the give source rank.
  */
-Transfer_Map::Map_Pair Transfer_Map::target_range(OrdinateType source_rank)
+Transfer_Map::Map_Pair Transfer_Map::range(OrdinateType source_rank)
 {
     return target_map.equal_range(source_rank);
 }
@@ -120,7 +120,7 @@ Transfer_Map::Map_Pair Transfer_Map::target_range(OrdinateType source_rank)
  * \brief Return a const_iterator pair to the beginning and end of the source
  * rank set.
  */
-Transfer_Map::Set_Pair Transfer_Map::source_set()
+Transfer_Map::Set_Pair Transfer_Map::sources()
 {
     
     return Set_Pair( source_set.begin(), source_set.end() );
@@ -131,9 +131,9 @@ Transfer_Map::Set_Pair Transfer_Map::source_set()
  * \brief Return a const_iterator pair to the beginning and end of the target
  * rank set.
  */
-Transfer_Map::Set_Pair Transfer_Map::target_set()
+Transfer_Map::Set_Pair Transfer_Map::targets()
 {
-    return Set_Pair( target_set.begin() );
+    return Set_Pair( target_set.begin(), target_set.end() );
 }
     
 //---------------------------------------------------------------------------//

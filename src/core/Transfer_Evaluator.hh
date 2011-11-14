@@ -41,9 +41,9 @@ class Transfer_Evaluator
     typedef DataType_T                               DataType;
     typedef nemesis::Communicator_t                  Communicator;
     typedef int                                      HandleType;
-    typedef const Handle*                            Handle_Iterator;
+    typedef const HandleType*                        Handle_Iterator;
     typedef double                                   CoordinateType;
-    typedef const Coordinate*                        Coord_Iterator;
+    typedef const CoordinateType*                    Coord_Iterator;
     //@}
 
     /*!
@@ -123,7 +123,7 @@ class Transfer_Evaluator
      * \param data The data being pushed.
      */
     virtual void push_data(const std::string &field_name,
-			   Handle handle, 
+			   HandleType handle, 
 			   DataType data) = 0;
 
     /*!

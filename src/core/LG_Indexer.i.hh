@@ -26,8 +26,8 @@ namespace coupler
  * \param comm_local Communicator for the local application being indexed.
  */
 template<class LocalApp>
-LG_Indexer::LG_Indexer(const Communicator_t &comm_world, 
-                       const Communicator_t &comm_local,
+LG_Indexer::LG_Indexer(const Communicator &comm_world, 
+                       const Communicator &comm_local,
                        denovo::SP<LocalApp> local_app)
 {
     // Indicate whether we have the local app.
@@ -63,10 +63,10 @@ LG_Indexer::LG_Indexer(const Communicator_t &comm_world,
     Check( app_ids.size() == global_ids.size() );
 
     // Make the map.
-    Vec_Int_Iter app_iter = app_ids.begin();
-    Vec_Int_Iter global_iter = global_ids.begin();
-    for (Vec_Int_Iter local_iter = local_ids.begin(), 
-                  local_iter_end = local_ids.end();
+    Vec_Int_Iterator app_iter = app_ids.begin();
+    Vec_Int_Iterator global_iter = global_ids.begin();
+    for (Vec_Int_Iterator local_iter = local_ids.begin(), 
+		      local_iter_end = local_ids.end();
          local_iter != local_iter_end; ++local_iter)
     {
         if (*app_iter)
