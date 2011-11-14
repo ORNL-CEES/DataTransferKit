@@ -24,10 +24,11 @@ namespace coupler
 /*!
  * \brief Constructor.
  */
-Messenger::Messenger(const Communicator &comm_global,
-		     const std::string &field_name,
-		     SP_Physics source,
-		     SP_Physics target)
+template<class DataType_T>
+Messenger<DataType_T>::Messenger(const Communicator &comm_global,
+				 const std::string &field_name,
+				 SP_Physics source,
+				 SP_Physics target)
     : d_comm_global(comm_global)
     , d_field_name(field_name)
     , d_source(source)
@@ -41,7 +42,8 @@ Messenger::Messenger(const Communicator &comm_global,
 /*!
  * \brief Destructor.
  */
-Messenger::~Messenger()
+template<class DataType_T>
+Messenger<DataType_T>::~Messenger()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -50,7 +52,8 @@ Messenger::~Messenger()
 /*!
  * \brief Communicate the field from the source to the target.
  */
-void Messenger::communicate()
+template<class DataType_T>
+void Messenger<DataType_T>::communicate()
 {
     // Set the internal communicator.
     nemesis::set_internal_comm(d_comm_global);
@@ -88,7 +91,8 @@ void Messenger::communicate()
  * \brief Post asynchronous receives for the buffers.
  * \param buffer_list List of buffers containing data.
  */
-void Messenger::post_receives(BufferList &buffer_list)
+template<class DataType_T>
+void Messenger<DataType_T>::post_receives(BufferList &buffer_list)
 {
     // Initialize.
     Message_Buffer_t &buffer;
@@ -102,7 +106,7 @@ void Messenger::post_receives(BufferList &buffer_list)
 
     for ( src = src_bound.first(); src != src_bound.second(); ++src) 
     {
-	Check ( src < nemesis::nodes() );
+	Check ( *src < nemesis::nodes() );
 
         // Compute the size of the buffer.
 	buffer_size = d_source->get_map( 
@@ -131,7 +135,8 @@ void Messenger::post_receives(BufferList &buffer_list)
 /*!
  * \brief Do asynchronous sends of data from source to target.
  */
-void Messenger::send()
+template<class DataType_T>
+void Messenger<DataType_T>::send()
 {
     // Initialize.
     denovo::Packer p;
@@ -149,16 +154,15 @@ void Messenger::send()
 
     for ( destination = destination_bound.first();
 	  destination != destination_bound.second();
-	  ++destination) 
-    {
-        Check ( destination < nemesis::nodes() );
+	  ++destination)     {
+        Check ( *destination < nemesis::nodes() );
 	
 	// Clear the buffer.
 	buffer.clear();
 
         // Resize the buffer.
 	buffer_size = d_source->get_map( 
-	    d_target->name(), d_field_name )->domain_size(destination) 
+	    d_target->name(), d_field_name )->domain_size(*destination) 
 		      * ( sizeof(HandleType) + sizeof(DataType) );
 
 	buffer.resize(buffer_size);
@@ -168,21 +172,21 @@ void Messenger::send()
 
         // Pack the data we pull from the source physics.
 	domain_bound = d_source->get_map( 
-	    d_target->name(), d_field_name )->domain(destination);
+	    d_target->name(), d_field_name )->domain(*destination);
 
 	for (map_it = domain_bound.first(); 
 	     map_it != domain_bound.second();
 	     ++map_it)
         {
-	    handle = (*map_it)[destination];
-	    data = d_source->te()->pull_data(field_name, handle, data);
+	    handle = map_it->second();
+	    data = d_source->te()->pull_data(d_field_name, handle, data);
 
             p << handle;
 	    p << data; 
         }
 
         // blocking send the buffer to the remote process
-        nemesis::send_async( &buffer[0], buffer.size(), destination );
+        nemesis::send_async( &buffer[0], buffer.size(), *destination );
     }
 }
 
@@ -191,7 +195,8 @@ void Messenger::send()
  * \brief Process the target requests and push the data onto the targets.
  * \param buffer_list List of buffers containing data.
  */
-void Messenger::process_requests(BufferList &buffer_list)
+template<class DataType_T>
+void Messenger<DataType_T>::process_requests(BufferList &buffer_list)
 {
     // Initialize.
     denovo::Unpacker u;
@@ -234,7 +239,7 @@ void Messenger::process_requests(BufferList &buffer_list)
 		u >> handle;
                 u >> data;
 
-		d_target->te()->push_data(field_name, handle, data);
+		d_target->te()->push_data(d_field_name, handle, data);
             }
 
             // Remove this buffer from the list.

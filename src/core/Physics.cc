@@ -24,7 +24,8 @@ namespace coupler
  * \param comm_global The global communicator encapsulating all physics being
  * coupled. 
  */
-Physics::Physics(const std::string &physics_name,
+template<class DataType_T>
+Physics<DataType_T>::Physics(std::string physics_name,
 			     Transfer_Evaluator_t *te, 
 			     Communicator comm_global)
     : d_name(physics_name)
@@ -44,7 +45,8 @@ Physics::Physics(const std::string &physics_name,
 /*!
  * \brief Destructor.
  */
-Physics::~Physics()
+template<class DataType_T>
+Physics<DataType_T>::~Physics()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -56,9 +58,10 @@ Physics::~Physics()
  * \param transfer_map Smart pointer to the Transfer_Map to be assigned to
  * this physics. 
  */
-void Physics::set_map(std::string target_physics, 
-		      std::string field_name,
-		      SP_Transfer_Map transfer_map)
+template<class DataType_T>
+void Physics<DataType_T>::set_map(std::string target_physics, 
+				  std::string field_name,
+				  SP_Transfer_Map transfer_map)
 {
     if ( d_target_map[target_physics] )
     {
@@ -72,7 +75,7 @@ void Physics::set_map(std::string target_physics,
 	new_map.insert(
 	    std::pair<std::string,SP_Transfer_Map>(field_name,transfer_map) );
 	d_target_map.insert(
-	    std::pair<std::string,Field_Map(target_physics,new_map) );
+	    std::pair<std::string,Field_Map>(target_physics,new_map) );
     }
 
     Ensure( (d_target_map[target_physics])[field_name] );
@@ -87,8 +90,10 @@ void Physics::set_map(std::string target_physics,
  * \return Returns a smart pointer to the Transfer_Map for the given target
  * physics and field.
  */
-const Physics::SP_Transfer_Map Physics::get_map(std::string target_physics,
-						std::string field_name)
+template<class DataType_T>
+const typename Physics<DataType_T>::SP_Transfer_Map 
+Physics<DataType_T>::get_map(std::string target_physics,
+			     std::string field_name)
 {
     Require( (d_target_map[target_physics])[field_name] );
     return (d_target_map[target_physics])[field_name];

@@ -90,6 +90,9 @@ class Mapper
 	   SP_Physics source,
 	   SP_Physics target);
 
+    // Destructor.
+    ~Mapper();
+
     // Map the field from the source onto the target.
     void map();
 
@@ -124,7 +127,7 @@ class Mapper
 
     // Source physics sends back the number of points it found in its domain
     // back to the target.
-    void source_send_point_size();
+    void source_send_point_size(SP_Transfer_Map new_map);
 
     // Target physics process request for message sizes and post receives.
     void target_post_receive_buffer(BufferList &buffer_size_list,
