@@ -25,8 +25,8 @@ AC_NEMESIS_ARGS
 ## NEMESIS PACKAGES
 ##---------------------------------------------------------------------------##
 
-AC_CONFIG_SUBDIRS(harness) # 1
-AC_CONFIG_SUBDIRS(comm)    # 2
+AC_CONFIG_SUBDIRS(harness)
+AC_CONFIG_SUBDIRS(comm)
 
 ##---------------------------------------------------------------------------##
 ## RELEASE PACKAGE

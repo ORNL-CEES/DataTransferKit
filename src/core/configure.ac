@@ -13,7 +13,7 @@ AC_INIT
 
 dnl As an argument to this macro provide the name of a file that
 dnl exists in the local package directory.  
-AC_CONFIG_SRCDIR([Transfer_Evaluator.hh])  
+AC_CONFIG_SRCDIR([aclocal.m4])  
 
 AC_CONFIG_AUX_DIR(../../config)
 AC_CONFIG_HEADER(core/config.h:config.h.in)
@@ -66,10 +66,10 @@ dnl AC_NEEDS_LIBS.  If this is a Nemesis client (i.e.: a part of
 dnl Capsaicin, Milagro, etc.), the dependencies on Nemesis libraries
 dnl should be listed as arguments to AC_NEEDS_LIBS_NEMESIS.
 
-AC_NEEDS_LIBS_NEMESIS(harness \
-                      comm \
-                      release \
-                      utils)
+AC_NEEDS_LIBS(harness \
+              comm \
+              release \
+              utils)
 
 dnl ----------------------------------------
 dnl Setup for unit tests:
@@ -90,7 +90,7 @@ dnl parallel package the number of processors should be a an integer.
 dnl If this is a scalar package, the number of processors required
 dnl should be listed as "scalar".
 
-AC_RUNTESTS(tstLG_Indexer             \
+AC_RUNTESTS(tstLG_Indexer \
             , 1 2 4)
 
 dnl ----------------------------------------

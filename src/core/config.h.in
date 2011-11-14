@@ -1,22 +1,22 @@
 /*-----------------------------------*-C-*-----------------------------------*/
 /*!
- * \file   coupler/config.h
+ * \file   core/config.h
  * \author gqe 
  * \date   Tue May 24 16:18:08 2011
- * \brief  configure #defines for package coupler
+ * \brief  configure #defines for package core
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC
  */
 /*---------------------------------------------------------------------------*/
 /* $Id: template.h,v 1.3 2008/01/02 17:18:47 9te Exp $ */
 /*---------------------------------------------------------------------------*/
 
-#ifndef coupler_config_h
-#define coupler_config_h
+#ifndef core_config_h
+#define core_config_h
 
 
 
-#endif /* coupler_config_h */
+#endif /* core_config_h */
 
 /*---------------------------------------------------------------------------*/
-/*           end of coupler/config.h */
+/*           end of core/config.h */
 /*---------------------------------------------------------------------------*/
