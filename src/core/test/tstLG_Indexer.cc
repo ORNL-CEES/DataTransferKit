@@ -79,7 +79,7 @@ void indexer_test(Parallel_Unit_Test &ut)
     UNIT_TEST(indexer.size() == nodes);
     for (int i = 0; i < nodes; ++i)
     {
-        UNIT_TEST(indexer.l2g(i) == nodes - i - 1);a
+        UNIT_TEST(indexer.l2g(i) == nodes - i - 1);
     }
 
     if (ut.numFails == 0)
