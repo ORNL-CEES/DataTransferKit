@@ -11,6 +11,7 @@
 //---------------------------------------------------------------------------//
 
 #include <algorithm>
+#include <vector>
 
 #include "Messenger.hh"
 #include "harness/DBC.hh"
@@ -140,8 +141,10 @@ void Messenger<DataType_T>::send()
 {
     // Initialize.
     denovo::Packer p;
-    DataType data;
-    HandleType handle;
+    std::vector<DataType> data;
+    std::vector<DataType>::const_iterator data_it;
+    std::vector<HandleType> handles;
+    std::vector<HandleType>::const_iterator handle_it;
     Buffer buffer;
     int buffer_size;
     Map_Iterator map_it;
@@ -178,15 +181,25 @@ void Messenger<DataType_T>::send()
 	     map_it != domain_bound.second();
 	     ++map_it)
         {
-	    handle = map_it->second();
-	    data = d_source->te()->pull_data(d_field_name, handle, data);
+	    handles.push_back( map_it->second() );
+	}
 
-            p << handle;
-	    p << data; 
-        }
+	data = d_source->te()->pull_data(d_field_name, handles, data);
+
+	for (data_it = data.begin(), handle_it = handles.begin();
+	     data_it != data.end();
+	     ++data_it, ++handle_it)
+        {
+	    p << *handle_it;
+	    p << *data_it;
+	}
 
         // blocking send the buffer to the remote process
         nemesis::send_async( &buffer[0], buffer.size(), *destination );
+
+	// Clear the vectors.
+	handles.clear();
+	data.clear();
     }
 }
 
@@ -200,8 +213,12 @@ void Messenger<DataType_T>::process_requests(BufferList &buffer_list)
 {
     // Initialize.
     denovo::Unpacker u;
-    HandleType handle;
-    DataType data;
+    HandleType temp_handle;
+    std::vector<HandleType> handles;
+    std::vector<HandleType>::const_iterator handle_it;
+    DataType temp_data;
+    std::vector<DataType> data;
+    std::vector<DataType>::const_iterator data_it;
     OrdinateType src;
     BufferList_Iterator buffer_iter;
     Buffer &buffer;
@@ -230,20 +247,27 @@ void Messenger<DataType_T>::process_requests(BufferList &buffer_list)
             
             // Loop over the target handles and push the data.
 	    range_bound = d_source->get_map( 
-		d_target->name(), d_field_name )->range(src);	    
+		d_target->name(), d_field_name )->range(src);
 
             for( map_it = range_bound.first();
 		 map_it != range_bound.second();
 		 ++map_it)
             {
-		u >> handle;
-                u >> data;
-
-		d_target->te()->push_data(d_field_name, handle, data);
-            }
+		u >> temp_handle;
+                u >> temp_data;
+		
+		handles.push_back( handle );
+		data.push_back( data );
+	    }
+	    
+	    d_target->te()->push_data(d_field_name, handle, data);
 
             // Remove this buffer from the list.
             buffer_list.erase(buffer_iter);
+
+	    // Clear the vectors.
+	    handles.clear();
+	    data.clear();
         }
     }
 }

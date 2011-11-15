@@ -93,10 +93,7 @@ class Mapper
     // Destructor.
     ~Mapper();
 
-    // Map the field from the source onto the target (linear time).
-    void map_lt();
-
-    // Map the field from the source onto the target (quadratic time).
+    // Map the field from the source onto the target.
     void map();
 
   private:

@@ -53,52 +53,6 @@ Mapper<DataType_T>::~Mapper()
 // PUBLIC FUNCTIONS
 //---------------------------------------------------------------------------//
 /*!
- * \brief An alternate linear time mapping routine.
- */
-template<class DataType_T>
-void Mapper<DataType_T>::map_lt()
-{
-    // Set the internal communicator.
-    nemesis::set_internal_comm(d_comm_global);
-
-    // Node numbers.
-    int node = nemesis::node();
-    int nodes = nemesis::nodes();
-
-    // Register points.
-    int num_points = 0;
-    Coord_Iterator points_begin;
-    Coord_Iterator points_end;
-    Handle_Iterator handles_begin;
-    Handle_Iterator handles_end;
-
-    if ( d_target->te() )
-    {
-	d_target->te()->register_xyz(d_field_name, 
-				     points_begin, points_end, 
-				     handles_begin, handles_end);
-
-	num_points = std::distance(handles_begin, handles_end);
-    }
-
-    // Get the maximum number of points so we can set one buffer size.
-    nemesis::global_max(num_points);
-
-    // Rotate through all nodes to generate the map.
-    for ( int i = 0; i < nodes; ++i )
-    {
-	
-
-	// Barrier after rotation.
-	nemesis::global_barrier();
-    }
-
-    // Reset the internal communicator.
-    nemesis::reset_internal_comm();
-}
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Map the field from the source onto the target.
  */
 template<class DataType_T>
