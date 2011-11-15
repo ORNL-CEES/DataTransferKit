@@ -77,28 +77,26 @@ class Transfer_Evaluator
      * storage.
      * \param field_name The name of the field that the coordinates are being
      * registered with.
-     * \param points_begin Iterator to the beginning of the coordinate array.
-     * \param points_end Iterator to the end of the coordinate array.
-     * \param handles_begin Iterator to the beginning of the handles array.
-     * \param handles_end Iterator to the end of the handles array.
+     * \param handles Point handle array.
+     * \param coordinates Point coordinate array.
      */
     virtual void register_points(const std::string &field_name,
-				 std::vector<CoordinateType> &coordinates,
-				 std::vector<HandleType> &handles) = 0;
+				 std::vector<HandleType> &handles,
+				 std::vector<CoordinateType> &coordinates) = 0;
 
     /*! 
      * \brief Given (x,y,z) coordinates and an associated globally unique
      * handle, return true if the point is in the local domain, false if not.
+     * \param handle The globally unique handle associated with the
      * \param x X coordinate.
      * \param y Y coordinate.
      * \param z Z coordinate.
-     * \param handle The globally unique handle associated with the
      * coordinates.
      */
-    virtual bool find_point(CoordinateType x, 
+    virtual bool find_point(HandleType handle,
+			    CoordinateType x, 
 			    CoordinateType y,
-			    CoordinateType z,
-			    HandleType handle) = 0;
+			    CoordinateType z) = 0;
 
     /*! 
      * \brief Given an entity handle, get the field data associated with that

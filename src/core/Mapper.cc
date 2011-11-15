@@ -217,7 +217,7 @@ void Mapper<DataType_T>::target_send_point_size(
     std::vector<HandleType> &handles)
 {
     // Target physics registers its target points for the field being mapped.
-    d_target->te()->register_points(d_field_name, coordinates, handles);
+    d_target->te()->register_points(d_field_name, handles, coordinates);
 
     Check( coordinates.size() % 3 == 0 );
     Check( coordinates.size() / 3 == handles.size() );
@@ -471,7 +471,7 @@ void Mapper<DataType_T>::source_process_points(BufferList &buffer_list,
 
 		    // See if this point is in the spatial domain of this
 		    // source process.
-		    if ( d_source->te()->find_point(x, y, z, handle) )
+		    if ( d_source->te()->find_point(handle, x, y, z) )
 		    {
 			// Add the handle to the map with the target rank.
 			new_map->add_domain_pair(src, handle);
