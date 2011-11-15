@@ -41,7 +41,7 @@ int nodes = 0;
 
 int main(int argc, char *argv[])
 {
-    Parallel_Unit_Test ut(argc, argv, release);
+    Parallel_Unit_Test ut(argc, argv, coupler::release);
 
     node  = nemesis::node();
     nodes = nemesis::nodes();
