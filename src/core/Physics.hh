@@ -76,7 +76,7 @@ class Physics
 
     // Constructor.
     Physics(std::string physics_name, 
-	    Transfer_Evaluator_t *te, 
+	    SP_Transfer_Evaluator te, 
 	    Communicator comm_global);
 
     // Destructor.

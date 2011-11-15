@@ -134,6 +134,7 @@ class Transfer_Evaluator
      */
     virtual void integrate(const std::string &field_name,
 			   DataType &field_norm) = 0;
+
     /*!
      * \brief Perfom a global rebalance on a field given a normalization
      * factor.

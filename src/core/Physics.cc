@@ -26,7 +26,7 @@ namespace coupler
  */
 template<class DataType_T>
 Physics<DataType_T>::Physics(std::string physics_name,
-			     Transfer_Evaluator_t *te, 
+			     SP_Transfer_Evaluator te, 
 			     Communicator comm_global)
     : d_name(physics_name)
 {

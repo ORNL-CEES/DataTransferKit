@@ -44,6 +44,7 @@ class Data_Transfer_Manager
     //! Useful typedefs.
     typedef DataType_T                               DataType;
     typedef Transfer_Evaluator<DataType>             Transfer_Evaluator_t;
+    typedef denovo::SP<Transfer_Evaluator_t>         SP_Transfer_Evaluator;
     typedef Physics<DataType>                        Physics_t;
     typedef denovo::SP<Physics_t>                    SP_Physics;
     typedef std::pair<std::string,SP_Physics>        Physics_Pair;
@@ -69,7 +70,7 @@ class Data_Transfer_Manager
 
     // Register a physics with the manager.
     void add_physics(const std::string &physics_name, 
-		     Transfer_Evaluator_t *te);
+		     SP_Transfer_Evaluator te);
 
     // Build the topology map for transfer from a source physics to a target
     // physics for a particular field.

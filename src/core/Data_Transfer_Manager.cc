@@ -48,7 +48,7 @@ Data_Transfer_Manager<DataType_T>::~Data_Transfer_Manager()
 template<class DataType_T>
 void Data_Transfer_Manager<DataType_T>::add_physics(
     const std::string &physics_name,
-    Transfer_Evaluator_t *te)
+    SP_Transfer_Evaluator te)
 {
     // Make a physics object.
     SP_Physics new_physics = new Physics<DataType>(te, d_comm_global);
