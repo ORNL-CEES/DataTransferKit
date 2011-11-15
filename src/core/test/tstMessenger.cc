@@ -21,12 +21,6 @@
 #include "comm/Parallel_Unit_Test.hh"
 #include "release/Release.hh"
 #include "utils/Packing_Utils.hh"
-#include "kba_mesh/Partitioner.hh"
-#include "kba_mesh/Simple_Partitioner.hh"
-#include "database/Std_DB.hh"
-#include "mesh_type/Point.hh"
-#include "../Point_Map.hh"
-#include "../Map_Node.hh"
 #include "../Messenger.hh"
 
 using nemesis::Parallel_Unit_Test;

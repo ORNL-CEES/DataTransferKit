@@ -19,7 +19,7 @@
 #include "harness/Soft_Equivalence.hh"
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
-#include "../Release.hh"
+#include "release/Release.hh"
 
 using namespace std;
 using nemesis::Parallel_Unit_Test;
@@ -41,7 +41,7 @@ int nodes = 0;
 
 int main(int argc, char *argv[])
 {
-    Parallel_Unit_Test ut(argc, argv, release);
+    Parallel_Unit_Test ut(argc, argv, coupler::release);
 
     node  = nemesis::node();
     nodes = nemesis::nodes();

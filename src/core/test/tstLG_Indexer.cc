@@ -79,7 +79,7 @@ void indexer_test(Parallel_Unit_Test &ut)
     UNIT_TEST(indexer.size() == nodes);
     for (int i = 0; i < nodes; ++i)
     {
-        UNIT_TEST(indexer.l2g(i) == nodes - i - 1);
+        UNIT_TEST(indexer.l2g(i) == nodes - i - 1);a
     }
 
     if (ut.numFails == 0)
@@ -94,7 +94,7 @@ void indexer_test(Parallel_Unit_Test &ut)
 
 int main(int argc, char *argv[])
 {
-    Parallel_Unit_Test ut(argc, argv, denovo::release);
+    Parallel_Unit_Test ut(argc, argv, coupler::release);
 
     node  = nemesis::node();
     nodes = nemesis::nodes();

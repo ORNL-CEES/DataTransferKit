@@ -19,7 +19,7 @@
 #include "harness/Soft_Equivalence.hh"
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
-#include "../Release.hh"
+#include "release/Release.hh"
 
 using namespace std;
 using nemesis::Parallel_Unit_Test;
