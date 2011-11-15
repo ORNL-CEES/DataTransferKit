@@ -108,7 +108,7 @@ class Transfer_Evaluator
      * \param data The data being pulled.
      */
     virtual void pull_data(const std::string &field_name,
-			   const std::vector<HandleType> &handle,
+			   std::vector<HandleType> &handle,
 			   std::vector<DataType> &data) = 0;
 
     /*!
