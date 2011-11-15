@@ -73,8 +73,7 @@ class Transfer_Evaluator
     /*!
      * \brief Register cartesian coordinates with a field. The coordinate
      * vector should be interleaved. The handle vector should consist of
-     * globally unique handles. These iterators imply contiguous memory
-     * storage.
+     * globally unique handles. 
      * \param field_name The name of the field that the coordinates are being
      * registered with.
      * \param handles Point handle array.
