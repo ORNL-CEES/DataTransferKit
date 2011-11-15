@@ -15,6 +15,7 @@
 
 #include <string>
 #include <list>
+#include <vector>
 
 #include "Transfer_Map.hh"
 #include "Message_Buffer.hh"
@@ -50,10 +51,8 @@ class Mapper
     //! Useful typedefs.
     typedef DataType_T                            DataType;
     typedef int                                   HandleType;
-    typedef const HandleType*                     Handle_Iterator;
     typedef int                                   OrdinateType;
     typedef double                                CoordinateType;
-    typedef const CoordinateType*                 Coord_Iterator;
     typedef Message_Buffer<OrdinateType>          Message_Buffer_t;
     typedef typename Message_Buffer_t::Buffer     Buffer;
     typedef std::list<Message_Buffer_t>           BufferList;
@@ -102,10 +101,8 @@ class Mapper
     void source_post_receive_size(BufferList &buffer_size_list);
 
     // Target physics sends point sizes to source.
-    void target_send_point_size(Coord_Iterator &points_begin,
-				Coord_Iterator &points_end,
-				Handle_Iterator &handles_begin,
-				Handle_Iterator &handles_end);
+    void target_send_point_size(std::vector<CoordinateType> &coordinates,
+				std::vector<HandleType> &handles);
 
     // Source physics process requests for message sizes and post receives
     // for buffers.
@@ -113,10 +110,8 @@ class Mapper
 				    BufferList &buffer_list);
 
     // Target send points to source.
-    void target_send_points(Coord_Iterator points_begin,
-			    Coord_Iterator points_end,
-			    Handle_Iterator handles_begin,
-			    Handle_Iterator handles_end);
+    void target_send_points(const std::vector<CoordinateType> &coordinates,
+			    const std::vector<HandleType> &handles);
 
     // Source physics process request and build part of the map.
     void source_process_points(BufferList &buffer_list,

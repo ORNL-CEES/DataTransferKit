@@ -74,17 +74,16 @@ void Mapper<DataType_T>::map()
 	source_post_receive_size(new_map, buffer_size_list);
     }
 
-    // Target point coordinate vector iterators.
-    Coord_Iterator points_begin, points_end;
+    // Target point coordinate vector.
+    std::vector<CoordinateType> coordinates;
 
-    // Target point handle vector iterators.
-    Handle_Iterator handles_begin, handles_end;
+    // Target point handle vector.
+    std::vector<HandleType> handles;
 
     // Target physics sends message buffer sizes to source.
     if ( d_target->te() )
     {
-	target_send_point_size(points_begin, points_end,
-			       handles_begin, handles_end);
+	target_send_point_size(coordinates, handles);
     }
 
     // Source physics processes requests and posts receives for the buffers.
@@ -96,8 +95,7 @@ void Mapper<DataType_T>::map()
     // Target send buffers with points to the source.
     if ( d_target->te() )
     {
-	target_send_points(points_begin, points_end,
-			   handles_begin, handles_end);
+	target_send_points(coordinates, handles);
     }
 
     // Source physics processes requests of target points from the target
@@ -214,30 +212,27 @@ void Mapper<DataType_T>::source_post_receive_size(
  * \param handles_end Iterator to the end of the point handle array.
  */
 template<class DataType_T>
-void Mapper<DataType_T>::target_send_point_size(Coord_Iterator &points_begin,
-						Coord_Iterator &points_end,
-						Handle_Iterator &handles_begin,
-						Handle_Iterator &handles_end)
+void Mapper<DataType_T>::target_send_point_size(
+    std::vector<CoordinateType> &coordinates,
+    std::vector<HandleType> &handles)
 {
     // Target physics registers its target points for the field being mapped.
-    d_target->te()->register_xyz(d_field_name, 
-				 points_begin, points_end, 
-				 handles_begin, handles_end);
+    d_target->te()->register_points(d_field_name, coordinates, handles);
 
-    Check( std::distance(points_begin, points_end) % 3 == 0 );
-    Check( std::distance(points_begin, points_end) / 3 == 
-	   std::distance(handles_begin, handles_end) );
+    Check( coordinates.size() % 3 == 0 );
+    Check( coordinates.size() / 3 == handles.size() );
 
     // Create a packer.
     denovo::Packer p;
 
     // Compute the size of the buffer.
-    Coord_Iterator coord_iter = points_begin;
-    Handle_Iterator handle_iter;
+    typename std::vector<CoordinateType>::const_iterator coord_iter;
+    typename std::vector<HandleType>::const_iterator handle_iter;
+
     p.compute_buffer_size_mode();
 
-    for (handle_iter = handles_begin;
-	 handle_iter != handles_end; 
+    for (handle_iter = handles.begin(), coord_iter = coordinates.begin();
+	 handle_iter != handles.end(); 
 	 ++handle_iter)
     {
 	p << *coord_iter;
@@ -343,10 +338,9 @@ void Mapper<DataType_T>::source_post_receive_buffer(
  * \param handles_end Iterator to the end of the point handle array.
  */
 template<class DataType_T>
-void Mapper<DataType_T>::target_send_points(Coord_Iterator points_begin,
-					    Coord_Iterator points_end,
-					    Handle_Iterator handles_begin,
-					    Handle_Iterator handles_end)
+void Mapper<DataType_T>::target_send_points(
+    const std::vector<CoordinateType> &coordinates,
+    const std::vector<HandleType> &handles)
 {
     // Build a buffer of the local points to send to the source physics.
     Buffer buffer;
@@ -354,11 +348,13 @@ void Mapper<DataType_T>::target_send_points(Coord_Iterator points_begin,
     denovo::Packer p;
     
     // Compute the size of the buffer.
-    Coord_Iterator coord_iter = points_begin;
-    Handle_Iterator handle_iter;
+    typename std::vector<CoordinateType>::const_iterator coord_iter;
+    typename std::vector<HandleType>::const_iterator handle_iter;
+
     p.compute_buffer_size_mode();
-    for (handle_iter = handles_begin;
-	 handle_iter != handles_end;
+
+    for (handle_iter = handles.begin(), coord_iter = coordinates.begin();
+	 handle_iter != handles.end();
 	 ++handle_iter)
     {
 	p << *coord_iter;
@@ -369,6 +365,7 @@ void Mapper<DataType_T>::target_send_points(Coord_Iterator points_begin,
 	coord_iter++;
 	p << *handle_iter;
     }
+
     buffer_size = p.size();
 
     // Set the size of the buffer.
@@ -379,8 +376,8 @@ void Mapper<DataType_T>::target_send_points(Coord_Iterator points_begin,
     if (buffer_size > 0)
     {
 	p.set_buffer(buffer_size, &buffer[0]);
-	for (handle_iter = handles_begin;
-	     handle_iter != handles_end; 
+	for (handle_iter = handles.begin(), coord_iter = coordinates.begin();
+	     handle_iter != handles.end(); 
 	     ++handle_iter)
 	{
 	    p << *coord_iter;
@@ -392,6 +389,7 @@ void Mapper<DataType_T>::target_send_points(Coord_Iterator points_begin,
 	    p << *handle_iter;
 	}
     }
+
     buffer_size = buffer.size();
 
     // Send the local target points to all processes of the source physics.
@@ -473,7 +471,7 @@ void Mapper<DataType_T>::source_process_points(BufferList &buffer_list,
 
 		    // See if this point is in the spatial domain of this
 		    // source process.
-		    if ( d_source->te()->find_xyz(x, y, z, handle) )
+		    if ( d_source->te()->find_point(x, y, z, handle) )
 		    {
 			// Add the handle to the map with the target rank.
 			new_map->add_domain_pair(src, handle);

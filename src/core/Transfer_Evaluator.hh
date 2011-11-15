@@ -41,9 +41,7 @@ class Transfer_Evaluator
     typedef DataType_T                               DataType;
     typedef nemesis::Communicator_t                  Communicator;
     typedef int                                      HandleType;
-    typedef const HandleType*                        Handle_Iterator;
     typedef double                                   CoordinateType;
-    typedef const CoordinateType*                    Coord_Iterator;
     //@}
 
     /*!
@@ -62,7 +60,7 @@ class Transfer_Evaluator
      * \brief Register communicator object.
      * \param comm The communicator for this physics.
      */
-    virtual void register_comm(Communicator &comm) = 0;
+    virtual void register_comm(const Communicator &comm) = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this
@@ -84,25 +82,23 @@ class Transfer_Evaluator
      * \param handles_begin Iterator to the beginning of the handles array.
      * \param handles_end Iterator to the end of the handles array.
      */
-    virtual void register_xyz(const std::string &field_name,
-			      Coord_Iterator &points_begin,
-			      Coord_Iterator &points_end,
-			      Handle_Iterator &handles_begin,
-			      Handle_Iterator &handles_end) = 0;
+    virtual void register_points(const std::string &field_name,
+				 std::vector<CoordinateType> &coordinates,
+				 std::vector<HandleType> &handles) = 0;
 
     /*! 
      * \brief Given (x,y,z) coordinates and an associated globally unique
-     * handle, return true if in the local domain, false if not. 
+     * handle, return true if the point is in the local domain, false if not.
      * \param x X coordinate.
      * \param y Y coordinate.
      * \param z Z coordinate.
      * \param handle The globally unique handle associated with the
      * coordinates.
      */
-    virtual bool find_xyz(CoordinateType x, 
-			  CoordinateType y,
-			  CoordinateType z,
-			  HandleType handle) = 0;
+    virtual bool find_point(CoordinateType x, 
+			    CoordinateType y,
+			    CoordinateType z,
+			    HandleType handle) = 0;
 
     /*! 
      * \brief Given an entity handle, get the field data associated with that

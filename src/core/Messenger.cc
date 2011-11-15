@@ -141,13 +141,17 @@ void Messenger<DataType_T>::send()
 {
     // Initialize.
     denovo::Packer p;
+
     std::vector<DataType> data;
-    std::vector<DataType>::const_iterator data_it;
+    typename std::vector<DataType>::const_iterator data_it;
+
     std::vector<HandleType> handles;
-    std::vector<HandleType>::const_iterator handle_it;
+    typename std::vector<HandleType>::const_iterator handle_it;
+
     Buffer buffer;
     int buffer_size;
-    Map_Iterator map_it;
+
+    Map_Iterator domain_it;
     Map_Pair domain_bound;
 
     // Loop over the target partitions and send the data.    
@@ -157,7 +161,8 @@ void Messenger<DataType_T>::send()
 
     for ( destination = destination_bound.first();
 	  destination != destination_bound.second();
-	  ++destination)     {
+	  ++destination)     
+    {
         Check ( *destination < nemesis::nodes() );
 	
 	// Clear the buffer.
@@ -177,14 +182,15 @@ void Messenger<DataType_T>::send()
 	domain_bound = d_source->get_map( 
 	    d_target->name(), d_field_name )->domain(*destination);
 
-	for (map_it = domain_bound.first(); 
-	     map_it != domain_bound.second();
-	     ++map_it)
+	for (domain_it = domain_bound.first(); 
+	     domain_it != domain_bound.second();
+	     ++domain_it)
         {
-	    handles.push_back( map_it->second() );
+	    handles.push_back( domain_it->second() );
 	}
 
 	data = d_source->te()->pull_data(d_field_name, handles, data);
+	Check ( handles.size() == data.size() );
 
 	for (data_it = data.begin(), handle_it = handles.begin();
 	     data_it != data.end();
@@ -213,16 +219,21 @@ void Messenger<DataType_T>::process_requests(BufferList &buffer_list)
 {
     // Initialize.
     denovo::Unpacker u;
+
     HandleType temp_handle;
     std::vector<HandleType> handles;
-    std::vector<HandleType>::const_iterator handle_it;
+    typename std::vector<HandleType>::const_iterator handle_it;
+
     DataType temp_data;
     std::vector<DataType> data;
-    std::vector<DataType>::const_iterator data_it;
+    typename std::vector<DataType>::const_iterator data_it;
+
     OrdinateType src;
+
     BufferList_Iterator buffer_iter;
     Buffer &buffer;
-    Map_Iterator map_it;
+
+    Map_Iterator range_it;
     Map_Pair range_bound;
     
     // Keep going until all requests have been processed.
@@ -249,18 +260,19 @@ void Messenger<DataType_T>::process_requests(BufferList &buffer_list)
 	    range_bound = d_source->get_map( 
 		d_target->name(), d_field_name )->range(src);
 
-            for( map_it = range_bound.first();
-		 map_it != range_bound.second();
-		 ++map_it)
+            for( range_it = range_bound.first();
+		 range_it != range_bound.second();
+		 ++range_it)
             {
 		u >> temp_handle;
                 u >> temp_data;
 		
-		handles.push_back( handle );
-		data.push_back( data );
+		handles.push_back( temp_handle );
+		data.push_back( temp_data );
 	    }
 	    
-	    d_target->te()->push_data(d_field_name, handle, data);
+	    Check ( handles.size() == data.size() );
+	    d_target->te()->push_data(d_field_name, handles, data);
 
             // Remove this buffer from the list.
             buffer_list.erase(buffer_iter);
