@@ -20,7 +20,7 @@ namespace coupler
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
- * \param comm_global Global communicator the encompasses all processes
+ * \param comm_global Global communicator that encompasses all processes
  * participating in coupling. All methods driven by the manager will operate
  * on this communicator.
  */

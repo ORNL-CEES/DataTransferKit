@@ -4,9 +4,9 @@
   <tr>
     <td align=left>
     <small>
-        <a href="http://www.ornl.gov/sci/reactor_analysis/">Reactor Analysis Group</a><br>
-        <a href="http://www.ornl.gov/sci/nuclear_science_technology/index.htm">Nuclear Science and Technology Division</a><br>
-        <a href="http://www.ornl.gov">Oak Ridge National Laboratory</a>
+        <a href="http://cnerg.engr.wisc.edu/">Computational Nuclear Engineering Research Group</a><br>
+        <a href="http://http://www.engr.wisc.edu/ep/">Engineering Physics Department</a><br>
+        <a href="http://www.wisc.edu">University of Wisconsin - Madison</a>
     </small>
   </td>
   <td align=right>
@@ -16,14 +16,12 @@
      <img src="doxygen.png" alt="doxygen" align=center border=0 
       width=59 height=26></a> <br>
       Last updated: $datetime.  <br>
-      <a href="mailto:evanstm@ornl.gov"> <i>Comments on this page</i></a>
+      <a href="mailto:sslattery@wisc.edu"> <i>Comments on this page</i></a>
     </small>
   </td>
 </tr>
 </table>
    <center>
-    <img src="ornlbanner_4in_grn.jpg"
-	 alt="ORNL logo"> 
    </center>   
 <hr size=4>
 </BODY>
