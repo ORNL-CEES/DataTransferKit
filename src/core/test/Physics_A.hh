@@ -72,7 +72,7 @@ class Physics_A
     // Standalone solve.
     void solve();
 
-    // Given a (x,y) coordinates, return true if it exists in the local
+    // Given (x,y) coordinates, return true if it exists in the local
     // process rank domain, false if not.
     bool get_xy_info(double x, 
 		     double y, 

@@ -1,7 +1,7 @@
 /*-----------------------------------*-C-*-----------------------------------*/
 /*!
  * \file   core/config.h
- * \author gqe 
+ * \author Stuart Slattery
  * \date   Tue May 24 16:18:08 2011
  * \brief  configure #defines for package core
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC

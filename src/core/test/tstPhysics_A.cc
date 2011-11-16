@@ -20,7 +20,7 @@
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
 #include "release/Release.hh"
-#include "implementation/Physics_A.hh"
+#include "Physics_A.hh"
 
 using namespace std;
 using nemesis::Parallel_Unit_Test;
@@ -36,7 +36,15 @@ int nodes = 0;
 // TESTS
 //---------------------------------------------------------------------------//
 
-
+void physics_a_test(Parallel_Unit_Test &ut)
+{
+    if (ut.numFails == 0)
+    {
+        std::ostringstream m;
+        m << "Transfer_Map test passes on " << node;
+        ut.passes( m.str() );
+    }
+}
 
 //---------------------------------------------------------------------------//
 
@@ -46,12 +54,17 @@ int main(int argc, char *argv[])
 
     node  = nemesis::node();
     nodes = nemesis::nodes();
-    
+
     try
     {
         // >>> UNIT TESTS
         int gpass = 0;
         int gfail = 0;
+    
+	physics_a_test(ut);
+	gpass += ut.numPasses;
+	gfail += ut.numFails;
+	ut.reset();
         
         // add up global passes and fails
         nemesis::global_sum(gpass);
