@@ -44,16 +44,20 @@ int nodes = 0;
 
 void message_buffer_test(Parallel_Unit_Test &ut)
 {
+    // Make a message buffer.
     Message_Buffer<int> message_buffer(node, sizeof(int));
 
+    // Check the initialization.
     UNIT_TEST( message_buffer.ordinate() == node );
     UNIT_TEST( message_buffer.buffer().size() == sizeof(int) );
 
+    // Setup an MPI_Request for a non-blocking receive.
     nemesis::receive_async(message_buffer.request(),
 			   &message_buffer.buffer()[0],
 			   message_buffer.buffer().size(),
 			   message_buffer.ordinate());
 
+    // Every node sends a buffer to itself containing its node id.
     std::vector<char> send_buffer( sizeof(int) );
     Packer p;
     p.set_buffer( send_buffer.size(), &send_buffer[0] );
@@ -61,8 +65,10 @@ void message_buffer_test(Parallel_Unit_Test &ut)
 
     nemesis::send_async(&send_buffer[0], send_buffer.size(), node);
 
+    // Wait for the request to be processed.
     while ( !message_buffer.request().complete() ) { }
 
+    // Unpack the buffer and check it.
     int data;
     Unpacker u;
     u.set_buffer( message_buffer.buffer().size(), 
