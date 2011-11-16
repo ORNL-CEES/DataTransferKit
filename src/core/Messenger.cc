@@ -178,7 +178,7 @@ void Messenger<DataType_T>::send()
         // Register the current buffer with the packer
         p.set_buffer( buffer.size(), &buffer[0] );
 
-        // Pack the data we pull from the source physics.
+        // Get the handles we will send.
 	domain_bound = d_source->get_map( 
 	    d_target->name(), d_field_name )->domain(*destination);
 
@@ -189,9 +189,11 @@ void Messenger<DataType_T>::send()
 	    handles.push_back( domain_it->second() );
 	}
 
+	// Get the data we will send.
 	data = d_source->te()->pull_data(d_field_name, handles, data);
 	Check ( handles.size() == data.size() );
 
+	// Pack the handles and data into a buffer.
 	for (data_it = data.begin(), handle_it = handles.begin();
 	     data_it != data.end();
 	     ++data_it, ++handle_it)
@@ -200,7 +202,7 @@ void Messenger<DataType_T>::send()
 	    p << *data_it;
 	}
 
-        // blocking send the buffer to the remote process
+        // non-blocking send the buffer to the remote process
         nemesis::send_async( &buffer[0], buffer.size(), *destination );
 
 	// Clear the vectors.
@@ -256,7 +258,7 @@ void Messenger<DataType_T>::process_requests(BufferList &buffer_list)
             // Set the buffer for the unpacker.
             u.set_buffer( buffer.size(), &buffer[0] );
             
-            // Loop over the target handles and push the data.
+            // Unpack the data from the buffer.
 	    range_bound = d_source->get_map( 
 		d_target->name(), d_field_name )->range(src);
 
@@ -271,6 +273,7 @@ void Messenger<DataType_T>::process_requests(BufferList &buffer_list)
 		data.push_back( temp_data );
 	    }
 	    
+	    // Push the data onto the targets.
 	    Check ( handles.size() == data.size() );
 	    d_target->te()->push_data(d_field_name, handles, data);
 
