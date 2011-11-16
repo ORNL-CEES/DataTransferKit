@@ -28,10 +28,6 @@ namespace coupler
 
 class TE_Physics_A : public Transfer_Evaluator
 {
-  public:
-
-    typedef nemesis::Communicator_t            Communicator;
-
   private:
 
     // Pointer to physics_A object
@@ -46,23 +42,23 @@ class TE_Physics_A : public Transfer_Evaluator
     ~TE_Physics_A();
 
     //! Register the communicator.
-    void register_comm(Communicator &comm);
+    void register_comm(const Communicator &comm);
 
     //! Register a field associated with the entities.
-    bool register_field(std::string field_name);
+    bool register_field(const std::string &field_name);
 
     // Given a (x,y,z) coordinates, return true if point is in the local
     // domain, false if not. Provide a handle to the entity it was located in.
-    bool find_xyz(double x, 
-		  double y, 
-		  double z,
-		  Handle &handle);
+    bool find_point(HandleType handle,
+		    CoordinateType x, 
+		    CoordinateType y, 
+		    CoordinateType z);
 
     // Given an entity handle, get the field data associated with that
     // handle. 
-    void pull_data(std::string field_name,
-		   Handle handle,
-		   DataType &data);
+    void pull_data(const std::string &field_name,
+		   const std::vector<HandleType> &handles,
+		   std::vector<DataType> &data);
 };
 
 } // end namespace coupler

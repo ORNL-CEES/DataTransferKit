@@ -101,22 +101,22 @@ class Transfer_Evaluator
      * \brief Given an entity handle, get the field data associated with that
      * handle. 
      * \param field_name The name of the field to pull data from.
-     * \param handle The enitity handles for the data being pulled.
+     * \param handles The enitity handles for the data being pulled.
      * \param data The data being pulled.
      */
     virtual void pull_data(const std::string &field_name,
-			   std::vector<HandleType> &handle,
+			   const std::vector<HandleType> &handles,
 			   std::vector<DataType> &data) = 0;
 
     /*!
      * \brief Given an entity handle, set the field data associated with that
      * handle. 
      * \param field_name The name of the field to push data from.
-     * \param handle The enitity handles for the data being pushed.
+     * \param handles The enitity handles for the data being pushed.
      * \param data The data being pushed.
      */
     virtual void push_data(const std::string &field_name,
-			   const std::vector<HandleType> &handle, 
+			   const std::vector<HandleType> &handles,
 			   const std::vector<DataType> &data) = 0;
 
     /*!

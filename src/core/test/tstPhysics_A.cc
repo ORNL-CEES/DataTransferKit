@@ -20,6 +20,7 @@
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
 #include "release/Release.hh"
+#include "implementation/Physics_A.hh"
 
 using namespace std;
 using nemesis::Parallel_Unit_Test;

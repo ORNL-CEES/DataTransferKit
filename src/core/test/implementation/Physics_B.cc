@@ -57,8 +57,8 @@ Physics_B::Physics_B(Communicator comm,
 	    y_edges[j] = y_min + j*y_width;
 	}
 
-	// Resize the data vector to correspond to cell-centered values and fill
-	// with 0.
+	// Resize the data vector to correspond to cell-centered values and
+	// fill with 0.
 	X.resize(x_cells*y_cells);
 	Vector_Dbl::iterator it;
 	for (it = X.begin(); it != X.end(); ++it)
@@ -94,8 +94,8 @@ Physics_B::Physics_B(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -127,8 +127,8 @@ Physics_B::Physics_B(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -164,8 +164,8 @@ Physics_B::Physics_B(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -197,8 +197,8 @@ Physics_B::Physics_B(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -230,8 +230,8 @@ Physics_B::Physics_B(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -267,8 +267,8 @@ Physics_B::Physics_B(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -300,8 +300,8 @@ Physics_B::Physics_B(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -333,8 +333,8 @@ Physics_B::Physics_B(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -366,8 +366,8 @@ Physics_B::Physics_B(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -394,10 +394,16 @@ const Communicator& Physics_B::comm()
 
 //---------------------------------------------------------------------------//
 // Set an element in the source vector.
-void Physics_B::set_data(int handle, double data)
+void Physics_B::set_data(const std::vector<int> &handles, 
+			 const std::vector<double> &data)
 {
-    assert( handle < b.size() );
-    b[handle] = data;
+    std::vector<int>::const_iterator handle_it;
+    std::vector<double>::const_iterator data_it = data.begin();
+    for (handle_it = handles.begin(); handle_it != handles.end(); ++handle_it)
+    {
+	b[*handle_it] = *data_it;
+	++data_it;
+    }
 }
 
 } // end namespace physics_B

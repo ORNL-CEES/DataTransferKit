@@ -41,10 +41,10 @@ class TE_Physics_B : public Transfer_Evaluator
     physics_B::Physics_B* b;
 
     // Point coordinate vector.
-    std::vector<double> points;
+    std::vector<CoordinateType> points;
 
     // Handle vector.
-    std::vector<double> handles;
+    std::vector<HandleType> handles;
 
   public:
 
@@ -55,22 +55,20 @@ class TE_Physics_B : public Transfer_Evaluator
     ~TE_Physics_B();
 
     //! Register the communicator.
-    void register_comm(Communicator &comm);
+    void register_comm(const Communicator &comm);
 
     //! Register a field associated with the entities.
-    bool register_field(std::string field_name);
+    bool register_field(const std::string &field_name);
 
     // Register a vector of interleaved point coordinates.
-    void register_xyz(std::string field_name,
-		      Coord_Iterator &points_begin,
-		      Coord_Iterator &points_end,
-		      Handle_Iterator &handles_begin,
-		      Handle_Iterator &handles_end);
+    void register_points(const std::string &field_name,
+			 std::vector<HandleType> &handles,
+			 std::vector<CoordinateType> &coordinates);
 
     // Push data onto a field.
-    void push_data(std::string field_name,
-		   Handle handle,
-		   double data);
+    void push_data(const std::string &field_name,
+		   const std::vector<HandleType> &handles,
+		   const std::vector<DataType> &data);
 };
 
 } // end namespace coupler

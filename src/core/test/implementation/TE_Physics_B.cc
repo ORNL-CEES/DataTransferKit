@@ -27,16 +27,16 @@ TE_Physics_B::~TE_Physics_B()
 
 //---------------------------------------------------------------------------//
 //! Register the communicator.
-void TE_Physics_B::register_comm(Communicator &comm)
+void TE_Physics_B::register_comm(const Communicator &comm)
 {
     comm = b->comm();
 }
 
 //---------------------------------------------------------------------------//
 //! Register a field associated with the entities.
-bool TE_Physics_B::register_field(std::string field_name)
+bool TE_Physics_B::register_field(const std::string &field_name)
 {
-    if (field_name == "PEAKS") return true;
+    if (field_name == "ORDINATE") return true;
     else return false;
 }
 
@@ -44,23 +44,21 @@ bool TE_Physics_B::register_field(std::string field_name)
 // Register cartesian coordinates with a field. The coordinate vector
 // should be interleaved. The handle vector should consist of globally
 // unique handles. These iterators imply contiguous memory storage.
-void TE_Physics_B::register_xyz(std::string field_name,
-				Coord_Iterator &points_begin,
-				Coord_Iterator &points_end,
-				Handle_Iterator &handles_begin,
-				Handle_Iterator &handles_end)
+void TE_Physics_B::register_points(const std::string &field_name,
+				   std::vector<HandleType> &handles,
+				   std::vector<CoordinateType> &coordinates)
 {
-    if (field_name == "PEAKS")
+    if (field_name == "ORDINATE")
     {
 	// Vector setup.
 	points.resize( 3*(b->x_domain().size())*(b->y_domain().size()) );
 	handles.resize( points.size() / 3 );
 
 	// Set iterators.
-	Coord_Iterator x_it;
-	Coord_Iterator y_it;
-	Coord_Iterator coord_it = points.begin();
-	Handle_Iterator handle_it = handles.begin();
+	std::vector<double>::const_iterator x_it;
+	std::vector<double>::const_iterator y_it;
+	std::vector<CoordinateType>::const_iterator coord_it = points.begin();
+	std::vector<HandleType>::const_iterator handle_it = handles.begin();
 
 	// Populate the coordinate and handle vectors.
 	int handle_counter = 0;
@@ -86,22 +84,16 @@ void TE_Physics_B::register_xyz(std::string field_name,
 		++handle_counter;
 	    }
 	}
-
-	// Return the iterators.
-	points_begin = points.begin();
-	points_end = points.end();
-	handles_begin = handles.begin();
-	handles_end = handles.end();
     }
 }
 
 //---------------------------------------------------------------------------//
 // Push data onto a field.
-void TE_Physics_B::push_data(std::string field_name,
-			     Handle handle, 
-			     double data)
+void TE_Physics_B::push_data(const std::string &field_name,
+			     const std::vector<HandleType> &handles,
+			     const std::vector<DataType> &data)
 {
-    b->set_source(handle, data);
+    b->set_source(handles, data);
 }
 
 //---------------------------------------------------------------------------//

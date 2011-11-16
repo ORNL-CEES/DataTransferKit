@@ -60,8 +60,8 @@ Physics_A::Physics_A(Communicator comm,
 	    y_edges[j] = y_min + j*y_width;
 	}
 
-	// Resize the data vector to correspond to cell-centered values and fill
-	// with 0.
+	// Resize the data vector to correspond to cell-centered values and
+	// fill with 0.
 	X.resize(x_cells*y_cells);
 	Vector_Dbl::iterator it;
 	for (it = X.begin(); it != X.end(); ++it)
@@ -97,8 +97,8 @@ Physics_A::Physics_A(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill witth 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -130,8 +130,8 @@ Physics_A::Physics_A(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -167,8 +167,8 @@ Physics_A::Physics_A(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -200,8 +200,8 @@ Physics_A::Physics_A(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -233,8 +233,8 @@ Physics_A::Physics_A(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -270,8 +270,8 @@ Physics_A::Physics_A(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -303,8 +303,8 @@ Physics_A::Physics_A(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -336,8 +336,8 @@ Physics_A::Physics_A(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -369,8 +369,8 @@ Physics_A::Physics_A(Communicator comm,
 		y_edges[j] = y_min_local + j*y_width;
 	    }
 
-	    // Resize the data vector to correspond to cell-centered values and fill
-	    // with 0.
+	    // Resize the data vector to correspond to cell-centered values
+	    // and fill with 0.
 	    X.resize(x_cells*y_cells);
 	    Vector_Dbl::iterator it;
 	    for (it = X.begin(); it != X.end(); ++it)
@@ -442,16 +442,21 @@ bool Physics_A::get_xy_info(double x,
     // Get the index into the data vector and associate this with the given
     // handle. 
     int index = i + j*(x_edges.size() - 1);
-    handle_map.insert( std::pair<int,int>(handle, index);
+    handle_map.insert( std::pair<int,int>(handle, index) );
 
     return true;
 }
 
 //---------------------------------------------------------------------------//
 // Given a handle, get that part of the data vector.
-void Physics_A::get_data(int handle, double data)
+void Physics_A::get_data(const std::vector<int> &handles,
+			 std::vector<double> &data)
 {
-    data = X[ handle_map[handle] ];
+    std::vector<double>::const_iterator handle_it;
+    for (handle_it = handles.begin(); handle_it != handles.end(); ++handle_it) 
+    {
+	data.push_back( X[ handle_map[handle] ] );
+    }
 }
 
 //---------------------------------------------------------------------------//

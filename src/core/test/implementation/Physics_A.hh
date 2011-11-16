@@ -33,8 +33,7 @@ class Physics_A
 {
   public:
     //@{
-    // Useful typedefs.
-    typedef std::vector<double>                   Vector_Dbl;
+    //! Useful typedefs.
     typedef nemesis::Communicator_t               Communicator;
     //@}
 
@@ -44,16 +43,17 @@ class Physics_A
     Communicator d_comm;
 
     // Mesh boundaries in x direction.
-    Vector_Dbl d_x_edges;
+    std::vector<double> d_x_edges;
 
     // Mesh boundaries in y direction.
-    Vector_Dbl d_y_edges;
+    std::vector<double> d_y_edges;
 
     // Data vector.
-    Vector_Dbl d_X;
+    std::vector<double> d_X;
 
-    // Handle map.
-    std::map<int,int> d_handle_map;
+    // Handle map
+    std::map<int,int> handle_map;
+
 
   public:
 
@@ -79,10 +79,20 @@ class Physics_A
 		     int handle);
 
     // Given a handle, get that part of the data vector.
-    void get_data(int handle, double data);
+    void get_data(const std::vector<int> &handles, 
+		  std::vector<double> data);
 
-    // Return a const reference data vector.
-    const Vector_Dbl& data() { return X; }
+    //@{ 
+    //! Get the mesh edges for testing purposes.
+    void get_x_edges( const std::vector<double> &x)
+    { x = d_x_edges; }
+
+    void get_y_edges( const std::vector<double> &y)
+    { y = d_y_edges; }
+
+    void get_z_edges( const std::vector<double> &z)
+    { z = d_z_edges; }
+    //@}
 };
 
 } // end namespace physics_A
