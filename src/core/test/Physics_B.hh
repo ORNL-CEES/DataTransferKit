@@ -56,7 +56,7 @@ class Physics_B
     Physics_B(Communicator comm,
 	      double x_min, double x_max,
 	      double y_min, double y_max,
-	      double x_nodes, double y_nodes);
+	      int x_nodes, int y_nodes);
 
     // Destructor.
     ~Physics_B();
@@ -70,14 +70,11 @@ class Physics_B
 
     //@{ 
     //! Get the mesh edges for testing purposes.
-    void get_x_edges( const std::vector<double> &x)
+    void get_x_edges(std::vector<double> &x)
     { x = d_x_edges; }
 
-    void get_y_edges( const std::vector<double> &y)
+    void get_y_edges(std::vector<double> &y)
     { y = d_y_edges; }
-
-    void get_z_edges( const std::vector<double> &z)
-    { z = d_z_edges; }
     //@}
 };
 

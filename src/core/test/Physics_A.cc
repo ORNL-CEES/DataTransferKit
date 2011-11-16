@@ -23,7 +23,7 @@ namespace physics_A
 Physics_A::Physics_A(Communicator comm,
 		     double x_min, double x_max,
 		     double y_min, double y_max,
-		     double x_cells, double y_cells)
+		     int x_cells, int y_cells)
     : d_comm(comm)
 {
     nemesis::set_internal_comm(d_comm);
@@ -320,9 +320,9 @@ Physics_A::Physics_A(Communicator comm,
 	    y_edges.resize( (int) y_cells - (y_cells+1) / 2 );
 
 	    x_min_local = x_min;
-	    x_max_local = x_max;
-	    y_min_local = y_min;
-	    y_max_local = y_min + (y_edges.size() - 1)*y_width;
+	    x_max_local = x_min_local + (x_edges.size() - 1)*x_width;
+	    y_min_local = y_min + (y_edges.size() - 1)*y_width;
+	    y_max_local = y_max;
 
 	    // x_edges
 	    for (int i = 0; i < x_cells+1; ++i)
@@ -352,7 +352,7 @@ Physics_A::Physics_A(Communicator comm,
 	    x_edges.resize( x_cells+1 );
 	    y_edges.resize( (int) y_cells - (y_cells+1) / 2 );
 
-	    x_min_local = x_min;
+	    x_min_local = x_min_local + (x_edges.size() - 1)*x_width;
 	    x_max_local = x_max;
 	    y_min_local = y_min + (y_edges.size() - 1)*y_width;
 	    y_max_local = y_max;

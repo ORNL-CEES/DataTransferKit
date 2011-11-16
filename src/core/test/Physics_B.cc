@@ -19,7 +19,7 @@ namespace physics_B
 Physics_B::Physics_B(Communicator comm,
 		     double x_min, double x_max,
 		     double y_min, double y_max,
-		     double x_nodes, double y_nodes)
+		     int x_nodes, int y_nodes)
     : d_comm(comm)
 {
     nemesis::set_internal_comm(d_comm);

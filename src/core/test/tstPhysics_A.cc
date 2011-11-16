@@ -26,6 +26,8 @@ using namespace std;
 using nemesis::Parallel_Unit_Test;
 using nemesis::soft_equiv;
 
+using physics_A::Physics_A;
+
 int node  = 0;
 int nodes = 0;
 
@@ -38,6 +40,104 @@ int nodes = 0;
 
 void physics_a_test(Parallel_Unit_Test &ut)
 {
+    // Create a Physics_A instance.
+    Physics_A a(MPI_COMM_WORLD,
+		0.0, 1.0,
+		0.0, 1.0,
+		2, 2);
+
+    // Check the communicator.
+    UNIT_TEST( a.comm() == MPI_COMM_WORLD );
+
+    // Check the mesh partitioning.
+    std::vector<double> x_edges;
+    a.get_x_edges(x_edges);
+
+    std::vector<double> y_edges;
+    a.get_y_edges(y_edges);
+
+    if (nodes == 1)
+    {
+	UNIT_TEST( x_edges.size() == 3 );
+	UNIT_TEST( x_edges[0] == 0.0 );
+	UNIT_TEST( x_edges[1] == 0.5 );
+	UNIT_TEST( x_edges[2] == 1.0 );
+
+	UNIT_TEST( x_edges.size() == 3 );
+	UNIT_TEST( y_edges[0] == 0.0 );
+	UNIT_TEST( y_edges[1] == 0.5 );
+	UNIT_TEST( y_edges[2] == 1.0 );
+    }
+    else if (nodes == 2)
+    {
+	if (node == 0)
+	{
+	    UNIT_TEST( x_edges.size() == 2 );
+	    UNIT_TEST( x_edges[0] == 0.0 );
+	    UNIT_TEST( x_edges[1] == 0.5 );
+
+	    UNIT_TEST( y_edges.size() == 3 );
+	    UNIT_TEST( y_edges[0] == 0.0 );
+	    UNIT_TEST( y_edges[1] == 0.5 );
+	    UNIT_TEST( y_edges[2] == 1.0 );
+	}
+	else if (node == 1)
+	{
+	    UNIT_TEST( x_edges.size() == 2 );
+	    UNIT_TEST( x_edges[0] == 0.5 );
+	    UNIT_TEST( x_edges[1] == 1.0 );
+
+	    UNIT_TEST( y_edges.size() == 3 );
+	    UNIT_TEST( y_edges[0] == 0.0 );
+	    UNIT_TEST( y_edges[1] == 0.5 );
+	    UNIT_TEST( y_edges[2] == 1.0 );
+	}
+    }
+    else if (nodes == 4)
+    {
+	if (node == 0)
+	{
+	    UNIT_TEST( x_edges.size() == 2 );
+	    UNIT_TEST( x_edges[0] == 0.0 );
+	    UNIT_TEST( x_edges[1] == 0.5 );
+
+	    UNIT_TEST( y_edges.size() == 2 );
+	    UNIT_TEST( y_edges[0] == 0.0 );
+	    UNIT_TEST( y_edges[1] == 0.5 );
+	}
+	else if (node == 1)
+	{
+	    UNIT_TEST( x_edges.size() == 2 );
+	    UNIT_TEST( x_edges[0] == 0.5 );
+	    UNIT_TEST( x_edges[1] == 1.0 );
+
+	    UNIT_TEST( y_edges.size() == 2 );
+	    UNIT_TEST( y_edges[0] == 0.0 );
+	    UNIT_TEST( y_edges[1] == 0.5 );
+	}
+	else if (node == 2)
+	{
+	    UNIT_TEST( x_edges.size() == 2 );
+	    UNIT_TEST( x_edges[0] == 0.0 );
+	    UNIT_TEST( x_edges[1] == 0.5 );
+
+	    UNIT_TEST( y_edges.size() == 2 );
+	    UNIT_TEST( y_edges[0] == 0.5 );
+	    UNIT_TEST( y_edges[1] == 1.0 );
+	}
+	else if (node == 3)
+	{
+	    UNIT_TEST( x_edges.size() == 2 );
+	    UNIT_TEST( x_edges[0] == 0.5 );
+	    UNIT_TEST( x_edges[1] == 1.0 );
+
+	    UNIT_TEST( y_edges.size() == 2 );
+	    UNIT_TEST( y_edges[0] == 0.5 );
+	    UNIT_TEST( y_edges[1] == 1.0 );
+	}
+    }
+
+
     if (ut.numFails == 0)
     {
         std::ostringstream m;
