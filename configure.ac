@@ -23,7 +23,7 @@ AC_ARG_WITH(timing-diag,
 # The packages may depend on other packages to the left of them
 # in the list.
 
-AC_CONFIG_SUBDIRS(tools src)
+AC_CONFIG_SUBDIRS(tools src autodoc)
 
 # make the head makefile
 AC_HEAD_MAKEFILE

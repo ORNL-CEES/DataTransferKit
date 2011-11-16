@@ -1,38 +1,27 @@
 //---------------------------------------------------------------------------//
 // mainpage.dcc
-// Front page to the denovo autodoc system.
+// Front page to the coupling package autodoc system.
 //---------------------------------------------------------------------------//
 
 /*!
 
-\mainpage The Denovo Documentation System
+\mainpage Coupling Package Documentation
 
 \par Authors
-<a href="mailto:evanstm@ornl.gov">Tom Evans</a>.
-<a href="mailto:davidsongg@ornl.gov">Greg Davidson</a>.
-<a href="mailto:jarrelljj@ornl.gov">Josh Jarrell</a>.
-<a href="mailto:clarnokt@ornl.gov">Kevin Clarno</a>.
-<a href="mailto:moshersw@ornl.gov">Scott Mosher</a>.
+<a href="mailto:sslattery@wisc.edu">Stuart Slattery</a>.
 
 \par Executive Summary
-Denovo (De Novo : anew, literally "from new") is a Discrete Ordinates
-(\f$S_N\f$) code package.  The methods used in Denovo are
-well-documented in the <a href="denovo.pdf">methods manual</a>.
-
-\par Code Access 
-To get access to the Denovo source contact the <a
-href="mailto:evanstm@ornl.gov">Radiation Transport and Criticality
-Group</a> at ORNL.
+The coupling package is an implementation of a parallel communication pattern
+for mesh based data transfer. An interface to the implementation is provided.</a>.
 
 \par Components
-Denovo consists of the following components.  Click on the links to
-find documentation about each component.
+The coupling package utilizes several components from the Nemesis package as well as a core package containing the client interface and communication implemenation.
 @COMP_LINKS@
 
 */
 
 // \par Packages
-// @PACKAGE_LINKS@
+@PACKAGE_LINKS@
 
 //---------------------------------------------------------------------------//
 // end of mainpage.dcc

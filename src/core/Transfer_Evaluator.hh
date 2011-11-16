@@ -86,7 +86,7 @@ class Transfer_Evaluator
     /*! 
      * \brief Given (x,y,z) coordinates and an associated globally unique
      * handle, return true if the point is in the local domain, false if not.
-     * \param handle The globally unique handle associated with the
+     * \param handle The globally unique handle associated with the point.
      * \param x X coordinate.
      * \param y Y coordinate.
      * \param z Z coordinate.

@@ -40,7 +40,7 @@ AC_SUBST(dotpath)
 # find the release number
 number='null'
 AC_MSG_CHECKING("coupler release number")
-number=coupler-3_0_0
+number=coupler-0_0_1
 AC_MSG_RESULT($number)
 AC_SUBST(number)
 
