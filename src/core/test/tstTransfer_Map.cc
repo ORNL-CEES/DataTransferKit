@@ -70,22 +70,29 @@ void map_test(Parallel_Unit_Test &ut)
     // Check the contents of the domains.
     Map_Pair domain_1 = tmap.domain(1);
     UNIT_TEST( std::distance(domain_1.first, domain_1.second) == 3 );
-    UNIT_TEST( domain_1.first->second == 12 );
-    UNIT_TEST( (domain_1.first+1)->second == 21 );
-    UNIT_TEST( (domain_1.first+2)->second == 32 );
+    Map_Iterator domain_it_1 = domain_1.first;
+    UNIT_TEST( domain_it_1->second == 21 );
+    ++domain_it_1;
+    UNIT_TEST( domain_it_1->second == 32 );
+    ++domain_it_1;
+    UNIT_TEST( domain_it_1->second == 12 );
     
     Map_Pair domain_2 = tmap.domain(2);
     UNIT_TEST( std::distance(domain_2.first, domain_2.second) == 1 );
-    UNIT_TEST( *((domain_2.first)->second) == 54 );
+    Map_Iterator domain_it_2 = domain_2.first;
+    UNIT_TEST( domain_it_2->second == 54 );
 
     Map_Pair domain_3 = tmap.domain(3);
     UNIT_TEST( std::distance(domain_3.first, domain_3.second) == 2 );
-    UNIT_TEST( *((domain_3.first)->second) == 2 );
-    UNIT_TEST( *((domain_3.first+1)->second) == 5 );
+    Map_Iterator domain_it_3 = domain_3.first;
+    UNIT_TEST( domain_it_3->second == 2 );
+    ++domain_it_3;
+    UNIT_TEST( domain_it_3->second == 5 );
 
     Map_Pair domain_4 = tmap.domain(4);
     UNIT_TEST( std::distance(domain_4.first, domain_4.second) == 1 );
-    UNIT_TEST( *((domain_4.first)->second) == 22 );
+    Map_Iterator domain_it_4 = domain_4.first;
+    UNIT_TEST( domain_it_4->second == 22 );
 
     // Add range pairs.
     tmap.add_range_pair(8, 9);
@@ -101,27 +108,38 @@ void map_test(Parallel_Unit_Test &ut)
     // Check the contents of the ranges.
     Map_Pair range_8 = tmap.range(8);
     UNIT_TEST( std::distance(range_8.first,range_8.second) == 3 );
-    UNIT_TEST( *((range_8.first)->second) == 4 );
-    UNIT_TEST( *((range_8.first+1)->second) == 9 );
-    UNIT_TEST( *((range_8.first+2)->second) == 34 );
+    Map_Iterator range_it_8 = range_8.first;
+    UNIT_TEST( range_it_8->second == 9 );
+    ++range_it_8;
+    UNIT_TEST( range_it_8->second == 4 );
+    ++range_it_8;
+    UNIT_TEST( range_it_8->second == 34 );
 
     Map_Pair range_32 = tmap.range(32);
     UNIT_TEST( std::distance(range_32.first,range_32.second) == 2 );
-    UNIT_TEST( *((range_32.first)->second) == 1 );
-    UNIT_TEST( *((range_32.first+1)->second) == 3 );
+    Map_Iterator range_it_32 = range_32.first;
+    UNIT_TEST( range_it_32->second == 1 );
+    ++range_it_32;
+    UNIT_TEST( range_it_32->second == 3 );
 
     // Check the source and target sets.
     Set_Pair sources = tmap.sources();
     UNIT_TEST( std::distance(sources.first, sources.second) == 2 );
-    UNIT_TEST( *(sources.first) == 8 );
-    UNIT_TEST( *(sources.first+1) == 32 );
+    Set_Iterator source_it = sources.first;
+    UNIT_TEST( *source_it == 8 );
+    ++source_it;
+    UNIT_TEST( *source_it == 32 );
 
     Set_Pair targets = tmap.targets();
     UNIT_TEST( std::distance(targets.first, targets.second) == 4 );
-    UNIT_TEST( *(targets.first) == 1 );
-    UNIT_TEST( *(targets.first+1) == 2 );
-    UNIT_TEST( *(targets.first+2) == 3 );
-    UNIT_TEST( *(targets.first+3) == 4 );
+    Set_Iterator target_it = targets.first;
+    UNIT_TEST( *target_it == 1 );
+    ++target_it;
+    UNIT_TEST( *target_it == 2 );
+    ++target_it;
+    UNIT_TEST( *target_it == 3 );
+    ++target_it;
+    UNIT_TEST( *target_it == 4 );
 
     if (ut.numFails == 0)
     {
