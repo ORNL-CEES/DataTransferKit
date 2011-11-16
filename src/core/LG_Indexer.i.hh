@@ -39,23 +39,23 @@ LG_Indexer::LG_Indexer(const Communicator &comm_world,
 
     // Get the local id from comm_local.
     nemesis::set_internal_comm(comm_local);
-    int local_id = nemesis::node();
+    OrdinateType local_id = nemesis::node();
 
     // Get global information from comm_world.
     nemesis::set_internal_comm(comm_world);
 
     // Make a vector of local ids everywhere.
-    Vec_Int local_ids(nemesis::nodes(), 0);
+    Vec_Ordinate local_ids(nemesis::nodes(), 0);
     local_ids[nemesis::node()] = local_id;
     nemesis::global_sum(&local_ids[0], nemesis::nodes());
 
     // Make a vector of application indicators.
-    Vec_Int app_ids(nemesis::nodes(), 0);
+    Vec_Ordinate app_ids(nemesis::nodes(), 0);
     app_ids[nemesis::node()] = local_app_indicator;
     nemesis::global_sum(&app_ids[0], nemesis::nodes());
 
     // Make a vector of global ids everywhere.
-    Vec_Int global_ids(nemesis::nodes(), 0);
+    Vec_Ordinate global_ids(nemesis::nodes(), 0);
     global_ids[nemesis::node()] = nemesis::node();
     nemesis::global_sum(&global_ids[0], nemesis::nodes());
 
@@ -63,11 +63,12 @@ LG_Indexer::LG_Indexer(const Communicator &comm_world,
     Check( app_ids.size() == global_ids.size() );
 
     // Make the map.
-    Vec_Int_Iterator app_iter = app_ids.begin();
-    Vec_Int_Iterator global_iter = global_ids.begin();
-    for (Vec_Int_Iterator local_iter = local_ids.begin(), 
-		      local_iter_end = local_ids.end();
-         local_iter != local_iter_end; ++local_iter)
+    Ordinate_Iterator app_iter = app_ids.begin();
+    Ordinate_Iterator global_iter = global_ids.begin();
+    for (Ordinate_Iterator local_iter = local_ids.begin(), 
+		       local_iter_end = local_ids.end();
+         local_iter != local_iter_end; 
+	 ++local_iter)
     {
         if (*app_iter)
         {

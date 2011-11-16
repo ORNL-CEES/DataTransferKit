@@ -247,11 +247,12 @@ void Mapper<DataType_T>::target_send_point_size(
     int buffer_size = p.size();
 
     // Send the local target points to all processes of the source physics.
+    OrdinateType i;
     OrdinateType destination;
     OrdinateType begin_source = 0;
     OrdinateType end_source = d_source->indexer()->size();
 
-    for (int i = begin_source; i < end_source; ++i)
+    for (i = begin_source; i < end_source; ++i)
     {
 	// Get the global index for the source physics that the buffer is
 	// going to.
@@ -393,11 +394,12 @@ void Mapper<DataType_T>::target_send_points(
     buffer_size = buffer.size();
 
     // Send the local target points to all processes of the source physics.
+    OrdinateType i;
     OrdinateType destination;
     OrdinateType begin_source = 0;
     OrdinateType end_source = d_source->indexer()->size();
 
-    for (int i = begin_source; i < end_source; ++i)
+    for (i = begin_source; i < end_source; ++i)
     {
 	// Get the global index for the source physics that the buffer is
 	// going to.
@@ -457,7 +459,7 @@ void Mapper<DataType_T>::source_process_points(BufferList &buffer_list,
 	    if (buffer_size > 0)
 	    {
 		// Compute the number of points in the buffer.
-		num_points = buffer_size / ( sizeof(double) * 3 + sizeof(int));
+		num_points = buffer_size / ( sizeof(CoordinateType) * 3 + sizeof(HandleType));
 
 		// Unpack the buffer.
 		u.set_buffer(buffer_size, &buffer[0]);
@@ -534,11 +536,12 @@ void Mapper<DataType_T>::source_send_point_size(SP_Transfer_Map new_map)
 {
     // Send the number of local points belonging to each target process.
     int buffer_size;
+    OrdinateType i;
     OrdinateType destination;
     OrdinateType begin_target = 0;
     OrdinateType end_target = d_target->indexer()->size();
 
-    for (int i = begin_target; i < end_target; ++i)
+    for (i = begin_target; i < end_target; ++i)
     {
 	// Get the global index for the target physics that the buffer is
 	// going to.
@@ -713,12 +716,12 @@ void Mapper<DataType_T>::target_process_handles(BufferList &buffer_list,
 	    if (buffer_size > 0)
 	    {
 		// Get the number of handles in the buffer.
-		num_handles = buffer_size / sizeof(int);
+		num_handles = buffer_size / sizeof(HandleType);
 
 		// Unpack the handle and put it in the map.
 		u.set_buffer(buffer_size, &buffer[0]);
 
-		for (int j = 0; j < num_handles; ++j)
+		for (j = 0; j < num_handles; ++j)
 		{
 		    u >> handle;
 

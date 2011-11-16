@@ -38,10 +38,11 @@ class LG_Indexer
   public:
     //@{
     //! Useful typedefs.
-    typedef nemesis::Communicator_t             Communicator;
-    typedef std::map<int, int>                  Indexer_Map;
-    typedef std::vector<int>                    Vec_Int;
-    typedef typename Vec_Int::const_iterator    Vec_Int_Iterator;
+    typedef int                                        OrdinateType;
+    typedef std::map<OrdinateType, OrdinateType>       Indexer_Map;
+    typedef std::vector<OrdinateType>                  Vec_Ordinate;
+    typedef typename Vec_Ordinate::const_iterator      Ordinate_Iterator;
+    typedef nemesis::Communicator_t                    Communicator;
     //@}
 
   private:
@@ -58,10 +59,10 @@ class LG_Indexer
                denovo::SP<LocalApp> local_app);
 
     //! Convert application-local PID to global PID.
-    int l2g(int local_pid) { return d_l2g_map[local_pid]; }
+    OrdinateType l2g(OrdinateType local_pid) { return d_l2g_map[local_pid]; }
 
     //! Get the size of the indexer.
-    int size() { return d_l2g_map.size(); }
+    OrdinateType size() { return d_l2g_map.size(); }
 };
 
 } // end namespace coupler
