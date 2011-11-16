@@ -1,0 +1,24 @@
+README
+
+The coupler is a package for parallel data transfer between arbitrary physics codes.
+
+SETUP
+-----
+
+Run the 'setup_nemesis' script to configure vendors.
+
+Runt the 'coupler_config' script to generate autoconf configure files.
+
+CONFIGURE
+---------
+
+See './configure --help' for configure options.
+
+BUILD
+-----
+
+make - Standard build.
+
+make check - Standard build with unit tests.
+
+make autodoc - Generate doxygen documentation.
