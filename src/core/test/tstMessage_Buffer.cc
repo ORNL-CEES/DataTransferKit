@@ -1,9 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   core/test/tstMessage_Buffer.cc
- * \author stuart
+ * \author Stuart Slattery
  * \date   Tue Nov 08 12:20:24 2011
- * \brief  
+ * \brief  Unit test for the message buffer container.
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
 //---------------------------------------------------------------------------//
@@ -20,10 +20,17 @@
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
 #include "release/Release.hh"
+#include "utils/Packing_Utils.hh"
+#include "../Message_Buffer.hh"
 
 using namespace std;
 using nemesis::Parallel_Unit_Test;
 using nemesis::soft_equiv;
+
+using denovo::Packer;
+using denovo::Unpacker;
+
+using coupler::Message_Buffer;
 
 int node  = 0;
 int nodes = 0;
@@ -35,7 +42,42 @@ int nodes = 0;
 // TESTS
 //---------------------------------------------------------------------------//
 
+void message_buffer_test(Parallel_Unit_Test &ut)
+{
+    Message_Buffer<int> message_buffer(node, sizeof(int));
 
+    UNIT_TEST( message_buffer.ordinate() == node );
+    UNIT_TEST( message_buffer.buffer().size() == sizeof(int) );
+
+    nemesis::receive_async(message_buffer.request(),
+			   &message_buffer.buffer()[0],
+			   message_buffer.buffer().size(),
+			   message_buffer.ordinate());
+
+    std::vector<char> send_buffer( sizeof(int) );
+    Packer p;
+    p.set_buffer( send_buffer.size(), &send_buffer[0] );
+    p << node;
+
+    nemesis::send_async(&send_buffer[0], send_buffer.size(), node);
+
+    while ( !message_buffer.request().complete() ) { }
+
+    int data;
+    Unpacker u;
+    u.set_buffer( message_buffer.buffer().size(), 
+		  &message_buffer.buffer()[0] );
+    u >> data;
+    
+    UNIT_TEST( data == node );
+
+    if (ut.numFails == 0)
+    {
+        std::ostringstream m;
+        m << "Transfer_Map test passes on " << node;
+        ut.passes( m.str() );
+    }
+}
 
 //---------------------------------------------------------------------------//
 
@@ -52,6 +94,11 @@ int main(int argc, char *argv[])
         int gpass = 0;
         int gfail = 0;
         
+	message_buffer_test(ut);
+	gpass += ut.numPasses;
+	gfail += ut.numFails;
+	ut.reset();
+
         // add up global passes and fails
         nemesis::global_sum(gpass);
         nemesis::global_sum(gfail);
