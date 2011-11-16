@@ -91,6 +91,7 @@ dnl If this is a scalar package, the number of processors required
 dnl should be listed as "scalar".
 
 AC_RUNTESTS(tstLG_Indexer \
+            tstTransfer_Map \
             , 1 2 4)
 
 dnl ----------------------------------------
