@@ -38,9 +38,39 @@ namespace mesh
  */
 //===========================================================================//
 
-template<class HandleType, class OrdinateType>
+template<class HandleType_T, class OrdinateType_T>
 class Mesh_Entity 
 {
+
+  public:
+
+    //@{
+    //! Useful typedefs.
+    typedef HandleType_T            HandleType;
+    typedef OrdinateType_T          OrdinateType;
+    //@}
+
+  protected:
+
+    // Entity handle.
+    HandleType b_handle.
+    
+  public:
+
+    // Constructor.
+    Mesh_Entity()
+    { /* ... */ }
+
+    // Destructor.
+    virtual ~Mesh_Entity()
+    { /* ... */ }
+
+    // Return the handle of this entity.
+    HandleType handle() { return b_handle; }
+
+    // Return the dimension of this entity.
+    virtual int dimension()
+    { return -1; }
 
 };
 

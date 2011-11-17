@@ -82,7 +82,6 @@ class Transfer_Data_Source
      * \param x X coordinate.
      * \param y Y coordinate.
      * \param z Z coordinate.
-     * coordinates.
      */
     virtual bool get_points(HandleType handle,
 			    CoordinateType x, 

@@ -16,8 +16,10 @@
 #include <map>
 #include <string>
 
-#include "Transfer_Evaluator.hh"
-#include "Physics.hh"
+#include "Transfer_Data_Source.hh"
+#include "Transfer_Data_Target.hh"
+#include "Transfer_Map.hh"
+#include "LG_Indexer.hh"
 #include "utils/SP.hh"
 #include "comm/global.hh"
 
@@ -43,12 +45,15 @@ class Data_Transfer_Manager
     //@{
     //! Useful typedefs.
     typedef DataType_T                               DataType;
-    typedef Transfer_Evaluator<DataType>             Transfer_Evaluator_t;
-    typedef denovo::SP<Transfer_Evaluator_t>         SP_Transfer_Evaluator;
-    typedef Physics<DataType>                        Physics_t;
-    typedef denovo::SP<Physics_t>                    SP_Physics;
-    typedef std::pair<std::string,SP_Physics>        Physics_Pair;
-    typedef std::map<std::string,SP_Physics>         Physics_DB;
+    typedef Data_Transfer_Source<DataType>           Data_Transfer_Source_t;
+    typedef denovo::SP<Data_Transfer_Source_t>       SP_Data_Transfer_Source;
+    typedef Data_Transfer_Target<DataType>           Data_Transfer_Target_t;
+    typedef denovo::SP<Data_Transfer_Target_t>       SP_Data_Transfer_Target;
+    typedef denovo::SP<LG_Indexer>                   SP_LG_Indexer;
+    typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
+    typedef std::map<SP_Data_Transfer_Target,SP_Transfer_Map>   Target_Map;
+    typedef std::map<SP_Data_Transfer_Source,Target_Map>        Source_Map;
+    typedef std::map<std::string,Source_Map>         Map_DB;
     typedef nemesis::Communicator_t                  Communicator;
     //@}
 
@@ -57,8 +62,8 @@ class Data_Transfer_Manager
     // Global communicator.
     const Communicator &d_comm_global;
 
-    // Physics database.
-    Physics_DB d_physics_db;
+    // Map database.
+    Map_DB d_map_db;
     
   public:
 
@@ -68,26 +73,37 @@ class Data_Transfer_Manager
     // Destructor.
     ~Data_Transfer_Manager();
 
-    // Register a physics with the manager.
-    void add_physics(const std::string &physics_name, 
-		     SP_Transfer_Evaluator te);
-
     // Build the topology map for transfer from a source physics to a target
     // physics for a particular field.
     void map(const std::string &field_name,
-	     const std::string &source_physics,
-	     const std::string &target_physics);
+	     SP_Data_Transfer_Source source,
+	     SP_Data_Transfer_Target target);
 
-    // Transfer data associated with a field from a source physics to a
-    // target physics. 
-    void transfer(const std::string &field_name,
-		  const std::string &source_physics,
-		  const std::string &target_physics);
+    // Transfer data associated with a distributed field from a source physics
+    // to a target physics. 
+    void distributed_transfer(const std::string &field_name,
+			      SP_Data_Transfer_Source source,
+			      SP_Data_Transfer_Target target);
 
-    // Perform a global rebalance on a field for conservation.
-    void balance(const std::string &field_name,
-		 const std::string &source_physics,
-		 const std::string &target_physics);
+    // Transfer a scalar field from a source physics to a target physics.
+    void scalar_transfer(const std::string &field_name,
+			 SP_Data_Transfer_Source source,
+			 SP_Data_Transfer_Target target); 
+
+  private:
+
+    // Given a target physics and a field, add the mapping for which this
+    // physics is the source.
+    void set_map(const std::string &field_name,
+		 SP_Data_Transfer_Source source,
+		 SP_Data_Transfer_Target target,
+		 SP_Transfer_Map transfer_map);
+
+    // Given a target physics and a field, return the mapping for which this
+    // physics is the source.
+    const SP_Transfer_Map get_map(const std::string &field_name,
+				  SP_Data_Transfer_Source source,
+				  SP_Data_Transfer_Target target);
 };
 
 } // end namespace coupler
