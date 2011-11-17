@@ -24,14 +24,14 @@ namespace mesh
  */
 //===========================================================================//
 
-template<class OrdinateType_T, class DataType_T>
+template<class HandleType_T, class DataType_T>
 class Point : public EntityType
 {
   public:
     //@{
     //! Useful Typedefs.
-    typedef OrdinateType_T                                OrdinateType;
-    typedef DataType_T                                    DataType;
+    typedef HandleType_T                     HandleType;
+    typedef DataType_T                       DataType;
     //@}
 
   private:
@@ -39,7 +39,7 @@ class Point : public EntityType
   public:
 
     //! Constructor.
-    Point(OrdinateType handle, 
+    Point(HandleType handle, 
 	  DataType x, 
 	  DataType y, 
 	  DataType z);
