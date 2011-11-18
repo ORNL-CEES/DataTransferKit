@@ -55,11 +55,11 @@ void Data_Transfer_Manager<DataType_T>::distributed_transfer(
     SP_Transfer_Data_Field transfer_data_field)
 {
     // Require that the field is destributed.
-    Require( !data_transfer_field->is_scalar() );
+    Require( !transfer_data_field->is_scalar() );
 
     // If the field has not yet been mapped from the source to the target,
     // perform the mapping before the transfer.
-    if ( !data_transfer_field->is_mapped() )
+    if ( !transfer_data_field->is_mapped() )
     {
 	// Create a mapper.
 	Mapper<DataType> mapper(d_comm_global, transfer_data_field);
@@ -71,9 +71,12 @@ void Data_Transfer_Manager<DataType_T>::distributed_transfer(
 	mapper.map(transfer_map);
 
 	// Add the new map to the database.
-	data_transfer_field->set_map(transfer_map);
+	transfer_data_field->set_map(transfer_map);
     }
     
+    // Check that the mapping has been applied.
+    Check ( transfer_data_field->is_mapped() )
+
     // Create a messenger.
     Messenger<DataType> messenger(d_comm_global, transfer_data_field);
 
@@ -90,74 +93,17 @@ void Data_Transfer_Manager<DataType_T>::distributed_transfer(
  */
 template<class DataType_T>
 void Data_Transfer_Manager<DataType_T>::scalar_transfer(
-    const std::string &field_name,
-    SP_Data_Transfer_Source source,
-    SP_Data_Transfer_Target target)
+    SP_Transfer_Data_Field transfer_data_field)
 {
-    // Require that these physics support the field being balanced.
-    Require( source->field_supported(field_name) &&
-	     target->field_supported(field_name) );
+    // Require that the field is scalar.
+    Require( transfer_data_field->is_scalar() );
 
     // Source sets the scalar.
     DataType data;
-    source->set_global_data(field_name, data);
+    transfer_data_field->source()->set_global_data(field_name, data);
 
     // Target gets the scalar.
-    target->get_global_data(field_name, data);
-}
-
-//---------------------------------------------------------------------------//
-// PRIVATE METHODS
-//---------------------------------------------------------------------------//
-/*!
- * \brief Given a target physics and a field, add the mapping for which this
- * physics is the source. 
- * \param field_name The name of the mapped field.
- * \param source The data transfer source implemenation.
- * \param target The data transfer target implemenation.
- * \param transfer_map Smart pointer to the Transfer_Map created for the
- * transfer. 
- */
-template<class DataType_T>
-void Data_Transfer_Manager<DataType_T>::set_map(const std::string &field_name,
-						SP_Data_Transfer_Source source,
-						SP_Data_Transfer_Target target,
-						SP_Transfer_Map transfer_map)
-{
-    if ( d_map_db[target_physics] )
-    {
-	d_map_db[target_physics].insert(
-	    std::pair<std::string,SP_Transfer_Map>(field_name,transfer_map) );
-    }
-
-    else
-    {
-	Field_Map new_map;
-	new_map.insert(
-	    std::pair<std::string,SP_Transfer_Map>(field_name,transfer_map) );
-	d_map_db.insert(
-	    std::pair<std::string,Field_Map>(target_physics,new_map) );
-    }
-
-    Ensure( (d_map_db[target_physics])[field_name] );
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Given a source, target and field, return the mapping.
- * \param field_name The name of the mapped field.
- * \param source The data transfer source implemenation.
- * \param target The data transfer target implemenation.
- * \return Returns a smart pointer to a Transfer_Map.
- */
-template<class DataType_T>
-const SP_Transfer_Map 
-Data_Transfer_Manager<DataType_T>::get_map(const std::string &field_name,
-					   SP_Data_Transfer_Source source,
-					   SP_Data_Transfer_Target target)
-{
-    Require( d_map_db[field_name][source][target] );
-    return d_map_db[field_name][source][target];
+    transfer_data_field->target()->get_global_data(field_name, data);
 }
 
 //---------------------------------------------------------------------------//
