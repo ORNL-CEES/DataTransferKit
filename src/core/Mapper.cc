@@ -23,11 +23,6 @@ namespace coupler
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
- * \param comm_global The global communicator encapsulating the all processes
- * participating in coupling.
- * \param field_name The name of the field being mapped.
- * \param source Smart pointer to source physics.
- * \param target Smart pointer to target physics.
  */
 template<class DataType_T>
 Mapper<DataType_T>::Mapper()

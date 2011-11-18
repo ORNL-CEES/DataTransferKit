@@ -18,7 +18,7 @@
 
 #include "Transfer_Map.hh"
 #include "Message_Buffer.hh"
-#include "Physics.hh"
+#include "Transfer_Data_Field.hh"
 #include "utils/SP.hh"
 #include "utils/Packing_Utils.hh"
 #include "comm/global.hh"
@@ -54,8 +54,8 @@ class Messenger
     typedef typename Message_Buffer_t::Buffer        Buffer;
     typedef std::list<Message_Buffer_t>              BufferList;
     typedef typename BufferList::iterator            BufferList_Iterator;
-    typedef Physics<DataType>                        Physics_t;
-    typedef denovo::SP<Physics_t>                    SP_Physics;
+    typedef Transfer_Data_Field<DataType>            Transfer_Data_Field_t;
+    typedef denovo::SP<Transfer_Data_Field_t>        SP_Transfer_Data_Field;
     typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
     typedef typename Transfer_Map::Map_Iterator      Map_Iterator;
     typedef typename Transfer_Map::Map_Pair          Map_Pair;
@@ -64,44 +64,30 @@ class Messenger
     typedef nemesis::Communicator_t                  Communicator;
     //@}
     
-  private:
-
-    // Global communicator.
-    const Communicator &d_comm_global;
-
-    // Field name.
-    const std::string &d_field_name;
-
-    // Source physics.
-    SP_Physics d_source;
-
-    // Target physics.
-    SP_Physics d_target;
-
  public:
 
     // Constructor.
-    Messenger(const Communicator &comm_global,
-	      const std::string &field_name,
-	      SP_Physics source,
-	      SP_Physics target);
+    Messenger()
 
     // Destructor.
     ~Messenger();
 
     // Communicate the field from the source to the target.
-    void communicate();
+    void communicate(const Communicator &comm_global,
+		     SP_Transfer_Data_Field transfer_data_field);
 
   private:
 
     // Target post receives.
-    void post_receives(BufferList &buffer_list);
+    void post_receives(SP_Transfer_Data_Field transfer_data_field,
+		       BufferList &buffer_list);
 
     // Source send data.
-    void send();
+    void send(SP_Transfer_Data_Field transfer_data_field);
 
     // Process the target requests.
-    void process_requests(BufferList &buffer_list);
+    void process_requests(SP_Transfer_Data_Field transfer_data_field,
+			  BufferList &buffer_list);
 };
 
 } // end namespace coupler

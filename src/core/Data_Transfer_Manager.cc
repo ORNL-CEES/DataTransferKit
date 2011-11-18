@@ -46,9 +46,7 @@ Data_Transfer_Manager<DataType_T>::~Data_Transfer_Manager()
 /*!
  * \brief Transfer data associated with a field from a source physics to a
  * target physics.
- * \param field_name The name of the field being transferred.
- * \param source The data transfer source implemenation.
- * \param target The data transfer target implemenation.
+ * \param transfer_data_field The field being transfered.
  */
 template<class DataType_T>
 void Data_Transfer_Manager<DataType_T>::distributed_transfer(
@@ -87,9 +85,7 @@ void Data_Transfer_Manager<DataType_T>::distributed_transfer(
 //---------------------------------------------------------------------------//
 /*!
  * \brief Send a global scalar quantity from the source to the target.
- * \param field_name The name of the scalar field.
- * \param source_physics The name of the source physics.
- * \param target_physics The name of the target physics.
+ * \param transfer_data_field The the scalar field being transfered.
  */
 template<class DataType_T>
 void Data_Transfer_Manager<DataType_T>::scalar_transfer(

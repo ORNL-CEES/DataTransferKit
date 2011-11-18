@@ -68,11 +68,6 @@ class Mapper
     typedef typename Transfer_Map::Set_Pair       Set_Pair;
     //@}
 
-  private:
-
-    // Global communicator.
-    const Communicator &d_comm_global;
-
   public:
 
     // Constructor.

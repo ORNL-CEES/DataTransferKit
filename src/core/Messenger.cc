@@ -26,17 +26,8 @@ namespace coupler
  * \brief Constructor.
  */
 template<class DataType_T>
-Messenger<DataType_T>::Messenger(const Communicator &comm_global,
-				 const std::string &field_name,
-				 SP_Physics source,
-				 SP_Physics target)
-    : d_comm_global(comm_global)
-    , d_field_name(field_name)
-    , d_source(source)
-    , d_target(target)
+Messenger<DataType_T>::Messenger()
 {
-    // Make sure there is a map to operate with.
-    Require ( d_source->get_map( d_target->name(), d_field_name ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -54,28 +45,30 @@ Messenger<DataType_T>::~Messenger()
  * \brief Communicate the field from the source to the target.
  */
 template<class DataType_T>
-void Messenger<DataType_T>::communicate()
+void Messenger<DataType_T>::communicate(
+    const Communicator &comm_global,
+    SP_Transfer_Data_Field transfer_data_field)
 {
     // Set the internal communicator.
-    nemesis::set_internal_comm(d_comm_global);
+    nemesis::set_internal_comm(comm_global);
 
     // Create an empty list of message buffers.
     BufferList buffer_list;
 
     // Target physics posts receives.
-    if ( d_target->te() )
+    if ( transfer_data_field->target() )
     {
 	post_receives(buffer_list);
     }
 
     // Source physics sends buffers to target physics.
-    if ( d_source->te() )
+    if ( transfer_data_field->source() )
     {
 	send();
     }
 
     // Target physics processes buffers from source physics.
-    if ( d_target->te() )
+    if ( transfer_data_field->target() )
     {
 	process_requests(buffer_list);
     }
@@ -93,7 +86,9 @@ void Messenger<DataType_T>::communicate()
  * \param buffer_list List of buffers containing data.
  */
 template<class DataType_T>
-void Messenger<DataType_T>::post_receives(BufferList &buffer_list)
+void Messenger<DataType_T>::post_receives(
+    SP_Transfer_Data_Field transfer_data_field,
+    BufferList &buffer_list)
 {
     // Initialize.
     Message_Buffer_t &buffer;
@@ -102,16 +97,14 @@ void Messenger<DataType_T>::post_receives(BufferList &buffer_list)
     // Create the buffers and post the receives for each source process
     // sending to this target process.
     Set_Iterator src;
-    Set_Pair src_bound = 
-	d_source->get_map( d_target->name(), d_field_name )->sources(); 
+    Set_Pair src_bound = transfer_data_field->get_map()->sources(); 
 
     for ( src = src_bound.first(); src != src_bound.second(); ++src) 
     {
 	Check ( *src < nemesis::nodes() );
 
         // Compute the size of the buffer.
-	buffer_size = d_source->get_map( 
-	    d_target->name(), d_field_name )->range_size(src) 
+	buffer_size = transfer_data_field->get_map()->range_size(src)
 		      * ( sizeof(HandleType) + sizeof(DataType) );
 
 	// Create the buffer and add it to the list.
@@ -137,7 +130,7 @@ void Messenger<DataType_T>::post_receives(BufferList &buffer_list)
  * \brief Do asynchronous sends of data from source to target.
  */
 template<class DataType_T>
-void Messenger<DataType_T>::send()
+void Messenger<DataType_T>::send(SP_Transfer_Data_Field transfer_data_field)
 {
     // Initialize.
     denovo::Packer p;
@@ -156,8 +149,7 @@ void Messenger<DataType_T>::send()
 
     // Loop over the target partitions and send the data.    
     Set_Iterator destination;
-    Set_Pair destination_bound = 
-	d_source->get_map( d_target->name(), d_field_name )->targets();
+    Set_Pair destination_bound = transfer_data_field->get_map()->targets();
 
     for ( destination = destination_bound.first();
 	  destination != destination_bound.second();
@@ -169,8 +161,7 @@ void Messenger<DataType_T>::send()
 	buffer.clear();
 
         // Resize the buffer.
-	buffer_size = d_source->get_map( 
-	    d_target->name(), d_field_name )->domain_size(*destination) 
+	buffer_size = transfer_data_field->get_map()->domain_size(*destination)
 		      * ( sizeof(HandleType) + sizeof(DataType) );
 
 	buffer.resize(buffer_size);
@@ -179,8 +170,7 @@ void Messenger<DataType_T>::send()
         p.set_buffer( buffer.size(), &buffer[0] );
 
         // Get the handles we will send.
-	domain_bound = d_source->get_map( 
-	    d_target->name(), d_field_name )->domain(*destination);
+	domain_bound = transfer_data_field->get_map()->domain(*destination);
 
 	for (domain_it = domain_bound.first(); 
 	     domain_it != domain_bound.second();
@@ -190,7 +180,8 @@ void Messenger<DataType_T>::send()
 	}
 
 	// Get the data we will send.
-	data = d_source->te()->pull_data(d_field_name, handles, data);
+	data = transfer_data_field->source()->send_data( 
+	    d_field_name, handles, data);
 	Check ( handles.size() == data.size() );
 
 	// Pack the handles and data into a buffer.
@@ -217,7 +208,9 @@ void Messenger<DataType_T>::send()
  * \param buffer_list List of buffers containing data.
  */
 template<class DataType_T>
-void Messenger<DataType_T>::process_requests(BufferList &buffer_list)
+void Messenger<DataType_T>::process_requests(
+    SP_Transfer_Data_Field transfer_data_field,
+    BufferList &buffer_list)
 {
     // Initialize.
     denovo::Unpacker u;
@@ -259,8 +252,7 @@ void Messenger<DataType_T>::process_requests(BufferList &buffer_list)
             u.set_buffer( buffer.size(), &buffer[0] );
             
             // Unpack the data from the buffer.
-	    range_bound = d_source->get_map( 
-		d_target->name(), d_field_name )->range(src);
+	    range_bound = transfer_data_field->get_map()->range(src);
 
             for( range_it = range_bound.first();
 		 range_it != range_bound.second();
@@ -275,7 +267,8 @@ void Messenger<DataType_T>::process_requests(BufferList &buffer_list)
 	    
 	    // Push the data onto the targets.
 	    Check ( handles.size() == data.size() );
-	    d_target->te()->push_data(d_field_name, handles, data);
+	    transfer_data_field->target()->receive_data(
+		d_field_name, handles, data);
 
             // Remove this buffer from the list.
             buffer_list.erase(buffer_iter);
