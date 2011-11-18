@@ -1,8 +1,8 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/test/tstPhysics.cc
+ * \file   core/test/tstTransfer_Data_Source.cc
  * \author stuart
- * \date   Wed Nov 02 12:39:37 2011
+ * \date   Fri Nov 18 14:43:23 2011
  * \brief  
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
@@ -19,7 +19,7 @@
 #include "harness/Soft_Equivalence.hh"
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
-#include "release/Release.hh"
+#include "../Release.hh"
 
 using namespace std;
 using nemesis::Parallel_Unit_Test;
@@ -41,7 +41,7 @@ int nodes = 0;
 
 int main(int argc, char *argv[])
 {
-    Parallel_Unit_Test ut(argc, argv, coupler::release);
+    Parallel_Unit_Test ut(argc, argv, release);
 
     node  = nemesis::node();
     nodes = nemesis::nodes();
@@ -60,14 +60,14 @@ int main(int argc, char *argv[])
     }
     catch (std::exception &err)
     {
-        std::cout << "ERROR: While testing tstPhysics, " 
+        std::cout << "ERROR: While testing tstTransfer_Data_Source, " 
                   << err.what()
                   << endl;
         ut.numFails++;
     }
     catch( ... )
     {
-        std::cout << "ERROR: While testing tstPhysics, " 
+        std::cout << "ERROR: While testing tstTransfer_Data_Source, " 
                   << "An unknown exception was thrown."
                   << endl;
         ut.numFails++;
@@ -76,5 +76,5 @@ int main(int argc, char *argv[])
 }   
 
 //---------------------------------------------------------------------------//
-//                        end of tstPhysics.cc
+//                        end of tstTransfer_Data_Source.cc
 //---------------------------------------------------------------------------//
