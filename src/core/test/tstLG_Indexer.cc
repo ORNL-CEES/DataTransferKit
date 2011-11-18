@@ -20,12 +20,13 @@
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
 #include "release/Release.hh"
-#include "utils/SP.hh"
 #include "../LG_Indexer.hh"
+
+#include "Teuchos_RCP.hpp"
 
 using nemesis::Parallel_Unit_Test;
 using nemesis::soft_equiv;
-
+pppp
 int node  = 0;
 int nodes = 0;
 
@@ -64,7 +65,7 @@ void indexer_test(Parallel_Unit_Test &ut)
     typedef coupler::LG_Indexer        LG_Indexer_t;
 
     // Create the test app
-    denovo::SP<test_app> app_ptr( new test_app() );
+    Teuchos::RCP<test_app> app_ptr( new test_app() );
 
     // Create the local communicator object
     nemesis::Communicator_t local_comm;
