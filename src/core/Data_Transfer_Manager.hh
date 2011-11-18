@@ -18,7 +18,6 @@
 
 #include "Transfer_Data_Field.hh"
 #include "Transfer_Map.hh"
-#include "LG_Indexer.hh"
 #include "utils/SP.hh"
 #include "comm/global.hh"
 
@@ -46,7 +45,6 @@ class Data_Transfer_Manager
     typedef DataType_T                               DataType;
     typedef Transfer_Data_Field<DataType>            Transfer_Data_Field_t;
     typedef denovo::SP<Transfer_Data_Field_t>        SP_Transfer_Data_Field;
-    typedef denovo::SP<LG_Indexer>                   SP_LG_Indexer;
     typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
     typedef nemesis::Communicator_t                  Communicator;
     //@}
