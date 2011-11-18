@@ -84,36 +84,38 @@ class Mapper
   private:
 
     // Source physics post receives for buffer sizes.
-    void source_post_receive_size(const LG_Indexer &target_indexer,
+    void source_post_receive_size(LG_Indexer &target_indexer,
 				  BufferList &buffer_size_list);
 
     // Target physics sends point sizes to source.
-    void target_send_point_size(const LG_Indexer &source_indexer,
+    void target_send_point_size(SP_Transfer_Data_Field transfer_data_field,
+				LG_Indexer &source_indexer,
 				std::vector<CoordinateType> &coordinates,
 				std::vector<HandleType> &handles);
 
     // Source physics process requests for message sizes and post receives
     // for buffers.
-    void source_post_receive_buffer(const LG_Indexer &target_indexer,
+    void source_post_receive_buffer(LG_Indexer &target_indexer,
 				    BufferList &buffer_size_list,
 				    BufferList &buffer_list);
 
     // Target send points to source.
-    void target_send_points(const LG_Indexer &source_indexer,
+    void target_send_points(LG_Indexer &source_indexer,
 			    const std::vector<CoordinateType> &coordinates,
 			    const std::vector<HandleType> &handles);
 
     // Source physics process request and build part of the map.
-    void source_process_points(BufferList &buffer_list,
+    void source_process_points(SP_Transfer_Data_Field transfer_data_field, 
+			       BufferList &buffer_list,
 			       SP_Transfer_Map transfer_map);
 
     // Target physics post receives for return buffer size.
-    void target_post_receive_size(const LG_Indexer &source_indexer,
+    void target_post_receive_size(LG_Indexer &source_indexer,
 				  BufferList &buffer_size_list);
 
     // Source physics sends back the number of points it found in its domain
     // back to the target.
-    void source_send_point_size(const LG_Indexer &target_indexer,
+    void source_send_point_size(LG_Indexer &target_indexer,
 				SP_Transfer_Map transfer_map);
 
     // Target physics process request for message sizes and post receives.

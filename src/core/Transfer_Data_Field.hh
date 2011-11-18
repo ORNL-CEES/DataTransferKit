@@ -18,6 +18,7 @@
 #include "Transfer_Data_Source.hh"
 #include "Transfer_Data_Target.hh"
 #include "Transfer_Map.hh"
+#include "utils/SP.hh"
 
 namespace coupler
 {
@@ -78,7 +79,7 @@ class Transfer_Data_Field
     Transfer_Data_Field(const std::string &field_name,
 			SP_Transfer_Data_Source source,
 			SP_Transfer_Data_Target target,
-			bool scalar = false);
+			bool scalar);
 
     // Destructor.
     ~Transfer_Data_Field();
@@ -92,7 +93,7 @@ class Transfer_Data_Field
     { return d_source; }
 
     //! Get the transfer data target.
-    SP_Data_Transfer_Target target() 
+    SP_Transfer_Data_Target target() 
     { return d_target; }
     
     //! Set the topology map.

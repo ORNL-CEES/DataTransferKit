@@ -181,7 +181,7 @@ void Messenger<DataType_T>::send(SP_Transfer_Data_Field transfer_data_field)
 
 	// Get the data we will send.
 	data = transfer_data_field->source()->send_data( 
-	    d_field_name, handles, data);
+	    transfer_data_field->name(), handles, data);
 	Check ( handles.size() == data.size() );
 
 	// Pack the handles and data into a buffer.
@@ -268,7 +268,7 @@ void Messenger<DataType_T>::process_requests(
 	    // Push the data onto the targets.
 	    Check ( handles.size() == data.size() );
 	    transfer_data_field->target()->receive_data(
-		d_field_name, handles, data);
+		transfer_data_field->name(), handles, data);
 
             // Remove this buffer from the list.
             buffer_list.erase(buffer_iter);

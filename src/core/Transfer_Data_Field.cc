@@ -23,9 +23,9 @@ namespace coupler
 template<class DataType_T>
 Transfer_Data_Field<DataType_T>::Transfer_Data_Field(
     const std::string &field_name,
-    SP_Data_Transfer_Source source,
-    SP_Data_Transfer_Target target,
-    bool scalar = false)
+    SP_Transfer_Data_Source source,
+    SP_Transfer_Data_Target target,
+    bool scalar)
     : d_field_name(field_name)
     , d_source(source)
     , d_target(target)
@@ -52,7 +52,7 @@ Transfer_Data_Field<DataType_T>::~Transfer_Data_Field()
  * \brief Assign a topology map to the field.
  */
 template<class DataType_T>
-Transfer_Data_Field<DataType_T>::set_map(SP_Transfer_Map transfer_map)
+void Transfer_Data_Field<DataType_T>::set_map(SP_Transfer_Map transfer_map)
 {
     d_map = transfer_map;
     d_mapped = true;

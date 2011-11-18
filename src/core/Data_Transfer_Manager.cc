@@ -73,13 +73,13 @@ void Data_Transfer_Manager<DataType_T>::distributed_transfer(
     }
     
     // Check that the mapping has been applied.
-    Check ( transfer_data_field->is_mapped() )
+    Check ( transfer_data_field->is_mapped() );
 
     // Create a messenger.
-    Messenger<DataType> messenger(d_comm_global, transfer_data_field);
+    Messenger<DataType> messenger();
 
     // Transfer the field.
-    messenger.communicate();
+    messenger.communicate(d_comm_global, transfer_data_field);
 }
 
 //---------------------------------------------------------------------------//
@@ -96,10 +96,12 @@ void Data_Transfer_Manager<DataType_T>::scalar_transfer(
 
     // Source sets the scalar.
     DataType data;
-    transfer_data_field->source()->set_global_data(field_name, data);
+    transfer_data_field->source()->set_global_data(
+	transfer_data_field->name(), data);
 
     // Target gets the scalar.
-    transfer_data_field->target()->get_global_data(field_name, data);
+    transfer_data_field->target()->get_global_data(
+	transfer_data_field->name(), data);
 }
 
 //---------------------------------------------------------------------------//

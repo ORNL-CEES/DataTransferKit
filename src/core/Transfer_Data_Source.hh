@@ -52,13 +52,13 @@ class Transfer_Data_Source
     /*!
      * \brief Constructor.
      */
-    Data_Transfer_Source()
+    Transfer_Data_Source()
     { /* ... */ }
 
     /*!
      * \brief Destructor.
      */
-    virtual ~Data_Transfer_Source()
+    virtual ~Transfer_Data_Source()
     { /* ... */ }
 
     /*!

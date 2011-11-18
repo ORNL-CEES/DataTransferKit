@@ -84,7 +84,10 @@ void Mapper<DataType_T>::map(const Communicator &comm_global,
     // Target physics sends message buffer sizes to source.
     if ( transfer_data_field->target() )
     {
-	target_send_point_size(source_indexer, coordinates, handles);
+	target_send_point_size(transfer_data_field,
+			       source_indexer, 
+			       coordinates, 
+			       handles);
     }
 
     // Source physics processes requests and posts receives for the buffers.
@@ -105,7 +108,9 @@ void Mapper<DataType_T>::map(const Communicator &comm_global,
     // physics and builds the topology map. 
     if (transfer_data_field->source())
     {
-	source_process_points(buffer_list, transfer_map);
+	source_process_points(transfer_data_field,
+			      buffer_list, 
+			      transfer_map);
     }
 
     // Barrier after sending target points from the target physics to the
@@ -170,7 +175,7 @@ void Mapper<DataType_T>::map(const Communicator &comm_global,
  */
 template<class DataType_T>
 void Mapper<DataType_T>::source_post_receive_size(
-    const LG_Indexer &target_indexer,
+    LG_Indexer &target_indexer,
     BufferList &buffer_size_list)
 {
     // Initialize.
@@ -214,7 +219,8 @@ void Mapper<DataType_T>::source_post_receive_size(
  */
 template<class DataType_T>
 void Mapper<DataType_T>::target_send_point_size(
-    const LG_Indexer &source_indexer,
+    SP_Transfer_Data_Field transfer_data_field,
+    LG_Indexer &source_indexer,
     std::vector<CoordinateType> &coordinates,
     std::vector<HandleType> &handles)
 {
@@ -279,7 +285,7 @@ void Mapper<DataType_T>::target_send_point_size(
  */
 template<class DataType_T>
 void Mapper<DataType_T>::source_post_receive_buffer(
-    const LG_Indexer &target_indexer,
+    LG_Indexer &target_indexer,
     BufferList &buffer_size_list,
     BufferList &buffer_list)
 {
@@ -345,7 +351,7 @@ void Mapper<DataType_T>::source_post_receive_buffer(
  */
 template<class DataType_T>
 void Mapper<DataType_T>::target_send_points(
-    const LG_Indexer &source_indexer,
+    LG_Indexer &source_indexer,
     const std::vector<CoordinateType> &coordinates,
     const std::vector<HandleType> &handles)
 {
@@ -428,8 +434,10 @@ void Mapper<DataType_T>::target_send_points(
  * mapping algorithm.
  */
 template<class DataType_T>
-void Mapper<DataType_T>::source_process_points(BufferList &buffer_list,
-					       SP_Transfer_Map transfer_map)
+void Mapper<DataType_T>::source_process_points(
+    SP_Transfer_Data_Field transfer_data_field, 
+    BufferList &buffer_list,
+    SP_Transfer_Map transfer_map)
 {
     // Initialize.
     OrdinateType src;
@@ -503,7 +511,7 @@ void Mapper<DataType_T>::source_process_points(BufferList &buffer_list,
  */
 template<class DataType_T>
 void Mapper<DataType_T>::target_post_receive_size(
-    const LG_Indexer &source_indexer,
+    LG_Indexer &source_indexer,
     BufferList &buffer_size_list)
 {
     // Initialize.
@@ -543,7 +551,7 @@ void Mapper<DataType_T>::target_post_receive_size(
  */
 template<class DataType_T>
 void Mapper<DataType_T>::source_send_point_size(
-    const LG_Indexer &target_indexer, 
+    LG_Indexer &target_indexer, 
     SP_Transfer_Map transfer_map)
 {
     // Send the number of local points belonging to each target process.

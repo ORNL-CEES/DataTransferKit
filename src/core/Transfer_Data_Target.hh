@@ -46,13 +46,13 @@ class Transfer_Data_Target
     /*!
      * \brief Constructor.
      */
-    Data_Transfer_Target()
+    Transfer_Data_Target()
     { /* ... */ }
 
     /*!
      * \brief Destructor.
      */
-    virtual ~Data_Transfer_Target()
+    virtual ~Transfer_Data_Target()
     { /* ... */ }
 
     /*!

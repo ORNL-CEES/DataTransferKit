@@ -67,7 +67,7 @@ class Messenger
  public:
 
     // Constructor.
-    Messenger()
+    Messenger();
 
     // Destructor.
     ~Messenger();

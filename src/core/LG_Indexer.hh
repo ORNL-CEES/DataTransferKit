@@ -58,6 +58,8 @@ class LG_Indexer
                const Communicator &comm_local,
                denovo::SP<LocalApp> local_app);
 
+
+    //@{
     //! Convert application-local PID to global PID.
     OrdinateType l2g(OrdinateType local_pid) { return d_l2g_map[local_pid]; }
 
