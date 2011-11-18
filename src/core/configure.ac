@@ -33,7 +33,7 @@ dnl you need to uncomment AC_MPI_SETUP.
 
 AC_MPI_SETUP(pkg)
 dnl AC_SPRNG_SETUP(pkg)
-dnl AC_TRILINOS_SETUP(pkg)
+AC_TRILINOS_SETUP(pkg)
 dnl AC_LAPACK_SETUP(pkg)
 dnl AC_METIS_SETUP(pkg)
 dnl AC_GSL_SETUP(pkg)
