@@ -19,6 +19,14 @@ namespace coupler
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
+ * \param field_name The name of this field. Required by the
+ * Transfer_Data_Source and Transfer_Data_Target interfaces to check field
+ * support.
+ * \param source Transfer_Data_Source implementation that will serve as the
+ * data source for this field.
+ * \param target Transfer_Data_Target implementation that will serve as the
+ * target for this field.
+ * \param scalar Set to true if this field is scalar, false if distributed.
  */
 template<class DataType_T>
 Transfer_Data_Field<DataType_T>::Transfer_Data_Field(
@@ -50,6 +58,8 @@ Transfer_Data_Field<DataType_T>::~Transfer_Data_Field()
 //---------------------------------------------------------------------------//
 /*!
  * \brief Assign a topology map to the field.
+ * \param transfer_map The topology map being applied to this field to
+ * transfer from the source to the target.
  */
 template<class DataType_T>
 void Transfer_Data_Field<DataType_T>::set_map(SP_Transfer_Map transfer_map)

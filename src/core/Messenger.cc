@@ -27,8 +27,7 @@ namespace coupler
  */
 template<class DataType_T>
 Messenger<DataType_T>::Messenger()
-{
-}
+{ /* ... */}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -43,6 +42,10 @@ Messenger<DataType_T>::~Messenger()
 //---------------------------------------------------------------------------//
 /*!
  * \brief Communicate the field from the source to the target.
+ * \param comm_global The global communicator that communicate will operate
+ * on.
+ * \param transfer_data_field The Transfer_Data_Field that will be
+ * communicated.
  */
 template<class DataType_T>
 void Messenger<DataType_T>::communicate(
@@ -83,6 +86,8 @@ void Messenger<DataType_T>::communicate(
 //---------------------------------------------------------------------------//
 /*!
  * \brief Post asynchronous receives for the buffers.
+ * \param transfer_data_field The Transfer_Data_Field that will be
+ * communicated.
  * \param buffer_list List of buffers containing data.
  */
 template<class DataType_T>
@@ -128,6 +133,8 @@ void Messenger<DataType_T>::post_receives(
 //---------------------------------------------------------------------------//
 /*!
  * \brief Do asynchronous sends of data from source to target.
+ * \param transfer_data_field The Transfer_Data_Field that will be
+ * communicated.
  */
 template<class DataType_T>
 void Messenger<DataType_T>::send(SP_Transfer_Data_Field transfer_data_field)
@@ -205,6 +212,8 @@ void Messenger<DataType_T>::send(SP_Transfer_Data_Field transfer_data_field)
 //---------------------------------------------------------------------------//
 /*!
  * \brief Process the target requests and push the data onto the targets.
+ * \param transfer_data_field The Transfer_Data_Field that will be
+ * communicated.
  * \param buffer_list List of buffers containing data.
  */
 template<class DataType_T>

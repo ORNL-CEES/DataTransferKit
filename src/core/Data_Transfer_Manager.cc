@@ -85,7 +85,7 @@ void Data_Transfer_Manager<DataType_T>::distributed_transfer(
 //---------------------------------------------------------------------------//
 /*!
  * \brief Send a global scalar quantity from the source to the target.
- * \param transfer_data_field The the scalar field being transfered.
+ * \param transfer_data_field The scalar field being transfered.
  */
 template<class DataType_T>
 void Data_Transfer_Manager<DataType_T>::scalar_transfer(
