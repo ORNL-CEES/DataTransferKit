@@ -160,9 +160,6 @@ void Mapper<DataType_T>::map(const Communicator &comm_global,
     // Barrier after completion.
     nemesis::global_barrier();
 
-    // Add the new map to the source physics database.
-    d_source->set_map(d_target->name(), d_field_name, transfer_map);
-    
     // Reset the internal communicator.
     nemesis::reset_internal_comm();
 }
@@ -561,7 +558,7 @@ void Mapper<DataType_T>::source_send_point_size(
     {
 	// Get the global index for the target physics that the buffer is
 	// going to.
-	destination = d_target->indexer()->l2g(i);
+	destination = target_indexer()->l2g(i);
 
 	// Get the number of points in the domain.
 	buffer_size = transfer_map->domain_size(destination);
@@ -652,7 +649,7 @@ void Mapper<DataType_T>::source_send_handles(SP_Transfer_Map transfer_map)
     denovo::Packer p;
     Set_Iterator destination;
     Set_Pair destination_bound 	= 
-	d_source->get_map( d_target->name(), d_field_name )->targets();
+	transfer_map->targets();
 
     for (destination = destination_bound.first(); 
 	 destination != destination_bound.second(); 
