@@ -52,7 +52,7 @@ Data_Transfer_Manager<DataType_T>::~Data_Transfer_Manager()
  */
 template<class DataType_T>
 void Data_Transfer_Manager<DataType_T>::distributed_transfer(
-    SP_Data_Transfer_Field data_transfer_field)
+    SP_Transfer_Data_Field transfer_data_field)
 {
     // Require that the field is destributed.
     Require( !data_transfer_field->is_scalar() );
@@ -62,7 +62,7 @@ void Data_Transfer_Manager<DataType_T>::distributed_transfer(
     if ( !data_transfer_field->is_mapped() )
     {
 	// Create a mapper.
-	Mapper<DataType> mapper(d_comm_global, field_name, source, target);
+	Mapper<DataType> mapper(d_comm_global, transfer_data_field);
 
 	// Create a map.
 	SP_Transfer_Map transfer_map = new Transfer_Map();
@@ -75,7 +75,7 @@ void Data_Transfer_Manager<DataType_T>::distributed_transfer(
     }
     
     // Create a messenger.
-    Messenger<DataType> messenger(d_comm_global, data_transfer_field);
+    Messenger<DataType> messenger(d_comm_global, transfer_data_field);
 
     // Transfer the field.
     messenger.communicate();

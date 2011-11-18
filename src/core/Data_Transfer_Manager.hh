@@ -44,8 +44,8 @@ class Data_Transfer_Manager
     //@{
     //! Useful typedefs.
     typedef DataType_T                               DataType;
-    typedef Data_Transfer_Field<DataType>            Data_Transfer_Field_t;
-    typedef denovo::SP<Data_Transfer_Field_t>        SP_Data_Transfer_Field;
+    typedef Transfer_Data_Field<DataType>            Transfer_Data_Field_t;
+    typedef denovo::SP<Transfer_Data_Field_t>        SP_Transfer_Data_Field;
     typedef denovo::SP<LG_Indexer>                   SP_LG_Indexer;
     typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
     typedef nemesis::Communicator_t                  Communicator;
@@ -66,10 +66,10 @@ class Data_Transfer_Manager
 
     // Transfer data associated with a distributed field from a source physics
     // to a target physics. 
-    void distributed_transfer(SP_Data_Transfer_Field data_transfer_field);
+    void distributed_transfer(SP_Transfer_Data_Field transfer_data_field);
 
     // Transfer a scalar field from a source physics to a target physics.
-    void scalar_transfer(SP_Data_Transfer_Field data_transfer_field);
+    void scalar_transfer(SP_Transfer_Data_Field transfer_data_field);
 };
 
 } // end namespace coupler

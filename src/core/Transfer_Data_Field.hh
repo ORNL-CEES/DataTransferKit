@@ -45,10 +45,10 @@ class Transfer_Data_Field
     //@{
     //! Useful typedefs.
     typedef DataType_T                               DataType;
-    typedef Data_Transfer_Source<DataType>           Data_Transfer_Source_t;
-    typedef denovo::SP<Data_Transfer_Source_t>       SP_Data_Transfer_Source;
-    typedef Data_Transfer_Target<DataType>           Data_Transfer_Target_t;
-    typedef denovo::SP<Data_Transfer_Target_t>       SP_Data_Transfer_Target;
+    typedef Transfer_Data_Source<DataType>           Transfer_Data_Source_t;
+    typedef denovo::SP<Transfer_Data_Source_t>       SP_Transfer_Data_Source;
+    typedef Transfer_Data_Target<DataType>           Transfer_Data_Target_t;
+    typedef denovo::SP<Transfer_Data_Target_t>       SP_Transfer_Data_Target;
     typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
     //@}
 
@@ -58,10 +58,10 @@ class Transfer_Data_Field
     std::string d_field_name;
 
     // Data transfer source implemenation.
-    SP_Data_Transfer_Source d_source;
+    SP_Transfer_Data_Source d_source;
 
     // Data transfer target implemenation.
-    SP_Data_Transfer_Target d_target;
+    SP_Transfer_Data_Target d_target;
 
     // Topology map for transfer from the source to the target.
     SP_Transfer_Map d_map;
@@ -76,8 +76,8 @@ class Transfer_Data_Field
 
     // Constructor.
     Transfer_Data_Field(const std::string &field_name,
-			SP_Data_Transfer_Source source,
-			SP_Data_Transfer_Target target,
+			SP_Transfer_Data_Source source,
+			SP_Transfer_Data_Target target,
 			bool scalar = false);
 
     // Destructor.
@@ -88,7 +88,7 @@ class Transfer_Data_Field
     { return d_field_name; }
 
     //! Get the transfer data source.
-    SP_Data_Transfer_Source source() 
+    SP_Transfer_Data_Source source() 
     { return d_source; }
 
     //! Get the transfer data target.
