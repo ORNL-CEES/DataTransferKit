@@ -180,7 +180,7 @@ void Mapper<DataType_T>::source_post_receive_size(
     // Post receives for each target process.
     OrdinateType src;
     OrdinateType begin_target = 0;
-    OrdinateType end_target = target_indexer->size();
+    OrdinateType end_target = target_indexer.size();
     
     for ( src = begin_target; src != end_target; ++src)
     {
@@ -200,7 +200,7 @@ void Mapper<DataType_T>::source_post_receive_size(
     }
 
     // Make sure we made all of the buffers we're going to receive.
-    Check ( buffer_size_list.size() == target_indexer->size() );
+    Check ( buffer_size_list.size() == target_indexer.size() );
 }
 
 //---------------------------------------------------------------------------//
@@ -219,7 +219,9 @@ void Mapper<DataType_T>::target_send_point_size(
     std::vector<HandleType> &handles)
 {
     // Target physics registers its target points for the field being mapped.
-    transfer_data_field->target()->register_points(d_field_name, handles, coordinates);
+    transfer_data_field->target()->set_points(transfer_data_field->name(),
+					      handles,
+					      coordinates);
 
     Check( coordinates.size() % 3 == 0 );
     Check( coordinates.size() / 3 == handles.size() );
@@ -252,13 +254,13 @@ void Mapper<DataType_T>::target_send_point_size(
     OrdinateType i;
     OrdinateType destination;
     OrdinateType begin_source = 0;
-    OrdinateType end_source = source_indexer->size();
+    OrdinateType end_source = source_indexer.size();
 
     for (i = begin_source; i < end_source; ++i)
     {
 	// Get the global index for the source physics that the buffer is
 	// going to.
-	destination = source_indexer->l2g(i);
+	destination = source_indexer.l2g(i);
 
 	// Send a message to the source with the size of the buffer that
 	// it will get. 
@@ -328,7 +330,7 @@ void Mapper<DataType_T>::source_post_receive_buffer(
 	}
 
 	// Make sure we made all of the buffers we're going to receive.
-	Check ( buffer_list.size() == target_indexer->size() );
+	Check ( buffer_list.size() == target_indexer.size() );
     }
 }
 
@@ -401,13 +403,13 @@ void Mapper<DataType_T>::target_send_points(
     OrdinateType i;
     OrdinateType destination;
     OrdinateType begin_source = 0;
-    OrdinateType end_source = source_indexer->size();
+    OrdinateType end_source = source_indexer.size();
 
     for (i = begin_source; i < end_source; ++i)
     {
 	// Get the global index for the source physics that the buffer is
 	// going to.
-	destination = source_indexer->l2g(i);
+	destination = source_indexer.l2g(i);
 
 	// Send the buffer of points.
 	if (buffer_size > 0)
@@ -463,7 +465,8 @@ void Mapper<DataType_T>::source_process_points(BufferList &buffer_list,
 	    if (buffer_size > 0)
 	    {
 		// Compute the number of points in the buffer.
-		num_points = buffer_size / ( sizeof(CoordinateType) * 3 + sizeof(HandleType));
+		num_points = buffer_size / ( sizeof(CoordinateType) * 3 
+					     + sizeof(HandleType) );
 
 		// Unpack the buffer.
 		u.set_buffer(buffer_size, &buffer[0]);
@@ -477,7 +480,8 @@ void Mapper<DataType_T>::source_process_points(BufferList &buffer_list,
 
 		    // See if this point is in the spatial domain of this
 		    // source process.
-		    if ( transfer_data_field->source()->find_point(handle, x, y, z) )
+		    if ( transfer_data_field->source()->get_points(
+			     handle, x, y, z) )
 		    {
 			// Add the handle to the map with the target rank.
 			transfer_map->add_domain_pair(src, handle);
@@ -509,7 +513,7 @@ void Mapper<DataType_T>::target_post_receive_size(
     // Post receives for each source process.
     OrdinateType src;
     OrdinateType begin_source = 0;
-    OrdinateType end_source = source_indexer->size();
+    OrdinateType end_source = source_indexer.size();
     
     for ( src = begin_source; src != end_source; ++src)
     {
@@ -529,7 +533,7 @@ void Mapper<DataType_T>::target_post_receive_size(
     }
 
     // Make sure we made all of the buffers we're going to receive.
-    Check ( buffer_size_list.size() == source_indexer->size() );
+    Check ( buffer_size_list.size() == source_indexer.size() );
 }
 
 //---------------------------------------------------------------------------//
@@ -547,13 +551,13 @@ void Mapper<DataType_T>::source_send_point_size(
     OrdinateType i;
     OrdinateType destination;
     OrdinateType begin_target = 0;
-    OrdinateType end_target = d_target->indexer()->size();
+    OrdinateType end_target = target_indexer.size();
 
     for (i = begin_target; i < end_target; ++i)
     {
 	// Get the global index for the target physics that the buffer is
 	// going to.
-	destination = target_indexer()->l2g(i);
+	destination = target_indexer.l2g(i);
 
 	// Get the number of points in the domain.
 	buffer_size = transfer_map->domain_size(destination);
@@ -643,8 +647,7 @@ void Mapper<DataType_T>::source_send_handles(SP_Transfer_Map transfer_map)
     int buffer_size;
     denovo::Packer p;
     Set_Iterator destination;
-    Set_Pair destination_bound 	= 
-	transfer_map->targets();
+    Set_Pair destination_bound = transfer_map->targets();
 
     for (destination = destination_bound.first(); 
 	 destination != destination_bound.second(); 
