@@ -18,7 +18,8 @@ namespace coupler
 //===========================================================================//
 /*!
  * \class Transfer_Data_Target
- * \brief Interface defintion for transfer data targets.
+ * \brief Definition of the interface for applications acting as a data target
+ * in multiphysics coupling.
  *
  * This interface is templated on the type of field data being
  * transfered. Handle type is fixed to integer and coordinate type is fixed to

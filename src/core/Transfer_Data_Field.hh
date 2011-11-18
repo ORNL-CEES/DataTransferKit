@@ -26,9 +26,8 @@ namespace coupler
 //===========================================================================//
 /*!
  * \class Transfer_Data_Field
- * \brief Field type for data transfers. This exists for more explicit in the
- * coupler user interface.
- *
+ * \brief Field type for data transfers. This exists for more a explicit
+ * defintion of fields in the coupler user interface.
  */
 /*! 
  * \example core/test/tstTransfer_Data_Field.cc
