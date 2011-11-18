@@ -62,13 +62,13 @@ void Data_Transfer_Manager<DataType_T>::distributed_transfer(
     if ( !transfer_data_field->is_mapped() )
     {
 	// Create a mapper.
-	Mapper<DataType> mapper(d_comm_global, transfer_data_field);
+	Mapper<DataType> mapper;
 
 	// Create a map.
 	SP_Transfer_Map transfer_map = new Transfer_Map();
 
 	// Generate the map.
-	mapper.map(transfer_map);
+	mapper.map(d_comm_global, transfer_data_field, transfer_map);
 
 	// Add the new map to the database.
 	transfer_data_field->set_map(transfer_map);

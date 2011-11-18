@@ -54,7 +54,7 @@ class LG_Indexer
 
     // Constructor.
     template<class LocalApp>
-    LG_Indexer(const Communicator &comm_world, 
+    LG_Indexer(const Communicator &comm_global, 
                const Communicator &comm_local,
                denovo::SP<LocalApp> local_app);
 

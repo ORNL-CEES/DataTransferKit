@@ -30,14 +30,7 @@ namespace coupler
  * \param target Smart pointer to target physics.
  */
 template<class DataType_T>
-Mapper<DataType_T>::Mapper(const Communicator &comm_global,
-			   const std::string &field_name,
-			   SP_Physics source,
-			   SP_Physics target)
-    : d_comm_global(comm_global)
-    , d_field_name(field_name)
-    , d_source(source)
-    , d_target(target)
+Mapper<DataType_T>::Mapper()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -56,22 +49,35 @@ Mapper<DataType_T>::~Mapper()
  * \brief Map the field from the source onto the target.
  */
 template<class DataType_T>
-void Mapper<DataType_T>::map()
+void Mapper<DataType_T>::map(const Communicator &comm_global,
+			     SP_Transfer_Data_Field transfer_data_field,
+			     SP_Transfer_Map transfer_map)
 {
     // Set the internal communicator.
-    nemesis::set_internal_comm(d_comm_global);
-
-    // Initialize a map.
-    SP_Transfer_Map new_map = new Transfer_Map();
+    nemesis::set_internal_comm(comm_global);
 
     // Create an empty list of message buffers.
     BufferList buffer_size_list;
     BufferList buffer_list;
 
+    // Get communicators.
+    Communicator source_comm, target_comm;
+    transfer_data_field->source()->register_comm(source_comm);
+    transfer_data_field->target()->register_comm(target_comm);
+
+    // Generate indexers.
+    LG_Indexer source_indexer(comm_global,
+			      source_comm,
+			      transfer_data_field->source());
+
+    LG_Indexer target_indexer(comm_global,
+			      target_comm,
+			      transfer_data_field->target());
+
     // Source physics post receives for the message buffer size.
-    if ( d_source->te() )
+    if ( transfer_data_field->source() )
     {
-	source_post_receive_size(new_map, buffer_size_list);
+	source_post_receive_size(target_indexer, buffer_size_list);
     }
 
     // Target point coordinate vector.
@@ -81,28 +87,30 @@ void Mapper<DataType_T>::map()
     std::vector<HandleType> handles;
 
     // Target physics sends message buffer sizes to source.
-    if ( d_target->te() )
+    if ( transfer_data_field->target() )
     {
-	target_send_point_size(coordinates, handles);
+	target_send_point_size(source_indexer, coordinates, handles);
     }
 
     // Source physics processes requests and posts receives for the buffers.
-    if ( d_source->te() )
+    if ( transfer_data_field->source() )
     {
-	source_post_receive_buffer(buffer_size_list, buffer_list);
+	source_post_receive_buffer(target_indexer, 
+				   buffer_size_list, 
+				   buffer_list);
     }
 
     // Target send buffers with points to the source.
-    if ( d_target->te() )
+    if ( transfer_data_field->target() )
     {
-	target_send_points(coordinates, handles);
+	target_send_points(source_indexer, coordinates, handles);
     }
 
     // Source physics processes requests of target points from the target
     // physics and builds the topology map. 
-    if (d_source->te())
+    if (transfer_data_field->source())
     {
-	source_process_points(buffer_list, new_map);
+	source_process_points(buffer_list, transfer_map);
     }
 
     // Barrier after sending target points from the target physics to the
@@ -116,44 +124,44 @@ void Mapper<DataType_T>::map()
     // Target physics post receives for the return communication of which
     // handles were found in the source domain. These are requests are for the
     // size of that communication.
-    if ( d_target->te() )
+    if ( transfer_data_field->target() )
     {
-	target_post_receive_size(buffer_size_list);
+	target_post_receive_size(source_indexer, buffer_size_list);
     }
 
     // Source physics sends the number of points it found in its domain back
     // to the target.
-    if ( d_source->te() )
+    if ( transfer_data_field->source() )
     {
-	source_send_point_size(new_map);
+	source_send_point_size(target_indexer, transfer_map);
     }
     
     // Target physics processes requests for the number of points from the
     // source and then posts receives if that number is greater than zero.
-    if ( d_target->te() )
+    if ( transfer_data_field->target() )
     {
 	target_post_receive_buffer(buffer_size_list, buffer_list);
     }
 
     // Source physics sends target point handles it found in its domain back
     // to the target.
-    if ( d_source->te() )
+    if ( transfer_data_field->source() )
     {
-	source_send_handles(new_map);
+	source_send_handles(transfer_map);
     }
 
     // Target physics processes requests for handles from the source and
     // completes the map.
-    if (d_target->te())
+    if (transfer_data_field->target())
     {
-	target_process_handles(buffer_list, new_map);
+	target_process_handles(buffer_list, transfer_map);
     }
 
     // Barrier after completion.
     nemesis::global_barrier();
 
     // Add the new map to the source physics database.
-    d_source->set_map(d_target->name(), d_field_name, new_map);
+    d_source->set_map(d_target->name(), d_field_name, transfer_map);
     
     // Reset the internal communicator.
     nemesis::reset_internal_comm();
@@ -170,6 +178,7 @@ void Mapper<DataType_T>::map()
  */
 template<class DataType_T>
 void Mapper<DataType_T>::source_post_receive_size(
+    const LG_Indexer &target_indexer,
     BufferList &buffer_size_list)
 {
     // Initialize.
@@ -179,7 +188,7 @@ void Mapper<DataType_T>::source_post_receive_size(
     // Post receives for each target process.
     OrdinateType src;
     OrdinateType begin_target = 0;
-    OrdinateType end_target = d_target->indexer()->size();
+    OrdinateType end_target = target_indexer->size();
     
     for ( src = begin_target; src != end_target; ++src)
     {
@@ -199,7 +208,7 @@ void Mapper<DataType_T>::source_post_receive_size(
     }
 
     // Make sure we made all of the buffers we're going to receive.
-    Check ( buffer_size_list.size() == d_target->indexer()->size() );
+    Check ( buffer_size_list.size() == target_indexer->size() );
 }
 
 //---------------------------------------------------------------------------//
@@ -213,11 +222,12 @@ void Mapper<DataType_T>::source_post_receive_size(
  */
 template<class DataType_T>
 void Mapper<DataType_T>::target_send_point_size(
+    const LG_Indexer &source_indexer,
     std::vector<CoordinateType> &coordinates,
     std::vector<HandleType> &handles)
 {
     // Target physics registers its target points for the field being mapped.
-    d_target->te()->register_points(d_field_name, handles, coordinates);
+    transfer_data_field->target()->register_points(d_field_name, handles, coordinates);
 
     Check( coordinates.size() % 3 == 0 );
     Check( coordinates.size() / 3 == handles.size() );
@@ -250,13 +260,13 @@ void Mapper<DataType_T>::target_send_point_size(
     OrdinateType i;
     OrdinateType destination;
     OrdinateType begin_source = 0;
-    OrdinateType end_source = d_source->indexer()->size();
+    OrdinateType end_source = source_indexer->size();
 
     for (i = begin_source; i < end_source; ++i)
     {
 	// Get the global index for the source physics that the buffer is
 	// going to.
-	destination = d_source->indexer()->l2g(i);
+	destination = source_indexer->l2g(i);
 
 	// Send a message to the source with the size of the buffer that
 	// it will get. 
@@ -275,6 +285,7 @@ void Mapper<DataType_T>::target_send_point_size(
  */
 template<class DataType_T>
 void Mapper<DataType_T>::source_post_receive_buffer(
+    const LG_Indexer &target_indexer,
     BufferList &buffer_size_list,
     BufferList &buffer_list)
 {
@@ -325,7 +336,7 @@ void Mapper<DataType_T>::source_post_receive_buffer(
 	}
 
 	// Make sure we made all of the buffers we're going to receive.
-	Check ( buffer_list.size() == d_target->indexer()->size() );
+	Check ( buffer_list.size() == target_indexer->size() );
     }
 }
 
@@ -340,6 +351,7 @@ void Mapper<DataType_T>::source_post_receive_buffer(
  */
 template<class DataType_T>
 void Mapper<DataType_T>::target_send_points(
+    const LG_Indexer &source_indexer,
     const std::vector<CoordinateType> &coordinates,
     const std::vector<HandleType> &handles)
 {
@@ -397,13 +409,13 @@ void Mapper<DataType_T>::target_send_points(
     OrdinateType i;
     OrdinateType destination;
     OrdinateType begin_source = 0;
-    OrdinateType end_source = d_source->indexer()->size();
+    OrdinateType end_source = source_indexer->size();
 
     for (i = begin_source; i < end_source; ++i)
     {
 	// Get the global index for the source physics that the buffer is
 	// going to.
-	destination = d_source->indexer()->l2g(i);
+	destination = source_indexer->l2g(i);
 
 	// Send the buffer of points.
 	if (buffer_size > 0)
@@ -418,12 +430,12 @@ void Mapper<DataType_T>::target_send_points(
  * \brief Source physics process request and build part of the map.
  * \param buffer_list Buffer list of buffers containing points from target
  * processes. 
- * \param new_map Smart pointer to the transfer map being generated by the
+ * \param transfer_map Smart pointer to the transfer map being generated by the
  * mapping algorithm.
  */
 template<class DataType_T>
 void Mapper<DataType_T>::source_process_points(BufferList &buffer_list,
-					       SP_Transfer_Map new_map)
+					       SP_Transfer_Map transfer_map)
 {
     // Initialize.
     OrdinateType src;
@@ -473,10 +485,10 @@ void Mapper<DataType_T>::source_process_points(BufferList &buffer_list,
 
 		    // See if this point is in the spatial domain of this
 		    // source process.
-		    if ( d_source->te()->find_point(handle, x, y, z) )
+		    if ( transfer_data_field->source()->find_point(handle, x, y, z) )
 		    {
 			// Add the handle to the map with the target rank.
-			new_map->add_domain_pair(src, handle);
+			transfer_map->add_domain_pair(src, handle);
 		    }
 		}
 
@@ -494,7 +506,9 @@ void Mapper<DataType_T>::source_process_points(BufferList &buffer_list,
  * handles from each source process.
  */
 template<class DataType_T>
-void Mapper<DataType_T>::target_post_receive_size(BufferList &buffer_size_list)
+void Mapper<DataType_T>::target_post_receive_size(
+    const LG_Indexer &source_indexer,
+    BufferList &buffer_size_list)
 {
     // Initialize.
     Message_Buffer_t &buffer;
@@ -503,7 +517,7 @@ void Mapper<DataType_T>::target_post_receive_size(BufferList &buffer_size_list)
     // Post receives for each source process.
     OrdinateType src;
     OrdinateType begin_source = 0;
-    OrdinateType end_source = d_source->indexer()->size();
+    OrdinateType end_source = source_indexer->size();
     
     for ( src = begin_source; src != end_source; ++src)
     {
@@ -523,7 +537,7 @@ void Mapper<DataType_T>::target_post_receive_size(BufferList &buffer_size_list)
     }
 
     // Make sure we made all of the buffers we're going to receive.
-    Check ( buffer_size_list.size() == d_source->indexer()->size() );
+    Check ( buffer_size_list.size() == source_indexer->size() );
 }
 
 //---------------------------------------------------------------------------//
@@ -532,7 +546,9 @@ void Mapper<DataType_T>::target_post_receive_size(BufferList &buffer_size_list)
  * domain back to the target.
  */
 template<class DataType_T>
-void Mapper<DataType_T>::source_send_point_size(SP_Transfer_Map new_map)
+void Mapper<DataType_T>::source_send_point_size(
+    const LG_Indexer &target_indexer, 
+    SP_Transfer_Map transfer_map)
 {
     // Send the number of local points belonging to each target process.
     int buffer_size;
@@ -548,7 +564,7 @@ void Mapper<DataType_T>::source_send_point_size(SP_Transfer_Map new_map)
 	destination = d_target->indexer()->l2g(i);
 
 	// Get the number of points in the domain.
-	buffer_size = new_map->domain_size(destination);
+	buffer_size = transfer_map->domain_size(destination);
 
 	// Send a message to the target with the size of the buffer that
 	// it will get. 
@@ -624,11 +640,11 @@ void Mapper<DataType_T>::target_post_receive_buffer(
 //---------------------------------------------------------------------------//
 /*! 
  * \brief Source physics sends its point handles to the targets.
- * \param new_map Smart pointer to the Transfer_Map being generated by the
+ * \param transfer_map Smart pointer to the Transfer_Map being generated by the
  * mapping algorithm.
  */
 template<class DataType_T>
-void Mapper<DataType_T>::source_send_handles(SP_Transfer_Map new_map)
+void Mapper<DataType_T>::source_send_handles(SP_Transfer_Map transfer_map)
 {
     // For every unique target physics rank in the map, send back the
     // points found in the local domain.
@@ -643,7 +659,7 @@ void Mapper<DataType_T>::source_send_handles(SP_Transfer_Map new_map)
 	 ++destination)
     {
 	// Get the domain iterators for this target rank.
-	Map_Pair domain_pair = new_map->domain(*destination);
+	Map_Pair domain_pair = transfer_map->domain(*destination);
 	Map_Iterator map_it;
 	    
 	// Compute the size of the buffer.
@@ -676,12 +692,12 @@ void Mapper<DataType_T>::source_send_handles(SP_Transfer_Map new_map)
  * \brief Target physics processes handle requests and completes the mapping.
  * \param buffer_list Buffer list of buffers containing points from target
  * processes. 
- * \param new_map Smart pointer to the transfer map being generated by the
+ * \param transfer_map Smart pointer to the transfer map being generated by the
  * mapping algorithm.
  */
 template<class DataType_T>
 void Mapper<DataType_T>::target_process_handles(BufferList &buffer_list,
-						SP_Transfer_Map new_map)
+						SP_Transfer_Map transfer_map)
 {
     // Initialize.
     OrdinateType src;
@@ -725,7 +741,7 @@ void Mapper<DataType_T>::target_process_handles(BufferList &buffer_list,
 		{
 		    u >> handle;
 
-		    new_map->add_range_pair(src, handle);
+		    transfer_map->add_range_pair(src, handle);
 		}
 	    }
 	}

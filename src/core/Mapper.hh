@@ -17,9 +17,10 @@
 #include <list>
 #include <vector>
 
+#include "Transfer_Data_Field.hh"
 #include "Transfer_Map.hh"
 #include "Message_Buffer.hh"
-#include "Physics.hh"
+#include "LG_Indexer.hh"
 #include "utils/SP.hh"
 #include "utils/Packing_Utils.hh"
 #include "comm/global.hh"
@@ -57,8 +58,8 @@ class Mapper
     typedef typename Message_Buffer_t::Buffer     Buffer;
     typedef std::list<Message_Buffer_t>           BufferList;
     typedef typename BufferList::iterator         BufferList_Iterator;
-    typedef Physics<DataType>                     Physics_t;
-    typedef denovo::SP<Physics_t>                 SP_Physics;
+    typedef Transfer_Data_Field<DataType>         Transfer_Data_Field_t;
+    typedef denovo::SP<Transfer_Data_Field_t>     SP_Transfer_Data_Field;
     typedef nemesis::Communicator_t               Communicator;
     typedef denovo::SP<Transfer_Map>              SP_Transfer_Map;
     typedef typename Transfer_Map::Map_Iterator   Map_Iterator;
@@ -72,68 +73,64 @@ class Mapper
     // Global communicator.
     const Communicator &d_comm_global;
 
-    // Field name.
-    const std::string &d_field_name;
-
-    // Source physics.
-    SP_Physics d_source;
-
-    // Target physics.
-    SP_Physics d_target;
-
   public:
 
     // Constructor.
-    Mapper(const Communicator &comm_global,
-	   const std::string &field_name,
-	   SP_Physics source,
-	   SP_Physics target);
+    Mapper();
 
     // Destructor.
     ~Mapper();
 
     // Map the field from the source onto the target.
-    void map();
+    void map(const Communicator &comm_global,
+	     SP_Transfer_Data_Field transfer_data_field,
+	     SP_Transfer_Map transfer_map);
 
   private:
 
     // Source physics post receives for buffer sizes.
-    void source_post_receive_size(BufferList &buffer_size_list);
+    void source_post_receive_size(const LG_Indexer &target_indexer,
+				  BufferList &buffer_size_list);
 
     // Target physics sends point sizes to source.
-    void target_send_point_size(std::vector<CoordinateType> &coordinates,
+    void target_send_point_size(const LG_Indexer &source_indexer,
+				std::vector<CoordinateType> &coordinates,
 				std::vector<HandleType> &handles);
 
     // Source physics process requests for message sizes and post receives
     // for buffers.
-    void source_post_receive_buffer(BufferList &buffer_size_list,
+    void source_post_receive_buffer(const LG_Indexer &target_indexer,
+				    BufferList &buffer_size_list,
 				    BufferList &buffer_list);
 
     // Target send points to source.
-    void target_send_points(const std::vector<CoordinateType> &coordinates,
+    void target_send_points(const LG_Indexer &source_indexer,
+			    const std::vector<CoordinateType> &coordinates,
 			    const std::vector<HandleType> &handles);
 
     // Source physics process request and build part of the map.
     void source_process_points(BufferList &buffer_list,
-			       SP_Transfer_Map new_map);
+			       SP_Transfer_Map transfer_map);
 
     // Target physics post receives for return buffer size.
-    void target_post_receive_size(BufferList &buffer_size_list);
+    void target_post_receive_size(const LG_Indexer &source_indexer,
+				  BufferList &buffer_size_list);
 
     // Source physics sends back the number of points it found in its domain
     // back to the target.
-    void source_send_point_size(SP_Transfer_Map new_map);
+    void source_send_point_size(const LG_Indexer &target_indexer,
+				SP_Transfer_Map transfer_map);
 
     // Target physics process request for message sizes and post receives.
     void target_post_receive_buffer(BufferList &buffer_size_list,
 				    BufferList &buffer_list);
 
     // Source physics sends its point handles to the targets.
-    void source_send_handles(SP_Transfer_Map new_map);
+    void source_send_handles(SP_Transfer_Map transfer_map);
     
     // Target physics processes handle requests and completes the mapping.
     void target_process_handles(BufferList &buffer_list,
-				SP_Transfer_Map new_map);
+				SP_Transfer_Map transfer_map);
 };
 
 } // end namespace coupler

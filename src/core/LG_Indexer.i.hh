@@ -22,11 +22,11 @@ namespace coupler
 /*!
  * \brief LG_Indexer constructor.
  *
- * \param comm_world Communicator that contains the entire coupled simulation.
+ * \param comm_global Communicator that contains the entire coupled simulation.
  * \param comm_local Communicator for the local application being indexed.
  */
 template<class LocalApp>
-LG_Indexer::LG_Indexer(const Communicator &comm_world, 
+LG_Indexer::LG_Indexer(const Communicator &comm_global, 
                        const Communicator &comm_local,
                        denovo::SP<LocalApp> local_app)
 {
@@ -41,8 +41,8 @@ LG_Indexer::LG_Indexer(const Communicator &comm_world,
     nemesis::set_internal_comm(comm_local);
     OrdinateType local_id = nemesis::node();
 
-    // Get global information from comm_world.
-    nemesis::set_internal_comm(comm_world);
+    // Get global information from comm_global.
+    nemesis::set_internal_comm(comm_global);
 
     // Make a vector of local ids everywhere.
     Vec_Ordinate local_ids(nemesis::nodes(), 0);
