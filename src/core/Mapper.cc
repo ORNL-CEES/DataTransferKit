@@ -50,8 +50,8 @@ Mapper<DataType_T>::~Mapper()
  */
 template<class DataType_T>
 void Mapper<DataType_T>::map(const Communicator &comm_global,
-			     SP_Transfer_Data_Field transfer_data_field,
-			     SP_Transfer_Map transfer_map)
+			     RCP_Transfer_Data_Field transfer_data_field,
+			     RCP_Transfer_Map transfer_map)
 {
     // Set the internal communicator.
     nemesis::set_internal_comm(comm_global);
@@ -217,7 +217,7 @@ void Mapper<DataType_T>::source_post_receive_size(
  */
 template<class DataType_T>
 void Mapper<DataType_T>::target_send_point_size(
-    SP_Transfer_Data_Field transfer_data_field,
+    RCP_Transfer_Data_Field transfer_data_field,
     LG_Indexer &source_indexer,
     std::vector<CoordinateType> &coordinates,
     std::vector<HandleType> &handles)
@@ -420,9 +420,9 @@ void Mapper<DataType_T>::target_send_points(
  */
 template<class DataType_T>
 void Mapper<DataType_T>::source_process_points(
-    SP_Transfer_Data_Field transfer_data_field, 
+    RCP_Transfer_Data_Field transfer_data_field, 
     BufferList &buffer_list,
-    SP_Transfer_Map transfer_map)
+    RCP_Transfer_Map transfer_map)
 {
     // Initialize.
     OrdinateType src;
@@ -535,7 +535,7 @@ void Mapper<DataType_T>::target_post_receive_size(
 template<class DataType_T>
 void Mapper<DataType_T>::source_send_point_size(
     LG_Indexer &target_indexer, 
-    SP_Transfer_Map transfer_map)
+    RCP_Transfer_Map transfer_map)
 {
     // Send the number of local points belonging to each target process.
     int buffer_size;
@@ -625,7 +625,7 @@ void Mapper<DataType_T>::target_post_receive_buffer(
  * \brief Source physics sends its point handles to the targets.
  */
 template<class DataType_T>
-void Mapper<DataType_T>::source_send_handles(SP_Transfer_Map transfer_map)
+void Mapper<DataType_T>::source_send_handles(RCP_Transfer_Map transfer_map)
 {
     // For every unique target physics rank in the map, send back the
     // points found in the local domain.
@@ -673,7 +673,7 @@ void Mapper<DataType_T>::source_send_handles(SP_Transfer_Map transfer_map)
  */
 template<class DataType_T>
 void Mapper<DataType_T>::target_process_handles(BufferList &buffer_list,
-						SP_Transfer_Map transfer_map)
+						RCP_Transfer_Map transfer_map)
 {
     // Initialize.
     OrdinateType src;

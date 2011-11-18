@@ -19,9 +19,9 @@
 #include "Transfer_Map.hh"
 #include "Message_Buffer.hh"
 #include "Transfer_Data_Field.hh"
-#include "utils/SP.hh"
 #include "utils/Packing_Utils.hh"
 #include "comm/global.hh"
+#include "Teuchos_RCP.hpp"
 
 namespace coupler
 {
@@ -55,8 +55,8 @@ class Messenger
     typedef std::list<Message_Buffer_t>              BufferList;
     typedef typename BufferList::iterator            BufferList_Iterator;
     typedef Transfer_Data_Field<DataType>            Transfer_Data_Field_t;
-    typedef denovo::SP<Transfer_Data_Field_t>        SP_Transfer_Data_Field;
-    typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
+    typedef Teuchos::RCP<Transfer_Data_Field_t>      RCP_Transfer_Data_Field;
+    typedef Teuchos::RCP<Transfer_Map>               RCP_Transfer_Map;
     typedef typename Transfer_Map::Map_Iterator      Map_Iterator;
     typedef typename Transfer_Map::Map_Pair          Map_Pair;
     typedef typename Transfer_Map::Set_Iterator      Set_Iterator;
@@ -74,19 +74,19 @@ class Messenger
 
     // Communicate the field from the source to the target.
     void communicate(const Communicator &comm_global,
-		     SP_Transfer_Data_Field transfer_data_field);
+		     RCP_Transfer_Data_Field transfer_data_field);
 
   private:
 
     // Target post receives.
-    void post_receives(SP_Transfer_Data_Field transfer_data_field,
+    void post_receives(RCP_Transfer_Data_Field transfer_data_field,
 		       BufferList &buffer_list);
 
     // Source send data.
-    void send(SP_Transfer_Data_Field transfer_data_field);
+    void send(RCP_Transfer_Data_Field transfer_data_field);
 
     // Process the target requests.
-    void process_requests(SP_Transfer_Data_Field transfer_data_field,
+    void process_requests(RCP_Transfer_Data_Field transfer_data_field,
 			  BufferList &buffer_list);
 };
 

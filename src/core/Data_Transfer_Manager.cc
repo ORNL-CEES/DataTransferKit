@@ -50,7 +50,7 @@ Data_Transfer_Manager<DataType_T>::~Data_Transfer_Manager()
  */
 template<class DataType_T>
 void Data_Transfer_Manager<DataType_T>::distributed_transfer(
-    SP_Transfer_Data_Field transfer_data_field)
+    RCP_Transfer_Data_Field transfer_data_field)
 {
     // Require that the field is destributed.
     Require( !transfer_data_field->is_scalar() );
@@ -63,7 +63,7 @@ void Data_Transfer_Manager<DataType_T>::distributed_transfer(
 	Mapper<DataType> mapper;
 
 	// Create a map.
-	SP_Transfer_Map transfer_map = new Transfer_Map();
+	RCP_Transfer_Map transfer_map = new Transfer_Map();
 
 	// Generate the map.
 	mapper.map(d_comm_global, transfer_data_field, transfer_map);
@@ -89,7 +89,7 @@ void Data_Transfer_Manager<DataType_T>::distributed_transfer(
  */
 template<class DataType_T>
 void Data_Transfer_Manager<DataType_T>::scalar_transfer(
-    SP_Transfer_Data_Field transfer_data_field)
+    RCP_Transfer_Data_Field transfer_data_field)
 {
     // Require that the field is scalar.
     Require( transfer_data_field->is_scalar() );

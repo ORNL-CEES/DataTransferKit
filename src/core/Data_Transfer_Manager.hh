@@ -18,8 +18,9 @@
 
 #include "Transfer_Data_Field.hh"
 #include "Transfer_Map.hh"
-#include "utils/SP.hh"
 #include "comm/global.hh"
+
+#include "Teuchos_RCP.hpp"
 
 namespace coupler
 {
@@ -44,8 +45,8 @@ class Data_Transfer_Manager
     //! Useful typedefs.
     typedef DataType_T                               DataType;
     typedef Transfer_Data_Field<DataType>            Transfer_Data_Field_t;
-    typedef denovo::SP<Transfer_Data_Field_t>        SP_Transfer_Data_Field;
-    typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
+    typedef Teuchos::RCP<Transfer_Data_Field_t>      RCP_Transfer_Data_Field;
+    typedef Teuchos::RCP<Transfer_Map>               RCP_Transfer_Map;
     typedef nemesis::Communicator_t                  Communicator;
     //@}
 
@@ -64,10 +65,10 @@ class Data_Transfer_Manager
 
     // Transfer data associated with a distributed field from a source physics
     // to a target physics. 
-    void distributed_transfer(SP_Transfer_Data_Field transfer_data_field);
+    void distributed_transfer(RCP_Transfer_Data_Field transfer_data_field);
 
     // Transfer a scalar field from a source physics to a target physics.
-    void scalar_transfer(SP_Transfer_Data_Field transfer_data_field);
+    void scalar_transfer(RCP_Transfer_Data_Field transfer_data_field);
 };
 
 } // end namespace coupler

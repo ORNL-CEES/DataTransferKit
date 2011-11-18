@@ -28,7 +28,7 @@ namespace coupler
 template<class LocalApp>
 LG_Indexer::LG_Indexer(const Communicator &comm_global, 
                        const Communicator &comm_local,
-                       denovo::SP<LocalApp> local_app)
+                       Teuchos::RCP<LocalApp> local_app)
 {
     // Indicate whether we have the local app.
     int local_app_indicator = 0;

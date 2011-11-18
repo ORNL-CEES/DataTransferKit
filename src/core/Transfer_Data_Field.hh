@@ -18,7 +18,7 @@
 #include "Transfer_Data_Source.hh"
 #include "Transfer_Data_Target.hh"
 #include "Transfer_Map.hh"
-#include "utils/SP.hh"
+#include "Teuchos_RCP.hpp"
 
 namespace coupler
 {
@@ -46,10 +46,10 @@ class Transfer_Data_Field
     //! Useful typedefs.
     typedef DataType_T                               DataType;
     typedef Transfer_Data_Source<DataType>           Transfer_Data_Source_t;
-    typedef denovo::SP<Transfer_Data_Source_t>       SP_Transfer_Data_Source;
+    typedef Teuchos::RCP<Transfer_Data_Source_t>     RCP_Transfer_Data_Source;
     typedef Transfer_Data_Target<DataType>           Transfer_Data_Target_t;
-    typedef denovo::SP<Transfer_Data_Target_t>       SP_Transfer_Data_Target;
-    typedef denovo::SP<Transfer_Map>                 SP_Transfer_Map;
+    typedef Teuchos::RCP<Transfer_Data_Target_t>     RCP_Transfer_Data_Target;
+    typedef Teuchos::RCP<Transfer_Map>               RCP_Transfer_Map;
     //@}
 
   private:
@@ -58,13 +58,13 @@ class Transfer_Data_Field
     std::string d_field_name;
 
     // Data transfer source implemenation.
-    SP_Transfer_Data_Source d_source;
+    RCP_Transfer_Data_Source d_source;
 
     // Data transfer target implemenation.
-    SP_Transfer_Data_Target d_target;
+    RCP_Transfer_Data_Target d_target;
 
     // Topology map for transfer from the source to the target.
-    SP_Transfer_Map d_map;
+    RCP_Transfer_Map d_map;
 
     // Boolean for scalar field.
     bool d_scalar;
@@ -76,8 +76,8 @@ class Transfer_Data_Field
 
     // Constructor.
     Transfer_Data_Field(const std::string &field_name,
-			SP_Transfer_Data_Source source,
-			SP_Transfer_Data_Target target,
+			RCP_Transfer_Data_Source source,
+			RCP_Transfer_Data_Target target,
 			bool scalar);
 
     // Destructor.
@@ -88,18 +88,18 @@ class Transfer_Data_Field
     { return d_field_name; }
 
     //! Get the transfer data source.
-    SP_Transfer_Data_Source source() 
+    RCP_Transfer_Data_Source source() 
     { return d_source; }
 
     //! Get the transfer data target.
-    SP_Transfer_Data_Target target() 
+    RCP_Transfer_Data_Target target() 
     { return d_target; }
     
     //! Set the topology map.
-    void set_map(SP_Transfer_Map transfer_map);
+    void set_map(RCP_Transfer_Map transfer_map);
 
     //! Get the topology map.
-    SP_Transfer_Map get_map() 
+    RCP_Transfer_Map get_map() 
     { return d_map; }
 
     //! Return the scalar boolean.

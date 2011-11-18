@@ -16,8 +16,9 @@
 #include <map>
 #include <vector>
 
-#include "utils/SP.hh"
 #include "comm/global.hh"
+
+#include "Teuchos_RCP.hpp"
 
 namespace coupler
 {
@@ -56,7 +57,7 @@ class LG_Indexer
     template<class LocalApp>
     LG_Indexer(const Communicator &comm_global, 
                const Communicator &comm_local,
-               denovo::SP<LocalApp> local_app);
+               Teuchos::RCP<LocalApp> local_app);
 
 
     //@{

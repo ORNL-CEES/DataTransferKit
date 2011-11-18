@@ -31,8 +31,8 @@ namespace coupler
 template<class DataType_T>
 Transfer_Data_Field<DataType_T>::Transfer_Data_Field(
     const std::string &field_name,
-    SP_Transfer_Data_Source source,
-    SP_Transfer_Data_Target target,
+    RCP_Transfer_Data_Source source,
+    RCP_Transfer_Data_Target target,
     bool scalar)
     : d_field_name(field_name)
     , d_source(source)
@@ -62,7 +62,7 @@ Transfer_Data_Field<DataType_T>::~Transfer_Data_Field()
  * transfer from the source to the target.
  */
 template<class DataType_T>
-void Transfer_Data_Field<DataType_T>::set_map(SP_Transfer_Map transfer_map)
+void Transfer_Data_Field<DataType_T>::set_map(RCP_Transfer_Map transfer_map)
 {
     d_map = transfer_map;
     d_mapped = true;

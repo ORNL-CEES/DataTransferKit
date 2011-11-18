@@ -50,7 +50,7 @@ Messenger<DataType_T>::~Messenger()
 template<class DataType_T>
 void Messenger<DataType_T>::communicate(
     const Communicator &comm_global,
-    SP_Transfer_Data_Field transfer_data_field)
+    RCP_Transfer_Data_Field transfer_data_field)
 {
     // Set the internal communicator.
     nemesis::set_internal_comm(comm_global);
@@ -92,7 +92,7 @@ void Messenger<DataType_T>::communicate(
  */
 template<class DataType_T>
 void Messenger<DataType_T>::post_receives(
-    SP_Transfer_Data_Field transfer_data_field,
+    RCP_Transfer_Data_Field transfer_data_field,
     BufferList &buffer_list)
 {
     // Initialize.
@@ -137,7 +137,7 @@ void Messenger<DataType_T>::post_receives(
  * communicated.
  */
 template<class DataType_T>
-void Messenger<DataType_T>::send(SP_Transfer_Data_Field transfer_data_field)
+void Messenger<DataType_T>::send(RCP_Transfer_Data_Field transfer_data_field)
 {
     // Initialize.
     denovo::Packer p;
@@ -218,7 +218,7 @@ void Messenger<DataType_T>::send(SP_Transfer_Data_Field transfer_data_field)
  */
 template<class DataType_T>
 void Messenger<DataType_T>::process_requests(
-    SP_Transfer_Data_Field transfer_data_field,
+    RCP_Transfer_Data_Field transfer_data_field,
     BufferList &buffer_list)
 {
     // Initialize.
