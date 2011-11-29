@@ -27,7 +27,7 @@ namespace coupler
 /*!
  * \class Transfer_Data_Field
  * \brief Field type for data transfers. This exists for more a explicit
- * defintion of fields in the coupler user interface.
+ * definition of fields in the coupler user interface.
  */
 /*! 
  * \example core/test/tstTransfer_Data_Field.cc
@@ -78,7 +78,7 @@ class Transfer_Data_Field
     Transfer_Data_Field(const std::string &field_name,
 			RCP_Transfer_Data_Source source,
 			RCP_Transfer_Data_Target target,
-			bool scalar);
+			bool scalar = false);
 
     // Destructor.
     ~Transfer_Data_Field();
