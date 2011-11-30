@@ -26,7 +26,7 @@
 
 using nemesis::Parallel_Unit_Test;
 using nemesis::soft_equiv;
-pppp
+
 int node  = 0;
 int nodes = 0;
 

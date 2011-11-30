@@ -32,7 +32,7 @@ LG_Indexer::LG_Indexer(const Communicator &comm_global,
 {
     // Indicate whether we have the local app.
     int local_app_indicator = 0;
-    if ( local_app )
+    if ( !local_app.is_null() )
     {
         local_app_indicator = 1;
     }
