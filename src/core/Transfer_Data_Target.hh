@@ -84,8 +84,8 @@ class Transfer_Data_Target
 			    std::vector<CoordinateType> &coordinates) = 0;
 
     /*! 
-     * \brief Given an entity handle, send the field data associated with that
-     * handle. 
+     * \brief Given an entity handle, receive the field data associated with
+     * that handle. 
      * \param field_name The name of the field to receive data from.
      * \param handles The enitity handles for the data being received.
      * \param data The data being received.
@@ -95,9 +95,9 @@ class Transfer_Data_Target
 			      const std::vector<DataType> &data) = 0;
 
     /*!
-     * \brief Given a field, get a global data element to be be sent to a
-     * target.
-     * \param field_name The name of the field to send data from.
+     * \brief Given a field, get a global data element to be be received from
+     * a source.
+     * \param field_name The name of the field to receive data from.
      * \param data The global data element.
      */
     virtual void get_global_data(const std::string &field_name,
