@@ -1,9 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/test/tstTransfer_Data_Field.cc
- * \author stuart
- * \date   Fri Nov 18 14:43:10 2011
- * \brief  
+ * \file   core/test/tstInterfaces.cc
+ * \author Stuart Slattery
+ * \date   Thu Dec 01 16:50:04 2011
+ * \brief  Unit tests for the data transfer pure virtual interfaces.
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
 //---------------------------------------------------------------------------//
@@ -22,7 +22,6 @@
 #include "release/Release.hh"
 #include "../Transfer_Data_Source.hh"
 #include "../Transfer_Data_Target.hh"
-#include "../Transfer_Data_Field.hh"
 
 #include "Teuchos_RCP.hpp"
 
@@ -262,7 +261,7 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
     }
 
     /*!
-     * \brief Given a field, get a global data element to be be sent to the
+     * \brief Given a field, get a global data element to be be sent to a
      * target.
      * \param field_name The name of the field to send data from.
      * \param data The global data element.
@@ -278,6 +277,98 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 // TESTS
 //---------------------------------------------------------------------------//
 
+void source_interface_test(Parallel_Unit_Test &ut)
+{
+    // create an instance of the source interface.
+    teuchos::RCP<Transfer_Data_Source<double> > source_iface = 
+	new test_Transfer_Data_Source<double>();
+
+    // test the interface methods.
+    nemesis::Communicator_t source_comm;
+    source_iface->register_comm(source_comm);
+    UNIT_TEST( source_comm == MPI_COMM_WORLD );
+
+    UNIT_TEST( source_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
+    UNIT_TEST( source_iface->field_supported("SCALAR_TEST_FIELD") );
+    UNIT_TEST( !source_iface->field_supported("FOO_TEST_FIELD") );
+
+    UNIT_TEST( source_iface->get_points(1, 1.0, 1.0, 1.0) );
+    UNIT_TEST( !source_iface->get_points(1, -1.0, -1.0, -1.0) );
+
+    std::vector<double> data_to_send;
+    std::vector<int> handles_to_send(1, 1);
+    source_iface->send_data("FOO_TEST_FIELD", handles_to_send, data_to_send);
+    UNIT_TEST( data_to_send.size() == 0 );
+    source_iface->send_data("DISTRIBUTED_TEST_FIELD", 
+			    handles_to_send, data_to_send);
+    UNIT_TEST( data_to_send.size() == 1);
+    UNIT_TEST( data_to_send[0] = 1.0 );
+
+    double global_scalar = 0.0;
+    source_iface->set_global_data("FOO_TEST_FIELD", global_scalar);
+    UNIT_TEST( global_scalar = 0.0 );
+    source_iface->send_data("SCALAR_TEST_FIELD", global_scalar);
+    UNIT_TEST( global_scalar = 1.0 );
+    
+    if (ut.numFails == 0)
+    {
+        std::ostringstream m;
+        m << "Transfer_Data_Source test passes on " << node;
+        ut.passes( m.str() );
+    }
+}
+
+void target_interface_test(Parallel_Unit_Test &ut)
+{
+    // create an instance of the target interface.
+    teuchos::RCP<Transfer_Data_Target<double> > target_iface = 
+	new test_Transfer_Data_Target<double>();
+
+    // test the interface methods.
+    nemesis::Communicator_t target_comm;
+    target_iface->register_comm(target_comm);
+    UNIT_TEST( target_comm == MPI_COMM_WORLD );
+
+    UNIT_TEST( target_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
+    UNIT_TEST( target_iface->field_supported("SCALAR_TEST_FIELD") );
+    UNIT_TEST( !target_iface->field_supported("FOO_TEST_FIELD") );
+
+    std::vector<double> target_coords;
+    std::vector<int> target_handles;
+    target_iface->set_points("FOO_TEST_FIELD", target_handles, target_coords);
+    UNIT_TEST( target_coords.size() == 0 );
+    UNIT_TEST( target_handles.size() == 0 );
+    target_iface->set_points("DISTRIBUTED_TEST_FIELD", 
+			     target_handles, target_coords);
+    UNIT_TEST( target_coords.size() == 3 );
+    UNIT_TEST( target_coords[0] == 1.0 );
+    UNIT_TEST( target_coords[1] == 1.0 );
+    UNIT_TEST( target_coords[2] == 1.0 );
+    UNIT_TEST( target_handles.size() == 1 );
+    UNIT_TEST( target_handles[0] == 1 );
+
+    std::vector<double> data_to_receive;
+    std::vector<int> handles_to_receive;
+    target_iface->send_data("FOO_TEST_FIELD", handles_to_send, data_to_send);
+    UNIT_TEST( data_to_send.size() == 0 );
+    target_iface->send_data("DISTRIBUTED_TEST_FIELD", 
+			    handles_to_send, data_to_send);
+    UNIT_TEST( data_to_send.size() == 1);
+    UNIT_TEST( data_to_send[0] = 1.0 );
+
+    double global_scalar = 0.0;
+    target_iface->get_global_data("FOO_TEST_FIELD", global_scalar);
+    UNIT_TEST( global_scalar = 0.0 );
+    target_iface->send_data("SCALAR_TEST_FIELD", global_scalar);
+    UNIT_TEST( global_scalar = 1.0 );
+
+    if (ut.numFails == 0)
+    {
+        std::ostringstream m;
+        m << "Transfer_Data_Target test passes on " << node;
+        ut.passes( m.str() );
+    }
+}
 
 
 //---------------------------------------------------------------------------//
@@ -294,6 +385,16 @@ int main(int argc, char *argv[])
         // >>> UNIT TESTS
         int gpass = 0;
         int gfail = 0;
+
+        source_interface_test(ut);
+        gpass += ut.numPasses;
+        gfail += ut.numFails;
+        ut.reset();
+
+        target_interface_test(ut);
+        gpass += ut.numPasses;
+        gfail += ut.numFails;
+        ut.reset();
         
         // add up global passes and fails
         nemesis::global_sum(gpass);
@@ -303,21 +404,21 @@ int main(int argc, char *argv[])
     }
     catch (std::exception &err)
     {
-        std::cout << "ERROR: While testing tstTransfer_Data_Field, " 
+        std::cout << "ERROR: While testing tstInterfaces, " 
                   << err.what()
                   << endl;
         ut.numFails++;
     }
     catch( ... )
     {
-        std::cout << "ERROR: While testing tstTransfer_Data_Field, " 
+        std::cout << "ERROR: While testing tstInterfaces, " 
                   << "An unknown exception was thrown."
                   << endl;
         ut.numFails++;
     }
-v    return ut.numFails;
+    return ut.numFails;
 }   
 
 //---------------------------------------------------------------------------//
-//                        end of tstTransfer_Data_Field.cc
+//                        end of tstInterfaces.cc
 //---------------------------------------------------------------------------//
