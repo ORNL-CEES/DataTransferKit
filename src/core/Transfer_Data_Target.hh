@@ -86,9 +86,9 @@ class Transfer_Data_Target
     /*! 
      * \brief Given an entity handle, send the field data associated with that
      * handle. 
-     * \param field_name The name of the field to send data from.
-     * \param handles The enitity handles for the data being sent.
-     * \param data The data being sent.
+     * \param field_name The name of the field to receive data from.
+     * \param handles The enitity handles for the data being received.
+     * \param data The data being received.
      */
     virtual void receive_data(const std::string &field_name,
 			      const std::vector<HandleType> &handles,

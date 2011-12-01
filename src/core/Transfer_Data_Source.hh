@@ -27,7 +27,7 @@ namespace coupler
  * in multiphysics coupling.
  *
  * This interface is templated on the type of field data being
- * transfered. Handle type is fixed to integer and coordinate type is fixed to
+ * transferred. Handle type is fixed to integer and coordinate type is fixed to
  * double. These could be templated in the future.
  */
 /*! 

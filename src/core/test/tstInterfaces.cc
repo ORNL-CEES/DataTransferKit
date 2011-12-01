@@ -31,7 +31,6 @@ using nemesis::soft_equiv;
 
 using coupler::Transfer_Data_Source;
 using coupler::Transfer_Data_Target;
-using coupler::Transfer_Data_Field;
 
 int node  = 0;
 int nodes = 0;
