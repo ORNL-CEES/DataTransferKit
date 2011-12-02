@@ -167,6 +167,12 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
 template<class DataType_T>
 class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 {
+  private:
+
+    double scalar_data;
+    std::vector<double> received_data;
+    std::vector<int> received_handles;
+
   public:
 
     //@{
@@ -245,11 +251,11 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
     }
 
     /*! 
-     * \brief Given an entity handle, send the field data associated with that
-     * handle. 
-     * \param field_name The name of the field to send data from.
-     * \param handles The enitity handles for the data being sent.
-     * \param data The data being sent.
+     * \brief Given an entity handle, receive the field data associated with
+     * that handle. 
+     * \param field_name The name of the field to receive data from.
+     * \param handles The enitity handles for the data being received.
+     * \param data The data being received.
      */
     void receive_data(const std::string &field_name,
 		      const std::vector<HandleType> &handles,
@@ -257,20 +263,41 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
     {
 	if ( field_name = "DISTRIBUTED_TEST_FIELD" )
 	{
-	    
+	    received_handles = handles;
+	    received_data = data;
 	}
     }
 
     /*!
-     * \brief Given a field, get a global data element to be be sent to the
-     * target.
-     * \param field_name The name of the field to send data from.
+     * \brief Given a field, get a global data element to be be received from
+     * a source.
+     * \param field_name The name of the field to receive data from.
      * \param data The global data element.
      */
     void get_global_data(const std::string &field_name,
 			 const DataType &data)
     {
+	if ( field_name = "SCALAR_TEST_FIELD" )
+	{
+	    scalar_data = data;
+	}
+    }
 
+    // Test functions to determine whether the receive_data and get_global_data
+    // methods acquired the correct data.
+    std::vector<int> check_distributed_handles()
+    {
+	return received_handles;
+    }
+
+    std::vector<double> check_distributed_data()
+    {
+	return received_data;
+    }
+
+    double check_scalar_data()
+    {
+	return scalar_data;
     }
 };
 
