@@ -151,7 +151,7 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
     {
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
-	    std::vector<double> local_data(1, nemesis::node() );
+	    std::vector<double> local_data(1, 1.0*nemesis::node() );
 	    data = local_data;
 	}
     }
@@ -347,7 +347,10 @@ void messenger_test(Parallel_Unit_Test &ut)
     messenger.communicate(MPI_COMM_WORLD, field);
 
     // Check the results of the transfer.
-
+    UNIT_TEST( tdt->check_distributed_handles().size() == 1);
+    UNIT_TEST( tdt->check_distributed_handles[0] == nemesis::node() );
+    UNIT_TEST( tdt->check_distributed_data().size() == 1);
+    UNIT_TEST( tdt->check_distributed_data()[0] == 1.0*nemesis::node() );
 
     if (ut.numFails == 0)
     {
