@@ -21,13 +21,23 @@
 #include "comm/Parallel_Unit_Test.hh"
 #include "release/Release.hh"
 #include "utils/Packing_Utils.hh"
-#include "../Transfer_Data_Field.hh"
 #include "../Messenger.hh"
-
+#include "../Transfer_Data_Source.hh"
+#include "../Transfer_Data_Target.hh"
+#include "../Transfer_Data_Field.hh"
+#include "../Transfer_Map.hh"
+#include "../Mapper.hh"
 #include "Teuchos_RCP.hpp"
 
 using nemesis::Parallel_Unit_Test;
 using nemesis::soft_equiv;
+
+using coupler::Transfer_Data_Source;
+using coupler::Transfer_Data_Target;
+using coupler::Transfer_Data_Field;
+using coupler::Transfer_Map;
+using coupler::Mapper;
+using coupler::Messenger;
 
 #define ITFAILS ut.failure(__LINE__);
 #define UNIT_TEST(a) if (!(a)) ut.failure(__LINE__);
@@ -120,7 +130,7 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
     {
 	bool return_val = false;
 
-	if ( x > 0 && y > 0 && z > 0 )
+	if ( x == 1.0*nemesis::node() )
 	{
 	    return_val = true;
 	}
@@ -141,7 +151,7 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
     {
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
-	    std::vector<double> local_data(1, 1.0);
+	    std::vector<double> local_data(1, nemesis::node() );
 	    data = local_data;
 	}
     }
@@ -157,7 +167,7 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
     {
 	if ( field_name == "SCALAR_TEST_FIELD" )
 	{
-	    data = 1.0;
+	    data = nemesis::node();
 	}
     }
 };
@@ -244,8 +254,8 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
     {
 	if ( field_name = "DISTRIBUTED_TEST_FIELD" )
 	{
-	    std::vector<int> local_handles(1, 1);
-	    std::vector<double> local_coords(3, 1.0);
+	    std::vector<int> local_handles(1, nemesis::node() );
+	    std::vector<double> local_coords(3, 1.0*nemesis::node() );
 
 	    handles = local_handles;
 	    coordinates = local_coordinates;
@@ -322,11 +332,22 @@ void messenger_test(Parallel_Unit_Test &ut)
     teuchos::RCP<Transfer_Data_Source<double> > field = 
 	new Transfer_Data_Source<double>("DISTRIBUTED_TEST_FIELD", tds, tdt);
 
-    // Create a mapping for the field.
+    // Create a map to populate.
+    teuchos::RCP<Transfer_Map> map = new Transfer_Map();
+
+    // Create a mapper and populate the map.
+    Mapper mapper;
+    mapper.map(MPI_COMM_WORLD, field, map);
+
+    // Apply the map to the field.
+    field->set_map(map);
 
     // Communicate the field with the messenger.
+    Messenger messenger;
+    messenger.communicate(MPI_COMM_WORLD, field);
 
     // Check the results of the transfer.
+
 
     if (ut.numFails == 0)
     {

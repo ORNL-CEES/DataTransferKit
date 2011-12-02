@@ -22,6 +22,7 @@
 #include "../Transfer_Data_Source.hh"
 #include "../Transfer_Data_Target.hh"
 #include "../Transfer_Data_Field.hh"
+#include "../Transfer_Map.hh"
 #include "../Mapper.hh"
 
 #include "Teuchos_RCP.hpp"
@@ -33,6 +34,7 @@ using nemesis::soft_equiv;
 using coupler::Transfer_Data_Source;
 using coupler::Transfer_Data_Target;
 using coupler::Transfer_Data_Field;
+using coupler::Transfer_Map;
 using coupler::Mapper;
 
 int node  = 0;
@@ -330,7 +332,8 @@ void mapper_test(Parallel_Unit_Test &ut)
     // Apply the map to the field.
     field->set_map(map);
 
-    // Check the contents of the map.
+    // Check the contents of the map - everyone should be sending and
+    // receiving only from themselves.
     UNIT_TEST( field->get_map()->domain_size(nemesis::node()) == 1 );
 
     UNIT_TEST( field->get_map()->range_size(nemesis::node()) == 1 );
