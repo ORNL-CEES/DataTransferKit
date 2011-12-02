@@ -20,6 +20,7 @@
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
 #include "release/Release.hh"
+#include "../Transfer_Map.hh"
 #include "../Transfer_Data_Source.hh"
 #include "../Transfer_Data_Target.hh"
 #include "../Transfer_Data_Field.hh"
@@ -30,6 +31,7 @@ using namespace std;
 using nemesis::Parallel_Unit_Test;
 using nemesis::soft_equiv;
 
+using coupler::Transfer_Map;
 using coupler::Transfer_Data_Source;
 using coupler::Transfer_Data_Target;
 using coupler::Transfer_Data_Field;
@@ -305,7 +307,70 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 // TESTS
 //---------------------------------------------------------------------------//
 
+void distributed_test(Parallel_Unit_Test &ut)
+{
+    // Create an instance of the source interface.
+    teuchos::RCP<Transfer_Data_Source<double> > tds = 
+	new test_Transfer_Data_Source<double>();
 
+    // Create an instance of the target interface.
+    teuchos::RCP<Transfer_Data_Target<double> > tdt = 
+	new test_Transfer_Data_Target<double>();
+
+    // Create a distributed field for these interfaces to be transferred.
+    teuchos::RCP<Transfer_Data_Source<double> > field = 
+	new Transfer_Data_Source<double>("DISTRIBUTED_TEST_FIELD", tds, tdt);
+
+    // Add a transfer map to the field.
+    UNIT_TEST( !field->is_mapped() );
+    teuchos::RCP<Transfer_Map> map = new Transfer_Map();
+    field->set_map(map);
+
+    // Test the functionality.
+    UNIT_TEST( field->name() == "DISTRIBUTED_TEST_FIELD" );
+    UNIT_TEST( field->source() == tds );
+    UNIT_TEST( field->target() == tdt );
+    UNIT_TEST( field->get_map() == map );
+    UNIT_TEST( !field->is_scalar() );
+    UNIT_TEST( field->is_mapped() );
+
+    if (ut.numFails == 0)
+    {
+        std::ostringstream m;
+        m << "Distributed field test ok on " << nemesis::node();
+        ut.passes( m.str() );
+    }
+}
+
+//---------------------------------------------------------------------------//
+void scalar_test(Parallel_Unit_Test &ut)
+{
+    // Create an instance of the source interface.
+    teuchos::RCP<Transfer_Data_Source<double> > tds = 
+	new test_Transfer_Data_Source<double>();
+
+    // Create an instance of the target interface.
+    teuchos::RCP<Transfer_Data_Target<double> > tdt = 
+	new test_Transfer_Data_Target<double>();
+
+    // Create a scalar field for these interfaces to be transferred.
+    teuchos::RCP<Transfer_Data_Source<double> > field = 
+	new Transfer_Data_Source<double>("SCALAR_TEST_FIELD", tds, tdt, true);
+
+    // Test the functionality.
+    UNIT_TEST( field->name() == "SCALAR_TEST_FIELD" );
+    UNIT_TEST( field->source() == tds );
+    UNIT_TEST( field->target() == tdt );
+    UNIT_TEST( field->is_scalar() );
+    UNIT_TEST( !field->is_mapped() );
+
+    if (ut.numFails == 0)
+    {
+        std::ostringstream m;
+        m << "Scalar field test ok on " << nemesis::node();
+        ut.passes( m.str() );
+    }
+}
 
 //---------------------------------------------------------------------------//
 
@@ -321,7 +386,17 @@ int main(int argc, char *argv[])
         // >>> UNIT TESTS
         int gpass = 0;
         int gfail = 0;
-        
+ 
+	distributed_test(ut);
+	gpass += ut.numPasses;
+	gfail += ut.numFails;
+	ut.reset();
+
+	scalar_test(ut);
+	gpass += ut.numPasses;
+	gfail += ut.numFails;
+	ut.reset();
+       
         // add up global passes and fails
         nemesis::global_sum(gpass);
         nemesis::global_sum(gfail);
