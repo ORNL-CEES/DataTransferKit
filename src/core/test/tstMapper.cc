@@ -335,18 +335,34 @@ void mapper_test(Parallel_Unit_Test &ut)
 
     UNIT_TEST( field->get_map()->range_size(nemesis::node()) == 1 );
 
-    UNIT_TEST( field->get_map()->domain(nemesis::node()).first.first
+    UNIT_TEST( std::distance(
+		   field->get_map()->domain(nemesis::node()).first,
+		   field->get_map()->domain(nemesis::node()).second)
+		   == 1)
+    UNIT_TEST( field->get_map()->domain(nemesis::node()).first->first
 	       == nemesis::node() );
-    UNIT_TEST( field->get_map()->domain(nemesis::node()).first.second
+    UNIT_TEST( field->get_map()->domain(nemesis::node()).first->second
 	       == nemesis::node() );
 
-    UNIT_TEST( field->get_map()->range(nemesis::node()).first.first
+    UNIT_TEST( std::distance(
+		   field->get_map()->range(nemesis::node()).first,
+		   field->get_map()->range(nemesis::node()).second)
+		   == 1)
+    UNIT_TEST( field->get_map()->range(nemesis::node()).first->first
 	       == nemesis::node() );
-    UNIT_TEST( field->get_map()->range(nemesis::node()).first.second
+    UNIT_TEST( field->get_map()->range(nemesis::node()).first->second
 	       == nemesis::node() );
 
+    UNIT_TEST( std::distance(
+		   field->get_map()->sources.first,
+		   field->get_map()->sources.second)
+	       == 1);
     UNIT_TEST( *field->get_map()->sources().first == nemesis::node() );
 
+    UNIT_TEST( std::distance(
+		   field->get_map()->targets.first,
+		   field->get_map()->targets.second)
+	       == 1);    
     UNIT_TEST( *field->get_map()->targets().first == nemesis::node() );
 
     if (ut.numFails == 0)
