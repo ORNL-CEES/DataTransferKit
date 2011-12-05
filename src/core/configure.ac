@@ -13,7 +13,7 @@ AC_INIT
 
 dnl As an argument to this macro provide the name of a file that
 dnl exists in the local package directory.  
-AC_CONFIG_SRCDIR([aclocal.m4])  
+AC_CONFIG_SRCDIR([Transfer_Data_Source.hh])  
 
 AC_CONFIG_AUX_DIR(../../config)
 AC_CONFIG_HEADER(core/config.h:config.h.in)
