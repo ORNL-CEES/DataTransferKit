@@ -23,7 +23,7 @@
 #include "../Transfer_Data_Field.hh"
 #include "../Data_Transfer_Manager.hh"
 
-#include "Teuchos_RCP.hh"
+#include "Teuchos_RCP.hpp"
 
 using namespace std;
 using nemesis::Parallel_Unit_Test;
