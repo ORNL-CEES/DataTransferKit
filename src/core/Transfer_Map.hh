@@ -50,10 +50,10 @@ class Transfer_Map
     typedef int                                          OrdinateType;
     typedef std::pair<OrdinateType,HandleType>           Map_Element;
     typedef std::multimap<OrdinateType,HandleType>       Map;
-    typedef typename Map::const_iterator                 Map_Iterator;
+    typedef Map::const_iterator                 Map_Iterator;
     typedef std::pair<Map_Iterator,Map_Iterator>         Map_Pair;
     typedef std::set<OrdinateType>                       Set;
-    typedef typename Set::const_iterator                 Set_Iterator;
+    typedef Set::const_iterator                 Set_Iterator;
     typedef std::pair<Set_Iterator,Set_Iterator>         Set_Pair;
     //@}
 

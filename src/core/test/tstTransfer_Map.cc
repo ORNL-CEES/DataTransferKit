@@ -44,10 +44,10 @@ int nodes = 0;
 void map_test(Parallel_Unit_Test &ut)
 {
     // Useful typedefs.
-    typedef typename Transfer_Map::Map_Iterator    Map_Iterator;
-    typedef typename Transfer_Map::Map_Pair        Map_Pair;
-    typedef typename Transfer_Map::Set_Iterator    Set_Iterator;
-    typedef typename Transfer_Map::Set_Pair        Set_Pair;
+    typedef Transfer_Map::Map_Iterator    Map_Iterator;
+    typedef Transfer_Map::Map_Pair        Map_Pair;
+    typedef Transfer_Map::Set_Iterator    Set_Iterator;
+    typedef Transfer_Map::Set_Pair        Set_Pair;
 
     // Make a map object with integer handles and ranks.
     Transfer_Map tmap;

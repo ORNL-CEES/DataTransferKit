@@ -42,7 +42,7 @@ class LG_Indexer
     typedef int                                        OrdinateType;
     typedef std::map<OrdinateType, OrdinateType>       Indexer_Map;
     typedef std::vector<OrdinateType>                  Vec_Ordinate;
-    typedef typename Vec_Ordinate::const_iterator      Ordinate_Iterator;
+    typedef Vec_Ordinate::const_iterator               Ordinate_Iterator;
     typedef nemesis::Communicator_t                    Communicator;
     //@}
 
