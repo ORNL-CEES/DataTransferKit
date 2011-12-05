@@ -79,7 +79,11 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
      */
     void register_comm(const Communicator &comm)
     {
+#ifdef COMM_MPI
 	comm = MPI_COMM_WORLD;
+#else
+	comm = 1;
+#endif
     }
 
     /*!
@@ -203,7 +207,11 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
      */
     void register_comm(const Communicator &comm)
     {
+#ifdef COMM_MPI
 	comm = MPI_COMM_WORLD;
+#else
+	comm = 1;
+#endif
     }
 
     /*!

@@ -75,7 +75,11 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
      */
     void register_comm(const Communicator &comm)
     {
+#ifdef COMM_MPI
 	comm = MPI_COMM_WORLD;
+#else
+	comm = 1;
+#endif
     }
 
     /*!
@@ -199,7 +203,11 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
      */
     void register_comm(const Communicator &comm)
     {
+#ifdef COMM_MPI
 	comm = MPI_COMM_WORLD;
+#else
+	comm = 1;
+#endif
     }
 
     /*!
@@ -312,7 +320,11 @@ void source_interface_test(Parallel_Unit_Test &ut)
     // test the interface methods.
     nemesis::Communicator_t source_comm;
     source_iface->register_comm(source_comm);
+#ifdef MPI_COMM
     UNIT_TEST( source_comm == MPI_COMM_WORLD );
+#else
+    UNIT_TEST( source_comm == 1 );
+#endif
 
     UNIT_TEST( source_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
     UNIT_TEST( source_iface->field_supported("SCALAR_TEST_FIELD") );
@@ -353,7 +365,11 @@ void target_interface_test(Parallel_Unit_Test &ut)
     // test the interface methods.
     nemesis::Communicator_t target_comm;
     target_iface->register_comm(target_comm);
+#ifdef COMM_MPI
     UNIT_TEST( target_comm == MPI_COMM_WORLD );
+#else
+    UNIT_TEST( target_comm == 1 );
+#endif
 
     UNIT_TEST( target_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
     UNIT_TEST( target_iface->field_supported("SCALAR_TEST_FIELD") );

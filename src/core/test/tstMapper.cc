@@ -44,6 +44,19 @@ int nodes = 0;
 #define UNIT_TEST(a) if (!(a)) ut.failure(__LINE__);
 
 //---------------------------------------------------------------------------//
+// HELPER FUNCTIONS
+//---------------------------------------------------------------------------//
+
+nemesis::Communicator_t get_comm_world()
+{
+#ifdef COMM_MPI
+    return MPI_COMM_WORLD;
+#else
+    return 1;
+#endif
+}
+
+//---------------------------------------------------------------------------//
 // INTERFACE IMPLEMENTATIONS
 //---------------------------------------------------------------------------//
 
@@ -80,7 +93,11 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
      */
     void register_comm(const Communicator &comm)
     {
+#ifdef COMM_MPI
 	comm = MPI_COMM_WORLD;
+#else
+	comm = 1;
+#endif
     }
 
     /*!
@@ -204,7 +221,11 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
      */
     void register_comm(const Communicator &comm)
     {
+#ifdef COMM_MPI
 	comm = MPI_COMM_WORLD;
+#else
+	comm = 1;
+#endif
     }
 
     /*!
@@ -327,7 +348,7 @@ void mapper_test(Parallel_Unit_Test &ut)
 
     // Create a mapper and populate the map.
     Mapper mapper;
-    mapper.map(MPI_COMM_WORLD, field, map);
+    mapper.map(get_comm_world(), field, map);
 
     // Apply the map to the field.
     field->set_map(map);

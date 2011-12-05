@@ -89,7 +89,11 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
      */
     void register_comm(const Communicator &comm)
     {
+#ifdef COMM_MPI
 	comm = MPI_COMM_WORLD;
+#else
+	comm = 1;
+#endif
     }
 
     /*!
@@ -213,7 +217,11 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
      */
     void register_comm(const Communicator &comm)
     {
+#ifdef COMM_MPI
 	comm = MPI_COMM_WORLD;
+#else
+	comm = 1;
+#endif
     }
 
     /*!
@@ -337,14 +345,14 @@ void messenger_test(Parallel_Unit_Test &ut)
 
     // Create a mapper and populate the map.
     Mapper mapper;
-    mapper.map(MPI_COMM_WORLD, field, map);
+    mapper.map(get_comm_world(), field, map);
 
     // Apply the map to the field.
     field->set_map(map);
 
     // Communicate the field with the messenger.
     Messenger messenger;
-    messenger.communicate(MPI_COMM_WORLD, field);
+    messenger.communicate(get_comm_world(), field);
 
     // Check the results of the transfer.
     UNIT_TEST( tdt->check_distributed_handles().size() == 1);
