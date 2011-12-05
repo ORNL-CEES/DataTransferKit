@@ -29,6 +29,13 @@ namespace coupler
  * \class Transfer_Data_Field
  * \brief Field type for data transfers. This exists for more a explicit
  * definition of fields in the coupler user interface.
+ *
+ * The Transfer_Data_Field encapsulates the relationship between a
+ * Transfer_Data_Source and a Transfer_Data_Target. In addition to containing
+ * the map for transfer between the source and the target, the field also
+ * contains indicators for the status of the mapping (transfer cannot occur
+ * unless a field has been mapped) and for whether a field is distributed
+ * (requiring a parallel mapping) or scalar.
  */
 /*! 
  * \example core/test/tstTransfer_Data_Field.cc

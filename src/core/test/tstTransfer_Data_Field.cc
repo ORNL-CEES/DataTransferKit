@@ -1,9 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   core/test/tstTransfer_Data_Field.cc
- * \author stuart
+ * \author Stuart Slattery
  * \date   Fri Nov 18 14:43:10 2011
- * \brief  
+ * \brief  Transfer_Data_Field unit tests
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
 //---------------------------------------------------------------------------//

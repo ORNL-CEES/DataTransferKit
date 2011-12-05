@@ -321,16 +321,16 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 void distributed_transfer_test(Parallel_Unit_Test &ut)
 {
     // Create an instance of the source interface.
-    teuchos::RCP<Transfer_Data_Source<double> > tds = 
-	new test_Transfer_Data_Source<double>();
+    Teuchos::RCP<Transfer_Data_Source<double> > tds = 
+	Teuchos::rcp(new test_Transfer_Data_Source<double>());
 
     // Create an instance of the target interface.
-    teuchos::RCP<Transfer_Data_Target<double> > tdt = 
-	new test_Transfer_Data_Target<double>();
+    Teuchos::RCP<Transfer_Data_Target<double> > tdt = 
+	Teuchos::rcp(new test_Transfer_Data_Target<double>());
 
     // Create a distributed field for these interfaces to be transferred.
-    teuchos::RCP<Transfer_Data_Source<double> > field = 
-	new Transfer_Data_Source<double>("DISTRIBUTED_TEST_FIELD", tds, tdt);
+    Teuchos::RCP<Transfer_Data_Field<double> > field = Teuchos::rcp(
+	new Transfer_Data_Field<double>("DISTRIBUTED_TEST_FIELD", tds, tdt));
 
     // Create a data transfer manager.
     Data_Transfer_Manager manager( get_comm_world() );
@@ -357,16 +357,16 @@ void distributed_transfer_test(Parallel_Unit_Test &ut)
 void scalar_transfer_test(Parallel_Unit_Test &ut)
 {
     // Create an instance of the source interface.
-    teuchos::RCP<Transfer_Data_Source<double> > tds = 
-	new test_Transfer_Data_Source<double>();
+    Teuchos::RCP<Transfer_Data_Source<double> > tds = 
+	Teuchos::rcp(new test_Transfer_Data_Source<double>());
 
     // Create an instance of the target interface.
-    teuchos::RCP<Transfer_Data_Target<double> > tdt = 
-	new test_Transfer_Data_Target<double>();
+    Teuchos::RCP<Transfer_Data_Target<double> > tdt = 
+	Teuchos::rcp(new test_Transfer_Data_Target<double>());
 
     // Create a scalar field for these interfaces to be transferred.
-    teuchos::RCP<Transfer_Data_Source<double> > field = 
-	new Transfer_Data_Source<double>("SCALAR_TEST_FIELD", tds, tdt);
+    Teuchos::RCP<Transfer_Data_Field<double> > field = Teuchos::rcp(
+	new Transfer_Data_Field<double>("SCALAR_TEST_FIELD", tds, tdt));
 
     // Create a data transfer manager.
     Data_Transfer_Manager manager( get_comm_world() );
