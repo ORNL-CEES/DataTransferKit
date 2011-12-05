@@ -63,7 +63,7 @@ void Data_Transfer_Manager<DataType_T>::distributed_transfer(
 	Mapper<DataType> mapper;
 
 	// Create a map.
-	RCP_Transfer_Map transfer_map = new Transfer_Map();
+	RCP_Transfer_Map transfer_map = Teuchos::rcp(new Transfer_Map());
 
 	// Generate the map.
 	mapper.map(d_comm_global, transfer_data_field, transfer_map);

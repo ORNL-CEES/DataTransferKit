@@ -94,6 +94,7 @@ AC_RUNTESTS(tstLG_Indexer \
             tstTransfer_Map \
 	    tstMessage_Buffer \
 	    tstInterfaces \
+	    tstTransfer_Data_Field \
             , 1 2 4)
 
 dnl ----------------------------------------

@@ -100,30 +100,17 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
 {
   public:
 
-    //@{
-    //! Useful typedefs.
     typedef double                                   DataType;
     typedef nemesis::Communicator_t                  Communicator;
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
-    //@}
 
-    /*!
-     * \brief Constructor.
-     */
     test_Transfer_Data_Source()
     { /* ... */ }
 
-    /*!
-     * \brief Destructor.
-     */
     ~test_Transfer_Data_Source()
     { /* ... */ }
 
-    /*!
-     * \brief Register communicator object.
-     * \param comm The communicator for this physics.
-     */
     void register_comm(Communicator &comm)
     {
 #ifdef COMM_MPI
@@ -133,12 +120,6 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
 #endif
     }
 
-    /*!
-     * \brief Check whether or not a field is supported. Return false if this
-     * field is not supported. 
-     * \param field_name The name of the field for which support is being
-     * checked.
-     */
     bool field_supported(const std::string &field_name)
     {
 	bool return_val = false;
@@ -156,14 +137,6 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
 	return return_val;
     }
 
-    /*! 
-     * \brief Given (x,y,z) coordinates and an associated globally unique
-     * handle, return true if the point is in the local domain, false if not.
-     * \param handle The globally unique handle associated with the point.
-     * \param x X coordinate.
-     * \param y Y coordinate.
-     * \param z Z coordinate.
-     */
     bool get_points(HandleType handle,
 		    CoordinateType x, 
 		    CoordinateType y,
@@ -179,13 +152,6 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
 	return return_val;
     }
 
-    /*! 
-     * \brief Given an entity handle, send the field data associated with that
-     * handle. 
-     * \param field_name The name of the field to send data from.
-     * \param handles The enitity handles for the data being sent.
-     * \param data The data being sent.
-     */
     void send_data(const std::string &field_name,
 		   const std::vector<HandleType> &handles,
 		   std::vector<DataType> &data)
@@ -197,12 +163,6 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
 	}
     }
 
-    /*!
-     * \brief Given a field, set a global data element to be be sent to a
-     * target.
-     * \param field_name The name of the field to send data from.
-     * \param data The global data element.
-     */
     void set_global_data(const std::string &field_name,
 			 DataType &data)
     {
@@ -226,31 +186,18 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 
   public:
 
-    //@{
-    //! Useful typedefs.
     typedef double                                   DataType;
     typedef nemesis::Communicator_t                  Communicator;
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
-    //@}
 
-    /*!
-     * \brief Constructor.
-     */
     test_Transfer_Data_Target(Teuchos::RCP<Data_Container> _container)
 	: container(_container)
     { /* ... */ }
 
-    /*!
-     * \brief Destructor.
-     */
     ~test_Transfer_Data_Target()
     { /* ... */ }
 
-    /*!
-     * \brief Register communicator object.
-     * \param comm The communicator for this physics.
-     */
     void register_comm(Communicator &comm)
     {
 #ifdef COMM_MPI
@@ -260,12 +207,6 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 #endif
     }
 
-    /*!
-     * \brief Check whether or not a field is supported. Return false if this
-     * field is not supported. 
-     * \param field_name The name of the field for which support is being
-     * checked.
-     */
     bool field_supported(const std::string &field_name)
     {
 	bool return_val = false;
@@ -283,15 +224,6 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 	return return_val;
     }
 
-    /*!
-     * \brief Set cartesian coordinates with a field. The coordinate
-     * vector should be interleaved. The handle vector should consist of
-     * globally unique handles. 
-     * \param field_name The name of the field that the coordinates are being
-     * registered with.
-     * \param handles Point handle array.
-     * \param coordinates Point coordinate array.
-     */
     void set_points(const std::string &field_name,
 		    std::vector<HandleType> &handles,
 		    std::vector<CoordinateType> &coordinates)
@@ -306,13 +238,6 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 	}
     }
 
-    /*! 
-     * \brief Given an entity handle, receive the field data associated with
-     * that handle. 
-     * \param field_name The name of the field to receive data from.
-     * \param handles The enitity handles for the data being received.
-     * \param data The data being received.
-     */
     void receive_data(const std::string &field_name,
 		      const std::vector<HandleType> &handles,
 		      const std::vector<DataType> &data)
@@ -324,12 +249,6 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 	}
     }
 
-    /*!
-     * \brief Given a field, get a global data element to be be received from
-     * a source.
-     * \param field_name The name of the field to receive data from.
-     * \param data The global data element.
-     */
     void get_global_data(const std::string &field_name,
 			 const DataType &data)
     {

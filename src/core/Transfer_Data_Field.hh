@@ -18,6 +18,7 @@
 #include "Transfer_Data_Source.hh"
 #include "Transfer_Data_Target.hh"
 #include "Transfer_Map.hh"
+
 #include "Teuchos_RCP.hpp"
 
 namespace coupler
@@ -95,7 +96,7 @@ class Transfer_Data_Field
     RCP_Transfer_Data_Target target() 
     { return d_target; }
     
-    //! Set the topology map.
+    // Set the topology map.
     void set_map(RCP_Transfer_Map transfer_map);
 
     //! Get the topology map.
