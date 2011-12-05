@@ -65,7 +65,7 @@ class Transfer_Data_Source
      * \brief Register communicator object.
      * \param comm The communicator for this physics.
      */
-    virtual void register_comm(const Communicator &comm) = 0;
+    virtual void register_comm(Communicator &comm) = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this

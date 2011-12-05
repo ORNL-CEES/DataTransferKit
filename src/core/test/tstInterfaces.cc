@@ -39,6 +39,57 @@ int nodes = 0;
 #define UNIT_TEST(a) if (!(a)) ut.failure(__LINE__);
 
 //---------------------------------------------------------------------------//
+// DATA CLASS
+//---------------------------------------------------------------------------//
+
+class Data_Container
+{
+  private:
+
+    double scalar_data;
+    std::vector<double> distributed_data;
+    std::vector<int> distributed_handles;
+
+  public:
+
+    Data_Container()
+    { /* ... */ }
+
+    ~Data_Container()
+    { /* ... */ }
+
+    void set_distributed_handles(std::vector<int> handles)
+    {
+	distributed_handles = handles;
+    }
+
+    std::vector<int> get_distributed_handles()
+    {
+	return distributed_handles;
+    }
+
+    void set_distributed_data(std::vector<double> data)
+    {
+	distributed_data = data;
+    }
+
+    std::vector<double> get_distributed_data()
+    {
+	return distributed_data;
+    }
+
+    void set_scalar_data(double data)
+    {
+	scalar_data = data;
+    }
+
+    double get_scalar_data()
+    {
+	return scalar_data;
+    }
+};
+
+//---------------------------------------------------------------------------//
 // INTERFACE IMPLEMENTATIONS
 //---------------------------------------------------------------------------//
 
@@ -73,7 +124,7 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
      * \brief Register communicator object.
      * \param comm The communicator for this physics.
      */
-    void register_comm(const Communicator &comm)
+    void register_comm(Communicator &comm)
     {
 #ifdef COMM_MPI
 	comm = MPI_COMM_WORLD;
@@ -171,9 +222,7 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 {
   private:
 
-    double scalar_data;
-    std::vector<double> received_data;
-    std::vector<int> received_handles;
+    Teuchos::RCP<Data_Container> container;
 
   public:
 
@@ -188,7 +237,8 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
     /*!
      * \brief Constructor.
      */
-    test_Transfer_Data_Target()
+    test_Transfer_Data_Target(Teuchos::RCP<Data_Container> _container)
+	: container(_container)
     { /* ... */ }
 
     /*!
@@ -201,7 +251,7 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
      * \brief Register communicator object.
      * \param comm The communicator for this physics.
      */
-    void register_comm(const Communicator &comm)
+    void register_comm(Communicator &comm)
     {
 #ifdef COMM_MPI
 	comm = MPI_COMM_WORLD;
@@ -246,13 +296,13 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 		    std::vector<HandleType> &handles,
 		    std::vector<CoordinateType> &coordinates)
     {
-	if ( field_name = "DISTRIBUTED_TEST_FIELD" )
+	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
 	    std::vector<int> local_handles(1, 1);
 	    std::vector<double> local_coords(3, 1.0);
 
 	    handles = local_handles;
-	    coordinates = local_coordinates;
+	    coordinates = local_coords;
 	}
     }
 
@@ -267,10 +317,10 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 		      const std::vector<HandleType> &handles,
 		      const std::vector<DataType> &data)
     {
-	if ( field_name = "DISTRIBUTED_TEST_FIELD" )
+	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
-	    received_handles = handles;
-	    received_data = data;
+	    container->set_distributed_handles(handles);
+	    container->set_distributed_data(data);
 	}
     }
 
@@ -283,27 +333,10 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
     void get_global_data(const std::string &field_name,
 			 const DataType &data)
     {
-	if ( field_name = "SCALAR_TEST_FIELD" )
+	if ( field_name == "SCALAR_TEST_FIELD" )
 	{
-	    scalar_data = data;
+	    container->set_scalar_data(data);
 	}
-    }
-
-    // Test functions to determine whether the receive_data and get_global_data
-    // methods acquired the correct data.
-    std::vector<int> check_distributed_handles()
-    {
-	return received_handles;
-    }
-
-    std::vector<double> check_distributed_data()
-    {
-	return received_data;
-    }
-
-    double check_scalar_data()
-    {
-	return scalar_data;
     }
 };
 
@@ -314,16 +347,16 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 void source_interface_test(Parallel_Unit_Test &ut)
 {
     // create an instance of the source interface.
-    teuchos::RCP<Transfer_Data_Source<double> > source_iface = 
-	new test_Transfer_Data_Source<double>();
+    Teuchos::RCP<Transfer_Data_Source<double> > source_iface = 
+	Teuchos::rcp(new test_Transfer_Data_Source<double>);
 
     // test the interface methods.
     nemesis::Communicator_t source_comm;
     source_iface->register_comm(source_comm);
-#ifdef MPI_COMM
+#ifdef COMM_MPI
     UNIT_TEST( source_comm == MPI_COMM_WORLD );
 #else
-    UNIT_TEST( source_comm == 1 );
+    UNIT_TEST( source_comm != MPI_COMM_WORLD );
 #endif
 
     UNIT_TEST( source_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
@@ -340,13 +373,13 @@ void source_interface_test(Parallel_Unit_Test &ut)
     source_iface->send_data("DISTRIBUTED_TEST_FIELD", 
 			    handles_to_send, data_to_send);
     UNIT_TEST( data_to_send.size() == 1);
-    UNIT_TEST( data_to_send[0] = 1.0 );
+    UNIT_TEST( data_to_send[0] == 1.0 );
 
     double global_scalar = 0.0;
     source_iface->set_global_data("FOO_TEST_FIELD", global_scalar);
-    UNIT_TEST( global_scalar = 0.0 );
-    source_iface->send_data("SCALAR_TEST_FIELD", global_scalar);
-    UNIT_TEST( global_scalar = 1.0 );
+    UNIT_TEST( global_scalar == 0.0 );
+    source_iface->set_global_data("SCALAR_TEST_FIELD", global_scalar);
+    UNIT_TEST( global_scalar == 1.0 );
     
     if (ut.numFails == 0)
     {
@@ -358,9 +391,11 @@ void source_interface_test(Parallel_Unit_Test &ut)
 
 void target_interface_test(Parallel_Unit_Test &ut)
 {
+    // create a data container instance.
+    Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
     // create an instance of the target interface.
-    teuchos::RCP<Transfer_Data_Target<double> > target_iface = 
-	new test_Transfer_Data_Target<double>();
+    Teuchos::RCP<Transfer_Data_Target<double> > target_iface = 
+	Teuchos::rcp(new test_Transfer_Data_Target<double>(container));
 
     // test the interface methods.
     nemesis::Communicator_t target_comm;
@@ -393,20 +428,20 @@ void target_interface_test(Parallel_Unit_Test &ut)
     std::vector<int> handles_to_receive(1, 1);
     target_iface->receive_data("FOO_TEST_FIELD", 
 			       handles_to_receive, data_to_receive);
-    UNIT_TEST( target_iface->check_distributed_data().size == 0 );
-    UNIT_TEST( target_iface->check_distributed_handles().size == 0 );
+    UNIT_TEST( container->get_distributed_data().size() == 0 );
+    UNIT_TEST( container->get_distributed_handles().size() == 0 );
     target_iface->receive_data("DISTRIBUTED_TEST_FIELD", 
 			    handles_to_receive, data_to_receive);
-    UNIT_TEST( target_iface->check_distributed_data().size == 1 );
-    UNIT_TEST( target_iface->check_distributed_handles().size == 1 );
-    UNIT_TEST( target_iface->check_distributed_data()[0] == 1.0 );
-    UNIT_TEST( target_iface->check_distributed_handles()[0] == 1 );
+    UNIT_TEST( container->get_distributed_data().size() == 1 );
+    UNIT_TEST( container->get_distributed_handles().size() == 1 );
+    UNIT_TEST( container->get_distributed_data()[0] == 1.0 );
+    UNIT_TEST( container->get_distributed_handles()[0] == 1 );
 
     double global_scalar = 1.0;
     target_iface->get_global_data("FOO_TEST_FIELD", global_scalar);
-    UNIT_TEST( target_iface->check_scalar_data() != 1.0 );
-    target_iface->receive_data("SCALAR_TEST_FIELD", global_scalar);
-    UNIT_TEST( target_iface->check_scalar_data() = 1.0 );
+    UNIT_TEST( container->get_scalar_data() != 1.0 );
+    target_iface->get_global_data("SCALAR_TEST_FIELD", global_scalar);
+    UNIT_TEST( container->get_scalar_data() == 1.0 );
 
     if (ut.numFails == 0)
     {

@@ -93,6 +93,7 @@ dnl should be listed as "scalar".
 AC_RUNTESTS(tstLG_Indexer \
             tstTransfer_Map \
 	    tstMessage_Buffer \
+	    tstInterfaces \
             , 1 2 4)
 
 dnl ----------------------------------------

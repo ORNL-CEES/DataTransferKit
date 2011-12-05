@@ -91,7 +91,7 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
      * \brief Register communicator object.
      * \param comm The communicator for this physics.
      */
-    void register_comm(const Communicator &comm)
+    void register_comm(Communicator &comm)
     {
 #ifdef COMM_MPI
 	comm = MPI_COMM_WORLD;
@@ -219,7 +219,7 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
      * \brief Register communicator object.
      * \param comm The communicator for this physics.
      */
-    void register_comm(const Communicator &comm)
+    void register_comm(Communicator &comm)
     {
 #ifdef COMM_MPI
 	comm = MPI_COMM_WORLD;
