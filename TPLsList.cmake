@@ -7,9 +7,6 @@
 #
 
 SET(Coupler_TPLS_FINDMODS_CLASSIFICATIONS
-  MPI       TPLs_cmake/        EX
-  nemesis   TPLs_cmake/        EX
-  Trilinos  TPLs_cmake/        EX
   )
 
 # NOTE: Above, the paths to the FindTPL<TPLNAME> modules (with an implicit

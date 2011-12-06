@@ -1,6 +1,0 @@
-INCLUDE(TribitsTplDeclareLibraries)
-
-TRIBITS_TPL_DECLARE_LIBRARIES( Trilinos
-  REQUIRED_HEADERS Teuchos_RCP.hh
-  REQUIRE_LIBS_NAMES teuchos
-)
