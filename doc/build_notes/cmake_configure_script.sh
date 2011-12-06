@@ -11,7 +11,7 @@ rm -rf CMakeCache.txt
 
 cmake \
 -D CMAKE_INSTALL_PREFIX:PATH=/home/stuart/software/builds/coupler \
--D CMAKE_BUILD_TYPE:STRING=RELEASE \
+-D CMAKE_BUILD_TYPE:STRING=DEBUG \
 -D CMAKE_VERBOSE_MAKEFILE:BOOL=ON \
 -D BUILD_SHARED_LIBS:BOOL=ON \
 -D Trilinos_ENABLE_TESTS:BOOL=OFF \
@@ -38,5 +38,6 @@ cmake \
 -D Trilinos_ENABLE_nemesisHarness:BOOL=ON \
 -D Trilinos_ENABLE_nemesisComm:BOOL=ON \
 -D Trilinos_ENABLE_coupler:BOOL=ON \
+-D coupler_ENABLE_TESTS:BOOL=ON \
 $EXTRA_ARGS \
 /home/stuart/software/Trilinos
