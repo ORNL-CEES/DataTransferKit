@@ -68,8 +68,7 @@ dnl should be listed as arguments to AC_NEEDS_LIBS_NEMESIS.
 
 AC_NEEDS_LIBS(harness \
               comm \
-              release \
-              utils)
+              release )
 
 dnl ----------------------------------------
 dnl Setup for unit tests:
