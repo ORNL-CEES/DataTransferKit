@@ -37,7 +37,7 @@ if test -d nemesis; then
     rm -rf nemesis
 fi
 
-links='config tools src/comm src/harness src/utils'
+links='config src/comm src/harness'
 for l in $links; do
     if test -h $l; then
         echo ">>> removing $l link"
@@ -50,7 +50,6 @@ $git clone $gitdir/nemesis.git nemesis
 
 # add links
 ln -s nemesis/config .
-ln -s nemesis/tools .
 cd ./src
 ln -s ../nemesis/src/harness .
 ln -s ../nemesis/src/comm .

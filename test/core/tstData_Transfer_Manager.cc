@@ -1,9 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   coupler/test/tstMessenger.cc
+ * \file   core/test/tstData_Transfer_Manager.cc
  * \author Stuart Slattery
- * \date   Thu Jun 02 09:10:58 2011
- * \brief  Tests the Messenger class.
+ * \date   Mon Oct 31 12:15:49 2011
+ * \brief  Unit tests for the data transfer manager.
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
 //---------------------------------------------------------------------------//
@@ -20,23 +20,17 @@
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
 #include "release/Release.hh"
-#include "../Messenger.hh"
-#include "../Transfer_Data_Source.hh"
-#include "../Transfer_Data_Target.hh"
 #include "../Transfer_Data_Field.hh"
-#include "../Transfer_Map.hh"
-#include "../Mapper.hh"
+#include "../Data_Transfer_Manager.hh"
+
 #include "Teuchos_RCP.hpp"
 
+using namespace std;
 using nemesis::Parallel_Unit_Test;
 using nemesis::soft_equiv;
 
-using coupler::Transfer_Data_Source;
-using coupler::Transfer_Data_Target;
-using coupler::Transfer_Data_Field;
-using coupler::Transfer_Map;
-using coupler::Mapper;
-using coupler::Messenger;
+int node  = 0;
+int nodes = 0;
 
 #define ITFAILS ut.failure(__LINE__);
 #define UNIT_TEST(a) if (!(a)) ut.failure(__LINE__);
@@ -221,7 +215,7 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
     {
 	if ( field_name == "SCALAR_TEST_FIELD" )
 	{
-	    data = nemesis::node();
+	    data = 1.0*nemesis::node();
 	}
     }
 };
@@ -356,8 +350,7 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 // TESTS
 //---------------------------------------------------------------------------//
 
-// messenger test
-void messenger_test(Parallel_Unit_Test &ut)
+void distributed_transfer_test(Parallel_Unit_Test &ut)
 {
     // Create a data container instance.
     Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
@@ -374,19 +367,11 @@ void messenger_test(Parallel_Unit_Test &ut)
     Teuchos::RCP<Transfer_Data_Field<double> > field = Teuchos::rcp(
 	new Transfer_Data_Field<double>("DISTRIBUTED_TEST_FIELD", tds, tdt));
 
-    // Create a map to populate.
-    Teuchos::RCP<Transfer_Map> map = Teuchos::rcp(new Transfer_Map());
+    // Create a data transfer manager.
+    Data_Transfer_Manager manager( get_comm_world() );
 
-    // Create a mapper and populate the map.
-    Mapper mapper;
-    mapper.map(get_comm_world(), field, map);
-
-    // Apply the map to the field.
-    field->set_map(map);
-
-    // Communicate the field with the messenger.
-    Messenger messenger;
-    messenger.communicate(get_comm_world(), field);
+    // Do the distributed transfer.
+    manager.distributed_transfer(field);
 
     // Check the results of the transfer.
     UNIT_TEST( container->get_distributed_handles().size() == 1);
@@ -397,7 +382,40 @@ void messenger_test(Parallel_Unit_Test &ut)
     if (ut.numFails == 0)
     {
         std::ostringstream m;
-        m << "Messenger test ok on " << nemesis::node();
+        m << "Distributed transfer test ok on " << nemesis::node();
+        ut.passes( m.str() );
+    }
+}
+
+//---------------------------------------------------------------------------//
+
+void scalar_transfer_test(Parallel_Unit_Test &ut)
+{
+    // Create an instance of the source interface.
+    Teuchos::RCP<Transfer_Data_Source<double> > tds = 
+	Teuchos::rcp(new test_Transfer_Data_Source<double>());
+
+    // Create an instance of the target interface.
+    Teuchos::RCP<Transfer_Data_Target<double> > tdt = 
+	Teuchos::rcp(new test_Transfer_Data_Target<double>());
+
+    // Create a scalar field for these interfaces to be transferred.
+    Teuchos::RCP<Transfer_Data_Field<double> > field = Teuchos::rcp(
+	new Transfer_Data_Field<double>("SCALAR_TEST_FIELD", tds, tdt));
+
+    // Create a data transfer manager.
+    Data_Transfer_Manager manager( get_comm_world() );
+
+    // Do the scalar transfer.
+    manager.scalar_transfer(field);
+
+    // Check the results of the transfer.
+    UNIT_TEST( tdt->check_scalar_data() == 1.0*nemesis::node() );
+    
+    if (ut.numFails == 0)
+    {
+        std::ostringstream m;
+        m << "Scalar transfer test ok on " << nemesis::node();
         ut.passes( m.str() );
     }
 }
@@ -408,17 +426,25 @@ int main(int argc, char *argv[])
 {
     Parallel_Unit_Test ut(argc, argv, coupler::release);
 
+    node  = nemesis::node();
+    nodes = nemesis::nodes();
+    
     try
     {
         // >>> UNIT TESTS
         int gpass = 0;
         int gfail = 0;
 
-	messenger_test(ut);
-	gpass += ut.numPasses;
-	gfail += ut.numFails;
-	ut.reset();
+        distributed_transfer_test(ut);
+        gpass += ut.numPasses;
+        gfail += ut.numFails;
+        ut.reset();
 
+        scalar_transfer_test(ut);
+        gpass += ut.numPasses;
+        gfail += ut.numFails;
+        ut.reset();
+        
         // add up global passes and fails
         nemesis::global_sum(gpass);
         nemesis::global_sum(gfail);
@@ -427,21 +453,21 @@ int main(int argc, char *argv[])
     }
     catch (std::exception &err)
     {
-        std::cout << "ERROR: While testing tstMessenger, " 
+        std::cout << "ERROR: While testing tstData_Transfer_Manager, " 
                   << err.what()
-                  << std::endl;
+                  << endl;
         ut.numFails++;
     }
     catch( ... )
     {
-        std::cout << "ERROR: While testing tstMessenger, " 
+        std::cout << "ERROR: While testing tstData_Transfer_Manager, " 
                   << "An unknown exception was thrown."
-                  << std::endl;
+                  << endl;
         ut.numFails++;
     }
     return ut.numFails;
 }   
 
 //---------------------------------------------------------------------------//
-//                        end of tstMessenger.cc
+//                        end of tstData_Transfer_Manager.cc
 //---------------------------------------------------------------------------//

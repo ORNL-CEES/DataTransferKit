@@ -2,9 +2,12 @@
 /*!
  * \file   core/test/core_test.hh
  * \author Stuart R. Slattery
- * \date   Tue May 24 16:18:08 2011
+ * \date   Mon May 23 17:38:25 2011
  * \brief  Testing harness for core.
+ * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
+//---------------------------------------------------------------------------//
+// $Id: pkg_Test.hh,v 1.3 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
 #ifndef core_test_hh
@@ -32,48 +35,21 @@ namespace core_test
 // ways.  We do not constrain nemesis tests except that the output must be of
 // the form "Test: pass/fail"
 
-bool fail(int line, char *file)
-{
-    std::cout << "Test: failed on line " << line << " in " << file
-              << std::endl;
-    passed = false;
-    return false;
-}
+bool fail(int line);
 
-//---------------------------------------------------------------------------//
+bool fail(int line, char *file);
 
-bool pass_msg(const std::string &passmsg)
-{
-    std::cout << "Test: passed" << std::endl;
-    std::cout << "     " << passmsg << std::endl;
-    return true;
-}
+bool pass_msg(const std::string &);
 
-//---------------------------------------------------------------------------//
+bool fail_msg(const std::string &);
 
-bool fail_msg(const std::string &failmsg)
-{
-    std::cout << "Test: failed" << std::endl;
-    std::cout << "     " << failmsg << std::endl;
-    passed = false;
-    return false;
-}
-
-//---------------------------------------------------------------------------//
-
-void unit_test(const bool pass, int line, char *file)
-{
-    if ( ! pass )
-    {
-        fail(line, file);
-    }
-}
+void unit_test(const bool pass, int line, char *file);
 
 //---------------------------------------------------------------------------//
 // PASSING CONDITIONALS
 //---------------------------------------------------------------------------//
 
-bool passed = true;
+extern bool passed;
 
 } // end namespace core_test
 

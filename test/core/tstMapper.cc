@@ -1,10 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   coupler/test/tstMessenger.cc
+ * \file   core/test/tstMapper.cc
  * \author Stuart Slattery
- * \date   Thu Jun 02 09:10:58 2011
- * \brief  Tests the Messenger class.
- * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
+ * \date   Tue Nov 08 12:31:19 2011
+ * \brief  Unit tests for the mapper operator.
  */
 //---------------------------------------------------------------------------//
 // $Id: template_c4_test.cc,v 1.7 2008/01/02 22:50:26 9te Exp $
@@ -20,14 +19,15 @@
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
 #include "release/Release.hh"
-#include "../Messenger.hh"
 #include "../Transfer_Data_Source.hh"
 #include "../Transfer_Data_Target.hh"
 #include "../Transfer_Data_Field.hh"
 #include "../Transfer_Map.hh"
 #include "../Mapper.hh"
+
 #include "Teuchos_RCP.hpp"
 
+using namespace std;
 using nemesis::Parallel_Unit_Test;
 using nemesis::soft_equiv;
 
@@ -36,12 +36,17 @@ using coupler::Transfer_Data_Target;
 using coupler::Transfer_Data_Field;
 using coupler::Transfer_Map;
 using coupler::Mapper;
-using coupler::Messenger;
+
+int node  = 0;
+int nodes = 0;
 
 #define ITFAILS ut.failure(__LINE__);
 #define UNIT_TEST(a) if (!(a)) ut.failure(__LINE__);
 
 //---------------------------------------------------------------------------//
+// HELPER FUNCTIONS
+//---------------------------------------------------------------------------//
+
 nemesis::Communicator_t get_comm_world()
 {
 #ifdef COMM_MPI
@@ -205,7 +210,7 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
     {
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
-	    std::vector<double> local_data(1, 1.0*nemesis::node() );
+	    std::vector<double> local_data(1, 1.0);
 	    data = local_data;
 	}
     }
@@ -221,7 +226,7 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
     {
 	if ( field_name == "SCALAR_TEST_FIELD" )
 	{
-	    data = nemesis::node();
+	    data = 1.0;
 	}
     }
 };
@@ -356,19 +361,18 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 // TESTS
 //---------------------------------------------------------------------------//
 
-// messenger test
-void messenger_test(Parallel_Unit_Test &ut)
+void mapper_test(Parallel_Unit_Test &ut)
 {
-    // Create a data container instance.
+    // create a data container instance.
     Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
     Teuchos::RCP<Transfer_Data_Source<double> > tds = 
-	Teuchos::rcp(new test_Transfer_Data_Source<double>());
+	Teuchos::rcp(new test_Transfer_Data_Source<double>(container));
 
     // Create an instance of the target interface.
     Teuchos::RCP<Transfer_Data_Target<double> > tdt = 
-	Teuchos::rcp(new test_Transfer_Data_Target<double>(container));
+	Teuchos::rcp(new test_Transfer_Data_Target<double>());
 
     // Create a distributed field for these interfaces to be transferred.
     Teuchos::RCP<Transfer_Data_Field<double> > field = Teuchos::rcp(
@@ -384,20 +388,46 @@ void messenger_test(Parallel_Unit_Test &ut)
     // Apply the map to the field.
     field->set_map(map);
 
-    // Communicate the field with the messenger.
-    Messenger messenger;
-    messenger.communicate(get_comm_world(), field);
+    // Check the contents of the map - everyone should be sending and
+    // receiving only from themselves.
+    UNIT_TEST( field->get_map()->domain_size(nemesis::node()) == 1 );
 
-    // Check the results of the transfer.
-    UNIT_TEST( container->get_distributed_handles().size() == 1);
-    UNIT_TEST( container->get_distributed_handles[0] == nemesis::node() );
-    UNIT_TEST( container->get_distributed_data().size() == 1);
-    UNIT_TEST( container->get_distributed_data()[0] == 1.0*nemesis::node() );
+    UNIT_TEST( field->get_map()->range_size(nemesis::node()) == 1 );
+
+    UNIT_TEST( std::distance(
+		   field->get_map()->domain(nemesis::node()).first,
+		   field->get_map()->domain(nemesis::node()).second)
+		   == 1)
+    UNIT_TEST( field->get_map()->domain(nemesis::node()).first->first
+	       == nemesis::node() );
+    UNIT_TEST( field->get_map()->domain(nemesis::node()).first->second
+	       == nemesis::node() );
+
+    UNIT_TEST( std::distance(
+		   field->get_map()->range(nemesis::node()).first,
+		   field->get_map()->range(nemesis::node()).second)
+		   == 1)
+    UNIT_TEST( field->get_map()->range(nemesis::node()).first->first
+	       == nemesis::node() );
+    UNIT_TEST( field->get_map()->range(nemesis::node()).first->second
+	       == nemesis::node() );
+
+    UNIT_TEST( std::distance(
+		   field->get_map()->sources.first,
+		   field->get_map()->sources.second)
+	       == 1);
+    UNIT_TEST( *field->get_map()->sources().first == nemesis::node() );
+
+    UNIT_TEST( std::distance(
+		   field->get_map()->targets.first,
+		   field->get_map()->targets.second)
+	       == 1);    
+    UNIT_TEST( *field->get_map()->targets().first == nemesis::node() );
 
     if (ut.numFails == 0)
     {
         std::ostringstream m;
-        m << "Messenger test ok on " << nemesis::node();
+        m << "Mapper test ok on " << nemesis::node();
         ut.passes( m.str() );
     }
 }
@@ -408,17 +438,20 @@ int main(int argc, char *argv[])
 {
     Parallel_Unit_Test ut(argc, argv, coupler::release);
 
+    node  = nemesis::node();
+    nodes = nemesis::nodes();
+    
     try
     {
         // >>> UNIT TESTS
         int gpass = 0;
         int gfail = 0;
 
-	messenger_test(ut);
+	mapper_test(ut);
 	gpass += ut.numPasses;
 	gfail += ut.numFails;
 	ut.reset();
-
+        
         // add up global passes and fails
         nemesis::global_sum(gpass);
         nemesis::global_sum(gfail);
@@ -427,21 +460,21 @@ int main(int argc, char *argv[])
     }
     catch (std::exception &err)
     {
-        std::cout << "ERROR: While testing tstMessenger, " 
+        std::cout << "ERROR: While testing tstMapper, " 
                   << err.what()
-                  << std::endl;
+                  << endl;
         ut.numFails++;
     }
     catch( ... )
     {
-        std::cout << "ERROR: While testing tstMessenger, " 
+        std::cout << "ERROR: While testing tstMapper, " 
                   << "An unknown exception was thrown."
-                  << std::endl;
+                  << endl;
         ut.numFails++;
     }
     return ut.numFails;
 }   
 
 //---------------------------------------------------------------------------//
-//                        end of tstMessenger.cc
+//                        end of tstMapper.cc
 //---------------------------------------------------------------------------//

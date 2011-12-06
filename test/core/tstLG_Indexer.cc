@@ -1,9 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/test/tstMessage_Buffer.cc
- * \author Stuart Slattery
- * \date   Tue Nov 08 12:20:24 2011
- * \brief  Unit test for the message buffer container.
+ * \file   coupler/test/tstLG_Indexer.cc
+ * \author Stuart R. Slattery
+ * \date   Thu Jun 16 17:00:12 2011
+ * \brief  LG_Indexer unit tests
  * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
 //---------------------------------------------------------------------------//
@@ -20,17 +20,12 @@
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
 #include "release/Release.hh"
-#include "../Packing_Utils.hh"
-#include "../Message_Buffer.hh"
+#include "../LG_Indexer.hh"
 
-using namespace std;
+#include "Teuchos_RCP.hpp"
+
 using nemesis::Parallel_Unit_Test;
 using nemesis::soft_equiv;
-
-using denovo::Packer;
-using denovo::Unpacker;
-
-using coupler::Message_Buffer;
 
 int node  = 0;
 int nodes = 0;
@@ -39,48 +34,59 @@ int nodes = 0;
 #define UNIT_TEST(a) if (!(a)) ut.failure(__LINE__);
 
 //---------------------------------------------------------------------------//
+// HELPER FUNCTIONS
+//---------------------------------------------------------------------------//
+
+// dummy application for the test
+class test_app
+{
+  public:
+    test_app() { /* ... */}
+    ~test_app() {/* ... */}
+};
+
+//---------------------------------------------------------------------------//
+nemesis::Communicator_t get_comm_world()
+{
+#ifdef COMM_MPI
+    return MPI_COMM_WORLD;
+#else
+    return 1;
+#endif
+}
+
+
+//---------------------------------------------------------------------------//
 // TESTS
 //---------------------------------------------------------------------------//
 
-void message_buffer_test(Parallel_Unit_Test &ut)
+void indexer_test(Parallel_Unit_Test &ut)
 {
-    // Make a message buffer.
-    Message_Buffer<int> message_buffer(node, sizeof(int));
+    typedef coupler::LG_Indexer        LG_Indexer_t;
 
-    // Check the initialization.
-    UNIT_TEST( message_buffer.ordinate() == node );
-    UNIT_TEST( message_buffer.buffer().size() == sizeof(int) );
+    // Create the test app
+    Teuchos::RCP<test_app> app_ptr( new test_app() );
 
-    // Setup an MPI_Request for a non-blocking receive.
-    nemesis::receive_async(message_buffer.request(),
-			   &message_buffer.buffer()[0],
-			   message_buffer.buffer().size(),
-			   message_buffer.ordinate());
+    // Create the local communicator object
+    nemesis::Communicator_t local_comm;
 
-    // Every node sends a buffer to itself containing its node id.
-    std::vector<char> send_buffer( sizeof(int) );
-    Packer p;
-    p.set_buffer( send_buffer.size(), &send_buffer[0] );
-    p << node;
+    // Split the communicator
+    nemesis::split(0, nodes-node-1, local_comm);
 
-    nemesis::send_async(&send_buffer[0], send_buffer.size(), node);
+    // Make the indexer
+    LG_Indexer_t indexer(get_comm_world(), local_comm, app_ptr);
 
-    // Wait for the request to be processed.
-    while ( !message_buffer.request().complete() ) { }
-
-    // Unpack the buffer and check it.
-    int data;
-    Unpacker u;
-    u.set_buffer( message_buffer.buffer().size(), 
-		  &message_buffer.buffer()[0] );
-    u >> data;
-    
-    UNIT_TEST( data == node );
+    // check the map
+    UNIT_TEST(indexer.size() == nodes);
+    for (int i = 0; i < nodes; ++i)
+    {
+        UNIT_TEST(indexer.l2g(i) == nodes - i - 1);
+    }
 
     if (ut.numFails == 0)
     {
         std::ostringstream m;
-        m << "Transfer_Map test passes on " << node;
+        m << "LG_Indexer test passes on " << node;
         ut.passes( m.str() );
     }
 }
@@ -99,12 +105,12 @@ int main(int argc, char *argv[])
         // >>> UNIT TESTS
         int gpass = 0;
         int gfail = 0;
-        
-	message_buffer_test(ut);
-	gpass += ut.numPasses;
-	gfail += ut.numFails;
-	ut.reset();
-
+ 
+        indexer_test(ut);
+        gpass += ut.numPasses;
+        gfail += ut.numFails;
+        ut.reset();
+       
         // add up global passes and fails
         nemesis::global_sum(gpass);
         nemesis::global_sum(gfail);
@@ -113,21 +119,21 @@ int main(int argc, char *argv[])
     }
     catch (std::exception &err)
     {
-        std::cout << "ERROR: While testing tstMessage_Buffer, " 
+        std::cout << "ERROR: While testing tstLG_Indexer, " 
                   << err.what()
-                  << endl;
+                  << std::endl;
         ut.numFails++;
     }
     catch( ... )
     {
-        std::cout << "ERROR: While testing tstMessage_Buffer, " 
+        std::cout << "ERROR: While testing tstLG_Indexer, " 
                   << "An unknown exception was thrown."
-                  << endl;
+                  << std::endl;
         ut.numFails++;
     }
     return ut.numFails;
-}   
+}
 
 //---------------------------------------------------------------------------//
-//                        end of tstMessage_Buffer.cc
+//                        end of tstLG_Indexer.cc
 //---------------------------------------------------------------------------//

@@ -21,7 +21,7 @@
 #include "Transfer_Map.hh"
 #include "Message_Buffer.hh"
 #include "LG_Indexer.hh"
-#include "utils/Packing_Utils.hh"
+#include "Packing_Utils.hh"
 #include "comm/global.hh"
 
 #include "Teuchos_RCP.hpp"
