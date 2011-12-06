@@ -15,7 +15,7 @@ INCLUDE(CombinedOption)
 ## A) Define the package
 ##---------------------------------------------------------------------------##
 
-TRIBITS_PACKAGE_DECL(Coupler)
+TRIBITS_PACKAGE_DECL(coupler)
 
 ##---------------------------------------------------------------------------##
 ## B) Set up package-specific options
@@ -23,20 +23,19 @@ TRIBITS_PACKAGE_DECL(Coupler)
 TRIBITS_ADD_DEBUG_OPTION()
 
 ##---------------------------------------------------------------------------##
-# C) Process the subpackages.
-##---------------------------------------------------------------------------##
-TRIBITS_PROCESS_SUBPACKAGES()
-
-TRIBITS_PACKAGE_DEF()
-
-##---------------------------------------------------------------------------##
-## D) Add the libraries, tests, and examples
+## C) Add the libraries, tests, and examples
 ##---------------------------------------------------------------------------##
 
 ADD_SUBDIRECTORY(src)
 
 TRIBITS_ADD_EXAMPLE_DIRECTORIES(example)
 
+##---------------------------------------------------------------------------##
+# D) Process the subpackages.
+##---------------------------------------------------------------------------##
+TRIBITS_PROCESS_SUBPACKAGES()
+
+TRIBITS_PACKAGE_DEF()
 
 ##---------------------------------------------------------------------------##
 ## E) Exclude Files

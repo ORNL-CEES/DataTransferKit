@@ -66,16 +66,15 @@ ENDIF()
 #
 
 TRIBITS_ADD_LIBRARY(
-  core
+  coupler_core
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
-  DEFINES -DCOUPLER_LIB_EXPORTS_MODE
   )
 
 INSTALL(FILES 
   ${HEADERS} 
   DESTINATION 
-  ${CMAKE_INSTALL_PREFIX}/include/core)
+  ${CMAKE_INSTALL_PREFIX}/include/coupler/core)
 
 #
 # D) Define the unit tests
