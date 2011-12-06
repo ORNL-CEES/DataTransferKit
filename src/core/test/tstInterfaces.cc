@@ -312,6 +312,7 @@ void target_interface_test(Parallel_Unit_Test &ut)
 {
     // create a data container instance.
     Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
+
     // create an instance of the target interface.
     Teuchos::RCP<Transfer_Data_Target<double> > target_iface = 
 	Teuchos::rcp(new test_Transfer_Data_Target<double>(container));

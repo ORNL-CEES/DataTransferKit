@@ -10,6 +10,7 @@
 //---------------------------------------------------------------------------//
 
 #include "Transfer_Data_Field.hh"
+#include "harness/DBC.hh"
 
 namespace coupler
 {
