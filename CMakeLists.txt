@@ -7,6 +7,9 @@
 ##---------------------------------------------------------------------------##
 
 INCLUDE(TribitsPackageMacros)
+INCLUDE(TribitsLibraryMacros)
+INCLUDE(TribitsAddOptionAndDefine)
+INCLUDE(CombinedOption)
 
 ##---------------------------------------------------------------------------##
 ## A) Define the package
@@ -20,8 +23,6 @@ SET(${PACKAGE_NAME}_VERSION "0.0.1")
 ## B) Set up package-specific options
 ##---------------------------------------------------------------------------##
 TRIBITS_ADD_DEBUG_OPTION()
-
-TRIBITS_SET_SS_FOR_DEV_MODE(SS_FOR_DEV_PS_FOR_RELEASE)
 
 ##---------------------------------------------------------------------------##
 # C) Process the subpackages.

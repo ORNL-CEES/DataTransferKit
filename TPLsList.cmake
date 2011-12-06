@@ -7,6 +7,7 @@
 #
 
 SET(Coupler_TPLS_FINDMODS_CLASSIFICATIONS
+  MPI       TPLs_cmake/        EX
   nemesis   TPLs_cmake/        EX
   Trilinos  TPLs_cmake/        EX
   )
