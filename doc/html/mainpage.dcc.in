@@ -1,0 +1,32 @@
+//---------------------------------------------------------------------------//
+// mainpage.dcc
+// Front page to the coupling package autodoc system.
+//---------------------------------------------------------------------------//
+
+/*!
+
+\mainpage Coupling Package Documentation
+
+\par Authors
+<a href="mailto:sslattery@wisc.edu">Stuart Slattery</a>.
+
+\par Executive Summary
+The coupling package is an implementation of a parallel communication pattern
+for mesh based data transfer. An interface to the implementation is 
+provided.</a>
+
+\par Components
+The coupling package utilizes several components from the Nemesis package as 
+well as a core package containing the client interface and communication 
+implemenation.
+@COMP_LINKS@
+
+*/
+
+// \par Packages
+@PACKAGE_LINKS@
+
+//---------------------------------------------------------------------------//
+// end of mainpage.dcc
+//---------------------------------------------------------------------------//
+
