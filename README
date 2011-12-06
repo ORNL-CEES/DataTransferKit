@@ -1,13 +1,15 @@
 README
 
-The coupler is a package for parallel data transfer between arbitrary physics codes.
+The coupler is a package for parallel data transfer between arbitrary physics 
+codes. Interfaces are provided for data access to each physics. See doxygen
+documentation for more details.
 
 SETUP
 -----
 
 Run the 'setup_nemesis' script to configure vendors.
 
-Runt the 'coupler_config' script to generate autoconf configure files.
+Run the 'coupler_config' script to generate autoconf configure files.
 
 CONFIGURE
 ---------

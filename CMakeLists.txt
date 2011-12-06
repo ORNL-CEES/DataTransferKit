@@ -17,8 +17,6 @@ INCLUDE(CombinedOption)
 
 TRIBITS_PACKAGE_DECL(Coupler)
 
-SET(${PACKAGE_NAME}_VERSION "0.0.1")
-
 ##---------------------------------------------------------------------------##
 ## B) Set up package-specific options
 ##---------------------------------------------------------------------------##
