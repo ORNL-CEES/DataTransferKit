@@ -28,6 +28,7 @@ using denovo::Unpacker;
 
 namespace coupler {
 
+// Test the typical Message_Buffer communication pattern.
 TEUCHOS_UNIT_TEST( Message_Buffer, messagebufferCommunication )
 {
     // Make a message buffer.
