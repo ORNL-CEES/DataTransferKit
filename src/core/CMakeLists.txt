@@ -6,7 +6,7 @@ INCLUDE(TribitsSubPackageMacros)
 # A) Package-specific configuration options
 #
 
-TRIBITS_SUBPACKAGE(core)
+TRIBITS_SUBPACKAGE(Core)
 
 #
 # B) Define the header and source files (and include directories)

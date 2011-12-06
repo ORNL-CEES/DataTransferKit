@@ -12,7 +12,7 @@ INCLUDE(TribitsPackageMacros)
 ## A) Define the package
 ##---------------------------------------------------------------------------##
 
-TRIBITS_PACKAGE_DECL(coupler)
+TRIBITS_PACKAGE_DECL(Coupler)
 
 SET(${PACKAGE_NAME}_VERSION "0.0.1")
 

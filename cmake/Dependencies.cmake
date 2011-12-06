@@ -1,8 +1,7 @@
 SET(REGRESSION_EMAIL_LIST casl-vri-testing@casl.gov)
 
 SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
-  Harness src/harness   SS  OPTIONAL
-  Comm    src/comm      SS  OPTIONAL
+  Core    src/core   SS  OPTIONAL
   )
 
 SET(LIB_REQUIRED_DEP_PACKAGES)
