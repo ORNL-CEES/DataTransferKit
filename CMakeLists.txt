@@ -26,8 +26,6 @@ TRIBITS_ADD_DEBUG_OPTION()
 ## C) Add the libraries, tests, and examples
 ##---------------------------------------------------------------------------##
 
-ADD_SUBDIRECTORY(src)
-
 TRIBITS_ADD_EXAMPLE_DIRECTORIES(example)
 
 ##---------------------------------------------------------------------------##

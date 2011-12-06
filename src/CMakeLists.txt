@@ -1,4 +1,0 @@
-INCLUDE(TribitsLibraryMacros)
-
-ADD_SUBDIRECTORY(release)
-ADD_SUBDIRECTORY(core)
