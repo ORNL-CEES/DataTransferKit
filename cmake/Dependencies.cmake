@@ -1,8 +1,8 @@
 SET(REGRESSION_EMAIL_LIST casl-vri-testing@casl.gov)
 
 SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
-  Release src/release SS REQUIRED
-  Core    src/core    SS  REQUIRED
+  Release    src/release    SS    REQUIRED
+  Core       src/core       SS    REQUIRED
   )
 
 SET(LIB_REQUIRED_DEP_PACKAGES)
