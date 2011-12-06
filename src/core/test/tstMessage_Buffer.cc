@@ -19,7 +19,6 @@
 #include "harness/Soft_Equivalence.hh"
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
-#include "release/Release.hh"
 #include "../Packing_Utils.hh"
 #include "../Message_Buffer.hh"
 

@@ -19,7 +19,6 @@
 #include "harness/Soft_Equivalence.hh"
 #include "comm/global.hh"
 #include "comm/Parallel_Unit_Test.hh"
-#include "release/Release.hh"
 #include "../Transfer_Data_Field.hh"
 #include "../Data_Transfer_Manager.hh"
 
