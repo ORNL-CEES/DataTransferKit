@@ -13,9 +13,12 @@
 #include <sstream>
 
 #include "comm/global.hh"
+
+#include <Mesh_Point.hpp>
 #include "../Transfer_Data_Source.hh"
 #include "../Transfer_Data_Target.hh"
 
+#include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_UnitTestHarness.hpp"
 
@@ -78,15 +81,21 @@ namespace coupler {
 
 // transfer data source implementation - this implementation specifies double
 // as the data type
-template<class DataType_T>
-class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
+template<class DataType_T, class HandleType_T, class CoordinateType_T>
+class test_Transfer_Data_Source 
+    : public Transfer_Data_Source<DataType_T, HandleType_T, CoordinateType_T>
 {
+  private:
+
+    std::vector<double> private_data;
+
   public:
 
     typedef double                                   DataType;
     typedef nemesis::Communicator_t                  Communicator;
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
+    typedef mesh::Point<HandleType,CoordinateType>   PointType;
 
     test_Transfer_Data_Source()
     { /* ... */ }
@@ -120,14 +129,11 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
 	return return_val;
     }
 
-    bool get_points(HandleType handle,
-		    CoordinateType x, 
-		    CoordinateType y,
-		    CoordinateType z)
+    bool get_points(PointType &point)
     {
 	bool return_val = false;
 
-	if ( x > 0 && y > 0 && z > 0 )
+	if ( point.x() > 0 && point.y() > 0 && point.z() > 0 )
 	{
 	    return_val = true;
 	}
@@ -135,24 +141,33 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
 	return return_val;
     }
 
-    void send_data(const std::string &field_name,
-		   const std::vector<HandleType> &handles,
-		   std::vector<DataType> &data)
+    Teuchos::ArrayView<double> send_data(
+	const std::string &field_name,
+	const Teuchos::ArrayView<PointType> &points)
     {
+	Teuchos::ArrayView<double> return_view;
+
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
 	    std::vector<double> local_data(1, 1.0);
-	    data = local_data;
+	    private_data = local_data;
+	    Teuchos::ArrayView<double> private_view(private_data);
+	    return_view =  private_view;
 	}
+
+	return return_view;
     }
 
-    void set_global_data(const std::string &field_name,
-			 DataType &data)
+    double set_global_data(const std::string &field_name)
     {
+	double return_val = 0.0;
+
 	if ( field_name == "SCALAR_TEST_FIELD" )
 	{
-	    data = 1.0;
+	    return_val = 1.0;
 	}
+
+	return return_val;
     }
 };
 
@@ -160,8 +175,9 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
 
 // transfer data target implementation - this implementation specifies double
 // as the data type
-template<class DataType_T>
-class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
+template<class DataType_T, class HandleType_T, class CoordinateType_T>
+class test_Transfer_Data_Target 
+    : public Transfer_Data_Target<DataType_T, HandleType_T, CoordinateType_T>
 {
   private:
 
@@ -252,9 +268,11 @@ namespace coupler {
 
 TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
 {
+    typedef mesh::Point<int,double>     PointType;
+
     // create an instance of the source interface.
-    Teuchos::RCP<Transfer_Data_Source<double> > source_iface = 
-	Teuchos::rcp(new test_Transfer_Data_Source<double>);
+    Teuchos::RCP<Transfer_Data_Source<double,int,double> > source_iface = 
+	Teuchos::rcp(new test_Transfer_Data_Source<double,int,double>);
 
     // test the interface methods.
     nemesis::Communicator_t source_comm;
@@ -269,23 +287,22 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
     TEST_ASSERT( source_iface->field_supported("SCALAR_TEST_FIELD") );
     TEST_ASSERT( !source_iface->field_supported("FOO_TEST_FIELD") );
 
-    TEST_ASSERT( source_iface->get_points(1, 1.0, 1.0, 1.0) );
-    TEST_ASSERT( !source_iface->get_points(1, -1.0, -1.0, -1.0) );
+    PointType positive_point(1, 1.0, 1.0, 1.0);
+    PointType negative_point(1, -1.0, -1.0, -1.0);
+    TEST_ASSERT( source_iface->get_points(positive_point) );
+    TEST_ASSERT( !source_iface->get_points(negative_point) );
 
-    std::vector<double> data_to_send;
-    std::vector<int> handles_to_send(1, 1);
-    source_iface->send_data("FOO_TEST_FIELD", handles_to_send, data_to_send);
-    TEST_ASSERT( data_to_send.size() == 0 );
-    source_iface->send_data("DISTRIBUTED_TEST_FIELD", 
-			    handles_to_send, data_to_send);
-    TEST_ASSERT( data_to_send.size() == 1);
-    TEST_ASSERT( data_to_send[0] == 1.0 );
+    std::vector<PointType> points_to_send(1, positive_point);
+    Teuchos::ArrayView<PointType> points_view(points_to_send);  
+    Teuchos::ArrayView<double> data_view;
+    data_view = source_iface->send_data("FOO_TEST_FIELD", points_view);
+    TEST_ASSERT( data_view.size() == 0 );
+    data_view = source_iface->send_data("DISTRIBUTED_TEST_FIELD", points_view);
+    TEST_ASSERT( data_view.size() == 1);
+    TEST_ASSERT( data_view[0] == 1.0 );
 
-    double global_scalar = 0.0;
-    source_iface->set_global_data("FOO_TEST_FIELD", global_scalar);
-    TEST_ASSERT( global_scalar == 0.0 );
-    source_iface->set_global_data("SCALAR_TEST_FIELD", global_scalar);
-    TEST_ASSERT( global_scalar == 1.0 );
+    TEST_ASSERT( source_iface->set_global_data("FOO_TEST_FIELD") == 0.0 );
+    TEST_ASSERT( source_iface->set_global_data("SCALAR_TEST_FIELD") == 1.0 );
 }
 
 TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
@@ -294,8 +311,8 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
     Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
 
     // create an instance of the target interface.
-    Teuchos::RCP<Transfer_Data_Target<double> > target_iface = 
-	Teuchos::rcp(new test_Transfer_Data_Target<double>(container));
+    Teuchos::RCP<Transfer_Data_Target<double,int,double> > target_iface = 
+	Teuchos::rcp(new test_Transfer_Data_Target<double,int,double>(container));
 
     // test the interface methods.
     nemesis::Communicator_t target_comm;

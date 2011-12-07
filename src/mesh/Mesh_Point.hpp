@@ -1,14 +1,14 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   mesh/Point.hh
+ * \file   mesh/Point.hpp
  * \author Stuart R. Slattery
  * \date   Wed May 25 12:23:57 2011
  * \brief  Cartesian Point class definition
  */
 //---------------------------------------------------------------------------//
 
-#ifndef mesh_Point_hh
-#define mesh_Point_hh
+#ifndef mesh_Point_hpp
+#define mesh_Point_hpp
 
 #include "harness/DBC.hh"
 
@@ -35,7 +35,7 @@ namespace mesh
  */
 //===========================================================================//
 
-template<class HandleType_T>
+template<class HandleType_T, class CoordinateType_T>
 class Point 
 {
   public:
@@ -43,7 +43,7 @@ class Point
     //@{ 
     //! Useful typedefs.
     typedef HandleType_T                  HandleType;
-    typedef double                        CoordinateType;
+    typedef CoordinateType_T              CoordinateType;
     //@}
 
   private:
@@ -69,8 +69,8 @@ class Point
     }
 
     //! Copy constructor.
-    template<class CoordinateType_2>
-    Point(const Point<CoordinateType_2>& point)
+    template<class HandleType_2, class CoordinateType_2>
+    Point(const Point<HandleType_2,CoordinateType_2>& point)
         : d_handle( point.handle )
 	, d_coords( point.d_coords )
     {   }
@@ -102,8 +102,8 @@ class Point
 
 } // end namespace mesh
 
-#endif // mesh_Point_hh
+#endif // mesh_Point_hpp
 
 //---------------------------------------------------------------------------//
-//              end of mesh/Point.hh
+//              end of mesh/Mesh_Point.hpp
 //---------------------------------------------------------------------------//

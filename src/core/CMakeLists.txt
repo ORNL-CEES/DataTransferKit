@@ -34,19 +34,19 @@ APPEND_SET(HEADERS
   Transfer_Map.i.hh
   Transfer_Data_Source.hh
   Transfer_Data_Target.hh
-  Transfer_Data_Field.hh
-  Transfer_Data_Field.t.hh
-  Mapper.hh
-  Mapper.t.hh
-  Messenger.hh
-  Data_Transfer_Manager.hh
+  # Transfer_Data_Field.hh
+  # Transfer_Data_Field.t.hh
+  # Mapper.hh
+  # Mapper.t.hh
+  # Messenger.hh
+  # Data_Transfer_Manager.hh
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
-  Messenger.cc
-  Data_Transfer_Manager.cc
+#  Messenger.cc
+#  Data_Transfer_Manager.cc
   )
 
 # Set addition headers and source based on package-specific

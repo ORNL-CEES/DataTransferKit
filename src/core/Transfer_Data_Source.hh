@@ -15,7 +15,11 @@
 #include <vector>
 #include <string>
 
+#include <Mesh_Point.hpp>
+
 #include "comm/global.hh"
+
+#include "Teuchos_ArrayViewDecl.hpp"
 
 namespace coupler
 {
@@ -27,8 +31,7 @@ namespace coupler
  * in multiphysics coupling.
  *
  * This interface is templated on the type of field data being
- * transferred. Handle type is fixed to integer and coordinate type is fixed to
- * double. These could be templated in the future.
+ * transferred, the handle type for mesh entities, and the coordinate type.
  */
 /*! 
  * \example core/test/tstTransfer_Data_Source.cc
@@ -36,7 +39,7 @@ namespace coupler
  * Test of Transfer_Data_Source.
  */
 //===========================================================================//
-template<class DataType_T>
+template<class DataType_T, class HandleType_T, class CoordinateType_T>
 class Transfer_Data_Source 
 {
   public:
@@ -44,9 +47,10 @@ class Transfer_Data_Source
     //@{
     //! Useful typedefs.
     typedef DataType_T                               DataType;
+    typedef HandleType_T                             HandleType;
+    typedef CoordinateType_T                         CoordinateType;
+    typedef mesh::Point<HandleType,CoordinateType>   PointType;
     typedef nemesis::Communicator_t                  Communicator;
-    typedef int                                      HandleType;
-    typedef double                                   CoordinateType;
     //@}
 
     /*!
@@ -78,35 +82,28 @@ class Transfer_Data_Source
     /*! 
      * \brief Given (x,y,z) coordinates and an associated globally unique
      * handle, return true if the point is in the local domain, false if not.
-     * \param handle The globally unique handle associated with the point.
-     * \param x X coordinate.
-     * \param y Y coordinate.
-     * \param z Z coordinate.
+     * \param point Point.
      */
-    virtual bool get_points(HandleType handle,
-			    CoordinateType x, 
-			    CoordinateType y,
-			    CoordinateType z) = 0;
+    virtual bool get_points(PointType &point) = 0;
 
     /*! 
      * \brief Given an entity handle, send the field data associated with that
      * handle. 
      * \param field_name The name of the field to send data from.
-     * \param handles The enitity handles for the data being sent.
-     * \param data The data being sent.
+     * \param points A view of the points for the data being sent.
+     * \return A view of data being sent.
      */
-    virtual void send_data(const std::string &field_name,
-			   const std::vector<HandleType> &handles,
-			   std::vector<DataType> &data) = 0;
+    virtual Teuchos::ArrayView<DataType> send_data(
+	const std::string &field_name,
+	const Teuchos::ArrayView<PointType> &points) = 0;
 
     /*!
      * \brief Given a field, set a global data element to be be sent to a
      * target.
      * \param field_name The name of the field to send data from.
-     * \param data The global data element.
+     * \return The global data element.
      */
-    virtual void set_global_data(const std::string &field_name,
-				 DataType &data) = 0;
+    virtual DataType set_global_data(const std::string &field_name) = 0;
 };
 
 } // end namespace coupler

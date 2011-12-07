@@ -12,6 +12,15 @@
 #ifndef core_Transfer_Data_Target_hh
 #define core_Transfer_Data_Target_hh
 
+#include <vector>
+#include <string>
+
+#include <Mesh_Point.hpp>
+
+#include "comm/global.hh"
+
+#include "Teuchos_ArrayViewDecl.hpp"
+
 namespace coupler
 {
 
@@ -22,8 +31,7 @@ namespace coupler
  * in multiphysics coupling.
  *
  * This interface is templated on the type of field data being
- * transfered. Handle type is fixed to integer and coordinate type is fixed to
- * double. These could be templated in the future.
+ * transferred, the handle type for mesh entities, and the coordinate type.
  */
 /*! 
  * \example core/test/tstTransfer_Data_Target.cc
@@ -31,7 +39,7 @@ namespace coupler
  * Test of Transfer_Data_Target.
  */
 //===========================================================================//
-template<class DataType_T>
+template<class DataType_T, class HandleType_T, class CoordinateType_T>
 class Transfer_Data_Target 
 {
   public:
@@ -39,9 +47,10 @@ class Transfer_Data_Target
     //@{
     //! Useful typedefs.
     typedef DataType_T                               DataType;
+    typedef HandleType_T                             HandleType;
+    typedef CoordinateType_T                         CoordinateType;
+    typedef mesh::Point<HandleType,CoordinateType>   PointType;
     typedef nemesis::Communicator_t                  Communicator;
-    typedef int                                      HandleType;
-    typedef double                                   CoordinateType;
     //@}
 
     /*!

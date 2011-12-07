@@ -3,7 +3,7 @@ INCLUDE(TribitsAddAdvancedTest)
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   Point_test
-  SOURCES tstPoint.cc ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstPoint.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
