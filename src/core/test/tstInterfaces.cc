@@ -4,10 +4,7 @@
  * \author Stuart Slattery
  * \date   Thu Dec 01 16:50:04 2011
  * \brief  Unit tests for the data transfer pure virtual interfaces.
- * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
-//---------------------------------------------------------------------------//
-// $Id: template_c4_test.cc,v 1.7 2008/01/02 22:50:26 9te Exp $
 //---------------------------------------------------------------------------//
 
 #include <iostream>
@@ -15,27 +12,12 @@
 #include <cmath>
 #include <sstream>
 
-#include "harness/DBC.hh"
-#include "harness/Soft_Equivalence.hh"
 #include "comm/global.hh"
-#include "comm/Parallel_Unit_Test.hh"
 #include "../Transfer_Data_Source.hh"
 #include "../Transfer_Data_Target.hh"
 
 #include "Teuchos_RCP.hpp"
-
-using namespace std;
-using nemesis::Parallel_Unit_Test;
-using nemesis::soft_equiv;
-
-using coupler::Transfer_Data_Source;
-using coupler::Transfer_Data_Target;
-
-int node  = 0;
-int nodes = 0;
-
-#define ITFAILS ut.failure(__LINE__);
-#define UNIT_TEST(a) if (!(a)) ut.failure(__LINE__);
+#include "Teuchos_UnitTestHarness.hpp"
 
 //---------------------------------------------------------------------------//
 // DATA CLASS
@@ -91,6 +73,8 @@ class Data_Container
 //---------------------------------------------------------------------------//
 // INTERFACE IMPLEMENTATIONS
 //---------------------------------------------------------------------------//
+
+namespace coupler {
 
 // transfer data source implementation - this implementation specifies double
 // as the data type
@@ -258,11 +242,15 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
     }
 };
 
+} // end namespace coupler
+
 //---------------------------------------------------------------------------//
 // TESTS
 //---------------------------------------------------------------------------//
 
-void source_interface_test(Parallel_Unit_Test &ut)
+namespace coupler {
+
+TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
 {
     // create an instance of the source interface.
     Teuchos::RCP<Transfer_Data_Source<double> > source_iface = 
@@ -272,42 +260,35 @@ void source_interface_test(Parallel_Unit_Test &ut)
     nemesis::Communicator_t source_comm;
     source_iface->register_comm(source_comm);
 #ifdef COMM_MPI
-    UNIT_TEST( source_comm == MPI_COMM_WORLD );
+    TEST_ASSERT( source_comm == MPI_COMM_WORLD );
 #else
-    UNIT_TEST( source_comm != MPI_COMM_WORLD );
+    TEST_ASSERT( source_comm != MPI_COMM_WORLD );
 #endif
 
-    UNIT_TEST( source_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
-    UNIT_TEST( source_iface->field_supported("SCALAR_TEST_FIELD") );
-    UNIT_TEST( !source_iface->field_supported("FOO_TEST_FIELD") );
+    TEST_ASSERT( source_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
+    TEST_ASSERT( source_iface->field_supported("SCALAR_TEST_FIELD") );
+    TEST_ASSERT( !source_iface->field_supported("FOO_TEST_FIELD") );
 
-    UNIT_TEST( source_iface->get_points(1, 1.0, 1.0, 1.0) );
-    UNIT_TEST( !source_iface->get_points(1, -1.0, -1.0, -1.0) );
+    TEST_ASSERT( source_iface->get_points(1, 1.0, 1.0, 1.0) );
+    TEST_ASSERT( !source_iface->get_points(1, -1.0, -1.0, -1.0) );
 
     std::vector<double> data_to_send;
     std::vector<int> handles_to_send(1, 1);
     source_iface->send_data("FOO_TEST_FIELD", handles_to_send, data_to_send);
-    UNIT_TEST( data_to_send.size() == 0 );
+    TEST_ASSERT( data_to_send.size() == 0 );
     source_iface->send_data("DISTRIBUTED_TEST_FIELD", 
 			    handles_to_send, data_to_send);
-    UNIT_TEST( data_to_send.size() == 1);
-    UNIT_TEST( data_to_send[0] == 1.0 );
+    TEST_ASSERT( data_to_send.size() == 1);
+    TEST_ASSERT( data_to_send[0] == 1.0 );
 
     double global_scalar = 0.0;
     source_iface->set_global_data("FOO_TEST_FIELD", global_scalar);
-    UNIT_TEST( global_scalar == 0.0 );
+    TEST_ASSERT( global_scalar == 0.0 );
     source_iface->set_global_data("SCALAR_TEST_FIELD", global_scalar);
-    UNIT_TEST( global_scalar == 1.0 );
-    
-    if (ut.numFails == 0)
-    {
-        std::ostringstream m;
-        m << "Transfer_Data_Source test passes on " << node;
-        ut.passes( m.str() );
-    }
+    TEST_ASSERT( global_scalar == 1.0 );
 }
 
-void target_interface_test(Parallel_Unit_Test &ut)
+TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
 {
     // create a data container instance.
     Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
@@ -320,104 +301,50 @@ void target_interface_test(Parallel_Unit_Test &ut)
     nemesis::Communicator_t target_comm;
     target_iface->register_comm(target_comm);
 #ifdef COMM_MPI
-    UNIT_TEST( target_comm == MPI_COMM_WORLD );
+    TEST_ASSERT( target_comm == MPI_COMM_WORLD );
 #else
-    UNIT_TEST( target_comm == 1 );
+    TEST_ASSERT( target_comm == 1 );
 #endif
 
-    UNIT_TEST( target_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
-    UNIT_TEST( target_iface->field_supported("SCALAR_TEST_FIELD") );
-    UNIT_TEST( !target_iface->field_supported("FOO_TEST_FIELD") );
+    TEST_ASSERT( target_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
+    TEST_ASSERT( target_iface->field_supported("SCALAR_TEST_FIELD") );
+    TEST_ASSERT( !target_iface->field_supported("FOO_TEST_FIELD") );
 
     std::vector<double> target_coords;
     std::vector<int> target_handles;
     target_iface->set_points("FOO_TEST_FIELD", target_handles, target_coords);
-    UNIT_TEST( target_coords.size() == 0 );
-    UNIT_TEST( target_handles.size() == 0 );
+    TEST_ASSERT( target_coords.size() == 0 );
+    TEST_ASSERT( target_handles.size() == 0 );
     target_iface->set_points("DISTRIBUTED_TEST_FIELD", 
 			     target_handles, target_coords);
-    UNIT_TEST( target_coords.size() == 3 );
-    UNIT_TEST( target_coords[0] == 1.0 );
-    UNIT_TEST( target_coords[1] == 1.0 );
-    UNIT_TEST( target_coords[2] == 1.0 );
-    UNIT_TEST( target_handles.size() == 1 );
-    UNIT_TEST( target_handles[0] == 1 );
+    TEST_ASSERT( target_coords.size() == 3 );
+    TEST_ASSERT( target_coords[0] == 1.0 );
+    TEST_ASSERT( target_coords[1] == 1.0 );
+    TEST_ASSERT( target_coords[2] == 1.0 );
+    TEST_ASSERT( target_handles.size() == 1 );
+    TEST_ASSERT( target_handles[0] == 1 );
 
     std::vector<double> data_to_receive(1, 1.0);
     std::vector<int> handles_to_receive(1, 1);
     target_iface->receive_data("FOO_TEST_FIELD", 
 			       handles_to_receive, data_to_receive);
-    UNIT_TEST( container->get_distributed_data().size() == 0 );
-    UNIT_TEST( container->get_distributed_handles().size() == 0 );
+    TEST_ASSERT( container->get_distributed_data().size() == 0 );
+    TEST_ASSERT( container->get_distributed_handles().size() == 0 );
     target_iface->receive_data("DISTRIBUTED_TEST_FIELD", 
 			    handles_to_receive, data_to_receive);
-    UNIT_TEST( container->get_distributed_data().size() == 1 );
-    UNIT_TEST( container->get_distributed_handles().size() == 1 );
-    UNIT_TEST( container->get_distributed_data()[0] == 1.0 );
-    UNIT_TEST( container->get_distributed_handles()[0] == 1 );
+    TEST_ASSERT( container->get_distributed_data().size() == 1 );
+    TEST_ASSERT( container->get_distributed_handles().size() == 1 );
+    TEST_ASSERT( container->get_distributed_data()[0] == 1.0 );
+    TEST_ASSERT( container->get_distributed_handles()[0] == 1 );
 
     double global_scalar = 1.0;
     target_iface->get_global_data("FOO_TEST_FIELD", global_scalar);
-    UNIT_TEST( container->get_scalar_data() != 1.0 );
+    TEST_ASSERT( container->get_scalar_data() != 1.0 );
     target_iface->get_global_data("SCALAR_TEST_FIELD", global_scalar);
-    UNIT_TEST( container->get_scalar_data() == 1.0 );
-
-    if (ut.numFails == 0)
-    {
-        std::ostringstream m;
-        m << "Transfer_Data_Target test passes on " << node;
-        ut.passes( m.str() );
-    }
+    TEST_ASSERT( container->get_scalar_data() == 1.0 );
 }
 
-
-//---------------------------------------------------------------------------//
-
-int main(int argc, char *argv[])
-{
-    Parallel_Unit_Test ut(argc, argv, coupler::release);
-
-    node  = nemesis::node();
-    nodes = nemesis::nodes();
-    
-    try
-    {
-        // >>> UNIT TESTS
-        int gpass = 0;
-        int gfail = 0;
-
-        source_interface_test(ut);
-        gpass += ut.numPasses;
-        gfail += ut.numFails;
-        ut.reset();
-
-        target_interface_test(ut);
-        gpass += ut.numPasses;
-        gfail += ut.numFails;
-        ut.reset();
-        
-        // add up global passes and fails
-        nemesis::global_sum(gpass);
-        nemesis::global_sum(gfail);
-        ut.numPasses = gpass;
-        ut.numFails  = gfail;
-    }
-    catch (std::exception &err)
-    {
-        std::cout << "ERROR: While testing tstInterfaces, " 
-                  << err.what()
-                  << endl;
-        ut.numFails++;
-    }
-    catch( ... )
-    {
-        std::cout << "ERROR: While testing tstInterfaces, " 
-                  << "An unknown exception was thrown."
-                  << endl;
-        ut.numFails++;
-    }
-    return ut.numFails;
-}   
+} // end namespace coupler
 
 //---------------------------------------------------------------------------//
 //                        end of tstInterfaces.cc
