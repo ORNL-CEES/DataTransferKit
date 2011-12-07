@@ -17,7 +17,6 @@
 
 #include "Teuchos_UnitTestHarness.hpp"
 
-#include "comm/global.hh"
 #include "../Transfer_Map.hh"
 
 //---------------------------------------------------------------------------//
@@ -27,7 +26,7 @@
 namespace coupler {
 
 // Test the Transfer_Map data structure.
-TEUCHOS_TEST_ASSERT( Transfer_Map, transfermapStorage )
+TEUCHOS_UNIT_TEST( Transfer_Map, transfermapStorage )
 {
     // Useful typedefs.
     typedef Transfer_Map::Map_Iterator    Map_Iterator;
