@@ -93,9 +93,9 @@ class Transfer_Data_Source
      * \param points A view of the points for the data being sent.
      * \return A view of data being sent.
      */
-    virtual Teuchos::ArrayView<DataType> send_data(
-	const std::string &field_name,
-	const Teuchos::ArrayView<PointType> &points) = 0;
+    virtual Teuchos::ArrayView<DataType> 
+    send_data(const std::string &field_name,
+	      const Teuchos::ArrayView<PointType> &points) = 0;
 
     /*!
      * \brief Given a field, set a global data element to be be sent to a

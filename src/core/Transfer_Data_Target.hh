@@ -85,12 +85,10 @@ class Transfer_Data_Target
      * globally unique handles. 
      * \param field_name The name of the field that the coordinates are being
      * registered with.
-     * \param handles Point handle array.
-     * \param coordinates Point coordinate array.
+     * \return Array view into a point array.
      */
-    virtual void set_points(const std::string &field_name,
-			    std::vector<HandleType> &handles,
-			    std::vector<CoordinateType> &coordinates) = 0;
+    virtual Teuchos::ArrayView<PointType> 
+    set_points(const std::string &field_name) = 0;
 
     /*! 
      * \brief Given an entity handle, receive the field data associated with
@@ -100,8 +98,8 @@ class Transfer_Data_Target
      * \param data The data being received.
      */
     virtual void receive_data(const std::string &field_name,
-			      const std::vector<HandleType> &handles,
-			      const std::vector<DataType> &data) = 0;
+			      const Teuchos::ArrayView<PointType> &points,
+			      const Teuchos::ArrayView<DataType> &data) = 0;
 
     /*!
      * \brief Given a field, get a global data element to be be received from
