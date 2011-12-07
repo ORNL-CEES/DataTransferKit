@@ -4,10 +4,7 @@
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
  * \brief  Transfer_Data_Field class definition.
- * \note   Copyright (C) 2011 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
-//---------------------------------------------------------------------------//
-// $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
 #ifndef core_Transfer_Data_Field_hh
@@ -120,6 +117,12 @@ class Transfer_Data_Field
 };
 
 } // end namespace coupler
+
+//---------------------------------------------------------------------------//
+// TEMPLATE MEMBERS
+//---------------------------------------------------------------------------//
+
+#include "Transfer_Data_Field.t.hh"
 
 #endif // core_Transfer_Data_Field_hh
 

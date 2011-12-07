@@ -1,15 +1,15 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/Transfer_Data_Field.cc
+ * \file   core/Transfer_Data_Field.t.hh
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
- * \brief  Transfer_Data_Field member definitions.
+ * \brief  Transfer_Data_Field template member definitions.
  */
 //---------------------------------------------------------------------------//
-// $Id: template.cc,v 1.3 2008/01/02 17:18:47 9te Exp $
-//---------------------------------------------------------------------------//
 
-#include "Transfer_Data_Field.hh"
+#ifndef core_Transfer_Data_Field_t_hh
+#define core_Transfer_Data_Field_t_hh
+
 #include "harness/DBC.hh"
 
 namespace coupler
@@ -29,8 +29,8 @@ namespace coupler
  * target for this field.
  * \param scalar Set to true if this field is scalar, false if distributed.
  */
-template<class DataType_T>
-Transfer_Data_Field<DataType_T>::Transfer_Data_Field(
+template<class DataType>
+Transfer_Data_Field<DataType>::Transfer_Data_Field(
     const std::string &field_name,
     RCP_Transfer_Data_Source source,
     RCP_Transfer_Data_Target target,
@@ -49,8 +49,8 @@ Transfer_Data_Field<DataType_T>::Transfer_Data_Field(
 /*!
  * \brief Destructor.
  */
-template<class DataType_T>
-Transfer_Data_Field<DataType_T>::~Transfer_Data_Field()
+template<class DataType>
+Transfer_Data_Field<DataType>::~Transfer_Data_Field()
 { /* ... */ }
 
 
@@ -62,8 +62,8 @@ Transfer_Data_Field<DataType_T>::~Transfer_Data_Field()
  * \param transfer_map The topology map being applied to this field to
  * transfer from the source to the target.
  */
-template<class DataType_T>
-void Transfer_Data_Field<DataType_T>::set_map(RCP_Transfer_Map transfer_map)
+template<class DataType>
+void Transfer_Data_Field<DataType>::set_map(RCP_Transfer_Map transfer_map)
 {
     d_map = transfer_map;
     d_mapped = true;
@@ -71,6 +71,8 @@ void Transfer_Data_Field<DataType_T>::set_map(RCP_Transfer_Map transfer_map)
 
 } // end namespace coupler
 
+#endif // core_Transfer_Data_Field_t_hh
+
 //---------------------------------------------------------------------------//
-//                 end of Transfer_Data_Field.cc
+//                 end of Transfer_Data_Field.t.hh
 //---------------------------------------------------------------------------//

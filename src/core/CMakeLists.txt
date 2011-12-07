@@ -35,6 +35,7 @@ APPEND_SET(HEADERS
   Transfer_Data_Source.hh
   Transfer_Data_Target.hh
   Transfer_Data_Field.hh
+  Transfer_Data_Field.t.hh
   Mapper.hh
   Messenger.hh
   Data_Transfer_Manager.hh
@@ -43,7 +44,6 @@ APPEND_SET(HEADERS
 # Set sources
 
 APPEND_SET(SOURCES
-  Transfer_Data_Field.cc
   Mapper.cc
   Messenger.cc
   Data_Transfer_Manager.cc
