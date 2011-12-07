@@ -46,11 +46,9 @@ nemesis::Communicator_t get_comm_world()
 
 namespace coupler {
 
-// Test the LG_Indexer behavior for a mirrored communicator
+// Test the LG_Indexer behavior for a mirrored communicator.
 TEUCHOS_UNIT_TEST( LG_Indexer, indexerMirrored )
 {
-    typedef LG_Indexer        LG_Indexer_t;
-
     // Create the test app
     Teuchos::RCP<test_app> app_ptr( new test_app() );
 
@@ -61,21 +59,19 @@ TEUCHOS_UNIT_TEST( LG_Indexer, indexerMirrored )
     nemesis::split(0, nemesis::node(), local_comm);
 
     // Make the indexer
-    LG_Indexer_t indexer(get_comm_world(), local_comm, app_ptr);
+    LG_Indexer indexer(get_comm_world(), local_comm, app_ptr);
 
     // check the map
     TEST_ASSERT(indexer.size() == nemesis::nodes());
     for (int i = 0; i < nemesis::nodes(); ++i)
     {
-	TEST_ASSERT(indexer.l2g(i) == nemesis::node());
+	TEST_ASSERT(indexer.l2g(i) == i);
     }
 }
 
-// Test the LG_Indexer behavior for an inverted communicator
+// Test the LG_Indexer behavior for an inverted communicator.
 TEUCHOS_UNIT_TEST( LG_Indexer, indexerInverted )
 {
-    typedef LG_Indexer        LG_Indexer_t;
-
     // Create the test app
     Teuchos::RCP<test_app> app_ptr( new test_app() );
 
@@ -86,7 +82,7 @@ TEUCHOS_UNIT_TEST( LG_Indexer, indexerInverted )
     nemesis::split(0, nemesis::nodes()-nemesis::node()-1, local_comm);
 
     // Make the indexer
-    LG_Indexer_t indexer(get_comm_world(), local_comm, app_ptr);
+    LG_Indexer indexer(get_comm_world(), local_comm, app_ptr);
 
     // check the map
     TEST_ASSERT(indexer.size() == nemesis::nodes());

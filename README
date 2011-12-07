@@ -23,11 +23,17 @@ CONFIGURE
 The coupler uses the TriBITS cmake build system. See doc/build_notes/ for 
 configure information as well as a sample script.
 
+
 BUILD
 -----
 
 make - Standard build.
 
-make test - Standard build and unit tests.
-
 make doc - Generate doxygen documentation.
+
+
+
+TEST
+----
+
+ctest - Run the unit tests when enabled.
