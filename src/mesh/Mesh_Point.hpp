@@ -52,7 +52,7 @@ class Point
     HandleType d_handle;
 
     // Point coordinates.
-    CoordinateType *d_coords;
+    std::vector<CoordinateType> d_coords;
 
   public:
     //! Constructor.
@@ -62,7 +62,7 @@ class Point
 	  CoordinateType _z)
 	: d_handle(_handle)
     {   
-	d_coords = new CoordinateType[3];
+	d_coords.resize(3);
 	d_coords[0] = _x;
 	d_coords[1] = _y;
 	d_coords[2] = _z;
