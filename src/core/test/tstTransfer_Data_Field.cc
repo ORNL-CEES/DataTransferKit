@@ -4,10 +4,7 @@
  * \author Stuart Slattery
  * \date   Fri Nov 18 14:43:10 2011
  * \brief  Transfer_Data_Field unit tests
- * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
-//---------------------------------------------------------------------------//
-// $Id: template_c4_test.cc,v 1.7 2008/01/02 22:50:26 9te Exp $
 //---------------------------------------------------------------------------//
 
 #include <iostream>
@@ -15,35 +12,20 @@
 #include <cmath>
 #include <sstream>
 
-#include "harness/DBC.hh"
-#include "harness/Soft_Equivalence.hh"
 #include "comm/global.hh"
-#include "comm/Parallel_Unit_Test.hh"
 #include "../Transfer_Map.hh"
 #include "../Transfer_Data_Source.hh"
 #include "../Transfer_Data_Target.hh"
 #include "../Transfer_Data_Field.hh"
 
 #include "Teuchos_RCP.hpp"
-
-using namespace std;
-using nemesis::Parallel_Unit_Test;
-using nemesis::soft_equiv;
-
-using coupler::Transfer_Map;
-using coupler::Transfer_Data_Source;
-using coupler::Transfer_Data_Target;
-using coupler::Transfer_Data_Field;
-
-int node  = 0;
-int nodes = 0;
-
-#define ITFAILS ut.failure(__LINE__);
-#define UNIT_TEST(a) if (!(a)) ut.failure(__LINE__);
+#include "Teuchos_UnitTestHarness.hpp"
 
 //---------------------------------------------------------------------------//
 // INTERFACE IMPLEMENTATIONS
 //---------------------------------------------------------------------------//
+
+namespace coupler {
 
 // transfer data source implementation - this implementation specifies double
 // as the data type
@@ -212,11 +194,15 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
     }
 };
 
+} // end namespace coupler
+
 //---------------------------------------------------------------------------//
 // TESTS
 //---------------------------------------------------------------------------//
 
-void distributed_test(Parallel_Unit_Test &ut)
+namespace coupler {
+
+TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_field_test )
 {
     // Create an instance of the source interface.
     Teuchos::RCP<Transfer_Data_Source<double> > tds = 
@@ -230,28 +216,21 @@ void distributed_test(Parallel_Unit_Test &ut)
     Transfer_Data_Field<double> field("DISTRIBUTED_TEST_FIELD", tds, tdt);
 
     // Add a transfer map to the field.
-    UNIT_TEST( !field.is_mapped() );
+    TEST_ASSERT( !field.is_mapped() );
     Teuchos::RCP<Transfer_Map> map = Teuchos::rcp(new Transfer_Map());
     field.set_map(map);
 
     // Test the functionality.
-    UNIT_TEST( field.name() == "DISTRIBUTED_TEST_FIELD" );
-    UNIT_TEST( field.source() == tds );
-    UNIT_TEST( field.target() == tdt );
-    UNIT_TEST( field.get_map() == map );
-    UNIT_TEST( !field.is_scalar() );
-    UNIT_TEST( field.is_mapped() );
-
-    if (ut.numFails == 0)
-    {
-        std::ostringstream m;
-        m << "Distributed field test ok on " << nemesis::node();
-        ut.passes( m.str() );
-    }
+    TEST_ASSERT( field.name() == "DISTRIBUTED_TEST_FIELD" );
+    TEST_ASSERT( field.source() == tds );
+    TEST_ASSERT( field.target() == tdt );
+    TEST_ASSERT( field.get_map() == map );
+    TEST_ASSERT( !field.is_scalar() );
+    TEST_ASSERT( field.is_mapped() );
 }
 
 //---------------------------------------------------------------------------//
-void scalar_test(Parallel_Unit_Test &ut)
+TEUCHOS_UNIT_TEST( Transfer_Data_Field, scalar_field_test )
 {
     // Create an instance of the source interface.
     Teuchos::RCP<Transfer_Data_Source<double> > tds = 
@@ -265,67 +244,14 @@ void scalar_test(Parallel_Unit_Test &ut)
     Transfer_Data_Field<double> field("SCALAR_TEST_FIELD", tds, tdt, true);
 
     // Test the functionality.
-    UNIT_TEST( field.name() == "SCALAR_TEST_FIELD" );
-    UNIT_TEST( field.source() == tds );
-    UNIT_TEST( field.target() == tdt );
-    UNIT_TEST( field.is_scalar() );
-    UNIT_TEST( !field.is_mapped() );
-
-    if (ut.numFails == 0)
-    {
-        std::ostringstream m;
-        m << "Scalar field test ok on " << nemesis::node();
-        ut.passes( m.str() );
-    }
+    TEST_ASSERT( field.name() == "SCALAR_TEST_FIELD" );
+    TEST_ASSERT( field.source() == tds );
+    TEST_ASSERT( field.target() == tdt );
+    TEST_ASSERT( field.is_scalar() );
+    TEST_ASSERT( !field.is_mapped() );
 }
 
-//---------------------------------------------------------------------------//
-
-int main(int argc, char *argv[])
-{
-    Parallel_Unit_Test ut(argc, argv, coupler::release);
-
-    node  = nemesis::node();
-    nodes = nemesis::nodes();
-    
-    try
-    {
-        // >>> UNIT TESTS
-        int gpass = 0;
-        int gfail = 0;
- 
-	distributed_test(ut);
-	gpass += ut.numPasses;
-	gfail += ut.numFails;
-	ut.reset();
-
-	scalar_test(ut);
-	gpass += ut.numPasses;
-	gfail += ut.numFails;
-	ut.reset();
-       
-        // add up global passes and fails
-        nemesis::global_sum(gpass);
-        nemesis::global_sum(gfail);
-        ut.numPasses = gpass;
-        ut.numFails  = gfail;
-    }
-    catch (std::exception &err)
-    {
-        std::cout << "ERROR: While testing tstTransfer_Data_Field, " 
-                  << err.what()
-                  << endl;
-        ut.numFails++;
-    }
-    catch( ... )
-    {
-        std::cout << "ERROR: While testing tstTransfer_Data_Field, " 
-                  << "An unknown exception was thrown."
-                  << endl;
-        ut.numFails++;
-    }
-    return ut.numFails;
-}   
+} // end namespace coupler
 
 //---------------------------------------------------------------------------//
 //                        end of tstTransfer_Data_Field.cc
