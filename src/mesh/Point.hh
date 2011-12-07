@@ -60,6 +60,7 @@ class Point
 	  CoordinateType _x, 
 	  CoordinateType _y, 
 	  CoordinateType _z)
+	: d_handle(_handle)
     {   
 	d_coords = new CoordinateType[3];
 	d_coords[0] = _x;

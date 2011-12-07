@@ -60,6 +60,8 @@ INSTALL(FILES
   DESTINATION 
   ${CMAKE_INSTALL_PREFIX}/include/coupler/mesh)
 
+SET_TARGET_PROPERTIES(coupler_mesh PROPERTIES LINKER_LANGUAGE CXX)
+
 #
 # D) Define the unit tests
 #
