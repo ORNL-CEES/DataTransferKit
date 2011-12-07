@@ -1,6 +1,7 @@
 SET(REGRESSION_EMAIL_LIST casl-vri-testing@casl.gov)
 
 SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
+  Mesh    src/mesh       SS    REQUIRED
   Core    src/core       SS    REQUIRED
   )
 

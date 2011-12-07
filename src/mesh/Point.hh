@@ -1,18 +1,16 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   mesh/Point.hh
- * \author Stuart Slattery
- * \date   Wed Oct 12 12:00:03 2011
- * \brief  Provides the required interface for points.
+ * \author Stuart R. Slattery
+ * \date   Wed May 25 12:23:57 2011
+ * \brief  Cartesian Point class definition
  */
-//---------------------------------------------------------------------------//
-// $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
 #ifndef mesh_Point_hh
 #define mesh_Point_hh
 
-#include "EntityType.hh"
+#include "harness/DBC.hh"
 
 namespace mesh
 {
@@ -20,35 +18,85 @@ namespace mesh
 //===========================================================================//
 /*!
  * \class Point
- * \brief Provides the required interface for points.
+ * \brief Cartesian Point class container. Holds (x,y,z)
+ *
+ * \par Code Sample:
+ * \code
+ *     double x = 0.0;
+ *     double y = 1.0;
+ *     double z = 1.0;
+ *     Point pt(x,y,z);
+ * \endcode
+ */
+/*! 
+ * \example mesh_type/test/tstPoint.cc
+ *
+ * Test of Point.
  */
 //===========================================================================//
 
-template<class HandleType_T, class DataType_T>
-class Point : public EntityType
+template<class HandleType_T>
+class Point 
 {
   public:
-    //@{
-    //! Useful Typedefs.
-    typedef HandleType_T                     HandleType;
-    typedef DataType_T                       DataType;
+
+    //@{ 
+    //! Useful typedefs.
+    typedef HandleType_T                  HandleType;
+    typedef double                        CoordinateType;
     //@}
 
   private:
 
+    // Point handle.
+    HandleType d_handle;
+
+    // Point coordinates.
+    CoordinateType *d_coords;
+
   public:
-
     //! Constructor.
-    Point(HandleType handle, 
-	  DataType x, 
-	  DataType y, 
-	  DataType z);
+    Point(HandleType _handle,
+	  CoordinateType _x, 
+	  CoordinateType _y, 
+	  CoordinateType _z)
+    {   
+	d_coords = new CoordinateType[3];
+	d_coords[0] = _x;
+	d_coords[1] = _y;
+	d_coords[2] = _z;
+    }
 
-    //! Destructor.
-    ~Point();
+    //! Copy constructor.
+    template<class CoordinateType_2>
+    Point(const Point<CoordinateType_2>& point)
+        : d_handle( point.handle )
+	, d_coords( point.d_coords )
+    {   }
 
-    //! Return this entity's type.
-    void my_type(int &type);
+    //@{
+    //! Get the handle.
+    HandleType  handle() const { return d_handle; }
+    HandleType& handle()       { return d_handle; }
+    //@}
+
+    //@{
+    //! Get the x coordinate.
+    CoordinateType  x() const { return d_coords[0]; }
+    CoordinateType& x()       { return d_coords[0]; }
+    //@}
+
+    //@{
+    //! Get the y coordinate.
+    CoordinateType  y() const { return d_coords[1]; }
+    CoordinateType& y()       { return d_coords[1]; }
+    //@}
+    
+    //@{
+    //! Get the z coordinate.
+    CoordinateType  z() const { return d_coords[2]; }
+    CoordinateType& z()       { return d_coords[2]; }
+    //@}
 };
 
 } // end namespace mesh
