@@ -29,12 +29,12 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   STANDARD_PASS_OUTPUT
   )
 
-# TRIBITS_ADD_EXECUTABLE_AND_TEST(
-#   Transfer_Data_Field_test
-#   SOURCES tstTransfer_Data_Field.cc ${TEUCHOS_STD_UNIT_TEST_MAIN}
-#   COMM serial mpi
-#   STANDARD_PASS_OUTPUT
-#   )
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  Transfer_Data_Field_test
+  SOURCES tstTransfer_Data_Field.cc ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
 
 # TRIBITS_ADD_EXECUTABLE_AND_TEST(
 #   Mapper_test

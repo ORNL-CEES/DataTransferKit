@@ -34,8 +34,8 @@ APPEND_SET(HEADERS
   Transfer_Map.i.hh
   Transfer_Data_Source.hh
   Transfer_Data_Target.hh
-  # Transfer_Data_Field.hh
-  # Transfer_Data_Field.t.hh
+  Transfer_Data_Field.hh
+  Transfer_Data_Field.t.hh
   # Mapper.hh
   # Mapper.t.hh
   # Messenger.hh

@@ -13,12 +13,16 @@
 #include <sstream>
 
 #include "comm/global.hh"
+
+#include <Mesh_Point.hpp>
+
 #include "../Transfer_Map.hh"
 #include "../Transfer_Data_Source.hh"
 #include "../Transfer_Data_Target.hh"
 #include "../Transfer_Data_Field.hh"
 
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_ArrayView.hpp"
 #include "Teuchos_UnitTestHarness.hpp"
 
 //---------------------------------------------------------------------------//
@@ -29,15 +33,21 @@ namespace coupler {
 
 // transfer data source implementation - this implementation specifies double
 // as the data type
-template<class DataType_T>
-class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
+template<class DataType_T, class HandleType_T, class CoordinateType_T>
+class test_Transfer_Data_Source 
+    : public Transfer_Data_Source<DataType_T, HandleType_T, CoordinateType_T>
 {
+  private:
+
+    std::vector<double> private_data;
+
   public:
 
     typedef double                                   DataType;
     typedef nemesis::Communicator_t                  Communicator;
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
+    typedef mesh::Point<HandleType,CoordinateType>   PointType;
 
     test_Transfer_Data_Source()
     { /* ... */ }
@@ -71,14 +81,11 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
 	return return_val;
     }
 
-    bool get_points(HandleType handle,
-		    CoordinateType x, 
-		    CoordinateType y,
-		    CoordinateType z)
+    bool get_points(PointType &point)
     {
 	bool return_val = false;
 
-	if ( x > 0 && y > 0 && z > 0 )
+	if ( point.x() > 0 && point.y() > 0 && point.z() > 0 )
 	{
 	    return_val = true;
 	}
@@ -86,24 +93,33 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
 	return return_val;
     }
 
-    void send_data(const std::string &field_name,
-		   const std::vector<HandleType> &handles,
-		   std::vector<DataType> &data)
+    Teuchos::ArrayView<double> send_data(
+	const std::string &field_name,
+	const Teuchos::ArrayView<PointType> &points)
     {
+	Teuchos::ArrayView<double> return_view;
+
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
 	    std::vector<double> local_data(1, 1.0);
-	    data = local_data;
+	    private_data = local_data;
+	    Teuchos::ArrayView<double> private_view(private_data);
+	    return_view =  private_view;
 	}
+
+	return return_view;
     }
 
-    void set_global_data(const std::string &field_name,
-			 DataType &data)
+    double set_global_data(const std::string &field_name)
     {
+	double return_val = 0.0;
+
 	if ( field_name == "SCALAR_TEST_FIELD" )
 	{
-	    data = 1.0;
+	    return_val = 1.0;
 	}
+
+	return return_val;
     }
 };
 
@@ -111,21 +127,23 @@ class test_Transfer_Data_Source : public Transfer_Data_Source<DataType_T>
 
 // transfer data target implementation - this implementation specifies double
 // as the data type
-template<class DataType_T>
-class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
+template<class DataType_T, class HandleType_T, class CoordinateType_T>
+class test_Transfer_Data_Target 
+    : public Transfer_Data_Target<DataType_T, HandleType_T, CoordinateType_T>
 {
-  private:
-
-    double scalar_data;
-    std::vector<double> received_data;
-    std::vector<int> received_handles;
-
   public:
 
     typedef double                                   DataType;
     typedef nemesis::Communicator_t                  Communicator;
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
+    typedef mesh::Point<HandleType,CoordinateType>   PointType;
+
+  private:
+
+    std::vector<PointType> points;
+
+  public:
 
     test_Transfer_Data_Target()
     { /* ... */ }
@@ -159,39 +177,29 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 	return return_val;
     }
 
-    void set_points(const std::string &field_name,
-		    std::vector<HandleType> &handles,
-		    std::vector<CoordinateType> &coordinates)
+    Teuchos::ArrayView<PointType> set_points(const std::string &field_name)
     {
+	Teuchos::ArrayView<PointType> return_view;
+
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
-	    std::vector<int> local_handles(1, 1);
-	    std::vector<double> local_coords(3, 1.0);
-
-	    handles = local_handles;
-	    coordinates = local_coords;
+	    PointType local_point(1, 1.0, 1.0, 1.0);
+	    std::vector<PointType> local_points(1, local_point);
+	    points = local_points;
+	    return_view = Teuchos::ArrayView<PointType>(points);
 	}
+
+	return return_view;
     }
 
     void receive_data(const std::string &field_name,
-		      const std::vector<HandleType> &handles,
-		      const std::vector<DataType> &data)
-    {
-	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
-	{
-	    received_handles = handles;
-	    received_data = data;
-	}
-    }
+		      const Teuchos::ArrayView<PointType> &points,
+		      const Teuchos::ArrayView<DataType> &data)
+    { /* ... */ }
 
     void get_global_data(const std::string &field_name,
 			 const DataType &data)
-    {
-	if ( field_name == "SCALAR_TEST_FIELD" )
-	{
-	    scalar_data = data;
-	}
-    }
+    { /* ... */ }
 };
 
 } // end namespace coupler
@@ -205,15 +213,15 @@ namespace coupler {
 TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_field_test )
 {
     // Create an instance of the source interface.
-    Teuchos::RCP<Transfer_Data_Source<double> > tds = 
-	Teuchos::rcp(new test_Transfer_Data_Source<double>());
+    Teuchos::RCP<Transfer_Data_Source<double,int,double> > tds = 
+	Teuchos::rcp(new test_Transfer_Data_Source<double,int,double>());
 
     // Create an instance of the target interface.
-    Teuchos::RCP<Transfer_Data_Target<double> > tdt = 
-	Teuchos::rcp(new test_Transfer_Data_Target<double>());
+    Teuchos::RCP<Transfer_Data_Target<double,int,double> > tdt = 
+	Teuchos::rcp(new test_Transfer_Data_Target<double,int,double>());
 
     // Create a distributed field for these interfaces to be transferred.
-    Transfer_Data_Field<double> field("DISTRIBUTED_TEST_FIELD", tds, tdt);
+    Transfer_Data_Field<double,int,double> field("DISTRIBUTED_TEST_FIELD", tds, tdt);
 
     // Add a transfer map to the field.
     TEST_ASSERT( !field.is_mapped() );
@@ -233,15 +241,15 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_field_test )
 TEUCHOS_UNIT_TEST( Transfer_Data_Field, scalar_field_test )
 {
     // Create an instance of the source interface.
-    Teuchos::RCP<Transfer_Data_Source<double> > tds = 
-	Teuchos::rcp(new test_Transfer_Data_Source<double>());
+    Teuchos::RCP<Transfer_Data_Source<double,int,double> > tds = 
+	Teuchos::rcp(new test_Transfer_Data_Source<double,int,double>());
 
     // Create an instance of the target interface.
-    Teuchos::RCP<Transfer_Data_Target<double> > tdt = 
-	Teuchos::rcp(new test_Transfer_Data_Target<double>());
+    Teuchos::RCP<Transfer_Data_Target<double,int,double> > tdt = 
+	Teuchos::rcp(new test_Transfer_Data_Target<double,int,double>());
 
     // Create a scalar field for these interfaces to be transferred.
-    Transfer_Data_Field<double> field("SCALAR_TEST_FIELD", tds, tdt, true);
+    Transfer_Data_Field<double,int,double> field("SCALAR_TEST_FIELD", tds, tdt, true);
 
     // Test the functionality.
     TEST_ASSERT( field.name() == "SCALAR_TEST_FIELD" );

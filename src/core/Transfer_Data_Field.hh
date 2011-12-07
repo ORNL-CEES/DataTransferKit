@@ -41,8 +41,8 @@ namespace coupler
  */
 //===========================================================================//
 
-template<class DataType_T>
-class Transfer_Data_Field 
+template<class DataType_T, class HandleType_T, class CoordinateType_T>
+class Transfer_Data_Field
 {
 
   public:
@@ -50,9 +50,11 @@ class Transfer_Data_Field
     //@{
     //! Useful typedefs.
     typedef DataType_T                               DataType;
-    typedef Transfer_Data_Source<DataType>           Transfer_Data_Source_t;
+    typedef HandleType_T                             HandleType;
+    typedef CoordinateType_T                         CoordinateType;
+    typedef Transfer_Data_Source<DataType,HandleType,CoordinateType> Transfer_Data_Source_t;
     typedef Teuchos::RCP<Transfer_Data_Source_t>     RCP_Transfer_Data_Source;
-    typedef Transfer_Data_Target<DataType>           Transfer_Data_Target_t;
+    typedef Transfer_Data_Target<DataType,HandleType,CoordinateType> Transfer_Data_Target_t;
     typedef Teuchos::RCP<Transfer_Data_Target_t>     RCP_Transfer_Data_Target;
     typedef Teuchos::RCP<Transfer_Map>               RCP_Transfer_Map;
     //@}

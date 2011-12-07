@@ -29,8 +29,8 @@ namespace coupler
  * target for this field.
  * \param scalar Set to true if this field is scalar, false if distributed.
  */
-template<class DataType>
-Transfer_Data_Field<DataType>::Transfer_Data_Field(
+template<class DataType, class HandleType, class CoordinateType>
+Transfer_Data_Field<DataType,HandleType,CoordinateType>::Transfer_Data_Field(
     const std::string &field_name,
     RCP_Transfer_Data_Source source,
     RCP_Transfer_Data_Target target,
@@ -49,8 +49,8 @@ Transfer_Data_Field<DataType>::Transfer_Data_Field(
 /*!
  * \brief Destructor.
  */
-template<class DataType>
-Transfer_Data_Field<DataType>::~Transfer_Data_Field()
+template<class DataType, class HandleType, class CoordinateType>
+Transfer_Data_Field<DataType,HandleType,CoordinateType>::~Transfer_Data_Field()
 { /* ... */ }
 
 
@@ -62,8 +62,9 @@ Transfer_Data_Field<DataType>::~Transfer_Data_Field()
  * \param transfer_map The topology map being applied to this field to
  * transfer from the source to the target.
  */
-template<class DataType>
-void Transfer_Data_Field<DataType>::set_map(RCP_Transfer_Map transfer_map)
+template<class DataType, class HandleType, class CoordinateType>
+void Transfer_Data_Field<DataType,HandleType,CoordinateType>::set_map(
+    RCP_Transfer_Map transfer_map)
 {
     d_map = transfer_map;
     d_mapped = true;
