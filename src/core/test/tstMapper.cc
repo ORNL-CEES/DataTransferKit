@@ -6,18 +6,13 @@
  * \brief  Unit tests for the mapper operator.
  */
 //---------------------------------------------------------------------------//
-// $Id: template_c4_test.cc,v 1.7 2008/01/02 22:50:26 9te Exp $
-//---------------------------------------------------------------------------//
 
 #include <iostream>
 #include <vector>
 #include <cmath>
 #include <sstream>
 
-#include "harness/DBC.hh"
-#include "harness/Soft_Equivalence.hh"
 #include "comm/global.hh"
-#include "comm/Parallel_Unit_Test.hh"
 #include "../Transfer_Data_Source.hh"
 #include "../Transfer_Data_Target.hh"
 #include "../Transfer_Data_Field.hh"
@@ -25,22 +20,7 @@
 #include "../Mapper.hh"
 
 #include "Teuchos_RCP.hpp"
-
-using namespace std;
-using nemesis::Parallel_Unit_Test;
-using nemesis::soft_equiv;
-
-using coupler::Transfer_Data_Source;
-using coupler::Transfer_Data_Target;
-using coupler::Transfer_Data_Field;
-using coupler::Transfer_Map;
-using coupler::Mapper;
-
-int node  = 0;
-int nodes = 0;
-
-#define ITFAILS ut.failure(__LINE__);
-#define UNIT_TEST(a) if (!(a)) ut.failure(__LINE__);
+#include "Teuchos_UnitTestHarness.hpp"
 
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
@@ -109,6 +89,8 @@ class Data_Container
 //---------------------------------------------------------------------------//
 // INTERFACE IMPLEMENTATIONS
 //---------------------------------------------------------------------------//
+
+namespace coupler {
 
 // transfer data source implementation - this implementation specifies double
 // as the data type
@@ -254,7 +236,8 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
     /*!
      * \brief Constructor.
      */
-    test_Transfer_Data_Target()
+    test_Transfer_Data_Target(Teuchos::RCP<Data_Container> _container)
+	: container(_container)
     { /* ... */ }
 
     /*!
@@ -312,13 +295,13 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 		    std::vector<HandleType> &handles,
 		    std::vector<CoordinateType> &coordinates)
     {
-	if ( field_name = "DISTRIBUTED_TEST_FIELD" )
+	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
 	    std::vector<int> local_handles(1, nemesis::node() );
 	    std::vector<double> local_coords(3, 1.0*nemesis::node() );
 
 	    handles = local_handles;
-	    coordinates = local_coordinates;
+	    coordinates = local_coords;
 	}
     }
 
@@ -333,7 +316,7 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
 		      const std::vector<HandleType> &handles,
 		      const std::vector<DataType> &data)
     {
-	if ( field_name = "DISTRIBUTED_TEST_FIELD" )
+	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
 	    container->set_distributed_handles(handles);
 	    container->set_distributed_data(data);
@@ -349,29 +332,33 @@ class test_Transfer_Data_Target : public Transfer_Data_Target<DataType_T>
     void get_global_data(const std::string &field_name,
 			 const DataType &data)
     {
-	if ( field_name = "SCALAR_TEST_FIELD" )
+	if ( field_name == "SCALAR_TEST_FIELD" )
 	{
 	    container->set_scalar_data(data);
 	}
     }
 };
 
+} // end namespace coupler
+
 //---------------------------------------------------------------------------//
 // TESTS
 //---------------------------------------------------------------------------//
 
-void mapper_test(Parallel_Unit_Test &ut)
+namespace coupler {
+
+TEUCHOS_UNIT_TEST( Mapper, mirror_test )
 {
-    // create a data container instance.
+    // Create a data container instance.
     Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
     Teuchos::RCP<Transfer_Data_Source<double> > tds = 
-	Teuchos::rcp(new test_Transfer_Data_Source<double>(container));
+	Teuchos::rcp(new test_Transfer_Data_Source<double>());
 
     // Create an instance of the target interface.
     Teuchos::RCP<Transfer_Data_Target<double> > tdt = 
-	Teuchos::rcp(new test_Transfer_Data_Target<double>());
+	Teuchos::rcp(new test_Transfer_Data_Target<double>(container));
 
     // Create a distributed field for these interfaces to be transferred.
     Teuchos::RCP<Transfer_Data_Field<double> > field = Teuchos::rcp(
@@ -381,7 +368,8 @@ void mapper_test(Parallel_Unit_Test &ut)
     Teuchos::RCP<Transfer_Map> map = Teuchos::rcp(new Transfer_Map());
 
     // Create a mapper and populate the map.
-    Mapper mapper;
+    Mapper<double> mapper;
+
     mapper.map(get_comm_world(), field, map);
 
     // Apply the map to the field.
@@ -389,90 +377,42 @@ void mapper_test(Parallel_Unit_Test &ut)
 
     // Check the contents of the map - everyone should be sending and
     // receiving only from themselves.
-    UNIT_TEST( field->get_map()->domain_size(nemesis::node()) == 1 );
+    TEST_ASSERT( field->get_map()->domain_size(nemesis::node()) == 1 );
 
-    UNIT_TEST( field->get_map()->range_size(nemesis::node()) == 1 );
+    TEST_ASSERT( field->get_map()->range_size(nemesis::node()) == 1 );
 
-    UNIT_TEST( std::distance(
-		   field->get_map()->domain(nemesis::node()).first,
-		   field->get_map()->domain(nemesis::node()).second)
-		   == 1)
-    UNIT_TEST( field->get_map()->domain(nemesis::node()).first->first
-	       == nemesis::node() );
-    UNIT_TEST( field->get_map()->domain(nemesis::node()).first->second
-	       == nemesis::node() );
+    TEST_ASSERT( std::distance(
+		     field->get_map()->domain(nemesis::node()).first,
+		     field->get_map()->domain(nemesis::node()).second)
+		 == 1);
+    TEST_ASSERT( field->get_map()->domain(nemesis::node()).first->first
+		 == nemesis::node() );
+    TEST_ASSERT( field->get_map()->domain(nemesis::node()).first->second
+		 == nemesis::node() );
 
-    UNIT_TEST( std::distance(
-		   field->get_map()->range(nemesis::node()).first,
-		   field->get_map()->range(nemesis::node()).second)
-		   == 1)
-    UNIT_TEST( field->get_map()->range(nemesis::node()).first->first
-	       == nemesis::node() );
-    UNIT_TEST( field->get_map()->range(nemesis::node()).first->second
-	       == nemesis::node() );
+    TEST_ASSERT( std::distance(
+		     field->get_map()->range(nemesis::node()).first,
+		     field->get_map()->range(nemesis::node()).second)
+		 == 1);
+    TEST_ASSERT( field->get_map()->range(nemesis::node()).first->first
+		 == nemesis::node() );
+    TEST_ASSERT( field->get_map()->range(nemesis::node()).first->second
+		 == nemesis::node() );
 
-    UNIT_TEST( std::distance(
-		   field->get_map()->sources.first,
-		   field->get_map()->sources.second)
-	       == 1);
-    UNIT_TEST( *field->get_map()->sources().first == nemesis::node() );
+    TEST_ASSERT( std::distance(
+		     field->get_map()->sources().first,
+		     field->get_map()->sources().second)
+		 == 1);
+    TEST_ASSERT( *field->get_map()->sources().first == nemesis::node() );
 
-    UNIT_TEST( std::distance(
-		   field->get_map()->targets.first,
-		   field->get_map()->targets.second)
-	       == 1);    
-    UNIT_TEST( *field->get_map()->targets().first == nemesis::node() );
-
-    if (ut.numFails == 0)
-    {
-        std::ostringstream m;
-        m << "Mapper test ok on " << nemesis::node();
-        ut.passes( m.str() );
-    }
+    TEST_ASSERT( std::distance(
+		     field->get_map()->targets().first,
+		     field->get_map()->targets().second)
+		 == 1);    
+    TEST_ASSERT( *field->get_map()->targets().first == nemesis::node() );
 }
 
-//---------------------------------------------------------------------------//
-
-int main(int argc, char *argv[])
-{
-    Parallel_Unit_Test ut(argc, argv, coupler::release);
-
-    node  = nemesis::node();
-    nodes = nemesis::nodes();
-    
-    try
-    {
-        // >>> UNIT TESTS
-        int gpass = 0;
-        int gfail = 0;
-
-	mapper_test(ut);
-	gpass += ut.numPasses;
-	gfail += ut.numFails;
-	ut.reset();
-        
-        // add up global passes and fails
-        nemesis::global_sum(gpass);
-        nemesis::global_sum(gfail);
-        ut.numPasses = gpass;
-        ut.numFails  = gfail;
-    }
-    catch (std::exception &err)
-    {
-        std::cout << "ERROR: While testing tstMapper, " 
-                  << err.what()
-                  << endl;
-        ut.numFails++;
-    }
-    catch( ... )
-    {
-        std::cout << "ERROR: While testing tstMapper, " 
-                  << "An unknown exception was thrown."
-                  << endl;
-        ut.numFails++;
-    }
-    return ut.numFails;
-}   
+} // end namespace coupler
 
 //---------------------------------------------------------------------------//
 //                        end of tstMapper.cc

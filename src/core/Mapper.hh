@@ -4,10 +4,7 @@
  * \author Stuart Slattery
  * \date   Tue Nov 08 12:31:05 2011
  * \brief  Mapper class defintion.
- * \note   Copyright (C) 2011 Oak Ridge National Laboratory, UT-Battelle, LLC.
  */
-//---------------------------------------------------------------------------//
-// $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
 //---------------------------------------------------------------------------//
 
 #ifndef core_Mapper_hh
@@ -55,7 +52,7 @@ class Mapper
     typedef int                                   HandleType;
     typedef int                                   OrdinateType;
     typedef double                                CoordinateType;
-    typedef Message_Buffer<OrdinateType>          Message_Buffer_t;
+    typedef Message_Buffer                        Message_Buffer_t;
     typedef typename Message_Buffer_t::Buffer     Buffer;
     typedef std::list<Message_Buffer_t>           BufferList;
     typedef typename BufferList::iterator         BufferList_Iterator;
@@ -132,6 +129,12 @@ class Mapper
 };
 
 } // end namespace coupler
+
+//---------------------------------------------------------------------------//
+// TEMPLATE DEFINITIONS
+//---------------------------------------------------------------------------//
+
+#include "Mapper.t.hh"
 
 #endif // core_Mapper_hh
 

@@ -51,7 +51,7 @@ class Messenger
     typedef DataType_T                               DataType;
     typedef int                                      HandleType;
     typedef int                                      OrdinateType;
-    typedef Message_Buffer<OrdinateType>             Message_Buffer_t;
+    typedef Message_Buffer                           Message_Buffer_t;
     typedef typename Message_Buffer_t::Buffer        Buffer;
     typedef std::list<Message_Buffer_t>              BufferList;
     typedef typename BufferList::iterator            BufferList_Iterator;

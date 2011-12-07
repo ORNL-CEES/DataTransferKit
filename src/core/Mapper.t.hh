@@ -1,18 +1,17 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/Mapper.cc
+ * \file   core/Mapper.t.hh
  * \author Stuart Slattery
  * \date   Tue Nov 08 12:31:05 2011
- * \brief  Mapper class member definitions.
- * \note   Copyright (C) 2008 Oak Ridge National Laboratory, UT-Battelle, LLC.
+ * \brief  Mapper class template member definitions.
  */
 //---------------------------------------------------------------------------//
-// $Id: template.cc,v 1.3 2008/01/02 17:18:47 9te Exp $
-//---------------------------------------------------------------------------//
+
+#ifndef core_Mapper_t_hh
+#define core_Mapper_t_hh
 
 #include <algorithm>
 
-#include "Mapper.hh"
 #include "harness/DBC.hh"
 
 namespace coupler
@@ -24,16 +23,16 @@ namespace coupler
 /*!
  * \brief Constructor.
  */
-template<class DataType_T>
-Mapper<DataType_T>::Mapper()
+template<class DataType>
+Mapper<DataType>::Mapper()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Destructor.
  */
-template<class DataType_T>
-Mapper<DataType_T>::~Mapper()
+template<class DataType>
+Mapper<DataType>::~Mapper()
 { /* ... */ }
 
 
@@ -48,10 +47,10 @@ Mapper<DataType_T>::~Mapper()
  * mapped.
  * \param transfer_map The topology map that the mapper will generate.
  */
-template<class DataType_T>
-void Mapper<DataType_T>::map(const Communicator &comm_global,
-			     RCP_Transfer_Data_Field transfer_data_field,
-			     RCP_Transfer_Map transfer_map)
+template<class DataType>
+void Mapper<DataType>::map(const Communicator &comm_global,
+			   RCP_Transfer_Data_Field transfer_data_field,
+			   RCP_Transfer_Map transfer_map)
 {
     // Set the internal communicator.
     nemesis::set_internal_comm(comm_global);
@@ -75,7 +74,7 @@ void Mapper<DataType_T>::map(const Communicator &comm_global,
 			      transfer_data_field->target());
 
     // Source physics post receives for the message buffer size.
-    if ( transfer_data_field->source() )
+    if ( !transfer_data_field->source().is_null() )
     {
 	source_post_receive_size(target_indexer, buffer_size_list);
     }
@@ -87,7 +86,7 @@ void Mapper<DataType_T>::map(const Communicator &comm_global,
     std::vector<HandleType> handles;
 
     // Target physics sends message buffer sizes to source.
-    if ( transfer_data_field->target() )
+    if ( !transfer_data_field->target().is_null() )
     {
 	target_send_point_size(transfer_data_field,
 			       source_indexer, 
@@ -96,7 +95,7 @@ void Mapper<DataType_T>::map(const Communicator &comm_global,
     }
 
     // Source physics processes requests and posts receives for the buffers.
-    if ( transfer_data_field->source() )
+    if ( !transfer_data_field->source().is_null() )
     {
 	source_post_receive_buffer(target_indexer, 
 				   buffer_size_list, 
@@ -104,14 +103,14 @@ void Mapper<DataType_T>::map(const Communicator &comm_global,
     }
 
     // Target send buffers with points to the source.
-    if ( transfer_data_field->target() )
+    if ( !transfer_data_field->target().is_null() )
     {
 	target_send_points(source_indexer, coordinates, handles);
     }
 
     // Source physics processes requests of target points from the target
     // physics and builds the topology map. 
-    if (transfer_data_field->source())
+    if ( !transfer_data_field->source().is_null() )
     {
 	source_process_points(transfer_data_field,
 			      buffer_list, 
@@ -129,35 +128,35 @@ void Mapper<DataType_T>::map(const Communicator &comm_global,
     // Target physics post receives for the return communication of which
     // handles were found in the source domain. These are requests are for the
     // size of that communication.
-    if ( transfer_data_field->target() )
+    if ( !transfer_data_field->target().is_null() )
     {
 	target_post_receive_size(source_indexer, buffer_size_list);
     }
 
     // Source physics sends the number of points it found in its domain back
     // to the target.
-    if ( transfer_data_field->source() )
+    if ( !transfer_data_field->source().is_null() )
     {
 	source_send_point_size(target_indexer, transfer_map);
     }
     
     // Target physics processes requests for the number of points from the
     // source and then posts receives if that number is greater than zero.
-    if ( transfer_data_field->target() )
+    if ( !transfer_data_field->target().is_null() )
     {
 	target_post_receive_buffer(buffer_size_list, buffer_list);
     }
 
     // Source physics sends target point handles it found in its domain back
     // to the target.
-    if ( transfer_data_field->source() )
+    if ( !transfer_data_field->source().is_null() )
     {
 	source_send_handles(transfer_map);
     }
 
     // Target physics processes requests for handles from the source and
     // completes the map.
-    if (transfer_data_field->target())
+    if ( !transfer_data_field->target().is_null() )
     {
 	target_process_handles(buffer_list, transfer_map);
     }
@@ -176,14 +175,13 @@ void Mapper<DataType_T>::map(const Communicator &comm_global,
 /*!
  * \brief Source physics post receives for buffer sizes.
  */
-template<class DataType_T>
-void Mapper<DataType_T>::source_post_receive_size(
+template<class DataType>
+void Mapper<DataType>::source_post_receive_size(
     LG_Indexer &target_indexer,
     BufferList &buffer_size_list)
 {
     // Initialize.
-    Message_Buffer_t &buffer;
-    int buffer_size = 0;
+    Message_Buffer_t buffer;
 
     // Post receives for each target process.
     OrdinateType src;
@@ -208,15 +206,15 @@ void Mapper<DataType_T>::source_post_receive_size(
     }
 
     // Make sure we made all of the buffers we're going to receive.
-    Check ( buffer_size_list.size() == target_indexer.size() );
+    Check ( (int) buffer_size_list.size() == target_indexer.size() );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Target physics sends point sizes to source.
  */
-template<class DataType_T>
-void Mapper<DataType_T>::target_send_point_size(
+template<class DataType>
+void Mapper<DataType>::target_send_point_size(
     RCP_Transfer_Data_Field transfer_data_field,
     LG_Indexer &source_indexer,
     std::vector<CoordinateType> &coordinates,
@@ -277,8 +275,8 @@ void Mapper<DataType_T>::target_send_point_size(
  * \brief Source physics process requests for message sizes and post receives
  * for buffers. 
  */
-template<class DataType_T>
-void Mapper<DataType_T>::source_post_receive_buffer(
+template<class DataType>
+void Mapper<DataType>::source_post_receive_buffer(
     LG_Indexer &target_indexer,
     BufferList &buffer_size_list,
     BufferList &buffer_list)
@@ -286,12 +284,12 @@ void Mapper<DataType_T>::source_post_receive_buffer(
     // Initialize.
     OrdinateType src;
     BufferList_Iterator buffer_iter;
-    Message_Buffer_t &buffer;
+    Message_Buffer_t buffer;
     int buffer_size;
     denovo::Unpacker u;
-	
+
     // Keep going until all requests have been processed.
-    while( !buffer_list.empty() )
+    while( !buffer_size_list.empty() )
     {
 	// Find a buffer with a completed communication request.
 	buffer_iter = std::find_if(buffer_size_list.begin(), 
@@ -305,7 +303,7 @@ void Mapper<DataType_T>::source_post_receive_buffer(
 	    src = buffer_iter->ordinate();
 
 	    // Get the buffer.
-	    buffer = buffer_iter;
+	    buffer = *buffer_iter;
 
 	    // Set the buffer for the unpacker.
 	    u.set_buffer( buffer.buffer().size(), &buffer.buffer()[0] );
@@ -328,18 +326,18 @@ void Mapper<DataType_T>::source_post_receive_buffer(
 				   buffer.buffer().size(),
 				   buffer.ordinate());
 	}
-
-	// Make sure we made all of the buffers we're going to receive.
-	Check ( buffer_list.size() == target_indexer.size() );
     }
+
+    // Make sure we made all of the buffers we're going to receive.
+    Check ( (int) buffer_list.size() == target_indexer.size() );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Target send points to source.
  */
-template<class DataType_T>
-void Mapper<DataType_T>::target_send_points(
+template<class DataType>
+void Mapper<DataType>::target_send_points(
     LG_Indexer &source_indexer,
     const std::vector<CoordinateType> &coordinates,
     const std::vector<HandleType> &handles)
@@ -374,7 +372,7 @@ void Mapper<DataType_T>::target_send_points(
     buffer.resize(buffer_size);
 
     // Pack the data into the buffer.
-    Check( buffer.size() == buffer_size );
+    Check( (int) buffer.size() == buffer_size );
     if (buffer_size > 0)
     {
 	p.set_buffer(buffer_size, &buffer[0]);
@@ -418,8 +416,8 @@ void Mapper<DataType_T>::target_send_points(
 /*!
  * \brief Source physics process request and build part of the map.
  */
-template<class DataType_T>
-void Mapper<DataType_T>::source_process_points(
+template<class DataType>
+void Mapper<DataType>::source_process_points(
     RCP_Transfer_Data_Field transfer_data_field, 
     BufferList &buffer_list,
     RCP_Transfer_Map transfer_map)
@@ -427,7 +425,7 @@ void Mapper<DataType_T>::source_process_points(
     // Initialize.
     OrdinateType src;
     BufferList_Iterator buffer_iter;
-    Buffer &buffer;
+    Buffer buffer;
     int buffer_size;
     int num_points;
     int j;
@@ -435,7 +433,7 @@ void Mapper<DataType_T>::source_process_points(
     HandleType handle;
     CoordinateType x, y, z;
 
-    while ( buffer_list.empty() )
+    while ( !buffer_list.empty() )
     {
 	// Find a buffer with a completed communication request.
 	buffer_iter = std::find_if(buffer_list.begin(), 
@@ -480,10 +478,10 @@ void Mapper<DataType_T>::source_process_points(
 			transfer_map->add_domain_pair(src, handle);
 		    }
 		}
-
-		// Remove this buffer from the list.
-		buffer_list.erase(buffer_iter);
 	    }
+
+	    // Remove this buffer from the list once processed.
+	    buffer_list.erase(buffer_iter);
 	}
     }
 }
@@ -492,14 +490,13 @@ void Mapper<DataType_T>::source_process_points(
 /*! 
  * \brief Target physics post receives for return buffer size.
  */
-template<class DataType_T>
-void Mapper<DataType_T>::target_post_receive_size(
+template<class DataType>
+void Mapper<DataType>::target_post_receive_size(
     LG_Indexer &source_indexer,
     BufferList &buffer_size_list)
 {
     // Initialize.
-    Message_Buffer_t &buffer;
-    int buffer_size = 0;
+    Message_Buffer_t buffer;
 
     // Post receives for each source process.
     OrdinateType src;
@@ -524,7 +521,7 @@ void Mapper<DataType_T>::target_post_receive_size(
     }
 
     // Make sure we made all of the buffers we're going to receive.
-    Check ( buffer_size_list.size() == source_indexer.size() );
+    Check ( (int) buffer_size_list.size() == source_indexer.size() );
 }
 
 //---------------------------------------------------------------------------//
@@ -532,8 +529,8 @@ void Mapper<DataType_T>::target_post_receive_size(
  * \brief Source physics sends back the number of points it found in its
  * domain back to the target.
  */
-template<class DataType_T>
-void Mapper<DataType_T>::source_send_point_size(
+template<class DataType>
+void Mapper<DataType>::source_send_point_size(
     LG_Indexer &target_indexer, 
     RCP_Transfer_Map transfer_map)
 {
@@ -563,20 +560,20 @@ void Mapper<DataType_T>::source_send_point_size(
 /*!
  * \brief Target physics process request for message sizes and post receives.
  */
-template<class DataType_T>
-void Mapper<DataType_T>::target_post_receive_buffer(
+template<class DataType>
+void Mapper<DataType>::target_post_receive_buffer(
     BufferList &buffer_size_list,
     BufferList &buffer_list)
 {
     // Initialize.
     OrdinateType src;
     BufferList_Iterator buffer_iter;
-    Message_Buffer_t &buffer;
+    Message_Buffer_t buffer;
     int buffer_size;
     denovo::Unpacker u;
 	
     // Keep going until all requests have been processed.
-    while( !buffer_list.empty() )
+    while( !buffer_size_list.empty() )
     {
 	// Find a buffer with a completed communication request.
 	buffer_iter = std::find_if(buffer_size_list.begin(), 
@@ -590,7 +587,7 @@ void Mapper<DataType_T>::target_post_receive_buffer(
 	    src = buffer_iter->ordinate();
 
 	    // Get the buffer.
-	    buffer = buffer_iter;
+	    buffer = *buffer_iter;
 
 	    // Set the buffer for the unpacker.
 	    u.set_buffer( buffer.buffer().size(), &buffer.buffer()[0] );
@@ -624,8 +621,8 @@ void Mapper<DataType_T>::target_post_receive_buffer(
 /*! 
  * \brief Source physics sends its point handles to the targets.
  */
-template<class DataType_T>
-void Mapper<DataType_T>::source_send_handles(RCP_Transfer_Map transfer_map)
+template<class DataType>
+void Mapper<DataType>::source_send_handles(RCP_Transfer_Map transfer_map)
 {
     // For every unique target physics rank in the map, send back the
     // points found in the local domain.
@@ -634,8 +631,8 @@ void Mapper<DataType_T>::source_send_handles(RCP_Transfer_Map transfer_map)
     Set_Iterator destination;
     Set_Pair destination_bound = transfer_map->targets();
 
-    for (destination = destination_bound.first(); 
-	 destination != destination_bound.second(); 
+    for (destination = destination_bound.first; 
+	 destination != destination_bound.second; 
 	 ++destination)
     {
 	// Get the domain iterators for this target rank.
@@ -644,22 +641,22 @@ void Mapper<DataType_T>::source_send_handles(RCP_Transfer_Map transfer_map)
 	    
 	// Compute the size of the buffer.
 	p.compute_buffer_size_mode();
-	for (map_it = domain_pair.first(); 
-	     map_it != domain_pair.second();
+	for (map_it = domain_pair.first; 
+	     map_it != domain_pair.second;
 	     ++map_it)
 	{
-	    p << (*map_it).second();
+	    p << (*map_it).second;
 	}
 	buffer_size = p.size();
 
 	// Pack the buffer with the handles.
 	Buffer buffer(buffer_size);
 	p.set_buffer(buffer_size, &buffer[0]);
-	for (map_it = domain_pair.first(); 
-	     map_it != domain_pair.second();
+	for (map_it = domain_pair.first; 
+	     map_it != domain_pair.second;
 	     ++map_it)
 	{
-	    p << (*map_it).second();
+	    p << (*map_it).second;
 	}
 
 	// Send the buffer.
@@ -671,21 +668,21 @@ void Mapper<DataType_T>::source_send_handles(RCP_Transfer_Map transfer_map)
 /*!
  * \brief Target physics processes handle requests and completes the mapping.
  */
-template<class DataType_T>
-void Mapper<DataType_T>::target_process_handles(BufferList &buffer_list,
-						RCP_Transfer_Map transfer_map)
+template<class DataType>
+void Mapper<DataType>::target_process_handles(BufferList &buffer_list,
+					      RCP_Transfer_Map transfer_map)
 {
     // Initialize.
     OrdinateType src;
     BufferList_Iterator buffer_iter;
-    Buffer &buffer;
+    Buffer buffer;
     int buffer_size;
     int num_handles;
     int j;
     denovo::Unpacker u;
     HandleType handle;
 
-    while ( buffer_list.empty() )
+    while ( !buffer_list.empty() )
     {
 	// Find a buffer with a completed communication request.
 	buffer_iter = std::find_if(buffer_list.begin(), 
@@ -720,6 +717,9 @@ void Mapper<DataType_T>::target_process_handles(BufferList &buffer_list,
 		    transfer_map->add_range_pair(src, handle);
 		}
 	    }
+	    
+	    // Erase the buffer from the list once processed.
+	    buffer_list.erase(buffer_iter);
 	}
     }
 }
@@ -728,6 +728,8 @@ void Mapper<DataType_T>::target_process_handles(BufferList &buffer_list,
 
 } // end namespace coupler
 
+#endif // core_Mapper_t_hh
+
 //---------------------------------------------------------------------------//
-//                 end of Mapper.cc
+//                 end of Mapper.t.hh
 //---------------------------------------------------------------------------//

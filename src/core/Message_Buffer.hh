@@ -31,14 +31,13 @@ namespace coupler
  */
 //===========================================================================//
 
-template<class OrdinateType_T>
 class Message_Buffer 
 {
   public:
 
     //@{
     //! Useful Typedefs.
-    typedef OrdinateType_T              OrdinateType;
+    typedef int                         OrdinateType;
     typedef nemesis::Request            Request;
     typedef std::vector<char>           Buffer;
     //@}
@@ -55,6 +54,10 @@ class Message_Buffer
     Request d_request;
 
   public:
+    //! Default constructor.
+    Message_Buffer()
+    { /* ... */ }
+
     //! Constructor.
     explicit Message_Buffer(OrdinateType ordinate, int buffer_size)
         : d_ordinate(ordinate)
@@ -71,7 +74,7 @@ class Message_Buffer
     Buffer& buffer() { return d_buffer; }
 
     //! Return whether given request is complete.
-    static bool complete(Message_Buffer<OrdinateType>& buf) 
+    static bool complete(Message_Buffer& buf) 
     { 
         return buf.request().complete(); 
     }

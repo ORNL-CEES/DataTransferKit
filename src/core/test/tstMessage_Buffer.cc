@@ -32,7 +32,7 @@ namespace coupler {
 TEUCHOS_UNIT_TEST( Message_Buffer, messagebufferCommunication )
 {
     // Make a message buffer.
-    Message_Buffer<int> message_buffer(nemesis::node(), sizeof(int));
+    Message_Buffer message_buffer(nemesis::node(), sizeof(int));
 
     // Check the initialization.
     TEST_ASSERT( message_buffer.ordinate() == nemesis::node() );
