@@ -10,7 +10,7 @@
 #ifndef core_Transfer_Data_Field_t_hh
 #define core_Transfer_Data_Field_t_hh
 
-#include "harness/DBC.hh"
+#include <cassert>
 
 namespace coupler
 {
@@ -42,8 +42,8 @@ Transfer_Data_Field<DataType,HandleType,CoordinateType>::Transfer_Data_Field(
     , d_mapped(false)
 { 
     // Require that these physics support the field being mapped.
-    Require( d_source->field_supported(d_field_name) &&
-	     d_target->field_supported(d_field_name) );
+    assert( d_source->field_supported(d_field_name) &&
+	    d_target->field_supported(d_field_name) );
 }
 
 /*!

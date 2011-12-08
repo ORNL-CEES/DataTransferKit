@@ -12,8 +12,6 @@
 #include <cmath>
 #include <sstream>
 
-#include "comm/global.hh"
-
 #include <Mesh_Point.hpp>
 #include "../Transfer_Data_Source.hh"
 #include "../Transfer_Data_Target.hh"
@@ -51,7 +49,7 @@ class Data_Container
 
     double scalar_data;
     Teuchos::ArrayView<double> distributed_data;
-    Teuchos::ArrayView<PointType > distributed_points;
+    Teuchos::ArrayView<PointType> distributed_points;
 
   public:
 
@@ -61,12 +59,12 @@ class Data_Container
     ~Data_Container()
     { /* ... */ }
 
-    void set_distributed_points(Teuchos::ArrayView<PointType > points)
+    void set_distributed_points(Teuchos::ArrayView<PointType> points)
     {
 	distributed_points = points;
     }
 
-    Teuchos::ArrayView<PointType > get_distributed_points()
+    Teuchos::ArrayView<PointType> get_distributed_points()
     {
 	return distributed_points;
     }
@@ -111,7 +109,6 @@ class test_Transfer_Data_Source
   public:
 
     typedef double                                   DataType;
-    typedef nemesis::Communicator_t                  Communicator;
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
     typedef int                                      OrdinalType;
@@ -125,7 +122,7 @@ class test_Transfer_Data_Source
     ~test_Transfer_Data_Source()
     { /* ... */ }
 
-    RCP_Communicator comm()
+    const RCP_Communicator comm()
     {
 	return getDefaultComm<OrdinalType>();
     }
@@ -159,7 +156,7 @@ class test_Transfer_Data_Source
 	return return_val;
     }
 
-    Teuchos::ArrayView<double> send_data(
+    const Teuchos::ArrayView<double> send_data(
 	const std::string &field_name,
 	const Teuchos::ArrayView<PointType> &points)
     {
@@ -221,7 +218,7 @@ class test_Transfer_Data_Target
     ~test_Transfer_Data_Target()
     { /* ... */ }
 
-    RCP_Communicator comm()
+    const RCP_Communicator comm()
     {
 	return getDefaultComm<OrdinalType>();
     }
@@ -243,7 +240,7 @@ class test_Transfer_Data_Target
 	return return_val;
     }
 
-    Teuchos::ArrayView<PointType> set_points(const std::string &field_name)
+    const Teuchos::ArrayView<PointType> set_points(const std::string &field_name)
     {
 	Teuchos::ArrayView<PointType> return_view;
 

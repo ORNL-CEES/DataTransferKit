@@ -25,17 +25,12 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  Packing_Utils.hh
-  Packing_Utils.i.hh
-  Message_Buffer.hh
-  LG_Indexer.hh
-  LG_Indexer.i.hh
-  Transfer_Map.hh
-  Transfer_Map.i.hh
   Transfer_Data_Source.hh
   Transfer_Data_Target.hh
   Transfer_Data_Field.hh
   Transfer_Data_Field.t.hh
+  Mapper_Tpetra.hh
+  Mapper_Tpetra.t.hh
   # Mapper.hh
   # Mapper.t.hh
   # Messenger.hh

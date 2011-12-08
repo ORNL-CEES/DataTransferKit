@@ -12,8 +12,6 @@
 #include <cmath>
 #include <sstream>
 
-#include "comm/global.hh"
-
 #include <Mesh_Point.hpp>
 
 #include "../Transfer_Map.hh"
@@ -74,7 +72,7 @@ class test_Transfer_Data_Source
     ~test_Transfer_Data_Source()
     { /* ... */ }
 
-    RCP_Communicator comm()
+    const RCP_Communicator comm()
     {
 	return getDefaultComm<OrdinalType>();
     }
@@ -108,7 +106,7 @@ class test_Transfer_Data_Source
 	return return_val;
     }
 
-    Teuchos::ArrayView<double> send_data(
+    const Teuchos::ArrayView<double> send_data(
 	const std::string &field_name,
 	const Teuchos::ArrayView<PointType> &points)
     {
@@ -168,7 +166,7 @@ class test_Transfer_Data_Target
     ~test_Transfer_Data_Target()
     { /* ... */ }
 
-    RCP_Communicator comm()
+    const RCP_Communicator comm()
     {
 	return getDefaultComm<OrdinalType>();
     }
@@ -190,7 +188,7 @@ class test_Transfer_Data_Target
 	return return_val;
     }
 
-    Teuchos::ArrayView<PointType> set_points(const std::string &field_name)
+    const Teuchos::ArrayView<PointType> set_points(const std::string &field_name)
     {
 	Teuchos::ArrayView<PointType> return_view;
 

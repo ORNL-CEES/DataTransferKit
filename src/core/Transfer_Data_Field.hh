@@ -53,11 +53,14 @@ class Transfer_Data_Field
     typedef DataType_T                               DataType;
     typedef HandleType_T                             HandleType;
     typedef CoordinateType_T                         CoordinateType;
-    typedef Transfer_Data_Source<DataType,HandleType,CoordinateType> Transfer_Data_Source_t;
+    typedef int                                      OrdinalType;
+    typedef Transfer_Data_Source<DataType,HandleType,CoordinateType> 
+                                                     Transfer_Data_Source_t;
     typedef Teuchos::RCP<Transfer_Data_Source_t>     RCP_Transfer_Data_Source;
-    typedef Transfer_Data_Target<DataType,HandleType,CoordinateType> Transfer_Data_Target_t;
+    typedef Transfer_Data_Target<DataType,HandleType,CoordinateType> 
+                                                     Transfer_Data_Target_t;
     typedef Teuchos::RCP<Transfer_Data_Target_t>     RCP_Transfer_Data_Target;
-    typedef Tpetra::Map<int>                         Tpetra_Map_t;
+    typedef Tpetra::Map<OrdinalType>                 Tpetra_Map_t;
     typedef Teuchos::RCP<Tpetra_Map_t>               RCP_Tpetra_Map;
     //@}
 

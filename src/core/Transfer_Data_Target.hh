@@ -32,7 +32,7 @@ namespace coupler
  * transferred, the handle type for mesh entities, and the coordinate type.
  */
 /*! 
- * \example core/test/tstTransfer_Data_Target.cc
+ * \example core/test/tstInterfaces.cc
  *
  * Test of Transfer_Data_Target.
  */
@@ -69,7 +69,7 @@ class Transfer_Data_Target
      * \brief Register communicator object.
      * \return The communicator for this physics.
      */
-    virtual RCP_Communicator comm() = 0;
+    virtual const RCP_Communicator comm() = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this
@@ -87,7 +87,7 @@ class Transfer_Data_Target
      * registered with.
      * \return Array view into a point array.
      */
-    virtual Teuchos::ArrayView<PointType> 
+    virtual const Teuchos::ArrayView<PointType> 
     set_points(const std::string &field_name) = 0;
 
     /*! 

@@ -17,7 +17,7 @@
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Comm.hpp"
-#include "Teuchos_ArrayViewDecl.hpp"
+#include "Teuchos_ArrayView.hpp"
 
 namespace coupler
 {
@@ -32,7 +32,7 @@ namespace coupler
  * transferred, the handle type for mesh entities, and the coordinate type.
  */
 /*! 
- * \example core/test/tstTransfer_Data_Source.cc
+ * \example core/test/tstInterfaces.cc
  *
  * Test of Transfer_Data_Source.
  */
@@ -69,7 +69,7 @@ class Transfer_Data_Source
      * \brief Register communicator object.
      * \return The communicator for this physics.
      */
-    virtual RCP_Communicator comm() = 0;
+    virtual const RCP_Communicator comm() = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this
@@ -93,7 +93,7 @@ class Transfer_Data_Source
      * \param points A view of the points for the data being sent.
      * \return A view of data being sent.
      */
-    virtual Teuchos::ArrayView<DataType> 
+    virtual const Teuchos::ArrayView<DataType> 
     send_data(const std::string &field_name,
 	      const Teuchos::ArrayView<PointType> &points) = 0;
 
