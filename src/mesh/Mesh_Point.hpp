@@ -10,8 +10,6 @@
 #ifndef mesh_Point_hpp
 #define mesh_Point_hpp
 
-#include "harness/DBC.hh"
-
 #include "Teuchos_Tuple.hpp"
 
 namespace mesh
@@ -74,7 +72,7 @@ class Point
     Point(const Point<HandleType_2,CoordinateType_2>& point)
         : d_handle( point.handle )
 	, d_coords( point.d_coords )
-    {   }
+    { /* ... */ }
 
     //@{
     //! Get the handle.
