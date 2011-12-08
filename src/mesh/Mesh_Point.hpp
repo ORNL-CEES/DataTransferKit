@@ -12,6 +12,8 @@
 
 #include "harness/DBC.hh"
 
+#include "Teuchos_Tuple.hpp"
+
 namespace mesh
 {
 
@@ -52,7 +54,7 @@ class Point
     HandleType d_handle;
 
     // Point coordinates.
-    std::vector<CoordinateType> d_coords;
+    Teuchos::Tuple<CoordinateType,3> d_coords;
 
   public:
     //! Constructor.
@@ -62,7 +64,6 @@ class Point
 	  CoordinateType _z)
 	: d_handle(_handle)
     {   
-	d_coords.resize(3);
 	d_coords[0] = _x;
 	d_coords[1] = _y;
 	d_coords[2] = _z;
