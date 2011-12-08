@@ -32,10 +32,7 @@ cmake \
 -D BLAS_LIBRARY_NAMES:STRING="blas" \
 -D LAPACK_LIBRARY_DIRS:PATH=/home/stuart/software/lapack-3.4.0 \
 -D LAPACK_LIBRARY_NAMES:STRING="lapack" \
--D Trilinos_EXTRA_REPOSITORIES="Nemesis;Coupler" \
--D Trilinos_ENABLE_nemesis:BOOL=ON \
--D Trilinos_ENABLE_nemesisHarness:BOOL=ON \
--D Trilinos_ENABLE_nemesisComm:BOOL=ON \
+-D Trilinos_EXTRA_REPOSITORIES="Coupler" \
 -D Trilinos_ENABLE_coupler:BOOL=ON \
 -D coupler_ENABLE_TESTS:BOOL=ON \
 $EXTRA_ARGS \
