@@ -14,7 +14,6 @@
 
 #include <Mesh_Point.hpp>
 
-#include "../Transfer_Map.hh"
 #include "../Transfer_Data_Source.hh"
 #include "../Transfer_Data_Target.hh"
 #include "../Transfer_Data_Field.hh"

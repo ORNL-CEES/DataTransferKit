@@ -11,8 +11,9 @@
 #define core_Mapper_hh
 
 #include <string>
-#include <list>
 #include <vector>
+
+#include <Mesh_Point.hpp>
 
 #include "Transfer_Data_Field.hh"
 
@@ -51,11 +52,12 @@ class Mapper
     typedef HandleType_T                             HandleType;
     typedef CoordinateType_T                         CoordinateType;
     typedef int                                      OrdinalType;
+    typedef mesh::Point<HandleType,CoordinateType>   PointType;
     typedef Transfer_Data_Field<DataType,HandleType,CoordinateType> 
                                                      Transfer_Data_Field_t;
     typedef Teuchos::RCP<Transfer_Data_Field_t>      RCP_Transfer_Data_Field;
     typedef Tpetra::Map<int>                         Tpetra_Map_t;
-    typedef Teuchos::RCP<Tpetra_Map_t>               RCP_Tpetra_Map;
+    typedef Teuchos::RCP<const Tpetra_Map_t>         RCP_Tpetra_Map;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
     //@}
