@@ -14,9 +14,10 @@
 
 #include "Transfer_Data_Source.hh"
 #include "Transfer_Data_Target.hh"
-#include "Transfer_Map.hh"
 
 #include "Teuchos_RCP.hpp"
+
+#include "Tpetra_Map.hpp"
 
 namespace coupler
 {
@@ -56,7 +57,8 @@ class Transfer_Data_Field
     typedef Teuchos::RCP<Transfer_Data_Source_t>     RCP_Transfer_Data_Source;
     typedef Transfer_Data_Target<DataType,HandleType,CoordinateType> Transfer_Data_Target_t;
     typedef Teuchos::RCP<Transfer_Data_Target_t>     RCP_Transfer_Data_Target;
-    typedef Teuchos::RCP<Transfer_Map>               RCP_Transfer_Map;
+    typedef Tpetra::Map<int>                         Tpetra_Map_t;
+    typedef Teuchos::RCP<Tpetra_Map_t>               RCP_Tpetra_Map;
     //@}
 
   private:
@@ -70,8 +72,11 @@ class Transfer_Data_Field
     // Data transfer target implemenation.
     RCP_Transfer_Data_Target d_target;
 
-    // Topology map for transfer from the source to the target.
-    RCP_Transfer_Map d_map;
+    // Tpetra map for the data source.
+    RCP_Tpetra_Map d_source_map;
+
+    // Tpetra map for the data target.
+    RCP_Tpetra_Map d_target_map;
 
     // Boolean for scalar field.
     bool d_scalar;
@@ -102,12 +107,16 @@ class Transfer_Data_Field
     RCP_Transfer_Data_Target target() 
     { return d_target; }
     
-    // Set the topology map.
-    void set_map(RCP_Transfer_Map transfer_map);
+    //! Set the maps for the data source and target.
+    void set_maps(RCP_Tpetra_Map source_map, RCP_Tpetra_Map target_map);
 
-    //! Get the topology map.
-    RCP_Transfer_Map get_map() 
-    { return d_map; }
+    //! Get the map for the data source.
+    RCP_Tpetra_Map get_source_map()
+    { return d_source_map; }
+
+    //! Get the map for the data target.
+    RCP_Tpetra_Map get_target_map()
+    { return d_target_map; }
 
     //! Return the scalar boolean.
     bool is_scalar()

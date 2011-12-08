@@ -58,15 +58,19 @@ Transfer_Data_Field<DataType,HandleType,CoordinateType>::~Transfer_Data_Field()
 // PUBLIC METHODS
 //---------------------------------------------------------------------------//
 /*!
- * \brief Assign a topology map to the field.
- * \param transfer_map The topology map being applied to this field to
- * transfer from the source to the target.
+ * \brief Assign topology maps to the field.
+ * \param source_map The Tpetra map being applied to the data source for this
+ * field.
+ * \param target_map The Tpetra map being applied to the data target for this
+ * field.
  */
 template<class DataType, class HandleType, class CoordinateType>
-void Transfer_Data_Field<DataType,HandleType,CoordinateType>::set_map(
-    RCP_Transfer_Map transfer_map)
+void Transfer_Data_Field<DataType,HandleType,CoordinateType>::set_maps(
+    RCP_Tpetra_Map source_map, 
+    RCP_Tpetra_Map target_map)
 {
-    d_map = transfer_map;
+    d_source_map = source_map;
+    d_target_map = target_map;
     d_mapped = true;
 }
 

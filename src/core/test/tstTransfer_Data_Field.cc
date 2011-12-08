@@ -24,6 +24,23 @@
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_UnitTestHarness.hpp"
+#include "Teuchos_Comm.hpp"
+
+#include "Tpetra_Map.hpp"
+#include "Tpetra_DefaultPlatform.hpp"
+
+//---------------------------------------------------------------------------//
+// HELPER FUNCTIONS
+//---------------------------------------------------------------------------//
+
+Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
+{
+#ifdef COMM_MPI
+    return Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
+#else
+    return Teuchos::rcp(new Teuchos::SerialComm<int>());
+#endif
+}
 
 //---------------------------------------------------------------------------//
 // INTERFACE IMPLEMENTATIONS
@@ -223,16 +240,20 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_field_test )
     // Create a distributed field for these interfaces to be transferred.
     Transfer_Data_Field<double,int,double> field("DISTRIBUTED_TEST_FIELD", tds, tdt);
 
-    // Add a transfer map to the field.
+    // Add Tpetra maps to the field.
     TEST_ASSERT( !field.is_mapped() );
-    Teuchos::RCP<Transfer_Map> map = Teuchos::rcp(new Transfer_Map());
-    field.set_map(map);
+    Teuchos::RCP<Tpetra::Map<int> > source_map 
+	= Teuchos::rcp(new Tpetra::Map<int>(-1, 0, 0, getDefaultComm()) );
+    Teuchos::RCP<Tpetra::Map<int> > target_map 
+	= Teuchos::rcp(new Tpetra::Map<int>(-1, 0, 0, getDefaultComm()) );
+    field.set_maps(source_map, target_map);
 
     // Test the functionality.
     TEST_ASSERT( field.name() == "DISTRIBUTED_TEST_FIELD" );
     TEST_ASSERT( field.source() == tds );
     TEST_ASSERT( field.target() == tdt );
-    TEST_ASSERT( field.get_map() == map );
+    TEST_ASSERT( field.get_source_map() == source_map );
+    TEST_ASSERT( field.get_target_map() == target_map );
     TEST_ASSERT( !field.is_scalar() );
     TEST_ASSERT( field.is_mapped() );
 }
