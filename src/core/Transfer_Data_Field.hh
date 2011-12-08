@@ -18,6 +18,7 @@
 #include "Teuchos_RCP.hpp"
 
 #include "Tpetra_Map.hpp"
+#include "Tpetra_Export.hpp"
 
 namespace coupler
 {
@@ -62,6 +63,8 @@ class Transfer_Data_Field
     typedef Teuchos::RCP<Transfer_Data_Target_t>     RCP_Transfer_Data_Target;
     typedef Tpetra::Map<OrdinalType>                 Tpetra_Map_t;
     typedef Teuchos::RCP<Tpetra_Map_t>               RCP_Tpetra_Map;
+    typedef Tpetra::Export<HandleType>               Tpetra_Export_t;
+    typedef Teuchos::RCP<Tpetra_Export_t>            RCP_Tpetra_Export;
     //@}
 
   private:
@@ -80,6 +83,9 @@ class Transfer_Data_Field
 
     // Tpetra map for the data target.
     RCP_Tpetra_Map d_target_map;
+
+    // Tpetra export for transfer from data source to data target.
+    RCP_Tpetra_Export d_export;
 
     // Boolean for scalar field.
     bool d_scalar;
@@ -110,8 +116,8 @@ class Transfer_Data_Field
     RCP_Transfer_Data_Target target() 
     { return d_target; }
     
-    //! Set the maps for the data source and target.
-    void set_maps(RCP_Tpetra_Map source_map, RCP_Tpetra_Map target_map);
+    //! Set the mapping for transfer from the data source to the data target.
+    void set_mapping(RCP_Tpetra_Map source_map, RCP_Tpetra_Map target_map);
 
     //! Get the map for the data source.
     RCP_Tpetra_Map get_source_map()
@@ -120,6 +126,10 @@ class Transfer_Data_Field
     //! Get the map for the data target.
     RCP_Tpetra_Map get_target_map()
     { return d_target_map; }
+
+    //! Get the Tpetra export for transfer from data source to data target.
+    RCP_Tpetra_Export get_export()
+    { return d_export; }
 
     //! Return the scalar boolean.
     bool is_scalar()

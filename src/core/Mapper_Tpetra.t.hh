@@ -51,28 +51,30 @@ void Mapper<DataType,HandleType,CoordinateType>::map(
 {
     // Get the local list of handles. These are the global indices for the
     // Tpetra map.
-    const Teuchos::ArrayView<PointType> local_points = 
+    const Teuchos::ArrayView<PointType> target_points = 
 	transfer_data_field->target()->set_points( transfer_data_field->name() );
-    typename Teuchos::ArrayView<PointType>::const_iterator point_it;
+    typename Teuchos::ArrayView<PointType>::const_iterator target_point_it;
 
-    std::vector<HandleType> local_handles(local_points.size());
-    typename std::vector<HandleType>::iterator handle_it;
+    std::vector<HandleType> target_handles(target_points.size());
+    typename std::vector<HandleType>::iterator target_handle_it;
 
-    for (handle_it = local_handles.begin(), point_it = local_points.begin(); 
-	 handle_it != local_handles.end();
-	 ++handle_it, ++point_it)
+    for (target_handle_it = target_handles.begin(), 
+	  target_point_it = target_points.begin(); 
+	 target_handle_it != target_handles.end();
+	 ++target_handle_it, ++target_point_it)
     {
-	*handle_it = point_it->handle();
+	*target_handle_it = target_point_it->handle();
     }
-    const Teuchos::ArrayView<const HandleType> local_handles_view(local_handles);
 
     // Generate the map for the data target.
+    const Teuchos::ArrayView<const HandleType> target_handles_view(target_handles);
     RCP_Tpetra_Map data_target_map = 
-	Tpetra::createNonContigMap<HandleType>( local_handles_view, comm_global);
+	Tpetra::createNonContigMap<HandleType>( target_handles_view, comm_global);
 
-    // Communicate points to the data source.
+    // Data target communicate points to the data source.
     int local_size 
-	= transfer_data_field->target()->set_points( transfer_data_field->name() ).size();
+	= transfer_data_field->target()->set_points( 
+	    transfer_data_field->name() ).size();
     int local_max = 0;
     Teuchos::reduceAll<OrdinalType,int>(*comm_global,
 					Teuchos::REDUCE_MAX, 
@@ -80,12 +82,18 @@ void Mapper<DataType,HandleType,CoordinateType>::map(
 					&local_size, 
 					&local_max);
     
-    Teuchos::broadcast<OrdinalType,char>(*comm_global, 
-					 comm_global->getRank(),
-					 local_points);
-					
-    // The data source finds the points in its domain and builds its map.
-					
+    // The data source finds the points in its domain.
+    std::vector<HandleType> source_handles;
+
+
+    
+    // Generate the map for the data source.
+    const Teuchos::ArrayView<const HandleType> source_handles_view(source_handles);
+    RCP_Tpetra_Map data_source_map = 
+	Tpetra::createNonContigMap<HandleType>( source_handles_view, comm_global);
+
+    // Set the mapping in the field.
+    transfer_data_field->set_mapping(data_source_map, data_target_map);
 }
 
 //---------------------------------------------------------------------------//

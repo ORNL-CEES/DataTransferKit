@@ -84,18 +84,15 @@ class Transfer_Data_Source
      * handle, return true if the point is in the local domain, false if not.
      * \param point Point.
      */
-    virtual bool get_points(PointType &point) = 0;
+    virtual bool get_points(const PointType &point) = 0;
 
     /*! 
-     * \brief Given an entity handle, send the field data associated with that
-     * handle. 
+     * \brief Send the field data.
      * \param field_name The name of the field to send data from.
-     * \param points A view of the points for the data being sent.
      * \return A view of data being sent.
      */
     virtual const Teuchos::ArrayView<DataType> 
-    send_data(const std::string &field_name,
-	      const Teuchos::ArrayView<PointType> &points) = 0;
+    send_data(const std::string &field_name) = 0;
 
     /*!
      * \brief Given a field, set a global data element to be be sent to a

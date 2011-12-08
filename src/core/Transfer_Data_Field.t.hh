@@ -65,12 +65,14 @@ Transfer_Data_Field<DataType,HandleType,CoordinateType>::~Transfer_Data_Field()
  * field.
  */
 template<class DataType, class HandleType, class CoordinateType>
-void Transfer_Data_Field<DataType,HandleType,CoordinateType>::set_maps(
+void Transfer_Data_Field<DataType,HandleType,CoordinateType>::set_mapping(
     RCP_Tpetra_Map source_map, 
     RCP_Tpetra_Map target_map)
 {
     d_source_map = source_map;
     d_target_map = target_map;
+    d_export = 
+	Teuchos::rcp( Tpetra::Export<HandleType>(d_source_map, d_target_map) );
     d_mapped = true;
 }
 

@@ -91,14 +91,11 @@ class Transfer_Data_Target
     set_points(const std::string &field_name) = 0;
 
     /*! 
-     * \brief Given an entity handle, receive the field data associated with
-     * that handle. 
+     * \brief Receive the field data. 
      * \param field_name The name of the field to receive data from.
-     * \param handles The enitity handles for the data being received.
      * \param data The data being received.
      */
     virtual void receive_data(const std::string &field_name,
-			      const Teuchos::ArrayView<PointType> &points,
 			      const Teuchos::ArrayView<DataType> &data) = 0;
 
     /*!
