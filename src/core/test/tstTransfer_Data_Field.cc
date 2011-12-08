@@ -24,21 +24,21 @@
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_Comm.hpp"
+#include "Teuchos_DefaultComm.hpp"
 
 #include "Tpetra_Map.hpp"
-#include "Tpetra_DefaultPlatform.hpp"
 
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
 
-Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
+template<class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 {
 #ifdef COMM_MPI
-    return Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
+    return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<int>());
+    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
 
@@ -61,10 +61,12 @@ class test_Transfer_Data_Source
   public:
 
     typedef double                                   DataType;
-    typedef nemesis::Communicator_t                  Communicator;
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
+    typedef int                                      OrdinalType;
     typedef mesh::Point<HandleType,CoordinateType>   PointType;
+    typedef Teuchos::Comm<OrdinalType>               Communicator_t;
+    typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
     test_Transfer_Data_Source()
     { /* ... */ }
@@ -72,13 +74,9 @@ class test_Transfer_Data_Source
     ~test_Transfer_Data_Source()
     { /* ... */ }
 
-    void register_comm(Communicator &comm)
+    RCP_Communicator comm()
     {
-#ifdef COMM_MPI
-	comm = MPI_COMM_WORLD;
-#else
-	comm = 1;
-#endif
+	return getDefaultComm<OrdinalType>();
     }
 
     bool field_supported(const std::string &field_name)
@@ -243,9 +241,9 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_field_test )
     // Add Tpetra maps to the field.
     TEST_ASSERT( !field.is_mapped() );
     Teuchos::RCP<Tpetra::Map<int> > source_map 
-	= Teuchos::rcp(new Tpetra::Map<int>(-1, 0, 0, getDefaultComm()) );
+	= Teuchos::rcp(new Tpetra::Map<int>(-1, 0, 0, getDefaultComm<int>()) );
     Teuchos::RCP<Tpetra::Map<int> > target_map 
-	= Teuchos::rcp(new Tpetra::Map<int>(-1, 0, 0, getDefaultComm()) );
+	= Teuchos::rcp(new Tpetra::Map<int>(-1, 0, 0, getDefaultComm<int>()) );
     field.set_maps(source_map, target_map);
 
     // Test the functionality.

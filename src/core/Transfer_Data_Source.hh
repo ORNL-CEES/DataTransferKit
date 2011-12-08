@@ -6,8 +6,6 @@
  * \brief  Interface definition for data source applications.
  */
 //---------------------------------------------------------------------------//
-// $Id: template.hh,v 1.4 2008/01/02 17:18:47 9te Exp $
-//---------------------------------------------------------------------------//
 
 #ifndef core_Transfer_Data_Source_hh
 #define core_Transfer_Data_Source_hh
@@ -17,8 +15,8 @@
 
 #include <Mesh_Point.hpp>
 
-#include "comm/global.hh"
-
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Comm.hpp"
 #include "Teuchos_ArrayViewDecl.hpp"
 
 namespace coupler
@@ -46,11 +44,13 @@ class Transfer_Data_Source
 
     //@{
     //! Useful typedefs.
-    typedef DataType_T                               DataType;
-    typedef HandleType_T                             HandleType;
-    typedef CoordinateType_T                         CoordinateType;
-    typedef mesh::Point<HandleType,CoordinateType>   PointType;
-    typedef nemesis::Communicator_t                  Communicator;
+    typedef DataType_T                                 DataType;
+    typedef HandleType_T                               HandleType;
+    typedef CoordinateType_T                           CoordinateType;
+    typedef int                                        OrdinalType;
+    typedef mesh::Point<HandleType,CoordinateType>     PointType;
+    typedef Teuchos::Comm<OrdinalType>                 Communicator_t;
+    typedef Teuchos::RCP<const Communicator_t>         RCP_Communicator;
     //@}
 
     /*!
@@ -67,9 +67,9 @@ class Transfer_Data_Source
 
     /*!
      * \brief Register communicator object.
-     * \param comm The communicator for this physics.
+     * \return The communicator for this physics.
      */
-    virtual void register_comm(Communicator &comm) = 0;
+    virtual RCP_Communicator comm() = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this

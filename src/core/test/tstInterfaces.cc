@@ -21,6 +21,21 @@
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_UnitTestHarness.hpp"
+#include "Teuchos_DefaultComm.hpp"
+
+//---------------------------------------------------------------------------//
+// HELPER FUNCTIONS
+//---------------------------------------------------------------------------//
+
+template<class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+{
+#ifdef COMM_MPI
+    return Teuchos::DefaultComm<Ordinal>::getComm();
+#else
+    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+#endif
+}
 
 //---------------------------------------------------------------------------//
 // DATA CLASS
@@ -99,7 +114,10 @@ class test_Transfer_Data_Source
     typedef nemesis::Communicator_t                  Communicator;
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
+    typedef int                                      OrdinalType;
     typedef mesh::Point<HandleType,CoordinateType>   PointType;
+    typedef Teuchos::Comm<OrdinalType>               Communicator_t;
+    typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
     test_Transfer_Data_Source()
     { /* ... */ }
@@ -107,13 +125,9 @@ class test_Transfer_Data_Source
     ~test_Transfer_Data_Source()
     { /* ... */ }
 
-    void register_comm(Communicator &comm)
+    RCP_Communicator comm()
     {
-#ifdef COMM_MPI
-	comm = MPI_COMM_WORLD;
-#else
-	comm = 1;
-#endif
+	return getDefaultComm<OrdinalType>();
     }
 
     bool field_supported(const std::string &field_name)
@@ -284,13 +298,8 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
 	Teuchos::rcp(new test_Transfer_Data_Source<double,int,double>);
 
     // test the interface methods.
-    nemesis::Communicator_t source_comm;
-    source_iface->register_comm(source_comm);
-#ifdef COMM_MPI
-    TEST_ASSERT( source_comm == MPI_COMM_WORLD );
-#else
-    TEST_ASSERT( source_comm != MPI_COMM_WORLD );
-#endif
+    TEST_ASSERT( source_iface->comm()->getSize() > 
+		 source_iface->comm()->getRank() );
 
     TEST_ASSERT( source_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
     TEST_ASSERT( source_iface->field_supported("SCALAR_TEST_FIELD") );
