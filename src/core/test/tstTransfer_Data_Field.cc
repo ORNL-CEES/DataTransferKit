@@ -149,10 +149,12 @@ class test_Transfer_Data_Target
   public:
 
     typedef double                                   DataType;
-    typedef nemesis::Communicator_t                  Communicator;
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
+    typedef int                                      OrdinalType;
     typedef mesh::Point<HandleType,CoordinateType>   PointType;
+    typedef Teuchos::Comm<OrdinalType>               Communicator_t;
+    typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
   private:
 
@@ -166,13 +168,9 @@ class test_Transfer_Data_Target
     ~test_Transfer_Data_Target()
     { /* ... */ }
 
-    void register_comm(Communicator &comm)
+    RCP_Communicator comm()
     {
-#ifdef COMM_MPI
-	comm = MPI_COMM_WORLD;
-#else
-	comm = 1;
-#endif
+	return getDefaultComm<OrdinalType>();
     }
 
     bool field_supported(const std::string &field_name)

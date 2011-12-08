@@ -200,10 +200,12 @@ class test_Transfer_Data_Target
   public:
 
     typedef double                                   DataType;
-    typedef nemesis::Communicator_t                  Communicator;
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
+    typedef int                                      OrdinalType;
     typedef mesh::Point<HandleType,CoordinateType>   PointType;
+    typedef Teuchos::Comm<OrdinalType>               Communicator_t;
+    typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
   private:
 
@@ -219,13 +221,9 @@ class test_Transfer_Data_Target
     ~test_Transfer_Data_Target()
     { /* ... */ }
 
-    void register_comm(Communicator &comm)
+    RCP_Communicator comm()
     {
-#ifdef COMM_MPI
-	comm = MPI_COMM_WORLD;
-#else
-	comm = 1;
-#endif
+	return getDefaultComm<OrdinalType>();
     }
 
     bool field_supported(const std::string &field_name)
@@ -300,6 +298,8 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
     // test the interface methods.
     TEST_ASSERT( source_iface->comm()->getSize() > 
 		 source_iface->comm()->getRank() );
+    std::cout << "Source comm size: " << source_iface->comm()->getSize() << std::endl;
+    std::cout << "On rank: " << source_iface->comm()->getRank() << std::endl;
 
     TEST_ASSERT( source_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
     TEST_ASSERT( source_iface->field_supported("SCALAR_TEST_FIELD") );
@@ -335,13 +335,10 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
 	Teuchos::rcp(new test_Transfer_Data_Target<double,int,double>(container));
 
     // test the interface methods.
-    nemesis::Communicator_t target_comm;
-    target_iface->register_comm(target_comm);
-#ifdef COMM_MPI
-    TEST_ASSERT( target_comm == MPI_COMM_WORLD );
-#else
-    TEST_ASSERT( target_comm == 1 );
-#endif
+    TEST_ASSERT( target_iface->comm()->getSize() > 
+		 target_iface->comm()->getRank() );
+    std::cout << "Target comm size: " << target_iface->comm()->getSize() << std::endl;
+    std::cout << "On rank: " << target_iface->comm()->getRank() << std::endl;
 
     TEST_ASSERT( target_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
     TEST_ASSERT( target_iface->field_supported("SCALAR_TEST_FIELD") );
