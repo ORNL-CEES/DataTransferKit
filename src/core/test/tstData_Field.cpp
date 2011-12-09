@@ -218,7 +218,7 @@ class test_Data_Target
 
 namespace coupler {
 
-TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_field_test )
+TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_container_test )
 {
     // Create an instance of the source interface.
     Teuchos::RCP<Data_Source<double,int,double> > tds = 
@@ -229,28 +229,21 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_field_test )
 	Teuchos::rcp(new test_Data_Target<double,int,double>());
 
     // Create a distributed field for these interfaces to be transferred.
-    Data_Field<double,int,double> field("DISTRIBUTED_TEST_FIELD", tds, tdt);
-
-    // Add Tpetra maps to the field.
-    TEST_ASSERT( !field.is_mapped() );
-    Teuchos::RCP<Tpetra::Map<int> > source_map 
-	= Teuchos::rcp(new Tpetra::Map<int>(-1, 0, 0, getDefaultComm<int>()) );
-    Teuchos::RCP<Tpetra::Map<int> > target_map 
-	= Teuchos::rcp(new Tpetra::Map<int>(-1, 0, 0, getDefaultComm<int>()) );
-    field.set_mapping(source_map, target_map);
+    Data_Field<double,int,double> field(getDefaultComm<int>(),
+					"DISTRIBUTED_TEST_FIELD", 
+					tds, 
+					tdt);
 
     // Test the functionality.
+    TEST_ASSERT( field.comm()->getRank() == getDefaultComm<int>()->getRank() );
     TEST_ASSERT( field.name() == "DISTRIBUTED_TEST_FIELD" );
     TEST_ASSERT( field.source() == tds );
     TEST_ASSERT( field.target() == tdt );
-    TEST_ASSERT( field.get_source_map() == source_map );
-    TEST_ASSERT( field.get_target_map() == target_map );
     TEST_ASSERT( !field.is_scalar() );
     TEST_ASSERT( field.is_mapped() );
 }
 
-//---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( Transfer_Data_Field, scalar_field_test )
+TEUCHOS_UNIT_TEST( Transfer_Data_Field, scalar_container_test )
 {
     // Create an instance of the source interface.
     Teuchos::RCP<Data_Source<double,int,double> > tds = 
@@ -260,16 +253,22 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, scalar_field_test )
     Teuchos::RCP<Data_Target<double,int,double> > tdt = 
 	Teuchos::rcp(new test_Data_Target<double,int,double>());
 
-    // Create a scalar field for these interfaces to be transferred.
-    Data_Field<double,int,double> field("SCALAR_TEST_FIELD", tds, tdt, true);
+    // Create a distributed field for these interfaces to be transferred.
+    Data_Field<double,int,double> field(getDefaultComm<int>(),
+					"DISTRIBUTED_TEST_FIELD", 
+					tds, 
+					tdt,
+					true);
 
     // Test the functionality.
-    TEST_ASSERT( field.name() == "SCALAR_TEST_FIELD" );
+    TEST_ASSERT( field.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( field.name() == "DISTRIBUTED_TEST_FIELD" );
     TEST_ASSERT( field.source() == tds );
     TEST_ASSERT( field.target() == tdt );
     TEST_ASSERT( field.is_scalar() );
-    TEST_ASSERT( !field.is_mapped() );
 }
+
+//---------------------------------------------------------------------------//
 
 } // end namespace coupler
 
