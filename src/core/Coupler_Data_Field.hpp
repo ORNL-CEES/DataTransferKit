@@ -11,7 +11,6 @@
 #define core_Coupler_Data_Field_hpp
 
 #include <string>
-#include <vector>
 
 #include <Mesh_Point.hpp>
 
@@ -20,7 +19,6 @@
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Comm.hpp"
-#include "Teuchos_CommHelpers.hpp"
 
 #include "Tpetra_Map.hpp"
 #include "Tpetra_Export.hpp"
@@ -142,8 +140,9 @@ class Data_Field
 
   private:
 
-    // Set the mapping for transfer from the data source to the data target.
-    void map();
+    // Set the mapping for transfer from the data source to the data target
+    // based on point mapping.
+    void point_map();
 
     // Perform scalar transfer.
     void scalar_transfer();

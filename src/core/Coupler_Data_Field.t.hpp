@@ -11,6 +11,13 @@
 #define core_Coupler_Data_Field_t_hpp
 
 #include <cassert>
+#include <algorithm>
+#include <vector>
+
+#include <Mesh_SerializationTraits.hpp>
+
+#include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_SerializationTraitsHelpers.hpp"
 
 namespace coupler
 {
@@ -51,7 +58,7 @@ Data_Field<DataType,HandleType,CoordinateType>::Data_Field(
     // data target.
     if ( !d_scalar )
     {
-	map();
+	point_map();
 	d_mapped = true;
     }
 }
@@ -89,10 +96,10 @@ void Data_Field<DataType,HandleType,CoordinateType>::transfer()
 // PRIVATE METHODS
 //---------------------------------------------------------------------------//
 /*!
- * \brief Generate topology map for this field.
+ * \brief Generate topology map for this field based on point mapping.
  */
 template<class DataType, class HandleType, class CoordinateType>
-void Data_Field<DataType,HandleType,CoordinateType>::map()
+void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 {
     // Get the local list of handles. These are the global indices for the
     // Tpetra map.
@@ -119,18 +126,62 @@ void Data_Field<DataType,HandleType,CoordinateType>::map()
     // Data target communicate points to the data source.
     int local_size 
 	= d_target->set_points( d_field_name ).size();
-    int local_max = 0;
+    int global_max = 0;
     Teuchos::reduceAll<OrdinalType,int>(*d_comm,
 					Teuchos::REDUCE_MAX, 
 					int(1), 
 					&local_size, 
-					&local_max);
-    
-    // The data source finds the points in its domain.
+					&global_max);
+
+    // Generate a target point buffer to send to the source. Pad the rest of
+    // the buffer with null points. This is using -1 as the indicator for a
+    // null point here!!! 
+    PointType null_point(-1, 0.0, 0.0, 0.0);
+    std::vector<PointType> send_points(global_max, null_point);
+    typename std::vector<PointType>::iterator send_point_it;
+    for (send_point_it = send_points.begin(),
+	target_point_it = target_points.begin();
+	 send_point_it != send_points.end();
+	 ++send_point_it, ++target_point_it)
+    {
+	*send_point_it = *target_point_it;
+    }
+
+    // Communicate local points to all processes.
     std::vector<HandleType> source_handles;
+    std::vector<PointType> receive_points(global_max, null_point);
+    typename std::vector<PointType>::const_iterator receive_point_it;
+    for ( int i = 0; i < d_comm->getSize(); ++i )
+    {
+	// Process rank i is broadcasting.
+	if ( d_comm->getRank() == i )
+	{
+	    receive_points = send_points;
+	}
 
+	Teuchos::broadcast<OrdinalType,PointType>( *d_comm,
+						   i,
+						   global_max,
+						   &receive_points[0]);
+						   
+	// The data source finds the points in its domain.
+	for ( receive_point_it = receive_points.begin();
+	      receive_point_it != receive_points.end();
+	      ++receive_point_it)
+	{
+	    if ( receive_point_it->handle() != -1 )
+	    {
+		if ( d_source->get_points(*receive_point_it) )
+		{
+		    source_handles.push_back( receive_point_it->handle() );
+		}
+	    }
+	}
 
-    
+	// Barrier before moving on to the next broadcast rank.
+	Teuchos::barrier<OrdinalType>(*d_comm);
+    }
+
     // Generate the map for the data source.
     const Teuchos::ArrayView<const HandleType> 
 	source_handles_view(source_handles);
@@ -149,7 +200,9 @@ void Data_Field<DataType,HandleType,CoordinateType>::map()
 template<class DataType, class HandleType, class CoordinateType>
 void Data_Field<DataType,HandleType,CoordinateType>::scalar_transfer()
 {
-
+    d_target->get_global_data( 
+	d_field_name, 
+	d_source->set_global_data( d_field_name) );
 }
 
 //---------------------------------------------------------------------------//

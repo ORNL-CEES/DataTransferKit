@@ -28,6 +28,7 @@ APPEND_SET(HEADERS
   Mesh_Point.hpp
   Mesh_Bounding_Box.hpp
   Mesh_Bounding_Box.i.hpp
+  Mesh_SerializationTraits.hpp
   )
 
 # Set sources
