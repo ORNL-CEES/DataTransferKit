@@ -1,14 +1,14 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/Transfer_Data_Field.t.hh
+ * \file   core/Coupler_Data_Field.t.hpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
- * \brief  Transfer_Data_Field template member definitions.
+ * \brief  Coupler_Data_Field template member definitions.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef core_Transfer_Data_Field_t_hh
-#define core_Transfer_Data_Field_t_hh
+#ifndef core_Coupler_Data_Field_t_hpp
+#define core_Coupler_Data_Field_t_hpp
 
 #include <cassert>
 
@@ -21,19 +21,19 @@ namespace coupler
 /*!
  * \brief Constructor.
  * \param field_name The name of this field. Required by the
- * Transfer_Data_Source and Transfer_Data_Target interfaces to check field
+ * Coupler_Data_Source and Coupler_Data_Target interfaces to check field
  * support.
- * \param source Transfer_Data_Source implementation that will serve as the
+ * \param source Coupler_Data_Source implementation that will serve as the
  * data source for this field.
- * \param target Transfer_Data_Target implementation that will serve as the
+ * \param target Coupler_Data_Target implementation that will serve as the
  * target for this field.
  * \param scalar Set to true if this field is scalar, false if distributed.
  */
 template<class DataType, class HandleType, class CoordinateType>
-Transfer_Data_Field<DataType,HandleType,CoordinateType>::Transfer_Data_Field(
+Data_Field<DataType,HandleType,CoordinateType>::Data_Field(
     const std::string &field_name,
-    RCP_Transfer_Data_Source source,
-    RCP_Transfer_Data_Target target,
+    RCP_Data_Source source,
+    RCP_Data_Target target,
     bool scalar)
     : d_field_name(field_name)
     , d_source(source)
@@ -50,7 +50,7 @@ Transfer_Data_Field<DataType,HandleType,CoordinateType>::Transfer_Data_Field(
  * \brief Destructor.
  */
 template<class DataType, class HandleType, class CoordinateType>
-Transfer_Data_Field<DataType,HandleType,CoordinateType>::~Transfer_Data_Field()
+Data_Field<DataType,HandleType,CoordinateType>::~Data_Field()
 { /* ... */ }
 
 
@@ -65,21 +65,21 @@ Transfer_Data_Field<DataType,HandleType,CoordinateType>::~Transfer_Data_Field()
  * field.
  */
 template<class DataType, class HandleType, class CoordinateType>
-void Transfer_Data_Field<DataType,HandleType,CoordinateType>::set_mapping(
+void Data_Field<DataType,HandleType,CoordinateType>::set_mapping(
     RCP_Tpetra_Map source_map, 
     RCP_Tpetra_Map target_map)
 {
     d_source_map = source_map;
     d_target_map = target_map;
-    d_export = 
-	Teuchos::rcp( Tpetra::Export<HandleType>(d_source_map, d_target_map) );
+    d_export = Teuchos::rcp( 
+	new Tpetra::Export<HandleType>(d_source_map, d_target_map) );
     d_mapped = true;
 }
 
 } // end namespace coupler
 
-#endif // core_Transfer_Data_Field_t_hh
+#endif // core_Coupler_Data_Field_t_hpp
 
 //---------------------------------------------------------------------------//
-//                 end of Transfer_Data_Field.t.hh
+//                 end of Coupler_Data_Field.t.hpp
 //---------------------------------------------------------------------------//

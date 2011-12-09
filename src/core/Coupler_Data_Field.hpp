@@ -1,19 +1,19 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/Transfer_Data_Field.hh
+ * \file   core/Coupler_Data_Field.hpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
- * \brief  Transfer_Data_Field class definition.
+ * \brief  Coupler_Data_Field class definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef core_Transfer_Data_Field_hh
-#define core_Transfer_Data_Field_hh
+#ifndef core_Coupler_Data_Field_hpp
+#define core_Coupler_Data_Field_hpp
 
 #include <string>
 
-#include "Transfer_Data_Source.hh"
-#include "Transfer_Data_Target.hh"
+#include <Coupler_Data_Source.hpp>
+#include <Coupler_Data_Target.hpp>
 
 #include "Teuchos_RCP.hpp"
 
@@ -25,28 +25,27 @@ namespace coupler
 
 //===========================================================================//
 /*!
- * \class Transfer_Data_Field
+ * \class Data_Field
  * \brief Field type for data transfers. This exists for more a explicit
  * definition of fields in the coupler user interface.
  *
- * The Transfer_Data_Field encapsulates the relationship between a
- * Transfer_Data_Source and a Transfer_Data_Target. In addition to containing
+ * The Coupler_Data_Field encapsulates the relationship between a
+ * Coupler_Data_Source and a Coupler_Data_Target. In addition to containing
  * the map for transfer between the source and the target, the field also
  * contains indicators for the status of the mapping (transfer cannot occur
  * unless a field has been mapped) and for whether a field is distributed
  * (requiring a parallel mapping) or scalar.
  */
 /*! 
- * \example core/test/tstTransfer_Data_Field.cc
+ * \example core/test/tstData_Field.cc
  *
- * Test of Transfer_Data_Field.
+ * Test of Coupler_Data_Field.
  */
 //===========================================================================//
 
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class Transfer_Data_Field
+class Data_Field
 {
-
   public:
 
     //@{
@@ -55,14 +54,14 @@ class Transfer_Data_Field
     typedef HandleType_T                             HandleType;
     typedef CoordinateType_T                         CoordinateType;
     typedef int                                      OrdinalType;
-    typedef Transfer_Data_Source<DataType,HandleType,CoordinateType> 
-                                                     Transfer_Data_Source_t;
-    typedef Teuchos::RCP<Transfer_Data_Source_t>     RCP_Transfer_Data_Source;
-    typedef Transfer_Data_Target<DataType,HandleType,CoordinateType> 
-                                                     Transfer_Data_Target_t;
-    typedef Teuchos::RCP<Transfer_Data_Target_t>     RCP_Transfer_Data_Target;
+    typedef Data_Source<DataType,HandleType,CoordinateType> 
+                                                     Data_Source_t;
+    typedef Teuchos::RCP<Data_Source_t>              RCP_Data_Source;
+    typedef Data_Target<DataType,HandleType,CoordinateType> 
+                                                     Data_Target_t;
+    typedef Teuchos::RCP<Data_Target_t>              RCP_Data_Target;
     typedef Tpetra::Map<OrdinalType>                 Tpetra_Map_t;
-    typedef Teuchos::RCP<Tpetra_Map_t>               RCP_Tpetra_Map;
+    typedef Teuchos::RCP<const Tpetra_Map_t>         RCP_Tpetra_Map;
     typedef Tpetra::Export<HandleType>               Tpetra_Export_t;
     typedef Teuchos::RCP<Tpetra_Export_t>            RCP_Tpetra_Export;
     //@}
@@ -73,10 +72,10 @@ class Transfer_Data_Field
     std::string d_field_name;
 
     // Data transfer source implemenation.
-    RCP_Transfer_Data_Source d_source;
+    RCP_Data_Source d_source;
 
     // Data transfer target implemenation.
-    RCP_Transfer_Data_Target d_target;
+    RCP_Data_Target d_target;
 
     // Tpetra map for the data source.
     RCP_Tpetra_Map d_source_map;
@@ -96,24 +95,24 @@ class Transfer_Data_Field
   public:
 
     // Constructor.
-    Transfer_Data_Field(const std::string &field_name,
-			RCP_Transfer_Data_Source source,
-			RCP_Transfer_Data_Target target,
+    Data_Field(const std::string &field_name,
+			RCP_Data_Source source,
+			RCP_Data_Target target,
 			bool scalar = false);
 
     // Destructor.
-    ~Transfer_Data_Field();
+    ~Data_Field();
 
     //! Get the field name. 
     const std::string& name() 
     { return d_field_name; }
 
     //! Get the transfer data source.
-    RCP_Transfer_Data_Source source() 
+    RCP_Data_Source source() 
     { return d_source; }
 
     //! Get the transfer data target.
-    RCP_Transfer_Data_Target target() 
+    RCP_Data_Target target() 
     { return d_target; }
     
     //! Set the mapping for transfer from the data source to the data target.
@@ -146,10 +145,10 @@ class Transfer_Data_Field
 // TEMPLATE MEMBERS
 //---------------------------------------------------------------------------//
 
-#include "Transfer_Data_Field.t.hh"
+#include "Coupler_Data_Field.t.hpp"
 
-#endif // core_Transfer_Data_Field_hh
+#endif // core_Coupler_Data_Field_hpp
 
 //---------------------------------------------------------------------------//
-//              end of core/Transfer_Data_Field.hh
+//              end of core/Coupler_Data_Field.hpp
 //---------------------------------------------------------------------------//

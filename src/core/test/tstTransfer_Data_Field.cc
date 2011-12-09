@@ -93,7 +93,7 @@ class test_Transfer_Data_Source
 	return return_val;
     }
 
-    bool get_points(PointType &point)
+    bool get_points(const PointType &point)
     {
 	bool return_val = false;
 
@@ -105,9 +105,7 @@ class test_Transfer_Data_Source
 	return return_val;
     }
 
-    const Teuchos::ArrayView<double> send_data(
-	const std::string &field_name,
-	const Teuchos::ArrayView<PointType> &points)
+    const Teuchos::ArrayView<double> send_data(const std::string &field_name)
     {
 	Teuchos::ArrayView<double> return_view;
 
@@ -187,7 +185,8 @@ class test_Transfer_Data_Target
 	return return_val;
     }
 
-    const Teuchos::ArrayView<PointType> set_points(const std::string &field_name)
+    const Teuchos::ArrayView<PointType> 
+    set_points(const std::string &field_name)
     {
 	Teuchos::ArrayView<PointType> return_view;
 
@@ -203,7 +202,6 @@ class test_Transfer_Data_Target
     }
 
     void receive_data(const std::string &field_name,
-		      const Teuchos::ArrayView<PointType> &points,
 		      const Teuchos::ArrayView<DataType> &data)
     { /* ... */ }
 
@@ -231,7 +229,8 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_field_test )
 	Teuchos::rcp(new test_Transfer_Data_Target<double,int,double>());
 
     // Create a distributed field for these interfaces to be transferred.
-    Transfer_Data_Field<double,int,double> field("DISTRIBUTED_TEST_FIELD", tds, tdt);
+    Transfer_Data_Field<double,int,double> 
+	field("DISTRIBUTED_TEST_FIELD", tds, tdt);
 
     // Add Tpetra maps to the field.
     TEST_ASSERT( !field.is_mapped() );
@@ -239,7 +238,7 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_field_test )
 	= Teuchos::rcp(new Tpetra::Map<int>(-1, 0, 0, getDefaultComm<int>()) );
     Teuchos::RCP<Tpetra::Map<int> > target_map 
 	= Teuchos::rcp(new Tpetra::Map<int>(-1, 0, 0, getDefaultComm<int>()) );
-    field.set_maps(source_map, target_map);
+    field.set_mapping(source_map, target_map);
 
     // Test the functionality.
     TEST_ASSERT( field.name() == "DISTRIBUTED_TEST_FIELD" );

@@ -25,23 +25,15 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  Transfer_Data_Source.hh
-  Transfer_Data_Target.hh
-  Transfer_Data_Field.hh
-  Transfer_Data_Field.t.hh
-  Mapper_Tpetra.hh
-  Mapper_Tpetra.t.hh
-  # Mapper.hh
-  # Mapper.t.hh
-  # Messenger.hh
-  # Data_Transfer_Manager.hh
+  Coupler_Data_Source.hpp
+  Coupler_Data_Target.hpp
+  Coupler_Data_Field.hpp
+  Coupler_Data_Field.t.hpp
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
-#  Messenger.cc
-#  Data_Transfer_Manager.cc
   )
 
 # Set addition headers and source based on package-specific

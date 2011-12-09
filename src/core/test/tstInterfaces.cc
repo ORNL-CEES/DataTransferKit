@@ -144,7 +144,7 @@ class test_Transfer_Data_Source
 	return return_val;
     }
 
-    bool get_points(PointType &point)
+    bool get_points(const PointType &point)
     {
 	bool return_val = false;
 
@@ -156,9 +156,7 @@ class test_Transfer_Data_Source
 	return return_val;
     }
 
-    const Teuchos::ArrayView<double> send_data(
-	const std::string &field_name,
-	const Teuchos::ArrayView<PointType> &points)
+    const Teuchos::ArrayView<double> send_data(const std::string &field_name)
     {
 	Teuchos::ArrayView<double> return_view;
 
@@ -240,7 +238,8 @@ class test_Transfer_Data_Target
 	return return_val;
     }
 
-    const Teuchos::ArrayView<PointType> set_points(const std::string &field_name)
+    const Teuchos::ArrayView<PointType> 
+    set_points(const std::string &field_name)
     {
 	Teuchos::ArrayView<PointType> return_view;
 
@@ -256,12 +255,10 @@ class test_Transfer_Data_Target
     }
 
     void receive_data(const std::string &field_name,
-		      const Teuchos::ArrayView<PointType> &points,
 		      const Teuchos::ArrayView<DataType> &data)
     {
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
-	    container->set_distributed_points(points);
 	    container->set_distributed_data(data);
 	}
     }
@@ -295,7 +292,8 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
     // test the interface methods.
     TEST_ASSERT( source_iface->comm()->getSize() > 
 		 source_iface->comm()->getRank() );
-    std::cout << "Source comm size: " << source_iface->comm()->getSize() << std::endl;
+    std::cout << "Source comm size: " 
+	      << source_iface->comm()->getSize() << std::endl;
     std::cout << "On rank: " << source_iface->comm()->getRank() << std::endl;
 
     TEST_ASSERT( source_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
@@ -307,12 +305,10 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
     TEST_ASSERT( source_iface->get_points(positive_point) );
     TEST_ASSERT( !source_iface->get_points(negative_point) );
 
-    std::vector<PointType> points_to_send(1, positive_point);
-    Teuchos::ArrayView<PointType> points_view(points_to_send);  
     Teuchos::ArrayView<double> data_view;
-    data_view = source_iface->send_data("FOO_TEST_FIELD", points_view);
+    data_view = source_iface->send_data("FOO_TEST_FIELD");
     TEST_ASSERT( data_view.size() == 0 );
-    data_view = source_iface->send_data("DISTRIBUTED_TEST_FIELD", points_view);
+    data_view = source_iface->send_data("DISTRIBUTED_TEST_FIELD");
     TEST_ASSERT( data_view.size() == 1);
     TEST_ASSERT( data_view[0] == 1.0 );
 
@@ -329,7 +325,8 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
 
     // create an instance of the target interface.
     Teuchos::RCP<Transfer_Data_Target<double,int,double> > target_iface = 
-	Teuchos::rcp(new test_Transfer_Data_Target<double,int,double>(container));
+	Teuchos::rcp(
+	    new test_Transfer_Data_Target<double,int,double>(container));
 
     // test the interface methods.
     TEST_ASSERT( target_iface->comm()->getSize() > 
@@ -353,17 +350,12 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
 
     std::vector<double> data_to_receive(1, 1.0);
     Teuchos::ArrayView<double> data_view(data_to_receive);
-    target_iface->receive_data("FOO_TEST_FIELD", points_view, data_view);
+    target_iface->receive_data("FOO_TEST_FIELD", data_view);
     TEST_ASSERT( container->get_distributed_data().size() == 0 );
     TEST_ASSERT( container->get_distributed_points().size() == 0 );
-    target_iface->receive_data("DISTRIBUTED_TEST_FIELD", points_view, data_view);
+    target_iface->receive_data("DISTRIBUTED_TEST_FIELD", data_view);
     TEST_ASSERT( container->get_distributed_data().size() == 1 );
-    TEST_ASSERT( container->get_distributed_points().size() == 1 );
     TEST_ASSERT( container->get_distributed_data()[0] == 1.0 );
-    TEST_ASSERT( container->get_distributed_points()[0].handle() == 1 );
-    TEST_ASSERT( container->get_distributed_points()[0].x() == 1.0 );
-    TEST_ASSERT( container->get_distributed_points()[0].y() == 1.0 );
-    TEST_ASSERT( container->get_distributed_points()[0].z() == 1.0 );
 
     double global_scalar = 1.0;
     target_iface->get_global_data("FOO_TEST_FIELD", global_scalar);

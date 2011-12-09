@@ -88,7 +88,8 @@ void Mapper<DataType,HandleType,CoordinateType>::map(
 
     
     // Generate the map for the data source.
-    const Teuchos::ArrayView<const HandleType> source_handles_view(source_handles);
+    const Teuchos::ArrayView<const HandleType> 
+	source_handles_view(source_handles);
     RCP_Tpetra_Map data_source_map = 
 	Tpetra::createNonContigMap<HandleType>( source_handles_view, comm_global);
 

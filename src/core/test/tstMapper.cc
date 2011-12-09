@@ -145,7 +145,7 @@ class test_Transfer_Data_Source
 	return return_val;
     }
 
-    bool get_points(PointType &point)
+    bool get_points(const PointType &point)
     {
 	bool return_val = false;
 
@@ -161,9 +161,7 @@ class test_Transfer_Data_Source
 	return return_val;
     }
 
-    const Teuchos::ArrayView<double> send_data(
-	const std::string &field_name,
-	const Teuchos::ArrayView<PointType> &points)
+    const Teuchos::ArrayView<double> send_data(const std::string &field_name)
     {
 	Teuchos::ArrayView<double> return_view;
 
@@ -245,7 +243,8 @@ class test_Transfer_Data_Target
 	return return_val;
     }
 
-    const Teuchos::ArrayView<PointType> set_points(const std::string &field_name)
+    const Teuchos::ArrayView<PointType> 
+    set_points(const std::string &field_name)
     {
 	Teuchos::ArrayView<PointType> return_view;
 
@@ -265,12 +264,10 @@ class test_Transfer_Data_Target
     }
 
     void receive_data(const std::string &field_name,
-		      const Teuchos::ArrayView<PointType> &points,
 		      const Teuchos::ArrayView<DataType> &data)
     {
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
-	    container->set_distributed_points(points);
 	    container->set_distributed_data(data);
 	}
     }
