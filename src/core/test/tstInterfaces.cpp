@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/test/tstInterfaces.cc
+ * \file   core/test/tstInterfaces.cpp
  * \author Stuart Slattery
  * \date   Thu Dec 01 16:50:04 2011
  * \brief  Unit tests for the data transfer pure virtual interfaces.
@@ -13,8 +13,8 @@
 #include <sstream>
 
 #include <Mesh_Point.hpp>
-#include "../Transfer_Data_Source.hh"
-#include "../Transfer_Data_Target.hh"
+#include <Coupler_Data_Source.hpp>
+#include <Coupler_Data_Target.hpp>
 
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
@@ -99,8 +99,8 @@ namespace coupler {
 // transfer data source implementation - this implementation specifies double
 // as the data type
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class test_Transfer_Data_Source 
-    : public Transfer_Data_Source<DataType_T, HandleType_T, CoordinateType_T>
+class test_Data_Source 
+    : public Data_Source<DataType_T, HandleType_T, CoordinateType_T>
 {
   private:
 
@@ -116,10 +116,10 @@ class test_Transfer_Data_Source
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
-    test_Transfer_Data_Source()
+    test_Data_Source()
     { /* ... */ }
 
-    ~test_Transfer_Data_Source()
+    ~test_Data_Source()
     { /* ... */ }
 
     const RCP_Communicator comm()
@@ -189,8 +189,8 @@ class test_Transfer_Data_Source
 // transfer data target implementation - this implementation specifies double
 // as the data type
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class test_Transfer_Data_Target 
-    : public Transfer_Data_Target<DataType_T, HandleType_T, CoordinateType_T>
+class test_Data_Target 
+    : public Data_Target<DataType_T, HandleType_T, CoordinateType_T>
 {
   public:
 
@@ -209,11 +209,11 @@ class test_Transfer_Data_Target
 
   public:
 
-    test_Transfer_Data_Target(Teuchos::RCP<Data_Container> _container)
+    test_Data_Target(Teuchos::RCP<Data_Container> _container)
 	: container(_container)
     { /* ... */ }
 
-    ~test_Transfer_Data_Target()
+    ~test_Data_Target()
     { /* ... */ }
 
     const RCP_Communicator comm()
@@ -286,8 +286,8 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
     typedef mesh::Point<int,double>     PointType;
 
     // create an instance of the source interface.
-    Teuchos::RCP<Transfer_Data_Source<double,int,double> > source_iface = 
-	Teuchos::rcp(new test_Transfer_Data_Source<double,int,double>);
+    Teuchos::RCP<Data_Source<double,int,double> > source_iface = 
+	Teuchos::rcp(new test_Data_Source<double,int,double>);
 
     // test the interface methods.
     TEST_ASSERT( source_iface->comm()->getSize() > 
@@ -324,9 +324,9 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
     Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
 
     // create an instance of the target interface.
-    Teuchos::RCP<Transfer_Data_Target<double,int,double> > target_iface = 
+    Teuchos::RCP<Data_Target<double,int,double> > target_iface = 
 	Teuchos::rcp(
-	    new test_Transfer_Data_Target<double,int,double>(container));
+	    new test_Data_Target<double,int,double>(container));
 
     // test the interface methods.
     TEST_ASSERT( target_iface->comm()->getSize() > 
@@ -367,5 +367,5 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
 } // end namespace coupler
 
 //---------------------------------------------------------------------------//
-//                        end of tstInterfaces.cc
+//                        end of tstInterfaces.cpp
 //---------------------------------------------------------------------------//

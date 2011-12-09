@@ -24,14 +24,14 @@ INCLUDE(TribitsAddAdvancedTest)
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   Interfaces_test
-  SOURCES tstInterfaces.cc ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstInterfaces.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  Transfer_Data_Field_test
-  SOURCES tstTransfer_Data_Field.cc ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  Data_Field_test
+  SOURCES tstData_Field.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )

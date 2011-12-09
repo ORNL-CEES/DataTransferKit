@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/test/tstTransfer_Data_Field.cc
+ * \file   core/test/tstTransfer_Data_Field.cpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 14:43:10 2011
  * \brief  Transfer_Data_Field unit tests
@@ -14,9 +14,9 @@
 
 #include <Mesh_Point.hpp>
 
-#include "../Transfer_Data_Source.hh"
-#include "../Transfer_Data_Target.hh"
-#include "../Transfer_Data_Field.hh"
+#include <Coupler_Data_Source.hpp>
+#include <Coupler_Data_Target.hpp>
+#include <Coupler_Data_Field.hpp>
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ArrayView.hpp"
@@ -48,8 +48,8 @@ namespace coupler {
 // transfer data source implementation - this implementation specifies double
 // as the data type
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class test_Transfer_Data_Source 
-    : public Transfer_Data_Source<DataType_T, HandleType_T, CoordinateType_T>
+class test_Data_Source 
+    : public Data_Source<DataType_T, HandleType_T, CoordinateType_T>
 {
   private:
 
@@ -65,10 +65,10 @@ class test_Transfer_Data_Source
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
-    test_Transfer_Data_Source()
+    test_Data_Source()
     { /* ... */ }
 
-    ~test_Transfer_Data_Source()
+    ~test_Data_Source()
     { /* ... */ }
 
     const RCP_Communicator comm()
@@ -138,8 +138,8 @@ class test_Transfer_Data_Source
 // transfer data target implementation - this implementation specifies double
 // as the data type
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class test_Transfer_Data_Target 
-    : public Transfer_Data_Target<DataType_T, HandleType_T, CoordinateType_T>
+class test_Data_Target 
+    : public Data_Target<DataType_T, HandleType_T, CoordinateType_T>
 {
   public:
 
@@ -157,10 +157,10 @@ class test_Transfer_Data_Target
 
   public:
 
-    test_Transfer_Data_Target()
+    test_Data_Target()
     { /* ... */ }
 
-    ~test_Transfer_Data_Target()
+    ~test_Data_Target()
     { /* ... */ }
 
     const RCP_Communicator comm()
@@ -221,16 +221,15 @@ namespace coupler {
 TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_field_test )
 {
     // Create an instance of the source interface.
-    Teuchos::RCP<Transfer_Data_Source<double,int,double> > tds = 
-	Teuchos::rcp(new test_Transfer_Data_Source<double,int,double>());
+    Teuchos::RCP<Data_Source<double,int,double> > tds = 
+	Teuchos::rcp(new test_Data_Source<double,int,double>());
 
     // Create an instance of the target interface.
-    Teuchos::RCP<Transfer_Data_Target<double,int,double> > tdt = 
-	Teuchos::rcp(new test_Transfer_Data_Target<double,int,double>());
+    Teuchos::RCP<Data_Target<double,int,double> > tdt = 
+	Teuchos::rcp(new test_Data_Target<double,int,double>());
 
     // Create a distributed field for these interfaces to be transferred.
-    Transfer_Data_Field<double,int,double> 
-	field("DISTRIBUTED_TEST_FIELD", tds, tdt);
+    Data_Field<double,int,double> field("DISTRIBUTED_TEST_FIELD", tds, tdt);
 
     // Add Tpetra maps to the field.
     TEST_ASSERT( !field.is_mapped() );
@@ -254,15 +253,15 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_field_test )
 TEUCHOS_UNIT_TEST( Transfer_Data_Field, scalar_field_test )
 {
     // Create an instance of the source interface.
-    Teuchos::RCP<Transfer_Data_Source<double,int,double> > tds = 
-	Teuchos::rcp(new test_Transfer_Data_Source<double,int,double>());
+    Teuchos::RCP<Data_Source<double,int,double> > tds = 
+	Teuchos::rcp(new test_Data_Source<double,int,double>());
 
     // Create an instance of the target interface.
-    Teuchos::RCP<Transfer_Data_Target<double,int,double> > tdt = 
-	Teuchos::rcp(new test_Transfer_Data_Target<double,int,double>());
+    Teuchos::RCP<Data_Target<double,int,double> > tdt = 
+	Teuchos::rcp(new test_Data_Target<double,int,double>());
 
     // Create a scalar field for these interfaces to be transferred.
-    Transfer_Data_Field<double,int,double> field("SCALAR_TEST_FIELD", tds, tdt, true);
+    Data_Field<double,int,double> field("SCALAR_TEST_FIELD", tds, tdt, true);
 
     // Test the functionality.
     TEST_ASSERT( field.name() == "SCALAR_TEST_FIELD" );
@@ -275,5 +274,5 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, scalar_field_test )
 } // end namespace coupler
 
 //---------------------------------------------------------------------------//
-//                        end of tstTransfer_Data_Field.cc
+//                        end of tstTransfer_Data_Field.cpp
 //---------------------------------------------------------------------------//
