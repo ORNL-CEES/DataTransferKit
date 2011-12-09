@@ -11,11 +11,16 @@
 #define core_Coupler_Data_Field_hpp
 
 #include <string>
+#include <vector>
+
+#include <Mesh_Point.hpp>
 
 #include <Coupler_Data_Source.hpp>
 #include <Coupler_Data_Target.hpp>
 
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_Comm.hpp"
+#include "Teuchos_CommHelpers.hpp"
 
 #include "Tpetra_Map.hpp"
 #include "Tpetra_Export.hpp"
@@ -50,23 +55,27 @@ class Data_Field
 
     //@{
     //! Useful typedefs.
-    typedef DataType_T                               DataType;
-    typedef HandleType_T                             HandleType;
-    typedef CoordinateType_T                         CoordinateType;
-    typedef int                                      OrdinalType;
-    typedef Data_Source<DataType,HandleType,CoordinateType> 
-                                                     Data_Source_t;
-    typedef Teuchos::RCP<Data_Source_t>              RCP_Data_Source;
-    typedef Data_Target<DataType,HandleType,CoordinateType> 
-                                                     Data_Target_t;
-    typedef Teuchos::RCP<Data_Target_t>              RCP_Data_Target;
-    typedef Tpetra::Map<OrdinalType>                 Tpetra_Map_t;
-    typedef Teuchos::RCP<const Tpetra_Map_t>         RCP_Tpetra_Map;
-    typedef Tpetra::Export<HandleType>               Tpetra_Export_t;
-    typedef Teuchos::RCP<Tpetra_Export_t>            RCP_Tpetra_Export;
-    //@}
+    typedef DataType_T                                       DataType;
+    typedef HandleType_T                                     HandleType;
+    typedef CoordinateType_T                                 CoordinateType;
+    typedef int                                              OrdinalType;
+    typedef mesh::Point<HandleType,CoordinateType>           PointType;
+    typedef Data_Source<DataType,HandleType,CoordinateType>  Data_Source_t;
+    typedef Teuchos::RCP<Data_Source_t>                      RCP_Data_Source;
+    typedef Data_Target<DataType,HandleType,CoordinateType>  Data_Target_t;
+    typedef Teuchos::RCP<Data_Target_t>                      RCP_Data_Target;
+    typedef Tpetra::Map<OrdinalType>                         Tpetra_Map_t;
+    typedef Teuchos::RCP<const Tpetra_Map_t>                 RCP_Tpetra_Map;
+    typedef Tpetra::Export<HandleType>                       Tpetra_Export_t;
+    typedef Teuchos::RCP<Tpetra_Export_t>                    RCP_Tpetra_Export;
+    typedef Teuchos::Comm<OrdinalType>                       Communicator_t;
+    typedef Teuchos::RCP<const Communicator_t>               RCP_Communicator;
+//@}
 
   private:
+
+    // Global communicator.
+    RCP_Communicator d_comm;
 
     // Field name.
     std::string d_field_name;
@@ -95,13 +104,21 @@ class Data_Field
   public:
 
     // Constructor.
-    Data_Field(const std::string &field_name,
-			RCP_Data_Source source,
-			RCP_Data_Target target,
-			bool scalar = false);
+    Data_Field(RCP_Communicator comm_global,
+	       const std::string &field_name,
+	       RCP_Data_Source source,
+	       RCP_Data_Target target,
+	       bool scalar = false);
 
     // Destructor.
     ~Data_Field();
+
+    // Transfer data from the data source to the data target.
+    void transfer();
+
+    //! Get the communicator.
+    RCP_Communicator comm()
+    { return d_comm; }
 
     //! Get the field name. 
     const std::string& name() 
@@ -115,21 +132,6 @@ class Data_Field
     RCP_Data_Target target() 
     { return d_target; }
     
-    //! Set the mapping for transfer from the data source to the data target.
-    void set_mapping(RCP_Tpetra_Map source_map, RCP_Tpetra_Map target_map);
-
-    //! Get the map for the data source.
-    RCP_Tpetra_Map get_source_map()
-    { return d_source_map; }
-
-    //! Get the map for the data target.
-    RCP_Tpetra_Map get_target_map()
-    { return d_target_map; }
-
-    //! Get the Tpetra export for transfer from data source to data target.
-    RCP_Tpetra_Export get_export()
-    { return d_export; }
-
     //! Return the scalar boolean.
     bool is_scalar()
     { return d_scalar; }
@@ -137,6 +139,17 @@ class Data_Field
     //! Return the mapped boolean.
     bool is_mapped()
     { return d_mapped; }
+
+  private:
+
+    // Set the mapping for transfer from the data source to the data target.
+    void map();
+
+    // Perform scalar transfer.
+    void scalar_transfer();
+
+    // Perform distributed transfer.
+    void distributed_transfer();
 };
 
 } // end namespace coupler
