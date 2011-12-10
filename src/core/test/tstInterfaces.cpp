@@ -48,8 +48,8 @@ class Data_Container
   private:
 
     double scalar_data;
-    Teuchos::ArrayView<double> distributed_data;
-    Teuchos::ArrayView<PointType> distributed_points;
+    std::vector<double> distributed_data;
+    std::vector<PointType> distributed_points;
 
   public:
 
@@ -59,7 +59,7 @@ class Data_Container
     ~Data_Container()
     { /* ... */ }
 
-    void set_distributed_points(Teuchos::ArrayView<PointType> points)
+    void set_distributed_points(std::vector<PointType> points)
     {
 	distributed_points = points;
     }
@@ -69,14 +69,10 @@ class Data_Container
 	return distributed_points;
     }
 
-    void set_distributed_data(Teuchos::ArrayView<double> data)
-    {
-	distributed_data = data;
-    }
-
     Teuchos::ArrayView<double> get_distributed_data()
     {
-	return distributed_data;
+	distributed_data.resize(1);
+	return Teuchos::ArrayView<double>(distributed_data);
     }
 
     void set_scalar_data(double data)
@@ -162,8 +158,9 @@ class test_Data_Source
 
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
-	    std::vector<double> local_data(1, 1.0);
-	    private_data = local_data;
+	    private_data.clear();
+	    private_data.resize(1);
+	    private_data[0] = 1.0*getDefaultComm<OrdinalType>()->getRank();
 	    Teuchos::ArrayView<double> private_view(private_data);
 	    return_view =  private_view;
 	}
@@ -177,7 +174,7 @@ class test_Data_Source
 
 	if ( field_name == "SCALAR_TEST_FIELD" )
 	{
-	    return_val = 1.0;
+	    return_val = 1.0*getDefaultComm<OrdinalType>()->getRank();
 	}
 
 	return return_val;
@@ -185,7 +182,6 @@ class test_Data_Source
 };
 
 //---------------------------------------------------------------------------//
-
 // transfer data target implementation - this implementation specifies double
 // as the data type
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
@@ -254,13 +250,16 @@ class test_Data_Target
 	return return_view;
     }
 
-    void receive_data(const std::string &field_name,
-		      const Teuchos::ArrayView<DataType> &data)
+    Teuchos::ArrayView<DataType> receive_data(const std::string &field_name)
     {
+	Teuchos::ArrayView<DataType> return_view;
+
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
-	    container->set_distributed_data(data);
+	    return_view = container->get_distributed_data();
 	}
+
+	return return_view;
     }
 
     void get_global_data(const std::string &field_name,
@@ -290,11 +289,8 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
 	Teuchos::rcp(new test_Data_Source<double,int,double>);
 
     // test the interface methods.
-    TEST_ASSERT( source_iface->comm()->getSize() > 
-		 source_iface->comm()->getRank() );
-    std::cout << "Source comm size: " 
-	      << source_iface->comm()->getSize() << std::endl;
-    std::cout << "On rank: " << source_iface->comm()->getRank() << std::endl;
+    TEST_ASSERT( source_iface->comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( source_iface->comm()->getSize() == getDefaultComm<int>()->getSize() );
 
     TEST_ASSERT( source_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
     TEST_ASSERT( source_iface->field_supported("SCALAR_TEST_FIELD") );
@@ -307,13 +303,14 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
 
     Teuchos::ArrayView<double> data_view;
     data_view = source_iface->send_data("FOO_TEST_FIELD");
-    TEST_ASSERT( data_view.size() == 0 );
+    TEST_ASSERT( data_view.is_null() );
     data_view = source_iface->send_data("DISTRIBUTED_TEST_FIELD");
     TEST_ASSERT( data_view.size() == 1);
-    TEST_ASSERT( data_view[0] == 1.0 );
+    TEST_ASSERT( data_view[0] == 1.0*getDefaultComm<int>()->getRank() );
 
     TEST_ASSERT( source_iface->set_global_data("FOO_TEST_FIELD") == 0.0 );
-    TEST_ASSERT( source_iface->set_global_data("SCALAR_TEST_FIELD") == 1.0 );
+    TEST_ASSERT( source_iface->set_global_data("SCALAR_TEST_FIELD") == 
+		 1.0*getDefaultComm<int>()->getRank() );
 }
 
 TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
@@ -329,10 +326,8 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
 	    new test_Data_Target<double,int,double>(container));
 
     // test the interface methods.
-    TEST_ASSERT( target_iface->comm()->getSize() > 
-		 target_iface->comm()->getRank() );
-    std::cout << "Target comm size: " << target_iface->comm()->getSize() << std::endl;
-    std::cout << "On rank: " << target_iface->comm()->getRank() << std::endl;
+    TEST_ASSERT( target_iface->comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( target_iface->comm()->getSize() == getDefaultComm<int>()->getSize() );
 
     TEST_ASSERT( target_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
     TEST_ASSERT( target_iface->field_supported("SCALAR_TEST_FIELD") );
@@ -348,20 +343,60 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
     TEST_ASSERT( points_view[0].y() == 1.0 );
     TEST_ASSERT( points_view[0].z() == 1.0 );
 
-    std::vector<double> data_to_receive(1, 1.0);
-    Teuchos::ArrayView<double> data_view(data_to_receive);
-    target_iface->receive_data("FOO_TEST_FIELD", data_view);
-    TEST_ASSERT( container->get_distributed_data().size() == 0 );
-    TEST_ASSERT( container->get_distributed_points().size() == 0 );
-    target_iface->receive_data("DISTRIBUTED_TEST_FIELD", data_view);
+    Teuchos::ArrayView<double> data_view;
+    data_view = target_iface->receive_data("FOO_TEST_FIELD");
+    TEST_ASSERT( data_view.is_null() );
+    data_view = target_iface->receive_data("DISTRIBUTED_TEST_FIELD");
+    data_view[0] = 1.0*getDefaultComm<int>()->getRank();
     TEST_ASSERT( container->get_distributed_data().size() == 1 );
-    TEST_ASSERT( container->get_distributed_data()[0] == 1.0 );
+    TEST_ASSERT( container->get_distributed_data()[0] == 
+		 1.0*getDefaultComm<int>()->getRank() );
 
-    double global_scalar = 1.0;
+    double global_scalar = 1.0*getDefaultComm<int>()->getRank();
     target_iface->get_global_data("FOO_TEST_FIELD", global_scalar);
-    TEST_ASSERT( container->get_scalar_data() != 1.0 );
+    TEST_ASSERT( container->get_scalar_data() != 
+		 1.0*getDefaultComm<int>()->getRank() );
     target_iface->get_global_data("SCALAR_TEST_FIELD", global_scalar);
-    TEST_ASSERT( container->get_scalar_data() == 1.0 );
+    TEST_ASSERT( container->get_scalar_data() == 
+		 1.0*getDefaultComm<int>()->getRank() );
+}
+
+TEUCHOS_UNIT_TEST( Transfer_Data_Source, simple_coupling_test )
+{
+    typedef mesh::Point<int,double>     PointType;
+
+    // create an instance of the source interface.
+    Teuchos::RCP<Data_Source<double,int,double> > source_iface = 
+	Teuchos::rcp(new test_Data_Source<double,int,double>);
+
+    // create a data container instance for checking the data under the target
+    // interface.
+    Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
+
+    // create an instance of the target interface.
+    Teuchos::RCP<Data_Target<double,int,double> > target_iface = 
+	Teuchos::rcp( new test_Data_Target<double,int,double>(container));
+
+    // Check that the field is supported.
+    TEST_ASSERT( source_iface->field_supported("DISTRIBUTED_TEST_FIELD") &&
+		 target_iface->field_supported("DISTRIBUTED_TEST_FIELD") );
+
+    // Test a target point in the source
+    TEST_ASSERT( source_iface->get_points( 
+		     target_iface->set_points("DISTRIBUTED_TEST_FIELD")[0] ) );
+
+    // Transfer data from the source to the target.
+    Teuchos::ArrayView<double> source_view = 
+	source_iface->send_data("DISTRIBUTED_TEST_FIELD");
+
+    Teuchos::ArrayView<double> target_view = 
+	target_iface->receive_data("DISTRIBUTED_TEST_FIELD");
+
+    target_view.assign(source_view);
+
+    TEST_ASSERT( container->get_distributed_data().size() == 1 );
+    TEST_ASSERT( container->get_distributed_data()[0] == 
+		 1.0*getDefaultComm<int>()->getRank() );
 }
 
 } // end namespace coupler

@@ -40,6 +40,56 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
+// DATA CLASS
+//---------------------------------------------------------------------------//
+class Data_Container
+{
+  public:
+
+    typedef mesh::Point<int,double>     PointType;
+
+  private:
+
+    double scalar_data;
+    std::vector<double> distributed_data;
+    std::vector<PointType> distributed_points;
+
+  public:
+
+    Data_Container()
+    { /* ... */ }
+
+    ~Data_Container()
+    { /* ... */ }
+
+    void set_distributed_points(std::vector<PointType> points)
+    {
+	distributed_points = points;
+    }
+
+    Teuchos::ArrayView<PointType> get_distributed_points()
+    {
+	return distributed_points;
+    }
+
+    Teuchos::ArrayView<double> get_distributed_data()
+    {
+	distributed_data.resize(1);
+	return Teuchos::ArrayView<double>(distributed_data);
+    }
+
+    void set_scalar_data(double data)
+    {
+	scalar_data = data;
+    }
+
+    double get_scalar_data()
+    {
+	return scalar_data;
+    }
+};
+
+//---------------------------------------------------------------------------//
 // INTERFACE IMPLEMENTATIONS
 //---------------------------------------------------------------------------//
 
@@ -111,8 +161,9 @@ class test_Data_Source
 
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
-	    std::vector<double> local_data(1, 1.0);
-	    private_data = local_data;
+	    private_data.clear();
+	    private_data.resize(1);
+	    private_data[0] = 1.0*getDefaultComm<OrdinalType>()->getRank();
 	    Teuchos::ArrayView<double> private_view(private_data);
 	    return_view =  private_view;
 	}
@@ -126,7 +177,7 @@ class test_Data_Source
 
 	if ( field_name == "SCALAR_TEST_FIELD" )
 	{
-	    return_val = 1.0;
+	    return_val = 1.0*getDefaultComm<OrdinalType>()->getRank();
 	}
 
 	return return_val;
@@ -134,7 +185,6 @@ class test_Data_Source
 };
 
 //---------------------------------------------------------------------------//
-
 // transfer data target implementation - this implementation specifies double
 // as the data type
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
@@ -153,11 +203,13 @@ class test_Data_Target
 
   private:
 
+    Teuchos::RCP<Data_Container> container;
     std::vector<PointType> points;
 
   public:
 
-    test_Data_Target()
+    test_Data_Target(Teuchos::RCP<Data_Container> _container)
+	: container(_container)
     { /* ... */ }
 
     ~test_Data_Target()
@@ -201,13 +253,26 @@ class test_Data_Target
 	return return_view;
     }
 
-    void receive_data(const std::string &field_name,
-		      const Teuchos::ArrayView<DataType> &data)
-    { /* ... */ }
+    Teuchos::ArrayView<DataType> receive_data(const std::string &field_name)
+    {
+	Teuchos::ArrayView<DataType> return_view;
+
+	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
+	{
+	    return_view = container->get_distributed_data();
+	}
+
+	return return_view;
+    }
 
     void get_global_data(const std::string &field_name,
 			 const DataType &data)
-    { /* ... */ }
+    {
+	if ( field_name == "SCALAR_TEST_FIELD" )
+	{
+	    container->set_scalar_data(data);
+	}
+    }
 };
 
 } // end namespace coupler
@@ -224,9 +289,13 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_container_test )
     Teuchos::RCP<Data_Source<double,int,double> > tds = 
 	Teuchos::rcp(new test_Data_Source<double,int,double>());
 
+    // create a data container instance for checking the data under the target
+    // interface.
+    Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
+
     // Create an instance of the target interface.
     Teuchos::RCP<Data_Target<double,int,double> > tdt = 
-	Teuchos::rcp(new test_Data_Target<double,int,double>());
+	Teuchos::rcp(new test_Data_Target<double,int,double>(container));
 
     // Create a distributed field for these interfaces to be transferred.
     Data_Field<double,int,double> field(getDefaultComm<int>(),
@@ -236,6 +305,7 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, distributed_container_test )
 
     // Test the functionality.
     TEST_ASSERT( field.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( field.comm()->getSize() == getDefaultComm<int>()->getSize() );
     TEST_ASSERT( field.name() == "DISTRIBUTED_TEST_FIELD" );
     TEST_ASSERT( field.source() == tds );
     TEST_ASSERT( field.target() == tdt );
@@ -249,9 +319,13 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, scalar_container_test )
     Teuchos::RCP<Data_Source<double,int,double> > tds = 
 	Teuchos::rcp(new test_Data_Source<double,int,double>());
 
+    // create a data container instance for checking the data under the target
+    // interface.
+    Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
+
     // Create an instance of the target interface.
     Teuchos::RCP<Data_Target<double,int,double> > tdt = 
-	Teuchos::rcp(new test_Data_Target<double,int,double>());
+	Teuchos::rcp(new test_Data_Target<double,int,double>(container));
 
     // Create a distributed field for these interfaces to be transferred.
     Data_Field<double,int,double> field(getDefaultComm<int>(),
@@ -262,6 +336,7 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Field, scalar_container_test )
 
     // Test the functionality.
     TEST_ASSERT( field.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( field.comm()->getSize() == getDefaultComm<int>()->getSize() );
     TEST_ASSERT( field.name() == "DISTRIBUTED_TEST_FIELD" );
     TEST_ASSERT( field.source() == tds );
     TEST_ASSERT( field.target() == tdt );

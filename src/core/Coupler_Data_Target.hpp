@@ -93,10 +93,10 @@ class Data_Target
     /*! 
      * \brief Receive the field data. 
      * \param field_name The name of the field to receive data from.
-     * \param data The data being received.
+     * \return A view into the data vector to be populated.
      */
-    virtual void receive_data(const std::string &field_name,
-			      const Teuchos::ArrayView<DataType> &data) = 0;
+    virtual Teuchos::ArrayView<DataType> 
+    receive_data(const std::string &field_name) = 0;
 
     /*!
      * \brief Given a field, get a global data element to be be received from
