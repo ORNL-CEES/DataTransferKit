@@ -447,7 +447,39 @@ TEUCHOS_UNIT_TEST( Data_Field, Scalar_Transfer_Test )
 
 TEUCHOS_UNIT_TEST( Data_Field, Distributed_Transfer_Test )
 {
+    // create a data container instance for checking the data under the source
+    // interface.
+    Teuchos::RCP<Data_Container> source_container = Teuchos::rcp(new Data_Container);
 
+    // create a data container instance for checking the data under the target
+    // interface.
+    Teuchos::RCP<Data_Container> target_container = Teuchos::rcp(new Data_Container);
+
+    // Create an instance of the source interface.
+    Teuchos::RCP<Data_Source<double,int,double> > tds = 
+	Teuchos::rcp(new test_Data_Source<double,int,double>(source_container));
+
+    // Create an instance of the target interface.
+    Teuchos::RCP<Data_Target<double,int,double> > tdt = 
+	Teuchos::rcp(new test_Data_Target<double,int,double>(target_container));
+
+    // Create a distributed field for these interfaces to be transferred.
+    Data_Field<double,int,double> field(getDefaultComm<int>(),
+					"DISTRIBUTED_TEST_FIELD", 
+					tds, 
+					tdt);
+
+    // Check the transferred data under the target interface.
+    TEST_ASSERT( target_container->get_distributed_data().size() == 5 );
+    int myRank = getDefaultComm<int>()->getRank();
+    int mySize = getDefaultComm<int>()->getSize();
+    int flippedRank = mySize-myRank-1;
+    for (int i = 0; i < 5; ++i)
+    {
+	std::cout << "DATA " << target_container->get_distributed_data()[i] << std::endl;
+	TEST_ASSERT( target_container->get_distributed_data()[i]
+		     == 1.0*flippedRank );
+    }
 }
 
 //---------------------------------------------------------------------------//

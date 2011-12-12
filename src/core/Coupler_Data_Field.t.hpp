@@ -18,6 +18,8 @@
 
 #include "Teuchos_CommHelpers.hpp"
 
+#include "Tpetra_Vector.hpp"
+
 namespace coupler
 {
 
@@ -202,9 +204,8 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 template<class DataType, class HandleType, class CoordinateType>
 void Data_Field<DataType,HandleType,CoordinateType>::scalar_transfer()
 {
-    d_target->get_global_data( 
-	d_field_name, 
-	d_source->set_global_data( d_field_name) );
+    d_target->get_global_data( d_field_name, 
+			       d_source->set_global_data( d_field_name) );
 }
 
 //---------------------------------------------------------------------------//
@@ -214,7 +215,18 @@ void Data_Field<DataType,HandleType,CoordinateType>::scalar_transfer()
 template<class DataType, class HandleType, class CoordinateType>
 void Data_Field<DataType,HandleType,CoordinateType>::distributed_transfer()
 {
+    // Copy data from the source into a Tpetra vector.
+    Tpetra::Vector<DataType> data_source_vector( 
+	d_source_map, d_source->send_data(d_field_name));
 
+    // Setup a Tpetra vector for the target. All entries set to zero.
+    Tpetra::Vector<DataType> data_target_vector(d_target_map);
+
+    // Transfer the data by exporting it from the source to the target.
+    data_source_vector.doExport(data_target_vector, *d_export, Tpetra::INSERT);
+
+    // Copy it to the target.
+    data_target_vector.get1dCopy( d_target->receive_data(d_field_name) );
 }
 
 //---------------------------------------------------------------------------//
