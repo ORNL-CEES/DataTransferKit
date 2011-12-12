@@ -17,7 +17,6 @@
 #include <Mesh_SerializationTraits.hpp>
 
 #include "Teuchos_CommHelpers.hpp"
-#include "Teuchos_SerializationTraitsHelpers.hpp"
 
 namespace coupler
 {
@@ -134,8 +133,8 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 					&global_max);
 
     // Generate a target point buffer to send to the source. Pad the rest of
-    // the buffer with null points. This is using -1 as the indicator for a
-    // null point here!!! 
+    // the buffer with null points. This is using -1 as the handle for a
+    // null point here!!! This is necessary for padding the buffer.
     PointType null_point(-1, 0.0, 0.0, 0.0);
     std::vector<PointType> send_points(global_max, null_point);
     typename std::vector<PointType>::iterator send_point_it;
@@ -159,6 +158,9 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 	    receive_points = send_points;
 	}
 
+	// Barrier before moving on to the next broadcast rank.
+	Teuchos::barrier<OrdinalType>(*d_comm);
+
 	Teuchos::broadcast<OrdinalType,PointType>( *d_comm,
 						   i,
 						   global_max,
@@ -177,10 +179,10 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 		}
 	    }
 	}
-
-	// Barrier before moving on to the next broadcast rank.
-	Teuchos::barrier<OrdinalType>(*d_comm);
     }
+
+    // Barrier again before map generation.
+    Teuchos::barrier<OrdinalType>(*d_comm);
 
     // Generate the map for the data source.
     const Teuchos::ArrayView<const HandleType> 

@@ -32,7 +32,7 @@
 template<class Ordinal>
 Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 {
-#ifdef COMM_MPI
+#ifdef HAVE_MPI
     return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
     return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
