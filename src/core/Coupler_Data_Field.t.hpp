@@ -124,8 +124,7 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 	Tpetra::createNonContigMap<HandleType>( target_handles_view, d_comm);
 
     // Data target communicate points to the data source.
-    int local_size 
-	= d_target->set_points( d_field_name ).size();
+    int local_size = target_points.size();
     int global_max = 0;
     Teuchos::reduceAll<OrdinalType,int>(*d_comm,
 					Teuchos::REDUCE_MAX, 

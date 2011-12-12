@@ -68,7 +68,7 @@ class Data_Field
     typedef Teuchos::RCP<Tpetra_Export_t>                    RCP_Tpetra_Export;
     typedef Teuchos::Comm<OrdinalType>                       Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>               RCP_Communicator;
-//@}
+    //@}
 
   private:
 
