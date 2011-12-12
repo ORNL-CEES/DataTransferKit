@@ -87,6 +87,7 @@ void Data_Field<DataType,HandleType,CoordinateType>::transfer()
     // Distributed transfer.
     else
     {
+	assert( d_mapped );
 	distributed_transfer();
     }
 }

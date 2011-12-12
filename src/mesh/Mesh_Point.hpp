@@ -10,8 +10,6 @@
 #ifndef mesh_Point_hpp
 #define mesh_Point_hpp
 
-#include "Teuchos_Tuple.hpp"
-
 namespace mesh
 {
 //===========================================================================//
@@ -51,7 +49,9 @@ class Point
     HandleType d_handle;
 
     // Point coordinates.
-    Teuchos::Tuple<CoordinateType,3> d_coords;
+    CoordinateType d_x_coord;
+    CoordinateType d_y_coord;
+    CoordinateType d_z_coord;
 
   public:
     //! Constructor.
@@ -61,16 +61,18 @@ class Point
 	  CoordinateType _z)
 	: d_handle(_handle)
     {   
-	d_coords[0] = _x;
-	d_coords[1] = _y;
-	d_coords[2] = _z;
+	d_x_coord = _x;
+	d_y_coord = _y;
+	d_z_coord = _z;
     }
 
     //! Copy constructor.
     template<class HandleType_2, class CoordinateType_2>
     Point(const Point<HandleType_2,CoordinateType_2>& point)
         : d_handle( point.handle )
-	, d_coords( point.d_coords )
+	, d_x_coord( point.d_x_coord )
+	, d_y_coord( point.d_y_coord )
+	, d_z_coord( point.d_z_coord )
     { /* ... */ }
 
     //@{
@@ -81,20 +83,20 @@ class Point
 
     //@{
     //! Get the x coordinate.
-    CoordinateType  x() const { return d_coords[0]; }
-    CoordinateType& x()       { return d_coords[0]; }
+    CoordinateType  x() const { return d_x_coord; }
+    CoordinateType& x()       { return d_x_coord; }
     //@}
 
     //@{
     //! Get the y coordinate.
-    CoordinateType  y() const { return d_coords[1]; }
-    CoordinateType& y()       { return d_coords[1]; }
+    CoordinateType  y() const { return d_y_coord; }
+    CoordinateType& y()       { return d_y_coord; }
     //@}
     
     //@{
     //! Get the z coordinate.
-    CoordinateType  z() const { return d_coords[2]; }
-    CoordinateType& z()       { return d_coords[2]; }
+    CoordinateType  z() const { return d_z_coord; }
+    CoordinateType& z()       { return d_z_coord; }
     //@}
 };
 
