@@ -118,7 +118,7 @@ class test_Data_Source
     ~test_Data_Source()
     { /* ... */ }
 
-    const RCP_Communicator comm()
+    RCP_Communicator comm()
     {
 	return getDefaultComm<OrdinalType>();
     }
@@ -212,7 +212,7 @@ class test_Data_Target
     ~test_Data_Target()
     { /* ... */ }
 
-    const RCP_Communicator comm()
+    RCP_Communicator comm()
     {
 	return getDefaultComm<OrdinalType>();
     }

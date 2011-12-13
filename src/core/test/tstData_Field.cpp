@@ -23,8 +23,6 @@
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_DefaultComm.hpp"
 
-#include "Tpetra_Map.hpp"
-
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
@@ -131,7 +129,7 @@ class test_Data_Source
     ~test_Data_Source()
     { /* ... */ }
 
-    const RCP_Communicator comm()
+    RCP_Communicator comm()
     {
 	return getDefaultComm<OrdinalType>();
     }
@@ -233,7 +231,7 @@ class test_Data_Target
     ~test_Data_Target()
     { /* ... */ }
 
-    const RCP_Communicator comm()
+    RCP_Communicator comm()
     {
 	return getDefaultComm<OrdinalType>();
     }
@@ -363,7 +361,7 @@ TEUCHOS_UNIT_TEST( Data_Field, scalar_container_test )
 					tdt,
 					true);
 
-    // Test the functionality.
+    // Test the basic container functionality of the field.
     TEST_ASSERT( field.comm()->getRank() == getDefaultComm<int>()->getRank() );
     TEST_ASSERT( field.comm()->getSize() == getDefaultComm<int>()->getSize() );
     TEST_ASSERT( field.name() == "SCALAR_TEST_FIELD" );
@@ -396,7 +394,8 @@ TEUCHOS_UNIT_TEST( Data_Field, mapping_test )
 					tds, 
 					tdt);
     
-    // Check the mapping under the source interface.
+    // Check the points under the source interface to the verify communication
+    // pattern of sending target points to the source.
     int myRank = getDefaultComm<int>()->getRank();
     int mySize = getDefaultComm<int>()->getSize();
     int flippedRank = mySize-myRank-1;
@@ -412,6 +411,21 @@ TEUCHOS_UNIT_TEST( Data_Field, mapping_test )
 		     == 2.0*flippedRank );
 	TEST_ASSERT( source_container->get_distributed_points()[i].z()
 		     == 3.0*flippedRank );
+    }
+
+    // Check the Tpetra maps for both the source and the target.
+    TEST_ASSERT( (int) field.source_map()->getGlobalNumElements() == mySize*5 );
+    TEST_ASSERT( (int) field.source_map()->getNodeNumElements() == 5 );
+    for (int i = 0; i < 5; ++i)
+    {
+	TEST_ASSERT( field.source_map()->getNodeElementList()[i] == 5*flippedRank+i );
+    }
+
+    TEST_ASSERT( (int) field.target_map()->getGlobalNumElements() == mySize*5 );
+    TEST_ASSERT( (int) field.target_map()->getNodeNumElements() == 5 );
+    for (int i = 0; i < 5; ++i)
+    {
+	TEST_ASSERT( field.target_map()->getNodeElementList()[i] == 5*myRank+i );
     }
 }
 
@@ -469,6 +483,9 @@ TEUCHOS_UNIT_TEST( Data_Field, Distributed_Transfer_Test )
 					tds, 
 					tdt);
 
+    // Do the transfer.
+    field.transfer();
+
     // Check the transferred data under the target interface.
     TEST_ASSERT( target_container->get_distributed_data().size() == 5 );
     int myRank = getDefaultComm<int>()->getRank();
@@ -476,7 +493,6 @@ TEUCHOS_UNIT_TEST( Data_Field, Distributed_Transfer_Test )
     int flippedRank = mySize-myRank-1;
     for (int i = 0; i < 5; ++i)
     {
-	std::cout << "DATA " << target_container->get_distributed_data()[i] << std::endl;
 	TEST_ASSERT( target_container->get_distributed_data()[i]
 		     == 1.0*flippedRank );
     }

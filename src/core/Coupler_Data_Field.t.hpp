@@ -136,7 +136,7 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 
     // Generate a target point buffer to send to the source. Pad the rest of
     // the buffer with null points. This is using -1 as the handle for a
-    // null point here!!! This is necessary for padding the buffer.
+    // null point here!!! This is necessary (for now) for padding the buffer.
     PointType null_point(-1, 0.0, 0.0, 0.0);
     std::vector<PointType> send_points(global_max, null_point);
     typename std::vector<PointType>::iterator send_point_it;
@@ -223,7 +223,7 @@ void Data_Field<DataType,HandleType,CoordinateType>::distributed_transfer()
     Tpetra::Vector<DataType> data_target_vector(d_target_map);
 
     // Transfer the data by exporting it from the source to the target.
-    data_source_vector.doExport(data_target_vector, *d_export, Tpetra::INSERT);
+    data_target_vector.doExport(data_source_vector, *d_export, Tpetra::INSERT);
 
     // Copy it to the target.
     data_target_vector.get1dCopy( d_target->receive_data(d_field_name) );

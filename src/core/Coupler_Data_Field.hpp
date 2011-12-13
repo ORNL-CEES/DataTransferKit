@@ -119,7 +119,7 @@ class Data_Field
     { return d_comm; }
 
     //! Get the field name. 
-    const std::string& name() 
+    const std::string& name()
     { return d_field_name; }
 
     //! Get the transfer data source.
@@ -137,6 +137,14 @@ class Data_Field
     //! Return the mapped boolean.
     bool is_mapped()
     { return d_mapped; }
+
+    //! Return a const RCP to the source map.
+    const RCP_Tpetra_Map source_map()
+    { return d_source_map; }
+
+    //! Return a const RCP to the target map.
+    const RCP_Tpetra_Map target_map()
+    { return d_target_map; }
 
   private:
 
