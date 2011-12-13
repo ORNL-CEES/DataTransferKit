@@ -263,7 +263,8 @@ class test_Data_Target
 	    for (int i = 0; i < 5; ++i)
 	    {
 		int this_handle = 5*myRank + i;
-		PointType point(this_handle, 1.0*myRank, 2.0*myRank, 3.0*myRank);
+		PointType point(this_handle, 1.0*myRank, 
+				2.0*myRank, 3.0*myRank);
 		local_points.push_back(point);
 	    }
 	    return_view = Teuchos::ArrayView<PointType>(local_points);
@@ -306,11 +307,13 @@ TEUCHOS_UNIT_TEST( Data_Field, distributed_container_test )
 {
     // create a data container instance for checking the data under the source
     // interface.
-    Teuchos::RCP<Data_Container> source_container = Teuchos::rcp(new Data_Container);
+    Teuchos::RCP<Data_Container> source_container 
+	= Teuchos::rcp(new Data_Container);
 
     // create a data container instance for checking the data under the target
     // interface.
-    Teuchos::RCP<Data_Container> target_container = Teuchos::rcp(new Data_Container);
+    Teuchos::RCP<Data_Container> target_container 
+	= Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
     Teuchos::RCP<Data_Source<double,int,double> > tds = 
@@ -340,11 +343,13 @@ TEUCHOS_UNIT_TEST( Data_Field, scalar_container_test )
 {
     // create a data container instance for checking the data under the source
     // interface.
-    Teuchos::RCP<Data_Container> source_container = Teuchos::rcp(new Data_Container);
+    Teuchos::RCP<Data_Container> source_container 
+	= Teuchos::rcp(new Data_Container);
 
     // create a data container instance for checking the data under the target
     // interface.
-    Teuchos::RCP<Data_Container> target_container = Teuchos::rcp(new Data_Container);
+    Teuchos::RCP<Data_Container> target_container 
+	= Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
     Teuchos::RCP<Data_Source<double,int,double> > tds = 
@@ -374,11 +379,13 @@ TEUCHOS_UNIT_TEST( Data_Field, mapping_test )
 {
     // create a data container instance for checking the data under the source
     // interface.
-    Teuchos::RCP<Data_Container> source_container = Teuchos::rcp(new Data_Container);
+    Teuchos::RCP<Data_Container> source_container 
+	= Teuchos::rcp(new Data_Container);
 
     // create a data container instance for checking the data under the target
     // interface.
-    Teuchos::RCP<Data_Container> target_container = Teuchos::rcp(new Data_Container);
+    Teuchos::RCP<Data_Container> target_container 
+	= Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
     Teuchos::RCP<Data_Source<double,int,double> > tds = 
@@ -414,18 +421,22 @@ TEUCHOS_UNIT_TEST( Data_Field, mapping_test )
     }
 
     // Check the Tpetra maps for both the source and the target.
-    TEST_ASSERT( (int) field.source_map()->getGlobalNumElements() == mySize*5 );
+    TEST_ASSERT( (int) field.source_map()->getGlobalNumElements() 
+		 == mySize*5 );
     TEST_ASSERT( (int) field.source_map()->getNodeNumElements() == 5 );
     for (int i = 0; i < 5; ++i)
     {
-	TEST_ASSERT( field.source_map()->getNodeElementList()[i] == 5*flippedRank+i );
+	TEST_ASSERT( field.source_map()->getNodeElementList()[i] 
+		     == 5*flippedRank+i );
     }
 
-    TEST_ASSERT( (int) field.target_map()->getGlobalNumElements() == mySize*5 );
+    TEST_ASSERT( (int) field.target_map()->getGlobalNumElements() 
+		 == mySize*5 );
     TEST_ASSERT( (int) field.target_map()->getNodeNumElements() == 5 );
     for (int i = 0; i < 5; ++i)
     {
-	TEST_ASSERT( field.target_map()->getNodeElementList()[i] == 5*myRank+i );
+	TEST_ASSERT( field.target_map()->getNodeElementList()[i] 
+		     == 5*myRank+i );
     }
 }
 
@@ -433,11 +444,13 @@ TEUCHOS_UNIT_TEST( Data_Field, Scalar_Transfer_Test )
 {
     // create a data container instance for checking the data under the source
     // interface.
-    Teuchos::RCP<Data_Container> source_container = Teuchos::rcp(new Data_Container);
+    Teuchos::RCP<Data_Container> source_container =
+	Teuchos::rcp(new Data_Container);
 
     // create a data container instance for checking the data under the target
     // interface.
-    Teuchos::RCP<Data_Container> target_container = Teuchos::rcp(new Data_Container);
+    Teuchos::RCP<Data_Container> target_container 
+	= Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
     Teuchos::RCP<Data_Source<double,int,double> > tds = 
@@ -463,11 +476,13 @@ TEUCHOS_UNIT_TEST( Data_Field, Distributed_Transfer_Test )
 {
     // create a data container instance for checking the data under the source
     // interface.
-    Teuchos::RCP<Data_Container> source_container = Teuchos::rcp(new Data_Container);
+    Teuchos::RCP<Data_Container> source_container 
+	= Teuchos::rcp(new Data_Container);
 
     // create a data container instance for checking the data under the target
     // interface.
-    Teuchos::RCP<Data_Container> target_container = Teuchos::rcp(new Data_Container);
+    Teuchos::RCP<Data_Container> target_container 
+	= Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
     Teuchos::RCP<Data_Source<double,int,double> > tds = 

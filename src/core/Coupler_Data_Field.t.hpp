@@ -103,7 +103,7 @@ void Data_Field<DataType,HandleType,CoordinateType>::transfer()
 template<class DataType, class HandleType, class CoordinateType>
 void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 {
-    // Get the local list of handles. These are the global indices for the
+    // Extract the local list of handles. These are the global indices for the
     // Tpetra map.
     const Teuchos::ArrayView<PointType> target_points = 
 	d_target->set_points( d_field_name );
