@@ -5,23 +5,23 @@ SUMMARY
 
 The coupler is a package for parallel data transfer between arbitrary physics 
 codes. Interfaces are provided for data access to each physics. See doxygen
-documentation for more details.
+documentation for more developer details.
 
 
 DEPENDENCIES
 ------------
 
-The coupler depends on the nemesis library as well as the following 
-Trilinos packages:
+The coupler has direct dependecies on the following Trilinos packages:
 
 *: Teuchos
+*: Trilinos
 
 
 CONFIGURE
 ---------
 
 The coupler uses the TriBITS cmake build system. See doc/build_notes/ for 
-configure information as well as a sample script.
+configure information as well as a sample configure script.
 
 
 BUILD
@@ -36,4 +36,4 @@ make doc - Generate doxygen documentation.
 TEST
 ----
 
-ctest - Run the unit tests when enabled.
+ctest - Run package the unit tests when enabled.
