@@ -72,18 +72,15 @@ applied to many forms of multiphysics simulation.
 The coupling package aims to define such an interface for coupling in
 addition to providing concrete implementations of algorithms and
 communication patterns for parallel data transfer using the
-information acquired through this interface. This document discusses
-the design requirements of this package, the resulting interface
-specification, and the implementation of a basic transfer algorithm
-using this interface. It should not be the aim of the coupling package
-to eliminate other forms of multiphysics data transfer. Rather, it
-should attempt to define a useful interface that provides value by
-simplifying the coupling process and reducing the barrier of entry for
-a physics code to participate in coupling.
+information acquired through this interface. It should not be the aim
+of the coupling package to eliminate other forms of multiphysics data
+transfer. Rather, it should attempt to define a useful interface that
+provides value by simplifying the coupling process and reducing the
+barrier of entry for a physics code to participate in coupling. 
 
-This document details the design requirements for the coupling
-package, its subsequent design and interfaces, and implementation
-details.
+This document discusses the design requirements of this package, the
+resulting interface specification, and the implementation of a basic
+transfer algorithm using this interface.
 
 \section{Design Requirements for the Coupling Package}
 The coupling package should fulfill the following design
@@ -107,7 +104,6 @@ requirements:
 
 \section{Preliminary Design of the Coupling Package}
 
-\subsection{Coupling Package Interfaces}
 As part of the requirements listed in the previous section, it is
 necessary to define an interface for the coupling package that will
 allow access to information held by each physics code being coupled in
@@ -124,24 +120,25 @@ and the {\sl Data\_Target} interface for receiving data from the
 coupling package. By implementing these, a code will provide the
 necessary information to implement coupling algorithms. 
 
-The following section provides the {\sl Data\_Source} and {\sl
+The following sections provide the {\sl Data\_Source} and {\sl
   Data\_Target} abstract interfaces. All methods defined by these
-interfaces are pure virtual and therefore must be defined by all
+interfaces are pure virtual and must therefore be defined by all
 implementations. Three template parameters are defined for the
 interfaces, the scalar data type to be transferred, the handle type
 associated with mesh entities (commonly int or long int), and the
 coordinate type for defining spatial locations (commonly double or float).
 
 The Teuchos package of Trilinos is used for memory management,
-imposing the requirement on interface implementations to use reference
-counting pointers and array views. The underlying physics package need
-not implement these memory management tools, however, they must
-provide an interface implementation with these utilities.
+imposing the requirement on interface implementations to use these
+utilities. The underlying physics package need not implement these
+memory management tools, however, they must provide an interface
+implementation with these utilities.
 
 Communication is handled by the Teuchos abstract communication
 interface, allowing for various architectures to be supported. In the
-instance of MPI-based communication, any communication implementing
-MPI primitives (e.g. MPI\_SEND, MPI\_RECEIVE, etc.) can be used.
+instance of MPI-based communication, any communication object
+implementing MPI primitives (e.g. MPI\_SEND, MPI\_RECEIVE, etc.) can
+be used. 
 
 As an initial attempt to create mesh aware data structures, a simple
 point object has been implemented as a container for coordinates and
@@ -152,15 +149,15 @@ be used in the implemenations.
 The following sections outline both interfaces and details on their
 requirements. 
 
-\subsubsection{Data Source Interface}
+\subsection{Data Source Interface}
 
 The {\sl Data\_Source} interface consists of the following pure
-virtual method to be implemented by the client application.
+virtual methods to be implemented by the client application.
 
 \paragraph{\sl Data\_Source::comm()}
 This method requires the client application to return a Teuchos::RCP
 to a const reference of its communicator object. For the case of an
-MPI implementation, this is not required to be MPI_COMM_WORLD.
+MPI implementation, this is not required to be MPI\_COMM\_WORLD.
 
 \paragraph{\sl Data\_Source::field\_supported()}
 This method checks whether or not a particular field, indicated by
@@ -234,10 +231,10 @@ interface.
   } // end namespace coupler
 \end{lstlisting}
 
-\subsubsection{Data Target Interface}
+\subsection{Data Target Interface}
 
 The {\sl Data\_Target} interface consists of the following pure
-virtual method to be implemented by the client application.
+virtual methods to be implemented by the client application.
 
 \paragraph{\sl Data\_Target::comm()}
 This method requires the client application to return a Teuchos::RCP
@@ -251,14 +248,15 @@ this string, the client should return true if the field is supported,
 false if not.
 
 \paragraph{\sl Data\_Target::set\_points()}
-For a given field identified by a string, return a Teuchos::Array view
+For a given field identified by a string, return a Teuchos::ArrayView
 of all the points to which data should be mapped in the local target
 domain. All point handles are required to be globally unique.
 
 \paragraph{\sl Data\_Target::receive\_data()}
 For a given field identified by a string, return a non-const
 Teuchos::ArrayView of the data vector associated with the points
-provided by the {\sl set\_points} method.
+provided by the {\sl set\_points} method. This array view will be used
+to write data into the target.
 
 \paragraph{\sl Data\_Target::get\_global\_data()}
 For a given field identified by a string, a single global data value
@@ -321,7 +319,7 @@ The constructor for this object requires the communicator on which to
 operate. At a minimum, this should correspond to the union of the
 target and source communicators. Again, for MPI implementations this
 is not limited to MPI\_COMM\_WORLD. Rather, it is only required that
-this communicator span the communication space that encompasses both
+this communicator span the process ID space that encompasses both
 communicators provided by the source and target interfaces. In
 addition, a string defining the name of the field, reference counting
 pointers to the two interface implementations, and an optional boolean
@@ -356,11 +354,31 @@ data structure as the parallel topology map and the Tpetra::Export
 operator to generate a parallel communication plan and perform the
 actual transfer.
 
+To generate the initial mapping, the target map is defined as the handles
+for all local points contained on each target process. To determine
+the source map, the target points are communicated to the source
+application to find the local domain in which they exist. Those
+target points found to be in a source domain have their handles added to
+the source map for the appropriate process ID. Once these two lists
+have been generated, the communication plan is constructed and cached
+using the Tpetra utilites.
+
 \section{Conclusion}
+
+An initial design and implementation of the coupling package has been
+completed. This package attempts to define an interface for data
+transfer to meet the stated design requirements along with an
+implementation for parallel operations. This simple interface and
+implementation should serve as a more general starting point for
+advanced mesh-based coupling and data structures.
 
 A supporting document has been generated outlining how to acquire and
 build the coupler along with an example of how to generate a simple
-parallel multiphysics application using this package.
+parallel multiphysics application using this package by implementing
+the interfaces and using the {\sl Data\_Field} for transfer. In
+addition, this supporting document outlines other elements of the
+coupling package (e.g. software engineering practices and use case
+examples) not presented here.
 
 \pagebreak
 \bibliographystyle{ieeetr}
