@@ -155,9 +155,12 @@ class test_Data_Source
     {
 	bool return_val = false;
 
-	// we only want to find 4 of the 5 points. this will give maps and
-	// vectors of different sizes.
-	if ( point.handle() != 5*(mySize-myRank-1)+4 )
+	// We only want to find the first 4 of the 5 points from the simpler
+	// test. This will give maps and vectors of different sizes.
+	if ( (int) local_points.size() != 4 &&
+	     point.x() == 1.0*(mySize-myRank-1) &&
+	     point.y() == 2.0*(mySize-myRank-1) &&
+	     point.z() == 3.0*(mySize-myRank-1) )
 	{
 	    return_val = true;
 	    local_points.push_back(point);
