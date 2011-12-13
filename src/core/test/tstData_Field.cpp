@@ -329,7 +329,7 @@ TEUCHOS_UNIT_TEST( Data_Field, distributed_container_test )
     					tds, 
     					tdt);
 
-    // Test the functionality.
+    // Test the basic container functionality of the field.
     TEST_ASSERT( field.comm()->getRank() == getDefaultComm<int>()->getRank() );
     TEST_ASSERT( field.comm()->getSize() == getDefaultComm<int>()->getSize() );
     TEST_ASSERT( field.name() == "DISTRIBUTED_TEST_FIELD" );

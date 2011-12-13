@@ -351,13 +351,16 @@ double, handle type is int, and coordinate type is float.
 
 \section{Mapping and Transfer Algorithm Implementation}
 
-
+Both the mapping and data transfer implementations rely on Tpetra::Map
+data structure as the parallel topology map and the Tpetra::Export
+operator to generate a parallel communication plan and perform the
+actual transfer.
 
 \section{Conclusion}
 
 A supporting document has been generated outlining how to acquire and
-build the coupler along with an example of how to generate a
-multiphysics application using this package.
+build the coupler along with an example of how to generate a simple
+parallel multiphysics application using this package.
 
 \pagebreak
 \bibliographystyle{ieeetr}
