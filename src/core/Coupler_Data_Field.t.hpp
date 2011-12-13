@@ -121,7 +121,7 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
     }
 
     // Generate the map for the data target.
-    const Teuchos::ArrayView<const HandleType> target_handles_view(target_handles);
+    const Teuchos::ArrayView<const HandleType> 	target_handles_view(target_handles);
     d_target_map = 
 	Tpetra::createNonContigMap<HandleType>( target_handles_view, d_comm);
 

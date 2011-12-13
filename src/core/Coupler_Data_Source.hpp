@@ -10,7 +10,6 @@
 #ifndef core_Coupler_Data_Source_hpp
 #define core_Coupler_Data_Source_hpp
 
-#include <vector>
 #include <string>
 
 #include <Mesh_Point.hpp>
@@ -29,7 +28,8 @@ namespace coupler
  * in multiphysics coupling.
  *
  * This interface is templated on the type of field data being
- * transferred, the handle type for mesh entities, and the coordinate type.
+ * transferred, the handle type for mesh entities, and the coordinate
+ * type. For now, the ordinal type for communication is set as type int.
  */
 /*! 
  * \example core/test/tstInterfaces.cc
@@ -69,7 +69,7 @@ class Data_Source
      * \brief Register communicator object.
      * \return The communicator for this physics.
      */
-    virtual const RCP_Communicator comm() = 0;
+    virtual RCP_Communicator comm() = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this
@@ -81,15 +81,16 @@ class Data_Source
 
     /*! 
      * \brief Given (x,y,z) coordinates and an associated globally unique
-     * handle, return true if the point is in the local domain, false if not.
-     * \param point Point.
+     * handle encapsulated in a point object, return true if the point is in
+     * the local domain, false if not. 
+     * \param point Point to query the local domain with.
      */
     virtual bool get_points(const PointType &point) = 0;
 
     /*! 
      * \brief Send the field data.
      * \param field_name The name of the field to send data from.
-     * \return A view of data being sent.
+     * \return A const view of data to be sent.
      */
     virtual const Teuchos::ArrayView<DataType> 
     send_data(const std::string &field_name) = 0;

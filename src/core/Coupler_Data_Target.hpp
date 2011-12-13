@@ -10,14 +10,13 @@
 #ifndef core_Coupler_Data_Target_hpp
 #define core_Coupler_Data_Target_hpp
 
-#include <vector>
 #include <string>
 
 #include <Mesh_Point.hpp>
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Comm.hpp"
-#include "Teuchos_ArrayViewDecl.hpp"
+#include "Teuchos_ArrayView.hpp"
 
 namespace coupler
 {
@@ -69,7 +68,7 @@ class Data_Target
      * \brief Register communicator object.
      * \return The communicator for this physics.
      */
-    virtual const RCP_Communicator comm() = 0;
+    virtual RCP_Communicator comm() = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this
@@ -80,20 +79,20 @@ class Data_Target
     virtual bool field_supported(const std::string &field_name) = 0;
 
     /*!
-     * \brief Set cartesian coordinates with a field. The coordinate
-     * vector should be interleaved. The handle vector should consist of
-     * globally unique handles. 
-     * \param field_name The name of the field that the coordinates are being
+     * \brief Set cartesian coordinates with a field. The order of these
+     * points will correspond to the order of the data returned from the
+     * transfer operation.
+     * \param field_name The name of the field that the points are being
      * registered with.
-     * \return Array view into a point array.
+     * \return View of the local target points.
      */
     virtual const Teuchos::ArrayView<PointType> 
     set_points(const std::string &field_name) = 0;
 
     /*! 
-     * \brief Receive the field data. 
+     * \brief Receive the field data by providing a view to be populated. 
      * \param field_name The name of the field to receive data from.
-     * \return A view into the data vector to be populated.
+     * \return A non-const view of the data vector to be populated.
      */
     virtual Teuchos::ArrayView<DataType> 
     receive_data(const std::string &field_name) = 0;
