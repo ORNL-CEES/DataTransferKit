@@ -1,4 +1,6 @@
-# CMakeLists.txt for dtransfer/example
+INCLUDE(TribitsAddExecutableAndTest)
+INCLUDE(AddSubdirectories)
 
-# Subdirectories
-ADD_SUBDIRECTORY(peaks_transfer)
+ADD_SUBDIRECTORIES(
+  simple
+  )
