@@ -1,6 +1,4 @@
-%        File: latexdoc.tex
-%     Created: Friday March 4 12:24:15 2011
-% Last Change: Friday March 4 12:24:20 2011
+%        File: building_using.tex
 %
 \documentclass[letterpaper]{article}
 \usepackage[top=1.0in,bottom=1.0in,left=1.0in,right=1.0in]{geometry}
@@ -20,17 +18,156 @@ citecolor = Black,
 menucolor = Black,
 urlcolor = Blue
 ]{hyperref}
+\usepackage{listings}
+\usepackage{textcomp}
+\definecolor{listinggray}{gray}{0.9}
+\definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
+\lstset{
+  backgroundcolor=\color{lbcolor},
+  tabsize=4,
+  rulecolor=,
+  language=c++,
+  basicstyle=\scriptsize,
+  upquote=true,
+  aboveskip={1.5\baselineskip},
+  columns=fixed,
+  showstringspaces=false,
+  extendedchars=true,
+  breaklines=true,
+  prebreak =
+  \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+  frame=single,
+  showtabs=false,
+  showspaces=false,
+  showstringspaces=false,
+  identifierstyle=\ttfamily,
+  keywordstyle=\color[rgb]{0,0,1},
+  commentstyle=\color[rgb]{0.133,0.545,0.133},
+  stringstyle=\color[rgb]{0.627,0.126,0.941},
+}
 
 \author{Stuart R. Slattery
 \\ \href{mailto:sslattery@wisc.edu}{\texttt{sslattery@wisc.edu}}
 }
 
-\date{}
-\title{<+  +>:\\
-<+  +>}
+\date{Wednesday December 14, 2011}
+\title{Using the Coupling Package}
 \begin{document}
 \maketitle
-\section{<+  +>}<+  +>
+
+\section{Introduction}
+As outlined in the companion document {\sl Design and Implementation of
+the Coupling Pacakge}, the coupling package is intended for use as a
+transfer mechanism in multiphysics simulations. This document
+describes the software infrastructure used in the development of the
+coupling package, instructions on obtaining and building the coupling
+package, and an outline of how to use the package presented through a
+concrete example. This example has been demonstrated on a dual core laptop,
+quad core workstation, and 100 cores on a small cluster using varying
+MPI implementations.
+
+\section{Obtaining the Coupling Package}
+The coupling package is version controlled with a git software
+repository residing on the casl-dev server. Changes to this repository
+are communicated to a CASL hosted and moderated mailing list. Access
+requests to this list can be made at
+http://casl-dev.ornl.gov/mailman/listinfo/coupler-infrastructure.
+
+Due to its direct dependencies on the Trilinos packages Teuchos and
+Tpetra, the first step in obtaining the coupling package is to obtain
+Trilinos. Recent changes to the Trilinos repository to allow the
+coupling package to behave as a third party library (TPL) require a
+recent repository clone of Trilinos. Beginning in a working directory
+of your choice, the following steps are required.
+
+\paragraph{Clone a copy of the Trilinos git repository.}
+git clone /casl-dev/git-root/Trilinos Trilinos
+
+\paragraph{Move into the Trilinos directory.}
+cd Trilinos
+
+\paragraph{Clone a copy of the coupler repository into the Trilinos
+  home directory.} 
+git clone /casl-dev/git-root/coupler Coupler
+
+\section{Building the Coupling Package}
+Once the Trilinos and Coupler repositories have been cloned, both are
+ready to be configured. The coupling package uses the Tribits build
+system based on cmake and configures as a Trilinos TPL.
+
+\subsection{Configure}
+Consider an out of source build in a /coupler\_build directory. The
+following shell script, also found in
+/Coupler/doc/build\_notes/sample\_cmake\_configure.sh, configures
+Trilinos and the Coupler for a parallel debug build using an MPI
+implementation. To date, the coupler has been tested with both OpenMPI
+and MPICH2 implementations on shared and distributed memory hardware.
+
+\begin{verbatim}
+#!/bin/bash
+
+cmake \
+-D CMAKE_INSTALL_PREFIX:PATH=/coupler_build \
+-D CMAKE_BUILD_TYPE:STRING=DEBUG \
+-D CMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+-D Trilinos_ENABLE_TESTS:BOOL=OFF \
+-D Trilinos_ENABLE_Teuchos:BOOL=ON \
+-D Teuchos_ENABLE_EXTENDED:BOOL=ON \
+-D Trilinos_ENABLE_Tpetra:BOOL=ON \
+-D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
+-D TPL_ENABLE_MPI:BOOL=ON \
+-D MPI_BASE_DIR:PATH=MPI_INSTALL_DIR \
+-D BLAS_LIBRARY_DIRS:PATH=BLAS_INSTALL_DIR \
+-D BLAS_LIBRARY_NAMES:STRING="blas" \
+-D LAPACK_LIBRARY_DIRS:PATH=LAPACK_INSTALL_DIR \
+-D LAPACK_LIBRARY_NAMES:STRING="lapack" \
+-D Trilinos_EXTRA_REPOSITORIES="Coupler" \
+-D Trilinos_ENABLE_coupler:BOOL=ON \
+-D coupler_ENABLE_TESTS:BOOL=ON \
+/Trilinos
+\end{verbatim}
+
+Aside from a standard Trilinos configuration to build Teuchos and
+Tpetra, the only additions are the last three lines enabling the
+Coupler as an extra repository and enable the coupler unit tests.
+
+\subsection{Build}
+
+After configuration, {\sl make} will build the library while {\sl make
+  install} will install it.
+
+\subsection{Test}
+Unit tests in both serial and parallel have been implemented using the
+Teuchos unit testing harness and are incorporated into the Tribits
+build. Using the configuration above, after building the tests can be
+invoked with ctest. If successful, you should see an output like that
+presented below.
+
+\begin{verbatim}
+stuart@dionysus:/local.hd/cnergg/stuart/builds/coupler$ ctest
+Test project /local.hd/cnergg/stuart/builds/coupler
+    Start 1: couplerMesh_Point_test_MPI_4
+1/5 Test #1: couplerMesh_Point_test_MPI_4 ...............   Passed    1.05 sec
+    Start 2: couplerMesh_Bounding_Box_test_MPI_4
+2/5 Test #2: couplerMesh_Bounding_Box_test_MPI_4 ........   Passed    1.04 sec
+    Start 3: couplerCore_Interfaces_test_MPI_4
+3/5 Test #3: couplerCore_Interfaces_test_MPI_4 ..........   Passed    1.05 sec
+    Start 4: couplerCore_Data_Field_test_MPI_4
+4/5 Test #4: couplerCore_Data_Field_test_MPI_4 ..........   Passed    1.05 sec
+    Start 5: couplerCore_Advanced_Transfer_test_MPI_4
+5/5 Test #5: couplerCore_Advanced_Transfer_test_MPI_4 ...   Passed    1.05 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Label Time Summary:
+coupler    =   5.24 sec
+
+Total Test time (real) =   5.25 sec
+\end{verbatim}
+
+\section{Using the Coupling Package}
+
+\section{Conclusion}
 
 \pagebreak
 \bibliographystyle{ieeetr}
