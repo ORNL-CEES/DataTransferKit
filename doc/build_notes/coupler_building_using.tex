@@ -62,9 +62,9 @@ transfer mechanism in multiphysics simulations. This document
 describes the software infrastructure used in the development of the
 coupling package, instructions on obtaining and building the coupling
 package, and an outline of how to use the package presented through a
-concrete example. This example has been demonstrated on a dual core laptop,
-quad core workstation, and 100 cores on a small cluster using varying
-MPI implementations.
+concrete example. This example has been demonstrated to operate in
+parallel on a dual core laptop, quad core workstation, and 100 cores
+on a small cluster using varying MPI implementations.
 
 \section{Obtaining the Coupling Package}
 The coupling package is version controlled with a git software
@@ -107,23 +107,23 @@ and MPICH2 implementations on shared and distributed memory hardware.
 #!/bin/bash
 
 cmake \
--D CMAKE_INSTALL_PREFIX:PATH=/coupler_build \
--D CMAKE_BUILD_TYPE:STRING=DEBUG \
--D CMAKE_VERBOSE_MAKEFILE:BOOL=ON \
--D Trilinos_ENABLE_TESTS:BOOL=OFF \
--D Trilinos_ENABLE_Teuchos:BOOL=ON \
--D Teuchos_ENABLE_EXTENDED:BOOL=ON \
--D Trilinos_ENABLE_Tpetra:BOOL=ON \
+-D CMAKE_INSTALL_PREFIX:PATH=/coupler_build       \
+-D CMAKE_BUILD_TYPE:STRING=DEBUG                  \
+-D CMAKE_VERBOSE_MAKEFILE:BOOL=ON                 \
+-D Trilinos_ENABLE_TESTS:BOOL=OFF                 \
+-D Trilinos_ENABLE_Teuchos:BOOL=ON                \
+-D Teuchos_ENABLE_EXTENDED:BOOL=ON                \
+-D Trilinos_ENABLE_Tpetra:BOOL=ON                 \
 -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
--D TPL_ENABLE_MPI:BOOL=ON \
--D MPI_BASE_DIR:PATH=MPI_INSTALL_DIR \
--D BLAS_LIBRARY_DIRS:PATH=BLAS_INSTALL_DIR \
--D BLAS_LIBRARY_NAMES:STRING="blas" \
--D LAPACK_LIBRARY_DIRS:PATH=LAPACK_INSTALL_DIR \
--D LAPACK_LIBRARY_NAMES:STRING="lapack" \
--D Trilinos_EXTRA_REPOSITORIES="Coupler" \
--D Trilinos_ENABLE_coupler:BOOL=ON \
--D coupler_ENABLE_TESTS:BOOL=ON \
+-D TPL_ENABLE_MPI:BOOL=ON                         \
+-D MPI_BASE_DIR:PATH=MPI_INSTALL_DIR              \
+-D BLAS_LIBRARY_DIRS:PATH=BLAS_INSTALL_DIR        \
+-D BLAS_LIBRARY_NAMES:STRING="blas"               \
+-D LAPACK_LIBRARY_DIRS:PATH=LAPACK_INSTALL_DIR    \
+-D LAPACK_LIBRARY_NAMES:STRING="lapack"           \
+-D Trilinos_EXTRA_REPOSITORIES="Coupler"          \
+-D Trilinos_ENABLE_coupler:BOOL=ON                \
+-D coupler_ENABLE_TESTS:BOOL=ON                   \
 /Trilinos
 \end{verbatim}
 
