@@ -304,7 +304,6 @@ interface.
 \end{lstlisting}
 
 \subsection{Data Field}
-
 The relationship between a particular {\sl Data\_Source} and {\sl
   Data\_Target} implementation is contained by the {\sl Data\_Field}
 object. Both mapping and transfer operations between the {\sl
@@ -346,23 +345,51 @@ double, handle type is int, and coordinate type is float.
 \end{lstlisting}
 
 \section{Mapping and Transfer Algorithm Implementation}
+The following algorithm is used to generate a point based mapping
+between between the source and target applications.
 
-Both the mapping and data transfer implementations rely on Tpetra::Map
-data structure as the parallel topology map and the Tpetra::Export
-operator to generate a parallel communication plan and perform the
-actual transfer.
+\begin{verbatim}
+Get the target points from the target application.
 
-To generate the initial mapping, the target map is defined as the handles
-for all local points contained on each target process. To determine
-the source map, the target points are communicated to the source
-application to find the local domain in which they exist. Those
-target points found to be in a source domain have their handles added to
-the source map for the appropriate process ID. Once these two lists
-have been generated, the communication plan is constructed and cached
-using the Tpetra utilites.
+Extract the globally unique handles from the target points and build a
+distibuted map of the target data vector using the handle as indices.
+
+Do a global reduction across all nodes to compute the maximum number
+of local target points.
+
+On each target node, build a buffer of points to send to the source
+nodes. This buffer will of the length computed by the global
+reduction.
+
+for all target nodes:
+
+    Broadcast the buffer of target points for the current target
+    node to all other nodes.
+
+    for each point in the broadcasted buffer, query the source
+    application domain:
+
+        If the point is found in the local source application domain,
+        add its handle to a distributed list.
+
+Build a distributed map of the source data vector using the handles
+found in the source domain.
+
+Setup a communication plan to transfer data between the source map
+distribution and the target map distribution.
+\end{verbatim}
+
+Per the requirement of the target application to provide globally
+unique handles for all of its points, the end result of this mapping
+is a distributed object with knowledge of how the target data is
+distributed via the handle indices, and how the source
+data is distributed (most likely differently) using those same handle
+indices. Once these two distributions are known, the data transfer
+operation is simply a copy of data from the source to the target with
+each piece of source data sent to the target destination containing
+its handle index. 
 
 \section{Conclusion}
-
 An initial design and implementation of the coupling package has been
 completed. This package attempts to define an interface for data
 transfer to meet the stated design requirements along with an

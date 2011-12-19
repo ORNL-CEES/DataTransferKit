@@ -24,8 +24,8 @@ namespace Coupler
 //===========================================================================//
 /*!
  * \class Data_Source
- * \brief Definition of the interface for applications acting as a data source
- * in multiphysics coupling.
+ * \brief Protocol definition for applications acting as a data source in
+ * multiphysics coupling. 
  *
  * This interface is templated on the type of field data being
  * transferred, the handle type for mesh entities, and the coordinate
