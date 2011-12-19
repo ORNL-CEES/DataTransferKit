@@ -22,7 +22,7 @@
 // TESTS
 //---------------------------------------------------------------------------//
 
-namespace mesh {
+namespace Coupler {
 
 TEUCHOS_UNIT_TEST( Point, container_test )
 {

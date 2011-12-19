@@ -43,7 +43,7 @@ class Data_Container
 {
   public:
 
-    typedef mesh::Point<int,double>     PointType;
+    typedef Coupler::Point<int,double>     PointType;
 
   private:
 
@@ -90,7 +90,7 @@ class Data_Container
 // INTERFACE IMPLEMENTATIONS
 //---------------------------------------------------------------------------//
 
-namespace coupler {
+namespace Coupler {
 
 // transfer data source implementation - this implementation specifies double
 // as the data type
@@ -108,7 +108,7 @@ class test_Data_Source
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
     typedef int                                      OrdinalType;
-    typedef mesh::Point<HandleType,CoordinateType>   PointType;
+    typedef Point<HandleType,CoordinateType>         PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
@@ -194,7 +194,7 @@ class test_Data_Target
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
     typedef int                                      OrdinalType;
-    typedef mesh::Point<HandleType,CoordinateType>   PointType;
+    typedef Point<HandleType,CoordinateType>         PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
@@ -272,17 +272,17 @@ class test_Data_Target
     }
 };
 
-} // end namespace coupler
+} // end namespace Coupler
 
 //---------------------------------------------------------------------------//
 // TESTS
 //---------------------------------------------------------------------------//
 
-namespace coupler {
+namespace Coupler {
 
 TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
 {
-    typedef mesh::Point<int,double>     PointType;
+    typedef Point<int,double>     PointType;
 
     // create an instance of the source interface.
     Teuchos::RCP<Data_Source<double,int,double> > source_iface = 
@@ -315,7 +315,7 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
 
 TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
 {
-    typedef mesh::Point<int,double>     PointType;
+    typedef Point<int,double>     PointType;
 
     // create a data container instance.
     Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
@@ -363,7 +363,7 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
 
 TEUCHOS_UNIT_TEST( Transfer_Data_Source, simple_coupling_test )
 {
-    typedef mesh::Point<int,double>     PointType;
+    typedef Point<int,double>     PointType;
 
     // create an instance of the source interface.
     Teuchos::RCP<Data_Source<double,int,double> > source_iface = 
@@ -399,7 +399,7 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Source, simple_coupling_test )
 		 1.0*getDefaultComm<int>()->getRank() );
 }
 
-} // end namespace coupler
+} // end namespace Coupler
 
 //---------------------------------------------------------------------------//
 //                        end of tstInterfaces.cpp

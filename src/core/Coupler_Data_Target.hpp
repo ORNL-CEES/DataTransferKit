@@ -18,7 +18,7 @@
 #include "Teuchos_Comm.hpp"
 #include "Teuchos_ArrayView.hpp"
 
-namespace coupler
+namespace Coupler
 {
 
 //===========================================================================//
@@ -47,7 +47,7 @@ class Data_Target
     typedef HandleType_T                               HandleType;
     typedef CoordinateType_T                           CoordinateType;
     typedef int                                        OrdinalType;
-    typedef mesh::Point<HandleType,CoordinateType>     PointType;
+    typedef Point<HandleType,CoordinateType>           PointType;
     typedef Teuchos::Comm<OrdinalType>                 Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>         RCP_Communicator;
     //@}
@@ -107,7 +107,7 @@ class Data_Target
 				 const DataType &data) = 0;
 };
 
-} // end namespace coupler
+} // end namespace Coupler
 
 #endif // core_Coupler_Data_Target_hpp
 

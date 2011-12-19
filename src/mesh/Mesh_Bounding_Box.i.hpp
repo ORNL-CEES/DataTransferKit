@@ -10,7 +10,7 @@
 #ifndef mesh_Mesh_Bounding_Box_i_hpp
 #define mesh_Mesh_Bounding_Box_i_hpp
 
-namespace mesh
+namespace Coupler
 {
 
 template<class HandleType, class CoordinateType>
@@ -31,7 +31,7 @@ bool Bounding_Box<HandleType,CoordinateType>::point_query(PointType point)
     return return_val;
 }
 
-} // end namespace mesh
+} // end namespace Coupler
 
 #endif // mesh_Mesh_Bounding_Box_i_hpp
 

@@ -10,7 +10,7 @@
 #ifndef mesh_Point_hpp
 #define mesh_Point_hpp
 
-namespace mesh
+namespace Coupler
 {
 //===========================================================================//
 /*!
@@ -100,7 +100,7 @@ class Point
     //@}
 };
 
-} // end namespace mesh
+} // end namespace Coupler
 
 #endif // mesh_Point_hpp
 

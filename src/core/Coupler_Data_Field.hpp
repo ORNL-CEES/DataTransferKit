@@ -23,7 +23,7 @@
 #include "Tpetra_Map.hpp"
 #include "Tpetra_Export.hpp"
 
-namespace coupler
+namespace Coupler
 {
 
 //===========================================================================//
@@ -57,7 +57,7 @@ class Data_Field
     typedef HandleType_T                                     HandleType;
     typedef CoordinateType_T                                 CoordinateType;
     typedef int                                              OrdinalType;
-    typedef mesh::Point<HandleType,CoordinateType>           PointType;
+    typedef Point<HandleType,CoordinateType>                 PointType;
     typedef Data_Source<DataType,HandleType,CoordinateType>  Data_Source_t;
     typedef Teuchos::RCP<Data_Source_t>                      RCP_Data_Source;
     typedef Data_Target<DataType,HandleType,CoordinateType>  Data_Target_t;
@@ -159,7 +159,7 @@ class Data_Field
     void distributed_transfer();
 };
 
-} // end namespace coupler
+} // end namespace Coupler
 
 //---------------------------------------------------------------------------//
 // TEMPLATE MEMBERS

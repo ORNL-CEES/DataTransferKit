@@ -20,7 +20,7 @@
 
 #include "Tpetra_Vector.hpp"
 
-namespace coupler
+namespace Coupler
 {
 
 //---------------------------------------------------------------------------//
@@ -231,7 +231,7 @@ void Data_Field<DataType,HandleType,CoordinateType>::distributed_transfer()
 
 //---------------------------------------------------------------------------//
 
-} // end namespace coupler
+} // end namespace Coupler
 
 #endif // core_Coupler_Data_Field_t_hpp
 

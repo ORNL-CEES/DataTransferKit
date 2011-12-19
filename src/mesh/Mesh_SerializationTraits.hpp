@@ -26,44 +26,44 @@ namespace Teuchos {
 
 // Point.
 template<typename Ordinal>
-class SerializationTraits<Ordinal,mesh::Point<int,double> >
-    : public DirectSerializationTraits<Ordinal,mesh::Point<int,double> >
+class SerializationTraits<Ordinal,Coupler::Point<int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<int,double> >
 {};
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal,mesh::Point<int,float> >
-    : public DirectSerializationTraits<Ordinal,mesh::Point<int,float> >
+class SerializationTraits<Ordinal,Coupler::Point<int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<int,float> >
 {};
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal,mesh::Point<long int,double> >
-    : public DirectSerializationTraits<Ordinal,mesh::Point<long int,double> >
+class SerializationTraits<Ordinal,Coupler::Point<long int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<long int,double> >
 {};
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal,mesh::Point<long int,float> >
-    : public DirectSerializationTraits<Ordinal,mesh::Point<long int,float> >
+class SerializationTraits<Ordinal,Coupler::Point<long int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<long int,float> >
 {};
 
 // Bounding box.
 template<typename Ordinal>
-class SerializationTraits<Ordinal,mesh::Bounding_Box<int,double> >
-    : public DirectSerializationTraits<Ordinal,mesh::Bounding_Box<int,double> >
+class SerializationTraits<Ordinal,Coupler::Bounding_Box<int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Bounding_Box<int,double> >
 {};
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal,mesh::Bounding_Box<int,float> >
-    : public DirectSerializationTraits<Ordinal,mesh::Bounding_Box<int,float> >
+class SerializationTraits<Ordinal,Coupler::Bounding_Box<int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Bounding_Box<int,float> >
 {};
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal,mesh::Bounding_Box<long int,double> >
-    : public DirectSerializationTraits<Ordinal,mesh::Bounding_Box<long int,double> >
+class SerializationTraits<Ordinal,Coupler::Bounding_Box<long int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Bounding_Box<long int,double> >
 {};
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal,mesh::Bounding_Box<long int,float> >
-    : public DirectSerializationTraits<Ordinal,mesh::Bounding_Box<long int,float> >
+class SerializationTraits<Ordinal,Coupler::Bounding_Box<long int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Bounding_Box<long int,float> >
 {};
 
 } // end namepsace Teuchos

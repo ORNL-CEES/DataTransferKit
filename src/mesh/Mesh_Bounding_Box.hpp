@@ -14,7 +14,7 @@
 
 #include "Teuchos_Tuple.hpp"
 
-namespace mesh
+namespace Coupler
 {
 
 //===========================================================================//
@@ -82,7 +82,7 @@ class Bounding_Box
     inline bool point_query(PointType point);
 };
 
-} // end namespace mesh
+} // end namespace Coupler
 
 //---------------------------------------------------------------------------//
 // INLINE FUNCTIONS

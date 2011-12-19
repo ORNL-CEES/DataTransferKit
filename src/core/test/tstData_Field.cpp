@@ -44,7 +44,7 @@ class Data_Container
 {
   public:
 
-    typedef mesh::Point<int,double>     PointType;
+    typedef Coupler::Point<int,double>     PointType;
 
   private:
 
@@ -91,7 +91,7 @@ class Data_Container
 // INTERFACE IMPLEMENTATIONS
 //---------------------------------------------------------------------------//
 
-namespace coupler {
+namespace Coupler {
 
 // transfer data source implementation - this implementation specifies double
 // as the data type
@@ -105,7 +105,7 @@ class test_Data_Source
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
     typedef int                                      OrdinalType;
-    typedef mesh::Point<HandleType,CoordinateType>   PointType;
+    typedef Point<HandleType,CoordinateType>         PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
@@ -208,7 +208,7 @@ class test_Data_Target
     typedef int                                      HandleType;
     typedef double                                   CoordinateType;
     typedef int                                      OrdinalType;
-    typedef mesh::Point<HandleType,CoordinateType>   PointType;
+    typedef Point<HandleType,CoordinateType>         PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
@@ -295,13 +295,13 @@ class test_Data_Target
     }
 };
 
-} // end namespace coupler
+} // end namespace Coupler
 
 //---------------------------------------------------------------------------//
 // TESTS
 //---------------------------------------------------------------------------//
 
-namespace coupler {
+namespace Coupler {
 
 TEUCHOS_UNIT_TEST( Data_Field, distributed_container_test )
 {
@@ -515,7 +515,7 @@ TEUCHOS_UNIT_TEST( Data_Field, Distributed_Transfer_Test )
 
 //---------------------------------------------------------------------------//
 
-} // end namespace coupler
+} // end namespace Coupler
 
 //---------------------------------------------------------------------------//
 //                        end of tstData_Field.cpp
