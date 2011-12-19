@@ -63,8 +63,8 @@ describes the software infrastructure used in the development of the
 coupling package, instructions on obtaining and building the coupling
 package, and an outline of how to use the package presented through a
 concrete example. This example has been demonstrated to operate in
-parallel on a dual core laptop, quad core workstation, and 100 cores
-on a small cluster using varying MPI implementations.
+parallel on various hardware elements from the desktop level to a
+small scale cluster.
 
 \section{Obtaining the Coupling Package}
 The coupling package is version controlled with a git software
@@ -129,12 +129,13 @@ cmake \
 
 Aside from a standard Trilinos configuration to build Teuchos and
 Tpetra, the only additions are the last three lines enabling the
-Coupler as an extra repository and enable the coupler unit tests.
+Coupler as an extra repository and enable the coupler unit tests as
+well as the indicator to build the extended Teuchos package.
 
 \subsection{Build}
 
 After configuration, {\sl make} will build the library while {\sl make
-  install} will install it.
+  install} will install it in the specified prefix location.
 
 \subsection{Test}
 Unit tests in both serial and parallel have been implemented using the
