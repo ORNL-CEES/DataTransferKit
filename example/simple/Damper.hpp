@@ -11,10 +11,13 @@ class Damper
 
     std::vector<double> wave_data;
     std::vector<double> damping;
+    std::vector<double> grid;
 
   public:
 
-    Damper();
+    Damper(double x_min,
+	   double x_max,
+	   int num_x);
 
     ~Damper();
 
@@ -24,10 +27,16 @@ class Damper
 	return damping;
     }
 
-    // Get the wave data to apply damping to from an external source.
-    void set_wave_data( const std::vector<double>& external_wave )
+    // Get a const reference to the local grid.
+    const std::vector<double>& get_grid()
     {
-	wave = external_wave;
+	return grid;
+    }
+
+    // Get the wave data to apply damping to from an external source.
+    std::vector<double>& set_wave_data()
+    {
+	return wave_data;
     }
 
     // Apply damping to the local problem.

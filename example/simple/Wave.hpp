@@ -35,15 +35,13 @@ class Wave
 
     // Apply the damping to the local data structures from an external
     // source. 
-    void set_damping( const std::vector<double>& external_damping )
+    std::vector<double>& set_damping();
     {
-	damping = external_damping;
+	return damping;
     }
 
     // Solve the local problem and return the l2 norm of the local residual.
     double solve();
-
-   void output(int label);
 };
 
 //---------------------------------------------------------------------------//

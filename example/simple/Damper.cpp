@@ -1,8 +1,28 @@
 #include "Wave.hpp"
 
 //---------------------------------------------------------------------------//
-Damper::Damper()
-{ /* ... */ }
+Damper::Damper(double x_min,
+	       double x_max,
+	       int num_x)
+{
+    // Create the grid.
+    grid.resize(num_x);
+    double x_size = (x_max - x_min) / (num_x - 1);
+
+    std::vector<double>::iterator grid_iterator;
+    int i = 0;
+
+    for (grid_iterator = grid.begin();
+	 grid_iterator != grid.end();
+	 ++grid_iterator, ++i)
+    {
+	*grid_iterator = i*x_size + x_min;
+    }
+
+    // Set initial conditions.
+    damping.resize(num_x);
+    wave_data.resize(num_x);
+}
 
 //---------------------------------------------------------------------------//
 Damper::~Damper()
