@@ -53,7 +53,7 @@ class Wave_Data_Target
     {
 	bool return_val = false;
 
-	if (field_name == "WAVE_FIELD")
+	if (field_name == "DAMPER_FIELD")
 	{
 	    return_val = true;
 	}
@@ -66,7 +66,7 @@ class Wave_Data_Target
     {
 	Teuchos::ArrayView<PointType> return_view;
 
-	if ( field_name == "WAVE_FIELD" )
+	if ( field_name == "DAMPER_FIELD" )
 	{
 	    std::vector<PointType> local_points;
 	    Teuchos::ArrayView<const double> local_grid( wave->get_grid() );
@@ -92,7 +92,7 @@ class Wave_Data_Target
     {
 	Teuchos::ArrayView<DataType> return_view;
 
-	if ( field_name == "WAVE_FIELD" )
+	if ( field_name == "DAMPER_FIELD" )
 	{
 	    return_view = Teuchos::ArrayView<DataType>( wave->set_damping() );
 	}

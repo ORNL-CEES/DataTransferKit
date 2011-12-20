@@ -38,8 +38,8 @@ class Wave
 	return grid;
     }
 
-    // Get a const reference to the local data.
-    const std::vector<double>& get_f()
+    // Get a reference to the local data.
+    std::vector<double>& get_f()
     {
 	return f;
     }

@@ -32,8 +32,8 @@ class Damper
 	return comm;
     }
 
-    // Get a const reference to the local damping data.
-    const std::vector<double>& get_damping()
+    // Get a reference to the local damping data.
+    std::vector<double>& get_damping()
     {
 	return damping;
     }

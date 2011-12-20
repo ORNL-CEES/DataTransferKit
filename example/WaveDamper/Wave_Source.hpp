@@ -83,8 +83,7 @@ class Wave_Data_Source
 
 	if ( field_name == "WAVE_FIELD" )
 	{
-	    Teuchos::ArrayView<const double> local_view( wave->get_f() );
-	    return_view = local_view;
+	    return_view = Teuchos::ArrayView<double>( wave->get_f() );
 	}
 
 	return return_view;

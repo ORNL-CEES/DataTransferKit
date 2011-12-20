@@ -120,8 +120,11 @@ int main(int argc, char* argv[])
 	Teuchos::barrier<int>( *comm );
     }
 
-    std::cout << "Iterations to converge: " << num_iter << std::endl;
-    std::cout << "L2 norm:                " << global_norm << std::endl;
+    if ( myRank == 0 )
+    {
+	std::cout << "Iterations to converge: " << num_iter << std::endl;
+	std::cout << "L2 norm:                " << global_norm << std::endl;
+    }
 
     return 0;
 }
