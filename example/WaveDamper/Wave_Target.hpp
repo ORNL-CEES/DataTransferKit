@@ -2,6 +2,7 @@
 #define wave_target_hpp
 
 #include <algorithm>
+#include <vector>
 
 #include "Wave.hpp"
 
@@ -34,6 +35,7 @@ class Wave_Data_Target
   private:
 
     RCP_Wave wave;
+    std::vector<PointType> local_points;
 
   public:
 
@@ -68,7 +70,7 @@ class Wave_Data_Target
 
 	if ( field_name == "DAMPER_FIELD" )
 	{
-	    std::vector<PointType> local_points;
+	    local_points.clear();
 	    Teuchos::ArrayView<const double> local_grid( wave->get_grid() );
 	    Teuchos::ArrayView<double>::const_iterator grid_it;
 	    int n = 0;
@@ -77,8 +79,8 @@ class Wave_Data_Target
 		 grid_it != local_grid.end();
 		 ++grid_it, ++n)
 	    {
-		global_handle = wave->get_comm()->getSize()*
-				wave->get_comm()->getRank() + n;
+		global_handle = wave->get_comm()->getRank() *
+				local_grid.size() + n;
 		local_points.push_back( 
 		    PointType( global_handle, *grid_it, 0.0, 0.0) );
 	    }

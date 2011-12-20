@@ -38,8 +38,8 @@ class Damper
 	return damping;
     }
 
-    // Get a const reference to the local grid.
-    const std::vector<double>& get_grid()
+    // Get a reference to the local grid.
+    std::vector<double>& get_grid()
     {
 	return grid;
     }

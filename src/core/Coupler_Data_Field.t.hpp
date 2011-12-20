@@ -136,13 +136,14 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 
     // Generate a target point buffer to send to the source. Pad the rest of
     // the buffer with null points. This is using -1 as the handle for a
-    // null point here!!! This is necessary (for now) for padding the buffer.
+    // null point here. This is OK as tpetra expects ordinals to be equal to
+    // or greater than 0.
     PointType null_point(-1, 0.0, 0.0, 0.0);
     std::vector<PointType> send_points(global_max, null_point);
     typename std::vector<PointType>::iterator send_point_it;
     for (send_point_it = send_points.begin(),
 	target_point_it = target_points.begin();
-	 send_point_it != send_points.end();
+	 target_point_it != target_points.end();
 	 ++send_point_it, ++target_point_it)
     {
 	*send_point_it = *target_point_it;
@@ -168,12 +169,12 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 						   global_max,
 						   &receive_points[0]);
 						   
-	// The data source finds the points in its domain.
+	// The data source searches for the points in its domain.
 	for ( receive_point_it = receive_points.begin();
 	      receive_point_it != receive_points.end();
-	      ++receive_point_it)
+	      ++receive_point_it )
 	{
-	    if ( receive_point_it->handle() != -1 )
+	    if ( receive_point_it->handle() > -1 )
 	    {
 		if ( d_source->get_points(*receive_point_it) )
 		{
@@ -189,6 +190,7 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
     // Generate the map for the data source.
     const Teuchos::ArrayView<const HandleType> 
 	source_handles_view(source_handles);
+
     d_source_map = 
 	Tpetra::createNonContigMap<HandleType>( source_handles_view, d_comm);
 

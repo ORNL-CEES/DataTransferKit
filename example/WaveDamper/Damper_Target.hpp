@@ -2,6 +2,7 @@
 #define damper_target_hpp
 
 #include <algorithm>
+#include <vector>
 
 #include "Damper.hpp"
 
@@ -34,6 +35,7 @@ class Damper_Data_Target
   private:
 
     RCP_Damper damper;
+    std::vector<PointType> local_points;
 
   public:
 
@@ -68,7 +70,7 @@ class Damper_Data_Target
 
 	if ( field_name == "WAVE_FIELD" )
 	{
-	    std::vector<PointType> local_points;
+	    local_points.clear();
 	    Teuchos::ArrayView<const double> local_grid( damper->get_grid() );
 	    Teuchos::ArrayView<double>::const_iterator grid_it;
 	    int n = 0;
@@ -77,8 +79,8 @@ class Damper_Data_Target
 		 grid_it != local_grid.end();
 		 ++grid_it, ++n)
 	    {
-		global_handle = damper->get_comm()->getSize()*
-				damper->get_comm()->getRank() + n;
+		global_handle = damper->get_comm()->getRank() *
+				local_grid.size() + n;
 		local_points.push_back( 
 		    PointType( global_handle, *grid_it, 0.0, 0.0) );
 	    }

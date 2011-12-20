@@ -33,22 +33,18 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 int main(int argc, char* argv[])
 {
     // Setup communication.
-#ifdef HAVE_MPI
     Teuchos::GlobalMPISession mpiSession(&argc,&argv);
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 
 	Teuchos::DefaultComm<int>::getComm();
-#else
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
-	Teuchos::rcp(new Teuchos::SerialComm<int>() );
-#endif
 
-    // Setup the parallel domain.
+    // Set up the parallel domain.
     double global_min = 0.0;
     double global_max = 5.0;
     int myRank = comm->getRank();
     int mySize = comm->getSize();
-    double myMin;
-    double myMax;
+    double local_size = (global_max - global_min) / mySize;
+    double myMin = myRank*local_size + global_min;
+    double myMax = (myRank+1)*local_size + global_min;
 
     // Setup a Wave.
     Teuchos::RCP<Wave> wave =
@@ -72,7 +68,7 @@ int main(int argc, char* argv[])
 						      wave_source,
 						      damper_target);
 
-    // Setup a Damper Data Source for the dampner field.
+    // Setup a Damper Data Source for the damper field.
     Teuchos::RCP<Coupler::Data_Source<double,int,double> > damper_source = 
 	Teuchos::rcp( new Coupler::Damper_Data_Source<double,int,double>(damper) );
 
@@ -91,7 +87,7 @@ int main(int argc, char* argv[])
     double global_norm = 1.0;
     int num_iter = 0;
     int max_iter = 100;
-    while( global_norm < 1.0e-6 && num_iter < max_iter )
+    while( global_norm > 1.0e-6 && num_iter < max_iter )
     {
 	// Transfer the wave field.
 	wave_field.transfer();
@@ -120,6 +116,7 @@ int main(int argc, char* argv[])
 	Teuchos::barrier<int>( *comm );
     }
 
+    // Output results.
     if ( myRank == 0 )
     {
 	std::cout << "Iterations to converge: " << num_iter << std::endl;

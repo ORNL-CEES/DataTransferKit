@@ -9,7 +9,7 @@ Damper::Damper(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
 {
     // Create the grid.
     grid.resize(num_x);
-    double x_size = (x_max - x_min) / (num_x - 1);
+    double x_size = (x_max - x_min) / (num_x);
 
     std::vector<double>::iterator grid_iterator;
     int i = 0;
