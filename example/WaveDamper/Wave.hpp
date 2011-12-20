@@ -35,7 +35,7 @@ class Wave
 
     // Apply the damping to the local data structures from an external
     // source. 
-    std::vector<double>& set_damping();
+    std::vector<double>& set_damping()
     {
 	return damping;
     }

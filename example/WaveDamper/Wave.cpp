@@ -51,29 +51,13 @@ double Wave::solve()
 	 f_iterator != f.end();
 	 ++f_iterator, ++damping_iterator)
     {
-	f_old = f_iterator;
+	f_old = *f_iterator;
 	*f_iterator -= *damping_iterator;
 	l2_norm_residual += (*f_iterator - f_old)*(*f_iterator - f_old);
     }
     
     // Return the l2 norm of the local residual.
     return pow(l2_norm_residual, 0.5);
-}
-
-//---------------------------------------------------------------------------//
-void Wave::output(int label)
-{
-    std::stringstream convert;
-    convert << label;
-    std::string filename = "time" + convert.str() + ".dat";
-    std::ofstream output;
-    output.open(&filename[0]);
-    sor_output << "# f      time step\n";
-    for (int i = 0; i < (int) f.size(); ++i)
-    {
-	output << f[i] << " " << grid[i] << "\n";
-    }
-    output.close();
 }
 
 //---------------------------------------------------------------------------//

@@ -1,4 +1,4 @@
-#include "Wave.hpp"
+#include "Damper.hpp"
 
 //---------------------------------------------------------------------------//
 Damper::Damper(double x_min,

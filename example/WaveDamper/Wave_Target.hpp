@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-#include <Wave.hpp>
+#include "Wave.hpp"
 
 #include <Mesh_Point.hpp>
 #include <Coupler_Data_Target.hpp>
