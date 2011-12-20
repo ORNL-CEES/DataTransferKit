@@ -92,7 +92,7 @@ class Damper_Data_Target
 		global_handle = getDefaultComm<int>()->getSize()*
 				getDefaultComm<int>()->getRank() + n;
 		local_points.push_back( 
-		    PointType( handle, *grid_it, 0.0, 0.0) );
+		    PointType( global_handle, *grid_it, 0.0, 0.0) );
 	    }
 	    return_view = Teuchos::ArrayView<PointType>(local_points);
 	}
