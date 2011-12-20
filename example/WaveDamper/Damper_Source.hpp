@@ -95,8 +95,8 @@ class Damper_Data_Source
 
 	if ( field_name == "DAMPER_FIELD" )
 	{
-	    Teuchos::ArrayView<double> private_view( damper->get_damping() );
-	    return_view =  private_view;
+	    Teuchos::ArrayView<const double> local_view( damper->get_damping() );
+	    return_view = local_view;
 	}
 
 	return return_view;

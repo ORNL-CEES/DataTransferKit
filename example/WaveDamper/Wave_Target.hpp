@@ -81,7 +81,7 @@ class Wave_Data_Target
 	if ( field_name == "WAVE_FIELD" )
 	{
 	    std::vector<PointType> local_points;
-	    Teuchos::ArrayView<double> local_grid( wave->get_grid() );
+	    Teuchos::ArrayView<const double> local_grid( wave->get_grid() );
 	    Teuchos::ArrayView<double>::const_iterator grid_it;
 	    int n = 0;
 	    int global_handle;

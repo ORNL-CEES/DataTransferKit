@@ -81,7 +81,7 @@ class Damper_Data_Target
 	if ( field_name == "DAMPER_FIELD" )
 	{
 	    std::vector<PointType> local_points;
-	    Teuchos::ArrayView<double> local_grid( damper->get_grid() );
+	    Teuchos::ArrayView<const double> local_grid( damper->get_grid() );
 	    Teuchos::ArrayView<double>::const_iterator grid_it;
 	    int n = 0;
 	    int global_handle;

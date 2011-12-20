@@ -89,13 +89,14 @@ class Wave_Data_Source
 	return return_val;
     }
 
-    const Teuchos::ArrayView<DataType> send_data(const std::string &field_name)
+    const Teuchos::ArrayView<double> send_data(const std::string &field_name)
     {
-	Teuchos::ArrayView<DataType> return_view;
+	Teuchos::ArrayView<double> return_view;
 
 	if ( field_name == "WAVE_FIELD" )
 	{
-	    return_view = Teuchos::ArrayView<double>( wave->get_f() );
+	    Teuchos::ArrayView<const double> local_view( wave->get_f() );
+	    return_view = local_view;
 	}
 
 	return return_view;
