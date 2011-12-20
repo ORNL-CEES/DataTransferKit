@@ -29,7 +29,7 @@ namespace Coupler
  *
  * This interface is templated on the type of field data being
  * transferred, the handle type for mesh entities, and the coordinate
- * type. For now, the ordinal type for communication is set as type int.
+ * type. Oridnal type for communication is fixed to int. 
  */
 /*! 
  * \example core/test/tstInterfaces.cc

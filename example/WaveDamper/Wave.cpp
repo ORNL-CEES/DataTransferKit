@@ -4,9 +4,11 @@
 #include <cmath>
 
 //---------------------------------------------------------------------------//
-Wave::Wave(double x_min,
+Wave::Wave(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
+	   double x_min,
 	   double x_max,
 	   int num_x)
+    : comm(_comm)
 {
     // Create the grid.
     grid.resize(num_x);

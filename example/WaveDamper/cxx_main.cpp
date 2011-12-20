@@ -52,11 +52,11 @@ int main(int argc, char* argv[])
 
     // Setup a Wave.
     Teuchos::RCP<Wave> wave =
-	Teuchos::rcp( new Wave(myMin, myMax, 10) );
+	Teuchos::rcp( new Wave(comm, myMin, myMax, 10) );
 
     // Setup a Damper.
     Teuchos::RCP<Damper> damper =
-	Teuchos::rcp( new Damper(myMin, myMax, 10) ); 
+	Teuchos::rcp( new Damper(comm, myMin, myMax, 10) ); 
 
     // Setup a Wave Data Source for the wave field.
     Teuchos::RCP<Coupler::Data_Source<double,int,double> > wave_source = 

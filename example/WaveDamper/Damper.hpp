@@ -3,23 +3,34 @@
 
 #include <vector>
 
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Comm.hpp"
+
 //---------------------------------------------------------------------------//
 
 class Damper
 {
   private:
 
+    Teuchos::RCP<const Teuchos::Comm<int> > comm;
     std::vector<double> wave_data;
     std::vector<double> damping;
     std::vector<double> grid;
 
   public:
 
-    Damper(double x_min,
+    Damper(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
+	   double x_min,
 	   double x_max,
 	   int num_x);
 
     ~Damper();
+
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > get_comm()
+    {
+	return comm;
+    }
 
     // Get a const reference to the local damping data.
     const std::vector<double>& get_damping()

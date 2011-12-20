@@ -1,9 +1,11 @@
 #include "Damper.hpp"
 
 //---------------------------------------------------------------------------//
-Damper::Damper(double x_min,
+Damper::Damper(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
+	       double x_min,
 	       double x_max,
 	       int num_x)
+    : comm(_comm)
 {
     // Create the grid.
     grid.resize(num_x);

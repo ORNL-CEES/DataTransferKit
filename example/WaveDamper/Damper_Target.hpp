@@ -13,18 +13,6 @@
 #include "Teuchos_DefaultComm.hpp"
 
 //---------------------------------------------------------------------------//
-// Get the current default communicator.
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
-{
-#ifdef HAVE_MPI
-    return Teuchos::DefaultComm<Ordinal>::getComm();
-#else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
-#endif
-}
-
-//---------------------------------------------------------------------------//
 namespace Coupler {
 
 // Data_Target interface implementation for the Damper code.
@@ -58,7 +46,7 @@ class Damper_Data_Target
 
     RCP_Communicator comm()
     {
-	return getDefaultComm<OrdinalType>();
+	return damper->get_comm();
     }
 
     bool field_supported(const std::string &field_name)
@@ -89,8 +77,8 @@ class Damper_Data_Target
 		 grid_it != local_grid.end();
 		 ++grid_it, ++n)
 	    {
-		global_handle = getDefaultComm<int>()->getSize()*
-				getDefaultComm<int>()->getRank() + n;
+		global_handle = damper->get_comm()->getSize()*
+				damper->get_comm()->getRank() + n;
 		local_points.push_back( 
 		    PointType( global_handle, *grid_it, 0.0, 0.0) );
 	    }

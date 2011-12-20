@@ -13,18 +13,6 @@
 #include "Teuchos_DefaultComm.hpp"
 
 //---------------------------------------------------------------------------//
-// Get the current default communicator.
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
-{
-#ifdef HAVE_MPI
-    return Teuchos::DefaultComm<Ordinal>::getComm();
-#else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
-#endif
-}
-
-//---------------------------------------------------------------------------//
 namespace Coupler {
 
 // Data_Source interface implementation for the Wave code.
@@ -59,7 +47,7 @@ class Wave_Data_Source
 
     RCP_Communicator comm()
     {
-	return getDefaultComm<OrdinalType>();
+	return wave->get_comm();
     }
 
     bool field_supported(const std::string &field_name)

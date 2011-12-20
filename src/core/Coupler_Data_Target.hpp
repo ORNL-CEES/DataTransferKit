@@ -28,7 +28,8 @@ namespace Coupler
  * multiphysics coupling. 
  *
  * This interface is templated on the type of field data being
- * transferred, the handle type for mesh entities, and the coordinate type.
+ * transferred, the handle type for mesh entities, and the coordinate
+ * type. Ordinal type for communication is fixed to int.
  */
 /*! 
  * \example core/test/tstInterfaces.cc
