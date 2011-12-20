@@ -352,14 +352,14 @@ between between the source and target applications.
 Get the target points from the target application.
 
 Extract the globally unique handles from the target points and build a
-distibuted map of the target data vector using the handle as indices.
+distibuted map of the target data vector using the handles as indices.
 
 Do a global reduction across all nodes to compute the maximum number
 of local target points.
 
 On each target node, build a buffer of points to send to the source
 nodes. This buffer will of the length computed by the global
-reduction.
+reduction and padded with null points.
 
 for all target nodes:
 
@@ -373,7 +373,7 @@ for all target nodes:
         add its handle to a distributed list.
 
 Build a distributed map of the source data vector using the handles
-found in the source domain.
+found in the source domain as indices.
 
 Setup a communication plan to transfer data between the source map
 distribution and the target map distribution.
@@ -387,7 +387,7 @@ data is distributed (most likely differently) using those same handle
 indices. Once these two distributions are known, the data transfer
 operation is simply a copy of data from the source to the target with
 each piece of source data sent to the target destination containing
-its handle index. 
+its handle index determined by the communication plan. 
 
 \section{Conclusion}
 An initial design and implementation of the coupling package has been
@@ -402,8 +402,8 @@ build the coupler along with an example of how to generate a simple
 parallel multiphysics application using this package by implementing
 the interfaces and using the {\sl Data\_Field} for transfer. In
 addition, this supporting document outlines other elements of the
-coupling package (e.g. software engineering practices and use case
-examples) not presented here.
+coupling package (e.g. software engineering practices) not presented
+here. 
 
 \pagebreak
 \bibliographystyle{ieeetr}
