@@ -10,6 +10,7 @@
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_CommHelpers.hpp"
 #include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_GlobalMPISession.hpp"
 
 //---------------------------------------------------------------------------//
 // Get the current default communicator.
@@ -27,19 +28,31 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // Main function driver for the coupled Wave/Damper problem.
 int main(int argc, char* argv[])
 {
+    // Setup communication.
+#ifdef HAVE_MPI
+    Teuchos::GlobalMPISession mpiSession(&argc,&argv);
+    Teuchos::RCP<const Teuchos::Comm<Ordinal> > comm = 
+	Teuchos::DefaultComm<Ordinal>::getComm();
+#else
+    Teuchos::RCP<const Teuchos::Comm<Ordinal> > comm = 
+	Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+#endif
+
     // Setup the parallel domain.
     double global_min = 0.0;
-    double global_max = 1.0;
-    int myRank = getDefaultComm<int>()->getRank();
-    int mySize = getDefaultComm<int>()->getSize();
-    double myMin = mySize*myRank;
+    double global_max = 5.0;
+    int myRank = comm->getRank();
+    int mySize = comm->getSize();
+    double myMin;
     double myMax;
 
     // Setup a Wave.
-    Teuchos::RCP<Wave> wave = Teuchos::rcp( new Wave(myMin, myMax, 10) );
+    Teuchos::RCP<Wave> wave 
+	= Teuchos::rcp( new Wave(myMin, myMax, 10) );
 
     // Setup a Damper.
-    Teuchos::RCP<Damper> damper = Teuchos::rcp( new Damper(myMin, myMax, 10) );
+    Teuchos::RCP<Damper> damper 
+	= Teuchos::rcp( new Damper(myMin, myMax, 10) ); 
 
     // Setup a Wave Data Source for the wave field.
     Teuchos::RCP<Coupler::Data_Source<double, int, double> > wave_source = 
@@ -50,7 +63,7 @@ int main(int argc, char* argv[])
 	Teuchos::rcp( new Damper_Data_Target<double,int,double>(damper) );
 
     // Setup a Data Field for the wave field.
-    Coupler::Data_Field<double,int,double> wave_field(getDefaultComm<int>(),
+    Coupler::Data_Field<double,int,double> wave_field(comm,
 						      wave_source,
 						      damper_target);
 
@@ -63,7 +76,7 @@ int main(int argc, char* argv[])
 	Teuchos::rcp( new Wave_Data_Target<double,int,double>(wave) );
 
     // Setup a Data Field for the damper field.
-    Coupler::Data_Field<double,int,double> damper_field(getDefaultComm<int>,
+    Coupler::Data_Field<double,int,double> damper_field(comm,
 							damper_source,
 							wave_target);
 
@@ -86,22 +99,23 @@ int main(int argc, char* argv[])
 	// Wave solve.
 	local_norm = wave.solve();
 
-	// Collect the l2 norm values to ensure convergence.
-	Teuchos::reduceAll<OrdinalType,int>(*getDefaultComm<int>,
+	// Collect the l2 norm values from the wave solve to ensure
+	// convergence. 
+	Teuchos::reduceAll<OrdinalType,int>(*comm,
 					    Teuchos::REDUCE_MAX, 
 					    int(1), 
 					    &local_norm, 
 					    &global_norm);
 
-
 	// Update the iteration count.
 	++num_iter;
 
 	// Barrier before proceeding.
-	Teuchos::barrier<int>( *getDefaultComm<int>() );
+	Teuchos::barrier<int>( *comm );
     }
 
     std::cout << "Iterations to converge: " << num_iter << std::endl;
+    std::cout << "L2 norm:                " << global_norm << std::endl;
 
     return 0;
 }

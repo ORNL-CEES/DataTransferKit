@@ -27,5 +27,6 @@ cmake \
 -D Trilinos_EXTRA_REPOSITORIES="Coupler" \
 -D Trilinos_ENABLE_coupler:BOOL=ON \
 -D coupler_ENABLE_TESTS:BOOL=ON \
+-D coupler_ENABLE_EXAMPLES:BOOL=ON \
 $EXTRA_ARGS \
 /home/stuart/software/Trilinos
