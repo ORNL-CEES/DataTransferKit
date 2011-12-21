@@ -71,8 +71,8 @@ class Damper_Data_Target
 	if ( field_name == "WAVE_FIELD" )
 	{
 	    local_points.clear();
-	    Teuchos::ArrayView<const double> local_grid( damper->get_grid() );
-	    Teuchos::ArrayView<double>::const_iterator grid_it;
+	    Teuchos::ArrayView<const DataType> local_grid( damper->get_grid() );
+	    Teuchos::ArrayView<DataType>::const_iterator grid_it;
 	    int n = 0;
 	    int global_handle;
 	    for (grid_it = local_grid.begin(); 

@@ -47,15 +47,17 @@
   stringstyle=\color[rgb]{0.627,0.126,0.941},
 }
 
+%%---------------------------------------------------------------------------%%
 \author{Stuart R. Slattery
   \\ \href{mailto:sslattery@wisc.edu}{\texttt{sslattery@wisc.edu}}
 }
 
-\date{Wednesday December 14, 2011}
+\date{Wednesday December 20, 2011}
 \title{Design and Implementation of the Coupling Package}
 \begin{document}
 \maketitle
 
+%%---------------------------------------------------------------------------%%
 \section{Introduction}
 For most multiphysics simulations, some form of data transfer between
 physics codes is required. In general, data transfer can be performed
@@ -80,6 +82,7 @@ This document discusses the design requirements of this package, the
 resulting interface specification, and the implementation of a basic
 transfer algorithm using this interface.
 
+%%---------------------------------------------------------------------------%%
 \section{Design Requirements for the Coupling Package}
 The coupling package should fulfill the following design
 requirements:
@@ -100,8 +103,8 @@ requirements:
   information made available through the interface.
 \end{itemize}
 
+%%---------------------------------------------------------------------------%%
 \section{Preliminary Design of the Coupling Package}
-
 As part of the requirements listed in the previous section, it is
 necessary to define an interface for the coupling package that will
 allow access to information held by each physics code being coupled in
@@ -147,8 +150,8 @@ be used in the implemenations.
 The following sections outline both interfaces and details on their
 requirements. 
 
+%%---------------------------------------------------------------------------%%
 \subsection{Data Source Interface}
-
 The {\sl Data\_Source} interface consists of the following pure
 virtual methods to be implemented by the client application.
 
@@ -229,8 +232,8 @@ interface.
   } // end namespace coupler
 \end{lstlisting}
 
+%%---------------------------------------------------------------------------%%
 \subsection{Data Target Interface}
-
 The {\sl Data\_Target} interface consists of the following pure
 virtual methods to be implemented by the client application.
 
@@ -303,6 +306,7 @@ interface.
   } // end namespace coupler
 \end{lstlisting}
 
+%%---------------------------------------------------------------------------%%
 \subsection{Data Field}
 The relationship between a particular {\sl Data\_Source} and {\sl
   Data\_Target} implementation is contained by the {\sl Data\_Field}
@@ -344,6 +348,7 @@ double, handle type is int, and coordinate type is float.
   field.transfer();
 \end{lstlisting}
 
+%%---------------------------------------------------------------------------%%
 \section{Mapping and Transfer Algorithm Implementation}
 The following algorithm is used to generate a point based mapping
 between between the source and target applications.
@@ -389,6 +394,7 @@ operation is simply a copy of data from the source to the target with
 each piece of source data sent to the target destination containing
 its handle index determined by the communication plan. 
 
+%%---------------------------------------------------------------------------%%
 \section{Conclusion}
 An initial design and implementation of the coupling package has been
 completed. This package attempts to define an interface for data
@@ -405,6 +411,7 @@ addition, this supporting document outlines other elements of the
 coupling package (e.g. software engineering practices) not presented
 here. 
 
+%%---------------------------------------------------------------------------%%
 \pagebreak
 \bibliographystyle{ieeetr}
 \bibliography{paper}

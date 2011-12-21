@@ -46,133 +46,1066 @@ urlcolor = blue
   stringstyle=\color[rgb]{0.627,0.126,0.941},
 }
 
+%%---------------------------------------------------------------------------%%
 \author{Stuart R. Slattery
-\\ \href{mailto:sslattery@wisc.edu}{\texttt{sslattery@wisc.edu}}
+  \\ \href{mailto:sslattery@wisc.edu}{\texttt{sslattery@wisc.edu}}
 }
 
-\date{Wednesday December 14, 2011}
+\date{Wednesday December 20, 2011}
 \title{Using the Coupling Package}
 \begin{document}
 \maketitle
 
+%%---------------------------------------------------------------------------%%
 \section{Introduction}
 As outlined in the companion document {\sl Design and Implementation of
-the Coupling Pacakge}, the coupling package is intended for use as a
+  the Coupling Pacakge}, the coupling package is intended for use as a
 transfer mechanism in multiphysics simulations. This document
 describes the software infrastructure used in the development of the
-coupling package, instructions on obtaining and building the coupling
-package, and an outline of how to use the package presented through a
-concrete example. This example has been demonstrated to operate in
-parallel on various hardware elements from the desktop level to a
-small scale cluster.
+coupling package, instructions on obtaining, building, and testing the
+coupling package, and an outline of how to use the package presented
+through a concrete example. This example has been demonstrated to
+operate in parallel on various hardware elements from the desktop
+level to a small scale development cluster, including the CASL fissile
+four development machines. In addition, this document should serve as
+an initial report on progress towards applying the VERA software quality
+assurance practices.
 
+%%---------------------------------------------------------------------------%%
 \section{Obtaining the Coupling Package}
 The coupling package is version controlled with a git software
 repository residing on the casl-dev server. Changes to this repository
 are communicated to a CASL hosted and moderated mailing list. Access
 requests to this list can be made at
-http://casl-dev.ornl.gov/mailman/listinfo/coupler-infrastructure.
+{\sl http://casl-dev.ornl.gov/mailman/listinfo/coupler-infrastructure}. In 
+addition, progress is begin made toward including the coupling package
+in the VERA continuous integration and nightly testing environment and
+completion of this task is expected soon.
 
-Due to its direct dependencies on the Trilinos packages Teuchos and
-Tpetra, the first step in obtaining the coupling package is to obtain
-Trilinos. Recent changes to the Trilinos repository to allow the
-coupling package to behave as a third party library (TPL) require a
-recent repository clone of Trilinos. Beginning in a working directory
-of your choice, the following steps are required.
+To begin, the VERA repository is required as the base infrastructure
+for building and executing the coupling package as a VERA
+component. Due to its direct dependencies on the Trilinos packages
+Teuchos and Tpetra, the second step in obtaining the coupling package
+is to obtain Trilinos. Using the fissile four development machines and
+the associated development environment, the following steps are
+required to build VERA with the coupling package. For purposes of
+testing this documentation, the machine u233 was used.
+
+\paragraph{git clone /casl-dev/git-root/VERA VERA}
+Clone a copy of the VERA git repository.
+
+\paragraph{cd VERA}
+Move into the VERA directory.
 
 \paragraph{git clone /casl-dev/git-root/Trilinos Trilinos}
-Clone a copy of the Trilinos git repository.
-
-\paragraph{cd Trilinos}
-Move into the Trilinos directory.
+Clone a copy of the Trilinos git repository into the VERA home
+directory. 
 
 \paragraph{git clone /casl-dev/git-root/coupler Coupler} 
-Clone a copy of the coupler repository into the Trilinos home
+Clone a copy of the coupler repository into the VERA home
 directory.
 
+%%---------------------------------------------------------------------------%%
 \section{Building the Coupling Package}
 Once the Trilinos and Coupler repositories have been cloned, both are
-ready to be configured. The coupling package uses the Tribits build
-system based on cmake and configures as a Trilinos TPL.
+ready to be configured with VERA. The coupling package uses the
+Tribits build system based on cmake and configures as a VERA TPL.
 
+%%---------------------------------------------------------------------------%%
 \subsection{Configure}
-Consider an out of source build in a /coupler\_build directory. The
-following shell script, also found in
-/Coupler/doc/build\_notes/sample\_cmake\_configure.sh, configures
-Trilinos and the Coupler for a parallel debug build using an MPI
-implementation. To date, the coupler has been tested with both OpenMPI
-and MPICH2 implementations on shared and distributed memory hardware.
+Consider an out of source build in a {\sl /vera\_build} directory. The
+following shell script, also found in the location
+{\sl /Coupler/doc/build\_notes/sample\_cmake\_configure.sh}, configures
+Trilinos and the Coupler for a parallel debug build using the default MPI
+implementation in the fissile four development environment. To date,
+the coupling package has been tested with both OpenMPI and MPICH2
+implementations of the MPI specification on shared and distributed
+memory hardware.  
 
 \begin{verbatim}
 #!/bin/bash
 
 cmake \
--D CMAKE_INSTALL_PREFIX:PATH=/coupler_build       \
+-D CMAKE_INSTALL_PREFIX:PATH=/vera_build          \
 -D CMAKE_BUILD_TYPE:STRING=DEBUG                  \
 -D CMAKE_VERBOSE_MAKEFILE:BOOL=ON                 \
--D Trilinos_ENABLE_TESTS:BOOL=OFF                 \
--D Trilinos_ENABLE_Teuchos:BOOL=ON                \
--D Teuchos_ENABLE_EXTENDED:BOOL=ON                \
--D Trilinos_ENABLE_Tpetra:BOOL=ON                 \
--D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
 -D TPL_ENABLE_MPI:BOOL=ON                         \
--D MPI_BASE_DIR:PATH=MPI_INSTALL_DIR              \
--D BLAS_LIBRARY_DIRS:PATH=BLAS_INSTALL_DIR        \
--D BLAS_LIBRARY_NAMES:STRING="blas"               \
--D LAPACK_LIBRARY_DIRS:PATH=LAPACK_INSTALL_DIR    \
--D LAPACK_LIBRARY_NAMES:STRING="lapack"           \
--D Trilinos_EXTRA_REPOSITORIES="Coupler"          \
--D Trilinos_ENABLE_coupler:BOOL=ON                \
+-D VERA_EXTRA_REPOSITORIES="Trilinos;Coupler"     \
+-D Teuchos_ENABLE_EXTENDED:BOOL=ON                \
+-D VERA_ENABLE_coupler:BOOL=ON                    \
 -D coupler_ENABLE_TESTS:BOOL=ON                   \
-/Trilinos
+-D coupler_ENABLE_EXAMPLES:BOOL=ON                \
+/VERA
 \end{verbatim}
 
-Aside from a standard Trilinos configuration to build Teuchos and
-Tpetra, the only additions are the last three lines enabling the
-Coupler as an extra repository and enable the coupler unit tests as
-well as the indicator to build the extended Teuchos package.
+Aside from a standard VERA configuration with Trilinos, we designate
+that the coupler is an extra VERA repository, the Teuchos package in
+Trilinos should be extended to enable the communication utilities, and
+the coupling package should be enabled by VERA with tests and examples
+on.
 
+%%---------------------------------------------------------------------------%%
 \subsection{Build}
 
 After configuration, {\sl make} will build the library while {\sl make
   install} will install it in the specified prefix location.
 
+%%---------------------------------------------------------------------------%%
 \subsection{Test}
 Unit tests in both serial and parallel have been implemented using the
 Teuchos unit testing harness and are incorporated into the Tribits
 build. Using the configuration above, after building the tests can be
 invoked with ctest. If successful, you should see an output like that
-presented below.
+presented below. Note below that the WaveDamper example to be later
+discussed was executed as well.
 
 \begin{verbatim}
-stuart@dionysus:/local.hd/cnergg/stuart/builds/coupler$ ctest
-Test project /local.hd/cnergg/stuart/builds/coupler
+stuart@beaker:~/software/builds/VERA$ ctest
+Test project /home/stuart/software/builds/VERA
     Start 1: couplerMesh_Point_test_MPI_4
-1/5 Test #1: couplerMesh_Point_test_MPI_4 ...............   Passed    1.05 sec
+1/6 Test #1: couplerMesh_Point_test_MPI_4 ...............   Passed    1.26 sec
     Start 2: couplerMesh_Bounding_Box_test_MPI_4
-2/5 Test #2: couplerMesh_Bounding_Box_test_MPI_4 ........   Passed    1.04 sec
+2/6 Test #2: couplerMesh_Bounding_Box_test_MPI_4 ........   Passed    1.24 sec
     Start 3: couplerCore_Interfaces_test_MPI_4
-3/5 Test #3: couplerCore_Interfaces_test_MPI_4 ..........   Passed    1.05 sec
+3/6 Test #3: couplerCore_Interfaces_test_MPI_4 ..........   Passed    1.22 sec
     Start 4: couplerCore_Data_Field_test_MPI_4
-4/5 Test #4: couplerCore_Data_Field_test_MPI_4 ..........   Passed    1.05 sec
+4/6 Test #4: couplerCore_Data_Field_test_MPI_4 ..........   Passed    1.42 sec
     Start 5: couplerCore_Advanced_Transfer_test_MPI_4
-5/5 Test #5: couplerCore_Advanced_Transfer_test_MPI_4 ...   Passed    1.05 sec
+5/6 Test #5: couplerCore_Advanced_Transfer_test_MPI_4 ...   Passed    1.36 sec
+    Start 6: couplerCore_WaveDamperExample_MPI_4
+6/6 Test #6: couplerCore_WaveDamperExample_MPI_4 ........   Passed    1.43 sec
 
-100% tests passed, 0 tests failed out of 5
+100% tests passed, 0 tests failed out of 6
 
 Label Time Summary:
-coupler    =   5.24 sec
+coupler    =   7.95 sec
 
-Total Test time (real) =   5.25 sec
+Total Test time (real) =  10.97 sec
 \end{verbatim}
 
+%%---------------------------------------------------------------------------%%
 \section{Using the Coupling Package}
+To demonstrate using the coupling package in a multiphysics
+simulation, a simple example was constructed to show both
+implementations of the {\sl Data\_Source} and {\sl Data\_Target}
+interfaces specified by the companion document {\sl Design and
+  Implementation of the Coupling Pacakge} and a multiphysics driver
+utilizing the coupling package to perform data transfer in an
+iterative manner.
 
+%%---------------------------------------------------------------------------%%
+\subsection{WaveDamper Example}
+Provided as an example in the coupler repository and enabled in the
+above configuration, the WaveDamper example exists in the directory
+{\sl /Coupler/example/WaveDamper}. Two simple codes are coupled in the
+simulation; a code called Wave that computes a one dimensional cosine
+shape over the parallel domain and another code called Damper that
+computes the amount by which the amplitude of an incoming function
+should be decreased. They are coupled through a Picard iteration in
+the following fashion until the amplitude of the wave is dampened
+below a specified tolerance.
+
+\begin{verbatim}
+Wave computes its initial conditions.
+
+while the amplitude of the wave computed by Wave is > tolerance:
+
+    Wave transfers its solution to Damper.
+
+    Damper computes the amount by which the amplitude of the Wave
+    solution should be decreased.
+
+    Damper transfers the computed dampening back to Wave.
+
+    Wave applies the dampening to compute a new solution.
+\end{verbatim}
+
+Here, the convergence tolerance on the wave amplitude is specified as
+1.0E-6 in the WaveDamper implementation.
+
+%%---------------------------------------------------------------------------%%
+\subsubsection{Wave Implementation}
+The Wave was implemented as shown in the following listings. Note the
+methods included to provide access to various members relating to data
+and the grid that have been added. These are similar to the types of
+methods that will be required during the refactoring process necessary
+for using the coupling package. It should also be noted that the
+coupling package does not place any requirements on solve methods. For
+the Wave code, the L2 norm of the residual returned for determining
+convergence, not data transfer.
+
+\begin{lstlisting}
+  #include <vector>
+
+  #include "Teuchos_RCP.hpp"
+  #include "Teuchos_Comm.hpp"
+
+  class Wave
+  {
+    private:
+    
+    Teuchos::RCP<const Teuchos::Comm<int> > comm;
+    std::vector<double> grid;
+    std::vector<double> f;
+    std::vector<double> damping;
+
+    public:
+
+    Wave(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
+    double x_min,
+    double x_max,
+    int num_x);
+
+    ~Wave();
+
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > get_comm()
+    {
+      return comm;
+    }
+
+    // Get a const reference to the local grid.
+    const std::vector<double>& get_grid()
+    {
+      return grid;
+    }
+
+    // Get a reference to the local data.
+    std::vector<double>& get_f()
+    {
+      return f;
+    }
+
+    // Apply the damping to the local data structures from an external
+    // source. 
+    std::vector<double>& set_damping()
+    {
+      return damping;
+    }
+
+    // Solve the local problem and return the l2 norm of the local residual.
+    double solve();
+  };
+\end{lstlisting}
+
+\begin{lstlisting}
+  #include "Wave.hpp"
+
+  #include <algorithm>
+  #include <cmath>
+
+  Wave::Wave(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
+  double x_min,
+  double x_max,
+  int num_x)
+  : comm(_comm)
+  {
+    // Create the grid.
+    grid.resize(num_x);
+    double x_size = (x_max - x_min) / (num_x);
+
+    std::vector<double>::iterator grid_iterator;
+    int i = 0;
+
+    for (grid_iterator = grid.begin();
+    grid_iterator != grid.end();
+    ++grid_iterator, ++i)
+    {
+      *grid_iterator = i*x_size + x_min;
+    }
+
+    // Set initial conditions.
+    damping.resize(num_x);
+    std::fill(damping.begin(), damping.end(), 0.0);
+    f.resize(num_x);
+    std::vector<double>::iterator f_iterator;
+    for (f_iterator = f.begin(), grid_iterator = grid.begin();
+    f_iterator != f.end();
+    ++f_iterator, ++grid_iterator)
+    {
+      *f_iterator = cos( *grid_iterator );
+    }
+  }
+
+  Wave::~Wave()
+  { /* ... */ }
+
+  double Wave::solve()
+  {
+    // Apply the dampened component.
+    double l2_norm_residual = 0.0;
+    double f_old = 0.0;
+    std::vector<double>::iterator f_iterator;
+    std::vector<double>::const_iterator damping_iterator;
+    for (f_iterator = f.begin(), damping_iterator = damping.begin();
+    f_iterator != f.end();
+    ++f_iterator, ++damping_iterator)
+    {
+      f_old = *f_iterator;
+      *f_iterator -= *damping_iterator;
+      l2_norm_residual += (*f_iterator - f_old)*(*f_iterator - f_old);
+    }
+    
+    // Return the l2 norm of the local residual.
+    return pow(l2_norm_residual, 0.5);
+  }
+\end{lstlisting}
+
+%%---------------------------------------------------------------------------%%
+\subsubsection{Damper Implementation}
+The following listings give the implementation of the Damper
+code. Again, note the methods used to provide access to the various
+data structures needed by the coupling package. These methods will be
+used in the interface implementations given by the following sections.
+
+\begin{lstlisting}
+  #include <vector>
+
+  #include "Teuchos_RCP.hpp"
+  #include "Teuchos_Comm.hpp"
+
+  class Damper
+  {
+    private:
+
+    Teuchos::RCP<const Teuchos::Comm<int> > comm;
+    std::vector<double> wave_data;
+    std::vector<double> damping;
+    std::vector<double> grid;
+
+    public:
+
+    Damper(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
+    double x_min,
+    double x_max,
+    int num_x);
+
+    ~Damper();
+
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > get_comm()
+    {
+      return comm;
+    }
+
+    // Get a reference to the local damping data.
+    std::vector<double>& get_damping()
+    {
+      return damping;
+    }
+
+    // Get a reference to the local grid.
+    std::vector<double>& get_grid()
+    {
+      return grid;
+    }
+
+    // Get the wave data to apply damping to from an external source.
+    std::vector<double>& set_wave_data()
+    {
+      return wave_data;
+    }
+
+    // Apply damping to the local problem.
+    void solve();
+  };
+\end{lstlisting}
+
+\begin{lstlisting}
+  #include "Damper.hpp"
+
+  Damper::Damper(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
+  double x_min,
+  double x_max,
+  int num_x)
+  : comm(_comm)
+  {
+    // Create the grid.
+    grid.resize(num_x);
+    double x_size = (x_max - x_min) / (num_x);
+
+    std::vector<double>::iterator grid_iterator;
+    int i = 0;
+
+    for (grid_iterator = grid.begin();
+    grid_iterator != grid.end();
+    ++grid_iterator, ++i)
+    {
+      *grid_iterator = i*x_size + x_min;
+    }
+
+    // Set initial conditions.
+    damping.resize(num_x);
+    wave_data.resize(num_x);
+  }
+
+  Damper::~Damper()
+  { /* ... */ }
+
+  // Apply damping to the local problem.
+  void Damper::solve()
+  {
+    std::vector<double>::iterator damping_iterator;
+    std::vector<double>::const_iterator wave_data_iterator;
+    for (damping_iterator = damping.begin(),
+    wave_data_iterator = wave_data.begin();
+    damping_iterator != damping.end();
+    ++damping_iterator, ++wave_data_iterator)
+    {
+      *damping_iterator = *wave_data_iterator / 2;
+    }
+  }
+\end{lstlisting}
+
+%%---------------------------------------------------------------------------%%
+\subsubsection{Wave Interface Implementations}
+As given above by the algorithm used to couple Wave to Damper, two way
+transfer is required and therefore both codes must implement the {\sl
+  Data\_Source} and {\sl Data\_Target} in order for this scheme to be
+possible. The following listings in this section give the interface
+implementations for the Wave code. For both interfaces, the scalar
+transfer methods were implemented to perform no operations as this
+example does not make use of them. Both implementations, though
+templated to inherit from the pure virtual interface specifications,
+do not use the template parameters. Rather, they explicitly specify in
+the typdef block elements of type double to be transferred, int to be
+used for point handles, and doubles to be used for coordinates.
+
+To begin, the {\sl Data\_Source} implementation listing for the Wave
+code has several elements that should be addressed. First, the
+constructor in this implementation, and that of the {\sl Data\_Target}
+implementation, takes a pointer to the wave object that it will
+operate on. For the {\sl comm()} method, a simple redirection is used
+to grab the communicator from the local Wave object. 
+
+For all transfers under this interface, the name of the field being
+transferred is used to identify the appropriate operations to perform
+in the interface. The {\sl Wave\_Data\_Source} implementation will
+serve as the source for the WAVE\_FIELD and therefore the {\sl
+  field\_supported()} method designates this. In addition, all other
+interface methods operating on a specific field will check for this
+name before doing operations.
+
+The {\sl get\_points()} method checks the incoming point against the
+local grid. If it is found to be a local grid point, true is
+returned. Finally, the {\sl send\_data()} method returns a view of the
+Wave code solution, provided by a refactor method {\sl get\_f()}.
+
+\begin{lstlisting}
+  #include <algorithm>
+
+  #include "Wave.hpp"
+
+  #include <Mesh_Point.hpp>
+  #include <Coupler_Data_Source.hpp>
+
+  #include "Teuchos_ArrayView.hpp"
+  #include "Teuchos_RCP.hpp"
+  #include "Teuchos_DefaultComm.hpp"
+
+  namespace Coupler {
+
+    // Data_Source interface implementation for the Wave code.
+    template<class DataType_T, class HandleType_T, class CoordinateType_T>
+    class Wave_Data_Source 
+    : public Data_Source<DataType_T, HandleType_T, CoordinateType_T>
+    {
+      public:
+
+      typedef double                                   DataType;
+      typedef int                                      HandleType;
+      typedef double                                   CoordinateType;
+      typedef int                                      OrdinalType;
+      typedef Point<HandleType,CoordinateType>         PointType;
+      typedef Teuchos::Comm<OrdinalType>               Communicator_t;
+      typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
+      typedef Teuchos::RCP<Wave>                       RCP_Wave;
+
+      private:
+
+      // Wave object to operate on.
+      RCP_Wave wave;
+
+      public:
+
+      Wave_Data_Source(RCP_Wave _wave)
+      : wave(_wave)
+      { /* ... */ }
+
+      ~Wave_Data_Source()
+      { /* ... */ }
+
+      RCP_Communicator comm()
+      {
+	return wave->get_comm();
+      }
+
+      bool field_supported(const std::string &field_name)
+      {
+	bool return_val = false;
+
+	if (field_name == "WAVE_FIELD")
+	{
+	  return_val = true;
+	}
+
+	return return_val;
+      }
+
+      bool get_points(const PointType &point)
+      {
+	bool return_val = false;
+
+	if ( std::find(wave->get_grid().begin(), 
+	wave->get_grid().end(),
+	point.x() )
+	!= wave->get_grid().end() )
+	{
+	  return_val = true;
+	}
+
+	return return_val;
+      }
+
+      const Teuchos::ArrayView<DataType> send_data(const std::string &field_name)
+      {
+	Teuchos::ArrayView<DataType> return_view;
+
+	if ( field_name == "WAVE_FIELD" )
+	{
+	  return_view = Teuchos::ArrayView<DataType>( wave->get_f() );
+	}
+
+	return return_view;
+      }
+
+      DataType set_global_data(const std::string &field_name)
+      {
+	DataType return_val = 0.0;
+
+	return return_val;
+      }
+    };
+
+  } // end namespace Coupler
+\end{lstlisting}
+
+The {\sl Data\_Target} interface implementation for the Wave code
+follows the same principles as the {\sl Data\_Source} implementation
+given by the previous listing. In this case, the Wave code is acting
+as a target for the DAMPER\_FIELD and therfore all methods operating
+by field name check for this field. In addition, the {\sl set\_points}
+method recasts the one dimensional grid used by the Wave code as a
+vector of three dimensional point objects, storing them as member
+data. Again, the refactor methods are used here to provide views into
+the private data structures of Wave.
+
+\begin{lstlisting}
+  #include <algorithm>
+  #include <vector>
+
+  #include "Wave.hpp"
+
+  #include <Mesh_Point.hpp>
+  #include <Coupler_Data_Target.hpp>
+
+  #include "Teuchos_ArrayView.hpp"
+  #include "Teuchos_RCP.hpp"
+  #include "Teuchos_Comm.hpp"
+
+  namespace Coupler {
+
+    // Data_Target interface implementation for the Wave code.
+    template<class DataType_T, class HandleType_T, class CoordinateType_T>
+    class Wave_Data_Target 
+    : public Data_Target<DataType_T, HandleType_T, CoordinateType_T>
+    {
+      public:
+
+      typedef double                                   DataType;
+      typedef int                                      HandleType;
+      typedef double                                   CoordinateType;
+      typedef int                                      OrdinalType;
+      typedef Point<HandleType,CoordinateType>         PointType;
+      typedef Teuchos::Comm<OrdinalType>               Communicator_t;
+      typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
+      typedef Teuchos::RCP<Wave>                       RCP_Wave;
+
+      private:
+
+      RCP_Wave wave;
+      std::vector<PointType> local_points;
+
+      public:
+
+      Wave_Data_Target(RCP_Wave _wave)
+      : wave(_wave)
+      { /* ... */ }
+
+      ~Wave_Data_Target()
+      { /* ... */ }
+
+      RCP_Communicator comm()
+      {
+	return wave->get_comm();
+      }
+
+      bool field_supported(const std::string &field_name)
+      {
+	bool return_val = false;
+
+	if (field_name == "DAMPER_FIELD")
+	{
+	  return_val = true;
+	}
+
+	return return_val;
+      }
+
+      const Teuchos::ArrayView<PointType> 
+      set_points(const std::string &field_name)
+      {
+	Teuchos::ArrayView<PointType> return_view;
+
+	if ( field_name == "DAMPER_FIELD" )
+	{
+	  local_points.clear();
+	  Teuchos::ArrayView<const DataType> local_grid( wave->get_grid() );
+	  Teuchos::ArrayView<DataType>::const_iterator grid_it;
+	  int n = 0;
+	  int global_handle;
+	  for (grid_it = local_grid.begin(); 
+	  grid_it != local_grid.end();
+	  ++grid_it, ++n)
+	  {
+	    global_handle = wave->get_comm()->getRank() *
+	    local_grid.size() + n;
+	    local_points.push_back( 
+	    PointType( global_handle, *grid_it, 0.0, 0.0) );
+	  }
+	  return_view = Teuchos::ArrayView<PointType>(local_points);
+	}
+
+	return return_view;
+      }
+
+      Teuchos::ArrayView<DataType> receive_data(const std::string &field_name)
+      {
+	Teuchos::ArrayView<DataType> return_view;
+
+	if ( field_name == "DAMPER_FIELD" )
+	{
+	  return_view = Teuchos::ArrayView<DataType>( wave->set_damping() );
+	}
+
+	return return_view;
+      }
+
+      void get_global_data(const std::string &field_name,
+      const DataType &data)
+      { /* ... */ }
+    };
+
+  } // end namespace Coupler
+\end{lstlisting}
+
+%%---------------------------------------------------------------------------%%
+\subsubsection{Damper Interface Implementations}
+This section gives the two interface implementations for the Damper
+code. The same principles used in the implementations of the Wave
+interfaces also apply here. Again, the {\sl Damper\_Data\_Source}
+implementation will only provide data on points that exist on its
+grid. If they do not, no data will be applied. As the Damper is the
+source for the DAMPER\_FIELD and a target for the WAVE\_FIELD, these
+string values are used accordingly within the implementations.
+
+\begin{lstlisting}
+  #include <algorithm>
+
+  #include "Damper.hpp"
+
+  #include <Mesh_Point.hpp>
+  #include <Coupler_Data_Source.hpp>
+
+  #include "Teuchos_ArrayView.hpp"
+  #include "Teuchos_RCP.hpp"
+  #include "Teuchos_DefaultComm.hpp"
+
+  namespace Coupler {
+
+    // Data_Source interface implementation for the Damper code.
+    template<class DataType_T, class HandleType_T, class CoordinateType_T>
+    class Damper_Data_Source 
+    : public Data_Source<DataType_T, HandleType_T, CoordinateType_T>
+    {
+      public:
+
+      typedef double                                   DataType;
+      typedef int                                      HandleType;
+      typedef double                                   CoordinateType;
+      typedef int                                      OrdinalType;
+      typedef Point<HandleType,CoordinateType>         PointType;
+      typedef Teuchos::Comm<OrdinalType>               Communicator_t;
+      typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
+      typedef Teuchos::RCP<Damper>                     RCP_Damper;
+
+      private:
+
+      // Damper object to operate on.
+      RCP_Damper damper;
+
+      public:
+
+      Damper_Data_Source(RCP_Damper _damper)
+      : damper(_damper)
+      { /* ... */ }
+
+      ~Damper_Data_Source()
+      { /* ... */ }
+
+      RCP_Communicator comm()
+      {
+	return damper->get_comm();
+      }
+
+      bool field_supported(const std::string &field_name)
+      {
+	bool return_val = false;
+
+	if (field_name == "DAMPER_FIELD")
+	{
+	  return_val = true;
+	}
+
+	return return_val;
+      }
+
+      bool get_points(const PointType &point)
+      {
+	bool return_val = false;
+
+	if ( std::find(damper->get_grid().begin(), 
+	damper->get_grid().end(),
+	point.x() )
+	!= damper->get_grid().end() )
+	{
+	  return_val = true;
+	}
+
+	return return_val;
+      }
+
+      const Teuchos::ArrayView<DataType> send_data(const std::string &field_name)
+      {
+	Teuchos::ArrayView<DataType> return_view;
+
+	if ( field_name == "DAMPER_FIELD" )
+	{
+	  return_view = Teuchos::ArrayView<DataType>( damper->get_damping() );
+	}
+
+	return return_view;
+      }
+
+      DataType set_global_data(const std::string &field_name)
+      {
+	DataType return_val = 0.0;
+
+	return return_val;
+      }
+    };
+
+  } // end namespace Coupler
+\end{lstlisting}
+
+As in the {\sl Wave\_Data\_Target} implementation, the Damper
+implementation utilizes the {\sl Mesh\_Point} container to provide the
+expected representation of its grid to the interfaces.
+
+\begin{lstlisting}
+  #include <algorithm>
+  #include <vector>
+
+  #include "Damper.hpp"
+
+  #include <Mesh_Point.hpp>
+  #include <Coupler_Data_Target.hpp>
+
+  #include "Teuchos_ArrayView.hpp"
+  #include "Teuchos_RCP.hpp"
+  #include "Teuchos_DefaultComm.hpp"
+
+  namespace Coupler {
+
+    // Data_Target interface implementation for the Damper code.
+    template<class DataType_T, class HandleType_T, class CoordinateType_T>
+    class Damper_Data_Target 
+    : public Data_Target<DataType_T, HandleType_T, CoordinateType_T>
+    {
+      public:
+
+      typedef double                                   DataType;
+      typedef int                                      HandleType;
+      typedef double                                   CoordinateType;
+      typedef int                                      OrdinalType;
+      typedef Point<HandleType,CoordinateType>         PointType;
+      typedef Teuchos::Comm<OrdinalType>               Communicator_t;
+      typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
+      typedef Teuchos::RCP<Damper>                       RCP_Damper;
+
+      private:
+
+      RCP_Damper damper;
+      std::vector<PointType> local_points;
+
+      public:
+
+      Damper_Data_Target(RCP_Damper _damper)
+      : damper(_damper)
+      { /* ... */ }
+
+      ~Damper_Data_Target()
+      { /* ... */ }
+
+      RCP_Communicator comm()
+      {
+	return damper->get_comm();
+      }
+
+      bool field_supported(const std::string &field_name)
+      {
+	bool return_val = false;
+
+	if (field_name == "WAVE_FIELD")
+	{
+	  return_val = true;
+	}
+
+	return return_val;
+      }
+
+      const Teuchos::ArrayView<PointType> 
+      set_points(const std::string &field_name)
+      {
+	Teuchos::ArrayView<PointType> return_view;
+
+	if ( field_name == "WAVE_FIELD" )
+	{
+	  local_points.clear();
+	  Teuchos::ArrayView<const DataType> local_grid( damper->get_grid() );
+	  Teuchos::ArrayView<DataType>::const_iterator grid_it;
+	  int n = 0;
+	  int global_handle;
+	  for (grid_it = local_grid.begin(); 
+	  grid_it != local_grid.end();
+	  ++grid_it, ++n)
+	  {
+	    global_handle = damper->get_comm()->getRank() *
+	    local_grid.size() + n;
+	    local_points.push_back( 
+	    PointType( global_handle, *grid_it, 0.0, 0.0) );
+	  }
+	  return_view = Teuchos::ArrayView<PointType>(local_points);
+	}
+
+	return return_view;
+      }
+
+      Teuchos::ArrayView<DataType> receive_data(const std::string &field_name)
+      {
+	Teuchos::ArrayView<DataType> return_view;
+
+	if ( field_name == "WAVE_FIELD" )
+	{
+	  return_view = Teuchos::ArrayView<DataType>( damper->set_wave_data() );
+	}
+
+	return return_view;
+      }
+
+      void get_global_data(const std::string &field_name,
+      const DataType &data)
+      { /* ... */ }
+    };
+
+  } // end namespace Coupler
+\end{lstlisting}
+
+%%---------------------------------------------------------------------------%%
+\subsubsection{Coupled Driver}
+Once the interfaces have been implemented for both codes, the
+infrastructure is in place to do a simple coupled problem. The
+following listing gives the multiphysics driver used in the WaveDamper
+problem.
+
+After parallel initialization, a domain from 0.0 to 5.0 is distributed
+in parallel across each process for each code. The bounds of the
+computed local domain are applied in the constructor for each
+code. Following this, the WAVE\_FIELD is setup for transfer. An
+instance of the {\sl Data\_Source} interface is created from the {\sl
+  Wave\_Data\_Source} implementation and {\sl Data\_Target} interface
+is created from the {\sl Damper\_Data\_Target} implementation. A {\sl
+  Data\_Field} is then constructed to transfer the WAVE\_FIELD from
+the Wave code to the Damper code. The same process is repeated for the
+DAMPER\_FIELD. 
+
+Once the various coupling package components have been initialized, an
+iteration loop is setup to run until either the L2 norm of the wave
+amplitude computed by the Wave code is less than 1.0E-6 or a specified
+maximum number of iterations has been reached, each time executing the
+algorithm specified by the picard iteration pseudocode above.
+
+\begin{lstlisting}
+  #include <iostream>
+
+  #include "Wave.hpp"
+  #include "Wave_Source.hpp"
+  #include "Wave_Target.hpp"
+  #include "Damper.hpp"
+  #include "Damper_Source.hpp"
+  #include "Damper_Target.hpp"
+
+  #include <Coupler_Data_Source.hpp>
+  #include <Coupler_Data_Target.hpp>
+  #include <Coupler_Data_Field.hpp>
+
+  #include "Teuchos_RCP.hpp"
+  #include "Teuchos_CommHelpers.hpp"
+  #include "Teuchos_DefaultComm.hpp"
+  #include "Teuchos_GlobalMPISession.hpp"
+
+  //---------------------------------------------------------------------------//
+  // Main function driver for the coupled Wave/Damper problem.
+  int main(int argc, char* argv[])
+  {
+    // Setup communication.
+    Teuchos::GlobalMPISession mpiSession(&argc,&argv);
+    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
+    Teuchos::DefaultComm<int>::getComm();
+
+    // Set up the parallel domain.
+    double global_min = 0.0;
+    double global_max = 5.0;
+    int myRank = comm->getRank();
+    int mySize = comm->getSize();
+    double local_size = (global_max - global_min) / mySize;
+    double myMin = myRank*local_size + global_min;
+    double myMax = (myRank+1)*local_size + global_min;
+
+    // Setup a Wave.
+    Teuchos::RCP<Wave> wave =
+    Teuchos::rcp( new Wave(comm, myMin, myMax, 10) );
+
+    // Setup a Damper.
+    Teuchos::RCP<Damper> damper =
+    Teuchos::rcp( new Damper(comm, myMin, myMax, 10) ); 
+
+    // Setup a Wave Data Source for the wave field.
+    Teuchos::RCP<Coupler::Data_Source<double,int,double> > wave_source = 
+    Teuchos::rcp( new Coupler::Wave_Data_Source<double,int,double>(wave) );
+
+    // Setup a Damper Data Target for the wave field.
+    Teuchos::RCP<Coupler::Data_Target<double,int,double> > damper_target = 
+    Teuchos::rcp( new Coupler::Damper_Data_Target<double,int,double>(damper) );
+
+    // Setup a Data Field for the wave field.
+    Coupler::Data_Field<double,int,double> wave_field(comm,
+    "WAVE_FIELD",
+    wave_source,
+    damper_target);
+
+    // Setup a Damper Data Source for the damper field.
+    Teuchos::RCP<Coupler::Data_Source<double,int,double> > damper_source = 
+    Teuchos::rcp( new Coupler::Damper_Data_Source<double,int,double>(damper) );
+
+    // Setup a Wave Data Target for the damper field.
+    Teuchos::RCP<Coupler::Data_Target<double, int, double> > wave_target = 
+    Teuchos::rcp( new Coupler::Wave_Data_Target<double,int,double>(wave) );
+
+    // Setup a Data Field for the damper field.
+    Coupler::Data_Field<double,int,double> damper_field(comm,
+    "DAMPER_FIELD",
+    damper_source,
+    wave_target);
+
+    // Iterate between the damper and wave until convergence.
+    double local_norm = 0.0;
+    double global_norm = 1.0;
+    int num_iter = 0;
+    int max_iter = 100;
+    while( global_norm > 1.0e-6 && num_iter < max_iter )
+    {
+      // Transfer the wave field.
+      wave_field.transfer();
+
+      // Damper solve.
+      damper->solve();
+
+      // Transfer the damper field.
+      damper_field.transfer();
+
+      // Wave solve.
+      local_norm = wave->solve();
+
+      // Collect the l2 norm values from the wave solve to ensure
+      // convergence. 
+      Teuchos::reduceAll<int>(*comm,
+      Teuchos::REDUCE_MAX, 
+      int(1), 
+      &local_norm, 
+      &global_norm);
+
+      // Update the iteration count.
+      ++num_iter;
+
+      // Barrier before proceeding.
+      Teuchos::barrier<int>( *comm );
+    }
+
+    // Output results.
+    if ( myRank == 0 )
+    {
+      std::cout << "Iterations to converge: " << num_iter << std::endl;
+      std::cout << "L2 norm:                " << global_norm << std::endl;
+    }
+
+    return 0;
+  }
+\end{lstlisting}
+
+The problem was noted to converge for all cases tested in 22 iterations.
+
+%%---------------------------------------------------------------------------%%
+\subsection{WaveDamper Testing}
+
+Using the WaveDamper example, the coupling package parallel
+capabilities have been demonstrated to operate with a variety of
+hardware and software components. Hardware tested includes shared
+memory local workstations, the CASL fissile four machines, and a small
+distributed memory cluster on the University of Wisconsin - Madison
+campus. Both Intel and GNU compilers have been tested along with both
+MPICH2 and OpenMPI implementations of the MPI standard. Successful
+execution of the WaveDamper test was achieved on 120 cores on the
+small distributed memory cluster.
+
+%%---------------------------------------------------------------------------%%
 \section{Conclusion}
+A coupling package intended for use as a data transfer mechanism in
+multiphysics simulations has been developed and is currently capable
+of a simple form of  point based mesh coupling. The software
+infrastructure used in the development of the coupling package,
+instructions on obtaining, building, and testing the coupling package,
+and an outline of how to use the package presented through a concrete
+example have been provided as an outline for this work. The WaveDamper
+example has been demonstrated to operate in parallel on various
+hardware elements from the desktop level to a small scale development
+cluster, including the CASL fissile four development machines. Ongoing
+work will bring the coupling package under the VERA continuous
+integration and nightly testing environment as well as continue to
+enforce VERA software quality assurance practices. 
 
+%%---------------------------------------------------------------------------%%
 \pagebreak
 \bibliographystyle{ieeetr}
 \bibliography{paper}
 \end{document}
-
-

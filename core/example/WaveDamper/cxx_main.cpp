@@ -17,18 +17,6 @@
 #include "Teuchos_GlobalMPISession.hpp"
 
 //---------------------------------------------------------------------------//
-// Get the current default communicator.
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
-{
-#ifdef HAVE_MPI
-    return Teuchos::DefaultComm<Ordinal>::getComm();
-#else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
-#endif
-}
-
-//---------------------------------------------------------------------------//
 // Main function driver for the coupled Wave/Damper problem.
 int main(int argc, char* argv[])
 {
