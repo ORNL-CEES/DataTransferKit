@@ -40,23 +40,22 @@ namespace Coupler
 template<class DataType, class HandleType, class CoordinateType>
 Data_Field<DataType,HandleType,CoordinateType>::Data_Field(
     RCP_Communicator comm_global,
-    const std::string &field_name,
+    const std::string &source_field_name,
     RCP_Data_Source source,
+    const std::string &target_field_name,
     RCP_Data_Target target,
     bool scalar)
     : d_comm(comm_global)
-    , d_field_name(field_name)
+    , d_source_field_name(source_field_name)
     , d_source(source)
+    , d_target_field_name(target_field_name)
     , d_target(target)
     , d_scalar(scalar)
     , d_mapped(false)
 { 
-    // Require that these physics support the field being mapped.
-    assert( d_source->field_supported(d_field_name) &&
-	    d_target->field_supported(d_field_name) );
+    assert( d_source->field_supported(d_source_field_name) &&
+	    d_target->field_supported(d_target_field_name) );
 
-    // If not a scalar field, create the mapping between the data source and
-    // data target.
     if ( !d_scalar )
     {
 	point_map();
@@ -80,13 +79,11 @@ Data_Field<DataType,HandleType,CoordinateType>::~Data_Field()
 template<class DataType, class HandleType, class CoordinateType>
 void Data_Field<DataType,HandleType,CoordinateType>::transfer()
 { 
-    // Scalar transfer.
     if ( d_scalar )
     {
 	scalar_transfer();
     }
 
-    // Distributed transfer.
     else
     {
 	assert( d_mapped );
@@ -106,7 +103,7 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
     // Extract the local list of handles. These are the global indices for the
     // Tpetra map.
     const Teuchos::ArrayView<PointType> target_points = 
-	d_target->set_points( d_field_name );
+	d_target->set_points( d_target_field_name );
     typename Teuchos::ArrayView<PointType>::const_iterator target_point_it;
 
     std::vector<HandleType> target_handles(target_points.size());
@@ -120,12 +117,14 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 	*target_handle_it = target_point_it->handle();
     }
 
-    // Generate the map for the data target.
     const Teuchos::ArrayView<const HandleType> 	target_handles_view(target_handles);
     d_target_map = 
 	Tpetra::createNonContigMap<HandleType>( target_handles_view, d_comm);
 
-    // Data target communicate points to the data source.
+    // Generate a target point buffer to send to the source. Pad the rest of
+    // the buffer with null points. This is using -1 as the handle for a
+    // null point here. This is OK as tpetra requires ordinals to be equal to
+    // or greater than 0.
     int local_size = target_points.size();
     int global_max = 0;
     Teuchos::reduceAll<OrdinalType,int>(*d_comm,
@@ -134,11 +133,9 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 					&local_size, 
 					&global_max);
 
-    // Generate a target point buffer to send to the source. Pad the rest of
-    // the buffer with null points. This is using -1 as the handle for a
-    // null point here. This is OK as tpetra expects ordinals to be equal to
-    // or greater than 0.
-    PointType null_point(-1, 0.0, 0.0, 0.0);
+    HandleType null_handle = -1;
+    CoordinateType null_coord = 0.0;
+    PointType null_point(null_handle, null_coord, null_coord, null_coord);
     std::vector<PointType> send_points(global_max, null_point);
     typename std::vector<PointType>::iterator send_point_it;
     for (send_point_it = send_points.begin(),
@@ -149,19 +146,17 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 	*send_point_it = *target_point_it;
     }
 
-    // Communicate local points to all processes.
+    // Communicate local points to all processes to finish the map.
     std::vector<HandleType> source_handles;
     std::vector<PointType> receive_points(global_max, null_point);
     typename std::vector<PointType>::const_iterator receive_point_it;
     for ( int i = 0; i < d_comm->getSize(); ++i )
     {
-	// Process rank i is broadcasting.
 	if ( d_comm->getRank() == i )
 	{
 	    receive_points = send_points;
 	}
 
-	// Barrier before moving on to the next broadcast rank.
 	Teuchos::barrier<OrdinalType>(*d_comm);
 
 	Teuchos::broadcast<OrdinalType,PointType>( *d_comm,
@@ -169,7 +164,6 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 						   global_max,
 						   &receive_points[0]);
 						   
-	// The data source searches for the points in its domain.
 	for ( receive_point_it = receive_points.begin();
 	      receive_point_it != receive_points.end();
 	      ++receive_point_it )
@@ -184,17 +178,14 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 	}
     }
 
-    // Barrier again before map generation.
     Teuchos::barrier<OrdinalType>(*d_comm);
 
-    // Generate the map for the data source.
     const Teuchos::ArrayView<const HandleType> 
 	source_handles_view(source_handles);
 
     d_source_map = 
 	Tpetra::createNonContigMap<HandleType>( source_handles_view, d_comm);
 
-    // Setup the exporter.
     d_export = Teuchos::rcp( 
 	new Tpetra::Export<HandleType>(d_source_map, d_target_map) );
 }
@@ -206,8 +197,8 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
 template<class DataType, class HandleType, class CoordinateType>
 void Data_Field<DataType,HandleType,CoordinateType>::scalar_transfer()
 {
-    d_target->get_global_data( d_field_name, 
-			       d_source->set_global_data( d_field_name) );
+    d_target->get_global_data( d_target_field_name, 
+			       d_source->set_global_data( d_source_field_name) );
 }
 
 //---------------------------------------------------------------------------//
@@ -217,18 +208,14 @@ void Data_Field<DataType,HandleType,CoordinateType>::scalar_transfer()
 template<class DataType, class HandleType, class CoordinateType>
 void Data_Field<DataType,HandleType,CoordinateType>::distributed_transfer()
 {
-    // Copy data from the source into a Tpetra vector.
     Tpetra::Vector<DataType> data_source_vector( 
-	d_source_map, d_source->send_data(d_field_name));
+	d_source_map, d_source->send_data(d_source_field_name) );
 
-    // Setup a Tpetra vector for the target. All entries set to zero.
     Tpetra::Vector<DataType> data_target_vector(d_target_map);
 
-    // Transfer the data by exporting it from the source to the target.
     data_target_vector.doExport(data_source_vector, *d_export, Tpetra::INSERT);
 
-    // Copy it to the target.
-    data_target_vector.get1dCopy( d_target->receive_data(d_field_name) );
+    data_target_vector.get1dCopy( d_target->receive_data(d_target_field_name) );
 }
 
 //---------------------------------------------------------------------------//

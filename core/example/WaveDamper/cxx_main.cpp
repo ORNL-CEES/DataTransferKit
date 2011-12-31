@@ -54,6 +54,7 @@ int main(int argc, char* argv[])
     Coupler::Data_Field<double,int,double> wave_field(comm,
 						      "WAVE_FIELD",
 						      wave_source,
+						      "WAVE_FIELD",
 						      damper_target);
 
     // Setup a Damper Data Source for the damper field.
@@ -68,6 +69,7 @@ int main(int argc, char* argv[])
     Coupler::Data_Field<double,int,double> damper_field(comm,
 							"DAMPER_FIELD",
 							damper_source,
+							"DAMPER_FIELD",
 							wave_target);
 
     // Iterate between the damper and wave until convergence.

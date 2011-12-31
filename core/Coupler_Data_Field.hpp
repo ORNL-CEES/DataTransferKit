@@ -75,8 +75,11 @@ class Data_Field
     // Global communicator.
     RCP_Communicator d_comm;
 
-    // Field name.
-    std::string d_field_name;
+    // Source field name.
+    std::string d_source_field_name;
+
+    // Target field name.
+    std::string d_target_field_name;
 
     // Data transfer source implemenation.
     RCP_Data_Source d_source;
@@ -103,8 +106,9 @@ class Data_Field
 
     // Constructor.
     Data_Field(RCP_Communicator comm_global,
-	       const std::string &field_name,
+	       const std::string &source_field_name,
 	       RCP_Data_Source source,
+	       const std::string &target_field_name,
 	       RCP_Data_Target target,
 	       bool scalar = false);
 
@@ -115,35 +119,39 @@ class Data_Field
     void transfer();
 
     //! Get the communicator.
-    RCP_Communicator comm()
+    RCP_Communicator comm() const
     { return d_comm; }
 
-    //! Get the field name. 
-    const std::string& name()
-    { return d_field_name; }
+    //! Get the source field name. 
+    const std::string& source_name() const
+    { return d_source_field_name; }
 
     //! Get the transfer data source.
     RCP_Data_Source source() 
     { return d_source; }
+
+    //! Get the target field name. 
+    const std::string& target_name() const
+    { return d_target_field_name; }
 
     //! Get the transfer data target.
     RCP_Data_Target target() 
     { return d_target; }
     
     //! Return the scalar boolean.
-    bool is_scalar()
+    bool is_scalar() const
     { return d_scalar; }
 
     //! Return the mapped boolean.
-    bool is_mapped()
+    bool is_mapped() const
     { return d_mapped; }
 
     //! Return a const RCP to the source map.
-    const RCP_Tpetra_Map source_map()
+    const RCP_Tpetra_Map source_map() const
     { return d_source_map; }
 
     //! Return a const RCP to the target map.
-    const RCP_Tpetra_Map target_map()
+    const RCP_Tpetra_Map target_map() const
     { return d_target_map; }
 
   private:

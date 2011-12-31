@@ -327,13 +327,15 @@ TEUCHOS_UNIT_TEST( Data_Field, distributed_container_test )
     Data_Field<double,int,double> field(getDefaultComm<int>(),
     					"DISTRIBUTED_TEST_FIELD", 
     					tds, 
+    					"DISTRIBUTED_TEST_FIELD", 
     					tdt);
 
     // Test the basic container functionality of the field.
     TEST_ASSERT( field.comm()->getRank() == getDefaultComm<int>()->getRank() );
     TEST_ASSERT( field.comm()->getSize() == getDefaultComm<int>()->getSize() );
-    TEST_ASSERT( field.name() == "DISTRIBUTED_TEST_FIELD" );
+    TEST_ASSERT( field.source_name() == "DISTRIBUTED_TEST_FIELD" );
     TEST_ASSERT( field.source() == tds );
+    TEST_ASSERT( field.target_name() == "DISTRIBUTED_TEST_FIELD" );
     TEST_ASSERT( field.target() == tdt );
     TEST_ASSERT( !field.is_scalar() );
     TEST_ASSERT( field.is_mapped() );
@@ -363,14 +365,16 @@ TEUCHOS_UNIT_TEST( Data_Field, scalar_container_test )
     Data_Field<double,int,double> field(getDefaultComm<int>(),
 					"SCALAR_TEST_FIELD", 
 					tds, 
+					"SCALAR_TEST_FIELD", 
 					tdt,
 					true);
 
     // Test the basic container functionality of the field.
     TEST_ASSERT( field.comm()->getRank() == getDefaultComm<int>()->getRank() );
     TEST_ASSERT( field.comm()->getSize() == getDefaultComm<int>()->getSize() );
-    TEST_ASSERT( field.name() == "SCALAR_TEST_FIELD" );
+    TEST_ASSERT( field.source_name() == "SCALAR_TEST_FIELD" );
     TEST_ASSERT( field.source() == tds );
+    TEST_ASSERT( field.target_name() == "SCALAR_TEST_FIELD" );
     TEST_ASSERT( field.target() == tdt );
     TEST_ASSERT( field.is_scalar() );
 }
@@ -399,6 +403,7 @@ TEUCHOS_UNIT_TEST( Data_Field, mapping_test )
     Data_Field<double,int,double> field(getDefaultComm<int>(),
 					"DISTRIBUTED_TEST_FIELD", 
 					tds, 
+					"DISTRIBUTED_TEST_FIELD", 
 					tdt);
     
     // Check the points under the source interface to the verify communication
@@ -464,6 +469,7 @@ TEUCHOS_UNIT_TEST( Data_Field, Scalar_Transfer_Test )
     Data_Field<double,int,double> field(getDefaultComm<int>(),
 					"SCALAR_TEST_FIELD", 
 					tds, 
+					"SCALAR_TEST_FIELD", 
 					tdt,
 					true);
 
@@ -496,6 +502,7 @@ TEUCHOS_UNIT_TEST( Data_Field, Distributed_Transfer_Test )
     Data_Field<double,int,double> field(getDefaultComm<int>(),
 					"DISTRIBUTED_TEST_FIELD", 
 					tds, 
+					"DISTRIBUTED_TEST_FIELD", 
 					tdt);
 
     // Do the transfer.

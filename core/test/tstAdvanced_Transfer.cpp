@@ -330,6 +330,7 @@ TEUCHOS_UNIT_TEST( Data_Field, Distributed_Transfer_Test )
     Data_Field<double,int,double> field(getDefaultComm<int>(),
 					"DISTRIBUTED_TEST_FIELD", 
 					tds, 
+					"DISTRIBUTED_TEST_FIELD", 
 					tdt);
 
     // Do the transfer.
