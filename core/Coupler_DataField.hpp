@@ -1,21 +1,21 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/Coupler_Data_Field.hpp
+ * \file   core/Coupler_DataField.hpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
- * \brief  Coupler_Data_Field class definition.
+ * \brief  Coupler_DataField class definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef core_Coupler_Data_Field_hpp
-#define core_Coupler_Data_Field_hpp
+#ifndef core_Coupler_DataField_hpp
+#define core_Coupler_DataField_hpp
 
 #include <string>
 
 #include <Mesh_Point.hpp>
 
-#include <Coupler_Data_Source.hpp>
-#include <Coupler_Data_Target.hpp>
+#include <Coupler_DataSource.hpp>
+#include <Coupler_DataTarget.hpp>
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Comm.hpp"
@@ -28,26 +28,26 @@ namespace Coupler
 
 //===========================================================================//
 /*!
- * \class Data_Field
+ * \class DataField
  * \brief Field type for data transfers. This exists for more a explicit
  * definition of fields in the coupler user interface.
  *
- * The Coupler_Data_Field encapsulates the relationship between a
- * Coupler_Data_Source and a Coupler_Data_Target. In addition to containing
+ * The Coupler_DataField encapsulates the relationship between a
+ * Coupler_DataSource and a Coupler_DataTarget. In addition to containing
  * the map for transfer between the source and the target, the field also
  * contains indicators for the status of the mapping (transfer cannot occur
  * unless a field has been mapped) and for whether a field is distributed
  * (requiring a parallel mapping) or scalar.
  */
 /*! 
- * \example core/test/tstData_Field.cc
+ * \example core/test/tstDataField.cc
  *
- * Test of Coupler_Data_Field.
+ * Test of Coupler_DataField.
  */
 //===========================================================================//
 
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class Data_Field
+class DataField
 {
   public:
 
@@ -58,10 +58,10 @@ class Data_Field
     typedef CoordinateType_T                                 CoordinateType;
     typedef int                                              OrdinalType;
     typedef Point<HandleType,CoordinateType>                 PointType;
-    typedef Data_Source<DataType,HandleType,CoordinateType>  Data_Source_t;
-    typedef Teuchos::RCP<Data_Source_t>                      RCP_Data_Source;
-    typedef Data_Target<DataType,HandleType,CoordinateType>  Data_Target_t;
-    typedef Teuchos::RCP<Data_Target_t>                      RCP_Data_Target;
+    typedef DataSource<DataType,HandleType,CoordinateType>  DataSource_t;
+    typedef Teuchos::RCP<DataSource_t>                      RCP_DataSource;
+    typedef DataTarget<DataType,HandleType,CoordinateType>  DataTarget_t;
+    typedef Teuchos::RCP<DataTarget_t>                      RCP_DataTarget;
     typedef Tpetra::Map<OrdinalType>                         Tpetra_Map_t;
     typedef Teuchos::RCP<const Tpetra_Map_t>                 RCP_Tpetra_Map;
     typedef Tpetra::Export<HandleType>                       Tpetra_Export_t;
@@ -82,10 +82,10 @@ class Data_Field
     std::string d_target_field_name;
 
     // Data transfer source implemenation.
-    RCP_Data_Source d_source;
+    RCP_DataSource d_source;
 
     // Data transfer target implemenation.
-    RCP_Data_Target d_target;
+    RCP_DataTarget d_target;
 
     // Tpetra map for the data source.
     RCP_Tpetra_Map d_source_map;
@@ -105,15 +105,15 @@ class Data_Field
   public:
 
     // Constructor.
-    Data_Field(RCP_Communicator comm_global,
+    DataField(RCP_Communicator comm_global,
 	       const std::string &source_field_name,
-	       RCP_Data_Source source,
+	       RCP_DataSource source,
 	       const std::string &target_field_name,
-	       RCP_Data_Target target,
+	       RCP_DataTarget target,
 	       bool scalar = false);
 
     // Destructor.
-    ~Data_Field();
+    ~DataField();
 
     // Transfer data from the data source to the data target.
     void transfer();
@@ -127,7 +127,7 @@ class Data_Field
     { return d_source_field_name; }
 
     //! Get the transfer data source.
-    RCP_Data_Source source() 
+    RCP_DataSource source() 
     { return d_source; }
 
     //! Get the target field name. 
@@ -135,7 +135,7 @@ class Data_Field
     { return d_target_field_name; }
 
     //! Get the transfer data target.
-    RCP_Data_Target target() 
+    RCP_DataTarget target() 
     { return d_target; }
     
     //! Return the scalar boolean.
@@ -173,10 +173,10 @@ class Data_Field
 // TEMPLATE MEMBERS
 //---------------------------------------------------------------------------//
 
-#include "Coupler_Data_Field.t.hpp"
+#include "Coupler_DataField.t.hpp"
 
-#endif // core_Coupler_Data_Field_hpp
+#endif // core_Coupler_DataField_hpp
 
 //---------------------------------------------------------------------------//
-//              end of core/Coupler_Data_Field.hpp
+//              end of core/Coupler_DataField.hpp
 //---------------------------------------------------------------------------//

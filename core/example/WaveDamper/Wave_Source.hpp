@@ -6,7 +6,7 @@
 #include "Wave.hpp"
 
 #include <Mesh_Point.hpp>
-#include <Coupler_Data_Source.hpp>
+#include <Coupler_DataSource.hpp>
 
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
@@ -15,10 +15,10 @@
 //---------------------------------------------------------------------------//
 namespace Coupler {
 
-// Data_Source interface implementation for the Wave code.
+// DataSource interface implementation for the Wave code.
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class Wave_Data_Source 
-    : public Data_Source<DataType_T, HandleType_T, CoordinateType_T>
+class Wave_DataSource 
+    : public DataSource<DataType_T, HandleType_T, CoordinateType_T>
 {
   public:
 
@@ -38,11 +38,11 @@ class Wave_Data_Source
 
   public:
 
-    Wave_Data_Source(RCP_Wave _wave)
+    Wave_DataSource(RCP_Wave _wave)
 	: wave(_wave)
     { /* ... */ }
 
-    ~Wave_Data_Source()
+    ~Wave_DataSource()
     { /* ... */ }
 
     RCP_Communicator comm()

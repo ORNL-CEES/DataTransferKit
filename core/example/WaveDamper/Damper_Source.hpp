@@ -6,7 +6,7 @@
 #include "Damper.hpp"
 
 #include <Mesh_Point.hpp>
-#include <Coupler_Data_Source.hpp>
+#include <Coupler_DataSource.hpp>
 
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
@@ -15,10 +15,10 @@
 //---------------------------------------------------------------------------//
 namespace Coupler {
 
-// Data_Source interface implementation for the Damper code.
+// DataSource interface implementation for the Damper code.
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class Damper_Data_Source 
-    : public Data_Source<DataType_T, HandleType_T, CoordinateType_T>
+class Damper_DataSource 
+    : public DataSource<DataType_T, HandleType_T, CoordinateType_T>
 {
   public:
 
@@ -38,11 +38,11 @@ class Damper_Data_Source
 
   public:
 
-    Damper_Data_Source(RCP_Damper _damper)
+    Damper_DataSource(RCP_Damper _damper)
 	: damper(_damper)
     { /* ... */ }
 
-    ~Damper_Data_Source()
+    ~Damper_DataSource()
     { /* ... */ }
 
     RCP_Communicator comm()

@@ -1,14 +1,14 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/Coupler_Data_Field.t.hpp
+ * \file   core/Coupler_DataField.t.hpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
- * \brief  Coupler_Data_Field template member definitions.
+ * \brief  Coupler_DataField template member definitions.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef core_Coupler_Data_Field_t_hpp
-#define core_Coupler_Data_Field_t_hpp
+#ifndef core_Coupler_DataField_t_hpp
+#define core_Coupler_DataField_t_hpp
 
 #include <cassert>
 #include <algorithm>
@@ -38,12 +38,12 @@ namespace Coupler
  * \param scalar Set to true if this field is scalar, false if distributed.
  */
 template<class DataType, class HandleType, class CoordinateType>
-Data_Field<DataType,HandleType,CoordinateType>::Data_Field(
+DataField<DataType,HandleType,CoordinateType>::DataField(
     RCP_Communicator comm_global,
     const std::string &source_field_name,
-    RCP_Data_Source source,
+    RCP_DataSource source,
     const std::string &target_field_name,
-    RCP_Data_Target target,
+    RCP_DataTarget target,
     bool scalar)
     : d_comm(comm_global)
     , d_source_field_name(source_field_name)
@@ -67,7 +67,7 @@ Data_Field<DataType,HandleType,CoordinateType>::Data_Field(
  * \brief Destructor.
  */
 template<class DataType, class HandleType, class CoordinateType>
-Data_Field<DataType,HandleType,CoordinateType>::~Data_Field()
+DataField<DataType,HandleType,CoordinateType>::~DataField()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -77,7 +77,7 @@ Data_Field<DataType,HandleType,CoordinateType>::~Data_Field()
  * \brief Transfer data from the data source to the data target.
  */
 template<class DataType, class HandleType, class CoordinateType>
-void Data_Field<DataType,HandleType,CoordinateType>::transfer()
+void DataField<DataType,HandleType,CoordinateType>::transfer()
 { 
     if ( d_scalar )
     {
@@ -98,7 +98,7 @@ void Data_Field<DataType,HandleType,CoordinateType>::transfer()
  * \brief Generate topology map for this field based on point mapping.
  */
 template<class DataType, class HandleType, class CoordinateType>
-void Data_Field<DataType,HandleType,CoordinateType>::point_map()
+void DataField<DataType,HandleType,CoordinateType>::point_map()
 {
     // Extract the local list of handles. These are the global indices for the
     // Tpetra map.
@@ -195,7 +195,7 @@ void Data_Field<DataType,HandleType,CoordinateType>::point_map()
  * \brief Perform scalar transfer.
  */
 template<class DataType, class HandleType, class CoordinateType>
-void Data_Field<DataType,HandleType,CoordinateType>::scalar_transfer()
+void DataField<DataType,HandleType,CoordinateType>::scalar_transfer()
 {
     d_target->get_global_data( d_target_field_name, 
 			       d_source->set_global_data( d_source_field_name) );
@@ -206,7 +206,7 @@ void Data_Field<DataType,HandleType,CoordinateType>::scalar_transfer()
  * \brief Perform distributed transfer.
  */
 template<class DataType, class HandleType, class CoordinateType>
-void Data_Field<DataType,HandleType,CoordinateType>::distributed_transfer()
+void DataField<DataType,HandleType,CoordinateType>::distributed_transfer()
 {
     Tpetra::Vector<DataType> data_source_vector( 
 	d_source_map, d_source->send_data(d_source_field_name) );
@@ -222,8 +222,8 @@ void Data_Field<DataType,HandleType,CoordinateType>::distributed_transfer()
 
 } // end namespace Coupler
 
-#endif // core_Coupler_Data_Field_t_hpp
+#endif // core_Coupler_DataField_t_hpp
 
 //---------------------------------------------------------------------------//
-//                 end of Coupler_Data_Field.t.hpp
+//                 end of Coupler_DataField.t.hpp
 //---------------------------------------------------------------------------//

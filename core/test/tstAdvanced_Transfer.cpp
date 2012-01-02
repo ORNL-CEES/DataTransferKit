@@ -1,9 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/test/tstData_Field.cpp
+ * \file   core/test/tstAdvanced_Transfer.cpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 14:43:10 2011
- * \brief  Data_Field unit tests
+ * \brief  DataField unit tests
  */
 //---------------------------------------------------------------------------//
 
@@ -14,9 +14,9 @@
 
 #include <Mesh_Point.hpp>
 
-#include <Coupler_Data_Source.hpp>
-#include <Coupler_Data_Target.hpp>
-#include <Coupler_Data_Field.hpp>
+#include <Coupler_DataSource.hpp>
+#include <Coupler_DataTarget.hpp>
+#include <Coupler_DataField.hpp>
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ArrayView.hpp"
@@ -96,8 +96,8 @@ namespace Coupler {
 // transfer data source implementation - this implementation specifies double
 // as the data type
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class test_Data_Source 
-    : public Data_Source<DataType_T, HandleType_T, CoordinateType_T>
+class test_DataSource 
+    : public DataSource<DataType_T, HandleType_T, CoordinateType_T>
 {
   public:
 
@@ -119,14 +119,14 @@ class test_Data_Source
 
   public:
 
-    test_Data_Source(Teuchos::RCP<Data_Container> _container)
+    test_DataSource(Teuchos::RCP<Data_Container> _container)
 	: container(_container)
     { 
 	myRank = getDefaultComm<OrdinalType>()->getRank();
 	mySize = getDefaultComm<OrdinalType>()->getSize();
     }
 
-    ~test_Data_Source()
+    ~test_DataSource()
     { /* ... */ }
 
     RCP_Communicator comm()
@@ -202,8 +202,8 @@ class test_Data_Source
 // transfer data target implementation - this implementation specifies double
 // as the data type
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class test_Data_Target 
-    : public Data_Target<DataType_T, HandleType_T, CoordinateType_T>
+class test_DataTarget 
+    : public DataTarget<DataType_T, HandleType_T, CoordinateType_T>
 {
   public:
 
@@ -224,14 +224,14 @@ class test_Data_Target
 
   public:
 
-    test_Data_Target(Teuchos::RCP<Data_Container> _container)
+    test_DataTarget(Teuchos::RCP<Data_Container> _container)
 	: container(_container)
     { 
 	myRank = getDefaultComm<OrdinalType>()->getRank();
 	mySize = getDefaultComm<OrdinalType>()->getSize();
     }
 
-    ~test_Data_Target()
+    ~test_DataTarget()
     { /* ... */ }
 
     RCP_Communicator comm()
@@ -306,7 +306,7 @@ class test_Data_Target
 
 namespace Coupler {
 
-TEUCHOS_UNIT_TEST( Data_Field, Distributed_Transfer_Test )
+TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
 {
     // create a data container instance for checking the data under the source
     // interface.
@@ -319,15 +319,15 @@ TEUCHOS_UNIT_TEST( Data_Field, Distributed_Transfer_Test )
 	= Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
-    Teuchos::RCP<Data_Source<double,int,double> > tds = 
-	Teuchos::rcp(new test_Data_Source<double,int,double>(source_container));
+    Teuchos::RCP<DataSource<double,int,double> > tds = 
+	Teuchos::rcp(new test_DataSource<double,int,double>(source_container));
 
     // Create an instance of the target interface.
-    Teuchos::RCP<Data_Target<double,int,double> > tdt = 
-	Teuchos::rcp(new test_Data_Target<double,int,double>(target_container));
+    Teuchos::RCP<DataTarget<double,int,double> > tdt = 
+	Teuchos::rcp(new test_DataTarget<double,int,double>(target_container));
 
     // Create a distributed field for these interfaces to be transferred.
-    Data_Field<double,int,double> field(getDefaultComm<int>(),
+    DataField<double,int,double> field(getDefaultComm<int>(),
 					"DISTRIBUTED_TEST_FIELD", 
 					tds, 
 					"DISTRIBUTED_TEST_FIELD", 
@@ -392,5 +392,5 @@ TEUCHOS_UNIT_TEST( Data_Field, Distributed_Transfer_Test )
 } // end namespace Coupler
 
 //---------------------------------------------------------------------------//
-//                        end of tstData_Field.cpp
+//                        end of tstAdvanced_Transfer.cpp
 //---------------------------------------------------------------------------//

@@ -13,8 +13,8 @@
 #include <sstream>
 
 #include <Mesh_Point.hpp>
-#include <Coupler_Data_Source.hpp>
-#include <Coupler_Data_Target.hpp>
+#include <Coupler_DataSource.hpp>
+#include <Coupler_DataTarget.hpp>
 
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
@@ -95,8 +95,8 @@ namespace Coupler {
 // transfer data source implementation - this implementation specifies double
 // as the data type
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class test_Data_Source 
-    : public Data_Source<DataType_T, HandleType_T, CoordinateType_T>
+class test_DataSource 
+    : public DataSource<DataType_T, HandleType_T, CoordinateType_T>
 {
   private:
 
@@ -112,10 +112,10 @@ class test_Data_Source
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
-    test_Data_Source()
+    test_DataSource()
     { /* ... */ }
 
-    ~test_Data_Source()
+    ~test_DataSource()
     { /* ... */ }
 
     RCP_Communicator comm()
@@ -185,8 +185,8 @@ class test_Data_Source
 // transfer data target implementation - this implementation specifies double
 // as the data type
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class test_Data_Target 
-    : public Data_Target<DataType_T, HandleType_T, CoordinateType_T>
+class test_DataTarget 
+    : public DataTarget<DataType_T, HandleType_T, CoordinateType_T>
 {
   public:
 
@@ -205,11 +205,11 @@ class test_Data_Target
 
   public:
 
-    test_Data_Target(Teuchos::RCP<Data_Container> _container)
+    test_DataTarget(Teuchos::RCP<Data_Container> _container)
 	: container(_container)
     { /* ... */ }
 
-    ~test_Data_Target()
+    ~test_DataTarget()
     { /* ... */ }
 
     RCP_Communicator comm()
@@ -280,13 +280,13 @@ class test_Data_Target
 
 namespace Coupler {
 
-TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
+TEUCHOS_UNIT_TEST( Transfer_DataSource, source_interface_test )
 {
     typedef Point<int,double>     PointType;
 
     // create an instance of the source interface.
-    Teuchos::RCP<Data_Source<double,int,double> > source_iface = 
-	Teuchos::rcp(new test_Data_Source<double,int,double>);
+    Teuchos::RCP<DataSource<double,int,double> > source_iface = 
+	Teuchos::rcp(new test_DataSource<double,int,double>);
 
     // test the interface methods.
     TEST_ASSERT( source_iface->comm()->getRank() == getDefaultComm<int>()->getRank() );
@@ -313,7 +313,7 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Source, source_interface_test )
 		 1.0*getDefaultComm<int>()->getRank() );
 }
 
-TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
+TEUCHOS_UNIT_TEST( Transfer_DataTarget, target_interface_test )
 {
     typedef Point<int,double>     PointType;
 
@@ -321,9 +321,9 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
     Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
 
     // create an instance of the target interface.
-    Teuchos::RCP<Data_Target<double,int,double> > target_iface = 
+    Teuchos::RCP<DataTarget<double,int,double> > target_iface = 
 	Teuchos::rcp(
-	    new test_Data_Target<double,int,double>(container));
+	    new test_DataTarget<double,int,double>(container));
 
     // test the interface methods.
     TEST_ASSERT( target_iface->comm()->getRank() == getDefaultComm<int>()->getRank() );
@@ -361,21 +361,21 @@ TEUCHOS_UNIT_TEST( Transfer_Data_Target, target_interface_test )
 		 1.0*getDefaultComm<int>()->getRank() );
 }
 
-TEUCHOS_UNIT_TEST( Transfer_Data_Source, simple_coupling_test )
+TEUCHOS_UNIT_TEST( Transfer_DataSource, simple_coupling_test )
 {
     typedef Point<int,double>     PointType;
 
     // create an instance of the source interface.
-    Teuchos::RCP<Data_Source<double,int,double> > source_iface = 
-	Teuchos::rcp(new test_Data_Source<double,int,double>);
+    Teuchos::RCP<DataSource<double,int,double> > source_iface = 
+	Teuchos::rcp(new test_DataSource<double,int,double>);
 
     // create a data container instance for checking the data under the target
     // interface.
     Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
 
     // create an instance of the target interface.
-    Teuchos::RCP<Data_Target<double,int,double> > target_iface = 
-	Teuchos::rcp( new test_Data_Target<double,int,double>(container));
+    Teuchos::RCP<DataTarget<double,int,double> > target_iface = 
+	Teuchos::rcp( new test_DataTarget<double,int,double>(container));
 
     // Check that the field is supported.
     TEST_ASSERT( source_iface->field_supported("DISTRIBUTED_TEST_FIELD") &&

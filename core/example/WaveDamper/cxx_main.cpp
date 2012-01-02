@@ -7,9 +7,9 @@
 #include "Damper_Source.hpp"
 #include "Damper_Target.hpp"
 
-#include <Coupler_Data_Source.hpp>
-#include <Coupler_Data_Target.hpp>
-#include <Coupler_Data_Field.hpp>
+#include <Coupler_DataSource.hpp>
+#include <Coupler_DataTarget.hpp>
+#include <Coupler_DataField.hpp>
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_CommHelpers.hpp"
@@ -43,30 +43,30 @@ int main(int argc, char* argv[])
 	Teuchos::rcp( new Damper(comm, myMin, myMax, 10) ); 
 
     // Setup a Wave Data Source for the wave field.
-    Teuchos::RCP<Coupler::Data_Source<double,int,double> > wave_source = 
-	Teuchos::rcp( new Coupler::Wave_Data_Source<double,int,double>(wave) );
+    Teuchos::RCP<Coupler::DataSource<double,int,double> > wave_source = 
+	Teuchos::rcp( new Coupler::Wave_DataSource<double,int,double>(wave) );
 
     // Setup a Damper Data Target for the wave field.
-    Teuchos::RCP<Coupler::Data_Target<double,int,double> > damper_target = 
-	Teuchos::rcp( new Coupler::Damper_Data_Target<double,int,double>(damper) );
+    Teuchos::RCP<Coupler::DataTarget<double,int,double> > damper_target = 
+	Teuchos::rcp( new Coupler::Damper_DataTarget<double,int,double>(damper) );
 
     // Setup a Data Field for the wave field.
-    Coupler::Data_Field<double,int,double> wave_field(comm,
+    Coupler::DataField<double,int,double> wave_field(comm,
 						      "WAVE_FIELD",
 						      wave_source,
 						      "WAVE_FIELD",
 						      damper_target);
 
     // Setup a Damper Data Source for the damper field.
-    Teuchos::RCP<Coupler::Data_Source<double,int,double> > damper_source = 
-	Teuchos::rcp( new Coupler::Damper_Data_Source<double,int,double>(damper) );
+    Teuchos::RCP<Coupler::DataSource<double,int,double> > damper_source = 
+	Teuchos::rcp( new Coupler::Damper_DataSource<double,int,double>(damper) );
 
     // Setup a Wave Data Target for the damper field.
-    Teuchos::RCP<Coupler::Data_Target<double, int, double> > wave_target = 
-	Teuchos::rcp( new Coupler::Wave_Data_Target<double,int,double>(wave) );
+    Teuchos::RCP<Coupler::DataTarget<double, int, double> > wave_target = 
+	Teuchos::rcp( new Coupler::Wave_DataTarget<double,int,double>(wave) );
 
     // Setup a Data Field for the damper field.
-    Coupler::Data_Field<double,int,double> damper_field(comm,
+    Coupler::DataField<double,int,double> damper_field(comm,
 							"DAMPER_FIELD",
 							damper_source,
 							"DAMPER_FIELD",

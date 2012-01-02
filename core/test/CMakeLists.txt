@@ -9,8 +9,8 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  Data_Field_test
-  SOURCES tstData_Field.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  DataField_test
+  SOURCES tstDataField.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )

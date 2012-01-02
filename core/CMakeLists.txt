@@ -25,10 +25,10 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  Coupler_Data_Source.hpp
-  Coupler_Data_Target.hpp
-  Coupler_Data_Field.hpp
-  Coupler_Data_Field.t.hpp
+  Coupler_DataSource.hpp
+  Coupler_DataTarget.hpp
+  Coupler_DataField.hpp
+  Coupler_DataField.t.hpp
   )
 
 # Set sources

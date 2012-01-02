@@ -1,14 +1,14 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/Coupler_Data_Target.hpp
+ * \file   core/Coupler_DataSource.hpp
  * \author Stuart Slattery
- * \date   Thu Nov 17 07:53:54 2011
- * \brief  Interface definition for transfer data targets.
+ * \date   Thu Nov 17 07:53:43 2011
+ * \brief  Interface definition for data source applications.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef core_Coupler_Data_Target_hpp
-#define core_Coupler_Data_Target_hpp
+#ifndef core_Coupler_DataSource_hpp
+#define core_Coupler_DataSource_hpp
 
 #include <string>
 
@@ -23,22 +23,22 @@ namespace Coupler
 
 //===========================================================================//
 /*!
- * \class Data_Target
- * \brief Protocol definition for applications acting as a data target in
+ * \class DataSource
+ * \brief Protocol definition for applications acting as a data source in
  * multiphysics coupling. 
  *
  * This interface is templated on the type of field data being
  * transferred, the handle type for mesh entities, and the coordinate
- * type. Ordinal type for communication is int.
+ * type. Oridnal type for communication is fixed to int. 
  */
 /*! 
  * \example core/test/tstInterfaces.cc
  *
- * Test of Data_Target.
+ * Test of DataSource.
  */
 //===========================================================================//
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class Data_Target 
+class DataSource 
 {
   public:
 
@@ -56,13 +56,13 @@ class Data_Target
     /*!
      * \brief Constructor.
      */
-    Data_Target()
+    DataSource()
     { /* ... */ }
 
     /*!
      * \brief Destructor.
      */
-    virtual ~Data_Target()
+    virtual ~DataSource()
     { /* ... */ }
 
     /*!
@@ -79,39 +79,35 @@ class Data_Target
      */
     virtual bool field_supported(const std::string &field_name) = 0;
 
-    /*!
-     * \brief Set cartesian coordinates with a field. The order of these
-     * points will correspond to the order of the data returned from the
-     * transfer operation.
-     * \param field_name The name of the field that the points are being
-     * registered with.
-     * \return View of the local target points.
+    /*! 
+     * \brief Given (x,y,z) coordinates and an associated globally unique
+     * handle encapsulated in a point object, return true if the point is in
+     * the local domain, false if not. 
+     * \param point Point to query the local domain with.
      */
-    virtual const Teuchos::ArrayView<PointType> 
-    set_points(const std::string &field_name) = 0;
+    virtual bool get_points(const PointType &point) = 0;
 
     /*! 
-     * \brief Receive the field data by providing a view to be populated. 
-     * \param field_name The name of the field to receive data from.
-     * \return A non-const view of the data vector to be populated.
+     * \brief Send the field data.
+     * \param field_name The name of the field to send data from.
+     * \return A const view of data to be sent.
      */
-    virtual Teuchos::ArrayView<DataType> 
-    receive_data(const std::string &field_name) = 0;
+    virtual const Teuchos::ArrayView<DataType> 
+    send_data(const std::string &field_name) = 0;
 
     /*!
-     * \brief Given a field, get a global data element to be be received from
-     * a source.
-     * \param field_name The name of the field to receive data from.
-     * \param data The global data element.
+     * \brief Given a field, set a global data element to be be sent to a
+     * target.
+     * \param field_name The name of the field to send data from.
+     * \return The global data element.
      */
-    virtual void get_global_data(const std::string &field_name,
-				 const DataType &data) = 0;
+    virtual DataType set_global_data(const std::string &field_name) = 0;
 };
 
 } // end namespace Coupler
 
-#endif // core_Coupler_Data_Target_hpp
+#endif // core_Coupler_DataSource_hpp
 
 //---------------------------------------------------------------------------//
-//              end of core/Coupler_Data_Target.hpp
+//              end of core/Coupler_DataSource.hpp
 //---------------------------------------------------------------------------//

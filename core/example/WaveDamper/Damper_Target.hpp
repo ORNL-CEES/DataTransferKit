@@ -7,7 +7,7 @@
 #include "Damper.hpp"
 
 #include <Mesh_Point.hpp>
-#include <Coupler_Data_Target.hpp>
+#include <Coupler_DataTarget.hpp>
 
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
@@ -16,10 +16,10 @@
 //---------------------------------------------------------------------------//
 namespace Coupler {
 
-// Data_Target interface implementation for the Damper code.
+// DataTarget interface implementation for the Damper code.
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class Damper_Data_Target 
-    : public Data_Target<DataType_T, HandleType_T, CoordinateType_T>
+class Damper_DataTarget 
+    : public DataTarget<DataType_T, HandleType_T, CoordinateType_T>
 {
   public:
 
@@ -39,11 +39,11 @@ class Damper_Data_Target
 
   public:
 
-    Damper_Data_Target(RCP_Damper _damper)
+    Damper_DataTarget(RCP_Damper _damper)
 	: damper(_damper)
     { /* ... */ }
 
-    ~Damper_Data_Target()
+    ~Damper_DataTarget()
     { /* ... */ }
 
     RCP_Communicator comm()
