@@ -11,7 +11,7 @@
 #define mesh_Mesh_SerializationTraits_hpp
 
 #include <Mesh_Point.hpp>
-#include <Mesh_Bounding_Box.hpp>
+#include <Mesh_BoundingBox.hpp>
 
 #include "Teuchos_SerializationTraits.hpp"
 
@@ -47,23 +47,23 @@ class SerializationTraits<Ordinal,Coupler::Point<long int,float> >
 
 // Bounding box.
 template<typename Ordinal>
-class SerializationTraits<Ordinal,Coupler::Bounding_Box<int,double> >
-    : public DirectSerializationTraits<Ordinal,Coupler::Bounding_Box<int,double> >
+class SerializationTraits<Ordinal,Coupler::BoundingBox<int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::BoundingBox<int,double> >
 {};
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal,Coupler::Bounding_Box<int,float> >
-    : public DirectSerializationTraits<Ordinal,Coupler::Bounding_Box<int,float> >
+class SerializationTraits<Ordinal,Coupler::BoundingBox<int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::BoundingBox<int,float> >
 {};
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal,Coupler::Bounding_Box<long int,double> >
-    : public DirectSerializationTraits<Ordinal,Coupler::Bounding_Box<long int,double> >
+class SerializationTraits<Ordinal,Coupler::BoundingBox<long int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::BoundingBox<long int,double> >
 {};
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal,Coupler::Bounding_Box<long int,float> >
-    : public DirectSerializationTraits<Ordinal,Coupler::Bounding_Box<long int,float> >
+class SerializationTraits<Ordinal,Coupler::BoundingBox<long int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::BoundingBox<long int,float> >
 {};
 
 } // end namepsace Teuchos

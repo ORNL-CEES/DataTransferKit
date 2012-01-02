@@ -1,14 +1,14 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   mesh/Mesh_Bounding_Box.hpp
+ * \file   mesh/Mesh_BoundingBox.hpp
  * \author Stuart Slattery
  * \date   Thu Dec 08 09:58:46 2011
  * \brief  Bounding box class definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef mesh_Mesh_Bounding_Box_hpp
-#define mesh_Mesh_Bounding_Box_hpp
+#ifndef mesh_Mesh_BoundingBox_hpp
+#define mesh_Mesh_BoundingBox_hpp
 
 #include <Mesh_Point.hpp>
 
@@ -19,20 +19,20 @@ namespace Coupler
 
 //===========================================================================//
 /*!
- * \class Mesh_Bounding_Box
+ * \class Mesh_BoundingBox
  * \brief A bounding box definition for local meshes.
  *
  * A class for encapsulating the local mesh bounding box.
  */
 /*! 
- * \example mesh/test/tstMesh_Bounding_Box.cpp
+ * \example mesh/test/tstMesh_BoundingBox.cpp
  *
- * Test of Bounding_Box.
+ * Test of BoundingBox.
  */
 //===========================================================================//
 
 template<class HandleType_T, class CoordinateType_T>
-class Bounding_Box 
+class BoundingBox 
 {
   public:
 
@@ -52,7 +52,7 @@ class Bounding_Box
   public:
 
     //! Constructor.
-    Bounding_Box(CoordinateType i_min,
+    BoundingBox(CoordinateType i_min,
 		 CoordinateType i_max,
 		 CoordinateType j_min,
 		 CoordinateType j_max,
@@ -69,7 +69,7 @@ class Bounding_Box
 
     //! Copy constructor.
     template<class HandleType_2, class CoordinateType_2>
-    Bounding_Box(const Bounding_Box<HandleType_2,CoordinateType_2>& bounding_box)
+    BoundingBox(const BoundingBox<HandleType_2,CoordinateType_2>& bounding_box)
 	: d_domain( bounding_box.d_domain )
     { /* ... */}
 
@@ -88,10 +88,10 @@ class Bounding_Box
 // INLINE FUNCTIONS
 //---------------------------------------------------------------------------//
 
-#include "Mesh_Bounding_Box.i.hpp"
+#include "Mesh_BoundingBox.i.hpp"
 
-#endif // mesh_Mesh_Bounding_Box_hpp
+#endif // mesh_Mesh_BoundingBox_hpp
 
 //---------------------------------------------------------------------------//
-//              end of mesh/Mesh_Bounding_Box.hpp
+//              end of mesh/Mesh_BoundingBox.hpp
 //---------------------------------------------------------------------------//

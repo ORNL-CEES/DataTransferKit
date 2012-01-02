@@ -26,8 +26,8 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   Mesh_Point.hpp
-  Mesh_Bounding_Box.hpp
-  Mesh_Bounding_Box.i.hpp
+  Mesh_BoundingBox.hpp
+  Mesh_BoundingBox.i.hpp
   Mesh_SerializationTraits.hpp
   )
 

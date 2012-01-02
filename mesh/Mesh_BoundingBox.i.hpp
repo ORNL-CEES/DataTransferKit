@@ -1,20 +1,20 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   mesh/Mesh_Bounding_Box.i.hpp
+ * \file   mesh/Mesh_BoundingBox.i.hpp
  * \author Stuart Slattery
  * \date   Thu Dec 08 09:58:46 2011
- * \brief  Member definitions of class Mesh_Bounding_Box.
+ * \brief  Member definitions of class Mesh_BoundingBox.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef mesh_Mesh_Bounding_Box_i_hpp
-#define mesh_Mesh_Bounding_Box_i_hpp
+#ifndef mesh_Mesh_BoundingBox_i_hpp
+#define mesh_Mesh_BoundingBox_i_hpp
 
 namespace Coupler
 {
 
 template<class HandleType, class CoordinateType>
-bool Bounding_Box<HandleType,CoordinateType>::point_query(PointType point)
+bool BoundingBox<HandleType,CoordinateType>::point_query(PointType point)
 {
     bool return_val = false;
 
@@ -33,8 +33,8 @@ bool Bounding_Box<HandleType,CoordinateType>::point_query(PointType point)
 
 } // end namespace Coupler
 
-#endif // mesh_Mesh_Bounding_Box_i_hpp
+#endif // mesh_Mesh_BoundingBox_i_hpp
 
 //---------------------------------------------------------------------------//
-//              end of mesh/Mesh_Bounding_Box.i.hpp
+//              end of mesh/Mesh_BoundingBox.i.hpp
 //---------------------------------------------------------------------------//
