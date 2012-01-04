@@ -3,4 +3,5 @@ INCLUDE(AddSubdirectories)
 
 ADD_SUBDIRECTORIES(
   WaveDamper
+  DenovoDriver
   )
