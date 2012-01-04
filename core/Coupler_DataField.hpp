@@ -58,10 +58,10 @@ class DataField
     typedef CoordinateType_T                                 CoordinateType;
     typedef int                                              OrdinalType;
     typedef Point<HandleType,CoordinateType>                 PointType;
-    typedef DataSource<DataType,HandleType,CoordinateType>  DataSource_t;
-    typedef Teuchos::RCP<DataSource_t>                      RCP_DataSource;
-    typedef DataTarget<DataType,HandleType,CoordinateType>  DataTarget_t;
-    typedef Teuchos::RCP<DataTarget_t>                      RCP_DataTarget;
+    typedef DataSource<DataType,HandleType,CoordinateType>   DataSource_t;
+    typedef Teuchos::RCP<DataSource_t>                       RCP_DataSource;
+    typedef DataTarget<DataType,HandleType,CoordinateType>   DataTarget_t;
+    typedef Teuchos::RCP<DataTarget_t>                       RCP_DataTarget;
     typedef Tpetra::Map<OrdinalType>                         Tpetra_Map_t;
     typedef Teuchos::RCP<const Tpetra_Map_t>                 RCP_Tpetra_Map;
     typedef Tpetra::Export<HandleType>                       Tpetra_Export_t;

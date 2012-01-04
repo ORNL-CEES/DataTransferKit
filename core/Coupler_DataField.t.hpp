@@ -94,13 +94,13 @@ void DataField<DataType,HandleType,CoordinateType>::transfer()
 template<class DataType, class HandleType, class CoordinateType>
 void DataField<DataType,HandleType,CoordinateType>::point_map()
 {
-    // Extract the local list of handles. These are the global indices for the
-    // Tpetra map.
+    // Extract the local list of target handles. These are the global indices
+    // for the target Tpetra map.
     const Teuchos::ArrayView<PointType> target_points = 
 	d_target->set_points( d_target_field_name );
     typename Teuchos::ArrayView<PointType>::const_iterator target_point_it;
 
-    std::vector<HandleType> target_handles(target_points.size());
+    std::vector<HandleType> target_handles( target_points.size() );
     typename std::vector<HandleType>::iterator target_handle_it;
 
     for (target_handle_it = target_handles.begin(), 
@@ -111,7 +111,7 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 	*target_handle_it = target_point_it->handle();
     }
 
-    const Teuchos::ArrayView<const HandleType> 	target_handles_view(target_handles);
+    const Teuchos::ArrayView<const HandleType> target_handles_view(target_handles);
     d_target_map = 
 	Tpetra::createNonContigMap<HandleType>( target_handles_view, d_comm);
 
