@@ -15,14 +15,13 @@
 
 #include "Teuchos_SerializationTraits.hpp"
 
+namespace Teuchos 
+{
 //===========================================================================//
 /*!
- * \class Mesh_SerializationTraits
  * \brief Serialization traits for mesh objects.
  */
 //===========================================================================//
-
-namespace Teuchos {
 
 // Point.
 template<typename Ordinal>

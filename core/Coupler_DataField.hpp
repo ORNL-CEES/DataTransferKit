@@ -106,11 +106,11 @@ class DataField
 
     // Constructor.
     DataField(RCP_Communicator comm_global,
-	       const std::string &source_field_name,
-	       RCP_DataSource source,
-	       const std::string &target_field_name,
-	       RCP_DataTarget target,
-	       bool scalar = false);
+	      const std::string &source_field_name,
+	      const std::string &target_field_name,
+	      RCP_DataSource source,
+	      RCP_DataTarget target,
+	      bool scalar = false);
 
     // Destructor.
     ~DataField();

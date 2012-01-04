@@ -52,10 +52,10 @@ int main(int argc, char* argv[])
 
     // Setup a Data Field for the wave field.
     Coupler::DataField<double,int,double> wave_field(comm,
-						      "WAVE_FIELD",
-						      wave_source,
-						      "WAVE_FIELD",
-						      damper_target);
+						     "WAVE_FIELD",
+						     "WAVE_FIELD",
+						     wave_source,
+						     damper_target);
 
     // Setup a Damper Data Source for the damper field.
     Teuchos::RCP<Coupler::DataSource<double,int,double> > damper_source = 
@@ -67,10 +67,10 @@ int main(int argc, char* argv[])
 
     // Setup a Data Field for the damper field.
     Coupler::DataField<double,int,double> damper_field(comm,
-							"DAMPER_FIELD",
-							damper_source,
-							"DAMPER_FIELD",
-							wave_target);
+						       "DAMPER_FIELD",
+						       "DAMPER_FIELD",
+						       damper_source,
+						       wave_target);
 
     // Iterate between the damper and wave until convergence.
     double local_norm = 0.0;

@@ -22,9 +22,6 @@
 
 namespace Coupler
 {
-
-//---------------------------------------------------------------------------//
-// CONSTRUCTOR and DESTRUCTOR
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
@@ -41,14 +38,14 @@ template<class DataType, class HandleType, class CoordinateType>
 DataField<DataType,HandleType,CoordinateType>::DataField(
     RCP_Communicator comm_global,
     const std::string &source_field_name,
-    RCP_DataSource source,
     const std::string &target_field_name,
+    RCP_DataSource source,
     RCP_DataTarget target,
     bool scalar)
     : d_comm(comm_global)
     , d_source_field_name(source_field_name)
-    , d_source(source)
     , d_target_field_name(target_field_name)
+    , d_source(source)
     , d_target(target)
     , d_scalar(scalar)
     , d_mapped(false)
@@ -63,6 +60,7 @@ DataField<DataType,HandleType,CoordinateType>::DataField(
     }
 }
 
+//---------------------------------------------------------------------------//
 /*!
  * \brief Destructor.
  */
@@ -70,8 +68,6 @@ template<class DataType, class HandleType, class CoordinateType>
 DataField<DataType,HandleType,CoordinateType>::~DataField()
 { /* ... */ }
 
-//---------------------------------------------------------------------------//
-// PUBLIC METHODS
 //---------------------------------------------------------------------------//
 /*!
  * \brief Transfer data from the data source to the data target.
@@ -91,8 +87,6 @@ void DataField<DataType,HandleType,CoordinateType>::transfer()
     }
 }
 
-//---------------------------------------------------------------------------//
-// PRIVATE METHODS
 //---------------------------------------------------------------------------//
 /*!
  * \brief Generate topology map for this field based on point mapping.
@@ -197,8 +191,8 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 template<class DataType, class HandleType, class CoordinateType>
 void DataField<DataType,HandleType,CoordinateType>::scalar_transfer()
 {
-    d_target->get_global_data( d_target_field_name, 
-			       d_source->set_global_data( d_source_field_name) );
+    DataType global_value = d_source->set_global_data( d_source_field_name);
+    d_target->get_global_data( d_target_field_name, global_value );
 }
 
 //---------------------------------------------------------------------------//

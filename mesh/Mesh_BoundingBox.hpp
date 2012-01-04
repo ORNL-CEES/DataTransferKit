@@ -79,6 +79,7 @@ class BoundingBox
     Domain& domain()       { return d_domain; }
     //@}
 
+    // Query the bounding box with a point.
     inline bool point_query(PointType point);
 };
 
