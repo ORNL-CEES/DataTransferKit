@@ -7,9 +7,6 @@
 ##---------------------------------------------------------------------------##
 
 INCLUDE(TribitsPackageMacros)
-INCLUDE(TribitsLibraryMacros)
-INCLUDE(TribitsAddOptionAndDefine)
-INCLUDE(CombinedOption)
 
 ##---------------------------------------------------------------------------##
 ## A) Define the package
@@ -20,19 +17,16 @@ TRIBITS_PACKAGE_DECL(Coupler)
 ##---------------------------------------------------------------------------##
 ## B) Set up package-specific options
 ##---------------------------------------------------------------------------##
+
 TRIBITS_ADD_DEBUG_OPTION()
 
+TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
+
 ##---------------------------------------------------------------------------##
-## C) Add the libraries, tests, and examples
+## C) Process subpackages
 ##---------------------------------------------------------------------------##
 
-SET(${PACKAGE_NAME}_INCLUDE_DIRS "")
-SET(${PACKAGE_NAME}_LIBRARY_DIRS "")
-SET(${PACKAGE_NAME}_LIBRARIES "")
-
-ADD_SUBDIRECTORY(src)
-TRIBITS_ADD_TEST_DIRECTORIES(test)
-TRIBITS_ADD_EXAMPLE_DIRECTORIES(example)
+TRIBITS_PROCESS_SUBPACKAGES()
 
 ##---------------------------------------------------------------------------##
 ## F) Do standard postprocessing
