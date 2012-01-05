@@ -16,8 +16,6 @@ The coupler has direct dependecies on the following Trilinos packages:
 *: Teuchos
 *: Tpetra
 
-For parallel operations, there is an optional dependency on MPI. Both OpenMPI 
-and MPICH2 implementations have been tested with this package.
 
 CONFIGURE and BUILD
 -------------------
