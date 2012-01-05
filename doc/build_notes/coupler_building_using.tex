@@ -132,9 +132,9 @@ cmake \
 -D TPL_ENABLE_MPI:BOOL=ON                         \
 -D VERA_EXTRA_REPOSITORIES="Trilinos;Coupler"     \
 -D Teuchos_ENABLE_EXTENDED:BOOL=ON                \
--D VERA_ENABLE_coupler:BOOL=ON                    \
--D coupler_ENABLE_TESTS:BOOL=ON                   \
--D coupler_ENABLE_EXAMPLES:BOOL=ON                \
+-D VERA_ENABLE_Coupler:BOOL=ON                    \
+-D Coupler_ENABLE_TESTS:BOOL=ON                   \
+-D Coupler_ENABLE_EXAMPLES:BOOL=ON                \
 /VERA
 \end{verbatim}
 
@@ -168,8 +168,8 @@ Test project /home/stuart/software/builds/VERA
 2/6 Test #2: couplerMesh_Bounding_Box_test_MPI_4 ........   Passed    1.24 sec
     Start 3: couplerCore_Interfaces_test_MPI_4
 3/6 Test #3: couplerCore_Interfaces_test_MPI_4 ..........   Passed    1.22 sec
-    Start 4: couplerCore_Data_Field_test_MPI_4
-4/6 Test #4: couplerCore_Data_Field_test_MPI_4 ..........   Passed    1.42 sec
+    Start 4: couplerCore_DataField_test_MPI_4
+4/6 Test #4: couplerCore_DataField_test_MPI_4 ..........   Passed    1.42 sec
     Start 5: couplerCore_Advanced_Transfer_test_MPI_4
 5/6 Test #5: couplerCore_Advanced_Transfer_test_MPI_4 ...   Passed    1.36 sec
     Start 6: couplerCore_WaveDamperExample_MPI_4
@@ -187,7 +187,7 @@ Total Test time (real) =  10.97 sec
 \section{Using the Coupling Package}
 To demonstrate using the coupling package in a multiphysics
 simulation, a simple example was constructed to show both
-implementations of the {\sl Data\_Source} and {\sl Data\_Target}
+implementations of the {\sl DataSource} and {\sl DataTarget}
 interfaces specified by the companion document {\sl Design and
   Implementation of the Coupling Pacakge} and a multiphysics driver
 utilizing the coupling package to perform data transfer in an
@@ -461,7 +461,7 @@ used in the interface implementations given by the following sections.
 \subsubsection{Wave Interface Implementations}
 As given above by the algorithm used to couple Wave to Damper, two way
 transfer is required and therefore both codes must implement the {\sl
-  Data\_Source} and {\sl Data\_Target} in order for this scheme to be
+  DataSource} and {\sl DataTarget} in order for this scheme to be
 possible. The following listings in this section give the interface
 implementations for the Wave code. For both interfaces, the scalar
 transfer methods were implemented to perform no operations as this
@@ -471,9 +471,9 @@ do not use the template parameters. Rather, they explicitly specify in
 the typdef block elements of type double to be transferred, int to be
 used for point handles, and doubles to be used for coordinates.
 
-To begin, the {\sl Data\_Source} implementation listing for the Wave
+To begin, the {\sl DataSource} implementation listing for the Wave
 code has several elements that should be addressed. First, the
-constructor in this implementation, and that of the {\sl Data\_Target}
+constructor in this implementation, and that of the {\sl DataTarget}
 implementation, takes a pointer to the wave object that it will
 operate on. For the {\sl comm()} method, a simple redirection is used
 to grab the communicator from the local Wave object. 
@@ -497,7 +497,7 @@ Wave code solution, provided by a refactor method {\sl get\_f()}.
   #include "Wave.hpp"
 
   #include <Mesh_Point.hpp>
-  #include <Coupler_Data_Source.hpp>
+  #include <Coupler_DataSource.hpp>
 
   #include "Teuchos_ArrayView.hpp"
   #include "Teuchos_RCP.hpp"
@@ -505,10 +505,10 @@ Wave code solution, provided by a refactor method {\sl get\_f()}.
 
   namespace Coupler {
 
-    // Data_Source interface implementation for the Wave code.
+    // DataSource interface implementation for the Wave code.
     template<class DataType_T, class HandleType_T, class CoordinateType_T>
-    class Wave_Data_Source 
-    : public Data_Source<DataType_T, HandleType_T, CoordinateType_T>
+    class Wave_DataSource 
+    : public DataSource<DataType_T, HandleType_T, CoordinateType_T>
     {
       public:
 
@@ -528,11 +528,11 @@ Wave code solution, provided by a refactor method {\sl get\_f()}.
 
       public:
 
-      Wave_Data_Source(RCP_Wave _wave)
+      Wave_DataSource(RCP_Wave _wave)
       : wave(_wave)
       { /* ... */ }
 
-      ~Wave_Data_Source()
+      ~Wave_DataSource()
       { /* ... */ }
 
       RCP_Communicator comm()
@@ -590,8 +590,8 @@ Wave code solution, provided by a refactor method {\sl get\_f()}.
   } // end namespace Coupler
 \end{lstlisting}
 
-The {\sl Data\_Target} interface implementation for the Wave code
-follows the same principles as the {\sl Data\_Source} implementation
+The {\sl DataTarget} interface implementation for the Wave code
+follows the same principles as the {\sl DataSource} implementation
 given by the previous listing. In this case, the Wave code is acting
 as a target for the DAMPER\_FIELD and therfore all methods operating
 by field name check for this field. In addition, the {\sl set\_points}
@@ -607,7 +607,7 @@ the private data structures of Wave.
   #include "Wave.hpp"
 
   #include <Mesh_Point.hpp>
-  #include <Coupler_Data_Target.hpp>
+  #include <Coupler_DataTarget.hpp>
 
   #include "Teuchos_ArrayView.hpp"
   #include "Teuchos_RCP.hpp"
@@ -615,10 +615,10 @@ the private data structures of Wave.
 
   namespace Coupler {
 
-    // Data_Target interface implementation for the Wave code.
+    // DataTarget interface implementation for the Wave code.
     template<class DataType_T, class HandleType_T, class CoordinateType_T>
-    class Wave_Data_Target 
-    : public Data_Target<DataType_T, HandleType_T, CoordinateType_T>
+    class Wave_DataTarget 
+    : public DataTarget<DataType_T, HandleType_T, CoordinateType_T>
     {
       public:
 
@@ -638,11 +638,11 @@ the private data structures of Wave.
 
       public:
 
-      Wave_Data_Target(RCP_Wave _wave)
+      Wave_DataTarget(RCP_Wave _wave)
       : wave(_wave)
       { /* ... */ }
 
-      ~Wave_Data_Target()
+      ~Wave_DataTarget()
       { /* ... */ }
 
       RCP_Communicator comm()
@@ -725,7 +725,7 @@ string values are used accordingly within the implementations.
   #include "Damper.hpp"
 
   #include <Mesh_Point.hpp>
-  #include <Coupler_Data_Source.hpp>
+  #include <Coupler_DataSource.hpp>
 
   #include "Teuchos_ArrayView.hpp"
   #include "Teuchos_RCP.hpp"
@@ -733,10 +733,10 @@ string values are used accordingly within the implementations.
 
   namespace Coupler {
 
-    // Data_Source interface implementation for the Damper code.
+    // DataSource interface implementation for the Damper code.
     template<class DataType_T, class HandleType_T, class CoordinateType_T>
-    class Damper_Data_Source 
-    : public Data_Source<DataType_T, HandleType_T, CoordinateType_T>
+    class Damper_DataSource 
+    : public DataSource<DataType_T, HandleType_T, CoordinateType_T>
     {
       public:
 
@@ -756,11 +756,11 @@ string values are used accordingly within the implementations.
 
       public:
 
-      Damper_Data_Source(RCP_Damper _damper)
+      Damper_DataSource(RCP_Damper _damper)
       : damper(_damper)
       { /* ... */ }
 
-      ~Damper_Data_Source()
+      ~Damper_DataSource()
       { /* ... */ }
 
       RCP_Communicator comm()
@@ -829,7 +829,7 @@ expected representation of its grid to the interfaces.
   #include "Damper.hpp"
 
   #include <Mesh_Point.hpp>
-  #include <Coupler_Data_Target.hpp>
+  #include <Coupler_DataTarget.hpp>
 
   #include "Teuchos_ArrayView.hpp"
   #include "Teuchos_RCP.hpp"
@@ -837,10 +837,10 @@ expected representation of its grid to the interfaces.
 
   namespace Coupler {
 
-    // Data_Target interface implementation for the Damper code.
+    // DataTarget interface implementation for the Damper code.
     template<class DataType_T, class HandleType_T, class CoordinateType_T>
-    class Damper_Data_Target 
-    : public Data_Target<DataType_T, HandleType_T, CoordinateType_T>
+    class Damper_DataTarget 
+    : public DataTarget<DataType_T, HandleType_T, CoordinateType_T>
     {
       public:
 
@@ -860,11 +860,11 @@ expected representation of its grid to the interfaces.
 
       public:
 
-      Damper_Data_Target(RCP_Damper _damper)
+      Damper_DataTarget(RCP_Damper _damper)
       : damper(_damper)
       { /* ... */ }
 
-      ~Damper_Data_Target()
+      ~Damper_DataTarget()
       { /* ... */ }
 
       RCP_Communicator comm()
@@ -942,10 +942,10 @@ After parallel initialization, a domain from 0.0 to 5.0 is distributed
 in parallel across each process for each code. The bounds of the
 computed local domain are applied in the constructor for each
 code. Following this, the WAVE\_FIELD is setup for transfer. An
-instance of the {\sl Data\_Source} interface is created from the {\sl
-  Wave\_Data\_Source} implementation and {\sl Data\_Target} interface
+instance of the {\sl DataSource} interface is created from the {\sl
+  Wave\_Data\_Source} implementation and {\sl DataTarget} interface
 is created from the {\sl Damper\_Data\_Target} implementation. A {\sl
-  Data\_Field} is then constructed to transfer the WAVE\_FIELD from
+  DataField} is then constructed to transfer the WAVE\_FIELD from
 the Wave code to the Damper code. The same process is repeated for the
 DAMPER\_FIELD. 
 
@@ -965,9 +965,9 @@ algorithm specified by the picard iteration pseudocode above.
   #include "Damper_Source.hpp"
   #include "Damper_Target.hpp"
 
-  #include <Coupler_Data_Source.hpp>
-  #include <Coupler_Data_Target.hpp>
-  #include <Coupler_Data_Field.hpp>
+  #include <Coupler_DataSource.hpp>
+  #include <Coupler_DataTarget.hpp>
+  #include <Coupler_DataField.hpp>
 
   #include "Teuchos_RCP.hpp"
   #include "Teuchos_CommHelpers.hpp"
@@ -1001,29 +1001,31 @@ algorithm specified by the picard iteration pseudocode above.
     Teuchos::rcp( new Damper(comm, myMin, myMax, 10) ); 
 
     // Setup a Wave Data Source for the wave field.
-    Teuchos::RCP<Coupler::Data_Source<double,int,double> > wave_source = 
-    Teuchos::rcp( new Coupler::Wave_Data_Source<double,int,double>(wave) );
+    Teuchos::RCP<Coupler::DataSource<double,int,double> > wave_source = 
+    Teuchos::rcp( new Coupler::Wave_DataSource<double,int,double>(wave) );
 
     // Setup a Damper Data Target for the wave field.
-    Teuchos::RCP<Coupler::Data_Target<double,int,double> > damper_target = 
-    Teuchos::rcp( new Coupler::Damper_Data_Target<double,int,double>(damper) );
+    Teuchos::RCP<Coupler::DataTarget<double,int,double> > damper_target = 
+    Teuchos::rcp( new Coupler::Damper_DataTarget<double,int,double>(damper) );
 
     // Setup a Data Field for the wave field.
-    Coupler::Data_Field<double,int,double> wave_field(comm,
+    Coupler::DataField<double,int,double> wave_field(comm,
+    "WAVE_FIELD",
     "WAVE_FIELD",
     wave_source,
     damper_target);
 
     // Setup a Damper Data Source for the damper field.
-    Teuchos::RCP<Coupler::Data_Source<double,int,double> > damper_source = 
-    Teuchos::rcp( new Coupler::Damper_Data_Source<double,int,double>(damper) );
+    Teuchos::RCP<Coupler::DataSource<double,int,double> > damper_source = 
+    Teuchos::rcp( new Coupler::Damper_DataSource<double,int,double>(damper) );
 
     // Setup a Wave Data Target for the damper field.
-    Teuchos::RCP<Coupler::Data_Target<double, int, double> > wave_target = 
-    Teuchos::rcp( new Coupler::Wave_Data_Target<double,int,double>(wave) );
+    Teuchos::RCP<Coupler::DataTarget<double, int, double> > wave_target = 
+    Teuchos::rcp( new Coupler::Wave_DataTarget<double,int,double>(wave) );
 
     // Setup a Data Field for the damper field.
-    Coupler::Data_Field<double,int,double> damper_field(comm,
+    Coupler::DataField<double,int,double> damper_field(comm,
+    "DAMPER_FIELD",
     "DAMPER_FIELD",
     damper_source,
     wave_target);

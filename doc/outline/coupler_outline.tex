@@ -112,17 +112,17 @@ order to meet the coupling algorithm requirements in concrete data
 transfer implementations.
 
 In its current form, the interface to the coupling package exists as
-two abstract interfaces contained by the {\sl Data\_Source} and the
-{\sl Data\_Target} classes. At least one of these interfaces should be
+two abstract interfaces contained by the {\sl DataSource} and the
+{\sl DataTarget} classes. At least one of these interfaces should be
 fulfilled by each physics code that desires to participate in coupling
 under this framework by creating its own implementation of the {\sl
-  Data\_Source} interface for supplying data to the coupling package
-and the {\sl Data\_Target} interface for receiving data from the
+  DataSource} interface for supplying data to the coupling package
+and the {\sl DataTarget} interface for receiving data from the
 coupling package. By implementing these, a code will provide the
 necessary information to implement coupling algorithms. 
 
-The following sections provide the {\sl Data\_Source} and {\sl
-  Data\_Target} abstract interfaces. All methods defined by these
+The following sections provide the {\sl DataSource} and {\sl
+  DataTarget} abstract interfaces. All methods defined by these
 interfaces are pure virtual and must therefore be defined by all
 implementations. Three template parameters are defined for the
 interfaces, the scalar data type to be transferred, the handle type
@@ -152,21 +152,21 @@ requirements.
 
 %%---------------------------------------------------------------------------%%
 \subsection{Data Source Interface}
-The {\sl Data\_Source} interface consists of the following pure
+The {\sl DataSource} interface consists of the following pure
 virtual methods to be implemented by the client application.
 
-\paragraph{\sl Data\_Source::comm()}
+\paragraph{\sl DataSource::comm()}
 This method requires the client application to return a Teuchos::RCP
 to a const reference of its communicator object. For the case of an
 MPI implementation, this is not required to be MPI\_COMM\_WORLD.
 
-\paragraph{\sl Data\_Source::field\_supported()}
+\paragraph{\sl DataSource::field\_supported()}
 This method checks whether or not a particular field, indicated by
 name with a string, is implemented for transfer by the client. Given
 this string, the client should return true if the field is supported,
 false if not.
 
-\paragraph{\sl Data\_Source::get\_points()}
+\paragraph{\sl DataSource::get\_points()}
 Given a point object, the client returns true if this point resides in
 the local domain and should therefore be mapped, and false if not. As
 this is the only method in the interface that supplies target points
@@ -174,16 +174,16 @@ to the source application, it is recommended that if the point handles
 and/or coordinates are required by the client for data transfer, that
 they be cached during the implementation of this method.
 
-\paragraph{\sl Data\_Source::send\_data()}
+\paragraph{\sl DataSource::send\_data()}
 For a given field identified by a string, return a const
 Teuchos::ArrayView of the data corresponding to the target points
 found in the local domain through the {\sl get\_points} method.
 
-\paragraph{\sl Data\_Source::set\_global\_data()}
+\paragraph{\sl DataSource::set\_global\_data()}
 For a given field identified by a string, return a single global data
 value.
 
-The following listing provides the {\sl Data\_Source} abstract
+The following listing provides the {\sl DataSource} abstract
 interface. 
 
 \begin{lstlisting}
@@ -199,7 +199,7 @@ interface.
   {
 
     template<class DataType_T, class HandleType_T, class CoordinateType_T>
-    class Data_Source 
+    class DataSource 
     {
       public:
 
@@ -211,10 +211,10 @@ interface.
       typedef Teuchos::Comm<OrdinalType>                 Communicator_t;
       typedef Teuchos::RCP<const Communicator_t>         RCP_Communicator;
 
-      Data_Source()
+      DataSource()
       { /* ... */ }
 
-      virtual ~Data_Source()
+      virtual ~DataSource()
       { /* ... */ }
 
       virtual RCP_Communicator comm() = 0;
@@ -234,36 +234,36 @@ interface.
 
 %%---------------------------------------------------------------------------%%
 \subsection{Data Target Interface}
-The {\sl Data\_Target} interface consists of the following pure
+The {\sl DataTarget} interface consists of the following pure
 virtual methods to be implemented by the client application.
 
-\paragraph{\sl Data\_Target::comm()}
+\paragraph{\sl DataTarget::comm()}
 This method requires the client application to return a Teuchos::RCP
 to a const reference of its communicator object. For the case of an
 MPI implementation, this is not required to be MPI\_COMM\_WORLD.
 
-\paragraph{\sl Data\_Target::field\_supported()}
+\paragraph{\sl DataTarget::field\_supported()}
 This method checks whether or not a particular field, indicated by
 name with a string, is implemented for transfer by the client. Given
 this string, the client should return true if the field is supported,
 false if not.
 
-\paragraph{\sl Data\_Target::set\_points()}
+\paragraph{\sl DataTarget::set\_points()}
 For a given field identified by a string, return a Teuchos::ArrayView
 of all the points to which data should be mapped in the local target
 domain. All point handles are required to be globally unique.
 
-\paragraph{\sl Data\_Target::receive\_data()}
+\paragraph{\sl DataTarget::receive\_data()}
 For a given field identified by a string, return a non-const
 Teuchos::ArrayView of the data vector associated with the points
 provided by the {\sl set\_points} method. This array view will be used
 to write data into the target.
 
-\paragraph{\sl Data\_Target::get\_global\_data()}
+\paragraph{\sl DataTarget::get\_global\_data()}
 For a given field identified by a string, a single global data value
 is provided.
 
-The following listing provides the {\sl Data\_Target} abstract
+The following listing provides the {\sl DataTarget} abstract
 interface. 
 
 \begin{lstlisting}
@@ -271,7 +271,7 @@ interface.
   {
 
     template<class DataType_T, class HandleType_T, class CoordinateType_T>
-    class Data_Target 
+    class DataTarget 
     {
       public:
 
@@ -283,10 +283,10 @@ interface.
       typedef Teuchos::Comm<OrdinalType>                 Communicator_t;
       typedef Teuchos::RCP<const Communicator_t>         RCP_Communicator;
 
-      Data_Target()
+      DataTarget()
       { /* ... */ }
 
-      virtual ~Data_Target()
+      virtual ~DataTarget()
       { /* ... */ }
 
       virtual RCP_Communicator comm() = 0;
@@ -308,14 +308,14 @@ interface.
 
 %%---------------------------------------------------------------------------%%
 \subsection{Data Field}
-The relationship between a particular {\sl Data\_Source} and {\sl
-  Data\_Target} implementation is contained by the {\sl Data\_Field}
+The relationship between a particular {\sl DataSource} and {\sl
+  DataTarget} implementation is contained by the {\sl DataField}
 object. Both mapping and transfer operations between the {\sl
-  Data\_Source} and {\sl Data\_Target} are handled by the {\sl
-  Data\_Field}. The following methods are available for the {\sl
-  Data\_Field} object.
+  DataSource} and {\sl DataTarget} are handled by the {\sl
+  DataField}. The following methods are available for the {\sl
+  DataField} object.
 
-\paragraph{\sl Data\_Field::Data\_Field()}
+\paragraph{\sl DataField::DataField()}
 The constructor for this object requires the communicator on which to
 operate. At a minimum, this should correspond to the union of the
 target and source communicators. Again, for MPI implementations this
@@ -327,7 +327,7 @@ pointers to the two interface implementations, and an optional boolean
 indicating whether or not this is a scalar field. The default value of
 this boolean is false, indicating that the field is distributed.
 
-\paragraph{\sl Data\_Field::transfer()}
+\paragraph{\sl DataField::transfer()}
 Transfer the data associated with the field. This method has no
 arguments. 
 
@@ -337,13 +337,17 @@ interfaces. In this example, the scalar data type to be transferred is
 double, handle type is int, and coordinate type is float.
 
 \begin{lstlisting}
-  Teuchos::RCP<Data_Source<double,int,float> > source = 
-  Teuchos::rcp( new Data_Source_Implementation<double,int,float>() );
+  Teuchos::RCP<DataSource<double,int,float> > source = 
+  Teuchos::rcp( new DataSource_Implementation<double,int,float>() );
 
-  Teuchos::RCP<Data_Target<double,int,float> > target = 
-  Teuchos::rcp( new Data_Target_Implementation<double,int,float>() );
+  Teuchos::RCP<DataTarget<double,int,float> > target = 
+  Teuchos::rcp( new DataTarget_Implementation<double,int,float>() );
 
-  Data_Field<double,int,float> field( MPI_COMM_WORLD, "DISTRIBUTED_FIELD", source, target ); 
+  DataField<double,int,float> field( MPI_COMM_WORLD, 
+                                     "SOURCE_DISTRIBUTED_FIELD",
+                                     "TARGET_DISTRIBUTED_FIELD",
+                                     source, 
+                                     target ); 
 
   field.transfer();
 \end{lstlisting}
@@ -406,7 +410,7 @@ advanced mesh-based coupling and data structures.
 A supporting document has been generated outlining how to acquire and
 build the coupler along with an example of how to generate a simple
 parallel multiphysics application using this package by implementing
-the interfaces and using the {\sl Data\_Field} for transfer. In
+the interfaces and using the {\sl DataField} for transfer. In
 addition, this supporting document outlines other elements of the
 coupling package (e.g. software engineering practices) not presented
 here. 

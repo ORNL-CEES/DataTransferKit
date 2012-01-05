@@ -25,12 +25,15 @@ namespace Coupler
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
- * \param field_name The name of this field. Required by the
- * Coupler_Data_Source and Coupler_Data_Target interfaces to check field
- * support.
- * \param source Coupler_Data_Source implementation that will serve as the
+ * \param source_field_name The name of the field supplied by the data
+ * source. Required by the Coupler_DataSource interface to check field
+ * support. 
+ * \param target_field_name The name of the field supplied by the data
+ * target. Required by the Coupler_DataTarget interface to check field
+ * support. 
+ * \param source Coupler_DataSource implementation that will serve as the
  * data source for this field.
- * \param target Coupler_Data_Target implementation that will serve as the
+ * \param target Coupler_DataTarget implementation that will serve as the
  * target for this field.
  * \param scalar Set to true if this field is scalar, false if distributed.
  */
@@ -69,6 +72,8 @@ DataField<DataType,HandleType,CoordinateType>::~DataField()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// PUBLIC
+//---------------------------------------------------------------------------//
 /*!
  * \brief Transfer data from the data source to the data target.
  */
@@ -87,6 +92,8 @@ void DataField<DataType,HandleType,CoordinateType>::transfer()
     }
 }
 
+//---------------------------------------------------------------------------//
+// PRIVATE
 //---------------------------------------------------------------------------//
 /*!
  * \brief Generate topology map for this field based on point mapping.
