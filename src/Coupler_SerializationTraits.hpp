@@ -1,25 +1,25 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   mesh/Mesh_SerializationTraits.hpp
+ * \file   Coupler_SerializationTraits.hpp
  * \author Stuart Slattery
  * \date   Fri Dec 09 09:25:58 2011
- * \brief  Serialization traits for mesh objects.
+ * \brief  Serialization traits for coupler objects.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef mesh_Mesh_SerializationTraits_hpp
-#define mesh_Mesh_SerializationTraits_hpp
+#ifndef COUPLER_SERIALIZATIONTRAITS_HPP
+#define COUPLER_SERIALIZATIONTRAITS_HPP
 
-#include <Mesh_Point.hpp>
-#include <Mesh_BoundingBox.hpp>
+#include "Coupler_Point.hpp"
+#include "Coupler_BoundingBox.hpp"
 
-#include "Teuchos_SerializationTraits.hpp"
+#include <Teuchos_SerializationTraits.hpp>
 
 namespace Teuchos 
 {
 //===========================================================================//
 /*!
- * \brief Serialization traits for mesh objects.
+ * \brief Serialization traits for coupler objects.
  */
 //===========================================================================//
 
@@ -67,8 +67,8 @@ class SerializationTraits<Ordinal,Coupler::BoundingBox<long int,float> >
 
 } // end namepsace Teuchos
 
-#endif // mesh_Mesh_SerializationTraits_hpp
+#endif // COUPLER_SERIALIZATIONTRAITS_HPP
 
 //---------------------------------------------------------------------------//
-//              end of mesh/Mesh_SerializationTraits.hpp
+//              end of Coupler_SerializationTraits.hpp
 //---------------------------------------------------------------------------//

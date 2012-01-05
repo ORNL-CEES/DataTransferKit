@@ -1,24 +1,24 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/Coupler_DataField.t.hpp
+ * \file   Coupler_DataField.t.hpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
  * \brief  Coupler_DataField template member definitions.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef core_Coupler_DataField_t_hpp
-#define core_Coupler_DataField_t_hpp
+#ifndef COUPLER_DATAFIELD_T_HPP
+#define COUPLER_DATAFIELD_T_HPP
 
 #include <cassert>
 #include <algorithm>
 #include <vector>
 
-#include <Mesh_SerializationTraits.hpp>
+#include "Coupler_SerializationTraits.hpp"
 
-#include "Teuchos_CommHelpers.hpp"
+#include <Teuchos_CommHelpers.hpp>
 
-#include "Tpetra_Vector.hpp"
+#include <Tpetra_Vector.hpp>
 
 namespace Coupler
 {
@@ -216,7 +216,7 @@ void DataField<DataType,HandleType,CoordinateType>::distributed_transfer()
 
 } // end namespace Coupler
 
-#endif // core_Coupler_DataField_t_hpp
+#endif // COUPLER_DATAFIELD_T_HPP
 
 //---------------------------------------------------------------------------//
 //                 end of Coupler_DataField.t.hpp

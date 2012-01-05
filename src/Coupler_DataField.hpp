@@ -1,27 +1,26 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/Coupler_DataField.hpp
+ * \file   Coupler_DataField.hpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
  * \brief  Coupler_DataField class definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef core_Coupler_DataField_hpp
-#define core_Coupler_DataField_hpp
+#ifndef COUPLER_DATAFIELD_HPP
+#define COUPLER_DATAFIELD_HPP
 
 #include <string>
 
-#include <Mesh_Point.hpp>
+#include "Coupler_Point.hpp"
+#include "Coupler_DataSource.hpp"
+#include "Coupler_DataTarget.hpp"
 
-#include <Coupler_DataSource.hpp>
-#include <Coupler_DataTarget.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
 
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Comm.hpp"
-
-#include "Tpetra_Map.hpp"
-#include "Tpetra_Export.hpp"
+#include <Tpetra_Map.hpp>
+#include <Tpetra_Export.hpp>
 
 namespace Coupler
 {
@@ -175,8 +174,8 @@ class DataField
 
 #include "Coupler_DataField.t.hpp"
 
-#endif // core_Coupler_DataField_hpp
+#endif // COUPLER_DATAFIELD_HPP
 
 //---------------------------------------------------------------------------//
-//              end of core/Coupler_DataField.hpp
+//              end of Coupler_DataField.hpp
 //---------------------------------------------------------------------------//

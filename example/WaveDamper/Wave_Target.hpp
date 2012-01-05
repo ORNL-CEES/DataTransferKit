@@ -6,7 +6,7 @@
 
 #include "Wave.hpp"
 
-#include <Mesh_Point.hpp>
+#include <Coupler_Point.hpp>
 #include <Coupler_DataTarget.hpp>
 
 #include "Teuchos_ArrayView.hpp"

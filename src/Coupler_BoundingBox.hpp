@@ -1,31 +1,31 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   mesh/Mesh_BoundingBox.hpp
+ * \file   coupler/Coupler_BoundingBox.hpp
  * \author Stuart Slattery
  * \date   Thu Dec 08 09:58:46 2011
  * \brief  Bounding box class definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef mesh_Mesh_BoundingBox_hpp
-#define mesh_Mesh_BoundingBox_hpp
+#ifndef COUPLER_BOUNDINGBOX_HPP
+#define COUPLER_BOUNDINGBOX_HPP
 
-#include <Mesh_Point.hpp>
+#include "Coupler_Point.hpp"
 
-#include "Teuchos_Tuple.hpp"
+#include <Teuchos_Tuple.hpp>
 
 namespace Coupler
 {
 
 //===========================================================================//
 /*!
- * \class Mesh_BoundingBox
+ * \class Coupler_BoundingBox
  * \brief A bounding box definition for local meshes.
  *
  * A class for encapsulating the local mesh bounding box.
  */
 /*! 
- * \example mesh/test/tstMesh_BoundingBox.cpp
+ * \example coupler/test/tstBoundingBox.cpp
  *
  * Test of BoundingBox.
  */
@@ -89,10 +89,10 @@ class BoundingBox
 // INLINE FUNCTIONS
 //---------------------------------------------------------------------------//
 
-#include "Mesh_BoundingBox.i.hpp"
+#include "Coupler_BoundingBox.i.hpp"
 
-#endif // mesh_Mesh_BoundingBox_hpp
+#endif // COUPLER_BOUNDINGBOX_HPP
 
 //---------------------------------------------------------------------------//
-//              end of mesh/Mesh_BoundingBox.hpp
+//              end of Coupler_BoundingBox.hpp
 //---------------------------------------------------------------------------//

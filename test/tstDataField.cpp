@@ -12,8 +12,7 @@
 #include <cmath>
 #include <sstream>
 
-#include <Mesh_Point.hpp>
-
+#include <Coupler_Point.hpp>
 #include <Coupler_DataSource.hpp>
 #include <Coupler_DataTarget.hpp>
 #include <Coupler_DataField.hpp>

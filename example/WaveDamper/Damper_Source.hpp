@@ -1,11 +1,11 @@
-#ifndef wave_source_hpp
-#define wave_source_hpp
+#ifndef damper_source_hpp
+#define damper_source_hpp
 
 #include <algorithm>
 
-#include "Wave.hpp"
+#include "Damper.hpp"
 
-#include <Mesh_Point.hpp>
+#include <Coupler_Point.hpp>
 #include <Coupler_DataSource.hpp>
 
 #include "Teuchos_ArrayView.hpp"
@@ -15,9 +15,9 @@
 //---------------------------------------------------------------------------//
 namespace Coupler {
 
-// DataSource interface implementation for the Wave code.
+// DataSource interface implementation for the Damper code.
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
-class Wave_DataSource 
+class Damper_DataSource 
     : public DataSource<DataType_T, HandleType_T, CoordinateType_T>
 {
   public:
@@ -29,32 +29,32 @@ class Wave_DataSource
     typedef Point<HandleType,CoordinateType>         PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
-    typedef Teuchos::RCP<Wave>                       RCP_Wave;
+    typedef Teuchos::RCP<Damper>                     RCP_Damper;
 
   private:
 
-    // Wave object to operate on.
-    RCP_Wave wave;
+    // Damper object to operate on.
+    RCP_Damper damper;
 
   public:
 
-    Wave_DataSource(RCP_Wave _wave)
-	: wave(_wave)
+    Damper_DataSource(RCP_Damper _damper)
+	: damper(_damper)
     { /* ... */ }
 
-    ~Wave_DataSource()
+    ~Damper_DataSource()
     { /* ... */ }
 
     RCP_Communicator comm()
     {
-	return wave->get_comm();
+	return damper->get_comm();
     }
 
     bool field_supported(const std::string &field_name)
     {
 	bool return_val = false;
 
-	if (field_name == "WAVE_FIELD")
+	if (field_name == "DAMPER_FIELD")
 	{
 	    return_val = true;
 	}
@@ -66,10 +66,10 @@ class Wave_DataSource
     {
 	bool return_val = false;
 
-	if ( std::find(wave->get_grid().begin(), 
-		       wave->get_grid().end(),
+	if ( std::find(damper->get_grid().begin(), 
+		       damper->get_grid().end(),
 		       point.x() )
-	     != wave->get_grid().end() )
+	     != damper->get_grid().end() )
 	{
 	    return_val = true;
 	}
@@ -81,9 +81,9 @@ class Wave_DataSource
     {
 	Teuchos::ArrayView<DataType> return_view;
 
-	if ( field_name == "WAVE_FIELD" )
+	if ( field_name == "DAMPER_FIELD" )
 	{
-	    return_view = Teuchos::ArrayView<DataType>( wave->get_f() );
+	    return_view = Teuchos::ArrayView<DataType>( damper->get_damping() );
 	}
 
 	return return_view;
@@ -99,4 +99,4 @@ class Wave_DataSource
 
 } // end namespace Coupler
 
-#endif // end wave_source_hpp
+#endif // end damper_source_hpp

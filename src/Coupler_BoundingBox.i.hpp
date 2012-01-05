@@ -1,14 +1,14 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   mesh/Mesh_BoundingBox.i.hpp
+ * \file   Coupler_BoundingBox.i.hpp
  * \author Stuart Slattery
  * \date   Thu Dec 08 09:58:46 2011
- * \brief  Member definitions of class Mesh_BoundingBox.
+ * \brief  Member definitions of class BoundingBox.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef mesh_Mesh_BoundingBox_i_hpp
-#define mesh_Mesh_BoundingBox_i_hpp
+#ifndef COUPLER_BOUNDINGBOX_I_HPP
+#define COUPLER_BOUNDINGBOX_I_HPP
 
 namespace Coupler
 {
@@ -33,8 +33,8 @@ bool BoundingBox<HandleType,CoordinateType>::point_query(PointType point)
 
 } // end namespace Coupler
 
-#endif // mesh_Mesh_BoundingBox_i_hpp
+#endif // COUPLER_BOUNDINGBOX_I_HPP
 
 //---------------------------------------------------------------------------//
-//              end of mesh/Mesh_BoundingBox.i.hpp
+//              end of Coupler_BoundingBox.i.hpp
 //---------------------------------------------------------------------------//

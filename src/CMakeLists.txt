@@ -1,12 +1,10 @@
+# CMakeLists.txt for src
 
 INCLUDE(TribitsLibraryMacros)
-INCLUDE(TribitsSubPackageMacros)
 
 #
 # A) Package-specific configuration options
 #
-
-TRIBITS_SUBPACKAGE(Mesh)
 
 #
 # B) Define the header and source files (and include directories)
@@ -19,16 +17,17 @@ SET(SOURCES "")
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
-# NOTE: Above, we add the XXX_config.h file so tht MS Visual Studio
-# will know to include this file in the dependency analysis
-
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  Mesh_Point.hpp
-  Mesh_BoundingBox.hpp
-  Mesh_BoundingBox.i.hpp
-  Mesh_SerializationTraits.hpp
+  Coupler_BoundingBox.hpp
+  Coupler_BoundingBox.i.hpp
+  Coupler_DataField.hpp
+  Coupler_DataField.t.hpp
+  Coupler_DataSource.hpp
+  Coupler_DataTarget.hpp
+  Coupler_Point.hpp
+  Coupler_SerializationTraits.hpp
   )
 
 # Set sources
@@ -53,7 +52,7 @@ ENDIF()
 #
 
 TRIBITS_ADD_LIBRARY(
-  coupler_mesh
+  coupler
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )
@@ -61,13 +60,4 @@ TRIBITS_ADD_LIBRARY(
 INSTALL(FILES 
   ${HEADERS} 
   DESTINATION 
-  ${CMAKE_INSTALL_PREFIX}/include/coupler/mesh)
-
-SET_TARGET_PROPERTIES(coupler_mesh PROPERTIES LINKER_LANGUAGE CXX)
-
-#
-# D) Define the unit tests
-#
-TRIBITS_ADD_TEST_DIRECTORIES(test)
-
-TRIBITS_SUBPACKAGE_POSTPROCESS()
+  ${CMAKE_INSTALL_PREFIX}/include/)

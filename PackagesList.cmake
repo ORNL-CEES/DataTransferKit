@@ -5,7 +5,7 @@
 INCLUDE(TribitsListHelpers)
 
 SET( Coupler_PACKAGES_AND_DIRS_AND_CLASSIFICATIONS
-  coupler         .     SS
+  Coupler         .     SS
   )
 
-PACKAGE_DISABLE_ON_PLATFORMS(coupler Windows)
+PACKAGE_DISABLE_ON_PLATFORMS(Coupler Windows)

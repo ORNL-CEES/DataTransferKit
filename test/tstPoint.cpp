@@ -12,8 +12,8 @@
 #include <cmath>
 #include <sstream>
 
-#include <Mesh_Point.hpp>
-#include <Mesh_SerializationTraits.hpp>
+#include <Coupler_Point.hpp>
+#include <Coupler_SerializationTraits.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"

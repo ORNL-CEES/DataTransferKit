@@ -12,8 +12,8 @@
 #include <cmath>
 #include <sstream>
 
-#include <Mesh_Point.hpp>
-#include <Mesh_BoundingBox.hpp>
+#include <Coupler_Point.hpp>
+#include <Coupler_BoundingBox.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_Tuple.hpp"

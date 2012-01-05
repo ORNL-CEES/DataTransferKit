@@ -1,14 +1,14 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   mesh/Point.hpp
+ * \file   Coupler_Point.hpp
  * \author Stuart R. Slattery
  * \date   Wed May 25 12:23:57 2011
  * \brief  Cartesian Point class definition
  */
 //---------------------------------------------------------------------------//
 
-#ifndef mesh_Point_hpp
-#define mesh_Point_hpp
+#ifndef COUPLER_POINT_HPP
+#define COUPLER_POINT_HPP
 
 namespace Coupler
 {
@@ -16,17 +16,9 @@ namespace Coupler
 /*!
  * \class Point
  * \brief Cartesian Point class container. Holds (x,y,z)
- *
- * \par Code Sample:
- * \code
- *     double x = 0.0;
- *     double y = 1.0;
- *     double z = 1.0;
- *     Point pt(x,y,z);
- * \endcode
  */
 /*! 
- * \example mesh_type/test/tstPoint.cc
+ * \example test/tstPoint.cc
  *
  * Test of Point.
  */
@@ -102,8 +94,8 @@ class Point
 
 } // end namespace Coupler
 
-#endif // mesh_Point_hpp
+#endif // COUPLER_POINT_HPP
 
 //---------------------------------------------------------------------------//
-//              end of mesh/Mesh_Point.hpp
+//              end of Coupler_Point.hpp
 //---------------------------------------------------------------------------//
