@@ -14,25 +14,16 @@ DEPENDENCIES
 The coupler has direct dependecies on the following Trilinos packages:
 
 *: Teuchos
-*: Trilinos
+*: Tpetra
 
 For parallel operations, there is an optional dependency on MPI. Both OpenMPI 
 and MPICH2 implementations have been tested with this package.
 
-CONFIGURE
----------
+CONFIGURE and BUILD
+-------------------
 
 The coupler uses the TriBITS cmake build system. See doc/build_notes/ for a 
 sample configure script and additional configure/build documentation.
-
-
-BUILD
------
-
-make - Standard build.
-
-make doc - Generate doxygen documentation.
-
 
 
 TEST
