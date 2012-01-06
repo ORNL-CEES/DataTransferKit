@@ -77,16 +77,23 @@ int main(int argc, char* argv[])
     double global_norm = 1.0;
     int num_iter = 0;
     int max_iter = 100;
+
+    // Create the mapping for the wave field.
+    wave_field.create_data_transfer_mapping();
+
+    // Create the mapping for the damper field.
+    damper_field.create_data_transfer_mapping();
+
     while( global_norm > 1.0e-6 && num_iter < max_iter )
     {
 	// Transfer the wave field.
-	wave_field.transfer();
+	wave_field.perform_data_transfer();
 
 	// Damper solve.
 	damper->solve();
 
 	// Transfer the damper field.
-	damper_field.transfer();
+	damper_field.perform_data_transfer();
 
 	// Wave solve.
 	local_norm = wave->solve();

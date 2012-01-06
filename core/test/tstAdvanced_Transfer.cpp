@@ -334,8 +334,11 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
 				       tds, 
 				       tdt);
 
+    // Create the mapping.
+    field.create_data_transfer_mapping();
+
     // Do the transfer.
-    field.transfer();
+    field.perform_data_transfer();
 
     // Check the points under the source interface to the verify communication
     // pattern of sending target points to the source.

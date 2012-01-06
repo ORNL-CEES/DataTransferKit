@@ -55,12 +55,6 @@ DataField<DataType,HandleType,CoordinateType>::DataField(
 { 
     assert( d_source->is_field_supported(d_source_field_name) &&
 	    d_target->is_field_supported(d_target_field_name) );
-
-    if ( !d_scalar )
-    {
-	point_map();
-	d_mapped = true;
-    }
 }
 
 //---------------------------------------------------------------------------//
@@ -78,7 +72,22 @@ DataField<DataType,HandleType,CoordinateType>::~DataField()
  * \brief Transfer data from the data source to the data target.
  */
 template<class DataType, class HandleType, class CoordinateType>
-void DataField<DataType,HandleType,CoordinateType>::transfer()
+void 
+DataField<DataType,HandleType,CoordinateType>::create_data_transfer_mapping()
+{ 
+    if ( !d_scalar )
+    {
+	point_map();
+	d_mapped = true;
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Transfer data from the data source to the data target.
+ */
+template<class DataType, class HandleType, class CoordinateType>
+void DataField<DataType,HandleType,CoordinateType>::perform_data_transfer()
 { 
     if ( d_scalar )
     {

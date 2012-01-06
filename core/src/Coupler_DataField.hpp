@@ -114,8 +114,12 @@ class DataField
     // Destructor.
     ~DataField();
 
+    // Generate the mapping for data transfer from the data source to the data
+    // target.
+    void create_data_transfer_mapping();
+
     // Transfer data from the data source to the data target.
-    void transfer();
+    void perform_data_transfer();
 
     //! Get the communicator.
     RCP_Communicator comm() const

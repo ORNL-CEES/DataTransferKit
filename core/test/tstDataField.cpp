@@ -339,7 +339,7 @@ TEUCHOS_UNIT_TEST( DataField, distributed_container_test )
     TEST_ASSERT( field.target_name() == "DISTRIBUTED_TEST_FIELD" );
     TEST_ASSERT( field.target() == tdt );
     TEST_ASSERT( !field.is_scalar() );
-    TEST_ASSERT( field.is_mapped() );
+    TEST_ASSERT( !field.is_mapped() );
 }
 
 TEUCHOS_UNIT_TEST( DataField, scalar_container_test )
@@ -406,6 +406,9 @@ TEUCHOS_UNIT_TEST( DataField, mapping_test )
 				       "DISTRIBUTED_TEST_FIELD",
 				       tds, 
 				       tdt);
+
+    // Generate the mapping.
+    field.create_data_transfer_mapping();
 
     // Check the points under the source interface to the verify communication
     // pattern of sending target points to the source.
@@ -475,7 +478,8 @@ TEUCHOS_UNIT_TEST( DataField, Scalar_Transfer_Test )
 				       true);
 
     // Do scalar transfer.
-    field.transfer();
+    field.perform_data_transfer();
+
     TEST_ASSERT( target_container->get_scalar_data() == 5.352 );
 }
 
@@ -506,8 +510,11 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
 				       tds, 
 				       tdt);
 
+    // Create the mapping.
+    field.create_data_transfer_mapping();
+
     // Do the transfer.
-    field.transfer();
+    field.perform_data_transfer();
 
     // Check the transferred data under the target interface.
     TEST_ASSERT( target_container->get_distributed_data().size() == 5 );
