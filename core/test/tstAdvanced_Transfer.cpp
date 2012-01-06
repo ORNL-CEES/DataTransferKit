@@ -128,12 +128,12 @@ class test_DataSource
     ~test_DataSource()
     { /* ... */ }
 
-    RCP_Communicator comm()
+    RCP_Communicator get_source_comm()
     {
 	return getDefaultComm<OrdinalType>();
     }
 
-    bool field_supported(const std::string &field_name)
+    bool is_field_supported(const std::string &field_name)
     {
 	bool return_val = false;
 
@@ -150,7 +150,7 @@ class test_DataSource
 	return return_val;
     }
 
-    bool get_points(const PointType &point)
+    bool is_local_point(const PointType &point)
     {
 	bool return_val = false;
 
@@ -169,7 +169,8 @@ class test_DataSource
 	return return_val;
     }
 
-    const Teuchos::ArrayView<double> send_data(const std::string &field_name)
+    const Teuchos::ArrayView<double> 
+    get_source_data(const std::string &field_name)
     {
 	Teuchos::ArrayView<double> return_view;
 
@@ -184,7 +185,7 @@ class test_DataSource
 	return return_view;
     }
 
-    double set_global_data(const std::string &field_name)
+    double get_global_source_data(const std::string &field_name)
     {
 	double return_val = 0.0;
 
@@ -233,12 +234,12 @@ class test_DataTarget
     ~test_DataTarget()
     { /* ... */ }
 
-    RCP_Communicator comm()
+    RCP_Communicator get_target_comm()
     {
 	return getDefaultComm<OrdinalType>();
     }
 
-    bool field_supported(const std::string &field_name)
+    bool is_field_supported(const std::string &field_name)
     {
 	bool return_val = false;
 
@@ -256,7 +257,7 @@ class test_DataTarget
     }
 
     const Teuchos::ArrayView<PointType> 
-    set_points(const std::string &field_name)
+    get_target_points(const std::string &field_name)
     {
 	Teuchos::ArrayView<PointType> return_view;
 
@@ -275,7 +276,8 @@ class test_DataTarget
 	return return_view;
     }
 
-    Teuchos::ArrayView<DataType> receive_data(const std::string &field_name)
+    Teuchos::ArrayView<DataType> 
+    get_target_data_space(const std::string &field_name)
     {
 	Teuchos::ArrayView<DataType> return_view;
 
@@ -287,8 +289,8 @@ class test_DataTarget
 	return return_view;
     }
 
-    void get_global_data(const std::string &field_name,
-			 const DataType &data)
+    void set_global_target_data(const std::string &field_name,
+				const DataType &data)
     {
 	if ( field_name == "SCALAR_TEST_FIELD" )
 	{

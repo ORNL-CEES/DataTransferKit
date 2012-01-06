@@ -53,8 +53,8 @@ DataField<DataType,HandleType,CoordinateType>::DataField(
     , d_scalar(scalar)
     , d_mapped(false)
 { 
-    assert( d_source->field_supported(d_source_field_name) &&
-	    d_target->field_supported(d_target_field_name) );
+    assert( d_source->is_field_supported(d_source_field_name) &&
+	    d_target->is_field_supported(d_target_field_name) );
 
     if ( !d_scalar )
     {
@@ -104,7 +104,7 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
     // Extract the local list of target handles. These are the global indices
     // for the target Tpetra map.
     const Teuchos::ArrayView<PointType> target_points = 
-	d_target->set_points( d_target_field_name );
+	d_target->get_target_points( d_target_field_name );
     typename Teuchos::ArrayView<PointType>::const_iterator target_point_it;
 
     std::vector<HandleType> target_handles( target_points.size() );
@@ -171,7 +171,7 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 	{
 	    if ( receive_point_it->handle() > -1 )
 	    {
-		if ( d_source->get_points(*receive_point_it) )
+		if ( d_source->is_local_point(*receive_point_it) )
 		{
 		    source_handles.push_back( receive_point_it->handle() );
 		}
@@ -198,8 +198,9 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 template<class DataType, class HandleType, class CoordinateType>
 void DataField<DataType,HandleType,CoordinateType>::scalar_transfer()
 {
-    DataType global_value = d_source->set_global_data( d_source_field_name);
-    d_target->get_global_data( d_target_field_name, global_value );
+    DataType global_value = 
+	d_source->get_global_source_data( d_source_field_name);
+    d_target->set_global_target_data( d_target_field_name, global_value );
 }
 
 //---------------------------------------------------------------------------//
@@ -210,13 +211,14 @@ template<class DataType, class HandleType, class CoordinateType>
 void DataField<DataType,HandleType,CoordinateType>::distributed_transfer()
 {
     Tpetra::Vector<DataType> data_source_vector( 
-	d_source_map, d_source->send_data(d_source_field_name) );
+	d_source_map, d_source->get_source_data(d_source_field_name) );
 
     Tpetra::Vector<DataType> data_target_vector(d_target_map);
 
     data_target_vector.doExport(data_source_vector, *d_export, Tpetra::INSERT);
 
-    data_target_vector.get1dCopy( d_target->receive_data(d_target_field_name) );
+    data_target_vector.get1dCopy( 
+	d_target->get_target_data_space(d_target_field_name) );
 }
 
 //---------------------------------------------------------------------------//

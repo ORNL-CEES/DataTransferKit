@@ -66,10 +66,11 @@ class DataTarget
     { /* ... */ }
 
     /*!
-     * \brief Register communicator object.
+     * \brief Get the communicator object for the physics implementing this
+     * interface.
      * \return The communicator for this physics.
      */
-    virtual RCP_Communicator comm() = 0;
+    virtual RCP_Communicator get_target_comm() = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this
@@ -77,35 +78,41 @@ class DataTarget
      * \param field_name The name of the field for which support is being
      * checked.
      */
-    virtual bool field_supported(const std::string &field_name) = 0;
+    virtual bool is_field_supported(const std::string &field_name) = 0;
 
     /*!
-     * \brief Set cartesian coordinates with a field. The order of these
-     * points will correspond to the order of the data returned from the
-     * transfer operation.
+     * \brief Given a field, provide the local points to map data on to. The
+     * order of these points will correspond to the order of the data returned
+     * from the transfer operation.
      * \param field_name The name of the field that the points are being
      * registered with.
      * \return View of the local target points.
      */
     virtual const Teuchos::ArrayView<PointType> 
-    set_points(const std::string &field_name) = 0;
+    get_target_points(const std::string &field_name) = 0;
 
     /*! 
-     * \brief Receive the field data by providing a view to be populated. 
+     * \brief Provide a persisting, non-const view of the local data vector 
+     * associated with the points provided by get_target_points.
      * \param field_name The name of the field to receive data from.
-     * \return A non-const view of the data vector to be populated.
+     * \return A non-const view of the data vector to be populated. This view
+     * has two requirements: 1) It is of size equal to the number of points
+     * provided by get_target_points, 2) It is a persistent view that will be
+     * used to write data into the underlying vector. The order of the data
+     * provided will be in the same order as the local points provided by
+     * get_target_points. 
      */
     virtual Teuchos::ArrayView<DataType> 
-    receive_data(const std::string &field_name) = 0;
+    get_target_data_space(const std::string &field_name) = 0;
 
     /*!
-     * \brief Given a field, get a global data element to be be received from
-     * a source.
-     * \param field_name The name of the field to receive data from.
-     * \param data The global data element.
+     * \brief Given a field, set a global data element provided by the
+     * source.
+     * \param field_name The name of the field to set data to.
+     * \param data The provided global data element.
      */
-    virtual void get_global_data(const std::string &field_name,
-				 const DataType &data) = 0;
+    virtual void set_global_target_data(const std::string &field_name,
+					const DataType &data) = 0;
 };
 
 } // end namespace Coupler

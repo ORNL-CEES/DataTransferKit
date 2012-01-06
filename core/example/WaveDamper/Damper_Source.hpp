@@ -45,12 +45,12 @@ class Damper_DataSource
     ~Damper_DataSource()
     { /* ... */ }
 
-    RCP_Communicator comm()
+    RCP_Communicator get_source_comm()
     {
 	return damper->get_comm();
     }
 
-    bool field_supported(const std::string &field_name)
+    bool is_field_supported(const std::string &field_name)
     {
 	bool return_val = false;
 
@@ -62,7 +62,7 @@ class Damper_DataSource
 	return return_val;
     }
 
-    bool get_points(const PointType &point)
+    bool is_local_point(const PointType &point)
     {
 	bool return_val = false;
 
@@ -77,7 +77,8 @@ class Damper_DataSource
 	return return_val;
     }
 
-    const Teuchos::ArrayView<DataType> send_data(const std::string &field_name)
+    const Teuchos::ArrayView<DataType> 
+    get_source_data(const std::string &field_name)
     {
 	Teuchos::ArrayView<DataType> return_view;
 
@@ -89,7 +90,7 @@ class Damper_DataSource
 	return return_view;
     }
 
-    DataType set_global_data(const std::string &field_name)
+    DataType get_global_source_data(const std::string &field_name)
     {
 	DataType return_val = 0.0;
 

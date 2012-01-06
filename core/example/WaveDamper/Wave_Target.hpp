@@ -46,12 +46,12 @@ class Wave_DataTarget
     ~Wave_DataTarget()
     { /* ... */ }
 
-    RCP_Communicator comm()
+    RCP_Communicator get_target_comm()
     {
 	return wave->get_comm();
     }
 
-    bool field_supported(const std::string &field_name)
+    bool is_field_supported(const std::string &field_name)
     {
 	bool return_val = false;
 
@@ -64,7 +64,7 @@ class Wave_DataTarget
     }
 
     const Teuchos::ArrayView<PointType> 
-    set_points(const std::string &field_name)
+    get_target_points(const std::string &field_name)
     {
 	Teuchos::ArrayView<PointType> return_view;
 
@@ -90,7 +90,8 @@ class Wave_DataTarget
 	return return_view;
     }
 
-    Teuchos::ArrayView<DataType> receive_data(const std::string &field_name)
+    Teuchos::ArrayView<DataType> 
+    get_target_data_space(const std::string &field_name)
     {
 	Teuchos::ArrayView<DataType> return_view;
 
@@ -102,8 +103,8 @@ class Wave_DataTarget
 	return return_view;
     }
 
-    void get_global_data(const std::string &field_name,
-			 const DataType &data)
+    void set_global_target_data(const std::string &field_name,
+				const DataType &data)
     { /* ... */ }
 };
 

@@ -66,10 +66,11 @@ class DataSource
     { /* ... */ }
 
     /*!
-     * \brief Register communicator object.
+     * \brief Get the communicator object for the physics implementing this
+     * interface.
      * \return The communicator for this physics.
      */
-    virtual RCP_Communicator comm() = 0;
+    virtual RCP_Communicator get_source_comm() = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this
@@ -77,7 +78,7 @@ class DataSource
      * \param field_name The name of the field for which support is being
      * checked.
      */
-    virtual bool field_supported(const std::string &field_name) = 0;
+    virtual bool is_field_supported(const std::string &field_name) = 0;
 
     /*! 
      * \brief Given (x,y,z) coordinates and an associated globally unique
@@ -85,23 +86,29 @@ class DataSource
      * the local domain, false if not. 
      * \param point Point to query the local domain with.
      */
-    virtual bool get_points(const PointType &point) = 0;
+    virtual bool is_local_point(const PointType &point) = 0;
 
     /*! 
-     * \brief Send the field data.
-     * \param field_name The name of the field to send data from.
-     * \return A const view of data to be sent.
+     * \brief Provide a const view of the local source data at the target
+     * points found by is_local_point.
+     * \param field_name The name of the field to provide data from.
+     * \return A const view of data to be sent. There are two requirements for
+     * this view: 1) it is of size equal to the number of points in the local
+     * domain, 2) the data is in the same order as the points found by
+     * is_local_point. This view is not required to persist as it is
+     * immediately copied.
      */
     virtual const Teuchos::ArrayView<DataType> 
-    send_data(const std::string &field_name) = 0;
+    get_source_data(const std::string &field_name) = 0;
 
     /*!
-     * \brief Given a field, set a global data element to be be sent to a
-     * target.
-     * \param field_name The name of the field to send data from.
+     * \brief Given a field, get a global data element to be sent to the
+     * target. 
+     * \param field_name The name of the field to get data from.
      * \return The global data element.
      */
-    virtual DataType set_global_data(const std::string &field_name) = 0;
+    virtual DataType 
+    get_global_source_data(const std::string &field_name) = 0;
 };
 
 } // end namespace Coupler
