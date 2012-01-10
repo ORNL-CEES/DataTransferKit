@@ -52,8 +52,8 @@ int main(int argc, char* argv[])
 
     // Setup a Data Field for the wave field.
     Coupler::DataField<double,int,double> wave_field(comm,
-						     "WAVE_FIELD",
-						     "WAVE_FIELD",
+						     "WAVE_SOURCE_FIELD",
+						     "WAVE_TARGET_FIELD",
 						     wave_source,
 						     damper_target);
 
@@ -67,8 +67,8 @@ int main(int argc, char* argv[])
 
     // Setup a Data Field for the damper field.
     Coupler::DataField<double,int,double> damper_field(comm,
-						       "DAMPER_FIELD",
-						       "DAMPER_FIELD",
+						       "DAMPER_SOURCE_FIELD",
+						       "DAMPER_TARGET_FIELD",
 						       damper_source,
 						       wave_target);
 

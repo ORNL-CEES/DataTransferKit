@@ -129,16 +129,16 @@ class DataField
     const std::string& source_name() const
     { return d_source_field_name; }
 
-    //! Get the transfer data source.
-    RCP_DataSource source() 
-    { return d_source; }
-
     //! Get the target field name. 
     const std::string& target_name() const
     { return d_target_field_name; }
 
+    //! Get the transfer data source.
+    RCP_DataSource source() const
+    { return d_source; }
+
     //! Get the transfer data target.
-    RCP_DataTarget target() 
+    RCP_DataTarget target() const
     { return d_target; }
     
     //! Return the scalar boolean.

@@ -54,7 +54,7 @@ class Damper_DataSource
     {
 	bool return_val = false;
 
-	if (field_name == "DAMPER_FIELD")
+	if (field_name == "DAMPER_SOURCE_FIELD")
 	{
 	    return_val = true;
 	}
@@ -82,7 +82,7 @@ class Damper_DataSource
     {
 	Teuchos::ArrayView<DataType> return_view;
 
-	if ( field_name == "DAMPER_FIELD" )
+	if ( field_name == "DAMPER_SOURCE_FIELD" )
 	{
 	    return_view = Teuchos::ArrayView<DataType>( damper->get_damping() );
 	}
