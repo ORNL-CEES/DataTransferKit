@@ -83,7 +83,7 @@ class DataTarget
     /*!
      * \brief Given a field, provide the local points to map data on to. The
      * order of these points will correspond to the order of the data returned
-     * from the transfer operation.
+     * from the transfer operation. This view is not required to persist.
      * \param field_name The name of the field that the points are being
      * registered with.
      * \return View of the local target points.

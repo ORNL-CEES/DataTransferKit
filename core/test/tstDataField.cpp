@@ -263,8 +263,10 @@ class test_DataTarget
 	    for (int i = 0; i < 5; ++i)
 	    {
 		int this_handle = 5*myRank + i;
-		PointType point(this_handle, 1.0*myRank, 
-				2.0*myRank, 3.0*myRank);
+		PointType point(this_handle, 
+				1.0*myRank, 
+				2.0*myRank, 
+				3.0*myRank);
 		local_points.push_back(point);
 	    }
 	    return_view = Teuchos::ArrayView<PointType>(local_points);
