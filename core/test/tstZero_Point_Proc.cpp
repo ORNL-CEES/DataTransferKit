@@ -54,6 +54,7 @@ class Data_Container
   public:
 
     Data_Container()
+      : scalar_data(0.0)
     { /* ... */ }
 
     ~Data_Container()
@@ -313,6 +314,10 @@ namespace Coupler {
 
 TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
 {
+  // This test is parallel only. 
+  if (getDefaultComm<int>()->getSize() > 0 )
+  {
+
     // create a data container instance for checking the data under the source
     // interface.
     Teuchos::RCP<Data_Container> source_container 
@@ -403,6 +408,7 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
 	// source to skip those points.
 	TEST_ASSERT ( target_container->get_distributed_data()[4] == 0.0 );
     }
+  }
 }
 
 //---------------------------------------------------------------------------//

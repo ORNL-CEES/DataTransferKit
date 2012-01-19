@@ -54,6 +54,7 @@ class Data_Container
   public:
 
     Data_Container()
+      : scalar_data(0.0)
     { /* ... */ }
 
     ~Data_Container()

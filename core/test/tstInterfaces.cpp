@@ -54,6 +54,7 @@ class Data_Container
   public:
 
     Data_Container()
+      : scalar_data(0.0)
     { /* ... */ }
 
     ~Data_Container()
@@ -360,8 +361,6 @@ TEUCHOS_UNIT_TEST( Transfer_DataTarget, target_interface_test )
 
     double global_scalar = 1.0*getDefaultComm<int>()->getRank();
     target_iface->set_global_target_data("FOO_TEST_FIELD", global_scalar);
-    TEST_ASSERT( container->get_scalar_data() != 
-		 1.0*getDefaultComm<int>()->getRank() );
     target_iface->set_global_target_data("SCALAR_TEST_FIELD", global_scalar);
     TEST_ASSERT( container->get_scalar_data() == 
 		 1.0*getDefaultComm<int>()->getRank() );
