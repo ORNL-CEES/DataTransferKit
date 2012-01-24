@@ -44,13 +44,13 @@ DataField<DataType,HandleType,CoordinateType>::DataField(
     const std::string &target_field_name,
     RCP_DataSource source,
     RCP_DataTarget target,
-    bool scalar)
+    bool global_data)
     : d_comm(comm_global)
     , d_source_field_name(source_field_name)
     , d_target_field_name(target_field_name)
     , d_source(source)
     , d_target(target)
-    , d_scalar(scalar)
+    , d_global_data(global_data)
     , d_mapped(false)
 { 
     assert( d_source->is_field_supported(d_source_field_name) &&
@@ -75,7 +75,7 @@ template<class DataType, class HandleType, class CoordinateType>
 void 
 DataField<DataType,HandleType,CoordinateType>::create_data_transfer_mapping()
 { 
-    if ( !d_scalar )
+    if ( !d_global_data )
     {
 	point_map();
 	d_mapped = true;
@@ -89,7 +89,7 @@ DataField<DataType,HandleType,CoordinateType>::create_data_transfer_mapping()
 template<class DataType, class HandleType, class CoordinateType>
 void DataField<DataType,HandleType,CoordinateType>::perform_data_transfer()
 { 
-    if ( d_scalar )
+    if ( d_global_data )
     {
 	scalar_transfer();
     }

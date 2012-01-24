@@ -96,7 +96,7 @@ class DataField
     RCP_Tpetra_Export d_export;
 
     // Boolean for scalar field.
-    bool d_scalar;
+    bool d_global_data;
 
     // Boolean for field mapping. True if mapping complete.
     bool d_mapped;
@@ -109,7 +109,7 @@ class DataField
 	      const std::string &target_field_name,
 	      RCP_DataSource source,
 	      RCP_DataTarget target,
-	      bool scalar = false);
+	      bool global_data = false);
 
     // Destructor.
     ~DataField();
@@ -143,7 +143,7 @@ class DataField
     
     //! Return the scalar boolean.
     bool is_scalar() const
-    { return d_scalar; }
+    { return d_global_data; }
 
     //! Return the mapped boolean.
     bool is_mapped() const
