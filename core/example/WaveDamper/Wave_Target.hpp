@@ -6,15 +6,15 @@
 
 #include "Wave.hpp"
 
-#include <Coupler_Point.hpp>
-#include <Coupler_DataTarget.hpp>
+#include <DataTransferKit_Point.hpp>
+#include <DataTransferKit_DataTarget.hpp>
 
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Comm.hpp"
 
 //---------------------------------------------------------------------------//
-namespace Coupler {
+namespace DataTransferKit {
 
 // DataTarget interface implementation for the Wave code.
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
@@ -110,6 +110,6 @@ class Wave_DataTarget
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
 #endif // end wave_target_hpp

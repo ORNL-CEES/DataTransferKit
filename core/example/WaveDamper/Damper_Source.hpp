@@ -5,15 +5,15 @@
 
 #include "Damper.hpp"
 
-#include <Coupler_Point.hpp>
-#include <Coupler_DataSource.hpp>
+#include <DataTransferKit_Point.hpp>
+#include <DataTransferKit_DataSource.hpp>
 
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_DefaultComm.hpp"
 
 //---------------------------------------------------------------------------//
-namespace Coupler {
+namespace DataTransferKit {
 
 // DataSource interface implementation for the Damper code.
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
@@ -98,6 +98,6 @@ class Damper_DataSource
     }
 };
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
 #endif // end damper_source_hpp

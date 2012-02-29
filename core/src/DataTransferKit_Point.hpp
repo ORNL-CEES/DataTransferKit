@@ -1,16 +1,16 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   Coupler_Point.hpp
+ * \file   DataTransferKit_Point.hpp
  * \author Stuart R. Slattery
  * \date   Wed May 25 12:23:57 2011
  * \brief  Cartesian Point class definition
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_POINT_HPP
-#define COUPLER_POINT_HPP
+#ifndef DATATRANSFERKIT_POINT_HPP
+#define DATATRANSFERKIT_POINT_HPP
 
-namespace Coupler
+namespace DataTransferKit
 {
 //===========================================================================//
 /*!
@@ -92,10 +92,10 @@ class Point
     //@}
 };
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
-#endif // COUPLER_POINT_HPP
+#endif // DATATRANSFERKIT_POINT_HPP
 
 //---------------------------------------------------------------------------//
-//              end of Coupler_Point.hpp
+//              end of DataTransferKit_Point.hpp
 //---------------------------------------------------------------------------//

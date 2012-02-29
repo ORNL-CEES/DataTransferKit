@@ -12,8 +12,8 @@
 #include <cmath>
 #include <sstream>
 
-#include <Coupler_Point.hpp>
-#include <Coupler_SerializationTraits.hpp>
+#include <DataTransferKit_Point.hpp>
+#include <DataTransferKit_SerializationTraits.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -38,7 +38,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // TESTS
 //---------------------------------------------------------------------------//
 
-namespace Coupler {
+namespace DataTransferKit {
 
 TEUCHOS_UNIT_TEST( Point, container_test )
 {

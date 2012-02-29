@@ -12,9 +12,9 @@
 #include <cmath>
 #include <sstream>
 
-#include <Coupler_Point.hpp>
-#include <Coupler_DataSource.hpp>
-#include <Coupler_DataTarget.hpp>
+#include <DataTransferKit_Point.hpp>
+#include <DataTransferKit_DataSource.hpp>
+#include <DataTransferKit_DataTarget.hpp>
 
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
@@ -43,7 +43,7 @@ class Data_Container
 {
   public:
 
-    typedef Coupler::Point<int,double>     PointType;
+    typedef DataTransferKit::Point<int,double>     PointType;
 
   private:
 
@@ -91,7 +91,7 @@ class Data_Container
 // INTERFACE IMPLEMENTATIONS
 //---------------------------------------------------------------------------//
 
-namespace Coupler {
+namespace DataTransferKit {
 
 // transfer data source implementation - this implementation specifies double
 // as the data type
@@ -275,13 +275,13 @@ class test_DataTarget
     }
 };
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // TESTS
 //---------------------------------------------------------------------------//
 
-namespace Coupler {
+namespace DataTransferKit {
 
 TEUCHOS_UNIT_TEST( Transfer_DataSource, source_interface_test )
 {
@@ -405,7 +405,7 @@ TEUCHOS_UNIT_TEST( Transfer_DataSource, simple_coupling_test )
 		 1.0*getDefaultComm<int>()->getRank() );
 }
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 //                        end of tstInterfaces.cpp

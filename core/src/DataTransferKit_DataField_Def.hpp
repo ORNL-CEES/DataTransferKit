@@ -1,40 +1,40 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   Coupler_DataField.t.hpp
+ * \file   DataTransferKit_DataField.t.hpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
- * \brief  Coupler_DataField template member definitions.
+ * \brief  DataTransferKit_DataField template member definitions.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_DATAFIELD_T_HPP
-#define COUPLER_DATAFIELD_T_HPP
+#ifndef DATATRANSFERKIT_DATAFIELD_DEF_HPP
+#define DATATRANSFERKIT_DATAFIELD_DEF_HPP
 
 #include <cassert>
 #include <algorithm>
 #include <vector>
 
-#include "Coupler_SerializationTraits.hpp"
+#include "DataTransferKit_SerializationTraits.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 
 #include <Tpetra_Vector.hpp>
 
-namespace Coupler
+namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
  * \param source_field_name The name of the field supplied by the data
- * source. Required by the Coupler_DataSource interface to check field
+ * source. Required by the DataTransferKit_DataSource interface to check field 
  * support. 
  * \param target_field_name The name of the field supplied by the data
- * target. Required by the Coupler_DataTarget interface to check field
- * support. 
- * \param source Coupler_DataSource implementation that will serve as the
- * data source for this field.
- * \param target Coupler_DataTarget implementation that will serve as the
- * target for this field.
+ * target. Required by the DataTransferKit_DataTarget interface to check field
+ * support.  
+ * \param source DataTransferKit_DataSource implementation that will serve as
+ * the data source for this field.
+ * \param target DataTransferKit_DataTarget implementation that will serve as
+ * the target for this field. 
  * \param scalar Set to true if this field is scalar, false if distributed.
  */
 template<class DataType, class HandleType, class CoordinateType>
@@ -232,10 +232,10 @@ void DataField<DataType,HandleType,CoordinateType>::distributed_transfer()
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
-#endif // COUPLER_DATAFIELD_T_HPP
+#endif // DATATRANSFERKIT_DATAFIELD_DEF_HPP
 
 //---------------------------------------------------------------------------//
-//                 end of Coupler_DataField.t.hpp
+//                 end of DataTransferKit_DataField.t.hpp
 //---------------------------------------------------------------------------//

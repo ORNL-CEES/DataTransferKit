@@ -4,8 +4,8 @@
 
 INCLUDE(TribitsListHelpers)
 
-SET( Coupler_PACKAGES_AND_DIRS_AND_CLASSIFICATIONS
-  Coupler         .     SS
+SET( DataTransferKit_PACKAGES_AND_DIRS_AND_CLASSIFICATIONS
+  DataTransferKit         .     SS
   )
 
-PACKAGE_DISABLE_ON_PLATFORMS(Coupler Windows)
+PACKAGE_DISABLE_ON_PLATFORMS(DataTransferKit Windows)
