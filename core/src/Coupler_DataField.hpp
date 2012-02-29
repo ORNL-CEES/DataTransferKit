@@ -1,20 +1,20 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   DataTransferKit_DataField.hpp
+ * \file   Coupler_DataField.hpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
- * \brief  DataTransferKit_DataField class definition.
+ * \brief  Coupler_DataField class definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DATATRANSFERKIT_DATAFIELD_HPP
-#define DATATRANSFERKIT_DATAFIELD_HPP
+#ifndef COUPLER_DATAFIELD_HPP
+#define COUPLER_DATAFIELD_HPP
 
 #include <string>
 
-#include "DataTransferKit_Point.hpp"
-#include "DataTransferKit_DataSource.hpp"
-#include "DataTransferKit_DataTarget.hpp"
+#include "Coupler_Point.hpp"
+#include "Coupler_DataSource.hpp"
+#include "Coupler_DataTarget.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -22,17 +22,17 @@
 #include <Tpetra_Map.hpp>
 #include <Tpetra_Export.hpp>
 
-namespace DataTransferKit
+namespace Coupler
 {
 
 //===========================================================================//
 /*!
  * \class DataField
  * \brief Field type for data transfers. This exists for more a explicit
- * definition of fields in the datatransferkit user interface.
+ * definition of fields in the coupler user interface.
  *
- * The DataTransferKit_DataField encapsulates the relationship between a
- * DataTransferKit_DataSource and a DataTransferKit_DataTarget. In addition to containing
+ * The Coupler_DataField encapsulates the relationship between a
+ * Coupler_DataSource and a Coupler_DataTarget. In addition to containing
  * the map for transfer between the source and the target, the field also
  * contains indicators for the status of the mapping (transfer cannot occur
  * unless a field has been mapped) and for whether a field is distributed
@@ -41,7 +41,7 @@ namespace DataTransferKit
 /*! 
  * \example core/test/tstDataField.cc
  *
- * Test of DataTransferKit_DataField.
+ * Test of Coupler_DataField.
  */
 //===========================================================================//
 
@@ -170,16 +170,16 @@ class DataField
     void distributed_transfer();
 };
 
-} // end namespace DataTransferKit
+} // end namespace Coupler
 
 //---------------------------------------------------------------------------//
 // TEMPLATE MEMBERS
 //---------------------------------------------------------------------------//
 
-#include "DataTransferKit_DataField_Def.hpp"
+#include "Coupler_DataField.t.hpp"
 
-#endif // DATATRANSFERKIT_DATAFIELD_HPP
+#endif // COUPLER_DATAFIELD_HPP
 
 //---------------------------------------------------------------------------//
-//              end of DataTransferKit_DataField.hpp
+//              end of Coupler_DataField.hpp
 //---------------------------------------------------------------------------//

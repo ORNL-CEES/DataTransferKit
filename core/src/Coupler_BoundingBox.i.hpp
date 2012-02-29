@@ -1,16 +1,16 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   DataTransferKit_BoundingBox.i.hpp
+ * \file   Coupler_BoundingBox.i.hpp
  * \author Stuart Slattery
  * \date   Thu Dec 08 09:58:46 2011
  * \brief  Member definitions of class BoundingBox.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DATATRANSFERKIT_BOUNDINGBOX_I_HPP
-#define DATATRANSFERKIT_BOUNDINGBOX_I_HPP
+#ifndef COUPLER_BOUNDINGBOX_I_HPP
+#define COUPLER_BOUNDINGBOX_I_HPP
 
-namespace DataTransferKit
+namespace Coupler
 {
 
 template<class HandleType, class CoordinateType>
@@ -31,10 +31,10 @@ bool BoundingBox<HandleType,CoordinateType>::point_query(PointType point)
     return return_val;
 }
 
-} // end namespace DataTransferKit
+} // end namespace Coupler
 
-#endif // DATATRANSFERKIT_BOUNDINGBOX_I_HPP
+#endif // COUPLER_BOUNDINGBOX_I_HPP
 
 //---------------------------------------------------------------------------//
-//              end of DataTransferKit_BoundingBox.i.hpp
+//              end of Coupler_BoundingBox.i.hpp
 //---------------------------------------------------------------------------//

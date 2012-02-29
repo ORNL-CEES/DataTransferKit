@@ -6,15 +6,15 @@
 
 #include "Damper.hpp"
 
-#include <DataTransferKit_Point.hpp>
-#include <DataTransferKit_DataTarget.hpp>
+#include <Coupler_Point.hpp>
+#include <Coupler_DataTarget.hpp>
 
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_DefaultComm.hpp"
 
 //---------------------------------------------------------------------------//
-namespace DataTransferKit {
+namespace Coupler {
 
 // DataTarget interface implementation for the Damper code.
 template<class DataType_T, class HandleType_T, class CoordinateType_T>
@@ -110,6 +110,6 @@ class Damper_DataTarget
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+} // end namespace Coupler
 
 #endif // end damper_target_hpp
