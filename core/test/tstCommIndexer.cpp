@@ -16,6 +16,7 @@
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_ArrayView.hpp"
 #include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
 
@@ -50,18 +51,61 @@ class Container
 // TESTS
 //---------------------------------------------------------------------------//
 
-TEUCHOS_UNIT_TEST( CommIndexer, constructor_test )
+TEUCHOS_UNIT_TEST( CommIndexer, duplicate_test )
 {
-    Teuchos::RCP<Container> container = Teuchos::rcp( new Container() );
-    Coupler::CommIndexer<Container> indexer( getDefaultComm<int>(),
-					     getDefaultComm<int>(),
-					     container );
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
 
-    TEST_ASSERT( (int) indexer.size() == getDefaultComm<int>()->getSize() );
-    TEST_ASSERT( indexer.l2g( getDefaultComm<int>()->getRank() ) ==
-		 getDefaultComm<int>()->getRank() );
+    RCP_Communicator comm_1 = getDefaultComm<int>();
+    RCP_Communicator comm_2 = comm_1->duplicate();
+
+    Teuchos::RCP<Container> container = Teuchos::rcp( new Container() );
+    Coupler::CommIndexer<Container> indexer( comm_1, comm_2, container );
+
+    TEST_ASSERT( (int) indexer.size() == comm_2->getSize() );
+    TEST_ASSERT( indexer.l2g( comm_2->getRank() ) == comm_1->getRank() );
 }
 
+TEUCHOS_UNIT_TEST( CommIndexer, inverse_duplicate_test )
+{
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
+
+    RCP_Communicator comm_1 = getDefaultComm<int>();
+    int inverse_rank = comm_1->getSize() - comm_1->getRank() - 1;
+    RCP_Communicator comm_2 = comm_1->split( 0, inverse_rank);
+
+    Teuchos::RCP<Container> container = Teuchos::rcp( new Container() );
+    Coupler::CommIndexer<Container> indexer( comm_1, comm_2, container );
+
+    TEST_ASSERT( (int) indexer.size() == comm_2->getSize() );
+    TEST_ASSERT( indexer.l2g( comm_2->getRank() ) == comm_1->getRank() );
+}
+
+TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
+{
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
+
+    RCP_Communicator comm_1 = getDefaultComm<int>();
+    std::vector<int> sub_ranks;
+    for ( int n = 0; n < comm_1->getSize(); ++n )
+    {
+	if ( n % 2 == 0 )
+	{
+	    sub_ranks.push_back(n);
+	}
+    }
+    Teuchos::ArrayView<int> sub_ranks_view( &sub_ranks[0], 
+					    (int) sub_ranks.size() );
+    RCP_Communicator comm_2 = comm_1->createSubcommunicator( sub_ranks_view );
+
+    Teuchos::RCP<Container> container = Teuchos::rcp( new Container() );
+    Coupler::CommIndexer<Container> indexer( comm_1, comm_2, container );
+
+    TEST_ASSERT( (int) indexer.size() == comm_2->getSize() );
+    if ( comm_1->getRank() % 2 == 0 )
+    {
+	TEST_ASSERT( indexer.l2g( comm_2->getRank() ) == comm_1->getRank() );
+    }
+}
 
 //---------------------------------------------------------------------------//
 //                        end of tstCommIndexer.cpp

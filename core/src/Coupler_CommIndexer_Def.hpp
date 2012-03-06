@@ -78,7 +78,8 @@ CommIndexer<T,Ordinal>::~CommIndexer()
 
 /*!
  * \brief Given a process id in the local communicator, return the distributed
- * object's process id in the global communicator.
+ * object's process id in the global communicator. Return -1 if this local id
+ * does not exist in the map.
  */
 template<class T, class Ordinal>
 const Ordinal CommIndexer<T,Ordinal>::l2g( const Ordinal local_id ) const
