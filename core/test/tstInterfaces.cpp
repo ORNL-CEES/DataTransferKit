@@ -399,6 +399,9 @@ TEUCHOS_UNIT_TEST( Transfer_DataSource, simple_coupling_test )
     TEST_ASSERT( source_iface->is_local_point( 
 		     target_iface->get_target_points(
 			 "DISTRIBUTED_TEST_FIELD")[0] ) );
+    TEST_ASSERT( source_iface->are_local_points(
+		     target_iface->get_target_points( 
+			 "DISTRIBUTED_TEST_FIELD" ) )[0] );
 
     // Transfer data from the source to the target.
     Teuchos::ArrayView<double> source_view = 
