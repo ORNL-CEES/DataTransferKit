@@ -314,10 +314,6 @@ namespace Coupler {
 
 TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
 {
-  // This test is parallel only. 
-  if (getDefaultComm<int>()->getSize() > 0 )
-  {
-
     // create a data container instance for checking the data under the source
     // interface.
     Teuchos::RCP<Data_Container> source_container 
@@ -355,9 +351,9 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
     int mySize = getDefaultComm<int>()->getSize();
     int flippedRank = mySize-myRank-1;
 
+    TEST_ASSERT( field.is_mapped() );
     if ( flippedRank != 0 )
     {
-	TEST_ASSERT( field.is_mapped() );
 	TEST_ASSERT( source_container->get_distributed_points().size() == 4 );
 	for (int i = 0; i < 4; ++i)
 	{
@@ -408,7 +404,6 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
 	// source to skip those points.
 	TEST_ASSERT ( target_container->get_distributed_data()[4] == 0.0 );
     }
-  }
 }
 
 //---------------------------------------------------------------------------//

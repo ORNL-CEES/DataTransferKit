@@ -138,13 +138,14 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
     // or greater than 0.
     int local_size = target_points.size();
     int global_max = 0;
-    Teuchos::reduceAll<OrdinalType,int>(*d_comm,
-					Teuchos::REDUCE_MAX, 
-					int(1), 
-					&local_size, 
-					&global_max);
+    Teuchos::reduceAll<OrdinalType,int>( *d_comm,
+					 Teuchos::REDUCE_MAX, 
+					 int(1), 
+					 &local_size, 
+					 &global_max );
 
-    std::vector<PointType> send_points(global_max);
+    std::vector<PointType> send_points( global_max, 
+				        PointType(-1, 0.0, 0.0, 0.0) );
     typename std::vector<PointType>::iterator send_point_it;
     for (send_point_it = send_points.begin(),
 	target_point_it = target_points.begin();
@@ -182,9 +183,12 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 	      local_queries_it != local_queries.end();
 	      ++local_queries_it, ++receive_points_it )
 	{
-	    if ( *local_queries_it )
+	    if ( receive_points_it->handle() != -1 )
 	    {
-		source_handles.push_back( receive_points_it->handle() );
+		if ( *local_queries_it )
+		{
+		    source_handles.push_back( receive_points_it->handle() );
+		}
 	    }
 	}
     }
