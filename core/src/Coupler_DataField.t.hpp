@@ -17,6 +17,7 @@
 #include "Coupler_SerializationTraits.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 
 #include <Tpetra_Vector.hpp>
 
@@ -143,10 +144,7 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 					&local_size, 
 					&global_max);
 
-    HandleType null_handle = -1;
-    CoordinateType null_coord = 0.0;
-    PointType null_point(null_handle, null_coord, null_coord, null_coord);
-    std::vector<PointType> send_points(global_max, null_point);
+    std::vector<PointType> send_points(global_max);
     typename std::vector<PointType>::iterator send_point_it;
     for (send_point_it = send_points.begin(),
 	target_point_it = target_points.begin();
@@ -158,8 +156,11 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 
     // Communicate local points to all processes to finish the map.
     std::vector<HandleType> source_handles;
-    std::vector<PointType> receive_points(global_max, null_point);
-    typename std::vector<PointType>::const_iterator receive_point_it;
+    std::vector<PointType> receive_points(global_max);
+    typename std::vector<PointType>::const_iterator receive_points_it;
+    Teuchos::ArrayRCP<bool> local_queries;
+    Teuchos::ArrayRCP<bool>::const_iterator local_queries_it;
+
     for ( int i = 0; i < d_comm->getSize(); ++i )
     {
 	if ( d_comm->getRank() == i )
@@ -172,28 +173,28 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 						   i,
 						   global_max,
 						   &receive_points[0]);
-						   
-	for ( receive_point_it = receive_points.begin();
-	      receive_point_it != receive_points.end();
-	      ++receive_point_it )
+
+	local_queries = d_source->are_local_points( 
+	    Teuchos::ArrayView<PointType>(receive_points) );
+
+	for ( local_queries_it = local_queries.begin(),
+	     receive_points_it = receive_points.begin();
+	      local_queries_it != local_queries.end();
+	      ++local_queries_it, ++receive_points_it )
 	{
-	    if ( receive_point_it->handle() > -1 )
+	    if ( *local_queries_it )
 	    {
-		if ( d_source->is_local_point(*receive_point_it) )
-		{
-		    source_handles.push_back( receive_point_it->handle() );
-		}
+		source_handles.push_back( receive_points_it->handle() );
 	    }
 	}
     }
-
     d_comm->barrier();
 
     const Teuchos::ArrayView<const HandleType> 
 	source_handles_view(source_handles);
 
     d_source_map = 
-	Tpetra::createNonContigMap<HandleType>( source_handles_view, d_comm);
+	Tpetra::createNonContigMap<HandleType>( source_handles_view, d_comm );
 
     d_export = Teuchos::rcp( 
 	new Tpetra::Export<HandleType>(d_source_map, d_target_map) );
