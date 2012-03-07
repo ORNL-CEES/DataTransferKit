@@ -46,17 +46,21 @@ class Point
     CoordinateType d_z_coord;
 
   public:
-    //! Constructor.
+    
+    //! Default constructor.
+    Point()
+    { /* ... */ }
+
+    //! Coordinate constructor.
     Point(HandleType _handle,
 	  CoordinateType _x, 
 	  CoordinateType _y, 
 	  CoordinateType _z)
 	: d_handle(_handle)
-    {   
-	d_x_coord = _x;
-	d_y_coord = _y;
-	d_z_coord = _z;
-    }
+	, d_x_coord( _x )
+	, d_y_coord( _y )
+	, d_z_coord( _z )
+    { /* ... */ }
 
     //! Copy constructor.
     template<class HandleType_2, class CoordinateType_2>

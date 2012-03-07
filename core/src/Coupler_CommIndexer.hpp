@@ -20,21 +20,19 @@ namespace Coupler
 //===========================================================================//
 /*!
  * \class CommIndexer
- * \brief Map a distributed object's process id in a local to communicator to
- * its process id in a global communicator. This is effectively computing the
- * intersection of the local communicator and global communicator. 
+ * \brief Map the process ids of a local communicator into a global
+ * communicator that encompasses it.
  *
  */
 //===========================================================================//
 
-template<class T, class Ordinal=int>
+template<class Ordinal>
 class CommIndexer
 {
   public:
 
     //@{
     //! Useful typedefs.
-    typedef Teuchos::RCP<T>                                RCP_T;
     typedef Teuchos::Comm<Ordinal>                         Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>             RCP_Communicator;
     typedef std::map<Ordinal,Ordinal>                      IndexMap;
@@ -49,8 +47,7 @@ class CommIndexer
 
     // Constructor.
     CommIndexer( RCP_Communicator global_comm, 
-		 RCP_Communicator local_comm,
-		 RCP_T t_ptr );
+		 RCP_Communicator local_comm );
 
     // Destructor.
     ~CommIndexer();

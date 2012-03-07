@@ -44,14 +44,14 @@ DataField<DataType,HandleType,CoordinateType>::DataField(
     const std::string &target_field_name,
     RCP_DataSource source,
     RCP_DataTarget target,
-    bool global_data)
-    : d_comm(comm_global)
-    , d_source_field_name(source_field_name)
-    , d_target_field_name(target_field_name)
-    , d_source(source)
-    , d_target(target)
-    , d_global_data(global_data)
-    , d_mapped(false)
+    bool global_data )
+    : d_comm( comm_global )
+    , d_source_field_name( source_field_name )
+    , d_target_field_name( target_field_name )
+    , d_source( source )
+    , d_target( target )
+    , d_global_data( global_data )
+    , d_mapped( false )
 { 
     assert( d_source->is_field_supported(d_source_field_name) &&
 	    d_target->is_field_supported(d_target_field_name) );
@@ -166,8 +166,7 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 	{
 	    receive_points = send_points;
 	}
-
-	Teuchos::barrier<OrdinalType>(*d_comm);
+	d_comm->barrier();
 
 	Teuchos::broadcast<OrdinalType,PointType>( *d_comm,
 						   i,
@@ -188,7 +187,7 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 	}
     }
 
-    Teuchos::barrier<OrdinalType>(*d_comm);
+    d_comm->barrier();
 
     const Teuchos::ArrayView<const HandleType> 
 	source_handles_view(source_handles);
