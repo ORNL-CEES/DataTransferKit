@@ -306,6 +306,15 @@ TEUCHOS_UNIT_TEST( Transfer_DataSource, source_interface_test )
     TEST_ASSERT( source_iface->is_local_point(positive_point) );
     TEST_ASSERT( !source_iface->is_local_point(negative_point) );
 
+    std::vector<PointType> points(2);
+    points[0] = positive_point;
+    points[1] = negative_point;
+    Teuchos::ArrayRCP<bool> point_check = 
+	source_iface->are_local_points( 
+	    Teuchos::ArrayView<PointType>( &points[0], (int) points.size() ) );
+    TEST_ASSERT( point_check[0] );
+    TEST_ASSERT( !point_check[1] );
+
     Teuchos::ArrayView<double> data_view;
     data_view = source_iface->get_source_data("FOO_TEST_FIELD");
     TEST_ASSERT( data_view.is_null() );

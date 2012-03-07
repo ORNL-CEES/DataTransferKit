@@ -3,7 +3,7 @@
  * \file   Coupler_DataSource.hpp
  * \author Stuart Slattery
  * \date   Thu Nov 17 07:53:43 2011
- * \brief  Interface definition for data source applications.
+ * \brief  Interface declaration for data source applications.
  */
 //---------------------------------------------------------------------------//
 
@@ -17,6 +17,7 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 
 namespace Coupler
 {
@@ -24,7 +25,7 @@ namespace Coupler
 //===========================================================================//
 /*!
  * \class DataSource
- * \brief Protocol definition for applications acting as a data source in
+ * \brief Protocol declaration for applications acting as a data source in
  * multiphysics coupling. 
  *
  * This interface is templated on the type of field data being
@@ -78,7 +79,7 @@ class DataSource
      * \param field_name The name of the field for which support is being
      * checked.
      */
-    virtual bool is_field_supported(const std::string &field_name) = 0;
+    virtual bool is_field_supported( const std::string &field_name ) = 0;
 
     /*! 
      * \brief Given (x,y,z) coordinates and an associated globally unique
@@ -86,7 +87,17 @@ class DataSource
      * the local domain, false if not. 
      * \param point Point to query the local domain with.
      */
-    virtual bool is_local_point(const PointType &point) = 0;
+    virtual bool is_local_point( const PointType &point ) = 0;
+
+    /*!
+     * \brief Given a list of point objects, return a list of true/false
+     * values that designate if each point is in the local domain.
+     * \param points View of points to query the local domain with.
+     * \return Array of booleans defined to be ordered implicitly as the input
+     * array. Return true if a point is in the local domain, false if not.
+     */
+    virtual const Teuchos::ArrayRCP<bool> 
+    are_local_points( const Teuchos::ArrayView<PointType> points );
 
     /*! 
      * \brief Provide a const view of the local source data at the target
@@ -99,7 +110,7 @@ class DataSource
      * immediately copied.
      */
     virtual const Teuchos::ArrayView<DataType> 
-    get_source_data(const std::string &field_name) = 0;
+    get_source_data( const std::string &field_name ) = 0;
 
     /*!
      * \brief Given a field, get a global data element to be sent to the
@@ -108,10 +119,12 @@ class DataSource
      * \return The global data element.
      */
     virtual DataType 
-    get_global_source_data(const std::string &field_name) = 0;
+    get_global_source_data( const std::string &field_name ) = 0;
 };
 
 } // end namespace Coupler
+
+#include "Coupler_DataSource_Def.hpp"
 
 #endif // COUPLER_DATASOURCE_HPP
 

@@ -27,6 +27,7 @@ APPEND_SET(HEADERS
   Coupler_DataField.hpp
   Coupler_DataField.t.hpp
   Coupler_DataSource.hpp
+  Coupler_DataSource_Def.hpp
   Coupler_DataTarget.hpp
   Coupler_Point.hpp
   Coupler_SerializationTraits.hpp

@@ -78,7 +78,7 @@ class DataTarget
      * \param field_name The name of the field for which support is being
      * checked.
      */
-    virtual bool is_field_supported(const std::string &field_name) = 0;
+    virtual bool is_field_supported( const std::string &field_name ) = 0;
 
     /*!
      * \brief Given a field, provide the local points to map data on to. The
@@ -89,7 +89,7 @@ class DataTarget
      * \return View of the local target points.
      */
     virtual const Teuchos::ArrayView<PointType> 
-    get_target_points(const std::string &field_name) = 0;
+    get_target_points( const std::string &field_name ) = 0;
 
     /*! 
      * \brief Provide a persisting, non-const view of the local data vector 
@@ -103,7 +103,7 @@ class DataTarget
      * get_target_points. 
      */
     virtual Teuchos::ArrayView<DataType> 
-    get_target_data_space(const std::string &field_name) = 0;
+    get_target_data_space( const std::string &field_name ) = 0;
 
     /*!
      * \brief Given a field, set a global data element provided by the
@@ -111,8 +111,8 @@ class DataTarget
      * \param field_name The name of the field to set data to.
      * \param data The provided global data element.
      */
-    virtual void set_global_target_data(const std::string &field_name,
-					const DataType &data) = 0;
+    virtual void set_global_target_data( const std::string &field_name,
+					 const DataType &data ) = 0;
 };
 
 } // end namespace Coupler
