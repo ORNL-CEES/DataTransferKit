@@ -20,12 +20,10 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  Coupler_BoundingBox.hpp
-  Coupler_BoundingBox_Def.hpp
   Coupler_CommIndexer.hpp
   Coupler_CommIndexer_Def.hpp
   Coupler_DataField.hpp
-  Coupler_DataField.t.hpp
+  Coupler_DataField_Def.hpp
   Coupler_DataSource.hpp
   Coupler_DataSource_Def.hpp
   Coupler_DataTarget.hpp

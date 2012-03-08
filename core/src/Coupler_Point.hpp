@@ -10,14 +10,14 @@
 #ifndef COUPLER_POINT_HPP
 #define COUPLER_POINT_HPP
 
-#include <Teuchos_Tuple.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 namespace Coupler
 {
 //===========================================================================//
 /*!
  * \class Point
- * \brief Cartesian Point class container. Holds (x,y,z)
+ * \brief General point container.
  */
 /*! 
  * \example test/tstPoint.cc
@@ -31,16 +31,17 @@ class Point
 {
   private:
 
-    // Point handle.
+    // Index.
     HandleType d_handle;
 
-    // Point coordinates.
+    // Coordinates.
     CoordinateType d_coords[DIM];
 
   public:
     
     //! Default constructor.
-    inline Point();
+    Point()
+    { /* ... */ }
 
     //! Copy constructor.
     Point( const Point<DIM,HandleType,CoordinateType>& pt );
@@ -53,12 +54,26 @@ class Point
     HandleType getHandle() const 
     { return d_handle; }
 
+    //! Set the handle.
+    void setHandle( const HandleType& handle )
+    { d_handle = handle; }
+
     //! Get the coordinates.
-    Teuchos::Tuple<CoordinateType,DIM> getCoords() const;
+    const Teuchos::ArrayView<CoordinateType> getCoords()
+    { return Teuchos::ArrayView<CoordinateType>( &d_coords[0], DIM ); }
+
+    //! Set the coordinates.
+    void setCoords( const CoordinateType coords[DIM] )
+    {
+	for ( int n = 0; n < DIM; ++n )
+	{
+	    d_coords[n] = coords[n];
+	}
+    }
 };
 
 //! Create a 1-D point.
-template<typename CoordinateType, typename HandleType> inline
+template<typename HandleType, typename CoordinateType> inline
 Point<1,HandleType,CoordinateType> point( const HandleType& handle,
 					  const CoordinateType& x0 );
 
@@ -118,11 +133,13 @@ Coupler::point( const HandleType& handle,
 		const CoordinateType& x0 )
 {
     Point<1,HandleType,CoordinateType> pt;
-    pt.d_handle = handle;
-    pt.d_coords[0] = x0;
+    pt.setHandle( handle );
+    CoordinateType coords[1] = { x0 };
+    pt.setCoords( coords );
+    return pt;
 }
 
-// Create a 2-D Coupler::point.
+// Create a 2-D point.
 template<typename HandleType, typename CoordinateType> inline
 Coupler::Point<2,HandleType,CoordinateType> 
 Coupler::point( const HandleType& handle,
@@ -130,12 +147,13 @@ Coupler::point( const HandleType& handle,
 		const CoordinateType& x1 )
 {
     Point<2,HandleType,CoordinateType> pt;
-    pt.d_handle = handle;
-    pt.d_coords[0] = x0;
-    pt.d_coords[1] = x1;
+    pt.setHandle( handle );
+    CoordinateType coords[2] = { x0, x1 };
+    pt.setCoords( coords );
+    return pt;
 }
 
-// Create a 3-D Coupler::point.
+// Create a 3-D point.
 template<typename HandleType, typename CoordinateType> inline
 Coupler::Point<3,HandleType,CoordinateType> 
 Coupler::point( const HandleType& handle,
@@ -144,13 +162,13 @@ Coupler::point( const HandleType& handle,
 		const CoordinateType& x2 )
 {
     Point<3,HandleType,CoordinateType> pt;
-    pt.d_handle = handle;
-    pt.d_coords[0] = x0;
-    pt.d_coords[1] = x1;
-    pt.d_coords[2] = x2;
+    pt.setHandle( handle );
+    CoordinateType coords[3] = { x0, x1, x2 };
+    pt.setCoords( coords );
+    return pt;
 }
 
-// Create a 4-D Coupler::point.
+// Create a 4-D point.
 template<typename HandleType, typename CoordinateType> inline
 Coupler::Point<4,HandleType,CoordinateType> 
 Coupler::point( const HandleType& handle,
@@ -160,11 +178,10 @@ Coupler::point( const HandleType& handle,
 		const CoordinateType& x3 )
 {
     Point<4,HandleType,CoordinateType> pt;
-    pt.d_handle = handle;
-    pt.d_coords[0] = x0;
-    pt.d_coords[1] = x1;
-    pt.d_coords[2] = x2;
-    pt.d_coords[3] = x3;
+    pt.setHandle( handle );
+    CoordinateType coords[4] = { x0, x1, x2, x3 };
+    pt.setCoords( coords );
+    return pt;
 }
 
 #endif // COUPLER_POINT_HPP

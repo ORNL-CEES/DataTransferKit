@@ -53,11 +53,11 @@ class BoundingBox
 
     //! Constructor.
     BoundingBox(CoordinateType i_min,
-		 CoordinateType i_max,
-		 CoordinateType j_min,
-		 CoordinateType j_max,
-		 CoordinateType k_min,
-		 CoordinateType k_max)
+		CoordinateType i_max,
+		CoordinateType j_min,
+		CoordinateType j_max,
+		CoordinateType k_min,
+		CoordinateType k_max)
     {
 	d_domain[0] = i_min;
 	d_domain[1] = i_max;

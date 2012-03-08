@@ -160,7 +160,7 @@ class DataField
   private:
 
     // Set the mapping for transfer from the data source to the data target
-    // based on point mapping.
+    // based on point mapping. ( Consistent interpolation. )
     void point_map();
 
     // Perform scalar transfer.
@@ -176,7 +176,7 @@ class DataField
 // TEMPLATE MEMBERS
 //---------------------------------------------------------------------------//
 
-#include "Coupler_DataField.t.hpp"
+#include "Coupler_DataField_Def.hpp"
 
 #endif // COUPLER_DATAFIELD_HPP
 

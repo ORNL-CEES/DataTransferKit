@@ -1,14 +1,14 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   Coupler_DataField.t.hpp
+ * \file   Coupler_DataField_Def.hpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
  * \brief  Coupler_DataField template member definitions.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_DATAFIELD_T_HPP
-#define COUPLER_DATAFIELD_T_HPP
+#ifndef COUPLER_DATAFIELD_DEF_HPP
+#define COUPLER_DATAFIELD_DEF_HPP
 
 #include <cassert>
 #include <algorithm>
@@ -238,8 +238,8 @@ void DataField<DataType,HandleType,CoordinateType>::distributed_transfer()
 
 } // end namespace Coupler
 
-#endif // COUPLER_DATAFIELD_T_HPP
+#endif // COUPLER_DATAFIELD_DEF_HPP
 
 //---------------------------------------------------------------------------//
-//                 end of Coupler_DataField.t.hpp
+//                 end of Coupler_DataField_Def.hpp
 //---------------------------------------------------------------------------//
