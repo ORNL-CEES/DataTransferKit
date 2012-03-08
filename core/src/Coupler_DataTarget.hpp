@@ -37,18 +37,15 @@ namespace Coupler
  * Test of DataTarget.
  */
 //===========================================================================//
-template<class DataType_T, class HandleType_T, class CoordinateType_T>
+template<class DataType, class HandleType, class CoordinateType, int DIM>
 class DataTarget 
 {
   public:
 
     //@{
     //! Useful typedefs.
-    typedef DataType_T                                 DataType;
-    typedef HandleType_T                               HandleType;
-    typedef CoordinateType_T                           CoordinateType;
     typedef int                                        OrdinalType;
-    typedef Point<HandleType,CoordinateType>           PointType;
+    typedef Point<DIM,HandleType,CoordinateType>       PointType;
     typedef Teuchos::Comm<OrdinalType>                 Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>         RCP_Communicator;
     //@}

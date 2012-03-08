@@ -10,7 +10,7 @@
 #ifndef COUPLER_POINT_HPP
 #define COUPLER_POINT_HPP
 
-#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace Coupler
 {
@@ -35,7 +35,7 @@ class Point
     HandleType d_handle;
 
     // Coordinates.
-    CoordinateType d_coords[DIM];
+    Teuchos::Tuple<CoordinateType,DIM> d_coords;
 
   public:
     
@@ -59,8 +59,8 @@ class Point
     { d_handle = handle; }
 
     //! Get the coordinates.
-    const Teuchos::ArrayView<CoordinateType> getCoords()
-    { return Teuchos::ArrayView<CoordinateType>( &d_coords[0], DIM ); }
+    Teuchos::Tuple<CoordinateType,DIM> getCoords() const
+    { return d_coords; }
 
     //! Set the coordinates.
     void setCoords( const CoordinateType coords[DIM] )

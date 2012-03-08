@@ -14,9 +14,9 @@ namespace Coupler
 {
 
 // Default implementation.
-template<class DataType, class HandleType, class CoordinateType>
+template<class DataType, class HandleType, class CoordinateType, int DIM>
 const Teuchos::ArrayRCP<bool> 
-DataSource<DataType,HandleType,CoordinateType>::are_local_points( 
+DataSource<DataType,HandleType,CoordinateType,DIM>::are_local_points( 
     const Teuchos::ArrayView<PointType> points )
 {
     Teuchos::ArrayRCP<bool> are_local( points.size(), false );

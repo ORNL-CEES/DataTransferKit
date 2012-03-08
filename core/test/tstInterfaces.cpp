@@ -17,6 +17,7 @@
 #include <Coupler_DataTarget.hpp>
 
 #include "Teuchos_ArrayView.hpp"
+#include "Teuchos_Tuple.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_DefaultComm.hpp"
@@ -43,7 +44,7 @@ class Data_Container
 {
   public:
 
-    typedef Coupler::Point<int,double>     PointType;
+    typedef Coupler::Point<3,int,double>     PointType;
 
   private:
 
@@ -95,9 +96,9 @@ namespace Coupler {
 
 // transfer data source implementation - this implementation specifies double
 // as the data type
-template<class DataType_T, class HandleType_T, class CoordinateType_T>
+template<class DataType, class HandleType, class CoordinateType, int DIM>
 class test_DataSource 
-    : public DataSource<DataType_T, HandleType_T, CoordinateType_T>
+    : public DataSource<DataType,HandleType,CoordinateType,DIM>
 {
   private:
 
@@ -105,11 +106,8 @@ class test_DataSource
 
   public:
 
-    typedef double                                   DataType;
-    typedef int                                      HandleType;
-    typedef double                                   CoordinateType;
     typedef int                                      OrdinalType;
-    typedef Point<HandleType,CoordinateType>         PointType;
+    typedef Point<DIM,HandleType,CoordinateType>     PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
@@ -141,11 +139,14 @@ class test_DataSource
 	return return_val;
     }
 
-    bool is_local_point(const PointType &point)
+    bool is_local_point(const PointType &test_point)
     {
+	Teuchos::Tuple<CoordinateType,3> test_coords = 
+	    test_point.getCoords();
 	bool return_val = false;
-
-	if ( point.x() > 0 && point.y() > 0 && point.z() > 0 )
+	if ( test_coords[0] > 0 && 
+	     test_coords[1] > 0 && 
+	     test_coords[2] > 0 )
 	{
 	    return_val = true;
 	}
@@ -186,17 +187,14 @@ class test_DataSource
 //---------------------------------------------------------------------------//
 // transfer data target implementation - this implementation specifies double
 // as the data type
-template<class DataType_T, class HandleType_T, class CoordinateType_T>
+template<class DataType, class HandleType, class CoordinateType, int DIM>
 class test_DataTarget 
-    : public DataTarget<DataType_T, HandleType_T, CoordinateType_T>
+    : public DataTarget<DataType,HandleType,CoordinateType,DIM>
 {
   public:
 
-    typedef double                                   DataType;
-    typedef int                                      HandleType;
-    typedef double                                   CoordinateType;
     typedef int                                      OrdinalType;
-    typedef Point<HandleType,CoordinateType>         PointType;
+    typedef Point<DIM,HandleType,CoordinateType>     PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
@@ -243,9 +241,10 @@ class test_DataTarget
 
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
-	    PointType local_point(1, 1.0, 1.0, 1.0);
+	    PointType local_point = point(1, 1.0, 1.0, 1.0);
 	    std::vector<PointType> local_points(1, local_point);
-	    points = local_points;
+	    points.resize(1);
+	    points[0] = local_point;
 	    return_view = Teuchos::ArrayView<PointType>(points);
 	}
 
@@ -285,11 +284,11 @@ namespace Coupler {
 
 TEUCHOS_UNIT_TEST( Transfer_DataSource, source_interface_test )
 {
-    typedef Point<int,double>     PointType;
+    typedef Point<3>     PointType;
 
     // create an instance of the source interface.
-    Teuchos::RCP<DataSource<double,int,double> > source_iface = 
-	Teuchos::rcp(new test_DataSource<double,int,double>);
+    Teuchos::RCP<DataSource<double,int,double,3> > source_iface = 
+	Teuchos::rcp(new test_DataSource<double,int,double,3>);
 
     // test the interface methods.
     TEST_ASSERT( source_iface->get_source_comm()->getRank() 
@@ -301,8 +300,8 @@ TEUCHOS_UNIT_TEST( Transfer_DataSource, source_interface_test )
     TEST_ASSERT( source_iface->is_field_supported("SCALAR_TEST_FIELD") );
     TEST_ASSERT( !source_iface->is_field_supported("FOO_TEST_FIELD") );
 
-    PointType positive_point(1, 1.0, 1.0, 1.0);
-    PointType negative_point(1, -1.0, -1.0, -1.0);
+    PointType positive_point = point(1, 1.0, 1.0, 1.0);
+    PointType negative_point = point(1, -1.0, -1.0, -1.0);
     TEST_ASSERT( source_iface->is_local_point(positive_point) );
     TEST_ASSERT( !source_iface->is_local_point(negative_point) );
 
@@ -329,15 +328,15 @@ TEUCHOS_UNIT_TEST( Transfer_DataSource, source_interface_test )
 
 TEUCHOS_UNIT_TEST( Transfer_DataTarget, target_interface_test )
 {
-    typedef Point<int,double>     PointType;
+    typedef Point<3>     PointType;
 
     // create a data container instance.
     Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
 
     // create an instance of the target interface.
-    Teuchos::RCP<DataTarget<double,int,double> > target_iface = 
+    Teuchos::RCP<DataTarget<double,int,double,3> > target_iface = 
 	Teuchos::rcp(
-	    new test_DataTarget<double,int,double>(container));
+	    new test_DataTarget<double,int,double,3>(container));
 
     // test the interface methods.
     TEST_ASSERT( target_iface->get_target_comm()->getRank() 
@@ -354,10 +353,10 @@ TEUCHOS_UNIT_TEST( Transfer_DataTarget, target_interface_test )
     TEST_ASSERT( points_view.size() == 0 );
     points_view = target_iface->get_target_points("DISTRIBUTED_TEST_FIELD");
     TEST_ASSERT( points_view.size() == 1 );
-    TEST_ASSERT( points_view[0].handle() == 1 );
-    TEST_ASSERT( points_view[0].x() == 1.0 );
-    TEST_ASSERT( points_view[0].y() == 1.0 );
-    TEST_ASSERT( points_view[0].z() == 1.0 );
+    TEST_ASSERT( points_view[0].getHandle() == 1 );
+    TEST_ASSERT( points_view[0].getCoords()[0] == 1.0 );
+    TEST_ASSERT( points_view[0].getCoords()[1] == 1.0 );
+    TEST_ASSERT( points_view[0].getCoords()[2] == 1.0 );
 
     Teuchos::ArrayView<double> data_view;
     data_view = target_iface->get_target_data_space("FOO_TEST_FIELD");
@@ -377,19 +376,17 @@ TEUCHOS_UNIT_TEST( Transfer_DataTarget, target_interface_test )
 
 TEUCHOS_UNIT_TEST( Transfer_DataSource, simple_coupling_test )
 {
-    typedef Point<int,double>     PointType;
-
     // create an instance of the source interface.
-    Teuchos::RCP<DataSource<double,int,double> > source_iface = 
-	Teuchos::rcp(new test_DataSource<double,int,double>);
+    Teuchos::RCP<DataSource<double,int,double,3> > source_iface = 
+	Teuchos::rcp(new test_DataSource<double,int,double,3>);
 
     // create a data container instance for checking the data under the target
     // interface.
     Teuchos::RCP<Data_Container> container = Teuchos::rcp(new Data_Container);
 
     // create an instance of the target interface.
-    Teuchos::RCP<DataTarget<double,int,double> > target_iface = 
-	Teuchos::rcp( new test_DataTarget<double,int,double>(container));
+    Teuchos::RCP<DataTarget<double,int,double,3> > target_iface = 
+	Teuchos::rcp( new test_DataTarget<double,int,double,3>(container));
 
     // Check that the field is supported.
     TEST_ASSERT( source_iface->is_field_supported("DISTRIBUTED_TEST_FIELD") &&
