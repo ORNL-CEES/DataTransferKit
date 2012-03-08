@@ -21,7 +21,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   Coupler_BoundingBox.hpp
-  Coupler_BoundingBox.i.hpp
+  Coupler_BoundingBox_Def.hpp
   Coupler_CommIndexer.hpp
   Coupler_CommIndexer_Def.hpp
   Coupler_DataField.hpp

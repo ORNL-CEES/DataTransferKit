@@ -10,6 +10,8 @@
 #ifndef COUPLER_POINT_HPP
 #define COUPLER_POINT_HPP
 
+#include <Teuchos_Tuple.hpp>
+
 namespace Coupler
 {
 //===========================================================================//
@@ -24,79 +26,146 @@ namespace Coupler
  */
 //===========================================================================//
 
-template<class HandleType_T, class CoordinateType_T>
+template<int DIM, typename HandleType=int, typename CoordinateType=double>
 class Point 
 {
-  public:
-
-    //@{ 
-    //! Useful typedefs.
-    typedef HandleType_T                  HandleType;
-    typedef CoordinateType_T              CoordinateType;
-    //@}
-
   private:
 
     // Point handle.
     HandleType d_handle;
 
     // Point coordinates.
-    CoordinateType d_x_coord;
-    CoordinateType d_y_coord;
-    CoordinateType d_z_coord;
+    CoordinateType d_coords[DIM];
 
   public:
     
     //! Default constructor.
-    Point()
-    { /* ... */ }
-
-    //! Coordinate constructor.
-    Point(HandleType _handle,
-	  CoordinateType _x, 
-	  CoordinateType _y, 
-	  CoordinateType _z)
-	: d_handle(_handle)
-	, d_x_coord( _x )
-	, d_y_coord( _y )
-	, d_z_coord( _z )
-    { /* ... */ }
+    inline Point();
 
     //! Copy constructor.
-    template<class HandleType_2, class CoordinateType_2>
-    Point(const Point<HandleType_2,CoordinateType_2>& point)
-        : d_handle( point.handle )
-	, d_x_coord( point.d_x_coord )
-	, d_y_coord( point.d_y_coord )
-	, d_z_coord( point.d_z_coord )
-    { /* ... */ }
+    Point( const Point<DIM,HandleType,CoordinateType>& pt );
 
-    //@{
+    //! Copy constructor.
+    Point<DIM,HandleType,CoordinateType>&
+    operator=( const Point<DIM,HandleType,CoordinateType>& pt );
+
     //! Get the handle.
-    HandleType  handle() const { return d_handle; }
-    HandleType& handle()       { return d_handle; }
-    //@}
+    HandleType getHandle() const 
+    { return d_handle; }
 
-    //@{
-    //! Get the x coordinate.
-    CoordinateType  x() const { return d_x_coord; }
-    CoordinateType& x()       { return d_x_coord; }
-    //@}
-
-    //@{
-    //! Get the y coordinate.
-    CoordinateType  y() const { return d_y_coord; }
-    CoordinateType& y()       { return d_y_coord; }
-    //@}
-    
-    //@{
-    //! Get the z coordinate.
-    CoordinateType  z() const { return d_z_coord; }
-    CoordinateType& z()       { return d_z_coord; }
-    //@}
+    //! Get the coordinates.
+    Teuchos::Tuple<CoordinateType,DIM> getCoords() const;
 };
 
+//! Create a 1-D point.
+template<typename CoordinateType, typename HandleType> inline
+Point<1,HandleType,CoordinateType> point( const HandleType& handle,
+					  const CoordinateType& x0 );
+
+//! Create a 2-D point.
+template<typename HandleType, typename CoordinateType> inline
+Point<2,HandleType,CoordinateType> point( const HandleType& handle,
+					  const CoordinateType& x0,
+					  const CoordinateType& x1 );
+
+//! Create a 3-D point.
+template<typename HandleType, typename CoordinateType> inline
+Point<3,HandleType,CoordinateType> point( const HandleType& handle,
+					  const CoordinateType& x0,
+    					  const CoordinateType& x1,
+					  const CoordinateType& x2 );
+
+//! Create a 4-D point.
+template<typename HandleType, typename CoordinateType> inline
+Point<4,HandleType,CoordinateType> point( const HandleType& handle,
+					  const CoordinateType& x0,
+					  const CoordinateType& x1, 
+					  const CoordinateType& x2,
+					  const CoordinateType& x3 );
+
+// Copy constructor.
+template<int DIM, typename HandleType, typename CoordinateType>
+Point<DIM,HandleType,CoordinateType>::Point( 
+    const Point<DIM,HandleType,CoordinateType>& pt )
+{
+    d_handle = pt.d_handle;
+    for ( int n = 0; n < DIM; ++n )
+    {
+	d_coords[n] = pt.d_coords[n];
+    }
+}
+
+// Copy constructor.
+template<int DIM, typename HandleType, typename CoordinateType>
+Point<DIM,HandleType,CoordinateType>&
+Point<DIM,HandleType,CoordinateType>::operator=( 
+    const Point<DIM,HandleType,CoordinateType>& pt )
+{
+    d_handle = pt.d_handle;
+    for ( int n = 0; n < DIM; ++n )
+    {
+	d_coords[n] = pt.d_coords[n];
+    }
+    return *this;
+}
+
 } // end namespace Coupler
+
+// Create a 1-D point.
+template<typename HandleType, typename CoordinateType> inline
+Coupler::Point<1,HandleType,CoordinateType> 
+Coupler::point( const HandleType& handle,
+		const CoordinateType& x0 )
+{
+    Point<1,HandleType,CoordinateType> pt;
+    pt.d_handle = handle;
+    pt.d_coords[0] = x0;
+}
+
+// Create a 2-D Coupler::point.
+template<typename HandleType, typename CoordinateType> inline
+Coupler::Point<2,HandleType,CoordinateType> 
+Coupler::point( const HandleType& handle,
+		const CoordinateType& x0,
+		const CoordinateType& x1 )
+{
+    Point<2,HandleType,CoordinateType> pt;
+    pt.d_handle = handle;
+    pt.d_coords[0] = x0;
+    pt.d_coords[1] = x1;
+}
+
+// Create a 3-D Coupler::point.
+template<typename HandleType, typename CoordinateType> inline
+Coupler::Point<3,HandleType,CoordinateType> 
+Coupler::point( const HandleType& handle,
+		const CoordinateType& x0,
+		const CoordinateType& x1,
+		const CoordinateType& x2 )
+{
+    Point<3,HandleType,CoordinateType> pt;
+    pt.d_handle = handle;
+    pt.d_coords[0] = x0;
+    pt.d_coords[1] = x1;
+    pt.d_coords[2] = x2;
+}
+
+// Create a 4-D Coupler::point.
+template<typename HandleType, typename CoordinateType> inline
+Coupler::Point<4,HandleType,CoordinateType> 
+Coupler::point( const HandleType& handle,
+		const CoordinateType& x0,
+		const CoordinateType& x1, 
+		const CoordinateType& x2,
+		const CoordinateType& x3 )
+{
+    Point<4,HandleType,CoordinateType> pt;
+    pt.d_handle = handle;
+    pt.d_coords[0] = x0;
+    pt.d_coords[1] = x1;
+    pt.d_coords[2] = x2;
+    pt.d_coords[3] = x3;
+}
 
 #endif // COUPLER_POINT_HPP
 

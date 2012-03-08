@@ -25,23 +25,63 @@ namespace Teuchos
 
 // Point.
 template<typename Ordinal>
-class SerializationTraits<Ordinal,Coupler::Point<int,double> >
-    : public DirectSerializationTraits<Ordinal,Coupler::Point<int,double> >
+class SerializationTraits<Ordinal,Coupler::Point<1,int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<1,int,double> >
 {};
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal,Coupler::Point<int,float> >
-    : public DirectSerializationTraits<Ordinal,Coupler::Point<int,float> >
+class SerializationTraits<Ordinal,Coupler::Point<1,int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<1,int,float> >
 {};
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal,Coupler::Point<long int,double> >
-    : public DirectSerializationTraits<Ordinal,Coupler::Point<long int,double> >
+class SerializationTraits<Ordinal,Coupler::Point<1,long int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<1,long int,double> >
 {};
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal,Coupler::Point<long int,float> >
-    : public DirectSerializationTraits<Ordinal,Coupler::Point<long int,float> >
+class SerializationTraits<Ordinal,Coupler::Point<1,long int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<1,long int,float> >
+{};
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Coupler::Point<2,int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<2,int,double> >
+{};
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Coupler::Point<2,int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<2,int,float> >
+{};
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Coupler::Point<2,long int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<2,long int,double> >
+{};
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Coupler::Point<2,long int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<2,long int,float> >
+{};
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Coupler::Point<3,int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<3,int,double> >
+{};
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Coupler::Point<3,int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<3,int,float> >
+{};
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Coupler::Point<3,long int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<3,long int,double> >
+{};
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Coupler::Point<3,long int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<3,long int,float> >
 {};
 
 // Bounding box.

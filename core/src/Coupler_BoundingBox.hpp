@@ -80,7 +80,7 @@ class BoundingBox
     //@}
 
     // Query the bounding box with a point.
-    inline bool point_query(PointType point);
+    bool point_query(PointType point);
 };
 
 } // end namespace Coupler
@@ -89,7 +89,7 @@ class BoundingBox
 // INLINE FUNCTIONS
 //---------------------------------------------------------------------------//
 
-#include "Coupler_BoundingBox.i.hpp"
+#include "Coupler_BoundingBox_Def.hpp"
 
 #endif // COUPLER_BOUNDINGBOX_HPP
 
