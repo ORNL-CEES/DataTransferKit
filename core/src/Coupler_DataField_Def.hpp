@@ -38,8 +38,8 @@ namespace Coupler
  * target for this field.
  * \param scalar Set to true if this field is scalar, false if distributed.
  */
-template<class DataType, class HandleType, class CoordinateType>
-DataField<DataType,HandleType,CoordinateType>::DataField(
+template<class DataType, class HandleType, class CoordinateType, int DIM>
+DataField<DataType,HandleType,CoordinateType,DIM>::DataField(
     RCP_Communicator comm_global,
     const std::string &source_field_name,
     const std::string &target_field_name,
@@ -62,8 +62,8 @@ DataField<DataType,HandleType,CoordinateType>::DataField(
 /*!
  * \brief Destructor.
  */
-template<class DataType, class HandleType, class CoordinateType>
-DataField<DataType,HandleType,CoordinateType>::~DataField()
+template<class DataType, class HandleType, class CoordinateType, int DIM>
+DataField<DataType,HandleType,CoordinateType,DIM>::~DataField()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -72,9 +72,9 @@ DataField<DataType,HandleType,CoordinateType>::~DataField()
 /*!
  * \brief Transfer data from the data source to the data target.
  */
-template<class DataType, class HandleType, class CoordinateType>
+template<class DataType, class HandleType, class CoordinateType, int DIM>
 void 
-DataField<DataType,HandleType,CoordinateType>::create_data_transfer_mapping()
+DataField<DataType,HandleType,CoordinateType,DIM>::create_data_transfer_mapping()
 { 
     if ( !d_global_data )
     {
@@ -87,8 +87,8 @@ DataField<DataType,HandleType,CoordinateType>::create_data_transfer_mapping()
 /*!
  * \brief Transfer data from the data source to the data target.
  */
-template<class DataType, class HandleType, class CoordinateType>
-void DataField<DataType,HandleType,CoordinateType>::perform_data_transfer()
+template<class DataType, class HandleType, class CoordinateType, int DIM>
+void DataField<DataType,HandleType,CoordinateType,DIM>::perform_data_transfer()
 { 
     if ( d_global_data )
     {
@@ -108,8 +108,8 @@ void DataField<DataType,HandleType,CoordinateType>::perform_data_transfer()
 /*!
  * \brief Generate topology map for this field based on point mapping.
  */
-template<class DataType, class HandleType, class CoordinateType>
-void DataField<DataType,HandleType,CoordinateType>::point_map()
+template<class DataType, class HandleType, class CoordinateType, int DIM>
+void DataField<DataType,HandleType,CoordinateType,DIM>::point_map()
 {
     // Extract the local list of target handles. These are the global indices
     // for the target Tpetra map.
@@ -125,7 +125,7 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 	 target_handle_it != target_handles.end();
 	 ++target_handle_it, ++target_point_it)
     {
-	*target_handle_it = target_point_it->handle();
+	*target_handle_it = target_point_it->getHandle();
     }
 
     const Teuchos::ArrayView<const HandleType> target_handles_view(target_handles);
@@ -144,8 +144,17 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 					 &local_size, 
 					 &global_max );
 
-    std::vector<PointType> send_points( global_max, 
-				        PointType(-1, 0.0, 0.0, 0.0) );
+    HandleType null_handle = -1;
+    CoordinateType null_coords[DIM];
+    for ( int n = 0; n < DIM; ++ n )
+    {
+	null_coords[n] = 0.0;
+    }
+    PointType null_point;
+    null_point.setHandle( null_handle );
+    null_point.setCoords( null_coords );
+
+    std::vector<PointType> send_points( global_max, null_point );
     typename std::vector<PointType>::iterator send_point_it;
     for (send_point_it = send_points.begin(),
 	target_point_it = target_points.begin();
@@ -154,7 +163,7 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
     {
 	*send_point_it = *target_point_it;
     }
-
+ 
     // Communicate local points to all processes to finish the map.
     std::vector<HandleType> source_handles;
     std::vector<PointType> receive_points(global_max);
@@ -183,11 +192,11 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 	      local_queries_it != local_queries.end();
 	      ++local_queries_it, ++receive_points_it )
 	{
-	    if ( receive_points_it->handle() != -1 )
+	    if ( receive_points_it->getHandle() != -1 )
 	    {
 		if ( *local_queries_it )
 		{
-		    source_handles.push_back( receive_points_it->handle() );
+		    source_handles.push_back( receive_points_it->getHandle() );
 		}
 	    }
 	}
@@ -208,8 +217,8 @@ void DataField<DataType,HandleType,CoordinateType>::point_map()
 /*!
  * \brief Perform scalar transfer.
  */
-template<class DataType, class HandleType, class CoordinateType>
-void DataField<DataType,HandleType,CoordinateType>::scalar_transfer()
+template<class DataType, class HandleType, class CoordinateType, int DIM>
+void DataField<DataType,HandleType,CoordinateType,DIM>::scalar_transfer()
 {
     DataType global_value = 
 	d_source->get_global_source_data( d_source_field_name);
@@ -220,8 +229,8 @@ void DataField<DataType,HandleType,CoordinateType>::scalar_transfer()
 /*!
  * \brief Perform distributed transfer.
  */
-template<class DataType, class HandleType, class CoordinateType>
-void DataField<DataType,HandleType,CoordinateType>::distributed_transfer()
+template<class DataType, class HandleType, class CoordinateType, int DIM>
+void DataField<DataType,HandleType,CoordinateType,DIM>::distributed_transfer()
 {
     Tpetra::Vector<DataType> data_source_vector( 
 	d_source_map, d_source->get_source_data(d_source_field_name) );

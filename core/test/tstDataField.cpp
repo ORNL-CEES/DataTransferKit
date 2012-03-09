@@ -43,7 +43,7 @@ class Data_Container
 {
   public:
 
-    typedef Coupler::Point<int,double>     PointType;
+    typedef Coupler::Point<3,int,double>     PointType;
 
   private:
 
@@ -95,17 +95,14 @@ namespace Coupler {
 
 // transfer data source implementation - this implementation specifies double
 // as the data type
-template<class DataType_T, class HandleType_T, class CoordinateType_T>
+template<class DataType, class HandleType, class CoordinateType, int DIM>
 class test_DataSource 
-    : public DataSource<DataType_T, HandleType_T, CoordinateType_T>
+    : public DataSource<DataType,HandleType,CoordinateType,DIM>
 {
   public:
 
-    typedef double                                   DataType;
-    typedef int                                      HandleType;
-    typedef double                                   CoordinateType;
     typedef int                                      OrdinalType;
-    typedef Point<HandleType,CoordinateType>         PointType;
+    typedef Point<DIM,HandleType,CoordinateType>       PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
@@ -151,16 +148,17 @@ class test_DataSource
 	return return_val;
     }
 
-    bool is_local_point(const PointType &point)
+    bool is_local_point(const PointType &test_point)
     {
 	bool return_val = false;
 
-	if ( point.x() == 1.0*(mySize-myRank-1) && 
-	     point.y() == 2.0*(mySize-myRank-1) && 
-	     point.z() == 3.0*(mySize-myRank-1) )
+	Teuchos::Tuple<CoordinateType,DIM> test_coords = test_point.getCoords();
+	if ( test_coords[0] == 1.0*(mySize-myRank-1) && 
+	     test_coords[1] == 2.0*(mySize-myRank-1) && 
+	     test_coords[2] == 3.0*(mySize-myRank-1) )
 	{
 	    return_val = true;
-	    local_points.push_back(point);
+	    local_points.push_back(test_point);
 	    container->set_distributed_points(local_points);
 	}
 
@@ -199,17 +197,14 @@ class test_DataSource
 //---------------------------------------------------------------------------//
 // transfer data target implementation - this implementation specifies double
 // as the data type
-template<class DataType_T, class HandleType_T, class CoordinateType_T>
+template<class DataType, class HandleType, class CoordinateType, int DIM>
 class test_DataTarget 
-    : public DataTarget<DataType_T, HandleType_T, CoordinateType_T>
+    : public DataTarget<DataType,HandleType,CoordinateType,DIM>
 {
   public:
 
-    typedef double                                   DataType;
-    typedef int                                      HandleType;
-    typedef double                                   CoordinateType;
     typedef int                                      OrdinalType;
-    typedef Point<HandleType,CoordinateType>         PointType;
+    typedef Point<DIM,HandleType,CoordinateType>     PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
@@ -263,12 +258,12 @@ class test_DataTarget
 	{
 	    for (int i = 0; i < 5; ++i)
 	    {
-		int this_handle = 5*myRank + i;
-		PointType point(this_handle, 
-				1.0*myRank, 
-				2.0*myRank, 
-				3.0*myRank);
-		local_points.push_back(point);
+		int new_handle = 5*myRank + i;
+		PointType new_point = point(new_handle, 
+					    1.0*myRank, 
+					    2.0*myRank, 
+					    3.0*myRank);
+		local_points.push_back(new_point);
 	    }
 	    return_view = Teuchos::ArrayView<PointType>(local_points);
 	}
@@ -320,19 +315,19 @@ TEUCHOS_UNIT_TEST( DataField, distributed_container_test )
 	= Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
-    Teuchos::RCP<DataSource<double,int,double> > tds = 
-	Teuchos::rcp(new test_DataSource<double,int,double>(source_container));
+    Teuchos::RCP<DataSource<double,int,double,3> > tds = 
+	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container));
 
     // Create an instance of the target interface.
-    Teuchos::RCP<DataTarget<double,int,double> > tdt = 
-	Teuchos::rcp(new test_DataTarget<double,int,double>(target_container));
+    Teuchos::RCP<DataTarget<double,int,double,3> > tdt = 
+	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container));
 
     // Create a distributed field for these interfaces to be transferred.
-    DataField<double,int,double> field(getDefaultComm<int>(),
-				       "DISTRIBUTED_TEST_FIELD", 
-				       "DISTRIBUTED_TEST_FIELD",
-				       tds, 
-				       tdt);
+    DataField<double,int,double,3> field(getDefaultComm<int>(),
+					 "DISTRIBUTED_TEST_FIELD", 
+					 "DISTRIBUTED_TEST_FIELD",
+					 tds, 
+					 tdt);
 
     // Test the basic container functionality of the field.
     TEST_ASSERT( field.comm()->getRank() == getDefaultComm<int>()->getRank() );
@@ -358,20 +353,20 @@ TEUCHOS_UNIT_TEST( DataField, scalar_container_test )
 	= Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
-    Teuchos::RCP<DataSource<double,int,double> > tds = 
-	Teuchos::rcp(new test_DataSource<double,int,double>(source_container));
+    Teuchos::RCP<DataSource<double,int,double,3> > tds = 
+	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container));
 
     // Create an instance of the target interface.
-    Teuchos::RCP<DataTarget<double,int,double> > tdt = 
-	Teuchos::rcp(new test_DataTarget<double,int,double>(target_container));
+    Teuchos::RCP<DataTarget<double,int,double,3> > tdt = 
+	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container));
 
     // Create a distributed field for these interfaces to be transferred.
-    DataField<double,int,double> field(getDefaultComm<int>(),
-				       "SCALAR_TEST_FIELD", 
-				       "SCALAR_TEST_FIELD", 
-				       tds, 
-				       tdt,
-				       true);
+    DataField<double,int,double,3> field(getDefaultComm<int>(),
+					 "SCALAR_TEST_FIELD", 
+					 "SCALAR_TEST_FIELD", 
+					 tds, 
+					 tdt,
+					 true);
 
     // Test the basic container functionality of the field.
     TEST_ASSERT( field.comm()->getRank() == getDefaultComm<int>()->getRank() );
@@ -396,19 +391,19 @@ TEUCHOS_UNIT_TEST( DataField, mapping_test )
 	= Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
-    Teuchos::RCP<DataSource<double,int,double> > tds = 
-	Teuchos::rcp(new test_DataSource<double,int,double>(source_container));
+    Teuchos::RCP<DataSource<double,int,double,3> > tds = 
+	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container));
 
     // Create an instance of the target interface.
-    Teuchos::RCP<DataTarget<double,int,double> > tdt = 
-	Teuchos::rcp(new test_DataTarget<double,int,double>(target_container));
+    Teuchos::RCP<DataTarget<double,int,double,3> > tdt = 
+	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container));
 
     // Create a distributed field for these interfaces to be transferred.
-    DataField<double,int,double> field(getDefaultComm<int>(),
-				       "DISTRIBUTED_TEST_FIELD", 
-				       "DISTRIBUTED_TEST_FIELD",
-				       tds, 
-				       tdt);
+    DataField<double,int,double,3> field(getDefaultComm<int>(),
+					 "DISTRIBUTED_TEST_FIELD", 
+					 "DISTRIBUTED_TEST_FIELD",
+					 tds, 
+					 tdt);
 
     // Generate the mapping.
     field.create_data_transfer_mapping();
@@ -422,13 +417,13 @@ TEUCHOS_UNIT_TEST( DataField, mapping_test )
     TEST_ASSERT( source_container->get_distributed_points().size() == 5 );
     for (int i = 0; i < 5; ++i)
     {
-	TEST_ASSERT( source_container->get_distributed_points()[i].handle() 
+	TEST_ASSERT( source_container->get_distributed_points()[i].getHandle() 
 		     == 5*flippedRank+i );
-	TEST_ASSERT( source_container->get_distributed_points()[i].x()
+	TEST_ASSERT( source_container->get_distributed_points()[i].getCoords()[0]
 		     == 1.0*flippedRank );
-	TEST_ASSERT( source_container->get_distributed_points()[i].y()
+	TEST_ASSERT( source_container->get_distributed_points()[i].getCoords()[1]
 		     == 2.0*flippedRank );
-	TEST_ASSERT( source_container->get_distributed_points()[i].z()
+	TEST_ASSERT( source_container->get_distributed_points()[i].getCoords()[2]
 		     == 3.0*flippedRank );
     }
 
@@ -465,20 +460,20 @@ TEUCHOS_UNIT_TEST( DataField, Scalar_Transfer_Test )
 	= Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
-    Teuchos::RCP<DataSource<double,int,double> > tds = 
-	Teuchos::rcp(new test_DataSource<double,int,double>(source_container));
+    Teuchos::RCP<DataSource<double,int,double,3> > tds = 
+	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container));
 
     // Create an instance of the target interface.
-    Teuchos::RCP<DataTarget<double,int,double> > tdt = 
-	Teuchos::rcp(new test_DataTarget<double,int,double>(target_container));
+    Teuchos::RCP<DataTarget<double,int,double,3> > tdt = 
+	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container));
 
     // Create a distributed field for these interfaces to be transferred.
-    DataField<double,int,double> field(getDefaultComm<int>(),
-				       "SCALAR_TEST_FIELD", 
-				       "SCALAR_TEST_FIELD", 
-				       tds, 
-				       tdt,
-				       true);
+    DataField<double,int,double,3> field(getDefaultComm<int>(),
+					 "SCALAR_TEST_FIELD", 
+					 "SCALAR_TEST_FIELD", 
+					 tds, 
+					 tdt,
+					 true);
 
     // Do scalar transfer.
     field.perform_data_transfer();
@@ -499,19 +494,19 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
 	= Teuchos::rcp(new Data_Container);
 
     // Create an instance of the source interface.
-    Teuchos::RCP<DataSource<double,int,double> > tds = 
-	Teuchos::rcp(new test_DataSource<double,int,double>(source_container));
+    Teuchos::RCP<DataSource<double,int,double,3> > tds = 
+	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container));
 
     // Create an instance of the target interface.
-    Teuchos::RCP<DataTarget<double,int,double> > tdt = 
-	Teuchos::rcp(new test_DataTarget<double,int,double>(target_container));
+    Teuchos::RCP<DataTarget<double,int,double,3> > tdt = 
+	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container));
 
     // Create a distributed field for these interfaces to be transferred.
-    DataField<double,int,double> field(getDefaultComm<int>(),
-				       "DISTRIBUTED_TEST_FIELD", 
-				       "DISTRIBUTED_TEST_FIELD",
-				       tds, 
-				       tdt);
+    DataField<double,int,double,3> field(getDefaultComm<int>(),
+					 "DISTRIBUTED_TEST_FIELD", 
+					 "DISTRIBUTED_TEST_FIELD",
+					 tds, 
+					 tdt);
 
     // Create the mapping.
     field.create_data_transfer_mapping();

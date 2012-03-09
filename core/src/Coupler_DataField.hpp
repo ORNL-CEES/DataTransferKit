@@ -45,28 +45,25 @@ namespace Coupler
  */
 //===========================================================================//
 
-template<class DataType_T, class HandleType_T, class CoordinateType_T>
+template<class DataType, class HandleType, class CoordinateType, int DIM>
 class DataField
 {
   public:
 
     //@{
     //! Useful typedefs.
-    typedef DataType_T                                       DataType;
-    typedef HandleType_T                                     HandleType;
-    typedef CoordinateType_T                                 CoordinateType;
-    typedef int                                              OrdinalType;
-    typedef Point<HandleType,CoordinateType>                 PointType;
-    typedef DataSource<DataType,HandleType,CoordinateType>   DataSource_t;
-    typedef Teuchos::RCP<DataSource_t>                       RCP_DataSource;
-    typedef DataTarget<DataType,HandleType,CoordinateType>   DataTarget_t;
-    typedef Teuchos::RCP<DataTarget_t>                       RCP_DataTarget;
-    typedef Tpetra::Map<OrdinalType>                         Tpetra_Map_t;
-    typedef Teuchos::RCP<const Tpetra_Map_t>                 RCP_Tpetra_Map;
-    typedef Tpetra::Export<HandleType>                       Tpetra_Export_t;
-    typedef Teuchos::RCP<Tpetra_Export_t>                    RCP_Tpetra_Export;
-    typedef Teuchos::Comm<OrdinalType>                       Communicator_t;
-    typedef Teuchos::RCP<const Communicator_t>               RCP_Communicator;
+    typedef int                                                  OrdinalType;
+    typedef Point<DIM,HandleType,CoordinateType>                 PointType;
+    typedef DataSource<DataType,HandleType,CoordinateType,DIM>   DataSource_t;
+    typedef Teuchos::RCP<DataSource_t>                           RCP_DataSource;
+    typedef DataTarget<DataType,HandleType,CoordinateType,DIM>   DataTarget_t;
+    typedef Teuchos::RCP<DataTarget_t>                           RCP_DataTarget;
+    typedef Tpetra::Map<OrdinalType>                             Tpetra_Map_t;
+    typedef Teuchos::RCP<const Tpetra_Map_t>                     RCP_Tpetra_Map;
+    typedef Tpetra::Export<HandleType>                           Tpetra_Export_t;
+    typedef Teuchos::RCP<Tpetra_Export_t>                        RCP_Tpetra_Export;
+    typedef Teuchos::Comm<OrdinalType>                           Communicator_t;
+    typedef Teuchos::RCP<const Communicator_t>                   RCP_Communicator;
     //@}
 
   private:

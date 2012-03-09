@@ -16,17 +16,14 @@
 namespace Coupler {
 
 // DataSource interface implementation for the Damper code.
-template<class DataType_T, class HandleType_T, class CoordinateType_T>
+template<class DataType, class HandleType, class CoordinateType, int DIM>
 class Damper_DataSource 
-    : public DataSource<DataType_T, HandleType_T, CoordinateType_T>
+    : public DataSource<DataType,HandleType,CoordinateType,DIM>
 {
   public:
 
-    typedef double                                   DataType;
-    typedef int                                      HandleType;
-    typedef double                                   CoordinateType;
     typedef int                                      OrdinalType;
-    typedef Point<HandleType,CoordinateType>         PointType;
+    typedef Point<DIM,HandleType,CoordinateType>     PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
     typedef Teuchos::RCP<Damper>                     RCP_Damper;
@@ -62,13 +59,13 @@ class Damper_DataSource
 	return return_val;
     }
 
-    bool is_local_point(const PointType &point)
+    bool is_local_point(const PointType &test_point)
     {
 	bool return_val = false;
 
 	if ( std::find(damper->get_grid().begin(), 
 		       damper->get_grid().end(),
-		       point.x() )
+		       test_point.getCoords()[0] )
 	     != damper->get_grid().end() )
 	{
 	    return_val = true;

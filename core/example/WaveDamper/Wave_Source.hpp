@@ -16,17 +16,14 @@
 namespace Coupler {
 
 // DataSource interface implementation for the Wave code.
-template<class DataType_T, class HandleType_T, class CoordinateType_T>
+template<class DataType, class HandleType, class CoordinateType, int DIM>
 class Wave_DataSource 
-    : public DataSource<DataType_T, HandleType_T, CoordinateType_T>
+    : public DataSource<DataType,HandleType,CoordinateType,DIM>
 {
   public:
 
-    typedef double                                   DataType;
-    typedef int                                      HandleType;
-    typedef double                                   CoordinateType;
     typedef int                                      OrdinalType;
-    typedef Point<HandleType,CoordinateType>         PointType;
+    typedef Point<1,HandleType,CoordinateType>         PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
     typedef Teuchos::RCP<Wave>                       RCP_Wave;
@@ -62,13 +59,13 @@ class Wave_DataSource
 	return return_val;
     }
 
-    bool is_local_point(const PointType &point)
+    bool is_local_point(const PointType &test_point)
     {
 	bool return_val = false;
 
 	if ( std::find(wave->get_grid().begin(), 
 		       wave->get_grid().end(),
-		       point.x() )
+		       test_point.getCoords()[0] )
 	     != wave->get_grid().end() )
 	{
 	    return_val = true;

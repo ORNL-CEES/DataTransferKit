@@ -35,7 +35,7 @@ class Point
     HandleType d_handle;
 
     // Coordinates.
-    Teuchos::Tuple<CoordinateType,DIM> d_coords;
+    CoordinateType d_coords[DIM];
 
   public:
     
@@ -60,7 +60,14 @@ class Point
 
     //! Get the coordinates.
     Teuchos::Tuple<CoordinateType,DIM> getCoords() const
-    { return d_coords; }
+    {
+	Teuchos::Tuple<CoordinateType,DIM> coords;
+	for ( int n = 0; n < DIM; ++n )
+	{
+	    coords[n] = d_coords[n];
+	}
+	return coords;
+    }
 
     //! Set the coordinates.
     void setCoords( const CoordinateType coords[DIM] )

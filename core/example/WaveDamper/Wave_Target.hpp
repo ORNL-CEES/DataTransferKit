@@ -17,17 +17,14 @@
 namespace Coupler {
 
 // DataTarget interface implementation for the Wave code.
-template<class DataType_T, class HandleType_T, class CoordinateType_T>
+template<class DataType, class HandleType, class CoordinateType, int DIM>
 class Wave_DataTarget 
-    : public DataTarget<DataType_T, HandleType_T, CoordinateType_T>
+    : public DataTarget<DataType,HandleType,CoordinateType,DIM>
 {
   public:
 
-    typedef double                                   DataType;
-    typedef int                                      HandleType;
-    typedef double                                   CoordinateType;
     typedef int                                      OrdinalType;
-    typedef Point<HandleType,CoordinateType>         PointType;
+    typedef Point<1,HandleType,CoordinateType>       PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
     typedef Teuchos::RCP<Wave>                       RCP_Wave;
@@ -72,7 +69,7 @@ class Wave_DataTarget
 	{
 	    local_points.clear();
 	    Teuchos::ArrayView<const DataType> local_grid( wave->get_grid() );
-	    Teuchos::ArrayView<DataType>::const_iterator grid_it;
+	    typename Teuchos::ArrayView<DataType>::const_iterator grid_it;
 	    int n = 0;
 	    int global_handle;
 	    for (grid_it = local_grid.begin(); 
@@ -82,7 +79,7 @@ class Wave_DataTarget
 		global_handle = wave->get_comm()->getRank() *
 				local_grid.size() + n;
 		local_points.push_back( 
-		    PointType( global_handle, *grid_it, 0.0, 0.0) );
+		    point( global_handle, *grid_it) );
 	    }
 	    return_view = Teuchos::ArrayView<PointType>(local_points);
 	}

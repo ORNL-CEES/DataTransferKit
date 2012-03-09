@@ -83,6 +83,26 @@ class SerializationTraits<Ordinal,Coupler::Point<3,long int,float> >
     : public DirectSerializationTraits<Ordinal,Coupler::Point<3,long int,float> >
 {};
 
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Coupler::Point<4,int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<4,int,double> >
+{};
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Coupler::Point<4,int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<4,int,float> >
+{};
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Coupler::Point<4,long int,double> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<4,long int,double> >
+{};
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Coupler::Point<4,long int,float> >
+    : public DirectSerializationTraits<Ordinal,Coupler::Point<4,long int,float> >
+{};
+
 } // end namepsace Teuchos
 
 #endif // COUPLER_SERIALIZATIONTRAITS_HPP
