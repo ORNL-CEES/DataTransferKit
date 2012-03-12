@@ -18,6 +18,7 @@
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_Describable.hpp>
 
 namespace Coupler
 {
@@ -39,7 +40,7 @@ namespace Coupler
  */
 //===========================================================================//
 template<class DataType, class HandleType, class CoordinateType, int DIM>
-class DataSource 
+class DataSource : Teuchos::Describable
 {
   public:
 
