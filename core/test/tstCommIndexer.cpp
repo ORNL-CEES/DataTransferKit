@@ -96,8 +96,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
 	    sub_ranks.push_back(n);
 	}
     }
-    Teuchos::ArrayView<int> sub_ranks_view( &sub_ranks[0], 
-					    (int) sub_ranks.size() );
+    Teuchos::ArrayView<int> sub_ranks_view( sub_ranks );
     RCP_Communicator local_comm = 
 	global_comm->createSubcommunicator( sub_ranks_view );
 

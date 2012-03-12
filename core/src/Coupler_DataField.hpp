@@ -98,6 +98,14 @@ class DataField
     // Boolean for field mapping. True if mapping complete.
     bool d_mapped;
 
+    // Boolean for active source processor. True if the source exists on this
+    // process. 
+    bool d_active_source;
+
+    // Boolean for active target processor. True if the target exists on this
+    // process. 
+    bool d_active_target;
+
   public:
 
     // Constructor.

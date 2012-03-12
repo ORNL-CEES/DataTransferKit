@@ -20,13 +20,14 @@ DataSource<DataType,HandleType,CoordinateType,DIM>::are_local_points(
     const Teuchos::ArrayView<PointType> points )
 {
     Teuchos::ArrayRCP<bool> are_local( points.size(), false );
-    Teuchos::ArrayRCP<bool>::iterator are_local_it = are_local.begin();
-    typename Teuchos::ArrayView<PointType>::const_iterator point_it;
-    for ( point_it = points.begin(); 
-	  point_it != points.end(); 
-	  ++point_it, ++are_local_it )
+    Teuchos::ArrayRCP<bool>::iterator are_local_it;
+    typename Teuchos::ArrayView<PointType>::const_iterator points_it;
+    for ( points_it = points.begin(),
+      are_local_it = are_local.begin(); 
+	  points_it != points.end(); 
+	  ++points_it, ++are_local_it )
     {
-	*are_local_it = this->is_local_point( *point_it );
+	*are_local_it = this->is_local_point( *points_it );
     }
     return are_local;
 }

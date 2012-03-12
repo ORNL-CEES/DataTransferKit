@@ -18,6 +18,7 @@
 #include <Coupler_DataField.hpp>
 
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_ENull.hpp"
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_DefaultComm.hpp"
@@ -102,7 +103,7 @@ class test_DataSource
   public:
 
     typedef int                                      OrdinalType;
-    typedef Point<DIM,HandleType,CoordinateType>       PointType;
+    typedef Point<DIM,HandleType,CoordinateType>     PointType;
     typedef Teuchos::Comm<OrdinalType>               Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
 
@@ -113,14 +114,17 @@ class test_DataSource
     std::vector<PointType> local_points;
     int myRank;
     int mySize;
+    RCP_Communicator comm;
 
   public:
 
-    test_DataSource(Teuchos::RCP<Data_Container> _container)
+    test_DataSource(Teuchos::RCP<Data_Container> _container,
+		    RCP_Communicator _comm)
 	: container(_container)
+	, comm(_comm)
     { 
-	myRank = getDefaultComm<OrdinalType>()->getRank();
-	mySize = getDefaultComm<OrdinalType>()->getSize();
+	myRank = comm->getRank();
+	mySize = comm->getSize();
     }
 
     ~test_DataSource()
@@ -128,7 +132,7 @@ class test_DataSource
 
     RCP_Communicator get_source_comm()
     {
-	return getDefaultComm<OrdinalType>();
+	return comm;
     }
 
     bool is_field_supported(const std::string &field_name)
@@ -214,14 +218,17 @@ class test_DataTarget
     std::vector<PointType> local_points;
     int myRank;
     int mySize;
+    RCP_Communicator comm;
 
   public:
 
-    test_DataTarget(Teuchos::RCP<Data_Container> _container)
+    test_DataTarget( Teuchos::RCP<Data_Container> _container,
+		     RCP_Communicator _comm )
 	: container(_container)
+	, comm(_comm)
     { 
-	myRank = getDefaultComm<OrdinalType>()->getRank();
-	mySize = getDefaultComm<OrdinalType>()->getSize();
+	myRank = comm->getRank();
+	mySize = comm->getSize();
     }
 
     ~test_DataTarget()
@@ -229,7 +236,7 @@ class test_DataTarget
 
     RCP_Communicator get_target_comm()
     {
-	return getDefaultComm<OrdinalType>();
+	return comm;
     }
 
     bool is_field_supported(const std::string &field_name)
@@ -316,11 +323,13 @@ TEUCHOS_UNIT_TEST( DataField, distributed_container_test )
 
     // Create an instance of the source interface.
     Teuchos::RCP<DataSource<double,int,double,3> > tds = 
-	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container));
+	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container,
+							      getDefaultComm<int>()));
 
     // Create an instance of the target interface.
     Teuchos::RCP<DataTarget<double,int,double,3> > tdt = 
-	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container));
+	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container,
+							      getDefaultComm<int>()));
 
     // Create a distributed field for these interfaces to be transferred.
     DataField<double,int,double,3> field(getDefaultComm<int>(),
@@ -354,11 +363,13 @@ TEUCHOS_UNIT_TEST( DataField, scalar_container_test )
 
     // Create an instance of the source interface.
     Teuchos::RCP<DataSource<double,int,double,3> > tds = 
-	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container));
+	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container,
+							      getDefaultComm<int>()));
 
     // Create an instance of the target interface.
     Teuchos::RCP<DataTarget<double,int,double,3> > tdt = 
-	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container));
+	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container,
+							      getDefaultComm<int>()));
 
     // Create a distributed field for these interfaces to be transferred.
     DataField<double,int,double,3> field(getDefaultComm<int>(),
@@ -392,11 +403,13 @@ TEUCHOS_UNIT_TEST( DataField, mapping_test )
 
     // Create an instance of the source interface.
     Teuchos::RCP<DataSource<double,int,double,3> > tds = 
-	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container));
+	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container,
+							      getDefaultComm<int>()));
 
     // Create an instance of the target interface.
     Teuchos::RCP<DataTarget<double,int,double,3> > tdt = 
-	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container));
+	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container,
+							      getDefaultComm<int>()));
 
     // Create a distributed field for these interfaces to be transferred.
     DataField<double,int,double,3> field(getDefaultComm<int>(),
@@ -461,11 +474,13 @@ TEUCHOS_UNIT_TEST( DataField, Scalar_Transfer_Test )
 
     // Create an instance of the source interface.
     Teuchos::RCP<DataSource<double,int,double,3> > tds = 
-	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container));
+	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container,
+							      getDefaultComm<int>()));
 
     // Create an instance of the target interface.
     Teuchos::RCP<DataTarget<double,int,double,3> > tdt = 
-	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container));
+	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container,
+							      getDefaultComm<int>()));
 
     // Create a distributed field for these interfaces to be transferred.
     DataField<double,int,double,3> field(getDefaultComm<int>(),
@@ -495,11 +510,13 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
 
     // Create an instance of the source interface.
     Teuchos::RCP<DataSource<double,int,double,3> > tds = 
-	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container));
+	Teuchos::rcp(new test_DataSource<double,int,double,3>(source_container,
+							      getDefaultComm<int>()));
 
     // Create an instance of the target interface.
     Teuchos::RCP<DataTarget<double,int,double,3> > tdt = 
-	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container));
+	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container,
+							      getDefaultComm<int>()));
 
     // Create a distributed field for these interfaces to be transferred.
     DataField<double,int,double,3> field(getDefaultComm<int>(),
@@ -523,6 +540,347 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
     {
 	TEST_ASSERT( target_container->get_distributed_data()[i]
 		     == 1.0*flippedRank );
+    }
+}
+
+TEUCHOS_UNIT_TEST( DataField, Separate_Split_Transfer_Test )
+{
+    // Setup some communicators.
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
+    RCP_Communicator global_comm = getDefaultComm<int>();
+    std::vector<int> source_ranks;
+    std::vector<int> target_ranks;
+    for ( int n = 0; n < global_comm->getSize(); ++n )
+    {
+	if ( n % 2 == 0 )
+	{
+	    source_ranks.push_back(n);
+	}
+	else
+	{
+	    target_ranks.push_back(n);
+	}
+    }
+    Teuchos::ArrayView<int> source_ranks_view( source_ranks );
+    Teuchos::ArrayView<int> target_ranks_view( target_ranks );
+
+    RCP_Communicator source_comm = 
+	global_comm->createSubcommunicator( source_ranks_view );
+    RCP_Communicator target_comm = 
+	global_comm->createSubcommunicator( target_ranks_view );
+
+    // Declare the target containers.
+    Teuchos::RCP<Data_Container> source_container;
+    Teuchos::RCP<Data_Container> target_container;
+
+    // Declare the interfaces implementations on the global communicator.
+    Teuchos::RCP<DataSource<double,int,double,3> > tds;
+    Teuchos::RCP<DataTarget<double,int,double,3> > tdt;
+
+    // Create a data container instance for checking the data under the source
+    // interface and create an instance of the source interface.
+    if ( source_comm != Teuchos::null )
+    {
+	source_container = Teuchos::rcp(new Data_Container);
+
+	tds = Teuchos::rcp(
+	    new test_DataSource<double,int,double,3>(source_container,
+						     source_comm));
+    }
+
+    // Create a data container instance for checking the data under the target
+    // interface and create an instance of the target interface.
+    if ( target_comm != Teuchos::null )
+    {
+	target_container = Teuchos::rcp(new Data_Container);
+
+	tdt = Teuchos::rcp(
+	    new test_DataTarget<double,int,double,3>(target_container,
+						     target_comm));
+    }
+
+    // Create a distributed field for these interfaces to be transferred.
+    global_comm->barrier();
+    DataField<double,int,double,3> field( global_comm,
+					  "DISTRIBUTED_TEST_FIELD", 
+					  "DISTRIBUTED_TEST_FIELD",
+					  tds, 
+					  tdt );
+
+    // Create the mapping.
+    field.create_data_transfer_mapping();
+
+    // Do the transfer.
+    field.perform_data_transfer();
+
+    // Check the transferred data under the target interface.
+    if ( target_comm != Teuchos::null )
+    {
+	TEST_ASSERT( target_container->get_distributed_data().size() == 5 );
+	int myRank = target_comm->getRank();
+	int mySize = target_comm->getSize();
+	int flippedRank = mySize-myRank-1;
+	for (int i = 0; i < 5; ++i)
+	{
+	    TEST_ASSERT( target_container->get_distributed_data()[i]
+			 == 1.0*flippedRank );
+	}
+    }
+}
+
+TEUCHOS_UNIT_TEST( DataField, Overlap_Split_Transfer_Test )
+{
+    // Setup some communicators.
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
+    RCP_Communicator global_comm = getDefaultComm<int>();
+    std::vector<int> source_ranks;
+    std::vector<int> target_ranks;
+    for ( int n = 0; n < global_comm->getSize(); ++n )
+    {
+	if ( n % 2 == 0 || n % 3 == 0 )
+	{
+	    source_ranks.push_back(n);
+	}
+	if ( n % 2 == 1 )
+	{
+	    target_ranks.push_back(n);
+	}
+    }
+    Teuchos::ArrayView<int> source_ranks_view( source_ranks );
+    Teuchos::ArrayView<int> target_ranks_view( target_ranks );
+
+    RCP_Communicator source_comm = 
+	global_comm->createSubcommunicator( source_ranks_view );
+    RCP_Communicator target_comm = 
+	global_comm->createSubcommunicator( target_ranks_view );
+
+    // Declare the target containers.
+    Teuchos::RCP<Data_Container> source_container;
+    Teuchos::RCP<Data_Container> target_container;
+
+    // Declare the interfaces implementations on the global communicator.
+    Teuchos::RCP<DataSource<double,int,double,3> > tds;
+    Teuchos::RCP<DataTarget<double,int,double,3> > tdt;
+
+    // Create a data container instance for checking the data under the source
+    // interface and create an instance of the source interface.
+    if ( source_comm != Teuchos::null )
+    {
+	source_container = Teuchos::rcp(new Data_Container);
+
+	tds = Teuchos::rcp(
+	    new test_DataSource<double,int,double,3>(source_container,
+						     source_comm));
+    }
+
+    // Create a data container instance for checking the data under the target
+    // interface and create an instance of the target interface.
+    if ( target_comm != Teuchos::null )
+    {
+	target_container = Teuchos::rcp(new Data_Container);
+
+	tdt = Teuchos::rcp(
+	    new test_DataTarget<double,int,double,3>(target_container,
+						     target_comm));
+    }
+
+    // Create a distributed field for these interfaces to be transferred.
+    global_comm->barrier();
+    DataField<double,int,double,3> field( global_comm,
+					  "DISTRIBUTED_TEST_FIELD", 
+					  "DISTRIBUTED_TEST_FIELD",
+					  tds, 
+					  tdt );
+
+    // Create the mapping.
+    field.create_data_transfer_mapping();
+
+    // Do the transfer.
+    field.perform_data_transfer();
+
+    // Check the transferred data under the target interface.
+    if ( target_comm != Teuchos::null )
+    {
+	TEST_ASSERT( target_container->get_distributed_data().size() == 5 );
+	int myRank = target_comm->getRank();
+	int mySize = target_comm->getSize();
+	int flippedRank = mySize-myRank-1;
+	for (int i = 0; i < 5; ++i)
+	{
+	    TEST_ASSERT( target_container->get_distributed_data()[i]
+			 == 1.0*flippedRank );
+	}
+    }
+}
+
+TEUCHOS_UNIT_TEST( DataField, Source_Subcomm_Transfer_Test )
+{
+    // Setup some communicators.
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
+    RCP_Communicator global_comm = getDefaultComm<int>();
+    std::vector<int> source_ranks;
+    for ( int n = 0; n < global_comm->getSize(); ++n )
+    {
+	if ( n % 2 == 0 )
+	{
+	    source_ranks.push_back(n);
+	}
+    }
+    Teuchos::ArrayView<int> source_ranks_view( source_ranks );
+
+    RCP_Communicator source_comm = 
+	global_comm->createSubcommunicator( source_ranks_view );
+    RCP_Communicator target_comm = global_comm;
+
+    // Declare the target containers.
+    Teuchos::RCP<Data_Container> source_container;
+    Teuchos::RCP<Data_Container> target_container;
+
+    // Declare the interfaces implementations on the global communicator.
+    Teuchos::RCP<DataSource<double,int,double,3> > tds;
+    Teuchos::RCP<DataTarget<double,int,double,3> > tdt;
+
+    // Create a data container instance for checking the data under the source
+    // interface and create an instance of the source interface.
+    if ( source_comm != Teuchos::null )
+    {
+	source_container = Teuchos::rcp(new Data_Container);
+
+	tds = Teuchos::rcp(
+	    new test_DataSource<double,int,double,3>(source_container,
+						     source_comm));
+    }
+
+    // Create a data container instance for checking the data under the target
+    // interface and create an instance of the target interface.
+    if ( target_comm != Teuchos::null )
+    {
+	target_container = Teuchos::rcp(new Data_Container);
+
+	tdt = Teuchos::rcp(
+	    new test_DataTarget<double,int,double,3>(target_container,
+						     target_comm));
+    }
+
+    // Create a distributed field for these interfaces to be transferred.
+    global_comm->barrier();
+    DataField<double,int,double,3> field( global_comm,
+					  "DISTRIBUTED_TEST_FIELD", 
+					  "DISTRIBUTED_TEST_FIELD",
+					  tds, 
+					  tdt );
+
+    // Create the mapping.
+    field.create_data_transfer_mapping();
+
+    // Do the transfer.
+    field.perform_data_transfer();
+
+    // Check the transferred data under the target interface.
+    if ( target_comm != Teuchos::null )
+    {
+	if ( global_comm->getRank() % 2 == 0 )
+	{
+	    TEST_ASSERT( target_container->get_distributed_data().size() == 5 );
+	    int myRank = source_comm->getRank();
+	    int mySize = source_comm->getSize();
+	    int flippedRank = mySize-myRank-1;
+	    for (int i = 0; i < 5; ++i)
+	    {
+		TEST_ASSERT( target_container->get_distributed_data()[i]
+			     == 1.0*flippedRank );
+	    }
+	}
+	else
+	{
+	    TEST_ASSERT( target_container->get_distributed_data().size() == 5 );
+	    for (int i = 0; i < 5; ++i)
+	    {
+		TEST_ASSERT( target_container->get_distributed_data()[i] == 0.0 );
+	    }
+	}
+    }
+}
+
+TEUCHOS_UNIT_TEST( DataField, Target_Subcomm_Transfer_Test )
+{
+    // Setup some communicators.
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
+    RCP_Communicator global_comm = getDefaultComm<int>();
+    std::vector<int> target_ranks;
+    for ( int n = 0; n < global_comm->getSize(); ++n )
+    {
+	if ( n % 2 == 0 )
+	{
+	    target_ranks.push_back(n);
+	}
+    }
+    Teuchos::ArrayView<int> target_ranks_view( target_ranks );
+
+    RCP_Communicator source_comm = global_comm;
+    RCP_Communicator target_comm = 
+	global_comm->createSubcommunicator( target_ranks_view );
+
+
+    // Declare the target containers.
+    Teuchos::RCP<Data_Container> source_container;
+    Teuchos::RCP<Data_Container> target_container;
+
+    // Declare the interfaces implementations on the global communicator.
+    Teuchos::RCP<DataSource<double,int,double,3> > tds;
+    Teuchos::RCP<DataTarget<double,int,double,3> > tdt;
+
+    // Create a data container instance for checking the data under the source
+    // interface and create an instance of the source interface.
+    if ( source_comm != Teuchos::null )
+    {
+	source_container = Teuchos::rcp(new Data_Container);
+
+	tds = Teuchos::rcp(
+	    new test_DataSource<double,int,double,3>(source_container,
+						     source_comm));
+    }
+
+    // Create a data container instance for checking the data under the target
+    // interface and create an instance of the target interface.
+    if ( target_comm != Teuchos::null )
+    {
+	target_container = Teuchos::rcp(new Data_Container);
+
+	tdt = Teuchos::rcp(
+	    new test_DataTarget<double,int,double,3>(target_container,
+						     target_comm));
+    }
+
+    // Create a distributed field for these interfaces to be transferred.
+    global_comm->barrier();
+    DataField<double,int,double,3> field( global_comm,
+					  "DISTRIBUTED_TEST_FIELD", 
+					  "DISTRIBUTED_TEST_FIELD",
+					  tds, 
+					  tdt );
+
+    // Create the mapping.
+    field.create_data_transfer_mapping();
+
+    // Do the transfer.
+    field.perform_data_transfer();
+
+    // Check the transferred data under the target interface.
+    if ( target_comm != Teuchos::null )
+    {
+	if ( global_comm->getRank() % 2 == 0 )
+	{
+	    TEST_ASSERT( target_container->get_distributed_data().size() == 5 );
+	    int myRank = source_comm->getRank();
+	    int mySize = source_comm->getSize();
+	    int flippedRank = mySize-myRank-1;
+	    for (int i = 0; i < 5; ++i)
+	    {
+		TEST_ASSERT( target_container->get_distributed_data()[i]
+			     == 1.0*flippedRank );
+	    }
+	}
     }
 }
 
