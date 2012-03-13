@@ -3,7 +3,7 @@
  * \file   core/test/tstZero_Point_Proc.cpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 14:43:10 2011
- * \brief  DataField unit tests
+ * \brief  CopyOperator unit tests
  */
 //---------------------------------------------------------------------------//
 
@@ -15,7 +15,7 @@
 #include "Coupler_Point.hpp"
 #include "Coupler_DataSource.hpp"
 #include "Coupler_DataTarget.hpp"
-#include "Coupler_DataField.hpp"
+#include "Coupler_CopyOperator.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>
@@ -306,7 +306,7 @@ class test_DataTarget
 
 namespace Coupler {
 
-TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
+TEUCHOS_UNIT_TEST( CopyOperator, Distributed_Transfer_Test )
 {
     // create a data container instance for checking the data under the source
     // interface.
@@ -327,17 +327,17 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
 	Teuchos::rcp(new test_DataTarget<double,int,double,3>(target_container));
 
     // Create a distributed field for these interfaces to be transferred.
-    DataField<double,int,double,3> field( getDefaultComm<int>(),
-					  "DISTRIBUTED_TEST_FIELD",
-					  "DISTRIBUTED_TEST_FIELD", 
-					  tds, 
-					  tdt );
+    CopyOperator<double,int,double,3> field_op( getDefaultComm<int>(),
+						"DISTRIBUTED_TEST_FIELD",
+						"DISTRIBUTED_TEST_FIELD", 
+						tds, 
+						tdt );
 
     // Create the mapping.
-    field.create_data_transfer_mapping();
+    field_op.create_copy_mapping();
 
     // Do the transfer.
-    field.perform_data_transfer();
+    field_op.copy();
 
     // Check the points under the source interface to the verify communication
     // pattern of sending target points to the source.
@@ -345,7 +345,7 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
     int mySize = getDefaultComm<int>()->getSize();
     int flippedRank = mySize-myRank-1;
 
-    TEST_ASSERT( field.is_mapped() );
+    TEST_ASSERT( field_op.is_mapped() );
     if ( flippedRank != 0 )
     {
 	TEST_ASSERT( source_container->get_distributed_points().size() == 4 );
@@ -363,26 +363,26 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
     }
 
     // Check the Tpetra maps for both the source and the target.
-    TEST_ASSERT( (int) field.source_map()->getGlobalNumElements() 
+    TEST_ASSERT( (int) field_op.source_map()->getGlobalNumElements() 
 		 == (mySize-1)*4 );
     if ( flippedRank != 0 )
     {
-	TEST_ASSERT( (int) field.source_map()->getNodeNumElements() == 4 );
+	TEST_ASSERT( (int) field_op.source_map()->getNodeNumElements() == 4 );
 	for (int i = 0; i < 4; ++i)
 	{
-	    TEST_ASSERT( field.source_map()->getNodeElementList()[i] 
+	    TEST_ASSERT( field_op.source_map()->getNodeElementList()[i] 
 			 == 5*flippedRank+i );
 	}
     }
 
-    TEST_ASSERT( (int) field.target_map()->getGlobalNumElements() 
+    TEST_ASSERT( (int) field_op.target_map()->getGlobalNumElements() 
 		 == (mySize-1)*5 );
     if ( myRank != 0 )
     {
-	TEST_ASSERT( (int) field.target_map()->getNodeNumElements() == 5 );
+	TEST_ASSERT( (int) field_op.target_map()->getNodeNumElements() == 5 );
 	for (int i = 0; i < 5; ++i)
 	{
-	    TEST_ASSERT( field.target_map()->getNodeElementList()[i] 
+	    TEST_ASSERT( field_op.target_map()->getNodeElementList()[i] 
 			 == 5*myRank+i );
 	}
 

@@ -1,14 +1,14 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   Coupler_DataField.hpp
+ * \file   Coupler_CopyOperator.hpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
- * \brief  Coupler_DataField class definition.
+ * \brief  Coupler_CopyOperator class definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_DATAFIELD_HPP
-#define COUPLER_DATAFIELD_HPP
+#ifndef COUPLER_COPYOPERATOR_HPP
+#define COUPLER_COPYOPERATOR_HPP
 
 #include <string>
 
@@ -27,11 +27,11 @@ namespace Coupler
 
 //===========================================================================//
 /*!
- * \class DataField
+ * \class CopyOperator
  * \brief Field type for data transfers. This exists for more a explicit
  * definition of fields in the coupler user interface.
  *
- * The Coupler_DataField encapsulates the relationship between a
+ * The Coupler_CopyOperator encapsulates the relationship between a
  * Coupler_DataSource and a Coupler_DataTarget. In addition to containing
  * the map for transfer between the source and the target, the field also
  * contains indicators for the status of the mapping (transfer cannot occur
@@ -39,14 +39,14 @@ namespace Coupler
  * (requiring a parallel mapping) or scalar.
  */
 /*! 
- * \example core/test/tstDataField.cc
+ * \example core/test/tstCopyOperator.cc
  *
- * Test of Coupler_DataField.
+ * Test of Coupler_CopyOperator.
  */
 //===========================================================================//
 
 template<class DataType, class HandleType, class CoordinateType, int DIM>
-class DataField
+class CopyOperator
 {
   public:
 
@@ -109,22 +109,22 @@ class DataField
   public:
 
     // Constructor.
-    DataField( RCP_Communicator comm_global,
-	       const std::string &source_field_name,
-	       const std::string &target_field_name,
-	       RCP_DataSource source,
-	       RCP_DataTarget target,
-	       bool global_data = false );
+    CopyOperator( RCP_Communicator comm_global,
+		  const std::string &source_field_name,
+		  const std::string &target_field_name,
+		  RCP_DataSource source,
+		  RCP_DataTarget target,
+		  bool global_data = false );
 
     // Destructor.
-    ~DataField();
+    ~CopyOperator();
 
     // Generate the mapping for data transfer from the data source to the data
     // target.
-    void create_data_transfer_mapping();
+    void create_copy_mapping();
 
     // Transfer data from the data source to the data target.
-    void perform_data_transfer();
+    void copy();
 
     //! Get the communicator.
     RCP_Communicator comm() const
@@ -169,10 +169,10 @@ class DataField
     void point_map();
 
     // Perform scalar transfer.
-    void scalar_transfer();
+    void global_copy();
 
     // Perform distributed transfer.
-    void distributed_transfer();
+    void distributed_copy();
 };
 
 } // end namespace Coupler
@@ -181,10 +181,10 @@ class DataField
 // TEMPLATE MEMBERS
 //---------------------------------------------------------------------------//
 
-#include "Coupler_DataField_Def.hpp"
+#include "Coupler_CopyOperator_Def.hpp"
 
-#endif // COUPLER_DATAFIELD_HPP
+#endif // COUPLER_COPYOPERATOR_HPP
 
 //---------------------------------------------------------------------------//
-//              end of Coupler_DataField.hpp
+//              end of Coupler_CopyOperator.hpp
 //---------------------------------------------------------------------------//

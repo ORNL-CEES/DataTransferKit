@@ -1,9 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   core/test/tstDataField.cpp
+ * \file   core/test/tstCopyOperator.cpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 14:43:10 2011
- * \brief  DataField unit tests
+ * \brief  CopyOperator unit tests
  */
 //---------------------------------------------------------------------------//
 
@@ -15,7 +15,7 @@
 #include <Coupler_Point.hpp>
 #include <Coupler_DataSource.hpp>
 #include <Coupler_DataTarget.hpp>
-#include <Coupler_DataField.hpp>
+#include <Coupler_CopyOperator.hpp>
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ENull.hpp"
@@ -55,7 +55,7 @@ class Data_Container
   public:
 
     Data_Container()
-      : scalar_data(0.0)
+	: scalar_data(0.0)
     { /* ... */ }
 
     ~Data_Container()
@@ -309,7 +309,7 @@ class test_DataTarget
 
 namespace Coupler {
 
-TEUCHOS_UNIT_TEST( DataField, distributed_container_test )
+TEUCHOS_UNIT_TEST( CopyOperator, distributed_container_test )
 {
     // create a data container instance for checking the data under the source
     // interface.
@@ -332,24 +332,24 @@ TEUCHOS_UNIT_TEST( DataField, distributed_container_test )
 							      getDefaultComm<int>()));
 
     // Create a distributed field for these interfaces to be transferred.
-    DataField<double,int,double,3> field(getDefaultComm<int>(),
-					 "DISTRIBUTED_TEST_FIELD", 
-					 "DISTRIBUTED_TEST_FIELD",
-					 tds, 
-					 tdt);
+    CopyOperator<double,int,double,3> field_op( getDefaultComm<int>(),
+						"DISTRIBUTED_TEST_FIELD", 
+						"DISTRIBUTED_TEST_FIELD",
+						tds, 
+						tdt );
 
     // Test the basic container functionality of the field.
-    TEST_ASSERT( field.comm()->getRank() == getDefaultComm<int>()->getRank() );
-    TEST_ASSERT( field.comm()->getSize() == getDefaultComm<int>()->getSize() );
-    TEST_ASSERT( field.source_name() == "DISTRIBUTED_TEST_FIELD" );
-    TEST_ASSERT( field.source() == tds );
-    TEST_ASSERT( field.target_name() == "DISTRIBUTED_TEST_FIELD" );
-    TEST_ASSERT( field.target() == tdt );
-    TEST_ASSERT( !field.is_scalar() );
-    TEST_ASSERT( !field.is_mapped() );
+    TEST_ASSERT( field_op.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( field_op.comm()->getSize() == getDefaultComm<int>()->getSize() );
+    TEST_ASSERT( field_op.source_name() == "DISTRIBUTED_TEST_FIELD" );
+    TEST_ASSERT( field_op.source() == tds );
+    TEST_ASSERT( field_op.target_name() == "DISTRIBUTED_TEST_FIELD" );
+    TEST_ASSERT( field_op.target() == tdt );
+    TEST_ASSERT( !field_op.is_scalar() );
+    TEST_ASSERT( !field_op.is_mapped() );
 }
 
-TEUCHOS_UNIT_TEST( DataField, scalar_container_test )
+TEUCHOS_UNIT_TEST( CopyOperator, scalar_container_test )
 {
     // create a data container instance for checking the data under the source
     // interface.
@@ -372,24 +372,24 @@ TEUCHOS_UNIT_TEST( DataField, scalar_container_test )
 							      getDefaultComm<int>()));
 
     // Create a distributed field for these interfaces to be transferred.
-    DataField<double,int,double,3> field(getDefaultComm<int>(),
-					 "SCALAR_TEST_FIELD", 
-					 "SCALAR_TEST_FIELD", 
-					 tds, 
-					 tdt,
-					 true);
+    CopyOperator<double,int,double,3> field_op( getDefaultComm<int>(),
+						"SCALAR_TEST_FIELD", 
+						"SCALAR_TEST_FIELD", 
+						tds, 
+						tdt,
+						true );
 
     // Test the basic container functionality of the field.
-    TEST_ASSERT( field.comm()->getRank() == getDefaultComm<int>()->getRank() );
-    TEST_ASSERT( field.comm()->getSize() == getDefaultComm<int>()->getSize() );
-    TEST_ASSERT( field.source_name() == "SCALAR_TEST_FIELD" );
-    TEST_ASSERT( field.source() == tds );
-    TEST_ASSERT( field.target_name() == "SCALAR_TEST_FIELD" );
-    TEST_ASSERT( field.target() == tdt );
-    TEST_ASSERT( field.is_scalar() );
+    TEST_ASSERT( field_op.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( field_op.comm()->getSize() == getDefaultComm<int>()->getSize() );
+    TEST_ASSERT( field_op.source_name() == "SCALAR_TEST_FIELD" );
+    TEST_ASSERT( field_op.source() == tds );
+    TEST_ASSERT( field_op.target_name() == "SCALAR_TEST_FIELD" );
+    TEST_ASSERT( field_op.target() == tdt );
+    TEST_ASSERT( field_op.is_scalar() );
 }
 
-TEUCHOS_UNIT_TEST( DataField, mapping_test )
+TEUCHOS_UNIT_TEST( CopyOperator, mapping_test )
 {
     // create a data container instance for checking the data under the source
     // interface.
@@ -412,21 +412,21 @@ TEUCHOS_UNIT_TEST( DataField, mapping_test )
 							      getDefaultComm<int>()));
 
     // Create a distributed field for these interfaces to be transferred.
-    DataField<double,int,double,3> field(getDefaultComm<int>(),
-					 "DISTRIBUTED_TEST_FIELD", 
-					 "DISTRIBUTED_TEST_FIELD",
-					 tds, 
-					 tdt);
+    CopyOperator<double,int,double,3> field_op( getDefaultComm<int>(),
+						"DISTRIBUTED_TEST_FIELD", 
+						"DISTRIBUTED_TEST_FIELD",
+						tds, 
+						tdt );
 
     // Generate the mapping.
-    field.create_data_transfer_mapping();
+    field_op.create_copy_mapping();
 
     // Check the points under the source interface to the verify communication
     // pattern of sending target points to the source.
     int myRank = getDefaultComm<int>()->getRank();
     int mySize = getDefaultComm<int>()->getSize();
     int flippedRank = mySize-myRank-1;
-    TEST_ASSERT( field.is_mapped() );
+    TEST_ASSERT( field_op.is_mapped() );
     TEST_ASSERT( source_container->get_distributed_points().size() == 5 );
     for (int i = 0; i < 5; ++i)
     {
@@ -441,26 +441,26 @@ TEUCHOS_UNIT_TEST( DataField, mapping_test )
     }
 
     // Check the Tpetra maps for both the source and the target.
-    TEST_ASSERT( (int) field.source_map()->getGlobalNumElements() 
+    TEST_ASSERT( (int) field_op.source_map()->getGlobalNumElements() 
 		 == mySize*5 );
-    TEST_ASSERT( (int) field.source_map()->getNodeNumElements() == 5 );
+    TEST_ASSERT( (int) field_op.source_map()->getNodeNumElements() == 5 );
     for (int i = 0; i < 5; ++i)
     {
-	TEST_ASSERT( field.source_map()->getNodeElementList()[i] 
+	TEST_ASSERT( field_op.source_map()->getNodeElementList()[i] 
 		     == 5*flippedRank+i );
     }
 
-    TEST_ASSERT( (int) field.target_map()->getGlobalNumElements() 
+    TEST_ASSERT( (int) field_op.target_map()->getGlobalNumElements() 
 		 == mySize*5 );
-    TEST_ASSERT( (int) field.target_map()->getNodeNumElements() == 5 );
+    TEST_ASSERT( (int) field_op.target_map()->getNodeNumElements() == 5 );
     for (int i = 0; i < 5; ++i)
     {
-	TEST_ASSERT( field.target_map()->getNodeElementList()[i] 
+	TEST_ASSERT( field_op.target_map()->getNodeElementList()[i] 
 		     == 5*myRank+i );
     }
 }
 
-TEUCHOS_UNIT_TEST( DataField, Scalar_Transfer_Test )
+TEUCHOS_UNIT_TEST( CopyOperator, Scalar_Transfer_Test )
 {
     // create a data container instance for checking the data under the source
     // interface.
@@ -483,20 +483,20 @@ TEUCHOS_UNIT_TEST( DataField, Scalar_Transfer_Test )
 							      getDefaultComm<int>()));
 
     // Create a distributed field for these interfaces to be transferred.
-    DataField<double,int,double,3> field(getDefaultComm<int>(),
-					 "SCALAR_TEST_FIELD", 
-					 "SCALAR_TEST_FIELD", 
-					 tds, 
-					 tdt,
-					 true);
+    CopyOperator<double,int,double,3> field_op( getDefaultComm<int>(),
+						"SCALAR_TEST_FIELD", 
+						"SCALAR_TEST_FIELD", 
+						tds, 
+						tdt,
+						true );
 
     // Do scalar transfer.
-    field.perform_data_transfer();
+    field_op.copy();
 
     TEST_ASSERT( target_container->get_scalar_data() == 5.352 );
 }
 
-TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
+TEUCHOS_UNIT_TEST( CopyOperator, Distributed_Transfer_Test )
 {
     // create a data container instance for checking the data under the source
     // interface.
@@ -519,17 +519,17 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
 							      getDefaultComm<int>()));
 
     // Create a distributed field for these interfaces to be transferred.
-    DataField<double,int,double,3> field(getDefaultComm<int>(),
-					 "DISTRIBUTED_TEST_FIELD", 
-					 "DISTRIBUTED_TEST_FIELD",
-					 tds, 
-					 tdt);
+    CopyOperator<double,int,double,3> field_op( getDefaultComm<int>(),
+						"DISTRIBUTED_TEST_FIELD", 
+						"DISTRIBUTED_TEST_FIELD",
+						tds, 
+						tdt);
 
     // Create the mapping.
-    field.create_data_transfer_mapping();
+    field_op.create_copy_mapping();
 
     // Do the transfer.
-    field.perform_data_transfer();
+    field_op.copy();
 
     // Check the transferred data under the target interface.
     TEST_ASSERT( target_container->get_distributed_data().size() == 5 );
@@ -543,7 +543,7 @@ TEUCHOS_UNIT_TEST( DataField, Distributed_Transfer_Test )
     }
 }
 
-TEUCHOS_UNIT_TEST( DataField, Separate_Split_Transfer_Test )
+TEUCHOS_UNIT_TEST( CopyOperator, Separate_Split_Transfer_Test )
 {
     // Setup some communicators.
     typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
@@ -601,17 +601,17 @@ TEUCHOS_UNIT_TEST( DataField, Separate_Split_Transfer_Test )
 
     // Create a distributed field for these interfaces to be transferred.
     global_comm->barrier();
-    DataField<double,int,double,3> field( global_comm,
-					  "DISTRIBUTED_TEST_FIELD", 
-					  "DISTRIBUTED_TEST_FIELD",
-					  tds, 
-					  tdt );
+    CopyOperator<double,int,double,3> field_op( global_comm,
+						"DISTRIBUTED_TEST_FIELD", 
+						"DISTRIBUTED_TEST_FIELD",
+						tds, 
+						tdt );
 
     // Create the mapping.
-    field.create_data_transfer_mapping();
+    field_op.create_copy_mapping();
 
     // Do the transfer.
-    field.perform_data_transfer();
+    field_op.copy();
 
     // Check the transferred data under the target interface.
     if ( target_comm != Teuchos::null )
@@ -628,7 +628,7 @@ TEUCHOS_UNIT_TEST( DataField, Separate_Split_Transfer_Test )
     }
 }
 
-TEUCHOS_UNIT_TEST( DataField, Overlap_Split_Transfer_Test )
+TEUCHOS_UNIT_TEST( CopyOperator, Overlap_Split_Transfer_Test )
 {
     // Setup some communicators.
     typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
@@ -686,17 +686,17 @@ TEUCHOS_UNIT_TEST( DataField, Overlap_Split_Transfer_Test )
 
     // Create a distributed field for these interfaces to be transferred.
     global_comm->barrier();
-    DataField<double,int,double,3> field( global_comm,
-					  "DISTRIBUTED_TEST_FIELD", 
-					  "DISTRIBUTED_TEST_FIELD",
-					  tds, 
-					  tdt );
+    CopyOperator<double,int,double,3> field_op( global_comm,
+						"DISTRIBUTED_TEST_FIELD", 
+						"DISTRIBUTED_TEST_FIELD",
+						tds, 
+						tdt );
 
     // Create the mapping.
-    field.create_data_transfer_mapping();
+    field_op.create_copy_mapping();
 
     // Do the transfer.
-    field.perform_data_transfer();
+    field_op.copy();
 
     // Check the transferred data under the target interface.
     if ( target_comm != Teuchos::null )
@@ -713,7 +713,7 @@ TEUCHOS_UNIT_TEST( DataField, Overlap_Split_Transfer_Test )
     }
 }
 
-TEUCHOS_UNIT_TEST( DataField, Source_Subcomm_Transfer_Test )
+TEUCHOS_UNIT_TEST( CopyOperator, Source_Subcomm_Transfer_Test )
 {
     // Setup some communicators.
     typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
@@ -764,17 +764,17 @@ TEUCHOS_UNIT_TEST( DataField, Source_Subcomm_Transfer_Test )
 
     // Create a distributed field for these interfaces to be transferred.
     global_comm->barrier();
-    DataField<double,int,double,3> field( global_comm,
-					  "DISTRIBUTED_TEST_FIELD", 
-					  "DISTRIBUTED_TEST_FIELD",
-					  tds, 
-					  tdt );
+    CopyOperator<double,int,double,3> field_op( global_comm,
+						"DISTRIBUTED_TEST_FIELD", 
+						"DISTRIBUTED_TEST_FIELD",
+						tds, 
+						tdt );
 
     // Create the mapping.
-    field.create_data_transfer_mapping();
+    field_op.create_copy_mapping();
 
     // Do the transfer.
-    field.perform_data_transfer();
+    field_op.copy();
 
     // Check the transferred data under the target interface.
     if ( target_comm != Teuchos::null )
@@ -802,7 +802,7 @@ TEUCHOS_UNIT_TEST( DataField, Source_Subcomm_Transfer_Test )
     }
 }
 
-TEUCHOS_UNIT_TEST( DataField, Target_Subcomm_Transfer_Test )
+TEUCHOS_UNIT_TEST( CopyOperator, Target_Subcomm_Transfer_Test )
 {
     // Setup some communicators.
     typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
@@ -854,17 +854,17 @@ TEUCHOS_UNIT_TEST( DataField, Target_Subcomm_Transfer_Test )
 
     // Create a distributed field for these interfaces to be transferred.
     global_comm->barrier();
-    DataField<double,int,double,3> field( global_comm,
-					  "DISTRIBUTED_TEST_FIELD", 
-					  "DISTRIBUTED_TEST_FIELD",
-					  tds, 
-					  tdt );
+    CopyOperator<double,int,double,3> field_op( global_comm,
+						"DISTRIBUTED_TEST_FIELD", 
+						"DISTRIBUTED_TEST_FIELD",
+						tds, 
+						tdt );
 
     // Create the mapping.
-    field.create_data_transfer_mapping();
+    field_op.create_copy_mapping();
 
     // Do the transfer.
-    field.perform_data_transfer();
+    field_op.copy();
 
     // Check the transferred data under the target interface.
     if ( target_comm != Teuchos::null )
@@ -889,5 +889,5 @@ TEUCHOS_UNIT_TEST( DataField, Target_Subcomm_Transfer_Test )
 } // end namespace Coupler
 
 //---------------------------------------------------------------------------//
-//                        end of tstDataField.cpp
+//                        end of tstCopyOperator.cpp
 //---------------------------------------------------------------------------//

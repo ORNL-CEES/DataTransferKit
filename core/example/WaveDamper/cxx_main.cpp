@@ -9,7 +9,7 @@
 
 #include <Coupler_DataSource.hpp>
 #include <Coupler_DataTarget.hpp>
-#include <Coupler_DataField.hpp>
+#include <Coupler_CopyOperator.hpp>
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_CommHelpers.hpp"
@@ -50,12 +50,12 @@ int main(int argc, char* argv[])
     Teuchos::RCP<Coupler::DataTarget<double,int,double,1> > damper_target = 
 	Teuchos::rcp( new Coupler::Damper_DataTarget<double,int,double,1>(damper) );
 
-    // Setup a Data Field for the wave field.
-    Coupler::DataField<double,int,double,1> wave_field(comm,
-						       "WAVE_SOURCE_FIELD",
-						       "WAVE_TARGET_FIELD",
-						       wave_source,
-						       damper_target);
+    // Setup a copy operator for the wave field.
+    Coupler::CopyOperator<double,int,double,1> wave_field_op( comm,
+							      "WAVE_SOURCE_FIELD",
+							      "WAVE_TARGET_FIELD",
+							      wave_source,
+							      damper_target );
 
     // Setup a Damper Data Source for the damper field.
     Teuchos::RCP<Coupler::DataSource<double,int,double,1> > damper_source = 
@@ -65,12 +65,12 @@ int main(int argc, char* argv[])
     Teuchos::RCP<Coupler::DataTarget<double, int, double,1> > wave_target = 
 	Teuchos::rcp( new Coupler::Wave_DataTarget<double,int,double,1>(wave) );
 
-    // Setup a Data Field for the damper field.
-    Coupler::DataField<double,int,double,1> damper_field(comm,
-							 "DAMPER_SOURCE_FIELD",
-							 "DAMPER_TARGET_FIELD",
-							 damper_source,
-							 wave_target);
+    // Setup a copy operator for the damper field.
+    Coupler::CopyOperator<double,int,double,1> damper_field_op( comm,
+								"DAMPER_SOURCE_FIELD",
+								"DAMPER_TARGET_FIELD",
+								damper_source,
+								wave_target );
 
     // Iterate between the damper and wave until convergence.
     double local_norm = 0.0;
@@ -79,32 +79,32 @@ int main(int argc, char* argv[])
     int max_iter = 100;
 
     // Create the mapping for the wave field.
-    wave_field.create_data_transfer_mapping();
+    wave_field_op.create_copy_mapping();
 
     // Create the mapping for the damper field.
-    damper_field.create_data_transfer_mapping();
+    damper_field_op.create_copy_mapping();
 
     while( global_norm > 1.0e-6 && num_iter < max_iter )
     {
 	// Transfer the wave field.
-	wave_field.perform_data_transfer();
+	wave_field_op.copy();
 
 	// Damper solve.
 	damper->solve();
 
 	// Transfer the damper field.
-	damper_field.perform_data_transfer();
+	damper_field_op.copy();
 
 	// Wave solve.
 	local_norm = wave->solve();
 
 	// Collect the l2 norm values from the wave solve to ensure
 	// convergence. 
-	Teuchos::reduceAll<int>(*comm,
-				Teuchos::REDUCE_MAX, 
-				int(1), 
-				&local_norm, 
-				&global_norm);
+	Teuchos::reduceAll<int>( *comm,
+				 Teuchos::REDUCE_MAX, 
+				 int(1), 
+				 &local_norm, 
+				 &global_norm );
 
 	// Update the iteration count.
 	++num_iter;

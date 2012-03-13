@@ -22,8 +22,8 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   Coupler_CommIndexer.hpp
   Coupler_CommIndexer_Def.hpp
-  Coupler_DataField.hpp
-  Coupler_DataField_Def.hpp
+  Coupler_CopyOperator.hpp
+  Coupler_CopyOperator_Def.hpp
   Coupler_DataSource.hpp
   Coupler_DataSource_Def.hpp
   Coupler_DataTarget.hpp

@@ -1,14 +1,14 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   Coupler_DataField_Def.hpp
+ * \file   Coupler_CopyOperator_Def.hpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
- * \brief  Coupler_DataField template member definitions.
+ * \brief  Coupler_CopyOperator template member definitions.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_DATAFIELD_DEF_HPP
-#define COUPLER_DATAFIELD_DEF_HPP
+#ifndef COUPLER_COPYOPERATOR_DEF_HPP
+#define COUPLER_COPYOPERATOR_DEF_HPP
 
 #include <cassert>
 #include <algorithm>
@@ -40,7 +40,7 @@ namespace Coupler
  * \param scalar Set to true if this field is scalar, false if distributed.
  */
 template<class DataType, class HandleType, class CoordinateType, int DIM>
-DataField<DataType,HandleType,CoordinateType,DIM>::DataField(
+CopyOperator<DataType,HandleType,CoordinateType,DIM>::CopyOperator(
     RCP_Communicator comm_global,
     const std::string &source_field_name,
     const std::string &target_field_name,
@@ -74,7 +74,7 @@ DataField<DataType,HandleType,CoordinateType,DIM>::DataField(
  * \brief Destructor.
  */
 template<class DataType, class HandleType, class CoordinateType, int DIM>
-DataField<DataType,HandleType,CoordinateType,DIM>::~DataField()
+CopyOperator<DataType,HandleType,CoordinateType,DIM>::~CopyOperator()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -85,7 +85,7 @@ DataField<DataType,HandleType,CoordinateType,DIM>::~DataField()
  */
 template<class DataType, class HandleType, class CoordinateType, int DIM>
 void 
-DataField<DataType,HandleType,CoordinateType,DIM>::create_data_transfer_mapping()
+CopyOperator<DataType,HandleType,CoordinateType,DIM>::create_copy_mapping()
 { 
     if ( d_active_source || d_active_target )
     {
@@ -102,19 +102,19 @@ DataField<DataType,HandleType,CoordinateType,DIM>::create_data_transfer_mapping(
  * \brief Transfer data from the data source to the data target.
  */
 template<class DataType, class HandleType, class CoordinateType, int DIM>
-void DataField<DataType,HandleType,CoordinateType,DIM>::perform_data_transfer()
+void CopyOperator<DataType,HandleType,CoordinateType,DIM>::copy()
 { 
     if ( d_active_source || d_active_target )
     {
 	if ( d_global_data )
 	{
-	    scalar_transfer();
+	    global_copy();
 	}
 
 	else
 	{
 	    assert( d_mapped );
-	    distributed_transfer();
+	    distributed_copy();
 	}
     }
 }
@@ -126,7 +126,7 @@ void DataField<DataType,HandleType,CoordinateType,DIM>::perform_data_transfer()
  * \brief Generate topology map for this field based on point mapping.
  */
 template<class DataType, class HandleType, class CoordinateType, int DIM>
-void DataField<DataType,HandleType,CoordinateType,DIM>::point_map()
+void CopyOperator<DataType,HandleType,CoordinateType,DIM>::point_map()
 {
     // Extract the local list of target handles. These are the global indices
     // for the target Tpetra map.
@@ -153,7 +153,7 @@ void DataField<DataType,HandleType,CoordinateType,DIM>::point_map()
     const Teuchos::ArrayView<const HandleType> 
 	target_handles_view(target_handles);
     d_target_map = 
-	Tpetra::createNonContigMap<HandleType>( target_handles_view, d_comm);
+	Tpetra::createNonContigMap<HandleType>( target_handles_view, d_comm );
     d_comm->barrier();
 
     // Generate a target point buffer to send to the source. Pad the rest of
@@ -243,10 +243,10 @@ void DataField<DataType,HandleType,CoordinateType,DIM>::point_map()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Perform scalar transfer.
+ * \brief Perform global scalar copy.
  */
 template<class DataType, class HandleType, class CoordinateType, int DIM>
-void DataField<DataType,HandleType,CoordinateType,DIM>::scalar_transfer()
+void CopyOperator<DataType,HandleType,CoordinateType,DIM>::global_copy()
 {
     DataType global_value = 
 	d_source->get_global_source_data( d_source_field_name );
@@ -256,10 +256,10 @@ void DataField<DataType,HandleType,CoordinateType,DIM>::scalar_transfer()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Perform distributed transfer.
+ * \brief Perform distributed copy.
  */
 template<class DataType, class HandleType, class CoordinateType, int DIM>
-void DataField<DataType,HandleType,CoordinateType,DIM>::distributed_transfer()
+void CopyOperator<DataType,HandleType,CoordinateType,DIM>::distributed_copy()
 {
     Teuchos::ArrayView<DataType> source_data;
     if ( d_active_source )
@@ -270,7 +270,7 @@ void DataField<DataType,HandleType,CoordinateType,DIM>::distributed_transfer()
     d_comm->barrier();
     Tpetra::Vector<DataType> data_source_vector( d_source_map, source_data );
 
-    Tpetra::Vector<DataType> data_target_vector(d_target_map);
+    Tpetra::Vector<DataType> data_target_vector( d_target_map );
 
     data_target_vector.doExport(data_source_vector, *d_export, Tpetra::INSERT);
 
@@ -286,8 +286,8 @@ void DataField<DataType,HandleType,CoordinateType,DIM>::distributed_transfer()
 
 } // end namespace Coupler
 
-#endif // COUPLER_DATAFIELD_DEF_HPP
+#endif // COUPLER_COPYOPERATOR_DEF_HPP
 
 //---------------------------------------------------------------------------//
-//                 end of Coupler_DataField_Def.hpp
+//                 end of Coupler_CopyOperator_Def.hpp
 //---------------------------------------------------------------------------//
