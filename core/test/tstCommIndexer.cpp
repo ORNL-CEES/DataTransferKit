@@ -12,7 +12,7 @@
 #include <cmath>
 #include <sstream>
 
-#include <Coupler_CommIndexer.hpp>
+#include <DataTransferKit_CommIndexer.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -46,7 +46,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, duplicate_test )
     RCP_Communicator global_comm = getDefaultComm<int>();
     RCP_Communicator local_comm = global_comm->duplicate();
 
-    Coupler::CommIndexer<int> indexer( global_comm, local_comm );
+    DataTransferKit::CommIndexer<int> indexer( global_comm, local_comm );
 
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
     TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
@@ -61,7 +61,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, split_test )
     int rank = global_comm->getRank();
     RCP_Communicator local_comm = global_comm->split( 0, rank );
 
-    Coupler::CommIndexer<int> indexer( global_comm, local_comm );
+    DataTransferKit::CommIndexer<int> indexer( global_comm, local_comm );
 
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
     TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
@@ -76,7 +76,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, inverse_split_test )
     int inverse_rank = global_comm->getSize() - global_comm->getRank() - 1;
     RCP_Communicator local_comm = global_comm->split( 0, inverse_rank);
 
-    Coupler::CommIndexer<int> indexer( global_comm, local_comm );
+    DataTransferKit::CommIndexer<int> indexer( global_comm, local_comm );
 
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
     TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
@@ -100,7 +100,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
     RCP_Communicator local_comm = 
 	global_comm->createSubcommunicator( sub_ranks_view );
 
-    Coupler::CommIndexer<int> indexer( global_comm, local_comm );
+    DataTransferKit::CommIndexer<int> indexer( global_comm, local_comm );
 
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
     if ( global_comm->getRank() % 2 == 0 )

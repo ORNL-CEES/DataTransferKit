@@ -12,8 +12,8 @@
 #include <cmath>
 #include <sstream>
 
-#include <Coupler_Point.hpp>
-#include <Coupler_BoundingBox.hpp>
+#include <DataTransferKit_Point.hpp>
+#include <DataTransferKit_BoundingBox.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_Tuple.hpp"
@@ -22,7 +22,7 @@
 // TESTS
 //---------------------------------------------------------------------------//
 
-namespace Coupler {
+namespace DataTransferKit {
 
 TEUCHOS_UNIT_TEST( Point, container_test )
 {
