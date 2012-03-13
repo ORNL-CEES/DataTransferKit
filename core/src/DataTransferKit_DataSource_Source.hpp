@@ -1,16 +1,16 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   Coupler_DataSource_Def.hpp
+ * \file   DataTransferKit_DataSource_Def.hpp
  * \author Stuart Slattery
  * \date   Thu Nov 17 07:53:43 2011
  * \brief  Default implementation for data source applications.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_DATASOURCE_DEF_HPP
-#define COUPLER_DATASOURCE_DEF_HPP
+#ifndef DTK_DATASOURCE_DEF_HPP
+#define DTK_DATASOURCE_DEF_HPP
 
-namespace Coupler
+namespace DataTransferKit
 {
 
 // Default implementation.
@@ -32,10 +32,10 @@ DataSource<DataType,HandleType,CoordinateType,DIM>::are_local_points(
     return are_local;
 }
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
-#endif // COUPLER_DATASOURCE_DEF_HPP
+#endif // DTK_DATASOURCE_DEF_HPP
 
 //---------------------------------------------------------------------------//
-//              end of Coupler_DataSource_Def.hpp
+//              end of DataTransferKit_DataSource_Def.hpp
 //---------------------------------------------------------------------------//

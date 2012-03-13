@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file Coupler_CommIndexer.hpp
+ * \file DataTransferKit_CommIndexer.hpp
  * \author Stuart Slattery
  * \brief CommIndexer declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_COMMINDEXER_HPP
-#define COUPLER_COMMINDEXER_HPP
+#ifndef DTK_COMMINDEXER_HPP
+#define DTK_COMMINDEXER_HPP
 
 #include <map>
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 
-namespace Coupler
+namespace DataTransferKit
 {
 
 //===========================================================================//
@@ -61,12 +61,12 @@ class CommIndexer
     { return d_l2gmap.size(); }
 };
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
-#include "Coupler_CommIndexer_Def.hpp"
+#include "DataTransferKit_CommIndexer_Def.hpp"
 
-#endif // end COUPLER_COMMINDEXER_HPP
+#endif // end DTK_COMMINDEXER_HPP
 
 //---------------------------------------------------------------------------//
-// end Coupler_CommIndexer.hpp
+// end DataTransferKit_CommIndexer.hpp
 //---------------------------------------------------------------------------//

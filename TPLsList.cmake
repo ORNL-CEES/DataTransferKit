@@ -6,7 +6,7 @@
 #   Trilinos/cmake/TrilinosTPLs.cmake
 #
 
-SET(Coupler_TPLS_FINDMODS_CLASSIFICATIONS
+SET(DataTransferKit_TPLS_FINDMODS_CLASSIFICATIONS
   )
 
 # NOTE: Above, the paths to the FindTPL<TPLNAME> modules (with an implicit

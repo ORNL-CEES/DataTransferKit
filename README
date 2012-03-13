@@ -3,15 +3,15 @@ README
 SUMMARY
 -------
 
-The coupler is a package for parallel data transfer between arbitrary physics 
-codes. Interfaces are provided for data access to each physics. See doxygen
-documentation for more developer details.
+The DataTransferKit is a package for parallel data transfer between arbitrary 
+physics codes. Interfaces are provided for data access to each physics. See 
+doxygen documentation for more developer details.
 
 
 DEPENDENCIES
 ------------
 
-The coupler has direct dependecies on the following Trilinos packages:
+The DataTransferKit has direct dependecies on the following Trilinos packages:
 
 *: Teuchos
 *: Tpetra
@@ -20,8 +20,8 @@ The coupler has direct dependecies on the following Trilinos packages:
 CONFIGURE and BUILD
 -------------------
 
-The coupler uses the TriBITS cmake build system. See doc/build_notes/ for a 
-sample configure script and additional configure/build documentation.
+The DataTransferKit uses the TriBITS cmake build system. See doc/build_notes/ 
+for a sample configure script and additional configure/build documentation.
 
 
 TEST

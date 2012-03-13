@@ -7,9 +7,9 @@
 #include "Damper_Source.hpp"
 #include "Damper_Target.hpp"
 
-#include <Coupler_DataSource.hpp>
-#include <Coupler_DataTarget.hpp>
-#include <Coupler_CopyOperator.hpp>
+#include <DataTransferKit_DataSource.hpp>
+#include <DataTransferKit_DataTarget.hpp>
+#include <DataTransferKit_CopyOperator.hpp>
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_CommHelpers.hpp"
@@ -43,30 +43,30 @@ int main(int argc, char* argv[])
 	Teuchos::rcp( new Damper(comm, myMin, myMax, 10) ); 
 
     // Setup a Wave Data Source for the wave field.
-    Teuchos::RCP<Coupler::DataSource<double,int,double,1> > wave_source = 
-	Teuchos::rcp( new Coupler::Wave_DataSource<double,int,double,1>(wave) );
+    Teuchos::RCP<DataTransferKit::DataSource<double,int,double,1> > wave_source = 
+	Teuchos::rcp( new DataTransferKit::Wave_DataSource<double,int,double,1>(wave) );
 
     // Setup a Damper Data Target for the wave field.
-    Teuchos::RCP<Coupler::DataTarget<double,int,double,1> > damper_target = 
-	Teuchos::rcp( new Coupler::Damper_DataTarget<double,int,double,1>(damper) );
+    Teuchos::RCP<DataTransferKit::DataTarget<double,int,double,1> > damper_target = 
+	Teuchos::rcp( new DataTransferKit::Damper_DataTarget<double,int,double,1>(damper) );
 
     // Setup a copy operator for the wave field.
-    Coupler::CopyOperator<double,int,double,1> wave_field_op( comm,
+    DataTransferKit::CopyOperator<double,int,double,1> wave_field_op( comm,
 							      "WAVE_SOURCE_FIELD",
 							      "WAVE_TARGET_FIELD",
 							      wave_source,
 							      damper_target );
 
     // Setup a Damper Data Source for the damper field.
-    Teuchos::RCP<Coupler::DataSource<double,int,double,1> > damper_source = 
-	Teuchos::rcp( new Coupler::Damper_DataSource<double,int,double,1>(damper) );
+    Teuchos::RCP<DataTransferKit::DataSource<double,int,double,1> > damper_source = 
+	Teuchos::rcp( new DataTransferKit::Damper_DataSource<double,int,double,1>(damper) );
 
     // Setup a Wave Data Target for the damper field.
-    Teuchos::RCP<Coupler::DataTarget<double, int, double,1> > wave_target = 
-	Teuchos::rcp( new Coupler::Wave_DataTarget<double,int,double,1>(wave) );
+    Teuchos::RCP<DataTransferKit::DataTarget<double, int, double,1> > wave_target = 
+	Teuchos::rcp( new DataTransferKit::Wave_DataTarget<double,int,double,1>(wave) );
 
     // Setup a copy operator for the damper field.
-    Coupler::CopyOperator<double,int,double,1> damper_field_op( comm,
+    DataTransferKit::CopyOperator<double,int,double,1> damper_field_op( comm,
 								"DAMPER_SOURCE_FIELD",
 								"DAMPER_TARGET_FIELD",
 								damper_source,

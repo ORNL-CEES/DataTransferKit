@@ -1,31 +1,31 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   coupler/Coupler_BoundingBox.hpp
+ * \file   DataTransferKit_BoundingBox.hpp
  * \author Stuart Slattery
  * \date   Thu Dec 08 09:58:46 2011
  * \brief  Bounding box class definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_BOUNDINGBOX_HPP
-#define COUPLER_BOUNDINGBOX_HPP
+#ifndef DTK_BOUNDINGBOX_HPP
+#define DTK_BOUNDINGBOX_HPP
 
-#include "Coupler_Point.hpp"
+#include "DataTransferKit_Point.hpp"
 
 #include <Teuchos_Tuple.hpp>
 
-namespace Coupler
+namespace DataTransferKit
 {
 
 //===========================================================================//
 /*!
- * \class Coupler_BoundingBox
+ * \class DataTransferKit_BoundingBox
  * \brief A bounding box definition for local meshes.
  *
  * A class for encapsulating the local mesh bounding box.
  */
 /*! 
- * \example coupler/test/tstBoundingBox.cpp
+ * \example core/test/tstBoundingBox.cpp
  *
  * Test of BoundingBox.
  */
@@ -83,16 +83,16 @@ class BoundingBox
     bool point_query(PointType point);
 };
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // INLINE FUNCTIONS
 //---------------------------------------------------------------------------//
 
-#include "Coupler_BoundingBox_Def.hpp"
+#include "DataTransferKit_BoundingBox_Def.hpp"
 
-#endif // COUPLER_BOUNDINGBOX_HPP
+#endif // DTK_BOUNDINGBOX_HPP
 
 //---------------------------------------------------------------------------//
-//              end of Coupler_BoundingBox.hpp
+//              end of DataTransferKit_BoundingBox.hpp
 //---------------------------------------------------------------------------//

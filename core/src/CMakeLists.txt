@@ -20,15 +20,15 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  Coupler_CommIndexer.hpp
-  Coupler_CommIndexer_Def.hpp
-  Coupler_CopyOperator.hpp
-  Coupler_CopyOperator_Def.hpp
-  Coupler_DataSource.hpp
-  Coupler_DataSource_Def.hpp
-  Coupler_DataTarget.hpp
-  Coupler_Point.hpp
-  Coupler_SerializationTraits.hpp
+  DataTransferKit_CommIndexer.hpp
+  DataTransferKit_CommIndexer_Def.hpp
+  DataTransferKit_CopyOperator.hpp
+  DataTransferKit_CopyOperator_Def.hpp
+  DataTransferKit_DataSource.hpp
+  DataTransferKit_DataSource_Def.hpp
+  DataTransferKit_DataTarget.hpp
+  DataTransferKit_Point.hpp
+  DataTransferKit_SerializationTraits.hpp
   )
 
 # Set sources
@@ -53,7 +53,7 @@ ENDIF()
 #
 
 TRIBITS_ADD_LIBRARY(
-  coupler
+  data_transfer_kit
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )

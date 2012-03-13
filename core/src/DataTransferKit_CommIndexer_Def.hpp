@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file Coupler_CommIndexer_Def.hpp
+ * \file DataTransferKit_CommIndexer_Def.hpp
  * \author Stuart Slattery
  * \brief CommIndexer definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_COMMINDEXER_DEF_HPP
-#define COUPLER_COMMINDEXER_DEF_HPP
+#ifndef DTK_COMMINDEXER_DEF_HPP
+#define DTK_COMMINDEXER_DEF_HPP
 
 #include <vector>
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ENull.hpp>
 
-namespace Coupler
+namespace DataTransferKit
 {
 
 /*!
@@ -99,10 +99,10 @@ const Ordinal CommIndexer<Ordinal>::l2g( const Ordinal local_id ) const
     return global_id;
 }
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
-#endif // end COUPLER_COMMINDEXER_DEF_HPP
+#endif // end DTK_COMMINDEXER_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end Coupler_CommIndexer_Def.hpp
+// end DataTransferKit_CommIndexer_Def.hpp
 //---------------------------------------------------------------------------//

@@ -1,18 +1,18 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   Coupler_DataSource.hpp
+ * \file   DataTransferKit_DataSource.hpp
  * \author Stuart Slattery
  * \date   Thu Nov 17 07:53:43 2011
  * \brief  Interface declaration for data source applications.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_DATASOURCE_HPP
-#define COUPLER_DATASOURCE_HPP
+#ifndef DTK_DATASOURCE_HPP
+#define DTK_DATASOURCE_HPP
 
 #include <string>
 
-#include "Coupler_Point.hpp"
+#include "DataTransferKit_Point.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -20,7 +20,7 @@
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Describable.hpp>
 
-namespace Coupler
+namespace DataTransferKit
 {
 
 //===========================================================================//
@@ -120,12 +120,12 @@ class DataSource : Teuchos::Describable
     get_global_source_data( const std::string &field_name ) = 0;
 };
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
-#include "Coupler_DataSource_Def.hpp"
+#include "DataTransferKit_DataSource_Def.hpp"
 
-#endif // COUPLER_DATASOURCE_HPP
+#endif // DTK_DATASOURCE_HPP
 
 //---------------------------------------------------------------------------//
-//              end of Coupler_DataSource.hpp
+//              end of DataTransferKit_DataSource.hpp
 //---------------------------------------------------------------------------//

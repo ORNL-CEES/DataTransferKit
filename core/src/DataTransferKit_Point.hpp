@@ -1,18 +1,18 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   Coupler_Point.hpp
+ * \file   DataTransferKit_Point.hpp
  * \author Stuart R. Slattery
  * \date   Wed May 25 12:23:57 2011
  * \brief  Cartesian Point class definition
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_POINT_HPP
-#define COUPLER_POINT_HPP
+#ifndef DTK_POINT_HPP
+#define DTK_POINT_HPP
 
 #include <Teuchos_Tuple.hpp>
 
-namespace Coupler
+namespace DataTransferKit
 {
 //===========================================================================//
 /*!
@@ -131,12 +131,12 @@ Point<DIM,HandleType,CoordinateType>::operator=(
     return *this;
 }
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
 // Create a 1-D point.
 template<typename HandleType, typename CoordinateType> inline
-Coupler::Point<1,HandleType,CoordinateType> 
-Coupler::point( const HandleType& handle,
+DataTransferKit::Point<1,HandleType,CoordinateType> 
+DataTransferKit::point( const HandleType& handle,
 		const CoordinateType& x0 )
 {
     Point<1,HandleType,CoordinateType> pt;
@@ -148,8 +148,8 @@ Coupler::point( const HandleType& handle,
 
 // Create a 2-D point.
 template<typename HandleType, typename CoordinateType> inline
-Coupler::Point<2,HandleType,CoordinateType> 
-Coupler::point( const HandleType& handle,
+DataTransferKit::Point<2,HandleType,CoordinateType> 
+DataTransferKit::point( const HandleType& handle,
 		const CoordinateType& x0,
 		const CoordinateType& x1 )
 {
@@ -162,8 +162,8 @@ Coupler::point( const HandleType& handle,
 
 // Create a 3-D point.
 template<typename HandleType, typename CoordinateType> inline
-Coupler::Point<3,HandleType,CoordinateType> 
-Coupler::point( const HandleType& handle,
+DataTransferKit::Point<3,HandleType,CoordinateType> 
+DataTransferKit::point( const HandleType& handle,
 		const CoordinateType& x0,
 		const CoordinateType& x1,
 		const CoordinateType& x2 )
@@ -177,8 +177,8 @@ Coupler::point( const HandleType& handle,
 
 // Create a 4-D point.
 template<typename HandleType, typename CoordinateType> inline
-Coupler::Point<4,HandleType,CoordinateType> 
-Coupler::point( const HandleType& handle,
+DataTransferKit::Point<4,HandleType,CoordinateType> 
+DataTransferKit::point( const HandleType& handle,
 		const CoordinateType& x0,
 		const CoordinateType& x1, 
 		const CoordinateType& x2,
@@ -191,8 +191,8 @@ Coupler::point( const HandleType& handle,
     return pt;
 }
 
-#endif // COUPLER_POINT_HPP
+#endif // DTK_POINT_HPP
 
 //---------------------------------------------------------------------------//
-//              end of Coupler_Point.hpp
+//              end of DataTransferKit_Point.hpp
 //---------------------------------------------------------------------------//

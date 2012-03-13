@@ -1,9 +1,9 @@
 ##---------------------------------------------------------------------------##
-## coupler/CMakeLists.txt
+## DataTransferKit/CMakeLists.txt
 ## Stuart R. Slattery
 ## Tuesday Dec 6 2011
 ##---------------------------------------------------------------------------##
-## TriBITS package file for the Coupler package
+## TriBITS package file for the DataTransferKit package
 ##---------------------------------------------------------------------------##
 
 INCLUDE(TribitsPackageMacros)
@@ -12,7 +12,7 @@ INCLUDE(TribitsPackageMacros)
 ## A) Define the package
 ##---------------------------------------------------------------------------##
 
-TRIBITS_PACKAGE_DECL(Coupler)
+TRIBITS_PACKAGE_DECL(DataTransferKit)
 
 ##---------------------------------------------------------------------------##
 ## B) Set up package-specific options
@@ -37,5 +37,5 @@ TRIBITS_PACKAGE_DEF()
 TRIBITS_PACKAGE_POSTPROCESS()
 
 ##---------------------------------------------------------------------------##
-##                      end of coupler/CMakeLists.txt
+##                      end of DataTransferKit/CMakeLists.txt
 ##---------------------------------------------------------------------------##

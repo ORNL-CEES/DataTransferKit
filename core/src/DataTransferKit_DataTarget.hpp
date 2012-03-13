@@ -1,25 +1,25 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   Coupler_DataTarget.hpp
+ * \file   DataTransferKit_DataTarget.hpp
  * \author Stuart Slattery
  * \date   Thu Nov 17 07:53:54 2011
  * \brief  Interface definition for transfer data targets.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_DATATARGET_HPP
-#define COUPLER_DATATARGET_HPP
+#ifndef DTK_DATATARGET_HPP
+#define DTK_DATATARGET_HPP
 
 #include <string>
 
-#include "Coupler_Point.hpp"
+#include "DataTransferKit_Point.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Describable.hpp>
 
-namespace Coupler
+namespace DataTransferKit
 {
 
 //===========================================================================//
@@ -113,10 +113,10 @@ class DataTarget : public Teuchos::Describable
 					 const DataType &data ) = 0;
 };
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
-#endif // COUPLER_DATATARGET_HPP
+#endif // DTK_DATATARGET_HPP
 
 //---------------------------------------------------------------------------//
-//              end of Coupler_DataTarget.hpp
+//              end of DataTransferKit_DataTarget.hpp
 //---------------------------------------------------------------------------//

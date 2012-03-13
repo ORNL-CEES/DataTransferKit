@@ -1,20 +1,20 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   Coupler_CopyOperator.hpp
+ * \file   DataTransferKit_CopyOperator.hpp
  * \author Stuart Slattery
  * \date   Fri Nov 18 11:57:58 2011
- * \brief  Coupler_CopyOperator class definition.
+ * \brief  DataTransferKit_CopyOperator class definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef COUPLER_COPYOPERATOR_HPP
-#define COUPLER_COPYOPERATOR_HPP
+#ifndef DTK_COPYOPERATOR_HPP
+#define DTK_COPYOPERATOR_HPP
 
 #include <string>
 
-#include "Coupler_Point.hpp"
-#include "Coupler_DataSource.hpp"
-#include "Coupler_DataTarget.hpp"
+#include "DataTransferKit_Point.hpp"
+#include "DataTransferKit_DataSource.hpp"
+#include "DataTransferKit_DataTarget.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -22,26 +22,24 @@
 #include <Tpetra_Map.hpp>
 #include <Tpetra_Export.hpp>
 
-namespace Coupler
+namespace DataTransferKit
 {
 
 //===========================================================================//
 /*!
  * \class CopyOperator
- * \brief Field type for data transfers. This exists for more a explicit
- * definition of fields in the coupler user interface.
+ * \brief Copy operator for data fields.
  *
- * The Coupler_CopyOperator encapsulates the relationship between a
- * Coupler_DataSource and a Coupler_DataTarget. In addition to containing
- * the map for transfer between the source and the target, the field also
- * contains indicators for the status of the mapping (transfer cannot occur
- * unless a field has been mapped) and for whether a field is distributed
- * (requiring a parallel mapping) or scalar.
+ * The CopyOperator encapsulates the relationship between a DataSource and a
+ * DataTarget. In addition to containing the map for transfer between the
+ * source and the target, the operator also contains indicators for the status of
+ * the mapping (transfer cannot occur unless a field has been mapped) and for
+ * whether a field is distributed (requiring a parallel mapping) or scalar.
  */
 /*! 
  * \example core/test/tstCopyOperator.cc
  *
- * Test of Coupler_CopyOperator.
+ * Test of DataTransferKit_CopyOperator.
  */
 //===========================================================================//
 
@@ -175,16 +173,16 @@ class CopyOperator
     void distributed_copy();
 };
 
-} // end namespace Coupler
+} // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // TEMPLATE MEMBERS
 //---------------------------------------------------------------------------//
 
-#include "Coupler_CopyOperator_Def.hpp"
+#include "DataTransferKit_CopyOperator_Def.hpp"
 
-#endif // COUPLER_COPYOPERATOR_HPP
+#endif // DTK_COPYOPERATOR_HPP
 
 //---------------------------------------------------------------------------//
-//              end of Coupler_CopyOperator.hpp
+//              end of DataTransferKit_CopyOperator.hpp
 //---------------------------------------------------------------------------//
