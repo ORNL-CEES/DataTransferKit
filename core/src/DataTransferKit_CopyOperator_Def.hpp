@@ -10,7 +10,6 @@
 #ifndef DTK_COPYOPERATOR_DEF_HPP
 #define DTK_COPYOPERATOR_DEF_HPP
 
-#include <cassert>
 #include <algorithm>
 #include <vector>
 
@@ -19,6 +18,7 @@
 #include <Teuchos_ENull.hpp>
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_TestForException.hpp>
 
 #include <Tpetra_Vector.hpp>
 
@@ -59,12 +59,18 @@ CopyOperator<DataType,HandleType,CoordinateType,DIM>::CopyOperator(
 { 
     if ( d_source != Teuchos::null )
     {
-	assert( d_source->is_field_supported(d_source_field_name) );
+	TEUCHOS_TEST_FOR_EXCEPTION( 
+	    !d_source->is_field_supported(d_source_field_name),
+	    std::runtime_error,
+	    "Source field not supported by the source interface" << std::endl );
 	d_active_source = true;
     }
     if ( d_target != Teuchos::null )
     {
-	assert( d_target->is_field_supported(d_target_field_name) );
+	TEUCHOS_TEST_FOR_EXCEPTION( 
+	    !d_target->is_field_supported(d_target_field_name),
+	    std::runtime_error,
+	    "Target field not supported by the target interface" << std::endl );
 	d_active_target = true;
     }
 }
@@ -113,7 +119,11 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::copy()
 
 	else
 	{
-	    assert( d_mapped );
+	    TEUCHOS_TEST_FOR_EXCEPTION( 
+		!d_mapped, 
+		std::runtime_error,
+		"Copy mapping not complete before copy operation." 
+		<< std::endl );
 	    distributed_copy();
 	}
     }
