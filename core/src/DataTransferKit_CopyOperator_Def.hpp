@@ -119,10 +119,10 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::copy()
 
 	else
 	{
-	    if ( !d_mapped )
-	    {
-		create_copy_mapping();
-	    }
+	    TEUCHOS_TEST_FOR_EXCEPTION( 
+		!d_mapped,
+		PreconditionException,
+		"Source not mapped to target prior to copy operation" << std::endl );
 	    distributed_copy();
 	}
     }
@@ -163,6 +163,11 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::point_map()
 	target_handles_view(target_handles);
     d_target_map = 
 	Tpetra::createNonContigMap<HandleType>( target_handles_view, d_comm );
+
+    TEUCHOS_TEST_FOR_EXCEPTION(	d_target_map == Teuchos::null,
+				PostconditionException,
+				"Error creating target map" << std::endl );
+
     d_comm->barrier();
 
     // Generate a target point buffer to send to the source. Pad the rest of
@@ -246,8 +251,16 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::point_map()
     d_source_map = 
 	Tpetra::createNonContigMap<HandleType>( source_handles_view, d_comm );
 
+    TEUCHOS_TEST_FOR_EXCEPTION(	d_source_map == Teuchos::null,
+				PostconditionException,
+				"Error creating source map" << std::endl );
+
     d_export = Teuchos::rcp( 
 	new Tpetra::Export<HandleType>(d_source_map, d_target_map) );
+
+    TEUCHOS_TEST_FOR_EXCEPTION(	d_export == Teuchos::null,
+				PostconditionException,
+				"Error creating exporter" << std::endl );
 }
 
 //---------------------------------------------------------------------------//
