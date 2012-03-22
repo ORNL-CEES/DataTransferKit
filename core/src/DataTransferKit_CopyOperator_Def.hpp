@@ -1,9 +1,8 @@
-//----------------------------------*-C++-*----------------------------------//
+//---------------------------------------------------------------------------//
 /*!
  * \file   DataTransferKit_CopyOperator_Def.hpp
  * \author Stuart Slattery
- * \date   Fri Nov 18 11:57:58 2011
- * \brief  DataTransferKit_CopyOperator template member definitions.
+ * \brief  CopyOperator template member definitions.
  */
 //---------------------------------------------------------------------------//
 
@@ -13,6 +12,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "DataTransferKit_Exception.hpp"
 #include "DataTransferKit_SerializationTraits.hpp"
 
 #include <Teuchos_ENull.hpp>
@@ -61,7 +61,7 @@ CopyOperator<DataType,HandleType,CoordinateType,DIM>::CopyOperator(
     {
 	TEUCHOS_TEST_FOR_EXCEPTION( 
 	    !d_source->is_field_supported(d_source_field_name),
-	    std::runtime_error,
+	    PreconditionException,
 	    "Source field not supported by the source interface" << std::endl );
 	d_active_source = true;
     }
@@ -69,7 +69,7 @@ CopyOperator<DataType,HandleType,CoordinateType,DIM>::CopyOperator(
     {
 	TEUCHOS_TEST_FOR_EXCEPTION( 
 	    !d_target->is_field_supported(d_target_field_name),
-	    std::runtime_error,
+	    PreconditionException,
 	    "Target field not supported by the target interface" << std::endl );
 	d_active_target = true;
     }
@@ -119,11 +119,10 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::copy()
 
 	else
 	{
-	    TEUCHOS_TEST_FOR_EXCEPTION( 
-		!d_mapped, 
-		std::runtime_error,
-		"Copy mapping not complete before copy operation." 
-		<< std::endl );
+	    if ( !d_mapped )
+	    {
+		create_copy_mapping();
+	    }
 	    distributed_copy();
 	}
     }

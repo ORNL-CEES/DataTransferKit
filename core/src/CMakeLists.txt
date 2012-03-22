@@ -27,6 +27,7 @@ APPEND_SET(HEADERS
   DataTransferKit_DataSource.hpp
   DataTransferKit_DataSource_Def.hpp
   DataTransferKit_DataTarget.hpp
+  DataTransferKit_Exception.hpp
   DataTransferKit_Point.hpp
   DataTransferKit_SerializationTraits.hpp
   )
