@@ -293,7 +293,6 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::distributed_copy()
     Tpetra::Vector<DataType> data_source_vector( d_source_map, source_data );
 
     Tpetra::Vector<DataType> data_target_vector( d_target_map );
-
     data_target_vector.doExport(data_source_vector, *d_export, Tpetra::INSERT);
 
     if ( d_active_target )
