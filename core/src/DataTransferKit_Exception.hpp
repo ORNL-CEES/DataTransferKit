@@ -15,6 +15,10 @@
 namespace DataTransferKit
 {
 
+/*!
+ * \brief Exception class to be thrown when function preconditions are not
+ * met.
+ */
 class PreconditionException : public std::runtime_error
 {
   public:
@@ -23,6 +27,10 @@ class PreconditionException : public std::runtime_error
     { /* ... */ }
 };
 
+/*!
+ * \brief Exception class to be thrown when function postconditions are not
+ * met. 
+ */
 class PostconditionException : public std::runtime_error
 {
   public:
@@ -31,6 +39,9 @@ class PostconditionException : public std::runtime_error
     { /* ... */ }
 };
 
+/*!
+ * \brief Exception class to be thrown when a function alters an invariant.
+ */
 class InvariantException : public std::runtime_error
 {
   public:

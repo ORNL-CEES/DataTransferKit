@@ -122,7 +122,8 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::copy()
 	    TEUCHOS_TEST_FOR_EXCEPTION( 
 		!d_mapped,
 		PreconditionException,
-		"Source not mapped to target prior to copy operation" << std::endl );
+		"Source not mapped to target prior to copy operation" 
+		<< std::endl );
 	    distributed_copy();
 	}
     }
