@@ -1,0 +1,104 @@
+\documentclass[letterpaper]{article}
+\usepackage[top=1.0in,bottom=1.0in,left=1.0in,right=1.0in]{geometry}
+\usepackage{verbatim}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[usenames]{color}
+\usepackage[
+naturalnames = true, 
+colorlinks = true, 
+linkcolor = black,
+anchorcolor = black,
+citecolor = black,
+menucolor = black,
+urlcolor = blue
+]{hyperref}
+\usepackage{listings}
+\usepackage{textcomp}
+\definecolor{listinggray}{gray}{0.9}
+\definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
+\lstset{
+  backgroundcolor=\color{lbcolor},
+  tabsize=4,
+  rulecolor=,
+  language=c++,
+  basicstyle=\scriptsize,
+  upquote=true,
+  aboveskip={1.5\baselineskip},
+  columns=fixed,
+  showstringspaces=false,
+  extendedchars=true,
+  breaklines=true,
+  prebreak =
+  \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+  frame=single,
+  showtabs=false,
+  showspaces=false,
+  showstringspaces=false,
+  identifierstyle=\ttfamily,
+  keywordstyle=\color[rgb]{0,0,1},
+  commentstyle=\color[rgb]{0.133,0.545,0.133},
+  stringstyle=\color[rgb]{0.627,0.126,0.941},
+}
+
+\author{Stuart R. Slattery
+\\ \href{mailto:sslattery@wisc.edu}{\texttt{sslattery@wisc.edu}}
+}
+
+\date{March 24, 2012}
+\title{Data Transfer Kit Error Handling Policy}
+\begin{document}
+\maketitle
+\section{Introduction}
+The level 3 milestone deliverable report for VRI.PSS.P4.02 includes in
+Appendix C a review of the data transfer interfaces and the associated
+software in the Data Transfer Kit. This review is summarized with 10
+items that help define a development path forward for the Data
+Transfer Kit. Item 9 of this list states the need for a clearly
+defined error handling scheme that defines how exceptions are thrown
+and handled at the user level. To address this issue, this document
+defines an error handling scheme strongly based on the error handling
+and exceptions guidlines in \cite{Sutter_2004}.
+
+\section{Exception Scheme}
+The Data Transfer Kit (DTK) will rely on C++ exceptions as the
+primary means of propagating error information to the user. Per the
+discussion in \cite{Sutter_2004}, all runtime exceptions thrown by DTK
+will inherit from std::runtime\_error, allowing users to isolate
+errors of this type with try/catch blocks. Internally, these runtime
+errors are divided into three categories; precondition exceptions that
+arise from a function's inability to meet preconditions, postcondition
+exceptions resulting from a function's failure to achieve a
+postcondition, and invariant exceptions resulting from a function's
+inability to establish an ivariant. Throughout DTK, a user should
+expect these exceptions to be used to test these three fundamental
+conditions and for runtime exceptions to be thrown if they are
+violated. In addition, when an exception is thrown, a user should
+expect DTK to provide a message detailing why the exception was
+thrown.
+
+For developers implementing the data transfer interfaces defined
+within DTK, it is expected that these exceptions are used to verify
+the three runtime conditions within their implementation. Doing so
+will then present a consistent exception scheme at the boundaries of
+DTK  for users implementing the DTK API that are neither DTK
+developers or DTK interface developers. In addition, throwing these
+exceptions in the interface implementations will facilitate error
+propagation from the interface implementations to the user through the
+various API calls. 
+
+Internally, DTK relies on the Trilinos packages Teuchos and Tpetra,
+both of which throw C++ exceptions through their own schemes. Calls to
+these libraries within DTK will not be isolated with try/catch
+blocks. Instead, their exceptions will be propagated through the API
+boundary.
+
+\pagebreak
+\bibliographystyle{ieeetr}
+\bibliography{references}
+\end{document}
+
+
