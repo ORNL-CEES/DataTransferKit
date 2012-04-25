@@ -9,6 +9,7 @@
 \usepackage{longtable}
 \usepackage{amsfonts}
 \usepackage{amsmath}
+\usepackage{algpseudocode} 
 \usepackage[usenames]{color}
 \usepackage[
   naturalnames = true, 
@@ -52,7 +53,7 @@
   \\ \href{mailto:sslattery@wisc.edu}{\texttt{sslattery@wisc.edu}}
 }
 
-\date{Friday April 13, 2012}
+\date{April 18, 2012}
 \title{Design and Implementation of the Data Transfer Kit}
 \begin{document}
 \maketitle
@@ -64,20 +65,22 @@ For most multiphysics simulations, some form of data transfer between
 physics codes is required. In general, data transfer can be performed
 through an ad-hoc coupling of the codes with custom software designed
 for the specific simulation. However, it is useful to consider a
-common framework and an associated interface for data transfer
+component with an associated interface for data transfer
 operations. This common interface, to be fulfilled by each code that
-desires to participate in coupling under this framework, should reduce
-repeated effort and define generic and reusable software that can be
-applied to many forms of multiphysics simulation.
+desires to participate in data transfer operations using this
+component, should reduce repeated effort and define generic and
+reusable software that can be applied to many forms of multiphysics
+simulation.
 
-The data transfer package aims to define such an interface for coupling in
-addition to providing concrete implementations of algorithms and
-communication patterns for parallel data transfer using the
-information acquired through this interface. It should not be the aim
-of the data transfer package to eliminate other forms of multiphysics
-data transfer. Rather, it should attempt to define a useful interface
-that provides value by simplifying the coupling process and reducing
-the barrier of entry for a physics code to participate in coupling. 
+The data transfer package aims to define such an interface for
+coupling in addition to providing concrete implementations of
+algorithms and communication patterns for parallel data transfer using
+the information acquired through this interface. It should not be the
+aim of the data transfer package to eliminate other forms of
+multiphysics data transfer. Rather, it should attempt to define a
+useful interface that provides value by simplifying the data transfer
+process and reducing the barrier of entry for a physics code to
+participate in coupling.
 
 This document discusses the design requirements of this package, named
 the Data Transfer Kit (DTK), the resulting interface specification,
@@ -90,8 +93,8 @@ The Data Transfer Kit should fulfill the following design
 requirements:
 
 \begin{itemize}
-\item Be able to couple multiple codes that have implemented the
-  interface.
+\item Be able to correctly transfer data between multiple codes that
+  have implemented the interface.
 \item Be independent of the underlying data structures of the physics
   codes using the interface.
 \item Be aware of the potential mesh entity structures that are
@@ -159,9 +162,10 @@ The {\sl DataSource} interface consists of the following pure
 virtual methods to be implemented by the client application.
 
 \paragraph{\sl DataSource::get\_source\_comm()}
-This method requires the client application to return a Teuchos::RCP
-to a const reference of its communicator object. For the case of an
-MPI implementation, this is not required to be MPI\_COMM\_WORLD.
+This method requires the client application to return a reference
+counting pointer (Teuchos::RCP objects) to a const Teuchos
+communicator object. For the case of an MPI implementation, this is
+not required to be MPI\_COMM\_WORLD.
 
 \paragraph{\sl DataSource::is\_field\_supported()}
 This method checks whether or not a particular field, indicated by
@@ -182,8 +186,8 @@ implementation of this method is provided for those who only implement
 the {\sl is\_local\_point} method.
 
 \paragraph{\sl DataSource::get\_source\_data()}
-For a given field identified by a string, return a const
-Teuchos::ArrayView of the data corresponding to the target points
+For a given field identified by a string, return a const view (a
+Teuchos::ArrayView) of the data corresponding to the target points
 found in the local domain through the {\sl get\_points} method.
 
 \paragraph{\sl DataSource::get\_global\_data\_data()}
@@ -361,36 +365,39 @@ which to apply the function evaluation data for each target point.
 The following algorithm is used to generate a point based mapping
 between between the source and target applications.
 
-\begin{verbatim}
-Get the target points from the target application.
+\begin{itemize}
+  \item Get the target points from the target application to populate the target point set.
+  \item Extract the globally unique handles from the target points.
+  \item Build a distributed map of the target data vector using the handles as indices.
+  \item Do a global reduction across all nodes to compute the maximum number
+    of local target points.
+  \item On each target node, build a buffer of points to send to the source nodes. This buffer
+    will be of the length computed by the global reduction and padded with null points.
 
-Extract the globally unique handles from the target points and build a
-distributed map of the target data vector using the handles as indices.
+  \item For ( all target nodes ):
+    \begin{itemize}
+      \item Broadcast the buffer of target points for the current target
+        node to all other nodes.
 
-Do a global reduction across all nodes to compute the maximum number
-of local target points.
+      \item For ( all points in the broadcasted buffer ):
+        \begin{itemize}
+        \item Query the source application domain with the point.
 
-On each target node, build a buffer of points to send to the source
-nodes. This buffer will be of the length computed by the global
-reduction and padded with null points.
+        \item If ( the point is found in the local source application domain ):
+          \begin{itemize}
+          \item Add the point handle to a distributed list.
+          \end{itemize}
+        EndIf
+      \end{itemize}
+      EndFor
+    \end{itemize}
+    EndFor
 
-for all target nodes:
-
-    Broadcast the buffer of target points for the current target
-    node to all other nodes.
-
-    for each point in the broadcasted buffer, query the source
-    application domain:
-
-        If the point is found in the local source application domain,
-        add its handle to a distributed list.
-
-Build a distributed map of the source data vector using the handles
-found in the source domain as indices.
-
-Setup a communication plan to transfer data between the source map
+\item Build a distributed map of the source data vector using the
+distributed list of handles found in the source domain as indices.
+\item Setup a communication plan to transfer data between the source map
 distribution and the target map distribution.
-\end{verbatim}
+\end{itemize}
 
 Per the requirement of the target application to provide globally
 unique handles for all of its points, the end result of this mapping
@@ -413,12 +420,11 @@ errors are divided into three categories; precondition exceptions that
 arise from a function's inability to meet preconditions, postcondition
 exceptions resulting from a function's failure to achieve a
 postcondition, and invariant exceptions resulting from a function's
-inability to establish an ivariant. Throughout DTK, a user should
-expect these exceptions to be used to test these three fundamental
-conditions and for runtime exceptions to be thrown if they are
-violated. In addition, when an exception is thrown, a user should
-expect DTK to provide a message detailing why the exception was
-thrown.
+inability to establish or maintain an invariant. Throughout DTK, a
+user should expect these exceptions to be used to test these three
+fundamental conditions and for runtime exceptions to be thrown if they
+are violated. In addition, when an exception is thrown, a user should
+expect DTK to provide a message detailing why the exception was thrown.
 
 For developers implementing the data transfer interfaces defined
 within DTK, it is expected that these exceptions are used to verify
@@ -492,15 +498,15 @@ and distributed memory hardware.
 #!/bin/bash
 
 cmake \
--D CMAKE_INSTALL_PREFIX:PATH=/vera_build          \
--D CMAKE_BUILD_TYPE:STRING=DEBUG                  \
--D CMAKE_VERBOSE_MAKEFILE:BOOL=ON                 \
--D TPL_ENABLE_MPI:BOOL=ON                         \
--D VERA_EXTRA_REPOSITORIES="Trilinos;DataTransferKit"     \
--D Teuchos_ENABLE_EXTENDED:BOOL=ON                \
--D VERA_ENABLE_DataTransferKit:BOOL=ON                    \
--D DataTransferKit_ENABLE_TESTS:BOOL=ON                   \
--D DataTransferKit_ENABLE_EXAMPLES:BOOL=ON                \
+-D CMAKE_INSTALL_PREFIX:PATH=/vera_build              \
+-D CMAKE_BUILD_TYPE:STRING=DEBUG                      \
+-D CMAKE_VERBOSE_MAKEFILE:BOOL=ON                     \
+-D TPL_ENABLE_MPI:BOOL=ON                             \
+-D VERA_EXTRA_REPOSITORIES="Trilinos;DataTransferKit" \
+-D Teuchos_ENABLE_EXTENDED:BOOL=ON                    \
+-D VERA_ENABLE_DataTransferKit:BOOL=ON                \
+-D DataTransferKit_ENABLE_TESTS:BOOL=ON               \
+-D DataTransferKit_ENABLE_EXAMPLES:BOOL=ON            \
 /VERA
 \end{verbatim}
 
@@ -528,27 +534,27 @@ discussed was executed as well.
 \begin{verbatim}
 stuart@beaker:~/software/builds/VERA$ ctest
 Test project /home/stuart/software/builds/VERA
-    Start 1: DataTransferKitCore_Point_test_MPI_4
-1/7 Test #1: DataTransferKitCore_Point_test_MPI_4 ...............   Passed    1.72 sec
-    Start 2: DataTransferKitCore_BoundingBox_test_MPI_4
-2/7 Test #2: DataTransferKitCore_BoundingBox_test_MPI_4 .........   Passed    1.18 sec
+    Start 1: DataTransferKitCore_CommIndexer_test_MPI_4
+1/7 Test #1: DataTransferKitCore_CommIndexer_test_MPI_4 .........   Passed    1.72 sec
+    Start 2: DataTransferKitCore_Point_test_MPI_4
+2/7 Test #2: DataTransferKitCore_Point_test_MPI_4 ...............   Passed    1.13 sec
     Start 3: DataTransferKitCore_Interfaces_test_MPI_4
-3/7 Test #3: DataTransferKitCore_Interfaces_test_MPI_4 ..........   Passed    1.22 sec
-    Start 4: DataTransferKitCore_DataField_test_MPI_4
-4/7 Test #4: DataTransferKitCore_DataField_test_MPI_4 ...........   Passed    2.28 sec
+3/7 Test #3: DataTransferKitCore_Interfaces_test_MPI_4 ..........   Passed    1.12 sec
+    Start 4: DataTransferKitCore_CopyOperator_test_MPI_4
+4/7 Test #4: DataTransferKitCore_CopyOperator_test_MPI_4 ........   Passed    1.28 sec
     Start 5: DataTransferKitCore_Advanced_Transfer_test_MPI_4
-5/7 Test #5: DataTransferKitCore_Advanced_Transfer_test_MPI_4 ...   Passed    2.22 sec
+5/7 Test #5: DataTransferKitCore_Advanced_Transfer_test_MPI_4 ...   Passed    1.16 sec
     Start 6: DataTransferKitCore_Zero_Point_Proc_test_MPI_4
-6/7 Test #6: DataTransferKitCore_Zero_Point_Proc_test_MPI_4 .....   Passed    1.20 sec
+6/7 Test #6: DataTransferKitCore_Zero_Point_Proc_test_MPI_4 .....   Passed    1.15 sec
     Start 7: DataTransferKitCore_WaveDamperExample_MPI_4
-7/7 Test #7: DataTransferKitCore_WaveDamperExample_MPI_4 ........   Passed    1.28 sec
+7/7 Test #7: DataTransferKitCore_WaveDamperExample_MPI_4 ........   Passed    1.23 sec
 
 100% tests passed, 0 tests failed out of 7
 
 Label Time Summary:
-DataTransferKit    =  11.08 sec
+DataTransferKit    =   8.79 sec
 
-Total Test time (real) =  14.29 sec
+Total Test time (real) =  11.87 sec
 \end{verbatim}
 
 %%---------------------------------------------------------------------------%%
@@ -591,14 +597,16 @@ Here, the convergence tolerance on the wave amplitude is specified as
 
 %%---------------------------------------------------------------------------%%
 \subsubsection{Wave Implementation}
-The Wave was implemented as shown in the following listings. Note the
-methods included to provide access to various members relating to data
-and the grid that have been added. These are similar to the types of
-methods that will be required during the refactoring process necessary
-for using the Data Transfer Kit. It should also be noted that the
-Data Transfer Kit does not place any requirements on solve methods. For
-the Wave code, the L2 norm of the residual returned for determining
-convergence, not data transfer.
+The Wave code was implemented as shown in the following listings. Note
+the methods included to provide access to various members relating to
+data and the grid that have been added. These are similar to the types
+of methods that will be required during the refactoring process
+necessary for using the Data Transfer Kit. It should also be noted
+that the Data Transfer Kit does not place any requirements on solve
+methods. For the Wave code solve, note that we are additionally
+returning the L2 norm of the vector we are operating on. In the
+iteration sequenence presented in the driver code below, the magnitude
+of the L2 norm will be used as a stopping criteria.
 
 \begin{lstlisting}
   #include <vector>
