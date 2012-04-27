@@ -179,16 +179,19 @@ the local domain and should therefore be mapped, and false if not. As
 this is the only method in the interface that supplies target points
 to the source application, it is recommended that if the point handles
 and/or coordinates are required by the client for data transfer, that
-they be cached during the implementation of this method. An addtional
-method, {\sl DataSource::are\_local\_points()}, behaves identically
-with the query operation performed for a series of points. A default
-implementation of this method is provided for those who only implement
-the {\sl is\_local\_point} method.
+they be cached during the implementation of this method. 
+
+\paragraph{\sl DataSource::are\_local\_points()}
+An addtional point query method, behaves identically to {\sl
+  DataSource::is\_local\_point()}, with the query operation performed
+for a series of points. A default implementation of this method is
+provided for those who only implement the {\sl is\_local\_point}
+method.
 
 \paragraph{\sl DataSource::get\_source\_data()}
-For a given field identified by a string, return a const view (a
-Teuchos::ArrayView) of the data corresponding to the target points
-found in the local domain through the {\sl get\_points} method.
+For a given field identified by a string, return a const persisting
+view (a Teuchos::ArrayRCP) of the data corresponding to the target
+points found in the local domain through the {\sl get\_points} method.
 
 \paragraph{\sl DataSource::get\_global\_data\_data()}
 For a given field identified by a string, return a single global data
@@ -213,9 +216,9 @@ class DataSource : Teuchos::Describable
   virtual bool is_local_point( const PointType &point ) = 0;
 
   virtual const Teuchos::ArrayRCP<bool> 
-  are_local_points( const Teuchos::ArrayView<PointType> points );
+  are_local_points( const Teuchos::ArrayRCP<PointType> points );
 
-  virtual const Teuchos::ArrayView<DataType> 
+  virtual const Teuchos::ArrayRCP<DataType> 
   get_source_data( const std::string &field_name ) = 0;
 
   virtual DataType 
@@ -240,15 +243,16 @@ this string, the client should return true if the field is supported,
 false if not.
 
 \paragraph{\sl DataTarget::get\_target\_points()}
-For a given field identified by a string, return a Teuchos::ArrayView
-of all the points to which data should be mapped in the local target
-domain. All point handles are required to be globally unique.
+For a given field identified by a string, return a Teuchos::ArrayRCP
+(a persisting view) of all the points to which data should be mapped
+in the local target domain. All point handles are required to be
+globally unique.
 
 \paragraph{\sl DataTarget::get\_target\_data\_space()}
 For a given field identified by a string, return a non-const
-Teuchos::ArrayView of the data vector associated with the points
-provided by the {\sl set\_points} method. This array view will be used
-to write data into the target.
+persisting view (Teuchos::ArrayRCP) of the data vector associated with
+the points provided by the {\sl set\_points} method. This view will be
+used to write data into the target.
 
 \paragraph{\sl DataTarget::set\_global\_target\_data()}
 For a given field identified by a string, a single global data value
@@ -270,10 +274,10 @@ interface.
 
     virtual bool is_field_supported( const std::string &field_name ) = 0;
 
-    virtual const Teuchos::ArrayView<PointType> 
+    virtual const Teuchos::ArrayRCP<PointType> 
     get_target_points( const std::string &field_name ) = 0;
 
-    virtual Teuchos::ArrayView<DataType> 
+    virtual Teuchos::ArrayRCP<DataType> 
     get_target_data_space( const std::string &field_name ) = 0;
 
     virtual void set_global_target_data( const std::string &field_name,
