@@ -8,8 +8,9 @@
 #include <DataTransferKit_Point.hpp>
 #include <DataTransferKit_DataSource.hpp>
 
-#include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_ArrayView.hpp"
+#include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_DefaultComm.hpp"
 
 //---------------------------------------------------------------------------//
@@ -74,14 +75,16 @@ class Damper_DataSource
 	return return_val;
     }
 
-    const Teuchos::ArrayView<DataType> 
+    const Teuchos::ArrayRCP<DataType> 
     get_source_data(const std::string &field_name)
     {
-	Teuchos::ArrayView<DataType> return_view;
+	Teuchos::ArrayRCP<DataType> return_view;
 
 	if ( field_name == "DAMPER_SOURCE_FIELD" )
 	{
-	    return_view = Teuchos::ArrayView<DataType>( damper->get_damping() );
+	    return_view = Teuchos::arcp<DataType>( 
+		&damper->get_damping()[0], 0, 
+		(int) damper->get_damping().size(), false );
 	}
 
 	return return_view;

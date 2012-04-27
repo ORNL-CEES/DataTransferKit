@@ -78,18 +78,17 @@ int main(int argc, char* argv[])
 			 damper_source,
 			 wave_target );
 
-    // Iterate between the damper and wave until convergence.
-    double local_norm = 0.0;
-    double global_norm = 1.0;
-    int num_iter = 0;
-    int max_iter = 100;
-
     // Create the mapping for the wave field.
     wave_field_op.create_copy_mapping();
 
     // Create the mapping for the damper field.
     damper_field_op.create_copy_mapping();
 
+    // Iterate between the damper and wave until convergence.
+    double local_norm = 0.0;
+    double global_norm = 1.0;
+    int num_iter = 0;
+    int max_iter = 100;
     while( global_norm > 1.0e-6 && num_iter < max_iter )
     {
 	// Transfer the wave field.
@@ -104,7 +103,7 @@ int main(int argc, char* argv[])
 	// Wave solve.
 	local_norm = wave->solve();
 
-	// Collect the l2 norm values from the wave solve to ensure
+	// Collect the norm values from the wave solve to check
 	// convergence. 
 	Teuchos::reduceAll<int>( *comm,
 				 Teuchos::REDUCE_MAX, 

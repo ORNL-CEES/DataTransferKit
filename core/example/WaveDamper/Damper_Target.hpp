@@ -9,8 +9,9 @@
 #include <DataTransferKit_Point.hpp>
 #include <DataTransferKit_DataTarget.hpp>
 
-#include "Teuchos_ArrayView.hpp"
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_ArrayView.hpp"
+#include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_DefaultComm.hpp"
 
 //---------------------------------------------------------------------------//
@@ -60,10 +61,10 @@ class Damper_DataTarget
 	return return_val;
     }
 
-    const Teuchos::ArrayView<PointType> 
+    const Teuchos::ArrayRCP<PointType> 
     get_target_points(const std::string &field_name)
     {
-	Teuchos::ArrayView<PointType> return_view;
+	Teuchos::ArrayRCP<PointType> return_view;
 
 	if ( field_name == "WAVE_TARGET_FIELD" )
 	{
@@ -81,20 +82,23 @@ class Damper_DataTarget
 		local_points.push_back( 
 		    point( global_handle, *grid_it) );
 	    }
-	    return_view = Teuchos::ArrayView<PointType>(local_points);
+	    return_view = Teuchos::arcp<PointType>(
+		&local_points[0], 0, (int) local_points.size(), false );
 	}
 
 	return return_view;
     }
 
-    Teuchos::ArrayView<DataType> 
+    Teuchos::ArrayRCP<DataType> 
     get_target_data_space(const std::string &field_name)
     {
-	Teuchos::ArrayView<DataType> return_view;
+	Teuchos::ArrayRCP<DataType> return_view;
 
 	if ( field_name == "WAVE_TARGET_FIELD" )
 	{
-	    return_view = Teuchos::ArrayView<DataType>( damper->set_wave_data() );
+	    return_view = Teuchos::arcp<DataType>( 
+		&damper->set_wave_data()[0], 0, 
+		(int) damper->set_wave_data().size(), false );
 	}
 
 	return return_view;
