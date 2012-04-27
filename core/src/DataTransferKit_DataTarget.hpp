@@ -81,26 +81,26 @@ class DataTarget : public Teuchos::Describable
     /*!
      * \brief Given a field, provide the local points to map data on to. The
      * order of these points will correspond to the order of the data returned
-     * from the transfer operation. This view is not required to persist.
+     * from the transfer operation. This view required to persist.
      * \param field_name The name of the field that the points are being
      * registered with.
      * \return View of the local target points.
      */
-    virtual const Teuchos::ArrayView<PointType> 
+    virtual const Teuchos::ArrayRCP<PointType> 
     get_target_points( const std::string &field_name ) = 0;
 
     /*! 
      * \brief Provide a persisting, non-const view of the local data vector 
      * associated with the points provided by get_target_points.
      * \param field_name The name of the field to receive data from.
-     * \return A non-const view of the data vector to be populated. This view
-     * has two requirements: 1) It is of size equal to the number of points
-     * provided by get_target_points, 2) It is a persistent view that will be
-     * used to write data into the underlying vector. The order of the data
-     * provided will be in the same order as the local points provided by
-     * get_target_points. 
+     * \return A non-const persisting view of the data vector to be
+     * populated. This view has two requirements: 1) It is of size equal to
+     * the number of points provided by get_target_points, 2) It is a
+     * persisting view that will be used to write data into the underlying
+     * vector. The order of the data provided will be in the same order as the
+     * local points provided by get_target_points.
      */
-    virtual Teuchos::ArrayView<DataType> 
+    virtual Teuchos::ArrayRCP<DataType> 
     get_target_data_space( const std::string &field_name ) = 0;
 
     /*!

@@ -20,8 +20,6 @@
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_TestForException.hpp>
 
-#include <Tpetra_Vector.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -227,7 +225,10 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::point_map()
 	if ( d_active_source )
 	{
 	    local_queries = d_source->are_local_points( 
-		Teuchos::ArrayView<PointType>(receive_points) );
+		Teuchos::ArrayRCP<PointType>( &receive_points[0],
+					      0,
+					      (int) receive_points.size(),
+					      false ) );
 
 	    for ( local_queries_it = local_queries.begin(),
 		 receive_points_it = receive_points.begin();
@@ -262,6 +263,33 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::point_map()
     TEUCHOS_TEST_FOR_EXCEPTION(	d_export == Teuchos::null,
 				PostconditionException,
 				"Error creating exporter" << std::endl );
+
+    Teuchos::ArrayRCP<DataType> source_data_view;
+    if ( d_active_source )
+    {
+	source_data_view = d_source->get_source_data( d_source_field_name );
+    }
+
+    d_source_vector = 
+	Tpetra::createVectorFromView( d_source_map, source_data_view );
+
+    TEUCHOS_TEST_FOR_EXCEPTION(	d_source_vector == Teuchos::null,
+				PostconditionException,
+				"Error creating source vector" << std::endl );
+
+    Teuchos::ArrayRCP<DataType> target_data_space_view;
+    if ( d_active_target )
+    {
+	target_data_space_view = 
+	    d_target->get_target_data_space( d_target_field_name );
+    }
+
+    d_target_vector = 
+	Tpetra::createVectorFromView( d_target_map, target_data_space_view );
+
+    TEUCHOS_TEST_FOR_EXCEPTION(	d_target_vector == Teuchos::null,
+				PostconditionException,
+				"Error creating target vector" << std::endl );
 }
 
 //---------------------------------------------------------------------------//
@@ -284,24 +312,7 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::global_copy()
 template<class DataType, class HandleType, class CoordinateType, int DIM>
 void CopyOperator<DataType,HandleType,CoordinateType,DIM>::distributed_copy()
 {
-    Teuchos::ArrayView<DataType> source_data;
-    if ( d_active_source )
-    {
-	source_data = Teuchos::ArrayView<DataType>(
-	    d_source->get_source_data(d_source_field_name) );
-    }
-    d_comm->barrier();
-    Tpetra::Vector<DataType> data_source_vector( d_source_map, source_data );
-
-    Tpetra::Vector<DataType> data_target_vector( d_target_map );
-    data_target_vector.doExport(data_source_vector, *d_export, Tpetra::INSERT);
-
-    if ( d_active_target )
-    {
-	data_target_vector.get1dCopy( 
-	    d_target->get_target_data_space(d_target_field_name) );
-    }
-    d_comm->barrier();
+    d_target_vector->doExport( *d_source_vector, *d_export, Tpetra::INSERT );
 }
 
 //---------------------------------------------------------------------------//

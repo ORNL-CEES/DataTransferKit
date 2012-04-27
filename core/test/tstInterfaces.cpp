@@ -17,6 +17,7 @@
 #include <DataTransferKit_DataTarget.hpp>
 
 #include "Teuchos_ArrayView.hpp"
+#include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_Tuple.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_UnitTestHarness.hpp"
@@ -71,10 +72,13 @@ class Data_Container
 	return distributed_points;
     }
 
-    Teuchos::ArrayView<double> get_distributed_data()
+    Teuchos::ArrayRCP<double> get_distributed_data()
     {
 	distributed_data.resize(1);
-	return Teuchos::ArrayView<double>(distributed_data);
+	
+	Teuchos::ArrayRCP<double> return_view = Teuchos::arcp<double>(
+	    &distributed_data[0], 0, (int) distributed_data.size(), false );
+	return return_view;
     }
 
     void set_scalar_data(double data)
@@ -154,20 +158,18 @@ class test_DataSource
 	return return_val;
     }
 
-    const Teuchos::ArrayView<double> 
+    const Teuchos::ArrayRCP<double> 
     get_source_data(const std::string &field_name)
     {
-	Teuchos::ArrayView<double> return_view;
-
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
 	    private_data.clear();
 	    private_data.resize(1);
 	    private_data[0] = 1.0*getDefaultComm<OrdinalType>()->getRank();
-	    Teuchos::ArrayView<double> private_view(private_data);
-	    return_view =  private_view;
 	}
 
+	Teuchos::ArrayRCP<double> return_view = Teuchos::arcp<double>( 
+	    &private_data[0], 0, (int) private_data.size(), false );
 	return return_view;
     }
 
@@ -234,33 +236,30 @@ class test_DataTarget
 	return return_val;
     }
 
-    const Teuchos::ArrayView<PointType> 
+    const Teuchos::ArrayRCP<PointType> 
     get_target_points(const std::string &field_name)
     {
-	Teuchos::ArrayView<PointType> return_view;
-
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
 	    PointType local_point = point(1, 1.0, 1.0, 1.0);
 	    std::vector<PointType> local_points(1, local_point);
 	    points.resize(1);
 	    points[0] = local_point;
-	    return_view = Teuchos::ArrayView<PointType>(points);
 	}
 
+	Teuchos::ArrayRCP<PointType> return_view = Teuchos::arcp<PointType>(
+	    &points[0], 0, (int) points.size(), false );
 	return return_view;
     }
 
-    Teuchos::ArrayView<DataType> 
+    Teuchos::ArrayRCP<DataType> 
     get_target_data_space(const std::string &field_name)
     {
-	Teuchos::ArrayView<DataType> return_view;
-
+	Teuchos::ArrayRCP<DataType> return_view;
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
 	    return_view = container->get_distributed_data();
 	}
-
 	return return_view;
     }
 
@@ -308,13 +307,12 @@ TEUCHOS_UNIT_TEST( Transfer_DataSource, source_interface_test )
     std::vector<PointType> points(2);
     points[0] = positive_point;
     points[1] = negative_point;
-    Teuchos::ArrayRCP<bool> point_check = 
-	source_iface->are_local_points( 
-	    Teuchos::ArrayView<PointType>( &points[0], (int) points.size() ) );
+    Teuchos::ArrayRCP<bool> point_check = source_iface->are_local_points( 
+	Teuchos::ArrayRCP<PointType>( &points[0], 0, (int) points.size(), false ) );
     TEST_ASSERT( point_check[0] );
     TEST_ASSERT( !point_check[1] );
 
-    Teuchos::ArrayView<double> data_view;
+    Teuchos::ArrayRCP<double> data_view;
     data_view = source_iface->get_source_data("FOO_TEST_FIELD");
     TEST_ASSERT( data_view.is_null() );
     data_view = source_iface->get_source_data("DISTRIBUTED_TEST_FIELD");
@@ -348,7 +346,7 @@ TEUCHOS_UNIT_TEST( Transfer_DataTarget, target_interface_test )
     TEST_ASSERT( target_iface->is_field_supported("SCALAR_TEST_FIELD") );
     TEST_ASSERT( !target_iface->is_field_supported("FOO_TEST_FIELD") );
 
-    Teuchos::ArrayView<PointType> points_view;
+    Teuchos::ArrayRCP<PointType> points_view;
     points_view = target_iface->get_target_points("FOO_TEST_FIELD");
     TEST_ASSERT( points_view.size() == 0 );
     points_view = target_iface->get_target_points("DISTRIBUTED_TEST_FIELD");
@@ -358,7 +356,7 @@ TEUCHOS_UNIT_TEST( Transfer_DataTarget, target_interface_test )
     TEST_ASSERT( points_view[0].getCoords()[1] == 1.0 );
     TEST_ASSERT( points_view[0].getCoords()[2] == 1.0 );
 
-    Teuchos::ArrayView<double> data_view;
+    Teuchos::ArrayRCP<double> data_view;
     data_view = target_iface->get_target_data_space("FOO_TEST_FIELD");
     TEST_ASSERT( data_view.is_null() );
     data_view = target_iface->get_target_data_space("DISTRIBUTED_TEST_FIELD");
@@ -376,6 +374,8 @@ TEUCHOS_UNIT_TEST( Transfer_DataTarget, target_interface_test )
 
 TEUCHOS_UNIT_TEST( Transfer_DataSource, simple_coupling_test )
 {
+    typedef Point<3>     PointType;
+
     // create an instance of the source interface.
     Teuchos::RCP<DataSource<double,int,double,3> > source_iface = 
 	Teuchos::rcp(new test_DataSource<double,int,double,3>);
@@ -393,21 +393,19 @@ TEUCHOS_UNIT_TEST( Transfer_DataSource, simple_coupling_test )
 		 target_iface->is_field_supported("DISTRIBUTED_TEST_FIELD") );
 
     // Test a target point in the source
-    TEST_ASSERT( source_iface->is_local_point( 
-		     target_iface->get_target_points(
-			 "DISTRIBUTED_TEST_FIELD")[0] ) );
-    TEST_ASSERT( source_iface->are_local_points(
-		     target_iface->get_target_points( 
-			 "DISTRIBUTED_TEST_FIELD" ) )[0] );
+    Teuchos::ArrayRCP<PointType> target_points = 
+	target_iface->get_target_points( "DISTRIBUTED_TEST_FIELD" );
+    TEST_ASSERT( source_iface->is_local_point( target_points[0] ) );
+    TEST_ASSERT( source_iface->are_local_points( target_points )[0] );
 
     // Transfer data from the source to the target.
-    Teuchos::ArrayView<double> source_view = 
+    Teuchos::ArrayRCP<double> source_view = 
 	source_iface->get_source_data("DISTRIBUTED_TEST_FIELD");
 
-    Teuchos::ArrayView<double> target_view = 
+    Teuchos::ArrayRCP<double> target_view = 
 	target_iface->get_target_data_space("DISTRIBUTED_TEST_FIELD");
 
-    target_view.assign(source_view);
+    target_view.assign( source_view.begin(), source_view.end() );
 
     TEST_ASSERT( container->get_distributed_data().size() == 1 );
     TEST_ASSERT( container->get_distributed_data()[0] == 

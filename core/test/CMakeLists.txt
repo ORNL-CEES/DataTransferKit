@@ -29,16 +29,16 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   STANDARD_PASS_OUTPUT
   )
 
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  Advanced_Transfer_test
-  SOURCES tstAdvanced_Transfer.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-  COMM mpi
-  STANDARD_PASS_OUTPUT
-  )
+# TRIBITS_ADD_EXECUTABLE_AND_TEST(
+#   Advanced_Transfer_test
+#   SOURCES tstAdvanced_Transfer.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+#   COMM mpi
+#   STANDARD_PASS_OUTPUT
+#   )
 
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  Zero_Point_Proc_test
-  SOURCES tstZero_Point_Proc.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-  COMM mpi
-  STANDARD_PASS_OUTPUT
-  )
+# TRIBITS_ADD_EXECUTABLE_AND_TEST(
+#   Zero_Point_Proc_test
+#   SOURCES tstZero_Point_Proc.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+#   COMM mpi
+#   STANDARD_PASS_OUTPUT
+#   )
