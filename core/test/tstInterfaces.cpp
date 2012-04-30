@@ -161,15 +161,17 @@ class test_DataSource
     const Teuchos::ArrayRCP<double> 
     get_source_data(const std::string &field_name)
     {
+	Teuchos::ArrayRCP<double> return_view;
+
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
-	    private_data.clear();
 	    private_data.resize(1);
 	    private_data[0] = 1.0*getDefaultComm<OrdinalType>()->getRank();
+
+	    return_view = Teuchos::arcp<double>( 
+		&private_data[0], 0, (int) private_data.size(), false );
 	}
 
-	Teuchos::ArrayRCP<double> return_view = Teuchos::arcp<double>( 
-	    &private_data[0], 0, (int) private_data.size(), false );
 	return return_view;
     }
 
@@ -239,16 +241,18 @@ class test_DataTarget
     const Teuchos::ArrayRCP<PointType> 
     get_target_points(const std::string &field_name)
     {
+	Teuchos::ArrayRCP<PointType> return_view;
+
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
 	    PointType local_point = point(1, 1.0, 1.0, 1.0);
 	    std::vector<PointType> local_points(1, local_point);
 	    points.resize(1);
 	    points[0] = local_point;
+	    return_view = Teuchos::arcp<PointType>(
+		&points[0], 0, (int) points.size(), false );
 	}
 
-	Teuchos::ArrayRCP<PointType> return_view = Teuchos::arcp<PointType>(
-	    &points[0], 0, (int) points.size(), false );
 	return return_view;
     }
 

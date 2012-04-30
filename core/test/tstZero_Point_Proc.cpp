@@ -178,8 +178,12 @@ class test_DataSource
 	{
 	    private_data.resize(local_points.size());
 	    std::fill( private_data.begin(), private_data.end(), 1.0*myRank);
-	    return_view = Teuchos::arcp<double>( 
-		&private_data[0], 0, (int) private_data.size(), false );
+
+	    if ( local_points.size() > 0 )
+	    {
+		return_view = Teuchos::arcp<double>( 
+		    &private_data[0], 0, (int) private_data.size(), false );
+	    }
 	}
 
 	return return_view;
@@ -270,9 +274,10 @@ class test_DataTarget
 						2.0*myRank, 3.0*myRank);
 		    local_points.push_back(new_point);
 		}
+
+		return_view = Teuchos::arcp<PointType>(
+		    &local_points[0], 0, (int) local_points.size(), false );
 	    }
-	    return_view = Teuchos::arcp<PointType>(
-		&local_points[0], 0, (int) local_points.size(), false );
 	}
 
 	return return_view;

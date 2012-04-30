@@ -182,8 +182,12 @@ class test_DataSource
 	{
 	    private_data.resize(local_points.size());
 	    std::fill( private_data.begin(), private_data.end(), 1.0*myRank);
-	    return_view = Teuchos::arcp<double>( 
-		&private_data[0], 0, (int) private_data.size(), false );
+
+	    if ( private_data.size() > 0 )
+	    {
+		return_view = Teuchos::arcp<double>( 
+		    &private_data[0], 0, (int) private_data.size(), false );
+	    } 
 	}
 
 	return return_view;
@@ -264,6 +268,7 @@ class test_DataTarget
     get_target_points(const std::string &field_name)
     {
 	Teuchos::ArrayRCP<PointType> return_view;
+
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
 	    for (int i = 0; i < 5; ++i)

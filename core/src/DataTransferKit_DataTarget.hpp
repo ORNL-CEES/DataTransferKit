@@ -98,7 +98,10 @@ class DataTarget : public Teuchos::Describable
      * the number of points provided by get_target_points, 2) It is a
      * persisting view that will be used to write data into the underlying
      * vector. The order of the data provided will be in the same order as the
-     * local points provided by get_target_points.
+     * local points provided by get_target_points. It is reccomended that the
+     * return ArrayRCP not own the underlying memory as the destructors for
+     * other objects used by DataTransferKit (i.e. Tpetra::vector) will
+     * attempt to deallocate it.
      */
     virtual Teuchos::ArrayRCP<DataType> 
     get_target_data_space( const std::string &field_name ) = 0;

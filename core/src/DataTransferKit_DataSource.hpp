@@ -104,7 +104,10 @@ class DataSource : Teuchos::Describable
      * \return A persisting view of data to be sent. There are two
      * requirements for this view: 1) it is of size equal to the number of
      * points in the local domain, 2) the data is in the same order as the
-     * points found by is_local_point. This view is required to persist. 
+     * points found by is_local_point. This view is required to persist. It
+     * is reccomended that the return ArrayRCP not own the underlying memory
+     * as the destructors for other objects used by DataTransferKit
+     * (i.e. Tpetra::vector) will attempt to deallocate it.
      */
     virtual const Teuchos::ArrayRCP<DataType> 
     get_source_data( const std::string &field_name ) = 0;
