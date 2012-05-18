@@ -20,6 +20,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  DataTransferKit_Version.hpp
   DataTransferKit_CommIndexer.hpp
   DataTransferKit_CommIndexer_Def.hpp
   DataTransferKit_CopyOperator.hpp
@@ -35,6 +36,7 @@ APPEND_SET(HEADERS
 # Set sources
 
 APPEND_SET(SOURCES
+  DataTransferKit_Version.cpp
   )
 
 # Set addition headers and source based on package-specific
