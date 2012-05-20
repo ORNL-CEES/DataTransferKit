@@ -21,6 +21,7 @@
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_Export.hpp>
+#include <Tpetra_Vector.hpp>
 
 namespace DataTransferKit
 {
@@ -60,6 +61,8 @@ class CopyOperator
     typedef Teuchos::RCP<const Tpetra_Map_t>                     RCP_Tpetra_Map;
     typedef Tpetra::Export<HandleType>                           Tpetra_Export_t;
     typedef Teuchos::RCP<Tpetra_Export_t>                        RCP_Tpetra_Export;
+    typedef Tpetra::Vector<DataType>                             Tpetra_Vector_t;
+    typedef Teuchos::RCP<Tpetra_Vector_t>                        RCP_Tpetra_Vector;
     typedef Teuchos::Comm<OrdinalType>                           Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>                   RCP_Communicator;
     //@}
@@ -89,6 +92,12 @@ class CopyOperator
 
     // Tpetra export for transfer from data source to data target.
     RCP_Tpetra_Export d_export;
+
+    // Tpetra vector for source data.
+    RCP_Tpetra_Vector d_source_vector;
+
+    // Tpetra vector for target data.
+    RCP_Tpetra_Vector d_target_vector;
 
     // Boolean for scalar field.
     bool d_global_data;

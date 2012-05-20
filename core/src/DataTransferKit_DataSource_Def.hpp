@@ -17,11 +17,11 @@ namespace DataTransferKit
 template<class DataType, class HandleType, class CoordinateType, int DIM>
 const Teuchos::ArrayRCP<bool> 
 DataSource<DataType,HandleType,CoordinateType,DIM>::are_local_points( 
-    const Teuchos::ArrayView<PointType> points )
+    const Teuchos::ArrayRCP<PointType> points )
 {
     Teuchos::ArrayRCP<bool> are_local( points.size(), false );
     Teuchos::ArrayRCP<bool>::iterator are_local_it;
-    typename Teuchos::ArrayView<PointType>::const_iterator points_it;
+    typename Teuchos::ArrayRCP<PointType>::const_iterator points_it;
     for ( points_it = points.begin(),
       are_local_it = are_local.begin(); 
 	  points_it != points.end(); 

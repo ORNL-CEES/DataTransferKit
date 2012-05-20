@@ -18,6 +18,7 @@
 #include <DataTransferKit_CopyOperator.hpp>
 
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_ENull.hpp"
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_UnitTestHarness.hpp"
@@ -71,10 +72,13 @@ class Data_Container
 	return Teuchos::ArrayView<PointType>(distributed_points);
     }
 
-    Teuchos::ArrayView<double> get_distributed_data()
+    Teuchos::ArrayRCP<double> get_distributed_data()
     {
 	distributed_data.resize(5);
-	return Teuchos::ArrayView<double>(distributed_data);
+
+	Teuchos::ArrayRCP<double> return_view = Teuchos::arcp<double>(
+	    &distributed_data[0], 0, (int) distributed_data.size(), false );
+	return return_view;
     }
 
     void set_scalar_data(double data)
@@ -169,17 +173,21 @@ class test_DataSource
 	return return_val;
     }
 
-    const Teuchos::ArrayView<double> 
+    const Teuchos::ArrayRCP<double> 
     get_source_data(const std::string &field_name)
     {
-	Teuchos::ArrayView<double> return_view;
+	Teuchos::ArrayRCP<double> return_view;
 
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
 	    private_data.resize(local_points.size());
 	    std::fill( private_data.begin(), private_data.end(), 1.0*myRank);
-	    Teuchos::ArrayView<double> private_view(private_data);
-	    return_view =  private_view;
+
+	    if ( private_data.size() > 0 )
+	    {
+		return_view = Teuchos::arcp<double>( 
+		    &private_data[0], 0, (int) private_data.size(), false );
+	    } 
 	}
 
 	return return_view;
@@ -256,10 +264,10 @@ class test_DataTarget
 	return return_val;
     }
 
-    const Teuchos::ArrayView<PointType> 
+    const Teuchos::ArrayRCP<PointType> 
     get_target_points(const std::string &field_name)
     {
-	Teuchos::ArrayView<PointType> return_view;
+	Teuchos::ArrayRCP<PointType> return_view;
 
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
@@ -272,16 +280,17 @@ class test_DataTarget
 					    3.0*myRank);
 		local_points.push_back(new_point);
 	    }
-	    return_view = Teuchos::ArrayView<PointType>(local_points);
+	    return_view = Teuchos::arcp<PointType>(
+		&local_points[0], 0, (int) local_points.size(), false );
 	}
-
+	 
 	return return_view;
     }
 
-    Teuchos::ArrayView<DataType> 
+    Teuchos::ArrayRCP<DataType> 
     get_target_data_space(const std::string &field_name)
     {
-	Teuchos::ArrayView<DataType> return_view;
+	Teuchos::ArrayRCP<DataType> return_view;
 
 	if ( field_name == "DISTRIBUTED_TEST_FIELD" )
 	{
