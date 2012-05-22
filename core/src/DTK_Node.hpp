@@ -31,7 +31,7 @@ class Node
 {
   private:
 
-    // Index.
+    // Handle.
     HandleType d_handle;
 
     // Coordinates.
@@ -49,6 +49,10 @@ class Node
     //! Copy constructor.
     Node<DIM,HandleType,CoordinateType>&
     operator=( const Node<DIM,HandleType,CoordinateType>& pt );
+
+    //! Get the dimension.
+    int getDIM() const
+    { return DIM; }
 
     //! Get the handle.
     HandleType getHandle() const 
@@ -92,7 +96,7 @@ Node<2,HandleType,CoordinateType> node( const HandleType& handle,
 
 //! Create a 3-D node.
 template<typename HandleType, typename CoordinateType> inline
-√Node<3,HandleType,CoordinateType> node( const HandleType& handle,
+Node<3,HandleType,CoordinateType> node( const HandleType& handle,
 					 const CoordinateType& x0,
 					 const CoordinateType& x1,
 					 const CoordinateType& x2 );
