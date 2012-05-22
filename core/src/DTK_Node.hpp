@@ -1,14 +1,14 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   DataTransferKit_Point.hpp
+ * \file   DTK_Node.hpp
  * \author Stuart R. Slattery
  * \date   Wed May 25 12:23:57 2011
- * \brief  Cartesian Point class definition
+ * \brief  Cartesian Node class definition
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_POINT_HPP
-#define DTK_POINT_HPP
+#ifndef DTK_NODE_HPP
+#define DTK_NODE_HPP
 
 #include <Teuchos_Tuple.hpp>
 
@@ -16,18 +16,18 @@ namespace DataTransferKit
 {
 //===========================================================================//
 /*!
- * \class Point
- * \brief General point container.
+ * \class Node
+ * \brief General node container.
  */
 /*! 
- * \example test/tstPoint.cc
+ * \example test/tstNode.cc
  *
- * Test of Point.
+ * Test of Node.
  */
 //===========================================================================//
 
 template<int DIM, typename HandleType=int, typename CoordinateType=double>
-class Point 
+class Node 
 {
   private:
 
@@ -40,15 +40,15 @@ class Point
   public:
     
     //! Default constructor.
-    Point()
+    Node()
     { /* ... */ }
 
     //! Copy constructor.
-    Point( const Point<DIM,HandleType,CoordinateType>& pt );
+    Node( const Node<DIM,HandleType,CoordinateType>& pt );
 
     //! Copy constructor.
-    Point<DIM,HandleType,CoordinateType>&
-    operator=( const Point<DIM,HandleType,CoordinateType>& pt );
+    Node<DIM,HandleType,CoordinateType>&
+    operator=( const Node<DIM,HandleType,CoordinateType>& pt );
 
     //! Get the handle.
     HandleType getHandle() const 
@@ -79,36 +79,36 @@ class Point
     }
 };
 
-//! Create a 1-D point.
+//! Create a 1-D node.
 template<typename HandleType, typename CoordinateType> inline
-Point<1,HandleType,CoordinateType> point( const HandleType& handle,
-					  const CoordinateType& x0 );
+Node<1,HandleType,CoordinateType> node( const HandleType& handle,
+					const CoordinateType& x0 );
 
-//! Create a 2-D point.
+//! Create a 2-D node.
 template<typename HandleType, typename CoordinateType> inline
-Point<2,HandleType,CoordinateType> point( const HandleType& handle,
-					  const CoordinateType& x0,
-					  const CoordinateType& x1 );
+Node<2,HandleType,CoordinateType> node( const HandleType& handle,
+					const CoordinateType& x0,
+					const CoordinateType& x1 );
 
-//! Create a 3-D point.
+//! Create a 3-D node.
 template<typename HandleType, typename CoordinateType> inline
-√Point<3,HandleType,CoordinateType> point( const HandleType& handle,
-					   const CoordinateType& x0,
-					   const CoordinateType& x1,
-					   const CoordinateType& x2 );
+√Node<3,HandleType,CoordinateType> node( const HandleType& handle,
+					 const CoordinateType& x0,
+					 const CoordinateType& x1,
+					 const CoordinateType& x2 );
 
-//! Create a 4-D point.
+//! Create a 4-D node.
 template<typename HandleType, typename CoordinateType> inline
-Point<4,HandleType,CoordinateType> point( const HandleType& handle,
-					  const CoordinateType& x0,
-					  const CoordinateType& x1, 
-					  const CoordinateType& x2,
-					  const CoordinateType& x3 );
+Node<4,HandleType,CoordinateType> node( const HandleType& handle,
+					const CoordinateType& x0,
+					const CoordinateType& x1, 
+					const CoordinateType& x2,
+					const CoordinateType& x3 );
 
 // Copy constructor.
 template<int DIM, typename HandleType, typename CoordinateType>
-Point<DIM,HandleType,CoordinateType>::Point( 
-    const Point<DIM,HandleType,CoordinateType>& pt )
+Node<DIM,HandleType,CoordinateType>::Node( 
+    const Node<DIM,HandleType,CoordinateType>& pt )
 {
     d_handle = pt.d_handle;
     for ( int n = 0; n < DIM; ++n )
@@ -119,9 +119,9 @@ Point<DIM,HandleType,CoordinateType>::Point(
 
 // Copy constructor.
 template<int DIM, typename HandleType, typename CoordinateType>
-Point<DIM,HandleType,CoordinateType>&
-Point<DIM,HandleType,CoordinateType>::operator=( 
-    const Point<DIM,HandleType,CoordinateType>& pt )
+Node<DIM,HandleType,CoordinateType>&
+Node<DIM,HandleType,CoordinateType>::operator=( 
+    const Node<DIM,HandleType,CoordinateType>& pt )
 {
     d_handle = pt.d_handle;
     for ( int n = 0; n < DIM; ++n )
@@ -133,66 +133,66 @@ Point<DIM,HandleType,CoordinateType>::operator=(
 
 } // end namespace DataTransferKit
 
-// Create a 1-D point.
+// Create a 1-D node.
 template<typename HandleType, typename CoordinateType> inline
-DataTransferKit::Point<1,HandleType,CoordinateType> 
-DataTransferKit::point( const HandleType& handle,
-			const CoordinateType& x0 )
+DataTransferKit::Node<1,HandleType,CoordinateType> 
+DataTransferKit::node( const HandleType& handle,
+		       const CoordinateType& x0 )
 {
-    Point<1,HandleType,CoordinateType> pt;
+    Node<1,HandleType,CoordinateType> pt;
     pt.setHandle( handle );
     CoordinateType coords[1] = { x0 };
     pt.setCoords( coords );
     return pt;
 }
 
-// Create a 2-D point.
+// Create a 2-D node.
 template<typename HandleType, typename CoordinateType> inline
-DataTransferKit::Point<2,HandleType,CoordinateType> 
-DataTransferKit::point( const HandleType& handle,
-			const CoordinateType& x0,
-			const CoordinateType& x1 )
+DataTransferKit::Node<2,HandleType,CoordinateType> 
+DataTransferKit::node( const HandleType& handle,
+		       const CoordinateType& x0,
+		       const CoordinateType& x1 )
 {
-    Point<2,HandleType,CoordinateType> pt;
+    Node<2,HandleType,CoordinateType> pt;
     pt.setHandle( handle );
     CoordinateType coords[2] = { x0, x1 };
     pt.setCoords( coords );
     return pt;
 }
 
-// Create a 3-D point.
+// Create a 3-D node.
 template<typename HandleType, typename CoordinateType> inline
-DataTransferKit::Point<3,HandleType,CoordinateType> 
-DataTransferKit::point( const HandleType& handle,
-			const CoordinateType& x0,
-			const CoordinateType& x1,
-			const CoordinateType& x2 )
+DataTransferKit::Node<3,HandleType,CoordinateType> 
+DataTransferKit::node( const HandleType& handle,
+		       const CoordinateType& x0,
+		       const CoordinateType& x1,
+		       const CoordinateType& x2 )
 {
-    Point<3,HandleType,CoordinateType> pt;
+    Node<3,HandleType,CoordinateType> pt;
     pt.setHandle( handle );
     CoordinateType coords[3] = { x0, x1, x2 };
     pt.setCoords( coords );
     return pt;
 }
 
-// Create a 4-D point.
+// Create a 4-D node.
 template<typename HandleType, typename CoordinateType> inline
-DataTransferKit::Point<4,HandleType,CoordinateType> 
-DataTransferKit::point( const HandleType& handle,
-			const CoordinateType& x0,
-			const CoordinateType& x1, 
-			const CoordinateType& x2,
-			const CoordinateType& x3 )
+DataTransferKit::Node<4,HandleType,CoordinateType> 
+DataTransferKit::node( const HandleType& handle,
+		       const CoordinateType& x0,
+		       const CoordinateType& x1, 
+		       const CoordinateType& x2,
+		       const CoordinateType& x3 )
 {
-    Point<4,HandleType,CoordinateType> pt;
+    Node<4,HandleType,CoordinateType> pt;
     pt.setHandle( handle );
     CoordinateType coords[4] = { x0, x1, x2, x3 };
     pt.setCoords( coords );
     return pt;
 }
 
-#endif // DTK_POINT_HPP
+#endif // DTK_NODE_HPP
 
 //---------------------------------------------------------------------------//
-//              end of DataTransferKit_Point.hpp
+//              end of DTK_Node.hpp
 //---------------------------------------------------------------------------//
