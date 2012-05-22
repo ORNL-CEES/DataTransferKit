@@ -2,7 +2,7 @@
 /*!
  * \file DTK_Element.hpp
  * \author Stuart R. Slattery
- * \brief General element class definition.
+ * \brief General finite element class definition.
  */
 //---------------------------------------------------------------------------//
 
@@ -14,7 +14,7 @@
 namespace DataTransferKit
 {
 
-template<int DIM, typename HandleType=int>
+template<typename HandleType=int>
 class Element
 {
   private:
@@ -35,24 +35,21 @@ class Element
     { /* ... */ }
 
     //! Connectivity constructor.
+    template<class HandleField>
     Element( const int topology,
 	     const HandleType handle, 
-	     const Teuchos::ArrayRCP<HandleType> &connectivity )
+	     const HandleField &connectivity )
 	: d_topology( topology )
 	, d_handle( handle )
 	, d_connectivity( connectivity )
     { /* ... */ }
 
     //! Copy constructor.
-    Element( const Element<DIM,HandleType>& elem );
+    Element( const Element<HandleType>& elem );
 
     //! Copy constructor.
-    Element<DIM,HandleType,CoordinateType>&
-    operator=( const Element<DIM,HandleType>& elem );
-
-    //! Get the dimension.
-    int getDIM() const
-    { return DIM; }
+    Element<HandleType>&
+    operator=( const Element<HandleType>& elem );
 
     //! Get the topology.
     int getTopology() const

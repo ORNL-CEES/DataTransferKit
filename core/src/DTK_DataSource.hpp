@@ -15,9 +15,6 @@
 #include "DTK_Node.hpp"
 #include "DTK_Element.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Describable.hpp>
 
 namespace DataTransferKit
@@ -41,7 +38,7 @@ namespace DataTransferKit
  * Test of DataSource.
  */
 //===========================================================================//
-template<class DataType, class HandleType, class CoordinateType, int DIM>
+template<int DIM, class DataType, class HandleType, class CoordinateType>
 class DataSource : Teuchos::Describable
 {
   public:
@@ -50,9 +47,7 @@ class DataSource : Teuchos::Describable
     //! Useful typedefs.
     typedef int                                        OrdinalType;
     typedef Node<DIM,HandleType,CoordinateType>        NodeType;
-    typedef Element<DIM,HandleType>                    ElementType;
-    typedef Teuchos::Comm<OrdinalType>                 Communicator_t;
-    typedef Teuchos::RCP<const Communicator_t>         RCP_Communicator;
+    typedef Element<HandleType>                        ElementType;
     //@}
 
     /*!
@@ -70,13 +65,15 @@ class DataSource : Teuchos::Describable
     /*!
      * \brief Get the communicator object for the physics implementing this
      * interface.
-     * \return The communicator for this physics.
+     * \return The communicator for the source application. This class is
+     * requried to implement MPI primitives. 
      */
-    virtual RCP_Communicator getSourceComm() = 0;
+    template<class Communicator>
+    virtual void getSourceComm( const Communicator &source_comm ) = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this
-     * field is not supported. 
+     * field is not supported.
      * \param field_name The name of the field for which support is being
      * checked.
      */
@@ -85,32 +82,44 @@ class DataSource : Teuchos::Describable
     /*! 
      * \brief Provide the local source mesh nodes this includes nodes needed
      * to resolve higher order elements.
-     * \return View of the local source mesh nodes. This view is required to
-     * persist. 
+     * \param source_nodes View of the local source mesh nodes. This view
+     * is required to persist. The NodeField object passed must be a contiguous
+     * memory view of DataTransferKit::Node objects. The NodeField object must
+     * have a .size() function that returns the number of nodes in the
+     * contiguous memory space. The NodeField object must have a [] operator
+     * for element access.
      */
-    virtual const Teuchos::ArrayRCP<NodeType>
-    getSourceMeshNodes() = 0;
+    template<class NodeField>
+    virtual void getSourceMeshNodes( const NodeField &source_nodes ) = 0;
 
     /*! 
      * \brief Provide the local source mesh elements.
-     * \return View of the local source mesh elements. This view is required
-     * to persist.
+     * \param source_elements View of the local source mesh
+     * elements. This view is required to persist. The ElementField object
+     * passed must be a contiguous memory view of DataTransferKit::Element
+     * objects. The ElementField object must have a .size() function that
+     * returns the number of elements in the contiguous memory space. The
+     * ElementField object must have a [] operator for element access.
      */
-    virtual const Teuchos::ArrayRCP<ElementType>
-    getSourceMeshElements() = 0;
+    template<class ElementField>
+    virtual void getSourceMeshElements( const ElementField &source_elements) = 0;
 
     /*! 
      * \brief Provide a const view of the local source data at the source mesh
      * nodes. 
      * \param field_name The name of the field to provide data from.
-     * \return A persisting view of data to be sent. There are two
-     * requirements for this view: 1) it is of size equal to the number of
+     * \param source_node_data A persisting view of data to be sent. There are
+     * two requirements for this view: 1) it is of size equal to the number of
      * source mesh nodes in the local domain, 2) the data is in the same order as the
      * nodes found provided by getSourceMeshNodes. This view is required to
-     * persist.
+     * persist. The DataField object passed must be a contiguous memory view
+     * of DataTransferKit::Data objects. The DataField object must have a
+     * .size() function that returns the number of datas in the contiguous
+     * memory space. The DataField object must have a [] operator for element access.
      */
-    virtual const Teuchos::ArrayRCP<DataType> 
-    getSourceNodeData( const std::string &field_name ) = 0;
+    template<class DataField>
+    virtual void getSourceNodeData( const std::string &field_name,
+				    DataField &source_node_data ) = 0;
 
     /*!
      * \brief Given a field, get a global data element to be sent to the
