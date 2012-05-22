@@ -92,7 +92,7 @@ Point<2,HandleType,CoordinateType> point( const HandleType& handle,
 
 //! Create a 3-D point.
 template<typename HandleType, typename CoordinateType> inline
-√Point<3,HandleType,CoordinateType> point( const HandleType& handle,
+Point<3,HandleType,CoordinateType> point( const HandleType& handle,
 					   const CoordinateType& x0,
 					   const CoordinateType& x1,
 					   const CoordinateType& x2 );
