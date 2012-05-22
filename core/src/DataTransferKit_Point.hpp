@@ -92,10 +92,10 @@ Point<2,HandleType,CoordinateType> point( const HandleType& handle,
 
 //! Create a 3-D point.
 template<typename HandleType, typename CoordinateType> inline
-Point<3,HandleType,CoordinateType> point( const HandleType& handle,
-					  const CoordinateType& x0,
-    					  const CoordinateType& x1,
-					  const CoordinateType& x2 );
+√Point<3,HandleType,CoordinateType> point( const HandleType& handle,
+					   const CoordinateType& x0,
+					   const CoordinateType& x1,
+					   const CoordinateType& x2 );
 
 //! Create a 4-D point.
 template<typename HandleType, typename CoordinateType> inline
@@ -137,7 +137,7 @@ Point<DIM,HandleType,CoordinateType>::operator=(
 template<typename HandleType, typename CoordinateType> inline
 DataTransferKit::Point<1,HandleType,CoordinateType> 
 DataTransferKit::point( const HandleType& handle,
-		const CoordinateType& x0 )
+			const CoordinateType& x0 )
 {
     Point<1,HandleType,CoordinateType> pt;
     pt.setHandle( handle );
@@ -150,8 +150,8 @@ DataTransferKit::point( const HandleType& handle,
 template<typename HandleType, typename CoordinateType> inline
 DataTransferKit::Point<2,HandleType,CoordinateType> 
 DataTransferKit::point( const HandleType& handle,
-		const CoordinateType& x0,
-		const CoordinateType& x1 )
+			const CoordinateType& x0,
+			const CoordinateType& x1 )
 {
     Point<2,HandleType,CoordinateType> pt;
     pt.setHandle( handle );
@@ -164,9 +164,9 @@ DataTransferKit::point( const HandleType& handle,
 template<typename HandleType, typename CoordinateType> inline
 DataTransferKit::Point<3,HandleType,CoordinateType> 
 DataTransferKit::point( const HandleType& handle,
-		const CoordinateType& x0,
-		const CoordinateType& x1,
-		const CoordinateType& x2 )
+			const CoordinateType& x0,
+			const CoordinateType& x1,
+			const CoordinateType& x2 )
 {
     Point<3,HandleType,CoordinateType> pt;
     pt.setHandle( handle );
@@ -179,10 +179,10 @@ DataTransferKit::point( const HandleType& handle,
 template<typename HandleType, typename CoordinateType> inline
 DataTransferKit::Point<4,HandleType,CoordinateType> 
 DataTransferKit::point( const HandleType& handle,
-		const CoordinateType& x0,
-		const CoordinateType& x1, 
-		const CoordinateType& x2,
-		const CoordinateType& x3 )
+			const CoordinateType& x0,
+			const CoordinateType& x1, 
+			const CoordinateType& x2,
+			const CoordinateType& x3 )
 {
     Point<4,HandleType,CoordinateType> pt;
     pt.setHandle( handle );
