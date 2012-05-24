@@ -9,6 +9,8 @@
 #ifndef DTK_DATAFIELDTRAITS_HPP
 #define DTK_DATAFIELDTRAITS_HPP
 
+#include <iterator>
+
 namespace DataTransferKit
 {
 
@@ -28,27 +30,30 @@ struct UndefinedFieldTraits
  * 
  * These traits correlate to the basic concept of a field within DTK. A field
  * can contain anything in an array, but it must store its objects in
- * contiguous memory.
+ * contiguous memory. 
  */
 template<typename T>
 struct FieldTraits
 {
     //! Typedef for value type. The field type must implement
     //! Teuchos::ScalarTraits.
-    typedef T::value_type value_type;
+    typedef typename T::value_type value_type;
 
-    //! Returns the size of the field.
-    static inline std::size_t size()
+    //! Typedef for const iterator to the field.
+    typedef typename T::const_iterator const_iterator;
+
+    //! Returns the number of elements in the field.
+    static inline std::size_t size( const T &field )
     { return UndefinedFieldTraits<T>::notDefined(); }
 
     //! Returns the iterator to the front of the field.
-    static inline value_type* begin()
+    static inline const_iterator begin( const T &field )
     { return UndefinedFieldTraits<T>::notDefined(); }
 
     //! Returns the iterator to the end of the field.
-    static inline value_type* end()
+    static inline const_iterator end( const T &field )
     { return UndefinedFieldTraits<T>::notDefined(); }
-}
+};
 
 } // end namespace DataTransferKit
 

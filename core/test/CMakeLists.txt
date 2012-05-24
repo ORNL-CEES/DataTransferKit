@@ -2,43 +2,8 @@ INCLUDE(TribitsAddExecutableAndTest)
 INCLUDE(TribitsAddAdvancedTest)
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  CommIndexer_test
-  SOURCES tstCommIndexer.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-  COMM serial mpi
-  STANDARD_PASS_OUTPUT
-  )
-
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  Point_test
-  SOURCES tstPoint.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-  COMM serial mpi
-  STANDARD_PASS_OUTPUT
-  )
-
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  Interfaces_test
-  SOURCES tstInterfaces.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-  COMM serial mpi
-  STANDARD_PASS_OUTPUT
-  )
-
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  CopyOperator_test
-  SOURCES tstCopyOperator.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-  COMM mpi
-  STANDARD_PASS_OUTPUT
-  )
-
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  Advanced_Transfer_test
-  SOURCES tstAdvanced_Transfer.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-  COMM mpi
-  STANDARD_PASS_OUTPUT
-  )
-
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  Zero_Point_Proc_test
-  SOURCES tstZero_Point_Proc.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  DataSource_test
+  SOURCES tstDataSource.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM mpi
   STANDARD_PASS_OUTPUT
   )

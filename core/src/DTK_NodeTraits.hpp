@@ -34,28 +34,34 @@ struct UndefinedNodeTraits
 template<typename T>
 struct NodeTraits
 {
-    //! Required typedef for handle type. This type must implement
-    //! Teuchos::OrdinalTraits. 
-    typedef T::handle_type handle_type;
+    //! Typedef for handle type. This type must implement
+    //! Teuchos::OrdinalTraits.
+    typedef typename T::handle_type handle_type;
 
-    //! Requried typedef for coordinate type. This type must implement
+    //! Typedef for coordinate type. This type must implement
     //! Teuchos::ScalarTraits. 
-    typedef T::coordinate_type coordinate_type;
+    typedef typename T::coordinate_type coordinate_type;
+
+    //! Typedef or const iterator to coordinates.
+    typedef typename T::coordinate_const_iterator coordinate_const_iterator;
 
     //! Returns the spatial dimension of the node.
-    static inline std::size_t dim()
+    static inline std::size_t dim( const T &node )
     { return UndefinedNodeTraits<T>::notDefined(); }
 
-    //! Returns the handle.
-    static inline handle_type handle()
+    //! Returns the handle of the node.
+    static inline handle_type handle( const T &node )
     { return UndefinedNodeTraits<T>::notDefined(); }
 
-    //! Returns the iterator to the front of the coordinate array. 
-    static inline coordinate_type* coordsBegin()
+    //! Returns the iterator to the front of the coordinate array of the
+    //! node. 
+    static inline coordinate_const_iterator
+    coordsBegin( const T &node )
     { return UndefinedNodeTraits<T>::notDefined(); }
 
-    //! Return the iterator to the end of the coordinate array.
-    static inline coordinate_type* coordsEnd()
+    //! Returns the iterator to the end of the coordinate array of the node.
+    static inline coordinate_const_iterator
+    coordsEnd( const T &node )
     { return UndefinedNodeTraits<T>::notDefined(); }
 };
 

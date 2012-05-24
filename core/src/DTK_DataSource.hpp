@@ -57,7 +57,7 @@ class DataSource : Teuchos::Describable
      * semantics.
      */
     template<class Communicator>
-    virtual void getSourceComm( const Communicator &source_comm ) = 0;
+    virtual const Communicator& getSourceComm() = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this
@@ -76,7 +76,7 @@ class DataSource : Teuchos::Describable
      * NodeTraits. 
      */
     template<typename NodeField>
-    virtual void getSourceMeshNodes( const NodeField &source_nodes ) = 0;
+    virtual const NodeField& getSourceMeshNodes() = 0;
 
     /*! 
      * \brief Provide the local source mesh elements.
@@ -88,7 +88,7 @@ class DataSource : Teuchos::Describable
      * ElementTraits. 
      */
     template<class ElementField>
-    virtual void getSourceMeshElements( const ElementField &source_elements) = 0;
+    virtual const ElementField& getSourceMeshElements() = 0;
 
     /*! 
      * \brief Provide a const view of the local source data at the source mesh
@@ -96,24 +96,15 @@ class DataSource : Teuchos::Describable
      * \param field_name The name of the field to provide data from.
      * \param source_node_data A persisting view of data to be sent. There are
      * two requirements for this view: 1) it is of size equal to the number of
-     * source mesh nodes in the local domain, 2) the data is in the same order as the
-     * nodes found provided by getSourceMeshNodes. This view is required to
-     * persist. The DataField type is expected to implement
+     * source mesh nodes in the local domain, 2) the data is in the same order
+     * as the nodes found provided by getSourceMeshNodes. This view is
+     * required to persist. The DataField type is expected to implement
      * FieldTraits. ElementField::value_type is expected to implement
-     * Teuchos::ScalarTraits. 
+     * Teuchos::ScalarTraits.  
      */
     template<class DataField>
-    virtual void getSourceNodeData( const std::string &field_name,
-				    DataField &source_node_data ) = 0;
-
-    /*!
-     * \brief Given a field, get a global data element to be sent to the
-     * target. 
-     * \param field_name The name of the field to get data from.
-     * \return The global data element.
-     */
-    virtual DataType 
-    getGlobalSourceData( const std::string &field_name ) = 0;
+    virtual const DataField& 
+    getSourceNodeData( const std::string &field_name ) = 0;
 };
 
 } // end namespace DataTransferKit

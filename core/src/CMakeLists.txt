@@ -20,16 +20,12 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DataTransferKit_CommIndexer.hpp
-  DataTransferKit_CommIndexer_Def.hpp
-  DataTransferKit_CopyOperator.hpp
-  DataTransferKit_CopyOperator_Def.hpp
-  DataTransferKit_DataSource.hpp
-  DataTransferKit_DataSource_Def.hpp
-  DataTransferKit_DataTarget.hpp
-  DataTransferKit_Exception.hpp
-  DataTransferKit_Point.hpp
-  DataTransferKit_SerializationTraits.hpp
+  DTK_CoreTypes.hpp
+  DTK_ElementTraits.hpp
+  DTK_FieldTraits.hpp
+  DTK_NodeTraits.hpp
+  DTK_DataSource.hpp
+  DTK_DataTarget.hpp
   )
 
 # Set sources
@@ -54,7 +50,7 @@ ENDIF()
 #
 
 TRIBITS_ADD_LIBRARY(
-  data_transfer_kit
+  dtk_core
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )
