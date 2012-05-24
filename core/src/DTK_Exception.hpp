@@ -15,6 +15,7 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
 /*!
  * \brief Exception class to be thrown when function preconditions are not
  * met.
@@ -49,6 +50,18 @@ class InvariantException : public std::runtime_error
 	: std::runtime_error( msg )
     { /* ... */ }
 };
+
+//---------------------------------------------------------------------------//
+// Test for a precondition exception.
+void testPrecondition( bool throw_if_false, const std::string &msg );
+
+// Test for a postcondition exception.
+void testPostcondition( bool throw_if_false, const std::string &msg );
+
+// Test for a Invariant exception.
+void testInvariant( bool throw_if_false, const std::string &msg );
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

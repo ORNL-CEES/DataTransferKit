@@ -18,7 +18,6 @@
 #include <Teuchos_ENull.hpp>
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ArrayRCP.hpp>
-#include <Teuchos_TestForException.hpp>
 
 namespace DataTransferKit
 {
@@ -57,18 +56,14 @@ CopyOperator<DataType,HandleType,CoordinateType,DIM>::CopyOperator(
 { 
     if ( d_source != Teuchos::null )
     {
-	TEUCHOS_TEST_FOR_EXCEPTION( 
-	    !d_source->is_field_supported(d_source_field_name),
-	    PreconditionException,
-	    "Source field not supported by the source interface" << std::endl );
+	testPrecondition( d_source->is_field_supported( d_source_field_name ),
+			  "Source field not supported by the source interface" );
 	d_active_source = true;
     }
     if ( d_target != Teuchos::null )
     {
-	TEUCHOS_TEST_FOR_EXCEPTION( 
-	    !d_target->is_field_supported(d_target_field_name),
-	    PreconditionException,
-	    "Target field not supported by the target interface" << std::endl );
+	testPrecondition( d_target->is_field_supported( d_target_field_name ),
+			  "Target field not supported by the target interface" );
 	d_active_target = true;
     }
 }
@@ -117,11 +112,8 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::copy()
 
 	else
 	{
-	    TEUCHOS_TEST_FOR_EXCEPTION( 
-		!d_mapped,
-		PreconditionException,
-		"Source not mapped to target prior to copy operation" 
-		<< std::endl );
+	    testPrecondition( d_mapped, 
+		     "Source not mapped to target prior to copy operation" );
 	    distributed_copy();
 	}
     }
@@ -163,9 +155,7 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::point_map()
     d_target_map = 
 	Tpetra::createNonContigMap<HandleType>( target_handles_view, d_comm );
 
-    TEUCHOS_TEST_FOR_EXCEPTION(	d_target_map == Teuchos::null,
-				PostconditionException,
-				"Error creating target map" << std::endl );
+    testPostcondition( d_target_map != Teuchos::null, "Error creating map" );
 
     d_comm->barrier();
 
@@ -253,16 +243,14 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::point_map()
     d_source_map = 
 	Tpetra::createNonContigMap<HandleType>( source_handles_view, d_comm );
 
-    TEUCHOS_TEST_FOR_EXCEPTION(	d_source_map == Teuchos::null,
-				PostconditionException,
-				"Error creating source map" << std::endl );
+    testPostcondition( d_source_map != Teuchos::null, 
+		       "Error creating source map" );
 
     d_export = Teuchos::rcp( 
 	new Tpetra::Export<HandleType>(d_source_map, d_target_map) );
 
-    TEUCHOS_TEST_FOR_EXCEPTION(	d_export == Teuchos::null,
-				PostconditionException,
-				"Error creating exporter" << std::endl );
+    testPostcondition( d_export != Teuchos::null, 
+		       "Error creating Tpetra exporter" );
 
     Teuchos::ArrayRCP<DataType> source_data_view;
     if ( d_active_source )
@@ -273,9 +261,8 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::point_map()
     d_source_vector = 
 	Tpetra::createVectorFromView( d_source_map, source_data_view );
 
-    TEUCHOS_TEST_FOR_EXCEPTION(	d_source_vector == Teuchos::null,
-				PostconditionException,
-				"Error creating source vector" << std::endl );
+    testPostcondition( d_source_vector != Teuchos::null, 
+		       "Error creating source vector" );
 
     Teuchos::ArrayRCP<DataType> target_data_space_view;
     if ( d_active_target )
@@ -287,9 +274,8 @@ void CopyOperator<DataType,HandleType,CoordinateType,DIM>::point_map()
     d_target_vector = 
 	Tpetra::createVectorFromView( d_target_map, target_data_space_view );
 
-    TEUCHOS_TEST_FOR_EXCEPTION(	d_target_vector == Teuchos::null,
-				PostconditionException,
-				"Error creating target vector" << std::endl );
+    testPostcondition( d_target_vector != Teuchos::null,
+		       "Error creating target vector" );
 }
 
 //---------------------------------------------------------------------------//

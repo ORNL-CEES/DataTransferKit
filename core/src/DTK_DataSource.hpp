@@ -12,9 +12,6 @@
 
 #include <string>
 
-#include "DTK_Node.hpp"
-#include "DTK_Element.hpp"
-
 #include <Teuchos_Describable.hpp>
 
 namespace DataTransferKit
@@ -38,17 +35,9 @@ namespace DataTransferKit
  * Test of DataSource.
  */
 //===========================================================================//
-template<int DIM, class DataType, class HandleType, class CoordinateType>
 class DataSource : Teuchos::Describable
 {
   public:
-
-    //@{
-    //! Useful typedefs.
-    typedef int                                        OrdinalType;
-    typedef Node<DIM,HandleType,CoordinateType>        NodeType;
-    typedef Element<HandleType>                        ElementType;
-    //@}
 
     /*!
      * \brief Constructor.
@@ -66,7 +55,7 @@ class DataSource : Teuchos::Describable
      * \brief Get the communicator object for the physics implementing this
      * interface.
      * \return The communicator for the source application. This class is
-     * requried to implement MPI primitives. 
+     * required to implement MPI primitives and use reference semantics.
      */
     template<class Communicator>
     virtual void getSourceComm( const Communicator &source_comm ) = 0;
@@ -83,13 +72,11 @@ class DataSource : Teuchos::Describable
      * \brief Provide the local source mesh nodes this includes nodes needed
      * to resolve higher order elements.
      * \param source_nodes View of the local source mesh nodes. This view
-     * is required to persist. The NodeField object passed must be a contiguous
-     * memory view of DataTransferKit::Node objects. The NodeField object must
-     * have a .size() function that returns the number of nodes in the
-     * contiguous memory space. The NodeField object must have a [] operator
-     * for element access.
+     * is required to persist. The NodeField type is expected to implement
+     * FieldTraits. NodeField::value_type is expected to implement
+     * NodeTraits. 
      */
-    template<class NodeField>
+    template<typename NodeField>
     virtual void getSourceMeshNodes( const NodeField &source_nodes ) = 0;
 
     /*! 
@@ -97,9 +84,9 @@ class DataSource : Teuchos::Describable
      * \param source_elements View of the local source mesh
      * elements. This view is required to persist. The ElementField object
      * passed must be a contiguous memory view of DataTransferKit::Element
-     * objects. The ElementField object must have a .size() function that
-     * returns the number of elements in the contiguous memory space. The
-     * ElementField object must have a [] operator for element access.
+     * objects. The ElementField type is exepected to implement
+     * FieldTraits. ElementField::value_type is expected to implement
+     * ElementTraits. 
      */
     template<class ElementField>
     virtual void getSourceMeshElements( const ElementField &source_elements) = 0;
@@ -112,10 +99,9 @@ class DataSource : Teuchos::Describable
      * two requirements for this view: 1) it is of size equal to the number of
      * source mesh nodes in the local domain, 2) the data is in the same order as the
      * nodes found provided by getSourceMeshNodes. This view is required to
-     * persist. The DataField object passed must be a contiguous memory view
-     * of DataTransferKit::Data objects. The DataField object must have a
-     * .size() function that returns the number of datas in the contiguous
-     * memory space. The DataField object must have a [] operator for element access.
+     * persist. The DataField type is expected to implement
+     * FieldTraits. ElementField::value_type is expected to implement
+     * Teuchos::ScalarTraits. 
      */
     template<class DataField>
     virtual void getSourceNodeData( const std::string &field_name,
