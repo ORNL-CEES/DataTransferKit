@@ -23,11 +23,9 @@ namespace DataTransferKit
  * \brief Protocol declaration for applications acting as a data source in
  * multiphysics coupling. 
  *
- * This interface is templated on the type of field data being
- * transferred, the handle type for mesh entities, and the coordinate
- * type. Ordinal type for communication is int. Implementing this interface
- * will then provide a single mesh and the fields associated with that
- * mesh. Multiple meshes will need multiple data source interfaces specified.
+ * Implementing this interface will then provide a single mesh and the fields
+ * associated with that mesh. Multiple meshes will need multiple data source
+ * interfaces specified.
  */
 /*! 
  * \example core/test/tstInterfaces.cc
@@ -54,8 +52,9 @@ class DataSource : Teuchos::Describable
     /*!
      * \brief Get the communicator object for the physics implementing this
      * interface.
-     * \return The communicator for the source application. This class is
-     * required to implement MPI primitives and use reference semantics.
+     * \param source_comm The communicator for the source application. This
+     * class is required to implement MPI primitives and use reference
+     * semantics.
      */
     template<class Communicator>
     virtual void getSourceComm( const Communicator &source_comm ) = 0;

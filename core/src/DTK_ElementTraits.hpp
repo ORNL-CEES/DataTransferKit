@@ -38,7 +38,7 @@ struct ElementTraits
     //! Teuchos::OrdinalTraits. 
     typedef T::handle_type handle_type;
 
-    //! Returns the topology of the element (DTK enum).
+    //! Returns the topology of the element (DTK_ElementTopolpogy enum).
     static inline std::size_t topology()
     { return UndefinedElementTraits<T>::notDefined(); }
 
