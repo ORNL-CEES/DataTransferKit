@@ -38,8 +38,9 @@ struct ElementTraits
     //! Teuchos::OrdinalTraits. 
     typedef typename T::handle_type handle_type;
 
-    //! Typedef for a const iterator for the connectivity.
-    typedef typename T::connectivity_const_iterator;
+    //! Typdef for element connectivity random access iterator.
+    typedef typename std::iterator<std::random_access_iterator_tag,T> 
+    connectivity_iterator;
 
     //! Returns the topology of the element (DTK_ElementTopolpogy enum).
     static inline std::size_t topology()
@@ -51,14 +52,12 @@ struct ElementTraits
 
     //! Returns the iterator to the front of the connectivity array of the
     //! element. 
-    static inline connectivity_const_iterator
-    connectivityBegin( const T &element )
+    static inline connectivity_iterator connectivityBegin( const T &element )
     { return UndefinedElementTraits<T>::notDefined(); }
 
     //! Return the iterator to the end of the connectivity array of the
     //! element. 
-    static inline connectivity_const_iterator
-    connectivityEnd( const T &element )
+    static inline connectivity_iterator connectivityEnd( const T &element )
     { return UndefinedElementTraits<T>::notDefined(); }
 };
 

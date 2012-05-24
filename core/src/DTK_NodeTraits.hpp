@@ -9,6 +9,8 @@
 #ifndef DTK_NODESETTRAITS_HPP
 #define DTK_NODESETTRAITS_HPP
 
+#include <iterator>
+
 namespace DataTransferKit
 {
 
@@ -42,8 +44,9 @@ struct NodeTraits
     //! Teuchos::ScalarTraits. 
     typedef typename T::coordinate_type coordinate_type;
 
-    //! Typedef or const iterator to coordinates.
-    typedef typename T::coordinate_const_iterator coordinate_const_iterator;
+    //! Typedef for coordinate iterator.
+    typedef typename std::iterator<std::random_access_iterator_tag,T>
+    coordinate_iterator;
 
     //! Returns the spatial dimension of the node.
     static inline std::size_t dim( const T &node )
@@ -55,13 +58,11 @@ struct NodeTraits
 
     //! Returns the iterator to the front of the coordinate array of the
     //! node. 
-    static inline coordinate_const_iterator
-    coordsBegin( const T &node )
+    static inline coordinate_iterator coordsBegin( const T &node )
     { return UndefinedNodeTraits<T>::notDefined(); }
 
     //! Returns the iterator to the end of the coordinate array of the node.
-    static inline coordinate_const_iterator
-    coordsEnd( const T &node )
+    static inline coordinate_iterator coordsEnd( const T &node )
     { return UndefinedNodeTraits<T>::notDefined(); }
 };
 

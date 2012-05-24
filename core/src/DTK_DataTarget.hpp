@@ -54,7 +54,7 @@ class DataTarget : public Teuchos::Describable
      * semantics. 
      */
     template<class Communicator>
-    virtual void getTargetComm( const Communicator &target_comm ) = 0;
+    virtual const Communicator& getTargetComm() = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this
@@ -73,7 +73,7 @@ class DataTarget : public Teuchos::Describable
      * to implement NodeTraits.
      */
     template<class NodeField>
-    virtual void getTargetMeshNodes( const NodeField& target_nodes ) = 0;
+    virtual const NodeField& getTargetMeshNodes() = 0;
 
     /*! 
      * \brief Provide a persisting, non-const view of the local data vector
@@ -89,17 +89,7 @@ class DataTarget : public Teuchos::Describable
      * Teuchos::ScalarTraits.
      */
     template<class DataField>
-    virtual void getTargetDataSpace( const std::string &field_name,
-				     DataField &target_data_space ) = 0;
-
-    /*!
-     * \brief Given a field, set a global data element provided by the
-     * source.
-     * \param field_name The name of the field to set data to.
-     * \param data The provided global data element.
-     */
-    virtual void setGlobalTargetData( const std::string &field_name,
-				      const DataType &data ) = 0;
+    virtual DataField& getTargetDataSpace( const std::string &field_name ) = 0;
 };
 
 } // end namespace DataTransferKit

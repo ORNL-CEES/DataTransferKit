@@ -38,20 +38,20 @@ struct FieldTraits
     //! Typedef for value type. The field type must implement
     //! Teuchos::ScalarTraits.
     typedef typename T::value_type value_type;
-
-    //! Typedef for const iterator to the field.
-    typedef typename T::const_iterator const_iterator;
+    
+    //! Typedef for field value random access iterators.
+    typedef typename std::iterator<std::random_access_iterator_tag,T> iterator;
 
     //! Returns the number of elements in the field.
     static inline std::size_t size( const T &field )
     { return UndefinedFieldTraits<T>::notDefined(); }
 
     //! Returns the iterator to the front of the field.
-    static inline const_iterator begin( const T &field )
+    static inline iterator begin( const T &field )
     { return UndefinedFieldTraits<T>::notDefined(); }
 
     //! Returns the iterator to the end of the field.
-    static inline const_iterator end( const T &field )
+    static inline iterator end( const T &field )
     { return UndefinedFieldTraits<T>::notDefined(); }
 };
 

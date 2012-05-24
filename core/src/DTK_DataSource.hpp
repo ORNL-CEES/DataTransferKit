@@ -87,7 +87,7 @@ class DataSource : Teuchos::Describable
      * FieldTraits. ElementField::value_type is expected to implement
      * ElementTraits. 
      */
-    template<class ElementField>
+    template<typename ElementField>
     virtual const ElementField& getSourceMeshElements() = 0;
 
     /*! 
@@ -102,7 +102,7 @@ class DataSource : Teuchos::Describable
      * FieldTraits. ElementField::value_type is expected to implement
      * Teuchos::ScalarTraits.  
      */
-    template<class DataField>
+    template<typename DataField>
     virtual const DataField& 
     getSourceNodeData( const std::string &field_name ) = 0;
 };
