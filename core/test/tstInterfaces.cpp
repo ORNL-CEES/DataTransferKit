@@ -275,6 +275,7 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
     std::vector<MyNode> d_nodes;
     std::vector<MyQuad> d_elements;
     std::vector<double> d_element_data;
+    MPI_Comm d_comm;
 
     void createMesh()
     {
@@ -299,14 +300,19 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
     MyDataSource()
     { 
 	createMesh();
-    }
+
+	Teuchos::MpiComm<int> mpi_comm = 
+	    Teuchos::rcp_implicit_cast< const Teuchos::MpiComm<int> >(
+		getDefaultComm<int>() );
+	d_comm = (*( mpi_comm->getRawMpiComm() ))();
+   }
 
     ~MyDataSource()
     { /* ... */ }
 
     const MPI_Comm& getSourceComm()
     {
-	return getDefaultComm<int>()->getRawMpiComm();
+	return d_comm;
     }
 
     bool isFieldSupported( const std::string &field_name )
@@ -358,6 +364,7 @@ class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
     std::vector<MyNode> d_nodes;
     std::vector<MyQuad> d_elements;
     std::vector<double> d_data;
+    MPI_Comm d_comm;
 
     void createMesh()
     {
@@ -379,6 +386,11 @@ class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
     MyDataTarget()
     { 
 	createMesh();
+
+	Teuchos::MpiComm<int> mpi_comm = 
+	    Teuchos::rcp_implicit_cast< 
+		Teuchos::MpiComm<int> >( getDefaultComm<int>() );
+	d_comm = (*( mpi_comm->getRawMpiComm() ))();
     }
 
     ~MyDataTarget()
