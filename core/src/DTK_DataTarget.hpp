@@ -32,15 +32,15 @@ namespace DataTransferKit
  * Test of DataTarget.
  */
 //===========================================================================//
-template<typename NodeField, typename DataField>
+template<typename TargetNodeField, typename TargetDataField>
 class DataTarget : public Teuchos::Describable
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef NodeField              node_field_type;
-    typedef DataField              data_field_type;
+    typedef TargetNodeField              target_node_field_type;
+    typedef TargetDataField              target_data_field_type;
     //@}
 
     /*!
@@ -74,26 +74,27 @@ class DataTarget : public Teuchos::Describable
      * \brief Provide the target mesh nodes to which data will be transferred.
      * The order of these nodes will correspond to the order of the data
      * returned from the transfer operation.  \param target_nodes View of the
-     * local target nodes. This view required to persist. The NodeField type
-     * is expected to implement FieldTraits. NodeField::value_type is expected
-     * to implement NodeTraits.
+     * local target nodes. This view required to persist. The TargetNodeField
+     * type is expected to implement FieldTraits. TargetNodeField::value_type
+     * is expected to implement NodeTraits. 
      */
-    virtual const NodeField& getTargetNodes() = 0;
+    virtual const TargetNodeField& getTargetNodes() = 0;
 
     /*! 
      * \brief Provide a persisting, non-const view of the local data vector
-     * associated with the nodes provided by get_target_nodes.  \param
-     * field_name The name of the field to receive data from.  \return A
-     * non-const persisting view of the data vector to be populated. This view
-     * has two requirements: 1) It is of size equal to the number of nodes
-     * provided by get_target_nodes, 2) It is a persisting view that will be
-     * used to write data into the underlying vector. The order of the data
-     * provided will be in the same order as the local nodes provided by
-     * get_target_nodes. The DataField type is expected to implement
-     * FieldTraits. ElementField::value_type is expected to implement
-     * Teuchos::ScalarTraits.
+     * associated with the nodes provided by get_target_nodes.  
+     * \param field_name The name of the field to receive data from. 
+     * \return A non-const persisting view of the data vector to be
+     * populated. This view has two requirements: 1) It is of size equal to
+     * the number of nodes provided by getTargetNodes(), 2) It is a persisting
+     * view that will be used to write data into the underlying vector. The
+     * order of the data provided will be in the same order as the local nodes
+     * provided by getTargetNodes(). The TargetDataField type is expected to
+     * implement FieldTraits. ElementField::value_type is expected to
+     * implement Teuchos::ScalarTraits.
      */
-    virtual DataField& getTargetDataSpace( const std::string &field_name ) = 0;
+    virtual TargetDataField& 
+    getTargetDataSpace( const std::string &field_name ) = 0;
 };
 
 } // end namespace DataTransferKit

@@ -42,10 +42,12 @@ struct FieldTraits
     //{@
     //! Typedef for field value random access iterators.
     typedef typename 
-    std::iterator<std::random_access_iterator_tag,value_type> iterator;
+    std::iterator<std::random_access_iterator_tag,value_type> 
+    iterator;
 
     typedef typename 
-    std::const_iterator<std::random_access_iterator_tag,value_type> const_iterator;
+    std::const_iterator<std::random_access_iterator_tag,value_type> 
+    const_iterator;
     //@}
 
     //! Returns the number of elements in the field.

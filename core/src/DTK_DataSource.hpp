@@ -35,16 +35,18 @@ namespace DataTransferKit
  * Test of DataSource.
  */
 //===========================================================================//
-template<typename NodeField, typename ElementField, typename DataField>
+template<typename SourceNodeField, typename TargetNodeField,
+	 typename SourceElementField, typename SourceDataField>
 class DataSource : Teuchos::Describable
 {
   public:
 
     //@{
     //! Typdefs.
-    typedef NodeField              node_field_type;
-    typedef ElementField           element_field_type;
-    typedef DataField              data_field_type;
+    typedef SourceNodeField              source_node_field_type;
+    typedef TargetNodeField              target_node_field_type;
+    typedef SourceElementField           source_element_field_type;
+    typedef SourceDataField              source_data_field_type;
     //@}
 
     /*!
@@ -78,42 +80,39 @@ class DataSource : Teuchos::Describable
      * \brief Provide the local source mesh nodes this includes nodes needed
      * to resolve higher order elements.
      * \param source_nodes View of the local source mesh nodes. This view
-     * is required to persist. The NodeField type is expected to implement
-     * FieldTraits. NodeField::value_type is expected to implement
-     * NodeTraits. 
+     * is required to persist. The SourceNodeField type is expected to
+     * implement FieldTraits. SourceNodeField::value_type is expected to
+     * implement NodeTraits. 
      */
-    virtual const NodeField& getSourceMeshNodes() = 0;
+    virtual const SourceNodeField& getSourceMeshNodes() = 0;
 
     /*! 
      * \brief Provide the local source mesh elements.
      * \param source_elements View of the local source mesh
      * elements. This view is required to persist. The ElementField object
      * passed must be a contiguous memory view of DataTransferKit::Element
-     * objects. The ElementField type is exepected to implement
-     * FieldTraits. ElementField::value_type is expected to implement
-     * ElementTraits. 
+     * objects. The SourceElementField type is exepected to implement
+     * FieldTraits. SourceElementField::value_type is expected to implement
+     * ElementTraits.  
      */
-    virtual const ElementField& getSourceMeshElements() = 0;
+    virtual const SourceElementField& getSourceMeshElements() = 0;
 
     /*! 
-     * \brief Provide a const view of the local source data at the source mesh
-     * nodes for a given field.
+     * \brief Provide a const view of the local source data evaluated in the
+     * given source mesh elements at the given nodes.
      * \param field_name The name of the field to provide data from.
-     * \param source_node_data A persisting view of data to be sent. There are
-     * two requirements for this view: 1) it is of size equal to the number of
-     * source mesh nodes in the local domain, 2) the data is in the same order
-     * as the nodes found provided by getSourceMeshNodes. This view is
-     * required to persist. The DataField type is expected to implement
-     * FieldTraits. ElementField::value_type is expected to implement
-     * Teuchos::ScalarTraits.  
+     * \param element_field The local elements in which to evaluate the field.
+     * \param node_field The nodes at which to evaluate the field. This type
+     * can be expected to implement FieldTraits and
+     * TargetNodeField::value_type can be expected to implement NodeTraits.
+     * \return The evaluated field data at the nodes. The DataField type is
+     * expected to implement FieldTraits. ElementField::value_type is expected
+     * to implement Teuchos::ScalarTraits.  
      */
-    virtual const DataField& 
-    getSourceNodeData( const std::string &field_name ) = 0;
-
-    virtual const DataField&
-    evaluateField( const std::string& field_name,
-		   const ElementField& element_field,
-		   const NodeField& node_field );
+    virtual const SourceDataField&
+    evaluateFieldOnTargetNodes( const std::string& field_name,
+				const SourceElementField& element_field,
+				const TargetNodeField& node_field ) = 0;
 };
 
 } // end namespace DataTransferKit
