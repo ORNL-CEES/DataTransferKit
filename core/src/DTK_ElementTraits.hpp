@@ -58,12 +58,14 @@ struct ElementTraits
 
     //! Returns the iterator to the front of the connectivity array of the
     //! element. 
-    static inline const_connectivity_iterator connectivityBegin( const T &element )
+    static inline const_connectivity_iterator 
+    connectivityBegin( const T &element )
     { return UndefinedElementTraits<T>::notDefined(); }
 
     //! Return the iterator to the end of the connectivity array of the
     //! element. 
-    static inline const_connectivity_iterator connectivityEnd( const T &element )
+    static inline const_connectivity_iterator 
+    connectivityEnd( const T &element )
     { return UndefinedElementTraits<T>::notDefined(); }
 };
 

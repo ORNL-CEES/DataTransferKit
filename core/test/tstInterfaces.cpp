@@ -133,7 +133,8 @@ struct NodeTraits<MyNode>
 {
     typedef typename MyNode::handle_type                 handle_type;
     typedef typename MyNode::coordinate_type             coordinate_type;
-    typedef typename std::vector<double>::const_iterator coordinate_iterator;
+    typedef typename std::vector<double>::const_iterator 
+    const_coordinate_iterator;
     
     static inline std::size_t dim( const MyNode& node ) 
     { return node.dim();}
@@ -141,10 +142,10 @@ struct NodeTraits<MyNode>
     static inline handle_type handle( const MyNode& node ) 
     { return node.handle(); }
     
-    static inline coordinate_iterator coordsBegin( const MyNode& node ) 
+    static inline const_coordinate_iterator coordsBegin( const MyNode& node ) 
     { return node.coordsBegin(); }
 
-    static inline coordinate_iterator coordsEnd( const MyNode& node ) 
+    static inline const_coordinate_iterator coordsEnd( const MyNode& node ) 
     { return node.coordsEnd(); }
 };
 
@@ -154,21 +155,24 @@ template<>
 struct ElementTraits<MyQuad>
 {
     typedef typename MyQuad::handle_type              handle_type;
-    typedef typename std::vector<int>::const_iterator connectivity_iterator;
+    typedef typename std::vector<int>::const_iterator 
+    const_connectivity_iterator;
 
     static inline std::size_t topology()
     { return DTK_QUADRILATERAL; }
 
-    static inline std::size_t num_nodes()
+    static inline std::size_t numNodes()
     { return 4; }
 
     static inline handle_type handle( const MyQuad &quad )
     { return quad.handle(); }
 
-    static inline connectivity_iterator connectivityBegin( const MyQuad &quad )
+    static inline const_connectivity_iterator 
+    connectivityBegin( const MyQuad &quad )
     { return quad.connectivityBegin(); }
 
-    static inline connectivity_iterator connectivityEnd( const MyQuad &quad )
+    static inline const_connectivity_iterator 
+    connectivityEnd( const MyQuad &quad )
     { return quad.connectivityEnd(); }
 };
 
@@ -178,7 +182,8 @@ template<>
 struct FieldTraits< std::vector<MyNode> >
 {
     typedef MyNode                                value_type;
-    typedef std::vector<MyNode>::const_iterator   iterator;
+    typedef std::vector<MyNode>::iterator         iterator;
+    typedef std::vector<MyNode>::const_iterator   const_iterator;
     
     static inline std::size_t size( const std::vector<MyNode> &node_field )
     { return node_field.size(); }
@@ -186,8 +191,17 @@ struct FieldTraits< std::vector<MyNode> >
     static iterator begin( const std::vector<MyNode> &node_field )
     { return node_field.begin(); }
 
+    static const_iterator begin( const std::vector<MyNode> &node_field )
+    { return node_field.begin(); }
+
     static inline iterator end( const std::vector<MyNode> &node_field )
     { return node_field.end(); }
+
+    static inline const_iterator end( const std::vector<MyNode> &node_field )
+    { return node_field.end(); }
+
+    static inline bool empty( const std::vector<MyNode> &node_field )
+    { return node_field.empty(); }
 };
 
 //---------------------------------------------------------------------------//
@@ -196,7 +210,8 @@ template<>
 struct FieldTraits< std::vector<MyQuad> >
 {
     typedef MyQuad                                value_type;
-    typedef std::vector<MyQuad>::const_iterator   iterator;
+    typedef std::vector<MyQuad>::iterator         iterator;
+    typedef std::vector<MyQuad>::const_iterator   const_iterator;
     
     static inline std::size_t size( const std::vector<MyQuad> &quad_field )
     { return quad_field.size(); }
@@ -204,8 +219,17 @@ struct FieldTraits< std::vector<MyQuad> >
     static inline iterator begin( const std::vector<MyQuad> &quad_field )
     { return quad_field.begin(); }
 
+    static inline const_iterator begin( const std::vector<MyQuad> &quad_field )
+    { return quad_field.begin(); }
+
     static inline iterator end( const std::vector<MyQuad> &quad_field )
     { return quad_field.end(); }
+
+    static inline const_iterator end( const std::vector<MyQuad> &quad_field )
+    { return quad_field.end(); }
+
+    static inline bool empty(  const std::vector<MyQuad> &quad_field )
+    { return quad_field.empty(); }
 };
 
 //---------------------------------------------------------------------------//
@@ -215,6 +239,7 @@ struct FieldTraits< std::vector<double> >
 {
     typedef MyNode value_type;
     typedef std::vector<double>::iterator iterator;
+    typedef std::vector<double>::const_iterator const_iterator;
     
     static inline std::size_t size( const std::vector<double> &data_field )
     { return data_field.size(); }
@@ -222,8 +247,17 @@ struct FieldTraits< std::vector<double> >
     static inline iterator begin( const std::vector<double> &data_field )
     { return data_field.begin(); }
 
+    static inline const_iterator begin( const std::vector<double> &data_field )
+    { return data_field.begin(); }
+
     static inline iterator end( const std::vector<double> &data_field )
     { return data_field.end(); }
+
+    static inline const_iterator end( const std::vector<double> &data_field )
+    { return data_field.end(); }
+
+    static inline bool empty( const std::vector<double> &data_field )
+    { return data_field.empty(); }
 };
 
 }
@@ -239,7 +273,7 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 
     std::vector<MyNode> d_nodes;
     std::vector<MyQuad> d_elements;
-    std::vector<double> d_data;
+    std::vector<double> d_element_data;
 
     void createMesh()
     {
@@ -253,10 +287,10 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 	d_elements.push_back( MyQuad( 0, 1, 2, 3, 8 ) );
 
 	// Add some data for the nodes.
-	d_data.push_back( 1.5 );
-	d_data.push_back( 3.5 );
-	d_data.push_back( 7.5 );
-	d_data.push_back( 9.5 );
+	d_element_data.push_back( 1.5 );
+	d_element_data.push_back( 3.5 );
+	d_element_data.push_back( 7.5 );
+	d_element_data.push_back( 9.5 );
     }
 
   public:
@@ -294,12 +328,14 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 	return d_elements;
     }
 
-    const std::vector<double>&
-    getSourceNodeData( const std::string& field_name )
+    const std::vector<double>& evaluateFieldOnTargetNodes( 
+	const std::string &field_name,
+	const std::vector<MyQuad::handle_type> &element_handles,
+	const std::vector<MyNode::coordinate_type> &node_coordinates )
     {
 	if ( field_name == "MY_DATA_FIELD" )
 	{
-	    return d_data;
+	    return d_element_data;
 	}
 	else
 	{

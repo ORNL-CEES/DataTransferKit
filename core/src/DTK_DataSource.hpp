@@ -1,7 +1,7 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   DTK_DataSource.hpp
- * \author Stuart Slattery
+ * \author Stuart R. Slattery
  * \date   Thu Nov 17 07:53:43 2011
  * \brief  Interface declaration for data source applications.
  */
@@ -11,8 +11,11 @@
 #define DTK_DATASOURCE_HPP
 
 #include <string>
+#include <vector>
 
 #include <mpi.h>
+
+#include "FieldTraits.hpp"
 
 #include <Teuchos_Describable.hpp>
 
@@ -35,18 +38,23 @@ namespace DataTransferKit
  * Test of DataSource.
  */
 //===========================================================================//
-template<typename SourceNodeField, typename TargetNodeField,
-	 typename SourceElementField, typename SourceDataField>
+template<typename NodeField, typename ElementField, typename DataField>
 class DataSource : Teuchos::Describable
 {
   public:
 
     //@{
     //! Typdefs.
-    typedef SourceNodeField              source_node_field_type;
-    typedef TargetNodeField              target_node_field_type;
-    typedef SourceElementField           source_element_field_type;
-    typedef SourceDataField              source_data_field_type;
+    typedef NodeField                                   node_field_type;
+    typedef FieldTraits<NodeField>::value_type          node_type;
+    typedef NodeTraits<node_type>::coordinate_type      node_coordinate_type;
+    typedef ElementField                                element_field_type;
+    typedef FieldTraits<ElementField>::value_type       element_type;
+    typedef ElememntTraits<element_type>::handle_type   element_handle_type;
+    typedef DataField                                   data_field_type;
+    typedef FieldTraits<DataField>::value_type          data_type;
+    typedef std::vector<node_coordinate_type>           CoordinateVector;
+    typedef std::vector<element_handle_type>            HandleVector;
     //@}
 
     /*!
@@ -80,39 +88,40 @@ class DataSource : Teuchos::Describable
      * \brief Provide the local source mesh nodes this includes nodes needed
      * to resolve higher order elements.
      * \param source_nodes View of the local source mesh nodes. This view
-     * is required to persist. The SourceNodeField type is expected to
-     * implement FieldTraits. SourceNodeField::value_type is expected to
+     * is required to persist. The NodeField type is expected to
+     * implement FieldTraits. NodeField::value_type is expected to
      * implement NodeTraits. 
      */
-    virtual const SourceNodeField& getSourceMeshNodes() = 0;
+    virtual const NodeField& getSourceMeshNodes() = 0;
 
     /*! 
      * \brief Provide the local source mesh elements.
      * \param source_elements View of the local source mesh
      * elements. This view is required to persist. The ElementField object
      * passed must be a contiguous memory view of DataTransferKit::Element
-     * objects. The SourceElementField type is exepected to implement
-     * FieldTraits. SourceElementField::value_type is expected to implement
+     * objects. The ElementField type is exepected to implement
+     * FieldTraits. ElementField::value_type is expected to implement
      * ElementTraits.  
      */
-    virtual const SourceElementField& getSourceMeshElements() = 0;
+    virtual const ElementField& getSourceMeshElements() = 0;
 
     /*! 
      * \brief Provide a const view of the local source data evaluated in the
      * given source mesh elements at the given nodes.
      * \param field_name The name of the field to provide data from.
-     * \param element_field The local elements in which to evaluate the field.
-     * \param node_field The nodes at which to evaluate the field. This type
-     * can be expected to implement FieldTraits and
-     * TargetNodeField::value_type can be expected to implement NodeTraits.
-     * \return The evaluated field data at the nodes. The DataField type is
-     * expected to implement FieldTraits. ElementField::value_type is expected
-     * to implement Teuchos::ScalarTraits.  
+     * \param element_handles The local element handles in which to evaluate
+     * the field. See typedef for type construction.
+     * \param node_field The nodes at which to evaluate the field. This vector
+     * will be the length of the element handle vector times the
+     * dimensionality of the coordinate. See typedef for type construction.
+     * \return The evaluated field data at the nodes. The DataField type
+     * is expected to implement FieldTraits. DataField::value_type is
+     * expected to implement Teuchos::ScalarTraits. 
      */
-    virtual const SourceDataField&
+    virtual const DataField&
     evaluateFieldOnTargetNodes( const std::string& field_name,
-				const SourceElementField& element_field,
-				const TargetNodeField& node_field ) = 0;
+				const HandleVector& element_handles,
+				const CoordinateVector& node_coordinates ) = 0;
 };
 
 } // end namespace DataTransferKit

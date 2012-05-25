@@ -1,7 +1,7 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
  * \file   DTK_DataTarget.hpp
- * \author Stuart Slattery
+ * \author Stuart R. Slattery
  * \date   Thu Nov 17 07:53:54 2011
  * \brief  Interface definition for transfer data targets.
  */
@@ -13,6 +13,8 @@
 #include <string>
 
 #include <mpi.h>
+
+#include "FieldTraits.hpp"
 
 #include <Teuchos_Describable.hpp>
 
@@ -32,15 +34,17 @@ namespace DataTransferKit
  * Test of DataTarget.
  */
 //===========================================================================//
-template<typename TargetNodeField, typename TargetDataField>
+template<typename NodeField, typename DataField>
 class DataTarget : public Teuchos::Describable
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef TargetNodeField              target_node_field_type;
-    typedef TargetDataField              target_data_field_type;
+    typedef NodeField                             node_field_type;
+    typedef FieldTraits<NodeField>::value_type    node_type;
+    typedef DataField                             data_field_type;
+    typedef FieldTraits<DataField>::value_type    data_type;
     //@}
 
     /*!
@@ -74,11 +78,11 @@ class DataTarget : public Teuchos::Describable
      * \brief Provide the target mesh nodes to which data will be transferred.
      * The order of these nodes will correspond to the order of the data
      * returned from the transfer operation.  \param target_nodes View of the
-     * local target nodes. This view required to persist. The TargetNodeField
-     * type is expected to implement FieldTraits. TargetNodeField::value_type
+     * local target nodes. This view required to persist. The NodeField
+     * type is expected to implement FieldTraits. NodeField::value_type
      * is expected to implement NodeTraits. 
      */
-    virtual const TargetNodeField& getTargetNodes() = 0;
+    virtual const NodeField& getTargetNodes() = 0;
 
     /*! 
      * \brief Provide a persisting, non-const view of the local data vector
@@ -89,12 +93,11 @@ class DataTarget : public Teuchos::Describable
      * the number of nodes provided by getTargetNodes(), 2) It is a persisting
      * view that will be used to write data into the underlying vector. The
      * order of the data provided will be in the same order as the local nodes
-     * provided by getTargetNodes(). The TargetDataField type is expected to
+     * provided by getTargetNodes(). The DataField type is expected to
      * implement FieldTraits. ElementField::value_type is expected to
      * implement Teuchos::ScalarTraits.
      */
-    virtual TargetDataField& 
-    getTargetDataSpace( const std::string &field_name ) = 0;
+    virtual DataField& getTargetDataSpace( const std::string &field_name ) = 0;
 };
 
 } // end namespace DataTransferKit
