@@ -37,6 +37,12 @@ class DataTarget : public Teuchos::Describable
 {
   public:
 
+    //@{
+    //! Typedefs.
+    typedef NodeField              node_field_type;
+    typedef DataField              data_field_type;
+    //@}
+
     /*!
      * \brief Constructor.
      */

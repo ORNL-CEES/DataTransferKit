@@ -40,7 +40,8 @@ struct ElementTraits
     typedef typename T::handle_type handle_type;
 
     //! Typdef for element connectivity random access iterator.
-    typedef typename std::iterator<std::random_access_iterator_tag,handle_type> 
+    typedef typename 
+    std::const_iterator<std::random_access_iterator_tag,handle_type> 
     const_connectivity_iterator;
 
     //! Returns the topology of the element (DTK_ElementTopolpogy enum).
