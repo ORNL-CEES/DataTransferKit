@@ -4,9 +4,10 @@
  * \author Stuart R. Slattery
  * \brief Declaration of element traits.
  */
+//---------------------------------------------------------------------------//
 
-#ifndef DTK_NODESETTRAITS_HPP
-#define DTK_NODESETTRAITS_HPP
+#ifndef DTK_ELEMENTTRAITS_HPP
+#define DTK_ELEMENTTRAITS_HPP
 
 namespace DataTransferKit
 {
@@ -46,6 +47,10 @@ struct ElementTraits
     static inline std::size_t topology()
     { return UndefinedElementTraits<T>::notDefined(); }
 
+    //! Returns the number of nodes that construct the element.
+    static inline std::size_t numNodes()
+    { return UndefinedElementTraits<T>::notDefined(); }
+
     //! Returns the handle of the element.
     static inline handle_type handle( const T &element )
     { return UndefinedElementTraits<T>::notDefined(); }
@@ -63,7 +68,7 @@ struct ElementTraits
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_ELEMENTSETTRAITS_HPP
+#endif // end DTK_ELEMENTTRAITS_HPP
 
 //---------------------------------------------------------------------------//
 // end DTK_ElementTraits.hpp

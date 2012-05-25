@@ -22,7 +22,7 @@ enum DTK_ElementTopology {
     DTK_TETRAHEDRON,
     DTK_HEXAHEDRON,
     DTK_WEDGE,
-    DTK_ElementTopology_MAX = DTK_WEDGE,
+    DTK_ElementTopology_MAX = DTK_WEDGE
 };
 
 } // end namespace DataTransferKit

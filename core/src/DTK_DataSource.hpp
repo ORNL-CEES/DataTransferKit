@@ -12,6 +12,8 @@
 
 #include <string>
 
+#include <mpi.h>
+
 #include <Teuchos_Describable.hpp>
 
 namespace DataTransferKit
@@ -33,6 +35,7 @@ namespace DataTransferKit
  * Test of DataSource.
  */
 //===========================================================================//
+template<typename NodeField, typename ElementField, typename DataField>
 class DataSource : Teuchos::Describable
 {
   public:
@@ -52,12 +55,9 @@ class DataSource : Teuchos::Describable
     /*!
      * \brief Get the communicator object for the physics implementing this
      * interface.
-     * \param source_comm The communicator for the source application. This
-     * class is required to implement MPI primitives and use reference
-     * semantics.
+     * \param source_comm The MPI communicator for the source application.
      */
-    template<class Communicator>
-    virtual const Communicator& getSourceComm() = 0;
+    virtual const MPI_Comm& getSourceComm() = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this
@@ -75,7 +75,6 @@ class DataSource : Teuchos::Describable
      * FieldTraits. NodeField::value_type is expected to implement
      * NodeTraits. 
      */
-    template<typename NodeField>
     virtual const NodeField& getSourceMeshNodes() = 0;
 
     /*! 
@@ -87,12 +86,11 @@ class DataSource : Teuchos::Describable
      * FieldTraits. ElementField::value_type is expected to implement
      * ElementTraits. 
      */
-    template<typename ElementField>
     virtual const ElementField& getSourceMeshElements() = 0;
 
     /*! 
      * \brief Provide a const view of the local source data at the source mesh
-     * nodes. 
+     * nodes for a given field.
      * \param field_name The name of the field to provide data from.
      * \param source_node_data A persisting view of data to be sent. There are
      * two requirements for this view: 1) it is of size equal to the number of
@@ -102,7 +100,6 @@ class DataSource : Teuchos::Describable
      * FieldTraits. ElementField::value_type is expected to implement
      * Teuchos::ScalarTraits.  
      */
-    template<typename DataField>
     virtual const DataField& 
     getSourceNodeData( const std::string &field_name ) = 0;
 };

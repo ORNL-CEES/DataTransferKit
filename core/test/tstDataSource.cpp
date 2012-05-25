@@ -98,7 +98,7 @@ class MyQuad
 
     MyQuad( int node_1, int node_2, int node_3, int node_4, 
 	    int handle )
-	, d_handle( handle )
+	: d_handle( handle )
     {
 	d_connectivity.push_back( node_1 );
 	d_connectivity.push_back( node_2 );
@@ -156,6 +156,9 @@ struct ElementTraits<MyQuad>
     static inline std::size_t topology()
     { return DTK_QUADRILATERAL; }
 
+    static inline std::size_t num_nodes()
+    { return 4; }
+
     static inline handle_type handle( const MyQuad &quad )
     { return quad.handle(); }
 
@@ -173,16 +176,15 @@ template<>
 struct FieldTraits< std::vector<MyNode> >
 {
     typedef MyNode value_type;
+    typedef std::vector<MyNode>::const_iterator iterator;
     
     static inline std::size_t size( const std::vector<MyNode> &node_field )
     { return node_field.size(); }
 
-    static inline std::vector<MyNode>::const_iterator 
-    begin( const std::vector<MyNode> &node_field )
+    static iterator begin( const std::vector<MyNode> &node_field )
     { return node_field.begin(); }
 
-    static inline std::vector<MyNode>::const_iterator 
-    end( const std::vector<MyNode> &node_field )
+    static inline iterator end( const std::vector<MyNode> &node_field )
     { return node_field.end(); }
 };
 
@@ -191,16 +193,15 @@ template<>
 struct FieldTraits< std::vector<MyQuad> >
 {
     typedef MyQuad value_type;
+    typedef std::vector<MyQuad>::const_iterator iterator;
     
     static inline std::size_t size( const std::vector<MyQuad> &quad_field )
     { return quad_field.size(); }
 
-    static inline std::vector<MyQuad>::const_iterator 
-    begin( const std::vector<MyQuad> &quad_field )
+    static inline iterator begin( const std::vector<MyQuad> &quad_field )
     { return quad_field.begin(); }
 
-    static inline std::vector<MyQuad>::const_iterator 
-    end( const std::vector<MyQuad> &quad_field )
+    static inline iterator end( const std::vector<MyQuad> &quad_field )
     { return quad_field.end(); }
 };
 
@@ -209,16 +210,15 @@ template<>
 struct FieldTraits< std::vector<double> >
 {
     typedef MyNode value_type;
+    typedef std::vector<double>::const_iterator iterator;
     
     static inline std::size_t size( const std::vector<double> &data_field )
     { return data_field.size(); }
 
-    static inline std::vector<double>::const_iterator 
-    begin( const std::vector<double> &data_field )
+    static inline iterator begin( const std::vector<double> &data_field )
     { return data_field.begin(); }
 
-    static inline std::vector<double>::const_iterator 
-    end( const std::vector<double> &data_field )
+    static inline iterator end( const std::vector<double> &data_field )
     { return data_field.end(); }
 };
 
@@ -227,13 +227,14 @@ struct FieldTraits< std::vector<double> >
 //---------------------------------------------------------------------------//
 // DataSource Implementation
 //---------------------------------------------------------------------------//
-
-class MyDataSource : public DataTransferKit::DataSource
+class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
+							 std::vector<MyQuad>,
+							 std::vector<double> >
 {
   private:
 
     std::vector<MyNode> d_nodes;
-    std::vector<MyElements> d_elements;
+    std::vector<MyQuad> d_elements;
     std::vector<double> d_data;
 
     void createMesh()
@@ -292,12 +293,15 @@ class MyDataSource : public DataTransferKit::DataSource
     const std::vector<double>&
     getSourceNodeData( const std::string& field_name )
     {
-	std::vector<double> return_vec;
 	if ( field_name == "MY_DATA_FIELD" )
 	{
-	    return_vec = d_data;
+	    return d_data;
 	}
-	return return_vec;
+	else
+	{
+	    std::vector<double> empty_vec;
+	    return empty_vec;
+	}
     }
 };
 
@@ -305,12 +309,13 @@ class MyDataSource : public DataTransferKit::DataSource
 // DataTarget implementation.
 //---------------------------------------------------------------------------//
 
-class MyDataTarget : public DataTransferKit::DataTarget
+class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
+							 std::vector<double> >
 {
   private:
 
     std::vector<MyNode> d_nodes;
-    std::vector<MyElements> d_elements;
+    std::vector<MyQuad> d_elements;
     std::vector<double> d_data;
 
     void createMesh()
@@ -361,12 +366,15 @@ class MyDataTarget : public DataTransferKit::DataTarget
     std::vector<double>&
     getTargetDataSpace( const std::string& field_name )
     {
-	std::vector<double> return_vec;
 	if ( field_name == "MY_DATA_FIELD" )
 	{
-	    return_vec = d_data;
+	    return d_data;
 	}
-	return return_vec;
+	else
+	{
+	    std::vector<double> empty_vec;
+	    return empty_vec;
+	}
     }
 
     const std::vector<double>& getData() const
@@ -376,20 +384,21 @@ class MyDataTarget : public DataTransferKit::DataTarget
 //---------------------------------------------------------------------------//
 // Copy function.
 //---------------------------------------------------------------------------//
-
 template<typename DataField>
 void copyData( const DataField &source_field, DataField &target_field )
 {
+    using namespace DataTransferKit;
+
     TEST_ASSERT( FieldTraits<DataField>::size( source_field ) ==
 		 FieldTraits<DataField>::size( target_field ) );
 
-    typename FieldTraits<DataField>::iterator( source_field ) source_begin = 
+    typename FieldTraits<DataField>::iterator source_begin = 
 	FieldTraits<DataField>::begin( source_field );
 
-    typename FieldTraits<DataField>::iterator( source_field ) source_end = 
+    typename FieldTraits<DataField>::iterator source_end = 
 	FieldTraits<DataField>::end( source_field );
 
-    typename FieldTraits<DataField>::iterator( target_field ) target_begin = 
+    typename FieldTraits<DataField>::iterator target_begin = 
 	FieldTraits<DataField>::begin( target_field );
 
     std::copy( source_begin, source_end, target_begin );
@@ -403,6 +412,8 @@ void copyData( const DataField &source_field, DataField &target_field )
 template<typename NodeField>
 void checkNodes( const NodeField &node_field )
 {
+    using namespace DataTransferKit;
+
     typedef typename FieldTraits<NodeField>::value_type NodeType;
 
     TEST_ASSERT( FieldTraits<NodeField>::size( node_field ) == 3 );
@@ -421,7 +432,7 @@ void checkNodes( const NodeField &node_field )
 	typename NodeTraits<NodeType>::coordinate_iterator coord_iterator;
 	for ( coord_iterator = NodeTraits<NodeType>::coordsBegin( *node_iterator );
 	      coord_iterator != NodeTraits<NodeType>::coordsEnd( *node_iterator );
-	      ++coord_iterator }
+	      ++coord_iterator )
 	{
 	    TEST_ASSERT( *coord_iterator == coord_val );
 	    coord_val += 1.0;
@@ -435,6 +446,8 @@ void checkNodes( const NodeField &node_field )
 template<typename ElementField>
 void checkElements( const ElementField &element_field )
 {
+    using namespace DataTransferKit;
+
     typedef typename FieldTraits<ElementField>::value_type ElementType;
 
     TEST_ASSERT( FieldTraits<ElementField>::size( element_field ) == 1 );
@@ -459,6 +472,8 @@ void checkElements( const ElementField &element_field )
 template<typename DataField>
 void checkNodeData( const DataField &data_field )
 {
+    using namespace DataTransferKit;
+
     TEST_ASSERT( FieldTraits<DataField>::size( data_field ) == 4 );
 
     double gold_data = 1.5;
@@ -476,6 +491,8 @@ void checkNodeData( const DataField &data_field )
 template<typename DataField>
 void checkWriteData( DataField &data_field )
 {
+    using namespace DataTransferKit;
+    
     TEST_ASSERT( FieldTraits<DataField>::size( data_field ) == 4 );
 
     double gold_data = 1.5;

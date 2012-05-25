@@ -12,6 +12,8 @@
 
 #include <string>
 
+#include <mpi.h>
+
 #include <Teuchos_Describable.hpp>
 
 namespace DataTransferKit
@@ -30,6 +32,7 @@ namespace DataTransferKit
  * Test of DataTarget.
  */
 //===========================================================================//
+template<typename NodeField, typename DataField>
 class DataTarget : public Teuchos::Describable
 {
   public:
@@ -49,12 +52,9 @@ class DataTarget : public Teuchos::Describable
     /*!
      * \brief Get the communicator object for the physics implementing this
      * interface.  
-     * \param target_comm The communicator for the target application. This
-     * class is required to implement MPI primitives and use reference
-     * semantics. 
+     * \param target_comm The MPI communicator for the target application.
      */
-    template<class Communicator>
-    virtual const Communicator& getTargetComm() = 0;
+    virtual const MPI_Comm& getTargetComm() = 0;
 
     /*!
      * \brief Check whether or not a field is supported. Return false if this
@@ -72,7 +72,6 @@ class DataTarget : public Teuchos::Describable
      * is expected to implement FieldTraits. NodeField::value_type is expected
      * to implement NodeTraits.
      */
-    template<class NodeField>
     virtual const NodeField& getTargetMeshNodes() = 0;
 
     /*! 
@@ -88,7 +87,6 @@ class DataTarget : public Teuchos::Describable
      * FieldTraits. ElementField::value_type is expected to implement
      * Teuchos::ScalarTraits.
      */
-    template<class DataField>
     virtual DataField& getTargetDataSpace( const std::string &field_name ) = 0;
 };
 
