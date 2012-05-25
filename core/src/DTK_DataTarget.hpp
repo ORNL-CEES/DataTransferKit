@@ -72,7 +72,7 @@ class DataTarget : public Teuchos::Describable
      * is expected to implement FieldTraits. NodeField::value_type is expected
      * to implement NodeTraits.
      */
-    virtual const NodeField& getTargetMeshNodes() = 0;
+    virtual const NodeField& getTargetNodes() = 0;
 
     /*! 
      * \brief Provide a persisting, non-const view of the local data vector

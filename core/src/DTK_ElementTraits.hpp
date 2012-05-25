@@ -40,8 +40,8 @@ struct ElementTraits
     typedef typename T::handle_type handle_type;
 
     //! Typdef for element connectivity random access iterator.
-    typedef typename std::iterator<std::random_access_iterator_tag,T> 
-    connectivity_iterator;
+    typedef typename std::iterator<std::random_access_iterator_tag,handle_type> 
+    const_connectivity_iterator;
 
     //! Returns the topology of the element (DTK_ElementTopolpogy enum).
     static inline std::size_t topology()
@@ -57,12 +57,12 @@ struct ElementTraits
 
     //! Returns the iterator to the front of the connectivity array of the
     //! element. 
-    static inline connectivity_iterator connectivityBegin( const T &element )
+    static inline const_connectivity_iterator connectivityBegin( const T &element )
     { return UndefinedElementTraits<T>::notDefined(); }
 
     //! Return the iterator to the end of the connectivity array of the
     //! element. 
-    static inline connectivity_iterator connectivityEnd( const T &element )
+    static inline const_connectivity_iterator connectivityEnd( const T &element )
     { return UndefinedElementTraits<T>::notDefined(); }
 };
 

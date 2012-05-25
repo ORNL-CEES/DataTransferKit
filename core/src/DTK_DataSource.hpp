@@ -40,6 +40,13 @@ class DataSource : Teuchos::Describable
 {
   public:
 
+    //@{
+    //! Typdefs.
+    typedef NodeField              node_field_type;
+    typedef ElementField           element_field_type;
+    typedef DataField              data_field_type;
+    //@}
+
     /*!
      * \brief Constructor.
      */
@@ -102,6 +109,11 @@ class DataSource : Teuchos::Describable
      */
     virtual const DataField& 
     getSourceNodeData( const std::string &field_name ) = 0;
+
+    virtual const DataField&
+    evaluateField( const std::string& field_name,
+		   const ElementField& element_field,
+		   const NodeField& node_field );
 };
 
 } // end namespace DataTransferKit

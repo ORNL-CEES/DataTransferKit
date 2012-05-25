@@ -95,10 +95,10 @@ class MyQuad
 
   public:
 
-    typedef int handle_type;
+    typedef std::size_t handle_type;
 
     MyQuad( int node_1, int node_2, int node_3, int node_4, 
-	    int handle )
+	    std::size_t handle )
 	: d_handle( handle )
     {
 	d_connectivity.push_back( node_1 );
@@ -126,6 +126,7 @@ class MyQuad
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
 // NodeTraits specialization for the MyNode implementation.
 template<>
 struct NodeTraits<MyNode>
@@ -147,6 +148,7 @@ struct NodeTraits<MyNode>
     { return node.coordsEnd(); }
 };
 
+//---------------------------------------------------------------------------//
 // ElementTraits specialization for the MyQuad implementation.
 template<>
 struct ElementTraits<MyQuad>
@@ -170,6 +172,7 @@ struct ElementTraits<MyQuad>
     { return quad.connectivityEnd(); }
 };
 
+//---------------------------------------------------------------------------//
 // FieldTraits specialization for the node field.
 template<>
 struct FieldTraits< std::vector<MyNode> >
@@ -187,6 +190,7 @@ struct FieldTraits< std::vector<MyNode> >
     { return node_field.end(); }
 };
 
+//---------------------------------------------------------------------------//
 // FieldTraits specialization for the element field.
 template<>
 struct FieldTraits< std::vector<MyQuad> >
@@ -204,6 +208,7 @@ struct FieldTraits< std::vector<MyQuad> >
     { return quad_field.end(); }
 };
 
+//---------------------------------------------------------------------------//
 // FieldTraits specialization for the data field.
 template<>
 struct FieldTraits< std::vector<double> >
@@ -406,7 +411,6 @@ void copyData( const DataField &source_field, DataField &target_field )
 //---------------------------------------------------------------------------//
 // Check functions.
 //---------------------------------------------------------------------------//
-
 // Check the mesh nodes.
 template<typename NodeField>
 void checkNodes( const NodeField &node_field )
@@ -441,6 +445,7 @@ void checkNodes( const NodeField &node_field )
     }
 }
 
+//---------------------------------------------------------------------------//
 // Check the mesh elements.
 template<typename ElementField>
 void checkElements( const ElementField &element_field )
@@ -467,6 +472,7 @@ void checkElements( const ElementField &element_field )
     }
 }
 
+//---------------------------------------------------------------------------//
 // Check the node data.
 template<typename DataField>
 void checkNodeData( const DataField &data_field )
@@ -486,6 +492,7 @@ void checkNodeData( const DataField &data_field )
     }
 }
 
+//---------------------------------------------------------------------------//
 // Check that we can write data to the target.
 template<typename DataField>
 void checkWriteData( DataField &data_field )

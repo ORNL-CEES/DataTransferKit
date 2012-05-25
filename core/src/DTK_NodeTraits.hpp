@@ -45,8 +45,8 @@ struct NodeTraits
     typedef typename T::coordinate_type coordinate_type;
 
     //! Typedef for coordinate iterator.
-    typedef typename std::iterator<std::random_access_iterator_tag,T>
-    coordinate_iterator;
+    typedef typename std::iterator<std::random_access_iterator_tag,coordinate_type>
+    const_coordinate_iterator;
 
     //! Returns the spatial dimension of the node.
     static inline std::size_t dim( const T &node )
@@ -58,11 +58,11 @@ struct NodeTraits
 
     //! Returns the iterator to the front of the coordinate array of the
     //! node. 
-    static inline coordinate_iterator coordsBegin( const T &node )
+    static inline const_coordinate_iterator coordsBegin( const T &node )
     { return UndefinedNodeTraits<T>::notDefined(); }
 
     //! Returns the iterator to the end of the coordinate array of the node.
-    static inline coordinate_iterator coordsEnd( const T &node )
+    static inline const_coordinate_iterator coordsEnd( const T &node )
     { return UndefinedNodeTraits<T>::notDefined(); }
 };
 

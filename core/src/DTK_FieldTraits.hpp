@@ -40,18 +40,29 @@ struct FieldTraits
     typedef typename T::value_type value_type;
     
     //! Typedef for field value random access iterators.
-    typedef typename std::iterator<std::random_access_iterator_tag,T> iterator;
+    typedef typename std::iterator<std::random_access_iterator_tag,value_type> iterator;
+    typedef typename std::iterator<std::random_access_iterator_tag,value_type> const_iterator;
 
     //! Returns the number of elements in the field.
     static inline std::size_t size( const T &field )
     { return UndefinedFieldTraits<T>::notDefined(); }
 
     //! Returns the iterator to the front of the field.
-    static inline iterator begin( const T &field )
+    static inline iterator begin( T &field )
+    { return UndefinedFieldTraits<T>::notDefined(); }
+
+    static inline const_iterator begin( const T &field )
     { return UndefinedFieldTraits<T>::notDefined(); }
 
     //! Returns the iterator to the end of the field.
-    static inline iterator end( const T &field )
+    static inline iterator end( T &field )
+    { return UndefinedFieldTraits<T>::notDefined(); }
+
+    static inline const_iterator end( const T &field )
+    { return UndefinedFieldTraits<T>::notDefined(); }
+
+    //! Returns if the field is empty.
+    static inline bool empty( const T &field )
     { return UndefinedFieldTraits<T>::notDefined(); }
 };
 
