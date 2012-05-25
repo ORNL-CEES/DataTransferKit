@@ -20,7 +20,7 @@
 #include <DTK_ElementTraits.hpp>
 #include <DTK_FieldTraits.hpp>
 
-#include "mpi.h"
+#include <mpi.h>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -131,6 +131,7 @@ struct NodeTraits<MyNode>
 {
     typedef typename MyNode::handle_type     handle_type;
     typedef typename MyNode::coordinate_type coordinate_type;
+    typedef typename std::vector<double>::const_iterator coordinate_iterator;
     
     static inline std::size_t dim( const MyNode& node ) 
     { return node.dim();}
@@ -138,12 +139,10 @@ struct NodeTraits<MyNode>
     static inline handle_type handle( const MyNode& node ) 
     { return node.handle(); }
     
-    static inline std::vector<double>::const_iterator 
-    coordsBegin( const MyNode& node ) 
+    static inline coordinate_iterator coordsBegin( const MyNode& node ) 
     { return node.coordsBegin(); }
 
-    static inline std::vector<double>::const_iterator 
-    coordsEnd( const MyNode& node ) 
+    static inline coordinate_iterator coordsEnd( const MyNode& node ) 
     { return node.coordsEnd(); }
 };
 
@@ -152,6 +151,7 @@ template<>
 struct ElementTraits<MyQuad>
 {
     typedef typename MyQuad::handle_type handle_type;
+    typedef typename std::vector<int>::const_iterator connectivity_iterator;
 
     static inline std::size_t topology()
     { return DTK_QUADRILATERAL; }
@@ -162,12 +162,10 @@ struct ElementTraits<MyQuad>
     static inline handle_type handle( const MyQuad &quad )
     { return quad.handle(); }
 
-    static inline std::vector<int>::const_iterator
-    connectivityBegin( const MyQuad &quad )
+    static inline connectivity_iterator connectivityBegin( const MyQuad &quad )
     { return quad.connectivityBegin(); }
 
-    static inline std::vector<int>::const_iterator
-    connectivityEnd( const MyQuad &quad )
+    static inline connectivity_iterator connectivityEnd( const MyQuad &quad )
     { return quad.connectivityEnd(); }
 };
 
@@ -210,7 +208,7 @@ template<>
 struct FieldTraits< std::vector<double> >
 {
     typedef MyNode value_type;
-    typedef std::vector<double>::const_iterator iterator;
+    typedef std::vector<double>::iterator iterator;
     
     static inline std::size_t size( const std::vector<double> &data_field )
     { return data_field.size(); }
@@ -455,12 +453,12 @@ void checkElements( const ElementField &element_field )
     typename FieldTraits<ElementField>::iterator first_element = 
 	FieldTraits<ElementField>::begin( element_field );
 
-    TEST_ASSERT( ElementTraits<ElementType>::handle( first_element ) == 8 );
+    TEST_ASSERT( ElementTraits<ElementType>::handle( *first_element ) == 8 );
 
     int conn_index = 0;
     typename ElementTraits<ElementType>::connectivity_iterator conn_iterator;
-    for ( conn_iterator = ElementTraits<ElementType>::connectivityBegin( first_element);
-	  conn_iterator != ElementTraits<ElementType>::connectivityEnd( first_element);
+    for ( conn_iterator = ElementTraits<ElementType>::connectivityBegin( *first_element);
+	  conn_iterator != ElementTraits<ElementType>::connectivityEnd( *first_element);
 	  ++conn_iterator )
     {
 	TEST_ASSERT( *conn_iterator ==  conn_index );
@@ -501,7 +499,7 @@ void checkWriteData( DataField &data_field )
 	  data_iterator != FieldTraits<DataField>::end( data_field );
 	  ++data_iterator )
     {
-	*data_iterator == gold_data;
+	*data_iterator = gold_data;
 	gold_data += 2.0;
     }
 }
@@ -515,13 +513,16 @@ namespace DataTransferKit {
 TEUCHOS_UNIT_TEST( DataSource, data_source_test )
 {
     // Create a DataSource
-    Teuchos::RCP<DataSource> data_source = Teuchos::rcp( new MyDataSource() );
+    Teuchos::RCP< DataSource< std::vector<MyNode>,
+			      std::vector<MyQuad>,
+			      std::vector<double> > > data_source 
+			      = Teuchos::rcp( new MyDataSource() );
 
     // Get the communicator and wrap it in a Teuchos::Comm interface.
     Teuchos::RCP< Teuchos::OpaqueWrapper<MPI_Comm> > raw_comm = 
 	Teuchos::opaqueWrapper( data_source->getSourceComm() );
     Teuchos::RCP< Teuchos::Comm<int> > comm = 
-	Teuchos::rcp( new Teuchos::MpiComm( raw_comm ) );
+	Teuchos::rcp( new Teuchos::MpiComm<int>( raw_comm ) );
     TEST_ASSERT( comm->getRank() == getDefaultComm<int>()->getRank() );
     TEST_ASSERT( comm->getSize() == getDefaultComm<int>()->getSize() );
 
@@ -542,13 +543,15 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
 TEUCHOS_UNIT_TEST( DataTarget, data_target_test )
 {
     // Create a DataTarget
-    Teuchos::RCP<DataTarget> data_target = Teuchos::rcp( new MyDataTarget() );
+    Teuchos::RCP< DataTarget< std::vector<MyNode>,
+			      std::vector<double> > > data_target = 
+	Teuchos::rcp( new MyDataTarget() );
 
     // Get the communicator and wrap it in a Teuchos::Comm interface.
     Teuchos::RCP< Teuchos::OpaqueWrapper<MPI_Comm> > raw_comm = 
 	Teuchos::opaqueWrapper( data_target->getTargetComm() );
     Teuchos::RCP< Teuchos::Comm<int> > comm = 
-	Teuchos::rcp( new Teuchos::MpiComm( raw_comm ) );
+	Teuchos::rcp( new Teuchos::MpiComm<int>( raw_comm ) );
     TEST_ASSERT( comm->getRank() == getDefaultComm<int>()->getRank() );
     TEST_ASSERT( comm->getSize() == getDefaultComm<int>()->getSize() );
 
@@ -561,7 +564,7 @@ TEUCHOS_UNIT_TEST( DataTarget, data_target_test )
     // Check that we can write mesh node data.
     checkWriteData( data_target->getTargetDataSpace( "MY_DATA_FIELD" ) );
     Teuchos::RCP<MyDataTarget> my_target = 
-	dynamic_cast< Teuchos::RCP<MyDataTarget> >( data_target );
+	Teuchos::rcp_dynamic_cast<MyDataTarget>( data_target );
     checkNodeData( my_target->getData() );
 }
 
@@ -569,18 +572,23 @@ TEUCHOS_UNIT_TEST( DataTarget, data_target_test )
 TEUCHOS_UNIT_TEST( DataSource, copy_test )
 {
     // Create a DataSource
-    Teuchos::RCP<DataSource> data_source = Teuchos::rcp( new MyDataSource() );
+    Teuchos::RCP< DataSource< std::vector<MyNode>,
+			      std::vector<MyQuad>,
+			      std::vector<double> > > data_source = 
+	Teuchos::rcp( new MyDataSource() );
 
     // Create a DataTarget
-    Teuchos::RCP<DataTarget> data_target = Teuchos::rcp( new MyDataTarget() );
+    Teuchos::RCP< DataTarget< std::vector<MyNode>,
+			      std::vector<double> > > data_target = 
+	Teuchos::rcp( new MyDataTarget() );
 
     // Copy from the source to the target.
-    copyData( data_source->getSourceNodeData(), 
-	      data_target->getTargetDataSpace() );
+    copyData( data_source->getSourceNodeData( "MY_DATA_FIELD" ), 
+	      data_target->getTargetDataSpace( "MY_DATA_FIELD" ) );
 
     // Check the copy.
     Teuchos::RCP<MyDataTarget> my_target = 
-	dynamic_cast< Teuchos::RCP<MyDataTarget> >( data_target );
+	Teuchos::rcp_dynamic_cast<MyDataTarget>( data_target );
     checkNodeData( my_target->getData() );
 }
 
