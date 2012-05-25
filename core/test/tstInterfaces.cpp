@@ -12,6 +12,7 @@
 #include <cmath>
 #include <sstream>
 #include <algorithm>
+#include <cassert>
 
 #include <DTK_DataSource.hpp>
 #include <DTK_DataTarget.hpp>
@@ -129,8 +130,8 @@ namespace DataTransferKit
 template<>
 struct NodeTraits<MyNode>
 {
-    typedef typename MyNode::handle_type     handle_type;
-    typedef typename MyNode::coordinate_type coordinate_type;
+    typedef typename MyNode::handle_type                 handle_type;
+    typedef typename MyNode::coordinate_type             coordinate_type;
     typedef typename std::vector<double>::const_iterator coordinate_iterator;
     
     static inline std::size_t dim( const MyNode& node ) 
@@ -150,7 +151,7 @@ struct NodeTraits<MyNode>
 template<>
 struct ElementTraits<MyQuad>
 {
-    typedef typename MyQuad::handle_type handle_type;
+    typedef typename MyQuad::handle_type              handle_type;
     typedef typename std::vector<int>::const_iterator connectivity_iterator;
 
     static inline std::size_t topology()
@@ -173,8 +174,8 @@ struct ElementTraits<MyQuad>
 template<>
 struct FieldTraits< std::vector<MyNode> >
 {
-    typedef MyNode value_type;
-    typedef std::vector<MyNode>::const_iterator iterator;
+    typedef MyNode                                value_type;
+    typedef std::vector<MyNode>::const_iterator   iterator;
     
     static inline std::size_t size( const std::vector<MyNode> &node_field )
     { return node_field.size(); }
@@ -190,8 +191,8 @@ struct FieldTraits< std::vector<MyNode> >
 template<>
 struct FieldTraits< std::vector<MyQuad> >
 {
-    typedef MyQuad value_type;
-    typedef std::vector<MyQuad>::const_iterator iterator;
+    typedef MyQuad                                value_type;
+    typedef std::vector<MyQuad>::const_iterator   iterator;
     
     static inline std::size_t size( const std::vector<MyQuad> &quad_field )
     { return quad_field.size(); }
@@ -387,7 +388,7 @@ void copyData( const DataField &source_field, DataField &target_field )
 {
     using namespace DataTransferKit;
 
-    TEST_ASSERT( FieldTraits<DataField>::size( source_field ) ==
+    assert( FieldTraits<DataField>::size( source_field ) ==
 		 FieldTraits<DataField>::size( target_field ) );
 
     typename FieldTraits<DataField>::iterator source_begin = 
@@ -414,7 +415,7 @@ void checkNodes( const NodeField &node_field )
 
     typedef typename FieldTraits<NodeField>::value_type NodeType;
 
-    TEST_ASSERT( FieldTraits<NodeField>::size( node_field ) == 3 );
+    assert( FieldTraits<NodeField>::size( node_field ) == 3 );
 
     int node_index = 0;
     double coord_val = 0.0;
@@ -423,8 +424,8 @@ void checkNodes( const NodeField &node_field )
 	  node_iterator != FieldTraits<NodeField>::end( node_field );
 	  ++node_iterator )
     {
-	TEST_ASSERT( NodeTraits<NodeType>::dim( *node_iterator ) == 3 );
-	TEST_ASSERT( NodeTraits<NodeType>::handle( *node_iterator ) == node_index );
+	assert( NodeTraits<NodeType>::dim( *node_iterator ) == 3 );
+	assert( NodeTraits<NodeType>::handle( *node_iterator ) == node_index );
 
 	coord_val = 0.0;
 	typename NodeTraits<NodeType>::coordinate_iterator coord_iterator;
@@ -432,7 +433,7 @@ void checkNodes( const NodeField &node_field )
 	      coord_iterator != NodeTraits<NodeType>::coordsEnd( *node_iterator );
 	      ++coord_iterator )
 	{
-	    TEST_ASSERT( *coord_iterator == coord_val );
+	    assert( *coord_iterator == coord_val );
 	    coord_val += 1.0;
 	}
 
@@ -448,12 +449,12 @@ void checkElements( const ElementField &element_field )
 
     typedef typename FieldTraits<ElementField>::value_type ElementType;
 
-    TEST_ASSERT( FieldTraits<ElementField>::size( element_field ) == 1 );
+    assert( FieldTraits<ElementField>::size( element_field ) == 1 );
 
     typename FieldTraits<ElementField>::iterator first_element = 
 	FieldTraits<ElementField>::begin( element_field );
 
-    TEST_ASSERT( ElementTraits<ElementType>::handle( *first_element ) == 8 );
+    assert( ElementTraits<ElementType>::handle( *first_element ) == 8 );
 
     int conn_index = 0;
     typename ElementTraits<ElementType>::connectivity_iterator conn_iterator;
@@ -461,7 +462,7 @@ void checkElements( const ElementField &element_field )
 	  conn_iterator != ElementTraits<ElementType>::connectivityEnd( *first_element);
 	  ++conn_iterator )
     {
-	TEST_ASSERT( *conn_iterator ==  conn_index );
+	assert( *conn_iterator ==  conn_index );
 	++conn_index;
     }
 }
@@ -472,7 +473,7 @@ void checkNodeData( const DataField &data_field )
 {
     using namespace DataTransferKit;
 
-    TEST_ASSERT( FieldTraits<DataField>::size( data_field ) == 4 );
+    assert( FieldTraits<DataField>::size( data_field ) == 4 );
 
     double gold_data = 1.5;
     typename FieldTraits<DataField>::iterator data_iterator;
@@ -480,7 +481,7 @@ void checkNodeData( const DataField &data_field )
 	  data_iterator != FieldTraits<DataField>::end( data_field );
 	  ++data_iterator )
     {
-	TEST_ASSERT( *data_iterator == gold_data );
+	assert( *data_iterator == gold_data );
 	gold_data += 2.0;
     }
 }
@@ -491,7 +492,7 @@ void checkWriteData( DataField &data_field )
 {
     using namespace DataTransferKit;
     
-    TEST_ASSERT( FieldTraits<DataField>::size( data_field ) == 4 );
+    assert( FieldTraits<DataField>::size( data_field ) == 4 );
 
     double gold_data = 1.5;
     typename FieldTraits<DataField>::iterator data_iterator;
