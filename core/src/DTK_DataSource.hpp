@@ -109,8 +109,6 @@ class DataSource : Teuchos::Describable
 
 } // end namespace DataTransferKit
 
-#include "DataTransferKit_DataSource_Def.hpp"
-
 #endif // DTK_DATASOURCE_HPP
 
 //---------------------------------------------------------------------------//
