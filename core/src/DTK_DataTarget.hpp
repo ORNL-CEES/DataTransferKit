@@ -14,7 +14,8 @@
 
 #include <mpi.h>
 
-#include "FieldTraits.hpp"
+#include "DTK_NodeTraits.hpp"
+#include "DTK_FieldTraits.hpp"
 
 #include <Teuchos_Describable.hpp>
 
@@ -41,10 +42,10 @@ class DataTarget : public Teuchos::Describable
 
     //@{
     //! Typedefs.
-    typedef NodeField                             node_field_type;
-    typedef FieldTraits<NodeField>::value_type    node_type;
-    typedef DataField                             data_field_type;
-    typedef FieldTraits<DataField>::value_type    data_type;
+    typedef NodeField                                      node_field_type;
+    typedef typename FieldTraits<NodeField>::value_type    node_type;
+    typedef DataField                                      data_field_type;
+    typedef typename FieldTraits<DataField>::value_type    data_type;
     //@}
 
     /*!

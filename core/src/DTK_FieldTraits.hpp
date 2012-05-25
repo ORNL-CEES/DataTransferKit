@@ -46,7 +46,7 @@ struct FieldTraits
     iterator;
 
     typedef typename 
-    std::const_iterator<std::random_access_iterator_tag,value_type> 
+    std::iterator<std::random_access_iterator_tag,value_type> 
     const_iterator;
     //@}
 

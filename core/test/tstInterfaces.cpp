@@ -27,6 +27,7 @@
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
+#include <Teuchos_TypeTraits.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
@@ -188,13 +189,13 @@ struct FieldTraits< std::vector<MyNode> >
     static inline std::size_t size( const std::vector<MyNode> &node_field )
     { return node_field.size(); }
 
-    static iterator begin( const std::vector<MyNode> &node_field )
+    static iterator begin( std::vector<MyNode> &node_field )
     { return node_field.begin(); }
 
     static const_iterator begin( const std::vector<MyNode> &node_field )
     { return node_field.begin(); }
 
-    static inline iterator end( const std::vector<MyNode> &node_field )
+    static inline iterator end( std::vector<MyNode> &node_field )
     { return node_field.end(); }
 
     static inline const_iterator end( const std::vector<MyNode> &node_field )
@@ -216,13 +217,13 @@ struct FieldTraits< std::vector<MyQuad> >
     static inline std::size_t size( const std::vector<MyQuad> &quad_field )
     { return quad_field.size(); }
 
-    static inline iterator begin( const std::vector<MyQuad> &quad_field )
+    static inline iterator begin( std::vector<MyQuad> &quad_field )
     { return quad_field.begin(); }
 
     static inline const_iterator begin( const std::vector<MyQuad> &quad_field )
     { return quad_field.begin(); }
 
-    static inline iterator end( const std::vector<MyQuad> &quad_field )
+    static inline iterator end( std::vector<MyQuad> &quad_field )
     { return quad_field.end(); }
 
     static inline const_iterator end( const std::vector<MyQuad> &quad_field )
@@ -244,13 +245,13 @@ struct FieldTraits< std::vector<double> >
     static inline std::size_t size( const std::vector<double> &data_field )
     { return data_field.size(); }
 
-    static inline iterator begin( const std::vector<double> &data_field )
+    static inline iterator begin( std::vector<double> &data_field )
     { return data_field.begin(); }
 
     static inline const_iterator begin( const std::vector<double> &data_field )
     { return data_field.begin(); }
 
-    static inline iterator end( const std::vector<double> &data_field )
+    static inline iterator end( std::vector<double> &data_field )
     { return data_field.end(); }
 
     static inline const_iterator end( const std::vector<double> &data_field )
@@ -328,7 +329,7 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 	return d_elements;
     }
 
-    const std::vector<double>& evaluateFieldOnTargetNodes( 
+    const std::vector<double> evaluateFieldOnTargetNodes( 
 	const std::string &field_name,
 	const std::vector<MyQuad::handle_type> &element_handles,
 	const std::vector<MyNode::coordinate_type> &node_coordinates )
@@ -398,7 +399,7 @@ class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
 	return return_val;
     }
 
-    const std::vector<MyNode>& getTargetMeshNodes()
+    const std::vector<MyNode>& getTargetNodes()
     {
 	return d_nodes;
     }
@@ -424,22 +425,30 @@ class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
 //---------------------------------------------------------------------------//
 // Copy function.
 //---------------------------------------------------------------------------//
-template<typename DataField>
-void copyData( const DataField &source_field, DataField &target_field )
+template<typename SourceDataField, typename TargetDataField>
+void copyData( const SourceDataField &source_field, 
+	       TargetDataField &target_field )
 {
     using namespace DataTransferKit;
 
-    assert( FieldTraits<DataField>::size( source_field ) ==
-		 FieldTraits<DataField>::size( target_field ) );
+    typedef typename FieldTraits<SourceDataField>::value_type source_type;
+    typedef typename FieldTraits<TargetDataField>::value_type target_type;
 
-    typename FieldTraits<DataField>::iterator source_begin = 
-	FieldTraits<DataField>::begin( source_field );
+    bool same_type = 
+	Teuchos::TypeTraits::is_same<source_type,target_type>::value;
+    assert( same_type );
 
-    typename FieldTraits<DataField>::iterator source_end = 
-	FieldTraits<DataField>::end( source_field );
+    assert( FieldTraits<SourceDataField>::size( source_field ) ==
+		 FieldTraits<TargetDataField>::size( target_field ) );
 
-    typename FieldTraits<DataField>::iterator target_begin = 
-	FieldTraits<DataField>::begin( target_field );
+    typename FieldTraits<SourceDataField>::const_iterator source_begin = 
+	FieldTraits<SourceDataField>::begin( source_field );
+
+    typename FieldTraits<SourceDataField>::const_iterator source_end = 
+	FieldTraits<SourceDataField>::end( source_field );
+
+    typename FieldTraits<TargetDataField>::iterator target_begin = 
+	FieldTraits<TargetDataField>::begin( target_field );
 
     std::copy( source_begin, source_end, target_begin );
 }
@@ -459,7 +468,7 @@ void checkNodes( const NodeField &node_field )
 
     int node_index = 0;
     double coord_val = 0.0;
-    typename FieldTraits<NodeField>::iterator node_iterator;
+    typename FieldTraits<NodeField>::const_iterator node_iterator;
     for ( node_iterator = FieldTraits<NodeField>::begin( node_field );
 	  node_iterator != FieldTraits<NodeField>::end( node_field );
 	  ++node_iterator )
@@ -468,7 +477,7 @@ void checkNodes( const NodeField &node_field )
 	assert( NodeTraits<NodeType>::handle( *node_iterator ) == node_index );
 
 	coord_val = 0.0;
-	typename NodeTraits<NodeType>::coordinate_iterator coord_iterator;
+	typename NodeTraits<NodeType>::const_coordinate_iterator coord_iterator;
 	for ( coord_iterator = NodeTraits<NodeType>::coordsBegin( *node_iterator );
 	      coord_iterator != NodeTraits<NodeType>::coordsEnd( *node_iterator );
 	      ++coord_iterator )
@@ -492,13 +501,13 @@ void checkElements( const ElementField &element_field )
 
     assert( FieldTraits<ElementField>::size( element_field ) == 1 );
 
-    typename FieldTraits<ElementField>::iterator first_element = 
+    typename FieldTraits<ElementField>::const_iterator first_element = 
 	FieldTraits<ElementField>::begin( element_field );
 
     assert( ElementTraits<ElementType>::handle( *first_element ) == 8 );
 
     int conn_index = 0;
-    typename ElementTraits<ElementType>::connectivity_iterator conn_iterator;
+    typename ElementTraits<ElementType>::const_connectivity_iterator conn_iterator;
     for ( conn_iterator = ElementTraits<ElementType>::connectivityBegin( *first_element);
 	  conn_iterator != ElementTraits<ElementType>::connectivityEnd( *first_element);
 	  ++conn_iterator )
@@ -518,7 +527,7 @@ void checkNodeData( const DataField &data_field )
     assert( FieldTraits<DataField>::size( data_field ) == 4 );
 
     double gold_data = 1.5;
-    typename FieldTraits<DataField>::iterator data_iterator;
+    typename FieldTraits<DataField>::const_iterator data_iterator;
     for ( data_iterator = FieldTraits<DataField>::begin( data_field );
 	  data_iterator != FieldTraits<DataField>::end( data_field );
 	  ++data_iterator )
@@ -580,7 +589,11 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
     checkElements( data_source->getSourceMeshElements() );
 
     // Check the mesh node data.
-    checkNodeData( data_source->getSourceNodeData( "MY_DATA_FIELD" ) );
+    std::vector<MyQuad::handle_type> dummy_handles;
+    std::vector<MyNode::coordinate_type> dummy_coords;
+    checkNodeData( data_source->evaluateFieldOnTargetNodes( "MY_DATA_FIELD",
+							    dummy_handles,
+							    dummy_coords ) );
 }
 
 // DataTarget test.
@@ -603,7 +616,7 @@ TEUCHOS_UNIT_TEST( DataTarget, data_target_test )
     TEST_ASSERT( data_target->isFieldSupported( "MY_DATA_FIELD" ) );
 
     // Check the mesh nodes.
-    checkNodes( data_target->getTargetMeshNodes() );
+    checkNodes( data_target->getTargetNodes() );
 
     // Check that we can write mesh node data.
     checkWriteData( data_target->getTargetDataSpace( "MY_DATA_FIELD" ) );
@@ -627,7 +640,11 @@ TEUCHOS_UNIT_TEST( DataSource, copy_test )
 	Teuchos::rcp( new MyDataTarget() );
 
     // Copy from the source to the target.
-    copyData( data_source->getSourceNodeData( "MY_DATA_FIELD" ), 
+    std::vector<MyQuad::handle_type> dummy_handles;
+    std::vector<MyNode::coordinate_type> dummy_coords;
+    copyData( data_source->evaluateFieldOnTargetNodes( "MY_DATA_FIELD", 
+						       dummy_handles, 
+						       dummy_coords ), 
 	      data_target->getTargetDataSpace( "MY_DATA_FIELD" ) );
 
     // Check the copy.

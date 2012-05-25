@@ -15,7 +15,9 @@
 
 #include <mpi.h>
 
-#include "FieldTraits.hpp"
+#include "DTK_NodeTraits.hpp"
+#include "DTK_ElementTraits.hpp"
+#include "DTK_FieldTraits.hpp"
 
 #include <Teuchos_Describable.hpp>
 
@@ -45,16 +47,16 @@ class DataSource : Teuchos::Describable
 
     //@{
     //! Typdefs.
-    typedef NodeField                                   node_field_type;
-    typedef FieldTraits<NodeField>::value_type          node_type;
-    typedef NodeTraits<node_type>::coordinate_type      node_coordinate_type;
-    typedef ElementField                                element_field_type;
-    typedef FieldTraits<ElementField>::value_type       element_type;
-    typedef ElememntTraits<element_type>::handle_type   element_handle_type;
-    typedef DataField                                   data_field_type;
-    typedef FieldTraits<DataField>::value_type          data_type;
-    typedef std::vector<node_coordinate_type>           CoordinateVector;
-    typedef std::vector<element_handle_type>            HandleVector;
+    typedef NodeField                                         node_field_type;
+    typedef typename FieldTraits<NodeField>::value_type       node_type;
+    typedef typename NodeTraits<node_type>::coordinate_type   node_coordinate_type;
+    typedef ElementField                                      element_field_type;
+    typedef typename FieldTraits<ElementField>::value_type    element_type;
+    typedef typename ElementTraits<element_type>::handle_type element_handle_type;
+    typedef DataField                                         data_field_type;
+    typedef typename FieldTraits<DataField>::value_type       data_type;
+    typedef std::vector<node_coordinate_type>                 CoordinateVector;
+    typedef std::vector<element_handle_type>                  HandleVector;
     //@}
 
     /*!
@@ -106,7 +108,7 @@ class DataSource : Teuchos::Describable
     virtual const ElementField& getSourceMeshElements() = 0;
 
     /*! 
-     * \brief Provide a const view of the local source data evaluated in the
+     * \brief Provide a copy of the local source data evaluated in the
      * given source mesh elements at the given nodes.
      * \param field_name The name of the field to provide data from.
      * \param element_handles The local element handles in which to evaluate
@@ -118,7 +120,7 @@ class DataSource : Teuchos::Describable
      * is expected to implement FieldTraits. DataField::value_type is
      * expected to implement Teuchos::ScalarTraits. 
      */
-    virtual const DataField&
+    virtual const DataField
     evaluateFieldOnTargetNodes( const std::string& field_name,
 				const HandleVector& element_handles,
 				const CoordinateVector& node_coordinates ) = 0;
