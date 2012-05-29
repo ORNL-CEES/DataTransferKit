@@ -25,6 +25,7 @@
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
@@ -288,11 +289,11 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 	// Make a quadrilateral.
 	d_elements.push_back( MyQuad( 0, 1, 2, 3, 8 ) );
 
-	// Add some data for the nodes.
+	// Add some data for the elements.
 	d_element_data.push_back( 1.5 );
 	d_element_data.push_back( 3.5 );
+	d_element_data.push_back( 5.5 );
 	d_element_data.push_back( 7.5 );
-	d_element_data.push_back( 9.5 );
     }
 
   public:
@@ -301,10 +302,12 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
     { 
 	createMesh();
 
-	Teuchos::MpiComm<int> mpi_comm = 
-	    Teuchos::rcp_implicit_cast< const Teuchos::MpiComm<int> >(
-		getDefaultComm<int>() );
-	d_comm = (*( mpi_comm->getRawMpiComm() ))();
+	Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+	Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
+	    Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+	Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
+	    mpi_comm->getRawMpiComm();
+	d_comm = (*opaque_comm)();
    }
 
     ~MyDataSource()
@@ -387,10 +390,12 @@ class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
     { 
 	createMesh();
 
-	Teuchos::MpiComm<int> mpi_comm = 
-	    Teuchos::rcp_implicit_cast< 
-		Teuchos::MpiComm<int> >( getDefaultComm<int>() );
-	d_comm = (*( mpi_comm->getRawMpiComm() ))();
+	Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
+	    Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >(
+		getDefaultComm<int>() );
+	Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
+	    mpi_comm->getRawMpiComm();
+	d_comm = (*opaque_comm)();
     }
 
     ~MyDataTarget()
@@ -398,7 +403,7 @@ class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
 
     const MPI_Comm& getTargetComm()
     {
-	return getDefaultComm<int>()->getRawMpiComm();
+	return d_comm;
     }
 
     bool isFieldSupported( const std::string &field_name )
@@ -476,7 +481,7 @@ void checkNodes( const NodeField &node_field )
 
     typedef typename FieldTraits<NodeField>::value_type NodeType;
 
-    assert( FieldTraits<NodeField>::size( node_field ) == 3 );
+    assert( FieldTraits<NodeField>::size( node_field ) == 4 );
 
     int node_index = 0;
     double coord_val = 0.0;
@@ -583,7 +588,7 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
 			      std::vector<double> > > data_source 
 			      = Teuchos::rcp( new MyDataSource() );
 
-    // Get the communicator and wrap it in a Teuchos::Comm interface.
+    // Get the raw communicator and wrap it in a Teuchos::Comm interface.
     Teuchos::RCP< Teuchos::OpaqueWrapper<MPI_Comm> > raw_comm = 
 	Teuchos::opaqueWrapper( data_source->getSourceComm() );
     Teuchos::RCP< Teuchos::Comm<int> > comm = 
@@ -616,7 +621,7 @@ TEUCHOS_UNIT_TEST( DataTarget, data_target_test )
 			      std::vector<double> > > data_target = 
 	Teuchos::rcp( new MyDataTarget() );
 
-    // Get the communicator and wrap it in a Teuchos::Comm interface.
+    // Get the raw communicator and wrap it in a Teuchos::Comm interface.
     Teuchos::RCP< Teuchos::OpaqueWrapper<MPI_Comm> > raw_comm = 
 	Teuchos::opaqueWrapper( data_target->getTargetComm() );
     Teuchos::RCP< Teuchos::Comm<int> > comm = 
