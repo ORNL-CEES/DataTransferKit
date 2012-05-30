@@ -20,18 +20,14 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_CoreTypes.hpp
-  DTK_DataSource.hpp
-  DTK_DataTarget.hpp
-  DTK_ElementTraits.hpp
-  DTK_FieldTraits.hpp
-  DTK_NodeTraits.hpp
+  DTK_CellTopologyFactory.hpp
+  DTK_Mesh.hpp
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
-  dummy.cpp
+  DTK_CellTopologyFactory.cpp
   )
 
 # Set addition headers and source based on package-specific
@@ -51,7 +47,7 @@ ENDIF()
 #
 
 TRIBITS_ADD_LIBRARY(
-   Core
+   Mesh
    HEADERS ${HEADERS}
    SOURCES ${SOURCES}
    )

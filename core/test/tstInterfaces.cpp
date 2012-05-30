@@ -300,8 +300,10 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 
     MyDataSource()
     { 
+	// Build the mesh.
 	createMesh();
 
+	// Get the raw MPI_Comm out of Teuchos.
 	Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
 	Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
 	    Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
@@ -388,8 +390,10 @@ class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
 
     MyDataTarget()
     { 
+	// Build the mesh.
 	createMesh();
 
+	// Get the raw MPI_Comm out of Teuchos.
 	Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
 	    Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >(
 		getDefaultComm<int>() );

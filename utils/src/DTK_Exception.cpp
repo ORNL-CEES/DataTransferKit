@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#include "Exception.hpp"
+#include "DTK_Exception.hpp"
 
 #include <Teuchos_TestForException.hpp>
 

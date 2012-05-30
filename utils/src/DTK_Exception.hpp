@@ -66,3 +66,8 @@ void testInvariant( bool throw_if_false, const std::string &msg );
 } // end namespace DataTransferKit
 
 #endif // end DTK_EXCEPTION_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_Exception.hpp
+//---------------------------------------------------------------------------//
+

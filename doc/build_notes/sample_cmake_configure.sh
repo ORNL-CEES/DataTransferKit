@@ -1,6 +1,6 @@
 #!/bin/bash
 ##---------------------------------------------------------------------------##
-## CONFIGURE COUPLER ON BEAKER WITH CMAKE
+## CONFIGURE VERA
 ##---------------------------------------------------------------------------##
 
 EXTRA_ARGS=$@
@@ -10,19 +10,22 @@ rm -rf CMakeCache.txt
 ##---------------------------------------------------------------------------##
 
 cmake \
--D CMAKE_INSTALL_PREFIX:PATH=/home/stuart/software/builds/VERA \
--D CMAKE_BUILD_TYPE:STRING=DEBUG \
--D CMAKE_VERBOSE_MAKEFILE:BOOL=ON \
--D TPL_ENABLE_MPI:BOOL=ON \
--D MPI_BASE_DIR:PATH=/home/stuart/software/builds/openmpi-1.4.4 \
--D BLAS_LIBRARY_DIRS:PATH=/home/stuart/software/lapack-3.4.0 \
--D BLAS_LIBRARY_NAMES:STRING="blas" \
--D LAPACK_LIBRARY_DIRS:PATH=/home/stuart/software/lapack-3.4.0 \
--D LAPACK_LIBRARY_NAMES:STRING="lapack" \
--D VERA_EXTRA_REPOSITORIES="Trilinos;Coupler" \
--D Teuchos_ENABLE_EXTENDED:BOOL=ON \
--D VERA_ENABLE_Coupler:BOOL=ON \
--D Coupler_ENABLE_TESTS:BOOL=ON \
--D Coupler_ENABLE_EXAMPLES:BOOL=ON \
-$EXTRA_ARGS \
-/home/stuart/software/VERA
+    -D CMAKE_INSTALL_PREFIX:PATH=$PWD \
+    -D CMAKE_BUILD_TYPE:STRING=DEBUG \
+    -D CMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+    -D TPL_ENABLE_MPI:BOOL=ON \
+    -D BLAS_LIBRARY_DIRS:PATH=/Users/uy7/builds/lapack-3.4.1 \
+    -D BLAS_LIBRARY_NAMES:STRING="blas" \
+    -D LAPACK_LIBRARY_NAMES:STRING="lapack" \
+    -D LAPACK_LIBRARY_DIRS:PATH=/Users/uy7/builds/lapack-3.4.1 \
+    -D Netcdf_LIBRARY_DIRS:PATH=/Users/uy7/builds/netcdf-4.1.3/lib \
+    -D Netcdf_INCLUDE_DIRS:PATH=/Users/uy7/builds/netcdf-4.1.3/include \
+    -D Boost_INCLUDE_DIRS:PATH=/Users/uy7/software/boost_1_49_0 \
+    -D VERA_EXTRA_REPOSITORIES="Trilinos;DataTransferKit" \
+    -D VERA_ENABLE_ThreadPool:BOOL=ON \
+    -D STK_ENABLE_ThreadPool:BOOL=ON \
+    -D VERA_ENABLE_DataTransferKit:BOOL=ON \
+    -D DataTransferKit_ENABLE_TESTS:BOOL=ON \
+    -D DataTransferKit_ENABLE_EXAMPLES:BOOL=OFF \
+    $EXTRA_ARGS \
+    /Users/uy7/software/VERA
