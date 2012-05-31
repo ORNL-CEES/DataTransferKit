@@ -384,7 +384,8 @@ TEUCHOS_UNIT_TEST( Mesh, mesh_test )
 	= Teuchos::rcp( new MyDataSource() );
 
     // Create a mesh.
-    Teuchos::RCP<Mesh> mesh = createMeshFromDataSource( data_source );
+    Teuchos::RCP< Mesh<MyHex::handle_type> > mesh = 
+	createMeshFromDataSource( data_source );
 
     // Write the mesh to a file.
     mesh->getMoab()->write_mesh( "mesh_test.vtk" );

@@ -10,24 +10,6 @@
 
 namespace DataTransferKit
 {
-//---------------------------------------------------------------------------//
-/*!
- * \brief Constructor.
- */
-Mesh::Mesh( const RCP_Moab& moab, 
-	    const moab::Range& vertices,
-	    const moab::Range& elements )
-    : d_moab( moab )
-    , d_vertices( vertices )
-    , d_elements( elements )
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Destructor.
- */
-Mesh::~Mesh()
-{ /* ... */ }
 
 } // end namespace DataTransferKit
 

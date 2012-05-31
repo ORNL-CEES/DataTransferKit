@@ -9,6 +9,8 @@
 #ifndef DTK_MESH_HPP
 #define DTK_MESH_HPP
 
+#include <map>
+
 #include <DTK_DataSource.hpp>
 
 #include <MBInterface.hpp>
@@ -19,46 +21,48 @@
 namespace DataTransferKit
 {
 
+template<typename ElementHandle>
 class Mesh
 {
-
   public:
 
     //@{
     //! Typedefs.
-    typedef Teuchos::RCP<moab::Interface> RCP_Moab;
+    typedef ElementHandle                               element_handle_type;
+    typedef Teuchos::RCP<moab::Interface>               RCP_Moab;
+    typedef std::map<moab::EntityHandle,ElementHandle>  HandleMap;
     //@}
 
     // Constructor.
     Mesh( const RCP_Moab& moab, 
-	  const moab::Range& vertices,
-	  const moab::Range& elements );
+	  const moab::Range& elements,
+	  const HandleMap& handle_map );
 
     // Destructor.
     ~Mesh();
 
     //! Get the Moab interface.
-    RCP_Moab getMoab() const
+    const RCP_Moab& getMoab() const
     { return d_moab; }
-
-    //! Get the mesh vertices.
-    const moab::Range& getVertices() const
-    { return d_vertices; }
 
     //! Get the mesh elements.
     const moab::Range& getElements() const
     { return d_elements; }
+
+    // Given a moab element handle return the corresponding native element
+    // handle.
+    ElementHandle getNativeHandle( moab::EntityHandle moab_handle ) const;
 
   private:
 
     //! Moab interface implementation.
     RCP_Moab d_moab;
 
-    //! Mesh vertices.
-    moab::Range d_vertices;
-
     //! Mesh elements.
     moab::Range d_elements;
+
+    //! Moab element handle to native element handle map.
+    HandleMap d_handle_map;
 };
 
 //---------------------------------------------------------------------------//
@@ -77,9 +81,10 @@ const moab::EntityType moab_topology_table[] =
 // Non-member creation functions.
 // Create a mesh from a DataSource.
 template<typename NodeField, typename ElementField, typename DataField>
-Teuchos::RCP<Mesh> createMeshFromDataSource( 
+Teuchos::RCP< Mesh<typename ElementField::value_type::handle_type> >
+createMeshFromDataSource( 
     const Teuchos::RCP< 
-    DataSource<NodeField,ElementField,DataField> >& data_source );
+	DataSource<NodeField,ElementField,DataField> >& data_source );
 
 //---------------------------------------------------------------------------//
 

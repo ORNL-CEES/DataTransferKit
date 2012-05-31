@@ -10,7 +10,6 @@
 #define DTK_MESH_DEF_HPP
 
 #include <vector>
-#include <map>
 #include <cassert>
 
 #include <DTK_Exception.hpp>
@@ -25,13 +24,49 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
+/*!
+ * \brief Constructor.
+ */
+template<typename ElementHandle>
+Mesh<ElementHandle>::Mesh( const RCP_Moab& moab, 
+			   const moab::Range& elements,
+			   const HandleMap& handle_map )
+    : d_moab( moab )
+    , d_elements( elements )
+    , d_handle_map( handle_map )
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Destructor.
+ */
+template<typename ElementHandle>
+Mesh<ElementHandle>::~Mesh()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Given a moab element handle return the corresponding native element
+ * handle. 
+ */
+template<typename ElementHandle>
+ElementHandle 
+Mesh<ElementHandle>::getNativeHandle( moab::EntityHandle moab_handle ) const
+{
+    testPrecondition( d_handle_map[ moab_handle ],
+		      "MOAB handle does not exist." );
+    return d_handle_map[ moab_handle ];
+}
+
+//---------------------------------------------------------------------------//
 // Non-member creation functions.
 //---------------------------------------------------------------------------//
 /*!
  * \brief Create a mesh from a DataSource.
  */
 template<typename NodeField, typename ElementField, typename DataField>
-Teuchos::RCP<Mesh> createMeshFromDataSource( 
+Teuchos::RCP< Mesh<typename ElementField::value_type::handle_type> >
+createMeshFromDataSource(
     const Teuchos::RCP< 
 	DataSource<NodeField,ElementField,DataField> >& data_source )
 {
@@ -55,7 +90,7 @@ Teuchos::RCP<Mesh> createMeshFromDataSource(
 
     // Create a moab interface.
     moab::ErrorCode error;
-    Mesh::RCP_Moab moab = Teuchos::rcp( new moab::Core() );
+    Teuchos::RCP<moab::Interface> moab = Teuchos::rcp( new moab::Core() );
     testPostcondition( moab != Teuchos::null,
 		       "Error creating MOAB interface" );
 
@@ -113,15 +148,12 @@ Teuchos::RCP<Mesh> createMeshFromDataSource(
     // Extract the source mesh elements and add them to moab.
     moab::Range elements;
     std::vector<moab::EntityHandle> element_connectivity;
-    std::vector<element_handle_type> element_handles;
+    std::map<moab::EntityHandle,element_handle_type> element_handle_map;
     ElementField source_elements = data_source->getSourceMeshElements();
     for ( element_iterator = FieldTraits<ElementField>::begin( source_elements );
 	  element_iterator != FieldTraits<ElementField>::end( source_elements );
 	  ++element_iterator )
     {
-	element_handles.push_back( 
-	    ElementTraits<element_type>::handle( *element_iterator ) );
-
 	element_connectivity.clear();
 	for ( conn_iterator = 
 		  ElementTraits<element_type>::connectivityBegin( *element_iterator );
@@ -129,13 +161,12 @@ Teuchos::RCP<Mesh> createMeshFromDataSource(
 		  ElementTraits<element_type>::connectivityEnd( *element_iterator );
 	      ++conn_iterator )
 	{
-	    
 	    element_connectivity.push_back( vertex_handle_map[*conn_iterator] );
 	}
 
 	testInvariant( element_connectivity.size() == 
 		       ElementTraits<element_type>::numNodes(),
-		       "Element connectivity size != number of element nodes" );
+		       "Element connectivity size != number of element nodes." );
 
 	moab::EntityType entity_type = moab_topology_table[ 
 	    ElementTraits<element_type>::topology() ];
@@ -145,13 +176,17 @@ Teuchos::RCP<Mesh> createMeshFromDataSource(
 				      element_connectivity.size(),
 				      moab_element );
 	testInvariant( moab::MB_SUCCESS == error,
-		       "Failed to create element in MOAB" );
+		       "Failed to create element in MOAB." );
 
 	elements.insert( moab_element );
+
+	element_handle_map[ moab_element ] =
+	    ElementTraits<element_type>::handle( *element_iterator );
     }
     
     // Create and return the mesh.
-    return Teuchos::rcp( new Mesh( moab, vertices, elements ) );
+    return Teuchos::rcp( 
+	new Mesh<element_handle_type>( moab, elements, element_handle_map ) );
 }
 
 //---------------------------------------------------------------------------//
