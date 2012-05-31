@@ -6,7 +6,8 @@
 #   Trilinos/cmake/TrilinosTPLs.cmake
 #
 
-SET(FOOD_TPLS_FINDMODS_CLASSIFICATIONS
+SET(DataTransferKit_TPLS_FINDMODS_CLASSIFICATIONS
+  HDF5      "cmake/TPLs/"      EX
   MOAB      "cmake/TPLs/"      EX
   )
 

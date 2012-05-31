@@ -50,7 +50,7 @@ struct NodeTraits
     const_coordinate_iterator;
 
     //! Returns the spatial dimension of the node.
-    static inline std::size_t dim( const T &node )
+    static inline std::size_t dim()
     { return UndefinedNodeTraits<T>::notDefined(); }
 
     //! Returns the handle of the node.

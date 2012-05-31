@@ -71,9 +71,6 @@ class MyNode
     ~MyNode()
     { /* ... */ }
 
-    int dim() const
-    { return d_coords.size(); }
-
     int handle() const
     { return d_handle; }
 
@@ -138,8 +135,8 @@ struct NodeTraits<MyNode>
     typedef typename std::vector<double>::const_iterator 
     const_coordinate_iterator;
     
-    static inline std::size_t dim( const MyNode& node ) 
-    { return node.dim();}
+    static inline std::size_t dim()
+    { return 3;}
     
     static inline handle_type handle( const MyNode& node ) 
     { return node.handle(); }
@@ -159,6 +156,9 @@ struct ElementTraits<MyQuad>
     typedef typename MyQuad::handle_type              handle_type;
     typedef typename std::vector<int>::const_iterator 
     const_connectivity_iterator;
+
+    static inline std::size_t type()
+    { return DTK_FACE; }
 
     static inline std::size_t topology()
     { return DTK_QUADRILATERAL; }
@@ -262,7 +262,7 @@ struct FieldTraits< std::vector<double> >
     { return data_field.empty(); }
 };
 
-}
+} // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // DataSource Implementation
@@ -494,7 +494,7 @@ void checkNodes( const NodeField &node_field )
 	  node_iterator != FieldTraits<NodeField>::end( node_field );
 	  ++node_iterator )
     {
-	assert( NodeTraits<NodeType>::dim( *node_iterator ) == 3 );
+	assert( NodeTraits<NodeType>::dim() == 3 );
 	assert( NodeTraits<NodeType>::handle( *node_iterator ) == node_index );
 
 	coord_val = 0.0;

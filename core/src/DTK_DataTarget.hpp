@@ -87,7 +87,7 @@ class DataTarget : public Teuchos::Describable
 
     /*! 
      * \brief Provide a persisting, non-const view of the local data vector
-     * associated with the nodes provided by get_target_nodes.  
+     * associated with the nodes provided by getTargetNodes().
      * \param field_name The name of the field to receive data from. 
      * \return A non-const persisting view of the data vector to be
      * populated. This view has two requirements: 1) It is of size equal to

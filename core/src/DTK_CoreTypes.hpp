@@ -12,17 +12,26 @@
 namespace DataTransferKit
 {
 
-// Element topology enumerations.
+//! Element type enumerations.
+enum DTK_ElementType {
+    DTK_ElementType_MIN = 0,
+    DTK_POINT = DTK_ElementType_MIN,
+    DTK_EDGE,
+    DTK_FACE,
+    DTK_REGION,
+    DTK_ElementType_MAX = DTK_REGION
+};
+
+//! Element topology enumerations.
 enum DTK_ElementTopology {
     DTK_ElementTopology_MIN = 0,
-    DTK_POINT = DTK_ElementTopology_MIN,
+    DTK_VERTEX = DTK_ElementTopology_MIN,
     DTK_LINE_SEGMENT,
     DTK_TRIANGLE,
     DTK_QUADRILATERAL,
     DTK_TETRAHEDRON,
     DTK_HEXAHEDRON,
-    DTK_WEDGE,
-    DTK_ElementTopology_MAX = DTK_WEDGE
+    DTK_ElementTopology_MAX = DTK_HEXAHEDRON
 };
 
 } // end namespace DataTransferKit

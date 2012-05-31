@@ -44,6 +44,10 @@ struct ElementTraits
     std::iterator<std::random_access_iterator_tag,handle_type> 
     const_connectivity_iterator;
 
+    //! Returns the type of the element (DTK_ElementType enum).
+    static inline std::size_t type()
+    { return UndefinedElementTraits<T>::notDefined(); }
+
     //! Returns the topology of the element (DTK_ElementTopolpogy enum).
     static inline std::size_t topology()
     { return UndefinedElementTraits<T>::notDefined(); }

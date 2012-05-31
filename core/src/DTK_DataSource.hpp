@@ -49,6 +49,7 @@ class DataSource : Teuchos::Describable
     //! Typdefs.
     typedef NodeField                                         node_field_type;
     typedef typename FieldTraits<NodeField>::value_type       node_type;
+    typedef typename NodeTraits<node_type>::handle_type       node_handle_type;
     typedef typename NodeTraits<node_type>::coordinate_type   node_coordinate_type;
     typedef ElementField                                      element_field_type;
     typedef typename FieldTraits<ElementField>::value_type    element_type;
