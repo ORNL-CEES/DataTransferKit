@@ -45,20 +45,6 @@ Mesh<ElementHandle>::~Mesh()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-/*!
- * \brief Given a moab element handle return the corresponding native element
- * handle. 
- */
-template<typename ElementHandle>
-ElementHandle 
-Mesh<ElementHandle>::getNativeHandle( moab::EntityHandle moab_handle ) const
-{
-    testPrecondition( d_handle_map[ moab_handle ],
-		      "MOAB handle does not exist." );
-    return d_handle_map[ moab_handle ];
-}
-
-//---------------------------------------------------------------------------//
 // Non-member creation functions.
 //---------------------------------------------------------------------------//
 /*!

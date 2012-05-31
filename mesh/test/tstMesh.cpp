@@ -29,6 +29,8 @@
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
 
+#include <MBRange.hpp>
+
 //---------------------------------------------------------------------------//
 // MPI Setup
 //---------------------------------------------------------------------------//
@@ -387,8 +389,55 @@ TEUCHOS_UNIT_TEST( Mesh, mesh_test )
     Teuchos::RCP< Mesh<MyHex::handle_type> > mesh = 
 	createMeshFromDataSource( data_source );
 
-    // Write the mesh to a file.
-    mesh->getMoab()->write_mesh( "mesh_test.vtk" );
+    // Get the moab interface.
+    moab::ErrorCode error;
+    Mesh<MyHex::handle_type>::RCP_Moab moab = mesh->getMoab();
+    
+    // Grab the elements.
+    moab::Range mesh_elements = mesh->getElements();
+
+    // Check the moab mesh element data.
+    moab::Range::const_iterator element_iterator;
+    MyHex::handle_type native_handle = 0;
+    for ( element_iterator = mesh_elements.begin();
+	  element_iterator != mesh_elements.end();
+	  ++element_iterator, ++native_handle )
+    {
+	TEST_ASSERT( mesh->getNativeHandle( *element_iterator ) == 
+		     native_handle );
+
+	TEST_ASSERT( moab->type_from_handle( *element_iterator ) ==
+		     moab::MBHEX );
+    }
+
+    // Check the moab mesh vertex data.
+    moab::Range connectivity;
+    error = moab->get_connectivity( mesh_elements, connectivity );
+    TEST_ASSERT( moab::MB_SUCCESS == error );
+
+    std::vector<double> vertex_coords( 3 * connectivity.size() );
+    error = moab->get_coords( connectivity, &vertex_coords[0] );
+    TEST_ASSERT( moab::MB_SUCCESS == error );
+
+    std::vector<double>::const_iterator moab_coord_iterator = 
+	vertex_coords.begin();
+    typename NodeTraits<MyNode>::const_coordinate_iterator node_coord_iterator;
+    std::vector<MyNode> source_nodes = data_source->getSourceMeshNodes();
+    std::vector<MyNode>::const_iterator node_iterator;
+
+    for ( node_iterator = source_nodes.begin();
+	  node_iterator != source_nodes.end();
+	  ++node_iterator )
+    {
+	for ( node_coord_iterator = 
+		  NodeTraits<MyNode>::coordsBegin( *node_iterator );
+	      node_coord_iterator != 
+		  NodeTraits<MyNode>::coordsEnd( *node_iterator );
+	      ++node_coord_iterator, ++moab_coord_iterator )
+	{
+	    TEST_ASSERT( *node_coord_iterator == *moab_coord_iterator );
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//

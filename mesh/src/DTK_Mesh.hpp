@@ -51,7 +51,8 @@ class Mesh
 
     // Given a moab element handle return the corresponding native element
     // handle.
-    ElementHandle getNativeHandle( moab::EntityHandle moab_handle ) const;
+    ElementHandle getNativeHandle( moab::EntityHandle moab_handle )
+    { return d_handle_map[ moab_handle ]; }
 
   private:
 
