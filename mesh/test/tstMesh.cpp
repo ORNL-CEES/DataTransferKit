@@ -286,23 +286,25 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
     {
 	// Make some nodes.
 	d_nodes.push_back( MyNode(0.0, 0.0, 0.0, 0) );
-	d_nodes.push_back( MyNode(1.0, 0.0, 0.0, 1) );
-	d_nodes.push_back( MyNode(1.0, 1.0, 0.0, 2) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 0.0, 3) );
-	d_nodes.push_back( MyNode(0.0, 0.0, 1.0, 4) );
-	d_nodes.push_back( MyNode(1.0, 0.0, 1.0, 5) );
-	d_nodes.push_back( MyNode(1.0, 1.0, 1.0, 6) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 1.0, 7) );
+	d_nodes.push_back( MyNode(1.0, 0.0, 0.0, 4) );
+	d_nodes.push_back( MyNode(1.0, 1.0, 0.0, 9) );
+	d_nodes.push_back( MyNode(0.0, 1.0, 0.0, 2) );
+	d_nodes.push_back( MyNode(0.0, 0.0, 1.0, 3) );
+	d_nodes.push_back( MyNode(1.0, 0.0, 1.0, 8) );
+	d_nodes.push_back( MyNode(1.0, 1.0, 1.0, 1) );
+	d_nodes.push_back( MyNode(0.0, 1.0, 1.0, 6) );
+	d_nodes.push_back( MyNode(0.0, 0.0, 2.0, 12) );
+	d_nodes.push_back( MyNode(1.0, 0.0, 2.0, 7) );
+	d_nodes.push_back( MyNode(1.0, 1.0, 2.0, 13) );
+	d_nodes.push_back( MyNode(0.0, 1.0, 2.0, 5) );
 
+	// Make 2 hexahedrons.
+	d_elements.push_back( MyHex( 0, 4, 9, 2, 3, 8, 1, 6, 0 ) );
+	d_elements.push_back( MyHex( 3, 8, 1, 6, 12, 7, 13, 5, 1 ) ); 
 
-	// Make a quadrilateral.
-	d_elements.push_back( MyHex( 0, 1, 2, 3, 4, 5, 6, 7, 12 ) );
-
-	// Add some data for the elements.
+	// Add some data for the hexes.
 	d_element_data.push_back( 1.5 );
 	d_element_data.push_back( 3.5 );
-	d_element_data.push_back( 5.5 );
-	d_element_data.push_back( 7.5 );
     }
 
   public:
