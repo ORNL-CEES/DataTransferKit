@@ -16,6 +16,8 @@ namespace DataTransferKit
 {
 
 //---------------------------------------------------------------------------//
+// Design by contract exceptions.
+//---------------------------------------------------------------------------//
 /*!
  * \brief Exception class to be thrown when function preconditions are not
  * met.
@@ -52,6 +54,8 @@ class InvariantException : public std::runtime_error
 };
 
 //---------------------------------------------------------------------------//
+// Design by contract functions.
+//---------------------------------------------------------------------------//
 // Test for a precondition exception.
 void testPrecondition( bool throw_if_false, const std::string &msg );
 
@@ -62,6 +66,30 @@ void testPostcondition( bool throw_if_false, const std::string &msg );
 void testInvariant( bool throw_if_false, const std::string &msg );
 
 //---------------------------------------------------------------------------//
+// Mesh exceptions.
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Base class for mesh errors.
+ */
+class MeshException : public std::runtime_error
+{
+  public:
+    MeshException( const std::string &msg )
+	: std::runtime_error( msg )
+    { /* ... */ }
+};
+
+/*!
+ * \brief Exception class to be thrown when a point is not found in a mesh
+ * during a search process.
+ */
+class PointNotFound : public MeshException
+{
+  public:
+    PointNotFound()
+	: MeshException( "Point not found." )
+    { /* ... */ }
+};
 
 } // end namespace DataTransferKit
 
