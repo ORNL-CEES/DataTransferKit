@@ -11,7 +11,9 @@
 
 #include "DTK_Mesh.hpp"
 
-#include "Teuchos_RCP.hpp"
+#include <Teuchos_RCP.hpp>
+
+#include <MBAdaptiveKDTree.hpp>
 
 namespace DataTransferKit
 {
@@ -38,10 +40,27 @@ class KDTree
     void build();
 
     // Search the KDTree.
-    ElementHandle findPoint( &const double coords[3] );
+    ElementHandle findPoint( const double coords[3] );
+
+  private:
+
+    // Mesh.
+    RCP_Mesh d_mesh;
+
+    // Adaptive kD-tree.
+    moab::AdaptiveKDTree d_tree;
+
+    // Tree root.
+    moab::EntityHandle d_root;
 };
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_KDTree_def.hpp"
 
 #endif // DTK_KDTREE_HPP
 
