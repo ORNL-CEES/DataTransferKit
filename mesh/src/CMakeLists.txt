@@ -20,16 +20,19 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  DTK_CellTopologyFactory.hpp
   DTK_KDTree.hpp
   DTK_KDTree_def.hpp
   DTK_Mesh.hpp
   DTK_Mesh_def.hpp
+  DTK_TopologyTools.hpp
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
-  DTK_Mesh.cpp
+  DTK_CellTopologyFactory.cpp
+  DTK_TopologyTools.cpp
   )
 
 # Set addition headers and source based on package-specific

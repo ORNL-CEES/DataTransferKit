@@ -78,7 +78,7 @@ bool KDTree<ElementHandle>::findPointInLeaf( const double coords[3],
 {
     bool found_element = false;
 
-
+    
 }
 
 //---------------------------------------------------------------------------//
