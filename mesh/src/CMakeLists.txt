@@ -25,6 +25,7 @@ APPEND_SET(HEADERS
   DTK_KDTree_def.hpp
   DTK_Mesh.hpp
   DTK_Mesh_def.hpp
+  DTK_RCB.hpp
   DTK_TopologyTools.hpp
   )
 
