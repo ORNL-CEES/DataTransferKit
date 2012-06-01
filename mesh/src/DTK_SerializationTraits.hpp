@@ -19,7 +19,7 @@ namespace Teuchos
 {
 //===========================================================================//
 /*!
- * \brief Serialization traits for core objects.
+ * \brief Serialization traits specializaitons for mesh objects.
  */
 //===========================================================================//
 

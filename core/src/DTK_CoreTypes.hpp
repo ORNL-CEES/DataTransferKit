@@ -2,7 +2,7 @@
 /*!
  * \file DTK_CoreTypes.hpp
  * \author Stuart R. Slattery
- * \brief Types for the core subpackage
+ * \brief Enumerated types for the core subpackage.
  */
 //---------------------------------------------------------------------------//
 

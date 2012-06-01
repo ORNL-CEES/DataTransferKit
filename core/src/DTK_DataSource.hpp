@@ -46,7 +46,7 @@ class DataSource : Teuchos::Describable
   public:
 
     //@{
-    //! Typdefs.
+    //! Typedefs.
     typedef NodeField                                         node_field_type;
     typedef typename FieldTraits<NodeField>::value_type       node_type;
     typedef typename NodeTraits<node_type>::handle_type       node_handle_type;
@@ -88,7 +88,7 @@ class DataSource : Teuchos::Describable
     virtual bool isFieldSupported( const std::string &field_name ) = 0;
 
     /*! 
-     * \brief Provide the local source mesh nodes this includes nodes needed
+     * \brief Provide the local source mesh nodes. This includes nodes needed
      * to resolve higher order elements.
      * \param source_nodes View of the local source mesh nodes. This view
      * is required to persist. The NodeField type is expected to
@@ -104,7 +104,7 @@ class DataSource : Teuchos::Describable
      * passed must be a contiguous memory view of DataTransferKit::Element
      * objects. The ElementField type is exepected to implement
      * FieldTraits. ElementField::value_type is expected to implement
-     * ElementTraits.  
+     * ElementTraits.
      */
     virtual const ElementField& getSourceMeshElements() = 0;
 
