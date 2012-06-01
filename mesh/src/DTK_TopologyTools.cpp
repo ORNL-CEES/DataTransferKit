@@ -85,7 +85,7 @@ bool TopologyTools::pointInElement( double coords[3],
     std::vector<moab::EntityHandle> element_nodes;
     error = moab->get_adjacencies( &element,
 				   1,
-				   1,
+				   0,
 				   false,
 				   element_nodes );
     testInvariant( moab::MB_SUCCESS == error, "Failure getting element nodes" );
