@@ -14,19 +14,21 @@
 
 namespace DataTransferKit
 {
-
+//---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
  */
 CellTopologyFactory::CellTopologyFactory()
 { /* ... */ }
 
+//---------------------------------------------------------------------------//
 /*!
  * \brief Destructor.
  */
 CellTopologyFactory::~CellTopologyFactory()
 { /* ... */ }
 
+//---------------------------------------------------------------------------//
 /*!
  * \brief Factory method.
  */
@@ -192,6 +194,8 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 
     return new_topology;
 }
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

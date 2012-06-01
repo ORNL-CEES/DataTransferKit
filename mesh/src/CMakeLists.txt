@@ -33,6 +33,7 @@ APPEND_SET(HEADERS
 
 APPEND_SET(SOURCES
   DTK_CellTopologyFactory.cpp
+  DTK_RCB.cpp
   DTK_TopologyTools.cpp
   )
 

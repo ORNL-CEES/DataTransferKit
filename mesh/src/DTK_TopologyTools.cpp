@@ -23,7 +23,7 @@
 
 namespace DataTransferKit
 {
-
+//---------------------------------------------------------------------------//
 /*! 
  * \brief Get the number of linear nodes for a particular iMesh topology.
  */
@@ -69,6 +69,7 @@ int TopologyTools::numLinearNodes( const moab::EntityType element_topology )
     return num_nodes;
 }
 
+//---------------------------------------------------------------------------//
 /*!
  * \brief Point in element query.
  */
@@ -140,6 +141,8 @@ bool TopologyTools::pointInElement( double coords[3],
 
     return point_found;
 }
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
