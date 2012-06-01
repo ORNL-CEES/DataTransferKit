@@ -9,6 +9,9 @@
 #ifndef DTK_KDTREE_DEF_HPP
 #define DTK_KDTREE_DEF_HPP
 
+#include <vector>
+
+#include "DTK_TopologyTools.hpp"
 #include <DTK_Exception.hpp>
 
 namespace DataTransferKit
@@ -20,7 +23,7 @@ namespace DataTransferKit
 template<typename ElementHandle>
 KDTree<ElementHandle>::KDTree( const RCP_Mesh& mesh )
 : d_mesh( mesh )
-, d_tree( mesh->getMoab()->get() )
+, d_tree( d_mesh->getMoab().get() )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -39,7 +42,7 @@ template<typename ElementHandle>
 void KDTree<ElementHandle>::build()
 { 
     moab::ErrorCode error;
-    error = d_tree.build_tree( mesh->getElements(), d_root );
+    error = d_tree.build_tree( d_mesh->getElements(), d_root );
     testInvariant( moab::MB_SUCCESS == error,
 		   "Failed to construct kD-tree." );
 }
@@ -47,10 +50,10 @@ void KDTree<ElementHandle>::build()
 //---------------------------------------------------------------------------//
 /*!
  * \brief Find a point in the tree. Return the native handle of the element it
- * was found in. Throw a MeshException if the point was not found.
+ * was found in. 
  */
 template<typename ElementHandle>
-ElementHandle KDTree<ElementHandle>::findPoint( const double coords[3] )
+ElementHandle KDTree<ElementHandle>::findPoint( double coords[3] )
 {
     moab::ErrorCode error;
     moab::EntityHandle leaf;
@@ -58,27 +61,62 @@ ElementHandle KDTree<ElementHandle>::findPoint( const double coords[3] )
     testInvariant( moab::MB_SUCCESS == error,
 		   "Failed to search kD-tree." );
 
-    moab::EntityHandle element;
-    bool found_element = findPointInLeaf( coords, leaf, element );
-    if ( !found element)
-    {
-	throw PointNotFound();
-    }
-
+    moab::EntityHandle element = findPointInLeaf( coords, leaf );
     return d_mesh->getNativeHandle( element );
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Find a point in a leaf.
+ * \brief Find a point in a leaf. Throw a MeshException if the point was not
+ * found.
  */
-bool KDTree<ElementHandle>::findPointInLeaf( const double coords[3],
-					     const moab::EntityHandle leaf,
-					     moab::EntityHandle &element )
+template<typename ElementHandle>
+moab::EntityHandle KDTree<ElementHandle>::findPointInLeaf( 
+    double coords[3], const moab::EntityHandle leaf )
 {
-    bool found_element = false;
+    moab::ErrorCode error;
 
-    
+    // Get the largest dimension of the elements in the leaf.
+    int dim;
+    int num_elements_by_dim = 0;
+    for ( int d = 0; d < 4; ++d )
+    {
+	error = d_mesh->getMoab()->get_number_entities_by_dimension(
+	    leaf, d, num_elements_by_dim );
+	testInvariant( moab::MB_SUCCESS == error,
+		       "Failed to get number of elements by dimension." );
+
+	if ( num_elements_by_dim > 0 )
+	{
+	    dim = d;
+	}
+    }
+
+    // Get the elements in the leaf.
+    std::vector<moab::EntityHandle> leaf_elements;
+    error = d_mesh->getMoab()->get_entities_by_dimension( 
+	leaf, dim, leaf_elements );
+    testInvariant( moab::MB_SUCCESS == error,
+		   "Failed to get leaf elements" );
+
+    // Search the leaf elements with the point.
+    std::vector<moab::EntityHandle>::const_iterator leaf_iterator;
+    for ( leaf_iterator = leaf_elements.begin();
+	  leaf_iterator != leaf_elements.end();
+	  ++leaf_iterator )
+    {
+	if ( TopologyTools::pointInElement( 
+		 coords, *leaf_iterator, d_mesh->getMoab() ) )
+	{
+	    return *leaf_iterator;
+	}
+    }
+
+    // We didn't find the point so we'll throw an exception.
+    throw PointNotFound();
+
+    // Return a 0 handle if no element was found.
+    return 0;
 }
 
 //---------------------------------------------------------------------------//

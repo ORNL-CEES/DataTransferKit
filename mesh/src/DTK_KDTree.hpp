@@ -40,14 +40,13 @@ class KDTree
     void build();
 
     // Find a point in the tree.
-    ElementHandle findPoint( const double coords[3] );
+    ElementHandle findPoint( double coords[3] );
 
   private:
 
     // Find a point in a leaf.
-    bool findPointInLeaf( const double coords[3],
-			  const moab::EntityHandle leaf,
-			  moab::EntityHandle &element );
+    moab::EntityHandle findPointInLeaf( double coords[3],
+					const moab::EntityHandle leaf );
 
   private:
 
