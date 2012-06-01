@@ -1,27 +1,27 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file TopologyTools.cpp
- * \author Stuart Slattery
+ * \file DTK_TopologyTools.cpp
+ * \author Stuart R. Slattery
  * \brief TopologyTools definition
  */
 //---------------------------------------------------------------------------//
 
 #include <vector>
-#include <cassert>
 
 #include "DTK_CellTopologyFactory.hpp"
 #include "DTK_TopologyTools.hpp"
 #include <DTK_Exception.hpp>
 
 #include <Teuchos_ENull.hpp>
-#include <Teuchos_RCP.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_Tuple.hpp>
 
 #include <Shards_CellTopology.hpp>
 
 #include <Intrepid_FieldContainer.hpp>
 #include <Intrepid_CellTools.hpp>
 
-namespace FOOD
+namespace DataTransferKit
 {
 
 /*! 
@@ -70,88 +70,79 @@ int TopologyTools::numLinearNodes( const moab::EntityType element_topology )
 }
 
 /*!
- * \brief Point in volume query on an element
+ * \brief Point in element query.
  */
-bool TopologyTools::pointInVolume( const double coords[3],
-				   const moab::EntityHandle element,
-				   const Teuchos::RCP<moab::Interface>& moab )
+bool TopologyTools::pointInElement( double coords[3],
+				    const moab::EntityHandle element,
+				    const Teuchos::RCP<moab::Interface>& moab )
 {
     moab::ErrorCode error;
-    int topology = 0;
-    iMesh_getEntTopo( mesh, entity, &topology, &error );
-    assert( iBase_SUCCESS == error );
 
-    iBase_EntityHandle *element_nodes = 0;
-    int element_nodes_allocated = 0;
-    int element_nodes_size = 0;
-    iMesh_getEntAdj( mesh,
-		     entity,
-		     iBase_VERTEX,
-		     &element_nodes,
-		     &element_nodes_allocated,
-		     &element_nodes_size,
-		     &error );
-    assert( iBase_SUCCESS == error );
+    // Get the element topology.
+    moab::EntityType element_topology = moab->type_from_handle( element );
 
-    MBCN2Shards( element_nodes, element_nodes_size, topology );
+    // Get the element nodes.
+    std::vector<moab::EntityHandle> element_nodes;
+    error = moab->get_adjacencies( &element,
+				   1,
+				   1,
+				   false,
+				   element_nodes );
+    testInvariant( moab::MB_SUCCESS == error, "Failure getting element nodes" );
 
-    int num_linear_nodes = numLinearNodes( topology );
-
-    CellTopologyFactory topo_factory;
-    Teuchos::RCP<shards::CellTopology> cell_topo = 
-	topo_factory.create( topology, num_linear_nodes );
-
-    std::vector<iBase_EntityHandle> linear_nodes;
+    // Extract only the nodes to build the linear element.
+    int num_linear_nodes = numLinearNodes( element_topology );
+    std::vector<moab::EntityHandle> linear_nodes;
     for ( int n = 0; n < num_linear_nodes; ++n )
     {
 	linear_nodes.push_back( element_nodes[n] );
     }
 
-    int coords_allocated = 0;
-    int coords_size = 0;
-    double *coord_array = 0;
-    iMesh_getVtxArrCoords( mesh,
-			   &linear_nodes[0],
-			   num_linear_nodes,
-			   iBase_INTERLEAVED,
-			   &coord_array,
-			   &coords_allocated,
-			   &coords_size,
-			   &error );
-    assert( iBase_SUCCESS == error );
+    // Create the Shards topology for the element type.
+    CellTopologyFactory topo_factory;
+    Teuchos::RCP<shards::CellTopology> cell_topo = 
+	topo_factory.create( element_topology, num_linear_nodes );
 
+    // Extract the node coordinates.
+    std::vector<double> node_coords( 3 * num_linear_nodes );
+    error = moab->get_coords( &linear_nodes[0], 
+			      linear_nodes.size(), 
+			      &node_coords[0] );
+    testInvariant( moab::MB_SUCCESS == error, 
+		   "Failure getting node coordinates" );
+
+    // Wrap the coordinates in a field container.
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;
     cell_node_dimensions[1] = num_linear_nodes;
     cell_node_dimensions[2] = 3;
     Intrepid::FieldContainer<double> cell_nodes( 
-	Teuchos::Array<int>(cell_node_dimensions), coord_array );
+	Teuchos::Array<int>(cell_node_dimensions), &node_coords[0] );
 
-    Intrepid::FieldContainer<double> find_coords(1,3);
-    find_coords(0,0) = coords[0];
-    find_coords(0,1) = coords[1];
-    find_coords(0,2) = coords[2];
-    Intrepid::FieldContainer<double> reference_points(1,3);
-    Intrepid::CellTools<double>::mapToReferenceFrame( reference_points,
-						      find_coords,
+    // Wrap the point in a field container.
+    Teuchos::Tuple<int,2> point_dimensions;
+    point_dimensions[0] = 1;
+    point_dimensions[1] = 3;
+    Intrepid::FieldContainer<double> point(
+	Teuchos::Array<int>(point_dimensions), &coords[0] );
+
+    // Map the point to the reference frame of the cell.
+    Intrepid::FieldContainer<double> reference_point(1,3);
+    Intrepid::CellTools<double>::mapToReferenceFrame( reference_point,
+						      point,
 						      cell_nodes,
 						      *cell_topo,
 						      0 );
 
-    bool return_val = Intrepid::CellTools<double>::checkPointInclusion( 
-	&reference_points[0],
-	3,
-	*cell_topo);
+    // Check for reference point inclusion in the reference cell.
+    bool point_found = Intrepid::CellTools<double>::checkPointsetInclusion( 
+	reference_point, *cell_topo);
 
-    free( element_nodes );
-    free( coord_array );
-    cell_topo = Teuchos::null;
-
-    return return_val;
+    return point_found;
 }
 
-} // end namespace FOOD
+} // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end TopologyTools.cpp
+// end DTK_TopologyTools.cpp
 //---------------------------------------------------------------------------//
