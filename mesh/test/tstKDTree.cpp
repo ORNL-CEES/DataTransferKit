@@ -374,8 +374,8 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 // Tests
 //---------------------------------------------------------------------------//
 
-// Point inclusion test.
-TEUCHOS_UNIT_TEST( TopologyTools, topology_tools_test )
+// kD-Tree test.
+TEUCHOS_UNIT_TEST( KDTree, kd_tree_test )
 {
     using namespace DataTransferKit;
 

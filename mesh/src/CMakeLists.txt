@@ -26,6 +26,7 @@ APPEND_SET(HEADERS
   DTK_Mesh.hpp
   DTK_Mesh_def.hpp
   DTK_RCB.hpp
+  DTK_RCB_def.hpp
   DTK_TopologyTools.hpp
   )
 
@@ -33,7 +34,6 @@ APPEND_SET(HEADERS
 
 APPEND_SET(SOURCES
   DTK_CellTopologyFactory.cpp
-  DTK_RCB.cpp
   DTK_TopologyTools.cpp
   )
 

@@ -92,7 +92,9 @@ void RCB<NodeField>::partition()
 template<typename NodeField>
 int RCB<NodeField>::getNumberOfObjects( void *data, int *ierr )
 {
-
+    NodeField *node_field = (NodeField*) data;
+    *ierr = ZOLTAN_OK;
+    return FieldTraits<NodeField>::size( *node_field );
 }
 
 //---------------------------------------------------------------------------//
@@ -100,11 +102,26 @@ int RCB<NodeField>::getNumberOfObjects( void *data, int *ierr )
  * \brief Zoltan callback for getting the local and global node ID's.
  */
 template<typename NodeField>
-void RCB<NodeField>::getObjectList( void *data, int sizeGID, int sizeLID,
-				    ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
-				    int wgt_dim, float *obj_wgts, int *ierr )
+void RCB<NodeField>::getObjectList( 
+    void *data, int sizeGID, int sizeLID,
+    ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
+    int wgt_dim, float *obj_wgts, int *ierr )
 {
+    NodeField *node_field = (NodeField*) data;
+    *ierr = ZOLTAN_OK;
 
+    typedef typename FieldTraits<NodeField>::value_type node_type;
+    
+    typename FieldTraits<NodeField>::const_iterator node_iterator;
+    int i = 0;
+    for ( node_iterator = FieldTraits<NodeField>::begin( *node_field );
+	  node_iterator != FieldTraits<NodeField>::begin( *node_field );
+	  ++node_iterator, ++i )
+    {
+	globalID[i] = 
+	    (ZOLTAN_ID_TYPE) NodeTraits<node_type>::handle( *node_iterator );
+	localID[i] = i;
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -114,7 +131,9 @@ void RCB<NodeField>::getObjectList( void *data, int sizeGID, int sizeLID,
 template<typename NodeField>
 int RCB<NodeField>::getNumGeometry( void *data, int *ierr )
 {
-
+    *ierr = ZOLTAN_OK;
+    typedef typename FieldTraits<NodeField>::value_type node_type;
+    return NodeTraits<node_type>::dim();
 }
 
 //---------------------------------------------------------------------------//
@@ -122,12 +141,47 @@ int RCB<NodeField>::getNumGeometry( void *data, int *ierr )
  * \brief Zoltan callback for getting the node coordinates.
  */
 template<typename NodeField>
-void RCB<NodeField>::getGeometryList( void *data, int sizeGID, int sizeLID,
-				      int num_obj,
-				      ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
-				      int num_dim, double *geom_vec, int *ierr )
+void RCB<NodeField>::getGeometryList(
+    void *data, int sizeGID, int sizeLID,
+    int num_obj,
+    ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
+    int num_dim, double *geom_vec, int *ierr )
 {
+    NodeField *node_field = (NodeField*) data;
+    int num_nodes = FieldTraits<NodeField>::size( *node_field );
 
+    typedef typename FieldTraits<NodeField>::value_type node_type;
+    int dim = NodeTraits<node_type>::dim();
+
+    testInvariant( sizeGID == 1, "Zoltan global ID size != 1." );
+    testInvariant( sizeLID == 1, "Zoltan local ID size != 1." );
+    testInvariant( num_dim == dim, "Zoltan dimension != node dimension." );
+    testInvariant( num_obj == num_nodes, 
+		   "Zoltan number of nodes != field size" );
+
+    if ( sizeGID != 1 || sizeLID != 1 || num_dim != dim || num_obj != num_nodes )
+    {
+	*ierr = ZOLTAN_FATAL;
+	return;
+    }
+    
+    typename FieldTraits<NodeField>::const_iterator node_iterator;
+    typename NodeTraits<node_type>::const_coordinate_iterator coord_iterator;
+    int i = 0;
+    for ( node_iterator = FieldTraits<NodeField>::begin( *node_field );
+	  node_iterator != FieldTraits<NodeField>::begin( *node_field );
+	  ++node_iterator)
+    {
+	for ( coord_iterator = 
+		  NodeTraits<node_type>::coordsBegin( *node_iterator );
+	      coord_iterator != 
+		  NodeTraits<node_type>::coordsEnd( *node_iterator );
+	      ++coord_iterator )
+	{
+	    geom_vec[i] = (double) *coord_iterator;
+	    ++i;
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
