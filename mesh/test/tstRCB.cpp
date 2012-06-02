@@ -27,6 +27,7 @@
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
 
@@ -282,46 +283,34 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
     std::vector<MyHex> d_elements;
     std::vector<double> d_element_data;
     MPI_Comm d_comm;
+    int d_rank;
+    int d_size;
 
     void createMesh()
     {
 	// Make some nodes.
-	d_nodes.push_back( MyNode(0.0, 0.0, 0.0, 0) );
-	d_nodes.push_back( MyNode(1.0, 0.0, 0.0, 4) );
-	d_nodes.push_back( MyNode(1.0, 1.0, 0.0, 9) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 0.0, 2) );
-	d_nodes.push_back( MyNode(0.0, 0.0, 1.0, 3) );
-	d_nodes.push_back( MyNode(1.0, 0.0, 1.0, 8) );
-	d_nodes.push_back( MyNode(1.0, 1.0, 1.0, 1) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 1.0, 6) );
-	d_nodes.push_back( MyNode(0.0, 0.0, 2.0, 12) );
-	d_nodes.push_back( MyNode(1.0, 0.0, 2.0, 7) );
-	d_nodes.push_back( MyNode(1.0, 1.0, 2.0, 13) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 2.0, 5) );
-
-	// Make 2 hexahedrons.
-	d_elements.push_back( MyHex( 0, 4, 9, 2, 3, 8, 1, 6, 0 ) );
-	d_elements.push_back( MyHex( 3, 8, 1, 6, 12, 7, 13, 5, 1 ) ); 
-
-	// Add some data for the hexes.
-	d_element_data.push_back( 1.5 );
-	d_element_data.push_back( 3.5 );
+	d_nodes.push_back( MyNode(0.0, 0.0, 1.0*d_rank, d_rank ) );
+	d_nodes.push_back( MyNode(1.0, 0.0, 1.0*d_rank, d_size + d_rank ) );
+	d_nodes.push_back( MyNode(1.0, 1.0, 1.0*d_rank, 2*d_size + d_rank ) );
+	d_nodes.push_back( MyNode(0.0, 1.0, 1.0*d_rank, 3*d_size + d_rank ) );
     }
 
   public:
 
     MyDataSource()
     { 
-	// Build the mesh.
-	createMesh();
-
 	// Get the raw MPI_Comm out of Teuchos.
 	Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+	d_rank = comm->getRank();
+	d_size = comm->getSize();
 	Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
 	    Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
 	Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
 	    mpi_comm->getRawMpiComm();
 	d_comm = (*opaque_comm)();
+
+	// Build the mesh.
+	createMesh();
    }
 
     ~MyDataSource()
@@ -373,7 +362,7 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 // Tests
 //---------------------------------------------------------------------------//
 
-TEUCHOS_UNIT_TEST( TopologyTools, topology_tools_test )
+TEUCHOS_UNIT_TEST( RCB, rcb_test )
 {
     using namespace DataTransferKit;
 
@@ -390,6 +379,13 @@ TEUCHOS_UNIT_TEST( TopologyTools, topology_tools_test )
 
     RCB<NodeField> rcb( nodes, comm );
     rcb.partition();
+
+    // Check the partitioning.
+    int my_rank = getDefaultComm<int>()->getRank();
+    int my_size = getDefaultComm<int>()->getSize();
+
+    std::cout << my_rank << " " << rcb.getNumImport() << " " 
+	      << rcb.getNumExport() << std::endl;
 }
 
 //---------------------------------------------------------------------------//

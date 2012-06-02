@@ -7,8 +7,6 @@
 //---------------------------------------------------------------------------//
 
 #include <DTK_Exception.hpp>
-#include <DTK_NodeTraits.hpp>
-#include <DTK_FieldTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -50,11 +48,11 @@ RCB<NodeField>::RCB( const NodeField& node_field, const MPI_Comm& comm )
 template<typename NodeField>
 RCB<NodeField>::~RCB()
 {
-    // Tell zoltan to cleanup.
-    Zoltan_LB_Free_Part ( &d_importGlobalGids, &d_importLocalGids, 
-			  &d_importProcs, &d_importToPart );
-    Zoltan_LB_Free_Part( &d_exportGlobalGids, &d_exportLocalGids, 
-			 &d_exportProcs, &d_exportToPart );
+    // Zoltan cleanup.
+    Zoltan_LB_Free_Part ( &d_import_global_ids, &d_import_local_ids, 
+			  &d_import_procs, &d_import_to_part );
+    Zoltan_LB_Free_Part( &d_export_global_ids, &d_export_local_ids, 
+			 &d_export_procs, &d_export_to_part );
     Zoltan_Destroy( &d_zz );
 }
 
@@ -68,18 +66,18 @@ void RCB<NodeField>::partition()
     int zoltan_error;
     zoltan_error = Zoltan_LB_Partition( d_zz, 
 					&d_changes,  
-					&d_numGidEntries,
-					&d_numLidEntries,
-					&d_numImport,    
-					&d_importGlobalGids,
-					&d_importLocalGids, 
-					&d_importProcs,    
-					&d_importToPart,   
-					&d_numExport,      
-					&d_exportGlobalGids,
-					&d_exportLocalGids, 
-					&d_exportProcs,    
-					&d_exportToPart ); 
+					&d_num_gid_entries,
+					&d_num_lid_entries,
+					&d_num_import,    
+					&d_import_global_ids,
+					&d_import_local_ids, 
+					&d_import_procs,    
+					&d_import_to_part,   
+					&d_num_export,      
+					&d_export_global_ids,
+					&d_export_local_ids, 
+					&d_export_procs,    
+					&d_export_to_part ); 
 
     testInvariant( ZOLTAN_OK == zoltan_error, 
 		   "Zoltan error creating RCB partitioning" );
@@ -110,12 +108,10 @@ void RCB<NodeField>::getObjectList(
     NodeField *node_field = (NodeField*) data;
     *ierr = ZOLTAN_OK;
 
-    typedef typename FieldTraits<NodeField>::value_type node_type;
-    
     typename FieldTraits<NodeField>::const_iterator node_iterator;
     int i = 0;
     for ( node_iterator = FieldTraits<NodeField>::begin( *node_field );
-	  node_iterator != FieldTraits<NodeField>::begin( *node_field );
+	  node_iterator != FieldTraits<NodeField>::end( *node_field );
 	  ++node_iterator, ++i )
     {
 	globalID[i] = 
@@ -132,7 +128,6 @@ template<typename NodeField>
 int RCB<NodeField>::getNumGeometry( void *data, int *ierr )
 {
     *ierr = ZOLTAN_OK;
-    typedef typename FieldTraits<NodeField>::value_type node_type;
     return NodeTraits<node_type>::dim();
 }
 
@@ -150,7 +145,6 @@ void RCB<NodeField>::getGeometryList(
     NodeField *node_field = (NodeField*) data;
     int num_nodes = FieldTraits<NodeField>::size( *node_field );
 
-    typedef typename FieldTraits<NodeField>::value_type node_type;
     int dim = NodeTraits<node_type>::dim();
 
     testInvariant( sizeGID == 1, "Zoltan global ID size != 1." );
@@ -169,7 +163,7 @@ void RCB<NodeField>::getGeometryList(
     typename NodeTraits<node_type>::const_coordinate_iterator coord_iterator;
     int i = 0;
     for ( node_iterator = FieldTraits<NodeField>::begin( *node_field );
-	  node_iterator != FieldTraits<NodeField>::begin( *node_field );
+	  node_iterator != FieldTraits<NodeField>::end( *node_field );
 	  ++node_iterator)
     {
 	for ( coord_iterator = 
