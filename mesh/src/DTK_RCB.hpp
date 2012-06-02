@@ -6,7 +6,7 @@
  */
 //---------------------------------------------------------------------------//
 
-#infdef DTK_RCB_HPP
+#ifndef DTK_RCB_HPP
 #define DTK_RCB_HPP
 
 #include <mpi.h>
@@ -16,18 +16,19 @@
 namespace DataTransferKit
 {
 
+template<typename NodeField>
 class RCB
 {
 
   public:
 
     // Constructor.
-    RCB( const MPI_Comm& comm );
+    RCB( const NodeField& node_field, const MPI_Comm& comm );
 
     // Destructor.
     ~RCB();
 
-    // Compute RCB partitioning.
+    // Compute RCB partitioning of the node field.
     void partition();
 
   private:
@@ -51,8 +52,11 @@ class RCB
 
   private:
 
+    // The node field we are partitioning.
+    NodeField d_node_field;
+
     // Zoltan struct.
-    ZZ *d_zz;
+    Zoltan_Struct *d_zz;
 
     // 1 if partitioning was changed, 0 otherwise.
     int d_changes;
@@ -96,10 +100,14 @@ class RCB
 
 } // end namespace DataTransferKit
 
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_RCB_def.hpp"
+
 #endif // end DTK_RCB_HPP
 
 //---------------------------------------------------------------------------//
 // end DTK_RCB.hpp
 //---------------------------------------------------------------------------//
-
-
