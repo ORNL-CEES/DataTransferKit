@@ -28,6 +28,8 @@ APPEND_SET(HEADERS
   DTK_Mesh_def.hpp
   DTK_RCB.hpp
   DTK_RCB_def.hpp
+  DTK_Rendezvous.hpp
+  DTK_Rendezvous_def.hpp
   DTK_TopologyTools.hpp
   )
 

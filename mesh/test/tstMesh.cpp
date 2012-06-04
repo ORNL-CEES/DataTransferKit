@@ -222,23 +222,23 @@ struct FieldTraits< std::vector<MyHex> >
     typedef std::vector<MyHex>::iterator         iterator;
     typedef std::vector<MyHex>::const_iterator   const_iterator;
     
-    static inline std::size_t size( const std::vector<MyHex> &quad_field )
-    { return quad_field.size(); }
+    static inline std::size_t size( const std::vector<MyHex> &hex_field )
+    { return hex_field.size(); }
 
-    static inline iterator begin( std::vector<MyHex> &quad_field )
-    { return quad_field.begin(); }
+    static inline iterator begin( std::vector<MyHex> &hex_field )
+    { return hex_field.begin(); }
 
-    static inline const_iterator begin( const std::vector<MyHex> &quad_field )
-    { return quad_field.begin(); }
+    static inline const_iterator begin( const std::vector<MyHex> &hex_field )
+    { return hex_field.begin(); }
 
-    static inline iterator end( std::vector<MyHex> &quad_field )
-    { return quad_field.end(); }
+    static inline iterator end( std::vector<MyHex> &hex_field )
+    { return hex_field.end(); }
 
-    static inline const_iterator end( const std::vector<MyHex> &quad_field )
-    { return quad_field.end(); }
+    static inline const_iterator end( const std::vector<MyHex> &hex_field )
+    { return hex_field.end(); }
 
-    static inline bool empty(  const std::vector<MyHex> &quad_field )
-    { return quad_field.empty(); }
+    static inline bool empty(  const std::vector<MyHex> &hex_field )
+    { return hex_field.empty(); }
 };
 
 //---------------------------------------------------------------------------//

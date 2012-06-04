@@ -12,6 +12,7 @@
 
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
+#include <Teuchos_CommHelpers.hpp>
 
 namespace DataTransferKit
 {
@@ -22,6 +23,7 @@ namespace DataTransferKit
 template<typename NodeField>
 RCB<NodeField>::RCB( const NodeField& node_field, const RCP_Comm& comm )
     : d_node_field( node_field )
+    , d_part_boxes( comm->getSize() )
 {
     // Create the Zoltan object.
     Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
@@ -75,6 +77,7 @@ RCB<NodeField>::~RCB()
 template<typename NodeField>
 void RCB<NodeField>::partition()
 {
+    // Run zoltan partitioning.
     int zoltan_error;
     zoltan_error = Zoltan_LB_Partition( d_zz, 
 					&d_changes,  
@@ -93,6 +96,16 @@ void RCB<NodeField>::partition()
 
     testInvariant( ZOLTAN_OK == zoltan_error, 
 		   "Zoltan error creating RCB partitioning" );
+
+    // Get the bounding boxes on all processes.
+    std::vector<BoundingBox>::iterator box_iterator;
+    int i = 0;
+    for ( box_iterator = d_part_boxes.begin();
+	  box_iterator != d_part_boxes.end();
+	  ++box_iterator, ++i )
+    {
+	*box_iterator = getPartBoundingBox( i );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -113,6 +126,33 @@ BoundingBox RCB<NodeField>::getPartBoundingBox( const int part ) const
 		   "Zoltan error getting partition bounding box." );
     
     return BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the destination process for a point.
+ */
+template<typename NodeField>
+int RCB<NodeField>::getDestinationProc( double coords[3] ) const
+{
+    // Do a linear search through the bounding boxes for now.
+    std::vector<BoundingBox>::const_iterator box_iterator;
+    int i = 0;
+    for ( box_iterator = d_part_boxes.begin();
+	  box_iterator != d_part_boxes.end();
+	  ++box_iterator, ++i )
+    {
+	if ( box_iterator->pointInBox( coords ) )
+	{
+	    return i;
+	}
+    }
+
+    // We didn't find the point in the RCB partitioning so throw a point not
+    // found exception.
+    throw PointNotFound( "Did not find point in the RCB decomposition." );
+
+    return 0;
 }
 
 //---------------------------------------------------------------------------//

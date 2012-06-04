@@ -9,6 +9,8 @@
 #ifndef DTK_RCB_HPP
 #define DTK_RCB_HPP
 
+#include <vector>
+
 #include "DTK_BoundingBox.hpp"
 #include <DTK_NodeTraits.hpp>
 #include <DTK_FieldTraits.hpp>
@@ -45,8 +47,8 @@ class RCB
     // Compute RCB partitioning of the node field.
     void partition();
 
-    // Get the bounding box for a partition.
-    BoundingBox getPartBoundingBox( const int part ) const;
+    // Get the destination process for a point.
+    int getDestinationProc( double coords[3] ) const;
 
     //! Get the number of imported nodes.
     int getNumImport() const
@@ -111,10 +113,16 @@ class RCB
 				 ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
 				 int num_dim, double *geom_vec, int *ierr );
 
+    // Get the bounding box for a partition.
+    BoundingBox getPartBoundingBox( const int part ) const;
+
   private:
 
     // The node field we are partitioning.
     NodeField d_node_field;
+
+    // Partition bounding boxes.
+    std::vector<BoundingBox> d_part_boxes;
 
     // Zoltan struct.
     Zoltan_Struct *d_zz;

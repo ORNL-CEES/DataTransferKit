@@ -86,8 +86,8 @@ class MeshException : public std::runtime_error
 class PointNotFound : public MeshException
 {
   public:
-    PointNotFound()
-	: MeshException( "Point not found." )
+    PointNotFound( const std::string &msg )
+	: MeshException( msg )
     { /* ... */ }
 };
 

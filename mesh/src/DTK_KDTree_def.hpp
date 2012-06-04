@@ -113,7 +113,7 @@ moab::EntityHandle KDTree<ElementHandle>::findPointInLeaf(
     }
 
     // We didn't find the point so we'll throw an exception.
-    throw PointNotFound();
+    throw PointNotFound( "Point not found in kD-tree." );
 
     // Return a 0 handle if no element was found.
     return 0;

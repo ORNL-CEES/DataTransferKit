@@ -9,6 +9,8 @@
 #ifndef DTK_RENDEZVOUS_HPP
 #define DTK_RENDEZVOUS_HPP
 
+#include <vector>
+
 #include "DTK_Mesh.hpp"
 #include "DTK_KDTree.hpp"
 #include "DTK_RCB.hpp"
@@ -23,8 +25,7 @@
 namespace DataTransferKit
 {
 
-template<typename SourceNodeField, typename SourceElementField,
-	 typename TargetNodeField>
+template<typename SourceMeshNodeField, typename SourceMeshElementField>
 class Rendezvous
 {
     
@@ -32,38 +33,47 @@ class Rendezvous
 
     //@{
     //! Typedefs.
-    typedef SourceNodeField                     source_node_field_type;
-    typedef SourceElementField                  source_element_field_type;
-    typedef TargetNodeField                     target_node_field_type;
-    typedef SourceNodeField::value_type         source_node_type;
-    typedef SourceElementField::value_type      source_element_type;
+    typedef SourceMeshNodeField                 source_node_field_type;
+    typedef SourceMeshElementField              source_element_field_type;
+    typedef SourceMeshNodeField::value_type     source_node_type;
+    typedef SourceMeshElementField::value_type  source_element_type;
     typedef source_element_type::handle_type    source_element_handle_type;
-    typedef TargetNodeField::value_type         target_node_type;
     typedef Mesh<source_element_handle_type>    MeshType;
     typedef Teuchos::RCP<MeshType>              RCP_Mesh;
     typedef KDTree<source_element_handle_type>  KDTreeType;
     typedef Teuchos::RCP<KDTreeType>            RCP_KDTree;
-    typedef RCB<SourceNodeField>                RCBType;
+    typedef RCB<SourceMeshNodeField>            RCBType;
     typedef Teuchos::RCP<RCBType>               RCP_RCB;
     typedef Teuchos::Comm<int>                  CommType;
     typedef Teuchos::RCP<const CommType>        RCP_Comm;
     //@}
 
     // Constructor.
-    Rendezvous( const RCP_Comm& global_comm );
+    Rendezvous( const RCP_Comm& global_comm, const BoundingBox& box );
 
     // Destructor.
     ~Rendezvous();
 
-    // Build the rendezvous decomposition.
-    void build( const SourceNodeField& source_nodes,
-		const SourceElementField& source_elements,
-		const TargetNodeField& target_nodes );
+    // Build the rendezvous decomposition of the source mesh.
+    void build( const SourceMeshNodeField& source_nodes,
+		const SourceMeshElementField& source_elements );
+
+  private:
+
+    // Get the rendezvous process for a list of node coordinates.
+    std::vector<int> getRendezvousProc( 
+	const std::vector<double> &coords ) const;
 
   private:
 
     // Global communicator over which to perform the rendezvous.
     RCP_Comm d_global_comm;
+
+    // Bounding box over which to perform rendezvous.
+    BoundingBox d_box;
+
+    // RCB Partitioning.
+    RCP_RCB d_rcb;
 
     // Local rendezvous mesh.
     RCP_Mesh d_mesh;
@@ -73,6 +83,12 @@ class Rendezvous
 };
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_Rendezvous_def.hpp"
 
 #endif // end DTK_RENDEZVOUS_HPP
 

@@ -223,23 +223,23 @@ struct FieldTraits< std::vector<MyHex> >
     typedef std::vector<MyHex>::iterator         iterator;
     typedef std::vector<MyHex>::const_iterator   const_iterator;
     
-    static inline std::size_t size( const std::vector<MyHex> &quad_field )
-    { return quad_field.size(); }
+    static inline std::size_t size( const std::vector<MyHex> &hex_field )
+    { return hex_field.size(); }
 
-    static inline iterator begin( std::vector<MyHex> &quad_field )
-    { return quad_field.begin(); }
+    static inline iterator begin( std::vector<MyHex> &hex_field )
+    { return hex_field.begin(); }
 
-    static inline const_iterator begin( const std::vector<MyHex> &quad_field )
-    { return quad_field.begin(); }
+    static inline const_iterator begin( const std::vector<MyHex> &hex_field )
+    { return hex_field.begin(); }
 
-    static inline iterator end( std::vector<MyHex> &quad_field )
-    { return quad_field.end(); }
+    static inline iterator end( std::vector<MyHex> &hex_field )
+    { return hex_field.end(); }
 
-    static inline const_iterator end( const std::vector<MyHex> &quad_field )
-    { return quad_field.end(); }
+    static inline const_iterator end( const std::vector<MyHex> &hex_field )
+    { return hex_field.end(); }
 
-    static inline bool empty(  const std::vector<MyHex> &quad_field )
-    { return quad_field.empty(); }
+    static inline bool empty(  const std::vector<MyHex> &hex_field )
+    { return hex_field.empty(); }
 };
 
 //---------------------------------------------------------------------------//
@@ -293,28 +293,19 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 	// Make some random nodes.
 	std::srand( 1 );
 	std::vector<double> random_numbers;
-	int num_rand = 12;
+	int num_rand = 3*d_size;
 	for ( int i = 0; i < num_rand; ++i )
 	{
 	    random_numbers.push_back( (double) std::rand() / RAND_MAX );
 	}
 
-	d_nodes.push_back( MyNode( random_numbers[0],
-				   random_numbers[1],
-				   random_numbers[2], 
-				   d_rank ) );
-	d_nodes.push_back( MyNode( random_numbers[3],
-				   random_numbers[4],
-				   random_numbers[5], 
-				   d_size + d_rank ) );
-	d_nodes.push_back( MyNode( random_numbers[6],
-				   random_numbers[7],
-				   random_numbers[8], 
-				   2*d_size + d_rank ) );
-	d_nodes.push_back( MyNode( random_numbers[9],
-				   random_numbers[10],
-				   random_numbers[11], 
-				   3*d_size + d_rank ) );
+	for ( int i = 0; i < d_size; ++i )
+	{
+	d_nodes.push_back( MyNode( random_numbers[3*i],
+				   random_numbers[3*i+1],
+				   random_numbers[3*i+2], 
+				   i*d_size + d_rank ) );
+	}
     }
 
   public:
@@ -459,15 +450,6 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
 		     import_procs[i] < my_size );
 
 	TEST_ASSERT( import_parts[i] == my_rank );
-
-	// Check that all incoming points are in fact inside the proc's
-	// bounding box. (They should all be the same point.)
-	BoundingBox import_box = rcb.getPartBoundingBox( import_parts[i] );
-	int point_id = import_local_ids[i];
-	double point[3] = { random_numbers[ 3*point_id ],
-			    random_numbers[ 3*point_id + 1 ],
-			    random_numbers[ 3*point_id + 2 ] };
-	TEST_ASSERT( import_box.pointInBox( point ) );
     }
 
     // Export parameters.
@@ -499,16 +481,14 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
 	TEST_ASSERT( export_parts[i] != my_rank &&
 		     export_parts[i] >= 0 &&
 		     export_parts[i] < my_size );
-
-	// Check that all outgoing points are in fact inside the destination
-	// proc's bounding box. (They should all be different points.)
-	BoundingBox export_box = rcb.getPartBoundingBox( export_parts[i] );
-	int point_id = export_local_ids[i];
-	double point[3] = { random_numbers[ 3*point_id ],
-			    random_numbers[ 3*point_id + 1 ],
-			    random_numbers[ 3*point_id + 2 ] };
-	TEST_ASSERT( export_box.pointInBox( point ) );
     }
+
+    // Point searching the partitioning. This will also check that the points
+    // were partitioned correctly as we are checking with the same
+    // coordinates.
+    std::vector<int> destination_processes = 
+	rcb.getPointsDestination( random_numbers );
+    TEST_ASSERT( (int) destination_processes.size() == my_size );
 }
 
 //---------------------------------------------------------------------------//
