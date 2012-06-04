@@ -20,6 +20,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  DTK_BoundingBox.hpp
   DTK_CellTopologyFactory.hpp
   DTK_KDTree.hpp
   DTK_KDTree_def.hpp
@@ -33,6 +34,7 @@ APPEND_SET(HEADERS
 # Set sources
 
 APPEND_SET(SOURCES
+  DTK_BoundingBox.cpp
   DTK_CellTopologyFactory.cpp
   DTK_TopologyTools.cpp
   )
