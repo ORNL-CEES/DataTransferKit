@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <cstdlib>
 #include <sstream>
 #include <algorithm>
 #include <cassert>
@@ -16,7 +17,6 @@
 #include <DTK_RCB.hpp>
 #include <DTK_BoundingBox.hpp>
 #include <DTK_DataSource.hpp>
-#include <DTK_DataTarget.hpp>
 #include <DTK_CoreTypes.hpp>
 #include <DTK_NodeTraits.hpp>
 #include <DTK_ElementTraits.hpp>
@@ -290,11 +290,31 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 
     void createMesh()
     {
-	// Make some nodes.
-	d_nodes.push_back( MyNode(0.0, 0.0, 1.0*d_rank, d_rank ) );
-	d_nodes.push_back( MyNode(1.0, 0.0, 1.0*d_rank, d_size + d_rank ) );
-	d_nodes.push_back( MyNode(1.0, 1.0, 1.0*d_rank, 2*d_size + d_rank ) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 1.0*d_rank, 3*d_size + d_rank ) );
+	// Make some random nodes.
+	std::srand( 1 );
+	std::vector<double> random_numbers;
+	int num_rand = 12;
+	for ( int i = 0; i < num_rand; ++i )
+	{
+	    random_numbers.push_back( (double) std::rand() / RAND_MAX );
+	}
+
+	d_nodes.push_back( MyNode( random_numbers[0],
+				   random_numbers[1],
+				   random_numbers[2], 
+				   d_rank ) );
+	d_nodes.push_back( MyNode( random_numbers[3],
+				   random_numbers[4],
+				   random_numbers[5], 
+				   d_size + d_rank ) );
+	d_nodes.push_back( MyNode( random_numbers[6],
+				   random_numbers[7],
+				   random_numbers[8], 
+				   2*d_size + d_rank ) );
+	d_nodes.push_back( MyNode( random_numbers[9],
+				   random_numbers[10],
+				   random_numbers[11], 
+				   3*d_size + d_rank ) );
     }
 
   public:
@@ -361,90 +381,6 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 };
 
 //---------------------------------------------------------------------------//
-// DataTarget implementation.
-//---------------------------------------------------------------------------//
-
-class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
-							 std::vector<double> >
-{
-  private:
-
-    int d_rank;
-    int d_size;
-    std::vector<MyNode> d_nodes;
-    std::vector<MyHex> d_elements;
-    std::vector<double> d_data;
-    MPI_Comm d_comm;
-
-    void createMesh()
-    {
-	// Make some nodes.
-	d_nodes.push_back( MyNode(0.0, 0.0, 1.0*d_rank, d_rank ) );
-	d_nodes.push_back( MyNode(1.0, 0.0, 1.0*d_rank, d_size + d_rank ) );
-	d_nodes.push_back( MyNode(1.0, 1.0, 1.0*d_rank, 2*d_size + d_rank ) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 1.0*d_rank, 3*d_size + d_rank ) );
-    }
-
-  public:
-
-    MyDataTarget()
-    { 
-	// Get the raw MPI_Comm out of Teuchos.
-	Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-	d_rank = comm->getRank();
-	d_size = comm->getSize();
-	Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
-	    Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-	Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	    mpi_comm->getRawMpiComm();
-	d_comm = (*opaque_comm)();
-
-	// Build the mesh.
-	createMesh();
-    }
-
-    ~MyDataTarget()
-    { /* ... */ }
-
-    const MPI_Comm& getTargetComm()
-    {
-	return d_comm;
-    }
-
-    bool isFieldSupported( const std::string &field_name )
-    {
-	bool return_val = false;
-	if ( field_name == "MY_DATA_FIELD" )
-	{
-	    return_val = true;
-	}
-	return return_val;
-    }
-
-    const std::vector<MyNode>& getTargetNodes()
-    {
-	return d_nodes;
-    }
-
-    std::vector<double>&
-    getTargetDataSpace( const std::string& field_name )
-    {
-	if ( field_name == "MY_DATA_FIELD" )
-	{
-	    return d_data;
-	}
-	else
-	{
-	    std::vector<double> empty_vec;
-	    return empty_vec;
-	}
-    }
-
-    const std::vector<double>& getData() const
-    { return d_data; }
-};
-
-//---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
 
@@ -460,15 +396,120 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
 
     // Do recursive coordinate bisectioning on the data source node field.
     typedef typename DataSourceType::node_field_type NodeField;
+    typedef typename NodeField::value_type node_type;
     NodeField nodes = data_source->getSourceMeshNodes();
     MPI_Comm comm = data_source->getSourceComm();
 
     RCB<NodeField> rcb( nodes, comm );
     rcb.partition();
 
+    // Get the random numbers that were used to compute the node coordinates.
+    std::srand( 1 );
+    std::vector<double> random_numbers;
+    int num_rand = 3 * FieldTraits<NodeField>::size( nodes );
+    for ( int i = 0; i < num_rand; ++i )
+    {
+	random_numbers.push_back( (double) std::rand() / RAND_MAX );
+    }
+
+    // Check that these are in fact the random numbers used for the nodes.
+    typename FieldTraits<NodeField>::const_iterator node_iterator;
+    typename NodeTraits<node_type>::const_coordinate_iterator coord_iterator;
+    std::vector<double>::const_iterator rand_iterator = random_numbers.begin();
+    for ( node_iterator = FieldTraits<NodeField>::begin( nodes );
+	  node_iterator != FieldTraits<NodeField>::end( nodes );
+	  ++node_iterator )
+    {
+	for ( coord_iterator = 
+		  NodeTraits<node_type>::coordsBegin( *node_iterator );
+	      coord_iterator != 
+		  NodeTraits<node_type>::coordsEnd( *node_iterator );
+	      ++coord_iterator )
+	    {
+		TEST_ASSERT( *coord_iterator == *rand_iterator );
+		++rand_iterator;
+	    }
+    }
+
     // Check the partitioning.
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
+
+    // Import parameters.
+    int num_import = rcb.getNumImport();
+
+    Teuchos::ArrayView<unsigned int> import_global_ids = 
+	rcb.getImportGlobalIds();
+    TEST_ASSERT( import_global_ids.size() == num_import );
+
+    Teuchos::ArrayView<unsigned int> import_local_ids = 
+	rcb.getImportLocalIds();
+    TEST_ASSERT( import_local_ids.size() == num_import );
+
+    Teuchos::ArrayView<int> import_procs = rcb.getImportProcs();
+    TEST_ASSERT( import_procs.size() == num_import );
+
+    Teuchos::ArrayView<int> import_parts = rcb.getImportParts();
+    TEST_ASSERT( import_parts.size() == num_import );
+
+    for ( int i = 0; i < num_import; ++i )
+    {
+	// Check the MPI parameters.
+	TEST_ASSERT( import_procs[i] != my_rank &&
+		     import_procs[i] >= 0 &&
+		     import_procs[i] < my_size );
+
+	TEST_ASSERT( import_parts[i] == my_rank );
+
+	// Check that all incoming points are in fact inside the proc's
+	// bounding box. (They should all be the same point.)
+	BoundingBox import_box = rcb.getPartBoundingBox( import_parts[i] );
+	int point_id = import_local_ids[i];
+	double point[3] = { random_numbers[ 3*point_id ],
+			    random_numbers[ 3*point_id + 1 ],
+			    random_numbers[ 3*point_id + 2 ] };
+	TEST_ASSERT( import_box.pointInBox( point ) );
+    }
+
+    // Export parameters.
+    int num_export = rcb.getNumExport();
+
+    Teuchos::ArrayView<unsigned int> export_global_ids = 
+	rcb.getExportGlobalIds();
+    TEST_ASSERT( export_global_ids.size() == num_export );
+
+    Teuchos::ArrayView<unsigned int> export_local_ids = 
+	rcb.getExportLocalIds();
+    TEST_ASSERT( export_local_ids.size() == num_export );
+
+    Teuchos::ArrayView<int> export_procs = rcb.getExportProcs();
+    TEST_ASSERT( export_procs.size() == num_export );
+    
+    Teuchos::ArrayView<int> export_parts = rcb.getExportParts();
+    TEST_ASSERT( export_parts.size() == num_export );
+
+    for ( int i = 0; i < num_export; ++i )
+    {
+	// Check the MPI parameters.
+	TEST_ASSERT( export_procs[i] == export_parts[i] );
+
+	TEST_ASSERT( export_procs[i] != my_rank &&
+		     export_procs[i] >= 0 &&
+		     export_procs[i] < my_size );
+
+	TEST_ASSERT( export_parts[i] != my_rank &&
+		     export_parts[i] >= 0 &&
+		     export_parts[i] < my_size );
+
+	// Check that all outgoing points are in fact inside the destination
+	// proc's bounding box. (They should all be different points.)
+	BoundingBox export_box = rcb.getPartBoundingBox( export_parts[i] );
+	int point_id = export_local_ids[i];
+	double point[3] = { random_numbers[ 3*point_id ],
+			    random_numbers[ 3*point_id + 1 ],
+			    random_numbers[ 3*point_id + 2 ] };
+	TEST_ASSERT( export_box.pointInBox( point ) );
+    }
 }
 
 //---------------------------------------------------------------------------//

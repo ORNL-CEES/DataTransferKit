@@ -51,14 +51,14 @@ class RCB
     { return d_num_import; }
 
     //! Get the global import node ID's.
-    Teuchos::ArrayView<ZOLTAN_ID_TYPE> getImportGlobalIDs() const
-    { return Teuchos::ArrayView<ZOLTAN_ID_TYPE>( d_import_global_ids, 
-						 d_num_import ); }
+    Teuchos::ArrayView<unsigned int> getImportGlobalIds() const
+    { return Teuchos::ArrayView<unsigned int>( d_import_global_ids, 
+					       d_num_import ); }
 
     //! Get the local import node ID's.
-    Teuchos::ArrayView<ZOLTAN_ID_TYPE> getImportLocalIDs() const
-    { return Teuchos::ArrayView<ZOLTAN_ID_TYPE>( d_import_local_ids, 
-						 d_num_import ); }
+    Teuchos::ArrayView<unsigned int> getImportLocalIds() const
+    { return Teuchos::ArrayView<unsigned int>( d_import_local_ids, 
+					       d_num_import ); }
 
     //! Get the process rank source for imported nodes.
     Teuchos::ArrayView<int> getImportProcs() const
@@ -73,14 +73,14 @@ class RCB
     { return d_num_export; }
 
     //! Get the global export node ID's.
-    Teuchos::ArrayView<ZOLTAN_ID_TYPE> getExportGlobalIDs() const
-    { return Teuchos::ArrayView<ZOLTAN_ID_TYPE>( d_export_global_ids, 
-						 d_num_export ); }
+    Teuchos::ArrayView<unsigned int> getExportGlobalIds() const
+    { return Teuchos::ArrayView<unsigned int>( d_export_global_ids, 
+					       d_num_export ); }
 
     //! Get the local export node ID's.
-    Teuchos::ArrayView<ZOLTAN_ID_TYPE> getExportLocalIDs() const
-    { return Teuchos::ArrayView<ZOLTAN_ID_TYPE>( d_export_local_ids, 
-						 d_num_export ); }
+    Teuchos::ArrayView<unsigned int> getExportLocalIds() const
+    { return Teuchos::ArrayView<unsigned int>( d_export_local_ids, 
+					       d_num_export ); }
 
     //! Get the process rank source for exported nodes.
     Teuchos::ArrayView<int> getExportProcs() const
