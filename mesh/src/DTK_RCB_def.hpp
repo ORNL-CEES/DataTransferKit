@@ -85,6 +85,26 @@ void RCB<NodeField>::partition()
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Get the bounding box for a partition.
+ */
+template<typename NodeField>
+BoundingBox RCB<NodeField>::getPartBoundingBox( const int part ) const
+{
+    double x_min, y_min, z_min, x_max, y_max, z_max;
+    int dim;
+    int zoltan_error;
+    zoltan_error = Zoltan_RCB_Box( d_zz, part, &dim,
+				   &x_min, &y_min, &z_min,
+				   &x_max, &y_max, &z_max );
+
+    testInvariant( ZOLTAN_OK == zoltan_error, 
+		   "Zoltan error getting partition bounding box." );
+    
+    return BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Zoltan callback for getting the number of nodes.
  */
 template<typename NodeField>

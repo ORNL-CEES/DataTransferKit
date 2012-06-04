@@ -9,6 +9,7 @@
 #ifndef DTK_RCB_HPP
 #define DTK_RCB_HPP
 
+#include "DTK_BoundingBox.hpp"
 #include <DTK_NodeTraits.hpp>
 #include <DTK_FieldTraits.hpp>
 
@@ -41,6 +42,9 @@ class RCB
 
     // Compute RCB partitioning of the node field.
     void partition();
+
+    // Get the bounding box for a partition.
+    BoundingBox getPartBoundingBox( const int part ) const;
 
     //! Get the number of imported nodes.
     int getNumImport() const

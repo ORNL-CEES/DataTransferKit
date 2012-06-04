@@ -14,7 +14,9 @@
 #include <cassert>
 
 #include <DTK_RCB.hpp>
+#include <DTK_BoundingBox.hpp>
 #include <DTK_DataSource.hpp>
+#include <DTK_DataTarget.hpp>
 #include <DTK_CoreTypes.hpp>
 #include <DTK_NodeTraits.hpp>
 #include <DTK_ElementTraits.hpp>
@@ -359,6 +361,90 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 };
 
 //---------------------------------------------------------------------------//
+// DataTarget implementation.
+//---------------------------------------------------------------------------//
+
+class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
+							 std::vector<double> >
+{
+  private:
+
+    int d_rank;
+    int d_size;
+    std::vector<MyNode> d_nodes;
+    std::vector<MyHex> d_elements;
+    std::vector<double> d_data;
+    MPI_Comm d_comm;
+
+    void createMesh()
+    {
+	// Make some nodes.
+	d_nodes.push_back( MyNode(0.0, 0.0, 1.0*d_rank, d_rank ) );
+	d_nodes.push_back( MyNode(1.0, 0.0, 1.0*d_rank, d_size + d_rank ) );
+	d_nodes.push_back( MyNode(1.0, 1.0, 1.0*d_rank, 2*d_size + d_rank ) );
+	d_nodes.push_back( MyNode(0.0, 1.0, 1.0*d_rank, 3*d_size + d_rank ) );
+    }
+
+  public:
+
+    MyDataTarget()
+    { 
+	// Get the raw MPI_Comm out of Teuchos.
+	Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+	d_rank = comm->getRank();
+	d_size = comm->getSize();
+	Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
+	    Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+	Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
+	    mpi_comm->getRawMpiComm();
+	d_comm = (*opaque_comm)();
+
+	// Build the mesh.
+	createMesh();
+    }
+
+    ~MyDataTarget()
+    { /* ... */ }
+
+    const MPI_Comm& getTargetComm()
+    {
+	return d_comm;
+    }
+
+    bool isFieldSupported( const std::string &field_name )
+    {
+	bool return_val = false;
+	if ( field_name == "MY_DATA_FIELD" )
+	{
+	    return_val = true;
+	}
+	return return_val;
+    }
+
+    const std::vector<MyNode>& getTargetNodes()
+    {
+	return d_nodes;
+    }
+
+    std::vector<double>&
+    getTargetDataSpace( const std::string& field_name )
+    {
+	if ( field_name == "MY_DATA_FIELD" )
+	{
+	    return d_data;
+	}
+	else
+	{
+	    std::vector<double> empty_vec;
+	    return empty_vec;
+	}
+    }
+
+    const std::vector<double>& getData() const
+    { return d_data; }
+};
+
+//---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
 
@@ -383,9 +469,6 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
     // Check the partitioning.
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
-
-    std::cout << my_rank << " " << rcb.getNumImport() << " " 
-	      << rcb.getNumExport() << std::endl;
 }
 
 //---------------------------------------------------------------------------//
