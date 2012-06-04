@@ -8,6 +8,11 @@
 
 #include <DTK_Exception.hpp>
 
+#include <mpi.h>
+
+#include <Teuchos_DefaultMpiComm.hpp>
+#include <Teuchos_OpaqueWrapper.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -15,10 +20,17 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<typename NodeField>
-RCB<NodeField>::RCB( const NodeField& node_field, const MPI_Comm& comm )
+RCB<NodeField>::RCB( const NodeField& node_field, const RCP_Comm& comm )
     : d_node_field( node_field )
-    , d_zz( Zoltan_Create( comm ) )
 {
+    // Create the Zoltan object.
+    Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
+	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
+	mpi_comm->getRawMpiComm();
+    MPI_Comm raw_comm = (*opaque_comm)();
+    d_zz = Zoltan_Create( raw_comm );
+
     // General parameters.
     Zoltan_Set_Param( d_zz, "DEBUG_LEVEL", "0" );
     Zoltan_Set_Param( d_zz, "LB_METHOD", "RCB" );

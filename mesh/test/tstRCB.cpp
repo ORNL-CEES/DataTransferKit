@@ -398,9 +398,8 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
     typedef typename DataSourceType::node_field_type NodeField;
     typedef typename NodeField::value_type node_type;
     NodeField nodes = data_source->getSourceMeshNodes();
-    MPI_Comm comm = data_source->getSourceComm();
 
-    RCB<NodeField> rcb( nodes, comm );
+    RCB<NodeField> rcb( nodes, getDefaultComm<int>() );
     rcb.partition();
 
     // Get the random numbers that were used to compute the node coordinates.

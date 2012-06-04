@@ -13,8 +13,8 @@
 #include <DTK_NodeTraits.hpp>
 #include <DTK_FieldTraits.hpp>
 
-#include <mpi.h>
-
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
 #include <Teuchos_ArrayView.hpp>
 
 #include <zoltan.h>
@@ -32,10 +32,11 @@ class RCB
     //! Typedefs.
     typedef NodeField                                        node_field;
     typedef typename FieldTraits<node_field>::value_type     node_type;
+    typedef Teuchos::RCP< const Teuchos::Comm<int> >         RCP_Comm;
     //@}
 
     // Constructor.
-    RCB( const NodeField& node_field, const MPI_Comm& comm );
+    RCB( const NodeField& node_field, const RCP_Comm& comm );
 
     // Destructor.
     ~RCB();
