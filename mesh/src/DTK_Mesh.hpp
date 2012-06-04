@@ -11,8 +11,6 @@
 
 #include <map>
 
-#include <DTK_DataSource.hpp>
-
 #include <MBInterface.hpp>
 #include <MBRange.hpp>
 
@@ -24,6 +22,7 @@ namespace DataTransferKit
 template<typename ElementHandle>
 class Mesh
 {
+
   public:
 
     //@{
@@ -77,15 +76,6 @@ const moab::EntityType moab_topology_table[] =
     moab::MBTET,    // DTK_TETRAHEDRON
     moab::MBHEX     // DTK_HEXAHEDRON
 };
-
-//---------------------------------------------------------------------------//
-// Non-member creation functions.
-// Create a mesh from a DataSource.
-template<typename NodeField, typename ElementField, typename DataField>
-Teuchos::RCP< Mesh<typename ElementField::value_type::handle_type> >
-createMeshFromDataSource( 
-    const Teuchos::RCP< 
-	DataSource<NodeField,ElementField,DataField> >& data_source );
 
 //---------------------------------------------------------------------------//
 

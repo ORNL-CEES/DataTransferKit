@@ -16,6 +16,7 @@ namespace DataTransferKit
 
 class BoundingBox
 {
+
   public:
 
     // Default constructor.

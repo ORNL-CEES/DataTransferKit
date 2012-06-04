@@ -32,7 +32,8 @@ class RCB
     //! Typedefs.
     typedef NodeField                                        node_field;
     typedef typename FieldTraits<node_field>::value_type     node_type;
-    typedef Teuchos::RCP< const Teuchos::Comm<int> >         RCP_Comm;
+    typedef Teuchos::Comm<int>                               CommType;
+    typedef Teuchos::RCP<const CommType>                     RCP_Comm;
     //@}
 
     // Constructor.
