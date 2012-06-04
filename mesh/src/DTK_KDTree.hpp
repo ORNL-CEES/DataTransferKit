@@ -36,7 +36,7 @@ class KDTree
     // Destructor.
     ~KDTree();
 
-    // Build the KDTree.
+    // Build the kD-tree.
     void build();
 
     // Find a point in the tree.

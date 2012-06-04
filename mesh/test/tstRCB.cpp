@@ -482,13 +482,6 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
 		     export_parts[i] >= 0 &&
 		     export_parts[i] < my_size );
     }
-
-    // Point searching the partitioning. This will also check that the points
-    // were partitioned correctly as we are checking with the same
-    // coordinates.
-    std::vector<int> destination_processes = 
-	rcb.getPointsDestination( random_numbers );
-    TEST_ASSERT( (int) destination_processes.size() == my_size );
 }
 
 //---------------------------------------------------------------------------//

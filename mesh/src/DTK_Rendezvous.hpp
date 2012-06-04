@@ -49,12 +49,12 @@ class Rendezvous
     //@}
 
     // Constructor.
-    Rendezvous( const RCP_Comm& global_comm, const BoundingBox& box );
+    Rendezvous( const RCP_Comm& global_comm, const BoundingBox& global_box );
 
     // Destructor.
     ~Rendezvous();
 
-    // Build the rendezvous decomposition of the source mesh.
+    // Build the rendezvous decomposition.
     void build( const SourceMeshNodeField& source_nodes,
 		const SourceMeshElementField& source_elements );
 
@@ -64,19 +64,18 @@ class Rendezvous
     std::vector<int> getRendezvousProc( 
 	const std::vector<double> &coords ) const;
 
+    // Build a concrete mesh database from a mesh description.
+
   private:
 
     // Global communicator over which to perform the rendezvous.
     RCP_Comm d_global_comm;
 
     // Bounding box over which to perform rendezvous.
-    BoundingBox d_box;
+    BoundingBox d_global_box;
 
     // RCB Partitioning.
     RCP_RCB d_rcb;
-
-    // Local rendezvous mesh.
-    RCP_Mesh d_mesh;
 
     // Local kD-tree.
     RCP_KDTree d_tree;

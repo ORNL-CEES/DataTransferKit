@@ -78,6 +78,15 @@ const moab::EntityType moab_topology_table[] =
 };
 
 //---------------------------------------------------------------------------//
+// Non-member creation methods.
+//---------------------------------------------------------------------------//
+
+// Create a mesh from a node and element field.
+template<typename NodeField, typename ElementField>
+Teuchos::RCP< Mesh<typename ElementField::value_type::handle_type> >
+createMesh( const NodeField& nodes, const ElementField& elements );
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

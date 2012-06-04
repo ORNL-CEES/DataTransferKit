@@ -36,7 +36,7 @@ KDTree<ElementHandle>::~KDTree()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Build the tree.
+ * \brief Build the kD-tree.
  */
 template<typename ElementHandle>
 void KDTree<ElementHandle>::build()
