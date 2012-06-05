@@ -49,9 +49,8 @@ class DataSource : Teuchos::Describable
     //! Mesh typedefs.
     typedef Mesh                                        MeshType;
     typedef typename MeshTraits<Mesh>::handle_type      handle_type;
-    typedef typename MeshTraits<Mesh>::coordinate_type  coordinate_type;
     typedef std::vector<handle_type>                    HandleVector;
-    typedef std::vector<coordinate_type>                CoordinateVector;
+    typedef std::vector<double>                         CoordinateVector;
     //@}
 
     //@{

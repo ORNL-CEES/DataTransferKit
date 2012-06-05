@@ -17,8 +17,7 @@
 #include <DTK_Mesh.hpp>
 #include <DTK_DataSource.hpp>
 #include <DTK_CoreTypes.hpp>
-#include <DTK_NodeTraits.hpp>
-#include <DTK_ElementTraits.hpp>
+#include <DTK_MeshTraits.hpp>
 #include <DTK_FieldTraits.hpp>
 
 #include <mpi.h>

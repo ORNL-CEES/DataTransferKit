@@ -92,10 +92,11 @@ class DataTarget : public Teuchos::Describable
      * \brief Provide the target mesh node coordinates to which data will be
      * transferred.
      * The order of these coordinates will correspond to the order of the data
-     * returned from the transfer operation.  \param target_nodes View of the
-     * local target nodes. This view required to persist. The CoordinateField
-     * type is expected to implement FieldTraits. CoordinateField::value_type
-     * is expected to implement Teuchos::ScalarTraits. 
+     * returned from the transfer operation.  
+     * \param target_nodes View of the local target nodes. This view required
+     * to persist. The CoordinateField type is expected to implement
+     * FieldTraits. CoordinateField::value_type is required to be of type
+     * double. The coordinates are required to be three dimensional.
      */
     virtual const CoordinateField& getTargetCoordinates() = 0;
 

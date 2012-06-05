@@ -52,7 +52,6 @@ class MyMesh
   public:
 
     typedef int    handle_type;
-    typedef double coordinate_type;
     
     MyMesh() 
     { /* ... */ }
@@ -114,7 +113,6 @@ template<>
 struct MeshTraits<MyMesh>
 {
     typedef MyMesh::handle_type handle_type;
-    typedef MyMesh::coordinate_type coordinate_type;
     typedef std::vector<int>::const_iterator const_handle_iterator;
     typedef std::vector<double>::const_iterator const_coordinate_iterator;
     
@@ -124,9 +122,6 @@ struct MeshTraits<MyMesh>
 
     static inline const_handle_iterator nodesEnd( const MyMesh& mesh )
     { return mesh.nodesEnd(); }
-
-    static inline std::size_t nodeDim( const MyMesh& mesh )
-    { return 3; }
 
     static inline bool interleavedNodeCoords( const MyMesh& mesh )
     { return true; }
@@ -277,7 +272,7 @@ class MyDataSource :
     const std::vector<double> evaluateFieldOnTargetNodes( 
 	const std::string &field_name,
 	const std::vector<MyMesh::handle_type> &element_handles,
-	const std::vector<MyMesh::coordinate_type> &node_coordinates )
+	const std::vector<double> &node_coordinates )
     {
 	if ( field_name == "MY_DATA_FIELD" )
 	{
@@ -440,7 +435,6 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
     typename MeshTraits<MyMesh>::const_coordinate_iterator coord_iterator;
     
     // Check the nodes.
-    TEST_ASSERT( MeshTraits<MyMesh>::nodeDim( source_mesh ) == 3 );
     TEST_ASSERT( MeshTraits<MyMesh>::interleavedNodeCoords( source_mesh ) );
     TEST_ASSERT( std::distance( MeshTraits<MyMesh>::nodesBegin( source_mesh ),
 				MeshTraits<MyMesh>::nodesEnd( source_mesh ) )
@@ -498,7 +492,7 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
 
     // Check the data.
     std::vector<MyMesh::handle_type> dummy_handles;
-    std::vector<MyMesh::coordinate_type> dummy_coords;
+    std::vector<double> dummy_coords;
     std::vector<double> data = 
 	data_source->evaluateFieldOnTargetNodes( "MY_DATA_FIELD",
 						 dummy_handles,

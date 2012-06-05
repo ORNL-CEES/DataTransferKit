@@ -14,12 +14,6 @@
 #include <cassert>
 
 #include <DTK_BoundingBox.hpp>
-#include <DTK_DataSource.hpp>
-#include <DTK_CoreTypes.hpp>
-#include <DTK_NodeTraits.hpp>
-#include <DTK_ElementTraits.hpp>
-#include <DTK_FieldTraits.hpp>
-#include <DTK_Exception.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>

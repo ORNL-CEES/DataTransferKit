@@ -22,12 +22,10 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   DTK_BoundingBox.hpp
   DTK_CellTopologyFactory.hpp
-  DTK_Element.hpp
   DTK_KDTree.hpp
   DTK_KDTree_def.hpp
   DTK_Mesh.hpp
   DTK_Mesh_def.hpp
-  DTK_Node.hpp
   DTK_RCB.hpp
   DTK_RCB_def.hpp
   DTK_Rendezvous.hpp

@@ -13,8 +13,7 @@
 #include <cassert>
 
 #include <DTK_Exception.hpp>
-#include <DTK_NodeTraits.hpp>
-#include <DTK_ElementTraits.hpp>
+#include <DTK_MeshTraits.hpp>
 #include <DTK_FieldTraits.hpp>
 
 #include <MBCore.hpp>
@@ -50,24 +49,15 @@ Mesh<ElementHandle>::~Mesh()
 /*!
  * \brief Create a mesh from a node and element field.
  */
-template<typename NodeField, typename ElementField>
-Teuchos::RCP< Mesh<typename ElementField::value_type::handle_type> >
-createMesh( const NodeField& nodes, const ElementField& elements )
+template<typename MeshObject>
+Teuchos::RCP< Mesh<typename MeshObject::handle_type> > 
+createMesh( const MeshObject& mesh_object )
 {
-    // Setup for node types.
-    typedef typename NodeField::value_type node_type;
-    typedef typename node_type::handle_type node_handle_type;
-    typedef typename node_type::coordinate_type coordinate_type;
-    typename FieldTraits<NodeField>::const_iterator node_iterator;    
-    typename NodeTraits<node_type>::const_coordinate_iterator 
-	coord_iterator;
-
-    // Setup for element types.
-    typedef typename ElementField::value_type element_type;
-    typedef typename element_type::handle_type element_handle_type;
-    typename FieldTraits<ElementField>::const_iterator element_iterator;
-    typename ElementTraits<element_type>::const_connectivity_iterator
-	conn_iterator;
+    // Setup types and iterators
+    typedef typename MeshTraits<MeshObject>::handle_type handle_type;
+    typename MeshTraits<MeshObject>::const_handle_iterator handle_iterator;
+    typename MeshTraits<MeshObject>::const_handle_iterator conn_iterator;
+    typename MeshTraits<MeshObject>::const_coordinate_iterator coord_iterator;
 
     // Create a moab interface.
     moab::ErrorCode error;
@@ -75,80 +65,73 @@ createMesh( const NodeField& nodes, const ElementField& elements )
     testPostcondition( moab != Teuchos::null,
 		       "Error creating MOAB interface" );
 
-    // Extract the source mesh nodes;
-    int zeros_to_add = 3 - NodeTraits<node_type>::dim();
-    std::vector<node_handle_type> node_handles;
-    std::vector<coordinate_type> node_coords;
-    for ( node_iterator = FieldTraits<NodeField>::begin( nodes );
-	  node_iterator != FieldTraits<NodeField>::end( nodes );
-	  ++node_iterator )
-    {
-	node_handles.push_back( 
-	    NodeTraits<node_type>::handle( *node_iterator ) );
 
-	for ( coord_iterator = 
-		  NodeTraits<node_type>::coordsBegin( *node_iterator );
-	      coord_iterator != 
-		  NodeTraits<node_type>::coordsEnd( *node_iterator );
-	      ++coord_iterator )
-	{
-	    node_coords.push_back( *coord_iterator );
-	}
+    // Check the nodes and coordinates for consistency.
+    int num_nodes = 
+	std::distance( MeshTraits<MeshObject>::nodesBegin( mesh_object ),
+		       MeshTraits<MeshObject>::nodesEnd( mesh_object ) );
+    int num_coords = 
+	std::distance( MeshTraits<MeshObject>::coordsBegin( mesh_object ),
+		       MeshTraits<MeshObject>::coordsEnd( mesh_object ) );
+    testInvariant( num_coords == 3 * num_nodes,
+		   "Number of coordinates provided != 3 * number of nodes" );
 
-	for ( int i = 0; i < zeros_to_add; ++i )
-	{
-	    node_coords.push_back( 0.0 );
-	}
-    }
-    assert( node_coords.size() == 
-	    3 * FieldTraits<NodeField>::size( nodes ) );
-
-    // Add the source mesh nodes to moab.
+    // Add the source mesh nodes to moab.    
     moab::Range vertices;
-    error = moab->create_vertices( &node_coords[0], node_handles.size(),
-				   vertices );
+    error = moab->create_vertices(
+	&( *MeshTraits<MeshObject>::coordsBegin( mesh_object ) ),
+	num_nodes, vertices );
     testInvariant( moab::MB_SUCCESS == error, 
 		   "Failed to create vertices in MOAB." );
     testPostcondition( !vertices.empty(),
 		       "Vertex range is empty." );
-    assert( vertices.size() == node_handles.size() );
+    assert( (int) vertices.size() == num_nodes );
 
     // Map the native vertex handles to the moab vertex handles.
     moab::Range::const_iterator range_iterator;
-    typename std::vector<node_handle_type>::const_iterator handle_iterator;
-    std::map<node_handle_type,moab::EntityHandle> vertex_handle_map;
+    std::map<handle_type,moab::EntityHandle> vertex_handle_map;
     for ( range_iterator = vertices.begin(),
-	 handle_iterator = node_handles.begin();
+	 handle_iterator = MeshTraits<MeshObject>::nodesBegin( mesh_object );
 	  range_iterator != vertices.end();
 	  ++range_iterator, ++handle_iterator )
     {
 	vertex_handle_map[ *handle_iterator ] = *range_iterator;
     }
 
+    // Check the elements and connectivity for consistency.
+    int nodes_per_element = 
+	MeshTraits<MeshObject>::nodesPerElement( mesh_object );
+    int num_elements = 
+	std::distance( MeshTraits<MeshObject>::elementsBegin( mesh_object ),
+		       MeshTraits<MeshObject>::elementsEnd( mesh_object ) );
+    int num_connect =
+	std::distance( MeshTraits<MeshObject>::connectivityBegin( mesh_object ),
+		       MeshTraits<MeshObject>::connectivityEnd( mesh_object ) );
+    testInvariant( num_elements == num_connect / nodes_per_element &&
+		   num_connect % nodes_per_element == 0,
+		   "Connectivity array inconsistent with element description." );
+
     // Extract the source mesh elements and add them to moab.
     moab::Range moab_elements;
     std::vector<moab::EntityHandle> element_connectivity;
-    std::map<moab::EntityHandle,element_handle_type> element_handle_map;
-    for ( element_iterator = FieldTraits<ElementField>::begin( elements );
-	  element_iterator != FieldTraits<ElementField>::end( elements );
-	  ++element_iterator )
+    std::map<moab::EntityHandle,handle_type> element_handle_map;
+    for ( handle_iterator = MeshTraits<MeshObject>::elementsBegin( mesh_object ),
+	    conn_iterator = MeshTraits<MeshObject>::connectivityBegin( mesh_object );
+	  handle_iterator != MeshTraits<MeshObject>::elementsEnd( mesh_object );
+	  ++handle_iterator )
     {
+	// Extract the connecting nodes for this element.
 	element_connectivity.clear();
-	for ( conn_iterator = 
-		  ElementTraits<element_type>::connectivityBegin( *element_iterator );
-	      conn_iterator != 
-		  ElementTraits<element_type>::connectivityEnd( *element_iterator );
-	      ++conn_iterator )
+	for ( int n = 0; n < nodes_per_element; ++n, ++conn_iterator )
 	{
 	    element_connectivity.push_back( vertex_handle_map[*conn_iterator] );
 	}
+	testInvariant( (int) element_connectivity.size() == nodes_per_element,
+		       "Element connectivity size != nodes per element." );
 
-	testInvariant( element_connectivity.size() == 
-		       ElementTraits<element_type>::numNodes(),
-		       "Element connectivity size != number of element nodes." );
-
+	// Creat the element in moab.
 	moab::EntityType entity_type = moab_topology_table[ 
-	    ElementTraits<element_type>::topology() ];
+	    MeshTraits<MeshObject>::elementTopology( mesh_object ) ];
 	moab::EntityHandle moab_element;
 	error = moab->create_element( entity_type,
 				      &element_connectivity[0],
@@ -156,17 +139,15 @@ createMesh( const NodeField& nodes, const ElementField& elements )
 				      moab_element );
 	testInvariant( moab::MB_SUCCESS == error,
 		       "Failed to create element in MOAB." );
-
 	moab_elements.insert( moab_element );
 
-	element_handle_map[ moab_element ] =
-	    ElementTraits<element_type>::handle( *element_iterator );
+	// Map the moab element handle to the native element handle.
+	element_handle_map[ moab_element ] = *handle_iterator;
     }
     
     // Create and return the mesh.
     return Teuchos::rcp( 
-	new Mesh<element_handle_type>( 
-	    moab, moab_elements, element_handle_map ) );
+	new Mesh<handle_type>( moab, moab_elements, element_handle_map ) );
 }
 
 //---------------------------------------------------------------------------//
