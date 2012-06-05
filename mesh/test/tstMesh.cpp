@@ -274,8 +274,6 @@ TEUCHOS_UNIT_TEST( Mesh, mesh_test )
     {
 	TEST_ASSERT( *coord_iterator == *moab_coord_iterator );
     }
-
-    moab->write_mesh( "test.vtk" );
 }
 
 //---------------------------------------------------------------------------//
