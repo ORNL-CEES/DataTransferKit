@@ -17,8 +17,7 @@
 #include <DTK_DataSource.hpp>
 #include <DTK_DataTarget.hpp>
 #include <DTK_CoreTypes.hpp>
-#include <DTK_NodeTraits.hpp>
-#include <DTK_ElementTraits.hpp>
+#include <DTK_MeshTraits.hpp>
 #include <DTK_FieldTraits.hpp>
 
 #include <mpi.h>
@@ -45,78 +44,63 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
-// Node Implementation
+// Mesh Implementation
 //---------------------------------------------------------------------------//
 
-class MyNode
+class MyMesh
 {
-  private:
-
-    std::size_t d_handle;
-    std::vector<double> d_coords;
-
   public:
 
     typedef int    handle_type;
     typedef double coordinate_type;
     
-    MyNode( double x, double y, double z, int handle )
-	: d_handle( handle )
-    {
-	d_coords.push_back(x);
-	d_coords.push_back(y);
-	d_coords.push_back(z);
-    }
-
-    ~MyNode()
+    MyMesh() 
     { /* ... */ }
 
-    int handle() const
-    { return d_handle; }
+    MyMesh( const std::vector<int>& node_handles,
+	    const std::vector<double>& coords,
+	    const std::vector<int>& quad_handles,
+	    const std::vector<int>& quads_connectivity )
+	: d_node_handles( node_handles )
+	, d_coords( coords )
+	, d_quad_handles( quad_handles )
+	, d_quads_connectivity( quads_connectivity )
+    { /* ... */ }
+
+    ~MyMesh()
+    { /* ... */ }
+
+    std::vector<int>::const_iterator nodesBegin() const
+    { return d_node_handles.begin(); }
+
+    std::vector<int>::const_iterator nodesEnd() const
+    { return d_node_handles.end(); }
 
     std::vector<double>::const_iterator coordsBegin() const
     { return d_coords.begin(); }
 
     std::vector<double>::const_iterator coordsEnd() const
     { return d_coords.end(); }
-};
 
-//---------------------------------------------------------------------------//
-// Element Implementation
-//---------------------------------------------------------------------------//
+    std::vector<int>::const_iterator quadsBegin() const
+    { return d_quad_handles.begin(); }
 
-class MyQuad
-{
-  private:
-
-    std::size_t d_handle;
-    std::vector<int> d_connectivity;
-
-  public:
-
-    typedef std::size_t handle_type;
-
-    MyQuad( int node_1, int node_2, int node_3, int node_4, 
-	    std::size_t handle )
-	: d_handle( handle )
-    {
-	d_connectivity.push_back( node_1 );
-	d_connectivity.push_back( node_2 );
-	d_connectivity.push_back( node_3 );
-	d_connectivity.push_back( node_4 );
-    }
-
-    ~MyQuad()
-    { /* ... */ }
-
-    int handle() const
-    { return d_handle; }
+    std::vector<int>::const_iterator quadsEnd() const
+    { return d_quad_handles.end(); }
 
     std::vector<int>::const_iterator connectivityBegin() const
-    { return d_connectivity.begin(); }
+    { return d_quads_connectivity.begin(); }
 
     std::vector<int>::const_iterator connectivityEnd() const
-    { return d_connectivity.end(); }
+    { return d_quads_connectivity.end(); }
+    
+
+  private:
+
+    std::vector<int> d_node_handles;
+    std::vector<double> d_coords;
+    std::vector<int> d_quad_handles;
+    std::vector<int> d_quads_connectivity;
 };
 
 //---------------------------------------------------------------------------//
@@ -124,141 +108,83 @@ class MyQuad
 //---------------------------------------------------------------------------//
 namespace DataTransferKit
 {
-
 //---------------------------------------------------------------------------//
-// NodeTraits specialization for the MyNode implementation.
+// Mesh traits specialization for MyMesh
 template<>
-struct NodeTraits<MyNode>
+struct MeshTraits<MyMesh>
 {
-    typedef typename MyNode::handle_type                 handle_type;
-    typedef typename MyNode::coordinate_type             coordinate_type;
-    typedef typename std::vector<double>::const_iterator 
-    const_coordinate_iterator;
+    typedef MyMesh::handle_type handle_type;
+    typedef MyMesh::coordinate_type coordinate_type;
+    typedef std::vector<int>::const_iterator const_handle_iterator;
+    typedef std::vector<double>::const_iterator const_coordinate_iterator;
     
-    static inline std::size_t dim()
-    { return 3;}
-    
-    static inline handle_type handle( const MyNode& node ) 
-    { return node.handle(); }
-    
-    static inline const_coordinate_iterator coordsBegin( const MyNode& node ) 
-    { return node.coordsBegin(); }
 
-    static inline const_coordinate_iterator coordsEnd( const MyNode& node ) 
-    { return node.coordsEnd(); }
-};
+    static inline const_handle_iterator nodesBegin( const MyMesh& mesh )
+    { return mesh.nodesBegin(); }
 
-//---------------------------------------------------------------------------//
-// ElementTraits specialization for the MyQuad implementation.
-template<>
-struct ElementTraits<MyQuad>
-{
-    typedef typename MyQuad::handle_type              handle_type;
-    typedef typename std::vector<int>::const_iterator 
-    const_connectivity_iterator;
+    static inline const_handle_iterator nodesEnd( const MyMesh& mesh )
+    { return mesh.nodesEnd(); }
 
-    static inline std::size_t type()
+    static inline std::size_t nodeDim( const MyMesh& mesh )
+    { return 3; }
+
+    static inline bool interleavedNodeCoords( const MyMesh& mesh )
+    { return true; }
+
+    static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
+    { return mesh.coordsBegin(); }
+
+    static inline const_coordinate_iterator coordsEnd( const MyMesh& mesh )
+    { return mesh.coordsEnd(); }
+
+
+    static inline std::size_t elementType( const MyMesh& mesh )
     { return DTK_FACE; }
 
-    static inline std::size_t topology()
+    static inline std::size_t elementTopology( const MyMesh& mesh )
     { return DTK_QUADRILATERAL; }
 
-    static inline std::size_t numNodes()
+    static inline std::size_t nodesPerElement( const MyMesh& mesh )
     { return 4; }
 
-    static inline handle_type handle( const MyQuad &quad )
-    { return quad.handle(); }
+    static inline const_handle_iterator elementsBegin( const MyMesh& mesh )
+    { return mesh.quadsBegin(); }
 
-    static inline const_connectivity_iterator 
-    connectivityBegin( const MyQuad &quad )
-    { return quad.connectivityBegin(); }
+    static inline const_handle_iterator elementsEnd( const MyMesh& mesh )
+    { return mesh.quadsEnd(); }
 
-    static inline const_connectivity_iterator 
-    connectivityEnd( const MyQuad &quad )
-    { return quad.connectivityEnd(); }
+    static inline const_handle_iterator connectivityBegin( const MyMesh& mesh )
+    { return mesh.connectivityBegin(); }
+
+    static inline const_handle_iterator connectivityEnd( const MyMesh& mesh )
+    { return mesh.connectivityEnd(); }
 };
 
 //---------------------------------------------------------------------------//
-// FieldTraits specialization for the node field.
-template<>
-struct FieldTraits< std::vector<MyNode> >
-{
-    typedef MyNode                                value_type;
-    typedef std::vector<MyNode>::iterator         iterator;
-    typedef std::vector<MyNode>::const_iterator   const_iterator;
-    
-    static inline std::size_t size( const std::vector<MyNode> &node_field )
-    { return node_field.size(); }
-
-    static iterator begin( std::vector<MyNode> &node_field )
-    { return node_field.begin(); }
-
-    static const_iterator begin( const std::vector<MyNode> &node_field )
-    { return node_field.begin(); }
-
-    static inline iterator end( std::vector<MyNode> &node_field )
-    { return node_field.end(); }
-
-    static inline const_iterator end( const std::vector<MyNode> &node_field )
-    { return node_field.end(); }
-
-    static inline bool empty( const std::vector<MyNode> &node_field )
-    { return node_field.empty(); }
-};
-
-//---------------------------------------------------------------------------//
-// FieldTraits specialization for the element field.
-template<>
-struct FieldTraits< std::vector<MyQuad> >
-{
-    typedef MyQuad                                value_type;
-    typedef std::vector<MyQuad>::iterator         iterator;
-    typedef std::vector<MyQuad>::const_iterator   const_iterator;
-    
-    static inline std::size_t size( const std::vector<MyQuad> &quad_field )
-    { return quad_field.size(); }
-
-    static inline iterator begin( std::vector<MyQuad> &quad_field )
-    { return quad_field.begin(); }
-
-    static inline const_iterator begin( const std::vector<MyQuad> &quad_field )
-    { return quad_field.begin(); }
-
-    static inline iterator end( std::vector<MyQuad> &quad_field )
-    { return quad_field.end(); }
-
-    static inline const_iterator end( const std::vector<MyQuad> &quad_field )
-    { return quad_field.end(); }
-
-    static inline bool empty(  const std::vector<MyQuad> &quad_field )
-    { return quad_field.empty(); }
-};
-
-//---------------------------------------------------------------------------//
-// FieldTraits specialization for the data field.
+// FieldTraits specialization for the data and coordinate field.
 template<>
 struct FieldTraits< std::vector<double> >
 {
-    typedef MyNode value_type;
+    typedef double value_type;
     typedef std::vector<double>::iterator iterator;
     typedef std::vector<double>::const_iterator const_iterator;
     
-    static inline std::size_t size( const std::vector<double> &data_field )
+    static inline std::size_t size( const std::vector<double>& data_field )
     { return data_field.size(); }
 
-    static inline iterator begin( std::vector<double> &data_field )
+    static inline iterator begin( std::vector<double>& data_field )
     { return data_field.begin(); }
 
-    static inline const_iterator begin( const std::vector<double> &data_field )
+    static inline const_iterator begin( const std::vector<double>& data_field )
     { return data_field.begin(); }
 
-    static inline iterator end( std::vector<double> &data_field )
+    static inline iterator end( std::vector<double>& data_field )
     { return data_field.end(); }
 
-    static inline const_iterator end( const std::vector<double> &data_field )
+    static inline const_iterator end( const std::vector<double>& data_field )
     { return data_field.end(); }
 
-    static inline bool empty( const std::vector<double> &data_field )
+    static inline bool empty( const std::vector<double>& data_field )
     { return data_field.empty(); }
 };
 
@@ -267,33 +193,46 @@ struct FieldTraits< std::vector<double> >
 //---------------------------------------------------------------------------//
 // DataSource Implementation
 //---------------------------------------------------------------------------//
-class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
-							 std::vector<MyQuad>,
-							 std::vector<double> >
+class MyDataSource : 
+    public DataTransferKit::DataSource< MyMesh, std::vector<double> >
 {
   private:
 
-    std::vector<MyNode> d_nodes;
-    std::vector<MyQuad> d_elements;
-    std::vector<double> d_element_data;
+    MyMesh d_mesh;
     MPI_Comm d_comm;
+    std::vector<double> d_data;
 
     void createMesh()
     {
 	// Make some nodes.
-	d_nodes.push_back( MyNode(0.0, 1.0, 2.0, 0) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 2.0, 1) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 2.0, 2) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 2.0, 3) );
+	std::vector<int> node_handles;
+	std::vector<double> node_coords;
+	for ( int i = 0; i < 4; ++i )
+	{
+	    node_handles.push_back( i );
+	    node_coords.push_back( 0.0 );
+	    node_coords.push_back( 1.0 );
+	    node_coords.push_back( 2.0 );
+	}
 
 	// Make a quadrilateral.
-	d_elements.push_back( MyQuad( 0, 1, 2, 3, 8 ) );
+	std::vector<int> quad_handles;
+	std::vector<int> quad_connectivity;
+	quad_handles.push_back( 8 );
+	for ( int i = 0; i < 4; ++i )
+	{
+	    quad_connectivity.push_back( i );
+	}
 
-	// Add some data for the elements.
-	d_element_data.push_back( 1.5 );
-	d_element_data.push_back( 3.5 );
-	d_element_data.push_back( 5.5 );
-	d_element_data.push_back( 7.5 );
+	// Make a mesh.
+	d_mesh = MyMesh( node_handles, node_coords,
+			 quad_handles, quad_connectivity );
+
+	// Add some data for the nodes.
+	d_data.push_back( 1.5 );
+	d_data.push_back( 3.5 );
+	d_data.push_back( 5.5 );
+	d_data.push_back( 7.5 );
     }
 
   public:
@@ -330,24 +269,19 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 	return return_val;
     }
 
-    const std::vector<MyNode>& getSourceMeshNodes()
+    const MyMesh& getSourceMesh()
     {
-	return d_nodes;
-    }
-
-    const std::vector<MyQuad>& getSourceMeshElements()
-    {
-	return d_elements;
+	return d_mesh;
     }
 
     const std::vector<double> evaluateFieldOnTargetNodes( 
 	const std::string &field_name,
-	const std::vector<MyQuad::handle_type> &element_handles,
-	const std::vector<MyNode::coordinate_type> &node_coordinates )
+	const std::vector<MyMesh::handle_type> &element_handles,
+	const std::vector<MyMesh::coordinate_type> &node_coordinates )
     {
 	if ( field_name == "MY_DATA_FIELD" )
 	{
-	    return d_element_data;
+	    return d_data;
 	}
 	else
 	{
@@ -361,26 +295,24 @@ class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
 // DataTarget implementation.
 //---------------------------------------------------------------------------//
 
-class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
+class MyDataTarget : public DataTransferKit::DataTarget< std::vector<double>,
 							 std::vector<double> >
 {
   private:
 
-    std::vector<MyNode> d_nodes;
-    std::vector<MyQuad> d_elements;
+    std::vector<double> d_coords;
     std::vector<double> d_data;
     MPI_Comm d_comm;
 
-    void createMesh()
+    void setup()
     {
-	// Make some nodes.
-	d_nodes.push_back( MyNode(0.0, 1.0, 2.0, 0) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 2.0, 1) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 2.0, 2) );
-	d_nodes.push_back( MyNode(0.0, 1.0, 2.0, 3) );
-
-	// Make a quadrilateral.
-	d_elements.push_back( MyQuad( 0, 1, 2, 3, 8 ) );
+	// Make some coordinates.
+	for ( int i = 0; i < 4; ++i )
+	{
+	    d_coords.push_back( 0.0 );
+	    d_coords.push_back( 1.0 );
+	    d_coords.push_back( 2.0 );
+	}
 
 	// Allocate some memory for data for the nodes.
 	d_data.resize( 4 );
@@ -390,8 +322,8 @@ class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
 
     MyDataTarget()
     { 
-	// Build the mesh.
-	createMesh();
+	// Setup.
+	setup();
 
 	// Get the raw MPI_Comm out of Teuchos.
 	Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
@@ -420,9 +352,14 @@ class MyDataTarget : public DataTransferKit::DataTarget< std::vector<MyNode>,
 	return return_val;
     }
 
-    const std::vector<MyNode>& getTargetNodes()
+    bool interleavedCoordinates()
     {
-	return d_nodes;
+	return true;
+    }
+
+    const std::vector<double>& getTargetCoordinates()
+    {
+	return d_coords;
     }
 
     std::vector<double>&
@@ -475,122 +412,16 @@ void copyData( const SourceDataField &source_field,
 }
 
 //---------------------------------------------------------------------------//
-// Check functions.
-//---------------------------------------------------------------------------//
-// Check the mesh nodes.
-template<typename NodeField>
-void checkNodes( const NodeField &node_field )
-{
-    using namespace DataTransferKit;
-
-    typedef typename FieldTraits<NodeField>::value_type NodeType;
-
-    assert( FieldTraits<NodeField>::size( node_field ) == 4 );
-
-    int node_index = 0;
-    double coord_val = 0.0;
-    typename FieldTraits<NodeField>::const_iterator node_iterator;
-    for ( node_iterator = FieldTraits<NodeField>::begin( node_field );
-	  node_iterator != FieldTraits<NodeField>::end( node_field );
-	  ++node_iterator )
-    {
-	assert( NodeTraits<NodeType>::dim() == 3 );
-	assert( NodeTraits<NodeType>::handle( *node_iterator ) == node_index );
-
-	coord_val = 0.0;
-	typename NodeTraits<NodeType>::const_coordinate_iterator coord_iterator;
-	for ( coord_iterator = NodeTraits<NodeType>::coordsBegin( *node_iterator );
-	      coord_iterator != NodeTraits<NodeType>::coordsEnd( *node_iterator );
-	      ++coord_iterator )
-	{
-	    assert( *coord_iterator == coord_val );
-	    coord_val += 1.0;
-	}
-
-	++node_index;
-    }
-}
-
-//---------------------------------------------------------------------------//
-// Check the mesh elements.
-template<typename ElementField>
-void checkElements( const ElementField &element_field )
-{
-    using namespace DataTransferKit;
-
-    typedef typename FieldTraits<ElementField>::value_type ElementType;
-
-    assert( FieldTraits<ElementField>::size( element_field ) == 1 );
-
-    typename FieldTraits<ElementField>::const_iterator first_element = 
-	FieldTraits<ElementField>::begin( element_field );
-
-    assert( ElementTraits<ElementType>::handle( *first_element ) == 8 );
-
-    int conn_index = 0;
-    typename ElementTraits<ElementType>::const_connectivity_iterator conn_iterator;
-    for ( conn_iterator = ElementTraits<ElementType>::connectivityBegin( *first_element);
-	  conn_iterator != ElementTraits<ElementType>::connectivityEnd( *first_element);
-	  ++conn_iterator )
-    {
-	assert( *conn_iterator ==  conn_index );
-	++conn_index;
-    }
-}
-
-//---------------------------------------------------------------------------//
-// Check the node data.
-template<typename DataField>
-void checkNodeData( const DataField &data_field )
-{
-    using namespace DataTransferKit;
-
-    assert( FieldTraits<DataField>::size( data_field ) == 4 );
-
-    double gold_data = 1.5;
-    typename FieldTraits<DataField>::const_iterator data_iterator;
-    for ( data_iterator = FieldTraits<DataField>::begin( data_field );
-	  data_iterator != FieldTraits<DataField>::end( data_field );
-	  ++data_iterator )
-    {
-	assert( *data_iterator == gold_data );
-	gold_data += 2.0;
-    }
-}
-
-//---------------------------------------------------------------------------//
-// Check that we can write data to the target.
-template<typename DataField>
-void checkWriteData( DataField &data_field )
-{
-    using namespace DataTransferKit;
-    
-    assert( FieldTraits<DataField>::size( data_field ) == 4 );
-
-    double gold_data = 1.5;
-    typename FieldTraits<DataField>::iterator data_iterator;
-    for ( data_iterator = FieldTraits<DataField>::begin( data_field );
-	  data_iterator != FieldTraits<DataField>::end( data_field );
-	  ++data_iterator )
-    {
-	*data_iterator = gold_data;
-	gold_data += 2.0;
-    }
-}
-
-//---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-namespace DataTransferKit {
-
 // DataSource test.
 TEUCHOS_UNIT_TEST( DataSource, data_source_test )
 {
+    using namespace DataTransferKit;
+    
     // Create a DataSource
-    Teuchos::RCP< DataSource< std::vector<MyNode>,
-			      std::vector<MyQuad>,
-			      std::vector<double> > > data_source 
-			      = Teuchos::rcp( new MyDataSource() );
+    Teuchos::RCP< DataSource< MyMesh, std::vector<double> > > data_source = 
+	Teuchos::rcp( new MyDataSource() );
 
     // Get the raw communicator and wrap it in a Teuchos::Comm interface.
     Teuchos::RCP< Teuchos::OpaqueWrapper<MPI_Comm> > raw_comm = 
@@ -603,25 +434,96 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
     // Check that my data field is supported.
     TEST_ASSERT( data_source->isFieldSupported( "MY_DATA_FIELD" ) );
 
-    // Check the mesh nodes.
-    checkNodes( data_source->getSourceMeshNodes() );
+    // Get the mesh.
+    MyMesh source_mesh = data_source->getSourceMesh();
+    typename MeshTraits<MyMesh>::const_handle_iterator handle_iterator;
+    typename MeshTraits<MyMesh>::const_coordinate_iterator coord_iterator;
+    
+    // Check the nodes.
+    TEST_ASSERT( MeshTraits<MyMesh>::nodeDim( source_mesh ) == 3 );
+    TEST_ASSERT( MeshTraits<MyMesh>::interleavedNodeCoords( source_mesh ) );
+    TEST_ASSERT( std::distance( MeshTraits<MyMesh>::nodesBegin( source_mesh ),
+				MeshTraits<MyMesh>::nodesEnd( source_mesh ) )
+		 == 4 );
+    
+    int node_index = 0;
+    for ( handle_iterator = MeshTraits<MyMesh>::nodesBegin( source_mesh );
+	  handle_iterator != MeshTraits<MyMesh>::nodesEnd( source_mesh );
+	  ++handle_iterator, ++node_index )
+    {
+	TEST_ASSERT( *handle_iterator == node_index );
+    }
 
-    // Check the mesh elements.
-    checkElements( data_source->getSourceMeshElements() );
+    for ( coord_iterator = MeshTraits<MyMesh>::coordsBegin( source_mesh );
+	  coord_iterator != MeshTraits<MyMesh>::coordsEnd( source_mesh ); )
+    {
+	double coord_val = 0.0;
+	for ( int i = 0; i < 3; ++i, ++coord_iterator )
+	{
+	    TEST_ASSERT( *coord_iterator == coord_val );
+	    coord_val += 1.0;
+	}
+    }
 
-    // Check the mesh node data.
-    std::vector<MyQuad::handle_type> dummy_handles;
-    std::vector<MyNode::coordinate_type> dummy_coords;
-    checkNodeData( data_source->evaluateFieldOnTargetNodes( "MY_DATA_FIELD",
-							    dummy_handles,
-							    dummy_coords ) );
+    // Check the elements.
+    TEST_ASSERT( MeshTraits<MyMesh>::elementType( source_mesh ) == DTK_FACE );
+    TEST_ASSERT( MeshTraits<MyMesh>::elementTopology( source_mesh ) == 
+		 DTK_QUADRILATERAL );
+    TEST_ASSERT( MeshTraits<MyMesh>::nodesPerElement( source_mesh ) == 4 );
+    TEST_ASSERT( std::distance( MeshTraits<MyMesh>::elementsBegin( source_mesh ),
+				MeshTraits<MyMesh>::elementsEnd( source_mesh ) )
+		 == 1 );
+    TEST_ASSERT( std::distance( 
+		     MeshTraits<MyMesh>::connectivityBegin( source_mesh ),
+		     MeshTraits<MyMesh>::connectivityEnd( source_mesh ) )
+		 == 4 );
+
+    for ( handle_iterator = MeshTraits<MyMesh>::elementsBegin( source_mesh );
+	  handle_iterator != MeshTraits<MyMesh>::elementsEnd( source_mesh );
+	  ++handle_iterator )
+    {
+	TEST_ASSERT( *handle_iterator == 8 );
+    }
+
+    int conn_index = 0;
+    for ( handle_iterator = 
+	      MeshTraits<MyMesh>::connectivityBegin( source_mesh );
+	  handle_iterator != 
+	      MeshTraits<MyMesh>::connectivityEnd( source_mesh );
+	  ++handle_iterator )
+    {
+	TEST_ASSERT( *handle_iterator == conn_index );
+	++conn_index;
+    }
+
+    // Check the data.
+    std::vector<MyMesh::handle_type> dummy_handles;
+    std::vector<MyMesh::coordinate_type> dummy_coords;
+    std::vector<double> data = 
+	data_source->evaluateFieldOnTargetNodes( "MY_DATA_FIELD",
+						 dummy_handles,
+						 dummy_coords );
+
+    TEST_ASSERT( FieldTraits< std::vector<double> >::size( data ) == 4 );
+    double gold_data = 1.5;
+    typename FieldTraits< std::vector<double> >::const_iterator data_iterator;
+    for ( data_iterator = FieldTraits< std::vector<double> >::begin( data );
+	  data_iterator != FieldTraits< std::vector<double> >::end( data );
+	  ++data_iterator )
+    {
+	TEST_ASSERT( *data_iterator == gold_data );
+	gold_data += 2.0;
+    }
 }
 
+//---------------------------------------------------------------------------//
 // DataTarget test.
 TEUCHOS_UNIT_TEST( DataTarget, data_target_test )
 {
+    using namespace DataTransferKit;
+    
     // Create a DataTarget
-    Teuchos::RCP< DataTarget< std::vector<MyNode>,
+    Teuchos::RCP< DataTarget< std::vector<double>,
 			      std::vector<double> > > data_target = 
 	Teuchos::rcp( new MyDataTarget() );
 
@@ -636,33 +538,69 @@ TEUCHOS_UNIT_TEST( DataTarget, data_target_test )
     // Check that my data field is supported.
     TEST_ASSERT( data_target->isFieldSupported( "MY_DATA_FIELD" ) );
 
-    // Check the mesh nodes.
-    checkNodes( data_target->getTargetNodes() );
+    // Check the target coordinates.
+    TEST_ASSERT( data_target->interleavedCoordinates() );
+    std::vector<double> target_coords = data_target->getTargetCoordinates();
+    typename FieldTraits< std::vector<double> >::const_iterator coord_iterator;
+    for ( coord_iterator = 
+	      FieldTraits< std::vector<double> >::begin( target_coords );
+	  coord_iterator != 
+	      FieldTraits< std::vector<double> >::end( target_coords ); )
+    {
+	double coord_val = 0.0;
+	for ( int i = 0; i < 3; ++i, ++coord_iterator )
+	{
+	    TEST_ASSERT( *coord_iterator == coord_val );
+	    coord_val += 1.0;
+	}
+    }
 
     // Check that we can write mesh node data.
-    checkWriteData( data_target->getTargetDataSpace( "MY_DATA_FIELD" ) );
+    std::vector<double> data = data_target->getTargetDataSpace( "MY_DATA_FIELD" );
+    FieldTraits< std::vector<double> >::iterator write_iterator;
+    double gold_data = 1.5;
+    for ( write_iterator = FieldTraits< std::vector<double> >::begin( data );
+	  write_iterator != FieldTraits< std::vector<double> >::end( data );
+	  ++write_iterator )
+    {
+	*write_iterator = gold_data;
+	gold_data += 1.0;
+    }
+
     Teuchos::RCP<MyDataTarget> my_target = 
 	Teuchos::rcp_dynamic_cast<MyDataTarget>( data_target );
-    checkNodeData( my_target->getData() );
+    std::vector<double> target_data = my_target->getData();
+    FieldTraits< std::vector<double> >::iterator read_iterator;
+    gold_data = 1.5;
+    for ( read_iterator = 
+	      FieldTraits< std::vector<double> >::begin( target_data );
+	  read_iterator != 
+	      FieldTraits< std::vector<double> >::end( target_data );
+	  ++read_iterator )
+    {
+	*read_iterator = gold_data;
+	gold_data += 1.0;
+    }
 }
 
+//---------------------------------------------------------------------------//
 // Data copy test.
 TEUCHOS_UNIT_TEST( DataSource, copy_test )
 {
+    using namespace DataTransferKit;
+
     // Create a DataSource
-    Teuchos::RCP< DataSource< std::vector<MyNode>,
-			      std::vector<MyQuad>,
-			      std::vector<double> > > data_source = 
+    Teuchos::RCP< DataSource< MyMesh, std::vector<double> > > data_source = 
 	Teuchos::rcp( new MyDataSource() );
 
     // Create a DataTarget
-    Teuchos::RCP< DataTarget< std::vector<MyNode>,
+    Teuchos::RCP< DataTarget< std::vector<double>,
 			      std::vector<double> > > data_target = 
 	Teuchos::rcp( new MyDataTarget() );
 
     // Copy from the source to the target.
-    std::vector<MyQuad::handle_type> dummy_handles;
-    std::vector<MyNode::coordinate_type> dummy_coords;
+    std::vector<int> dummy_handles;
+    std::vector<double> dummy_coords;
     copyData( data_source->evaluateFieldOnTargetNodes( "MY_DATA_FIELD", 
 						       dummy_handles, 
 						       dummy_coords ), 
@@ -671,10 +609,19 @@ TEUCHOS_UNIT_TEST( DataSource, copy_test )
     // Check the copy.
     Teuchos::RCP<MyDataTarget> my_target = 
 	Teuchos::rcp_dynamic_cast<MyDataTarget>( data_target );
-    checkNodeData( my_target->getData() );
+    std::vector<double> target_data = my_target->getData();
+    FieldTraits< std::vector<double> >::iterator read_iterator;
+    double gold_data = 1.5;
+    for ( read_iterator = 
+	      FieldTraits< std::vector<double> >::begin( target_data );
+	  read_iterator != 
+	      FieldTraits< std::vector<double> >::end( target_data );
+	  ++read_iterator )
+    {
+	*read_iterator = gold_data;
+	gold_data += 1.0;
+    }
 }
-
-} // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 //                        end of tstInterfaces.cpp

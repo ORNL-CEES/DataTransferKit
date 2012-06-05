@@ -23,9 +23,8 @@ APPEND_SET(HEADERS
   DTK_CoreTypes.hpp
   DTK_DataSource.hpp
   DTK_DataTarget.hpp
-  DTK_ElementTraits.hpp
   DTK_FieldTraits.hpp
-  DTK_NodeTraits.hpp
+  DTK_MeshTraits.hpp
   )
 
 # Set sources

@@ -14,7 +14,6 @@
 
 #include <mpi.h>
 
-#include "DTK_NodeTraits.hpp"
 #include "DTK_FieldTraits.hpp"
 
 #include <Teuchos_Describable.hpp>
@@ -26,7 +25,8 @@ namespace DataTransferKit
 /*!
  * \class DataTarget
  * \brief Protocol definition for applications acting as a data target in
- * multiphysics coupling. 
+ * multiphysics coupling. DTK will neither allocate or deallocate memory in
+ * the target application throught this interface.
  *
  */
 /*! 
@@ -35,15 +35,19 @@ namespace DataTransferKit
  * Test of DataTarget.
  */
 //===========================================================================//
-template<typename NodeField, typename DataField>
+template<typename CoordinateField, typename DataField>
 class DataTarget : public Teuchos::Describable
 {
   public:
 
     //@{
-    //! Typedefs.
-    typedef NodeField                                      node_field_type;
-    typedef typename FieldTraits<NodeField>::value_type    node_type;
+    //! Coordinate field typedefs.
+    typedef CoordinateField                              coordinate_field_type;
+    typedef typename FieldTraits<CoordinateField>::value_type  coordinate_type;
+    //@}
+
+    //@{
+    //! Data typedefs.
     typedef DataField                                      data_field_type;
     typedef typename FieldTraits<DataField>::value_type    data_type;
     //@}
@@ -68,34 +72,44 @@ class DataTarget : public Teuchos::Describable
     virtual const MPI_Comm& getTargetComm() = 0;
 
     /*!
-     * \brief Check whether or not a field is supported. Return false if this
-     * field is not supported. 
+     * \brief Check whether or not a field is supported.
      * \param field_name The name of the field for which support is being
      * checked.
+     * \return Return false if this field is not supported. 
      */
     virtual bool isFieldSupported( const std::string &field_name ) = 0;
 
     /*!
-     * \brief Provide the target mesh nodes to which data will be transferred.
-     * The order of these nodes will correspond to the order of the data
-     * returned from the transfer operation.  \param target_nodes View of the
-     * local target nodes. This view required to persist. The NodeField
-     * type is expected to implement FieldTraits. NodeField::value_type
-     * is expected to implement NodeTraits. 
+     * \brief Check whether the target node coordinate field is interleaved (
+     * x0, y0, z0, ..., xN, yN, zN ) or blocked ( x0, x1, ... , xN, y0, y1,
+     * ..., yN, z0, z1, ... zN ). 
+     * \param Return true if the coordinate field to be returned by
+     * getTargetCoordinates() is interleaved, false if blocked.
      */
-    virtual const NodeField& getTargetNodes() = 0;
+    virtual bool interleavedCoordinates() = 0;
+
+    /*!
+     * \brief Provide the target mesh node coordinates to which data will be
+     * transferred.
+     * The order of these coordinates will correspond to the order of the data
+     * returned from the transfer operation.  \param target_nodes View of the
+     * local target nodes. This view required to persist. The CoordinateField
+     * type is expected to implement FieldTraits. CoordinateField::value_type
+     * is expected to implement Teuchos::ScalarTraits. 
+     */
+    virtual const CoordinateField& getTargetCoordinates() = 0;
 
     /*! 
      * \brief Provide a persisting, non-const view of the local data vector
-     * associated with the nodes provided by getTargetNodes().
+     * associated with the nodes provided by getTargetCoordinates().
      * \param field_name The name of the field to receive data from. 
      * \return A non-const persisting view of the data vector to be
      * populated. This view has two requirements: 1) It is of size equal to
-     * the number of nodes provided by getTargetNodes(), 2) It is a persisting
-     * view that will be used to write data into the underlying vector. The
-     * order of the data provided will be in the same order as the local nodes
-     * provided by getTargetNodes(). The DataField type is expected to
-     * implement FieldTraits. ElementField::value_type is expected to
+     * the number of nodes provided by getTargetCoordinates(), 2) It is a
+     * persisting view that will be used to write data into the underlying
+     * vector. The order of the data provided will be in the same order as the
+     * local coordinates provided by getTargetCoordinates(). The DataField type is
+     * expected to implement FieldTraits. DataField::value_type is expected to
      * implement Teuchos::ScalarTraits.
      */
     virtual DataField& getTargetDataSpace( const std::string &field_name ) = 0;
