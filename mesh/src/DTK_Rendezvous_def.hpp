@@ -57,17 +57,13 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
 		       "Error creating RCB decomposition." );
     d_rcb->partition();
 
-    // Send the mesh to the rendezvous decomposition.
-    sendMeshToRendezvous();
+    // Send the mesh to the rendezvous decomposition and build the concrete
+    // mesh.
+    sendMeshToRendezvous( nodes_in_box, elements_in_box );
 
     // Clear the extracted mesh information.
     nodes_in_box.clear();
     elements_in_box.clear();
-
-    // Build the concrete mesh database in the rendezvous decomposition.
-    d_rendezvous_mesh = createRendezvousMesh( mesh_container );
-    testPostcondition( d_rendezvous_mesh != Teuchos::null,
-		       "Error creating rendezvous mesh." );
     
     // Create a kD-tree in the rendezvous decomposition.
     d_kdtree = Teuchos::rcp( new KDTree<handle_type>( d_rendezvous_mesh ) );
@@ -234,6 +230,22 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	    }
 	}
     }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Send the mesh to the rendezvous decomposition and build the concrete
+ * mesh. 
+ */
+template<typename Mesh>
+void Rendezvous<Mesh>sendMeshToRendezvous( 
+    const std::vector<char>& nodes_in_box, 
+    const std::vector<char>& elements_in_box )
+{
+    
+
+    testPostcondition( d_rendezvous_mesh != Teuchos::null,
+		       "Error creating rendezvous mesh." );
 }
 
 //---------------------------------------------------------------------------//

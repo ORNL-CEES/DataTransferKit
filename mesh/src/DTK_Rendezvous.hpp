@@ -68,8 +68,10 @@ class Rendezvous
 		       std::vector<char>& nodes_in_box,
 		       std::vector<char>& elements_in_box );
 
-    // Send the mesh to the rendezvous decomposition.
-    void sendMeshToRendezvous();
+    // Send the mesh to the rendezvous decomposition and build the concrete
+    // mesh. 
+    void sendMeshToRendezvous( const std::vector<char>& nodes_in_box,
+			       const std::vector<char>& elements_in_box );
 
   private:
 

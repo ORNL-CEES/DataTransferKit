@@ -37,29 +37,6 @@ class RCB
     typedef Teuchos::RCP<const CommType>     RCP_Comm;
     //@}
 
-    //! Mesh data struct for Zoltan callbacks.
-    struct MeshData 
-    {
-	// The mesh we are partitioning.
-	Mesh d_mesh;
-
-	// The active nodes in the mesh.
-	std::vector<char> d_active_nodes;
-
-	// Constructor.
-	MeshData( const Mesh& mesh, 
-		  const std::vector<char>& active_nodes )
-	    : d_mesh( mesh )
-	    , d_active_nodes( active_nodes )
-	{ /* ... */ }
-
-	// Destructor.
-	~MeshData()
-	{ /* ... */ }
-    };
-
-  public:
-
     // Constructor.
     RCB( const Mesh& mesh, const std::vector<char>& active_nodes, 
 	 const RCP_Comm& comm );
@@ -118,6 +95,27 @@ class RCB
     { return Teuchos::ArrayView<int>( d_export_to_part, d_num_export ); }
 
   private:
+
+    //! Mesh data struct for Zoltan callbacks.
+    struct MeshData 
+    {
+	// The mesh we are partitioning.
+	Mesh d_mesh;
+
+	// The active nodes in the mesh.
+	std::vector<char> d_active_nodes;
+
+	// Constructor.
+	MeshData( const Mesh& mesh, 
+		  const std::vector<char>& active_nodes )
+	    : d_mesh( mesh )
+	    , d_active_nodes( active_nodes )
+	{ /* ... */ }
+
+	// Destructor.
+	~MeshData()
+	{ /* ... */ }
+    };
 
     // Zoltan callback for getting the number of nodes.
     static int getNumberOfObjects( void *data, int *ierr );
