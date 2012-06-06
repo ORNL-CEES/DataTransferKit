@@ -125,7 +125,7 @@ struct MeshTraits<MyMesh>
     static inline const_handle_iterator nodesEnd( const MyMesh& mesh )
     { return mesh.nodesEnd(); }
 
-    static inline bool interleavedCoords( const MyMesh& mesh )
+    static inline bool interleavedCoordinates( const MyMesh& mesh )
     { return true; }
 
     static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
@@ -205,16 +205,19 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
     typedef MeshTraits<MyMesh> MT;
     MyMesh my_mesh = buildMyMesh();
 
+    // All of the nodes will be partitioned.
+    int num_nodes = 3 * std::distance( MT::nodesBegin( my_mesh ),
+				      MT::nodesEnd( my_mesh ) );
+    std::vector<char> active_nodes( num_nodes, 1 );
+
     // Partition the mesh with RCB.
-    RCB<MyMesh> rcb( my_mesh, getDefaultComm<int>() );
+    RCB<MyMesh> rcb( my_mesh, active_nodes, getDefaultComm<int>() );
     rcb.partition();
 
     // Get the random numbers that were used to compute the node coordinates.
     std::srand( 1 );
     std::vector<double> random_numbers;
-    int num_rand = 3 * std::distance( MT::nodesBegin( my_mesh ),
-				      MT::nodesEnd( my_mesh ) );
-    for ( int i = 0; i < num_rand; ++i )
+    for ( int i = 0; i < num_nodes; ++i )
     {
 	random_numbers.push_back( (double) std::rand() / RAND_MAX );
     }

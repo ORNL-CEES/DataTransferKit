@@ -65,8 +65,8 @@ class Rendezvous
 
     // Extract the mesh nodes and elements that are in the bounding box.
     void getMeshInBox( const Mesh& mesh,
-		       std::vector<char>& nodes,
-		       std::vector<char>& elements );
+		       std::vector<char>& nodes_in_box,
+		       std::vector<char>& elements_in_box );
 
     // Send the mesh to the rendezvous decomposition.
     void sendMeshToRendezvous();
@@ -82,7 +82,7 @@ class Rendezvous
     // Rendezvous partitioning.
     RCP_RCB d_rcb;
 
-    // Rendezvous mesh.
+    // Rendezvous on-process mesh.
     RCP_RendezvousMesh d_rendezvous_mesh;
 
     // Rendezvous on-process kD-tree.

@@ -9,6 +9,10 @@
 #ifndef DTK_RENDEZVOUS_DEF_HPP
 #define DTK_RENDEZVOUS_DEF_HPP
 
+#include <map>
+#include <algorithm>
+#include <cassert>
+
 #include <DTK_Exception.hpp>
 
 #include <Teuchos_CommHelpers.hpp>
@@ -43,12 +47,12 @@ template<typename Mesh>
 void Rendezvous<Mesh>::build( const Mesh& mesh )
 {
     // Extract the mesh nodes and elements that are in the bounding box.
-    std::vector<char> nodes;
-    std::vector<char> elements;
-    getMeshInBox( mesh, nodes, elements );
+    std::vector<char> nodes_in_box;
+    std::vector<char> elements_in_box;
+    getMeshInBox( mesh, nodes_in_box, elements_in_box );
         
     // Construct the rendezvous decomposition of the mesh with RCB.
-    d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh, d_comm ) );
+    d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh, nodes_in_box, d_comm ) );
     testPostcondition( d_rcb != Teuchos::null,
 		       "Error creating RCB decomposition." );
     d_rcb->partition();
@@ -57,8 +61,8 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
     sendMeshToRendezvous();
 
     // Clear the extracted mesh information.
-    nodes.clear();
-    elements.clear();
+    nodes_in_box.clear();
+    elements_in_box.clear();
 
     // Build the concrete mesh database in the rendezvous decomposition.
     d_rendezvous_mesh = createRendezvousMesh( mesh_container );
@@ -129,13 +133,26 @@ Rendezvous<Mesh>::getElements( const std::vector<double>& coords ) const
  */
 template<typename Mesh>
 void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
-				     std::vector<char>& nodes,
-				     std::vector<char>& elements )
+				     std::vector<char>& nodes_in_box,
+				     std::vector<char>& elements_in_box )
 {
-    // Get all of the nodes that are in the box.
+    // Create a map indexed by handle containing the actual handle
+    // location. This will give us logarithmic time access to connectivity.
     int num_nodes = std::distance( MT::nodesBegin( mesh ),
 				   MT::nodesEnd( mesh ) );
-    double node[3];
+    std::map<handle_type,int> node_indices;
+    typename MT::const_handle_iterator node_iterator;
+    for ( node_iterator = MT::nodesBegin( mesh ),
+		  int n = 0;
+	  node_iterator != MT::nodesEnd( mesh );
+	  ++node_iterator, ++n )
+    {
+	node_indices[ *node_iterator ] = n;
+    }
+
+    // Get all of the nodes that are in the box. We handle the interleaved
+    // case and blocked case slightly differently.
+    double node_coords[3];
     typename MT::const_coordinate_iterator coord_iterator;
     if ( MT::interleavedCoordinates( mesh ) )
     {
@@ -144,17 +161,18 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	{
 	    for ( int i = 0; i < 3; ++i, ++coord_iterator )
 	    {
-		node[i] = *coord_iterator;
+		node_coords[i] = *coord_iterator;
 	    }
-	    nodes.push_back( d_global_box.pointInBox( node ) );
+	    nodes_in_box.push_back( 
+		(char) d_global_box.pointInBox( node_coords ) );
 	}
     }    
     else
     {
 	std::vector<double> interleaved_coords( 3*num_nodes );
-	int i = 0;	
 	int node, dim;
-	for ( coord_iterator = MT::coordsBegin( mesh );
+	for ( coord_iterator = MT::coordsBegin( mesh ),
+		       int i = 0;
 	      coord_iterator != MT::coordsEnd( mesh );
 	      ++coord_iterator, ++i )
 	{
@@ -168,16 +186,54 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	{
 	    for ( int i = 0; i < 3; ++i, ++interleaved_iterator )
 	    {
-		node[i] = *interleaved_iterator;
+		node_coords[i] = *interleaved_iterator;
 	    }
-	    nodes.push_back( d_global_box.pointInBox( node ) );
+	    nodes_in_box.push_back( 
+		(char) d_global_box.pointInBox( node_coords ) );
 	}
     }
+    assert( nodes_in_box.size() == num_nodes );
 
     // For those nodes that are in the box, get the elements that they
     // construct.
+    int num_elements = std::distance( MT::elementsBegin( mesh ),
+				      MT::elementsEnd( mesh ) );
+    int nodes_per_element = MT::nodesPerElement( mesh );
+    int node_index;
+    char this_element_in_box;
+    MT::const_handle_iterator element_iterator;
+    MT::const_handle_iterator connectivity_iterator;
+    for ( element_iterator = MT::beginElements( mesh ),
+     connectivity_iterator = MT::beginConnectivity( mesh );
+	  element_iterator != MT::endElements( mesh );
+	  ++element_iterator )
+    {
+	for ( int n = 0; n < nodes_per_element; ++n, ++connectivity_iterator )
+	{
+	    node_index = node_indices.find( *connectivity_iterator )->second;
+	    this_element_in_box = nodes_in_box[ node_index ];
+	}
+	elements_in_box.push_back( this_element_in_box );
+    }
+    assert( elements_in_box.size() == num_elements );
 
-    // Get the nodes that belong to these elements but are not in the box.
+    // Get the nodes that belong to the elements in the box, but are not in
+    // the box themselves. These will also be used in RCB.
+    for ( element_iterator = MT::beginElements( mesh ),
+     connectivity_iterator = MT::beginConnectivity( mesh ),
+		     int i = 0;
+	  element_iterator != MT::endElements( mesh );
+	  ++element_iterator, ++i )
+    {
+	for ( int n = 0; n < nodes_per_element; ++n, ++connectivity_iterator )
+	{
+	    if ( elements_in_box[i] )
+	    {
+		node_index = node_indices.find( *connectivity_iterator )->second;
+		nodes_in_box[ node_index ] = (char) 1;
+	    }
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//

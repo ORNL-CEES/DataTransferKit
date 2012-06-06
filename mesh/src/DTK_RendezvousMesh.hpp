@@ -53,14 +53,14 @@ class RendezvousMesh
     // Given a moab element handle return the corresponding native element
     // handle.
     handle_type getNativeHandle( moab::EntityHandle moab_handle )
-    { return d_handle_map[ moab_handle ]; }
+    { return d_handle_map.find( moab_handle )->second; }
 
   private:
 
     //! Moab interface implementation.
     RCP_Moab d_moab;
 
-    //! RendezvousMesh elements.
+    //! Moab mesh elements.
     moab::Range d_elements;
 
     //! Moab element handle to native element handle map.

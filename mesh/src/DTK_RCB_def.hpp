@@ -21,8 +21,9 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<typename Mesh>
-RCB<Mesh>::RCB( const Mesh& mesh, const RCP_Comm& comm )
-    : d_mesh( mesh )
+RCB<Mesh>::RCB( const Mesh& mesh, const std::vector<char>& active_nodes,
+		const RCP_Comm& comm )
+    : d_mesh_data( mesh, active_nodes )
     , d_part_boxes( comm->getSize() )
 {
     // Get the raw MPI communicator.
@@ -51,10 +52,10 @@ RCB<Mesh>::RCB( const Mesh& mesh, const RCP_Comm& comm )
     Zoltan_Set_Param( d_zz, "KEEP_CUTS", "1" );
 
     // Register query functions.
-    Zoltan_Set_Num_Obj_Fn( d_zz, getNumberOfObjects, &d_mesh );
-    Zoltan_Set_Obj_List_Fn( d_zz, getObjectList, &d_mesh );
-    Zoltan_Set_Num_Geom_Fn( d_zz, getNumGeometry, &d_mesh );
-    Zoltan_Set_Geom_Multi_Fn( d_zz, getGeometryList, &d_mesh );
+    Zoltan_Set_Num_Obj_Fn( d_zz, getNumberOfObjects, &d_mesh_data );
+    Zoltan_Set_Obj_List_Fn( d_zz, getObjectList, &d_mesh_data );
+    Zoltan_Set_Num_Geom_Fn( d_zz, getNumGeometry, &d_mesh_data );
+    Zoltan_Set_Geom_Multi_Fn( d_zz, getGeometryList, &d_mesh_data );
 }
 
 //---------------------------------------------------------------------------//
@@ -164,10 +165,21 @@ int RCB<Mesh>::getDestinationProc( double coords[3] ) const
 template<typename Mesh>
 int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
 {
-    Mesh *mesh = (Mesh*) data;
+    MeshData *mesh_data = (MeshData*) data;
+    int num_nodes = 0;
+    std::vector<char>::const_iterator active_iterator;
+    for ( active_iterator = mesh_data->d_active_nodes.begin();
+	  active_iterator != mesh_data->d_active_nodes.end();
+	  ++active_iterator )
+    {
+	if ( *active_iterator )
+	{
+	    ++num_nodes;
+	}
+    }
+
     *ierr = ZOLTAN_OK;
-    return std::distance( MT::nodesBegin( *mesh ),
-			  MT::nodesEnd( *mesh ) );
+    return num_nodes;
 }
 
 //---------------------------------------------------------------------------//
@@ -180,17 +192,23 @@ void RCB<Mesh>::getObjectList(
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
     int wgt_dim, float *obj_wgts, int *ierr )
 {
-    Mesh *mesh = (Mesh*) data;
+    MeshData *mesh_data = (MeshData*) data;
     *ierr = ZOLTAN_OK;
 
+    std::vector<char>::const_iterator active_iterator;
     typename MT::const_handle_iterator handle_iterator;
     int i = 0;
-    for ( handle_iterator = MT::nodesBegin( *mesh );
-	  handle_iterator != MT::nodesEnd( *mesh );
-	  ++handle_iterator, ++i )
+    for ( handle_iterator = MT::nodesBegin( mesh_data->d_mesh ),
+	  active_iterator = mesh_data->d_active_nodes.begin();
+	  handle_iterator != MT::nodesEnd( mesh_data->d_mesh );
+	  ++handle_iterator, ++active_iterator )
     {
-	globalID[i] = (ZOLTAN_ID_TYPE) *handle_iterator;
-	localID[i] = i;
+	if ( *active_iterator )
+	{
+	    globalID[i] = (ZOLTAN_ID_TYPE) *handle_iterator;
+	    localID[i] = i;
+	    ++i;
+	}
     }
 }
 
@@ -216,10 +234,22 @@ void RCB<Mesh>::getGeometryList(
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
     int num_dim, double *geom_vec, int *ierr )
 {
-    Mesh *mesh = (Mesh*) data;
-    int num_nodes = std::distance( MT::nodesBegin( *mesh ),
-				   MT::nodesEnd( *mesh ) );
+    MeshData *mesh_data = (MeshData*) data;
 
+    // Get the number of nodes.
+    int num_nodes = 0;
+    std::vector<char>::const_iterator active_iterator;
+    for ( active_iterator = mesh_data->d_active_nodes.begin();
+	  active_iterator != mesh_data->d_active_nodes.end();
+	  ++active_iterator )
+    {
+	if ( *active_iterator )
+	{
+	    ++num_nodes;
+	}
+    }
+
+    // Check Zoltan for consistency.
     testInvariant( sizeGID == 1, "Zoltan global ID size != 1." );
     testInvariant( sizeLID == 1, "Zoltan local ID size != 1." );
     testInvariant( num_dim == 3, "Zoltan dimension != 3." );
@@ -234,11 +264,11 @@ void RCB<Mesh>::getGeometryList(
     
     // Zoltan needs interleaved coordinates.
     typename MT::const_coordinate_iterator coord_iterator;
-    if ( MT::interleavedCoordinates( *mesh ) )
+    if ( MT::interleavedCoordinates( mesh_data->d_mesh ) )
     {
 	int i = 0;
-	for ( coord_iterator = MT::coordsBegin( *mesh );
-	      coord_iterator != MT::coordsEnd( *mesh );
+	for ( coord_iterator = MT::coordsBegin( mesh_data->d_mesh );
+	      coord_iterator != MT::coordsEnd( mesh_data->d_mesh );
 	      ++coord_iterator, ++i )
 	{
 	    geom_vec[i] = *coord_iterator;
@@ -248,8 +278,8 @@ void RCB<Mesh>::getGeometryList(
     {
 	int i = 0;	
 	int node, dim;
-	for ( coord_iterator = MT::coordsBegin( mesh );
-	      coord_iterator != MT::coordsEnd( mesh );
+	for ( coord_iterator = MT::coordsBegin( mesh_data->d_mesh );
+	      coord_iterator != MT::coordsEnd( mesh_data->d_mesh );
 	      ++coord_iterator, ++i )
 	{
 	    dim = std::floor( i / num_nodes );

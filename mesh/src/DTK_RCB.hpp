@@ -37,8 +37,32 @@ class RCB
     typedef Teuchos::RCP<const CommType>     RCP_Comm;
     //@}
 
+    //! Mesh data struct for Zoltan callbacks.
+    struct MeshData 
+    {
+	// The mesh we are partitioning.
+	Mesh d_mesh;
+
+	// The active nodes in the mesh.
+	std::vector<char> d_active_nodes;
+
+	// Constructor.
+	MeshData( const Mesh& mesh, 
+		  const std::vector<char>& active_nodes )
+	    : d_mesh( mesh )
+	    , d_active_nodes( active_nodes )
+	{ /* ... */ }
+
+	// Destructor.
+	~MeshData()
+	{ /* ... */ }
+    };
+
+  public:
+
     // Constructor.
-    RCB( const Mesh& mesh, const RCP_Comm& comm );
+    RCB( const Mesh& mesh, const std::vector<char>& active_nodes, 
+	 const RCP_Comm& comm );
 
     // Destructor.
     ~RCB();
@@ -117,8 +141,8 @@ class RCB
 
   private:
 
-    // The mesh we are partitioning.
-    Mesh d_mesh;
+    // The mesh data to be partitioned.
+    MeshData d_mesh_data;
 
     // Partition bounding boxes.
     std::vector<BoundingBox> d_part_boxes;
