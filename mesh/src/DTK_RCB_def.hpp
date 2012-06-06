@@ -21,8 +21,8 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<typename MeshType>
-RCB<MeshType>::RCB( const MeshType& mesh, const RCP_Comm& comm )
+template<typename Mesh>
+RCB<Mesh>::RCB( const Mesh& mesh, const RCP_Comm& comm )
     : d_mesh( mesh )
     , d_part_boxes( comm->getSize() )
 {
@@ -62,8 +62,8 @@ RCB<MeshType>::RCB( const MeshType& mesh, const RCP_Comm& comm )
 /*!
  * \brief Destructor.
  */
-template<typename MeshType>
-RCB<MeshType>::~RCB()
+template<typename Mesh>
+RCB<Mesh>::~RCB()
 {
     // Zoltan cleanup.
     Zoltan_LB_Free_Part ( &d_import_global_ids, &d_import_local_ids, 
@@ -77,8 +77,8 @@ RCB<MeshType>::~RCB()
 /*!
  * \brief Compute RCB partitioning of the node field.
  */
-template<typename MeshType>
-void RCB<MeshType>::partition()
+template<typename Mesh>
+void RCB<Mesh>::partition()
 {
     // Run zoltan partitioning.
     int zoltan_error;
@@ -115,8 +115,8 @@ void RCB<MeshType>::partition()
 /*!
  * \brief Get the bounding box for a partition.
  */
-template<typename MeshType>
-BoundingBox RCB<MeshType>::getPartBoundingBox( const int part ) const
+template<typename Mesh>
+BoundingBox RCB<Mesh>::getPartBoundingBox( const int part ) const
 {
     double x_min, y_min, z_min, x_max, y_max, z_max;
     int dim;
@@ -135,8 +135,8 @@ BoundingBox RCB<MeshType>::getPartBoundingBox( const int part ) const
 /*!
  * \brief Get the destination process for a point.
  */
-template<typename MeshType>
-int RCB<MeshType>::getDestinationProc( double coords[3] ) const
+template<typename Mesh>
+int RCB<Mesh>::getDestinationProc( double coords[3] ) const
 {
     // Do a linear search through the bounding boxes for now.
     std::vector<BoundingBox>::const_iterator box_iterator;
@@ -162,32 +162,32 @@ int RCB<MeshType>::getDestinationProc( double coords[3] ) const
 /*!
  * \brief Zoltan callback for getting the number of nodes.
  */
-template<typename MeshType>
-int RCB<MeshType>::getNumberOfObjects( void *data, int *ierr )
+template<typename Mesh>
+int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
 {
-    MeshType *mesh = (MeshType*) data;
+    Mesh *mesh = (Mesh*) data;
     *ierr = ZOLTAN_OK;
-    return std::distance( MeshTraits<MeshType>::nodesBegin( *mesh ),
-			  MeshTraits<MeshType>::nodesEnd( *mesh ) );
+    return std::distance( MeshTraits<Mesh>::nodesBegin( *mesh ),
+			  MeshTraits<Mesh>::nodesEnd( *mesh ) );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Zoltan callback for getting the local and global node ID's.
  */
-template<typename MeshType>
-void RCB<MeshType>::getObjectList( 
+template<typename Mesh>
+void RCB<Mesh>::getObjectList( 
     void *data, int sizeGID, int sizeLID,
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
     int wgt_dim, float *obj_wgts, int *ierr )
 {
-    MeshType *mesh = (MeshType*) data;
+    Mesh *mesh = (Mesh*) data;
     *ierr = ZOLTAN_OK;
 
-    typename MeshTraits<MeshType>::const_handle_iterator handle_iterator;
+    typename MeshTraits<Mesh>::const_handle_iterator handle_iterator;
     int i = 0;
-    for ( handle_iterator = MeshTraits<MeshType>::nodesBegin( *mesh );
-	  handle_iterator != MeshTraits<MeshType>::nodesEnd( *mesh );
+    for ( handle_iterator = MeshTraits<Mesh>::nodesBegin( *mesh );
+	  handle_iterator != MeshTraits<Mesh>::nodesEnd( *mesh );
 	  ++handle_iterator, ++i )
     {
 	globalID[i] = (ZOLTAN_ID_TYPE) *handle_iterator;
@@ -199,8 +199,8 @@ void RCB<MeshType>::getObjectList(
 /*!
  * \brief Zoltan callback for getting the dimension of the nodes.
  */
-template<typename MeshType>
-int RCB<MeshType>::getNumGeometry( void *data, int *ierr )
+template<typename Mesh>
+int RCB<Mesh>::getNumGeometry( void *data, int *ierr )
 {
     *ierr = ZOLTAN_OK;
     return 3;
@@ -210,16 +210,16 @@ int RCB<MeshType>::getNumGeometry( void *data, int *ierr )
 /*!
  * \brief Zoltan callback for getting the node coordinates.
  */
-template<typename MeshType>
-void RCB<MeshType>::getGeometryList(
+template<typename Mesh>
+void RCB<Mesh>::getGeometryList(
     void *data, int sizeGID, int sizeLID,
     int num_obj,
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
     int num_dim, double *geom_vec, int *ierr )
 {
-    MeshType *mesh = (MeshType*) data;
-    int num_nodes = std::distance( MeshTraits<MeshType>::nodesBegin( *mesh ),
-				   MeshTraits<MeshType>::nodesEnd( *mesh ) );
+    Mesh *mesh = (Mesh*) data;
+    int num_nodes = std::distance( MeshTraits<Mesh>::nodesBegin( *mesh ),
+				   MeshTraits<Mesh>::nodesEnd( *mesh ) );
 
     testInvariant( sizeGID == 1, "Zoltan global ID size != 1." );
     testInvariant( sizeLID == 1, "Zoltan local ID size != 1." );
@@ -233,10 +233,10 @@ void RCB<MeshType>::getGeometryList(
 	return;
     }
     
-    typename MeshTraits<MeshType>::const_coordinate_iterator coord_iterator;
+    typename MeshTraits<Mesh>::const_coordinate_iterator coord_iterator;
     int i = 0;
-    for ( coord_iterator = MeshTraits<MeshType>::coordsBegin( *mesh );
-	  coord_iterator != MeshTraits<MeshType>::coordsEnd( *mesh );
+    for ( coord_iterator = MeshTraits<Mesh>::coordsBegin( *mesh );
+	  coord_iterator != MeshTraits<Mesh>::coordsEnd( *mesh );
 	  ++coord_iterator )
     {
 	geom_vec[i] = *coord_iterator;

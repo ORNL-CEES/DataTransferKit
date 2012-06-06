@@ -22,7 +22,7 @@
 namespace DataTransferKit
 {
 
-template<typename MeshType>
+template<typename Mesh>
 class RCB
 {
 
@@ -30,13 +30,13 @@ class RCB
     
     //@{
     //! Typedefs.
-    typedef MeshType                                    mesh_type;
+    typedef Mesh                                        mesh_type;
     typedef Teuchos::Comm<int>                          CommType;
     typedef Teuchos::RCP<const CommType>                RCP_Comm;
     //@}
 
     // Constructor.
-    RCB( const MeshType& mesh, const RCP_Comm& comm );
+    RCB( const Mesh& mesh, const RCP_Comm& comm );
 
     // Destructor.
     ~RCB();
@@ -116,7 +116,7 @@ class RCB
   private:
 
     // The mesh we are partitioning.
-    MeshType d_mesh;
+    Mesh d_mesh;
 
     // Partition bounding boxes.
     std::vector<BoundingBox> d_part_boxes;

@@ -14,7 +14,7 @@
 #include <cassert>
 
 #include <DTK_TopologyTools.hpp>
-#include <DTK_Mesh.hpp>
+#include <DTK_RendezvousMesh.hpp>
 #include <DTK_CoreTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 
@@ -231,10 +231,11 @@ TEUCHOS_UNIT_TEST( TopologyTools, topology_tools_test )
 
     // Create a mesh.
     MyMesh my_mesh = buildMyMesh();
-    Teuchos::RCP< Mesh<MyMesh::handle_type> > mesh = createMesh( my_mesh );
+    Teuchos::RCP< RendezvousMesh<MyMesh::handle_type> > mesh = 
+	createRendezvousMesh( my_mesh );
 
     // Get the moab interface.
-    Mesh<MyMesh::handle_type>::RCP_Moab moab = mesh->getMoab();
+    RendezvousMesh<MyMesh::handle_type>::RCP_Moab moab = mesh->getMoab();
     
     // Grab the elements.
     moab::Range mesh_elements = mesh->getElements();

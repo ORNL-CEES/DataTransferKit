@@ -20,9 +20,9 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<typename SourceMeshNodeField, typename SourceMeshElementField>
-Rendezvous<SourceMeshNodeField,SourceMeshElementField>::Rendezvous(
-    const RCP_Comm& global_comm, const BoundingBox& global_box )
+template<typename Mesh>
+Rendezvous<Mesh>::Rendezvous( const RCP_Comm& global_comm,
+			      const BoundingBox& global_box )
     : d_global_comm( global_comm )
     , d_global_box( global_box )
 { /* ... */ }
@@ -31,52 +31,52 @@ Rendezvous<SourceMeshNodeField,SourceMeshElementField>::Rendezvous(
 /*!
  * \brief Destructor.
  */
-template<typename SourceMeshNodeField, typename SourceMeshElementField>
-Rendezvous<SourceMeshNodeField,SourceMeshElementField>::~Rendezvous()
+template<typename Mesh>
+Rendezvous<Mesh>::~Rendezvous()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Build the rendezvous decomposition.
  */
-template<typename SourceMeshNodeField, typename SourceMeshElementField>
-Rendezvous<SourceMeshNodeField,SourceMeshElementField>::build(
-    const SourceMeshNodeField& source_nodes, 
-    const SourceMeshElementField& source_elements )
+template<typename Mesh> 
+void Rendezvous<Mesh>::build( const Mesh& mesh )
 {
-    // Extract the local source nodes and elements that are within the
-    // provided bounding box. 
-    std::vector<NodeType> local_nodes;
-    std::vector<ElementType> local_elements;
-    getMeshInBox( source_nodes, source_elements, local_nodes, local_elements );
+    // Extract the mesh nodes and elements that are in the bounding box.
+    std::vector<int> nodes;
+    std::vector<int> elements;
+    getMeshInBox( mesh, nodes, elements );
         
     // Construct the rendezvous decomposition of the mesh with RCB.
-    d_rcb = 
-	Teuchos::rcp( new RCB<SourceMeshNodeField>( local_nodes, d_comm ) );
-
+    d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh, d_comm ) );
     testPostcondition( d_rcb != Teuchos::null,
 		       "Error creating RCB decomposition." );
-
     d_rcb->partition();
 
-    // Send the mesh description to the rendezvous decomposition.
+    // Send the mesh to the rendezvous decomposition.
+    sendMeshToRendezvous();
 
-    // Clear the local copy of the source mesh.
-    local_nodes.clear();
-    local_elements.clear();
+    // Clear the extracted mesh information.
+    nodes.clear();
+    elements.clear();
 
     // Build the concrete mesh database in the rendezvous decomposition.
+    d_rendezvous_mesh = createRendezvousMesh( mesh_container );
+    testPostcondition( d_rendezvous_mesh != Teuchos::null,
+		       "Error creating rendezvous mesh." );
     
     // Create a kD-tree in the rendezvous decomposition.
+    d_kdtree = Teuchos::rcp( new KDTree<handle_type>( d_rendezvous_mesh ) );
+    testPostcondition( d_kdtree != Teuchos::null,
+		       "Error creating rendezvous kD-tree." );
 }
 
 //---------------------------------------------------------------------------//
 /*! 
- * \brief Get the rendezvous process for a list of points.
+ * \brief Get the rendezvous processes for a list of points.
  */
-template<typename SourceMeshNodeField, typename SourceMeshElementField>
-std::vector<int> 
-Rendezvous<SourceMeshNodeField,SourceMeshElementField>::getRendezvousProc(
+template<typename Mesh>
+std::vector<int> Rendezvous<Mesh>::getRendezvousProcs(
     const std::vector<double>& coords ) const
 {
     testPrecondition( coords.size() % 3 == 0, 
@@ -99,27 +99,26 @@ Rendezvous<SourceMeshNodeField,SourceMeshElementField>::getRendezvousProc(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the source mesh elements containing a list of coordinates.
+ * \brief Get the native mesh elements containing a list of coordinates.
  */
-template<typename SourceMeshNodeField, typename SourceMeshElementField>
-Rendezvous<SourceMeshNodeField,SourceMeshElementField>::SourceElementHandleVec
-Rendezvous<SourceMeshNodeField,SourceMeshElementField>::getElementHandles( 
-    const std::vector<double>& coords ) const
+template<typename Mesh>
+std::vector< Rendezvous<Mesh>::handle_type >
+Rendezvous<Mesh>::getElements( const std::vector<double>& coords ) const
 {
     testPrecondition( coords.size() % 3 == 0, 
 		      "Three dimensional coordinates not provided." );
     
     int num_points = coords.size() / 3;
-    SourceElementHandleVec element_handles;
+    std::vector<handle_type> element_handles;
     for ( int i = 0; i < num_points; ++i )
     {
 	double point[3] = { coords[3*i], coords[3*i+1], coords[3*i+2] };
-	source_element_handle_type handle = d_kdtree->findPoint( point );
+	handle_type handle = d_kdtree->findPoint( point );
 	element_handles.push_back( handle );
     }
 
     testPostcondition( (int) element_handles.size() == num_points,
-		       "Error getting source mesh elements." );
+		       "Error getting mesh elements." );
 
     return element_handles;
 }
@@ -128,15 +127,16 @@ Rendezvous<SourceMeshNodeField,SourceMeshElementField>::getElementHandles(
 /*!
  * \brief Extract the mesh nodes and elements that are in the bounding box.
  */
-template<typename SourceMeshNodeField, typename SourceMeshElementField>
-void
-Rendezvous<SourceMeshNodeField,SourceMeshElementField>::getMeshInBox(
-    const SourceMeshNodeField& source_nodes,
-    const SourceMeshElementField& source_elements,
-    std::vector<NodeType>& local_nodes,
-    std::vector<ElementType>& local_elements )
+template<typename Mesh>
+void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
+				     std::vector<handle_type>& nodes,
+				     std::vector<handle_type>& elements )
 {
-
+    // Get all of the nodes that are in the box.
+    int num_nodes = std::distance( MeshTraits<Mesh>::nodesBegin( mesh ),
+				   MeshTraits<Mesh>::nodesEnd( mesh ) );
+    typename MeshTraits<Mesh>::const_coordinate_iterator coord_iterator;
+    
 }
 
 //---------------------------------------------------------------------------//

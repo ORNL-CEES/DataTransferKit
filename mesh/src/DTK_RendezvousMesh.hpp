@@ -1,15 +1,17 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Mesh.hpp
+ * \file DTK_RendezvousMesh.hpp
  * \author Stuart R. Slattery
- * \brief Concrete mesh declaration for DTK algorithms.
+ * \brief Concrete rendezvous mesh declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MESH_HPP
-#define DTK_MESH_HPP
+#ifndef DTK_RENDEZVOUSMESH_HPP
+#define DTK_RENDEZVOUSMESH_HPP
 
 #include <map>
+
+#include <DTK_MeshTraits.hpp>
 
 #include <MBInterface.hpp>
 #include <MBRange.hpp>
@@ -19,26 +21,26 @@
 namespace DataTransferKit
 {
 
-template<typename ElementHandle>
-class Mesh
+template<typename Handle>
+class RendezvousMesh
 {
 
   public:
 
     //@{
     //! Typedefs.
-    typedef ElementHandle                               element_handle_type;
-    typedef Teuchos::RCP<moab::Interface>               RCP_Moab;
-    typedef std::map<moab::EntityHandle,ElementHandle>  HandleMap;
+    typedef Handle                                    handle_type;
+    typedef Teuchos::RCP<moab::Interface>             RCP_Moab;
+    typedef std::map<moab::EntityHandle,handle_type>  HandleMap;
     //@}
 
     // Constructor.
-    Mesh( const RCP_Moab& moab, 
-	  const moab::Range& elements,
-	  const HandleMap& handle_map );
+    RendezvousMesh( const RCP_Moab& moab, 
+		    const moab::Range& elements,
+		    const HandleMap& handle_map );
 
     // Destructor.
-    ~Mesh();
+    ~RendezvousMesh();
 
     //! Get the Moab interface.
     const RCP_Moab& getMoab() const
@@ -50,7 +52,7 @@ class Mesh
 
     // Given a moab element handle return the corresponding native element
     // handle.
-    ElementHandle getNativeHandle( moab::EntityHandle moab_handle )
+    handle_type getNativeHandle( moab::EntityHandle moab_handle )
     { return d_handle_map[ moab_handle ]; }
 
   private:
@@ -58,7 +60,7 @@ class Mesh
     //! Moab interface implementation.
     RCP_Moab d_moab;
 
-    //! Mesh elements.
+    //! RendezvousMesh elements.
     moab::Range d_elements;
 
     //! Moab element handle to native element handle map.
@@ -81,10 +83,10 @@ const moab::EntityType moab_topology_table[] =
 // Non-member creation methods.
 //---------------------------------------------------------------------------//
 
-// Create a mesh from an object that implements MeshTraits.
-template<typename MeshObject>
-Teuchos::RCP< Mesh<typename MeshObject::handle_type> > 
-createMesh( const MeshObject& mesh_object );
+// Create a RendezvousMesh from an object that implements MeshTraits.
+template<typename Mesh>
+Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::handle_type> > 
+createRendezvousMesh( const Mesh& mesh );
 
 //---------------------------------------------------------------------------//
 
@@ -94,13 +96,13 @@ createMesh( const MeshObject& mesh_object );
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_Mesh_def.hpp"
+#include "DTK_RendezvousMesh_def.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_MESH_HPP
+#endif // end DTK_RENDEZVOUSESH_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Mesh.hpp
+// end DTK_RendezvousMesh.hpp
 //---------------------------------------------------------------------------//
 

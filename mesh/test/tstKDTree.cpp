@@ -14,7 +14,7 @@
 #include <cassert>
 
 #include <DTK_KDTree.hpp>
-#include <DTK_Mesh.hpp>
+#include <DTK_RendezvousMesh.hpp>
 #include <DTK_CoreTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 #include <DTK_FieldTraits.hpp>
@@ -233,7 +233,8 @@ TEUCHOS_UNIT_TEST( KDTree, kd_tree_test )
 
     // Create a mesh.
     MyMesh my_mesh = buildMyMesh();
-    Teuchos::RCP< Mesh<MyMesh::handle_type> > mesh = createMesh( my_mesh );
+    Teuchos::RCP< RendezvousMesh<MyMesh::handle_type> > mesh = 
+	createRendezvousMesh( my_mesh );
 
     // Create a KDTree.
     KDTree<MyMesh::handle_type> kd_tree( mesh );

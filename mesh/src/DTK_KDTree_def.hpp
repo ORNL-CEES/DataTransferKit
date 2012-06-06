@@ -20,8 +20,8 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<typename ElementHandle>
-KDTree<ElementHandle>::KDTree( const RCP_Mesh& mesh )
+template<typename Handle>
+KDTree<Handle>::KDTree( const RCP_RendezvousMesh& mesh )
 : d_mesh( mesh )
 , d_tree( d_mesh->getMoab().get() )
 { /* ... */ }
@@ -30,16 +30,16 @@ KDTree<ElementHandle>::KDTree( const RCP_Mesh& mesh )
 /*!
  * \brief Destructor.
  */
-template<typename ElementHandle>
-KDTree<ElementHandle>::~KDTree()
+template<typename Handle>
+KDTree<Handle>::~KDTree()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Build the kD-tree.
  */
-template<typename ElementHandle>
-void KDTree<ElementHandle>::build()
+template<typename Handle>
+void KDTree<Handle>::build()
 { 
     moab::ErrorCode error;
     error = d_tree.build_tree( d_mesh->getElements(), d_root );
@@ -52,8 +52,8 @@ void KDTree<ElementHandle>::build()
  * \brief Find a point in the tree. Return the native handle of the element it
  * was found in. 
  */
-template<typename ElementHandle>
-ElementHandle KDTree<ElementHandle>::findPoint( double coords[3] )
+template<typename Handle>
+Handle KDTree<Handle>::findPoint( double coords[3] )
 {
     moab::ErrorCode error;
     moab::EntityHandle leaf;
@@ -70,8 +70,8 @@ ElementHandle KDTree<ElementHandle>::findPoint( double coords[3] )
  * \brief Find a point in a leaf. Throw a MeshException if the point was not
  * found.
  */
-template<typename ElementHandle>
-moab::EntityHandle KDTree<ElementHandle>::findPointInLeaf( 
+template<typename Handle>
+moab::EntityHandle KDTree<Handle>::findPointInLeaf( 
     double coords[3], const moab::EntityHandle leaf )
 {
     moab::ErrorCode error;

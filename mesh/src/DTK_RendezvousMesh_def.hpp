@@ -1,15 +1,16 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Mesh_def.hpp
+ * \file DTK_RendezvousMesh_def.hpp
  * \author Stuart R. Slattery
- * \brief Concrete mesh template definitions.
+ * \brief Concrete Moab mesh template definitions.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MESH_DEF_HPP
-#define DTK_MESH_DEF_HPP
+#ifndef DTK_RENDEZVOUSMESH_DEF_HPP
+#define DTK_RENDEZVOUSMESH_DEF_HPP
 
 #include <vector>
+#include <algorithm>
 #include <cassert>
 
 #include <DTK_Exception.hpp>
@@ -26,10 +27,10 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<typename ElementHandle>
-Mesh<ElementHandle>::Mesh( const RCP_Moab& moab, 
-			   const moab::Range& elements,
-			   const HandleMap& handle_map )
+template<typename Handle>
+RendezvousMesh<Handle>::RendezvousMesh( const RCP_Moab& moab, 
+					const moab::Range& elements,
+					const HandleMap& handle_map )
     : d_moab( moab )
     , d_elements( elements )
     , d_handle_map( handle_map )
@@ -39,25 +40,25 @@ Mesh<ElementHandle>::Mesh( const RCP_Moab& moab,
 /*!
  * \brief Destructor.
  */
-template<typename ElementHandle>
-Mesh<ElementHandle>::~Mesh()
+template<typename Handle>
+RendezvousMesh<Handle>::~RendezvousMesh()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Non-member creation methods.
 //---------------------------------------------------------------------------//
 /*!
- * \brief Create a mesh from a node and element field.
+ * \brief Create a RendezvousMesh from an object that implements mesh traits.
  */
-template<typename MeshObject>
-Teuchos::RCP< Mesh<typename MeshObject::handle_type> > 
-createMesh( const MeshObject& mesh_object )
+template<typename Mesh>
+Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::handle_type> > 
+createRendezvousMesh( const Mesh& mesh )
 {
     // Setup types and iterators
-    typedef typename MeshTraits<MeshObject>::handle_type handle_type;
-    typename MeshTraits<MeshObject>::const_handle_iterator handle_iterator;
-    typename MeshTraits<MeshObject>::const_handle_iterator conn_iterator;
-    typename MeshTraits<MeshObject>::const_coordinate_iterator coord_iterator;
+    typedef typename MeshTraits<Mesh>::handle_type handle_type;
+    typename MeshTraits<Mesh>::const_handle_iterator handle_iterator;
+    typename MeshTraits<Mesh>::const_handle_iterator conn_iterator;
+    typename MeshTraits<Mesh>::const_coordinate_iterator coord_iterator;
 
     // Create a moab interface.
     moab::ErrorCode error;
@@ -65,24 +66,43 @@ createMesh( const MeshObject& mesh_object )
     testPostcondition( moab != Teuchos::null,
 		       "Error creating MOAB interface" );
 
-
     // Check the nodes and coordinates for consistency.
-    int num_nodes = 
-	std::distance( MeshTraits<MeshObject>::nodesBegin( mesh_object ),
-		       MeshTraits<MeshObject>::nodesEnd( mesh_object ) );
-    int num_coords = 
-	std::distance( MeshTraits<MeshObject>::coordsBegin( mesh_object ),
-		       MeshTraits<MeshObject>::coordsEnd( mesh_object ) );
+    int num_nodes = std::distance( MeshTraits<Mesh>::nodesBegin( mesh ),
+				   MeshTraits<Mesh>::nodesEnd( mesh ) );
+    int num_coords = std::distance( MeshTraits<Mesh>::coordsBegin( mesh ),
+				    MeshTraits<Mesh>::coordsEnd( mesh ) );
     testInvariant( num_coords == 3 * num_nodes,
 		   "Number of coordinates provided != 3 * number of nodes" );
 
-    // Add the source mesh nodes to moab.    
+    // Add the source mesh nodes to moab. The coordinates must be interleaved.
     moab::Range vertices;
-    error = moab->create_vertices(
-	&( *MeshTraits<MeshObject>::coordsBegin( mesh_object ) ),
-	num_nodes, vertices );
-    testInvariant( moab::MB_SUCCESS == error, 
-		   "Failed to create vertices in MOAB." );
+    if ( MeshTraits<Mesh>::interleavedCoordinates( mesh ) )
+    {
+	error = moab->create_vertices(
+	    &( *MeshTraits<Mesh>::coordsBegin( mesh ) ),
+	    num_nodes, vertices );
+	testInvariant( moab::MB_SUCCESS == error, 
+		       "Failed to create vertices in MOAB." );
+    }
+    else
+    {
+	std::vector<double> interleaved_coords( num_coords );
+	typename MeshTraits<Mesh>::const_coordinate_iterator coord_iterator;
+	int i = 0;	
+	int node, dim;
+	for ( coord_iterator = MeshTraits<Mesh>::coordsBegin( *mesh );
+	      coord_iterator != MeshTraits<Mesh>::coordsEnd( *mesh );
+	      ++coord_iterator, ++i )
+	{
+	    dim = std::floor( i / num_nodes );
+	    node = i - dim*num_nodes;
+	    interleaved_coords[ 3*node + dim ] = *coord_iterator
+	}
+	error = moab->create_vertices( 
+	    &interleaved_coords[0], num_nodes, vertices );
+	testInvariant( moab::MB_SUCCESS == error, 
+		       "Failed to create vertices in MOAB." );
+    }
     testPostcondition( !vertices.empty(),
 		       "Vertex range is empty." );
     assert( (int) vertices.size() == num_nodes );
@@ -91,7 +111,7 @@ createMesh( const MeshObject& mesh_object )
     moab::Range::const_iterator range_iterator;
     std::map<handle_type,moab::EntityHandle> vertex_handle_map;
     for ( range_iterator = vertices.begin(),
-	 handle_iterator = MeshTraits<MeshObject>::nodesBegin( mesh_object );
+	 handle_iterator = MeshTraits<Mesh>::nodesBegin( mesh );
 	  range_iterator != vertices.end();
 	  ++range_iterator, ++handle_iterator )
     {
@@ -100,13 +120,11 @@ createMesh( const MeshObject& mesh_object )
 
     // Check the elements and connectivity for consistency.
     int nodes_per_element = 
-	MeshTraits<MeshObject>::nodesPerElement( mesh_object );
-    int num_elements = 
-	std::distance( MeshTraits<MeshObject>::elementsBegin( mesh_object ),
-		       MeshTraits<MeshObject>::elementsEnd( mesh_object ) );
-    int num_connect =
-	std::distance( MeshTraits<MeshObject>::connectivityBegin( mesh_object ),
-		       MeshTraits<MeshObject>::connectivityEnd( mesh_object ) );
+	MeshTraits<Mesh>::nodesPerElement( mesh );
+    int num_elements = std::distance( MeshTraits<Mesh>::elementsBegin( mesh ),
+				      MeshTraits<Mesh>::elementsEnd( mesh ) );
+    int num_connect = std::distance( MeshTraits<Mesh>::connectivityBegin( mesh ),
+				     MeshTraits<Mesh>::connectivityEnd( mesh ) );
     testInvariant( num_elements == num_connect / nodes_per_element &&
 		   num_connect % nodes_per_element == 0,
 		   "Connectivity array inconsistent with element description." );
@@ -115,9 +133,9 @@ createMesh( const MeshObject& mesh_object )
     moab::Range moab_elements;
     std::vector<moab::EntityHandle> element_connectivity;
     std::map<moab::EntityHandle,handle_type> element_handle_map;
-    for ( handle_iterator = MeshTraits<MeshObject>::elementsBegin( mesh_object ),
-	    conn_iterator = MeshTraits<MeshObject>::connectivityBegin( mesh_object );
-	  handle_iterator != MeshTraits<MeshObject>::elementsEnd( mesh_object );
+    for ( handle_iterator = MeshTraits<Mesh>::elementsBegin( mesh ),
+	    conn_iterator = MeshTraits<Mesh>::connectivityBegin( mesh );
+	  handle_iterator != MeshTraits<Mesh>::elementsEnd( mesh );
 	  ++handle_iterator )
     {
 	// Extract the connecting nodes for this element.
@@ -131,7 +149,7 @@ createMesh( const MeshObject& mesh_object )
 
 	// Creat the element in moab.
 	moab::EntityType entity_type = moab_topology_table[ 
-	    MeshTraits<MeshObject>::elementTopology( mesh_object ) ];
+	    MeshTraits<Mesh>::elementTopology( mesh ) ];
 	moab::EntityHandle moab_element;
 	error = moab->create_element( entity_type,
 				      &element_connectivity[0],
@@ -146,17 +164,17 @@ createMesh( const MeshObject& mesh_object )
     }
     
     // Create and return the mesh.
-    return Teuchos::rcp( 
-	new Mesh<handle_type>( moab, moab_elements, element_handle_map ) );
+    return Teuchos::rcp( new RendezvousMesh<handle_type>( 
+			     moab, moab_elements, element_handle_map ) );
 }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_MESH_DEF_HPP
+#endif // end DTK_RENDEZVOUSMESH_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Mesh_def.hpp
+// end DTK_RendezvousMesh_def.hpp
 //---------------------------------------------------------------------------//
 

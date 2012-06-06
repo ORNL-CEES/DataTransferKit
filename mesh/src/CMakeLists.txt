@@ -24,12 +24,12 @@ APPEND_SET(HEADERS
   DTK_CellTopologyFactory.hpp
   DTK_KDTree.hpp
   DTK_KDTree_def.hpp
-  DTK_Mesh.hpp
-  DTK_Mesh_def.hpp
   DTK_RCB.hpp
   DTK_RCB_def.hpp
   DTK_Rendezvous.hpp
   DTK_Rendezvous_def.hpp
+  DTK_RendezvousMesh.hpp
+  DTK_RendezvousMesh_def.hpp
   DTK_TopologyTools.hpp
   )
 

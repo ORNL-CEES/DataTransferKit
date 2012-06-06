@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstMesh.cpp
+ * \file tstRendezvousMesh.cpp
  * \author Stuart R. Slattery
- * \brief Mesh unit tests.
+ * \brief RendezvousMesh unit tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_Mesh.hpp>
+#include <DTK_RendezvousMesh.hpp>
 #include <DTK_CoreTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 
@@ -226,17 +226,18 @@ MyMesh buildMyMesh()
 //---------------------------------------------------------------------------//
 
 // DataSource test.
-TEUCHOS_UNIT_TEST( Mesh, mesh_test )
+TEUCHOS_UNIT_TEST( RendezvousMesh, rendezvous_mesh_test )
 {
     using namespace DataTransferKit;
 
     // Create a mesh.
     MyMesh my_mesh = buildMyMesh();
-    Teuchos::RCP< Mesh<MyMesh::handle_type> > mesh = createMesh( my_mesh );
+    Teuchos::RCP< RendezvousMesh<MyMesh::handle_type> > mesh = 
+	createRendezvousMesh( my_mesh );
 
     // Get the moab interface.
     moab::ErrorCode error;
-    Mesh<MyMesh::handle_type>::RCP_Moab moab = mesh->getMoab();
+    RendezvousMesh<MyMesh::handle_type>::RCP_Moab moab = mesh->getMoab();
     
     // Grab the elements.
     moab::Range mesh_elements = mesh->getElements();

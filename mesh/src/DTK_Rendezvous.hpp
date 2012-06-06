@@ -11,15 +11,11 @@
 
 #include <vector>
 
-#include "DTK_Mesh.hpp"
+#include "DTK_RendezvousMesh.hpp"
 #include "DTK_KDTree.hpp"
 #include "DTK_RCB.hpp"
 #include "DTK_BoundingBox.hpp"
-#include "DTK_Node.hpp"
-#include "DTK_Element.hpp"
-#include <DTK_NodeTraits.hpp>
-#include <DTK_ElementTraits.hpp>
-#include <DTK_FieldTraits.hpp>
+#include <DTK_MeshTraits.hpp>
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -27,7 +23,7 @@
 namespace DataTransferKit
 {
 
-template<typename SourceMeshNodeField, typename SourceMeshElementField>
+template<typename Mesh>
 class Rendezvous
 {
     
@@ -35,32 +31,16 @@ class Rendezvous
 
     //@{
     //! Typedefs.
-    typedef SourceMeshNodeField                      source_node_field_type;
-    typedef SourceMeshElementField                   source_element_field_type;
-    typedef SourceMeshNodeField::value_type          source_node_type;
-    typedef source_node_type::handle_type            source_node_handle_type;
-    typedef source_node_type::coordinate_type        source_node_coordinate_type;
-    typedef SourceMeshElementField::value_type       source_element_type;
-    typedef source_element_type::handle_type         source_element_handle_type;
-    typedef std::vector<source_element_handle_type>  SourceElementHandleVec;
-    typedef Mesh<source_element_handle_type>         MeshType;
-    typedef Teuchos::RCP<MeshType>                   RCP_Mesh;
-    typedef KDTree<source_element_handle_type>       KDTreeType;
-    typedef Teuchos::RCP<KDTreeType>                 RCP_KDTree;
-    typedef RCB<SourceMeshNodeField>                 RCBType;
-    typedef Teuchos::RCP<RCBType>                    RCP_RCB;
-    typedef Teuchos::Comm<int>                       CommType;
-    typedef Teuchos::RCP<const CommType>             RCP_Comm;
-    //@}
-
-    //@{
-    //! Concrete node and element types.
-    typedef Node<source_node_handle_type, source_node_coordinate_type> NodeType;
-    typedef Element<
-	source_element_handle_type,
-	ElementTraits<source_element_type>::type(),
-	ElementTraits<source_element_type>::topology(),
-	ElementTraits<source_element_type>::numNodes() > ElementType;
+    typedef Mesh                                 mesh_type;
+    typedef MeshTraits<Mesh>::handle_type        handle_type;
+    typedef RendezvousMesh<handle_type>          RendezvousMeshType;
+    typedef Teuchos::RCP<RendezvousMeshType>     RCP_RendezvousMesh;
+    typedef KDTree<handle_type>                  KDTreeType;
+    typedef Teuchos::RCP<KDTreeType>             RCP_KDTree;
+    typedef RCB<Mesh>                            RCBType;
+    typedef Teuchos::RCP<RCBType>                RCP_RCB;
+    typedef Teuchos::Comm<int>                   CommType;
+    typedef Teuchos::RCP<const CommType>         RCP_Comm;
     //@}
 
     // Constructor.
@@ -70,37 +50,41 @@ class Rendezvous
     ~Rendezvous();
 
     // Build the rendezvous decomposition.
-    void build( const SourceMeshNodeField& source_nodes,
-		const SourceMeshElementField& source_elements );
+    void build( const Mesh& mesh );
 
-    // Get the rendezvous process for a list of node coordinates.
+    // Get the rendezvous processes for a list of node coordinates.
     std::vector<int> 
-    getRendezvousProc( const std::vector<double> &coords ) const;
+    getRendezvousProcs( const std::vector<double> &coords ) const;
 
-    // Get the source mesh elements containing a list of coordinates.
-    SourceElementHandleVec 
-    getElementHandles( const std::vector<double>& coords ) const;
+    // Get the native mesh elements containing a list of coordinates.
+    std::vector<handle_type>
+    getElements( const std::vector<double>& coords ) const;
 
   private:
 
     // Extract the mesh nodes and elements that are in the bounding box.
-    void getMeshInBox( const SourceMeshNodeField& source_nodes,
-		       const SourceMeshElementField& source_elements,
-		       std::vector<NodeType>& local_nodes,
-		       std::vector<ElementType>& local_elements );
+    void getMeshInBox( const Mesh& mesh,
+		       std::vector<handle_type>& nodes,
+		       std::vector<handle_type>& elements );
+
+    // Send the mesh to the rendezvous decomposition.
+    void sendMeshToRendezvous();
 
   private:
 
     // Global communicator over which to perform the rendezvous.
     RCP_Comm d_global_comm;
 
-    // Bounding box over which to perform rendezvous.
+    // Bounding box in which to perform the rendezvous.
     BoundingBox d_global_box;
 
-    // RCB Partitioning.
+    // Rendezvous partitioning.
     RCP_RCB d_rcb;
 
-    // Local kD-tree.
+    // Rendezvous mesh.
+    RCP_RendezvousMesh d_rendezvous_mesh;
+
+    // Rendezvous on-process kD-tree.
     RCP_KDTree d_kdtree;
 };
 

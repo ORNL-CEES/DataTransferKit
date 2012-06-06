@@ -9,7 +9,7 @@
 #ifndef DTK_KDTREE_HPP
 #define DTK_KDTREE_HPP
 
-#include "DTK_Mesh.hpp"
+#include "DTK_RendezvousMesh.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -18,20 +18,20 @@
 namespace DataTransferKit
 {
 
-template<typename ElementHandle>
+template<typename Handle>
 class KDTree
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef ElementHandle                      element_handle_type;
-    typedef Mesh<ElementHandle>                MeshType;
-    typedef Teuchos::RCP<MeshType>             RCP_Mesh;
+    typedef Handle                               handle_type;
+    typedef RendezvousMesh<Handle>               RendezvousMeshType;
+    typedef Teuchos::RCP<RendezvousMeshType>     RCP_RendezvousMesh;
     //@}
 
     // Constructor.
-    KDTree( const RCP_Mesh& mesh );
+    KDTree( const RCP_RendezvousMesh& mesh );
 
     // Destructor.
     ~KDTree();
@@ -40,7 +40,7 @@ class KDTree
     void build();
 
     // Find a point in the tree.
-    ElementHandle findPoint( double coords[3] );
+    handle_type findPoint( double coords[3] );
 
   private:
 
@@ -50,8 +50,8 @@ class KDTree
 
   private:
 
-    // Mesh.
-    RCP_Mesh d_mesh;
+    // Moab Mesh.
+    RCP_RendezvousMesh d_mesh;
 
     // Adaptive kD-tree.
     moab::AdaptiveKDTree d_tree;
