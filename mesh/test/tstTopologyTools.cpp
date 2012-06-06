@@ -122,7 +122,7 @@ struct MeshTraits<MyMesh>
     static inline const_handle_iterator nodesEnd( const MyMesh& mesh )
     { return mesh.nodesEnd(); }
 
-    static inline bool interleavedCoords( const MyMesh& mesh )
+    static inline bool interleavedCoordinates( const MyMesh& mesh )
     { return true; }
 
     static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )

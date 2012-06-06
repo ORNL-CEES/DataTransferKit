@@ -6,7 +6,6 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <DTK_MeshTraits.hpp>
 #include <DTK_Exception.hpp>
 
 #include <mpi.h>
@@ -167,8 +166,8 @@ int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
 {
     Mesh *mesh = (Mesh*) data;
     *ierr = ZOLTAN_OK;
-    return std::distance( MeshTraits<Mesh>::nodesBegin( *mesh ),
-			  MeshTraits<Mesh>::nodesEnd( *mesh ) );
+    return std::distance( MT::nodesBegin( *mesh ),
+			  MT::nodesEnd( *mesh ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -184,10 +183,10 @@ void RCB<Mesh>::getObjectList(
     Mesh *mesh = (Mesh*) data;
     *ierr = ZOLTAN_OK;
 
-    typename MeshTraits<Mesh>::const_handle_iterator handle_iterator;
+    typename MT::const_handle_iterator handle_iterator;
     int i = 0;
-    for ( handle_iterator = MeshTraits<Mesh>::nodesBegin( *mesh );
-	  handle_iterator != MeshTraits<Mesh>::nodesEnd( *mesh );
+    for ( handle_iterator = MT::nodesBegin( *mesh );
+	  handle_iterator != MT::nodesEnd( *mesh );
 	  ++handle_iterator, ++i )
     {
 	globalID[i] = (ZOLTAN_ID_TYPE) *handle_iterator;
@@ -218,8 +217,8 @@ void RCB<Mesh>::getGeometryList(
     int num_dim, double *geom_vec, int *ierr )
 {
     Mesh *mesh = (Mesh*) data;
-    int num_nodes = std::distance( MeshTraits<Mesh>::nodesBegin( *mesh ),
-				   MeshTraits<Mesh>::nodesEnd( *mesh ) );
+    int num_nodes = std::distance( MT::nodesBegin( *mesh ),
+				   MT::nodesEnd( *mesh ) );
 
     testInvariant( sizeGID == 1, "Zoltan global ID size != 1." );
     testInvariant( sizeLID == 1, "Zoltan local ID size != 1." );
@@ -233,14 +232,30 @@ void RCB<Mesh>::getGeometryList(
 	return;
     }
     
-    typename MeshTraits<Mesh>::const_coordinate_iterator coord_iterator;
-    int i = 0;
-    for ( coord_iterator = MeshTraits<Mesh>::coordsBegin( *mesh );
-	  coord_iterator != MeshTraits<Mesh>::coordsEnd( *mesh );
-	  ++coord_iterator )
+    // Zoltan needs interleaved coordinates.
+    typename MT::const_coordinate_iterator coord_iterator;
+    if ( MT::interleavedCoordinates( *mesh ) )
     {
-	geom_vec[i] = *coord_iterator;
-	++i;
+	int i = 0;
+	for ( coord_iterator = MT::coordsBegin( *mesh );
+	      coord_iterator != MT::coordsEnd( *mesh );
+	      ++coord_iterator, ++i )
+	{
+	    geom_vec[i] = *coord_iterator;
+	}
+    }
+    else
+    {
+	int i = 0;	
+	int node, dim;
+	for ( coord_iterator = MT::coordsBegin( mesh );
+	      coord_iterator != MT::coordsEnd( mesh );
+	      ++coord_iterator, ++i )
+	{
+	    dim = std::floor( i / num_nodes );
+	    node = i - dim*num_nodes;
+	    geom_vec[ 3*node + dim ] = *coord_iterator;
+	}
     }
 }
 

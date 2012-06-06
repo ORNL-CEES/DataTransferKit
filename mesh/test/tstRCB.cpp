@@ -202,6 +202,7 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
     using namespace DataTransferKit;
 
     // Create my mesh.
+    typedef MeshTraits<MyMesh> MT;
     MyMesh my_mesh = buildMyMesh();
 
     // Partition the mesh with RCB.
@@ -211,18 +212,18 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
     // Get the random numbers that were used to compute the node coordinates.
     std::srand( 1 );
     std::vector<double> random_numbers;
-    int num_rand = 3 * std::distance( MeshTraits<MyMesh>::nodesBegin( my_mesh ),
-				      MeshTraits<MyMesh>::nodesEnd( my_mesh ) );
+    int num_rand = 3 * std::distance( MT::nodesBegin( my_mesh ),
+				      MT::nodesEnd( my_mesh ) );
     for ( int i = 0; i < num_rand; ++i )
     {
 	random_numbers.push_back( (double) std::rand() / RAND_MAX );
     }
 
     // Check that these are in fact the random numbers used for the nodes.
-    typename MeshTraits<MyMesh>::const_coordinate_iterator coord_iterator;
+    typename MT::const_coordinate_iterator coord_iterator;
     std::vector<double>::const_iterator rand_iterator = random_numbers.begin();
-    for ( coord_iterator = MeshTraits<MyMesh>::coordsBegin( my_mesh );
-	  coord_iterator != MeshTraits<MyMesh>::coordsEnd( my_mesh );
+    for ( coord_iterator = MT::coordsBegin( my_mesh );
+	  coord_iterator != MT::coordsEnd( my_mesh );
 	  ++coord_iterator, ++rand_iterator )
     {
 	TEST_ASSERT( *coord_iterator == *rand_iterator );

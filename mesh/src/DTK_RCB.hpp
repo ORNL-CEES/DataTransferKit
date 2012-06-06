@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "DTK_BoundingBox.hpp"
+#include <DTK_MeshTraits.hpp>
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -30,9 +31,10 @@ class RCB
     
     //@{
     //! Typedefs.
-    typedef Mesh                                        mesh_type;
-    typedef Teuchos::Comm<int>                          CommType;
-    typedef Teuchos::RCP<const CommType>                RCP_Comm;
+    typedef Mesh                             mesh_type;
+    typedef MeshTraits<Mesh>                 MT;
+    typedef Teuchos::Comm<int>               CommType;
+    typedef Teuchos::RCP<const CommType>     RCP_Comm;
     //@}
 
     // Constructor.

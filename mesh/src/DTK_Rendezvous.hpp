@@ -32,7 +32,8 @@ class Rendezvous
     //@{
     //! Typedefs.
     typedef Mesh                                 mesh_type;
-    typedef MeshTraits<Mesh>::handle_type        handle_type;
+    typedef MeshTraits<Mesh>                     MT;
+    typedef MT::handle_type                      handle_type;
     typedef RendezvousMesh<handle_type>          RendezvousMeshType;
     typedef Teuchos::RCP<RendezvousMeshType>     RCP_RendezvousMesh;
     typedef KDTree<handle_type>                  KDTreeType;
@@ -64,8 +65,8 @@ class Rendezvous
 
     // Extract the mesh nodes and elements that are in the bounding box.
     void getMeshInBox( const Mesh& mesh,
-		       std::vector<handle_type>& nodes,
-		       std::vector<handle_type>& elements );
+		       std::vector<char>& nodes,
+		       std::vector<char>& elements );
 
     // Send the mesh to the rendezvous decomposition.
     void sendMeshToRendezvous();

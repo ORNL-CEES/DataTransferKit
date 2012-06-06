@@ -43,8 +43,8 @@ template<typename Mesh>
 void Rendezvous<Mesh>::build( const Mesh& mesh )
 {
     // Extract the mesh nodes and elements that are in the bounding box.
-    std::vector<int> nodes;
-    std::vector<int> elements;
+    std::vector<char> nodes;
+    std::vector<char> elements;
     getMeshInBox( mesh, nodes, elements );
         
     // Construct the rendezvous decomposition of the mesh with RCB.
@@ -129,14 +129,55 @@ Rendezvous<Mesh>::getElements( const std::vector<double>& coords ) const
  */
 template<typename Mesh>
 void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
-				     std::vector<handle_type>& nodes,
-				     std::vector<handle_type>& elements )
+				     std::vector<char>& nodes,
+				     std::vector<char>& elements )
 {
     // Get all of the nodes that are in the box.
-    int num_nodes = std::distance( MeshTraits<Mesh>::nodesBegin( mesh ),
-				   MeshTraits<Mesh>::nodesEnd( mesh ) );
-    typename MeshTraits<Mesh>::const_coordinate_iterator coord_iterator;
-    
+    int num_nodes = std::distance( MT::nodesBegin( mesh ),
+				   MT::nodesEnd( mesh ) );
+    double node[3];
+    typename MT::const_coordinate_iterator coord_iterator;
+    if ( MT::interleavedCoordinates( mesh ) )
+    {
+	for ( coord_iterator = MT::coordsBegin( mesh );
+	      coord_iterator != MT::coordsEnd( mesh ); )
+	{
+	    for ( int i = 0; i < 3; ++i, ++coord_iterator )
+	    {
+		node[i] = *coord_iterator;
+	    }
+	    nodes.push_back( d_global_box.pointInBox( node ) );
+	}
+    }    
+    else
+    {
+	std::vector<double> interleaved_coords( 3*num_nodes );
+	int i = 0;	
+	int node, dim;
+	for ( coord_iterator = MT::coordsBegin( mesh );
+	      coord_iterator != MT::coordsEnd( mesh );
+	      ++coord_iterator, ++i )
+	{
+	    dim = std::floor( i / num_nodes );
+	    node = i - dim*num_nodes;
+	    interleaved_coords[ 3*node + dim ] = *coord_iterator;
+	}
+	std::vector<double>::const_iterator interleaved_iterator;
+	for ( interleaved_iterator = interleaved_coords.begin();
+	      interleaved_coords != interleaved_coords.end(); )
+	{
+	    for ( int i = 0; i < 3; ++i, ++interleaved_iterator )
+	    {
+		node[i] = *interleaved_iterator;
+	    }
+	    nodes.push_back( d_global_box.pointInBox( node ) );
+	}
+    }
+
+    // For those nodes that are in the box, get the elements that they
+    // construct.
+
+    // Get the nodes that belong to these elements but are not in the box.
 }
 
 //---------------------------------------------------------------------------//

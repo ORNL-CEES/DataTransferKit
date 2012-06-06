@@ -123,7 +123,7 @@ struct MeshTraits<MyMesh>
     static inline const_handle_iterator nodesEnd( const MyMesh& mesh )
     { return mesh.nodesEnd(); }
 
-    static inline bool interleavedCoords( const MyMesh& mesh )
+    static inline bool interleavedCoordinates( const MyMesh& mesh )
     { return true; }
 
     static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
@@ -231,6 +231,7 @@ TEUCHOS_UNIT_TEST( RendezvousMesh, rendezvous_mesh_test )
     using namespace DataTransferKit;
 
     // Create a mesh.
+    typedef MeshTraits<MyMesh> MT;
     MyMesh my_mesh = buildMyMesh();
     Teuchos::RCP< RendezvousMesh<MyMesh::handle_type> > mesh = 
 	createRendezvousMesh( my_mesh );
@@ -267,10 +268,10 @@ TEUCHOS_UNIT_TEST( RendezvousMesh, rendezvous_mesh_test )
 
     std::vector<double>::const_iterator moab_coord_iterator = 
 	vertex_coords.begin();
-    typename MeshTraits<MyMesh>::const_coordinate_iterator coord_iterator;
+    typename MT::const_coordinate_iterator coord_iterator;
 
-    for ( coord_iterator = MeshTraits<MyMesh>::coordsBegin( my_mesh );
-	  coord_iterator != MeshTraits<MyMesh>::coordsBegin( my_mesh );
+    for ( coord_iterator = MT::coordsBegin( my_mesh );
+	  coord_iterator != MT::coordsBegin( my_mesh );
 	  ++coord_iterator, ++moab_coord_iterator )
     {
 	TEST_ASSERT( *coord_iterator == *moab_coord_iterator );
