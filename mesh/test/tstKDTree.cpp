@@ -17,7 +17,6 @@
 #include <DTK_RendezvousMesh.hpp>
 #include <DTK_CoreTypes.hpp>
 #include <DTK_MeshTraits.hpp>
-#include <DTK_FieldTraits.hpp>
 #include <DTK_Exception.hpp>
 
 #include <mpi.h>
