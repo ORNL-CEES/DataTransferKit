@@ -12,8 +12,6 @@
 #include <vector>
 
 #include "DTK_BoundingBox.hpp"
-#include <DTK_NodeTraits.hpp>
-#include <DTK_FieldTraits.hpp>
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -24,7 +22,7 @@
 namespace DataTransferKit
 {
 
-template<typename NodeField>
+template<typename MeshType>
 class RCB
 {
 
@@ -32,14 +30,13 @@ class RCB
     
     //@{
     //! Typedefs.
-    typedef NodeField                                        node_field;
-    typedef typename FieldTraits<node_field>::value_type     node_type;
-    typedef Teuchos::Comm<int>                               CommType;
-    typedef Teuchos::RCP<const CommType>                     RCP_Comm;
+    typedef MeshType                                    mesh_type;
+    typedef Teuchos::Comm<int>                          CommType;
+    typedef Teuchos::RCP<const CommType>                RCP_Comm;
     //@}
 
     // Constructor.
-    RCB( const NodeField& node_field, const RCP_Comm& comm );
+    RCB( const MeshType& mesh, const RCP_Comm& comm );
 
     // Destructor.
     ~RCB();
@@ -118,8 +115,8 @@ class RCB
 
   private:
 
-    // The node field we are partitioning.
-    NodeField d_node_field;
+    // The mesh we are partitioning.
+    MeshType d_mesh;
 
     // Partition bounding boxes.
     std::vector<BoundingBox> d_part_boxes;

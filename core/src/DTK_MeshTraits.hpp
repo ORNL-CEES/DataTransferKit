@@ -27,10 +27,12 @@ struct UndefinedMeshTraits
  * \brief Mesh traits definitions.
  *
  * These traits correlate to the basic concept of a mesh within DTK. A
- * mesh will consist of a globally unique list of node handles of a type that implements
- * Teuchos::OrdinalTraits and a set of globally unique element handles of the
- * same type. Nodes are described by a coordinate field with coordinates of
- * type double.
+ * mesh will consist of a globally unique list of node handles of a type that
+ * implements Teuchos::OrdinalTraits ( already implemented for common ordinal
+ * types ) and a set of globally unique element handles of the same
+ * type. Nodes are described by a coordinate field with coordinates of type
+ * double. Elements are described by a list of node handles that designate
+ * their connectivity.
  */
 template<typename T>
 struct MeshTraits
@@ -38,7 +40,7 @@ struct MeshTraits
     //@{
     //! Typedefs.
     //! Typedef for handle type. This type must implement
-    //! Teuchos::OrdinalTraits. 
+    //! Teuchos::OrdinalTraits.
     typedef typename T::handle_type handle_type;
 
     //! Typedef for random access const iterators to handle type values.
@@ -55,30 +57,41 @@ struct MeshTraits
 
     //@{
     //! Mesh node concepts.
-    //! Return the const iterator to the beginning of the node handle block in
-    //this mesh.
+    /*!
+     * \brief Return the const iterator to the beginning of the node handle
+     * block in this mesh. 
+    */
     static inline const_handle_iterator nodesBegin( const T& mesh )
     { return UndefinedMeshTraits<T>::notDefined(); }
 
-    //! Return the const iterator to the end of the node handle block in this
-    //! mesh. 
+    /*!
+     * \brief Return the const iterator to the end of the node handle block in
+     * this mesh.
+    */ 
     static inline const_handle_iterator nodesEnd( const T& mesh )
     { return UndefinedMeshTraits<T>::notDefined(); }
 
-    //! Return true if the coordinate block in this mesh is interleaved 
-    //! ( x0, y0, z0, ..., xN, yN, zN ) and false if blocked 
-    //! ( x0, x1, ... , xN, y0, y1, ..., yN, z0, z1, ... zN )
-    static inline bool interleavedNodeCoords( const T& mesh )
+    /*!
+     * \brief Return true if the coordinate block in this mesh is interleaved
+     * ( x0, y0, z0, ..., xN, yN, zN ) and false if blocked 
+     * ( x0, x1, ... , xN, y0, y1, ..., yN, z0, z1, ... zN ).
+     */    
+    static inline bool interleavedCoordinates( const T& mesh )
     { return UndefinedMeshTraits<T>::notDefined(); }
 
-    //! Return the const iterator to the beginning of the node coordinate
-    //! blockm in this mesh. These coordinates are required to be three
-    //! dimensional. 
+    /*!
+     * \brief Return the const iterator to the beginning of the node
+     * coordinate block in this mesh. These coordinates are required to be
+     * three dimensional.
+     */
     static inline const_coordinate_iterator coordsBegin( const T& mesh )
     { return UndefinedMeshTraits<T>::notDefined(); }
 
-    //! Return the const iterator to the end of the node coordinate block in
-    //! this mesh. These coordinates are requried to be three dimensional.
+    /*!
+     * \brief Return the const iterator to the end of the node coordinate
+     * block in this mesh. These coordinates are requried to be three
+     * dimensional. 
+     */
     static inline const_coordinate_iterator coordsEnd( const T& mesh )
     { return UndefinedMeshTraits<T>::notDefined(); }
     //@}
@@ -86,35 +99,50 @@ struct MeshTraits
 
     //@{
     //! Mesh element concepts.
-    //! Return the element type for this mesh (DTK enum).
+    /*!
+     * \brief Return the element type for this mesh (DTK enum).
+     */
     static inline std::size_t elementType( const T& mesh )
     { return UndefinedMeshTraits<T>::notDefined(); }
 
-    //! Return the element topology for this mesh (DTK enum).
+    /*! 
+     * \brief Return the element topology for this mesh (DTK enum).
+     */
     static inline std::size_t elementTopology( const T& mesh )
     { return UndefinedMeshTraits<T>::notDefined(); }
 
-    //! Return the number of nodes that constructs each element in this mesh.
+    /*! 
+     * \brief Return the number of nodes that constructs an individual element
+     * in this mesh.
+     */
     static inline std::size_t nodesPerElement( const T& mesh )
     { return UndefinedMeshTraits<T>::notDefined(); }
 
-    //! Return the const iterator to the beginning of the element handle
-    //! block in this mesh.
+    /*! 
+     * \brief Return the const iterator to the beginning of the element handle
+     * block in this mesh.
+     */
     static inline const_handle_iterator elementsBegin( const T& mesh )
     { return UndefinedMeshTraits<T>::notDefined(); }
 
-    //! Return the const iterator to the end of the element handle block in
-    //! this mesh.
+    /*! 
+     * \brief Return the const iterator to the end of the element handle block
+     * in this mesh.
+     */
     static inline const_handle_iterator elementsEnd( const T& mesh )
     { return UndefinedMeshTraits<T>::notDefined(); }
 
-    //! Return the const iterator to the beginning of the element connectivity
-    //! block in this mesh.
+    /*! 
+     * \brief Return the const iterator to the beginning of the element
+     * connectivity block in this mesh. 
+     */
     static inline const_handle_iterator connectivityBegin( const T& mesh )
     { return UndefinedMeshTraits<T>::notDefined(); }
 
-    //! Return the const iterator to the end of the element connectivity
-    //! block in this mesh.
+    /*! 
+     * \brief Return the const iterator to the end of the element connectivity
+     * block in this mesh.
+     */
     static inline const_handle_iterator connectivityEnd( const T& mesh )
     { return UndefinedMeshTraits<T>::notDefined(); }
     //@}

@@ -136,10 +136,8 @@ bool TopologyTools::pointInElement( double coords[3],
 						      0 );
 
     // Check for reference point inclusion in the reference cell.
-    bool point_found = Intrepid::CellTools<double>::checkPointsetInclusion( 
+    return Intrepid::CellTools<double>::checkPointsetInclusion( 
 	reference_point, *cell_topo);
-
-    return point_found;
 }
 
 //---------------------------------------------------------------------------//

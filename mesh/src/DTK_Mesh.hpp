@@ -81,7 +81,7 @@ const moab::EntityType moab_topology_table[] =
 // Non-member creation methods.
 //---------------------------------------------------------------------------//
 
-// Create a mesh from an object the implements MeshTraits.
+// Create a mesh from an object that implements MeshTraits.
 template<typename MeshObject>
 Teuchos::RCP< Mesh<typename MeshObject::handle_type> > 
 createMesh( const MeshObject& mesh_object );

@@ -16,11 +16,8 @@
 
 #include <DTK_RCB.hpp>
 #include <DTK_BoundingBox.hpp>
-#include <DTK_DataSource.hpp>
 #include <DTK_CoreTypes.hpp>
-#include <DTK_NodeTraits.hpp>
-#include <DTK_ElementTraits.hpp>
-#include <DTK_FieldTraits.hpp>
+#include <DTK_MeshTraits.hpp>
 #include <DTK_Exception.hpp>
 
 #include <mpi.h>
@@ -48,83 +45,62 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
-// Node Implementation
+// Mesh Implementation
 //---------------------------------------------------------------------------//
 
-class MyNode
+class MyMesh
 {
-  private:
-
-    std::size_t d_handle;
-    std::vector<double> d_coords;
-
   public:
 
     typedef int    handle_type;
-    typedef double coordinate_type;
     
-    MyNode( double x, double y, double z, int handle )
-	: d_handle( handle )
-    {
-	d_coords.push_back(x);
-	d_coords.push_back(y);
-	d_coords.push_back(z);
-    }
-
-    ~MyNode()
+    MyMesh() 
     { /* ... */ }
 
-    int handle() const
-    { return d_handle; }
+    MyMesh( const std::vector<int>& node_handles,
+	    const std::vector<double>& coords,
+	    const std::vector<int>& hex_handles,
+	    const std::vector<int>& hex_connectivity )
+	: d_node_handles( node_handles )
+	, d_coords( coords )
+	, d_hex_handles( hex_handles )
+	, d_hex_connectivity( hex_connectivity )
+    { /* ... */ }
+
+    ~MyMesh()
+    { /* ... */ }
+
+    std::vector<int>::const_iterator nodesBegin() const
+    { return d_node_handles.begin(); }
+
+    std::vector<int>::const_iterator nodesEnd() const
+    { return d_node_handles.end(); }
 
     std::vector<double>::const_iterator coordsBegin() const
     { return d_coords.begin(); }
 
     std::vector<double>::const_iterator coordsEnd() const
     { return d_coords.end(); }
-};
 
-//---------------------------------------------------------------------------//
-// Element Implementation
-//---------------------------------------------------------------------------//
+    std::vector<int>::const_iterator hexesBegin() const
+    { return d_hex_handles.begin(); }
 
-class MyHex
-{
-  private:
-
-    std::size_t d_handle;
-    std::vector<int> d_connectivity;
-
-  public:
-
-    typedef std::size_t handle_type;
-
-    MyHex( int node_0, int node_1, int node_2, int node_3,
-	   int node_4, int node_5, int node_6, int node_7,
-	   std::size_t handle )
-	: d_handle( handle )
-    {
-	d_connectivity.push_back( node_0 );
-	d_connectivity.push_back( node_1 );
-	d_connectivity.push_back( node_2 );
-	d_connectivity.push_back( node_3 );
-	d_connectivity.push_back( node_4 );
-	d_connectivity.push_back( node_5 );
-	d_connectivity.push_back( node_6 );
-	d_connectivity.push_back( node_7 );
-    }
-
-    ~MyHex()
-    { /* ... */ }
-
-    int handle() const
-    { return d_handle; }
+    std::vector<int>::const_iterator hexesEnd() const
+    { return d_hex_handles.end(); }
 
     std::vector<int>::const_iterator connectivityBegin() const
-    { return d_connectivity.begin(); }
+    { return d_hex_connectivity.begin(); }
 
     std::vector<int>::const_iterator connectivityEnd() const
-    { return d_connectivity.end(); }
+    { return d_hex_connectivity.end(); }
+    
+
+  private:
+
+    std::vector<int> d_node_handles;
+    std::vector<double> d_coords;
+    std::vector<int> d_hex_handles;
+    std::vector<int> d_hex_connectivity;
 };
 
 //---------------------------------------------------------------------------//
@@ -134,242 +110,88 @@ namespace DataTransferKit
 {
 
 //---------------------------------------------------------------------------//
-// NodeTraits specialization for the MyNode implementation.
+// Mesh traits specialization for MyMesh
 template<>
-struct NodeTraits<MyNode>
+struct MeshTraits<MyMesh>
 {
-    typedef typename MyNode::handle_type                 handle_type;
-    typedef typename MyNode::coordinate_type             coordinate_type;
-    typedef typename std::vector<double>::const_iterator 
-    const_coordinate_iterator;
+    typedef MyMesh::handle_type handle_type;
+    typedef std::vector<int>::const_iterator const_handle_iterator;
+    typedef std::vector<double>::const_iterator const_coordinate_iterator;
     
-    static inline std::size_t dim()
-    { return 3;}
-    
-    static inline handle_type handle( const MyNode& node ) 
-    { return node.handle(); }
-    
-    static inline const_coordinate_iterator coordsBegin( const MyNode& node ) 
-    { return node.coordsBegin(); }
 
-    static inline const_coordinate_iterator coordsEnd( const MyNode& node ) 
-    { return node.coordsEnd(); }
-};
+    static inline const_handle_iterator nodesBegin( const MyMesh& mesh )
+    { return mesh.nodesBegin(); }
 
-//---------------------------------------------------------------------------//
-// ElementTraits specialization for the MyHex implementation.
-template<>
-struct ElementTraits<MyHex>
-{
-    typedef typename MyHex::handle_type              handle_type;
-    typedef typename std::vector<int>::const_iterator 
-    const_connectivity_iterator;
+    static inline const_handle_iterator nodesEnd( const MyMesh& mesh )
+    { return mesh.nodesEnd(); }
 
-    static inline std::size_t type()
+    static inline bool interleavedCoords( const MyMesh& mesh )
+    { return true; }
+
+    static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
+    { return mesh.coordsBegin(); }
+
+    static inline const_coordinate_iterator coordsEnd( const MyMesh& mesh )
+    { return mesh.coordsEnd(); }
+
+
+    static inline std::size_t elementType( const MyMesh& mesh )
     { return DTK_REGION; }
 
-    static inline std::size_t topology()
+    static inline std::size_t elementTopology( const MyMesh& mesh )
     { return DTK_HEXAHEDRON; }
 
-    static inline std::size_t numNodes()
+    static inline std::size_t nodesPerElement( const MyMesh& mesh )
     { return 8; }
 
-    static inline handle_type handle( const MyHex &hex )
-    { return hex.handle(); }
+    static inline const_handle_iterator elementsBegin( const MyMesh& mesh )
+    { return mesh.hexesBegin(); }
 
-    static inline const_connectivity_iterator 
-    connectivityBegin( const MyHex &hex )
-    { return hex.connectivityBegin(); }
+    static inline const_handle_iterator elementsEnd( const MyMesh& mesh )
+    { return mesh.hexesEnd(); }
 
-    static inline const_connectivity_iterator 
-    connectivityEnd( const MyHex &hex )
-    { return hex.connectivityEnd(); }
-};
+    static inline const_handle_iterator connectivityBegin( const MyMesh& mesh )
+    { return mesh.connectivityBegin(); }
 
-//---------------------------------------------------------------------------//
-// FieldTraits specialization for the node field.
-template<>
-struct FieldTraits< std::vector<MyNode> >
-{
-    typedef MyNode                                value_type;
-    typedef std::vector<MyNode>::iterator         iterator;
-    typedef std::vector<MyNode>::const_iterator   const_iterator;
-    
-    static inline std::size_t size( const std::vector<MyNode> &node_field )
-    { return node_field.size(); }
-
-    static iterator begin( std::vector<MyNode> &node_field )
-    { return node_field.begin(); }
-
-    static const_iterator begin( const std::vector<MyNode> &node_field )
-    { return node_field.begin(); }
-
-    static inline iterator end( std::vector<MyNode> &node_field )
-    { return node_field.end(); }
-
-    static inline const_iterator end( const std::vector<MyNode> &node_field )
-    { return node_field.end(); }
-
-    static inline bool empty( const std::vector<MyNode> &node_field )
-    { return node_field.empty(); }
-};
-
-//---------------------------------------------------------------------------//
-// FieldTraits specialization for the element field.
-template<>
-struct FieldTraits< std::vector<MyHex> >
-{
-    typedef MyHex                                value_type;
-    typedef std::vector<MyHex>::iterator         iterator;
-    typedef std::vector<MyHex>::const_iterator   const_iterator;
-    
-    static inline std::size_t size( const std::vector<MyHex> &hex_field )
-    { return hex_field.size(); }
-
-    static inline iterator begin( std::vector<MyHex> &hex_field )
-    { return hex_field.begin(); }
-
-    static inline const_iterator begin( const std::vector<MyHex> &hex_field )
-    { return hex_field.begin(); }
-
-    static inline iterator end( std::vector<MyHex> &hex_field )
-    { return hex_field.end(); }
-
-    static inline const_iterator end( const std::vector<MyHex> &hex_field )
-    { return hex_field.end(); }
-
-    static inline bool empty(  const std::vector<MyHex> &hex_field )
-    { return hex_field.empty(); }
-};
-
-//---------------------------------------------------------------------------//
-// FieldTraits specialization for the data field.
-template<>
-struct FieldTraits< std::vector<double> >
-{
-    typedef MyNode value_type;
-    typedef std::vector<double>::iterator iterator;
-    typedef std::vector<double>::const_iterator const_iterator;
-    
-    static inline std::size_t size( const std::vector<double> &data_field )
-    { return data_field.size(); }
-
-    static inline iterator begin( std::vector<double> &data_field )
-    { return data_field.begin(); }
-
-    static inline const_iterator begin( const std::vector<double> &data_field )
-    { return data_field.begin(); }
-
-    static inline iterator end( std::vector<double> &data_field )
-    { return data_field.end(); }
-
-    static inline const_iterator end( const std::vector<double> &data_field )
-    { return data_field.end(); }
-
-    static inline bool empty( const std::vector<double> &data_field )
-    { return data_field.empty(); }
+    static inline const_handle_iterator connectivityEnd( const MyMesh& mesh )
+    { return mesh.connectivityEnd(); }
 };
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// DataSource Implementation
+// Mesh create funciton.
 //---------------------------------------------------------------------------//
-class MyDataSource : public DataTransferKit::DataSource< std::vector<MyNode>,
-							 std::vector<MyHex>,
-							 std::vector<double> >
+MyMesh buildMyMesh()
 {
-  private:
+    int my_rank = getDefaultComm<int>()->getRank();
+    int my_size = getDefaultComm<int>()->getSize();
 
-    std::vector<MyNode> d_nodes;
-    std::vector<MyHex> d_elements;
-    std::vector<double> d_element_data;
-    MPI_Comm d_comm;
-    int d_rank;
-    int d_size;
-
-    void createMesh()
+    // Make some random nodes.
+    std::srand( 1 );
+    std::vector<double> random_numbers;
+    int num_rand = 3*my_size;
+    for ( int i = 0; i < num_rand; ++i )
     {
-	// Make some random nodes.
-	std::srand( 1 );
-	std::vector<double> random_numbers;
-	int num_rand = 3*d_size;
-	for ( int i = 0; i < num_rand; ++i )
-	{
-	    random_numbers.push_back( (double) std::rand() / RAND_MAX );
-	}
-
-	for ( int i = 0; i < d_size; ++i )
-	{
-	d_nodes.push_back( MyNode( random_numbers[3*i],
-				   random_numbers[3*i+1],
-				   random_numbers[3*i+2], 
-				   i*d_size + d_rank ) );
-	}
+	random_numbers.push_back( (double) std::rand() / RAND_MAX );
     }
 
-  public:
-
-    MyDataSource()
-    { 
-	// Get the raw MPI_Comm out of Teuchos.
-	Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-	d_rank = comm->getRank();
-	d_size = comm->getSize();
-	Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
-	    Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-	Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	    mpi_comm->getRawMpiComm();
-	d_comm = (*opaque_comm)();
-
-	// Build the mesh.
-	createMesh();
-   }
-
-    ~MyDataSource()
-    { /* ... */ }
-
-    const MPI_Comm& getSourceComm()
+    std::vector<int> node_handles;
+    std::vector<double> coords;
+    for ( int i = 0; i < my_size; ++i )
     {
-	return d_comm;
+	node_handles.push_back( i*my_size + my_rank );
+	coords.push_back( random_numbers[3*i] );
+	coords.push_back( random_numbers[3*i+1] );
+	coords.push_back( random_numbers[3*i+2] );
     }
 
-    bool isFieldSupported( const std::string &field_name )
-    {
-	bool return_val = false;
-	if ( field_name == "MY_DATA_FIELD" )
-	{
-	    return_val = true;
-	}
-	return return_val;
-    }
-
-    const std::vector<MyNode>& getSourceMeshNodes()
-    {
-	return d_nodes;
-    }
-
-    const std::vector<MyHex>& getSourceMeshElements()
-    {
-	return d_elements;
-    }
-
-    const std::vector<double> evaluateFieldOnTargetNodes( 
-	const std::string &field_name,
-	const std::vector<MyHex::handle_type> &element_handles,
-	const std::vector<MyNode::coordinate_type> &node_coordinates )
-    {
-	if ( field_name == "MY_DATA_FIELD" )
-	{
-	    return d_element_data;
-	}
-	else
-	{
-	    std::vector<double> empty_vec;
-	    return empty_vec;
-	}
-    }
-};
+    // Empty element vectors. We only need nodes for these tests.
+    std::vector<int> element_handles;
+    std::vector<int> element_connectivity;
+    
+    return MyMesh( node_handles, coords, element_handles, element_connectivity );
+}
 
 //---------------------------------------------------------------------------//
 // Tests
@@ -379,53 +201,38 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
 {
     using namespace DataTransferKit;
 
-    // Create a DataSource
-    typedef DataSource< std::vector<MyNode>, std::vector<MyHex>,
-			std::vector<double> > DataSourceType;
-    Teuchos::RCP<DataSourceType> data_source = 
-	Teuchos::rcp( new MyDataSource() );
+    // Create my mesh.
+    MyMesh my_mesh = buildMyMesh();
 
-    // Do recursive coordinate bisectioning on the data source node field.
-    typedef typename DataSourceType::node_field_type NodeField;
-    typedef typename NodeField::value_type node_type;
-    NodeField nodes = data_source->getSourceMeshNodes();
-
-    RCB<NodeField> rcb( nodes, getDefaultComm<int>() );
+    // Partition the mesh with RCB.
+    RCB<MyMesh> rcb( my_mesh, getDefaultComm<int>() );
     rcb.partition();
 
     // Get the random numbers that were used to compute the node coordinates.
     std::srand( 1 );
     std::vector<double> random_numbers;
-    int num_rand = 3 * FieldTraits<NodeField>::size( nodes );
+    int num_rand = 3 * std::distance( MeshTraits<MyMesh>::nodesBegin( my_mesh ),
+				      MeshTraits<MyMesh>::nodesEnd( my_mesh ) );
     for ( int i = 0; i < num_rand; ++i )
     {
 	random_numbers.push_back( (double) std::rand() / RAND_MAX );
     }
 
     // Check that these are in fact the random numbers used for the nodes.
-    typename FieldTraits<NodeField>::const_iterator node_iterator;
-    typename NodeTraits<node_type>::const_coordinate_iterator coord_iterator;
+    typename MeshTraits<MyMesh>::const_coordinate_iterator coord_iterator;
     std::vector<double>::const_iterator rand_iterator = random_numbers.begin();
-    for ( node_iterator = FieldTraits<NodeField>::begin( nodes );
-	  node_iterator != FieldTraits<NodeField>::end( nodes );
-	  ++node_iterator )
+    for ( coord_iterator = MeshTraits<MyMesh>::coordsBegin( my_mesh );
+	  coord_iterator != MeshTraits<MyMesh>::coordsEnd( my_mesh );
+	  ++coord_iterator, ++rand_iterator )
     {
-	for ( coord_iterator = 
-		  NodeTraits<node_type>::coordsBegin( *node_iterator );
-	      coord_iterator != 
-		  NodeTraits<node_type>::coordsEnd( *node_iterator );
-	      ++coord_iterator )
-	    {
-		TEST_ASSERT( *coord_iterator == *rand_iterator );
-		++rand_iterator;
-	    }
+	TEST_ASSERT( *coord_iterator == *rand_iterator );
     }
 
-    // Check the partitioning.
+    // Get MPI parameters.
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
 
-    // Import parameters.
+    // Check import parameters.
     int num_import = rcb.getNumImport();
 
     Teuchos::ArrayView<unsigned int> import_global_ids = 
@@ -452,7 +259,7 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
 	TEST_ASSERT( import_parts[i] == my_rank );
     }
 
-    // Export parameters.
+    // Check export parameters.
     int num_export = rcb.getNumExport();
 
     Teuchos::ArrayView<unsigned int> export_global_ids = 

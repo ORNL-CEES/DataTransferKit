@@ -123,7 +123,7 @@ struct MeshTraits<MyMesh>
     static inline const_handle_iterator nodesEnd( const MyMesh& mesh )
     { return mesh.nodesEnd(); }
 
-    static inline bool interleavedNodeCoords( const MyMesh& mesh )
+    static inline bool interleavedCoordinates( const MyMesh& mesh )
     { return true; }
 
     static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
@@ -435,7 +435,7 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
     typename MeshTraits<MyMesh>::const_coordinate_iterator coord_iterator;
     
     // Check the nodes.
-    TEST_ASSERT( MeshTraits<MyMesh>::interleavedNodeCoords( source_mesh ) );
+    TEST_ASSERT( MeshTraits<MyMesh>::interleavedCoordinates( source_mesh ) );
     TEST_ASSERT( std::distance( MeshTraits<MyMesh>::nodesBegin( source_mesh ),
 				MeshTraits<MyMesh>::nodesEnd( source_mesh ) )
 		 == 4 );
