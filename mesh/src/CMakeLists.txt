@@ -24,6 +24,7 @@ APPEND_SET(HEADERS
   DTK_CellTopologyFactory.hpp
   DTK_KDTree.hpp
   DTK_KDTree_def.hpp
+  DTK_MeshContainer.hpp
   DTK_RCB.hpp
   DTK_RCB_def.hpp
   DTK_Rendezvous.hpp

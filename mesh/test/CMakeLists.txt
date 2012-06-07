@@ -37,8 +37,8 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  MeshContainer_test
-  SOURCES tstMeshContainer.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  Rendezvous_test
+  SOURCES tstRendezvous.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM mpi
   STANDARD_PASS_OUTPUT
   )

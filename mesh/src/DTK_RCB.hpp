@@ -35,6 +35,7 @@ class RCB
     typedef MeshTraits<Mesh>                 MT;
     typedef Teuchos::Comm<int>               CommType;
     typedef Teuchos::RCP<const CommType>     RCP_Comm;
+    typedef ZOLTAN_ID_TYPE                   zoltan_id_type;
     //@}
 
     // Constructor.
@@ -55,14 +56,14 @@ class RCB
     { return d_num_import; }
 
     //! Get the global import node ID's.
-    Teuchos::ArrayView<unsigned int> getImportGlobalIds() const
-    { return Teuchos::ArrayView<unsigned int>( d_import_global_ids, 
-					       d_num_import ); }
+    Teuchos::ArrayView<zoltan_id_type> getImportGlobalIds() const
+    { return Teuchos::ArrayView<zoltan_id_type>( d_import_global_ids, 
+						 d_num_import ); }
 
     //! Get the local import node ID's.
-    Teuchos::ArrayView<unsigned int> getImportLocalIds() const
-    { return Teuchos::ArrayView<unsigned int>( d_import_local_ids, 
-					       d_num_import ); }
+    Teuchos::ArrayView<zoltan_id_type> getImportLocalIds() const
+    { return Teuchos::ArrayView<zoltan_id_type>( d_import_local_ids, 
+						 d_num_import ); }
 
     //! Get the process rank source for imported nodes.
     Teuchos::ArrayView<int> getImportProcs() const
@@ -77,16 +78,16 @@ class RCB
     { return d_num_export; }
 
     //! Get the global export node ID's.
-    Teuchos::ArrayView<unsigned int> getExportGlobalIds() const
-    { return Teuchos::ArrayView<unsigned int>( d_export_global_ids, 
-					       d_num_export ); }
+    Teuchos::ArrayView<zoltan_id_type> getExportGlobalIds() const
+    { return Teuchos::ArrayView<zoltan_id_type>( d_export_global_ids, 
+						 d_num_export ); }
 
     //! Get the local export node ID's.
-    Teuchos::ArrayView<unsigned int> getExportLocalIds() const
-    { return Teuchos::ArrayView<unsigned int>( d_export_local_ids, 
-					       d_num_export ); }
+    Teuchos::ArrayView<zoltan_id_type> getExportLocalIds() const
+    { return Teuchos::ArrayView<zoltan_id_type>( d_export_local_ids, 
+						 d_num_export ); }
 
-    //! Get the process rank source for exported nodes.
+    //! Get the process rank target for exported nodes.
     Teuchos::ArrayView<int> getExportProcs() const
     { return Teuchos::ArrayView<int>( d_export_procs, d_num_export ); }
 

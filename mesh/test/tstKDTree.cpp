@@ -110,8 +110,10 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Mesh traits specialization for MyMesh
 template<>
-struct MeshTraits<MyMesh>
+class MeshTraits<MyMesh>
 {
+  public:
+
     typedef MyMesh::handle_type handle_type;
     typedef std::vector<int>::const_iterator const_handle_iterator;
     typedef std::vector<double>::const_iterator const_coordinate_iterator;

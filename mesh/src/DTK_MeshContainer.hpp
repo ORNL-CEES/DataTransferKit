@@ -2,7 +2,7 @@
 /*!
  * \file DTK_MeshContainer.hpp
  * \author Stuart R. Slattery
- * \brief A simple mesh container for serializing and rebuilding mesh data.
+ * \brief A simple mesh container for rebuilding mesh data after serialization.
  */
 //---------------------------------------------------------------------------//
 
@@ -14,8 +14,6 @@
 #include <set>
 
 #include <DTK_MeshTraits.hpp>
-
-#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -131,73 +129,58 @@ template<>
 template<typename Handle>
 struct MeshTraits< MeshContainer<Handle> >
 {
-    typedef MeshContainer<Handle> MeshType;
+    typedef MeshContainer<Handle> Container;
 
     static inline typename std::set<Handle>::const_iterator 
-    nodesBegin( const MeshType& mesh )
-    { return mesh.nodesBegin(); }
+    nodesBegin( const Container& container )
+    { return container.nodesBegin(); }
 
     static inline typename std::set<Handle>::const_iterator 
-    nodesEnd( const MeshType& mesh )
-    { return mesh.nodesEnd(); }
+    nodesEnd( const Container& container )
+    { return container.nodesEnd(); }
 
-    static inline bool interleavedCoordinates( const MeshType& mesh )
+    static inline bool interleavedCoordinates( const Container& container )
     { return true; }
 
     static inline std::vector<double>::const_iterator 
-    coordsBegin( const MeshType& mesh )
-    { return mesh.coordsBegin(); }
+    coordsBegin( const Container& container )
+    { return container.coordsBegin(); }
 
     static inline std::vector<double>::const_iterator 
-    coordsEnd( const MeshType& mesh )
-    { return mesh.coordsEnd(); }
+    coordsEnd( const Container& container )
+    { return container.coordsEnd(); }
 
 
-    static inline std::size_t elementType( const MeshType& mesh )
-    { return mesh.getElementType(); }
+    static inline std::size_t elementType( const Container& container )
+    { return container.getElementType(); }
 
-    static inline std::size_t elementTopology( const MeshType& mesh )
-    { return mesh.getElementTopology(); }
+    static inline std::size_t elementTopology( const Container& container )
+    { return container.getElementTopology(); }
 
-    static inline std::size_t nodesPerElement( const MeshType& mesh )
-    { return mesh.getNodesPerElement(); }
-
-    static inline typename std::set<Handle>::const_iterator 
-    elementsBegin( const MeshType& mesh )
-    { return mesh.elementsBegin(); }
+    static inline std::size_t nodesPerElement( const Container& container )
+    { return container.getNodesPerElement(); }
 
     static inline typename std::set<Handle>::const_iterator 
-    elementsEnd( const MeshType& mesh )
-    { return mesh.elementsEnd(); }
+    elementsBegin( const Container& container )
+    { return container.elementsBegin(); }
+
+    static inline typename std::set<Handle>::const_iterator 
+    elementsEnd( const Container& container )
+    { return container.elementsEnd(); }
 
     static inline typename std::vector<Handle>::const_iterator 
-    connectivityBegin( const MeshType& mesh )
-    { return mesh.connectivityBegin(); }
+    connectivityBegin( const Container& container )
+    { return container.connectivityBegin(); }
 
     static inline typename std::vector<Handle>::const_iterator 
-    connectivityEnd( const MeshType& mesh )
-    { return mesh.connectivityEnd(); }
+    connectivityEnd( const Container& container )
+    { return container.connectivityEnd(); }
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-// Teuchos serialization traits specializations.
-//---------------------------------------------------------------------------//
-namespace Teuchos
-{
-
-template<typename Ordinal>
-class SerializationTraits<Ordinal,DataTransferKit::MeshContainer<int> >
-    : public DirectSerializationTraits< Ordinal,
-					DataTransferKit::MeshContainer<int> >
-{ /* ... */ };
-
-} // end namespace Teuchos
-
-//---------------------------------------------------------------------------//
 
 #endif // end DTK_MESHCONTAINER_HPP
 

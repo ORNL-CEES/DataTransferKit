@@ -40,6 +40,7 @@ class Rendezvous
     typedef Teuchos::RCP<KDTreeType>             RCP_KDTree;
     typedef RCB<Mesh>                            RCBType;
     typedef Teuchos::RCP<RCBType>                RCP_RCB;
+    typedef RCBType::zoltan_id_type              zoltan_id_type;
     typedef Teuchos::Comm<int>                   CommType;
     typedef Teuchos::RCP<const CommType>         RCP_Comm;
     //@}
@@ -70,7 +71,8 @@ class Rendezvous
 
     // Send the mesh to the rendezvous decomposition and build the concrete
     // mesh. 
-    void sendMeshToRendezvous( const std::vector<char>& nodes_in_box,
+    void sendMeshToRendezvous( const Mesh& mesh,
+			       const std::vector<char>& nodes_in_box,
 			       const std::vector<char>& elements_in_box );
 
   private:

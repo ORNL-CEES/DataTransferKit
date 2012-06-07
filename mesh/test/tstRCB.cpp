@@ -112,8 +112,10 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Mesh traits specialization for MyMesh
 template<>
-struct MeshTraits<MyMesh>
+class MeshTraits<MyMesh>
 {
+  public:
+
     typedef MyMesh::handle_type handle_type;
     typedef std::vector<int>::const_iterator const_handle_iterator;
     typedef std::vector<double>::const_iterator const_coordinate_iterator;
@@ -211,6 +213,7 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
     std::vector<char> active_nodes( num_nodes, 1 );
 
     // Partition the mesh with RCB.
+    typedef RCB<MyMesh>::zoltan_id_type zoltan_id_type;
     RCB<MyMesh> rcb( my_mesh, active_nodes, getDefaultComm<int>() );
     rcb.partition();
 
@@ -239,11 +242,11 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
     // Check import parameters.
     int num_import = rcb.getNumImport();
 
-    Teuchos::ArrayView<unsigned int> import_global_ids = 
+    Teuchos::ArrayView<zoltan_id_type> import_global_ids = 
 	rcb.getImportGlobalIds();
     TEST_ASSERT( import_global_ids.size() == num_import );
 
-    Teuchos::ArrayView<unsigned int> import_local_ids = 
+    Teuchos::ArrayView<zoltan_id_type> import_local_ids = 
 	rcb.getImportLocalIds();
     TEST_ASSERT( import_local_ids.size() == num_import );
 
@@ -266,11 +269,11 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
     // Check export parameters.
     int num_export = rcb.getNumExport();
 
-    Teuchos::ArrayView<unsigned int> export_global_ids = 
+    Teuchos::ArrayView<zoltan_id_type> export_global_ids = 
 	rcb.getExportGlobalIds();
     TEST_ASSERT( export_global_ids.size() == num_export );
 
-    Teuchos::ArrayView<unsigned int> export_local_ids = 
+    Teuchos::ArrayView<zoltan_id_type> export_local_ids = 
 	rcb.getExportLocalIds();
     TEST_ASSERT( export_local_ids.size() == num_export );
 

@@ -9,14 +9,24 @@
 #ifndef DTK_RENDEZVOUS_DEF_HPP
 #define DTK_RENDEZVOUS_DEF_HPP
 
+#include <set>
 #include <map>
 #include <algorithm>
 #include <cassert>
 
+#include "DTK_Rendezvous.hpp"
 #include <DTK_Exception.hpp>
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ENull.hpp>
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_Hashtable.hpp>
+#include <Teuchos_OrdinalTraits.hpp>
+
+#include <Tpetra_Map.hpp>
+#include <Tpetra_Export.hpp>
+#include <Tpetra_Vector.hpp>
 
 namespace DataTransferKit
 {
@@ -159,8 +169,7 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	    {
 		node_coords[i] = *coord_iterator;
 	    }
-	    nodes_in_box.push_back( 
-		(char) d_global_box.pointInBox( node_coords ) );
+	    nodes_in_box.push_back( d_global_box.pointInBox( node_coords ) );
 	}
     }    
     else
@@ -184,8 +193,7 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	    {
 		node_coords[i] = *interleaved_iterator;
 	    }
-	    nodes_in_box.push_back( 
-		(char) d_global_box.pointInBox( node_coords ) );
+	    nodes_in_box.push_back( d_global_box.pointInBox( node_coords ) );
 	}
     }
     assert( nodes_in_box.size() == num_nodes );
@@ -225,8 +233,9 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	{
 	    if ( elements_in_box[i] )
 	    {
-		node_index = node_indices.find( *connectivity_iterator )->second;
-		nodes_in_box[ node_index ] = (char) 1;
+		node_index = 
+		    node_indices.find( *connectivity_iterator )->second;
+		nodes_in_box[ node_index ] = 1;
 	    }
 	}
     }
@@ -239,10 +248,148 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
  */
 template<typename Mesh>
 void Rendezvous<Mesh>sendMeshToRendezvous( 
+    const Mesh& mesh,
     const std::vector<char>& nodes_in_box, 
     const std::vector<char>& elements_in_box )
 {
-    
+    // Setup data structures for pulling in mesh data in the rendezvous
+    // decomposition.
+    std::set<handle_type> rendezvous_nodes;
+    std::vector<double> rendezvous_coords;
+    int element_type;
+    int element_topology;
+    int nodes_per_element;
+    std::set<handle_type> rendezvous_elements;
+    std::vector<handle_type> rendezvous_connectivity;
+
+    // Move node handles to rendezvous decomposition.
+    int num_nodes = std::distance( MT::nodesBegin( mesh ), 
+				   MT::nodesEnd( mesh ) );
+    Teuchos::ArrayView<zoltan_id_type> export_node_ids = 
+	d_rcb->getExportGlobalIds();
+    Teuchos::ArrayView<zoltan_id_type> export_node_indices =
+	d_rcb->getExportLocalIds();
+    std::vector<zoltan_id_type> export_node_map_ids( 
+	num_nodes, Teuchos::OrdinalTraits<zoltan_id_type>::max() );
+    Teuchos::ArrayView<zoltan_id_type>::const_iterator export_node_id_iterator;
+    Teuchos::ArrayView<zoltan_id_type>::const_iterator export_node_index_iterator;
+    for ( export_node_id_iterator = export_node_ids.begin(),
+       export_node_index_iterator = export_node_indices.begin();
+	  export_node_id_iterator != export_node_ids.end();
+	  ++export_node_id_iterator, ++export_node_index_iterator )
+    {
+	export_node_map_ids[ *export_node_index_iterator ] =
+	    *export_node_ids_iterator;
+    }
+    Teuchos::RCP< Tpetra::Map<unsiged int> > export_node_map = 
+	Tpetra::createNonContigMap<zoltan_id_type>( 
+	    Teuchos::ArrayView( export_node_map_ids ), d_global_comm );
+
+    Teuchos::ArrayView<zoltan_id_type> import_node_ids = 
+	d_rcb->getImportGlobalIds();
+    Teuchos::RCP< Tpetra::Map<zoltan_id_type> > import_node_map = 
+	Tpetra::createNonContigMap<zoltan_id_type>( 
+	    import_node_ids, d_global_comm );
+
+    Tpetra::Export node_exporter( export_node_map, import_node_map );
+
+    MT::const_handle_iterator export_nodes = MT::nodesBegin( mesh );
+    Teuchos::ArrayRCP<handle_type> export_node_view( 
+	&*export_nodes, 0, d_rcb->numExport(), false );
+    Teuchos::RCP< Tpetra::Vector<handle_type> > export_node_vector =
+	Tpetra::createVectorFromView( export_node_map, export_node_view );
+
+    Teuchos::RCP< Tpetra::Vector<handle_type> > import_node_vector =
+	Tpetra::createVector( import_node_map );
+
+    import_node_vector->doExport( 
+	*export_node_vector, node_exporter, Tpetra::Insert );
+
+    // Move the node coordinates to the rendezvous decomposition.
+    Teuchos::RCP< Tpetra::vector<double> > export_x_coords;
+    Teuchos::RCP< Tpetra::vector<double> > export_y_coords;
+    Teuchos::RCP< Tpetra::vector<double> > export_z_coords;
+
+    Teuchos::ArrayRCP<double> x_coords_view;
+    Teuchos::ArrayRCP<double> y_coords_view;
+    Teuchos::ArrayRCP<double> z_coords_view;
+
+    MT::const_coordinate_iterator export_coords = MT::coordsBegin( mesh );
+    if ( MT::interleavedCoordinates( mesh ) )
+    {
+	x_coords_view = Teuchos::ArrayRCP<double>( num_nodes );
+	y_coords_view = Teuchos::ArrayRCP<double>( num_nodes );
+	z_coords_view = Teuchos::ArrayRCP<double>( num_nodes );
+	Teuchos::ArrayRCP<double>::iterator x_iterator;
+	Teuchos::ArrayRCP<double>::iterator y_iterator;
+	Teuchos::ArrayRCP<double>::iterator z_iterator;
+	for ( x_iterator = x_coords_view.begin(),
+	      y_iterator = y_coords_view.begin(),
+	      z_iterator = z_coords_view.begin();
+	      x_iterator != x_coords_view.end();
+	      ++x_iterator, ++y_iterator, ++z_iterator )
+	{
+	    *x_iterator = *export_coords;
+	    ++export_coords;
+	    *y_iterator = *export_coords;
+	    ++export_coords;
+	    *z_iterator = *export_coords;
+	    ++export_coords;
+	}
+    }
+    else
+    {
+	x_coords_view = Teuchos::ArrayRCP<double>( 
+	    &*export_coords, 0, num_nodes, false );
+	y_coords_view = Teuchos::ArrayRCP<double>( 
+	    &(*export_coords + num_nodes), 0, num_nodes, false );
+	z_coords_view = Teuchos::ArrayRCP<double>( 
+	    &(*export_coords + 2*num_nodes), 0, num_nodes, false );
+    }
+
+    Teuchos::RCP< Tpetra::vector<double> > import_x_coords = 
+	createVector( import_node_map );
+    Teuchos::RCP< Tpetra::vector<double> > import_y_coords =
+	createVector( import_node_map );
+    Teuchos::RCP< Tpetra::vector<double> > import_z_coords =
+	createVector( import_node_map );
+
+    import_x_coords->doExport( 
+	*export_x_coords, node_exporter, Tpetra::Insert );
+    import_y_coords->doExport( 
+	*export_y_coords, node_exporter, Tpetra::Insert );
+    import_z_coords->doExport( 
+	*export_z_coords, node_exporter, Tpetra::Insert );
+
+    x_coords_view.clear();
+    y_coords_view.clear();
+    z_coords_view.clear();
+    export_node_map_ids.clear();
+
+    // Move the type, topology, and order information to the rendezvous
+    // decomposition.
+
+    // Move the elements to the rendezvous decomposition.
+
+    // Move the connectivity to the rendezvous decomposition.
+
+    // Construct the mesh container from the collected data, effectively
+    // wrapping it with mesh traits. This may not be a good idea. I may create
+    // another mesh creation function to directly accept these Tpetra vectors
+    // instead as this is making a temporary copy.
+    MeshContainer mesh_container( rendezvous_nodes, rendezvous_coords,
+				  element_type, element_topology,
+				  nodes_per_element,
+				  rendezvous_elements, rendezvous_connectivity );
+
+    // Clear the collected data.
+    rendezvous_nodes.clear();
+    rendezvous_coords.clear();
+    rendezvous_elements.clear();
+    rendezvous_connectivity.clear();
+
+    // Build the rendezous mesh from the mesh container.
+    d_rendezvous_mesh = createRendezvousMesh( mesh_container );
 
     testPostcondition( d_rendezvous_mesh != Teuchos::null,
 		       "Error creating rendezvous mesh." );
@@ -257,4 +404,3 @@ void Rendezvous<Mesh>sendMeshToRendezvous(
 //---------------------------------------------------------------------------//
 // end DTK_Rendezvous_def.hpp
 //---------------------------------------------------------------------------//
-
