@@ -113,26 +113,6 @@ void RCB<Mesh>::partition()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the bounding box for a partition.
- */
-template<typename Mesh>
-BoundingBox RCB<Mesh>::getPartBoundingBox( const int part ) const
-{
-    double x_min, y_min, z_min, x_max, y_max, z_max;
-    int dim;
-    int zoltan_error;
-    zoltan_error = Zoltan_RCB_Box( d_zz, part, &dim,
-				   &x_min, &y_min, &z_min,
-				   &x_max, &y_max, &z_max );
-
-    testInvariant( ZOLTAN_OK == zoltan_error, 
-		   "Zoltan error getting partition bounding box." );
-    
-    return BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );
-}
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Get the destination process for a point.
  */
 template<typename Mesh>
@@ -156,6 +136,26 @@ int RCB<Mesh>::getDestinationProc( double coords[3] ) const
     throw PointNotFound( "Did not find point in the RCB decomposition." );
 
     return 0;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the bounding box for a partition.
+ */
+template<typename Mesh>
+BoundingBox RCB<Mesh>::getPartBoundingBox( const int part ) const
+{
+    double x_min, y_min, z_min, x_max, y_max, z_max;
+    int dim;
+    int zoltan_error;
+    zoltan_error = Zoltan_RCB_Box( d_zz, part, &dim,
+				   &x_min, &y_min, &z_min,
+				   &x_max, &y_max, &z_max );
+
+    testInvariant( ZOLTAN_OK == zoltan_error, 
+		   "Zoltan error getting partition bounding box." );
+    
+    return BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );
 }
 
 //---------------------------------------------------------------------------//

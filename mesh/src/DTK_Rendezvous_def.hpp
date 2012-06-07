@@ -59,7 +59,7 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
     // Extract the mesh nodes and elements that are in the bounding box.
     std::vector<char> nodes_in_box;
     std::vector<char> elements_in_box;
-    getMeshInBox( mesh, nodes_in_box, elements_in_box );
+    getMeshInBox( mesh, d_global_box, nodes_in_box, elements_in_box );
         
     // Construct the rendezvous decomposition of the mesh with RCB.
     d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh, nodes_in_box, d_comm ) );
@@ -135,10 +135,11 @@ Rendezvous<Mesh>::getElements( const std::vector<double>& coords ) const
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Extract the mesh nodes and elements that are in the bounding box.
+ * \brief Extract the mesh nodes and elements that are in a bounding box.
  */
 template<typename Mesh>
 void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
+				     const BoundingBox& box,
 				     std::vector<char>& nodes_in_box,
 				     std::vector<char>& elements_in_box )
 {
@@ -169,7 +170,7 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	    {
 		node_coords[i] = *coord_iterator;
 	    }
-	    nodes_in_box.push_back( d_global_box.pointInBox( node_coords ) );
+	    nodes_in_box.push_back( box.pointInBox( node_coords ) );
 	}
     }    
     else
@@ -193,7 +194,7 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	    {
 		node_coords[i] = *interleaved_iterator;
 	    }
-	    nodes_in_box.push_back( d_global_box.pointInBox( node_coords ) );
+	    nodes_in_box.push_back( box.pointInBox( node_coords ) );
 	}
     }
     assert( nodes_in_box.size() == num_nodes );
@@ -262,7 +263,9 @@ void Rendezvous<Mesh>sendMeshToRendezvous(
     std::set<handle_type> rendezvous_elements;
     std::vector<handle_type> rendezvous_connectivity;
 
-    // Move node handles to rendezvous decomposition.
+    // Move nodes to rendezvous decomposition. This includes coordinates that
+    // aren't specified initially by RCB, but are needed to complete the
+    // elements that belong to nodes on the RCB boundaries.
     int num_nodes = std::distance( MT::nodesBegin( mesh ), 
 				   MT::nodesEnd( mesh ) );
     Teuchos::ArrayView<zoltan_id_type> export_node_ids = 
@@ -271,8 +274,10 @@ void Rendezvous<Mesh>sendMeshToRendezvous(
 	d_rcb->getExportLocalIds();
     std::vector<zoltan_id_type> export_node_map_ids( 
 	num_nodes, Teuchos::OrdinalTraits<zoltan_id_type>::max() );
-    Teuchos::ArrayView<zoltan_id_type>::const_iterator export_node_id_iterator;
-    Teuchos::ArrayView<zoltan_id_type>::const_iterator export_node_index_iterator;
+    Teuchos::ArrayView<zoltan_id_type>::const_iterator 
+	export_node_id_iterator;
+    Teuchos::ArrayView<zoltan_id_type>::const_iterator 
+	export_node_index_iterator;
     for ( export_node_id_iterator = export_node_ids.begin(),
        export_node_index_iterator = export_node_indices.begin();
 	  export_node_id_iterator != export_node_ids.end();
@@ -305,7 +310,7 @@ void Rendezvous<Mesh>sendMeshToRendezvous(
     import_node_vector->doExport( 
 	*export_node_vector, node_exporter, Tpetra::Insert );
 
-    // Move the node coordinates to the rendezvous decomposition.
+    // Move the node coordinates to the rendezvous decomposition. 
     Teuchos::RCP< Tpetra::vector<double> > export_x_coords;
     Teuchos::RCP< Tpetra::vector<double> > export_y_coords;
     Teuchos::RCP< Tpetra::vector<double> > export_z_coords;
@@ -361,15 +366,14 @@ void Rendezvous<Mesh>sendMeshToRendezvous(
     import_z_coords->doExport( 
 	*export_z_coords, node_exporter, Tpetra::Insert );
 
+    // Free up some memory now that we've moved the node data over.
     x_coords_view.clear();
     y_coords_view.clear();
     z_coords_view.clear();
     export_node_map_ids.clear();
 
-    // Move the type, topology, and order information to the rendezvous
-    // decomposition.
-
     // Move the elements to the rendezvous decomposition.
+    
 
     // Move the connectivity to the rendezvous decomposition.
 
@@ -377,10 +381,13 @@ void Rendezvous<Mesh>sendMeshToRendezvous(
     // wrapping it with mesh traits. This may not be a good idea. I may create
     // another mesh creation function to directly accept these Tpetra vectors
     // instead as this is making a temporary copy.
-    MeshContainer mesh_container( rendezvous_nodes, rendezvous_coords,
-				  element_type, element_topology,
-				  nodes_per_element,
-				  rendezvous_elements, rendezvous_connectivity );
+    MeshContainer mesh_container( rendezvous_nodes, 
+				  rendezvous_coords,
+				  MT::elementType( mesh ),
+				  MT::elementTopology( mesh ),
+				  MT::nodesPerElement( mesh ),
+				  rendezvous_elements, 
+				  rendezvous_connectivity );
 
     // Clear the collected data.
     rendezvous_nodes.clear();
