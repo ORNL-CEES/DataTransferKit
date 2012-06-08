@@ -30,6 +30,7 @@ class InverseComm
     typedef Ordinal                              ordinal_type;
     typedef Teuchos::Comm<int>                   CommType;
     typedef Teuchos::RCP<const CommType>         RCP_Comm;
+    typedef Teuchos::RCP<Teuchos::CommRequest>   RCP_CommRequest;
     typedef Tpetra::Map<ordinal_type>            TpetraMap;
     typedef Teuchos::RCP<Tpetra_Map>             RCP_TpetraMap;
     //@}
