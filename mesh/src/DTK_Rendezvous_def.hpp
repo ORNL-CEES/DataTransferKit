@@ -24,7 +24,6 @@
 #include <Teuchos_Hashtable.hpp>
 #include <Teuchos_OrdinalTraits.hpp>
 
-#include <Tpetra_Map.hpp>
 #include <Tpetra_Export.hpp>
 #include <Tpetra_Vector.hpp>
 
@@ -69,7 +68,7 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
 
     // Send the mesh to the rendezvous decomposition and build the concrete
     // mesh.
-    sendMeshToRendezvous( nodes_in_box, elements_in_box );
+    sendMeshToRendezvous( mesh );
 
     // Clear the extracted mesh information.
     nodes_in_box.clear();
@@ -144,7 +143,8 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 				     std::vector<char>& elements_in_box )
 {
     // Create a map indexed by handle containing the actual handle
-    // location. This will give us logarithmic time access to connectivity.
+    // location. This will give us logarithmic time access to connectivity. I
+    // should write a hash table to improve this access time.
     int num_nodes = std::distance( MT::nodesBegin( mesh ),
 				   MT::nodesEnd( mesh ) );
     std::map<handle_type,int> node_indices;
@@ -248,10 +248,7 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
  * mesh. 
  */
 template<typename Mesh>
-void Rendezvous<Mesh>sendMeshToRendezvous( 
-    const Mesh& mesh,
-    const std::vector<char>& nodes_in_box, 
-    const std::vector<char>& elements_in_box )
+void Rendezvous<Mesh>sendMeshToRendezvous( const Mesh& mesh )
 {
     // Setup data structures for pulling in mesh data in the rendezvous
     // decomposition.
@@ -263,39 +260,9 @@ void Rendezvous<Mesh>sendMeshToRendezvous(
     std::set<handle_type> rendezvous_elements;
     std::vector<handle_type> rendezvous_connectivity;
 
-    // Move nodes to rendezvous decomposition. This includes coordinates that
-    // aren't specified initially by RCB, but are needed to complete the
-    // elements that belong to nodes on the RCB boundaries.
-    int num_nodes = std::distance( MT::nodesBegin( mesh ), 
-				   MT::nodesEnd( mesh ) );
-    Teuchos::ArrayView<zoltan_id_type> export_node_ids = 
-	d_rcb->getExportGlobalIds();
-    Teuchos::ArrayView<zoltan_id_type> export_node_indices =
-	d_rcb->getExportLocalIds();
-    std::vector<zoltan_id_type> export_node_map_ids( 
-	num_nodes, Teuchos::OrdinalTraits<zoltan_id_type>::max() );
-    Teuchos::ArrayView<zoltan_id_type>::const_iterator 
-	export_node_id_iterator;
-    Teuchos::ArrayView<zoltan_id_type>::const_iterator 
-	export_node_index_iterator;
-    for ( export_node_id_iterator = export_node_ids.begin(),
-       export_node_index_iterator = export_node_indices.begin();
-	  export_node_id_iterator != export_node_ids.end();
-	  ++export_node_id_iterator, ++export_node_index_iterator )
-    {
-	export_node_map_ids[ *export_node_index_iterator ] =
-	    *export_node_ids_iterator;
-    }
-    Teuchos::RCP< Tpetra::Map<unsiged int> > export_node_map = 
-	Tpetra::createNonContigMap<zoltan_id_type>( 
-	    Teuchos::ArrayView( export_node_map_ids ), d_global_comm );
-
-    Teuchos::ArrayView<zoltan_id_type> import_node_ids = 
-	d_rcb->getImportGlobalIds();
-    Teuchos::RCP< Tpetra::Map<zoltan_id_type> > import_node_map = 
-	Tpetra::createNonContigMap<zoltan_id_type>( 
-	    import_node_ids, d_global_comm );
-
+    // Move nodes to rendezvous decomposition. 
+    RCP_TpetraMap export_node_map, import_node_map;
+    setupNodeCommunication( mesh, export_node_map, import_node_map );
     Tpetra::Export node_exporter( export_node_map, import_node_map );
 
     MT::const_handle_iterator export_nodes = MT::nodesBegin( mesh );
@@ -370,9 +337,10 @@ void Rendezvous<Mesh>sendMeshToRendezvous(
     x_coords_view.clear();
     y_coords_view.clear();
     z_coords_view.clear();
-    export_node_map_ids.clear();
 
     // Move the elements to the rendezvous decomposition.
+    RCP_TpetraMap export_element_map, import_element_map;
+    setupElementCommunication( mesh, export_element_map, import_element_map );
     
 
     // Move the connectivity to the rendezvous decomposition.
@@ -400,6 +368,71 @@ void Rendezvous<Mesh>sendMeshToRendezvous(
 
     testPostcondition( d_rendezvous_mesh != Teuchos::null,
 		       "Error creating rendezvous mesh." );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Setup the node communication pattern.
+ */
+template<typename Mesh>
+void Rendezvous<Mesh>::setupNodeCommunication( const Mesh& mesh,
+					       RCP_TpetraMap& export_map, 
+					       RCP_TpetraMap& import_map )
+{
+    // Start by building the Tpetra map in the original decomposition. This is
+    // simply the handles cast as zoltan id types.
+    std::vector<zoltan_id_type> export_node_map_ids;
+    std::vector<zoltan_id_type>::iterator export_node_map_iterator;
+    MT::const_handle_iterator export_node_iterator;
+    for ( export_node_iterator = MT::nodesBegin( mesh );
+	  export_node_iterator != MT::nodesEnd( mesh );
+	  ++export_node_iterator )
+    {
+	export_node_map_ids.push_back( (zoltan_id_type) *export_node_iterator );
+    }
+    Teuchos::RCP< Tpetra::Map<zoltan_id_type> > export_node_map = 
+	Tpetra::createNonContigMap<zoltan_id_type>( 
+	    Teuchos::ArrayView<zoltan_id_type>( export_node_map_ids ), 
+	    d_global_comm );
+
+    testPostcondition( export_node_map != Teuchos::null,
+		       "Error creating node export map." );
+
+    // The import map in the rendezvous decomposition will need the global
+    // id's from the RCB paritioning as well as those that complete its
+    // elements but are not in the original partition. We also need to make
+    // sure that these are unique.
+    Teuchos::ArrayView<zoltan_id_type> rcb_node_ids = 
+	d_rcb->getImportGlobalIds();
+    std::set<zoltan_id_type> import_node_map_ids();
+    Teuchos::ArrayView<zoltan_id_type>::const_iterator rcb_node_id_iterator;
+    for ( rcb_node_id_iterator = rcb_node_ids.begin();
+	  rcb_node_id_iterator != rcb_node_ids.end();
+	  ++rcb_node_id_iterator )
+    {
+	import_node_map_ids.insert( *rcb_node_iterator );
+    }
+
+    Teuchos::RCP< Tpetra::Map<zoltan_id_type> > import_node_map = 
+	Tpetra::createNonContigMap<zoltan_id_type>( 
+	    Teuchos::ArrayView<zoltan_id_type>( &*import_node_ids.begin(),
+						import_node_ids.size() ),
+	    d_global_comm );
+
+    testPostcondition( import_node_map != Teuchos::null,
+		       "Error creating node import map." );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Setup the element communication pattern.
+ */
+template<typename Mesh>
+void Rendezvous<Mesh>::setupElementCommunication( const Mesh& mesh,
+						  RCP_TpetraMap& export_map, 
+						  RCP_TpetraMap& import_map )
+{
+
 }
 
 //---------------------------------------------------------------------------//

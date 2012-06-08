@@ -20,6 +20,8 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 
+#include <Tpetra_Map.hpp>
+
 namespace DataTransferKit
 {
 
@@ -43,6 +45,8 @@ class Rendezvous
     typedef RCBType::zoltan_id_type              zoltan_id_type;
     typedef Teuchos::Comm<int>                   CommType;
     typedef Teuchos::RCP<const CommType>         RCP_Comm;
+    typedef Tpetra::Map<zoltan_id_type>          TpetraMap;
+    typedef Teuchos::RCP<Tpetra_Map>             RCP_TpetraMap;
     //@}
 
     // Constructor.
@@ -64,16 +68,25 @@ class Rendezvous
 
   private:
 
-    // Extract the mesh nodes and elements that are in the bounding box.
+    // Extract the mesh nodes and elements that are in a bounding box.
     void getMeshInBox( const Mesh& mesh,
+		       const BoundingBox& box,
 		       std::vector<char>& nodes_in_box,
 		       std::vector<char>& elements_in_box );
 
     // Send the mesh to the rendezvous decomposition and build the concrete
     // mesh. 
-    void sendMeshToRendezvous( const Mesh& mesh,
-			       const std::vector<char>& nodes_in_box,
-			       const std::vector<char>& elements_in_box );
+    void sendMeshToRendezvous( const Mesh& mesh );
+
+    // Setup the node communication pattern.
+    void setupNodeCommunication( const Mesh& mesh,
+				 RCP_TpetraMap& export_map, 
+				 RCP_TpetraMap& import_map );
+
+    // Setup the element communication pattern.
+    void setupElementCommunication( const Mesh& mesh,
+				    RCP_TpetraMap& export_map, 
+				    RCP_TpetraMap& import_map);
 
   private:
 
