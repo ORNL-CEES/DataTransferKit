@@ -118,7 +118,8 @@ void RCB<Mesh>::partition()
 template<typename Mesh>
 int RCB<Mesh>::getDestinationProc( double coords[3] ) const
 {
-    // Do a linear search through the bounding boxes for now.
+    // Do a linear search through the bounding boxes for now. This really
+    // needs to be logarithmic as we are checking every mesh node with this.
     std::vector<BoundingBox>::const_iterator box_iterator;
     int i = 0;
     for ( box_iterator = d_part_boxes.begin();

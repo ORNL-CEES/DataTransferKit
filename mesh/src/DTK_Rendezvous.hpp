@@ -10,6 +10,7 @@
 #define DTK_RENDEZVOUS_HPP
 
 #include <vector>
+#include <set>
 
 #include "DTK_RendezvousMesh.hpp"
 #include "DTK_KDTree.hpp"
@@ -45,7 +46,7 @@ class Rendezvous
     typedef RCBType::zoltan_id_type              zoltan_id_type;
     typedef Teuchos::Comm<int>                   CommType;
     typedef Teuchos::RCP<const CommType>         RCP_Comm;
-    typedef Tpetra::Map<zoltan_id_type>          TpetraMap;
+    typedef Tpetra::Map<handle_type>             TpetraMap;
     typedef Teuchos::RCP<Tpetra_Map>             RCP_TpetraMap;
     //@}
 
@@ -76,17 +77,17 @@ class Rendezvous
 
     // Send the mesh to the rendezvous decomposition and build the concrete
     // mesh. 
-    void sendMeshToRendezvous( const Mesh& mesh );
+    void sendMeshToRendezvous( const Mesh& mesh,
+			       const std::vector<char>& elements_in_box );
 
-    // Setup the node communication pattern.
-    void setupNodeCommunication( const Mesh& mesh,
-				 RCP_TpetraMap& export_map, 
-				 RCP_TpetraMap& import_map );
-
-    // Setup the element communication pattern.
-    void setupElementCommunication( const Mesh& mesh,
-				    RCP_TpetraMap& export_map, 
-				    RCP_TpetraMap& import_map);
+    // Setup the communication patterns.
+    template<typename Mesh>
+    void setupCommunication( const Mesh& mesh,
+			     const std::vector<char>& elements_in_box,
+			     RCP_TpetraMap& export_node_map, 
+			     RCP_TpetraMap& import_node_map,
+			     RCP_TpetraMap& export_element_map, 
+			     RCP_TpetraMap& import_element_map );
 
   private:
 

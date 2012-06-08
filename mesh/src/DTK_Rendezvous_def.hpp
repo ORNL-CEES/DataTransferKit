@@ -9,12 +9,13 @@
 #ifndef DTK_RENDEZVOUS_DEF_HPP
 #define DTK_RENDEZVOUS_DEF_HPP
 
-#include <set>
 #include <map>
+#include <multimap>
 #include <algorithm>
 #include <cassert>
 
 #include "DTK_Rendezvous.hpp"
+#include <DTK_InverseComm.hpp>
 #include <DTK_Exception.hpp>
 
 #include <Teuchos_CommHelpers.hpp>
@@ -68,7 +69,7 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
 
     // Send the mesh to the rendezvous decomposition and build the concrete
     // mesh.
-    sendMeshToRendezvous( mesh );
+    sendMeshToRendezvous( mesh, elements_in_box );
 
     // Clear the extracted mesh information.
     nodes_in_box.clear();
@@ -144,7 +145,7 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 {
     // Create a map indexed by handle containing the actual handle
     // location. This will give us logarithmic time access to connectivity. I
-    // should write a hash table to improve this access time.
+    // should write a more general hash table to improve this access time.
     int num_nodes = std::distance( MT::nodesBegin( mesh ),
 				   MT::nodesEnd( mesh ) );
     std::map<handle_type,int> node_indices;
@@ -248,7 +249,8 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
  * mesh. 
  */
 template<typename Mesh>
-void Rendezvous<Mesh>sendMeshToRendezvous( const Mesh& mesh )
+void Rendezvous<Mesh>sendMeshToRendezvous( 
+    const Mesh& mesh, const std::vector<char>& elements_in_box )
 {
     // Setup data structures for pulling in mesh data in the rendezvous
     // decomposition.
@@ -260,22 +262,20 @@ void Rendezvous<Mesh>sendMeshToRendezvous( const Mesh& mesh )
     std::set<handle_type> rendezvous_elements;
     std::vector<handle_type> rendezvous_connectivity;
 
-    // Move nodes to rendezvous decomposition. 
+    // Setup the communication patterns for moving the mesh to the rendezvous
+    // decomposition. This will also move the node and element handles to the
+    // rendezvous decomposition.
     RCP_TpetraMap export_node_map, import_node_map;
-    setupNodeCommunication( mesh, export_node_map, import_node_map );
-    Tpetra::Export node_exporter( export_node_map, import_node_map );
+    RCP_TpetraMap export_element_map, import_element_map;
+    setupCommunication( mesh, elements_in_box,
+			export_node_map, import_node_map,
+			export_element_map, import_element_map );
+    Tpetra::Export<handle_type> node_exporter( export_node_map, 
+					       import_node_map );
+    Tpetra::Export<handle_type> element_exporter( export_element_map, 
+						  import_element_map );
 
-    MT::const_handle_iterator export_nodes = MT::nodesBegin( mesh );
-    Teuchos::ArrayRCP<handle_type> export_node_view( 
-	&*export_nodes, 0, d_rcb->numExport(), false );
-    Teuchos::RCP< Tpetra::Vector<handle_type> > export_node_vector =
-	Tpetra::createVectorFromView( export_node_map, export_node_view );
-
-    Teuchos::RCP< Tpetra::Vector<handle_type> > import_node_vector =
-	Tpetra::createVector( import_node_map );
-
-    import_node_vector->doExport( 
-	*export_node_vector, node_exporter, Tpetra::Insert );
+    // Get the rendezvous nodes and elements out of the maps.
 
     // Move the node coordinates to the rendezvous decomposition. 
     Teuchos::RCP< Tpetra::vector<double> > export_x_coords;
@@ -338,12 +338,7 @@ void Rendezvous<Mesh>sendMeshToRendezvous( const Mesh& mesh )
     y_coords_view.clear();
     z_coords_view.clear();
 
-    // Move the elements to the rendezvous decomposition.
-    RCP_TpetraMap export_element_map, import_element_map;
-    setupElementCommunication( mesh, export_element_map, import_element_map );
-    
-
-    // Move the connectivity to the rendezvous decomposition.
+    // Move the element connectivity to the rendezvous decomposition.
 
     // Construct the mesh container from the collected data, effectively
     // wrapping it with mesh traits. This may not be a good idea. I may create
@@ -363,7 +358,7 @@ void Rendezvous<Mesh>sendMeshToRendezvous( const Mesh& mesh )
     rendezvous_elements.clear();
     rendezvous_connectivity.clear();
 
-    // Build the rendezous mesh from the mesh container.
+    // Build the rendezvous mesh from the mesh container.
     d_rendezvous_mesh = createRendezvousMesh( mesh_container );
 
     testPostcondition( d_rendezvous_mesh != Teuchos::null,
@@ -372,67 +367,93 @@ void Rendezvous<Mesh>sendMeshToRendezvous( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Setup the node communication pattern.
+ * \brief Setup the communication patterns.
  */
 template<typename Mesh>
-void Rendezvous<Mesh>::setupNodeCommunication( const Mesh& mesh,
-					       RCP_TpetraMap& export_map, 
-					       RCP_TpetraMap& import_map )
+void Rendezvous<Mesh>::setupCommunication( 
+    const Mesh& mesh,
+    const std::vector<char>& elements_in_box,
+    RCP_TpetraMap& export_node_map, 
+    RCP_TpetraMap& import_node_map,
+    RCP_TpetraMap& export_element_map, 
+    RCP_TpetraMap& import_element_map )
 {
-    // Start by building the Tpetra map in the original decomposition. This is
-    // simply the handles cast as zoltan id types.
-    std::vector<zoltan_id_type> export_node_map_ids;
-    std::vector<zoltan_id_type>::iterator export_node_map_iterator;
-    MT::const_handle_iterator export_node_iterator;
-    for ( export_node_iterator = MT::nodesBegin( mesh );
-	  export_node_iterator != MT::nodesEnd( mesh );
-	  ++export_node_iterator )
-    {
-	export_node_map_ids.push_back( (zoltan_id_type) *export_node_iterator );
-    }
-    Teuchos::RCP< Tpetra::Map<zoltan_id_type> > export_node_map = 
-	Tpetra::createNonContigMap<zoltan_id_type>( 
-	    Teuchos::ArrayView<zoltan_id_type>( export_node_map_ids ), 
-	    d_global_comm );
-
+    // Start by building the Tpetra map in the original decomposition for the
+    // nodes.
+    int num_nodes = std::distance( MT::nodesBegin( mesh ), 
+				   MT::nodesEnd( mesh ) );
+    Teuchos::ArrayView<handle_type> export_node_view( 
+	&*MT::nodesBegin( mesh ), num_nodes );
+    Teuchos::RCP< Tpetra::Map<handle_type> > export_node_map = 
+	Tpetra::createNonContigMap<handle_type>( export_node_view, 
+						 d_global_comm );
     testPostcondition( export_node_map != Teuchos::null,
 		       "Error creating node export map." );
 
-    // The import map in the rendezvous decomposition will need the global
-    // id's from the RCB paritioning as well as those that complete its
-    // elements but are not in the original partition. We also need to make
-    // sure that these are unique.
-    Teuchos::ArrayView<zoltan_id_type> rcb_node_ids = 
-	d_rcb->getImportGlobalIds();
-    std::set<zoltan_id_type> import_node_map_ids();
-    Teuchos::ArrayView<zoltan_id_type>::const_iterator rcb_node_id_iterator;
-    for ( rcb_node_id_iterator = rcb_node_ids.begin();
-	  rcb_node_id_iterator != rcb_node_ids.end();
-	  ++rcb_node_id_iterator )
+    // Do the same thing for the elements in the original decomposition.
+    int num_elements = std::distance( MT::elementsBegin( mesh ), 
+				   MT::elementsEnd( mesh ) );
+    Teuchos::ArrayView<handle_type> export_element_view( 
+	&*MT::elementsBegin( mesh ), num_elements );
+    Teuchos::RCP< Tpetra::Map<handle_type> > export_element_map = 
+	Tpetra::createNonContigMap<handle_type>( export_element_view, 
+						 d_global_comm );
+    testPostcondition( export_element_map != Teuchos::null,
+		       "Error creating element export map." );
+
+    // Create an index map for logarithmic time access to connectivity data.
+    std::map<handle_type,int> node_indices;
+    for ( export_node_iterator = MT::nodesBegin( mesh ),
+		  int n = 0;
+	  export_node_iterator != MT::nodesEnd( mesh );
+	  ++export_node_iterator, ++n )
     {
-	import_node_map_ids.insert( *rcb_node_iterator );
+	node_indices[ *node_iterator ] = n;
     }
 
-    Teuchos::RCP< Tpetra::Map<zoltan_id_type> > import_node_map = 
-	Tpetra::createNonContigMap<zoltan_id_type>( 
-	    Teuchos::ArrayView<zoltan_id_type>( &*import_node_ids.begin(),
-						import_node_ids.size() ),
-	    d_global_comm );
+    // Create a multimap of the destination procs for all local elements and
+    // connecting nodes in the global bounding box.
+    std::multimap<int,handle_type> node_proc_map;
+    std::multimap<int,handle_type> element_proc_map;
+    int nodes_per_element = MT::nodesPerElement( mesh );
+    int node_index;
+    int destination_proc;
+    double node_coords[3];
+    MT::const_handle_iterator mesh_nodes = MT::nodesBegin( mesh );
+    MT::const_coordinate_iterator mesh_coords = MT::coordsBegin( mesh );
+    MT::const_handle_iterator element_iterator;
+    MT::const_handle_iterator connectivity_iterator;
+    for ( element_iterator = MT::beginElements( mesh ),
+     connectivity_iterator = MT::beginConnectivity( mesh ),
+		     int i = 0;
+	  element_iterator != MT::endElements( mesh );
+	  ++element_iterator, ++i )
+    {
+	for ( int n = 0; n < nodes_per_element; ++n, ++connectivity_iterator )
+	{
+	    if ( elements_in_box[i] )
+	    {
+		node_index = 
+		    node_indices.find( *connectivity_iterator )->second;
+		node_coords[0] = mesh_coords[ 3*node_index ];
+		node_coords[1] = mesh_coords[ 3*node_index + 1 ];
+		node_coords[2] = mesh_coords[ 3*node_index + 2 ];
+		destination_proc = d_rcb->getDestinationProc( node_coords );
+		node_proc_map.insert( 
+		    std::pair<int,handle_type>(
+			destination_proc, mesh_nodes[ node_index ] ) );
+		element_proc_map.insert( 
+		    std::pair<int,handle_type>( 
+			destination_proc, *element_iterator ) );
+	    }
+	}
+    }
 
-    testPostcondition( import_node_map != Teuchos::null,
-		       "Error creating node import map." );
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Setup the element communication pattern.
- */
-template<typename Mesh>
-void Rendezvous<Mesh>::setupElementCommunication( const Mesh& mesh,
-						  RCP_TpetraMap& export_map, 
-						  RCP_TpetraMap& import_map )
-{
-
+    // Now we know where the nodes and elements need to go. Build the maps
+    // through an inverse communication operation.
+    InverseComm inverse_comm( d_global_comm );
+    import_node_map = inverse_comm.createImportMap( node_proc_map );
+    import_element_map = inverse_comm.createImportMap( element_proc_map );
 }
 
 //---------------------------------------------------------------------------//
