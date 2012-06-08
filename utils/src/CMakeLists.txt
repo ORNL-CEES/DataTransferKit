@@ -21,8 +21,6 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   DTK_Exception.hpp
-  DTK_InverseComm.hpp
-  DTK_InverseComm_def.hpp
   )
 
 # Set sources

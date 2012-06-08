@@ -21,7 +21,7 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 
-#include <Tpetra_Map.hpp>
+#include <Tpetra_Distributor.hpp>
 
 namespace DataTransferKit
 {
@@ -84,10 +84,10 @@ class Rendezvous
     template<typename Mesh>
     void setupCommunication( const Mesh& mesh,
 			     const std::vector<char>& elements_in_box,
-			     RCP_TpetraMap& export_node_map, 
-			     RCP_TpetraMap& import_node_map,
-			     RCP_TpetraMap& export_element_map, 
-			     RCP_TpetraMap& import_element_map );
+			     std::set<handle_type>& rendezvous_nodes,
+			     std::set<handle_type>& rendezvous_elements,
+			     Tpetra::Distributor& node_distributor,
+			     Tpetra::Distributor& element_distributor );
 
   private:
 
