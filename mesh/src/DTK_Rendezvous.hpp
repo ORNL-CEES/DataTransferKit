@@ -85,9 +85,7 @@ class Rendezvous
     void setupCommunication( const Mesh& mesh,
 			     const std::vector<char>& elements_in_box,
 			     std::set<handle_type>& rendezvous_nodes,
-			     std::set<handle_type>& rendezvous_elements,
-			     Tpetra::Distributor& node_distributor,
-			     Tpetra::Distributor& element_distributor );
+			     std::set<handle_type>& rendezvous_elements );
 
   private:
 

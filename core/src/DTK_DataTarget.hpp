@@ -80,15 +80,6 @@ class DataTarget : public Teuchos::Describable
     virtual bool isFieldSupported( const std::string &field_name ) = 0;
 
     /*!
-     * \brief Check whether the target node coordinate field is interleaved (
-     * x0, y0, z0, ..., xN, yN, zN ) or blocked ( x0, x1, ... , xN, y0, y1,
-     * ..., yN, z0, z1, ... zN ). 
-     * \param Return true if the coordinate field to be returned by
-     * getTargetCoordinates() is interleaved, false if blocked.
-     */
-    virtual bool interleavedCoordinates() = 0;
-
-    /*!
      * \brief Provide the target mesh node coordinates to which data will be
      * transferred.
      * The order of these coordinates will correspond to the order of the data
@@ -96,7 +87,9 @@ class DataTarget : public Teuchos::Describable
      * \param target_nodes View of the local target nodes. This view required
      * to persist. The CoordinateField type is expected to implement
      * FieldTraits. CoordinateField::value_type is required to be of type
-     * double. The coordinates are required to be three dimensional.
+     * double. The coordinates are required to be three dimensional. The
+     * coordinates are expected to be interleaved. 
+     * ( x0, y0, z0,x1, y1, z1, ... , xN, yN, zN )
      */
     virtual const CoordinateField& getTargetCoordinates() = 0;
 

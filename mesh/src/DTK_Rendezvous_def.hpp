@@ -319,37 +319,26 @@ void Rendezvous<Mesh>sendMeshToRendezvous(
     Teuchos::ArrayRCP<double> y_coords_view;
     Teuchos::ArrayRCP<double> z_coords_view;
 
-    MT::const_coordinate_iterator export_coords = MT::coordsBegin( mesh );
-    if ( MT::interleavedCoordinates( mesh ) )
+    x_coords_view = Teuchos::ArrayRCP<double>( num_nodes );
+    y_coords_view = Teuchos::ArrayRCP<double>( num_nodes );
+    z_coords_view = Teuchos::ArrayRCP<double>( num_nodes );
+    Teuchos::ArrayRCP<double>::iterator x_iterator;
+    Teuchos::ArrayRCP<double>::iterator y_iterator;
+    Teuchos::ArrayRCP<double>::iterator z_iterator;
+    MT::const_coordinate_iterator export_coords;
+    for ( x_iterator = x_coords_view.begin(),
+	  y_iterator = y_coords_view.begin(),
+	  z_iterator = z_coords_view.begin(),
+       export_coords = MT::coordsBegin( mesh );
+	  x_iterator != x_coords_view.end();
+	  ++x_iterator, ++y_iterator, ++z_iterator )
     {
-	x_coords_view = Teuchos::ArrayRCP<double>( num_nodes );
-	y_coords_view = Teuchos::ArrayRCP<double>( num_nodes );
-	z_coords_view = Teuchos::ArrayRCP<double>( num_nodes );
-	Teuchos::ArrayRCP<double>::iterator x_iterator;
-	Teuchos::ArrayRCP<double>::iterator y_iterator;
-	Teuchos::ArrayRCP<double>::iterator z_iterator;
-	for ( x_iterator = x_coords_view.begin(),
-	      y_iterator = y_coords_view.begin(),
-	      z_iterator = z_coords_view.begin();
-	      x_iterator != x_coords_view.end();
-	      ++x_iterator, ++y_iterator, ++z_iterator )
-	{
-	    *x_iterator = *export_coords;
-	    ++export_coords;
-	    *y_iterator = *export_coords;
-	    ++export_coords;
-	    *z_iterator = *export_coords;
-	    ++export_coords;
-	}
-    }
-    else
-    {
-	x_coords_view = Teuchos::ArrayRCP<double>( 
-	    &*export_coords, 0, num_nodes, false );
-	y_coords_view = Teuchos::ArrayRCP<double>( 
-	    &(*export_coords + num_nodes), 0, num_nodes, false );
-	z_coords_view = Teuchos::ArrayRCP<double>( 
-	    &(*export_coords + 2*num_nodes), 0, num_nodes, false );
+	*x_iterator = *export_coords;
+	++export_coords;
+	*y_iterator = *export_coords;
+	++export_coords;
+	*z_iterator = *export_coords;
+	++export_coords;
     }
 
     Teuchos::RCP< Tpetra::vector<double> > import_x_coords = 

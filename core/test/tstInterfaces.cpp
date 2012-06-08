@@ -125,9 +125,6 @@ class MeshTraits<MyMesh>
     static inline const_handle_iterator nodesEnd( const MyMesh& mesh )
     { return mesh.nodesEnd(); }
 
-    static inline bool interleavedCoordinates( const MyMesh& mesh )
-    { return true; }
-
     static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
     { return mesh.coordsBegin(); }
 
@@ -349,11 +346,6 @@ class MyDataTarget : public DataTransferKit::DataTarget< std::vector<double>,
 	return return_val;
     }
 
-    bool interleavedCoordinates()
-    {
-	return true;
-    }
-
     const std::vector<double>& getTargetCoordinates()
     {
 	return d_coords;
@@ -437,7 +429,6 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
     typename MeshTraits<MyMesh>::const_coordinate_iterator coord_iterator;
     
     // Check the nodes.
-    TEST_ASSERT( MeshTraits<MyMesh>::interleavedCoordinates( source_mesh ) );
     TEST_ASSERT( std::distance( MeshTraits<MyMesh>::nodesBegin( source_mesh ),
 				MeshTraits<MyMesh>::nodesEnd( source_mesh ) )
 		 == 4 );
@@ -535,7 +526,6 @@ TEUCHOS_UNIT_TEST( DataTarget, data_target_test )
     TEST_ASSERT( data_target->isFieldSupported( "MY_DATA_FIELD" ) );
 
     // Check the target coordinates.
-    TEST_ASSERT( data_target->interleavedCoordinates() );
     std::vector<double> target_coords = data_target->getTargetCoordinates();
     typename FieldTraits< std::vector<double> >::const_iterator coord_iterator;
     for ( coord_iterator = 

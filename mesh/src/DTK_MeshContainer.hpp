@@ -139,9 +139,6 @@ struct MeshTraits< MeshContainer<Handle> >
     nodesEnd( const Container& container )
     { return container.nodesEnd(); }
 
-    static inline bool interleavedCoordinates( const Container& container )
-    { return true; }
-
     static inline std::vector<double>::const_iterator 
     coordsBegin( const Container& container )
     { return container.coordsBegin(); }

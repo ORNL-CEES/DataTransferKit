@@ -125,9 +125,6 @@ class MeshTraits<MyMesh>
     static inline const_handle_iterator nodesEnd( const MyMesh& mesh )
     { return mesh.nodesEnd(); }
 
-    static inline bool interleavedCoordinates( const MyMesh& mesh )
-    { return true; }
-
     static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
     { return mesh.coordsBegin(); }
 

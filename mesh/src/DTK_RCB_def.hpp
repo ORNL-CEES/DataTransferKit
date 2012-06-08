@@ -268,28 +268,12 @@ void RCB<Mesh>::getGeometryList(
     
     // Zoltan needs interleaved coordinates.
     typename MT::const_coordinate_iterator coord_iterator;
-    if ( MT::interleavedCoordinates( mesh_data->d_mesh ) )
+    int i = 0;
+    for ( coord_iterator = MT::coordsBegin( mesh_data->d_mesh );
+	  coord_iterator != MT::coordsEnd( mesh_data->d_mesh );
+	  ++coord_iterator, ++i )
     {
-	int i = 0;
-	for ( coord_iterator = MT::coordsBegin( mesh_data->d_mesh );
-	      coord_iterator != MT::coordsEnd( mesh_data->d_mesh );
-	      ++coord_iterator, ++i )
-	{
-	    geom_vec[i] = *coord_iterator;
-	}
-    }
-    else
-    {
-	int i = 0;	
-	int node, dim;
-	for ( coord_iterator = MT::coordsBegin( mesh_data->d_mesh );
-	      coord_iterator != MT::coordsEnd( mesh_data->d_mesh );
-	      ++coord_iterator, ++i )
-	{
-	    dim = std::floor( i / num_nodes );
-	    node = i - dim*num_nodes;
-	    geom_vec[ 3*node + dim ] = *coord_iterator;
-	}
+	geom_vec[i] = *coord_iterator;
     }
 }
 

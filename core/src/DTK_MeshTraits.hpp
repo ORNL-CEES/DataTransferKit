@@ -74,17 +74,10 @@ class MeshTraits
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
 
     /*!
-     * \brief Return true if the coordinate block in this mesh is interleaved
-     * ( x0, y0, z0, ..., xN, yN, zN ) and false if blocked 
-     * ( x0, x1, ... , xN, y0, y1, ..., yN, z0, z1, ... zN ).
-     */    
-    static inline bool interleavedCoordinates( const T& mesh )
-    { UndefinedMeshTraits<T>::notDefined(); return 0; }
-
-    /*!
      * \brief Return the const iterator to the beginning of the node
      * coordinate block in this mesh. These coordinates are required to be
-     * three dimensional.
+     * three dimensional and interleaved.
+     * ( x0, y0, z0, x1, y1, z1, ... , xN, yN, zN )
      */
     static inline const_coordinate_iterator coordsBegin( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
@@ -92,7 +85,8 @@ class MeshTraits
     /*!
      * \brief Return the const iterator to the end of the node coordinate
      * block in this mesh. These coordinates are requried to be three
-     * dimensional. 
+     * dimensional and interleaved.
+     * ( x0, y0, z0, x1, y1, z1, ... , xN, yN, zN )
      */
     static inline const_coordinate_iterator coordsEnd( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }

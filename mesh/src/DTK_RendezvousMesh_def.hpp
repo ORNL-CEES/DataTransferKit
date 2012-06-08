@@ -77,33 +77,11 @@ createRendezvousMesh( const Mesh& mesh )
 
     // Add the source mesh nodes to moab. The coordinates must be interleaved.
     moab::Range vertices;
-    if ( MT::interleavedCoordinates( mesh ) )
-    {
-	error = moab->create_vertices(
-	    &( *MT::coordsBegin( mesh ) ),
-	    num_nodes, vertices );
-	testInvariant( moab::MB_SUCCESS == error, 
-		       "Failed to create vertices in MOAB." );
-    }
-    else
-    {
-	std::vector<double> interleaved_coords( num_coords );
-	typename MT::const_coordinate_iterator coord_iterator;
-	int i = 0;	
-	int node, dim;
-	for ( coord_iterator = MT::coordsBegin( mesh );
-	      coord_iterator != MT::coordsEnd( mesh );
-	      ++coord_iterator, ++i )
-	{
-	    dim = std::floor( i / num_nodes );
-	    node = i - dim*num_nodes;
-	    interleaved_coords[ 3*node + dim ] = *coord_iterator;
-	}
-	error = moab->create_vertices( 
-	    &interleaved_coords[0], num_nodes, vertices );
-	testInvariant( moab::MB_SUCCESS == error, 
-		       "Failed to create vertices in MOAB." );
-    }
+    error = moab->create_vertices(
+	&( *MT::coordsBegin( mesh ) ),
+	num_nodes, vertices );
+    testInvariant( moab::MB_SUCCESS == error, 
+		   "Failed to create vertices in MOAB." );
     testPostcondition( !vertices.empty(),
 		       "Vertex range is empty." );
     assert( (int) vertices.size() == num_nodes );
