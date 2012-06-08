@@ -61,9 +61,10 @@ InverseComm<Ordinal>::createImportMap( const std::multimap<int,Ordinal>& data )
     // with knowledge of how many messages and of what sizes it will be
     // receiving and the source rank it will be receiving them from.
     Tpetra::Distributor distributor( d_comm );
-    distributor.createFromSends( Teuchos::arrayViewFromVector( data_dest ) );
+    int num_imports = 
+	distributor.createFromSends( Teuchos::arrayViewFromVector( data_dest ) );
 
-    // Build the map from the distributor. First we'll post receives.
+    // Build the data packets.
     Teuchos::ArrayView<const int> source_procs = distributor->getImagesFrom();
     Teuchos::ArrayView<const int> num_data = distributor->getLengthsFrom();
     Teuchos::ArrayView<const int>::const_iterator source_procs_iterator;
@@ -79,39 +80,10 @@ InverseComm<Ordinal>::createImportMap( const std::multimap<int,Ordinal>& data )
 	// Allocate a packet.
 	receive_packets.push_back( 
 	    Teuchos::ArrayRCP<Ordinal>( *num_data_iterator ) );
-
-	// Post the receive.
-	requests[i] = Teuchos::ireceive( 
-	    *d_comm, receive_packets[i], *source_procs_iterator );
     }
 
-    // Then we'll do ready sends.
-    Teuchos::ArrayRCP<Ordinal> send_packet;
-    Teuchos::ArrayRCP<Ordinal>::iterator send_packet_iterator;
-    std::multimap<int,Ordinal>::const_iterator 
-	packet_begin, packet_end, send_data_iterator;
-    for ( data_iterator = data.begin(); data_iterator != data.end(); 
-	  ++data_iterator )
-    {
-	// Build a view of the packet we will send.
-	packet_begin = data.equal_range( data_iterator->first )->first;
-	packet_end = data.equal_range( data_iterator->first )->second;
-	send_packet.resize( std::distance( packet_begin, packet_end ) );
-	for ( send_data_iterator = packet_begin,
-	    send_packet_iterator = send_packet.begin();
-	      send_data_iterator != packet_end;
-	      ++send_data_iterator, ++send_packet_iterator )
-	{
-	    *send_packet_iterator = send_data_iterator->second;
-	}
-
-	// Do the ready send.
-	Teuchos::readySend( *d_comm, send_packet(), data_iterator->first );
-    }
-
-    // Wait until all the receives that have been posted are satisfied.
-    Teuchos::waitAll( *d_global_comm, 
-		      Teuchos::arrayViewFromVector( requests ) );
+    // Move them with the distributor.
+    distributor.doPostsAndWaits();
 
     // Now we can make the map by unrolling the packets into an id vector.
     std::vector<Ordinal> map_ids;

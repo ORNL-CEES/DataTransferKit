@@ -10,7 +10,6 @@
 #define DTK_RENDEZVOUS_DEF_HPP
 
 #include <map>
-#include <multimap>
 #include <algorithm>
 #include <cassert>
 
