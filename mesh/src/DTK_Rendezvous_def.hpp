@@ -56,7 +56,8 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
     std::vector<char> elements_in_box;
     getMeshInBox( mesh, d_global_box, nodes_in_box, elements_in_box );
         
-    // Construct the rendezvous decomposition of the mesh with RCB.
+    // Construct the rendezvous decomposition of the mesh with RCB using the
+    // nodes that are in the box.
     d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh, nodes_in_box, d_comm ) );
     testPostcondition( d_rcb != Teuchos::null,
 		       "Error creating RCB decomposition." );
@@ -309,56 +310,16 @@ void Rendezvous<Mesh>sendMeshToRendezvous(
     Tpetra::Export<handle_type> element_exporter( export_element_map, 
 						  import_element_map );
 
-    // Move the node coordinates to the rendezvous decomposition. We'll do
-    // this by blocks of x, y, and z coordinates.
-    Teuchos::RCP< Tpetra::vector<double> > export_x_coords;
-    Teuchos::RCP< Tpetra::vector<double> > export_y_coords;
-    Teuchos::RCP< Tpetra::vector<double> > export_z_coords;
+    // Move the node coordinates to the rendezvous decomposition.
+    Teuchos::ArrayRCP<double> export_coords_view( 
+	&*MT::coordsBegin( mesh ), num_nodes, false );
+    Teuchos::RCP< Tpetra::MultiVector<double> > export_coords = 
+	createMultiVectorFromView( export_node_map, export_coords_view, 
+				   num_nodes, 3 );
 
-    Teuchos::ArrayRCP<double> x_coords_view;
-    Teuchos::ArrayRCP<double> y_coords_view;
-    Teuchos::ArrayRCP<double> z_coords_view;
-
-    x_coords_view = Teuchos::ArrayRCP<double>( num_nodes );
-    y_coords_view = Teuchos::ArrayRCP<double>( num_nodes );
-    z_coords_view = Teuchos::ArrayRCP<double>( num_nodes );
-    Teuchos::ArrayRCP<double>::iterator x_iterator;
-    Teuchos::ArrayRCP<double>::iterator y_iterator;
-    Teuchos::ArrayRCP<double>::iterator z_iterator;
-    MT::const_coordinate_iterator export_coords;
-    for ( x_iterator = x_coords_view.begin(),
-	  y_iterator = y_coords_view.begin(),
-	  z_iterator = z_coords_view.begin(),
-       export_coords = MT::coordsBegin( mesh );
-	  x_iterator != x_coords_view.end();
-	  ++x_iterator, ++y_iterator, ++z_iterator )
-    {
-	*x_iterator = *export_coords;
-	++export_coords;
-	*y_iterator = *export_coords;
-	++export_coords;
-	*z_iterator = *export_coords;
-	++export_coords;
-    }
-
-    Teuchos::RCP< Tpetra::vector<double> > import_x_coords = 
-	createVector( import_node_map );
-    Teuchos::RCP< Tpetra::vector<double> > import_y_coords =
-	createVector( import_node_map );
-    Teuchos::RCP< Tpetra::vector<double> > import_z_coords =
-	createVector( import_node_map );
-
-    import_x_coords->doExport( 
-	*export_x_coords, node_exporter, Tpetra::Insert );
-    import_y_coords->doExport( 
-	*export_y_coords, node_exporter, Tpetra::Insert );
-    import_z_coords->doExport( 
-	*export_z_coords, node_exporter, Tpetra::Insert );
-
-    // Free up some memory now that we've moved the node data over.
-    x_coords_view.clear();
-    y_coords_view.clear();
-    z_coords_view.clear();
+    Tpetra::MultiVector import_coords( import_node_map, 3 );
+    import_coords.doExport( 
+	*export_coords, node_exporter, Tpetra::Insert );
 
     // Move the element connectivity to the rendezvous decomposition. We'll do
     // this by blocks of connectivity entries.
