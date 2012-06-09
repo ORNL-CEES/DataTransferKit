@@ -70,10 +70,10 @@ createRendezvousMesh( const Mesh& mesh )
 		       "Error creating MOAB interface" );
 
     // Check the nodes and coordinates for consistency.
-    int num_nodes = std::distance( MT::nodesBegin( mesh ), 
-				   MT::nodesEnd( mesh ) );
-    int num_coords = std::distance( MT::coordsBegin( mesh ),
-				    MT::coordsEnd( mesh ) );
+    handle_type num_nodes = std::distance( MT::nodesBegin( mesh ), 
+					   MT::nodesEnd( mesh ) );
+    handle_type num_coords = std::distance( MT::coordsBegin( mesh ),
+					    MT::coordsEnd( mesh ) );
     testInvariant( num_coords == 3 * num_nodes,
 		   "Number of coordinates provided != 3 * number of nodes" );
 
@@ -84,7 +84,7 @@ createRendezvousMesh( const Mesh& mesh )
     testInvariant( moab::MB_SUCCESS == error, 
 		   "Failed to create vertices in MOAB." );
     testPostcondition( !vertices.empty(), "Vertex range is empty." );
-    assert( (int) vertices.size() == num_nodes );
+    assert( (handle_type) vertices.size() == num_nodes );
 
     // Map the native vertex handles to the moab vertex handles. This should
     // be in a hash table. We'll need one that hashes moab handles.
@@ -101,10 +101,10 @@ createRendezvousMesh( const Mesh& mesh )
     // Check the elements and connectivity for consistency.
     int nodes_per_element = 
 	MT::nodesPerElement( mesh );
-    int num_elements = std::distance( MT::elementsBegin( mesh ),
-				      MT::elementsEnd( mesh ) );
-    int num_connect = std::distance( MT::connectivityBegin( mesh ),
-				     MT::connectivityEnd( mesh ) );
+    handle_type num_elements = std::distance( MT::elementsBegin( mesh ),
+					      MT::elementsEnd( mesh ) );
+    handle_type num_connect = std::distance( MT::connectivityBegin( mesh ),
+					     MT::connectivityEnd( mesh ) );
     testPrecondition( num_elements == num_connect / nodes_per_element &&
 		      num_connect % nodes_per_element == 0,
 		      "Connectivity array inconsistent with element description." );

@@ -21,7 +21,7 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 
-#include <Tpetra_Distributor.hpp>
+#include <Tpetra_Map.hpp>
 
 namespace DataTransferKit
 {
@@ -36,18 +36,18 @@ class Rendezvous
     //! Typedefs.
     typedef Mesh                                 mesh_type;
     typedef MeshTraits<Mesh>                     MT;
-    typedef MT::handle_type                      handle_type;
+    typedef typename MT::handle_type             handle_type;
     typedef RendezvousMesh<handle_type>          RendezvousMeshType;
     typedef Teuchos::RCP<RendezvousMeshType>     RCP_RendezvousMesh;
     typedef KDTree<handle_type>                  KDTreeType;
     typedef Teuchos::RCP<KDTreeType>             RCP_KDTree;
     typedef RCB<Mesh>                            RCBType;
     typedef Teuchos::RCP<RCBType>                RCP_RCB;
-    typedef RCBType::zoltan_id_type              zoltan_id_type;
     typedef Teuchos::Comm<int>                   CommType;
     typedef Teuchos::RCP<const CommType>         RCP_Comm;
     typedef Tpetra::Map<handle_type>             TpetraMap;
-    typedef Teuchos::RCP<Tpetra_Map>             RCP_TpetraMap;
+    typedef Teuchos::RCP<TpetraMap>              RCP_TpetraMap;
+    typedef handle_type                          ordinal_type;
     //@}
 
     // Constructor.
@@ -81,7 +81,6 @@ class Rendezvous
 			       const std::vector<char>& elements_in_box );
 
     // Setup the communication patterns.
-    template<class Mesh>
     void setupCommunication( const Mesh& mesh,
 			     const std::vector<char>& elements_in_box,
 			     std::set<handle_type>& rendezvous_nodes,
