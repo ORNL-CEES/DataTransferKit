@@ -2,7 +2,8 @@
 /*!
  * \file DTK_MeshContainer.hpp
  * \author Stuart R. Slattery
- * \brief A simple mesh container for rebuilding mesh data after serialization.
+ * \brief A simple mesh container for rebuilding mesh data after
+ * serialization.
  */
 //---------------------------------------------------------------------------//
 
@@ -10,10 +11,11 @@
 #define DTK_MESHCONTAINER_HPP
 
 #include <iterator>
-#include <vector>
 #include <set>
 
 #include <DTK_MeshTraits.hpp>
+
+#include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
 {
@@ -35,12 +37,12 @@ class MeshContainer
 
     //! Constructor.
     MeshContainer( const std::set<handle_type>& nodes,
-		   const std::vector<double>& coords,
+		   const Teuchos::ArrayRCP<double>& coords,
 		   const int element_type,
 		   const int element_topology,
 		   const int nodes_per_element,
 		   const std::set<handle_type>& elements,
-		   const std::vector<handle_type>& connectivity )
+		   const Teuchos::ArrayRCP<handle_type>& connectivity )
 	: d_nodes( nodes )
 	, d_coords( coords )
 	, d_element_type( element_type )
@@ -63,11 +65,11 @@ class MeshContainer
     { return d_nodes.end(); }
 
     //! Get the beginning of the coordinates vector.
-    std::vector<double>::const_iterator coordsBegin()
+    Teuchos::ArrayRCP<double>::const_iterator coordsBegin()
     { return d_coords.begin(); }
 
     //! Get the end of the coordinates vector.
-    std::vector<double>::const_iterator coordsEnd()
+    Teuchos::ArrayRCP<double>::const_iterator coordsEnd()
     { return d_coords.end(); }
 
     //! Get the element type.
@@ -91,11 +93,11 @@ class MeshContainer
     { return d_elements.end(); }
 
     //! Get the beginning of the connectivity vector.
-    typename std::vector<handle_type>::const_iterator connectivityBegin()
+    typename Teuchos::ArrayRCP<handle_type>::const_iterator connectivityBegin()
     { return d_connectivity.begin(); }
 
     //! Get the endning of the connectivity vector.
-    typename std::vector<handle_type>::const_iterator connectivityEnd()
+    typename Teuchos::ArrayRCP<handle_type>::const_iterator connectivityEnd()
     { return d_connectivity.end(); }
     
   private:
@@ -104,7 +106,7 @@ class MeshContainer
     std::set<handle_type> d_nodes;
 
     // Coordinates.
-    std::vector<double> d_coords;
+    Teuchos::ArrayRCP<double> d_coords;
 
     // Element type.
     std::size_t d_element_type;
@@ -119,7 +121,7 @@ class MeshContainer
     std::set<handle_type> d_elements;
 
     // Connectivity.
-    std::vector<handle_type> d_connectivity;
+    Teuchos::ArrayRCP<handle_type> d_connectivity;
 };
 
 //---------------------------------------------------------------------------//
@@ -139,11 +141,11 @@ struct MeshTraits< MeshContainer<Handle> >
     nodesEnd( const Container& container )
     { return container.nodesEnd(); }
 
-    static inline std::vector<double>::const_iterator 
+    static inline Teuchos::ArrayRCP<double>::const_iterator 
     coordsBegin( const Container& container )
     { return container.coordsBegin(); }
 
-    static inline std::vector<double>::const_iterator 
+    static inline Teuchos::ArrayRCP<double>::const_iterator 
     coordsEnd( const Container& container )
     { return container.coordsEnd(); }
 
@@ -165,11 +167,11 @@ struct MeshTraits< MeshContainer<Handle> >
     elementsEnd( const Container& container )
     { return container.elementsEnd(); }
 
-    static inline typename std::vector<Handle>::const_iterator 
+    static inline typename Teuchos::ArrayRCP<Handle>::const_iterator 
     connectivityBegin( const Container& container )
     { return container.connectivityBegin(); }
 
-    static inline typename std::vector<Handle>::const_iterator 
+    static inline typename Teuchos::ArrayRCP<Handle>::const_iterator 
     connectivityEnd( const Container& container )
     { return container.connectivityEnd(); }
 };
