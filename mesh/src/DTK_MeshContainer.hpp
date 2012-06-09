@@ -57,47 +57,49 @@ class MeshContainer
     { /* ... */ }
 
     //! Get the beginning of the nodes set.
-    typename std::set<handle_type>::const_iterator nodesBegin()
+    typename std::set<handle_type>::const_iterator nodesBegin() const
     { return d_nodes.begin(); }
 
     //! Get the end of the nodes set.
-    typename std::set<handle_type>::const_iterator nodesEnd()
+    typename std::set<handle_type>::const_iterator nodesEnd() const
     { return d_nodes.end(); }
 
     //! Get the beginning of the coordinates vector.
-    Teuchos::ArrayRCP<double>::const_iterator coordsBegin()
+    Teuchos::ArrayRCP<double>::const_iterator coordsBegin() const
     { return d_coords.begin(); }
 
     //! Get the end of the coordinates vector.
-    Teuchos::ArrayRCP<double>::const_iterator coordsEnd()
+    Teuchos::ArrayRCP<double>::const_iterator coordsEnd() const
     { return d_coords.end(); }
 
     //! Get the element type.
-    std::size_t getElementType()
+    std::size_t getElementType() const
     { return d_element_type; }
 
     //! Get the element topology.
-    std::size_t getElementTopology()
+    std::size_t getElementTopology() const
     { return d_element_topology; }
 
     //! Get the number of nodes constructing a single element.
-    std::size_t getNodesPerElement()
+    std::size_t getNodesPerElement() const
     { return d_nodes_per_element; }
 
     //! Get the beginning of the elements set.
-    typename std::set<handle_type>::const_iterator elementsBegin()
+    typename std::set<handle_type>::const_iterator elementsBegin() const
     { return d_elements.begin(); }
 
     //! Get the end of the elements set.
-    typename std::set<handle_type>::const_iterator elementsEnd()
+    typename std::set<handle_type>::const_iterator elementsEnd() const
     { return d_elements.end(); }
 
     //! Get the beginning of the connectivity vector.
-    typename Teuchos::ArrayRCP<handle_type>::const_iterator connectivityBegin()
+    typename Teuchos::ArrayRCP<handle_type>::const_iterator 
+    connectivityBegin() const
     { return d_connectivity.begin(); }
 
-    //! Get the endning of the connectivity vector.
-    typename Teuchos::ArrayRCP<handle_type>::const_iterator connectivityEnd()
+    //! Get the ending of the connectivity vector.
+    typename Teuchos::ArrayRCP<handle_type>::const_iterator 
+    connectivityEnd() const
     { return d_connectivity.end(); }
     
   private:
@@ -132,20 +134,26 @@ template<typename Handle>
 struct MeshTraits< MeshContainer<Handle> >
 {
     typedef MeshContainer<Handle> Container;
+    typedef typename Container::handle_type handle_type;
 
-    static inline typename std::set<Handle>::const_iterator 
-    nodesBegin( const Container& container )
+    typedef typename std::set<Handle>::const_iterator const_node_iterator;
+    typedef Teuchos::ArrayRCP<double>::const_iterator const_coordinate_iterator;
+    typedef typename std::set<Handle>::const_iterator const_element_iterator;
+    typedef typename Teuchos::ArrayRCP<Handle>::const_iterator 
+    const_connectivity_iterator;
+
+    static inline const_node_iterator nodesBegin( const Container& container )
     { return container.nodesBegin(); }
 
-    static inline typename std::set<Handle>::const_iterator 
+    static inline const_node_iterator 
     nodesEnd( const Container& container )
     { return container.nodesEnd(); }
 
-    static inline Teuchos::ArrayRCP<double>::const_iterator 
+    static inline const_coordinate_iterator
     coordsBegin( const Container& container )
     { return container.coordsBegin(); }
 
-    static inline Teuchos::ArrayRCP<double>::const_iterator 
+    static inline const_coordinate_iterator
     coordsEnd( const Container& container )
     { return container.coordsEnd(); }
 
@@ -159,19 +167,19 @@ struct MeshTraits< MeshContainer<Handle> >
     static inline std::size_t nodesPerElement( const Container& container )
     { return container.getNodesPerElement(); }
 
-    static inline typename std::set<Handle>::const_iterator 
+    static inline const_element_iterator
     elementsBegin( const Container& container )
     { return container.elementsBegin(); }
 
-    static inline typename std::set<Handle>::const_iterator 
+    static inline const_element_iterator
     elementsEnd( const Container& container )
     { return container.elementsEnd(); }
 
-    static inline typename Teuchos::ArrayRCP<Handle>::const_iterator 
+    static inline const_connectivity_iterator
     connectivityBegin( const Container& container )
     { return container.connectivityBegin(); }
 
-    static inline typename Teuchos::ArrayRCP<Handle>::const_iterator 
+    static inline const_connectivity_iterator
     connectivityEnd( const Container& container )
     { return container.connectivityEnd(); }
 };

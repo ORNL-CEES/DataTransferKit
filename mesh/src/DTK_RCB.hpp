@@ -23,7 +23,7 @@
 namespace DataTransferKit
 {
 
-template<typename Mesh>
+template<class Mesh>
 class RCB
 {
 

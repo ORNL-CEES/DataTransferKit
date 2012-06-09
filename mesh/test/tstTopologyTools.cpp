@@ -114,14 +114,16 @@ class MeshTraits<MyMesh>
   public:
 
     typedef MyMesh::handle_type handle_type;
-    typedef std::vector<int>::const_iterator const_handle_iterator;
+    typedef std::vector<int>::const_iterator const_node_iterator;
     typedef std::vector<double>::const_iterator const_coordinate_iterator;
+    typedef std::vector<int>::const_iterator const_element_iterator;
+    typedef std::vector<int>::const_iterator const_connectivity_iterator;
     
 
-    static inline const_handle_iterator nodesBegin( const MyMesh& mesh )
+    static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
 
-    static inline const_handle_iterator nodesEnd( const MyMesh& mesh )
+    static inline const_node_iterator nodesEnd( const MyMesh& mesh )
     { return mesh.nodesEnd(); }
 
     static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
@@ -140,16 +142,18 @@ class MeshTraits<MyMesh>
     static inline std::size_t nodesPerElement( const MyMesh& mesh )
     { return 8; }
 
-    static inline const_handle_iterator elementsBegin( const MyMesh& mesh )
+    static inline const_element_iterator elementsBegin( const MyMesh& mesh )
     { return mesh.hexesBegin(); }
 
-    static inline const_handle_iterator elementsEnd( const MyMesh& mesh )
+    static inline const_element_iterator elementsEnd( const MyMesh& mesh )
     { return mesh.hexesEnd(); }
 
-    static inline const_handle_iterator connectivityBegin( const MyMesh& mesh )
+    static inline const_connectivity_iterator 
+    connectivityBegin( const MyMesh& mesh )
     { return mesh.connectivityBegin(); }
 
-    static inline const_handle_iterator connectivityEnd( const MyMesh& mesh )
+    static inline const_connectivity_iterator 
+    connectivityEnd( const MyMesh& mesh )
     { return mesh.connectivityEnd(); }
 };
 

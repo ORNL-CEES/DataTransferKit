@@ -50,16 +50,18 @@ RendezvousMesh<Handle>::~RendezvousMesh()
 /*!
  * \brief Create a RendezvousMesh from an object that implements mesh traits.
  */
-template<typename Mesh>
+template<class Mesh>
 Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::handle_type> > 
 createRendezvousMesh( const Mesh& mesh )
 {
-    // Setup types and iterators
+    // Setup types and iterators as we're outside of the class definition.
     typedef MeshTraits<Mesh> MT;
     typedef typename MT::handle_type handle_type;
-    typename MT::const_handle_iterator handle_iterator;
-    typename MT::const_handle_iterator conn_iterator;
+    typename MT::const_node_iterator node_iterator;
     typename MT::const_coordinate_iterator coord_iterator;
+    typename MT::const_element_iterator element_iterator;
+    typename MT::const_connectivity_iterator conn_iterator;
+
 
     // Create a moab interface.
     moab::ErrorCode error;
@@ -75,26 +77,25 @@ createRendezvousMesh( const Mesh& mesh )
     testInvariant( num_coords == 3 * num_nodes,
 		   "Number of coordinates provided != 3 * number of nodes" );
 
-    // Add the source mesh nodes to moab. The coordinates must be interleaved.
+    // Add the mesh nodes to moab. The coordinates must be interleaved.
     moab::Range vertices;
-    error = moab->create_vertices(
-	&( *MT::coordsBegin( mesh ) ),
-	num_nodes, vertices );
+    error = moab->create_vertices( 
+	&*MT::coordsBegin( mesh ), num_nodes, vertices );
     testInvariant( moab::MB_SUCCESS == error, 
 		   "Failed to create vertices in MOAB." );
-    testPostcondition( !vertices.empty(),
-		       "Vertex range is empty." );
+    testPostcondition( !vertices.empty(), "Vertex range is empty." );
     assert( (int) vertices.size() == num_nodes );
 
-    // Map the native vertex handles to the moab vertex handles.
+    // Map the native vertex handles to the moab vertex handles. This should
+    // be in a hash table. We'll need one that hashes moab handles.
     moab::Range::const_iterator range_iterator;
     std::map<handle_type,moab::EntityHandle> vertex_handle_map;
     for ( range_iterator = vertices.begin(),
-	 handle_iterator = MT::nodesBegin( mesh );
+	 node_iterator = MT::nodesBegin( mesh );
 	  range_iterator != vertices.end();
-	  ++range_iterator, ++handle_iterator )
+	  ++range_iterator, ++node_iterator )
     {
-	vertex_handle_map[ *handle_iterator ] = *range_iterator;
+	vertex_handle_map[ *node_iterator ] = *range_iterator;
     }
 
     // Check the elements and connectivity for consistency.
@@ -104,24 +105,25 @@ createRendezvousMesh( const Mesh& mesh )
 				      MT::elementsEnd( mesh ) );
     int num_connect = std::distance( MT::connectivityBegin( mesh ),
 				     MT::connectivityEnd( mesh ) );
-    testInvariant( num_elements == num_connect / nodes_per_element &&
-		   num_connect % nodes_per_element == 0,
-		   "Connectivity array inconsistent with element description." );
+    testPrecondition( num_elements == num_connect / nodes_per_element &&
+		      num_connect % nodes_per_element == 0,
+		      "Connectivity array inconsistent with element description." );
 
-    // Extract the source mesh elements and add them to moab.
+    // Extract the mesh elements and add them to moab.
     moab::Range moab_elements;
     std::vector<moab::EntityHandle> element_connectivity;
     std::map<moab::EntityHandle,handle_type> element_handle_map;
-    for ( handle_iterator = MT::elementsBegin( mesh ),
+    for ( element_iterator = MT::elementsBegin( mesh ),
 	    conn_iterator = MT::connectivityBegin( mesh );
-	  handle_iterator != MT::elementsEnd( mesh );
-	  ++handle_iterator )
+	  element_iterator != MT::elementsEnd( mesh );
+	  ++element_iterator )
     {
 	// Extract the connecting nodes for this element.
 	element_connectivity.clear();
 	for ( int n = 0; n < nodes_per_element; ++n, ++conn_iterator )
 	{
-	    element_connectivity.push_back( vertex_handle_map[*conn_iterator] );
+	    element_connectivity.push_back( 
+		vertex_handle_map.find( *conn_iterator )->second );
 	}
 	testInvariant( (int) element_connectivity.size() == nodes_per_element,
 		       "Element connectivity size != nodes per element." );
@@ -139,7 +141,7 @@ createRendezvousMesh( const Mesh& mesh )
 	moab_elements.insert( moab_element );
 
 	// Map the moab element handle to the native element handle.
-	element_handle_map[ moab_element ] = *handle_iterator;
+	element_handle_map[ moab_element ] = *element_iterator;
     }
     
     // Create and return the mesh.

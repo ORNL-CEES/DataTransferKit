@@ -9,6 +9,8 @@
 #ifndef DTK_MESHTRAITS_HPP
 #define DTK_MESHTRAITS_HPP
 
+#include <iterator>
+
 namespace DataTransferKit
 {
 
@@ -45,17 +47,28 @@ class MeshTraits
     //! Teuchos::OrdinalTraits.
     typedef typename T::handle_type handle_type;
 
-    //! Typedef for random access const iterators to handle type values.
+    //! Typedef for random access const iterator to node handle values.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, handle_type>  
-    const_handle_iterator;
+    const_node_iterator;
 
-    //! Typedef for random access const iterators to coordinate values. This
+    //! Typedef for random access const iterator to coordinate values. This
     //! is enforcing a coordinate type of double.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, double>  
     const_coordinate_iterator;
+
+    //! Typedef for random access const iterator to element handle values.
+    typedef typename 
+    std::iterator<std::random_access_iterator_tag, handle_type>  
+    const_element_iterator;
+
+    //! Typedef for random access const iterator to connectivity values.
+    typedef typename 
+    std::iterator<std::random_access_iterator_tag, handle_type>  
+    const_connectivity_iterator;
     //@}
+
 
     //@{
     //! Mesh node concepts.
@@ -63,14 +76,14 @@ class MeshTraits
      * \brief Return the const iterator to the beginning of the node handle
      * block in this mesh. 
     */
-    static inline const_handle_iterator nodesBegin( const T& mesh )
+    static inline const_node_iterator nodesBegin( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
 
     /*!
      * \brief Return the const iterator to the end of the node handle block in
      * this mesh.
     */ 
-    static inline const_handle_iterator nodesEnd( const T& mesh )
+    static inline const_node_iterator nodesEnd( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
 
     /*!
@@ -109,7 +122,8 @@ class MeshTraits
 
     /*! 
      * \brief Return the number of nodes that constructs an individual element
-     * in this mesh.
+     * in this mesh. All elements in the mesh must be constructed with the
+     * same number of nodes.
      */
     static inline std::size_t nodesPerElement( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
@@ -118,28 +132,28 @@ class MeshTraits
      * \brief Return the const iterator to the beginning of the element handle
      * block in this mesh.
      */
-    static inline const_handle_iterator elementsBegin( const T& mesh )
+    static inline const_element_iterator elementsBegin( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the const iterator to the end of the element handle block
      * in this mesh.
      */
-    static inline const_handle_iterator elementsEnd( const T& mesh )
+    static inline const_element_iterator elementsEnd( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the const iterator to the beginning of the element
      * connectivity block in this mesh. 
      */
-    static inline const_handle_iterator connectivityBegin( const T& mesh )
+    static inline const_connectivity_iterator connectivityBegin( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the const iterator to the end of the element connectivity
      * block in this mesh.
      */
-    static inline const_handle_iterator connectivityEnd( const T& mesh )
+    static inline const_connectivity_iterator connectivityEnd( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
     //@}
 };

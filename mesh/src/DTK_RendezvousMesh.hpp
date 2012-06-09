@@ -50,9 +50,9 @@ class RendezvousMesh
     const moab::Range& getElements() const
     { return d_elements; }
 
-    // Given a moab element handle return the corresponding native element
-    // handle.
-    handle_type getNativeHandle( moab::EntityHandle moab_handle )
+    //! Given a moab element handle return the corresponding native element
+    //! handle.
+    handle_type getNativeHandle( const moab::EntityHandle& moab_handle ) const
     { return d_handle_map.find( moab_handle )->second; }
 
   private:
@@ -84,7 +84,7 @@ const moab::EntityType moab_topology_table[] =
 //---------------------------------------------------------------------------//
 
 // Create a RendezvousMesh from an object that implements MeshTraits.
-template<typename Mesh>
+template<class Mesh>
 Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::handle_type> > 
 createRendezvousMesh( const Mesh& mesh );
 

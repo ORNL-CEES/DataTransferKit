@@ -17,8 +17,6 @@
 #include <DTK_CoreTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 
-#include <mpi.h>
-
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
@@ -115,14 +113,15 @@ class MeshTraits<MyMesh>
   public:
 
     typedef MyMesh::handle_type handle_type;
-    typedef std::vector<int>::const_iterator const_handle_iterator;
+    typedef std::vector<int>::const_iterator const_node_iterator;
     typedef std::vector<double>::const_iterator const_coordinate_iterator;
-    
+    typedef std::vector<int>::const_iterator const_element_iterator;
+    typedef std::vector<int>::const_iterator const_connectivity_iterator;
 
-    static inline const_handle_iterator nodesBegin( const MyMesh& mesh )
+    static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
 
-    static inline const_handle_iterator nodesEnd( const MyMesh& mesh )
+    static inline const_node_iterator nodesEnd( const MyMesh& mesh )
     { return mesh.nodesEnd(); }
 
     static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
@@ -141,16 +140,16 @@ class MeshTraits<MyMesh>
     static inline std::size_t nodesPerElement( const MyMesh& mesh )
     { return 8; }
 
-    static inline const_handle_iterator elementsBegin( const MyMesh& mesh )
+    static inline const_element_iterator elementsBegin( const MyMesh& mesh )
     { return mesh.hexesBegin(); }
 
-    static inline const_handle_iterator elementsEnd( const MyMesh& mesh )
+    static inline const_element_iterator elementsEnd( const MyMesh& mesh )
     { return mesh.hexesEnd(); }
 
-    static inline const_handle_iterator connectivityBegin( const MyMesh& mesh )
+    static inline const_connectivity_iterator connectivityBegin( const MyMesh& mesh )
     { return mesh.connectivityBegin(); }
 
-    static inline const_handle_iterator connectivityEnd( const MyMesh& mesh )
+    static inline const_connectivity_iterator connectivityEnd( const MyMesh& mesh )
     { return mesh.connectivityEnd(); }
 };
 
@@ -224,7 +223,6 @@ MyMesh buildMyMesh()
 // Tests
 //---------------------------------------------------------------------------//
 
-// DataSource test.
 TEUCHOS_UNIT_TEST( RendezvousMesh, rendezvous_mesh_test )
 {
     using namespace DataTransferKit;
@@ -270,7 +268,7 @@ TEUCHOS_UNIT_TEST( RendezvousMesh, rendezvous_mesh_test )
     typename MT::const_coordinate_iterator coord_iterator;
 
     for ( coord_iterator = MT::coordsBegin( my_mesh );
-	  coord_iterator != MT::coordsBegin( my_mesh );
+	  coord_iterator != MT::coordsEnd( my_mesh );
 	  ++coord_iterator, ++moab_coord_iterator )
     {
 	TEST_ASSERT( *coord_iterator == *moab_coord_iterator );
@@ -278,6 +276,6 @@ TEUCHOS_UNIT_TEST( RendezvousMesh, rendezvous_mesh_test )
 }
 
 //---------------------------------------------------------------------------//
-// end tstMesh.cpp
+// end tstRendezvousMesh.cpp
 //---------------------------------------------------------------------------//
 

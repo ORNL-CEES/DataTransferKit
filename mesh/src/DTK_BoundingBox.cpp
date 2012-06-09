@@ -52,7 +52,8 @@ BoundingBox::~BoundingBox()
 
 //---------------------------------------------------------------------------//
 /*!
- * \Determine if a point is in the box.
+ * \brief Determine if a point is in the box. A point on the box boundary will
+ * return true.
  */
 bool BoundingBox::pointInBox( double coords[3] ) const
 {

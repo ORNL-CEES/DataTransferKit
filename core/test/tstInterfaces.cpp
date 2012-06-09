@@ -115,14 +115,16 @@ class MeshTraits<MyMesh>
   public:
 
     typedef MyMesh::handle_type handle_type;
-    typedef std::vector<int>::const_iterator const_handle_iterator;
+    typedef std::vector<int>::const_iterator const_node_iterator;
     typedef std::vector<double>::const_iterator const_coordinate_iterator;
+    typedef std::vector<int>::const_iterator const_element_iterator;
+    typedef std::vector<int>::const_iterator const_connectivity_iterator;
     
 
-    static inline const_handle_iterator nodesBegin( const MyMesh& mesh )
+    static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
 
-    static inline const_handle_iterator nodesEnd( const MyMesh& mesh )
+    static inline const_node_iterator nodesEnd( const MyMesh& mesh )
     { return mesh.nodesEnd(); }
 
     static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
@@ -141,16 +143,16 @@ class MeshTraits<MyMesh>
     static inline std::size_t nodesPerElement( const MyMesh& mesh )
     { return 4; }
 
-    static inline const_handle_iterator elementsBegin( const MyMesh& mesh )
+    static inline const_element_iterator elementsBegin( const MyMesh& mesh )
     { return mesh.quadsBegin(); }
 
-    static inline const_handle_iterator elementsEnd( const MyMesh& mesh )
+    static inline const_element_iterator elementsEnd( const MyMesh& mesh )
     { return mesh.quadsEnd(); }
 
-    static inline const_handle_iterator connectivityBegin( const MyMesh& mesh )
+    static inline const_connectivity_iterator connectivityBegin( const MyMesh& mesh )
     { return mesh.connectivityBegin(); }
 
-    static inline const_handle_iterator connectivityEnd( const MyMesh& mesh )
+    static inline const_connectivity_iterator connectivityEnd( const MyMesh& mesh )
     { return mesh.connectivityEnd(); }
 };
 
@@ -425,8 +427,10 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
 
     // Get the mesh.
     MyMesh source_mesh = data_source->getSourceMesh();
-    typename MeshTraits<MyMesh>::const_handle_iterator handle_iterator;
+    typename MeshTraits<MyMesh>::const_node_iterator node_iterator;
     typename MeshTraits<MyMesh>::const_coordinate_iterator coord_iterator;
+    typename MeshTraits<MyMesh>::const_element_iterator element_iterator;
+    typename MeshTraits<MyMesh>::const_connectivity_iterator conn_iterator;
     
     // Check the nodes.
     TEST_ASSERT( std::distance( MeshTraits<MyMesh>::nodesBegin( source_mesh ),
@@ -434,11 +438,11 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
 		 == 4 );
     
     int node_index = 0;
-    for ( handle_iterator = MeshTraits<MyMesh>::nodesBegin( source_mesh );
-	  handle_iterator != MeshTraits<MyMesh>::nodesEnd( source_mesh );
-	  ++handle_iterator, ++node_index )
+    for ( node_iterator = MeshTraits<MyMesh>::nodesBegin( source_mesh );
+	  node_iterator != MeshTraits<MyMesh>::nodesEnd( source_mesh );
+	  ++node_iterator, ++node_index )
     {
-	TEST_ASSERT( *handle_iterator == node_index );
+	TEST_ASSERT( *node_iterator == node_index );
     }
 
     for ( coord_iterator = MeshTraits<MyMesh>::coordsBegin( source_mesh );
@@ -465,21 +469,21 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
 		     MeshTraits<MyMesh>::connectivityEnd( source_mesh ) )
 		 == 4 );
 
-    for ( handle_iterator = MeshTraits<MyMesh>::elementsBegin( source_mesh );
-	  handle_iterator != MeshTraits<MyMesh>::elementsEnd( source_mesh );
-	  ++handle_iterator )
+    for ( element_iterator = MeshTraits<MyMesh>::elementsBegin( source_mesh );
+	  element_iterator != MeshTraits<MyMesh>::elementsEnd( source_mesh );
+	  ++element_iterator )
     {
-	TEST_ASSERT( *handle_iterator == 8 );
+	TEST_ASSERT( *element_iterator == 8 );
     }
 
     int conn_index = 0;
-    for ( handle_iterator = 
+    for ( conn_iterator = 
 	      MeshTraits<MyMesh>::connectivityBegin( source_mesh );
-	  handle_iterator != 
+	  conn_iterator != 
 	      MeshTraits<MyMesh>::connectivityEnd( source_mesh );
-	  ++handle_iterator )
+	  ++conn_iterator )
     {
-	TEST_ASSERT( *handle_iterator == conn_index );
+	TEST_ASSERT( *conn_iterator == conn_index );
 	++conn_index;
     }
 

@@ -20,7 +20,7 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<typename Mesh>
+template<class Mesh>
 RCB<Mesh>::RCB( const Mesh& mesh, const std::vector<char>& active_nodes,
 		const RCP_Comm& comm )
     : d_mesh_data( mesh, active_nodes )
@@ -62,7 +62,7 @@ RCB<Mesh>::RCB( const Mesh& mesh, const std::vector<char>& active_nodes,
 /*!
  * \brief Destructor.
  */
-template<typename Mesh>
+template<class Mesh>
 RCB<Mesh>::~RCB()
 {
     // Zoltan cleanup.
@@ -77,7 +77,7 @@ RCB<Mesh>::~RCB()
 /*!
  * \brief Compute RCB partitioning of the node field.
  */
-template<typename Mesh>
+template<class Mesh>
 void RCB<Mesh>::partition()
 {
     // Run zoltan partitioning.
@@ -109,17 +109,22 @@ void RCB<Mesh>::partition()
     {
 	*box_iterator = getPartBoundingBox( i );
     }
+
+    // We should build an octree or other logarthmic search structure here out
+    // of the bounding boxes. That way getDestinationProc() will avoid linear
+    // searches (and ultimately quadratic performance).
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the destination process for a point.
  */
-template<typename Mesh>
+template<class Mesh>
 int RCB<Mesh>::getDestinationProc( double coords[3] ) const
 {
     // Do a linear search through the bounding boxes for now. This really
-    // needs to be logarithmic as we are checking every mesh node with this.
+    // needs to be logarithmic as we are checking every mesh node with this
+    // during rendezvous construction and every target node during mapping.
     std::vector<BoundingBox>::const_iterator box_iterator;
     int i = 0;
     for ( box_iterator = d_part_boxes.begin();
@@ -143,7 +148,7 @@ int RCB<Mesh>::getDestinationProc( double coords[3] ) const
 /*!
  * \brief Get the bounding box for a partition.
  */
-template<typename Mesh>
+template<class Mesh>
 BoundingBox RCB<Mesh>::getPartBoundingBox( const int part ) const
 {
     double x_min, y_min, z_min, x_max, y_max, z_max;
@@ -163,7 +168,7 @@ BoundingBox RCB<Mesh>::getPartBoundingBox( const int part ) const
 /*!
  * \brief Zoltan callback for getting the number of nodes.
  */
-template<typename Mesh>
+template<class Mesh>
 int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
 {
     MeshData *mesh_data = (MeshData*) data;
@@ -187,7 +192,7 @@ int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
 /*!
  * \brief Zoltan callback for getting the local and global node ID's.
  */
-template<typename Mesh>
+template<class Mesh>
 void RCB<Mesh>::getObjectList( 
     void *data, int sizeGID, int sizeLID,
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
@@ -198,7 +203,7 @@ void RCB<Mesh>::getObjectList(
 
     // Note here that the local ID is being set the the node array index.
     std::vector<char>::const_iterator active_iterator;
-    typename MT::const_handle_iterator handle_iterator;
+    typename MT::const_node_iterator handle_iterator;
     int i = 0;
     int j = 0;
     for ( handle_iterator = MT::nodesBegin( mesh_data->d_mesh ),
@@ -220,7 +225,7 @@ void RCB<Mesh>::getObjectList(
 /*!
  * \brief Zoltan callback for getting the dimension of the nodes.
  */
-template<typename Mesh>
+template<class Mesh>
 int RCB<Mesh>::getNumGeometry( void *data, int *ierr )
 {
     *ierr = ZOLTAN_OK;
@@ -231,7 +236,7 @@ int RCB<Mesh>::getNumGeometry( void *data, int *ierr )
 /*!
  * \brief Zoltan callback for getting the node coordinates.
  */
-template<typename Mesh>
+template<class Mesh>
 void RCB<Mesh>::getGeometryList(
     void *data, int sizeGID, int sizeLID,
     int num_obj,

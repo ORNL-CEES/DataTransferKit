@@ -26,7 +26,7 @@
 namespace DataTransferKit
 {
 
-template<typename Mesh>
+template<class Mesh>
 class Rendezvous
 {
     
@@ -81,7 +81,7 @@ class Rendezvous
 			       const std::vector<char>& elements_in_box );
 
     // Setup the communication patterns.
-    template<typename Mesh>
+    template<class Mesh>
     void setupCommunication( const Mesh& mesh,
 			     const std::vector<char>& elements_in_box,
 			     std::set<handle_type>& rendezvous_nodes,
