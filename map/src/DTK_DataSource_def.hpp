@@ -9,6 +9,8 @@
 #ifndef DTK_DATASOURCE_DEF_HPP
 #define DTK_DATASOURCE_DEF_HPP
 
+#include <DTK_Exception.hpp>
+
 #include <Teuchos_ENull.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
@@ -54,6 +56,9 @@ template<class Mesh, class DataField>
 void DataSource<Mesh,DataField>::registerFieldEvaluator( 
     const std::string& field_name, const RCP_FieldEvaluator& field_evaluator )
 {
+    testPrecondition( field_evaluator != Teuchos::null,
+		      "Field evaluator is null." );
+
     // Create an integer id for this field.
     std::size_t field_id = d_name_map.size();
 

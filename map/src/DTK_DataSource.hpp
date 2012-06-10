@@ -17,7 +17,6 @@
 
 #include "DTK_FieldTraits.hpp"
 #include <DTK_MeshTraits.hpp>
-#include <DTK_Exception.hpp>
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
