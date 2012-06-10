@@ -47,7 +47,8 @@ DataTarget<CoordinateField,DataField>::~DataTarget()
  * \brief Register a target field.
  * \param field_name The string key for this field.
  * \param coordinate_field The coordinate field over which data will be
- * evaluated. 
+ * evaluated. This coordinate field must be interleaved 
+ * ( x0, y0, z0, ..., xN, yN, zN )
  * \param data_space The data space in which to write the evaluated data. This
  * space will neither be allocated or deallocated and should persist.
  */
