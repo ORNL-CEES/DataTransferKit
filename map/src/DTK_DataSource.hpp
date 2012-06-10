@@ -96,13 +96,17 @@ class DataSource
     // Destructor.
     ~DataSource();
 
+    // Register a source field evaluator.
+    void registerFieldEvaluator( const std::string& name field_name,
+				 const FieldEvaluator& field_evaluator );
+
     //! Get the id for a field given its name.
     std::size_t getFieldId( const std::string& name ) const
     { return d_name_map.find( name )->second; }
 
     //! Get the evaluation kernel for a field given its id.
     FieldEvaluator& getFieldEvaluator( const std::size_t id ) const
-    { return d_field_map( id )->second; }
+    { return d_eval_map( id )->second; }
     
     //! Get the communicator.
     const RCP_Comm& getComm() const
@@ -120,7 +124,7 @@ class DataSource
     std::map<std::string,std::size_t> d_name_map;
 
     // Id to evaluation map.
-    std::map<std::size_t,FieldEvaluator> d_field_map;
+    std::map<std::size_t,FieldEvaluator> d_eval_map;
 };
 
 } // end namespace DataTransferKit

@@ -18,8 +18,6 @@
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
-#include <Teuchos_DefaultMpiComm.hpp>
-#include <Teuchos_OpaqueWrapper.hpp>
 
 namespace DataTransferKit
 {
@@ -52,9 +50,9 @@ class DataTarget
     DataTarget( const MPI_Comm& mpi_comm );
 
     // Register a target field.
-    void registerField( const std::string_field_name, 
-			const CoordinateField& coordinate_field,
-			DataField& data_space );
+    void registerTargetField( const std::string& field_name, 
+			      const CoordinateField& coordinate_field,
+			      DataField& data_space );
 
     //! Get the id for a field given its name.
     std::size_t getFieldId( const std::string& name ) const

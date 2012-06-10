@@ -47,6 +47,24 @@ DataSource<Mesh,DataField>::~DataSource()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+/*!
+ * \brief Register a source field evaluator.
+ * \param field_name The string key for this field.
+ * \param field_evaluator The field evaluator for this field.
+ */
+template<class Mesh, class DataField>
+void DataSource<Mesh,DataField>::registerFieldEvaluator( 
+    const std::string& name field_name, const FieldEvaluator& field_evaluator )
+{
+    // Create an integer id for this field.
+    std::size_t field_id = d_name_map.size();
+
+    // Add it to the maps.
+    d_name_map[ field_name ] = field_id;
+    d_eval_map[ field_id ] = field_evaluator;
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
