@@ -2,7 +2,7 @@
 /*!
  * \file   DTK_DataTarget.hpp
  * \author Stuart R. Slattery
- * \brief  Interface definition for transfer data targets.
+ * \brief  DataTarget declaration.
  */
 //---------------------------------------------------------------------------//
 
@@ -85,10 +85,15 @@ class DataTarget
 
     // Id to data field map.
     std::map<std::size_t,DataField> d_data_map;
-
 };
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_DataTarget_def.hpp"
 
 #endif // DTK_DATATARGET_HPP
 

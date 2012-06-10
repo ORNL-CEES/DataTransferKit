@@ -2,7 +2,7 @@
 /*!
  * \file   DTK_DataSource.hpp
  * \author Stuart R. Slattery
- * \brief  Interface declaration for data source applications.
+ * \brief  DataSource declaration.
  */
 //---------------------------------------------------------------------------//
 
@@ -20,8 +20,6 @@
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
-#include <Teuchos_DefaultMpiComm.hpp>
-#include <Teuchos_OpaqueWrapper.hpp>
 
 namespace DataTransferKit
 {
@@ -50,8 +48,9 @@ class DataSource
 
 
     /*!
-     * \brief Mix-in interface for field evaluation kernels. This is inside
-     * the class definition to ensure type consistency.
+     * \brief Mix-in interface for field evaluation kernels. 
+     *
+     * This is inside the class definition to ensure type consistency.
      */
     class FieldEvaluator
     {
@@ -75,7 +74,7 @@ class DataSource
 	 * coordinates and return the evaluations in a DataField.  
 	 * \param elements A vector of element handles in which to evaluate
 	 * the field.
-	 * \param coords a vector of interleaved coordinates 
+	 * \param coords A vector of interleaved coordinates 
 	 * ( x0, y0, z0, ..., xN, yN, zN ) at which to evaluate the
 	 * field. Coordinates ( x_n, y_n, z_n ) should be evaluated in the nth
 	 * element in the elements vector.
@@ -92,7 +91,7 @@ class DataSource
   public:
 
     // Constructor.
-    DataSource( const MPI_Comm& mpi_comm, const Mesh& mesh );
+    DataSource( const Mesh& mesh, const MPI_Comm& mpi_comm );
 
     // Destructor.
     ~DataSource();
@@ -111,6 +110,9 @@ class DataSource
 
   private:
 
+    // Mesh.
+    Mesh d_mesh;
+   
     // Communicator.
     RCP_Comm d_comm;
 
@@ -119,10 +121,15 @@ class DataSource
 
     // Id to evaluation map.
     std::map<std::size_t,FieldEvaluator> d_field_map;
-
 };
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_DataSource_def.hpp"
 
 #endif // DTK_DATASOURCE_HPP
 
