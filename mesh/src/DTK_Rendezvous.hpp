@@ -16,7 +16,7 @@
 #include "DTK_KDTree.hpp"
 #include "DTK_RCB.hpp"
 #include "DTK_BoundingBox.hpp"
-#include <DTK_MeshTraits.hpp>
+#include "DTK_MeshTraits.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>

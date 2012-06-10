@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "DTK_BoundingBox.hpp"
-#include <DTK_MeshTraits.hpp>
+#include "DTK_MeshTraits.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>

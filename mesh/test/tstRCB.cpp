@@ -16,7 +16,7 @@
 
 #include <DTK_RCB.hpp>
 #include <DTK_BoundingBox.hpp>
-#include <DTK_CoreTypes.hpp>
+#include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 #include <DTK_Exception.hpp>
 

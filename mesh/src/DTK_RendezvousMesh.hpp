@@ -11,7 +11,7 @@
 
 #include <map>
 
-#include <DTK_MeshTraits.hpp>
+#include "DTK_MeshTraits.hpp"
 
 #include <MBInterface.hpp>
 #include <MBRange.hpp>

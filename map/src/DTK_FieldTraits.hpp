@@ -37,6 +37,9 @@ class FieldTraits
 {
   public:
 
+    //! Typedef for field type.
+    typedef T field_type;
+
     //! Typedef for value type. The field type must implement
     //! Teuchos::ScalarTraits.
     typedef typename T::value_type value_type;
@@ -48,7 +51,7 @@ class FieldTraits
     iterator;
 
     typedef typename 
-    std::iterator<std::random_access_iterator_tag,value_type> 
+    std::iterator<std::random_access_iterator_tag,const value_type> 
     const_iterator;
     //@}
 
@@ -57,7 +60,7 @@ class FieldTraits
     { return UndefinedFieldTraits<T>::notDefined(); }
 
     //@{
-    //! Returns the iterator to the front of the field.
+    //! Returns the iterator to the beginning of the field.
     static inline iterator begin( T &field )
     { return UndefinedFieldTraits<T>::notDefined(); }
 

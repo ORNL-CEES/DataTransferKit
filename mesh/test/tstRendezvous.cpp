@@ -15,7 +15,7 @@
 
 #include <DTK_Rendezvous.hpp>
 #include <DTK_BoundingBox.hpp>
-#include <DTK_CoreTypes.hpp>
+#include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>

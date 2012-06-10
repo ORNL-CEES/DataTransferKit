@@ -15,7 +15,7 @@
 
 #include <DTK_KDTree.hpp>
 #include <DTK_RendezvousMesh.hpp>
-#include <DTK_CoreTypes.hpp>
+#include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 #include <DTK_Exception.hpp>
 

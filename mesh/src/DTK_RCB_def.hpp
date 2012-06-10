@@ -171,7 +171,7 @@ BoundingBox RCB<Mesh>::getPartBoundingBox( const int part ) const
 template<class Mesh>
 int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
 {
-    MeshData *mesh_data = (MeshData*) data;
+    MeshData *mesh_data = static_cast<MeshData*>( data );
     int num_nodes = 0;
     std::vector<char>::const_iterator active_iterator;
     for ( active_iterator = mesh_data->d_active_nodes.begin();
@@ -198,7 +198,7 @@ void RCB<Mesh>::getObjectList(
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
     int wgt_dim, float *obj_wgts, int *ierr )
 {
-    MeshData *mesh_data = (MeshData*) data;
+    MeshData *mesh_data = static_cast<MeshData*>( data );
     *ierr = ZOLTAN_OK;
 
     // Note here that the local ID is being set the the node array index.
@@ -243,7 +243,7 @@ void RCB<Mesh>::getGeometryList(
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
     int num_dim, double *geom_vec, int *ierr )
 {
-    MeshData *mesh_data = (MeshData*) data;
+    MeshData *mesh_data = static_cast<MeshData*>( data );
 
     // Get the number of nodes.
     int num_nodes = 0;

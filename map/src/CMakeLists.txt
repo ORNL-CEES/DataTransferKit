@@ -20,8 +20,8 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS	
+  DTK_FieldTraits.hpp
   DTK_Map.hpp
-  DTK_Map3dConsistentInterpolation.hpp
   )
 
 # Set sources

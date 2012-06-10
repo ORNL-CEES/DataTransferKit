@@ -1,13 +1,13 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_CoreTypes.hpp
+ * \file DTK_MeshTypes.hpp
  * \author Stuart R. Slattery
- * \brief Enumerated types for the core subpackage.
+ * \brief Enumerated types for the mesh subpackage.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CORETYPES_HPP
-#define DTK_CORETYPES_HPP
+#ifndef DTK_MESHTYPES_HPP
+#define DTK_MESHTYPES_HPP
 
 namespace DataTransferKit
 {
@@ -36,9 +36,9 @@ enum DTK_ElementTopology {
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_CORETYPES_HPP
+#endif // end DTK_MESHTYPES_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_CoreTypes.hpp
+// end DTK_MeshTypes.hpp
 //---------------------------------------------------------------------------//
 

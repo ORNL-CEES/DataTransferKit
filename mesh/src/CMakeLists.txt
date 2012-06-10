@@ -25,6 +25,8 @@ APPEND_SET(HEADERS
   DTK_KDTree.hpp
   DTK_KDTree_def.hpp
   DTK_MeshContainer.hpp
+  DTK_MeshTraits.hpp
+  DTK_MeshTypes.hpp
   DTK_RCB.hpp
   DTK_RCB_def.hpp
   DTK_Rendezvous.hpp

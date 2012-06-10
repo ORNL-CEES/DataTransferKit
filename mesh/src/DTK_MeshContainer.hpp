@@ -13,7 +13,7 @@
 #include <iterator>
 #include <set>
 
-#include <DTK_MeshTraits.hpp>
+#include "DTK_MeshTraits.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
 

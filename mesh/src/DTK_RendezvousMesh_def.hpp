@@ -13,9 +13,8 @@
 #include <algorithm>
 #include <cassert>
 
+#include "DTK_MeshTraits.hpp"
 #include <DTK_Exception.hpp>
-#include <DTK_MeshTraits.hpp>
-#include <DTK_FieldTraits.hpp>
 
 #include <MBCore.hpp>
 
