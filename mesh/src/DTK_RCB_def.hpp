@@ -204,8 +204,8 @@ void RCB<Mesh>::getObjectList(
     // Note here that the local ID is being set the the node array index.
     std::vector<char>::const_iterator active_iterator;
     typename MT::const_node_iterator handle_iterator;
-    int i = 0;
-    int j = 0;
+    zoltan_id_type i = 0;
+    zoltan_id_type j = 0;
     for ( handle_iterator = MT::nodesBegin( mesh_data->d_mesh ),
 	  active_iterator = mesh_data->d_active_nodes.begin();
 	  handle_iterator != MT::nodesEnd( mesh_data->d_mesh );
@@ -213,7 +213,7 @@ void RCB<Mesh>::getObjectList(
     {
 	if ( *active_iterator )
 	{
-	    globalID[i] = (zoltan_id_type) *handle_iterator;
+	    globalID[i] = static_cast<zoltan_id_type>( *handle_iterator );
 	    localID[i] = j;
 	    ++i;
 	}
@@ -273,7 +273,7 @@ void RCB<Mesh>::getGeometryList(
     
     // Zoltan needs interleaved coordinates.
     typename MT::const_coordinate_iterator coord_iterator;
-    int i = 0;
+    zoltan_id_type i = 0;
     for ( coord_iterator = MT::coordsBegin( mesh_data->d_mesh );
 	  coord_iterator != MT::coordsEnd( mesh_data->d_mesh );
 	  ++coord_iterator, ++i )

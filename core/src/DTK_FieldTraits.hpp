@@ -33,8 +33,10 @@ struct UndefinedFieldTraits
  * contiguous memory. 
  */
 template<typename T>
-struct FieldTraits
+class FieldTraits
 {
+  public:
+
     //! Typedef for value type. The field type must implement
     //! Teuchos::ScalarTraits.
     typedef typename T::value_type value_type;

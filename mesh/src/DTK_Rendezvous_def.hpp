@@ -92,14 +92,15 @@ std::vector<int> Rendezvous<Mesh>::getRendezvousProcs(
     
     ordinal_type num_points = coords.size() / 3;
     std::vector<int> destination_procs;
-    for ( int i = 0; i < num_points; ++i )
+    for ( ordinal_type i = 0; i < num_points; ++i )
     {
 	double point[3] = { coords[3*i], coords[3*i+1], coords[3*i+2] };
 	int rendezvous_proc = d_rcb->getDestinationProc( point );
 	destination_procs.push_back( rendezvous_proc );
     }
 
-    testPostcondition( (ordinal_type) destination_procs.size() == num_points,
+    testPostcondition( static_cast<ordinal_type>( destination_procs.size() )
+		       == num_points,
 		       "Error getting destination processes." );
 
     return destination_procs;
@@ -125,7 +126,8 @@ Rendezvous<Mesh>::getElements( const std::vector<double>& coords ) const
 	element_handles.push_back( handle );
     }
 
-    testPostcondition( (ordinal_type) element_handles.size() == num_points,
+    testPostcondition( static_cast<ordinal_type>( element_handles.size() )
+		       == num_points,
 		       "Error getting mesh elements." );
 
     return element_handles;

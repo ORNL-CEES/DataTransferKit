@@ -1,8 +1,7 @@
-//----------------------------------*-C++-*----------------------------------//
+//---------------------------------------------------------------------------//
 /*!
  * \file   DTK_DataTarget.hpp
  * \author Stuart R. Slattery
- * \date   Thu Nov 17 07:53:54 2011
  * \brief  Interface definition for transfer data targets.
  */
 //---------------------------------------------------------------------------//
@@ -35,7 +34,7 @@ namespace DataTransferKit
  * Test of DataTarget.
  */
 //===========================================================================//
-template<typename CoordinateField, typename DataField>
+template<class CoordinateField, class DataField>
 class DataTarget : public Teuchos::Describable
 {
   public:
@@ -77,7 +76,7 @@ class DataTarget : public Teuchos::Describable
      * checked.
      * \return Return false if this field is not supported. 
      */
-    virtual bool isFieldSupported( const std::string &field_name ) = 0;
+    virtual bool isFieldSupported( const std::string& field_name ) = 0;
 
     /*!
      * \brief Provide the target mesh node coordinates to which data will be
@@ -106,7 +105,7 @@ class DataTarget : public Teuchos::Describable
      * expected to implement FieldTraits. DataField::value_type is expected to
      * implement Teuchos::ScalarTraits.
      */
-    virtual DataField& getTargetDataSpace( const std::string &field_name ) = 0;
+    virtual DataField& getTargetDataSpace( const std::string& field_name ) = 0;
 };
 
 } // end namespace DataTransferKit

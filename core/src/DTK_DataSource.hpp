@@ -1,8 +1,7 @@
-//----------------------------------*-C++-*----------------------------------//
+//---------------------------------------------------------------------------//
 /*!
  * \file   DTK_DataSource.hpp
  * \author Stuart R. Slattery
- * \date   Thu Nov 17 07:53:43 2011
  * \brief  Interface declaration for data source applications.
  */
 //---------------------------------------------------------------------------//
@@ -40,7 +39,7 @@ namespace DataTransferKit
  * Test of DataSource.
  */
 //===========================================================================//
-template<typename Mesh, typename DataField>
+template<class Mesh, class DataField>
 class DataSource : Teuchos::Describable
 {
   public:
