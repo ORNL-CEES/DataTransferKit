@@ -166,58 +166,102 @@ MyMesh buildMyMesh()
     std::vector<int> node_handles;
     std::vector<double> coords;
 
+    // handles
     node_handles.push_back( 0 );
-    coords.push_back( 0.0 ); coords.push_back( 0.0 ); coords.push_back( 0.0 );
-
     node_handles.push_back( 4 );
-    coords.push_back( 1.0 ); coords.push_back( 0.0 ); coords.push_back( 0.0 );
-
     node_handles.push_back( 9 );
-    coords.push_back( 1.0 ); coords.push_back( 1.0 ); coords.push_back( 0.0 );
-
     node_handles.push_back( 2 );
-    coords.push_back( 0.0 ); coords.push_back( 1.0 ); coords.push_back( 0.0 );
-
     node_handles.push_back( 3 );
-    coords.push_back( 0.0 ); coords.push_back( 0.0 ); coords.push_back( 1.0 );
-
     node_handles.push_back( 8 );
-    coords.push_back( 1.0 ); coords.push_back( 0.0 ); coords.push_back( 1.0 );
-
     node_handles.push_back( 1 );
-    coords.push_back( 1.0 ); coords.push_back( 1.0 ); coords.push_back( 1.0 );
-
     node_handles.push_back( 6 );
-    coords.push_back( 0.0 ); coords.push_back( 1.0 ); coords.push_back( 1.0 );
-
     node_handles.push_back( 12 );
-    coords.push_back( 0.0 ); coords.push_back( 0.0 ); coords.push_back( 2.0 );
-
     node_handles.push_back( 7 );
-    coords.push_back( 1.0 ); coords.push_back( 0.0 ); coords.push_back( 2.0 );
-
     node_handles.push_back( 13 );
-    coords.push_back( 1.0 ); coords.push_back( 1.0 ); coords.push_back( 2.0 );
-
     node_handles.push_back( 5 );
-    coords.push_back( 0.0 ); coords.push_back( 1.0 ); coords.push_back( 2.0 );
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
+
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+
+    // z
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 2.0 );
+    coords.push_back( 2.0 );
+    coords.push_back( 2.0 );
+    coords.push_back( 2.0 );
 
     // Make 2 hexahedrons.
     std::vector<int> hex_handles;
     std::vector<int> hex_connectivity;
     
+    // handles
     hex_handles.push_back( 0 );
-    hex_connectivity.push_back( 0 ); hex_connectivity.push_back( 4 ); 
-    hex_connectivity.push_back( 9 ); hex_connectivity.push_back( 2 ); 
-    hex_connectivity.push_back( 3 ); hex_connectivity.push_back( 8 ); 
-    hex_connectivity.push_back( 1 ); hex_connectivity.push_back( 6 ); 
-
     hex_handles.push_back( 1 );
-    hex_connectivity.push_back( 3 ); hex_connectivity.push_back( 8 ); 
-    hex_connectivity.push_back( 1 ); hex_connectivity.push_back( 6 ); 
-    hex_connectivity.push_back( 12 ); hex_connectivity.push_back( 7 ); 
-    hex_connectivity.push_back( 13 ); hex_connectivity.push_back( 5 ); 
 
+    // 0
+    hex_connectivity.push_back( 0 );
+    hex_connectivity.push_back( 3 ); 
+
+    // 1
+    hex_connectivity.push_back( 4 ); 
+    hex_connectivity.push_back( 8 );  
+
+    // 2
+    hex_connectivity.push_back( 9 );
+    hex_connectivity.push_back( 1 ); 
+
+    // 3
+    hex_connectivity.push_back( 2 ); 
+    hex_connectivity.push_back( 6 ); 
+
+    // 4
+    hex_connectivity.push_back( 3 );
+    hex_connectivity.push_back( 12 ); 
+   
+    // 5
+    hex_connectivity.push_back( 8 ); 
+    hex_connectivity.push_back( 7 ); 
+
+    // 6
+    hex_connectivity.push_back( 1 ); 
+    hex_connectivity.push_back( 13 ); 
+
+    // 7
+    hex_connectivity.push_back( 6 ); 
+    hex_connectivity.push_back( 5 ); 
+   
     return MyMesh( node_handles, coords, hex_handles, hex_connectivity );
 }
 
@@ -234,7 +278,7 @@ TEUCHOS_UNIT_TEST( KDTree, kd_tree_test )
     MyMesh my_mesh = buildMyMesh();
     Teuchos::RCP< RendezvousMesh<MyMesh::handle_type> > mesh = 
 	createRendezvousMesh( my_mesh );
-
+    mesh->getMoab()->write_mesh( "tree.vtk" );
     // Create a KDTree.
     KDTree<MyMesh::handle_type> kd_tree( mesh );
 

@@ -64,3 +64,8 @@ TEUCHOS_UNIT_TEST( Distributor, distributor_test )
 	TEST_ASSERT( import_data[i] == my_rank );
     }
 }
+
+//---------------------------------------------------------------------------//
+// end tstDistributor.cpp
+//---------------------------------------------------------------------------//
+

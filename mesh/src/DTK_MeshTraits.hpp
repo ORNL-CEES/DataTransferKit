@@ -92,8 +92,8 @@ class MeshTraits
     /*!
      * \brief Return the const iterator to the beginning of the node
      * coordinate block in this mesh. These coordinates are required to be
-     * three dimensional and interleaved.
-     * ( x0, y0, z0, x1, y1, z1, ... , xN, yN, zN )
+     * three dimensional and blocked.
+     * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
      */
     static inline const_coordinate_iterator coordsBegin( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
@@ -101,8 +101,8 @@ class MeshTraits
     /*!
      * \brief Return the const iterator to the end of the node coordinate
      * block in this mesh. These coordinates are requried to be three
-     * dimensional and interleaved.
-     * ( x0, y0, z0, x1, y1, z1, ... , xN, yN, zN )
+     * dimensional and blocked.
+     * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
      */
     static inline const_coordinate_iterator coordsEnd( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
@@ -147,14 +147,19 @@ class MeshTraits
 
     /*! 
      * \brief Return the const iterator to the beginning of the element
-     * connectivity block in this mesh. 
+     * connectivity block in this mesh. The connectivity entries are required
+     * to be blocked. 
+     * ( element0( c0 ), element1( c0 ), ... , elementN( c0 ), element0( c1 ),
+     * element1( c1 ), ... , elementN( c1 ), ... , elementN( cn ) )
      */
     static inline const_connectivity_iterator connectivityBegin( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the const iterator to the end of the element connectivity
-     * block in this mesh.
+     * block in this mesh. The connectivity entries are required to be blocked. 
+     * ( element0( c0 ), element1( c0 ), ... , elementN( c0 ), element0( c1 ),
+     * element1( c1 ), ... , elementN( c1 ), ... , elementN( cn ) )
      */
     static inline const_connectivity_iterator connectivityEnd( const T& mesh )
     { UndefinedMeshTraits<T>::notDefined(); return 0; }
