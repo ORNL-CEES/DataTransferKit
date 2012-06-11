@@ -47,24 +47,27 @@ class DataTarget
   public:
 
     // Constructor.
-    DataTarget( const MPI_Comm& mpi_comm );
+    DataTarget( const CoordinateField& coordinate_field,
+		const MPI_Comm& mpi_comm );
+		
+    // Destructor.
+    ~DataTarget();
 
     // Register a target field.
     void registerTargetField( const std::string& field_name, 
-			      const CoordinateField& coordinate_field,
 			      DataField& data_space );
 
     //! Get the id for a field given its name.
     std::size_t getFieldId( const std::string& name ) const
     { return d_name_map.find( name )->second; }
 
-    //! Get the coordinates for a field given its id.
-    const CoordinateField& getCoordinates( const std::size_t id ) const
-    { return d_coord_map.find( id )->second; }
-
     //! Get the data space for a field given its id.
     DataField& getDataSpace( const std::size_t id ) const
     { return d_data_map.find( id )->second; }
+
+    //! Get the coordinate field.
+    const CoordinateField& getCoordinateField() const
+    { return d_coord_field; }
 
     //! Get the communicator.
     const RCP_Comm& getComm() const
@@ -72,14 +75,14 @@ class DataTarget
 
   private:
 
+    // Coordinate field.
+    CoordinateField d_coord_field;
+
     // Communicator.
     RCP_Comm d_comm;
 
     // Name to id map.
     std::map<std::string,std::size_t> d_name_map;
-
-    // Id to coordinate field map.
-    std::map<std::size_t,CoordinateField> d_coord_map;
 
     // Id to data field map.
     std::map<std::size_t,DataField> d_data_map;

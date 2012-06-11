@@ -20,6 +20,7 @@
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
+#include <Teuchos_Array.hpp>
 
 #include <Tpetra_Map.hpp>
 
@@ -46,7 +47,7 @@ class Rendezvous
     typedef Teuchos::Comm<int>                   CommType;
     typedef Teuchos::RCP<const CommType>         RCP_Comm;
     typedef Tpetra::Map<handle_type>             TpetraMap;
-    typedef Teuchos::RCP<TpetraMap>              RCP_TpetraMap;
+    typedef Teuchos::RCP<const TpetraMap>        RCP_TpetraMap;
     typedef handle_type                          ordinal_type;
     //@}
 
@@ -67,6 +68,10 @@ class Rendezvous
     std::vector<handle_type>
     getElements( const std::vector<double>& coords ) const;
 
+    // Get the rendezvous mesh.
+    const RCP_RendezvousMesh& getMesh() const
+    { return d_rendezvous_mesh; }
+
   private:
 
     // Extract the mesh nodes and elements that are in a bounding box.
@@ -83,8 +88,8 @@ class Rendezvous
     // Setup the communication patterns.
     void setupCommunication( const Mesh& mesh,
 			     const std::vector<char>& elements_in_box,
-			     std::set<handle_type>& rendezvous_nodes,
-			     std::set<handle_type>& rendezvous_elements );
+			     Teuchos::Array<handle_type>& rendezvous_nodes,
+			     Teuchos::Array<handle_type>& rendezvous_elements );
 
   private:
 

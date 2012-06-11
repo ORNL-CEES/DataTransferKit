@@ -50,70 +50,76 @@ DataTransferKit::MeshContainer<int> buildMeshContainer()
     using namespace DataTransferKit;
 
     // Make some nodes.
-    std::set<int> node_handles;
+    Teuchos::Array<int> node_handles;
     std::vector<double> coords;
 
-    node_handles.insert( 0 );
+    node_handles.push_back( 0 );
     coords.push_back( 0.0 ); coords.push_back( 0.0 ); coords.push_back( 0.0 );
 
-    node_handles.insert( 1 );
+    node_handles.push_back( 1 );
     coords.push_back( 1.0 ); coords.push_back( 0.0 ); coords.push_back( 0.0 );
 
-    node_handles.insert( 2 );
+    node_handles.push_back( 2 );
     coords.push_back( 1.0 ); coords.push_back( 1.0 ); coords.push_back( 0.0 );
 
-    node_handles.insert( 3 );
+    node_handles.push_back( 3 );
     coords.push_back( 0.0 ); coords.push_back( 1.0 ); coords.push_back( 0.0 );
 
-    node_handles.insert( 4 );
+    node_handles.push_back( 4 );
     coords.push_back( 0.0 ); coords.push_back( 0.0 ); coords.push_back( 1.0 );
 
-    node_handles.insert( 5 );
+    node_handles.push_back( 5 );
     coords.push_back( 1.0 ); coords.push_back( 0.0 ); coords.push_back( 1.0 );
 
-    node_handles.insert( 6 );
+    node_handles.push_back( 6 );
     coords.push_back( 1.0 ); coords.push_back( 1.0 ); coords.push_back( 1.0 );
 
-    node_handles.insert( 7 );
+    node_handles.push_back( 7 );
     coords.push_back( 0.0 ); coords.push_back( 1.0 ); coords.push_back( 1.0 );
 
-    node_handles.insert( 8 );
+    node_handles.push_back( 8 );
     coords.push_back( 0.0 ); coords.push_back( 0.0 ); coords.push_back( 2.0 );
 
-    node_handles.insert( 9 );
+    node_handles.push_back( 9 );
     coords.push_back( 1.0 ); coords.push_back( 0.0 ); coords.push_back( 2.0 );
 
-    node_handles.insert( 10 );
+    node_handles.push_back( 10 );
     coords.push_back( 1.0 ); coords.push_back( 1.0 ); coords.push_back( 2.0 );
 
-    node_handles.insert( 11 );
+    node_handles.push_back( 11 );
     coords.push_back( 0.0 ); coords.push_back( 1.0 ); coords.push_back( 2.0 );
 
     // Make 2 hexahedrons.
-    std::set<int> hex_handles;
+    Teuchos::Array<int> hex_handles;
     std::vector<int> hex_connectivity;
     
-    hex_handles.insert( 0 );
+    hex_handles.push_back( 0 );
     hex_connectivity.push_back( 0 ); hex_connectivity.push_back( 1 ); 
     hex_connectivity.push_back( 2 ); hex_connectivity.push_back( 3 ); 
     hex_connectivity.push_back( 4 ); hex_connectivity.push_back( 5 ); 
     hex_connectivity.push_back( 6 ); hex_connectivity.push_back( 7 ); 
 
-    hex_handles.insert( 1 );
+    hex_handles.push_back( 1 );
     hex_connectivity.push_back( 4 ); hex_connectivity.push_back( 5 ); 
     hex_connectivity.push_back( 6 ); hex_connectivity.push_back( 7 ); 
     hex_connectivity.push_back( 8 ); hex_connectivity.push_back( 9 ); 
     hex_connectivity.push_back( 10 ); hex_connectivity.push_back( 11 ); 
 
+    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
+    std::copy( node_handles.begin(), node_handles.end(), 
+	       node_handle_array.begin() );
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
+    Teuchos::ArrayRCP<int> hex_handle_array( hex_handles.size() );
+    std::copy( hex_handles.begin(), hex_handles.end(), 
+	       hex_handle_array.begin() );
     Teuchos::ArrayRCP<int> connectivity_array( hex_connectivity.size() );
     std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
 	       connectivity_array.begin() );
     
-    return MeshContainer<int>( node_handles, coords_array,
+    return MeshContainer<int>( node_handle_array, coords_array,
 			       DTK_REGION, DTK_HEXAHEDRON, 8,
-			       hex_handles, connectivity_array );
+			       hex_handle_array, connectivity_array );
 }
 
 //---------------------------------------------------------------------------//

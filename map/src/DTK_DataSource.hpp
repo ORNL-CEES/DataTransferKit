@@ -43,9 +43,11 @@ class DataSource
     //! Typedefs.
     typedef Mesh                             mesh_type;
     typedef MeshTraits<Mesh>                 MT;
+    typedef MT::handle_type                  handle_type;
     typedef DataField                        data_field_type;
     typedef FieldTraits<DataField>           FT;
-    typedef Teuchos::RCP<FieldEvaluator>     RCP_FieldEvaluator;
+    typedef FieldEvaluator<handle_type>      FieldEvaluatorType;
+    typedef Teuchos::RCP<FieldEvaluatorType> RCP_FieldEvaluator;
     typedef Teuchos::Comm<int>               CommType;
     typedef Teuchos::RCP<CommType>           RCP_Comm;
     //@}
@@ -112,6 +114,10 @@ class DataSource
     const RCP_FieldEvaluator& getFieldEvaluator( const std::size_t id ) const
     { return d_eval_map.find( id )->second; }
     
+    //! Get the mesh.
+    const Mesh& getMesh() const
+    { return d_mesh; }
+
     //! Get the communicator.
     const RCP_Comm& getComm() const
     { return d_comm; }

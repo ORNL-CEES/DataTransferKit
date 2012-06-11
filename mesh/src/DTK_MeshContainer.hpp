@@ -11,7 +11,6 @@
 #define DTK_MESHCONTAINER_HPP
 
 #include <iterator>
-#include <set>
 
 #include "DTK_MeshTraits.hpp"
 
@@ -36,13 +35,13 @@ class MeshContainer
     { /* ... */ }
 
     //! Constructor.
-    MeshContainer( const std::set<handle_type>& nodes,
-		   const Teuchos::ArrayRCP<double>& coords,
+    MeshContainer( const Teuchos::ArrayRCP<handle_type>& nodes,
+		   const Teuchos::ArrayRCP<const double>& coords,
 		   const int element_type,
 		   const int element_topology,
 		   const int nodes_per_element,
-		   const std::set<handle_type>& elements,
-		   const Teuchos::ArrayRCP<handle_type>& connectivity )
+		   const Teuchos::ArrayRCP<handle_type>& elements,
+		   const Teuchos::ArrayRCP<const handle_type>& connectivity )
 	: d_nodes( nodes )
 	, d_coords( coords )
 	, d_element_type( element_type )
@@ -57,19 +56,19 @@ class MeshContainer
     { /* ... */ }
 
     //! Get the beginning of the nodes set.
-    typename std::set<handle_type>::const_iterator nodesBegin() const
+    typename Teuchos::ArrayRCP<handle_type>::const_iterator nodesBegin() const
     { return d_nodes.begin(); }
 
     //! Get the end of the nodes set.
-    typename std::set<handle_type>::const_iterator nodesEnd() const
+    typename Teuchos::ArrayRCP<handle_type>::const_iterator nodesEnd() const
     { return d_nodes.end(); }
 
     //! Get the beginning of the coordinates vector.
-    Teuchos::ArrayRCP<double>::const_iterator coordsBegin() const
+    Teuchos::ArrayRCP<const double>::const_iterator coordsBegin() const
     { return d_coords.begin(); }
 
     //! Get the end of the coordinates vector.
-    Teuchos::ArrayRCP<double>::const_iterator coordsEnd() const
+    Teuchos::ArrayRCP<const double>::const_iterator coordsEnd() const
     { return d_coords.end(); }
 
     //! Get the element type.
@@ -85,30 +84,30 @@ class MeshContainer
     { return d_nodes_per_element; }
 
     //! Get the beginning of the elements set.
-    typename std::set<handle_type>::const_iterator elementsBegin() const
+    typename Teuchos::ArrayRCP<handle_type>::const_iterator elementsBegin() const
     { return d_elements.begin(); }
 
     //! Get the end of the elements set.
-    typename std::set<handle_type>::const_iterator elementsEnd() const
+    typename Teuchos::ArrayRCP<handle_type>::const_iterator elementsEnd() const
     { return d_elements.end(); }
 
     //! Get the beginning of the connectivity vector.
-    typename Teuchos::ArrayRCP<handle_type>::const_iterator 
+    typename Teuchos::ArrayRCP<const handle_type>::const_iterator 
     connectivityBegin() const
     { return d_connectivity.begin(); }
 
     //! Get the ending of the connectivity vector.
-    typename Teuchos::ArrayRCP<handle_type>::const_iterator 
+    typename Teuchos::ArrayRCP<const handle_type>::const_iterator 
     connectivityEnd() const
     { return d_connectivity.end(); }
     
   private:
 
     // Nodes.
-    std::set<handle_type> d_nodes;
+    Teuchos::ArrayRCP<handle_type> d_nodes;
 
     // Coordinates.
-    Teuchos::ArrayRCP<double> d_coords;
+    Teuchos::ArrayRCP<const double> d_coords;
 
     // Element type.
     std::size_t d_element_type;
@@ -120,10 +119,10 @@ class MeshContainer
     std::size_t d_nodes_per_element;
 
     // Elements.
-    std::set<handle_type> d_elements;
+    Teuchos::ArrayRCP<handle_type> d_elements;
 
     // Connectivity.
-    Teuchos::ArrayRCP<handle_type> d_connectivity;
+    Teuchos::ArrayRCP<const handle_type> d_connectivity;
 };
 
 //---------------------------------------------------------------------------//
@@ -136,10 +135,13 @@ struct MeshTraits< MeshContainer<Handle> >
     typedef MeshContainer<Handle> Container;
     typedef typename Container::handle_type handle_type;
 
-    typedef typename std::set<Handle>::const_iterator const_node_iterator;
-    typedef Teuchos::ArrayRCP<double>::const_iterator const_coordinate_iterator;
-    typedef typename std::set<Handle>::const_iterator const_element_iterator;
     typedef typename Teuchos::ArrayRCP<Handle>::const_iterator 
+    const_node_iterator;
+    typedef Teuchos::ArrayRCP<const double>::const_iterator 
+    const_coordinate_iterator;
+    typedef typename Teuchos::ArrayRCP<Handle>::const_iterator 
+    const_element_iterator;
+    typedef typename Teuchos::ArrayRCP<const Handle>::const_iterator 
     const_connectivity_iterator;
 
     static inline const_node_iterator nodesBegin( const Container& container )

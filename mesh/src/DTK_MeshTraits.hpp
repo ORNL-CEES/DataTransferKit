@@ -43,29 +43,32 @@ class MeshTraits
 
     //@{
     //! Typedefs.
+    //! Typedef for mesh type.
+    typedef T mesh_type;
+
     //! Typedef for handle type. This type must implement
     //! Teuchos::OrdinalTraits.
     typedef typename T::handle_type handle_type;
 
     //! Typedef for random access const iterator to node handle values.
     typedef typename 
-    std::iterator<std::random_access_iterator_tag, handle_type>  
+    std::iterator<std::random_access_iterator_tag, const handle_type>  
     const_node_iterator;
 
     //! Typedef for random access const iterator to coordinate values. This
     //! is enforcing a coordinate type of double.
     typedef typename 
-    std::iterator<std::random_access_iterator_tag, double>  
+    std::iterator<std::random_access_iterator_tag, const double>  
     const_coordinate_iterator;
 
     //! Typedef for random access const iterator to element handle values.
     typedef typename 
-    std::iterator<std::random_access_iterator_tag, handle_type>  
+    std::iterator<std::random_access_iterator_tag, const handle_type>  
     const_element_iterator;
 
     //! Typedef for random access const iterator to connectivity values.
     typedef typename 
-    std::iterator<std::random_access_iterator_tag, handle_type>  
+    std::iterator<std::random_access_iterator_tag, const handle_type>  
     const_connectivity_iterator;
     //@}
 

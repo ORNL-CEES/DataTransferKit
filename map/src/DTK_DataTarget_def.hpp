@@ -24,7 +24,9 @@ namespace DataTransferKit
  * defined. 
  */
 template<class CoordinateField, class DataField>
-DataTarget<CoordinateField,DataField>::DataTarget( const MPI_Comm& mpi_comm )
+DataTarget<CoordinateField,DataField>::DataTarget( 
+    const CoordinateField& coordinate_field,const MPI_Comm& mpi_comm )
+    : d_coord_field( coordinate_field )
 {
     // Wrap the raw communicator in a Teuchos comm object.
     Teuchos::RCP< Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
@@ -54,16 +56,13 @@ DataTarget<CoordinateField,DataField>::~DataTarget()
  */
 template<class CoordinateField, class DataField>
 void DataTarget<CoordinateField,DataField>::registerTargetField( 
-    const std::string& field_name, 
-    const CoordinateField& coordinate_field,
-    DataField& data_space )
+    const std::string& field_name, DataField& data_space )
 {
     // Create an integer id for this field.
     std::size_t field_id = d_name_map.size();
     
     // Add it to the maps.
     d_name_map[ field_name ] = field_id;
-    d_coord_map[ field_id ] = coordinate_field;
     d_data_map[ field_id ] = data_space;
 }
 

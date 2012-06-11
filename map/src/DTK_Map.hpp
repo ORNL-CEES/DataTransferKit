@@ -28,8 +28,8 @@ class Map
     //! Setup the map.
     virtual void setup() = 0;
 
-    //! Apply the map.
-    virtual void apply() = 0;
+    //! Apply the map to a field.
+    virtual void apply( const std::string& field_name ) = 0;
 };
 
 } // end namespace DataTransferKit

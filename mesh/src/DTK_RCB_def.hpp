@@ -160,7 +160,7 @@ BoundingBox RCB<Mesh>::getPartBoundingBox( const int part ) const
 
     testInvariant( ZOLTAN_OK == zoltan_error, 
 		   "Zoltan error getting partition bounding box." );
-    
+
     return BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );
 }
 
