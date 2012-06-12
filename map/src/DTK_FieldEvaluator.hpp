@@ -26,6 +26,7 @@ class FieldEvaluator
     typedef typename MT::handle_type         handle_type;
     typedef DataField                        data_field_type;
     typedef FieldTraits<DataField>           FT;
+    typedef typename FT::value_type          data_type;
     //@}
 
     //! Constructor.
@@ -41,12 +42,12 @@ class FieldEvaluator
      * coordinates and return the evaluations in a DataField.
      * \param elements A vector of element handles in which to evaluate
      * the field.
-     * \param coords A vector of interleaved coordinates 
-     * ( x0, y0, z0, ..., xN, yN, zN ) at which to evaluate the
-     * field. Coordinates ( x_n, y_n, z_n ) should be evaluated in the nth
-     * element in the elements vector.
+     * \param coords A vector of blocked coordinates 
+     * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
+     *  at which to evaluate the field. Coordinates ( xN, yN, zN ) should be
+     * evaluated in the Nth  element in the elements vector.
      * \return Return a DataField containing the evaluated field
-     * values. This returned field is expected to be of the same length as
+     * values. This returned field is required to be of the same length as
      * the elements input vector. For those coordinates that can't be
      * evaluated in the given element, return 0 in their position.
      */

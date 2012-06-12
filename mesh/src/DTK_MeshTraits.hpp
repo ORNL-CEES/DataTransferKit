@@ -28,13 +28,15 @@ struct UndefinedMeshTraits
 /*!
  * \brief Mesh traits definitions.
  *
- * These traits correlate to the basic concept of a mesh within DTK. A
- * mesh will consist of a globally unique list of node handles of a type that
+ * These traits correlate to the basic concept of a mesh within DTK. A mesh
+ * will consist of a globally unique list of node handles of a type that
  * implements Teuchos::OrdinalTraits ( already implemented for common ordinal
  * types ) and a set of globally unique element handles of the same
  * type. Nodes are described by a coordinate field with coordinates of type
  * double. Elements are described by a list of node handles that designate
- * their connectivity.
+ * their connectivity. For each element type, the order of the connecting
+ * elements correlate to a canonical ordering ( I either need to explicitly
+ * required MBCN or offer a permuation vector interface. )
  */
 template<typename T>
 class MeshTraits
