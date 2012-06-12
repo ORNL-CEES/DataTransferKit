@@ -178,13 +178,13 @@ MyMesh buildMyMesh()
     }
 
     std::vector<int> node_handles;
-    std::vector<double> coords;
+    std::vector<double> coords( num_rand );
     for ( int i = 0; i < my_size; ++i )
     {
 	node_handles.push_back( i*my_size + my_rank );
-	coords.push_back( random_numbers[3*i] );
-	coords.push_back( random_numbers[3*i+1] );
-	coords.push_back( random_numbers[3*i+2] );
+	coords[ i ] = random_numbers[3*i];
+	coords[ my_size + i ] = random_numbers[3*i+1];
+	coords[ 2*my_size + i ] = random_numbers[3*i+2];
     }
 
     // Empty element vectors. We only need nodes for these tests.
@@ -207,8 +207,9 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
     MyMesh my_mesh = buildMyMesh();
 
     // All of the nodes will be partitioned.
-    int num_nodes = 3 * std::distance( MT::nodesBegin( my_mesh ),
-				      MT::nodesEnd( my_mesh ) );
+    int num_nodes = std::distance( MT::nodesBegin( my_mesh ),
+				   MT::nodesEnd( my_mesh ) );
+    int num_coords = 3 * num_nodes;
     std::vector<char> active_nodes( num_nodes, 1 );
 
     // Partition the mesh with RCB.
@@ -219,19 +220,19 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
     // Get the random numbers that were used to compute the node coordinates.
     std::srand( 1 );
     std::vector<double> random_numbers;
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_coords; ++i )
     {
 	random_numbers.push_back( (double) std::rand() / RAND_MAX );
     }
 
     // Check that these are in fact the random numbers used for the nodes.
-    typename MT::const_coordinate_iterator coord_iterator;
-    std::vector<double>::const_iterator rand_iterator = random_numbers.begin();
-    for ( coord_iterator = MT::coordsBegin( my_mesh );
-	  coord_iterator != MT::coordsEnd( my_mesh );
-	  ++coord_iterator, ++rand_iterator )
+    typename MT::const_coordinate_iterator coord_iterator 
+	= MT::coordsBegin( my_mesh );
+    for ( int i = 0; i < num_nodes; ++i )
     {
-	TEST_ASSERT( *coord_iterator == *rand_iterator );
+	TEST_ASSERT( coord_iterator[ i ] == random_numbers[3*i] );
+	TEST_ASSERT( coord_iterator[ num_nodes + i ] == random_numbers[3*i+1] );
+	TEST_ASSERT( coord_iterator[ 2*num_nodes + i ] == random_numbers[3*i+2] );
     }
 
     // Get MPI parameters.
