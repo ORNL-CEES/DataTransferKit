@@ -32,9 +32,9 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<class Mesh>
-Rendezvous<Mesh>::Rendezvous( const RCP_Comm& global_comm,
+Rendezvous<Mesh>::Rendezvous( const RCP_Comm& comm,
 			      const BoundingBox& global_box )
-    : d_global_comm( global_comm )
+    : d_comm( comm )
     , d_global_box( global_box )
 { /* ... */ }
 
@@ -62,7 +62,7 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
     // nodes that are in the box.
     d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh, 
 					 Teuchos::arcpFromArray( nodes_in_box ), 
-					 d_global_comm ) );
+					 d_comm ) );
     testPostcondition( d_rcb != Teuchos::null,
 		       "Error creating RCB decomposition." );
     d_rcb->partition();
@@ -235,33 +235,34 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     // rendezvous decomposition.
     Teuchos::Array<handle_type> rendezvous_nodes;
     Teuchos::Array<handle_type> rendezvous_elements;
-    setupCommunication( mesh, elements_in_box,
-			rendezvous_nodes, rendezvous_elements );
+    setupImportCommunication( mesh, elements_in_box,
+			      rendezvous_nodes, rendezvous_elements );
 
     // Setup export node map.
     ordinal_type num_nodes = std::distance( MT::nodesBegin( mesh ), 
 					    MT::nodesEnd( mesh ) );
-    Teuchos::ArrayView<const handle_type> export_node_view( 
+    Teuchos::ArrayView<const handle_type> export_node_view(
 	&*MT::nodesBegin( mesh ), num_nodes );
     RCP_TpetraMap export_node_map = Tpetra::createNonContigMap<handle_type>( 
-	export_node_view, d_global_comm );
+	export_node_view, d_comm );
     testPostcondition( export_node_map != Teuchos::null,
 		       "Error creating node export map." );
 
     // Setup import node map.
-    Teuchos::ArrayView<const handle_type> rendezvous_nodes_view = rendezvous_nodes();
+    Teuchos::ArrayView<const handle_type> rendezvous_nodes_view = 
+	rendezvous_nodes();
     RCP_TpetraMap import_node_map = Tpetra::createNonContigMap<handle_type>(
-	rendezvous_nodes_view, d_global_comm );
+	rendezvous_nodes_view, d_comm );
     testPostcondition( import_node_map != Teuchos::null,
 		       "Error creating node import map." );
 
     // Setup export element map.
     ordinal_type num_elements = std::distance( MT::elementsBegin( mesh ), 
 					       MT::elementsEnd( mesh ) );
-    Teuchos::ArrayView<const handle_type> export_element_view( 
+    Teuchos::ArrayView<const handle_type> export_element_view(
 	&*MT::elementsBegin( mesh ), num_elements );
     RCP_TpetraMap export_element_map = Tpetra::createNonContigMap<handle_type>(
-	export_element_view, d_global_comm );
+	export_element_view, d_comm );
     testPostcondition( export_element_map != Teuchos::null,
 		       "Error creating element export map." );
 
@@ -269,14 +270,14 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     Teuchos::ArrayView<const handle_type> rendezvous_elements_view =
 	rendezvous_elements();
     RCP_TpetraMap import_element_map = Tpetra::createNonContigMap<handle_type>(
-	rendezvous_elements_view, d_global_comm );
+	rendezvous_elements_view, d_comm );
     testPostcondition( import_element_map != Teuchos::null,
 		       "Error creating element import map." );
 
-    // Setup exporters.
-    Tpetra::Export<handle_type> node_exporter( export_node_map, 
+    // Setup importers.
+    Tpetra::Import<handle_type> node_importer( export_node_map, 
 					       import_node_map );
-    Tpetra::Export<handle_type> element_exporter( export_element_map, 
+    Tpetra::Import<handle_type> element_importer( export_element_map, 
 						  import_element_map );
 
     // Move the node coordinates to the rendezvous decomposition.
@@ -287,18 +288,19 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 	createMultiVectorFromView( export_node_map, export_coords_view, 
 				   num_nodes, 3 );
     Tpetra::MultiVector<double> import_coords( import_node_map, 3 );
-    import_coords.doExport( *export_coords, node_exporter, Tpetra::INSERT );
+    import_coords.doImport( *export_coords, node_importer, Tpetra::INSERT );
 
-    // Move the element connectivity to the rendezvous decomposition. 
-    ordinal_type num_conn = MT::nodesPerElement( mesh ) * num_elements;
+    // Move the element connectivity to the rendezvous decomposition.
+    int nodes_per_element = MT::nodesPerElement( mesh );
+    ordinal_type num_conn = nodes_per_element * num_elements;
     Teuchos::ArrayRCP<handle_type> export_conn_view( 
 	(handle_type*) &*MT::connectivityBegin( mesh ),	0, num_conn, false );
     Teuchos::RCP< Tpetra::MultiVector<handle_type,handle_type> > export_conn = 
 	createMultiVectorFromView( export_element_map, export_conn_view, 
-				   num_elements, MT::nodesPerElement( mesh ) );
+				   num_elements, nodes_per_element );
     Tpetra::MultiVector<handle_type,handle_type> import_conn( 
-	import_element_map, MT::nodesPerElement( mesh ) );
-    import_conn.doExport( *export_conn, element_exporter, Tpetra::INSERT );
+	import_element_map, nodes_per_element );
+    import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
 
     // Construct the mesh container from the collected data, effectively
     // wrapping it with mesh traits. 
@@ -307,7 +309,7 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 	import_coords.get1dView(),
 	MT::elementType( mesh ),
 	MT::elementTopology( mesh ),
-	MT::nodesPerElement( mesh ),
+	nodes_per_element,
 	Teuchos::arcpFromArray( rendezvous_elements ), 
 	import_conn.get1dView() );
 
@@ -319,10 +321,10 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Setup the communication patterns.
+ * \brief Setup the import communication patterns.
  */
 template<class Mesh>
-void Rendezvous<Mesh>::setupCommunication( 
+void Rendezvous<Mesh>::setupImportCommunication( 
     const Mesh& mesh,
     const Teuchos::Array<int>& elements_in_box,
     Teuchos::Array<handle_type>& rendezvous_nodes,
@@ -383,10 +385,6 @@ void Rendezvous<Mesh>::setupCommunication(
 		node_coords[1] = mesh_coords[ num_nodes + node_index ];
 		node_coords[2] = mesh_coords[ 2*num_nodes + node_index ];
 		destination_proc = d_rcb->getDestinationProc( node_coords );
-		std::cout << node_coords[0] << " " 
-			  << node_coords[1] << " " 
-			  << node_coords[2] << " " 
-			  << destination_proc << std::endl;
 		export_element_procs_set[n].insert( destination_proc );
 	    }
 	}
@@ -416,7 +414,7 @@ void Rendezvous<Mesh>::setupCommunication(
 
     // Now we know where the elements need to go. Move the elements to the
     // rendezvous decomposition through an inverse communciation operation.
-    Tpetra::Distributor element_distributor( d_global_comm );
+    Tpetra::Distributor element_distributor( d_comm );
     Teuchos::ArrayView<int> export_element_procs_view = export_element_procs();
     ordinal_type num_import_elements = element_distributor.createFromSends(
 	export_element_procs_view );
@@ -426,7 +424,7 @@ void Rendezvous<Mesh>::setupCommunication(
     Teuchos::ArrayView<handle_type> import_elements_view = import_elements();
     element_distributor.doPostsAndWaits( 
 	export_elements_view, 1, import_elements_view );
-
+    
     // Next move these into the rendezvous element set so that we have a
     // unique list of the elements.
     typename Teuchos::Array<handle_type>::const_iterator import_element_iterator;
@@ -499,7 +497,7 @@ void Rendezvous<Mesh>::setupCommunication(
 
     // Now we know where the nodes need to go. Move the nodes to the
     // rendezvous decomposition through an inverse communciation operation.
-    Tpetra::Distributor node_distributor( d_global_comm );
+    Tpetra::Distributor node_distributor( d_comm );
     Teuchos::ArrayView<int> export_node_procs_view = export_node_procs();
     ordinal_type num_import_nodes = node_distributor.createFromSends(
 	export_node_procs_view );
