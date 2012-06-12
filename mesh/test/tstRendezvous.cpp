@@ -56,10 +56,10 @@ class MyMesh
     MyMesh() 
     { /* ... */ }
 
-    MyMesh( const std::vector<int>& node_handles,
-	    const std::vector<double>& coords,
-	    const std::vector<int>& quad_handles,
-	    const std::vector<int>& quad_connectivity )
+    MyMesh( const Teuchos::Array<int>& node_handles,
+	    const Teuchos::Array<double>& coords,
+	    const Teuchos::Array<int>& quad_handles,
+	    const Teuchos::Array<int>& quad_connectivity )
 	: d_node_handles( node_handles )
 	, d_coords( coords )
 	, d_quad_handles( quad_handles )
@@ -69,37 +69,37 @@ class MyMesh
     ~MyMesh()
     { /* ... */ }
 
-    std::vector<int>::const_iterator nodesBegin() const
+    Teuchos::Array<int>::const_iterator nodesBegin() const
     { return d_node_handles.begin(); }
 
-    std::vector<int>::const_iterator nodesEnd() const
+    Teuchos::Array<int>::const_iterator nodesEnd() const
     { return d_node_handles.end(); }
 
-    std::vector<double>::const_iterator coordsBegin() const
+    Teuchos::Array<double>::const_iterator coordsBegin() const
     { return d_coords.begin(); }
 
-    std::vector<double>::const_iterator coordsEnd() const
+    Teuchos::Array<double>::const_iterator coordsEnd() const
     { return d_coords.end(); }
 
-    std::vector<int>::const_iterator quadsBegin() const
+    Teuchos::Array<int>::const_iterator quadsBegin() const
     { return d_quad_handles.begin(); }
 
-    std::vector<int>::const_iterator quadsEnd() const
+    Teuchos::Array<int>::const_iterator quadsEnd() const
     { return d_quad_handles.end(); }
 
-    std::vector<int>::const_iterator connectivityBegin() const
+    Teuchos::Array<int>::const_iterator connectivityBegin() const
     { return d_quad_connectivity.begin(); }
 
-    std::vector<int>::const_iterator connectivityEnd() const
+    Teuchos::Array<int>::const_iterator connectivityEnd() const
     { return d_quad_connectivity.end(); }
     
 
   private:
 
-    std::vector<int> d_node_handles;
-    std::vector<double> d_coords;
-    std::vector<int> d_quad_handles;
-    std::vector<int> d_quad_connectivity;
+    Teuchos::Array<int> d_node_handles;
+    Teuchos::Array<double> d_coords;
+    Teuchos::Array<int> d_quad_handles;
+    Teuchos::Array<int> d_quad_connectivity;
 };
 
 //---------------------------------------------------------------------------//
@@ -116,10 +116,10 @@ class MeshTraits<MyMesh>
   public:
 
     typedef MyMesh::handle_type handle_type;
-    typedef std::vector<int>::const_iterator const_node_iterator;
-    typedef std::vector<double>::const_iterator const_coordinate_iterator;
-    typedef std::vector<int>::const_iterator const_element_iterator;
-    typedef std::vector<int>::const_iterator const_connectivity_iterator;
+    typedef Teuchos::Array<int>::const_iterator const_node_iterator;
+    typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
+    typedef Teuchos::Array<int>::const_iterator const_element_iterator;
+    typedef Teuchos::Array<int>::const_iterator const_connectivity_iterator;
 
     static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
@@ -165,12 +165,11 @@ class MeshTraits<MyMesh>
 MyMesh buildMyMesh()
 {
     int my_rank = getDefaultComm<int>()->getRank();
-    int my_size = getDefaultComm<int>()->getSize();
 
     // Make some nodes.
     int num_nodes = 10;
-    std::vector<int> node_handles( num_nodes );
-    std::vector<double> coords( 3*num_nodes );
+    Teuchos::Array<int> node_handles( num_nodes );
+    Teuchos::Array<double> coords( 3*num_nodes );
 
     for ( int i = 0; i < num_nodes; ++i )
     {
@@ -178,29 +177,29 @@ MyMesh buildMyMesh()
     }
     for ( int i = 0; i < num_nodes / 2; ++i )
     {
-	coords[3*i] = my_rank;
-	coords[3*i+1] = i;
-	coords[3*i+2] = 0.0;
+	coords[ i ] = my_rank;
+	coords[ num_nodes + i ] = i;
+	coords[ 2*num_nodes + i ] = 0.0;
     }
     for ( int i = num_nodes / 2; i < num_nodes; ++i )
     {
-	coords[3*i] = my_rank + 1;
-	coords[3*i+1] = i - num_nodes/2;
-	coords[3*i+2] = 0.0;
+	coords[ i ] = my_rank + 1;
+	coords[ num_nodes + i ] = i - num_nodes/2;
+	coords[ 2*num_nodes + i ] = 0.0;
     }
     
     // Make the quads.
     int num_quads = 4;
-    std::vector<int> quad_handles( num_quads );
-    std::vector<int> quad_connectivity( 4*num_quads );
+    Teuchos::Array<int> quad_handles( num_quads );
+    Teuchos::Array<int> quad_connectivity( 4*num_quads );
     
     for ( int i = 0; i < num_quads; ++i )
     {
-	quad_handles[i] = num_quads*my_rank + i;
-	quad_connectivity[4*i] = node_handles[i];
-	quad_connectivity[4*i+1] = node_handles[num_nodes/2 + i];
-	quad_connectivity[4*i+2] = node_handles[num_nodes/2 + i + 1];
-	quad_connectivity[4*i+3] = node_handles[i+1];
+	quad_handles[ i ] = num_quads*my_rank + i;
+	quad_connectivity[ i ] = node_handles[i];
+	quad_connectivity[ num_quads + i ] = node_handles[num_nodes/2 + i];
+	quad_connectivity[ 2*num_quads + i ] = node_handles[num_nodes/2 + i + 1];
+	quad_connectivity[ 3*num_quads + i ] = node_handles[i+1];
     }
 
     return MyMesh( node_handles, coords, quad_handles, quad_connectivity );
@@ -282,6 +281,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
     rendezvous.build( my_mesh );
 
     // Check the mesh.
+    getDefaultComm<int>()->barrier();
     std::string output_file_name;
     for ( int i = 0; i < my_size; ++i )
     {

@@ -14,6 +14,8 @@
 #include "DTK_TopologyTools.hpp"
 #include <DTK_Exception.hpp>
 
+#include <Teuchos_ArrayView.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//

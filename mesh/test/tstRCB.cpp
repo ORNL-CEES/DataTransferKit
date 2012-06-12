@@ -57,10 +57,10 @@ class MyMesh
     MyMesh() 
     { /* ... */ }
 
-    MyMesh( const std::vector<int>& node_handles,
-	    const std::vector<double>& coords,
-	    const std::vector<int>& hex_handles,
-	    const std::vector<int>& hex_connectivity )
+    MyMesh( const Teuchos::Array<int>& node_handles,
+	    const Teuchos::Array<double>& coords,
+	    const Teuchos::Array<int>& hex_handles,
+	    const Teuchos::Array<int>& hex_connectivity )
 	: d_node_handles( node_handles )
 	, d_coords( coords )
 	, d_hex_handles( hex_handles )
@@ -70,37 +70,37 @@ class MyMesh
     ~MyMesh()
     { /* ... */ }
 
-    std::vector<int>::const_iterator nodesBegin() const
+    Teuchos::Array<int>::const_iterator nodesBegin() const
     { return d_node_handles.begin(); }
 
-    std::vector<int>::const_iterator nodesEnd() const
+    Teuchos::Array<int>::const_iterator nodesEnd() const
     { return d_node_handles.end(); }
 
-    std::vector<double>::const_iterator coordsBegin() const
+    Teuchos::Array<double>::const_iterator coordsBegin() const
     { return d_coords.begin(); }
 
-    std::vector<double>::const_iterator coordsEnd() const
+    Teuchos::Array<double>::const_iterator coordsEnd() const
     { return d_coords.end(); }
 
-    std::vector<int>::const_iterator hexesBegin() const
+    Teuchos::Array<int>::const_iterator hexesBegin() const
     { return d_hex_handles.begin(); }
 
-    std::vector<int>::const_iterator hexesEnd() const
+    Teuchos::Array<int>::const_iterator hexesEnd() const
     { return d_hex_handles.end(); }
 
-    std::vector<int>::const_iterator connectivityBegin() const
+    Teuchos::Array<int>::const_iterator connectivityBegin() const
     { return d_hex_connectivity.begin(); }
 
-    std::vector<int>::const_iterator connectivityEnd() const
+    Teuchos::Array<int>::const_iterator connectivityEnd() const
     { return d_hex_connectivity.end(); }
     
 
   private:
 
-    std::vector<int> d_node_handles;
-    std::vector<double> d_coords;
-    std::vector<int> d_hex_handles;
-    std::vector<int> d_hex_connectivity;
+    Teuchos::Array<int> d_node_handles;
+    Teuchos::Array<double> d_coords;
+    Teuchos::Array<int> d_hex_handles;
+    Teuchos::Array<int> d_hex_connectivity;
 };
 
 //---------------------------------------------------------------------------//
@@ -117,10 +117,10 @@ class MeshTraits<MyMesh>
   public:
 
     typedef MyMesh::handle_type handle_type;
-    typedef std::vector<int>::const_iterator const_node_iterator;
-    typedef std::vector<double>::const_iterator const_coordinate_iterator;
-    typedef std::vector<int>::const_iterator const_element_iterator;
-    typedef std::vector<int>::const_iterator const_connectivity_iterator;
+    typedef Teuchos::Array<int>::const_iterator const_node_iterator;
+    typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
+    typedef Teuchos::Array<int>::const_iterator const_element_iterator;
+    typedef Teuchos::Array<int>::const_iterator const_connectivity_iterator;
     
 
     static inline const_node_iterator nodesBegin( const MyMesh& mesh )
@@ -170,15 +170,15 @@ MyMesh buildMyMesh()
 
     // Make some random nodes.
     std::srand( 1 );
-    std::vector<double> random_numbers;
+    Teuchos::Array<double> random_numbers;
     int num_rand = 3*my_size;
     for ( int i = 0; i < num_rand; ++i )
     {
 	random_numbers.push_back( (double) std::rand() / RAND_MAX );
     }
 
-    std::vector<int> node_handles;
-    std::vector<double> coords( num_rand );
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords( num_rand );
     for ( int i = 0; i < my_size; ++i )
     {
 	node_handles.push_back( i*my_size + my_rank );
@@ -188,8 +188,8 @@ MyMesh buildMyMesh()
     }
 
     // Empty element vectors. We only need nodes for these tests.
-    std::vector<int> element_handles;
-    std::vector<int> element_connectivity;
+    Teuchos::Array<int> element_handles;
+    Teuchos::Array<int> element_connectivity;
     
     return MyMesh( node_handles, coords, element_handles, element_connectivity );
 }
@@ -210,16 +210,17 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
     int num_nodes = std::distance( MT::nodesBegin( my_mesh ),
 				   MT::nodesEnd( my_mesh ) );
     int num_coords = 3 * num_nodes;
-    std::vector<char> active_nodes( num_nodes, 1 );
+    Teuchos::Array<int> active_nodes( num_nodes, 1 );
 
     // Partition the mesh with RCB.
     typedef RCB<MyMesh>::zoltan_id_type zoltan_id_type;
-    RCB<MyMesh> rcb( my_mesh, active_nodes, getDefaultComm<int>() );
+    RCB<MyMesh> rcb( my_mesh, Teuchos::arcpFromArray( active_nodes ), 
+		     getDefaultComm<int>() );
     rcb.partition();
 
     // Get the random numbers that were used to compute the node coordinates.
     std::srand( 1 );
-    std::vector<double> random_numbers;
+    Teuchos::Array<double> random_numbers;
     for ( int i = 0; i < num_coords; ++i )
     {
 	random_numbers.push_back( (double) std::rand() / RAND_MAX );

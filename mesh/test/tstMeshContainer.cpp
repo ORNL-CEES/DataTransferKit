@@ -24,6 +24,7 @@
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_Array.hpp>
 #include <Teuchos_TypeTraits.hpp>
 
 #include <MBRange.hpp>
@@ -199,12 +200,12 @@ TEUCHOS_UNIT_TEST( MeshContainer, mesh_container_test )
     error = moab->get_connectivity( mesh_elements, connectivity );
     TEST_ASSERT( moab::MB_SUCCESS == error );
 
-    std::vector<double> vertex_coords( 3 * connectivity.size() );
+    Teuchos::Array<double> vertex_coords( 3 * connectivity.size() );
     error = moab->get_coords( connectivity, &vertex_coords[0] );
     TEST_ASSERT( moab::MB_SUCCESS == error );
 
     int num_nodes = connectivity.size();
-    std::vector<double>::const_iterator moab_coord_iterator;
+    Teuchos::Array<double>::const_iterator moab_coord_iterator;
     typename MT::const_coordinate_iterator coord_iterator = 
 	MT::coordsBegin( mesh_container );
     int i = 0;

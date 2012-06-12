@@ -93,7 +93,7 @@ bool TopologyTools::pointInElement( double coords[3],
 
     // Extract only the nodes to build the linear element.
     int num_linear_nodes = numLinearNodes( element_topology );
-    std::vector<moab::EntityHandle> linear_nodes;
+    Teuchos::Array<moab::EntityHandle> linear_nodes;
     for ( int n = 0; n < num_linear_nodes; ++n )
     {
 	linear_nodes.push_back( element_nodes[n] );
@@ -105,7 +105,7 @@ bool TopologyTools::pointInElement( double coords[3],
 	topo_factory.create( element_topology, num_linear_nodes );
 
     // Extract the node coordinates.
-    std::vector<double> node_coords( 3 * num_linear_nodes );
+    Teuchos::Array<double> node_coords( 3 * num_linear_nodes );
     error = moab->get_coords( &linear_nodes[0], 
 			      linear_nodes.size(), 
 			      &node_coords[0] );

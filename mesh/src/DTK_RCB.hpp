@@ -9,14 +9,14 @@
 #ifndef DTK_RCB_HPP
 #define DTK_RCB_HPP
 
-#include <vector>
-
 #include "DTK_BoundingBox.hpp"
 #include "DTK_MeshTraits.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 
 #include <zoltan.h>
 
@@ -39,7 +39,7 @@ class RCB
     //@}
 
     // Constructor.
-    RCB( const Mesh& mesh, const std::vector<char>& active_nodes, 
+    RCB( const Mesh& mesh, const Teuchos::ArrayRCP<int>& active_nodes, 
 	 const RCP_Comm& comm );
 
     // Destructor.
@@ -104,11 +104,11 @@ class RCB
 	Mesh d_mesh;
 
 	// The active nodes in the mesh.
-	std::vector<char> d_active_nodes;
+	Teuchos::ArrayRCP<int> d_active_nodes;
 
 	// Constructor.
 	MeshData( const Mesh& mesh, 
-		  const std::vector<char>& active_nodes )
+		  const Teuchos::ArrayRCP<int>& active_nodes )
 	    : d_mesh( mesh )
 	    , d_active_nodes( active_nodes )
 	{ /* ... */ }
@@ -144,7 +144,7 @@ class RCB
     MeshData d_mesh_data;
 
     // Partition bounding boxes.
-    std::vector<BoundingBox> d_part_boxes;
+    Teuchos::Array<BoundingBox> d_part_boxes;
 
     // Zoltan struct.
     Zoltan_Struct *d_zz;

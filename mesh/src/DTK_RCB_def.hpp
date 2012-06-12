@@ -21,7 +21,7 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<class Mesh>
-RCB<Mesh>::RCB( const Mesh& mesh, const std::vector<char>& active_nodes,
+RCB<Mesh>::RCB( const Mesh& mesh, const Teuchos::ArrayRCP<int>& active_nodes,
 		const RCP_Comm& comm )
     : d_mesh_data( mesh, active_nodes )
     , d_part_boxes( comm->getSize() )
@@ -101,7 +101,7 @@ void RCB<Mesh>::partition()
 		   "Zoltan error creating RCB partitioning" );
 
     // Get the bounding boxes on all processes.
-    std::vector<BoundingBox>::iterator box_iterator;
+    Teuchos::Array<BoundingBox>::iterator box_iterator;
     int i = 0;
     for ( box_iterator = d_part_boxes.begin();
 	  box_iterator != d_part_boxes.end();
@@ -125,7 +125,7 @@ int RCB<Mesh>::getDestinationProc( double coords[3] ) const
     // Do a linear search through the bounding boxes for now. This really
     // needs to be logarithmic as we are checking every mesh node with this
     // during rendezvous construction and every target node during mapping.
-    std::vector<BoundingBox>::const_iterator box_iterator;
+    Teuchos::Array<BoundingBox>::const_iterator box_iterator;
     int i = 0;
     for ( box_iterator = d_part_boxes.begin();
 	  box_iterator != d_part_boxes.end();
@@ -173,7 +173,7 @@ int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
 {
     MeshData *mesh_data = static_cast<MeshData*>( data );
     int num_nodes = 0;
-    std::vector<char>::const_iterator active_iterator;
+    Teuchos::ArrayRCP<int>::const_iterator active_iterator;
     for ( active_iterator = mesh_data->d_active_nodes.begin();
 	  active_iterator != mesh_data->d_active_nodes.end();
 	  ++active_iterator )
@@ -202,7 +202,7 @@ void RCB<Mesh>::getObjectList(
     *ierr = ZOLTAN_OK;
 
     // Note here that the local ID is being set the the node array index.
-    std::vector<char>::const_iterator active_iterator;
+    Teuchos::ArrayRCP<int>::const_iterator active_iterator;
     typename MT::const_node_iterator handle_iterator;
     zoltan_id_type i = 0;
     zoltan_id_type j = 0;
@@ -247,7 +247,7 @@ void RCB<Mesh>::getGeometryList(
 
     // Get the number of nodes.
     int num_nodes = 0;
-    std::vector<char>::const_iterator active_iterator;
+    Teuchos::ArrayRCP<int>::const_iterator active_iterator;
     for ( active_iterator = mesh_data->d_active_nodes.begin();
 	  active_iterator != mesh_data->d_active_nodes.end();
 	  ++active_iterator )

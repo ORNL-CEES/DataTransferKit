@@ -54,13 +54,15 @@ template<class Mesh>
 void Rendezvous<Mesh>::build( const Mesh& mesh )
 {
     // Extract the mesh nodes and elements that are in the bounding box.
-    std::vector<char> nodes_in_box;
-    std::vector<char> elements_in_box;
+    Teuchos::Array<int> nodes_in_box;
+    Teuchos::Array<int> elements_in_box;
     getMeshInBox( mesh, d_global_box, nodes_in_box, elements_in_box );
 
     // Construct the rendezvous decomposition of the mesh with RCB using the
     // nodes that are in the box.
-    d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh, nodes_in_box, d_global_comm ) );
+    d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh, 
+					 Teuchos::arcpFromArray( nodes_in_box ), 
+					 d_global_comm ) );
     testPostcondition( d_rcb != Teuchos::null,
 		       "Error creating RCB decomposition." );
     d_rcb->partition();
@@ -81,17 +83,18 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*! 
- * \brief Get the rendezvous processes for a list of points.
+ * \brief Get the rendezvous processes for a list of points. ( Need to specify
+ * blocked or interleaved here. Should probably do blocked for constistency.)
  */
 template<class Mesh>
-std::vector<int> Rendezvous<Mesh>::getRendezvousProcs(
-    const std::vector<double>& coords ) const
+Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
+    const Teuchos::Array<double>& coords ) const
 {
     testPrecondition( coords.size() % 3 == 0, 
 		      "Three dimensional coordinates not provided." );
     
     ordinal_type num_points = coords.size() / 3;
-    std::vector<int> destination_procs;
+    Teuchos::Array<int> destination_procs;
     for ( ordinal_type i = 0; i < num_points; ++i )
     {
 	double point[3] = { coords[3*i], coords[3*i+1], coords[3*i+2] };
@@ -108,17 +111,19 @@ std::vector<int> Rendezvous<Mesh>::getRendezvousProcs(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the native mesh elements containing a list of coordinates.
+ * \brief Get the native mesh elements containing a list of coordinates.  (
+ * Need to specify blocked or interleaved here. Should probably do blocked for
+ * constistency.)
  */
 template<class Mesh>
-std::vector< typename Rendezvous<Mesh>::handle_type >
-Rendezvous<Mesh>::getElements( const std::vector<double>& coords ) const
+Teuchos::Array< typename Rendezvous<Mesh>::handle_type >
+Rendezvous<Mesh>::getElements( const Teuchos::Array<double>& coords ) const
 {
     testPrecondition( coords.size() % 3 == 0, 
 		      "Three dimensional coordinates not provided." );
     
     ordinal_type num_points = coords.size() / 3;
-    std::vector<handle_type> element_handles;
+    Teuchos::Array<handle_type> element_handles;
     for ( ordinal_type i = 0; i < num_points; ++i )
     {
 	double point[3] = { coords[3*i], coords[3*i+1], coords[3*i+2] };
@@ -140,8 +145,8 @@ Rendezvous<Mesh>::getElements( const std::vector<double>& coords ) const
 template<class Mesh>
 void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 				     const BoundingBox& box,
-				     std::vector<char>& nodes_in_box,
-				     std::vector<char>& elements_in_box )
+				     Teuchos::Array<int>& nodes_in_box,
+				     Teuchos::Array<int>& elements_in_box )
 {
     // Create a map indexed by node handle containing the actual node handle
     // location. This will give us logarithmic time access to connectivity. I
@@ -162,13 +167,13 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 
     // Get all of the nodes that are in the box. 
     double node_coords[3];
-    typename MT::const_coordinate_iterator coord_iterator;
-    for ( coord_iterator = MT::coordsBegin( mesh );
-	  coord_iterator != MT::coordsEnd( mesh ); )
+    typename MT::const_coordinate_iterator mesh_coords = 
+	MT::coordsBegin( mesh );
+    for ( ordinal_type n = 0; n < num_nodes; ++n )
     {
-	for ( int i = 0; i < 3; ++i, ++coord_iterator )
+	for ( int i = 0; i < 3; ++i )
 	{
-	    node_coords[i] = *coord_iterator;
+	    node_coords[i] = mesh_coords[ i*num_nodes + n ];
 	}
 	nodes_in_box.push_back( box.pointInBox( node_coords ) );
     }
@@ -178,20 +183,19 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
     // construct. These elements are in the box.
     ordinal_type num_elements = std::distance( MT::elementsBegin( mesh ),
 					       MT::elementsEnd( mesh ) );
-    int nodes_per_element = MT::nodesPerElement( mesh );
+    std::size_t nodes_per_element = MT::nodesPerElement( mesh );
     ordinal_type node_index;
-    char this_element_in_box;
-    typename MT::const_element_iterator element_iterator;
-    typename MT::const_connectivity_iterator connectivity_iterator;
-    for ( element_iterator = MT::elementsBegin( mesh ),
-     connectivity_iterator = MT::connectivityBegin( mesh );
-	  element_iterator != MT::elementsEnd( mesh );
-	  ++element_iterator )
+    handle_type node_handle;
+    int this_element_in_box;
+    typename MT::const_connectivity_iterator mesh_connectivity =
+	MT::connectivityBegin( mesh );
+    for ( ordinal_type n = 0; n < num_elements; ++n )
     {
 	this_element_in_box = 0;
-	for ( int n = 0; n < nodes_per_element; ++n, ++connectivity_iterator )
+	for ( std::size_t i = 0; i < nodes_per_element; ++i )
 	{
-	    node_index = node_indices.find( *connectivity_iterator )->second;
+	    node_handle = mesh_connectivity[ i*num_elements + n ];
+	    node_index = node_indices.find( node_handle )->second;
 	    if ( nodes_in_box[ node_index ] )
 	    {
 		this_element_in_box = 1;
@@ -203,27 +207,17 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 
     // Get the nodes that belong to the elements in the box, but are not in
     // the box themselves. These will also be used in RCB.
-    ordinal_type i = 0;
-    for ( element_iterator = MT::elementsBegin( mesh ),
-     connectivity_iterator = MT::connectivityEnd( mesh );
-	  element_iterator != MT::elementsEnd( mesh );
-	  ++element_iterator )
+    for ( ordinal_type n = 0; n < num_elements; ++n )
     {
-	if ( elements_in_box[i] )
+	if ( elements_in_box[n] )
 	{
-	    for ( int n = 0; n < nodes_per_element; ++n, ++connectivity_iterator )
+	    for ( std::size_t i = 0; i < nodes_per_element; ++i )
 	    {
-		node_index = 
-		    node_indices.find( *connectivity_iterator )->second;
+		node_handle = mesh_connectivity[ i*num_elements + n ];
+		node_index = node_indices.find( node_handle )->second;
 		nodes_in_box[ node_index ] = 1;
 	    }
 	}
-	else
-	{
-	    connectivity_iterator += nodes_per_element;
-	}
-
-	++i;
     }
 }
 
@@ -234,7 +228,7 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
  */
 template<class Mesh>
 void Rendezvous<Mesh>::sendMeshToRendezvous( 
-    const Mesh& mesh, const std::vector<char>& elements_in_box )
+    const Mesh& mesh, const Teuchos::Array<int>& elements_in_box )
 {
     // Setup the communication patterns for moving the mesh to the rendezvous
     // decomposition. This will also move the node and element handles to the
@@ -330,7 +324,7 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 template<class Mesh>
 void Rendezvous<Mesh>::setupCommunication( 
     const Mesh& mesh,
-    const std::vector<char>& elements_in_box,
+    const Teuchos::Array<int>& elements_in_box,
     Teuchos::Array<handle_type>& rendezvous_nodes,
     Teuchos::Array<handle_type>& rendezvous_elements )
 {
@@ -364,48 +358,46 @@ void Rendezvous<Mesh>::setupCommunication(
     // box. The element will need to be sent to each partition that its
     // connecting nodes exist in. We'll make a unique destination proc set for
     // each element.
-    handle_type num_elements = std::distance( MT::elementsBegin( mesh ),
-					      MT::elementsEnd( mesh ) );
-    std::vector< std::set<int> > export_element_procs_set( num_elements );
-    int nodes_per_element = MT::nodesPerElement( mesh );
+    ordinal_type num_nodes = std::distance( MT::nodesBegin( mesh ),
+					    MT::nodesEnd( mesh ) );
+    ordinal_type num_elements = std::distance( MT::elementsBegin( mesh ),
+					       MT::elementsEnd( mesh ) );
+    Teuchos::Array< std::set<int> > export_element_procs_set( num_elements );
+    std::size_t nodes_per_element = MT::nodesPerElement( mesh );
     ordinal_type node_index;
+    handle_type node_handle;
     int destination_proc;
     double node_coords[3];
     typename MT::const_coordinate_iterator mesh_coords = MT::coordsBegin( mesh );
-    typename MT::const_element_iterator element_iterator;
-    typename MT::const_connectivity_iterator connectivity_iterator;
-    handle_type i = 0;
-    for ( element_iterator = MT::elementsBegin( mesh ),
-     connectivity_iterator = MT::connectivityBegin( mesh );
-	  element_iterator != MT::elementsEnd( mesh );
-	  ++element_iterator )
+    typename MT::const_connectivity_iterator mesh_connectivity = 
+	MT::connectivityBegin( mesh );
+    for ( ordinal_type n = 0; n < num_elements; ++n )
     {
-	if ( elements_in_box[i] )
+	if ( elements_in_box[n] )
 	{
-	    for ( int n = 0; n < nodes_per_element; ++n, ++connectivity_iterator )
+	    for ( std::size_t i = 0; i < nodes_per_element; ++i )
 	    {
-		node_index = 
-		    node_indices.find( *connectivity_iterator )->second;
-		node_coords[0] = mesh_coords[ 3*node_index ];
-		node_coords[1] = mesh_coords[ 3*node_index + 1 ];
-		node_coords[2] = mesh_coords[ 3*node_index + 2 ];
+		node_handle = mesh_connectivity[ i*num_elements + n ];
+		node_index = node_indices.find( node_handle )->second;
+		node_coords[0] = mesh_coords[ node_index ];
+		node_coords[1] = mesh_coords[ num_nodes + node_index ];
+		node_coords[2] = mesh_coords[ 2*num_nodes + node_index ];
 		destination_proc = d_rcb->getDestinationProc( node_coords );
-		export_element_procs_set[i].insert( destination_proc );
+		std::cout << node_coords[0] << " " 
+			  << node_coords[1] << " " 
+			  << node_coords[2] << " " 
+			  << destination_proc << std::endl;
+		export_element_procs_set[n].insert( destination_proc );
 	    }
 	}
-	else
-	{
-	    connectivity_iterator += nodes_per_element;
-	}
-
-	++i;
     }
 
     // Unroll the vector of sets into two vectors; one containing the element
     // handle and the other containing the corresponding element destination.
     Teuchos::Array<handle_type> export_elements;
     Teuchos::Array<int> export_element_procs;
-    std::vector< std::set<int> >::const_iterator element_vec_iterator;
+    typename MT::const_element_iterator element_iterator;
+    Teuchos::Array< std::set<int> >::const_iterator element_vec_iterator;
     std::set<int>::const_iterator element_proc_set_iterator;
     for ( element_vec_iterator = export_element_procs_set.begin(),
 	      element_iterator = MT::elementsBegin( mesh );
@@ -447,7 +439,7 @@ void Rendezvous<Mesh>::setupCommunication(
     }
     import_elements.clear();
 
-    // Finally put the elements in a Teuchos::Array
+    // Finally put the elements in a Teuchos::Array and get rid of the set.
     rendezvous_elements.resize( rendezvous_elements_set.size() );
     std::copy( rendezvous_elements_set.begin(), rendezvous_elements_set.end(),
 	       rendezvous_elements.begin() );
@@ -457,16 +449,11 @@ void Rendezvous<Mesh>::setupCommunication(
     // destination procs as all of their parent elements. Therefore, nodes may
     // then also have to go to multiple procs because of this and these procs
     // may be different than their original RCB procs.
-    int num_nodes = std::distance( MT::nodesBegin( mesh ), 
-				   MT::nodesEnd( mesh ) );
-    handle_type node_handle;
     ordinal_type element_index;
-    typename MT::const_connectivity_iterator export_conn = 
-	MT::connectivityBegin( mesh );
     typename Teuchos::Array<handle_type>::const_iterator 
 	export_elements_iterator;
     Teuchos::Array<int>::const_iterator export_element_procs_iterator;
-    std::vector< std::set<int> > export_node_procs_set( num_nodes );
+    Teuchos::Array< std::set<int> > export_node_procs_set( num_nodes );
     for ( export_elements_iterator = export_elements.begin(),
      export_element_procs_iterator = export_element_procs.begin();
 	  export_elements_iterator != export_elements.end();
@@ -475,12 +462,10 @@ void Rendezvous<Mesh>::setupCommunication(
 	element_index = 
 	    element_indices.find( *export_elements_iterator )->second;
 
-	for ( int n = 0; n < nodes_per_element; ++n )
+	for ( std::size_t i = 0; i < nodes_per_element; ++i )
 	{
-	    node_handle = export_conn[ element_index*nodes_per_element + n ];
-
-	    node_index = 
-		node_indices.find( node_handle )->second;
+	    node_handle = mesh_connectivity[ i*num_elements + element_index ];
+	    node_index = node_indices.find( node_handle )->second;
 
 	    export_node_procs_set[ node_index ].insert( 
 		*export_element_procs_iterator );
@@ -495,7 +480,7 @@ void Rendezvous<Mesh>::setupCommunication(
     // handle and the other containing the corresponding node destination.
     Teuchos::Array<handle_type> export_nodes;
     Teuchos::Array<int> export_node_procs;
-    std::vector< std::set<int> >::const_iterator node_vec_iterator;
+    Teuchos::Array< std::set<int> >::const_iterator node_vec_iterator;
     std::set<int>::const_iterator node_proc_set_iterator;
     for ( node_vec_iterator = export_node_procs_set.begin(),
        export_node_iterator = MT::nodesBegin( mesh );
@@ -537,7 +522,7 @@ void Rendezvous<Mesh>::setupCommunication(
     }
     import_nodes.clear();
 
-    // Finally put the nodes in a Teuchos::Array
+    // Finally put the nodes in a Teuchos::Array and get rid of the set.
     rendezvous_nodes.resize( rendezvous_nodes_set.size() );
     std::copy( rendezvous_nodes_set.begin(), rendezvous_nodes_set.end(),
 	       rendezvous_nodes.begin() );

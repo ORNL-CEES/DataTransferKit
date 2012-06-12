@@ -9,10 +9,10 @@
 #ifndef DTK_RENDEZVOUS_HPP
 #define DTK_RENDEZVOUS_HPP
 
-#include <vector>
 #include <set>
 
 #include "DTK_RendezvousMesh.hpp"
+
 #include "DTK_KDTree.hpp"
 #include "DTK_RCB.hpp"
 #include "DTK_BoundingBox.hpp"
@@ -61,12 +61,12 @@ class Rendezvous
     void build( const Mesh& mesh );
 
     // Get the rendezvous processes for a list of node coordinates.
-    std::vector<int> 
-    getRendezvousProcs( const std::vector<double> &coords ) const;
+    Teuchos::Array<int> 
+    getRendezvousProcs( const Teuchos::Array<double> &coords ) const;
 
     // Get the native mesh elements containing a list of coordinates.
-    std::vector<handle_type>
-    getElements( const std::vector<double>& coords ) const;
+    Teuchos::Array<handle_type>
+    getElements( const Teuchos::Array<double>& coords ) const;
 
     // Get the rendezvous mesh.
     const RCP_RendezvousMesh& getMesh() const
@@ -77,17 +77,17 @@ class Rendezvous
     // Extract the mesh nodes and elements that are in a bounding box.
     void getMeshInBox( const Mesh& mesh,
 		       const BoundingBox& box,
-		       std::vector<char>& nodes_in_box,
-		       std::vector<char>& elements_in_box );
+		       Teuchos::Array<int>& nodes_in_box,
+		       Teuchos::Array<int>& elements_in_box );
 
     // Send the mesh to the rendezvous decomposition and build the concrete
     // mesh. 
     void sendMeshToRendezvous( const Mesh& mesh,
-			       const std::vector<char>& elements_in_box );
+			       const Teuchos::Array<int>& elements_in_box );
 
     // Setup the communication patterns.
     void setupCommunication( const Mesh& mesh,
-			     const std::vector<char>& elements_in_box,
+			     const Teuchos::Array<int>& elements_in_box,
 			     Teuchos::Array<handle_type>& rendezvous_nodes,
 			     Teuchos::Array<handle_type>& rendezvous_elements );
 

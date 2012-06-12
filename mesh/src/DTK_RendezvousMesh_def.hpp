@@ -9,7 +9,6 @@
 #ifndef DTK_RENDEZVOUSMESH_DEF_HPP
 #define DTK_RENDEZVOUSMESH_DEF_HPP
 
-#include <vector>
 #include <algorithm>
 #include <cassert>
 
@@ -19,6 +18,7 @@
 #include <MBCore.hpp>
 
 #include <Teuchos_ENull.hpp>
+#include <Teuchos_Array.hpp>
 
 namespace DataTransferKit
 {
@@ -111,7 +111,7 @@ createRendezvousMesh( const Mesh& mesh )
     conn_iterator = MT::connectivityBegin( mesh );
     handle_type conn_index;
     moab::Range moab_elements;
-    std::vector<moab::EntityHandle> element_connectivity;
+    Teuchos::Array<moab::EntityHandle> element_connectivity;
     std::map<moab::EntityHandle,handle_type> element_handle_map;
     n = 0;
     for ( element_iterator = MT::elementsBegin( mesh );

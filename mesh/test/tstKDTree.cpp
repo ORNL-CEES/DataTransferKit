@@ -25,6 +25,7 @@
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Array.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
 
@@ -55,10 +56,10 @@ class MyMesh
     MyMesh() 
     { /* ... */ }
 
-    MyMesh( const std::vector<int>& node_handles,
-	    const std::vector<double>& coords,
-	    const std::vector<int>& hex_handles,
-	    const std::vector<int>& hex_connectivity )
+    MyMesh( const Teuchos::Array<int>& node_handles,
+	    const Teuchos::Array<double>& coords,
+	    const Teuchos::Array<int>& hex_handles,
+	    const Teuchos::Array<int>& hex_connectivity )
 	: d_node_handles( node_handles )
 	, d_coords( coords )
 	, d_hex_handles( hex_handles )
@@ -68,37 +69,37 @@ class MyMesh
     ~MyMesh()
     { /* ... */ }
 
-    std::vector<int>::const_iterator nodesBegin() const
+    Teuchos::Array<int>::const_iterator nodesBegin() const
     { return d_node_handles.begin(); }
 
-    std::vector<int>::const_iterator nodesEnd() const
+    Teuchos::Array<int>::const_iterator nodesEnd() const
     { return d_node_handles.end(); }
 
-    std::vector<double>::const_iterator coordsBegin() const
+    Teuchos::Array<double>::const_iterator coordsBegin() const
     { return d_coords.begin(); }
 
-    std::vector<double>::const_iterator coordsEnd() const
+    Teuchos::Array<double>::const_iterator coordsEnd() const
     { return d_coords.end(); }
 
-    std::vector<int>::const_iterator hexesBegin() const
+    Teuchos::Array<int>::const_iterator hexesBegin() const
     { return d_hex_handles.begin(); }
 
-    std::vector<int>::const_iterator hexesEnd() const
+    Teuchos::Array<int>::const_iterator hexesEnd() const
     { return d_hex_handles.end(); }
 
-    std::vector<int>::const_iterator connectivityBegin() const
+    Teuchos::Array<int>::const_iterator connectivityBegin() const
     { return d_hex_connectivity.begin(); }
 
-    std::vector<int>::const_iterator connectivityEnd() const
+    Teuchos::Array<int>::const_iterator connectivityEnd() const
     { return d_hex_connectivity.end(); }
     
 
   private:
 
-    std::vector<int> d_node_handles;
-    std::vector<double> d_coords;
-    std::vector<int> d_hex_handles;
-    std::vector<int> d_hex_connectivity;
+    Teuchos::Array<int> d_node_handles;
+    Teuchos::Array<double> d_coords;
+    Teuchos::Array<int> d_hex_handles;
+    Teuchos::Array<int> d_hex_connectivity;
 };
 
 //---------------------------------------------------------------------------//
@@ -115,10 +116,10 @@ class MeshTraits<MyMesh>
   public:
 
     typedef MyMesh::handle_type handle_type;
-    typedef std::vector<int>::const_iterator const_node_iterator;
-    typedef std::vector<double>::const_iterator const_coordinate_iterator;
-    typedef std::vector<int>::const_iterator const_element_iterator;    
-    typedef std::vector<int>::const_iterator const_connectivity_iterator;    
+    typedef Teuchos::Array<int>::const_iterator const_node_iterator;
+    typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
+    typedef Teuchos::Array<int>::const_iterator const_element_iterator;    
+    typedef Teuchos::Array<int>::const_iterator const_connectivity_iterator;    
 
     static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
@@ -163,8 +164,8 @@ class MeshTraits<MyMesh>
 MyMesh buildMyMesh()
 {
     // Make some nodes.
-    std::vector<int> node_handles;
-    std::vector<double> coords;
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords;
 
     // handles
     node_handles.push_back( 0 );
@@ -223,8 +224,8 @@ MyMesh buildMyMesh()
     coords.push_back( 2.0 );
 
     // Make 2 hexahedrons.
-    std::vector<int> hex_handles;
-    std::vector<int> hex_connectivity;
+    Teuchos::Array<int> hex_handles;
+    Teuchos::Array<int> hex_connectivity;
     
     // handles
     hex_handles.push_back( 0 );

@@ -21,6 +21,7 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_Array.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
 
@@ -70,7 +71,7 @@ TEUCHOS_UNIT_TEST( BoundingBox, bounding_box_serialization_test )
     int my_size = comm->getSize();
 
     // Make a bounding box on each process.
-    std::vector<BoundingBox> boxes( my_size );
+    Teuchos::Array<BoundingBox> boxes( my_size );
     boxes[my_rank] = BoundingBox( my_rank, my_rank, my_rank,
 				  my_rank+1.0, my_rank+1.0, my_rank+1.0 );
 
@@ -83,7 +84,7 @@ TEUCHOS_UNIT_TEST( BoundingBox, bounding_box_serialization_test )
 
     // Check the reduction with rank dependent coordinates.
     double rank = 0.0;
-    std::vector<BoundingBox>::const_iterator box_iterator;
+    Teuchos::Array<BoundingBox>::const_iterator box_iterator;
     for ( box_iterator = boxes.begin(); 
 	  box_iterator != boxes.end(); 
 	  ++box_iterator )
