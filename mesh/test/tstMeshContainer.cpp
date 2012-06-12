@@ -51,60 +51,97 @@ DataTransferKit::MeshContainer<int> buildMeshContainer()
 
     // Make some nodes.
     Teuchos::Array<int> node_handles;
-    std::vector<double> coords;
+    Teuchos::Array<double> coords;
 
-    node_handles.push_back( 0 );
-    coords.push_back( 0.0 ); coords.push_back( 0.0 ); coords.push_back( 0.0 );
+    // handles
+    for ( int i = 0; i < 12; ++i )
+    {
+	node_handles.push_back( i );
+    }
 
-    node_handles.push_back( 1 );
-    coords.push_back( 1.0 ); coords.push_back( 0.0 ); coords.push_back( 0.0 );
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
 
-    node_handles.push_back( 2 );
-    coords.push_back( 1.0 ); coords.push_back( 1.0 ); coords.push_back( 0.0 );
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
 
-    node_handles.push_back( 3 );
-    coords.push_back( 0.0 ); coords.push_back( 1.0 ); coords.push_back( 0.0 );
-
-    node_handles.push_back( 4 );
-    coords.push_back( 0.0 ); coords.push_back( 0.0 ); coords.push_back( 1.0 );
-
-    node_handles.push_back( 5 );
-    coords.push_back( 1.0 ); coords.push_back( 0.0 ); coords.push_back( 1.0 );
-
-    node_handles.push_back( 6 );
-    coords.push_back( 1.0 ); coords.push_back( 1.0 ); coords.push_back( 1.0 );
-
-    node_handles.push_back( 7 );
-    coords.push_back( 0.0 ); coords.push_back( 1.0 ); coords.push_back( 1.0 );
-
-    node_handles.push_back( 8 );
-    coords.push_back( 0.0 ); coords.push_back( 0.0 ); coords.push_back( 2.0 );
-
-    node_handles.push_back( 9 );
-    coords.push_back( 1.0 ); coords.push_back( 0.0 ); coords.push_back( 2.0 );
-
-    node_handles.push_back( 10 );
-    coords.push_back( 1.0 ); coords.push_back( 1.0 ); coords.push_back( 2.0 );
-
-    node_handles.push_back( 11 );
-    coords.push_back( 0.0 ); coords.push_back( 1.0 ); coords.push_back( 2.0 );
+    // z
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 2.0 );
+    coords.push_back( 2.0 );
+    coords.push_back( 2.0 );
+    coords.push_back( 2.0 );
 
     // Make 2 hexahedrons.
     Teuchos::Array<int> hex_handles;
-    std::vector<int> hex_connectivity;
+    Teuchos::Array<int> hex_connectivity;
     
+    // handles
     hex_handles.push_back( 0 );
-    hex_connectivity.push_back( 0 ); hex_connectivity.push_back( 1 ); 
-    hex_connectivity.push_back( 2 ); hex_connectivity.push_back( 3 ); 
-    hex_connectivity.push_back( 4 ); hex_connectivity.push_back( 5 ); 
-    hex_connectivity.push_back( 6 ); hex_connectivity.push_back( 7 ); 
-
     hex_handles.push_back( 1 );
-    hex_connectivity.push_back( 4 ); hex_connectivity.push_back( 5 ); 
-    hex_connectivity.push_back( 6 ); hex_connectivity.push_back( 7 ); 
-    hex_connectivity.push_back( 8 ); hex_connectivity.push_back( 9 ); 
-    hex_connectivity.push_back( 10 ); hex_connectivity.push_back( 11 ); 
 
+    // 0
+    hex_connectivity.push_back( 0 );
+    hex_connectivity.push_back( 4 ); 
+
+    // 1
+    hex_connectivity.push_back( 1 ); 
+    hex_connectivity.push_back( 5 );  
+
+    // 2
+    hex_connectivity.push_back( 2 );
+    hex_connectivity.push_back( 6 ); 
+
+    // 3
+    hex_connectivity.push_back( 3 ); 
+    hex_connectivity.push_back( 7 ); 
+
+    // 4
+    hex_connectivity.push_back( 4 );
+    hex_connectivity.push_back( 8 ); 
+   
+    // 5
+    hex_connectivity.push_back( 5 ); 
+    hex_connectivity.push_back( 9 ); 
+
+    // 6
+    hex_connectivity.push_back( 6 ); 
+    hex_connectivity.push_back( 10 ); 
+
+    // 7
+    hex_connectivity.push_back( 7 ); 
+    hex_connectivity.push_back( 11 ); 
+
+    
     Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
     std::copy( node_handles.begin(), node_handles.end(), 
 	       node_handle_array.begin() );
@@ -166,15 +203,19 @@ TEUCHOS_UNIT_TEST( MeshContainer, mesh_container_test )
     error = moab->get_coords( connectivity, &vertex_coords[0] );
     TEST_ASSERT( moab::MB_SUCCESS == error );
 
-    std::vector<double>::const_iterator moab_coord_iterator = 
-	vertex_coords.begin();
-    typename MT::const_coordinate_iterator coord_iterator;
-
-    for ( coord_iterator = MT::coordsBegin( mesh_container );
-	  coord_iterator != MT::coordsEnd( mesh_container );
-	  ++coord_iterator, ++moab_coord_iterator )
+    int num_nodes = connectivity.size();
+    std::vector<double>::const_iterator moab_coord_iterator;
+    typename MT::const_coordinate_iterator coord_iterator = 
+	MT::coordsBegin( mesh_container );
+    int i = 0;
+    for ( moab_coord_iterator = vertex_coords.begin();
+	  moab_coord_iterator != vertex_coords.end(); ++i )
     {
-	TEST_ASSERT( *coord_iterator == *moab_coord_iterator );
+	for ( int d = 0; d < 3; ++d, ++moab_coord_iterator )
+	{
+	    TEST_ASSERT( coord_iterator[d*num_nodes + i] == 
+			 *moab_coord_iterator );
+	}
     }
 }
 
