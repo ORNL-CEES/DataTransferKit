@@ -19,7 +19,8 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
-APPEND_SET(HEADERS	
+APPEND_SET(HEADERS
+  DTK_FieldEvaluator.hpp	
   DTK_FieldTraits.hpp
   DTK_Map.hpp
   )
@@ -27,6 +28,7 @@ APPEND_SET(HEADERS
 # Set sources
 
 APPEND_SET(SOURCES
+  dummy.cpp
   )
 
 # Set addition headers and source based on package-specific

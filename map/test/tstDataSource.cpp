@@ -14,6 +14,7 @@
 #include <cassert>
 
 #include <DTK_DataSource.hpp>
+#include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 
@@ -24,6 +25,7 @@
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
+#include <Teuchos_Array.hpp>
 #include <Teuchos_TypeTraits.hpp>
 
 //---------------------------------------------------------------------------//
@@ -53,10 +55,10 @@ class MyMesh
     MyMesh() 
     { /* ... */ }
 
-    MyMesh( const std::vector<int>& node_handles,
-	    const std::vector<double>& coords,
-	    const std::vector<int>& hex_handles,
-	    const std::vector<int>& hex_connectivity )
+    MyMesh( const Teuchos::Array<int>& node_handles,
+	    const Teuchos::Array<double>& coords,
+	    const Teuchos::Array<int>& hex_handles,
+	    const Teuchos::Array<int>& hex_connectivity )
 	: d_node_handles( node_handles )
 	, d_coords( coords )
 	, d_hex_handles( hex_handles )
@@ -66,37 +68,37 @@ class MyMesh
     ~MyMesh()
     { /* ... */ }
 
-    std::vector<int>::const_iterator nodesBegin() const
+    Teuchos::Array<int>::const_iterator nodesBegin() const
     { return d_node_handles.begin(); }
 
-    std::vector<int>::const_iterator nodesEnd() const
+    Teuchos::Array<int>::const_iterator nodesEnd() const
     { return d_node_handles.end(); }
 
-    std::vector<double>::const_iterator coordsBegin() const
+    Teuchos::Array<double>::const_iterator coordsBegin() const
     { return d_coords.begin(); }
 
-    std::vector<double>::const_iterator coordsEnd() const
+    Teuchos::Array<double>::const_iterator coordsEnd() const
     { return d_coords.end(); }
 
-    std::vector<int>::const_iterator hexesBegin() const
+    Teuchos::Array<int>::const_iterator hexesBegin() const
     { return d_hex_handles.begin(); }
 
-    std::vector<int>::const_iterator hexesEnd() const
+    Teuchos::Array<int>::const_iterator hexesEnd() const
     { return d_hex_handles.end(); }
 
-    std::vector<int>::const_iterator connectivityBegin() const
+    Teuchos::Array<int>::const_iterator connectivityBegin() const
     { return d_hex_connectivity.begin(); }
 
-    std::vector<int>::const_iterator connectivityEnd() const
+    Teuchos::Array<int>::const_iterator connectivityEnd() const
     { return d_hex_connectivity.end(); }
     
 
   private:
 
-    std::vector<int> d_node_handles;
-    std::vector<double> d_coords;
-    std::vector<int> d_hex_handles;
-    std::vector<int> d_hex_connectivity;
+    Teuchos::Array<int> d_node_handles;
+    Teuchos::Array<double> d_coords;
+    Teuchos::Array<int> d_hex_handles;
+    Teuchos::Array<int> d_hex_connectivity;
 };
 
 //---------------------------------------------------------------------------//
@@ -113,10 +115,10 @@ class MeshTraits<MyMesh>
   public:
 
     typedef MyMesh::handle_type handle_type;
-    typedef std::vector<int>::const_iterator const_node_iterator;
-    typedef std::vector<double>::const_iterator const_coordinate_iterator;
-    typedef std::vector<int>::const_iterator const_element_iterator;    
-    typedef std::vector<int>::const_iterator const_connectivity_iterator;    
+    typedef Teuchos::Array<int>::const_iterator const_node_iterator;
+    typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
+    typedef Teuchos::Array<int>::const_iterator const_element_iterator;    
+    typedef Teuchos::Array<int>::const_iterator const_connectivity_iterator;    
 
     static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
@@ -161,61 +163,105 @@ class MeshTraits<MyMesh>
 MyMesh buildMyMesh()
 {
     // Make some nodes.
-    std::vector<int> node_handles;
-    std::vector<double> coords;
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords;
 
+    // handles
     node_handles.push_back( 0 );
-    coords.push_back( 0.0 ); coords.push_back( 0.0 ); coords.push_back( 0.0 );
-
     node_handles.push_back( 4 );
-    coords.push_back( 1.0 ); coords.push_back( 0.0 ); coords.push_back( 0.0 );
-
     node_handles.push_back( 9 );
-    coords.push_back( 1.0 ); coords.push_back( 1.0 ); coords.push_back( 0.0 );
-
     node_handles.push_back( 2 );
-    coords.push_back( 0.0 ); coords.push_back( 1.0 ); coords.push_back( 0.0 );
-
     node_handles.push_back( 3 );
-    coords.push_back( 0.0 ); coords.push_back( 0.0 ); coords.push_back( 1.0 );
-
     node_handles.push_back( 8 );
-    coords.push_back( 1.0 ); coords.push_back( 0.0 ); coords.push_back( 1.0 );
-
     node_handles.push_back( 1 );
-    coords.push_back( 1.0 ); coords.push_back( 1.0 ); coords.push_back( 1.0 );
-
     node_handles.push_back( 6 );
-    coords.push_back( 0.0 ); coords.push_back( 1.0 ); coords.push_back( 1.0 );
-
     node_handles.push_back( 12 );
-    coords.push_back( 0.0 ); coords.push_back( 0.0 ); coords.push_back( 2.0 );
-
     node_handles.push_back( 7 );
-    coords.push_back( 1.0 ); coords.push_back( 0.0 ); coords.push_back( 2.0 );
-
     node_handles.push_back( 13 );
-    coords.push_back( 1.0 ); coords.push_back( 1.0 ); coords.push_back( 2.0 );
-
     node_handles.push_back( 5 );
-    coords.push_back( 0.0 ); coords.push_back( 1.0 ); coords.push_back( 2.0 );
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
+
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+
+    // z
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 2.0 );
+    coords.push_back( 2.0 );
+    coords.push_back( 2.0 );
+    coords.push_back( 2.0 );
 
     // Make 2 hexahedrons.
-    std::vector<int> hex_handles;
-    std::vector<int> hex_connectivity;
+    Teuchos::Array<int> hex_handles;
+    Teuchos::Array<int> hex_connectivity;
     
+    // handles
     hex_handles.push_back( 0 );
-    hex_connectivity.push_back( 0 ); hex_connectivity.push_back( 4 ); 
-    hex_connectivity.push_back( 9 ); hex_connectivity.push_back( 2 ); 
-    hex_connectivity.push_back( 3 ); hex_connectivity.push_back( 8 ); 
-    hex_connectivity.push_back( 1 ); hex_connectivity.push_back( 6 ); 
-
     hex_handles.push_back( 1 );
-    hex_connectivity.push_back( 3 ); hex_connectivity.push_back( 8 ); 
-    hex_connectivity.push_back( 1 ); hex_connectivity.push_back( 6 ); 
-    hex_connectivity.push_back( 12 ); hex_connectivity.push_back( 7 ); 
-    hex_connectivity.push_back( 13 ); hex_connectivity.push_back( 5 ); 
 
+    // 0
+    hex_connectivity.push_back( 0 );
+    hex_connectivity.push_back( 3 ); 
+
+    // 1
+    hex_connectivity.push_back( 4 ); 
+    hex_connectivity.push_back( 8 );  
+
+    // 2
+    hex_connectivity.push_back( 9 );
+    hex_connectivity.push_back( 1 ); 
+
+    // 3
+    hex_connectivity.push_back( 2 ); 
+    hex_connectivity.push_back( 6 ); 
+
+    // 4
+    hex_connectivity.push_back( 3 );
+    hex_connectivity.push_back( 12 ); 
+   
+    // 5
+    hex_connectivity.push_back( 8 ); 
+    hex_connectivity.push_back( 7 ); 
+
+    // 6
+    hex_connectivity.push_back( 1 ); 
+    hex_connectivity.push_back( 13 ); 
+
+    // 7
+    hex_connectivity.push_back( 6 ); 
+    hex_connectivity.push_back( 5 ); 
+   
     return MyMesh( node_handles, coords, hex_handles, hex_connectivity );
 }
 
@@ -223,7 +269,7 @@ MyMesh buildMyMesh()
 // FieldEvaluator implementation.
 //---------------------------------------------------------------------------//
 class MyEvaluator : 
-    public DataTransferKit::DataSource<MyMesh,std::vector<double> >::FieldEvaluator
+    public DataTransferKit::FieldEvaluator< MyMesh, Teuchos::Array<double> >
 {
   public:
 
@@ -235,10 +281,10 @@ class MyEvaluator :
     ~MyEvaluator() 
     { /* ... */ }
     
-    std::vector<double> evaluate( const std::vector<handle_type>& elements,
-				  const std::vector<double>& coords )
+    Teuchos::Array<double> evaluate( const std::vector<handle_type>& elements,
+				     const std::vector<double>& coords )
     {
-	return std::vector<double>( elements.size(), 1.0 );
+	return Teuchos::Array<double>( elements.size(), 1.0 );
     }
 };
 
@@ -262,7 +308,7 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
     MPI_Comm raw_comm = (*opaque_comm)();
 
     // Create a data source object.
-    typedef DataSource<MyMesh,std::vector<double> > DataSourceType;
+    typedef DataSource<MyMesh,Teuchos::Array<double> > DataSourceType;
     DataSourceType data_source( my_mesh, raw_comm );
 
     // Create and register the field evaluator.
@@ -274,10 +320,10 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
 	data_source.getFieldEvaluator( 0 );
     std::vector<int> elements( 3, 1 );
     std::vector<double> coords( 9, 1.0 );
-    std::vector<double> evaluated_data = evaluator->evaluate( elements, coords );
-    TEST_ASSERT( elements.size() == evaluated_data.size() );
+    Teuchos::Array<double> evaluated_data = evaluator->evaluate( elements, coords );
+    TEST_ASSERT( (int) elements.size() == evaluated_data.size() );
 
-    std::vector<double>::const_iterator data_iterator;
+    Teuchos::Array<double>::const_iterator data_iterator;
     for ( data_iterator = evaluated_data.begin();
 	  data_iterator != evaluated_data.end();
 	  ++data_iterator )
