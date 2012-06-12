@@ -25,13 +25,13 @@
 namespace DataTransferKit
 {
 
-//===========================================================================//
+//---------------------------------------------------------------------------//
 /*!
  * \class DataSource
- * \brief DataSource objects provide mesh and methods to evaluate fields
+ * \brief DataSource objects provide mesh and kernels to evaluate fields
  * associated with that mesh.
  */
-//===========================================================================//
+//---------------------------------------------------------------------------//
 template<class Mesh, class DataField>
 class DataSource
 {
