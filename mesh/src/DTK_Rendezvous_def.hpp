@@ -93,12 +93,16 @@ Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
     testPrecondition( coords.size() % 3 == 0, 
 		      "Three dimensional coordinates not provided." );
     
+    double point[3];
     ordinal_type num_points = coords.size() / 3;
+    int rendezvous_proc;
     Teuchos::Array<int> destination_procs;
     for ( ordinal_type i = 0; i < num_points; ++i )
     {
-	double point[3] = { coords[3*i], coords[3*i+1], coords[3*i+2] };
-	int rendezvous_proc = d_rcb->getDestinationProc( point );
+	point[0] = coords[ i ];
+	point[1] = coords[ num_points + i ];
+	point[2] = coords[ 2*num_points + i ];
+	rendezvous_proc = d_rcb->getDestinationProc( point );
 	destination_procs.push_back( rendezvous_proc );
     }
 
@@ -121,14 +125,18 @@ Rendezvous<Mesh>::getElements( const Teuchos::Array<double>& coords ) const
 {
     testPrecondition( coords.size() % 3 == 0, 
 		      "Three dimensional coordinates not provided." );
-    
+
+    double point[3];
+    handle_type element_handle;
     ordinal_type num_points = coords.size() / 3;
     Teuchos::Array<handle_type> element_handles;
     for ( ordinal_type i = 0; i < num_points; ++i )
     {
-	double point[3] = { coords[3*i], coords[3*i+1], coords[3*i+2] };
-	handle_type handle = d_kdtree->findPoint( point );
-	element_handles.push_back( handle );
+	point[0] = coords[ i ];
+	point[1] = coords[ num_points + i ];
+	point[2] = coords[ 2*num_points + i ];
+	element_handle = d_kdtree->findPoint( point );
+	element_handles.push_back( element_handle );
     }
 
     testPostcondition( static_cast<ordinal_type>( element_handles.size() )

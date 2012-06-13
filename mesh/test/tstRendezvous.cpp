@@ -209,47 +209,49 @@ MyMesh buildMyMesh()
 // Tests
 //---------------------------------------------------------------------------//
 
-// This test will repartition via RCB the following quad mesh on 4 processes.
 /*
-          *-------*-------*-------*-------*
-          |       |       |       |       |
-          |   0   |   1   |   2   |   3   |
-          |       |       |       |       |
-          *-------*-------*-------*-------*
-          |       |       |       |       |
-          |   0   |   1   |   2   |   3   |
-          |       |       |       |       |
-          *-------*-------*-------*-------*
-          |       |       |       |       |
-          |   0   |   1   |   2   |   3   |
-          |       |       |       |       |
-          *-------*-------*-------*-------*
-          |       |       |       |       |
-          |   0   |   1   |   2   |   3   |
-          |       |       |       |       |
-          *-------*-------*-------*-------*
+ * This test will repartition via RCB the following quad mesh partitioned on 4
+ * processes.
 
-the result considering node overlap should be:
+ *-------*-------*-------*-------*
+ |       |       |       |       |
+ |   0   |   1   |   2   |   3   |
+ |       |       |       |       |
+ *-------*-------*-------*-------*
+ |       |       |       |       |
+ |   0   |   1   |   2   |   3   |
+ |       |       |       |       |
+ *-------*-------*-------*-------*
+ |       |       |       |       |
+ |   0   |   1   |   2   |   3   |
+ |       |       |       |       |
+ *-------*-------*-------*-------*
+ |       |       |       |       |
+ |   0   |   1   |   2   |   3   |
+ |       |       |       |       |
+ *-------*-------*-------*-------*
 
-          *-------*-------*-------*-------*
-          |       |       |       |       |
-          |   0   |   0   |   2   |   2   |
-          |       |       |       |       |
-          *-------*-------*-------*-------*
-          |       |       |       |       |
-          |   0   |   0   |   2   |   2   |
-          |       |       |       |       |
-          *-------*-------*-------*-------*
-          |       |       |       |       |
-          |   1   |   1   |   3   |   3   |
-          |       |       |       |       |
-          *-------*-------*-------*-------*
-          |       |       |       |       |
-          |   1   |   1   |   3   |   3   |
-          |       |       |       |       |
-          *-------*-------*-------*-------*
+ * the resulting repartitioning considering node overlap should be:
 
-*/
+ *-------*-------*-------*-------*
+ |       |       |       |       |
+ |   0   |   0   |  0,2  |   2   |
+ |       |       |       |       |
+ *-------*-------*-------*-------*
+ |       |       |       |       |
+ |   0   |   0   |  0,2  |   2   |
+ |       |       |       |       |
+ *-------*-------*-------*-------*
+ |       |       |       |       |
+ |  0,1  |  0,1  |0,1,2,3|  2,3  |
+ |       |       |       |       |
+ *-------*-------*-------*-------*
+ |       |       |       |       |
+ |   1   |   1   |  1,3  |   3   |
+ |       |       |       |       |
+ *-------*-------*-------*-------*
+
+ */
 TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 {
     using namespace DataTransferKit;
@@ -257,50 +259,157 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
 
-    // Create a bounding box that covers the entire mesh.
-    BoundingBox box( -100, -100, -100, 100, 100, 100 );
-
-    // Create a mesh.
-    MyMesh my_mesh = buildMyMesh();
-    std::string input_file_name;
-    for ( int i = 0; i < my_size; ++i )
+    // This is a 4 processor test.
+    if ( my_size == 4 )
     {
-	if ( my_rank == i )
-	{
-	    std::stringstream convert;
-	    convert << i;
-	    input_file_name = "rank_" + convert.str()  + "_in.vtk";
-	    createRendezvousMesh( my_mesh )->getMoab()->write_mesh(
-		input_file_name.c_str() );
-	}
-	getDefaultComm<int>()->barrier();
-    }
+	// Create a bounding box that covers the entire mesh.
+	BoundingBox box( -100, -100, -100, 100, 100, 100 );
 
-    // Create a rendezvous.
-    Rendezvous<MyMesh> rendezvous( getDefaultComm<int>(), box );
-    rendezvous.build( my_mesh );
-
-    // Check the mesh.
-    getDefaultComm<int>()->barrier();
-    std::string output_file_name;
-    for ( int i = 0; i < my_size; ++i )
-    {
-	if ( my_rank == i )
+	// Create a mesh.
+	MyMesh my_mesh = buildMyMesh();
+	std::string input_file_name;
+	for ( int i = 0; i < my_size; ++i )
 	{
-	    std::stringstream convert;
-	    convert << i;
-	    output_file_name = "rank_" +  convert.str() + "_out.vtk";
-	    rendezvous.getMesh()->getMoab()->write_mesh( 
-		output_file_name.c_str() );
+	    if ( my_rank == i )
+	    {
+		std::stringstream convert;
+		convert << i;
+		input_file_name = "rank_" + convert.str()  + "_in.vtk";
+		createRendezvousMesh( my_mesh )->getMoab()->write_mesh(
+		    input_file_name.c_str() );
+	    }
+	    getDefaultComm<int>()->barrier();
 	}
+
+	// Create a rendezvous.
+	Rendezvous<MyMesh> rendezvous( getDefaultComm<int>(), box );
+	rendezvous.build( my_mesh );
+
+	// Check the mesh.
 	getDefaultComm<int>()->barrier();
-    }
+	std::string output_file_name;
+	for ( int i = 0; i < my_size; ++i )
+	{
+	    if ( my_rank == i )
+	    {
+		std::stringstream convert;
+		convert << i;
+		output_file_name = "rank_" +  convert.str() + "_out.vtk";
+		rendezvous.getMesh()->getMoab()->write_mesh( 
+		    output_file_name.c_str() );
+	    }
+	    getDefaultComm<int>()->barrier();
+	}
+
+	// Get the moab interface.
+	moab::ErrorCode error;
+	Teuchos::RCP< RendezvousMesh<MyMesh::handle_type> > mesh = 
+	    rendezvous.getMesh();
+	Teuchos::RCP<moab::Interface> moab = mesh->getMoab();
+    
+	// Grab the elements.
+	moab::Range mesh_elements = mesh->getElements();
+
+	// Check the moab mesh element data.
+	MyMesh::handle_type native_handle = 0;
+	moab::Range::const_iterator element_iterator;
+	for ( element_iterator = mesh_elements.begin();
+	      element_iterator != mesh_elements.end();
+	      ++element_iterator, ++native_handle )
+	{
+	}
+
+	// Check the moab mesh vertex data.
+	moab::Range connectivity;
+	error = moab->get_connectivity( mesh_elements, connectivity );
+	TEST_ASSERT( moab::MB_SUCCESS == error );
+
+	Teuchos::Array<double> vertex_coords( 3 * connectivity.size() );
+	error = moab->get_coords( connectivity, &vertex_coords[0] );
+	TEST_ASSERT( moab::MB_SUCCESS == error );
+
+	int num_nodes = connectivity.size();
+	Teuchos::Array<double>::const_iterator moab_coord_iterator;
+	int i = 0;
+	for ( moab_coord_iterator = vertex_coords.begin();
+	      moab_coord_iterator != vertex_coords.end(); ++i )
+	{
+	    if ( my_rank == 0 )
+	    {
+		for ( int d = 0; d < 3; ++d, ++moab_coord_iterator )
+		{
+		    std::cout << *moab_coord_iterator << " ";
+		}
+		std::cout << std::endl;
+	    }
+	}
 	
-    // Check the partitioning with coordinates.
+	// Check the repartitioning with coordinates. Because of the overlap in
+	// the rendezvous algorithm, several partitions will contain the proper
+	// element, however this is directly checking the RCB algorithm bounding
+	// boxes.
+	int local_num_quads = 
+	    std::distance( my_mesh.quadsBegin(), my_mesh.quadsEnd() );
+	int global_num_quads = local_num_quads*my_size;
+	int idx;
+	Teuchos::Array<double> coords( 3*global_num_quads );
+	for ( int j = 0; j < local_num_quads; ++j )
+	{
+	    for ( int i = 0; i < local_num_quads; ++i )
+	    {
+		idx = i + local_num_quads*j;
+		coords[ idx ] = i + 0.5;
+		coords[ global_num_quads + idx ] = j + 0.5;
+		coords[ 2*global_num_quads + idx ] = 0.0;
+	    }
+	}
 
-    // Check the kD-tree with coordinates.
+	Teuchos::Array<int> destinations = rendezvous.getRendezvousProcs( coords );
+	TEST_ASSERT( destinations.size() == global_num_quads );
+	TEST_ASSERT( destinations[0] == 1 );
+	TEST_ASSERT( destinations[1] == 1 );
+	TEST_ASSERT( destinations[2] == 3 );
+	TEST_ASSERT( destinations[3] == 3 );
+	TEST_ASSERT( destinations[4] == 1 );
+	TEST_ASSERT( destinations[5] == 1 );
+	TEST_ASSERT( destinations[6] == 3 );
+	TEST_ASSERT( destinations[7] == 3 );
+	TEST_ASSERT( destinations[8] == 0 );
+	TEST_ASSERT( destinations[9] == 0 );
+	TEST_ASSERT( destinations[10] == 2 );
+	TEST_ASSERT( destinations[11] == 2 );
+	TEST_ASSERT( destinations[12] == 0 );
+	TEST_ASSERT( destinations[13] == 0 );
+	TEST_ASSERT( destinations[14] == 2 );
+	TEST_ASSERT( destinations[15] == 2 );
+
+	// Check the kD-tree with coordinates.
+	if ( my_rank == 0 )
+	{
+	    Teuchos::Array<double> target_coords( 3*global_num_quads / 4 );
+
+	    target_coords[0] = coords[ 8 ];
+	    target_coords[4] = coords[ 8 + global_num_quads ];
+	    target_coords[8] = coords[ 8 + 2*global_num_quads ];
+
+	    target_coords[1] = coords[ 9 ];
+	    target_coords[5] = coords[ 9 + global_num_quads ];
+	    target_coords[9] = coords[ 9 + 2*global_num_quads ];
+
+	    target_coords[2] = coords[ 12 ];
+	    target_coords[6] = coords[ 12 + global_num_quads ];
+	    target_coords[10] = coords[ 12 + 2*global_num_quads ];
+
+	    target_coords[3] = coords[ 13 ];
+	    target_coords[7] = coords[ 13 + global_num_quads ];
+	    target_coords[11] = coords[ 13 + 2*global_num_quads ];
+	    
+	    Teuchos::Array<int> target_elements = 
+		rendezvous.getElements( target_coords );
+	    std::cout << target_elements << std::endl;
+	}
+    }
 }
-
 //---------------------------------------------------------------------------//
 // end tstRendezvous.cpp
 //---------------------------------------------------------------------------//

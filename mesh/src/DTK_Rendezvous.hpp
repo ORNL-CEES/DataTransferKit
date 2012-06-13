@@ -64,7 +64,8 @@ class Rendezvous
     Teuchos::Array<int> 
     getRendezvousProcs( const Teuchos::Array<double> &coords ) const;
 
-    // Get the native mesh elements containing a list of coordinates.
+    // Get the native mesh elements in the rendezvous decomposition containing
+    // a list of coordinates.
     Teuchos::Array<handle_type>
     getElements( const Teuchos::Array<double>& coords ) const;
 

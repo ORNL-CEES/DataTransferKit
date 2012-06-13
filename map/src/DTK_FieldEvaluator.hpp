@@ -49,7 +49,8 @@ class FieldEvaluator
      * \return Return a DataField containing the evaluated field
      * values. This returned field is required to be of the same length as
      * the elements input vector. For those coordinates that can't be
-     * evaluated in the given element, return 0 in their position.
+     * evaluated in the given element, return 0 in their position. Field data
+     * ordering is specified by field traits.
      */
     virtual DataField evaluate( const std::vector<handle_type>& elements,
 				const std::vector<double>& coords ) = 0;

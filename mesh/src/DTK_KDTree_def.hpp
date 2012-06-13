@@ -59,7 +59,11 @@ Handle KDTree<Handle>::findPoint( double coords[3] )
 {
     moab::ErrorCode error;
     moab::EntityHandle leaf;
+    std::cout << coords[0] << " " 
+	      << coords[1] << " "
+	      << coords[2] << " " << std::endl;
     error = d_tree.leaf_containing_point( d_root, coords, leaf );
+    std::cout << "ERROR CODE " << error << std::endl;
     testInvariant( moab::MB_SUCCESS == error,
 		   "Failed to search kD-tree." );
 

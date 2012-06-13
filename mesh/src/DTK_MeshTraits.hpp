@@ -18,11 +18,11 @@ namespace DataTransferKit
  * \brief Dummy struct. If a type does not create a specialization this will
  * not compile.
  */
-template<typename T>
+template<typename UndefinedMeshType>
 struct UndefinedMeshTraits
 {
-    static inline T notDefined() 
-    { return T::this_type_is_missing_a_specialization(); }
+    static inline UndefinedMeshType notDefined() 
+    { return UndefinedMeshType::this_type_is_missing_a_specialization(); }
 };
 
 /*!
@@ -38,7 +38,7 @@ struct UndefinedMeshTraits
  * elements correlate to a canonical ordering ( I either need to explicitly
  * required MBCN or offer a permuation vector interface. )
  */
-template<typename T>
+template<typename MeshType>
 class MeshTraits
 {
   public:
@@ -46,11 +46,11 @@ class MeshTraits
     //@{
     //! Typedefs.
     //! Typedef for mesh type.
-    typedef T mesh_type;
+    typedef MeshType mesh_type;
 
     //! Typedef for handle type. This type must implement
     //! Teuchos::OrdinalTraits.
-    typedef typename T::handle_type handle_type;
+    typedef typename MeshType::handle_type handle_type;
 
     //! Typedef for random access const iterator to node handle values.
     typedef typename 
@@ -78,18 +78,23 @@ class MeshTraits
     //@{
     //! Mesh node concepts.
     /*!
+     * \brief Return the dimension of the nodes in this mesh.
+     */
+    static inline std::size_t nodeDimension( const MeshType& mesh );
+
+    /*!
      * \brief Return the const iterator to the beginning of the node handle
      * block in this mesh. 
     */
-    static inline const_node_iterator nodesBegin( const T& mesh )
-    { UndefinedMeshTraits<T>::notDefined(); return 0; }
+    static inline const_node_iterator nodesBegin( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
      * \brief Return the const iterator to the end of the node handle block in
      * this mesh.
     */ 
-    static inline const_node_iterator nodesEnd( const T& mesh )
-    { UndefinedMeshTraits<T>::notDefined(); return 0; }
+    static inline const_node_iterator nodesEnd( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
      * \brief Return the const iterator to the beginning of the node
@@ -97,8 +102,8 @@ class MeshTraits
      * three dimensional and blocked.
      * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
      */
-    static inline const_coordinate_iterator coordsBegin( const T& mesh )
-    { UndefinedMeshTraits<T>::notDefined(); return 0; }
+    static inline const_coordinate_iterator coordsBegin( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
      * \brief Return the const iterator to the end of the node coordinate
@@ -106,8 +111,8 @@ class MeshTraits
      * dimensional and blocked.
      * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
      */
-    static inline const_coordinate_iterator coordsEnd( const T& mesh )
-    { UndefinedMeshTraits<T>::notDefined(); return 0; }
+    static inline const_coordinate_iterator coordsEnd( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
     //@}
 
 
@@ -116,36 +121,36 @@ class MeshTraits
     /*!
      * \brief Return the element type for this mesh (DTK enum).
      */
-    static inline std::size_t elementType( const T& mesh )
-    { UndefinedMeshTraits<T>::notDefined(); return 0; }
+    static inline std::size_t elementType( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the element topology for this mesh (DTK enum).
      */
-    static inline std::size_t elementTopology( const T& mesh )
-    { UndefinedMeshTraits<T>::notDefined(); return 0;}
+    static inline std::size_t elementTopology( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0;}
 
     /*! 
      * \brief Return the number of nodes that constructs an individual element
      * in this mesh. All elements in the mesh must be constructed with the
      * same number of nodes.
      */
-    static inline std::size_t nodesPerElement( const T& mesh )
-    { UndefinedMeshTraits<T>::notDefined(); return 0; }
+    static inline std::size_t nodesPerElement( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the const iterator to the beginning of the element handle
      * block in this mesh.
      */
-    static inline const_element_iterator elementsBegin( const T& mesh )
-    { UndefinedMeshTraits<T>::notDefined(); return 0; }
+    static inline const_element_iterator elementsBegin( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the const iterator to the end of the element handle block
      * in this mesh.
      */
-    static inline const_element_iterator elementsEnd( const T& mesh )
-    { UndefinedMeshTraits<T>::notDefined(); return 0; }
+    static inline const_element_iterator elementsEnd( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the const iterator to the beginning of the element
@@ -154,8 +159,9 @@ class MeshTraits
      * ( element0( c0 ), element1( c0 ), ... , elementN( c0 ), element0( c1 ),
      * element1( c1 ), ... , elementN( c1 ), ... , elementN( cn ) )
      */
-    static inline const_connectivity_iterator connectivityBegin( const T& mesh )
-    { UndefinedMeshTraits<T>::notDefined(); return 0; }
+    static inline const_connectivity_iterator 
+    connectivityBegin( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the const iterator to the end of the element connectivity
@@ -163,8 +169,9 @@ class MeshTraits
      * ( element0( c0 ), element1( c0 ), ... , elementN( c0 ), element0( c1 ),
      * element1( c1 ), ... , elementN( c1 ), ... , elementN( cn ) )
      */
-    static inline const_connectivity_iterator connectivityEnd( const T& mesh )
-    { UndefinedMeshTraits<T>::notDefined(); return 0; }
+    static inline const_connectivity_iterator 
+    connectivityEnd( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
     //@}
 };
 

@@ -22,13 +22,13 @@
 namespace DataTransferKit
 {
 
-//===========================================================================//
+//---------------------------------------------------------------------------//
 /*!
  * \class DataTarget
  * \brief DataTarget objects provide coordinate fields on which to evaluate
  * data fields and memory spaces to write the evaluated data.
  */
-//===========================================================================//
+//---------------------------------------------------------------------------//
 template<class CoordinateField, class DataField>
 class DataTarget
 {
