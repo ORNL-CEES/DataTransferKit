@@ -36,7 +36,9 @@ struct UndefinedMeshTraits
  * double. Elements are described by a list of node handles that designate
  * their connectivity. For each element type, the order of the connecting
  * elements correlate to a canonical ordering ( I either need to explicitly
- * required MBCN or offer a permuation vector interface. )
+ * required MBCN or offer a permuation vector interface. The latter is likely
+ * the best choice. I'll need this anyway as higher order moab elements have
+ * different ordering than shards elements. )
  */
 template<typename MeshType>
 class MeshTraits

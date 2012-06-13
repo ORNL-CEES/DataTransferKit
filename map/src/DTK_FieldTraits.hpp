@@ -59,7 +59,8 @@ class FieldTraits
     //@}
 
     /*! 
-     * \brief Returns the dimensionality of the field.
+     * \brief Returns the dimensionality of the field ( i.e. 1 for a scalar, 3
+     * for a 3 vector, 9 for a 3x3 tensor, etc. ).
      */
     static inline size_type dim( const FieldType& field )
     { return UndefinedFieldTraits<FieldType>::notDefined(); }
