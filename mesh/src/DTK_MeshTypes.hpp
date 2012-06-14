@@ -31,7 +31,8 @@ enum DTK_ElementTopology {
     DTK_QUADRILATERAL,
     DTK_TETRAHEDRON,
     DTK_HEXAHEDRON,
-    DTK_ElementTopology_MAX = DTK_HEXAHEDRON
+    DTK_PYRAMID,
+    DTK_ElementTopology_MAX = DTK_PYRAMID
 };
 
 } // end namespace DataTransferKit

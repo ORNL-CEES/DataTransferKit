@@ -179,13 +179,42 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 	    }
 	    break;
 
+	case moab::MBPYRAMID:
+	    
+	    if ( num_element_nodes == 5 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Pyramid<5> >() ) );
+	    }
+	    if ( num_element_nodes == 13 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Pyramid<13> >() ) );
+	    }
+	    if ( num_element_nodes == 14 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Pyramid<14> >() ) );
+	    }
+	    else 
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Pyramid<> >() ) );
+	    }
+	    break;
+
 	default:
 	    
-	    testPrecondition( moab::MBEDGE == element_topology ||
-			      moab::MBTRI  == element_topology ||
-			      moab::MBQUAD == element_topology ||
-			      moab::MBTET  == element_topology ||
-			      moab::MBHEX  == element_topology ,
+	    testPrecondition( moab::MBEDGE    == element_topology ||
+			      moab::MBTRI     == element_topology ||
+			      moab::MBQUAD    == element_topology ||
+			      moab::MBTET     == element_topology ||
+			      moab::MBHEX     == element_topology ||
+			      moab::MBPYRAMID == element_topology,
 			      "Invalid mesh topology" );
     }
 
