@@ -123,6 +123,9 @@ class MeshTraits<MyMesh>
     typedef Teuchos::Array<int>::const_iterator const_connectivity_iterator;
     
 
+    static inline std::size_t nodeDim( const MyMesh& mesh )
+    { return 3; }
+
     static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
 

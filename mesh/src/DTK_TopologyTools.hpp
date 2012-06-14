@@ -12,6 +12,7 @@
 #include <MBInterface.hpp>
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Array.hpp>
 
 namespace DataTransferKit
 {
@@ -23,7 +24,7 @@ namespace TopologyTools
 int numLinearNodes( const moab::EntityType element_topology );
 
 // Point in element query.
-bool pointInElement( double coords[3],
+bool pointInElement( Teuchos::Array<double>& coords,
 		     const moab::EntityHandle element,
 		     const Teuchos::RCP<moab::Interface>& moab );
 

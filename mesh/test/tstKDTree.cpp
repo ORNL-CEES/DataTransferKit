@@ -121,6 +121,9 @@ class MeshTraits<MyMesh>
     typedef Teuchos::Array<int>::const_iterator const_element_iterator;    
     typedef Teuchos::Array<int>::const_iterator const_connectivity_iterator;    
 
+    static inline std::size_t nodeDim( const MyMesh& mesh )
+    { return 3; }
+
     static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
 
@@ -287,15 +290,27 @@ TEUCHOS_UNIT_TEST( KDTree, kd_tree_test )
     kd_tree.build();
 
     // Search the tree for some points we know we will find.
-    double point_0[3] = { 0.5, 0.45, 0.98 };
-    double point_1[3] = { 0.2, 0.9, 1.32 };
+    Teuchos::Array<double> point_0(3);
+    point_0[0] = 0.5;
+    point_0[1] = 0.45;
+    point_0[2] = 0.98;
+    Teuchos::Array<double> point_1(3); 
+    point_1[0] = 0.2;
+    point_1[1] = 0.9;
+    point_1[2] = 1.32;
     TEST_ASSERT( kd_tree.findPoint( point_0 ) == 0 );
     TEST_ASSERT( kd_tree.findPoint( point_1 ) == 1 );
 
     // Test points we know we won't find. We expect a PointNotFound()
     // exception to be thrown here.
-    double point_2[3] = { 2.9, -0.5, 9.5 };
-    double point_3[3] = { 0.1, 1.5, -4.8 };
+    Teuchos::Array<double> point_2(3);
+    point_2[0] = 2.9;
+    point_2[1] = -0.5;
+    point_2[2] = 9.5;
+    Teuchos::Array<double> point_3(3);
+    point_3[0] = 0.1;
+    point_3[1] = 1.5;
+    point_3[2] = -4.8;
     bool caught_exception = false;
     try 
     {

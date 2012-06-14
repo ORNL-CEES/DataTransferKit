@@ -37,8 +37,9 @@ struct UndefinedMeshTraits
  * their connectivity. For each element type, the order of the connecting
  * elements correlate to a canonical ordering ( I either need to explicitly
  * required MBCN or offer a permuation vector interface. The latter is likely
- * the best choice. I'll need this anyway as higher order moab elements have
- * different ordering than shards elements. )
+ * the best choice as it is more general and flexible. I'll need this anyway
+ * as higher order moab elements have different ordering than shards
+ * elements. )
  */
 template<typename MeshType>
 class MeshTraits
@@ -82,7 +83,7 @@ class MeshTraits
     /*!
      * \brief Return the dimension of the nodes in this mesh.
      */
-    static inline std::size_t nodeDimension( const MeshType& mesh );
+    static inline std::size_t nodeDim( const MeshType& mesh );
 
     /*!
      * \brief Return the const iterator to the beginning of the node handle

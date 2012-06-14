@@ -65,7 +65,7 @@ class Rendezvous
     getRendezvousProcs( const Teuchos::Array<double> &coords ) const;
 
     // Get the native mesh elements in the rendezvous decomposition containing
-    // a list of coordinates.
+    // a blocked list of coordinates.
     Teuchos::Array<handle_type>
     getElements( const Teuchos::Array<double>& coords ) const;
 
@@ -100,6 +100,9 @@ class Rendezvous
 
     // Bounding box in which to perform the rendezvous.
     BoundingBox d_global_box;
+
+    // Mesh node dimension.
+    std::size_t d_node_dim;
 
     // Rendezvous partitioning.
     RCP_RCB d_rcb;

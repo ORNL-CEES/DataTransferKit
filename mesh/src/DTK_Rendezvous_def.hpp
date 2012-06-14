@@ -36,6 +36,7 @@ Rendezvous<Mesh>::Rendezvous( const RCP_Comm& comm,
 			      const BoundingBox& global_box )
     : d_comm( comm )
     , d_global_box( global_box )
+    , d_node_dim( 0 )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -53,6 +54,9 @@ Rendezvous<Mesh>::~Rendezvous()
 template<class Mesh> 
 void Rendezvous<Mesh>::build( const Mesh& mesh )
 {
+    // Get the node dimension for the mesh.
+    d_node_dim = MT::nodeDim( mesh );
+
     // Extract the mesh nodes and elements that are in the bounding box.
     Teuchos::Array<int> nodes_in_box;
     Teuchos::Array<int> elements_in_box;
@@ -79,6 +83,7 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
     d_kdtree = Teuchos::rcp( new KDTree<handle_type>( d_rendezvous_mesh ) );
     testPostcondition( d_kdtree != Teuchos::null,
 		       "Error creating rendezvous kD-tree." );
+    d_kdtree->build();
 }
 
 //---------------------------------------------------------------------------//
@@ -90,18 +95,20 @@ template<class Mesh>
 Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
     const Teuchos::Array<double>& coords ) const
 {
-    testPrecondition( coords.size() % 3 == 0, 
-		      "Three dimensional coordinates not provided." );
-    
     double point[3];
-    ordinal_type num_points = coords.size() / 3;
+    ordinal_type num_points = coords.size() / d_node_dim;
     int rendezvous_proc;
     Teuchos::Array<int> destination_procs;
-    for ( ordinal_type i = 0; i < num_points; ++i )
+    for ( ordinal_type n = 0; n < num_points; ++n )
     {
-	point[0] = coords[ i ];
-	point[1] = coords[ num_points + i ];
-	point[2] = coords[ 2*num_points + i ];
+	for ( std::size_t d = 0; d < d_node_dim; ++d )
+	{
+	    point[d] = coords[ d*num_points + n ];
+	}
+	for ( std::size_t d = d_node_dim; d < 3; ++d )
+	{
+	    point[d] = 0.0;
+	}
 	rendezvous_proc = d_rcb->getDestinationProc( point );
 	destination_procs.push_back( rendezvous_proc );
     }
@@ -115,26 +122,23 @@ Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the native mesh elements containing a list of coordinates.  (
- * Need to specify blocked or interleaved here. Should probably do blocked for
- * constistency.)
+ * \brief Get the native mesh elements containing a blocked list of
+ * coordinates.
  */
 template<class Mesh>
 Teuchos::Array< typename Rendezvous<Mesh>::handle_type >
 Rendezvous<Mesh>::getElements( const Teuchos::Array<double>& coords ) const
 {
-    testPrecondition( coords.size() % 3 == 0, 
-		      "Three dimensional coordinates not provided." );
-
-    double point[3];
+    Teuchos::Array<double> point( d_node_dim );
     handle_type element_handle;
-    ordinal_type num_points = coords.size() / 3;
+    ordinal_type num_points = coords.size() / d_node_dim;
     Teuchos::Array<handle_type> element_handles;
-    for ( ordinal_type i = 0; i < num_points; ++i )
+    for ( ordinal_type n = 0; n < num_points; ++n )
     {
-	point[0] = coords[ i ];
-	point[1] = coords[ num_points + i ];
-	point[2] = coords[ 2*num_points + i ];
+	for ( std::size_t d = 0; d < d_node_dim; ++d )
+	{
+	    point[d] = coords[ d*num_points + n ];
+	}
 	element_handle = d_kdtree->findPoint( point );
 	element_handles.push_back( element_handle );
     }
@@ -179,9 +183,13 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	MT::coordsBegin( mesh );
     for ( ordinal_type n = 0; n < num_nodes; ++n )
     {
-	for ( int i = 0; i < 3; ++i )
+	for ( std::size_t d = 0; d < d_node_dim; ++d )
 	{
-	    node_coords[i] = mesh_coords[ i*num_nodes + n ];
+	    node_coords[d] = mesh_coords[ d*num_nodes + n ];
+	}
+	for ( std::size_t d = d_node_dim; d < 3; ++d )
+	{
+	    node_coords[d] = 0.0;
 	}
 	nodes_in_box.push_back( box.pointInBox( node_coords ) );
     }
@@ -289,13 +297,13 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 						  import_element_map );
 
     // Move the node coordinates to the rendezvous decomposition.
-    ordinal_type num_coords = 3*num_nodes;
+    ordinal_type num_coords = d_node_dim*num_nodes;
     Teuchos::ArrayRCP<double> export_coords_view( 
 	(double*) &*MT::coordsBegin( mesh ), 0, num_coords, false );
     Teuchos::RCP< Tpetra::MultiVector<double> > export_coords = 
 	createMultiVectorFromView( export_node_map, export_coords_view, 
-				   num_nodes, 3 );
-    Tpetra::MultiVector<double> import_coords( import_node_map, 3 );
+				   num_nodes, d_node_dim );
+    Tpetra::MultiVector<double> import_coords( import_node_map, d_node_dim );
     import_coords.doImport( *export_coords, node_importer, Tpetra::INSERT );
 
     // Move the element connectivity to the rendezvous decomposition.
@@ -313,6 +321,7 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     // Construct the mesh container from the collected data, effectively
     // wrapping it with mesh traits. 
     MeshContainer<handle_type> mesh_container( 
+	d_node_dim,
 	Teuchos::arcpFromArray( rendezvous_nodes ), 
 	import_coords.get1dView(),
 	MT::elementType( mesh ),
@@ -389,9 +398,14 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	    {
 		node_handle = mesh_connectivity[ i*num_elements + n ];
 		node_index = node_indices.find( node_handle )->second;
-		node_coords[0] = mesh_coords[ node_index ];
-		node_coords[1] = mesh_coords[ num_nodes + node_index ];
-		node_coords[2] = mesh_coords[ 2*num_nodes + node_index ];
+		for ( std::size_t d = 0; d < d_node_dim; ++d )
+		{
+		    node_coords[d] = mesh_coords[ d*num_nodes + node_index ];
+		}
+		for ( std::size_t d = d_node_dim; d < 3; ++d )
+		{
+		    node_coords[d] = 0.0;
+		}
 		destination_proc = d_rcb->getDestinationProc( node_coords );
 		export_element_procs_set[n].insert( destination_proc );
 	    }

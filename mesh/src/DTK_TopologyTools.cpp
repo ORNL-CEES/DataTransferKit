@@ -13,6 +13,7 @@
 #include <DTK_Exception.hpp>
 
 #include <Teuchos_ENull.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_Tuple.hpp>
 
@@ -57,12 +58,17 @@ int TopologyTools::numLinearNodes( const moab::EntityType element_topology )
 	    num_nodes = 8;
 	    break;
 
+	case moab::MBPYRAMID:
+	    num_nodes = 5;
+	    break;
+
 	default:
-	    testPrecondition( moab::MBEDGE == element_topology ||
-			      moab::MBTRI  == element_topology ||
-			      moab::MBQUAD == element_topology ||
-			      moab::MBTET  == element_topology ||
-			      moab::MBHEX  == element_topology ,
+	    testPrecondition( moab::MBEDGE    == element_topology ||
+			      moab::MBTRI     == element_topology ||
+			      moab::MBQUAD    == element_topology ||
+			      moab::MBTET     == element_topology ||
+			      moab::MBHEX     == element_topology ||
+			      moab::MBPYRAMID == element_topology,
 			      "Invalid mesh topology" );
     }
 
@@ -73,7 +79,7 @@ int TopologyTools::numLinearNodes( const moab::EntityType element_topology )
 /*!
  * \brief Point in element query.
  */
-bool TopologyTools::pointInElement( double coords[3],
+bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 				    const moab::EntityHandle element,
 				    const Teuchos::RCP<moab::Interface>& moab )
 {
@@ -91,7 +97,8 @@ bool TopologyTools::pointInElement( double coords[3],
 				   element_nodes );
     testInvariant( moab::MB_SUCCESS == error, "Failure getting element nodes" );
 
-    // Extract only the nodes to build the linear element.
+    // Extract only the nodes to build the linear element. This will need to
+    // be updated for the higher order topologies.
     int num_linear_nodes = numLinearNodes( element_topology );
     Teuchos::Array<moab::EntityHandle> linear_nodes;
     for ( int n = 0; n < num_linear_nodes; ++n )
@@ -105,30 +112,41 @@ bool TopologyTools::pointInElement( double coords[3],
 	topo_factory.create( element_topology, num_linear_nodes );
 
     // Extract the node coordinates.
-    Teuchos::Array<double> node_coords( 3 * num_linear_nodes );
+    Teuchos::Array<double> cell_node_coords( 3 * num_linear_nodes );
     error = moab->get_coords( &linear_nodes[0], 
 			      linear_nodes.size(), 
-			      &node_coords[0] );
+			      &cell_node_coords[0] );
     testInvariant( moab::MB_SUCCESS == error, 
 		   "Failure getting node coordinates" );
 
-    // Wrap the coordinates in a field container.
+    // Reduce the dimension of the coordinates if necessary and wrap in a
+    // field container.
+    int node_dim = coords.size();
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;
     cell_node_dimensions[1] = num_linear_nodes;
-    cell_node_dimensions[2] = 3;
+    cell_node_dimensions[2] = node_dim;
+    for ( int i = 2; i != node_dim-1 ; --i )
+    {
+	for ( int n = cell_node_coords.size() - 1; n > -1; --n )
+	{
+	    cell_node_coords.erase( cell_node_coords.begin() + 3*n + i );
+	}
+    }
     Intrepid::FieldContainer<double> cell_nodes( 
-	Teuchos::Array<int>(cell_node_dimensions), &node_coords[0] );
+	Teuchos::Array<int>(cell_node_dimensions), 
+	Teuchos::arcpFromArray( cell_node_coords ) );
 
     // Wrap the point in a field container.
     Teuchos::Tuple<int,2> point_dimensions;
     point_dimensions[0] = 1;
-    point_dimensions[1] = 3;
+    point_dimensions[1] = node_dim;
+    Teuchos::ArrayRCP<double> coords_view = Teuchos::arcpFromArray( coords );
     Intrepid::FieldContainer<double> point(
-	Teuchos::Array<int>(point_dimensions), &coords[0] );
+	Teuchos::Array<int>(point_dimensions), coords_view );
 
     // Map the point to the reference frame of the cell.
-    Intrepid::FieldContainer<double> reference_point(1,3);
+    Intrepid::FieldContainer<double> reference_point( 1, node_dim );
     Intrepid::CellTools<double>::mapToReferenceFrame( reference_point,
 						      point,
 						      cell_nodes,

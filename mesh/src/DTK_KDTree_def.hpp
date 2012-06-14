@@ -55,15 +55,22 @@ void KDTree<Handle>::build()
  * was found in. 
  */
 template<typename Handle>
-Handle KDTree<Handle>::findPoint( double coords[3] )
+Handle KDTree<Handle>::findPoint( const Teuchos::Array<double>& coords )
 {
+    std::size_t node_dim = coords.size();
+    double point[3];
+    for ( std::size_t d = 0; d < node_dim; ++d )
+    {
+	point[d] = coords[d];
+    }
+    for ( std::size_t d = node_dim; d < 3; ++d )
+    {
+	point[d] = 0;
+    }
+
     moab::ErrorCode error;
     moab::EntityHandle leaf;
-    std::cout << coords[0] << " " 
-	      << coords[1] << " "
-	      << coords[2] << " " << std::endl;
-    error = d_tree.leaf_containing_point( d_root, coords, leaf );
-    std::cout << "ERROR CODE " << error << std::endl;
+    error = d_tree.leaf_containing_point( d_root, point, leaf );
     testInvariant( moab::MB_SUCCESS == error,
 		   "Failed to search kD-tree." );
 
@@ -78,7 +85,7 @@ Handle KDTree<Handle>::findPoint( double coords[3] )
  */
 template<typename Handle>
 moab::EntityHandle KDTree<Handle>::findPointInLeaf( 
-    double coords[3], const moab::EntityHandle leaf )
+    const Teuchos::Array<double>& coords, const moab::EntityHandle leaf )
 {
     moab::ErrorCode error;
 
@@ -106,13 +113,14 @@ moab::EntityHandle KDTree<Handle>::findPointInLeaf(
 		   "Failed to get leaf elements" );
 
     // Search the leaf elements with the point.
+    Teuchos::Array<double> point( coords );
     std::vector<moab::EntityHandle>::const_iterator leaf_iterator;
     for ( leaf_iterator = leaf_elements.begin();
 	  leaf_iterator != leaf_elements.end();
 	  ++leaf_iterator )
     {
 	if ( TopologyTools::pointInElement( 
-		 coords, *leaf_iterator, d_mesh->getMoab() ) )
+		 point, *leaf_iterator, d_mesh->getMoab() ) )
 	{
 	    return *leaf_iterator;
 	}

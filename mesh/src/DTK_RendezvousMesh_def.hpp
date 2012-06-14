@@ -68,12 +68,13 @@ createRendezvousMesh( const Mesh& mesh )
 		       "Error creating MOAB interface" );
 
     // Check the nodes and coordinates for consistency.
+    std::size_t node_dim = MT::nodeDim( mesh );
     handle_type num_nodes = std::distance( MT::nodesBegin( mesh ), 
 					   MT::nodesEnd( mesh ) );
     handle_type num_coords = std::distance( MT::coordsBegin( mesh ),
 					    MT::coordsEnd( mesh ) );
-    testInvariant( num_coords == 3 * num_nodes,
-		   "Number of coordinates provided != 3 * number of nodes" );
+    testInvariant( num_coords == (handle_type) node_dim * num_nodes,
+		   "Number of coordinates provided != node_dim * number of nodes" );
 
     // Add the mesh nodes to moab and map the native vertex handles to the
     // moab vertex handles. This should be in a hash table. We'll need one
@@ -87,9 +88,14 @@ createRendezvousMesh( const Mesh& mesh )
 	  ++node_iterator, ++n )
     {
 	moab::EntityHandle moab_vertex;
-	vertex_coords[0] = coord_iterator[n];
-	vertex_coords[1] = coord_iterator[num_nodes + n];
-	vertex_coords[2] = coord_iterator[2*num_nodes + n];
+	for ( std::size_t d = 0; d < node_dim; ++d )
+	{
+	    vertex_coords[d] = coord_iterator[d*num_nodes + n];
+	}
+	for ( std::size_t d = node_dim; d < 3; ++d )
+	{
+	    vertex_coords[d] = 0.0;
+	}
 	error = moab->create_vertex( vertex_coords, moab_vertex );
 	testInvariant( moab::MB_SUCCESS == error, 
 		       "Failed to create vertices in MOAB." );

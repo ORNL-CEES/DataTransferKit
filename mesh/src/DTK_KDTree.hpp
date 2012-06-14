@@ -12,6 +12,7 @@
 #include "DTK_RendezvousMesh.hpp"
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Array.hpp>
 
 #include <MBAdaptiveKDTree.hpp>
 
@@ -40,12 +41,12 @@ class KDTree
     void build();
 
     // Find a point in the tree.
-    handle_type findPoint( double coords[3] );
+    handle_type findPoint( const Teuchos::Array<double>& coords );
 
   private:
 
     // Find a point in a leaf.
-    moab::EntityHandle findPointInLeaf( double coords[3],
+    moab::EntityHandle findPointInLeaf( const Teuchos::Array<double>& coords,
 					const moab::EntityHandle leaf );
 
   private:

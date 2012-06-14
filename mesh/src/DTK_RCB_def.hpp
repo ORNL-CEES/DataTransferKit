@@ -228,8 +228,9 @@ void RCB<Mesh>::getObjectList(
 template<class Mesh>
 int RCB<Mesh>::getNumGeometry( void *data, int *ierr )
 {
+    MeshData *mesh_data = static_cast<MeshData*>( data );
     *ierr = ZOLTAN_OK;
-    return 3;
+    return MT::nodeDim( mesh_data->d_mesh );
 }
 
 //---------------------------------------------------------------------------//
@@ -245,8 +246,8 @@ void RCB<Mesh>::getGeometryList(
 {
     MeshData *mesh_data = static_cast<MeshData*>( data );
 
-    // Get the number of nodes.
-    int num_nodes = 0;
+    // Get the number of active nodes.
+    std::size_t num_nodes = 0;
     Teuchos::ArrayRCP<int>::const_iterator active_iterator;
     for ( active_iterator = mesh_data->d_active_nodes.begin();
 	  active_iterator != mesh_data->d_active_nodes.end();
@@ -259,13 +260,15 @@ void RCB<Mesh>::getGeometryList(
     }
 
     // Check Zoltan for consistency.
+    std::size_t node_dim = MT::nodeDim( mesh_data->d_mesh );
     testInvariant( sizeGID == 1, "Zoltan global ID size != 1." );
     testInvariant( sizeLID == 1, "Zoltan local ID size != 1." );
-    testInvariant( num_dim == 3, "Zoltan dimension != 3." );
-    testInvariant( num_obj == num_nodes, 
+    testInvariant( num_dim == (int) node_dim, "Zoltan dimension != 3." );
+    testInvariant( num_obj == (int) num_nodes, 
 		   "Zoltan number of nodes != mesh number of nodes." );
 
-    if ( sizeGID != 1 || sizeLID != 1 || num_dim != 3 || num_obj != num_nodes )
+    if ( sizeGID != 1 || sizeLID != 1 || 
+	 num_dim != (int) node_dim || num_obj != (int) num_nodes )
     {
 	*ierr = ZOLTAN_FATAL;
 	return;
@@ -274,11 +277,11 @@ void RCB<Mesh>::getGeometryList(
     // Zoltan needs interleaved coordinates.
     typename MT::const_coordinate_iterator mesh_coords =
 	MT::coordsBegin( mesh_data->d_mesh );
-    for ( int n = 0; n < num_nodes; ++n )
+    for ( std::size_t n = 0; n < num_nodes; ++n )
     {
-	for ( int i = 0; i < 3; ++i )
+	for ( std::size_t d = 0; d < node_dim; ++d )
 	{
-	    geom_vec[ 3*n + i ] = mesh_coords[ i*num_nodes + n ];
+	    geom_vec[ node_dim*n + d ] = mesh_coords[ d*num_nodes + n ];
 	}
     }
 }

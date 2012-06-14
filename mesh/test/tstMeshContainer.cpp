@@ -155,7 +155,7 @@ DataTransferKit::MeshContainer<int> buildMeshContainer()
     std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
 	       connectivity_array.begin() );
     
-    return MeshContainer<int>( node_handle_array, coords_array,
+    return MeshContainer<int>( 3, node_handle_array, coords_array,
 			       DTK_REGION, DTK_HEXAHEDRON, 8,
 			       hex_handle_array, connectivity_array );
 }

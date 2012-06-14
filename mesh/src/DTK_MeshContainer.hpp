@@ -35,14 +35,16 @@ class MeshContainer
     { /* ... */ }
 
     //! Constructor.
-    MeshContainer( const Teuchos::ArrayRCP<handle_type>& nodes,
+    MeshContainer( const int node_dim,
+		   const Teuchos::ArrayRCP<handle_type>& nodes,
 		   const Teuchos::ArrayRCP<const double>& coords,
 		   const int element_type,
 		   const int element_topology,
 		   const int nodes_per_element,
 		   const Teuchos::ArrayRCP<handle_type>& elements,
 		   const Teuchos::ArrayRCP<const handle_type>& connectivity )
-	: d_nodes( nodes )
+	: d_node_dim( node_dim )
+	, d_nodes( nodes )
 	, d_coords( coords )
 	, d_element_type( element_type )
 	, d_element_topology( element_topology )
@@ -54,6 +56,10 @@ class MeshContainer
     //! Destructor.
     ~MeshContainer()
     { /* ... */ }
+
+    //! Get the dimension of the nodes.
+    std::size_t getNodeDim() const
+    { return d_node_dim; }
 
     //! Get the beginning of the nodes set.
     typename Teuchos::ArrayRCP<handle_type>::const_iterator nodesBegin() const
@@ -103,6 +109,9 @@ class MeshContainer
     
   private:
 
+    // Node dimension.
+    std::size_t d_node_dim;
+
     // Nodes.
     Teuchos::ArrayRCP<handle_type> d_nodes;
 
@@ -143,6 +152,10 @@ struct MeshTraits< MeshContainer<Handle> >
     const_element_iterator;
     typedef typename Teuchos::ArrayRCP<const Handle>::const_iterator 
     const_connectivity_iterator;
+
+
+    static inline std::size_t nodeDim( const Container& container )
+    { return container.getNodeDim(); }
 
     static inline const_node_iterator nodesBegin( const Container& container )
     { return container.nodesBegin(); }

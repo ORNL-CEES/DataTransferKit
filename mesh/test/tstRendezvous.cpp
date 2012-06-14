@@ -121,6 +121,9 @@ class MeshTraits<MyMesh>
     typedef Teuchos::Array<int>::const_iterator const_element_iterator;
     typedef Teuchos::Array<int>::const_iterator const_connectivity_iterator;
 
+    static inline std::size_t nodeDim( const MyMesh& mesh )
+    { return 2; }
+
     static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
 
@@ -168,8 +171,9 @@ MyMesh buildMyMesh()
 
     // Make some nodes.
     int num_nodes = 10;
+    int node_dim = 2;
     Teuchos::Array<int> node_handles( num_nodes );
-    Teuchos::Array<double> coords( 3*num_nodes );
+    Teuchos::Array<double> coords( node_dim*num_nodes );
 
     for ( int i = 0; i < num_nodes; ++i )
     {
@@ -179,13 +183,11 @@ MyMesh buildMyMesh()
     {
 	coords[ i ] = my_rank;
 	coords[ num_nodes + i ] = i;
-	coords[ 2*num_nodes + i ] = 0.0;
     }
     for ( int i = num_nodes / 2; i < num_nodes; ++i )
     {
 	coords[ i ] = my_rank + 1;
 	coords[ num_nodes + i ] = i - num_nodes/2;
-	coords[ 2*num_nodes + i ] = 0.0;
     }
     
     // Make the quads.
@@ -352,7 +354,8 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 	    std::distance( my_mesh.quadsBegin(), my_mesh.quadsEnd() );
 	int global_num_quads = local_num_quads*my_size;
 	int idx;
-	Teuchos::Array<double> coords( 3*global_num_quads );
+	int node_dim = 2;
+	Teuchos::Array<double> coords( node_dim*global_num_quads );
 	for ( int j = 0; j < local_num_quads; ++j )
 	{
 	    for ( int i = 0; i < local_num_quads; ++i )
@@ -360,7 +363,6 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 		idx = i + local_num_quads*j;
 		coords[ idx ] = i + 0.5;
 		coords[ global_num_quads + idx ] = j + 0.5;
-		coords[ 2*global_num_quads + idx ] = 0.0;
 	    }
 	}
 
@@ -390,19 +392,15 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 
 	    target_coords[0] = coords[ 8 ];
 	    target_coords[4] = coords[ 8 + global_num_quads ];
-	    target_coords[8] = coords[ 8 + 2*global_num_quads ];
 
 	    target_coords[1] = coords[ 9 ];
 	    target_coords[5] = coords[ 9 + global_num_quads ];
-	    target_coords[9] = coords[ 9 + 2*global_num_quads ];
 
 	    target_coords[2] = coords[ 12 ];
 	    target_coords[6] = coords[ 12 + global_num_quads ];
-	    target_coords[10] = coords[ 12 + 2*global_num_quads ];
 
 	    target_coords[3] = coords[ 13 ];
 	    target_coords[7] = coords[ 13 + global_num_quads ];
-	    target_coords[11] = coords[ 13 + 2*global_num_quads ];
 	    
 	    Teuchos::Array<int> target_elements = 
 		rendezvous.getElements( target_coords );
