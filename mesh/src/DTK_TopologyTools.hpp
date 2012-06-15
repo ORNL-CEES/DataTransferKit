@@ -17,18 +17,32 @@
 namespace DataTransferKit
 {
 
-namespace TopologyTools
+//---------------------------------------------------------------------------//
+/*!
+ * \class TopologyTools
+ * \brief Tools based on concrete mesh topologies.
+ */ 
+//---------------------------------------------------------------------------//
+class TopologyTools
 {
+  public:
 
-// Get the number of linear nodes for a particular iMesh topology.
-int numLinearNodes( const moab::EntityType element_topology );
+    //! Constructor.
+    TopologyTools()
+    { /* ... */ }
 
-// Point in element query.
-bool pointInElement( Teuchos::Array<double>& coords,
-		     const moab::EntityHandle element,
-		     const Teuchos::RCP<moab::Interface>& moab );
+    //! Destructor.
+    ~TopologyTools()
+    { /* ... */ }
 
-} // end namespace TopologyTools
+    // Get the number of linear nodes for a particular iMesh topology.
+    static int numLinearNodes( const moab::EntityType element_topology );
+
+    // Point in element query.
+    static bool pointInElement( Teuchos::Array<double>& coords,
+				const moab::EntityHandle element,
+				const Teuchos::RCP<moab::Interface>& moab );
+};
 
 } // end namepsace DataTransferKit
 
