@@ -269,82 +269,10 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 
 	// Create a mesh.
 	MyMesh my_mesh = buildMyMesh();
-	std::string input_file_name;
-	for ( int i = 0; i < my_size; ++i )
-	{
-	    if ( my_rank == i )
-	    {
-		std::stringstream convert;
-		convert << i;
-		input_file_name = "rank_" + convert.str()  + "_in.vtk";
-		createRendezvousMesh( my_mesh )->getMoab()->write_mesh(
-		    input_file_name.c_str() );
-	    }
-	    getDefaultComm<int>()->barrier();
-	}
 
 	// Create a rendezvous.
 	Rendezvous<MyMesh> rendezvous( getDefaultComm<int>(), box );
 	rendezvous.build( my_mesh );
-
-	// Check the mesh.
-	getDefaultComm<int>()->barrier();
-	std::string output_file_name;
-	for ( int i = 0; i < my_size; ++i )
-	{
-	    if ( my_rank == i )
-	    {
-		std::stringstream convert;
-		convert << i;
-		output_file_name = "rank_" +  convert.str() + "_out.vtk";
-		rendezvous.getMesh()->getMoab()->write_mesh( 
-		    output_file_name.c_str() );
-	    }
-	    getDefaultComm<int>()->barrier();
-	}
-
-	// Get the moab interface.
-	moab::ErrorCode error;
-	Teuchos::RCP< RendezvousMesh<MyMesh::handle_type> > mesh = 
-	    rendezvous.getMesh();
-	Teuchos::RCP<moab::Interface> moab = mesh->getMoab();
-    
-	// Grab the elements.
-	moab::Range mesh_elements = mesh->getElements();
-
-	// Check the moab mesh element data.
-	MyMesh::handle_type native_handle = 0;
-	moab::Range::const_iterator element_iterator;
-	for ( element_iterator = mesh_elements.begin();
-	      element_iterator != mesh_elements.end();
-	      ++element_iterator, ++native_handle )
-	{
-	}
-
-	// Check the moab mesh vertex data.
-	moab::Range connectivity;
-	error = moab->get_connectivity( mesh_elements, connectivity );
-	TEST_ASSERT( moab::MB_SUCCESS == error );
-
-	Teuchos::Array<double> vertex_coords( 3 * connectivity.size() );
-	error = moab->get_coords( connectivity, &vertex_coords[0] );
-	TEST_ASSERT( moab::MB_SUCCESS == error );
-
-	int num_nodes = connectivity.size();
-	Teuchos::Array<double>::const_iterator moab_coord_iterator;
-	int i = 0;
-	for ( moab_coord_iterator = vertex_coords.begin();
-	      moab_coord_iterator != vertex_coords.end(); ++i )
-	{
-	    if ( my_rank == 0 )
-	    {
-		for ( int d = 0; d < 3; ++d, ++moab_coord_iterator )
-		{
-		    std::cout << *moab_coord_iterator << " ";
-		}
-		std::cout << std::endl;
-	    }
-	}
 	
 	// Check the repartitioning with coordinates. Because of the overlap in
 	// the rendezvous algorithm, several partitions will contain the proper
@@ -388,7 +316,8 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 	// Check the kD-tree with coordinates.
 	if ( my_rank == 0 )
 	{
-	    Teuchos::Array<double> target_coords( 3*global_num_quads / 4 );
+	    Teuchos::Array<double> 
+		target_coords( node_dim*global_num_quads / 4 );
 
 	    target_coords[0] = coords[ 8 ];
 	    target_coords[4] = coords[ 8 + global_num_quads ];
@@ -404,7 +333,86 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 	    
 	    Teuchos::Array<int> target_elements = 
 		rendezvous.getElements( target_coords );
-	    std::cout << target_elements << std::endl;
+
+	    TEST_ASSERT( target_elements[0] == 2 );
+	    TEST_ASSERT( target_elements[1] == 6 );
+	    TEST_ASSERT( target_elements[2] == 3 );
+	    TEST_ASSERT( target_elements[3] == 7 );
+	}
+	if ( my_rank == 1 )
+	{
+	    Teuchos::Array<double> 
+		target_coords( node_dim*global_num_quads / 4 );
+
+	    target_coords[0] = coords[ 0 ];
+	    target_coords[4] = coords[ 0 + global_num_quads ];
+
+	    target_coords[1] = coords[ 1 ];
+	    target_coords[5] = coords[ 1 + global_num_quads ];
+
+	    target_coords[2] = coords[ 4 ];
+	    target_coords[6] = coords[ 4 + global_num_quads ];
+
+	    target_coords[3] = coords[ 5 ];
+	    target_coords[7] = coords[ 5 + global_num_quads ];
+	    
+	    Teuchos::Array<int> target_elements = 
+		rendezvous.getElements( target_coords );
+
+	    TEST_ASSERT( target_elements[0] == 0 );
+	    TEST_ASSERT( target_elements[1] == 4 );
+	    TEST_ASSERT( target_elements[2] == 1 );
+	    TEST_ASSERT( target_elements[3] == 5 );
+	}
+	if ( my_rank == 2 )
+	{
+	    Teuchos::Array<double> 
+		target_coords( node_dim*global_num_quads / 4 );
+
+	    target_coords[0] = coords[ 10 ];
+	    target_coords[4] = coords[ 10 + global_num_quads ];
+
+	    target_coords[1] = coords[ 11 ];
+	    target_coords[5] = coords[ 11 + global_num_quads ];
+
+	    target_coords[2] = coords[ 14 ];
+	    target_coords[6] = coords[ 14 + global_num_quads ];
+
+	    target_coords[3] = coords[ 15 ];
+	    target_coords[7] = coords[ 15 + global_num_quads ];
+	    
+	    Teuchos::Array<int> target_elements = 
+		rendezvous.getElements( target_coords );
+
+	    TEST_ASSERT( target_elements[0] == 10 );
+	    TEST_ASSERT( target_elements[1] == 14 );
+	    TEST_ASSERT( target_elements[2] == 11 );
+	    TEST_ASSERT( target_elements[3] == 15 );
+	}
+	if ( my_rank == 3 )
+	{
+	    Teuchos::Array<double> 
+		target_coords( node_dim*global_num_quads / 4 );
+
+	    target_coords[0] = coords[ 2 ];
+	    target_coords[4] = coords[ 2 + global_num_quads ];
+
+	    target_coords[1] = coords[ 3 ];
+	    target_coords[5] = coords[ 3 + global_num_quads ];
+
+	    target_coords[2] = coords[ 6 ];
+	    target_coords[6] = coords[ 6 + global_num_quads ];
+
+	    target_coords[3] = coords[ 7 ];
+	    target_coords[7] = coords[ 7 + global_num_quads ];
+	    
+	    Teuchos::Array<int> target_elements = 
+		rendezvous.getElements( target_coords );
+
+	    TEST_ASSERT( target_elements[0] == 8 );
+	    TEST_ASSERT( target_elements[1] == 12 );
+	    TEST_ASSERT( target_elements[2] == 9 );
+	    TEST_ASSERT( target_elements[3] == 13 );
 	}
     }
 }

@@ -120,7 +120,9 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 		   "Failure getting node coordinates" );
 
     // Reduce the dimension of the coordinates if necessary and wrap in a
-    // field container.
+    // field container. This means (for now at least) that 2D meshes must be
+    // constructed from 2D nodes (this obviously won't work for 2D meshes that
+    // have curvature) 
     int node_dim = coords.size();
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;
@@ -128,7 +130,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
     cell_node_dimensions[2] = node_dim;
     for ( int i = 2; i != node_dim-1 ; --i )
     {
-	for ( int n = cell_node_coords.size() - 1; n > -1; --n )
+	for ( int n = linear_nodes.size() - 1; n > -1; --n )
 	{
 	    cell_node_coords.erase( cell_node_coords.begin() + 3*n + i );
 	}
