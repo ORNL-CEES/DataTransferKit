@@ -17,14 +17,11 @@ namespace DataTransferKit
  * \class Map
  * \brief Map protocol for data transfer.
  */
+template<class SourceGeometry, class TargetGeometry,
+	 class SourceField, class TargetField>
 class Map
 {
-
   public:
-
-    //@{
-    //! Typedefs.
-    //@}
 
     //! Constructor.
     Map()
@@ -35,12 +32,10 @@ class Map
     { /* ... */ }
 
     //! Setup the map for a given geometry.
-    template<class SourceGeometry, class TargetGeometry>
-    virtual void setup( const SourceGeometry& source_geom,
-			const TargetGeometry& target_geom ) = 0;
+    virtual void setup( const SourceGeometry& source_geometry,
+			const TargetGeometry& target_geometry ) = 0;
 
     //! Apply the map for a given field.
-    template<class SourceField, class TargetField>
     virtual void apply( const SourceField& source_field,
 			TargetField& target_field ) = 0;
 };

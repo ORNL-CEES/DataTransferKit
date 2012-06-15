@@ -25,7 +25,6 @@ APPEND_SET(HEADERS
   DTK_Map.hpp
   DTK_MapFactory.hpp
   DTK_TransferOperator.hpp
-  DTK_TransferOperator_def.hpp
   )
 
 # Set sources
