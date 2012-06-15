@@ -9,13 +9,25 @@
 #ifndef DTK_MAP_HPP
 #define DTK_MAP_HPP
 
+#include <Teuchos_RCP.hpp>
+
+#include <Tpetra_Map.hpp>
+
 namespace DataTransferKit
 {
 
+template<typename GlobalOrdinal>
 class Map
 {
 
   public:
+
+    //@{
+    //! Typedefs.
+    typedef GlobalOrdinal                   global_ordinal_type;
+    typedef Tpetra::Map<GlobalOrdinal>      TpetraMap;
+    typedef Teuchos::RCP<const TpetraMap>   RCP_TpetraMap;
+    //@}
 
     //! Constructor.
     Map()
@@ -25,11 +37,9 @@ class Map
     virtual ~Map()
     { /* ... */ }
 
-    //! Setup the map.
-    virtual void setup() = 0;
-
-    //! Apply the map to a field.
-    virtual void apply( const std::string& field_name ) = 0;
+    //! build the map.
+    virtual void build( RCP_TpetraMap& export_map,
+			RCP_TpetraMap& import_map ) = 0;
 };
 
 } // end namespace DataTransferKit

@@ -66,7 +66,8 @@ class MeshTraits
     std::iterator<std::random_access_iterator_tag, const double>  
     const_coordinate_iterator;
 
-    //! Typedef for random access const iterator to element global_ordinal values.
+    //! Typedef for random access const iterator to element global_ordinal
+    //! values.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
     const_element_iterator;

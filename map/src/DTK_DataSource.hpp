@@ -39,16 +39,16 @@ class DataSource
 
     //@{
     //! Typedefs.
-    typedef Mesh                             mesh_type;
-    typedef MeshTraits<Mesh>                 MT;
-    typedef typename MT::handle_type         handle_type;
-    typedef DataField                        data_field_type;
-    typedef FieldTraits<DataField>           FT;
-    typedef typename FT::value_type          data_type;
-    typedef FieldEvaluator<Mesh,DataField>   FieldEvaluatorType;
-    typedef Teuchos::RCP<FieldEvaluatorType> RCP_FieldEvaluator;
-    typedef Teuchos::Comm<int>               CommType;
-    typedef Teuchos::RCP<CommType>           RCP_Comm;
+    typedef Mesh                                mesh_type;
+    typedef MeshTraits<Mesh>                    MT;
+    typedef typename MT::handle_type            handle_type;
+    typedef DataField                           data_field_type;
+    typedef FieldTraits<DataField>              FT;
+    typedef typename FT::value_type             data_type;
+    typedef FieldEvaluator<Mesh,DataField>      FieldEvaluatorType;
+    typedef Teuchos::RCP<FieldEvaluatorType>    RCP_FieldEvaluator;
+    typedef Teuchos::Comm<int>                  CommType;
+    typedef Teuchos::RCP<CommType>              RCP_Comm;
     //@}
 
     // Constructor.

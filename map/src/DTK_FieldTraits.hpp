@@ -30,7 +30,7 @@ struct UndefinedFieldTraits
  * 
  * These traits correlate to the basic concept of a field within DTK. A field
  * can contain anything in an array, but it must store its objects in
- * contiguous memory. 
+ * contiguous memory that is blocked by dimension. 
  */
 template<typename FieldType>
 class FieldTraits
@@ -74,7 +74,7 @@ class FieldTraits
     /*! 
      * \brief Returns if the field is empty.
      */
-    static inline bool empty( const FieldType &field )
+    static inline bool empty( const FieldType& field )
     { return UndefinedFieldTraits<FieldType>::notDefined(); }
 
     //@{
@@ -82,10 +82,10 @@ class FieldTraits
      * required to be blocked by dimensions ( d0, d1, d2, ... , dM ) as
      * ( d0_0, d0_1, ... , d0_N, d1_0, d1_1, ... , d1_N, ... , dM_N )
      */
-    static inline iterator begin( FieldType &field )
+    static inline iterator begin( FieldType& field )
     { return UndefinedFieldTraits<FieldType>::notDefined(); }
 
-    static inline const_iterator begin( const FieldType &field )
+    static inline const_iterator begin( const FieldType& field )
     { return UndefinedFieldTraits<FieldType>::notDefined(); }
     //@}
 
@@ -95,10 +95,10 @@ class FieldTraits
      * required to be blocked by dimensions ( d0, d1, d2, ... , dM ) as
      * ( d0_0, d0_1, ... , d0_N, d1_0, d1_1, ... , d1_N, ... , dM_N )
      */
-    static inline iterator end( FieldType &field )
+    static inline iterator end( FieldType& field )
     { return UndefinedFieldTraits<FieldType>::notDefined(); }
 
-    static inline const_iterator end( const FieldType &field )
+    static inline const_iterator end( const FieldType& field )
     { return UndefinedFieldTraits<FieldType>::notDefined(); }
     //@}
 };
