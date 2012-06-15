@@ -20,17 +20,16 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  DTK_ConsistentInterpolation.hpp
   DTK_FieldEvaluator.hpp	
   DTK_FieldTraits.hpp
-  DTK_Map.hpp
-  DTK_MapFactory.hpp
+  DTK_MapTraits.hpp
   DTK_TransferOperator.hpp
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
-  DTK_MapFactory.cpp
   )
 
 # Set addition headers and source based on package-specific

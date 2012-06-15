@@ -9,10 +9,10 @@
 #ifndef DTK_FIELDEVALUATOR_HPP
 #define DTK_FIELDEVALUATOR_HPP
 
-#include <vector>
-
 #include "DTK_FieldTraits.hpp"
 #include <DTK_MeshTraits.hpp>
+
+#include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
 {
@@ -55,8 +55,8 @@ class FieldEvaluator
      * dimensionality and ordering is specified by field traits.
      */
     virtual DataField evaluate( 
-	const std::vector<global_ordinal_type>& elements,
-	const std::vector<double>& coords ) = 0;
+	const Teuchos::ArrayRCP<global_ordinal_type>& elements,
+	const Teuchos::ArrayRCP<double>& coords ) = 0;
 };
 
 } // end namespace DataTransferKit
