@@ -16,6 +16,11 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
+/*!
+ * \class Map
+ * \brief Map protocol for data transfer.
+ */
 template<typename GlobalOrdinal>
 class Map
 {
@@ -37,7 +42,7 @@ class Map
     virtual ~Map()
     { /* ... */ }
 
-    //! build the map.
+    //! Build the map.
     virtual void build( RCP_TpetraMap& export_map,
 			RCP_TpetraMap& import_map ) = 0;
 };

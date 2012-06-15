@@ -9,6 +9,8 @@
 #ifndef DTK_FIELDEVALUATOR_HPP
 #define DTK_FIELDEVALUATOR_HPP
 
+#include <vector>
+
 #include "DTK_FieldTraits.hpp"
 #include <DTK_MeshTraits.hpp>
 
@@ -22,11 +24,11 @@ class FieldEvaluator
 
     //@{
     //! Typedefs.
-    typedef MeshTraits<Mesh>                 MT;
-    typedef typename MT::handle_type         handle_type;
-    typedef DataField                        data_field_type;
-    typedef FieldTraits<DataField>           FT;
-    typedef typename FT::value_type          data_type;
+    typedef MeshTraits<Mesh>                    MT;
+    typedef typename MT::global_ordinal_type    global_ordinal_type;
+    typedef DataField                           data_field_type;
+    typedef FieldTraits<DataField>              FT;
+    typedef typename FT::value_type             data_type;
     //@}
 
     //! Constructor.
@@ -45,15 +47,16 @@ class FieldEvaluator
      * \param coords A vector of blocked coordinates 
      * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
      *  at which to evaluate the field. Coordinates ( xN, yN, zN ) should be
-     * evaluated in the Nth  element in the elements vector.
+     * evaluated in the Nth element in the elements vector.
      * \return Return a DataField containing the evaluated field
      * values. This returned field is required to be of the same length as
      * the elements input vector. For those coordinates that can't be
      * evaluated in the given element, return 0 in their position. Field data
-     * ordering is specified by field traits.
+     * dimensionality and ordering is specified by field traits.
      */
-    virtual DataField evaluate( const std::vector<handle_type>& elements,
-				const std::vector<double>& coords ) = 0;
+    virtual DataField evaluate( 
+	const std::vector<global_ordinal_type>& elements,
+	const std::vector<double>& coords ) = 0;
 };
 
 } // end namespace DataTransferKit
