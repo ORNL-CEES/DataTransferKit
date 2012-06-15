@@ -9,10 +9,6 @@
 #ifndef DTK_MAP_HPP
 #define DTK_MAP_HPP
 
-#include <Teuchos_RCP.hpp>
-
-#include <Tpetra_Map.hpp>
-
 namespace DataTransferKit
 {
 
@@ -21,7 +17,6 @@ namespace DataTransferKit
  * \class Map
  * \brief Map protocol for data transfer.
  */
-template<typename GlobalOrdinal>
 class Map
 {
 
@@ -29,9 +24,6 @@ class Map
 
     //@{
     //! Typedefs.
-    typedef GlobalOrdinal                   global_ordinal_type;
-    typedef Tpetra::Map<GlobalOrdinal>      TpetraMap;
-    typedef Teuchos::RCP<const TpetraMap>   RCP_TpetraMap;
     //@}
 
     //! Constructor.
@@ -42,9 +34,15 @@ class Map
     virtual ~Map()
     { /* ... */ }
 
-    //! Build the map.
-    virtual void build( RCP_TpetraMap& export_map,
-			RCP_TpetraMap& import_map ) = 0;
+    //! Setup the map for a given geometry.
+    template<class SourceGeometry, class TargetGeometry>
+    virtual void setup( const SourceGeometry& source_geom,
+			const TargetGeometry& target_geom ) = 0;
+
+    //! Apply the map for a given field.
+    template<class SourceField, class TargetField>
+    virtual void apply( const SourceField& source_field,
+			TargetField& target_field ) = 0;
 };
 
 } // end namespace DataTransferKit

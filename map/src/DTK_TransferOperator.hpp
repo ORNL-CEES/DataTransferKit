@@ -9,18 +9,18 @@
 #ifndef DTK_TRANSFEROPERATOR_HPP
 #define DTK_TRANSFEROPERATOR_HPP
 
+#include <DTK_Map.hpp>
+
 namespace DataTransferKit
 {
 
 namespace TransferOperator
 {
 
-//! Transfer operator apply.
-template<class SourceMesh, class SourceDataField, 
-	 class TargetDataField, class GlobalOrdinal>
-void apply( const FieldEvaluator<SourceMesh,SourceDataField>& source,
-	    TargetDataField& target,
-	    const Teuchos::RCP< Map<GlobalOrdinal> >& map );
+// Transfer operator apply.
+template<class SourceField, class TargetField>
+void apply( const SourceField& source_field, TargetField& target_field,
+	    const Teuchos::RCP<Map>& map );
 
 } // end namespace TransferOperator
 

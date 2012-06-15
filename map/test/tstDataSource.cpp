@@ -321,7 +321,8 @@ TEUCHOS_UNIT_TEST( DataSource, data_source_test )
 	data_source.getFieldEvaluator( 0 );
     std::vector<int> elements( 3, 1 );
     std::vector<double> coords( 9, 1.0 );
-    Teuchos::Array<double> evaluated_data = evaluator->evaluate( elements, coords );
+    Teuchos::Array<double> evaluated_data = 
+	evaluator->evaluate( elements, coords );
     TEST_ASSERT( (int) elements.size() == evaluated_data.size() );
 
     Teuchos::Array<double>::const_iterator data_iterator;
