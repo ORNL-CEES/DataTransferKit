@@ -46,7 +46,7 @@ class FieldEvaluator
      * the field.
      * \param coords A vector of blocked coordinates 
      * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
-     *  at which to evaluate the field. Coordinates ( xN, yN, zN ) should be
+     * at which to evaluate the field. Coordinates ( xN, yN, zN ) should be
      * evaluated in the Nth element in the elements vector.
      * \return Return a DataField containing the evaluated field
      * values. This returned field is required to be of the same length as

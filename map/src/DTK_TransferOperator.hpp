@@ -15,14 +15,22 @@ namespace DataTransferKit
 namespace TransferOperator
 {
 
-template<class SourceMesh, class SourceDataField, class TargetDataField>
+//! Transfer operator apply.
+template<class SourceMesh, class SourceDataField, 
+	 class TargetDataField, class GlobalOrdinal>
 void apply( const FieldEvaluator<SourceMesh,SourceDataField>& source,
 	    TargetDataField& target,
-	    const Teuchos::RCP<Map>& map );
+	    const Teuchos::RCP< Map<GlobalOrdinal> >& map );
 
 } // end namespace TransferOperator
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_TransferOperator_def.hpp"
 
 #endif // DTK_TRANSFEROPERATOR_HPP
 
