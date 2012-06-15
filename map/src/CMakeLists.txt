@@ -23,12 +23,15 @@ APPEND_SET(HEADERS
   DTK_FieldEvaluator.hpp	
   DTK_FieldTraits.hpp
   DTK_Map.hpp
+  DTK_MapFactory.hpp
+  DTK_TransferOperator.hpp
+  DTK_TransferOperator_def.hpp
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
-  dummy.cpp
+  DTK_MapFactory.cpp
   )
 
 # Set addition headers and source based on package-specific

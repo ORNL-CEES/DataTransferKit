@@ -33,3 +33,8 @@ void apply( const SourceField& source_field, TargetField& target_field,
 } // end namespace DataTransferKit
 
 #endif // end DTK_TRANSFEROPERATOR_DEF_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_TransferOperator_def.hpp
+//---------------------------------------------------------------------------//
+

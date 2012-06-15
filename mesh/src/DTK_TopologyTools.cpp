@@ -107,9 +107,8 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
     }
 
     // Create the Shards topology for the element type.
-    CellTopologyFactory topo_factory;
     Teuchos::RCP<shards::CellTopology> cell_topo = 
-	topo_factory.create( element_topology, num_linear_nodes );
+	CellTopologyFactory::create( element_topology, num_linear_nodes );
 
     // Extract the node coordinates.
     Teuchos::Array<double> cell_node_coords( 3 * num_linear_nodes );

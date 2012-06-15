@@ -22,6 +22,10 @@ class CellTopologyFactory
 {
   public:
 
+    //@{
+    //! Typedefs.
+    typedef Teuchos::RCP<shards::CellTopology>   RCP_CellTopology;
+
     // Consructor.
     CellTopologyFactory();
 
@@ -29,7 +33,7 @@ class CellTopologyFactory
     ~CellTopologyFactory();
 
     // Factory method.
-    Teuchos::RCP<shards::CellTopology> create( 
+    static RCP_CellTopology create( 
 	const moab::EntityType element_topology, const int num_element_nodes );
 };
 
