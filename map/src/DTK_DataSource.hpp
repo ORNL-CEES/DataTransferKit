@@ -41,7 +41,7 @@ class DataSource
     //! Typedefs.
     typedef Mesh                                mesh_type;
     typedef MeshTraits<Mesh>                    MT;
-    typedef typename MT::handle_type            handle_type;
+    typedef typename MT::global_ordinal_type    global_ordinal_type;
     typedef DataField                           data_field_type;
     typedef FieldTraits<DataField>              FT;
     typedef typename FT::value_type             data_type;
