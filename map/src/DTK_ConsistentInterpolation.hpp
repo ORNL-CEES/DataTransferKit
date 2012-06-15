@@ -15,6 +15,7 @@
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
+#include <Teuchos_Array.hpp>
 
 #include <Tpetra_Map.hpp>
 
@@ -55,14 +56,31 @@ class ConsistentInterpolation
 
   private:
 
+    // Communicator.
+    RCP_Comm d_comm;
+
     // Export field map.
     RCP_TpetraMap d_export_map;
 
     // Import field map.
     RCP_TpetraMap d_import_map;
+
+    // Local elements.
+    Teuchos::Array<global_ordinal_type> d_elements;
+
+    // Local coords.
+    Teuchos::Array<double> d_coords;
 };
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_ConsistentInterpolation_def.hpp"
+
+//---------------------------------------------------------------------------//
 
 #endif // end DTK_CONSISTENTINTERPOLATION_HPP
 
