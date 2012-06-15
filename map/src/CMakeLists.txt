@@ -21,9 +21,9 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   DTK_ConsistentInterpolation.hpp
+  DTK_ConsistentInterpolation_def.hpp
   DTK_FieldEvaluator.hpp	
   DTK_FieldTraits.hpp
-  DTK_MapTraits.hpp
   DTK_TransferOperator.hpp
   )
 
