@@ -203,17 +203,17 @@ void RCB<Mesh>::getObjectList(
 
     // Note here that the local ID is being set the the node array index.
     Teuchos::ArrayRCP<int>::const_iterator active_iterator;
-    typename MT::const_node_iterator handle_iterator;
+    typename MT::const_node_iterator gid_iterator;
     zoltan_id_type i = 0;
     zoltan_id_type j = 0;
-    for ( handle_iterator = MT::nodesBegin( mesh_data->d_mesh ),
-	  active_iterator = mesh_data->d_active_nodes.begin();
-	  handle_iterator != MT::nodesEnd( mesh_data->d_mesh );
-	  ++handle_iterator, ++active_iterator )
+    for ( gid_iterator = MT::nodesBegin( mesh_data->d_mesh ),
+       active_iterator = mesh_data->d_active_nodes.begin();
+	  gid_iterator != MT::nodesEnd( mesh_data->d_mesh );
+	  ++gid_iterator, ++active_iterator )
     {
 	if ( *active_iterator )
 	{
-	    globalID[i] = static_cast<zoltan_id_type>( *handle_iterator );
+	    globalID[i] = static_cast<zoltan_id_type>( *gid_iterator );
 	    localID[i] = j;
 	    ++i;
 	}

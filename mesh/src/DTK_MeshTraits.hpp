@@ -29,11 +29,11 @@ struct UndefinedMeshTraits
  * \brief Mesh traits definitions.
  *
  * These traits correlate to the basic concept of a mesh within DTK. A mesh
- * will consist of a globally unique list of node handles of a type that
+ * will consist of a globally unique list of node ordinals of a type that
  * implements Teuchos::OrdinalTraits ( already implemented for common ordinal
- * types ) and a set of globally unique element handles of the same
+ * types ) and a set of globally unique element ordinals of the same
  * type. Nodes are described by a coordinate field with coordinates of type
- * double. Elements are described by a list of node handles that designate
+ * double. Elements are described by a list of node ordinals that designate
  * their connectivity. For each element type, the order of the connecting
  * elements correlate to a canonical ordering ( I either need to explicitly
  * required MBCN or offer a permuation vector interface. The latter is likely
@@ -51,13 +51,13 @@ class MeshTraits
     //! Typedef for mesh type.
     typedef MeshType mesh_type;
 
-    //! Typedef for handle type. This type must implement
+    //! Typedef for global ordinal type. This type must implement
     //! Teuchos::OrdinalTraits.
-    typedef typename MeshType::handle_type handle_type;
+    typedef typename MeshType::global_ordinal_type global_ordinal_type;
 
-    //! Typedef for random access const iterator to node handle values.
+    //! Typedef for random access const iterator to node global_ordinal values.
     typedef typename 
-    std::iterator<std::random_access_iterator_tag, const handle_type>  
+    std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
     const_node_iterator;
 
     //! Typedef for random access const iterator to coordinate values. This
@@ -66,14 +66,14 @@ class MeshTraits
     std::iterator<std::random_access_iterator_tag, const double>  
     const_coordinate_iterator;
 
-    //! Typedef for random access const iterator to element handle values.
+    //! Typedef for random access const iterator to element global_ordinal values.
     typedef typename 
-    std::iterator<std::random_access_iterator_tag, const handle_type>  
+    std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
     const_element_iterator;
 
     //! Typedef for random access const iterator to connectivity values.
     typedef typename 
-    std::iterator<std::random_access_iterator_tag, const handle_type>  
+    std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
     const_connectivity_iterator;
     //@}
 
@@ -86,16 +86,16 @@ class MeshTraits
     static inline std::size_t nodeDim( const MeshType& mesh );
 
     /*!
-     * \brief Return the const iterator to the beginning of the node handle
-     * block in this mesh. 
-    */
+     * \brief Return the const iterator to the beginning of the node global
+     * ordinal block in this mesh.
+     */
     static inline const_node_iterator nodesBegin( const MeshType& mesh )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
-     * \brief Return the const iterator to the end of the node handle block in
-     * this mesh.
-    */ 
+     * \brief Return the const iterator to the end of the node global ordinal
+     * block in this mesh.
+     */ 
     static inline const_node_iterator nodesEnd( const MeshType& mesh )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
@@ -142,15 +142,15 @@ class MeshTraits
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
-     * \brief Return the const iterator to the beginning of the element handle
-     * block in this mesh.
+     * \brief Return the const iterator to the beginning of the element global
+     * ordinal block in this mesh.
      */
     static inline const_element_iterator elementsBegin( const MeshType& mesh )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
-     * \brief Return the const iterator to the end of the element handle block
-     * in this mesh.
+     * \brief Return the const iterator to the end of the element global
+     * ordinal block in this mesh.
      */
     static inline const_element_iterator elementsEnd( const MeshType& mesh )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }

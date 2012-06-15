@@ -19,15 +19,15 @@
 namespace DataTransferKit
 {
 
-template<typename Handle>
+template<typename GlobalOrdinal>
 class KDTree
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef Handle                               handle_type;
-    typedef RendezvousMesh<Handle>               RendezvousMeshType;
+    typedef GlobalOrdinal                        global_ordinal_type;
+    typedef RendezvousMesh<GlobalOrdinal>        RendezvousMeshType;
     typedef Teuchos::RCP<RendezvousMeshType>     RCP_RendezvousMesh;
     //@}
 
@@ -41,7 +41,7 @@ class KDTree
     void build();
 
     // Find a point in the tree.
-    handle_type findPoint( const Teuchos::Array<double>& coords );
+    GlobalOrdinal findPoint( const Teuchos::Array<double>& coords );
 
   private:
 

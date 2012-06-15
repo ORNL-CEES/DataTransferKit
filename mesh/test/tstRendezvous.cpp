@@ -51,7 +51,7 @@ class MyMesh
 {
   public:
 
-    typedef int    handle_type;
+    typedef int    global_ordinal_type;
     
     MyMesh() 
     { /* ... */ }
@@ -115,7 +115,7 @@ class MeshTraits<MyMesh>
 {
   public:
 
-    typedef MyMesh::handle_type handle_type;
+    typedef MyMesh::global_ordinal_type global_ordinal_type;
     typedef Teuchos::Array<int>::const_iterator const_node_iterator;
     typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
     typedef Teuchos::Array<int>::const_iterator const_element_iterator;

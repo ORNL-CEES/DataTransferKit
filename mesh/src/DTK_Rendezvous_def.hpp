@@ -80,7 +80,7 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
     elements_in_box.clear();
     
     // Create a kD-tree in the rendezvous decomposition.
-    d_kdtree = Teuchos::rcp( new KDTree<handle_type>( d_rendezvous_mesh ) );
+    d_kdtree = Teuchos::rcp( new KDTree<GlobalOrdinal>( d_rendezvous_mesh ) );
     testPostcondition( d_kdtree != Teuchos::null,
 		       "Error creating rendezvous kD-tree." );
     d_kdtree->build();
@@ -126,28 +126,28 @@ Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
  * coordinates.
  */
 template<class Mesh>
-Teuchos::Array< typename Rendezvous<Mesh>::handle_type >
+Teuchos::Array< typename Rendezvous<Mesh>::GlobalOrdinal >
 Rendezvous<Mesh>::getElements( const Teuchos::Array<double>& coords ) const
 {
     Teuchos::Array<double> point( d_node_dim );
-    handle_type element_handle;
+    GlobalOrdinal element_ordinal;
     ordinal_type num_points = coords.size() / d_node_dim;
-    Teuchos::Array<handle_type> element_handles;
+    Teuchos::Array<GlobalOrdinal> element_ordinals;
     for ( ordinal_type n = 0; n < num_points; ++n )
     {
 	for ( std::size_t d = 0; d < d_node_dim; ++d )
 	{
 	    point[d] = coords[ d*num_points + n ];
 	}
-	element_handle = d_kdtree->findPoint( point );
-	element_handles.push_back( element_handle );
+	element_ordinal = d_kdtree->findPoint( point );
+	element_ordinals.push_back( element_ordinal );
     }
 
-    testPostcondition( static_cast<ordinal_type>( element_handles.size() )
+    testPostcondition( static_cast<ordinal_type>( element_ordinals.size() )
 		       == num_points,
 		       "Error getting mesh elements." );
 
-    return element_handles;
+    return element_ordinals;
 }
 
 //---------------------------------------------------------------------------//
@@ -160,13 +160,13 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 				     Teuchos::Array<int>& nodes_in_box,
 				     Teuchos::Array<int>& elements_in_box )
 {
-    // Create a map indexed by node handle containing the actual node handle
-    // location. This will give us logarithmic time access to connectivity. I
-    // should write a more general hash table to improve this access time as
-    // I'm using this strategy for most mesh operations.
+    // Create a map indexed by node global ordinal containing the actual node
+    // ordinal location. This will give us logarithmic time access to
+    // connectivity. I should write a more general hash table to improve this
+    // access time as I'm using this strategy for most mesh operations.
     ordinal_type num_nodes = std::distance( MT::nodesBegin( mesh ),
 					    MT::nodesEnd( mesh ) );
-    std::map<handle_type,ordinal_type> node_indices;
+    std::map<GlobalOrdinal,ordinal_type> node_indices;
     typename MT::const_node_iterator node_iterator;
     ordinal_type m = 0;
     for ( node_iterator = MT::nodesBegin( mesh );
@@ -201,7 +201,7 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 					       MT::elementsEnd( mesh ) );
     std::size_t nodes_per_element = MT::nodesPerElement( mesh );
     ordinal_type node_index;
-    handle_type node_handle;
+    GlobalOrdinal node_ordinal;
     int this_element_in_box;
     typename MT::const_connectivity_iterator mesh_connectivity =
 	MT::connectivityBegin( mesh );
@@ -210,8 +210,8 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	this_element_in_box = 0;
 	for ( std::size_t i = 0; i < nodes_per_element; ++i )
 	{
-	    node_handle = mesh_connectivity[ i*num_elements + n ];
-	    node_index = node_indices.find( node_handle )->second;
+	    node_ordinal = mesh_connectivity[ i*num_elements + n ];
+	    node_index = node_indices.find( node_ordinal )->second;
 	    if ( nodes_in_box[ node_index ] )
 	    {
 		this_element_in_box = 1;
@@ -229,8 +229,8 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	{
 	    for ( std::size_t i = 0; i < nodes_per_element; ++i )
 	    {
-		node_handle = mesh_connectivity[ i*num_elements + n ];
-		node_index = node_indices.find( node_handle )->second;
+		node_ordinal = mesh_connectivity[ i*num_elements + n ];
+		node_index = node_indices.find( node_ordinal )->second;
 		nodes_in_box[ node_index ] = 1;
 	    }
 	}
@@ -247,27 +247,27 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     const Mesh& mesh, const Teuchos::Array<int>& elements_in_box )
 {
     // Setup the communication patterns for moving the mesh to the rendezvous
-    // decomposition. This will also move the node and element handles to the
-    // rendezvous decomposition.
-    Teuchos::Array<handle_type> rendezvous_nodes;
-    Teuchos::Array<handle_type> rendezvous_elements;
+    // decomposition. This will also move the node and element global ordinals
+    // to the rendezvous decomposition.
+    Teuchos::Array<GlobalOrdinal> rendezvous_nodes;
+    Teuchos::Array<GlobalOrdinal> rendezvous_elements;
     setupImportCommunication( mesh, elements_in_box,
 			      rendezvous_nodes, rendezvous_elements );
 
     // Setup export node map.
     ordinal_type num_nodes = std::distance( MT::nodesBegin( mesh ), 
 					    MT::nodesEnd( mesh ) );
-    Teuchos::ArrayView<const handle_type> export_node_view(
+    Teuchos::ArrayView<const GlobalOrdinal> export_node_view(
 	&*MT::nodesBegin( mesh ), num_nodes );
-    RCP_TpetraMap export_node_map = Tpetra::createNonContigMap<handle_type>( 
+    RCP_TpetraMap export_node_map = Tpetra::createNonContigMap<GlobalOrdinal>( 
 	export_node_view, d_comm );
     testPostcondition( export_node_map != Teuchos::null,
 		       "Error creating node export map." );
 
     // Setup import node map.
-    Teuchos::ArrayView<const handle_type> rendezvous_nodes_view = 
+    Teuchos::ArrayView<const GlobalOrdinal> rendezvous_nodes_view = 
 	rendezvous_nodes();
-    RCP_TpetraMap import_node_map = Tpetra::createNonContigMap<handle_type>(
+    RCP_TpetraMap import_node_map = Tpetra::createNonContigMap<GlobalOrdinal>(
 	rendezvous_nodes_view, d_comm );
     testPostcondition( import_node_map != Teuchos::null,
 		       "Error creating node import map." );
@@ -275,26 +275,26 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     // Setup export element map.
     ordinal_type num_elements = std::distance( MT::elementsBegin( mesh ), 
 					       MT::elementsEnd( mesh ) );
-    Teuchos::ArrayView<const handle_type> export_element_view(
+    Teuchos::ArrayView<const GlobalOrdinal> export_element_view(
 	&*MT::elementsBegin( mesh ), num_elements );
-    RCP_TpetraMap export_element_map = Tpetra::createNonContigMap<handle_type>(
+    RCP_TpetraMap export_element_map = Tpetra::createNonContigMap<GlobalOrdinal>(
 	export_element_view, d_comm );
     testPostcondition( export_element_map != Teuchos::null,
 		       "Error creating element export map." );
 
     // Setup import element map.
-    Teuchos::ArrayView<const handle_type> rendezvous_elements_view =
+    Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
 	rendezvous_elements();
-    RCP_TpetraMap import_element_map = Tpetra::createNonContigMap<handle_type>(
+    RCP_TpetraMap import_element_map = Tpetra::createNonContigMap<GlobalOrdinal>(
 	rendezvous_elements_view, d_comm );
     testPostcondition( import_element_map != Teuchos::null,
 		       "Error creating element import map." );
 
     // Setup importers.
-    Tpetra::Import<handle_type> node_importer( export_node_map, 
-					       import_node_map );
-    Tpetra::Import<handle_type> element_importer( export_element_map, 
-						  import_element_map );
+    Tpetra::Import<GlobalOrdinal> node_importer( export_node_map, 
+						 import_node_map );
+    Tpetra::Import<GlobalOrdinal> element_importer( export_element_map, 
+						    import_element_map );
 
     // Move the node coordinates to the rendezvous decomposition.
     ordinal_type num_coords = d_node_dim*num_nodes;
@@ -309,18 +309,18 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     // Move the element connectivity to the rendezvous decomposition.
     int nodes_per_element = MT::nodesPerElement( mesh );
     ordinal_type num_conn = nodes_per_element * num_elements;
-    Teuchos::ArrayRCP<handle_type> export_conn_view( 
-	(handle_type*) &*MT::connectivityBegin( mesh ),	0, num_conn, false );
-    Teuchos::RCP< Tpetra::MultiVector<handle_type,handle_type> > export_conn = 
+    Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view( 
+	(GlobalOrdinal*) &*MT::connectivityBegin( mesh ),	0, num_conn, false );
+    Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > export_conn = 
 	createMultiVectorFromView( export_element_map, export_conn_view, 
 				   num_elements, nodes_per_element );
-    Tpetra::MultiVector<handle_type,handle_type> import_conn( 
+    Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> import_conn( 
 	import_element_map, nodes_per_element );
     import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
 
     // Construct the mesh container from the collected data, effectively
     // wrapping it with mesh traits. 
-    MeshContainer<handle_type> mesh_container( 
+    MeshContainer<GlobalOrdinal> mesh_container( 
 	d_node_dim,
 	Teuchos::arcpFromArray( rendezvous_nodes ), 
 	import_coords.get1dView(),
@@ -344,13 +344,13 @@ template<class Mesh>
 void Rendezvous<Mesh>::setupImportCommunication( 
     const Mesh& mesh,
     const Teuchos::Array<int>& elements_in_box,
-    Teuchos::Array<handle_type>& rendezvous_nodes,
-    Teuchos::Array<handle_type>& rendezvous_elements )
+    Teuchos::Array<GlobalOrdinal>& rendezvous_nodes,
+    Teuchos::Array<GlobalOrdinal>& rendezvous_elements )
 {
     // Create a node index map for logarithmic time access to connectivity
     // data. 
     typename MT::const_node_iterator export_node_iterator;
-    std::map<handle_type,ordinal_type> node_indices;
+    std::map<GlobalOrdinal,ordinal_type> node_indices;
     ordinal_type m = 0;
     for ( export_node_iterator = MT::nodesBegin( mesh );
 	  export_node_iterator != MT::nodesEnd( mesh );
@@ -363,7 +363,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // Create a element index map for logarithmic time access to connectivity
     // data. 
     typename MT::const_element_iterator export_element_iterator;
-    std::map<handle_type,ordinal_type> element_indices;
+    std::map<GlobalOrdinal,ordinal_type> element_indices;
     m = 0;
     for ( export_element_iterator = MT::elementsBegin( mesh );
 	  export_element_iterator != MT::elementsEnd( mesh );
@@ -384,7 +384,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     Teuchos::Array< std::set<int> > export_element_procs_set( num_elements );
     std::size_t nodes_per_element = MT::nodesPerElement( mesh );
     ordinal_type node_index;
-    handle_type node_handle;
+    GlobalOrdinal node_ordinal;
     int destination_proc;
     double node_coords[3];
     typename MT::const_coordinate_iterator mesh_coords = MT::coordsBegin( mesh );
@@ -396,8 +396,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	{
 	    for ( std::size_t i = 0; i < nodes_per_element; ++i )
 	    {
-		node_handle = mesh_connectivity[ i*num_elements + n ];
-		node_index = node_indices.find( node_handle )->second;
+		node_ordinal = mesh_connectivity[ i*num_elements + n ];
+		node_index = node_indices.find( node_ordinal )->second;
 		for ( std::size_t d = 0; d < d_node_dim; ++d )
 		{
 		    node_coords[d] = mesh_coords[ d*num_nodes + node_index ];
@@ -413,8 +413,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
     }
 
     // Unroll the vector of sets into two vectors; one containing the element
-    // handle and the other containing the corresponding element destination.
-    Teuchos::Array<handle_type> export_elements;
+    // ordinal and the other containing the corresponding element destination.
+    Teuchos::Array<GlobalOrdinal> export_elements;
     Teuchos::Array<int> export_element_procs;
     typename MT::const_element_iterator element_iterator;
     Teuchos::Array< std::set<int> >::const_iterator element_vec_iterator;
@@ -440,17 +440,17 @@ void Rendezvous<Mesh>::setupImportCommunication(
     Teuchos::ArrayView<int> export_element_procs_view = export_element_procs();
     ordinal_type num_import_elements = element_distributor.createFromSends(
 	export_element_procs_view );
-    Teuchos::ArrayView<const handle_type> export_elements_view =
+    Teuchos::ArrayView<const GlobalOrdinal> export_elements_view =
 	export_elements();
-    Teuchos::Array<handle_type> import_elements( num_import_elements );
-    Teuchos::ArrayView<handle_type> import_elements_view = import_elements();
+    Teuchos::Array<GlobalOrdinal> import_elements( num_import_elements );
+    Teuchos::ArrayView<GlobalOrdinal> import_elements_view = import_elements();
     element_distributor.doPostsAndWaits( 
 	export_elements_view, 1, import_elements_view );
     
     // Next move these into the rendezvous element set so that we have a
     // unique list of the elements.
-    typename Teuchos::Array<handle_type>::const_iterator import_element_iterator;
-    std::set<handle_type> rendezvous_elements_set;
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator import_element_iterator;
+    std::set<GlobalOrdinal> rendezvous_elements_set;
     for ( import_element_iterator = import_elements.begin();
 	  import_element_iterator != import_elements.end();
 	  ++import_element_iterator )
@@ -470,7 +470,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // then also have to go to multiple procs because of this and these procs
     // may be different than their original RCB procs.
     ordinal_type element_index;
-    typename Teuchos::Array<handle_type>::const_iterator 
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
 	export_elements_iterator;
     Teuchos::Array<int>::const_iterator export_element_procs_iterator;
     Teuchos::Array< std::set<int> > export_node_procs_set( num_nodes );
@@ -484,8 +484,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
 
 	for ( std::size_t i = 0; i < nodes_per_element; ++i )
 	{
-	    node_handle = mesh_connectivity[ i*num_elements + element_index ];
-	    node_index = node_indices.find( node_handle )->second;
+	    node_ordinal = mesh_connectivity[ i*num_elements + element_index ];
+	    node_index = node_indices.find( node_ordinal )->second;
 
 	    export_node_procs_set[ node_index ].insert( 
 		*export_element_procs_iterator );
@@ -497,8 +497,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
     element_indices.clear();
 
     // Unroll the vector of sets into two vectors; one containing the node
-    // handle and the other containing the corresponding node destination.
-    Teuchos::Array<handle_type> export_nodes;
+    // ordinal and the other containing the corresponding node destination.
+    Teuchos::Array<GlobalOrdinal> export_nodes;
     Teuchos::Array<int> export_node_procs;
     Teuchos::Array< std::set<int> >::const_iterator node_vec_iterator;
     std::set<int>::const_iterator node_proc_set_iterator;
@@ -523,17 +523,17 @@ void Rendezvous<Mesh>::setupImportCommunication(
     Teuchos::ArrayView<int> export_node_procs_view = export_node_procs();
     ordinal_type num_import_nodes = node_distributor.createFromSends(
 	export_node_procs_view );
-    Teuchos::ArrayView<const handle_type> export_nodes_view = export_nodes();
-    Teuchos::Array<handle_type> import_nodes( num_import_nodes );
-    Teuchos::ArrayView<handle_type> import_nodes_view = import_nodes();
+    Teuchos::ArrayView<const GlobalOrdinal> export_nodes_view = export_nodes();
+    Teuchos::Array<GlobalOrdinal> import_nodes( num_import_nodes );
+    Teuchos::ArrayView<GlobalOrdinal> import_nodes_view = import_nodes();
     node_distributor.doPostsAndWaits( export_nodes_view, 1, import_nodes_view );
     export_nodes.clear();
     export_node_procs.clear();
 
     // Next move these into the rendezvous node set so that we have a unique
     // list of the nodes.
-    typename Teuchos::Array<handle_type>::const_iterator import_node_iterator;
-    std::set<handle_type> rendezvous_nodes_set;
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator import_node_iterator;
+    std::set<GlobalOrdinal> rendezvous_nodes_set;
     for ( import_node_iterator = import_nodes.begin();
 	  import_node_iterator != import_nodes.end();
 	  ++import_node_iterator )

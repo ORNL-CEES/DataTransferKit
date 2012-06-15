@@ -26,10 +26,10 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<typename Handle>
-RendezvousMesh<Handle>::RendezvousMesh( const RCP_Moab& moab, 
-					const moab::Range& elements,
-					const HandleMap& handle_map )
+template<typename GlobalOrdinal>
+RendezvousMesh<GlobalOrdinal>::RendezvousMesh( const RCP_Moab& moab, 
+					       const moab::Range& elements,
+					       const HandleMap& handle_map )
     : d_moab( moab )
     , d_elements( elements )
     , d_handle_map( handle_map )
@@ -39,8 +39,8 @@ RendezvousMesh<Handle>::RendezvousMesh( const RCP_Moab& moab,
 /*!
  * \brief Destructor.
  */
-template<typename Handle>
-RendezvousMesh<Handle>::~RendezvousMesh()
+template<typename GlobalOrdinal>
+RendezvousMesh<GlobalOrdinal>::~RendezvousMesh()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -50,12 +50,12 @@ RendezvousMesh<Handle>::~RendezvousMesh()
  * \brief Create a RendezvousMesh from an object that implements mesh traits.
  */
 template<class Mesh>
-Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::handle_type> > 
+Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::global_ordinal_type> >
 createRendezvousMesh( const Mesh& mesh )
 {
     // Setup types and iterators as we're outside of the class definition.
     typedef MeshTraits<Mesh> MT;
-    typedef typename MT::handle_type handle_type;
+    typedef typename MT::global_ordinal_type GlobalOrdinal;
     typename MT::const_node_iterator node_iterator;
     typename MT::const_coordinate_iterator coord_iterator;
     typename MT::const_element_iterator element_iterator;
@@ -69,20 +69,21 @@ createRendezvousMesh( const Mesh& mesh )
 
     // Check the nodes and coordinates for consistency.
     std::size_t node_dim = MT::nodeDim( mesh );
-    handle_type num_nodes = std::distance( MT::nodesBegin( mesh ), 
-					   MT::nodesEnd( mesh ) );
-    handle_type num_coords = std::distance( MT::coordsBegin( mesh ),
-					    MT::coordsEnd( mesh ) );
-    testInvariant( num_coords == (handle_type) node_dim * num_nodes,
-		   "Number of coordinates provided != node_dim * number of nodes" );
+    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ), 
+					     MT::nodesEnd( mesh ) );
+    GlobalOrdinal num_coords = std::distance( MT::coordsBegin( mesh ),
+					      MT::coordsEnd( mesh ) );
+    testInvariant( 
+	num_coords == (GlobalOrdinal) node_dim * num_nodes,
+	"Number of coordinates provided != node_dim * number of nodes" );
 
     // Add the mesh nodes to moab and map the native vertex handles to the
     // moab vertex handles. This should be in a hash table. We'll need one
     // that hashes moab handles.
     double vertex_coords[3];
     coord_iterator = MT::coordsBegin( mesh );
-    std::map<handle_type,moab::EntityHandle> vertex_handle_map;
-    handle_type n = 0;
+    std::map<GlobalOrdinal,moab::EntityHandle> vertex_handle_map;
+    GlobalOrdinal n = 0;
     for ( node_iterator = MT::nodesBegin( mesh );
 	  node_iterator != MT::nodesEnd( mesh );
 	  ++node_iterator, ++n )
@@ -105,20 +106,21 @@ createRendezvousMesh( const Mesh& mesh )
     // Check the elements and connectivity for consistency.
     int nodes_per_element = 
 	MT::nodesPerElement( mesh );
-    handle_type num_elements = std::distance( MT::elementsBegin( mesh ),
-					      MT::elementsEnd( mesh ) );
-    handle_type num_connect = std::distance( MT::connectivityBegin( mesh ),
-					     MT::connectivityEnd( mesh ) );
-    testPrecondition( num_elements == num_connect / nodes_per_element &&
-		      num_connect % nodes_per_element == 0,
-		      "Connectivity array inconsistent with element description." );
+    GlobalOrdinal num_elements = std::distance( MT::elementsBegin( mesh ),
+						MT::elementsEnd( mesh ) );
+    GlobalOrdinal num_connect = std::distance( MT::connectivityBegin( mesh ),
+					       MT::connectivityEnd( mesh ) );
+    testPrecondition( 
+	num_elements == num_connect / nodes_per_element &&
+	num_connect % nodes_per_element == 0,
+	"Connectivity array inconsistent with element description." );
 
     // Extract the mesh elements and add them to moab.
     conn_iterator = MT::connectivityBegin( mesh );
-    handle_type conn_index;
+    GlobalOrdinal conn_index;
     moab::Range moab_elements;
     Teuchos::Array<moab::EntityHandle> element_connectivity;
-    std::map<moab::EntityHandle,handle_type> element_handle_map;
+    std::map<moab::EntityHandle,GlobalOrdinal> element_handle_map;
     n = 0;
     for ( element_iterator = MT::elementsBegin( mesh );
 	  element_iterator != MT::elementsEnd( mesh );
@@ -152,7 +154,7 @@ createRendezvousMesh( const Mesh& mesh )
     }
     
     // Create and return the mesh.
-    return Teuchos::rcp( new RendezvousMesh<handle_type>( 
+    return Teuchos::rcp( new RendezvousMesh<GlobalOrdinal>( 
 			     moab, moab_elements, element_handle_map ) );
 }
 

@@ -37,18 +37,18 @@ class Rendezvous
     //! Typedefs.
     typedef Mesh                                 mesh_type;
     typedef MeshTraits<Mesh>                     MT;
-    typedef typename MT::handle_type             handle_type;
-    typedef RendezvousMesh<handle_type>          RendezvousMeshType;
+    typedef typename MT::global_ordinal_type     GlobalOrdinal;
+    typedef RendezvousMesh<GlobalOrdinal>        RendezvousMeshType;
     typedef Teuchos::RCP<RendezvousMeshType>     RCP_RendezvousMesh;
-    typedef KDTree<handle_type>                  KDTreeType;
+    typedef KDTree<GlobalOrdinal>                KDTreeType;
     typedef Teuchos::RCP<KDTreeType>             RCP_KDTree;
     typedef RCB<Mesh>                            RCBType;
     typedef Teuchos::RCP<RCBType>                RCP_RCB;
     typedef Teuchos::Comm<int>                   CommType;
     typedef Teuchos::RCP<const CommType>         RCP_Comm;
-    typedef Tpetra::Map<handle_type>             TpetraMap;
+    typedef Tpetra::Map<GlobalOrdinal>           TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>        RCP_TpetraMap;
-    typedef handle_type                          ordinal_type;
+    typedef GlobalOrdinal                        ordinal_type;
     //@}
 
     // Constructor.
@@ -66,7 +66,7 @@ class Rendezvous
 
     // Get the native mesh elements in the rendezvous decomposition containing
     // a blocked list of coordinates.
-    Teuchos::Array<handle_type>
+    Teuchos::Array<GlobalOrdinal>
     getElements( const Teuchos::Array<double>& coords ) const;
 
     // Get the rendezvous mesh.
@@ -90,8 +90,8 @@ class Rendezvous
     void setupImportCommunication( 
 	const Mesh& mesh,
 	const Teuchos::Array<int>& elements_in_box,
-	Teuchos::Array<handle_type>& rendezvous_nodes,
-	Teuchos::Array<handle_type>& rendezvous_elements );
+	Teuchos::Array<GlobalOrdinal>& rendezvous_nodes,
+	Teuchos::Array<GlobalOrdinal>& rendezvous_elements );
 
   private:
 

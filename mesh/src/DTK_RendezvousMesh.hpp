@@ -21,7 +21,7 @@
 namespace DataTransferKit
 {
 
-template<typename Handle>
+template<typename GlobalOrdinal>
 class RendezvousMesh
 {
 
@@ -29,9 +29,9 @@ class RendezvousMesh
 
     //@{
     //! Typedefs.
-    typedef Handle                                    handle_type;
-    typedef Teuchos::RCP<moab::Interface>             RCP_Moab;
-    typedef std::map<moab::EntityHandle,handle_type>  HandleMap;
+    typedef GlobalOrdinal                               global_ordinal_type;
+    typedef Teuchos::RCP<moab::Interface>               RCP_Moab;
+    typedef std::map<moab::EntityHandle,GlobalOrdinal>  HandleMap;
     //@}
 
     // Constructor.
@@ -51,8 +51,8 @@ class RendezvousMesh
     { return d_elements; }
 
     //! Given a moab element handle return the corresponding native element
-    //! handle.
-    handle_type getNativeHandle( const moab::EntityHandle& moab_handle ) const
+    //! global ordinal.
+    GlobalOrdinal getNativeOrdinal( const moab::EntityHandle& moab_handle ) const
     { return d_handle_map.find( moab_handle )->second; }
 
   private:
@@ -85,7 +85,7 @@ const moab::EntityType moab_topology_table[] =
 
 // Create a RendezvousMesh from an object that implements MeshTraits.
 template<class Mesh>
-Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::handle_type> > 
+Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::global_ordinal_type> >
 createRendezvousMesh( const Mesh& mesh );
 
 //---------------------------------------------------------------------------//

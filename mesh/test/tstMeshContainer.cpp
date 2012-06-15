@@ -171,24 +171,24 @@ TEUCHOS_UNIT_TEST( MeshContainer, mesh_container_test )
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
     MeshContainer<int> mesh_container = buildMeshContainer();
-    Teuchos::RCP< RendezvousMesh<MT::handle_type> > mesh = 
+    Teuchos::RCP< RendezvousMesh<MT::global_ordinal_type> > mesh = 
 	createRendezvousMesh( mesh_container );
 
     // Get the moab interface.
     moab::ErrorCode error;
-    RendezvousMesh<MT::handle_type>::RCP_Moab moab = mesh->getMoab();
+    RendezvousMesh<MT::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
     
     // Grab the elements.
     moab::Range mesh_elements = mesh->getElements();
 
     // Check the moab mesh element data.
     moab::Range::const_iterator element_iterator;
-    MT::handle_type native_handle = 0;
+    MT::global_ordinal_type native_handle = 0;
     for ( element_iterator = mesh_elements.begin();
 	  element_iterator != mesh_elements.end();
 	  ++element_iterator, ++native_handle )
     {
-	TEST_ASSERT( mesh->getNativeHandle( *element_iterator ) == 
+	TEST_ASSERT( mesh->getNativeOrdinal( *element_iterator ) == 
 		     native_handle );
 
 	TEST_ASSERT( moab->type_from_handle( *element_iterator ) ==

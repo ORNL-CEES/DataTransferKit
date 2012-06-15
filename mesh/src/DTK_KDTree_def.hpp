@@ -22,26 +22,26 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<typename Handle>
-KDTree<Handle>::KDTree( const RCP_RendezvousMesh& mesh )
-: d_mesh( mesh )
-, d_tree( d_mesh->getMoab().get() )
+template<typename GlobalOrdinal>
+KDTree<GlobalOrdinal>::KDTree( const RCP_RendezvousMesh& mesh )
+  : d_mesh( mesh )
+  , d_tree( d_mesh->getMoab().get() )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Destructor.
  */
-template<typename Handle>
-KDTree<Handle>::~KDTree()
+template<typename GlobalOrdinal>
+KDTree<GlobalOrdinal>::~KDTree()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Build the kD-tree.
  */
-template<typename Handle>
-void KDTree<Handle>::build()
+template<typename GlobalOrdinal>
+void KDTree<GlobalOrdinal>::build()
 { 
     moab::ErrorCode error;
     error = d_tree.build_tree( d_mesh->getElements(), d_root );
@@ -54,8 +54,8 @@ void KDTree<Handle>::build()
  * \brief Find a point in the tree. Return the native handle of the element it
  * was found in. 
  */
-template<typename Handle>
-Handle KDTree<Handle>::findPoint( const Teuchos::Array<double>& coords )
+template<typename GlobalOrdinal>
+GlobalOrdinal KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords )
 {
     std::size_t node_dim = coords.size();
     double point[3];
@@ -75,7 +75,7 @@ Handle KDTree<Handle>::findPoint( const Teuchos::Array<double>& coords )
 		   "Failed to search kD-tree." );
 
     moab::EntityHandle element = findPointInLeaf( coords, leaf );
-    return d_mesh->getNativeHandle( element );
+    return d_mesh->getNativeOrdinal( element );
 }
 
 //---------------------------------------------------------------------------//
@@ -83,8 +83,8 @@ Handle KDTree<Handle>::findPoint( const Teuchos::Array<double>& coords )
  * \brief Find a point in a leaf. Throw a MeshException if the point was not
  * found.
  */
-template<typename Handle>
-moab::EntityHandle KDTree<Handle>::findPointInLeaf( 
+template<typename GlobalOrdinal>
+moab::EntityHandle KDTree<GlobalOrdinal>::findPointInLeaf( 
     const Teuchos::Array<double>& coords, const moab::EntityHandle leaf )
 {
     moab::ErrorCode error;

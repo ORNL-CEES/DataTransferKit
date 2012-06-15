@@ -51,7 +51,7 @@ class MyMesh
 {
   public:
 
-    typedef int    handle_type;
+    typedef int    global_ordinal_type;
     
     MyMesh() 
     { /* ... */ }
@@ -115,7 +115,7 @@ class MeshTraits<MyMesh>
 {
   public:
 
-    typedef MyMesh::handle_type handle_type;
+    typedef MyMesh::global_ordinal_type global_ordinal_type;
     typedef Teuchos::Array<int>::const_iterator const_node_iterator;
     typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
     typedef Teuchos::Array<int>::const_iterator const_element_iterator;    
@@ -280,11 +280,11 @@ TEUCHOS_UNIT_TEST( KDTree, kd_tree_test )
 
     // Create a mesh.
     MyMesh my_mesh = buildMyMesh();
-    Teuchos::RCP< RendezvousMesh<MyMesh::handle_type> > mesh = 
+    Teuchos::RCP< RendezvousMesh<MyMesh::global_ordinal_type> > mesh = 
 	createRendezvousMesh( my_mesh );
     mesh->getMoab()->write_mesh( "tree.vtk" );
     // Create a KDTree.
-    KDTree<MyMesh::handle_type> kd_tree( mesh );
+    KDTree<MyMesh::global_ordinal_type> kd_tree( mesh );
 
     // Build the tree.
     kd_tree.build();

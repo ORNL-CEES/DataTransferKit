@@ -19,7 +19,7 @@
 namespace DataTransferKit
 {
 
-template<typename Handle>
+template<typename GlobalOrdinal>
 class MeshContainer
 {
 
@@ -27,7 +27,7 @@ class MeshContainer
 
     //@{
     //! Typedefs.
-    typedef Handle handle_type;
+    typedef GlobalOrdinal global_ordinal_type;
     //@}
     
     //! Default Constructor.
@@ -36,13 +36,13 @@ class MeshContainer
 
     //! Constructor.
     MeshContainer( const int node_dim,
-		   const Teuchos::ArrayRCP<handle_type>& nodes,
+		   const Teuchos::ArrayRCP<GlobalOrdinal>& nodes,
 		   const Teuchos::ArrayRCP<const double>& coords,
 		   const int element_type,
 		   const int element_topology,
 		   const int nodes_per_element,
-		   const Teuchos::ArrayRCP<handle_type>& elements,
-		   const Teuchos::ArrayRCP<const handle_type>& connectivity )
+		   const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
+		   const Teuchos::ArrayRCP<const GlobalOrdinal>& connectivity )
 	: d_node_dim( node_dim )
 	, d_nodes( nodes )
 	, d_coords( coords )
@@ -62,11 +62,13 @@ class MeshContainer
     { return d_node_dim; }
 
     //! Get the beginning of the nodes set.
-    typename Teuchos::ArrayRCP<handle_type>::const_iterator nodesBegin() const
+    typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
+    nodesBegin() const
     { return d_nodes.begin(); }
 
     //! Get the end of the nodes set.
-    typename Teuchos::ArrayRCP<handle_type>::const_iterator nodesEnd() const
+    typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
+    nodesEnd() const
     { return d_nodes.end(); }
 
     //! Get the beginning of the coordinates vector.
@@ -90,20 +92,22 @@ class MeshContainer
     { return d_nodes_per_element; }
 
     //! Get the beginning of the elements set.
-    typename Teuchos::ArrayRCP<handle_type>::const_iterator elementsBegin() const
+    typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
+    elementsBegin() const
     { return d_elements.begin(); }
 
     //! Get the end of the elements set.
-    typename Teuchos::ArrayRCP<handle_type>::const_iterator elementsEnd() const
+    typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
+    elementsEnd() const
     { return d_elements.end(); }
 
     //! Get the beginning of the connectivity vector.
-    typename Teuchos::ArrayRCP<const handle_type>::const_iterator 
+    typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator 
     connectivityBegin() const
     { return d_connectivity.begin(); }
 
     //! Get the ending of the connectivity vector.
-    typename Teuchos::ArrayRCP<const handle_type>::const_iterator 
+    typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator 
     connectivityEnd() const
     { return d_connectivity.end(); }
     
@@ -113,7 +117,7 @@ class MeshContainer
     std::size_t d_node_dim;
 
     // Nodes.
-    Teuchos::ArrayRCP<handle_type> d_nodes;
+    Teuchos::ArrayRCP<GlobalOrdinal> d_nodes;
 
     // Coordinates.
     Teuchos::ArrayRCP<const double> d_coords;
@@ -128,29 +132,32 @@ class MeshContainer
     std::size_t d_nodes_per_element;
 
     // Elements.
-    Teuchos::ArrayRCP<handle_type> d_elements;
+    Teuchos::ArrayRCP<GlobalOrdinal> d_elements;
 
     // Connectivity.
-    Teuchos::ArrayRCP<const handle_type> d_connectivity;
+    Teuchos::ArrayRCP<const GlobalOrdinal> d_connectivity;
 };
 
 //---------------------------------------------------------------------------//
 // MeshTraits specialization for the mesh container.
 //---------------------------------------------------------------------------//
 template<>
-template<typename Handle>
-struct MeshTraits< MeshContainer<Handle> >
+template<typename GlobalOrdinal>
+struct MeshTraits< MeshContainer<GlobalOrdinal> >
 {
-    typedef MeshContainer<Handle> Container;
-    typedef typename Container::handle_type handle_type;
+    typedef MeshContainer<GlobalOrdinal> Container;
+    typedef typename Container::global_ordinal_type global_ordinal_type;
 
-    typedef typename Teuchos::ArrayRCP<Handle>::const_iterator 
+    typedef typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
     const_node_iterator;
+
     typedef Teuchos::ArrayRCP<const double>::const_iterator 
     const_coordinate_iterator;
-    typedef typename Teuchos::ArrayRCP<Handle>::const_iterator 
+
+    typedef typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
     const_element_iterator;
-    typedef typename Teuchos::ArrayRCP<const Handle>::const_iterator 
+
+    typedef typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator 
     const_connectivity_iterator;
 
 

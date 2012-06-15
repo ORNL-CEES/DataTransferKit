@@ -49,7 +49,7 @@ class MyMesh
 {
   public:
 
-    typedef int    handle_type;
+    typedef int    global_ordinal_type;
     
     MyMesh() 
     { /* ... */ }
@@ -113,7 +113,7 @@ class MeshTraits<MyMesh>
 {
   public:
 
-    typedef MyMesh::handle_type handle_type;
+    typedef MyMesh::global_ordinal_type global_ordinal_type;
     typedef Teuchos::Array<int>::const_iterator const_node_iterator;
     typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
     typedef Teuchos::Array<int>::const_iterator const_element_iterator;
@@ -279,24 +279,24 @@ TEUCHOS_UNIT_TEST( RendezvousMesh, rendezvous_mesh_test )
     // Create a mesh.
     typedef MeshTraits<MyMesh> MT;
     MyMesh my_mesh = buildMyMesh();
-    Teuchos::RCP< RendezvousMesh<MyMesh::handle_type> > mesh = 
+    Teuchos::RCP< RendezvousMesh<MyMesh::global_ordinal_type> > mesh = 
 	createRendezvousMesh( my_mesh );
 
     // Get the moab interface.
     moab::ErrorCode error;
-    RendezvousMesh<MyMesh::handle_type>::RCP_Moab moab = mesh->getMoab();
+    RendezvousMesh<MyMesh::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
     
     // Grab the elements.
     moab::Range mesh_elements = mesh->getElements();
 
     // Check the moab mesh element data.
     moab::Range::const_iterator element_iterator;
-    MyMesh::handle_type native_handle = 0;
+    MyMesh::global_ordinal_type native_handle = 0;
     for ( element_iterator = mesh_elements.begin();
 	  element_iterator != mesh_elements.end();
 	  ++element_iterator, ++native_handle )
     {
-	TEST_ASSERT( mesh->getNativeHandle( *element_iterator ) == 
+	TEST_ASSERT( mesh->getNativeOrdinal( *element_iterator ) == 
 		     native_handle );
 
 	TEST_ASSERT( moab->type_from_handle( *element_iterator ) ==

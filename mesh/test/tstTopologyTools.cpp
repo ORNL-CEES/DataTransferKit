@@ -50,7 +50,7 @@ class MyMesh
 {
   public:
 
-    typedef int    handle_type;
+    typedef int    global_ordinal_type;
     
     MyMesh() 
     { /* ... */ }
@@ -114,7 +114,7 @@ class MeshTraits<MyMesh>
 {
   public:
 
-    typedef MyMesh::handle_type handle_type;
+    typedef MyMesh::global_ordinal_type global_ordinal_type;
     typedef Teuchos::Array<int>::const_iterator const_node_iterator;
     typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
     typedef Teuchos::Array<int>::const_iterator const_element_iterator;
@@ -282,11 +282,12 @@ TEUCHOS_UNIT_TEST( TopologyTools, topology_tools_test )
 
     // Create a mesh.
     MyMesh my_mesh = buildMyMesh();
-    Teuchos::RCP< RendezvousMesh<MyMesh::handle_type> > mesh = 
+    Teuchos::RCP< RendezvousMesh<MyMesh::global_ordinal_type> > mesh = 
 	createRendezvousMesh( my_mesh );
 
     // Get the moab interface.
-    RendezvousMesh<MyMesh::handle_type>::RCP_Moab moab = mesh->getMoab();
+    RendezvousMesh<MyMesh::global_ordinal_type>::RCP_Moab moab = 
+	mesh->getMoab();
     
     // Grab the elements.
     moab::Range mesh_elements = mesh->getElements();
@@ -294,10 +295,10 @@ TEUCHOS_UNIT_TEST( TopologyTools, topology_tools_test )
     moab::EntityHandle hex_2 = mesh_elements[1];
 
     // Test the linear nodes function.
-    TEST_ASSERT( TopologyTools::numLinearNodes( moab->type_from_handle( hex_1 ) )
-		 == 8 );
-    TEST_ASSERT( TopologyTools::numLinearNodes( moab->type_from_handle( hex_2 ) )
-		 == 8 );
+    TEST_ASSERT( 
+	TopologyTools::numLinearNodes( moab->type_from_handle( hex_1 ) ) == 8 );
+    TEST_ASSERT( 
+	TopologyTools::numLinearNodes( moab->type_from_handle( hex_2 ) ) == 8 );
 
     // Test the point inclusion test.
     Teuchos::Array<double> point_0(3);
