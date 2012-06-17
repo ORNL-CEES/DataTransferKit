@@ -9,6 +9,7 @@
 #ifndef DTK_BOUNDINGBOX_HPP
 #define DTK_BOUNDINGBOX_HPP
 
+#include <Teuchos_Tuple.hpp>
 #include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
@@ -31,6 +32,10 @@ class BoundingBox
 
     // Determine if a point is in the box.
     bool pointInBox( double coords[3] ) const;
+
+    // Get the boundaries of the box.
+    Teuchos::Tuple<double,6> getBounds() const
+    { return Teuchos::tuple( x_min, y_min, z_min, x_max, y_max, z_max ); }
 
     // Addition assignment operator overload.
     inline BoundingBox& operator +=( const BoundingBox& box );

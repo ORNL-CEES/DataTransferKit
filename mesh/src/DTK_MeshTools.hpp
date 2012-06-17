@@ -11,6 +11,9 @@
 
 #include "DTK_BoundingBox.hpp"
 
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
+
 namespace DataTransferKit
 {
 
@@ -27,7 +30,9 @@ class MeshTools
 
     //@{
     //! Typedefs.
-    typedef Mesh mesh_type;
+    typedef Mesh                            mesh_type;
+    typedef Teuchos::Comm<int>              CommType;
+    typedef Teuchos::RCP<const CommType>    RCP_Comm;
     //@}
 
     //! Constructor.
@@ -42,7 +47,8 @@ class MeshTools
     static BoundingBox localBoundingBox( const Mesh& mesh );
 
     // Get the global bounding box for a mesh.
-    static BoundingBox globalBoundingBox( const Mesh& mesh );
+    static BoundingBox globalBoundingBox( const Mesh& mesh, 
+					  const RCP_Comm& comm );
 };
 
 } // end namepsace DataTransferKit
