@@ -11,7 +11,8 @@
 
 #include <DTK_Exception.hpp>
 #include <DTK_Rendezvous.hpp>
-
+#include <DTK_BoundingBox.hpp>
+#include <DTK_MeshTools.hpp>
 
 #include <Teuchos_ArrayRCP.hpp>
 
@@ -45,11 +46,16 @@ template<class Mesh, class CoordinateField>
 void ConsistentInterpolation<Mesh,CoordinateField>::setup( 
     const Mesh& mesh, const CoordinateField& coordinate_field )
 {
-    // Get the global bounding box for the coordinate field.
-
     // Get the global bounding box for the mesh.
+    BoundingBox mesh_box = MeshTools<Mesh>::globalBoundingBox( mesh, d_comm );
+
+    // Get the global bounding box for the coordinate field.
+    BoundingBox coord_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
+	coordinate_field, d_comm );
 
     // Intersect the boxes to get the rendezvous bounding box.
+    BoundingBox rendezvous_box = 
+	BoundingBox::boxIntersect( mesh_box, coord_box );
 
     // Build a rendezvous decomposition.
 
