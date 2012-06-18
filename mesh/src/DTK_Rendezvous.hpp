@@ -21,6 +21,7 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 
 #include <Tpetra_Map.hpp>
 
@@ -48,7 +49,6 @@ class Rendezvous
     typedef Teuchos::RCP<const CommType>         RCP_Comm;
     typedef Tpetra::Map<GlobalOrdinal>           TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>        RCP_TpetraMap;
-    typedef GlobalOrdinal                        ordinal_type;
     //@}
 
     // Constructor.
@@ -62,12 +62,12 @@ class Rendezvous
 
     // Get the rendezvous processes for a list of node coordinates.
     Teuchos::Array<int> 
-    getRendezvousProcs( const Teuchos::Array<double> &coords ) const;
+    getRendezvousProcs( const Teuchos::ArrayRCP<double> &coords ) const;
 
     // Get the native mesh elements in the rendezvous decomposition containing
     // a blocked list of coordinates.
     Teuchos::Array<GlobalOrdinal>
-    getElements( const Teuchos::Array<double>& coords ) const;
+    getElements( const Teuchos::ArrayRCP<double>& coords ) const;
 
     // Get the rendezvous mesh.
     const RCP_RendezvousMesh& getMesh() const

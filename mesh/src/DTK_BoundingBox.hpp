@@ -38,10 +38,6 @@ class BoundingBox
     { return Teuchos::tuple( d_x_min, d_y_min, d_z_min, 
 			     d_x_max, d_y_max, d_z_max ); }
 
-    // Compute the intersection of two bounding boxes.
-    static BoundingBox boxIntersect( const BoundingBox& box_1,
-				     const BoundingBox& box_2 );
-
     // Addition assignment operator overload.
     inline BoundingBox& operator +=( const BoundingBox& box );
     

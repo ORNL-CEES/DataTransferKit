@@ -12,6 +12,7 @@
 #include "DTK_FieldTraits.hpp"
 #include "DTK_FieldEvaluator"
 #include <DTK_MeshTraits.hpp>
+#include <DTK_BoundingBox.hpp>
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -53,6 +54,18 @@ class ConsistentInterpolation
     template<class SourceField, class TargetField>
     void apply( const FieldEvaluator<Mesh,SourceField>& source_evaluator,
 		TargetField& target_space );
+
+  private:
+
+    // Build the bounding box for the rendezvous decomposition.
+    BoundingBox buildRendezvousBox( 
+	const Mesh& mesh, const BoundingBox& mesh_box,
+	const CoordinateField& coordinate_field, const BoundingBox& coord_box );
+
+    // Compute globally unique ordinals for the points in the coordinate
+    // field.
+    Teuchos::Array<global_ordinal_type> computePointOrdinals(
+	const CoordinateField& coordinate_field );
 
   private:
 

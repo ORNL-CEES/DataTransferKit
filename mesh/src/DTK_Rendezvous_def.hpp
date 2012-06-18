@@ -19,7 +19,6 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ENull.hpp>
 #include <Teuchos_ArrayView.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_Export.hpp>
@@ -93,13 +92,13 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
  */
 template<class Mesh>
 Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
-    const Teuchos::Array<double>& coords ) const
+    const Teuchos::ArrayRCP<double>& coords ) const
 {
     double point[3];
-    ordinal_type num_points = coords.size() / d_node_dim;
+    GlobalOrdinal num_points = coords.size() / d_node_dim;
     int rendezvous_proc;
     Teuchos::Array<int> destination_procs;
-    for ( ordinal_type n = 0; n < num_points; ++n )
+    for ( GlobalOrdinal n = 0; n < num_points; ++n )
     {
 	for ( std::size_t d = 0; d < d_node_dim; ++d )
 	{
@@ -113,7 +112,7 @@ Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
 	destination_procs.push_back( rendezvous_proc );
     }
 
-    testPostcondition( static_cast<ordinal_type>( destination_procs.size() )
+    testPostcondition( static_cast<GlobalOrdinal>( destination_procs.size() )
 		       == num_points,
 		       "Error getting destination processes." );
 
@@ -127,13 +126,13 @@ Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
  */
 template<class Mesh>
 Teuchos::Array< typename Rendezvous<Mesh>::GlobalOrdinal >
-Rendezvous<Mesh>::getElements( const Teuchos::Array<double>& coords ) const
+Rendezvous<Mesh>::getElements( const Teuchos::ArrayRCP<double>& coords ) const
 {
     Teuchos::Array<double> point( d_node_dim );
     GlobalOrdinal element_ordinal;
-    ordinal_type num_points = coords.size() / d_node_dim;
+    GlobalOrdinal num_points = coords.size() / d_node_dim;
     Teuchos::Array<GlobalOrdinal> element_ordinals;
-    for ( ordinal_type n = 0; n < num_points; ++n )
+    for ( GlobalOrdinal n = 0; n < num_points; ++n )
     {
 	for ( std::size_t d = 0; d < d_node_dim; ++d )
 	{
@@ -143,7 +142,7 @@ Rendezvous<Mesh>::getElements( const Teuchos::Array<double>& coords ) const
 	element_ordinals.push_back( element_ordinal );
     }
 
-    testPostcondition( static_cast<ordinal_type>( element_ordinals.size() )
+    testPostcondition( static_cast<GlobalOrdinal>( element_ordinals.size() )
 		       == num_points,
 		       "Error getting mesh elements." );
 
@@ -164,11 +163,11 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
     // ordinal location. This will give us logarithmic time access to
     // connectivity. I should write a more general hash table to improve this
     // access time as I'm using this strategy for most mesh operations.
-    ordinal_type num_nodes = std::distance( MT::nodesBegin( mesh ),
+    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
 					    MT::nodesEnd( mesh ) );
-    std::map<GlobalOrdinal,ordinal_type> node_indices;
+    std::map<GlobalOrdinal,GlobalOrdinal> node_indices;
     typename MT::const_node_iterator node_iterator;
-    ordinal_type m = 0;
+    GlobalOrdinal m = 0;
     for ( node_iterator = MT::nodesBegin( mesh );
 	  node_iterator != MT::nodesEnd( mesh );
 	  ++node_iterator )
@@ -181,7 +180,7 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
     double node_coords[3];
     typename MT::const_coordinate_iterator mesh_coords = 
 	MT::coordsBegin( mesh );
-    for ( ordinal_type n = 0; n < num_nodes; ++n )
+    for ( GlobalOrdinal n = 0; n < num_nodes; ++n )
     {
 	for ( std::size_t d = 0; d < d_node_dim; ++d )
 	{
@@ -193,19 +192,19 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	}
 	nodes_in_box.push_back( box.pointInBox( node_coords ) );
     }
-    assert( (ordinal_type) nodes_in_box.size() == num_nodes );
+    assert( (GlobalOrdinal) nodes_in_box.size() == num_nodes );
 
     // For those nodes that are in the box, get the elements that they
     // construct. These elements are in the box.
-    ordinal_type num_elements = std::distance( MT::elementsBegin( mesh ),
+    GlobalOrdinal num_elements = std::distance( MT::elementsBegin( mesh ),
 					       MT::elementsEnd( mesh ) );
     std::size_t nodes_per_element = MT::nodesPerElement( mesh );
-    ordinal_type node_index;
+    GlobalOrdinal node_index;
     GlobalOrdinal node_ordinal;
     int this_element_in_box;
     typename MT::const_connectivity_iterator mesh_connectivity =
 	MT::connectivityBegin( mesh );
-    for ( ordinal_type n = 0; n < num_elements; ++n )
+    for ( GlobalOrdinal n = 0; n < num_elements; ++n )
     {
 	this_element_in_box = 0;
 	for ( std::size_t i = 0; i < nodes_per_element; ++i )
@@ -219,11 +218,11 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 	}
 	elements_in_box.push_back( this_element_in_box );
     }
-    assert( (ordinal_type) elements_in_box.size() == num_elements );
+    assert( (GlobalOrdinal) elements_in_box.size() == num_elements );
 
     // Get the nodes that belong to the elements in the box, but are not in
     // the box themselves. These will also be used in RCB.
-    for ( ordinal_type n = 0; n < num_elements; ++n )
+    for ( GlobalOrdinal n = 0; n < num_elements; ++n )
     {
 	if ( elements_in_box[n] )
 	{
@@ -255,7 +254,7 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 			      rendezvous_nodes, rendezvous_elements );
 
     // Setup export node map.
-    ordinal_type num_nodes = std::distance( MT::nodesBegin( mesh ), 
+    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ), 
 					    MT::nodesEnd( mesh ) );
     Teuchos::ArrayView<const GlobalOrdinal> export_node_view(
 	&*MT::nodesBegin( mesh ), num_nodes );
@@ -273,7 +272,7 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 		       "Error creating node import map." );
 
     // Setup export element map.
-    ordinal_type num_elements = std::distance( MT::elementsBegin( mesh ), 
+    GlobalOrdinal num_elements = std::distance( MT::elementsBegin( mesh ), 
 					       MT::elementsEnd( mesh ) );
     Teuchos::ArrayView<const GlobalOrdinal> export_element_view(
 	&*MT::elementsBegin( mesh ), num_elements );
@@ -297,7 +296,7 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 						    import_element_map );
 
     // Move the node coordinates to the rendezvous decomposition.
-    ordinal_type num_coords = d_node_dim*num_nodes;
+    GlobalOrdinal num_coords = d_node_dim*num_nodes;
     Teuchos::ArrayRCP<double> export_coords_view( 
 	(double*) &*MT::coordsBegin( mesh ), 0, num_coords, false );
     Teuchos::RCP< Tpetra::MultiVector<double> > export_coords = 
@@ -308,7 +307,7 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 
     // Move the element connectivity to the rendezvous decomposition.
     int nodes_per_element = MT::nodesPerElement( mesh );
-    ordinal_type num_conn = nodes_per_element * num_elements;
+    GlobalOrdinal num_conn = nodes_per_element * num_elements;
     Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view( 
 	(GlobalOrdinal*) &*MT::connectivityBegin( mesh ),	0, num_conn, false );
     Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > export_conn = 
@@ -350,8 +349,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // Create a node index map for logarithmic time access to connectivity
     // data. 
     typename MT::const_node_iterator export_node_iterator;
-    std::map<GlobalOrdinal,ordinal_type> node_indices;
-    ordinal_type m = 0;
+    std::map<GlobalOrdinal,GlobalOrdinal> node_indices;
+    GlobalOrdinal m = 0;
     for ( export_node_iterator = MT::nodesBegin( mesh );
 	  export_node_iterator != MT::nodesEnd( mesh );
 	  ++export_node_iterator )
@@ -363,7 +362,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // Create a element index map for logarithmic time access to connectivity
     // data. 
     typename MT::const_element_iterator export_element_iterator;
-    std::map<GlobalOrdinal,ordinal_type> element_indices;
+    std::map<GlobalOrdinal,GlobalOrdinal> element_indices;
     m = 0;
     for ( export_element_iterator = MT::elementsBegin( mesh );
 	  export_element_iterator != MT::elementsEnd( mesh );
@@ -377,20 +376,20 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // box. The element will need to be sent to each partition that its
     // connecting nodes exist in. We'll make a unique destination proc set for
     // each element.
-    ordinal_type num_nodes = std::distance( MT::nodesBegin( mesh ),
+    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
 					    MT::nodesEnd( mesh ) );
-    ordinal_type num_elements = std::distance( MT::elementsBegin( mesh ),
+    GlobalOrdinal num_elements = std::distance( MT::elementsBegin( mesh ),
 					       MT::elementsEnd( mesh ) );
     Teuchos::Array< std::set<int> > export_element_procs_set( num_elements );
     std::size_t nodes_per_element = MT::nodesPerElement( mesh );
-    ordinal_type node_index;
+    GlobalOrdinal node_index;
     GlobalOrdinal node_ordinal;
     int destination_proc;
     double node_coords[3];
     typename MT::const_coordinate_iterator mesh_coords = MT::coordsBegin( mesh );
     typename MT::const_connectivity_iterator mesh_connectivity = 
 	MT::connectivityBegin( mesh );
-    for ( ordinal_type n = 0; n < num_elements; ++n )
+    for ( GlobalOrdinal n = 0; n < num_elements; ++n )
     {
 	if ( elements_in_box[n] )
 	{
@@ -438,7 +437,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // rendezvous decomposition through an inverse communciation operation.
     Tpetra::Distributor element_distributor( d_comm );
     Teuchos::ArrayView<int> export_element_procs_view = export_element_procs();
-    ordinal_type num_import_elements = element_distributor.createFromSends(
+    GlobalOrdinal num_import_elements = element_distributor.createFromSends(
 	export_element_procs_view );
     Teuchos::ArrayView<const GlobalOrdinal> export_elements_view =
 	export_elements();
@@ -469,7 +468,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // destination procs as all of their parent elements. Therefore, nodes may
     // then also have to go to multiple procs because of this and these procs
     // may be different than their original RCB procs.
-    ordinal_type element_index;
+    GlobalOrdinal element_index;
     typename Teuchos::Array<GlobalOrdinal>::const_iterator 
 	export_elements_iterator;
     Teuchos::Array<int>::const_iterator export_element_procs_iterator;
@@ -521,7 +520,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // rendezvous decomposition through an inverse communciation operation.
     Tpetra::Distributor node_distributor( d_comm );
     Teuchos::ArrayView<int> export_node_procs_view = export_node_procs();
-    ordinal_type num_import_nodes = node_distributor.createFromSends(
+    GlobalOrdinal num_import_nodes = node_distributor.createFromSends(
 	export_node_procs_view );
     Teuchos::ArrayView<const GlobalOrdinal> export_nodes_view = export_nodes();
     Teuchos::Array<GlobalOrdinal> import_nodes( num_import_nodes );
