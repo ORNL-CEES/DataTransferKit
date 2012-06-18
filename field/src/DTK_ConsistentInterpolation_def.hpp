@@ -17,6 +17,7 @@
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_ENull.hpp>
 
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_MultiVector.hpp>
@@ -112,21 +113,38 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     rendezvous_coords.doExport( *target_coords, point_exporter, Tpetra::INSERT );
 
     // Search the rendezvous decomposition with the points.
-    Teuchos::Array<global_ordinal_type> source_elements =
+    Teuchos::Array<global_ordinal_type> rendezvous_elements =
 	rendezvous.getElements( rendezvous_coords.get1dView() );
 
-    // Setup rendezvous to source communication via an inverse communication
-    // operation. 
-    
+    // Setup rendezvous to source communication.
+    global_ordinal_type num_elements = std::distance( MT::elementsBegin( mesh ), 
+						      MT::elementsEnd( mesh ) );
+    Teuchos::ArrayView<const global_ordinal_type> mesh_element_view(
+	&*MT::elementsBegin( mesh ), num_elements );
+    RCP_TpetraMap mesh_element_map = 
+	Tpetra::createNonContigMap<global_ordinal_type>( 
+	    mesh_element_view, d_comm );
 
-    // Send the elements / coordinate pairs and the coordinate global ordinals
-    // to the source decomposition.
+    Teuchos::ArrayView<const global_ordinal_type> rendezvous_elements_view =
+	rendezvous_elements();
+    RCP_TpetraMap rendezvous_element_map = 
+	Tpetra::createNonContigMap<global_ordinal_type>( 
+	    rendezvous_elements_view, d_comm );
+
+    Tpetra::Import<global_ordinal_type> source_importer( rendezvous_element_map,
+							 mesh_element_map );
+
+    // Send the point coordinates to the source decomposition.
+
+    // Send the point ordinals to the source decomposition.
     
     // Build the data export map from the coordinate ordinals.
 
-    // Build the importer.
-    d_importer = Teuchos::rcp( new Tpetra::Import<global_ordinal_type>(
-				   d_export_map, d_import_map ) );
+    // Build the data importer.
+    d_data_importer = Teuchos::rcp( new Tpetra::Import<global_ordinal_type>(
+					d_export_map, d_import_map ) );
+    testPostcondition( d_data_importer != Teuchos::null,
+		       "Error creating data importer." );
 }
 
 //---------------------------------------------------------------------------//
@@ -174,7 +192,7 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
 				   target_size,
 				   TFT::dim( target_space ) );
 
-    target_vector->doImport( *source_vector, *d_importer, Tpetra::INSERT );
+    target_vector->doImport( *source_vector, *d_data_importer, Tpetra::INSERT );
 }
 
 //---------------------------------------------------------------------------//

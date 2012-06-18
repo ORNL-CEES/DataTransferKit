@@ -82,14 +82,14 @@ class ConsistentInterpolation
     // Import field map.
     RCP_TpetraMap d_import_map;
 
-    // Field importer.
-    RCP_Import d_importer;
+    // Field data importer.
+    RCP_Import d_data_importer;
 
-    // Local elements.
-    Teuchos::Array<global_ordinal_type> d_elements;
+    // Local source elements.
+    Teuchos::Array<global_ordinal_type> d_source_elements;
 
-    // Local coords.
-    Teuchos::Array<double> d_coords;
+    // Local target coords.
+    Teuchos::Array<double> d_target_coords;
 };
 
 } // end namespace DataTransferKit
