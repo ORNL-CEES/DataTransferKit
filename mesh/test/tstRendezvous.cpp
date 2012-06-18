@@ -295,51 +295,27 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 	}
 
 	Teuchos::Array<int> destinations = rendezvous.getRendezvousProcs( coords );
+	std::cout << destinations << std::endl;
 	TEST_ASSERT( destinations.size() == global_num_quads );
-	TEST_ASSERT( destinations[0] == 1 );
-	TEST_ASSERT( destinations[1] == 1 );
-	TEST_ASSERT( destinations[2] == 3 );
-	TEST_ASSERT( destinations[3] == 3 );
-	TEST_ASSERT( destinations[4] == 1 );
-	TEST_ASSERT( destinations[5] == 1 );
-	TEST_ASSERT( destinations[6] == 3 );
-	TEST_ASSERT( destinations[7] == 3 );
-	TEST_ASSERT( destinations[8] == 0 );
-	TEST_ASSERT( destinations[9] == 0 );
-	TEST_ASSERT( destinations[10] == 2 );
-	TEST_ASSERT( destinations[11] == 2 );
-	TEST_ASSERT( destinations[12] == 0 );
-	TEST_ASSERT( destinations[13] == 0 );
-	TEST_ASSERT( destinations[14] == 2 );
-	TEST_ASSERT( destinations[15] == 2 );
+	TEST_ASSERT( destinations[0] == 0 );
+	TEST_ASSERT( destinations[1] == 0 );
+	TEST_ASSERT( destinations[2] == 1 );
+	TEST_ASSERT( destinations[3] == 1 );
+	TEST_ASSERT( destinations[4] == 0 );
+	TEST_ASSERT( destinations[5] == 0 );
+	TEST_ASSERT( destinations[6] == 1 );
+	TEST_ASSERT( destinations[7] == 1 );
+	TEST_ASSERT( destinations[8] == 2 );
+	TEST_ASSERT( destinations[9] == 2 );
+	TEST_ASSERT( destinations[10] == 3 );
+	TEST_ASSERT( destinations[11] == 3 );
+	TEST_ASSERT( destinations[12] == 2 );
+	TEST_ASSERT( destinations[13] == 2 );
+	TEST_ASSERT( destinations[14] == 3 );
+	TEST_ASSERT( destinations[15] == 3 );
 
 	// Check the kD-tree with coordinates.
 	if ( my_rank == 0 )
-	{
-	    Teuchos::Array<double> 
-		target_coords( node_dim*global_num_quads / 4 );
-
-	    target_coords[0] = coords[ 8 ];
-	    target_coords[4] = coords[ 8 + global_num_quads ];
-
-	    target_coords[1] = coords[ 9 ];
-	    target_coords[5] = coords[ 9 + global_num_quads ];
-
-	    target_coords[2] = coords[ 12 ];
-	    target_coords[6] = coords[ 12 + global_num_quads ];
-
-	    target_coords[3] = coords[ 13 ];
-	    target_coords[7] = coords[ 13 + global_num_quads ];
-	    
-	    Teuchos::Array<int> target_elements = 
-		rendezvous.getElements( target_coords );
-
-	    TEST_ASSERT( target_elements[0] == 2 );
-	    TEST_ASSERT( target_elements[1] == 6 );
-	    TEST_ASSERT( target_elements[2] == 3 );
-	    TEST_ASSERT( target_elements[3] == 7 );
-	}
-	if ( my_rank == 1 )
 	{
 	    Teuchos::Array<double> 
 		target_coords( node_dim*global_num_quads / 4 );
@@ -364,7 +340,57 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 	    TEST_ASSERT( target_elements[2] == 1 );
 	    TEST_ASSERT( target_elements[3] == 5 );
 	}
+	if ( my_rank == 1 )
+	{
+	    Teuchos::Array<double> 
+		target_coords( node_dim*global_num_quads / 4 );
+
+	    target_coords[0] = coords[ 2 ];
+	    target_coords[4] = coords[ 2 + global_num_quads ];
+
+	    target_coords[1] = coords[ 3 ];
+	    target_coords[5] = coords[ 3 + global_num_quads ];
+
+	    target_coords[2] = coords[ 6 ];
+	    target_coords[6] = coords[ 6 + global_num_quads ];
+
+	    target_coords[3] = coords[ 7 ];
+	    target_coords[7] = coords[ 7 + global_num_quads ];
+	    
+	    Teuchos::Array<int> target_elements = 
+		rendezvous.getElements( target_coords );
+
+	    TEST_ASSERT( target_elements[0] == 2 );
+	    TEST_ASSERT( target_elements[1] == 3 );
+	    TEST_ASSERT( target_elements[2] == 6 );
+	    TEST_ASSERT( target_elements[3] == 7 );
+	}
 	if ( my_rank == 2 )
+	{
+	    Teuchos::Array<double> 
+		target_coords( node_dim*global_num_quads / 4 );
+
+	    target_coords[0] = coords[ 8 ];
+	    target_coords[4] = coords[ 8 + global_num_quads ];
+
+	    target_coords[1] = coords[ 9 ];
+	    target_coords[5] = coords[ 9 + global_num_quads ];
+
+	    target_coords[2] = coords[ 12 ];
+	    target_coords[6] = coords[ 12 + global_num_quads ];
+
+	    target_coords[3] = coords[ 13 ];
+	    target_coords[7] = coords[ 13 + global_num_quads ];
+	    
+	    Teuchos::Array<int> target_elements = 
+		rendezvous.getElements( target_coords );
+
+	    TEST_ASSERT( target_elements[0] == 8 );
+	    TEST_ASSERT( target_elements[1] == 9 );
+	    TEST_ASSERT( target_elements[2] == 12 );
+	    TEST_ASSERT( target_elements[3] == 13 );
+	}
+	if ( my_rank == 3 )
 	{
 	    Teuchos::Array<double> 
 		target_coords( node_dim*global_num_quads / 4 );
@@ -385,34 +411,9 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 		rendezvous.getElements( target_coords );
 
 	    TEST_ASSERT( target_elements[0] == 10 );
-	    TEST_ASSERT( target_elements[1] == 14 );
-	    TEST_ASSERT( target_elements[2] == 11 );
+	    TEST_ASSERT( target_elements[1] == 11 );
+	    TEST_ASSERT( target_elements[2] == 14 );
 	    TEST_ASSERT( target_elements[3] == 15 );
-	}
-	if ( my_rank == 3 )
-	{
-	    Teuchos::Array<double> 
-		target_coords( node_dim*global_num_quads / 4 );
-
-	    target_coords[0] = coords[ 2 ];
-	    target_coords[4] = coords[ 2 + global_num_quads ];
-
-	    target_coords[1] = coords[ 3 ];
-	    target_coords[5] = coords[ 3 + global_num_quads ];
-
-	    target_coords[2] = coords[ 6 ];
-	    target_coords[6] = coords[ 6 + global_num_quads ];
-
-	    target_coords[3] = coords[ 7 ];
-	    target_coords[7] = coords[ 7 + global_num_quads ];
-	    
-	    Teuchos::Array<int> target_elements = 
-		rendezvous.getElements( target_coords );
-
-	    TEST_ASSERT( target_elements[0] == 8 );
-	    TEST_ASSERT( target_elements[1] == 12 );
-	    TEST_ASSERT( target_elements[2] == 9 );
-	    TEST_ASSERT( target_elements[3] == 13 );
 	}
     }
 }

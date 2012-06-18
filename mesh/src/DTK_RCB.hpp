@@ -9,6 +9,8 @@
 #ifndef DTK_RCB_HPP
 #define DTK_RCB_HPP
 
+#include <set>
+
 #include "DTK_BoundingBox.hpp"
 #include "DTK_MeshTraits.hpp"
 
@@ -135,16 +137,25 @@ class RCB
 				 ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
 				 int num_dim, double *geom_vec, int *ierr );
 
-    // Get the bounding box for a partition.
-    BoundingBox getPartBoundingBox( const int part ) const;
+    // Get the global partitioning information.
+    void getPartitioning();
 
   private:
+
+    // Communicator over which to partition.
+    RCP_Comm d_comm;
 
     // The mesh data to be partitioned.
     MeshData d_mesh_data;
 
-    // Partition bounding boxes.
-    Teuchos::Array<BoundingBox> d_part_boxes;
+    // Global x edges.
+    std::set<double> d_x_edges;
+
+    // Global y edges.
+    std::set<double> d_y_edges;
+
+    // Global z edges.
+    std::set<double> d_z_edges;
 
     // Zoltan struct.
     Zoltan_Struct *d_zz;

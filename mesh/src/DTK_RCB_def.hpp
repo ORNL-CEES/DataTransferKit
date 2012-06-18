@@ -6,6 +6,8 @@
  */
 //---------------------------------------------------------------------------//
 
+#include <algorithm>
+
 #include <DTK_Exception.hpp>
 
 #include <mpi.h>
@@ -23,8 +25,8 @@ namespace DataTransferKit
 template<class Mesh>
 RCB<Mesh>::RCB( const Mesh& mesh, const Teuchos::ArrayRCP<int>& active_nodes,
 		const RCP_Comm& comm )
-    : d_mesh_data( mesh, active_nodes )
-    , d_part_boxes( comm->getSize() )
+    : d_comm( comm )
+    , d_mesh_data( mesh, active_nodes )
 {
     // Get the raw MPI communicator.
     Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
@@ -50,6 +52,7 @@ RCB<Mesh>::RCB( const Mesh& mesh, const Teuchos::ArrayRCP<int>& active_nodes,
     Zoltan_Set_Param( d_zz, "RCB_OUTPUT_LEVEL", "0" );
     Zoltan_Set_Param( d_zz, "RCB_RECTILINEAR_BLOCKS", "0" );
     Zoltan_Set_Param( d_zz, "KEEP_CUTS", "1" );
+    Zoltan_Set_Param( d_zz, "RCB_SET_DIRECTIONS", "1" );
 
     // Register query functions.
     Zoltan_Set_Num_Obj_Fn( d_zz, getNumberOfObjects, &d_mesh_data );
@@ -100,19 +103,8 @@ void RCB<Mesh>::partition()
     testInvariant( ZOLTAN_OK == zoltan_error, 
 		   "Zoltan error creating RCB partitioning" );
 
-    // Get the bounding boxes on all processes.
-    Teuchos::Array<BoundingBox>::iterator box_iterator;
-    int i = 0;
-    for ( box_iterator = d_part_boxes.begin();
-	  box_iterator != d_part_boxes.end();
-	  ++box_iterator, ++i )
-    {
-	*box_iterator = getPartBoundingBox( i );
-    }
-
-    // We should build an octree or other logarthmic search structure here out
-    // of the bounding boxes. That way getDestinationProc() will avoid linear
-    // searches (and ultimately quadratic performance).
+    // Get the global partitioning information.
+    getPartitioning();
 }
 
 //---------------------------------------------------------------------------//
@@ -122,46 +114,61 @@ void RCB<Mesh>::partition()
 template<class Mesh>
 int RCB<Mesh>::getDestinationProc( double coords[3] ) const
 {
-    // Do a linear search through the bounding boxes for now. This really
-    // needs to be logarithmic as we are checking every mesh node with this
-    // during rendezvous construction and every target node during mapping.
-    Teuchos::Array<BoundingBox>::const_iterator box_iterator;
-    int i = 0;
-    for ( box_iterator = d_part_boxes.begin();
-	  box_iterator != d_part_boxes.end();
-	  ++box_iterator, ++i )
+    int x_idx = std::distance( d_x_edges.begin(),
+			       std::upper_bound( d_x_edges.begin(),
+						 d_x_edges.end(),
+						 coords[0] ) );
+
+    int y_idx = std::distance( d_y_edges.begin(),
+			       std::upper_bound( d_y_edges.begin(),
+						 d_y_edges.end(),
+						 coords[1] ) );
+
+    int z_idx = std::distance( d_z_edges.begin(),
+			       std::upper_bound( d_z_edges.begin(),
+						 d_z_edges.end(),
+						 coords[2] ) );
+
+    if ( x_idx == 0 || y_idx == 0 || z_idx == 0 ||
+	 x_idx > (int) d_x_edges.size() || y_idx > (int) d_y_edges.size() ||
+	 z_idx > (int) d_z_edges.size() )
     {
-	if ( box_iterator->pointInBox( coords ) )
-	{
-	    return i;
-	}
+	throw PointNotFound( "Point outside RCB decomposition." );
     }
 
-    // We didn't find the point in the RCB partitioning so throw a point not
-    // found exception.
-    throw PointNotFound( "Did not find point in the RCB decomposition." );
-
-    return 0;
+    return (x_idx-1) + (y_idx-1)*(d_x_edges.size()-1) + 
+	(z_idx-1)*(d_y_edges.size()-1)*(d_x_edges.size()-1);
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the bounding box for a partition.
+ * \brief Get the global partitioning information
  */
 template<class Mesh>
-BoundingBox RCB<Mesh>::getPartBoundingBox( const int part ) const
+void RCB<Mesh>::getPartitioning()
 {
     double x_min, y_min, z_min, x_max, y_max, z_max;
     int dim;
     int zoltan_error;
-    zoltan_error = Zoltan_RCB_Box( d_zz, part, &dim,
-				   &x_min, &y_min, &z_min,
-				   &x_max, &y_max, &z_max );
 
-    testInvariant( ZOLTAN_OK == zoltan_error, 
-		   "Zoltan error getting partition bounding box." );
+    for ( int i = 0; i < d_comm->getSize(); ++i )
+    {
+	zoltan_error = Zoltan_RCB_Box( d_zz, i, &dim,
+				       &x_min, &y_min, &z_min,
+				       &x_max, &y_max, &z_max );
 
-    return BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );
+	testInvariant( ZOLTAN_OK == zoltan_error, 
+		       "Zoltan error getting partition bounding box." );
+
+	d_x_edges.insert( x_min );
+	d_x_edges.insert( x_max );
+
+	d_y_edges.insert( y_min );
+	d_y_edges.insert( y_max );
+
+	d_z_edges.insert( z_min );
+	d_z_edges.insert( z_max );
+    }
 }
 
 //---------------------------------------------------------------------------//
