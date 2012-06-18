@@ -1,26 +1,30 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_MeshTools_def.hpp
+ * \file DTK_FieldTools_def.hpp
  * \author Stuart R. Slattery
- * \brief MeshTools definition.
+ * \brief FieldTools definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MESHTOOLS_DEF_HPP
-#define DTK_MESHTOOLS_DEF_HPP
+#ifndef DTK_FIELDTOOLS_DEF_HPP
+#define DTK_FIELDTOOLS_DEF_HPP
 
 #include <algorithm>
+
+#include <DTK_Exception.hpp>
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ScalarTraits.hpp>
 
+namespace DataTransferKit
+{
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the local bounding box for a mesh.
+ * \brief Get the local bounding box for a coordinate field.
  */
-template<class Mesh>
-BoundingBox MeshTools<Mesh>::localBoundingBox( const Mesh& mesh )
+template<class Field>
+BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
 {
     double x_min = Teuchos::ScalarTraits<double>::rmin();
     double y_min = Teuchos::ScalarTraits<double>::rmin();
@@ -30,37 +34,43 @@ BoundingBox MeshTools<Mesh>::localBoundingBox( const Mesh& mesh )
     double y_max = Teuchos::ScalarTraits<double>::rmax();
     double z_max = Teuchos::ScalarTraits<double>::rmax();
 
-    MT::global_ordinal_type num_nodes =
-	std::distance( MT::nodesBegin( mesh ),
-		       MT::nodesEnd( mesh ) );
-    std::size_t node_dim = MT::nodeDim( mesh );
+    std::size_t dim = FT::dim( field );
 
-    if ( node_dim > 0 )
+    FT::size_type num_elements = std::distance( FT::begin( field ),
+						FT::end( field ) ) / dim;
+
+
+    if ( dim > 0 )
     {
 	x_min = *std::min_element( 
-	    MT::coordsBegin( mesh ),
-	    MT::coordsBegin( mesh ) + num_nodes );
+	    FT::begin( field ),
+	    FT::begin( field ) + num_elements );
 	x_max = *std::max_element( 
-	    MT::coordsBegin( mesh ),
-	    MT::coordsBegin( mesh ) + num_nodes );
+	    FT::begin( field ),
+	    FT::begin( field ) + num_elements );
     }
-    if ( node_dim > 1 )
+    if ( dim > 1 )
     {
 	y_min = *std::min_element( 
-	    MT::coordsBegin( mesh ) + num_nodes,
-	    MT::coordsBegin( mesh ) + 2*num_nodes );
+	    FT::begin( field ) + num_elements,
+	    FT::begin( field ) + 2*num_elements );
 	y_max = *std::max_element( 
-	    MT::coordsBegin( mesh ) + num_nodes,
-	    MT::coordsBegin( mesh ) + 2*num_nodes );
+	    FT::begin( field ) + num_elements,
+	    FT::begin( field ) + 2*num_elements );
     }
-    if ( node_dim > 2 )
+    if ( dim > 2 )
     {
 	z_min = *std::min_element( 
-	    MT::coordsBegin( mesh ) + 2*num_nodes,
-	    MT::coordsBegin( mesh ) + 3*num_nodes );
+	    FT::begin( field ) + 2*num_elements,
+	    FT::begin( field ) + 3*num_elements );
 	z_max = *std::max_element( 
-	    MT::coordsBegin( mesh ) + 2*num_nodes,
-	    MT::coordsBegin( mesh ) + 3*num_nodes );
+	    FT::begin( field ) + 2*num_elements,
+	    FT::begin( field ) + 3*num_elements );
+    }
+    if ( dim > 3 )
+    {
+	throw InvariantException( 
+	    "Nodes with greater than 3 dimensions not supported" );
     }
 
     return BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );
@@ -68,13 +78,13 @@ BoundingBox MeshTools<Mesh>::localBoundingBox( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the global bounding box for a mesh.
+ * \brief Get the global bounding box for a coordinate field.
  */
-template<class Mesh>
-BoundingBox MeshTools<Mesh>::globalBoundingBox( const Mesh& mesh, 
-						const RCP_Comm& comm )
+template<class Field>
+BoundingBox FieldTools<Field>::coordGlobalBoundingBox( const Field& field,
+						       const RCP_Comm& comm )
 {
-    BoundingBox local_box = localBoundingBox( mesh );
+    BoundingBox local_box = coordLocalBoundingBox( field );
     Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
 
     double global_x_min, global_y_min, global_z_min;
@@ -122,9 +132,11 @@ BoundingBox MeshTools<Mesh>::globalBoundingBox( const Mesh& mesh,
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_MESHTOOLS_DEF_HPP
+} // end namespace DataTransferKit
+
+#endif // end DTK_FIELDTOOLS_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_MeshTools_def.hpp
+// end DTK_FieldTools_def.hpp
 //---------------------------------------------------------------------------//
 

@@ -9,6 +9,7 @@
 #ifndef DTK_MESHTOOLS_HPP
 #define DTK_MESHTOOLS_HPP
 
+#include "DTK_MeshTraits.hpp"
 #include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -31,6 +32,7 @@ class MeshTools
     //@{
     //! Typedefs.
     typedef Mesh                            mesh_type;
+    typedef MeshTraits<Mesh>                MT;
     typedef Teuchos::Comm<int>              CommType;
     typedef Teuchos::RCP<const CommType>    RCP_Comm;
     //@}
