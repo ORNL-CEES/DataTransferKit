@@ -16,7 +16,6 @@
 #include <DTK_MeshTools.hpp>
 
 #include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_ENull.hpp>
 
 #include <Tpetra_Distributor.hpp>
@@ -61,14 +60,14 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     BoundingBox rendezvous_box = buildRendezvousBox( 
 	mesh, mesh_box, coordinate_field, coord_box );
 
-    // Build a rendezvous decomposition.
+    // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, rendezvous_box );
 
     // Compute a unique global ordinal for each point in the coordinate field.
     Teuchos::Array<global_ordinal_type> point_ordinals = 
 	computePointOrdinals( coordinate_field );
 
-    // Build the import map from the global ordinals.
+    // Build the data import map from the global ordinals.
     Teuchos::ArrayView<const global_ordinal_type> import_ordinal_view =
 	point_ordinals();
     d_import_map = Tpetra::createNonContigMap<global_ordinal_type>(
@@ -76,12 +75,12 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     testPostcondition( d_import_map != Teuchos::null,
 		       "Error creating data import map." );
     
-    // Determine the rendezvous destination of each point in the coordinate
-    // field.
+    // Determine the rendezvous destination proc of each point in the
+    // coordinate field.
     std::size_t coord_dim = CFT::dim( coordinate_field );
     CFT::size_type num_coords = CFT::size( coordinate_field );
-    Teuchos::ArrayRCP coords_view( &*CFT::begin( coordinate_field ), 
-				   num_coords );
+    Teuchos::ArrayRCP<double> coords_view( &*CFT::begin( coordinate_field ), 
+					   0, num_coords, false );
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.getRendezvousProcs( coords_view );
 
@@ -112,7 +111,8 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 	rendezvous_import_map, coord_dim );
     rendezvous_coords.doExport( *target_coords, point_exporter, Tpetra::INSERT );
 
-    // Search the rendezvous decomposition with the points.
+    // Search the rendezvous decomposition with the points to get the source
+    // elements that contain them.
     Teuchos::Array<global_ordinal_type> rendezvous_elements =
 	rendezvous.getElements( rendezvous_coords.get1dView() );
 
@@ -135,10 +135,29 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 							 mesh_element_map );
 
     // Send the point coordinates to the source decomposition.
+    
+    Teuchos::RCP< Tpetra::MultiVector<double,global_ordinal_type> > 
+	rendezvous_export_coords = createMultiVectorFromView( 
+	    rendezvous_element_map, rendezvous_coords.get1dView(),
+	    num_rendezvous_points, coord_dim );
+    Tpetra::MultiVector<double,global_ordinal_type> source_coords(
+	mesh_element_map, coord_dim );
+    source_coords.putScalar( -1.0 );
+    source_coords.doImport( *source_coords, source_importer, Tpetra::INSERT );
 
     // Send the point ordinals to the source decomposition.
+    Teuchos::RCP< Tpetra::MultiVector<double,global_ordinal_type> > 
+	rendezvous_export_points = createMultiVectorFromView( 
+	    rendezvous_element_map, rendezvous_points_view,
+	    num_rendezvous_points, 1 );
+    Tpetra::MultiVector<double,global_ordinal_type> source_points(
+	mesh_element_map, 1 );
+    source_points.putScalar( -1.0 );
+    source_points.doImport( *source_points, source_importer, Tpetra::INSERT );
     
-    // Build the data export map from the coordinate ordinals.
+    // Build the data export map from the coordinate ordinals as well as the
+    // source element/target coordinate pairings.
+    buildSourceData( source_points.get1dView(), source_coords.get1dView() );
 
     // Build the data importer.
     d_data_importer = Teuchos::rcp( new Tpetra::Import<global_ordinal_type>(
@@ -167,8 +186,8 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
 		      "Source field dimension != target field dimension." );
 
     Teuchos::ArrayRCP<SFT::value_type> 
-	source_field_view( &*SFT::begin( evaluated_field ),
-			   SFT::size( evaluated_field ) );
+	source_field_view( &*SFT::begin( evaluated_field ), 0
+			   SFT::size( evaluated_field ), false );
 
     global_ordinal_type source_size = SFT::size( evaluated_field ) /
 				      SFT::dim( evaluated_field );
@@ -180,8 +199,8 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
 				   SFT::dim( evaluated_field ) );
 
     Teuchos::ArrayRCP<TFT::value_type> target_field_view(
-	&*TFT::begin( target_space ),
-	TFT::size( target_space ) );
+	&*TFT::begin( target_space ), 0
+	TFT::size( target_space ), false );
     
     global_ordinal_type target_size = TFT::size( target_space ) /
 				      FFT::dim( target_space );

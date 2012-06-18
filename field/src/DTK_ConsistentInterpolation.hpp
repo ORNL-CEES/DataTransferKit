@@ -17,6 +17,7 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_Export.hpp>
@@ -70,6 +71,12 @@ class ConsistentInterpolation
     // field.
     Teuchos::Array<global_ordinal_type> computePointOrdinals(
 	const CoordinateField& coordinate_field );
+
+    // Build the data export map from the coordinate ordinals as well as the
+    // source element/target coordinate pairings.
+    void buildSourceData( 
+	const Teuchos::ArrayRCP<global_ordinal_type>& points,
+	const Teuchos::ArrayRCP<double>& coords );
 
   private:
 
