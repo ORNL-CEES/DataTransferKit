@@ -19,6 +19,7 @@
 #include <Teuchos_ArrayRCP.hpp>
 
 #include <Tpetra_Distributor.hpp>
+#include <Tpetra_MultiVector.hpp>
 
 namespace DataTransferKit
 {
@@ -74,18 +75,58 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     testPostcondition( d_import_map != Teuchos::null,
 		       "Error creating data import map." );
     
-    // Determine the destination of each point in the coordinate field.
-    
+    // Determine the rendezvous destination of each point in the coordinate
+    // field.
+    std::size_t coord_dim = CFT::dim( coordinate_field );
+    CFT::size_type num_coords = CFT::size( coordinate_field );
+    Teuchos::ArrayRCP coords_view( &*CFT::begin( coordinate_field ), 
+				   num_coords );
+    Teuchos::Array<int> rendezvous_procs = 
+	rendezvous.getRendezvousProcs( coords_view );
 
-    // Via an inverse communication operation, send the global point ordinals
+    // Via an inverse communication operation, move the global point ordinals
     // to the rendezvous decomposition.
+    Tpetra::Distributor point_distributor( d_comm );
+    global_ordinal_type num_rendezvous_points = 
+	point_distributor.createFromSends( rendezvous_procs() );
+    Teuchos::Array<global_ordinal_type> 
+	rendezvous_points( num_rendezvous_points );
+    point_distributor.doPostsAndWaits( 
+	import_ordinal_view, 1, rendezvous_points() );
+
+    // Setup Target to rendezvous communication.
+    Teuchos::ArrayView<const global_ordinal_type> rendezvous_points_view =
+	rendezvous_points();
+    RCP_TpetraMap rendezvous_import_map = 
+	Tpetra::createNonContigMap<global_ordinal_type>(
+	    rendezvous_points_view, d_comm );
+    Tpetra::Export point_exporter( d_import_map, rendezvous_import_map );
+    
+    // Move the target coordinates to the rendezvous decomposition.
+    global_ordinal_type num_points = num_coords / coord_dim;
+    Teuchos::RCP< Tpetra::MultiVector<double,global_ordinal_type> > 
+	target_coords =	createMultiVectorFromView( d_import_map, coords_view,
+						   num_points, coord_dim );
+    Tpetra::MultiVector<double,global_ordinal_type> rendezvous_coords(
+	rendezvous_import_map, coord_dim );
+    rendezvous_coords.doExport( *target_coords, point_exporter, Tpetra::INSERT );
 
     // Search the rendezvous decomposition with the points.
+    Teuchos::Array<global_ordinal_type> source_elements =
+	rendezvous.getElements( rendezvous_coords.get1dView() );
+
+    // Setup rendezvous to source communication via an inverse communication
+    // operation. 
+    
 
     // Send the elements / coordinate pairs and the coordinate global ordinals
-    // to the local decomposition via an inverse communication operation.
-
+    // to the source decomposition.
+    
     // Build the data export map from the coordinate ordinals.
+
+    // Build the importer.
+    d_importer = Teuchos::rcp( new Tpetra::Import<global_ordinal_type>(
+				   d_export_map, d_import_map ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -95,10 +136,45 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 template<class Mesh, class CoordinateField>
 template<class SourceField, class TargetField>
 void ConsistentInterpolation<Mesh,CoordinateField>::apply( 
-    const FieldEvaluator<Mesh,SourceField>& source_evaluator,
+    const Teuchos::RCP< FieldEvaluator<Mesh,SourceField> >& source_evaluator,
     TargetField& target_space )
 {
+    typedef FieldTraits<SourceField> SFT;
+    typedef FieldTraits<TargetField> TFT;
 
+    SourceField evaluated_field = 
+	source_evaluator->evaluate( d_source_elements, d_target_coords );
+
+    testPrecondition( SFT::dim( evaluated_field ) == TFT::dim( target_space ),
+		      "Source field dimension != target field dimension." );
+
+    Teuchos::ArrayRCP<SFT::value_type> 
+	source_field_view( &*SFT::begin( evaluated_field ),
+			   SFT::size( evaluated_field ) );
+
+    global_ordinal_type source_size = SFT::size( evaluated_field ) /
+				      SFT::dim( evaluated_field );
+
+    Teuchos::RCP< Tpetra::MultiVector<SFT::value_type> > source_vector =
+	createMultiVectorFromView( d_export_map, 
+				   source_field_view,
+				   source_size,
+				   SFT::dim( evaluated_field ) );
+
+    Teuchos::ArrayRCP<TFT::value_type> target_field_view(
+	&*TFT::begin( target_space ),
+	TFT::size( target_space ) );
+    
+    global_ordinal_type target_size = TFT::size( target_space ) /
+				      FFT::dim( target_space );
+
+    Teuchos::RCP< Tpetra::MultiVector<TFT::value_type> > target_vector =
+	createMultiVectorFromView( d_import_map, 
+				   target_field_view,
+				   target_size,
+				   TFT::dim( target_space ) );
+
+    target_vector->doImport( *source_vector, *d_importer, Tpetra::INSERT );
 }
 
 //---------------------------------------------------------------------------//

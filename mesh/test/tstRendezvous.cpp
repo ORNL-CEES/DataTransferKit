@@ -24,6 +24,8 @@
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
 
@@ -283,7 +285,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 	int global_num_quads = local_num_quads*my_size;
 	int idx;
 	int node_dim = 2;
-	Teuchos::Array<double> coords( node_dim*global_num_quads );
+	Teuchos::ArrayRCP<double> coords( node_dim*global_num_quads );
 	for ( int j = 0; j < local_num_quads; ++j )
 	{
 	    for ( int i = 0; i < local_num_quads; ++i )
@@ -294,8 +296,8 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 	    }
 	}
 
-	Teuchos::Array<int> destinations = rendezvous.getRendezvousProcs( coords );
-	std::cout << destinations << std::endl;
+	Teuchos::Array<int> destinations = 
+	    rendezvous.getRendezvousProcs( coords );
 	TEST_ASSERT( destinations.size() == global_num_quads );
 	TEST_ASSERT( destinations[0] == 0 );
 	TEST_ASSERT( destinations[1] == 0 );
@@ -317,7 +319,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 	// Check the kD-tree with coordinates.
 	if ( my_rank == 0 )
 	{
-	    Teuchos::Array<double> 
+	    Teuchos::ArrayRCP<double> 
 		target_coords( node_dim*global_num_quads / 4 );
 
 	    target_coords[0] = coords[ 0 ];
@@ -342,7 +344,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 	}
 	if ( my_rank == 1 )
 	{
-	    Teuchos::Array<double> 
+	    Teuchos::ArrayRCP<double> 
 		target_coords( node_dim*global_num_quads / 4 );
 
 	    target_coords[0] = coords[ 2 ];
@@ -367,7 +369,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 	}
 	if ( my_rank == 2 )
 	{
-	    Teuchos::Array<double> 
+	    Teuchos::ArrayRCP<double> 
 		target_coords( node_dim*global_num_quads / 4 );
 
 	    target_coords[0] = coords[ 8 ];
@@ -392,7 +394,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 	}
 	if ( my_rank == 3 )
 	{
-	    Teuchos::Array<double> 
+	    Teuchos::ArrayRCP<double> 
 		target_coords( node_dim*global_num_quads / 4 );
 
 	    target_coords[0] = coords[ 10 ];

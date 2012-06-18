@@ -67,7 +67,7 @@ TEUCHOS_UNIT_TEST( TransferOperator, transfer_operator_test )
 		  pressure_evaluator = Teuchos::rcp(
 		      new  PressureEvaluator() );
 
-    // Create a mapping for a consistent interpolation scheme.
+    // Create a map for a consistent interpolation scheme.
     ConsistentInterpolation map( comm );
 
     // Setup and apply the transfer operator to the fields.

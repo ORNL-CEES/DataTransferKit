@@ -49,7 +49,7 @@ ENDIF()
 #
 
 TRIBITS_ADD_LIBRARY(
-   Map
+   Field
    HEADERS ${HEADERS}
    SOURCES ${SOURCES}
    )

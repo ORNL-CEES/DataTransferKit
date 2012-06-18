@@ -97,7 +97,7 @@ Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
     double point[3];
     GlobalOrdinal num_points = coords.size() / d_node_dim;
     int rendezvous_proc;
-    Teuchos::Array<int> destination_procs;
+    Teuchos::Array<int> destination_procs( num_points );
     for ( GlobalOrdinal n = 0; n < num_points; ++n )
     {
 	for ( std::size_t d = 0; d < d_node_dim; ++d )
@@ -109,7 +109,7 @@ Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
 	    point[d] = 0.0;
 	}
 	rendezvous_proc = d_rcb->getDestinationProc( point );
-	destination_procs.push_back( rendezvous_proc );
+	destination_procs[n] = rendezvous_proc;
     }
 
     testPostcondition( static_cast<GlobalOrdinal>( destination_procs.size() )
@@ -131,7 +131,7 @@ Rendezvous<Mesh>::getElements( const Teuchos::ArrayRCP<double>& coords ) const
     Teuchos::Array<double> point( d_node_dim );
     GlobalOrdinal element_ordinal;
     GlobalOrdinal num_points = coords.size() / d_node_dim;
-    Teuchos::Array<GlobalOrdinal> element_ordinals;
+    Teuchos::Array<GlobalOrdinal> element_ordinals( num_points );
     for ( GlobalOrdinal n = 0; n < num_points; ++n )
     {
 	for ( std::size_t d = 0; d < d_node_dim; ++d )
@@ -139,7 +139,7 @@ Rendezvous<Mesh>::getElements( const Teuchos::ArrayRCP<double>& coords ) const
 	    point[d] = coords[ d*num_points + n ];
 	}
 	element_ordinal = d_kdtree->findPoint( point );
-	element_ordinals.push_back( element_ordinal );
+	element_ordinals[n] = element_ordinal;
     }
 
     testPostcondition( static_cast<GlobalOrdinal>( element_ordinals.size() )
@@ -299,17 +299,18 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     GlobalOrdinal num_coords = d_node_dim*num_nodes;
     Teuchos::ArrayRCP<double> export_coords_view( 
 	(double*) &*MT::coordsBegin( mesh ), 0, num_coords, false );
-    Teuchos::RCP< Tpetra::MultiVector<double> > export_coords = 
+    Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > export_coords = 
 	createMultiVectorFromView( export_node_map, export_coords_view, 
 				   num_nodes, d_node_dim );
-    Tpetra::MultiVector<double> import_coords( import_node_map, d_node_dim );
+    Tpetra::MultiVector<double,GlobalOrdinal> 
+	import_coords( import_node_map, d_node_dim );
     import_coords.doImport( *export_coords, node_importer, Tpetra::INSERT );
 
     // Move the element connectivity to the rendezvous decomposition.
     int nodes_per_element = MT::nodesPerElement( mesh );
     GlobalOrdinal num_conn = nodes_per_element * num_elements;
     Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view( 
-	(GlobalOrdinal*) &*MT::connectivityBegin( mesh ),	0, num_conn, false );
+	(GlobalOrdinal*) &*MT::connectivityBegin( mesh ), 0, num_conn, false );
     Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > export_conn = 
 	createMultiVectorFromView( export_element_map, export_conn_view, 
 				   num_elements, nodes_per_element );

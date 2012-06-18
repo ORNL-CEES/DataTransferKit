@@ -1,9 +1,9 @@
 SET(REGRESSION_EMAIL_LIST casl-vri-testing@casl.gov)
 
 SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
-  Utils  utils  SS  REQUIRED
-  Mesh   mesh   SS  REQUIRED
-  Map    map    SS  REQUIRED
+  Utils  utils    SS  REQUIRED
+  Mesh   mesh     SS  REQUIRED
+  Field  field    SS  REQUIRED
   ) 
 
 SET(LIB_REQUIRED_DEP_PACKAGES)
