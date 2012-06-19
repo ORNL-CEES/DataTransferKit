@@ -15,6 +15,8 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ScalarTraits.hpp>
 
+namespace DataTransferKit
+{
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the local bounding box for a mesh.
@@ -22,15 +24,15 @@
 template<class Mesh>
 BoundingBox MeshTools<Mesh>::localBoundingBox( const Mesh& mesh )
 {
-    double x_min = Teuchos::ScalarTraits<double>::rmin();
-    double y_min = Teuchos::ScalarTraits<double>::rmin();
-    double z_min = Teuchos::ScalarTraits<double>::rmin();
+    double x_min = -Teuchos::ScalarTraits<double>::rmax();
+    double y_min = -Teuchos::ScalarTraits<double>::rmax();
+    double z_min = -Teuchos::ScalarTraits<double>::rmax();
 
     double x_max = Teuchos::ScalarTraits<double>::rmax();
     double y_max = Teuchos::ScalarTraits<double>::rmax();
     double z_max = Teuchos::ScalarTraits<double>::rmax();
 
-    MT::global_ordinal_type num_nodes =
+    typename MT::global_ordinal_type num_nodes =
 	std::distance( MT::nodesBegin( mesh ),
 		       MT::nodesEnd( mesh ) );
     std::size_t node_dim = MT::nodeDim( mesh );
@@ -121,6 +123,8 @@ BoundingBox MeshTools<Mesh>::globalBoundingBox( const Mesh& mesh,
 }
 
 //---------------------------------------------------------------------------//
+
+} // end namespace DataTransferKit
 
 #endif // end DTK_MESHTOOLS_DEF_HPP
 

@@ -27,7 +27,7 @@ class FieldTools
     //! Typedefs. 
     typedef Field                           field_type;
     typedef FieldTraits<Field>              FT;
-    typedef FT::value_type                  value_type;
+    typedef typename FT::value_type         value_type;
     typedef Teuchos::Comm<int>              CommType;
     typedef Teuchos::RCP<const CommType>    RCP_Comm;
     //@}
@@ -41,11 +41,11 @@ class FieldTools
     { /* ... */ }
 
     // Get the local bounding box for a coordinate field.
-    BoundingBox coordLocalBoundingBox( const Field& field );
+    static BoundingBox coordLocalBoundingBox( const Field& field );
 
     // Get the global bounding box for a coordinate field.
-    BoundingBox coordGlobalBoundingBox( const Field& field,
-					const RCP_Comm& comm );
+    static BoundingBox coordGlobalBoundingBox( const Field& field,
+					       const RCP_Comm& comm );
 
     // Get the infinity norm of a given field dimension.
     static value_type normInf( const std::size_t dim );

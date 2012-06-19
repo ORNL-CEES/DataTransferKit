@@ -26,9 +26,9 @@ namespace DataTransferKit
 template<class Field>
 BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
 {
-    double x_min = Teuchos::ScalarTraits<double>::rmin();
-    double y_min = Teuchos::ScalarTraits<double>::rmin();
-    double z_min = Teuchos::ScalarTraits<double>::rmin();
+    double x_min = -Teuchos::ScalarTraits<double>::rmax();
+    double y_min = -Teuchos::ScalarTraits<double>::rmax();
+    double z_min = -Teuchos::ScalarTraits<double>::rmax();
 
     double x_max = Teuchos::ScalarTraits<double>::rmax();
     double y_max = Teuchos::ScalarTraits<double>::rmax();
@@ -36,8 +36,8 @@ BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
 
     std::size_t dim = FT::dim( field );
 
-    FT::size_type num_elements = std::distance( FT::begin( field ),
-						FT::end( field ) ) / dim;
+    typename FT::size_type num_elements = 
+	std::distance( FT::begin( field ), FT::end( field ) ) / dim;
 
 
     if ( dim > 0 )

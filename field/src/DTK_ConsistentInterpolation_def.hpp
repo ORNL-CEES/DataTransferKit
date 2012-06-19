@@ -6,18 +6,21 @@
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CONSISTENTINTERPOLATION_HPP
-#define DTK_CONSISTENTINTERPOLATION_HPP
+#ifndef DTK_CONSISTENTINTERPOLATION_DEF_HPP
+#define DTK_CONSISTENTINTERPOLATION_DEF_HPP
 
 #include <set>
 
+#include "DTK_FieldTools.hpp"
 #include <DTK_Exception.hpp>
 #include <DTK_Rendezvous.hpp>
 #include <DTK_MeshTools.hpp>
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ENull.hpp>
+#include <Teuchos_ScalarTraits.hpp>
 
+#include <Tpetra_Export.hpp>
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_MultiVector.hpp>
 
@@ -63,6 +66,7 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, rendezvous_box );
+    rendezvous.build( mesh );
 
     // Compute a unique global ordinal for each point in the coordinate field.
     Teuchos::Array<global_ordinal_type> point_ordinals = 
@@ -75,14 +79,14 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 	import_ordinal_view, d_comm );
     testPostcondition( d_import_map != Teuchos::null,
 		       "Error creating data import map." );
-    
+
     // Determine the rendezvous destination proc of each point in the
     // coordinate field.
     std::size_t coord_dim = CFT::dim( coordinate_field );
-    CFT::size_type num_coords = CFT::size( coordinate_field );
-    Teuchos::ArrayRCP<double> coords_view( &*CFT::begin( coordinate_field ), 
-					   0, num_coords, false );
-    Teuchos::Array<int> rendezvous_procs = 
+    typename CFT::size_type num_coords = CFT::size( coordinate_field );
+    Teuchos::ArrayRCP<double> coords_view( 
+	(double*) &*CFT::begin( coordinate_field ), 0, num_coords, false );
+   Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.getRendezvousProcs( coords_view );
 
     // Via an inverse communication operation, move the global point ordinals
@@ -101,22 +105,23 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     RCP_TpetraMap rendezvous_import_map = 
 	Tpetra::createNonContigMap<global_ordinal_type>(
 	    rendezvous_points_view, d_comm );
-    Tpetra::Export point_exporter( d_import_map, rendezvous_import_map );
-    
+    Tpetra::Export<global_ordinal_type> 
+	point_exporter( d_import_map, rendezvous_import_map );
+
     // Move the target coordinates to the rendezvous decomposition.
     global_ordinal_type num_points = num_coords / coord_dim;
-    Teuchos::RCP< Tpetra::MultiVector<double,global_ordinal_type> > 
+    Teuchos::RCP< Tpetra::MultiVector<double> > 
 	target_coords =	createMultiVectorFromView( d_import_map, coords_view,
 						   num_points, coord_dim );
-    Tpetra::MultiVector<double,global_ordinal_type> rendezvous_coords(
-	rendezvous_import_map, coord_dim );
+    Tpetra::MultiVector<double> rendezvous_coords( rendezvous_import_map, 
+						   coord_dim );
     rendezvous_coords.doExport( *target_coords, point_exporter, 
 				Tpetra::INSERT );
 
     // Search the rendezvous decomposition with the target points to get the
     // source elements that contain them.
     Teuchos::Array<global_ordinal_type> rendezvous_elements =
-	rendezvous.getElements( rendezvous_coords.get1dView() );
+	rendezvous.getElements( rendezvous_coords.get1dViewNonConst() );
 
     // Setup source-to-rendezvous communication.
     global_ordinal_type num_elements = 
@@ -134,37 +139,39 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 	    rendezvous_elements_view, d_comm );
 
     Tpetra::Import<global_ordinal_type> source_importer( 
-	rendezvous_element_map, mesh_element_map );
+	mesh_element_map, rendezvous_element_map );
 
     // Elements send their source decomposition proc to the rendezvous
     // decomposition.
-    Tpetra::MultiVector<double,global_ordinal_type> source_procs(
+    Tpetra::MultiVector<int,global_ordinal_type> source_procs(
 	mesh_element_map, 1 );
     source_procs.putScalar( d_comm->getRank() );
-    Teuchos::RCP< Tpetra::MultiVector<double> > rendezvous_source_procs( 
+    Tpetra::MultiVector<int> rendezvous_source_procs( 
 	rendezvous_element_map, 1 );
-    rendezvous_source_procs->doImport( *source_procs, source_importer, 
-				       Tpetra::INSERT );
+    rendezvous_source_procs.doImport( source_procs, source_importer, 
+				      Tpetra::INSERT );
 
     // Send the elements to the source decomposition via inverse
     // communication. 
     Tpetra::Distributor source_distributor( d_comm );
     global_ordinal_type num_source_elements = 
 	source_distributor.createFromSends( 
-	    rendezvous_source_procs->get1dView() );
+	    rendezvous_source_procs.get1dView()() );
+    d_source_elements.resize( num_source_elements );
     source_distributor.doPostsAndWaits( rendezvous_elements_view, 1,
 					d_source_elements() );
 
     // Send the point coordinates to the source decomposition via inverse
     // communication. 
     Teuchos::ArrayView<const double> rendezvous_coords_view =
-	rendezvous_coords.get1dView();
+	rendezvous_coords.get1dView()();
+    d_target_coords.resize( num_source_elements*coord_dim );
     source_distributor.doPostsAndWaits( rendezvous_coords_view, coord_dim,
 					d_target_coords() );
 
     // Send the point global ordinals to the source decomposition via inverse
     // communication. 
-    Teuchos::Array<global_ordinal_type> source_points,
+    Teuchos::Array<global_ordinal_type> source_points( num_source_elements );
     source_distributor.doPostsAndWaits( rendezvous_points_view, 1,
 					source_points() );
 
@@ -198,32 +205,33 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
     typedef FieldTraits<TargetField> TFT;
 
     SourceField evaluated_field = 
-	source_evaluator->evaluate( d_source_elements, d_target_coords );
+	source_evaluator->evaluate( Teuchos::arcpFromArray( d_source_elements ), 
+				    Teuchos::arcpFromArray( d_target_coords ) );
 
     testPrecondition( SFT::dim( evaluated_field ) == TFT::dim( target_space ),
 		      "Source field dimension != target field dimension." );
 
-    Teuchos::ArrayRCP<SFT::value_type> 
-	source_field_view( &*SFT::begin( evaluated_field ), 0
-			   SFT::size( evaluated_field ), false );
+    Teuchos::ArrayRCP<typename SFT::value_type> source_field_view(
+	&*SFT::begin( evaluated_field ), 0, 
+	SFT::size( evaluated_field ), false );
 
     global_ordinal_type source_size = SFT::size( evaluated_field ) /
 				      SFT::dim( evaluated_field );
 
-    Teuchos::RCP< Tpetra::MultiVector<SFT::value_type> > source_vector =
+    Teuchos::RCP< Tpetra::MultiVector<typename SFT::value_type> > source_vector =
 	createMultiVectorFromView( d_export_map, 
 				   source_field_view,
 				   source_size,
 				   SFT::dim( evaluated_field ) );
 
-    Teuchos::ArrayRCP<TFT::value_type> target_field_view(
-	&*TFT::begin( target_space ), 0
+    Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(
+	&*TFT::begin( target_space ), 0,
 	TFT::size( target_space ), false );
     
     global_ordinal_type target_size = TFT::size( target_space ) /
-				      FFT::dim( target_space );
+				      TFT::dim( target_space );
 
-    Teuchos::RCP< Tpetra::MultiVector<TFT::value_type> > target_vector =
+    Teuchos::RCP< Tpetra::MultiVector<typename TFT::value_type> > target_vector =
 	createMultiVectorFromView( d_import_map, 
 				   target_field_view,
 				   target_size,
@@ -245,12 +253,12 @@ BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
     
     // Get the coords in the mesh box.
     std::size_t point_dim = CFT::dim( coordinate_field );
-    CFT::size_type num_points = 
+    typename CFT::size_type num_points = 
 	std::distance( CFT::begin( coordinate_field ),
 		       CFT::end( coordinate_field ) ) / point_dim;
-    CFT::const_iterator point_coords = CFT::begin( coordinate_field );
+    typename CFT::const_iterator point_coords = CFT::begin( coordinate_field );
     double point[3];
-    for ( CFT::size_type n = 0; n < num_points; ++n )
+    for ( typename CFT::size_type n = 0; n < num_points; ++n )
     {
 	for ( std::size_t d = 0; d < point_dim; ++d )
 	{
@@ -261,7 +269,7 @@ BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
 	    point[d] = 0.0;
 	}
 
-	if ( pointInBox( point ) )
+	if ( mesh_box.pointInBox( point ) )
 	{
 	    x_values.insert( point[0] );
 	    y_values.insert( point[1] );
@@ -271,9 +279,9 @@ BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
 
     // Get the mesh nodes in the coord box.
     std::size_t node_dim = MT::nodeDim( mesh );
-    MT::size_type num_nodes = 
-	std::distance( MT::begin( mesh ), MT::end( mesh ) ) / node_dim;
-    MT::const_iterator node_coords = MT::coordsBegin( mesh );
+    typename MT::global_ordinal_type num_nodes = 
+	std::distance( MT::nodesBegin( mesh ), MT::nodesEnd( mesh ) ) / node_dim;
+    typename MT::const_coordinate_iterator node_coords = MT::coordsBegin( mesh );
     double node[3];
     for ( global_ordinal_type n = 0; n < num_nodes; ++n )
     {
@@ -286,7 +294,7 @@ BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
 	    node[d] = 0.0;
 	}
 
-	if ( nodeInBox( node ) )
+	if ( coord_box.pointInBox( node ) )
 	{
 	    x_values.insert( node[0] );
 	    y_values.insert( node[1] );
@@ -294,45 +302,70 @@ BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
 	}
     }
 
+    // Compute the local min and max values.
+    double local_x_min = *x_values.begin();
+    double local_y_min = *y_values.begin();
+    double local_z_min = *z_values.begin();
+
+    double local_x_max = *x_values.rbegin();
+    double local_y_max = *y_values.rbegin();
+    double local_z_max = *z_values.rbegin();
+
+    x_values.clear();
+    y_values.clear();
+    z_values.clear();
+
     // Compute the global bounding box for the collected coordinates.
-    double global_x_min, global_y_min, global_z_min;
-    double global_x_max, global_y_max, global_z_max;
+    double global_x_min = -Teuchos::ScalarTraits<double>::rmax();
+    double global_y_min = -Teuchos::ScalarTraits<double>::rmax();
+    double global_z_min = -Teuchos::ScalarTraits<double>::rmax();
 
-    Teuchos::reduceAll<int,double>( *d_comm, 
-				    Teuchos::REDUCE_MIN,
-				    x_values.size(),
-				    &x_values[0],
-				    &global_x_min );
+    double global_x_max = Teuchos::ScalarTraits<double>::rmax();
+    double global_y_max = Teuchos::ScalarTraits<double>::rmax();
+    double global_z_max = Teuchos::ScalarTraits<double>::rmax();
+    
+    if ( point_dim > 0 )
+    {
+	Teuchos::reduceAll<int,double>( *d_comm, 
+					Teuchos::REDUCE_MIN,
+					1,
+					&local_x_min,
+					&global_x_min );
 
-    Teuchos::reduceAll<int,double>( *d_comm, 
-				    Teuchos::REDUCE_MIN,
-				    y_values.size(),
-				    &y_values[0],
-				    &global_y_min );
+	Teuchos::reduceAll<int,double>( *d_comm, 
+					Teuchos::REDUCE_MAX,
+					1,
+					&local_x_max,
+					&global_x_max );
+    }
+    if ( point_dim > 1 )
+    {
+	Teuchos::reduceAll<int,double>( *d_comm, 
+					Teuchos::REDUCE_MIN,
+					1,
+					&local_y_min,
+					&global_y_min );
 
-    Teuchos::reduceAll<int,double>( *d_comm, 
-				    Teuchos::REDUCE_MIN,
-				    z_values.size(),
-				    &z_values[0],
-				    &global_z_min );
+	Teuchos::reduceAll<int,double>( *d_comm, 
+					Teuchos::REDUCE_MAX,
+					1,
+					&local_y_max,
+					&global_y_max );
+    }
+    if ( point_dim > 2 )
+    {
+	Teuchos::reduceAll<int,double>( *d_comm, 
+					Teuchos::REDUCE_MIN,
+					1,
+					&local_z_min,
+					&global_z_min );
 
-    Teuchos::reduceAll<int,double>( *d_comm, 
-				    Teuchos::REDUCE_MAX,
-				    x_values.size(),
-				    &x_values[0],
-				    &global_x_max );
-
-    Teuchos::reduceAll<int,double>( *d_comm, 
-				    Teuchos::REDUCE_MAX,
-				    y_values.size(),
-				    &y_values[0],
-				    &global_y_max );
-
-    Teuchos::reduceAll<int,double>( *d_comm, 
-				    Teuchos::REDUCE_MAX,
-				    z_values.size(),
-				    &z_values[0],
-				    &global_z_max );
+	Teuchos::reduceAll<int,double>( *d_comm, 
+					Teuchos::REDUCE_MAX,
+					1,
+					&local_z_max,
+					&global_z_max );
+    }
 
     return BoundingBox( global_x_min, global_y_min, global_z_min,
 			global_x_max, global_y_max, global_z_max );
@@ -344,7 +377,8 @@ BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
  * field. 
  */
 template<class Mesh, class CoordinateField>
-Teuchos::Array<global_ordinal_type> 
+Teuchos::Array<
+typename ConsistentInterpolation<Mesh,CoordinateField>::global_ordinal_type>
 ConsistentInterpolation<Mesh,CoordinateField>::computePointOrdinals(
     const CoordinateField& coordinate_field )
 {
@@ -366,6 +400,7 @@ ConsistentInterpolation<Mesh,CoordinateField>::computePointOrdinals(
     {
 	point_ordinals[n] = comm_rank*global_size + n;
     }
+    return point_ordinals;
 }
 
 //---------------------------------------------------------------------------//

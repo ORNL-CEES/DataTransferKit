@@ -10,7 +10,7 @@
 #define DTK_CONSISTENTINTERPOLATION_HPP
 
 #include "DTK_FieldTraits.hpp"
-#include "DTK_FieldEvaluator"
+#include "DTK_FieldEvaluator.hpp"
 #include <DTK_MeshTraits.hpp>
 #include <DTK_BoundingBox.hpp>
 
@@ -20,7 +20,7 @@
 #include <Teuchos_ArrayRCP.hpp>
 
 #include <Tpetra_Map.hpp>
-#include <Tpetra_Export.hpp>
+#include <Tpetra_Import.hpp>
 
 namespace DataTransferKit
 {
@@ -34,12 +34,12 @@ class ConsistentInterpolation
     //! Typedefs.
     typedef Mesh                                      mesh_type;
     typedef MeshTraits<Mesh>                          MT;
-    typedef MT::global_ordinal_type                   global_ordinal_type;
+    typedef typename MT::global_ordinal_type          global_ordinal_type;
     typedef CoordinateField                           coord_field_type;
     typedef FieldTraits<CoordinateField>              CFT;
     typedef Teuchos::Comm<int>                        CommType;
-    typedef Teuchos:RCP<CommType>                     RCP_Comm;
-    typedef Teuchos::TpetraMap<global_ordinal_type>   TpetraMap;
+    typedef Teuchos::RCP<const CommType>              RCP_Comm;
+    typedef Tpetra::Map<global_ordinal_type>          TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
     typedef Tpetra::Import<global_ordinal_type>       ImportType;
     typedef Teuchos::RCP<ImportType>                  RCP_Import;

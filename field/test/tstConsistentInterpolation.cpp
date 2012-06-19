@@ -104,7 +104,56 @@ class MyMesh
 };
 
 //---------------------------------------------------------------------------//
-// DTK Traits Specializations
+// Field implementation.
+//---------------------------------------------------------------------------//
+class MyField
+{
+  public:
+
+    typedef double value_type;
+    typedef Teuchos::Array<double>::size_type size_type;
+    typedef Teuchos::Array<double>::iterator iterator;
+    typedef Teuchos::Array<double>::const_iterator const_iterator;
+
+    MyField( size_type size, std::size_t dim )
+	: d_dim( dim )
+	, d_data( size )
+    { /* ... */ }
+
+    ~MyField()
+    { /* ... */ }
+
+    std::size_t dim() const
+    { return d_dim; }
+
+    size_type size() const
+    { return d_data.size(); }
+
+    bool empty() const
+    { return d_data.empty(); }
+
+    iterator begin()
+    { return d_data.begin(); }
+
+    const_iterator begin() const
+    { return d_data.begin(); }
+
+    iterator end()
+    { return d_data.end(); }
+
+    const_iterator end() const
+    { return d_data.end(); }
+
+    const Teuchos::Array<double>& getData() const
+    { return d_data; }
+
+  private:
+    std::size_t d_dim;
+    Teuchos::Array<double> d_data;
+};
+
+//---------------------------------------------------------------------------//
+// DTK implementations.
 //---------------------------------------------------------------------------//
 namespace DataTransferKit
 {
@@ -162,45 +211,109 @@ class MeshTraits<MyMesh>
 };
 
 //---------------------------------------------------------------------------//
-// Field Traits specification for Teuchos::Array
+// Field Traits specification for MyField
 template<>
-class FieldTraits< Teuchos::Array<double> >
+class FieldTraits<MyField>
 {
   public:
 
-    typedef Teuchos::Array<double>                    field_type;
+    typedef MyField                    field_type;
     typedef double                                    value_type;
-    typedef Teuchos::Array<double>::size_type         size_type;
-    typedef Teuchos::Array<double>::iterator          iterator;
-    typedef Teuchos::Array<double>::const_iterator    const_iterator;
+    typedef MyField::size_type         size_type;
+    typedef MyField::iterator          iterator;
+    typedef MyField::const_iterator    const_iterator;
 
-    static inline size_type dim( const Teuchos::Array<double>& field )
-    { return 1; }
+    static inline size_type dim( const MyField& field )
+    { return field.dim(); }
 
-    static inline size_type size( const Teuchos::Array<double>& field )
+    static inline size_type size( const MyField& field )
     { return field.size(); }
 
-    static inline bool empty( const Teuchos::Array<double>& field )
+    static inline bool empty( const MyField& field )
     { return field.empty(); }
 
-    static inline iterator begin( Teuchos::Array<double>& field )
+    static inline iterator begin( MyField& field )
     { return field.begin(); }
 
-    static inline const_iterator begin( Teuchos::Array<double>& field ) const
+    static inline const_iterator begin( const MyField& field )
     { return field.begin(); }
 
-    static inline iterator end( Teuchos::Array<double>& field )
+    static inline iterator end( MyField& field )
     { return field.end(); }
 
-    static inline const_iterator end( Teuchos::Array<double>& field ) const
+    static inline const_iterator end( const MyField& field )
     { return field.end(); }
 };
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// FieldEvaluator Implementation.
+class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
+{
+  public:
+
+    MyEvaluator( const MyMesh& mesh, 
+		 const Teuchos::RCP< const Teuchos::Comm<int> >& comm )
+	: d_mesh( mesh )
+	, d_comm( comm )
+    { /* ... */ }
+
+    ~MyEvaluator()
+    { /* ... */ }
+
+    MyField evaluate( 
+	const Teuchos::ArrayRCP<MyMesh::global_ordinal_type>& elements,
+	const Teuchos::ArrayRCP<double>& coords )
+    {
+	MyField evaluated_data( elements.size(), 1 );
+	for ( int n = 0; n < elements.size(); ++n )
+	{
+	    if ( std::find( d_mesh.quadsBegin(),
+			    d_mesh.quadsEnd(),
+			    elements[n] ) != d_mesh.quadsEnd() )
+	    {
+		*(evaluated_data.begin() + n ) = d_comm->getRank() + 1.0;
+	    }
+	    else
+	    {
+		*(evaluated_data.begin() + n ) = 0.0;
+	    }
+	}
+	return evaluated_data;
+    }
+
+  private:
+
+    MyMesh d_mesh;
+    Teuchos::RCP< const Teuchos::Comm<int> > d_comm;
+};
+
+//---------------------------------------------------------------------------//
 // Mesh create funciton.
 //---------------------------------------------------------------------------//
+/*
+  Make the following mesh partitioned on 4 processors.
+
+  *-------*-------*-------*-------*
+  |       |       |       |       |
+  |   0   |   1   |   2   |   3   |
+  |       |       |       |       |
+  *-------*-------*-------*-------*
+  |       |       |       |       |
+  |   0   |   1   |   2   |   3   |
+  |       |       |       |       |
+  *-------*-------*-------*-------*
+  |       |       |       |       |
+  |   0   |   1   |   2   |   3   |
+  |       |       |       |       |
+  *-------*-------*-------*-------*
+  |       |       |       |       |
+  |   0   |   1   |   2   |   3   |
+  |       |       |       |       |
+  *-------*-------*-------*-------*
+
+ */
 MyMesh buildMyMesh()
 {
     int my_rank = getDefaultComm<int>()->getRank();
@@ -244,14 +357,56 @@ MyMesh buildMyMesh()
 }
 
 //---------------------------------------------------------------------------//
+// Coordinate field create function.
+//---------------------------------------------------------------------------//
+/*
+  Make the following coordinate field partitioned on 4 processors.
+
+   ------- ------- ------- -------
+  |       |       |       |       |
+  |   *   |   *   |   *   |   *   |
+  |   3   |   3   |   3   |   3   |
+   ------- ------- ------- ------- 
+  |       |       |       |       |
+  |   *   |   *   |   *   |   *   |
+  |   2   |   2   |   2   |   2   |
+   ------- ------- ------- ------- 
+  |       |       |       |       |
+  |   *   |   *   |   *   |   *   |
+  |   1   |   1   |   1   |   1   |
+   ------- ------- ------- ------- 
+  |       |       |       |       |
+  |   *   |   *   |   *   |   *   |
+  |   0   |   0   |   0   |   0   |
+   ------- ------- ------- ------- 
+
+ */
+MyField buildCoordinateField()
+{
+    int num_points = 4;
+    int point_dim = 2;
+    MyField coordinate_field( num_points*point_dim, point_dim );
+
+    for ( int i = 0; i < num_points; ++i )
+    {
+	*(coordinate_field.begin() + i) = i + 0.5;
+	*(coordinate_field.begin() + num_points + i ) = 
+	    getDefaultComm<int>()->getRank() + 0.5;
+    }
+
+    return coordinate_field;
+}
+
+//---------------------------------------------------------------------------//
 // Unit tests
 //---------------------------------------------------------------------------//
 
 TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test )
 {
+    using namespace DataTransferKit;
+
     // Setup communication.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    int my_rank = comm->getRank();
+    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
     int my_size = comm->getSize();
 
     // This is a 4 processor test.
@@ -261,23 +416,26 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test )
 	MyMesh source_mesh = buildMyMesh();
 
 	// Setup target coordinate field.
-	Teuchos::Array<double> target_coords = buildCoordinateField();
+	MyField target_coords = buildCoordinateField();
 
 	// Create field evaluator.
-	Teuchos::RCP< FieldEvaluator<MyMesh,Teuchos::Array<double> > 
-		      my_evaluator = Teuchos::rcp( new MyEvaluator() );
+	Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > my_evaluator = 
+	    Teuchos::rcp( new MyEvaluator( source_mesh, comm ) );
 
 	// Create data target.
-	Teuchos::Array<double> my_target;
-
-	// Create a map for a consistent interpolation scheme.
-	ConsistentInterpolation map( comm );
+	MyField my_target( target_coords.size() / target_coords.dim(), 1 );
 
 	// Setup and apply the interpolation to the field.
-	ConsistentInterpolation<MyMesh,Teuchos::Array<double> > 
-		      transfer_operator( map );
-	transfer_operator.setup( source_mesh, target_coords );
-	transfer_operator.apply( my_evaluator, my_target );
+	ConsistentInterpolation<MyMesh,MyField> 
+	    consistent_interpolation( comm );
+	consistent_interpolation.setup( source_mesh, target_coords );
+	consistent_interpolation.apply( my_evaluator, my_target );
+
+	// Check the data transfer.
+	for ( int n = 0; n < my_target.size(); ++n )
+	{
+	    TEST_ASSERT( *(my_target.begin()+n) == n + 1 );
+	}
     }
 }
 

@@ -7,7 +7,7 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_FieldVersion.hpp"
-#include "Trilinos_fieldversion.h"
+#include "Trilinos_Version.h"
 
 namespace DataTransferKit
 {
