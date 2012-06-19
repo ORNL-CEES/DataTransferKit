@@ -53,8 +53,9 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     BoundingBox mesh_box = MeshTools<Mesh>::globalBoundingBox( mesh, d_comm );
 
     // Get the global bounding box for the coordinate field.
-    BoundingBox coord_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
-	coordinate_field, d_comm );
+    BoundingBox coord_box = 
+	FieldTools<CoordinateField>::coordGlobalBoundingBox(
+	    coordinate_field, d_comm );
 
     // Intersect the boxes to get the rendezvous bounding box.
     BoundingBox rendezvous_box = buildRendezvousBox( 
@@ -67,7 +68,7 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     Teuchos::Array<global_ordinal_type> point_ordinals = 
 	computePointOrdinals( coordinate_field );
 
-    // Build the data import map from the global ordinals.
+    // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const global_ordinal_type> import_ordinal_view =
 	point_ordinals();
     d_import_map = Tpetra::createNonContigMap<global_ordinal_type>(
@@ -94,7 +95,7 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     point_distributor.doPostsAndWaits( 
 	import_ordinal_view, 1, rendezvous_points() );
 
-    // Setup Target to rendezvous communication.
+    // Setup Target-to-rendezvous communication.
     Teuchos::ArrayView<const global_ordinal_type> rendezvous_points_view =
 	rendezvous_points();
     RCP_TpetraMap rendezvous_import_map = 
@@ -109,16 +110,17 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 						   num_points, coord_dim );
     Tpetra::MultiVector<double,global_ordinal_type> rendezvous_coords(
 	rendezvous_import_map, coord_dim );
-    rendezvous_coords.doExport( *target_coords, point_exporter, Tpetra::INSERT );
+    rendezvous_coords.doExport( *target_coords, point_exporter, 
+				Tpetra::INSERT );
 
-    // Search the rendezvous decomposition with the points to get the source
-    // elements that contain them.
+    // Search the rendezvous decomposition with the target points to get the
+    // source elements that contain them.
     Teuchos::Array<global_ordinal_type> rendezvous_elements =
 	rendezvous.getElements( rendezvous_coords.get1dView() );
 
-    // Setup rendezvous to source communication.
-    global_ordinal_type num_elements = std::distance( MT::elementsBegin( mesh ), 
-						      MT::elementsEnd( mesh ) );
+    // Setup source-to-rendezvous communication.
+    global_ordinal_type num_elements = 
+	std::distance( MT::elementsBegin( mesh ), MT::elementsEnd( mesh ) );
     Teuchos::ArrayView<const global_ordinal_type> mesh_element_view(
 	&*MT::elementsBegin( mesh ), num_elements );
     RCP_TpetraMap mesh_element_map = 
@@ -131,33 +133,49 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 	Tpetra::createNonContigMap<global_ordinal_type>( 
 	    rendezvous_elements_view, d_comm );
 
-    Tpetra::Import<global_ordinal_type> source_importer( rendezvous_element_map,
-							 mesh_element_map );
+    Tpetra::Import<global_ordinal_type> source_importer( 
+	rendezvous_element_map, mesh_element_map );
 
-    // Send the point coordinates to the source decomposition.
-    
-    Teuchos::RCP< Tpetra::MultiVector<double,global_ordinal_type> > 
-	rendezvous_export_coords = createMultiVectorFromView( 
-	    rendezvous_element_map, rendezvous_coords.get1dView(),
-	    num_rendezvous_points, coord_dim );
-    Tpetra::MultiVector<double,global_ordinal_type> source_coords(
-	mesh_element_map, coord_dim );
-    source_coords.putScalar( -1.0 );
-    source_coords.doImport( *source_coords, source_importer, Tpetra::INSERT );
-
-    // Send the point ordinals to the source decomposition.
-    Teuchos::RCP< Tpetra::MultiVector<double,global_ordinal_type> > 
-	rendezvous_export_points = createMultiVectorFromView( 
-	    rendezvous_element_map, rendezvous_points_view,
-	    num_rendezvous_points, 1 );
-    Tpetra::MultiVector<double,global_ordinal_type> source_points(
+    // Elements send their source decomposition proc to the rendezvous
+    // decomposition.
+    Tpetra::MultiVector<double,global_ordinal_type> source_procs(
 	mesh_element_map, 1 );
-    source_points.putScalar( -1.0 );
-    source_points.doImport( *source_points, source_importer, Tpetra::INSERT );
-    
-    // Build the data export map from the coordinate ordinals as well as the
-    // source element/target coordinate pairings.
-    buildSourceData( source_points.get1dView(), source_coords.get1dView() );
+    source_procs.putScalar( d_comm->getRank() );
+    Teuchos::RCP< Tpetra::MultiVector<double> > rendezvous_source_procs( 
+	rendezvous_element_map, 1 );
+    rendezvous_source_procs->doImport( *source_procs, source_importer, 
+				       Tpetra::INSERT );
+
+    // Send the elements to the source decomposition via inverse
+    // communication. 
+    Tpetra::Distributor source_distributor( d_comm );
+    global_ordinal_type num_source_elements = 
+	source_distributor.createFromSends( 
+	    rendezvous_source_procs->get1dView() );
+    source_distributor.doPostsAndWaits( rendezvous_elements_view, 1,
+					d_source_elements() );
+
+    // Send the point coordinates to the source decomposition via inverse
+    // communication. 
+    Teuchos::ArrayView<const double> rendezvous_coords_view =
+	rendezvous_coords.get1dView();
+    source_distributor.doPostsAndWaits( rendezvous_coords_view, coord_dim,
+					d_target_coords() );
+
+    // Send the point global ordinals to the source decomposition via inverse
+    // communication. 
+    Teuchos::Array<global_ordinal_type> source_points,
+    source_distributor.doPostsAndWaits( rendezvous_points_view, 1,
+					source_points() );
+
+    // Build the data export map from the coordinate ordinals as well as
+    // populate the source element/target coordinate pairings.
+    Teuchos::ArrayView<const global_ordinal_type> source_points_view =
+	source_points();
+    d_export_map = Tpetra::createNonContigMap<global_ordinal_type>(
+	source_points_view, d_comm );
+    testPostcondition( d_export_map != Teuchos::null,
+		       "Error creating data export map." );
 
     // Build the data importer.
     d_data_importer = Teuchos::rcp( new Tpetra::Import<global_ordinal_type>(

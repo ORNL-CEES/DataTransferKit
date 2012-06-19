@@ -61,11 +61,11 @@ TEUCHOS_UNIT_TEST( TransferOperator, transfer_operator_test )
     // Create field evaluators.
     Teuchos::RCP< FieldEvaluator<MyMesh,Teuchos::Array<double> > 
 		  temperature_evaluator = Teuchos::rcp(
-		      new  TemperatureEvaluator() );
+		      new TemperatureEvaluator() );
 
     Teuchos::RCP< FieldEvaluator<MyMesh,Teuchos::Array<float> > 
 		  pressure_evaluator = Teuchos::rcp(
-		      new  PressureEvaluator() );
+		      new PressureEvaluator() );
 
     // Create a map for a consistent interpolation scheme.
     ConsistentInterpolation map( comm );

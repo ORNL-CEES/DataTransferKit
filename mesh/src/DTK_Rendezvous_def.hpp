@@ -63,9 +63,9 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
 
     // Construct the rendezvous decomposition of the mesh with RCB using the
     // nodes that are in the box.
-    d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh, 
-					 Teuchos::arcpFromArray( nodes_in_box ), 
-					 d_comm ) );
+    d_rcb = Teuchos::rcp( 
+	new RCB<Mesh>( mesh, Teuchos::arcpFromArray( nodes_in_box ), 
+		       d_comm ) );
     testPostcondition( d_rcb != Teuchos::null,
 		       "Error creating RCB decomposition." );
     d_rcb->partition();
@@ -87,8 +87,7 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*! 
- * \brief Get the rendezvous processes for a list of points. ( Need to specify
- * blocked or interleaved here. Should probably do blocked for constistency.)
+ * \brief Get the rendezvous processes for a blocked list of coordinates.
  */
 template<class Mesh>
 Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
@@ -276,16 +275,18 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 						MT::elementsEnd( mesh ) );
     Teuchos::ArrayView<const GlobalOrdinal> export_element_view(
 	&*MT::elementsBegin( mesh ), num_elements );
-    RCP_TpetraMap export_element_map = Tpetra::createNonContigMap<GlobalOrdinal>(
-	export_element_view, d_comm );
+    RCP_TpetraMap export_element_map = 
+	Tpetra::createNonContigMap<GlobalOrdinal>(
+	    export_element_view, d_comm );
     testPostcondition( export_element_map != Teuchos::null,
 		       "Error creating element export map." );
 
     // Setup import element map.
     Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
 	rendezvous_elements();
-    RCP_TpetraMap import_element_map = Tpetra::createNonContigMap<GlobalOrdinal>(
-	rendezvous_elements_view, d_comm );
+    RCP_TpetraMap import_element_map = 
+	Tpetra::createNonContigMap<GlobalOrdinal>(
+	    rendezvous_elements_view, d_comm );
     testPostcondition( import_element_map != Teuchos::null,
 		       "Error creating element import map." );
 
@@ -311,10 +312,10 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     GlobalOrdinal num_conn = nodes_per_element * num_elements;
     Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view( 
 	(GlobalOrdinal*) &*MT::connectivityBegin( mesh ), 0, num_conn, false );
-    Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > export_conn 
+    Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal> > export_conn 
 	= createMultiVectorFromView( export_element_map, export_conn_view, 
 				     num_elements, nodes_per_element );
-    Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> import_conn( 
+    Tpetra::MultiVector<GlobalOrdinal> import_conn( 
 	import_element_map, nodes_per_element );
     import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
 
@@ -387,7 +388,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
     GlobalOrdinal node_ordinal;
     int destination_proc;
     double node_coords[3];
-    typename MT::const_coordinate_iterator mesh_coords = MT::coordsBegin( mesh );
+    typename MT::const_coordinate_iterator mesh_coords = 
+	MT::coordsBegin( mesh );
     typename MT::const_connectivity_iterator mesh_connectivity = 
 	MT::connectivityBegin( mesh );
     for ( GlobalOrdinal n = 0; n < num_elements; ++n )
@@ -527,13 +529,15 @@ void Rendezvous<Mesh>::setupImportCommunication(
     Teuchos::ArrayView<const GlobalOrdinal> export_nodes_view = export_nodes();
     Teuchos::Array<GlobalOrdinal> import_nodes( num_import_nodes );
     Teuchos::ArrayView<GlobalOrdinal> import_nodes_view = import_nodes();
-    node_distributor.doPostsAndWaits( export_nodes_view, 1, import_nodes_view );
+    node_distributor.doPostsAndWaits( export_nodes_view, 1, 
+				      import_nodes_view );
     export_nodes.clear();
     export_node_procs.clear();
 
     // Next move these into the rendezvous node set so that we have a unique
     // list of the nodes.
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator import_node_iterator;
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+	import_node_iterator;
     std::set<GlobalOrdinal> rendezvous_nodes_set;
     for ( import_node_iterator = import_nodes.begin();
 	  import_node_iterator != import_nodes.end();

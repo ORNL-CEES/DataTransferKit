@@ -41,9 +41,9 @@ class ConsistentInterpolation
     typedef Teuchos:RCP<CommType>                     RCP_Comm;
     typedef Teuchos::TpetraMap<global_ordinal_type>   TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
-    typedef Teuchos::RCP<global_ordinal_type>         ImportType;
+    typedef Tpetra::Import<global_ordinal_type>       ImportType;
     typedef Teuchos::RCP<ImportType>                  RCP_Import;
-    //!
+    //!@}
 
     // Constructor.
     ConsistentInterpolation( const RCP_Comm& comm );
@@ -56,27 +56,22 @@ class ConsistentInterpolation
 
     // Apply the interpolation.
     template<class SourceField, class TargetField>
-    void apply( 
-	const Teuchos::RCP< FieldEvaluator<Mesh,SourceField> >& source_evaluator,
-	TargetField& target_space );
+    void apply( const Teuchos::RCP< 
+		    FieldEvaluator<Mesh,SourceField> >& source_evaluator,
+		TargetField& target_space );
 
   private:
 
     // Build the bounding box for the rendezvous decomposition.
-    BoundingBox buildRendezvousBox( 
-	const Mesh& mesh, const BoundingBox& mesh_box,
-	const CoordinateField& coordinate_field, const BoundingBox& coord_box );
+    BoundingBox buildRendezvousBox( const Mesh& mesh, 
+				    const BoundingBox& mesh_box,
+				    const CoordinateField& coordinate_field, 
+				    const BoundingBox& coord_box );
 
     // Compute globally unique ordinals for the points in the coordinate
     // field.
     Teuchos::Array<global_ordinal_type> computePointOrdinals(
 	const CoordinateField& coordinate_field );
-
-    // Build the data export map from the coordinate ordinals as well as the
-    // source element/target coordinate pairings.
-    void buildSourceData( 
-	const Teuchos::ArrayRCP<global_ordinal_type>& points,
-	const Teuchos::ArrayRCP<double>& coords );
 
   private:
 

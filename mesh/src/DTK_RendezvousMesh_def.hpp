@@ -132,7 +132,8 @@ createRendezvousMesh( const Mesh& mesh )
 	{
 	    conn_index = i*num_elements + n;
 	    element_connectivity.push_back( 
-		vertex_handle_map.find( conn_iterator[ conn_index ] )->second );
+		vertex_handle_map.find( 
+		    conn_iterator[ conn_index ] )->second );
 	}
 	testInvariant( (int) element_connectivity.size() == nodes_per_element,
 		       "Element connectivity size != nodes per element." );
