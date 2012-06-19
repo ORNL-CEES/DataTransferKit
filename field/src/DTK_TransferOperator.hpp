@@ -9,7 +9,7 @@
 #ifndef DTK_TRANSFEROPERATOR_HPP
 #define DTK_TRANSFEROPERATOR_HPP
 
-#include "DTK_MapTraits.hpp"
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -57,9 +57,10 @@ class TransferOperator
  * \param source_geometry The source geometry for the transfer operation.
  * \param target_geometry The target geometry for the transfer operation.
  */
+template<class Map>
 template<class SourceGeometry, class TargetGeometry>
-void TransferOperator::setup( const SourceGeometry& source_geometry, 
-			      const TargetGeometry& target_geometry )
+void TransferOperator<Map>::setup( const SourceGeometry& source_geometry, 
+				   const TargetGeometry& target_geometry )
 {
     d_map->setup( source_geometry, target_geometry );
 }
@@ -67,14 +68,16 @@ void TransferOperator::setup( const SourceGeometry& source_geometry,
 //---------------------------------------------------------------------------//
 /*!
  * \brief Transfer operator apply.
- * \param source_field The source field for the transfer operation.
- * \param target_field The target field for the transfer operation.
+ * \param source_evaluator The source field evaluator for the transfer
+ * operation. 
+ * \param target_space The target field space for the transfer operation.
  */
+template<class Map>
 template<class SourceEvaluator, class TargetSpace>
-void TransferOperator::apply( const SourceEvaluator& source_evaluator, 
-			      TargetSpace& target_space )
+void TransferOperator<Map>::apply( const SourceEvaluator& source_evaluator, 
+				   TargetSpace& target_space )
 {
-    d_map->apply( source_field, target_field );
+    d_map->apply( source_evaluator, target_space );
 }
  
 //---------------------------------------------------------------------------//
