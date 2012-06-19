@@ -24,12 +24,14 @@ APPEND_SET(HEADERS
   DTK_ConsistentInterpolation_def.hpp
   DTK_FieldEvaluator.hpp	
   DTK_FieldTraits.hpp
+  DTK_FieldVersion.hpp
   DTK_TransferOperator.hpp
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
+  DTK_FieldVersion.cpp
   )
 
 # Set addition headers and source based on package-specific

@@ -13,7 +13,8 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_DataSource.hpp>
+#include <DTK_ConsistentInterpolation.hpp>
+#include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
