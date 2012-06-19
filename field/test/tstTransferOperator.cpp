@@ -67,6 +67,10 @@ TEUCHOS_UNIT_TEST( TransferOperator, transfer_operator_test )
 		  pressure_evaluator = Teuchos::rcp(
 		      new PressureEvaluator() );
 
+    // Create data targets.
+    Teuchos::Array<double> temperature_target;
+    Teuchos::Array<float> pressure_target;
+
     // Create a map for a consistent interpolation scheme.
     ConsistentInterpolation map( comm );
 

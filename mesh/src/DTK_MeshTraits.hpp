@@ -84,7 +84,8 @@ class MeshTraits
     /*!
      * \brief Return the dimension of the nodes in this mesh.
      */
-    static inline std::size_t nodeDim( const MeshType& mesh );
+    static inline std::size_t nodeDim( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
      * \brief Return the const iterator to the beginning of the node global
