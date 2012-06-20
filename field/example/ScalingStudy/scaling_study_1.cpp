@@ -277,7 +277,7 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 	    }
 	    else
 	    {
-		*(evaluated_data.begin() + n ) = 0.0;
+ 		*(evaluated_data.begin() + n ) = 0.0;
 	    }
 	}
 	return evaluated_data;
@@ -439,15 +439,14 @@ int main(int argc, char* argv[])
     std::clock_t apply_end = clock();
 
     // Check the data transfer. Each target point should have been assigned
-    // its source rank as data.
+    // its source rank + 1 as data.
     comm->barrier();
     int source_rank;
     int local_test_failed = 0;
     for ( long int n = 0; n < my_target.size(); ++n )
     {
 	source_rank = std::floor(target_coords.getData()[n] / 100);
-	std::cout << source_rank << " " << my_target.getData()[n] << std::endl;
-    	if ( source_rank != my_target.getData()[n] )
+    	if ( source_rank+1 != my_target.getData()[n] )
     	{
     	    local_test_failed = 1;
     	}
@@ -532,10 +531,14 @@ int main(int argc, char* argv[])
     	std::cout << "==================================================" 
     		  << std::endl;
     	std::cout << "DTK strong scaling study" << std::endl;
-    	std::cout << "Number of processors: " << my_size << std::endl;
-    	std::cout << "Number of elements:   " << 10000*my_size 
+    	std::cout << "Number of processors:      " << my_size << std::endl;
+    	std::cout << "Local number of elements:  " << 10000
     		  << std::endl;
-    	std::cout << "Number of points:     " << 10000*my_size 
+    	std::cout << "Local number of points:    " << 10000 
+    		  << std::endl;
+    	std::cout << "Global number of elements: " << 10000*my_size 
+    		  << std::endl;
+    	std::cout << "Global number of points:   " << 10000*my_size 
     		  << std::endl;
     	std::cout << "--------------------------------------------------"
     		  << std::endl;

@@ -20,7 +20,7 @@
 #include <Teuchos_ENull.hpp>
 #include <Teuchos_ScalarTraits.hpp>
 
-#include <Tpetra_Export.hpp>
+#include <Tpetra_Import.hpp>
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_MultiVector.hpp>
 
@@ -185,9 +185,9 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 		       "Error creating data export map." );
 
     // Build the data importer.
-    d_data_importer = Teuchos::rcp( new Tpetra::Import<global_ordinal_type>(
+    d_data_export = Teuchos::rcp( new Tpetra::Export<global_ordinal_type>(
 					d_export_map, d_import_map ) );
-    testPostcondition( d_data_importer != Teuchos::null,
+    testPostcondition( d_data_export != Teuchos::null,
 		       "Error creating data importer." );
 }
 
@@ -237,7 +237,7 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
 						   target_size,
 						   TFT::dim( target_space ) );
 
-    target_vector->doImport( *source_vector, *d_data_importer, Tpetra::INSERT );
+    target_vector->doExport( *source_vector, *d_data_export, Tpetra::INSERT );
 }
 
 //---------------------------------------------------------------------------//
