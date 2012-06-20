@@ -312,10 +312,10 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     GlobalOrdinal num_conn = nodes_per_element * num_elements;
     Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view( 
 	(GlobalOrdinal*) &*MT::connectivityBegin( mesh ), 0, num_conn, false );
-    Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal> > export_conn 
+    Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > export_conn 
 	= createMultiVectorFromView( export_element_map, export_conn_view, 
 				     num_elements, nodes_per_element );
-    Tpetra::MultiVector<GlobalOrdinal> import_conn( 
+    Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> import_conn( 
 	import_element_map, nodes_per_element );
     import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
 

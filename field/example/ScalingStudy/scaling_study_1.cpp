@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cassert>
 #include <ctime>
+#include <cstdlib>
 
 #include <DTK_TransferOperator.hpp>
 #include <DTK_ConsistentInterpolation.hpp>
@@ -20,6 +21,7 @@
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
+#include <DTK_RendezvousMesh.hpp>
 
 #include <mpi.h>
 
@@ -41,19 +43,19 @@ class MyMesh
 {
   public:
 
-    typedef long long int    global_ordinal_type;
+    typedef long int    global_ordinal_type;
     
     MyMesh() 
     { /* ... */ }
 
     MyMesh( const Teuchos::Array<global_ordinal_type>& node_handles,
 	    const Teuchos::Array<double>& coords,
-	    const Teuchos::Array<global_ordinal_type>& quad_handles,
-	    const Teuchos::Array<global_ordinal_type>& hex_connectivity )
+	    const Teuchos::Array<global_ordinal_type>& element_handles,
+	    const Teuchos::Array<global_ordinal_type>& element_connectivity )
 	: d_node_handles( node_handles )
 	, d_coords( coords )
-	, d_hex_handles( hex_handles )
-	, d_hex_connectivity( hex_connectivity )
+	, d_element_handles( element_handles )
+	, d_element_connectivity( element_connectivity )
     { /* ... */ }
 
     ~MyMesh()
@@ -72,26 +74,26 @@ class MyMesh
     { return d_coords.end(); }
 
     Teuchos::Array<global_ordinal_type>::const_iterator elementsBegin() const
-    { return d_hex_handles.begin(); }
+    { return d_element_handles.begin(); }
 
     Teuchos::Array<global_ordinal_type>::const_iterator elementsEnd() const
-    { return d_hex_handles.end(); }
+    { return d_element_handles.end(); }
 
     Teuchos::Array<global_ordinal_type>::const_iterator 
     connectivityBegin() const
-    { return d_hex_connectivity.begin(); }
+    { return d_element_connectivity.begin(); }
 
     Teuchos::Array<global_ordinal_type>::const_iterator 
     connectivityEnd() const
-    { return d_hex_connectivity.end(); }
+    { return d_element_connectivity.end(); }
     
 
   private:
 
     Teuchos::Array<global_ordinal_type> d_node_handles;
     Teuchos::Array<double> d_coords;
-    Teuchos::Array<global_ordinal_type> d_hex_handles;
-    Teuchos::Array<global_ordinal_type> d_hex_connectivity;
+    Teuchos::Array<global_ordinal_type> d_element_handles;
+    Teuchos::Array<global_ordinal_type> d_element_connectivity;
 };
 
 //---------------------------------------------------------------------------//
@@ -160,13 +162,17 @@ class MeshTraits<MyMesh>
   public:
 
     typedef MyMesh::global_ordinal_type global_ordinal_type;
-    typedef Teuchos::Array<global_ordinal_type>::const_iterator const_node_iterator;
-    typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
-    typedef Teuchos::Array<global_ordinal_type>::const_iterator const_element_iterator;
-    typedef Teuchos::Array<global_ordinal_type>::const_iterator const_connectivity_iterator;
+    typedef Teuchos::Array<global_ordinal_type>::const_iterator 
+    const_node_iterator;
+    typedef Teuchos::Array<double>::const_iterator 
+    const_coordinate_iterator;
+    typedef Teuchos::Array<global_ordinal_type>::const_iterator 
+    const_element_iterator;
+    typedef Teuchos::Array<global_ordinal_type>::const_iterator 
+    const_connectivity_iterator;
 
     static inline std::size_t nodeDim( const MyMesh& mesh )
-    { return 2; }
+    { return 3; }
 
     static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
@@ -286,66 +292,100 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 //---------------------------------------------------------------------------//
 // Mesh create function.
 //---------------------------------------------------------------------------//
-MyMesh buildMyMesh( int my_rank )
+MyMesh buildMyMesh( int my_rank, int my_size )
 {
     // Make some nodes.
-    int num_nodes = 10;
+    int edge_length = 101;
+    int num_nodes = edge_length*edge_length*2;
     int node_dim = 3;
-    Teuchos::Array<long long int> node_handles( num_nodes );
+    Teuchos::Array<long int> node_handles( num_nodes );
     Teuchos::Array<double> coords( node_dim*num_nodes );
-
-    for ( int i = 0; i < num_nodes; ++i )
+    int idx;
+    for ( int j = 0; j < edge_length; ++j )
     {
-	node_handles[i] = (num_nodes / 2)*my_rank + i;
+	for ( int i = 0; i < edge_length; ++i )
+	{
+	    idx = i + j*edge_length;
+	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
+	    coords[ idx ] = i + my_rank*(edge_length-1);
+	    coords[ num_nodes + idx ] = j;
+	    coords[ 2*num_nodes + idx ] = 0.0;
+	}
     }
-    for ( int i = 0; i < num_nodes / 2; ++i )
+    for ( int j = 0; j < edge_length; ++j )
     {
-	coords[ i ] = my_rank;
-	coords[ num_nodes + i ] = i;
-    }
-    for ( int i = num_nodes / 2; i < num_nodes; ++i )
-    {
-	coords[ i ] = my_rank + 1;
-	coords[ num_nodes + i ] = i - num_nodes/2;
+	for ( int i = 0; i < edge_length; ++i )
+	{
+	    idx = i + j*edge_length + num_nodes / 2;
+	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
+	    coords[ idx ] = i + my_rank*(edge_length-1);
+	    coords[ num_nodes + idx ] = j;
+	    coords[ 2*num_nodes + idx ] = 1.0;
+	}
     }
     
     // Make the hexahedrons. We want 10000 on every process for strong
     // scaling. This will get us to 1.0E9 elements on 100k processors.
-    int num_elements = 10000;
-    Teuchos::Array<long long int> hex_handles( num_elements );
-    Teuchos::Array<long long int> hex_connectivity( 4*num_elements );
-    
-    for ( int i = 0; i < num_elements; ++i )
+    int num_elements = (edge_length-1)*(edge_length-1);
+    Teuchos::Array<long int> hex_handles( num_elements );
+    Teuchos::Array<long int> hex_connectivity( 8*num_elements );
+    int elem_idx, node_idx;
+    for ( int j = 0; j < (edge_length-1); ++j )
     {
-	hex_handles[ i ] = num_elements*my_rank + i;
-	hex_connectivity[ i ] = node_handles[i];
-	hex_connectivity[ num_elements + i ] = node_handles[num_nodes/2 + i];
-	hex_connectivity[ 2*num_elements + i ] = node_handles[num_nodes/2 + i + 1];
-	hex_connectivity[ 3*num_elements + i ] = node_handles[i+1];
-	hex_connectivity[ 4*num_elements + i ] = node_handles[i+1];
-	hex_connectivity[ 5*num_elements + i ] = node_handles[i+1];
-	hex_connectivity[ 6*num_elements + i ] = node_handles[i+1];
-	hex_connectivity[ 7*num_elements + i ] = node_handles[i+1];
-    }
+	for ( int i = 0; i < (edge_length-1); ++i )
+	{
+	    node_idx = i + j*edge_length;
+	    elem_idx = i + j*(edge_length-1);
 
+	    hex_handles[elem_idx] = num_elements*my_rank + elem_idx;
+
+	    hex_connectivity[elem_idx] 
+		= node_handles[node_idx];
+
+	    hex_connectivity[num_elements+elem_idx] 
+		= node_handles[node_idx+1];
+
+	    hex_connectivity[2*num_elements+elem_idx] 
+		= node_handles[node_idx+edge_length+1];
+
+	    hex_connectivity[3*num_elements+elem_idx] 
+		= node_handles[node_idx+edge_length];
+
+	    hex_connectivity[4*num_elements+elem_idx] 
+		= node_handles[node_idx+num_nodes/2];
+
+	    hex_connectivity[5*num_elements+elem_idx] 
+		= node_handles[node_idx+num_nodes/2+1];
+
+ 	    hex_connectivity[6*num_elements+elem_idx] 
+		= node_handles[node_idx+num_nodes/2+edge_length+1];
+
+	    hex_connectivity[7*num_elements+elem_idx] 
+		= node_handles[node_idx+num_nodes/2+edge_length];
+	}
+    }
     return MyMesh( node_handles, coords, hex_handles, hex_connectivity );
 }
 
 //---------------------------------------------------------------------------//
 // Coordinate field create function.
 //---------------------------------------------------------------------------//
-MyField buildCoordinateField( int my_rank )
+MyField buildCoordinateField( int my_rank, int my_size )
 {
     // We want 10000 points on every process for strong scaling. This will
-    // get us to 1.0E9 points on 100k processors.
+    // get us to 1.0E9 points on 100k processors. We'll fill these with random
+    // coordinates. 
     int num_points = 10000;
     int point_dim = 3;
     MyField coordinate_field( num_points*point_dim, point_dim );
 
     for ( int i = 0; i < num_points; ++i )
     {
-	*(coordinate_field.begin() + i) = i + 0.5;
-	*(coordinate_field.begin() + num_points + i ) = my_rank + 0.5;
+	*(coordinate_field.begin() + i) = 
+	    my_size * 100 * (double) std::rand() / RAND_MAX;
+	*(coordinate_field.begin() + num_points + i ) = 
+	    100 * (double) std::rand() / RAND_MAX;
+	*(coordinate_field.begin() + 2*num_points + i ) = 0.5;
     }
 
     return coordinate_field;
@@ -362,30 +402,27 @@ int main(int argc, char* argv[])
     Teuchos::GlobalMPISession mpiSession(&argc,&argv);
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 
 	Teuchos::DefaultComm<int>::getComm();
-
-    // Setup communication.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
     int my_rank = comm->getRank();
     int my_size = comm->getSize();
 
     // Setup source mesh.
-    MyMesh source_mesh = buildMyMesh( my_rank );
+    MyMesh source_mesh = buildMyMesh( my_rank, my_size );
 
     // Setup target coordinate field.
-    MyField target_coords = buildCoordinateField( my_rank );
+    MyField target_coords = buildCoordinateField( my_rank, my_size );
 
     // Create field evaluator.
     Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > my_evaluator = 
-	Teuchos::rcp( new MyEvaluator( source_mesh, comm ) );
+    	Teuchos::rcp( new MyEvaluator( source_mesh, comm ) );
 
     // Create data target.
-    int target_size = target_coords.size() / target_coords.dim();
+    MyField::size_type target_size = target_coords.size() / target_coords.dim();
     MyField my_target( target_size, 1 );
 
     // Setup consistent interpolation mapping.
     typedef ConsistentInterpolation<MyMesh,MyField> MapType;
     Teuchos::RCP<MapType> consistent_interpolation = 
-	Teuchos::rcp( new MapType( comm ) );
+    	Teuchos::rcp( new MapType( comm ) );
 
     // Create transfer operator.
     TransferOperator<MapType> transfer_operator( consistent_interpolation );
@@ -401,119 +438,123 @@ int main(int argc, char* argv[])
     transfer_operator.apply( my_evaluator, my_target );
     std::clock_t apply_end = clock();
 
-    // Check the data transfer.
+    // Check the data transfer. Each target point should have been assigned
+    // its source rank as data.
     comm->barrier();
+    int source_rank;
     int local_test_failed = 0;
-    for ( int n = 0; n < my_target.size(); ++n )
+    for ( long int n = 0; n < my_target.size(); ++n )
     {
-	if ( *(my_target.begin()+n) != n + 1 )
-	{
-	    local_test_failed = 1;
-	}
+	source_rank = std::floor(target_coords.getData()[n] / 100);
+	std::cout << source_rank << " " << my_target.getData()[n] << std::endl;
+    	if ( source_rank != my_target.getData()[n] )
+    	{
+    	    local_test_failed = 1;
+    	}
     }
     comm->barrier();
 
-    double global_test_failed;
-    Teuchos::reduceAll<int,double>( *comm,
-				    Teuchos::REDUCE_SUM,
-				    1,
-				    &local_test_failed,
-				    &global_test_failed );
+    int global_test_failed;
+    Teuchos::reduceAll<int,int>( *comm,
+    				 Teuchos::REDUCE_SUM,
+    				 1,
+    				 &local_test_failed,
+    				 &global_test_failed );
    
     if ( my_rank == 0 )
     {
-	if ( global_test_failed )
-	{
-	    std::cout << std::endl << "TEST FAILURE" << std::endl;
-	}
-	else
-	{
-	    std::cout << std::endl << "TEST PASSED" << std::endl;
-	}
+    	if ( global_test_failed )
+    	{
+    	    std::cout << std::endl << "TEST FAILURE" << std::endl;
+    	}
+    	else
+    	{
+    	    std::cout << std::endl << "TEST PASSED" << std::endl;
+    	}
     }
     comm->barrier();
 
     // Timing.
     double local_setup_time = 
-	(double)(setup_end - setup_start) / CLOCKS_PER_SEC;
+    	(double)(setup_end - setup_start) / CLOCKS_PER_SEC;
 
     double global_min_setup_time;
     Teuchos::reduceAll<int,double>( *comm,
-				    Teuchos::REDUCE_MIN,
-				    1,
-				    &local_setup_time,
-				    &global_min_setup_time );
+    				    Teuchos::REDUCE_MIN,
+    				    1,
+    				    &local_setup_time,
+    				    &global_min_setup_time );
 
     double global_max_setup_time;
     Teuchos::reduceAll<int,double>( *comm,
-				    Teuchos::REDUCE_MAX,
-				    1,
-				    &local_setup_time,
-				    &global_max_setup_time );
+    				    Teuchos::REDUCE_MAX,
+    				    1,
+    				    &local_setup_time,
+    				    &global_max_setup_time );
 
     double global_average_setup_time;
     Teuchos::reduceAll<int,double>( *comm,
-				    Teuchos::REDUCE_SUM,
-				    1,
-				    &local_setup_time,
-				    &global_average_setup_time );
+    				    Teuchos::REDUCE_SUM,
+    				    1,
+    				    &local_setup_time,
+    				    &global_average_setup_time );
     global_average_setup_time /= my_size;
 
     double local_apply_time = 
-	(double)(apply_end - apply_start) / CLOCKS_PER_SEC;
+    	(double)(apply_end - apply_start) / CLOCKS_PER_SEC;
 
     double global_min_apply_time;
     Teuchos::reduceAll<int,double>( *comm,
-				    Teuchos::REDUCE_MIN,
-				    1,
-				    &local_apply_time,
-				    &global_min_apply_time );
+    				    Teuchos::REDUCE_MIN,
+    				    1,
+    				    &local_apply_time,
+    				    &global_min_apply_time );
 
     double global_max_apply_time;
     Teuchos::reduceAll<int,double>( *comm,
-				    Teuchos::REDUCE_MAX,
-				    1,
-				    &local_apply_time,
-				    &global_max_apply_time );
+    				    Teuchos::REDUCE_MAX,
+    				    1,
+    				    &local_apply_time,
+    				    &global_max_apply_time );
 
     double global_average_apply_time;
     Teuchos::reduceAll<int,double>( *comm,
-				    Teuchos::REDUCE_SUM,
-				    1,
-				    &local_apply_time,
-				    &global_average_apply_time );
+    				    Teuchos::REDUCE_SUM,
+    				    1,
+    				    &local_apply_time,
+    				    &global_average_apply_time );
     global_average_apply_time /= my_size;
 
     comm->barrier();
 
     if ( my_rank == 0 )
     {
-	std::cout << "==================================================" 
-		  << std::endl;
-	std::cout << "DTK strong scaling study" << std::endl;
-	std::cout << "Number of processors: " << my_size << std::endl;
-	std::cout << "Number of elements:   " << 10000*my_size 
-		  << std::endl;
-	std::cout << "Number of points:     " << 10000*my_size 
-		  << std::endl;
-	std::cout << "--------------------------------------------------"
-		  << std::endl;
-	std::cout << "Global min setup time (s):     " 
-		  << global_min_setup_time << std::endl;
-	std::cout << "Global max setup time (s):     " 
-		  << global_max_setup_time << std::endl;
-	std::cout << "Global average setup time (s): " 
-		  << global_average_setup_time << std::endl;
-	std::cout << "--------------------------------------------------"
-		  << std::endl;
-	std::cout << "Global min apply time (s):     " 
-		  << global_min_apply_time << std::endl;
-	std::cout << "Global max apply time (s):     " 
-		  << global_max_apply_time << std::endl;
-	std::cout << "Global average apply time (s): " 
-		  << global_average_apply_time << std::endl;
-	std::cout << "==================================================" 
-		  << std::endl;
+    	std::cout << "==================================================" 
+    		  << std::endl;
+    	std::cout << "DTK strong scaling study" << std::endl;
+    	std::cout << "Number of processors: " << my_size << std::endl;
+    	std::cout << "Number of elements:   " << 10000*my_size 
+    		  << std::endl;
+    	std::cout << "Number of points:     " << 10000*my_size 
+    		  << std::endl;
+    	std::cout << "--------------------------------------------------"
+    		  << std::endl;
+    	std::cout << "Global min setup time (s):     " 
+    		  << global_min_setup_time << std::endl;
+    	std::cout << "Global max setup time (s):     " 
+    		  << global_max_setup_time << std::endl;
+    	std::cout << "Global average setup time (s): " 
+    		  << global_average_setup_time << std::endl;
+    	std::cout << "--------------------------------------------------"
+    		  << std::endl;
+    	std::cout << "Global min apply time (s):     " 
+    		  << global_min_apply_time << std::endl;
+    	std::cout << "Global max apply time (s):     " 
+    		  << global_max_apply_time << std::endl;
+    	std::cout << "Global average apply time (s): " 
+    		  << global_average_apply_time << std::endl;
+    	std::cout << "==================================================" 
+    		  << std::endl;
     }
 
     comm->barrier();

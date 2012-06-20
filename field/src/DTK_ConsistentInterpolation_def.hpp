@@ -110,11 +110,11 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 
     // Move the target coordinates to the rendezvous decomposition.
     global_ordinal_type num_points = num_coords / coord_dim;
-    Teuchos::RCP< Tpetra::MultiVector<double> > 
+    Teuchos::RCP< Tpetra::MultiVector<double,global_ordinal_type> > 
 	target_coords =	createMultiVectorFromView( d_import_map, coords_view,
 						   num_points, coord_dim );
-    Tpetra::MultiVector<double> rendezvous_coords( rendezvous_import_map, 
-						   coord_dim );
+    Tpetra::MultiVector<double,global_ordinal_type> rendezvous_coords( 
+	rendezvous_import_map, coord_dim );
     rendezvous_coords.doExport( *target_coords, point_exporter, 
 				Tpetra::INSERT );
 
@@ -146,7 +146,7 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     Tpetra::MultiVector<int,global_ordinal_type> source_procs(
 	mesh_element_map, 1 );
     source_procs.putScalar( d_comm->getRank() );
-    Tpetra::MultiVector<int> rendezvous_source_procs( 
+    Tpetra::MultiVector<int,global_ordinal_type> rendezvous_source_procs( 
 	rendezvous_element_map, 1 );
     rendezvous_source_procs.doImport( source_procs, source_importer, 
 				      Tpetra::INSERT );
@@ -218,11 +218,11 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
     global_ordinal_type source_size = SFT::size( evaluated_field ) /
 				      SFT::dim( evaluated_field );
 
-    Teuchos::RCP< Tpetra::MultiVector<typename SFT::value_type> > source_vector =
-	createMultiVectorFromView( d_export_map, 
-				   source_field_view,
-				   source_size,
-				   SFT::dim( evaluated_field ) );
+    Teuchos::RCP< Tpetra::MultiVector<typename SFT::value_type,global_ordinal_type> > 
+	source_vector = createMultiVectorFromView( d_export_map, 
+						   source_field_view,
+						   source_size,
+						   SFT::dim( evaluated_field ) );
 
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(
 	&*TFT::begin( target_space ), 0,
@@ -231,11 +231,11 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
     global_ordinal_type target_size = TFT::size( target_space ) /
 				      TFT::dim( target_space );
 
-    Teuchos::RCP< Tpetra::MultiVector<typename TFT::value_type> > target_vector =
-	createMultiVectorFromView( d_import_map, 
-				   target_field_view,
-				   target_size,
-				   TFT::dim( target_space ) );
+    Teuchos::RCP< Tpetra::MultiVector<typename TFT::value_type,global_ordinal_type> > 
+	target_vector =	createMultiVectorFromView( d_import_map, 
+						   target_field_view,
+						   target_size,
+						   TFT::dim( target_space ) );
 
     target_vector->doImport( *source_vector, *d_data_importer, Tpetra::INSERT );
 }
@@ -301,7 +301,7 @@ BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
 	    z_values.insert( node[2] );
 	}
     }
-
+    
     // Compute the local min and max values.
     double local_x_min = *x_values.begin();
     double local_y_min = *y_values.begin();
@@ -367,8 +367,15 @@ BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
 					&global_z_max );
     }
 
-    return BoundingBox( global_x_min, global_y_min, global_z_min,
-			global_x_max, global_y_max, global_z_max );
+    // return BoundingBox( global_x_min, global_y_min, global_z_min,
+    // 			global_x_max, global_y_max, global_z_max );
+
+    // Right now I'm returning the mesh box. Scaling study 1 made apparent a
+    // bad error in the computation of the bounding box intersection computed
+    // by the code above. I'll need to update the code to handle corner cases
+    // like this. For now, this will handle most cases but at the cost of
+    // repartitioning the entire mesh when only a subset will be needed.
+    return mesh_box;
 }
 
 //---------------------------------------------------------------------------//
