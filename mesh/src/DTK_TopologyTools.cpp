@@ -97,23 +97,15 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 				   element_nodes );
     testInvariant( moab::MB_SUCCESS == error, "Failure getting element nodes" );
 
-    // Extract only the nodes to build the linear element. This will need to
-    // be updated for the higher order topologies.
-    int num_linear_nodes = numLinearNodes( element_topology );
-    Teuchos::Array<moab::EntityHandle> linear_nodes;
-    for ( int n = 0; n < num_linear_nodes; ++n )
-    {
-	linear_nodes.push_back( element_nodes[n] );
-    }
-
     // Create the Shards topology for the element type.
+    int num_element_nodes = element_nodes.size();
     Teuchos::RCP<shards::CellTopology> cell_topo = 
-	CellTopologyFactory::create( element_topology, num_linear_nodes );
+	CellTopologyFactory::create( element_topology, num_element_nodes );
 
     // Extract the node coordinates.
-    Teuchos::Array<double> cell_node_coords( 3 * num_linear_nodes );
-    error = moab->get_coords( &linear_nodes[0], 
-			      linear_nodes.size(), 
+    Teuchos::Array<double> cell_node_coords( 3 * num_element_nodes );
+    error = moab->get_coords( &element_nodes[0], 
+			      element_nodes.size(), 
 			      &cell_node_coords[0] );
     testInvariant( moab::MB_SUCCESS == error, 
 		   "Failure getting node coordinates" );
@@ -121,15 +113,15 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
     // Reduce the dimension of the coordinates if necessary and wrap in a
     // field container. This means (for now at least) that 2D meshes must be
     // constructed from 2D nodes (this obviously won't work for 2D meshes that
-    // have curvature) 
+    // have curvature).
     int node_dim = coords.size();
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;
-    cell_node_dimensions[1] = num_linear_nodes;
+    cell_node_dimensions[1] = num_element_nodes;
     cell_node_dimensions[2] = node_dim;
     for ( int i = 2; i != node_dim-1 ; --i )
     {
-	for ( int n = linear_nodes.size() - 1; n > -1; --n )
+	for ( int n = element_nodes.size() - 1; n > -1; --n )
 	{
 	    cell_node_coords.erase( cell_node_coords.begin() + 3*n + i );
 	}
