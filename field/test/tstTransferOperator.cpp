@@ -294,7 +294,7 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 };
 
 //---------------------------------------------------------------------------//
-// Mesh create funciton.
+// Mesh create function.
 //---------------------------------------------------------------------------//
 /*
   Make the following mesh partitioned on 4 processors.
