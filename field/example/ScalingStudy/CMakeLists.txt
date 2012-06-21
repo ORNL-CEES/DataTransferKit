@@ -6,3 +6,10 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   COMM serial mpi
   DEPLIBS teuchos Utils Mesh Field
   )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  ScalingStudy2
+  SOURCES scaling_study_2.cpp
+  COMM serial mpi
+  DEPLIBS teuchos Utils Mesh Field
+  )
