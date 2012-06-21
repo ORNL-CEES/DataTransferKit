@@ -9,6 +9,7 @@
 #ifndef DTK_CONSISTENTINTERPOLATION_DEF_HPP
 #define DTK_CONSISTENTINTERPOLATION_DEF_HPP
 
+#include <algorithm>
 #include <set>
 
 #include "DTK_FieldTools.hpp"
@@ -131,7 +132,22 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     Teuchos::Array<global_ordinal_type> rendezvous_elements =
 	rendezvous.getElements( rendezvous_coords.get1dViewNonConst() );
 
+    // Build a unique list of rendezvous elements.
+    Teuchos::Array<global_ordinal_type> rendezvous_element_set =
+	rendezvous_elements;
+    std::sort( rendezvous_element_set.begin(), rendezvous_element_set.end() );
+    typename Teuchos::Array<global_ordinal_type>::iterator unique_bound =
+	std::unique( rendezvous_element_set.begin(), 
+		     rendezvous_element_set.end() );
+    rendezvous_element_set.resize( unique_bound - rendezvous_element_set.begin() );
+
     // Setup source-to-rendezvous communication.
+    Teuchos::ArrayView<const global_ordinal_type> rendezvous_elem_set_view =
+	rendezvous_element_set();
+    RCP_TpetraMap rendezvous_element_map = 
+	Tpetra::createNonContigMap<global_ordinal_type>( 
+	    rendezvous_elem_set_view, d_comm );
+
     global_ordinal_type num_elements = 
 	std::distance( MT::elementsBegin( mesh ), MT::elementsEnd( mesh ) );
     Teuchos::ArrayView<const global_ordinal_type> mesh_element_view(
@@ -140,45 +156,58 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 	Tpetra::createNonContigMap<global_ordinal_type>( 
 	    mesh_element_view, d_comm );
 
-    Teuchos::ArrayView<const global_ordinal_type> rendezvous_elements_view =
-	rendezvous_elements();
-    RCP_TpetraMap rendezvous_element_map = 
-	Tpetra::createNonContigMap<global_ordinal_type>( 
-	    rendezvous_elements_view, d_comm );
-
     Tpetra::Import<global_ordinal_type> source_importer( 
 	mesh_element_map, rendezvous_element_map );
 
     // Elements send their source decomposition proc to the rendezvous
     // decomposition.
-    Tpetra::MultiVector<int,global_ordinal_type> source_procs(
-	mesh_element_map, 1 );
+    Tpetra::MultiVector<int,global_ordinal_type> 
+	source_procs( mesh_element_map, 1 );
     source_procs.putScalar( d_comm->getRank() );
-    Tpetra::MultiVector<int,global_ordinal_type> rendezvous_source_procs( 
-	rendezvous_element_map, 1 );
+    Tpetra::MultiVector<int,global_ordinal_type> 
+	rendezvous_source_procs( rendezvous_element_map, 1 );
     rendezvous_source_procs.doImport( source_procs, source_importer, 
 				      Tpetra::INSERT );
 
-    // Send the elements to the source decomposition via inverse
+    // Set the destination procs for the rendezvous-to-source communication.
+    Teuchos::ArrayRCP<const int> rendezvous_source_procs_view =
+	rendezvous_source_procs.get1dView();
+    global_ordinal_type num_rendezvous_elements = rendezvous_elements.size();
+    global_ordinal_type dest_proc_idx;
+    Teuchos::Array<int> 
+	target_destinations( num_rendezvous_elements );
+    for ( int n = 0; n < num_rendezvous_elements; ++n )
+    {
+	dest_proc_idx = std::distance( 
+	    rendezvous_element_set.begin(),
+	    std::find( rendezvous_element_set.begin(),
+		       rendezvous_element_set.end(),
+		       rendezvous_elements[n] ) );
+	target_destinations[n] = rendezvous_source_procs_view[ dest_proc_idx ];
+    }
+    rendezvous_element_set.clear();
+
+    // Send the rendezvous elements to the source decomposition via inverse
     // communication. 
+    Teuchos::ArrayView<const global_ordinal_type> rendezvous_elements_view =
+	rendezvous_elements();
     Tpetra::Distributor source_distributor( d_comm );
     global_ordinal_type num_source_elements = 
-	source_distributor.createFromSends( 
-	    rendezvous_source_procs.get1dView()() );
+	source_distributor.createFromSends( target_destinations() );
     d_source_elements.resize( num_source_elements );
     source_distributor.doPostsAndWaits( rendezvous_elements_view, 1,
 					d_source_elements() );
 
-    // Send the point coordinates to the source decomposition via inverse
-    // communication. 
+    // Send the rendezvous point coordinates to the source decomposition via
+    // inverse communication. 
     Teuchos::ArrayView<const double> rendezvous_coords_view =
 	rendezvous_coords.get1dView()();
     d_target_coords.resize( num_source_elements*coord_dim );
     source_distributor.doPostsAndWaits( rendezvous_coords_view, coord_dim,
 					d_target_coords() );
 
-    // Send the point global ordinals to the source decomposition via inverse
-    // communication. 
+    // Send the rendezvous point global ordinals to the source decomposition
+    // via inverse communication.
     Teuchos::Array<global_ordinal_type> source_points( num_source_elements );
     source_distributor.doPostsAndWaits( rendezvous_points_view, 1,
 					source_points() );
@@ -231,7 +260,7 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
 	     &*SFT::begin( evaluated_field ), 0, 
 	     SFT::size( evaluated_field ), false );
     }
-    std::cout << d_comm->getRank() << " " << source_field_view() << std::endl;
+
     global_ordinal_type source_size = SFT::size( evaluated_field ) /
 				      SFT::dim( evaluated_field );
 

@@ -444,10 +444,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test2 )
     for ( long int n = 0; n < my_target.size(); ++n )
     {
 	source_rank = std::floor(target_coords.getData()[n] / (edge_size-1));
-	std::cout << my_rank << " " << source_rank+1 << " " <<  my_target.getData()[n] 
-		  << " " << target_coords.getData()[n]
-		  << " " << target_coords.getData()[target_size + n] 
-		  << " " << target_coords.getData()[2*target_size + n] << std::endl;
 	TEST_ASSERT( source_rank+1 == my_target.getData()[n] );
     }
 }
