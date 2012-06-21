@@ -385,6 +385,7 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 MyField buildCoordinateField( int my_rank, int my_size, 
 			      int num_points, int edge_size )
 {
+    std::srand( my_rank*num_points*2 );
     int point_dim = 3;
     MyField coordinate_field( num_points*point_dim, point_dim );
 
@@ -413,11 +414,11 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test2 )
     int my_size = comm->getSize();
 
     // Setup source mesh.
-    int edge_size = 5;
+    int edge_size = 4;
     MyMesh source_mesh = buildMyMesh( my_rank, my_size, edge_size );
 
     // Setup target coordinate field.
-    int num_points = 4;
+    int num_points = (edge_size-1)*(edge_size-1);
     MyField target_coords = buildCoordinateField( my_rank, my_size, 
 						  num_points, edge_size );
 
@@ -444,12 +445,14 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test2 )
     {
 	source_rank = std::floor(target_coords.getData()[n] / (edge_size-1));
 	std::cout << my_rank << " " << source_rank+1 << " " <<  my_target.getData()[n] 
-		  << " " << target_coords.getData()[n] << std::endl;
+		  << " " << target_coords.getData()[n]
+		  << " " << target_coords.getData()[target_size + n] 
+		  << " " << target_coords.getData()[2*target_size + n] << std::endl;
 	TEST_ASSERT( source_rank+1 == my_target.getData()[n] );
     }
 }
 
 //---------------------------------------------------------------------------//
-// end scaling_study_1.cpp
+// end tstConsistentInterpolation2.cpp
 //---------------------------------------------------------------------------//
 

@@ -20,7 +20,7 @@
 #include <Teuchos_ENull.hpp>
 #include <Teuchos_ScalarTraits.hpp>
 
-#include <Tpetra_Export.hpp>
+#include <Tpetra_Import.hpp>
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_MultiVector.hpp>
 
@@ -84,8 +84,16 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     // coordinate field.
     std::size_t coord_dim = CFT::dim( coordinate_field );
     typename CFT::size_type num_coords = CFT::size( coordinate_field );
-    Teuchos::ArrayRCP<double> coords_view( 
-	(double*) &*CFT::begin( coordinate_field ), 0, num_coords, false );
+    Teuchos::ArrayRCP<double> coords_view;
+    if ( num_coords == 0 )
+    {
+	coords_view = Teuchos::ArrayRCP<double>( 0, 0.0 );
+    }
+    else
+    {
+	 coords_view = Teuchos::ArrayRCP<double>( 
+	     (double*) &*CFT::begin( coordinate_field ), 0, num_coords, false );
+    }
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.getRendezvousProcs( coords_view );
 
@@ -185,9 +193,9 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 		       "Error creating data export map." );
 
     // Build the data importer.
-    d_data_import = Teuchos::rcp( new Tpetra::Import<global_ordinal_type>(
+    d_data_export = Teuchos::rcp( new Tpetra::Export<global_ordinal_type>(
 					d_export_map, d_import_map ) );
-    testPostcondition( d_data_import != Teuchos::null,
+    testPostcondition( d_data_export != Teuchos::null,
 		       "Error creating data importer." );
 }
 
@@ -211,10 +219,19 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
     testPrecondition( SFT::dim( evaluated_field ) == TFT::dim( target_space ),
 		      "Source field dimension != target field dimension." );
 
-    Teuchos::ArrayRCP<typename SFT::value_type> source_field_view(
-	&*SFT::begin( evaluated_field ), 0, 
-	SFT::size( evaluated_field ), false );
-
+    Teuchos::ArrayRCP<typename SFT::value_type> source_field_view;
+    if ( SFT::size( evaluated_field ) == 0 )
+    {
+	source_field_view = 
+	    Teuchos::ArrayRCP<typename SFT::value_type>( 0, 0.0 );
+    }
+    else
+    {
+	 source_field_view = Teuchos::ArrayRCP<typename SFT::value_type>(
+	     &*SFT::begin( evaluated_field ), 0, 
+	     SFT::size( evaluated_field ), false );
+    }
+    std::cout << d_comm->getRank() << " " << source_field_view() << std::endl;
     global_ordinal_type source_size = SFT::size( evaluated_field ) /
 				      SFT::dim( evaluated_field );
 
@@ -224,9 +241,18 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
 						   source_size,
 						   SFT::dim( evaluated_field ) );
 
-    Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(
-	&*TFT::begin( target_space ), 0,
-	TFT::size( target_space ), false );
+    Teuchos::ArrayRCP<typename TFT::value_type> target_field_view;
+    if ( TFT::size( target_space ) == 0 )
+    {
+	target_field_view = 
+	    Teuchos::ArrayRCP<typename TFT::value_type>( 0, 0.0 );
+    }
+    else
+    {
+	target_field_view = Teuchos::ArrayRCP<typename TFT::value_type>(
+	    &*TFT::begin( target_space ), 0,
+	    TFT::size( target_space ), false );
+    }
     
     global_ordinal_type target_size = TFT::size( target_space ) /
 				      TFT::dim( target_space );
@@ -237,7 +263,7 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
 						   target_size,
 						   TFT::dim( target_space ) );
 
-    target_vector->doImport( *source_vector, *d_data_import, Tpetra::INSERT );
+    target_vector->doExport( *source_vector, *d_data_export, Tpetra::INSERT );
 }
 
 //---------------------------------------------------------------------------//

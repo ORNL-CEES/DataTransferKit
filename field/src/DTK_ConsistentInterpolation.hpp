@@ -20,7 +20,7 @@
 #include <Teuchos_ArrayRCP.hpp>
 
 #include <Tpetra_Map.hpp>
-#include <Tpetra_Import.hpp>
+#include <Tpetra_Export.hpp>
 
 namespace DataTransferKit
 {
@@ -41,8 +41,8 @@ class ConsistentInterpolation
     typedef Teuchos::RCP<const CommType>              RCP_Comm;
     typedef Tpetra::Map<global_ordinal_type>          TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
-    typedef Tpetra::Import<global_ordinal_type>       ImportType;
-    typedef Teuchos::RCP<ImportType>                  RCP_Import;
+    typedef Tpetra::Export<global_ordinal_type>       ExportType;
+    typedef Teuchos::RCP<ExportType>                  RCP_Export;
     //!@}
 
     // Constructor.
@@ -84,8 +84,8 @@ class ConsistentInterpolation
     // Import field map.
     RCP_TpetraMap d_import_map;
 
-    // Field data importer.
-    RCP_Import d_data_import;
+    // Field data exporter.
+    RCP_Export d_data_export;
 
     // Local source elements.
     Teuchos::Array<global_ordinal_type> d_source_elements;
