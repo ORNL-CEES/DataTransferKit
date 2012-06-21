@@ -292,10 +292,9 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 //---------------------------------------------------------------------------//
 // Mesh create function.
 //---------------------------------------------------------------------------//
-MyMesh buildMyMesh( int my_rank, int my_size )
+MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 {
     // Make some nodes.
-    int edge_length = 101;
     int num_nodes = edge_length*edge_length*2;
     int node_dim = 3;
     Teuchos::Array<long int> node_handles( num_nodes );
@@ -324,8 +323,7 @@ MyMesh buildMyMesh( int my_rank, int my_size )
 	}
     }
     
-    // Make the hexahedrons. We want 10000 on every process for strong
-    // scaling. This will get us to 1.0E9 elements on 100k processors.
+    // Make the hexahedrons. 
     int num_elements = (edge_length-1)*(edge_length-1);
     Teuchos::Array<long int> hex_handles( num_elements );
     Teuchos::Array<long int> hex_connectivity( 8*num_elements );
@@ -370,21 +368,19 @@ MyMesh buildMyMesh( int my_rank, int my_size )
 //---------------------------------------------------------------------------//
 // Coordinate field create function.
 //---------------------------------------------------------------------------//
-MyField buildCoordinateField( int my_rank, int my_size )
+MyField buildCoordinateField( int my_rank, int my_size, 
+			      int num_points, int edge_size )
 {
-    // We want 10000 points on every process for strong scaling. This will
-    // get us to 1.0E9 points on 100k processors. We'll fill these with random
-    // coordinates. 
-    int num_points = 10000;
+    std::srand( my_rank*num_points*2 );
     int point_dim = 3;
     MyField coordinate_field( num_points*point_dim, point_dim );
 
     for ( int i = 0; i < num_points; ++i )
     {
 	*(coordinate_field.begin() + i) = 
-	    my_size * 100 * (double) std::rand() / RAND_MAX;
+	    my_size * (edge_size-1) * (double) std::rand() / RAND_MAX;
 	*(coordinate_field.begin() + num_points + i ) = 
-	    100 * (double) std::rand() / RAND_MAX;
+	    (edge_size-1) * (double) std::rand() / RAND_MAX;
 	*(coordinate_field.begin() + 2*num_points + i ) = 0.5;
     }
 
@@ -406,10 +402,13 @@ int main(int argc, char* argv[])
     int my_size = comm->getSize();
 
     // Setup source mesh.
-    MyMesh source_mesh = buildMyMesh( my_rank, my_size );
+    int edge_size = 101;
+    MyMesh source_mesh = buildMyMesh( my_rank, my_size, edge_size );
 
     // Setup target coordinate field.
-    MyField target_coords = buildCoordinateField( my_rank, my_size );
+    int num_points = (edge_size-1)*(edge_size-1);
+    MyField target_coords = buildCoordinateField( my_rank, my_size, 
+						  num_points, edge_size );
 
     // Create field evaluator.
     Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > my_evaluator = 
@@ -445,10 +444,10 @@ int main(int argc, char* argv[])
     int local_test_failed = 0;
     for ( long int n = 0; n < my_target.size(); ++n )
     {
-	source_rank = std::floor(target_coords.getData()[n] / 100);
+	source_rank = std::floor(target_coords.getData()[n] / (edge_size-1));
     	if ( source_rank+1 != my_target.getData()[n] )
     	{
-    	    local_test_failed = 1;
+    	    local_test_failed += 1;
     	}
     }
     comm->barrier();
@@ -464,7 +463,8 @@ int main(int argc, char* argv[])
     {
     	if ( global_test_failed )
     	{
-    	    std::cout << std::endl << "TEST FAILURE" << std::endl;
+    	    std::cout << std::endl << "TEST FAILURE " 
+		      << global_test_failed << std::endl;
     	}
     	else
     	{
@@ -532,13 +532,13 @@ int main(int argc, char* argv[])
     		  << std::endl;
     	std::cout << "DTK strong scaling study" << std::endl;
     	std::cout << "Number of processors:      " << my_size << std::endl;
-    	std::cout << "Local number of elements:  " << 10000
+    	std::cout << "Local number of elements:  " << (edge_size-1)*(edge_size-1)
     		  << std::endl;
-    	std::cout << "Local number of points:    " << 10000 
+    	std::cout << "Local number of points:    " << (edge_size-1)*(edge_size-1)
     		  << std::endl;
-    	std::cout << "Global number of elements: " << 10000*my_size 
+    	std::cout << "Global number of elements: " << (edge_size-1)*(edge_size-1)*my_size 
     		  << std::endl;
-    	std::cout << "Global number of points:   " << 10000*my_size 
+    	std::cout << "Global number of points:   " << (edge_size-1)*(edge_size-1)*my_size 
     		  << std::endl;
     	std::cout << "--------------------------------------------------"
     		  << std::endl;
