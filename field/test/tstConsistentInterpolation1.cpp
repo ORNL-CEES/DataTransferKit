@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstConsistentInterpolation.cpp
+ * \file tstConsistentInterpolation1.cpp
  * \author Stuart R. Slattery
- * \brief Consistent interpolation unit tests.
+ * \brief Consistent interpolation unit tests 1.
  */
 //---------------------------------------------------------------------------//
 

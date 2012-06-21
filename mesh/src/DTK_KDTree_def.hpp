@@ -90,7 +90,7 @@ moab::EntityHandle KDTree<GlobalOrdinal>::findPointInLeaf(
     moab::ErrorCode error;
 
     // Get the largest dimension of the elements in the leaf.
-    int dim;
+    int dim = 0;
     int num_elements_by_dim = 0;
     for ( int d = 0; d < 4; ++d )
     {
