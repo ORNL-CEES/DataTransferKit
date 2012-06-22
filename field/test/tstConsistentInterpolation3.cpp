@@ -472,6 +472,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test3 )
 }
 
 //---------------------------------------------------------------------------//
-// end tstConsistentInterpolation2.cpp
+// end tstConsistentInterpolation3.cpp
 //---------------------------------------------------------------------------//
 
