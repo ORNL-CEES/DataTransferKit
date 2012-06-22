@@ -402,7 +402,9 @@ int main(int argc, char* argv[])
     int my_size = comm->getSize();
 
     // Setup source mesh.
-    int edge_size = 1000 / my_size + 1;
+    int global_size = 100;
+    int edge_size = (global_size / std::pow(my_size,0.5) ) + 1;
+
     MyMesh source_mesh = buildMyMesh( my_rank, my_size, edge_size );
 
     // Setup target coordinate field.
