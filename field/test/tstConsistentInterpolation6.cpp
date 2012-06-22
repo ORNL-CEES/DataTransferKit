@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstConsistentInterpolation5.cpp
+ * \file tstConsistentInterpolation6.cpp
  * \author Stuart R. Slattery
- * \brief Consistent interpolation unit test 5.
+ * \brief Consistent interpolation unit test 6.
  */
 //---------------------------------------------------------------------------//
 
@@ -186,7 +186,7 @@ class MeshTraits<MyMesh>
     const_connectivity_iterator;
 
     static inline std::size_t nodeDim( const MyMesh& mesh )
-    { return 2; }
+    { return 3; }
 
     static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
@@ -202,13 +202,13 @@ class MeshTraits<MyMesh>
 
 
     static inline std::size_t elementType( const MyMesh& mesh )
-    { return DTK_FACE; }
+    { return DTK_REGION; }
 
     static inline std::size_t elementTopology( const MyMesh& mesh )
-    { return DTK_TRIANGLE; }
+    { return DTK_PYRAMID; }
 
     static inline std::size_t nodesPerElement( const MyMesh& mesh )
-    { return 3; }
+    { return 5; }
 
 
     static inline const_element_iterator elementsBegin( const MyMesh& mesh )
@@ -309,8 +309,8 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 {
     // Make some nodes.
-    int num_nodes = edge_length*edge_length;
-    int node_dim = 2;
+    int num_nodes = edge_length*edge_length*2 + (edge_length-1)*(edge_length-1);
+    int node_dim = 3;
     Teuchos::Array<long int> node_handles( num_nodes );
     Teuchos::Array<double> coords( node_dim*num_nodes );
     int idx;
@@ -322,38 +322,110 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
 	    coords[ num_nodes + idx ] = j;
+	    coords[ 2*num_nodes + idx ] = 0.0;
+	}
+    }
+    for ( int j = 0; j < edge_length; ++j )
+    {
+	for ( int i = 0; i < edge_length; ++i )
+	{
+	    idx = i + j*edge_length + edge_length*edge_length;
+	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
+	    coords[ idx ] = i + my_rank*(edge_length-1);
+	    coords[ num_nodes + idx ] = j;
+	    coords[ 2*num_nodes + idx ] = 1.0;
+	}
+    }
+    for ( int j = 0; j < edge_length-1; ++j )
+    {
+	for ( int i = 0; i < edge_length-1; ++i )
+	{
+	    idx = i + j*(edge_length-1) + edge_length*edge_length*2;
+	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
+	    coords[ idx ] = i + my_rank*(edge_length-1) + 0.5;
+	    coords[ num_nodes + idx ] = j + 0.5;
+	    coords[ 2*num_nodes + idx ] = 0.5;
 	}
     }
     
-    // Make the quadrilaterals. 
-    int num_elements = (edge_length-1)*(edge_length-1)*2;
-    Teuchos::Array<long int> tri_handles( num_elements );
-    Teuchos::Array<long int> tri_connectivity( 3*num_elements );
+    // Make the pyramids. 
+    int num_elements = (edge_length-1)*(edge_length-1)*6;
+    Teuchos::Array<long int> pyr_handles( num_elements );
+    Teuchos::Array<long int> pyr_connectivity( 5*num_elements );
     int elem_idx, node_idx;
+    int v0, v1, v2, v3, v4, v5, v6, v7, v8;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
+	    // Indices.
 	    node_idx = i + j*edge_length;
+	    v0 = node_idx;
+	    v1 = node_idx + 1;
+	    v2 = node_idx + 1 + edge_length;
+	    v3 = node_idx +     edge_length;
+	    v4 = node_idx +                   edge_length*edge_length;
+	    v5 = node_idx + 1 +               edge_length*edge_length;
+	    v6 = node_idx + 1 + edge_length + edge_length*edge_length;
+	    v7 = node_idx +     edge_length + edge_length*edge_length;
+	    v8 = i + j*(edge_length-1) + edge_length*edge_length*2;
 
-	    // Triangle 1.
+	    // Pyramid 1.
 	    elem_idx = i + j*(edge_length-1);
-	    tri_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    tri_connectivity[elem_idx] = node_handles[node_idx];
-	    tri_connectivity[num_elements+elem_idx] = node_handles[node_idx+1];
-	    tri_connectivity[2*num_elements+elem_idx] 
-		= node_handles[node_idx+edge_length+1];
+	    pyr_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    pyr_connectivity[elem_idx]                = node_handles[v0];
+	    pyr_connectivity[num_elements+elem_idx]   = node_handles[v1];
+	    pyr_connectivity[2*num_elements+elem_idx] = node_handles[v2];
+	    pyr_connectivity[3*num_elements+elem_idx] = node_handles[v3];
+	    pyr_connectivity[4*num_elements+elem_idx] = node_handles[v8];
 
-	    // Triangle 2.
-	    elem_idx = i + j*(edge_length-1) + num_elements/2;
-	    tri_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    tri_connectivity[elem_idx] = node_handles[node_idx+edge_length+1];
-	    tri_connectivity[num_elements+elem_idx] = 
-		node_handles[node_idx+edge_length];
-	    tri_connectivity[2*num_elements+elem_idx] = node_handles[node_idx];
+	    // Pyramid 2.
+	    elem_idx = i + j*(edge_length-1) + num_elements/6;
+	    pyr_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    pyr_connectivity[elem_idx] 	              = node_handles[v1];
+	    pyr_connectivity[num_elements+elem_idx]   = node_handles[v5];
+	    pyr_connectivity[2*num_elements+elem_idx] = node_handles[v6];
+	    pyr_connectivity[3*num_elements+elem_idx] = node_handles[v2];
+	    pyr_connectivity[4*num_elements+elem_idx] = node_handles[v8];
+
+	    // Pyramid 3.
+	    elem_idx = i + j*(edge_length-1) + 2*num_elements/6;
+	    pyr_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    pyr_connectivity[elem_idx] 	              = node_handles[v2];
+	    pyr_connectivity[num_elements+elem_idx]   = node_handles[v6];
+	    pyr_connectivity[2*num_elements+elem_idx] = node_handles[v7];
+	    pyr_connectivity[3*num_elements+elem_idx] = node_handles[v3];
+	    pyr_connectivity[4*num_elements+elem_idx] = node_handles[v8];
+
+	    // Pyramid 4.
+	    elem_idx = i + j*(edge_length-1) + 3*num_elements/6;
+	    pyr_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    pyr_connectivity[elem_idx]   	      = node_handles[v4];
+	    pyr_connectivity[num_elements+elem_idx]   = node_handles[v0];
+	    pyr_connectivity[2*num_elements+elem_idx] = node_handles[v3];
+	    pyr_connectivity[3*num_elements+elem_idx] = node_handles[v7];
+	    pyr_connectivity[4*num_elements+elem_idx] = node_handles[v8];
+
+	    // Pyramid 5.
+	    elem_idx = i + j*(edge_length-1) + 4*num_elements/6;
+	    pyr_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    pyr_connectivity[elem_idx]   	      = node_handles[v4];
+	    pyr_connectivity[num_elements+elem_idx]   = node_handles[v5];
+	    pyr_connectivity[2*num_elements+elem_idx] = node_handles[v1];
+	    pyr_connectivity[3*num_elements+elem_idx] = node_handles[v0];
+	    pyr_connectivity[4*num_elements+elem_idx] = node_handles[v8];
+
+	    // Pyramid 6.
+	    elem_idx = i + j*(edge_length-1) + 5*num_elements/6;
+	    pyr_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    pyr_connectivity[elem_idx]   	      = node_handles[v4];
+	    pyr_connectivity[num_elements+elem_idx]   = node_handles[v7];
+	    pyr_connectivity[2*num_elements+elem_idx] = node_handles[v6];
+	    pyr_connectivity[3*num_elements+elem_idx] = node_handles[v5];
+	    pyr_connectivity[4*num_elements+elem_idx] = node_handles[v8];
 	}
     }
-    return MyMesh( node_handles, coords, tri_handles, tri_connectivity );
+    return MyMesh( node_handles, coords, pyr_handles, pyr_connectivity );
 }
 
 //---------------------------------------------------------------------------//
@@ -363,7 +435,7 @@ MyField buildCoordinateField( int my_rank, int my_size,
 			      int num_points, int edge_size )
 {
     std::srand( my_rank*num_points*2 );
-    int point_dim = 2;
+    int point_dim = 3;
     MyField coordinate_field( num_points*point_dim, point_dim );
 
     for ( int i = 0; i < num_points; ++i )
@@ -372,6 +444,7 @@ MyField buildCoordinateField( int my_rank, int my_size,
 	    my_size * (edge_size-1) * (double) std::rand() / RAND_MAX;
 	*(coordinate_field.begin() + num_points + i ) = 
 	    (edge_size-1) * (double) std::rand() / RAND_MAX;
+	*(coordinate_field.begin() + 2*num_points + i ) = 0.5;
     }
 
     return coordinate_field;
@@ -380,7 +453,7 @@ MyField buildCoordinateField( int my_rank, int my_size,
 //---------------------------------------------------------------------------//
 // Unit test.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test5 )
+TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test6 )
 {
     using namespace DataTransferKit;
 
@@ -425,6 +498,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test5 )
 }
 
 //---------------------------------------------------------------------------//
-// end tstConsistentInterpolation5.cpp
+// end tstConsistentInterpolation6.cpp
 //---------------------------------------------------------------------------//
 
