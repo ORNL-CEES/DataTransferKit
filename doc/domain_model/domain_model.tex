@@ -1,0 +1,73 @@
+\documentclass[letterpaper]{article}
+\usepackage[top=1.0in,bottom=1.0in,left=1.0in,right=1.0in]{geometry}
+\usepackage{verbatim}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[usenames]{color}
+\usepackage[
+naturalnames = true, 
+colorlinks = true, 
+linkcolor = black,
+anchorcolor = black,
+citecolor = black,
+menucolor = black,
+urlcolor = blue
+]{hyperref}
+\usepackage{listings}
+\usepackage{textcomp}
+\definecolor{listinggray}{gray}{0.9}
+\definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
+
+%%---------------------------------------------------------------------------%%
+\author{Stuart R. Slattery
+\\ \href{mailto:sslattery@wisc.edu}{\texttt{sslattery@wisc.edu}}
+}
+
+\date{June 22, 2012}
+\title{Data Transfer Kit Domain Model}
+\begin{document}
+\maketitle
+
+%%---------------------------------------------------------------------------%%
+\section{Introduction}
+In many physics applications, it is often desired to transfer fields
+(i.e. degrees of freedom or other data) between meshes that may or may
+not correlate in physical space. In addition, for massively parallel
+simulations, it is typically that meshes not only do not correlate
+spatially, but also that their parallel decompositions do not
+correlate and are indepndent of one another. As an example, this
+situation can occur in multiphysics simulations where physics fields
+provide feedback between solutions or adaptive mesh simulations where
+fields must be moved between meshes after refining and coarsening.
+
+%%---------------------------------------------------------------------------%%
+\section{Mesh}
+
+\subsection{Topology}
+
+\subsection{Geometric Rendezvous}
+
+%%---------------------------------------------------------------------------%%
+\section{Fields}
+
+\subsection{Field Evaluations}
+
+%%---------------------------------------------------------------------------%%
+\section{Mesh/Field Mapping}
+
+%%---------------------------------------------------------------------------%%
+\section{Transfer Operations}
+
+%%---------------------------------------------------------------------------%%
+\section{Conclusion}
+
+%%---------------------------------------------------------------------------%%
+\pagebreak
+\bibliographystyle{ieeetr}
+\bibliography{references}
+\end{document}
+
+
