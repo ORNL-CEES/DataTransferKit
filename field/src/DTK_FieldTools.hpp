@@ -45,6 +45,8 @@
 #include <DTK_BoundingBox.hpp>
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
@@ -72,21 +74,60 @@ class FieldTools
     ~FieldTools()
     { /* ... */ }
 
-    // Get the local bounding box for a coordinate field.
+    //@{
+    //! View methods.
+    // Get a const view. The ArrayRCP object will not manage the memory.
+    static Teuchos::ArrayRCP<const value_type> view( const Field& field );
+
+    // Get a non-const view. The ArrayRCP object will not manage the memory.
+    static Teuchos::ArrayRCP<value_type> nonConstView( Field& field );
+    //@}
+
+
+    //@{
+    //! General global field operations.
+    // Fill a field with a scalar.
+    static void putScalar( Field& field, const value_type& scalar );
+
+    // Scale a field by a single value.
+    static void scale( Field& field, const value_type& scalar );
+
+    // Scale a field by different value for each dimension.
+    static void scale( Field& field, 
+		       const Teuchos::ArrayView<value_type>& scalars );
+
+    // Compute the infinity norm for each field dimension.
+    static void normInf( const Field& field, T
+			 euchos::Array<value_type>& norms, 
+			 const RCP_Comm& comm );
+
+    // Compute the L1 norm for each field dimension.
+    static void norm1( const Field& field, Teuchos::Array<value_type>& norms, 
+		       const RCP_Comm& comm );
+
+    // Compute the L2 norm for each field dimension.
+    static void norm2( const Field& field, Teuchos::Array<value_type>& norms,
+		       const RCP_Comm& comm );
+
+    // Compute the average value for each field dimension.
+    static void average( const Field& field, 
+			 Teuchos::Array<value_type>& averages,
+			 const RCP_Comm& comm );
+
+    // Get the global length of the field.
+    static void globalLength( const Field& field, const RCP_Comm& comm );
+    //@}
+
+
+    //@{
+    //! Coordinate field operations.
+    // Get the local bounding box for a field of coordinates.
     static BoundingBox coordLocalBoundingBox( const Field& field );
 
-    // Get the global bounding box for a coordinate field.
+    // Get the global bounding box for a field of coordinates.
     static BoundingBox coordGlobalBoundingBox( const Field& field,
 					       const RCP_Comm& comm );
-
-    // Get the infinity norm of a given field dimension.
-    static value_type normInf( const std::size_t dim );
-
-    // Get the L1 norm of a given field dimension.
-    static value_type norm1( const std::size_t dim );
-
-    // Get the L2 norm of a given field dimension.
-    static value_type norm2( const std::size_t dim );
+    //@}
 };
 
 } // end namepsace DataTransferKit

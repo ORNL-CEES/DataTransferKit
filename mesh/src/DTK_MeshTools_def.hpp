@@ -42,6 +42,7 @@
 #define DTK_MESHTOOLS_DEF_HPP
 
 #include <algorithm>
+#include <iterator>
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_CommHelpers.hpp>
@@ -49,6 +50,129 @@
 
 namespace DataTransferKit
 {
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a view of the of the mesh nodes. The ArrayRCP object will not
+ * manage the memory. 
+ */
+template <class Mesh> 
+Teuchos::ArrayRCP<const typename Mesh::Tools<Mesh>::handle_type> 
+MeshTools<Mesh>::nodesView( const Mesh& mesh )
+{
+    handle_type num_nodes = std::distance( MT::nodesBegin( mesh ),
+					   MT::nodesEnd( mesh ) );
+    return Teuchos::ArrayRCP<const handle_type>(
+	&*MT::nodesBegin(mesh), 0, num_nodes, false );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a non-const view of the of the mesh nodes. The ArrayRCP object
+ * will not manage the memory.
+ */
+template <class Mesh> 
+Teuchos::ArrayRCP<typename Mesh::Tools<Mesh>::handle_type> 
+MeshTools<Mesh>::nodesNonConstView( Mesh& mesh )
+{
+    handle_type num_nodes = std::distance( MT::nodesBegin( mesh ),
+					   MT::nodesEnd( mesh ) );
+    return Teuchos::ArrayRCP<handle_type>(
+	(*handle_type) &*MT::nodesBegin(mesh), 0, num_nodes, false );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a view of the of the mesh coordinates. The ArrayRCP object will
+ * not manage the memory.
+ */
+template <class Mesh> 
+Teuchos::ArrayRCP<const typename Mesh::Tools<Mesh>::handle_type> 
+MeshTools<Mesh>::coordsView( const Mesh& mesh )
+{
+    handle_type num_coords = std::distance( MT::coordsBegin( mesh ),
+					    MT::coordsEnd( mesh ) );
+    return Teuchos::ArrayRCP<const double>(
+	&*MT::coordsBegin(mesh), 0, num_coords, false );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a non-const view of the of the mesh coordinates. The ArrayRCP
+ * object will not manage the memory.
+ */
+template <class Mesh> 
+Teuchos::ArrayRCP<typename Mesh::Tools<Mesh>::handle_type> 
+MeshTools<Mesh>::coordsNonConstView( Mesh& mesh )
+{
+    handle_type num_coords = std::distance( MT::coordsBegin( mesh ),
+					    MT::coordsEnd( mesh ) );
+    return Teuchos::ArrayRCP<double>(
+	(*double) &*MT::coordsBegin(mesh), 0, num_coords, false );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a view of the of the mesh elements. The ArrayRCP object will not
+ * manage the memory. 
+ */
+template <class Mesh> 
+Teuchos::ArrayRCP<const typename Mesh::Tools<Mesh>::handle_type> 
+MeshTools<Mesh>::elementsView( const Mesh& mesh )
+{
+    handle_type num_elements = std::distance( MT::elementsBegin( mesh ),
+					      MT::elementsEnd( mesh ) );
+    return Teuchos::ArrayRCP<const handle_type>(
+	&*MT::elementsBegin(mesh), 0, num_elements, false );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a non-const view of the of the mesh elements. The ArrayRCP
+ * object will not manage the memory.
+ */
+template <class Mesh> 
+Teuchos::ArrayRCP<typename Mesh::Tools<Mesh>::handle_type> 
+MeshTools<Mesh>::elementsNonConstView( Mesh& mesh )
+{
+    handle_type num_elements = std::distance( MT::elementsBegin( mesh ),
+					      MT::elementsEnd( mesh ) );
+    return Teuchos::ArrayRCP<handle_type>(
+	(*handle_type) &*MT::elementsBegin(mesh), 0, num_elements, false );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a view of the of the mesh connectivity. The ArrayRCP object will
+ * not manage the memory. 
+ */
+template <class Mesh> 
+Teuchos::ArrayRCP<const typename Mesh::Tools<Mesh>::handle_type> 
+MeshTools<Mesh>::connectivityView( const Mesh& mesh )
+{
+    handle_type num_connectivity = 
+	std::distance( MT::connectivityBegin( mesh ),
+		       MT::connectivityEnd( mesh ) );
+    return Teuchos::ArrayRCP<const handle_type>(
+	&*MT::connectivityBegin(mesh), 0, num_connectivity, false );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a non-const view of the of the mesh connectivity. The ArrayRCP
+ * object will not manage the memory.
+ */
+template <class Mesh> 
+Teuchos::ArrayRCP<typename Mesh::Tools<Mesh>::handle_type> 
+MeshTools<Mesh>::connectivityNonConstView( Mesh& mesh )
+{
+    handle_type num_connectivity = 
+	std::distance( MT::connectivityBegin( mesh ),
+		       MT::connectivityEnd( mesh ) );
+    return Teuchos::ArrayRCP<handle_type>(
+	(*handle_type) &*MT::connectivityBegin(mesh), 0, 
+	num_connectivity, false );
+}
+
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the local bounding box for a mesh.

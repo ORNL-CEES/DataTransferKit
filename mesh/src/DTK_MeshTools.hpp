@@ -45,6 +45,7 @@
 #include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
@@ -65,6 +66,7 @@ class MeshTools
     //! Typedefs.
     typedef Mesh                            mesh_type;
     typedef MeshTraits<Mesh>                MT;
+    typedef typename MT::handle_type        handle_type;
     typedef Teuchos::Comm<int>              CommType;
     typedef Teuchos::RCP<const CommType>    RCP_Comm;
     //@}
@@ -77,12 +79,55 @@ class MeshTools
     ~MeshTools()
     { /* ... */ }
 
+
+    //@{
+    //! Safe mesh data access methods.
+    // Get a view of the of the mesh nodes. The ArrayRCP object will not
+    // manage the memory. 
+    static Teuchos::ArrayRCP<const handle_type> nodesView( const Mesh& mesh );
+
+    // Get a non-const view of the of the mesh nodes. The ArrayRCP object will
+    // not manage the memory.
+    static Teuchos::ArrayRCP<handle_type> nodesNonConstView( Mesh& mesh );
+
+    // Get a view of the of the mesh coordinates. The ArrayRCP object will not
+    // manage the memory. 
+    static Teuchos::ArrayRCP<const double> coordsView( const Mesh& mesh );
+
+    // Get a non-const view of the of the mesh coordinates. The ArrayRCP
+    // object will not manage the memory.
+    static Teuchos::ArrayRCP<handle_type> coordsNonConstView( Mesh& mesh );
+
+    // Get a view of the of the mesh elements. The ArrayRCP object will not
+    // manage the memory. 
+    static Teuchos::ArrayRCP<const handle_type> 
+    elementsView( const Mesh& mesh );
+
+    // Get a non-const view of the of the mesh elements. The ArrayRCP object
+    // will not manage the memory.
+    static Teuchos::ArrayRCP<handle_type> elementsNonConstView( Mesh& mesh );
+
+    // Get a view of the of the mesh connectivity. The ArrayRCP object will not
+    // manage the memory. 
+    static Teuchos::ArrayRCP<const handle_type> 
+    connectivityView( const Mesh& mesh );
+
+    // Get a non-const view of the of the mesh connectivity. The ArrayRCP
+    // object will not manage the memory.
+    static Teuchos::ArrayRCP<handle_type> 
+    connectivityNonConstView( Mesh& mesh );
+    //@}
+
+
+    //@{
+    //! Bounding box methods.
     // Get the local bounding box for a mesh.
     static BoundingBox localBoundingBox( const Mesh& mesh );
 
     // Get the global bounding box for a mesh.
     static BoundingBox globalBoundingBox( const Mesh& mesh, 
 					  const RCP_Comm& comm );
+    //@}
 };
 
 } // end namepsace DataTransferKit

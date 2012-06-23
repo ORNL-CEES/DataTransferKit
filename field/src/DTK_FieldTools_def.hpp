@@ -53,7 +53,7 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the local bounding box for a coordinate field.
+ * \brief Get the local bounding box for a field of coordinates.
  */
 template<class Field>
 BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
@@ -110,7 +110,7 @@ BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the global bounding box for a coordinate field.
+ * \brief Get the global bounding box for a field of coordinates.
  */
 template<class Field>
 BoundingBox FieldTools<Field>::coordGlobalBoundingBox( const Field& field,
