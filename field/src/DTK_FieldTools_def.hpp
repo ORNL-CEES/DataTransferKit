@@ -42,6 +42,7 @@
 #define DTK_FIELDTOOLS_DEF_HPP
 
 #include <algorithm>
+#include <iterator>
 
 #include <DTK_Exception.hpp>
 
@@ -51,6 +52,36 @@
 
 namespace DataTransferKit
 {
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a const view of the field. The ArrayRCP object will not manage
+ * the memory. 
+ */
+template<class Field>
+Teuchos::ArrayRCP<const typename FieldTools<Field>::value_type>
+FieldTools<Field>::view( const Field& field )
+{
+    size_type field_size = std::distance( FT::begin( field ), 
+					  FT::end( field ) );
+    return Teuchos::ArrayRCP<const value_type>(
+	&*FT::begin( field ), 0, field_size, false );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a non-const view of the field. The ArrayRCP object will not
+ * manage the memory. 
+ */
+template<class Field>
+Teuchos::ArrayRCP<typename FieldTools<Field>::value_type>
+FieldTools<Field>::nonConstView( const Field& field )
+{
+    size_type field_size = std::distance( FT::begin( field ), 
+					  FT::end( field ) );
+    return Teuchos::ArrayRCP<value_type>(
+	(value_type*) &*FT::begin( field ), 0, field_size, false );
+}
+
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the local bounding box for a field of coordinates.
@@ -102,7 +133,7 @@ BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
     if ( dim > 3 )
     {
 	throw InvariantException( 
-	    "Nodes with greater than 3 dimensions not supported" );
+	    "Points with greater than 3 dimensions not supported" );
     }
 
     return BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );

@@ -117,15 +117,15 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     // coordinate field.
     std::size_t coord_dim = CFT::dim( coordinate_field );
     typename CFT::size_type num_coords = CFT::size( coordinate_field );
-    Teuchos::ArrayRCP<double> coords_view;
+    Teuchos::ArrayRCP<typename CFT::value_type> coords_view;
     if ( num_coords == 0 )
     {
-	coords_view = Teuchos::ArrayRCP<double>( 0, 0.0 );
+	coords_view = Teuchos::ArrayRCP<typename CFT::value_type>( 0, 0.0 );
     }
     else
     {
-	 coords_view = Teuchos::ArrayRCP<double>( 
-	     (double*) &*CFT::begin( coordinate_field ), 0, num_coords, false );
+	coords_view = 
+	    FieldTools<CoordinateField>::nonConstView( coordinate_field );
     }
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.getRendezvousProcs( coords_view );
@@ -288,9 +288,8 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
     }
     else
     {
-	 source_field_view = Teuchos::ArrayRCP<typename SFT::value_type>(
-	     &*SFT::begin( evaluated_field ), 0, 
-	     SFT::size( evaluated_field ), false );
+	source_field_view = 
+	    FieldTools<SourceField>::nonConstView( evaluated_field );
     }
 
     global_ordinal_type source_size = SFT::size( evaluated_field ) /
@@ -310,9 +309,8 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
     }
     else
     {
-	target_field_view = Teuchos::ArrayRCP<typename TFT::value_type>(
-	    &*TFT::begin( target_space ), 0,
-	    TFT::size( target_space ), false );
+	target_field_view =
+	    FieldTools<TargetField>::nonConstView( target_space );
     }
     
     global_ordinal_type target_size = TFT::size( target_space ) /
@@ -343,7 +341,8 @@ BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
     typename CFT::size_type num_points = 
 	std::distance( CFT::begin( coordinate_field ),
 		       CFT::end( coordinate_field ) ) / point_dim;
-    typename CFT::const_iterator point_coords = CFT::begin( coordinate_field );
+    Teuchos::ArrayRCP<const typename CFT::value_type> point_coords = 
+	FieldTools<CoordinateField>::view( coordinate_field );
     double point[3];
     for ( typename CFT::size_type n = 0; n < num_points; ++n )
     {

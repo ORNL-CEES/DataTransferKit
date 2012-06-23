@@ -62,6 +62,7 @@ class FieldTools
     typedef Field                           field_type;
     typedef FieldTraits<Field>              FT;
     typedef typename FT::value_type         value_type;
+    typedef typename FT::size_type          size_type;
     typedef Teuchos::Comm<int>              CommType;
     typedef Teuchos::RCP<const CommType>    RCP_Comm;
     //@}
@@ -76,11 +77,13 @@ class FieldTools
 
     //@{
     //! View methods.
-    // Get a const view. The ArrayRCP object will not manage the memory.
+    // Get a const view of the field. The ArrayRCP object will not manage the
+    // memory. 
     static Teuchos::ArrayRCP<const value_type> view( const Field& field );
 
-    // Get a non-const view. The ArrayRCP object will not manage the memory.
-    static Teuchos::ArrayRCP<value_type> nonConstView( Field& field );
+    // Get a non-const view of the field. The ArrayRCP object will not manage
+    // the memory. 
+    static Teuchos::ArrayRCP<value_type> nonConstView( const Field& field );
     //@}
 
 
