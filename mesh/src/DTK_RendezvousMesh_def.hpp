@@ -45,12 +45,14 @@
 #include <cassert>
 
 #include "DTK_MeshTraits.hpp"
+#include "DTK_MeshTools.hpp"
 #include <DTK_Exception.hpp>
 
 #include <MBCore.hpp>
 
 #include <Teuchos_ENull.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
 {
@@ -89,9 +91,7 @@ createRendezvousMesh( const Mesh& mesh )
     typedef MeshTraits<Mesh> MT;
     typedef typename MT::global_ordinal_type GlobalOrdinal;
     typename MT::const_node_iterator node_iterator;
-    typename MT::const_coordinate_iterator coord_iterator;
     typename MT::const_element_iterator element_iterator;
-    typename MT::const_connectivity_iterator conn_iterator;
 
     // Create a moab interface.
     moab::ErrorCode error;
@@ -113,7 +113,8 @@ createRendezvousMesh( const Mesh& mesh )
     // moab vertex handles. This should be in a hash table. We'll need one
     // that hashes moab handles.
     double vertex_coords[3];
-    coord_iterator = MT::coordsBegin( mesh );
+    Teuchos::ArrayRCP<const double> mesh_coords = 
+	MeshTools<Mesh>::coordsView( mesh );
     std::map<GlobalOrdinal,moab::EntityHandle> vertex_handle_map;
     GlobalOrdinal n = 0;
     for ( node_iterator = MT::nodesBegin( mesh );
@@ -123,7 +124,7 @@ createRendezvousMesh( const Mesh& mesh )
 	moab::EntityHandle moab_vertex;
 	for ( std::size_t d = 0; d < node_dim; ++d )
 	{
-	    vertex_coords[d] = coord_iterator[d*num_nodes + n];
+	    vertex_coords[d] = mesh_coords[d*num_nodes + n];
 	}
 	for ( std::size_t d = node_dim; d < 3; ++d )
 	{
@@ -148,7 +149,8 @@ createRendezvousMesh( const Mesh& mesh )
 	"Connectivity array inconsistent with element description." );
 
     // Extract the mesh elements and add them to moab.
-    conn_iterator = MT::connectivityBegin( mesh );
+    Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity = 
+	MeshTools<Mesh>::connectivityView( mesh );
     GlobalOrdinal conn_index;
     moab::Range moab_elements;
     Teuchos::Array<moab::EntityHandle> element_connectivity;
@@ -165,7 +167,7 @@ createRendezvousMesh( const Mesh& mesh )
 	    conn_index = i*num_elements + n;
 	    element_connectivity.push_back( 
 		vertex_handle_map.find( 
-		    conn_iterator[ conn_index ] )->second );
+		    mesh_connectivity[ conn_index ] )->second );
 	}
 	testInvariant( (int) element_connectivity.size() == nodes_per_element,
 		       "Element connectivity size != nodes per element." );

@@ -64,11 +64,11 @@ class MeshTools
 
     //@{
     //! Typedefs.
-    typedef Mesh                            mesh_type;
-    typedef MeshTraits<Mesh>                MT;
-    typedef typename MT::handle_type        handle_type;
-    typedef Teuchos::Comm<int>              CommType;
-    typedef Teuchos::RCP<const CommType>    RCP_Comm;
+    typedef Mesh                                mesh_type;
+    typedef MeshTraits<Mesh>                    MT;
+    typedef typename MT::global_ordinal_type    global_ordinal_type;
+    typedef Teuchos::Comm<int>                  CommType;
+    typedef Teuchos::RCP<const CommType>        RCP_Comm;
     //@}
 
     //! Constructor.
@@ -81,14 +81,16 @@ class MeshTools
 
 
     //@{
-    //! Safe mesh data access methods.
+    //! Bounds-checking mesh data access methods.
     // Get a view of the of the mesh nodes. The ArrayRCP object will not
     // manage the memory. 
-    static Teuchos::ArrayRCP<const handle_type> nodesView( const Mesh& mesh );
+    static Teuchos::ArrayRCP<const global_ordinal_type> 
+    nodesView( const Mesh& mesh );
 
     // Get a non-const view of the of the mesh nodes. The ArrayRCP object will
     // not manage the memory.
-    static Teuchos::ArrayRCP<handle_type> nodesNonConstView( Mesh& mesh );
+    static Teuchos::ArrayRCP<global_ordinal_type> 
+    nodesNonConstView( const Mesh& mesh );
 
     // Get a view of the of the mesh coordinates. The ArrayRCP object will not
     // manage the memory. 
@@ -96,26 +98,27 @@ class MeshTools
 
     // Get a non-const view of the of the mesh coordinates. The ArrayRCP
     // object will not manage the memory.
-    static Teuchos::ArrayRCP<handle_type> coordsNonConstView( Mesh& mesh );
+    static Teuchos::ArrayRCP<double> coordsNonConstView( const Mesh& mesh );
 
     // Get a view of the of the mesh elements. The ArrayRCP object will not
     // manage the memory. 
-    static Teuchos::ArrayRCP<const handle_type> 
+    static Teuchos::ArrayRCP<const global_ordinal_type> 
     elementsView( const Mesh& mesh );
 
     // Get a non-const view of the of the mesh elements. The ArrayRCP object
     // will not manage the memory.
-    static Teuchos::ArrayRCP<handle_type> elementsNonConstView( Mesh& mesh );
+    static Teuchos::ArrayRCP<global_ordinal_type> 
+    elementsNonConstView( const Mesh& mesh );
 
     // Get a view of the of the mesh connectivity. The ArrayRCP object will not
     // manage the memory. 
-    static Teuchos::ArrayRCP<const handle_type> 
+    static Teuchos::ArrayRCP<const global_ordinal_type> 
     connectivityView( const Mesh& mesh );
 
     // Get a non-const view of the of the mesh connectivity. The ArrayRCP
     // object will not manage the memory.
-    static Teuchos::ArrayRCP<handle_type> 
-    connectivityNonConstView( Mesh& mesh );
+    static Teuchos::ArrayRCP<global_ordinal_type> 
+    connectivityNonConstView( const Mesh& mesh );
     //@}
 
 

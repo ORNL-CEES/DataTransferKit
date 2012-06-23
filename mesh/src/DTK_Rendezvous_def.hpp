@@ -46,6 +46,7 @@
 #include <cassert>
 
 #include "DTK_MeshContainer.hpp"
+#include "DTK_MeshTools.hpp"
 #include <DTK_Exception.hpp>
 
 #include <Teuchos_CommHelpers.hpp>
@@ -209,8 +210,8 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
 
     // Get all of the nodes that are in the box. 
     double node_coords[3];
-    typename MT::const_coordinate_iterator mesh_coords = 
-	MT::coordsBegin( mesh );
+    Teuchos::ArrayRCP<const double> mesh_coords =
+	MeshTools<Mesh>::coordsView( mesh );
     for ( GlobalOrdinal n = 0; n < num_nodes; ++n )
     {
 	for ( std::size_t d = 0; d < d_node_dim; ++d )
@@ -233,8 +234,8 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
     GlobalOrdinal node_index;
     GlobalOrdinal node_ordinal;
     int this_element_in_box;
-    typename MT::const_connectivity_iterator mesh_connectivity =
-	MT::connectivityBegin( mesh );
+    Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity = 
+	MeshTools<Mesh>::connectivityView( mesh );
     for ( GlobalOrdinal n = 0; n < num_elements; ++n )
     {
 	this_element_in_box = 0;
@@ -287,8 +288,11 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     // Setup export node map.
     GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ), 
 					     MT::nodesEnd( mesh ) );
-    Teuchos::ArrayView<const GlobalOrdinal> export_node_view(
-	&*MT::nodesBegin( mesh ), num_nodes );
+
+    Teuchos::ArrayRCP<const GlobalOrdinal> export_node_arcp =
+	MeshTools<Mesh>::nodesView( mesh );
+    Teuchos::ArrayView<const GlobalOrdinal> export_node_view =
+	export_node_arcp();
     RCP_TpetraMap export_node_map = Tpetra::createNonContigMap<GlobalOrdinal>( 
 	export_node_view, d_comm );
     testPostcondition( export_node_map != Teuchos::null,
@@ -305,8 +309,10 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     // Setup export element map.
     GlobalOrdinal num_elements = std::distance( MT::elementsBegin( mesh ), 
 						MT::elementsEnd( mesh ) );
-    Teuchos::ArrayView<const GlobalOrdinal> export_element_view(
-	&*MT::elementsBegin( mesh ), num_elements );
+    Teuchos::ArrayRCP<const GlobalOrdinal> export_element_arcp =
+	MeshTools<Mesh>::elementsView( mesh );
+    Teuchos::ArrayView<const GlobalOrdinal> export_element_view =
+	export_element_arcp();
     RCP_TpetraMap export_element_map = 
 	Tpetra::createNonContigMap<GlobalOrdinal>(
 	    export_element_view, d_comm );
@@ -337,8 +343,7 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     }
     else
     {
-	export_coords_view = Teuchos::ArrayRCP<double>( 
-	    (double*) &*MT::coordsBegin( mesh ), 0, num_coords, false );
+	export_coords_view = MeshTools<Mesh>::coordsNonConstView( mesh );
     }
     Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > export_coords = 
 	createMultiVectorFromView( export_node_map, export_coords_view, 
@@ -357,8 +362,7 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     }
     else
     {
-	export_conn_view = Teuchos::ArrayRCP<GlobalOrdinal>( 
-	    (GlobalOrdinal*) &*MT::connectivityBegin( mesh ), 0, num_conn, false );
+	export_conn_view = MeshTools<Mesh>::connectivityNonConstView( mesh );
     }
     Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > export_conn 
 	= createMultiVectorFromView( export_element_map, export_conn_view, 
@@ -436,10 +440,10 @@ void Rendezvous<Mesh>::setupImportCommunication(
     GlobalOrdinal node_ordinal;
     int destination_proc;
     double node_coords[3];
-    typename MT::const_coordinate_iterator mesh_coords = 
-	MT::coordsBegin( mesh );
-    typename MT::const_connectivity_iterator mesh_connectivity = 
-	MT::connectivityBegin( mesh );
+    Teuchos::ArrayRCP<const double> mesh_coords =
+	MeshTools<Mesh>::coordsView( mesh );
+    Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity =
+	MeshTools<Mesh>::connectivityView( mesh );
     for ( GlobalOrdinal n = 0; n < num_elements; ++n )
     {
 	if ( elements_in_box[n] )

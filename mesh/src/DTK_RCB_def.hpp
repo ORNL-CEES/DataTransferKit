@@ -40,6 +40,7 @@
 
 #include <algorithm>
 
+#include "DTK_MeshTools.hpp"
 #include <DTK_Exception.hpp>
 
 #include <mpi.h>
@@ -314,8 +315,8 @@ void RCB<Mesh>::getGeometryList(
     }
     
     // Zoltan needs interleaved coordinates.
-    typename MT::const_coordinate_iterator mesh_coords =
-	MT::coordsBegin( mesh_data->d_mesh );
+    Teuchos::ArrayRCP<const double> mesh_coords = 
+	MeshTools<Mesh>::coordsView( mesh_data->d_mesh );
     for ( std::size_t n = 0; n < num_nodes; ++n )
     {
 	for ( std::size_t d = 0; d < node_dim; ++d )

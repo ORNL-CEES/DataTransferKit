@@ -56,12 +56,12 @@ namespace DataTransferKit
  * manage the memory. 
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<const typename Mesh::Tools<Mesh>::handle_type> 
+Teuchos::ArrayRCP<const typename MeshTools<Mesh>::global_ordinal_type> 
 MeshTools<Mesh>::nodesView( const Mesh& mesh )
 {
-    handle_type num_nodes = std::distance( MT::nodesBegin( mesh ),
-					   MT::nodesEnd( mesh ) );
-    return Teuchos::ArrayRCP<const handle_type>(
+    global_ordinal_type num_nodes = std::distance( MT::nodesBegin( mesh ),
+						   MT::nodesEnd( mesh ) );
+    return Teuchos::ArrayRCP<const global_ordinal_type>(
 	&*MT::nodesBegin(mesh), 0, num_nodes, false );
 }
 
@@ -71,13 +71,13 @@ MeshTools<Mesh>::nodesView( const Mesh& mesh )
  * will not manage the memory.
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<typename Mesh::Tools<Mesh>::handle_type> 
-MeshTools<Mesh>::nodesNonConstView( Mesh& mesh )
+Teuchos::ArrayRCP<typename MeshTools<Mesh>::global_ordinal_type> 
+MeshTools<Mesh>::nodesNonConstView( const Mesh& mesh )
 {
-    handle_type num_nodes = std::distance( MT::nodesBegin( mesh ),
-					   MT::nodesEnd( mesh ) );
-    return Teuchos::ArrayRCP<handle_type>(
-	(*handle_type) &*MT::nodesBegin(mesh), 0, num_nodes, false );
+    global_ordinal_type num_nodes = std::distance( MT::nodesBegin( mesh ),
+						   MT::nodesEnd( mesh ) );
+    return Teuchos::ArrayRCP<global_ordinal_type>(
+	(global_ordinal_type*) &*MT::nodesBegin(mesh), 0, num_nodes, false );
 }
 
 //---------------------------------------------------------------------------//
@@ -86,11 +86,11 @@ MeshTools<Mesh>::nodesNonConstView( Mesh& mesh )
  * not manage the memory.
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<const typename Mesh::Tools<Mesh>::handle_type> 
+Teuchos::ArrayRCP<const double>
 MeshTools<Mesh>::coordsView( const Mesh& mesh )
 {
-    handle_type num_coords = std::distance( MT::coordsBegin( mesh ),
-					    MT::coordsEnd( mesh ) );
+    global_ordinal_type num_coords = std::distance( MT::coordsBegin( mesh ),
+						    MT::coordsEnd( mesh ) );
     return Teuchos::ArrayRCP<const double>(
 	&*MT::coordsBegin(mesh), 0, num_coords, false );
 }
@@ -101,13 +101,13 @@ MeshTools<Mesh>::coordsView( const Mesh& mesh )
  * object will not manage the memory.
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<typename Mesh::Tools<Mesh>::handle_type> 
-MeshTools<Mesh>::coordsNonConstView( Mesh& mesh )
+Teuchos::ArrayRCP<double>
+MeshTools<Mesh>::coordsNonConstView( const Mesh& mesh )
 {
-    handle_type num_coords = std::distance( MT::coordsBegin( mesh ),
-					    MT::coordsEnd( mesh ) );
+    global_ordinal_type num_coords = 
+	std::distance( MT::coordsBegin( mesh ), MT::coordsEnd( mesh ) );
     return Teuchos::ArrayRCP<double>(
-	(*double) &*MT::coordsBegin(mesh), 0, num_coords, false );
+	(double*) &*MT::coordsBegin(mesh), 0, num_coords, false );
 }
 
 //---------------------------------------------------------------------------//
@@ -116,12 +116,12 @@ MeshTools<Mesh>::coordsNonConstView( Mesh& mesh )
  * manage the memory. 
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<const typename Mesh::Tools<Mesh>::handle_type> 
+Teuchos::ArrayRCP<const typename MeshTools<Mesh>::global_ordinal_type> 
 MeshTools<Mesh>::elementsView( const Mesh& mesh )
 {
-    handle_type num_elements = std::distance( MT::elementsBegin( mesh ),
-					      MT::elementsEnd( mesh ) );
-    return Teuchos::ArrayRCP<const handle_type>(
+    global_ordinal_type num_elements = 
+	std::distance( MT::elementsBegin( mesh ), MT::elementsEnd( mesh ) );
+    return Teuchos::ArrayRCP<const global_ordinal_type>(
 	&*MT::elementsBegin(mesh), 0, num_elements, false );
 }
 
@@ -131,13 +131,14 @@ MeshTools<Mesh>::elementsView( const Mesh& mesh )
  * object will not manage the memory.
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<typename Mesh::Tools<Mesh>::handle_type> 
-MeshTools<Mesh>::elementsNonConstView( Mesh& mesh )
+Teuchos::ArrayRCP<typename MeshTools<Mesh>::global_ordinal_type> 
+MeshTools<Mesh>::elementsNonConstView( const Mesh& mesh )
 {
-    handle_type num_elements = std::distance( MT::elementsBegin( mesh ),
-					      MT::elementsEnd( mesh ) );
-    return Teuchos::ArrayRCP<handle_type>(
-	(*handle_type) &*MT::elementsBegin(mesh), 0, num_elements, false );
+    global_ordinal_type num_elements = 
+	std::distance( MT::elementsBegin( mesh ), MT::elementsEnd( mesh ) );
+    return Teuchos::ArrayRCP<global_ordinal_type>(
+	(global_ordinal_type*) &*MT::elementsBegin(mesh), 
+	0, num_elements, false );
 }
 
 //---------------------------------------------------------------------------//
@@ -146,13 +147,13 @@ MeshTools<Mesh>::elementsNonConstView( Mesh& mesh )
  * not manage the memory. 
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<const typename Mesh::Tools<Mesh>::handle_type> 
+Teuchos::ArrayRCP<const typename MeshTools<Mesh>::global_ordinal_type> 
 MeshTools<Mesh>::connectivityView( const Mesh& mesh )
 {
-    handle_type num_connectivity = 
+    global_ordinal_type num_connectivity = 
 	std::distance( MT::connectivityBegin( mesh ),
 		       MT::connectivityEnd( mesh ) );
-    return Teuchos::ArrayRCP<const handle_type>(
+    return Teuchos::ArrayRCP<const global_ordinal_type>(
 	&*MT::connectivityBegin(mesh), 0, num_connectivity, false );
 }
 
@@ -162,14 +163,14 @@ MeshTools<Mesh>::connectivityView( const Mesh& mesh )
  * object will not manage the memory.
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<typename Mesh::Tools<Mesh>::handle_type> 
-MeshTools<Mesh>::connectivityNonConstView( Mesh& mesh )
+Teuchos::ArrayRCP<typename MeshTools<Mesh>::global_ordinal_type> 
+MeshTools<Mesh>::connectivityNonConstView( const Mesh& mesh )
 {
-    handle_type num_connectivity = 
+    global_ordinal_type num_connectivity = 
 	std::distance( MT::connectivityBegin( mesh ),
 		       MT::connectivityEnd( mesh ) );
-    return Teuchos::ArrayRCP<handle_type>(
-	(*handle_type) &*MT::connectivityBegin(mesh), 0, 
+    return Teuchos::ArrayRCP<global_ordinal_type>(
+	(global_ordinal_type*) &*MT::connectivityBegin(mesh), 0, 
 	num_connectivity, false );
 }
 
