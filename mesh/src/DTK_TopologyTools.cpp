@@ -117,9 +117,6 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 {
     moab::ErrorCode error;
 
-    // Get the element topology.
-    moab::EntityType element_topology = moab->type_from_handle( element );
-
     // Wrap the point in a field container.
     int node_dim = coords.size();
     Teuchos::Tuple<int,2> point_dimensions;
@@ -129,30 +126,33 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
     Intrepid::FieldContainer<double> point(
 	Teuchos::Array<int>(point_dimensions), coords_view );
 
+    // Get the element nodes.
+    std::vector<moab::EntityHandle> element_nodes;
+    error = moab->get_adjacencies( &element,
+				   1,
+				   0,
+				   false,
+				   element_nodes );
+    testInvariant( moab::MB_SUCCESS == error, "Failure getting element nodes" );
+
+    // Extract the node coordinates.
+    int num_element_nodes = element_nodes.size();
+    Teuchos::Array<double> cell_node_coords( 3 * num_element_nodes );
+    error = moab->get_coords( &element_nodes[0], 
+			      element_nodes.size(), 
+			      &cell_node_coords[0] );
+    testInvariant( moab::MB_SUCCESS == error, 
+		   "Failure getting node coordinates" );
+
+    // Get the element topology.
+    moab::EntityType element_topology = moab->type_from_handle( element );
+
     // Typical topology case.
     if ( moab::MBPYRAMID != element_topology )
     {
-	// Get the element nodes.
-	std::vector<moab::EntityHandle> element_nodes;
-	error = moab->get_adjacencies( &element,
-				       1,
-				       0,
-				       false,
-				       element_nodes );
-	testInvariant( moab::MB_SUCCESS == error, "Failure getting element nodes" );
-
 	// Create the Shards topology for the element type.
-	int num_element_nodes = element_nodes.size();
 	Teuchos::RCP<shards::CellTopology> cell_topo = 
 	    CellTopologyFactory::create( element_topology, num_element_nodes );
-
-	// Extract the node coordinates.
-	Teuchos::Array<double> cell_node_coords( 3 * num_element_nodes );
-	error = moab->get_coords( &element_nodes[0], 
-				  element_nodes.size(), 
-				  &cell_node_coords[0] );
-	testInvariant( moab::MB_SUCCESS == error, 
-		       "Failure getting node coordinates" );
 
 	// Reduce the dimension of the coordinates if necessary and wrap in a
 	// field container. This means (for now at least) that 2D meshes must be
@@ -186,32 +186,15 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 	    reference_point, *cell_topo);
     }
 
-    // We have to handle pyramids differently because Intrepid doesn't support
-    // them with basis functions. Instead we'll resolve them with two linear
-    // tetrahedrons and check for point inclusion in that set instead.
+    // We have to handle pyramids differently because Intrepid doesn't
+    // currently support them with basis functions. Instead we'll resolve them
+    // with two linear tetrahedrons and check for point inclusion in that set
+    // instead.
     else
     {
-	// Get the element nodes.
-	std::vector<moab::EntityHandle> element_nodes;
-	error = moab->get_adjacencies( &element,
-				       1,
-				       0,
-				       false,
-				       element_nodes );
-	testInvariant( moab::MB_SUCCESS == error, "Failure getting element nodes" );
-
 	// Create the Shards topology for the linear tetrahedrons.
 	Teuchos::RCP<shards::CellTopology> cell_topo = 
 	    CellTopologyFactory::create( moab::MBTET, 4 );
-
-	// Extract the node coordinates.
-	int num_element_nodes = element_nodes.size();
-	Teuchos::Array<double> cell_node_coords( 3 * num_element_nodes );
-	error = moab->get_coords( &element_nodes[0], 
-				  element_nodes.size(), 
-				  &cell_node_coords[0] );
-	testInvariant( moab::MB_SUCCESS == error, 
-		       "Failure getting node coordinates" );
 
 	// Build 2 tetrahedrons from the 1 pyramid.
 	testInvariant( node_dim == 3, "Pyramid elements must be 3D." );
