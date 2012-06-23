@@ -108,7 +108,8 @@ const moab::EntityType moab_topology_table[] =
     moab::MBTRI,    // DTK_TRIANGLE
     moab::MBQUAD,   // DTK_QUADRILATERAL
     moab::MBTET,    // DTK_TETRAHEDRON
-    moab::MBHEX     // DTK_HEXAHEDRON
+    moab::MBHEX,    // DTK_HEXAHEDRON
+    moab::MBPYRAMID // DTK_PYRAMID
 };
 
 //---------------------------------------------------------------------------//

@@ -171,8 +171,8 @@ createRendezvousMesh( const Mesh& mesh )
 		       "Element connectivity size != nodes per element." );
 
 	// Create the element in moab.
-	moab::EntityType entity_type = moab_topology_table[ 
-	    MT::elementTopology( mesh ) ];
+	moab::EntityType entity_type = 
+	    moab_topology_table[ MT::elementTopology( mesh ) ];
 	moab::EntityHandle moab_element;
 	error = moab->create_element( entity_type,
 				      &element_connectivity[0],
