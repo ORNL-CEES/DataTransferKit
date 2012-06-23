@@ -34,7 +34,7 @@
 /*!
  * \file DTK_TopologyTools.cpp
  * \author Stuart R. Slattery
- * \brief TopologyTools definition
+ * \brief TopologyTools definition.
  */
 //---------------------------------------------------------------------------//
 
@@ -120,6 +120,15 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
     // Get the element topology.
     moab::EntityType element_topology = moab->type_from_handle( element );
 
+    // Wrap the point in a field container.
+    int node_dim = coords.size();
+    Teuchos::Tuple<int,2> point_dimensions;
+    point_dimensions[0] = 1;
+    point_dimensions[1] = node_dim;
+    Teuchos::ArrayRCP<double> coords_view = Teuchos::arcpFromArray( coords );
+    Intrepid::FieldContainer<double> point(
+	Teuchos::Array<int>(point_dimensions), coords_view );
+
     // Typical topology case.
     if ( moab::MBPYRAMID != element_topology )
     {
@@ -149,7 +158,6 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 	// field container. This means (for now at least) that 2D meshes must be
 	// constructed from 2D nodes (this obviously won't work for 2D meshes that
 	// have curvature).
-	int node_dim = coords.size();
 	Teuchos::Tuple<int,3> cell_node_dimensions;
 	cell_node_dimensions[0] = 1;
 	cell_node_dimensions[1] = num_element_nodes;
@@ -164,14 +172,6 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 	Intrepid::FieldContainer<double> cell_nodes( 
 	    Teuchos::Array<int>(cell_node_dimensions), 
 	    Teuchos::arcpFromArray( cell_node_coords ) );
-
-	// Wrap the point in a field container.
-	Teuchos::Tuple<int,2> point_dimensions;
-	point_dimensions[0] = 1;
-	point_dimensions[1] = node_dim;
-	Teuchos::ArrayRCP<double> coords_view = Teuchos::arcpFromArray( coords );
-	Intrepid::FieldContainer<double> point(
-	    Teuchos::Array<int>(point_dimensions), coords_view );
 
 	// Map the point to the reference frame of the cell.
 	Intrepid::FieldContainer<double> reference_point( 1, node_dim );
@@ -214,57 +214,28 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 		       "Failure getting node coordinates" );
 
 	// Build 2 tetrahedrons from the 1 pyramid.
-	int node_dim = coords.size();
-	testInvariant( node_dim == 3, "Pyramid elements must be 3D." )
-	Teuchos::Tuple<int,3> cell_node_dimensions;
-	cell_node_dimensions[0] = 2;
-	cell_node_dimensions[1] = num_element_nodes;
-	cell_node_dimensions[2] = node_dim;
-	Intrepid::FieldContainer<double> cell_nodes( Teuchos::Array<int>(cell_node_dimensions) );
+	testInvariant( node_dim == 3, "Pyramid elements must be 3D." );
+	Intrepid::FieldContainer<double> cell_nodes( 1, 4, node_dim );
 
 	// Tetrahederon 1.
-	cell_nodes( 0, 0, 0 );
-	cell_nodes( 0, 0, 1 );
-	cell_nodes( 0, 0, 2 );
+	cell_nodes( 0, 0, 0 ) = cell_node_coords[0];
+	cell_nodes( 0, 0, 1 ) = cell_node_coords[1];
+	cell_nodes( 0, 0, 2 ) = cell_node_coords[2];
 
-	cell_nodes( 0, 1, 0 );
-	cell_nodes( 0, 1, 1 );
-	cell_nodes( 0, 1, 2 );
+	cell_nodes( 0, 1, 0 ) = cell_node_coords[3];
+	cell_nodes( 0, 1, 1 ) = cell_node_coords[4];
+	cell_nodes( 0, 1, 2 ) = cell_node_coords[5];
 
-	cell_nodes( 0, 2, 0 );
-	cell_nodes( 0, 2, 1 );
-	cell_nodes( 0, 2, 2 );
+	cell_nodes( 0, 2, 0 ) = cell_node_coords[6];
+	cell_nodes( 0, 2, 1 ) = cell_node_coords[7];
+	cell_nodes( 0, 2, 2 ) = cell_node_coords[8];
 
-	cell_nodes( 0, 3, 0 );
-	cell_nodes( 0, 3, 1 );
-	cell_nodes( 0, 3, 2 );
+	cell_nodes( 0, 3, 0 ) = cell_node_coords[12];
+	cell_nodes( 0, 3, 1 ) = cell_node_coords[13];
+	cell_nodes( 0, 3, 2 ) = cell_node_coords[14];
 
-	// Tetrahederon 2.
-	cell_nodes( 1, 0, 0 );
-	cell_nodes( 1, 0, 1 );
-	cell_nodes( 1, 0, 2 );
-
-	cell_nodes( 1, 1, 0 );
-	cell_nodes( 1, 1, 1 );
-	cell_nodes( 1, 1, 2 );
-
-	cell_nodes( 1, 2, 0 );
-	cell_nodes( 1, 2, 1 );
-	cell_nodes( 1, 2, 2 );
-
-	cell_nodes( 1, 3, 0 );
-	cell_nodes( 1, 3, 1 );
-	cell_nodes( 1, 3, 2 );
-
-	// Wrap the point in a field container.
-	Teuchos::Tuple<int,2> point_dimensions;
-	point_dimensions[0] = 1;
-	point_dimensions[1] = node_dim;
-	Teuchos::ArrayRCP<double> coords_view = Teuchos::arcpFromArray( coords );
-	Intrepid::FieldContainer<double> point(
-	    Teuchos::Array<int>(point_dimensions), coords_view );
-
-	// Map the point to the reference frame of the linear tetrahedron.
+	// Map the point to the reference frame of the first linear
+	// tetrahedron. 
 	Intrepid::FieldContainer<double> reference_point( 1, node_dim );
 	Intrepid::CellTools<double>::mapToReferenceFrame( reference_point,
 							  point,
@@ -272,9 +243,48 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 							  *cell_topo,
 							  0 );
 
-	// Check for reference point inclusion in the tetrahedrons.
-	return Intrepid::CellTools<double>::checkPointsetInclusion( 
+	// Check for reference point inclusion in tetrahedron 1.
+	bool in_tet_1 = Intrepid::CellTools<double>::checkPointsetInclusion( 
 	    reference_point, *cell_topo);
+
+	// Tetrahederon 2.
+	cell_nodes( 0, 0, 0 ) = cell_node_coords[0];
+	cell_nodes( 0, 0, 1 ) = cell_node_coords[1];
+	cell_nodes( 0, 0, 2 ) = cell_node_coords[2];
+
+	cell_nodes( 0, 1, 0 ) = cell_node_coords[6];
+	cell_nodes( 0, 1, 1 ) = cell_node_coords[7];
+	cell_nodes( 0, 1, 2 ) = cell_node_coords[8];
+
+	cell_nodes( 0, 2, 0 ) = cell_node_coords[9];
+	cell_nodes( 0, 2, 1 ) = cell_node_coords[10];
+	cell_nodes( 0, 2, 2 ) = cell_node_coords[11];
+
+	cell_nodes( 0, 3, 0 ) = cell_node_coords[12];
+	cell_nodes( 0, 3, 1 ) = cell_node_coords[13];
+	cell_nodes( 0, 3, 2 ) = cell_node_coords[14];
+
+	// Map the point to the reference frame of the first linear
+	// tetrahedron. 
+	Intrepid::CellTools<double>::mapToReferenceFrame( reference_point,
+							  point,
+							  cell_nodes,
+							  *cell_topo,
+							  0 );
+
+	// Check for reference point inclusion in tetrahedron 2.
+	bool in_tet_2 = Intrepid::CellTools<double>::checkPointsetInclusion( 
+	    reference_point, *cell_topo);
+
+	// If the point is in either tetrahedron, it is in the pyramid.
+	if ( in_tet_1 || in_tet_2 )
+	{
+	    return true;
+	}
+	else
+	{
+	    return false;
+	}
     }
 }
 
