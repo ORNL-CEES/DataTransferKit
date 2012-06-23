@@ -180,10 +180,10 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 	Tpetra::createNonContigMap<global_ordinal_type>( 
 	    rendezvous_elem_set_view, d_comm );
 
-    global_ordinal_type num_elements = 
-	std::distance( MT::elementsBegin( mesh ), MT::elementsEnd( mesh ) );
-    Teuchos::ArrayView<const global_ordinal_type> mesh_element_view(
-	&*MT::elementsBegin( mesh ), num_elements );
+    Teuchos::ArrayRCP<const global_ordinal_type> mesh_element_arcp =
+	MeshTools<Mesh>::elementsView( mesh );
+    Teuchos::ArrayView<const global_ordinal_type> mesh_element_view = 
+	mesh_element_arcp();
     RCP_TpetraMap mesh_element_map = 
 	Tpetra::createNonContigMap<global_ordinal_type>( 
 	    mesh_element_view, d_comm );
@@ -368,7 +368,8 @@ BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
     std::size_t node_dim = MT::nodeDim( mesh );
     typename MT::global_ordinal_type num_nodes = 
 	std::distance( MT::nodesBegin( mesh ), MT::nodesEnd( mesh ) ) / node_dim;
-    typename MT::const_coordinate_iterator node_coords = MT::coordsBegin( mesh );
+    Teuchos::ArrayRCP<const double> node_coords =
+	MeshTools<Mesh>::coordsView( mesh );
     double node[3];
     for ( global_ordinal_type n = 0; n < num_nodes; ++n )
     {

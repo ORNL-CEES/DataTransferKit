@@ -97,8 +97,8 @@ class FieldTools
 		       const Teuchos::ArrayView<value_type>& scalars );
 
     // Compute the infinity norm for each field dimension.
-    static void normInf( const Field& field, T
-			 euchos::Array<value_type>& norms, 
+    static void normInf( const Field& field,
+			 Teuchos::Array<value_type>& norms, 
 			 const RCP_Comm& comm );
 
     // Compute the L1 norm for each field dimension.
