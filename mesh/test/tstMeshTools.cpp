@@ -288,6 +288,6 @@ TEUCHOS_UNIT_TEST( MeshTools, mesh_tools_test )
 }
 
 //---------------------------------------------------------------------------//
-// end tstConsistentInterpolation2.cpp
+// end tstMeshTools.cpp
 //---------------------------------------------------------------------------//
 
