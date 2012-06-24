@@ -66,14 +66,14 @@ class ConsistentInterpolation
     //! Typedefs.
     typedef Mesh                                      mesh_type;
     typedef MeshTraits<Mesh>                          MT;
-    typedef typename MT::global_ordinal_type          global_ordinal_type;
+    typedef typename MT::global_ordinal_type          GlobalOrdinal;
     typedef CoordinateField                           coord_field_type;
     typedef FieldTraits<CoordinateField>              CFT;
     typedef Teuchos::Comm<int>                        CommType;
     typedef Teuchos::RCP<const CommType>              RCP_Comm;
-    typedef Tpetra::Map<global_ordinal_type>          TpetraMap;
+    typedef Tpetra::Map<GlobalOrdinal>                TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
-    typedef Tpetra::Export<global_ordinal_type>       ExportType;
+    typedef Tpetra::Export<GlobalOrdinal>             ExportType;
     typedef Teuchos::RCP<ExportType>                  RCP_Export;
     //!@}
 
@@ -102,7 +102,7 @@ class ConsistentInterpolation
 
     // Compute globally unique ordinals for the points in the coordinate
     // field.
-    Teuchos::Array<global_ordinal_type> computePointOrdinals(
+    Teuchos::Array<GlobalOrdinal> computePointOrdinals(
 	const CoordinateField& coordinate_field );
 
   private:
@@ -120,7 +120,7 @@ class ConsistentInterpolation
     RCP_Export d_data_export;
 
     // Local source elements.
-    Teuchos::Array<global_ordinal_type> d_source_elements;
+    Teuchos::Array<GlobalOrdinal> d_source_elements;
 
     // Local target coords.
     Teuchos::Array<double> d_target_coords;

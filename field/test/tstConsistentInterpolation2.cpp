@@ -124,7 +124,7 @@ class MyField
 
     MyField( size_type size, std::size_t dim )
 	: d_dim( dim )
-	, d_data( size )
+	, d_data( dim*size )
     { /* ... */ }
 
     ~MyField()
@@ -262,7 +262,7 @@ class FieldTraits<MyField>
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// FieldEvaluator Implementation.
+// FieldEvaluator Implementation. This one populates a 3-vector.
 class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 {
   public:
@@ -280,7 +280,7 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 	const Teuchos::ArrayRCP<MyMesh::global_ordinal_type>& elements,
 	const Teuchos::ArrayRCP<double>& coords )
     {
-	MyField evaluated_data( elements.size(), 1 );
+	MyField evaluated_data( elements.size(), 3 );
 	for ( int n = 0; n < elements.size(); ++n )
 	{
 	    if ( std::find( d_mesh.elementsBegin(),
@@ -288,10 +288,16 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 			    elements[n] ) != d_mesh.elementsEnd() )
 	    {
 		*(evaluated_data.begin() + n ) = d_comm->getRank() + 1.0;
+		*(evaluated_data.begin() + elements.size() + n ) = 
+		    d_comm->getRank() + 1.0;
+		*(evaluated_data.begin() + 2*elements.size() + n ) = 
+		    d_comm->getRank() + 1.0;
 	    }
 	    else
 	    {
  		*(evaluated_data.begin() + n ) = 0.0;
+		*(evaluated_data.begin() + elements.size() + n ) = 0.0;
+		*(evaluated_data.begin() + 2*elements.size() + n ) = 0.0;
 	    }
 	}
 	return evaluated_data;
@@ -426,10 +432,10 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test2 )
     Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > my_evaluator = 
     	Teuchos::rcp( new MyEvaluator( source_mesh, comm ) );
 
-    // Create data target.
+    // Create data target. This target is a 3-vector.
     MyField::size_type target_size = 
 	target_coords.size() / target_coords.dim();
-    MyField my_target( target_size, 1 );
+    MyField my_target( target_size, 3 );
 
     // Setup and apply the consistent interpolation mapping.
     typedef ConsistentInterpolation<MyMesh,MyField> MapType;
@@ -441,10 +447,13 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test2 )
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data.
     int source_rank;
-    for ( long int n = 0; n < my_target.size(); ++n )
+    long int target_dim_size = my_target.size() / my_target.dim();
+    for ( long int n = 0; n < target_dim_size; ++n )
     {
 	source_rank = std::floor(target_coords.getData()[n] / (edge_size-1));
 	TEST_ASSERT( source_rank+1 == my_target.getData()[n] );
+	TEST_ASSERT( source_rank+1 == my_target.getData()[n + target_dim_size] );
+	TEST_ASSERT( source_rank+1 == my_target.getData()[n + 2*target_dim_size] );
     }
 }
 

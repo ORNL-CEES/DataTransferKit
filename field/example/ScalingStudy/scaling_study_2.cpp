@@ -440,7 +440,8 @@ int main(int argc, char* argv[])
     std::clock_t apply_end = clock();
 
     // Check the data transfer. Each target point should have been assigned
-    // its source rank + 1 as data.
+    // its source rank + 1 as data. Count the number of target points that
+    // failed the test.
     comm->barrier();
     int source_rank;
     int local_test_failed = 0;

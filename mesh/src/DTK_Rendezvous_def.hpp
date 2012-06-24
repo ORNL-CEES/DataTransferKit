@@ -157,7 +157,7 @@ Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
  * coordinates.
  */
 template<class Mesh>
-Teuchos::Array< typename Rendezvous<Mesh>::GlobalOrdinal >
+Teuchos::Array<typename Rendezvous<Mesh>::GlobalOrdinal>
 Rendezvous<Mesh>::getElements( const Teuchos::ArrayRCP<double>& coords ) const
 {
     Teuchos::Array<double> point( d_node_dim );

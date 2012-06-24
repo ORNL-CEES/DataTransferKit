@@ -209,12 +209,17 @@ void FieldTools<Field>::average( const Field& field, const RCP_Comm& comm,
     {
 	local_sum += *const_iterator;
     }
+
     value_type global_sum = 0;
     Teuchos::reduceAll<int,value_type>( *comm,
 					Teuchos::REDUCE_SUM,
 					1,
 					&local_sum,
 					&global_sum );
+
+    size_type global_length = 
+	FieldTools<Field>::globalLength( field, comm );
+    
 }
 
 //---------------------------------------------------------------------------//

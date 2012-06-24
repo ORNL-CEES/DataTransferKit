@@ -122,7 +122,7 @@ class FieldTools
 
     // Compute the L2 norm for each field dimension.
     static void norm2( const Field& field, const RCP_Comm& comm, 
-		       Teuchos::Array<value_type>& norms, );
+		       Teuchos::Array<value_type>& norms );
 
     // Compute the average value for each field dimension.
     static void average( const Field& field, const RCP_Comm& comm, 
