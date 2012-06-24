@@ -51,11 +51,13 @@ class MyMesh
     MyMesh( const Teuchos::Array<global_ordinal_type>& node_handles,
 	    const Teuchos::Array<double>& coords,
 	    const Teuchos::Array<global_ordinal_type>& element_handles,
-	    const Teuchos::Array<global_ordinal_type>& element_connectivity )
+	    const Teuchos::Array<global_ordinal_type>& element_connectivity,
+	    const Teuchos::Array<std::size_t>& permutation_list )
 	: d_node_handles( node_handles )
 	, d_coords( coords )
 	, d_element_handles( element_handles )
 	, d_element_connectivity( element_connectivity )
+	, d_permutation_list( permutation_list )
     { /* ... */ }
 
     ~MyMesh()
@@ -87,6 +89,11 @@ class MyMesh
     connectivityEnd() const
     { return d_element_connectivity.end(); }
     
+    Teuchos::Array<std::size_t>::const_iterator permutationBegin() const
+    { return d_permutation_list.begin(); }
+
+    Teuchos::Array<std::size_t>::const_iterator permutationEnd() const
+    { return d_permutation_list.end(); }
 
   private:
 

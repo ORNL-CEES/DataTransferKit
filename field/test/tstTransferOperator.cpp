@@ -61,11 +61,13 @@ class MyMesh
     MyMesh( const Teuchos::Array<int>& node_handles,
 	    const Teuchos::Array<double>& coords,
 	    const Teuchos::Array<int>& quad_handles,
-	    const Teuchos::Array<int>& quad_connectivity )
+	    const Teuchos::Array<int>& quad_connectivity,
+	    const Teuchos::Array<std::size_t>& permutation_list )
 	: d_node_handles( node_handles )
 	, d_coords( coords )
 	, d_quad_handles( quad_handles )
 	, d_quad_connectivity( quad_connectivity )
+	, d_permutation_list( permutation_list )
     { /* ... */ }
 
     ~MyMesh()
@@ -95,6 +97,12 @@ class MyMesh
     Teuchos::Array<int>::const_iterator connectivityEnd() const
     { return d_quad_connectivity.end(); }
     
+    Teuchos::Array<std::size_t>::const_iterator permutationBegin() const
+    { return d_permutation_list.begin(); }
+
+    Teuchos::Array<std::size_t>::const_iterator permutationEnd() const
+    { return d_permutation_list.end(); }
+
 
   private:
 
@@ -102,6 +110,7 @@ class MyMesh
     Teuchos::Array<double> d_coords;
     Teuchos::Array<int> d_quad_handles;
     Teuchos::Array<int> d_quad_connectivity;
+    Teuchos::Array<std::size_t> d_permutation_list;
 };
 
 //---------------------------------------------------------------------------//
@@ -174,6 +183,8 @@ class MeshTraits<MyMesh>
     typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
     typedef Teuchos::Array<int>::const_iterator const_element_iterator;
     typedef Teuchos::Array<int>::const_iterator const_connectivity_iterator;
+    typedef Teuchos::Array<std::size_t>::const_iterator 
+    const_permutation_iterator;
 
     static inline std::size_t nodeDim( const MyMesh& mesh )
     { return 2; }
@@ -212,6 +223,12 @@ class MeshTraits<MyMesh>
 
     static inline const_connectivity_iterator connectivityEnd( const MyMesh& mesh )
     { return mesh.connectivityEnd(); }
+
+    static inline const_permutation_iterator permutationBegin( const MyMesh& mesh )
+    { return mesh.permutationBegin(); }
+
+    static inline const_permutation_iterator permutationEnd( const MyMesh& mesh )
+    { return mesh.permutationEnd(); }
 };
 
 //---------------------------------------------------------------------------//
@@ -357,7 +374,14 @@ MyMesh buildMyMesh()
 	quad_connectivity[ 3*num_quads + i ] = node_handles[i+1];
     }
 
-    return MyMesh( node_handles, coords, quad_handles, quad_connectivity );
+    Teuchos::Array<std::size_t> permutation_list( 4 );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+
+    return MyMesh( node_handles, coords, quad_handles, quad_connectivity,
+		   permutation_list );
 }
 
 //---------------------------------------------------------------------------//

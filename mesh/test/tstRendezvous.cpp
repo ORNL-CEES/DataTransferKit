@@ -166,16 +166,20 @@ class MeshTraits<MyMesh>
     static inline const_element_iterator elementsEnd( const MyMesh& mesh )
     { return mesh.quadsEnd(); }
 
-    static inline const_connectivity_iterator connectivityBegin( const MyMesh& mesh )
+    static inline const_connectivity_iterator 
+    connectivityBegin( const MyMesh& mesh )
     { return mesh.connectivityBegin(); }
 
-    static inline const_connectivity_iterator connectivityEnd( const MyMesh& mesh )
+    static inline const_connectivity_iterator 
+    connectivityEnd( const MyMesh& mesh )
     { return mesh.connectivityEnd(); }
 
-    static inline const_permutation_iterator permutationBegin( const MyMesh& mesh )
+    static inline const_permutation_iterator 
+    permutationBegin( const MyMesh& mesh )
     { return mesh.permutationBegin(); }
 
-    static inline const_permutation_iterator permutationEnd( const MyMesh& mesh )
+    static inline const_permutation_iterator 
+    permutationEnd( const MyMesh& mesh )
     { return mesh.permutationEnd(); }
 };
 
