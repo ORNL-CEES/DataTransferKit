@@ -67,11 +67,10 @@ struct UndefinedMeshTraits
  * type. Nodes are described by a coordinate field with coordinates of type
  * double. Elements are described by a list of node ordinals that designate
  * their connectivity. For each element type, the order of the connecting
- * elements correlate to a canonical ordering ( I either need to explicitly
- * required MBCN or offer a permuation vector interface. The latter is likely
- * the best choice as it is more general and flexible. I'll need this anyway
- * as higher order moab elements have different ordering than shards
- * elements. )
+ * nodes correlate to the canonical ordering scheme for this particular mesh
+ * type. How this canonical ordering differs from DTK canonical ordering is
+ * specified by the element connectivity permutation list. Each block of mesh
+ * described by these traits must contain a single element type and topology.
  */
 template<typename MeshType>
 class MeshTraits
@@ -108,6 +107,12 @@ class MeshTraits
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
     const_connectivity_iterator;
+
+    //! Typedef for random access const iterator to connectivity permutation
+    //! list.
+    typedef typename 
+    std::iterator<std::random_access_iterator_tag, const std::size_t>
+    const_permutation_iterator;
     //@}
 
 
@@ -208,6 +213,22 @@ class MeshTraits
      */
     static inline const_connectivity_iterator 
     connectivityEnd( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+
+    /*! 
+     * \brief Return the const iterator to the beginning of the element
+     * connectivity permutation list.
+     */
+    static inline const_permutation_iterator
+    permutationBegin( const MeshType& mesh )
+    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+
+    /*! 
+     * \brief Return the const iterator to the end of the element connectivity
+     * permutation list. 
+     */
+    static inline const_permutation_iterator
+    permutationEnd( const MeshType& mesh )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
     //@}
 };

@@ -119,6 +119,16 @@ class MeshTools
     // object will not manage the memory.
     static Teuchos::ArrayRCP<global_ordinal_type> 
     connectivityNonConstView( const Mesh& mesh );
+
+    // Get a view of the of the mesh connectivity permutation list. The
+    // ArrayRCP object will not manage the memory. 
+    static Teuchos::ArrayRCP<const global_ordinal_type> 
+    permutationView( const Mesh& mesh );
+
+    // Get a non-const view of the of the mesh connectivity permutation
+    // list. The ArrayRCP object will not manage the memory.
+    static Teuchos::ArrayRCP<global_ordinal_type> 
+    permutationNonConstView( const Mesh& mesh );
     //@}
 
 

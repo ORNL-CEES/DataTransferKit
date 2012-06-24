@@ -44,6 +44,8 @@
 #include <algorithm>
 #include <iterator>
 
+#include <DTK_Exception.hpp>
+
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ScalarTraits.hpp>
@@ -172,6 +174,43 @@ MeshTools<Mesh>::connectivityNonConstView( const Mesh& mesh )
     return Teuchos::ArrayRCP<global_ordinal_type>(
 	(global_ordinal_type*) &*MT::connectivityBegin(mesh), 0, 
 	num_connectivity, false );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a view of the of the mesh connectivity permutation list. The
+ * ArrayRCP object will not manage the memory. 
+ */
+template <class Mesh> 
+Teuchos::ArrayRCP<const typename MeshTools<Mesh>::global_ordinal_type> 
+MeshTools<Mesh>::permutationView( const Mesh& mesh )
+{
+    global_ordinal_type num_permutation = 
+	std::distance( MT::permutationBegin( mesh ),
+		       MT::permutationEnd( mesh ) );
+    testInvariant( num_permuation == MT::nodesPerElement( mesh ),
+		   "Permutation list size != nodes per mesh element" );
+    return Teuchos::ArrayRCP<const global_ordinal_type>(
+	&*MT::permutationBegin(mesh), 0, num_permutation, false );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a non-const view of the of the mesh connectivity permutation
+ * list. The ArrayRCP object will not manage the memory.
+ */
+template <class Mesh> 
+Teuchos::ArrayRCP<typename MeshTools<Mesh>::global_ordinal_type> 
+MeshTools<Mesh>::permutationNonConstView( const Mesh& mesh )
+{
+    global_ordinal_type num_permutation = 
+	std::distance( MT::permutationBegin( mesh ),
+		       MT::permutationEnd( mesh ) );
+    testInvariant( num_permuation == MT::nodesPerElement( mesh ),
+		   "Permutation list size != nodes per mesh element" );
+    return Teuchos::ArrayRCP<global_ordinal_type>(
+	(global_ordinal_type*) &*MT::permutationBegin(mesh), 0, 
+	num_permutation, false );
 }
 
 //---------------------------------------------------------------------------//
