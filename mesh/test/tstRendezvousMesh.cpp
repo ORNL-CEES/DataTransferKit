@@ -62,7 +62,13 @@ class MyMesh
 	, d_coords( coords )
 	, d_hex_handles( hex_handles )
 	, d_hex_connectivity( hex_connectivity )
-    { /* ... */ }
+	, d_permutation_list( 8 )
+    {
+	for ( int i = 0; i < d_permutation_list.size(); ++i )
+	{
+	    d_permutation_list[i] = i;
+	}
+    }
 
     ~MyMesh()
     { /* ... */ }
@@ -90,6 +96,12 @@ class MyMesh
 
     Teuchos::Array<int>::const_iterator connectivityEnd() const
     { return d_hex_connectivity.end(); }
+
+    Teuchos::Array<std::size_t>::const_iterator permutationBegin() const
+    { return d_permutation_list.begin(); }
+
+    Teuchos::Array<std::size_t>::const_iterator permutationEnd() const
+    { return d_permutation_list.end(); }
     
 
   private:
@@ -98,6 +110,7 @@ class MyMesh
     Teuchos::Array<double> d_coords;
     Teuchos::Array<int> d_hex_handles;
     Teuchos::Array<int> d_hex_connectivity;
+    Teuchos::Array<std::size_t> d_permutation_list;
 };
 
 //---------------------------------------------------------------------------//
@@ -118,7 +131,8 @@ class MeshTraits<MyMesh>
     typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
     typedef Teuchos::Array<int>::const_iterator const_element_iterator;
     typedef Teuchos::Array<int>::const_iterator const_connectivity_iterator;
-
+    typedef Teuchos::Array<std::size_t>::const_iterator 
+    const_permutation_iterator;
 
     static inline std::size_t nodeDim( const MyMesh& mesh )
     { return 3; }
@@ -156,6 +170,12 @@ class MeshTraits<MyMesh>
 
     static inline const_connectivity_iterator connectivityEnd( const MyMesh& mesh )
     { return mesh.connectivityEnd(); }
+
+    static inline const_permutation_iterator permutationBegin( const MyMesh& mesh )
+    { return mesh.permutationBegin(); }
+
+    static inline const_permutation_iterator permutationEnd( const MyMesh& mesh )
+    { return mesh.permutationEnd(); }
 };
 
 } // end namespace DataTransferKit

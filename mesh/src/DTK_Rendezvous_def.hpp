@@ -372,7 +372,9 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
     import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
 
     // Construct the mesh container from the collected data, effectively
-    // wrapping it with mesh traits. 
+    // wrapping it with mesh traits.
+    Teuchos::ArrayRCP<const std::size_t> permutation_list = 
+	MeshTools<Mesh>::permutationView( mesh );
     MeshContainer<GlobalOrdinal> mesh_container( 
 	d_node_dim,
 	Teuchos::arcpFromArray( rendezvous_nodes ), 
@@ -381,7 +383,8 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 	MT::elementTopology( mesh ),
 	nodes_per_element,
 	Teuchos::arcpFromArray( rendezvous_elements ), 
-	import_conn.get1dView() );
+	import_conn.get1dView(),
+	permutation_list );
 
     // Build the concrete rendezvous mesh from the mesh container.
     d_rendezvous_mesh = createRendezvousMesh( mesh_container );

@@ -151,23 +151,27 @@ createRendezvousMesh( const Mesh& mesh )
     // Extract the mesh elements and add them to moab.
     Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity = 
 	MeshTools<Mesh>::connectivityView( mesh );
+    Teuchos::ArrayRCP<const std::size_t> permutation_list =
+	MeshTools<Mesh>::permutationView( mesh );
     GlobalOrdinal conn_index;
     moab::Range moab_elements;
-    Teuchos::Array<moab::EntityHandle> element_connectivity;
+    Teuchos::Array<moab::EntityHandle> element_connectivity( nodes_per_element );
     std::map<moab::EntityHandle,GlobalOrdinal> element_handle_map;
+    std::size_t canonical_idx;
     n = 0;
     for ( element_iterator = MT::elementsBegin( mesh );
 	  element_iterator != MT::elementsEnd( mesh );
 	  ++element_iterator, ++n )
     {
-	// Extract the connecting nodes for this element.
-	element_connectivity.clear();
+	// Extract the connecting nodes for this element and apply the
+	// permutation list.
 	for ( int i = 0; i < nodes_per_element; ++i )
 	{
+	    canonical_idx = permutation_list[i];
 	    conn_index = i*num_elements + n;
-	    element_connectivity.push_back( 
+	    element_connectivity[ canonical_idx ] =
 		vertex_handle_map.find( 
-		    mesh_connectivity[ conn_index ] )->second );
+		    mesh_connectivity[ conn_index ] )->second;
 	}
 	testInvariant( (int) element_connectivity.size() == nodes_per_element,
 		       "Element connectivity size != nodes per element." );

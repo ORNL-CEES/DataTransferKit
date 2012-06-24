@@ -74,7 +74,8 @@ class MeshContainer
 		   const int element_topology,
 		   const int nodes_per_element,
 		   const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
-		   const Teuchos::ArrayRCP<const GlobalOrdinal>& connectivity )
+		   const Teuchos::ArrayRCP<const GlobalOrdinal>& connectivity,
+		   const Teuchos::ArrayRCP<const std::size_t>& permutation_list )
 	: d_node_dim( node_dim )
 	, d_nodes( nodes )
 	, d_coords( coords )
@@ -83,6 +84,7 @@ class MeshContainer
 	, d_nodes_per_element( nodes_per_element )
 	, d_elements( elements )
 	, d_connectivity( connectivity )
+	, d_permutation_list( permutation_list )
     { /* ... */ }
 
     //! Destructor.
@@ -103,11 +105,11 @@ class MeshContainer
     nodesEnd() const
     { return d_nodes.end(); }
 
-    //! Get the beginning of the coordinates vector.
+    //! Get the beginning of the coordinates array.
     Teuchos::ArrayRCP<const double>::const_iterator coordsBegin() const
     { return d_coords.begin(); }
 
-    //! Get the end of the coordinates vector.
+    //! Get the end of the coordinates array.
     Teuchos::ArrayRCP<const double>::const_iterator coordsEnd() const
     { return d_coords.end(); }
 
@@ -133,15 +135,25 @@ class MeshContainer
     elementsEnd() const
     { return d_elements.end(); }
 
-    //! Get the beginning of the connectivity vector.
+    //! Get the beginning of the connectivity array.
     typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator 
     connectivityBegin() const
     { return d_connectivity.begin(); }
 
-    //! Get the ending of the connectivity vector.
+    //! Get the ending of the connectivity array.
     typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator 
     connectivityEnd() const
     { return d_connectivity.end(); }
+
+    //! Get the beginning of the permutation list.
+    typename Teuchos::ArrayRCP<const std::size_t>::const_iterator 
+    permutationBegin() const
+    { return d_permutation_list.begin(); }
+
+    //! Get the ending of the permutation list.
+    typename Teuchos::ArrayRCP<const std::size_t>::const_iterator 
+    permutationEnd() const
+    { return d_permutation_list.end(); }
     
   private:
 
@@ -168,6 +180,9 @@ class MeshContainer
 
     // Connectivity.
     Teuchos::ArrayRCP<const GlobalOrdinal> d_connectivity;
+
+    // Permutation list.
+    Teuchos::ArrayRCP<const std::size_t> d_permutation_list;
 };
 
 //---------------------------------------------------------------------------//
@@ -191,6 +206,9 @@ struct MeshTraits< MeshContainer<GlobalOrdinal> >
 
     typedef typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator 
     const_connectivity_iterator;
+
+    typedef typename Teuchos::ArrayRCP<const std::size_t>::const_iterator 
+    const_permutation_iterator;
 
 
     static inline std::size_t nodeDim( const Container& container )
@@ -236,6 +254,14 @@ struct MeshTraits< MeshContainer<GlobalOrdinal> >
     static inline const_connectivity_iterator
     connectivityEnd( const Container& container )
     { return container.connectivityEnd(); }
+
+    static inline const_permutation_iterator
+    permutationBegin( const Container& container )
+    { return container.permutationBegin(); }
+
+    static inline const_permutation_iterator
+    permutationEnd( const Container& container )
+    { return container.permutationEnd(); }
 };
 
 //---------------------------------------------------------------------------//

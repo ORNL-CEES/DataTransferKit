@@ -154,10 +154,16 @@ DataTransferKit::MeshContainer<int> buildMeshContainer()
     Teuchos::ArrayRCP<int> connectivity_array( hex_connectivity.size() );
     std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
 	       connectivity_array.begin() );
+    Teuchos::ArrayRCP<std::size_t> permutation_list( 8 );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
     
     return MeshContainer<int>( 3, node_handle_array, coords_array,
 			       DTK_REGION, DTK_HEXAHEDRON, 8,
-			       hex_handle_array, connectivity_array );
+			       hex_handle_array, connectivity_array,
+			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//

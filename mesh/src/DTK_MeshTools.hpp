@@ -66,7 +66,7 @@ class MeshTools
     //! Typedefs.
     typedef Mesh                                mesh_type;
     typedef MeshTraits<Mesh>                    MT;
-    typedef typename MT::global_ordinal_type    global_ordinal_type;
+    typedef typename MT::global_ordinal_type    GlobalOrdinal;
     typedef Teuchos::Comm<int>                  CommType;
     typedef Teuchos::RCP<const CommType>        RCP_Comm;
     //@}
@@ -84,12 +84,12 @@ class MeshTools
     //! Bounds-checking mesh data access methods.
     // Get a view of the of the mesh nodes. The ArrayRCP object will not
     // manage the memory. 
-    static Teuchos::ArrayRCP<const global_ordinal_type> 
+    static Teuchos::ArrayRCP<const GlobalOrdinal> 
     nodesView( const Mesh& mesh );
 
     // Get a non-const view of the of the mesh nodes. The ArrayRCP object will
     // not manage the memory.
-    static Teuchos::ArrayRCP<global_ordinal_type> 
+    static Teuchos::ArrayRCP<GlobalOrdinal> 
     nodesNonConstView( const Mesh& mesh );
 
     // Get a view of the of the mesh coordinates. The ArrayRCP object will not
@@ -102,32 +102,32 @@ class MeshTools
 
     // Get a view of the of the mesh elements. The ArrayRCP object will not
     // manage the memory. 
-    static Teuchos::ArrayRCP<const global_ordinal_type> 
+    static Teuchos::ArrayRCP<const GlobalOrdinal> 
     elementsView( const Mesh& mesh );
 
     // Get a non-const view of the of the mesh elements. The ArrayRCP object
     // will not manage the memory.
-    static Teuchos::ArrayRCP<global_ordinal_type> 
+    static Teuchos::ArrayRCP<GlobalOrdinal> 
     elementsNonConstView( const Mesh& mesh );
 
     // Get a view of the of the mesh connectivity. The ArrayRCP object will not
     // manage the memory. 
-    static Teuchos::ArrayRCP<const global_ordinal_type> 
+    static Teuchos::ArrayRCP<const GlobalOrdinal> 
     connectivityView( const Mesh& mesh );
 
     // Get a non-const view of the of the mesh connectivity. The ArrayRCP
     // object will not manage the memory.
-    static Teuchos::ArrayRCP<global_ordinal_type> 
+    static Teuchos::ArrayRCP<GlobalOrdinal> 
     connectivityNonConstView( const Mesh& mesh );
 
     // Get a view of the of the mesh connectivity permutation list. The
     // ArrayRCP object will not manage the memory. 
-    static Teuchos::ArrayRCP<const global_ordinal_type> 
+    static Teuchos::ArrayRCP<const std::size_t> 
     permutationView( const Mesh& mesh );
 
     // Get a non-const view of the of the mesh connectivity permutation
     // list. The ArrayRCP object will not manage the memory.
-    static Teuchos::ArrayRCP<global_ordinal_type> 
+    static Teuchos::ArrayRCP<std::size_t> 
     permutationNonConstView( const Mesh& mesh );
     //@}
 

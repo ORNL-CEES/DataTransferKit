@@ -58,12 +58,12 @@ namespace DataTransferKit
  * manage the memory. 
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<const typename MeshTools<Mesh>::global_ordinal_type> 
+Teuchos::ArrayRCP<const typename MeshTools<Mesh>::GlobalOrdinal> 
 MeshTools<Mesh>::nodesView( const Mesh& mesh )
 {
-    global_ordinal_type num_nodes = std::distance( MT::nodesBegin( mesh ),
-						   MT::nodesEnd( mesh ) );
-    return Teuchos::ArrayRCP<const global_ordinal_type>(
+    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
+					     MT::nodesEnd( mesh ) );
+    return Teuchos::ArrayRCP<const GlobalOrdinal>(
 	&*MT::nodesBegin(mesh), 0, num_nodes, false );
 }
 
@@ -73,13 +73,13 @@ MeshTools<Mesh>::nodesView( const Mesh& mesh )
  * will not manage the memory.
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<typename MeshTools<Mesh>::global_ordinal_type> 
+Teuchos::ArrayRCP<typename MeshTools<Mesh>::GlobalOrdinal> 
 MeshTools<Mesh>::nodesNonConstView( const Mesh& mesh )
 {
-    global_ordinal_type num_nodes = std::distance( MT::nodesBegin( mesh ),
-						   MT::nodesEnd( mesh ) );
-    return Teuchos::ArrayRCP<global_ordinal_type>(
-	(global_ordinal_type*) &*MT::nodesBegin(mesh), 0, num_nodes, false );
+    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
+					     MT::nodesEnd( mesh ) );
+    return Teuchos::ArrayRCP<GlobalOrdinal>(
+	(GlobalOrdinal*) &*MT::nodesBegin(mesh), 0, num_nodes, false );
 }
 
 //---------------------------------------------------------------------------//
@@ -91,8 +91,8 @@ template <class Mesh>
 Teuchos::ArrayRCP<const double>
 MeshTools<Mesh>::coordsView( const Mesh& mesh )
 {
-    global_ordinal_type num_coords = std::distance( MT::coordsBegin( mesh ),
-						    MT::coordsEnd( mesh ) );
+    GlobalOrdinal num_coords = std::distance( MT::coordsBegin( mesh ),
+					      MT::coordsEnd( mesh ) );
     return Teuchos::ArrayRCP<const double>(
 	&*MT::coordsBegin(mesh), 0, num_coords, false );
 }
@@ -106,7 +106,7 @@ template <class Mesh>
 Teuchos::ArrayRCP<double>
 MeshTools<Mesh>::coordsNonConstView( const Mesh& mesh )
 {
-    global_ordinal_type num_coords = 
+    GlobalOrdinal num_coords = 
 	std::distance( MT::coordsBegin( mesh ), MT::coordsEnd( mesh ) );
     return Teuchos::ArrayRCP<double>(
 	(double*) &*MT::coordsBegin(mesh), 0, num_coords, false );
@@ -118,12 +118,12 @@ MeshTools<Mesh>::coordsNonConstView( const Mesh& mesh )
  * manage the memory. 
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<const typename MeshTools<Mesh>::global_ordinal_type> 
+Teuchos::ArrayRCP<const typename MeshTools<Mesh>::GlobalOrdinal> 
 MeshTools<Mesh>::elementsView( const Mesh& mesh )
 {
-    global_ordinal_type num_elements = 
+    GlobalOrdinal num_elements = 
 	std::distance( MT::elementsBegin( mesh ), MT::elementsEnd( mesh ) );
-    return Teuchos::ArrayRCP<const global_ordinal_type>(
+    return Teuchos::ArrayRCP<const GlobalOrdinal>(
 	&*MT::elementsBegin(mesh), 0, num_elements, false );
 }
 
@@ -133,13 +133,13 @@ MeshTools<Mesh>::elementsView( const Mesh& mesh )
  * object will not manage the memory.
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<typename MeshTools<Mesh>::global_ordinal_type> 
+Teuchos::ArrayRCP<typename MeshTools<Mesh>::GlobalOrdinal> 
 MeshTools<Mesh>::elementsNonConstView( const Mesh& mesh )
 {
-    global_ordinal_type num_elements = 
+    GlobalOrdinal num_elements = 
 	std::distance( MT::elementsBegin( mesh ), MT::elementsEnd( mesh ) );
-    return Teuchos::ArrayRCP<global_ordinal_type>(
-	(global_ordinal_type*) &*MT::elementsBegin(mesh), 
+    return Teuchos::ArrayRCP<GlobalOrdinal>(
+	(GlobalOrdinal*) &*MT::elementsBegin(mesh), 
 	0, num_elements, false );
 }
 
@@ -149,13 +149,13 @@ MeshTools<Mesh>::elementsNonConstView( const Mesh& mesh )
  * not manage the memory. 
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<const typename MeshTools<Mesh>::global_ordinal_type> 
+Teuchos::ArrayRCP<const typename MeshTools<Mesh>::GlobalOrdinal> 
 MeshTools<Mesh>::connectivityView( const Mesh& mesh )
 {
-    global_ordinal_type num_connectivity = 
+    GlobalOrdinal num_connectivity = 
 	std::distance( MT::connectivityBegin( mesh ),
 		       MT::connectivityEnd( mesh ) );
-    return Teuchos::ArrayRCP<const global_ordinal_type>(
+    return Teuchos::ArrayRCP<const GlobalOrdinal>(
 	&*MT::connectivityBegin(mesh), 0, num_connectivity, false );
 }
 
@@ -165,14 +165,14 @@ MeshTools<Mesh>::connectivityView( const Mesh& mesh )
  * object will not manage the memory.
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<typename MeshTools<Mesh>::global_ordinal_type> 
+Teuchos::ArrayRCP<typename MeshTools<Mesh>::GlobalOrdinal> 
 MeshTools<Mesh>::connectivityNonConstView( const Mesh& mesh )
 {
-    global_ordinal_type num_connectivity = 
+    GlobalOrdinal num_connectivity = 
 	std::distance( MT::connectivityBegin( mesh ),
 		       MT::connectivityEnd( mesh ) );
-    return Teuchos::ArrayRCP<global_ordinal_type>(
-	(global_ordinal_type*) &*MT::connectivityBegin(mesh), 0, 
+    return Teuchos::ArrayRCP<GlobalOrdinal>(
+	(GlobalOrdinal*) &*MT::connectivityBegin(mesh), 0, 
 	num_connectivity, false );
 }
 
@@ -182,16 +182,16 @@ MeshTools<Mesh>::connectivityNonConstView( const Mesh& mesh )
  * ArrayRCP object will not manage the memory. 
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<const typename MeshTools<Mesh>::global_ordinal_type> 
+Teuchos::ArrayRCP<const std::size_t> 
 MeshTools<Mesh>::permutationView( const Mesh& mesh )
 {
-    global_ordinal_type num_permutation = 
+    std::size_t num_permutation = 
 	std::distance( MT::permutationBegin( mesh ),
 		       MT::permutationEnd( mesh ) );
-    testInvariant( num_permuation == MT::nodesPerElement( mesh ),
+    testInvariant( num_permutation == MT::nodesPerElement( mesh ),
 		   "Permutation list size != nodes per mesh element" );
-    return Teuchos::ArrayRCP<const global_ordinal_type>(
-	&*MT::permutationBegin(mesh), 0, num_permutation, false );
+    return Teuchos::ArrayRCP<const std::size_t>(
+	&*MT::permutationBegin( mesh ), 0, num_permutation, false );
 }
 
 //---------------------------------------------------------------------------//
@@ -200,16 +200,16 @@ MeshTools<Mesh>::permutationView( const Mesh& mesh )
  * list. The ArrayRCP object will not manage the memory.
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<typename MeshTools<Mesh>::global_ordinal_type> 
+Teuchos::ArrayRCP<std::size_t> 
 MeshTools<Mesh>::permutationNonConstView( const Mesh& mesh )
 {
-    global_ordinal_type num_permutation = 
+    std::size_t num_permutation = 
 	std::distance( MT::permutationBegin( mesh ),
 		       MT::permutationEnd( mesh ) );
-    testInvariant( num_permuation == MT::nodesPerElement( mesh ),
+    testInvariant( num_permutation == MT::nodesPerElement( mesh ),
 		   "Permutation list size != nodes per mesh element" );
-    return Teuchos::ArrayRCP<global_ordinal_type>(
-	(global_ordinal_type*) &*MT::permutationBegin(mesh), 0, 
+    return Teuchos::ArrayRCP<std::size_t>(
+	(std::size_t*) &*MT::permutationBegin( mesh ), 0, 
 	num_permutation, false );
 }
 
@@ -228,9 +228,8 @@ BoundingBox MeshTools<Mesh>::localBoundingBox( const Mesh& mesh )
     double y_max = Teuchos::ScalarTraits<double>::rmax();
     double z_max = Teuchos::ScalarTraits<double>::rmax();
 
-    typename MT::global_ordinal_type num_nodes =
-	std::distance( MT::nodesBegin( mesh ),
-		       MT::nodesEnd( mesh ) );
+    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
+					     MT::nodesEnd( mesh ) );
     std::size_t node_dim = MT::nodeDim( mesh );
 
     if ( node_dim > 0 )
