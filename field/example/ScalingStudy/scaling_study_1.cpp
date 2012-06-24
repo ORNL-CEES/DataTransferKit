@@ -2,7 +2,7 @@
 /*!
  * \file scaling_study_1.cpp
  * \author Stuart R. Slattery
- * \brief Scaling study 1. Strong scaling.
+ * \brief Scaling study 1. Weak scaling.
  */
 //---------------------------------------------------------------------------//
 
@@ -388,7 +388,7 @@ MyField buildCoordinateField( int my_rank, int my_size,
 }
 
 //---------------------------------------------------------------------------//
-// Strong scaling study driver.
+// Weak scaling study driver.
 //---------------------------------------------------------------------------//
 int main(int argc, char* argv[])
 {
@@ -530,7 +530,7 @@ int main(int argc, char* argv[])
     {
     	std::cout << "==================================================" 
     		  << std::endl;
-    	std::cout << "DTK strong scaling study" << std::endl;
+    	std::cout << "DTK weak scaling study" << std::endl;
     	std::cout << "Number of processors:      " << my_size << std::endl;
     	std::cout << "Local number of elements:  " << (edge_size-1)*(edge_size-1)
     		  << std::endl;

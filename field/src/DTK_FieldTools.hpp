@@ -52,6 +52,16 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
+/*!
+ * \class FieldTools
+ * \brief Tools for objects that have field traits.
+ *
+ * Field tools are meant to provide access to typical field/vector
+ * operations. In additition, operations intended for coordinate fields are
+ * also provided.
+ */
+//---------------------------------------------------------------------------//
 template<class Field>
 class FieldTools
 {
@@ -88,7 +98,7 @@ class FieldTools
 
 
     //@{
-    //! General global field operations.
+    //! General global field mathematical operations.
     // Fill a field with a scalar.
     static void putScalar( Field& field, const value_type& scalar );
 
@@ -101,24 +111,25 @@ class FieldTools
 
     // Compute the infinity norm for each field dimension.
     static void normInf( const Field& field,
-			 Teuchos::Array<value_type>& norms, 
-			 const RCP_Comm& comm );
+			 const RCP_Comm& comm,
+			 Teuchos::Array<value_type>& norms );
+
 
     // Compute the L1 norm for each field dimension.
-    static void norm1( const Field& field, Teuchos::Array<value_type>& norms, 
-		       const RCP_Comm& comm );
+    static void norm1( const Field& field, const RCP_Comm& comm,
+		       Teuchos::Array<value_type>& norms );
+
 
     // Compute the L2 norm for each field dimension.
-    static void norm2( const Field& field, Teuchos::Array<value_type>& norms,
-		       const RCP_Comm& comm );
+    static void norm2( const Field& field, const RCP_Comm& comm, 
+		       Teuchos::Array<value_type>& norms, );
 
     // Compute the average value for each field dimension.
-    static void average( const Field& field, 
-			 Teuchos::Array<value_type>& averages,
-			 const RCP_Comm& comm );
+    static void average( const Field& field, const RCP_Comm& comm, 
+			 Teuchos::Array<value_type>& averages );
 
     // Get the global length of the field.
-    static void globalLength( const Field& field, const RCP_Comm& comm );
+    static size_type globalLength( const Field& field, const RCP_Comm& comm );
     //@}
 
 

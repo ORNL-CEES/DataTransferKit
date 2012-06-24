@@ -84,6 +84,160 @@ FieldTools<Field>::nonConstView( const Field& field )
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Fill a field with a scalar.
+ */
+template<class Field>
+void FieldTools<Field>::putScalar( Field& field, const value_type& scalar )
+{
+    std::fill( FT::begin( field ), FT::end( field ), scalar );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Scale a field by a single value.
+ */
+template<class Field>
+void FieldTools<Field>::scale( Field& field, const value_type& scalar )
+{
+    typename FT::iterator iterator;
+    for ( iterator = FT::begin( field ); iterator != FT::end( field );
+	  ++iterator )
+    {
+	*iterator *= scalar;
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*
+ * \brief Scale a field by different value for each dimension.
+ */
+template<class Field>
+void FieldTools<Field>::scale( Field& field, 
+			       const Teuchos::ArrayView<value_type>& scalars )
+{
+    std::size_t dim = FT::dim( field );
+    testInvariant( dim == scalars.size(), 
+		   "Number of scalars != field dimension." );
+    size_type field_size = FT::size( field );
+    size_type dim_size = field_size / dim;
+    typename FT::iterator iterator;
+    std::size_t d = 0;
+    for ( iterator = FT::begin( field ); iterator != FT::end( field ); )
+    {
+	for ( size_t n = 0; n < dim_size; ++iterator )
+	{
+	    *iterator *= scalars[d];
+	}
+	++d;
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Compute the infinity norm for each field dimension.
+ */
+template<class Field>
+void FieldTools<Field>::normInf( const Field& field, const RCP_Comm& comm,
+				 Teuchos::Array<value_type>& norms )
+{
+    std::size_t dim = FT::dim( field );
+    norms.resize( dim );
+    size_type field_size = FT::size( field );
+    size_type dim_size = field_size / dim;
+    value_type local_max;
+    for ( std::size_t d = 0; d < dim; ++d)
+    {
+	local_max = *std::max_element( FT::begin( field ) + d*dim_size,
+				       FT::begin( field ) + (d+1)*dim_size );
+	Teuchos::reduceAll<int,value_type>( *comm,
+					    Teuchos::REDUCE_MAX,
+					    1,
+					    &local_max,
+					    &norms[d] );
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Compute the L1 norm for each field dimension.
+ */
+template<class Field>
+void FieldTools<Field>::norm1( const Field& field, const RCP_Comm& comm,
+			       Teuchos::Array<value_type>& norms )
+{
+    std::size_t dim = FT::dim( field );
+    norms.resize( dim );
+    size_type field_size = FT::size( field );
+    size_type dim_size = field_size / dim;
+    value_type local_max;
+    for ( std::size_t d = 0; d < dim; ++d)
+    {
+	local_max = *std::max_element( FT::begin( field ) + d*dim_size,
+				       FT::begin( field ) + (d+1)*dim_size );
+	Teuchos::reduceAll<int,value_type>( *comm,
+					    Teuchos::REDUCE_MAX,
+					    1,
+					    &local_max,
+					    &norms[d] );
+    } 
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Compute the L2 norm for each field dimension.
+ */
+template<class Field>
+void FieldTools<Field>::norm2( const Field& field, const RCP_Comm& comm,
+			       Teuchos::Array<value_type>& norms )
+{
+
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Compute the average value for each field dimension.
+ */
+template<class Field>
+void FieldTools<Field>::average( const Field& field, const RCP_Comm& comm,
+				 Teuchos::Array<value_type>& averages )
+{
+    typename FT::const_iterator const_iterator;
+    value_type local_sum = 0;
+    for ( const_iterator = FT::begin( field ); 
+	  const_iterator != FT::end( field );
+	  ++const_iterator )
+    {
+	local_sum += *const_iterator;
+    }
+    value_type global_sum = 0;
+    Teuchos::reduceAll<int,value_type>( *comm,
+					Teuchos::REDUCE_SUM,
+					1,
+					&local_sum,
+					&global_sum );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the global length of the field.
+ */
+template<class Field>
+typename FieldTools<Field>::size_type 
+FieldTools<Field>::globalLength( const Field& field, 
+				 const RCP_Comm& comm )
+{
+    size_type local_size = FT::size( field );
+    size_type global_size = 0;
+    Teuchos::reduceAll<int,size_type>( *comm,
+				       Teuchos::REDUCE_SUM,
+				       1,
+				       &local_size,
+				       &global_size );
+    return global_size;
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Get the local bounding box for a field of coordinates.
  */
 template<class Field>

@@ -171,7 +171,8 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
     typename Teuchos::Array<global_ordinal_type>::iterator unique_bound =
 	std::unique( rendezvous_element_set.begin(), 
 		     rendezvous_element_set.end() );
-    rendezvous_element_set.resize( unique_bound - rendezvous_element_set.begin() );
+    rendezvous_element_set.resize( 
+	unique_bound - rendezvous_element_set.begin() );
 
     // Setup source-to-rendezvous communication.
     Teuchos::ArrayView<const global_ordinal_type> rendezvous_elem_set_view =
@@ -295,11 +296,12 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
     global_ordinal_type source_size = SFT::size( evaluated_field ) /
 				      SFT::dim( evaluated_field );
 
-    Teuchos::RCP< Tpetra::MultiVector<typename SFT::value_type,global_ordinal_type> > 
-	source_vector = createMultiVectorFromView( d_export_map, 
-						   source_field_view,
-						   source_size,
-						   SFT::dim( evaluated_field ) );
+    Teuchos::RCP< Tpetra::MultiVector<typename SFT::value_type,
+				      global_ordinal_type> > source_vector = 
+	createMultiVectorFromView( d_export_map, 
+				   source_field_view,
+				   source_size,
+				   SFT::dim( evaluated_field ) );
 
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view;
     if ( TFT::size( target_space ) == 0 )
@@ -316,11 +318,12 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
     global_ordinal_type target_size = TFT::size( target_space ) /
 				      TFT::dim( target_space );
 
-    Teuchos::RCP< Tpetra::MultiVector<typename TFT::value_type,global_ordinal_type> > 
-	target_vector =	createMultiVectorFromView( d_import_map, 
-						   target_field_view,
-						   target_size,
-						   TFT::dim( target_space ) );
+    Teuchos::RCP< Tpetra::MultiVector<typename TFT::value_type,
+				      global_ordinal_type> > target_vector =	
+	createMultiVectorFromView( d_import_map, 
+				   target_field_view,
+				   target_size,
+				   TFT::dim( target_space ) );
 
     target_vector->doExport( *source_vector, *d_data_export, Tpetra::INSERT );
 }
@@ -330,7 +333,7 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
  * \brief Build the bounding box for the rendezvous decomposition.
  */
 template<class Mesh, class CoordinateField>
-BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox( 
+BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
     const Mesh& mesh, const BoundingBox& mesh_box,
     const CoordinateField& coordinate_field, const BoundingBox& coord_box )
 {
@@ -365,8 +368,9 @@ BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
 
     // Get the mesh nodes in the coord box.
     std::size_t node_dim = MT::nodeDim( mesh );
-    typename MT::global_ordinal_type num_nodes = 
-	std::distance( MT::nodesBegin( mesh ), MT::nodesEnd( mesh ) ) / node_dim;
+    typename MT::global_ordinal_type num_nodes =
+	std::distance( MT::nodesBegin( mesh ), 
+		       MT::nodesEnd( mesh ) ) / node_dim;
     Teuchos::ArrayRCP<const double> node_coords =
 	MeshTools<Mesh>::coordsView( mesh );
     double node[3];
