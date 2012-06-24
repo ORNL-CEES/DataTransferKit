@@ -51,11 +51,13 @@ class MyMesh
     MyMesh( const Teuchos::Array<global_ordinal_type>& node_handles,
 	    const Teuchos::Array<double>& coords,
 	    const Teuchos::Array<global_ordinal_type>& element_handles,
-	    const Teuchos::Array<global_ordinal_type>& element_connectivity )
+	    const Teuchos::Array<global_ordinal_type>& element_connectivity,
+	    const Teuchos::Array<std::size_t>& permutation_list )
 	: d_node_handles( node_handles )
 	, d_coords( coords )
 	, d_element_handles( element_handles )
 	, d_element_connectivity( element_connectivity )
+	, d_permutation_list( permutation_list )
     { /* ... */ }
 
     ~MyMesh()
@@ -87,6 +89,12 @@ class MyMesh
     connectivityEnd() const
     { return d_element_connectivity.end(); }
     
+    Teuchos::Array<std::size_t>::const_iterator permutationBegin() const
+    { return d_permutation_list.begin(); }
+
+    Teuchos::Array<std::size_t>::const_iterator permutationEnd() const
+    { return d_permutation_list.end(); }
+
 
   private:
 
@@ -94,6 +102,7 @@ class MyMesh
     Teuchos::Array<double> d_coords;
     Teuchos::Array<global_ordinal_type> d_element_handles;
     Teuchos::Array<global_ordinal_type> d_element_connectivity;
+    Teuchos::Array<std::size_t> d_permutation_list;
 };
 
 //---------------------------------------------------------------------------//
@@ -170,6 +179,8 @@ class MeshTraits<MyMesh>
     const_element_iterator;
     typedef Teuchos::Array<global_ordinal_type>::const_iterator 
     const_connectivity_iterator;
+    typedef Teuchos::Array<std::size_t>::const_iterator 
+    const_permutation_iterator;
 
     static inline std::size_t nodeDim( const MyMesh& mesh )
     { return 3; }
@@ -203,11 +214,21 @@ class MeshTraits<MyMesh>
     static inline const_element_iterator elementsEnd( const MyMesh& mesh )
     { return mesh.elementsEnd(); }
 
-    static inline const_connectivity_iterator connectivityBegin( const MyMesh& mesh )
+    static inline const_connectivity_iterator 
+    connectivityBegin( const MyMesh& mesh )
     { return mesh.connectivityBegin(); }
 
-    static inline const_connectivity_iterator connectivityEnd( const MyMesh& mesh )
+    static inline const_connectivity_iterator 
+    connectivityEnd( const MyMesh& mesh )
     { return mesh.connectivityEnd(); }
+
+    static inline const_permutation_iterator 
+    permutationBegin( const MyMesh& mesh )
+    { return mesh.permutationBegin(); }
+
+    static inline const_permutation_iterator 
+    permutationEnd( const MyMesh& mesh )
+    { return mesh.permutationEnd(); }
 };
 
 //---------------------------------------------------------------------------//
@@ -362,7 +383,14 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 		= node_handles[node_idx+num_nodes/2+edge_length];
 	}
     }
-    return MyMesh( node_handles, coords, hex_handles, hex_connectivity );
+    Teuchos::Array<std::size_t> permutation_list( 8 );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+
+    return MyMesh( node_handles, coords, hex_handles, hex_connectivity,
+		   permutation_list );
 }
 
 //---------------------------------------------------------------------------//

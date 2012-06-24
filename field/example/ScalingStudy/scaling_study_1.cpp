@@ -101,6 +101,7 @@ class MyMesh
     Teuchos::Array<double> d_coords;
     Teuchos::Array<global_ordinal_type> d_element_handles;
     Teuchos::Array<global_ordinal_type> d_element_connectivity;
+    Teuchos::Array<std::size_t>& d_permutation_list;
 };
 
 //---------------------------------------------------------------------------//
@@ -177,6 +178,8 @@ class MeshTraits<MyMesh>
     const_element_iterator;
     typedef Teuchos::Array<global_ordinal_type>::const_iterator 
     const_connectivity_iterator;
+    typedef Teuchos::Array<std::size_t>::const_iterator 
+    const_permutation_iterator;
 
     static inline std::size_t nodeDim( const MyMesh& mesh )
     { return 3; }
@@ -210,11 +213,21 @@ class MeshTraits<MyMesh>
     static inline const_element_iterator elementsEnd( const MyMesh& mesh )
     { return mesh.elementsEnd(); }
 
-    static inline const_connectivity_iterator connectivityBegin( const MyMesh& mesh )
+    static inline const_connectivity_iterator 
+    connectivityBegin( const MyMesh& mesh )
     { return mesh.connectivityBegin(); }
 
-    static inline const_connectivity_iterator connectivityEnd( const MyMesh& mesh )
+    static inline const_connectivity_iterator 
+    connectivityEnd( const MyMesh& mesh )
     { return mesh.connectivityEnd(); }
+
+    static inline const_permutation_iterator 
+    permutationBegin( const MyMesh& mesh )
+    { return mesh.permutationBegin(); }
+
+    static inline const_permutation_iterator 
+    permutationEnd( const MyMesh& mesh )
+    { return mesh.permutationEnd(); }
 };
 
 //---------------------------------------------------------------------------//
@@ -369,7 +382,15 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 		= node_handles[node_idx+num_nodes/2+edge_length];
 	}
     }
-    return MyMesh( node_handles, coords, hex_handles, hex_connectivity );
+
+    Teuchos::Array<std::size_t> permutation_list( 8 );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+
+    return MyMesh( node_handles, coords, hex_handles, hex_connectivity,
+		   permutation_list );
 }
 
 //---------------------------------------------------------------------------//
