@@ -102,8 +102,8 @@ template<class Mesh>
 RCB<Mesh>::~RCB()
 {
     // Zoltan cleanup.
-    Zoltan_LB_Free_Part ( &d_import_global_ids, &d_import_local_ids, 
-			  &d_import_procs, &d_import_to_part );
+    Zoltan_LB_Free_Part( &d_import_global_ids, &d_import_local_ids, 
+			 &d_import_procs, &d_import_to_part );
     Zoltan_LB_Free_Part( &d_export_global_ids, &d_export_local_ids, 
 			 &d_export_procs, &d_export_to_part );
     Zoltan_Destroy( &d_zz );

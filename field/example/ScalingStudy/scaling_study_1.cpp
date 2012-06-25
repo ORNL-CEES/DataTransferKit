@@ -101,7 +101,7 @@ class MyMesh
     Teuchos::Array<double> d_coords;
     Teuchos::Array<global_ordinal_type> d_element_handles;
     Teuchos::Array<global_ordinal_type> d_element_connectivity;
-    Teuchos::Array<std::size_t>& d_permutation_list;
+    Teuchos::Array<std::size_t> d_permutation_list;
 };
 
 //---------------------------------------------------------------------------//

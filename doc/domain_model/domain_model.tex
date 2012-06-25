@@ -1,25 +1,27 @@
+%% DTK Domain Model
+
 \documentclass[letterpaper]{article}
 \usepackage[top=1.0in,bottom=1.0in,left=1.0in,right=1.0in]{geometry}
+\usepackage{appendix}
 \usepackage{verbatim}
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{longtable}
 \usepackage{amsfonts}
 \usepackage{amsmath}
+\usepackage{algpseudocode} 
 \usepackage[usenames]{color}
 \usepackage[
-naturalnames = true, 
-colorlinks = true, 
-linkcolor = black,
-anchorcolor = black,
-citecolor = black,
-menucolor = black,
-urlcolor = blue
+  naturalnames = true, 
+  colorlinks = true, 
+  linkcolor = black,
+  anchorcolor = black,
+  citecolor = black,
+  menucolor = black,
+  urlcolor = blue
 ]{hyperref}
 \usepackage{listings}
 \usepackage{textcomp}
-\definecolor{listinggray}{gray}{0.9}
-\definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
 
 %%---------------------------------------------------------------------------%%
 \author{Stuart R. Slattery
@@ -35,20 +37,120 @@ urlcolor = blue
 \section{Introduction}
 In many physics applications, it is often desired to transfer fields
 (i.e. degrees of freedom or other data) between meshes that may or may
-not correlate in physical space. In addition, for massively parallel
-simulations, it is typically that meshes not only do not correlate
+not conform in physical space. In addition, for massively parallel
+simulations, it is typical that meshes not only do not conform
 spatially, but also that their parallel decompositions do not
-correlate and are indepndent of one another. As an example, this
-situation can occur in multiphysics simulations where physics fields
-provide feedback between solutions or adaptive mesh simulations where
-fields must be moved between meshes after refining and coarsening.
+correlate and are independent of one another due to physics-based
+partitioning requirements. As an example, this situation can occur in
+multiphysics simulations where physics fields provide feedback between
+solutions or adaptive mesh simulations where fields must be moved
+between meshes after refining and coarsening. It is therefore
+desirable to have a set of tools to relate two meshes of arbitrary
+parallel decomposition such that fields and other data can be
+transferred between them.
+
+The Data Transfer Kit (DTK) is a software component designed to
+provide parallel services for mesh repartitioning, mesh searching, and
+data transfer based on the concept of the rendezvous decomposition
+\cite{Plimpton_2004}. To achieve a component design for use with
+arbitrary physics codes, general concepts of mesh and fields are
+employed to provide access to these services. This document will
+outline these concepts and how they are modeled within the design of
+DTK.
 
 %%---------------------------------------------------------------------------%%
 \section{Mesh}
+In order to access DTK services, a subset of the information regarding
+the mesh is required. This subset consists of nodes and their
+coordinates, and elements and the nodes that construct them. In
+addition, for meshes that contain multiple element topologies, the
+concept of mesh blocked by element topology is utilized. For meshes
+decomposed in parallel, the term global will be used to refer to
+concepts that apply accross the entire parallel domain while the term
+local will be used to refer to concepts that only exist in the domain
+of a single parallel process. A parallel communicator in the context
+of DTK can be taken as a direct reference to a Message Passing
+Interface (MPI) communicator.
 
-\subsection{Topology}
+\subsection{Mesh Nodes}
+Nodes are the most fundamental component of the mesh. All nodes have a
+globally unique ordinal serving as an identification number for the
+node in global operations. A node can have 1, 2, or 3 dimensions but
+all nodes in a mesh must have the same dimension. To specify its
+geometric position, each node has Cartesian (x,y,z) coordinates. A
+node may be repeated any number of times across the parallel domain
+(i.e. it may have unlimited local instances), however, every globally
+unique ordinal must have the same coordinates associated with it
+(i.e. all local instances of the same global ordinal must have the
+same coordinates).
 
-\subsection{Geometric Rendezvous}
+\subsection{Mesh Elements}
+Elements are the second level of abstraction in the mesh above
+nodes. All elements have a globally unique ordinal serving as an
+identification number for the element in global operations. This
+globally unique ordinal can be the same as a globally unique ordinal
+for a node in the mesh as DTK distinguishes between nodes and
+elements. An element has a topology defining its physical structure
+(e.g. tetrahedron, hexahedron, etc.) and a number of nodes needed to
+generate that topology. Elements are constructed from nodes via a
+connectivity list. The connectivity list for a particular element will
+contain the unique node global ordinals that construct it. An element
+may be repeated any number of times across the parallel domain
+(i.e. it may have unlimited local instances), however, every globally
+unique ordinal must have the same connectivity list associated with
+it. For consistency, DTK uses the MoaB Canonical Numbering (MBCN)
+scheme as a canonical ordering scheme \cite{Tautges_2009}. Each
+element in a client mesh can be described with a connectivity list
+using any canonical scheme of choice. However, the relationship
+betweeen this canonical numbering scheme and the DTK canonical
+numbering scheme must be made available. Each element topology is then
+also described by a permutation list. A permutation list specifies the
+variation in ordering between the DTK canonical number scheme and the
+client canonical numbering scheme. For elements that have a higher
+order basis (e.g. quadratic), DTK resolves these as high order nodes
+via the MBCN system.
+
+\subsection{Mesh Blocks}
+At the highest level of abstraction, the mesh is composed of mesh
+blocks. These blocks contain elements of the same topology and
+order. All elements in a block must have the same topology and
+order. A mesh may contain as many blocks as desired. Multiple blocks
+with the same mesh topology may exist. Nodes may be repeated in
+different mesh blocks provided that they maintain the same unique
+global ordinal and coordinates. Elements my be repeated in different
+mesh blocks provided that they maintin the same unique global ordinal
+and connectivity list. Multiple mesh blocks may exist in the same
+spatial region as they are merely a means of subdividing the mesh into
+groups of elements based on their topology. This behavior will be the
+common when hybrid meshes are involved (e.g. a mesh that contains
+hexahedrons and pyramids).
+
+\subsection{Parallel Decomposition}
+Mesh blocks and the elements and nodes they contain may be partitioned
+in any fashion provided that all nodes, elements, and blocks of a mesh
+description exist in a communication space operated by the same
+parallel communicator. Different blocks in a single mesh description
+may not have different communicators. Each mesh description may have
+its own communicator.
+
+%%---------------------------------------------------------------------------%%
+\section{Rendezvous Decomposition}
+Relating two non-conformal meshes will ultimately require some type of
+interpolation or projection algorithm to apply the data from one mesh
+to another. To achieve this, the target objects to which this data
+will be applied must be located within the the source mesh. In a
+serial formulation, efficient search structures that offer logarithmic
+asymptotic time complexity are available to perform this
+operation. However, in a parallel formulation, if these two meshes are
+arbitrarily decomposed, then a certain degree of communication will be
+required as well. A mesh that is associated with the data that will be
+transferred will be referred to as the source mesh while the mesh, or
+more generally, the geometry that will be receiving the data will be
+referred to as the target geometry.
+
+The rendezvous decomposition concept uses a parallel formulation for
+the data transfer while maintaining a serial formulation for the
+geometric search operations.
 
 %%---------------------------------------------------------------------------%%
 \section{Fields}
