@@ -293,11 +293,14 @@ TEUCHOS_UNIT_TEST( RendezvousMesh, rendezvous_mesh_test )
 {
     using namespace DataTransferKit;
 
-    // Create a mesh.
+    // Create a block of mesh.
     typedef MeshTraits<MyMesh> MT;
-    MyMesh my_mesh = buildMyMesh();
+    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    mesh_blocks[0] = buildMyMesh();
+
+    // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MyMesh::global_ordinal_type> > mesh = 
-	createRendezvousMesh( my_mesh );
+	createRendezvousMesh( mesh_blocks );
 
     // Get the moab interface.
     moab::ErrorCode error;
@@ -332,7 +335,7 @@ TEUCHOS_UNIT_TEST( RendezvousMesh, rendezvous_mesh_test )
     int num_nodes = connectivity.size();
     Teuchos::Array<double>::const_iterator moab_coord_iterator;
     typename MT::const_coordinate_iterator coord_iterator = 
-	MT::coordsBegin( my_mesh );
+	MT::coordsBegin( mesh_blocks[0] );
     int i = 0;
     for ( moab_coord_iterator = vertex_coords.begin();
 	  moab_coord_iterator != vertex_coords.end(); ++i )

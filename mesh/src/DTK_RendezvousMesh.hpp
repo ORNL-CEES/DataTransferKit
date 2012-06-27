@@ -49,6 +49,7 @@
 #include <MBRange.hpp>
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
 {
@@ -116,10 +117,10 @@ const moab::EntityType moab_topology_table[] =
 // Non-member creation methods.
 //---------------------------------------------------------------------------//
 
-// Create a RendezvousMesh from an object that implements MeshTraits.
+// Create a RendezvousMesh from an objects that implement MeshTraits.
 template<class Mesh>
 Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::global_ordinal_type> >
-createRendezvousMesh( const Mesh& mesh );
+createRendezvousMesh( const Teuchos::ArrayRCP<Mesh>& mesh_blocks );
 
 //---------------------------------------------------------------------------//
 
