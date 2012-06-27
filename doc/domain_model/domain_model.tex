@@ -104,16 +104,48 @@ DTK can be taken as a direct reference to a Message Passing Interface
 (MPI) communicator \cite{MPI_1994}. A single communicator has set of
 process space over which it may perform operations. Multiple
 communicators may exist in a single process space and own the same
-processes. 
+processes. A communicator is not required to encompass all of global
+process space. Based on this, we can consider union and intersection
+operations.
 
-Based on this, we can consider two likely operations which will we
-want to perform. A union operation will compute the union in process
-space of all communicators involved. Figure~\ref{fig:comm_union}
-provides an example of a union operation. An intersection operation
-will compute the intersection in process space of all communicators
+A union operation will compute the union in process space of all
+communicators involved. This will be a common operation for cases
+where one particular geometric component in the data transfer
+operation is decomposed over a different communicator than another
+geometric component. Figure~\ref{fig:comm_union} provides an
+example of a union operation. In this example, two communicators, A
+and B, are defined within the global communicator (typically
+MPI\_COMM\_WORLD) but do not encapsulate all of it. All process
+that exist either in communicator A or B will be used to form the
+new union communicator.
+
+\begin{figure}[htpb!]
+  \centering
+  \includegraphics[width=5in]{union_comm.eps}
+  \caption{\sl Communicator union operation diagram. In this example,
+    communicator A and communicator B are contained within the global
+    communicator but do not encapsulate all of it. Their combined
+    communication spaces form the union.}
+  \label{fig:comm_union}
+\end{figure}
+
+An intersection operation will compute the intersection in process
+space of all communicators
 involved. Figure~\ref{fig:comm_intersection} provides an example of an
-intersection operation.
+intersection operation. In this example, two communicators, A and B,
+are defined within a global communicator but do not encapsulate all of
+it. All processes that exist in both communicator A and B will be used
+to form the intersection communicator.
 
+\begin{figure}[htpb!]
+  \centering
+  \includegraphics[width=5in]{intersection_comm.eps}
+  \caption{\sl Communicator intersection operation diagram. In this
+    example, communicator A and communicator B are contained within
+    the global communicator but do not encapsulate all of it. The blue
+    communication space forms the intersection.}
+  \label{fig:comm_intersection}
+\end{figure}
 
 \clearpage
 
