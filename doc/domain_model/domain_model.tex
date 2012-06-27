@@ -248,10 +248,11 @@ number of nodes. A mesh may contain as many blocks as
 desired. Multiple blocks with the same mesh topology may exist. Nodes
 may be repeated in different mesh blocks provided that they maintain
 the same unique global ordinal and coordinates. Elements may be
-repeated in different mesh blocks provided that they maintin the same
-unique global ordinal and connectivity list. Multiple mesh blocks may
-exist in the same spatial region as they are merely a means of
-subdividing the mesh into groups of elements based on their
+repeated in different mesh blocks provided that they maintain the same
+unique global ordinal and connectivity list. All elements and nodes in
+all blocks of the mesh must have the same dimension. Multiple mesh
+blocks may exist in the same spatial region as they are merely a means
+of subdividing the mesh into groups of elements based on their
 topology. This behavior will be the common when hybrid meshes are
 involved (e.g. a mesh that contains hexahedrons and
 tetrahedrons). Mesh blocks may be either structured or unstructured.
