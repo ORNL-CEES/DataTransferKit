@@ -70,7 +70,6 @@ class MeshContainer
     MeshContainer( const int node_dim,
 		   const Teuchos::ArrayRCP<GlobalOrdinal>& nodes,
 		   const Teuchos::ArrayRCP<const double>& coords,
-		   const int element_type,
 		   const int element_topology,
 		   const int nodes_per_element,
 		   const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
@@ -79,7 +78,6 @@ class MeshContainer
 	: d_node_dim( node_dim )
 	, d_nodes( nodes )
 	, d_coords( coords )
-	, d_element_type( element_type )
 	, d_element_topology( element_topology )
 	, d_nodes_per_element( nodes_per_element )
 	, d_elements( elements )
@@ -112,10 +110,6 @@ class MeshContainer
     //! Get the end of the coordinates array.
     Teuchos::ArrayRCP<const double>::const_iterator coordsEnd() const
     { return d_coords.end(); }
-
-    //! Get the element type.
-    std::size_t getElementType() const
-    { return d_element_type; }
 
     //! Get the element topology.
     std::size_t getElementTopology() const
@@ -165,9 +159,6 @@ class MeshContainer
 
     // Coordinates.
     Teuchos::ArrayRCP<const double> d_coords;
-
-    // Element type.
-    std::size_t d_element_type;
 
     // Element topology.
     std::size_t d_element_topology;
@@ -229,9 +220,6 @@ struct MeshTraits< MeshContainer<GlobalOrdinal> >
     coordsEnd( const Container& container )
     { return container.coordsEnd(); }
 
-
-    static inline std::size_t elementType( const Container& container )
-    { return container.getElementType(); }
 
     static inline std::size_t elementTopology( const Container& container )
     { return container.getElementTopology(); }

@@ -38,6 +38,8 @@
 \begin{document}
 \maketitle
 
+\newpage
+
 %%---------------------------------------------------------------------------%%
 \begin{abstract}
   In many physics applications, the concept of mesh is used to
@@ -49,17 +51,21 @@
   multiphysics simulation, adaptive simulations, and other multiple
   mesh problems, transferring fields and other data between meshes is
   a common operation. This document describes a domain model for mesh,
-  fields, and data transfer based on the rendezvous algorithm and its
-  implementation within the Data Transfer Kit software package.
+  fields, and data transfer based on the concept of geometric
+  rendezvous and its implementation within the Data Transfer Kit
+  software package.
 \end{abstract}
-\cleardoublepage
+
+\newpage
+\newpage
+
 %%---------------------------------------------------------------------------%%
 \tableofcontents
 \clearpage
 \listoffigures
 \clearpage
 \listoftables
-\clearpage
+\newpage
 \newpage
 
 %%---------------------------------------------------------------------------%%
@@ -116,7 +122,7 @@ x and y coordinates but not a z coordinate). A node may be repeated
 any number of times across the parallel domain with unlimited local
 and global instances. However, every node with the same globally
 unique ordinal must have the same coordinates. As an example, consider
-figure~\ref{fig:mesh_nodes} depicting a series of nodes contained in
+Figure~\ref{fig:mesh_nodes} depicting a series of nodes contained in
 the mesh. Each node is provide a globally unique ordinal and set of 3
 dimensional coordinates.
 
@@ -125,7 +131,7 @@ dimensional coordinates.
   \includegraphics[width=5in]{hex_nodes.eps}
   \caption{\sl Basic node description for a mesh. Each node is
     required to have a unique global ordinal, a specified
-    dimensionality, and Cartesian coordinates cooresponding to that
+    dimensionality, and Cartesian coordinates corresponding to that
     dimensonality. The nodes in this example are 3 dimensional.}
   \label{fig:mesh_nodes}
 \end{figure}
@@ -154,11 +160,12 @@ also described by a permutation list. A permutation list specifies the
 variation in ordering between the DTK canonical number scheme and the
 client canonical numbering scheme. For elements that have a higher
 order basis (e.g. quadratic), DTK resolves these as high order nodes
-via the MBCN system.
+via the MBCN system. See Appendix~\ref{apdx:cell_topo} for canonical
+element topologies.
 
 Consider the continuation of our example in
-figure~\ref{fig:mesh_element} showing a linear hexahedron element
-generated from the nodes in figure~\ref{fig:mesh_nodes}. The element
+Figure~\ref{fig:mesh_element} showing a linear hexahedron element
+generated from the nodes in Figure~\ref{fig:mesh_nodes}. The element
 has been given a unique global ordinal and the connectivity and
 permuation lists have been specified. The connectivity list specifies
 an element construction from counter-clockwise movement around the
@@ -191,10 +198,11 @@ and connectivity list. Multiple mesh blocks may exist in the same
 spatial region as they are merely a means of subdividing the mesh into
 groups of elements based on their topology. This behavior will be the
 common when hybrid meshes are involved (e.g. a mesh that contains
-hexahedrons and pyramids).
+hexahedrons and pyramids). Mesh blocks may be either structured or
+unstructured. 
 
 As an example, consider the 2 dimensional hybrid mesh presented in
-figure~\ref{fig:hybrid_mesh}. This mesh contains both quadrilateral
+Figure~\ref{fig:hybrid_mesh}. This mesh contains both quadrilateral
 (blue) and triangle (red) elements that share connecting nodes. In
 this case, all quadrilaterals should be specified in a single mesh
 block and all triangles specified in another mesh block. The nodes
@@ -205,7 +213,7 @@ shared by these two mesh blocks may be repeated in either block.
   \includegraphics[width=5in]{hybrid_mesh.eps}
   \caption{\sl Hybrid mesh example. Quadrilaterals (blue) must be
     specified in a different mesh block than the triangles (red). Both
-    blocks can share the mesh nodes.}
+    blocks can share mesh nodes.}
   \label{fig:hybrid_mesh}
 \end{figure}
 
@@ -222,23 +230,24 @@ along with the proper communicator is required.
 \clearpage
 
 %%---------------------------------------------------------------------------%%
-\section{Rendezvous}\label{sec:rendezvous}
+\section{Geometric Rendezvous}\label{sec:rendezvous}
 Relating two non-conformal meshes will ultimately require some type of
 evaluation algorithm to apply the data from one mesh to another. To
 achieve this, the target objects to which this data will be applied
-must be located within the the source mesh. In a serial formulation,
-efficient search structures that offer logarithmic asymptotic time
-complexity are available to perform this operation. However, in a
-parallel formulation, if these two meshes are arbitrarily decomposed,
-then a certain degree of communication will be required as well. A
-mesh that is associated with the data that will be transferred will be
-referred to as the source mesh while the mesh, or more generally, the
-geometry that will be receiving the data will be referred to as the
-target geometry.
+must be located within the the source geometry. In a serial
+formulation, efficient search structures that offer logarithmic
+asymptotic time complexity are available to perform this
+operation. However, in a parallel formulation, if these two meshes are
+arbitrarily decomposed, then a certain degree of communication will be
+required as well as geometric alignment is not likely.
+
+A geometry that is associated with the data that will be transferred
+will be referred to as the source geometry while the the geometry that
+will be receiving the data will be referred to as the target geometry.
 
 \subsection{The Rendezvous Algorithm}\label{subsec:rendezvous_alg}
-The rendezvous decomposition concept uses a parallel formulation for
-the data transfer while maintaining a serial formulation for the
+The rendezvous decomposition concept uses a global formulation for
+the data transfer while maintaining a local formulation for the
 geometric search operations.
 
 \clearpage
@@ -264,6 +273,12 @@ geometric search operations.
 
 %%---------------------------------------------------------------------------%%
 \section{Conclusion}\label{sec:conc}
+
+\clearpage
+
+%%---------------------------------------------------------------------------%%
+\appendix
+\section{DTK Element Topologies}\label{apdx:cell_topo}
 
 %%---------------------------------------------------------------------------%%
 \pagebreak

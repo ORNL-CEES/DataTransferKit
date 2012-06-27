@@ -44,16 +44,6 @@
 namespace DataTransferKit
 {
 
-//! Element type enumerations.
-enum DTK_ElementType {
-    DTK_ElementType_MIN = 0,
-    DTK_POINT = DTK_ElementType_MIN,
-    DTK_EDGE,
-    DTK_FACE,
-    DTK_REGION,
-    DTK_ElementType_MAX = DTK_REGION
-};
-
 //! Element topology enumerations.
 enum DTK_ElementTopology {
     DTK_ElementTopology_MIN = 0,

@@ -379,7 +379,6 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 	d_node_dim,
 	Teuchos::arcpFromArray( rendezvous_nodes ), 
 	import_coords.get1dView(),
-	MT::elementType( mesh ),
 	MT::elementTopology( mesh ),
 	nodes_per_element,
 	Teuchos::arcpFromArray( rendezvous_elements ), 

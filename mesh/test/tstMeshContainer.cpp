@@ -161,7 +161,7 @@ DataTransferKit::MeshContainer<int> buildMeshContainer()
     }
     
     return MeshContainer<int>( 3, node_handle_array, coords_array,
-			       DTK_REGION, DTK_HEXAHEDRON, 8,
+			       DTK_HEXAHEDRON, 8,
 			       hex_handle_array, connectivity_array,
 			       permutation_list );
 }

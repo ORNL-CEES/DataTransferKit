@@ -198,9 +198,6 @@ class MeshTraits<MyMesh>
     { return mesh.coordsEnd(); }
 
 
-    static inline std::size_t elementType( const MyMesh& mesh )
-    { return DTK_REGION; }
-
     static inline std::size_t elementTopology( const MyMesh& mesh )
     { return DTK_HEXAHEDRON; }
 
