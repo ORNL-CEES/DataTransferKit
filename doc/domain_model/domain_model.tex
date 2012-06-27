@@ -34,7 +34,7 @@
 }
 
 \date{\today}
-\title{A Rendezvous-Based Domain Model for \\ Data Transfer}
+\title{A Geometric Rendezvous-Based Domain Model for Data Transfer}
 \begin{document}
 \maketitle
 
@@ -151,18 +151,18 @@ to form the intersection communicator.
 
 %%---------------------------------------------------------------------------%%
 \section{Mesh}\label{sec:mesh}
-In order to access DTK services, a subset of the information regarding
-the mesh is required. This subset consists of nodes and their
-coordinates, and elements and the nodes that construct them. This
-subset has been demonstrated as sufficient for applying data transfer
-algorithms \cite{Stewart_2004} and can be formulated in such a way
-that algorithms can be generated that are data structure netural
-\cite{Chand_2008}. In addition, for meshes that contain multiple
-element topologies, the concept of mesh blocked by element topology is
-utilized. For meshes decomposed in parallel, the term global will be
-used to refer to concepts that apply across the entire parallel domain
-while the term local will be used to refer to concepts that only exist
-in the domain of a single parallel process. 
+In order to access DTK mesh services, a subset of the information
+needed to describe the mesh is required. This subset consists of nodes
+and their coordinates, and elements and the nodes that construct
+them. This subset has been demonstrated as sufficient for applying
+data transfer algorithms \cite{Stewart_2004} and can be formulated in
+such a way that algorithms can be generated that are data structure
+netural \cite{Chand_2008}. In addition, for meshes that contain
+multiple element topologies, the concept of mesh blocked by element
+topology is utilized. For meshes decomposed in parallel, the term
+global will be used to refer to concepts that apply across the entire
+parallel domain while the term local will be used to refer to concepts
+that only exist in the domain of a single parallel process.
 
 \subsection{Mesh Nodes}\label{subsec:nodes}
 Nodes are the lowest level geometric component of the mesh. All nodes
@@ -286,6 +286,30 @@ access along with the proper communicator is required.
 \clearpage
 
 %%---------------------------------------------------------------------------%%
+\section{Fields}\label{sec:field}
+In the most general sense, a field is a contiguous block of data. In a
+physics simulation, common fields include pressure and velocity
+distributions, temperatures, or other quantities of interest that have
+been discretized across the domain. In order to access DTK field
+services, a subset of information needed to describe the field is
+required. A field has a dimension of arbitrary size. As examples, for
+scalar fields this dimension is one, for 3 vectors (such as the
+velocity example above in a 3 dimensional computation) is 3, and for a
+3x3 tensor the dimension is 9. A field can have an arbitrary local
+size and this size can differ from local domain to local domain. No
+knowledge of the global field decomposition is required, however, it
+must exist on a single communicator. All local instances of the field
+must have the same dimension.
+
+\subsection{Field Evaluations}\label{subsec:field_eval}
+Access to discretization of fields is formulated through function
+evaluations at points.
+
+\subsection{Basic Field Operations}\label{subsec:field_ops}
+
+\clearpage
+
+%%---------------------------------------------------------------------------%%
 \section{Geometric Rendezvous}\label{sec:rendezvous}
 Relating two non-conformal meshes will ultimately require some type of
 evaluation algorithm to apply the data from one mesh to another. To
@@ -294,12 +318,17 @@ must be located within the the source geometry. In a serial
 formulation, efficient search structures that offer logarithmic
 asymptotic time complexity are available to perform this
 operation. However, in a parallel formulation, if these two meshes are
-arbitrarily decomposed, then a certain degree of communication will be
-required as well as geometric alignment is not likely.
+arbitrarily decomposed, geometric alignment is not likely and a
+certain degree of communication will be required. A geometric
+rendezvous manipulates the source and target geometries such that all
+geometric operations have a local formulation.
 
 A geometry that is associated with the data that will be transferred
 will be referred to as the source geometry while the the geometry that
-will be receiving the data will be referred to as the target geometry.
+will be receiving the data will be referred to as the target
+geometry. Although explicitly formulated with a source mesh and target
+nodes below, these concepts can be applied to geometric structures
+beyond mesh and nodes.
 
 \subsection{The Rendezvous Algorithm}\label{subsec:rendezvous_alg}
 The geometric rendezvous concept uses a global formulation for the
@@ -330,12 +359,12 @@ To begin, a global bounding box for the source and target geometries
 is constructed using their nodal data. These two bounding boxes are
 then intersected to produce the bounding box around the intersection
 of the two geometries. Those source or target nodes that are not
-inside this intersection bounding box are not considered for
-evaluation. This step is motivated by the fact that for many classes
-of data transfer problems, such as 2D surface transfer in a full 3D
-problem, only a small subset of the source and target geometries will
-be used. This will reduce the number of search operations and
-communication operations.
+inside this intersection bounding box are not considered for the
+remainder of the algorithm. This step is motivated by the fact that
+for many classes of data transfer problems, such as 2 dimensional
+surface transfer in a full 3 dimensional problem, only a small subset
+of the source and target geometries will be used. This will reduce the
+number of search operations and communication operations.
 
 \paragraph{Step 2: Rendezvous decomposition generation.}
 Recursive coordinate bisectioning (RCB) is used the create a new
@@ -389,17 +418,6 @@ level use the RCB partitioning information and mesh searches on the
 local level use the kD-tree with both operations exhibiting
 O(n*log(n)) asymptotic time and space complexity for generating and
 searching the appropriate data structures.
-
-\clearpage
-
-%%---------------------------------------------------------------------------%%
-\section{Fields}\label{sec:field}
-
-\subsection{Fields of Multiple Dimensions}\label{subsec:field_dim}
-
-\subsection{Field Evaluations}\label{subsec:eval}
-
-\subsection{Basic Field Operations}
 
 \clearpage
 
