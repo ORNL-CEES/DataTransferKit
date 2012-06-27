@@ -215,7 +215,7 @@ variation in ordering between the DTK canonical numbering scheme and
 the client canonical numbering scheme. For elements that have a higher
 order basis (e.g. quadratic), DTK resolves these as higher order nodes
 via the MBCN system. See Appendix~\ref{apdx:cell_topo} for canonical
-element topologies.
+element topologies as defined by DTK.
 
 Consider the continuation of our example in
 Figure~\ref{fig:mesh_element} showing a linear hexahedron element
@@ -268,14 +268,15 @@ shared by these two mesh blocks may be repeated in either block.
   \includegraphics[width=5in]{hybrid_mesh.eps}
   \caption{\sl Hybrid mesh example. Quadrilaterals (blue) must be
     specified in a different mesh block than the triangles (red). Both
-    blocks can share mesh nodes.}
+    blocks can share the mutual mesh nodes that construct their
+    elements.}
   \label{fig:hybrid_mesh}
 \end{figure}
 
 \subsection{Parallel Decomposition}\label{subsec:mesh_decomp}
 Mesh blocks and the elements and nodes they contain may be partitioned
 in any fashion provided that all nodes, elements, and blocks of a mesh
-description exist in a communication space operated by the same
+description exist in a communication space operated on by the same
 parallel communicator. Different blocks in a single mesh description
 may not have different communicators. Each mesh description may have
 its own communicator. Global knowledge of the parallel decomposition
