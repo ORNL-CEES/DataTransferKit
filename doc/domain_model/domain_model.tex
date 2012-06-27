@@ -34,7 +34,7 @@
 }
 
 \date{\today}
-\title{A Rendezvous-Based Domain Model for Data Transfer}
+\title{A Rendezvous-Based Domain Model for \\ Data Transfer}
 \begin{document}
 \maketitle
 
@@ -90,9 +90,30 @@ data transfer based on the concept of the rendezvous decomposition
 \cite{Plimpton_2004}. To achieve a component design for use with
 arbitrary physics codes, general concepts of mesh and fields are
 employed to provide access to these services. This document will
-outline the concepts of mesh, fields, data transfer, and the
-rendezvous decomposition and how they are modeled within the design of
-DTK.
+outline the concepts of parallel communicators, mesh, fields, data
+transfer, and the rendezvous decomposition and how they are modeled
+within the design of DTK.
+
+\clearpage
+
+%%---------------------------------------------------------------------------%%
+\section{Communicators}\label{sec:communicators}
+A communicator is a concept that encapsulates ownership of operations
+in a parallel computation. A parallel communicator in the context of
+DTK can be taken as a direct reference to a Message Passing Interface
+(MPI) communicator \cite{MPI_1994}. A single communicator has set of
+process space over which it may perform operations. Multiple
+communicators may exist in a single process space and own the same
+processes. 
+
+Based on this, we can consider two likely operations which will we
+want to perform. A union operation will compute the union in process
+space of all communicators involved. Figure~\ref{fig:comm_union}
+provides an example of a union operation. An intersection operation
+will compute the intersection in process space of all communicators
+involved. Figure~\ref{fig:comm_intersection} provides an example of an
+intersection operation.
+
 
 \clearpage
 
@@ -100,15 +121,16 @@ DTK.
 \section{Mesh}\label{sec:mesh}
 In order to access DTK services, a subset of the information regarding
 the mesh is required. This subset consists of nodes and their
-coordinates, and elements and the nodes that construct them. In
-addition, for meshes that contain multiple element topologies, the
-concept of mesh blocked by element topology is utilized. For meshes
-decomposed in parallel, the term global will be used to refer to
-concepts that apply across the entire parallel domain while the term
-local will be used to refer to concepts that only exist in the domain
-of a single parallel process. A parallel communicator in the context
-of DTK can be taken as a direct reference to a Message Passing
-Interface (MPI) communicator.
+coordinates, and elements and the nodes that construct them. This
+subset has been demonstrated as sufficient for applying data transfer
+algorithms \cite{Stewart_2004} and can be formulated in such a way
+that algorithms can be generated that are data structure netural
+\cite{Chand_2008}. In addition, for meshes that contain multiple
+element topologies, the concept of mesh blocked by element topology is
+utilized. For meshes decomposed in parallel, the term global will be
+used to refer to concepts that apply across the entire parallel domain
+while the term local will be used to refer to concepts that only exist
+in the domain of a single parallel process. 
 
 \subsection{Mesh Nodes}\label{subsec:nodes}
 Nodes are the lowest level geometric component of the mesh. All nodes
@@ -123,7 +145,7 @@ any number of times across the parallel domain with unlimited local
 and global instances. However, every node with the same globally
 unique ordinal must have the same coordinates. As an example, consider
 Figure~\ref{fig:mesh_nodes} depicting a series of nodes contained in
-the mesh. Each node is provide a globally unique ordinal and set of 3
+a mesh. Each node provides a globally unique ordinal and set of 3
 dimensional coordinates.
 
 \begin{figure}[htpb!]
@@ -137,8 +159,8 @@ dimensional coordinates.
 \end{figure}
 
 \subsection{Mesh Elements}\label{subsec:elements}
-Elements are the second level of abstraction in the mesh above
-nodes. All elements have a globally unique ordinal serving as an
+Elements are the second level of abstraction in the mesh description
+above nodes. All elements have a globally unique ordinal serving as an
 identification number for the element in global operations. This
 globally unique ordinal can be the same as a globally unique ordinal
 for a node in the mesh as DTK distinguishes between nodes and
@@ -153,13 +175,13 @@ unique ordinal must have the same connectivity list associated with
 it. For consistency, DTK uses the MoaB Canonical Numbering (MBCN)
 scheme as a canonical ordering scheme \cite{Tautges_2009}. Each
 element in a client mesh can be described with a connectivity list
-using any canonical scheme of choice. However, the relationship
-betweeen this canonical numbering scheme and the DTK canonical
+using any canonical scheme of choice, however, the relationship
+between this canonical numbering scheme and the DTK canonical
 numbering scheme must be made available. Each element topology is then
 also described by a permutation list. A permutation list specifies the
-variation in ordering between the DTK canonical number scheme and the
-client canonical numbering scheme. For elements that have a higher
-order basis (e.g. quadratic), DTK resolves these as high order nodes
+variation in ordering between the DTK canonical numbering scheme and
+the client canonical numbering scheme. For elements that have a higher
+order basis (e.g. quadratic), DTK resolves these as higher order nodes
 via the MBCN system. See Appendix~\ref{apdx:cell_topo} for canonical
 element topologies.
 
@@ -169,11 +191,12 @@ generated from the nodes in Figure~\ref{fig:mesh_nodes}. The element
 has been given a unique global ordinal and the connectivity and
 permuation lists have been specified. The connectivity list specifies
 an element construction from counter-clockwise movement around the
-bottom face and then counter-clockwise movement around the top
-face. The MBCN canonical ordering for linear hexahedrons is given at
-the nodes. Note that this ordering instead uses clockwise rotation
-around the bottom and top faces to construct the element. This
-difference in ordering is specified by the given permutation list.
+bottom face and then counter-clockwise movement around the top face
+that is native to the client. The MBCN canonical ordering for linear
+hexahedrons is given at the nodes. Note that this ordering instead
+uses clockwise rotation around the bottom and top faces to construct
+the element. This difference in ordering is specified by the given
+permutation list.
 
 \begin{figure}[htpb!]
   \centering
@@ -187,19 +210,19 @@ difference in ordering is specified by the given permutation list.
 
 \subsection{Mesh Blocks}\label{subsec:blocks}
 At the highest level of abstraction, the mesh is composed of mesh
-blocks. These blocks contain elements of the same topology and
-order. All elements in a block must have the same topology and
-order. A mesh may contain as many blocks as desired. Multiple blocks
-with the same mesh topology may exist. Nodes may be repeated in
-different mesh blocks provided that they maintain the same unique
-global ordinal and coordinates. Elements my be repeated in different
-mesh blocks provided that they maintin the same unique global ordinal
-and connectivity list. Multiple mesh blocks may exist in the same
-spatial region as they are merely a means of subdividing the mesh into
-groups of elements based on their topology. This behavior will be the
-common when hybrid meshes are involved (e.g. a mesh that contains
-hexahedrons and pyramids). Mesh blocks may be either structured or
-unstructured. 
+blocks. These blocks contain elements of the same topology and number
+of nodes. All elements in a block must have the same topology and
+number of nodes. A mesh may contain as many blocks as
+desired. Multiple blocks with the same mesh topology may exist. Nodes
+may be repeated in different mesh blocks provided that they maintain
+the same unique global ordinal and coordinates. Elements may be
+repeated in different mesh blocks provided that they maintin the same
+unique global ordinal and connectivity list. Multiple mesh blocks may
+exist in the same spatial region as they are merely a means of
+subdividing the mesh into groups of elements based on their
+topology. This behavior will be the common when hybrid meshes are
+involved (e.g. a mesh that contains hexahedrons and
+tetrahedrons). Mesh blocks may be either structured or unstructured.
 
 As an example, consider the 2 dimensional hybrid mesh presented in
 Figure~\ref{fig:hybrid_mesh}. This mesh contains both quadrilateral
@@ -217,15 +240,15 @@ shared by these two mesh blocks may be repeated in either block.
   \label{fig:hybrid_mesh}
 \end{figure}
 
-\subsection{Parallel Decomposition}\label{subsec:decomp}
+\subsection{Parallel Decomposition}\label{subsec:mesh_decomp}
 Mesh blocks and the elements and nodes they contain may be partitioned
 in any fashion provided that all nodes, elements, and blocks of a mesh
 description exist in a communication space operated by the same
 parallel communicator. Different blocks in a single mesh description
 may not have different communicators. Each mesh description may have
 its own communicator. Global knowledge of the parallel decomposition
-of a given mesh description is not required. Only local data access
-along with the proper communicator is required.
+of a given mesh description is not required. Only local mesh data
+access along with the proper communicator is required.
 
 \clearpage
 
@@ -246,9 +269,93 @@ will be referred to as the source geometry while the the geometry that
 will be receiving the data will be referred to as the target geometry.
 
 \subsection{The Rendezvous Algorithm}\label{subsec:rendezvous_alg}
-The rendezvous decomposition concept uses a global formulation for
-the data transfer while maintaining a local formulation for the
-geometric search operations.
+The geometric rendezvous concept uses a global formulation for the
+data transfer while maintaining a local formulation for the geometric
+search operations. In DTK, the following algorithm generated by
+Plimpton et. al. \cite{Plimpton_2004} generates the rendezvous
+decomposition through global operations in order to achieve a local
+framework for geometric operations. 
+
+\begin{enumerate}
+\item Compute a box that bounds the source and target geometry
+  intersection.
+\item Create a rendezvous decomposition by performing recursive
+  coordinate bisectioning on the source geometry.
+\item Send source geometry from the source decomposition to rendezvous
+  decomposition.
+\item Clone source geometry components which overlap into nearby
+  recursive coordinate bisectioning sub-domains.
+\item Build a kD-tree with the local mesh in each rendezvous
+  partition.
+\end{enumerate}
+
+This algorithm is elaborated in more detail in the following
+paragraphs.
+
+\paragraph{Step 1: Bounding box construction.}
+To begin, a global bounding box for the source and target geometries
+is constructed using their nodal data. These two bounding boxes are
+then intersected to produce the bounding box around the intersection
+of the two geometries. Those source or target nodes that are not
+inside this intersection bounding box are not considered for
+evaluation. This step is motivated by the fact that for many classes
+of data transfer problems, such as 2D surface transfer in a full 3D
+problem, only a small subset of the source and target geometries will
+be used. This will reduce the number of search operations and
+communication operations.
+
+\paragraph{Step 2: Rendezvous decomposition generation.}
+Recursive coordinate bisectioning (RCB) is used the create a new
+decomposition with the source mesh nodes \cite{Berger_1987}.
+
+\paragraph{Step 3: Send source elements to rendezvous decomposition.}
+The RCB decomposition is generated only from source node
+information. The element information must be sent to the rendezvous
+decomposition for the point location process. 
+
+\paragraph{Step 4: Clone source elements that overlap RCB
+  sub-domains.}  Because RCB was performed using source nodal data,
+there will be source elements that span the boundary between two or
+more RCB sub-domains. When this occurs, the source elements will be
+repeated in each RCB sub-domain in which their connectivity nodes
+exist. 
+
+\paragraph{Step 5: Build a kD-tree with the local mesh in each rendezvous
+  partition.}  On each rendezvous process, the local mesh is will be
+searched with the local target nodes. An adaptive kD-tree is generated
+using the local mesh for a fast proximity search of the domain that
+computes a subset of the local mesh that resides near the node
+\cite{Bentley_1975}. This subset is then searched with a more
+expensive point-in-element operation that transforms the node into the
+reference frame of each element in the subset and uses a Newton
+iteration strategy to determine if the node is contained within.
+
+\subsection{The Rendezvous Decomposition}\label{subsec:rendezvous_decomp}
+Using the above algorithm, a secondary decomposition of a subset of
+the source mesh is generated forming the rendezvous decomposition. The
+rendezvous decomposition is encapsulated as a separate entity from the
+original geometric description of the domain. It can be viewed most
+formally as a copy of the source mesh subset that intersects the
+target geometry. This copy has been repartitioned in a way that
+fundamental geometric search operations are local and proceed globally
+in a load balanced fashion.
+
+The rendezvous decomposition has several properties. It is defined
+over a communicator that encapsulates the union of the communication
+spaces owned by the source and target geometries. It is defined inside
+of a global, axis-aligned bounding box that bounds the intersection of
+the source and target geometries. The decomposition is of the same
+dimension as the source and target geometries. A rendezvous
+decomposition cannot be generated with source and target geometries of
+different dimensions (e.g. a 3 dimensional source geometry and a 2
+dimensional target geometry cannot be used to generate a rendezvous
+decomposition). Global recursive coordinate bisectioning parameters
+are maintained for global partitioning information. A local kD-tree is
+formed over the local mesh. In this way, mesh searches on the global
+level use the RCB partitioning information and mesh searches on the
+local level use the kD-tree with both operations exhibiting
+O(n*log(n)) asymptotic time and space complexity for generating and
+searching the appropriate data structures.
 
 \clearpage
 
@@ -259,10 +366,45 @@ geometric search operations.
 
 \subsection{Field Evaluations}\label{subsec:eval}
 
+\subsection{Basic Field Operations}
+
 \clearpage
 
 %%---------------------------------------------------------------------------%%
 \section{Mesh/Field Mapping}\label{sec:map}
+
+\begin{enumerate}
+\item Find which rendezvous sub-domain each target geometry component
+  is inside of.
+\item Send target geometry from target decomposition to rendezvous
+  decomposition.
+\item Find which target geometry component is inside which source
+  geometry component.
+\item Send source/target pairings from rendezvous decomposition to
+  source decomposition.
+\end{enumerate}
+
+\paragraph{Step 1: Find rendezvous subdomain for target nodes.}
+On each target process, the RCB decomposition is searched to find the
+destination process for the target node in the rendezvous
+decomposition.
+
+\paragraph{Step 2: Send target nodes to rendezvous decomposition.}
+Each target node is moved to the appropriate RCB sub-domain for the
+point location step.
+
+\paragraph{Step 3: Find source elements in which target nodes reside.}
+We now have source element information and target node information in
+the rendezvous decomposition. On each rendezvous process, the local
+mesh is searched with the local target nodes using the adaptive
+kD-tree and underlying point-in-element functionality.
+
+\paragraph{Step 4: Send element/node pairs back to original
+  decompositions.}  The source element/target node pairs are the map
+in this case and they will be used to drive the evaluation
+routines. These pairings must be communicated from the rendezvous
+decomposition back to the source/target decompositions to complete the
+mapping.
 
 \clearpage
 
