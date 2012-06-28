@@ -45,6 +45,7 @@
 
 #include "DTK_BoundingBox.hpp"
 #include "DTK_MeshTraits.hpp"
+#include "DTK_MeshManager.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -65,16 +66,17 @@ class RCB
     
     //@{
     //! Typedefs.
-    typedef Mesh                             mesh_type;
-    typedef MeshTraits<Mesh>                 MT;
-    typedef Teuchos::Comm<int>               CommType;
-    typedef Teuchos::RCP<const CommType>     RCP_Comm;
-    typedef ZOLTAN_ID_TYPE                   zoltan_id_type;
+    typedef Mesh                                 mesh_type;
+    typedef MeshTraits<Mesh>                     MT;
+    typedef Teuchos::RCP< MeshManager<Mesh> >    RCP_MeshManager;               
+    typedef Teuchos::Comm<int>                   CommType;
+    typedef Teuchos::RCP<const CommType>         RCP_Comm;
+    typedef ZOLTAN_ID_TYPE                       zoltan_id_type;
     //@}
 
     // Constructor.
-    RCB( const Mesh& mesh, const Teuchos::ArrayRCP<int>& active_nodes, 
-	 const RCP_Comm& comm );
+    RCB( const RCP_MeshManager& mesh_manager, 
+	 const Teuchos::ArrayRCP<int>& active_nodes );
 
     // Destructor.
     ~RCB();
@@ -135,15 +137,15 @@ class RCB
     struct MeshData 
     {
 	// The mesh we are partitioning.
-	Mesh d_mesh;
+	RCP_MeshManager d_mesh_manager;
 
 	// The active nodes in the mesh.
 	Teuchos::ArrayRCP<int> d_active_nodes;
 
 	// Constructor.
-	MeshData( const Mesh& mesh, 
+	MeshData( const RCP_MeshManager& mesh_manager,
 		  const Teuchos::ArrayRCP<int>& active_nodes )
-	    : d_mesh( mesh )
+	    : d_mesh_manager( mesh_manager )
 	    , d_active_nodes( active_nodes )
 	{ /* ... */ }
 

@@ -47,7 +47,7 @@
 
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
-#include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_as.hpp>
 
 namespace DataTransferKit
 {
@@ -56,14 +56,14 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<class Mesh>
-RCB<Mesh>::RCB( const Mesh& mesh, const Teuchos::ArrayRCP<int>& active_nodes,
-		const RCP_Comm& comm )
-    : d_comm( comm )
-    , d_mesh_data( mesh, active_nodes )
+RCB<Mesh>::RCB( const RCP_MeshManager& mesh_manager, 
+		const Teuchos::ArrayRCP<int>& active_nodes )
+    : d_comm( mesh_manager->getComm() )
+    , d_mesh_data( mesh_manager, active_nodes )
 {
     // Get the raw MPI communicator.
     Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( d_comm );
     Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
 	mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
@@ -246,18 +246,24 @@ void RCB<Mesh>::getObjectList(
     typename MT::const_node_iterator gid_iterator;
     zoltan_id_type i = 0;
     zoltan_id_type j = 0;
-    for ( gid_iterator = MT::nodesBegin( mesh_data->d_mesh ),
-       active_iterator = mesh_data->d_active_nodes.begin();
-	  gid_iterator != MT::nodesEnd( mesh_data->d_mesh );
-	  ++gid_iterator, ++active_iterator )
+    typename MeshManager<Mesh>::BlockIterator block_iterator;
+    for ( block_iterator = mesh_data->d_mesh_manager->blocksBegin(),
+	 active_iterator = mesh_data->d_active_nodes.begin();
+	  block_iterator != mesh_data->d_mesh_manager->blocksEnd();
+	  ++block_iterator )
     {
-	if ( *active_iterator )
+	for ( gid_iterator = MT::nodesBegin( *block_iterator );
+	      gid_iterator != MT::nodesEnd( *block_iterator );
+	      ++gid_iterator, ++active_iterator )
 	{
-	    globalID[i] = static_cast<zoltan_id_type>( *gid_iterator );
-	    localID[i] = j;
-	    ++i;
+	    if ( *active_iterator )
+	    {
+		globalID[i] = static_cast<zoltan_id_type>( *gid_iterator );
+		localID[i] = j;
+		++i;
+	    }
+	    ++j;
 	}
-	++j;
     }
 }
 
@@ -270,7 +276,7 @@ int RCB<Mesh>::getNumGeometry( void *data, int *ierr )
 {
     MeshData *mesh_data = static_cast<MeshData*>( data );
     *ierr = ZOLTAN_OK;
-    return MT::nodeDim( mesh_data->d_mesh );
+    return mesh_data->d_mesh_manager->getDim();
 }
 
 //---------------------------------------------------------------------------//
@@ -287,7 +293,7 @@ void RCB<Mesh>::getGeometryList(
     MeshData *mesh_data = static_cast<MeshData*>( data );
 
     // Get the number of active nodes.
-    std::size_t num_nodes = 0;
+    std::size_t num_active_nodes = 0;
     Teuchos::ArrayRCP<int>::const_iterator active_iterator;
     for ( active_iterator = mesh_data->d_active_nodes.begin();
 	  active_iterator != mesh_data->d_active_nodes.end();
@@ -295,33 +301,48 @@ void RCB<Mesh>::getGeometryList(
     {
 	if ( *active_iterator )
 	{
-	    ++num_nodes;
+	    ++num_active_nodes;
 	}
     }
 
     // Check Zoltan for consistency.
-    std::size_t node_dim = MT::nodeDim( mesh_data->d_mesh );
+    std::size_t node_dim = mesh_data->d_mesh_manager->getDim();
     testInvariant( sizeGID == 1, "Zoltan global ID size != 1." );
     testInvariant( sizeLID == 1, "Zoltan local ID size != 1." );
     testInvariant( num_dim == (int) node_dim, "Zoltan dimension != 3." );
-    testInvariant( num_obj == (int) num_nodes, 
+    testInvariant( num_obj == (int) num_active_nodes, 
 		   "Zoltan number of nodes != mesh number of nodes." );
 
     if ( sizeGID != 1 || sizeLID != 1 || 
-	 num_dim != (int) node_dim || num_obj != (int) num_nodes )
+	 num_dim != (int) node_dim || num_obj != (int) num_active_nodes )
     {
 	*ierr = ZOLTAN_FATAL;
 	return;
     }
     
     // Zoltan needs interleaved coordinates.
-    Teuchos::ArrayRCP<const double> mesh_coords = 
-	MeshTools<Mesh>::coordsView( mesh_data->d_mesh );
-    for ( std::size_t n = 0; n < num_nodes; ++n )
+    int n = 0;
+    Teuchos::ArrayRCP<const double> mesh_coords;
+    typename MT::global_ordinal_type num_nodes;
+    typename MeshManager<Mesh>::BlockIterator block_iterator;
+    for ( block_iterator = mesh_data->d_mesh_manager->blocksBegin(),
+	 active_iterator = mesh_data->d_active_nodes.begin();
+	  block_iterator != mesh_data->d_mesh_manager->blocksEnd();
+	  ++block_iterator )
     {
-	for ( std::size_t d = 0; d < node_dim; ++d )
+	mesh_coords = MeshTools<Mesh>::coordsView( *block_iterator );
+	num_nodes = mesh_coords.size() / mesh_data->d_mesh_manager->getDim();
+	for ( int i = 0; i < num_nodes; ++i )
 	{
-	    geom_vec[ node_dim*n + d ] = mesh_coords[ d*num_nodes + n ];
+	    if ( *active_iterator )
+	    {
+		for ( std::size_t d = 0; d < node_dim; ++d )
+		{
+		    geom_vec[ node_dim*n + d ] = 
+			mesh_coords[ d*num_nodes + i ];
+		}
+		++n;
+	    }
 	}
     }
 }

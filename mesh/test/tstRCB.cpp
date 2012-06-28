@@ -18,6 +18,7 @@
 #include <DTK_BoundingBox.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
+#include <DTK_MeshManager.hpp>
 #include <DTK_Exception.hpp>
 
 #include <mpi.h>
@@ -223,20 +224,25 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
 
     // Create my mesh.
     typedef MeshTraits<MyMesh> MT;
-    MyMesh my_mesh = buildMyMesh();
+    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    mesh_blocks[0] = buildMyMesh();
 
     // All of the nodes will be partitioned.
-    int num_nodes = std::distance( MT::nodesBegin( my_mesh ),
-				   MT::nodesEnd( my_mesh ) );
+    int num_nodes = std::distance( MT::nodesBegin( mesh_blocks[0] ),
+				   MT::nodesEnd( mesh_blocks[0] ) );
     int num_coords = 3 * num_nodes;
     Teuchos::Array<int> active_nodes( num_nodes, 1 );
 
+    // Create a mesh manager.
+    Teuchos::RCP< MeshManager<MyMesh> > mesh_manager = Teuchos::rcp( 
+	new MeshManager<MyMesh>( 
+	    mesh_blocks, getDefaultComm<int>(), 3 ) );
+
     // Partition the mesh with RCB.
     typedef RCB<MyMesh>::zoltan_id_type zoltan_id_type;
-    RCB<MyMesh> rcb( my_mesh, Teuchos::arcpFromArray( active_nodes ), 
-		     getDefaultComm<int>() );
+    RCB<MyMesh> rcb( mesh_manager, Teuchos::arcpFromArray( active_nodes ) );
     rcb.partition();
-
+    
     // Get the random numbers that were used to compute the node coordinates.
     std::srand( 1 );
     Teuchos::Array<double> random_numbers;
@@ -247,7 +253,7 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
 
     // Check that these are in fact the random numbers used for the nodes.
     typename MT::const_coordinate_iterator coord_iterator 
-	= MT::coordsBegin( my_mesh );
+	= MT::coordsBegin( mesh_blocks[0] );
     for ( int i = 0; i < num_nodes; ++i )
     {
 	TEST_ASSERT( coord_iterator[ i ] == random_numbers[3*i] );
