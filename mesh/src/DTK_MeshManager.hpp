@@ -43,6 +43,8 @@
 
 #include "DTK_MeshTraits.hpp"
 
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
@@ -57,12 +59,15 @@ class MeshManager
     //! Typedefs.
     typedef Mesh                                                mesh_type;
     typedef MeshTraits<Mesh>                                    MT;
+    typedef Teuchos::Comm<int>                                  CommType;
+    typedef Teuchos::RCP<const CommType>                        RCP_Comm;
     typedef typename Teuchos::ArrayRCP<Mesh>::const_iterator    BlockIterator;
     //@}
 
     // Constructor.
     MeshManager( const Teuchos::ArrayRCP<Mesh>& mesh_blocks,
-		 const std::size_t dimension );
+		 const RCP_Comm& comm,
+		 const std::size_t dim );
 
     // Destructor.
     ~MeshManager();
@@ -79,15 +84,29 @@ class MeshManager
     BlockIterator blocksEnd() const
     { return d_mesh_blocks.end(); }
 
+    // Get the communicator for the mesh.
+    const RCP_Comm& getComm() const
+    { return d_comm; }
+
+    // Get the physical dimension of the mesh.
+    std::size_t getDim() const
+    { return d_dim; }
+
   private:
 
-    // Validate the input mesh blocks.
+    // Validate the mesh.
     void validate();
 
   private:
 
     // Mesh block array.
     Teuchos::ArrayRCP<Mesh> d_mesh_blocks;
+
+    // Communicator over which the mesh is defined.
+    RCP_Comm d_comm;
+
+    // The physical dimension of the mesh.
+    std::size_t d_dim;
 };
 
 } // end namespace DataTransferKit

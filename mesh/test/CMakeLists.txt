@@ -9,6 +9,13 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  CellTopologyFactory_test
+  SOURCES tstCellTopologyFactory.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM mpi
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
   MeshTools_test
   SOURCES tstMeshTools.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM mpi
@@ -16,8 +23,8 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  CellTopologyFactory_test
-  SOURCES tstCellTopologyFactory.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  MeshManager_test
+  SOURCES tstMeshManager.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM mpi
   STANDARD_PASS_OUTPUT
   )

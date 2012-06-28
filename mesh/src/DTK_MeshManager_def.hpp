@@ -41,6 +41,89 @@
 #ifndef DTK_MESHMANAGER_DEF_HPP
 #define DTK_MESHMANAGER_DEF_HPP
 
+#include "DTK_MeshTypes.hpp"
+#include <DTK_Exception.hpp>
+
+namespace DataTransferKit
+{
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Constructor.
+ */
+template<class Mesh>
+MeshManager<Mesh>::MeshManager( const Teuchos::ArrayRCP<Mesh>& mesh_blocks,
+				const RCP_Comm& comm,
+				const std::size_t dim )
+    : d_mesh_blocks( mesh_blocks )
+    , d_comm( comm )
+    , d_dim( dim )
+{
+    validate();
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Destructor.
+ */
+template<class Mesh>
+MeshManager<Mesh>::~MeshManager()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Validate the mesh to the domain model.
+ */
+template<class Mesh>
+void MeshManager<Mesh>::validate()
+{
+    BlockIterator block_iterator;
+    for ( block_iterator = d_mesh_blocks.begin();
+	  block_iterator != d_mesh_blocks.end();
+	  ++block_iterator )
+    {
+	testInvariant( d_dim == MT::nodeDim( *block_iterator ),
+		       "Mesh dimension != node dimension" );
+
+	if ( d_dim == 0 )
+	{
+	    testInvariant( MT::elementTopology( *block_iterator ) == DTK_VERTEX,
+			   "Element topology does not match mesh dimension" );
+	}
+	else if ( d_dim == 1 )
+	{
+	    testInvariant( MT::elementTopology( *block_iterator ) == 
+			   DTK_LINE_SEGMENT,
+			   "Element topology does not match mesh dimension" );
+	}
+	else if ( d_dim == 2 )
+	{
+	    testInvariant( MT::elementTopology( *block_iterator ) == 
+			   DTK_TRIANGLE ||
+			   MT::elementTopology( *block_iterator ) == 
+			   DTK_QUADRILATERAL,
+			   "Element topology does not match mesh dimension" );
+	}
+	else if ( d_dim == 3 )
+	{
+	    testInvariant( MT::elementTopology( *block_iterator ) == 
+			   DTK_TETRAHEDRON ||
+			   MT::elementTopology( *block_iterator ) == 
+			   DTK_HEXAHEDRON ||
+			   MT::elementTopology( *block_iterator ) == 
+			   DTK_PYRAMID,
+			   "Element topology does not match mesh dimension" );
+	}
+	else
+	{
+	    throw MeshException( "Mesh dimension > 3 not supported" );
+	}
+    }
+}
+
+//---------------------------------------------------------------------------//
+
+} // end namespace DataTransferKit
+
 #endif // end DTK_MESHMANAGER_DEF_HPP
 
 //---------------------------------------------------------------------------//
