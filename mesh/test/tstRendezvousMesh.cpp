@@ -16,12 +16,15 @@
 #include <DTK_RendezvousMesh.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
+#include <DTK_MeshTools.hpp>
+#include <DTK_MeshManager.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
 
@@ -293,14 +296,18 @@ TEUCHOS_UNIT_TEST( RendezvousMesh, rendezvous_mesh_test )
 {
     using namespace DataTransferKit;
 
-    // Create a block of mesh.
+    // Create 2 blocks of mesh.
     typedef MeshTraits<MyMesh> MT;
-    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 2 );
     mesh_blocks[0] = buildMyMesh();
+    mesh_blocks[1] = buildMyMesh();
+
+    // Create a mesh manager.
+    MeshManager<MyMesh> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MyMesh::global_ordinal_type> > mesh = 
-	createRendezvousMesh( mesh_blocks );
+	createRendezvousMesh( mesh_manager );
 
     // Get the moab interface.
     moab::ErrorCode error;
@@ -312,12 +319,21 @@ TEUCHOS_UNIT_TEST( RendezvousMesh, rendezvous_mesh_test )
     // Check the moab mesh element data.
     moab::Range::const_iterator element_iterator;
     MyMesh::global_ordinal_type native_handle = 0;
+    MyMesh::global_ordinal_type test_handle = 0;
     for ( element_iterator = mesh_elements.begin();
 	  element_iterator != mesh_elements.end();
 	  ++element_iterator, ++native_handle )
     {
+	if ( native_handle >= (int) mesh_elements.size() / 2)
+	{
+	    test_handle = native_handle - mesh_elements.size() / 2;
+	}
+	else
+	{
+	    test_handle = native_handle;
+	}
 	TEST_ASSERT( mesh->getNativeOrdinal( *element_iterator ) == 
-		     native_handle );
+		     test_handle );
 
 	TEST_ASSERT( moab->type_from_handle( *element_iterator ) ==
 		     moab::MBHEX );
@@ -332,18 +348,26 @@ TEUCHOS_UNIT_TEST( RendezvousMesh, rendezvous_mesh_test )
     error = moab->get_coords( connectivity, &vertex_coords[0] );
     TEST_ASSERT( moab::MB_SUCCESS == error );
 
-    int num_nodes = connectivity.size();
     Teuchos::Array<double>::const_iterator moab_coord_iterator;
-    typename MT::const_coordinate_iterator coord_iterator = 
-	MT::coordsBegin( mesh_blocks[0] );
-    int i = 0;
     for ( moab_coord_iterator = vertex_coords.begin();
-	  moab_coord_iterator != vertex_coords.end(); ++i )
+	  moab_coord_iterator != vertex_coords.end(); )
     {
-	for ( int d = 0; d < 3; ++d, ++moab_coord_iterator )
+	MeshManager<MyMesh>::BlockIterator block_iterator;
+	for ( block_iterator = mesh_manager.blocksBegin();
+	      block_iterator != mesh_manager.blocksEnd();
+	      ++block_iterator )
 	{
-	    TEST_ASSERT( coord_iterator[d*num_nodes + i] == 
-			 *moab_coord_iterator );
+	    Teuchos::ArrayRCP<const double> block_coords = 
+		MeshTools<MyMesh>::coordsView( *block_iterator );
+
+	    for ( int n = 0; n < block_coords.size() / 3; ++n )
+	    {
+		for ( int d = 0; d < 3; ++d, ++moab_coord_iterator )
+		{
+		    TEST_ASSERT( block_coords[d*(block_coords.size()/3) + n] == 
+				 *moab_coord_iterator );
+		}
+	    }
 	}
     }
 }

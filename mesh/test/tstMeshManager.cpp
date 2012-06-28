@@ -361,6 +361,6 @@ TEUCHOS_UNIT_TEST( MeshManager, mesh_manager_test )
 }
 
 //---------------------------------------------------------------------------//
-// end tstRendezvousMesh.cpp
+// end tstMeshManager.cpp
 //---------------------------------------------------------------------------//
 

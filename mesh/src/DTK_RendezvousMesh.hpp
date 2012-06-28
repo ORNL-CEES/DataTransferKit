@@ -44,12 +44,12 @@
 #include <map>
 
 #include "DTK_MeshTraits.hpp"
+#include "DTK_MeshManager.hpp"
 
 #include <MBInterface.hpp>
 #include <MBRange.hpp>
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
 {
@@ -117,10 +117,10 @@ const moab::EntityType moab_topology_table[] =
 // Non-member creation methods.
 //---------------------------------------------------------------------------//
 
-// Create a RendezvousMesh from an objects that implement MeshTraits.
+// Create a RendezvousMesh from mesh manager.
 template<class Mesh>
 Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::global_ordinal_type> >
-createRendezvousMesh( const Teuchos::ArrayRCP<Mesh>& mesh_blocks );
+createRendezvousMesh( const MeshManager<Mesh>& mesh_manager );
 
 //---------------------------------------------------------------------------//
 

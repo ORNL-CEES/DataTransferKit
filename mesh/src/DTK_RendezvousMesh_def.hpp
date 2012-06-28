@@ -52,6 +52,7 @@
 
 #include <Teuchos_ENull.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
 {
@@ -80,11 +81,11 @@ RendezvousMesh<GlobalOrdinal>::~RendezvousMesh()
 // Non-member creation methods.
 //---------------------------------------------------------------------------//
 /*!
- * \brief Create a RendezvousMesh from an object that implements mesh traits.
+ * \brief Create a RendezvousMesh from a mesh manager.
  */
 template<class Mesh>
 Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::global_ordinal_type> >
-createRendezvousMesh( const Teuchos::ArrayRCP<Mesh>& mesh_blocks )
+createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 {
     // Setup types and iterators as we're outside of the class definition.
     typedef MeshTraits<Mesh> MT;
@@ -105,19 +106,19 @@ createRendezvousMesh( const Teuchos::ArrayRCP<Mesh>& mesh_blocks )
 		       "Error creating MOAB interface" );
 
     // Build each mesh block.
-    typename Teuchos::ArrayRCP<Mesh>::const_iterator mesh_iterator;
-    for ( mesh_iterator = mesh_blocks.begin();
-	  mesh_iterator != mesh_blocks.end();
-	  ++mesh_iterator )
+    typename MeshManager<Mesh>::BlockIterator block_iterator;
+    for ( block_iterator = mesh_manager.blocksBegin();
+	  block_iterator != mesh_manager.blocksEnd();
+	  ++block_iterator )
     {
 	// Check the nodes and coordinates for consistency.
-	std::size_t node_dim = MT::nodeDim( *mesh_iterator );
+	std::size_t node_dim = MT::nodeDim( *block_iterator );
 	GlobalOrdinal num_nodes = 
-	    std::distance( MT::nodesBegin( *mesh_iterator ), 
-			   MT::nodesEnd( *mesh_iterator ) );
+	    std::distance( MT::nodesBegin( *block_iterator ), 
+			   MT::nodesEnd( *block_iterator ) );
 	GlobalOrdinal num_coords = 
-	    std::distance( MT::coordsBegin( *mesh_iterator ),
-			   MT::coordsEnd( *mesh_iterator ) );
+	    std::distance( MT::coordsBegin( *block_iterator ),
+			   MT::coordsEnd( *block_iterator ) );
 	testInvariant( 
 	    num_coords == (GlobalOrdinal) node_dim * num_nodes,
 	    "Number of coordinates provided != node_dim * number of nodes" );
@@ -127,11 +128,11 @@ createRendezvousMesh( const Teuchos::ArrayRCP<Mesh>& mesh_blocks )
 	// that hashes moab handles.
 	double vertex_coords[3];
 	Teuchos::ArrayRCP<const double> mesh_coords = 
-	    MeshTools<Mesh>::coordsView( *mesh_iterator );
+	    MeshTools<Mesh>::coordsView( *block_iterator );
 	std::map<GlobalOrdinal,moab::EntityHandle> vertex_handle_map;
 	GlobalOrdinal n = 0;
-	for ( node_iterator = MT::nodesBegin( *mesh_iterator );
-	      node_iterator != MT::nodesEnd( *mesh_iterator );
+	for ( node_iterator = MT::nodesBegin( *block_iterator );
+	      node_iterator != MT::nodesEnd( *block_iterator );
 	      ++node_iterator, ++n )
 	{
 	    moab::EntityHandle moab_vertex;
@@ -151,13 +152,13 @@ createRendezvousMesh( const Teuchos::ArrayRCP<Mesh>& mesh_blocks )
 
 	// Check the elements and connectivity for consistency.
 	int nodes_per_element = 
-	    MT::nodesPerElement( *mesh_iterator );
+	    MT::nodesPerElement( *block_iterator );
 	GlobalOrdinal num_elements = 
-	    std::distance( MT::elementsBegin( *mesh_iterator ),
-			   MT::elementsEnd( *mesh_iterator ) );
+	    std::distance( MT::elementsBegin( *block_iterator ),
+			   MT::elementsEnd( *block_iterator ) );
 	GlobalOrdinal num_connect = 
-	    std::distance( MT::connectivityBegin( *mesh_iterator ),
-			   MT::connectivityEnd( *mesh_iterator ) );
+	    std::distance( MT::connectivityBegin( *block_iterator ),
+			   MT::connectivityEnd( *block_iterator ) );
 	testPrecondition( 
 	    num_elements == num_connect / nodes_per_element &&
 	    num_connect % nodes_per_element == 0,
@@ -165,16 +166,16 @@ createRendezvousMesh( const Teuchos::ArrayRCP<Mesh>& mesh_blocks )
 
 	// Extract the mesh elements and add them to moab.
 	Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity = 
-	    MeshTools<Mesh>::connectivityView( *mesh_iterator );
+	    MeshTools<Mesh>::connectivityView( *block_iterator );
 	Teuchos::ArrayRCP<const std::size_t> permutation_list =
-	    MeshTools<Mesh>::permutationView( *mesh_iterator );
+	    MeshTools<Mesh>::permutationView( *block_iterator );
 	GlobalOrdinal conn_index;
 	Teuchos::Array<moab::EntityHandle> element_connectivity( nodes_per_element );
 
 	std::size_t canonical_idx;
 	n = 0;
-	for ( element_iterator = MT::elementsBegin( *mesh_iterator );
-	      element_iterator != MT::elementsEnd( *mesh_iterator );
+	for ( element_iterator = MT::elementsBegin( *block_iterator );
+	      element_iterator != MT::elementsEnd( *block_iterator );
 	      ++element_iterator, ++n )
 	{
 	    // Extract the connecting nodes for this element and apply the
@@ -192,7 +193,7 @@ createRendezvousMesh( const Teuchos::ArrayRCP<Mesh>& mesh_blocks )
 
 	    // Create the element in moab.
 	    moab::EntityType entity_type = 
-		moab_topology_table[ MT::elementTopology( *mesh_iterator ) ];
+		moab_topology_table[ MT::elementTopology( *block_iterator ) ];
 	    moab::EntityHandle moab_element;
 	    error = moab->create_element( entity_type,
 					  &element_connectivity[0],
