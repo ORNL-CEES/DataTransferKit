@@ -84,10 +84,10 @@ Rendezvous<Mesh>::~Rendezvous()
  * \brief Build the rendezvous decomposition.
  */
 template<class Mesh> 
-void Rendezvous<Mesh>::build( const Mesh& mesh )
+void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 {
     // Get the node dimension for the mesh.
-    d_node_dim = MT::nodeDim( mesh );
+    d_node_dim = mesh_manager->getDim();
 
     // Extract the mesh nodes and elements that are in the bounding box.
     Teuchos::Array<int> nodes_in_box;
@@ -96,21 +96,25 @@ void Rendezvous<Mesh>::build( const Mesh& mesh )
 
     // Construct the rendezvous decomposition of the mesh with RCB using the
     // nodes that are in the box.
-    d_rcb = Teuchos::rcp( 
-	new RCB<Mesh>( mesh, Teuchos::arcpFromArray( nodes_in_box ), 
-		       d_comm ) );
+    d_rcb = Teuchos::rcp(
+	new RCB<Mesh>( mesh_manager, Teuchos::arcpFromArray( nodes_in_box ) ) );
     testPostcondition( d_rcb != Teuchos::null,
 		       "Error creating RCB decomposition." );
     d_rcb->partition();
 
     // Send the mesh in the box to the rendezvous decomposition and build the
-    // concrete mesh.
+    // concrete mesh block.
     sendMeshToRendezvous( mesh, elements_in_box );
 
     // Clear the extracted mesh information.
     nodes_in_box.clear();
     elements_in_box.clear();
     
+    // Build the concrete rendezvous mesh from the mesh container.
+    d_rendezvous_mesh = createRendezvousMesh( rendezvous_manager );
+    testPostcondition( d_rendezvous_mesh != Teuchos::null,
+		       "Error creating rendezvous mesh." );
+
     // Create a kD-tree in the rendezvous decomposition.
     d_kdtree = Teuchos::rcp( new KDTree<GlobalOrdinal>( d_rendezvous_mesh ) );
     testPostcondition( d_kdtree != Teuchos::null,
@@ -384,11 +388,6 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 	Teuchos::arcpFromArray( rendezvous_elements ), 
 	import_conn.get1dView(),
 	permutation_list );
-
-    // Build the concrete rendezvous mesh from the mesh container.
-    d_rendezvous_mesh = createRendezvousMesh( mesh_container );
-    testPostcondition( d_rendezvous_mesh != Teuchos::null,
-		       "Error creating rendezvous mesh." );
 }
 
 //---------------------------------------------------------------------------//

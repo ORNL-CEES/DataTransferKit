@@ -134,7 +134,7 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager );
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_RENDEZVOUSESH_HPP
+#endif // end DTK_RENDEZVOUSMESH_HPP
 
 //---------------------------------------------------------------------------//
 // end DTK_RendezvousMesh.hpp

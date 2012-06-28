@@ -43,6 +43,7 @@
 
 #include <set>
 
+#include "DTK_MeshManager.hpp"
 #include "DTK_RendezvousMesh.hpp"
 
 #include "DTK_KDTree.hpp"
@@ -68,19 +69,21 @@ class Rendezvous
 
     //@{
     //! Typedefs.
-    typedef Mesh                                 mesh_type;
-    typedef MeshTraits<Mesh>                     MT;
-    typedef typename MT::global_ordinal_type     GlobalOrdinal;
-    typedef RendezvousMesh<GlobalOrdinal>        RendezvousMeshType;
-    typedef Teuchos::RCP<RendezvousMeshType>     RCP_RendezvousMesh;
-    typedef KDTree<GlobalOrdinal>                KDTreeType;
-    typedef Teuchos::RCP<KDTreeType>             RCP_KDTree;
-    typedef RCB<Mesh>                            RCBType;
-    typedef Teuchos::RCP<RCBType>                RCP_RCB;
-    typedef Teuchos::Comm<int>                   CommType;
-    typedef Teuchos::RCP<const CommType>         RCP_Comm;
-    typedef Tpetra::Map<GlobalOrdinal>           TpetraMap;
-    typedef Teuchos::RCP<const TpetraMap>        RCP_TpetraMap;
+    typedef Mesh                                        mesh_type;
+    typedef MeshTraits<Mesh>                            MT;
+    typedef typename MT::global_ordinal_type            GlobalOrdinal;
+    typedef Teuchos::RCP< MeshManager<Mesh> >           RCP_MeshManager;
+    typedef typename MeshManager<Mesh>::BlockIterator   BlockIterator;
+    typedef RendezvousMesh<GlobalOrdinal>               RendezvousMeshType;
+    typedef Teuchos::RCP<RendezvousMeshType>            RCP_RendezvousMesh;
+    typedef KDTree<GlobalOrdinal>                       KDTreeType;
+    typedef Teuchos::RCP<KDTreeType>                    RCP_KDTree;
+    typedef RCB<Mesh>                                   RCBType;
+    typedef Teuchos::RCP<RCBType>                       RCP_RCB;
+    typedef Teuchos::Comm<int>                          CommType;
+    typedef Teuchos::RCP<const CommType>                RCP_Comm;
+    typedef Tpetra::Map<GlobalOrdinal>                  TpetraMap;
+    typedef Teuchos::RCP<const TpetraMap>               RCP_TpetraMap;
     //@}
 
     // Constructor.
@@ -90,7 +93,7 @@ class Rendezvous
     ~Rendezvous();
 
     // Build the rendezvous decomposition.
-    void build( const Mesh& mesh );
+    void build( const RCP_MeshManager& mesh_manager );
 
     // Get the rendezvous processes for a list of node coordinates.
     Teuchos::Array<int> 
@@ -107,14 +110,14 @@ class Rendezvous
 
   private:
 
-    // Extract the mesh nodes and elements that are in a bounding box.
+    // Extract the mesh block nodes and elements that are in a bounding box.
     void getMeshInBox( const Mesh& mesh,
 		       const BoundingBox& box,
 		       Teuchos::Array<int>& nodes_in_box,
 		       Teuchos::Array<int>& elements_in_box );
 
     // Send the mesh to the rendezvous decomposition and build the concrete
-    // mesh. 
+    // mesh block.
     void sendMeshToRendezvous( const Mesh& mesh,
 			       const Teuchos::Array<int>& elements_in_box );
 

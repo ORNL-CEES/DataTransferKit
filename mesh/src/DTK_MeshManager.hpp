@@ -50,6 +50,16 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
+/*!
+ * \class MeshManager
+ * \brief Manager object for mesh.
+ *
+ * The mesh manager manages the blocks that construct a mesh and its parallel
+ * decomposition.
+ * 
+ */
+//---------------------------------------------------------------------------//
 template<class Mesh>
 class MeshManager
 {
@@ -92,6 +102,24 @@ class MeshManager
     std::size_t getDim() const
     { return d_dim; }
 
+    // Set the active nodes for a block.
+    void setActiveNodes( const Teuchos::Array<short int>& active_nodes,
+			 const int block_id )
+    { d_active_nodes[ block_id ] = active_nodes; }
+
+    // Set the active elements for a block.
+    void setActiveElements( const Teuchos::Array<short int>& active_elements,
+			    const int block_id )
+    { d_active_elements[ block_id ] = active_elements; }
+
+    // Get the active nodes for a block.
+    Teuchos::ArrayView<short int> getActiveNodes( const int block_id )
+    { return d_active_nodes[ block_id ](); }
+
+    // Get the active elements for a block.
+    Teuchos::ArrayView<short int> getActiveElements( const int block_id )
+    { return d_active_elements[ block_id ](); }
+
   private:
 
     // Validate the mesh.
@@ -107,6 +135,12 @@ class MeshManager
 
     // The physical dimension of the mesh.
     std::size_t d_dim;
+
+    // Active nodes in each mesh block.
+    Teuchos::Array< Teuchos::Array<short int> > d_active_nodes;
+
+    // Active elements in each mesh block.
+    Teuchos::Array< Teuchos::Array<short int> > d_active_elements;
 };
 
 } // end namespace DataTransferKit

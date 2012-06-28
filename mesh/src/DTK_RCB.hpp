@@ -66,12 +66,13 @@ class RCB
     
     //@{
     //! Typedefs.
-    typedef Mesh                                 mesh_type;
-    typedef MeshTraits<Mesh>                     MT;
-    typedef Teuchos::RCP< MeshManager<Mesh> >    RCP_MeshManager;               
-    typedef Teuchos::Comm<int>                   CommType;
-    typedef Teuchos::RCP<const CommType>         RCP_Comm;
-    typedef ZOLTAN_ID_TYPE                       zoltan_id_type;
+    typedef Mesh                                        mesh_type;
+    typedef MeshTraits<Mesh>                            MT;
+    typedef Teuchos::RCP< MeshManager<Mesh> >           RCP_MeshManager;
+    typedef typename MeshManager<Mesh>::BlockIterator   BlockIterator;          
+    typedef Teuchos::Comm<int>                          CommType;
+    typedef Teuchos::RCP<const CommType>                RCP_Comm;
+    typedef ZOLTAN_ID_TYPE                              zoltan_id_type;
     //@}
 
     // Constructor.

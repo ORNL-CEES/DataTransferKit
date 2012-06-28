@@ -18,6 +18,7 @@
 #include <DTK_BoundingBox.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
+#include <DTK_MeshManager.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_Comm.hpp>
@@ -295,18 +296,23 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test )
 	BoundingBox box( -100, -100, -100, 100, 100, 100 );
 
 	// Create a mesh.
-	MyMesh my_mesh = buildMyMesh();
+	Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+	mesh_blocks[0] = buildMyMesh();
+
+	// Create a mesh manager.
+	Teuchos::RCP< MeshManager<MyMesh> > mesh_manager = Teuchos::rcp(
+	    new MeshManager<MyMesh>( mesh_blocks, getDefaultComm<int>(), 2 ) );
 
 	// Create a rendezvous.
 	Rendezvous<MyMesh> rendezvous( getDefaultComm<int>(), box );
-	rendezvous.build( my_mesh );
+	rendezvous.build( mesh_manager );
 	
 	// Check the repartitioning with coordinates. Because of the overlap in
 	// the rendezvous algorithm, several partitions will contain the proper
 	// element, however this is directly checking the RCB algorithm bounding
 	// boxes.
-	int local_num_quads = 
-	    std::distance( my_mesh.quadsBegin(), my_mesh.quadsEnd() );
+	int local_num_quads = std::distance( mesh_blocks[0].quadsBegin(), 
+					     mesh_blocks[0].quadsEnd() );
 	int global_num_quads = local_num_quads*my_size;
 	int idx;
 	int node_dim = 2;

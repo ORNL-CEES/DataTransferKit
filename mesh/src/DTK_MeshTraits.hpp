@@ -57,21 +57,25 @@ struct UndefinedMeshTraits
     { return UndefinedMeshType::this_type_is_missing_a_specialization(); }
 };
 
+//---------------------------------------------------------------------------//
 /*!
+ * \class MeshTraits
  * \brief Mesh traits definitions.
  *
- * These traits correlate to the basic concept of a mesh within DTK. A mesh
- * will consist of a globally unique list of node ordinals of a type that
- * implements Teuchos::OrdinalTraits ( already implemented for common ordinal
- * types ) and a set of globally unique element ordinals of the same
- * type. Nodes are described by a coordinate field with coordinates of type
- * double. Elements are described by a list of node ordinals that designate
- * their connectivity. For each element type, the order of the connecting
- * nodes correlate to the canonical ordering scheme for this particular mesh
- * type. How this canonical ordering differs from DTK canonical ordering is
- * specified by the element connectivity permutation list. Each block of mesh
- * described by these traits must contain a single element type and topology.
+ * These traits correlate to the basic concept of a single topology mesh block
+ * within DTK. A mesh block will consist of a globally unique list of node
+ * ordinals of a type that implements Teuchos::OrdinalTraits ( already
+ * implemented for common ordinal types ) and a set of globally unique element
+ * ordinals of the same type. Nodes are described by a coordinate field with
+ * coordinates of type double. Elements are described by a list of node
+ * ordinals that designate their connectivity. For each element topology, the
+ * order of the connecting nodes correlate to the canonical ordering scheme
+ * for this particular mesh type. How this canonical ordering differs from DTK
+ * canonical ordering is specified by the element connectivity permutation
+ * list. Each block of mesh described by these traits must contain a single
+ * element topology and a permutation list for that topology.
  */
+//---------------------------------------------------------------------------//
 template<typename MeshType>
 class MeshTraits
 {
@@ -119,41 +123,43 @@ class MeshTraits
     //@{
     //! Mesh node concepts.
     /*!
-     * \brief Return the dimension of the nodes in this mesh.
+     * \brief Return the dimension of the nodes in this mesh block.
      */
-    static inline std::size_t nodeDim( const MeshType& mesh )
+    static inline std::size_t nodeDim( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
      * \brief Return the const iterator to the beginning of the node global
-     * ordinal block in this mesh.
+     * ordinal block in this mesh block.
      */
-    static inline const_node_iterator nodesBegin( const MeshType& mesh )
+    static inline const_node_iterator nodesBegin( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
      * \brief Return the const iterator to the end of the node global ordinal
-     * block in this mesh.
+     * block in this mesh block.
      */ 
-    static inline const_node_iterator nodesEnd( const MeshType& mesh )
+    static inline const_node_iterator nodesEnd( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
      * \brief Return the const iterator to the beginning of the node
-     * coordinate block in this mesh. These coordinates are required to be
-     * three dimensional and blocked.
+     * coordinate block in this mesh block. These coordinates are required to
+     * be three dimensional and blocked.
      * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
      */
-    static inline const_coordinate_iterator coordsBegin( const MeshType& mesh )
+    static inline const_coordinate_iterator 
+    coordsBegin( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
      * \brief Return the const iterator to the end of the node coordinate
-     * block in this mesh. These coordinates are requried to be three
+     * block in this mesh block. These coordinates are requried to be three
      * dimensional and blocked.
      * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
      */
-    static inline const_coordinate_iterator coordsEnd( const MeshType& mesh )
+    static inline const_coordinate_iterator 
+    coordsEnd( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
     //@}
 
@@ -161,52 +167,55 @@ class MeshTraits
     //@{
     //! Mesh element concepts.
     /*! 
-     * \brief Return the element topology for this mesh (DTK enum).
+     * \brief Return the element topology for this mesh block (DTK enum).
      */
-    static inline std::size_t elementTopology( const MeshType& mesh )
+    static inline std::size_t elementTopology( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0;}
 
     /*! 
      * \brief Return the number of nodes that constructs an individual element
-     * in this mesh. All elements in the mesh must be constructed with the
-     * same number of nodes.
+     * in this mesh block. All elements in the mesh must be constructed with
+     * the same number of nodes.
      */
-    static inline std::size_t nodesPerElement( const MeshType& mesh )
+    static inline std::size_t nodesPerElement( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the const iterator to the beginning of the element global
-     * ordinal block in this mesh.
+     * ordinal block in this mesh block.
      */
-    static inline const_element_iterator elementsBegin( const MeshType& mesh )
+    static inline const_element_iterator 
+    elementsBegin( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the const iterator to the end of the element global
-     * ordinal block in this mesh.
+     * ordinal block in this mesh block.
      */
-    static inline const_element_iterator elementsEnd( const MeshType& mesh )
+    static inline const_element_iterator 
+    elementsEnd( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the const iterator to the beginning of the element
-     * connectivity block in this mesh. The connectivity entries are required
-     * to be blocked. 
+     * connectivity block in this mesh block. The connectivity entries are
+     * required to be blocked. 
      * ( element0( c0 ), element1( c0 ), ... , elementN( c0 ), element0( c1 ),
      * element1( c1 ), ... , elementN( c1 ), ... , elementN( cn ) )
      */
     static inline const_connectivity_iterator 
-    connectivityBegin( const MeshType& mesh )
+    connectivityBegin( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
      * \brief Return the const iterator to the end of the element connectivity
-     * block in this mesh. The connectivity entries are required to be blocked. 
+     * block in this mesh block. The connectivity entries are required to be
+     * blocked.  
      * ( element0( c0 ), element1( c0 ), ... , elementN( c0 ), element0( c1 ),
      * element1( c1 ), ... , elementN( c1 ), ... , elementN( cn ) )
      */
     static inline const_connectivity_iterator 
-    connectivityEnd( const MeshType& mesh )
+    connectivityEnd( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
@@ -214,7 +223,7 @@ class MeshTraits
      * connectivity permutation list.
      */
     static inline const_permutation_iterator
-    permutationBegin( const MeshType& mesh )
+    permutationBegin( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 
@@ -222,7 +231,7 @@ class MeshTraits
      * permutation list. 
      */
     static inline const_permutation_iterator
-    permutationEnd( const MeshType& mesh )
+    permutationEnd( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
     //@}
 };

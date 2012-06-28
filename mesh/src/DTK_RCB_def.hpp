@@ -246,7 +246,7 @@ void RCB<Mesh>::getObjectList(
     typename MT::const_node_iterator gid_iterator;
     zoltan_id_type i = 0;
     zoltan_id_type j = 0;
-    typename MeshManager<Mesh>::BlockIterator block_iterator;
+    BlockIterator block_iterator;
     for ( block_iterator = mesh_data->d_mesh_manager->blocksBegin(),
 	 active_iterator = mesh_data->d_active_nodes.begin();
 	  block_iterator != mesh_data->d_mesh_manager->blocksEnd();
@@ -324,7 +324,7 @@ void RCB<Mesh>::getGeometryList(
     int n = 0;
     Teuchos::ArrayRCP<const double> mesh_coords;
     typename MT::global_ordinal_type num_nodes;
-    typename MeshManager<Mesh>::BlockIterator block_iterator;
+    BlockIterator block_iterator;
     for ( block_iterator = mesh_data->d_mesh_manager->blocksBegin(),
 	 active_iterator = mesh_data->d_active_nodes.begin();
 	  block_iterator != mesh_data->d_mesh_manager->blocksEnd();
