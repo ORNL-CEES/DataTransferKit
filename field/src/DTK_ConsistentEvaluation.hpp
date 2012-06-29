@@ -70,6 +70,7 @@ class ConsistentEvaluation
     typedef typename MT::global_ordinal_type          GlobalOrdinal;
     typedef MeshManager<Mesh>                         MeshManagerType;
     typedef Teuchos::RCP<MeshManagerType>             RCP_MeshManager;
+    typedef MeshManagerType::BlockIterator            BlockIterator;
     typedef CoordinateField                           coord_field_type;
     typedef FieldTraits<CoordinateField>              CFT;
     typedef Teuchos::Comm<int>                        CommType;

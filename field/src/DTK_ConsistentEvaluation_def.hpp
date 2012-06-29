@@ -105,7 +105,7 @@ void ConsistentEvaluation<Mesh,CoordinateField>::setup(
 
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, rendezvous_box );
-    rendezvous.build( mesh );
+    rendezvous.build( mesh_manager );
 
     // Compute a unique global ordinal for each point in the coordinate field.
     Teuchos::Array<GlobalOrdinal> point_ordinals = 
@@ -187,13 +187,23 @@ void ConsistentEvaluation<Mesh,CoordinateField>::setup(
 	Tpetra::createNonContigMap<GlobalOrdinal>( 
 	    rendezvous_elem_set_view, d_comm );
 
-    Teuchos::ArrayRCP<const GlobalOrdinal> mesh_element_arcp =
-	MeshTools<Mesh>::elementsView( mesh );
+    Teuchos::Array<GlobalOrdinal> 
+	mesh_elements( mesh_manager->localNumElements() );
+    BlockIterator block_iterator;
+    for ( block_iterator = mesh_manager->blocksBegin();
+	  block_iterator != mesh_manager->blocksEnd();
+	  ++block_iterator )
+    {
+	Teuchos::ArrayRCP<const GlobalOrdinal> mesh_element_arcp =
+	    MeshTools<Mesh>::elementsView( mesh );
+    }
+
     Teuchos::ArrayView<const GlobalOrdinal> mesh_element_view = 
-	mesh_element_arcp();
+	mesh_elements();
     RCP_TpetraMap mesh_element_map = 
 	Tpetra::createNonContigMap<GlobalOrdinal>( 
 	    mesh_element_view, d_comm );
+    mesh_elements.clear();
 
     Tpetra::Import<GlobalOrdinal> source_importer( 
 	mesh_element_map, rendezvous_element_map );

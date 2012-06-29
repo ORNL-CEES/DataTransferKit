@@ -370,6 +370,11 @@ TEUCHOS_UNIT_TEST( MeshManager, mesh_manager_test )
     TEST_ASSERT( box_bounds[3] == 1.0 );
     TEST_ASSERT( box_bounds[4] == 1.0 );
     TEST_ASSERT( box_bounds[5] == 2.0 );
+
+    // Test the size functions.
+    TEST_ASSERT( mesh_manager.localNumElements() == 4 );
+    TEST_ASSERT( mesh_manager.globalNumElements() == 
+		 4*getDefaultComm<int>()->getSize() )
 }
 
 //---------------------------------------------------------------------------//

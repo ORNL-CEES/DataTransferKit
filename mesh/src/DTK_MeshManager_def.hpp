@@ -47,6 +47,7 @@
 
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_Tuple.hpp>
+#include <Teuchos_CommHelpers.hpp>
 
 namespace DataTransferKit
 {
@@ -74,6 +75,43 @@ MeshManager<Mesh>::MeshManager( const Teuchos::ArrayRCP<Mesh>& mesh_blocks,
 template<class Mesh>
 MeshManager<Mesh>::~MeshManager()
 { /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the local number of elements in the mesh.
+ */
+template<class Mesh>
+typename MeshManager<Mesh>::GlobalOrdinal 
+MeshManager<Mesh>::localNumElements() const
+{
+    GlobalOrdinal local_num_elements = 0;
+    BlockIterator block_iterator;
+    for ( block_iterator = d_mesh_blocks.begin();
+	  block_iterator != d_mesh_blocks.end();
+	  ++block_iterator )
+    {
+	local_num_elements += MeshTools<Mesh>::numElements( *block_iterator );
+    }
+    return local_num_elements;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the global number of elements in the mesh.
+ */
+template<class Mesh>
+typename MeshManager<Mesh>::GlobalOrdinal 
+MeshManager<Mesh>::globalNumElements() const
+{
+    GlobalOrdinal local_num_elements = localNumElements();
+    GlobalOrdinal global_num_elements = 0;
+    Teuchos::reduceAll<int,GlobalOrdinal>( *d_comm,
+					   Teuchos::REDUCE_SUM,
+					   1,
+					   &local_num_elements,
+					   &global_num_elements );
+    return global_num_elements;
+}
 
 //---------------------------------------------------------------------------//
 /*!    

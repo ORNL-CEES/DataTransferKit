@@ -288,6 +288,13 @@ TEUCHOS_UNIT_TEST( MeshTools, mesh_tools_test )
     int edge_size = 4;
     MyMesh my_mesh = buildMyMesh( my_rank, my_size, edge_size );
 
+    // Test the size functions.
+    TEST_ASSERT( MeshTools<MyMesh>::numNodes( my_mesh ) == 
+		 edge_size*edge_size*2 );
+
+    TEST_ASSERT( MeshTools<MyMesh>::numElements( my_mesh ) == 
+		 (edge_size-1)*(edge_size-1) );
+
     // Test the bounding boxes.
     BoundingBox local_box = MeshTools<MyMesh>::localBoundingBox( my_mesh );
     Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();

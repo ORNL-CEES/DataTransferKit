@@ -71,6 +71,7 @@ class MeshManager
     //! Typedefs.
     typedef Mesh                                                mesh_type;
     typedef MeshTraits<Mesh>                                    MT;
+    typedef typename MT::global_ordinal_type                    GlobalOrdinal;
     typedef Teuchos::Comm<int>                                  CommType;
     typedef Teuchos::RCP<const CommType>                        RCP_Comm;
     typedef typename Teuchos::ArrayRCP<Mesh>::const_iterator    BlockIterator;
@@ -87,6 +88,12 @@ class MeshManager
     // Get the number of mesh blocks.
     int getNumBlocks() const
     { return d_mesh_blocks.size(); }
+
+    // Get the local number of elements in the mesh.    
+    GlobalOrdinal localNumElements() const;
+
+    // Get the global number of elements in the mesh.    
+    GlobalOrdinal globalNumElements() const;
 
     // Get the iterator to the beginning of the mesh blocks.
     BlockIterator blocksBegin() const
