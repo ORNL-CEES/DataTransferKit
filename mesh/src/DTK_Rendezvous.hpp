@@ -45,6 +45,7 @@
 
 #include "DTK_MeshManager.hpp"
 #include "DTK_RendezvousMesh.hpp"
+#include "DTK_MeshContainer.hpp"
 
 #include "DTK_KDTree.hpp"
 #include "DTK_RCB.hpp"
@@ -74,6 +75,7 @@ class Rendezvous
     typedef typename MT::global_ordinal_type            GlobalOrdinal;
     typedef Teuchos::RCP< MeshManager<Mesh> >           RCP_MeshManager;
     typedef typename MeshManager<Mesh>::BlockIterator   BlockIterator;
+    typedef MeshContainer<GlobalOrdinal>                MeshContainerType;
     typedef RendezvousMesh<GlobalOrdinal>               RendezvousMeshType;
     typedef Teuchos::RCP<RendezvousMeshType>            RCP_RendezvousMesh;
     typedef KDTree<GlobalOrdinal>                       KDTreeType;
@@ -111,20 +113,18 @@ class Rendezvous
   private:
 
     // Extract the mesh block nodes and elements that are in a bounding box.
-    void getMeshInBox( const Mesh& mesh,
-		       const BoundingBox& box,
-		       Teuchos::Array<int>& nodes_in_box,
-		       Teuchos::Array<int>& elements_in_box );
+    void getMeshInBox( const RCP_MeshManager& mesh_manager,
+		       const BoundingBox& box );
 
     // Send the mesh to the rendezvous decomposition and build the concrete
     // mesh block.
-    void sendMeshToRendezvous( const Mesh& mesh,
-			       const Teuchos::Array<int>& elements_in_box );
+    MeshManager<MeshContainerType> 
+    sendMeshToRendezvous( const RCP_MeshManager& mesh_manager );
 
     // Setup the import communication patterns.
     void setupImportCommunication( 
 	const Mesh& mesh,
-	const Teuchos::Array<int>& elements_in_box,
+	const Teuchos::ArrayView<short int>& elements_in_box,
 	Teuchos::Array<GlobalOrdinal>& rendezvous_nodes,
 	Teuchos::Array<GlobalOrdinal>& rendezvous_elements );
 

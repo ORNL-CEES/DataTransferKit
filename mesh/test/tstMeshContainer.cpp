@@ -176,9 +176,12 @@ TEUCHOS_UNIT_TEST( MeshContainer, mesh_container_test )
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
-    MeshContainer<int> mesh_container = buildMeshContainer();
+    Teuchos::ArrayRCP< MeshContainer<int> > mesh_blocks( 1 );
+    mesh_blocks[0] = buildMeshContainer();
+    MeshManager< MeshContainer<int> > mesh_manager( 
+	mesh_blocks, getDefaultComm<int>(), 3 );
     Teuchos::RCP< RendezvousMesh<MT::global_ordinal_type> > mesh = 
-	createRendezvousMesh( mesh_container );
+	createRendezvousMesh( mesh_manager );
 
     // Get the moab interface.
     moab::ErrorCode error;
@@ -213,7 +216,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, mesh_container_test )
     int num_nodes = connectivity.size();
     Teuchos::Array<double>::const_iterator moab_coord_iterator;
     typename MT::const_coordinate_iterator coord_iterator = 
-	MT::coordsBegin( mesh_container );
+	MT::coordsBegin( mesh_blocks[0] );
     int i = 0;
     for ( moab_coord_iterator = vertex_coords.begin();
 	  moab_coord_iterator != vertex_coords.end(); ++i )

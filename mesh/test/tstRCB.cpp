@@ -231,16 +231,17 @@ TEUCHOS_UNIT_TEST( RCB, rcb_test )
     int num_nodes = std::distance( MT::nodesBegin( mesh_blocks[0] ),
 				   MT::nodesEnd( mesh_blocks[0] ) );
     int num_coords = 3 * num_nodes;
-    Teuchos::Array<int> active_nodes( num_nodes, 1 );
+    Teuchos::Array<short int> active_nodes( num_nodes, 1 );
 
     // Create a mesh manager.
     Teuchos::RCP< MeshManager<MyMesh> > mesh_manager = Teuchos::rcp( 
 	new MeshManager<MyMesh>( 
 	    mesh_blocks, getDefaultComm<int>(), 3 ) );
+    mesh_manager->setActiveNodes( active_nodes, 0 );
 
     // Partition the mesh with RCB.
     typedef RCB<MyMesh>::zoltan_id_type zoltan_id_type;
-    RCB<MyMesh> rcb( mesh_manager, Teuchos::arcpFromArray( active_nodes ) );
+    RCB<MyMesh> rcb( mesh_manager );
     rcb.partition();
     
     // Get the random numbers that were used to compute the node coordinates.

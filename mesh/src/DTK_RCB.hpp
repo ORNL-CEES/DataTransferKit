@@ -73,11 +73,11 @@ class RCB
     typedef Teuchos::Comm<int>                          CommType;
     typedef Teuchos::RCP<const CommType>                RCP_Comm;
     typedef ZOLTAN_ID_TYPE                              zoltan_id_type;
+    typedef ZOLTAN_ID_PTR                               zoltan_id_ptr;
     //@}
 
     // Constructor.
-    RCB( const RCP_MeshManager& mesh_manager, 
-	 const Teuchos::ArrayRCP<int>& active_nodes );
+    RCB( const RCP_MeshManager& mesh_manager );
 
     // Destructor.
     ~RCB();
@@ -134,27 +134,6 @@ class RCB
 
   private:
 
-    //! Mesh data struct for Zoltan callbacks.
-    struct MeshData 
-    {
-	// The mesh we are partitioning.
-	RCP_MeshManager d_mesh_manager;
-
-	// The active nodes in the mesh.
-	Teuchos::ArrayRCP<int> d_active_nodes;
-
-	// Constructor.
-	MeshData( const RCP_MeshManager& mesh_manager,
-		  const Teuchos::ArrayRCP<int>& active_nodes )
-	    : d_mesh_manager( mesh_manager )
-	    , d_active_nodes( active_nodes )
-	{ /* ... */ }
-
-	// Destructor.
-	~MeshData()
-	{ /* ... */ }
-    };
-
     // Zoltan callback for getting the number of nodes.
     static int getNumberOfObjects( void *data, int *ierr );
 
@@ -177,11 +156,8 @@ class RCB
 
   private:
 
-    // Communicator over which to partition.
-    RCP_Comm d_comm;
-
-    // The mesh data to be partitioned.
-    MeshData d_mesh_data;
+    // The mesh to be partitioned.
+    RCP_MeshManager d_mesh_manager;
 
     // Global x edges.
     std::set<double> d_x_edges;

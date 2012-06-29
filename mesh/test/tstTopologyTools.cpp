@@ -302,9 +302,16 @@ TEUCHOS_UNIT_TEST( TopologyTools, topology_tools_test )
     using namespace DataTransferKit;
 
     // Create a mesh.
-    MyMesh my_mesh = buildMyMesh();
+    typedef MeshTraits<MyMesh> MT;
+    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    mesh_blocks[0] = buildMyMesh();
+
+    // Create a mesh manager.
+    MeshManager<MyMesh> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
+
+    // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MyMesh::global_ordinal_type> > mesh = 
-	createRendezvousMesh( my_mesh );
+	createRendezvousMesh( mesh_manager );
 
     // Get the moab interface.
     RendezvousMesh<MyMesh::global_ordinal_type>::RCP_Moab moab = 

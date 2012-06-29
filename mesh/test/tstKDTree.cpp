@@ -17,6 +17,7 @@
 #include <DTK_RendezvousMesh.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
+#include <DTK_MeshManager.hpp>
 #include <DTK_Exception.hpp>
 
 #include <mpi.h>
@@ -297,10 +298,17 @@ TEUCHOS_UNIT_TEST( KDTree, kd_tree_test )
     using namespace DataTransferKit;
 
     // Create a mesh.
-    MyMesh my_mesh = buildMyMesh();
+    typedef MeshTraits<MyMesh> MT;
+    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    mesh_blocks[0] = buildMyMesh();
+
+    // Create a mesh manager.
+    MeshManager<MyMesh> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
+
+    // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MyMesh::global_ordinal_type> > mesh = 
-	createRendezvousMesh( my_mesh );
-    mesh->getMoab()->write_mesh( "tree.vtk" );
+	createRendezvousMesh( mesh_manager );
+
     // Create a KDTree.
     KDTree<MyMesh::global_ordinal_type> kd_tree( mesh );
 

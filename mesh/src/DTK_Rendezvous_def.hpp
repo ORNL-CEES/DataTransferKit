@@ -45,7 +45,6 @@
 #include <algorithm>
 #include <cassert>
 
-#include "DTK_MeshContainer.hpp"
 #include "DTK_MeshTools.hpp"
 #include <DTK_Exception.hpp>
 
@@ -90,26 +89,20 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
     d_node_dim = mesh_manager->getDim();
 
     // Extract the mesh nodes and elements that are in the bounding box.
-    Teuchos::Array<int> nodes_in_box;
-    Teuchos::Array<int> elements_in_box;
-    getMeshInBox( mesh, d_global_box, nodes_in_box, elements_in_box );
+    getMeshInBox( mesh_manager, d_global_box );
 
     // Construct the rendezvous decomposition of the mesh with RCB using the
     // nodes that are in the box.
-    d_rcb = Teuchos::rcp(
-	new RCB<Mesh>( mesh_manager, Teuchos::arcpFromArray( nodes_in_box ) ) );
+    d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh_manager ) );
     testPostcondition( d_rcb != Teuchos::null,
 		       "Error creating RCB decomposition." );
     d_rcb->partition();
 
     // Send the mesh in the box to the rendezvous decomposition and build the
     // concrete mesh block.
-    sendMeshToRendezvous( mesh, elements_in_box );
+    MeshManager<MeshContainerType> rendezvous_manager =
+	sendMeshToRendezvous( mesh_manager );
 
-    // Clear the extracted mesh information.
-    nodes_in_box.clear();
-    elements_in_box.clear();
-    
     // Build the concrete rendezvous mesh from the mesh container.
     d_rendezvous_mesh = createRendezvousMesh( rendezvous_manager );
     testPostcondition( d_rendezvous_mesh != Teuchos::null,
@@ -190,85 +183,103 @@ Rendezvous<Mesh>::getElements( const Teuchos::ArrayRCP<double>& coords ) const
  * \brief Extract the mesh nodes and elements that are in a bounding box.
  */
 template<class Mesh>
-void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
-				     const BoundingBox& box,
-				     Teuchos::Array<int>& nodes_in_box,
-				     Teuchos::Array<int>& elements_in_box )
+void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager,
+				     const BoundingBox& box )
 {
-    // Create a map indexed by node global ordinal containing the actual node
-    // ordinal location. This will give us logarithmic time access to
-    // connectivity. I should write a more general hash table to improve this
-    // access time as I'm using this strategy for most mesh operations.
-    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
-					     MT::nodesEnd( mesh ) );
-    std::map<GlobalOrdinal,GlobalOrdinal> node_indices;
-    typename MT::const_node_iterator node_iterator;
-    GlobalOrdinal m = 0;
-    for ( node_iterator = MT::nodesBegin( mesh );
-	  node_iterator != MT::nodesEnd( mesh );
-	  ++node_iterator )
+    // For every block get its nodes and elements that are in the block.
+    Teuchos::Array<short int> nodes_in_box, elements_in_box;
+    BlockIterator block_iterator;
+    for ( block_iterator = mesh_manager->blocksBegin();
+	  block_iterator != mesh_manager->blocksEnd();
+	  ++block_iterator )
     {
-	node_indices[ *node_iterator ] = m;
-	++m;
-    }
+	// Setup.
+	nodes_in_box.clear();
+	elements_in_box.clear();
+	int block_id = std::distance( mesh_manager->blocksBegin(), 
+				      block_iterator );
 
-    // Get all of the nodes that are in the box. 
-    double node_coords[3];
-    Teuchos::ArrayRCP<const double> mesh_coords =
-	MeshTools<Mesh>::coordsView( mesh );
-    for ( GlobalOrdinal n = 0; n < num_nodes; ++n )
-    {
-	for ( std::size_t d = 0; d < d_node_dim; ++d )
+	// Create a map indexed by node global ordinal containing the actual node
+	// ordinal location. This will give us logarithmic time access to
+	// connectivity. I should write a more general hash table to improve this
+	// access time as I'm using this strategy for most mesh operations.
+	GlobalOrdinal num_nodes = 
+	    std::distance( MT::nodesBegin( *block_iterator ),
+			   MT::nodesEnd( *block_iterator ) );
+	std::map<GlobalOrdinal,GlobalOrdinal> node_indices;
+	typename MT::const_node_iterator node_iterator;
+	GlobalOrdinal m = 0;
+	for ( node_iterator = MT::nodesBegin( *block_iterator );
+	      node_iterator != MT::nodesEnd( *block_iterator );
+	      ++node_iterator )
 	{
-	    node_coords[d] = mesh_coords[ d*num_nodes + n ];
+	    node_indices[ *node_iterator ] = m;
+	    ++m;
 	}
-	for ( std::size_t d = d_node_dim; d < 3; ++d )
-	{
-	    node_coords[d] = 0.0;
-	}
-	nodes_in_box.push_back( box.pointInBox( node_coords ) );
-    }
-    assert( (GlobalOrdinal) nodes_in_box.size() == num_nodes );
 
-    // For those nodes that are in the box, get the elements that they
-    // construct. These elements are in the box.
-    GlobalOrdinal num_elements = std::distance( MT::elementsBegin( mesh ),
-						MT::elementsEnd( mesh ) );
-    std::size_t nodes_per_element = MT::nodesPerElement( mesh );
-    GlobalOrdinal node_index;
-    GlobalOrdinal node_ordinal;
-    int this_element_in_box;
-    Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity = 
-	MeshTools<Mesh>::connectivityView( mesh );
-    for ( GlobalOrdinal n = 0; n < num_elements; ++n )
-    {
-	this_element_in_box = 0;
-	for ( std::size_t i = 0; i < nodes_per_element; ++i )
+	// Get all of the nodes that are in the box. 
+	double node_coords[3];
+	Teuchos::ArrayRCP<const double> mesh_coords =
+	    MeshTools<Mesh>::coordsView( *block_iterator );
+	for ( GlobalOrdinal n = 0; n < num_nodes; ++n )
 	{
-	    node_ordinal = mesh_connectivity[ i*num_elements + n ];
-	    node_index = node_indices.find( node_ordinal )->second;
-	    if ( nodes_in_box[ node_index ] )
+	    for ( std::size_t d = 0; d < d_node_dim; ++d )
 	    {
-		this_element_in_box = 1;
+		node_coords[d] = mesh_coords[ d*num_nodes + n ];
 	    }
+	    for ( std::size_t d = d_node_dim; d < 3; ++d )
+	    {
+		node_coords[d] = 0.0;
+	    }
+	    nodes_in_box.push_back( box.pointInBox( node_coords ) );
 	}
-	elements_in_box.push_back( this_element_in_box );
-    }
-    assert( (GlobalOrdinal) elements_in_box.size() == num_elements );
+	assert( (GlobalOrdinal) nodes_in_box.size() == num_nodes );
 
-    // Get the nodes that belong to the elements in the box, but are not in
-    // the box themselves. These will also be used in RCB.
-    for ( GlobalOrdinal n = 0; n < num_elements; ++n )
-    {
-	if ( elements_in_box[n] )
+	// For those nodes that are in the box, get the elements that they
+	// construct. These elements are in the box.
+	GlobalOrdinal num_elements = 
+	    std::distance( MT::elementsBegin( *block_iterator ),
+			   MT::elementsEnd( *block_iterator ) );
+	std::size_t nodes_per_element = MT::nodesPerElement( *block_iterator );
+	GlobalOrdinal node_index;
+	GlobalOrdinal node_ordinal;
+	int this_element_in_box;
+	Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity = 
+	    MeshTools<Mesh>::connectivityView( *block_iterator );
+	for ( GlobalOrdinal n = 0; n < num_elements; ++n )
 	{
+	    this_element_in_box = 0;
 	    for ( std::size_t i = 0; i < nodes_per_element; ++i )
 	    {
 		node_ordinal = mesh_connectivity[ i*num_elements + n ];
 		node_index = node_indices.find( node_ordinal )->second;
-		nodes_in_box[ node_index ] = 1;
+		if ( nodes_in_box[ node_index ] )
+		{
+		    this_element_in_box = 1;
+		}
+	    }
+	    elements_in_box.push_back( this_element_in_box );
+	}
+	assert( (GlobalOrdinal) elements_in_box.size() == num_elements );
+
+	// Get the nodes that belong to the elements in the box, but are not in
+	// the box themselves. These will also be used in RCB.
+	for ( GlobalOrdinal n = 0; n < num_elements; ++n )
+	{
+	    if ( elements_in_box[n] )
+	    {
+		for ( std::size_t i = 0; i < nodes_per_element; ++i )
+		{
+		    node_ordinal = mesh_connectivity[ i*num_elements + n ];
+		    node_index = node_indices.find( node_ordinal )->second;
+		    nodes_in_box[ node_index ] = 1;
+		}
 	    }
 	}
+
+	// Set the active node/element data in the manager for the block.
+	mesh_manager->setActiveNodes( nodes_in_box, block_id );
+	mesh_manager->setActiveElements( elements_in_box, block_id );
     }
 }
 
@@ -278,116 +289,153 @@ void Rendezvous<Mesh>::getMeshInBox( const Mesh& mesh,
  * mesh. 
  */
 template<class Mesh>
-void Rendezvous<Mesh>::sendMeshToRendezvous( 
-    const Mesh& mesh, const Teuchos::Array<int>& elements_in_box )
+MeshManager<typename Rendezvous<Mesh>::MeshContainerType> 
+Rendezvous<Mesh>::sendMeshToRendezvous( 
+    const RCP_MeshManager& mesh_manager )
 {
-    // Setup the communication patterns for moving the mesh to the rendezvous
-    // decomposition. This will also move the node and element global ordinals
-    // to the rendezvous decomposition.
-    Teuchos::Array<GlobalOrdinal> rendezvous_nodes;
-    Teuchos::Array<GlobalOrdinal> rendezvous_elements;
-    setupImportCommunication( mesh, elements_in_box,
-			      rendezvous_nodes, rendezvous_elements );
-
-    // Setup export node map.
-    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ), 
-					     MT::nodesEnd( mesh ) );
-
-    Teuchos::ArrayRCP<const GlobalOrdinal> export_node_arcp =
-	MeshTools<Mesh>::nodesView( mesh );
-    Teuchos::ArrayView<const GlobalOrdinal> export_node_view =
-	export_node_arcp();
-    RCP_TpetraMap export_node_map = Tpetra::createNonContigMap<GlobalOrdinal>( 
-	export_node_view, d_comm );
-    testPostcondition( export_node_map != Teuchos::null,
-		       "Error creating node export map." );
-
-    // Setup import node map.
-    Teuchos::ArrayView<const GlobalOrdinal> rendezvous_nodes_view = 
-	rendezvous_nodes();
-    RCP_TpetraMap import_node_map = Tpetra::createNonContigMap<GlobalOrdinal>(
-	rendezvous_nodes_view, d_comm );
-    testPostcondition( import_node_map != Teuchos::null,
-		       "Error creating node import map." );
-
-    // Setup export element map.
-    GlobalOrdinal num_elements = std::distance( MT::elementsBegin( mesh ), 
-						MT::elementsEnd( mesh ) );
-    Teuchos::ArrayRCP<const GlobalOrdinal> export_element_arcp =
-	MeshTools<Mesh>::elementsView( mesh );
-    Teuchos::ArrayView<const GlobalOrdinal> export_element_view =
-	export_element_arcp();
-    RCP_TpetraMap export_element_map = 
-	Tpetra::createNonContigMap<GlobalOrdinal>(
-	    export_element_view, d_comm );
-    testPostcondition( export_element_map != Teuchos::null,
-		       "Error creating element export map." );
-
-    // Setup import element map.
-    Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
-	rendezvous_elements();
-    RCP_TpetraMap import_element_map = 
-	Tpetra::createNonContigMap<GlobalOrdinal>(
-	    rendezvous_elements_view, d_comm );
-    testPostcondition( import_element_map != Teuchos::null,
-		       "Error creating element import map." );
-
-    // Setup importers.
-    Tpetra::Import<GlobalOrdinal> node_importer( export_node_map, 
-						 import_node_map );
-    Tpetra::Import<GlobalOrdinal> element_importer( export_element_map, 
-						    import_element_map );
-
-    // Move the node coordinates to the rendezvous decomposition.
-    GlobalOrdinal num_coords = d_node_dim*num_nodes;
-    Teuchos::ArrayRCP<double> export_coords_view;
-    if ( num_coords == 0 )
+    // Setup the mesh blocks.
+    Teuchos::ArrayRCP<MeshContainerType> 
+	block_containers( mesh_manager->getNumBlocks() );
+    BlockIterator block_iterator;
+    for ( block_iterator = mesh_manager->blocksBegin();
+	  block_iterator != mesh_manager->blocksEnd();
+	  ++block_iterator )
     {
-	export_coords_view = Teuchos::ArrayRCP<double>( 0, 0.0 );
-    }
-    else
-    {
-	export_coords_view = MeshTools<Mesh>::coordsNonConstView( mesh );
-    }
-    Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > export_coords = 
-	createMultiVectorFromView( export_node_map, export_coords_view, 
-				   num_nodes, d_node_dim );
-    Tpetra::MultiVector<double,GlobalOrdinal> 
-	import_coords( import_node_map, d_node_dim );
-    import_coords.doImport( *export_coords, node_importer, Tpetra::INSERT );
+	int block_id = std::distance( mesh_manager->blocksBegin(), 
+				      block_iterator );
 
-    // Move the element connectivity to the rendezvous decomposition.
-    int nodes_per_element = MT::nodesPerElement( mesh );
-    GlobalOrdinal num_conn = nodes_per_element * num_elements;
-    Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view;
-    if ( num_conn == 0 )
-    {
-	export_conn_view = Teuchos::ArrayRCP<GlobalOrdinal>( 0, 0.0 );
-    }
-    else
-    {
-	export_conn_view = MeshTools<Mesh>::connectivityNonConstView( mesh );
-    }
-    Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > export_conn 
-	= createMultiVectorFromView( export_element_map, export_conn_view, 
-				     num_elements, nodes_per_element );
-    Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> import_conn( 
-	import_element_map, nodes_per_element );
-    import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
+	// Setup the communication patterns for moving the mesh block to the
+	// rendezvous decomposition. This will also move the node and element
+	// global ordinals to the rendezvous decomposition.
+	Teuchos::Array<GlobalOrdinal> rendezvous_nodes;
+	Teuchos::Array<GlobalOrdinal> rendezvous_elements;
+	setupImportCommunication( *block_iterator, 
+				  mesh_manager->getActiveElements( block_id ),
+				  rendezvous_nodes, rendezvous_elements );
 
-    // Construct the mesh container from the collected data, effectively
-    // wrapping it with mesh traits.
-    Teuchos::ArrayRCP<const std::size_t> permutation_list = 
-	MeshTools<Mesh>::permutationView( mesh );
-    MeshContainer<GlobalOrdinal> mesh_container( 
-	d_node_dim,
-	Teuchos::arcpFromArray( rendezvous_nodes ), 
-	import_coords.get1dView(),
-	MT::elementTopology( mesh ),
-	nodes_per_element,
-	Teuchos::arcpFromArray( rendezvous_elements ), 
-	import_conn.get1dView(),
-	permutation_list );
+	// Setup export node map.
+	GlobalOrdinal num_nodes =
+	    std::distance( MT::nodesBegin( *block_iterator ), 
+			   MT::nodesEnd( *block_iterator ) );
+
+	Teuchos::ArrayRCP<const GlobalOrdinal> export_node_arcp =
+	    MeshTools<Mesh>::nodesView( *block_iterator );
+	Teuchos::ArrayView<const GlobalOrdinal> export_node_view =
+	    export_node_arcp();
+	RCP_TpetraMap export_node_map = Tpetra::createNonContigMap<GlobalOrdinal>( 
+	    export_node_view, d_comm );
+	testPostcondition( export_node_map != Teuchos::null,
+			   "Error creating node export map." );
+
+	// Setup import node map.
+	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_nodes_view = 
+	    rendezvous_nodes();
+	RCP_TpetraMap import_node_map = Tpetra::createNonContigMap<GlobalOrdinal>(
+	    rendezvous_nodes_view, d_comm );
+	testPostcondition( import_node_map != Teuchos::null,
+			   "Error creating node import map." );
+
+	// Setup export element map.
+	GlobalOrdinal num_elements = 
+	    std::distance( MT::elementsBegin( *block_iterator ), 
+			   MT::elementsEnd( *block_iterator ) );
+	Teuchos::ArrayRCP<const GlobalOrdinal> export_element_arcp =
+	    MeshTools<Mesh>::elementsView( *block_iterator );
+	Teuchos::ArrayView<const GlobalOrdinal> export_element_view =
+	    export_element_arcp();
+	RCP_TpetraMap export_element_map = 
+	    Tpetra::createNonContigMap<GlobalOrdinal>(
+		export_element_view, d_comm );
+	testPostcondition( export_element_map != Teuchos::null,
+			   "Error creating element export map." );
+
+	// Setup import element map.
+	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
+	    rendezvous_elements();
+	RCP_TpetraMap import_element_map = 
+	    Tpetra::createNonContigMap<GlobalOrdinal>(
+		rendezvous_elements_view, d_comm );
+	testPostcondition( import_element_map != Teuchos::null,
+			   "Error creating element import map." );
+
+	// Setup importers.
+	Tpetra::Import<GlobalOrdinal> node_importer( export_node_map, 
+						     import_node_map );
+	Tpetra::Import<GlobalOrdinal> element_importer( export_element_map, 
+							import_element_map );
+
+	// Move the node coordinates to the rendezvous decomposition.
+	GlobalOrdinal num_coords = d_node_dim*num_nodes;
+	Teuchos::ArrayRCP<double> export_coords_view;
+	if ( num_coords == 0 )
+	{
+	    export_coords_view = Teuchos::ArrayRCP<double>( 0, 0.0 );
+	}
+	else
+	{
+	    export_coords_view = 
+		MeshTools<Mesh>::coordsNonConstView( *block_iterator );
+	}
+	Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > export_coords = 
+	    createMultiVectorFromView( export_node_map, export_coords_view, 
+				       num_nodes, d_node_dim );
+	Tpetra::MultiVector<double,GlobalOrdinal> 
+	    import_coords( import_node_map, d_node_dim );
+	import_coords.doImport( *export_coords, node_importer, Tpetra::INSERT );
+
+	// Move the element connectivity to the rendezvous decomposition.
+	int nodes_per_element = MT::nodesPerElement( *block_iterator );
+	GlobalOrdinal num_conn = nodes_per_element * num_elements;
+	Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view;
+	if ( num_conn == 0 )
+	{
+	    export_conn_view = Teuchos::ArrayRCP<GlobalOrdinal>( 0, 0.0 );
+	}
+	else
+	{
+	    export_conn_view =
+		MeshTools<Mesh>::connectivityNonConstView( *block_iterator );
+	}
+	Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > 
+	    export_conn 
+	    = createMultiVectorFromView( export_element_map, export_conn_view, 
+					 num_elements, nodes_per_element );
+	Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> import_conn( 
+	    import_element_map, nodes_per_element );
+	import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
+
+	// Construct the mesh container from the collected data, effectively
+	// wrapping it with mesh traits.
+	Teuchos::ArrayRCP<GlobalOrdinal> 
+	    rendezvous_nodes_array( rendezvous_nodes.size() );
+	std::copy( rendezvous_nodes.begin(), rendezvous_nodes.end(),
+		   rendezvous_nodes_array.begin() );
+	rendezvous_nodes.clear();
+
+	Teuchos::ArrayRCP<GlobalOrdinal> 
+	    rendezvous_elements_array( rendezvous_elements.size() );
+	std::copy( rendezvous_elements.begin(), rendezvous_elements.end(),
+		   rendezvous_elements_array.begin() );
+	rendezvous_elements.clear();
+
+	Teuchos::ArrayRCP<const std::size_t> permutation_list = 
+	    MeshTools<Mesh>::permutationView( *block_iterator );
+
+	block_containers[ block_id ] = 
+	    MeshContainerType( d_node_dim,
+			       rendezvous_nodes_array,
+			       import_coords.get1dView(),
+			       MT::elementTopology( *block_iterator ),
+			       nodes_per_element,
+			       rendezvous_elements_array,
+			       import_conn.get1dView(),
+			       permutation_list );
+    }
+
+    // Build the rendezvous mesh manager from the rendezvous mesh blocks..
+    return MeshManager<MeshContainerType>( block_containers,
+					   d_comm,
+					   mesh_manager->getDim() );
 }
 
 //---------------------------------------------------------------------------//
@@ -397,7 +445,7 @@ void Rendezvous<Mesh>::sendMeshToRendezvous(
 template<class Mesh>
 void Rendezvous<Mesh>::setupImportCommunication( 
     const Mesh& mesh,
-    const Teuchos::Array<int>& elements_in_box,
+    const Teuchos::ArrayView<short int>& elements_in_box,
     Teuchos::Array<GlobalOrdinal>& rendezvous_nodes,
     Teuchos::Array<GlobalOrdinal>& rendezvous_elements )
 {

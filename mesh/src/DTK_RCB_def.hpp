@@ -56,14 +56,13 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<class Mesh>
-RCB<Mesh>::RCB( const RCP_MeshManager& mesh_manager, 
-		const Teuchos::ArrayRCP<int>& active_nodes )
-    : d_comm( mesh_manager->getComm() )
-    , d_mesh_data( mesh_manager, active_nodes )
+RCB<Mesh>::RCB( const RCP_MeshManager& mesh_manager )
+    : d_mesh_manager( mesh_manager )
 {
     // Get the raw MPI communicator.
     Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( d_comm );
+	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( 
+	    d_mesh_manager->getComm() );
     Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
 	mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
@@ -88,10 +87,10 @@ RCB<Mesh>::RCB( const RCP_MeshManager& mesh_manager,
     Zoltan_Set_Param( d_zz, "RCB_SET_DIRECTIONS", "1" );
 
     // Register query functions.
-    Zoltan_Set_Num_Obj_Fn( d_zz, getNumberOfObjects, &d_mesh_data );
-    Zoltan_Set_Obj_List_Fn( d_zz, getObjectList, &d_mesh_data );
-    Zoltan_Set_Num_Geom_Fn( d_zz, getNumGeometry, &d_mesh_data );
-    Zoltan_Set_Geom_Multi_Fn( d_zz, getGeometryList, &d_mesh_data );
+    Zoltan_Set_Num_Obj_Fn( d_zz, getNumberOfObjects, &d_mesh_manager );
+    Zoltan_Set_Obj_List_Fn( d_zz, getObjectList, &d_mesh_manager );
+    Zoltan_Set_Num_Geom_Fn( d_zz, getNumGeometry, &d_mesh_manager );
+    Zoltan_Set_Geom_Multi_Fn( d_zz, getGeometryList, &d_mesh_manager );
 }
 
 //---------------------------------------------------------------------------//
@@ -184,7 +183,7 @@ void RCB<Mesh>::getPartitioning()
     int dim;
     int zoltan_error;
 
-    for ( int i = 0; i < d_comm->getSize(); ++i )
+    for ( int i = 0; i < d_mesh_manager->getComm()->getSize(); ++i )
     {
 	zoltan_error = Zoltan_RCB_Box( d_zz, i, &dim,
 				       &x_min, &y_min, &z_min,
@@ -211,16 +210,20 @@ void RCB<Mesh>::getPartitioning()
 template<class Mesh>
 int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
 {
-    MeshData *mesh_data = static_cast<MeshData*>( data );
+    RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
     int num_nodes = 0;
-    Teuchos::ArrayRCP<int>::const_iterator active_iterator;
-    for ( active_iterator = mesh_data->d_active_nodes.begin();
-	  active_iterator != mesh_data->d_active_nodes.end();
-	  ++active_iterator )
+    int num_blocks = mesh_manager->getNumBlocks();
+    Teuchos::ArrayView<short int>::const_iterator active_iterator;
+    for ( int i = 0; i < num_blocks; ++i )
     {
-	if ( *active_iterator )
+	for ( active_iterator = mesh_manager->getActiveNodes( i ).begin();
+	      active_iterator != mesh_manager->getActiveNodes( i ).end();
+	      ++active_iterator )
 	{
-	    ++num_nodes;
+	    if ( *active_iterator )
+	    {
+		++num_nodes;
+	    }
 	}
     }
 
@@ -238,21 +241,25 @@ void RCB<Mesh>::getObjectList(
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
     int wgt_dim, float *obj_wgts, int *ierr )
 {
-    MeshData *mesh_data = static_cast<MeshData*>( data );
+    RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
     *ierr = ZOLTAN_OK;
 
     // Note here that the local ID is being set the the node array index.
-    Teuchos::ArrayRCP<int>::const_iterator active_iterator;
+    Teuchos::ArrayRCP<short int>::const_iterator active_iterator;
     typename MT::const_node_iterator gid_iterator;
     zoltan_id_type i = 0;
     zoltan_id_type j = 0;
     BlockIterator block_iterator;
-    for ( block_iterator = mesh_data->d_mesh_manager->blocksBegin(),
-	 active_iterator = mesh_data->d_active_nodes.begin();
-	  block_iterator != mesh_data->d_mesh_manager->blocksEnd();
+    for ( block_iterator = mesh_manager->blocksBegin();
+	  block_iterator != mesh_manager->blocksEnd();
 	  ++block_iterator )
     {
-	for ( gid_iterator = MT::nodesBegin( *block_iterator );
+	int block_id = std::distance( mesh_manager->blocksBegin(),
+				      block_iterator );
+
+	for ( gid_iterator = MT::nodesBegin( *block_iterator ),
+	      active_iterator = 
+			     mesh_manager->getActiveNodes( block_id ).begin();
 	      gid_iterator != MT::nodesEnd( *block_iterator );
 	      ++gid_iterator, ++active_iterator )
 	{
@@ -274,9 +281,9 @@ void RCB<Mesh>::getObjectList(
 template<class Mesh>
 int RCB<Mesh>::getNumGeometry( void *data, int *ierr )
 {
-    MeshData *mesh_data = static_cast<MeshData*>( data );
+    RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
     *ierr = ZOLTAN_OK;
-    return mesh_data->d_mesh_manager->getDim();
+    return mesh_manager->getDim();
 }
 
 //---------------------------------------------------------------------------//
@@ -290,23 +297,27 @@ void RCB<Mesh>::getGeometryList(
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
     int num_dim, double *geom_vec, int *ierr )
 {
-    MeshData *mesh_data = static_cast<MeshData*>( data );
+    RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
 
     // Get the number of active nodes.
     std::size_t num_active_nodes = 0;
-    Teuchos::ArrayRCP<int>::const_iterator active_iterator;
-    for ( active_iterator = mesh_data->d_active_nodes.begin();
-	  active_iterator != mesh_data->d_active_nodes.end();
-	  ++active_iterator )
+    int num_blocks = mesh_manager->getNumBlocks();
+    Teuchos::ArrayView<short int>::const_iterator active_iterator;
+    for ( int i = 0; i < num_blocks; ++i )
     {
-	if ( *active_iterator )
+	for ( active_iterator = mesh_manager->getActiveNodes( i ).begin();
+	      active_iterator != mesh_manager->getActiveNodes( i ).end();
+	      ++active_iterator )
 	{
-	    ++num_active_nodes;
+	    if ( *active_iterator )
+	    {
+		++num_active_nodes;
+	    }
 	}
     }
 
     // Check Zoltan for consistency.
-    std::size_t node_dim = mesh_data->d_mesh_manager->getDim();
+    std::size_t node_dim = mesh_manager->getDim();
     testInvariant( sizeGID == 1, "Zoltan global ID size != 1." );
     testInvariant( sizeLID == 1, "Zoltan local ID size != 1." );
     testInvariant( num_dim == (int) node_dim, "Zoltan dimension != 3." );
@@ -325,16 +336,21 @@ void RCB<Mesh>::getGeometryList(
     Teuchos::ArrayRCP<const double> mesh_coords;
     typename MT::global_ordinal_type num_nodes;
     BlockIterator block_iterator;
-    for ( block_iterator = mesh_data->d_mesh_manager->blocksBegin(),
-	 active_iterator = mesh_data->d_active_nodes.begin();
-	  block_iterator != mesh_data->d_mesh_manager->blocksEnd();
+    for ( block_iterator = mesh_manager->blocksBegin();
+	  block_iterator != mesh_manager->blocksEnd();
 	  ++block_iterator )
     {
+	int block_id = std::distance( mesh_manager->blocksBegin(),
+				      block_iterator );
+	Teuchos::ArrayView<short int> active_nodes =
+	    mesh_manager->getActiveNodes( block_id );
+
 	mesh_coords = MeshTools<Mesh>::coordsView( *block_iterator );
-	num_nodes = mesh_coords.size() / mesh_data->d_mesh_manager->getDim();
+	num_nodes = std::distance( MT::nodesBegin( *block_iterator ),
+				   MT::nodesEnd( *block_iterator ) );
 	for ( int i = 0; i < num_nodes; ++i )
 	{
-	    if ( *active_iterator )
+	    if ( active_nodes[i] )
 	    {
 		for ( std::size_t d = 0; d < node_dim; ++d )
 		{

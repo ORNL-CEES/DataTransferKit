@@ -57,6 +57,8 @@ MeshManager<Mesh>::MeshManager( const Teuchos::ArrayRCP<Mesh>& mesh_blocks,
     : d_mesh_blocks( mesh_blocks )
     , d_comm( comm )
     , d_dim( dim )
+    , d_active_nodes( d_mesh_blocks.size() )
+    , d_active_elements( d_mesh_blocks.size() )
 {
     validate();
 }
