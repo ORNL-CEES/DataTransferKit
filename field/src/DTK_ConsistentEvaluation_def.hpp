@@ -34,7 +34,7 @@
 /*!
  * \file DTK_ConsistentEvaluation.hpp
  * \author Stuart R. Slattery
- * \brief Consistent evaluation mapping declaration.
+ * \brief Consistent evaluation mapping definition.
  */
 //---------------------------------------------------------------------------//
 

@@ -17,6 +17,7 @@
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 #include <DTK_MeshTools.hpp>
+#include <DTK_BoundingBox.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -25,6 +26,7 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_Tuple.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
@@ -358,6 +360,16 @@ TEUCHOS_UNIT_TEST( MeshManager, mesh_manager_test )
 
 	++i;
     }
+
+    // Test the global bounding box function.
+    BoundingBox mesh_box = mesh_manager.globalBoundingBox();
+    Teuchos::Tuple<double,6> box_bounds = mesh_box.getBounds();
+    TEST_ASSERT( box_bounds[0] == 0.0 );
+    TEST_ASSERT( box_bounds[1] == 0.0 );
+    TEST_ASSERT( box_bounds[2] == 0.0 );
+    TEST_ASSERT( box_bounds[3] == 1.0 );
+    TEST_ASSERT( box_bounds[4] == 1.0 );
+    TEST_ASSERT( box_bounds[5] == 2.0 );
 }
 
 //---------------------------------------------------------------------------//

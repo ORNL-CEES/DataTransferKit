@@ -45,6 +45,9 @@
 #include "DTK_MeshTools.hpp"
 #include <DTK_Exception.hpp>
 
+#include <Teuchos_ScalarTraits.hpp>
+#include <Teuchos_Tuple.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -81,17 +84,56 @@ BoundingBox MeshManager<Mesh>::globalBoundingBox()
 {
     Teuchos::Array<BoundingBox> block_boxes( d_mesh_blocks.size() );
     BlockIterator block_iterator;
+    int block_id;
     for ( block_iterator = d_mesh_blocks.begin();
 	  block_iterator != d_mesh_blocks.end();
 	  ++block_iterator )
     {
-	int block_id = std::distance( d_mesh_blocks.begin(), block_iterator );
+	block_id = std::distance( blocksBegin(), block_iterator );
 	block_boxes[ block_id ] =
 	    MeshTools<Mesh>::globalBoundingBox( *block_iterator, d_comm );
     }
 
-    double global_x_min, global_y_min, global_z_min;
-    double global_x_max, global_y_max, global_z_max;
+    double global_x_min = Teuchos::ScalarTraits<double>::rmax();
+    double global_y_min = Teuchos::ScalarTraits<double>::rmax();
+    double global_z_min = Teuchos::ScalarTraits<double>::rmax();;
+    double global_x_max = -Teuchos::ScalarTraits<double>::rmax();
+    double global_y_max = -Teuchos::ScalarTraits<double>::rmax();
+    double global_z_max = -Teuchos::ScalarTraits<double>::rmax();
+
+    Teuchos::Tuple<double,6> box_bounds;
+    Teuchos::Array<BoundingBox>::const_iterator box_iterator;
+    for ( box_iterator = block_boxes.begin();
+	  box_iterator != block_boxes.end();
+	  ++box_iterator )
+    {
+	box_bounds = box_iterator->getBounds();
+
+	if ( box_bounds[0] < global_x_min )
+	{
+	    global_x_min = box_bounds[0];
+	}
+	if ( box_bounds[1] < global_y_min )
+	{
+	    global_y_min = box_bounds[1];
+	}
+	if ( box_bounds[2] < global_z_min )
+	{
+	    global_z_min = box_bounds[2];
+	}
+	if ( box_bounds[3] > global_x_max )
+	{
+	    global_x_max = box_bounds[3];
+	}
+	if ( box_bounds[4] > global_y_max )
+	{
+	    global_y_max = box_bounds[4];
+	}
+	if ( box_bounds[5] > global_z_max )
+	{
+	    global_z_max = box_bounds[5];
+	}
+    }
 
     return BoundingBox( global_x_min, global_y_min, global_z_min,
 			global_x_max, global_y_max, global_z_max );
