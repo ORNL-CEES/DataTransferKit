@@ -1,6 +1,13 @@
 INCLUDE(TribitsAddExecutableAndTest)
 INCLUDE(TribitsAddAdvancedTest)
 
+# TRIBITS_ADD_EXECUTABLE_AND_TEST(
+#   FieldTools_test
+#   SOURCES tstFieldTools.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+#   COMM mpi
+#   STANDARD_PASS_OUTPUT
+#   )
+
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ConsistentEvaluation_test1
   SOURCES tstConsistentEvaluation1.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}

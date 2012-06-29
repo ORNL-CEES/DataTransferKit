@@ -94,15 +94,16 @@ void ConsistentEvaluation<Mesh,CoordinateField>::setup(
 	coordinate_field, d_comm );
 
     // Intersect the boxes to get the rendezvous bounding box.
-    BoundingBox rendezvous_box;
-    bool has_intersect = 
-	BoundingBox::intersectBoxes( mesh_box, coord_box, rendezvous_box );
-    if ( !has_intersect )
-    {
-	throw MeshException( 
-	    "Mesh and coordinate field domains do not intersect." );
-    }
-
+    // BoundingBox rendezvous_box;
+    // bool has_intersect = 
+    // 	BoundingBox::intersectBoxes( mesh_box, coord_box, rendezvous_box );
+    // if ( !has_intersect )
+    // {
+    // 	throw MeshException( 
+    // 	    "Mesh and coordinate field domains do not intersect." );
+    // }
+    BoundingBox rendezvous_box = mesh_box;
+    
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, rendezvous_box );
     rendezvous.build( mesh_manager );
@@ -187,15 +188,21 @@ void ConsistentEvaluation<Mesh,CoordinateField>::setup(
 	Tpetra::createNonContigMap<GlobalOrdinal>( 
 	    rendezvous_elem_set_view, d_comm );
 
+    // The block strategy means that we have to make a temporary copy of the
+    // element handles so that we can make a Tpetra::Map.
     Teuchos::Array<GlobalOrdinal> 
 	mesh_elements( mesh_manager->localNumElements() );
+    GlobalOrdinal start = 0;
     BlockIterator block_iterator;
     for ( block_iterator = mesh_manager->blocksBegin();
 	  block_iterator != mesh_manager->blocksEnd();
 	  ++block_iterator )
     {
 	Teuchos::ArrayRCP<const GlobalOrdinal> mesh_element_arcp =
-	    MeshTools<Mesh>::elementsView( mesh );
+	    MeshTools<Mesh>::elementsView( *block_iterator );
+	std::copy( mesh_element_arcp.begin(), mesh_element_arcp.end(),
+		   mesh_elements.begin() + start );
+	start += mesh_element_arcp.size();
     }
 
     Teuchos::ArrayView<const GlobalOrdinal> mesh_element_view = 
@@ -383,4 +390,3 @@ ConsistentEvaluation<Mesh,CoordinateField>::computePointOrdinals(
 //---------------------------------------------------------------------------//
 // end DTK_ConsistentEvaluation_def.hpp
 //---------------------------------------------------------------------------//
-

@@ -203,9 +203,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager,
 	// ordinal location. This will give us logarithmic time access to
 	// connectivity. I should write a more general hash table to improve this
 	// access time as I'm using this strategy for most mesh operations.
-	GlobalOrdinal num_nodes = 
-	    std::distance( MT::nodesBegin( *block_iterator ),
-			   MT::nodesEnd( *block_iterator ) );
+	GlobalOrdinal num_nodes = MeshTools<Mesh>::numNodes( *block_iterator );
 	std::map<GlobalOrdinal,GlobalOrdinal> node_indices;
 	typename MT::const_node_iterator node_iterator;
 	GlobalOrdinal m = 0;
@@ -238,8 +236,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager,
 	// For those nodes that are in the box, get the elements that they
 	// construct. These elements are in the box.
 	GlobalOrdinal num_elements = 
-	    std::distance( MT::elementsBegin( *block_iterator ),
-			   MT::elementsEnd( *block_iterator ) );
+	    MeshTools<Mesh>::numElements( *block_iterator );
 	std::size_t nodes_per_element = MT::nodesPerElement( *block_iterator );
 	GlobalOrdinal node_index;
 	GlobalOrdinal node_ordinal;
@@ -314,10 +311,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 				  rendezvous_nodes, rendezvous_elements );
 
 	// Setup export node map.
-	GlobalOrdinal num_nodes =
-	    std::distance( MT::nodesBegin( *block_iterator ), 
-			   MT::nodesEnd( *block_iterator ) );
-
+	GlobalOrdinal num_nodes = MeshTools<Mesh>::numNodes( *block_iterator );
 	Teuchos::ArrayRCP<const GlobalOrdinal> export_node_arcp =
 	    MeshTools<Mesh>::nodesView( *block_iterator );
 	Teuchos::ArrayView<const GlobalOrdinal> export_node_view =
@@ -337,8 +331,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 
 	// Setup export element map.
 	GlobalOrdinal num_elements = 
-	    std::distance( MT::elementsBegin( *block_iterator ), 
-			   MT::elementsEnd( *block_iterator ) );
+	    MeshTools<Mesh>::numElements( *block_iterator );
 	Teuchos::ArrayRCP<const GlobalOrdinal> export_element_arcp =
 	    MeshTools<Mesh>::elementsView( *block_iterator );
 	Teuchos::ArrayView<const GlobalOrdinal> export_element_view =
@@ -479,10 +472,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // box. The element will need to be sent to each partition that its
     // connecting nodes exist in. We'll make a unique destination proc set for
     // each element.
-    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
-					     MT::nodesEnd( mesh ) );
-    GlobalOrdinal num_elements = std::distance( MT::elementsBegin( mesh ),
-						MT::elementsEnd( mesh ) );
+    GlobalOrdinal num_nodes = MeshTools<Mesh>::numNodes( mesh );
+    GlobalOrdinal num_elements = MeshTools<Mesh>::numElements( mesh );
     Teuchos::Array< std::set<int> > export_element_procs_set( num_elements );
     std::size_t nodes_per_element = MT::nodesPerElement( mesh );
     GlobalOrdinal node_index;

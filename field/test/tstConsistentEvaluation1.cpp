@@ -18,6 +18,7 @@
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
+#include <DTK_MeshManager.hpp>
 
 #include <mpi.h>
 
@@ -438,14 +439,17 @@ TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test )
     if ( my_size == 4 )
     {
 	// Setup source mesh.
-	MyMesh source_mesh = buildMyMesh();
+	Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+	mesh_blocks[0] = buildMyMesh();
+	Teuchos::RCP< MeshManager<MyMesh> > mesh_manager = Teuchos::rcp( 
+	    new MeshManager<MyMesh>( mesh_blocks, comm, 2 ) );
 
 	// Setup target coordinate field.
 	MyField target_coords = buildCoordinateField();
 
 	// Create field evaluator.
 	Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > my_evaluator = 
-	    Teuchos::rcp( new MyEvaluator( source_mesh, comm ) );
+	    Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
 
 	// Create data target.
 	MyField my_target( target_coords.size() / target_coords.dim(), 1 );
@@ -453,7 +457,7 @@ TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test )
 	// Setup and apply the evaluation to the field.
 	ConsistentEvaluation<MyMesh,MyField> 
 	    consistent_evaluation( comm );
-	consistent_evaluation.setup( source_mesh, target_coords );
+	consistent_evaluation.setup( mesh_manager, target_coords );
 	consistent_evaluation.apply( my_evaluator, my_target );
 
 	// Check the data transfer.

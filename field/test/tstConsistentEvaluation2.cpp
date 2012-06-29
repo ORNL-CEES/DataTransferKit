@@ -443,7 +443,10 @@ TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test2 )
 
     // Setup source mesh.
     int edge_size = 4;
-    MyMesh source_mesh = buildMyMesh( my_rank, my_size, edge_size );
+    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
+    Teuchos::RCP< MeshManager<MyMesh> > mesh_manager = Teuchos::rcp( 
+	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
     // Setup target coordinate field.
     int num_points = (edge_size-1)*(edge_size-1);
@@ -452,7 +455,7 @@ TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test2 )
 
     // Create field evaluator.
     Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > my_evaluator = 
-    	Teuchos::rcp( new MyEvaluator( source_mesh, comm ) );
+    	Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
 
     // Create data target. This target is a 3-vector.
     MyField::size_type target_size = 
@@ -462,8 +465,8 @@ TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test2 )
     // Setup and apply the consistent evaluation mapping.
     typedef ConsistentEvaluation<MyMesh,MyField> MapType;
     Teuchos::RCP<MapType> consistent_evaluation = 
-    	Teuchos::rcp( new MapType( comm ) );
-    consistent_evaluation->setup( source_mesh, target_coords );
+ 	Teuchos::rcp( new MapType( comm ) );
+    consistent_evaluation->setup( mesh_manager, target_coords );
     consistent_evaluation->apply( my_evaluator, my_target );
 
     // Check the data transfer. Each target point should have been assigned
@@ -474,8 +477,10 @@ TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test2 )
     {
 	source_rank = std::floor(target_coords.getData()[n] / (edge_size-1));
 	TEST_ASSERT( source_rank+1 == my_target.getData()[n] );
-	TEST_ASSERT( source_rank+1 == my_target.getData()[n + target_dim_size] );
-	TEST_ASSERT( source_rank+1 == my_target.getData()[n + 2*target_dim_size] );
+	TEST_ASSERT( source_rank+1 == 
+		     my_target.getData()[n + target_dim_size] );
+	TEST_ASSERT( source_rank+1 == 
+		     my_target.getData()[n + 2*target_dim_size] );
     }
 }
 

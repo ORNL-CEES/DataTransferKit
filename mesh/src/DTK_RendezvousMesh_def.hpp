@@ -113,9 +113,7 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
     {
 	// Check the nodes and coordinates for consistency.
 	std::size_t node_dim = MT::nodeDim( *block_iterator );
-	GlobalOrdinal num_nodes = 
-	    std::distance( MT::nodesBegin( *block_iterator ), 
-			   MT::nodesEnd( *block_iterator ) );
+	GlobalOrdinal num_nodes = MeshTools<Mesh>::numNodes( *block_iterator );
 	GlobalOrdinal num_coords = 
 	    std::distance( MT::coordsBegin( *block_iterator ),
 			   MT::coordsEnd( *block_iterator ) );
@@ -154,8 +152,7 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	int nodes_per_element = 
 	    MT::nodesPerElement( *block_iterator );
 	GlobalOrdinal num_elements = 
-	    std::distance( MT::elementsBegin( *block_iterator ),
-			   MT::elementsEnd( *block_iterator ) );
+	    MeshTools<Mesh>::numElements( *block_iterator );
 	GlobalOrdinal num_connect = 
 	    std::distance( MT::connectivityBegin( *block_iterator ),
 			   MT::connectivityEnd( *block_iterator ) );

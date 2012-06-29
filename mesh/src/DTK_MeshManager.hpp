@@ -59,7 +59,6 @@ namespace DataTransferKit
  *
  * The mesh manager manages the blocks that construct a mesh and its parallel
  * decomposition.
- * 
  */
 //---------------------------------------------------------------------------//
 template<class Mesh>
