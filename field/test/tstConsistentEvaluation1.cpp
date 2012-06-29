@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstConsistentInterpolation1.cpp
+ * \file tstConsistentEvaluation1.cpp
  * \author Stuart R. Slattery
- * \brief Consistent interpolation unit tests 1.
+ * \brief Consistent evaluation unit tests 1.
  */
 //---------------------------------------------------------------------------//
 
@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_ConsistentInterpolation.hpp>
+#include <DTK_ConsistentEvaluation.hpp>
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
@@ -426,7 +426,7 @@ MyField buildCoordinateField()
 // Unit tests
 //---------------------------------------------------------------------------//
 
-TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test )
+TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test )
 {
     using namespace DataTransferKit;
 
@@ -450,11 +450,11 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test )
 	// Create data target.
 	MyField my_target( target_coords.size() / target_coords.dim(), 1 );
 
-	// Setup and apply the interpolation to the field.
-	ConsistentInterpolation<MyMesh,MyField> 
-	    consistent_interpolation( comm );
-	consistent_interpolation.setup( source_mesh, target_coords );
-	consistent_interpolation.apply( my_evaluator, my_target );
+	// Setup and apply the evaluation to the field.
+	ConsistentEvaluation<MyMesh,MyField> 
+	    consistent_evaluation( comm );
+	consistent_evaluation.setup( source_mesh, target_coords );
+	consistent_evaluation.apply( my_evaluator, my_target );
 
 	// Check the data transfer.
 	for ( int n = 0; n < my_target.size(); ++n )

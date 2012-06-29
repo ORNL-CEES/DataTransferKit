@@ -32,18 +32,19 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_ConsistentInterpolation.hpp
+ * \file DTK_ConsistentEvaluation.hpp
  * \author Stuart R. Slattery
- * \brief Consistent interpolation mapping declaration.
+ * \brief Consistent evaluation mapping declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CONSISTENTINTERPOLATION_HPP
-#define DTK_CONSISTENTINTERPOLATION_HPP
+#ifndef DTK_CONSISTENTEVALUATION_HPP
+#define DTK_CONSISTENTEVALUATION_HPP
 
 #include "DTK_FieldTraits.hpp"
 #include "DTK_FieldEvaluator.hpp"
 #include <DTK_MeshTraits.hpp>
+#include <DTK_MeshManager.hpp>
 #include <DTK_BoundingBox.hpp>
 
 #include <Teuchos_RCP.hpp>
@@ -58,7 +59,7 @@ namespace DataTransferKit
 {
 
 template<class Mesh, class CoordinateField>
-class ConsistentInterpolation
+class ConsistentEvaluation
 {
   public:
 
@@ -67,6 +68,8 @@ class ConsistentInterpolation
     typedef Mesh                                      mesh_type;
     typedef MeshTraits<Mesh>                          MT;
     typedef typename MT::global_ordinal_type          GlobalOrdinal;
+    typedef MeshManager<Mesh>                         MeshManagerType;
+    typedef Teuchos::RCP<MeshManagerType>             RCP_MeshManager;
     typedef CoordinateField                           coord_field_type;
     typedef FieldTraits<CoordinateField>              CFT;
     typedef Teuchos::Comm<int>                        CommType;
@@ -78,18 +81,19 @@ class ConsistentInterpolation
     //!@}
 
     // Constructor.
-    ConsistentInterpolation( const RCP_Comm& comm );
+    ConsistentEvaluation( const RCP_Comm& comm );
 
     // Destructor.
-    ~ConsistentInterpolation();
+    ~ConsistentEvaluation();
 
-    // Setup for interpolation.
-    void setup( const Mesh& mesh, const CoordinateField& coordinate_field );
+    // Setup for evaluation.
+    void setup( const RCP_MeshManager& mesh_manager, 
+		const CoordinateField& coordinate_field );
 
-    // Apply the interpolation.
+    // Apply the evaluation.
     template<class SourceField, class TargetField>
     void apply( const Teuchos::RCP< 
-		    FieldEvaluator<Mesh,SourceField> >& source_evaluator,
+		FieldEvaluator<Mesh,SourceField> >& source_evaluator,
 		TargetField& target_space );
 
   private:
@@ -132,13 +136,13 @@ class ConsistentInterpolation
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_ConsistentInterpolation_def.hpp"
+#include "DTK_ConsistentEvaluation_def.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_CONSISTENTINTERPOLATION_HPP
+#endif // end DTK_CONSISTENTEVALUATION_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_ConsistentInterpolation.hpp
+// end DTK_ConsistentEvaluation.hpp
 //---------------------------------------------------------------------------//
 

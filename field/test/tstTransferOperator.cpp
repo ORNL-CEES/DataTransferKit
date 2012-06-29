@@ -14,7 +14,7 @@
 #include <cassert>
 
 #include <DTK_TransferOperator.hpp>
-#include <DTK_ConsistentInterpolation.hpp>
+#include <DTK_ConsistentEvaluation.hpp>
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
@@ -452,13 +452,13 @@ TEUCHOS_UNIT_TEST( TransferOperator, transfer_operator_test )
 	int target_size = target_coords.size() / target_coords.dim();
 	MyField my_target( target_size, 1 );
 
-	// Setup consistent interpolation mapping.
-	typedef ConsistentInterpolation<MyMesh,MyField> MapType;
-	Teuchos::RCP<MapType> consistent_interpolation = 
+	// Setup consistent evaluation mapping.
+	typedef ConsistentEvaluation<MyMesh,MyField> MapType;
+	Teuchos::RCP<MapType> consistent_evaluation = 
 	    Teuchos::rcp( new MapType( comm ) );
 
 	// Setup and apply the transfer operator to the fields.
-	TransferOperator<MapType> transfer_operator( consistent_interpolation );
+	TransferOperator<MapType> transfer_operator( consistent_evaluation );
 	transfer_operator.setup( source_mesh, target_coords );
 	transfer_operator.apply( my_evaluator, my_target );
 

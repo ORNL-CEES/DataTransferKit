@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstConsistentInterpolation2.cpp
+ * \file tstConsistentEvaluation3.cpp
  * \author Stuart R. Slattery
- * \brief Consistent interpolation unit test 2.
+ * \brief Consistent evaluation unit test 3.
  */
 //---------------------------------------------------------------------------//
 
@@ -15,7 +15,7 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_ConsistentInterpolation.hpp>
+#include <DTK_ConsistentEvaluation.hpp>
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
@@ -133,7 +133,7 @@ class MyField
 
     MyField( size_type size, std::size_t dim )
 	: d_dim( dim )
-	, d_data( dim*size )
+	, d_data( size )
     { /* ... */ }
 
     ~MyField()
@@ -196,6 +196,7 @@ class MeshTraits<MyMesh>
     typedef Teuchos::Array<std::size_t>::const_iterator 
     const_permutation_iterator;
 
+
     static inline std::size_t nodeDim( const MyMesh& mesh )
     { return 3; }
 
@@ -213,10 +214,10 @@ class MeshTraits<MyMesh>
 
 
     static inline std::size_t elementTopology( const MyMesh& mesh )
-    { return DTK_HEXAHEDRON; }
+    { return DTK_TETRAHEDRON; }
 
     static inline std::size_t nodesPerElement( const MyMesh& mesh )
-    { return 8; }
+    { return 4; }
 
 
     static inline const_element_iterator elementsBegin( const MyMesh& mesh )
@@ -276,7 +277,7 @@ class FieldTraits<MyField>
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// FieldEvaluator Implementation. This one populates a 3-vector.
+// FieldEvaluator Implementation.
 class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 {
   public:
@@ -294,7 +295,7 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 	const Teuchos::ArrayRCP<MyMesh::global_ordinal_type>& elements,
 	const Teuchos::ArrayRCP<double>& coords )
     {
-	MyField evaluated_data( elements.size(), 3 );
+	MyField evaluated_data( elements.size(), 1 );
 	for ( int n = 0; n < elements.size(); ++n )
 	{
 	    if ( std::find( d_mesh.elementsBegin(),
@@ -302,16 +303,10 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 			    elements[n] ) != d_mesh.elementsEnd() )
 	    {
 		*(evaluated_data.begin() + n ) = d_comm->getRank() + 1.0;
-		*(evaluated_data.begin() + elements.size() + n ) = 
-		    d_comm->getRank() + 1.0;
-		*(evaluated_data.begin() + 2*elements.size() + n ) = 
-		    d_comm->getRank() + 1.0;
 	    }
 	    else
 	    {
  		*(evaluated_data.begin() + n ) = 0.0;
-		*(evaluated_data.begin() + elements.size() + n ) = 0.0;
-		*(evaluated_data.begin() + 2*elements.size() + n ) = 0.0;
 	    }
 	}
 	return evaluated_data;
@@ -357,53 +352,76 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 	}
     }
     
-    // Make the hexahedrons. 
-    int num_elements = (edge_length-1)*(edge_length-1);
-    Teuchos::Array<long int> hex_handles( num_elements );
-    Teuchos::Array<long int> hex_connectivity( 8*num_elements );
+    // Make the tetrahedrons. 
+    int num_elements = (edge_length-1)*(edge_length-1)*5;
+    Teuchos::Array<long int> tet_handles( num_elements );
+    Teuchos::Array<long int> tet_connectivity( 4*num_elements );
     int elem_idx, node_idx;
+    int v0, v1, v2, v3, v4, v5, v6, v7;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
+	    // Indices.
 	    node_idx = i + j*edge_length;
+	    v0 = node_idx;
+	    v1 = node_idx + 1;
+	    v2 = node_idx + 1 + edge_length;
+	    v3 = node_idx +     edge_length;
+	    v4 = node_idx +                   num_nodes/2;
+	    v5 = node_idx + 1 +               num_nodes/2;
+	    v6 = node_idx + 1 + edge_length + num_nodes/2;
+	    v7 = node_idx +     edge_length + num_nodes/2; 
+
+	    // Tetrahedron 1.
 	    elem_idx = i + j*(edge_length-1);
+	    tet_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    tet_connectivity[elem_idx]                = node_handles[v0];
+	    tet_connectivity[num_elements+elem_idx]   = node_handles[v1];
+	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v3];
+	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v4];
 
-	    hex_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    // Tetrahedron 2.
+	    elem_idx = i + j*(edge_length-1) + num_elements/5;
+	    tet_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    tet_connectivity[elem_idx] 	              = node_handles[v1];
+	    tet_connectivity[num_elements+elem_idx]   = node_handles[v2];
+	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v3];
+	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v6];
 
-	    hex_connectivity[elem_idx] 
-		= node_handles[node_idx];
+	    // Tetrahedron 3.
+	    elem_idx = i + j*(edge_length-1) + 2*num_elements/5;
+	    tet_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    tet_connectivity[elem_idx] 	              = node_handles[v6];
+	    tet_connectivity[num_elements+elem_idx]   = node_handles[v5];
+	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v4];
+	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v1];
 
-	    hex_connectivity[num_elements+elem_idx] 
-		= node_handles[node_idx+1];
+	    // Tetrahedron 4.
+	    elem_idx = i + j*(edge_length-1) + 3*num_elements/5;
+	    tet_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    tet_connectivity[elem_idx]   	      = node_handles[v4];
+	    tet_connectivity[num_elements+elem_idx]   = node_handles[v7];
+	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v6];
+	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v3];
 
-	    hex_connectivity[2*num_elements+elem_idx] 
-		= node_handles[node_idx+edge_length+1];
-
-	    hex_connectivity[3*num_elements+elem_idx] 
-		= node_handles[node_idx+edge_length];
-
-	    hex_connectivity[4*num_elements+elem_idx] 
-		= node_handles[node_idx+num_nodes/2];
-
-	    hex_connectivity[5*num_elements+elem_idx] 
-		= node_handles[node_idx+num_nodes/2+1];
-
- 	    hex_connectivity[6*num_elements+elem_idx] 
-		= node_handles[node_idx+num_nodes/2+edge_length+1];
-
-	    hex_connectivity[7*num_elements+elem_idx] 
-		= node_handles[node_idx+num_nodes/2+edge_length];
+	    // Tetrahedron 5.
+	    elem_idx = i + j*(edge_length-1) + 4*num_elements/5;
+	    tet_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    tet_connectivity[elem_idx] 	              = node_handles[v3];
+	    tet_connectivity[num_elements+elem_idx]   = node_handles[v1];
+	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v6];
+	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v4];
 	}
     }
 
-    Teuchos::Array<std::size_t> permutation_list( 8 );
+    Teuchos::Array<std::size_t> permutation_list( 4 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return MyMesh( node_handles, coords, hex_handles, hex_connectivity,
+    return MyMesh( node_handles, coords, tet_handles, tet_connectivity,
 		   permutation_list );
 }
 
@@ -432,7 +450,7 @@ MyField buildCoordinateField( int my_rank, int my_size,
 //---------------------------------------------------------------------------//
 // Unit test.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test2 )
+TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test3 )
 {
     using namespace DataTransferKit;
 
@@ -454,32 +472,29 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test2 )
     Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > my_evaluator = 
     	Teuchos::rcp( new MyEvaluator( source_mesh, comm ) );
 
-    // Create data target. This target is a 3-vector.
+    // Create data target.
     MyField::size_type target_size = 
 	target_coords.size() / target_coords.dim();
-    MyField my_target( target_size, 3 );
+    MyField my_target( target_size, 1 );
 
-    // Setup and apply the consistent interpolation mapping.
-    typedef ConsistentInterpolation<MyMesh,MyField> MapType;
-    Teuchos::RCP<MapType> consistent_interpolation = 
+    // Setup and apply the consistent evaluation mapping.
+    typedef ConsistentEvaluation<MyMesh,MyField> MapType;
+    Teuchos::RCP<MapType> consistent_evaluation = 
     	Teuchos::rcp( new MapType( comm ) );
-    consistent_interpolation->setup( source_mesh, target_coords );
-    consistent_interpolation->apply( my_evaluator, my_target );
+    consistent_evaluation->setup( source_mesh, target_coords );
+    consistent_evaluation->apply( my_evaluator, my_target );
 
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data.
     int source_rank;
-    long int target_dim_size = my_target.size() / my_target.dim();
-    for ( long int n = 0; n < target_dim_size; ++n )
+    for ( long int n = 0; n < my_target.size(); ++n )
     {
 	source_rank = std::floor(target_coords.getData()[n] / (edge_size-1));
 	TEST_ASSERT( source_rank+1 == my_target.getData()[n] );
-	TEST_ASSERT( source_rank+1 == my_target.getData()[n + target_dim_size] );
-	TEST_ASSERT( source_rank+1 == my_target.getData()[n + 2*target_dim_size] );
     }
 }
 
 //---------------------------------------------------------------------------//
-// end tstConsistentInterpolation2.cpp
+// end tstConsistentEvaluation3.cpp
 //---------------------------------------------------------------------------//
 

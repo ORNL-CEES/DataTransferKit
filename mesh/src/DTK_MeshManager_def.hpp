@@ -42,6 +42,7 @@
 #define DTK_MESHMANAGER_DEF_HPP
 
 #include "DTK_MeshTypes.hpp"
+#include "DTK_MeshTools.hpp"
 #include <DTK_Exception.hpp>
 
 namespace DataTransferKit
@@ -70,6 +71,31 @@ MeshManager<Mesh>::MeshManager( const Teuchos::ArrayRCP<Mesh>& mesh_blocks,
 template<class Mesh>
 MeshManager<Mesh>::~MeshManager()
 { /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!    
+ * \brief Compute the global bounding box around the entire mesh.
+ */
+template<class Mesh>
+BoundingBox MeshManager<Mesh>::globalBoundingBox()
+{
+    Teuchos::Array<BoundingBox> block_boxes( d_mesh_blocks.size() );
+    BlockIterator block_iterator;
+    for ( block_iterator = d_mesh_blocks.begin();
+	  block_iterator != d_mesh_blocks.end();
+	  ++block_iterator )
+    {
+	int block_id = std::distance( d_mesh_blocks.begin(), block_iterator );
+	block_boxes[ block_id ] =
+	    MeshTools<Mesh>::globalBoundingBox( *block_iterator, d_comm );
+    }
+
+    double global_x_min, global_y_min, global_z_min;
+    double global_x_max, global_y_max, global_z_max;
+
+    return BoundingBox( global_x_min, global_y_min, global_z_min,
+			global_x_max, global_y_max, global_z_max );
+}
 
 //---------------------------------------------------------------------------//
 /*!

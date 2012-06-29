@@ -20,8 +20,8 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_ConsistentInterpolation.hpp
-  DTK_ConsistentInterpolation_def.hpp
+  DTK_ConsistentEvaluation.hpp
+  DTK_ConsistentEvaluation_def.hpp
   DTK_FieldEvaluator.hpp	
   DTK_FieldTraits.hpp
   DTK_FieldVersion.hpp

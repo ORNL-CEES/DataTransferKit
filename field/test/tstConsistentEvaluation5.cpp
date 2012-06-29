@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstConsistentInterpolation3.cpp
+ * \file tstConsistentEvaluation5.cpp
  * \author Stuart R. Slattery
- * \brief Consistent interpolation unit test 3.
+ * \brief Consistent evaluation unit test 5.
  */
 //---------------------------------------------------------------------------//
 
@@ -15,7 +15,7 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_ConsistentInterpolation.hpp>
+#include <DTK_ConsistentEvaluation.hpp>
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
@@ -198,7 +198,7 @@ class MeshTraits<MyMesh>
 
 
     static inline std::size_t nodeDim( const MyMesh& mesh )
-    { return 3; }
+    { return 2; }
 
     static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
@@ -214,10 +214,10 @@ class MeshTraits<MyMesh>
 
 
     static inline std::size_t elementTopology( const MyMesh& mesh )
-    { return DTK_TETRAHEDRON; }
+    { return DTK_TRIANGLE; }
 
     static inline std::size_t nodesPerElement( const MyMesh& mesh )
-    { return 4; }
+    { return 3; }
 
 
     static inline const_element_iterator elementsBegin( const MyMesh& mesh )
@@ -324,8 +324,8 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 {
     // Make some nodes.
-    int num_nodes = edge_length*edge_length*2;
-    int node_dim = 3;
+    int num_nodes = edge_length*edge_length;
+    int node_dim = 2;
     Teuchos::Array<long int> node_handles( num_nodes );
     Teuchos::Array<double> coords( node_dim*num_nodes );
     int idx;
@@ -337,91 +337,45 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
 	    coords[ num_nodes + idx ] = j;
-	    coords[ 2*num_nodes + idx ] = 0.0;
-	}
-    }
-    for ( int j = 0; j < edge_length; ++j )
-    {
-	for ( int i = 0; i < edge_length; ++i )
-	{
-	    idx = i + j*edge_length + num_nodes / 2;
-	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
-	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
-	    coords[ 2*num_nodes + idx ] = 1.0;
 	}
     }
     
-    // Make the tetrahedrons. 
-    int num_elements = (edge_length-1)*(edge_length-1)*5;
-    Teuchos::Array<long int> tet_handles( num_elements );
-    Teuchos::Array<long int> tet_connectivity( 4*num_elements );
+    // Make the triangles.
+    int num_elements = (edge_length-1)*(edge_length-1)*2;
+    Teuchos::Array<long int> tri_handles( num_elements );
+    Teuchos::Array<long int> tri_connectivity( 3*num_elements );
     int elem_idx, node_idx;
-    int v0, v1, v2, v3, v4, v5, v6, v7;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
-	    // Indices.
 	    node_idx = i + j*edge_length;
-	    v0 = node_idx;
-	    v1 = node_idx + 1;
-	    v2 = node_idx + 1 + edge_length;
-	    v3 = node_idx +     edge_length;
-	    v4 = node_idx +                   num_nodes/2;
-	    v5 = node_idx + 1 +               num_nodes/2;
-	    v6 = node_idx + 1 + edge_length + num_nodes/2;
-	    v7 = node_idx +     edge_length + num_nodes/2; 
 
-	    // Tetrahedron 1.
+	    // Triangle 1.
 	    elem_idx = i + j*(edge_length-1);
-	    tet_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    tet_connectivity[elem_idx]                = node_handles[v0];
-	    tet_connectivity[num_elements+elem_idx]   = node_handles[v1];
-	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v3];
-	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v4];
+	    tri_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    tri_connectivity[elem_idx] = node_handles[node_idx];
+	    tri_connectivity[num_elements+elem_idx] = node_handles[node_idx+1];
+	    tri_connectivity[2*num_elements+elem_idx] 
+		= node_handles[node_idx+edge_length+1];
 
-	    // Tetrahedron 2.
-	    elem_idx = i + j*(edge_length-1) + num_elements/5;
-	    tet_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    tet_connectivity[elem_idx] 	              = node_handles[v1];
-	    tet_connectivity[num_elements+elem_idx]   = node_handles[v2];
-	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v3];
-	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v6];
-
-	    // Tetrahedron 3.
-	    elem_idx = i + j*(edge_length-1) + 2*num_elements/5;
-	    tet_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    tet_connectivity[elem_idx] 	              = node_handles[v6];
-	    tet_connectivity[num_elements+elem_idx]   = node_handles[v5];
-	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v4];
-	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v1];
-
-	    // Tetrahedron 4.
-	    elem_idx = i + j*(edge_length-1) + 3*num_elements/5;
-	    tet_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    tet_connectivity[elem_idx]   	      = node_handles[v4];
-	    tet_connectivity[num_elements+elem_idx]   = node_handles[v7];
-	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v6];
-	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v3];
-
-	    // Tetrahedron 5.
-	    elem_idx = i + j*(edge_length-1) + 4*num_elements/5;
-	    tet_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    tet_connectivity[elem_idx] 	              = node_handles[v3];
-	    tet_connectivity[num_elements+elem_idx]   = node_handles[v1];
-	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v6];
-	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v4];
+	    // Triangle 2.
+	    elem_idx = i + j*(edge_length-1) + num_elements/2;
+	    tri_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    tri_connectivity[elem_idx] = node_handles[node_idx+edge_length+1];
+	    tri_connectivity[num_elements+elem_idx] = 
+		node_handles[node_idx+edge_length];
+	    tri_connectivity[2*num_elements+elem_idx] = node_handles[node_idx];
 	}
     }
 
-    Teuchos::Array<std::size_t> permutation_list( 4 );
+    Teuchos::Array<std::size_t> permutation_list( 3 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return MyMesh( node_handles, coords, tet_handles, tet_connectivity,
+    return MyMesh( node_handles, coords, tri_handles, tri_connectivity,
 		   permutation_list );
 }
 
@@ -432,7 +386,7 @@ MyField buildCoordinateField( int my_rank, int my_size,
 			      int num_points, int edge_size )
 {
     std::srand( my_rank*num_points*2 );
-    int point_dim = 3;
+    int point_dim = 2;
     MyField coordinate_field( num_points*point_dim, point_dim );
 
     for ( int i = 0; i < num_points; ++i )
@@ -441,7 +395,6 @@ MyField buildCoordinateField( int my_rank, int my_size,
 	    my_size * (edge_size-1) * (double) std::rand() / RAND_MAX;
 	*(coordinate_field.begin() + num_points + i ) = 
 	    (edge_size-1) * (double) std::rand() / RAND_MAX;
-	*(coordinate_field.begin() + 2*num_points + i ) = 0.5;
     }
 
     return coordinate_field;
@@ -450,7 +403,7 @@ MyField buildCoordinateField( int my_rank, int my_size,
 //---------------------------------------------------------------------------//
 // Unit test.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test3 )
+TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test5 )
 {
     using namespace DataTransferKit;
 
@@ -477,12 +430,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test3 )
 	target_coords.size() / target_coords.dim();
     MyField my_target( target_size, 1 );
 
-    // Setup and apply the consistent interpolation mapping.
-    typedef ConsistentInterpolation<MyMesh,MyField> MapType;
-    Teuchos::RCP<MapType> consistent_interpolation = 
+    // Setup and apply the consistent evaluation mapping.
+    typedef ConsistentEvaluation<MyMesh,MyField> MapType;
+    Teuchos::RCP<MapType> consistent_evaluation = 
     	Teuchos::rcp( new MapType( comm ) );
-    consistent_interpolation->setup( source_mesh, target_coords );
-    consistent_interpolation->apply( my_evaluator, my_target );
+    consistent_evaluation->setup( source_mesh, target_coords );
+    consistent_evaluation->apply( my_evaluator, my_target );
 
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data.
@@ -495,6 +448,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test3 )
 }
 
 //---------------------------------------------------------------------------//
-// end tstConsistentInterpolation3.cpp
+// end tstConsistentEvaluation5.cpp
 //---------------------------------------------------------------------------//
 

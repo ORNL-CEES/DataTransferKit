@@ -42,6 +42,7 @@
 #define DTK_MESHMANAGER_HPP
 
 #include "DTK_MeshTraits.hpp"
+#include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -120,6 +121,9 @@ class MeshManager
     // Get the active elements for a block.
     Teuchos::ArrayView<short int> getActiveElements( const int block_id )
     { return d_active_elements[ block_id ](); }
+
+    // Compute the global bounding box around the entire mesh.
+    BoundingBox globalBoundingBox();
 
   private:
 

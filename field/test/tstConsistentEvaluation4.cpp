@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstConsistentInterpolation5.cpp
+ * \file tstConsistentEvaluation4.cpp
  * \author Stuart R. Slattery
- * \brief Consistent interpolation unit test 5.
+ * \brief Consistent evaluation unit test 4.
  */
 //---------------------------------------------------------------------------//
 
@@ -15,7 +15,7 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_ConsistentInterpolation.hpp>
+#include <DTK_ConsistentEvaluation.hpp>
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
@@ -108,7 +108,6 @@ class MyMesh
 
     Teuchos::Array<std::size_t>::const_iterator permutationEnd() const
     { return d_permutation_list.end(); }
-
 
   private:
 
@@ -214,10 +213,10 @@ class MeshTraits<MyMesh>
 
 
     static inline std::size_t elementTopology( const MyMesh& mesh )
-    { return DTK_TRIANGLE; }
+    { return DTK_QUADRILATERAL; }
 
     static inline std::size_t nodesPerElement( const MyMesh& mesh )
-    { return 3; }
+    { return 4; }
 
 
     static inline const_element_iterator elementsBegin( const MyMesh& mesh )
@@ -340,42 +339,41 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 	}
     }
     
-    // Make the triangles.
-    int num_elements = (edge_length-1)*(edge_length-1)*2;
-    Teuchos::Array<long int> tri_handles( num_elements );
-    Teuchos::Array<long int> tri_connectivity( 3*num_elements );
+    // Make the quadrilaterals. 
+    int num_elements = (edge_length-1)*(edge_length-1);
+    Teuchos::Array<long int> quad_handles( num_elements );
+    Teuchos::Array<long int> quad_connectivity( 4*num_elements );
     int elem_idx, node_idx;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
 	    node_idx = i + j*edge_length;
-
-	    // Triangle 1.
 	    elem_idx = i + j*(edge_length-1);
-	    tri_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    tri_connectivity[elem_idx] = node_handles[node_idx];
-	    tri_connectivity[num_elements+elem_idx] = node_handles[node_idx+1];
-	    tri_connectivity[2*num_elements+elem_idx] 
+
+	    quad_handles[elem_idx] = num_elements*my_rank + elem_idx;
+
+	    quad_connectivity[elem_idx] 
+		= node_handles[node_idx];
+
+	    quad_connectivity[num_elements+elem_idx] 
+		= node_handles[node_idx+1];
+
+	    quad_connectivity[2*num_elements+elem_idx] 
 		= node_handles[node_idx+edge_length+1];
 
-	    // Triangle 2.
-	    elem_idx = i + j*(edge_length-1) + num_elements/2;
-	    tri_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    tri_connectivity[elem_idx] = node_handles[node_idx+edge_length+1];
-	    tri_connectivity[num_elements+elem_idx] = 
-		node_handles[node_idx+edge_length];
-	    tri_connectivity[2*num_elements+elem_idx] = node_handles[node_idx];
+	    quad_connectivity[3*num_elements+elem_idx] 
+		= node_handles[node_idx+edge_length];
 	}
     }
 
-    Teuchos::Array<std::size_t> permutation_list( 3 );
+    Teuchos::Array<std::size_t> permutation_list( 4 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return MyMesh( node_handles, coords, tri_handles, tri_connectivity,
+    return MyMesh( node_handles, coords, quad_handles, quad_connectivity,
 		   permutation_list );
 }
 
@@ -403,7 +401,7 @@ MyField buildCoordinateField( int my_rank, int my_size,
 //---------------------------------------------------------------------------//
 // Unit test.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test5 )
+TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test4 )
 {
     using namespace DataTransferKit;
 
@@ -430,12 +428,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test5 )
 	target_coords.size() / target_coords.dim();
     MyField my_target( target_size, 1 );
 
-    // Setup and apply the consistent interpolation mapping.
-    typedef ConsistentInterpolation<MyMesh,MyField> MapType;
-    Teuchos::RCP<MapType> consistent_interpolation = 
+    // Setup and apply the consistent evaluation mapping.
+    typedef ConsistentEvaluation<MyMesh,MyField> MapType;
+    Teuchos::RCP<MapType> consistent_evaluation = 
     	Teuchos::rcp( new MapType( comm ) );
-    consistent_interpolation->setup( source_mesh, target_coords );
-    consistent_interpolation->apply( my_evaluator, my_target );
+    consistent_evaluation->setup( source_mesh, target_coords );
+    consistent_evaluation->apply( my_evaluator, my_target );
 
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data.
@@ -448,6 +446,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test5 )
 }
 
 //---------------------------------------------------------------------------//
-// end tstConsistentInterpolation5.cpp
+// end tstConsistentEvaluation4.cpp
 //---------------------------------------------------------------------------//
 

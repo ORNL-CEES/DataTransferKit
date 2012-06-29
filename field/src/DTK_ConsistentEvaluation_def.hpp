@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_ConsistentInterpolation.hpp
+ * \file DTK_ConsistentEvaluation.hpp
  * \author Stuart R. Slattery
- * \brief Consistent interpolation mapping declaration.
+ * \brief Consistent evaluation mapping declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CONSISTENTINTERPOLATION_DEF_HPP
-#define DTK_CONSISTENTINTERPOLATION_DEF_HPP
+#ifndef DTK_CONSISTENTEVALUATION_DEF_HPP
+#define DTK_CONSISTENTEVALUATION_DEF_HPP
 
 #include <algorithm>
 #include <set>
@@ -64,7 +64,7 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<class Mesh, class CoordinateField>
-ConsistentInterpolation<Mesh,CoordinateField>::ConsistentInterpolation( 
+ConsistentEvaluation<Mesh,CoordinateField>::ConsistentEvaluation( 
     const RCP_Comm& comm )
     : d_comm( comm )
 { /* ... */ }
@@ -74,15 +74,15 @@ ConsistentInterpolation<Mesh,CoordinateField>::ConsistentInterpolation(
  * \brief Destructor.
  */
 template<class Mesh, class CoordinateField>
-ConsistentInterpolation<Mesh,CoordinateField>::~ConsistentInterpolation()
+ConsistentEvaluation<Mesh,CoordinateField>::~ConsistentEvaluation()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Setup for interpolation.
+ * \brief Setup for evaluation.
  */
 template<class Mesh, class CoordinateField>
-void ConsistentInterpolation<Mesh,CoordinateField>::setup( 
+void ConsistentEvaluation<Mesh,CoordinateField>::setup( 
     const Mesh& mesh, const CoordinateField& coordinate_field )
 {
     // Get the global bounding box for the mesh.
@@ -263,11 +263,11 @@ void ConsistentInterpolation<Mesh,CoordinateField>::setup(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Apply the interpolation.
+ * \brief Apply the evaluation.
  */
 template<class Mesh, class CoordinateField>
 template<class SourceField, class TargetField>
-void ConsistentInterpolation<Mesh,CoordinateField>::apply( 
+void ConsistentEvaluation<Mesh,CoordinateField>::apply( 
     const Teuchos::RCP< FieldEvaluator<Mesh,SourceField> >& source_evaluator,
     TargetField& target_space )
 {
@@ -331,7 +331,7 @@ void ConsistentInterpolation<Mesh,CoordinateField>::apply(
  * \brief Build the bounding box for the rendezvous decomposition.
  */
 template<class Mesh, class CoordinateField>
-BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
+BoundingBox ConsistentEvaluation<Mesh,CoordinateField>::buildRendezvousBox(
     const Mesh& mesh, const BoundingBox& mesh_box,
     const CoordinateField& coordinate_field, const BoundingBox& coord_box )
 {
@@ -473,8 +473,8 @@ BoundingBox ConsistentInterpolation<Mesh,CoordinateField>::buildRendezvousBox(
  */
 template<class Mesh, class CoordinateField>
 Teuchos::Array<
-    typename ConsistentInterpolation<Mesh,CoordinateField>::GlobalOrdinal>
-ConsistentInterpolation<Mesh,CoordinateField>::computePointOrdinals(
+    typename ConsistentEvaluation<Mesh,CoordinateField>::GlobalOrdinal>
+ConsistentEvaluation<Mesh,CoordinateField>::computePointOrdinals(
     const CoordinateField& coordinate_field )
 {
     int comm_rank = d_comm->getRank();
@@ -502,9 +502,9 @@ ConsistentInterpolation<Mesh,CoordinateField>::computePointOrdinals(
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_CONSISTENTINTERPOLATION_DEF_HPP
+#endif // end DTK_CONSISTENTEVALUATION_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_ConsistentInterpolation_def.hpp
+// end DTK_ConsistentEvaluation_def.hpp
 //---------------------------------------------------------------------------//
 

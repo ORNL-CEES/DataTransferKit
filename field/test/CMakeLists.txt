@@ -2,43 +2,43 @@ INCLUDE(TribitsAddExecutableAndTest)
 INCLUDE(TribitsAddAdvancedTest)
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  ConsistentInterpolation_test1
-  SOURCES tstConsistentInterpolation1.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  ConsistentEvaluation_test1
+  SOURCES tstConsistentEvaluation1.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  ConsistentInterpolation_test2
-  SOURCES tstConsistentInterpolation2.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  ConsistentEvaluation_test2
+  SOURCES tstConsistentEvaluation2.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  ConsistentInterpolation_test3
-  SOURCES tstConsistentInterpolation3.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  ConsistentEvaluation_test3
+  SOURCES tstConsistentEvaluation3.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  ConsistentInterpolation_test4
-  SOURCES tstConsistentInterpolation4.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  ConsistentEvaluation_test4
+  SOURCES tstConsistentEvaluation4.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  ConsistentInterpolation_test5
-  SOURCES tstConsistentInterpolation5.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  ConsistentEvaluation_test5
+  SOURCES tstConsistentEvaluation5.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  ConsistentInterpolation_test6
-  SOURCES tstConsistentInterpolation6.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  ConsistentEvaluation_test6
+  SOURCES tstConsistentEvaluation6.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM mpi
   STANDARD_PASS_OUTPUT
   )

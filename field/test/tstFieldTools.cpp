@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstConsistentInterpolation2.cpp
+ * \file tstConsistentEvaluation2.cpp
  * \author Stuart R. Slattery
- * \brief Consistent interpolation unit test 2.
+ * \brief Consistent evaluation unit test 2.
  */
 //---------------------------------------------------------------------------//
 
@@ -15,7 +15,7 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_ConsistentInterpolation.hpp>
+#include <DTK_ConsistentEvaluation.hpp>
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
@@ -401,7 +401,7 @@ MyField buildCoordinateField( int my_rank, int my_size,
 //---------------------------------------------------------------------------//
 // Unit test.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test2 )
+TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test2 )
 {
     using namespace DataTransferKit;
 
@@ -428,12 +428,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test2 )
 	target_coords.size() / target_coords.dim();
     MyField my_target( target_size, 1 );
 
-    // Setup and apply the consistent interpolation mapping.
-    typedef ConsistentInterpolation<MyMesh,MyField> MapType;
-    Teuchos::RCP<MapType> consistent_interpolation = 
+    // Setup and apply the consistent evaluation mapping.
+    typedef ConsistentEvaluation<MyMesh,MyField> MapType;
+    Teuchos::RCP<MapType> consistent_evaluation = 
     	Teuchos::rcp( new MapType( comm ) );
-    consistent_interpolation->setup( source_mesh, target_coords );
-    consistent_interpolation->apply( my_evaluator, my_target );
+    consistent_evaluation->setup( source_mesh, target_coords );
+    consistent_evaluation->apply( my_evaluator, my_target );
 
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data.
@@ -446,6 +446,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolation, consistent_interpolation_test2 )
 }
 
 //---------------------------------------------------------------------------//
-// end tstConsistentInterpolation2.cpp
+// end tstConsistentEvaluation2.cpp
 //---------------------------------------------------------------------------//
 
