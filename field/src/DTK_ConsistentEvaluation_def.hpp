@@ -83,19 +83,25 @@ ConsistentEvaluation<Mesh,CoordinateField>::~ConsistentEvaluation()
  */
 template<class Mesh, class CoordinateField>
 void ConsistentEvaluation<Mesh,CoordinateField>::setup( 
-    const Mesh& mesh, const CoordinateField& coordinate_field )
+    const RCP_MeshManager& mesh_manager, 
+    const CoordinateField& coordinate_field )
 {
     // Get the global bounding box for the mesh.
-    BoundingBox mesh_box = MeshTools<Mesh>::globalBoundingBox( mesh, d_comm );
+    BoundingBox mesh_box = mesh_manager->globalBoundingBox();
 
     // Get the global bounding box for the coordinate field.
-    BoundingBox coord_box = 
-	FieldTools<CoordinateField>::coordGlobalBoundingBox(
-	    coordinate_field, d_comm );
+    BoundingBox coord_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
+	coordinate_field, d_comm );
 
     // Intersect the boxes to get the rendezvous bounding box.
-    BoundingBox rendezvous_box = buildRendezvousBox( 
-	mesh, mesh_box, coordinate_field, coord_box );
+    BoundingBox rendezvous_box;
+    bool has_intersect = 
+	BoundingBox::intersectBoxes( mesh_box, coord_box, rendezvous_box );
+    if ( !has_intersect )
+    {
+	throw MeshException( 
+	    "Mesh and coordinate field domains do not intersect." );
+    }
 
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, rendezvous_box );
@@ -324,146 +330,6 @@ void ConsistentEvaluation<Mesh,CoordinateField>::apply(
 				   TFT::dim( target_space ) );
 
     target_vector->doExport( *source_vector, *d_data_export, Tpetra::INSERT );
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Build the bounding box for the rendezvous decomposition.
- */
-template<class Mesh, class CoordinateField>
-BoundingBox ConsistentEvaluation<Mesh,CoordinateField>::buildRendezvousBox(
-    const Mesh& mesh, const BoundingBox& mesh_box,
-    const CoordinateField& coordinate_field, const BoundingBox& coord_box )
-{
-    std::set<double> x_values, y_values, z_values;
-    
-    // Get the coords in the mesh box.
-    std::size_t point_dim = CFT::dim( coordinate_field );
-    typename CFT::size_type num_points = 
-	std::distance( CFT::begin( coordinate_field ),
-		       CFT::end( coordinate_field ) ) / point_dim;
-    Teuchos::ArrayRCP<const typename CFT::value_type> point_coords = 
-	FieldTools<CoordinateField>::view( coordinate_field );
-    double point[3];
-    for ( typename CFT::size_type n = 0; n < num_points; ++n )
-    {
-	for ( std::size_t d = 0; d < point_dim; ++d )
-	{
-	    point[d] = point_coords[d*num_points + n];
-	}
-	for ( std::size_t d = point_dim; d < 3; ++d )
-	{
-	    point[d] = 0.0;
-	}
-
-	if ( mesh_box.pointInBox( point ) )
-	{
-	    x_values.insert( point[0] );
-	    y_values.insert( point[1] );
-	    z_values.insert( point[2] );
-	}
-    }
-
-    // Get the mesh nodes in the coord box.
-    std::size_t node_dim = MT::nodeDim( mesh );
-    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ), 
-					     MT::nodesEnd( mesh ) ) / node_dim;
-    Teuchos::ArrayRCP<const double> node_coords =
-	MeshTools<Mesh>::coordsView( mesh );
-    double node[3];
-    for ( GlobalOrdinal n = 0; n < num_nodes; ++n )
-    {
-	for ( std::size_t d = 0; d < node_dim; ++d )
-	{
-	    node[d] = node_coords[d*num_nodes + n];
-	}
-	for ( std::size_t d = node_dim; d < 3; ++d )
-	{
-	    node[d] = 0.0;
-	}
-
-	if ( coord_box.pointInBox( node ) )
-	{
-	    x_values.insert( node[0] );
-	    y_values.insert( node[1] );
-	    z_values.insert( node[2] );
-	}
-    }
-    
-    // Compute the local min and max values.
-    double local_x_min = *x_values.begin();
-    double local_y_min = *y_values.begin();
-    double local_z_min = *z_values.begin();
-
-    double local_x_max = *x_values.rbegin();
-    double local_y_max = *y_values.rbegin();
-    double local_z_max = *z_values.rbegin();
-
-    x_values.clear();
-    y_values.clear();
-    z_values.clear();
-
-    // Compute the global bounding box for the collected coordinates.
-    double global_x_min = -Teuchos::ScalarTraits<double>::rmax();
-    double global_y_min = -Teuchos::ScalarTraits<double>::rmax();
-    double global_z_min = -Teuchos::ScalarTraits<double>::rmax();
-
-    double global_x_max = Teuchos::ScalarTraits<double>::rmax();
-    double global_y_max = Teuchos::ScalarTraits<double>::rmax();
-    double global_z_max = Teuchos::ScalarTraits<double>::rmax();
-    
-    if ( point_dim > 0 )
-    {
-	Teuchos::reduceAll<int,double>( *d_comm, 
-					Teuchos::REDUCE_MIN,
-					1,
-					&local_x_min,
-					&global_x_min );
-
-	Teuchos::reduceAll<int,double>( *d_comm, 
-					Teuchos::REDUCE_MAX,
-					1,
-					&local_x_max,
-					&global_x_max );
-    }
-    if ( point_dim > 1 )
-    {
-	Teuchos::reduceAll<int,double>( *d_comm, 
-					Teuchos::REDUCE_MIN,
-					1,
-					&local_y_min,
-					&global_y_min );
-
-	Teuchos::reduceAll<int,double>( *d_comm, 
-					Teuchos::REDUCE_MAX,
-					1,
-					&local_y_max,
-					&global_y_max );
-    }
-    if ( point_dim > 2 )
-    {
-	Teuchos::reduceAll<int,double>( *d_comm, 
-					Teuchos::REDUCE_MIN,
-					1,
-					&local_z_min,
-					&global_z_min );
-
-	Teuchos::reduceAll<int,double>( *d_comm, 
-					Teuchos::REDUCE_MAX,
-					1,
-					&local_z_max,
-					&global_z_max );
-    }
-
-    // return BoundingBox( global_x_min, global_y_min, global_z_min,
-    // 			global_x_max, global_y_max, global_z_max );
-
-    // Right now I'm returning the mesh box. Scaling study 1 made apparent a
-    // bad error in the computation of the bounding box intersection computed
-    // by the code above. I'll need to update the code to handle corner cases
-    // like this. For now, this will handle most cases but at the cost of
-    // repartitioning the entire mesh when only a subset will be needed.
-    return mesh_box;
 }
 
 //---------------------------------------------------------------------------//

@@ -24,6 +24,7 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_Tuple.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
@@ -94,6 +95,74 @@ TEUCHOS_UNIT_TEST( BoundingBox, bounding_box_serialization_test )
 
 	rank += 1.0;
     }
+}
+
+TEUCHOS_UNIT_TEST( BoundingBox, bounding_box_intersection_test )
+{
+    using namespace DataTransferKit;
+ 
+    bool has_intersect;
+    BoundingBox intersection;
+    Teuchos::Tuple<double,6> bounds;
+
+    BoundingBox box_1( 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
+    BoundingBox box_2( 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
+    BoundingBox box_3( -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
+    BoundingBox box_4( 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
+    BoundingBox box_5( 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
+
+    has_intersect = BoundingBox::intersectBoxes( box_1, box_2, intersection );
+    TEST_ASSERT( has_intersect );
+    bounds = intersection.getBounds();
+    TEST_ASSERT( bounds[0] == 0.25 );
+    TEST_ASSERT( bounds[1] == 0.25 );
+    TEST_ASSERT( bounds[2] == 0.25 );
+    TEST_ASSERT( bounds[3] == 0.75 );
+    TEST_ASSERT( bounds[4] == 0.75 );
+    TEST_ASSERT( bounds[5] == 0.75 );
+
+    has_intersect = BoundingBox::intersectBoxes( box_1, box_1, intersection );
+    TEST_ASSERT( has_intersect );
+    bounds = intersection.getBounds();
+    TEST_ASSERT( bounds[0] == 0.0 );
+    TEST_ASSERT( bounds[1] == 0.0 );
+    TEST_ASSERT( bounds[2] == 0.0 );
+    TEST_ASSERT( bounds[3] == 1.0 );
+    TEST_ASSERT( bounds[4] == 1.0 );
+    TEST_ASSERT( bounds[5] == 1.0 );
+
+    has_intersect = BoundingBox::intersectBoxes( box_3, box_1, intersection );
+    TEST_ASSERT( has_intersect );
+    bounds = intersection.getBounds();
+    TEST_ASSERT( bounds[0] == 0.0 );
+    TEST_ASSERT( bounds[1] == 0.0 );
+    TEST_ASSERT( bounds[2] == 0.0 );
+    TEST_ASSERT( bounds[3] == 0.67 );
+    TEST_ASSERT( bounds[4] == 0.67 );
+    TEST_ASSERT( bounds[5] == 0.67 );
+
+    has_intersect = BoundingBox::intersectBoxes( box_4, box_1, intersection );
+    TEST_ASSERT( !has_intersect );
+
+    has_intersect = BoundingBox::intersectBoxes( box_1, box_5, intersection );
+    TEST_ASSERT( has_intersect );
+    bounds = intersection.getBounds();
+    TEST_ASSERT( bounds[0] == 1.0 );
+    TEST_ASSERT( bounds[1] == 1.0 );
+    TEST_ASSERT( bounds[2] == 1.0 );
+    TEST_ASSERT( bounds[3] == 1.0 );
+    TEST_ASSERT( bounds[4] == 1.0 );
+    TEST_ASSERT( bounds[5] == 1.0 );
+
+    has_intersect = BoundingBox::intersectBoxes( box_5, box_1, intersection );
+    TEST_ASSERT( has_intersect );
+    bounds = intersection.getBounds();
+    TEST_ASSERT( bounds[0] == 1.0 );
+    TEST_ASSERT( bounds[1] == 1.0 );
+    TEST_ASSERT( bounds[2] == 1.0 );
+    TEST_ASSERT( bounds[3] == 1.0 );
+    TEST_ASSERT( bounds[4] == 1.0 );
+    TEST_ASSERT( bounds[5] == 1.0 );
 }
 
 //---------------------------------------------------------------------------//

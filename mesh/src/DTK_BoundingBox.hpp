@@ -72,6 +72,11 @@ class BoundingBox
 
     // Addition assignment operator overload.
     inline BoundingBox& operator +=( const BoundingBox& box );
+
+    // Static function for box intersection.
+    static bool intersectBoxes( const BoundingBox& box_A,
+				const BoundingBox& box_B,
+				BoundingBox& intersection );
     
   private:
 
