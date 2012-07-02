@@ -59,6 +59,9 @@ class BoundingBox
     BoundingBox( const double x_min, const double y_min, const double z_min,
 		 const double x_max, const double y_max, const double z_max );
 
+    // Tuple constructor.
+    BoundingBox( const Teuchos::Tuple<double,6>& bounds );
+
     // Destructor.
     ~BoundingBox();
 
@@ -69,6 +72,9 @@ class BoundingBox
     Teuchos::Tuple<double,6> getBounds() const
     { return Teuchos::tuple( d_x_min, d_y_min, d_z_min, 
 			     d_x_max, d_y_max, d_z_max ); }
+
+    // Compute the volume of the box given its dimension.
+    double volume( const int dim ) const;
 
     // Addition assignment operator overload.
     inline BoundingBox& operator +=( const BoundingBox& box );

@@ -94,15 +94,14 @@ void ConsistentEvaluation<Mesh,CoordinateField>::setup(
 	coordinate_field, d_comm );
 
     // Intersect the boxes to get the rendezvous bounding box.
-    // BoundingBox rendezvous_box;
-    // bool has_intersect = 
-    // 	BoundingBox::intersectBoxes( mesh_box, coord_box, rendezvous_box );
-    // if ( !has_intersect )
-    // {
-    // 	throw MeshException( 
-    // 	    "Mesh and coordinate field domains do not intersect." );
-    // }
-    BoundingBox rendezvous_box = mesh_box;
+    BoundingBox rendezvous_box;
+    bool has_intersect = 
+    	BoundingBox::intersectBoxes( mesh_box, coord_box, rendezvous_box );
+    if ( !has_intersect )
+    {
+    	throw MeshException( 
+    	    "Mesh and coordinate field domains do not intersect." );
+    }
     
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, rendezvous_box );

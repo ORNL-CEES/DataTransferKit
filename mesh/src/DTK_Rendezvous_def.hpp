@@ -51,6 +51,7 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ENull.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Tuple.hpp>
 
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_Export.hpp>
@@ -99,7 +100,7 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
     d_rcb->partition();
 
     // Send the mesh in the box to the rendezvous decomposition and build the
-    // concrete mesh block.
+    // concrete mesh blocks.
     MeshManager<MeshContainerType> rendezvous_manager =
 	sendMeshToRendezvous( mesh_manager );
 
@@ -186,6 +187,21 @@ template<class Mesh>
 void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager,
 				     const BoundingBox& box )
 {
+    // Expand the box by a typical mesh element length in all directions plus
+    // some tolerance.
+    double tol = 1.0e-4;
+    Teuchos::Tuple<double,6> box_bounds = box.getBounds();
+    double box_volume = box.volume( d_node_dim );
+    GlobalOrdinal num_global_elements = mesh_manager->globalNumElements();
+    double pow = 1 / d_node_dim;
+    double length = std::pow( box_volume / num_global_elements, pow );
+    for ( std::size_t d = 0; d < d_node_dim; ++d )
+    {
+	box_bounds[d] -= length + tol;
+	box_bounds[d+3] += length + tol;
+    }
+    BoundingBox expanded_box( box_bounds );
+
     // For every block get its nodes and elements that are in the block.
     Teuchos::Array<short int> nodes_in_box, elements_in_box;
     BlockIterator block_iterator;
@@ -229,7 +245,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager,
 	    {
 		node_coords[d] = 0.0;
 	    }
-	    nodes_in_box.push_back( box.pointInBox( node_coords ) );
+	    nodes_in_box.push_back( expanded_box.pointInBox( node_coords ) );
 	}
 	assert( (GlobalOrdinal) nodes_in_box.size() == num_nodes );
 
@@ -397,8 +413,8 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	    import_element_map, nodes_per_element );
 	import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
 
-	// Construct the mesh container from the collected data, effectively
-	// wrapping it with mesh traits.
+	// Construct the mesh block container from the collected data,
+	// effectively wrapping it with mesh traits.
 	Teuchos::ArrayRCP<GlobalOrdinal> 
 	    rendezvous_nodes_array( rendezvous_nodes.size() );
 	std::copy( rendezvous_nodes.begin(), rendezvous_nodes.end(),
@@ -428,7 +444,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
     // Build the rendezvous mesh manager from the rendezvous mesh blocks..
     return MeshManager<MeshContainerType>( block_containers,
 					   d_comm,
-					   mesh_manager->getDim() );
+					   d_node_dim );
 }
 
 //---------------------------------------------------------------------------//

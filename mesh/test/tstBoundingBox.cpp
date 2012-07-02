@@ -41,6 +41,21 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
+// Helper Function
+//---------------------------------------------------------------------------//
+bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
+{
+    if ( std::abs( a1 - a2 ) < tol )
+    {
+	return true;
+    }
+    else
+    {
+	return false;
+    }
+}
+
+//---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
 
@@ -50,6 +65,55 @@ TEUCHOS_UNIT_TEST( BoundingBox, bounding_box_test )
 
     // Make a bounding box.
     BoundingBox box( 3.2, -9.233, 1.3, 4.3, 0.3, 8.7 );
+
+    // Check the bounds.
+    Teuchos::Tuple<double,6> box_bounds = box.getBounds();
+    TEST_ASSERT( box_bounds[0] == 3.2 );
+    TEST_ASSERT( box_bounds[1] == -9.233 );
+    TEST_ASSERT( box_bounds[2] == 1.3 );
+    TEST_ASSERT( box_bounds[3] == 4.3 );
+    TEST_ASSERT( box_bounds[4] == 0.3 );
+    TEST_ASSERT( box_bounds[5] == 8.7 );
+
+    // Compute the volume.
+    TEST_ASSERT( softEquivalence( box.volume( 3 ), 77.5986, 1.0e-4 ) );
+
+    // Test some points inside of it.
+    double point_0[3] = { 3.7, -4, 5.4 };
+    double point_1[3] = { 4.25, -7.99, 8.3 };
+    double point_2[3] = { 5.4, -3, 9.4 };
+    double point_3[3] = { 2.7, 0.4, 8.3 };
+    TEST_ASSERT( box.pointInBox( point_0 ) );
+    TEST_ASSERT( box.pointInBox( point_1 ) );
+    TEST_ASSERT( !box.pointInBox( point_2 ) );
+    TEST_ASSERT( !box.pointInBox( point_3 ) );
+}
+
+TEUCHOS_UNIT_TEST( BoundingBox, tuple_constructor_test )
+{
+    using namespace DataTransferKit;
+
+    // Make a bounding box.
+    Teuchos::Tuple<double,6> input_bounds;
+    input_bounds[0] = 3.2;
+    input_bounds[1] = -9.233;
+    input_bounds[2] = 1.3;
+    input_bounds[3] = 4.3;
+    input_bounds[4] = 0.3;
+    input_bounds[5] = 8.7;
+    BoundingBox box( input_bounds );
+
+    // Check the bounds.
+    Teuchos::Tuple<double,6> box_bounds = box.getBounds();
+    TEST_ASSERT( box_bounds[0] == 3.2 );
+    TEST_ASSERT( box_bounds[1] == -9.233 );
+    TEST_ASSERT( box_bounds[2] == 1.3 );
+    TEST_ASSERT( box_bounds[3] == 4.3 );
+    TEST_ASSERT( box_bounds[4] == 0.3 );
+    TEST_ASSERT( box_bounds[5] == 8.7 );
+
+    // Compute the volume.
+    TEST_ASSERT( softEquivalence( box.volume( 3 ), 77.5986, 1.0e-4 ) );
 
     // Test some points inside of it.
     double point_0[3] = { 3.7, -4, 5.4 };

@@ -77,6 +77,23 @@ BoundingBox::BoundingBox(
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Tuple constructor.
+ */
+BoundingBox::BoundingBox( const Teuchos::Tuple<double,6>& bounds )
+    : d_x_min( bounds[0] )
+    , d_y_min( bounds[1] )
+    , d_z_min( bounds[2] )
+    , d_x_max( bounds[3] )
+    , d_y_max( bounds[4] )
+    , d_z_max( bounds[5] )
+{
+    testPrecondition( d_x_min <= d_x_max, "Bounding box x_min > x_max" );
+    testPrecondition( d_y_min <= d_y_max, "Bounding box y_min > y_max" );
+    testPrecondition( d_z_min <= d_z_max, "Bounding box z_min > z_max" );
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Destructor.
  */
 BoundingBox::~BoundingBox()
@@ -100,6 +117,31 @@ bool BoundingBox::pointInBox( double coords[3] ) const
     }
 
     return false;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Compute the volume of the bounding box given its dimension.
+ */
+double BoundingBox::volume( const int dim ) const
+{
+    if ( dim == 1 )
+    { 
+	return (d_x_max-d_x_min);
+    }
+    else if ( dim == 2 )
+    { 
+	return (d_x_max-d_x_min)*(d_y_max-d_y_min);
+    }
+    else if ( dim == 3 )
+    { 
+	return (d_x_max-d_x_min)*(d_y_max-d_y_min)*(d_z_max-d_z_min);
+    }
+    else
+    {
+	throw PreconditionException( "Box dimension != 1, 2, or 3." );
+	return 0;
+    }
 }
 
 //---------------------------------------------------------------------------//
