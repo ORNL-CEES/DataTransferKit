@@ -57,6 +57,17 @@
 \end{abstract}
 
 \newpage
+
+\section*{Acknowledgements}
+Thanks to Paul Wilson (University of Wisconsin), Greg Davidson and Tom
+Evans (Oak Ridge National Laboratory), Roger Pawlowski (Sandia
+National Laboratories) and the entire Consortium for Advanced
+Simulation of Light Water Reactors team.
+
+This work was funded by the Consortium for the Advanced Simulation of
+Light Water Reactors (CASL), a Department of Energy Innovation Hub
+\cite{CASL_web}.
+
 \newpage
 
 %%---------------------------------------------------------------------------%%
@@ -93,6 +104,17 @@ employed to provide access to these services. This document will
 outline the concepts of parallel communicators, mesh, fields, data
 transfer, and the rendezvous decomposition and how they are modeled
 within the design of DTK.
+
+\subsection{Basic Definitions}\label{subsec:basic_defs}
+
+The following definitions are used throughout this document and serve
+as a basis for the domain model.
+
+\begin{itemize}
+  \item {\bf Communicator:}
+  \item {\bf Mesh:}
+  \item {\bf Field:}
+\end{itemize}
 
 \clearpage
 
@@ -304,12 +326,26 @@ domain. No knowledge of the global field decomposition is required,
 however, it must exist on a single communicator. All local instances
 of the field must have the same dimension.
 
+
 \subsection{Field Evaluations}\label{subsec:field_eval}
 The actual discretization of the field and its associated with the
 mesh is not explicitly formulated. Rather, access to discretization of
 fields is formulated through function evaluations at points. Consider
 a $d$-dimensional function $F(r)$ of arbitrary discretization over the
-spatial domain. 
+spatial domain $\Omega \in \mathbb{R}^n$ where $r \in \mathbb{R}^n$ and
+  $F : \mathbb{R}^n \rightarrow \mathbb{R}^d$. Via polynomial
+  interpolation, projection, or any other means most appropriately
+  reflect the discretization of $F(r)$, it then follows that
+  evaluation operations of the following type can be performed:
+
+\begin{equation}
+  f_i \leftarrow F(r_i), \forall r_i \in \Omega
+\end{equation}
+
+where $r_i \in \mathbb{R}^n$ is a single point and $f_i \in
+\mathbb{R}^d$ is representative of the function $F(r)$ evaluated at
+that point.
+
 
 \subsection{Basic Field Operations}\label{subsec:field_ops}
 For various data transfer and error analysis routines, a suite of
@@ -358,6 +394,9 @@ and scaling a field by a scalar multiple, $\alpha$.
   \hat{f_d} = \alpha f_d
   \label{eq:field_scaling}
 \end{equation}
+
+
+\subsection{Conservation}
 
 \clearpage
 
@@ -512,7 +551,9 @@ mapping.
 \clearpage
 
 %%---------------------------------------------------------------------------%%
-\section{Transfer Operations}\label{sec:transfer}
+\section{Transfer Operators}\label{sec:transfer}
+A transfer operator is an operator applied to a system to map data
+from one geometry to another \cite{LIME_2011}.
 
 \clearpage
 
