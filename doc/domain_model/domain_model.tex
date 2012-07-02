@@ -76,13 +76,13 @@ not conform in physical space. In addition, for massively parallel
 simulations, it is typical that meshes not only do not conform
 spatially, but also that their parallel decompositions do not
 correlate and are independent of one another due to physics-based
-partitioning requirements. As an example, this situation can occur in
-multiphysics simulations where physics fields provide feedback between
-solution iterations or adaptive mesh simulations where fields must be
-moved between meshes after refining and coarsening. It is therefore
-desirable to have a set of tools to relate two meshes of arbitrary
-parallel decomposition such that fields and other data can be
-transferred between them.
+partitioning and discretization requirements. As an example, this
+situation can occur in multiphysics simulations where physics fields
+provide feedback between solution iterations or adaptive mesh
+simulations where fields must be moved between meshes after refining
+and coarsening. It is therefore desirable to have a set of tools to
+relate two meshes of arbitrary parallel decomposition such that fields
+and other data can be transferred between them.
 
 The Data Transfer Kit (DTK) is a software component designed to
 provide parallel services for mesh repartitioning, mesh searching, and
@@ -101,31 +101,36 @@ within the design of DTK.
 A communicator is a concept that encapsulates ownership of operations
 in a parallel computation. A parallel communicator in the context of
 DTK can be taken as a direct reference to a Message Passing Interface
-(MPI) communicator \cite{MPI_1994}. A single communicator has set of
+(MPI) communicator \cite{MPI_1994}. A single communicator has a set of
 process space over which it may perform operations. Multiple
 communicators may exist in a single process space and own the same
-processes. A communicator is not required to encompass all of global
-process space. Based on this, we can consider union and intersection
+processes. For objects decomposed in parallel, the term global will be
+used to refer to concepts that apply across the entire parallel domain
+owned by a communicator while the term local will be used to refer to
+concepts that only exist in the domain of a single parallel process. A
+communicator is not required to encompass all of global process
+space. Based on this, we can consider union and intersection
 operations.
 
 A union operation will compute the union in process space of all
 communicators involved. This will be a common operation for cases
 where one particular geometric component in the data transfer
 operation is decomposed over a different communicator than another
-geometric component. Figure~\ref{fig:comm_union} provides an
-example of a union operation. In this example, two communicators, A
-and B, are defined within the global communicator (typically
-MPI\_COMM\_WORLD) but do not encapsulate all of it. All process
-that exist either in communicator A or B will be used to form the
-new union communicator.
+geometric component. Figure~\ref{fig:comm_union} provides an example
+of a union operation. In this example, two communicators, A and B, are
+defined within the domain of a global communicator (typically
+MPI\_COMM\_WORLD) but do not encapsulate all of it. All process that
+exist either in communicator A or B will be used to form the new union
+communicator as a subset of the global communicator.
 
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5in]{union_comm.eps}
-  \caption{\sl Communicator union operation diagram. In this example,
-    communicator A and communicator B are contained within the global
-    communicator but do not encapsulate all of it. Their combined
-    communication spaces form the union.}
+  \caption{\sl Communicator union operation diagram.}{\sl In this
+    example, communicator A and communicator B are contained within
+    the global communicator but do not encapsulate all of it. Their
+    combined communication spaces form the union. The union is a
+    subset of the global communicator.}
   \label{fig:comm_union}
 \end{figure}
 
@@ -135,15 +140,16 @@ involved. Figure~\ref{fig:comm_intersection} provides an example of an
 intersection operation. In this example, two communicators, A and B,
 are defined within a global communicator but do not encapsulate all of
 it. All processes that exist in both communicator A and B will be used
-to form the intersection communicator.
+to form the intersection communicator. The intersection communicator
+is a subset of the global communicator.
 
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5in]{intersection_comm.eps}
-  \caption{\sl Communicator intersection operation diagram. In this
-    example, communicator A and communicator B are contained within
-    the global communicator but do not encapsulate all of it. The blue
-    communication space forms the intersection.}
+  \caption{\sl Communicator intersection operation diagram.}{\sl In
+    this example, communicator A and communicator B are contained
+    within the global communicator but do not encapsulate all of
+    it. The blue communication space forms the intersection.}
   \label{fig:comm_intersection}
 \end{figure}
 
@@ -159,10 +165,7 @@ data transfer algorithms \cite{Stewart_2004} and can be formulated in
 such a way that algorithms can be generated that are data structure
 netural \cite{Chand_2008}. In addition, for meshes that contain
 multiple element topologies, the concept of mesh blocked by element
-topology is utilized. For meshes decomposed in parallel, the term
-global will be used to refer to concepts that apply across the entire
-parallel domain while the term local will be used to refer to concepts
-that only exist in the domain of a single parallel process.
+topology is utilized. 
 
 \subsection{Mesh Nodes}\label{subsec:nodes}
 Nodes are the lowest level geometric component of the mesh. All nodes
@@ -183,7 +186,7 @@ dimensional coordinates.
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5in]{hex_nodes.eps}
-  \caption{\sl Basic node description for a mesh. Each node is
+  \caption{\sl Basic node description for a mesh.}{\sl Each node is
     required to have a unique global ordinal, a specified
     dimensionality, and Cartesian coordinates corresponding to that
     dimensonality. The nodes in this example are 3 dimensional.}
@@ -233,8 +236,8 @@ permutation list.
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5in]{hex_element.eps}
-  \caption{\sl Basic element description for a mesh. Each element is
-    required to have a unique global ordinal, and a specified
+  \caption{\sl Basic element description for a mesh.}{\sl Each element
+    is required to have a unique global ordinal, and a specified
     connectivity and permuation list. The MBCN canonical ordinals used
     by DTK are specified at the nodes.}
   \label{fig:mesh_element}
@@ -242,20 +245,19 @@ permutation list.
 
 \subsection{Mesh Blocks}\label{subsec:blocks}
 At the highest level of abstraction, the mesh is composed of mesh
-blocks. These blocks contain elements of the same topology and number
-of nodes. All elements in a block must have the same topology and
-number of nodes. A mesh may contain as many blocks as
-desired. Multiple blocks with the same mesh topology may exist. Nodes
-may be repeated in different mesh blocks provided that they maintain
-the same unique global ordinal and coordinates. Elements may be
-repeated in different mesh blocks provided that they maintain the same
-unique global ordinal and connectivity list. All elements and nodes in
-all blocks of the mesh must have the same dimension. Multiple mesh
-blocks may exist in the same spatial region as they are merely a means
-of subdividing the mesh into groups of elements based on their
-topology. This behavior will be the common when hybrid meshes are
-involved (e.g. a mesh that contains hexahedrons and
-tetrahedrons). Mesh blocks may be either structured or unstructured.
+blocks. All elements in a block must have the same topology and number
+of nodes. A mesh may contain as many blocks as desired. Multiple
+blocks with the same mesh topology may exist. Nodes may be repeated in
+different mesh blocks provided that they maintain the same unique
+global ordinal and coordinates. Elements may be repeated in different
+mesh blocks provided that they maintain the same unique global ordinal
+and connectivity list. All elements and nodes in all blocks of the
+mesh must have the same dimension. Multiple mesh blocks may exist in
+the same spatial region as they are merely a means of subdividing the
+mesh into groups of elements based on their topology. This behavior
+will be the common when hybrid meshes are involved (e.g. a mesh that
+contains hexahedrons and tetrahedrons). Mesh blocks may be either
+structured or unstructured.
 
 As an example, consider the 2 dimensional hybrid mesh presented in
 Figure~\ref{fig:hybrid_mesh}. This mesh contains both quadrilateral
@@ -267,10 +269,10 @@ shared by these two mesh blocks may be repeated in either block.
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5in]{hybrid_mesh.eps}
-  \caption{\sl Hybrid mesh example. Quadrilaterals (blue) must be
-    specified in a different mesh block than the triangles (red). Both
-    blocks can share the mutual mesh nodes that construct their
-    elements.}
+  \caption{\sl Hybrid mesh example.} {\sl Quadrilaterals (blue) must
+    be specified in a different mesh block than the triangles
+    (red). Both blocks can share the mutual mesh nodes that construct
+    their elements.}
   \label{fig:hybrid_mesh}
 \end{figure}
 
@@ -288,25 +290,74 @@ access along with the proper communicator is required.
 
 %%---------------------------------------------------------------------------%%
 \section{Fields}\label{sec:field}
-In the most general sense, a field is a contiguous block of data. In a
-physics simulation, common fields include pressure and velocity
-distributions, temperatures, or other quantities of interest that have
-been discretized across the domain. In order to access DTK field
-services, a subset of information needed to describe the field is
-required. A field has a dimension of arbitrary size. As examples, for
-scalar fields this dimension is one, for 3 vectors (such as the
-velocity example above in a 3 dimensional computation) is 3, and for a
-3x3 tensor the dimension is 9. A field can have an arbitrary local
-size and this size can differ from local domain to local domain. No
-knowledge of the global field decomposition is required, however, it
-must exist on a single communicator. All local instances of the field
-must have the same dimension.
+In the most general sense, a field is a contiguous block of data of
+arbitrary dimension. In a physics simulation, common fields include
+pressure and velocity distributions, temperatures, or other quantities
+of interest that have been discretized across the domain. In order to
+access DTK field services, a subset of information needed to describe
+the field is required. A field has a dimension of arbitrary size. As
+examples, for scalar fields this dimension is one, for 3 vectors (such
+as the velocity example above in a 3 dimensional computation) is 3,
+and for a 3x3 tensor the dimension is 9. A field can have an arbitrary
+local size and this size can differ from local domain to local
+domain. No knowledge of the global field decomposition is required,
+however, it must exist on a single communicator. All local instances
+of the field must have the same dimension.
 
 \subsection{Field Evaluations}\label{subsec:field_eval}
-Access to discretization of fields is formulated through function
-evaluations at points.
+The actual discretization of the field and its associated with the
+mesh is not explicitly formulated. Rather, access to discretization of
+fields is formulated through function evaluations at points. Consider
+a $d$-dimensional function $F(r)$ of arbitrary discretization over the
+spatial domain. 
 
 \subsection{Basic Field Operations}\label{subsec:field_ops}
+For various data transfer and error analysis routines, a suite of
+common global operations on fields will be required. This includes
+norm operations for a given field, $f$, of length $n$ and dimension
+$d$ formulated as the infinity norm:
+
+\begin{equation}
+  ||f_d||_\infty = \max_{1 \leq i \leq n} |{f_d}_i|
+  \label{eq:infinity_norm}
+\end{equation}
+
+the 1-norm:
+
+\begin{equation}
+  ||f_d||_1 = \sum_{i=1}^n |{f_d}_i|
+  \label{eq:one_norm}
+\end{equation}
+
+the 2-norm:
+
+\begin{equation}
+  ||f_d||_2 = \sqrt{ \sum_{i=1}^n |{f_d}_i|^2 }
+  \label{eq:two_norm}
+\end{equation}
+
+and in general the q-norm:
+
+\begin{equation}
+||f_d||_q = \Bigg[ \sum_{i=1}^n |{f_d}_i|^q \Bigg]^{1/q}
+  \label{eq:q_norm}
+\end{equation}
+
+all of which are valid over each dimension, $d$, of the field
+\cite{LeVeque_2007}. In addition, other useful operations include a
+global average over dimension:
+
+\begin{equation}
+  \bar{f_d} = \frac{1}{n}\sum_{i=1}^n {f_d}_i
+  \label{eq:average}
+\end{equation}
+
+and scaling a field by a scalar multiple, $\alpha$.
+
+\begin{equation}
+  \hat{f_d} = \alpha f_d
+  \label{eq:field_scaling}
+\end{equation}
 
 \clearpage
 
@@ -473,6 +524,15 @@ mapping.
 %%---------------------------------------------------------------------------%%
 \appendix
 \section{DTK Element Topologies}\label{apdx:cell_topo}
+
+\begin{figure}[htpb!]
+  \centering
+  \includegraphics[width=5.5in]{Linear_Elements.eps}
+  \caption{\sl Canonical connectivity schemes for linear elements in
+    DTK}{\sl (a) line segment, (b) triangle, (c) quadrilateral, (d)
+    tetrahedron, (e) hexahedron, (f) pyramid.}
+  \label{fig:linear_elements}
+\end{figure}
 
 %%---------------------------------------------------------------------------%%
 \pagebreak

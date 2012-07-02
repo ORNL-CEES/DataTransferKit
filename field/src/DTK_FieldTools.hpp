@@ -114,7 +114,6 @@ class FieldTools
 			 const RCP_Comm& comm,
 			 Teuchos::Array<value_type>& norms );
 
-
     // Compute the L1 norm for each field dimension.
     static void norm1( const Field& field, const RCP_Comm& comm,
 		       Teuchos::Array<value_type>& norms );
@@ -131,7 +130,6 @@ class FieldTools
     // Get the global length of the field.
     static size_type globalLength( const Field& field, const RCP_Comm& comm );
     //@}
-
 
     //@{
     //! Coordinate field operations.
