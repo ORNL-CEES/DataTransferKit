@@ -87,7 +87,7 @@ template<class Mesh>
 void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 {
     // Get the node dimension for the mesh.
-    d_node_dim = mesh_manager->getDim();
+    d_node_dim = mesh_manager->dim();
 
     // Extract the mesh nodes and elements that are in the bounding box.
     getMeshInBox( mesh_manager, d_global_box );

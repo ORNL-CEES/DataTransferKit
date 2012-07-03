@@ -62,7 +62,7 @@ RCB<Mesh>::RCB( const RCP_MeshManager& mesh_manager )
     // Get the raw MPI communicator.
     Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
 	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( 
-	    d_mesh_manager->getComm() );
+	    d_mesh_manager->comm() );
     Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
 	mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
@@ -183,7 +183,7 @@ void RCB<Mesh>::getPartitioning()
     int dim;
     int zoltan_error;
 
-    for ( int i = 0; i < d_mesh_manager->getComm()->getSize(); ++i )
+    for ( int i = 0; i < d_mesh_manager->comm()->getSize(); ++i )
     {
 	zoltan_error = Zoltan_RCB_Box( d_zz, i, &dim,
 				       &x_min, &y_min, &z_min,
@@ -283,7 +283,7 @@ int RCB<Mesh>::getNumGeometry( void *data, int *ierr )
 {
     RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
     *ierr = ZOLTAN_OK;
-    return mesh_manager->getDim();
+    return mesh_manager->dim();
 }
 
 //---------------------------------------------------------------------------//
@@ -317,7 +317,7 @@ void RCB<Mesh>::getGeometryList(
     }
 
     // Check Zoltan for consistency.
-    std::size_t node_dim = mesh_manager->getDim();
+    std::size_t node_dim = mesh_manager->dim();
     testInvariant( sizeGID == 1, "Zoltan global ID size != 1." );
     testInvariant( sizeLID == 1, "Zoltan local ID size != 1." );
     testInvariant( num_dim == (int) node_dim, "Zoltan dimension != 3." );

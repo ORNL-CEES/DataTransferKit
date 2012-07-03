@@ -103,11 +103,11 @@ class MeshManager
     { return d_mesh_blocks.end(); }
 
     // Get the communicator for the mesh.
-    const RCP_Comm& getComm() const
+    const RCP_Comm& comm() const
     { return d_comm; }
 
     // Get the physical dimension of the mesh.
-    std::size_t getDim() const
+    std::size_t dim() const
     { return d_dim; }
 
     // Set the active nodes for a block.
@@ -133,7 +133,7 @@ class MeshManager
 
   private:
 
-    // Validate the mesh.
+    // Validate the mesh to the domain model.
     void validate();
 
   private:

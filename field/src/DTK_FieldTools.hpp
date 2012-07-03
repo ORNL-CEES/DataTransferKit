@@ -102,7 +102,7 @@ class FieldTools
     // Fill a field with a scalar.
     static void putScalar( Field& field, const value_type& scalar );
 
-    // Scale a field by a single value.
+    // Scale a each dimension field by a single value.
     static void scale( Field& field, const value_type& scalar );
 
     // Scale a field by different value for each dimension.
@@ -121,6 +121,10 @@ class FieldTools
 
     // Compute the L2 norm for each field dimension.
     static void norm2( const Field& field, const RCP_Comm& comm, 
+		       Teuchos::Array<value_type>& norms );
+
+    // Compute the q-norm for each field dimension.
+    static void normq( const Field& field,  const int& q, const RCP_Comm& comm,
 		       Teuchos::Array<value_type>& norms );
 
     // Compute the average value for each field dimension.
