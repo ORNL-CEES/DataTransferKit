@@ -59,6 +59,7 @@
 
 \newpage
 
+%%---------------------------------------------------------------------------%%
 \section*{Acknowledgements}
 This work was funded by the Consortium for the Advanced Simulation of
 Light Water Reactors (CASL), a Department of Energy Innovation Hub
@@ -69,7 +70,6 @@ Evans (Oak Ridge National Laboratory), Roger Pawlowski (Sandia
 National Laboratories) and the CASL team for their help and guidance
 during the development of this work.
 
-
 \newpage
 
 %%---------------------------------------------------------------------------%%
@@ -77,8 +77,6 @@ during the development of this work.
 \clearpage
 \listoffigures
 \clearpage
-\listoftables
-\newpage
 \newpage
 
 %%---------------------------------------------------------------------------%%
@@ -126,17 +124,34 @@ as a basis for the domain model.
 \item {\bf Ordinal:} A value that uniquely identifies an object from
   other objects of the same type.
 \item {\bf Geometry:} An object or collection of objects that has $n$
-  physical dimensions and a physical domain $\Omega \in \mathbb{R}^n$
+  physical dimensions and a spatial domain $\Omega \in \mathbb{R}^n$
   that is bounded by a boundary $\Gamma \in \mathbb{R}^n$.
 \item {\bf Mesh:} An $n$-dimensional discrete representation of the
-  physical domain $\Omega \in \mathbb{R}^n$. Mesh can be considered a
+  spatial domain $\Omega \in \mathbb{R}^n$. Mesh can be considered a
   subset of geometry.
-\item {\bf Field:}
-\item {\bf Evaluator:}
-\item {\bf Source:}
-\item {\bf Data Space:}
-\item {\bf Target:}
-\item {\bf Transfer Operator:}
+\item {\bf Field:} A $D$-dimensional discrete representaion of a
+  function, $F$, over the domain $\Omega \in \mathbb{R}^n$ such that
+  $F(r) : \mathbb{R}^n \rightarrow \mathbb{R}^D, \forall r \in
+  \Omega$.
+\item {\bf Evaluator:} An object that evaluates a field at a physical
+  location, $\hat{r}$, in the spatial domain $\Omega$.
+\item {\bf Source:} A geometry that owns a spatial domain, $\Omega_S
+  \in \mathbb{R}^D$, over which an evaluator can be applied for a
+  given field $F(s)$ where $s \in \Omega_s$.
+\item {\bf Data Space:} An empty field, $G$, of dimension $D$, to
+  which data has yet to be applied such that $G(r) : \mathbb{R}^n
+  \rightarrow \mathbb{R}^D, r \in \mathbb{R}^n$.
+\item {\bf Target:} A geometry that owns a spatial domain, $\Omega_T
+  \in \mathbb{R}^n$, over which a data space, $G(t)$ can be defined
+  where $t \in \Omega_T$.
+\item{ \bf Parallel Topology Map:} An operator, $M$, that defines the
+  translation of a field from a source spatial domain to a target
+  spatial domain such that $G(t) \leftarrow M( F(s) ), \forall t \in
+  \Omega_T, \forall s \in \Omega_S$, using both geometric and parallel
+  operations.
+\item {\bf Transfer Operator:} An operator that uses an evaluator to
+  compute a source field, $F(s)$, and applies a mesh map to fill a
+  target data space, $G(t)$.
 \end{itemize}
 
 \clearpage
@@ -167,11 +182,13 @@ of a union operation. In this example, two communicators, A and B, are
 defined within the domain of a global communicator (typically
 MPI\_COMM\_WORLD) but do not encapsulate all of it. All process that
 exist either in communicator A or B will be used to form the new union
-communicator as a subset of the global communicator.
+communicator ($C_{union}$) as a subset of the global communicator
+($C_{global}$) such that $C_{union} = A \cup B$ and $C_{union} \in
+C_{global}$. This operation is only valid if $A \in C_{global}$ and $B
+\in C_{global}$.
 
 \begin{figure}[htpb!]
-  \centering
-  \includegraphics[width=5in]{union_comm.eps}
+  \centering \includegraphics[width=5in]{union_comm.eps}
   \caption{\sl Communicator union operation diagram.}{\sl In this
     example, communicator A and communicator B are contained within
     the global communicator but do not encapsulate all of it. Their
@@ -188,7 +205,10 @@ intersection operation. In this example, two communicators, A and B,
 are defined within a global communicator but do not encapsulate all of
 it. All processes that exist in both communicator A and B will be used
 to form the intersection communicator. The intersection communicator
-is a subset of the global communicator.
+($C_{intersect}$) is a subset of the global communicator
+($C_{global}$) such that $C_{intersect} = A \cap B$ and $C_{intersect}
+\in C_{global}$. This operation is only valid if $A \in C_{global}$
+and $B \in C_{global}$.
 
 \begin{figure}[htpb!]
   \centering
@@ -367,13 +387,26 @@ $F(r)$, it then follows that evaluation operations of the following
 type can be performed:
 
 \begin{equation}
-  f_i \leftarrow F(r_i), \forall r_i \in \Omega
+  \hat{f} \leftarrow F(\hat{r}), \forall \hat{r} \in \Omega
   \label{eq:evaluation}
 \end{equation}
 
-where $r_i \in \mathbb{R}^n$ is a single point and $f_i \in
+where $\hat{r} \in \mathbb{R}^n$ is a single point and $\hat{f} \in
 \mathbb{R}^D$ is representative of the function $F(r)$ evaluated at
-$r_i$. This operation is not valid for $r_i \notin \Omega$.
+$\hat{r}$. This operation is not valid for $\hat{r} \notin \Omega$. In
+the context of $\Omega$ discretized by a mesh, these evaluations can
+instead be written in terms of a single mesh element, $\omega \in
+\Omega$. 
+
+\begin{equation}
+  \hat{f} \leftarrow F(\hat{r}), \forall \hat{r} \in \omega
+  \label{eq:element_evaluation}
+\end{equation}
+
+This operation is then not valid for $\hat{r} \notin \omega$. If
+$\hat{r} \notin \omega$ and $\hat{r} \notin \Omega$, then alternative
+schemes may be chosen, such as extrapolation, in order to apply the
+field to $\hat{r}$.
 
 
 \subsection{Basic Field Operations}\label{subsec:field_ops}
@@ -420,11 +453,11 @@ global average over dimension:
 and scaling a field by a scalar multiple, $\alpha$.
 
 \begin{equation}
-  \hat{f_d} = \alpha f_d
+  g_d = \alpha f_d
   \label{eq:field_scaling}
 \end{equation}
 
-where $\alpha \in \mathbb{R}$.
+where $\alpha \in \mathbb{R}$ and $g_d$ is the resulting scaled field.
 
 \clearpage
 
@@ -542,9 +575,9 @@ searching the appropriate data structures.
 \clearpage
 
 %%---------------------------------------------------------------------------%%
-\section{Mesh/Field Mapping}\label{sec:map}
+\section{Parallel Topology Maps}\label{sec:map}
 
-\subsection{Conformal Domain Algorithm}\label{subsec:map_algorithm}
+\subsection{Conformal Domains}\label{subsec:map_algorithm}
 For conformal domains, the following mapping algorithm is applied
 using the rendezvous decomposition to relate the target geometry to
 the source geometry.
@@ -581,6 +614,10 @@ in this case and they will be used to drive the evaluation
 routines. These pairings must be communicated from the rendezvous
 decomposition back to the source/target decompositions to complete the
 mapping.
+
+\subsection{Non-Conformal Domains}
+Currently, neither this domain model nor DTK consider non-conformal
+domains for generating geometric mappings.
 
 \clearpage
 
