@@ -134,7 +134,7 @@ class FieldTraits<MyField>
 // Unit tests
 //---------------------------------------------------------------------------//
 
-TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test )
+TEUCHOS_UNIT_TEST( FieldManager, field_manager_test )
 {
     using namespace DataTransferKit;
 
