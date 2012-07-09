@@ -41,8 +41,29 @@
 #ifndef DTK_FIELDMANAGER_DEF
 #define DTK_FIELDMANAGER_DEF
 
+#include <DTK_Exception.hpp>
+
 namespace DataTransferKit
 {
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Constructor.
+ */
+template<class Field>
+FieldManager<Field>::FieldManager( const Field& field, const RCP_Comm& comm )
+    : d_field( field )
+    , d_comm( comm )
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Destructor.
+ */
+template<class Field>
+FieldManager<Field>::~FieldManager()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

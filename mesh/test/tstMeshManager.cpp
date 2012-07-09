@@ -303,8 +303,8 @@ TEUCHOS_UNIT_TEST( MeshManager, mesh_manager_test )
     // Create a mesh manager.
     MeshManager<MyMesh> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
     TEST_ASSERT( mesh_manager.getNumBlocks() == 2 );
-    TEST_ASSERT( mesh_manager.getComm() == getDefaultComm<int>() );
-    TEST_ASSERT( mesh_manager.getDim() == 3 );
+    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Check the mesh data.
     int i = 0;

@@ -71,8 +71,7 @@ class FieldManager
     //@}
 
     // Constructor.
-    FieldManager( const Field& field, const RCP_Comm& comm, 
-		  const std::size_t dim );
+    FieldManager( const Field& field, const RCP_Comm& comm );
 
     // Destructor.
     ~FieldManager();
@@ -85,15 +84,6 @@ class FieldManager
     const RCP_Comm& comm() const
     { return d_comm; }
 
-    // Get the dimension for the field.
-    std::size_t dim() const
-    { return d_dim; }
-
-  private:
-
-    // Validate the field to the domain model.
-    void validate();
-
   private:
 
     // Field.
@@ -101,9 +91,6 @@ class FieldManager
     
     // Communicator over which the field is defined.
     RCP_Comm d_comm;
-    
-    // Dimension of the field.
-    std::size_t d_dim;
 };
 
 } // end namespace DataTransferKit

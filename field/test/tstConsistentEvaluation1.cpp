@@ -469,5 +469,5 @@ TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test )
 }
 
 //---------------------------------------------------------------------------//
-// end tstTransferOperator.cpp
+// end tstConsistentEvaluation1.cpp
 //---------------------------------------------------------------------------//

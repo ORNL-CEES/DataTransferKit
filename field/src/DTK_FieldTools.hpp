@@ -124,7 +124,7 @@ class FieldTools
 		       Teuchos::Array<value_type>& norms );
 
     // Compute the q-norm for each field dimension.
-    static void normq( const Field& field,  const int& q, const RCP_Comm& comm,
+    static void normQ( const Field& field,  const int& q, const RCP_Comm& comm,
 		       Teuchos::Array<value_type>& norms );
 
     // Compute the average value for each field dimension.

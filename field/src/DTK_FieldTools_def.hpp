@@ -195,6 +195,18 @@ void FieldTools<Field>::norm2( const Field& field, const RCP_Comm& comm,
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Compute the q-norm for each field dimension.
+ */
+template<class Field>
+void FieldTools<Field>::normQ( const Field& field, const int& q,
+			       const RCP_Comm& comm,
+			       Teuchos::Array<value_type>& norms )
+{
+
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Compute the average value for each field dimension.
  */
 template<class Field>
