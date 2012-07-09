@@ -29,7 +29,7 @@
   Department of Engineering Physics\\
   University of Wisconsin - Madison\\
   1500 Engineering Dr.\\
-  Madison, WI 53716 \\
+  Madison, WI 53716\\
   \href{mailto:sslattery@wisc.edu}{\texttt{sslattery@wisc.edu}}
 }
 
@@ -108,7 +108,7 @@ within the design of DTK.
 \subsection{Basic Definitions}\label{subsec:basic_defs}
 
 The following definitions are used throughout this document and serve
-as a basis for the domain model.
+as a basis for the domain model and discussion.
 
 \begin{itemize}
 \item {\bf Communicator:} An object that allows communication of data
@@ -126,32 +126,36 @@ as a basis for the domain model.
 \item {\bf Geometry:} An object or collection of objects that has $n$
   physical dimensions and a spatial domain $\Omega \in \mathbb{R}^n$
   that is bounded by a boundary $\Gamma \in \mathbb{R}^n$.
-\item {\bf Mesh:} An $n$-dimensional discrete representation of the
+\item {\bf Mesh:} An discrete representation of the $n$-dimensional
   spatial domain $\Omega \in \mathbb{R}^n$. Mesh can be considered a
   subset of geometry.
-\item {\bf Field:} A $D$-dimensional discrete representaion of a
+\item {\bf Field:} A discrete representaion of a $D$-dimensional
   function, $F$, over the domain $\Omega \in \mathbb{R}^n$ such that
   $F(r) : \mathbb{R}^n \rightarrow \mathbb{R}^D, \forall r \in
   \Omega$.
 \item {\bf Evaluator:} An object that evaluates a field at a physical
-  location, $\hat{r}$, in the spatial domain $\Omega$.
+  location, $\hat{r}$, in the spatial domain $\Omega$ by computing
+  $F(\hat{r})$.
 \item {\bf Source:} A geometry that owns a spatial domain, $\Omega_S
   \in \mathbb{R}^D$, over which an evaluator can be applied for a
   given field $F(s)$ where $s \in \Omega_s$.
-\item {\bf Data Space:} An empty field, $G$, of dimension $D$, to
-  which data has yet to be applied such that $G(r) : \mathbb{R}^n
-  \rightarrow \mathbb{R}^D, r \in \mathbb{R}^n$.
+\item {\bf Data Space:} A field, $G$, of dimension $D$, to which data
+  can be applied such that $G(r) : \mathbb{R}^n \rightarrow
+  \mathbb{R}^D, r \in \mathbb{R}^n$.
 \item {\bf Target:} A geometry that owns a spatial domain, $\Omega_T
   \in \mathbb{R}^n$, over which a data space, $G(t)$ can be defined
   where $t \in \Omega_T$.
 \item{ \bf Parallel Topology Map:} An operator, $M$, that defines the
-  translation of a field from a source spatial domain to a target
-  spatial domain such that $G(t) \leftarrow M( F(s) ), \forall t \in
-  \Omega_T, \forall s \in \Omega_S$, using both geometric and parallel
-  operations.
+  translation of a field, $F(s)$, from a source spatial domain,
+  $\Omega_S$, to a field, $G(t$), in the target spatial domain
+  $\Omega_T$, such that $M( F(r) ) : \mathbb{R}^D \rightarrow
+  \mathbb{R}^D, \forall r \in \Omega_S \cap \Omega_T$, using both
+  geometric and parallel operations.
 \item {\bf Transfer Operator:} An operator that uses an evaluator to
-  compute a source field, $F(s)$, and applies a mesh map to fill a
-  target data space, $G(t)$.
+  compute a source field, $F(s)$, and applies a mesh map, $M$, to fill
+  a target data space, $G(t)$, effectively performing the operation
+  $G(t) \leftarrow M( F(s) ), \forall s \in \Omega_T, \forall t \in
+  \Omega_S$.
 \end{itemize}
 
 \clearpage
@@ -179,13 +183,13 @@ where one particular geometric component in the data transfer
 operation is decomposed over a different communicator than another
 geometric component. Figure~\ref{fig:comm_union} provides an example
 of a union operation. In this example, two communicators, A and B, are
-defined within the domain of a global communicator (typically
-MPI\_COMM\_WORLD) but do not encapsulate all of it. All process that
-exist either in communicator A or B will be used to form the new union
-communicator ($C_{union}$) as a subset of the global communicator
-($C_{global}$) such that $C_{union} = A \cup B$ and $C_{union} \in
-C_{global}$. This operation is only valid if $A \in C_{global}$ and $B
-\in C_{global}$.
+defined within the domain of a global communicator (typically, but not
+necessarily MPI\_COMM\_WORLD) but do not encapsulate all of it. All
+processes that exist either in communicator A or B will be used to
+form the new union communicator ($C_{union}$) as a subset of the
+global communicator ($C_{global}$) such that $C_{union} = A \cup B$
+and $C_{union} \in C_{global}$. This operation is only valid if $A \in
+C_{global}$ and $B \in C_{global}$.
 
 \begin{figure}[htpb!]
   \centering \includegraphics[width=5in]{union_comm.eps}
@@ -295,7 +299,7 @@ permuation lists have been specified. The connectivity list specifies
 an element construction from counter-clockwise movement around the
 bottom face and then counter-clockwise movement around the top face
 that is native to the client. The MBCN canonical ordering for linear
-hexahedrons is given at the nodes. Note that this ordering instead
+hexahedrons is given at the nodes. Note that MBCN ordering instead
 uses clockwise rotation around the bottom and top faces to construct
 the element. This difference in ordering is specified by the given
 permutation list.
@@ -365,13 +369,13 @@ freedom include pressure and velocity distributions and examples of
 computed reponses include heat flux or reaction rates. In order to
 access DTK field services, a subset of information needed to describe
 the field is required. A field has a dimension of arbitrary size. As
-examples, for scalar fields this dimension is one, for 3-vectors (such
+examples, for scalar fields this dimension is 1, for 3-vectors (such
 as the velocity example above in a 3 dimensional computation) is 3,
-and for a 3x3 tensor the dimension is 9. A field can have an arbitrary
-local size and this size can differ from local domain to local
-domain. No knowledge of the global field decomposition is required,
-however, it must exist on a single communicator. All local instances
-of the field must have the same dimension.
+and for a 3x3 tensor the dimension is 9.  All local instances of the
+field must have the same dimension. A field can have an arbitrary
+number of local degrees of freedom and this size can differ from local
+domain to local domain. No knowledge of the global field decomposition
+is required, however, it must exist on a single communicator.
 
 
 \subsection{Field Evaluations}\label{subsec:field_eval}
@@ -457,7 +461,8 @@ and scaling a field by a scalar multiple, $\alpha$.
   \label{eq:field_scaling}
 \end{equation}
 
-where $\alpha \in \mathbb{R}$ and $g_d$ is the resulting scaled field.
+where $\alpha \in \mathbb{R}$ and $g_d$ is the $d^{th}$ dimension of
+the resulting scaled field.
 
 \clearpage
 
@@ -465,7 +470,7 @@ where $\alpha \in \mathbb{R}$ and $g_d$ is the resulting scaled field.
 \section{Geometric Rendezvous}\label{sec:rendezvous}
 Relating two non-conformal meshes will ultimately require some type of
 evaluation algorithm to apply the data from one geometry to another as
-specified by Equation~\ref{eq:evaluation}. To achieve this, the target
+specified by Eq.~(\ref{eq:evaluation}). To achieve this, the target
 objects to which this data will be applied must be located within the
 the source geometry. In a serial formulation, efficient search
 structures that offer logarithmic asymptotic time complexity are
@@ -536,10 +541,10 @@ repeated in each RCB sub-domain in which their connectivity nodes
 exist. 
 
 \paragraph{Step 5: Build a kD-tree with the local mesh in each rendezvous
-  partition.}  On each rendezvous process, the local mesh is will be
-searched with the local target nodes. An adaptive kD-tree is generated
-using the local mesh for a fast proximity search of the domain that
-computes a subset of the local mesh that resides near the node
+  partition.}  On each rendezvous process, the local mesh is be
+searched with the local target nodes. A kD-tree is generated using the
+local mesh for a fast proximity search of the domain that computes a
+small subset of the local mesh that resides near the node
 \cite{Bentley_1975}. This subset is then searched with a more
 expensive point-in-element operation that transforms the node into the
 reference frame of each element in the subset and uses a Newton
@@ -549,11 +554,11 @@ iteration strategy to determine if the node is contained within.
 Using the above algorithm, a secondary decomposition of a subset of
 the source mesh is generated forming the rendezvous decomposition. The
 rendezvous decomposition is encapsulated as a separate entity from the
-original geometric description of the domain. It can be viewed most
-formally as a copy of the source mesh subset that intersects the
-target geometry. This copy has been repartitioned in a way that
-fundamental geometric search operations are local and proceed globally
-in a load balanced fashion.
+original geometric description of the domain. It can be viewed as a
+copy of the source mesh subset that intersects the target
+geometry. This copy has been repartitioned in a way that fundamental
+geometric search operations are local and proceed globally in a load
+balanced fashion.
 
 The rendezvous decomposition has several properties. It is defined
 over a communicator that encapsulates the union of the communication
@@ -564,7 +569,9 @@ dimension as the source and target geometries. A rendezvous
 decomposition cannot be generated with source and target geometries of
 different dimensions (e.g. a 3 dimensional source geometry and a 2
 dimensional target geometry cannot be used to generate a rendezvous
-decomposition). Global recursive coordinate bisectioning parameters
+decomposition). 
+
+Global recursive coordinate bisectioning parameters
 are maintained for global partitioning information. A local kD-tree is
 formed over the local mesh. In this way, mesh searches on the global
 level use the RCB partitioning information and mesh searches on the
@@ -577,10 +584,16 @@ searching the appropriate data structures.
 %%---------------------------------------------------------------------------%%
 \section{Parallel Topology Maps}\label{sec:map}
 
-\subsection{Conformal Domains}\label{subsec:map_algorithm}
-For conformal domains, the following mapping algorithm is applied
-using the rendezvous decomposition to relate the target geometry to
-the source geometry.
+A parallel topology map is an operator, $M$, that defines the
+translation of a field, $F(s)$, from a source spatial domain,
+$\Omega_S$, to a field, $G(t$), in the target spatial domain
+$\Omega_T$, such that $M( F(r) ) : \mathbb{R}^D \rightarrow
+\mathbb{R}^D, \forall r \in \Omega_S \cap \Omega_T$, using both
+geometric and parallel operations.
+
+\subsection{A Map Generation Algorithm}\label{subsec:map_algorithm}
+The following mapping algorithm is applied using the rendezvous
+decomposition to build a parallel topology map.
 
 \begin{enumerate}
 \item Find which rendezvous sub-domain each target geometry component
@@ -602,22 +615,18 @@ decomposition.
 Each target node is moved to the appropriate RCB sub-domain for the
 point location step.
 
-\paragraph{Step 3: Find source elements in which target nodes reside.}
+\paragraph{Step 3: Find the source elements in which target nodes reside.}
 We now have source element information and target node information in
 the rendezvous decomposition. On each rendezvous process, the local
-mesh is searched with the local target nodes using the adaptive
-kD-tree and underlying point-in-element functionality.
+mesh is searched with the local target nodes using the kD-tree and
+underlying point-in-element functionality.
 
 \paragraph{Step 4: Send element/node pairs back to original
   decompositions.}  The source element/target node pairs are the map
-in this case and they will be used to drive the evaluation
+in this case and they will be used to drive the function evaluation
 routines. These pairings must be communicated from the rendezvous
 decomposition back to the source/target decompositions to complete the
 mapping.
-
-\subsection{Non-Conformal Domains}
-Currently, neither this domain model nor DTK consider non-conformal
-domains for generating geometric mappings.
 
 \clearpage
 
