@@ -230,6 +230,12 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 	bool in_tet_1 = Intrepid::CellTools<double>::checkPointsetInclusion( 
 	    reference_point, *cell_topo);
 
+	// If the point is the first tetrahedron, it is in the pyramid.
+	if ( in_tet_1 )
+	{
+	    return true;
+	}
+
 	// Tetrahederon 2.
 	cell_nodes( 0, 0, 0 ) = cell_node_coords[0];
 	cell_nodes( 0, 0, 1 ) = cell_node_coords[1];
@@ -259,8 +265,8 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 	bool in_tet_2 = Intrepid::CellTools<double>::checkPointsetInclusion( 
 	    reference_point, *cell_topo);
 
-	// If the point is in either tetrahedron, it is in the pyramid.
-	if ( in_tet_1 || in_tet_2 )
+	// If the point is the second tetrahedron, it is in the pyramid.
+	if ( in_tet_2 )
 	{
 	    return true;
 	}

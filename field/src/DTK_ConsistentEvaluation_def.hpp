@@ -231,7 +231,7 @@ void ConsistentEvaluation<Mesh,CoordinateField>::setup(
     GlobalOrdinal dest_proc_idx;
     Teuchos::Array<int> 
 	target_destinations( num_rendezvous_elements );
-    for ( int n = 0; n < num_rendezvous_elements; ++n )
+    for ( GlobalOrdinal n = 0; n < num_rendezvous_elements; ++n )
     {
 	dest_proc_idx = std::distance( 
 	    rendezvous_element_set.begin(),

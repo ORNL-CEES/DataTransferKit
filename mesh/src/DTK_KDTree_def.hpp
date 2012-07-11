@@ -47,6 +47,7 @@
 #include <DTK_Exception.hpp>
 
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_OrdinalTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -87,7 +88,8 @@ void KDTree<GlobalOrdinal>::build()
  * was found in. 
  */
 template<typename GlobalOrdinal>
-GlobalOrdinal KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords )
+GlobalOrdinal KDTree<GlobalOrdinal>::findPoint( 
+    const Teuchos::Array<double>& coords )
 {
     std::size_t node_dim = coords.size();
     double point[3];
@@ -106,8 +108,18 @@ GlobalOrdinal KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& co
     testInvariant( moab::MB_SUCCESS == error,
 		   "Failed to search kD-tree." );
 
-    moab::EntityHandle element = findPointInLeaf( coords, leaf );
-    return d_mesh->getNativeOrdinal( element );
+    // Try to find the point in the leaf. If we don't then return the maximum
+    // global ordinal for this type. This assumes that this number will not be
+    // reached in global number of elements.
+    try
+    {
+	moab::EntityHandle element = findPointInLeaf( coords, leaf );
+	return d_mesh->getNativeOrdinal( element );
+    }
+    catch ( PointNotFound& exception )
+    {
+	return Teuchos::OrdinalTraits<GlobalOrdinal>::max();
+    }
 }
 
 //---------------------------------------------------------------------------//

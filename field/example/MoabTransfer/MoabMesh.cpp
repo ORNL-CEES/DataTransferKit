@@ -20,13 +20,8 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
 		    const int partitioning_type )
     : d_comm( comm )
     , d_topology( block_topology )
-    , d_vertices( 0 )
-    , d_coords( 0 )
     , d_node_dim( 0 )
     , d_nodes_per_element( 0 )
-    , d_elements( 0 )
-    , d_connectivity( 0 )
-    , d_permutation_list( 0 )
 { 
     // Compute the node dimension.
     if ( d_topology == moab::MBTRI )
@@ -64,7 +59,8 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
 
     // Extract the elements with this block's topology.
     std::vector<moab::EntityHandle> global_elements;
-    error = d_moab->get_entities_by_type( root_set, d_topology, global_elements );
+    error = d_moab->get_entities_by_type( 
+	root_set, d_topology, global_elements );
     DataTransferKit::testInvariant( error == moab::MB_SUCCESS,
 				    "Error getting global block elements" );
 
@@ -178,7 +174,7 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
 				    "Error getting connecting vertices" );
 
     // Get the node coordinates.
-    d_coords.resize( d_node_dim * d_vertices.size() );    
+    d_coords.resize( 3 * d_vertices.size() );
     std::vector<double> interleaved_coords( d_coords.size() );
     error = d_moab->get_coords( &d_vertices[0], d_vertices.size(),
 				&interleaved_coords[0] );
@@ -195,8 +191,8 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
 
     // Get the connectivity.
     int connectivity_size = d_elements.size() * d_nodes_per_element;
-    std::vector<moab::EntityHandle> elem_conn;
     d_connectivity.resize( connectivity_size );
+    std::vector<moab::EntityHandle> elem_conn;
     for ( int i = 0; i < (int) d_elements.size(); ++i )
     {
 	error = d_moab->get_connectivity( &d_elements[i], 1, elem_conn );

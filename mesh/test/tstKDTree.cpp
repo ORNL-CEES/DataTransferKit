@@ -29,6 +29,7 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_OrdinalTraits.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
@@ -337,27 +338,10 @@ TEUCHOS_UNIT_TEST( KDTree, kd_tree_test )
     point_3[0] = 0.1;
     point_3[1] = 1.5;
     point_3[2] = -4.8;
-    bool caught_exception = false;
-    try 
-    {
-	kd_tree.findPoint( point_2 );
-    }
-    catch( PointNotFound& exception )
-    {
-	caught_exception = true;
-    }
-    TEST_ASSERT( caught_exception );
-
-    caught_exception = false;
-    try 
-    {
-	kd_tree.findPoint( point_3 );
-    }
-    catch( PointNotFound& exception )
-    {
-	caught_exception = true;
-    }
-    TEST_ASSERT( caught_exception );
+    TEST_ASSERT( kd_tree.findPoint( point_2 ) == 
+		 Teuchos::OrdinalTraits<MyMesh::global_ordinal_type>::max() );
+    TEST_ASSERT( kd_tree.findPoint( point_3 ) == 
+		 Teuchos::OrdinalTraits<MyMesh::global_ordinal_type>::max() );
 }
 
 //---------------------------------------------------------------------------//

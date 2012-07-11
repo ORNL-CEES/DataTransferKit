@@ -348,7 +348,7 @@ void RCB<Mesh>::getGeometryList(
 	mesh_coords = MeshTools<Mesh>::coordsView( *block_iterator );
 	num_nodes = std::distance( MT::nodesBegin( *block_iterator ),
 				   MT::nodesEnd( *block_iterator ) );
-	for ( int i = 0; i < num_nodes; ++i )
+	for ( typename MT::global_ordinal_type i = 0; i < num_nodes; ++i )
 	{
 	    if ( active_nodes[i] )
 	    {
