@@ -3,5 +3,5 @@ INCLUDE(AddSubdirectories)
 
 ADD_SUBDIRECTORIES(
   MoabTransfer
-  ScalingStudy
+#  ScalingStudy
   )

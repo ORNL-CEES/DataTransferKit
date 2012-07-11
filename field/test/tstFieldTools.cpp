@@ -152,7 +152,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_test )
     int my_size = comm->getSize();
 
     // Setup a field.
-    MyField my_field( my_rank+1, 1 )
+    MyField my_field( my_rank+1, 1 );
 
     // Test the field tools.
 }
@@ -167,7 +167,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_test )
     int my_size = comm->getSize();
 
     // Setup a field.
-    MyField my_field( 4, 3 )
+    MyField my_field( 4, 3 );
 
     // Test the field tools.
 }

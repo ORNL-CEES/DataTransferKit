@@ -373,7 +373,7 @@ ConsistentEvaluation<Mesh,CoordinateField>::computePointOrdinals(
 					   &global_size );
 
     Teuchos::Array<GlobalOrdinal> point_ordinals( local_size );
-    for ( int n = 0; n < local_size; ++n )
+    for ( GlobalOrdinal n = 0; n < local_size; ++n )
     {
 	point_ordinals[n] = comm_rank*global_size + n;
     }

@@ -55,6 +55,7 @@ class TransferOperator
     //! Typedefs.
     typedef Map                  map_type;
     typedef Teuchos::RCP<Map>    RCP_Map;
+    //@}
 
     //! Constructor.
     TransferOperator( const RCP_Map& map )
