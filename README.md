@@ -10,11 +10,11 @@ DEPENDENCIES
 
 The DataTransferKit has direct dependecies on the following Trilinos packages:
 
-*: Teuchos
-*: Tpetra
-*: Shards
-*: Intrepid
-*: Zoltan
+* Teuchos
+* Tpetra
+* Shards
+* Intrepid
+* Zoltan
 
 In addition, the mesh database MOAB is required. DTK has been tested
 with a stable release version of MOAB 4.5. You can get MOAB here:
@@ -34,8 +34,8 @@ configure/build documentation.
 
 The following compilers have been tested with DTK.
 
-*: gcc-4.7.0
-*: gcc-4.6.1
+* gcc-4.7.0
+* gcc-4.6.1
 
 
 TEST
