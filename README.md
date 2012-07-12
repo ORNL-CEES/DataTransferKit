@@ -17,9 +17,7 @@ The DataTransferKit has direct dependecies on the following Trilinos packages:
 * Zoltan
 
 In addition, the mesh database MOAB is required. DTK has been tested
-with a stable release version of MOAB 4.5. You can get MOAB here:
-
-http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB
+with a stable release version of MOAB 4.5. You can get MOAB [here](http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB).
 
 For parallel builds, an MPI implementation is also required. Both Open
 MPI and MPICH have been tested.
@@ -28,9 +26,8 @@ MPI and MPICH have been tested.
 CONFIGURE and BUILD
 -------------------
 
-The DataTransferKit uses the TriBITS cmake build system. See
-doc/build_notes/ for a sample configure script and additional
-configure/build documentation.
+The DataTransferKit uses the TriBITS cmake build system. Look ...
+    [here](https://github.com/CNERG/DataTransferKit/tree/dev/doc/build_notes) for a sample configure script and additional configure/build documentation.
 
 The following compilers have been tested with DTK.
 
@@ -56,4 +53,4 @@ DOCUMENTATION
 -------------
 
 User and developer documentation is provided by Doxygen. A domain
-model document can be found in the doc/domain_model directory.
+model document can be found [here](https://github.com/CNERG/DataTransferKit/tree/dev/doc/domain_model).
