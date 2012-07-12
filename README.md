@@ -26,8 +26,7 @@ MPI and MPICH have been tested.
 CONFIGURE and BUILD
 -------------------
 
-The DataTransferKit uses the TriBITS cmake build system. Look ...
-    [here](https://github.com/CNERG/DataTransferKit/tree/dev/doc/build_notes) for a sample configure script and additional configure/build documentation.
+The DataTransferKit uses the TriBITS cmake build system. Look [here](https://github.com/CNERG/DataTransferKit/tree/dev/doc/build_notes) for a sample configure script and additional configure/build documentation.
 
 The following compilers have been tested with DTK.
 
