@@ -26,7 +26,10 @@ MPI and MPICH have been tested.
 CONFIGURE and BUILD
 -------------------
 
-The DataTransferKit uses the TriBITS cmake build system. Look [here](https://github.com/CNERG/DataTransferKit/tree/dev/doc/build_notes) for a sample configure script and additional configure/build documentation.
+The DataTransferKit uses the TriBITS cmake build system. Look
+[here](https://github.com/CNERG/DataTransferKit/tree/dev/doc/build_notes)
+for a sample configure script and additional configure/build
+documentation.
 
 The following compilers have been tested with DTK.
 
@@ -52,4 +55,13 @@ DOCUMENTATION
 -------------
 
 User and developer documentation is provided by Doxygen. A domain
-model document can be found [here](https://github.com/CNERG/DataTransferKit/tree/dev/doc/domain_model).
+model document can be found
+[here](https://github.com/CNERG/DataTransferKit/tree/dev/doc/domain_model).
+
+AUTHORS
+-------
+
+The following people have made substantial contributions to the
+development of DataTransferKit:
+
+* [Stuart Slattery](http://github.com/sslattery)
