@@ -109,6 +109,51 @@ int TopologyTools::numLinearNodes( const moab::EntityType element_topology )
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Reorder a list of element nodes from MBCN ordering to Shards
+ * ordering. 
+ */
+void TopologyTools::MBCN2Shards( std::vector<moab::EntityHandle>& element_nodes, 
+				 const int num_nodes,
+				 const moab::EntityType topology )
+{
+    std::vector<moab::EntityHandle> temp_nodes( num_nodes );
+
+    switch( topology )
+    {
+	case moab::MBHEX:
+
+	    switch( num_nodes )
+	    {
+		case 27:
+
+		    for ( int n = 0; n < 20; ++n )
+		    {
+			temp_nodes[n] = element_nodes[n];
+		    }
+		    temp_nodes[20] = element_nodes[26];
+		    temp_nodes[21] = element_nodes[24];
+		    temp_nodes[22] = element_nodes[25];
+		    temp_nodes[23] = element_nodes[23];
+		    temp_nodes[24] = element_nodes[21];
+		    temp_nodes[25] = element_nodes[20];
+		    temp_nodes[26] = element_nodes[22];
+
+		    for ( int n = 0; n < num_nodes; ++n )
+		    {
+			element_nodes[n] = temp_nodes[n];
+		    }
+		    break;
+
+		default: ;
+	    }
+	    break;
+
+	default: ;
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Point in element query.
  */
 bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
@@ -126,6 +171,9 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
     Intrepid::FieldContainer<double> point(
 	Teuchos::Array<int>(point_dimensions), coords_view );
 
+    // Get the element topology.
+    moab::EntityType element_topology = moab->type_from_handle( element );
+
     // Get the element nodes.
     std::vector<moab::EntityHandle> element_nodes;
     error = moab->get_adjacencies( &element,
@@ -135,17 +183,17 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 				   element_nodes );
     testInvariant( moab::MB_SUCCESS == error, "Failure getting element nodes" );
 
-    // Extract the node coordinates.
+    // Permute MBCN ordering to Shards ordering.
     int num_element_nodes = element_nodes.size();
+    MBCN2Shards( element_nodes, num_element_nodes, element_topology );
+
+    // Extract the node coordinates.
     Teuchos::Array<double> cell_node_coords( 3 * num_element_nodes );
     error = moab->get_coords( &element_nodes[0], 
 			      element_nodes.size(), 
 			      &cell_node_coords[0] );
     testInvariant( moab::MB_SUCCESS == error, 
 		   "Failure getting node coordinates" );
-
-    // Get the element topology.
-    moab::EntityType element_topology = moab->type_from_handle( element );
 
     // Typical topology case.
     if ( moab::MBPYRAMID != element_topology )

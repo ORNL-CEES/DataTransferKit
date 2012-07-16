@@ -18,7 +18,8 @@
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 
-#include <mpi.h>
+#include <MBInterface.hpp>
+#include <MBCore.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -296,8 +297,73 @@ MyMesh buildMyMesh()
 // Tests
 //---------------------------------------------------------------------------//
 
-// Point inclusion test.
-TEUCHOS_UNIT_TEST( TopologyTools, topology_tools_test )
+// Tet point inclusion test.
+TEUCHOS_UNIT_TEST( TopologyTools, tet_test )
+{
+    using namespace DataTransferKit;
+
+    moab::ErrorCode error;
+    Teuchos::RCP<moab::Interface> moab = Teuchos::rcp( new moab::Core() );
+
+    double vertex_0[3] = { -1.43, -2.3, 3.4 };
+    double vertex_1[3] = { 2.98, -2.12, 4.3 };
+    double vertex_2[3] = { 0.43, 4.2, 2.4 };
+    double vertex_3[3] = { 0.98, 3.77, 9.8 };
+
+    std::vector<moab::EntityHandle> vertices(4);
+
+    error = moab->create_vertex( vertex_0, vertices[0] );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+    error = moab->create_vertex( vertex_1, vertices[1] );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+    error = moab->create_vertex( vertex_2, vertices[2] );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+    error = moab->create_vertex( vertex_3, vertices[3] );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
+    moab::EntityHandle tetrahedron;
+    moab->create_element( moab::MBTET, &vertices[0], 4, tetrahedron );
+
+    // Test the linear nodes function.
+    TEST_ASSERT( TopologyTools::numLinearNodes( 
+		     moab->type_from_handle( tetrahedron ) ) == 4 );
+
+    // Test the point inclusion test.
+    Teuchos::Array<double> point_0(3);
+    point_0[0] = 0.5;
+    point_0[1] = 0.45;
+    point_0[2] = 6.2;
+    Teuchos::Array<double> point_1(3); 
+    point_1[0] = 0.2;
+    point_1[1] = 0.9;
+    point_1[2] = 1.32;
+    Teuchos::Array<double> point_2(3);
+    point_2[0] = 2.9;
+    point_2[1] = -0.5;
+    point_2[2] = 9.5;
+    Teuchos::Array<double> point_3(3);
+    point_3[0] = 0.1;
+    point_3[1] = 1.5;
+    point_3[2] = -4.8;
+    Teuchos::Array<double> point_4(3);
+    point_4[0] = 0.25;
+    point_4[1] = -0.11;
+    point_4[2] = 5.4;
+    Teuchos::Array<double> point_5(3);
+    point_5[0] = 0.98;
+    point_5[1] = 3.77;
+    point_5[2] = 9.8;
+
+    TEST_ASSERT( TopologyTools::pointInElement( point_0, tetrahedron, moab ) );
+    TEST_ASSERT( !TopologyTools::pointInElement( point_1, tetrahedron, moab ) );
+    TEST_ASSERT( !TopologyTools::pointInElement( point_2, tetrahedron, moab ) );
+    TEST_ASSERT( !TopologyTools::pointInElement( point_3, tetrahedron, moab ) );
+    TEST_ASSERT( TopologyTools::pointInElement( point_4, tetrahedron, moab ) );
+    TEST_ASSERT( TopologyTools::pointInElement( point_5, tetrahedron, moab ) );
+}
+
+// Hex point inclusion test.
+TEUCHOS_UNIT_TEST( TopologyTools, hex_test )
 {
     using namespace DataTransferKit;
 
@@ -345,16 +411,28 @@ TEUCHOS_UNIT_TEST( TopologyTools, topology_tools_test )
     point_3[0] = 0.1;
     point_3[1] = 1.5;
     point_3[2] = -4.8;
+    Teuchos::Array<double> point_4(3);
+    point_4[0] = 1.0;
+    point_4[1] = 1.0;
+    point_4[2] = 1.0;
+    Teuchos::Array<double> point_5(3);
+    point_5[0] = 0.0;
+    point_5[1] = 0.0;
+    point_5[2] = 1.0;
 
     TEST_ASSERT( TopologyTools::pointInElement( point_0, hex_1, moab ) );
     TEST_ASSERT( !TopologyTools::pointInElement( point_1, hex_1, moab ) );
     TEST_ASSERT( !TopologyTools::pointInElement( point_2, hex_1, moab ) );
     TEST_ASSERT( !TopologyTools::pointInElement( point_3, hex_1, moab ) );
+    TEST_ASSERT( TopologyTools::pointInElement( point_4, hex_1, moab ) );
+    TEST_ASSERT( TopologyTools::pointInElement( point_5, hex_1, moab ) );
 
     TEST_ASSERT( !TopologyTools::pointInElement( point_0, hex_2, moab ) );
     TEST_ASSERT( TopologyTools::pointInElement( point_1, hex_2, moab ) );
     TEST_ASSERT( !TopologyTools::pointInElement( point_2, hex_2, moab ) );
     TEST_ASSERT( !TopologyTools::pointInElement( point_3, hex_2, moab ) );
+    TEST_ASSERT( TopologyTools::pointInElement( point_4, hex_2, moab ) );
+    TEST_ASSERT( TopologyTools::pointInElement( point_5, hex_2, moab ) );
 }
 
 //---------------------------------------------------------------------------//
