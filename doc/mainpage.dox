@@ -1,0 +1,9 @@
+/**
+@brief Documentation for main page.
+@author Stuart R. Slattery
+@file mainpage.dox
+*/
+/** @defgroup Computation Nuclear Engineering Research Group */
+/**
+@mainpage Data Transfer Kit
+*/
