@@ -56,7 +56,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class MeshTools
- * \brief Tools for objects that have mesh traits.
+ * \brief A stateless class with tools for operating on single mesh blocks.
  */ 
 //---------------------------------------------------------------------------//
 template<class Mesh>
@@ -84,13 +84,11 @@ class MeshTools
 
     //@{
     //! Bounds-checking mesh data access methods.
-    // Get a view of the of the mesh nodes. The ArrayRCP object will not
-    // manage the memory. 
+    // Get a view of the of the mesh nodes. 
     static Teuchos::ArrayRCP<const GlobalOrdinal> 
     nodesView( const Mesh& mesh );
 
-    // Get a non-const view of the of the mesh nodes. The ArrayRCP object will
-    // not manage the memory.
+    // Get a non-const view of the of the mesh nodes.
     static Teuchos::ArrayRCP<GlobalOrdinal> 
     nodesNonConstView( const Mesh& mesh );
 
@@ -98,21 +96,17 @@ class MeshTools
     static GlobalOrdinal numNodes( const Mesh& mesh )
     { return std::distance( MT::nodesBegin( mesh ), MT::nodesEnd( mesh ) ); }
 
-    // Get a view of the of the mesh coordinates. The ArrayRCP object will not
-    // manage the memory. 
+    // Get a view of the of the mesh coordinates.
     static Teuchos::ArrayRCP<const double> coordsView( const Mesh& mesh );
 
-    // Get a non-const view of the of the mesh coordinates. The ArrayRCP
-    // object will not manage the memory.
+    // Get a non-const view of the of the mesh coordinates.
     static Teuchos::ArrayRCP<double> coordsNonConstView( const Mesh& mesh );
 
-    // Get a view of the of the mesh elements. The ArrayRCP object will not
-    // manage the memory. 
+    // Get a view of the of the mesh elements.
     static Teuchos::ArrayRCP<const GlobalOrdinal> 
     elementsView( const Mesh& mesh );
 
-    // Get a non-const view of the of the mesh elements. The ArrayRCP object
-    // will not manage the memory.
+    // Get a non-const view of the of the mesh elements.
     static Teuchos::ArrayRCP<GlobalOrdinal> 
     elementsNonConstView( const Mesh& mesh );
 
@@ -120,23 +114,19 @@ class MeshTools
     static GlobalOrdinal numElements( const Mesh& mesh )
     { return std::distance( MT::elementsBegin(mesh), MT::elementsEnd(mesh) ); }
 
-    // Get a view of the of the mesh connectivity. The ArrayRCP object will not
-    // manage the memory. 
+    // Get a view of the of the mesh connectivity.
     static Teuchos::ArrayRCP<const GlobalOrdinal> 
     connectivityView( const Mesh& mesh );
 
-    // Get a non-const view of the of the mesh connectivity. The ArrayRCP
-    // object will not manage the memory.
+    // Get a non-const view of the of the mesh connectivity.
     static Teuchos::ArrayRCP<GlobalOrdinal> 
     connectivityNonConstView( const Mesh& mesh );
 
-    // Get a view of the of the mesh connectivity permutation list. The
-    // ArrayRCP object will not manage the memory. 
+    // Get a view of the of the mesh connectivity permutation list.
     static Teuchos::ArrayRCP<const std::size_t> 
     permutationView( const Mesh& mesh );
 
-    // Get a non-const view of the of the mesh connectivity permutation
-    // list. The ArrayRCP object will not manage the memory.
+    // Get a non-const view of the of the mesh connectivity permutation list. 
     static Teuchos::ArrayRCP<std::size_t> 
     permutationNonConstView( const Mesh& mesh );
     //@}
@@ -144,10 +134,11 @@ class MeshTools
 
     //@{
     //! Bounding box methods.
-    // Get the local bounding box for a mesh.
+    // Get the local bounding box for a mesh block.
     static BoundingBox localBoundingBox( const Mesh& mesh );
 
-    // Get the global bounding box for a mesh.
+    // Get the global bounding box for a mesh block over the given
+    // communicator. 
     static BoundingBox globalBoundingBox( const Mesh& mesh, 
 					  const RCP_Comm& comm );
     //@}

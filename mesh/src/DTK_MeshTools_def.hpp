@@ -215,7 +215,7 @@ MeshTools<Mesh>::permutationNonConstView( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the local bounding box for a mesh.
+ * \brief Get the local bounding box for a mesh block.
  */
 template<class Mesh>
 BoundingBox MeshTools<Mesh>::localBoundingBox( const Mesh& mesh )
@@ -265,7 +265,8 @@ BoundingBox MeshTools<Mesh>::localBoundingBox( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the global bounding box for a mesh.
+ * \brief Get the global bounding box for a mesh block over the given
+ * communicator. 
  */
 template<class Mesh>
 BoundingBox MeshTools<Mesh>::globalBoundingBox( const Mesh& mesh, 
