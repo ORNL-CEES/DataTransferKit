@@ -58,8 +58,8 @@ bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-
-TEUCHOS_UNIT_TEST( BoundingBox, bounding_box_test )
+// Default constructor test.
+TEUCHOS_UNIT_TEST( BoundingBox, default_constructor_test )
 {
     using namespace DataTransferKit;
 
@@ -83,12 +83,18 @@ TEUCHOS_UNIT_TEST( BoundingBox, bounding_box_test )
     double point_1[3] = { 4.25, -7.99, 8.3 };
     double point_2[3] = { 5.4, -3, 9.4 };
     double point_3[3] = { 2.7, 0.4, 8.3 };
+    double point_4[3] = { 3.2, -9.233, 1.3 };
+    double point_5[3] = { 3.2, 0.3, 1.3 };
     TEST_ASSERT( box.pointInBox( point_0 ) );
     TEST_ASSERT( box.pointInBox( point_1 ) );
     TEST_ASSERT( !box.pointInBox( point_2 ) );
     TEST_ASSERT( !box.pointInBox( point_3 ) );
+    TEST_ASSERT( box.pointInBox( point_4 ) );
+    TEST_ASSERT( box.pointInBox( point_5 ) );
 }
 
+//---------------------------------------------------------------------------//
+// Tuple constructor test.
 TEUCHOS_UNIT_TEST( BoundingBox, tuple_constructor_test )
 {
     using namespace DataTransferKit;
@@ -120,13 +126,19 @@ TEUCHOS_UNIT_TEST( BoundingBox, tuple_constructor_test )
     double point_1[3] = { 4.25, -7.99, 8.3 };
     double point_2[3] = { 5.4, -3, 9.4 };
     double point_3[3] = { 2.7, 0.4, 8.3 };
+    double point_4[3] = { 3.2, -9.233, 1.3 };
+    double point_5[3] = { 3.2, 0.3, 1.3 };
     TEST_ASSERT( box.pointInBox( point_0 ) );
     TEST_ASSERT( box.pointInBox( point_1 ) );
     TEST_ASSERT( !box.pointInBox( point_2 ) );
     TEST_ASSERT( !box.pointInBox( point_3 ) );
+    TEST_ASSERT( box.pointInBox( point_4 ) );
+    TEST_ASSERT( box.pointInBox( point_5 ) );
 }
 
-TEUCHOS_UNIT_TEST( BoundingBox, bounding_box_serialization_test )
+//---------------------------------------------------------------------------//
+// Serialization test.
+TEUCHOS_UNIT_TEST( BoundingBox, serialization_test )
 {
     using namespace DataTransferKit;
 
@@ -161,7 +173,9 @@ TEUCHOS_UNIT_TEST( BoundingBox, bounding_box_serialization_test )
     }
 }
 
-TEUCHOS_UNIT_TEST( BoundingBox, bounding_box_intersection_test )
+//---------------------------------------------------------------------------//
+// Box intersection test.
+TEUCHOS_UNIT_TEST( BoundingBox, intersection_test )
 {
     using namespace DataTransferKit;
  
@@ -227,6 +241,31 @@ TEUCHOS_UNIT_TEST( BoundingBox, bounding_box_intersection_test )
     TEST_ASSERT( bounds[3] == 1.0 );
     TEST_ASSERT( bounds[4] == 1.0 );
     TEST_ASSERT( bounds[5] == 1.0 );
+
+    has_intersect = BoundingBox::intersectBoxes( box_2, box_3, intersection );
+    TEST_ASSERT( has_intersect );
+    bounds = intersection.getBounds();
+    TEST_ASSERT( bounds[0] == 0.25 );
+    TEST_ASSERT( bounds[1] == 0.25 );
+    TEST_ASSERT( bounds[2] == 0.25 );
+    TEST_ASSERT( bounds[3] == 0.67 );
+    TEST_ASSERT( bounds[4] == 0.67 );
+    TEST_ASSERT( bounds[5] == 0.67 );
+
+    has_intersect = BoundingBox::intersectBoxes( box_2, box_4, intersection );
+    TEST_ASSERT( !has_intersect );
+
+    has_intersect = BoundingBox::intersectBoxes( box_2, box_5, intersection );
+    TEST_ASSERT( !has_intersect );
+
+    has_intersect = BoundingBox::intersectBoxes( box_3, box_5, intersection );
+    TEST_ASSERT( !has_intersect );
+
+    has_intersect = BoundingBox::intersectBoxes( box_3, box_4, intersection );
+    TEST_ASSERT( !has_intersect );
+
+    has_intersect = BoundingBox::intersectBoxes( box_4, box_5, intersection );
+    TEST_ASSERT( !has_intersect );
 }
 
 //---------------------------------------------------------------------------//
