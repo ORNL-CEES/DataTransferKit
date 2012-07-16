@@ -62,7 +62,9 @@ CellTopologyFactory::~CellTopologyFactory()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory method.
+ * \brief Factory method. If the number of element nodes provided is not
+ * supported for that topology, the topology for the linear element will be
+ * created. 
  */
 CellTopologyFactory::RCP_CellTopology
 CellTopologyFactory::create( const moab::EntityType element_topology,

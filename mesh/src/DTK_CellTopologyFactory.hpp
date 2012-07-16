@@ -50,6 +50,13 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
+/*!
+ * \class CellTopologyFactory 
+ * \brief A stateless factory class for creating Shards::CellTopology
+ * structures based on a moab::EntityType.
+ */
+//---------------------------------------------------------------------------//
 class CellTopologyFactory
 {
   public:
@@ -58,7 +65,7 @@ class CellTopologyFactory
     //! Typedefs.
     typedef Teuchos::RCP<shards::CellTopology>   RCP_CellTopology;
 
-    // Consructor.
+    // Constructor.
     CellTopologyFactory();
 
     // Destructor.

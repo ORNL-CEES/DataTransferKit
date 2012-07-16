@@ -47,6 +47,17 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
+/*!
+ * \class BoundingBox
+ * \brief Axis-aligned Cartesian bounding box container
+ *
+ * All three dimensions are explictly represented in this bounding box however
+ * algorithmicly, this can be treated as a one or two dimensional box as well
+ * by setting the unused dimension bounds to +/-
+ * Teuchos::ScalarTraits<double>::rmax().
+ */
+//---------------------------------------------------------------------------//
 class BoundingBox
 {
 
