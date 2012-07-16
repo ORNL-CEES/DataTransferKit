@@ -76,7 +76,7 @@ class TopologyTools
 			     const moab::EntityType entity_topology );
 
     // Point in element query.
-    static bool pointInElement( Teuchos::Array<double>& coords,
+    static bool pointInElement( Teuchos::Array<double> coords,
 				const moab::EntityHandle element,
 				const Teuchos::RCP<moab::Interface>& moab );
 };

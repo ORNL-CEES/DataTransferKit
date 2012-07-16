@@ -156,7 +156,7 @@ void TopologyTools::MBCN2Shards( std::vector<moab::EntityHandle>& element_nodes,
 /*!
  * \brief Point in element query.
  */
-bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
+bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 				    const moab::EntityHandle element,
 				    const Teuchos::RCP<moab::Interface>& moab )
 {
@@ -203,20 +203,19 @@ bool TopologyTools::pointInElement( Teuchos::Array<double>& coords,
 	    CellTopologyFactory::create( element_topology, num_element_nodes );
 
 	// Reduce the dimension of the coordinates if necessary and wrap in a
-	// field container. This means (for now at least) that 2D meshes must be
-	// constructed from 2D nodes (this obviously won't work for 2D meshes that
-	// have curvature).
-	Teuchos::Tuple<int,3> cell_node_dimensions;
-	cell_node_dimensions[0] = 1;
-	cell_node_dimensions[1] = num_element_nodes;
-	cell_node_dimensions[2] = node_dim;
+	// field container. 
 	for ( int i = 2; i != node_dim-1 ; --i )
 	{
 	    for ( int n = element_nodes.size() - 1; n > -1; --n )
 	    {
-		cell_node_coords.erase( cell_node_coords.begin() + 3*n + i );
+		cell_node_coords.erase( cell_node_coords.begin() + (i+1)*n + i );
 	    }
 	}
+
+	Teuchos::Tuple<int,3> cell_node_dimensions;
+	cell_node_dimensions[0] = 1;
+	cell_node_dimensions[1] = num_element_nodes;
+	cell_node_dimensions[2] = node_dim;
 	Intrepid::FieldContainer<double> cell_nodes( 
 	    Teuchos::Array<int>(cell_node_dimensions), 
 	    Teuchos::arcpFromArray( cell_node_coords ) );
