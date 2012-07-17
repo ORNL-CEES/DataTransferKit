@@ -62,6 +62,12 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
+/*!
+ * \class Rendezous
+ * \brief Rendezvous decomposition generator.
+ */
+//---------------------------------------------------------------------------//
 template<class Mesh>
 class Rendezvous
 {
@@ -106,7 +112,7 @@ class Rendezvous
     Teuchos::Array<GlobalOrdinal>
     getElements( const Teuchos::ArrayRCP<double>& coords ) const;
 
-    // Get the rendezvous mesh.
+    //! Get the rendezvous mesh.
     const RCP_RendezvousMesh& getMesh() const
     { return d_rendezvous_mesh; }
 

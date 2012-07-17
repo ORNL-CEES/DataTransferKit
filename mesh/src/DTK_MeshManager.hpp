@@ -84,7 +84,7 @@ class MeshManager
     // Destructor.
     ~MeshManager();
 
-    // Get the number of mesh blocks.
+    //! Get the number of mesh blocks.
     int getNumBlocks() const
     { return d_mesh_blocks.size(); }
 
@@ -94,37 +94,37 @@ class MeshManager
     // Get the global number of elements in the mesh.    
     GlobalOrdinal globalNumElements() const;
 
-    // Get the iterator to the beginning of the mesh blocks.
+    //! Get the iterator to the beginning of the mesh blocks.
     BlockIterator blocksBegin() const
     { return d_mesh_blocks.begin(); }
 
-    // Get the iterator to the end of the mesh blocks.
+    //! Get the iterator to the end of the mesh blocks.
     BlockIterator blocksEnd() const
     { return d_mesh_blocks.end(); }
 
-    // Get the communicator for the mesh.
+    //! Get the communicator for the mesh.
     const RCP_Comm& comm() const
     { return d_comm; }
 
-    // Get the physical dimension of the mesh.
+    //! Get the physical dimension of the mesh.
     std::size_t dim() const
     { return d_dim; }
 
-    // Set the active nodes for a block.
+    //! Set the active nodes for a block.
     void setActiveNodes( const Teuchos::Array<short int>& active_nodes,
 			 const int block_id )
     { d_active_nodes[ block_id ] = active_nodes; }
 
-    // Set the active elements for a block.
+    //! Set the active elements for a block.
     void setActiveElements( const Teuchos::Array<short int>& active_elements,
 			    const int block_id )
     { d_active_elements[ block_id ] = active_elements; }
 
-    // Get the active nodes for a block.
+    //! Get the active nodes for a block.
     Teuchos::ArrayView<short int> getActiveNodes( const int block_id )
     { return d_active_nodes[ block_id ](); }
 
-    // Get the active elements for a block.
+    //! Get the active elements for a block.
     Teuchos::ArrayView<short int> getActiveElements( const int block_id )
     { return d_active_elements[ block_id ](); }
 

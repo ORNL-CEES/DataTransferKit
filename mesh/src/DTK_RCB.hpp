@@ -58,6 +58,12 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
+/*!
+ * \class RCB
+ * \brief Recursive Coordinate Bisectioning partitioner.
+ */
+//---------------------------------------------------------------------------//
 template<class Mesh>
 class RCB
 {

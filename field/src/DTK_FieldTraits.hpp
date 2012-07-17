@@ -46,10 +46,12 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
 /*!
  * \brief Dummy struct. If a type does not create a specialization this will
  * not compile.
  */
+//---------------------------------------------------------------------------//
 template<typename UndefinedFieldType>
 struct UndefinedFieldTraits
 {
@@ -57,13 +59,16 @@ struct UndefinedFieldTraits
     { return UndefinedFieldType::this_type_is_missing_a_specialization(); }
 };
 
+//---------------------------------------------------------------------------//
 /*!
+ * \class FieldTraits
  * \brief Field traits definitions.
  * 
  * These traits correlate to the basic concept of a field within DTK. A field
  * can contain anything in an array, but it must store its objects in
  * contiguous memory that is blocked by dimension. 
  */
+//---------------------------------------------------------------------------//
 template<typename FieldType>
 class FieldTraits
 {
@@ -110,7 +115,8 @@ class FieldTraits
     { return UndefinedFieldTraits<FieldType>::notDefined(); }
 
     //@{
-    /*! Returns the iterator to the beginning of the field. The data is
+    /*! 
+     * \brief Returns the iterator to the beginning of the field. The data is
      * required to be blocked by dimensions ( d0, d1, d2, ... , dM ) as
      * ( d0_0, d0_1, ... , d0_N, d1_0, d1_1, ... , d1_N, ... , dM_N )
      */

@@ -23,8 +23,8 @@
 
  DTK is divided into two subpackages for mesh services and field services.
  
- \subsection DTK_mesh DTK Mesh Subpackage
+ \subsection DTK_mesh Mesh Subpackage
 
- \subsection DTK_field DTK Field Subpackage
+ \subsection DTK_field Field Subpackage
 
  */
