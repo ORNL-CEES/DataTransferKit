@@ -418,7 +418,7 @@ DataTransferKit::MeshContainer<int> buildHexContainer()
 }
 
 //---------------------------------------------------------------------------//
-// Parallel ex mesh.
+// Parallel hex mesh.
 DataTransferKit::MeshContainer<int> buildParallelHexContainer()
 {
     using namespace DataTransferKit;

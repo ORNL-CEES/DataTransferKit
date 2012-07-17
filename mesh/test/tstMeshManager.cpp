@@ -14,6 +14,7 @@
 #include <cassert>
 
 #include <DTK_MeshManager.hpp>
+#include <DTK_MeshContainer.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 #include <DTK_MeshTools.hpp>
@@ -43,173 +44,159 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
-// Mesh Implementation
+// Mesh container creation functions.
 //---------------------------------------------------------------------------//
-
-class MyMesh
+// Line segment mesh.
+DataTransferKit::MeshContainer<int> buildLineContainer()
 {
-  public:
+    using namespace DataTransferKit;
 
-    typedef int    global_ordinal_type;
-    
-    MyMesh() 
-    { /* ... */ }
-
-    MyMesh( const Teuchos::Array<int>& node_handles,
-	    const Teuchos::Array<double>& coords,
-	    const Teuchos::Array<int>& hex_handles,
-	    const Teuchos::Array<int>& hex_connectivity )
-	: d_node_handles( node_handles )
-	, d_coords( coords )
-	, d_hex_handles( hex_handles )
-	, d_hex_connectivity( hex_connectivity )
-	, d_permutation_list( 8 )
-    {
-	for ( int i = 0; i < d_permutation_list.size(); ++i )
-	{
-	    d_permutation_list[i] = i;
-	}
-    }
-
-    ~MyMesh()
-    { /* ... */ }
-
-    Teuchos::Array<int>::const_iterator nodesBegin() const
-    { return d_node_handles.begin(); }
-
-    Teuchos::Array<int>::const_iterator nodesEnd() const
-    { return d_node_handles.end(); }
-
-    Teuchos::Array<double>::const_iterator coordsBegin() const
-    { return d_coords.begin(); }
-
-    Teuchos::Array<double>::const_iterator coordsEnd() const
-    { return d_coords.end(); }
-
-    Teuchos::Array<int>::const_iterator hexesBegin() const
-    { return d_hex_handles.begin(); }
-
-    Teuchos::Array<int>::const_iterator hexesEnd() const
-    { return d_hex_handles.end(); }
-
-    Teuchos::Array<int>::const_iterator connectivityBegin() const
-    { return d_hex_connectivity.begin(); }
-
-    Teuchos::Array<int>::const_iterator connectivityEnd() const
-    { return d_hex_connectivity.end(); }
-
-    Teuchos::Array<std::size_t>::const_iterator permutationBegin() const
-    { return d_permutation_list.begin(); }
-
-    Teuchos::Array<std::size_t>::const_iterator permutationEnd() const
-    { return d_permutation_list.end(); }
-    
-
-  private:
-
-    Teuchos::Array<int> d_node_handles;
-    Teuchos::Array<double> d_coords;
-    Teuchos::Array<int> d_hex_handles;
-    Teuchos::Array<int> d_hex_connectivity;
-    Teuchos::Array<std::size_t> d_permutation_list;
-};
-
-//---------------------------------------------------------------------------//
-// DTK Traits Specializations
-//---------------------------------------------------------------------------//
-namespace DataTransferKit
-{
-
-//---------------------------------------------------------------------------//
-// Mesh traits specialization for MyMesh
-template<>
-class MeshTraits<MyMesh>
-{
-  public:
-
-    typedef MyMesh::global_ordinal_type global_ordinal_type;
-    typedef Teuchos::Array<int>::const_iterator const_node_iterator;
-    typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
-    typedef Teuchos::Array<int>::const_iterator const_element_iterator;
-    typedef Teuchos::Array<int>::const_iterator const_connectivity_iterator;
-    typedef Teuchos::Array<std::size_t>::const_iterator 
-    const_permutation_iterator;
-
-    static inline std::size_t nodeDim( const MyMesh& mesh )
-    { return 3; }
-
-    static inline const_node_iterator nodesBegin( const MyMesh& mesh )
-    { return mesh.nodesBegin(); }
-
-    static inline const_node_iterator nodesEnd( const MyMesh& mesh )
-    { return mesh.nodesEnd(); }
-
-    static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
-    { return mesh.coordsBegin(); }
-
-    static inline const_coordinate_iterator coordsEnd( const MyMesh& mesh )
-    { return mesh.coordsEnd(); }
-
-
-    static inline std::size_t elementTopology( const MyMesh& mesh )
-    { return DTK_HEXAHEDRON; }
-
-    static inline std::size_t nodesPerElement( const MyMesh& mesh )
-    { return 8; }
-
-    static inline const_element_iterator elementsBegin( const MyMesh& mesh )
-    { return mesh.hexesBegin(); }
-
-    static inline const_element_iterator elementsEnd( const MyMesh& mesh )
-    { return mesh.hexesEnd(); }
-
-    static inline const_connectivity_iterator connectivityBegin( const MyMesh& mesh )
-    { return mesh.connectivityBegin(); }
-
-    static inline const_connectivity_iterator connectivityEnd( const MyMesh& mesh )
-    { return mesh.connectivityEnd(); }
-
-    static inline const_permutation_iterator permutationBegin( const MyMesh& mesh )
-    { return mesh.permutationBegin(); }
-
-    static inline const_permutation_iterator permutationEnd( const MyMesh& mesh )
-    { return mesh.permutationEnd(); }
-};
-
-} // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Mesh create funciton.
-//---------------------------------------------------------------------------//
-MyMesh buildMyMesh()
-{
     // Make some nodes.
     Teuchos::Array<int> node_handles;
     Teuchos::Array<double> coords;
 
+    int node_dim = 1;
+    int num_nodes = 2;
+
     // handles
-    node_handles.push_back( 0 );
-    node_handles.push_back( 4 );
-    node_handles.push_back( 9 );
-    node_handles.push_back( 2 );
-    node_handles.push_back( 3 );
-    node_handles.push_back( 8 );
-    node_handles.push_back( 1 );
-    node_handles.push_back( 6 );
-    node_handles.push_back( 12 );
-    node_handles.push_back( 7 );
-    node_handles.push_back( 13 );
-    node_handles.push_back( 5 );
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	node_handles.push_back( i );
+    }
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+
+    // Make the line.
+    Teuchos::Array<int> line_handles;
+    Teuchos::Array<int> line_connectivity;
+    
+    // handles
+    line_handles.push_back( 12 );
+
+    // connectivity
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	line_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
+    std::copy( node_handles.begin(), node_handles.end(), 
+	       node_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> line_handle_array( line_handles.size() );
+    std::copy( line_handles.begin(), line_handles.end(), 
+	       line_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( line_connectivity.size() );
+    std::copy( line_connectivity.begin(), line_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
+			       DTK_LINE_SEGMENT, num_nodes,
+			       line_handle_array, connectivity_array,
+			       permutation_list );
+}
+
+//---------------------------------------------------------------------------//
+// Tri mesh.
+DataTransferKit::MeshContainer<int> buildTriContainer()
+{
+    using namespace DataTransferKit;
+
+    // Make some nodes.
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords;
+
+    int node_dim = 2;
+    int num_nodes = 3;
+
+    // handles
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	node_handles.push_back( i );
+    }
 
     // x
     coords.push_back( 0.0 ); 
     coords.push_back( 1.0 ); 
     coords.push_back( 1.0 ); 
-    coords.push_back( 0.0 );
-    coords.push_back( 0.0 );
-    coords.push_back( 1.0 ); 
-    coords.push_back( 1.0 ); 
+
+    // y
     coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+
+    // Make the triahedron.
+    Teuchos::Array<int> tri_handles;
+    Teuchos::Array<int> tri_connectivity;
+    
+    // handles
+    tri_handles.push_back( 12 );
+
+    // connectivity
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	tri_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
+    std::copy( node_handles.begin(), node_handles.end(), 
+	       node_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> tri_handle_array( tri_handles.size() );
+    std::copy( tri_handles.begin(), tri_handles.end(), 
+	       tri_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( tri_connectivity.size() );
+    std::copy( tri_connectivity.begin(), tri_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
+			       DTK_TRIANGLE, num_nodes,
+			       tri_handle_array, connectivity_array,
+			       permutation_list );
+}
+
+//---------------------------------------------------------------------------//
+// Quad mesh.
+DataTransferKit::MeshContainer<int> buildQuadContainer()
+{
+    using namespace DataTransferKit;
+
+    // Make some nodes.
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords;
+
+    int node_dim = 2;
+    int num_nodes = 4;
+
+    // handles
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	node_handles.push_back( i );
+    }
+
+    // x
     coords.push_back( 0.0 ); 
     coords.push_back( 1.0 ); 
     coords.push_back( 1.0 ); 
@@ -220,11 +207,159 @@ MyMesh buildMyMesh()
     coords.push_back( 0.0 ); 
     coords.push_back( 1.0 ); 
     coords.push_back( 1.0 ); 
+
+    // Make the quadahedron.
+    Teuchos::Array<int> quad_handles;
+    Teuchos::Array<int> quad_connectivity;
+    
+    // handles
+    quad_handles.push_back( 12 );
+
+    // connectivity
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	quad_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
+    std::copy( node_handles.begin(), node_handles.end(), 
+	       node_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> quad_handle_array( quad_handles.size() );
+    std::copy( quad_handles.begin(), quad_handles.end(), 
+	       quad_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( quad_connectivity.size() );
+    std::copy( quad_connectivity.begin(), quad_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
+			       DTK_QUADRILATERAL, num_nodes,
+			       quad_handle_array, connectivity_array,
+			       permutation_list );
+}
+
+//---------------------------------------------------------------------------//
+// Tet mesh.
+DataTransferKit::MeshContainer<int> buildTetContainer()
+{
+    using namespace DataTransferKit;
+
+    // Make some nodes.
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords;
+
+    int node_dim = 3;
+    int num_nodes = 4;
+
+    // handles
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	node_handles.push_back( i );
+    }
+
+    // x
     coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
+
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+
+    // z
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
     coords.push_back( 0.0 );
     coords.push_back( 1.0 );
-    coords.push_back( 1.0 );
+
+    // Make the tetahedron.
+    Teuchos::Array<int> tet_handles;
+    Teuchos::Array<int> tet_connectivity;
+    
+    // handles
+    tet_handles.push_back( 12 );
+
+    // connectivity
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	tet_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
+    std::copy( node_handles.begin(), node_handles.end(), 
+	       node_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> tet_handle_array( tet_handles.size() );
+    std::copy( tet_handles.begin(), tet_handles.end(), 
+	       tet_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( tet_connectivity.size() );
+    std::copy( tet_connectivity.begin(), tet_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
+			       DTK_TETRAHEDRON, num_nodes,
+			       tet_handle_array, connectivity_array,
+			       permutation_list );
+}
+
+//---------------------------------------------------------------------------//
+// Hex mesh.
+DataTransferKit::MeshContainer<int> buildHexContainer()
+{
+    using namespace DataTransferKit;
+
+    // Make some nodes.
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords;
+
+    int node_dim = 3;
+    int num_nodes = 8;
+
+    // handles
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	node_handles.push_back( i );
+    }
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
     coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
     coords.push_back( 0.0 );
     coords.push_back( 1.0 );
     coords.push_back( 1.0 );
@@ -238,143 +373,925 @@ MyMesh buildMyMesh()
     coords.push_back( 1.0 );
     coords.push_back( 1.0 );
     coords.push_back( 1.0 );
-    coords.push_back( 2.0 );
-    coords.push_back( 2.0 );
-    coords.push_back( 2.0 );
-    coords.push_back( 2.0 );
 
-    // Make 2 hexahedrons.
+    // Make the hexahedron.
     Teuchos::Array<int> hex_handles;
     Teuchos::Array<int> hex_connectivity;
     
     // handles
-    hex_handles.push_back( 0 );
-    hex_handles.push_back( 1 );
+    hex_handles.push_back( 12 );
 
-    // 0
-    hex_connectivity.push_back( 0 );
-    hex_connectivity.push_back( 3 ); 
+    // connectivity
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	hex_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
+    std::copy( node_handles.begin(), node_handles.end(), 
+	       node_handle_array.begin() );
 
-    // 1
-    hex_connectivity.push_back( 4 ); 
-    hex_connectivity.push_back( 8 );  
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    // 2
-    hex_connectivity.push_back( 9 );
-    hex_connectivity.push_back( 1 ); 
+    Teuchos::ArrayRCP<int> hex_handle_array( hex_handles.size() );
+    std::copy( hex_handles.begin(), hex_handles.end(), 
+	       hex_handle_array.begin() );
 
-    // 3
-    hex_connectivity.push_back( 2 ); 
-    hex_connectivity.push_back( 6 ); 
+    Teuchos::ArrayRCP<int> connectivity_array( hex_connectivity.size() );
+    std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
+	       connectivity_array.begin() );
 
-    // 4
-    hex_connectivity.push_back( 3 );
-    hex_connectivity.push_back( 12 ); 
-   
-    // 5
-    hex_connectivity.push_back( 8 ); 
-    hex_connectivity.push_back( 7 ); 
+    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
+			       DTK_HEXAHEDRON, num_nodes,
+			       hex_handle_array, connectivity_array,
+			       permutation_list );
+}
 
-    // 6
-    hex_connectivity.push_back( 1 ); 
-    hex_connectivity.push_back( 13 ); 
+//---------------------------------------------------------------------------//
+// Parallel hex mesh.
+DataTransferKit::MeshContainer<int> buildParallelHexContainer()
+{
+    using namespace DataTransferKit;
 
-    // 7
-    hex_connectivity.push_back( 6 ); 
-    hex_connectivity.push_back( 5 ); 
-   
-    return MyMesh( node_handles, coords, hex_handles, hex_connectivity );
+    int my_rank = getDefaultComm<int>()->getRank();
+
+    // Make some nodes.
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords;
+
+    int node_dim = 3;
+    int num_nodes = 8;
+
+    // handles
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	node_handles.push_back( i );
+    }
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+
+    // z
+    coords.push_back( my_rank );
+    coords.push_back( my_rank );
+    coords.push_back( my_rank );
+    coords.push_back( my_rank );
+    coords.push_back( my_rank+1 );
+    coords.push_back( my_rank+1 );
+    coords.push_back( my_rank+1 );
+    coords.push_back( my_rank+1 );
+
+    // Make the hexahedron.
+    Teuchos::Array<int> hex_handles;
+    Teuchos::Array<int> hex_connectivity;
+    
+    // handles
+    hex_handles.push_back( 12 );
+
+    // connectivity
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	hex_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
+    std::copy( node_handles.begin(), node_handles.end(), 
+	       node_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> hex_handle_array( hex_handles.size() );
+    std::copy( hex_handles.begin(), hex_handles.end(), 
+	       hex_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( hex_connectivity.size() );
+    std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
+			       DTK_HEXAHEDRON, num_nodes,
+			       hex_handle_array, connectivity_array,
+			       permutation_list );
+}
+
+//---------------------------------------------------------------------------//
+// Pyramid mesh.
+DataTransferKit::MeshContainer<int> buildPyramidContainer()
+{
+    using namespace DataTransferKit;
+
+    // Make some nodes.
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords;
+
+    int node_dim = 3;
+    int num_nodes = 5;
+
+    // handles
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	node_handles.push_back( i );
+    }
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 0.5 );
+
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.5 ); 
+
+    // z
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+
+    // Make the pyramidahedron.
+    Teuchos::Array<int> pyramid_handles;
+    Teuchos::Array<int> pyramid_connectivity;
+    
+    // handles
+    pyramid_handles.push_back( 12 );
+
+    // connectivity
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	pyramid_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
+    std::copy( node_handles.begin(), node_handles.end(), 
+	       node_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> pyramid_handle_array( pyramid_handles.size() );
+    std::copy( pyramid_handles.begin(), pyramid_handles.end(), 
+	       pyramid_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( pyramid_connectivity.size() );
+    std::copy( pyramid_connectivity.begin(), pyramid_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
+			       DTK_PYRAMID, num_nodes,
+			       pyramid_handle_array, connectivity_array,
+			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-
-TEUCHOS_UNIT_TEST( MeshManager, mesh_manager_test )
+// Line mesh.
+TEUCHOS_UNIT_TEST( MeshContainer, line_manager_test )
 {
     using namespace DataTransferKit;
 
-    // Create 2 blocks of mesh.
-    typedef MeshTraits<MyMesh> MT;
-    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 2 );
-    mesh_blocks[0] = buildMyMesh();
-    mesh_blocks[1] = buildMyMesh();
+    // Create a mesh container.
+    typedef MeshContainer<int> MeshType;
+    typedef MeshTraits< MeshType > MT;
+    typedef MeshTools< MeshType > Tools;
+    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    mesh_blocks[0] = buildLineContainer();
 
     // Create a mesh manager.
-    MeshManager<MyMesh> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 2 );
+    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 1 );
+    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
     TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
-    TEST_ASSERT( mesh_manager.dim() == 3 );
+    TEST_ASSERT( mesh_manager.dim() == 1 );
+
+    // Mesh parameters.
+    int num_nodes = 2;
 
     // Check the mesh data.
-    int i = 0;
-    MeshManager<MyMesh>::BlockIterator block_iterator;
+    MeshManager<MeshType>::BlockIterator block_iterator;
     for ( block_iterator = mesh_manager.blocksBegin();
 	  block_iterator != mesh_manager.blocksEnd();
 	  ++block_iterator )
     {
-	Teuchos::ArrayRCP<const int> mesh_nodes = 
-	    MeshTools<MyMesh>::nodesView( *block_iterator );
-	Teuchos::ArrayRCP<const int> input_nodes = 
-	    MeshTools<MyMesh>::nodesView( mesh_blocks[i] );
-	for ( int n = 0; n < mesh_nodes.size(); ++n )
+	// Basic container info.
+	TEST_ASSERT( Tools::numElements( *block_iterator ) == 1 );
+	TEST_ASSERT( Tools::numNodes( *block_iterator ) == num_nodes );
+
+	// Nodes.
+	Teuchos::ArrayRCP<const int> nodes_view = 
+	    Tools::nodesView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
 	{
-	    TEST_ASSERT( mesh_nodes[n] == input_nodes[n] );
+	    TEST_ASSERT( nodes_view[i] == i );
 	}
 
-	Teuchos::ArrayRCP<const double> mesh_coords = 
-	    MeshTools<MyMesh>::coordsView( *block_iterator );
-	Teuchos::ArrayRCP<const double> input_coords = 
-	    MeshTools<MyMesh>::coordsView( mesh_blocks[i] );
-	for ( int n = 0; n < mesh_coords.size(); ++n )
+	// Coords.
+	Teuchos::ArrayRCP<const double> coords_view = 
+	    Tools::coordsView( *block_iterator );
+	// x
+	TEST_ASSERT( coords_view[0] == 0.0 ); 
+	TEST_ASSERT( coords_view[1] == 1.0 ); 
+
+	// Elements.
+	Teuchos::ArrayRCP<const int> elements_view =
+	    Tools::elementsView( *block_iterator );
+	TEST_ASSERT( elements_view[0] == 12 );
+
+	// Connectivity.
+	Teuchos::ArrayRCP<const int> connectivity_view =
+	    Tools::connectivityView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
 	{
-	    TEST_ASSERT( mesh_coords[n] == input_coords[n] );
+	    TEST_ASSERT( connectivity_view[i] == i );
 	}
 
-	Teuchos::ArrayRCP<const int> mesh_elements = 
-	    MeshTools<MyMesh>::elementsView( *block_iterator );
-	Teuchos::ArrayRCP<const int> input_elements = 
-	    MeshTools<MyMesh>::elementsView( mesh_blocks[i] );
-	for ( int n = 0; n < mesh_elements.size(); ++n )
+	// Permutation.
+	Teuchos::ArrayRCP<const std::size_t> permutation_view =
+	    Tools::permutationView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
 	{
-	    TEST_ASSERT( mesh_elements[n] == input_elements[n] );
+	    TEST_ASSERT( (int) permutation_view[i] == i );
 	}
-
-	Teuchos::ArrayRCP<const int> mesh_connectivity = 
-	    MeshTools<MyMesh>::connectivityView( *block_iterator );
-	Teuchos::ArrayRCP<const int> input_connectivity = 
-	    MeshTools<MyMesh>::connectivityView( mesh_blocks[i] );
-	for ( int n = 0; n < mesh_connectivity.size(); ++n )
-	{
-	    TEST_ASSERT( mesh_connectivity[n] == input_connectivity[n] );
-	}
-
-	Teuchos::ArrayRCP<const std::size_t> mesh_permutation = 
-	    MeshTools<MyMesh>::permutationView( *block_iterator );
-	Teuchos::ArrayRCP<const std::size_t> input_permutation = 
-	    MeshTools<MyMesh>::permutationView( mesh_blocks[i] );
-	for ( int n = 0; n < mesh_permutation.size(); ++n )
-	{
-	    TEST_ASSERT( mesh_permutation[n] == input_permutation[n] );
-	}
-
-	++i;
     }
 
-    // Test the global bounding box function.
-    BoundingBox mesh_box = mesh_manager.globalBoundingBox();
-    Teuchos::Tuple<double,6> box_bounds = mesh_box.getBounds();
-    TEST_ASSERT( box_bounds[0] == 0.0 );
-    TEST_ASSERT( box_bounds[1] == 0.0 );
-    TEST_ASSERT( box_bounds[2] == 0.0 );
-    TEST_ASSERT( box_bounds[3] == 1.0 );
-    TEST_ASSERT( box_bounds[4] == 1.0 );
-    TEST_ASSERT( box_bounds[5] == 2.0 );
+    // Bounding Boxes.
+    BoundingBox global_box = mesh_manager.globalBoundingBox();
+    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    TEST_ASSERT( global_bounds[0] == 0.0 );
+    TEST_ASSERT( global_bounds[1] == -Teuchos::ScalarTraits<double>::rmax() );
+    TEST_ASSERT( global_bounds[2] == -Teuchos::ScalarTraits<double>::rmax() );
+    TEST_ASSERT( global_bounds[3] == 1.0 );
+    TEST_ASSERT( global_bounds[4] == Teuchos::ScalarTraits<double>::rmax() );
+    TEST_ASSERT( global_bounds[5] == Teuchos::ScalarTraits<double>::rmax() );
+}
 
-    // Test the size functions.
-    TEST_ASSERT( mesh_manager.localNumElements() == 4 );
-    TEST_ASSERT( mesh_manager.globalNumElements() == 
-		 4*getDefaultComm<int>()->getSize() )
+//---------------------------------------------------------------------------//
+// Tri mesh.
+TEUCHOS_UNIT_TEST( MeshContainer, tri_manager_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a mesh container.
+    typedef MeshContainer<int> MeshType;
+    typedef MeshTraits< MeshType > MT;
+    typedef MeshTools< MeshType > Tools;
+    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    mesh_blocks[0] = buildTriContainer();
+
+    // Create a mesh manager.
+    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 2 );
+    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
+    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.dim() == 2 );
+
+    // Mesh parameters.
+    int num_nodes = 3;
+
+    // Check the mesh data.
+    MeshManager<MeshType>::BlockIterator block_iterator;
+    for ( block_iterator = mesh_manager.blocksBegin();
+	  block_iterator != mesh_manager.blocksEnd();
+	  ++block_iterator )
+    {
+	TEST_ASSERT( Tools::numElements( *block_iterator ) == 1 );
+	TEST_ASSERT( Tools::numNodes( *block_iterator ) == num_nodes );
+
+	// Nodes.
+	Teuchos::ArrayRCP<const int> nodes_view = 
+	    Tools::nodesView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( nodes_view[i] == i );
+	}
+
+	// Coords.
+	Teuchos::ArrayRCP<const double> coords_view = 
+	    Tools::coordsView( *block_iterator );
+	// x
+	TEST_ASSERT( coords_view[0] == 0.0 ); 
+	TEST_ASSERT( coords_view[1] == 1.0 ); 
+	TEST_ASSERT( coords_view[2] == 1.0 ); 
+
+	// y
+	TEST_ASSERT( coords_view[3] == 0.0 ); 
+	TEST_ASSERT( coords_view[4] == 0.0 ); 
+	TEST_ASSERT( coords_view[5] == 1.0 ); 
+
+	// Elements.
+	Teuchos::ArrayRCP<const int> elements_view =
+	    Tools::elementsView( *block_iterator );
+	TEST_ASSERT( elements_view[0] == 12 );
+
+	// Connectivity.
+	Teuchos::ArrayRCP<const int> connectivity_view =
+	    Tools::connectivityView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( connectivity_view[i] == i );
+	}
+
+	// Permutation.
+	Teuchos::ArrayRCP<const std::size_t> permutation_view =
+	    Tools::permutationView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( (int) permutation_view[i] == i );
+	}
+    }
+
+    BoundingBox global_box = mesh_manager.globalBoundingBox();
+    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    TEST_ASSERT( global_bounds[0] == 0.0 );
+    TEST_ASSERT( global_bounds[1] == 0.0 );
+    TEST_ASSERT( global_bounds[2] == -Teuchos::ScalarTraits<double>::rmax() );
+    TEST_ASSERT( global_bounds[3] == 1.0 );
+    TEST_ASSERT( global_bounds[4] == 1.0 );
+    TEST_ASSERT( global_bounds[5] == Teuchos::ScalarTraits<double>::rmax() );
+}
+
+//---------------------------------------------------------------------------//
+// Quad mesh.
+TEUCHOS_UNIT_TEST( MeshContainer, quad_manager_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a mesh container.
+    typedef MeshContainer<int> MeshType;
+    typedef MeshTraits< MeshType > MT;
+    typedef MeshTools< MeshType > Tools;
+    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    mesh_blocks[0] = buildQuadContainer();
+
+    // Create a mesh manager.
+    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 2 );
+    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
+    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.dim() == 2 );
+
+    // Mesh parameters.
+    int num_nodes = 4;
+
+    // Check the mesh data.
+    MeshManager<MeshType>::BlockIterator block_iterator;
+    for ( block_iterator = mesh_manager.blocksBegin();
+	  block_iterator != mesh_manager.blocksEnd();
+	  ++block_iterator )
+    {
+	// Nodes.
+	Teuchos::ArrayRCP<const int> nodes_view = 
+	    Tools::nodesView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( nodes_view[i] == i );
+	}
+
+	// Coords.
+	Teuchos::ArrayRCP<const double> coords_view = 
+	    Tools::coordsView( *block_iterator );
+	// x
+	TEST_ASSERT( coords_view[0] == 0.0 ); 
+	TEST_ASSERT( coords_view[1] == 1.0 ); 
+	TEST_ASSERT( coords_view[2] == 1.0 ); 
+	TEST_ASSERT( coords_view[3] == 0.0 );
+
+	// y
+	TEST_ASSERT( coords_view[4] == 0.0 ); 
+	TEST_ASSERT( coords_view[5] == 0.0 ); 
+	TEST_ASSERT( coords_view[6] == 1.0 ); 
+	TEST_ASSERT( coords_view[7] == 1.0 ); 
+
+	// Elements.
+	Teuchos::ArrayRCP<const int> elements_view =
+	    Tools::elementsView( *block_iterator );
+	TEST_ASSERT( elements_view[0] == 12 );
+
+	// Connectivity.
+	Teuchos::ArrayRCP<const int> connectivity_view =
+	    Tools::connectivityView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( connectivity_view[i] == i );
+	}
+
+	// Permutation.
+	Teuchos::ArrayRCP<const std::size_t> permutation_view =
+	    Tools::permutationView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( (int) permutation_view[i] == i );
+	}
+    }
+
+    // Bounding boxes.
+    BoundingBox global_box = mesh_manager.globalBoundingBox();
+    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    TEST_ASSERT( global_bounds[0] == 0.0 );
+    TEST_ASSERT( global_bounds[1] == 0.0 );
+    TEST_ASSERT( global_bounds[2] == -Teuchos::ScalarTraits<double>::rmax() );
+    TEST_ASSERT( global_bounds[3] == 1.0 );
+    TEST_ASSERT( global_bounds[4] == 1.0 );
+    TEST_ASSERT( global_bounds[5] == Teuchos::ScalarTraits<double>::rmax() );
+}
+
+//---------------------------------------------------------------------------//
+// Tet mesh.
+TEUCHOS_UNIT_TEST( MeshContainer, tet_manager_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a mesh container.
+    typedef MeshContainer<int> MeshType;
+    typedef MeshTraits< MeshType > MT;
+    typedef MeshTools< MeshType > Tools;
+    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    mesh_blocks[0] = buildTetContainer();
+
+    // Create a mesh manager.
+    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
+    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
+    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.dim() == 3 );
+
+    // Mesh parameters.
+    int num_nodes = 4;
+
+    // Check the mesh data.
+    MeshManager<MeshType>::BlockIterator block_iterator;
+    for ( block_iterator = mesh_manager.blocksBegin();
+	  block_iterator != mesh_manager.blocksEnd();
+	  ++block_iterator )
+    {
+	// Nodes.
+	Teuchos::ArrayRCP<const int> nodes_view = 
+	    Tools::nodesView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( nodes_view[i] == i );
+	}
+
+	// Coords.
+	Teuchos::ArrayRCP<const double> coords_view = 
+	    Tools::coordsView( *block_iterator );
+	// x
+	TEST_ASSERT( coords_view[0] == 0.0 ); 
+	TEST_ASSERT( coords_view[1] == 1.0 ); 
+	TEST_ASSERT( coords_view[2] == 1.0 ); 
+	TEST_ASSERT( coords_view[3] == 0.0 );
+
+	// y
+	TEST_ASSERT( coords_view[4] == 0.0 ); 
+	TEST_ASSERT( coords_view[5] == 0.0 ); 
+	TEST_ASSERT( coords_view[6] == 1.0 ); 
+	TEST_ASSERT( coords_view[7] == 1.0 ); 
+
+	// z
+	TEST_ASSERT( coords_view[8]  == 0.0 );
+	TEST_ASSERT( coords_view[9]  == 0.0 );
+	TEST_ASSERT( coords_view[10] == 0.0 );
+	TEST_ASSERT( coords_view[11] == 1.0 );
+
+	// Elements.
+	Teuchos::ArrayRCP<const int> elements_view =
+	    Tools::elementsView( *block_iterator );
+	TEST_ASSERT( elements_view[0] == 12 );
+
+	// Connectivity.
+	Teuchos::ArrayRCP<const int> connectivity_view =
+	    Tools::connectivityView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( connectivity_view[i] == i );
+	}
+
+	// Permutation.
+	Teuchos::ArrayRCP<const std::size_t> permutation_view =
+	    Tools::permutationView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( (int) permutation_view[i] == i );
+	}
+    }
+
+    // Bounding Boxes.
+    BoundingBox global_box = mesh_manager.globalBoundingBox();
+    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    TEST_ASSERT( global_bounds[0] == 0.0 );
+    TEST_ASSERT( global_bounds[1] == 0.0 );
+    TEST_ASSERT( global_bounds[2] == 0.0 );
+    TEST_ASSERT( global_bounds[3] == 1.0 );
+    TEST_ASSERT( global_bounds[4] == 1.0 );
+    TEST_ASSERT( global_bounds[5] == 1.0 );
+}
+
+//---------------------------------------------------------------------------//
+// Hex mesh.
+TEUCHOS_UNIT_TEST( MeshContainer, hex_manager_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a mesh container.
+    typedef MeshContainer<int> MeshType;
+    typedef MeshTraits< MeshType > MT;
+    typedef MeshTools< MeshType > Tools;
+    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    mesh_blocks[0] = buildHexContainer();
+
+    // Create a mesh manager.
+    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
+    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
+    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.dim() == 3 );
+
+    // Mesh parameters.
+    int num_nodes = 8;
+
+    // Check the mesh data.
+    MeshManager<MeshType>::BlockIterator block_iterator;
+    for ( block_iterator = mesh_manager.blocksBegin();
+	  block_iterator != mesh_manager.blocksEnd();
+	  ++block_iterator )
+    {
+	// Nodes.
+	Teuchos::ArrayRCP<const int> nodes_view = 
+	    Tools::nodesView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( nodes_view[i] == i );
+	}
+
+	// Coords.
+	Teuchos::ArrayRCP<const double> coords_view = 
+	    Tools::coordsView( *block_iterator );
+	// x
+	TEST_ASSERT( coords_view[0] == 0.0 ); 
+	TEST_ASSERT( coords_view[1] == 1.0 ); 
+	TEST_ASSERT( coords_view[2] == 1.0 ); 
+	TEST_ASSERT( coords_view[3] == 0.0 );
+	TEST_ASSERT( coords_view[4] == 0.0 );
+	TEST_ASSERT( coords_view[5] == 1.0 ); 
+	TEST_ASSERT( coords_view[6] == 1.0 ); 
+	TEST_ASSERT( coords_view[7] == 0.0 ); 
+
+	// y
+	TEST_ASSERT( coords_view[8]  == 0.0 ); 
+	TEST_ASSERT( coords_view[9]  == 0.0 ); 
+	TEST_ASSERT( coords_view[10] == 1.0 ); 
+	TEST_ASSERT( coords_view[11] == 1.0 ); 
+	TEST_ASSERT( coords_view[12] == 0.0 ); 
+	TEST_ASSERT( coords_view[13] == 0.0 );
+	TEST_ASSERT( coords_view[14] == 1.0 );
+	TEST_ASSERT( coords_view[15] == 1.0 );
+
+	// z
+	TEST_ASSERT( coords_view[16] == 0.0 );
+	TEST_ASSERT( coords_view[17] == 0.0 );
+	TEST_ASSERT( coords_view[18] == 0.0 );
+	TEST_ASSERT( coords_view[19] == 0.0 );
+	TEST_ASSERT( coords_view[20] == 1.0 );
+	TEST_ASSERT( coords_view[21] == 1.0 );
+	TEST_ASSERT( coords_view[22] == 1.0 );
+	TEST_ASSERT( coords_view[23] == 1.0 );
+
+	// Elements.
+	Teuchos::ArrayRCP<const int> elements_view =
+	    Tools::elementsView( *block_iterator );
+	TEST_ASSERT( elements_view[0] == 12 );
+
+	// Connectivity.
+	Teuchos::ArrayRCP<const int> connectivity_view =
+	    Tools::connectivityView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( connectivity_view[i] == i );
+	}
+
+	// Permutation.
+	Teuchos::ArrayRCP<const std::size_t> permutation_view =
+	    Tools::permutationView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( (int) permutation_view[i] == i );
+	}
+    }
+
+    // Bounding Boxes.
+    BoundingBox global_box = mesh_manager.globalBoundingBox();
+    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    TEST_ASSERT( global_bounds[0] == 0.0 );
+    TEST_ASSERT( global_bounds[1] == 0.0 );
+    TEST_ASSERT( global_bounds[2] == 0.0 );
+    TEST_ASSERT( global_bounds[3] == 1.0 );
+    TEST_ASSERT( global_bounds[4] == 1.0 );
+    TEST_ASSERT( global_bounds[5] == 1.0 );
+}
+
+//---------------------------------------------------------------------------//
+// Pyramid mesh.
+TEUCHOS_UNIT_TEST( MeshContainer, pyramid_manager_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a mesh container.
+    typedef MeshContainer<int> MeshType;
+    typedef MeshTraits< MeshType > MT;
+    typedef MeshTools< MeshType > Tools;
+    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    mesh_blocks[0] = buildPyramidContainer();
+
+    // Create a mesh manager.
+    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
+    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
+    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.dim() == 3 );
+
+    // Mesh parameters.
+    int num_nodes = 5;
+
+    // Check the mesh data.
+    MeshManager<MeshType>::BlockIterator block_iterator;
+    for ( block_iterator = mesh_manager.blocksBegin();
+	  block_iterator != mesh_manager.blocksEnd();
+	  ++block_iterator )
+    {
+	// Nodes.
+	Teuchos::ArrayRCP<const int> nodes_view = 
+	    Tools::nodesView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( nodes_view[i] == i );
+	}
+
+	// Coords.
+	Teuchos::ArrayRCP<const double> coords_view = 
+	    Tools::coordsView( *block_iterator );
+	// x
+	TEST_ASSERT( coords_view[0] == 0.0 ); 
+	TEST_ASSERT( coords_view[1] == 1.0 ); 
+	TEST_ASSERT( coords_view[2] == 1.0 ); 
+	TEST_ASSERT( coords_view[3] == 0.0 );
+	TEST_ASSERT( coords_view[4] == 0.5 );
+
+	// y
+	TEST_ASSERT( coords_view[5]  == 0.0 ); 
+	TEST_ASSERT( coords_view[6]  == 0.0 ); 
+	TEST_ASSERT( coords_view[7] == 1.0 ); 
+	TEST_ASSERT( coords_view[8] == 1.0 ); 
+	TEST_ASSERT( coords_view[9] == 0.5 ); 
+
+	// z
+	TEST_ASSERT( coords_view[10] == 0.0 );
+	TEST_ASSERT( coords_view[11] == 0.0 );
+	TEST_ASSERT( coords_view[12] == 0.0 );
+	TEST_ASSERT( coords_view[13] == 0.0 );
+	TEST_ASSERT( coords_view[14] == 1.0 );
+
+	// Elements.
+	Teuchos::ArrayRCP<const int> elements_view =
+	    Tools::elementsView( *block_iterator );
+	TEST_ASSERT( elements_view[0] == 12 );
+
+	// Connectivity.
+	Teuchos::ArrayRCP<const int> connectivity_view =
+	    Tools::connectivityView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( connectivity_view[i] == i );
+	}
+
+	// Permutation.
+	Teuchos::ArrayRCP<const std::size_t> permutation_view =
+	    Tools::permutationView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( (int) permutation_view[i] == i );
+	}
+    }
+
+    // Bounding Boxes.
+    BoundingBox global_box = mesh_manager.globalBoundingBox();
+    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    TEST_ASSERT( global_bounds[0] == 0.0 );
+    TEST_ASSERT( global_bounds[1] == 0.0 );
+    TEST_ASSERT( global_bounds[2] == 0.0 );
+    TEST_ASSERT( global_bounds[3] == 1.0 );
+    TEST_ASSERT( global_bounds[4] == 1.0 );
+    TEST_ASSERT( global_bounds[5] == 1.0 );
+}
+
+//---------------------------------------------------------------------------//
+// Parallel hex mesh.
+TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_manager_test )
+{
+    using namespace DataTransferKit;
+
+    int my_rank = getDefaultComm<int>()->getRank();
+    int my_size = getDefaultComm<int>()->getSize();
+
+    // Create a mesh container.
+    typedef MeshContainer<int> MeshType;
+    typedef MeshTraits< MeshType > MT;
+    typedef MeshTools< MeshType > Tools;
+    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    mesh_blocks[0] = buildParallelHexContainer();
+
+    // Create a mesh manager.
+    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
+    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
+    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.dim() == 3 );
+
+    // Mesh parameters.
+    int num_nodes = 8;
+
+    // Check the mesh data.
+    MeshManager<MeshType>::BlockIterator block_iterator;
+    for ( block_iterator = mesh_manager.blocksBegin();
+	  block_iterator != mesh_manager.blocksEnd();
+	  ++block_iterator )
+    {
+	// Nodes.
+	Teuchos::ArrayRCP<const int> nodes_view = 
+	    Tools::nodesView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( nodes_view[i] == i );
+	}
+
+	// Coords.
+	Teuchos::ArrayRCP<const double> coords_view = 
+	    Tools::coordsView( *block_iterator );
+	// x
+	TEST_ASSERT( coords_view[0] == 0.0 ); 
+	TEST_ASSERT( coords_view[1] == 1.0 ); 
+	TEST_ASSERT( coords_view[2] == 1.0 ); 
+	TEST_ASSERT( coords_view[3] == 0.0 );
+	TEST_ASSERT( coords_view[4] == 0.0 );
+	TEST_ASSERT( coords_view[5] == 1.0 ); 
+	TEST_ASSERT( coords_view[6] == 1.0 ); 
+	TEST_ASSERT( coords_view[7] == 0.0 ); 
+
+	// y
+	TEST_ASSERT( coords_view[8]  == 0.0 ); 
+	TEST_ASSERT( coords_view[9]  == 0.0 ); 
+	TEST_ASSERT( coords_view[10] == 1.0 ); 
+	TEST_ASSERT( coords_view[11] == 1.0 ); 
+	TEST_ASSERT( coords_view[12] == 0.0 ); 
+	TEST_ASSERT( coords_view[13] == 0.0 );
+	TEST_ASSERT( coords_view[14] == 1.0 );
+	TEST_ASSERT( coords_view[15] == 1.0 );
+
+	// z
+	TEST_ASSERT( coords_view[16] == my_rank );
+	TEST_ASSERT( coords_view[17] == my_rank );
+	TEST_ASSERT( coords_view[18] == my_rank );
+	TEST_ASSERT( coords_view[19] == my_rank );
+	TEST_ASSERT( coords_view[20] == my_rank+1 );
+	TEST_ASSERT( coords_view[21] == my_rank+1 );
+	TEST_ASSERT( coords_view[22] == my_rank+1 );
+	TEST_ASSERT( coords_view[23] == my_rank+1 );
+
+	// Elements.
+	Teuchos::ArrayRCP<const int> elements_view =
+	    Tools::elementsView( *block_iterator );
+	TEST_ASSERT( elements_view[0] == 12 );
+
+	// Connectivity.
+	Teuchos::ArrayRCP<const int> connectivity_view =
+	    Tools::connectivityView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( connectivity_view[i] == i );
+	}
+
+	// Permutation.
+	Teuchos::ArrayRCP<const std::size_t> permutation_view =
+	    Tools::permutationView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( (int) permutation_view[i] == i );
+	}
+    }
+
+    // Bounding Boxes.
+    BoundingBox global_box = mesh_manager.globalBoundingBox();
+    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    TEST_ASSERT( global_bounds[0] == 0.0 );
+    TEST_ASSERT( global_bounds[1] == 0.0 );
+    TEST_ASSERT( global_bounds[2] == 0.0 );
+    TEST_ASSERT( global_bounds[3] == 1.0 );
+    TEST_ASSERT( global_bounds[4] == 1.0 );
+    TEST_ASSERT( global_bounds[5] == my_size );
+}
+
+//---------------------------------------------------------------------------//
+// 2d hybrid test.
+TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_manager_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a mesh container.
+    typedef MeshContainer<int> MeshType;
+    typedef MeshTraits< MeshType > MT;
+    typedef MeshTools< MeshType > Tools;
+    Teuchos::ArrayRCP< MeshType > mesh_blocks( 2 );
+    mesh_blocks[0] = buildTriContainer();
+    mesh_blocks[1] = buildQuadContainer();
+
+    // Create a mesh manager.
+    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 2 );
+    TEST_ASSERT( mesh_manager.getNumBlocks() == 2 );
+    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.dim() == 2 );
+
+    // Check the mesh data.
+    MeshManager<MeshType>::BlockIterator block_iterator;
+    for ( block_iterator = mesh_manager.blocksBegin();
+	  block_iterator != mesh_manager.blocksEnd();
+	  ++block_iterator )
+    {
+	TEST_ASSERT( Tools::numElements( *block_iterator ) == 1 );
+	int num_nodes = Tools::numNodes( *block_iterator );
+
+	// Nodes.
+	Teuchos::ArrayRCP<const int> nodes_view = 
+	    Tools::nodesView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( nodes_view[i] == i );
+	}
+
+	// Elements.
+	Teuchos::ArrayRCP<const int> elements_view =
+	    Tools::elementsView( *block_iterator );
+	TEST_ASSERT( elements_view[0] == 12 );
+
+	// Connectivity.
+	Teuchos::ArrayRCP<const int> connectivity_view =
+	    Tools::connectivityView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( connectivity_view[i] == i );
+	}
+
+	// Permutation.
+	Teuchos::ArrayRCP<const std::size_t> permutation_view =
+	    Tools::permutationView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( (int) permutation_view[i] == i );
+	}
+    }
+
+    BoundingBox global_box = mesh_manager.globalBoundingBox();
+    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    TEST_ASSERT( global_bounds[0] == 0.0 );
+    TEST_ASSERT( global_bounds[1] == 0.0 );
+    TEST_ASSERT( global_bounds[2] == -Teuchos::ScalarTraits<double>::rmax() );
+    TEST_ASSERT( global_bounds[3] == 1.0 );
+    TEST_ASSERT( global_bounds[4] == 1.0 );
+    TEST_ASSERT( global_bounds[5] == Teuchos::ScalarTraits<double>::rmax() );
 }
 
 //---------------------------------------------------------------------------//

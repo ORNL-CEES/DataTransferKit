@@ -134,7 +134,7 @@ BoundingBox MeshManager<Mesh>::globalBoundingBox()
 
     double global_x_min = Teuchos::ScalarTraits<double>::rmax();
     double global_y_min = Teuchos::ScalarTraits<double>::rmax();
-    double global_z_min = Teuchos::ScalarTraits<double>::rmax();;
+    double global_z_min = Teuchos::ScalarTraits<double>::rmax();
     double global_x_max = -Teuchos::ScalarTraits<double>::rmax();
     double global_y_max = -Teuchos::ScalarTraits<double>::rmax();
     double global_z_max = -Teuchos::ScalarTraits<double>::rmax();
