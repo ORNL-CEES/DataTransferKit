@@ -51,6 +51,12 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
+/*!
+ * \class MeshContainer
+ * \brief A container for rebuilding mesh data after serialization.
+ */
+//---------------------------------------------------------------------------//
 template<typename GlobalOrdinal>
 class MeshContainer
 {
