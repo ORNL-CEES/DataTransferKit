@@ -54,8 +54,9 @@ each subpackage.
 DOCUMENTATION
 -------------
 
-User and developer documentation is provided by Doxygen. A domain
-model document can be found
+User and developer documentation is provided by Doxygen
+[here](http://cnerg.github.com/DataTransferKit/). A domain model
+document can be found
 [here](https://github.com/CNERG/DataTransferKit/tree/dev/doc/domain_model).
 
 AUTHORS
