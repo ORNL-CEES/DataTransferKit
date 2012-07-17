@@ -41,7 +41,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
-// Mesh container creation funcitons.
+// Mesh container creation functions.
 //---------------------------------------------------------------------------//
 // Line segment mesh.
 DataTransferKit::MeshContainer<int> buildLineContainer()
