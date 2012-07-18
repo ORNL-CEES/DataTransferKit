@@ -108,7 +108,7 @@ TEUCHOS_UNIT_TEST( TopologyTools, quad_test )
     double vertex_2[2] = { 0.43, 4.2 };
     double vertex_3[2] = { -3.3, 1.1 };
 
-    std::vector<moab::EntityHandle> vertices(3);
+    std::vector<moab::EntityHandle> vertices(4);
     error = moab->create_vertex( vertex_0, vertices[0] );
     TEST_ASSERT( error == moab::MB_SUCCESS );
     error = moab->create_vertex( vertex_1, vertices[1] );
