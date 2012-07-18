@@ -1295,6 +1295,76 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_manager_test )
 }
 
 //---------------------------------------------------------------------------//
+// 3d hybrid test.
+TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_manager_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a mesh container.
+    typedef MeshContainer<int> MeshType;
+    typedef MeshTraits< MeshType > MT;
+    typedef MeshTools< MeshType > Tools;
+    Teuchos::ArrayRCP< MeshType > mesh_blocks( 3 );
+    mesh_blocks[0] = buildTetContainer();
+    mesh_blocks[1] = buildHexContainer();
+    mesh_blocks[2] = buildPyramidContainer();
+
+    // Create a mesh manager.
+    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
+    TEST_ASSERT( mesh_manager.getNumBlocks() == 3 );
+    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.dim() == 3 );
+
+    // Check the mesh data.
+    MeshManager<MeshType>::BlockIterator block_iterator;
+    for ( block_iterator = mesh_manager.blocksBegin();
+	  block_iterator != mesh_manager.blocksEnd();
+	  ++block_iterator )
+    {
+	TEST_ASSERT( Tools::numElements( *block_iterator ) == 1 );
+	int num_nodes = Tools::numNodes( *block_iterator );
+
+	// Nodes.
+	Teuchos::ArrayRCP<const int> nodes_view = 
+	    Tools::nodesView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( nodes_view[i] == i );
+	}
+
+	// Elements.
+	Teuchos::ArrayRCP<const int> elements_view =
+	    Tools::elementsView( *block_iterator );
+	TEST_ASSERT( elements_view[0] == 12 );
+
+	// Connectivity.
+	Teuchos::ArrayRCP<const int> connectivity_view =
+	    Tools::connectivityView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( connectivity_view[i] == i );
+	}
+
+	// Permutation.
+	Teuchos::ArrayRCP<const std::size_t> permutation_view =
+	    Tools::permutationView( *block_iterator );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    TEST_ASSERT( (int) permutation_view[i] == i );
+	}
+    }
+
+    BoundingBox global_box = mesh_manager.globalBoundingBox();
+    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    TEST_ASSERT( global_bounds[0] == 0.0 );
+    TEST_ASSERT( global_bounds[1] == 0.0 );
+    TEST_ASSERT( global_bounds[2] == 0.0 );
+    TEST_ASSERT( global_bounds[3] == 1.0 );
+    TEST_ASSERT( global_bounds[4] == 1.0 );
+    TEST_ASSERT( global_bounds[5] == 1.0 );
+}
+
+//---------------------------------------------------------------------------//
 // end tstMeshManager.cpp
 //---------------------------------------------------------------------------//
 
