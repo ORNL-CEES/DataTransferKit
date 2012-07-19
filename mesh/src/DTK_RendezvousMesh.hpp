@@ -54,6 +54,13 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
+/*!
+ * \class RendezvousMesh
+ * \brief Concrete mesh data structure for building mesh in the rendezvous
+ * decomposition.
+ */
+//---------------------------------------------------------------------------//
 template<typename GlobalOrdinal>
 class RendezvousMesh
 {
