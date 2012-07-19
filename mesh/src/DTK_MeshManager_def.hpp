@@ -120,18 +120,6 @@ MeshManager<Mesh>::globalNumElements() const
 template<class Mesh>
 BoundingBox MeshManager<Mesh>::globalBoundingBox()
 {
-    Teuchos::Array<BoundingBox> block_boxes( d_mesh_blocks.size() );
-    BlockIterator block_iterator;
-    int block_id;
-    for ( block_iterator = d_mesh_blocks.begin();
-	  block_iterator != d_mesh_blocks.end();
-	  ++block_iterator )
-    {
-	block_id = std::distance( blocksBegin(), block_iterator );
-	block_boxes[ block_id ] =
-	    MeshTools<Mesh>::globalBoundingBox( *block_iterator, d_comm );
-    }
-
     double global_x_min = Teuchos::ScalarTraits<double>::rmax();
     double global_y_min = Teuchos::ScalarTraits<double>::rmax();
     double global_z_min = Teuchos::ScalarTraits<double>::rmax();
@@ -140,12 +128,16 @@ BoundingBox MeshManager<Mesh>::globalBoundingBox()
     double global_z_max = -Teuchos::ScalarTraits<double>::rmax();
 
     Teuchos::Tuple<double,6> box_bounds;
-    Teuchos::Array<BoundingBox>::const_iterator box_iterator;
-    for ( box_iterator = block_boxes.begin();
-	  box_iterator != block_boxes.end();
-	  ++box_iterator )
+    BoundingBox block_box;
+    BlockIterator block_iterator;
+    for ( block_iterator = d_mesh_blocks.begin();
+	  block_iterator != d_mesh_blocks.end();
+	  ++block_iterator )
     {
-	box_bounds = box_iterator->getBounds();
+	block_box =
+	    MeshTools<Mesh>::globalBoundingBox( *block_iterator, d_comm );
+
+	box_bounds = block_box.getBounds();
 
 	if ( box_bounds[0] < global_x_min )
 	{
