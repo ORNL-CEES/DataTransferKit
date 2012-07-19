@@ -105,6 +105,10 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
     testPostcondition( moab != Teuchos::null,
 		       "Error creating MOAB interface" );
 
+    // Set the mesh dimension.
+    std::size_t node_dim = mesh_manager.dim();
+    error = moab->set_dimension( node_dim );
+
     // Build each mesh block.
     typename MeshManager<Mesh>::BlockIterator block_iterator;
     for ( block_iterator = mesh_manager.blocksBegin();
@@ -112,7 +116,6 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	  ++block_iterator )
     {
 	// Check the nodes and coordinates for consistency.
-	std::size_t node_dim = MT::nodeDim( *block_iterator );
 	GlobalOrdinal num_nodes = MeshTools<Mesh>::numNodes( *block_iterator );
 	GlobalOrdinal num_coords = 
 	    std::distance( MT::coordsBegin( *block_iterator ),
@@ -171,6 +174,7 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 
 	std::size_t canonical_idx;
 	n = 0;
+	int element_topology = MT::elementTopology( *block_iterator );
 	for ( element_iterator = MT::elementsBegin( *block_iterator );
 	      element_iterator != MT::elementsEnd( *block_iterator );
 	      ++element_iterator, ++n )
@@ -190,7 +194,7 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 
 	    // Create the element in moab.
 	    moab::EntityType entity_type = 
-		moab_topology_table[ MT::elementTopology( *block_iterator ) ];
+		moab_topology_table[ element_topology ];
 	    moab::EntityHandle moab_element;
 	    error = moab->create_element( entity_type,
 					  &element_connectivity[0],
