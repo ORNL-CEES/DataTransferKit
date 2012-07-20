@@ -74,6 +74,7 @@ class RCB
     //! Typedefs.
     typedef Mesh                                        mesh_type;
     typedef MeshTraits<Mesh>                            MT;
+    typedef typename MT::global_ordinal_type            GlobalOrdinal;
     typedef Teuchos::RCP< MeshManager<Mesh> >           RCP_MeshManager;
     typedef typename MeshManager<Mesh>::BlockIterator   BlockIterator;          
     typedef Teuchos::Comm<int>                          CommType;
@@ -88,11 +89,11 @@ class RCB
     // Destructor.
     ~RCB();
 
-    // Compute RCB partitioning of the node field.
+    // Compute RCB partitioning of the mesh.
     void partition();
 
-    // Get the destination process for a point.
-    int getDestinationProc( double coords[3] ) const;
+    // Get the destination process for a node given its coordinates.
+    bool getDestinationProc( double coords[3], int& destination ) const;
 
     //! Get the number of imported nodes.
     int getNumImport() const

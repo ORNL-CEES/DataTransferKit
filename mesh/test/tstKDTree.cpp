@@ -944,9 +944,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_kd_tree_test )
 
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 2 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
-    TEST_ASSERT( mesh_manager.dim() == 2 );
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
@@ -997,9 +994,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_kd_tree_test )
 
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
-    TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
@@ -1052,9 +1046,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_kd_tree_test )
 
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
-    TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
@@ -1107,9 +1098,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_kd_tree_test )
 
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
-    TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
@@ -1164,9 +1152,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_kd_tree_test )
 
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
-    TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
@@ -1220,9 +1205,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_kd_tree_test )
 
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 2 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 2 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
-    TEST_ASSERT( mesh_manager.dim() == 2 );
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
@@ -1292,9 +1274,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_kd_tree_test )
 
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 3 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
-    TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 

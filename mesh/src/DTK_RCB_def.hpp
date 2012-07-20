@@ -47,7 +47,6 @@
 
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
-#include <Teuchos_as.hpp>
 
 namespace DataTransferKit
 {
@@ -86,7 +85,7 @@ RCB<Mesh>::RCB( const RCP_MeshManager& mesh_manager )
     Zoltan_Set_Param( d_zz, "KEEP_CUTS", "1" );
     Zoltan_Set_Param( d_zz, "RCB_SET_DIRECTIONS", "1" );
 
-    // Register query functions.
+    // Register static functions.
     Zoltan_Set_Num_Obj_Fn( d_zz, getNumberOfObjects, &d_mesh_manager );
     Zoltan_Set_Obj_List_Fn( d_zz, getObjectList, &d_mesh_manager );
     Zoltan_Set_Num_Geom_Fn( d_zz, getNumGeometry, &d_mesh_manager );
@@ -110,7 +109,7 @@ RCB<Mesh>::~RCB()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute RCB partitioning of the node field.
+ * \brief Compute RCB partitioning of the mesh.
  */
 template<class Mesh>
 void RCB<Mesh>::partition()
@@ -141,10 +140,11 @@ void RCB<Mesh>::partition()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the destination process for a point.
+ * \brief Get the destination process for a node given its coordinates. Return
+ * false if the node is not inside the RCB domain.
  */
 template<class Mesh>
-int RCB<Mesh>::getDestinationProc( double coords[3] ) const
+bool RCB<Mesh>::getDestinationProc( double coords[3], int& destination ) const
 {
     int x_idx = std::distance( d_x_edges.begin(),
 			       std::upper_bound( d_x_edges.begin(),
@@ -165,11 +165,12 @@ int RCB<Mesh>::getDestinationProc( double coords[3] ) const
 	 x_idx > (int) d_x_edges.size() || y_idx > (int) d_y_edges.size() ||
 	 z_idx > (int) d_z_edges.size() )
     {
-	throw PointNotFound( "Point outside RCB decomposition." );
+	return false;
     }
 
-    return (x_idx-1) + (y_idx-1)*(d_x_edges.size()-1) + 
-	(z_idx-1)*(d_y_edges.size()-1)*(d_x_edges.size()-1);
+    destination = (x_idx-1) + (y_idx-1)*(d_x_edges.size()-1) + 
+		  (z_idx-1)*(d_y_edges.size()-1)*(d_x_edges.size()-1);
+    return true;
 }
 
 //---------------------------------------------------------------------------//
@@ -334,7 +335,7 @@ void RCB<Mesh>::getGeometryList(
     // Zoltan needs interleaved coordinates.
     int n = 0;
     Teuchos::ArrayRCP<const double> mesh_coords;
-    typename MT::global_ordinal_type num_nodes;
+    GlobalOrdinal num_nodes;
     BlockIterator block_iterator;
     for ( block_iterator = mesh_manager->blocksBegin();
 	  block_iterator != mesh_manager->blocksEnd();
@@ -348,7 +349,7 @@ void RCB<Mesh>::getGeometryList(
 	mesh_coords = MeshTools<Mesh>::coordsView( *block_iterator );
 	num_nodes = std::distance( MT::nodesBegin( *block_iterator ),
 				   MT::nodesEnd( *block_iterator ) );
-	for ( typename MT::global_ordinal_type i = 0; i < num_nodes; ++i )
+	for ( GlobalOrdinal i = 0; i < num_nodes; ++i )
 	{
 	    if ( active_nodes[i] )
 	    {
