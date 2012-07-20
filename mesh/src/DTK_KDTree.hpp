@@ -51,6 +51,13 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
+/*!
+ * \class KDTree
+ * \brief A KDTree data structure for local mesh searching in the rendezvous
+ * decomposition.
+ */
+//---------------------------------------------------------------------------//
 template<typename GlobalOrdinal>
 class KDTree
 {
@@ -64,7 +71,7 @@ class KDTree
     //@}
 
     // Constructor.
-    KDTree( const RCP_RendezvousMesh& mesh );
+    KDTree( const RCP_RendezvousMesh& mesh, const int dim );
 
     // Destructor.
     ~KDTree();
@@ -73,18 +80,23 @@ class KDTree
     void build();
 
     // Find a point in the tree.
-    GlobalOrdinal findPoint( const Teuchos::Array<double>& coords );
+    bool findPoint( const Teuchos::Array<double>& coords,
+		    GlobalOrdinal& element );
 
   private:
 
     // Find a point in a leaf.
-    moab::EntityHandle findPointInLeaf( const Teuchos::Array<double>& coords,
-					const moab::EntityHandle leaf );
+    bool findPointInLeaf( const Teuchos::Array<double>& coords,
+			  const moab::EntityHandle leaf,
+			  moab::EntityHandle& element );
 
   private:
 
     // Moab Mesh.
     RCP_RendezvousMesh d_mesh;
+
+    // Tree dimension.
+    int d_dim;
 
     // Adaptive kD-tree.
     moab::AdaptiveKDTree d_tree;

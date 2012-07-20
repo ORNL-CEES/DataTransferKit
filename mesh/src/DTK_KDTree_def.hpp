@@ -47,7 +47,6 @@
 #include <DTK_Exception.hpp>
 
 #include <Teuchos_ArrayView.hpp>
-#include <Teuchos_OrdinalTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -56,8 +55,9 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<typename GlobalOrdinal>
-KDTree<GlobalOrdinal>::KDTree( const RCP_RendezvousMesh& mesh )
+KDTree<GlobalOrdinal>::KDTree( const RCP_RendezvousMesh& mesh, const int dim )
   : d_mesh( mesh )
+  , d_dim( dim )
   , d_tree( d_mesh->getMoab().get() )
 { /* ... */ }
 
@@ -84,22 +84,23 @@ void KDTree<GlobalOrdinal>::build()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Find a point in the tree. Return the native handle of the element it
- * was found in. 
+ * \brief Find a point in the tree. Return false if we didn't find it in the
+ * tree.
  */
 template<typename GlobalOrdinal>
-GlobalOrdinal KDTree<GlobalOrdinal>::findPoint( 
-    const Teuchos::Array<double>& coords )
+bool KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords,
+				       GlobalOrdinal& element )
 {
-    std::size_t node_dim = coords.size();
+    testInvariant( (int) coords.size() == d_dim,
+		   "Point dimension != tree dimension" );
     double point[3];
-    for ( std::size_t d = 0; d < node_dim; ++d )
+    for ( int d = 0; d < d_dim; ++d )
     {
 	point[d] = coords[d];
     }
-    for ( std::size_t d = node_dim; d < 3; ++d )
+    for ( int d = d_dim; d < 3; ++d )
     {
-	point[d] = 0;
+	point[d] = 0.0;
     }
 
     moab::ErrorCode error;
@@ -108,51 +109,35 @@ GlobalOrdinal KDTree<GlobalOrdinal>::findPoint(
     testInvariant( moab::MB_SUCCESS == error,
 		   "Failed to search kD-tree." );
 
-    // Try to find the point in the leaf. If we don't then return the maximum
-    // global ordinal for this type. This assumes that this number will not be
-    // reached in global number of elements.
-    try
+    moab::EntityHandle mb_element;
+    bool point_in_leaf = findPointInLeaf( coords, leaf, mb_element );
+    if ( point_in_leaf )
     {
-	moab::EntityHandle element = findPointInLeaf( coords, leaf );
-	return d_mesh->getNativeOrdinal( element );
+	element = d_mesh->getNativeOrdinal( mb_element );
+	return true;
     }
-    catch ( PointNotFound& exception )
+    else
     {
-	return Teuchos::OrdinalTraits<GlobalOrdinal>::max();
+	return false;
     }
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Find a point in a leaf. Throw a MeshException if the point was not
- * found.
+ * \brief Find a point in a leaf. Return if the point was not found.
  */
 template<typename GlobalOrdinal>
-moab::EntityHandle KDTree<GlobalOrdinal>::findPointInLeaf( 
-    const Teuchos::Array<double>& coords, const moab::EntityHandle leaf )
+bool KDTree<GlobalOrdinal>::findPointInLeaf( 
+    const Teuchos::Array<double>& coords, 
+    const moab::EntityHandle leaf,
+    moab::EntityHandle& element )
 {
     moab::ErrorCode error;
-
-    // Get the largest dimension of the elements in the leaf.
-    int dim = 0;
-    int num_elements_by_dim = 0;
-    for ( int d = 0; d < 4; ++d )
-    {
-	error = d_mesh->getMoab()->get_number_entities_by_dimension(
-	    leaf, d, num_elements_by_dim );
-	testInvariant( moab::MB_SUCCESS == error,
-		       "Failed to get number of elements by dimension." );
-
-	if ( num_elements_by_dim > 0 )
-	{
-	    dim = d;
-	}
-    }
 
     // Get the elements in the leaf.
     std::vector<moab::EntityHandle> leaf_elements;
     error = d_mesh->getMoab()->get_entities_by_dimension( 
-	leaf, dim, leaf_elements );
+	leaf, d_dim, leaf_elements );
     testInvariant( moab::MB_SUCCESS == error,
 		   "Failed to get leaf elements" );
 
@@ -166,15 +151,13 @@ moab::EntityHandle KDTree<GlobalOrdinal>::findPointInLeaf(
 	if ( TopologyTools::pointInElement( 
 		 point, *leaf_iterator, d_mesh->getMoab() ) )
 	{
-	    return *leaf_iterator;
+	    element = *leaf_iterator;
+	    return true;
 	}
     }
 
-    // We didn't find the point so we'll throw an exception.
-    throw PointNotFound( "Point not found in kD-tree." );
-
-    // Return a 0 handle if no element was found.
-    return 0;
+    // Return false if no element was found.
+    return false;
 }
 
 //---------------------------------------------------------------------------//
