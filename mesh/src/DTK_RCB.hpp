@@ -93,7 +93,7 @@ class RCB
     void partition();
 
     // Get the destination process for a node given its coordinates.
-    bool getDestinationProc( double coords[3], int& destination ) const;
+    int getDestinationProc( const Teuchos::Array<double>& coords ) const;
 
     //! Get the number of imported nodes.
     int getNumImport() const

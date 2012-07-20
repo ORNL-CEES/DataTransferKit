@@ -140,37 +140,49 @@ void RCB<Mesh>::partition()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the destination process for a node given its coordinates. Return
- * false if the node is not inside the RCB domain.
+ * \brief Get the destination process for a node given its coordinates.
  */
 template<class Mesh>
-bool RCB<Mesh>::getDestinationProc( double coords[3], int& destination ) const
+int RCB<Mesh>::getDestinationProc( const Teuchos::Array<double>& coords ) const
 {
-    int x_idx = std::distance( d_x_edges.begin(),
+    int coord_dim = coords.size();
+
+    // We'll always find something here as Zoltan does not bound the partition
+    // domain.
+    int x_idx = 1;
+    int y_idx = 1; 
+    int z_idx = 1;
+
+    std::cout << "RCBSIZE " << d_x_edges.size() << " " 
+	      << d_y_edges.size() << " " 
+	      << d_z_edges.size() << std::endl;
+
+    if ( coord_dim > 0 )
+    {
+	x_idx = std::distance( d_x_edges.begin(),
 			       std::upper_bound( d_x_edges.begin(),
 						 d_x_edges.end(),
 						 coords[0] ) );
+    }
 
-    int y_idx = std::distance( d_y_edges.begin(),
+    if ( coord_dim > 1 )
+    {
+	y_idx = std::distance( d_y_edges.begin(),
 			       std::upper_bound( d_y_edges.begin(),
 						 d_y_edges.end(),
 						 coords[1] ) );
+    }
 
-    int z_idx = std::distance( d_z_edges.begin(),
+    if ( coord_dim > 2 )
+    {
+	z_idx = std::distance( d_z_edges.begin(),
 			       std::upper_bound( d_z_edges.begin(),
 						 d_z_edges.end(),
 						 coords[2] ) );
-
-    if ( x_idx == 0 || y_idx == 0 || z_idx == 0 ||
-	 x_idx > (int) d_x_edges.size() || y_idx > (int) d_y_edges.size() ||
-	 z_idx > (int) d_z_edges.size() )
-    {
-	return false;
     }
 
-    destination = (x_idx-1) + (y_idx-1)*(d_x_edges.size()-1) + 
-		  (z_idx-1)*(d_y_edges.size()-1)*(d_x_edges.size()-1);
-    return true;
+    return (x_idx-1) + (y_idx-1)*(d_x_edges.size()-1) + 
+	(z_idx-1)*(d_y_edges.size()-1)*(d_x_edges.size()-1);
 }
 
 //---------------------------------------------------------------------------//
@@ -193,6 +205,10 @@ void RCB<Mesh>::getPartitioning()
 	testInvariant( ZOLTAN_OK == zoltan_error, 
 		       "Zoltan error getting partition bounding box." );
 
+	std::cout << i << " BOX " 
+		  << x_min << " " << x_max << " " 
+		  << y_min << " " << y_max << " " 
+		  << z_min << " " << z_max << std::endl;
 	d_x_edges.insert( x_min );
 	d_x_edges.insert( x_max );
 
