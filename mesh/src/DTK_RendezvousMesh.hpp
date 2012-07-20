@@ -64,7 +64,6 @@ namespace DataTransferKit
 template<typename GlobalOrdinal>
 class RendezvousMesh
 {
-
   public:
 
     //@{

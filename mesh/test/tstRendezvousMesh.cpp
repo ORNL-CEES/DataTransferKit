@@ -645,11 +645,10 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_mesh_test )
     {
 	for ( int d = 0; d < node_dim; ++d )
 	{
-	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
+	    TEST_ASSERT( coords_view[vertices.size()*d + i] == 
+			 mb_coords[3*i+d] ); 
 	}
     }
-
-    // Connectivity.
 }
 
 //---------------------------------------------------------------------------//
@@ -712,8 +711,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_mesh_test )
 	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
 	}
     }
-    
-    // Connectivity.
 }
 
 //---------------------------------------------------------------------------//
@@ -775,8 +772,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_mesh_test )
 	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
 	}
     }
-    
-    // Connectivity.
 }
 
 //---------------------------------------------------------------------------//
@@ -838,8 +833,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_mesh_test )
 	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
 	}
     }
-    
-    // Connectivity.
 }
 
 //---------------------------------------------------------------------------//
@@ -901,8 +894,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_mesh_test )
 	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
 	}
     }
-    
-    // Connectivity.
 }
 
 //---------------------------------------------------------------------------//
@@ -964,9 +955,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_mesh_test )
 	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
 	}
     }
-    
-    // Connectivity.
-
 }
 
 //---------------------------------------------------------------------------//
@@ -1028,9 +1016,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_rendezvous_mesh_test )
 	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
 	}
     }
-    
-    // Connectivity.
-
 }
 
 //---------------------------------------------------------------------------//
@@ -1086,14 +1071,19 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_mesh_test )
 
 	// Nodes.
 	int num_nodes = MT::nodesPerElement( *block_iterator );
-	std::vector<moab::EntityHandle> vertices( num_nodes );
-	error = moab->get_connectivity_by_type( element_type, vertices );
+	moab::Range block_elements;
+	error = moab->get_entities_by_type( 
+	    root_set, element_type, block_elements );
 	TEST_ASSERT( error == moab::MB_SUCCESS );
+	moab::Range vertices;
+	error = moab->get_connectivity( block_elements, vertices );
+	TEST_ASSERT( error == moab::MB_SUCCESS );
+	TEST_ASSERT( (int) vertices.size() == num_nodes );
 
 	// Coords.
 	int node_dim = MT::nodeDim( *block_iterator );
 	std::vector<double> mb_coords( 3*vertices.size() );
-	error = moab->get_coords( &vertices[0], vertices.size(), &mb_coords[0] );
+	error = moab->get_coords( vertices, &mb_coords[0] );
 	TEST_ASSERT( error == moab::MB_SUCCESS );
 
 	Teuchos::ArrayRCP<const double> coords_view = 
@@ -1106,8 +1096,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_mesh_test )
 			     mb_coords[3*i+d] ); 
 	    }
 	}
-
-	// Connectivity.
     }
 }
 
@@ -1139,6 +1127,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_mesh_test )
 
     // Get the moab interface.
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
+    moab::EntityHandle root_set = moab->get_root_set();
     
     // Grab the elements.
     moab::Range mesh_elements = mesh->getElements();
@@ -1163,7 +1152,33 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_mesh_test )
 	TEST_ASSERT( moab_topology_table[ block_topology ] ==
 		     element_type );
 
-	// Connectivity.
+	// Nodes.
+	int num_nodes = MT::nodesPerElement( *block_iterator );
+	moab::Range block_elements;
+	error = moab->get_entities_by_type( 
+	    root_set, element_type, block_elements );
+	TEST_ASSERT( error == moab::MB_SUCCESS );
+	moab::Range vertices;
+	error = moab->get_connectivity( block_elements, vertices );
+	TEST_ASSERT( error == moab::MB_SUCCESS );
+	TEST_ASSERT( (int) vertices.size() == num_nodes );
+
+	// Coords.
+	int node_dim = MT::nodeDim( *block_iterator );
+	std::vector<double> mb_coords( 3*vertices.size() );
+	error = moab->get_coords( vertices, &mb_coords[0] );
+	TEST_ASSERT( error == moab::MB_SUCCESS );
+
+	Teuchos::ArrayRCP<const double> coords_view = 
+	    Tools::coordsView( *block_iterator );
+	for ( int i = 0; i < (int) vertices.size(); ++i )
+	{
+	    for ( int d = 0; d < node_dim; ++d )
+	    {
+		TEST_ASSERT( coords_view[vertices.size()*d + i] == 
+			     mb_coords[3*i+d] ); 
+	    }
+	}
     }
 }
 
