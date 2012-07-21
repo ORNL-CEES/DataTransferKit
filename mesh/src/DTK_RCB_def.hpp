@@ -83,6 +83,8 @@ RCB<Mesh>::RCB( const RCP_MeshManager& mesh_manager )
     Zoltan_Set_Param( d_zz, "RCB_OUTPUT_LEVEL", "0" );
     Zoltan_Set_Param( d_zz, "RCB_RECTILINEAR_BLOCKS", "0" );
     Zoltan_Set_Param( d_zz, "KEEP_CUTS", "1" );
+    Zoltan_Set_Param( d_zz, "AVERAGE_CUTS", "1" );
+    Zoltan_Set_Param( d_zz, "RCB_LOCK_DIRECTIONS", "1" );
     Zoltan_Set_Param( d_zz, "RCB_SET_DIRECTIONS", "1" );
 
     // Register static functions.
@@ -133,9 +135,6 @@ void RCB<Mesh>::partition()
 
     testInvariant( ZOLTAN_OK == zoltan_error, 
 		   "Zoltan error creating RCB partitioning" );
-
-    // Get the global partitioning information.
-    getPartitioning();
 }
 
 //---------------------------------------------------------------------------//
@@ -143,81 +142,16 @@ void RCB<Mesh>::partition()
  * \brief Get the destination process for a node given its coordinates.
  */
 template<class Mesh>
-int RCB<Mesh>::getDestinationProc( const Teuchos::Array<double>& coords ) const
+int RCB<Mesh>::getDestinationProc( Teuchos::Array<double> coords ) const
 {
-    int coord_dim = coords.size();
-
-    // We'll always find something here as Zoltan does not bound the partition
-    // domain.
-    int x_idx = 1;
-    int y_idx = 1; 
-    int z_idx = 1;
-
-    std::cout << "RCBSIZE " << d_x_edges.size() << " " 
-	      << d_y_edges.size() << " " 
-	      << d_z_edges.size() << std::endl;
-
-    if ( coord_dim > 0 )
-    {
-	x_idx = std::distance( d_x_edges.begin(),
-			       std::upper_bound( d_x_edges.begin(),
-						 d_x_edges.end(),
-						 coords[0] ) );
-    }
-
-    if ( coord_dim > 1 )
-    {
-	y_idx = std::distance( d_y_edges.begin(),
-			       std::upper_bound( d_y_edges.begin(),
-						 d_y_edges.end(),
-						 coords[1] ) );
-    }
-
-    if ( coord_dim > 2 )
-    {
-	z_idx = std::distance( d_z_edges.begin(),
-			       std::upper_bound( d_z_edges.begin(),
-						 d_z_edges.end(),
-						 coords[2] ) );
-    }
-
-    return (x_idx-1) + (y_idx-1)*(d_x_edges.size()-1) + 
-	(z_idx-1)*(d_y_edges.size()-1)*(d_x_edges.size()-1);
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the global partitioning information
- */
-template<class Mesh>
-void RCB<Mesh>::getPartitioning()
-{
-    double x_min, y_min, z_min, x_max, y_max, z_max;
-    int dim;
     int zoltan_error;
 
-    for ( int i = 0; i < d_mesh_manager->comm()->getSize(); ++i )
-    {
-	zoltan_error = Zoltan_RCB_Box( d_zz, i, &dim,
-				       &x_min, &y_min, &z_min,
-				       &x_max, &y_max, &z_max );
+    int proc, part;
+    zoltan_error = Zoltan_LB_Point_PP_Assign( d_zz, &coords[0], &proc, &part );
+    testInvariant( ZOLTAN_OK == zoltan_error, 
+		   "Zoltan error getting point destination proc." );
 
-	testInvariant( ZOLTAN_OK == zoltan_error, 
-		       "Zoltan error getting partition bounding box." );
-
-	std::cout << i << " BOX " 
-		  << x_min << " " << x_max << " " 
-		  << y_min << " " << y_max << " " 
-		  << z_min << " " << z_max << std::endl;
-	d_x_edges.insert( x_min );
-	d_x_edges.insert( x_max );
-
-	d_y_edges.insert( y_min );
-	d_y_edges.insert( y_max );
-
-	d_z_edges.insert( z_min );
-	d_z_edges.insert( z_max );
-    }
+    return proc;
 }
 
 //---------------------------------------------------------------------------//

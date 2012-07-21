@@ -64,7 +64,7 @@ document can be found
 BUG REPORTING and ISSUE TRACKING
 --------------------------------
 
-Bug reporting and issue tracking are provided by github. Please report
+Bug reporting and issue tracking are provided by GitHub. Please report
 all bugs [here](https://github.com/CNERG/DataTransferKit/issues) by
 creating a new issue.
 

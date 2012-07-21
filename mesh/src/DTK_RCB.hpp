@@ -93,7 +93,7 @@ class RCB
     void partition();
 
     // Get the destination process for a node given its coordinates.
-    int getDestinationProc( const Teuchos::Array<double>& coords ) const;
+    int getDestinationProc( Teuchos::Array<double> coords ) const;
 
     //! Get the number of imported nodes.
     int getNumImport() const
@@ -158,22 +158,10 @@ class RCB
 				 ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
 				 int num_dim, double *geom_vec, int *ierr );
 
-    // Get the global partitioning information.
-    void getPartitioning();
-
   private:
 
-    // The mesh to be partitioned.
+    // The mesh being partitioned.
     RCP_MeshManager d_mesh_manager;
-
-    // Global x edges.
-    std::set<double> d_x_edges;
-
-    // Global y edges.
-    std::set<double> d_y_edges;
-
-    // Global z edges.
-    std::set<double> d_z_edges;
 
     // Zoltan struct.
     Zoltan_Struct *d_zz;

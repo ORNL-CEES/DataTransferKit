@@ -58,7 +58,10 @@ namespace DataTransferKit
  * \brief Manager object for mesh.
  *
  * The mesh manager manages the topology blocks that construct a mesh and its
- * parallel decomposition.
+ * parallel decomposition. The mesh manager also keeps track of the mesh nodes
+ * (and implicitly the elements) that are active in partitioning and
+ * searching. Those that are not active are typically outside some domain of
+ * interest.
  */
 //---------------------------------------------------------------------------//
 template<class Mesh>
