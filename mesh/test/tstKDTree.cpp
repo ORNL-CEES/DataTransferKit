@@ -891,9 +891,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_kd_tree_test )
 
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 2 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
-    TEST_ASSERT( mesh_manager.dim() == 2 );
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
@@ -1125,8 +1122,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_kd_tree_test )
 	    0.0 <= point[1] && point[1] <= 1.0-point[2] && 
 	    0.0 <= point[2] && point[2] <= 1.0 )
 	{
-		TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
-		TEST_ASSERT( ordinal == 12 );
+	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 );
 	}
 	else
 	{
@@ -1237,7 +1234,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_kd_tree_test )
 	}
 	// In the tri.
 	else if ( 0.0 <= point[0] && point[0] <= 1.0 &&
-	     0.0 < point[1] && point[1] <= point[0] )
+		  0.0 < point[1] && point[1] <= point[0] )
 	{
 	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
 	    TEST_ASSERT( ordinal == 12 );
@@ -1330,16 +1327,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_kd_tree_test )
 		  0.0 <= point[1] && point[1] <= 1.0 && 
 		  -1.0 <= point[2] && point[2] <= 0.0 )
 	{
-		TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
-		TEST_ASSERT( ordinal == 6 );
+	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 6 );
 	}
 	// Pyramid
 	else if( 0.0 <= point[0] && point[0] <= 2.0+point[2] &&
 		 0.0 <= point[1] && point[1] <= 2.0+point[2] && 
 		 -2.0 <= point[2] && point[2] <= -1.0 )
 	{
-		TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
-		TEST_ASSERT( ordinal == 89 );
+	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 89 );
 	}
 
 	// None

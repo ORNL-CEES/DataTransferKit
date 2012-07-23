@@ -120,11 +120,11 @@ class Rendezvous
   private:
 
     // Extract the mesh block nodes and elements that are in a bounding box.
-    void getMeshInBox( RCP_MeshManager& mesh_manager,
+    void getMeshInBox( const RCP_MeshManager& mesh_manager,
 		       const BoundingBox& box );
 
     // Send the mesh to the rendezvous decomposition and build the concrete
-    // mesh block.
+    // mesh blocks.
     MeshManager<MeshContainerType> 
     sendMeshToRendezvous( const RCP_MeshManager& mesh_manager );
 

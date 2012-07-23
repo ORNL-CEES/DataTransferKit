@@ -166,7 +166,9 @@ Rendezvous<Mesh>::elementsContainingPoints(
 	{
 	    point[d] = coords[ d*num_points + n ];
 	}
+
 	found_point = d_kdtree->findPoint( point, element_ordinal );
+
 	if ( found_point )
 	{
 	    element_ordinals[n] = element_ordinal;
@@ -185,7 +187,7 @@ Rendezvous<Mesh>::elementsContainingPoints(
  * \brief Extract the mesh nodes and elements that are in a bounding box.
  */
 template<class Mesh>
-void Rendezvous<Mesh>::getMeshInBox( RCP_MeshManager& mesh_manager,
+void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager,
 				     const BoundingBox& box )
 {
     // Expand the box by a typical mesh element length in all directions plus
@@ -231,11 +233,11 @@ void Rendezvous<Mesh>::getMeshInBox( RCP_MeshManager& mesh_manager,
 	      ++node_iterator )
 	{
 	    node_indices[ *node_iterator ] = array_index;
-	    ++m;
+	    ++array_index;
 	}
 
 	// Get all of the nodes that are in the box. 
-	double node_coords[3];
+	Teuchos::Array<double> node_coords( d_node_dim );
 	Teuchos::ArrayRCP<const double> mesh_coords =
 	    MeshTools<Mesh>::coordsView( *block_iterator );
 	for ( GlobalOrdinal n = 0; n < num_nodes; ++n )
@@ -243,10 +245,6 @@ void Rendezvous<Mesh>::getMeshInBox( RCP_MeshManager& mesh_manager,
 	    for ( std::size_t d = 0; d < d_node_dim; ++d )
 	    {
 		node_coords[d] = mesh_coords[ d*num_nodes + n ];
-	    }
-	    for ( std::size_t d = d_node_dim; d < 3; ++d )
-	    {
-		node_coords[d] = 0.0;
 	    }
 	    nodes_in_box.push_back( expanded_box.pointInBox( node_coords ) );
 	}
@@ -278,8 +276,8 @@ void Rendezvous<Mesh>::getMeshInBox( RCP_MeshManager& mesh_manager,
 	}
 	assert( (GlobalOrdinal) elements_in_box.size() == num_elements );
 
-	// Get the nodes that belong to the elements in the box, but are not in
-	// the box themselves. These will also be used in RCB.
+	// Get the nodes that belong to the elements in the box, but are not
+	// necessarily in the box themselves. These will also be used in RCB.
 	for ( GlobalOrdinal n = 0; n < num_elements; ++n )
 	{
 	    if ( elements_in_box[n] )
@@ -302,7 +300,7 @@ void Rendezvous<Mesh>::getMeshInBox( RCP_MeshManager& mesh_manager,
 //---------------------------------------------------------------------------//
 /*!
  * \brief Send the mesh to the rendezvous decomposition and build the concrete
- * mesh. 
+ * mesh blocks.
  */
 template<class Mesh>
 MeshManager<typename Rendezvous<Mesh>::MeshContainerType> 
@@ -444,7 +442,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 			       permutation_list );
     }
 
-    // Build the rendezvous mesh manager from the rendezvous mesh blocks..
+    // Build the rendezvous mesh manager from the rendezvous mesh blocks.
     return MeshManager<MeshContainerType>( block_containers,
 					   d_comm,
 					   d_node_dim );
@@ -452,7 +450,8 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Setup the import communication patterns.
+ * \brief Setup the import communication patterns for moving mesh from the
+ * primary decomposition to the rendezvous decomposition.
  */
 template<class Mesh>
 void Rendezvous<Mesh>::setupImportCommunication( 
@@ -465,26 +464,26 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // data. 
     typename MT::const_node_iterator export_node_iterator;
     std::map<GlobalOrdinal,GlobalOrdinal> node_indices;
-    GlobalOrdinal m = 0;
+    GlobalOrdinal array_index = 0;
     for ( export_node_iterator = MT::nodesBegin( mesh );
 	  export_node_iterator != MT::nodesEnd( mesh );
 	  ++export_node_iterator )
     {
-	node_indices[ *export_node_iterator ] = m;
-	++m;
+	node_indices[ *export_node_iterator ] = array_index;
+	++array_index;
     }
 
     // Create a element index map for logarithmic time access to connectivity
     // data. 
     typename MT::const_element_iterator export_element_iterator;
     std::map<GlobalOrdinal,GlobalOrdinal> element_indices;
-    m = 0;
+    array_index = 0;
     for ( export_element_iterator = MT::elementsBegin( mesh );
 	  export_element_iterator != MT::elementsEnd( mesh );
 	  ++export_element_iterator )
     {
-	element_indices[ *export_element_iterator ] = m;
-	++m;
+	element_indices[ *export_element_iterator ] = array_index;
+	++array_index;
     }
 
     // Get destination procs for all local elements in the global bounding
@@ -553,10 +552,10 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	export_elements();
     Teuchos::Array<GlobalOrdinal> import_elements( num_import_elements );
     Teuchos::ArrayView<GlobalOrdinal> import_elements_view = import_elements();
-    element_distributor.doPostsAndWaits( 
-	export_elements_view, 1, import_elements_view );
+    element_distributor.doPostsAndWaits( export_elements_view, 1, 
+					 import_elements_view );
     
-    // Next move these into the rendezvous element set so that we have a
+    // Next, move these into the rendezvous element set so that we have a
     // unique list of the elements.
     typename Teuchos::Array<GlobalOrdinal>::const_iterator 
 	import_element_iterator;

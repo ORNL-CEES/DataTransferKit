@@ -168,7 +168,8 @@ void ConsistentEvaluation<Mesh,CoordinateField>::setup(
     // Search the rendezvous decomposition with the target points to get the
     // source elements that contain them.
     Teuchos::Array<GlobalOrdinal> rendezvous_elements =
-	rendezvous.getElements( rendezvous_coords.get1dViewNonConst() );
+	rendezvous.elementsContainingPoints( 
+	    rendezvous_coords.get1dViewNonConst() );
 
     // Build a unique list of rendezvous elements.
     Teuchos::Array<GlobalOrdinal> rendezvous_element_set =
