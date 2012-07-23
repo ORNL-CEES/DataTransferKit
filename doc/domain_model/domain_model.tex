@@ -122,7 +122,8 @@ as a basis for the domain model and discussion.
   context of the entire parallel domain of the simulation. All data is
   potentially shared via communicator operations.
 \item {\bf Ordinal:} A value that uniquely identifies an object from
-  other objects of the same type.
+  other objects of the same type. This number is positive and real
+  such that for a given ordinal,$i$, $i \in \mathbb{R}^+$.
 \item {\bf Geometry:} An object or collection of objects that has $n$
   physical dimensions and a spatial domain $\Omega \in \mathbb{R}^n$
   that is bounded by a boundary $\Gamma \in \mathbb{R}^n$.
@@ -283,13 +284,14 @@ scheme as a canonical ordering scheme \cite{Tautges_2009}. Each
 element in a client mesh can be described with a connectivity list
 using any canonical scheme of choice, however, the relationship
 between this canonical numbering scheme and the DTK canonical
-numbering scheme must be made available. Each element topology is then
-also described by a permutation list. A permutation list specifies the
-variation in ordering between the DTK canonical numbering scheme and
-the client canonical numbering scheme. For elements that have a higher
-order basis (e.g. quadratic), DTK resolves these as higher order nodes
-via the MBCN system. See Appendix~\ref{apdx:cell_topo} for canonical
-element topologies as defined by DTK.
+numbering scheme must be made available. Each element topology is
+therefore also described by a permutation list. A permutation list
+specifies the variation in ordering between the DTK canonical
+numbering scheme and the client canonical numbering scheme. For
+elements that have a higher order basis (e.g. quadratic), DTK resolves
+these as higher order nodes via the MBCN system. See
+Appendix~\ref{apdx:cell_topo} for canonical element topologies as
+defined by DTK.
 
 Consider the continuation of our example in
 Figure~\ref{fig:mesh_element} showing a linear hexahedron element
@@ -381,8 +383,8 @@ is required, however, it must exist on a single communicator.
 \subsection{Field Evaluations}\label{subsec:field_eval}
 The actual discretization of the field is not explicitly
 formulated. Rather, access to discretization of fields and the
-associated data is generated through function evaluations at
-points. Consider a $D$-dimensional function $F(r)$ of arbitrary
+associated data is generated through function evaluations at points in
+phase space. Consider a $D$-dimensional function $F(r)$ of arbitrary
 discretization over the spatial domain $\Omega \in \mathbb{R}^n$ where
 $r \in \mathbb{R}^n$ and $F : \mathbb{R}^n \rightarrow
 \mathbb{R}^D$. Via polynomial interpolation, projection, or any other
