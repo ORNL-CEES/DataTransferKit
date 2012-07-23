@@ -55,7 +55,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class FieldTools
- * \brief Tools for objects that have field traits.
+ * \brief A stateless class for operating on objects that have field traits.
  *
  * Field tools are meant to provide access to typical field/vector
  * operations. In additition, operations intended for coordinate fields are
@@ -98,9 +98,13 @@ class FieldTools
 
 
     //@{
-    //! General global field mathematical operations.
+    //! General global mathematical operations.
     // Fill a field with a scalar.
     static void putScalar( Field& field, const value_type& scalar );
+
+    // Fill a field with a different scalar in each dimension.
+    static void putScalar( Field& field, 
+			   const Teuchos::ArrayView<value_type>& scalars );
 
     // Scale a each dimension field by a single value.
     static void scale( Field& field, const value_type& scalar );

@@ -94,6 +94,29 @@ void FieldTools<Field>::putScalar( Field& field, const value_type& scalar )
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Fill a field with a different scalar in each dimension.
+ */
+template<class Field>
+void FieldTools<Field>::putScalar( 
+    Field& field, const Teuchos::ArrayView<value_type>& scalars )
+{
+    std::size_t dim = FT::dim( field );
+    testInvariant( dim == scalars.size(), 
+		   "Number of scalars != field dimension." );
+    size_type field_size = FT::size( field );
+    size_type dim_size = field_size / dim;
+    typename FT::iterator front, back;
+    std::size_t d = 0;
+    for ( std::size_t d = 0; d < dim; ++d )
+    {
+	front = FT::begin( field ) + d*dim_size;
+	back = front + dim_size;
+	std::fill( front, back, scalars[d] );
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Scale a field by a single value.
  */
 template<class Field>
@@ -236,7 +259,7 @@ void FieldTools<Field>::average( const Field& field, const RCP_Comm& comm,
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the global length of the field.
+ * \brief Get the global length of the field (all dimensions, all instances).
  */
 template<class Field>
 typename FieldTools<Field>::size_type 

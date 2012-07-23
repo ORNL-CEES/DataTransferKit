@@ -17,7 +17,6 @@
 
 #include <DTK_FieldTools.hpp>
 #include <DTK_FieldTraits.hpp>
-#include <DTK_FieldEvaluator.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_GlobalMPISession.hpp>
@@ -146,20 +145,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_test )
 {
     using namespace DataTransferKit;
 
-    // Setup communication.
-    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    int my_rank = comm->getRank();
-    int my_size = comm->getSize();
-
-    // Setup a field.
-    MyField my_field( my_rank+1, 1 );
-
-    // Test the field tools.
-}
-
-TEUCHOS_UNIT_TEST( FieldTools, vector_test )
-{
-    using namespace DataTransferKit;
+    int field_dim = 1;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
@@ -167,7 +153,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_test )
     int my_size = comm->getSize();
 
     // Setup a field.
-    MyField my_field( 4, 3 );
+    MyField my_field( my_rank+1, field_dim );
 
     // Test the field tools.
 }
