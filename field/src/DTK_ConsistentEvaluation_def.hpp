@@ -134,7 +134,7 @@ void ConsistentEvaluation<Mesh,CoordinateField>::setup(
 	    FieldTools<CoordinateField>::nonConstView( coordinate_field );
     }
     Teuchos::Array<int> rendezvous_procs = 
-	rendezvous.getRendezvousProcs( coords_view );
+	rendezvous.procsContainingPoints( coords_view );
 
     // Via an inverse communication operation, move the global point ordinals
     // to the rendezvous decomposition.

@@ -124,7 +124,7 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
  * coordinates that are in the primary decomposition.
  */
 template<class Mesh>
-Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
+Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
     const Teuchos::ArrayRCP<double>& coords ) const
 {
     Teuchos::Array<double> point( d_node_dim );

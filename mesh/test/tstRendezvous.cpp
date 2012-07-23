@@ -790,7 +790,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_test )
 
     // Get the destination procs for the random points and check that its in a
     // valid range.
-    Teuchos::Array<int> destinations = rendezvous.getRendezvousProcs( points );
+    Teuchos::Array<int> destinations = rendezvous.procsContainingPoints( points );
     for ( int i = 0; i < num_points; ++i )
     {
 	TEST_ASSERT( 0 <= destinations[i] && destinations[i] < my_size );
@@ -854,7 +854,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_test )
     }
 
     // Get the destination procs for the random points.
-    Teuchos::Array<int> destinations = rendezvous.getRendezvousProcs( points );
+    Teuchos::Array<int> destinations = rendezvous.procsContainingPoints( points );
     for ( int i = 0; i < num_points; ++i )
     {
 	TEST_ASSERT( 0 <= destinations[i] && destinations[i] < my_size );
@@ -918,7 +918,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_test )
     }
 
     // Get the destination procs for the random points.
-    Teuchos::Array<int> destinations = rendezvous.getRendezvousProcs( points );
+    Teuchos::Array<int> destinations = rendezvous.procsContainingPoints( points );
     for ( int i = 0; i < num_points; ++i )
     {
 	TEST_ASSERT( 0 <= destinations[i] && destinations[i] < my_size );
@@ -982,7 +982,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_test )
     }
 
     // Get the destination procs for the random points.
-    Teuchos::Array<int> destinations = rendezvous.getRendezvousProcs( points );
+    Teuchos::Array<int> destinations = rendezvous.procsContainingPoints( points );
     for ( int i = 0; i < num_points; ++i )
     {
 	TEST_ASSERT( 0 <= destinations[i] && destinations[i] < my_size );
@@ -1047,7 +1047,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_test )
     }
 
     // Get the destination procs for the random points.
-    Teuchos::Array<int> destinations = rendezvous.getRendezvousProcs( points );
+    Teuchos::Array<int> destinations = rendezvous.procsContainingPoints( points );
     for ( int i = 0; i < num_points; ++i )
     {
 	TEST_ASSERT( 0 <= destinations[i] && destinations[i] < my_size );
@@ -1112,7 +1112,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_test )
     }
 
     // Get the destination procs for the random points.
-    Teuchos::Array<int> destinations = rendezvous.getRendezvousProcs( points );
+    Teuchos::Array<int> destinations = rendezvous.procsContainingPoints( points );
     for ( int i = 0; i < num_points; ++i )
     {
 	TEST_ASSERT( 0 <= destinations[i] && destinations[i] < my_size );
@@ -1178,7 +1178,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_test )
     }
 
     // Get the destination procs for the random points.
-    Teuchos::Array<int> destinations = rendezvous.getRendezvousProcs( points );
+    Teuchos::Array<int> destinations = rendezvous.procsContainingPoints( points );
     for ( int i = 0; i < num_points; ++i )
     {
 	TEST_ASSERT( 0 <= destinations[i] && destinations[i] < my_size );
@@ -1244,7 +1244,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_test )
     }
 
     // Get the destination procs for the random points.
-    Teuchos::Array<int> destinations = rendezvous.getRendezvousProcs( points );
+    Teuchos::Array<int> destinations = rendezvous.procsContainingPoints( points );
     for ( int i = 0; i < num_points; ++i )
     {
 	TEST_ASSERT( 0 <= destinations[i] && destinations[i] < my_size );
