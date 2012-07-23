@@ -105,6 +105,10 @@ class MeshManager
     BlockIterator blocksEnd() const
     { return d_mesh_blocks.end(); }
 
+    //! Get a block of mesh.
+    const Mesh& getBlock( const int block_id ) const
+    { return d_mesh_blocks[ block_id ]; }
+
     //! Get the communicator for the mesh.
     const RCP_Comm& comm() const
     { return d_comm; }

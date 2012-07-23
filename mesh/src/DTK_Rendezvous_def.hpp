@@ -86,13 +86,14 @@ Rendezvous<Mesh>::~Rendezvous()
 template<class Mesh> 
 void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 {
-    // Get the node dimension for the mesh.
+    // Get the dimension for the mesh.
     d_node_dim = mesh_manager->dim();
 
-    // Extract the mesh nodes and elements that are in the bounding box.
+    // Extract the mesh nodes and elements that are in the bounding box. These
+    // are the pieces of the mesh that will be repartitioned.
     getMeshInBox( mesh_manager, d_global_box );
 
-    // Construct the rendezvous decomposition of the mesh with RCB using the
+    // Construct the rendezvous partitioning for the mesh with RCB using the
     // nodes that are in the box.
     d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh_manager ) );
     testPostcondition( d_rcb != Teuchos::null,
@@ -101,16 +102,17 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 
     // Send the mesh in the box to the rendezvous decomposition and build the
     // concrete mesh blocks.
-    MeshManager<MeshContainerType> rendezvous_manager =
+    MeshManager<MeshContainerType> rendezvous_mesh_manager =
 	sendMeshToRendezvous( mesh_manager );
 
     // Build the concrete rendezvous mesh from the mesh container.
-    d_rendezvous_mesh = createRendezvousMesh( rendezvous_manager );
+    d_rendezvous_mesh = createRendezvousMesh( rendezvous_mesh_manager );
     testPostcondition( d_rendezvous_mesh != Teuchos::null,
 		       "Error creating rendezvous mesh." );
 
     // Create a kD-tree in the rendezvous decomposition.
-    d_kdtree = Teuchos::rcp( new KDTree<GlobalOrdinal>( d_rendezvous_mesh ) );
+    d_kdtree = Teuchos::rcp( 
+	new KDTree<GlobalOrdinal>( d_rendezvous_mesh , d_node_dim ) );
     testPostcondition( d_kdtree != Teuchos::null,
 		       "Error creating rendezvous kD-tree." );
     d_kdtree->build();
@@ -118,13 +120,14 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 
 //---------------------------------------------------------------------------//
 /*! 
- * \brief Get the rendezvous processes for a blocked list of coordinates.
+ * \brief Get the rendezvous destination processes for a blocked list of
+ * coordinates that are in the primary decomposition.
  */
 template<class Mesh>
 Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
     const Teuchos::ArrayRCP<double>& coords ) const
 {
-    double point[3];
+    Teuchos::Array<double> point( d_node_dim );
     GlobalOrdinal num_points = coords.size() / d_node_dim;
     int rendezvous_proc;
     Teuchos::Array<int> destination_procs( num_points );
@@ -134,33 +137,28 @@ Teuchos::Array<int> Rendezvous<Mesh>::getRendezvousProcs(
 	{
 	    point[d] = coords[ d*num_points + n ];
 	}
-	for ( std::size_t d = d_node_dim; d < 3; ++d )
-	{
-	    point[d] = 0.0;
-	}
 	rendezvous_proc = d_rcb->getDestinationProc( point );
 	destination_procs[n] = rendezvous_proc;
     }
-
-    testPostcondition( static_cast<GlobalOrdinal>( destination_procs.size() )
-		       == num_points,
-		       "Error getting destination processes." );
 
     return destination_procs;
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the native mesh elements containing a blocked list of
- * coordinates.
+ * \brief Get the native mesh elements in the rendezvous decomposition
+ * containing a blocked list of coordinates also in the rendezvous
+ * decomposition.
  */
 template<class Mesh>
 Teuchos::Array<typename Rendezvous<Mesh>::GlobalOrdinal>
-Rendezvous<Mesh>::getElements( const Teuchos::ArrayRCP<double>& coords ) const
+Rendezvous<Mesh>::elementsContainingPoints( 
+    const Teuchos::ArrayRCP<double>& coords ) const
 {
     Teuchos::Array<double> point( d_node_dim );
     GlobalOrdinal element_ordinal;
     GlobalOrdinal num_points = coords.size() / d_node_dim;
+    bool found_point;
     Teuchos::Array<GlobalOrdinal> element_ordinals( num_points );
     for ( GlobalOrdinal n = 0; n < num_points; ++n )
     {
@@ -168,13 +166,16 @@ Rendezvous<Mesh>::getElements( const Teuchos::ArrayRCP<double>& coords ) const
 	{
 	    point[d] = coords[ d*num_points + n ];
 	}
-	element_ordinal = d_kdtree->findPoint( point );
-	element_ordinals[n] = element_ordinal;
+	found_point = d_kdtree->findPoint( point, element_ordinal );
+	if ( found_point )
+	{
+	    element_ordinals[n] = element_ordinal;
+	}
+	else
+	{
+	    element_ordinals[n] = -1;
+	}
     }
-
-    testPostcondition( static_cast<GlobalOrdinal>( element_ordinals.size() )
-		       == num_points,
-		       "Error getting mesh elements." );
 
     return element_ordinals;
 }
@@ -184,25 +185,26 @@ Rendezvous<Mesh>::getElements( const Teuchos::ArrayRCP<double>& coords ) const
  * \brief Extract the mesh nodes and elements that are in a bounding box.
  */
 template<class Mesh>
-void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager,
+void Rendezvous<Mesh>::getMeshInBox( RCP_MeshManager& mesh_manager,
 				     const BoundingBox& box )
 {
     // Expand the box by a typical mesh element length in all directions plus
-    // some tolerance.
+    // some tolerance. Doing this catches a few corner cases.
     double tol = 1.0e-4;
     Teuchos::Tuple<double,6> box_bounds = box.getBounds();
     double box_volume = box.volume( d_node_dim );
-    GlobalOrdinal num_global_elements = mesh_manager->globalNumElements();
+    GlobalOrdinal global_num_elements = mesh_manager->globalNumElements();
     double pow = 1 / d_node_dim;
-    double length = std::pow( box_volume / num_global_elements, pow );
+    double typical_length = std::pow( box_volume / global_num_elements, pow );
     for ( std::size_t d = 0; d < d_node_dim; ++d )
     {
-	box_bounds[d] -= length + tol;
-	box_bounds[d+3] += length + tol;
+	box_bounds[d] -= typical_length + tol;
+	box_bounds[d+3] += typical_length + tol;
     }
     BoundingBox expanded_box( box_bounds );
 
-    // For every block get its nodes and elements that are in the block.
+    // For every mesh block, get its nodes and elements that are in the
+    // expanded box.
     Teuchos::Array<short int> nodes_in_box, elements_in_box;
     BlockIterator block_iterator;
     for ( block_iterator = mesh_manager->blocksBegin();
@@ -215,19 +217,20 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager,
 	int block_id = std::distance( mesh_manager->blocksBegin(), 
 				      block_iterator );
 
-	// Create a map indexed by node global ordinal containing the actual node
-	// ordinal location. This will give us logarithmic time access to
-	// connectivity. I should write a more general hash table to improve this
-	// access time as I'm using this strategy for most mesh operations.
+	// Create a map indexed by node global ordinal containing the actual
+	// node ordinal location in the array. This will give us logarithmic
+	// time access to connectivity. I should write a more general hash
+	// table to improve this access time as I'm using this strategy for
+	// most mesh operations.
 	GlobalOrdinal num_nodes = MeshTools<Mesh>::numNodes( *block_iterator );
 	std::map<GlobalOrdinal,GlobalOrdinal> node_indices;
 	typename MT::const_node_iterator node_iterator;
-	GlobalOrdinal m = 0;
+	GlobalOrdinal array_index = 0;
 	for ( node_iterator = MT::nodesBegin( *block_iterator );
 	      node_iterator != MT::nodesEnd( *block_iterator );
 	      ++node_iterator )
 	{
-	    node_indices[ *node_iterator ] = m;
+	    node_indices[ *node_iterator ] = array_index;
 	    ++m;
 	}
 
@@ -495,7 +498,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     GlobalOrdinal node_index;
     GlobalOrdinal node_ordinal;
     int destination_proc;
-    double node_coords[3];
+    Teuchos::Array<double> node_coords( d_node_dim );
     Teuchos::ArrayRCP<const double> mesh_coords =
 	MeshTools<Mesh>::coordsView( mesh );
     Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity =
@@ -511,10 +514,6 @@ void Rendezvous<Mesh>::setupImportCommunication(
 		for ( std::size_t d = 0; d < d_node_dim; ++d )
 		{
 		    node_coords[d] = mesh_coords[ d*num_nodes + node_index ];
-		}
-		for ( std::size_t d = d_node_dim; d < 3; ++d )
-		{
-		    node_coords[d] = 0.0;
 		}
 		destination_proc = d_rcb->getDestinationProc( node_coords );
 		export_element_procs_set[n].insert( destination_proc );

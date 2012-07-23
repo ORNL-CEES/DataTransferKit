@@ -42,6 +42,7 @@
 #define DTK_BOUNDINGBOX_HPP
 
 #include <Teuchos_Tuple.hpp>
+#include <Teuchos_Array.hpp>
 #include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
@@ -52,9 +53,9 @@ namespace DataTransferKit
  * \class BoundingBox
  * \brief Axis-aligned Cartesian bounding box container
  *
- * All three dimensions are explictly represented in this bounding box however
- * algorithmicly, this can be treated as a one or two dimensional box as well
- * by setting the unused dimension bounds to +/-
+ * All three dimensions are explictly represented in this bounding box,
+ * however, from an algorithmic standpoint, this can be treated as a one or
+ * two dimensional box as well by setting the unused dimension bounds to +/-
  * Teuchos::ScalarTraits<double>::rmax().
  */
 //---------------------------------------------------------------------------//
@@ -66,7 +67,7 @@ class BoundingBox
     // Default constructor.
     BoundingBox();
 
-    // Constructor
+    // Constructor.
     BoundingBox( const double x_min, const double y_min, const double z_min,
 		 const double x_max, const double y_max, const double z_max );
 
@@ -77,7 +78,7 @@ class BoundingBox
     ~BoundingBox();
 
     // Determine if a point is in the box.
-    bool pointInBox( double coords[3] ) const;
+    bool pointInBox( const Teuchos::Array<double>& coords ) const;
 
     // Get the boundaries of the box.
     Teuchos::Tuple<double,6> getBounds() const
@@ -86,9 +87,6 @@ class BoundingBox
 
     // Compute the volume of the box given its dimension.
     double volume( const int dim ) const;
-
-    // Addition assignment operator overload.
-    inline BoundingBox& operator +=( const BoundingBox& box );
 
     // Static function for box intersection.
     static bool intersectBoxes( const BoundingBox& box_A,
@@ -116,47 +114,7 @@ class BoundingBox
     double d_z_max;
 };
 
-//---------------------------------------------------------------------------//
-// Inline functions.
-//---------------------------------------------------------------------------//
-/*!
- * \Brief Addition assignment operator overload.
- */
-BoundingBox& BoundingBox::operator +=( const BoundingBox& box )
-{
-    // When we do a global reduction with a bounding box array, we only want
-    // one bounding box in each array segment. They will be unique, but this
-    // way we will be sure this is true. If the default constructor was called
-    // on this box, then set this box's bounds to the other box. Otherwise
-    // we'll return this box. 
-    if ( d_x_min == 0.0 && d_y_min == 0.0 && d_z_min == 0.0 &&
-	 d_x_max == 0.0 && d_y_max == 0.0 && d_z_max == 0.0 )
-    {
-	d_x_min = box.d_x_min;
-	d_y_min = box.d_y_min;
-	d_z_min = box.d_z_min;
-	d_x_max = box.d_x_max;
-	d_y_max = box.d_y_max;
-	d_z_max = box.d_z_max;
-    }
-
-    return *this;
-}
-
-//---------------------------------------------------------------------------//
-
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Serialization traits.
-//---------------------------------------------------------------------------//
-namespace Teuchos
-{
-template<typename Ordinal>
-class SerializationTraits<Ordinal,DataTransferKit::BoundingBox>
-    : public DirectSerializationTraits<Ordinal,DataTransferKit::BoundingBox>
-{ /* ... */ };
-} // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
 

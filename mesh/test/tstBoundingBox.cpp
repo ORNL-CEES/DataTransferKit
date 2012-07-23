@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <cstdlib>
 #include <sstream>
 #include <algorithm>
 #include <cassert>
@@ -56,6 +57,11 @@ bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
 }
 
 //---------------------------------------------------------------------------//
+// Global test variables.
+//---------------------------------------------------------------------------//
+int num_rand = 1000;
+
+//---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
 // Default constructor test.
@@ -78,19 +84,28 @@ TEUCHOS_UNIT_TEST( BoundingBox, default_constructor_test )
     // Compute the volume.
     TEST_ASSERT( softEquivalence( box.volume( 3 ), 77.5986, 1.0e-4 ) );
 
-    // Test some points inside of it.
-    double point_0[3] = { 3.7, -4, 5.4 };
-    double point_1[3] = { 4.25, -7.99, 8.3 };
-    double point_2[3] = { 5.4, -3, 9.4 };
-    double point_3[3] = { 2.7, 0.4, 8.3 };
-    double point_4[3] = { 3.2, -9.233, 1.3 };
-    double point_5[3] = { 3.2, 0.3, 1.3 };
-    TEST_ASSERT( box.pointInBox( point_0 ) );
-    TEST_ASSERT( box.pointInBox( point_1 ) );
-    TEST_ASSERT( !box.pointInBox( point_2 ) );
-    TEST_ASSERT( !box.pointInBox( point_3 ) );
-    TEST_ASSERT( box.pointInBox( point_4 ) );
-    TEST_ASSERT( box.pointInBox( point_5 ) );
+    // Test some random points inside of it.
+    Teuchos::Array<double> point(3);
+    for ( int i = 0; i < num_rand; ++i )
+    {
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX + 3.0;
+	point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
+	point[2] = 9.0 * (double) std::rand() / RAND_MAX;
+
+	if ( box_bounds[0] <= point[0] &&
+	     box_bounds[1] <= point[1] &&
+	     box_bounds[2] <= point[2] &&
+	     box_bounds[3] >= point[0] &&
+	     box_bounds[4] >= point[1] &&
+	     box_bounds[5] >= point[2] )
+	{
+	    TEST_ASSERT( box.pointInBox( point ) );
+	}
+	else
+	{
+	    TEST_ASSERT( !box.pointInBox( point ) );
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -121,55 +136,27 @@ TEUCHOS_UNIT_TEST( BoundingBox, tuple_constructor_test )
     // Compute the volume.
     TEST_ASSERT( softEquivalence( box.volume( 3 ), 77.5986, 1.0e-4 ) );
 
-    // Test some points inside of it.
-    double point_0[3] = { 3.7, -4, 5.4 };
-    double point_1[3] = { 4.25, -7.99, 8.3 };
-    double point_2[3] = { 5.4, -3, 9.4 };
-    double point_3[3] = { 2.7, 0.4, 8.3 };
-    double point_4[3] = { 3.2, -9.233, 1.3 };
-    double point_5[3] = { 3.2, 0.3, 1.3 };
-    TEST_ASSERT( box.pointInBox( point_0 ) );
-    TEST_ASSERT( box.pointInBox( point_1 ) );
-    TEST_ASSERT( !box.pointInBox( point_2 ) );
-    TEST_ASSERT( !box.pointInBox( point_3 ) );
-    TEST_ASSERT( box.pointInBox( point_4 ) );
-    TEST_ASSERT( box.pointInBox( point_5 ) );
-}
-
-//---------------------------------------------------------------------------//
-// Serialization test.
-TEUCHOS_UNIT_TEST( BoundingBox, serialization_test )
-{
-    using namespace DataTransferKit;
-
-    // Comm setup.
-    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    int my_rank = comm->getRank();
-    int my_size = comm->getSize();
-
-    // Make a bounding box on each process.
-    Teuchos::Array<BoundingBox> boxes( my_size );
-    boxes[my_rank] = BoundingBox( my_rank, my_rank, my_rank,
-				  my_rank+1.0, my_rank+1.0, my_rank+1.0 );
-
-    // Reduce the boxes to an array on all processes.
-    Teuchos::reduceAll<int,BoundingBox>( *comm,
-					 Teuchos::REDUCE_SUM,
-					 boxes.size(),
-					 &boxes[0],
-					 &boxes[0] );
-
-    // Check the reduction with rank dependent coordinates.
-    double rank = 0.0;
-    Teuchos::Array<BoundingBox>::const_iterator box_iterator;
-    for ( box_iterator = boxes.begin(); 
-	  box_iterator != boxes.end(); 
-	  ++box_iterator )
+    // Test some random points inside of it.
+    Teuchos::Array<double> point(3);
+    for ( int i = 0; i < num_rand; ++i )
     {
-	double point[3] = { rank+0.5, rank+0.5, rank+0.5 };
-	TEST_ASSERT( box_iterator->pointInBox( point ) );
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX + 3.0;
+	point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
+	point[2] = 9.0 * (double) std::rand() / RAND_MAX;
 
-	rank += 1.0;
+	if ( box_bounds[0] <= point[0] &&
+	     box_bounds[1] <= point[1] &&
+	     box_bounds[2] <= point[2] &&
+	     box_bounds[3] >= point[0] &&
+	     box_bounds[4] >= point[1] &&
+	     box_bounds[5] >= point[2] )
+	{
+	    TEST_ASSERT( box.pointInBox( point ) );
+	}
+	else
+	{
+	    TEST_ASSERT( !box.pointInBox( point ) );
+	}
     }
 }
 

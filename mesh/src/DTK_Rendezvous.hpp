@@ -64,7 +64,7 @@ namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 /*!
- * \class Rendezous
+ * \class Rendezvous
  * \brief Rendezvous decomposition generator.
  */
 //---------------------------------------------------------------------------//
@@ -103,14 +103,15 @@ class Rendezvous
     // Build the rendezvous decomposition.
     void build( const RCP_MeshManager& mesh_manager );
 
-    // Get the rendezvous processes for a list of node coordinates.
+    // Get the rendezvous destination processes for a blocked list of node
+    // coordinates that are in the primary decomposition.
     Teuchos::Array<int> 
     getRendezvousProcs( const Teuchos::ArrayRCP<double> &coords ) const;
 
     // Get the native mesh elements in the rendezvous decomposition containing
-    // a blocked list of coordinates.
+    // a blocked list of coordinates also in the rendezvous decomposition.
     Teuchos::Array<GlobalOrdinal>
-    getElements( const Teuchos::ArrayRCP<double>& coords ) const;
+    elementsContainingPoints( const Teuchos::ArrayRCP<double>& coords ) const;
 
     //! Get the rendezvous mesh.
     const RCP_RendezvousMesh& getMesh() const
@@ -119,7 +120,7 @@ class Rendezvous
   private:
 
     // Extract the mesh block nodes and elements that are in a bounding box.
-    void getMeshInBox( const RCP_MeshManager& mesh_manager,
+    void getMeshInBox( RCP_MeshManager& mesh_manager,
 		       const BoundingBox& box );
 
     // Send the mesh to the rendezvous decomposition and build the concrete

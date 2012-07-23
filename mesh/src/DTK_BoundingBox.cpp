@@ -104,16 +104,39 @@ BoundingBox::~BoundingBox()
  * \brief Determine if a point is in the box. A point on the box boundary will
  * return true.
  */
-bool BoundingBox::pointInBox( double coords[3] ) const
+bool BoundingBox::pointInBox( const Teuchos::Array<double>& coords ) const
 {
-    if ( coords[0] >= d_x_min &&
-	 coords[1] >= d_y_min &&
-	 coords[2] >= d_z_min &&
-	 coords[0] <= d_x_max &&
-	 coords[1] <= d_y_max &&
-	 coords[2] <= d_z_max )
+    if ( coords.size() == 1 )
     {
-	return true;
+	if ( coords[0] >= d_x_min &&
+	     coords[0] <= d_x_max )
+	{
+	    return true;
+	}
+    }
+
+    else if ( coords.size() == 2 )
+    {
+	if ( coords[0] >= d_x_min &&
+	     coords[1] >= d_y_min &&
+	     coords[0] <= d_x_max &&
+	     coords[1] <= d_y_max )
+	{
+	    return true;
+	}
+    }
+
+    else if ( coords.size() == 3 )
+    {
+	if ( coords[0] >= d_x_min &&
+	     coords[1] >= d_y_min &&
+	     coords[2] >= d_z_min &&
+	     coords[0] <= d_x_max &&
+	     coords[1] <= d_y_max &&
+	     coords[2] <= d_z_max )
+	{
+	    return true;
+	}
     }
 
     return false;

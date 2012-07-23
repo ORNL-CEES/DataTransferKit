@@ -791,27 +791,6 @@ TEUCHOS_UNIT_TEST( RCB, partial_2d_rcb_test )
 		     export_parts[i] >= 0 &&
 		     export_parts[i] < my_size );
     }
-
-    // Check the destination proc point search.
-    Teuchos::Array<double> point_0(2);
-    point_0[0] = 2.0;
-    point_0[1] = 2.0;
-    TEST_ASSERT( rcb.getDestinationProc( point_0 ) == my_size-1 );
-
-    Teuchos::Array<double> point_1(2);
-    point_1[0] = -2.0;
-    point_1[1] = -2.0;
-    TEST_ASSERT( rcb.getDestinationProc( point_1 ) == 0 );
-
-    Teuchos::Array<double> point_2(2);
-    point_2[0] = 0.2;
-    point_2[1] = 0.2;
-    TEST_ASSERT( rcb.getDestinationProc( point_2 ) == 0 );
-
-    Teuchos::Array<double> point_3(2);
-    point_3[0] = 0.8;
-    point_3[1] = 0.8;
-    TEST_ASSERT( rcb.getDestinationProc( point_3 ) == my_size-1 );
 }
 
 //---------------------------------------------------------------------------//
