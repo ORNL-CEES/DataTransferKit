@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstSharedDomainMap4.cpp
+ * \file tstSharedDomainMap7.cpp
  * \author Stuart R. Slattery
- * \brief Shared domain map unit test 4.
+ * \brief Shared domain map unit test 7.
  */
 //---------------------------------------------------------------------------//
 
@@ -197,7 +197,7 @@ class MeshTraits<MyMesh>
 
 
     static inline std::size_t nodeDim( const MyMesh& mesh )
-    { return 2; }
+    { return 1; }
 
     static inline const_node_iterator nodesBegin( const MyMesh& mesh )
     { return mesh.nodesBegin(); }
@@ -213,10 +213,10 @@ class MeshTraits<MyMesh>
 
 
     static inline std::size_t elementTopology( const MyMesh& mesh )
-    { return DTK_QUADRILATERAL; }
+    { return DTK_LINE_SEGMENT; }
 
     static inline std::size_t nodesPerElement( const MyMesh& mesh )
-    { return 4; }
+    { return 2; }
 
 
     static inline const_element_iterator elementsBegin( const MyMesh& mesh )
@@ -323,57 +323,42 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 {
     // Make some nodes.
-    int num_nodes = edge_length*edge_length;
-    int node_dim = 2;
+    int num_nodes = edge_length;
+    int node_dim = 1;
     Teuchos::Array<long int> node_handles( num_nodes );
     Teuchos::Array<double> coords( node_dim*num_nodes );
-    int idx;
-    for ( int j = 0; j < edge_length; ++j )
+    for ( int i = 0; i < edge_length; ++i )
     {
-	for ( int i = 0; i < edge_length; ++i )
-	{
-	    idx = i + j*edge_length;
-	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
-	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
-	}
+	node_handles[ i ] = (long int) num_nodes*my_rank + i;
+	coords[ i ] = i + my_rank*(edge_length-1);
     }
-    
-    // Make the quadrilaterals. 
-    int num_elements = (edge_length-1)*(edge_length-1);
-    Teuchos::Array<long int> quad_handles( num_elements );
-    Teuchos::Array<long int> quad_connectivity( 4*num_elements );
+
+    // Make the line segments.
+    int num_elements = (edge_length-1);
+    Teuchos::Array<long int> line_handles( num_elements );
+    Teuchos::Array<long int> line_connectivity( 2*num_elements );
     int elem_idx, node_idx;
-    for ( int j = 0; j < (edge_length-1); ++j )
+    for ( int i = 0; i < (edge_length-1); ++i )
     {
-	for ( int i = 0; i < (edge_length-1); ++i )
-	{
-	    node_idx = i + j*edge_length;
-	    elem_idx = i + j*(edge_length-1);
+	node_idx = i;
+	elem_idx = i;
 
-	    quad_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	line_handles[elem_idx] = num_elements*my_rank + elem_idx;
 
-	    quad_connectivity[elem_idx] 
-		= node_handles[node_idx];
+	line_connectivity[elem_idx] 
+	    = node_handles[node_idx];
 
-	    quad_connectivity[num_elements+elem_idx] 
-		= node_handles[node_idx+1];
-
-	    quad_connectivity[2*num_elements+elem_idx] 
-		= node_handles[node_idx+edge_length+1];
-
-	    quad_connectivity[3*num_elements+elem_idx] 
-		= node_handles[node_idx+edge_length];
-	}
+	line_connectivity[num_elements+elem_idx] 
+	    = node_handles[node_idx+1];
     }
 
-    Teuchos::Array<std::size_t> permutation_list( 4 );
+    Teuchos::Array<std::size_t> permutation_list( 2 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return MyMesh( node_handles, coords, quad_handles, quad_connectivity,
+    return MyMesh( node_handles, coords, line_handles, line_connectivity,
 		   permutation_list );
 }
 
@@ -383,16 +368,14 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 MyField buildCoordinateField( int my_rank, int my_size, 
 			      int num_points, int edge_size )
 {
-    std::srand( my_rank*num_points*2 );
-    int point_dim = 2;
+    std::srand( my_rank*num_points );
+    int point_dim = 1;
     MyField coordinate_field( num_points*point_dim, point_dim );
 
     for ( int i = 0; i < num_points; ++i )
     {
 	*(coordinate_field.begin() + i) = 
 	    my_size * (edge_size-1) * (double) std::rand() / RAND_MAX;
-	*(coordinate_field.begin() + num_points + i ) = 
-	    (edge_size-1) * (double) std::rand() / RAND_MAX;
     }
 
     return coordinate_field;
@@ -415,10 +398,10 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test4 )
     Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
     Teuchos::RCP< MeshManager<MyMesh> > mesh_manager = Teuchos::rcp( 
-	new MeshManager<MyMesh>( mesh_blocks, comm, 2 ) );
+	new MeshManager<MyMesh>( mesh_blocks, comm, 1 ) );
 
     // Setup target coordinate field.
-    int num_points = (edge_size-1)*(edge_size-1);
+    int num_points = (edge_size-1);
     MyField target_coords = buildCoordinateField( my_rank, my_size, 
 						  num_points, edge_size );
 
@@ -449,6 +432,6 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test4 )
 }
 
 //---------------------------------------------------------------------------//
-// end tstSharedDomainMap4.cpp
+// end tstSharedDomainMap7.cpp
 //---------------------------------------------------------------------------//
 
