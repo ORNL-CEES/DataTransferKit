@@ -42,7 +42,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 //---------------------------------------------------------------------------//
 // Field implementation.
 //---------------------------------------------------------------------------//
-class MyField
+class ArrayField
 {
   public:
 
@@ -51,12 +51,12 @@ class MyField
     typedef Teuchos::Array<double>::iterator iterator;
     typedef Teuchos::Array<double>::const_iterator const_iterator;
 
-    MyField( size_type size, std::size_t dim )
+    ArrayField( size_type size, std::size_t dim )
 	: d_dim( dim )
 	, d_data( size )
     { /* ... */ }
 
-    ~MyField()
+    ~ArrayField()
     { /* ... */ }
 
     std::size_t dim() const
@@ -94,37 +94,37 @@ class MyField
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Field Traits specification for MyField
+// Field Traits specification for ArrayField
 template<>
-class FieldTraits<MyField>
+class FieldTraits<ArrayField>
 {
   public:
 
-    typedef MyField                    field_type;
-    typedef double                                    value_type;
-    typedef MyField::size_type         size_type;
-    typedef MyField::iterator          iterator;
-    typedef MyField::const_iterator    const_iterator;
+    typedef ArrayField                    field_type;
+    typedef ArrayField::value_type        value_type;
+    typedef ArrayField::size_type         size_type;
+    typedef ArrayField::iterator          iterator;
+    typedef ArrayField::const_iterator    const_iterator;
 
-    static inline size_type dim( const MyField& field )
+    static inline size_type dim( const ArrayField& field )
     { return field.dim(); }
 
-    static inline size_type size( const MyField& field )
+    static inline size_type size( const ArrayField& field )
     { return field.size(); }
 
-    static inline bool empty( const MyField& field )
+    static inline bool empty( const ArrayField& field )
     { return field.empty(); }
 
-    static inline iterator begin( MyField& field )
+    static inline iterator begin( ArrayField& field )
     { return field.begin(); }
 
-    static inline const_iterator begin( const MyField& field )
+    static inline const_iterator begin( const ArrayField& field )
     { return field.begin(); }
 
-    static inline iterator end( MyField& field )
+    static inline iterator end( ArrayField& field )
     { return field.end(); }
 
-    static inline const_iterator end( const MyField& field )
+    static inline const_iterator end( const ArrayField& field )
     { return field.end(); }
 };
 
@@ -142,15 +142,15 @@ TEUCHOS_UNIT_TEST( FieldManager, field_manager_test )
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
 
     // Setup field manager.
-    MyField my_field( 12, 4 );
-    FieldManager<MyField> field_manager( my_field, comm );
+    ArrayField array_field( 12, 4 );
+    FieldManager<ArrayField> field_manager( array_field, comm );
 
     // Check the field manager.
-    MyField manager_field = field_manager.field();
-    TEST_ASSERT( FieldTraits<MyField>::dim( manager_field ) == 
-		 FieldTraits<MyField>::dim( my_field ) );
-    TEST_ASSERT( FieldTraits<MyField>::size( manager_field ) == 
-		 FieldTraits<MyField>::size( my_field ) );
+    ArrayField manager_field = field_manager.field();
+    TEST_ASSERT( FieldTraits<ArrayField>::dim( manager_field ) == 
+		 FieldTraits<ArrayField>::dim( array_field ) );
+    TEST_ASSERT( FieldTraits<ArrayField>::size( manager_field ) == 
+		 FieldTraits<ArrayField>::size( array_field ) );
     TEST_ASSERT( field_manager.comm() == comm );
 }
 
