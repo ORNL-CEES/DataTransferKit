@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_FieldVersion.hpp
+ * \file DTK_TransferVersion.hpp
  * \author Stuart R. Slattery
- * \brief DataTransferKit fieldversion declaration.
+ * \brief DataTransferKit transfer version declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_FIELDVERSION_HPP
-#define DTK_FIELDVERSION_HPP
+#ifndef DTK_TRANSFERVERSION_HPP
+#define DTK_TRANSFERVERSION_HPP
 
 #include <string>
 
@@ -47,14 +47,14 @@
 
 namespace DataTransferKit {
 
-/** \brief Print the fieldversion of DataTransferKit. */
-std::string DataTransferKit_FieldVersion();
+/** \brief Print the version of DataTransferKit. */
+std::string DataTransferKit_TransferVersion();
 
 } // end namespace DataTransferKit
 
-#endif // DATATRANSFERKIT_FIELDVERSION_HPP
+#endif // DTK_TRANSFERVERSION_HPP
  
 //---------------------------------------------------------------------------//
-// end DTK_FieldVersion.hpp
+// end DTK_TransferVersion.hpp
 //---------------------------------------------------------------------------//
 

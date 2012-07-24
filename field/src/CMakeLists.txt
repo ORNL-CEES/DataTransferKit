@@ -20,8 +20,6 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_ConsistentEvaluation.hpp
-  DTK_ConsistentEvaluation_def.hpp
   DTK_FieldEvaluator.hpp	
   DTK_FieldManager.hpp
   DTK_FieldManager_def.hpp
@@ -29,7 +27,6 @@ APPEND_SET(HEADERS
   DTK_FieldTools_def.hpp
   DTK_FieldTraits.hpp
   DTK_FieldVersion.hpp
-  DTK_TransferOperator.hpp
   )
 
 # Set sources

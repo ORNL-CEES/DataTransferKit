@@ -32,26 +32,27 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_FieldVersion.cpp
+ * \file DTK_TransferVersion.cpp
  * \author Stuart R. Slattery
- * \brief DataTransferKit fieldversion definition.
+ * \brief DataTransferKit transfer version definition.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_FieldVersion.hpp"
+#include "DTK_TransferVersion.hpp"
 #include "Trilinos_version.h"
 
 namespace DataTransferKit
 {
 
-std::string DataTransferKit_FieldVersion()
+std::string DataTransferKit_TransferVersion()
 { 
-  return("DataTransferKitField built against Trilinos " TRILINOS_VERSION_STRING); 
+  return( "DataTransferKitTransfer built against Trilinos " 
+	  TRILINOS_VERSION_STRING); 
 }
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_FieldVersion.cpp
+// end DTK_TransferVersion.cpp
 //---------------------------------------------------------------------------//
 
