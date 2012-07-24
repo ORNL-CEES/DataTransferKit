@@ -20,22 +20,17 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_ConsistentEvaluation.hpp
-  DTK_ConsistentEvaluation_def.hpp
-  DTK_FieldEvaluator.hpp	
-  DTK_FieldManager.hpp
-  DTK_FieldManager_def.hpp
-  DTK_FieldTools.hpp
-  DTK_FieldTools_def.hpp
-  DTK_FieldTraits.hpp
-  DTK_FieldVersion.hpp
+  DTK_TransferTypes.hpp
+  DTK_SharedDomainMap.hpp
+  DTK_SharedDomainMap_def.hpp
   DTK_TransferOperator.hpp
+  DTK_TransferVersion.hpp
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
-  DTK_FieldVersion.cpp
+  DTK_TransferVersion.cpp
   )
 
 # Set addition headers and source based on package-specific
@@ -55,7 +50,7 @@ ENDIF()
 #
 
 TRIBITS_ADD_LIBRARY(
-   Field
+   Transfer
    HEADERS ${HEADERS}
    SOURCES ${SOURCES}
    )
