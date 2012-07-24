@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstConsistentEvaluation2.cpp
+ * \file tstSharedDomainMap2.cpp
  * \author Stuart R. Slattery
- * \brief Consistent evaluation unit test 2.
+ * \brief Shared domain map unit test 2.
  */
 //---------------------------------------------------------------------------//
 
@@ -15,7 +15,7 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_ConsistentEvaluation.hpp>
+#include <DTK_SharedDomainMap.hpp>
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
@@ -432,7 +432,7 @@ MyField buildCoordinateField( int my_rank, int my_size,
 //---------------------------------------------------------------------------//
 // Unit test.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test2 )
+TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test2 )
 {
     using namespace DataTransferKit;
 
@@ -463,11 +463,11 @@ TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test2 )
     MyField my_target( target_size, 3 );
 
     // Setup and apply the consistent evaluation mapping.
-    typedef ConsistentEvaluation<MyMesh,MyField> MapType;
-    Teuchos::RCP<MapType> consistent_evaluation = 
+    typedef SharedDomainMap<MyMesh,MyField> MapType;
+    Teuchos::RCP<MapType> shared_domain_map = 
  	Teuchos::rcp( new MapType( comm ) );
-    consistent_evaluation->setup( mesh_manager, target_coords );
-    consistent_evaluation->apply( my_evaluator, my_target );
+    shared_domain_map->setup( mesh_manager, target_coords );
+    shared_domain_map->apply( my_evaluator, my_target );
 
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data.
@@ -485,6 +485,6 @@ TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test2 )
 }
 
 //---------------------------------------------------------------------------//
-// end tstConsistentEvaluation2.cpp
+// end tstSharedDomainMap2.cpp
 //---------------------------------------------------------------------------//
 

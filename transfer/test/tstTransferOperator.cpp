@@ -14,7 +14,7 @@
 #include <cassert>
 
 #include <DTK_TransferOperator.hpp>
-#include <DTK_ConsistentEvaluation.hpp>
+#include <DTK_SharedDomainMap.hpp>
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
@@ -456,12 +456,12 @@ TEUCHOS_UNIT_TEST( TransferOperator, transfer_operator_test )
 	MyField my_target( target_size, 1 );
 
 	// Setup consistent evaluation mapping.
-	typedef ConsistentEvaluation<MyMesh,MyField> MapType;
-	Teuchos::RCP<MapType> consistent_evaluation = 
+	typedef SharedDomainMap<MyMesh,MyField> MapType;
+	Teuchos::RCP<MapType> shared_domain_map = 
 	    Teuchos::rcp( new MapType( comm ) );
 
 	// Setup and apply the transfer operator to the fields.
-	TransferOperator<MapType> transfer_operator( consistent_evaluation );
+	TransferOperator<MapType> transfer_operator( shared_domain_map );
 	transfer_operator.setup( mesh_manager, target_coords );
 	transfer_operator.apply( my_evaluator, my_target );
 

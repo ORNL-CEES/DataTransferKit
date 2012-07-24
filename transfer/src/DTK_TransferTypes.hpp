@@ -44,12 +44,19 @@
 namespace DataTransferKit
 {
 
-//! Geometry enumerations.
+//! Geometry type enumerations.
 enum DTK_GeometryType {
     DTK_GeometryType_MIN = 0,
     DTK_COORDINATE_FIELD = DTK_GeometryType_MIN,
     DTK_MESH,
     DTK_GeometryType_MAX = DTK_MESH
+};
+
+//! Map type enumerations.
+enum DTK_MapType {
+    DTK_MapType_MIN = 0,
+    DTK_SHARED_DOMAIN = DTK_MapType_MIN,
+    DTK_MapType_MAX = DTK_SHARED_DOMAIN
 };
 
 } // end namespace DataTransferKit

@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_ConsistentEvaluation.hpp
+ * \file DTK_SharedDomainMap.hpp
  * \author Stuart R. Slattery
- * \brief Consistent evaluation mapping definition.
+ * \brief Shared domain map definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CONSISTENTEVALUATION_DEF_HPP
-#define DTK_CONSISTENTEVALUATION_DEF_HPP
+#ifndef DTK_SHAREDDOMAINMAP_DEF_HPP
+#define DTK_SHAREDDOMAINMAP_DEF_HPP
 
 #include <algorithm>
 #include <set>
@@ -64,7 +64,7 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<class Mesh, class CoordinateField>
-ConsistentEvaluation<Mesh,CoordinateField>::ConsistentEvaluation( 
+SharedDomainMap<Mesh,CoordinateField>::SharedDomainMap( 
     const RCP_Comm& comm )
     : d_comm( comm )
 { /* ... */ }
@@ -74,7 +74,7 @@ ConsistentEvaluation<Mesh,CoordinateField>::ConsistentEvaluation(
  * \brief Destructor.
  */
 template<class Mesh, class CoordinateField>
-ConsistentEvaluation<Mesh,CoordinateField>::~ConsistentEvaluation()
+SharedDomainMap<Mesh,CoordinateField>::~SharedDomainMap()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -82,7 +82,7 @@ ConsistentEvaluation<Mesh,CoordinateField>::~ConsistentEvaluation()
  * \brief Setup for evaluation.
  */
 template<class Mesh, class CoordinateField>
-void ConsistentEvaluation<Mesh,CoordinateField>::setup( 
+void SharedDomainMap<Mesh,CoordinateField>::setup( 
     const RCP_MeshManager& mesh_manager, 
     const CoordinateField& coordinate_field )
 {
@@ -290,7 +290,7 @@ void ConsistentEvaluation<Mesh,CoordinateField>::setup(
  */
 template<class Mesh, class CoordinateField>
 template<class SourceField, class TargetField>
-void ConsistentEvaluation<Mesh,CoordinateField>::apply( 
+void SharedDomainMap<Mesh,CoordinateField>::apply( 
     const Teuchos::RCP< FieldEvaluator<Mesh,SourceField> >& source_evaluator,
     TargetField& target_space )
 {
@@ -356,8 +356,8 @@ void ConsistentEvaluation<Mesh,CoordinateField>::apply(
  */
 template<class Mesh, class CoordinateField>
 Teuchos::Array<
-    typename ConsistentEvaluation<Mesh,CoordinateField>::GlobalOrdinal>
-ConsistentEvaluation<Mesh,CoordinateField>::computePointOrdinals(
+    typename SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal>
+SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
     const CoordinateField& coordinate_field )
 {
     int comm_rank = d_comm->getRank();
@@ -385,8 +385,8 @@ ConsistentEvaluation<Mesh,CoordinateField>::computePointOrdinals(
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_CONSISTENTEVALUATION_DEF_HPP
+#endif // end DTK_SHAREDDOMAINMAP_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_ConsistentEvaluation_def.hpp
+// end DTK_SharedDomainMap_def.hpp
 //---------------------------------------------------------------------------//

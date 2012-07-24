@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_ConsistentEvaluation.hpp
+ * \file DTK_SharedDomainMap.hpp
  * \author Stuart R. Slattery
- * \brief Consistent evaluation mapping declaration.
+ * \brief Shared domain map declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CONSISTENTEVALUATION_HPP
-#define DTK_CONSISTENTEVALUATION_HPP
+#ifndef DTK_SHAREDDOMAINMAP_HPP
+#define DTK_SHAREDDOMAINMAP_HPP
 
 #include "DTK_FieldTraits.hpp"
 #include "DTK_FieldEvaluator.hpp"
@@ -59,7 +59,7 @@ namespace DataTransferKit
 {
 
 template<class Mesh, class CoordinateField>
-class ConsistentEvaluation
+class SharedDomainMap
 {
   public:
 
@@ -82,16 +82,16 @@ class ConsistentEvaluation
     //!@}
 
     // Constructor.
-    ConsistentEvaluation( const RCP_Comm& comm );
+    SharedDomainMap( const RCP_Comm& comm );
 
     // Destructor.
-    ~ConsistentEvaluation();
+    ~SharedDomainMap();
 
-    // Setup for evaluation.
+    // Setup the map.
     void setup( const RCP_MeshManager& mesh_manager, 
 		const CoordinateField& coordinate_field );
 
-    // Apply the evaluation.
+    // Apply the map.
     template<class SourceField, class TargetField>
     void apply( 
 	const Teuchos::RCP< FieldEvaluator<Mesh,SourceField> >& source_evaluator,
@@ -131,13 +131,13 @@ class ConsistentEvaluation
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_ConsistentEvaluation_def.hpp"
+#include "DTK_SharedDomainMap_def.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_CONSISTENTEVALUATION_HPP
+#endif // end DTK_SHAREDDOMAINMAP_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_ConsistentEvaluation.hpp
+// end DTK_SharedDomainMap.hpp
 //---------------------------------------------------------------------------//
 

@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstConsistentEvaluation1.cpp
+ * \file tstSharedDomainMap1.cpp
  * \author Stuart R. Slattery
- * \brief Consistent evaluation unit tests 1.
+ * \brief Shared domain map unit tests 1.
  */
 //---------------------------------------------------------------------------//
 
@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_ConsistentEvaluation.hpp>
+#include <DTK_SharedDomainMap.hpp>
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
@@ -427,7 +427,7 @@ MyField buildCoordinateField()
 // Unit tests
 //---------------------------------------------------------------------------//
 
-TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test )
+TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test )
 {
     using namespace DataTransferKit;
 
@@ -455,10 +455,10 @@ TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test )
 	MyField my_target( target_coords.size() / target_coords.dim(), 1 );
 
 	// Setup and apply the evaluation to the field.
-	ConsistentEvaluation<MyMesh,MyField> 
-	    consistent_evaluation( comm );
-	consistent_evaluation.setup( mesh_manager, target_coords );
-	consistent_evaluation.apply( my_evaluator, my_target );
+	SharedDomainMap<MyMesh,MyField> 
+	    shared_domain_map( comm );
+	shared_domain_map.setup( mesh_manager, target_coords );
+	shared_domain_map.apply( my_evaluator, my_target );
 
 	// Check the data transfer.
 	for ( int n = 0; n < my_target.size(); ++n )
@@ -469,5 +469,5 @@ TEUCHOS_UNIT_TEST( ConsistentEvaluation, consistent_evaluation_test )
 }
 
 //---------------------------------------------------------------------------//
-// end tstConsistentEvaluation1.cpp
+// end tstSharedDomainMap1.cpp
 //---------------------------------------------------------------------------//
