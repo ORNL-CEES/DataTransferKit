@@ -137,7 +137,7 @@ FieldTools<Field>::view( const Field& field )
  */
 template<class Field>
 Teuchos::ArrayRCP<typename FieldTools<Field>::value_type>
-FieldTools<Field>::nonConstView( Field& field )
+FieldTools<Field>::nonConstView( const Field& field )
 {
     return Teuchos::ArrayRCP<value_type>(
 	(value_type*) &*FT::begin( field ), 0, FT::size( field ), false );
