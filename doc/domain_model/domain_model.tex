@@ -384,13 +384,13 @@ is required, however, it must exist on a single communicator.
 The actual discretization of the field is not explicitly
 formulated. Rather, access to discretization of fields and the
 associated data is generated through function evaluations at points in
-phase space. Consider a $D$-dimensional function $F(r)$ of arbitrary
-discretization over the spatial domain $\Omega \in \mathbb{R}^n$ where
-$r \in \mathbb{R}^n$ and $F : \mathbb{R}^n \rightarrow
-\mathbb{R}^D$. Via polynomial interpolation, projection, or any other
-means necessary to most appropriately reflect the discretization of
-$F(r)$, it then follows that evaluation operations of the following
-type can be performed:
+physical space. Consider a $D$-dimensional function $F(r)$ of
+arbitrary discretization over the spatial domain $\Omega \in
+\mathbb{R}^n$ where $r \in \mathbb{R}^n$ and $F : \mathbb{R}^n
+\rightarrow \mathbb{R}^D$. Via polynomial interpolation, projection,
+or any other means necessary to most appropriately reflect the
+discretization of $F(r)$, it then follows that evaluation operations
+of the following type can be performed:
 
 \begin{equation}
   \hat{f} \leftarrow F(\hat{r}), \forall \hat{r} \in \Omega
@@ -577,9 +577,7 @@ Global recursive coordinate bisectioning parameters
 are maintained for global partitioning information. A local kD-tree is
 formed over the local mesh. In this way, mesh searches on the global
 level use the RCB partitioning information and mesh searches on the
-local level use the kD-tree with both operations exhibiting
-O(n*log(n)) asymptotic time and space complexity for generating and
-searching the appropriate data structures.
+local level use the kD-tree.
 
 \clearpage
 
@@ -590,16 +588,30 @@ A parallel topology map is an operator, $M$, that defines the
 translation of a field, $F(s)$, from a source spatial domain,
 $\Omega_S$, to a field, $G(t$), in the target spatial domain
 $\Omega_T$, such that $M( F(r) ) : \mathbb{R}^D \rightarrow
-\mathbb{R}^D, \forall r \in \Omega_S \cap \Omega_T$, using both
-geometric and parallel operations.
+\mathbb{R}^D, \forall r \in [\Omega_S \cap \Omega_T$], using both
+geometric and parallel operations. There are 3 types of parallel
+topology maps: shared domain maps, interface maps, and
+action-at-a-distance maps. Currently, DTK only considers shared domain
+maps.
 
-\subsection{A Map Generation Algorithm}\label{subsec:map_algorithm}
+\subsection{Shared Domain Problems}\label{subsec:shared_domain}
+The shared domain map has several properties. It is defined over a
+communicator that encapsulates the union of the communication spaces
+owned by the source and target geometries.  The map is of the same
+dimension as the source and target geometries. A shared domain map
+cannot be generated with source and target geometries of different
+dimensions (e.g. a 3 dimensional source geometry and a 2 dimensional
+target geometry cannot be used to generate a shared domain map).
+
+\subsubsection{Shared Domain Mapping Algorithm}
+\label{subsubsec:shared_domain_alg}
 The following mapping algorithm is applied using the rendezvous
-decomposition to build a parallel topology map.
+decomposition to build a parallel topology map for share domain
+problems.
 
 \begin{enumerate}
 \item Find which rendezvous sub-domain each target geometry component
-  is inside of.
+  is inside of and determine the process which owns this sub-domain.
 \item Send target geometry from target decomposition to rendezvous
   decomposition.
 \item Find which target geometry component is inside which source

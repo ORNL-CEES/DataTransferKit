@@ -34,7 +34,7 @@
 /*!
  * \file DTK_FieldEvaluator.hpp
  * \author Stuart R. Slattery
- * \brief Protocol definition for field evaluation kernels.
+ * \brief Interface definition for field evaluation kernels.
  */
 //---------------------------------------------------------------------------//
 
@@ -58,7 +58,7 @@ class FieldEvaluator
     //! Typedefs.
     typedef Mesh                                mesh_type;
     typedef MeshTraits<Mesh>                    MT;
-    typedef typename MT::global_ordinal_type    global_ordinal_type;
+    typedef typename MT::global_ordinal_type    GlobalOrdinal;
     typedef Field                               field_type;
     typedef FieldTraits<Field>                  FT;
     typedef typename FT::value_type             data_type;
@@ -73,10 +73,10 @@ class FieldEvaluator
     { /* ... */ }
 
     /*!
-     * \brief Evaluate the field in the given elements at the given
-     * coordinates and return the evaluations in a Field.
+     * \brief Evaluate the function in the given elements at the given
+     * coordinates and return the evaluations in a FieldTraits container.
      *
-     * \param elements A vector of element handles in which to evaluate
+     * \param elements A vector of valid element handles in which to evaluate
      * the field.
      *
      * \param coords A vector of blocked coordinates 
@@ -84,14 +84,14 @@ class FieldEvaluator
      * at which to evaluate the field. Coordinates ( xN, yN, zN ) should be
      * evaluated in the Nth element in the elements vector.
      *
-     * \return Return a Field containing the evaluated field values. This
-     * returned field is required to be of the same length as the elements
-     * input vector. For those coordinates that can't be evaluated in the
-     * given element, return 0 in their position. Field data dimensionality
-     * and ordering is specified by field traits. 
+     * \return Return a FieldTraits container containing the evaluated
+     * function values. This returned field is required to be of the same
+     * length as the elements input vector. For those coordinates that can't
+     * be evaluated in the given element, return 0 in their position. Field
+     * data dimensionality and ordering is specified by field traits.
      */
     virtual Field evaluate( 
-	const Teuchos::ArrayRCP<global_ordinal_type>& elements,
+	const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
 	const Teuchos::ArrayRCP<double>& coords ) = 0;
 };
 
