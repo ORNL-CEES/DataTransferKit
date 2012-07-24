@@ -5,8 +5,10 @@
  - \ref DTK_intro
  - \ref DTK_contributors
  - \ref DTK_overview
+          - \ref DTK_utils
    	  - \ref DTK_mesh
    	  - \ref DTK_field
+          - \ref DTK_transfer
  
  \section DTK_intro Introduction
  
@@ -23,8 +25,12 @@
 
  DTK is divided into two subpackages for mesh services and field services.
  
+ \subsection DTK_utils Utilities Subpackage
+
  \subsection DTK_mesh Mesh Subpackage
 
  \subsection DTK_field Field Subpackage
+
+ \subsection DTK_transfer Transfer Subpackage
 
  */

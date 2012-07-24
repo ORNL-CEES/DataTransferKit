@@ -48,6 +48,21 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
+// Helper Functions
+//---------------------------------------------------------------------------//
+bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
+{
+    if ( std::abs( a1 - a2 ) < tol )
+    {
+	return true;
+    }
+    else
+    {
+	return false;
+    }
+}
+
+//---------------------------------------------------------------------------//
 // Field implementation.
 //---------------------------------------------------------------------------//
 class ArrayField
@@ -195,7 +210,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     int global_size = 0;
     for ( int i = 0; i < my_size; ++i )
     {
-	global_size += field_dim*(my_rank+1);
+	global_size += field_dim*(i+1);
     }
     TEST_ASSERT( 
 	Tools::globalSize( field_manager.field(), field_manager.comm() )
@@ -301,7 +316,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     {
 	local_val = (d+1) * random_numbers[1] * random_numbers[2] 
 		    * (-(d+1) - random_numbers[3]);
-	TEST_ASSERT( inf_norms[d] == std::abs( local_val ) );
+	TEST_ASSERT( softEquivalence( inf_norms[d], std::abs( local_val ) ) );
     }
 
     Teuchos::Array<double> one_norms;
@@ -309,9 +324,9 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     for ( int d = 0; d < field_dim; ++d )
     {
 	local_val = ( global_size / FT::dim( field_manager.field() ) ) * 
-		   (d+1) * random_numbers[1] 
-		   * random_numbers[2] * (-(d+1) - random_numbers[3]);
-	TEST_ASSERT( one_norms[d] == std::abs( local_val ) );
+		    (d+1) * random_numbers[1] 
+		    * random_numbers[2] * (-(d+1) - random_numbers[3]);
+	TEST_ASSERT( softEquivalence( one_norms[d], std::abs( local_val ) ) );
     }
 
     Teuchos::Array<double> two_norms;
@@ -323,7 +338,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
 		       std::abs( (d+1) * random_numbers[1] * random_numbers[2] 
 				 * (-(d+1) - random_numbers[3]) ), 2.0 );
 	local_val = std::pow( local_val, 1.0/2.0 );
-	TEST_ASSERT( two_norms[d] == local_val );
+	TEST_ASSERT( softEquivalence( two_norms[d], local_val ) );
     }
 
     Teuchos::Array<double> q_norms;
@@ -336,7 +351,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
 			std::abs( (d+1) * random_numbers[1] * random_numbers[2] 
 				  * (-(d+1) - random_numbers[3]) ), q );
 	local_val = std::pow( local_val, 1.0/q );
-	TEST_ASSERT( q_norms[d] == local_val );
+	TEST_ASSERT( softEquivalence( q_norms[d], local_val ) );
     }
 
     // Average.
@@ -346,7 +361,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     {
 	local_val = (d+1) * random_numbers[1] * random_numbers[2] 
 		    * (-(d+1) - random_numbers[3]);
-	TEST_ASSERT( averages[d] == local_val );
+	TEST_ASSERT( softEquivalence( averages[d], local_val ) );
     }
 }
 
@@ -401,7 +416,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     int global_size = 0;
     for ( int i = 0; i < my_size; ++i )
     {
-	global_size += field_dim*(my_rank+1);
+	global_size += field_dim*(i+1);
     }
     TEST_ASSERT( 
 	Tools::globalSize( field_manager.field(), field_manager.comm() )
@@ -506,7 +521,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     {
 	local_val = (d+1) * random_numbers[1] * random_numbers[2] 
 		    * (-(d+1) - random_numbers[3]);
-	TEST_ASSERT( inf_norms[d] == std::abs( local_val ) );
+	TEST_ASSERT( softEquivalence( inf_norms[d], std::abs( local_val ) ) );
     }
 
     Teuchos::Array<double> one_norms;
@@ -516,7 +531,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
 	local_val = ( global_size / FT::dim( field_manager.field() ) ) * 
 		   (d+1) * random_numbers[1] 
 		   * random_numbers[2] * (-(d+1) - random_numbers[3]);
-	TEST_ASSERT( one_norms[d] == std::abs( local_val ) );
+	TEST_ASSERT( softEquivalence( one_norms[d], std::abs( local_val ) ) );
     }
 
     Teuchos::Array<double> two_norms;
@@ -528,7 +543,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
 		       std::abs( (d+1) * random_numbers[1] * random_numbers[2] 
 				 * (-(d+1) - random_numbers[3]) ), 2.0 );
 	local_val = std::pow( local_val, 1.0/2.0 );
-	TEST_ASSERT( two_norms[d] == local_val );
+	TEST_ASSERT( softEquivalence( two_norms[d], local_val ) );
     }
 
     Teuchos::Array<double> q_norms;
@@ -541,7 +556,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
 			std::abs( (d+1) * random_numbers[1] * random_numbers[2] 
 				  * (-(d+1) - random_numbers[3]) ), q );
 	local_val = std::pow( local_val, 1.0/q );
-	TEST_ASSERT( q_norms[d] == local_val );
+	TEST_ASSERT( softEquivalence( q_norms[d], local_val ) );
     }
 
     // Average.
@@ -551,7 +566,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     {
 	local_val = (d+1) * random_numbers[1] * random_numbers[2] 
 		    * (-(d+1) - random_numbers[3]);
-	TEST_ASSERT( averages[d] == local_val );
+	TEST_ASSERT( softEquivalence( averages[d], local_val ) );
     }
 }
 
@@ -606,7 +621,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     int global_size = 0;
     for ( int i = 0; i < my_size; ++i )
     {
-	global_size += field_dim*(my_rank+1);
+	global_size += field_dim*(i+1);
     }
     TEST_ASSERT( 
 	Tools::globalSize( field_manager.field(), field_manager.comm() )
@@ -711,7 +726,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     {
 	local_val = (d+1) * random_numbers[1] * random_numbers[2] 
 		    * (-(d+1) - random_numbers[3]);
-	TEST_ASSERT( inf_norms[d] == std::abs( local_val ) );
+	TEST_ASSERT( softEquivalence( inf_norms[d], std::abs( local_val ) ) );
     }
 
     Teuchos::Array<double> one_norms;
@@ -721,7 +736,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
 	local_val = ( global_size / FT::dim( field_manager.field() ) ) * 
 		   (d+1) * random_numbers[1] 
 		   * random_numbers[2] * (-(d+1) - random_numbers[3]);
-	TEST_ASSERT( one_norms[d] == std::abs( local_val ) );
+	TEST_ASSERT( softEquivalence( one_norms[d], std::abs( local_val ) ) );
     }
 
     Teuchos::Array<double> two_norms;
@@ -733,7 +748,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
 		       std::abs( (d+1) * random_numbers[1] * random_numbers[2] 
 				 * (-(d+1) - random_numbers[3]) ), 2.0 );
 	local_val = std::pow( local_val, 1.0/2.0 );
-	TEST_ASSERT( two_norms[d] == local_val );
+	TEST_ASSERT( softEquivalence( two_norms[d], local_val ) );
     }
 
     Teuchos::Array<double> q_norms;
@@ -746,7 +761,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
 			std::abs( (d+1) * random_numbers[1] * random_numbers[2] 
 				  * (-(d+1) - random_numbers[3]) ), q );
 	local_val = std::pow( local_val, 1.0/q );
-	TEST_ASSERT( q_norms[d] == local_val );
+	TEST_ASSERT( softEquivalence( q_norms[d], local_val ) );
     }
 
     // Average.
@@ -756,7 +771,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     {
 	local_val = (d+1) * random_numbers[1] * random_numbers[2] 
 		    * (-(d+1) - random_numbers[3]);
-	TEST_ASSERT( averages[d] == local_val );
+	TEST_ASSERT( softEquivalence( averages[d], local_val ) );
     }
 }
 

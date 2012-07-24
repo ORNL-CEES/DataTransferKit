@@ -49,6 +49,7 @@
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ScalarTraits.hpp>
+#include <Teuchos_Ptr.hpp>
 
 namespace DataTransferKit
 {
@@ -232,11 +233,11 @@ void FieldTools<Field>::normInf( const Field& field, const RCP_Comm& comm,
 
 	local_norm = std::max( std::abs(local_max), std::abs(local_min) );
 
-	Teuchos::reduceAll<int,value_type>( *comm,
-					    Teuchos::REDUCE_MAX,
-					    1,
-					    &local_norm,
-					    &norms[d] );
+	Teuchos::reduceAll<int,value_type>( 
+	    *comm,
+	    Teuchos::REDUCE_MAX,
+	    local_norm,
+	    Teuchos::Ptr<value_type>( &norms[d] ) );
     }
 }
 
@@ -263,11 +264,11 @@ void FieldTools<Field>::norm1( const Field& field, const RCP_Comm& comm,
 	    local_norm += std::abs( *dim_iterator );
 	}
 
-	Teuchos::reduceAll<int,value_type>( *comm,
-					    Teuchos::REDUCE_SUM,
-					    1,
-					    &local_norm,
-					    &norms[d] );
+	Teuchos::reduceAll<int,value_type>( 
+	    *comm,
+	    Teuchos::REDUCE_SUM,
+	    local_norm,
+	    Teuchos::Ptr<value_type>( &norms[d] ) );
     } 
 }
 
@@ -294,11 +295,11 @@ void FieldTools<Field>::norm2( const Field& field, const RCP_Comm& comm,
 	    local_norm += std::abs(*dim_iterator)*std::abs(*dim_iterator);
 	}
 
-	Teuchos::reduceAll<int,value_type>( *comm,
-					    Teuchos::REDUCE_SUM,
-					    1,
-					    &local_norm,
-					    &norms[d] );
+	Teuchos::reduceAll<int,value_type>( 
+	    *comm,
+	    Teuchos::REDUCE_SUM,
+	    local_norm,
+	    Teuchos::Ptr<value_type>( &norms[d] ) );
 
 	norms[d] = std::pow( norms[d], 1.0/2.0 );
     } 
@@ -335,11 +336,11 @@ void FieldTools<Field>::normQ( const Field& field, const RCP_Comm& comm,
 	    local_norm += element_product;
 	}
 
-	Teuchos::reduceAll<int,value_type>( *comm,
-					    Teuchos::REDUCE_SUM,
-					    1,
-					    &local_norm,
-					    &norms[d] );
+	Teuchos::reduceAll<int,value_type>( 
+	    *comm,
+	    Teuchos::REDUCE_SUM,
+	    local_norm,
+	    Teuchos::Ptr<value_type>( &norms[d] ) );
 
 	norms[d] = std::pow( norms[d], 1.0/q );
     } 
@@ -362,23 +363,23 @@ void FieldTools<Field>::average( const Field& field, const RCP_Comm& comm,
     averages.resize( field_dim );
     size_type dim_length = global_length / field_dim;
     const_iterator dim_iterator;
-    value_type local_norm;
+    value_type local_sum;
     for ( std::size_t d = 0; d < field_dim; ++d )
     {
-	local_norm = 0.0;
+	local_sum = 0.0;
 
 	for ( dim_iterator = dimBegin( field, d );
 	      dim_iterator != dimEnd( field, d );
 	      ++dim_iterator )
 	{
-	    local_norm += *dim_iterator;
+	    local_sum += *dim_iterator;
 	}
 
-	Teuchos::reduceAll<int,value_type>( *comm,
-					    Teuchos::REDUCE_SUM,
-					    1,
-					    &local_norm,
-					    &averages[d] );
+	Teuchos::reduceAll<int,value_type>( 
+	    *comm,
+	    Teuchos::REDUCE_SUM,
+	    local_sum,
+	    Teuchos::Ptr<value_type>( &averages[d] ) );
 
 	averages[d] /= dim_length;
     } 
@@ -395,11 +396,13 @@ FieldTools<Field>::globalSize( const Field& field,
 {
     size_type local_size = FT::size( field );
     size_type global_size = 0;
-    Teuchos::reduceAll<int,size_type>( *comm,
-				       Teuchos::REDUCE_SUM,
-				       1,
-				       &local_size,
-				       &global_size );
+
+    Teuchos::reduceAll<int,size_type>( 
+	*comm,
+	Teuchos::REDUCE_SUM,
+	local_size,
+	Teuchos::Ptr<size_type>( &global_size ) );
+
     return global_size;
 }
 
@@ -461,39 +464,33 @@ BoundingBox FieldTools<Field>::coordGlobalBoundingBox( const Field& field,
 
     Teuchos::reduceAll<int,double>( *comm, 
 				    Teuchos::REDUCE_MIN,
-				    1,
-				    &local_bounds[0],
-				    &global_x_min );
+				    local_bounds[0],
+				    Teuchos::Ptr<double>( &global_x_min ) );
 
     Teuchos::reduceAll<int,double>( *comm, 
 				    Teuchos::REDUCE_MIN,
-				    1,
-				    &local_bounds[1],
-				    &global_y_min );
+				    local_bounds[1],
+				    Teuchos::Ptr<double>( &global_y_min ) );
 
     Teuchos::reduceAll<int,double>( *comm, 
 				    Teuchos::REDUCE_MIN,
-				    1,
-				    &local_bounds[2],
-				    &global_z_min );
+				    local_bounds[2],
+				    Teuchos::Ptr<double>( &global_z_min ) );
 
     Teuchos::reduceAll<int,double>( *comm, 
 				    Teuchos::REDUCE_MAX,
-				    1,
-				    &local_bounds[3],
-				    &global_x_max );
+				    local_bounds[3],
+				    Teuchos::Ptr<double>( &global_x_max ) );
 
     Teuchos::reduceAll<int,double>( *comm, 
 				    Teuchos::REDUCE_MAX,
-				    1,
-				    &local_bounds[4],
-				    &global_y_max );
+				    local_bounds[4],
+				    Teuchos::Ptr<double>( &global_y_max ) );
 
     Teuchos::reduceAll<int,double>( *comm, 
 				    Teuchos::REDUCE_MAX,
-				    1,
-				    &local_bounds[5],
-				    &global_z_max );
+				    local_bounds[5],
+				    Teuchos::Ptr<double>( &global_z_max ) );
 
     return BoundingBox( global_x_min, global_y_min, global_z_min,
 			global_x_max, global_y_max, global_z_max );

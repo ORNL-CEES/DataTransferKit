@@ -42,7 +42,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
-// Helper Function
+// Helper Functions
 //---------------------------------------------------------------------------//
 bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
 {
