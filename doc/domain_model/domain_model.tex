@@ -595,6 +595,23 @@ action-at-a-distance maps. Currently, DTK only considers shared domain
 maps.
 
 \subsection{Shared Domain Problems}\label{subsec:shared_domain}
+A shared domain problem is one in which the geometric domains of the
+source and target intersect over all dimensions of the
+problem. Figure~\ref{fig:shared_domain} givens an example of a shared
+domain problem in 3 dimensions. Here, $\Omega(S)$ (yellow) is the
+source geometry, $\Omega(T)$ (blue) is the target geometry, and
+$\Omega(R)$ (red) is their intersection and the shared domain over
+which mapping and the rendezvous decomposition will be generated.
+
+\begin{figure}[htpb!]
+  \centering
+  \includegraphics[width=5in]{overlapping_domain.eps}
+  \caption{\sl Overlapping domain example.} {\sl $\Omega(S)$ (yellow)
+    is the source geometry, $\Omega(T)$ (blue) is the target geometry,
+    and $\Omega(R)$ (red) is the shared domain.}
+  \label{fig:shared_domain}
+\end{figure}
+
 The shared domain map has several properties. It is defined over a
 communicator that encapsulates the union of the communication spaces
 owned by the source and target geometries.  The map is of the same

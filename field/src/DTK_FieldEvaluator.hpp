@@ -84,11 +84,11 @@ class FieldEvaluator
      * at which to evaluate the field. Coordinates ( xN, yN, zN ) should be
      * evaluated in the Nth element in the elements vector.
      *
-     * \return Return a FieldTraits container containing the evaluated
-     * function values. This returned field is required to be of the same
-     * length as the elements input vector. For those coordinates that can't
-     * be evaluated in the given element, return 0 in their position. Field
-     * data dimensionality and ordering is specified by field traits.
+     * \return A FieldTraits container containing the evaluated function
+     * values. This returned field is required to be of the same length as the
+     * elements input vector. For those coordinates that can't be evaluated in
+     * the given element, return 0 in their position. Field data
+     * dimensionality and ordering is specified by field traits.
      */
     virtual Field evaluate( 
 	const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
