@@ -103,7 +103,7 @@ class FieldTraits
     { return UndefinedFieldTraits<FieldType>::notDefined(); }
 
     /*! 
-     * \brief Returns the number of elements in the field.
+     * \brief Returns the total number of elements in the field.
      */
     static inline size_type size( const FieldType& field )
     { return UndefinedFieldTraits<FieldType>::notDefined(); }

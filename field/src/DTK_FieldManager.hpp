@@ -76,11 +76,16 @@ class FieldManager
     // Destructor.
     ~FieldManager();
 
-    // Get the field.
+    //@{
+    //! Get the field.
     const Field& field() const
     { return d_field; }
-    
-    // Get the communicator for the field.
+
+    Field& field()
+    { return d_field; }    
+    //@}
+
+    //! Get the communicator for the field.
     const RCP_Comm& comm() const
     { return d_comm; }
 
@@ -100,6 +105,8 @@ class FieldManager
 //---------------------------------------------------------------------------//
 
 #include "DTK_FieldManager_def.hpp"
+
+//---------------------------------------------------------------------------//
 
 #endif // DTK_FIELDMANAGER_HPP
 

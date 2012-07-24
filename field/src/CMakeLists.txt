@@ -23,6 +23,10 @@ APPEND_SET(HEADERS
   DTK_ConsistentEvaluation.hpp
   DTK_ConsistentEvaluation_def.hpp
   DTK_FieldEvaluator.hpp	
+  DTK_FieldManager.hpp
+  DTK_FieldManager_def.hpp
+  DTK_FieldTools.hpp
+  DTK_FieldTools_def.hpp
   DTK_FieldTraits.hpp
   DTK_FieldVersion.hpp
   DTK_TransferOperator.hpp

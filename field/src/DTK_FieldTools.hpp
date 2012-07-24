@@ -73,6 +73,8 @@ class FieldTools
     typedef FieldTraits<Field>              FT;
     typedef typename FT::value_type         value_type;
     typedef typename FT::size_type          size_type;
+    typedef typename FT::iterator           iterator;
+    typedef typename FT::const_iterator     const_iterator;
     typedef Teuchos::Comm<int>              CommType;
     typedef Teuchos::RCP<const CommType>    RCP_Comm;
     //@}
@@ -86,6 +88,22 @@ class FieldTools
     { /* ... */ }
 
     //@{
+    //! Iterators.
+    // Get an iterator to the beginning of a dimension.
+    static iterator dimBegin( Field& field, const std::size_t dim );
+
+    // Get a const iterator to the beginning of a dimension.
+    static const_iterator dimBegin( const Field& field, const std::size_t dim );
+
+    // Get an iterator to the end of a dimension.
+    static iterator dimEnd( Field& field, const std::size_t dim );
+
+    // Get a const iterator to the end of a dimension.
+    static const_iterator dimEnd( const Field& field, const std::size_t dim );
+    //@}
+
+
+    //@{
     //! View methods.
     // Get a const view of the field. The ArrayRCP object will not manage the
     // memory. 
@@ -93,7 +111,7 @@ class FieldTools
 
     // Get a non-const view of the field. The ArrayRCP object will not manage
     // the memory. 
-    static Teuchos::ArrayRCP<value_type> nonConstView( const Field& field );
+    static Teuchos::ArrayRCP<value_type> nonConstView( Field& field );
     //@}
 
 
@@ -113,31 +131,32 @@ class FieldTools
     static void scale( Field& field, 
 		       const Teuchos::ArrayView<value_type>& scalars );
 
-    // Compute the infinity norm for each field dimension.
+    // Compute the global infinity norm for each field dimension.
     static void normInf( const Field& field,
 			 const RCP_Comm& comm,
 			 Teuchos::Array<value_type>& norms );
 
-    // Compute the L1 norm for each field dimension.
+    // Compute the global L1 norm for each field dimension.
     static void norm1( const Field& field, const RCP_Comm& comm,
 		       Teuchos::Array<value_type>& norms );
 
 
-    // Compute the L2 norm for each field dimension.
+    // Compute the global L2 norm for each field dimension.
     static void norm2( const Field& field, const RCP_Comm& comm, 
 		       Teuchos::Array<value_type>& norms );
 
-    // Compute the q-norm for each field dimension.
-    static void normQ( const Field& field,  const int& q, const RCP_Comm& comm,
+    // Compute the global q-norm for each field dimension.
+    static void normQ( const Field& field, const RCP_Comm& comm, const int& q,
 		       Teuchos::Array<value_type>& norms );
 
-    // Compute the average value for each field dimension.
+    // Compute the global average value for each field dimension.
     static void average( const Field& field, const RCP_Comm& comm, 
 			 Teuchos::Array<value_type>& averages );
 
-    // Get the global length of the field.
-    static size_type globalLength( const Field& field, const RCP_Comm& comm );
+    // Get the global size of the field.
+    static size_type globalSize( const Field& field, const RCP_Comm& comm );
     //@}
+
 
     //@{
     //! Coordinate field operations.
