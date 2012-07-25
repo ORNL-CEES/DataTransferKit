@@ -20,10 +20,8 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_TransferTypes.hpp
   DTK_SharedDomainMap.hpp
   DTK_SharedDomainMap_def.hpp
-  DTK_TransferOperator.hpp
   DTK_TransferVersion.hpp
   )
 
