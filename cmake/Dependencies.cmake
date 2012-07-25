@@ -4,7 +4,7 @@ SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
   Utils     utils      SS  REQUIRED
   Mesh      mesh       SS  REQUIRED
   Field     field      SS  REQUIRED
-  Transfer  transfer   SS  REQUIRED
+  Map       map        SS  REQUIRED
   ) 
 
 SET(LIB_REQUIRED_DEP_PACKAGES)

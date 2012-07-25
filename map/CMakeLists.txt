@@ -1,6 +1,6 @@
 INCLUDE(TribitsSubPackageMacros)
 
-TRIBITS_SUBPACKAGE(Transfer)
+TRIBITS_SUBPACKAGE(Map)
 
 ADD_SUBDIRECTORY(src)
 
