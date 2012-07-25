@@ -120,6 +120,7 @@ TEUCHOS_UNIT_TEST( CommTools, union_test_2 )
     RCP_Comm comm_union;
     CommTools::unite( comm_A, comm_B, comm_union );
     TEST_ASSERT( CommTools::equal( comm_A, comm_union ) );
+    TEST_ASSERT( !CommTools::equal( comm_B, comm_union ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -173,6 +174,7 @@ TEUCHOS_UNIT_TEST( CommTools, intersect_test_2 )
 
     RCP_Comm comm_intersect;
     CommTools::intersect( comm_A, comm_B, comm_intersect );
+    TEST_ASSERT( !CommTools::equal( comm_A, comm_intersect ) );
     TEST_ASSERT( CommTools::equal( comm_B, comm_intersect ) );
 }
 
