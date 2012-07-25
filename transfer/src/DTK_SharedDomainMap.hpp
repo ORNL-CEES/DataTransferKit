@@ -41,8 +41,8 @@
 #ifndef DTK_SHAREDDOMAINMAP_HPP
 #define DTK_SHAREDDOMAINMAP_HPP
 
-#include "DTK_FieldTraits.hpp"
-#include "DTK_FieldEvaluator.hpp"
+#include <DTK_FieldTraits.hpp>
+#include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTraits.hpp>
 #include <DTK_MeshManager.hpp>
 #include <DTK_BoundingBox.hpp>

@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_DataTraits.hpp
+ * \file DTK_FieldTraits.hpp
  * \author Stuart R. Slattery
  * \brief Traits declaration for field types.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_DATAFIELDTRAITS_HPP
-#define DTK_DATAFIELDTRAITS_HPP
+#ifndef DTK_FIELDTRAITS_HPP
+#define DTK_FIELDTRAITS_HPP
 
 #include <iterator>
 
@@ -143,9 +143,9 @@ class FieldTraits
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_DATAFIELDTRAITS_HPP
+#endif // end DTK_FIELDTRAITS_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_DataFieldTraits.hpp
+// end DTK_FieldTraits.hpp
 //---------------------------------------------------------------------------//
 

@@ -32,65 +32,81 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_CommTools.hpp
+ * \file DTK_MeshAdapter.hpp
  * \author Stuart R. Slattery
- * \brief CommTools declaration.
+ * \brief FieldTraits adapter for mesh coordinates.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_COMMTOOLS_HPP
-#define DTK_COMMTOOLS_HPP
+#ifndef DTK_MESHADAPTER_HPP
+#define DTK_MESHADAPTER_HPP
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
+#include "DTK_FieldTraits.hpp"
+#include <DTK_MeshTraits.hpp>
+#include <DTK_MeshTools.hpp>
 
 namespace DataTransferKit
 {
 
 //---------------------------------------------------------------------------//
-/*!
- * \class CommTools
- * \brief A stateless class with tools for operating on communicators.
- */ 
+/*! 
+ * \class FieldTraits<Mesh>
+ * \brief FieldTraits adapter for mesh coordinates. 
+ *
+ * This allows meshes to be viewed as a field of coordinates. Other mesh
+ * information is not available through this interface.
+ */
 //---------------------------------------------------------------------------//
-class CommTools
+template<>
+template<class MeshType>
+class FieldTraits<MeshType>
 {
-  public:
+    typedef MeshTraits<MeshType>                      MT;
+    typedef MeshTools<MeshType>                       Tools;
+    typedef MeshType                                  field_type;
+    typedef double                                    value_type;
+    typedef typename MT::global_ordinal_type          size_type;
+    typedef typename MT::const_coordinate_iterator    iterator;
+    typedef typename MT::const_coordinate_iterator    const_iterator;
 
-    //@{
-    //! Typedefs.
-    typedef Teuchos::Comm<int>                  CommType;
-    typedef Teuchos::RCP<const CommType>        RCP_Comm;
-    //@}
+    static inline std::size_t dim( const MeshType& mesh )
+    { return MT::nodeDim( mesh ); }
 
-    //! Constructor.
-    CommTools()
-    { /* ... */ }
+    static inline std::size_t size( const MeshType& mesh )
+    { return Tools::numNodes( mesh ) * MT::nodeDim( mesh ); }
 
-    //! Destructor.
-    ~CommTools()
-    { /* ... */ }
+    static inline bool empty( const MeshType& mesh )
+    {
+	if ( Tools::numNodes( mesh ) < 1 )
+	{ 
+	    return true;
+	}
+	else 
+	{
+	    return false;
+	}
+    }
 
-    // Get MPI_COMM_WORLD in an RCP_Comm data structure.
-    static void getMpiCommWorld( RCP_Comm& mpi_comm_world );
+    static inline iterator begin( MeshType& mesh )
+    { return MT::coordsBegin( mesh ); }
 
-    // Generate the union of two communicators.
-    static void unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
-		       RCP_Comm& comm_union );
+    static inline const_iterator begin( const MeshType& mesh )
+    { return MT::coordsBegin( mesh ); }
 
-    // Generate the intersection of two communicators.
-    static void intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
-			   RCP_Comm& comm_intersection );
+    static inline iterator end( MeshType& mesh )
+    { return MT::coordsEnd( mesh ); }
+
+    static inline const_iterator end( const MeshType& mesh )
+    { return MT::coordsEnd( mesh ); }
 };
 
 //---------------------------------------------------------------------------//
 
-} // end namepsace DataTransferKit
+} // end namespace DataTransferKit
+
+#endif // end DTK_MESHADAPTER
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_COMMTOOLS_HPP
-
+// end DTK_MeshAdapater.hpp
 //---------------------------------------------------------------------------//
-// end DTK_CommTools.hpp
-//---------------------------------------------------------------------------//
+

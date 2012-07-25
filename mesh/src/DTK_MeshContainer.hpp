@@ -184,7 +184,7 @@ class MeshContainer
 
 //---------------------------------------------------------------------------//
 /*
- * \class MeshTraits
+ * \class MeshTraits< MeshContainer<GlobalOrdinal> >
  * \brief MeshTraits specialization for the mesh container.
  */
 //---------------------------------------------------------------------------//
@@ -192,7 +192,10 @@ template<>
 template<typename GlobalOrdinal>
 class MeshTraits< MeshContainer<GlobalOrdinal> >
 {
+  public:
+
     typedef MeshContainer<GlobalOrdinal> Container;
+    typedef Container mesh_type;
     typedef typename Container::global_ordinal_type global_ordinal_type;
 
     typedef typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
@@ -264,7 +267,6 @@ class MeshTraits< MeshContainer<GlobalOrdinal> >
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
 
 #endif // end DTK_MESHCONTAINER_HPP
 

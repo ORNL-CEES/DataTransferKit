@@ -43,6 +43,15 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
+/*
+ * \brief Get MPI_COMM_WORLD in an RCP_Comm data structure.
+ */
+void CommTools::getMpiCommWorld( RCP_Comm& mpi_comm_world )
+{
+
+}
+
+//---------------------------------------------------------------------------//
 /*!
  * \brief Generate the union of two communicators.
  */

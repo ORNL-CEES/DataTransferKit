@@ -167,7 +167,8 @@ class MeshTraits
     //@{
     //! Mesh element concepts.
     /*! 
-     * \brief Return the element topology for this mesh block (DTK enum).
+     * \brief Return the element topology for this mesh block
+     * (DTK_ElementTopology enum).
      */
     static inline std::size_t elementTopology( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0;}

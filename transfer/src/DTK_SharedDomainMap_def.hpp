@@ -44,7 +44,7 @@
 #include <algorithm>
 #include <set>
 
-#include "DTK_FieldTools.hpp"
+#include <DTK_FieldTools.hpp>
 #include <DTK_Exception.hpp>
 #include <DTK_Rendezvous.hpp>
 #include <DTK_MeshTools.hpp>
@@ -87,20 +87,20 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     const CoordinateField& coordinate_field )
 {
     // Get the global bounding box for the mesh.
-    BoundingBox mesh_box = mesh_manager->globalBoundingBox();
+    BoundingBox source_box = mesh_manager->globalBoundingBox();
 
     // Get the global bounding box for the coordinate field.
-    BoundingBox coord_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
+    BoundingBox target_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
 	coordinate_field, d_comm );
 
     // Intersect the boxes to get the rendezvous bounding box.
     BoundingBox rendezvous_box;
     bool has_intersect = 
-    	BoundingBox::intersectBoxes( mesh_box, coord_box, rendezvous_box );
+    	BoundingBox::intersectBoxes( source_box, target_box, rendezvous_box );
     if ( !has_intersect )
     {
     	throw MeshException( 
-    	    "Mesh and coordinate field domains do not intersect." );
+    	    "Source and target geometry domains do not intersect." );
     }
     
     // Build a rendezvous decomposition with the source mesh.
@@ -296,14 +296,15 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 {
     typedef FieldTraits<SourceField> SFT;
     typedef FieldTraits<TargetField> TFT;
-    SourceField evaluated_field = 
+
+    SourceField function_evaluations = 
 	source_evaluator->evaluate( Teuchos::arcpFromArray( d_source_elements ), 
 				    Teuchos::arcpFromArray( d_target_coords ) );
-    testPrecondition( SFT::dim( evaluated_field ) == TFT::dim( target_space ),
+    testPrecondition( SFT::dim( function_evaluations ) == TFT::dim( target_space ),
 		      "Source field dimension != target field dimension." );
 
     Teuchos::ArrayRCP<typename SFT::value_type> source_field_view;
-    if ( SFT::size( evaluated_field ) == 0 )
+    if ( SFT::size( function_evaluations ) == 0 )
     {
 	source_field_view = 
 	    Teuchos::ArrayRCP<typename SFT::value_type>( 0, 0.0 );
@@ -311,18 +312,18 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     else
     {
 	source_field_view = 
-	    FieldTools<SourceField>::nonConstView( evaluated_field );
+	    FieldTools<SourceField>::nonConstView( function_evaluations );
     }
 
-    GlobalOrdinal source_size = SFT::size( evaluated_field ) /
-				SFT::dim( evaluated_field );
+    GlobalOrdinal source_size = SFT::size( function_evaluations ) /
+				SFT::dim( function_evaluations );
 
     Teuchos::RCP< Tpetra::MultiVector<typename SFT::value_type,
 				      GlobalOrdinal> > source_vector = 
 	createMultiVectorFromView( d_export_map, 
 				   source_field_view,
 				   source_size,
-				   SFT::dim( evaluated_field ) );
+				   SFT::dim( function_evaluations ) );
 
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view;
     if ( TFT::size( target_space ) == 0 )
