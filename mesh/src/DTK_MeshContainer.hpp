@@ -183,11 +183,14 @@ class MeshContainer
 };
 
 //---------------------------------------------------------------------------//
-// MeshTraits specialization for the mesh container.
+/*
+ * \class MeshTraits
+ * \brief MeshTraits specialization for the mesh container.
+ */
 //---------------------------------------------------------------------------//
 template<>
 template<typename GlobalOrdinal>
-struct MeshTraits< MeshContainer<GlobalOrdinal> >
+class MeshTraits< MeshContainer<GlobalOrdinal> >
 {
     typedef MeshContainer<GlobalOrdinal> Container;
     typedef typename Container::global_ordinal_type global_ordinal_type;

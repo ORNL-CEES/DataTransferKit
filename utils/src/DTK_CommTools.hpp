@@ -32,80 +32,62 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_FieldEvaluator.hpp
+ * \file DTK_CommTools.hpp
  * \author Stuart R. Slattery
- * \brief Interface definition for function evaluation kernels.
+ * \brief CommTools declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_FIELDEVALUATOR_HPP
-#define DTK_FIELDEVALUATOR_HPP
+#ifndef DTK_COMMTOOLS_HPP
+#define DTK_COMMTOOLS_HPP
 
-#include "DTK_FieldTraits.hpp"
-#include <DTK_MeshTraits.hpp>
-
-#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
 {
 
 //---------------------------------------------------------------------------//
 /*!
- * \class FieldEvaluator
- * \brief Interface definition for function evaluation kernels.
- */
+ * \class CommTools
+ * \brief A stateless class with tools for operating on communicators.
+ */ 
 //---------------------------------------------------------------------------//
-template<class Mesh, class Field>
-class FieldEvaluator
+class CommTools
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef Mesh                                mesh_type;
-    typedef MeshTraits<Mesh>                    MT;
-    typedef typename MT::global_ordinal_type    GlobalOrdinal;
-    typedef Field                               field_type;
-    typedef FieldTraits<Field>                  FT;
-    typedef typename FT::value_type             data_type;
+    typedef Teuchos::Comm<int>                  CommType;
+    typedef Teuchos::RCP<const CommType>        RCP_Comm;
     //@}
 
     //! Constructor.
-    FieldEvaluator()
+    CommTools()
     { /* ... */ }
 
     //! Destructor.
-    virtual ~FieldEvaluator()
+    ~CommTools()
     { /* ... */ }
 
-    /*!
-     * \brief Evaluate the function in the given elements at the given
-     * coordinates and return the evaluations in a FieldTraits container.
-     *
-     * \param elements A vector of valid element handles in which to evaluate
-     * the field.
-     *
-     * \param coords A vector of blocked coordinates 
-     * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
-     * at which to evaluate the field. Coordinates ( xN, yN, zN ) should be
-     * evaluated in the Nth element in the elements vector.
-     *
-     * \return A FieldTraits container containing the evaluated function
-     * values. This returned field is required to be of the same length as the
-     * elements input vector. For those coordinates that can't be evaluated in
-     * the given element, return 0 in their position. Field data
-     * dimensionality and ordering is specified by field traits.
-     */
-    virtual Field evaluate( 
-	const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
-	const Teuchos::ArrayRCP<double>& coords ) = 0;
+    // Generate the union of two communicators.
+    static void unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
+		       RCP_Comm& comm_union );
+
+    // Generate the intersection of two communicators.
+    static void intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
+			   RCP_Comm& comm_intersection );
 };
 
-} // end namespace DataTransferKit
-
-#endif // end DTK_FIELDEVALUATOR_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_FieldEvaluator.hpp
 //---------------------------------------------------------------------------//
 
+} // end namepsace DataTransferKit
+
+//---------------------------------------------------------------------------//
+
+#endif // end DTK_COMMTOOLS_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_CommTools.hpp
+//---------------------------------------------------------------------------//
