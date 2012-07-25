@@ -32,11 +32,13 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_CommTools.hpp
+ * \file DTK_CommTools.cpp
  * \author Stuart R. Slattery
  * \brief CommTools definition.
  */
 //---------------------------------------------------------------------------//
+
+#include <algorithm>
 
 #include "DTK_CommTools.hpp"
 
@@ -46,6 +48,8 @@
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_ENull.hpp>
+#include <Teuchos_Ptr.hpp>
 
 namespace DataTransferKit
 {
@@ -69,8 +73,36 @@ bool CommTools::equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B )
     RCP_Comm comm_world;
     getMpiCommWorld( comm_world );
 
-    Teuchos::Array<int> world_existence( comm_world->getSize(), 0 );
-    return false;
+    int existence = 0;
+
+    if ( comm_A != Teuchos::null )
+    {
+	++existence;
+    }
+
+    if ( comm_B != Teuchos::null )
+    {
+	++existence;
+    }
+
+    int local_not_equal = 0;
+    if ( existence == 1 )
+    {
+	local_not_equal = 1;
+    }
+
+    int global_not_equal = 0;
+    Teuchos::reduceAll<int,int>( *comm_world, 
+				 Teuchos::REDUCE_SUM,
+				 local_not_equal, 
+				 Teuchos::Ptr<int>(&global_not_equal) );
+    
+    if ( global_not_equal > 0 )
+    {
+	return false;
+    }
+    
+    return true;
 }
 
 //---------------------------------------------------------------------------//
@@ -80,6 +112,44 @@ bool CommTools::equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B )
 void CommTools::unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 		       RCP_Comm& comm_union )
 {
+    RCP_Comm comm_world;
+    getMpiCommWorld( comm_world );
+
+    Teuchos::Array<int> existence( comm_world->getSize(), 0 );
+
+    if ( comm_A != Teuchos::null )
+    {
+	existence[ comm_world->getRank() ] += 1;
+    }
+
+    if ( comm_B != Teuchos::null )
+    {
+	existence[ comm_world->getRank() ] += 1;
+    }
+    comm_world->barrier();
+
+    Teuchos::reduceAll<int,int>( *comm_world,
+				 Teuchos::REDUCE_SUM,
+				 (int) existence.size(),
+				 &existence[0],
+				 &existence[0] );
+
+    int subrank;
+    Teuchos::Array<int> subranks;
+    Teuchos::Array<int>::const_iterator exist_begin = existence.begin();
+    Teuchos::Array<int>::const_iterator exist_iterator;
+    for ( exist_iterator = existence.begin();
+	  exist_iterator != existence.end();
+	  ++exist_iterator )
+    {
+	if ( *exist_iterator > 0 )
+	{
+	    subrank = std::distance( exist_begin, exist_iterator );
+	    subranks.push_back( subrank );
+	}
+    }
+   
+    comm_union = comm_world->createSubcommunicator( subranks() );    
 }
 
 //---------------------------------------------------------------------------//
@@ -89,7 +159,43 @@ void CommTools::unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 void CommTools::intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 			   RCP_Comm& comm_intersection )
 {
+    RCP_Comm comm_world;
+    getMpiCommWorld( comm_world );
 
+    Teuchos::Array<int> existence( comm_world->getSize(), 0 );
+
+    if ( comm_A != Teuchos::null )
+    {
+	existence[ comm_world->getRank() ] += 1;
+    }
+
+    if ( comm_B != Teuchos::null )
+    {
+	existence[ comm_world->getRank() ] += 1;
+    }
+
+    Teuchos::reduceAll<int,int>( *comm_world,
+				 Teuchos::REDUCE_SUM,
+				 (int) existence.size(),
+				 &existence[0],
+				 &existence[0] );
+
+    int subrank;
+    Teuchos::Array<int> subranks;
+    Teuchos::Array<int>::const_iterator exist_begin = existence.begin();
+    Teuchos::Array<int>::const_iterator exist_iterator;
+    for ( exist_iterator = existence.begin();
+	  exist_iterator != existence.end();
+	  ++exist_iterator )
+    {
+	if ( *exist_iterator == 2)
+	{
+	    subrank = std::distance( exist_begin, exist_iterator );
+	    subranks.push_back( subrank );
+	}
+    }
+   
+    comm_intersection = comm_world->createSubcommunicator( subranks() );    
 }
 
 //---------------------------------------------------------------------------//

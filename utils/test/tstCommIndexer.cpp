@@ -55,6 +55,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, duplicate_test )
 		 global_comm->getRank() );
 }
 
+//---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CommIndexer, split_test )
 {
     using namespace DataTransferKit;
@@ -72,6 +73,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, split_test )
 		 global_comm->getRank() );
 }
 
+//---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CommIndexer, inverse_split_test )
 {
     using namespace DataTransferKit;
@@ -89,6 +91,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, inverse_split_test )
 		 global_comm->getRank() );
 }
 
+//---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
 {
     using namespace DataTransferKit;
