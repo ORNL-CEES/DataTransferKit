@@ -27,7 +27,7 @@ APPEND_SET(HEADERS
   DTK_FieldTools_def.hpp
   DTK_FieldTraits.hpp
   DTK_FieldVersion.hpp
-  DTK_MeshAdapater.hpp
+  DTK_MeshTraitsFieldAdapter.hpp
   )
 
 # Set sources

@@ -501,7 +501,8 @@ TEUCHOS_UNIT_TEST( FieldTraits, line_adapter_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef FieldTraits< MeshContainer<int> > FT;
+    typedef MeshTraits< MeshContainer<int> > MT;
+    typedef FieldTraits<MT> FT;
     MeshContainer<int> mesh_container = buildLineContainer();
 
     // Mesh parameters.
@@ -509,8 +510,9 @@ TEUCHOS_UNIT_TEST( FieldTraits, line_adapter_test )
     int num_nodes = 2;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.
     for ( int i = 0; i < num_nodes; ++i )
@@ -527,7 +529,8 @@ TEUCHOS_UNIT_TEST( FieldTraits, tri_adapter_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef FieldTraits< MeshContainer<int> > FT;
+    typedef MeshTraits< MeshContainer<int> > MT;
+    typedef FieldTraits<MT> FT;
     MeshContainer<int> mesh_container = buildTriContainer();
 
     // Mesh parameters.
@@ -535,8 +538,9 @@ TEUCHOS_UNIT_TEST( FieldTraits, tri_adapter_test )
     int num_nodes = 3;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.
     for ( int i = 0; i < num_nodes; ++i )
@@ -553,7 +557,8 @@ TEUCHOS_UNIT_TEST( FieldTraits, quad_adapter_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef FieldTraits< MeshContainer<int> > FT;
+    typedef MeshTraits< MeshContainer<int> > MT;
+    typedef FieldTraits<MT> FT;
     MeshContainer<int> mesh_container = buildQuadContainer();
 
     // Mesh parameters.
@@ -561,8 +566,9 @@ TEUCHOS_UNIT_TEST( FieldTraits, quad_adapter_test )
     int num_nodes = 4;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.
     for ( int i = 0; i < num_nodes; ++i )
@@ -579,7 +585,8 @@ TEUCHOS_UNIT_TEST( FieldTraits, tet_adapter_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef FieldTraits< MeshContainer<int> > FT;
+    typedef MeshTraits< MeshContainer<int> > MT;
+    typedef FieldTraits<MT> FT;
     MeshContainer<int> mesh_container = buildTetContainer();
 
     // Mesh parameters.
@@ -587,8 +594,9 @@ TEUCHOS_UNIT_TEST( FieldTraits, tet_adapter_test )
     int num_nodes = 4;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.
     for ( int i = 0; i < num_nodes; ++i )
@@ -606,6 +614,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, hex_adapter_test )
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
+    typedef FieldTraits<MT> FT;
     MeshContainer<int> mesh_container = buildHexContainer();
 
     // Mesh parameters.
@@ -613,8 +622,9 @@ TEUCHOS_UNIT_TEST( FieldTraits, hex_adapter_test )
     int num_nodes = 8;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.
     for ( int i = 0; i < num_nodes; ++i )
@@ -632,6 +642,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, pyramid_adapter_test )
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
+    typedef FieldTraits<MT> FT;
     MeshContainer<int> mesh_container = buildPyramidContainer();
 
     // Mesh parameters.
@@ -639,8 +650,9 @@ TEUCHOS_UNIT_TEST( FieldTraits, pyramid_adapter_test )
     int num_nodes = 5;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.
     for ( int i = 0; i < num_nodes; ++i )
