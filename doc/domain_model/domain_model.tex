@@ -53,8 +53,8 @@
   efforts in multiphysics simulation, adaptive mesh simulations, and
   other multiple mesh problems, transferring fields and other data
   between meshes is a common operation. This document describes a
-  domain model for mesh, fields, and data transfer based on the
-  concept of geometric rendezvous as developed in DTK.
+  domain model for mesh, fields, and parallel topology maps based on
+  the concept of geometric rendezvous as developed in DTK.
 \end{abstract}
 
 \newpage
@@ -152,11 +152,6 @@ as a basis for the domain model and discussion.
   $\Omega_T$, such that $M( F(r) ) : \mathbb{R}^D \rightarrow
   \mathbb{R}^D, \forall r \in \Omega_S \cap \Omega_T$, using both
   geometric and parallel operations.
-\item {\bf Transfer Operator:} An operator that uses an evaluator to
-  compute a source field, $F(s)$, and applies a mesh map, $M$, to fill
-  a target data space, $G(t)$, effectively performing the operation
-  $G(t) \leftarrow M( F(s) ), \forall s \in \Omega_T, \forall t \in
-  \Omega_S$.
 \end{itemize}
 
 \clearpage
@@ -657,19 +652,6 @@ in this case and they will be used to drive the function evaluation
 routines. These pairings must be communicated from the rendezvous
 decomposition back to the source/target decompositions to complete the
 mapping.
-
-\clearpage
-
-%%---------------------------------------------------------------------------%%
-\section{Transfer Operators}\label{sec:transfer}
-A transfer operator is an operator applied to a system to map data
-from one geometry to another \cite{LIME_2011}.
-
-\subsection{Conservation}\label{subsec:conservation}
-
-\subsection{Consistency}\label{subsec:consistency}
-
-\subsection{Error}\label{subsec:error}
 
 \clearpage
 
