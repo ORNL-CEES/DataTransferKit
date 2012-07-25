@@ -12,7 +12,7 @@
 #include <cmath>
 #include <sstream>
 
-#include <DataTransferKit_CommIndexer.hpp>
+#include <DTK_CommIndexer.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -41,12 +41,14 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 
 TEUCHOS_UNIT_TEST( CommIndexer, duplicate_test )
 {
-    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
+    using namespace DataTransferKit;
 
-    RCP_Communicator global_comm = getDefaultComm<int>();
-    RCP_Communicator local_comm = global_comm->duplicate();
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
 
-    DataTransferKit::CommIndexer<int> indexer( global_comm, local_comm );
+    RCP_Comm global_comm = getDefaultComm<int>();
+    RCP_Comm local_comm = global_comm->duplicate();
+
+    CommIndexer indexer( global_comm, local_comm );
 
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
     TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
@@ -55,13 +57,15 @@ TEUCHOS_UNIT_TEST( CommIndexer, duplicate_test )
 
 TEUCHOS_UNIT_TEST( CommIndexer, split_test )
 {
-    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
+    using namespace DataTransferKit;
 
-    RCP_Communicator global_comm = getDefaultComm<int>();
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
+
+    RCP_Comm global_comm = getDefaultComm<int>();
     int rank = global_comm->getRank();
-    RCP_Communicator local_comm = global_comm->split( 0, rank );
+    RCP_Comm local_comm = global_comm->split( 0, rank );
 
-    DataTransferKit::CommIndexer<int> indexer( global_comm, local_comm );
+    CommIndexer indexer( global_comm, local_comm );
 
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
     TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
@@ -70,13 +74,15 @@ TEUCHOS_UNIT_TEST( CommIndexer, split_test )
 
 TEUCHOS_UNIT_TEST( CommIndexer, inverse_split_test )
 {
-    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
+    using namespace DataTransferKit;
 
-    RCP_Communicator global_comm = getDefaultComm<int>();
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
+
+    RCP_Comm global_comm = getDefaultComm<int>();
     int inverse_rank = global_comm->getSize() - global_comm->getRank() - 1;
-    RCP_Communicator local_comm = global_comm->split( 0, inverse_rank);
+    RCP_Comm local_comm = global_comm->split( 0, inverse_rank);
 
-    DataTransferKit::CommIndexer<int> indexer( global_comm, local_comm );
+    CommIndexer indexer( global_comm, local_comm );
 
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
     TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
@@ -85,9 +91,11 @@ TEUCHOS_UNIT_TEST( CommIndexer, inverse_split_test )
 
 TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
 {
-    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Communicator;
+    using namespace DataTransferKit;
 
-    RCP_Communicator global_comm = getDefaultComm<int>();
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
+
+    RCP_Comm global_comm = getDefaultComm<int>();
     std::vector<int> sub_ranks;
     for ( int n = 0; n < global_comm->getSize(); ++n )
     {
@@ -97,10 +105,10 @@ TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
 	}
     }
     Teuchos::ArrayView<int> sub_ranks_view( sub_ranks );
-    RCP_Communicator local_comm = 
+    RCP_Comm local_comm = 
 	global_comm->createSubcommunicator( sub_ranks_view );
 
-    DataTransferKit::CommIndexer<int> indexer( global_comm, local_comm );
+    CommIndexer indexer( global_comm, local_comm );
 
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
     if ( global_comm->getRank() % 2 == 0 )

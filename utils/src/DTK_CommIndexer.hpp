@@ -17,25 +17,22 @@
 namespace DataTransferKit
 {
 
-//===========================================================================//
+//---------------------------------------------------------------------------//
 /*!
  * \class CommIndexer
  * \brief Map the process ids of a local communicator into a global
  * communicator that encompasses it.
- *
  */
-//===========================================================================//
-
-template<class Ordinal>
+//---------------------------------------------------------------------------//
 class CommIndexer
 {
   public:
 
     //@{
     //! Useful typedefs.
-    typedef Teuchos::Comm<Ordinal>                         Communicator_t;
-    typedef Teuchos::RCP<const Communicator_t>             RCP_Communicator;
-    typedef std::map<Ordinal,Ordinal>                      IndexMap;
+    typedef Teuchos::Comm<int>                             CommType;
+    typedef Teuchos::RCP<const CommType>                   RCP_Comm;
+    typedef std::map<int,int>                              IndexMap;
     //@}
 
   private:
@@ -46,24 +43,21 @@ class CommIndexer
   public:
 
     // Constructor.
-    CommIndexer( RCP_Communicator global_comm, 
-		 RCP_Communicator local_comm );
+    CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm );
 
     // Destructor.
     ~CommIndexer();
 
     // Given a process id in the local communicator, return the distributed
     // object's process id in the global communicator.
-    const Ordinal l2g( const Ordinal local_id ) const;
+    const int l2g( const int local_id ) const;
 
-    // Return the size of the local to global map.
+    //! Return the size of the local to global map.
     const int size() const
     { return d_l2gmap.size(); }
 };
 
 } // end namespace DataTransferKit
-
-#include "DataTransferKit_CommIndexer_Def.hpp"
 
 #endif // end DTK_COMMINDEXER_HPP
 

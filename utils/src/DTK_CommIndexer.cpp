@@ -1,34 +1,31 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file DataTransferKit_CommIndexer_Def.hpp
+ * \file DTK_CommIndexer.cpp
  * \author Stuart Slattery
  * \brief CommIndexer definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_COMMINDEXER_DEF_HPP
-#define DTK_COMMINDEXER_DEF_HPP
-
-#include <vector>
+#include "DTK_CommIndexer.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ENull.hpp>
+#include <Teuchos_Array.hpp>
 
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
  */
-template<class Ordinal>
-CommIndexer<Ordinal>::CommIndexer( RCP_Communicator global_comm, 
-				   RCP_Communicator local_comm )
+CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
 {
     int local_rank = -1;
     int global_rank = global_comm->getRank();
     int global_size = global_comm->getSize();
 
-    std::vector<int> in_local( global_size, 0 );
+    Teuchos::Array<int> in_local( global_size, 0 );
 
     if ( local_comm != Teuchos::null )
     {
@@ -43,26 +40,26 @@ CommIndexer<Ordinal>::CommIndexer( RCP_Communicator global_comm,
     				 &in_local[0], 
     				 &in_local[0]);
 
-    std::vector<Ordinal> local_ids( global_size, 0 );
+    Teuchos::Array<int> local_ids( global_size, 0 );
     local_ids[ global_rank ] = local_rank;
-    Teuchos::reduceAll<Ordinal,Ordinal>( *global_comm,
-					 Teuchos::REDUCE_SUM, 
-					 (Ordinal) local_ids.size(),
-					 &local_ids[0], 
-					 &local_ids[0]);
+    Teuchos::reduceAll<int,int>( *global_comm,
+				 Teuchos::REDUCE_SUM, 
+				 (int) local_ids.size(),
+				 &local_ids[0], 
+				 &local_ids[0]);
 
-    std::vector<Ordinal> global_ids( global_size, 0 );
+    Teuchos::Array<int> global_ids( global_size, 0 );
     global_ids[ global_rank ] = global_rank;
-    Teuchos::reduceAll<Ordinal,Ordinal>( *global_comm,
-					 Teuchos::REDUCE_SUM, 
-					 (Ordinal) global_ids.size(),
-					 &global_ids[0], 
-					 &global_ids[0]);
+    Teuchos::reduceAll<int,int>( *global_comm,
+				 Teuchos::REDUCE_SUM, 
+				 (int) global_ids.size(),
+				 &global_ids[0], 
+				 &global_ids[0]);
 
-    std::vector<int>::const_iterator in_local_it = in_local.begin();
-    typename std::vector<Ordinal>::const_iterator local_it = 
+    Teuchos::Array<int>::const_iterator in_local_it = in_local.begin();
+    typename Teuchos::Array<int>::const_iterator local_it = 
 	local_ids.begin();
-    typename std::vector<Ordinal>::const_iterator global_it;
+    typename Teuchos::Array<int>::const_iterator global_it;
     for ( global_it = global_ids.begin(); global_it != global_ids.end();
     	  ++in_local_it, ++local_it, ++global_it )
     {
@@ -75,22 +72,22 @@ CommIndexer<Ordinal>::CommIndexer( RCP_Communicator global_comm,
     global_comm->barrier();
 }
 
+//---------------------------------------------------------------------------//
 /*!
  * \brief Destructor.
  */
-template<class Ordinal>
-CommIndexer<Ordinal>::~CommIndexer()
+CommIndexer::~CommIndexer()
 { /* ... */ }
 
+//---------------------------------------------------------------------------//
 /*!
  * \brief Given a process id in the local communicator, return the distributed
  * object's process id in the global communicator. Return -1 if this local id
  * does not exist in the map.
  */
-template<class Ordinal>
-const Ordinal CommIndexer<Ordinal>::l2g( const Ordinal local_id ) const
+const int CommIndexer::l2g( const int local_id ) const
 {
-    Ordinal global_id = -1;
+    int global_id = -1;
     typename IndexMap::const_iterator l2g_pair = d_l2gmap.find( local_id );
     if ( l2g_pair != d_l2gmap.end() )
     {
@@ -99,10 +96,10 @@ const Ordinal CommIndexer<Ordinal>::l2g( const Ordinal local_id ) const
     return global_id;
 }
 
+//---------------------------------------------------------------------------//
+
 } // end namespace DataTransferKit
 
-#endif // end DTK_COMMINDEXER_DEF_HPP
-
 //---------------------------------------------------------------------------//
-// end DataTransferKit_CommIndexer_Def.hpp
+// end DTK_CommIndexer.cpp
 //---------------------------------------------------------------------------//

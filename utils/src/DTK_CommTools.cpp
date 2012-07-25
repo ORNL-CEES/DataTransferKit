@@ -42,8 +42,10 @@
 
 #include <mpi.h>
 
+#include <Teuchos_Array.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
+#include <Teuchos_CommHelpers.hpp>
 
 namespace DataTransferKit
 {
@@ -60,13 +62,24 @@ void CommTools::getMpiCommWorld( RCP_Comm& mpi_comm_world )
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Check whether two communicators own the same communication space.
+ */
+bool CommTools::equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B )
+{
+    RCP_Comm comm_world;
+    getMpiCommWorld( comm_world );
+
+    Teuchos::Array<int> world_existence( comm_world->getSize(), 0 );
+    return false;
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Generate the union of two communicators.
  */
 void CommTools::unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 		       RCP_Comm& comm_union )
 {
-    RCP_Comm comm_world;
-    getMpiCommWorld( comm_world );
 }
 
 //---------------------------------------------------------------------------//
@@ -77,15 +90,6 @@ void CommTools::intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 			   RCP_Comm& comm_intersection )
 {
 
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Check whether two communicators own the same communication space.
- */
-bool CommTools::equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B )
-{
-    return true;
 }
 
 //---------------------------------------------------------------------------//

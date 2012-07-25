@@ -74,6 +74,9 @@ class CommTools
     // Get MPI_COMM_WORLD in an RCP_Comm data structure.
     static void getMpiCommWorld( RCP_Comm& mpi_comm_world );
 
+    // Check whether two communicators own the same communication space.
+    static bool equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B );
+
     // Generate the union of two communicators.
     static void unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 		       RCP_Comm& comm_union );
@@ -81,9 +84,6 @@ class CommTools
     // Generate the intersection of two communicators.
     static void intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 			   RCP_Comm& comm_intersection );
-
-    // Check whether two communicators own the same communication space.
-    static bool equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B );
 };
 
 //---------------------------------------------------------------------------//
