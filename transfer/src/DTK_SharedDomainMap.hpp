@@ -43,6 +43,7 @@
 
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
+#include <DTK_MeshTraitsFieldAdapter.hpp>
 #include <DTK_MeshTraits.hpp>
 #include <DTK_MeshManager.hpp>
 #include <DTK_BoundingBox.hpp>

@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_MeshAdapter.hpp
+ * \file DTK_MeshTraitsFieldAdapter.hpp
  * \author Stuart R. Slattery
- * \brief FieldTraits adapter for mesh coordinates.
+ * \brief FieldTraits adapter for objects that have mesh traits.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MESHADAPTER_HPP
-#define DTK_MESHADAPTER_HPP
+#ifndef DTK_MESHTRAITSFIELDADAPTER_HPP
+#define DTK_MESHTRAITSFIELDADAPTER_HPP
 
 #include "DTK_FieldTraits.hpp"
 #include <DTK_MeshTraits.hpp>
@@ -53,14 +53,17 @@ namespace DataTransferKit
  * \class FieldTraits<Mesh>
  * \brief FieldTraits adapter for mesh coordinates. 
  *
- * This allows meshes to be viewed as a field of coordinates. Other mesh
- * information is not available through this interface.
+ * This allows the coordinate information stored in the mesh to be accessed as
+ * a field with field traits. Other mesh information is not available through
+ * this interface. The mesh object must have mesh traits.
  */
 //---------------------------------------------------------------------------//
 template<>
 template<class MeshType>
 class FieldTraits<MeshType>
 {
+  public:
+
     typedef MeshTraits<MeshType>                      MT;
     typedef MeshTools<MeshType>                       Tools;
     typedef MeshType                                  field_type;
@@ -104,7 +107,7 @@ class FieldTraits<MeshType>
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_MESHADAPTER
+#endif // end DTK_MESHTRAITSFIELDADAPTER
 
 //---------------------------------------------------------------------------//
 // end DTK_MeshAdapater.hpp
