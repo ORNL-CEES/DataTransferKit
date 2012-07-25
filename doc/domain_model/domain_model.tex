@@ -101,9 +101,9 @@ data transfer based on the concept of the rendezvous decomposition
 \cite{Plimpton_2004}. To achieve a component design for use with
 arbitrary physics codes, general concepts of mesh and fields are
 employed to provide access to these services. This document will
-outline the concepts of parallel communicators, mesh, fields, data
-transfer, and the rendezvous decomposition and how they are modeled
-within the design of DTK.
+outline the concepts of parallel communicators, mesh, fields, parallel
+topology maps, and the rendezvous decomposition and how they are
+modeled within the design of DTK.
 
 \subsection{Basic Definitions}\label{subsec:basic_defs}
 
@@ -586,7 +586,9 @@ $\Omega_T$, such that $M( F(r) ) : \mathbb{R}^D \rightarrow
 \mathbb{R}^D, \forall r \in [\Omega_S \cap \Omega_T$], using both
 geometric and parallel operations. There are 3 types of parallel
 topology maps: shared domain maps, interface maps, and network maps
-\cite{LIME_2011}. Currently, DTK only supports shared domain maps.
+\cite{LIME_2011}. Currently, DTK only supports shared domain maps,
+however, interface and network maps are supported by this domain model
+if the have a mesh-based formulation.
 
 \subsection{Shared Domain Problems}\label{subsec:shared_domain}
 A shared domain problem is one in which the geometric domains of the
@@ -600,7 +602,7 @@ which mapping and the rendezvous decomposition will be generated.
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5in]{overlapping_domain.eps}
-  \caption{\sl Overlapping domain example.} {\sl $\Omega(S)$ (yellow)
+  \caption{\sl Shared domain example.} {\sl $\Omega(S)$ (yellow)
     is the source geometry, $\Omega(T)$ (blue) is the target geometry,
     and $\Omega(R)$ (red) is the shared domain.}
   \label{fig:shared_domain}
