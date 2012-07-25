@@ -61,12 +61,14 @@ User and developer documentation is provided by Doxygen
 document can be found
 [here](https://github.com/CNERG/DataTransferKit/tree/dev/doc/domain_model).
 
+
 BUG REPORTING and ISSUE TRACKING
 --------------------------------
 
 Bug reporting and issue tracking are provided by GitHub. Please report
 all bugs [here](https://github.com/CNERG/DataTransferKit/issues) by
 creating a new issue.
+
 
 AUTHORS
 -------
