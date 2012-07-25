@@ -16,6 +16,7 @@
 #include <DTK_SharedDomainMap.hpp>
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
+#include <DTK_FieldManager.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 #include <DTK_MeshManager.hpp>
@@ -445,19 +446,21 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test )
 	    new MeshManager<MyMesh>( mesh_blocks, comm, 2 ) );
 
 	// Setup target coordinate field.
-	MyField target_coords = buildCoordinateField();
+	Teuchos::RCP< FieldManager<MyField> > field_manager = Teuchos::rcp(
+	    new FieldManager<MyField>( buildCoordinateField(), comm ) );
 
 	// Create field evaluator.
 	Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > my_evaluator = 
 	    Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
 
 	// Create data target.
-	MyField my_target( target_coords.size() / target_coords.dim(), 1 );
+	MyField my_target( field_manager->field().size() 
+			   / field_manager->field().dim(), 1 );
 
 	// Setup and apply the evaluation to the field.
 	SharedDomainMap<MyMesh,MyField> 
 	    shared_domain_map( comm );
-	shared_domain_map.setup( mesh_manager, target_coords );
+	shared_domain_map.setup( mesh_manager, field_manager );
 	shared_domain_map.apply( my_evaluator, my_target );
 
 	// Check the data transfer.

@@ -43,7 +43,7 @@
 
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
-#include <DTK_MeshTraitsFieldAdapter.hpp>
+#include <DTK_FieldManager.hpp>
 #include <DTK_MeshTraits.hpp>
 #include <DTK_MeshManager.hpp>
 #include <DTK_BoundingBox.hpp>
@@ -59,6 +59,12 @@
 namespace DataTransferKit
 {
 
+//---------------------------------------------------------------------------//
+/*!
+ * \class SharedDomainMap
+ * \brief A map for shared domain problems.
+ */
+//---------------------------------------------------------------------------//
 template<class Mesh, class CoordinateField>
 class SharedDomainMap
 {
@@ -74,6 +80,8 @@ class SharedDomainMap
     typedef typename MeshManagerType::BlockIterator   BlockIterator;
     typedef CoordinateField                           coord_field_type;
     typedef FieldTraits<CoordinateField>              CFT;
+    typedef FieldManager<CoordinateField>             FieldManagerType;
+    typedef Teuchos::RCP<FieldManagerType>            RCP_FieldManager;
     typedef Teuchos::Comm<int>                        CommType;
     typedef Teuchos::RCP<const CommType>              RCP_Comm;
     typedef Tpetra::Map<GlobalOrdinal>                TpetraMap;
@@ -90,7 +98,7 @@ class SharedDomainMap
 
     // Setup the map.
     void setup( const RCP_MeshManager& mesh_manager, 
-		const CoordinateField& coordinate_field );
+		const RCP_FieldManager& coord_field_manager );
 
     // Apply the map.
     template<class SourceField, class TargetField>

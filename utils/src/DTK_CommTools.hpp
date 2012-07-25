@@ -81,6 +81,9 @@ class CommTools
     // Generate the intersection of two communicators.
     static void intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 			   RCP_Comm& comm_intersection );
+
+    // Check whether two communicators own the same communication space.
+    static bool equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B );
 };
 
 //---------------------------------------------------------------------------//

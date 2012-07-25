@@ -84,14 +84,14 @@ SharedDomainMap<Mesh,CoordinateField>::~SharedDomainMap()
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::setup( 
     const RCP_MeshManager& mesh_manager, 
-    const CoordinateField& coordinate_field )
+    const RCP_FieldManager& coord_field_manager )
 {
     // Get the global bounding box for the mesh.
     BoundingBox source_box = mesh_manager->globalBoundingBox();
 
     // Get the global bounding box for the coordinate field.
     BoundingBox target_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
-	coordinate_field, d_comm );
+	coord_field_manager->field(), d_comm );
 
     // Intersect the boxes to get the rendezvous bounding box.
     BoundingBox rendezvous_box;
@@ -109,7 +109,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Compute a unique global ordinal for each point in the coordinate field.
     Teuchos::Array<GlobalOrdinal> point_ordinals = 
-	computePointOrdinals( coordinate_field );
+	computePointOrdinals( coord_field_manager->field() );
 
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
@@ -121,8 +121,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Determine the rendezvous destination proc of each point in the
     // coordinate field.
-    std::size_t coord_dim = CFT::dim( coordinate_field );
-    typename CFT::size_type num_coords = CFT::size( coordinate_field );
+    std::size_t coord_dim = CFT::dim( coord_field_manager->field() );
+    typename CFT::size_type num_coords = CFT::size( coord_field_manager->field() );
     Teuchos::ArrayRCP<typename CFT::value_type> coords_view;
     if ( num_coords == 0 )
     {
@@ -131,7 +131,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     else
     {
 	coords_view = 
-	    FieldTools<CoordinateField>::nonConstView( coordinate_field );
+	    FieldTools<CoordinateField>::nonConstView( coord_field_manager->field() );
     }
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.procsContainingPoints( coords_view );

@@ -20,12 +20,14 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  DTK_CommTools.hpp
   DTK_Exception.hpp
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
+  DTK_CommTools.cpp
   DTK_Exception.cpp
   )
 
