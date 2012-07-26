@@ -88,6 +88,18 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     const RCP_MeshManager& source_mesh_manager, 
     const RCP_FieldManager& target_coord_manager )
 {
+    // Compute a unique global ordinal for each point in the coordinate field.
+    Teuchos::Array<GlobalOrdinal> point_ordinals;
+    computePointOrdinals( target_coord_manager->field(), point_ordinals );
+
+    // Build the data import map from the point global ordinals.
+    Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
+	point_ordinals();
+    d_import_map = Tpetra::createNonContigMap<GlobalOrdinal>(
+	import_ordinal_view, d_comm );
+    testPostcondition( d_import_map != Teuchos::null,
+		       "Error creating data import map." );
+
     // Get the global bounding box for the mesh.
     BoundingBox source_box = source_mesh_manager->globalBoundingBox();
 
@@ -111,22 +123,11 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     rendezvous.build( source_mesh_manager );
 
     // Get the target points that are in the box in which the rendezvous
-    // decomposition was generated.
+    // decomposition was generated. The rendezvous algorithm will expand the
+    // box slightly based on mesh parameters.
     Teuchos::Array<short int> targets_in_box;
     getTargetPointsInBox( rendezvous.getBox(), target_coord_manager->field(), 
 			  targets_in_box );
-
-    // Compute a unique global ordinal for each point in the coordinate field.
-    Teuchos::Array<GlobalOrdinal> point_ordinals;
-    computePointOrdinals( target_coord_manager->field(), point_ordinals );
-
-    // Build the data import map from the point global ordinals.
-    Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
-	point_ordinals();
-    d_import_map = Tpetra::createNonContigMap<GlobalOrdinal>(
-	import_ordinal_view, d_comm );
-    testPostcondition( d_import_map != Teuchos::null,
-		       "Error creating data import map." );
 
     // Determine the rendezvous destination proc of each point in the
     // coordinate field that is in the rendezvous decomposition box.
@@ -144,7 +145,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     }
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.procsContainingPoints( coords_view );
-
+    
     // Via an inverse communication operation, move the global point ordinals
     // that are in the rendezvous decomposition box to the rendezvous
     // decomposition.
@@ -165,10 +166,10 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	point_exporter( d_import_map, rendezvous_import_map );
 
     // Move the target coordinates to the rendezvous decomposition.
-    GlobalOrdinal num_points = num_coords / coord_dim;
+    GlobalOrdinal num_points = point_ordinals.size();
     Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > 
-	target_coords =	createMultiVectorFromView( d_import_map, coords_view,
-						   num_points, coord_dim );
+	target_coords =	Tpetra::createMultiVectorFromView( 
+	    d_import_map, coords_view, num_points, coord_dim );
     Tpetra::MultiVector<double,GlobalOrdinal> rendezvous_coords( 
 	rendezvous_import_map, coord_dim );
     rendezvous_coords.doExport( *target_coords, point_exporter, 
@@ -324,18 +325,23 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     typedef FieldTraits<SourceField> SFT;
     typedef FieldTraits<TargetField> TFT;
 
+    // Verify that the target space has the proper amount of memory
+    // allocated.
+    GlobalOrdinal target_size = 
+	FieldTools<TargetField>::dimSize( target_space_manager->field() );
     testPrecondition( 
-	FieldTools<TargetField>::dimSize( target_space_manager->field() )
-	== (typename TFT::size_type) d_import_map->getNodeNumElements(),
+	target_size == (typename TFT::size_type) d_import_map->getNodeNumElements(),
 	"Number of target field elements != Number of coordinate field elements" );
 
+    // Evaluate the source function at the target points.
     SourceField function_evaluations = 
 	source_evaluator->evaluate( Teuchos::arcpFromArray( d_source_elements ),
 				    Teuchos::arcpFromArray( d_target_coords ) );
     testPrecondition( SFT::dim( function_evaluations ) == 
 		      TFT::dim( target_space_manager->field() ),
 		      "Source field dimension != target field dimension." );
-
+   
+    // Build a multivector for the function evaluations.
     Teuchos::ArrayRCP<typename SFT::value_type> source_field_view;
     if ( SFT::size( function_evaluations ) == 0 )
     {
@@ -348,16 +354,16 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 	    FieldTools<SourceField>::nonConstView( function_evaluations );
     }
 
-    GlobalOrdinal source_size = SFT::size( function_evaluations ) /
-				SFT::dim( function_evaluations );
-
+    GlobalOrdinal source_size = 
+	FieldTools<SourceField>::dimSize( function_evaluations );
     Teuchos::RCP< Tpetra::MultiVector<typename SFT::value_type,
 				      GlobalOrdinal> > source_vector = 
-	createMultiVectorFromView( d_export_map, 
-				   source_field_view,
-				   source_size,
-				   SFT::dim( function_evaluations ) );
+	Tpetra::createMultiVectorFromView( d_export_map, 
+					   source_field_view,
+					   source_size,
+					   SFT::dim( function_evaluations ) );
 
+    // Build a multivector for the target space.
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view;
     if ( TFT::size( target_space_manager->field() ) == 0 )
     {
@@ -370,16 +376,20 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 	    target_space_manager->field() );
     }
     
-    GlobalOrdinal target_size = TFT::size( target_space_manager->field() ) /
-				TFT::dim( target_space_manager->field() );
-
     Teuchos::RCP< Tpetra::MultiVector<typename TFT::value_type,
 				      GlobalOrdinal> > target_vector =	
-	createMultiVectorFromView( d_import_map, 
-				   target_field_view,
-				   target_size,
-				   TFT::dim( target_space_manager->field() ) );
+	Tpetra::createMultiVectorFromView( 
+	    d_import_map, 
+	    target_field_view,
+	    target_size,
+	    TFT::dim( target_space_manager->field() ) );
 
+    // Fill the target space with zeros so that points we didn't map get some
+    // data.
+    FieldTools<TargetField>::putScalar( target_space_manager->field(), 0.0 );
+
+    // Move the data from the source decomposition to the target
+    // decomposition.
     target_vector->doExport( *source_vector, *d_data_export, Tpetra::INSERT );
 }
 

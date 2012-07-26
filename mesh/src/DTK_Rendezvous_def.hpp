@@ -386,9 +386,9 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	    export_coords_view = 
 		MeshTools<Mesh>::coordsNonConstView( *block_iterator );
 	}
-	Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > export_coords = 
-	    createMultiVectorFromView( export_node_map, export_coords_view, 
-				       num_nodes, d_node_dim );
+	Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > export_coords =
+	    Tpetra::createMultiVectorFromView( 
+		export_node_map, export_coords_view, num_nodes, d_node_dim );
 	Tpetra::MultiVector<double,GlobalOrdinal> 
 	    import_coords( import_node_map, d_node_dim );
 	import_coords.doImport( *export_coords, node_importer, Tpetra::INSERT );
@@ -408,8 +408,9 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	}
 	Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > 
 	    export_conn 
-	    = createMultiVectorFromView( export_element_map, export_conn_view, 
-					 num_elements, nodes_per_element );
+	    = Tpetra::createMultiVectorFromView( 
+		export_element_map, export_conn_view, 
+		num_elements, nodes_per_element );
 	Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> import_conn( 
 	    import_element_map, nodes_per_element );
 	import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
