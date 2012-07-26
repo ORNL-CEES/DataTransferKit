@@ -54,6 +54,18 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
+// Get the local size of the dimensions.
+template<class Field>
+typename FieldTools<Field>::size_type
+FieldTools<Field>::dimSize( const Field& field )
+{
+    std::size_t field_dim = FT::dim( field );
+    testPrecondition( field_dim > 0, "Field dimension must be > 0." );
+    size_type field_size = FT::size( field );
+    return field_size / field_dim;
+}
+
+//---------------------------------------------------------------------------//
 /*!
  * \brief Get an iterator to the beginning of a dimension.
  */
@@ -64,9 +76,7 @@ FieldTools<Field>::dimBegin( Field& field, const std::size_t dim )
     std::size_t field_dim = FT::dim( field );
     testPrecondition( field_dim > 0, "Field dimension must be > 0." );
     testPrecondition( dim >= 0 && dim < field_dim, "Dimension not valid." );
-    size_type field_size = FT::size( field );
-    size_type dim_size = field_size / field_dim;
-    return FT::begin(field) + dim*dim_size;
+    return FT::begin(field) + dim*dimSize(field);
 }
 
 //---------------------------------------------------------------------------//
@@ -80,9 +90,7 @@ FieldTools<Field>::dimBegin( const Field& field, const std::size_t dim )
     std::size_t field_dim = FT::dim( field );
     testPrecondition( field_dim > 0, "Field dimension must be > 0." );
     testPrecondition( dim >= 0 && dim < field_dim, "Dimension not valid." );
-    size_type field_size = FT::size( field );
-    size_type dim_size = field_size / field_dim;
-    return FT::begin(field) + dim*dim_size;
+    return FT::begin(field) + dim*dimSize(field);
 }
 
 //---------------------------------------------------------------------------//
@@ -96,9 +104,7 @@ FieldTools<Field>::dimEnd( Field& field, const std::size_t dim )
     std::size_t field_dim = FT::dim( field );
     testPrecondition( field_dim > 0, "Field dimension must be > 0." );
     testPrecondition( dim >= 0 && dim < field_dim, "Dimension not valid." );
-    size_type field_size = FT::size( field );
-    size_type dim_size = field_size / field_dim;
-    return FT::begin(field) + (dim+1)*dim_size;
+    return FT::begin(field) + (dim+1)*dimSize(field);
 }
 
 //---------------------------------------------------------------------------//
@@ -112,9 +118,7 @@ FieldTools<Field>::dimEnd( const Field& field, const std::size_t dim )
     std::size_t field_dim = FT::dim( field );
     testPrecondition( field_dim > 0, "Field dimension must be > 0." );
     testPrecondition( dim >= 0 && dim < field_dim, "Dimension not valid." );
-    size_type field_size = FT::size( field );
-    size_type dim_size = field_size / field_dim;
-    return FT::begin(field) + (dim+1)*dim_size;
+    return FT::begin(field) + (dim+1)*dimSize(field);
 }
 
 //---------------------------------------------------------------------------//

@@ -91,7 +91,7 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 
     // Extract the mesh nodes and elements that are in the bounding box. These
     // are the pieces of the mesh that will be repartitioned.
-    getMeshInBox( mesh_manager, d_global_box );
+    getMeshInBox( mesh_manager );
 
     // Construct the rendezvous partitioning for the mesh with RCB using the
     // nodes that are in the box.
@@ -148,7 +148,8 @@ Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
 /*!
  * \brief Get the native mesh elements in the rendezvous decomposition
  * containing a blocked list of coordinates also in the rendezvous
- * decomposition.
+ * decomposition. If a point is not found in an element, return an invalid
+ * element ordinal, -1, for that point.
  */
 template<class Mesh>
 Teuchos::Array<typename Rendezvous<Mesh>::GlobalOrdinal>
@@ -187,14 +188,13 @@ Rendezvous<Mesh>::elementsContainingPoints(
  * \brief Extract the mesh nodes and elements that are in a bounding box.
  */
 template<class Mesh>
-void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager,
-				     const BoundingBox& box )
+void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 {
     // Expand the box by a typical mesh element length in all directions plus
     // some tolerance. Doing this catches a few corner cases.
     double tol = 1.0e-4;
-    Teuchos::Tuple<double,6> box_bounds = box.getBounds();
-    double box_volume = box.volume( d_node_dim );
+    Teuchos::Tuple<double,6> box_bounds = d_global_box.getBounds();
+    double box_volume = d_global_box.volume( d_node_dim );
     GlobalOrdinal global_num_elements = mesh_manager->globalNumElements();
     double pow = 1 / d_node_dim;
     double typical_length = std::pow( box_volume / global_num_elements, pow );
@@ -203,7 +203,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager,
 	box_bounds[d] -= typical_length + tol;
 	box_bounds[d+3] += typical_length + tol;
     }
-    BoundingBox expanded_box( box_bounds );
+    d_global_box = BoundingBox( box_bounds );
 
     // For every mesh block, get its nodes and elements that are in the
     // expanded box.
@@ -246,7 +246,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager,
 	    {
 		node_coords[d] = mesh_coords[ d*num_nodes + n ];
 	    }
-	    nodes_in_box.push_back( expanded_box.pointInBox( node_coords ) );
+	    nodes_in_box.push_back( d_global_box.pointInBox( node_coords ) );
 	}
 	assert( (GlobalOrdinal) nodes_in_box.size() == num_nodes );
 

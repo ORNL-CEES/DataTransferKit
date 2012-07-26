@@ -98,25 +98,37 @@ class SharedDomainMap
     // Destructor.
     ~SharedDomainMap();
 
-    // Setup the map.
+    // Generate the shared domain map.
     void setup( const RCP_MeshManager& source_mesh_manager, 
 		const RCP_FieldManager& target_coord_manager );
 
-    // Apply the map.
+    // Get the local indices of the target points that were not mapped.
+    Teuchos::ArrayView<const CoordOrdinal> getMissedTargetPoints() const;
+
+    // Apply the shared domain map.
     template<class SourceField, class TargetField>
     void apply( const Teuchos::RCP< FieldEvaluator<Mesh,SourceField> >& 
 		source_evaluator,
 		Teuchos::RCP< FieldManager<TargetField> >& target_space_manager );
 
-    // Get the local indices of the target points that were not mapped.
-    Teuchos::ArrayView<const CoordOrdinal> getMissedTargetPoints() const;
-
   private:
 
-    // Compute globally unique ordinals for the points in the coordinate
-    // field.
-    void computePointOrdinals( const CoordinateField& coordinate_field,
+    // Get the target points that are in the rendezvous decomposition box.
+    void getTargetPointsInBox( const BoundingBox& box,
+			       const CoordinateField& target_coords,
+			       Teuchos::Array<short int>& points_in_box );
+
+    // Compute globally unique ordinals for the target points.
+    void computePointOrdinals( const CoordinateField& target_coords,
 			       Teuchos::Array<GlobalOrdinal>& ordinals );
+
+    // Setup communication of the target coords from the target to the
+    // rendezvous decomposition.
+    void setupTargetCoordCommunication( 
+	const CoordinateField& target_coords,
+	const Teuchos::Array<CoordOrdinal>& target_ordinals,
+	const Teuchos::Array<short int>& targets_in_box,
+	Teuchos::Array<CoordOrdinal> rendezvous_points );
 
   private:
 

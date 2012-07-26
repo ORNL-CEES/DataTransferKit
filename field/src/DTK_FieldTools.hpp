@@ -88,7 +88,10 @@ class FieldTools
     { /* ... */ }
 
     //@{
-    //! Iterators.
+    //! Dimension iterators.
+    // Get the local size of the dimensions.
+    static size_type dimSize( const Field& field );
+
     // Get an iterator to the beginning of a dimension.
     static iterator dimBegin( Field& field, const std::size_t dim );
 

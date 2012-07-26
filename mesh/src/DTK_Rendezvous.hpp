@@ -117,11 +117,14 @@ class Rendezvous
     const RCP_RendezvousMesh& getMesh() const
     { return d_rendezvous_mesh; }
 
+    //! Get the bounding box.
+    const BoundingBox& getBox() const
+    { return d_global_box; }
+
   private:
 
     // Extract the mesh block nodes and elements that are in a bounding box.
-    void getMeshInBox( const RCP_MeshManager& mesh_manager,
-		       const BoundingBox& box );
+    void getMeshInBox( const RCP_MeshManager& mesh_manager );
 
     // Send the mesh to the rendezvous decomposition and build the concrete
     // mesh blocks.

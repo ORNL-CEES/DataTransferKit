@@ -43,7 +43,6 @@
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_Array.hpp>
-#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
