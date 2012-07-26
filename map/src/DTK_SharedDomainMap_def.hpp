@@ -145,6 +145,19 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     }
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.procsContainingPoints( coords_view );
+
+    Teuchos::Array<int>::iterator rendezvous_procs_iterator;
+    Teuchos::Array<short int>::const_iterator in_box_iterator;
+    for ( rendezvous_procs_iterator = rendezvous_procs.begin(),
+	  in_box_iterator = targets_in_box.rbegin();
+	  in_box_iterator != targets_in_box.rend();
+	  ++in_box_iterator )
+    {
+	if ( *in_box_iterator == 0 )
+	{
+	    rendezvous_procs.remove( target_idx );
+	}
+    }
     
     // Via an inverse communication operation, move the global point ordinals
     // that are in the rendezvous decomposition box to the rendezvous
@@ -199,7 +212,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	    rendezvous_elem_set_view, d_comm );
 
     // The block strategy means that we have to make a temporary copy of the
-    // element handles so that we can make a Tpetra::Map.
+    // element ordinals so that we can make a Tpetra::Map.
     Teuchos::Array<GlobalOrdinal> 
 	mesh_elements( source_mesh_manager->localNumElements() );
     GlobalOrdinal start = 0;
@@ -215,15 +228,13 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	start += mesh_element_arcp.size();
     }
 
-    Teuchos::ArrayView<const GlobalOrdinal> mesh_element_view = 
-	mesh_elements();
-    RCP_TpetraMap mesh_element_map = 
-	Tpetra::createNonContigMap<GlobalOrdinal>( 
-	    mesh_element_view, d_comm );
+    Teuchos::ArrayView<const GlobalOrdinal> mesh_element_view = mesh_elements();
+    RCP_TpetraMap mesh_element_map = Tpetra::createNonContigMap<GlobalOrdinal>(
+	mesh_element_view, d_comm );
     mesh_elements.clear();
 
-    Tpetra::Import<GlobalOrdinal> source_importer( 
-	mesh_element_map, rendezvous_element_map );
+    Tpetra::Import<GlobalOrdinal> source_importer( mesh_element_map, 
+						   rendezvous_element_map );
 
     // Elements send their source decomposition proc to the rendezvous
     // decomposition.
