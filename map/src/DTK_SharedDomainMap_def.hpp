@@ -90,8 +90,9 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     BoundingBox source_box = mesh_manager->globalBoundingBox();
 
     // Get the global bounding box for the coordinate field.
-    BoundingBox target_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
-	coord_field_manager->field(), d_comm );
+    BoundingBox target_box = 
+	FieldTools<CoordinateField>::coordGlobalBoundingBox(
+	    coord_field_manager->field(), d_comm );
 
     // Intersect the boxes to get the rendezvous bounding box.
     BoundingBox rendezvous_box;
@@ -108,8 +109,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     rendezvous.build( mesh_manager );
 
     // Compute a unique global ordinal for each point in the coordinate field.
-    Teuchos::Array<GlobalOrdinal> point_ordinals = 
-	computePointOrdinals( coord_field_manager->field() );
+    Teuchos::Array<GlobalOrdinal> point_ordinals;
+    computePointOrdinals( coord_field_manager->field(), point_ordinals );
 
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
@@ -122,7 +123,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Determine the rendezvous destination proc of each point in the
     // coordinate field.
     std::size_t coord_dim = CFT::dim( coord_field_manager->field() );
-    typename CFT::size_type num_coords = CFT::size( coord_field_manager->field() );
+    typename CFT::size_type num_coords = 
+	CFT::size( coord_field_manager->field() );
     Teuchos::ArrayRCP<typename CFT::value_type> coords_view;
     if ( num_coords == 0 )
     {
@@ -298,9 +300,10 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     typedef FieldTraits<TargetField> TFT;
 
     SourceField function_evaluations = 
-	source_evaluator->evaluate( Teuchos::arcpFromArray( d_source_elements ), 
+	source_evaluator->evaluate( Teuchos::arcpFromArray( d_source_elements ),
 				    Teuchos::arcpFromArray( d_target_coords ) );
-    testPrecondition( SFT::dim( function_evaluations ) == TFT::dim( target_space ),
+    testPrecondition( SFT::dim( function_evaluations ) == 
+		      TFT::dim( target_space ),
 		      "Source field dimension != target field dimension." );
 
     Teuchos::ArrayRCP<typename SFT::value_type> source_field_view;
@@ -356,10 +359,10 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
  * field. 
  */
 template<class Mesh, class CoordinateField>
-Teuchos::Array<
-    typename SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal>
-SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
-    const CoordinateField& coordinate_field )
+
+void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
+    const CoordinateField& coordinate_field,
+    Teuchos::Array<GlobalOrdinal>& ordinals )
 {
     int comm_rank = d_comm->getRank();
     int point_dim = CFT::dim( coordinate_field );
@@ -374,12 +377,11 @@ SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
 					   &local_size,
 					   &global_size );
 
-    Teuchos::Array<GlobalOrdinal> point_ordinals( local_size );
+    ordinals.resize( local_size );
     for ( GlobalOrdinal n = 0; n < local_size; ++n )
     {
-	point_ordinals[n] = comm_rank*global_size + n;
+	ordinals[n] = comm_rank*global_size + n;
     }
-    return point_ordinals;
 }
 
 //---------------------------------------------------------------------------//

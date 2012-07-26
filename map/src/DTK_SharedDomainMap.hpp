@@ -110,8 +110,8 @@ class SharedDomainMap
 
     // Compute globally unique ordinals for the points in the coordinate
     // field.
-    Teuchos::Array<GlobalOrdinal> computePointOrdinals(
-	const CoordinateField& coordinate_field );
+    void computePointOrdinals( const CoordinateField& coordinate_field,
+			       Teuchos::Array<GlobalOrdinal>& ordinals );
 
   private:
 
