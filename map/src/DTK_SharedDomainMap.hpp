@@ -105,7 +105,7 @@ class SharedDomainMap
     // Get the local indices of the target points that were not mapped.
     Teuchos::ArrayView<const CoordOrdinal> getMissedTargetPoints() const;
 
-    // Apply the shared domain map.
+    // Apply the shared domain map to the target points that were mapped.
     template<class SourceField, class TargetField>
     void apply( const Teuchos::RCP< FieldEvaluator<Mesh,SourceField> >& 
 		source_evaluator,
@@ -121,14 +121,6 @@ class SharedDomainMap
     // Compute globally unique ordinals for the target points.
     void computePointOrdinals( const CoordinateField& target_coords,
 			       Teuchos::Array<GlobalOrdinal>& ordinals );
-
-    // Move the target points to the rendezvous decomposition.
-    void moveTargetToRendezvous( 
-	const CoordinateField& target_coords,
-	const Teuchos::Array<CoordOrdinal>& target_ordinals,
-	const Teuchos::Array<short int>& targets_in_box,
-	Teuchos::Array<CoordOrdinal>& rendezvous_points,
-	Teuchos::Array<double>& rendezvous_coords );
 
   private:
 

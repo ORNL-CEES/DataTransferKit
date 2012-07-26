@@ -120,8 +120,6 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     Teuchos::Array<GlobalOrdinal> point_ordinals;
     computePointOrdinals( target_coord_manager->field(), point_ordinals );
 
-    // Move the target points to the rendezvous decomposition.
-
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
 	point_ordinals();
@@ -133,12 +131,11 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Determine the rendezvous destination proc of each point in the
     // coordinate field that is in the rendezvous decomposition box.
     std::size_t coord_dim = CFT::dim( target_coord_manager->field() );
-    typename CFT::size_type num_coords = 
-	CFT::size( target_coord_manager->field() );
-    Teuchos::ArrayRCP<typename CFT::value_type> coords_view;
+    CoordOrdinal num_coords = CFT::size( target_coord_manager->field() );
+    Teuchos::ArrayRCP<double> coords_view;
     if ( num_coords == 0 )
     {
-	coords_view = Teuchos::ArrayRCP<typename CFT::value_type>( 0, 0.0 );
+	coords_view = Teuchos::ArrayRCP<double>( 0, 0.0 );
     }
     else
     {
@@ -149,12 +146,12 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	rendezvous.procsContainingPoints( coords_view );
 
     // Via an inverse communication operation, move the global point ordinals
-    // to the rendezvous decomposition.
+    // that are in the rendezvous decomposition box to the rendezvous
+    // decomposition.
     Tpetra::Distributor point_distributor( d_comm );
     GlobalOrdinal num_rendezvous_points = 
 	point_distributor.createFromSends( rendezvous_procs() );
-    Teuchos::Array<GlobalOrdinal> 
-	rendezvous_points( num_rendezvous_points );
+    Teuchos::Array<GlobalOrdinal> rendezvous_points( num_rendezvous_points );
     point_distributor.doPostsAndWaits( 
 	import_ordinal_view, 1, rendezvous_points() );
 
@@ -316,7 +313,7 @@ SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
 //---------------------------------------------------------------------------//
 /*!
  * \brief Apply the shared domain map for a valid source field evaluator and
- * target data space.
+ * target data space to the target points that were mapped.
  */
 template<class Mesh, class CoordinateField>
 template<class SourceField, class TargetField>
@@ -326,6 +323,11 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 {
     typedef FieldTraits<SourceField> SFT;
     typedef FieldTraits<TargetField> TFT;
+
+    testPrecondition( 
+	FieldTools<TargetField>::dimSize( target_space_manager->field() )
+	== (typename TFT::size_type) d_import_map->getNodeNumElements(),
+	"Number of target field elements != Number of coordinate field elements" );
 
     SourceField function_evaluations = 
 	source_evaluator->evaluate( Teuchos::arcpFromArray( d_source_elements ),
@@ -392,12 +394,12 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
 {
     Teuchos::ArrayRCP<const double> target_coords_view =
 	FieldTools<CoordinateField>::view( target_coords );
-    typename CFT::size_type dim_size = 
+    CoordOrdinal dim_size = 
 	FieldTools<CoordinateField>::dimSize( target_coords );
     points_in_box.resize( dim_size );
     std::size_t field_dim = CFT::dim( target_coords );
     Teuchos::Array<double> target_point( field_dim );
-    for ( typename CFT::size_type n = 0; n < dim_size; ++n )
+    for ( CoordOrdinal n = 0; n < dim_size; ++n )
     {
 	for ( std::size_t d = 0; d < field_dim; ++d )
 	{
@@ -442,22 +444,6 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
     {
 	ordinals[n] = comm_rank*global_size + n;
     }
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Setup communication of the target coords from the target to the
- * rendezvous decomposition.
- */
-template<class Mesh, class CoordinateField>
-void SharedDomainMap<Mesh,CoordinateField>::moveTargetToRendezvous(
-    const CoordinateField& target_coords,
-    const Teuchos::Array<CoordOrdinal>& target_ordinals,
-    const Teuchos::Array<short int>& targets_in_box,
-    Teuchos::Array<CoordOrdinal>& rendezvous_points,
-    Teuchos::Array<double>& rendezvous_coords )
-{
-
 }
 
 //---------------------------------------------------------------------------//
