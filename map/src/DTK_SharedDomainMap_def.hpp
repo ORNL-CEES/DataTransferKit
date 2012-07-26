@@ -65,8 +65,9 @@ namespace DataTransferKit
  */
 template<class Mesh, class CoordinateField>
 SharedDomainMap<Mesh,CoordinateField>::SharedDomainMap( 
-    const RCP_Comm& comm )
+    const RCP_Comm& comm, bool keep_missed_points )
     : d_comm( comm )
+    , d_keep_missed_points( keep_missed_points )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -83,18 +84,18 @@ SharedDomainMap<Mesh,CoordinateField>::~SharedDomainMap()
  */
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::setup( 
-    const RCP_MeshManager& mesh_manager, 
-    const RCP_FieldManager& coord_field_manager )
+    const RCP_MeshManager& source_mesh_manager, 
+    const RCP_FieldManager& target_coord_manager )
 {
     // Get the global bounding box for the mesh.
-    BoundingBox source_box = mesh_manager->globalBoundingBox();
+    BoundingBox source_box = source_mesh_manager->globalBoundingBox();
 
     // Get the global bounding box for the coordinate field.
     BoundingBox target_box = 
 	FieldTools<CoordinateField>::coordGlobalBoundingBox(
-	    coord_field_manager->field(), d_comm );
+	    target_coord_manager->field(), d_comm );
 
-    // Intersect the boxes to get the rendezvous bounding box.
+    // Intersect the boxes to get the overlapping domain bounding box.
     BoundingBox rendezvous_box;
     bool has_intersect = 
     	BoundingBox::intersectBoxes( source_box, target_box, rendezvous_box );
@@ -106,11 +107,11 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, rendezvous_box );
-    rendezvous.build( mesh_manager );
+    rendezvous.build( source_mesh_manager );
 
     // Compute a unique global ordinal for each point in the coordinate field.
     Teuchos::Array<GlobalOrdinal> point_ordinals;
-    computePointOrdinals( coord_field_manager->field(), point_ordinals );
+    computePointOrdinals( target_coord_manager->field(), point_ordinals );
 
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
@@ -122,9 +123,9 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Determine the rendezvous destination proc of each point in the
     // coordinate field.
-    std::size_t coord_dim = CFT::dim( coord_field_manager->field() );
+    std::size_t coord_dim = CFT::dim( target_coord_manager->field() );
     typename CFT::size_type num_coords = 
-	CFT::size( coord_field_manager->field() );
+	CFT::size( target_coord_manager->field() );
     Teuchos::ArrayRCP<typename CFT::value_type> coords_view;
     if ( num_coords == 0 )
     {
@@ -133,7 +134,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     else
     {
 	coords_view = FieldTools<CoordinateField>::nonConstView( 
-	    coord_field_manager->field() );
+	    target_coord_manager->field() );
     }
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.procsContainingPoints( coords_view );
@@ -193,11 +194,11 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // The block strategy means that we have to make a temporary copy of the
     // element handles so that we can make a Tpetra::Map.
     Teuchos::Array<GlobalOrdinal> 
-	mesh_elements( mesh_manager->localNumElements() );
+	mesh_elements( source_mesh_manager->localNumElements() );
     GlobalOrdinal start = 0;
     BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager->blocksBegin();
-	  block_iterator != mesh_manager->blocksEnd();
+    for ( block_iterator = source_mesh_manager->blocksBegin();
+	  block_iterator != source_mesh_manager->blocksEnd();
 	  ++block_iterator )
     {
 	Teuchos::ArrayRCP<const GlobalOrdinal> mesh_element_arcp =
@@ -288,13 +289,14 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Apply the evaluation.
+ * \brief Apply the map for a valid source field evaluator and target data
+ * space.
  */
 template<class Mesh, class CoordinateField>
 template<class SourceField, class TargetField>
 void SharedDomainMap<Mesh,CoordinateField>::apply( 
     const Teuchos::RCP< FieldEvaluator<Mesh,SourceField> >& source_evaluator,
-    TargetField& target_space )
+    Teuchos::RCP< FieldManager<TargetField> >& target_space_manager )
 {
     typedef FieldTraits<SourceField> SFT;
     typedef FieldTraits<TargetField> TFT;
@@ -303,7 +305,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 	source_evaluator->evaluate( Teuchos::arcpFromArray( d_source_elements ),
 				    Teuchos::arcpFromArray( d_target_coords ) );
     testPrecondition( SFT::dim( function_evaluations ) == 
-		      TFT::dim( target_space ),
+		      TFT::dim( target_space_manager->field() ),
 		      "Source field dimension != target field dimension." );
 
     Teuchos::ArrayRCP<typename SFT::value_type> source_field_view;
@@ -329,26 +331,26 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 				   SFT::dim( function_evaluations ) );
 
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view;
-    if ( TFT::size( target_space ) == 0 )
+    if ( TFT::size( target_space_manager->field() ) == 0 )
     {
 	target_field_view = 
 	    Teuchos::ArrayRCP<typename TFT::value_type>( 0, 0.0 );
     }
     else
     {
-	target_field_view =
-	    FieldTools<TargetField>::nonConstView( target_space );
+	target_field_view = FieldTools<TargetField>::nonConstView( 
+	    target_space_manager->field() );
     }
     
-    GlobalOrdinal target_size = TFT::size( target_space ) /
-				TFT::dim( target_space );
+    GlobalOrdinal target_size = TFT::size( target_space_manager->field() ) /
+				TFT::dim( target_space_manager->field() );
 
     Teuchos::RCP< Tpetra::MultiVector<typename TFT::value_type,
 				      GlobalOrdinal> > target_vector =	
 	createMultiVectorFromView( d_import_map, 
 				   target_field_view,
 				   target_size,
-				   TFT::dim( target_space ) );
+				   TFT::dim( target_space_manager->field() ) );
 
     target_vector->doExport( *source_vector, *d_data_export, Tpetra::INSERT );
 }
@@ -359,7 +361,6 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
  * field. 
  */
 template<class Mesh, class CoordinateField>
-
 void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
     const CoordinateField& coordinate_field,
     Teuchos::Array<GlobalOrdinal>& ordinals )
@@ -383,6 +384,24 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
 	ordinals[n] = comm_rank*global_size + n;
     }
 }
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief If keep_missed_points is true, return the local indices of the
+    points provided by target_coord_manager that were not mapped. An exception
+    will be thrown if keep_missed_points is false.
+*/
+template<class Mesh, class CoordinateField>
+Teuchos::ArrayView<const typename 
+		   SharedDomainMap<Mesh,CoordinateField>::CoordOrdinal> 
+SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
+{
+    testPrecondition( d_keep_missed_points, 
+      "Cannot get missing target points; keep_missed_points = false" );
+    
+    return d_missing_points();
+}
+
 
 //---------------------------------------------------------------------------//
 

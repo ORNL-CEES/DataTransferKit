@@ -410,41 +410,46 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test4 )
     int my_rank = comm->getRank();
     int my_size = comm->getSize();
 
-    // Setup source mesh.
+    // Setup source mesh manager.
     int edge_size = 4;
     Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
-    Teuchos::RCP< MeshManager<MyMesh> > mesh_manager = Teuchos::rcp( 
+    Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
 	new MeshManager<MyMesh>( mesh_blocks, comm, 2 ) );
 
-    // Setup target coordinate field.
+    // Setup target coordinate field manager.
     int num_points = (edge_size-1)*(edge_size-1);
-    MyField target_coords = buildCoordinateField( my_rank, my_size, 
-						  num_points, edge_size );
+    Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
+	Teuchos::rcp( new FieldManager<MyField>( 
+			  buildCoordinateField( my_rank, my_size, 
+						num_points, edge_size), comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > my_evaluator = 
+    Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
     	Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
 
-    // Create data target.
-    MyField::size_type target_size = 
-	target_coords.size() / target_coords.dim();
-    MyField my_target( target_size, 1 );
+    // Create data target. This target is a scalar.
+    int field_size = target_coord_manager->field().size() 
+		     / target_coord_manager->field().dim();
+    Teuchos::RCP< FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
+	new FieldManager<MyField>( MyField( field_size, 1 ), comm ) );
 
-    // Setup and apply the consistent evaluation mapping.
-    typedef SharedDomainMap<MyMesh,MyField> MapType;
-    Teuchos::RCP<MapType> shared_domain_map = 
-    	Teuchos::rcp( new MapType( comm ) );
-    shared_domain_map->setup( mesh_manager, target_coords );
-    shared_domain_map->apply( my_evaluator, my_target );
+    // Setup and apply the shared domain mapping.
+    SharedDomainMap<MyMesh,MyField> shared_domain_map( comm );
+    shared_domain_map.setup( source_mesh_manager, target_coord_manager );
+    shared_domain_map.apply( source_evaluator, target_space_manager );
 
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data.
     int source_rank;
-    for ( long int n = 0; n < my_target.size(); ++n )
+    long int target_dim_size = target_space_manager->field().size() / 
+			       target_space_manager->field().dim();
+    for ( long int n = 0; n < target_dim_size; ++n )
     {
-	source_rank = std::floor(target_coords.getData()[n] / (edge_size-1));
-	TEST_ASSERT( source_rank+1 == my_target.getData()[n] );
+	source_rank = std::floor(target_coord_manager->field().getData()[n] 
+				 / (edge_size-1));
+	TEST_ASSERT( source_rank+1 == 
+		     target_space_manager->field().getData()[n] );
     }
 }
 

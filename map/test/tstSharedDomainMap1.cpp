@@ -439,34 +439,38 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test )
     // This is a 4 processor test.
     if ( my_size == 4 )
     {
-	// Setup source mesh.
+	// Setup source mesh manager.
 	Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
 	mesh_blocks[0] = buildMyMesh();
-	Teuchos::RCP< MeshManager<MyMesh> > mesh_manager = Teuchos::rcp( 
+	Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp(
 	    new MeshManager<MyMesh>( mesh_blocks, comm, 2 ) );
 
-	// Setup target coordinate field.
-	Teuchos::RCP< FieldManager<MyField> > field_manager = Teuchos::rcp(
-	    new FieldManager<MyField>( buildCoordinateField(), comm ) );
+	// Setup target coordinate field manager
+	Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
+	    Teuchos::rcp( 
+		new FieldManager<MyField>( buildCoordinateField(), comm ) );
 
 	// Create field evaluator.
-	Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > my_evaluator = 
+	Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
 	    Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
 
-	// Create data target.
-	MyField my_target( field_manager->field().size() 
-			   / field_manager->field().dim(), 1 );
+	// Create data target manager
+	int field_size = target_coord_manager->field().size() 
+			 / target_coord_manager->field().dim();
+	Teuchos::RCP< FieldManager<MyField> > target_space_manager = 
+	    Teuchos::rcp( 
+	    new FieldManager<MyField>( MyField( field_size, 1 ), comm ) );
 
 	// Setup and apply the evaluation to the field.
-	SharedDomainMap<MyMesh,MyField> 
-	    shared_domain_map( comm );
-	shared_domain_map.setup( mesh_manager, field_manager );
-	shared_domain_map.apply( my_evaluator, my_target );
+	SharedDomainMap<MyMesh,MyField> shared_domain_map( comm );
+	shared_domain_map.setup( source_mesh_manager, target_coord_manager );
+	shared_domain_map.apply( source_evaluator, target_space_manager );
 
 	// Check the data transfer.
-	for ( int n = 0; n < my_target.size(); ++n )
+	for ( int n = 0; n < target_space_manager->field().size(); ++n )
 	{
-	    TEST_ASSERT( *(my_target.begin()+n) == n + 1 );
+	    TEST_ASSERT( *(target_space_manager->field().begin()+n) 
+			 == n + 1 );
 	}
     }
 }

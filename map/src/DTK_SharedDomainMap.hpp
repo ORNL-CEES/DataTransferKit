@@ -52,6 +52,7 @@
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_Export.hpp>
@@ -80,6 +81,7 @@ class SharedDomainMap
     typedef typename MeshManagerType::BlockIterator   BlockIterator;
     typedef CoordinateField                           coord_field_type;
     typedef FieldTraits<CoordinateField>              CFT;
+    typedef typename CFT::size_type                   CoordOrdinal;
     typedef FieldManager<CoordinateField>             FieldManagerType;
     typedef Teuchos::RCP<FieldManagerType>            RCP_FieldManager;
     typedef Teuchos::Comm<int>                        CommType;
@@ -91,20 +93,24 @@ class SharedDomainMap
     //!@}
 
     // Constructor.
-    SharedDomainMap( const RCP_Comm& comm );
+    SharedDomainMap( const RCP_Comm& comm, bool keep_missed_points = false );
 
     // Destructor.
     ~SharedDomainMap();
 
     // Setup the map.
-    void setup( const RCP_MeshManager& mesh_manager, 
-		const RCP_FieldManager& coord_field_manager );
+    void setup( const RCP_MeshManager& source_mesh_manager, 
+		const RCP_FieldManager& target_coord_manager );
 
     // Apply the map.
     template<class SourceField, class TargetField>
     void apply( const Teuchos::RCP< FieldEvaluator<Mesh,SourceField> >& 
 		source_evaluator,
-		TargetField& target_space );
+		Teuchos::RCP< FieldManager<TargetField> >& target_space_manager );
+
+    // If keep_missed_points is true, return the local indices of the target
+    // points provided by coord_field_manager that were not mapped.
+    Teuchos::ArrayView<const CoordOrdinal> getMissedTargetPoints() const;
 
   private:
 
@@ -117,6 +123,12 @@ class SharedDomainMap
 
     // Communicator.
     RCP_Comm d_comm;
+
+    // Boolean for keeping missed points in the mapping.
+    bool d_keep_missed_points;
+
+    // Indices for target points missed in the mapping.
+    Teuchos::Array<CoordOrdinal> d_missing_points;
 
     // Export field map.
     RCP_TpetraMap d_export_map;
