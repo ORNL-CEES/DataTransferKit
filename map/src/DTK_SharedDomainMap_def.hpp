@@ -120,8 +120,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     Teuchos::Array<GlobalOrdinal> point_ordinals;
     computePointOrdinals( target_coord_manager->field(), point_ordinals );
 
-    // Setup communication of the target coords to the rendezvous
-    // decomposition.
+    // Move the target points to the rendezvous decomposition.
 
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
@@ -451,11 +450,12 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
  * rendezvous decomposition.
  */
 template<class Mesh, class CoordinateField>
-void SharedDomainMap<Mesh,CoordinateField>::setupTargetCoordCommunication( 
+void SharedDomainMap<Mesh,CoordinateField>::moveTargetToRendezvous(
     const CoordinateField& target_coords,
     const Teuchos::Array<CoordOrdinal>& target_ordinals,
     const Teuchos::Array<short int>& targets_in_box,
-    Teuchos::Array<CoordOrdinal> rendezvous_points )
+    Teuchos::Array<CoordOrdinal>& rendezvous_points,
+    Teuchos::Array<double>& rendezvous_coords )
 {
 
 }

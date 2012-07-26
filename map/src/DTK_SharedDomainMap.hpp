@@ -122,13 +122,13 @@ class SharedDomainMap
     void computePointOrdinals( const CoordinateField& target_coords,
 			       Teuchos::Array<GlobalOrdinal>& ordinals );
 
-    // Setup communication of the target coords from the target to the
-    // rendezvous decomposition.
-    void setupTargetCoordCommunication( 
+    // Move the target points to the rendezvous decomposition.
+    void moveTargetToRendezvous( 
 	const CoordinateField& target_coords,
 	const Teuchos::Array<CoordOrdinal>& target_ordinals,
 	const Teuchos::Array<short int>& targets_in_box,
-	Teuchos::Array<CoordOrdinal> rendezvous_points );
+	Teuchos::Array<CoordOrdinal>& rendezvous_points,
+	Teuchos::Array<double>& rendezvous_coords );
 
   private:
 
