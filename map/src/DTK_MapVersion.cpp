@@ -32,27 +32,27 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_TransferVersion.cpp
+ * \file DTK_MapVersion.cpp
  * \author Stuart R. Slattery
  * \brief DataTransferKit transfer version definition.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_TransferVersion.hpp"
+#include "DTK_MapVersion.hpp"
 #include "Trilinos_version.h"
 
 namespace DataTransferKit
 {
 
-std::string DataTransferKit_TransferVersion()
+std::string DataTransferKit_MapVersion()
 { 
-  return( "DataTransferKitTransfer built against Trilinos " 
+  return( "DataTransferKit built against Trilinos " 
 	  TRILINOS_VERSION_STRING); 
 }
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_TransferVersion.cpp
+// end DTK_MapVersion.cpp
 //---------------------------------------------------------------------------//
 

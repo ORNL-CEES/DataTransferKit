@@ -130,8 +130,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     }
     else
     {
-	coords_view = 
-	    FieldTools<CoordinateField>::nonConstView( coord_field_manager->field() );
+	coords_view = FieldTools<CoordinateField>::nonConstView( 
+	    coord_field_manager->field() );
     }
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.procsContainingPoints( coords_view );

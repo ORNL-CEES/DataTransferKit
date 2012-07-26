@@ -8,12 +8,12 @@
           - \ref DTK_utils
    	  - \ref DTK_mesh
    	  - \ref DTK_field
-          - \ref DTK_transfer
+          - \ref DTK_map
  
  \section DTK_intro Introduction
  
  The Data Transfer Kit (DTK) provides parallel mesh searching and field
- transfer services for arbitrary physics codes based on the concept of 
+ mapping services for arbitrary physics codes based on the concept of 
  geometric rendezevous.
  
  \section DTK_contributors DTK Contributors
@@ -23,7 +23,8 @@
  
  \section DTK_overview Overview of DTK
 
- DTK is divided into two subpackages for mesh services and field services.
+ DTK is divided into four subpackages for utilities, mesh, fields, and
+ parallel topology maps.
  
  \subsection DTK_utils Utilities Subpackage
 
@@ -31,6 +32,6 @@
 
  \subsection DTK_field Field Subpackage
 
- \subsection DTK_transfer Transfer Subpackage
+ \subsection DTK_map Map Subpackage
 
  */

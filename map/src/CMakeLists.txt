@@ -22,16 +22,16 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   DTK_SharedDomainMap.hpp
   DTK_SharedDomainMap_def.hpp
-  DTK_TransferVersion.hpp
+  DTK_MapVersion.hpp
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
-  DTK_TransferVersion.cpp
+  DTK_MapVersion.cpp
   )
 
-# Set addition headers and source based on package-specific
+# Set additional headers and source based on package-specific
 # configuration options
 
 IF(${PACKAGE_NAME}_ENABLE_EXTENDED)

@@ -102,9 +102,9 @@ class SharedDomainMap
 
     // Apply the map.
     template<class SourceField, class TargetField>
-    void apply( 
-	const Teuchos::RCP< FieldEvaluator<Mesh,SourceField> >& source_evaluator,
-	TargetField& target_space );
+    void apply( const Teuchos::RCP< FieldEvaluator<Mesh,SourceField> >& 
+		source_evaluator,
+		TargetField& target_space );
 
   private:
 

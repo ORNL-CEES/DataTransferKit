@@ -32,7 +32,7 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_TransferVersion.hpp
+ * \file DTK_MapVersion.hpp
  * \author Stuart R. Slattery
  * \brief DataTransferKit transfer version declaration.
  */
@@ -48,13 +48,13 @@
 namespace DataTransferKit {
 
 /** \brief Print the version of DataTransferKit. */
-std::string DataTransferKit_TransferVersion();
+std::string DataTransferKit_MapVersion();
 
 } // end namespace DataTransferKit
 
 #endif // DTK_TRANSFERVERSION_HPP
  
 //---------------------------------------------------------------------------//
-// end DTK_TransferVersion.hpp
+// end DTK_MapVersion.hpp
 //---------------------------------------------------------------------------//
 
