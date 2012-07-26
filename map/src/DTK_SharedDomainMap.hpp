@@ -108,8 +108,7 @@ class SharedDomainMap
 		source_evaluator,
 		Teuchos::RCP< FieldManager<TargetField> >& target_space_manager );
 
-    // If keep_missed_points is true, return the local indices of the target
-    // points provided by coord_field_manager that were not mapped.
+    // Get the local indices of the target points that were not mapped.
     Teuchos::ArrayView<const CoordOrdinal> getMissedTargetPoints() const;
 
   private:
@@ -128,7 +127,7 @@ class SharedDomainMap
     bool d_keep_missed_points;
 
     // Indices for target points missed in the mapping.
-    Teuchos::Array<CoordOrdinal> d_missing_points;
+    Teuchos::Array<CoordOrdinal> d_missed_points;
 
     // Export field map.
     RCP_TpetraMap d_export_map;

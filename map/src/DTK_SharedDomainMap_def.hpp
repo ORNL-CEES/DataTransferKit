@@ -80,7 +80,7 @@ SharedDomainMap<Mesh,CoordinateField>::~SharedDomainMap()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Setup for evaluation.
+ * \brief Generate the shared domain map.
  */
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::setup( 
@@ -289,8 +289,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Apply the map for a valid source field evaluator and target data
- * space.
+ * \brief Apply the shared domain map for a valid source field evaluator and
+ * target data space.
  */
 template<class Mesh, class CoordinateField>
 template<class SourceField, class TargetField>
@@ -399,7 +399,7 @@ SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
     testPrecondition( d_keep_missed_points, 
       "Cannot get missing target points; keep_missed_points = false" );
     
-    return d_missing_points();
+    return d_missed_points();
 }
 
 
