@@ -107,20 +107,20 @@ class SharedDomainMap
 
     // Apply the shared domain map to the target points that were mapped.
     template<class SourceField, class TargetField>
-    void apply( const Teuchos::RCP< FieldEvaluator<Mesh,SourceField> >& 
-		source_evaluator,
-		Teuchos::RCP< FieldManager<TargetField> >& target_space_manager );
+    void apply( 
+	const Teuchos::RCP<FieldEvaluator<Mesh,SourceField> >& source_evaluator,
+	Teuchos::RCP<FieldManager<TargetField> >& target_space_manager );
 
   private:
 
     // Get the target points that are in the rendezvous decomposition box.
     void getTargetPointsInBox( const BoundingBox& box,
 			       const CoordinateField& target_coords,
-			       Teuchos::Array<CoordOrdinal>& points_in_box );
+			       Teuchos::Array<CoordOrdinal>& targets_in_box );
 
     // Compute globally unique ordinals for the target points.
     void computePointOrdinals( const CoordinateField& target_coords,
-			       Teuchos::Array<GlobalOrdinal>& ordinals );
+			       Teuchos::Array<GlobalOrdinal>& target_ordinals );
 
   private:
 
@@ -133,14 +133,14 @@ class SharedDomainMap
     // Indices for target points missed in the mapping.
     Teuchos::Array<CoordOrdinal> d_missed_points;
 
-    // Export field map.
-    RCP_TpetraMap d_export_map;
+    // Source field map.
+    RCP_TpetraMap d_source_map;
 
-    // Import field map.
-    RCP_TpetraMap d_import_map;
+    // Target field map.
+    RCP_TpetraMap d_target_map;
 
-    // Field data exporter.
-    RCP_Export d_data_export;
+    // Source-to-target exporter.
+    RCP_Export d_source_to_target_exporter;
 
     // Local source elements.
     Teuchos::Array<GlobalOrdinal> d_source_elements;

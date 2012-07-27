@@ -95,9 +95,9 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
 	point_ordinals();
-    d_import_map = Tpetra::createNonContigMap<GlobalOrdinal>(
+    d_target_map = Tpetra::createNonContigMap<GlobalOrdinal>(
 	import_ordinal_view, d_comm );
-    testPostcondition( d_import_map != Teuchos::null,
+    testPostcondition( d_target_map != Teuchos::null,
 		       "Error creating data import map." );
 
     // Get the global bounding box for the mesh.
@@ -146,7 +146,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.procsContainingPoints( coords_view );
 
-    // Extract those target points that are not in the box.
+    // Extract those target points that are not in the box. We don't want to
+    // send these to the rendezvous decomposition.
     Teuchos::Array<CoordOrdinal> not_in_box;
     typename Teuchos::Array<CoordOrdinal>::const_iterator in_box_iterator;
     typename Teuchos::Array<CoordOrdinal>::const_iterator in_box_begin =
@@ -170,6 +171,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     {
 	rendezvous_procs.remove( *not_in_box_iterator );
     }
+    not_in_box.clear();
 
     typename Teuchos::Array<CoordOrdinal>::iterator targets_bound =
 	std::remove( targets_in_box.begin(), targets_in_box.end(), 0 );
@@ -184,30 +186,30 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // decomposition.
     Teuchos::ArrayView<const GlobalOrdinal> targets_in_box_view = 
 	targets_in_box();
-    Tpetra::Distributor point_distributor( d_comm );
+    Tpetra::Distributor target_to_rendezvous_distributor( d_comm );
     GlobalOrdinal num_rendezvous_points = 
-	point_distributor.createFromSends( rendezvous_procs() );
+	target_to_rendezvous_distributor.createFromSends( rendezvous_procs() );
     Teuchos::Array<GlobalOrdinal> rendezvous_points( num_rendezvous_points );
-    point_distributor.doPostsAndWaits( 
+    target_to_rendezvous_distributor.doPostsAndWaits( 
 	targets_in_box_view, 1, rendezvous_points() );
 
     // Setup target-to-rendezvous communication.
     Teuchos::ArrayView<const GlobalOrdinal> rendezvous_points_view =
 	rendezvous_points();
-    RCP_TpetraMap rendezvous_import_map = 
+    RCP_TpetraMap target_to_rendezvous_map = 
 	Tpetra::createNonContigMap<GlobalOrdinal>(
 	    rendezvous_points_view, d_comm );
     Tpetra::Export<GlobalOrdinal> 
-	point_exporter( d_import_map, rendezvous_import_map );
+	target_to_rendezvous_exporter( d_target_map, target_to_rendezvous_map );
 
     // Move the target coordinates to the rendezvous decomposition.
     GlobalOrdinal num_points = point_ordinals.size();
     Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > 
 	target_coords =	Tpetra::createMultiVectorFromView( 
-	    d_import_map, coords_view, num_points, coord_dim );
+	    d_target_map, coords_view, num_points, coord_dim );
     Tpetra::MultiVector<double,GlobalOrdinal> rendezvous_coords( 
-	rendezvous_import_map, coord_dim );
-    rendezvous_coords.doExport( *target_coords, point_exporter, 
+	target_to_rendezvous_map, coord_dim );
+    rendezvous_coords.doExport( *target_coords, target_to_rendezvous_exporter, 
 				Tpetra::INSERT );
 
     // Search the rendezvous decomposition with the target points to get the
@@ -242,7 +244,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     }
 
     // Extract the points we didn't find in any elements in the rendezvous
-    // decomposition. 
+    // decomposition. We don't want to send these to the source.
     typename Teuchos::Array<GlobalOrdinal>::iterator rendezvous_elements_bound =
 	std::remove( rendezvous_elements.begin(), rendezvous_elements.end(), -1 );
     GlobalOrdinal rendezvous_elements_size = 
@@ -347,15 +349,16 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // populate the source element/target coordinate pairings.
     Teuchos::ArrayView<const GlobalOrdinal> source_points_view =
 	source_points();
-    d_export_map = Tpetra::createNonContigMap<GlobalOrdinal>(
+    d_source_map = Tpetra::createNonContigMap<GlobalOrdinal>(
 	source_points_view, d_comm );
-    testPostcondition( d_export_map != Teuchos::null,
+    testPostcondition( d_source_map != Teuchos::null,
 		       "Error creating data export map." );
 
-    // Build the data importer.
-    d_data_export = Teuchos::rcp( new Tpetra::Export<GlobalOrdinal>(
-				      d_export_map, d_import_map ) );
-    testPostcondition( d_data_export != Teuchos::null,
+    // Build the source-to-target exporter.
+    d_source_to_target_exporter = 
+	Teuchos::rcp( new Tpetra::Export<GlobalOrdinal>(
+			  d_source_map, d_target_map ) );
+    testPostcondition( d_source_to_target_exporter != Teuchos::null,
 		       "Error creating data importer." );
 }
 
@@ -395,7 +398,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     GlobalOrdinal target_size = 
 	FieldTools<TargetField>::dimSize( target_space_manager->field() );
     testPrecondition( 
-	target_size == (typename TFT::size_type) d_import_map->getNodeNumElements(),
+	target_size == (typename TFT::size_type) d_target_map->getNodeNumElements(),
 	"Number of target field elements != Number of coordinate field elements" );
 
     // Evaluate the source function at the target points.
@@ -423,7 +426,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 	FieldTools<SourceField>::dimSize( function_evaluations );
     Teuchos::RCP< Tpetra::MultiVector<typename SFT::value_type,
 				      GlobalOrdinal> > source_vector = 
-	Tpetra::createMultiVectorFromView( d_export_map, 
+	Tpetra::createMultiVectorFromView( d_source_map, 
 					   source_field_view,
 					   source_size,
 					   SFT::dim( function_evaluations ) );
@@ -444,7 +447,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     Teuchos::RCP< Tpetra::MultiVector<typename TFT::value_type,
 				      GlobalOrdinal> > target_vector =	
 	Tpetra::createMultiVectorFromView( 
-	    d_import_map, 
+	    d_target_map, 
 	    target_field_view,
 	    target_size,
 	    TFT::dim( target_space_manager->field() ) );
@@ -455,7 +458,8 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 
     // Move the data from the source decomposition to the target
     // decomposition.
-    target_vector->doExport( *source_vector, *d_data_export, Tpetra::INSERT );
+    target_vector->doExport( *source_vector, *d_source_to_target_exporter, 
+			     Tpetra::INSERT );
 }
 
 //---------------------------------------------------------------------------//
@@ -465,13 +469,13 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
     const BoundingBox& box, const CoordinateField& target_coords,
-    Teuchos::Array<CoordOrdinal>& points_in_box )
+    Teuchos::Array<CoordOrdinal>& targets_in_box )
 {
     Teuchos::ArrayRCP<const double> target_coords_view =
 	FieldTools<CoordinateField>::view( target_coords );
     CoordOrdinal dim_size = 
 	FieldTools<CoordinateField>::dimSize( target_coords );
-    points_in_box.resize( dim_size );
+    targets_in_box.resize( dim_size );
     std::size_t field_dim = CFT::dim( target_coords );
     Teuchos::Array<double> target_point( field_dim );
     for ( CoordOrdinal n = 0; n < dim_size; ++n )
@@ -481,11 +485,11 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
 	    target_point[d] = target_coords_view[ dim_size*d + n ];
 	}
 
-	points_in_box[n] = n * box.pointInBox( target_point );
+	targets_in_box[n] = n * box.pointInBox( target_point );
 
 	// If we're keeping track of the points not being mapped, add this
 	// point's local index to the list if its not in the box.
-	if ( d_keep_missed_points && points_in_box[n] == 0 )
+	if ( d_keep_missed_points && targets_in_box[n] == 0 )
 	{
 	    d_missed_points.push_back(n);
 	}
@@ -499,7 +503,7 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
     const CoordinateField& target_coords,
-    Teuchos::Array<GlobalOrdinal>& ordinals )
+    Teuchos::Array<GlobalOrdinal>& target_ordinals )
 {
     int comm_rank = d_comm->getRank();
     int point_dim = CFT::dim( target_coords );
@@ -514,10 +518,10 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
 					   &local_size,
 					   &global_size );
 
-    ordinals.resize( local_size );
+    target_ordinals.resize( local_size );
     for ( GlobalOrdinal n = 0; n < local_size; ++n )
     {
-	ordinals[n] = comm_rank*global_size + n;
+	target_ordinals[n] = comm_rank*global_size + n;
     }
 }
 
