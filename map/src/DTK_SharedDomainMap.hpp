@@ -78,7 +78,7 @@ class SharedDomainMap
     typedef typename MT::global_ordinal_type          GlobalOrdinal;
     typedef MeshManager<Mesh>                         MeshManagerType;
     typedef Teuchos::RCP<MeshManagerType>             RCP_MeshManager;
-    typedef typename MeshManagerType::BlockIterator   BlockIterator;
+    typedef typename MeshManagerType::BlockIterator   MeshBlockIterator;
     typedef CoordinateField                           coord_field_type;
     typedef FieldTraits<CoordinateField>              CFT;
     typedef typename CFT::size_type                   CoordOrdinal;
@@ -89,7 +89,7 @@ class SharedDomainMap
     typedef Tpetra::Map<GlobalOrdinal>                TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
     typedef Tpetra::Export<GlobalOrdinal>             ExportType;
-    typedef Teuchos::RCP<ExportType>                  RCP_Export;
+    typedef Teuchos::RCP<ExportType>                  RCP_TpetraExport;
     //!@}
 
     // Constructor.
@@ -140,7 +140,7 @@ class SharedDomainMap
     RCP_TpetraMap d_target_map;
 
     // Source-to-target exporter.
-    RCP_Export d_source_to_target_exporter;
+    RCP_TpetraExport d_source_to_target_exporter;
 
     // Local source elements.
     Teuchos::Array<GlobalOrdinal> d_source_elements;

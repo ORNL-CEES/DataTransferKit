@@ -42,7 +42,6 @@
 #define DTK_SHAREDDOMAINMAP_DEF_HPP
 
 #include <algorithm>
-#include <set>
 
 #include <DTK_FieldTools.hpp>
 #include <DTK_Exception.hpp>
@@ -196,11 +195,11 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Setup target-to-rendezvous communication.
     Teuchos::ArrayView<const GlobalOrdinal> rendezvous_points_view =
 	rendezvous_points();
-    RCP_TpetraMap target_to_rendezvous_map = 
+    RCP_TpetraMap rendezvous_coords_map = 
 	Tpetra::createNonContigMap<GlobalOrdinal>(
 	    rendezvous_points_view, d_comm );
     Tpetra::Export<GlobalOrdinal> 
-	target_to_rendezvous_exporter( d_target_map, target_to_rendezvous_map );
+	target_to_rendezvous_exporter( d_target_map, rendezvous_coords_map );
 
     // Move the target coordinates to the rendezvous decomposition.
     GlobalOrdinal num_points = point_ordinals.size();
@@ -208,7 +207,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	target_coords =	Tpetra::createMultiVectorFromView( 
 	    d_target_map, coords_view, num_points, coord_dim );
     Tpetra::MultiVector<double,GlobalOrdinal> rendezvous_coords( 
-	target_to_rendezvous_map, coord_dim );
+	rendezvous_coords_map, coord_dim );
     rendezvous_coords.doExport( *target_coords, target_to_rendezvous_exporter, 
 				Tpetra::INSERT );
 
@@ -218,38 +217,61 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	rendezvous.elementsContainingPoints( 
 	    rendezvous_coords.get1dViewNonConst() );
 
+    // Get the points that were not in the mesh. If we're keeping track of
+    // missed points, also make a list of those ordinals.
+    GlobalOrdinal target_index;
+    Teuchos::Array<GlobalOrdinal> not_in_mesh;
+    Teuchos::Array<GlobalOrdinal> missed_in_mesh;
+    typename Teuchos::Array<CoordOrdinal>::const_iterator 
+	rendezvous_elements_iterator;
+    typename Teuchos::Array<CoordOrdinal>::const_iterator 
+	rendezvous_elements_begin = rendezvous_elements.begin();
+    for ( rendezvous_elements_iterator = rendezvous_elements.begin();
+	  rendezvous_elements_iterator != rendezvous_elements.end();
+	  ++rendezvous_elements_iterator )
+    {
+	if ( *rendezvous_elements_iterator == -1 )
+	{
+	    target_index = std::distance( rendezvous_elements_begin, 
+					  rendezvous_elements_iterator );
+
+	    not_in_mesh.push_back( target_index );
+
+	    if ( d_keep_missed_points )
+	    {
+		missed_in_mesh.push_back( rendezvous_points[target_index] );
+	    }
+	}
+    }
+
     // If we're keeping track of missed points, send their global ordinals
     // back to the target decomposition so that we can add them to the list.
     if ( d_keep_missed_points )
     {
-	GlobalOrdinal target_index;
-	Teuchos::Array<GlobalOrdinal> not_in_mesh;
-	typename Teuchos::Array<CoordOrdinal>::const_iterator 
-	    rendezvous_elements_iterator;
-	typename Teuchos::Array<CoordOrdinal>::const_iterator 
-	    rendezvous_elements_begin = rendezvous_elements.begin();
-	for ( rendezvous_elements_iterator = rendezvous_elements.begin();
-	      rendezvous_elements_iterator != rendezvous_elements.end();
-	      ++rendezvous_elements_iterator )
-	{
-	    if ( *rendezvous_elements_iterator == -1 )
-	    {
-		target_index = std::distance( rendezvous_elements_begin, 
-					      rendezvous_elements_iterator );
-		not_in_mesh.push_back( rendezvous_points[target_index] );
-	    }
-	}
-
-	// Add communication back to target here.
+	// Add communication of missed point ordinals back to target here.
     }
+    missed_in_mesh.clear();
 
     // Extract the points we didn't find in any elements in the rendezvous
-    // decomposition. We don't want to send these to the source.
+    // decomposition and their corresponding elements. We don't want to send
+    // these to the source.
+    std::reverse( not_in_mesh.begin(), not_in_mesh.end() );
+    typename Teuchos::Array<CoordOrdinal>::const_iterator not_in_mesh_iterator;
+    for ( not_in_mesh_iterator = not_in_mesh.begin();
+	  not_in_mesh_iterator != not_in_mesh.end();
+	  ++not_in_mesh_iterator )
+    {
+	rendezvous_points.remove( *not_in_mesh_iterator );
+    }
+    not_in_mesh.clear();
+
     typename Teuchos::Array<GlobalOrdinal>::iterator rendezvous_elements_bound =
 	std::remove( rendezvous_elements.begin(), rendezvous_elements.end(), -1 );
     GlobalOrdinal rendezvous_elements_size = 
 	std::distance( rendezvous_elements.begin(), rendezvous_elements_bound );
+
     rendezvous_elements.resize( rendezvous_elements_size );
+    rendezvous_points.resize( rendezvous_elements_size );
 
     // Build a unique list of rendezvous elements.
     Teuchos::Array<GlobalOrdinal> rendezvous_element_set = rendezvous_elements;
@@ -263,16 +285,16 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Setup source-to-rendezvous communication.
     Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elem_set_view =
 	rendezvous_element_set();
-    RCP_TpetraMap rendezvous_element_map = 
+    RCP_TpetraMap unique_rendezvous_element_map = 
 	Tpetra::createNonContigMap<GlobalOrdinal>( 
 	    rendezvous_elem_set_view, d_comm );
 
     // The block strategy means that we have to make a temporary copy of the
-    // element ordinals so that we can make a Tpetra::Map.
+    // element ordinals into a single array so that we can make a Tpetra::Map.
     Teuchos::Array<GlobalOrdinal> 
 	mesh_elements( source_mesh_manager->localNumElements() );
     GlobalOrdinal block_start = 0;
-    BlockIterator block_iterator;
+    MeshBlockIterator block_iterator;
     for ( block_iterator = source_mesh_manager->blocksBegin();
 	  block_iterator != source_mesh_manager->blocksEnd();
 	  ++block_iterator )
@@ -289,26 +311,24 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	mesh_element_view, d_comm );
     mesh_elements.clear();
 
-    Tpetra::Import<GlobalOrdinal> source_importer( mesh_element_map, 
-						   rendezvous_element_map );
+    Tpetra::Import<GlobalOrdinal> source_to_rendezvous_importer( 
+	mesh_element_map, unique_rendezvous_element_map );
 
     // Elements send their source decomposition proc to the rendezvous
     // decomposition.
-    Tpetra::MultiVector<int,GlobalOrdinal> 
-	source_procs( mesh_element_map, 1 );
+    Tpetra::MultiVector<int,int> source_procs( mesh_element_map, 1 );
     source_procs.putScalar( d_comm->getRank() );
-    Tpetra::MultiVector<int,GlobalOrdinal> 
-	rendezvous_source_procs( rendezvous_element_map, 1 );
-    rendezvous_source_procs.doImport( source_procs, source_importer, 
-				      Tpetra::INSERT );
+    Tpetra::MultiVector<int,int> 
+	rendezvous_source_procs( unique_rendezvous_element_map, 1 );
+    rendezvous_source_procs.doImport( 
+	source_procs, source_to_rendezvous_importer, Tpetra::INSERT );
 
     // Set the destination procs for the rendezvous-to-source communication.
     Teuchos::ArrayRCP<const int> rendezvous_source_procs_view =
 	rendezvous_source_procs.get1dView();
     GlobalOrdinal num_rendezvous_elements = rendezvous_elements.size();
     GlobalOrdinal dest_proc_idx;
-    Teuchos::Array<int> 
-	target_destinations( num_rendezvous_elements );
+    Teuchos::Array<int> target_destinations( num_rendezvous_elements );
     for ( GlobalOrdinal n = 0; n < num_rendezvous_elements; ++n )
     {
 	dest_proc_idx = std::distance( 
@@ -320,30 +340,42 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     }
     rendezvous_element_set.clear();
 
+    // Setup rendezvous-to-source distributor.
+    Tpetra::Distributor rendezvous_to_src_distributor( d_comm );
+    GlobalOrdinal num_source_elements = 
+	rendezvous_to_src_distributor.createFromSends( target_destinations() );
+
     // Send the rendezvous elements to the source decomposition via inverse
     // communication. 
     Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
 	rendezvous_elements();
-    Tpetra::Distributor source_distributor( d_comm );
-    GlobalOrdinal num_source_elements = 
-	source_distributor.createFromSends( target_destinations() );
     d_source_elements.resize( num_source_elements );
-    source_distributor.doPostsAndWaits( rendezvous_elements_view, 1,
-					d_source_elements() );
-
-    // Send the rendezvous point coordinates to the source decomposition via
-    // inverse communication. 
-    Teuchos::ArrayView<const double> rendezvous_coords_view =
-	rendezvous_coords.get1dView()();
-    d_target_coords.resize( num_source_elements*coord_dim );
-    source_distributor.doPostsAndWaits( rendezvous_coords_view, coord_dim,
-					d_target_coords() );
+    rendezvous_to_src_distributor.doPostsAndWaits( rendezvous_elements_view, 1,
+						   d_source_elements() );
 
     // Send the rendezvous point global ordinals to the source decomposition
     // via inverse communication.
+    Teuchos::ArrayView<const GlobalOrdinal> reduced_rendezvous_points_view =
+	rendezvous_points();
     Teuchos::Array<GlobalOrdinal> source_points( num_source_elements );
-    source_distributor.doPostsAndWaits( rendezvous_points_view, 1,
-					source_points() );
+    rendezvous_to_src_distributor.doPostsAndWaits( 
+	reduced_rendezvous_points_view, 1, source_points() );
+
+    // Setup rendezvous-to-source mapping.
+    Techos::ArrayView<const GlobalOrdinal> source_points_view =
+	source_points();
+    RCP_TpetraMap source_coords_map =
+	Tpetra::createNonContigMap<GlobalOrdinal>( source_coords_view, d_comm );
+    Tpetra::Export<GlobalOrdinal> rendezvous_to_source_exporter( 
+	rendezvous_coords_map, source_points_map );
+
+    // Send the rendezvous point coordinates to the source decomposition.
+    d_target_coords.resize( num_source_elements*coord_dim );
+    Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> >
+	source_coords = Tpetra::createMultiVectorFromView(
+	    source_points_map, coord_dim );
+    source_coords.do_export( rendezvous_coords, rendezvous_to_source_exporter,
+			     Tpetra::INSERT );
 
     // Build the data export map from the coordinate ordinals as well as
     // populate the source element/target coordinate pairings.
@@ -374,7 +406,7 @@ Teuchos::ArrayView<const typename
 SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
 {
     testPrecondition( d_keep_missed_points, 
-      "Cannot get missing target points; keep_missed_points = false" );
+      "Cannot get missed target points; keep_missed_points = false" );
     
     return d_missed_points();
 }
