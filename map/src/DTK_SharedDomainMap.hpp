@@ -116,7 +116,7 @@ class SharedDomainMap
     // Get the target points that are in the rendezvous decomposition box.
     void getTargetPointsInBox( const BoundingBox& box,
 			       const CoordinateField& target_coords,
-			       Teuchos::Array<short int>& points_in_box );
+			       Teuchos::Array<CoordOrdinal>& points_in_box );
 
     // Compute globally unique ordinals for the target points.
     void computePointOrdinals( const CoordinateField& target_coords,
