@@ -48,7 +48,7 @@ ENDIF()
 #
 
 TRIBITS_ADD_LIBRARY(
-   Transfer
+   Map
    HEADERS ${HEADERS}
    SOURCES ${SOURCES}
    )

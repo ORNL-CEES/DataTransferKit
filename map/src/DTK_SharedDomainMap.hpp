@@ -103,7 +103,7 @@ class SharedDomainMap
 		const RCP_FieldManager& target_coord_manager );
 
     // Get the local indices of the target points that were not mapped.
-    Teuchos::ArrayView<const CoordOrdinal> getMissedTargetPoints() const;
+    Teuchos::ArrayView<const GlobalOrdinal> getMissedTargetPoints() const;
 
     // Apply the shared domain map to the target points that were mapped.
     template<class SourceField, class TargetField>
@@ -113,14 +113,14 @@ class SharedDomainMap
 
   private:
 
-    // Get the target points that are in the rendezvous decomposition box.
-    void getTargetPointsInBox( const BoundingBox& box,
-			       const CoordinateField& target_coords,
-			       Teuchos::Array<CoordOrdinal>& targets_in_box );
-
     // Compute globally unique ordinals for the target points.
     void computePointOrdinals( const CoordinateField& target_coords,
 			       Teuchos::Array<GlobalOrdinal>& target_ordinals );
+
+    // Get the target points that are in the rendezvous decomposition box.
+    void getTargetPointsInBox( const BoundingBox& box,
+			       const CoordinateField& target_coords,
+			       Teuchos::Array<GlobalOrdinal>& targets_in_box );
 
   private:
 
@@ -131,7 +131,7 @@ class SharedDomainMap
     bool d_keep_missed_points;
 
     // Indices for target points missed in the mapping.
-    Teuchos::Array<CoordOrdinal> d_missed_points;
+    Teuchos::Array<GlobalOrdinal> d_missed_points;
 
     // Source field map.
     RCP_TpetraMap d_source_map;
