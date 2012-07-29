@@ -214,9 +214,11 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Search the rendezvous decomposition with the target points to get the
     // source elements that contain them.
-    Teuchos::Array<GlobalOrdinal> rendezvous_elements =
-	rendezvous.elementsContainingPoints( 
-	    rendezvous_coords.get1dViewNonConst() );
+    Teuchos::Array<GlobalOrdinal> rendezvous_elements;
+    Teuchos::Array<int> element_source_procs;
+    rendezvous.elementsContainingPoints( rendezvous_coords.get1dViewNonConst(),
+					 rendezvous_elements,
+					 element_source_procs );
 
     // Get the points that were not in the mesh. If we're keeping track of
     // missed points, also make a list of those ordinals.

@@ -799,7 +799,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_test )
     // Search the rendezvous decomposition for some random points and check
     // that they are found in the correct element.
     int num_found = 0;
-    Teuchos::Array<int> elements = rendezvous.elementsContainingPoints( points );
+    Teuchos::Array<int> elements, elem_src_procs;
+    rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
+
     for ( int i = 0; i < num_points; ++i )
     {
 	if ( points[i] < 0.0 || my_size < points[i] )
@@ -862,7 +864,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_test )
 
     // Search the rendezvous decomposition for some random points.
     int num_found = 0;
-    Teuchos::Array<int> elements = rendezvous.elementsContainingPoints( points );
+    Teuchos::Array<int> elements, elem_src_procs;
+    rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
+
     for ( int i = 0; i < num_points; ++i )
     {
 	if ( points[i] < 0.0 || my_size < points[i] ||
@@ -926,7 +930,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_test )
 
     // Search the rendezvous decomposition for some random points.
     int num_found = 0;
-    Teuchos::Array<int> elements = rendezvous.elementsContainingPoints( points );
+    Teuchos::Array<int> elements, elem_src_procs;
+    rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
+
     for ( int i = 0; i < num_points; ++i )
     {
 	if ( points[i] < 0.0 || my_size < points[i] ||
@@ -989,7 +995,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_test )
     }
 
     // Search the rendezvous decomposition for some random points.
-    Teuchos::Array<int> elements = rendezvous.elementsContainingPoints( points );
+    Teuchos::Array<int> elements, elem_src_procs;
+    rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
+
     int num_found = 0;
     for ( int i = 0; i < num_points; ++i )
     {
@@ -1054,7 +1062,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_test )
     }
 
     // Search the rendezvous decomposition for some random points.
-    Teuchos::Array<int> elements = rendezvous.elementsContainingPoints( points );
+    Teuchos::Array<int> elements, elem_src_procs;
+    rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
+
     int num_found = 0;
     for ( int i = 0; i < num_points; ++i )
     {
@@ -1119,7 +1129,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_test )
     }
 
     // Search the rendezvous decomposition for some random points.
-    Teuchos::Array<int> elements = rendezvous.elementsContainingPoints( points );
+    Teuchos::Array<int> elements, elem_src_procs;
+    rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
+
     int num_found = 0;
     for ( int i = 0; i < num_points; ++i )
     {
@@ -1185,7 +1197,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_test )
     }
 
     // Search the rendezvous decomposition for some random points.
-    Teuchos::Array<int> elements = rendezvous.elementsContainingPoints( points );
+    Teuchos::Array<int> elements, elem_src_procs;
+    rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
+
     int num_found = 0;
     for ( int i = 0; i < num_points; ++i )
     {
@@ -1251,7 +1265,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_test )
     }
 
     // Search the rendezvous decomposition for some random points.
-    Teuchos::Array<int> elements = rendezvous.elementsContainingPoints( points );
+    Teuchos::Array<int> elements, elem_src_procs;
+    rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
+
     int num_found = 0;
     for ( int i = 0; i < num_points; ++i )
     {

@@ -41,7 +41,7 @@
 #ifndef DTK_RENDEZVOUS_DEF_HPP
 #define DTK_RENDEZVOUS_DEF_HPP
 
-#include <map>
+#include <set>
 #include <algorithm>
 #include <cassert>
 
@@ -149,18 +149,20 @@ Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
  * \brief Get the native mesh elements in the rendezvous decomposition
  * containing a blocked list of coordinates also in the rendezvous
  * decomposition. If a point is not found in an element, return an invalid
- * element ordinal, -1, for that point.
+ * element ordinal and source decomposition proc, -1, for that point.
  */
 template<class Mesh>
-Teuchos::Array<typename Rendezvous<Mesh>::GlobalOrdinal>
-Rendezvous<Mesh>::elementsContainingPoints( 
-    const Teuchos::ArrayRCP<double>& coords ) const
+void Rendezvous<Mesh>::elementsContainingPoints( 
+    const Teuchos::ArrayRCP<double>& coords,
+    Teuchos::Array<GlobalOrdinal>& elements,
+    Teuchos::Array<int>& element_src_procs ) const
 {
     Teuchos::Array<double> point( d_node_dim );
     GlobalOrdinal element_ordinal;
     GlobalOrdinal num_points = coords.size() / d_node_dim;
     bool found_point;
-    Teuchos::Array<GlobalOrdinal> element_ordinals( num_points );
+    elements.resize( num_points );
+    element_src_procs.resize( num_points );
     for ( GlobalOrdinal n = 0; n < num_points; ++n )
     {
 	for ( std::size_t d = 0; d < d_node_dim; ++d )
@@ -172,15 +174,16 @@ Rendezvous<Mesh>::elementsContainingPoints(
 
 	if ( found_point )
 	{
-	    element_ordinals[n] = element_ordinal;
+	    elements[n] = element_ordinal;
+	    element_src_procs[n] = 
+		d_element_src_procs_map.find( element_ordinal )->second;
 	}
 	else
 	{
-	    element_ordinals[n] = -1;
+	    elements[n] = -1;
+	    element_src_procs[n] = -1;
 	}
     }
-
-    return element_ordinals;
 }
 
 //---------------------------------------------------------------------------//
@@ -556,18 +559,35 @@ void Rendezvous<Mesh>::setupImportCommunication(
     element_distributor.doPostsAndWaits( export_elements_view, 1, 
 					 import_elements_view );
     
-    // Next, move these into the rendezvous element set so that we have a
-    // unique list of the elements.
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
-	import_element_iterator;
-    std::set<GlobalOrdinal> rendezvous_elements_set;
-    for ( import_element_iterator = import_elements.begin();
-	  import_element_iterator != import_elements.end();
-	  ++import_element_iterator )
+    // Extract the rendezvous element source procs from the distributor.
+    Teuchos::ArrayView<const int> from_images = element_distributor.getImagesFrom();
+    Teuchos::ArrayView<const std::size_t> from_lengths = 
+	element_distributor.getLengthsFrom();
+    Teuchos::Array<int> element_src_procs;
+    for ( int i = 0; i < (int) from_images.size(); ++i )
     {
-	rendezvous_elements_set.insert( *import_element_iterator );
+	for ( std::size_t j = 0; j < from_lengths[i]; ++j )
+	{
+	    element_src_procs.push_back( from_images[i] );
+	}
+    }
+    testInvariant( element_src_procs.size() == num_import_elements,
+		   "number of element src procs != number of import elements" );
+        
+    // Next, move these into the rendezvous element set so that we have a
+    // unique list of the elements and build the rendezvous mesh element to
+    // source proc map.
+    std::set<GlobalOrdinal> rendezvous_elements_set;
+    for ( int n = 0; n < num_import_elements; ++n )
+    {
+	if ( rendezvous_elements_set.insert( import_elements[n] ).second )
+	{
+	    d_element_src_procs_map[ import_elements[n] ] = 
+		element_src_procs[n];
+	}
     }
     import_elements.clear();
+    element_src_procs.clear();
 
     // Finally put the elements in a Teuchos::Array and get rid of the set.
     rendezvous_elements.resize( rendezvous_elements_set.size() );

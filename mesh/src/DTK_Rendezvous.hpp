@@ -41,12 +41,11 @@
 #ifndef DTK_RENDEZVOUS_HPP
 #define DTK_RENDEZVOUS_HPP
 
-#include <set>
+#include <map>
 
 #include "DTK_MeshManager.hpp"
 #include "DTK_RendezvousMesh.hpp"
 #include "DTK_MeshContainer.hpp"
-
 #include "DTK_KDTree.hpp"
 #include "DTK_RCB.hpp"
 #include "DTK_BoundingBox.hpp"
@@ -108,10 +107,12 @@ class Rendezvous
     Teuchos::Array<int> 
     procsContainingPoints( const Teuchos::ArrayRCP<double> &coords ) const;
 
-    // Get the native mesh elements in the rendezvous decomposition containing
-    // a blocked list of coordinates also in the rendezvous decomposition.
-    Teuchos::Array<GlobalOrdinal>
-    elementsContainingPoints( const Teuchos::ArrayRCP<double>& coords ) const;
+    // Get the native mesh elements in the rendezvous decomposition and their
+    // source decomposition procs containing a blocked list of coordinates
+    // also in the rendezvous decomposition.
+    void elementsContainingPoints( const Teuchos::ArrayRCP<double>& coords,
+				   Teuchos::Array<GlobalOrdinal>& elements,
+				   Teuchos::Array<int>& element_src_procs ) const;
 
     //! Get the rendezvous mesh.
     const RCP_RendezvousMesh& getMesh() const
@@ -151,6 +152,9 @@ class Rendezvous
 
     // Rendezvous partitioning.
     RCP_RCB d_rcb;
+
+    // Rendezvous mesh element to source proc map.
+    std::map<GlobalOrdinal,int> d_element_src_procs_map;
 
     // Rendezvous on-process mesh.
     RCP_RendezvousMesh d_rendezvous_mesh;
