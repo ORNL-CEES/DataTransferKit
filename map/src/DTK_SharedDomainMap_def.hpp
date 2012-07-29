@@ -215,10 +215,10 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Search the rendezvous decomposition with the target points to get the
     // source elements that contain them.
     Teuchos::Array<GlobalOrdinal> rendezvous_elements;
-    Teuchos::Array<int> element_source_procs;
+    Teuchos::Array<int> rendezvous_element_src_procs;
     rendezvous.elementsContainingPoints( rendezvous_coords.get1dViewNonConst(),
 					 rendezvous_elements,
-					 element_source_procs );
+					 rendezvous_element_src_procs );
 
     // Get the points that were not in the mesh. If we're keeping track of
     // missed points, also make a list of those ordinals.
@@ -273,80 +273,25 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     GlobalOrdinal rendezvous_elements_size = 
 	std::distance( rendezvous_elements.begin(), rendezvous_elements_bound );
 
+    typename Teuchos::Array<int>::iterator rendezvous_element_src_procs_bound =
+	std::remove( rendezvous_element_src_procs.begin(), 
+		     rendezvous_element_src_procs.end(), -1 );
+    GlobalOrdinal rendezvous_element_src_procs_size = 
+	std::distance( rendezvous_element_src_procs.begin(), 
+		       rendezvous_element_src_procs_bound );
+
+    testInvariant( rendezvous_elements_size == rendezvous_element_src_procs_size,
+		   "Num rendezvous elements != Num rendezvous src procs." );
+
     rendezvous_elements.resize( rendezvous_elements_size );
+    rendezvous_element_src_procs.resize( rendezvous_elements_size );
     rendezvous_points.resize( rendezvous_elements_size );
-
-    // Build a unique list of rendezvous elements.
-    Teuchos::Array<GlobalOrdinal> rendezvous_element_set = rendezvous_elements;
-    std::sort( rendezvous_element_set.begin(), rendezvous_element_set.end() );
-    typename Teuchos::Array<GlobalOrdinal>::iterator unique_bound =
-	std::unique( rendezvous_element_set.begin(), 
-		     rendezvous_element_set.end() );
-    rendezvous_element_set.resize( 
-	unique_bound - rendezvous_element_set.begin() );
-
-    // Setup source-to-rendezvous communication.
-    Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elem_set_view =
-	rendezvous_element_set();
-    RCP_TpetraMap unique_rendezvous_element_map = 
-	Tpetra::createNonContigMap<GlobalOrdinal>( 
-	    rendezvous_elem_set_view, d_comm );
-
-    // The block strategy means that we have to make a temporary copy of the
-    // element ordinals into a single array so that we can make a Tpetra::Map.
-    Teuchos::Array<GlobalOrdinal> 
-	mesh_elements( source_mesh_manager->localNumElements() );
-    GlobalOrdinal block_start = 0;
-    MeshBlockIterator block_iterator;
-    for ( block_iterator = source_mesh_manager->blocksBegin();
-	  block_iterator != source_mesh_manager->blocksEnd();
-	  ++block_iterator )
-    {
-	Teuchos::ArrayRCP<const GlobalOrdinal> mesh_element_arcp =
-	    MeshTools<Mesh>::elementsView( *block_iterator );
-	std::copy( mesh_element_arcp.begin(), mesh_element_arcp.end(),
-		   mesh_elements.begin() + block_start );
-	block_start += mesh_element_arcp.size();
-    }
-
-    Teuchos::ArrayView<const GlobalOrdinal> mesh_element_view = mesh_elements();
-    RCP_TpetraMap mesh_element_map = Tpetra::createNonContigMap<GlobalOrdinal>(
-	mesh_element_view, d_comm );
-    mesh_elements.clear();
-
-    Tpetra::Import<GlobalOrdinal> source_to_rendezvous_importer( 
-	mesh_element_map, unique_rendezvous_element_map );
-
-    // Elements send their source decomposition proc to the rendezvous
-    // decomposition.
-    Tpetra::MultiVector<int,GlobalOrdinal> source_procs( mesh_element_map, 1 );
-    source_procs.putScalar( d_comm->getRank() );
-    Tpetra::MultiVector<int,GlobalOrdinal> rendezvous_source_procs( 
-	unique_rendezvous_element_map, 1 );
-    rendezvous_source_procs.doImport( 
-	source_procs, source_to_rendezvous_importer, Tpetra::INSERT );
-
-    // Set the destination procs for the rendezvous-to-source communication.
-    Teuchos::ArrayRCP<const int> rendezvous_source_procs_view =
-	rendezvous_source_procs.get1dView();
-    GlobalOrdinal num_rendezvous_elements = rendezvous_elements.size();
-    GlobalOrdinal dest_proc_idx;
-    Teuchos::Array<int> target_destinations( num_rendezvous_elements );
-    for ( GlobalOrdinal n = 0; n < num_rendezvous_elements; ++n )
-    {
-	dest_proc_idx = std::distance( 
-	    rendezvous_element_set.begin(),
-	    std::find( rendezvous_element_set.begin(),
-		       rendezvous_element_set.end(),
-		       rendezvous_elements[n] ) );
-	target_destinations[n] = rendezvous_source_procs_view[ dest_proc_idx ];
-    }
-    rendezvous_element_set.clear();
 
     // Setup rendezvous-to-source distributor.
     Tpetra::Distributor rendezvous_to_src_distributor( d_comm );
     GlobalOrdinal num_source_elements = 
-	rendezvous_to_src_distributor.createFromSends( target_destinations() );
+	rendezvous_to_src_distributor.createFromSends( 
+	    rendezvous_element_src_procs() );
 
     // Send the rendezvous elements to the source decomposition via inverse
     // communication. 
