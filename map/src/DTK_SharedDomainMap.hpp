@@ -82,8 +82,8 @@ class SharedDomainMap
     typedef CoordinateField                           coord_field_type;
     typedef FieldTraits<CoordinateField>              CFT;
     typedef typename CFT::size_type                   CoordOrdinal;
-    typedef FieldManager<CoordinateField>             FieldManagerType;
-    typedef Teuchos::RCP<FieldManagerType>            RCP_FieldManager;
+    typedef FieldManager<CoordinateField>             CoordFieldManagerType;
+    typedef Teuchos::RCP<CoordFieldManagerType>       RCP_CoordFieldManager;
     typedef Teuchos::Comm<int>                        CommType;
     typedef Teuchos::RCP<const CommType>              RCP_Comm;
     typedef Tpetra::Map<GlobalOrdinal>                TpetraMap;
@@ -100,7 +100,7 @@ class SharedDomainMap
 
     // Generate the shared domain map.
     void setup( const RCP_MeshManager& source_mesh_manager, 
-		const RCP_FieldManager& target_coord_manager );
+		const RCP_CoordFieldManager& target_coord_manager );
 
     // Get the local indices of the target points that were not mapped.
     Teuchos::ArrayView<const GlobalOrdinal> getMissedTargetPoints() const;
@@ -120,6 +120,7 @@ class SharedDomainMap
     // Get the target points that are in the rendezvous decomposition box.
     void getTargetPointsInBox( const BoundingBox& box,
 			       const CoordinateField& target_coords,
+			       const Teuchos::Array<GlobalOrdinal>& target_ordinals,
 			       Teuchos::Array<GlobalOrdinal>& targets_in_box );
 
   private:

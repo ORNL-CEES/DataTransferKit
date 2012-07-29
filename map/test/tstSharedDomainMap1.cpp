@@ -21,8 +21,6 @@
 #include <DTK_MeshTraits.hpp>
 #include <DTK_MeshManager.hpp>
 
-#include <mpi.h>
-
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>

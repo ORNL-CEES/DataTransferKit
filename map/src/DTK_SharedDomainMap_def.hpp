@@ -86,15 +86,15 @@ SharedDomainMap<Mesh,CoordinateField>::~SharedDomainMap()
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::setup( 
     const RCP_MeshManager& source_mesh_manager, 
-    const RCP_FieldManager& target_coord_manager )
+    const RCP_CoordFieldManager& target_coord_manager )
 {
     // Compute a unique global ordinal for each point in the coordinate field.
-    Teuchos::Array<GlobalOrdinal> point_ordinals;
-    computePointOrdinals( target_coord_manager->field(), point_ordinals );
+    Teuchos::Array<GlobalOrdinal> target_ordinals;
+    computePointOrdinals( target_coord_manager->field(), target_ordinals );
 
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
-	point_ordinals();
+	target_ordinals();
     d_target_map = Tpetra::createNonContigMap<GlobalOrdinal>(
 	import_ordinal_view, d_comm );
     testPostcondition( d_target_map != Teuchos::null,
@@ -143,8 +143,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // decomposition was generated. The rendezvous algorithm will expand the
     // box slightly based on mesh parameters.
     Teuchos::Array<GlobalOrdinal> targets_in_box;
-    getTargetPointsInBox( rendezvous.getBox(), target_coord_manager->field(), 
-			  targets_in_box );
+    getTargetPointsInBox( rendezvous.getBox(), target_coord_manager->field(),
+			  target_ordinals, targets_in_box );
 
     // Extract those target points that are not in the box. We don't want to
     // send these to the rendezvous decomposition.
@@ -156,7 +156,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	  in_box_iterator != targets_in_box.end();
 	  ++in_box_iterator )
     {
-	if ( *in_box_iterator == 0 )
+	if ( *in_box_iterator == -1 )
 	{
 	    not_in_box.push_back( 
 		std::distance( in_box_begin, in_box_iterator ) );
@@ -174,13 +174,13 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     not_in_box.clear();
 
     typename Teuchos::Array<GlobalOrdinal>::iterator targets_bound =
-	std::remove( targets_in_box.begin(), targets_in_box.end(), 0 );
+	std::remove( targets_in_box.begin(), targets_in_box.end(), -1 );
     GlobalOrdinal targets_in_box_size = 
 	std::distance( targets_in_box.begin(), targets_bound );
 
     targets_in_box.resize( targets_in_box_size );
     rendezvous_procs.resize( targets_in_box_size );
-    
+
     // Via an inverse communication operation, move the global point ordinals
     // that are in the rendezvous decomposition box to the rendezvous
     // decomposition.
@@ -203,7 +203,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	target_to_rendezvous_exporter( d_target_map, rendezvous_coords_map );
 
     // Move the target coordinates to the rendezvous decomposition.
-    GlobalOrdinal num_points = point_ordinals.size();
+    GlobalOrdinal num_points = target_ordinals.size();
     Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > 
 	target_coords =	Tpetra::createMultiVectorFromView( 
 	    d_target_map, coords_view, num_points, coord_dim );
@@ -524,12 +524,17 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
     const BoundingBox& box, const CoordinateField& target_coords,
+    const Teuchos::Array<GlobalOrdinal>& target_ordinals,
     Teuchos::Array<GlobalOrdinal>& targets_in_box )
 {
     Teuchos::ArrayRCP<const double> target_coords_view =
 	FieldTools<CoordinateField>::view( target_coords );
     GlobalOrdinal dim_size = 
 	FieldTools<CoordinateField>::dimSize( target_coords );
+
+    testPrecondition( dim_size == target_ordinals.size(),
+		      "Number of target ordinals != coord field dimension" );
+
     targets_in_box.resize( dim_size );
     std::size_t field_dim = CFT::dim( target_coords );
     Teuchos::Array<double> target_point( field_dim );
@@ -540,7 +545,14 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
 	    target_point[d] = target_coords_view[ dim_size*d + n ];
 	}
 
-	targets_in_box[n] = n * box.pointInBox( target_point );
+	if ( box.pointInBox( target_point ) )
+	{
+	    targets_in_box[n] = target_ordinals[n];
+	}
+	else
+	{
+	    targets_in_box[n] = -1;
+	}
 
 	// If we're keeping track of the points not being mapped, add this
 	// point's local index to the list if its not in the box.

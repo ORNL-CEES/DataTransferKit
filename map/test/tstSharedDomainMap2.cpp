@@ -22,8 +22,6 @@
 #include <DTK_MeshTraits.hpp>
 #include <DTK_RendezvousMesh.hpp>
 
-#include <mpi.h>
-
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_GlobalMPISession.hpp>
 #include <Teuchos_DefaultComm.hpp>
