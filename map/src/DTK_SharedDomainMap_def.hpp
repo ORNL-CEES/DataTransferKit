@@ -224,7 +224,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // missed points, also make a list of those ordinals.
     GlobalOrdinal target_index;
     Teuchos::Array<GlobalOrdinal> not_in_mesh;
-    Teuchos::Array<GlobalOrdinal> missed_in_mesh;
+    Teuchos::Array<GlobalOrdinal> missed_in_mesh_idx;
+    Teuchos::Array<GlobalOrdinal> missed_in_mesh_ordinal;
     typename Teuchos::Array<GlobalOrdinal>::const_iterator 
 	rendezvous_elements_iterator;
     typename Teuchos::Array<GlobalOrdinal>::const_iterator 
@@ -242,7 +243,9 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
 	    if ( d_keep_missed_points )
 	    {
-		missed_in_mesh.push_back( rendezvous_points[target_index] );
+		missed_in_mesh_idx.push_back( target_index );
+		missed_in_mesh_ordinal.push_back( 
+		    rendezvous_points[target_index] );
 	    }
 	}
     }
@@ -251,9 +254,54 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // back to the target decomposition so that we can add them to the list.
     if ( d_keep_missed_points )
     {
-	// Add communication of missed point ordinals back to target here.
+	// Extract the missed point target procs from the target-to-rendezvous
+	// distributor.
+	Teuchos::ArrayView<const int> from_images = 
+	    target_to_rendezvous_distributor.getImagesFrom();
+	Teuchos::ArrayView<const std::size_t> from_lengths = 
+	    target_to_rendezvous_distributor.getLengthsFrom();
+	Teuchos::Array<int> point_target_procs;
+	for ( int i = 0; i < (int) from_images.size(); ++i )
+	{
+	    for ( std::size_t j = 0; j < from_lengths[i]; ++j )
+	    {
+		point_target_procs.push_back( from_images[i] );
+	    }
+	}
+	testInvariant( point_target_procs.size() == num_rendezvous_points,
+		       "number of element src procs != number of import elements" );
+
+	// Build a list of target procs for the missed points.
+	Teuchos::Array<int> missed_target_procs( missed_in_mesh_idx.size() );
+	for ( int n = 0; n < (int) missed_in_mesh_idx.size(); ++n )
+	{
+	    missed_target_procs[n] = point_target_procs[ missed_in_mesh_idx[n] ];
+	}
+	point_target_procs.clear();
+
+	// Send the missed points back to the target decomposition through an
+	// inverse communication operation and add them to the list.
+	Teuchos::ArrayView<const GlobalOrdinal> missed_in_mesh_ordinal_view = 
+	    missed_in_mesh_ordinal();
+	Tpetra::Distributor target_to_rendezvous_distributor( d_comm );
+	GlobalOrdinal num_missed_targets = 
+	    target_to_rendezvous_distributor.createFromSends( 
+		missed_target_procs() );
+	std::size_t offset = d_missed_points.size();
+	d_missed_points.resize( offset + num_missed_targets );
+	target_to_rendezvous_distributor.doPostsAndWaits( 
+	    missed_in_mesh_ordinal_view, 1, 
+	    d_missed_points.view( offset, num_missed_targets ) );
+
+	// Convert the missed point global indices to local indices.
+	for ( std::size_t n = offset; n < offset+num_missed_targets; ++n )
+	{
+	    d_missed_points[n] = 
+		d_target_g2l.find( d_missed_points[n] )->second;
+	}
     }
-    missed_in_mesh.clear();
+    missed_in_mesh_idx.clear();
+    missed_in_mesh_ordinal.clear();
 
     // Extract the points we didn't find in any elements in the rendezvous
     // decomposition and their corresponding elements. We don't want to send
@@ -461,6 +509,13 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
     for ( GlobalOrdinal n = 0; n < local_size; ++n )
     {
 	target_ordinals[n] = comm_rank*global_size + n;
+
+	// If we're keeping track of missed points, we also need to build the
+	// global-to-local ordinal map.
+	if ( d_keep_missed_points )
+	{
+	    d_target_g2l[ target_ordinals[n] ] = n;
+	}
     }
 }
 
@@ -503,7 +558,7 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
 
 	// If we're keeping track of the points not being mapped, add this
 	// point's local index to the list if its not in the box.
-	if ( d_keep_missed_points && targets_in_box[n] == 0 )
+	if ( d_keep_missed_points && targets_in_box[n] == -1 )
 	{
 	    d_missed_points.push_back(n);
 	}

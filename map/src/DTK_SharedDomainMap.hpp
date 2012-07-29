@@ -41,6 +41,8 @@
 #ifndef DTK_SHAREDDOMAINMAP_HPP
 #define DTK_SHAREDDOMAINMAP_HPP
 
+#include <map>
+
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_FieldManager.hpp>
@@ -133,6 +135,9 @@ class SharedDomainMap
 
     // Indices for target points missed in the mapping.
     Teuchos::Array<GlobalOrdinal> d_missed_points;
+
+    // Global-to-local ordinal map for target ordinals.
+    std::map<GlobalOrdinal,GlobalOrdinal> d_target_g2l;
 
     // Source field map.
     RCP_TpetraMap d_source_map;
