@@ -104,10 +104,14 @@ class SharedDomainMap
     void setup( const RCP_MeshManager& source_mesh_manager, 
 		const RCP_CoordFieldManager& target_coord_manager );
 
+    //@{
     // Get the local indices of the target points that were not mapped.
+    Teuchos::ArrayView<GlobalOrdinal>       getMissedTargetPoints();
     Teuchos::ArrayView<const GlobalOrdinal> getMissedTargetPoints() const;
+    //@}
 
-    // Apply the shared domain map to the target points that were mapped.
+    // Apply the shared domain map by evaluating a function at target points
+    // that were mapped.
     template<class SourceField, class TargetField>
     void apply( 
 	const Teuchos::RCP<FieldEvaluator<Mesh,SourceField> >& source_evaluator,

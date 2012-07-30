@@ -387,12 +387,31 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 /*!
  * \brief If keep_missed_points is true, return the local indices of the
  *  points provided by target_coord_manager that were not mapped. An exception
- *  will be thrown if keep_missed_points is false.
+ *  will be thrown if keep_missed_points is false. Returns a null view if all
+ *  points have been mapped or the map has not yet been generated.
 */
 template<class Mesh, class CoordinateField>
 Teuchos::ArrayView<const typename 
 		   SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal> 
 SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
+{
+    testPrecondition( d_keep_missed_points, 
+      "Cannot get missed target points; keep_missed_points = false" );
+    
+    return d_missed_points();
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief If keep_missed_points is true, return the local indices of the
+ *  points provided by target_coord_manager that were not mapped. An exception
+ *  will be thrown if keep_missed_points is false. Returns a null view if all
+ *  points have been mapped or the map has not yet been generated.
+*/
+template<class Mesh, class CoordinateField>
+Teuchos::ArrayView<typename 
+		   SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal> 
+SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints()
 {
     testPrecondition( d_keep_missed_points, 
       "Cannot get missed target points; keep_missed_points = false" );
@@ -419,7 +438,8 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     GlobalOrdinal target_size = 
 	FieldTools<TargetField>::dimSize( target_space_manager->field() );
     testPrecondition( 
-	target_size == (typename TFT::size_type) d_target_map->getNodeNumElements(),
+	target_size == 
+	(typename TFT::size_type) d_target_map->getNodeNumElements(),
 	"Number of target field elements != Number of coordinate field elements" );
 
     // Evaluate the source function at the target points.

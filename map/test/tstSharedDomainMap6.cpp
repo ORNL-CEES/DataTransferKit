@@ -490,7 +490,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test6 )
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
     // Setup target coordinate field manager.
-    int num_points = (edge_size-1)*(edge_size-1);
+    int num_points = 1000;
     Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
 	Teuchos::rcp( new FieldManager<MyField>( 
 			  buildCoordinateField( my_rank, my_size, 

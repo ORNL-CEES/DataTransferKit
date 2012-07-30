@@ -78,11 +78,8 @@ class FieldManager
 
     //@{
     //! Get the field.
-    const Field& field() const
-    { return d_field; }
-
-    Field& field()
-    { return d_field; }    
+    const Field& field() const { return d_field; }
+          Field& field()       { return d_field; }    
     //@}
 
     //! Get the communicator for the field.
