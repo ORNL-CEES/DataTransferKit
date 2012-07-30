@@ -63,8 +63,16 @@ MeshTools<Mesh>::nodesView( const Mesh& mesh )
 {
     GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
 					     MT::nodesEnd( mesh ) );
-    return Teuchos::ArrayRCP<const GlobalOrdinal>(
-	&*MT::nodesBegin(mesh), 0, num_nodes, false );
+
+    if ( num_nodes == 0 )
+    {
+	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
+    }
+    else
+    {
+	return Teuchos::ArrayRCP<const GlobalOrdinal>(
+	    &*MT::nodesBegin(mesh), 0, num_nodes, false );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -78,8 +86,15 @@ MeshTools<Mesh>::nodesNonConstView( const Mesh& mesh )
 {
     GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
 					     MT::nodesEnd( mesh ) );
-    return Teuchos::ArrayRCP<GlobalOrdinal>(
-	(GlobalOrdinal*) &*MT::nodesBegin(mesh), 0, num_nodes, false );
+    if ( num_nodes == 0 )
+    {
+	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
+    }
+    else
+    {
+	return Teuchos::ArrayRCP<GlobalOrdinal>(
+	    (GlobalOrdinal*) &*MT::nodesBegin(mesh), 0, num_nodes, false );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -93,8 +108,15 @@ MeshTools<Mesh>::coordsView( const Mesh& mesh )
 {
     GlobalOrdinal num_coords = std::distance( MT::coordsBegin( mesh ),
 					      MT::coordsEnd( mesh ) );
-    return Teuchos::ArrayRCP<const double>(
-	&*MT::coordsBegin(mesh), 0, num_coords, false );
+    if ( num_coords == 0 )
+    {
+	return Teuchos::ArrayRCP<double>(0,0.0);
+    }
+    else
+    {
+	return Teuchos::ArrayRCP<const double>(
+	    &*MT::coordsBegin(mesh), 0, num_coords, false );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -108,8 +130,15 @@ MeshTools<Mesh>::coordsNonConstView( const Mesh& mesh )
 {
     GlobalOrdinal num_coords = 
 	std::distance( MT::coordsBegin( mesh ), MT::coordsEnd( mesh ) );
-    return Teuchos::ArrayRCP<double>(
-	(double*) &*MT::coordsBegin(mesh), 0, num_coords, false );
+    if ( num_coords == 0 )
+    {
+	return Teuchos::ArrayRCP<double>(0, 0.0);
+    }
+    else
+    {
+	return Teuchos::ArrayRCP<double>(
+	    (double*) &*MT::coordsBegin(mesh), 0, num_coords, false );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -123,8 +152,15 @@ MeshTools<Mesh>::elementsView( const Mesh& mesh )
 {
     GlobalOrdinal num_elements = 
 	std::distance( MT::elementsBegin( mesh ), MT::elementsEnd( mesh ) );
-    return Teuchos::ArrayRCP<const GlobalOrdinal>(
-	&*MT::elementsBegin(mesh), 0, num_elements, false );
+    if ( num_elements == 0 )
+    {
+	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
+    }
+    else
+    {
+	return Teuchos::ArrayRCP<const GlobalOrdinal>(
+	    &*MT::elementsBegin(mesh), 0, num_elements, false );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -138,9 +174,16 @@ MeshTools<Mesh>::elementsNonConstView( const Mesh& mesh )
 {
     GlobalOrdinal num_elements = 
 	std::distance( MT::elementsBegin( mesh ), MT::elementsEnd( mesh ) );
-    return Teuchos::ArrayRCP<GlobalOrdinal>(
-	(GlobalOrdinal*) &*MT::elementsBegin(mesh), 
-	0, num_elements, false );
+    if ( num_elements == 0 )
+    {
+	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
+    }
+    else
+    {
+	return Teuchos::ArrayRCP<GlobalOrdinal>(
+	    (GlobalOrdinal*) &*MT::elementsBegin(mesh), 
+	    0, num_elements, false );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -155,8 +198,15 @@ MeshTools<Mesh>::connectivityView( const Mesh& mesh )
     GlobalOrdinal num_connectivity = 
 	std::distance( MT::connectivityBegin( mesh ),
 		       MT::connectivityEnd( mesh ) );
-    return Teuchos::ArrayRCP<const GlobalOrdinal>(
-	&*MT::connectivityBegin(mesh), 0, num_connectivity, false );
+    if ( num_connectivity == 0 )
+    {
+	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
+    }
+    else
+    {
+	return Teuchos::ArrayRCP<const GlobalOrdinal>(
+	    &*MT::connectivityBegin(mesh), 0, num_connectivity, false );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -171,9 +221,16 @@ MeshTools<Mesh>::connectivityNonConstView( const Mesh& mesh )
     GlobalOrdinal num_connectivity = 
 	std::distance( MT::connectivityBegin( mesh ),
 		       MT::connectivityEnd( mesh ) );
-    return Teuchos::ArrayRCP<GlobalOrdinal>(
-	(GlobalOrdinal*) &*MT::connectivityBegin(mesh), 0, 
-	num_connectivity, false );
+    if ( num_connectivity == 0 )
+    {
+	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
+    }
+    else
+    {
+	return Teuchos::ArrayRCP<GlobalOrdinal>(
+	    (GlobalOrdinal*) &*MT::connectivityBegin(mesh), 0, 
+	    num_connectivity, false );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -190,8 +247,15 @@ MeshTools<Mesh>::permutationView( const Mesh& mesh )
 		       MT::permutationEnd( mesh ) );
     testInvariant( num_permutation == MT::nodesPerElement( mesh ),
 		   "Permutation list size != nodes per mesh element" );
-    return Teuchos::ArrayRCP<const std::size_t>(
-	&*MT::permutationBegin( mesh ), 0, num_permutation, false );
+    if ( num_permutation == 0 )
+    {
+	return Teuchos::ArrayRCP<std::size_t>(0,0);
+    }
+    else
+    {
+	return Teuchos::ArrayRCP<const std::size_t>(
+	    &*MT::permutationBegin( mesh ), 0, num_permutation, false );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -208,9 +272,16 @@ MeshTools<Mesh>::permutationNonConstView( const Mesh& mesh )
 		       MT::permutationEnd( mesh ) );
     testInvariant( num_permutation == MT::nodesPerElement( mesh ),
 		   "Permutation list size != nodes per mesh element" );
-    return Teuchos::ArrayRCP<std::size_t>(
-	(std::size_t*) &*MT::permutationBegin( mesh ), 0, 
-	num_permutation, false );
+    if ( num_permutation == 0 )
+    {
+	return Teuchos::ArrayRCP<std::size_t>(0,0);
+    }
+    else
+    {
+	return Teuchos::ArrayRCP<std::size_t>(
+	    (std::size_t*) &*MT::permutationBegin( mesh ), 0, 
+	    num_permutation, false );
+    }
 }
 
 //---------------------------------------------------------------------------//

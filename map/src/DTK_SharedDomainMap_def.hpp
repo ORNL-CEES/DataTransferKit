@@ -126,16 +126,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // coordinate field.
     std::size_t coord_dim = CFT::dim( target_coord_manager->field() );
     GlobalOrdinal num_coords = CFT::size( target_coord_manager->field() );
-    Teuchos::ArrayRCP<double> coords_view;
-    if ( num_coords == 0 )
-    {
-	coords_view = Teuchos::ArrayRCP<double>( 0, 0.0 );
-    }
-    else
-    {
-	coords_view = FieldTools<CoordinateField>::nonConstView( 
-	    target_coord_manager->field() );
-    }
+    Teuchos::ArrayRCP<double> coords_view = 
+	FieldTools<CoordinateField>::nonConstView( target_coord_manager->field() );
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.procsContainingPoints( coords_view );
 
@@ -433,8 +425,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     typedef FieldTraits<SourceField> SFT;
     typedef FieldTraits<TargetField> TFT;
 
-    // Verify that the target space has the proper amount of memory
-    // allocated.
+    // Verify that the target space has the proper amount of memory allocated.
     GlobalOrdinal target_size = 
 	FieldTools<TargetField>::dimSize( target_space_manager->field() );
     testPrecondition( 
@@ -451,17 +442,8 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 		      "Source field dimension != target field dimension." );
    
     // Build a multivector for the function evaluations.
-    Teuchos::ArrayRCP<typename SFT::value_type> source_field_view;
-    if ( SFT::size( function_evaluations ) == 0 )
-    {
-	source_field_view = 
-	    Teuchos::ArrayRCP<typename SFT::value_type>( 0, 0.0 );
-    }
-    else
-    {
-	source_field_view = 
-	    FieldTools<SourceField>::nonConstView( function_evaluations );
-    }
+    Teuchos::ArrayRCP<typename SFT::value_type> source_field_view =
+	FieldTools<SourceField>::nonConstView( function_evaluations );
 
     GlobalOrdinal source_size = 
 	FieldTools<SourceField>::dimSize( function_evaluations );
@@ -473,17 +455,8 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 					   SFT::dim( function_evaluations ) );
 
     // Build a multivector for the target space.
-    Teuchos::ArrayRCP<typename TFT::value_type> target_field_view;
-    if ( TFT::size( target_space_manager->field() ) == 0 )
-    {
-	target_field_view = 
-	    Teuchos::ArrayRCP<typename TFT::value_type>( 0, 0.0 );
-    }
-    else
-    {
-	target_field_view = FieldTools<TargetField>::nonConstView( 
-	    target_space_manager->field() );
-    }
+    Teuchos::ArrayRCP<typename TFT::value_type> target_field_view =
+	FieldTools<TargetField>::nonConstView( target_space_manager->field() );
     
     Teuchos::RCP< Tpetra::MultiVector<typename TFT::value_type,
 				      GlobalOrdinal> > target_vector =	

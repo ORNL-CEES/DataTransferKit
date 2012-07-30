@@ -130,8 +130,15 @@ template<class Field>
 Teuchos::ArrayRCP<const typename FieldTools<Field>::value_type>
 FieldTools<Field>::view( const Field& field )
 {
-    return Teuchos::ArrayRCP<const value_type>(
-	&*FT::begin( field ), 0, FT::size( field ), false );
+    if ( FT::empty(field) )
+    {
+	return Teuchos::ArrayRCP<value_type>(0,0);
+    }
+    else
+    {
+	return Teuchos::ArrayRCP<const value_type>(
+	    &*FT::begin( field ), 0, FT::size( field ), false );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -143,8 +150,15 @@ template<class Field>
 Teuchos::ArrayRCP<typename FieldTools<Field>::value_type>
 FieldTools<Field>::nonConstView( const Field& field )
 {
-    return Teuchos::ArrayRCP<value_type>(
-	(value_type*) &*FT::begin( field ), 0, FT::size( field ), false );
+    if ( FT::empty(field) )
+    {
+	return Teuchos::ArrayRCP<value_type>(0,0);
+    }
+    else
+    {
+	return Teuchos::ArrayRCP<value_type>(
+	    (value_type*) &*FT::begin( field ), 0, FT::size( field ), false );
+    }
 }
 
 //---------------------------------------------------------------------------//

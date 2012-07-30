@@ -379,16 +379,8 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 
 	// Move the node coordinates to the rendezvous decomposition.
 	GlobalOrdinal num_coords = d_node_dim*num_nodes;
-	Teuchos::ArrayRCP<double> export_coords_view;
-	if ( num_coords == 0 )
-	{
-	    export_coords_view = Teuchos::ArrayRCP<double>( 0, 0.0 );
-	}
-	else
-	{
-	    export_coords_view = 
-		MeshTools<Mesh>::coordsNonConstView( *block_iterator );
-	}
+	Teuchos::ArrayRCP<double> export_coords_view =
+	    MeshTools<Mesh>::coordsNonConstView( *block_iterator );
 	Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > export_coords =
 	    Tpetra::createMultiVectorFromView( 
 		export_node_map, export_coords_view, num_nodes, d_node_dim );
@@ -399,16 +391,8 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	// Move the element connectivity to the rendezvous decomposition.
 	int nodes_per_element = MT::nodesPerElement( *block_iterator );
 	GlobalOrdinal num_conn = nodes_per_element * num_elements;
-	Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view;
-	if ( num_conn == 0 )
-	{
-	    export_conn_view = Teuchos::ArrayRCP<GlobalOrdinal>( 0, 0.0 );
-	}
-	else
-	{
-	    export_conn_view =
-		MeshTools<Mesh>::connectivityNonConstView( *block_iterator );
-	}
+	Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view =
+	    MeshTools<Mesh>::connectivityNonConstView( *block_iterator );
 	Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > 
 	    export_conn 
 	    = Tpetra::createMultiVectorFromView( 

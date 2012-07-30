@@ -464,7 +464,7 @@ MyMesh buildTiledMesh( int my_rank, int my_size, int edge_length )
 	    idx = i + j*edge_length;
 	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j + my_rank*(edge_length-1);;
+	    coords[ num_nodes + idx ] = j + my_rank*(edge_length-1);
 	    coords[ 2*num_nodes + idx ] = 0.0;
 	}
     }

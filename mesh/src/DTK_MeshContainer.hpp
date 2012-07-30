@@ -54,7 +54,8 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class MeshContainer
- * \brief A container for rebuilding mesh data after serialization.
+ * \brief A container for rebuilding mesh data in the rendezvous decomposition
+ * after serialization.
  */
 //---------------------------------------------------------------------------//
 template<typename GlobalOrdinal>
