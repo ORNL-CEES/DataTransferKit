@@ -117,7 +117,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     	throw MeshException( 
     	    "Source and target geometry domains do not intersect." );
     }
-    
+
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, shared_domain_box );
     rendezvous.build( source_mesh_manager );

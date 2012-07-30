@@ -127,6 +127,7 @@ BoundingBox MeshManager<Mesh>::globalBoundingBox()
     double global_y_max = -Teuchos::ScalarTraits<double>::rmax();
     double global_z_max = -Teuchos::ScalarTraits<double>::rmax();
 
+    // Get the bounding box for each mesh block.
     Teuchos::Tuple<double,6> box_bounds;
     BoundingBox block_box;
     BlockIterator block_iterator;
@@ -134,34 +135,38 @@ BoundingBox MeshManager<Mesh>::globalBoundingBox()
 	  block_iterator != d_mesh_blocks.end();
 	  ++block_iterator )
     {
-	block_box =
-	    MeshTools<Mesh>::globalBoundingBox( *block_iterator, d_comm );
+	// If the mesh block is empty, do nothing.
+	if ( MeshTools<Mesh>::numNodes( *block_iterator ) > 0 )
+	{
+	    block_box =
+		MeshTools<Mesh>::globalBoundingBox( *block_iterator, d_comm );
 
-	box_bounds = block_box.getBounds();
+	    box_bounds = block_box.getBounds();
 
-	if ( box_bounds[0] < global_x_min )
-	{
-	    global_x_min = box_bounds[0];
-	}
-	if ( box_bounds[1] < global_y_min )
-	{
-	    global_y_min = box_bounds[1];
-	}
-	if ( box_bounds[2] < global_z_min )
-	{
-	    global_z_min = box_bounds[2];
-	}
-	if ( box_bounds[3] > global_x_max )
-	{
-	    global_x_max = box_bounds[3];
-	}
-	if ( box_bounds[4] > global_y_max )
-	{
-	    global_y_max = box_bounds[4];
-	}
-	if ( box_bounds[5] > global_z_max )
-	{
-	    global_z_max = box_bounds[5];
+	    if ( box_bounds[0] < global_x_min )
+	    {
+		global_x_min = box_bounds[0];
+	    }
+	    if ( box_bounds[1] < global_y_min )
+	    {
+		global_y_min = box_bounds[1];
+	    }
+	    if ( box_bounds[2] < global_z_min )
+	    {
+		global_z_min = box_bounds[2];
+	    }
+	    if ( box_bounds[3] > global_x_max )
+	    {
+		global_x_max = box_bounds[3];
+	    }
+	    if ( box_bounds[4] > global_y_max )
+	    {
+		global_y_max = box_bounds[4];
+	    }
+	    if ( box_bounds[5] > global_z_max )
+	    {
+		global_z_max = box_bounds[5];
+	    }
 	}
     }
 

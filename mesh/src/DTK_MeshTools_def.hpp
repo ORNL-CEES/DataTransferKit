@@ -110,7 +110,7 @@ MeshTools<Mesh>::coordsView( const Mesh& mesh )
 					      MT::coordsEnd( mesh ) );
     if ( num_coords == 0 )
     {
-	return Teuchos::ArrayRCP<double>(0,0.0);
+	return Teuchos::ArrayRCP<double>(0,0);
     }
     else
     {
@@ -132,7 +132,7 @@ MeshTools<Mesh>::coordsNonConstView( const Mesh& mesh )
 	std::distance( MT::coordsBegin( mesh ), MT::coordsEnd( mesh ) );
     if ( num_coords == 0 )
     {
-	return Teuchos::ArrayRCP<double>(0, 0.0);
+	return Teuchos::ArrayRCP<double>(0,0);
     }
     else
     {
