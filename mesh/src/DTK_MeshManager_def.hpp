@@ -215,7 +215,9 @@ void MeshManager<Mesh>::validate()
 			   MT::elementTopology( *block_iterator ) == 
 			   DTK_HEXAHEDRON ||
 			   MT::elementTopology( *block_iterator ) == 
-			   DTK_PYRAMID,
+			   DTK_PYRAMID ||
+			   MT::elementTopology( *block_iterator ) == 
+			   DTK_WEDGE,
 			   "Element topology does not match mesh dimension" );
 	}
 	else
