@@ -491,6 +491,88 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer()
 			       pyramid_handle_array, connectivity_array,
 			       permutation_list );
 }
+ //---------------------------------------------------------------------------//
+// Wedge mesh.
+DataTransferKit::MeshContainer<int> buildWedgeContainer()
+{
+    using namespace DataTransferKit;
+
+    // Make some nodes.
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords;
+
+    int node_dim = 3;
+    int num_nodes = 6;
+
+    // handles
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	node_handles.push_back( i );
+    }
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+
+    // z
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 ); 
+
+    // Make the wedge.
+    Teuchos::Array<int> wedge_handles;
+    Teuchos::Array<int> wedge_connectivity;
+    
+    // handles
+    wedge_handles.push_back( 12 );
+
+    // connectivity
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	wedge_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
+    std::copy( node_handles.begin(), node_handles.end(), 
+	       node_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> wedge_handle_array( wedge_handles.size() );
+    std::copy( wedge_handles.begin(), wedge_handles.end(), 
+	       wedge_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( wedge_connectivity.size() );
+    std::copy( wedge_connectivity.begin(), wedge_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
+			       DTK_WEDGE, num_nodes,
+			       wedge_handle_array, connectivity_array,
+			       permutation_list );
+}
 
 //---------------------------------------------------------------------------//
 // Tests
@@ -648,6 +730,34 @@ TEUCHOS_UNIT_TEST( FieldTraits, pyramid_adapter_test )
     // Mesh parameters.
     int node_dim = 3;
     int num_nodes = 5;
+
+    // Basic container info.
+    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( !FT::empty( mesh_container ) );
+
+    // Coords.
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	TEST_ASSERT( mesh_container.coordsBegin()[i] == 
+		     FT::begin( mesh_container )[i] ); 
+    }
+}
+
+//---------------------------------------------------------------------------//
+// Wedge mesh.
+TEUCHOS_UNIT_TEST( FieldTraits, wedge_adapter_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a mesh container.
+    typedef MeshTraits< MeshContainer<int> > MT;
+    typedef FieldTraits<MT> FT;
+    MeshContainer<int> mesh_container = buildWedgeContainer();
+
+    // Mesh parameters.
+    int node_dim = 3;
+    int num_nodes = 6;
 
     // Basic container info.
     TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
