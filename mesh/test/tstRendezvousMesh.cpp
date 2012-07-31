@@ -587,6 +587,89 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer()
 }
 
 //---------------------------------------------------------------------------//
+// Wedge mesh.
+DataTransferKit::MeshContainer<int> buildWedgeContainer()
+{
+    using namespace DataTransferKit;
+
+    // Make some nodes.
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords;
+
+    int node_dim = 3;
+    int num_nodes = 6;
+
+    // handles
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	node_handles.push_back( i );
+    }
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.5 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 0.5 );
+
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+
+    // z
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 ); 
+
+    // Make the wedge.
+    Teuchos::Array<int> wedge_handles;
+    Teuchos::Array<int> wedge_connectivity;
+    
+    // handles
+    wedge_handles.push_back( 12 );
+
+    // connectivity
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	wedge_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
+    std::copy( node_handles.begin(), node_handles.end(), 
+	       node_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> wedge_handle_array( wedge_handles.size() );
+    std::copy( wedge_handles.begin(), wedge_handles.end(), 
+	       wedge_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( wedge_connectivity.size() );
+    std::copy( wedge_connectivity.begin(), wedge_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
+			       DTK_WEDGE, num_nodes,
+			       wedge_handle_array, connectivity_array,
+			       permutation_list );
+}
+
+//---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
 // Line mesh.
@@ -931,6 +1014,67 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_mesh_test )
 	moab::EntityType element_type = 
 	    moab->type_from_handle( mesh_elements[i] );
 	TEST_ASSERT( moab_topology_table[ DTK_PYRAMID ] ==
+		     element_type );
+    }
+
+    // Nodes
+    moab::Range vertices;
+    error = moab->get_connectivity( mesh_elements, vertices );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+    TEST_ASSERT( vertices.size() == MT::nodesPerElement( mesh_blocks[0] ) );
+
+    // Coords.
+    int node_dim = MT::nodeDim( mesh_blocks[0] );
+    std::vector<double> mb_coords( 3*vertices.size() );
+    error = moab->get_coords( vertices, &mb_coords[0] );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
+    Teuchos::ArrayRCP<const double> coords_view = 
+	Tools::coordsView( mesh_blocks[0] );
+    for ( int i = 0; i < (int) vertices.size(); ++i )
+    {
+	for ( int d = 0; d < node_dim; ++d )
+	{
+	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
+	}
+    }
+}
+
+//---------------------------------------------------------------------------//
+// Wedge mesh.
+TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_mesh_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a mesh container.
+    typedef MeshContainer<int> MeshType;
+    typedef MeshTraits< MeshType > MT;
+    typedef MeshTools< MeshType > Tools;
+    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    mesh_blocks[0] = buildWedgeContainer();
+
+    // Create a mesh manager.
+    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
+    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
+    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.dim() == 3 );
+
+    // Create a rendezvous mesh.
+    moab::ErrorCode error;
+    Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
+	createRendezvousMesh( mesh_manager );
+
+    // Get the moab interface.
+    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
+    
+    // Grab the elements.
+    moab::Range mesh_elements = mesh->getElements();
+    TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
+    for ( int i = 0; i < (int) mesh_elements.size(); ++i )
+    {
+	moab::EntityType element_type = 
+	    moab->type_from_handle( mesh_elements[i] );
+	TEST_ASSERT( moab_topology_table[ DTK_WEDGE ] ==
 		     element_type );
     }
 
