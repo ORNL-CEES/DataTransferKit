@@ -492,6 +492,89 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer()
 }
 
 //---------------------------------------------------------------------------//
+// Wedge mesh.
+DataTransferKit::MeshContainer<int> buildWedgeContainer()
+{
+    using namespace DataTransferKit;
+
+    // Make some nodes.
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords;
+
+    int node_dim = 3;
+    int num_nodes = 6;
+
+    // handles
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	node_handles.push_back( i );
+    }
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.5 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 0.5 );
+
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+
+    // z
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 ); 
+
+    // Make the wedge.
+    Teuchos::Array<int> wedge_handles;
+    Teuchos::Array<int> wedge_connectivity;
+    
+    // handles
+    wedge_handles.push_back( 12 );
+
+    // connectivity
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	wedge_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
+    std::copy( node_handles.begin(), node_handles.end(), 
+	       node_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> wedge_handle_array( wedge_handles.size() );
+    std::copy( wedge_handles.begin(), wedge_handles.end(), 
+	       wedge_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( wedge_connectivity.size() );
+    std::copy( wedge_connectivity.begin(), wedge_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
+			       DTK_WEDGE, num_nodes,
+			       wedge_handle_array, connectivity_array,
+			       permutation_list );
+}
+
+//---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
 // Line mesh.
@@ -935,6 +1018,98 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_container_test )
     TEST_ASSERT( mesh_container.coordsBegin()[12] == 0.0 );
     TEST_ASSERT( mesh_container.coordsBegin()[13] == 0.0 );
     TEST_ASSERT( mesh_container.coordsBegin()[14] == 1.0 );
+
+    // Elements.
+    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
+    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+
+    // Connectivity.
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
+	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+    }
+
+    // Permutation.
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
+	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+    }
+}
+
+//---------------------------------------------------------------------------//
+// Wedge mesh.
+TEUCHOS_UNIT_TEST( MeshContainer, wedge_container_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a mesh container.
+    typedef MeshTraits< MeshContainer<int> > MT;
+    MeshContainer<int> mesh_container = buildWedgeContainer();
+
+    // Mesh parameters.
+    int node_dim = 3;
+    int num_nodes = 6;
+    int element_topo = DTK_WEDGE;
+
+    // Basic container info.
+    TEST_ASSERT( (int) MT::nodeDim( mesh_container ) == node_dim );
+    TEST_ASSERT( (int) mesh_container.getNodeDim() == node_dim );
+    TEST_ASSERT( (int) MT::nodesPerElement( mesh_container ) == num_nodes );
+    TEST_ASSERT( (int) mesh_container.getNodesPerElement() == num_nodes );
+    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
+    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+
+    // Nodes.
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	TEST_ASSERT( *(MT::nodesBegin( mesh_container ) + i) == i );
+	TEST_ASSERT( *(mesh_container.nodesBegin() + i ) == i );
+    }
+
+    // Coords.
+    // x
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 0.5 ); 
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 );
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 1.0 );
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[5] == 0.5 );
+    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
+    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
+    TEST_ASSERT( mesh_container.coordsBegin()[2] == 0.5 ); 
+    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 );
+    TEST_ASSERT( mesh_container.coordsBegin()[4] == 1.0 );
+    TEST_ASSERT( mesh_container.coordsBegin()[5] == 0.5 );
+
+    // y
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[6]  == 0.0 ); 
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[7]  == 0.0 ); 
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[8]  == 1.0 ); 
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[9]  == 0.0 ); 
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[10] == 0.0 ); 
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[11] == 1.0 ); 
+    TEST_ASSERT( mesh_container.coordsBegin()[6]  == 0.0 ); 
+    TEST_ASSERT( mesh_container.coordsBegin()[7]  == 0.0 ); 
+    TEST_ASSERT( mesh_container.coordsBegin()[8]  == 1.0 ); 
+    TEST_ASSERT( mesh_container.coordsBegin()[9]  == 0.0 ); 
+    TEST_ASSERT( mesh_container.coordsBegin()[10] == 0.0 ); 
+    TEST_ASSERT( mesh_container.coordsBegin()[11] == 1.0 ); 
+
+    // z
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[12] == 0.0 );
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[13] == 0.0 );
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[14] == 0.0 );
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[15] == 1.0 );
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[16] == 1.0 );
+    TEST_ASSERT( MT::coordsBegin( mesh_container )[17] == 1.0 );
+    TEST_ASSERT( mesh_container.coordsBegin()[12] == 0.0 );
+    TEST_ASSERT( mesh_container.coordsBegin()[13] == 0.0 );
+    TEST_ASSERT( mesh_container.coordsBegin()[14] == 0.0 );
+    TEST_ASSERT( mesh_container.coordsBegin()[15] == 1.0 );
+    TEST_ASSERT( mesh_container.coordsBegin()[16] == 1.0 );
+    TEST_ASSERT( mesh_container.coordsBegin()[17] == 1.0 );
 
     // Elements.
     TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
