@@ -86,12 +86,16 @@ int TopologyTools::numLinearNodes( const moab::EntityType element_topology )
 	    num_nodes = 4;
 	    break;
 
-	case moab::MBHEX:
-	    num_nodes = 8;
-	    break;
-
 	case moab::MBPYRAMID:
 	    num_nodes = 5;
+	    break;
+
+	case moab::MBPRISM:
+	    num_nodes = 6;
+	    break;
+
+	case moab::MBHEX:
+	    num_nodes = 8;
 	    break;
 
 	default:
@@ -99,8 +103,9 @@ int TopologyTools::numLinearNodes( const moab::EntityType element_topology )
 			      moab::MBTRI     == element_topology ||
 			      moab::MBQUAD    == element_topology ||
 			      moab::MBTET     == element_topology ||
-			      moab::MBHEX     == element_topology ||
-			      moab::MBPYRAMID == element_topology,
+			      moab::MBPYRAMID == element_topology ||
+			      moab::MBPRISM   == element_topology ||
+			      moab::MBHEX     == element_topology,
 			      "Invalid mesh topology" );
     }
 

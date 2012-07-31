@@ -345,6 +345,81 @@ TEUCHOS_UNIT_TEST( TopologyTools, pyramid_test )
 }
 
 //---------------------------------------------------------------------------//
+// Wedge point inclusion test.
+TEUCHOS_UNIT_TEST( TopologyTools, wedge_test )
+{
+    using namespace DataTransferKit;
+
+    moab::ErrorCode error;
+    Teuchos::RCP<moab::Interface> moab = Teuchos::rcp( new moab::Core() );
+
+    double vertex_0[3] = { -1.43, -2.3, 3.4 };
+    double vertex_1[3] = { 2.98, -2.12, 4.3 };
+    double vertex_2[3] = { 0.43, 4.2, 2.4 };
+    double vertex_3[3] = { -3.3, -1.1, 8.1 };
+    double vertex_4[3] = { 2.65, -3.77, 7.8 };
+    double vertex_5[3] = { 0.98, 3.77, 9.8 };
+
+    std::vector<moab::EntityHandle> vertices(6);
+    error = moab->create_vertex( vertex_0, vertices[0] );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+    error = moab->create_vertex( vertex_1, vertices[1] );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+    error = moab->create_vertex( vertex_2, vertices[2] );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+    error = moab->create_vertex( vertex_3, vertices[3] );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+    error = moab->create_vertex( vertex_4, vertices[4] );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+    error = moab->create_vertex( vertex_5, vertices[5] );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
+    moab::EntityHandle wedge;
+    moab->create_element( moab::MBPRISM, &vertices[0], 6, wedge );
+
+    // Test the linear nodes function.
+    TEST_ASSERT( TopologyTools::numLinearNodes( 
+		     moab->type_from_handle( wedge ) ) == 6 );
+
+    // Test the point inclusion test.
+    Teuchos::Array<double> point_0(3);
+    point_0[0] = 0.5;
+    point_0[1] = 0.45;
+    point_0[2] = 6.2;
+    Teuchos::Array<double> point_1(3); 
+    point_1[0] = 0.2;
+    point_1[1] = 0.9;
+    point_1[2] = 1.32;
+    Teuchos::Array<double> point_2(3);
+    point_2[0] = 2.9;
+    point_2[1] = -0.5;
+    point_2[2] = 9.5;
+    Teuchos::Array<double> point_3(3);
+    point_3[0] = 0.1;
+    point_3[1] = 1.5;
+    point_3[2] = -4.8;
+    Teuchos::Array<double> point_4(3);
+    point_4[0] = 0.25;
+    point_4[1] = -0.11;
+    point_4[2] = 5.2;
+    Teuchos::Array<double> point_5(3);
+    point_5[0] = 0.98;
+    point_5[1] = 3.77;
+    point_5[2] = 9.8;
+    Teuchos::Array<double> point_6(3);
+    point_6[0] = 1.98;
+    point_6[1] = 2.77;
+    point_6[2] = 8.8;
+
+    TEST_ASSERT( TopologyTools::pointInElement( point_0, wedge, moab ) );
+    TEST_ASSERT( !TopologyTools::pointInElement( point_1, wedge, moab ) );
+    TEST_ASSERT( !TopologyTools::pointInElement( point_2, wedge, moab ) );
+    TEST_ASSERT( !TopologyTools::pointInElement( point_3, wedge, moab ) );
+    TEST_ASSERT( TopologyTools::pointInElement( point_4, wedge, moab ) );
+    TEST_ASSERT( TopologyTools::pointInElement( point_5, wedge, moab ) );
+}
+
+//---------------------------------------------------------------------------//
 // Hexahedron point inclusion test.
 TEUCHOS_UNIT_TEST( TopologyTools, hexahedron_test )
 {
