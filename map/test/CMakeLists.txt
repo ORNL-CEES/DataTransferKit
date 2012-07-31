@@ -50,9 +50,16 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   STANDARD_PASS_OUTPUT
   )
 
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  SharedDomainMap_test8
+  SOURCES tstSharedDomainMap8.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
 # TRIBITS_ADD_EXECUTABLE_AND_TEST(
-#   SharedDomainMap_test8
-#   SOURCES tstSharedDomainMap8.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+#   SharedDomainMap_test9
+#   SOURCES tstSharedDomainMap9.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
 #   COMM serial mpi
 #   STANDARD_PASS_OUTPUT
 #   )
