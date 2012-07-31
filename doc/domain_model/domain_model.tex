@@ -23,6 +23,13 @@
 \usepackage{listings}
 \usepackage{textcomp}
 
+\usepackage{fancyhdr}
+\setlength{\headheight}{15.2pt}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{A Geometric Rendezvous-Based Domain Model for Data Transfer}
+\rfoot{\thepage}
+
 %%---------------------------------------------------------------------------%%
 \author{
   Stuart R. Slattery\\
@@ -48,13 +55,14 @@
   applications, the concept of mesh is used to subdivide the physical
   domain into a discrete representation to facilitate the solution of
   the model problems that describe it. Additionally, the concept of
-  the field is used to apply degrees of freedom to the mesh as an
-  additional means of discretization. With the increased development
-  efforts in multiphysics simulation, adaptive mesh simulations, and
-  other multiple mesh problems, transferring fields and other data
-  between meshes is a common operation. This document describes a
-  domain model for mesh, fields, and parallel topology maps based on
-  the concept of geometric rendezvous as developed in DTK.
+  the field is used to apply degrees of freedom to the mesh as a means
+  of function discretization. With the increased development efforts
+  in multiphysics simulation, adaptive mesh simulations, and other
+  multiple mesh problems, generating parallel topology maps for
+  transferring fields and other data between meshes is a common
+  operation. This document describes a domain model for mesh, fields,
+  and parallel topology maps based on the concept of geometric
+  rendezvous as implemented in DTK.
 \end{abstract}
 
 \newpage
@@ -96,14 +104,15 @@ relate two meshes of arbitrary parallel decomposition such that fields
 and other data can be transferred between them.
 
 The Data Transfer Kit (DTK) is a software component designed to
-provide parallel services for mesh repartitioning, mesh searching, and
-data transfer based on the concept of the rendezvous decomposition
+provide parallel services for mesh searching and data transfer based
+on the concept of the rendezvous decomposition
 \cite{Plimpton_2004}. To achieve a component design for use with
 arbitrary physics codes, general concepts of mesh and fields are
 employed to provide access to these services. This document will
 outline the concepts of parallel communicators, mesh, fields, parallel
 topology maps, and the rendezvous decomposition and how they are
-modeled within the design of DTK.
+modeled within the design of DTK. An example of data transfer using
+these concepts is also provided.
 
 \subsection{Basic Definitions}\label{subsec:basic_defs}
 
@@ -122,13 +131,14 @@ as a basis for the domain model and discussion.
   context of the entire parallel domain of the simulation. All data is
   potentially shared via communicator operations.
 \item {\bf Ordinal:} A value that uniquely identifies an object from
-  other objects of the same type. This number is positive and real
-  such that for a given ordinal,$i$, $i \in \mathbb{R}^+$.
+  other objects of the same type. This number is a positive and real
+  integer such that for a given ordinal, $i$, $i \in \mathbb{R}^+$.
 \item {\bf Geometry:} An object or collection of objects that has $n$
   physical dimensions and a spatial domain $\Omega \in \mathbb{R}^n$
   that is bounded by a boundary $\Gamma \in \mathbb{R}^n$.
 \item {\bf Mesh:} An discrete representation of the $n$-dimensional
-  spatial domain $\Omega \in \mathbb{R}^n$. Mesh can be considered a
+  spatial domain $\Omega \in \mathbb{R}^n$ consisting of an arbitrary
+  number of {\sl mesh elements}, $\omega$. Mesh can be considered a
   subset of geometry.
 \item {\bf Field:} A discrete representaion of a $D$-dimensional
   function, $F$, over the domain $\Omega \in \mathbb{R}^n$ such that
@@ -136,9 +146,9 @@ as a basis for the domain model and discussion.
   \Omega$.
 \item {\bf Evaluator:} An object that evaluates a field at a physical
   location, $\hat{r}$, in the spatial domain $\Omega$ by computing
-  $F(\hat{r})$.
+  $F(\hat{r})$. This operation is valid $\forall \hat{r} \in \Omega$.
 \item {\bf Source:} A geometry that owns a spatial domain, $\Omega_S
-  \in \mathbb{R}^D$, over which an evaluator can be applied for a
+  \in \mathbb{R}^n$, over which an evaluator can be applied for a
   given field $F(s)$ where $s \in \Omega_s$.
 \item {\bf Data Space:} A field, $G$, of dimension $D$, to which data
   can be applied such that $G(r) : \mathbb{R}^n \rightarrow
@@ -193,7 +203,7 @@ C_{global}$ and $B \in C_{global}$.
 
 \begin{figure}[htpb!]
   \centering \includegraphics[width=5in]{union_comm.pdf}
-  \caption{\sl Communicator union operation diagram.}{\sl In this
+  \caption{\bf \sl Communicator union operation diagram.}{\sl In this
     example, communicator A and communicator B are contained within
     the global communicator but do not encapsulate all of it. Their
     combined communication spaces form the union. The union is a
@@ -217,8 +227,8 @@ and $B \in C_{global}$.
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5in]{intersection_comm.pdf}
-  \caption{\sl Communicator intersection operation diagram.}{\sl In
-    this example, communicator A and communicator B are contained
+  \caption{\bf \sl Communicator intersection operation diagram.}{\sl
+    In this example, communicator A and communicator B are contained
     within the global communicator but do not encapsulate all of
     it. The blue communication space forms the intersection.}
   \label{fig:comm_intersection}
@@ -257,8 +267,8 @@ dimensional coordinates.
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5in]{hex_nodes.pdf}
-  \caption{\sl Basic node description for a mesh.}{\sl Each node is
-    required to have a unique global ordinal, a specified
+  \caption{\bf \sl Basic node description for a mesh.}{\sl Each node
+    is required to have a unique global ordinal, a specified
     dimensionality, and Cartesian coordinates corresponding to that
     dimensonality. The nodes in this example are 3 dimensional.}
   \label{fig:mesh_nodes}
@@ -308,10 +318,10 @@ permutation list.
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5in]{hex_element.pdf}
-  \caption{\sl Basic element description for a mesh.}{\sl Each element
-    is required to have a unique global ordinal, and a specified
-    connectivity and permuation list. The MBCN canonical ordinals used
-    by DTK are specified at the nodes.}
+  \caption{\bf \sl Basic element description for a mesh.}{\sl Each
+    element is required to have a unique global ordinal, and a
+    specified connectivity and permuation list. The MBCN canonical
+    ordinals used by DTK are specified at the nodes.}
   \label{fig:mesh_element}
 \end{figure}
 
@@ -341,8 +351,8 @@ shared by these two mesh blocks may be repeated in either block.
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5in]{hybrid_mesh.pdf}
-  \caption{\sl Hybrid mesh example.} {\sl Quadrilaterals (blue) must
-    be specified in a different mesh block than the triangles
+  \caption{\bf \sl Hybrid mesh example.} {\sl Quadrilaterals (blue)
+    must be specified in a different mesh block than the triangles
     (red). Both blocks can share the mutual mesh nodes that construct
     their elements.}
   \label{fig:hybrid_mesh}
@@ -371,12 +381,13 @@ computed reponses include heat flux or reaction rates. In order to
 access DTK field services, a subset of information needed to describe
 the field is required. A field has a dimension of arbitrary size. As
 examples, for scalar fields this dimension is 1, for 3-vectors (such
-as the velocity example above in a 3 dimensional computation) is 3,
-and for a 3x3 tensor the dimension is 9.  All local instances of the
-field must have the same dimension. A field can have an arbitrary
-number of local degrees of freedom and this size can differ from local
-domain to local domain. No knowledge of the global field decomposition
-is required, however, it must exist on a single communicator.
+as the velocity example above in a 3 dimensional computation) the
+dimension is 3, and for a 3x3 tensor the dimension is 9.  All local
+instances of the field must have the same dimension. A field can have
+an arbitrary number of local degrees of freedom and this size can
+differ from local domain to local domain. No knowledge of the global
+field decomposition is required, however, it must exist on a single
+communicator.
 
 
 \subsection{Field Evaluations}\label{subsec:field_eval}
@@ -421,28 +432,28 @@ norm operations for a given field, $f$, of length $I$ and dimension
 $D$ formulated for the $d^{th}$ dimension as the infinity norm:
 
 \begin{equation}
-  ||f_d||_\infty = \max_{1 \leq i \leq I} |{f_d}_i|
+  ||f_d||_\infty = \max_{1 \leq i \leq I} |{f_d}_i|\:,
   \label{eq:infinity_norm}
 \end{equation}
 
 the 1-norm:
 
 \begin{equation}
-  ||f_d||_1 = \sum_{i=1}^I |{f_d}_i|
+  ||f_d||_1 = \sum_{i=1}^I |{f_d}_i|\:,
   \label{eq:one_norm}
 \end{equation}
 
 the 2-norm:
 
 \begin{equation}
-  ||f_d||_2 = \sqrt{ \sum_{i=1}^I |{f_d}_i|^2 }
+  ||f_d||_2 = \sqrt{ \sum_{i=1}^I |{f_d}_i|^2 }\:,
   \label{eq:two_norm}
 \end{equation}
 
-and in general the q-norm:
+and in general, the q-norm:
 
 \begin{equation}
-||f_d||_q = \Bigg[ \sum_{i=1}^I |{f_d}_i|^q \Bigg]^{1/q}
+||f_d||_q = \Bigg[ \sum_{i=1}^I |{f_d}_i|^q \Bigg]^{1/q}\:,
   \label{eq:q_norm}
 \end{equation}
 
@@ -451,14 +462,14 @@ all of which are valid over each dimension, $d$, of the field
 global average over dimension:
 
 \begin{equation}
-  \bar{f_d} = \frac{1}{I}\sum_{i=1}^I {f_d}_i
+  \bar{f_d} = \frac{1}{I}\sum_{i=1}^I {f_d}_i\:,
   \label{eq:average}
 \end{equation}
 
-and scaling a field by a scalar multiple, $\alpha$.
+and scaling a field by a scalar multiple, $\alpha$:
 
 \begin{equation}
-  g_d = \alpha f_d
+  g_d = \alpha f_d\:,
   \label{eq:field_scaling}
 \end{equation}
 
@@ -471,23 +482,23 @@ the resulting scaled field.
 \section{Geometric Rendezvous}\label{sec:rendezvous}
 Relating two non-conformal meshes will ultimately require some type of
 evaluation algorithm to apply the data from one geometry to another as
-specified by Eq.~(\ref{eq:evaluation}). To achieve this, the target
-objects to which this data will be applied must be located within the
-the source geometry. In a serial formulation, efficient search
-structures that offer logarithmic asymptotic time complexity are
-available to perform this operation. However, in a parallel
-formulation, if these two geometries are arbitrarily decomposed,
-geometric alignment is not likely and a certain degree of
+specified by Eq.~(\ref{eq:evaluation}). To drive these evaluation
+algorithms, the target objects to which this data will be applied must
+be located within the the source geometry. In a serial formulation,
+efficient search structures that offer logarithmic asymptotic time
+complexity are available to perform this operation. However, in a
+parallel formulation, if these two geometries are arbitrarily
+decomposed, geometric alignment is not likely and a certain degree of
 communication will be required. A geometric rendezvous manipulates the
 source and target geometries such that all geometric operations have a
 local formulation.
 
-A geometry that is associated with the data that will be transferred
-will be referred to as the source geometry while the the geometry that
-will be receiving the data will be referred to as the target
-geometry. Although explicitly formulated with a source mesh and target
-nodes below, these concepts can be applied to geometric structures
-beyond mesh and nodes.
+A geometry that is associated with the providing data through function
+evaluations will be referred to as the source geometry while the
+geometry that will be receiving the data will be referred to as the
+target geometry. Although explicitly formulated with a source mesh and
+target nodes below, these concepts can be applied to geometric
+structures beyond mesh and nodes.
 
 \subsection{The Rendezvous Algorithm}\label{subsec:rendezvous_alg}
 The geometric rendezvous concept uses a global formulation for the
@@ -592,21 +603,22 @@ geometric and parallel operations. There are 3 types of parallel
 topology maps: shared domain maps, interface maps, and network maps
 \cite{LIME_2011}. Currently, DTK only supports shared domain maps,
 however, interface and network maps are supported by this domain model
-if the have a mesh-based formulation.
+if they have a mesh-based formulation.
 
 \subsection{Shared Domain Problems}\label{subsec:shared_domain}
 A shared domain problem is one in which the geometric domains of the
 source and target intersect over all dimensions of the
-problem. Figure~\ref{fig:shared_domain} givens an example of a shared
-domain problem in 3 dimensions. Here, $\Omega(S)$ (yellow) is the
-source geometry, $\Omega(T)$ (blue) is the target geometry, and
-$\Omega(R)$ (red) is their intersection and the shared domain over
-which mapping and the rendezvous decomposition will be generated.
+problem. Figure~\ref{fig:shared_domain} gives an example of a shared
+domain problem in 3 dimensions. Here, $\Omega(S)$ ({\sl yellow}) is
+the source geometry, $\Omega(T)$ ({\sl blue}) is the target geometry,
+and $\Omega(R)$ ({\sl red}) is their intersection and the shared
+domain over which mapping and the rendezvous decomposition will be
+generated.
 
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5in]{overlapping_domain.pdf}
-  \caption{\sl Shared domain example.} {\sl $\Omega(S)$ (yellow)
+  \caption{\bf \sl Shared domain example.} {\sl $\Omega(S)$ (yellow)
     is the source geometry, $\Omega(T)$ (blue) is the target geometry,
     and $\Omega(R)$ (red) is the shared domain.}
   \label{fig:shared_domain}
@@ -668,58 +680,70 @@ routines. These pairings must be communicated from the rendezvous
 decomposition back to the source/target decompositions to complete the
 mapping.
 
+\subsubsection{Handling Target Objects Outside of the Source Domain}
+\label{subsubsec:shared_domain_missed_points}
+The mapping algorithm outlined in
+Section~\ref{subsubsec:shared_domain_alg} has several steps in which
+target objects may or may not be found in the source mesh. Both the
+RCB decomposition search and kD-tree search have the potential to
+return target objects that were not found in the source mesh. The
+source function will not be evaluated at these points as they are not
+in the domain $\Omega_S$, and therefore the evaluation operation will
+not be valid. However, a list of these points in the target
+decomposition may be generated for further processing by the client.
 
 \clearpage
 
 %%---------------------------------------------------------------------------%%
 \section{An Example}
-Consider the following 2 dimensional shared domain problem that
-utilizes the above concepts to map a field from one mesh to another.
+Consider the following 2-dimensional shared domain problem that
+utilizes the above concepts to map a field from one mesh to
+another. Note that the data presented in this example was generated
+externally from DTK for the purpose of visualizing the algorithm.
 
 A linear triangle mesh is chosen for the source mesh as shown in
-Fig.~\ref{fig:source_mesh}. The source mesh is decomposed over 4
+Figure~\ref{fig:source_mesh}. The source mesh is decomposed over 4
 parallel processes with each process operating on elements of a single
-color. The targt mesh is defined with linear quadrilaterals and is
-given by Fig.~\ref{fig:target_mesh}. Here, the decomposition is also
-over 4 processes but with a different spatial decomposition.
+color. The target mesh is defined with linear quadrilaterals and is
+given by Figure~\ref{fig:target_mesh}. Here, the decomposition is also
+over 4 processes but with a different spatial decomposition. We
+therefore expect communication between all 4 processes in this
+example.
 
-\begin{figure}[htpb!]
+\begin{figure}[h!]
   \centering
   \includegraphics[width=5.5in]{tri_part.png}
-  \caption{\sl Source mesh for 2D shared domain example.}{\sl Each
+  \caption{\bf \sl Source mesh for 2D shared domain example.}{\sl Each
     color represents the portion of the mesh owned by each parallel
     process.}
   \label{fig:source_mesh}
 \end{figure}
 
-\begin{figure}[htpb!]
+\begin{figure}[h!]
   \centering
   \includegraphics[width=5.5in]{quad_part.png}
-  \caption{\sl Target mesh for 2D shared domain example.}{\sl Each
+  \caption{\bf \sl Target mesh for 2D shared domain example.}{\sl Each
     color represents the portion of the mesh owned by each parallel
     process.}
   \label{fig:target_mesh}
 \end{figure}
-
-Shown in Fig~\ref{fig:source_field}, we define a field over the source
-mesh, in this case the peaks function, to transfer to the target mesh.
-
-\begin{figure}[htpb!]
-  \centering
-  \includegraphics[width=5.5in]{tri_peaks.png}
-  \caption{\sl Source function for 2D shared domain example.}{\sl A 2D
-    peaks function is defined over the source domain.}
-  \label{fig:source_field}
-\end{figure}
  
 Using the rendezvous algorithm, we repartition the source and target
-geometries such that they align in a new, geometric based partitioning
-as shown in Fig.~\ref{fig:rendezvous_part}.
+geometries such that they align in a new, geometric-based partitioning
+as shown in Figure~\ref{fig:rendezvous_part}. In parallel search
+operations, we then first search the partition domains to get the
+rendezvous process containing a particular target object. We then
+communicate this point to the proper process in
+Figure~\ref{fig:rendezvous_part} and search that process' domain using
+the kD-tree. The source element/target object pairs generated from
+this search process are then communicated back to the process that
+owns the source in element in the decomposition given by
+Figure~\ref{fig:source_mesh}.
 
-\begin{figure}[htpb!]
+\begin{figure}[h!]
   \centering
   \includegraphics[width=5.5in]{tri_rend.png}
-  \caption{\sl Rendezvous decomposition for 2D shared domain
+  \caption{\bf \sl Rendezvous decomposition for 2D shared domain
     example.}{\sl Each color represents the portion of the mesh owned
     by each parallel process. Both the source and target geometries
     are repartitioned in this fashion such that all search operations
@@ -727,16 +751,31 @@ as shown in Fig.~\ref{fig:rendezvous_part}.
   \label{fig:rendezvous_part}
 \end{figure}
 
-Finally, an evaluator associated with the source mesh is used to drive
-peaks function evaluations on the target mesh nodes. These are then
-communicated back to the target decomposition, resulting in the field
-transferred as shown in Fig~\ref{fig:target_field}.
+Shown in Figure~\ref{fig:source_field}, we define a field over the
+source mesh, in this case the peaks function, to transfer to the
+target mesh. This function is valid only over the domain of the mesh
+and can be evaluated at any 2-dimensional point that resides in a
+valid element.
 
-\begin{figure}[htpb!]
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=5.5in]{tri_peaks.png}
+  \caption{\bf \sl Source function for 2D shared domain example.}{\sl
+    A 2D peaks function is defined over the source domain.}
+  \label{fig:source_field}
+\end{figure}
+
+Finally, an evaluator associated with the source mesh is used to drive
+peaks function evaluations on the target mesh nodes in the source
+decomposition given by Figure~\ref{fig:source_mesh}. These are then
+communicated back to the target decomposition, resulting in the field
+transferred as shown in Figure~\ref{fig:target_field}.
+
+\begin{figure}[h!]
   \centering
   \includegraphics[width=5.5in]{quad_peaks.png}
-  \caption{\sl Target function for 2D shared domain example.}{\sl A 2D
-    peaks function is transferred to the target domain.}
+  \caption{\bf \sl Target function for 2D shared domain example.}{\sl
+    A 2D peaks function is transferred to the target domain.}
   \label{fig:target_field}
 \end{figure}
 
@@ -755,8 +794,8 @@ transferred as shown in Fig~\ref{fig:target_field}.
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5.5in]{Linear_Elements.pdf}
-  \caption{\sl Canonical connectivity schemes for linear elements in
-    DTK}{\sl (a) line segment, (b) triangle, (c) quadrilateral, (d)
+  \caption{\bf \sl Canonical connectivity schemes for linear elements
+    in DTK}{\sl (a) line segment, (b) triangle, (c) quadrilateral, (d)
     tetrahedron, (e) hexahedron, (f) pyramid.}
   \label{fig:linear_elements}
 \end{figure}
