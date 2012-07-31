@@ -828,6 +828,89 @@ DataTransferKit::MeshContainer<int> buildShiftedPyramidContainer()
 }
 
 //---------------------------------------------------------------------------//
+// Wedge mesh.
+DataTransferKit::MeshContainer<int> buildWedgeContainer()
+{
+    using namespace DataTransferKit;
+
+    // Make some nodes.
+    Teuchos::Array<int> node_handles;
+    Teuchos::Array<double> coords;
+
+    int node_dim = 3;
+    int num_nodes = 6;
+
+    // handles
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	node_handles.push_back( i );
+    }
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+
+    // z
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 ); 
+
+    // Make the wedge.
+    Teuchos::Array<int> wedge_handles;
+    Teuchos::Array<int> wedge_connectivity;
+    
+    // handles
+    wedge_handles.push_back( 12 );
+
+    // connectivity
+    for ( int i = 0; i < num_nodes; ++i )
+    {
+	wedge_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
+    std::copy( node_handles.begin(), node_handles.end(), 
+	       node_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> wedge_handle_array( wedge_handles.size() );
+    std::copy( wedge_handles.begin(), wedge_handles.end(), 
+	       wedge_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( wedge_connectivity.size() );
+    std::copy( wedge_connectivity.begin(), wedge_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
+			       DTK_WEDGE, num_nodes,
+			       wedge_handle_array, connectivity_array,
+			       permutation_list );
+}
+
+//---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
 // Line mesh.
@@ -1121,6 +1204,58 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_kd_tree_test )
 	if( 0.0 <= point[0] && point[0] <= 1.0-point[2] &&
 	    0.0 <= point[1] && point[1] <= 1.0-point[2] && 
 	    0.0 <= point[2] && point[2] <= 1.0 )
+	{
+	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 );
+	}
+	else
+	{
+	    TEST_ASSERT( !kd_tree.findPoint( point, ordinal ) );
+	}
+    }
+}
+
+//---------------------------------------------------------------------------//
+// Wedge mesh.
+TEUCHOS_UNIT_TEST( MeshContainer, wedge_kd_tree_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a mesh container.
+    typedef MeshContainer<int> MeshType;
+    typedef MeshTraits< MeshType > MT;
+    typedef MeshTools< MeshType > Tools;
+    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    mesh_blocks[0] = buildWedgeContainer();
+
+    // Create a mesh manager.
+    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
+
+    // Create a rendezvous mesh.
+    Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
+	rendezvous_mesh = createRendezvousMesh( mesh_manager );
+
+    // Create a kD-tree.
+    KDTree<MeshType::global_ordinal_type> kd_tree( rendezvous_mesh, 
+						   mesh_manager.dim() );
+
+    // Build the tree.
+    kd_tree.build();
+
+    // Search the tree for some random points.
+    int num_points = 1000;
+    Teuchos::Array<double> point(3);
+    int ordinal = 0;
+    for ( int i = 0; i < num_points; ++i )
+    {
+	ordinal = 0;
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[1] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[2] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+
+	if ( 0.0 <= point[0] && point[0] <= 1.0 &&
+	     0.0 <= point[1] && point[1] <= point[0] &&
+	     0.0 <= point[2] && point[2] <= 1.0 )
 	{
 	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
 	    TEST_ASSERT( ordinal == 12 );
