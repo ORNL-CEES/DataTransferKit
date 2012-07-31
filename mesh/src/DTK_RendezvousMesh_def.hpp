@@ -108,6 +108,9 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
     // Set the mesh dimension.
     std::size_t node_dim = mesh_manager.dim();
     error = moab->set_dimension( node_dim );
+    testInvariant( moab::MB_SUCCESS == error, 
+		   "Failed to set MOAB mesh dimension: " 
+		   + moab_error_table[error] );
 
     // Build each mesh block.
     typename MeshManager<Mesh>::BlockIterator block_iterator;
@@ -147,7 +150,8 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	    }
 	    error = moab->create_vertex( vertex_coords, moab_vertex );
 	    testInvariant( moab::MB_SUCCESS == error, 
-			   "Failed to create vertices in MOAB." );
+			   "Failed to create vertices in MOAB: "
+			   + moab_error_table[error] );
 	    vertex_handle_map[ *node_iterator ] = moab_vertex;
 	}
 
@@ -201,7 +205,8 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 					  element_connectivity.size(),
 					  moab_element );
 	    testInvariant( moab::MB_SUCCESS == error,
-			   "Failed to create element in MOAB." );
+			   "Failed to create element in MOAB:"
+			   + moab_error_table[error] );
 	    moab_elements.insert( moab_element );
 
 	    // Map the moab element handle to the native element handle.

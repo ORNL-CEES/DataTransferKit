@@ -185,34 +185,6 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 	    }
 	    break;
 
-	case moab::MBHEX:
-	    
-	    if ( num_element_nodes == 8 )
-	    {
-		new_topology = Teuchos::rcp( 
-		    new shards::CellTopology(
-		    shards::getCellTopologyData< shards::Hexahedron<8> >() ) );
-	    }
-	    if ( num_element_nodes == 20 )
-	    {
-		new_topology = Teuchos::rcp( 
-		    new shards::CellTopology(
-		    shards::getCellTopologyData< shards::Hexahedron<20> >() ) );
-	    }
-	    if ( num_element_nodes == 27 )
-	    {
-		new_topology = Teuchos::rcp( 
-		    new shards::CellTopology(
-		    shards::getCellTopologyData< shards::Hexahedron<27> >() ) );
-	    }
-	    else 
-	    {
-		new_topology = Teuchos::rcp( 
-		    new shards::CellTopology(
-		    shards::getCellTopologyData< shards::Hexahedron<> >() ) );
-	    }
-	    break;
-
 	case moab::MBPYRAMID:
 	    
 	    if ( num_element_nodes == 5 )
@@ -241,14 +213,71 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 	    }
 	    break;
 
+	case moab::MBPRISM:
+	    
+	    if ( num_element_nodes == 6 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Wedge<6> >() ) );
+	    }
+	    if ( num_element_nodes == 15 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Wedge<15> >() ) );
+	    }
+	    if ( num_element_nodes == 18 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Wedge<18> >() ) );
+	    }
+	    else 
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Wedge<> >() ) );
+	    }
+	    break;
+
+	case moab::MBHEX:
+	    
+	    if ( num_element_nodes == 8 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+		    shards::getCellTopologyData< shards::Hexahedron<8> >() ) );
+	    }
+	    if ( num_element_nodes == 20 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+		    shards::getCellTopologyData< shards::Hexahedron<20> >() ) );
+	    }
+	    if ( num_element_nodes == 27 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+		    shards::getCellTopologyData< shards::Hexahedron<27> >() ) );
+	    }
+	    else 
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+		    shards::getCellTopologyData< shards::Hexahedron<> >() ) );
+	    }
+	    break;
+
 	default:
 	    
 	    testPrecondition( moab::MBEDGE    == element_topology ||
 			      moab::MBTRI     == element_topology ||
 			      moab::MBQUAD    == element_topology ||
 			      moab::MBTET     == element_topology ||
-			      moab::MBHEX     == element_topology ||
-			      moab::MBPYRAMID == element_topology,
+			      moab::MBPYRAMID == element_topology ||
+			      moab::MBPRISM   == element_topology ||
+			      moab::MBHEX     == element_topology,
 			      "Invalid mesh topology" );
     }
 

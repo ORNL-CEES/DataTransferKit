@@ -79,7 +79,8 @@ void KDTree<GlobalOrdinal>::build()
     moab::ErrorCode error;
     error = d_tree.build_tree( d_mesh->getElements(), d_root );
     testInvariant( moab::MB_SUCCESS == error,
-		   "Failed to construct kD-tree." );
+		   "Failed to build kD-tree: "
+		   + moab_error_table[error] );
 }
 
 //---------------------------------------------------------------------------//
@@ -107,7 +108,8 @@ bool KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords,
     moab::EntityHandle leaf;
     error = d_tree.leaf_containing_point( d_root, point, leaf );
     testInvariant( moab::MB_SUCCESS == error,
-		   "Failed to search kD-tree." );
+		   "Failed to search kD-tree leaves: "
+		   + moab_error_table[error] );
 
     moab::EntityHandle mb_element;
     bool point_in_leaf = findPointInLeaf( coords, leaf, mb_element );
@@ -139,7 +141,8 @@ bool KDTree<GlobalOrdinal>::findPointInLeaf(
     error = d_mesh->getMoab()->get_entities_by_dimension( 
 	leaf, d_dim, leaf_elements );
     testInvariant( moab::MB_SUCCESS == error,
-		   "Failed to get leaf elements" );
+		   "Failed to get leaf elements: "
+		   + moab_error_table[error] );
 
     // Search the leaf elements with the point.
     Teuchos::Array<double> point( coords );
