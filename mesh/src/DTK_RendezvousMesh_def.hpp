@@ -62,10 +62,8 @@ namespace DataTransferKit
  */
 template<typename GlobalOrdinal>
 RendezvousMesh<GlobalOrdinal>::RendezvousMesh( const RCP_Moab& moab, 
-					       const moab::Range& elements,
 					       const HandleMap& handle_map )
     : d_moab( moab )
-    , d_elements( elements )
     , d_handle_map( handle_map )
 { /* ... */ }
 
@@ -92,9 +90,6 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
     typedef typename MT::global_ordinal_type GlobalOrdinal;
     typename MT::const_node_iterator node_iterator;
     typename MT::const_element_iterator element_iterator;
-
-    // Setup a moab range for the mesh elements.
-    moab::Range moab_elements;
 
     // Setup an element handle map.
     std::map<moab::EntityHandle,GlobalOrdinal> element_handle_map;
@@ -174,7 +169,8 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	Teuchos::ArrayRCP<const std::size_t> permutation_list =
 	    MeshTools<Mesh>::permutationView( *block_iterator );
 	GlobalOrdinal conn_index;
-	Teuchos::Array<moab::EntityHandle> element_connectivity( nodes_per_element );
+	Teuchos::Array<moab::EntityHandle> 
+	    element_connectivity( nodes_per_element );
 
 	std::size_t canonical_idx;
 	n = 0;
@@ -207,7 +203,6 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	    testInvariant( moab::MB_SUCCESS == error,
 			   "Failed to create element in MOAB:"
 			   + moab_error_table[error] );
-	    moab_elements.insert( moab_element );
 
 	    // Map the moab element handle to the native element handle.
 	    element_handle_map[ moab_element ] = *element_iterator;
@@ -215,8 +210,8 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
     }
 
     // Create and return the mesh.
-    return Teuchos::rcp( new RendezvousMesh<GlobalOrdinal>( 
-			     moab, moab_elements, element_handle_map ) );
+    return Teuchos::rcp( 
+	new RendezvousMesh<GlobalOrdinal>( moab, element_handle_map ) );
 }
 
 //---------------------------------------------------------------------------//

@@ -620,7 +620,7 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer( int my_rank )
     coords.push_back( my_rank );
     coords.push_back( my_rank+1 );
 
-    // Make the pyramidahedron.
+    // Make the pyramid.
     Teuchos::Array<int> pyramid_handles;
     Teuchos::Array<int> pyramid_connectivity;
     
@@ -701,7 +701,7 @@ DataTransferKit::MeshContainer<int> buildShiftedPyramidContainer( int my_rank,
     coords.push_back( my_rank-1 );
     coords.push_back( my_rank-2 );
 
-    // Make the pyramidahedron.
+    // Make the pyramid.
     Teuchos::Array<int> pyramid_handles;
     Teuchos::Array<int> pyramid_connectivity;
     

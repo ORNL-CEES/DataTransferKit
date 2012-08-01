@@ -699,7 +699,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_mesh_test )
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
     
     // Elements.
-    moab::Range mesh_elements = mesh->getElements();
+    moab::Range mesh_elements;
+    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
+					       mesh_elements );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
     TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
     for ( int i = 0; i < (int) mesh_elements.size(); ++i )
     {
@@ -762,7 +766,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_mesh_test )
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
     
     // Grab the elements.
-    moab::Range mesh_elements = mesh->getElements();
+    moab::Range mesh_elements;
+    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
+					       mesh_elements );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
     TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
     for ( int i = 0; i < (int) mesh_elements.size(); ++i )
     {
@@ -824,7 +832,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_mesh_test )
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
     
     // Grab the elements.
-    moab::Range mesh_elements = mesh->getElements();
+    moab::Range mesh_elements;
+    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
+					       mesh_elements );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
     TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
     for ( int i = 0; i < (int) mesh_elements.size(); ++i )
     {
@@ -885,7 +897,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_mesh_test )
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
     
     // Grab the elements.
-    moab::Range mesh_elements = mesh->getElements();
+    moab::Range mesh_elements;
+    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
+					       mesh_elements );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
     TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
     for ( int i = 0; i < (int) mesh_elements.size(); ++i )
     {
@@ -946,7 +962,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_mesh_test )
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
     
     // Grab the elements.
-    moab::Range mesh_elements = mesh->getElements();
+    moab::Range mesh_elements;
+    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
+					       mesh_elements );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
     TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
     for ( int i = 0; i < (int) mesh_elements.size(); ++i )
     {
@@ -1007,7 +1027,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_mesh_test )
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
     
     // Grab the elements.
-    moab::Range mesh_elements = mesh->getElements();
+    moab::Range mesh_elements;
+    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
+					       mesh_elements );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
     TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
     for ( int i = 0; i < (int) mesh_elements.size(); ++i )
     {
@@ -1068,7 +1092,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_mesh_test )
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
     
     // Grab the elements.
-    moab::Range mesh_elements = mesh->getElements();
+    moab::Range mesh_elements;
+    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
+					       mesh_elements );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
     TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
     for ( int i = 0; i < (int) mesh_elements.size(); ++i )
     {
@@ -1129,7 +1157,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_rendezvous_mesh_test )
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
     
     // Grab the elements.
-    moab::Range mesh_elements = mesh->getElements();
+    moab::Range mesh_elements;
+    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
+					       mesh_elements );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
     TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
     for ( int i = 0; i < (int) mesh_elements.size(); ++i )
     {
@@ -1192,7 +1224,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_mesh_test )
     moab::EntityHandle root_set = moab->get_root_set();
     
     // Grab the elements.
-    moab::Range mesh_elements = mesh->getElements();
+    moab::Range mesh_elements;
+    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
+					       mesh_elements );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
     TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
 
     // Check the mesh data.
@@ -1274,7 +1310,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_mesh_test )
     moab::EntityHandle root_set = moab->get_root_set();
     
     // Grab the elements.
-    moab::Range mesh_elements = mesh->getElements();
+    moab::Range mesh_elements;
+    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
+					       mesh_elements );
+    TEST_ASSERT( error == moab::MB_SUCCESS );
+
     TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
 
     // Check the mesh data.

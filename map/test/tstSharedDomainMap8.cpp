@@ -322,7 +322,7 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 {
     // Make some nodes.
-    int num_nodes = edge_length*edge_length*2 + (edge_length-1)*(edge_length-1);
+    int num_nodes = edge_length*edge_length*2;
     int node_dim = 3;
     Teuchos::Array<long int> node_handles( num_nodes );
     Teuchos::Array<double> coords( node_dim*num_nodes );
@@ -347,17 +347,6 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 	    coords[ idx ] = i + my_rank*(edge_length-1);
 	    coords[ num_nodes + idx ] = j;
 	    coords[ 2*num_nodes + idx ] = 1.0;
-	}
-    }
-    for ( int j = 0; j < edge_length-1; ++j )
-    {
-	for ( int i = 0; i < edge_length-1; ++i )
-	{
-	    idx = i + j*(edge_length-1) + edge_length*edge_length*2;
-	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
-	    coords[ idx ] = i + my_rank*(edge_length-1) + 0.5;
-	    coords[ num_nodes + idx ] = j + 0.5;
-	    coords[ 2*num_nodes + idx ] = 0.5;
 	}
     }
     
@@ -418,7 +407,7 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 MyMesh buildTiledMesh( int my_rank, int my_size, int edge_length )
 {
     // Make some nodes.
-    int num_nodes = edge_length*edge_length*2 + (edge_length-1)*(edge_length-1);
+    int num_nodes = edge_length*edge_length*2;
     int node_dim = 3;
     Teuchos::Array<long int> node_handles( num_nodes );
     Teuchos::Array<double> coords( node_dim*num_nodes );
@@ -443,17 +432,6 @@ MyMesh buildTiledMesh( int my_rank, int my_size, int edge_length )
 	    coords[ idx ] = i + my_rank*(edge_length-1);
 	    coords[ num_nodes + idx ] = j + my_rank*(edge_length-1);
 	    coords[ 2*num_nodes + idx ] = 1.0;
-	}
-    }
-    for ( int j = 0; j < edge_length-1; ++j )
-    {
-	for ( int i = 0; i < edge_length-1; ++i )
-	{
-	    idx = i + j*(edge_length-1) + edge_length*edge_length*2;
-	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
-	    coords[ idx ] = i + my_rank*(edge_length-1) + 0.5;
-	    coords[ num_nodes + idx ] = j + my_rank*(edge_length-1) + 0.5;
-	    coords[ 2*num_nodes + idx ] = 0.5;
 	}
     }
     

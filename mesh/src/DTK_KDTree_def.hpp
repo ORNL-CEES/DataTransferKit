@@ -48,6 +48,8 @@
 
 #include <Teuchos_ArrayView.hpp>
 
+#include <MBRange.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -77,7 +79,14 @@ template<typename GlobalOrdinal>
 void KDTree<GlobalOrdinal>::build()
 { 
     moab::ErrorCode error;
-    error = d_tree.build_tree( d_mesh->getElements(), d_root );
+
+    moab::Range elements;
+    error = d_mesh->getMoab()->get_entities_by_dimension( 0, d_dim, elements );
+    testInvariant( moab::MB_SUCCESS == error,
+		   "Failed to get mesh elements: "
+		   + moab_error_table[error] );
+
+    error = d_tree.build_tree( elements , d_root );
     testInvariant( moab::MB_SUCCESS == error,
 		   "Failed to build kD-tree: "
 		   + moab_error_table[error] );

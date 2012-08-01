@@ -118,7 +118,8 @@ class Rendezvous
     const RCP_RendezvousMesh& getMesh() const
     { return d_rendezvous_mesh; }
 
-    //! Get the bounding box.
+    //! Get the bounding box over which the rendezvous decomposition was
+    //! generated.
     const BoundingBox& getBox() const
     { return d_global_box; }
 

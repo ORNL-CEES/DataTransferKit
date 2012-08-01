@@ -45,6 +45,9 @@ APPEND_SET(HEADERS
 APPEND_SET(SOURCES
   DTK_BoundingBox.cpp
   DTK_CellTopologyFactory.cpp
+  DTK_KDTree.cpp
+  DTK_MeshContainer.cpp
+  DTK_RendezvousMesh.cpp
   DTK_TopologyTools.cpp
   )
 

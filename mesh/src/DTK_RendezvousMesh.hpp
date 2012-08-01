@@ -34,7 +34,7 @@
 /*!
  * \file DTK_RendezvousMesh.hpp
  * \author Stuart R. Slattery
- * \brief Concrete rendezvous mesh declaration.
+ * \brief Rendezvous mesh declaration.
  */
 //---------------------------------------------------------------------------//
 
@@ -74,9 +74,7 @@ class RendezvousMesh
     //@}
 
     // Constructor.
-    RendezvousMesh( const RCP_Moab& moab, 
-		    const moab::Range& elements,
-		    const HandleMap& handle_map );
+    RendezvousMesh( const RCP_Moab& moab, const HandleMap& handle_map );
 
     // Destructor.
     ~RendezvousMesh();
@@ -85,22 +83,16 @@ class RendezvousMesh
     const RCP_Moab& getMoab() const
     { return d_moab; }
 
-    //! Get the mesh elements.
-    const moab::Range& getElements() const
-    { return d_elements; }
-
     //! Given a moab element handle return the corresponding native element
     //! global ordinal.
-    GlobalOrdinal getNativeOrdinal( const moab::EntityHandle& moab_handle ) const
+    GlobalOrdinal 
+    getNativeOrdinal( const moab::EntityHandle& moab_handle ) const
     { return d_handle_map.find( moab_handle )->second; }
 
   private:
 
     //! Moab interface implementation.
     RCP_Moab d_moab;
-
-    //! Moab mesh elements.
-    moab::Range d_elements;
 
     //! Moab element handle to native element handle map.
     HandleMap d_handle_map;

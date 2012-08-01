@@ -892,6 +892,197 @@ DataTransferKit::MeshContainer<int> buildNullPyramidMesh()
 }
 
 //---------------------------------------------------------------------------//
+DataTransferKit::MeshContainer<int>  
+buildWedgeMesh( int my_rank, int my_size, int edge_length )
+{
+    // Make some nodes.
+    int num_nodes = edge_length*edge_length*2;
+    int node_dim = 3;
+    Teuchos::ArrayRCP<int> node_handles( num_nodes );
+    Teuchos::ArrayRCP<double> coords( node_dim*num_nodes );
+    int idx;
+    for ( int j = 0; j < edge_length; ++j )
+    {
+	for ( int i = 0; i < edge_length; ++i )
+	{
+	    idx = i + j*edge_length;
+	    node_handles[ idx ] = (int) num_nodes*my_rank + idx;
+	    coords[ idx ] = i + my_rank*(edge_length-1);
+	    coords[ num_nodes + idx ] = j;
+	    coords[ 2*num_nodes + idx ] = 0.0;
+	}
+    }
+    for ( int j = 0; j < edge_length; ++j )
+    {
+	for ( int i = 0; i < edge_length; ++i )
+	{
+	    idx = i + j*edge_length + edge_length*edge_length;
+	    node_handles[ idx ] = (int) num_nodes*my_rank + idx;
+	    coords[ idx ] = i + my_rank*(edge_length-1);
+	    coords[ num_nodes + idx ] = j;
+	    coords[ 2*num_nodes + idx ] = 1.0;
+	}
+    }
+    
+    // Make the wedges. 
+    int num_elements = (edge_length-1)*(edge_length-1)*2;
+    Teuchos::ArrayRCP<int> wedge_handles( num_elements );
+    Teuchos::ArrayRCP<int> wedge_connectivity( 6*num_elements );
+    int elem_idx, node_idx;
+    int v0, v1, v2, v3, v4, v5, v6, v7;
+    for ( int j = 0; j < (edge_length-1); ++j )
+    {
+	for ( int i = 0; i < (edge_length-1); ++i )
+	{
+	    // Indices.
+	    node_idx = i + j*edge_length;
+	    v0 = node_idx;
+	    v1 = node_idx + 1;
+	    v2 = node_idx + 1 + edge_length;
+	    v3 = node_idx +     edge_length;
+	    v4 = node_idx +                   edge_length*edge_length;
+	    v5 = node_idx + 1 +               edge_length*edge_length;
+	    v6 = node_idx + 1 + edge_length + edge_length*edge_length;
+	    v7 = node_idx +     edge_length + edge_length*edge_length;
+
+	    // Wedge 1.
+	    elem_idx = i + j*(edge_length-1);
+	    wedge_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    wedge_connectivity[elem_idx]                = node_handles[v0];
+	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];
+	    wedge_connectivity[2*num_elements+elem_idx] = node_handles[v1];
+	    wedge_connectivity[3*num_elements+elem_idx] = node_handles[v3];
+	    wedge_connectivity[4*num_elements+elem_idx] = node_handles[v7];
+	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v2];
+
+	    // Wedge 2.
+	    elem_idx = i + j*(edge_length-1) + num_elements/6;
+	    wedge_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    wedge_connectivity[elem_idx] 	        = node_handles[v1];
+	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];
+	    wedge_connectivity[2*num_elements+elem_idx] = node_handles[v5];
+	    wedge_connectivity[3*num_elements+elem_idx] = node_handles[v2];
+	    wedge_connectivity[4*num_elements+elem_idx] = node_handles[v7];
+	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v6];
+	}
+    }
+
+    Teuchos::ArrayRCP<std::size_t> permutation_list( 6 );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+
+    return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
+						DataTransferKit::DTK_WEDGE, 6,
+						wedge_handles, wedge_connectivity,
+						permutation_list );
+}
+
+//---------------------------------------------------------------------------//
+DataTransferKit::MeshContainer<int>  
+buildTiledWedgeMesh( int my_rank, int my_size, int edge_length )
+{
+    // Make some nodes.
+    int num_nodes = edge_length*edge_length*2;
+    int node_dim = 3;
+    Teuchos::ArrayRCP<int> node_handles( num_nodes );
+    Teuchos::ArrayRCP<double> coords( node_dim*num_nodes );
+    int idx;
+    for ( int j = 0; j < edge_length; ++j )
+    {
+	for ( int i = 0; i < edge_length; ++i )
+	{
+	    idx = i + j*edge_length;
+	    node_handles[ idx ] = (int) num_nodes*my_rank + idx;
+	    coords[ idx ] = i + my_rank*(edge_length-1);
+	    coords[ num_nodes + idx ] = j + my_rank*(edge_length-1);
+	    coords[ 2*num_nodes + idx ] = 0.0;
+	}
+    }
+    for ( int j = 0; j < edge_length; ++j )
+    {
+	for ( int i = 0; i < edge_length; ++i )
+	{
+	    idx = i + j*edge_length + edge_length*edge_length;
+	    node_handles[ idx ] = (int) num_nodes*my_rank + idx;
+	    coords[ idx ] = i + my_rank*(edge_length-1);
+	    coords[ num_nodes + idx ] = j + my_rank*(edge_length-1);
+	    coords[ 2*num_nodes + idx ] = 1.0;
+	}
+    }
+    
+    // Make the wedges. 
+    int num_elements = (edge_length-1)*(edge_length-1)*2;
+    Teuchos::ArrayRCP<int> wedge_handles( num_elements );
+    Teuchos::ArrayRCP<int> wedge_connectivity( 6*num_elements );
+    int elem_idx, node_idx;
+    int v0, v1, v2, v3, v4, v5, v6, v7;
+    for ( int j = 0; j < (edge_length-1); ++j )
+    {
+	for ( int i = 0; i < (edge_length-1); ++i )
+	{
+	    // Indices.
+	    node_idx = i + j*edge_length;
+	    v0 = node_idx;
+	    v1 = node_idx + 1;
+	    v2 = node_idx + 1 + edge_length;
+	    v3 = node_idx +     edge_length;
+	    v4 = node_idx +                   edge_length*edge_length;
+	    v5 = node_idx + 1 +               edge_length*edge_length;
+	    v6 = node_idx + 1 + edge_length + edge_length*edge_length;
+	    v7 = node_idx +     edge_length + edge_length*edge_length;
+
+	    // Wedge 1.
+	    elem_idx = i + j*(edge_length-1);
+	    wedge_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    wedge_connectivity[elem_idx]                = node_handles[v0];
+	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];
+	    wedge_connectivity[2*num_elements+elem_idx] = node_handles[v1];
+	    wedge_connectivity[3*num_elements+elem_idx] = node_handles[v3];
+	    wedge_connectivity[4*num_elements+elem_idx] = node_handles[v7];
+	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v2];
+
+	    // Wedge 2.
+	    elem_idx = i + j*(edge_length-1) + num_elements/6;
+	    wedge_handles[elem_idx] = num_elements*my_rank + elem_idx;
+	    wedge_connectivity[elem_idx] 	        = node_handles[v1];
+	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];
+	    wedge_connectivity[2*num_elements+elem_idx] = node_handles[v5];
+	    wedge_connectivity[3*num_elements+elem_idx] = node_handles[v2];
+	    wedge_connectivity[4*num_elements+elem_idx] = node_handles[v7];
+	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v6];
+	}
+    }
+
+    Teuchos::ArrayRCP<std::size_t> permutation_list( 6 );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+
+    return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
+						DataTransferKit::DTK_WEDGE, 6,
+						wedge_handles, wedge_connectivity,
+						permutation_list );
+}
+
+//---------------------------------------------------------------------------//
+DataTransferKit::MeshContainer<int> buildNullWedgeMesh()
+{
+    Teuchos::ArrayRCP<int> node_handles(0,0);
+    Teuchos::ArrayRCP<double> coords(0,0);
+    Teuchos::ArrayRCP<int> wedge_handles(0,0);
+    Teuchos::ArrayRCP<int> wedge_connectivity(0,0);
+    Teuchos::ArrayRCP<std::size_t> permutation_list(6,0);
+
+    return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
+						DataTransferKit::DTK_WEDGE, 6,
+						wedge_handles, wedge_connectivity,
+						permutation_list );
+}
+
+//---------------------------------------------------------------------------//
 // Coordinate field create functions.
 //---------------------------------------------------------------------------//
 void buildCoordinateField( int my_rank, int my_size, 
@@ -959,30 +1150,34 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
 
     // Setup source mesh manager.
     int edge_size = 4;
-    Teuchos::ArrayRCP<MeshContainer<int> > mesh_blocks( 3 );
+    Teuchos::ArrayRCP<MeshContainer<int> > mesh_blocks( 4 );
     if ( my_rank == 0 )
     {
 	mesh_blocks[0] = buildTetMesh( my_rank, my_size, edge_size );
 	mesh_blocks[1] = buildNullHexMesh();
 	mesh_blocks[2] = buildNullPyramidMesh();
+	mesh_blocks[3] = buildNullWedgeMesh();
     }
     else if ( my_rank == 1 )
     {
 	mesh_blocks[0] = buildNullTetMesh();
 	mesh_blocks[1] = buildHexMesh( my_rank, my_size, edge_size );
 	mesh_blocks[2] = buildNullPyramidMesh();
+	mesh_blocks[3] = buildNullWedgeMesh();
     }
     else if ( my_rank == 2 )
     {
 	mesh_blocks[0] = buildNullTetMesh();
 	mesh_blocks[1] = buildNullHexMesh();
 	mesh_blocks[2] = buildPyramidMesh( my_rank, my_size, edge_size );
+	mesh_blocks[3] = buildNullWedgeMesh();
     }
     else 
     {
-	mesh_blocks[0] = buildTetMesh( my_rank, my_size, edge_size );
+	mesh_blocks[0] = buildNullTetMesh();
 	mesh_blocks[1] = buildNullHexMesh();
 	mesh_blocks[2] = buildNullPyramidMesh();
+	mesh_blocks[3] = buildWedgeMesh( my_rank, my_size, edge_size );
     }
     comm->barrier();
     Teuchos::RCP< MeshManager<MeshContainer<int> > > source_mesh_manager = 
@@ -1056,30 +1251,34 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
 
 //     // Setup source mesh manager.
 //     int edge_size = 4;
-//     Teuchos::ArrayRCP<MeshContainer<int> > mesh_blocks( 3 );
+//     Teuchos::ArrayRCP<MeshContainer<int> > mesh_blocks( 4 );
 //     if ( my_rank == 0 )
 //     {
 // 	mesh_blocks[0] = buildTetMesh( my_rank, my_size, edge_size );
 // 	mesh_blocks[1] = buildNullHexMesh();
 // 	mesh_blocks[2] = buildNullPyramidMesh();
+//	mesh_blocks[3] = buildNullWedgeMesh();
 //     }
 //     if ( my_rank == 1 )
 //     {
 // 	mesh_blocks[0] = buildNullTetMesh();
 // 	mesh_blocks[1] = buildHexMesh( my_rank, my_size, edge_size );
 // 	mesh_blocks[2] = buildNullPyramidMesh();
+//	mesh_blocks[3] = buildNullWedgeMesh();
 //     }
 //     if ( my_rank == 2 )
 //     {
 // 	mesh_blocks[0] = buildNullTetMesh();
 // 	mesh_blocks[1] = buildNullHexMesh();
 // 	mesh_blocks[2] = buildPyramidMesh( my_rank, my_size, edge_size );
+//	mesh_blocks[3] = buildNullWedgeMesh();
 //     }
 //     if ( my_rank == 3 )
 //     {
-// 	mesh_blocks[0] = buildTetMesh( my_rank, my_size, edge_size );
+// 	mesh_blocks[0] = buildNullTetMesh();
 // 	mesh_blocks[1] = buildNullHexMesh();
 // 	mesh_blocks[2] = buildNullPyramidMesh();
+//	mesh_blocks[3] = buildNullMesh( my_rank, my_size, edge_size );
 //     }
 //     comm->barrier();
 //     Teuchos::RCP< MeshManager<MeshContainer<int> > > source_mesh_manager = 
@@ -1195,24 +1394,28 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
 // 	mesh_blocks[0] = buildTiledTetMesh( my_rank, my_size, edge_size );
 // 	mesh_blocks[1] = buildNullHexMesh();
 // 	mesh_blocks[2] = buildNullPyramidMesh();
+//	mesh_blocks[3] = buildNullWedgeMesh();
 //     }
 //     if ( my_rank == 1 )
 //     {
 // 	mesh_blocks[0] = buildNullTetMesh();
 // 	mesh_blocks[1] = buildTiledHexMesh( my_rank, my_size, edge_size );
 // 	mesh_blocks[2] = buildNullPyramidMesh();
+//	mesh_blocks[3] = buildNullWedgeMesh();
 //     }
 //     if ( my_rank == 2 )
 //     {
 // 	mesh_blocks[0] = buildNullTetMesh();
 // 	mesh_blocks[1] = buildNullHexMesh();
 // 	mesh_blocks[2] = buildTiledPyramidMesh( my_rank, my_size, edge_size );
+//	mesh_blocks[3] = buildNullWedgeMesh();
 //     }
 //     if ( my_rank == 3 )
 //     {
-// 	mesh_blocks[0] = buildTiledTetMesh( my_rank, my_size, edge_size );
+// 	mesh_blocks[0] = buildNullTetMesh();
 // 	mesh_blocks[1] = buildNullHexMesh();
 // 	mesh_blocks[2] = buildNullPyramidMesh();
+//	mesh_blocks[3] = buildTiledWedgeMesh( my_rank, my_size, edge_size );
 //     }
 //     comm->barrier();
 
