@@ -92,7 +92,7 @@ class MeshTools
     static Teuchos::ArrayRCP<GlobalOrdinal> 
     nodesNonConstView( const Mesh& mesh );
 
-    // Get the number of nodes in a mesh block.
+    //! Get the number of nodes in a mesh block.
     static GlobalOrdinal numNodes( const Mesh& mesh )
     { return std::distance( MT::nodesBegin( mesh ), MT::nodesEnd( mesh ) ); }
 
@@ -110,7 +110,7 @@ class MeshTools
     static Teuchos::ArrayRCP<GlobalOrdinal> 
     elementsNonConstView( const Mesh& mesh );
 
-    // Get the number of elements in a mesh block.
+    //! Get the number of elements in a mesh block.
     static GlobalOrdinal numElements( const Mesh& mesh )
     { return std::distance( MT::elementsBegin(mesh), MT::elementsEnd(mesh) ); }
 

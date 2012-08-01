@@ -104,8 +104,8 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
     std::size_t node_dim = mesh_manager.dim();
     error = moab->set_dimension( node_dim );
     testInvariant( moab::MB_SUCCESS == error, 
-		   "Failed to set MOAB mesh dimension: " 
-		   + moab_error_table[error] );
+		   "Failed to set MOAB mesh dimension: " +
+		   moab->get_error_string( error ) );
 
     // Build each mesh block.
     typename MeshManager<Mesh>::BlockIterator block_iterator;
@@ -145,8 +145,8 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	    }
 	    error = moab->create_vertex( vertex_coords, moab_vertex );
 	    testInvariant( moab::MB_SUCCESS == error, 
-			   "Failed to create vertices in MOAB: "
-			   + moab_error_table[error] );
+			   "Failed to create vertices in MOAB: " +
+			   moab->get_error_string( error ) );
 	    vertex_handle_map[ *node_iterator ] = moab_vertex;
 	}
 
@@ -201,13 +201,25 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 					  element_connectivity.size(),
 					  moab_element );
 	    testInvariant( moab::MB_SUCCESS == error,
-			   "Failed to create element in MOAB:"
-			   + moab_error_table[error] );
+			   "Failed to create element in MOAB:" +
+			   moab->get_error_string( error ) );
 
 	    // Map the moab element handle to the native element handle.
 	    element_handle_map[ moab_element ] = *element_iterator;
 	}
     }
+
+    // Temporary debug output.
+    moab::Range elements;
+    error = moab->get_entities_by_dimension( 0, 3, elements );
+    testInvariant( moab::MB_SUCCESS == error,
+		   "Failed to get mesh elements: " + 
+		   moab->get_error_string( error ) );
+
+    error = moab->list_entities( elements );
+    testInvariant( moab::MB_SUCCESS == error,
+		   "Failed to get mesh elements: " + 
+		   moab->get_error_string( error ) );
 
     // Create and return the mesh.
     return Teuchos::rcp( 

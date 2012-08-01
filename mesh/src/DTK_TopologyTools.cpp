@@ -186,7 +186,9 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 				   0,
 				   false,
 				   element_nodes );
-    testInvariant( moab::MB_SUCCESS == error, "Failure getting element nodes" );
+    testInvariant( moab::MB_SUCCESS == error, 
+		   "Failure getting element nodes" +
+		   moab()->get_error_string( error ) );
 
     // Permute MBCN ordering to Shards ordering.
     int num_element_nodes = element_nodes.size();
@@ -198,7 +200,8 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 			      element_nodes.size(), 
 			      &cell_node_coords[0] );
     testInvariant( moab::MB_SUCCESS == error, 
-		   "Failure getting node coordinates" );
+		   "Failure getting node coordinates: " +
+		   moab()->get_error_string( error ) );
 
     // Typical topology case.
     if ( moab::MBPYRAMID != element_topology )

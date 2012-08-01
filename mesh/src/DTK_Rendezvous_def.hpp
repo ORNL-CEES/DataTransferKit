@@ -302,8 +302,8 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Send the mesh to the rendezvous decomposition and build the concrete
- * mesh blocks.
+ * \brief Send the mesh to the rendezvous decomposition and rebuild the mesh
+ * blocks.
  */
 template<class Mesh>
 MeshManager<typename Rendezvous<Mesh>::MeshContainerType> 
