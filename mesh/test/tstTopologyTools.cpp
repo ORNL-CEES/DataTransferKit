@@ -66,10 +66,6 @@ TEUCHOS_UNIT_TEST( TopologyTools, line_test )
     moab::EntityHandle line_segment;
     moab->create_element( moab::MBEDGE, &vertices[0], 2, line_segment );
 
-    // Test the linear nodes function.
-    TEST_ASSERT( TopologyTools::numLinearNodes( 
-    		     moab->type_from_handle( line_segment ) ) == 2 );
-
     // Test the point inclusion test.
     Teuchos::Array<double> point_0(1);
     point_0[0] = 0.5;
@@ -120,10 +116,6 @@ TEUCHOS_UNIT_TEST( TopologyTools, quad_test )
 
     moab::EntityHandle quadrilateral;
     moab->create_element( moab::MBQUAD, &vertices[0], 4, quadrilateral );
-
-    // Test the linear nodes function.
-    TEST_ASSERT( TopologyTools::numLinearNodes( 
-		     moab->type_from_handle( quadrilateral ) ) == 4 );
 
     // Test the point inclusion test.
     Teuchos::Array<double> point_0(2);
@@ -179,10 +171,6 @@ TEUCHOS_UNIT_TEST( TopologyTools, tri_test )
     moab::EntityHandle triangle;
     moab->create_element( moab::MBTRI, &vertices[0], 3, triangle );
 
-    // Test the linear nodes function.
-    TEST_ASSERT( TopologyTools::numLinearNodes( 
-		     moab->type_from_handle( triangle ) ) == 3 );
-
     // Test the point inclusion test.
     Teuchos::Array<double> point_0(2);
     point_0[0] = 0.5;
@@ -237,10 +225,6 @@ TEUCHOS_UNIT_TEST( TopologyTools, tet_test )
 
     moab::EntityHandle tetrahedron;
     moab->create_element( moab::MBTET, &vertices[0], 4, tetrahedron );
-
-    // Test the linear nodes function.
-    TEST_ASSERT( TopologyTools::numLinearNodes( 
-		     moab->type_from_handle( tetrahedron ) ) == 4 );
 
     // Test the point inclusion test.
     Teuchos::Array<double> point_0(3);
@@ -305,10 +289,6 @@ TEUCHOS_UNIT_TEST( TopologyTools, pyramid_test )
 
     moab::EntityHandle pyramid;
     moab->create_element( moab::MBPYRAMID, &vertices[0], 5, pyramid );
-
-    // Test the linear nodes function.
-    TEST_ASSERT( TopologyTools::numLinearNodes( 
-		     moab->type_from_handle( pyramid ) ) == 5 );
 
     // Test the point inclusion test.
     Teuchos::Array<double> point_0(3);
@@ -376,10 +356,6 @@ TEUCHOS_UNIT_TEST( TopologyTools, wedge_test )
 
     moab::EntityHandle wedge;
     moab->create_element( moab::MBPRISM, &vertices[0], 6, wedge );
-
-    // Test the linear nodes function.
-    TEST_ASSERT( TopologyTools::numLinearNodes( 
-		     moab->type_from_handle( wedge ) ) == 6 );
 
     // Test the point inclusion test.
     Teuchos::Array<double> point_0(3);
@@ -457,10 +433,6 @@ TEUCHOS_UNIT_TEST( TopologyTools, hexahedron_test )
 
     moab::EntityHandle hexahedron;
     moab->create_element( moab::MBHEX, &vertices[0], 8, hexahedron );
-
-    // Test the linear nodes function.
-    TEST_ASSERT( TopologyTools::numLinearNodes( 
-		     moab->type_from_handle( hexahedron ) ) == 8 );
 
     // Test the point inclusion test.
     Teuchos::Array<double> point_0(3);

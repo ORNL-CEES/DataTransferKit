@@ -335,14 +335,14 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	    export_node_arcp();
 	RCP_TpetraMap export_node_map = Tpetra::createNonContigMap<GlobalOrdinal>( 
 	    export_node_view, d_comm );
-	testPostcondition( export_node_map != Teuchos::null );
+	testInvariant( export_node_map != Teuchos::null );
 
 	// Setup import node map.
 	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_nodes_view = 
 	    rendezvous_nodes();
 	RCP_TpetraMap import_node_map = Tpetra::createNonContigMap<GlobalOrdinal>(
 	    rendezvous_nodes_view, d_comm );
-	testPostcondition( import_node_map != Teuchos::null );
+	testInvariant( import_node_map != Teuchos::null );
 
 	// Setup export element map.
 	GlobalOrdinal num_elements = 
@@ -354,7 +354,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	RCP_TpetraMap export_element_map = 
 	    Tpetra::createNonContigMap<GlobalOrdinal>(
 		export_element_view, d_comm );
-	testPostcondition( export_element_map != Teuchos::null );
+	testInvariant( export_element_map != Teuchos::null );
 
 	// Setup import element map.
 	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
@@ -362,7 +362,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	RCP_TpetraMap import_element_map = 
 	    Tpetra::createNonContigMap<GlobalOrdinal>(
 		rendezvous_elements_view, d_comm );
-	testPostcondition( import_element_map != Teuchos::null );
+	testInvariant( import_element_map != Teuchos::null );
 
 	// Setup importers.
 	Tpetra::Import<GlobalOrdinal> node_importer( export_node_map, 

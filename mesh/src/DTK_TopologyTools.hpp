@@ -67,14 +67,6 @@ class TopologyTools
     ~TopologyTools()
     { /* ... */ }
 
-    // Get the number of linear nodes for a particular iMesh topology.
-    static int numLinearNodes( const moab::EntityType element_topology );
-
-    // Reorder a list of element nodes from MBCN ordering to Shards ordering.
-    static void MBCN2Shards( std::vector<moab::EntityHandle>& element_nodes, 
-			     const int num_nodes,
-			     const moab::EntityType entity_topology );
-
     // Point in element query.
     static bool pointInElement( Teuchos::Array<double> coords,
 				const moab::EntityHandle element,

@@ -57,106 +57,6 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*! 
- * \brief Get the number of linear nodes for a particular iMesh topology.
- */
-int TopologyTools::numLinearNodes( const moab::EntityType element_topology )
-{
-    int num_nodes = 0;
-    
-    switch( element_topology )
-    {
-	case moab::MBVERTEX:
-	    num_nodes = 1;
-	    break;
-
-	case moab::MBEDGE:
-	    num_nodes = 2;
-	    break;
-
-	case moab::MBTRI:
-	    num_nodes = 3;
-	    break;
-
-	case moab::MBQUAD:
-	    num_nodes = 4;
-	    break;
-
-	case moab::MBTET:
-	    num_nodes = 4;
-	    break;
-
-	case moab::MBPYRAMID:
-	    num_nodes = 5;
-	    break;
-
-	case moab::MBPRISM:
-	    num_nodes = 6;
-	    break;
-
-	case moab::MBHEX:
-	    num_nodes = 8;
-	    break;
-
-	default:
-	    testPrecondition( moab::MBEDGE    == element_topology ||
-			      moab::MBTRI     == element_topology ||
-			      moab::MBQUAD    == element_topology ||
-			      moab::MBTET     == element_topology ||
-			      moab::MBPYRAMID == element_topology ||
-			      moab::MBPRISM   == element_topology ||
-			      moab::MBHEX     == element_topology );
-    }
-
-    return num_nodes;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Reorder a list of element nodes from MBCN ordering to Shards
- * ordering. 
- */
-void TopologyTools::MBCN2Shards( std::vector<moab::EntityHandle>& element_nodes, 
-				 const int num_nodes,
-				 const moab::EntityType topology )
-{
-    std::vector<moab::EntityHandle> temp_nodes( num_nodes );
-
-    switch( topology )
-    {
-	case moab::MBHEX:
-
-	    switch( num_nodes )
-	    {
-		case 27:
-
-		    for ( int n = 0; n < 20; ++n )
-		    {
-			temp_nodes[n] = element_nodes[n];
-		    }
-		    temp_nodes[20] = element_nodes[26];
-		    temp_nodes[21] = element_nodes[24];
-		    temp_nodes[22] = element_nodes[25];
-		    temp_nodes[23] = element_nodes[23];
-		    temp_nodes[24] = element_nodes[21];
-		    temp_nodes[25] = element_nodes[20];
-		    temp_nodes[26] = element_nodes[22];
-
-		    for ( int n = 0; n < num_nodes; ++n )
-		    {
-			element_nodes[n] = temp_nodes[n];
-		    }
-		    break;
-
-		default: ;
-	    }
-	    break;
-
-	default: ;
-    }
-}
-
-//---------------------------------------------------------------------------//
 /*!
  * \brief Point in element query.
  */
@@ -168,6 +68,8 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 
     // Wrap the point in a field container.
     int node_dim = coords.size();
+    testPrecondition( 0 <= coords.size() && coords.size() >= 3 );
+
     Teuchos::Tuple<int,2> point_dimensions;
     point_dimensions[0] = 1;
     point_dimensions[1] = node_dim;
@@ -187,11 +89,8 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 				   element_nodes );
     testInvariant( moab::MB_SUCCESS == error );
 
-    // Permute MBCN ordering to Shards ordering.
-    int num_element_nodes = element_nodes.size();
-    MBCN2Shards( element_nodes, num_element_nodes, element_topology );
-
     // Extract the node coordinates.
+    int num_element_nodes = element_nodes.size();
     Teuchos::Array<double> cell_node_coords( 3 * num_element_nodes );
     error = moab->get_coords( &element_nodes[0], 
 			      element_nodes.size(), 

@@ -148,6 +148,8 @@ bool BoundingBox::pointInBox( const Teuchos::Array<double>& coords ) const
  */
 double BoundingBox::volume( const int dim ) const
 {
+    testPrecondition( 0 <= dim && dim <= 3 );
+
     if ( dim == 1 )
     { 
 	return (d_x_max-d_x_min);
@@ -160,11 +162,8 @@ double BoundingBox::volume( const int dim ) const
     { 
 	return (d_x_max-d_x_min)*(d_y_max-d_y_min)*(d_z_max-d_z_min);
     }
-    else
-    {
-	testPrecondition( dim < 4 );
-	return 0;
-    }
+
+    return 0;
 }
 
 //---------------------------------------------------------------------------//

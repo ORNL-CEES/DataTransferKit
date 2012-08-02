@@ -245,7 +245,8 @@ MeshTools<Mesh>::permutationView( const Mesh& mesh )
     std::size_t num_permutation = 
 	std::distance( MT::permutationBegin( mesh ),
 		       MT::permutationEnd( mesh ) );
-    testInvariant( num_permutation == MT::nodesPerElement( mesh ) );
+    testPrecondition( num_permutation == MT::nodesPerElement( mesh ) );
+
     if ( num_permutation == 0 )
     {
 	return Teuchos::ArrayRCP<std::size_t>(0,0);
@@ -269,7 +270,8 @@ MeshTools<Mesh>::permutationNonConstView( const Mesh& mesh )
     std::size_t num_permutation = 
 	std::distance( MT::permutationBegin( mesh ),
 		       MT::permutationEnd( mesh ) );
-    testInvariant( num_permutation == MT::nodesPerElement( mesh ) );
+    testPrecondition( num_permutation == MT::nodesPerElement( mesh ) );
+
     if ( num_permutation == 0 )
     {
 	return Teuchos::ArrayRCP<std::size_t>(0,0);

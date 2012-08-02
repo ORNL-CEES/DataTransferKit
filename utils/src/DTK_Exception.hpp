@@ -19,7 +19,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \brief Base class for DTK exceptions. This structure is heavily based on
- * that developed by Tom Evans.
+ * that in Nemesis developed by Tom Evans.
  */
 //---------------------------------------------------------------------------//
 class Exception : public std::runtime_error
@@ -37,7 +37,7 @@ class Exception : public std::runtime_error
      * \brief Advanced constructor.
      */
     Exception( const std::string& cond, const std::string& file, 
-		  const int line )
+	       const int line )
 	: std::runtime_error( generate_output( cond, file, line ) )
     { /* ... */ }
 

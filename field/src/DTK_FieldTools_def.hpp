@@ -60,7 +60,7 @@ typename FieldTools<Field>::size_type
 FieldTools<Field>::dimSize( const Field& field )
 {
     std::size_t field_dim = FT::dim( field );
-    testPrecondition( field_dim > 0, "Field dimension must be > 0." );
+    testPrecondition( field_dim > 0 );
     size_type field_size = FT::size( field );
     return field_size / field_dim;
 }
@@ -74,8 +74,8 @@ typename FieldTools<Field>::iterator
 FieldTools<Field>::dimBegin( Field& field, const std::size_t dim )
 {
     std::size_t field_dim = FT::dim( field );
-    testPrecondition( field_dim > 0, "Field dimension must be > 0." );
-    testPrecondition( dim >= 0 && dim < field_dim, "Dimension not valid." );
+    testPrecondition( field_dim > 0 );
+    testPrecondition( dim >= 0 && dim < field_dim );
     return FT::begin(field) + dim*dimSize(field);
 }
 
@@ -88,8 +88,8 @@ typename FieldTools<Field>::const_iterator
 FieldTools<Field>::dimBegin( const Field& field, const std::size_t dim )
 {
     std::size_t field_dim = FT::dim( field );
-    testPrecondition( field_dim > 0, "Field dimension must be > 0." );
-    testPrecondition( dim >= 0 && dim < field_dim, "Dimension not valid." );
+    testPrecondition( field_dim > 0 );
+    testPrecondition( dim >= 0 && dim < field_dim );
     return FT::begin(field) + dim*dimSize(field);
 }
 
@@ -102,8 +102,8 @@ typename FieldTools<Field>::iterator
 FieldTools<Field>::dimEnd( Field& field, const std::size_t dim )
 {
     std::size_t field_dim = FT::dim( field );
-    testPrecondition( field_dim > 0, "Field dimension must be > 0." );
-    testPrecondition( dim >= 0 && dim < field_dim, "Dimension not valid." );
+    testPrecondition( field_dim > 0 );
+    testPrecondition( dim >= 0 && dim < field_dim );
     return FT::begin(field) + (dim+1)*dimSize(field);
 }
 
@@ -116,8 +116,8 @@ typename FieldTools<Field>::const_iterator
 FieldTools<Field>::dimEnd( const Field& field, const std::size_t dim )
 {
     std::size_t field_dim = FT::dim( field );
-    testPrecondition( field_dim > 0, "Field dimension must be > 0." );
-    testPrecondition( dim >= 0 && dim < field_dim, "Dimension not valid." );
+    testPrecondition( field_dim > 0 );
+    testPrecondition( dim >= 0 && dim < field_dim );
     return FT::begin(field) + (dim+1)*dimSize(field);
 }
 
@@ -180,8 +180,7 @@ void FieldTools<Field>::putScalar(
     Field& field, const Teuchos::ArrayView<value_type>& scalars )
 {
     std::size_t field_dim = FT::dim( field );
-    testInvariant( field_dim == (std::size_t) scalars.size(), 
-		   "Number of scalars != field dimension." );
+    testInvariant( field_dim == (std::size_t) scalars.size() );
     for ( std::size_t d = 0; d < field_dim; ++d )
     {
 	std::fill( dimBegin( field, d ), dimEnd( field, d ), scalars[d] );
@@ -213,8 +212,7 @@ void FieldTools<Field>::scale( Field& field,
 			       const Teuchos::ArrayView<value_type>& scalars )
 {
     std::size_t field_dim = FT::dim( field );
-    testPrecondition( field_dim == (std::size_t) scalars.size(), 
-		   "Number of scalars != field dimension." );
+    testPrecondition( field_dim == (std::size_t) scalars.size() );
     iterator dim_iterator;
     for ( std::size_t d = 0; d < field_dim; ++d )
     {
@@ -329,7 +327,7 @@ void FieldTools<Field>::normQ( const Field& field, const RCP_Comm& comm,
 			       const int& q,
 			       Teuchos::Array<value_type>& norms )
 {
-    testPrecondition( q > 0, "q must be > 0. Use normInf if q = 0." );
+    testPrecondition( q > 0 );
     std::size_t field_dim = FT::dim( field );
     norms.resize( field_dim );
     const_iterator dim_iterator;
@@ -371,8 +369,7 @@ void FieldTools<Field>::average( const Field& field, const RCP_Comm& comm,
 {
     size_type global_length = 
 	FieldTools<Field>::globalSize( field, comm );
-    testPrecondition( global_length > 0, 
-	     "Global field size must be greater than 0 to compute average." );
+    testPrecondition( global_length > 0 );
 
     std::size_t field_dim = FT::dim( field );
     averages.resize( field_dim );
@@ -428,6 +425,9 @@ FieldTools<Field>::globalSize( const Field& field,
 template<class Field>
 BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
 {
+    std::size_t dim = FT::dim( field );
+    testPrecondition( 0 <= dim && dim <= 3 );
+
     double huge_val = Teuchos::ScalarTraits<double>::rmax();
     double x_min = -huge_val;
     double y_min = -huge_val;
@@ -436,8 +436,6 @@ BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
     double x_max = huge_val;
     double y_max = huge_val;
     double z_max = huge_val;
-
-    std::size_t dim = FT::dim( field );
 
     if ( dim > 0 )
     {
@@ -453,11 +451,6 @@ BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
     {
 	z_min = *std::min_element( dimBegin( field, 2 ), dimEnd( field, 2 ) );
 	z_max = *std::max_element( dimBegin( field, 2 ), dimEnd( field, 2 ) );
-    }
-    if ( dim > 3 )
-    {
-	throw PreconditionException( 
-	    "Points with greater than 3 dimensions not supported" );
     }
 
     return BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );

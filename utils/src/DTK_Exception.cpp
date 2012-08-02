@@ -22,7 +22,7 @@ std::string Exception::generate_output(
     const std::string& cond, const std::string& file, const int line ) const
 {
     std::ostringstream output;
-    output << "DTK Exception: " << cond << ", failed in " << file 
+    output << "DataTransferKit Exception: " << cond << ", failed in " << file
 	   << ", line " << line  << "." << std::endl;
     return output.str();
 }

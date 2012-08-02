@@ -70,6 +70,14 @@ CellTopologyFactory::RCP_CellTopology
 CellTopologyFactory::create( const moab::EntityType element_topology,
 			     const int num_element_nodes )
 {
+    testPrecondition( moab::MBEDGE    == element_topology ||
+		      moab::MBTRI     == element_topology ||
+		      moab::MBQUAD    == element_topology ||
+		      moab::MBTET     == element_topology ||
+		      moab::MBPYRAMID == element_topology ||
+		      moab::MBPRISM   == element_topology ||
+		      moab::MBHEX     == element_topology );
+
     RCP_CellTopology new_topology;
 
     switch( element_topology )
@@ -270,14 +278,8 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 	    break;
 
 	default:
-	    
-	    testPrecondition( moab::MBEDGE    == element_topology ||
-			      moab::MBTRI     == element_topology ||
-			      moab::MBQUAD    == element_topology ||
-			      moab::MBTET     == element_topology ||
-			      moab::MBPYRAMID == element_topology ||
-			      moab::MBPRISM   == element_topology ||
-			      moab::MBHEX     == element_topology );
+
+	    break;
     }
 
     testPostcondition( new_topology != Teuchos::null );

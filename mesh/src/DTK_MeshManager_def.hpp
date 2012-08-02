@@ -44,6 +44,7 @@
 #include "DTK_MeshTypes.hpp"
 #include "DTK_MeshTools.hpp"
 #include <DTK_Exception.hpp>
+#include <DataTransferKit_config.h>
 
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_Tuple.hpp>
@@ -65,7 +66,11 @@ MeshManager<Mesh>::MeshManager( const Teuchos::ArrayRCP<Mesh>& mesh_blocks,
     , d_active_nodes( d_mesh_blocks.size() )
     , d_active_elements( d_mesh_blocks.size() )
 {
+    // If we're checking with Design-by-Contract, validate the mesh to the
+    // domain model.
+#if HAVE_DTK_DBC
     validate();
+#endif
 }
 
 //---------------------------------------------------------------------------//
@@ -186,39 +191,36 @@ void MeshManager<Mesh>::validate()
 	  block_iterator != d_mesh_blocks.end();
 	  ++block_iterator )
     {
-	testInvariant( d_dim == MT::nodeDim( *block_iterator ) );
+	testPrecondition( 0 <= d_dim && d_dim <= 3 );
+	testPrecondition( d_dim == MT::nodeDim( *block_iterator ) );
 
 	if ( d_dim == 0 )
 	{
-	    testInvariant( MT::elementTopology( *block_iterator ) 
-			   == DTK_VERTEX );
+	    testPrecondition( MT::elementTopology( *block_iterator ) 
+			      == DTK_VERTEX );
 	}
 	else if ( d_dim == 1 )
 	{
-	    testInvariant( MT::elementTopology( *block_iterator ) == 
-			   DTK_LINE_SEGMENT );
+	    testPrecondition( MT::elementTopology( *block_iterator ) == 
+			      DTK_LINE_SEGMENT );
 	}
 	else if ( d_dim == 2 )
 	{
-	    testInvariant( MT::elementTopology( *block_iterator ) == 
-			   DTK_TRIANGLE ||
-			   MT::elementTopology( *block_iterator ) == 
-			   DTK_QUADRILATERAL );
+	    testPrecondition( MT::elementTopology( *block_iterator ) == 
+			      DTK_TRIANGLE ||
+			      MT::elementTopology( *block_iterator ) == 
+			      DTK_QUADRILATERAL );
 	}
 	else if ( d_dim == 3 )
 	{
-	    testInvariant( MT::elementTopology( *block_iterator ) == 
-			   DTK_TETRAHEDRON ||
-			   MT::elementTopology( *block_iterator ) == 
-			   DTK_HEXAHEDRON ||
-			   MT::elementTopology( *block_iterator ) == 
-			   DTK_PYRAMID ||
-			   MT::elementTopology( *block_iterator ) == 
-			   DTK_WEDGE );
-	}
-	else
-	{
-	    testInvariant( d_dim < 4 );
+	    testPrecondition( MT::elementTopology( *block_iterator ) == 
+			      DTK_TETRAHEDRON ||
+			      MT::elementTopology( *block_iterator ) == 
+			      DTK_HEXAHEDRON ||
+			      MT::elementTopology( *block_iterator ) == 
+			      DTK_PYRAMID ||
+			      MT::elementTopology( *block_iterator ) == 
+			      DTK_WEDGE );
 	}
     }
 }

@@ -43,6 +43,7 @@
 
 #include <vector>
 
+
 #include "DTK_TopologyTools.hpp"
 #include <DTK_Exception.hpp>
 

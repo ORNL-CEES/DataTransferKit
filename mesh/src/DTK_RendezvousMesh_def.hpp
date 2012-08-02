@@ -152,8 +152,8 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	GlobalOrdinal num_connect = 
 	    std::distance( MT::connectivityBegin( *block_iterator ),
 			   MT::connectivityEnd( *block_iterator ) );
-	testPrecondition( num_elements == num_connect / nodes_per_element &&
-			  num_connect % nodes_per_element == 0 );
+	testInvariant( num_elements == num_connect / nodes_per_element &&
+		       num_connect % nodes_per_element == 0 );
 
 	// Extract the mesh elements and add them to moab.
 	Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity = 
