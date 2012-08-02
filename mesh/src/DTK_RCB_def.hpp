@@ -143,8 +143,10 @@ void RCB<Mesh>::partition()
 template<class Mesh>
 int RCB<Mesh>::getDestinationProc( Teuchos::Array<double> coords ) const
 {
-    int zoltan_error;
+    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
+    testPrecondition( d_mesh_manager->dim() == (std::size_t) coords.size() );
 
+    int zoltan_error;
     int proc, part;
     zoltan_error = Zoltan_LB_Point_PP_Assign( d_zz, &coords[0], &proc, &part );
     testInvariant( ZOLTAN_OK == zoltan_error );

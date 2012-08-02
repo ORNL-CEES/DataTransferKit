@@ -86,6 +86,7 @@ MeshTools<Mesh>::nodesNonConstView( const Mesh& mesh )
 {
     GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
 					     MT::nodesEnd( mesh ) );
+
     if ( num_nodes == 0 )
     {
 	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
@@ -108,6 +109,7 @@ MeshTools<Mesh>::coordsView( const Mesh& mesh )
 {
     GlobalOrdinal num_coords = std::distance( MT::coordsBegin( mesh ),
 					      MT::coordsEnd( mesh ) );
+
     if ( num_coords == 0 )
     {
 	return Teuchos::ArrayRCP<double>(0,0);
@@ -128,8 +130,9 @@ template <class Mesh>
 Teuchos::ArrayRCP<double>
 MeshTools<Mesh>::coordsNonConstView( const Mesh& mesh )
 {
-    GlobalOrdinal num_coords = 
-	std::distance( MT::coordsBegin( mesh ), MT::coordsEnd( mesh ) );
+    GlobalOrdinal num_coords = std::distance( MT::coordsBegin( mesh ), 
+					      MT::coordsEnd( mesh ) );
+
     if ( num_coords == 0 )
     {
 	return Teuchos::ArrayRCP<double>(0,0);
@@ -150,8 +153,8 @@ template <class Mesh>
 Teuchos::ArrayRCP<const typename MeshTools<Mesh>::GlobalOrdinal> 
 MeshTools<Mesh>::elementsView( const Mesh& mesh )
 {
-    GlobalOrdinal num_elements = 
-	std::distance( MT::elementsBegin( mesh ), MT::elementsEnd( mesh ) );
+    GlobalOrdinal num_elements = std::distance( MT::elementsBegin( mesh ), 
+						MT::elementsEnd( mesh ) );
     if ( num_elements == 0 )
     {
 	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
@@ -172,8 +175,9 @@ template <class Mesh>
 Teuchos::ArrayRCP<typename MeshTools<Mesh>::GlobalOrdinal> 
 MeshTools<Mesh>::elementsNonConstView( const Mesh& mesh )
 {
-    GlobalOrdinal num_elements = 
-	std::distance( MT::elementsBegin( mesh ), MT::elementsEnd( mesh ) );
+    GlobalOrdinal num_elements = std::distance( MT::elementsBegin( mesh ), 
+						MT::elementsEnd( mesh ) );
+    
     if ( num_elements == 0 )
     {
 	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
@@ -198,6 +202,7 @@ MeshTools<Mesh>::connectivityView( const Mesh& mesh )
     GlobalOrdinal num_connectivity = 
 	std::distance( MT::connectivityBegin( mesh ),
 		       MT::connectivityEnd( mesh ) );
+    
     if ( num_connectivity == 0 )
     {
 	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
@@ -221,6 +226,7 @@ MeshTools<Mesh>::connectivityNonConstView( const Mesh& mesh )
     GlobalOrdinal num_connectivity = 
 	std::distance( MT::connectivityBegin( mesh ),
 		       MT::connectivityEnd( mesh ) );
+    
     if ( num_connectivity == 0 )
     {
 	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
@@ -245,7 +251,6 @@ MeshTools<Mesh>::permutationView( const Mesh& mesh )
     std::size_t num_permutation = 
 	std::distance( MT::permutationBegin( mesh ),
 		       MT::permutationEnd( mesh ) );
-    testPrecondition( num_permutation == MT::nodesPerElement( mesh ) );
 
     if ( num_permutation == 0 )
     {
@@ -270,7 +275,6 @@ MeshTools<Mesh>::permutationNonConstView( const Mesh& mesh )
     std::size_t num_permutation = 
 	std::distance( MT::permutationBegin( mesh ),
 		       MT::permutationEnd( mesh ) );
-    testPrecondition( num_permutation == MT::nodesPerElement( mesh ) );
 
     if ( num_permutation == 0 )
     {

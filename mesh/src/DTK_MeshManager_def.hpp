@@ -191,9 +191,13 @@ void MeshManager<Mesh>::validate()
 	  block_iterator != d_mesh_blocks.end();
 	  ++block_iterator )
     {
+	// Nodes.
 	testPrecondition( 0 <= d_dim && d_dim <= 3 );
 	testPrecondition( d_dim == MT::nodeDim( *block_iterator ) );
 
+	// Coordinates.
+
+	// Element topology.
 	if ( d_dim == 0 )
 	{
 	    testPrecondition( MT::elementTopology( *block_iterator ) 
@@ -222,6 +226,10 @@ void MeshManager<Mesh>::validate()
 			      MT::elementTopology( *block_iterator ) == 
 			      DTK_WEDGE );
 	}
+
+	// Connectivity.
+
+	// Permutation.
     }
 }
 

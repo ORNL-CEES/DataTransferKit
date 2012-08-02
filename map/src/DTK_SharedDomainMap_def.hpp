@@ -97,8 +97,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	target_ordinals();
     d_target_map = Tpetra::createNonContigMap<GlobalOrdinal>(
 	import_ordinal_view, d_comm );
-    testPostcondition( d_target_map != Teuchos::null,
-		       "Error creating data import map." );
+    testPostcondition( d_target_map != Teuchos::null );
 
     // Get the global bounding box for the mesh.
     BoundingBox source_box = source_mesh_manager->globalBoundingBox();
@@ -112,8 +111,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     BoundingBox shared_domain_box;
     bool has_intersect = BoundingBox::intersectBoxes( source_box, target_box, 
 						      shared_domain_box );
-    testInvariant( has_intersect, 
-		   "Source and target geometry domains do not intersect." );
+    testPrecondition( has_intersect );
 
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, shared_domain_box );
@@ -256,8 +254,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 		point_target_procs.push_back( from_images[i] );
 	    }
 	}
-	testInvariant( point_target_procs.size() == num_rendezvous_points,
-		       "number of element src procs != number of import elements" );
+	testInvariant( point_target_procs.size() == num_rendezvous_points );
 
 	// Build a list of target procs for the missed points.
 	Teuchos::Array<int> missed_target_procs( missed_in_mesh_idx.size() );
@@ -316,8 +313,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	std::distance( rendezvous_element_src_procs.begin(), 
 		       rendezvous_element_src_procs_bound );
 
-    testInvariant( rendezvous_elements_size == rendezvous_element_src_procs_size,
-		   "Num rendezvous elements != Num rendezvous src procs." );
+    testInvariant( rendezvous_elements_size == rendezvous_element_src_procs_size );
 
     rendezvous_elements.resize( rendezvous_elements_size );
     rendezvous_element_src_procs.resize( rendezvous_elements_size );
@@ -349,8 +345,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     Teuchos::ArrayView<const GlobalOrdinal> source_points_view = source_points();
     d_source_map = Tpetra::createNonContigMap<GlobalOrdinal>( source_points_view,
 							      d_comm );
-    testPostcondition( d_source_map != Teuchos::null,
-		       "Error creating data export map." );
+    testPostcondition( d_source_map != Teuchos::null );
 
     // Send the rendezvous point coordinates to the source decomposition.
     Tpetra::Export<GlobalOrdinal> rendezvous_to_source_exporter( 
@@ -367,8 +362,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     d_source_to_target_exporter = 
 	Teuchos::rcp( new Tpetra::Export<GlobalOrdinal>(
 			  d_source_map, d_target_map ) );
-    testPostcondition( d_source_to_target_exporter != Teuchos::null,
-		       "Error creating data importer." );
+    testPostcondition( d_source_to_target_exporter != Teuchos::null );
 }
 
 //---------------------------------------------------------------------------//
@@ -383,8 +377,7 @@ Teuchos::ArrayView<const typename
 		   SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal> 
 SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
 {
-    testPrecondition( d_keep_missed_points, 
-      "Cannot get missed target points; keep_missed_points = false" );
+    testPrecondition( d_keep_missed_points );
     
     return d_missed_points();
 }
@@ -401,8 +394,7 @@ Teuchos::ArrayView<typename
 		   SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal> 
 SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints()
 {
-    testPrecondition( d_keep_missed_points, 
-      "Cannot get missed target points; keep_missed_points = false" );
+    testPrecondition( d_keep_missed_points );
     
     return d_missed_points();
 }
@@ -426,16 +418,14 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 	FieldTools<TargetField>::dimSize( target_space_manager->field() );
     testPrecondition( 
 	target_size == 
-	(typename TFT::size_type) d_target_map->getNodeNumElements(),
-	"Number of target field elements != Number of coordinate field elements" );
+	(typename TFT::size_type) d_target_map->getNodeNumElements() );
 
     // Evaluate the source function at the target points.
     SourceField function_evaluations = 
 	source_evaluator->evaluate( Teuchos::arcpFromArray( d_source_elements ),
 				    Teuchos::arcpFromArray( d_target_coords ) );
     testPrecondition( SFT::dim( function_evaluations ) == 
-		      TFT::dim( target_space_manager->field() ),
-		      "Source field dimension != target field dimension." );
+		      TFT::dim( target_space_manager->field() ) );
    
     // Build a multivector for the function evaluations.
     Teuchos::ArrayRCP<typename SFT::value_type> source_field_view =
@@ -523,8 +513,7 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
     GlobalOrdinal dim_size = 
 	FieldTools<CoordinateField>::dimSize( target_coords );
 
-    testPrecondition( dim_size == target_ordinals.size(),
-		      "Number of target ordinals != coord field dimension" );
+    testPrecondition( dim_size == target_ordinals.size() );
 
     targets_in_box.resize( dim_size );
     std::size_t field_dim = CFT::dim( target_coords );

@@ -106,6 +106,8 @@ BoundingBox::~BoundingBox()
  */
 bool BoundingBox::pointInBox( const Teuchos::Array<double>& coords ) const
 {
+    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
+
     if ( coords.size() == 1 )
     {
 	if ( coords[0] >= d_x_min &&

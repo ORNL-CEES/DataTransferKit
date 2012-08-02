@@ -98,7 +98,8 @@ template<typename GlobalOrdinal>
 bool KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords,
 				       GlobalOrdinal& element )
 {
-    testInvariant( (int) coords.size() == d_dim );
+    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
+    testPrecondition( (int) coords.size() == d_dim );
 
     double point[3];
     for ( int d = 0; d < d_dim; ++d )
@@ -138,6 +139,9 @@ bool KDTree<GlobalOrdinal>::findPointInLeaf(
     const moab::EntityHandle leaf,
     moab::EntityHandle& element )
 {
+    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
+    testPrecondition( (int) coords.size() == d_dim );
+
     moab::ErrorCode error;
 
     // Get the elements in the leaf.

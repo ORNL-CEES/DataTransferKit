@@ -68,7 +68,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 
     // Wrap the point in a field container.
     int node_dim = coords.size();
-    testPrecondition( 0 <= coords.size() && coords.size() >= 3 );
+    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
 
     Teuchos::Tuple<int,2> point_dimensions;
     point_dimensions[0] = 1;
