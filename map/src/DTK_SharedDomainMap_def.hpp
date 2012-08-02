@@ -112,11 +112,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     BoundingBox shared_domain_box;
     bool has_intersect = BoundingBox::intersectBoxes( source_box, target_box, 
 						      shared_domain_box );
-    if ( !has_intersect )
-    {
-    	throw MeshException( 
-    	    "Source and target geometry domains do not intersect." );
-    }
+    testInvariant( has_intersect, 
+		   "Source and target geometry domains do not intersect." );
 
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, shared_domain_box );

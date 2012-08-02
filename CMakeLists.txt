@@ -22,6 +22,13 @@ TRIBITS_ADD_DEBUG_OPTION()
 
 TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
 
+TRIBITS_ADD_OPTION_AND_DEFINE(
+	${PACKAGE_NAME}_ENABLE_DBC
+	HAVE_DTK_DBC
+	"Enable Design-by-Contract checks."
+	ON
+)
+
 ##---------------------------------------------------------------------------##
 ## C) Process subpackages
 ##---------------------------------------------------------------------------##

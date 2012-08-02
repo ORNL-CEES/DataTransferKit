@@ -14,84 +14,90 @@
 
 namespace DataTransferKit
 {
-
-//---------------------------------------------------------------------------//
-// Design by contract exceptions.
 //---------------------------------------------------------------------------//
 /*!
- * \brief Exception class to be thrown when function preconditions are not
- * met.
+ * \brief Base class for DTK exceptions. This structure is heavily based on
+ * that developed by Tom Evans.
  */
-class PreconditionException : public std::runtime_error
+//---------------------------------------------------------------------------//
+class Exception : public std::runtime_error
 {
   public:
-    PreconditionException( const std::string &msg )
+
+    /*! 
+     * \brief Default constructor.
+     */
+    Exception( const std::string& msg )
 	: std::runtime_error( msg )
     { /* ... */ }
-};
 
-/*!
- * \brief Exception class to be thrown when function postconditions are not
- * met. 
- */
-class PostconditionException : public std::runtime_error
-{
-  public:
-    PostconditionException( const std::string &msg )
-	: std::runtime_error( msg )
+    /*! 
+     * \brief Advanced constructor.
+     */
+    Exception( const std::string& cond, const std::string& file, 
+		  const int line )
+	: std::runtime_error( generate_output( cond, file, line ) )
     { /* ... */ }
-};
 
-/*!
- * \brief Exception class to be thrown when a function alters an invariant.
- */
-class InvariantException : public std::runtime_error
-{
-  public:
-    InvariantException( const std::string &msg )
-	: std::runtime_error( msg )
+    //! Destructor.
+    virtual ~Exception() throw()
     { /* ... */ }
+
+  private:
+
+    // Build an exception output from advanced constructor arguments.
+    std::string generate_output( const std::string& cond, 
+				 const std::string& file, 
+				 const int line ) const;
 };
 
 //---------------------------------------------------------------------------//
-// Design by contract functions.
+// Throw functions.
 //---------------------------------------------------------------------------//
-// Test for a precondition exception.
-void testPrecondition( bool throw_if_false, const std::string &msg );
-
-// Test for a postcondition exception.
-void testPostcondition( bool throw_if_false, const std::string &msg );
-
-// Test for a Invariant exception.
-void testInvariant( bool throw_if_false, const std::string &msg );
+// Throw a DataTransferKit::Exception.
+void throwException( const std::string& cond, const std::string& file,
+		     const int line );
 
 //---------------------------------------------------------------------------//
-// Mesh exceptions.
-//---------------------------------------------------------------------------//
-/*!
- * \brief Base class for mesh errors.
- */
-class MeshException : public std::runtime_error
-{
-  public:
-    MeshException( const std::string &msg )
-	: std::runtime_error( msg )
-    { /* ... */ }
-};
-
-/*!
- * \brief Exception class to be thrown when a point is not found in a mesh
- * during a search process.
- */
-class PointNotFound : public MeshException
-{
-  public:
-    PointNotFound( const std::string &msg )
-	: MeshException( msg )
-    { /* ... */ }
-};
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Design-by-Contract macros.
+//---------------------------------------------------------------------------//
+/*!
+ * \page DataTransferKit Design-by-Contract.
+ *
+ * Design-by-Contract functionality is provided to verify function
+ * preconditions, postconditions, and invariants. These checks are separated
+ * from the debug build by setting the following in a CMake configure:
+ *
+ * -D DataTransferKit_ENABLE_DBC:BOOL=ON
+ *
+ * Although they will require computational overhead, these checks provide an
+ * initial mechanism for veryifing library input arguments. Note that the
+ * bounds-checking functionality used within the DataTransferKit is only
+ * provided by a debug build.
+ */
+
+#if HAVE_DTK_DBC
+
+#define testPrecondition(c) \
+    if (!(c)) DataTransferKit::throwException( #c, __FILE__, __LINE__ )
+#define testPostcondition(c) \
+    if (!(c)) DataTransferKit::throwException( #c, __FILE__, __LINE__ )
+#define testInvariant(c) \
+    if (!(c)) DataTransferKit::throwException( #c, __FILE__, __LINE__ )
+
+#else
+
+#define testPrecondition(c)
+#define testPostcondition(c)
+#define testInvariant(c)
+
+#endif
+
+//---------------------------------------------------------------------------//
 
 #endif // end DTK_EXCEPTION_HPP
 

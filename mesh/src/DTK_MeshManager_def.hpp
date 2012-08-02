@@ -222,7 +222,7 @@ void MeshManager<Mesh>::validate()
 	}
 	else
 	{
-	    throw MeshException( "Mesh dimension > 3 not supported" );
+	    testInvariant( d_dim < 4, "Mesh dimension > 3 not supported" );
 	}
     }
 }

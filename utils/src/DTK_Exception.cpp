@@ -6,43 +6,38 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
+#include <sstream>
 
 #include "DTK_Exception.hpp"
 
-#include <Teuchos_TestForException.hpp>
-
 namespace DataTransferKit
 {
+//---------------------------------------------------------------------------//
+// Exception functions.
+//---------------------------------------------------------------------------//
 /*!
- * \brief Test for a precondition exception.
+ * \brief Build an exception output from advanced constructor arguments.
  */
-void testPrecondition( bool throw_if_false, const std::string &msg )
+std::string Exception::generate_output( 
+    const std::string& cond, const std::string& file, const int line ) const
 {
-    TEUCHOS_TEST_FOR_EXCEPTION( !throw_if_false, 
-				PreconditionException,
-				msg << std::endl );
+    std::ostringstream output;
+    output << "DTK Exception: " << cond << ", failed in " << file 
+	   << ", line " << line  << "." << std::endl;
+    return output.str();
 }
 
-/*!
- * \brief Test for a postcondition exception.
- */
-void testPostcondition( bool throw_if_false, const std::string &msg )
+//---------------------------------------------------------------------------//
+// Throw functions.
+//---------------------------------------------------------------------------//
+// Throw a DataTransferKit::Exception.
+void throwException( const std::string& cond, const std::string& file,
+		     const int line )
 {
-    TEUCHOS_TEST_FOR_EXCEPTION( !throw_if_false, 
-				PostconditionException,
-				msg << std::endl );
+    throw Exception( cond, file, line );
 }
 
-/*!
- * \brief Test for a Invariant exception.
- */
-void testInvariant( bool throw_if_false, const std::string &msg )
-{
-    TEUCHOS_TEST_FOR_EXCEPTION( !throw_if_false, 
-				InvariantException,
-				msg << std::endl );
-}
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
