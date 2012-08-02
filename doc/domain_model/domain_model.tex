@@ -37,11 +37,10 @@
   University of Wisconsin - Madison\\
   1500 Engineering Dr.\\
   Madison, WI 53716\\
-  \href{mailto:sslattery@wisc.edu}{\texttt{sslattery@wisc.edu}}
-}
+  \href{mailto:sslattery@wisc.edu}{\texttt{sslattery@wisc.edu}} }
 
-\date{\today}
-\title{A Geometric Rendezvous-Based Domain Model for Data Transfer}
+\date{\today} \title{A Geometric Rendezvous-Based Domain Model for
+  Data Transfer}
 \begin{document}
 \maketitle
 
@@ -132,18 +131,39 @@ as a basis for the domain model and discussion.
   potentially shared via communicator operations.
 \item {\bf Ordinal:} A value that uniquely identifies an object from
   other objects of the same type. This number is a positive and real
-  integer such that for a given ordinal, $i$, $i \in \mathbb{R}^+$.
+  integer such that for a given ordinal, $i$, $i \in
+  \mathbb{R}^+$. Zero is a valid ordinal.
 \item {\bf Geometry:} An object or collection of objects that has $n$
   physical dimensions and a spatial domain $\Omega \in \mathbb{R}^n$
   that is bounded by a boundary $\Gamma \in \mathbb{R}^n$.
+\item {\bf Vertex:} A zero-dimensional geometric object that has a
+  globally unique ordinal and Cartesian coordinates that describe its
+  geometric position. Vertices can have coordinates in 0, 1, 2, or 3
+  dimensions.
+\item {\bf Node:} A node is zero-dimensional mathematical object that
+  describes the support points of a discretized function (e.g. the
+  quadrature points of a finite element discretization).
+\item {\bf Mesh Element:} A mesh element, $\omega$, is a discrete
+  component of the spatial domain $\Omega$ that is constructed by
+  vertices. These vertices have a canonical ordering and
+  dimensionality that uniquely specifies the element type.
+\item {\bf Element Topology:} A specific number of vertices with a
+  specific canonical vertex ordering with a specific
+  dimensionality. Examples include 4-vertex tetrahedrons and 3-vertex
+  triangles. Every mesh element has a mesh topology.
 \item {\bf Mesh:} An discrete representation of the $n$-dimensional
   spatial domain $\Omega \in \mathbb{R}^n$ consisting of an arbitrary
-  number of {\sl mesh elements}, $\omega$. Mesh can be considered a
+  number of {\sl mesh elements}, $\omega$. The mesh elements that
+  construct a mesh {\sl may not intersect}. Mesh can be considered a
   subset of geometry.
+\item {\bf Mesh Block:} A collection of mesh element elements that
+  exist in the same mesh and have the same topology.
 \item {\bf Field:} A discrete representaion of a $D$-dimensional
   function, $F$, over the domain $\Omega \in \mathbb{R}^n$ such that
   $F(r) : \mathbb{R}^n \rightarrow \mathbb{R}^D, \forall r \in
-  \Omega$.
+  \Omega$. A field spans a domain and the discretization of that
+  domain (e.g. a domain is resolved by mesh elements and therefore the
+  field spans the mesh).
 \item {\bf Evaluator:} An object that evaluates a field at a physical
   location, $\hat{r}$, in the spatial domain $\Omega$ by computing
   $F(\hat{r})$. This operation is valid $\forall \hat{r} \in \Omega$.
@@ -225,8 +245,7 @@ to form the intersection communicator. The intersection communicator
 and $B \in C_{global}$.
 
 \begin{figure}[htpb!]
-  \centering
-  \includegraphics[width=5in]{intersection_comm.pdf}
+  \centering \includegraphics[width=5in]{intersection_comm.pdf}
   \caption{\bf \sl Communicator intersection operation diagram.}{\sl
     In this example, communicator A and communicator B are contained
     within the global communicator but do not encapsulate all of
@@ -239,53 +258,53 @@ and $B \in C_{global}$.
 %%---------------------------------------------------------------------------%%
 \section{Mesh}\label{sec:mesh}
 In order to access DTK mesh services, a subset of the information
-needed to describe the mesh is required. This subset consists of nodes
-and their coordinates, and elements and the nodes that construct
-them. This subset has been demonstrated as sufficient for applying
-data transfer algorithms \cite{Stewart_2004} and can be formulated in
-such a way that algorithms can be generated that are data structure
-netural \cite{Chand_2008}. In addition, for meshes that contain
-multiple element topologies, the concept of mesh blocked by element
-topology is utilized. 
+needed to describe the mesh is required. This subset consists of
+vertices and their coordinates, and elements and the vertices that
+construct them. This subset has been demonstrated as sufficient for
+applying data transfer algorithms \cite{Stewart_2004} and can be
+formulated in such a way that algorithms can be generated that are
+data structure netural \cite{Chand_2008}. In addition, for meshes that
+contain multiple element topologies, the concept of mesh blocked by
+element topology is utilized.
 
-\subsection{Mesh Nodes}\label{subsec:nodes}
-Nodes are the lowest level geometric component of the mesh. All nodes
-have a globally unique ordinal serving as an identification number for
-the node in global operations. A node can have 1, 2, or 3 dimensions
-but all nodes in a mesh must have the same dimension. To specify its
-geometric position, each node has Cartesian (x,y,z) coordinates. A
-node must provide only the coordinates for the specified node
-dimension, no more or no less (e.g. a 2 dimensional node must provide
-x and y coordinates but not a z coordinate). A node may be repeated
-any number of times across the parallel domain with unlimited local
-and global instances. However, every node with the same globally
-unique ordinal must have the same coordinates. As an example, consider
-Figure~\ref{fig:mesh_nodes} depicting a series of nodes contained in
-a mesh. Each node provides a globally unique ordinal and set of 3
-dimensional coordinates.
+\subsection{Mesh Vertices}\label{subsec:vertices}
+Vertices are the lowest level geometric component of the mesh. All
+vertices have a globally unique ordinal serving as an identification
+number for the vertex in global operations. A vertex can have 1, 2, or
+3 dimensions but all vertices in a mesh must have the same
+dimension. To specify its geometric position, each vertex has
+Cartesian (x,y,z) coordinates. A vertex must provide only the
+coordinates for the specified vertex dimension, no more or no less
+(e.g. a 2 dimensional vertex must provide x and y coordinates but not
+a z coordinate). A vertex may be repeated any number of times across
+the parallel domain with unlimited local and global
+instances. However, every vertex with the same globally unique ordinal
+must have the same coordinates. As an example, consider
+Figure~\ref{fig:mesh_vertices} depicting a series of vertices
+contained in a mesh. Each vertex provides a globally unique ordinal
+and set of 3 dimensional coordinates.
 
 \begin{figure}[htpb!]
-  \centering
-  \includegraphics[width=5in]{hex_nodes.pdf}
-  \caption{\bf \sl Basic node description for a mesh.}{\sl Each node
-    is required to have a unique global ordinal, a specified
+  \centering \includegraphics[width=5in]{hex_nodes.pdf}
+  \caption{\bf \sl Basic vertex description for a mesh.}{\sl Each
+    vertex is required to have a unique global ordinal, a specified
     dimensionality, and Cartesian coordinates corresponding to that
-    dimensonality. The nodes in this example are 3 dimensional.}
-  \label{fig:mesh_nodes}
+    dimensonality. The vertices in this example are 3 dimensional.}
+  \label{fig:mesh_vertices}
 \end{figure}
 
 \subsection{Mesh Elements}\label{subsec:elements}
 Elements are the second level of abstraction in the mesh description
-above nodes. All elements have a globally unique ordinal serving as an
-identification number for the element in global operations. This
+above vertices. All elements have a globally unique ordinal serving as
+an identification number for the element in global operations. This
 globally unique ordinal can be the same as a globally unique ordinal
-for a node in the mesh as DTK distinguishes between nodes and
+for a vertex in the mesh as DTK distinguishes between vertices and
 elements. An element has a topology defining its physical structure
-(e.g. tetrahedron, hexahedron, etc.) and a number of nodes needed to
-generate that topology. Elements are constructed from nodes via a
-connectivity list. The connectivity list for a particular element will
-contain the unique node global ordinals that construct it. An element
-may be repeated any number of times across the parallel domain
+(e.g. tetrahedron, hexahedron, etc.) and a number of vertices needed
+to generate that topology. Elements are constructed from vertices via
+a connectivity list. The connectivity list for a particular element
+will contain the unique vertex global ordinals that construct it. An
+element may be repeated any number of times across the parallel domain
 (i.e. it may have unlimited local instances), however, every globally
 unique ordinal must have the same connectivity list associated with
 it. For consistency, DTK uses the MoaB Canonical Numbering (MBCN)
@@ -300,41 +319,40 @@ numbering scheme and the client canonical numbering scheme. A
 permutation list must be described globally, regardless of whether or
 not elements exist on a particular process. For elements that have a
 higher order basis (e.g. quadratic), DTK resolves these as higher
-order nodes via the MBCN system. See Appendix~\ref{apdx:cell_topo} for
-canonical element topologies as defined by DTK.
+order vertices via the MBCN system. See Appendix~\ref{apdx:cell_topo}
+for canonical element topologies as defined by DTK.
 
 Consider the continuation of our example in
 Figure~\ref{fig:mesh_element} showing a linear hexahedron element
-generated from the nodes in Figure~\ref{fig:mesh_nodes}. The element
-has been given a unique global ordinal and the connectivity and
-permuation lists have been specified. The connectivity list specifies
-an element construction from counter-clockwise movement around the
-bottom face and then counter-clockwise movement around the top face
-that is native to the client. The MBCN canonical ordering for linear
-hexahedrons is given at the nodes. Note that MBCN ordering instead
-uses clockwise rotation around the bottom and top faces to construct
-the element. This difference in ordering is specified by the given
-permutation list.
+generated from the vertices in Figure~\ref{fig:mesh_vertices}. The
+element has been given a unique global ordinal and the connectivity
+and permutation lists have been specified. The connectivity list
+specifies an element construction from counter-clockwise movement
+around the bottom face and then counter-clockwise movement around the
+top face that is native to the client. The MBCN canonical ordering for
+linear hexahedrons is given at the vertices. Note that MBCN ordering
+instead uses clockwise rotation around the bottom and top faces to
+construct the element. This difference in ordering is specified by the
+given permutation list.
 
 \begin{figure}[htpb!]
-  \centering
-  \includegraphics[width=5in]{hex_element.pdf}
+  \centering \includegraphics[width=5in]{hex_element.pdf}
   \caption{\bf \sl Basic element description for a mesh.}{\sl Each
     element is required to have a unique global ordinal, and a
-    specified connectivity and permuation list. The MBCN canonical
-    ordinals used by DTK are specified at the nodes.}
+    specified connectivity and permutation list. The MBCN canonical
+    ordinals used by DTK are specified at the vertices.}
   \label{fig:mesh_element}
 \end{figure}
 
 \subsection{Mesh Blocks}\label{subsec:blocks}
 At the highest level of abstraction, the mesh is composed of mesh
 blocks. All elements in a block must have the same topology and number
-of nodes. A mesh may contain as many blocks as desired. Multiple
-blocks with the same mesh topology may exist. Nodes may be repeated in
-different mesh blocks provided that they maintain the same unique
+of vertices. A mesh may contain as many blocks as desired. Multiple
+blocks with the same mesh topology may exist. Vertices may be repeated
+in different mesh blocks provided that they maintain the same unique
 global ordinal and coordinates. Elements may be repeated in different
 mesh blocks provided that they maintain the same unique global ordinal
-and connectivity list. All elements and nodes in all blocks of the
+and connectivity list. All elements and vertices in all blocks of the
 mesh must have the same dimension. Multiple mesh blocks may exist in
 the same spatial region as they are merely a means of subdividing the
 mesh into groups of elements based on their topology. This behavior
@@ -344,30 +362,30 @@ structured or unstructured.
 
 As an example, consider the 2 dimensional hybrid mesh presented in
 Figure~\ref{fig:hybrid_mesh}. This mesh contains both quadrilateral
-(blue) and triangle (red) elements that share connecting nodes. In
+(blue) and triangle (red) elements that share connecting vertices. In
 this case, all quadrilaterals should be specified in a single mesh
-block and all triangles specified in another mesh block. The nodes
+block and all triangles specified in another mesh block. The vertices
 shared by these two mesh blocks may be repeated in either block.
 
 \begin{figure}[htpb!]
-  \centering
-  \includegraphics[width=5in]{hybrid_mesh.pdf}
+  \centering \includegraphics[width=5in]{hybrid_mesh.pdf}
   \caption{\bf \sl Hybrid mesh example.} {\sl Quadrilaterals (blue)
     must be specified in a different mesh block than the triangles
-    (red). Both blocks can share the mutual mesh nodes that construct
-    their elements.}
+    (red). Both blocks can share the mutual mesh vertices that
+    construct their elements.}
   \label{fig:hybrid_mesh}
 \end{figure}
 
 \subsection{Parallel Decomposition}\label{subsec:mesh_decomp}
-Mesh blocks and the elements and nodes they contain may be partitioned
-in any fashion provided that all nodes, elements, and blocks of a mesh
-description exist in a communication space operated on by the same
-parallel communicator. Different blocks in a single mesh description
-may not have different communicators. Each mesh description may have
-its own communicator. Global knowledge of the parallel decomposition
-of a given mesh description is not required. Only local mesh data
-access along with the proper communicator is required.
+Mesh blocks and the elements and vertices they contain may be
+partitioned in any fashion provided that all vertices, elements, and
+blocks of a mesh description exist in a communication space operated
+on by the same parallel communicator. Different blocks in a single
+mesh description may not have different communicators. Each mesh
+description may have its own communicator. Global knowledge of the
+parallel decomposition of a given mesh description is not
+required. Only local mesh data access along with the proper
+communicator is required.
 
 \clearpage
 
@@ -376,19 +394,21 @@ access along with the proper communicator is required.
 In the most general sense, a field refers to the degrees of freedom
 computed by a physics code or the responses derived from those degrees
 of freedom that have been discretized across the domain
-\cite{LIME_2011}. In a physics simulation, examples of degrees of
-freedom include pressure and velocity distributions and examples of
-computed reponses include heat flux or reaction rates. In order to
-access DTK field services, a subset of information needed to describe
-the field is required. A field has a dimension of arbitrary size. As
-examples, for scalar fields this dimension is 1, for 3-vectors (such
-as the velocity example above in a 3 dimensional computation) the
-dimension is 3, and for a 3x3 tensor the dimension is 9.  All local
-instances of the field must have the same dimension. A field can have
-an arbitrary number of local degrees of freedom and this size can
-differ from local domain to local domain. No knowledge of the global
-field decomposition is required, however, it must exist on a single
-communicator.
+\cite{LIME_2011}. The field is implicitly bound to the geometric
+domain through the degrees of freedom and their association with a
+mesh or other geometric components. In a physics simulation, examples
+of degrees of freedom include pressure and velocity distributions and
+examples of computed reponses include heat flux or reaction rates. In
+order to access DTK field services, a subset of information needed to
+describe the field is required. A field has a dimension of arbitrary
+size. As examples, for scalar fields this dimension is 1, for
+3-vectors (such as the velocity example above in a 3 dimensional
+computation) the dimension is 3, and for a 3x3 tensor the dimension is
+9.  All local instances of the field must have the same dimension. A
+field can have an arbitrary number of local degrees of freedom and
+this size can differ from local domain to local domain. No knowledge
+of the global field decomposition is required, however, it must exist
+on a single communicator.
 
 
 \subsection{Field Evaluations}\label{subsec:field_eval}
@@ -413,7 +433,7 @@ where $\hat{r} \in \mathbb{R}^n$ is a single point and $\hat{f} \in
 $\hat{r}$. This operation is not valid for $\hat{r} \notin \Omega$. In
 the context of $\Omega$ discretized by a mesh, these evaluations can
 instead be written in terms of a single mesh element, $\omega \in
-\Omega$. 
+\Omega$.
 
 \begin{equation}
   \hat{f} \leftarrow F(\hat{r}), \forall \hat{r} \in \omega
@@ -424,58 +444,6 @@ This operation is then not valid for $\hat{r} \notin \omega$. If
 $\hat{r} \notin \omega$ and $\hat{r} \notin \Omega$, then alternative
 schemes may be chosen, such as extrapolation, in order to apply the
 field to $\hat{r}$.
-
-
-\subsection{Basic Field Operations}\label{subsec:field_ops}
-For various data transfer and error analysis routines, a suite of
-common global operations on fields will be required. This includes
-norm operations for a given field, $f$, of length $I$ and dimension
-$D$ formulated for the $d^{th}$ dimension as the infinity norm:
-
-\begin{equation}
-  ||f_d||_\infty = \max_{1 \leq i \leq I} |{f_d}_i|\:,
-  \label{eq:infinity_norm}
-\end{equation}
-
-the 1-norm:
-
-\begin{equation}
-  ||f_d||_1 = \sum_{i=1}^I |{f_d}_i|\:,
-  \label{eq:one_norm}
-\end{equation}
-
-the 2-norm:
-
-\begin{equation}
-  ||f_d||_2 = \sqrt{ \sum_{i=1}^I |{f_d}_i|^2 }\:,
-  \label{eq:two_norm}
-\end{equation}
-
-and in general, the q-norm:
-
-\begin{equation}
-||f_d||_q = \Bigg[ \sum_{i=1}^I |{f_d}_i|^q \Bigg]^{1/q}\:,
-  \label{eq:q_norm}
-\end{equation}
-
-all of which are valid over each dimension, $d$, of the field
-\cite{LeVeque_2007}. In addition, other useful operations include a
-global average over dimension:
-
-\begin{equation}
-  \bar{f_d} = \frac{1}{I}\sum_{i=1}^I {f_d}_i\:,
-  \label{eq:average}
-\end{equation}
-
-and scaling a field by a scalar multiple, $\alpha$:
-
-\begin{equation}
-  g_d = \alpha f_d\:,
-  \label{eq:field_scaling}
-\end{equation}
-
-where $\alpha \in \mathbb{R}$ and $g_d$ is the $d^{th}$ dimension of
-the resulting scaled field.
 
 \clearpage
 
@@ -498,8 +466,8 @@ A geometry that is associated with the providing data through function
 evaluations will be referred to as the source geometry while the
 geometry that will be receiving the data will be referred to as the
 target geometry. Although explicitly formulated with a source mesh and
-target nodes below, these concepts can be applied to geometric
-structures beyond mesh and nodes.
+target vertices below, these concepts can be applied to geometric
+structures beyond mesh and vertices.
 
 \subsection{The Rendezvous Algorithm}\label{subsec:rendezvous_alg}
 The geometric rendezvous concept uses a global formulation for the
@@ -507,7 +475,7 @@ data transfer while maintaining a local formulation for the geometric
 search operations. In DTK, the following algorithm developed by
 Plimpton et. al. \cite{Plimpton_2004} generates the rendezvous
 decomposition through global operations in order to achieve a local
-framework for geometric operations. 
+framework for geometric operations.
 
 \begin{enumerate}
 \item Compute a box that bounds the source and target geometry
@@ -529,7 +497,7 @@ paragraphs.
 To begin, a global bounding box for the source and target geometries
 is constructed using their nodal data. These two bounding boxes are
 then intersected to produce the bounding box around the intersection
-of the two geometries. Those source or target nodes that are not
+of the two geometries. Those source or target vertices that are not
 inside this intersection bounding box are not considered for the
 remainder of the algorithm. This step is motivated by the fact that
 for many classes of data transfer problems, such as 2 dimensional
@@ -539,29 +507,36 @@ number of search operations and communication operations.
 
 \paragraph{Step 2: Rendezvous decomposition generation.}
 Recursive coordinate bisectioning (RCB) is used the create a new
-decomposition with the source mesh nodes \cite{Berger_1987}.
+decomposition with the source mesh vertices \cite{Berger_1987}. We
+choose RCB here to repartition the source mesh to achieve a more
+load-balanced decomposition for geometric operations. For many physics
+codes, the parallel decomposition of the mesh is generated with
+physics-related efficiencies in mind. For the purposes of geometric
+operations related to search mesh data structures, the geometric
+nature of RCB alleviates the potential inefficiencies for geometric
+operations that may be incurred by using the original source
+decomposition. This new decomposition, the rendezvous decomposition,
+will serve as an intermediary between the original source and target
+decompositions.
 
 \paragraph{Step 3: Send source elements to rendezvous decomposition.}
-The RCB decomposition is generated only from source node
+The RCB decomposition is generated only from source mesh vertex
 information. The element information must be sent to the rendezvous
-decomposition for the point location process. 
+decomposition and reconstructed for the point location process.
 
 \paragraph{Step 4: Clone source elements that overlap RCB
   sub-domains.}  Because RCB was performed using source nodal data,
 there will be source elements that span the boundary between two or
 more RCB sub-domains. When this occurs, the source elements will be
-repeated in each RCB sub-domain in which their connectivity nodes
-exist. 
+repeated in each RCB sub-domain in which their connectivity vertices
+exist.
 
 \paragraph{Step 5: Build a kD-tree with the local mesh in each rendezvous
-  partition.}  On each rendezvous process, the local mesh is be
-searched with the local target nodes. A kD-tree is generated using the
-local mesh for a fast proximity search of the domain that computes a
-small subset of the local mesh that resides near the node
-\cite{Bentley_1975}. This subset is then searched with a more
-expensive point-in-element operation that transforms the node into the
-reference frame of each element in the subset and uses a Newton
-iteration strategy to determine if the node is contained within.
+  partition.}  On each rendezvous process, the local mesh is searched
+with the local target vertices. A kD-tree is generated using the local
+mesh for a fast proximity search of the domain that computes a small
+subset of the local mesh that resides near the vertex
+\cite{Bentley_1975}.
 
 \subsection{The Rendezvous Decomposition}\label{subsec:rendezvous_decomp}
 Using the above algorithm, a secondary decomposition of a subset of
@@ -582,13 +557,20 @@ dimension as the source and target geometries. A rendezvous
 decomposition cannot be generated with source and target geometries of
 different dimensions (e.g. a 3 dimensional source geometry and a 2
 dimensional target geometry cannot be used to generate a rendezvous
-decomposition). 
+decomposition).
 
-Global recursive coordinate bisectioning parameters
-are maintained for global partitioning information. A local kD-tree is
-formed over the local mesh. In this way, mesh searches on the global
-level use the RCB partitioning information and mesh searches on the
-local level use the kD-tree.
+\subsection{Searching the Rendezvous Decomposition}
+\label{subsec:rendezvous_search}
+
+Global recursive coordinate bisectioning parameters are maintained for
+global partitioning information. A local kD-tree is formed over the
+local mesh. In this way, mesh searches on the global level use the RCB
+partitioning information and mesh searches on the local level use the
+kD-tree to generate a subset of the mesh in the vicinity of the target
+point. This subset is then searched with a more expensive
+point-in-element operation that transforms the vertex into the
+reference frame of each element in the subset and uses a Newton
+iteration strategy to determine if the vertex is contained within.
 
 \clearpage
 
@@ -598,10 +580,10 @@ local level use the kD-tree.
 A parallel topology map is an operator, $M$, that defines the
 translation of a field, $F(s)$, from a source spatial domain,
 $\Omega_S$, to a field, $G(t$), in the target spatial domain
-$\Omega_T$, such that $M: \mathbb{R}^D \rightarrow
-\mathbb{R}^D, \forall r \in [\Omega_S \cap \Omega_T$], using both
-geometric and parallel operations. There are 3 types of parallel
-topology maps: shared domain maps, interface maps, and network maps
+$\Omega_T$, such that $M: \mathbb{R}^D \rightarrow \mathbb{R}^D,
+\forall r \in [\Omega_S \cap \Omega_T$], using both geometric and
+parallel operations. There are 3 types of parallel topology maps:
+shared domain maps, interface maps, and network maps
 \cite{LIME_2011}. Currently, DTK only supports shared domain maps,
 however, interface and network maps are supported by this domain model
 if they have a mesh-based formulation.
@@ -617,8 +599,7 @@ domain over which mapping and the rendezvous decomposition will be
 generated.
 
 \begin{figure}[htpb!]
-  \centering
-  \includegraphics[width=5in]{overlapping_domain.pdf}
+  \centering \includegraphics[width=5in]{overlapping_domain.pdf}
   \caption{\bf \sl Shared domain example.} {\sl $\Omega(S)$ (yellow)
     is the source geometry, $\Omega(T)$ (blue) is the target geometry,
     and $\Omega(R)$ (red) is the shared domain.}
@@ -653,29 +634,28 @@ problems.
   source decomposition.
 \end{enumerate}
 
-\paragraph{Step 1: Get the target nodes that are in the rendezvous
-  decomposition bounding box.}
-We will only operate on those nodes that are contained within the
-rendezvous decomposition bounding box. Those that are not will not
-participate in mapping.
+\paragraph{Step 1: Get the target vertices that are in the rendezvous
+  decomposition bounding box.}  We will only operate on those vertices
+that are contained within the rendezvous decomposition bounding
+box. Those that are not will not participate in mapping.
 
-\paragraph{Step 2: Find rendezvous subdomain for target nodes.}
+\paragraph{Step 2: Find rendezvous subdomain for target vertices.}
 On each target process, the RCB decomposition is searched to find the
-destination process for the target node in the rendezvous
+destination process for the target vertex in the rendezvous
 decomposition.
 
-\paragraph{Step 3: Send target nodes to rendezvous decomposition.}
-Each target node is moved to the appropriate RCB sub-domain for the
+\paragraph{Step 3: Send target vertices to rendezvous decomposition.}
+Each target vertex is moved to the appropriate RCB sub-domain for the
 point location step.
 
-\paragraph{Step 4: Find the source elements in which target nodes reside.}
-We now have source element information and target node information in
-the rendezvous decomposition. On each rendezvous process, the local
-mesh is searched with the local target nodes using the kD-tree and
+\paragraph{Step 4: Find the source elements in which target vertices reside.}
+We now have source element information and target vertex information
+in the rendezvous decomposition. On each rendezvous process, the local
+mesh is searched with the local target vertices using the kD-tree and
 underlying point-in-element functionality.
 
-\paragraph{Step 5: Send element/node pairs back to original
-  decompositions.}  The source element/target node pairs are the map
+\paragraph{Step 5: Send element/vertex pairs back to original
+  decompositions.}  The source element/target vertex pairs are the map
 in this case and they will be used to drive the function evaluation
 routines. These pairings must be communicated from the rendezvous
 decomposition back to the source/target decompositions to complete the
@@ -711,18 +691,16 @@ over 4 processes but with a different spatial decomposition. We
 therefore expect communication between all 4 processes in this
 example.
 
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=5.5in]{tri_part.png}
+\begin{figure}[htpb!]
+  \centering \includegraphics[width=5.5in]{tri_part.png}
   \caption{\bf \sl Source mesh for 2D shared domain example.}{\sl Each
     color represents the portion of the mesh owned by each parallel
     process.}
   \label{fig:source_mesh}
 \end{figure}
 
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=5.5in]{quad_part.png}
+\begin{figure}[htpb!]
+  \centering \includegraphics[width=5.5in]{quad_part.png}
   \caption{\bf \sl Target mesh for 2D shared domain example.}{\sl Each
     color represents the portion of the mesh owned by each parallel
     process.}
@@ -741,9 +719,8 @@ this search process are then communicated back to the process that
 owns the source in element in the decomposition given by
 Figure~\ref{fig:source_mesh}.
 
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=5.5in]{tri_rend.png}
+\begin{figure}[htpb!]
+  \centering \includegraphics[width=5.5in]{tri_rend.png}
   \caption{\bf \sl Rendezvous decomposition for 2D shared domain
     example.}{\sl Each color represents the portion of the mesh owned
     by each parallel process. Both the source and target geometries
@@ -758,21 +735,20 @@ target mesh. This function is valid only over the domain of the mesh
 and can be evaluated at any 2-dimensional point that resides in a
 valid element.
 
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=5.5in]{tri_peaks.png}
+\begin{figure}[htpb!]
+  \centering \includegraphics[width=5.5in]{tri_peaks.png}
   \caption{\bf \sl Source function for 2D shared domain example.}{\sl
     A 2D peaks function is defined over the source domain.}
   \label{fig:source_field}
 \end{figure}
 
 Finally, an evaluator associated with the source mesh is used to drive
-peaks function evaluations on the target mesh nodes in the source
+peaks function evaluations on the target mesh vertices in the source
 decomposition given by Figure~\ref{fig:source_mesh}. These are then
 communicated back to the target decomposition, resulting in the field
 transferred as shown in Figure~\ref{fig:target_field}.
 
-\begin{figure}[h!]
+\begin{figure}[htpb!]
   \centering
   \includegraphics[width=5.5in]{quad_peaks.png}
   \caption{\bf \sl Target function for 2D shared domain example.}{\sl
