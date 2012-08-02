@@ -125,7 +125,6 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Determine the rendezvous destination proc of each point in the
     // coordinate field.
     std::size_t coord_dim = CFT::dim( target_coord_manager->field() );
-    GlobalOrdinal num_coords = CFT::size( target_coord_manager->field() );
     Teuchos::ArrayRCP<double> coords_view = 
 	FieldTools<CoordinateField>::nonConstView( target_coord_manager->field() );
     Teuchos::Array<int> rendezvous_procs = 

@@ -296,11 +296,12 @@ between this canonical numbering scheme and the DTK canonical
 numbering scheme must be made available. Each element topology is
 therefore also described by a permutation list. A permutation list
 specifies the variation in ordering between the DTK canonical
-numbering scheme and the client canonical numbering scheme. For
-elements that have a higher order basis (e.g. quadratic), DTK resolves
-these as higher order nodes via the MBCN system. See
-Appendix~\ref{apdx:cell_topo} for canonical element topologies as
-defined by DTK.
+numbering scheme and the client canonical numbering scheme. A
+permutation list must be described globally, regardless of whether or
+not elements exist on a particular process. For elements that have a
+higher order basis (e.g. quadratic), DTK resolves these as higher
+order nodes via the MBCN system. See Appendix~\ref{apdx:cell_topo} for
+canonical element topologies as defined by DTK.
 
 Consider the continuation of our example in
 Figure~\ref{fig:mesh_element} showing a linear hexahedron element

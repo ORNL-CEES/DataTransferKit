@@ -163,6 +163,10 @@ DataTransferKit::MeshContainer<int> buildNullTetMesh()
     Teuchos::ArrayRCP<int> tet_handles(0);
     Teuchos::ArrayRCP<int> tet_connectivity(0);
     Teuchos::ArrayRCP<std::size_t> permutation_list(4);
+    for ( int i = 0; (int) i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
 
     return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
 						DataTransferKit::DTK_TETRAHEDRON, 4,
@@ -264,6 +268,10 @@ buildNullHexMesh()
     Teuchos::ArrayRCP<int> hex_handles(0);
     Teuchos::ArrayRCP<int> hex_connectivity(0);
     Teuchos::ArrayRCP<std::size_t> permutation_list(8);
+    for ( int i = 0; (int) i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
 
     return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
 						DataTransferKit::DTK_HEXAHEDRON, 8,
@@ -413,6 +421,10 @@ DataTransferKit::MeshContainer<int> buildNullPyramidMesh()
     Teuchos::ArrayRCP<int> pyramid_handles(0);
     Teuchos::ArrayRCP<int> pyramid_connectivity(0);
     Teuchos::ArrayRCP<std::size_t> permutation_list(5);
+    for ( int i = 0; (int) i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
 
     return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
 						DataTransferKit::DTK_PYRAMID, 5,
@@ -515,7 +527,11 @@ DataTransferKit::MeshContainer<int> buildNullWedgeMesh()
     Teuchos::ArrayRCP<double> coords(0);
     Teuchos::ArrayRCP<int> wedge_handles(0);
     Teuchos::ArrayRCP<int> wedge_connectivity(0);
-    Teuchos::ArrayRCP<std::size_t> permutation_list(6,0);
+    Teuchos::ArrayRCP<std::size_t> permutation_list(6);
+    for ( int i = 0; (int) i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
 
     return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
 						DataTransferKit::DTK_WEDGE, 6,
@@ -528,7 +544,7 @@ DataTransferKit::MeshContainer<int> buildNullWedgeMesh()
 //---------------------------------------------------------------------------//
 
 // number of random points to be generated.
-int num_points = 10;
+int num_points = 1000;
 
 //---------------------------------------------------------------------------//
 // Unit tests.
@@ -550,7 +566,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test2 )
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
 
     // Compute element ordinal offsets so we make unique global ordinals.
-    int edge_size = 4;
+    int edge_size = 10;
     int tet_offset = 0;
     int hex_offset = tet_offset + (edge_size+1)*(edge_size+1)*5;
     int pyramid_offset = hex_offset + (edge_size+1)*(edge_size+1);

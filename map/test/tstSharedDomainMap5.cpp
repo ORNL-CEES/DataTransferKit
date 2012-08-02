@@ -512,7 +512,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test5 )
 	new MeshManager<MyMesh>( mesh_blocks, comm, 2 ) );
 
     // Setup target coordinate field manager.
-    int num_points = 1000;
+    int num_points = 500;
     int point_dim = 2;
     MyField coordinate_field( num_points, point_dim );
     buildCoordinateField( my_rank, my_size, num_points, edge_size,
@@ -568,7 +568,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test5 )
 	new MeshManager<MyMesh>( mesh_blocks, comm, 2 ) );
 
     // Setup target coordinate field manager.
-    int num_points = 1000;
+    int num_points = 500;
     int point_dim = 2;
     MyField coordinate_field( num_points, point_dim );
     buildExpandedCoordinateField( my_rank, my_size, num_points, edge_size,
@@ -659,7 +659,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test4 )
 	new MeshManager<MyMesh>( mesh_blocks, comm, 2 ) );
 
     // Setup target coordinate field manager.
-    int num_points = 1000;
+    int num_points = 500;
     int point_dim = 2;
     MyField coordinate_field( num_points, point_dim );
     buildTiledCoordinateField( my_rank, my_size, num_points, edge_size,

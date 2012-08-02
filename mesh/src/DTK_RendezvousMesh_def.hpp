@@ -209,18 +209,6 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	}
     }
 
-    // Temporary debug output.
-    moab::Range elements;
-    error = moab->get_entities_by_dimension( 0, 3, elements );
-    testInvariant( moab::MB_SUCCESS == error,
-		   "Failed to get mesh elements: " + 
-		   moab->get_error_string( error ) );
-
-    error = moab->list_entities( elements );
-    testInvariant( moab::MB_SUCCESS == error,
-		   "Failed to get mesh elements: " + 
-		   moab->get_error_string( error ) );
-
     // Create and return the mesh.
     return Teuchos::rcp( 
 	new RendezvousMesh<GlobalOrdinal>( moab, element_handle_map ) );
