@@ -44,7 +44,7 @@
 #include <algorithm>
 #include <iterator>
 
-#include <DTK_Exception.hpp>
+#include <DTK_Assertion.hpp>
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_CommHelpers.hpp>

@@ -42,7 +42,7 @@
 
 #include "DTK_CellTopologyFactory.hpp"
 #include "DTK_TopologyTools.hpp"
-#include <DTK_Exception.hpp>
+#include <DTK_Assertion.hpp>
 
 #include <Teuchos_ENull.hpp>
 #include <Teuchos_ArrayRCP.hpp>

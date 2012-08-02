@@ -1,28 +1,28 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file   DataTransferKit_Exception.cpp
+ * \file   DTK_Assertion.cpp
  * \author Stuart Slattery
- * \brief  Exceptions for error handling.
+ * \brief  Assertions for error handling and Design-by-Contract.
  */
 //---------------------------------------------------------------------------//
 
 #include <sstream>
 
-#include "DTK_Exception.hpp"
+#include "DTK_Assertion.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Exception functions.
+// Assertion functions.
 //---------------------------------------------------------------------------//
 /*!
- * \brief Build an exception output from advanced constructor arguments.
+ * \brief Build an assertion output from advanced constructor arguments.
  */
-std::string Exception::generate_output( 
+std::string Assertion::generate_output( 
     const std::string& cond, const std::string& file, const int line ) const
 {
     std::ostringstream output;
-    output << "DataTransferKit Exception: " << cond << ", failed in " << file
+    output << "DataTransferKit Assertion: " << cond << ", failed in " << file
 	   << ", line " << line  << "." << std::endl;
     return output.str();
 }
@@ -30,11 +30,11 @@ std::string Exception::generate_output(
 //---------------------------------------------------------------------------//
 // Throw functions.
 //---------------------------------------------------------------------------//
-// Throw a DataTransferKit::Exception.
-void throwException( const std::string& cond, const std::string& file,
+// Throw a DataTransferKit::Assertion.
+void throwAssertion( const std::string& cond, const std::string& file,
 		     const int line )
 {
-    throw Exception( cond, file, line );
+    throw Assertion( cond, file, line );
 }
 
 //---------------------------------------------------------------------------//
@@ -42,5 +42,5 @@ void throwException( const std::string& cond, const std::string& file,
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_Exception.cpp
+// end DTK_Assertion.cpp
 //---------------------------------------------------------------------------//

@@ -45,7 +45,7 @@
 
 
 #include "DTK_TopologyTools.hpp"
-#include <DTK_Exception.hpp>
+#include <DTK_Assertion.hpp>
 
 #include <Teuchos_ArrayView.hpp>
 

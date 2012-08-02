@@ -46,7 +46,7 @@
 #include <cassert>
 
 #include "DTK_MeshTools.hpp"
-#include <DTK_Exception.hpp>
+#include <DTK_Assertion.hpp>
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ENull.hpp>

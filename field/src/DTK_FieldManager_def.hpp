@@ -41,7 +41,7 @@
 #ifndef DTK_FIELDMANAGER_DEF
 #define DTK_FIELDMANAGER_DEF
 
-#include <DTK_Exception.hpp>
+#include <DTK_Assertion.hpp>
 
 namespace DataTransferKit
 {

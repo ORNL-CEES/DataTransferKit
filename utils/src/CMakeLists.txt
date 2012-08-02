@@ -30,7 +30,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
-  DTK_Exception.hpp
+  DTK_Assertion.hpp
   )
 
 # Set sources
@@ -38,7 +38,7 @@ APPEND_SET(HEADERS
 APPEND_SET(SOURCES
   DTK_CommIndexer.cpp
   DTK_CommTools.cpp
-  DTK_Exception.cpp
+  DTK_Assertion.cpp
   )
 
 # Set addition headers and source based on package-specific

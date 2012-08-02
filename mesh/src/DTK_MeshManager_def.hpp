@@ -43,7 +43,7 @@
 
 #include "DTK_MeshTypes.hpp"
 #include "DTK_MeshTools.hpp"
-#include <DTK_Exception.hpp>
+#include <DTK_Assertion.hpp>
 #include <DataTransferKit_config.h>
 
 #include <Teuchos_ScalarTraits.hpp>

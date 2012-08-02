@@ -1,13 +1,13 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file   DataTransferKit_Exception.hpp
+ * \file   DTK_Assertion.hpp
  * \author Stuart Slattery
- * \brief  Exceptions for error handling.
+ * \brief  Assertions and Design-by-Contract for error handling.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_EXCEPTION_HPP
-#define DTK_EXCEPTION_HPP
+#ifndef DTK_ASSERTION_HPP
+#define DTK_ASSERTION_HPP
 
 #include <stdexcept>
 #include <string>
@@ -18,36 +18,38 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Base class for DTK exceptions. This structure is heavily based on
- * that in Nemesis developed by Tom Evans.
+ * \brief Base class for DTK assertions. This structure is heavily based on
+ * that in Nemesis developed by Tom Evans. We derive from std::logic_error
+ * here as the DBC checks that utilize this class are meant to find errors
+ * that can be prevented before runtime.
  */
 //---------------------------------------------------------------------------//
-class Exception : public std::runtime_error
+class Assertion : public std::logic_error
 {
   public:
 
     /*! 
      * \brief Default constructor.
      */
-    Exception( const std::string& msg )
-	: std::runtime_error( msg )
+    Assertion( const std::string& msg )
+	: std::logic_error( msg )
     { /* ... */ }
 
     /*! 
-     * \brief Advanced constructor.
+     * \brief DBC constructor.
      */
-    Exception( const std::string& cond, const std::string& file, 
+    Assertion( const std::string& cond, const std::string& file, 
 	       const int line )
-	: std::runtime_error( generate_output( cond, file, line ) )
+	: std::logic_error( generate_output( cond, file, line ) )
     { /* ... */ }
 
     //! Destructor.
-    virtual ~Exception() throw()
+    virtual ~Assertion() throw()
     { /* ... */ }
 
   private:
 
-    // Build an exception output from advanced constructor arguments.
+    // Build an assertion output from advanced constructor arguments.
     std::string generate_output( const std::string& cond, 
 				 const std::string& file, 
 				 const int line ) const;
@@ -56,8 +58,8 @@ class Exception : public std::runtime_error
 //---------------------------------------------------------------------------//
 // Throw functions.
 //---------------------------------------------------------------------------//
-// Throw a DataTransferKit::Exception.
-void throwException( const std::string& cond, const std::string& file,
+// Throw a DataTransferKit::Assertion.
+void throwAssertion( const std::string& cond, const std::string& file,
 		     const int line );
 
 //---------------------------------------------------------------------------//
@@ -70,26 +72,28 @@ void throwException( const std::string& cond, const std::string& file,
 /*!
  * \page DataTransferKit Design-by-Contract.
  *
- * Design-by-Contract functionality is provided to verify function
+ * Design-by-Contract (DBC) functionality is provided to verify function
  * preconditions, postconditions, and invariants. These checks are separated
- * from the debug build by setting the following in a CMake configure:
+ * from the debug build. They can be activated by setting the following in a
+ * CMake configure:
  *
  * -D DataTransferKit_ENABLE_DBC:BOOL=ON
  *
- * Although they will require additional computational overhead, these checks
- * provide a mechanism for veryifing library input arguments. Note that the
- * bounds-checking functionality used within the DataTransferKit is only
- * provided by a debug build.
+ * By default, DBC is activated but it can be deactivated by setting the above
+ * option to OFF. Although they will require additional computational
+ * overhead, these checks provide a mechanism for veryifing library input
+ * arguments. Note that the bounds-checking functionality used within the
+ * DataTransferKit is only provided by a debug build.
  */
 
 #if HAVE_DTK_DBC
 
 #define testPrecondition(c) \
-    if (!(c)) DataTransferKit::throwException( #c, __FILE__, __LINE__ )
+    if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
 #define testPostcondition(c) \
-    if (!(c)) DataTransferKit::throwException( #c, __FILE__, __LINE__ )
+    if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
 #define testInvariant(c) \
-    if (!(c)) DataTransferKit::throwException( #c, __FILE__, __LINE__ )
+    if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
 
 #else
 
@@ -101,9 +105,9 @@ void throwException( const std::string& cond, const std::string& file,
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_EXCEPTION_HPP
+#endif // end DTK_ASSERTION_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Exception.hpp
+// end DTK_Assertion.hpp
 //---------------------------------------------------------------------------//
 

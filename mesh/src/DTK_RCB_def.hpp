@@ -41,7 +41,7 @@
 #include <algorithm>
 
 #include "DTK_MeshTools.hpp"
-#include <DTK_Exception.hpp>
+#include <DTK_Assertion.hpp>
 
 #include <mpi.h>
 

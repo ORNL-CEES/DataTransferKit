@@ -44,7 +44,7 @@
 #include <algorithm>
 
 #include <DTK_FieldTools.hpp>
-#include <DTK_Exception.hpp>
+#include <DTK_Assertion.hpp>
 #include <DTK_Rendezvous.hpp>
 #include <DTK_MeshTools.hpp>
 #include <DTK_BoundingBox.hpp>
