@@ -828,7 +828,7 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer( int my_rank )
 // Global Test Variables.
 //---------------------------------------------------------------------------//
 
-int num_points = 500;
+int num_points = 1000;
 
 //---------------------------------------------------------------------------//
 // Tests
