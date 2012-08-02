@@ -497,7 +497,7 @@ buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v2];
 
 	    // Wedge 2.
-	    elem_idx = i + j*(edge_length-1) + num_elements/6;
+	    elem_idx = i + j*(edge_length-1) + num_elements/2;
 	    wedge_handles[elem_idx] = elem_idx + elem_offset;
 	    wedge_connectivity[elem_idx] 	        = node_handles[v1];
 	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];

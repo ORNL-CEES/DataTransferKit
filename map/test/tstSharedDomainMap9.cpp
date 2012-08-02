@@ -966,7 +966,7 @@ buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v2];
 
 	    // Wedge 2.
-	    elem_idx = i + j*(edge_length-1) + num_elements/6;
+	    elem_idx = i + j*(edge_length-1) + num_elements/2;
 	    wedge_handles[elem_idx] = elem_idx + elem_offset;
 	    wedge_connectivity[elem_idx] 	        = node_handles[v1];
 	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];
@@ -1054,7 +1054,7 @@ buildTiledWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset 
 	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v2];
 
 	    // Wedge 2.
-	    elem_idx = i + j*(edge_length-1) + num_elements/6;
+	    elem_idx = i + j*(edge_length-1) + num_elements/2;
 	    wedge_handles[elem_idx] = elem_idx + elem_offset;
 	    wedge_connectivity[elem_idx] 	        = node_handles[v1];
 	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];
@@ -1196,7 +1196,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
 	    buildPyramidMesh( my_rank, my_size, edge_size, pyramid_offset );
 	mesh_blocks[3] = buildNullWedgeMesh();
     }
-    else 
+    else if ( my_rank == 3 )
     {
 	mesh_blocks[0] = buildNullTetMesh();
 	mesh_blocks[1] = buildNullHexMesh();
@@ -1220,7 +1220,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MeshContainer<int> ,MyField> > source_evaluator;
+    Teuchos::RCP< FieldEvaluator<MeshType ,MyField> > source_evaluator;
     if ( my_rank == 0 )
     {
     	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
@@ -1245,7 +1245,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
 	new FieldManager<MyField>( MyField( num_points, target_dim ), comm ) );
 
     // Setup and apply the shared domain mapping.
-    SharedDomainMap<MeshContainer<int> ,MyField> shared_domain_map( comm );
+    SharedDomainMap<MeshType ,MyField> shared_domain_map( comm );
     shared_domain_map.setup( source_mesh_manager, target_coord_manager );
     shared_domain_map.apply( source_evaluator, target_space_manager );
 
@@ -1333,7 +1333,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test9 )
 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MeshContainer<int> ,MyField> > source_evaluator;
+    Teuchos::RCP< FieldEvaluator<MeshType ,MyField> > source_evaluator;
     if ( my_rank == 0 )
     {
     	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
@@ -1358,7 +1358,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test9 )
 	new FieldManager<MyField>( MyField( num_points, target_dim ), comm ) );
 
     // Setup and apply the shared domain mapping.
-    SharedDomainMap<MeshContainer<int> ,MyField> shared_domain_map( comm, true );
+    SharedDomainMap<MeshType ,MyField> shared_domain_map( comm, true );
     shared_domain_map.setup( source_mesh_manager, target_coord_manager );
     shared_domain_map.apply( source_evaluator, target_space_manager );
 
@@ -1433,7 +1433,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test9 )
     int wedge_offset = pyramid_offset + (edge_size+1)*(edge_size+1)*6;
 
     // Setup source mesh manager.
-    Teuchos::ArrayRCP<MeshContainer<int> > mesh_blocks( 4 );
+    Teuchos::ArrayRCP<MeshType > mesh_blocks( 4 );
     if ( my_rank == 0 )
     {
 	mesh_blocks[0] = 
@@ -1482,7 +1482,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test9 )
 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MeshContainer<int> ,MyField> > source_evaluator;
+    Teuchos::RCP< FieldEvaluator<MeshType ,MyField> > source_evaluator;
     if ( my_rank == 0 )
     {
     	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
@@ -1506,7 +1506,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test9 )
 	new FieldManager<MyField>( MyField( num_points, 1 ), comm ) );
 
     // Setup and apply the shared domain mapping.
-    SharedDomainMap<MeshContainer<int> ,MyField> shared_domain_map( comm, true );
+    SharedDomainMap<MeshType ,MyField> shared_domain_map( comm, true );
     shared_domain_map.setup( source_mesh_manager, target_coord_manager );
     shared_domain_map.apply( source_evaluator, target_space_manager );
 
