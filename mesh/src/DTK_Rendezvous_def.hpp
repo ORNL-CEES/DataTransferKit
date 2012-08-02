@@ -96,8 +96,7 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
     // Construct the rendezvous partitioning for the mesh with RCB using the
     // nodes that are in the box.
     d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh_manager ) );
-    testPostcondition( d_rcb != Teuchos::null,
-		       "Error creating RCB decomposition." );
+    testPostcondition( d_rcb != Teuchos::null );
     d_rcb->partition();
 
     // Send the mesh in the box to the rendezvous decomposition and build the
@@ -107,14 +106,12 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 
     // Build the concrete rendezvous mesh from the mesh container.
     d_rendezvous_mesh = createRendezvousMesh( rendezvous_mesh_manager );
-    testPostcondition( d_rendezvous_mesh != Teuchos::null,
-		       "Error creating rendezvous mesh." );
+    testPostcondition( d_rendezvous_mesh != Teuchos::null );
 
     // Create a kD-tree in the rendezvous decomposition.
     d_kdtree = Teuchos::rcp( 
 	new KDTree<GlobalOrdinal>( d_rendezvous_mesh , d_node_dim ) );
-    testPostcondition( d_kdtree != Teuchos::null,
-		       "Error creating rendezvous kD-tree." );
+    testPostcondition( d_kdtree != Teuchos::null );
     d_kdtree->build();
 }
 
@@ -338,16 +335,14 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	    export_node_arcp();
 	RCP_TpetraMap export_node_map = Tpetra::createNonContigMap<GlobalOrdinal>( 
 	    export_node_view, d_comm );
-	testPostcondition( export_node_map != Teuchos::null,
-			   "Error creating node export map." );
+	testPostcondition( export_node_map != Teuchos::null );
 
 	// Setup import node map.
 	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_nodes_view = 
 	    rendezvous_nodes();
 	RCP_TpetraMap import_node_map = Tpetra::createNonContigMap<GlobalOrdinal>(
 	    rendezvous_nodes_view, d_comm );
-	testPostcondition( import_node_map != Teuchos::null,
-			   "Error creating node import map." );
+	testPostcondition( import_node_map != Teuchos::null );
 
 	// Setup export element map.
 	GlobalOrdinal num_elements = 
@@ -359,8 +354,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	RCP_TpetraMap export_element_map = 
 	    Tpetra::createNonContigMap<GlobalOrdinal>(
 		export_element_view, d_comm );
-	testPostcondition( export_element_map != Teuchos::null,
-			   "Error creating element export map." );
+	testPostcondition( export_element_map != Teuchos::null );
 
 	// Setup import element map.
 	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
@@ -368,8 +362,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	RCP_TpetraMap import_element_map = 
 	    Tpetra::createNonContigMap<GlobalOrdinal>(
 		rendezvous_elements_view, d_comm );
-	testPostcondition( import_element_map != Teuchos::null,
-			   "Error creating element import map." );
+	testPostcondition( import_element_map != Teuchos::null );
 
 	// Setup importers.
 	Tpetra::Import<GlobalOrdinal> node_importer( export_node_map, 
@@ -553,8 +546,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	    element_src_procs.push_back( from_images[i] );
 	}
     }
-    testInvariant( element_src_procs.size() == num_import_elements,
-		   "number of element src procs != number of import elements" );
+    testInvariant( element_src_procs.size() == num_import_elements );
         
     // Next, move these into the rendezvous element set so that we have a
     // unique list of the elements and build the rendezvous mesh element to

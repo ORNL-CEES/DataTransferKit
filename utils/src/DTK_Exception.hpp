@@ -12,6 +12,8 @@
 #include <stdexcept>
 #include <string>
 
+#include <DataTransferKit_config.h>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -74,10 +76,10 @@ void throwException( const std::string& cond, const std::string& file,
  *
  * -D DataTransferKit_ENABLE_DBC:BOOL=ON
  *
- * Although they will require computational overhead, these checks provide an
- * initial mechanism for veryifing library input arguments. Note that the
- * bounds-checking functionality used within the DataTransferKit is only
- * provided by a debug build.
+ * Although they will require additional computational overhead, these checks
+ * provide an additional mechanism for veryifing library input arguments. Note
+ * that the bounds-checking functionality used within the DataTransferKit is
+ * only provided by a debug build.
  */
 
 #if HAVE_DTK_DBC

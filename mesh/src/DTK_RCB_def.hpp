@@ -133,8 +133,7 @@ void RCB<Mesh>::partition()
 					&d_export_procs,    
 					&d_export_to_part ); 
 
-    testInvariant( ZOLTAN_OK == zoltan_error, 
-		   "Zoltan error creating RCB partitioning" );
+    testInvariant( ZOLTAN_OK == zoltan_error );
 }
 
 //---------------------------------------------------------------------------//
@@ -148,8 +147,7 @@ int RCB<Mesh>::getDestinationProc( Teuchos::Array<double> coords ) const
 
     int proc, part;
     zoltan_error = Zoltan_LB_Point_PP_Assign( d_zz, &coords[0], &proc, &part );
-    testInvariant( ZOLTAN_OK == zoltan_error, 
-		   "Zoltan error getting point destination proc." );
+    testInvariant( ZOLTAN_OK == zoltan_error );
 
     return proc;
 }
@@ -269,11 +267,10 @@ void RCB<Mesh>::getGeometryList(
 
     // Check Zoltan for consistency.
     std::size_t node_dim = mesh_manager->dim();
-    testInvariant( sizeGID == 1, "Zoltan global ID size != 1." );
-    testInvariant( sizeLID == 1, "Zoltan local ID size != 1." );
-    testInvariant( num_dim == (int) node_dim, "Zoltan dimension != 3." );
-    testInvariant( num_obj == (int) num_active_nodes, 
-		   "Zoltan number of nodes != mesh number of nodes." );
+    testInvariant( sizeGID == 1 );
+    testInvariant( sizeLID == 1 );
+    testInvariant( num_dim == (int) node_dim );
+    testInvariant( num_obj == (int) num_active_nodes );
 
     if ( sizeGID != 1 || sizeLID != 1 || 
 	 num_dim != (int) node_dim || num_obj != (int) num_active_nodes )

@@ -97,15 +97,12 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
     // Create a moab interface.
     moab::ErrorCode error;
     Teuchos::RCP<moab::Interface> moab = Teuchos::rcp( new moab::Core() );
-    testPostcondition( moab != Teuchos::null,
-		       "Error creating MOAB interface" );
+    testPostcondition( moab != Teuchos::null );
 
     // Set the mesh dimension.
     std::size_t node_dim = mesh_manager.dim();
     error = moab->set_dimension( node_dim );
-    testInvariant( moab::MB_SUCCESS == error, 
-		   "Failed to set MOAB mesh dimension: " +
-		   moab->get_error_string( error ) );
+    testInvariant( moab::MB_SUCCESS == error );
 
     // Build each mesh block.
     typename MeshManager<Mesh>::BlockIterator block_iterator;
@@ -118,9 +115,7 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	GlobalOrdinal num_coords = 
 	    std::distance( MT::coordsBegin( *block_iterator ),
 			   MT::coordsEnd( *block_iterator ) );
-	testInvariant( 
-	    num_coords == (GlobalOrdinal) node_dim * num_nodes,
-	    "Number of coordinates provided != node_dim * number of nodes" );
+	testInvariant( num_coords == (GlobalOrdinal) node_dim * num_nodes );
 
 	// Add the mesh nodes to moab and map the native vertex handles to the
 	// moab vertex handles. This should be in a hash table. We'll need one
@@ -144,9 +139,8 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 		vertex_coords[d] = 0.0;
 	    }
 	    error = moab->create_vertex( vertex_coords, moab_vertex );
-	    testInvariant( moab::MB_SUCCESS == error, 
-			   "Failed to create vertices in MOAB: " +
-			   moab->get_error_string( error ) );
+	    testInvariant( moab::MB_SUCCESS == error );
+
 	    vertex_handle_map[ *node_iterator ] = moab_vertex;
 	}
 
@@ -158,10 +152,8 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	GlobalOrdinal num_connect = 
 	    std::distance( MT::connectivityBegin( *block_iterator ),
 			   MT::connectivityEnd( *block_iterator ) );
-	testPrecondition( 
-	    num_elements == num_connect / nodes_per_element &&
-	    num_connect % nodes_per_element == 0,
-	    "Connectivity array inconsistent with element description." );
+	testPrecondition( num_elements == num_connect / nodes_per_element &&
+			  num_connect % nodes_per_element == 0 );
 
 	// Extract the mesh elements and add them to moab.
 	Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity = 
@@ -189,8 +181,8 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 		    vertex_handle_map.find( 
 			mesh_connectivity[ conn_index ] )->second;
 	    }
-	    testInvariant( (int) element_connectivity.size() == nodes_per_element,
-			   "Element connectivity size != nodes per element." );
+	    testInvariant( (int) element_connectivity.size() 
+			   == nodes_per_element );
 
 	    // Create the element in moab.
 	    moab::EntityType entity_type = 
@@ -200,9 +192,7 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 					  &element_connectivity[0],
 					  element_connectivity.size(),
 					  moab_element );
-	    testInvariant( moab::MB_SUCCESS == error,
-			   "Failed to create element in MOAB:" +
-			   moab->get_error_string( error ) );
+	    testInvariant( moab::MB_SUCCESS == error );
 
 	    // Map the moab element handle to the native element handle.
 	    element_handle_map[ moab_element ] = *element_iterator;

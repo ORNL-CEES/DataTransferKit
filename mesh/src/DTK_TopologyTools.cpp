@@ -105,8 +105,7 @@ int TopologyTools::numLinearNodes( const moab::EntityType element_topology )
 			      moab::MBTET     == element_topology ||
 			      moab::MBPYRAMID == element_topology ||
 			      moab::MBPRISM   == element_topology ||
-			      moab::MBHEX     == element_topology,
-			      "Invalid mesh topology" );
+			      moab::MBHEX     == element_topology );
     }
 
     return num_nodes;
@@ -186,9 +185,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 				   0,
 				   false,
 				   element_nodes );
-    testInvariant( moab::MB_SUCCESS == error, 
-		   "Failure getting element nodes" +
-		   moab()->get_error_string( error ) );
+    testInvariant( moab::MB_SUCCESS == error );
 
     // Permute MBCN ordering to Shards ordering.
     int num_element_nodes = element_nodes.size();
@@ -199,9 +196,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
     error = moab->get_coords( &element_nodes[0], 
 			      element_nodes.size(), 
 			      &cell_node_coords[0] );
-    testInvariant( moab::MB_SUCCESS == error, 
-		   "Failure getting node coordinates: " +
-		   moab()->get_error_string( error ) );
+    testInvariant( moab::MB_SUCCESS == error );
 
     // Typical topology case.
     if ( moab::MBPYRAMID != element_topology )
@@ -252,7 +247,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 	    CellTopologyFactory::create( moab::MBTET, 4 );
 
 	// Build 2 tetrahedrons from the 1 pyramid.
-	testInvariant( node_dim == 3, "Pyramid elements must be 3D." );
+	testInvariant( node_dim == 3 );
 	Intrepid::FieldContainer<double> cell_nodes( 1, 4, node_dim );
 
 	// Tetrahederon 1.
@@ -285,7 +280,8 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 	bool in_tet_1 = Intrepid::CellTools<double>::checkPointsetInclusion( 
 	    reference_point, *cell_topo);
 
-	// If the point is the first tetrahedron, it is in the pyramid.
+	// If the point is the first tetrahedron, it is in the pyramid and we
+	// can exit.
 	if ( in_tet_1 )
 	{
 	    return true;
@@ -308,7 +304,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 	cell_nodes( 0, 3, 1 ) = cell_node_coords[13];
 	cell_nodes( 0, 3, 2 ) = cell_node_coords[14];
 
-	// Map the point to the reference frame of the first linear
+	// Map the point to the reference frame of the second linear
 	// tetrahedron. 
 	Intrepid::CellTools<double>::mapToReferenceFrame( reference_point,
 							  point,
@@ -325,10 +321,8 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 	{
 	    return true;
 	}
-	else
-	{
-	    return false;
-	}
+
+	return false;
     }
 }
 

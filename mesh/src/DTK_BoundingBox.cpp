@@ -70,9 +70,9 @@ BoundingBox::BoundingBox(
     , d_y_max( y_max )
     , d_z_max( z_max )
 {
-    testPrecondition( d_x_min <= d_x_max, "Bounding box x_min > x_max" );
-    testPrecondition( d_y_min <= d_y_max, "Bounding box y_min > y_max" );
-    testPrecondition( d_z_min <= d_z_max, "Bounding box z_min > z_max" );
+    testPrecondition( d_x_min <= d_x_max );
+    testPrecondition( d_y_min <= d_y_max );
+    testPrecondition( d_z_min <= d_z_max );
 }
 
 //---------------------------------------------------------------------------//
@@ -87,9 +87,9 @@ BoundingBox::BoundingBox( const Teuchos::Tuple<double,6>& bounds )
     , d_y_max( bounds[4] )
     , d_z_max( bounds[5] )
 {
-    testPrecondition( d_x_min <= d_x_max, "Bounding box x_min > x_max" );
-    testPrecondition( d_y_min <= d_y_max, "Bounding box y_min > y_max" );
-    testPrecondition( d_z_min <= d_z_max, "Bounding box z_min > z_max" );
+    testPrecondition( d_x_min <= d_x_max );
+    testPrecondition( d_y_min <= d_y_max );
+    testPrecondition( d_z_min <= d_z_max );
 }
 
 //---------------------------------------------------------------------------//
@@ -162,7 +162,7 @@ double BoundingBox::volume( const int dim ) const
     }
     else
     {
-	throw PreconditionException( "Box dimension != 1, 2, or 3." );
+	testPrecondition( dim < 4 );
 	return 0;
     }
 }

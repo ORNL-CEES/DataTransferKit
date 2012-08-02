@@ -6,6 +6,15 @@ INCLUDE(TribitsLibraryMacros)
 # A) Package-specific configuration options
 #
 
+TRIBITS_ADD_OPTION_AND_DEFINE(
+	DataTransferKit_ENABLE_DBC
+	HAVE_DTK_DBC
+	"Enable Design-by-Contract checks."
+	ON
+)
+
+TRIBITS_CONFIGURE_FILE(DataTransferKit_config.h)
+
 #
 # B) Define the header and source files (and include directories)
 #
@@ -14,7 +23,6 @@ SET(HEADERS "")
 SET(SOURCES "")
 
 # Set headers
-
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})

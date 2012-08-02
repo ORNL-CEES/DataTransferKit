@@ -277,12 +277,10 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 			      moab::MBTET     == element_topology ||
 			      moab::MBPYRAMID == element_topology ||
 			      moab::MBPRISM   == element_topology ||
-			      moab::MBHEX     == element_topology,
-			      "Invalid mesh topology" );
+			      moab::MBHEX     == element_topology );
     }
 
-    testPostcondition( new_topology != Teuchos::null,
-		       "Failure creating cell topology" );
+    testPostcondition( new_topology != Teuchos::null );
 
     return new_topology;
 }

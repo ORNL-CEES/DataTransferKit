@@ -186,27 +186,24 @@ void MeshManager<Mesh>::validate()
 	  block_iterator != d_mesh_blocks.end();
 	  ++block_iterator )
     {
-	testInvariant( d_dim == MT::nodeDim( *block_iterator ),
-		       "Mesh dimension != node dimension" );
+	testInvariant( d_dim == MT::nodeDim( *block_iterator ) );
 
 	if ( d_dim == 0 )
 	{
-	    testInvariant( MT::elementTopology( *block_iterator ) == DTK_VERTEX,
-			   "Element topology does not match mesh dimension" );
+	    testInvariant( MT::elementTopology( *block_iterator ) 
+			   == DTK_VERTEX );
 	}
 	else if ( d_dim == 1 )
 	{
 	    testInvariant( MT::elementTopology( *block_iterator ) == 
-			   DTK_LINE_SEGMENT,
-			   "Element topology does not match mesh dimension" );
+			   DTK_LINE_SEGMENT );
 	}
 	else if ( d_dim == 2 )
 	{
 	    testInvariant( MT::elementTopology( *block_iterator ) == 
 			   DTK_TRIANGLE ||
 			   MT::elementTopology( *block_iterator ) == 
-			   DTK_QUADRILATERAL,
-			   "Element topology does not match mesh dimension" );
+			   DTK_QUADRILATERAL );
 	}
 	else if ( d_dim == 3 )
 	{
@@ -217,12 +214,11 @@ void MeshManager<Mesh>::validate()
 			   MT::elementTopology( *block_iterator ) == 
 			   DTK_PYRAMID ||
 			   MT::elementTopology( *block_iterator ) == 
-			   DTK_WEDGE,
-			   "Element topology does not match mesh dimension" );
+			   DTK_WEDGE );
 	}
 	else
 	{
-	    testInvariant( d_dim < 4, "Mesh dimension > 3 not supported" );
+	    testInvariant( d_dim < 4 );
 	}
     }
 }
