@@ -544,7 +544,7 @@ DataTransferKit::MeshContainer<int> buildNullWedgeMesh()
 //---------------------------------------------------------------------------//
 
 // number of random points to be generated.
-int num_points = 1000;
+int num_points = 500;
 
 //---------------------------------------------------------------------------//
 // Unit tests.

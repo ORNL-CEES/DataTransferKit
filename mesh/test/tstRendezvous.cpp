@@ -828,7 +828,7 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer( int my_rank )
 // Global Test Variables.
 //---------------------------------------------------------------------------//
 
-int num_points = 1000;
+int num_points = 500;
 
 //---------------------------------------------------------------------------//
 // Tests
@@ -910,7 +910,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_test )
     int my_size = getDefaultComm<int>()->getSize();
 
     // Create a bounding box that covers the entire mesh.
-    BoundingBox box( -100, -100, -100, 100, 100, 100 );
+    double min = -Teuchos::ScalarTraits<double>::rmax();
+    double max = Teuchos::ScalarTraits<double>::rmax();
+    BoundingBox box( -100, -100, min, 100, 100, max );
 
     // Create a mesh container.
     typedef MeshContainer<int> MeshType;
@@ -976,7 +978,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_test )
     int my_size = getDefaultComm<int>()->getSize();
 
     // Create a bounding box that covers the entire mesh.
-    BoundingBox box( -100, -100, -100, 100, 100, 100 );
+    double min = -Teuchos::ScalarTraits<double>::rmax();
+    double max = Teuchos::ScalarTraits<double>::rmax();
+    BoundingBox box( -100, -100, min, 100, 100, max );
 
     // Create a mesh container.
     typedef MeshContainer<int> MeshType;

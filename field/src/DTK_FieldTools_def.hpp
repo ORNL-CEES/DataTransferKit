@@ -182,7 +182,6 @@ void FieldTools<Field>::putScalar(
     std::size_t field_dim = FT::dim( field );
     testInvariant( field_dim == (std::size_t) scalars.size(), 
 		   "Number of scalars != field dimension." );
-    size_type field_size = FT::size( field );
     for ( std::size_t d = 0; d < field_dim; ++d )
     {
 	std::fill( dimBegin( field, d ), dimEnd( field, d ), scalars[d] );
@@ -216,7 +215,6 @@ void FieldTools<Field>::scale( Field& field,
     std::size_t field_dim = FT::dim( field );
     testPrecondition( field_dim == (std::size_t) scalars.size(), 
 		   "Number of scalars != field dimension." );
-    size_type field_size = FT::size( field );
     iterator dim_iterator;
     for ( std::size_t d = 0; d < field_dim; ++d )
     {
@@ -239,7 +237,6 @@ void FieldTools<Field>::normInf( const Field& field, const RCP_Comm& comm,
 {
     std::size_t field_dim = FT::dim( field );
     norms.resize( field_dim );
-    size_type field_size = FT::size( field );
     value_type local_max, local_min, local_norm;
     for ( std::size_t d = 0; d < field_dim; ++d )
     {
