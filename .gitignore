@@ -21,3 +21,6 @@ tools
 *.out
 *.bak
 .#*
+
+# Ignore Panassas temp files
+.panfs.*
