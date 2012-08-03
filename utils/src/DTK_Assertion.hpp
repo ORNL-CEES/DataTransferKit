@@ -74,16 +74,16 @@ void throwAssertion( const std::string& cond, const std::string& file,
  *
  * Design-by-Contract (DBC) functionality is provided to verify function
  * preconditions, postconditions, and invariants. These checks are separated
- * from the debug build. They can be activated by setting the following in a
- * CMake configure:
+ * from the debug build and can be activated for both release and debug
+ * builds. They can be activated by setting the following in a CMake
+ * configure:
  *
  * -D DataTransferKit_ENABLE_DBC:BOOL=ON
  *
- * By default, DBC is activated but it can be deactivated by setting the above
- * option to OFF. Although they will require additional computational
- * overhead, these checks provide a mechanism for veryifing library input
- * arguments. Note that the bounds-checking functionality used within the
- * DataTransferKit is only provided by a debug build.
+ * By default, DBC is deactivated. Although they will require additional
+ * computational overhead, these checks provide a mechanism for veryifing
+ * library input arguments. Note that the bounds-checking functionality used
+ * within the DataTransferKit is only provided by a debug build.
  */
 
 #if HAVE_DTK_DBC

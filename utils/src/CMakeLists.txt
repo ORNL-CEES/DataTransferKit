@@ -9,8 +9,8 @@ INCLUDE(TribitsLibraryMacros)
 TRIBITS_ADD_OPTION_AND_DEFINE(
 	DataTransferKit_ENABLE_DBC
 	HAVE_DTK_DBC
-	"Enable Design-by-Contract checks."
-	ON
+	"Enable Design-by-Contract checks. Warning, use for debug checking but disable for production runs as it incurs a significant overhead."
+	OFF
 )
 
 TRIBITS_CONFIGURE_FILE(DataTransferKit_config.h)

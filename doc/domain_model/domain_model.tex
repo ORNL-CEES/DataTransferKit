@@ -153,9 +153,10 @@ as a basis for the domain model and discussion.
   triangles. Every mesh element has a mesh topology.
 \item {\bf Mesh:} An discrete representation of the $n$-dimensional
   spatial domain $\Omega \in \mathbb{R}^n$ consisting of an arbitrary
-  number of {\sl mesh elements}, $\omega$. The mesh elements that
-  construct a mesh {\sl may not intersect}. Mesh can be considered a
-  subset of geometry.
+  number of mesh elements, $\omega$. The mesh elements that construct
+  a single mesh {\sl may not intersect}. However, mesh elements may
+  intersect if they belong to different meshes. Mesh can be considered
+  a subset of geometry.
 \item {\bf Mesh Block:} A collection of mesh element elements that
   exist in the same mesh and have the same topology.
 \item {\bf Field:} A discrete representaion of a $D$-dimensional
@@ -260,7 +261,9 @@ and $B \in C_{global}$.
 In order to access DTK mesh services, a subset of the information
 needed to describe the mesh is required. This subset consists of
 vertices and their coordinates, and elements and the vertices that
-construct them. This subset has been demonstrated as sufficient for
+construct them. The vertices that construct an element have both a
+canonical ordering consistent across all elements of that topology in
+a mesh and a permutation list that describes how this canThis subset has been demonstrated as sufficient for
 applying data transfer algorithms \cite{Stewart_2004} and can be
 formulated in such a way that algorithms can be generated that are
 data structure netural \cite{Chand_2008}. In addition, for meshes that
@@ -295,32 +298,36 @@ and set of 3 dimensional coordinates.
 
 \subsection{Mesh Elements}\label{subsec:elements}
 Elements are the second level of abstraction in the mesh description
-above vertices. All elements have a globally unique ordinal serving as
-an identification number for the element in global operations. This
-globally unique ordinal can be the same as a globally unique ordinal
-for a vertex in the mesh as DTK distinguishes between vertices and
-elements. An element has a topology defining its physical structure
-(e.g. tetrahedron, hexahedron, etc.) and a number of vertices needed
-to generate that topology. Elements are constructed from vertices via
-a connectivity list. The connectivity list for a particular element
-will contain the unique vertex global ordinals that construct it. An
-element may be repeated any number of times across the parallel domain
-(i.e. it may have unlimited local instances), however, every globally
-unique ordinal must have the same connectivity list associated with
-it. For consistency, DTK uses the MoaB Canonical Numbering (MBCN)
-scheme as a canonical ordering scheme \cite{Tautges_2009}. Each
-element in a client mesh can be described with a connectivity list
-using any canonical scheme of choice, however, the relationship
-between this canonical numbering scheme and the DTK canonical
-numbering scheme must be made available. Each element topology is
-therefore also described by a permutation list. A permutation list
-specifies the variation in ordering between the DTK canonical
-numbering scheme and the client canonical numbering scheme. A
-permutation list must be described globally, regardless of whether or
-not elements exist on a particular process. For elements that have a
-higher order basis (e.g. quadratic), DTK resolves these as higher
-order vertices via the MBCN system. See Appendix~\ref{apdx:cell_topo}
-for canonical element topologies as defined by DTK.
+above vertices. Mesh elements may not intersect any other elements in
+a single mesh description. An element may intersect other elements if
+those elements exist in another mesh (this is in fact a common
+situation in data transfer). All elements have a globally unique
+ordinal serving as an identification number for the element in global
+operations. This globally unique ordinal can be the same as a globally
+unique ordinal for a vertex in the mesh as DTK distinguishes between
+vertices and elements. An element has a topology defining its physical
+structure (e.g. tetrahedron, hexahedron, etc.) and a number of
+vertices needed to generate that topology. Elements are constructed
+from vertices via a connectivity list. The connectivity list for a
+particular element will contain the unique vertex global ordinals that
+construct it. An element may be repeated any number of times across
+the parallel domain (i.e. it may have unlimited local instances),
+however, every globally unique ordinal must have the same connectivity
+list associated with it. For consistency, DTK uses the MoaB Canonical
+Numbering (MBCN) scheme as a canonical ordering scheme
+\cite{Tautges_2009}. Each element in a client mesh can be described
+with a connectivity list using any canonical scheme of choice,
+however, the relationship between this canonical numbering scheme and
+the DTK canonical numbering scheme must be made available. Each
+element topology is therefore also described by a permutation list. A
+permutation list specifies the variation in ordering between the DTK
+canonical numbering scheme and the client canonical numbering
+scheme. A permutation list must be described globally, regardless of
+whether or not elements exist on a particular process. For elements
+that have a higher order basis (e.g. quadratic), DTK resolves these as
+higher order vertices via the MBCN system. See
+Appendix~\ref{apdx:cell_topo} for canonical element topologies as
+defined by DTK.
 
 Consider the continuation of our example in
 Figure~\ref{fig:mesh_element} showing a linear hexahedron element
@@ -445,6 +452,9 @@ $\hat{r} \notin \omega$ and $\hat{r} \notin \Omega$, then alternative
 schemes may be chosen, such as extrapolation, in order to apply the
 field to $\hat{r}$.
 
+\subsection{The Relationship Between Mesh and Fields}
+\label{subsec:mesh_and_fields}
+
 \clearpage
 
 %%---------------------------------------------------------------------------%%
@@ -561,22 +571,34 @@ decomposition).
 
 \subsection{Searching the Rendezvous Decomposition}
 \label{subsec:rendezvous_search}
-
-Global recursive coordinate bisectioning parameters are maintained for
-global partitioning information. A local kD-tree is formed over the
-local mesh. In this way, mesh searches on the global level use the RCB
-partitioning information and mesh searches on the local level use the
-kD-tree to generate a subset of the mesh in the vicinity of the target
-point. This subset is then searched with a more expensive
+By implementing the above algorithm, we effectively have a search
+structure that spans both parallel and physical space. We first search
+parallel space by querying the rendezvous decomposition generated
+during repartitioning. Global recursive coordinate bisectioning
+parameters are maintained for global partitioning information, meaning
+that a desintation process in the rendezvous decomposition can be
+determined for any point on any process. Although this is a search
+over parallel space, because of the geometric nature of the rendezvous
+decomposition it is also a search over physical space with each
+process in the rendezvous decomposition owning a specific subset of
+the mesh (with marginal overlap at the boundaries).
+ 
+Once points have been accumulated in the rendezvous decomposition, the
+local kD-tree that is formed over the local mesh can be utilized. By
+searching the kD-tree in logarithmic time, a subset of the mesh that
+is in the vicinity of the target point is generated. This subset,
+which is typically much smaller than the mesh owned by a particular
+rendezvous procees, is then searched with a more expensive
 point-in-element operation that transforms the vertex into the
-reference frame of each element in the subset and uses a Newton
-iteration strategy to determine if the vertex is contained within.
+reference frame of each element in the subset with a Newton iteration
+strategy. This mapped point is then checked against the canonical
+reference cell of that element's topology to determine if the vertex
+is contained within.
 
 \clearpage
 
 %%---------------------------------------------------------------------------%%
 \section{Parallel Topology Maps}\label{sec:map}
-
 A parallel topology map is an operator, $M$, that defines the
 translation of a field, $F(s)$, from a source spatial domain,
 $\Omega_S$, to a field, $G(t$), in the target spatial domain
