@@ -5,10 +5,6 @@
  - \ref DTK_intro
  - \ref DTK_contributors
  - \ref DTK_overview
-          - \ref DTK_utils
-   	  - \ref DTK_mesh
-   	  - \ref DTK_field
-          - \ref DTK_map
  
  \section DTK_intro Introduction
  
@@ -23,15 +19,6 @@
  
  \section DTK_overview Overview of DTK
 
- DTK is divided into four subpackages for utilities, mesh, fields, and
- parallel topology maps.
- 
- \subsection DTK_utils Utilities Subpackage
 
- \subsection DTK_mesh Mesh Subpackage
-
- \subsection DTK_field Field Subpackage
-
- \subsection DTK_map Map Subpackage
 
  */
