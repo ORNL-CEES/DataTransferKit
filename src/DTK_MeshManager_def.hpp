@@ -44,7 +44,7 @@
 #include "DTK_MeshTypes.hpp"
 #include "DTK_MeshTools.hpp"
 #include <DTK_Assertion.hpp>
-#include <DataTransferKit_config.h>
+#include <DataTransferKit_config.hpp>
 
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_Tuple.hpp>

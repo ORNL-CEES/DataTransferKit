@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <string>
 
-#include <DataTransferKit_config.h>
+#include <DataTransferKit_config.hpp>
 
 namespace DataTransferKit
 {

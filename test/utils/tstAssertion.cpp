@@ -12,7 +12,7 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <DataTransferKit_config.h>
+#include <DataTransferKit_config.hpp>
 #include <DTK_Assertion.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"

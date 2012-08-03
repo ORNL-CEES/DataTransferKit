@@ -1,38 +1,48 @@
 ##---------------------------------------------------------------------------##
 ## DataTransferKit/CMakeLists.txt
 ## Stuart R. Slattery
-## Tuesday Dec 6 2011
 ##---------------------------------------------------------------------------##
 ## TriBITS package file for the DataTransferKit package
 ##---------------------------------------------------------------------------##
 
 INCLUDE(TribitsPackageMacros)
+INCLUDE(TribitsAddOptionAndDefine)
+INCLUDE(CombinedOption)
 
 ##---------------------------------------------------------------------------##
 ## A) Define the package
 ##---------------------------------------------------------------------------##
 
-TRIBITS_PACKAGE_DECL(DataTransferKit)
+TRIBITS_PACKAGE(DataTransferKit)
 
 ##---------------------------------------------------------------------------##
 ## B) Set up package-specific options
 ##---------------------------------------------------------------------------##
+
+TRIBITS_ADD_OPTION_AND_DEFINE(
+	DataTransferKit_ENABLE_DBC
+	HAVE_DTK_DBC
+	"Enable Design-by-Contract checks. Warning, use for debug checking but disable for production runs as it incurs a significant overhead."
+	OFF
+)
 
 TRIBITS_ADD_DEBUG_OPTION()
 
 TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
 
 ##---------------------------------------------------------------------------##
-## C) Process subpackages
+## C) Add library, test, and examples.
 ##---------------------------------------------------------------------------##
 
-TRIBITS_PROCESS_SUBPACKAGES()
+ADD_SUBDIRECTORY(src)
+
+TRIBITS_ADD_TEST_DIRECTORIES(test)
+
+TRIBITS_ADD_EXAMPLE_DIRECTORIES(example)
 
 ##---------------------------------------------------------------------------##
-## F) Do standard postprocessing
+## D) Do standard postprocessing
 ##---------------------------------------------------------------------------##
-
-TRIBITS_PACKAGE_DEF()
 
 TRIBITS_PACKAGE_POSTPROCESS()
 

@@ -1,3 +1,0 @@
-INCLUDE(TribitsAddExecutableAndTest)
-INCLUDE(AddSubdirectories)
-
