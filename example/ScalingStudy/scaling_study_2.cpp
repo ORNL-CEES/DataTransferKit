@@ -15,15 +15,12 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_TransferOperator.hpp>
-#include <DTK_ConsistentInterpolation.hpp>
+#include <DTK_SharedDomainMap.hpp>
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
 #include <DTK_RendezvousMesh.hpp>
-
-#include <mpi.h>
 
 #include <Teuchos_GlobalMPISession.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -427,41 +424,40 @@ int main(int argc, char* argv[])
     int my_size = comm->getSize();
 
     // Setup source mesh.
-    int global_size = 100;
+    int global_size = 10;
     int edge_size = (global_size / std::pow(my_size,0.5) ) + 1;
-
-    MyMesh source_mesh = buildMyMesh( my_rank, my_size, edge_size );
+    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
+    Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = 
+	Teuchos::rcp( new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
     // Setup target coordinate field.
     int num_points = (edge_size-1)*(edge_size-1);
     MyField target_coords = buildCoordinateField( my_rank, my_size, 
 						  num_points, edge_size );
+    Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
+	Teuchos::rcp( new FieldManager<MyField>( target_coords, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > my_evaluator = 
-    	Teuchos::rcp( new MyEvaluator( source_mesh, comm ) );
+    Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
+    	Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
 
     // Create data target.
-    MyField::size_type target_size = target_coords.size() / target_coords.dim();
-    MyField my_target( target_size, 1 );
+    Teuchos::RCP< FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
+	new FieldManager<MyField>( MyField( num_points, 1 ), comm ) );
 
     // Setup consistent interpolation mapping.
-    typedef ConsistentInterpolation<MyMesh,MyField> MapType;
-    Teuchos::RCP<MapType> consistent_interpolation = 
-    	Teuchos::rcp( new MapType( comm ) );
+    SharedDomainMap<MyMesh,MyField> shared_domain_map( comm );
 
-    // Create transfer operator.
-    TransferOperator<MapType> transfer_operator( consistent_interpolation );
-
-    // Setup the transfer operator ( this creates the mapping ).
+    // Setup the shared domain map ( this creates the mapping ).
     std::clock_t setup_start = clock();
-    transfer_operator.setup( source_mesh, target_coords );
+    shared_domain_map.setup( source_mesh_manager, target_coord_manager );
     std::clock_t setup_end = clock();
 
-    // Apply the transfer operator ( this does the field evaluation and moves
+    // Apply the shared domain map ( this does the field evaluation and moves
     // the data ).
     std::clock_t apply_start = clock();
-    transfer_operator.apply( my_evaluator, my_target );
+    shared_domain_map.apply( source_evaluator, target_space_manager );
     std::clock_t apply_end = clock();
 
     // Check the data transfer. Each target point should have been assigned
@@ -470,16 +466,17 @@ int main(int argc, char* argv[])
     comm->barrier();
     int source_rank;
     int local_test_failed = 0;
-    for ( long int n = 0; n < my_target.size(); ++n )
+    for ( long int n = 0; n < target_space_manager->field().size(); ++n )
     {
-	source_rank = std::floor(target_coords.getData()[n] / (edge_size-1));
-    	if ( source_rank+1 != my_target.getData()[n] )
+	source_rank = std::floor(target_coord_manager->field().getData()[n] 
+				 / (edge_size-1));
+    	if ( source_rank+1 != target_space_manager->field().getData()[n] )
     	{
     	    local_test_failed += 1;
     	}
     }
-    comm->barrier();
 
+    comm->barrier();
     int global_test_failed;
     Teuchos::reduceAll<int,int>( *comm,
     				 Teuchos::REDUCE_SUM,
