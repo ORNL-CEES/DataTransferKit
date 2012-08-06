@@ -49,14 +49,14 @@
 %%---------------------------------------------------------------------------%%
 \begin{abstract}
   The Data Transfer Kit (DTK) is a software component designed to
-  provide parallel services for mesh repartitioning, mesh searching,
-  and data transfer for arbitrary physics components. In many physics
-  applications, the concept of mesh is used to subdivide the physical
-  domain into a discrete representation to facilitate the solution of
-  the model problems that describe it. Additionally, the concept of
-  the field is used to apply degrees of freedom to the mesh as a means
-  of function discretization. With the increased development efforts
-  in multiphysics simulation, adaptive mesh simulations, and other
+  provide parallel services for mesh searching and data transfer for
+  arbitrary physics components. In many physics applications, the
+  concept of mesh is used to subdivide the physical domain into a
+  discrete representation to facilitate the solution of the model
+  problems that describe it. Additionally, the concept of the field is
+  used to apply degrees of freedom to the mesh as a means of function
+  discretization. With the increased development efforts in
+  multiphysics simulation, adaptive mesh simulations, and other
   multiple mesh problems, generating parallel topology maps for
   transferring fields and other data between meshes is a common
   operation. This document describes a domain model for mesh, fields,
@@ -260,13 +260,15 @@ and $B \in C_{global}$.
 \section{Mesh}\label{sec:mesh}
 In order to access DTK mesh services, a subset of the information
 needed to describe the mesh is required. This subset consists of
-vertices and their coordinates, and elements and the vertices that
-construct them. The vertices that construct an element have both a
-canonical ordering consistent across all elements of that topology in
-a mesh and a permutation list that describes how this canThis subset has been demonstrated as sufficient for
-applying data transfer algorithms \cite{Stewart_2004} and can be
+vertices and their coordinates, elements and the vertices that
+construct them, and the communicator over which they are defined. The
+vertices that construct an element have both a canonical ordering
+consistent across all elements of that topology in a mesh and a
+permutation list that describes how this ordering varies from DTK
+canonical ordering. This subset has been demonstrated as sufficient
+for applying data transfer algorithms \cite{Stewart_2004} and can be
 formulated in such a way that algorithms can be generated that are
-data structure netural \cite{Chand_2008}. In addition, for meshes that
+data structure neutral \cite{Chand_2008}. In addition, for meshes that
 contain multiple element topologies, the concept of mesh blocked by
 element topology is utilized.
 
@@ -282,10 +284,19 @@ coordinates for the specified vertex dimension, no more or no less
 a z coordinate). A vertex may be repeated any number of times across
 the parallel domain with unlimited local and global
 instances. However, every vertex with the same globally unique ordinal
-must have the same coordinates. As an example, consider
-Figure~\ref{fig:mesh_vertices} depicting a series of vertices
-contained in a mesh. Each vertex provides a globally unique ordinal
-and set of 3 dimensional coordinates.
+must have the same coordinates. We make a distinction here between
+vertices and nodes. In the context of DTK, a vertex is purely a
+geometric object. It describes the spatial positioning and geometric
+bounds of an element. A node is purely a mathematical object. It
+descrbibes the descretization associated with a particular element
+described within the natural coordinate system of that element. It is
+possible that in the physical coordinate frame that a node and vertex
+may occupy the same geometric location, however DTK does not consider
+nodes in its formulation.
+
+As an example, consider Figure~\ref{fig:mesh_vertices} depicting a
+series of vertices contained in a mesh. Each vertex provides a
+globally unique ordinal and set of 3 dimensional coordinates.
 
 \begin{figure}[htpb!]
   \centering \includegraphics[width=5in]{hex_nodes.pdf}
@@ -310,11 +321,11 @@ structure (e.g. tetrahedron, hexahedron, etc.) and a number of
 vertices needed to generate that topology. Elements are constructed
 from vertices via a connectivity list. The connectivity list for a
 particular element will contain the unique vertex global ordinals that
-construct it. An element may be repeated any number of times across
-the parallel domain (i.e. it may have unlimited local instances),
-however, every globally unique ordinal must have the same connectivity
-list associated with it. For consistency, DTK uses the MoaB Canonical
-Numbering (MBCN) scheme as a canonical ordering scheme
+construct its linear form. An element may be repeated any number of
+times across the parallel domain (i.e. it may have unlimited local
+instances), however, every globally unique ordinal must have the same
+connectivity list associated with it. For consistency, DTK uses the
+MoaB Canonical Numbering (MBCN) scheme as a canonical ordering scheme
 \cite{Tautges_2009}. Each element in a client mesh can be described
 with a connectivity list using any canonical scheme of choice,
 however, the relationship between this canonical numbering scheme and
@@ -323,11 +334,11 @@ element topology is therefore also described by a permutation list. A
 permutation list specifies the variation in ordering between the DTK
 canonical numbering scheme and the client canonical numbering
 scheme. A permutation list must be described globally, regardless of
-whether or not elements exist on a particular process. For elements
-that have a higher order basis (e.g. quadratic), DTK resolves these as
-higher order vertices via the MBCN system. See
-Appendix~\ref{apdx:cell_topo} for canonical element topologies as
-defined by DTK.
+whether or not elements exist on a particular process. See
+Appendix~\ref{apdx:cell_topo} for canonical linear element topologies
+as defined by DTK. These are the canonical vertex orderings that must
+be used when generating a permutation list for a client element
+topology.
 
 Consider the continuation of our example in
 Figure~\ref{fig:mesh_element} showing a linear hexahedron element
@@ -378,7 +389,7 @@ shared by these two mesh blocks may be repeated in either block.
   \centering \includegraphics[width=5in]{hybrid_mesh.pdf}
   \caption{\bf \sl Hybrid mesh example.} {\sl Quadrilaterals (blue)
     must be specified in a different mesh block than the triangles
-    (red). Both blocks can share the mutual mesh vertices that
+    (red). Both blocks can contain the mutual mesh vertices that
     construct their elements.}
   \label{fig:hybrid_mesh}
 \end{figure}
@@ -604,11 +615,13 @@ translation of a field, $F(s)$, from a source spatial domain,
 $\Omega_S$, to a field, $G(t$), in the target spatial domain
 $\Omega_T$, such that $M: \mathbb{R}^D \rightarrow \mathbb{R}^D,
 \forall r \in [\Omega_S \cap \Omega_T$], using both geometric and
-parallel operations. There are 3 types of parallel topology maps:
-shared domain maps, interface maps, and network maps
-\cite{LIME_2011}. Currently, DTK only supports shared domain maps,
-however, interface and network maps are supported by this domain model
-if they have a mesh-based formulation.
+parallel operations. There are 3 types of physics-based parallel
+topology maps: shared domain maps, interface maps, and network maps
+\cite{LIME_2011}. In addition, maps based on ordinals that have been
+pre-generated can by other means can also be utilized. Currently, DTK
+only supports shared domain maps and ordinal maps, however, interface
+and network maps are supported by this domain model if they have a
+mesh-based formulation.
 
 \subsection{Shared Domain Problems}\label{subsec:shared_domain}
 A shared domain problem is one in which the geometric domains of the
@@ -694,6 +707,8 @@ source function will not be evaluated at these points as they are not
 in the domain $\Omega_S$, and therefore the evaluation operation will
 not be valid. However, a list of these points in the target
 decomposition may be generated for further processing by the client.
+
+\subsection{Ordinal Maps}\label{subsec:ordinal_maps}
 
 \clearpage
 
@@ -793,8 +808,8 @@ transferred as shown in Figure~\ref{fig:target_field}.
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5.5in]{Linear_Elements.pdf}
-  \caption{\bf \sl Canonical connectivity schemes for linear elements
-    in DTK}
+  \caption{\bf \sl Canonical vertex connectivity schemes for linear
+    elements in DTK.}
   \label{fig:linear_elements}
 \end{figure}
 

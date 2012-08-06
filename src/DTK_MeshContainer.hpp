@@ -34,15 +34,13 @@
 /*!
  * \file DTK_MeshContainer.hpp
  * \author Stuart R. Slattery
- * \brief A simple mesh container for rebuilding mesh data after
- * serialization.
+ * \brief A simple default mesh container with a mesh traits
+ * implementation.
  */
 //---------------------------------------------------------------------------//
 
 #ifndef DTK_MESHCONTAINER_HPP
 #define DTK_MESHCONTAINER_HPP
-
-#include <iterator>
 
 #include "DTK_MeshTraits.hpp"
 
@@ -74,14 +72,15 @@ class MeshContainer
     { /* ... */ }
 
     //! Constructor.
-    MeshContainer( const int node_dim,
-		   const Teuchos::ArrayRCP<GlobalOrdinal>& nodes,
-		   const Teuchos::ArrayRCP<const double>& coords,
-		   const int element_topology,
-		   const int nodes_per_element,
-		   const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
-		   const Teuchos::ArrayRCP<const GlobalOrdinal>& connectivity,
-		   const Teuchos::ArrayRCP<const std::size_t>& permutation_list )
+    MeshContainer( 
+	const int node_dim,
+	const Teuchos::ArrayRCP<GlobalOrdinal>& nodes,
+	const Teuchos::ArrayRCP<const double>& coords,
+	const int element_topology,
+	const int nodes_per_element,
+	const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
+	const Teuchos::ArrayRCP<const GlobalOrdinal>& connectivity,
+	const Teuchos::ArrayRCP<const std::size_t>& permutation_list )
 	: d_node_dim( node_dim )
 	, d_nodes( nodes )
 	, d_coords( coords )
