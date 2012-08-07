@@ -165,7 +165,7 @@ class MeshTraits
     //! Teuchos::OrdinalTraits.
     typedef typename MeshType::global_ordinal_type global_ordinal_type;
 
-    //! Typedef for random access const iterator to vertex global_ordinal
+    //! Typedef for random access const iterator to vertex global ordinal
     //! values.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
@@ -177,7 +177,7 @@ class MeshTraits
     std::iterator<std::random_access_iterator_tag, const double>  
     const_coordinate_iterator;
 
-    //! Typedef for random access const iterator to element global_ordinal
+    //! Typedef for random access const iterator to element global ordinal
     //! values.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
