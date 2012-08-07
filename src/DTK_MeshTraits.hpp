@@ -157,28 +157,28 @@ class MeshTraits
   public:
 
     //@{
-    //! Typedefs.
+    // Typedefs.
     //! Typedef for mesh type.
     typedef MeshType mesh_type;
 
     //! Typedef for global ordinal type. This type must implement
-    //! Teuchos::OrdinalTraits.
+    // Teuchos::OrdinalTraits.
     typedef typename MeshType::global_ordinal_type global_ordinal_type;
 
     //! Typedef for random access const iterator to vertex global ordinal
-    //! values.
+    // values.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
     const_vertex_iterator;
 
     //! Typedef for random access const iterator to coordinate
-    //! values. Coordinates are required to be of type double.
+    // values. Coordinates are required to be of type double.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const double>  
     const_coordinate_iterator;
 
     //! Typedef for random access const iterator to element global ordinal
-    //! values.
+    // values.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
     const_element_iterator;
@@ -189,7 +189,7 @@ class MeshTraits
     const_connectivity_iterator;
 
     //! Typedef for random access const iterator to connectivity permutation
-    //! list.
+    // list.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const int>
     const_permutation_iterator;
@@ -197,7 +197,7 @@ class MeshTraits
 
 
     //@{
-    //! Mesh vertex concepts.
+    // Mesh vertex concepts.
     /*!
      * \brief Return the dimension of the vertices in this mesh block.
      */
@@ -243,7 +243,7 @@ class MeshTraits
 
 
     //@{
-    //! Mesh element concepts.
+    // Mesh element concepts.
     /*! 
      * \brief Return the element topology for this mesh block
      * (DTK_ElementTopology enum).

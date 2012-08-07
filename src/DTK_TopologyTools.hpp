@@ -52,7 +52,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class TopologyTools
- * \brief Tools based on concrete mesh topologies.
+ * \brief A stateless class with tools for operating on mesh topologies.
  */ 
 //---------------------------------------------------------------------------//
 class TopologyTools

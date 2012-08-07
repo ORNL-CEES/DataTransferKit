@@ -63,8 +63,32 @@ namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 /*!
- * \class Rendezvous
- * \brief Rendezvous decomposition generator.
+ \class Rendezvous
+ \brief Rendezvous decomposition for parallel mesh searching.
+
+ Relating two non-conformal meshes will ultimately require some type of
+ evaluation algorithm to apply the data from one geometry to another. To drive
+ these evaluation algorithms, the target objects to which this data will be
+ applied must be located within the the source geometry. In a serial
+ formulation, efficient search structures that offer logarithmic asymptotic
+ time complexity are available to perform this operation. However, in a
+ parallel formulation, if these two geometries are arbitrarily decomposed,
+ geometric alignment is not likely and a certain degree of communication will
+ be required. A geometric rendezvous manipulates the source and target
+ geometries such that all geometric operations have a local formulation.
+
+ A geometry that is associated with the providing data through function
+ evaluations will be referred to as the source geometry while the geometry
+ that will be receiving the data will be referred to as the target
+ geometry. The rendezvous decomposition has several properties. It is defined
+ over a communicator that encapsulates the union of the communication spaces
+ owned by the source and target geometries. It is defined inside of a global,
+ axis-aligned bounding box that bounds the intersection of the source and
+ target geometries. The decomposition is of the same dimension as the source
+ and target geometries. A rendezvous decomposition cannot be generated with
+ source and target geometries of different dimensions (e.g. a 3 dimensional
+ source geometry and a 2 dimensional target geometry cannot be used to
+ generate a rendezvous decomposition).
  */
 //---------------------------------------------------------------------------//
 template<class Mesh>
@@ -110,9 +134,10 @@ class Rendezvous
     // Get the native mesh elements in the rendezvous decomposition and their
     // source decomposition procs containing a blocked list of coordinates
     // also in the rendezvous decomposition.
-    void elementsContainingPoints( const Teuchos::ArrayRCP<double>& coords,
-				   Teuchos::Array<GlobalOrdinal>& elements,
-				   Teuchos::Array<int>& element_src_procs ) const;
+    void elementsContainingPoints( 
+	const Teuchos::ArrayRCP<double>& coords,
+	Teuchos::Array<GlobalOrdinal>& elements,
+	Teuchos::Array<int>& element_src_procs ) const;
 
     //! Get the rendezvous mesh.
     const RCP_RendezvousMesh& getMesh() const

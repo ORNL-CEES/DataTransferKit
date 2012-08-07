@@ -55,9 +55,13 @@ namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 /*!
- * \class RendezvousMesh
- * \brief Concrete mesh data structure for building mesh in the rendezvous
- * decomposition.
+ \class RendezvousMesh
+ \brief Concrete mesh data structure for building mesh in the rendezvous
+ decomposition. 
+ 
+ A RendezvousMesh contains and provides access to the Moab database that is
+ generated in the rendezvous decomposition. It also maintains the relationship
+ between the Moab database and the client mesh.
  */
 //---------------------------------------------------------------------------//
 template<typename GlobalOrdinal>
@@ -83,7 +87,7 @@ class RendezvousMesh
     { return d_moab; }
 
     //! Given a moab element handle return the corresponding native element
-    //! global ordinal.
+    // global ordinal.
     GlobalOrdinal 
     getNativeOrdinal( const moab::EntityHandle& moab_handle ) const
     { return d_handle_map.find( moab_handle )->second; }

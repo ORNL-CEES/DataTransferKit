@@ -64,8 +64,33 @@ namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 /*!
- * \class SharedDomainMap
- * \brief A map for shared domain problems.
+ \class SharedDomainMap
+ \brief A map for shared domain problems.
+
+ A parallel topology map is an operator, \f$M\f$, that defines the translation
+ of a field, \f$F(s)\f$, from a source spatial domain, \f$\Omega_S\f$, to a
+ field, \f$G(t)\f$, in the target spatial domain \f$\Omega_T\f$, such that
+ \f$M: \mathcal{R}^D \rightarrow \mathcal{R}^D, \forall r \in [\Omega_S \cap
+ \Omega_T]\f$, using both geometric and parallel operations.
+
+ A shared domain problem is one in which the geometric domains of the source
+ and target intersect over all dimensions of the problem. The shared domain
+ map is a parallel topology map that has several properties. It is defined
+ over a communicator that encapsulates the union of the communication spaces
+ owned by the source and target geometries.  The map is of the same dimension
+ as the source and target geometries. A shared domain map cannot be generated
+ with source and target geometries of different dimensions (e.g. a 3
+ dimensional source geometry and a 2 dimensional target geometry cannot be
+ used to generate a shared domain map).
+
+There are several steps in the mapping where target objects may or may not be
+found in the source mesh. Both the RCB decomposition search and kD-tree search
+have the potential to return target objects that were not found in the source
+mesh. The source function will not be evaluated at these points as they are
+not in the domain \f$\Omega_S\f$, and therefore the evaluation operation will
+not be valid. However, a list of these points in the target decomposition may
+be generated for further processing by the client.
+
  */
 //---------------------------------------------------------------------------//
 template<class Mesh, class CoordinateField>
@@ -124,10 +149,11 @@ class SharedDomainMap
 			       Teuchos::Array<GlobalOrdinal>& target_ordinals );
 
     // Get the target points that are in the rendezvous decomposition box.
-    void getTargetPointsInBox( const BoundingBox& box,
-			       const CoordinateField& target_coords,
-			       const Teuchos::Array<GlobalOrdinal>& target_ordinals,
-			       Teuchos::Array<GlobalOrdinal>& targets_in_box );
+    void getTargetPointsInBox( 
+	const BoundingBox& box,
+	const CoordinateField& target_coords,
+	const Teuchos::Array<GlobalOrdinal>& target_ordinals,
+	Teuchos::Array<GlobalOrdinal>& targets_in_box );
 
   private:
 

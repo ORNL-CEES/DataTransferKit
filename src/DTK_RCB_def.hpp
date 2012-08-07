@@ -53,6 +53,8 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
+ *
+ * \param mesh_manager The mesh to be partitioned with RCB.
  */
 template<class Mesh>
 RCB<Mesh>::RCB( const RCP_MeshManager& mesh_manager )
@@ -96,7 +98,7 @@ RCB<Mesh>::RCB( const RCP_MeshManager& mesh_manager )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Destructor.
+ * \brief Destructor. Zoltan memory deallocation happens here and only here.
  */
 template<class Mesh>
 RCB<Mesh>::~RCB()
@@ -138,7 +140,12 @@ void RCB<Mesh>::partition()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the destination process for a vertex given its coordinates.
+ * \brief Get the destination process for a point given its coordinates.
+ *
+ * \param coords Point coordinates. The dimension of the point must be equal
+ * to or less than one.
+ *
+ * \return The RCB destination proc for the point.
  */
 template<class Mesh>
 int RCB<Mesh>::getDestinationProc( Teuchos::Array<double> coords ) const

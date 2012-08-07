@@ -63,6 +63,11 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
+ *
+ * \param comm The communicator over which the map is generated.
+ *
+ * \param keep_missed_points Set to true if it is desired to keep track of the
+ * local target points missed during map generation.
  */
 template<class Mesh, class CoordinateField>
 SharedDomainMap<Mesh,CoordinateField>::SharedDomainMap( 
@@ -82,6 +87,11 @@ SharedDomainMap<Mesh,CoordinateField>::~SharedDomainMap()
 //---------------------------------------------------------------------------//
 /*!
  * \brief Generate the shared domain map.
+ *
+ * \param source_mesh_manager Source mesh in the shared domain problem.
+ *
+ * \param target_coord_manager Target coordinates in the shared domain
+ * problem. 
  */
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::setup( 
@@ -121,7 +131,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // coordinate field.
     int coord_dim = CFT::dim( target_coord_manager->field() );
     Teuchos::ArrayRCP<double> coords_view = 
-	FieldTools<CoordinateField>::nonConstView( target_coord_manager->field() );
+	FieldTools<CoordinateField>::nonConstView( 
+	    target_coord_manager->field() );
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.procsContainingPoints( coords_view );
 
@@ -260,7 +271,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	Teuchos::Array<int> missed_target_procs( missed_in_mesh_idx.size() );
 	for ( int n = 0; n < (int) missed_in_mesh_idx.size(); ++n )
 	{
-	    missed_target_procs[n] = point_target_procs[ missed_in_mesh_idx[n] ];
+	    missed_target_procs[n] = 
+		point_target_procs[ missed_in_mesh_idx[n] ];
 	}
 	point_target_procs.clear();
 
@@ -302,7 +314,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     not_in_mesh.clear();
 
     typename Teuchos::Array<GlobalOrdinal>::iterator rendezvous_elements_bound =
-	std::remove( rendezvous_elements.begin(), rendezvous_elements.end(), -1 );
+	std::remove( rendezvous_elements.begin(), 
+		     rendezvous_elements.end(), -1 );
     GlobalOrdinal rendezvous_elements_size = 
 	std::distance( rendezvous_elements.begin(), rendezvous_elements_bound );
 
@@ -313,7 +326,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	std::distance( rendezvous_element_src_procs.begin(), 
 		       rendezvous_element_src_procs_bound );
 
-    testInvariant( rendezvous_elements_size == rendezvous_element_src_procs_size );
+    testInvariant( rendezvous_elements_size == 
+		   rendezvous_element_src_procs_size );
 
     rendezvous_elements.resize( rendezvous_elements_size );
     rendezvous_element_src_procs.resize( rendezvous_elements_size );
@@ -342,9 +356,10 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	reduced_rendezvous_points_view, 1, source_points() );
 
     // Build the source map from the target ordinals.
-    Teuchos::ArrayView<const GlobalOrdinal> source_points_view = source_points();
-    d_source_map = Tpetra::createNonContigMap<GlobalOrdinal>( source_points_view,
-							      d_comm );
+    Teuchos::ArrayView<const GlobalOrdinal> source_points_view = 
+	source_points();
+    d_source_map = Tpetra::createNonContigMap<GlobalOrdinal>( 
+	source_points_view, d_comm );
     testPostcondition( d_source_map != Teuchos::null );
 
     // Send the rendezvous point coordinates to the source decomposition.
@@ -367,7 +382,9 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief If keep_missed_points is true, return the local indices of the
+ * \brief Get the points missed in the map generation.
+ *
+ * \return If keep_missed_points is true, return the local indices of the
  *  points provided by target_coord_manager that were not mapped. An exception
  *  will be thrown if keep_missed_points is false. Returns a null view if all
  *  points have been mapped or the map has not yet been generated.
@@ -384,7 +401,9 @@ SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief If keep_missed_points is true, return the local indices of the
+ * \brief Get the points missed in the map generation.
+ *
+ * \return If keep_missed_points is true, return the local indices of the
  *  points provided by target_coord_manager that were not mapped. An exception
  *  will be thrown if keep_missed_points is false. Returns a null view if all
  *  points have been mapped or the map has not yet been generated.
@@ -403,6 +422,13 @@ SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints()
 /*!
  * \brief Apply the shared domain map for a valid source field evaluator and
  * target data space to the target points that were mapped.
+ *
+ * \param source_evaluator Function evaluator used to apply the mapping. This
+ * FieldEvaluator must be valid for the source mesh used to generate the map.
+ *
+ * \param target_space_manager Target space into which the function
+ * evaluations will be written. Enough space must be allocated to hold
+ * evaluations at all points in all dimensions of the field.
  */
 template<class Mesh, class CoordinateField>
 template<class SourceField, class TargetField>
@@ -464,7 +490,12 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute globally unique ordinals for the target points
+ * \brief Compute globally unique ordinals for the target points.
+ *
+ * \param target_coords The coordinates to compute global ordinals for.
+ *
+ * \param target_ordinals The computed globally unique ordinals for the target
+ * coordinates. 
  */
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
@@ -501,6 +532,15 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the target points that are in the rendezvous decomposition box.
+ *
+ * \param target_coords The target coordinates to search the box with.
+ *
+ * \param target_ordinals The globally unique ordinals for the target
+ * coordinates. 
+ *
+ * \param targets_in_box The global ordinals of the target coordinates in the
+ * box. If a target point was not found in the box, return an invalid ordinal,
+ * -1, in its positition.
  */
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(

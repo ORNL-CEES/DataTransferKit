@@ -62,6 +62,12 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
+ *
+ * \param comm The communicator over which to build the rendezvous
+ * decomposition. 
+ *
+ * \param global_box The global bounding box inside of which the rendezvous
+ * decomposition will be generated.
  */
 template<class Mesh>
 Rendezvous<Mesh>::Rendezvous( const RCP_Comm& comm,
@@ -82,6 +88,9 @@ Rendezvous<Mesh>::~Rendezvous()
 //---------------------------------------------------------------------------//
 /*!
  * \brief Build the rendezvous decomposition.
+ *
+ * \param mesh_manager The mesh to repartition to the rendezvous
+ * decomposition. 
  */
 template<class Mesh> 
 void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
@@ -89,8 +98,8 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
     // Get the dimension for the mesh.
     d_vertex_dim = mesh_manager->dim();
 
-    // Extract the mesh vertices and elements that are in the bounding box. These
-    // are the pieces of the mesh that will be repartitioned.
+    // Extract the mesh vertices and elements that are in the bounding
+    // box. These are the pieces of the mesh that will be repartitioned.
     getMeshInBox( mesh_manager );
 
     // Construct the rendezvous partitioning for the mesh with RCB using the
@@ -119,6 +128,13 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 /*! 
  * \brief Get the rendezvous destination processes for a blocked list of
  * coordinates that are in the primary decomposition.
+ *
+ * \param coords A blocked list of coordinates for which rendezvous
+ * decomposition destination procs are desired.
+ *
+ * \return An array of the rendezvous decomposition destination procs. A proc
+ * will be returned for each point in the same order as the points were
+ * provided. 
  */
 template<class Mesh>
 Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
@@ -145,8 +161,19 @@ Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
 /*!
  * \brief Get the native mesh elements in the rendezvous decomposition
  * containing a blocked list of coordinates also in the rendezvous
- * decomposition. If a point is not found in an element, return an invalid
- * element ordinal and source decomposition proc, -1, for that point.
+ * decomposition. 
+ * 
+ * \param coords A blocked list of coordinates to search the mesh with. 
+
+ * \param elements An array of the elements the points were found in. An
+ * element will be returned for each point in the order they were provided
+ * in. If a point is not found in an element, return an invalid element
+ * ordinal, -1, for that point.
+ *
+ * \param element_src_procs The source procs that own the elements. Once proc
+ * is provided for each element in the order that the elements were
+ * provided. If a point is not found in an element, return an invalid element
+ * source proc, -1, for that point.
  */
 template<class Mesh>
 void Rendezvous<Mesh>::elementsContainingPoints( 
@@ -186,6 +213,8 @@ void Rendezvous<Mesh>::elementsContainingPoints(
 //---------------------------------------------------------------------------//
 /*!
  * \brief Extract the mesh vertices and elements that are in a bounding box.
+ *
+ * \param mesh_manager The mesh to search the box with.
  */
 template<class Mesh>
 void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
@@ -304,6 +333,8 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 /*!
  * \brief Send the mesh to the rendezvous decomposition and rebuild the mesh
  * blocks.
+ *
+ * \param mesh_manager The mesh to send to the rendezvous decomposition.
  */
 template<class Mesh>
 MeshManager<typename Rendezvous<Mesh>::MeshContainerType> 
@@ -439,6 +470,17 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 /*!
  * \brief Setup the import communication patterns for moving mesh from the
  * primary decomposition to the rendezvous decomposition.
+ *
+ * \param mesh The mesh block to setup communication for.
+ *
+ * \param elements_in_box An array of elements in the rendezvous box. Every
+ * element gets an entry, 0 if outside the box, 1 if inside.
+ *
+ * \param rendezvous_vertices An array of the vertex global ordinals in the
+ * rendezvous decomposition.
+ *
+ * \param rendezvous_elements An array of the element global ordinals in the
+ * rendezvous decomposition.
  */
 template<class Mesh>
 void Rendezvous<Mesh>::setupImportCommunication( 

@@ -59,6 +59,11 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
+ * 
+ * \param moab The Moab interface to build the RendezvousMesh with.
+ *
+ * \param handle_map A map relating the client element global ordinals to the
+ * Moab element handles.
  */
 template<typename GlobalOrdinal>
 RendezvousMesh<GlobalOrdinal>::RendezvousMesh( const RCP_Moab& moab, 
@@ -80,6 +85,10 @@ RendezvousMesh<GlobalOrdinal>::~RendezvousMesh()
 //---------------------------------------------------------------------------//
 /*!
  * \brief Create a RendezvousMesh from a mesh manager.
+ *
+ * \param mesh_manager The mesh to construct the RendezvousMesh from.
+ *
+ * \return The RendezvousMesh that was constructed from the mesh.
  */
 template<class Mesh>
 Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::global_ordinal_type> >
@@ -111,15 +120,17 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	  ++block_iterator )
     {
 	// Check the vertices and coordinates for consistency.
-	GlobalOrdinal num_vertices = MeshTools<Mesh>::numVertices( *block_iterator );
+	GlobalOrdinal num_vertices = 
+	    MeshTools<Mesh>::numVertices( *block_iterator );
 	GlobalOrdinal num_coords = 
 	    std::distance( MT::coordsBegin( *block_iterator ),
 			   MT::coordsEnd( *block_iterator ) );
-	testInvariant( num_coords == (GlobalOrdinal) vertex_dim * num_vertices );
+	testInvariant( num_coords == 
+		       (GlobalOrdinal) vertex_dim * num_vertices );
 
-	// Add the mesh vertices to moab and map the native vertex handles to the
-	// moab vertex handles. This should be in a hash table. We'll need one
-	// that hashes moab handles.
+	// Add the mesh vertices to moab and map the native vertex handles to
+	// the moab vertex handles. This should be in a hash table. We'll need
+	// one that hashes moab handles.
 	double vertex_coords[3];
 	Teuchos::ArrayRCP<const double> mesh_coords = 
 	    MeshTools<Mesh>::coordsView( *block_iterator );

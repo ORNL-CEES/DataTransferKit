@@ -59,6 +59,15 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \brief Point in element query.
+ *
+ * \param coords The coords to search the element with. The coordinates must
+ * have a dimension less than or equal to 3.
+ *
+ * \param element The Moab mesh element to check for point inclusion.
+ *
+ * \param moab The Moab interface owning the element.
+ *
+ * \return Return true if the point is in the element, false if not.
  */
 bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 				    const moab::EntityHandle element,
@@ -102,7 +111,8 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
     {
 	// Create the Shards topology for the element type.
 	Teuchos::RCP<shards::CellTopology> cell_topo = 
-	    CellTopologyFactory::create( element_topology, num_element_vertices );
+	    CellTopologyFactory::create( element_topology, 
+					 num_element_vertices );
 
 	// Reduce the dimension of the coordinates if necessary and wrap in a
 	// field container. 
@@ -110,7 +120,8 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 	{
 	    for ( int n = element_vertices.size() - 1; n > -1; --n )
 	    {
-		cell_vertex_coords.erase( cell_vertex_coords.begin() + (i+1)*n + i );
+		cell_vertex_coords.erase( 
+		    cell_vertex_coords.begin() + (i+1)*n + i );
 	    }
 	}
 
