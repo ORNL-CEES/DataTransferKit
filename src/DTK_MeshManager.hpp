@@ -54,14 +54,35 @@ namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 /*!
- * \class MeshManager
- * \brief Manager object for mesh.
- *
- * The mesh manager manages the topology blocks that construct a mesh and its
- * parallel decomposition. The mesh manager also keeps track of the mesh vertices
- * (and implicitly the elements) that are active in partitioning and
- * searching. Those that are not active are typically outside some domain of
- * interest.
+ \class MeshManager
+ \brief Manager object for mesh.
+ 
+ The MeshManager manages the topology blocks that construct a mesh and its
+ parallel decomposition. The mesh manager also keeps track of the mesh
+ vertices and elements that are active in partitioning and searching. Those
+ that are not active are typically outside some domain of interest.
+
+ All elements in a block must have the same topology and number of vertices. A
+ mesh may contain as many blocks as desired. Multiple blocks with the same
+ mesh topology may exist. Vertices may be repeated in different mesh blocks
+ provided that they maintain the same unique global ordinal and
+ coordinates. Elements may be repeated in different mesh blocks provided that
+ they maintain the same unique global ordinal and connectivity list. All
+ elements and vertices in all blocks of the mesh must have the same
+ dimension. Multiple mesh blocks may exist in the same spatial region as they
+ are merely a means of subdividing the mesh into groups of elements based on
+ their topology. This behavior will be the common when hybrid meshes are
+ involved (e.g. a mesh that contains hexahedrons and tetrahedrons). Mesh
+ blocks may be either structured or unstructured.
+
+ Mesh blocks and the elements and vertices they contain may be partitioned in
+ any fashion provided that all vertices, elements, and blocks of a mesh
+ description exist in a communication space operated on by the same parallel
+ communicator. Different blocks in a single mesh description may not have
+ different communicators. Each mesh description may have its own
+ communicator. Global knowledge of the parallel decomposition of a given mesh
+ description is not required. Only local mesh data access along with the
+ proper communicator is required.
  */
 //---------------------------------------------------------------------------//
 template<class Mesh>

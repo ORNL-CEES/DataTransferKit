@@ -54,15 +54,16 @@ namespace DataTransferKit
 /*!
  * \class MeshContainer
  * \brief A default mesh implementation.
- *
- * This container is used for rebuilding mesh data in the rendezvous
- * decomposition after serialization.
+
+ The MeshContainer is a default implementation of MeshTraits for clients. Its
+ data mimics the structure of MeshTraits with constructor arguments expected
+ to have the data layout of a MeshTraits object. Each block of mesh must be in
+ a separate mesh container.
  */
 //---------------------------------------------------------------------------//
 template<typename GlobalOrdinal>
 class MeshContainer
 {
-
   public:
 
     //@{
@@ -74,7 +75,33 @@ class MeshContainer
     MeshContainer()
     { /* ... */ }
 
-    //! Constructor.
+    /*!
+     * \brief Constructor.
+     *
+     * \param vertex_dim The dimension of the vertices in the mesh.
+     *
+     * \param vertices The vertex global ordinals in the mesh block.
+     *
+     * \param coordinates The vertex coordinates in the mesh block. These must
+     * be blocked by dimension.
+     *
+     * \param element_topology The DTK_ElementTopology of the elements in the
+     * mesh block.
+     *
+     * \param vertices_per_element The number of vertices used to construct
+     * each element in the mesh block.
+     *
+     * \param elements The element global ordinals in the mesh block.
+     *
+     * \param connectivity The vertex global ordinals that construct the
+     * elements in the mesh block. The connectivity values must be blocked by
+     * client canonical vertex ordering.
+     *
+     * \param permutation_list The permuation list describing the difference
+     * between DTK canonical vertex ordering and client canonical vertex
+     * ordering for the element topology in this mesh block. This list must be
+     * the same size as vertices_per_element.
+     */
     MeshContainer( 
 	const int vertex_dim,
 	const Teuchos::ArrayRCP<GlobalOrdinal>& vertices,
@@ -187,7 +214,6 @@ class MeshContainer
 
 //---------------------------------------------------------------------------//
 /*
- * \class MeshTraits< MeshContainer<GlobalOrdinal> >
  * \brief MeshTraits specialization for the mesh container.
  */
 //---------------------------------------------------------------------------//

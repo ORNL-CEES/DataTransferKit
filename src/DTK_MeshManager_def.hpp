@@ -54,7 +54,16 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Constructor.
+ * \brief Constructor. If Design-By-Contract is enabled, the constructor will
+ * validate the mesh description to the domain model. This requires a few
+ * global communications.
+ *
+ * \param mesh_blocks The blocks that construct this mesh. Each block must
+ * have MeshTraits.
+ *
+ * \param comm The communicator the mesh is defined over.
+ *
+ * \param dim The mesh dimension.
  */
 template<class Mesh>
 MeshManager<Mesh>::MeshManager( const Teuchos::ArrayRCP<Mesh>& mesh_blocks,
@@ -83,7 +92,9 @@ MeshManager<Mesh>::~MeshManager()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the local number of elements in the mesh.
+ * \brief Get the local number of elements in the mesh across all mesh blocks.
+ *
+ * \return The local number of elements across all mesh blocks.
  */
 template<class Mesh>
 typename MeshManager<Mesh>::GlobalOrdinal 
@@ -102,7 +113,10 @@ MeshManager<Mesh>::localNumElements() const
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the global number of elements in the mesh.
+ * \brief Get the global number of elements in the mesh across all mesh
+ * blocks. 
+ *
+ * \return The global number of elements in the mesh across all mesh blocks.
  */
 template<class Mesh>
 typename MeshManager<Mesh>::GlobalOrdinal 
@@ -120,7 +134,10 @@ MeshManager<Mesh>::globalNumElements() const
 
 //---------------------------------------------------------------------------//
 /*!    
- * \brief Compute the global bounding box around the entire mesh.
+ * \brief Compute the global bounding box around the entire mesh (all
+ * blocks). 
+ *
+ * \return The global bounding box over all mesh blocks.
  */
 template<class Mesh>
 BoundingBox MeshManager<Mesh>::globalBoundingBox()

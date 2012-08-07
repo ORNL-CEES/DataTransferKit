@@ -404,6 +404,8 @@ void FieldTools<Field>::norm2( const Field& field, const RCP_Comm& comm,
  * \param field The field to compute the norm of.
  *
  * \param comm The communicator over which the field is defined.
+ * 
+ * \param q The integer norm to compute.
  *
  * \param norms The norms for each dimension in the field. This array will be
  * of the same length as the field dimension.
@@ -567,6 +569,8 @@ BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
  * field is directly interpreted as a coordinate field.
  *
  * \param field The coordinate field to compute the global box for.
+ *
+ * \param comm The communicator the field is defined over.
  *
  * \return The global bounding box of the coordinate field.
  */

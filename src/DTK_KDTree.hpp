@@ -56,6 +56,10 @@ namespace DataTransferKit
  * \class KDTree
  * \brief A KDTree data structure for local mesh searching in the rendezvous
  * decomposition.
+
+ A kD-tree provides n*log(n) construction time and space complexity with
+ log(n) search time complexity.
+
  */
 //---------------------------------------------------------------------------//
 template<typename GlobalOrdinal>

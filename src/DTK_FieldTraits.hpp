@@ -64,11 +64,6 @@ struct UndefinedFieldTraits
  * \class FieldTraits
  * \brief Field traits definitions.
   
- These traits correlate to the basic concept of a field within DTK. A field
- can contain anything in an array, but it must store its objects in contiguous
- memory that is blocked by dimension and accessible by random access
- iterators.
-
  In the most general sense, a field refers to the degrees of freedom computed
  by a physics code or the responses derived from those degrees of freedom that
  have been discretized across the domain. The field is implicitly bound to the
@@ -85,6 +80,19 @@ struct UndefinedFieldTraits
  and this size can differ from local domain to local domain. No knowledge of
  the global field decomposition is required, however, it must exist on a
  single communicator.
+
+ These traits correlate to the basic concept of a field within DTK. A field
+ can contain anything in an array, but it must store its objects in contiguous
+ memory that is blocked by dimension and accessible by random access
+ iterators. The blocked data storage is arranged as follows:
+
+ The data will have D dimensions \f$ \Big[ f_0, f_1, f_2, ..., f_D \big] \f$
+
+ Each local instance of the field will have N elements in each dimension,
+ blocked such that the data layout is: \f$ \Big[ f^0_0, f^1_0, f^2_0, ...,
+ f^N_0, f^0_1, f^1_1, f^2_1, ..., f^N_1, ... , f^0_D, f^1_D, f^2_D, ..., f^N_D
+ \Big] \f$
+
  */
 //---------------------------------------------------------------------------//
 template<typename FieldType>
@@ -94,16 +102,15 @@ class FieldTraits
 
     //! Typedef for field type.
     typedef FieldType field_type;
-
-    //! Typedef for value type. The field type must implement
-    //! Teuchos::ScalarTraits.
+    
+    //! Typedef for value type. 
     typedef typename FieldType::value_type value_type;
 
     //! Typedef for size type.
     typedef typename FieldType::size_type size_type;
     
     //{@
-    //! Typedef for field value random access iterators.
+    //! Typedefs for field value random access iterators.
     typedef typename 
     std::iterator<std::random_access_iterator_tag,value_type> 
     iterator;
@@ -135,8 +142,7 @@ class FieldTraits
     //@{
     /*! 
      * \brief Returns the iterator to the beginning of the field. The data is
-     * required to be blocked by dimensions { d0, d1, d2, ... , dM } as
-     * { d0_0, d0_1, ... , d0_N, d1_0, d1_1, ... , d1_N, ... , dM_N }
+     * required to be blocked by dimensions.
      */
     static inline iterator begin( FieldType& field )
     { return UndefinedFieldTraits<FieldType>::notDefined(); }
@@ -148,8 +154,7 @@ class FieldTraits
     //@{
     /*! 
      * \brief Returns the iterator to the end of the field. The data is
-     * required to be blocked by dimensions { d0, d1, d2, ... , dM } as
-     * { d0_0, d0_1, ... , d0_N, d1_0, d1_1, ... , d1_N, ... , dM_N }
+     * required to be blocked by dimensions.
      */
     static inline iterator end( FieldType& field )
     { return UndefinedFieldTraits<FieldType>::notDefined(); }

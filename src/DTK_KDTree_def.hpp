@@ -55,6 +55,11 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
+ *
+ * \param mesh The RendezvousMesh over which to build the kD-tree. 
+ *
+ * \param dim The dimension of the kD-tree. This should be the same as the
+ * dimension mesh.
  */
 template<typename GlobalOrdinal>
 KDTree<GlobalOrdinal>::KDTree( const RCP_RendezvousMesh& mesh, const int dim )
@@ -92,6 +97,15 @@ void KDTree<GlobalOrdinal>::build()
 /*!
  * \brief Find a point in the tree. Return false if we didn't find it in the
  * tree.
+ *
+ * \param coords Point coordinates to locate in the tree. Point dimensions
+ * less than or equal to 3 are valid but the point most be the same dimension
+ * as the tree.
+ *
+ * \param element The global ordinal of the client element the point was found
+ * in. This global ordinal is not valid if this function returns false.
+ *
+ * \return Return true if the point was found in the kD-tree, false if not.
  */
 template<typename GlobalOrdinal>
 bool KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords,
@@ -130,7 +144,19 @@ bool KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords,
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Find a point in a leaf. Return if the point was not found.
+ * \brief Find a point in a leaf by doing point-in-volume on all elements in
+ * the leaf. Return if the point was not found.
+ *
+ * \param coords Point coordinates to locate in the tree. Point dimensions
+ * less than or equal to 3 are valid but the point most be the same dimension
+ * as the tree.
+ *
+ * \param leaf The subset of mesh elements to search for the point in.
+ *
+ * \param element The leaf element the point was found in. This element is not
+ * valid if this function returns false.
+ *
+ * \return Return true if the point was found in the leaf, false if not.
  */
 template<typename GlobalOrdinal>
 bool KDTree<GlobalOrdinal>::findPointInLeaf( 

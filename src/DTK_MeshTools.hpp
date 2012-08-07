@@ -81,9 +81,6 @@ class MeshTools
     ~MeshTools()
     { /* ... */ }
 
-
-    //@{
-    //! Bounds-checking mesh data access methods.
     // Get a view of the of the mesh vertices. 
     static Teuchos::ArrayRCP<const GlobalOrdinal> 
     verticesView( const Mesh& mesh );
@@ -129,11 +126,7 @@ class MeshTools
     // Get a non-const view of the of the mesh connectivity permutation list. 
     static Teuchos::ArrayRCP<int> 
     permutationNonConstView( const Mesh& mesh );
-    //@}
 
-
-    //@{
-    //! Bounding box methods.
     // Get the local bounding box for a mesh block.
     static BoundingBox localBoundingBox( const Mesh& mesh );
 
@@ -141,7 +134,6 @@ class MeshTools
     // communicator. 
     static BoundingBox globalBoundingBox( const Mesh& mesh, 
 					  const RCP_Comm& comm );
-    //@}
 };
 
 } // end namepsace DataTransferKit

@@ -47,7 +47,9 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Constructor.
+ * \brief Constructor. If Design-By-Contract is enabled, the constructor will
+ * validate the field description to the domain model. This requires a few
+ * global communications.
  *
  * \param field The field that this object is managing. This field must have
  * FieldTraits.
