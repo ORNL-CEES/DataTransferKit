@@ -51,32 +51,32 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 DataTransferKit::MeshContainer<int> 
 buildTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
-    // Make some nodes.
-    int num_nodes = edge_length*edge_length*2;
-    int node_dim = 3;
-    Teuchos::ArrayRCP<int> node_handles( num_nodes );
-    Teuchos::ArrayRCP<double> coords( node_dim*num_nodes );
+    // Make some vertices.
+    int num_vertices = edge_length*edge_length*2;
+    int vertex_dim = 3;
+    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
     {
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
-	    coords[ 2*num_nodes + idx ] = 0.0;
+	    coords[ num_vertices + idx ] = j;
+	    coords[ 2*num_vertices + idx ] = 0.0;
 	}
     }
     for ( int j = 0; j < edge_length; ++j )
     {
 	for ( int i = 0; i < edge_length; ++i )
 	{
-	    idx = i + j*edge_length + num_nodes / 2;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    idx = i + j*edge_length + num_vertices / 2;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
-	    coords[ 2*num_nodes + idx ] = 1.0;
+	    coords[ num_vertices + idx ] = j;
+	    coords[ 2*num_vertices + idx ] = 1.0;
 	}
     }
     
@@ -84,72 +84,72 @@ buildTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     int num_elements = (edge_length-1)*(edge_length-1)*5;
     Teuchos::ArrayRCP<int> tet_handles( num_elements );
     Teuchos::ArrayRCP<int> tet_connectivity( 4*num_elements );
-    int elem_idx, node_idx;
+    int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
 	    // Indices.
-	    node_idx = i + j*edge_length;
-	    v0 = node_idx;
-	    v1 = node_idx + 1;
-	    v2 = node_idx + 1 + edge_length;
-	    v3 = node_idx +     edge_length;
-	    v4 = node_idx +                   num_nodes/2;
-	    v5 = node_idx + 1 +               num_nodes/2;
-	    v6 = node_idx + 1 + edge_length + num_nodes/2;
-	    v7 = node_idx +     edge_length + num_nodes/2; 
+	    vertex_idx = i + j*edge_length;
+	    v0 = vertex_idx;
+	    v1 = vertex_idx + 1;
+	    v2 = vertex_idx + 1 + edge_length;
+	    v3 = vertex_idx +     edge_length;
+	    v4 = vertex_idx +                   num_vertices/2;
+	    v5 = vertex_idx + 1 +               num_vertices/2;
+	    v6 = vertex_idx + 1 + edge_length + num_vertices/2;
+	    v7 = vertex_idx +     edge_length + num_vertices/2; 
 
 	    // Tetrahedron 1.
 	    elem_idx = i + j*(edge_length-1);
 	    tet_handles[elem_idx] = elem_idx + elem_offset;
-	    tet_connectivity[elem_idx]                = node_handles[v0];
-	    tet_connectivity[num_elements+elem_idx]   = node_handles[v1];
-	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v3];
-	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v4];
+	    tet_connectivity[elem_idx]                = vertex_handles[v0];
+	    tet_connectivity[num_elements+elem_idx]   = vertex_handles[v1];
+	    tet_connectivity[2*num_elements+elem_idx] = vertex_handles[v3];
+	    tet_connectivity[3*num_elements+elem_idx] = vertex_handles[v4];
 
 	    // Tetrahedron 2.
 	    elem_idx = i + j*(edge_length-1) + num_elements/5;
 	    tet_handles[elem_idx] = elem_idx + elem_offset;
-	    tet_connectivity[elem_idx] 	              = node_handles[v1];
-	    tet_connectivity[num_elements+elem_idx]   = node_handles[v2];
-	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v3];
-	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v6];
+	    tet_connectivity[elem_idx] 	              = vertex_handles[v1];
+	    tet_connectivity[num_elements+elem_idx]   = vertex_handles[v2];
+	    tet_connectivity[2*num_elements+elem_idx] = vertex_handles[v3];
+	    tet_connectivity[3*num_elements+elem_idx] = vertex_handles[v6];
 
 	    // Tetrahedron 3.
 	    elem_idx = i + j*(edge_length-1) + 2*num_elements/5;
 	    tet_handles[elem_idx] = elem_idx + elem_offset;
-	    tet_connectivity[elem_idx] 	              = node_handles[v6];
-	    tet_connectivity[num_elements+elem_idx]   = node_handles[v5];
-	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v4];
-	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v1];
+	    tet_connectivity[elem_idx] 	              = vertex_handles[v6];
+	    tet_connectivity[num_elements+elem_idx]   = vertex_handles[v5];
+	    tet_connectivity[2*num_elements+elem_idx] = vertex_handles[v4];
+	    tet_connectivity[3*num_elements+elem_idx] = vertex_handles[v1];
 
 	    // Tetrahedron 4.
 	    elem_idx = i + j*(edge_length-1) + 3*num_elements/5;
 	    tet_handles[elem_idx] = elem_idx + elem_offset;
-	    tet_connectivity[elem_idx]   	      = node_handles[v4];
-	    tet_connectivity[num_elements+elem_idx]   = node_handles[v7];
-	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v6];
-	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v3];
+	    tet_connectivity[elem_idx]   	      = vertex_handles[v4];
+	    tet_connectivity[num_elements+elem_idx]   = vertex_handles[v7];
+	    tet_connectivity[2*num_elements+elem_idx] = vertex_handles[v6];
+	    tet_connectivity[3*num_elements+elem_idx] = vertex_handles[v3];
 
 	    // Tetrahedron 5.
 	    elem_idx = i + j*(edge_length-1) + 4*num_elements/5;
 	    tet_handles[elem_idx] = elem_idx + elem_offset;
-	    tet_connectivity[elem_idx] 	              = node_handles[v3];
-	    tet_connectivity[num_elements+elem_idx]   = node_handles[v1];
-	    tet_connectivity[2*num_elements+elem_idx] = node_handles[v6];
-	    tet_connectivity[3*num_elements+elem_idx] = node_handles[v4];
+	    tet_connectivity[elem_idx] 	              = vertex_handles[v3];
+	    tet_connectivity[num_elements+elem_idx]   = vertex_handles[v1];
+	    tet_connectivity[2*num_elements+elem_idx] = vertex_handles[v6];
+	    tet_connectivity[3*num_elements+elem_idx] = vertex_handles[v4];
 	}
     }
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( 4 );
+    Teuchos::ArrayRCP<int> permutation_list( 4 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
 						DataTransferKit::DTK_TETRAHEDRON, 4,
 						tet_handles, tet_connectivity,
 						permutation_list );
@@ -158,17 +158,17 @@ buildTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 //---------------------------------------------------------------------------//
 DataTransferKit::MeshContainer<int> buildNullTetMesh()
 {
-    Teuchos::ArrayRCP<int> node_handles(0);
+    Teuchos::ArrayRCP<int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
     Teuchos::ArrayRCP<int> tet_handles(0);
     Teuchos::ArrayRCP<int> tet_connectivity(0);
-    Teuchos::ArrayRCP<std::size_t> permutation_list(4);
+    Teuchos::ArrayRCP<int> permutation_list(4);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
 						DataTransferKit::DTK_TETRAHEDRON, 4,
 						tet_handles, tet_connectivity,
 						permutation_list );
@@ -178,32 +178,32 @@ DataTransferKit::MeshContainer<int> buildNullTetMesh()
 DataTransferKit::MeshContainer<int>  
 buildHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
-    // Make some nodes.
-    int num_nodes = edge_length*edge_length*2;
-    int node_dim = 3;
-    Teuchos::ArrayRCP<int> node_handles( num_nodes );
-    Teuchos::ArrayRCP<double> coords( node_dim*num_nodes );
+    // Make some vertices.
+    int num_vertices = edge_length*edge_length*2;
+    int vertex_dim = 3;
+    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
     {
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
-	    coords[ 2*num_nodes + idx ] = 0.0;
+	    coords[ num_vertices + idx ] = j;
+	    coords[ 2*num_vertices + idx ] = 0.0;
 	}
     }
     for ( int j = 0; j < edge_length; ++j )
     {
 	for ( int i = 0; i < edge_length; ++i )
 	{
-	    idx = i + j*edge_length + num_nodes / 2;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    idx = i + j*edge_length + num_vertices / 2;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
-	    coords[ 2*num_nodes + idx ] = 1.0;
+	    coords[ num_vertices + idx ] = j;
+	    coords[ 2*num_vertices + idx ] = 1.0;
 	}
     }
     
@@ -211,49 +211,49 @@ buildHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     int num_elements = (edge_length-1)*(edge_length-1);
     Teuchos::ArrayRCP<int> hex_handles( num_elements );
     Teuchos::ArrayRCP<int> hex_connectivity( 8*num_elements );
-    int elem_idx, node_idx;
+    int elem_idx, vertex_idx;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
-	    node_idx = i + j*edge_length;
+	    vertex_idx = i + j*edge_length;
 	    elem_idx = i + j*(edge_length-1);
 
 	    hex_handles[elem_idx] = elem_idx + elem_offset;
 
 	    hex_connectivity[elem_idx] 
-		= node_handles[node_idx];
+		= vertex_handles[vertex_idx];
 
 	    hex_connectivity[num_elements+elem_idx] 
-		= node_handles[node_idx+1];
+		= vertex_handles[vertex_idx+1];
 
 	    hex_connectivity[2*num_elements+elem_idx] 
-		= node_handles[node_idx+edge_length+1];
+		= vertex_handles[vertex_idx+edge_length+1];
 
 	    hex_connectivity[3*num_elements+elem_idx] 
-		= node_handles[node_idx+edge_length];
+		= vertex_handles[vertex_idx+edge_length];
 
 	    hex_connectivity[4*num_elements+elem_idx] 
-		= node_handles[node_idx+num_nodes/2];
+		= vertex_handles[vertex_idx+num_vertices/2];
 
 	    hex_connectivity[5*num_elements+elem_idx] 
-		= node_handles[node_idx+num_nodes/2+1];
+		= vertex_handles[vertex_idx+num_vertices/2+1];
 
  	    hex_connectivity[6*num_elements+elem_idx] 
-		= node_handles[node_idx+num_nodes/2+edge_length+1];
+		= vertex_handles[vertex_idx+num_vertices/2+edge_length+1];
 
 	    hex_connectivity[7*num_elements+elem_idx] 
-		= node_handles[node_idx+num_nodes/2+edge_length];
+		= vertex_handles[vertex_idx+num_vertices/2+edge_length];
 	}
     }
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( 8 );
+    Teuchos::ArrayRCP<int> permutation_list( 8 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
 						DataTransferKit::DTK_HEXAHEDRON, 8,
 						hex_handles, hex_connectivity,
 						permutation_list );
@@ -263,17 +263,17 @@ buildHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 DataTransferKit::MeshContainer<int> 
 buildNullHexMesh()
 {
-    Teuchos::ArrayRCP<int> node_handles(0);
+    Teuchos::ArrayRCP<int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
     Teuchos::ArrayRCP<int> hex_handles(0);
     Teuchos::ArrayRCP<int> hex_connectivity(0);
-    Teuchos::ArrayRCP<std::size_t> permutation_list(8);
+    Teuchos::ArrayRCP<int> permutation_list(8);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
 						DataTransferKit::DTK_HEXAHEDRON, 8,
 						hex_handles, hex_connectivity,
 						permutation_list );
@@ -283,21 +283,21 @@ buildNullHexMesh()
 DataTransferKit::MeshContainer<int>  
 buildPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
-    // Make some nodes.
-    int num_nodes = edge_length*edge_length*2 + (edge_length-1)*(edge_length-1);
-    int node_dim = 3;
-    Teuchos::ArrayRCP<int> node_handles( num_nodes );
-    Teuchos::ArrayRCP<double> coords( node_dim*num_nodes );
+    // Make some vertices.
+    int num_vertices = edge_length*edge_length*2 + (edge_length-1)*(edge_length-1);
+    int vertex_dim = 3;
+    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
     {
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
-	    coords[ 2*num_nodes + idx ] = 0.0;
+	    coords[ num_vertices + idx ] = j;
+	    coords[ 2*num_vertices + idx ] = 0.0;
 	}
     }
     for ( int j = 0; j < edge_length; ++j )
@@ -305,10 +305,10 @@ buildPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length + edge_length*edge_length;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
-	    coords[ 2*num_nodes + idx ] = 1.0;
+	    coords[ num_vertices + idx ] = j;
+	    coords[ 2*num_vertices + idx ] = 1.0;
 	}
     }
     for ( int j = 0; j < edge_length-1; ++j )
@@ -316,10 +316,10 @@ buildPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 	for ( int i = 0; i < edge_length-1; ++i )
 	{
 	    idx = i + j*(edge_length-1) + edge_length*edge_length*2;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1) + 0.5;
-	    coords[ num_nodes + idx ] = j + 0.5;
-	    coords[ 2*num_nodes + idx ] = 0.5;
+	    coords[ num_vertices + idx ] = j + 0.5;
+	    coords[ 2*num_vertices + idx ] = 0.5;
 	}
     }
     
@@ -327,87 +327,87 @@ buildPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     int num_elements = (edge_length-1)*(edge_length-1)*6;
     Teuchos::ArrayRCP<int> pyr_handles( num_elements );
     Teuchos::ArrayRCP<int> pyr_connectivity( 5*num_elements );
-    int elem_idx, node_idx;
+    int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7, v8;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
 	    // Indices.
-	    node_idx = i + j*edge_length;
-	    v0 = node_idx;
-	    v1 = node_idx + 1;
-	    v2 = node_idx + 1 + edge_length;
-	    v3 = node_idx +     edge_length;
-	    v4 = node_idx +                   edge_length*edge_length;
-	    v5 = node_idx + 1 +               edge_length*edge_length;
-	    v6 = node_idx + 1 + edge_length + edge_length*edge_length;
-	    v7 = node_idx +     edge_length + edge_length*edge_length;
+	    vertex_idx = i + j*edge_length;
+	    v0 = vertex_idx;
+	    v1 = vertex_idx + 1;
+	    v2 = vertex_idx + 1 + edge_length;
+	    v3 = vertex_idx +     edge_length;
+	    v4 = vertex_idx +                   edge_length*edge_length;
+	    v5 = vertex_idx + 1 +               edge_length*edge_length;
+	    v6 = vertex_idx + 1 + edge_length + edge_length*edge_length;
+	    v7 = vertex_idx +     edge_length + edge_length*edge_length;
 	    v8 = i + j*(edge_length-1) + edge_length*edge_length*2;
 
 	    // Pyramid 1.
 	    elem_idx = i + j*(edge_length-1);
 	    pyr_handles[elem_idx] = elem_idx + elem_offset;
-	    pyr_connectivity[elem_idx]                = node_handles[v0];
-	    pyr_connectivity[num_elements+elem_idx]   = node_handles[v1];
-	    pyr_connectivity[2*num_elements+elem_idx] = node_handles[v2];
-	    pyr_connectivity[3*num_elements+elem_idx] = node_handles[v3];
-	    pyr_connectivity[4*num_elements+elem_idx] = node_handles[v8];
+	    pyr_connectivity[elem_idx]                = vertex_handles[v0];
+	    pyr_connectivity[num_elements+elem_idx]   = vertex_handles[v1];
+	    pyr_connectivity[2*num_elements+elem_idx] = vertex_handles[v2];
+	    pyr_connectivity[3*num_elements+elem_idx] = vertex_handles[v3];
+	    pyr_connectivity[4*num_elements+elem_idx] = vertex_handles[v8];
 
 	    // Pyramid 2.
 	    elem_idx = i + j*(edge_length-1) + num_elements/6;
 	    pyr_handles[elem_idx] = elem_idx + elem_offset;
-	    pyr_connectivity[elem_idx] 	              = node_handles[v1];
-	    pyr_connectivity[num_elements+elem_idx]   = node_handles[v5];
-	    pyr_connectivity[2*num_elements+elem_idx] = node_handles[v6];
-	    pyr_connectivity[3*num_elements+elem_idx] = node_handles[v2];
-	    pyr_connectivity[4*num_elements+elem_idx] = node_handles[v8];
+	    pyr_connectivity[elem_idx] 	              = vertex_handles[v1];
+	    pyr_connectivity[num_elements+elem_idx]   = vertex_handles[v5];
+	    pyr_connectivity[2*num_elements+elem_idx] = vertex_handles[v6];
+	    pyr_connectivity[3*num_elements+elem_idx] = vertex_handles[v2];
+	    pyr_connectivity[4*num_elements+elem_idx] = vertex_handles[v8];
 
 	    // Pyramid 3.
 	    elem_idx = i + j*(edge_length-1) + 2*num_elements/6;
 	    pyr_handles[elem_idx] = elem_idx + elem_offset;
-	    pyr_connectivity[elem_idx] 	              = node_handles[v2];
-	    pyr_connectivity[num_elements+elem_idx]   = node_handles[v6];
-	    pyr_connectivity[2*num_elements+elem_idx] = node_handles[v7];
-	    pyr_connectivity[3*num_elements+elem_idx] = node_handles[v3];
-	    pyr_connectivity[4*num_elements+elem_idx] = node_handles[v8];
+	    pyr_connectivity[elem_idx] 	              = vertex_handles[v2];
+	    pyr_connectivity[num_elements+elem_idx]   = vertex_handles[v6];
+	    pyr_connectivity[2*num_elements+elem_idx] = vertex_handles[v7];
+	    pyr_connectivity[3*num_elements+elem_idx] = vertex_handles[v3];
+	    pyr_connectivity[4*num_elements+elem_idx] = vertex_handles[v8];
 
 	    // Pyramid 4.
 	    elem_idx = i + j*(edge_length-1) + 3*num_elements/6;
 	    pyr_handles[elem_idx] = elem_idx + elem_offset;
-	    pyr_connectivity[elem_idx]   	      = node_handles[v4];
-	    pyr_connectivity[num_elements+elem_idx]   = node_handles[v0];
-	    pyr_connectivity[2*num_elements+elem_idx] = node_handles[v3];
-	    pyr_connectivity[3*num_elements+elem_idx] = node_handles[v7];
-	    pyr_connectivity[4*num_elements+elem_idx] = node_handles[v8];
+	    pyr_connectivity[elem_idx]   	      = vertex_handles[v4];
+	    pyr_connectivity[num_elements+elem_idx]   = vertex_handles[v0];
+	    pyr_connectivity[2*num_elements+elem_idx] = vertex_handles[v3];
+	    pyr_connectivity[3*num_elements+elem_idx] = vertex_handles[v7];
+	    pyr_connectivity[4*num_elements+elem_idx] = vertex_handles[v8];
 
 	    // Pyramid 5.
 	    elem_idx = i + j*(edge_length-1) + 4*num_elements/6;
 	    pyr_handles[elem_idx] = elem_idx + elem_offset;
-	    pyr_connectivity[elem_idx]   	      = node_handles[v4];
-	    pyr_connectivity[num_elements+elem_idx]   = node_handles[v5];
-	    pyr_connectivity[2*num_elements+elem_idx] = node_handles[v1];
-	    pyr_connectivity[3*num_elements+elem_idx] = node_handles[v0];
-	    pyr_connectivity[4*num_elements+elem_idx] = node_handles[v8];
+	    pyr_connectivity[elem_idx]   	      = vertex_handles[v4];
+	    pyr_connectivity[num_elements+elem_idx]   = vertex_handles[v5];
+	    pyr_connectivity[2*num_elements+elem_idx] = vertex_handles[v1];
+	    pyr_connectivity[3*num_elements+elem_idx] = vertex_handles[v0];
+	    pyr_connectivity[4*num_elements+elem_idx] = vertex_handles[v8];
 
 	    // Pyramid 6.
 	    elem_idx = i + j*(edge_length-1) + 5*num_elements/6;
 	    pyr_handles[elem_idx] = elem_idx + elem_offset;
-	    pyr_connectivity[elem_idx]   	      = node_handles[v4];
-	    pyr_connectivity[num_elements+elem_idx]   = node_handles[v7];
-	    pyr_connectivity[2*num_elements+elem_idx] = node_handles[v6];
-	    pyr_connectivity[3*num_elements+elem_idx] = node_handles[v5];
-	    pyr_connectivity[4*num_elements+elem_idx] = node_handles[v8];
+	    pyr_connectivity[elem_idx]   	      = vertex_handles[v4];
+	    pyr_connectivity[num_elements+elem_idx]   = vertex_handles[v7];
+	    pyr_connectivity[2*num_elements+elem_idx] = vertex_handles[v6];
+	    pyr_connectivity[3*num_elements+elem_idx] = vertex_handles[v5];
+	    pyr_connectivity[4*num_elements+elem_idx] = vertex_handles[v8];
 	}
     }
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( 5 );
+    Teuchos::ArrayRCP<int> permutation_list( 5 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
 						DataTransferKit::DTK_PYRAMID, 5,
 						pyr_handles, pyr_connectivity,
 						permutation_list );
@@ -416,17 +416,17 @@ buildPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 //---------------------------------------------------------------------------//
 DataTransferKit::MeshContainer<int> buildNullPyramidMesh()
 {
-    Teuchos::ArrayRCP<int> node_handles(0);
+    Teuchos::ArrayRCP<int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
     Teuchos::ArrayRCP<int> pyramid_handles(0);
     Teuchos::ArrayRCP<int> pyramid_connectivity(0);
-    Teuchos::ArrayRCP<std::size_t> permutation_list(5);
+    Teuchos::ArrayRCP<int> permutation_list(5);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
 						DataTransferKit::DTK_PYRAMID, 5,
 						pyramid_handles, pyramid_connectivity,
 						permutation_list );
@@ -436,21 +436,21 @@ DataTransferKit::MeshContainer<int> buildNullPyramidMesh()
 DataTransferKit::MeshContainer<int>  
 buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
-    // Make some nodes.
-    int num_nodes = edge_length*edge_length*2;
-    int node_dim = 3;
-    Teuchos::ArrayRCP<int> node_handles( num_nodes );
-    Teuchos::ArrayRCP<double> coords( node_dim*num_nodes );
+    // Make some vertices.
+    int num_vertices = edge_length*edge_length*2;
+    int vertex_dim = 3;
+    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
     {
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
-	    coords[ 2*num_nodes + idx ] = 0.0;
+	    coords[ num_vertices + idx ] = j;
+	    coords[ 2*num_vertices + idx ] = 0.0;
 	}
     }
     for ( int j = 0; j < edge_length; ++j )
@@ -458,10 +458,10 @@ buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length + edge_length*edge_length;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
-	    coords[ 2*num_nodes + idx ] = 1.0;
+	    coords[ num_vertices + idx ] = j;
+	    coords[ 2*num_vertices + idx ] = 1.0;
 	}
     }
     
@@ -469,52 +469,52 @@ buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     int num_elements = (edge_length-1)*(edge_length-1)*2;
     Teuchos::ArrayRCP<int> wedge_handles( num_elements );
     Teuchos::ArrayRCP<int> wedge_connectivity( 6*num_elements );
-    int elem_idx, node_idx;
+    int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
 	    // Indices.
-	    node_idx = i + j*edge_length;
-	    v0 = node_idx;
-	    v1 = node_idx + 1;
-	    v2 = node_idx + 1 + edge_length;
-	    v3 = node_idx +     edge_length;
-	    v4 = node_idx +                   edge_length*edge_length;
-	    v5 = node_idx + 1 +               edge_length*edge_length;
-	    v6 = node_idx + 1 + edge_length + edge_length*edge_length;
-	    v7 = node_idx +     edge_length + edge_length*edge_length;
+	    vertex_idx = i + j*edge_length;
+	    v0 = vertex_idx;
+	    v1 = vertex_idx + 1;
+	    v2 = vertex_idx + 1 + edge_length;
+	    v3 = vertex_idx +     edge_length;
+	    v4 = vertex_idx +                   edge_length*edge_length;
+	    v5 = vertex_idx + 1 +               edge_length*edge_length;
+	    v6 = vertex_idx + 1 + edge_length + edge_length*edge_length;
+	    v7 = vertex_idx +     edge_length + edge_length*edge_length;
 
 	    // Wedge 1.
 	    elem_idx = i + j*(edge_length-1);
 	    wedge_handles[elem_idx] = elem_idx + elem_offset;
-	    wedge_connectivity[elem_idx]                = node_handles[v0];
-	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];
-	    wedge_connectivity[2*num_elements+elem_idx] = node_handles[v1];
-	    wedge_connectivity[3*num_elements+elem_idx] = node_handles[v3];
-	    wedge_connectivity[4*num_elements+elem_idx] = node_handles[v7];
-	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v2];
+	    wedge_connectivity[elem_idx]                = vertex_handles[v0];
+	    wedge_connectivity[num_elements+elem_idx]   = vertex_handles[v4];
+	    wedge_connectivity[2*num_elements+elem_idx] = vertex_handles[v1];
+	    wedge_connectivity[3*num_elements+elem_idx] = vertex_handles[v3];
+	    wedge_connectivity[4*num_elements+elem_idx] = vertex_handles[v7];
+	    wedge_connectivity[5*num_elements+elem_idx] = vertex_handles[v2];
 
 	    // Wedge 2.
 	    elem_idx = i + j*(edge_length-1) + num_elements/2;
 	    wedge_handles[elem_idx] = elem_idx + elem_offset;
-	    wedge_connectivity[elem_idx] 	        = node_handles[v1];
-	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];
-	    wedge_connectivity[2*num_elements+elem_idx] = node_handles[v5];
-	    wedge_connectivity[3*num_elements+elem_idx] = node_handles[v2];
-	    wedge_connectivity[4*num_elements+elem_idx] = node_handles[v7];
-	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v6];
+	    wedge_connectivity[elem_idx] 	        = vertex_handles[v1];
+	    wedge_connectivity[num_elements+elem_idx]   = vertex_handles[v4];
+	    wedge_connectivity[2*num_elements+elem_idx] = vertex_handles[v5];
+	    wedge_connectivity[3*num_elements+elem_idx] = vertex_handles[v2];
+	    wedge_connectivity[4*num_elements+elem_idx] = vertex_handles[v7];
+	    wedge_connectivity[5*num_elements+elem_idx] = vertex_handles[v6];
 	}
     }
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( 6 );
+    Teuchos::ArrayRCP<int> permutation_list( 6 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
 						DataTransferKit::DTK_WEDGE, 6,
 						wedge_handles, wedge_connectivity,
 						permutation_list );
@@ -523,17 +523,17 @@ buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 //---------------------------------------------------------------------------//
 DataTransferKit::MeshContainer<int> buildNullWedgeMesh()
 {
-    Teuchos::ArrayRCP<int> node_handles(0);
+    Teuchos::ArrayRCP<int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
     Teuchos::ArrayRCP<int> wedge_handles(0);
     Teuchos::ArrayRCP<int> wedge_connectivity(0);
-    Teuchos::ArrayRCP<std::size_t> permutation_list(6);
+    Teuchos::ArrayRCP<int> permutation_list(6);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 3, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
 						DataTransferKit::DTK_WEDGE, 6,
 						wedge_handles, wedge_connectivity,
 						permutation_list );

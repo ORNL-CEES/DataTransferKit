@@ -40,7 +40,7 @@
 
 
 #include "DTK_CellTopologyFactory.hpp"
-#include <DTK_Assertion.hpp>
+#include "DTK_Assertion.hpp"
 
 #include <Teuchos_ENull.hpp>
 
@@ -62,13 +62,13 @@ CellTopologyFactory::~CellTopologyFactory()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory method. If the number of element nodes provided is not
+ * \brief Factory method. If the number of element vertices provided is not
  * supported for that topology, the topology for the linear element will be
  * created. 
  */
 CellTopologyFactory::RCP_CellTopology
 CellTopologyFactory::create( const moab::EntityType element_topology,
-			     const int num_element_nodes )
+			     const int num_element_vertices )
 {
     testPrecondition( moab::MBEDGE    == element_topology ||
 		      moab::MBTRI     == element_topology ||
@@ -84,13 +84,13 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
     {
 	case moab::MBEDGE:
 	    
-	    if ( num_element_nodes == 2 )
+	    if ( num_element_vertices == 2 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 			shards::getCellTopologyData< shards::Line<2> >() ) );
 	    }
-	    else if ( num_element_nodes == 3 )
+	    else if ( num_element_vertices == 3 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
@@ -105,19 +105,19 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 
 	case moab::MBTRI:
 	    
-	    if ( num_element_nodes == 3 )
+	    if ( num_element_vertices == 3 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 			shards::getCellTopologyData< shards::Triangle<3> >() ) );
 	    }
-	    else if ( num_element_nodes == 4 )
+	    else if ( num_element_vertices == 4 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 			shards::getCellTopologyData< shards::Triangle<4> >() ) );
 	    }
-	    else if ( num_element_nodes == 6 )
+	    else if ( num_element_vertices == 6 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
@@ -133,19 +133,19 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 
 	case moab::MBQUAD:
 
-	    if ( num_element_nodes == 4 )
+	    if ( num_element_vertices == 4 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 		    shards::getCellTopologyData< shards::Quadrilateral<4> >() ) );
 	    }
-	    else if ( num_element_nodes == 8 )
+	    else if ( num_element_vertices == 8 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 		    shards::getCellTopologyData< shards::Quadrilateral<8> >() ) );
 	    }
-	    else if ( num_element_nodes == 9 )
+	    else if ( num_element_vertices == 9 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
@@ -161,25 +161,25 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 
 	case moab::MBTET:
 	    
-	    if ( num_element_nodes == 4 )
+	    if ( num_element_vertices == 4 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 		    shards::getCellTopologyData< shards::Tetrahedron<4> >() ) );
 	    }
-	    else if ( num_element_nodes == 8 )
+	    else if ( num_element_vertices == 8 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 		    shards::getCellTopologyData< shards::Tetrahedron<8> >() ) );
 	    }
-	    else if ( num_element_nodes == 10 )
+	    else if ( num_element_vertices == 10 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 		    shards::getCellTopologyData< shards::Tetrahedron<10> >() ) );
 	    }
-	    else if ( num_element_nodes == 11 )
+	    else if ( num_element_vertices == 11 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
@@ -195,19 +195,19 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 
 	case moab::MBPYRAMID:
 	    
-	    if ( num_element_nodes == 5 )
+	    if ( num_element_vertices == 5 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 			shards::getCellTopologyData< shards::Pyramid<5> >() ) );
 	    }
-	    if ( num_element_nodes == 13 )
+	    if ( num_element_vertices == 13 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 			shards::getCellTopologyData< shards::Pyramid<13> >() ) );
 	    }
-	    if ( num_element_nodes == 14 )
+	    if ( num_element_vertices == 14 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
@@ -223,19 +223,19 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 
 	case moab::MBPRISM:
 	    
-	    if ( num_element_nodes == 6 )
+	    if ( num_element_vertices == 6 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 			shards::getCellTopologyData< shards::Wedge<6> >() ) );
 	    }
-	    if ( num_element_nodes == 15 )
+	    if ( num_element_vertices == 15 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 			shards::getCellTopologyData< shards::Wedge<15> >() ) );
 	    }
-	    if ( num_element_nodes == 18 )
+	    if ( num_element_vertices == 18 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
@@ -251,19 +251,19 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 
 	case moab::MBHEX:
 	    
-	    if ( num_element_nodes == 8 )
+	    if ( num_element_vertices == 8 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 		    shards::getCellTopologyData< shards::Hexahedron<8> >() ) );
 	    }
-	    if ( num_element_nodes == 20 )
+	    if ( num_element_vertices == 20 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(
 		    shards::getCellTopologyData< shards::Hexahedron<20> >() ) );
 	    }
-	    if ( num_element_nodes == 27 )
+	    if ( num_element_vertices == 27 )
 	    {
 		new_topology = Teuchos::rcp( 
 		    new shards::CellTopology(

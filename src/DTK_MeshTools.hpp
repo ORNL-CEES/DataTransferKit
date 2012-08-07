@@ -84,17 +84,17 @@ class MeshTools
 
     //@{
     //! Bounds-checking mesh data access methods.
-    // Get a view of the of the mesh nodes. 
+    // Get a view of the of the mesh vertices. 
     static Teuchos::ArrayRCP<const GlobalOrdinal> 
-    nodesView( const Mesh& mesh );
+    verticesView( const Mesh& mesh );
 
-    // Get a non-const view of the of the mesh nodes.
+    // Get a non-const view of the of the mesh vertices.
     static Teuchos::ArrayRCP<GlobalOrdinal> 
-    nodesNonConstView( const Mesh& mesh );
+    verticesNonConstView( const Mesh& mesh );
 
-    //! Get the number of nodes in a mesh block.
-    static GlobalOrdinal numNodes( const Mesh& mesh )
-    { return std::distance( MT::nodesBegin( mesh ), MT::nodesEnd( mesh ) ); }
+    //! Get the number of vertices in a mesh block.
+    static GlobalOrdinal numVertices( const Mesh& mesh )
+    { return std::distance( MT::verticesBegin(mesh), MT::verticesEnd(mesh) ); }
 
     // Get a view of the of the mesh coordinates.
     static Teuchos::ArrayRCP<const double> coordsView( const Mesh& mesh );
@@ -123,11 +123,11 @@ class MeshTools
     connectivityNonConstView( const Mesh& mesh );
 
     // Get a view of the of the mesh connectivity permutation list.
-    static Teuchos::ArrayRCP<const std::size_t> 
+    static Teuchos::ArrayRCP<const int> 
     permutationView( const Mesh& mesh );
 
     // Get a non-const view of the of the mesh connectivity permutation list. 
-    static Teuchos::ArrayRCP<std::size_t> 
+    static Teuchos::ArrayRCP<int> 
     permutationNonConstView( const Mesh& mesh );
     //@}
 

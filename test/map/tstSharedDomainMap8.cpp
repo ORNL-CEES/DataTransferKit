@@ -61,12 +61,12 @@ class MyMesh
     MyMesh() 
     { /* ... */ }
 
-    MyMesh( const Teuchos::Array<global_ordinal_type>& node_handles,
+    MyMesh( const Teuchos::Array<global_ordinal_type>& vertex_handles,
 	    const Teuchos::Array<double>& coords,
 	    const Teuchos::Array<global_ordinal_type>& element_handles,
 	    const Teuchos::Array<global_ordinal_type>& element_connectivity,
-	    const Teuchos::Array<std::size_t>& permutation_list )
-	: d_node_handles( node_handles )
+	    const Teuchos::Array<int>& permutation_list )
+	: d_vertex_handles( vertex_handles )
 	, d_coords( coords )
 	, d_element_handles( element_handles )
 	, d_element_connectivity( element_connectivity )
@@ -76,11 +76,11 @@ class MyMesh
     ~MyMesh()
     { /* ... */ }
 
-    Teuchos::Array<global_ordinal_type>::const_iterator nodesBegin() const
-    { return d_node_handles.begin(); }
+    Teuchos::Array<global_ordinal_type>::const_iterator verticesBegin() const
+    { return d_vertex_handles.begin(); }
 
-    Teuchos::Array<global_ordinal_type>::const_iterator nodesEnd() const
-    { return d_node_handles.end(); }
+    Teuchos::Array<global_ordinal_type>::const_iterator verticesEnd() const
+    { return d_vertex_handles.end(); }
 
     Teuchos::Array<double>::const_iterator coordsBegin() const
     { return d_coords.begin(); }
@@ -102,20 +102,20 @@ class MyMesh
     connectivityEnd() const
     { return d_element_connectivity.end(); }
     
-    Teuchos::Array<std::size_t>::const_iterator permutationBegin() const
+    Teuchos::Array<int>::const_iterator permutationBegin() const
     { return d_permutation_list.begin(); }
 
-    Teuchos::Array<std::size_t>::const_iterator permutationEnd() const
+    Teuchos::Array<int>::const_iterator permutationEnd() const
     { return d_permutation_list.end(); }
 
 
   private:
 
-    Teuchos::Array<global_ordinal_type> d_node_handles;
+    Teuchos::Array<global_ordinal_type> d_vertex_handles;
     Teuchos::Array<double> d_coords;
     Teuchos::Array<global_ordinal_type> d_element_handles;
     Teuchos::Array<global_ordinal_type> d_element_connectivity;
-    Teuchos::Array<std::size_t> d_permutation_list;
+    Teuchos::Array<int> d_permutation_list;
 };
 
 //---------------------------------------------------------------------------//
@@ -130,7 +130,7 @@ class MyField
     typedef Teuchos::Array<double>::iterator iterator;
     typedef Teuchos::Array<double>::const_iterator const_iterator;
 
-    MyField( size_type size, std::size_t dim )
+    MyField( size_type size, int dim )
 	: d_dim( dim )
 	, d_data( dim*size )
     { /* ... */ }
@@ -138,7 +138,7 @@ class MyField
     ~MyField()
     { /* ... */ }
 
-    std::size_t dim() const
+    int dim() const
     { return d_dim; }
 
     size_type size() const
@@ -166,7 +166,7 @@ class MyField
     { return d_data; }
 
   private:
-    std::size_t d_dim;
+    int d_dim;
     Teuchos::Array<double> d_data;
 };
 
@@ -185,24 +185,24 @@ class MeshTraits<MyMesh>
 
     typedef MyMesh::global_ordinal_type global_ordinal_type;
     typedef Teuchos::Array<global_ordinal_type>::const_iterator 
-    const_node_iterator;
+    const_vertex_iterator;
     typedef Teuchos::Array<double>::const_iterator 
     const_coordinate_iterator;
     typedef Teuchos::Array<global_ordinal_type>::const_iterator 
     const_element_iterator;
     typedef Teuchos::Array<global_ordinal_type>::const_iterator 
     const_connectivity_iterator;
-    typedef Teuchos::Array<std::size_t>::const_iterator 
+    typedef Teuchos::Array<int>::const_iterator 
     const_permutation_iterator;
 
-    static inline std::size_t nodeDim( const MyMesh& mesh )
+    static inline int vertexDim( const MyMesh& mesh )
     { return 3; }
 
-    static inline const_node_iterator nodesBegin( const MyMesh& mesh )
-    { return mesh.nodesBegin(); }
+    static inline const_vertex_iterator verticesBegin( const MyMesh& mesh )
+    { return mesh.verticesBegin(); }
 
-    static inline const_node_iterator nodesEnd( const MyMesh& mesh )
-    { return mesh.nodesEnd(); }
+    static inline const_vertex_iterator verticesEnd( const MyMesh& mesh )
+    { return mesh.verticesEnd(); }
 
     static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
     { return mesh.coordsBegin(); }
@@ -211,10 +211,10 @@ class MeshTraits<MyMesh>
     { return mesh.coordsEnd(); }
 
 
-    static inline std::size_t elementTopology( const MyMesh& mesh )
+    static inline DTK_ElementTopology elementTopology( const MyMesh& mesh )
     { return DTK_WEDGE; }
 
-    static inline std::size_t nodesPerElement( const MyMesh& mesh )
+    static inline int verticesPerElement( const MyMesh& mesh )
     { return 6; }
 
 
@@ -321,21 +321,21 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 //---------------------------------------------------------------------------//
 MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 {
-    // Make some nodes.
-    int num_nodes = edge_length*edge_length*2;
-    int node_dim = 3;
-    Teuchos::Array<long int> node_handles( num_nodes );
-    Teuchos::Array<double> coords( node_dim*num_nodes );
+    // Make some vertices.
+    int num_vertices = edge_length*edge_length*2;
+    int vertex_dim = 3;
+    Teuchos::Array<long int> vertex_handles( num_vertices );
+    Teuchos::Array<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
     {
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length;
-	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
+	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
-	    coords[ 2*num_nodes + idx ] = 0.0;
+	    coords[ num_vertices + idx ] = j;
+	    coords[ 2*num_vertices + idx ] = 0.0;
 	}
     }
     for ( int j = 0; j < edge_length; ++j )
@@ -343,10 +343,10 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length + edge_length*edge_length;
-	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
+	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
-	    coords[ 2*num_nodes + idx ] = 1.0;
+	    coords[ num_vertices + idx ] = j;
+	    coords[ 2*num_vertices + idx ] = 1.0;
 	}
     }
     
@@ -354,73 +354,73 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
     int num_elements = (edge_length-1)*(edge_length-1)*2;
     Teuchos::Array<long int> wedge_handles( num_elements );
     Teuchos::Array<long int> wedge_connectivity( 6*num_elements );
-    int elem_idx, node_idx;
+    int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
 	    // Indices.
-	    node_idx = i + j*edge_length;
-	    v0 = node_idx;
-	    v1 = node_idx + 1;
-	    v2 = node_idx + 1 + edge_length;
-	    v3 = node_idx +     edge_length;
-	    v4 = node_idx +                   edge_length*edge_length;
-	    v5 = node_idx + 1 +               edge_length*edge_length;
-	    v6 = node_idx + 1 + edge_length + edge_length*edge_length;
-	    v7 = node_idx +     edge_length + edge_length*edge_length;
+	    vertex_idx = i + j*edge_length;
+	    v0 = vertex_idx;
+	    v1 = vertex_idx + 1;
+	    v2 = vertex_idx + 1 + edge_length;
+	    v3 = vertex_idx +     edge_length;
+	    v4 = vertex_idx +                   edge_length*edge_length;
+	    v5 = vertex_idx + 1 +               edge_length*edge_length;
+	    v6 = vertex_idx + 1 + edge_length + edge_length*edge_length;
+	    v7 = vertex_idx +     edge_length + edge_length*edge_length;
 
 	    // Wedge 1.
 	    elem_idx = i + j*(edge_length-1);
 	    wedge_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    wedge_connectivity[elem_idx]                = node_handles[v0];
-	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];
-	    wedge_connectivity[2*num_elements+elem_idx] = node_handles[v1];
-	    wedge_connectivity[3*num_elements+elem_idx] = node_handles[v3];
-	    wedge_connectivity[4*num_elements+elem_idx] = node_handles[v7];
-	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v2];
+	    wedge_connectivity[elem_idx]                = vertex_handles[v0];
+	    wedge_connectivity[num_elements+elem_idx]   = vertex_handles[v4];
+	    wedge_connectivity[2*num_elements+elem_idx] = vertex_handles[v1];
+	    wedge_connectivity[3*num_elements+elem_idx] = vertex_handles[v3];
+	    wedge_connectivity[4*num_elements+elem_idx] = vertex_handles[v7];
+	    wedge_connectivity[5*num_elements+elem_idx] = vertex_handles[v2];
 
 	    // Wedge 2.
 	    elem_idx = i + j*(edge_length-1) + num_elements/2;
 	    wedge_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    wedge_connectivity[elem_idx] 	        = node_handles[v1];
-	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];
-	    wedge_connectivity[2*num_elements+elem_idx] = node_handles[v5];
-	    wedge_connectivity[3*num_elements+elem_idx] = node_handles[v2];
-	    wedge_connectivity[4*num_elements+elem_idx] = node_handles[v7];
-	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v6];
+	    wedge_connectivity[elem_idx] 	        = vertex_handles[v1];
+	    wedge_connectivity[num_elements+elem_idx]   = vertex_handles[v4];
+	    wedge_connectivity[2*num_elements+elem_idx] = vertex_handles[v5];
+	    wedge_connectivity[3*num_elements+elem_idx] = vertex_handles[v2];
+	    wedge_connectivity[4*num_elements+elem_idx] = vertex_handles[v7];
+	    wedge_connectivity[5*num_elements+elem_idx] = vertex_handles[v6];
 	}
     }
 
-    Teuchos::Array<std::size_t> permutation_list( 6 );
+    Teuchos::Array<int> permutation_list( 6 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return MyMesh( node_handles, coords, wedge_handles, wedge_connectivity,
+    return MyMesh( vertex_handles, coords, wedge_handles, wedge_connectivity,
 		   permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 MyMesh buildTiledMesh( int my_rank, int my_size, int edge_length )
 {
-    // Make some nodes.
-    int num_nodes = edge_length*edge_length*2;
-    int node_dim = 3;
-    Teuchos::Array<long int> node_handles( num_nodes );
-    Teuchos::Array<double> coords( node_dim*num_nodes );
+    // Make some vertices.
+    int num_vertices = edge_length*edge_length*2;
+    int vertex_dim = 3;
+    Teuchos::Array<long int> vertex_handles( num_vertices );
+    Teuchos::Array<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
     {
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length;
-	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
+	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j + my_rank*(edge_length-1);
-	    coords[ 2*num_nodes + idx ] = 0.0;
+	    coords[ num_vertices + idx ] = j + my_rank*(edge_length-1);
+	    coords[ 2*num_vertices + idx ] = 0.0;
 	}
     }
     for ( int j = 0; j < edge_length; ++j )
@@ -428,10 +428,10 @@ MyMesh buildTiledMesh( int my_rank, int my_size, int edge_length )
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length + edge_length*edge_length;
-	    node_handles[ idx ] = (long int) num_nodes*my_rank + idx;
+	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j + my_rank*(edge_length-1);
-	    coords[ 2*num_nodes + idx ] = 1.0;
+	    coords[ num_vertices + idx ] = j + my_rank*(edge_length-1);
+	    coords[ 2*num_vertices + idx ] = 1.0;
 	}
     }
     
@@ -439,52 +439,52 @@ MyMesh buildTiledMesh( int my_rank, int my_size, int edge_length )
     int num_elements = (edge_length-1)*(edge_length-1)*2;
     Teuchos::Array<long int> wedge_handles( num_elements );
     Teuchos::Array<long int> wedge_connectivity( 6*num_elements );
-    int elem_idx, node_idx;
+    int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
 	    // Indices.
-	    node_idx = i + j*edge_length;
-	    v0 = node_idx;
-	    v1 = node_idx + 1;
-	    v2 = node_idx + 1 + edge_length;
-	    v3 = node_idx +     edge_length;
-	    v4 = node_idx +                   edge_length*edge_length;
-	    v5 = node_idx + 1 +               edge_length*edge_length;
-	    v6 = node_idx + 1 + edge_length + edge_length*edge_length;
-	    v7 = node_idx +     edge_length + edge_length*edge_length;
+	    vertex_idx = i + j*edge_length;
+	    v0 = vertex_idx;
+	    v1 = vertex_idx + 1;
+	    v2 = vertex_idx + 1 + edge_length;
+	    v3 = vertex_idx +     edge_length;
+	    v4 = vertex_idx +                   edge_length*edge_length;
+	    v5 = vertex_idx + 1 +               edge_length*edge_length;
+	    v6 = vertex_idx + 1 + edge_length + edge_length*edge_length;
+	    v7 = vertex_idx +     edge_length + edge_length*edge_length;
 
 	    // Wedge 1.
 	    elem_idx = i + j*(edge_length-1);
 	    wedge_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    wedge_connectivity[elem_idx]                = node_handles[v0];
-	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];
-	    wedge_connectivity[2*num_elements+elem_idx] = node_handles[v1];
-	    wedge_connectivity[3*num_elements+elem_idx] = node_handles[v3];
-	    wedge_connectivity[4*num_elements+elem_idx] = node_handles[v7];
-	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v2];
+	    wedge_connectivity[elem_idx]                = vertex_handles[v0];
+	    wedge_connectivity[num_elements+elem_idx]   = vertex_handles[v4];
+	    wedge_connectivity[2*num_elements+elem_idx] = vertex_handles[v1];
+	    wedge_connectivity[3*num_elements+elem_idx] = vertex_handles[v3];
+	    wedge_connectivity[4*num_elements+elem_idx] = vertex_handles[v7];
+	    wedge_connectivity[5*num_elements+elem_idx] = vertex_handles[v2];
 
 	    // Wedge 2.
 	    elem_idx = i + j*(edge_length-1) + num_elements/2;
 	    wedge_handles[elem_idx] = num_elements*my_rank + elem_idx;
-	    wedge_connectivity[elem_idx] 	        = node_handles[v1];
-	    wedge_connectivity[num_elements+elem_idx]   = node_handles[v4];
-	    wedge_connectivity[2*num_elements+elem_idx] = node_handles[v5];
-	    wedge_connectivity[3*num_elements+elem_idx] = node_handles[v2];
-	    wedge_connectivity[4*num_elements+elem_idx] = node_handles[v7];
-	    wedge_connectivity[5*num_elements+elem_idx] = node_handles[v6];
+	    wedge_connectivity[elem_idx] 	        = vertex_handles[v1];
+	    wedge_connectivity[num_elements+elem_idx]   = vertex_handles[v4];
+	    wedge_connectivity[2*num_elements+elem_idx] = vertex_handles[v5];
+	    wedge_connectivity[3*num_elements+elem_idx] = vertex_handles[v2];
+	    wedge_connectivity[4*num_elements+elem_idx] = vertex_handles[v7];
+	    wedge_connectivity[5*num_elements+elem_idx] = vertex_handles[v6];
 	}
     }
 
-    Teuchos::Array<std::size_t> permutation_list( 6 );
+    Teuchos::Array<int> permutation_list( 6 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return MyMesh( node_handles, coords, wedge_handles, wedge_connectivity,
+    return MyMesh( vertex_handles, coords, wedge_handles, wedge_connectivity,
 		   permutation_list );
 }
 

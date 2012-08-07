@@ -94,7 +94,7 @@ DataTransferKit::MeshContainer<int> buildLineContainer()
     std::copy( line_connectivity.begin(), line_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_nodes );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
@@ -163,7 +163,7 @@ DataTransferKit::MeshContainer<int> buildTriContainer()
     std::copy( tri_connectivity.begin(), tri_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_nodes );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
@@ -234,7 +234,7 @@ DataTransferKit::MeshContainer<int> buildQuadContainer()
     std::copy( quad_connectivity.begin(), quad_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_nodes );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
@@ -311,7 +311,7 @@ DataTransferKit::MeshContainer<int> buildTetContainer()
     std::copy( tet_connectivity.begin(), tet_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_nodes );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
@@ -400,7 +400,7 @@ DataTransferKit::MeshContainer<int> buildHexContainer()
     std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_nodes );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
@@ -480,7 +480,7 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer()
     std::copy( pyramid_connectivity.begin(), pyramid_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_nodes );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
@@ -562,7 +562,7 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer()
     std::copy( wedge_connectivity.begin(), wedge_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_nodes );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;

@@ -44,7 +44,7 @@
 #include <algorithm>
 #include <iterator>
 
-#include <DTK_Assertion.hpp>
+#include "DTK_Assertion.hpp"
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_CommHelpers.hpp>
@@ -54,47 +54,47 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get a view of the of the mesh nodes. The ArrayRCP object will not
+ * \brief Get a view of the of the mesh vertices. The ArrayRCP object will not
  * manage the memory. 
  */
 template <class Mesh> 
 Teuchos::ArrayRCP<const typename MeshTools<Mesh>::GlobalOrdinal> 
-MeshTools<Mesh>::nodesView( const Mesh& mesh )
+MeshTools<Mesh>::verticesView( const Mesh& mesh )
 {
-    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
-					     MT::nodesEnd( mesh ) );
+    GlobalOrdinal num_vertices = std::distance( MT::verticesBegin( mesh ),
+						MT::verticesEnd( mesh ) );
 
-    if ( num_nodes == 0 )
+    if ( num_vertices == 0 )
     {
 	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
     }
     else
     {
 	return Teuchos::ArrayRCP<const GlobalOrdinal>(
-	    &*MT::nodesBegin(mesh), 0, num_nodes, false );
+	    &*MT::verticesBegin(mesh), 0, num_vertices, false );
     }
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get a non-const view of the of the mesh nodes. The ArrayRCP object
+ * \brief Get a non-const view of the of the mesh vertices. The ArrayRCP object
  * will not manage the memory.
  */
 template <class Mesh> 
 Teuchos::ArrayRCP<typename MeshTools<Mesh>::GlobalOrdinal> 
-MeshTools<Mesh>::nodesNonConstView( const Mesh& mesh )
+MeshTools<Mesh>::verticesNonConstView( const Mesh& mesh )
 {
-    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
-					     MT::nodesEnd( mesh ) );
+    GlobalOrdinal num_vertices = std::distance( MT::verticesBegin( mesh ),
+						MT::verticesEnd( mesh ) );
 
-    if ( num_nodes == 0 )
+    if ( num_vertices == 0 )
     {
 	return Teuchos::ArrayRCP<GlobalOrdinal>(0,0);
     }
     else
     {
 	return Teuchos::ArrayRCP<GlobalOrdinal>(
-	    (GlobalOrdinal*) &*MT::nodesBegin(mesh), 0, num_nodes, false );
+	    (GlobalOrdinal*) &*MT::verticesBegin(mesh), 0, num_vertices, false );
     }
 }
 
@@ -245,20 +245,20 @@ MeshTools<Mesh>::connectivityNonConstView( const Mesh& mesh )
  * ArrayRCP object will not manage the memory. 
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<const std::size_t> 
+Teuchos::ArrayRCP<const int> 
 MeshTools<Mesh>::permutationView( const Mesh& mesh )
 {
-    std::size_t num_permutation = 
+    int num_permutation = 
 	std::distance( MT::permutationBegin( mesh ),
 		       MT::permutationEnd( mesh ) );
 
     if ( num_permutation == 0 )
     {
-	return Teuchos::ArrayRCP<std::size_t>(0,0);
+	return Teuchos::ArrayRCP<int>(0,0);
     }
     else
     {
-	return Teuchos::ArrayRCP<const std::size_t>(
+	return Teuchos::ArrayRCP<const int>(
 	    &*MT::permutationBegin( mesh ), 0, num_permutation, false );
     }
 }
@@ -269,21 +269,21 @@ MeshTools<Mesh>::permutationView( const Mesh& mesh )
  * list. The ArrayRCP object will not manage the memory.
  */
 template <class Mesh> 
-Teuchos::ArrayRCP<std::size_t> 
+Teuchos::ArrayRCP<int> 
 MeshTools<Mesh>::permutationNonConstView( const Mesh& mesh )
 {
-    std::size_t num_permutation = 
+    int num_permutation = 
 	std::distance( MT::permutationBegin( mesh ),
 		       MT::permutationEnd( mesh ) );
 
     if ( num_permutation == 0 )
     {
-	return Teuchos::ArrayRCP<std::size_t>(0,0);
+	return Teuchos::ArrayRCP<int>(0,0);
     }
     else
     {
-	return Teuchos::ArrayRCP<std::size_t>(
-	    (std::size_t*) &*MT::permutationBegin( mesh ), 0, 
+	return Teuchos::ArrayRCP<int>(
+	    (int*) &*MT::permutationBegin( mesh ), 0, 
 	    num_permutation, false );
     }
 }
@@ -303,36 +303,36 @@ BoundingBox MeshTools<Mesh>::localBoundingBox( const Mesh& mesh )
     double y_max = Teuchos::ScalarTraits<double>::rmax();
     double z_max = Teuchos::ScalarTraits<double>::rmax();
 
-    GlobalOrdinal num_nodes = std::distance( MT::nodesBegin( mesh ),
-					     MT::nodesEnd( mesh ) );
-    std::size_t node_dim = MT::nodeDim( mesh );
+    GlobalOrdinal num_vertices = std::distance( MT::verticesBegin( mesh ),
+						MT::verticesEnd( mesh ) );
+    int vertex_dim = MT::vertexDim( mesh );
 
-    if ( node_dim > 0 )
+    if ( vertex_dim > 0 )
     {
 	x_min = *std::min_element( 
 	    MT::coordsBegin( mesh ),
-	    MT::coordsBegin( mesh ) + num_nodes );
+	    MT::coordsBegin( mesh ) + num_vertices );
 	x_max = *std::max_element( 
 	    MT::coordsBegin( mesh ),
-	    MT::coordsBegin( mesh ) + num_nodes );
+	    MT::coordsBegin( mesh ) + num_vertices );
     }
-    if ( node_dim > 1 )
+    if ( vertex_dim > 1 )
     {
 	y_min = *std::min_element( 
-	    MT::coordsBegin( mesh ) + num_nodes,
-	    MT::coordsBegin( mesh ) + 2*num_nodes );
+	    MT::coordsBegin( mesh ) + num_vertices,
+	    MT::coordsBegin( mesh ) + 2*num_vertices );
 	y_max = *std::max_element( 
-	    MT::coordsBegin( mesh ) + num_nodes,
-	    MT::coordsBegin( mesh ) + 2*num_nodes );
+	    MT::coordsBegin( mesh ) + num_vertices,
+	    MT::coordsBegin( mesh ) + 2*num_vertices );
     }
-    if ( node_dim > 2 )
+    if ( vertex_dim > 2 )
     {
 	z_min = *std::min_element( 
-	    MT::coordsBegin( mesh ) + 2*num_nodes,
-	    MT::coordsBegin( mesh ) + 3*num_nodes );
+	    MT::coordsBegin( mesh ) + 2*num_vertices,
+	    MT::coordsBegin( mesh ) + 3*num_vertices );
 	z_max = *std::max_element( 
-	    MT::coordsBegin( mesh ) + 2*num_nodes,
-	    MT::coordsBegin( mesh ) + 3*num_nodes );
+	    MT::coordsBegin( mesh ) + 2*num_vertices,
+	    MT::coordsBegin( mesh ) + 3*num_vertices );
     }
 
     return BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );

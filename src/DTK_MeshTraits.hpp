@@ -43,6 +43,8 @@
 
 #include <iterator>
 
+#include "DTK_MeshTypes.hpp"
+
 namespace DataTransferKit
 {
 
@@ -63,13 +65,13 @@ struct UndefinedMeshTraits
  * \brief Mesh traits definitions.
  *
  * These traits correlate to the basic concept of a single topology mesh block
- * within DTK. A mesh block will consist of a globally unique list of node
- * ordinals of a type that implements Teuchos::OrdinalTraits ( already
- * implemented for common ordinal types ) and a set of globally unique element
- * ordinals of the same type. Nodes are described by a coordinate field with
- * coordinates of type double. Elements are described by a list of node
+ * within DTK. A mesh block will consist of a globally unique list of vertex
+ * ordinals of a type that implements Teuchos::OrdinalTraits (already
+ * implemented for common ordinal types) and a set of globally unique element
+ * ordinals of the same type. Vertices are described by a coordinate field
+ * with coordinates of type double. Elements are described by a list of vertex
  * ordinals that designate their connectivity. For each element topology, the
- * order of the connecting nodes correlate to the canonical ordering scheme
+ * order of the connecting vertices correlate to the canonical ordering scheme
  * for this particular mesh type. How this canonical ordering differs from DTK
  * canonical ordering is specified by the element connectivity permutation
  * list. Each block of mesh described by these traits must contain a single
@@ -90,10 +92,10 @@ class MeshTraits
     //! Teuchos::OrdinalTraits.
     typedef typename MeshType::global_ordinal_type global_ordinal_type;
 
-    //! Typedef for random access const iterator to node global_ordinal values.
+    //! Typedef for random access const iterator to vertex global_ordinal values.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
-    const_node_iterator;
+    const_vertex_iterator;
 
     //! Typedef for random access const iterator to coordinate values. This
     //! is enforcing a coordinate type of double.
@@ -115,35 +117,37 @@ class MeshTraits
     //! Typedef for random access const iterator to connectivity permutation
     //! list.
     typedef typename 
-    std::iterator<std::random_access_iterator_tag, const std::size_t>
+    std::iterator<std::random_access_iterator_tag, const int>
     const_permutation_iterator;
     //@}
 
 
     //@{
-    //! Mesh node concepts.
+    //! Mesh vertex concepts.
     /*!
-     * \brief Return the dimension of the nodes in this mesh block.
+     * \brief Return the dimension of the vertices in this mesh block.
      */
-    static inline std::size_t nodeDim( const MeshType& mesh_block )
+    static inline int vertexDim( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
-     * \brief Return the const iterator to the beginning of the node global
+     * \brief Return the const iterator to the beginning of the vertex global
      * ordinal block in this mesh block.
      */
-    static inline const_node_iterator nodesBegin( const MeshType& mesh_block )
+    static inline const_vertex_iterator 
+    verticesBegin( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
-     * \brief Return the const iterator to the end of the node global ordinal
+     * \brief Return the const iterator to the end of the vertex global ordinal
      * block in this mesh block.
      */ 
-    static inline const_node_iterator nodesEnd( const MeshType& mesh_block )
+    static inline const_vertex_iterator 
+    verticesEnd( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
-     * \brief Return the const iterator to the beginning of the node
+     * \brief Return the const iterator to the beginning of the vertex
      * coordinate block in this mesh block. These coordinates are required to
      * be three dimensional and blocked.
      * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
@@ -153,7 +157,7 @@ class MeshTraits
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*!
-     * \brief Return the const iterator to the end of the node coordinate
+     * \brief Return the const iterator to the end of the vertex coordinate
      * block in this mesh block. These coordinates are requried to be three
      * dimensional and blocked.
      * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
@@ -170,15 +174,16 @@ class MeshTraits
      * \brief Return the element topology for this mesh block
      * (DTK_ElementTopology enum).
      */
-    static inline std::size_t elementTopology( const MeshType& mesh_block )
+    static inline DTK_ElementTopology 
+    elementTopology( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0;}
 
     /*! 
-     * \brief Return the number of nodes that constructs an individual element
-     * in this mesh block. All elements in the mesh must be constructed with
-     * the same number of nodes.
+     * \brief Return the number of vertices that constructs an individual
+     * element in this mesh block. All elements in the mesh must be
+     * constructed with the same number of vertices.
      */
-    static inline std::size_t nodesPerElement( const MeshType& mesh_block )
+    static inline int verticesPerElement( const MeshType& mesh_block )
     { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
 
     /*! 

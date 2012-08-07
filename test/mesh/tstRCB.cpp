@@ -59,24 +59,24 @@ DataTransferKit::MeshContainer<int> build1dContainer()
 
     int my_rank = getDefaultComm<int>()->getRank();
 
-    // Make some random nodes.
-    int node_dim = 1;
-    int num_rand = node_dim*rand_size;
+    // Make some random vertices.
+    int vertex_dim = 1;
+    int num_rand = vertex_dim*rand_size;
     std::srand( 1 );
-    Teuchos::ArrayRCP<int> node_handles( rand_size );
+    Teuchos::ArrayRCP<int> vertex_handles( rand_size );
     Teuchos::ArrayRCP<double> coords( num_rand );
     for ( int i = 0; i < rand_size; ++i )
     {
-	node_handles[i] = i*rand_size + my_rank;
+	vertex_handles[i] = i*rand_size + my_rank;
 	coords[i] = (double) std::rand() / RAND_MAX;
     }
 
-    // Empty element vectors. We only need nodes for these tests.
+    // Empty element vectors. We only need vertices for these tests.
     Teuchos::ArrayRCP<int> element_handles;
     Teuchos::ArrayRCP<int> element_connectivity;
-    Teuchos::ArrayRCP<std::size_t> permutation_list;
+    Teuchos::ArrayRCP<int> permutation_list;
 
-    return MeshContainer<int>( node_dim, node_handles, coords, 
+    return MeshContainer<int>( vertex_dim, vertex_handles, coords, 
 			       DTK_LINE_SEGMENT, 2,
 			       element_handles, element_connectivity,
 			       permutation_list );
@@ -90,25 +90,25 @@ DataTransferKit::MeshContainer<int> build2dContainer()
 
     int my_rank = getDefaultComm<int>()->getRank();
 
-    // Make some random nodes.
-    int node_dim = 2;
-    int num_rand = node_dim*rand_size;
+    // Make some random vertices.
+    int vertex_dim = 2;
+    int num_rand = vertex_dim*rand_size;
     std::srand( 1 );
-    Teuchos::ArrayRCP<int> node_handles( rand_size );
+    Teuchos::ArrayRCP<int> vertex_handles( rand_size );
     Teuchos::ArrayRCP<double> coords( num_rand );
     for ( int i = 0; i < rand_size; ++i )
     {
-	node_handles[i] = i*rand_size + my_rank;
+	vertex_handles[i] = i*rand_size + my_rank;
 	coords[ i ] = (double) std::rand() / RAND_MAX;
 	coords[ rand_size + i ] = (double) std::rand() / RAND_MAX;
     }
 
-    // Empty element vectors. We only need nodes for these tests.
+    // Empty element vectors. We only need vertices for these tests.
     Teuchos::ArrayRCP<int> element_handles;
     Teuchos::ArrayRCP<int> element_connectivity;
-    Teuchos::ArrayRCP<std::size_t> permutation_list;
+    Teuchos::ArrayRCP<int> permutation_list;
 
-    return MeshContainer<int>( node_dim, node_handles, coords, 
+    return MeshContainer<int>( vertex_dim, vertex_handles, coords, 
 			       DTK_TRIANGLE, 3,
 			       element_handles, element_connectivity,
 			       permutation_list );
@@ -122,26 +122,26 @@ DataTransferKit::MeshContainer<int> build3dContainer()
 
     int my_rank = getDefaultComm<int>()->getRank();
 
-    // Make some random nodes.
-    int node_dim = 3;
-    int num_rand = node_dim*rand_size;
+    // Make some random vertices.
+    int vertex_dim = 3;
+    int num_rand = vertex_dim*rand_size;
     std::srand( 1 );
-    Teuchos::ArrayRCP<int> node_handles( rand_size );
+    Teuchos::ArrayRCP<int> vertex_handles( rand_size );
     Teuchos::ArrayRCP<double> coords( num_rand );
     for ( int i = 0; i < rand_size; ++i )
     {
-	node_handles[i] = i*rand_size + my_rank;
+	vertex_handles[i] = i*rand_size + my_rank;
 	coords[ i ] = (double) std::rand() / RAND_MAX;
 	coords[ rand_size + i ] = (double) std::rand() / RAND_MAX;
 	coords[ 2*rand_size + i ] = (double) std::rand() / RAND_MAX;
     }
 
-    // Empty element vectors. We only need nodes for these tests.
+    // Empty element vectors. We only need vertices for these tests.
     Teuchos::ArrayRCP<int> element_handles;
     Teuchos::ArrayRCP<int> element_connectivity;
-    Teuchos::ArrayRCP<std::size_t> permutation_list;
+    Teuchos::ArrayRCP<int> permutation_list;
 
-    return MeshContainer<int>( node_dim, node_handles, coords, 
+    return MeshContainer<int>( vertex_dim, vertex_handles, coords, 
 			       DTK_HEXAHEDRON, 8,
 			       element_handles, element_connectivity,
 			       permutation_list );
@@ -165,24 +165,24 @@ TEUCHOS_UNIT_TEST( RCB, 1d_rcb_test )
     Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
     mesh_blocks[0] = build1dContainer();
 
-    // All of the nodes will be partitioned.
+    // All of the vertices will be partitioned.
     int mesh_dim = 1;
-    int num_nodes = Tools::numNodes( mesh_blocks[0] );
-    int num_coords = mesh_dim * num_nodes;
-    Teuchos::Array<short int> active_nodes( num_nodes, 1 );
+    int num_vertices = Tools::numVertices( mesh_blocks[0] );
+    int num_coords = mesh_dim * num_vertices;
+    Teuchos::Array<short int> active_vertices( num_vertices, 1 );
 
     // Create a mesh manager.
     Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
 	new MeshManager<MeshType>( 
 	    mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
-    mesh_manager->setActiveNodes( active_nodes, 0 );
+    mesh_manager->setActiveVertices( active_vertices, 0 );
 
     // Partition the mesh with RCB.
     typedef RCB<MeshType>::zoltan_id_type zoltan_id_type;
     RCB<MeshType> rcb( mesh_manager );
     rcb.partition();
     
-    // Get the random numbers that were used to compute the node coordinates.
+    // Get the random numbers that were used to compute the vertex coordinates.
     std::srand( 1 );
     Teuchos::Array<double> random_numbers;
     for ( int i = 0; i < num_coords; ++i )
@@ -190,10 +190,10 @@ TEUCHOS_UNIT_TEST( RCB, 1d_rcb_test )
 	random_numbers.push_back( (double) std::rand() / RAND_MAX );
     }
 
-    // Check that these are in fact the random numbers used for the nodes.
+    // Check that these are in fact the random numbers used for the vertices.
     typename MT::const_coordinate_iterator coord_iterator 
 	= MT::coordsBegin( mesh_blocks[0] );
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
 	TEST_ASSERT( coord_iterator[ i ] == 
 		     random_numbers[mesh_dim*i] );
@@ -290,24 +290,24 @@ TEUCHOS_UNIT_TEST( RCB, 2d_rcb_test )
     Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
     mesh_blocks[0] = build2dContainer();
 
-    // All of the nodes will be partitioned.
+    // All of the vertices will be partitioned.
     int mesh_dim = 2;
-    int num_nodes = Tools::numNodes( mesh_blocks[0] );
-    int num_coords = mesh_dim * num_nodes;
-    Teuchos::Array<short int> active_nodes( num_nodes, 1 );
+    int num_vertices = Tools::numVertices( mesh_blocks[0] );
+    int num_coords = mesh_dim * num_vertices;
+    Teuchos::Array<short int> active_vertices( num_vertices, 1 );
 
     // Create a mesh manager.
     Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
 	new MeshManager<MeshType>( 
 	    mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
-    mesh_manager->setActiveNodes( active_nodes, 0 );
+    mesh_manager->setActiveVertices( active_vertices, 0 );
 
     // Partition the mesh with RCB.
     typedef RCB<MeshType>::zoltan_id_type zoltan_id_type;
     RCB<MeshType> rcb( mesh_manager );
     rcb.partition();
     
-    // Get the random numbers that were used to compute the node coordinates.
+    // Get the random numbers that were used to compute the vertex coordinates.
     std::srand( 1 );
     Teuchos::Array<double> random_numbers;
     for ( int i = 0; i < num_coords; ++i )
@@ -315,14 +315,14 @@ TEUCHOS_UNIT_TEST( RCB, 2d_rcb_test )
 	random_numbers.push_back( (double) std::rand() / RAND_MAX );
     }
 
-    // Check that these are in fact the random numbers used for the nodes.
+    // Check that these are in fact the random numbers used for the vertices.
     typename MT::const_coordinate_iterator coord_iterator 
 	= MT::coordsBegin( mesh_blocks[0] );
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
 	TEST_ASSERT( coord_iterator[ i ] == 
 		     random_numbers[mesh_dim*i] );
-	TEST_ASSERT( coord_iterator[ num_nodes + i ] == 
+	TEST_ASSERT( coord_iterator[ num_vertices + i ] == 
 		     random_numbers[mesh_dim*i+1] );
     }
 
@@ -425,24 +425,24 @@ TEUCHOS_UNIT_TEST( RCB, 3d_rcb_test )
     Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
     mesh_blocks[0] = build3dContainer();
 
-    // All of the nodes will be partitioned.
+    // All of the vertices will be partitioned.
     int mesh_dim = 3;
-    int num_nodes = Tools::numNodes( mesh_blocks[0] );
-    int num_coords = mesh_dim * num_nodes;
-    Teuchos::Array<short int> active_nodes( num_nodes, 1 );
+    int num_vertices = Tools::numVertices( mesh_blocks[0] );
+    int num_coords = mesh_dim * num_vertices;
+    Teuchos::Array<short int> active_vertices( num_vertices, 1 );
 
     // Create a mesh manager.
     Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
 	new MeshManager<MeshType>( 
 	    mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
-    mesh_manager->setActiveNodes( active_nodes, 0 );
+    mesh_manager->setActiveVertices( active_vertices, 0 );
 
     // Partition the mesh with RCB.
     typedef RCB<MeshType>::zoltan_id_type zoltan_id_type;
     RCB<MeshType> rcb( mesh_manager );
     rcb.partition();
     
-    // Get the random numbers that were used to compute the node coordinates.
+    // Get the random numbers that were used to compute the vertex coordinates.
     std::srand( 1 );
     Teuchos::Array<double> random_numbers;
     for ( int i = 0; i < num_coords; ++i )
@@ -450,16 +450,16 @@ TEUCHOS_UNIT_TEST( RCB, 3d_rcb_test )
 	random_numbers.push_back( (double) std::rand() / RAND_MAX );
     }
 
-    // Check that these are in fact the random numbers used for the nodes.
+    // Check that these are in fact the random numbers used for the vertices.
     typename MT::const_coordinate_iterator coord_iterator 
 	= MT::coordsBegin( mesh_blocks[0] );
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
 	TEST_ASSERT( coord_iterator[ i ] == 
 		     random_numbers[mesh_dim*i] );
-	TEST_ASSERT( coord_iterator[ num_nodes + i ] == 
+	TEST_ASSERT( coord_iterator[ num_vertices + i ] == 
 		     random_numbers[mesh_dim*i+1] );
-	TEST_ASSERT( coord_iterator[ 2*num_nodes + i ] == 
+	TEST_ASSERT( coord_iterator[ 2*num_vertices + i ] == 
 		     random_numbers[mesh_dim*i+2] );
     }
 
@@ -569,25 +569,25 @@ TEUCHOS_UNIT_TEST( RCB, partial_1d_rcb_test )
     Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
     mesh_blocks[0] = build1dContainer();
 
-    // Only some of the nodes will be partitioned.
+    // Only some of the vertices will be partitioned.
     int mesh_dim = 1;
-    int num_nodes = Tools::numNodes( mesh_blocks[0] );
-    int num_coords = mesh_dim * num_nodes;
-    Teuchos::Array<short int> active_nodes( num_nodes, 1 );
-    active_nodes[0] = 0;
+    int num_vertices = Tools::numVertices( mesh_blocks[0] );
+    int num_coords = mesh_dim * num_vertices;
+    Teuchos::Array<short int> active_vertices( num_vertices, 1 );
+    active_vertices[0] = 0;
 
     // Create a mesh manager.
     Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
 	new MeshManager<MeshType>( 
 	    mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
-    mesh_manager->setActiveNodes( active_nodes, 0 );
+    mesh_manager->setActiveVertices( active_vertices, 0 );
 
     // Partition the mesh with RCB.
     typedef RCB<MeshType>::zoltan_id_type zoltan_id_type;
     RCB<MeshType> rcb( mesh_manager );
     rcb.partition();
     
-    // Get the random numbers that were used to compute the node coordinates.
+    // Get the random numbers that were used to compute the vertex coordinates.
     std::srand( 1 );
     Teuchos::Array<double> random_numbers;
     for ( int i = 0; i < num_coords; ++i )
@@ -595,10 +595,10 @@ TEUCHOS_UNIT_TEST( RCB, partial_1d_rcb_test )
 	random_numbers.push_back( (double) std::rand() / RAND_MAX );
     }
 
-    // Check that these are in fact the random numbers used for the nodes.
+    // Check that these are in fact the random numbers used for the vertices.
     typename MT::const_coordinate_iterator coord_iterator 
 	= MT::coordsBegin( mesh_blocks[0] );
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
 	TEST_ASSERT( coord_iterator[ i ] == 
 		     random_numbers[mesh_dim*i] );
@@ -693,25 +693,25 @@ TEUCHOS_UNIT_TEST( RCB, partial_2d_rcb_test )
     Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
     mesh_blocks[0] = build2dContainer();
 
-    // Only some of the nodes will be partitioned.
+    // Only some of the vertices will be partitioned.
     int mesh_dim = 2;
-    int num_nodes = Tools::numNodes( mesh_blocks[0] );
-    int num_coords = mesh_dim * num_nodes;
-    Teuchos::Array<short int> active_nodes( num_nodes, 1 );
-    active_nodes[0] = 0;
+    int num_vertices = Tools::numVertices( mesh_blocks[0] );
+    int num_coords = mesh_dim * num_vertices;
+    Teuchos::Array<short int> active_vertices( num_vertices, 1 );
+    active_vertices[0] = 0;
 
     // Create a mesh manager.
     Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
 	new MeshManager<MeshType>( 
 	    mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
-    mesh_manager->setActiveNodes( active_nodes, 0 );
+    mesh_manager->setActiveVertices( active_vertices, 0 );
 
     // Partition the mesh with RCB.
     typedef RCB<MeshType>::zoltan_id_type zoltan_id_type;
     RCB<MeshType> rcb( mesh_manager );
     rcb.partition();
     
-    // Get the random numbers that were used to compute the node coordinates.
+    // Get the random numbers that were used to compute the vertex coordinates.
     std::srand( 1 );
     Teuchos::Array<double> random_numbers;
     for ( int i = 0; i < num_coords; ++i )
@@ -719,14 +719,14 @@ TEUCHOS_UNIT_TEST( RCB, partial_2d_rcb_test )
 	random_numbers.push_back( (double) std::rand() / RAND_MAX );
     }
 
-    // Check that these are in fact the random numbers used for the nodes.
+    // Check that these are in fact the random numbers used for the vertices.
     typename MT::const_coordinate_iterator coord_iterator 
 	= MT::coordsBegin( mesh_blocks[0] );
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
 	TEST_ASSERT( coord_iterator[ i ] == 
 		     random_numbers[mesh_dim*i] );
-	TEST_ASSERT( coord_iterator[ num_nodes + i ] == 
+	TEST_ASSERT( coord_iterator[ num_vertices + i ] == 
 		     random_numbers[mesh_dim*i+1] );
     }
 
@@ -806,25 +806,25 @@ TEUCHOS_UNIT_TEST( RCB, partial_3d_rcb_test )
     Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
     mesh_blocks[0] = build3dContainer();
 
-    // All of the nodes will be partitioned.
+    // All of the vertices will be partitioned.
     int mesh_dim = 3;
-    int num_nodes = Tools::numNodes( mesh_blocks[0] );
-    int num_coords = mesh_dim * num_nodes;
-    Teuchos::Array<short int> active_nodes( num_nodes, 1 );
-    active_nodes[0] = 0;
+    int num_vertices = Tools::numVertices( mesh_blocks[0] );
+    int num_coords = mesh_dim * num_vertices;
+    Teuchos::Array<short int> active_vertices( num_vertices, 1 );
+    active_vertices[0] = 0;
 
     // Create a mesh manager.
     Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
 	new MeshManager<MeshType>( 
 	    mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
-    mesh_manager->setActiveNodes( active_nodes, 0 );
+    mesh_manager->setActiveVertices( active_vertices, 0 );
 
     // Partition the mesh with RCB.
     typedef RCB<MeshType>::zoltan_id_type zoltan_id_type;
     RCB<MeshType> rcb( mesh_manager );
     rcb.partition();
     
-    // Get the random numbers that were used to compute the node coordinates.
+    // Get the random numbers that were used to compute the vertex coordinates.
     std::srand( 1 );
     Teuchos::Array<double> random_numbers;
     for ( int i = 0; i < num_coords; ++i )
@@ -832,16 +832,16 @@ TEUCHOS_UNIT_TEST( RCB, partial_3d_rcb_test )
 	random_numbers.push_back( (double) std::rand() / RAND_MAX );
     }
 
-    // Check that these are in fact the random numbers used for the nodes.
+    // Check that these are in fact the random numbers used for the vertices.
     typename MT::const_coordinate_iterator coord_iterator 
 	= MT::coordsBegin( mesh_blocks[0] );
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
 	TEST_ASSERT( coord_iterator[ i ] == 
 		     random_numbers[mesh_dim*i] );
-	TEST_ASSERT( coord_iterator[ num_nodes + i ] == 
+	TEST_ASSERT( coord_iterator[ num_vertices + i ] == 
 		     random_numbers[mesh_dim*i+1] );
-	TEST_ASSERT( coord_iterator[ 2*num_nodes + i ] == 
+	TEST_ASSERT( coord_iterator[ 2*num_vertices + i ] == 
 		     random_numbers[mesh_dim*i+2] );
     }
 

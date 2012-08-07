@@ -58,7 +58,7 @@ namespace DataTransferKit
  * \brief Manager object for mesh.
  *
  * The mesh manager manages the topology blocks that construct a mesh and its
- * parallel decomposition. The mesh manager also keeps track of the mesh nodes
+ * parallel decomposition. The mesh manager also keeps track of the mesh vertices
  * (and implicitly the elements) that are active in partitioning and
  * searching. Those that are not active are typically outside some domain of
  * interest.
@@ -82,7 +82,7 @@ class MeshManager
     // Constructor.
     MeshManager( const Teuchos::ArrayRCP<Mesh>& mesh_blocks,
 		 const RCP_Comm& comm,
-		 const std::size_t dim );
+		 const int dim );
 
     // Destructor.
     ~MeshManager();
@@ -114,22 +114,22 @@ class MeshManager
     { return d_comm; }
 
     //! Get the physical dimension of the mesh.
-    std::size_t dim() const
+    int dim() const
     { return d_dim; }
 
-    //! Set the active nodes for a block.
-    void setActiveNodes( const Teuchos::Array<short int>& active_nodes,
+    //! Set the active vertices for a block.
+    void setActiveVertices( const Teuchos::Array<short int>& active_vertices,
 			 const int block_id )
-    { d_active_nodes[ block_id ] = active_nodes; }
+    { d_active_vertices[ block_id ] = active_vertices; }
 
     //! Set the active elements for a block.
     void setActiveElements( const Teuchos::Array<short int>& active_elements,
 			    const int block_id )
     { d_active_elements[ block_id ] = active_elements; }
 
-    //! Get the active nodes for a block.
-    Teuchos::ArrayView<short int> getActiveNodes( const int block_id )
-    { return d_active_nodes[ block_id ](); }
+    //! Get the active vertices for a block.
+    Teuchos::ArrayView<short int> getActiveVertices( const int block_id )
+    { return d_active_vertices[ block_id ](); }
 
     //! Get the active elements for a block.
     Teuchos::ArrayView<short int> getActiveElements( const int block_id )
@@ -152,10 +152,10 @@ class MeshManager
     RCP_Comm d_comm;
 
     // The physical dimension of the mesh.
-    std::size_t d_dim;
+    int d_dim;
 
-    // Active nodes in each mesh block.
-    Teuchos::Array< Teuchos::Array<short int> > d_active_nodes;
+    // Active vertices in each mesh block.
+    Teuchos::Array< Teuchos::Array<short int> > d_active_vertices;
 
     // Active elements in each mesh block.
     Teuchos::Array< Teuchos::Array<short int> > d_active_elements;

@@ -42,7 +42,7 @@
 #define DTK_FIELDTOOLS_HPP
 
 #include "DTK_FieldTraits.hpp"
-#include <DTK_BoundingBox.hpp>
+#include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
@@ -93,16 +93,16 @@ class FieldTools
     static size_type dimSize( const Field& field );
 
     // Get an iterator to the beginning of a dimension.
-    static iterator dimBegin( Field& field, const std::size_t dim );
+    static iterator dimBegin( Field& field, const int dim );
 
     // Get a const iterator to the beginning of a dimension.
-    static const_iterator dimBegin( const Field& field, const std::size_t dim );
+    static const_iterator dimBegin( const Field& field, const int dim );
 
     // Get an iterator to the end of a dimension.
-    static iterator dimEnd( Field& field, const std::size_t dim );
+    static iterator dimEnd( Field& field, const int dim );
 
     // Get a const iterator to the end of a dimension.
-    static const_iterator dimEnd( const Field& field, const std::size_t dim );
+    static const_iterator dimEnd( const Field& field, const int dim );
     //@}
 
 

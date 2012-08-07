@@ -57,12 +57,12 @@ class MyMesh
     MyMesh() 
     { /* ... */ }
 
-    MyMesh( const Teuchos::Array<int>& node_handles,
+    MyMesh( const Teuchos::Array<int>& vertex_handles,
 	    const Teuchos::Array<double>& coords,
 	    const Teuchos::Array<int>& quad_handles,
 	    const Teuchos::Array<int>& quad_connectivity,
-	    const Teuchos::Array<std::size_t>& permutation_list )
-	: d_node_handles( node_handles )
+	    const Teuchos::Array<int>& permutation_list )
+	: d_vertex_handles( vertex_handles )
 	, d_coords( coords )
 	, d_quad_handles( quad_handles )
 	, d_quad_connectivity( quad_connectivity )
@@ -72,11 +72,11 @@ class MyMesh
     ~MyMesh()
     { /* ... */ }
 
-    Teuchos::Array<int>::const_iterator nodesBegin() const
-    { return d_node_handles.begin(); }
+    Teuchos::Array<int>::const_iterator verticesBegin() const
+    { return d_vertex_handles.begin(); }
 
-    Teuchos::Array<int>::const_iterator nodesEnd() const
-    { return d_node_handles.end(); }
+    Teuchos::Array<int>::const_iterator verticesEnd() const
+    { return d_vertex_handles.end(); }
 
     Teuchos::Array<double>::const_iterator coordsBegin() const
     { return d_coords.begin(); }
@@ -96,20 +96,20 @@ class MyMesh
     Teuchos::Array<int>::const_iterator connectivityEnd() const
     { return d_quad_connectivity.end(); }
     
-    Teuchos::Array<std::size_t>::const_iterator permutationBegin() const
+    Teuchos::Array<int>::const_iterator permutationBegin() const
     { return d_permutation_list.begin(); }
 
-    Teuchos::Array<std::size_t>::const_iterator permutationEnd() const
+    Teuchos::Array<int>::const_iterator permutationEnd() const
     { return d_permutation_list.end(); }
 
 
   private:
 
-    Teuchos::Array<int> d_node_handles;
+    Teuchos::Array<int> d_vertex_handles;
     Teuchos::Array<double> d_coords;
     Teuchos::Array<int> d_quad_handles;
     Teuchos::Array<int> d_quad_connectivity;
-    Teuchos::Array<std::size_t> d_permutation_list;
+    Teuchos::Array<int> d_permutation_list;
 };
 
 //---------------------------------------------------------------------------//
@@ -124,7 +124,7 @@ class MyField
     typedef Teuchos::Array<double>::iterator iterator;
     typedef Teuchos::Array<double>::const_iterator const_iterator;
 
-    MyField( size_type size, std::size_t dim )
+    MyField( size_type size, int dim )
 	: d_dim( dim )
 	, d_data( size )
     { /* ... */ }
@@ -132,7 +132,7 @@ class MyField
     ~MyField()
     { /* ... */ }
 
-    std::size_t dim() const
+    int dim() const
     { return d_dim; }
 
     size_type size() const
@@ -157,7 +157,7 @@ class MyField
     { return d_data; }
 
   private:
-    std::size_t d_dim;
+    int d_dim;
     Teuchos::Array<double> d_data;
 };
 
@@ -175,21 +175,21 @@ class MeshTraits<MyMesh>
   public:
 
     typedef MyMesh::global_ordinal_type global_ordinal_type;
-    typedef Teuchos::Array<int>::const_iterator const_node_iterator;
+    typedef Teuchos::Array<int>::const_iterator const_vertex_iterator;
     typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
     typedef Teuchos::Array<int>::const_iterator const_element_iterator;
     typedef Teuchos::Array<int>::const_iterator const_connectivity_iterator;
-    typedef Teuchos::Array<std::size_t>::const_iterator 
+    typedef Teuchos::Array<int>::const_iterator 
     const_permutation_iterator;
 
-    static inline std::size_t nodeDim( const MyMesh& mesh )
+    static inline int vertexDim( const MyMesh& mesh )
     { return 2; }
 
-    static inline const_node_iterator nodesBegin( const MyMesh& mesh )
-    { return mesh.nodesBegin(); }
+    static inline const_vertex_iterator verticesBegin( const MyMesh& mesh )
+    { return mesh.verticesBegin(); }
 
-    static inline const_node_iterator nodesEnd( const MyMesh& mesh )
-    { return mesh.nodesEnd(); }
+    static inline const_vertex_iterator verticesEnd( const MyMesh& mesh )
+    { return mesh.verticesEnd(); }
 
     static inline const_coordinate_iterator coordsBegin( const MyMesh& mesh )
     { return mesh.coordsBegin(); }
@@ -198,10 +198,10 @@ class MeshTraits<MyMesh>
     { return mesh.coordsEnd(); }
 
 
-    static inline std::size_t elementTopology( const MyMesh& mesh )
+    static inline DTK_ElementTopology elementTopology( const MyMesh& mesh )
     { return DTK_QUADRILATERAL; }
 
-    static inline std::size_t nodesPerElement( const MyMesh& mesh )
+    static inline int verticesPerElement( const MyMesh& mesh )
     { return 4; }
 
 
@@ -336,25 +336,25 @@ MyMesh buildMyMesh()
 {
     int my_rank = getDefaultComm<int>()->getRank();
 
-    // Make some nodes.
-    int num_nodes = 10;
-    int node_dim = 2;
-    Teuchos::Array<int> node_handles( num_nodes );
-    Teuchos::Array<double> coords( node_dim*num_nodes );
+    // Make some vertices.
+    int num_vertices = 10;
+    int vertex_dim = 2;
+    Teuchos::Array<int> vertex_handles( num_vertices );
+    Teuchos::Array<double> coords( vertex_dim*num_vertices );
 
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	node_handles[i] = (num_nodes / 2)*my_rank + i;
+	vertex_handles[i] = (num_vertices / 2)*my_rank + i;
     }
-    for ( int i = 0; i < num_nodes / 2; ++i )
+    for ( int i = 0; i < num_vertices / 2; ++i )
     {
 	coords[ i ] = my_rank;
-	coords[ num_nodes + i ] = i;
+	coords[ num_vertices + i ] = i;
     }
-    for ( int i = num_nodes / 2; i < num_nodes; ++i )
+    for ( int i = num_vertices / 2; i < num_vertices; ++i )
     {
 	coords[ i ] = my_rank + 1;
-	coords[ num_nodes + i ] = i - num_nodes/2;
+	coords[ num_vertices + i ] = i - num_vertices/2;
     }
     
     // Make the quads.
@@ -365,19 +365,19 @@ MyMesh buildMyMesh()
     for ( int i = 0; i < num_quads; ++i )
     {
 	quad_handles[ i ] = num_quads*my_rank + i;
-	quad_connectivity[ i ] = node_handles[i];
-	quad_connectivity[ num_quads + i ] = node_handles[num_nodes/2 + i];
-	quad_connectivity[ 2*num_quads + i ] = node_handles[num_nodes/2 + i + 1];
-	quad_connectivity[ 3*num_quads + i ] = node_handles[i+1];
+	quad_connectivity[ i ] = vertex_handles[i];
+	quad_connectivity[ num_quads + i ] = vertex_handles[num_vertices/2 + i];
+	quad_connectivity[ 2*num_quads + i ] = vertex_handles[num_vertices/2 + i + 1];
+	quad_connectivity[ 3*num_quads + i ] = vertex_handles[i+1];
     }
 
-    Teuchos::Array<std::size_t> permutation_list( 4 );
+    Teuchos::Array<int> permutation_list( 4 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return MyMesh( node_handles, coords, quad_handles, quad_connectivity,
+    return MyMesh( vertex_handles, coords, quad_handles, quad_connectivity,
 		   permutation_list );
 }
 

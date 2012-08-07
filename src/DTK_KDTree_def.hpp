@@ -43,9 +43,8 @@
 
 #include <vector>
 
-
 #include "DTK_TopologyTools.hpp"
-#include <DTK_Assertion.hpp>
+#include "DTK_Assertion.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 

@@ -92,67 +92,67 @@ class RCB
     // Compute RCB partitioning of the mesh.
     void partition();
 
-    // Get the destination process for a node given its coordinates.
+    // Get the destination process for a vertex given its coordinates.
     int getDestinationProc( Teuchos::Array<double> coords ) const;
 
-    //! Get the number of imported nodes.
+    //! Get the number of imported vertices.
     int getNumImport() const
     { return d_num_import; }
 
-    //! Get the global import node ID's.
+    //! Get the global import vertex ID's.
     Teuchos::ArrayView<zoltan_id_type> getImportGlobalIds() const
     { return Teuchos::ArrayView<zoltan_id_type>( d_import_global_ids, 
 						 d_num_import ); }
 
-    //! Get the local import node ID's.
+    //! Get the local import vertex ID's.
     Teuchos::ArrayView<zoltan_id_type> getImportLocalIds() const
     { return Teuchos::ArrayView<zoltan_id_type>( d_import_local_ids, 
 						 d_num_import ); }
 
-    //! Get the process rank source for imported nodes.
+    //! Get the process rank source for imported vertices.
     Teuchos::ArrayView<int> getImportProcs() const
     { return Teuchos::ArrayView<int>( d_import_procs, d_num_import ); }
 
-    //! Get the new partition for imported nodes.
+    //! Get the new partition for imported vertices.
     Teuchos::ArrayView<int> getImportParts() const
     { return Teuchos::ArrayView<int>( d_import_to_part, d_num_import ); }
 
-    //! Get the number of exported nodes.
+    //! Get the number of exported vertices.
     int getNumExport() const
     { return d_num_export; }
 
-    //! Get the global export node ID's.
+    //! Get the global export vertex ID's.
     Teuchos::ArrayView<zoltan_id_type> getExportGlobalIds() const
     { return Teuchos::ArrayView<zoltan_id_type>( d_export_global_ids, 
 						 d_num_export ); }
 
-    //! Get the local export node ID's.
+    //! Get the local export vertex ID's.
     Teuchos::ArrayView<zoltan_id_type> getExportLocalIds() const
     { return Teuchos::ArrayView<zoltan_id_type>( d_export_local_ids, 
 						 d_num_export ); }
 
-    //! Get the process rank target for exported nodes.
+    //! Get the process rank target for exported vertices.
     Teuchos::ArrayView<int> getExportProcs() const
     { return Teuchos::ArrayView<int>( d_export_procs, d_num_export ); }
 
-    //! Get the new partition for exported nodes.
+    //! Get the new partition for exported vertices.
     Teuchos::ArrayView<int> getExportParts() const
     { return Teuchos::ArrayView<int>( d_export_to_part, d_num_export ); }
 
   private:
 
-    // Zoltan callback for getting the number of nodes.
+    // Zoltan callback for getting the number of vertices.
     static int getNumberOfObjects( void *data, int *ierr );
 
-    // Zoltan callback for getting the local and global node ID's.
+    // Zoltan callback for getting the local and global vertex ID's.
     static void getObjectList( void *data, int sizeGID, int sizeLID,
 			       ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
 			       int wgt_dim, float *obj_wgts, int *ierr );
 
-    // Zoltan callback for getting the dimension of the nodes.
+    // Zoltan callback for getting the dimension of the vertices.
     static int getNumGeometry( void *data, int *ierr );
 
-    // Zoltan callback for getting the node coordinates.
+    // Zoltan callback for getting the vertex coordinates.
     static void getGeometryList( void *data, int sizeGID, int sizeLID,
 				 int num_obj,
 				 ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,

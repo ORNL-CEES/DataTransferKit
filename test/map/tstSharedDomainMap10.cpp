@@ -60,7 +60,7 @@ class MyField
     typedef Teuchos::Array<double>::iterator iterator;
     typedef Teuchos::Array<double>::const_iterator const_iterator;
 
-    MyField( size_type size, std::size_t dim )
+    MyField( size_type size, int dim )
 	: d_dim( dim )
 	, d_data( dim*size, 0.0 )
     { /* ... */ }
@@ -68,7 +68,7 @@ class MyField
     ~MyField()
     { /* ... */ }
 
-    std::size_t dim() const
+    int dim() const
     { return d_dim; }
 
     size_type size() const
@@ -96,7 +96,7 @@ class MyField
     { return d_data; }
 
   private:
-    std::size_t d_dim;
+    int d_dim;
     Teuchos::Array<double> d_data;
 };
 
@@ -193,20 +193,20 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<
 DataTransferKit::MeshContainer<int> 
 buildTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
-    // Make some nodes.
-    int num_nodes = edge_length*edge_length;
-    int node_dim = 2;
-    Teuchos::ArrayRCP<int> node_handles( num_nodes );
-    Teuchos::ArrayRCP<double> coords( node_dim*num_nodes );
+    // Make some vertices.
+    int num_vertices = edge_length*edge_length;
+    int vertex_dim = 2;
+    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
     {
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
+	    coords[ num_vertices + idx ] = j;
 	}
     }
     
@@ -214,42 +214,42 @@ buildTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     int num_elements = (edge_length-1)*(edge_length-1)*2;
     Teuchos::ArrayRCP<int> tri_handles( num_elements );
     Teuchos::ArrayRCP<int> tri_connectivity( 3*num_elements );
-    int elem_idx, node_idx;
+    int elem_idx, vertex_idx;
     int v0, v1, v2, v3;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
 	    // Indices.
-	    node_idx = i + j*edge_length;
-	    v0 = node_idx;
-	    v1 = node_idx + 1;
-	    v2 = node_idx + 1 + edge_length;
-	    v3 = node_idx +     edge_length;
+	    vertex_idx = i + j*edge_length;
+	    v0 = vertex_idx;
+	    v1 = vertex_idx + 1;
+	    v2 = vertex_idx + 1 + edge_length;
+	    v3 = vertex_idx +     edge_length;
 
 	    // Triangle 1.
 	    elem_idx = i + j*(edge_length-1);
 	    tri_handles[elem_idx] = elem_idx + elem_offset;
-	    tri_connectivity[elem_idx]                = node_handles[v0];
-	    tri_connectivity[num_elements+elem_idx]   = node_handles[v1];
-	    tri_connectivity[2*num_elements+elem_idx] = node_handles[v2];
+	    tri_connectivity[elem_idx]                = vertex_handles[v0];
+	    tri_connectivity[num_elements+elem_idx]   = vertex_handles[v1];
+	    tri_connectivity[2*num_elements+elem_idx] = vertex_handles[v2];
 
 	    // Triangle 2.
 	    elem_idx = i + j*(edge_length-1) + num_elements/2;
 	    tri_handles[elem_idx] = elem_idx + elem_offset;
-	    tri_connectivity[elem_idx] 	              = node_handles[v2];
-	    tri_connectivity[num_elements+elem_idx]   = node_handles[v3];
-	    tri_connectivity[2*num_elements+elem_idx] = node_handles[v0];
+	    tri_connectivity[elem_idx] 	              = vertex_handles[v2];
+	    tri_connectivity[num_elements+elem_idx]   = vertex_handles[v3];
+	    tri_connectivity[2*num_elements+elem_idx] = vertex_handles[v0];
 	}
     }
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( 3 );
+    Teuchos::ArrayRCP<int> permutation_list( 3 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 2, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
 						DataTransferKit::DTK_TRIANGLE, 3,
 						tri_handles, tri_connectivity,
 						permutation_list );
@@ -259,20 +259,20 @@ buildTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 DataTransferKit::MeshContainer<int> 
 buildTiledTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
-    // Make some nodes.
-    int num_nodes = edge_length*edge_length;
-    int node_dim = 2;
-    Teuchos::ArrayRCP<int> node_handles( num_nodes );
-    Teuchos::ArrayRCP<double> coords( node_dim*num_nodes );
+    // Make some vertices.
+    int num_vertices = edge_length*edge_length;
+    int vertex_dim = 2;
+    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
     {
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j + my_rank*(edge_length-1);
+	    coords[ num_vertices + idx ] = j + my_rank*(edge_length-1);
 	}
     }
     
@@ -280,42 +280,42 @@ buildTiledTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     int num_elements = (edge_length-1)*(edge_length-1)*2;
     Teuchos::ArrayRCP<int> tri_handles( num_elements );
     Teuchos::ArrayRCP<int> tri_connectivity( 3*num_elements );
-    int elem_idx, node_idx;
+    int elem_idx, vertex_idx;
     int v0, v1, v2, v3;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
 	    // Indices.
-	    node_idx = i + j*edge_length;
-	    v0 = node_idx;
-	    v1 = node_idx + 1;
-	    v2 = node_idx + 1 + edge_length;
-	    v3 = node_idx +     edge_length;
+	    vertex_idx = i + j*edge_length;
+	    v0 = vertex_idx;
+	    v1 = vertex_idx + 1;
+	    v2 = vertex_idx + 1 + edge_length;
+	    v3 = vertex_idx +     edge_length;
 
 	    // Triangle 1.
 	    elem_idx = i + j*(edge_length-1);
 	    tri_handles[elem_idx] = elem_idx + elem_offset;
-	    tri_connectivity[elem_idx]                = node_handles[v0];
-	    tri_connectivity[num_elements+elem_idx]   = node_handles[v1];
-	    tri_connectivity[2*num_elements+elem_idx] = node_handles[v2];
+	    tri_connectivity[elem_idx]                = vertex_handles[v0];
+	    tri_connectivity[num_elements+elem_idx]   = vertex_handles[v1];
+	    tri_connectivity[2*num_elements+elem_idx] = vertex_handles[v2];
 
 	    // Triangle 2.
 	    elem_idx = i + j*(edge_length-1) + num_elements/2;
 	    tri_handles[elem_idx] = elem_idx + elem_offset;
-	    tri_connectivity[elem_idx] 	              = node_handles[v2];
-	    tri_connectivity[num_elements+elem_idx]   = node_handles[v3];
-	    tri_connectivity[2*num_elements+elem_idx] = node_handles[v0];
+	    tri_connectivity[elem_idx] 	              = vertex_handles[v2];
+	    tri_connectivity[num_elements+elem_idx]   = vertex_handles[v3];
+	    tri_connectivity[2*num_elements+elem_idx] = vertex_handles[v0];
 	}
     }
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( 3 );
+    Teuchos::ArrayRCP<int> permutation_list( 3 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 2, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
 						DataTransferKit::DTK_TRIANGLE, 3,
 						tri_handles, tri_connectivity,
 						permutation_list );
@@ -324,17 +324,17 @@ buildTiledTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 //---------------------------------------------------------------------------//
 DataTransferKit::MeshContainer<int> buildNullTriMesh()
 {
-    Teuchos::ArrayRCP<int> node_handles(0);
+    Teuchos::ArrayRCP<int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
     Teuchos::ArrayRCP<int> tri_handles(0);
     Teuchos::ArrayRCP<int> tri_connectivity(0);
-    Teuchos::ArrayRCP<std::size_t> permutation_list(3);
+    Teuchos::ArrayRCP<int> permutation_list(3);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 2, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
 						DataTransferKit::DTK_TRIANGLE, 3,
 						tri_handles, tri_connectivity,
 						permutation_list );
@@ -344,20 +344,20 @@ DataTransferKit::MeshContainer<int> buildNullTriMesh()
 DataTransferKit::MeshContainer<int>  
 buildQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
-    // Make some nodes.
-    int num_nodes = edge_length*edge_length;
-    int node_dim = 2;
-    Teuchos::ArrayRCP<int> node_handles( num_nodes );
-    Teuchos::ArrayRCP<double> coords( node_dim*num_nodes );
+    // Make some vertices.
+    int num_vertices = edge_length*edge_length;
+    int vertex_dim = 2;
+    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
     {
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j;
+	    coords[ num_vertices + idx ] = j;
 	}
     }
     
@@ -365,37 +365,37 @@ buildQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     int num_elements = (edge_length-1)*(edge_length-1);
     Teuchos::ArrayRCP<int> quad_handles( num_elements );
     Teuchos::ArrayRCP<int> quad_connectivity( 4*num_elements );
-    int elem_idx, node_idx;
+    int elem_idx, vertex_idx;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
-	    node_idx = i + j*edge_length;
+	    vertex_idx = i + j*edge_length;
 	    elem_idx = i + j*(edge_length-1);
 
 	    quad_handles[elem_idx] = elem_idx + elem_offset;
 
 	    quad_connectivity[elem_idx] 
-		= node_handles[node_idx];
+		= vertex_handles[vertex_idx];
 
 	    quad_connectivity[num_elements+elem_idx] 
-		= node_handles[node_idx+1];
+		= vertex_handles[vertex_idx+1];
 
 	    quad_connectivity[2*num_elements+elem_idx] 
-		= node_handles[node_idx+edge_length+1];
+		= vertex_handles[vertex_idx+edge_length+1];
 
 	    quad_connectivity[3*num_elements+elem_idx] 
-		= node_handles[node_idx+edge_length];
+		= vertex_handles[vertex_idx+edge_length];
 	}
     }
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( 4 );
+    Teuchos::ArrayRCP<int> permutation_list( 4 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 2, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
 						DataTransferKit::DTK_QUADRILATERAL, 4,
 						quad_handles, quad_connectivity,
 						permutation_list );
@@ -405,20 +405,20 @@ buildQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 DataTransferKit::MeshContainer<int>  
 buildTiledQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
-    // Make some nodes.
-    int num_nodes = edge_length*edge_length;
-    int node_dim = 2;
-    Teuchos::ArrayRCP<int> node_handles( num_nodes );
-    Teuchos::ArrayRCP<double> coords( node_dim*num_nodes );
+    // Make some vertices.
+    int num_vertices = edge_length*edge_length;
+    int vertex_dim = 2;
+    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
     {
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length;
-	    node_handles[ idx ] = (int) num_nodes*my_rank + idx + elem_offset;
+	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_nodes + idx ] = j + my_rank*(edge_length-1);
+	    coords[ num_vertices + idx ] = j + my_rank*(edge_length-1);
 	}
     }
     
@@ -426,37 +426,37 @@ buildTiledQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     int num_elements = (edge_length-1)*(edge_length-1);
     Teuchos::ArrayRCP<int> quad_handles( num_elements );
     Teuchos::ArrayRCP<int> quad_connectivity( 4*num_elements );
-    int elem_idx, node_idx;
+    int elem_idx, vertex_idx;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
 	for ( int i = 0; i < (edge_length-1); ++i )
 	{
-	    node_idx = i + j*edge_length;
+	    vertex_idx = i + j*edge_length;
 	    elem_idx = i + j*(edge_length-1);
 
 	    quad_handles[elem_idx] = elem_idx + elem_offset;
 
 	    quad_connectivity[elem_idx] 
-		= node_handles[node_idx];
+		= vertex_handles[vertex_idx];
 
 	    quad_connectivity[num_elements+elem_idx] 
-		= node_handles[node_idx+1];
+		= vertex_handles[vertex_idx+1];
 
 	    quad_connectivity[2*num_elements+elem_idx] 
-		= node_handles[node_idx+edge_length+1];
+		= vertex_handles[vertex_idx+edge_length+1];
 
 	    quad_connectivity[3*num_elements+elem_idx] 
-		= node_handles[node_idx+edge_length];
+		= vertex_handles[vertex_idx+edge_length];
 	}
     }
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( 4 );
+    Teuchos::ArrayRCP<int> permutation_list( 4 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 2, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
 						DataTransferKit::DTK_QUADRILATERAL, 4,
 						quad_handles, quad_connectivity,
 						permutation_list );
@@ -466,17 +466,17 @@ buildTiledQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 DataTransferKit::MeshContainer<int> 
 buildNullQuadMesh()
 {
-    Teuchos::ArrayRCP<int> node_handles(0);
+    Teuchos::ArrayRCP<int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
     Teuchos::ArrayRCP<int> quad_handles(0);
     Teuchos::ArrayRCP<int> quad_connectivity(0);
-    Teuchos::ArrayRCP<std::size_t> permutation_list(4);
+    Teuchos::ArrayRCP<int> permutation_list(4);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 2, node_handles, coords, 
+    return DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
 						DataTransferKit::DTK_QUADRILATERAL, 4,
 						quad_handles, quad_connectivity,
 						permutation_list );

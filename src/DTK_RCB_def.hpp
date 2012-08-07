@@ -41,7 +41,7 @@
 #include <algorithm>
 
 #include "DTK_MeshTools.hpp"
-#include <DTK_Assertion.hpp>
+#include "DTK_Assertion.hpp"
 
 #include <mpi.h>
 
@@ -138,13 +138,13 @@ void RCB<Mesh>::partition()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the destination process for a node given its coordinates.
+ * \brief Get the destination process for a vertex given its coordinates.
  */
 template<class Mesh>
 int RCB<Mesh>::getDestinationProc( Teuchos::Array<double> coords ) const
 {
     testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
-    testPrecondition( d_mesh_manager->dim() == (std::size_t) coords.size() );
+    testPrecondition( d_mesh_manager->dim() == (int) coords.size() );
 
     int zoltan_error;
     int proc, part;
@@ -156,35 +156,35 @@ int RCB<Mesh>::getDestinationProc( Teuchos::Array<double> coords ) const
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Zoltan callback for getting the number of nodes.
+ * \brief Zoltan callback for getting the number of vertices.
  */
 template<class Mesh>
 int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
 {
     RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
-    int num_nodes = 0;
+    int num_vertices = 0;
     int num_blocks = mesh_manager->getNumBlocks();
     Teuchos::ArrayView<short int>::const_iterator active_iterator;
     for ( int i = 0; i < num_blocks; ++i )
     {
-	for ( active_iterator = mesh_manager->getActiveNodes( i ).begin();
-	      active_iterator != mesh_manager->getActiveNodes( i ).end();
+	for ( active_iterator = mesh_manager->getActiveVertices( i ).begin();
+	      active_iterator != mesh_manager->getActiveVertices( i ).end();
 	      ++active_iterator )
 	{
 	    if ( *active_iterator )
 	    {
-		++num_nodes;
+		++num_vertices;
 	    }
 	}
     }
 
     *ierr = ZOLTAN_OK;
-    return num_nodes;
+    return num_vertices;
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Zoltan callback for getting the local and global node ID's.
+ * \brief Zoltan callback for getting the local and global vertex ID's.
  */
 template<class Mesh>
 void RCB<Mesh>::getObjectList( 
@@ -195,9 +195,9 @@ void RCB<Mesh>::getObjectList(
     RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
     *ierr = ZOLTAN_OK;
 
-    // Note here that the local ID is being set the the node array index.
+    // Note here that the local ID is being set the the vertex array index.
     Teuchos::ArrayRCP<short int>::const_iterator active_iterator;
-    typename MT::const_node_iterator gid_iterator;
+    typename MT::const_vertex_iterator gid_iterator;
     zoltan_id_type i = 0;
     zoltan_id_type j = 0;
     BlockIterator block_iterator;
@@ -208,10 +208,10 @@ void RCB<Mesh>::getObjectList(
 	int block_id = std::distance( mesh_manager->blocksBegin(),
 				      block_iterator );
 
-	for ( gid_iterator = MT::nodesBegin( *block_iterator ),
-	      active_iterator = 
-			     mesh_manager->getActiveNodes( block_id ).begin();
-	      gid_iterator != MT::nodesEnd( *block_iterator );
+	for ( gid_iterator = MT::verticesBegin( *block_iterator ),
+	   active_iterator = 
+			     mesh_manager->getActiveVertices( block_id ).begin();
+	      gid_iterator != MT::verticesEnd( *block_iterator );
 	      ++gid_iterator, ++active_iterator )
 	{
 	    if ( *active_iterator )
@@ -227,7 +227,7 @@ void RCB<Mesh>::getObjectList(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Zoltan callback for getting the dimension of the nodes.
+ * \brief Zoltan callback for getting the dimension of the vertices.
  */
 template<class Mesh>
 int RCB<Mesh>::getNumGeometry( void *data, int *ierr )
@@ -239,7 +239,7 @@ int RCB<Mesh>::getNumGeometry( void *data, int *ierr )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Zoltan callback for getting the node coordinates.
+ * \brief Zoltan callback for getting the vertex coordinates.
  */
 template<class Mesh>
 void RCB<Mesh>::getGeometryList(
@@ -250,32 +250,32 @@ void RCB<Mesh>::getGeometryList(
 {
     RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
 
-    // Get the number of active nodes.
-    std::size_t num_active_nodes = 0;
+    // Get the number of active vertices.
+    int num_active_vertices = 0;
     int num_blocks = mesh_manager->getNumBlocks();
     Teuchos::ArrayView<short int>::const_iterator active_iterator;
     for ( int i = 0; i < num_blocks; ++i )
     {
-	for ( active_iterator = mesh_manager->getActiveNodes( i ).begin();
-	      active_iterator != mesh_manager->getActiveNodes( i ).end();
+	for ( active_iterator = mesh_manager->getActiveVertices( i ).begin();
+	      active_iterator != mesh_manager->getActiveVertices( i ).end();
 	      ++active_iterator )
 	{
 	    if ( *active_iterator )
 	    {
-		++num_active_nodes;
+		++num_active_vertices;
 	    }
 	}
     }
 
     // Check Zoltan for consistency.
-    std::size_t node_dim = mesh_manager->dim();
+    int vertex_dim = mesh_manager->dim();
     testInvariant( sizeGID == 1 );
     testInvariant( sizeLID == 1 );
-    testInvariant( num_dim == (int) node_dim );
-    testInvariant( num_obj == (int) num_active_nodes );
+    testInvariant( num_dim == (int) vertex_dim );
+    testInvariant( num_obj == (int) num_active_vertices );
 
     if ( sizeGID != 1 || sizeLID != 1 || 
-	 num_dim != (int) node_dim || num_obj != (int) num_active_nodes )
+	 num_dim != (int) vertex_dim || num_obj != (int) num_active_vertices )
     {
 	*ierr = ZOLTAN_FATAL;
 	return;
@@ -284,7 +284,7 @@ void RCB<Mesh>::getGeometryList(
     // Zoltan needs interleaved coordinates.
     int n = 0;
     Teuchos::ArrayRCP<const double> mesh_coords;
-    GlobalOrdinal num_nodes;
+    GlobalOrdinal num_vertices;
     BlockIterator block_iterator;
     for ( block_iterator = mesh_manager->blocksBegin();
 	  block_iterator != mesh_manager->blocksEnd();
@@ -292,20 +292,20 @@ void RCB<Mesh>::getGeometryList(
     {
 	int block_id = std::distance( mesh_manager->blocksBegin(),
 				      block_iterator );
-	Teuchos::ArrayView<short int> active_nodes =
-	    mesh_manager->getActiveNodes( block_id );
+	Teuchos::ArrayView<short int> active_vertices =
+	    mesh_manager->getActiveVertices( block_id );
 
 	mesh_coords = MeshTools<Mesh>::coordsView( *block_iterator );
-	num_nodes = std::distance( MT::nodesBegin( *block_iterator ),
-				   MT::nodesEnd( *block_iterator ) );
-	for ( GlobalOrdinal i = 0; i < num_nodes; ++i )
+	num_vertices = std::distance( MT::verticesBegin( *block_iterator ),
+				      MT::verticesEnd( *block_iterator ) );
+	for ( GlobalOrdinal i = 0; i < num_vertices; ++i )
 	{
-	    if ( active_nodes[i] )
+	    if ( active_vertices[i] )
 	    {
-		for ( std::size_t d = 0; d < node_dim; ++d )
+		for ( int d = 0; d < vertex_dim; ++d )
 		{
-		    geom_vec[ node_dim*n + d ] = 
-			mesh_coords[ d*num_nodes + i ];
+		    geom_vec[ vertex_dim*n + d ] = 
+			mesh_coords[ d*num_vertices + i ];
 		}
 		++n;
 	    }

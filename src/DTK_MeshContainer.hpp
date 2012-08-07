@@ -43,6 +43,7 @@
 #define DTK_MESHCONTAINER_HPP
 
 #include "DTK_MeshTraits.hpp"
+#include "DTK_MeshTypes.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
 
@@ -52,8 +53,10 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class MeshContainer
- * \brief A container for rebuilding mesh data in the rendezvous decomposition
- * after serialization.
+ * \brief A default mesh implementation.
+ *
+ * This container is used for rebuilding mesh data in the rendezvous
+ * decomposition after serialization.
  */
 //---------------------------------------------------------------------------//
 template<typename GlobalOrdinal>
@@ -73,19 +76,19 @@ class MeshContainer
 
     //! Constructor.
     MeshContainer( 
-	const int node_dim,
-	const Teuchos::ArrayRCP<GlobalOrdinal>& nodes,
+	const int vertex_dim,
+	const Teuchos::ArrayRCP<GlobalOrdinal>& vertices,
 	const Teuchos::ArrayRCP<const double>& coords,
-	const int element_topology,
-	const int nodes_per_element,
+	const DTK_ElementTopology element_topology,
+	const int vertices_per_element,
 	const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
 	const Teuchos::ArrayRCP<const GlobalOrdinal>& connectivity,
-	const Teuchos::ArrayRCP<const std::size_t>& permutation_list )
-	: d_node_dim( node_dim )
-	, d_nodes( nodes )
+	const Teuchos::ArrayRCP<const int>& permutation_list )
+	: d_vertex_dim( vertex_dim )
+	, d_vertices( vertices )
 	, d_coords( coords )
 	, d_element_topology( element_topology )
-	, d_nodes_per_element( nodes_per_element )
+	, d_vertices_per_element( vertices_per_element )
 	, d_elements( elements )
 	, d_connectivity( connectivity )
 	, d_permutation_list( permutation_list )
@@ -95,19 +98,19 @@ class MeshContainer
     ~MeshContainer()
     { /* ... */ }
 
-    //! Get the dimension of the nodes.
-    std::size_t getNodeDim() const
-    { return d_node_dim; }
+    //! Get the dimension of the vertices.
+    int getVertexDim() const
+    { return d_vertex_dim; }
 
-    //! Get the beginning of the nodes set.
+    //! Get the beginning of the vertices set.
     typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
-    nodesBegin() const
-    { return d_nodes.begin(); }
+    verticesBegin() const
+    { return d_vertices.begin(); }
 
-    //! Get the end of the nodes set.
+    //! Get the end of the vertices set.
     typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
-    nodesEnd() const
-    { return d_nodes.end(); }
+    verticesEnd() const
+    { return d_vertices.end(); }
 
     //! Get the beginning of the coordinates array.
     Teuchos::ArrayRCP<const double>::const_iterator coordsBegin() const
@@ -118,12 +121,12 @@ class MeshContainer
     { return d_coords.end(); }
 
     //! Get the element topology.
-    std::size_t getElementTopology() const
+    DTK_ElementTopology getElementTopology() const
     { return d_element_topology; }
 
-    //! Get the number of nodes constructing a single element.
-    std::size_t getNodesPerElement() const
-    { return d_nodes_per_element; }
+    //! Get the number of vertices constructing a single element.
+    int getVerticesPerElement() const
+    { return d_vertices_per_element; }
 
     //! Get the beginning of the elements set.
     typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
@@ -146,31 +149,31 @@ class MeshContainer
     { return d_connectivity.end(); }
 
     //! Get the beginning of the permutation list.
-    typename Teuchos::ArrayRCP<const std::size_t>::const_iterator 
+    typename Teuchos::ArrayRCP<const int>::const_iterator 
     permutationBegin() const
     { return d_permutation_list.begin(); }
 
     //! Get the ending of the permutation list.
-    typename Teuchos::ArrayRCP<const std::size_t>::const_iterator 
+    typename Teuchos::ArrayRCP<const int>::const_iterator 
     permutationEnd() const
     { return d_permutation_list.end(); }
     
   private:
 
-    // Node dimension.
-    std::size_t d_node_dim;
+    // Vertex dimension.
+    int d_vertex_dim;
 
-    // Nodes.
-    Teuchos::ArrayRCP<GlobalOrdinal> d_nodes;
+    // Vertices.
+    Teuchos::ArrayRCP<GlobalOrdinal> d_vertices;
 
     // Coordinates.
     Teuchos::ArrayRCP<const double> d_coords;
 
     // Element topology.
-    std::size_t d_element_topology;
+    DTK_ElementTopology d_element_topology;
 
-    // Nodes per element.
-    std::size_t d_nodes_per_element;
+    // Vertices per element.
+    int d_vertices_per_element;
 
     // Elements.
     Teuchos::ArrayRCP<GlobalOrdinal> d_elements;
@@ -179,7 +182,7 @@ class MeshContainer
     Teuchos::ArrayRCP<const GlobalOrdinal> d_connectivity;
 
     // Permutation list.
-    Teuchos::ArrayRCP<const std::size_t> d_permutation_list;
+    Teuchos::ArrayRCP<const int> d_permutation_list;
 };
 
 //---------------------------------------------------------------------------//
@@ -199,7 +202,7 @@ class MeshTraits< MeshContainer<GlobalOrdinal> >
     typedef typename Container::global_ordinal_type global_ordinal_type;
 
     typedef typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
-    const_node_iterator;
+    const_vertex_iterator;
 
     typedef Teuchos::ArrayRCP<const double>::const_iterator 
     const_coordinate_iterator;
@@ -210,19 +213,20 @@ class MeshTraits< MeshContainer<GlobalOrdinal> >
     typedef typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator 
     const_connectivity_iterator;
 
-    typedef typename Teuchos::ArrayRCP<const std::size_t>::const_iterator 
+    typedef typename Teuchos::ArrayRCP<const int>::const_iterator 
     const_permutation_iterator;
 
 
-    static inline std::size_t nodeDim( const Container& container )
-    { return container.getNodeDim(); }
+    static inline int vertexDim( const Container& container )
+    { return container.getVertexDim(); }
 
-    static inline const_node_iterator nodesBegin( const Container& container )
-    { return container.nodesBegin(); }
+    static inline const_vertex_iterator 
+    verticesBegin( const Container& container )
+    { return container.verticesBegin(); }
 
-    static inline const_node_iterator 
-    nodesEnd( const Container& container )
-    { return container.nodesEnd(); }
+    static inline const_vertex_iterator 
+    verticesEnd( const Container& container )
+    { return container.verticesEnd(); }
 
     static inline const_coordinate_iterator
     coordsBegin( const Container& container )
@@ -233,11 +237,12 @@ class MeshTraits< MeshContainer<GlobalOrdinal> >
     { return container.coordsEnd(); }
 
 
-    static inline std::size_t elementTopology( const Container& container )
+    static inline DTK_ElementTopology 
+    elementTopology( const Container& container )
     { return container.getElementTopology(); }
 
-    static inline std::size_t nodesPerElement( const Container& container )
-    { return container.getNodesPerElement(); }
+    static inline int verticesPerElement( const Container& container )
+    { return container.getVerticesPerElement(); }
 
     static inline const_element_iterator
     elementsBegin( const Container& container )

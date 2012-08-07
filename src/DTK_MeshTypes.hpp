@@ -45,7 +45,8 @@ namespace DataTransferKit
 {
 
 //! Element topology enumerations.
-enum DTK_ElementTopology {
+enum DTK_ElementTopology 
+{
     DTK_ElementTopology_MIN = 0,
     DTK_VERTEX = DTK_ElementTopology_MIN,
     DTK_LINE_SEGMENT,

@@ -42,7 +42,7 @@
 #define DTK_FIELDEVALUATOR_HPP
 
 #include "DTK_FieldTraits.hpp"
-#include <DTK_MeshTraits.hpp>
+#include "DTK_MeshTraits.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
 
@@ -96,9 +96,8 @@ class FieldEvaluator
      * the given element, return 0 in their position. Field data
      * dimensionality and ordering is specified by field traits.
      */
-    virtual Field evaluate( 
-	const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
-	const Teuchos::ArrayRCP<double>& coords ) = 0;
+    virtual Field evaluate( const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
+			    const Teuchos::ArrayRCP<double>& coords ) = 0;
 };
 
 } // end namespace DataTransferKit

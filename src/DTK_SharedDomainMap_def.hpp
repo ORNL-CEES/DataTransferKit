@@ -43,11 +43,11 @@
 
 #include <algorithm>
 
-#include <DTK_FieldTools.hpp>
-#include <DTK_Assertion.hpp>
-#include <DTK_Rendezvous.hpp>
-#include <DTK_MeshTools.hpp>
-#include <DTK_BoundingBox.hpp>
+#include "DTK_FieldTools.hpp"
+#include "DTK_Assertion.hpp"
+#include "DTK_Rendezvous.hpp"
+#include "DTK_MeshTools.hpp"
+#include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ENull.hpp>
@@ -119,7 +119,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Determine the rendezvous destination proc of each point in the
     // coordinate field.
-    std::size_t coord_dim = CFT::dim( target_coord_manager->field() );
+    int coord_dim = CFT::dim( target_coord_manager->field() );
     Teuchos::ArrayRCP<double> coords_view = 
 	FieldTools<CoordinateField>::nonConstView( target_coord_manager->field() );
     Teuchos::Array<int> rendezvous_procs = 
@@ -272,14 +272,14 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	GlobalOrdinal num_missed_targets = 
 	    target_to_rendezvous_distributor.createFromSends( 
 		missed_target_procs() );
-	std::size_t offset = d_missed_points.size();
+	int offset = d_missed_points.size();
 	d_missed_points.resize( offset + num_missed_targets );
 	target_to_rendezvous_distributor.doPostsAndWaits( 
 	    missed_in_mesh_ordinal_view, 1, 
 	    d_missed_points.view( offset, num_missed_targets ) );
 
 	// Convert the missed point global indices to local indices.
-	for ( std::size_t n = offset; n < offset+num_missed_targets; ++n )
+	for ( int n = offset; n < offset+num_missed_targets; ++n )
 	{
 	    d_missed_points[n] = 
 		d_target_g2l.find( d_missed_points[n] )->second;
@@ -516,11 +516,11 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
     testPrecondition( dim_size == target_ordinals.size() );
 
     targets_in_box.resize( dim_size );
-    std::size_t field_dim = CFT::dim( target_coords );
+    int field_dim = CFT::dim( target_coords );
     Teuchos::Array<double> target_point( field_dim );
     for ( GlobalOrdinal n = 0; n < dim_size; ++n )
     {
-	for ( std::size_t d = 0; d < field_dim; ++d )
+	for ( int d = 0; d < field_dim; ++d )
 	{
 	    target_point[d] = target_coords_view[ dim_size*d + n ];
 	}

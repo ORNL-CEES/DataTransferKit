@@ -39,7 +39,7 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_BoundingBox.hpp"
-#include <DTK_Assertion.hpp>
+#include "DTK_Assertion.hpp"
 
 namespace DataTransferKit
 {

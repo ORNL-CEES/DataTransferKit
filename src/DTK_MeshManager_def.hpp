@@ -43,8 +43,8 @@
 
 #include "DTK_MeshTypes.hpp"
 #include "DTK_MeshTools.hpp"
-#include <DTK_Assertion.hpp>
-#include <DataTransferKit_config.hpp>
+#include "DTK_Assertion.hpp"
+#include "DataTransferKit_config.hpp"
 
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_Tuple.hpp>
@@ -59,11 +59,11 @@ namespace DataTransferKit
 template<class Mesh>
 MeshManager<Mesh>::MeshManager( const Teuchos::ArrayRCP<Mesh>& mesh_blocks,
 				const RCP_Comm& comm,
-				const std::size_t dim )
+				const int dim )
     : d_mesh_blocks( mesh_blocks )
     , d_comm( comm )
     , d_dim( dim )
-    , d_active_nodes( d_mesh_blocks.size() )
+    , d_active_vertices( d_mesh_blocks.size() )
     , d_active_elements( d_mesh_blocks.size() )
 {
     // If we're checking with Design-by-Contract, validate the mesh to the
@@ -141,7 +141,7 @@ BoundingBox MeshManager<Mesh>::globalBoundingBox()
 	  ++block_iterator )
     {
 	// If the mesh block is empty, do nothing.
-	if ( MeshTools<Mesh>::numNodes( *block_iterator ) > 0 )
+	if ( MeshTools<Mesh>::numVertices( *block_iterator ) > 0 )
 	{
 	    block_box =
 		MeshTools<Mesh>::globalBoundingBox( *block_iterator, d_comm );
@@ -191,9 +191,9 @@ void MeshManager<Mesh>::validate()
 	  block_iterator != d_mesh_blocks.end();
 	  ++block_iterator )
     {
-	// Nodes.
+	// Vertices.
 	testPrecondition( 0 <= d_dim && d_dim <= 3 );
-	testPrecondition( d_dim == MT::nodeDim( *block_iterator ) );
+	testPrecondition( d_dim == MT::vertexDim( *block_iterator ) );
 
 	// Coordinates.
 

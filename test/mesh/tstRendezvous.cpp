@@ -55,17 +55,17 @@ DataTransferKit::MeshContainer<int> buildLineContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
-    // Make some nodes.
-    Teuchos::Array<int> node_handles;
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
 
-    int node_dim = 1;
-    int num_nodes = 2;
+    int vertex_dim = 1;
+    int num_vertices = 2;
 
     // handles
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	node_handles.push_back( num_nodes*my_rank + i );
+	vertex_handles.push_back( num_vertices*my_rank + i );
     }
 
     // x
@@ -80,14 +80,14 @@ DataTransferKit::MeshContainer<int> buildLineContainer( int my_rank )
     line_handles.push_back( 12+my_rank );
 
     // connectivity
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	line_connectivity.push_back( node_handles[i] );
+	line_connectivity.push_back( vertex_handles[i] );
     }
 
-    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
-    std::copy( node_handles.begin(), node_handles.end(), 
-	       node_handle_array.begin() );
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
@@ -100,14 +100,14 @@ DataTransferKit::MeshContainer<int> buildLineContainer( int my_rank )
     std::copy( line_connectivity.begin(), line_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_LINE_SEGMENT, num_nodes,
+    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+			       DTK_LINE_SEGMENT, num_vertices,
 			       line_handle_array, connectivity_array,
 			       permutation_list );
 }
@@ -118,17 +118,17 @@ DataTransferKit::MeshContainer<int> buildTriContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
-    // Make some nodes.
-    Teuchos::Array<int> node_handles;
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
 
-    int node_dim = 2;
-    int num_nodes = 3;
+    int vertex_dim = 2;
+    int num_vertices = 3;
 
     // handles
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	node_handles.push_back( num_nodes*my_rank + i );
+	vertex_handles.push_back( num_vertices*my_rank + i );
     }
 
     // x
@@ -149,14 +149,14 @@ DataTransferKit::MeshContainer<int> buildTriContainer( int my_rank )
     tri_handles.push_back( 12+my_rank );
 
     // connectivity
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	tri_connectivity.push_back( node_handles[i] );
+	tri_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
-    std::copy( node_handles.begin(), node_handles.end(), 
-	       node_handle_array.begin() );
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
@@ -169,14 +169,14 @@ DataTransferKit::MeshContainer<int> buildTriContainer( int my_rank )
     std::copy( tri_connectivity.begin(), tri_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_TRIANGLE, num_nodes,
+    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+			       DTK_TRIANGLE, num_vertices,
 			       tri_handle_array, connectivity_array,
 			       permutation_list );
 }
@@ -187,17 +187,17 @@ DataTransferKit::MeshContainer<int> buildQuadContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
-    // Make some nodes.
-    Teuchos::Array<int> node_handles;
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
 
-    int node_dim = 2;
-    int num_nodes = 4;
+    int vertex_dim = 2;
+    int num_vertices = 4;
 
     // handles
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	node_handles.push_back( num_nodes*my_rank + i );
+	vertex_handles.push_back( num_vertices*my_rank + i );
     }
 
     // x
@@ -220,14 +220,14 @@ DataTransferKit::MeshContainer<int> buildQuadContainer( int my_rank )
     quad_handles.push_back( 12+my_rank );
 
     // connectivity
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	quad_connectivity.push_back( node_handles[i] );
+	quad_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
-    std::copy( node_handles.begin(), node_handles.end(), 
-	       node_handle_array.begin() );
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
@@ -240,14 +240,14 @@ DataTransferKit::MeshContainer<int> buildQuadContainer( int my_rank )
     std::copy( quad_connectivity.begin(), quad_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_QUADRILATERAL, num_nodes,
+    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+			       DTK_QUADRILATERAL, num_vertices,
 			       quad_handle_array, connectivity_array,
 			       permutation_list );
 }
@@ -259,17 +259,17 @@ DataTransferKit::MeshContainer<int> buildShiftedQuadContainer( int my_rank,
 {
     using namespace DataTransferKit;
 
-    // Make some nodes.
-    Teuchos::Array<int> node_handles;
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
 
-    int node_dim = 2;
-    int num_nodes = 4;
+    int vertex_dim = 2;
+    int num_vertices = 4;
 
     // handles
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	node_handles.push_back( num_nodes*my_rank + i + 3*my_size );
+	vertex_handles.push_back( num_vertices*my_rank + i + 3*my_size );
     }
 
     // x
@@ -292,14 +292,14 @@ DataTransferKit::MeshContainer<int> buildShiftedQuadContainer( int my_rank,
     quad_handles.push_back( 12 + my_size );
 
     // connectivity
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	quad_connectivity.push_back( node_handles[i] );
+	quad_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
-    std::copy( node_handles.begin(), node_handles.end(), 
-	       node_handle_array.begin() );
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
@@ -312,14 +312,14 @@ DataTransferKit::MeshContainer<int> buildShiftedQuadContainer( int my_rank,
     std::copy( quad_connectivity.begin(), quad_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_QUADRILATERAL, num_nodes,
+    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+			       DTK_QUADRILATERAL, num_vertices,
 			       quad_handle_array, connectivity_array,
 			       permutation_list );
 }
@@ -330,17 +330,17 @@ DataTransferKit::MeshContainer<int> buildTetContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
-    // Make some nodes.
-    Teuchos::Array<int> node_handles;
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
 
-    int node_dim = 3;
-    int num_nodes = 4;
+    int vertex_dim = 3;
+    int num_vertices = 4;
 
     // handles
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	node_handles.push_back( num_nodes*my_rank + i );
+	vertex_handles.push_back( num_vertices*my_rank + i );
     }
 
     // x
@@ -369,14 +369,14 @@ DataTransferKit::MeshContainer<int> buildTetContainer( int my_rank )
     tet_handles.push_back( 12+my_rank );
 
     // connectivity
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	tet_connectivity.push_back( node_handles[i] );
+	tet_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
-    std::copy( node_handles.begin(), node_handles.end(), 
-	       node_handle_array.begin() );
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
@@ -389,14 +389,14 @@ DataTransferKit::MeshContainer<int> buildTetContainer( int my_rank )
     std::copy( tet_connectivity.begin(), tet_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_TETRAHEDRON, num_nodes,
+    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+			       DTK_TETRAHEDRON, num_vertices,
 			       tet_handle_array, connectivity_array,
 			       permutation_list );
 }
@@ -407,17 +407,17 @@ DataTransferKit::MeshContainer<int> buildHexContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
-    // Make some nodes.
-    Teuchos::Array<int> node_handles;
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
 
-    int node_dim = 3;
-    int num_nodes = 8;
+    int vertex_dim = 3;
+    int num_vertices = 8;
 
     // handles
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	node_handles.push_back( num_nodes*my_rank + i );
+	vertex_handles.push_back( num_vertices*my_rank + i );
     }
 
     // x
@@ -458,14 +458,14 @@ DataTransferKit::MeshContainer<int> buildHexContainer( int my_rank )
     hex_handles.push_back( 12+my_rank );
 
     // connectivity
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	hex_connectivity.push_back( node_handles[i] );
+	hex_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
-    std::copy( node_handles.begin(), node_handles.end(), 
-	       node_handle_array.begin() );
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
@@ -478,14 +478,14 @@ DataTransferKit::MeshContainer<int> buildHexContainer( int my_rank )
     std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_HEXAHEDRON, num_nodes,
+    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+			       DTK_HEXAHEDRON, num_vertices,
 			       hex_handle_array, connectivity_array,
 			       permutation_list );
 }
@@ -497,17 +497,17 @@ DataTransferKit::MeshContainer<int> buildShiftedHexContainer( int my_rank,
 {
     using namespace DataTransferKit;
 
-    // Make some nodes.
-    Teuchos::Array<int> node_handles;
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
 
-    int node_dim = 3;
-    int num_nodes = 8;
+    int vertex_dim = 3;
+    int num_vertices = 8;
 
     // handles
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	node_handles.push_back( num_nodes*my_rank + i + my_size*4 );
+	vertex_handles.push_back( num_vertices*my_rank + i + my_size*4 );
     }
 
     // x
@@ -548,14 +548,14 @@ DataTransferKit::MeshContainer<int> buildShiftedHexContainer( int my_rank,
     hex_handles.push_back( 12+my_rank+my_size );
 
     // connectivity
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	hex_connectivity.push_back( node_handles[i] );
+	hex_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
-    std::copy( node_handles.begin(), node_handles.end(), 
-	       node_handle_array.begin() );
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
@@ -568,14 +568,14 @@ DataTransferKit::MeshContainer<int> buildShiftedHexContainer( int my_rank,
     std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_HEXAHEDRON, num_nodes,
+    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+			       DTK_HEXAHEDRON, num_vertices,
 			       hex_handle_array, connectivity_array,
 			       permutation_list );
 }
@@ -586,17 +586,17 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
-    // Make some nodes.
-    Teuchos::Array<int> node_handles;
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
 
-    int node_dim = 3;
-    int num_nodes = 5;
+    int vertex_dim = 3;
+    int num_vertices = 5;
 
     // handles
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	node_handles.push_back( num_nodes*my_rank + i );
+	vertex_handles.push_back( num_vertices*my_rank + i );
     }
 
     // x
@@ -628,14 +628,14 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer( int my_rank )
     pyramid_handles.push_back( 12+my_rank );
 
     // connectivity
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	pyramid_connectivity.push_back( node_handles[i] );
+	pyramid_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
-    std::copy( node_handles.begin(), node_handles.end(), 
-	       node_handle_array.begin() );
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
@@ -648,14 +648,14 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer( int my_rank )
     std::copy( pyramid_connectivity.begin(), pyramid_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_PYRAMID, num_nodes,
+    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+			       DTK_PYRAMID, num_vertices,
 			       pyramid_handle_array, connectivity_array,
 			       permutation_list );
 }
@@ -667,17 +667,17 @@ DataTransferKit::MeshContainer<int> buildShiftedPyramidContainer( int my_rank,
 {
     using namespace DataTransferKit;
 
-    // Make some nodes.
-    Teuchos::Array<int> node_handles;
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
 
-    int node_dim = 3;
-    int num_nodes = 5;
+    int vertex_dim = 3;
+    int num_vertices = 5;
 
     // handles
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	node_handles.push_back( num_nodes*my_rank + i + 4*my_size + 8*my_size );
+	vertex_handles.push_back( num_vertices*my_rank + i + 4*my_size + 8*my_size );
     }
 
     // x
@@ -709,14 +709,14 @@ DataTransferKit::MeshContainer<int> buildShiftedPyramidContainer( int my_rank,
     pyramid_handles.push_back( 12+2*my_size+my_rank );
 
     // connectivity
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	pyramid_connectivity.push_back( node_handles[i] );
+	pyramid_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
-    std::copy( node_handles.begin(), node_handles.end(), 
-	       node_handle_array.begin() );
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
@@ -729,14 +729,14 @@ DataTransferKit::MeshContainer<int> buildShiftedPyramidContainer( int my_rank,
     std::copy( pyramid_connectivity.begin(), pyramid_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_PYRAMID, num_nodes,
+    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+			       DTK_PYRAMID, num_vertices,
 			       pyramid_handle_array, connectivity_array,
 			       permutation_list );
 }
@@ -747,17 +747,17 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
-    // Make some nodes.
-    Teuchos::Array<int> node_handles;
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
 
-    int node_dim = 3;
-    int num_nodes = 6;
+    int vertex_dim = 3;
+    int num_vertices = 6;
 
     // handles
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
-	node_handles.push_back( i );
+	vertex_handles.push_back( i );
     }
 
     // x
@@ -792,14 +792,14 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer( int my_rank )
     wedge_handles.push_back( 12 );
 
     // connectivity
-    for ( int i = 0; i < num_nodes; ++i )
+    for ( int i = 0; i < num_vertices; ++i )
     {
 	wedge_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> node_handle_array( node_handles.size() );
-    std::copy( node_handles.begin(), node_handles.end(), 
-	       node_handle_array.begin() );
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
@@ -812,14 +812,14 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer( int my_rank )
     std::copy( wedge_connectivity.begin(), wedge_connectivity.end(), 
 	       connectivity_array.begin() );
 
-    Teuchos::ArrayRCP<std::size_t> permutation_list( num_nodes );
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_WEDGE, num_nodes,
+    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+			       DTK_WEDGE, num_vertices,
 			       wedge_handle_array, connectivity_array,
 			       permutation_list );
 }

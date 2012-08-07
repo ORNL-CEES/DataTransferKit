@@ -51,7 +51,7 @@ class ArrayField
     typedef Teuchos::Array<double>::iterator iterator;
     typedef Teuchos::Array<double>::const_iterator const_iterator;
 
-    ArrayField( size_type size, std::size_t dim )
+    ArrayField( size_type size, int dim )
 	: d_dim( dim )
 	, d_data( size )
     { /* ... */ }
@@ -59,7 +59,7 @@ class ArrayField
     ~ArrayField()
     { /* ... */ }
 
-    std::size_t dim() const
+    int dim() const
     { return d_dim; }
 
     size_type size() const
@@ -84,7 +84,7 @@ class ArrayField
     { return d_data; }
 
   private:
-    std::size_t d_dim;
+    int d_dim;
     Teuchos::Array<double> d_data;
 };
 

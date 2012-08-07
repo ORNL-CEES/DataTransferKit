@@ -42,8 +42,8 @@
 #define DTK_MESHTRAITSFIELDADAPTER_HPP
 
 #include "DTK_FieldTraits.hpp"
-#include <DTK_MeshTraits.hpp>
-#include <DTK_MeshTools.hpp>
+#include "DTK_MeshTraits.hpp"
+#include "DTK_MeshTools.hpp"
 
 namespace DataTransferKit
 {
@@ -72,15 +72,15 @@ class FieldTraits< MeshTraits<MeshType> >
     typedef typename MT::const_coordinate_iterator    iterator;
     typedef typename MT::const_coordinate_iterator    const_iterator;
 
-    static inline std::size_t dim( const MeshType& mesh )
-    { return MT::nodeDim( mesh ); }
+    static inline int dim( const MeshType& mesh )
+    { return MT::vertexDim( mesh ); }
 
-    static inline std::size_t size( const MeshType& mesh )
-    { return Tools::numNodes( mesh ) * MT::nodeDim( mesh ); }
+    static inline size_type size( const MeshType& mesh )
+    { return Tools::numVertices( mesh ) * MT::vertexDim( mesh ); }
 
     static inline bool empty( const MeshType& mesh )
     {
-	if ( Tools::numNodes( mesh ) < 1 )
+	if ( Tools::numVertices( mesh ) < 1 )
 	{ 
 	    return true;
 	}

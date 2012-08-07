@@ -132,7 +132,7 @@ as a basis for the domain model and discussion.
 \item {\bf Ordinal:} A value that uniquely identifies an object from
   other objects of the same type. This number is a positive and real
   integer such that for a given ordinal, $i$, $i \in
-  \mathbb{R}^+$. Zero is a valid ordinal.
+  \mathbb{N}^{+}$. Zero is a valid ordinal.
 \item {\bf Geometry:} An object or collection of objects that has $n$
   physical dimensions and a spatial domain $\Omega \in \mathbb{R}^n$
   that is bounded by a boundary $\Gamma \in \mathbb{R}^n$.
@@ -335,9 +335,9 @@ permutation list specifies the variation in ordering between the DTK
 canonical numbering scheme and the client canonical numbering
 scheme. A permutation list must be described globally, regardless of
 whether or not elements exist on a particular process. See
-Appendix~\ref{apdx:cell_topo} for canonical linear element topologies
-as defined by DTK. These are the canonical vertex orderings that must
-be used when generating a permutation list for a client element
+Appendix~\ref{apdx:cell_topo} for canonical element topologies as
+defined by DTK. These are the canonical vertex orderings that must be
+used when generating a permutation list for a client element
 topology. Mesh elements may not intersect any other elements in a
 single mesh description. An element may intersect other elements if
 those elements exist in another mesh (this is in fact a common
@@ -834,8 +834,8 @@ transferred as shown in Figure~\ref{fig:target_field}.
 \begin{figure}[htpb!]
   \centering
   \includegraphics[width=5.5in]{Linear_Elements.pdf}
-  \caption{\bf \sl Canonical vertex connectivity schemes for linear
-    elements in DTK.}
+  \caption{\bf \sl Canonical vertex connectivity schemes for elements
+    in DTK.}
   \label{fig:linear_elements}
 \end{figure}
 

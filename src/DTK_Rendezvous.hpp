@@ -102,7 +102,7 @@ class Rendezvous
     // Build the rendezvous decomposition.
     void build( const RCP_MeshManager& mesh_manager );
 
-    // Get the rendezvous destination processes for a blocked list of node
+    // Get the rendezvous destination processes for a blocked list of vertex
     // coordinates that are in the primary decomposition.
     Teuchos::Array<int> 
     procsContainingPoints( const Teuchos::ArrayRCP<double> &coords ) const;
@@ -125,7 +125,7 @@ class Rendezvous
 
   private:
 
-    // Extract the mesh block nodes and elements that are in a bounding box.
+    // Extract the mesh block vertices and elements that are in a bounding box.
     void getMeshInBox( const RCP_MeshManager& mesh_manager );
 
     // Send the mesh to the rendezvous decomposition and build the concrete
@@ -137,7 +137,7 @@ class Rendezvous
     void setupImportCommunication( 
 	const Mesh& mesh,
 	const Teuchos::ArrayView<short int>& elements_in_box,
-	Teuchos::Array<GlobalOrdinal>& rendezvous_nodes,
+	Teuchos::Array<GlobalOrdinal>& rendezvous_vertices,
 	Teuchos::Array<GlobalOrdinal>& rendezvous_elements );
 
   private:
@@ -148,8 +148,8 @@ class Rendezvous
     // Bounding box in which to perform the rendezvous.
     BoundingBox d_global_box;
 
-    // Mesh node dimension.
-    std::size_t d_node_dim;
+    // Mesh vertex dimension.
+    int d_vertex_dim;
 
     // Rendezvous partitioning.
     RCP_RCB d_rcb;

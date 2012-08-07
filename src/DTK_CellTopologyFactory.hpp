@@ -72,8 +72,8 @@ class CellTopologyFactory
     ~CellTopologyFactory();
 
     // Factory method.
-    static RCP_CellTopology create( 
-	const moab::EntityType element_topology, const int num_element_nodes );
+    static RCP_CellTopology create( const moab::EntityType element_topology, 
+				    const int num_element_vertices );
 };
 
 } // end namespace DataTransferKit
