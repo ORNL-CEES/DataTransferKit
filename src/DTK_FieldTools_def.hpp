@@ -54,7 +54,13 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Get the local size of the dimensions.
+/*!
+ * \brief Get the local size of the dimensions.
+ *
+ * \param field The field to get the dimension size of.
+ *
+ * \return The size of the dimensions in the field.
+ */
 template<class Field>
 typename FieldTools<Field>::size_type
 FieldTools<Field>::dimSize( const Field& field )
@@ -68,6 +74,12 @@ FieldTools<Field>::dimSize( const Field& field )
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get an iterator to the beginning of a dimension.
+ *
+ * \param field The field to get an iterator for.
+ *
+ * \param dim The dimension to get an iterator for.
+ *
+ * \return The field iterator the beginning given of the dimension
  */
 template<class Field>
 typename FieldTools<Field>::iterator 
@@ -82,6 +94,12 @@ FieldTools<Field>::dimBegin( Field& field, const int dim )
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get a const iterator to the beginning of a dimension.
+ *
+ * \param field The field to get an iterator for.
+ *
+ * \param dim The dimension to get an iterator for.
+ *
+ * \return The const field iterator the beginning of the given dimension
  */
 template<class Field>
 typename FieldTools<Field>::const_iterator 
@@ -96,6 +114,12 @@ FieldTools<Field>::dimBegin( const Field& field, const int dim )
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get an iterator to the end of a dimension.
+ *
+ * \param field The field to get an iterator for.
+ *
+ * \param dim The dimension to get an iterator for.
+ *
+ * \return The field iterator the end of the given dimension
  */
 template<class Field>
 typename FieldTools<Field>::iterator 
@@ -110,6 +134,12 @@ FieldTools<Field>::dimEnd( Field& field, const int dim )
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get a const iterator to the end of a dimension.
+ *
+ * \param field The field to get an iterator for.
+ *
+ * \param dim The dimension to get an iterator for.
+ *
+ * \return The const field iterator the end of the given dimension
  */
 template<class Field>
 typename FieldTools<Field>::const_iterator 
@@ -125,6 +155,10 @@ FieldTools<Field>::dimEnd( const Field& field, const int dim )
 /*!
  * \brief Get a const view of the field. The ArrayRCP object will not manage
  * the memory. 
+ *
+ * \param field The field to get a view of.
+ *
+ * \return A const view of the field.
  */
 template<class Field>
 Teuchos::ArrayRCP<const typename FieldTools<Field>::value_type>
@@ -145,6 +179,10 @@ FieldTools<Field>::view( const Field& field )
 /*!
  * \brief Get a non-const view of the field. The ArrayRCP object will not
  * manage the memory. 
+ *
+ * \param field The field to get a view of.
+ *
+ * \return A non-const view of the field.
  */
 template<class Field>
 Teuchos::ArrayRCP<typename FieldTools<Field>::value_type>
@@ -164,6 +202,10 @@ FieldTools<Field>::nonConstView( const Field& field )
 //---------------------------------------------------------------------------//
 /*!
  * \brief Fill a field with a scalar.
+ * 
+ * \param field The field to fill.
+ *
+ * \param scalar The scalar to fill the field with.
  */
 template<class Field>
 void FieldTools<Field>::putScalar( Field& field, const value_type& scalar )
@@ -174,6 +216,12 @@ void FieldTools<Field>::putScalar( Field& field, const value_type& scalar )
 //---------------------------------------------------------------------------//
 /*!
  * \brief Fill a field with a different scalar in each dimension.
+ * 
+ * \param field The field to fill.
+ *
+ * \param scalars The array of scalars to fill the field with. This array must
+ * be of the same length as the field dimension. Each entry in the array
+ * correlates to the scalar for a particular field dimension.
  */
 template<class Field>
 void FieldTools<Field>::putScalar( 
@@ -190,6 +238,10 @@ void FieldTools<Field>::putScalar(
 //---------------------------------------------------------------------------//
 /*!
  * \brief Scale a field by a single value.
+ * 
+ * \param field The field to scale.
+ *
+ * \param The scalar to scale the field with.
  */
 template<class Field>
 void FieldTools<Field>::scale( Field& field, const value_type& scalar )
@@ -206,6 +258,12 @@ void FieldTools<Field>::scale( Field& field, const value_type& scalar )
 //---------------------------------------------------------------------------//
 /*
  * \brief Scale a field by different value for each dimension.
+ * 
+ * \param field The field to scale.
+ *
+ * \param scalars The array of scalars to scale the field with. This array must
+ * be of the same length as the field dimension. Each entry in the array
+ * correlates to the scalar for a particular field dimension.
  */
 template<class Field>
 void FieldTools<Field>::scale( Field& field, 
@@ -228,6 +286,13 @@ void FieldTools<Field>::scale( Field& field,
 //---------------------------------------------------------------------------//
 /*!
  * \brief Compute the global infinity norm for each field dimension.
+ *
+ * \param field The field to compute the norm of.
+ *
+ * \param comm The communicator over which the field is defined.
+ *
+ * \param norms The norms for each dimension in the field. This array will be
+ * of the same length as the field dimension.
  */
 template<class Field>
 void FieldTools<Field>::normInf( const Field& field, const RCP_Comm& comm,
@@ -257,6 +322,13 @@ void FieldTools<Field>::normInf( const Field& field, const RCP_Comm& comm,
 //---------------------------------------------------------------------------//
 /*!
  * \brief Compute the global L1 norm for each field dimension.
+ *
+ * \param field The field to compute the norm of.
+ *
+ * \param comm The communicator over which the field is defined.
+ *
+ * \param norms The norms for each dimension in the field. This array will be
+ * of the same length as the field dimension.
  */
 template<class Field>
 void FieldTools<Field>::norm1( const Field& field, const RCP_Comm& comm,
@@ -288,6 +360,13 @@ void FieldTools<Field>::norm1( const Field& field, const RCP_Comm& comm,
 //---------------------------------------------------------------------------//
 /*!
  * \brief Compute the global L2 norm for each field dimension.
+ *
+ * \param field The field to compute the norm of.
+ *
+ * \param comm The communicator over which the field is defined.
+ *
+ * \param norms The norms for each dimension in the field. This array will be
+ * of the same length as the field dimension.
  */
 template<class Field>
 void FieldTools<Field>::norm2( const Field& field, const RCP_Comm& comm,
@@ -321,6 +400,13 @@ void FieldTools<Field>::norm2( const Field& field, const RCP_Comm& comm,
 //---------------------------------------------------------------------------//
 /*!
  * \brief Compute the global q-norm for each field dimension.
+ *
+ * \param field The field to compute the norm of.
+ *
+ * \param comm The communicator over which the field is defined.
+ *
+ * \param norms The norms for each dimension in the field. This array will be
+ * of the same length as the field dimension.
  */
 template<class Field>
 void FieldTools<Field>::normQ( const Field& field, const RCP_Comm& comm, 
@@ -362,6 +448,13 @@ void FieldTools<Field>::normQ( const Field& field, const RCP_Comm& comm,
 //---------------------------------------------------------------------------//
 /*!
  * \brief Compute the global average value for each field dimension.
+ *
+ * \param field The field to compute the average of.
+ *
+ * \param comm The communicator over which the field is defined.
+ *
+ * \param averages The averages for each dimension in the field. This array
+ * will bep of the same length as the field dimension.
  */
 template<class Field>
 void FieldTools<Field>::average( const Field& field, const RCP_Comm& comm,
@@ -400,6 +493,13 @@ void FieldTools<Field>::average( const Field& field, const RCP_Comm& comm,
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the global size of the field (all dimensions, all instances).
+ * 
+ * \param field The field to get the global size of.
+ *
+ * \param comm The communicator over which the field is defined.
+ *
+ * \return The global size of the field. This is equivalent to all global
+ * elements in the field in all dimensions.
  */
 template<class Field>
 typename FieldTools<Field>::size_type 
@@ -420,7 +520,12 @@ FieldTools<Field>::globalSize( const Field& field,
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the local bounding box for a field of coordinates.
+ * \brief Get the local bounding box for a field of coordinates. Here the
+ * field is directly interpreted as a coordinate field.
+ *
+ * \param field The coordinate field to compute the local box for.
+ *
+ * \return The local bounding box of the coordinate field.
  */
 template<class Field>
 BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
@@ -458,7 +563,12 @@ BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the global bounding box for a field of coordinates.
+ * \brief Get the global bounding box for a field of coordinates. Here the
+ * field is directly interpreted as a coordinate field.
+ *
+ * \param field The coordinate field to compute the global box for.
+ *
+ * \return The global bounding box of the coordinate field.
  */
 template<class Field>
 BoundingBox FieldTools<Field>::coordGlobalBoundingBox( const Field& field,

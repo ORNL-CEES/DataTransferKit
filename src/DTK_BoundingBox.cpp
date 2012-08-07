@@ -59,6 +59,18 @@ BoundingBox::BoundingBox()
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
+ *
+ * \param x_min Minimum x coordinate value in the box.
+ *
+ * \param y_min Minimum y coordinate value in the box.
+ *
+ * \param z_min Minimum z coordinate value in the box.
+ *
+ * \param x_max Maximum x coordinate value in the box.
+ *
+ * \param y_max Maximum y coordinate value in the box.
+ *
+ * \param z_max Maximum z coordinate value in the box.
  */
 BoundingBox::BoundingBox( 
     const double x_min, const double y_min, const double z_min,
@@ -78,6 +90,8 @@ BoundingBox::BoundingBox(
 //---------------------------------------------------------------------------//
 /*!
  * \brief Tuple constructor.
+ *
+ * \param bounds Tuple containing {x_min, y_min, z_min, x_max, y_max, z_max}.
  */
 BoundingBox::BoundingBox( const Teuchos::Tuple<double,6>& bounds )
     : d_x_min( bounds[0] )
@@ -101,8 +115,13 @@ BoundingBox::~BoundingBox()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Determine if a point is in the box. A point on the box boundary will
- * return true.
+ * \brief Determine if a point is in the box. 
+ *
+ * \param coords Cartesian coordinates to check for point inclusion. The
+ * coordinates must have a dimension between 0 and 3.
+ *
+ * \return Return true if the point is in the box, false if not. A point on
+ * the box boundary will return true.
  */
 bool BoundingBox::pointInBox( const Teuchos::Array<double>& coords ) const
 {
@@ -147,6 +166,15 @@ bool BoundingBox::pointInBox( const Teuchos::Array<double>& coords ) const
 //---------------------------------------------------------------------------//
 /*!
  * \brief Compute the volume of the bounding box given its dimension.
+ *
+ * \param dim The dimension of the box we want to compute the volume for. We
+ * need this because the box always stores all 3 dimensions. Lower dimension
+ * boxes are resolved with higher dimensions set to +/-
+ * Teuchos::ScalarTraits<double>::rmax(). For dim = 1, only the x dimension is
+ * used. For dim = 2, the x and y dimensions are used. For dim = 3, the x, y,
+ * and z dimensions are used.
+ *
+ * \return Return the volume of the box.
  */
 double BoundingBox::volume( const int dim ) const
 {
@@ -172,6 +200,17 @@ double BoundingBox::volume( const int dim ) const
 /*!
  * \brief Static function for box intersection. Return false if they do not
  * intersect. 
+ *
+ * \param box_A Bounding box A.
+ *
+ * \param box_B Bounding box B.
+ *
+ * \param intersection A bounding box that is equivalent to the inersection of
+ * box A and box B. Box A and B can be provided in any order (the
+ * intersection of box A with box B is equal to the intersection of box B with
+ * box A).
+ *
+ * \return Return true if the boxes intersect. False if they do not.
  */
 bool BoundingBox::intersectBoxes( const BoundingBox& box_A,
 				  const BoundingBox& box_B,

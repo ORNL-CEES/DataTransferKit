@@ -64,6 +64,7 @@ class CellTopologyFactory
     //@{
     //! Typedefs.
     typedef Teuchos::RCP<shards::CellTopology>   RCP_CellTopology;
+    //@}
 
     // Constructor.
     CellTopologyFactory();

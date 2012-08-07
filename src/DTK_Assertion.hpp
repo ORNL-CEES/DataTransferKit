@@ -30,6 +30,8 @@ class Assertion : public std::logic_error
 
     /*! 
      * \brief Default constructor.
+     *
+     * \param msg Error message.
      */
     Assertion( const std::string& msg )
 	: std::logic_error( msg )
@@ -37,6 +39,13 @@ class Assertion : public std::logic_error
 
     /*! 
      * \brief DBC constructor.
+     *
+     * \param cond A string containing the assertion condition that failed.
+     *
+     * \param field A string containing the file name in which the assertion
+     * failed. 
+     *
+     * \param line The line number at which the assertion failed.
      */
     Assertion( const std::string& cond, const std::string& file, 
 	       const int line )

@@ -56,6 +56,8 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*
  * \brief Get MPI_COMM_WORLD in an RCP_Comm data structure.
+ * 
+ * \param mpi_comm_world MPI_COMM_WORLD wrapped in Teuchos::Comm object.
  */
 void CommTools::getMpiCommWorld( RCP_Comm& mpi_comm_world )
 {
@@ -67,6 +69,16 @@ void CommTools::getMpiCommWorld( RCP_Comm& mpi_comm_world )
 //---------------------------------------------------------------------------//
 /*!
  * \brief Check whether two communicators own the same communication space.
+ * 
+ * \param comm_A Communicator A.
+ *
+ * \param comm_B Communicator B.
+ *
+ * \return Return true if communicator A and B operate on the same group of
+ * processes. These processes do not have to have the same ranks in the
+ * communicators to be considered equivalent, they are only required to be the
+ * same physical process. The same result is produced independent of the
+ * ordering of A and B in the input parameters.
  */
 bool CommTools::equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B )
 {
@@ -108,6 +120,15 @@ bool CommTools::equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B )
 //---------------------------------------------------------------------------//
 /*!
  * \brief Generate the union of two communicators.
+ * 
+ * \param comm_A Communicator A.
+ *
+ * \param comm_B Communicator B.
+ *
+ * \param comm_union Return the union of communicator A and B. The union of A
+ * and B is defined as the physical processes that exist in either
+ * communicator. The same result is produced independent of the ordering of A
+ * and B in the input parameters. 
  */
 void CommTools::unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 		       RCP_Comm& comm_union )
@@ -155,6 +176,15 @@ void CommTools::unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 //---------------------------------------------------------------------------//
 /*!
  * \brief Generate the intersection of two communicators.
+ * 
+ * \param comm_A Communicator A.
+ *
+ * \param comm_B Communicator B.
+ *
+ * \param comm_intersection Return the intersection of communicator A and
+ * B. The intersection of A and B is defined to be the group of physical
+ * processes that exist in both A and B. The same result is produced
+ * independent of the ordering of A and B in the input parameters.
  */
 void CommTools::intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 			   RCP_Comm& comm_intersection )

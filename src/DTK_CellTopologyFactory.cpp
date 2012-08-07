@@ -65,6 +65,14 @@ CellTopologyFactory::~CellTopologyFactory()
  * \brief Factory method. If the number of element vertices provided is not
  * supported for that topology, the topology for the linear element will be
  * created. 
+ *
+ * \param element_topology MOAB entity type for which to generate a Shards
+ * topology. 
+ *
+ * \param num_element_vertices Number of vertices required to construct the
+ * element topology.
+ *
+ * \return return The Shards cell topology.
  */
 CellTopologyFactory::RCP_CellTopology
 CellTopologyFactory::create( const moab::EntityType element_topology,

@@ -53,6 +53,38 @@ namespace DataTransferKit
 /*!
  * \class FieldEvaluator
  * \brief Interface definition for function evaluation kernels.
+ *
+ The actual discretization of the field is not explicitly formulated. Rather,
+ access to discretization of fields and the associated data is generated
+ through function evaluations at points in physical space. Consider a
+ \f$D\f$-dimensional function \f$F(r)\f$ of arbitrary discretization over the
+ spatial domain \f$\Omega \in \mathcal{R}^n \f$ where \f$r \in \mathcal{R}^n\f$
+ and \f$F : \mathcal{R}^n \rightarrow \mathcal{R}^D\f$. Via polynomial
+ interpolation, projection, or any other means necessary to most appropriately
+ reflect the discretization of \f$F(r)\f$, it then follows that evaluation
+ operations of the following type can be performed:
+
+ \f[
+ \hat{f} \leftarrow F(\hat{r}), \forall \hat{r} \in \Omega
+ \f]
+
+ where \f$\hat{r} \in \mathcal{R}^n\f$ is a single point and \f$\hat{f} \in
+ \mathcal{R}^D\f$ is representative of the function \f$F(r)\f$ evaluated at
+ \f$\hat{r}\f$. This operation is not valid for \f$\hat{r} \notin \Omega\f$. In
+ the context of \f$\Omega\f$ discretized by a mesh, these evaluations can
+ instead be written in terms of a single mesh element, \f$\omega \in
+ \Omega\f$.
+
+ \f[
+ \hat{f} \leftarrow F(\hat{r}), \forall \hat{r} \in \omega
+ \f]
+
+ This operation is then not valid for \f$\hat{r} \notin \omega\f$. If
+ \f$\hat{r} \notin \omega\f$ and \f$\hat{r} \notin \Omega\f$, then alternative
+ schemes may be chosen, such as extrapolation, in order to apply the
+ field to \f$\hat{r}\f$. A  FieldEvaluator is the object that drives the
+ function evaluations.
+ *
  */
 //---------------------------------------------------------------------------//
 template<class Mesh, class Field>
@@ -86,8 +118,8 @@ class FieldEvaluator
      * the field.
      *
      * \param coords A vector of blocked coordinates 
-     * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
-     * at which to evaluate the field. Coordinates ( xN, yN, zN ) should be
+     * { x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN }
+     * at which to evaluate the field. Coordinates { xN, yN, zN } should be
      * evaluated in the Nth element in the elements vector.
      *
      * \return A FieldTraits container containing the evaluated function

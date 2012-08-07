@@ -51,11 +51,18 @@ namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 /*!
- * \class FieldManager
- * \brief Manager object for fields.
- *
- * The field manager manages a field and its parallel decomposition.
- */
+ \class FieldManager
+ \brief Manager object for fields.
+
+ The field manager manages a field and its parallel decomposition. A field has
+ a dimension of arbitrary size. As examples, for scalar fields this dimension
+ is 1, for 3-vectors (such as the velocity example above in a 3 dimensional
+ computation) the dimension is 3, and for a 3x3 tensor the dimension is 9.
+ All local instances of the field must have the same dimension. A field can
+ have an arbitrary number of local degrees of freedom and this size can differ
+ from local domain to local domain. No knowledge of the global field
+ decomposition is required, however, it must exist on a single communicator.
+*/
 //---------------------------------------------------------------------------//
 template<class Field>
 class FieldManager

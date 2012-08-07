@@ -17,6 +17,15 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \brief Build an assertion output from advanced constructor arguments.
+ *
+ * \param cond A string containing the assertion condition that failed.
+ *
+ * \param field A string containing the file name in which the assertion
+ * failed. 
+ *
+ * \param line The line number at which the assertion failed.
+ *
+ * \return Assertion output.
  */
 std::string Assertion::generate_output( 
     const std::string& cond, const std::string& file, const int line ) const
@@ -30,7 +39,16 @@ std::string Assertion::generate_output(
 //---------------------------------------------------------------------------//
 // Throw functions.
 //---------------------------------------------------------------------------//
-// Throw a DataTransferKit::Assertion.
+/*!
+ * \brief Throw a DataTransferKit::Assertion.
+ *
+ * \param cond A string containing the assertion condition that failed.
+ *
+ * \param field A string containing the file name in which the assertion
+ * failed. 
+ *
+ * \param line The line number at which the assertion failed.
+ */
 void throwAssertion( const std::string& cond, const std::string& file,
 		     const int line )
 {

@@ -48,6 +48,11 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
+ *
+ * \param field The field that this object is managing. This field must have
+ * FieldTraits.
+ * 
+ * \param comm The communicator over which the field is defined.
  */
 template<class Field>
 FieldManager<Field>::FieldManager( const Field& field, const RCP_Comm& comm )
