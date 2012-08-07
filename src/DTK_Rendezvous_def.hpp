@@ -385,7 +385,8 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 		num_vertices, d_vertex_dim );
 	Tpetra::MultiVector<double,GlobalOrdinal> 
 	    import_coords( import_vertex_map, d_vertex_dim );
-	import_coords.doImport( *export_coords, vertex_importer, Tpetra::INSERT );
+	import_coords.doImport( 
+	    *export_coords, vertex_importer, Tpetra::INSERT );
 
 	// Move the element connectivity to the rendezvous decomposition.
 	int vertices_per_element = MT::verticesPerElement( *block_iterator );
@@ -578,10 +579,10 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	       rendezvous_elements.begin() );
     rendezvous_elements_set.clear();
 
-    // Now get the destination procs for all the vertices. This will be the same
-    // destination procs as all of their parent elements. Therefore, vertices may
-    // then also have to go to multiple procs because of this and these procs
-    // may be different than their original RCB procs.
+    // Now get the destination procs for all the vertices. This will be the
+    // same destination procs as all of their parent elements. Therefore,
+    // vertices may then also have to go to multiple procs because of this and
+    // these procs may be different than their original RCB procs.
     GlobalOrdinal element_index;
     typename Teuchos::Array<GlobalOrdinal>::const_iterator 
 	export_elements_iterator;
@@ -597,7 +598,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
 
 	for ( int i = 0; i < vertices_per_element; ++i )
 	{
-	    vertex_ordinal = mesh_connectivity[ i*num_elements + element_index ];
+	    vertex_ordinal = 
+		mesh_connectivity[ i*num_elements + element_index ];
 	    vertex_index = vertex_indices.find( vertex_ordinal )->second;
 
 	    export_vertex_procs_set[ vertex_index ].insert( 

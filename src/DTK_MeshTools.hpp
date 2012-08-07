@@ -81,11 +81,11 @@ class MeshTools
     ~MeshTools()
     { /* ... */ }
 
-    // Get a view of the of the mesh vertices. 
+    // Get a view of the of the mesh vertex global ordinals. 
     static Teuchos::ArrayRCP<const GlobalOrdinal> 
     verticesView( const Mesh& mesh );
 
-    // Get a non-const view of the of the mesh vertices.
+    // Get a non-const view of the of the mesh vertex global ordinals.
     static Teuchos::ArrayRCP<GlobalOrdinal> 
     verticesNonConstView( const Mesh& mesh );
 
@@ -93,17 +93,17 @@ class MeshTools
     static GlobalOrdinal numVertices( const Mesh& mesh )
     { return std::distance( MT::verticesBegin(mesh), MT::verticesEnd(mesh) ); }
 
-    // Get a view of the of the mesh coordinates.
+    // Get a view of the of the mesh vertex coordinates.
     static Teuchos::ArrayRCP<const double> coordsView( const Mesh& mesh );
 
-    // Get a non-const view of the of the mesh coordinates.
+    // Get a non-const view of the of the mesh vertex coordinates.
     static Teuchos::ArrayRCP<double> coordsNonConstView( const Mesh& mesh );
 
-    // Get a view of the of the mesh elements.
+    // Get a view of the of the mesh element global ordinals.
     static Teuchos::ArrayRCP<const GlobalOrdinal> 
     elementsView( const Mesh& mesh );
 
-    // Get a non-const view of the of the mesh elements.
+    // Get a non-const view of the of the mesh element global ordinals.
     static Teuchos::ArrayRCP<GlobalOrdinal> 
     elementsNonConstView( const Mesh& mesh );
 
@@ -111,11 +111,11 @@ class MeshTools
     static GlobalOrdinal numElements( const Mesh& mesh )
     { return std::distance( MT::elementsBegin(mesh), MT::elementsEnd(mesh) ); }
 
-    // Get a view of the of the mesh connectivity.
+    // Get a view of the of the mesh element connectivity.
     static Teuchos::ArrayRCP<const GlobalOrdinal> 
     connectivityView( const Mesh& mesh );
 
-    // Get a non-const view of the of the mesh connectivity.
+    // Get a non-const view of the of the mesh element connectivity.
     static Teuchos::ArrayRCP<GlobalOrdinal> 
     connectivityNonConstView( const Mesh& mesh );
 

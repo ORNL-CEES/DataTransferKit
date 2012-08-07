@@ -61,22 +61,95 @@ struct UndefinedMeshTraits
 
 //---------------------------------------------------------------------------//
 /*!
- * \class MeshTraits
- * \brief Mesh traits definitions.
- *
- * These traits correlate to the basic concept of a single topology mesh block
- * within DTK. A mesh block will consist of a globally unique list of vertex
- * ordinals of a type that implements Teuchos::OrdinalTraits (already
- * implemented for common ordinal types) and a set of globally unique element
- * ordinals of the same type. Vertices are described by a coordinate field
- * with coordinates of type double. Elements are described by a list of vertex
- * ordinals that designate their connectivity. For each element topology, the
- * order of the connecting vertices correlate to the canonical ordering scheme
- * for this particular mesh type. How this canonical ordering differs from DTK
- * canonical ordering is specified by the element connectivity permutation
- * list. Each block of mesh described by these traits must contain a single
- * element topology and a permutation list for that topology.
- */
+  \class MeshTraits
+  \brief Mesh traits definitions.
+ 
+  In order to access DTK mesh services, a subset of the information needed to
+  describe the mesh is required. This subset consists of vertices and their
+  coordinates, elements and the vertices that construct them, and the
+  communicator over which they are defined. The vertices that construct an
+  element have both a canonical ordering consistent across all elements of
+  that topology in a mesh and a permutation list that describes how this
+  ordering varies from DTK canonical ordering. 
+
+  Vertices are the lowest level geometric component of the mesh. All vertices
+  have a globally unique ordinal serving as an identification number for the
+  vertex in global operations. A vertex can have 1, 2, or 3 dimensions but all
+  vertices in a mesh must have the same dimension. To specify its geometric
+  position, each vertex has Cartesian (x,y,z) coordinates. A vertex must
+  provide only the coordinates for the specified vertex dimension, no more or
+  no less (e.g. a 2 dimensional vertex must provide x and y coordinates but
+  not a z coordinate). A vertex may be repeated any number of times across the
+  parallel domain with unlimited local and global instances. However, every
+  vertex with the same globally unique ordinal must have the same
+  coordinates. We make a distinction here between vertices and nodes. In the
+  context of DTK, a vertex is purely a geometric object. It describes the
+  spatial positioning and geometric bounds of an element. A node is purely a
+  mathematical object. It descrbibes the descretization associated with a
+  particular element described within the natural coordinate system of that
+  element. It is possible that in the physical coordinate frame that a node
+  and vertex may occupy the same geometric location, however DTK does not
+  consider nodes in its formulation.
+
+  Elements are the second level of abstraction in the mesh description above
+  vertices. All elements have a globally unique ordinal serving as an
+  identification number for the element in global operations. This globally
+  unique ordinal can be the same as a globally unique ordinal for a vertex in
+  the mesh as DTK distinguishes between vertices and elements. An element has
+  a topology defining its physical structure (e.g. tetrahedron, hexahedron,
+  etc.) and a number of vertices needed to generate that topology. Elements
+  are constructed from vertices via a connectivity list. The connectivity list
+  for a particular element will contain the unique vertex global ordinals that
+  construct its linear form. An element may be repeated any number of times
+  across the parallel domain (i.e. it may have unlimited local instances),
+  however, every globally unique ordinal must have the same connectivity list
+  associated with it. For consistency, DTK uses the MoaB Canonical Numbering
+  (MBCN) scheme as a canonical ordering scheme. Each element in a client mesh
+  can be described with a connectivity list using any canonical scheme of
+  choice, however, the relationship between this canonical numbering scheme
+  and the DTK canonical numbering scheme must be made available. Each element
+  topology is therefore also described by a permutation list. A permutation
+  list specifies the variation in ordering between the DTK canonical numbering
+  scheme and the client canonical numbering scheme. A permutation list must be
+  described globally, regardless of whether or not elements exist on a
+  particular process. See DTK_ElementTopology for canonical element topologies
+  as defined by DTK. Mesh elements may not intersect any other elements in a
+  single mesh description. An element may intersect other elements if those
+  elements exist in another mesh (this is in fact a common situation in data
+  transfer).
+
+  MeshTraits correlate to the basic concept of a single topology mesh block
+  within DTK. They have the following properties:
+
+  Mesh vertices have D dimensions and may not exceed three dimensions \f$
+  \Big\{ d_0, ..., d_D \Big\} \f$. Vertices are identified by a unique global
+  ordinal. If there are N vertices in the mesh then their ordinals are given
+  as \f$ \Big\{ n_0, n_1, n_2, ..., n_N \Big\} \f$. Vertex coordinates are
+  blocked by dimension such that if there are N vertices in the mesh block
+  then they are stored as \f$ \Big\{ x^0_0, x^1_0, x^2_0, ..., x^N_0, ...,
+  x^0_D, x^1_D, x^2_D, ... x^N_D \Big\} \f$. The ordering of the vertices is
+  implicilty bound to the global ordinals such that the coordinates for a
+  vertex with ordinal \f$ n_N \f$ are \f$ \Big\{ x^N_0, x^N_1, x^N_2 \Big\}
+  \f$.
+
+  Mesh elements have a topology defined by a DTK_ElementTopology enumeration
+  with a specified number of vertices, P, needed to construct the
+  topology. Elements are identified by a unique global ordinal. If there are M
+  elements in the mesh then their ordinals are given as \f$ \Big\{ m_0, m_1,
+  m_2, ..., m_M \Big\} \f$. The connecting vertices for the elements in the
+  mesh are defined using the vertex global ordinals such that an element, m,
+  can be described with a list \f$ \Big\{ n^0_m, n^1_m, ..., n^P_m \Big\}
+  \f$. The connectivity information is accessed by blocks in the same manner
+  as coordinates such that \f$ \Big\{ n^0_0, n^0_1, n^0_2, ..., n^0_M, n^1_0,
+  n^1_1, n^1_2, ..., n^1_M, ..., n^P_0, n^P_1, ..., n^P_M \Big\} \f$. Finally,
+  a permutation list defines the difference in ordering between a client
+  element topology connectivity ordering and DTK canonical ordering. This
+  list, defined as \f$ \Big\{ p^0, p^1, ..., p^P \Big\}\f$, must be defined
+  for every instance of the mesh, regardless of whether or not the mesh
+  contains any data. Here, the entry \f$ p^P \f$ gives which canonical vertex
+  index in the client connectivity list cooresponds to the \f$ P^{th} \f$
+  vertex in the DTK canonical vertex list for that topology.
+*/
 //---------------------------------------------------------------------------//
 template<typename MeshType>
 class MeshTraits
@@ -92,13 +165,14 @@ class MeshTraits
     //! Teuchos::OrdinalTraits.
     typedef typename MeshType::global_ordinal_type global_ordinal_type;
 
-    //! Typedef for random access const iterator to vertex global_ordinal values.
+    //! Typedef for random access const iterator to vertex global_ordinal
+    //! values.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
     const_vertex_iterator;
 
-    //! Typedef for random access const iterator to coordinate values. This
-    //! is enforcing a coordinate type of double.
+    //! Typedef for random access const iterator to coordinate
+    //! values. Coordinates are required to be of type double.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const double>  
     const_coordinate_iterator;

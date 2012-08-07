@@ -54,14 +54,14 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get a const view of the of the mesh vertices. The ArrayRCP object
- * will not manage the memory.
+ * \brief Get a const view of the of the mesh vertex global ordinals. The
+ * ArrayRCP object will not manage the memory.
  *
  * \param mesh The mesh to get the view for. This object must have mesh
  * traits. 
  *
- * \return A const view of the mesh vertices. This view will not manage the
- * memory.
+ * \return A const view of the mesh vertex global ordinals. This view will not
+ * manage the memory.
  */
 template <class Mesh> 
 Teuchos::ArrayRCP<const typename MeshTools<Mesh>::GlobalOrdinal> 
@@ -83,14 +83,14 @@ MeshTools<Mesh>::verticesView( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get a non-const view of the of the mesh vertices. The ArrayRCP object
- * will not manage the memory.
+ * \brief Get a non-const view of the of the mesh vertex global ordinals. The
+ * ArrayRCP object will not manage the memory.
  *
  * \param mesh The mesh to get the view for. This object must have mesh
  * traits. 
  *
- * \return A non-const view of the mesh vertices. The view will not manage the
- * memory. 
+ * \return A non-const view of the mesh vertex global ordinals. The view will
+ * not manage the memory.
  */
 template <class Mesh> 
 Teuchos::ArrayRCP<typename MeshTools<Mesh>::GlobalOrdinal> 
@@ -113,14 +113,14 @@ MeshTools<Mesh>::verticesNonConstView( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get a view of the of the mesh coordinates. The ArrayRCP object will
- * not manage the memory.
+ * \brief Get a view of the of the mesh vertex coordinates. The ArrayRCP
+ * object will not manage the memory.
  *
  * \param mesh The mesh to get the view for. This object must have mesh
  * traits. 
  *
- * \return A const view of the mesh coordinates. The view will not manage the
- * memory.
+ * \return A const view of the mesh vertex coordinates. The view will not
+ * manage the memory.
  */
 template <class Mesh> 
 Teuchos::ArrayRCP<const double>
@@ -142,14 +142,14 @@ MeshTools<Mesh>::coordsView( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get a non-const view of the of the mesh coordinates. The ArrayRCP
- * object will not manage the memory.
+ * \brief Get a non-const view of the of the mesh vertex coordinates. The
+ * ArrayRCP object will not manage the memory.
  *
  * \param mesh The mesh to get the view for. This object must have mesh
  * traits. 
  *
- * \return A non-const view of the mesh coordinates. The view will not manage
- * the memory.
+ * \return A non-const view of the mesh vertex coordinates. The view will not
+ * manage the memory.
  */
 template <class Mesh> 
 Teuchos::ArrayRCP<double>
@@ -171,14 +171,14 @@ MeshTools<Mesh>::coordsNonConstView( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get a view of the of the mesh elements. The ArrayRCP object will not
- * manage the memory. 
+ * \brief Get a view of the of the mesh element global ordinals. The ArrayRCP
+ * object will not manage the memory.
  *
  * \param mesh The mesh to get the view for. This object must have mesh
  * traits. 
  *
- * \return A const view of the mesh elements. The view will not manage the
- * memory.
+ * \return A const view of the mesh element global ordinals. The view will not
+ * manage the memory.
  */
 template <class Mesh> 
 Teuchos::ArrayRCP<const typename MeshTools<Mesh>::GlobalOrdinal> 
@@ -199,14 +199,14 @@ MeshTools<Mesh>::elementsView( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get a non-const view of the of the mesh elements. The ArrayRCP
- * object will not manage the memory.
+ * \brief Get a non-const view of the of the mesh element global ordinals. The
+ * ArrayRCP object will not manage the memory.
  *
  * \param mesh The mesh to get the view for. This object must have mesh
  * traits. 
  *
- * \return A non-const view of the mesh elements. The view will not manage the
- * memory.
+ * \return A non-const view of the mesh element global ordinals. The view will
+ * not manage the memory.
  */
 template <class Mesh> 
 Teuchos::ArrayRCP<typename MeshTools<Mesh>::GlobalOrdinal> 
@@ -229,14 +229,14 @@ MeshTools<Mesh>::elementsNonConstView( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get a view of the of the mesh connectivity. The ArrayRCP object will
- * not manage the memory. 
+ * \brief Get a view of the of the mesh element connectivity. The ArrayRCP
+ * object will not manage the memory.
  *
  * \param mesh The mesh to get the view for. This object must have mesh
  * traits. 
  *
- * \return A const view of the mesh connectivity. The view will not manage the
- * memory.
+ * \return A const view of the mesh element connectivity. The view will not
+ * manage the memory.
  */
 template <class Mesh> 
 Teuchos::ArrayRCP<const typename MeshTools<Mesh>::GlobalOrdinal> 
@@ -259,14 +259,14 @@ MeshTools<Mesh>::connectivityView( const Mesh& mesh )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get a non-const view of the of the mesh connectivity. The ArrayRCP
- * object will not manage the memory.
+ * \brief Get a non-const view of the of the mesh element connectivity. The
+ * ArrayRCP object will not manage the memory.
  *
  * \param mesh The mesh to get the view for. This object must have mesh
  * traits. 
  *
- * \return A non-const view of the mesh connectivity. The view will not manage
- * the memory.
+ * \return A non-const view of the mesh element connectivity. The view will
+ * not manage the memory.
  */
 template <class Mesh> 
 Teuchos::ArrayRCP<typename MeshTools<Mesh>::GlobalOrdinal> 
