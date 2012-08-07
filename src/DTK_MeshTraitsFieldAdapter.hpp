@@ -50,12 +50,11 @@ namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 /*! 
- * \class FieldTraits<Mesh>
- * \brief FieldTraits adapter for mesh coordinates. 
- *
- * This allows the coordinate information stored in a block of mesh to be
- * accessed as a field with field traits. Other mesh information is not
- * available through this interface. The mesh object must have mesh traits.
+ * \brief FieldTraits adapter for mesh coordinates. This allows the coordinate
+ information stored in a block of mesh to be accessed as a field with field
+ traits. Other mesh information is not available through this interface. The
+ mesh object must have mesh traits.
+
  */
 //---------------------------------------------------------------------------//
 template<>

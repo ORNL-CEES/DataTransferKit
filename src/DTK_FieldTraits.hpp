@@ -63,10 +63,28 @@ struct UndefinedFieldTraits
 /*!
  * \class FieldTraits
  * \brief Field traits definitions.
- * 
- * These traits correlate to the basic concept of a field within DTK. A field
- * can contain anything in an array, but it must store its objects in
- * contiguous memory that is blocked by dimension. 
+  
+ These traits correlate to the basic concept of a field within DTK. A field
+ can contain anything in an array, but it must store its objects in contiguous
+ memory that is blocked by dimension and accessible by random access
+ iterators.
+
+ In the most general sense, a field refers to the degrees of freedom computed
+ by a physics code or the responses derived from those degrees of freedom that
+ have been discretized across the domain. The field is implicitly bound to the
+ geometric domain through the degrees of freedom and their association with a
+ mesh or other geometric components. In a physics simulation, examples of
+ degrees of freedom include pressure and velocity distributions and examples
+ of computed reponses include heat flux or reaction rates. In order to access
+ DTK field services, a subset of information needed to describe the field is
+ required. A field has a dimension of arbitrary size. As examples, for scalar
+ fields this dimension is 1, for 3-vectors (such as the velocity example above
+ in a 3 dimensional computation) the dimension is 3, and for a 3x3 tensor the
+ dimension is 9.  All local instances of the field must have the same
+ dimension. A field can have an arbitrary number of local degrees of freedom
+ and this size can differ from local domain to local domain. No knowledge of
+ the global field decomposition is required, however, it must exist on a
+ single communicator.
  */
 //---------------------------------------------------------------------------//
 template<typename FieldType>
@@ -117,8 +135,8 @@ class FieldTraits
     //@{
     /*! 
      * \brief Returns the iterator to the beginning of the field. The data is
-     * required to be blocked by dimensions ( d0, d1, d2, ... , dM ) as
-     * ( d0_0, d0_1, ... , d0_N, d1_0, d1_1, ... , d1_N, ... , dM_N )
+     * required to be blocked by dimensions { d0, d1, d2, ... , dM } as
+     * { d0_0, d0_1, ... , d0_N, d1_0, d1_1, ... , d1_N, ... , dM_N }
      */
     static inline iterator begin( FieldType& field )
     { return UndefinedFieldTraits<FieldType>::notDefined(); }
@@ -130,8 +148,8 @@ class FieldTraits
     //@{
     /*! 
      * \brief Returns the iterator to the end of the field. The data is
-     * required to be blocked by dimensions ( d0, d1, d2, ... , dM ) as
-     * ( d0_0, d0_1, ... , d0_N, d1_0, d1_1, ... , d1_N, ... , dM_N )
+     * required to be blocked by dimensions { d0, d1, d2, ... , dM } as
+     * { d0_0, d0_1, ... , d0_N, d1_0, d1_1, ... , d1_N, ... , dM_N }
      */
     static inline iterator end( FieldType& field )
     { return UndefinedFieldTraits<FieldType>::notDefined(); }
