@@ -42,6 +42,8 @@
 #define DTK_FIELDMANAGER_DEF
 
 #include "DTK_Assertion.hpp"
+#include "DTK_FieldTools.hpp"
+#include "DataTransferKit_config.hpp"
 
 namespace DataTransferKit
 {
@@ -60,7 +62,13 @@ template<class Field>
 FieldManager<Field>::FieldManager( const Field& field, const RCP_Comm& comm )
     : d_field( field )
     , d_comm( comm )
-{ /* ... */ }
+{
+    // If we're checking with Design-by-Contract, validate the field to the
+    // domain model.
+#if HAVE_DTK_DBC
+    validate();
+#endif
+}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -69,6 +77,36 @@ FieldManager<Field>::FieldManager( const Field& field, const RCP_Comm& comm )
 template<class Field>
 FieldManager<Field>::~FieldManager()
 { /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Validate the field to the domain model.
+ */
+template<class Field>
+void FieldManager<Field>::validate()
+{
+    // Check that the field dimension is the same on every node.
+    Teuchos::Array<int> local_dims( d_comm->getSize(), 0 );
+    local_dims[ d_comm->getRank() ] = FT::dim( d_field );
+    Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
+				 local_dims.size(),
+				 &local_dims[0], &local_dims[0] ); 
+    Teuchos::Array<int>::iterator unique_bound;
+    unique_bound = std::unique( local_dims.begin(), local_dims.end() );
+    int unique_dim = std::distance( local_dims.begin(), unique_bound );
+    testPrecondition( 1 == unique_dim );
+    local_dims.clear();
+
+    // Check that the data dimension is the same as the field dimension.
+    typename FT::size_type num_data = std::distance( FT::begin( d_field ), 
+						     FT::end( d_field ) );
+    testPrecondition( num_data == FT::size( d_field ) );
+    if ( !FT::empty( d_field ) )
+    {
+	testPrecondition( num_data / FieldTools<Field>::dimSize( d_field ) 
+			  == FT::dim( d_field ) );
+    }
+}
 
 //---------------------------------------------------------------------------//
 

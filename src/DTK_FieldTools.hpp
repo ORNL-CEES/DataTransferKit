@@ -88,7 +88,7 @@ class FieldTools
     { /* ... */ }
 
     //@{
-    //! Dimension iterators.
+    // Dimension iterators.
     // Get the local size of the dimensions.
     static size_type dimSize( const Field& field );
 
@@ -107,7 +107,7 @@ class FieldTools
 
 
     //@{
-    //! View methods.
+    // View methods.
     // Get a const view of the field. The ArrayRCP object will not manage the
     // memory. 
     static Teuchos::ArrayRCP<const value_type> view( const Field& field );
@@ -119,7 +119,7 @@ class FieldTools
 
 
     //@{
-    //! General global mathematical operations.
+    // General global mathematical operations.
     // Fill a field with a scalar.
     static void putScalar( Field& field, const value_type& scalar );
 
@@ -162,7 +162,7 @@ class FieldTools
 
 
     //@{
-    //! Coordinate field operations.
+    // Coordinate field operations.
     // Get the local bounding box for a field of coordinates.
     static BoundingBox coordLocalBoundingBox( const Field& field );
 

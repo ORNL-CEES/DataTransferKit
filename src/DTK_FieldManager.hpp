@@ -95,6 +95,11 @@ class FieldManager
 
   private:
 
+    // Validate the field to the domain model.
+    void validate();
+
+  private:
+
     // Field.
     Field d_field;
     
