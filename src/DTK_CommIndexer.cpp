@@ -95,9 +95,9 @@ CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
 				 &global_ids[0]);
 
     Teuchos::Array<int>::const_iterator in_local_it = in_local.begin();
-    typename Teuchos::Array<int>::const_iterator local_it = 
+    Teuchos::Array<int>::const_iterator local_it = 
 	local_ids.begin();
-    typename Teuchos::Array<int>::const_iterator global_it;
+    Teuchos::Array<int>::const_iterator global_it;
     for ( global_it = global_ids.begin(); global_it != global_ids.end();
     	  ++in_local_it, ++local_it, ++global_it )
     {
@@ -130,7 +130,7 @@ CommIndexer::~CommIndexer()
 const int CommIndexer::l2g( const int local_id ) const
 {
     int global_id = -1;
-    typename IndexMap::const_iterator l2g_pair = d_l2gmap.find( local_id );
+    IndexMap::const_iterator l2g_pair = d_l2gmap.find( local_id );
     if ( l2g_pair != d_l2gmap.end() )
     {
 	global_id = l2g_pair->second;
