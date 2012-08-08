@@ -41,6 +41,8 @@
 #ifndef DTK_MESHMANAGER_DEF_HPP
 #define DTK_MESHMANAGER_DEF_HPP
 
+#include <algorithm>
+
 #include "DTK_MeshTypes.hpp"
 #include "DTK_MeshTools.hpp"
 #include "DTK_Assertion.hpp"
@@ -49,6 +51,8 @@
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_Ptr.hpp>
+#include <Teuchos_Array.hpp>
 
 namespace DataTransferKit
 {
@@ -203,18 +207,54 @@ BoundingBox MeshManager<Mesh>::globalBoundingBox()
 template<class Mesh>
 void MeshManager<Mesh>::validate()
 {
+    // Check that the mesh is of a valid dimension.
+    testPrecondition( 0 <= d_dim && d_dim <= 3 );
+
+    // Check that the mesh dimension is the same on every node.
+    Teuchos::Array<int> local_dims( d_comm->getSize(), 0 );
+    local_dims[ d_comm->getRank() ] = d_dim;
+    Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
+				 local_dims.size(),
+				 &local_dims[0], &local_dims[0] ); 
+    Teuchos::Array<int>::iterator unique_bound;
+    unique_bound = std::unique( local_dims.begin(), local_dims.end() );
+    int unique_dim = std::distance( local_dims.begin(), unique_bound );
+    testPrecondition( 1 == unique_dim );
+    local_dims.clear();
+
+    // Check that the same number of blocks have been defined on every node.
+    Teuchos::Array<int> local_blocks( d_comm->getSize(), 0 );
+    local_blocks[ d_comm->getRank() ] = getNumBlocks();
+    Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
+				 local_blocks.size(),
+				 &local_blocks[0], &local_blocks[0] ); 
+    unique_bound = std::unique( local_blocks.begin(), local_blocks.end() );
+    int unique_blocks = std::distance( local_blocks.begin(), unique_bound );
+    testPrecondition( 1 == unique_blocks );
+    local_blocks.clear();
+
+    // Check the mesh blocks.
     BlockIterator block_iterator;
     for ( block_iterator = d_mesh_blocks.begin();
 	  block_iterator != d_mesh_blocks.end();
 	  ++block_iterator )
     {
-	// Vertices.
-	testPrecondition( 0 <= d_dim && d_dim <= 3 );
+	// Check that the block vertices are the same dimension as the mesh.
 	testPrecondition( d_dim == MT::vertexDim( *block_iterator ) );
 
-	// Coordinates.
-
-	// Element topology.
+	// Check that the coordinate dimension is the same as the mesh
+	// dimension.
+	GlobalOrdinal num_vertices = 
+	    MeshTools<Mesh>::numVertices( *block_iterator );
+	GlobalOrdinal num_coords = std::distance( 
+	    MT::coordsBegin( *block_iterator ), 
+	    MT::coordsEnd( *block_iterator ) );
+	if ( num_vertices > 0 )
+	{
+	    testPrecondition( num_coords / num_vertices == d_dim );
+	}
+	
+	// Check that the element topology is valid for the given dimension.
 	if ( d_dim == 0 )
 	{
 	    testPrecondition( MT::elementTopology( *block_iterator ) 
@@ -244,9 +284,64 @@ void MeshManager<Mesh>::validate()
 			      DTK_WEDGE );
 	}
 
-	// Connectivity.
+	// Check that this block has the same topology on all nodes.
+	Teuchos::Array<int> local_topo( d_comm->getSize(), 0 );
+	local_topo[ d_comm->getRank() ] = 
+	    (int) MT::elementTopology( *block_iterator );
+	Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
+				     local_topo.size(),
+				     &local_topo[0], &local_topo[0] ); 
+	unique_bound = std::unique( local_topo.begin(), local_topo.end() );
+	int unique_topo = std::distance( local_topo.begin(), unique_bound );
+	testPrecondition( 1 == unique_topo );
+	local_topo.clear();
+	
+	// Check that the connectivity size is the same as the number of
+	// vertices per element.
+	GlobalOrdinal num_elements =
+	    MeshTools<Mesh>::numElements( *block_iterator );
+	GlobalOrdinal num_conn = std::distance( 
+	    MT::connectivityBegin( *block_iterator ),
+	    MT::connectivityEnd( *block_iterator ) );
+	if ( num_elements > 0 )
+	{
+	    testPrecondition( num_conn / num_elements ==
+			      MT::verticesPerElement( *block_iterator ) );
+	}
 
-	// Permutation.
+	// Check that the size of the permutation vector is the same as the
+	// number of vertices per element.
+	GlobalOrdinal num_permutation = std::distance(
+	    MT::permutationBegin( *block_iterator ),
+	    MT::permutationEnd( *block_iterator ) );
+	testPrecondition( MT::verticesPerElement( *block_iterator ) ==
+			  num_permutation );
+
+	// Check that the permutation vector contains unique values.
+	Teuchos::Array<int> permutation( num_permutation );
+	std::copy( MT::permutationBegin( *block_iterator ),
+		   MT::permutationEnd( *block_iterator ), permutation.begin() );
+	Teuchos::Array<int>::iterator permutation_bound;
+	permutation_bound = std::unique( permutation.begin(),
+					 permutation.end() );
+	int unique_permutation = std::distance( permutation.begin(),
+						permutation_bound );
+	testPrecondition( MT::verticesPerElement( *block_iterator ) ==
+			  unique_permutation );
+
+	// Check that the permutation vector contains value less than its
+	// size. This implies that we shouldn't get more vertices in the
+	// connectivity list than are needed to build the linear element.
+	typename MT::const_permutation_iterator permutation_it;
+	for ( permutation_it = MT::permutationBegin( *block_iterator );
+	      permutation_it != MT::permutationEnd( *block_iterator );
+	      ++permutation_it )
+	{
+	    testPrecondition( *permutation_it < 
+			      MT::verticesPerElement( *block_iterator ) );
+	}
+
+	d_comm->barrier();
     }
 }
 

@@ -66,14 +66,14 @@ namespace DataTransferKit
  *
  * \param comm The communicator over which the map is generated.
  *
- * \param keep_missed_points Set to true if it is desired to keep track of the
- * local target points missed during map generation.
+ * \param store_missed_points Set to true if it is desired to keep track of
+ * the local target points missed during map generation.
  */
 template<class Mesh, class CoordinateField>
 SharedDomainMap<Mesh,CoordinateField>::SharedDomainMap( 
-    const RCP_Comm& comm, bool keep_missed_points )
+    const RCP_Comm& comm, bool store_missed_points )
     : d_comm( comm )
-    , d_keep_missed_points( keep_missed_points )
+    , d_store_missed_points( store_missed_points )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -238,7 +238,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
 	    not_in_mesh.push_back( target_index );
 
-	    if ( d_keep_missed_points )
+	    if ( d_store_missed_points )
 	    {
 		missed_in_mesh_idx.push_back( target_index );
 		missed_in_mesh_ordinal.push_back( 
@@ -249,7 +249,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // If we're keeping track of missed points, send their global ordinals
     // back to the target decomposition so that we can add them to the list.
-    if ( d_keep_missed_points )
+    if ( d_store_missed_points )
     {
 	// Extract the missed point target procs from the target-to-rendezvous
 	// distributor.
@@ -384,9 +384,9 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 /*!
  * \brief Get the points missed in the map generation.
  *
- * \return If keep_missed_points is true, return the local indices of the
+ * \return If store_missed_points is true, return the local indices of the
  *  points provided by target_coord_manager that were not mapped. An exception
- *  will be thrown if keep_missed_points is false. Returns a null view if all
+ *  will be thrown if store_missed_points is false. Returns a null view if all
  *  points have been mapped or the map has not yet been generated.
 */
 template<class Mesh, class CoordinateField>
@@ -394,7 +394,7 @@ Teuchos::ArrayView<const typename
 		   SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal> 
 SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
 {
-    testPrecondition( d_keep_missed_points );
+    testPrecondition( d_store_missed_points );
     
     return d_missed_points();
 }
@@ -403,9 +403,9 @@ SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
 /*!
  * \brief Get the points missed in the map generation.
  *
- * \return If keep_missed_points is true, return the local indices of the
+ * \return If store_missed_points is true, return the local indices of the
  *  points provided by target_coord_manager that were not mapped. An exception
- *  will be thrown if keep_missed_points is false. Returns a null view if all
+ *  will be thrown if store_missed_points is false. Returns a null view if all
  *  points have been mapped or the map has not yet been generated.
 */
 template<class Mesh, class CoordinateField>
@@ -413,7 +413,7 @@ Teuchos::ArrayView<typename
 		   SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal> 
 SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints()
 {
-    testPrecondition( d_keep_missed_points );
+    testPrecondition( d_store_missed_points );
     
     return d_missed_points();
 }
@@ -522,7 +522,7 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
 
 	// If we're keeping track of missed points, we also need to build the
 	// global-to-local ordinal map.
-	if ( d_keep_missed_points )
+	if ( d_store_missed_points )
 	{
 	    d_target_g2l[ target_ordinals[n] ] = n;
 	}
@@ -576,7 +576,7 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
 
 	// If we're keeping track of the points not being mapped, add this
 	// point's local index to the list if its not in the box.
-	if ( d_keep_missed_points && targets_in_box[n] == -1 )
+	if ( d_store_missed_points && targets_in_box[n] == -1 )
 	{
 	    d_missed_points.push_back(n);
 	}

@@ -832,7 +832,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_mesh_test )
 	createRendezvousMesh( mesh_manager );
 
     // Get the moab interface.
-    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
+    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = 
+	mesh->getMoab();
     
     // Grab the elements.
     moab::Range mesh_elements;

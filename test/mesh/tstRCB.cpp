@@ -74,7 +74,12 @@ DataTransferKit::MeshContainer<int> build1dContainer()
     // Empty element vectors. We only need vertices for these tests.
     Teuchos::ArrayRCP<int> element_handles;
     Teuchos::ArrayRCP<int> element_connectivity;
-    Teuchos::ArrayRCP<int> permutation_list;
+
+    Teuchos::ArrayRCP<int> permutation_list(2);
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i; 
+    }
 
     return MeshContainer<int>( vertex_dim, vertex_handles, coords, 
 			       DTK_LINE_SEGMENT, 2,
@@ -106,7 +111,11 @@ DataTransferKit::MeshContainer<int> build2dContainer()
     // Empty element vectors. We only need vertices for these tests.
     Teuchos::ArrayRCP<int> element_handles;
     Teuchos::ArrayRCP<int> element_connectivity;
-    Teuchos::ArrayRCP<int> permutation_list;
+    Teuchos::ArrayRCP<int> permutation_list(3);
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i; 
+    }
 
     return MeshContainer<int>( vertex_dim, vertex_handles, coords, 
 			       DTK_TRIANGLE, 3,
@@ -139,7 +148,11 @@ DataTransferKit::MeshContainer<int> build3dContainer()
     // Empty element vectors. We only need vertices for these tests.
     Teuchos::ArrayRCP<int> element_handles;
     Teuchos::ArrayRCP<int> element_connectivity;
-    Teuchos::ArrayRCP<int> permutation_list;
+    Teuchos::ArrayRCP<int> permutation_list(8);
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i; 
+    }
 
     return MeshContainer<int>( vertex_dim, vertex_handles, coords, 
 			       DTK_HEXAHEDRON, 8,

@@ -124,31 +124,47 @@ struct UndefinedMeshTraits
   Mesh vertices have D dimensions and may not exceed three dimensions \f$
   \Big\{ d_0, ..., d_D \Big\} \f$. Vertices are identified by a unique global
   ordinal. If there are N vertices in the mesh then their ordinals are given
-  as \f$ \Big\{ n_0, n_1, n_2, ..., n_N \Big\} \f$. Vertex coordinates are
+  as \f$ \Big\{ n^0, n^1, n^2, ..., n^N \Big\} \f$. Vertex coordinates are
   blocked by dimension such that if there are N vertices in the mesh block
-  then they are stored as \f$ \Big\{ x^0_0, x^1_0, x^2_0, ..., x^N_0, ...,
-  x^0_D, x^1_D, x^2_D, ... x^N_D \Big\} \f$. The ordering of the vertices is
-  implicilty bound to the global ordinals such that the coordinates for a
-  vertex with ordinal \f$ n_N \f$ are \f$ \Big\{ x^N_0, x^N_1, x^N_2 \Big\}
-  \f$.
+  then they are stored as: 
+
+  \f[ 
+  \Big\{ x^0_0, x^1_0, x^2_0, ..., x^N_0, x^0_1, x^1_1, x^2_1, ... x^N_1,
+  x^0_2, x^1_2, x^2_2, ... x^N_2 \Big\}
+  \f]
+
+  with the superscript denoting which vertex the coordinate corresponds to and
+  the subscript denoting which dimension the coordinate is for.  The ordering
+  of the vertices is implicilty bound to the global ordinals such that the
+  coordinates for a vertex with ordinal \f$ n_N \f$ are \f$ \Big\{ x^N_0,
+  x^N_1, x^N_2 \Big\} \f$.
 
   Mesh elements have a topology defined by a DTK_ElementTopology enumeration
   with a specified number of vertices, P, needed to construct the
   topology. Elements are identified by a unique global ordinal. If there are M
-  elements in the mesh then their ordinals are given as \f$ \Big\{ m_0, m_1,
-  m_2, ..., m_M \Big\} \f$. The connecting vertices for the elements in the
+  elements in the mesh then their ordinals are given as \f$ \Big\{ m^0, m^1,
+  m^2, ..., m^M \Big\} \f$. The connecting vertices for the elements in the
   mesh are defined using the vertex global ordinals such that an element, m,
-  can be described with a list \f$ \Big\{ n^0_m, n^1_m, ..., n^P_m \Big\}
+  can be described with a list \f$ \Big\{ n_0^m, n_1^m, ..., n_P^m \Big\}
   \f$. The connectivity information is accessed by blocks in the same manner
-  as coordinates such that \f$ \Big\{ n^0_0, n^0_1, n^0_2, ..., n^0_M, n^1_0,
-  n^1_1, n^1_2, ..., n^1_M, ..., n^P_0, n^P_1, ..., n^P_M \Big\} \f$. Finally,
-  a permutation list defines the difference in ordering between a client
-  element topology connectivity ordering and DTK canonical ordering. This
-  list, defined as \f$ \Big\{ p^0, p^1, ..., p^P \Big\}\f$, must be defined
-  for every instance of the mesh, regardless of whether or not the mesh
-  contains any data. Here, the entry \f$ p^P \f$ gives which canonical vertex
-  index in the client connectivity list cooresponds to the \f$ P^{th} \f$
-  vertex in the DTK canonical vertex list for that topology.
+  as coordinates such that: 
+
+  \f[ 
+  \Big\{ n_0^0, n_0^1, n_0^2, ..., n_0^M, n_1^0, n_1^1, n_1^2, ..., n_1^M,
+  ..., n_P^0, n_P^1, ..., n_P^M \Big\} 
+  \f]
+ 
+  describes the connectivity of a mesh block with the superscript
+  cooresponding to which element the vertex ordinal constructs and the
+  superscript corresponding to the canonical vertex index for the given
+  element topology.  Finally, a permutation list defines the difference in
+  ordering between a client element topology connectivity ordering and DTK
+  canonical ordering. This list, defined as \f$ \Big\{ p_0, p_1, ..., p_P
+  \Big\}\f$, must be defined for every instance of the mesh, regardless of
+  whether or not the mesh contains any data. Here, the entry \f$ p_P \f$ gives
+  which canonical vertex index in the client connectivity list cooresponds to
+  the \f$ P^{th} \f$ vertex in the DTK canonical vertex list for that
+  topology.
 */
 //---------------------------------------------------------------------------//
 template<typename MeshType>
@@ -157,28 +173,27 @@ class MeshTraits
   public:
 
     //@{
-    // Typedefs.
     //! Typedef for mesh type.
     typedef MeshType mesh_type;
 
     //! Typedef for global ordinal type. This type must implement
-    // Teuchos::OrdinalTraits.
+    //  Teuchos::OrdinalTraits.
     typedef typename MeshType::global_ordinal_type global_ordinal_type;
 
     //! Typedef for random access const iterator to vertex global ordinal
-    // values.
+    //  values.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
     const_vertex_iterator;
 
     //! Typedef for random access const iterator to coordinate
-    // values. Coordinates are required to be of type double.
+    //  values. Coordinates are required to be of type double.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const double>  
     const_coordinate_iterator;
 
     //! Typedef for random access const iterator to element global ordinal
-    // values.
+    //  values.
     typedef typename 
     std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
     const_element_iterator;
