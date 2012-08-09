@@ -1,10 +1,16 @@
+//---------------------------------------------------------------------------//
+/*!
+ * \file Damper.cpp
+ * \author Stuart R. Slattery
+ * \brief Damper code definition.
+ */
+//---------------------------------------------------------------------------//
+
 #include "Damper.hpp"
 
 //---------------------------------------------------------------------------//
 Damper::Damper(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
-	       double x_min,
-	       double x_max,
-	       int num_x)
+	       double x_min, double x_max, int num_x)
     : comm(_comm)
 {
     // Create the grid.
@@ -23,7 +29,7 @@ Damper::Damper(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
 
     // Set initial conditions.
     damping.resize(num_x);
-    wave_data.resize(num_x);
+    data.resize(num_x);
 }
 
 //---------------------------------------------------------------------------//
@@ -35,14 +41,18 @@ Damper::~Damper()
 void Damper::solve()
 {
     std::vector<double>::iterator damping_iterator;
-    std::vector<double>::const_iterator wave_data_iterator;
+    std::vector<double>::const_iterator data_iterator;
     for (damping_iterator = damping.begin(),
-       wave_data_iterator = wave_data.begin();
+	    data_iterator = data.begin();
 	 damping_iterator != damping.end();
-	 ++damping_iterator, ++wave_data_iterator)
+	 ++damping_iterator, ++data_iterator)
     {
-	*damping_iterator = *wave_data_iterator / 2;
+	*damping_iterator = *data_iterator / 2;
     }
 }
 
 //---------------------------------------------------------------------------//
+// end Damper.cpp
+//---------------------------------------------------------------------------//
+
+

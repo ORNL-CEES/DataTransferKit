@@ -1,3 +1,11 @@
+//---------------------------------------------------------------------------//
+/*!
+ * \file Wave.cpp
+ * \author Stuart R. Slattery
+ * \brief Wave code definition.
+ */
+//---------------------------------------------------------------------------//
+
 #include "Wave.hpp"
 
 #include <algorithm>
@@ -5,9 +13,7 @@
 
 //---------------------------------------------------------------------------//
 Wave::Wave(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
-	   double x_min,
-	   double x_max,
-	   int num_x)
+	   double x_min, double x_max, int num_x)
     : comm(_comm)
 {
     // Create the grid.
@@ -27,13 +33,13 @@ Wave::Wave(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
     // Set initial conditions.
     damping.resize(num_x);
     std::fill(damping.begin(), damping.end(), 0.0);
-    f.resize(num_x);
+    data.resize(num_x);
     std::vector<double>::iterator f_iterator;
-    for (f_iterator = f.begin(), grid_iterator = grid.begin();
-	 f_iterator != f.end();
-	 ++f_iterator, ++grid_iterator)
+    for (data_iterator = data.begin(), grid_iterator = grid.begin();
+	 data_iterator != data.end();
+	 ++data_iterator, ++grid_iterator)
     {
-	*f_iterator = cos( *grid_iterator );
+	*data_iterator = cos( *grid_iterator );
     }
 }
 
@@ -42,24 +48,21 @@ Wave::~Wave()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-double Wave::solve()
+void Wave::solve()
 {
     // Apply the dampened component.
-    double l2_norm_residual = 0.0;
-    double f_old = 0.0;
-    std::vector<double>::iterator f_iterator;
+    std::vector<double>::iterator data_iterator;
     std::vector<double>::const_iterator damping_iterator;
-    for (f_iterator = f.begin(), damping_iterator = damping.begin();
-	 f_iterator != f.end();
-	 ++f_iterator, ++damping_iterator)
+    for (data_iterator = data.begin(), damping_iterator = damping.begin();
+	 data_iterator != data.end();
+	 ++data_iterator, ++damping_iterator)
     {
-	f_old = *f_iterator;
-	*f_iterator -= *damping_iterator;
-	l2_norm_residual += (*f_iterator - f_old)*(*f_iterator - f_old);
+	data_old = *data_iterator;
+	*data_iterator -= *damping_iterator;
     }
-    
-    // Return the l2 norm of the local residual.
-    return pow(l2_norm_residual, 0.5);
 }
 
 //---------------------------------------------------------------------------//
+// end Wave.cpp
+//---------------------------------------------------------------------------//
+

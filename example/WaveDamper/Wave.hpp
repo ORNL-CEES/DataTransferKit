@@ -1,10 +1,18 @@
-#ifndef simple_example_wave_hpp
-#define simple_example_wave_hpp
+//---------------------------------------------------------------------------//
+/*!
+ * \file Wave.hpp
+ * \author Stuart R. Slattery
+ * \brief Wave code declaration.
+ */
+//---------------------------------------------------------------------------//
+
+#ifndef DTK_EXAMPLE_WAVE_HPP
+#define DTK_EXAMPLE_WAVE_HPP
 
 #include <vector>
 
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Comm.hpp"
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
 
 //---------------------------------------------------------------------------//
 
@@ -14,15 +22,13 @@ class Wave
     
     Teuchos::RCP<const Teuchos::Comm<int> > comm;
     std::vector<double> grid;
-    std::vector<double> f;
+    std::vector<double> data;
     std::vector<double> damping;
 
   public:
 
-    Wave(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
-	 double x_min,
-	 double x_max,
-	 int num_x);
+    Wave( Teuchos::RCP<const Teuchos::Comm<int> > _comm,
+	  double x_min, double x_max, int num_x);
 
     ~Wave();
 
@@ -39,24 +45,28 @@ class Wave
     }
 
     // Get a reference to the local data.
-    std::vector<double>& get_f()
+    const std::vector<double>& get_data()
     {
-	return f;
+	return data;
     }
 
-    // Apply the damping to the local data structures from an external
-    // source. 
-    std::vector<double>& set_damping()
+    // Get a reference to the local data space storing the damping
+    // coefficients.
+    std::vector<double>& get_damping()
     {
 	return damping;
     }
 
-    // Solve the local problem and return the l2 norm of the local residual.
-    double solve();
+    // Solve the local problem.
+    void solve();
 };
 
 //---------------------------------------------------------------------------//
 
-#endif // simple_example_wave_hpp
+#endif // DTK_EXAMPLE_WAVE_HPP
 
 //---------------------------------------------------------------------------//
+// end Wave.hpp
+//---------------------------------------------------------------------------//
+
+
