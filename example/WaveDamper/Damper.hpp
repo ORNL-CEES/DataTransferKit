@@ -33,28 +33,20 @@ class Damper
     ~Damper();
 
     // Get the communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > get_comm()
-    {
-	return comm;
-    }
+    Teuchos::RCP<const Teuchos::Comm<int> > get_comm() const
+    { return comm; }
 
     // Get a reference to the local damping data.
-    const std::vector<double>& get_damping()
-    {
-	return damping;
-    }
+    const std::vector<double>& get_damping() const
+    { return damping; }
 
     // Get a reference to the local grid.
-    const std::vector<double>& get_grid()
-    {
-	return grid;
-    }
+    const std::vector<double>& get_grid() const
+    { return grid; }
 
     // Get a reference to the memory space for external data to be applied to.
     std::vector<double>& get_external_data()
-    {
-	return wave_data;
-    }
+    { return data; }
 
     // Apply damping to the local problem.
     void solve();

@@ -44,25 +44,28 @@
 #include "DTK_FieldTraits.hpp"
 #include "DTK_MeshTraits.hpp"
 #include "DTK_MeshTools.hpp"
+#include "DTK_MeshContainer.hpp"
 
 namespace DataTransferKit
 {
 
 //---------------------------------------------------------------------------//
 /*! 
- * \brief FieldTraits adapter for mesh coordinates. This allows the coordinate
- information stored in a block of mesh to be accessed as a field with field
- traits. Other mesh information is not available through this interface. The
- mesh object must have mesh traits.
+ * \brief FieldTraits adapter for mesh coordinates in MeshContainers.
+
+ This allows the coordinate information stored in a block of mesh to be
+ accessed as a field with field traits. Other mesh information is not
+ available through this interface. The mesh object must have mesh traits.
 
  */
 //---------------------------------------------------------------------------//
 template<>
-template<class MeshType>
-class FieldTraits< MeshTraits<MeshType> >
+template<class GlobalOrdinal>
+class FieldTraits< MeshContainer<GlobalOrdinal> >
 {
   public:
 
+    typedef MeshContainer<GlobalOrdinal>              MeshType;
     typedef MeshTraits<MeshType>                      MT;
     typedef MeshTools<MeshType>                       Tools;
     typedef MeshType                                  field_type;

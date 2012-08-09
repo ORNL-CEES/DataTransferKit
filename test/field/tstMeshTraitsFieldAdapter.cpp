@@ -584,7 +584,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, line_adapter_test )
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
-    typedef FieldTraits<MT> FT;
+    typedef FieldTraits<MeshContainer<int> > FT;
     MeshContainer<int> mesh_container = buildLineContainer();
 
     // Mesh parameters.
@@ -612,7 +612,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, tri_adapter_test )
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
-    typedef FieldTraits<MT> FT;
+    typedef FieldTraits<MeshContainer<int> > FT;
     MeshContainer<int> mesh_container = buildTriContainer();
 
     // Mesh parameters.
@@ -640,7 +640,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, quad_adapter_test )
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
-    typedef FieldTraits<MT> FT;
+    typedef FieldTraits<MeshContainer<int> > FT;
     MeshContainer<int> mesh_container = buildQuadContainer();
 
     // Mesh parameters.
@@ -668,7 +668,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, tet_adapter_test )
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
-    typedef FieldTraits<MT> FT;
+    typedef FieldTraits<MeshContainer<int> > FT;
     MeshContainer<int> mesh_container = buildTetContainer();
 
     // Mesh parameters.
@@ -696,7 +696,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, hex_adapter_test )
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
-    typedef FieldTraits<MT> FT;
+    typedef FieldTraits<MeshContainer<int> > FT;
     MeshContainer<int> mesh_container = buildHexContainer();
 
     // Mesh parameters.
@@ -724,7 +724,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, pyramid_adapter_test )
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
-    typedef FieldTraits<MT> FT;
+    typedef FieldTraits<MeshContainer<int> > FT;
     MeshContainer<int> mesh_container = buildPyramidContainer();
 
     // Mesh parameters.
@@ -752,7 +752,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, wedge_adapter_test )
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
-    typedef FieldTraits<MT> FT;
+    typedef FieldTraits<MeshContainer<int> > FT;
     MeshContainer<int> mesh_container = buildWedgeContainer();
 
     // Mesh parameters.

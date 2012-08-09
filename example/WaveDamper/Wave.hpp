@@ -33,29 +33,21 @@ class Wave
     ~Wave();
 
     // Get the communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > get_comm()
-    {
-	return comm;
-    }
+    Teuchos::RCP<const Teuchos::Comm<int> > get_comm() const
+    { return comm; }
 
     // Get a const reference to the local grid.
-    const std::vector<double>& get_grid()
-    {
-	return grid;
-    }
+    const std::vector<double>& get_grid() const
+    { return grid; }
 
     // Get a reference to the local data.
-    const std::vector<double>& get_data()
-    {
-	return data;
-    }
+    const std::vector<double>& get_data() const
+    { return data; }
 
     // Get a reference to the local data space storing the damping
     // coefficients.
     std::vector<double>& get_damping()
-    {
-	return damping;
-    }
+    { return damping; }
 
     // Solve the local problem.
     void solve();

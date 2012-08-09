@@ -34,7 +34,7 @@ Wave::Wave(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
     damping.resize(num_x);
     std::fill(damping.begin(), damping.end(), 0.0);
     data.resize(num_x);
-    std::vector<double>::iterator f_iterator;
+    std::vector<double>::iterator data_iterator;
     for (data_iterator = data.begin(), grid_iterator = grid.begin();
 	 data_iterator != data.end();
 	 ++data_iterator, ++grid_iterator)
@@ -51,6 +51,7 @@ Wave::~Wave()
 void Wave::solve()
 {
     // Apply the dampened component.
+    double data_old;
     std::vector<double>::iterator data_iterator;
     std::vector<double>::const_iterator damping_iterator;
     for (data_iterator = data.begin(), damping_iterator = damping.begin();

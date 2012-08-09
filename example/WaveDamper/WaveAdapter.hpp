@@ -12,9 +12,9 @@
 #include "Wave.hpp"
 
 #include <DTK_MeshManager.hpp>
-#incldue <DTK_MeshContainer.hpp>
+#include <DTK_MeshContainer.hpp>
 #include <DTK_MeshTraits.hpp>
-#include <DTK_MeshTraitsFieldAdapater.hpp>
+#include <DTK_MeshTraitsFieldAdapter.hpp>
 #include <DTK_FieldManager.hpp>
 #include <DTK_FieldContainer.hpp>
 #include <DTK_FieldEvaluator.hpp>
@@ -55,17 +55,18 @@ class WaveAdapter
     { /* ... */ }
 
     // Get the wave mesh.
-    static DataTransferKit::MeshManager<MeshType> getMesh( const RCP_Wave& wave );
+    static Teuchos::RCP<DataTransferKit::MeshManager<MeshType> >
+    getMesh( const RCP_Wave& wave );
 
     // Get the wave field evaluator.
     static RCP_Evaluator getFieldEvaluator( const RCP_Wave& wave );
 
-    // Get the wave target coordinates.
-    static DataTransferKit::FieldManager<MT>
+    // Get the wave target coordinates directly from the mesh.
+    static Teuchos::RCP<DataTransferKit::FieldManager<MeshType> >
     getTargetCoords( const RCP_Wave& wave );
 
     // Get the wave target space.
-    static DataTransferKit::FieldManager<FieldType> 
+    static Teuchos::RCP<DataTransferKit::FieldManager<FieldType> >
     getTargetSpace( const RCP_Wave& wave );
 };
 
@@ -80,6 +81,9 @@ class WaveEvaluator :
 					   DataTransferKit::FieldContainer<double> >
 {
   public:
+
+    // Typedef.
+    typedef Teuchos::RCP<Wave>  RCP_Wave;
 
     // Constructor.
     WaveEvaluator( const RCP_Wave& wave )
@@ -96,6 +100,7 @@ class WaveEvaluator :
 
   private:
 
+    // Wave instance.
     RCP_Wave d_wave;
 };
 
