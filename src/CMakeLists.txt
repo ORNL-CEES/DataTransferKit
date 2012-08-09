@@ -27,6 +27,7 @@ APPEND_SET(HEADERS
   DTK_CellTopologyFactory.hpp
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
+  DTK_FieldContainer.hpp
   DTK_FieldEvaluator.hpp
   DTK_FieldManager.hpp
   DTK_FieldManager_def.hpp
