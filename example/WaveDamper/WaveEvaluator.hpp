@@ -37,9 +37,7 @@ class WaveEvaluator :
     typedef DataTransferKit::FieldEvaluator<mesh_type,field_type> base_type;
 
     // Constructor.
-    WaveEvaluator( const RCP_Wave& wave )
-	: d_wave( wave )
-    { /* ... */ }
+    WaveEvaluator( const RCP_Wave& wave );
 
     // Destructor.
     ~WaveEvaluator();

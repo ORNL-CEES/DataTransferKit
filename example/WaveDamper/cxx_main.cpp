@@ -124,10 +124,14 @@ int main(int argc, char* argv[])
     // ---------------//
 
     // Iterate between the damper and wave until convergence.
-    double norm = 0.0;
     int num_iter = 0;
-    int max_iter = 100;
-    while( norm > 1.0e-6 && num_iter < max_iter )
+    int max_iter = 1;
+    Teuchos::Array<double> wave_norm( 1, 1.0 );
+    std::vector<double> wave_data = wave->get_data();
+    Teuchos::ArrayRCP<double> wave_arcp( &wave_data[0], 0,
+					 wave_data.size(), false );
+    DataTransferKit::FieldContainer<double> wave_container( wave_arcp, 1 );
+    while( wave_norm[0] > 1.0e-6 && num_iter < max_iter )
     {
 	// Transfer the wave field.
 	wave_to_damper_map.apply( wave_evaluator, damper_target_space );
@@ -142,7 +146,8 @@ int main(int argc, char* argv[])
 	wave->solve();
 
 	// Get the norm of the wave field to check convergence.
-	
+	DataTransferKit::FieldTools<DataTransferKit::FieldContainer<double> >::norm2(
+	    wave_container, wave->get_comm(), wave_norm );
 
 	// Update the iteration count.
 	++num_iter;
@@ -155,7 +160,7 @@ int main(int argc, char* argv[])
     if ( myRank == 0 )
     {
 	std::cout << "Iterations to converge: " << num_iter << std::endl;
-	std::cout << "L2 norm:                " << norm << std::endl;
+	std::cout << "L2 norm:                " << wave_norm[0] << std::endl;
     }
 
     return 0;

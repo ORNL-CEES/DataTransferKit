@@ -37,9 +37,7 @@ class DamperEvaluator :
     typedef DataTransferKit::FieldEvaluator<mesh_type,field_type> base_type;
 
     // Constructor.
-    DamperEvaluator( const RCP_Damper& damper )
-	: d_damper( damper )
-    { /* ... */ }
+    DamperEvaluator( const RCP_Damper& damper );
 
     // Destructor.
     ~DamperEvaluator();

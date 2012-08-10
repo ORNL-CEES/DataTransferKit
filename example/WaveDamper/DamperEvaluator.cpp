@@ -10,6 +10,21 @@
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Constructor.
+ */
+DamperEvaluator::DamperEvaluator( const RCP_Damper& damper )
+    : d_damper( damper )
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*! 
+  \brief Destructor.
+*/
+DamperEvaluator::~DamperEvaluator()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Damper function evaluator.
  */
 DamperEvaluator::base_type::field_type

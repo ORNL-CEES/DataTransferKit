@@ -10,6 +10,21 @@
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Constructor.
+ */
+WaveEvaluator::WaveEvaluator( const RCP_Wave& wave )
+    : d_wave( wave )
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*! 
+  \brief Destructor.
+*/
+WaveEvaluator::~WaveEvaluator()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Wave function evaluator.
  */
 WaveEvaluator::base_type::field_type
