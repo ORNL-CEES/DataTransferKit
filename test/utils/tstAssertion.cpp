@@ -201,8 +201,8 @@ TEUCHOS_UNIT_TEST( Assertion, invariant_test )
 // Test that we can remember a value and check it with DBC.
 TEUCHOS_UNIT_TEST( Assertion, remember_test )
 {
-    rememberValue( test_value_1 = 0 );
-    rememberValue( test_value_2 = 1 );
+    rememberValue( int test_value_1 = 0 );
+    rememberValue( int test_value_2 = 1 );
  
     try 
     {

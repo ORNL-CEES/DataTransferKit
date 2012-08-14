@@ -6,30 +6,30 @@
  */
 //---------------------------------------------------------------------------//
 
+#include <cmath>
+
 #include "Damper.hpp"
 
 //---------------------------------------------------------------------------//
 Damper::Damper(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
 	       double x_min, double x_max, int num_x)
     : comm(_comm)
+    , data( new std::vector<double>(num_x) )
+    , damping( new std::vector<double>(num_x) )
+    , grid( new std::vector<double>(num_x) )
 {
     // Create the grid.
-    grid.resize(num_x);
     double x_size = (x_max - x_min) / (num_x);
 
     std::vector<double>::iterator grid_iterator;
     int i = 0;
 
-    for (grid_iterator = grid.begin();
-	 grid_iterator != grid.end();
+    for (grid_iterator = grid->begin();
+	 grid_iterator != grid->end();
 	 ++grid_iterator, ++i)
     {
 	*grid_iterator = i*x_size + x_min;
     }
-
-    // Set initial conditions.
-    damping.resize(num_x);
-    data.resize(num_x);
 }
 
 //---------------------------------------------------------------------------//
@@ -42,9 +42,9 @@ void Damper::solve()
 {
     std::vector<double>::iterator damping_iterator;
     std::vector<double>::const_iterator data_iterator;
-    for (damping_iterator = damping.begin(),
-	    data_iterator = data.begin();
-	 damping_iterator != damping.end();
+    for (damping_iterator = damping->begin(),
+	    data_iterator = data->begin();
+	 damping_iterator != damping->end();
 	 ++damping_iterator, ++data_iterator)
     {
 	*damping_iterator = *data_iterator / 2;
@@ -54,5 +54,3 @@ void Damper::solve()
 //---------------------------------------------------------------------------//
 // end Damper.cpp
 //---------------------------------------------------------------------------//
-
-

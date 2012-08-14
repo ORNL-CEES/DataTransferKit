@@ -21,9 +21,9 @@ class Damper
   private:
 
     Teuchos::RCP<const Teuchos::Comm<int> > comm;
-    std::vector<double> data;
-    std::vector<double> damping;
-    std::vector<double> grid;
+    Teuchos::RCP<std::vector<double> > data;
+    Teuchos::RCP<std::vector<double> > damping;
+    Teuchos::RCP<std::vector<double> > grid;
 
   public:
 
@@ -37,15 +37,15 @@ class Damper
     { return comm; }
 
     // Get a reference to the local damping data.
-    const std::vector<double>& get_damping() const
+    Teuchos::RCP<std::vector<double> > get_damping() const
     { return damping; }
 
     // Get a reference to the local grid.
-    const std::vector<double>& get_grid() const
+    Teuchos::RCP<std::vector<double> > get_grid() const
     { return grid; }
 
     // Get a reference to the memory space for external data to be applied to.
-    std::vector<double>& get_external_data()
+    Teuchos::RCP<std::vector<double> > get_external_data()
     { return data; }
 
     // Apply damping to the local problem.

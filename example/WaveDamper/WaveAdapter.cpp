@@ -24,19 +24,19 @@ WaveAdapter::getMesh( const RCP_Wave& wave )
     int my_rank = wave->get_comm()->getRank();
     int vertex_dimension = 1;
 
-    std::vector<double> grid = wave->get_grid();
-    Teuchos::ArrayRCP<int> vertices( grid.size() );
+    Teuchos::RCP<std::vector<double> > grid = wave->get_grid();
+    Teuchos::ArrayRCP<int> vertices( grid->size() );
     for ( int i = 0; i < (int) vertices.size(); ++i )
     {
 	vertices[i] = i + my_rank*vertices.size();
     }
-    Teuchos::ArrayRCP<double> coordinates( &grid[0], 0, grid.size(), false );
+    Teuchos::ArrayRCP<double> coordinates( &(*grid)[0], 0, grid->size(), false );
 
     DataTransferKit::DTK_ElementTopology element_topology = 
 	DataTransferKit::DTK_LINE_SEGMENT;
     int vertices_per_element = 2;
 
-    Teuchos::ArrayRCP<int> elements( grid.size() - 1 );
+    Teuchos::ArrayRCP<int> elements( grid->size() - 1 );
     for ( int i = 0; i < (int) elements.size(); ++i )
     {
 	elements[i] = i + my_rank*elements.size();
@@ -45,8 +45,8 @@ WaveAdapter::getMesh( const RCP_Wave& wave )
     Teuchos::ArrayRCP<int> connectivity( vertices_per_element*elements.size() );
     for ( int i = 0; i < (int) elements.size(); ++i )
     {
-	connectivity[i] = i;
-	connectivity[ elements.size() + i ] = i+1;
+	connectivity[i] = vertices[i];
+	connectivity[ elements.size() + i ] = vertices[i+1];
     }
 
     Teuchos::ArrayRCP<int> permutation_list( vertices_per_element );
@@ -97,10 +97,10 @@ WaveAdapter::getTargetCoords( const RCP_Wave& wave )
 Teuchos::RCP<DataTransferKit::FieldManager<WaveAdapter::FieldType> >
 WaveAdapter::getTargetSpace( const RCP_Wave& wave )
 {
-    std::vector<double> damping_space = wave->get_damping();
+    Teuchos::RCP<std::vector<double> > damping_space = wave->get_damping();
     int field_dim = 1;
-    Teuchos::ArrayRCP<double> data_space( &damping_space[0], 0, 
-					  damping_space.size(), false );
+    Teuchos::ArrayRCP<double> data_space( &(*damping_space)[0], 0, 
+					  damping_space->size(), false );
 
     FieldType field_container( data_space, field_dim );
     

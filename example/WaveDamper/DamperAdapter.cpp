@@ -25,19 +25,19 @@ DamperAdapter::getMesh( const RCP_Damper& damper )
 
     int vertex_dimension = 1;
 
-    std::vector<double> grid = damper->get_grid();
-    Teuchos::ArrayRCP<int> vertices( grid.size() );
+    Teuchos::RCP< std::vector<double> > grid = damper->get_grid();
+    Teuchos::ArrayRCP<int> vertices( grid->size() );
     for ( int i = 0; i < (int) vertices.size(); ++i )
     {
 	vertices[i] = i + my_rank*vertices.size();
     }
-    Teuchos::ArrayRCP<double> coordinates( &grid[0], 0, grid.size(), false );
+    Teuchos::ArrayRCP<double> coordinates( &(*grid)[0], 0, grid->size(), false );
 
     DataTransferKit::DTK_ElementTopology element_topology = 
 	DataTransferKit::DTK_LINE_SEGMENT;
     int vertices_per_element = 2;
 
-    Teuchos::ArrayRCP<int> elements( grid.size() - 1 );
+    Teuchos::ArrayRCP<int> elements( grid->size() - 1 );
     for ( int i = 0; i < (int) elements.size(); ++i )
     {
 	elements[i] = i + my_rank*elements.size();
@@ -46,8 +46,8 @@ DamperAdapter::getMesh( const RCP_Damper& damper )
     Teuchos::ArrayRCP<int> connectivity( vertices_per_element*elements.size() );
     for ( int i = 0; i < (int) elements.size(); ++i )
     {
-	connectivity[i] = i;
-	connectivity[ elements.size() + i ] = i+1;
+	connectivity[i] = vertices[i];
+	connectivity[ elements.size() + i ] = vertices[i+1];
     }
 
     Teuchos::ArrayRCP<int> permutation_list( vertices_per_element );
@@ -98,10 +98,10 @@ DamperAdapter::getTargetCoords( const RCP_Damper& damper )
 Teuchos::RCP<DataTransferKit::FieldManager<DamperAdapter::FieldType> >
 DamperAdapter::getTargetSpace( const RCP_Damper& damper )
 {
-    std::vector<double> external_space = damper->get_external_data();
+    Teuchos::RCP<std::vector<double> > target_space = damper->get_external_data();
     int field_dim = 1;
-    Teuchos::ArrayRCP<double> data_space( &external_space[0], 0, 
-					  external_space.size(), false );
+    Teuchos::ArrayRCP<double> data_space( &(*target_space)[0], 0, 
+					  target_space->size(), false );
 
     FieldType field_container( data_space, field_dim );
     

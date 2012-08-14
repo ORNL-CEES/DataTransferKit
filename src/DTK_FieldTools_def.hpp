@@ -295,6 +295,8 @@ void FieldTools<Field>::normInf( const Field& field, const RCP_Comm& comm,
     value_type local_max, local_min, local_norm;
     for ( int d = 0; d < FT::dim( field ); ++d )
     {
+	norms[d] = 0.0;
+
 	local_max = *std::max_element( dimBegin( field, d ),
 				       dimEnd( field, d ) );
 
@@ -331,6 +333,7 @@ void FieldTools<Field>::norm1( const Field& field, const RCP_Comm& comm,
     value_type local_norm;
     for ( int d = 0; d < FT::dim( field ); ++d )
     {
+	norms[d] = 0.0;
 	local_norm = 0.0;
 
 	for ( dim_iterator = dimBegin( field, d );
@@ -368,13 +371,14 @@ void FieldTools<Field>::norm2( const Field& field, const RCP_Comm& comm,
     value_type local_norm;
     for ( int d = 0; d < FT::dim( field ); ++d )
     {
+	norms[d] = 0.0;
 	local_norm = 0.0;
 
 	for ( dim_iterator = dimBegin( field, d );
 	      dim_iterator != dimEnd( field, d );
 	      ++dim_iterator )
 	{
-	    local_norm += std::abs(*dim_iterator)*std::abs(*dim_iterator);
+	    local_norm += std::abs( (*dim_iterator)*(*dim_iterator) );
 	}
 
 	Teuchos::reduceAll<int,value_type>( 
@@ -411,6 +415,7 @@ void FieldTools<Field>::normQ( const Field& field, const RCP_Comm& comm,
     value_type local_norm, element_product;
     for ( int d = 0; d < FT::dim( field ); ++d )
     {
+	norms[d] = 0.0;
 	local_norm = 0.0;
 
 	for ( dim_iterator = dimBegin( field, d );
@@ -461,6 +466,7 @@ void FieldTools<Field>::average( const Field& field, const RCP_Comm& comm,
     value_type local_sum;
     for ( int d = 0; d < FT::dim( field ); ++d )
     {
+	averages[d] = 0.0;
 	local_sum = 0.0;
 
 	for ( dim_iterator = dimBegin( field, d );

@@ -125,11 +125,11 @@ int main(int argc, char* argv[])
 
     // Iterate between the damper and wave until convergence.
     int num_iter = 0;
-    int max_iter = 1;
+    int max_iter = 100;
     Teuchos::Array<double> wave_norm( 1, 1.0 );
-    std::vector<double> wave_data = wave->get_data();
-    Teuchos::ArrayRCP<double> wave_arcp( &wave_data[0], 0,
-					 wave_data.size(), false );
+    Teuchos::RCP<std::vector<double> > wave_data = wave->get_data();
+    Teuchos::ArrayRCP<double> wave_arcp( &(*wave_data)[0], 0,
+					 wave_data->size(), false );
     DataTransferKit::FieldContainer<double> wave_container( wave_arcp, 1 );
     while( wave_norm[0] > 1.0e-6 && num_iter < max_iter )
     {

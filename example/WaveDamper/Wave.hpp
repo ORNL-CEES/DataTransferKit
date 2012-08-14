@@ -21,9 +21,9 @@ class Wave
   private:
     
     Teuchos::RCP<const Teuchos::Comm<int> > comm;
-    std::vector<double> grid;
-    std::vector<double> data;
-    std::vector<double> damping;
+    Teuchos::RCP<std::vector<double> > grid;
+    Teuchos::RCP<std::vector<double> > data;
+    Teuchos::RCP<std::vector<double> > damping;
 
   public:
 
@@ -37,16 +37,16 @@ class Wave
     { return comm; }
 
     // Get a const reference to the local grid.
-    const std::vector<double>& get_grid() const
+    const Teuchos::RCP<std::vector<double> >& get_grid() const
     { return grid; }
 
     // Get a reference to the local data.
-    const std::vector<double>& get_data() const
+    const Teuchos::RCP<std::vector<double> >& get_data() const
     { return data; }
 
     // Get a reference to the local data space storing the damping
     // coefficients.
-    std::vector<double>& get_damping()
+    Teuchos::RCP<std::vector<double> >& get_damping()
     { return damping; }
 
     // Solve the local problem.

@@ -3,5 +3,5 @@ INCLUDE(AddSubdirectories)
 
 ADD_SUBDIRECTORIES(
   ScalingStudy
-#  WaveDamper
+  WaveDamper
   )

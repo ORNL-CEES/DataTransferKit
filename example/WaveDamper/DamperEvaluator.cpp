@@ -38,11 +38,11 @@ DamperEvaluator::evaluate(
     base_type::field_type evaluations( eval_data, 1 );
 
     // Get the grid.
-    std::vector<double> grid = d_damper->get_grid();
-    int num_grid_elements = grid.size() - 1;
+    Teuchos::RCP<std::vector<double> > grid = d_damper->get_grid();
+    int num_grid_elements = grid->size() - 1;
 
     // Get the damper data.
-    std::vector<double> data = d_damper->get_damping();
+    Teuchos::RCP<std::vector<double> > data = d_damper->get_damping();
 
     // Interpolate the local solution onto the given coordinates.
     Teuchos::ArrayRCP<int>::iterator element_iterator;
@@ -57,10 +57,10 @@ DamperEvaluator::evaluate(
 	// linear basis.
 	if ( *element_iterator < num_grid_elements )
 	{
-	    eval_data[eval_id] = data[eval_id]
-				 + ( coords[eval_id] - grid[eval_id] )
-				 * ( data[eval_id+1] - data[eval_id] )
-				 / ( grid[eval_id+1] - grid[eval_id] );
+	    eval_data[eval_id] = (*data)[eval_id]
+				 + ( coords[eval_id] - (*grid)[eval_id] )
+				 * ( (*data)[eval_id+1] - (*data)[eval_id] )
+				 / ( (*grid)[eval_id+1] - (*grid)[eval_id] );
 	}
 
 	// Otherwise put a zero for this element/coordinate pair per the
