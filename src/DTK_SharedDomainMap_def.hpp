@@ -42,6 +42,7 @@
 #define DTK_SHAREDDOMAINMAP_DEF_HPP
 
 #include <algorithm>
+#include <cassert>
 
 #include "DTK_FieldTools.hpp"
 #include "DTK_Assertion.hpp"
@@ -121,7 +122,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     BoundingBox shared_domain_box;
     bool has_intersect = BoundingBox::intersectBoxes( source_box, target_box, 
 						      shared_domain_box );
-    testPrecondition( has_intersect );
+    assert( has_intersect );
 
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, shared_domain_box );
@@ -322,9 +323,9 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     typename Teuchos::Array<int>::iterator rendezvous_element_src_procs_bound =
 	std::remove( rendezvous_element_src_procs.begin(), 
 		     rendezvous_element_src_procs.end(), -1 );
-    GlobalOrdinal rendezvous_element_src_procs_size = 
-	std::distance( rendezvous_element_src_procs.begin(), 
-		       rendezvous_element_src_procs_bound );
+    rememberValue( GlobalOrdinal rendezvous_element_src_procs_size = 
+		   std::distance( rendezvous_element_src_procs.begin(), 
+				  rendezvous_element_src_procs_bound ) );
 
     testInvariant( rendezvous_elements_size == 
 		   rendezvous_element_src_procs_size );

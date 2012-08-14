@@ -39,6 +39,7 @@
 //---------------------------------------------------------------------------//
 
 #include <algorithm>
+#include <cassert>
 
 #include "DTK_MeshTools.hpp"
 #include "DTK_Assertion.hpp"
@@ -135,7 +136,7 @@ void RCB<Mesh>::partition()
 					&d_export_procs,    
 					&d_export_to_part ); 
 
-    testInvariant( ZOLTAN_OK == zoltan_error );
+    assert( ZOLTAN_OK == zoltan_error );
 }
 
 //---------------------------------------------------------------------------//
@@ -156,7 +157,7 @@ int RCB<Mesh>::getDestinationProc( Teuchos::Array<double> coords ) const
     int zoltan_error;
     int proc, part;
     zoltan_error = Zoltan_LB_Point_PP_Assign( d_zz, &coords[0], &proc, &part );
-    testInvariant( ZOLTAN_OK == zoltan_error );
+    assert( ZOLTAN_OK == zoltan_error );
 
     return proc;
 }

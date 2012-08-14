@@ -51,14 +51,12 @@ Wave::~Wave()
 void Wave::solve()
 {
     // Apply the dampened component.
-    double data_old;
     std::vector<double>::iterator data_iterator;
     std::vector<double>::const_iterator damping_iterator;
     for (data_iterator = data.begin(), damping_iterator = damping.begin();
 	 data_iterator != data.end();
 	 ++data_iterator, ++damping_iterator)
     {
-	data_old = *data_iterator;
 	*data_iterator -= *damping_iterator;
     }
 }

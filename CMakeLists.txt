@@ -22,9 +22,16 @@ TRIBITS_PACKAGE(DataTransferKit)
 TRIBITS_ADD_OPTION_AND_DEFINE(
 	DataTransferKit_ENABLE_DBC
 	HAVE_DTK_DBC
-	"Enable Design-by-Contract checks. Warning, use for debug checking but disable for production runs as it incurs a significant overhead."
+	"Enable Design-by-Contract checks. WARNING: use for debug checking but disable for production runs as it incurs a significant overhead."
 	OFF
 )
+
+# Add NDEBUG flag for non-DBC builds to eliminate assertions intended
+# only for DBC builds.
+IF( NOT HAVE_DTK_DBC )
+  SET( CMAKE_CXX_FLAGS "-DNDEBUG" )
+ENDIF()
+
 
 TRIBITS_ADD_DEBUG_OPTION()
 

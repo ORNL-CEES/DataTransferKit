@@ -65,10 +65,9 @@ template<class Field>
 typename FieldTools<Field>::size_type
 FieldTools<Field>::dimSize( const Field& field )
 {
-    int field_dim = FT::dim( field );
-    testPrecondition( field_dim > 0 );
+    testPrecondition( FT::dim( field ) > 0 );
     size_type field_size = FT::size( field );
-    return field_size / field_dim;
+    return field_size / FT::dim( field );
 }
 
 //---------------------------------------------------------------------------//
@@ -85,9 +84,8 @@ template<class Field>
 typename FieldTools<Field>::iterator 
 FieldTools<Field>::dimBegin( Field& field, const int dim )
 {
-    int field_dim = FT::dim( field );
-    testPrecondition( field_dim > 0 );
-    testPrecondition( dim >= 0 && dim < field_dim );
+    testPrecondition( FT::dim( field ) > 0 );
+    testPrecondition( dim >= 0 && dim < FT::dim( field ) );
     return FT::begin(field) + dim*dimSize(field);
 }
 
@@ -105,9 +103,8 @@ template<class Field>
 typename FieldTools<Field>::const_iterator 
 FieldTools<Field>::dimBegin( const Field& field, const int dim )
 {
-    int field_dim = FT::dim( field );
-    testPrecondition( field_dim > 0 );
-    testPrecondition( dim >= 0 && dim < field_dim );
+    testPrecondition( FT::dim( field ) > 0 );
+    testPrecondition( dim >= 0 && dim < FT::dim( field ) );
     return FT::begin(field) + dim*dimSize(field);
 }
 
@@ -125,9 +122,8 @@ template<class Field>
 typename FieldTools<Field>::iterator 
 FieldTools<Field>::dimEnd( Field& field, const int dim )
 {
-    int field_dim = FT::dim( field );
-    testPrecondition( field_dim > 0 );
-    testPrecondition( dim >= 0 && dim < field_dim );
+    testPrecondition( FT::dim( field ) > 0 );
+    testPrecondition( dim >= 0 && dim < FT::dim( field ) );
     return FT::begin(field) + (dim+1)*dimSize(field);
 }
 
@@ -145,9 +141,8 @@ template<class Field>
 typename FieldTools<Field>::const_iterator 
 FieldTools<Field>::dimEnd( const Field& field, const int dim )
 {
-    int field_dim = FT::dim( field );
-    testPrecondition( field_dim > 0 );
-    testPrecondition( dim >= 0 && dim < field_dim );
+    testPrecondition( FT::dim( field ) > 0 );
+    testPrecondition( dim >= 0 && dim < FT::dim( field ) );
     return FT::begin(field) + (dim+1)*dimSize(field);
 }
 
@@ -227,9 +222,8 @@ template<class Field>
 void FieldTools<Field>::putScalar( 
     Field& field, const Teuchos::ArrayView<value_type>& scalars )
 {
-    int field_dim = FT::dim( field );
-    testInvariant( field_dim == (int) scalars.size() );
-    for ( int d = 0; d < field_dim; ++d )
+    testInvariant( FT::dim( field ) == (int) scalars.size() );
+    for ( int d = 0; d < FT::dim( field ); ++d )
     {
 	std::fill( dimBegin( field, d ), dimEnd( field, d ), scalars[d] );
     }
@@ -269,10 +263,9 @@ template<class Field>
 void FieldTools<Field>::scale( Field& field, 
 			       const Teuchos::ArrayView<value_type>& scalars )
 {
-    int field_dim = FT::dim( field );
-    testPrecondition( field_dim == (int) scalars.size() );
+    testPrecondition( FT::dim( field ) == (int) scalars.size() );
     iterator dim_iterator;
-    for ( int d = 0; d < field_dim; ++d )
+    for ( int d = 0; d < FT::dim( field ); ++d )
     {
 	for ( dim_iterator = dimBegin( field, d );
 	      dim_iterator != dimEnd( field, d );
@@ -298,10 +291,9 @@ template<class Field>
 void FieldTools<Field>::normInf( const Field& field, const RCP_Comm& comm,
 				 Teuchos::Array<value_type>& norms )
 {
-    int field_dim = FT::dim( field );
-    norms.resize( field_dim );
+    norms.resize( FT::dim( field ) );
     value_type local_max, local_min, local_norm;
-    for ( int d = 0; d < field_dim; ++d )
+    for ( int d = 0; d < FT::dim( field ); ++d )
     {
 	local_max = *std::max_element( dimBegin( field, d ),
 				       dimEnd( field, d ) );
@@ -334,11 +326,10 @@ template<class Field>
 void FieldTools<Field>::norm1( const Field& field, const RCP_Comm& comm,
 			       Teuchos::Array<value_type>& norms )
 {
-    int field_dim = FT::dim( field );
-    norms.resize( field_dim );
+    norms.resize( FT::dim( field ) );
     const_iterator dim_iterator;
     value_type local_norm;
-    for ( int d = 0; d < field_dim; ++d )
+    for ( int d = 0; d < FT::dim( field ); ++d )
     {
 	local_norm = 0.0;
 
@@ -372,11 +363,10 @@ template<class Field>
 void FieldTools<Field>::norm2( const Field& field, const RCP_Comm& comm,
 			       Teuchos::Array<value_type>& norms )
 {
-    int field_dim = FT::dim( field );
-    norms.resize( field_dim );
+    norms.resize( FT::dim( field ) );
     const_iterator dim_iterator;
     value_type local_norm;
-    for ( int d = 0; d < field_dim; ++d )
+    for ( int d = 0; d < FT::dim( field ); ++d )
     {
 	local_norm = 0.0;
 
@@ -416,11 +406,10 @@ void FieldTools<Field>::normQ( const Field& field, const RCP_Comm& comm,
 			       Teuchos::Array<value_type>& norms )
 {
     testPrecondition( q > 0 );
-    int field_dim = FT::dim( field );
-    norms.resize( field_dim );
+    norms.resize( FT::dim( field ) );
     const_iterator dim_iterator;
     value_type local_norm, element_product;
-    for ( int d = 0; d < field_dim; ++d )
+    for ( int d = 0; d < FT::dim( field ); ++d )
     {
 	local_norm = 0.0;
 
@@ -466,12 +455,11 @@ void FieldTools<Field>::average( const Field& field, const RCP_Comm& comm,
 	FieldTools<Field>::globalSize( field, comm );
     testPrecondition( global_length > 0 );
 
-    int field_dim = FT::dim( field );
-    averages.resize( field_dim );
-    size_type dim_length = global_length / field_dim;
+    averages.resize( FT::dim( field ) );
+    size_type dim_length = global_length / FT::dim( field );
     const_iterator dim_iterator;
     value_type local_sum;
-    for ( int d = 0; d < field_dim; ++d )
+    for ( int d = 0; d < FT::dim( field ); ++d )
     {
 	local_sum = 0.0;
 

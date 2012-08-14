@@ -39,6 +39,7 @@
 //---------------------------------------------------------------------------//
 
 #include <vector>
+#include <cassert>
 
 #include "DTK_CellTopologyFactory.hpp"
 #include "DTK_TopologyTools.hpp"
@@ -96,7 +97,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 				   0,
 				   false,
 				   element_vertices );
-    testInvariant( moab::MB_SUCCESS == error );
+    assert( moab::MB_SUCCESS == error );
 
     // Extract the vertex coordinates.
     int num_element_vertices = element_vertices.size();
@@ -104,7 +105,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
     error = moab->get_coords( &element_vertices[0], 
 			      element_vertices.size(), 
 			      &cell_vertex_coords[0] );
-    testInvariant( moab::MB_SUCCESS == error );
+    assert( moab::MB_SUCCESS == error );
 
     // Typical topology case.
     if ( moab::MBPYRAMID != element_topology )

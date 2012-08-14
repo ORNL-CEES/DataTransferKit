@@ -79,20 +79,23 @@ void throwAssertion( const std::string& cond, const std::string& file,
 // Design-by-Contract macros.
 //---------------------------------------------------------------------------//
 /*!
- * \page DataTransferKit Design-by-Contract.
- *
- * Design-by-Contract (DBC) functionality is provided to verify function
- * preconditions, postconditions, and invariants. These checks are separated
- * from the debug build and can be activated for both release and debug
- * builds. They can be activated by setting the following in a CMake
- * configure:
- *
- * -D DataTransferKit_ENABLE_DBC:BOOL=ON
- *
- * By default, DBC is deactivated. Although they will require additional
- * computational overhead, these checks provide a mechanism for veryifing
- * library input arguments. Note that the bounds-checking functionality used
- * within the DataTransferKit is only provided by a debug build.
+  \page DataTransferKit Design-by-Contract.
+ 
+  Design-by-Contract (DBC) functionality is provided to verify function
+  preconditions, postconditions, and invariants. These checks are separated
+  from the debug build and can be activated for both release and debug
+  builds. They can be activated by setting the following in a CMake
+  configure:
+ 
+  -D DataTransferKit_ENABLE_DBC:BOOL=ON
+ 
+  By default, DBC is deactivated. Although they will require additional
+  computational overhead, these checks provide a mechanism for veryifing
+  library input arguments. Note that the bounds-checking functionality used
+  within the DataTransferKit is only provided by a debug build.
+ 
+  In addition, rememberValue is provided to store values used only for DBC
+  checks and no other place in executed code.
  */
 
 #if HAVE_DTK_DBC
@@ -103,12 +106,14 @@ void throwAssertion( const std::string& cond, const std::string& file,
     if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
 #define testInvariant(c) \
     if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
+#define rememberValue(c) c
 
 #else
 
 #define testPrecondition(c)
 #define testPostcondition(c)
 #define testInvariant(c)
+#define rememberValue(c)
 
 #endif
 

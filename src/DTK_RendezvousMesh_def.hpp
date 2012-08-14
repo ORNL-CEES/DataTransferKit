@@ -111,7 +111,7 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
     // Set the mesh dimension.
     int vertex_dim = mesh_manager.dim();
     error = moab->set_dimension( vertex_dim );
-    testInvariant( moab::MB_SUCCESS == error );
+    assert( moab::MB_SUCCESS == error );
 
     // Build each mesh block.
     typename MeshManager<Mesh>::BlockIterator block_iterator;
@@ -122,9 +122,9 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	// Check the vertices and coordinates for consistency.
 	GlobalOrdinal num_vertices = 
 	    MeshTools<Mesh>::numVertices( *block_iterator );
-	GlobalOrdinal num_coords = 
-	    std::distance( MT::coordsBegin( *block_iterator ),
-			   MT::coordsEnd( *block_iterator ) );
+	rememberValue( GlobalOrdinal num_coords = 
+		       std::distance( MT::coordsBegin( *block_iterator ),
+				      MT::coordsEnd( *block_iterator ) ) );
 	testInvariant( num_coords == 
 		       (GlobalOrdinal) vertex_dim * num_vertices );
 
@@ -150,7 +150,7 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 		vertex_coords[d] = 0.0;
 	    }
 	    error = moab->create_vertex( vertex_coords, moab_vertex );
-	    testInvariant( moab::MB_SUCCESS == error );
+	    assert( moab::MB_SUCCESS == error );
 
 	    vertex_handle_map[ *vertex_iterator ] = moab_vertex;
 	}
@@ -160,9 +160,9 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	    MT::verticesPerElement( *block_iterator );
 	GlobalOrdinal num_elements = 
 	    MeshTools<Mesh>::numElements( *block_iterator );
-	GlobalOrdinal num_connect = 
-	    std::distance( MT::connectivityBegin( *block_iterator ),
-			   MT::connectivityEnd( *block_iterator ) );
+	rememberValue( GlobalOrdinal num_connect = 
+		       std::distance( MT::connectivityBegin( *block_iterator ),
+				      MT::connectivityEnd( *block_iterator ) ) );
 	testInvariant( num_elements == num_connect / vertices_per_element &&
 		       num_connect % vertices_per_element == 0 );
 
@@ -203,7 +203,7 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 					  &element_connectivity[0],
 					  element_connectivity.size(),
 					  moab_element );
-	    testInvariant( moab::MB_SUCCESS == error );
+	    assert( moab::MB_SUCCESS == error );
 
 	    // Map the moab element handle to the native element handle.
 	    element_handle_map[ moab_element ] = *element_iterator;

@@ -41,6 +41,7 @@
 #ifndef DTK_KDTREE_DEF_HPP
 #define DTK_KDTREE_DEF_HPP
 
+#include <cassert>
 #include <vector>
 
 #include "DTK_TopologyTools.hpp"
@@ -87,10 +88,10 @@ void KDTree<GlobalOrdinal>::build()
 
     moab::Range elements;
     error = d_mesh->getMoab()->get_entities_by_dimension( 0, d_dim, elements );
-    testInvariant( moab::MB_SUCCESS == error );
+    assert( moab::MB_SUCCESS == error );
 
     error = d_tree.build_tree( elements , d_root );
-    testInvariant( moab::MB_SUCCESS == error );
+    assert( moab::MB_SUCCESS == error );
 }
 
 //---------------------------------------------------------------------------//
@@ -127,7 +128,7 @@ bool KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords,
     moab::ErrorCode error;
     moab::EntityHandle leaf;
     error = d_tree.leaf_containing_point( d_root, point, leaf );
-    testInvariant( moab::MB_SUCCESS == error );
+    assert( moab::MB_SUCCESS == error );
 
     moab::EntityHandle mb_element;
     bool point_in_leaf = findPointInLeaf( coords, leaf, mb_element );
@@ -173,7 +174,7 @@ bool KDTree<GlobalOrdinal>::findPointInLeaf(
     std::vector<moab::EntityHandle> leaf_elements;
     error = d_mesh->getMoab()->get_entities_by_dimension( 
 	leaf, d_dim, leaf_elements );
-    testInvariant( moab::MB_SUCCESS == error );
+    assert( moab::MB_SUCCESS == error );
 
     // Search the leaf elements with the point.
     Teuchos::Array<double> point( coords );
