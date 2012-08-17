@@ -50,7 +50,6 @@
 
 #include <MBCore.hpp>
 
-#include <Teuchos_ENull.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 
@@ -106,7 +105,7 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
     // Create a moab interface.
     rememberValue( moab::ErrorCode error );
     Teuchos::RCP<moab::Interface> moab = Teuchos::rcp( new moab::Core() );
-    testPostcondition( moab != Teuchos::null );
+    testPostcondition( !moab.is_null() );
 
     // Set the mesh dimension.
     int vertex_dim = mesh_manager.dim();

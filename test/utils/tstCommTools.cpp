@@ -140,6 +140,40 @@ TEUCHOS_UNIT_TEST( CommTools, union_test_3 )
 }
 
 //---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( CommTools, union_test_4 )
+{
+    using namespace DataTransferKit;
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
+
+    RCP_Comm comm_default = getDefaultComm<int>();
+    Teuchos::Array<int> sub_ranks_a, sub_ranks_b;
+    for ( int n = 0; n < comm_default->getSize(); ++n )
+    {
+	if ( n % 2 == 0 )
+	{
+	    sub_ranks_a.push_back(n);
+	}
+	else
+	{
+	    sub_ranks_b.push_back(n);
+	}
+    }
+
+    RCP_Comm comm_A = 
+	comm_default->createSubcommunicator( sub_ranks_a() );
+
+    RCP_Comm comm_B = 
+	comm_default->createSubcommunicator( sub_ranks_b() );
+
+    RCP_Comm comm_union;
+    CommTools::unite( comm_A, comm_B, comm_union );
+
+    TEST_ASSERT( CommTools::equal( comm_default, comm_union ) );
+    TEST_ASSERT( !CommTools::equal( comm_A, comm_union ) );
+    TEST_ASSERT( !CommTools::equal( comm_B, comm_union ) );
+}
+
+//---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CommTools, intersect_test_1 )
 {
     using namespace DataTransferKit;

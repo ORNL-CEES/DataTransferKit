@@ -41,7 +41,6 @@
 #include "DTK_CommIndexer.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_ENull.hpp>
 #include <Teuchos_Array.hpp>
 
 namespace DataTransferKit
@@ -65,7 +64,7 @@ CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
 
     Teuchos::Array<int> in_local( global_size, 0 );
 
-    if ( local_comm != Teuchos::null )
+    if ( !local_comm.is_null() )
     {
 	local_rank = local_comm->getRank();
     	in_local[ global_rank ] = 1;

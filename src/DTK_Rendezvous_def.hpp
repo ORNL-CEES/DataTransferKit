@@ -48,7 +48,6 @@
 #include "DTK_Assertion.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_ENull.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Tuple.hpp>
 
@@ -104,7 +103,7 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
     // Construct the rendezvous partitioning for the mesh with RCB using the
     // vertices that are in the box.
     d_rcb = Teuchos::rcp( new RCB<Mesh>( mesh_manager ) );
-    testPostcondition( d_rcb != Teuchos::null );
+    testPostcondition( !d_rcb.is_null() );
     d_rcb->partition();
 
     // Send the mesh in the box to the rendezvous decomposition and build the
@@ -114,12 +113,12 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 
     // Build the concrete rendezvous mesh from the mesh container.
     d_rendezvous_mesh = createRendezvousMesh( rendezvous_mesh_manager );
-    testPostcondition( d_rendezvous_mesh != Teuchos::null );
+    testPostcondition( !d_rendezvous_mesh.is_null() );
 
     // Create a kD-tree in the rendezvous decomposition.
     d_kdtree = Teuchos::rcp( 
 	new KDTree<GlobalOrdinal>( d_rendezvous_mesh , d_vertex_dim ) );
-    testPostcondition( d_kdtree != Teuchos::null );
+    testPostcondition( !d_kdtree.is_null() );
     d_kdtree->build();
 }
 
@@ -370,7 +369,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	RCP_TpetraMap export_vertex_map = 
 	    Tpetra::createNonContigMap<GlobalOrdinal>( 
 		export_vertex_view, d_comm );
-	testInvariant( export_vertex_map != Teuchos::null );
+	testInvariant( !export_vertex_map.is_null() );
 
 	// Setup import vertex map.
 	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_vertices_view = 
@@ -378,7 +377,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	RCP_TpetraMap import_vertex_map = 
 	    Tpetra::createNonContigMap<GlobalOrdinal>(
 		rendezvous_vertices_view, d_comm );
-	testInvariant( import_vertex_map != Teuchos::null );
+	testInvariant( !import_vertex_map.is_null() );
 
 	// Setup export element map.
 	GlobalOrdinal num_elements = 
@@ -390,7 +389,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	RCP_TpetraMap export_element_map = 
 	    Tpetra::createNonContigMap<GlobalOrdinal>(
 		export_element_view, d_comm );
-	testInvariant( export_element_map != Teuchos::null );
+	testInvariant( !export_element_map.is_null() );
 
 	// Setup import element map.
 	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
@@ -398,7 +397,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	RCP_TpetraMap import_element_map = 
 	    Tpetra::createNonContigMap<GlobalOrdinal>(
 		rendezvous_elements_view, d_comm );
-	testInvariant( import_element_map != Teuchos::null );
+	testInvariant( !import_element_map.is_null() );
 
 	// Setup importers.
 	Tpetra::Import<GlobalOrdinal> vertex_importer( export_vertex_map, 

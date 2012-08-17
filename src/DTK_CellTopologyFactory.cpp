@@ -42,8 +42,6 @@
 #include "DTK_CellTopologyFactory.hpp"
 #include "DTK_Assertion.hpp"
 
-#include <Teuchos_ENull.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -290,7 +288,7 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 	    break;
     }
 
-    testPostcondition( new_topology != Teuchos::null );
+    testPostcondition( !new_topology.is_null() );
 
     return new_topology;
 }

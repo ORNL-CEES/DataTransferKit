@@ -48,7 +48,6 @@
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_ENull.hpp>
 #include <Teuchos_Ptr.hpp>
 
 namespace DataTransferKit
@@ -87,12 +86,12 @@ bool CommTools::equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B )
 
     int existence = 0;
 
-    if ( comm_A != Teuchos::null )
+    if ( !comm_A.is_null() )
     {
 	++existence;
     }
 
-    if ( comm_B != Teuchos::null )
+    if ( !comm_B.is_null() )
     {
 	++existence;
     }
@@ -138,12 +137,12 @@ void CommTools::unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 
     Teuchos::Array<int> existence( comm_world->getSize(), 0 );
 
-    if ( comm_A != Teuchos::null )
+    if ( !comm_A.is_null() )
     {
 	existence[ comm_world->getRank() ] += 1;
     }
 
-    if ( comm_B != Teuchos::null )
+    if ( !comm_B.is_null() )
     {
 	existence[ comm_world->getRank() ] += 1;
     }
@@ -194,12 +193,12 @@ void CommTools::intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 
     Teuchos::Array<int> existence( comm_world->getSize(), 0 );
 
-    if ( comm_A != Teuchos::null )
+    if ( !comm_A.is_null() )
     {
 	existence[ comm_world->getRank() ] += 1;
     }
 
-    if ( comm_B != Teuchos::null )
+    if ( !comm_B.is_null() )
     {
 	existence[ comm_world->getRank() ] += 1;
     }

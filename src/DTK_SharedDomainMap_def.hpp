@@ -48,11 +48,12 @@
 #include "DTK_Rendezvous.hpp"
 #include "DTK_MeshTools.hpp"
 #include "DTK_BoundingBox.hpp"
+#include "DTK_CommIndexer.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_ENull.hpp>
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_as.hpp>
+#include <Teuchos_Ptr.hpp>
 
 #include <Tpetra_Import.hpp>
 #include <Tpetra_Distributor.hpp>
@@ -66,13 +67,19 @@ namespace DataTransferKit
  *
  * \param comm The communicator over which the map is generated.
  *
+ * \param dimension The dimension of the map. This should be consistent with
+ * all source and target objects (i.e. only 3 dimensional coordinates will be
+ * excepted with a 3 dimensional map).
+ *
  * \param store_missed_points Set to true if it is desired to keep track of
- * the local target points missed during map generation.
+ * the local target points missed during map generation. The default value is
+ * false. 
  */
 template<class Mesh, class CoordinateField>
 SharedDomainMap<Mesh,CoordinateField>::SharedDomainMap( 
-    const RCP_Comm& comm, bool store_missed_points )
+    const RCP_Comm& comm, const int dimension, bool store_missed_points )
     : d_comm( comm )
+    , d_dimension( dimension )
     , d_store_missed_points( store_missed_points )
 { /* ... */ }
 
@@ -88,19 +95,50 @@ SharedDomainMap<Mesh,CoordinateField>::~SharedDomainMap()
 /*!
  * \brief Generate the shared domain map.
  *
- * \param source_mesh_manager Source mesh in the shared domain problem.
+ * \param source_mesh_manager Source mesh in the shared domain problem. A null
+ * RCP is a valid argument. This will be the case when a mesh manager is only
+ * constructed on a subset of the processes that the shared domain map is
+ * constructed over. 
  *
  * \param target_coord_manager Target coordinates in the shared domain
- * problem. 
+ * problem. A null RCP is a valid argument. This will be the case when a field
+ * manager is only constructed on a subset of the processes that the shared
+ * domain map is constructed over.
  */
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::setup( 
     const RCP_MeshManager& source_mesh_manager, 
     const RCP_CoordFieldManager& target_coord_manager )
 {
+    // Create existence values for the managers.
+    bool source_exists = true;
+    if ( source_mesh_manager.is_null() ) source_exists = false;
+    bool target_exists = true;
+    if ( target_coord_manager.is_null() ) target_exists = false;
+
+    // Create local to global process indexers for the managers.
+    CommIndexer source_indexer( d_comm, source_mesh_manager->comm() );
+    CommIndexer target_indexer( d_comm, target_coord_manager->comm() );
+
+    // Check the source and target dimensions for consistency.
+    if ( source_exists )
+    {
+	testPrecondition( source_mesh_manager->dim() == d_dimension );
+    }
+
+    if ( target_exists )
+    {
+	testPrecondition( CFT::dim( *target_coord_manager->field() ) 
+			  == d_dimension );
+    }
+
     // Compute a unique global ordinal for each point in the coordinate field.
     Teuchos::Array<GlobalOrdinal> target_ordinals;
-    computePointOrdinals( *target_coord_manager->field(), target_ordinals );
+    if ( target_exists )
+    {
+	computePointOrdinals( *target_coord_manager->field(), target_ordinals );
+    }
+    d_comm->barrier();
 
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
@@ -110,12 +148,25 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     testPostcondition( d_target_map != Teuchos::null );
 
     // Get the global bounding box for the mesh.
-    BoundingBox source_box = source_mesh_manager->globalBoundingBox();
+    BoundingBox source_box;
+    if ( source_exists )
+    {
+	source_box = source_mesh_manager->globalBoundingBox();
+    }
+    Teuchos::broadcast<int,BoundingBox>( 
+	*d_comm, source_indexer.l2g(0), 
+	Teuchos::Ptr<BoundingBox>(&source_box) );
 
     // Get the global bounding box for the coordinate field.
-    BoundingBox target_box = 
-	FieldTools<CoordinateField>::coordGlobalBoundingBox(
-	    *target_coord_manager->field(), d_comm );
+    BoundingBox target_box;
+    if ( target_exists )
+    {
+	target_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
+	    *target_coord_manager->field(), target_coord_manager->comm() );
+    }
+    Teuchos::broadcast<int,BoundingBox>( 
+	*d_comm, target_indexer.l2g(0), 
+	Teuchos::Ptr<BoundingBox>(&target_box) );
 
     // Intersect the boxes to get the shared domain bounding box.
     BoundingBox shared_domain_box;
@@ -129,19 +180,28 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Determine the rendezvous destination proc of each point in the
     // coordinate field.
-    int coord_dim = CFT::dim( *target_coord_manager->field() );
-    Teuchos::ArrayRCP<double> coords_view = 
-	FieldTools<CoordinateField>::nonConstView( 
+    Teuchos::ArrayRCP<double> coords_view(0,0.0);
+    Teuchos::Array<int> rendezvous_procs;
+    int coord_dim;
+    if ( target_exists )
+    {
+	coord_dim = CFT::dim( *target_coord_manager->field() );
+	coords_view = FieldTools<CoordinateField>::nonConstView( 
 	    *target_coord_manager->field() );
-    Teuchos::Array<int> rendezvous_procs = 
-	rendezvous.procsContainingPoints( coords_view );
+	rendezvous_procs = rendezvous.procsContainingPoints( coords_view );
+    }
+    Teuchos::broadcast<int,int>( 
+	*d_comm, target_indexer.l2g(0), Teuchos::Ptr<int>(&coord_dim) );
 
     // Get the target points that are in the box in which the rendezvous
     // decomposition was generated. The rendezvous algorithm will expand the
     // box slightly based on mesh parameters.
     Teuchos::Array<GlobalOrdinal> targets_in_box;
-    getTargetPointsInBox( rendezvous.getBox(), *target_coord_manager->field(),
-			  target_ordinals, targets_in_box );
+    if ( target_exists )
+    {
+	getTargetPointsInBox( rendezvous.getBox(), *target_coord_manager->field(),
+			      target_ordinals, targets_in_box );
+    }
 
     // Extract those target points that are not in the box. We don't want to
     // send these to the rendezvous decomposition.
@@ -438,51 +498,71 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     typedef FieldTraits<SourceField> SFT;
     typedef FieldTraits<TargetField> TFT;
 
-    // Verify that the target space has the proper amount of memory allocated.
-    GlobalOrdinal target_size = 
-	FieldTools<TargetField>::dimSize( *target_space_manager->field() );
-    testPrecondition( 
-	target_size == 
-	(typename TFT::size_type) d_target_map->getNodeNumElements() );
+    // Set existence values for the source and target.
+    bool source_exists = true;
+    if ( source_evaluator.is_null() ) source_exists = false;
+    bool target_exists = true;
+    if ( target_space_manager.is_null() ) target_exists = false;
 
     // Evaluate the source function at the target points.
-    SourceField function_evaluations = 
-	source_evaluator->evaluate( Teuchos::arcpFromArray( d_source_elements ),
-				    Teuchos::arcpFromArray( d_target_coords ) );
-    testPrecondition( SFT::dim( function_evaluations ) == 
-		      TFT::dim( *target_space_manager->field() ) );
+    SourceField function_evaluations;
+    if ( source_exists )
+    {
+	 function_evaluations = 
+	     source_evaluator->evaluate( 
+		 Teuchos::arcpFromArray( d_source_elements ),
+		 Teuchos::arcpFromArray( d_target_coords ) );
+	 testPrecondition( SFT::dim( function_evaluations ) == d_dimension );
+    }
    
-    // Build a multivector for the function evaluations.
-    Teuchos::ArrayRCP<typename SFT::value_type> source_field_view =
-	FieldTools<SourceField>::nonConstView( function_evaluations );
+    // Construct a view of the function evaluations.
+    Teuchos::ArrayRCP<typename SFT::value_type> source_field_view(0,0);
+    if ( source_exists )
+    {
+	source_field_view =    
+	    FieldTools<SourceField>::nonConstView( function_evaluations );
+    }
 
-    GlobalOrdinal source_size = 
-	FieldTools<SourceField>::dimSize( function_evaluations );
-    Teuchos::RCP< Tpetra::MultiVector<typename SFT::value_type,
-				      GlobalOrdinal> > source_vector = 
-	Tpetra::createMultiVectorFromView( d_source_map, 
-					   source_field_view,
-					   source_size,
-					   SFT::dim( function_evaluations ) );
+    // Build a multivector for the function evaluations.
+    GlobalOrdinal source_size = source_field_view.size() / d_dimension;
+    Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type, GlobalOrdinal> > 
+	source_vector = Tpetra::createMultiVectorFromView( 
+	    d_source_map, source_field_view, source_size, d_dimension );
+
+    // Construct a view of the target space.
+    Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(0,0);
+    if ( target_exists )
+    {
+	target_field_view = FieldTools<TargetField>::nonConstView( 
+	    *target_space_manager->field() );
+    }
+    
+    // Verify that the target space has the proper amount of memory allocated.
+    GlobalOrdinal target_size = target_field_view.size() / d_dimension;
+    if ( target_exists )
+    {
+	testPrecondition( 
+	    target_size == 
+	    (typename TFT::size_type) d_target_map->getNodeNumElements() );
+	testPrecondition( TFT::dim( *target_space_manager->field() ) 
+			  == d_dimension );
+    }
 
     // Build a multivector for the target space.
-    Teuchos::ArrayRCP<typename TFT::value_type> target_field_view =
-	FieldTools<TargetField>::nonConstView( *target_space_manager->field() );
-    
-    Teuchos::RCP< Tpetra::MultiVector<typename TFT::value_type,
-				      GlobalOrdinal> > target_vector =	
-	Tpetra::createMultiVectorFromView( 
-	    d_target_map, 
-	    target_field_view,
-	    target_size,
-	    TFT::dim( *target_space_manager->field() ) );
+    Teuchos::RCP<Tpetra::MultiVector<typename TFT::value_type, GlobalOrdinal> > 
+	target_vector =	Tpetra::createMultiVectorFromView( 
+	    d_target_map, target_field_view, target_size, d_dimension );
 
     // Fill the target space with zeros so that points we didn't map get some
     // data.
-    FieldTools<TargetField>::putScalar( *target_space_manager->field(), 0.0 );
+    if ( target_exists )
+    {
+	FieldTools<TargetField>::putScalar( *target_space_manager->field(), 0.0 );
+    }
 
     // Move the data from the source decomposition to the target
     // decomposition.
+    d_comm->barrier()
     target_vector->doExport( *source_vector, *d_source_to_target_exporter, 
 			     Tpetra::INSERT );
 }

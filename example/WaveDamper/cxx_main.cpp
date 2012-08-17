@@ -36,68 +36,114 @@ int main(int argc, char* argv[])
 
     // Setup communication.
     Teuchos::GlobalMPISession mpiSession(&argc,&argv);
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
+    Teuchos::RCP<const Teuchos::Comm<int> > comm_default = 
 	Teuchos::DefaultComm<int>::getComm();
 
-    // Set up the parallel domain.
+    // Split the main communicator into 2 separate groups, one from the wave
+    // and one for the damper.
+    Teuchos::Array<int> sub_ranks_wave, sub_ranks_damper;
+    for ( int n = 0; n < comm_default->getSize(); ++n )
+    {
+	if ( n % 2 == 0 )
+	{
+	    sub_ranks_wave.push_back(n);
+	}
+	else
+	{
+	    sub_ranks_damper.push_back(n);
+	}
+    }
+
+    Teuchos::RCP<const Teuchos::Comm<int> > wave_comm = 
+	comm_default->createSubcommunicator( sub_ranks_wave() );
+
+    Teuchos::RCP<const Teuchos::Comm<int> > damper_comm = 
+	comm_default->createSubcommunicator( sub_ranks_damper() );
+
+    // Global domain.
     double global_min = 0.0;
     double global_max = 5.0;
-    int myRank = comm->getRank();
-    int mySize = comm->getSize();
-    double local_size = (global_max - global_min) / mySize;
-    double myMin = myRank*local_size + global_min;
-    double myMax = (myRank+1)*local_size + global_min;
+
+    // Set a boolean for wave/damper existence.
+    bool wave_exists = false;
+    if ( !wave_comm.is_null() ) wave_exists = true;
+    bool damper_exists = false;
+    if ( !damper_comm.is_null() ) damper_exists = true;
 
 
     // ---------------//
     // WAVE SETUP
     // ---------------//
 
-    // Create a Wave.
-    Teuchos::RCP<Wave> wave =
-	Teuchos::rcp( new Wave(comm, myMin, myMax, 10) );
+    // Set required variables.
+    Teuchos::RCP<Wave> wave;
+    Teuchos::RCP<DataTransferKit::MeshManager<WaveAdapter::MeshType> > wave_mesh;
+    WaveAdapter::RCP_Evaluator wave_evaluator;
+    Teuchos::RCP<DataTransferKit::FieldManager<WaveAdapter::MeshType> > wave_target_coords;
+    Teuchos::RCP<DataTransferKit::FieldManager<WaveAdapter::FieldType> > wave_target_space;
 
-    // Get the Wave mesh.
-    Teuchos::RCP<DataTransferKit::MeshManager<WaveAdapter::MeshType> > 
+    // If the wave code exists on this process, build its data structures.
+    if ( wave_exists )
+    {
+	// Set up the wave parallel domain.
+	int my_wave_rank = wave_comm->getRank();
+	int my_wave_size = wave_comm->getSize();
+	double wave_local_size = (global_max - global_min) / my_wave_size;
+	double my_wave_min = my_wave_rank*wave_local_size + global_min;
+	double my_wave_max = (my_wave_rank+1)*wave_local_size + global_min;
+
+	// Create a Wave.
+	wave = Teuchos::rcp( new Wave(wave_comm, my_wave_min, my_wave_max, 10) );
+
+	// Get the Wave mesh.
 	wave_mesh = WaveAdapter::getMesh( wave );
 
-    // Get the Wave field evaluator.
-    WaveAdapter::RCP_Evaluator wave_evaluator =
-	WaveAdapter::getFieldEvaluator( wave );
+	// Get the Wave field evaluator.
+	wave_evaluator = WaveAdapter::getFieldEvaluator( wave );
 
-    // Get the Wave target coordinates.
-    Teuchos::RCP<DataTransferKit::FieldManager<WaveAdapter::MeshType> >
+	// Get the Wave target coordinates.
 	wave_target_coords = WaveAdapter::getTargetCoords( wave );
 
-    // Get the Wave target space.
-    Teuchos::RCP<DataTransferKit::FieldManager<WaveAdapter::FieldType> >
+	// Get the Wave target space.
 	wave_target_space = WaveAdapter::getTargetSpace( wave );
-
+    }
 
     // ---------------//
     // DAMPER SETUP
     // ---------------//
 
-    // Create a Damper.
-    Teuchos::RCP<Damper> damper =
-	Teuchos::rcp( new Damper(comm, myMin, myMax, 10) ); 
+    // Set required variables.
+    Teuchos::RCP<Damper> damper;
+    Teuchos::RCP<DataTransferKit::MeshManager<DamperAdapter::MeshType> > damper_mesh;
+    DamperAdapter::RCP_Evaluator damper_evaluator;
+    Teuchos::RCP<DataTransferKit::FieldManager<DamperAdapter::MeshType> > damper_target_coords;
+    Teuchos::RCP<DataTransferKit::FieldManager<DamperAdapter::FieldType> > damper_target_space;
 
-    // Get the Damper mesh.
-    Teuchos::RCP<DataTransferKit::MeshManager<DamperAdapter::MeshType> >
+    // If the damper code exists on this process, build its data structures.
+    if ( damper_exists )
+    {
+	// Set up the damper parallel domain.
+	int my_damper_rank = damper_comm->getRank();
+	int my_damper_size = damper_comm->getSize();
+	double damper_local_size = (global_max - global_min) / my_damper_size;
+	double my_damper_min = my_damper_rank*damper_local_size + global_min;
+	double my_damper_max = (my_damper_rank+1)*damper_local_size + global_min;
+
+	// Create a Damper.
+	damper = Teuchos::rcp( new Damper(damper_comm, my_damper_min, my_damper_max, 10) ); 
+
+	// Get the Damper mesh.
 	damper_mesh = DamperAdapter::getMesh( damper );
 
-    // Get the Damper field evaluator.
-    DamperAdapter::RCP_Evaluator damper_evaluator =
-	DamperAdapter::getFieldEvaluator( damper );
+	// Get the Damper field evaluator.
+	damper_evaluator = DamperAdapter::getFieldEvaluator( damper );
 
-    // Get the Damper target coordinates.
-    Teuchos::RCP<DataTransferKit::FieldManager<DamperAdapter::MeshType> >
+	// Get the Damper target coordinates.
 	damper_target_coords = DamperAdapter::getTargetCoords( damper );
 
-    // Get the Damper target space.
-    Teuchos::RCP<DataTransferKit::FieldManager<DamperAdapter::FieldType> >
+	// Get the Damper target space.
 	damper_target_space = DamperAdapter::getTargetSpace( damper );
-
+    }
     
     // ---------------//
     // MAPPING SETUP
@@ -108,12 +154,14 @@ int main(int argc, char* argv[])
     DataTransferKit::CommTools::unite( wave->get_comm(), damper->get_comm(),
 				       comm_union );
 
-    // Create the mapping for the wave-to-damper transfer.
+    // Create the mapping for the wave-to-damper transfer. The mapping will
+    // occur over the union communicator.
     DataTransferKit::SharedDomainMap<WaveAdapter::MeshType,DamperAdapter::MeshType>
 	wave_to_damper_map( comm_union );
     wave_to_damper_map.setup( wave_mesh, damper_target_coords );
 
-    // Create the mapping for the damper-to-wave transfer.
+    // Create the mapping for the damper-to-wave transfer. The mapping will
+    // occur over the union communicator.
     DataTransferKit::SharedDomainMap<DamperAdapter::MeshType,WaveAdapter::MeshType>
 	damper_to_wave_map( comm_union );
     damper_to_wave_map.setup( damper_mesh, wave_target_coords );
@@ -137,13 +185,13 @@ int main(int argc, char* argv[])
 	wave_to_damper_map.apply( wave_evaluator, damper_target_space );
 
 	// Damper solve.
-	damper->solve();
+	if ( damper_exists ) damper->solve();
 
 	// Transfer the damper field.
 	damper_to_wave_map.apply( damper_evaluator, wave_target_space );
 
 	// Wave solve.
-	wave->solve();
+	if ( wave_exists ) wave->solve();
 
 	// Get the norm of the wave field to check convergence.
 	DataTransferKit::FieldTools<DataTransferKit::FieldContainer<double> >::norm2(
@@ -153,11 +201,11 @@ int main(int argc, char* argv[])
 	++num_iter;
 
 	// Barrier before proceeding.
-	comm->barrier();
+	comm_union->barrier();
     }
 
     // Output results.
-    if ( myRank == 0 )
+    if ( wave_comm->getRank() == 0 )
     {
 	std::cout << "Iterations to converge: " << num_iter << std::endl;
 	std::cout << "L2 norm:                " << wave_norm[0] << std::endl;

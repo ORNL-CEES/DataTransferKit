@@ -43,6 +43,7 @@
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -114,6 +115,20 @@ class BoundingBox
 };
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Serialization Traits Specialization.
+//---------------------------------------------------------------------------//
+
+namespace Teuchos
+{
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal, DataTransferKit::BoundingBox>
+    : public DirectSerializationTraits<Ordinal, DataTransferKit::BoundingBox>
+{};
+
+} // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
 

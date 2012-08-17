@@ -120,7 +120,8 @@ class SharedDomainMap
     //!@}
 
     // Constructor.
-    SharedDomainMap( const RCP_Comm& comm, bool store_missed_points = false );
+    SharedDomainMap( const RCP_Comm& comm, const int dimension, 
+		     bool store_missed_points = false );
 
     // Destructor.
     ~SharedDomainMap();
@@ -159,6 +160,9 @@ class SharedDomainMap
 
     // Communicator.
     RCP_Comm d_comm;
+
+    // Map dimension.
+    int d_dimension
 
     // Boolean for storing missed points in the mapping.
     bool d_store_missed_points;
