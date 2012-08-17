@@ -326,7 +326,7 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 //---------------------------------------------------------------------------//
 // Mesh create functions.
 //---------------------------------------------------------------------------//
-MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
+Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2;
@@ -403,14 +403,15 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 	permutation_list[i] = i;
     }
 
-    return MyMesh( vertex_handles, coords, hex_handles, hex_connectivity,
-		   permutation_list );
+    return Teuchos::rcp( 
+	new MyMesh( vertex_handles, coords, hex_handles, hex_connectivity,
+		    permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // This function creates a tiled mesh such that the global mesh is not
 // rectilinear.
-MyMesh buildTiledMesh( int my_rank, int my_size, int edge_length )
+Teuchos::RCP<MyMesh> buildTiledMesh( int my_rank, int my_size, int edge_length )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2;
@@ -487,8 +488,9 @@ MyMesh buildTiledMesh( int my_rank, int my_size, int edge_length )
 	permutation_list[i] = i;
     }
 
-    return MyMesh( vertex_handles, coords, hex_handles, hex_connectivity,
-		   permutation_list );
+    return Teuchos::rcp(
+	new MyMesh( vertex_handles, coords, hex_handles, hex_connectivity,
+		    permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -559,7 +561,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test2 )
 
     // Setup source mesh manager.
     int edge_size = 4;
-    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
     Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
@@ -576,7 +578,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test2 )
 
     // Create field evaluator.
     Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
-    	Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+    	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     // Create data target. This target is a 3-vector.
     int target_dim = 3;
@@ -618,7 +620,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test2 )
 
     // Setup source mesh manager.
     int edge_size = 4;
-    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
     Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
@@ -635,7 +637,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test2 )
 
     // Create field evaluator.
     Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
-    	Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+    	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     // Create data target. This target is a 3-vector.
     int target_dim = 3;
@@ -714,7 +716,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test2 )
 
     // Setup source mesh manager.
     int edge_size = 4;
-    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildTiledMesh( my_rank, my_size, edge_size );
     Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
@@ -731,7 +733,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test2 )
 
     // Create field evaluator.
     Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
-    	Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+    	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     // Create data target. This target is a 3-vector.
     int target_dim = 3;
@@ -843,14 +845,14 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_maps_test2 )
 
     // Setup source mesh manager.
     int edge_size = 4;
-    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
     Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
     // Create field evaluator.
     Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
-    	Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+    	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     int num_points = 1000;
     int point_dim = 3;
@@ -1012,14 +1014,14 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_targets_test2 )
 
     // Setup source mesh manager.
     int edge_size = 4;
-    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
     Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
     // Create field evaluator.
     Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
-    	Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+    	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     int num_points = 1000;
     int point_dim = 3;

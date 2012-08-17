@@ -93,16 +93,18 @@ class MeshManager
     //@{
     //! Typedefs.
     typedef Mesh                                                mesh_type;
+    typedef Teuchos::RCP<Mesh>                                  RCP_Mesh;
     typedef MeshTraits<Mesh>                                    MT;
     typedef typename MT::global_ordinal_type                    GlobalOrdinal;
     typedef Teuchos::Comm<int>                                  CommType;
     typedef Teuchos::RCP<const CommType>                        RCP_Comm;
-    typedef typename Teuchos::ArrayRCP<Mesh>::const_iterator    BlockIterator;
+    typedef Teuchos::ArrayRCP<RCP_Mesh>                         BlockArray;
+    typedef typename BlockArray::const_iterator                 BlockIterator;
     //@}
 
     // Constructor.
     // const Teuchos::ArrayRCP< const Teuchos::RCP<Mesh> > >& mesh_blocks
-    MeshManager( const Teuchos::ArrayRCP<Mesh>& mesh_blocks,
+    MeshManager( const Teuchos::ArrayRCP<RCP_Mesh>& mesh_blocks,
 		 const RCP_Comm& comm,
 		 const int dim );
 
@@ -128,7 +130,7 @@ class MeshManager
     { return d_mesh_blocks.end(); }
 
     //! Get a block of mesh.
-    const Mesh& getBlock( const int block_id ) const
+    const RCP_Mesh& getBlock( const int block_id ) const
     { return d_mesh_blocks[ block_id ]; }
 
     //! Get the communicator for the mesh.
@@ -168,7 +170,7 @@ class MeshManager
   private:
 
     // Mesh block array.
-    Teuchos::ArrayRCP<Mesh> d_mesh_blocks;
+    Teuchos::ArrayRCP<RCP_Mesh> d_mesh_blocks;
 
     // Communicator over which the mesh is defined.
     RCP_Comm d_comm;

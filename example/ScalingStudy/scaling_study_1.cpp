@@ -306,7 +306,7 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
 //---------------------------------------------------------------------------//
 // Mesh create function.
 //---------------------------------------------------------------------------//
-MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
+Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2;
@@ -383,8 +383,9 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 	permutation_list[i] = i;
     }
 
-    return MyMesh( vertex_handles, coords, hex_handles, hex_connectivity,
-		   permutation_list );
+    return Teuchos::rcp(
+	new MyMesh( vertex_handles, coords, hex_handles, hex_connectivity,
+		    permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -426,7 +427,7 @@ int main(int argc, char* argv[])
 
     // Setup source mesh.
     int edge_size = 11;
-    Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
     Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
@@ -440,7 +441,7 @@ int main(int argc, char* argv[])
 
     // Create field evaluator.
     Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
-    	Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+    	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     // Create data target.
     int target_dim = 1;

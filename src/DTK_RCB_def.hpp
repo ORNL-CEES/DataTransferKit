@@ -236,10 +236,10 @@ void RCB<Mesh>::getObjectList(
 	int block_id = std::distance( mesh_manager->blocksBegin(),
 				      block_iterator );
 
-	for ( gid_iterator = MT::verticesBegin( *block_iterator ),
+	for ( gid_iterator = MT::verticesBegin( *(*block_iterator) ),
 	   active_iterator = 
 			     mesh_manager->getActiveVertices( block_id ).begin();
-	      gid_iterator != MT::verticesEnd( *block_iterator );
+	      gid_iterator != MT::verticesEnd( *(*block_iterator) );
 	      ++gid_iterator, ++active_iterator )
 	{
 	    if ( *active_iterator )
@@ -323,9 +323,9 @@ void RCB<Mesh>::getGeometryList(
 	Teuchos::ArrayView<short int> active_vertices =
 	    mesh_manager->getActiveVertices( block_id );
 
-	mesh_coords = MeshTools<Mesh>::coordsView( *block_iterator );
-	num_vertices = std::distance( MT::verticesBegin( *block_iterator ),
-				      MT::verticesEnd( *block_iterator ) );
+	mesh_coords = MeshTools<Mesh>::coordsView( *(*block_iterator) );
+	num_vertices = std::distance( MT::verticesBegin( *(*block_iterator) ),
+				      MT::verticesEnd( *(*block_iterator) ) );
 	for ( GlobalOrdinal i = 0; i < num_vertices; ++i )
 	{
 	    if ( active_vertices[i] )

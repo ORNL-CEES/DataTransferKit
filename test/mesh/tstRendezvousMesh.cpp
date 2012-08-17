@@ -48,7 +48,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // Mesh container creation functions.
 //---------------------------------------------------------------------------//
 // Line segment mesh.
-DataTransferKit::MeshContainer<int> buildLineContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildLineContainer()
 {
     using namespace DataTransferKit;
 
@@ -103,15 +103,16 @@ DataTransferKit::MeshContainer<int> buildLineContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_LINE_SEGMENT, num_vertices,
-			       line_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_LINE_SEGMENT, num_vertices,
+				line_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Tri mesh.
-DataTransferKit::MeshContainer<int> buildTriContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTriContainer()
 {
     using namespace DataTransferKit;
 
@@ -172,15 +173,16 @@ DataTransferKit::MeshContainer<int> buildTriContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_TRIANGLE, num_vertices,
-			       tri_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_TRIANGLE, num_vertices,
+				tri_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Quad mesh.
-DataTransferKit::MeshContainer<int> buildQuadContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildQuadContainer()
 {
     using namespace DataTransferKit;
 
@@ -243,15 +245,16 @@ DataTransferKit::MeshContainer<int> buildQuadContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_QUADRILATERAL, num_vertices,
-			       quad_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_QUADRILATERAL, num_vertices,
+				quad_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Tet mesh.
-DataTransferKit::MeshContainer<int> buildTetContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTetContainer()
 {
     using namespace DataTransferKit;
 
@@ -320,15 +323,16 @@ DataTransferKit::MeshContainer<int> buildTetContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_TETRAHEDRON, num_vertices,
-			       tet_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_TETRAHEDRON, num_vertices,
+				tet_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Hex mesh.
-DataTransferKit::MeshContainer<int> buildHexContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildHexContainer()
 {
     using namespace DataTransferKit;
 
@@ -409,15 +413,16 @@ DataTransferKit::MeshContainer<int> buildHexContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_HEXAHEDRON, num_vertices,
-			       hex_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_HEXAHEDRON, num_vertices,
+				hex_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Parallel hex mesh.
-DataTransferKit::MeshContainer<int> buildParallelHexContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildParallelHexContainer()
 {
     using namespace DataTransferKit;
 
@@ -500,15 +505,16 @@ DataTransferKit::MeshContainer<int> buildParallelHexContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_HEXAHEDRON, num_vertices,
-			       hex_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_HEXAHEDRON, num_vertices,
+				hex_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Pyramid mesh.
-DataTransferKit::MeshContainer<int> buildPyramidContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildPyramidContainer()
 {
     using namespace DataTransferKit;
 
@@ -580,15 +586,16 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_PYRAMID, num_vertices,
-			       pyramid_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_PYRAMID, num_vertices,
+				pyramid_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Wedge mesh.
-DataTransferKit::MeshContainer<int> buildWedgeContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildWedgeContainer()
 {
     using namespace DataTransferKit;
 
@@ -663,10 +670,11 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_WEDGE, num_vertices,
-			       wedge_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_WEDGE, num_vertices,
+				wedge_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -681,7 +689,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_mesh_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildLineContainer();
 
     // Create a mesh manager.
@@ -720,16 +728,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_mesh_test )
     error = moab->get_connectivity( mesh_elements, vertices );
     TEST_ASSERT( error == moab::MB_SUCCESS );
     TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( mesh_blocks[0] ) );
+		 MT::verticesPerElement( *mesh_blocks[0] ) );
 
     // Coords.
-    int vertex_dim = MT::vertexDim( mesh_blocks[0] );
+    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
     std::vector<double> mb_coords( 3*vertices.size() );
     error = moab->get_coords( vertices, &mb_coords[0] );
     TEST_ASSERT( error == moab::MB_SUCCESS );
 
     Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( mesh_blocks[0] );
+	Tools::coordsView( *mesh_blocks[0] );
     for ( int i = 0; i < (int) vertices.size(); ++i )
     {
 	for ( int d = 0; d < vertex_dim; ++d )
@@ -750,7 +758,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_mesh_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildTriContainer();
 
     // Create a mesh manager.
@@ -788,16 +796,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_mesh_test )
     error = moab->get_connectivity( mesh_elements, vertices );
     TEST_ASSERT( error == moab::MB_SUCCESS );
     TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( mesh_blocks[0] ) );
+		 MT::verticesPerElement( *mesh_blocks[0] ) );
 
     // Coords.
-    int vertex_dim = MT::vertexDim( mesh_blocks[0] );
+    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
     std::vector<double> mb_coords( 3*vertices.size() );
     error = moab->get_coords( vertices, &mb_coords[0] );
     TEST_ASSERT( error == moab::MB_SUCCESS );
 
     Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( mesh_blocks[0] );
+	Tools::coordsView( *mesh_blocks[0] );
     for ( int i = 0; i < (int) vertices.size(); ++i )
     {
 	for ( int d = 0; d < vertex_dim; ++d )
@@ -817,7 +825,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_mesh_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildQuadContainer();
 
     // Create a mesh manager.
@@ -854,16 +862,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_mesh_test )
     moab::Range vertices;
     error = moab->get_connectivity( mesh_elements, vertices );
     TEST_ASSERT( error == moab::MB_SUCCESS );
-    TEST_ASSERT( (int) vertices.size() == MT::verticesPerElement( mesh_blocks[0] ) );
+    TEST_ASSERT( (int) vertices.size() == MT::verticesPerElement( *mesh_blocks[0] ) );
 
     // Coords.
-    int vertex_dim = MT::vertexDim( mesh_blocks[0] );
+    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
     std::vector<double> mb_coords( 3*vertices.size() );
     error = moab->get_coords( vertices, &mb_coords[0] );
     TEST_ASSERT( error == moab::MB_SUCCESS );
 
     Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( mesh_blocks[0] );
+	Tools::coordsView( *mesh_blocks[0] );
     for ( int i = 0; i < (int) vertices.size(); ++i )
     {
 	for ( int d = 0; d < vertex_dim; ++d )
@@ -883,7 +891,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_mesh_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildTetContainer();
 
     // Create a mesh manager.
@@ -920,16 +928,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_mesh_test )
     error = moab->get_connectivity( mesh_elements, vertices );
     TEST_ASSERT( error == moab::MB_SUCCESS );
     TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( mesh_blocks[0] ) );
+		 MT::verticesPerElement( *mesh_blocks[0] ) );
 
     // Coords.
-    int vertex_dim = MT::vertexDim( mesh_blocks[0] );
+    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
     std::vector<double> mb_coords( 3*vertices.size() );
     error = moab->get_coords( vertices, &mb_coords[0] );
     TEST_ASSERT( error == moab::MB_SUCCESS );
 
     Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( mesh_blocks[0] );
+	Tools::coordsView( *mesh_blocks[0] );
     for ( int i = 0; i < (int) vertices.size(); ++i )
     {
 	for ( int d = 0; d < vertex_dim; ++d )
@@ -949,7 +957,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_mesh_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildHexContainer();
 
     // Create a mesh manager.
@@ -986,16 +994,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_mesh_test )
     error = moab->get_connectivity( mesh_elements, vertices );
     TEST_ASSERT( error == moab::MB_SUCCESS );
     TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( mesh_blocks[0] ) );
+		 MT::verticesPerElement( *mesh_blocks[0] ) );
 
     // Coords.
-    int vertex_dim = MT::vertexDim( mesh_blocks[0] );
+    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
     std::vector<double> mb_coords( 3*vertices.size() );
     error = moab->get_coords( vertices, &mb_coords[0] );
     TEST_ASSERT( error == moab::MB_SUCCESS );
 
     Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( mesh_blocks[0] );
+	Tools::coordsView( *mesh_blocks[0] );
     for ( int i = 0; i < (int) vertices.size(); ++i )
     {
 	for ( int d = 0; d < vertex_dim; ++d )
@@ -1015,7 +1023,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_mesh_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildPyramidContainer();
 
     // Create a mesh manager.
@@ -1052,16 +1060,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_mesh_test )
     error = moab->get_connectivity( mesh_elements, vertices );
     TEST_ASSERT( error == moab::MB_SUCCESS );
     TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( mesh_blocks[0] ) );
+		 MT::verticesPerElement( *mesh_blocks[0] ) );
 
     // Coords.
-    int vertex_dim = MT::vertexDim( mesh_blocks[0] );
+    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
     std::vector<double> mb_coords( 3*vertices.size() );
     error = moab->get_coords( vertices, &mb_coords[0] );
     TEST_ASSERT( error == moab::MB_SUCCESS );
 
     Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( mesh_blocks[0] );
+	Tools::coordsView( *mesh_blocks[0] );
     for ( int i = 0; i < (int) vertices.size(); ++i )
     {
 	for ( int d = 0; d < vertex_dim; ++d )
@@ -1081,7 +1089,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_mesh_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildWedgeContainer();
 
     // Create a mesh manager.
@@ -1118,16 +1126,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_mesh_test )
     error = moab->get_connectivity( mesh_elements, vertices );
     TEST_ASSERT( error == moab::MB_SUCCESS );
     TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( mesh_blocks[0] ) );
+		 MT::verticesPerElement( *mesh_blocks[0] ) );
 
     // Coords.
-    int vertex_dim = MT::vertexDim( mesh_blocks[0] );
+    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
     std::vector<double> mb_coords( 3*vertices.size() );
     error = moab->get_coords( vertices, &mb_coords[0] );
     TEST_ASSERT( error == moab::MB_SUCCESS );
 
     Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( mesh_blocks[0] );
+	Tools::coordsView( *mesh_blocks[0] );
     for ( int i = 0; i < (int) vertices.size(); ++i )
     {
 	for ( int d = 0; d < vertex_dim; ++d )
@@ -1147,7 +1155,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_rendezvous_mesh_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildParallelHexContainer();
 
     // Create a mesh manager.
@@ -1184,16 +1192,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_rendezvous_mesh_test )
     error = moab->get_connectivity( mesh_elements, vertices );
     TEST_ASSERT( error == moab::MB_SUCCESS );
     TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( mesh_blocks[0] ) );
+		 MT::verticesPerElement( *mesh_blocks[0] ) );
 
     // Coords.
-    int vertex_dim = MT::vertexDim( mesh_blocks[0] );
+    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
     std::vector<double> mb_coords( 3*vertices.size() );
     error = moab->get_coords( vertices, &mb_coords[0] );
     TEST_ASSERT( error == moab::MB_SUCCESS );
 
     Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( mesh_blocks[0] );
+	Tools::coordsView( *mesh_blocks[0] );
     for ( int i = 0; i < (int) vertices.size(); ++i )
     {
 	for ( int d = 0; d < vertex_dim; ++d )
@@ -1213,7 +1221,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_mesh_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 2 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 2 );
     mesh_blocks[0] = buildTriContainer();
     mesh_blocks[1] = buildQuadContainer();
 
@@ -1249,9 +1257,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_mesh_test )
 	int block_id = std::distance( mesh_manager.blocksBegin(),
 				      block_iterator );
 	// Elements.
-	int block_topology = MT::elementTopology( *block_iterator );
+	int block_topology = MT::elementTopology( *(*block_iterator) );
 	Teuchos::ArrayRCP<const int> elements_view =
-	    Tools::elementsView( *block_iterator );
+	    Tools::elementsView( *(*block_iterator) );
 	TEST_ASSERT( elements_view[0] == 12 );
 	moab::EntityType element_type = 
 	    moab->type_from_handle( mesh_elements[block_id] );
@@ -1259,7 +1267,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_mesh_test )
 		     element_type );
 
 	// Vertices.
-	int num_vertices = MT::verticesPerElement( *block_iterator );
+	int num_vertices = MT::verticesPerElement( *(*block_iterator) );
 	moab::Range block_elements;
 	error = moab->get_entities_by_type( 
 	    root_set, element_type, block_elements );
@@ -1270,13 +1278,13 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_mesh_test )
 	TEST_ASSERT( (int) vertices.size() == num_vertices );
 
 	// Coords.
-	int vertex_dim = MT::vertexDim( *block_iterator );
+	int vertex_dim = MT::vertexDim( *(*block_iterator) );
 	std::vector<double> mb_coords( 3*vertices.size() );
 	error = moab->get_coords( vertices, &mb_coords[0] );
 	TEST_ASSERT( error == moab::MB_SUCCESS );
 
 	Teuchos::ArrayRCP<const double> coords_view = 
-	    Tools::coordsView( *block_iterator );
+	    Tools::coordsView( *(*block_iterator) );
 	for ( int i = 0; i < (int) vertices.size(); ++i )
 	{
 	    for ( int d = 0; d < vertex_dim; ++d )
@@ -1298,7 +1306,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_mesh_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 3 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 3 );
     mesh_blocks[0] = buildTetContainer();
     mesh_blocks[1] = buildPyramidContainer();
     mesh_blocks[2] = buildHexContainer();
@@ -1336,9 +1344,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_mesh_test )
 				      block_iterator );
 
 	// Elements.
-	int block_topology = MT::elementTopology( *block_iterator );
+	int block_topology = MT::elementTopology( *(*block_iterator) );
 	Teuchos::ArrayRCP<const int> elements_view =
-	    Tools::elementsView( *block_iterator );
+	    Tools::elementsView( *(*block_iterator) );
 	TEST_ASSERT( elements_view[0] == 12 );
 	moab::EntityType element_type = 
 	    moab->type_from_handle( mesh_elements[block_id] );
@@ -1346,7 +1354,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_mesh_test )
 		     element_type );
 
 	// Vertices.
-	int num_vertices = MT::verticesPerElement( *block_iterator );
+	int num_vertices = MT::verticesPerElement( *(*block_iterator) );
 	moab::Range block_elements;
 	error = moab->get_entities_by_type( 
 	    root_set, element_type, block_elements );
@@ -1357,13 +1365,13 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_mesh_test )
 	TEST_ASSERT( (int) vertices.size() == num_vertices );
 
 	// Coords.
-	int vertex_dim = MT::vertexDim( *block_iterator );
+	int vertex_dim = MT::vertexDim( *(*block_iterator) );
 	std::vector<double> mb_coords( 3*vertices.size() );
 	error = moab->get_coords( vertices, &mb_coords[0] );
 	TEST_ASSERT( error == moab::MB_SUCCESS );
 
 	Teuchos::ArrayRCP<const double> coords_view = 
-	    Tools::coordsView( *block_iterator );
+	    Tools::coordsView( *(*block_iterator) );
 	for ( int i = 0; i < (int) vertices.size(); ++i )
 	{
 	    for ( int d = 0; d < vertex_dim; ++d )

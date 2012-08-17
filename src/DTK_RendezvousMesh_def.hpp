@@ -125,10 +125,10 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
     {
 	// Check the vertices and coordinates for consistency.
 	GlobalOrdinal num_vertices = 
-	    MeshTools<Mesh>::numVertices( *block_iterator );
+	    MeshTools<Mesh>::numVertices( *(*block_iterator) );
 	rememberValue( GlobalOrdinal num_coords = 
-		       std::distance( MT::coordsBegin( *block_iterator ),
-				      MT::coordsEnd( *block_iterator ) ) );
+		       std::distance( MT::coordsBegin( *(*block_iterator) ),
+				      MT::coordsEnd( *(*block_iterator) ) ) );
 	testInvariant( num_coords == 
 		       (GlobalOrdinal) vertex_dim * num_vertices );
 
@@ -137,11 +137,11 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	// one that hashes moab handles.
 	double vertex_coords[3];
 	Teuchos::ArrayRCP<const double> mesh_coords = 
-	    MeshTools<Mesh>::coordsView( *block_iterator );
+	    MeshTools<Mesh>::coordsView( *(*block_iterator) );
 	std::map<GlobalOrdinal,moab::EntityHandle> vertex_handle_map;
 	GlobalOrdinal n = 0;
-	for ( vertex_iterator = MT::verticesBegin( *block_iterator );
-	      vertex_iterator != MT::verticesEnd( *block_iterator );
+	for ( vertex_iterator = MT::verticesBegin( *(*block_iterator) );
+	      vertex_iterator != MT::verticesEnd( *(*block_iterator) );
 	      ++vertex_iterator, ++n )
 	{
 	    moab::EntityHandle moab_vertex;
@@ -165,29 +165,29 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 
 	// Check the elements and connectivity for consistency.
 	int vertices_per_element = 
-	    MT::verticesPerElement( *block_iterator );
+	    MT::verticesPerElement( *(*block_iterator) );
 	GlobalOrdinal num_elements = 
-	    MeshTools<Mesh>::numElements( *block_iterator );
+	    MeshTools<Mesh>::numElements( *(*block_iterator) );
 	rememberValue( GlobalOrdinal num_connect = 
-		       std::distance( MT::connectivityBegin( *block_iterator ),
-				      MT::connectivityEnd( *block_iterator ) ) );
+		       std::distance( MT::connectivityBegin( *(*block_iterator) ),
+				      MT::connectivityEnd( *(*block_iterator) ) ) );
 	testInvariant( num_elements == num_connect / vertices_per_element &&
 		       num_connect % vertices_per_element == 0 );
 
 	// Extract the mesh elements and add them to moab.
 	Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity = 
-	    MeshTools<Mesh>::connectivityView( *block_iterator );
+	    MeshTools<Mesh>::connectivityView( *(*block_iterator) );
 	Teuchos::ArrayRCP<const int> permutation_list =
-	    MeshTools<Mesh>::permutationView( *block_iterator );
+	    MeshTools<Mesh>::permutationView( *(*block_iterator) );
 	GlobalOrdinal conn_index;
 	Teuchos::Array<moab::EntityHandle> 
 	    element_connectivity( vertices_per_element );
 
 	int canonical_idx;
 	n = 0;
-	int element_topology = MT::elementTopology( *block_iterator );
-	for ( element_iterator = MT::elementsBegin( *block_iterator );
-	      element_iterator != MT::elementsEnd( *block_iterator );
+	int element_topology = MT::elementTopology( *(*block_iterator) );
+	for ( element_iterator = MT::elementsBegin( *(*block_iterator) );
+	      element_iterator != MT::elementsEnd( *(*block_iterator) );
 	      ++element_iterator, ++n )
 	{
 	    // Extract the connecting vertices for this element and apply the

@@ -332,7 +332,7 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
   *-------*-------*-------*-------*
 
  */
-MyMesh buildMyMesh()
+Teuchos::RCP<MyMesh> buildMyMesh()
 {
     int my_rank = getDefaultComm<int>()->getRank();
 
@@ -377,8 +377,9 @@ MyMesh buildMyMesh()
 	permutation_list[i] = i;
     }
 
-    return MyMesh( vertex_handles, coords, quad_handles, quad_connectivity,
-		   permutation_list );
+    return Teuchos::rcp( 
+	new MyMesh( vertex_handles, coords, quad_handles, quad_connectivity,
+		    permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -439,7 +440,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test )
     if ( my_size == 4 )
     {
 	// Setup source mesh manager.
-	Teuchos::ArrayRCP<MyMesh> mesh_blocks( 1 );
+	Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
 	mesh_blocks[0] = buildMyMesh();
 	Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp(
 	    new MeshManager<MyMesh>( mesh_blocks, comm, 2 ) );
@@ -451,7 +452,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test )
 
 	// Create field evaluator.
 	Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
-	    Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+	    Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
 	// Create data target manager
 	int field_size = target_coord_manager->field()->size() 

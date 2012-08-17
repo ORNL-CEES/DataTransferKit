@@ -190,7 +190,7 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<
 //---------------------------------------------------------------------------//
 // Mesh create functions.
 //---------------------------------------------------------------------------//
-DataTransferKit::MeshContainer<int> 
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >
 buildTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -249,14 +249,15 @@ buildTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
-						DataTransferKit::DTK_TRIANGLE, 3,
-						tri_handles, tri_connectivity,
-						permutation_list );
+    return Teuchos::rcp( 
+	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
+						 DataTransferKit::DTK_TRIANGLE, 3,
+						 tri_handles, tri_connectivity,
+						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-DataTransferKit::MeshContainer<int> 
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >
 buildTiledTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -315,14 +316,15 @@ buildTiledTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
-						DataTransferKit::DTK_TRIANGLE, 3,
-						tri_handles, tri_connectivity,
-						permutation_list );
+    return Teuchos::rcp(
+	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
+						 DataTransferKit::DTK_TRIANGLE, 3,
+						 tri_handles, tri_connectivity,
+						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-DataTransferKit::MeshContainer<int> buildNullTriMesh()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullTriMesh()
 {
     Teuchos::ArrayRCP<int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
@@ -334,14 +336,15 @@ DataTransferKit::MeshContainer<int> buildNullTriMesh()
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
-						DataTransferKit::DTK_TRIANGLE, 3,
-						tri_handles, tri_connectivity,
-						permutation_list );
+    return Teuchos::rcp( 
+	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
+						 DataTransferKit::DTK_TRIANGLE, 3,
+						 tri_handles, tri_connectivity,
+						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-DataTransferKit::MeshContainer<int>  
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
 buildQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -395,14 +398,15 @@ buildQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
-						DataTransferKit::DTK_QUADRILATERAL, 4,
-						quad_handles, quad_connectivity,
-						permutation_list );
+    return Teuchos::rcp( 
+	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
+						 DataTransferKit::DTK_QUADRILATERAL, 4,
+						 quad_handles, quad_connectivity,
+						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-DataTransferKit::MeshContainer<int>  
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
 buildTiledQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -456,14 +460,15 @@ buildTiledQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
-						DataTransferKit::DTK_QUADRILATERAL, 4,
-						quad_handles, quad_connectivity,
-						permutation_list );
+    return Teuchos::rcp( 
+	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
+						 DataTransferKit::DTK_QUADRILATERAL, 4,
+						 quad_handles, quad_connectivity,
+						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-DataTransferKit::MeshContainer<int> 
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > 
 buildNullQuadMesh()
 {
     Teuchos::ArrayRCP<int> vertex_handles(0);
@@ -476,10 +481,11 @@ buildNullQuadMesh()
 	permutation_list[i] = i;
     }
 
-    return DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
-						DataTransferKit::DTK_QUADRILATERAL, 4,
-						quad_handles, quad_connectivity,
-						permutation_list );
+    return Teuchos::rcp( 
+	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
+						 DataTransferKit::DTK_QUADRILATERAL, 4,
+						 quad_handles, quad_connectivity,
+						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -559,7 +565,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test10 )
     int quad_offset_2 = tri_offset_2 + (edge_size+1)*(edge_size+1)*2;
 
     // Setup source mesh manager.
-    Teuchos::ArrayRCP<MeshContainer<int> > mesh_blocks( 2 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 2 );
     if ( my_rank == 0 )
     {
 	mesh_blocks[0] = 
@@ -603,19 +609,19 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test10 )
     Teuchos::RCP< FieldEvaluator<MeshType ,MyField> > source_evaluator;
     if ( my_rank == 0 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
     }
     else if ( my_rank == 1 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[1], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[1], comm ) );
     }
     else if ( my_rank == 2 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
     }
     else
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[1], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[1], comm ) );
     }
     comm->barrier();
 
@@ -666,7 +672,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test10 )
     int quad_offset_2 = tri_offset_2 + (edge_size+1)*(edge_size+1)*2;
 
     // Setup source mesh manager.
-    Teuchos::ArrayRCP<MeshContainer<int> > mesh_blocks( 2 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 2 );
     if ( my_rank == 0 )
     {
 	mesh_blocks[0] = 
@@ -710,19 +716,19 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test10 )
     Teuchos::RCP< FieldEvaluator<MeshType ,MyField> > source_evaluator;
     if ( my_rank == 0 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
     }
     else if ( my_rank == 1 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[1], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[1], comm ) );
     }
     else if ( my_rank == 2 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
     }
     else
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[1], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[1], comm ) );
     }
     comm->barrier();
 
@@ -807,7 +813,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test10 )
     int quad_offset_2 = tri_offset_2 + (edge_size+1)*(edge_size+1)*2;
 
     // Setup source mesh manager.
-    Teuchos::ArrayRCP<MeshContainer<int> > mesh_blocks( 2 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 2 );
     if ( my_rank == 0 )
     {
 	mesh_blocks[0] = 
@@ -851,19 +857,19 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test10 )
     Teuchos::RCP< FieldEvaluator<MeshType ,MyField> > source_evaluator;
     if ( my_rank == 0 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
     }
     else if ( my_rank == 1 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[1], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[1], comm ) );
     }
     else if ( my_rank == 2 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
     }
     else
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[1], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[1], comm ) );
     }
     comm->barrier();
 

@@ -49,7 +49,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // Mesh container creation functions.
 //---------------------------------------------------------------------------//
 // Line segment mesh.
-DataTransferKit::MeshContainer<int> buildLineContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildLineContainer()
 {
     using namespace DataTransferKit;
 
@@ -104,15 +104,16 @@ DataTransferKit::MeshContainer<int> buildLineContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_LINE_SEGMENT, num_vertices,
-			       line_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp(
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_LINE_SEGMENT, num_vertices,
+				line_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Tri mesh.
-DataTransferKit::MeshContainer<int> buildTriContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTriContainer()
 {
     using namespace DataTransferKit;
 
@@ -173,15 +174,16 @@ DataTransferKit::MeshContainer<int> buildTriContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_TRIANGLE, num_vertices,
-			       tri_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp(
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_TRIANGLE, num_vertices,
+				tri_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Quad mesh.
-DataTransferKit::MeshContainer<int> buildQuadContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildQuadContainer()
 {
     using namespace DataTransferKit;
 
@@ -244,15 +246,16 @@ DataTransferKit::MeshContainer<int> buildQuadContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_QUADRILATERAL, num_vertices,
-			       quad_handle_array, connectivity_array,
-			       permutation_list );
-}
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_QUADRILATERAL, num_vertices,
+				quad_handle_array, connectivity_array,
+				permutation_list ) );
+	}
 
 //---------------------------------------------------------------------------//
 // Shifted quad mesh.
-DataTransferKit::MeshContainer<int> buildShiftedQuadContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildShiftedQuadContainer()
 {
     using namespace DataTransferKit;
 
@@ -315,15 +318,16 @@ DataTransferKit::MeshContainer<int> buildShiftedQuadContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_QUADRILATERAL, num_vertices,
-			       quad_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_QUADRILATERAL, num_vertices,
+				quad_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Tet mesh.
-DataTransferKit::MeshContainer<int> buildTetContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTetContainer()
 {
     using namespace DataTransferKit;
 
@@ -392,15 +396,16 @@ DataTransferKit::MeshContainer<int> buildTetContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_TETRAHEDRON, num_vertices,
-			       tet_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp(
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_TETRAHEDRON, num_vertices,
+				tet_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Hex mesh.
-DataTransferKit::MeshContainer<int> buildHexContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildHexContainer()
 {
     using namespace DataTransferKit;
 
@@ -481,15 +486,16 @@ DataTransferKit::MeshContainer<int> buildHexContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_HEXAHEDRON, num_vertices,
-			       hex_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_HEXAHEDRON, num_vertices,
+				hex_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Shifted hex mesh.
-DataTransferKit::MeshContainer<int> buildShiftedHexContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildShiftedHexContainer()
 {
     using namespace DataTransferKit;
 
@@ -570,15 +576,16 @@ DataTransferKit::MeshContainer<int> buildShiftedHexContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_HEXAHEDRON, num_vertices,
-			       hex_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp(
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_HEXAHEDRON, num_vertices,
+				hex_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Parallel hex mesh.
-DataTransferKit::MeshContainer<int> buildParallelHexContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildParallelHexContainer()
 {
     using namespace DataTransferKit;
 
@@ -661,15 +668,16 @@ DataTransferKit::MeshContainer<int> buildParallelHexContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_HEXAHEDRON, num_vertices,
-			       hex_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_HEXAHEDRON, num_vertices,
+				hex_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Pyramid mesh.
-DataTransferKit::MeshContainer<int> buildPyramidContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildPyramidContainer()
 {
     using namespace DataTransferKit;
 
@@ -741,15 +749,16 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_PYRAMID, num_vertices,
-			       pyramid_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp(
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_PYRAMID, num_vertices,
+				pyramid_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Shifted pyramid mesh.
-DataTransferKit::MeshContainer<int> buildShiftedPyramidContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildShiftedPyramidContainer()
 {
     using namespace DataTransferKit;
 
@@ -821,15 +830,16 @@ DataTransferKit::MeshContainer<int> buildShiftedPyramidContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_PYRAMID, num_vertices,
-			       pyramid_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_PYRAMID, num_vertices,
+				pyramid_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Wedge mesh.
-DataTransferKit::MeshContainer<int> buildWedgeContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildWedgeContainer()
 {
     using namespace DataTransferKit;
 
@@ -904,10 +914,11 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_WEDGE, num_vertices,
-			       wedge_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp(
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_WEDGE, num_vertices,
+				wedge_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -922,7 +933,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_kd_tree_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildLineContainer();
 
     // Create a mesh manager.
@@ -969,7 +980,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_kd_tree_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildTriContainer();
 
     // Create a mesh manager.
@@ -1019,7 +1030,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_kd_tree_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildQuadContainer();
 
     // Create a mesh manager.
@@ -1069,7 +1080,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_kd_tree_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildTetContainer();
 
     // Create a mesh manager.
@@ -1121,7 +1132,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_kd_tree_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildHexContainer();
 
     // Create a mesh manager.
@@ -1173,7 +1184,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_kd_tree_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildPyramidContainer();
 
     // Create a mesh manager.
@@ -1225,7 +1236,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_kd_tree_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildWedgeContainer();
 
     // Create a mesh manager.
@@ -1279,7 +1290,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_kd_tree_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildParallelHexContainer();
 
     // Create a mesh manager.
@@ -1331,7 +1342,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_kd_tree_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 2 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 2 );
     mesh_blocks[0] = buildTriContainer();
     mesh_blocks[1] = buildShiftedQuadContainer();
 
@@ -1399,7 +1410,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_kd_tree_test )
     typedef MeshContainer<int> MeshType;
     typedef MeshTraits< MeshType > MT;
     typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP< MeshType > mesh_blocks( 3 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 3 );
     mesh_blocks[0] = buildTetContainer();
     mesh_blocks[1] = buildShiftedPyramidContainer();
     mesh_blocks[2] = buildShiftedHexContainer();

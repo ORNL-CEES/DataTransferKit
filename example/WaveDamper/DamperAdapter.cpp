@@ -56,11 +56,12 @@ DamperAdapter::getMesh( const RCP_Damper& damper )
 	permutation_list[i] = i;
     }
 
-    MeshType mesh_container( vertex_dimension, vertices, coordinates, 
-			     element_topology, vertices_per_element, 
-			     elements, connectivity, permutation_list );
+    Teuchos::RCP<MeshType> mesh_container = Teuchos::rcp(
+	new MeshType( vertex_dimension, vertices, coordinates, 
+		      element_topology, vertices_per_element, 
+		      elements, connectivity, permutation_list ) );
 
-    Teuchos::ArrayRCP<MeshType> mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = mesh_container;
 
     return Teuchos::rcp( new DataTransferKit::MeshManager<MeshType>( 
@@ -103,7 +104,8 @@ DamperAdapter::getTargetSpace( const RCP_Damper& damper )
     Teuchos::ArrayRCP<double> data_space( &(*target_space)[0], 0, 
 					  target_space->size(), false );
 
-    FieldType field_container( data_space, field_dim );
+    Teuchos::RCP<FieldType> field_container = 
+	Teuchos::rcp( new FieldType( data_space, field_dim ) );
     
     return Teuchos::rcp(
 	new DataTransferKit::FieldManager<FieldType>( field_container, 

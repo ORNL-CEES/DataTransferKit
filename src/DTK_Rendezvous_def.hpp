@@ -253,12 +253,12 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 	// table to improve this access time as I'm using this strategy for
 	// most mesh operations.
 	GlobalOrdinal num_vertices = 
-	    MeshTools<Mesh>::numVertices( *block_iterator );
+	    MeshTools<Mesh>::numVertices( *(*block_iterator) );
 	std::map<GlobalOrdinal,GlobalOrdinal> vertex_indices;
 	typename MT::const_vertex_iterator vertex_iterator;
 	GlobalOrdinal array_index = 0;
-	for ( vertex_iterator = MT::verticesBegin( *block_iterator );
-	      vertex_iterator != MT::verticesEnd( *block_iterator );
+	for ( vertex_iterator = MT::verticesBegin( *(*block_iterator) );
+	      vertex_iterator != MT::verticesEnd( *(*block_iterator) );
 	      ++vertex_iterator )
 	{
 	    vertex_indices[ *vertex_iterator ] = array_index;
@@ -268,7 +268,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 	// Get all of the vertices that are in the box. 
 	Teuchos::Array<double> vertex_coords( d_vertex_dim );
 	Teuchos::ArrayRCP<const double> mesh_coords =
-	    MeshTools<Mesh>::coordsView( *block_iterator );
+	    MeshTools<Mesh>::coordsView( *(*block_iterator) );
 	for ( GlobalOrdinal n = 0; n < num_vertices; ++n )
 	{
 	    for ( int d = 0; d < d_vertex_dim; ++d )
@@ -283,13 +283,13 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 	// For those vertices that are in the box, get the elements that they
 	// construct. These elements are in the box.
 	GlobalOrdinal num_elements = 
-	    MeshTools<Mesh>::numElements( *block_iterator );
-	int vertices_per_element = MT::verticesPerElement( *block_iterator );
+	    MeshTools<Mesh>::numElements( *(*block_iterator) );
+	int vertices_per_element = MT::verticesPerElement( *(*block_iterator) );
 	GlobalOrdinal vertex_index;
 	GlobalOrdinal vertex_ordinal;
 	int this_element_in_box;
 	Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity = 
-	    MeshTools<Mesh>::connectivityView( *block_iterator );
+	    MeshTools<Mesh>::connectivityView( *(*block_iterator) );
 	for ( GlobalOrdinal n = 0; n < num_elements; ++n )
 	{
 	    this_element_in_box = 0;
@@ -341,7 +341,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
     const RCP_MeshManager& mesh_manager )
 {
     // Setup the mesh blocks.
-    Teuchos::ArrayRCP<MeshContainerType> 
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshContainerType> >
 	block_containers( mesh_manager->getNumBlocks() );
     BlockIterator block_iterator;
     for ( block_iterator = mesh_manager->blocksBegin();
@@ -356,15 +356,15 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	// global ordinals to the rendezvous decomposition.
 	Teuchos::Array<GlobalOrdinal> rendezvous_vertices;
 	Teuchos::Array<GlobalOrdinal> rendezvous_elements;
-	setupImportCommunication( *block_iterator, 
+	setupImportCommunication( *(*block_iterator), 
 				  mesh_manager->getActiveElements( block_id ),
 				  rendezvous_vertices, rendezvous_elements );
 
 	// Setup export vertex map.
 	GlobalOrdinal num_vertices = 
-	    MeshTools<Mesh>::numVertices( *block_iterator );
+	    MeshTools<Mesh>::numVertices( *(*block_iterator) );
 	Teuchos::ArrayRCP<const GlobalOrdinal> export_vertex_arcp =
-	    MeshTools<Mesh>::verticesView( *block_iterator );
+	    MeshTools<Mesh>::verticesView( *(*block_iterator) );
 	Teuchos::ArrayView<const GlobalOrdinal> export_vertex_view =
 	    export_vertex_arcp();
 	RCP_TpetraMap export_vertex_map = 
@@ -382,9 +382,9 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 
 	// Setup export element map.
 	GlobalOrdinal num_elements = 
-	    MeshTools<Mesh>::numElements( *block_iterator );
+	    MeshTools<Mesh>::numElements( *(*block_iterator) );
 	Teuchos::ArrayRCP<const GlobalOrdinal> export_element_arcp =
-	    MeshTools<Mesh>::elementsView( *block_iterator );
+	    MeshTools<Mesh>::elementsView( *(*block_iterator) );
 	Teuchos::ArrayView<const GlobalOrdinal> export_element_view =
 	    export_element_arcp();
 	RCP_TpetraMap export_element_map = 
@@ -408,7 +408,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 
 	// Move the vertex coordinates to the rendezvous decomposition.
 	Teuchos::ArrayRCP<double> export_coords_view =
-	    MeshTools<Mesh>::coordsNonConstView( *block_iterator );
+	    MeshTools<Mesh>::coordsNonConstView( *(*block_iterator) );
 	Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > 
 	    export_coords = Tpetra::createMultiVectorFromView( 
 		export_vertex_map, export_coords_view, 
@@ -419,9 +419,9 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	    *export_coords, vertex_importer, Tpetra::INSERT );
 
 	// Move the element connectivity to the rendezvous decomposition.
-	int vertices_per_element = MT::verticesPerElement( *block_iterator );
+	int vertices_per_element = MT::verticesPerElement( *(*block_iterator) );
 	Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view =
-	    MeshTools<Mesh>::connectivityNonConstView( *block_iterator );
+	    MeshTools<Mesh>::connectivityNonConstView( *(*block_iterator) );
 	Teuchos::RCP< Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > 
 	    export_conn 
 	    = Tpetra::createMultiVectorFromView( 
@@ -446,18 +446,19 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	rendezvous_elements.clear();
 
 	Teuchos::ArrayRCP<const int> permutation_list = 
-	    MeshTools<Mesh>::permutationView( *block_iterator );
+	    MeshTools<Mesh>::permutationView( *(*block_iterator) );
 
 	block_containers[ block_id ] = 
-	    MeshContainerType( d_vertex_dim,
-			       rendezvous_vertices_array,
-			       import_coords.get1dView(),
-			       MT::elementTopology( *block_iterator ),
-			       vertices_per_element,
-			       rendezvous_elements_array,
-			       import_conn.get1dView(),
-			       permutation_list );
-    }
+	    Teuchos::rcp( 
+		new MeshContainerType( d_vertex_dim,
+				       rendezvous_vertices_array,
+				       import_coords.get1dView(),
+				       MT::elementTopology( *(*block_iterator) ),
+				       vertices_per_element,
+				       rendezvous_elements_array,
+				       import_conn.get1dView(),
+				       permutation_list ) );
+		}
 
     // Build the rendezvous mesh manager from the rendezvous mesh blocks.
     return MeshManager<MeshContainerType>( block_containers,
