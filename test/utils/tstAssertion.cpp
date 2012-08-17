@@ -235,5 +235,30 @@ TEUCHOS_UNIT_TEST( Assertion, remember_test )
 }
 
 //---------------------------------------------------------------------------//
+// Test the assertion check for DBC.
+TEUCHOS_UNIT_TEST( Assertion, assertion_test )
+{
+    try 
+    {
+	testAssertion( 0 );
+	throw std::runtime_error( "this shouldn't be thrown" );
+    }
+    catch( const DataTransferKit::Assertion& assertion )
+    {
+	std::string message( assertion.what() );
+	std::string true_message( "DataTransferKit Assertion: 0, failed in" );
+	std::string::size_type idx = message.find( true_message );
+	if ( idx == std::string::npos )
+	{
+	    TEST_ASSERT( 0 );
+	}
+    }
+    catch( ... )
+    {
+	TEST_ASSERT( 0 );
+    }
+}
+
+//---------------------------------------------------------------------------//
 // end tstAssertion.cpp
 //---------------------------------------------------------------------------//

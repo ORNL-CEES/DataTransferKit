@@ -406,16 +406,17 @@ MyMesh buildMyMesh()
    ------- ------- ------- ------- 
 
  */
-MyField buildCoordinateField()
+Teuchos::RCP<MyField> buildCoordinateField()
 {
     int num_points = 4;
     int point_dim = 2;
-    MyField coordinate_field( num_points*point_dim, point_dim );
+    Teuchos::RCP<MyField> coordinate_field = 
+	Teuchos::rcp( new MyField( num_points*point_dim, point_dim ) );
 
     for ( int i = 0; i < num_points; ++i )
     {
-	*(coordinate_field.begin() + i) = i + 0.5;
-	*(coordinate_field.begin() + num_points + i ) = 
+	*(coordinate_field->begin() + i) = i + 0.5;
+	*(coordinate_field->begin() + num_points + i ) = 
 	    getDefaultComm<int>()->getRank() + 0.5;
     }
 
@@ -453,11 +454,13 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test )
 	    Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
 
 	// Create data target manager
-	int field_size = target_coord_manager->field().size() 
-			 / target_coord_manager->field().dim();
+	int field_size = target_coord_manager->field()->size() 
+			 / target_coord_manager->field()->dim();
+	Teuchos::RCP<MyField> target_field = 
+	    Teuchos::rcp( new MyField( field_size, 1 ) );
 	Teuchos::RCP< FieldManager<MyField> > target_space_manager = 
 	    Teuchos::rcp( 
-	    new FieldManager<MyField>( MyField( field_size, 1 ), comm ) );
+		new FieldManager<MyField>( target_field, comm ) );
 
 	// Setup and apply the evaluation to the field.
 	SharedDomainMap<MyMesh,MyField> shared_domain_map( comm );
@@ -465,9 +468,9 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test )
 	shared_domain_map.apply( source_evaluator, target_space_manager );
 
 	// Check the data transfer.
-	for ( int n = 0; n < target_space_manager->field().size(); ++n )
+	for ( int n = 0; n < target_space_manager->field()->size(); ++n )
 	{
-	    TEST_ASSERT( *(target_space_manager->field().begin()+n) 
+	    TEST_ASSERT( *(target_space_manager->field()->begin()+n) 
 			 == n + 1 );
 	}
     }

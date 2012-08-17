@@ -26,14 +26,6 @@ TRIBITS_ADD_OPTION_AND_DEFINE(
 	OFF
 )
 
-# Add NDEBUG flag for non-DBC builds to eliminate assertions intended
-# only for DBC builds.
-ASSERT_DEFINED(DataTransferKit_ENABLE_DBC)
-IF(NOT DataTransferKit_ENABLE_DBC)
-  SET(CMAKE_CXX_FLAGS "-DNDEBUG")
-ENDIF()
-
-
 TRIBITS_ADD_DEBUG_OPTION()
 
 TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()

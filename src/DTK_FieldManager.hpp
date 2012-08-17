@@ -72,21 +72,21 @@ class FieldManager
     //@{
     //! Typedefs.
     typedef Field                                               field_type;
+    typedef Teuchos::RCP<Field>                                 RCP_Field;
     typedef FieldTraits<Field>                                  FT;
     typedef Teuchos::Comm<int>                                  CommType;
     typedef Teuchos::RCP<const CommType>                        RCP_Comm;
     //@}
 
     // Constructor.
-    FieldManager( const Field& field, const RCP_Comm& comm );
+    FieldManager( const RCP_Field& field, const RCP_Comm& comm );
 
     // Destructor.
     ~FieldManager();
 
     //@{
     //! Get the field.
-    const Field& field() const { return d_field; }
-          Field& field()       { return d_field; }    
+    const RCP_Field& field() const { return d_field; }
     //@}
 
     //! Get the communicator for the field.
@@ -101,7 +101,7 @@ class FieldManager
   private:
 
     // Field.
-    Field d_field;
+    RCP_Field d_field;
     
     // Communicator over which the field is defined.
     RCP_Comm d_comm;

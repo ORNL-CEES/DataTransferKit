@@ -101,6 +101,7 @@ class MeshManager
     //@}
 
     // Constructor.
+    // const Teuchos::ArrayRCP< const Teuchos::RCP<Mesh> > >& mesh_blocks
     MeshManager( const Teuchos::ArrayRCP<Mesh>& mesh_blocks,
 		 const RCP_Comm& comm,
 		 const int dim );

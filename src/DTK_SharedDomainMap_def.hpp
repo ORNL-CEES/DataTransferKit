@@ -42,7 +42,6 @@
 #define DTK_SHAREDDOMAINMAP_DEF_HPP
 
 #include <algorithm>
-#include <cassert>
 
 #include "DTK_FieldTools.hpp"
 #include "DTK_Assertion.hpp"
@@ -101,7 +100,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 {
     // Compute a unique global ordinal for each point in the coordinate field.
     Teuchos::Array<GlobalOrdinal> target_ordinals;
-    computePointOrdinals( target_coord_manager->field(), target_ordinals );
+    computePointOrdinals( *target_coord_manager->field(), target_ordinals );
 
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
@@ -116,13 +115,13 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Get the global bounding box for the coordinate field.
     BoundingBox target_box = 
 	FieldTools<CoordinateField>::coordGlobalBoundingBox(
-	    target_coord_manager->field(), d_comm );
+	    *target_coord_manager->field(), d_comm );
 
     // Intersect the boxes to get the shared domain bounding box.
     BoundingBox shared_domain_box;
     bool has_intersect = BoundingBox::intersectBoxes( source_box, target_box, 
 						      shared_domain_box );
-    assert( has_intersect );
+    testAssertion( has_intersect );
 
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, shared_domain_box );
@@ -130,10 +129,10 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Determine the rendezvous destination proc of each point in the
     // coordinate field.
-    int coord_dim = CFT::dim( target_coord_manager->field() );
+    int coord_dim = CFT::dim( *target_coord_manager->field() );
     Teuchos::ArrayRCP<double> coords_view = 
 	FieldTools<CoordinateField>::nonConstView( 
-	    target_coord_manager->field() );
+	    *target_coord_manager->field() );
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.procsContainingPoints( coords_view );
 
@@ -141,7 +140,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // decomposition was generated. The rendezvous algorithm will expand the
     // box slightly based on mesh parameters.
     Teuchos::Array<GlobalOrdinal> targets_in_box;
-    getTargetPointsInBox( rendezvous.getBox(), target_coord_manager->field(),
+    getTargetPointsInBox( rendezvous.getBox(), *target_coord_manager->field(),
 			  target_ordinals, targets_in_box );
 
     // Extract those target points that are not in the box. We don't want to
@@ -323,15 +322,14 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     typename Teuchos::Array<int>::iterator rendezvous_element_src_procs_bound =
 	std::remove( rendezvous_element_src_procs.begin(), 
 		     rendezvous_element_src_procs.end(), -1 );
-    rememberValue( GlobalOrdinal rendezvous_element_src_procs_size = 
-		   std::distance( rendezvous_element_src_procs.begin(), 
-				  rendezvous_element_src_procs_bound ) );
-
+    GlobalOrdinal rendezvous_element_src_procs_size = 
+	std::distance( rendezvous_element_src_procs.begin(), 
+		       rendezvous_element_src_procs_bound );
     testInvariant( rendezvous_elements_size == 
 		   rendezvous_element_src_procs_size );
 
     rendezvous_elements.resize( rendezvous_elements_size );
-    rendezvous_element_src_procs.resize( rendezvous_elements_size );
+    rendezvous_element_src_procs.resize( rendezvous_element_src_procs_size );
     rendezvous_points.resize( rendezvous_elements_size );
 
     // Setup rendezvous-to-source distributor.
@@ -442,7 +440,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 
     // Verify that the target space has the proper amount of memory allocated.
     GlobalOrdinal target_size = 
-	FieldTools<TargetField>::dimSize( target_space_manager->field() );
+	FieldTools<TargetField>::dimSize( *target_space_manager->field() );
     testPrecondition( 
 	target_size == 
 	(typename TFT::size_type) d_target_map->getNodeNumElements() );
@@ -452,7 +450,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 	source_evaluator->evaluate( Teuchos::arcpFromArray( d_source_elements ),
 				    Teuchos::arcpFromArray( d_target_coords ) );
     testPrecondition( SFT::dim( function_evaluations ) == 
-		      TFT::dim( target_space_manager->field() ) );
+		      TFT::dim( *target_space_manager->field() ) );
    
     // Build a multivector for the function evaluations.
     Teuchos::ArrayRCP<typename SFT::value_type> source_field_view =
@@ -469,7 +467,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 
     // Build a multivector for the target space.
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view =
-	FieldTools<TargetField>::nonConstView( target_space_manager->field() );
+	FieldTools<TargetField>::nonConstView( *target_space_manager->field() );
     
     Teuchos::RCP< Tpetra::MultiVector<typename TFT::value_type,
 				      GlobalOrdinal> > target_vector =	
@@ -477,11 +475,11 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 	    d_target_map, 
 	    target_field_view,
 	    target_size,
-	    TFT::dim( target_space_manager->field() ) );
+	    TFT::dim( *target_space_manager->field() ) );
 
     // Fill the target space with zeros so that points we didn't map get some
     // data.
-    FieldTools<TargetField>::putScalar( target_space_manager->field(), 0.0 );
+    FieldTools<TargetField>::putScalar( *target_space_manager->field(), 0.0 );
 
     // Move the data from the source decomposition to the target
     // decomposition.

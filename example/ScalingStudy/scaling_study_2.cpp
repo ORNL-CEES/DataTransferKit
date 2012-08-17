@@ -390,20 +390,21 @@ MyMesh buildMyMesh( int my_rank, int my_size, int edge_length )
 //---------------------------------------------------------------------------//
 // Coordinate field create function.
 //---------------------------------------------------------------------------//
-MyField buildCoordinateField( int my_rank, int my_size, 
-			      int num_points, int edge_size )
+Teuchos::RCP<MyField> buildCoordinateField( int my_rank, int my_size, 
+					    int num_points, int edge_size )
 {
     std::srand( my_rank*num_points*2 );
     int point_dim = 3;
-    MyField coordinate_field( num_points*point_dim, point_dim );
+    Teuchos::RCP<MyField> coordinate_field =
+	Teuchos::rcp( new MyField( num_points*point_dim, point_dim ) );
 
     for ( int i = 0; i < num_points; ++i )
     {
-	*(coordinate_field.begin() + i) = 
+	*(coordinate_field->begin() + i) = 
 	    my_size * (edge_size-1) * (double) std::rand() / RAND_MAX;
-	*(coordinate_field.begin() + num_points + i ) = 
+	*(coordinate_field->begin() + num_points + i ) = 
 	    (edge_size-1) * (double) std::rand() / RAND_MAX;
-	*(coordinate_field.begin() + 2*num_points + i ) = 0.5;
+	*(coordinate_field->begin() + 2*num_points + i ) = 0.5;
     }
 
     return coordinate_field;
@@ -433,8 +434,8 @@ int main(int argc, char* argv[])
 
     // Setup target coordinate field.
     int num_points = (edge_size-1)*(edge_size-1);
-    MyField target_coords = buildCoordinateField( my_rank, my_size, 
-						  num_points, edge_size );
+    Teuchos::RCP<MyField> target_coords = buildCoordinateField( my_rank, my_size, 
+								num_points, edge_size );
     Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
 	Teuchos::rcp( new FieldManager<MyField>( target_coords, comm ) );
 
@@ -443,8 +444,11 @@ int main(int argc, char* argv[])
     	Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
 
     // Create data target.
+    int target_dim = 1;
+    Teuchos::RCP<MyField> target_field = 
+	Teuchos::rcp( new MyField( num_points, target_dim ) );
     Teuchos::RCP< FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
-	new FieldManager<MyField>( MyField( num_points, 1 ), comm ) );
+	new FieldManager<MyField>( target_field, comm ) );
 
     // Setup consistent interpolation mapping.
     SharedDomainMap<MyMesh,MyField> shared_domain_map( comm );
@@ -466,11 +470,11 @@ int main(int argc, char* argv[])
     comm->barrier();
     int source_rank;
     int local_test_failed = 0;
-    for ( long int n = 0; n < target_space_manager->field().size(); ++n )
+    for ( long int n = 0; n < target_space_manager->field()->size(); ++n )
     {
-	source_rank = std::floor(target_coord_manager->field().getData()[n] 
+	source_rank = std::floor(target_coord_manager->field()->getData()[n] 
 				 / (edge_size-1));
-    	if ( source_rank+1 != target_space_manager->field().getData()[n] )
+    	if ( source_rank+1 != target_space_manager->field()->getData()[n] )
     	{
     	    local_test_failed += 1;
     	}

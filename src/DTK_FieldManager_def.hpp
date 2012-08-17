@@ -59,7 +59,7 @@ namespace DataTransferKit
  * \param comm The communicator over which the field is defined.
  */
 template<class Field>
-FieldManager<Field>::FieldManager( const Field& field, const RCP_Comm& comm )
+FieldManager<Field>::FieldManager( const RCP_Field& field, const RCP_Comm& comm )
     : d_field( field )
     , d_comm( comm )
 {
@@ -87,7 +87,7 @@ void FieldManager<Field>::validate()
 {
     // Check that the field dimension is the same on every node.
     Teuchos::Array<int> local_dims( d_comm->getSize(), 0 );
-    local_dims[ d_comm->getRank() ] = FT::dim( d_field );
+    local_dims[ d_comm->getRank() ] = FT::dim( *d_field );
     Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
 				 local_dims.size(),
 				 &local_dims[0], &local_dims[0] ); 
@@ -98,13 +98,13 @@ void FieldManager<Field>::validate()
     local_dims.clear();
 
     // Check that the data dimension is the same as the field dimension.
-    typename FT::size_type num_data = std::distance( FT::begin( d_field ), 
-						     FT::end( d_field ) );
-    testPrecondition( num_data == FT::size( d_field ) );
-    if ( !FT::empty( d_field ) )
+    typename FT::size_type num_data = std::distance( FT::begin( *d_field ), 
+						     FT::end( *d_field ) );
+    testPrecondition( num_data == FT::size( *d_field ) );
+    if ( !FT::empty( *d_field ) )
     {
-	testPrecondition( num_data / FieldTools<Field>::dimSize( d_field ) 
-			  == FT::dim( d_field ) );
+	testPrecondition( num_data / FieldTools<Field>::dimSize( *d_field ) 
+			  == FT::dim( *d_field ) );
     }
 }
 

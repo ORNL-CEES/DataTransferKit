@@ -39,10 +39,10 @@
 //---------------------------------------------------------------------------//
 
 #include <algorithm>
-#include <cassert>
 
 #include "DTK_MeshTools.hpp"
 #include "DTK_Assertion.hpp"
+#include "DataTransferKit_config.hpp"
 
 #include <mpi.h>
 
@@ -120,7 +120,8 @@ template<class Mesh>
 void RCB<Mesh>::partition()
 {
     // Run zoltan partitioning.
-    int zoltan_error;
+    rememberValue( int zoltan_error );
+#if HAVE_DTK_DBC
     zoltan_error = Zoltan_LB_Partition( d_zz, 
 					&d_changes,  
 					&d_num_gid_entries,
@@ -134,9 +135,24 @@ void RCB<Mesh>::partition()
 					&d_export_global_ids,
 					&d_export_local_ids, 
 					&d_export_procs,    
-					&d_export_to_part ); 
-
-    assert( ZOLTAN_OK == zoltan_error );
+					&d_export_to_part );
+#else
+    Zoltan_LB_Partition( d_zz, 
+			 &d_changes,  
+			 &d_num_gid_entries,
+			 &d_num_lid_entries,
+			 &d_num_import,    
+			 &d_import_global_ids,
+			 &d_import_local_ids, 
+			 &d_import_procs,    
+			 &d_import_to_part,   
+			 &d_num_export,      
+			 &d_export_global_ids,
+			 &d_export_local_ids, 
+			 &d_export_procs,    
+			 &d_export_to_part );
+#endif
+    testInvariant( zoltan_error == ZOLTAN_OK );
 }
 
 //---------------------------------------------------------------------------//
@@ -154,10 +170,14 @@ int RCB<Mesh>::getDestinationProc( Teuchos::Array<double> coords ) const
     testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
     testPrecondition( d_mesh_manager->dim() == (int) coords.size() );
 
-    int zoltan_error;
     int proc, part;
+    rememberValue( int zoltan_error );
+#if HAVE_DTK_DBC
     zoltan_error = Zoltan_LB_Point_PP_Assign( d_zz, &coords[0], &proc, &part );
-    assert( ZOLTAN_OK == zoltan_error );
+#else
+    Zoltan_LB_Point_PP_Assign( d_zz, &coords[0], &proc, &part );
+#endif
+    testInvariant( zoltan_error == ZOLTAN_OK );
 
     return proc;
 }

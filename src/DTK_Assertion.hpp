@@ -96,6 +96,9 @@ void throwAssertion( const std::string& cond, const std::string& file,
  
   In addition, rememberValue is provided to store values used only for DBC
   checks and no other place in executed code.
+
+  Separate from the DBC build, testAssertion can be used at any time verify a
+  conditional. This should be used instead of the standard cassert.
  */
 
 #if HAVE_DTK_DBC
@@ -116,6 +119,10 @@ void throwAssertion( const std::string& cond, const std::string& file,
 #define rememberValue(c)
 
 #endif
+
+
+#define testAssertion(c) \
+    if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
 
 //---------------------------------------------------------------------------//
 

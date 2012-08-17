@@ -42,11 +42,11 @@
 #define DTK_RENDEZVOUSMESH_DEF_HPP
 
 #include <algorithm>
-#include <cassert>
 
 #include "DTK_MeshTraits.hpp"
 #include "DTK_MeshTools.hpp"
 #include "DTK_Assertion.hpp"
+#include "DataTransferKit_config.hpp"
 
 #include <MBCore.hpp>
 
@@ -104,14 +104,18 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
     std::map<moab::EntityHandle,GlobalOrdinal> element_handle_map;
 
     // Create a moab interface.
-    moab::ErrorCode error;
+    rememberValue( moab::ErrorCode error );
     Teuchos::RCP<moab::Interface> moab = Teuchos::rcp( new moab::Core() );
     testPostcondition( moab != Teuchos::null );
 
     // Set the mesh dimension.
     int vertex_dim = mesh_manager.dim();
+#if HAVE_DTK_DBC
     error = moab->set_dimension( vertex_dim );
-    assert( moab::MB_SUCCESS == error );
+#else
+    moab->set_dimension( vertex_dim );
+#endif
+    testInvariant( moab::MB_SUCCESS == error );
 
     // Build each mesh block.
     typename MeshManager<Mesh>::BlockIterator block_iterator;
@@ -149,8 +153,12 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	    {
 		vertex_coords[d] = 0.0;
 	    }
+#if HAVE_DTK_DBC
 	    error = moab->create_vertex( vertex_coords, moab_vertex );
-	    assert( moab::MB_SUCCESS == error );
+#else
+	    moab->create_vertex( vertex_coords, moab_vertex );
+#endif
+	    testInvariant( moab::MB_SUCCESS == error );
 
 	    vertex_handle_map[ *vertex_iterator ] = moab_vertex;
 	}
@@ -199,11 +207,18 @@ createRendezvousMesh( const MeshManager<Mesh>& mesh_manager )
 	    moab::EntityType entity_type = 
 		moab_topology_table[ element_topology ];
 	    moab::EntityHandle moab_element;
+#if HAVE_DTK_DBC
 	    error = moab->create_element( entity_type,
 					  &element_connectivity[0],
 					  element_connectivity.size(),
 					  moab_element );
-	    assert( moab::MB_SUCCESS == error );
+#else
+	    moab->create_element( entity_type,
+				  &element_connectivity[0],
+				  element_connectivity.size(),
+				  moab_element );
+#endif
+	    testInvariant( moab::MB_SUCCESS == error );
 
 	    // Map the moab element handle to the native element handle.
 	    element_handle_map[ moab_element ] = *element_iterator;

@@ -43,7 +43,6 @@
 
 #include <set>
 #include <algorithm>
-#include <cassert>
 
 #include "DTK_MeshTools.hpp"
 #include "DTK_Assertion.hpp"
@@ -279,7 +278,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 	    vertices_in_box.push_back( 
 		d_global_box.pointInBox( vertex_coords ) );
 	}
-	assert( (GlobalOrdinal) vertices_in_box.size() == num_vertices );
+	testInvariant( (GlobalOrdinal) vertices_in_box.size() == num_vertices );
 
 	// For those vertices that are in the box, get the elements that they
 	// construct. These elements are in the box.
@@ -305,7 +304,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 	    }
 	    elements_in_box.push_back( this_element_in_box );
 	}
-	assert( (GlobalOrdinal) elements_in_box.size() == num_elements );
+	testInvariant( (GlobalOrdinal) elements_in_box.size() == num_elements );
 
 	// Get the vertices that belong to the elements in the box, but are not
 	// necessarily in the box themselves. These will also be used in RCB.

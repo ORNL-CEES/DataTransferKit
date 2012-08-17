@@ -39,11 +39,11 @@
 //---------------------------------------------------------------------------//
 
 #include <vector>
-#include <cassert>
 
 #include "DTK_CellTopologyFactory.hpp"
 #include "DTK_TopologyTools.hpp"
 #include "DTK_Assertion.hpp"
+#include "DataTransferKit_config.hpp"
 
 #include <Teuchos_ENull.hpp>
 #include <Teuchos_ArrayRCP.hpp>
@@ -74,8 +74,6 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 				    const moab::EntityHandle element,
 				    const Teuchos::RCP<moab::Interface>& moab )
 {
-    moab::ErrorCode error;
-
     // Wrap the point in a field container.
     int vertex_dim = coords.size();
     testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
@@ -91,21 +89,36 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
     moab::EntityType element_topology = moab->type_from_handle( element );
 
     // Get the element vertices.
+    rememberValue( moab::ErrorCode error );
     std::vector<moab::EntityHandle> element_vertices;
+#if HAVE_DTK_DBC
     error = moab->get_adjacencies( &element,
 				   1,
 				   0,
 				   false,
 				   element_vertices );
-    assert( moab::MB_SUCCESS == error );
+#else
+    moab->get_adjacencies( &element,
+			   1,
+			   0,
+			   false,
+			   element_vertices );
+#endif
+    testInvariant( error == moab::MB_SUCCESS );
 
     // Extract the vertex coordinates.
     int num_element_vertices = element_vertices.size();
     Teuchos::Array<double> cell_vertex_coords( 3 * num_element_vertices );
+#if HAVE_DTK_DBC
     error = moab->get_coords( &element_vertices[0], 
 			      element_vertices.size(), 
 			      &cell_vertex_coords[0] );
-    assert( moab::MB_SUCCESS == error );
+#else
+    moab->get_coords( &element_vertices[0], 
+		      element_vertices.size(), 
+		      &cell_vertex_coords[0] );
+#endif
+    testInvariant( error == moab::MB_SUCCESS );
 
     // Typical topology case.
     if ( moab::MBPYRAMID != element_topology )
