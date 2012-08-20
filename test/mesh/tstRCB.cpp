@@ -207,7 +207,7 @@ TEUCHOS_UNIT_TEST( RCB, 1d_rcb_test )
     }
 
     // Check that these are in fact the random numbers used for the vertices.
-    typename MT::const_coordinate_iterator coord_iterator 
+    MT::const_coordinate_iterator coord_iterator 
 	= MT::coordsBegin( *mesh_blocks[0] );
     for ( int i = 0; i < num_vertices; ++i )
     {
@@ -332,7 +332,7 @@ TEUCHOS_UNIT_TEST( RCB, 2d_rcb_test )
     }
 
     // Check that these are in fact the random numbers used for the vertices.
-    typename MT::const_coordinate_iterator coord_iterator 
+    MT::const_coordinate_iterator coord_iterator 
 	= MT::coordsBegin( *mesh_blocks[0] );
     for ( int i = 0; i < num_vertices; ++i )
     {
@@ -467,7 +467,7 @@ TEUCHOS_UNIT_TEST( RCB, 3d_rcb_test )
     }
 
     // Check that these are in fact the random numbers used for the vertices.
-    typename MT::const_coordinate_iterator coord_iterator 
+    MT::const_coordinate_iterator coord_iterator 
 	= MT::coordsBegin( *mesh_blocks[0] );
     for ( int i = 0; i < num_vertices; ++i )
     {
@@ -612,7 +612,7 @@ TEUCHOS_UNIT_TEST( RCB, partial_1d_rcb_test )
     }
 
     // Check that these are in fact the random numbers used for the vertices.
-    typename MT::const_coordinate_iterator coord_iterator 
+    MT::const_coordinate_iterator coord_iterator 
 	= MT::coordsBegin( *mesh_blocks[0] );
     for ( int i = 0; i < num_vertices; ++i )
     {
@@ -736,7 +736,7 @@ TEUCHOS_UNIT_TEST( RCB, partial_2d_rcb_test )
     }
 
     // Check that these are in fact the random numbers used for the vertices.
-    typename MT::const_coordinate_iterator coord_iterator 
+    MT::const_coordinate_iterator coord_iterator 
 	= MT::coordsBegin( *mesh_blocks[0] );
     for ( int i = 0; i < num_vertices; ++i )
     {
@@ -849,7 +849,7 @@ TEUCHOS_UNIT_TEST( RCB, partial_3d_rcb_test )
     }
 
     // Check that these are in fact the random numbers used for the vertices.
-    typename MT::const_coordinate_iterator coord_iterator 
+    MT::const_coordinate_iterator coord_iterator 
 	= MT::coordsBegin( *mesh_blocks[0] );
     for ( int i = 0; i < num_vertices; ++i )
     {

@@ -190,7 +190,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     typedef FieldTools<ArrayField> Tools;
 
     // Dimension iterators.
-    typename FT::iterator dim_begin, dim_end;
+    FT::iterator dim_begin, dim_end;
     for ( int d = 0; d < field_dim; ++d )
     {
 	dim_begin = Tools::dimBegin( *field_manager.field(), d );
@@ -198,7 +198,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
 	TEST_ASSERT( std::distance( dim_begin, dim_end ) == my_rank+1 );
     }
 
-    typename FT::const_iterator const_dim_begin, const_dim_end;
+    FT::const_iterator const_dim_begin, const_dim_end;
     for ( int d = 0; d < field_dim; ++d )
     {
 	const_dim_begin = Tools::dimBegin( *field_manager.field(), d );
@@ -277,7 +277,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
 	}
     }
 
-    typename FT::iterator dim_iterator;
+    FT::iterator dim_iterator;
     for ( int d = 0; d < field_dim; ++d )
     {
 	for ( dim_iterator = Tools::dimBegin( *field_manager.field(), d );
@@ -408,7 +408,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     typedef FieldTools<ArrayField> Tools;
   
     // Dimension iterators.
-    typename FT::iterator dim_begin, dim_end;
+    FT::iterator dim_begin, dim_end;
     for ( int d = 0; d < field_dim; ++d )
     {
 	dim_begin = Tools::dimBegin( *field_manager.field(), d );
@@ -416,7 +416,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
 	TEST_ASSERT( std::distance( dim_begin, dim_end ) == my_rank+1 );
     }
 
-    typename FT::const_iterator const_dim_begin, const_dim_end;
+    FT::const_iterator const_dim_begin, const_dim_end;
     for ( int d = 0; d < field_dim; ++d )
     {
 	const_dim_begin = Tools::dimBegin( *field_manager.field(), d );
@@ -494,7 +494,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
 	}
     }
 
-    typename FT::iterator dim_iterator;
+    FT::iterator dim_iterator;
     for ( int d = 0; d < field_dim; ++d )
     {
 	for ( dim_iterator = Tools::dimBegin( *field_manager.field(), d );
@@ -625,7 +625,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     typedef FieldTools<ArrayField> Tools;
 
     // Dimension iterators.
-    typename FT::iterator dim_begin, dim_end;
+    FT::iterator dim_begin, dim_end;
     for ( int d = 0; d < field_dim; ++d )
     {
 	dim_begin = Tools::dimBegin( *field_manager.field(), d );
@@ -633,7 +633,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
 	TEST_ASSERT( std::distance( dim_begin, dim_end ) == my_rank+1 );
     }
 
-    typename FT::const_iterator const_dim_begin, const_dim_end;
+    FT::const_iterator const_dim_begin, const_dim_end;
     for ( int d = 0; d < field_dim; ++d )
     {
 	const_dim_begin = Tools::dimBegin( *field_manager.field(), d );
@@ -711,7 +711,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
 	}
     }
 
-    typename FT::iterator dim_iterator;
+    FT::iterator dim_iterator;
     for ( int d = 0; d < field_dim; ++d )
     {
 	for ( dim_iterator = Tools::dimBegin( *field_manager.field(), d );
@@ -838,7 +838,7 @@ TEUCHOS_UNIT_TEST( FieldTools, 1d_coordinate_field_test )
     typedef FieldTools<ArrayField> Tools;
 
     // Fill the field with random coordinates.
-    typename FT::iterator field_iterator;
+    FT::iterator field_iterator;
     for ( field_iterator = FT::begin( *field_manager.field() );
 	  field_iterator != FT::end( *field_manager.field() );
 	  ++field_iterator )
@@ -922,7 +922,7 @@ TEUCHOS_UNIT_TEST( FieldTools, 2d_coordinate_field_test )
     typedef FieldTools<ArrayField> Tools;
 
     // Fill the field with random coordinates.
-    typename FT::iterator field_iterator;
+    FT::iterator field_iterator;
     for ( field_iterator = FT::begin( *field_manager.field() );
 	  field_iterator != FT::end( *field_manager.field() );
 	  ++field_iterator )
@@ -1014,7 +1014,7 @@ TEUCHOS_UNIT_TEST( FieldTools, 3d_coordinate_field_test )
     typedef FieldTools<ArrayField> Tools;
 
     // Fill the field with random coordinates.
-    typename FT::iterator field_iterator;
+    FT::iterator field_iterator;
     for ( field_iterator = FT::begin( *field_manager.field() );
 	  field_iterator != FT::end( *field_manager.field() );
 	  ++field_iterator )
