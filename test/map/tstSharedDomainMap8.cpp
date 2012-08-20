@@ -690,116 +690,116 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test8 )
 // Some points will be outside of the mesh in this test. The mesh is not
 // rectilinear so we will be sure to search the kD-tree with points that
 // aren't in the mesh.
-TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test8 )
-{
-    using namespace DataTransferKit;
+// TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test8 )
+// {
+//     using namespace DataTransferKit;
 
-    // Setup communication.
-    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    int my_rank = comm->getRank();
-    int my_size = comm->getSize();
+//     // Setup communication.
+//     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+//     int my_rank = comm->getRank();
+//     int my_size = comm->getSize();
 
-    // Setup source mesh manager.
-    int edge_size = 4;
-    Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
-    mesh_blocks[0] = buildTiledMesh( my_rank, my_size, edge_size );
-    Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
-	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
+//     // Setup source mesh manager.
+//     int edge_size = 4;
+//     Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
+//     mesh_blocks[0] = buildTiledMesh( my_rank, my_size, edge_size );
+//     Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
+// 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
-    // Setup target coordinate field manager.
-    int num_points = 1000;
-    int point_dim = 3;
-    Teuchos::RCP<MyField> coordinate_field = 
-	Teuchos::rcp( new MyField( num_points, point_dim ) );
-    buildTiledCoordinateField( my_rank, my_size, num_points, edge_size,
-			       coordinate_field );
-    Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
-	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
+//     // Setup target coordinate field manager.
+//     int num_points = 1000;
+//     int point_dim = 3;
+//     Teuchos::RCP<MyField> coordinate_field = 
+// 	Teuchos::rcp( new MyField( num_points, point_dim ) );
+//     buildTiledCoordinateField( my_rank, my_size, num_points, edge_size,
+// 			       coordinate_field );
+//     Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
+// 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
-    // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
-    	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
+//     // Create field evaluator.
+//     Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
+//     	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
-    // Create data target. This target is a scalar.
-    int target_dim = 1;
-    Teuchos::RCP<MyField> target_field =  
-	Teuchos::rcp( new MyField( num_points, target_dim ) );
-    Teuchos::RCP< FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
-	new FieldManager<MyField>( target_field, comm ) );
+//     // Create data target. This target is a scalar.
+//     int target_dim = 1;
+//     Teuchos::RCP<MyField> target_field =  
+// 	Teuchos::rcp( new MyField( num_points, target_dim ) );
+//     Teuchos::RCP< FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
+// 	new FieldManager<MyField>( target_field, comm ) );
 
-    // Setup and apply the shared domain mapping.
-    SharedDomainMap<MyMesh,MyField> shared_domain_map( 
-	comm, true, source_mesh_manager->dim() );
-    shared_domain_map.setup( source_mesh_manager, target_coord_manager );
-    shared_domain_map.apply( source_evaluator, target_space_manager );
+//     // Setup and apply the shared domain mapping.
+//     SharedDomainMap<MyMesh,MyField> shared_domain_map( 
+// 	comm, true, source_mesh_manager->dim() );
+//     shared_domain_map.setup( source_mesh_manager, target_coord_manager );
+//     shared_domain_map.apply( source_evaluator, target_space_manager );
 
-    // Check the data transfer. Each target point should have been assigned
-    // its source rank + 1 as data if it is in the mesh and 0.0 if it is outside.
-    int source_rank;
-    Teuchos::Array<long int> missing_points;
-    bool tagged;
-    for ( int n = 0; n < num_points; ++n )
-    {
-	tagged = false;
+//     // Check the data transfer. Each target point should have been assigned
+//     // its source rank + 1 as data if it is in the mesh and 0.0 if it is outside.
+//     int source_rank;
+//     Teuchos::Array<long int> missing_points;
+//     bool tagged;
+//     for ( int n = 0; n < num_points; ++n )
+//     {
+// 	tagged = false;
 
-	if ( *(coordinate_field->begin()+n) < 0.0 ||
-	     *(coordinate_field->begin()+n) > (edge_size-1)*my_size ||
-	     *(coordinate_field->begin()+n+num_points) < 0.0 ||
-	     *(coordinate_field->begin()+n+num_points) > (edge_size-1)*my_size ||
-	     *(coordinate_field->begin()+n+2*num_points) < 0.0 ||
-	     *(coordinate_field->begin()+n+2*num_points) > 1.0 )
-	{
-	    missing_points.push_back(n);	
-	    TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()+n) );
-	    tagged = true;
-	}
+// 	if ( *(coordinate_field->begin()+n) < 0.0 ||
+// 	     *(coordinate_field->begin()+n) > (edge_size-1)*my_size ||
+// 	     *(coordinate_field->begin()+n+num_points) < 0.0 ||
+// 	     *(coordinate_field->begin()+n+num_points) > (edge_size-1)*my_size ||
+// 	     *(coordinate_field->begin()+n+2*num_points) < 0.0 ||
+// 	     *(coordinate_field->begin()+n+2*num_points) > 1.0 )
+// 	{
+// 	    missing_points.push_back(n);	
+// 	    TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()+n) );
+// 	    tagged = true;
+// 	}
 	
-	else
-	{
-	    for ( int i = 0; i < my_size; ++i )
-	    {
-		if ( *(coordinate_field->begin()+n) >= (edge_size-1)*i &&
-		     *(coordinate_field->begin()+n) <= (edge_size-1)*(i+1) &&
-		     *(coordinate_field->begin()+n+num_points) >=
-		     (edge_size-1)*i &&
-		     *(coordinate_field->begin()+n+num_points) <= 
-		     (edge_size-1)*(i+1) &&
-		     *(coordinate_field->begin()+n+2*num_points) >= 0.0 &&
-		     *(coordinate_field->begin()+n+2*num_points) <= 1.0 && !tagged )
-		{
-		    source_rank = std::floor(target_coord_manager->field()->getData()[n] 
-					     / (edge_size-1));
-		    TEST_ASSERT( source_rank+1 == 
-				 target_space_manager->field()->getData()[n] );
-		    tagged = true;
-		}
-	    }
+// 	else
+// 	{
+// 	    for ( int i = 0; i < my_size; ++i )
+// 	    {
+// 		if ( *(coordinate_field->begin()+n) >= (edge_size-1)*i &&
+// 		     *(coordinate_field->begin()+n) <= (edge_size-1)*(i+1) &&
+// 		     *(coordinate_field->begin()+n+num_points) >=
+// 		     (edge_size-1)*i &&
+// 		     *(coordinate_field->begin()+n+num_points) <= 
+// 		     (edge_size-1)*(i+1) &&
+// 		     *(coordinate_field->begin()+n+2*num_points) >= 0.0 &&
+// 		     *(coordinate_field->begin()+n+2*num_points) <= 1.0 && !tagged )
+// 		{
+// 		    source_rank = std::floor(target_coord_manager->field()->getData()[n] 
+// 					     / (edge_size-1));
+// 		    TEST_ASSERT( source_rank+1 == 
+// 				 target_space_manager->field()->getData()[n] );
+// 		    tagged = true;
+// 		}
+// 	    }
 
-	    if ( !tagged) 
-	    {
-		missing_points.push_back(n);	
-		TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()+n) );
-		tagged = true;
-	    }
-	}
+// 	    if ( !tagged) 
+// 	    {
+// 		missing_points.push_back(n);	
+// 		TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()+n) );
+// 		tagged = true;
+// 	    }
+// 	}
 
-	TEST_ASSERT( tagged );
-    }
+// 	TEST_ASSERT( tagged );
+//     }
 
-    // Check the missing points.
-    TEST_ASSERT( missing_points.size() > 0 );
-    Teuchos::ArrayView<long int> missed_in_map = 
-	shared_domain_map.getMissedTargetPoints();
-    TEST_ASSERT( missing_points.size() == missed_in_map.size() );
+//     // Check the missing points.
+//     TEST_ASSERT( missing_points.size() > 0 );
+//     Teuchos::ArrayView<long int> missed_in_map = 
+// 	shared_domain_map.getMissedTargetPoints();
+//     TEST_ASSERT( missing_points.size() == missed_in_map.size() );
 
-    std::sort( missing_points.begin(), missing_points.end() );
-    std::sort( missed_in_map.begin(), missed_in_map.end() );
+//     std::sort( missing_points.begin(), missing_points.end() );
+//     std::sort( missed_in_map.begin(), missed_in_map.end() );
 
-    for ( int n = 0; n < (int) missing_points.size(); ++n )
-    {
-	TEST_ASSERT( missing_points[n] == missed_in_map[n] );
-    }
-}
+//     for ( int n = 0; n < (int) missing_points.size(); ++n )
+//     {
+// 	TEST_ASSERT( missing_points[n] == missed_in_map[n] );
+//     }
+// }
 
 //---------------------------------------------------------------------------//
 // end tstSharedDomainMap8.cpp
