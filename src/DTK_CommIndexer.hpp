@@ -74,6 +74,9 @@ class CommIndexer
 
   public:
 
+    // Default constructor.
+    CommIndexer();
+
     // Constructor.
     CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm );
 

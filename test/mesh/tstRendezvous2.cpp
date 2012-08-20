@@ -621,7 +621,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test2 )
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), box );
+    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager );
 
     // Give every process a unique block of random numbers;

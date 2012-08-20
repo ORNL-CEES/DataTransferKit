@@ -49,6 +49,7 @@
 #include "DTK_MeshTraits.hpp"
 #include "DTK_MeshManager.hpp"
 #include "DTK_BoundingBox.hpp"
+#include "DTK_CommIndexer.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -166,6 +167,12 @@ class SharedDomainMap
 
     // Boolean for storing missed points in the mapping.
     bool d_store_missed_points;
+
+    // Process indexer for the source application.
+    CommIndexer d_source_indexer;
+
+    // Process indexer for the target application.
+    CommIndexer d_target_indexer;
 
     // Indices for target points missed in the mapping.
     Teuchos::Array<GlobalOrdinal> d_missed_points;

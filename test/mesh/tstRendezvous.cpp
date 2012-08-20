@@ -868,7 +868,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_test )
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 1 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), box );
+    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager );
 
     // Give every process a unique block of random numbers;
@@ -936,7 +936,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_test )
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 2 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), box );
+    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager );
 
     // Give every process a unique block of random numbers;
@@ -1004,7 +1004,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_test )
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 2 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), box );
+    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager );
 
     // Give every process a unique block of random numbers;
@@ -1070,7 +1070,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_test )
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), box );
+    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager );
 
     // Give every process a unique block of random numbers;
@@ -1137,7 +1137,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_test )
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), box );
+    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager );
 
     // Give every process a unique block of random numbers;
@@ -1204,7 +1204,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_test )
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), box );
+    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager );
 
     // Give every process a unique block of random numbers;
@@ -1271,7 +1271,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_test )
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), box );
+    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager );
 
     // Give every process a unique block of random numbers;
@@ -1339,7 +1339,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_test )
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 2 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), box );
+    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager );
 
     // Give every process a unique block of random numbers;
@@ -1407,7 +1407,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_test )
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), box );
+    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager );
 
     // Give every process a unique block of random numbers;

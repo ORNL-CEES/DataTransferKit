@@ -404,15 +404,16 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 
 	// Setup export vertex map.
 	GlobalOrdinal num_vertices = 0;
-	Teuchos::ArrayView<const GlobalOrdinal> export_vertex_view(0,0);
+	Teuchos::ArrayRCP<GlobalOrdinal> export_vertex_arcp(0,0);
 	if ( mesh_exists )
 	{
 	    num_vertices = MeshTools<Mesh>::numVertices( *current_block );
-	    Teuchos::ArrayRCP<const GlobalOrdinal> export_vertex_arcp = 
-		MeshTools<Mesh>::verticesView( *current_block );
-	    export_vertex_view = export_vertex_arcp();
+	    export_vertex_arcp = 
+		MeshTools<Mesh>::verticesNonConstView( *current_block );
 	}
 	d_comm->barrier();
+	Teuchos::ArrayView<const GlobalOrdinal> export_vertex_view 
+	    = export_vertex_arcp();
 	RCP_TpetraMap export_vertex_map = 
 	    Tpetra::createNonContigMap<GlobalOrdinal>( 
 		export_vertex_view, d_comm );
@@ -428,15 +429,16 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 
 	// Setup export element map.
 	GlobalOrdinal num_elements = 0;
-	Teuchos::ArrayView<const GlobalOrdinal> export_element_view(0,0);
+	Teuchos::ArrayRCP<GlobalOrdinal> export_element_arcp(0,0);
 	if ( mesh_exists )
 	{
 	    num_elements = MeshTools<Mesh>::numElements( *current_block );
-	    Teuchos::ArrayRCP<const GlobalOrdinal> export_element_arcp =
-		MeshTools<Mesh>::elementsView( *current_block );
-	    export_element_view = export_element_arcp();
+	    export_element_arcp =
+		MeshTools<Mesh>::elementsNonConstView( *current_block );
 	}
 	d_comm->barrier();
+	Teuchos::ArrayView<const GlobalOrdinal> export_element_view = 
+	    export_element_arcp();
 	RCP_TpetraMap export_element_map = 
 	    Tpetra::createNonContigMap<GlobalOrdinal>(
 		export_element_view, d_comm );

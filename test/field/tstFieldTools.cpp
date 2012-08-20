@@ -244,6 +244,17 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
 	TEST_ASSERT( *view_iterator == local_val );
     }
 
+    Teuchos::ArrayRCP<double> copy = 
+	Tools::copy( *field_manager.field() );
+    Teuchos::ArrayRCP<double>::const_iterator copy_iterator;
+    for ( copy_iterator = copy.begin();
+	  copy_iterator != copy.end();
+	  ++copy_iterator )
+    {
+	local_val = random_numbers[0];
+	TEST_ASSERT( *copy_iterator == local_val );
+    }
+
     // Multiple scalar filling.
     Teuchos::Array<double> fillers( field_dim );
     for ( int d = 0; d < field_dim; ++d )
@@ -451,6 +462,17 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
 	TEST_ASSERT( *view_iterator == local_val );
     }
     
+    Teuchos::ArrayRCP<double> copy = 
+	Tools::copy( *field_manager.field() );
+    Teuchos::ArrayRCP<double>::const_iterator copy_iterator;
+    for ( copy_iterator = copy.begin();
+	  copy_iterator != copy.end();
+	  ++copy_iterator )
+    {
+	local_val = random_numbers[0];
+	TEST_ASSERT( *copy_iterator == local_val );
+    }
+
     // Multiple scalar filling.
     Teuchos::Array<double> fillers( field_dim );
     for ( int d = 0; d < field_dim; ++d )
@@ -657,6 +679,17 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
 	TEST_ASSERT( *view_iterator == local_val );
     }
     
+    Teuchos::ArrayRCP<double> copy = 
+	Tools::copy( *field_manager.field() );
+    Teuchos::ArrayRCP<double>::const_iterator copy_iterator;
+    for ( copy_iterator = copy.begin();
+	  copy_iterator != copy.end();
+	  ++copy_iterator )
+    {
+	local_val = random_numbers[0];
+	TEST_ASSERT( *copy_iterator == local_val );
+    }
+
     // Multiple scalar filling.
     Teuchos::Array<double> fillers( field_dim );
     for ( int d = 0; d < field_dim; ++d )

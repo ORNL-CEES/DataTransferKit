@@ -431,7 +431,8 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test7 )
 	new FieldManager<MyField>( target_field, comm ) );
 
     // Setup and apply the shared domain mapping.
-    SharedDomainMap<MyMesh,MyField> shared_domain_map( comm );
+    SharedDomainMap<MyMesh,MyField> shared_domain_map( 
+	comm, source_mesh_manager->dim() );
     shared_domain_map.setup( source_mesh_manager, target_coord_manager );
     shared_domain_map.apply( source_evaluator, target_space_manager );
 
@@ -490,7 +491,8 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test7 )
 	new FieldManager<MyField>( target_field, comm ) );
 
     // Setup and apply the shared domain mapping.
-    SharedDomainMap<MyMesh,MyField> shared_domain_map( comm, true );
+    SharedDomainMap<MyMesh,MyField> shared_domain_map( 
+	comm, source_mesh_manager->dim(), true );
     shared_domain_map.setup( source_mesh_manager, target_coord_manager );
     shared_domain_map.apply( source_evaluator, target_space_manager );
 

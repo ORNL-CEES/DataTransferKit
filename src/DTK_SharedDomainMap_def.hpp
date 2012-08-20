@@ -48,7 +48,6 @@
 #include "DTK_Rendezvous.hpp"
 #include "DTK_MeshTools.hpp"
 #include "DTK_BoundingBox.hpp"
-#include "DTK_CommIndexer.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ScalarTraits.hpp>
@@ -132,8 +131,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	target_comm = target_coord_manager->comm();
     }
     d_comm->barrier();
-    CommIndexer source_indexer( d_comm, source_comm );
-    CommIndexer target_indexer( d_comm, target_comm );
+    d_source_indexer = CommIndexer( d_comm, source_comm );
+    d_target_indexer = CommIndexer( d_comm, target_comm );
 
     // Check the source and target dimensions for consistency.
     if ( source_exists )
@@ -168,7 +167,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     }
     d_comm->barrier();
     Teuchos::broadcast<int,BoundingBox>(
-	*d_comm, source_indexer.l2g(0), 
+	*d_comm, d_source_indexer.l2g(0), 
 	Teuchos::Ptr<BoundingBox>(&source_box) );
 
     // Get the global bounding box for the coordinate field.
@@ -180,7 +179,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     }
     d_comm->barrier();
     Teuchos::broadcast<int,BoundingBox>( 
-	*d_comm, target_indexer.l2g(0), 
+	*d_comm, d_target_indexer.l2g(0), 
 	Teuchos::Ptr<BoundingBox>(&target_box) );
 
     // Intersect the boxes to get the shared domain bounding box.
@@ -205,7 +204,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     }
     d_comm->barrier();
     Teuchos::broadcast<int,int>( 
-	*d_comm, target_indexer.l2g(0), Teuchos::Ptr<int>(&coord_dim) );
+	*d_comm, d_target_indexer.l2g(0), Teuchos::Ptr<int>(&coord_dim) );
 
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.procsContainingPoints( coords_view );
@@ -526,6 +525,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 
     // Evaluate the source function at the target points and construct a view
     // of the function evaluations.
+    int source_dim;
     Teuchos::ArrayRCP<typename SFT::value_type> source_field_copy(0,0);
     if ( source_exists )
     {
@@ -533,44 +533,53 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 	    source_evaluator->evaluate( 
 		Teuchos::arcpFromArray( d_source_elements ),
 		Teuchos::arcpFromArray( d_target_coords ) );
-	testPrecondition( SFT::dim( function_evaluations ) == d_dimension );
+
+	source_dim = SFT::dim( function_evaluations );
 
 	source_field_copy =    
 	    FieldTools<SourceField>::copy( function_evaluations );
     }
     d_comm->barrier();
+    Teuchos::broadcast<int,int>( *d_comm, d_source_indexer.l2g(0),
+				 Teuchos::Ptr<int>(&source_dim) );
 
     // Build a multivector for the function evaluations.
-    GlobalOrdinal source_size = source_field_copy.size() / d_dimension;
+    GlobalOrdinal source_size = source_field_copy.size() / source_dim;
     Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type, GlobalOrdinal> > 
 	source_vector = Tpetra::createMultiVectorFromView( 
-	    d_source_map, source_field_copy, source_size, d_dimension );
+	    d_source_map, source_field_copy, source_size, source_dim );
 
     // Construct a view of the target space.
+    int target_dim;
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(0,0);
     if ( target_exists )
     {
 	target_field_view = FieldTools<TargetField>::nonConstView( 
 	    *target_space_manager->field() );
+
+	target_dim = TFT::dim( *target_space_manager->field() );
     }
     d_comm->barrier();
+    Teuchos::broadcast<int,int>( *d_comm, d_target_indexer.l2g(0),
+				 Teuchos::Ptr<int>(&target_dim) );
     
+    // Check that the source and target have the same field dimension.
+    testPrecondition( source_dim == target_dim );
+
     // Verify that the target space has the proper amount of memory allocated.
-    GlobalOrdinal target_size = target_field_view.size() / d_dimension;
+    GlobalOrdinal target_size = target_field_view.size() / target_dim;
     if ( target_exists )
     {
 	testPrecondition( 
 	    target_size == 
 	    (typename TFT::size_type) d_target_map->getNodeNumElements() );
-	testPrecondition( TFT::dim( *target_space_manager->field() ) 
-			  == d_dimension );
     }
     d_comm->barrier();
-
+    
     // Build a multivector for the target space.
     Teuchos::RCP<Tpetra::MultiVector<typename TFT::value_type, GlobalOrdinal> > 
 	target_vector =	Tpetra::createMultiVectorFromView( 
-	    d_target_map, target_field_view, target_size, d_dimension );
+	    d_target_map, target_field_view, target_size, target_dim );
 
     // Fill the target space with zeros so that points we didn't map get some
     // data.

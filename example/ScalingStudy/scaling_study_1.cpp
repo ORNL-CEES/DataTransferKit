@@ -451,7 +451,7 @@ int main(int argc, char* argv[])
 	new FieldManager<MyField>( target_field, comm ) );
 
     // Setup consistent interpolation mapping.
-    SharedDomainMap<MyMesh,MyField> shared_domain_map( comm );
+    SharedDomainMap<MyMesh,MyField> shared_domain_map( comm, 3 );
 
     // Setup the shared domain map ( this creates the mapping ).
     std::clock_t setup_start = clock();

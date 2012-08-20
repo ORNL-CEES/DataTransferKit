@@ -195,7 +195,7 @@ TEUCHOS_UNIT_TEST( RCB, 1d_rcb_test )
 
     // Partition the mesh with RCB.
     typedef RCB<MeshType>::zoltan_id_type zoltan_id_type;
-    RCB<MeshType> rcb( mesh_manager );
+    RCB<MeshType> rcb( getDefaultComm<int>(), mesh_manager, 1  );
     rcb.partition();
     
     // Get the random numbers that were used to compute the vertex coordinates.
@@ -320,7 +320,7 @@ TEUCHOS_UNIT_TEST( RCB, 2d_rcb_test )
 
     // Partition the mesh with RCB.
     typedef RCB<MeshType>::zoltan_id_type zoltan_id_type;
-    RCB<MeshType> rcb( mesh_manager );
+    RCB<MeshType> rcb( getDefaultComm<int>(), mesh_manager, 2 );
     rcb.partition();
     
     // Get the random numbers that were used to compute the vertex coordinates.
@@ -455,7 +455,7 @@ TEUCHOS_UNIT_TEST( RCB, 3d_rcb_test )
 
     // Partition the mesh with RCB.
     typedef RCB<MeshType>::zoltan_id_type zoltan_id_type;
-    RCB<MeshType> rcb( mesh_manager );
+    RCB<MeshType> rcb( getDefaultComm<int>(), mesh_manager, 3 );
     rcb.partition();
     
     // Get the random numbers that were used to compute the vertex coordinates.
@@ -600,7 +600,7 @@ TEUCHOS_UNIT_TEST( RCB, partial_1d_rcb_test )
 
     // Partition the mesh with RCB.
     typedef RCB<MeshType>::zoltan_id_type zoltan_id_type;
-    RCB<MeshType> rcb( mesh_manager );
+    RCB<MeshType> rcb( getDefaultComm<int>(), mesh_manager, 1 );
     rcb.partition();
     
     // Get the random numbers that were used to compute the vertex coordinates.
@@ -724,7 +724,7 @@ TEUCHOS_UNIT_TEST( RCB, partial_2d_rcb_test )
 
     // Partition the mesh with RCB.
     typedef RCB<MeshType>::zoltan_id_type zoltan_id_type;
-    RCB<MeshType> rcb( mesh_manager );
+    RCB<MeshType> rcb( getDefaultComm<int>(), mesh_manager, 2 );
     rcb.partition();
     
     // Get the random numbers that were used to compute the vertex coordinates.
@@ -837,7 +837,7 @@ TEUCHOS_UNIT_TEST( RCB, partial_3d_rcb_test )
 
     // Partition the mesh with RCB.
     typedef RCB<MeshType>::zoltan_id_type zoltan_id_type;
-    RCB<MeshType> rcb( mesh_manager );
+    RCB<MeshType> rcb( getDefaultComm<int>(), mesh_manager, 3 );
     rcb.partition();
     
     // Get the random numbers that were used to compute the vertex coordinates.
