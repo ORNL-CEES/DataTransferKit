@@ -118,7 +118,8 @@ class Rendezvous
     //@}
 
     // Constructor.
-    Rendezvous( const RCP_Comm& comm, const BoundingBox& global_box );
+    Rendezvous( const RCP_Comm& comm, const int dimension,
+		const BoundingBox& global_box );
 
     // Destructor.
     ~Rendezvous();
@@ -160,7 +161,7 @@ class Rendezvous
 
     // Setup the import communication patterns.
     void setupImportCommunication( 
-	const Mesh& mesh,
+	const Teuchos::RCP<Mesh>& mesh,
 	const Teuchos::ArrayView<short int>& elements_in_box,
 	Teuchos::Array<GlobalOrdinal>& rendezvous_vertices,
 	Teuchos::Array<GlobalOrdinal>& rendezvous_elements );
@@ -169,6 +170,9 @@ class Rendezvous
 
     // Global communicator over which to perform the rendezvous.
     RCP_Comm d_comm;
+
+    // The dimension of the rendezvous.
+    int d_dimension;
 
     // Bounding box in which to perform the rendezvous.
     BoundingBox d_global_box;

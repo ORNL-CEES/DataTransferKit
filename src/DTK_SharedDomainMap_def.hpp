@@ -69,7 +69,8 @@ namespace DataTransferKit
  *
  * \param dimension The dimension of the map. This should be consistent with
  * all source and target objects (i.e. only 3 dimensional coordinates will be
- * excepted with a 3 dimensional map).
+ * accepted with a 3 dimensional map). We need this here so we have a global
+ * baseline for all objects that may or may not exist on all processes.
  *
  * \param store_missed_points Set to true if it is desired to keep track of
  * the local target points missed during map generation. The default value is
@@ -98,12 +99,14 @@ SharedDomainMap<Mesh,CoordinateField>::~SharedDomainMap()
  * \param source_mesh_manager Source mesh in the shared domain problem. A null
  * RCP is a valid argument. This will be the case when a mesh manager is only
  * constructed on a subset of the processes that the shared domain map is
- * constructed over. 
+ * constructed over. Note that the source mesh must exist only on processes
+ * that reside within the SharedDomainMap communicator.
  *
  * \param target_coord_manager Target coordinates in the shared domain
  * problem. A null RCP is a valid argument. This will be the case when a field
  * manager is only constructed on a subset of the processes that the shared
- * domain map is constructed over.
+ * domain map is constructed over. Note that the target coordinates must exist
+ * only on processes that reside within the SharedDomainMap communicator.
  */
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::setup( 
@@ -115,30 +118,40 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     if ( source_mesh_manager.is_null() ) source_exists = false;
     bool target_exists = true;
     if ( target_coord_manager.is_null() ) target_exists = false;
+    d_comm->barrier();
 
     // Create local to global process indexers for the managers.
-    CommIndexer source_indexer( d_comm, source_mesh_manager->comm() );
-    CommIndexer target_indexer( d_comm, target_coord_manager->comm() );
+    RCP_Comm source_comm;
+    if ( source_exists )
+    {
+	source_comm = source_mesh_manager->comm();
+    }
+    RCP_Comm target_comm;
+    if ( target_exists )
+    {
+	target_comm = target_coord_manager->comm();
+    }
+    d_comm->barrier();
+    CommIndexer source_indexer( d_comm, source_comm );
+    CommIndexer target_indexer( d_comm, target_comm );
 
     // Check the source and target dimensions for consistency.
     if ( source_exists )
     {
 	testPrecondition( source_mesh_manager->dim() == d_dimension );
     }
+    d_comm->barrier();
 
     if ( target_exists )
     {
 	testPrecondition( CFT::dim( *target_coord_manager->field() ) 
 			  == d_dimension );
     }
+    d_comm->barrier();
 
     // Compute a unique global ordinal for each point in the coordinate field.
     Teuchos::Array<GlobalOrdinal> target_ordinals;
-    if ( target_exists )
-    {
-	computePointOrdinals( *target_coord_manager->field(), target_ordinals );
-    }
-    d_comm->barrier();
+    computePointOrdinals( target_coord_manager, target_ordinals );
 
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
@@ -153,7 +166,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     {
 	source_box = source_mesh_manager->globalBoundingBox();
     }
-    Teuchos::broadcast<int,BoundingBox>( 
+    d_comm->barrier();
+    Teuchos::broadcast<int,BoundingBox>(
 	*d_comm, source_indexer.l2g(0), 
 	Teuchos::Ptr<BoundingBox>(&source_box) );
 
@@ -164,6 +178,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	target_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
 	    *target_coord_manager->field(), target_coord_manager->comm() );
     }
+    d_comm->barrier();
     Teuchos::broadcast<int,BoundingBox>( 
 	*d_comm, target_indexer.l2g(0), 
 	Teuchos::Ptr<BoundingBox>(&target_box) );
@@ -175,23 +190,25 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     testAssertion( has_intersect );
 
     // Build a rendezvous decomposition with the source mesh.
-    Rendezvous<Mesh> rendezvous( d_comm, shared_domain_box );
+    Rendezvous<Mesh> rendezvous( d_comm, d_dimension, shared_domain_box );
     rendezvous.build( source_mesh_manager );
 
     // Determine the rendezvous destination proc of each point in the
     // coordinate field.
     Teuchos::ArrayRCP<double> coords_view(0,0.0);
-    Teuchos::Array<int> rendezvous_procs;
     int coord_dim;
     if ( target_exists )
     {
 	coord_dim = CFT::dim( *target_coord_manager->field() );
 	coords_view = FieldTools<CoordinateField>::nonConstView( 
 	    *target_coord_manager->field() );
-	rendezvous_procs = rendezvous.procsContainingPoints( coords_view );
     }
+    d_comm->barrier();
     Teuchos::broadcast<int,int>( 
 	*d_comm, target_indexer.l2g(0), Teuchos::Ptr<int>(&coord_dim) );
+
+    Teuchos::Array<int> rendezvous_procs = 
+	rendezvous.procsContainingPoints( coords_view );
 
     // Get the target points that are in the box in which the rendezvous
     // decomposition was generated. The rendezvous algorithm will expand the
@@ -202,6 +219,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	getTargetPointsInBox( rendezvous.getBox(), *target_coord_manager->field(),
 			      target_ordinals, targets_in_box );
     }
+    d_comm->barrier();
 
     // Extract those target points that are not in the box. We don't want to
     // send these to the rendezvous decomposition.
@@ -350,7 +368,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	    missed_in_mesh_ordinal_view, 1, 
 	    d_missed_points.view( offset, num_missed_targets ) );
 
-	// Convert the missed point global indices to local indices.
+	// Convert the missed point global indices to local indices and add
+	// them to the list.
 	for ( int n = offset; n < offset+num_missed_targets; ++n )
 	{
 	    d_missed_points[n] = 
@@ -503,31 +522,29 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     if ( source_evaluator.is_null() ) source_exists = false;
     bool target_exists = true;
     if ( target_space_manager.is_null() ) target_exists = false;
+    d_comm->barrier();
 
-    // Evaluate the source function at the target points.
-    SourceField function_evaluations;
+    // Evaluate the source function at the target points and construct a view
+    // of the function evaluations.
+    Teuchos::ArrayRCP<typename SFT::value_type> source_field_copy(0,0);
     if ( source_exists )
     {
-	 function_evaluations = 
-	     source_evaluator->evaluate( 
-		 Teuchos::arcpFromArray( d_source_elements ),
-		 Teuchos::arcpFromArray( d_target_coords ) );
-	 testPrecondition( SFT::dim( function_evaluations ) == d_dimension );
+	SourceField function_evaluations = 
+	    source_evaluator->evaluate( 
+		Teuchos::arcpFromArray( d_source_elements ),
+		Teuchos::arcpFromArray( d_target_coords ) );
+	testPrecondition( SFT::dim( function_evaluations ) == d_dimension );
+
+	source_field_copy =    
+	    FieldTools<SourceField>::copy( function_evaluations );
     }
-   
-    // Construct a view of the function evaluations.
-    Teuchos::ArrayRCP<typename SFT::value_type> source_field_view(0,0);
-    if ( source_exists )
-    {
-	source_field_view =    
-	    FieldTools<SourceField>::nonConstView( function_evaluations );
-    }
+    d_comm->barrier();
 
     // Build a multivector for the function evaluations.
-    GlobalOrdinal source_size = source_field_view.size() / d_dimension;
+    GlobalOrdinal source_size = source_field_copy.size() / d_dimension;
     Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type, GlobalOrdinal> > 
 	source_vector = Tpetra::createMultiVectorFromView( 
-	    d_source_map, source_field_view, source_size, d_dimension );
+	    d_source_map, source_field_copy, source_size, d_dimension );
 
     // Construct a view of the target space.
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(0,0);
@@ -536,6 +553,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 	target_field_view = FieldTools<TargetField>::nonConstView( 
 	    *target_space_manager->field() );
     }
+    d_comm->barrier();
     
     // Verify that the target space has the proper amount of memory allocated.
     GlobalOrdinal target_size = target_field_view.size() / d_dimension;
@@ -547,6 +565,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 	testPrecondition( TFT::dim( *target_space_manager->field() ) 
 			  == d_dimension );
     }
+    d_comm->barrier();
 
     // Build a multivector for the target space.
     Teuchos::RCP<Tpetra::MultiVector<typename TFT::value_type, GlobalOrdinal> > 
@@ -557,12 +576,13 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     // data.
     if ( target_exists )
     {
-	FieldTools<TargetField>::putScalar( *target_space_manager->field(), 0.0 );
+	FieldTools<TargetField>::putScalar( 
+	    *target_space_manager->field(), 0.0 );
     }
+    d_comm->barrier();
 
     // Move the data from the source decomposition to the target
     // decomposition.
-    d_comm->barrier()
     target_vector->doExport( *source_vector, *d_source_to_target_exporter, 
 			     Tpetra::INSERT );
 }
@@ -578,14 +598,23 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
  */
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
-    const CoordinateField& target_coords,
+    const RCP_CoordFieldManager& target_coord_manager,
     Teuchos::Array<GlobalOrdinal>& target_ordinals )
 {
+    // Set an existence value for the target coords.
+    bool target_exists = true;
+    if ( target_coord_manager.is_null() ) target_exists = false;
     int comm_rank = d_comm->getRank();
-    int point_dim = CFT::dim( target_coords );
-    GlobalOrdinal local_size = 
-	std::distance( CFT::begin( target_coords ),
-		       CFT::end( target_coords ) ) / point_dim;
+    GlobalOrdinal local_size = 0;
+
+    if ( target_exists )
+    {
+	int point_dim = CFT::dim( *target_coord_manager->field() );
+	local_size = std::distance( 
+	    CFT::begin( *target_coord_manager->field() ),
+	    CFT::end( *target_coord_manager->field() ) ) / point_dim;
+    }
+    d_comm->barrier();
 
     GlobalOrdinal global_size;
     Teuchos::reduceAll<int,GlobalOrdinal>( *d_comm,

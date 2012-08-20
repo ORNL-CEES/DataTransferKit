@@ -84,7 +84,8 @@ class RCB
     //@}
 
     // Constructor.
-    RCB( const RCP_MeshManager& mesh_manager );
+    RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager, 
+	 const int dimension );
 
     // Destructor.
     ~RCB();
@@ -162,6 +163,9 @@ class RCB
 
     // The mesh being partitioned.
     RCP_MeshManager d_mesh_manager;
+
+    // The dimension of the RCB space.
+    int d_dimension;
 
     // Zoltan struct.
     Zoltan_Struct *d_zz;

@@ -31,7 +31,7 @@ class WaveEvaluator :
   public:
 
     // Typedefs.
-    typedef Teuchos::RCP<Wave>  RCP_Wave;
+    typedef Teuchos::RCP<Wave>                                    RCP_Wave;
     typedef DataTransferKit::MeshContainer<int>                   mesh_type;
     typedef DataTransferKit::FieldContainer<double>               field_type;
     typedef DataTransferKit::FieldEvaluator<mesh_type,field_type> base_type;

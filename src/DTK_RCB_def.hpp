@@ -42,12 +42,14 @@
 
 #include "DTK_MeshTools.hpp"
 #include "DTK_Assertion.hpp"
+#include "DTK_CommIndexer.hpp"
 #include "DataTransferKit_config.hpp"
 
 #include <mpi.h>
 
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
+#include <Teuchos_CommHelpers.hpp>
 
 namespace DataTransferKit
 {
@@ -55,16 +57,23 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  *
- * \param mesh_manager The mesh to be partitioned with RCB.
+ * \param comm The communicator over which to build the RCB partitioning.
+ *
+ * \param mesh_manager The mesh to be partitioned with RCB. A null RCP is
+ * valid here as the mesh may or may not exist on all of the processes we want
+ * to repartition it to.
+ *
+ * \param dimension The dimension of the RCB space.
  */
 template<class Mesh>
-RCB<Mesh>::RCB( const RCP_MeshManager& mesh_manager )
+RCB<Mesh>::RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager, 
+		const int dimension )
     : d_mesh_manager( mesh_manager )
+    , d_dimension( dimension )
 {
     // Get the raw MPI communicator.
     Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( 
-	    d_mesh_manager->comm() );
+	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
     Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
 	mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
@@ -93,7 +102,7 @@ RCB<Mesh>::RCB( const RCP_MeshManager& mesh_manager )
     // Register static functions.
     Zoltan_Set_Num_Obj_Fn( d_zz, getNumberOfObjects, &d_mesh_manager );
     Zoltan_Set_Obj_List_Fn( d_zz, getObjectList, &d_mesh_manager );
-    Zoltan_Set_Num_Geom_Fn( d_zz, getNumGeometry, &d_mesh_manager );
+    Zoltan_Set_Num_Geom_Fn( d_zz, getNumGeometry, &d_dimension );
     Zoltan_Set_Geom_Multi_Fn( d_zz, getGeometryList, &d_mesh_manager );
 }
 
@@ -168,7 +177,7 @@ template<class Mesh>
 int RCB<Mesh>::getDestinationProc( Teuchos::Array<double> coords ) const
 {
     testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
-    testPrecondition( d_mesh_manager->dim() == (int) coords.size() );
+    testPrecondition( d_dimension == (int) coords.size() );
 
     int proc, part;
     rememberValue( int zoltan_error );
@@ -191,17 +200,22 @@ int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
 {
     RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
     int num_vertices = 0;
-    int num_blocks = mesh_manager->getNumBlocks();
-    Teuchos::ArrayView<short int>::const_iterator active_iterator;
-    for ( int i = 0; i < num_blocks; ++i )
+
+    // We'll only count vertices if the mesh manager is not null.
+    if ( !mesh_manager.is_null() )
     {
-	for ( active_iterator = mesh_manager->getActiveVertices( i ).begin();
-	      active_iterator != mesh_manager->getActiveVertices( i ).end();
-	      ++active_iterator )
+	int num_blocks = mesh_manager->getNumBlocks();
+	Teuchos::ArrayView<short int>::const_iterator active_iterator;
+	for ( int i = 0; i < num_blocks; ++i )
 	{
-	    if ( *active_iterator )
+	    for ( active_iterator = mesh_manager->getActiveVertices(i).begin();
+		  active_iterator != mesh_manager->getActiveVertices(i).end();
+		  ++active_iterator )
 	    {
-		++num_vertices;
+		if ( *active_iterator )
+		{
+		    ++num_vertices;
+		}
 	    }
 	}
     }
@@ -221,36 +235,41 @@ void RCB<Mesh>::getObjectList(
     int wgt_dim, float *obj_wgts, int *ierr )
 {
     RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
-    *ierr = ZOLTAN_OK;
 
-    // Note here that the local ID is being set the the vertex array index.
-    Teuchos::ArrayRCP<short int>::const_iterator active_iterator;
-    typename MT::const_vertex_iterator gid_iterator;
-    zoltan_id_type i = 0;
-    zoltan_id_type j = 0;
-    BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager->blocksBegin();
-	  block_iterator != mesh_manager->blocksEnd();
-	  ++block_iterator )
+    // We'll only build the geometry list is the mesh manager is not null.
+    if ( !mesh_manager.is_null() )
     {
-	int block_id = std::distance( mesh_manager->blocksBegin(),
-				      block_iterator );
-
-	for ( gid_iterator = MT::verticesBegin( *(*block_iterator) ),
-	   active_iterator = 
-			     mesh_manager->getActiveVertices( block_id ).begin();
-	      gid_iterator != MT::verticesEnd( *(*block_iterator) );
-	      ++gid_iterator, ++active_iterator )
+	// Note here that the local ID is being set the the vertex array index.
+	Teuchos::ArrayRCP<short int>::const_iterator active_iterator;
+	typename MT::const_vertex_iterator gid_iterator;
+	zoltan_id_type i = 0;
+	zoltan_id_type j = 0;
+	BlockIterator block_iterator;
+	for ( block_iterator = mesh_manager->blocksBegin();
+	      block_iterator != mesh_manager->blocksEnd();
+	      ++block_iterator )
 	{
-	    if ( *active_iterator )
+	    int block_id = std::distance( mesh_manager->blocksBegin(),
+					  block_iterator );
+
+	    for ( gid_iterator = MT::verticesBegin( *(*block_iterator) ),
+	       active_iterator = 
+				 mesh_manager->getActiveVertices( block_id ).begin();
+		  gid_iterator != MT::verticesEnd( *(*block_iterator) );
+		  ++gid_iterator, ++active_iterator )
 	    {
-		globalID[i] = static_cast<zoltan_id_type>( *gid_iterator );
-		localID[i] = j;
-		++i;
+		if ( *active_iterator )
+		{
+		    globalID[i] = static_cast<zoltan_id_type>( *gid_iterator );
+		    localID[i] = j;
+		    ++i;
+		}
+		++j;
 	    }
-	    ++j;
 	}
     }
+
+    *ierr = ZOLTAN_OK;
 }
 
 //---------------------------------------------------------------------------//
@@ -260,9 +279,9 @@ void RCB<Mesh>::getObjectList(
 template<class Mesh>
 int RCB<Mesh>::getNumGeometry( void *data, int *ierr )
 {
-    RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
+    int dimension = *static_cast<int*>( data );
     *ierr = ZOLTAN_OK;
-    return mesh_manager->dim();
+    return dimension;
 }
 
 //---------------------------------------------------------------------------//
@@ -278,67 +297,73 @@ void RCB<Mesh>::getGeometryList(
 {
     RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
 
-    // Get the number of active vertices.
-    int num_active_vertices = 0;
-    int num_blocks = mesh_manager->getNumBlocks();
-    Teuchos::ArrayView<short int>::const_iterator active_iterator;
-    for ( int i = 0; i < num_blocks; ++i )
+    // We will only supply vertex coordinates when the mesh exists.
+    if ( !mesh_manager.is_null() )
     {
-	for ( active_iterator = mesh_manager->getActiveVertices( i ).begin();
-	      active_iterator != mesh_manager->getActiveVertices( i ).end();
-	      ++active_iterator )
+	// Get the number of active vertices.
+	int num_active_vertices = 0;
+	int num_blocks = mesh_manager->getNumBlocks();
+	Teuchos::ArrayView<short int>::const_iterator active_iterator;
+	for ( int i = 0; i < num_blocks; ++i )
 	{
-	    if ( *active_iterator )
+	    for ( active_iterator = mesh_manager->getActiveVertices(i).begin();
+		  active_iterator != mesh_manager->getActiveVertices(i).end();
+		  ++active_iterator )
 	    {
-		++num_active_vertices;
-	    }
-	}
-    }
-
-    // Check Zoltan for consistency.
-    int vertex_dim = mesh_manager->dim();
-    testInvariant( sizeGID == 1 );
-    testInvariant( sizeLID == 1 );
-    testInvariant( num_dim == (int) vertex_dim );
-    testInvariant( num_obj == (int) num_active_vertices );
-
-    if ( sizeGID != 1 || sizeLID != 1 || 
-	 num_dim != (int) vertex_dim || num_obj != (int) num_active_vertices )
-    {
-	*ierr = ZOLTAN_FATAL;
-	return;
-    }
-    
-    // Zoltan needs interleaved coordinates.
-    int n = 0;
-    Teuchos::ArrayRCP<const double> mesh_coords;
-    GlobalOrdinal num_vertices;
-    BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager->blocksBegin();
-	  block_iterator != mesh_manager->blocksEnd();
-	  ++block_iterator )
-    {
-	int block_id = std::distance( mesh_manager->blocksBegin(),
-				      block_iterator );
-	Teuchos::ArrayView<short int> active_vertices =
-	    mesh_manager->getActiveVertices( block_id );
-
-	mesh_coords = MeshTools<Mesh>::coordsView( *(*block_iterator) );
-	num_vertices = std::distance( MT::verticesBegin( *(*block_iterator) ),
-				      MT::verticesEnd( *(*block_iterator) ) );
-	for ( GlobalOrdinal i = 0; i < num_vertices; ++i )
-	{
-	    if ( active_vertices[i] )
-	    {
-		for ( int d = 0; d < vertex_dim; ++d )
+		if ( *active_iterator )
 		{
-		    geom_vec[ vertex_dim*n + d ] = 
-			mesh_coords[ d*num_vertices + i ];
+		    ++num_active_vertices;
 		}
-		++n;
+	    }
+	}
+
+	// Check Zoltan for consistency.
+	int vertex_dim = mesh_manager->dim();
+	testInvariant( sizeGID == 1 );
+	testInvariant( sizeLID == 1 );
+	testInvariant( num_dim == (int) vertex_dim );
+	testInvariant( num_obj == (int) num_active_vertices );
+
+	if ( sizeGID != 1 || sizeLID != 1 || 
+	     num_dim != (int) vertex_dim || num_obj != (int) num_active_vertices )
+	{
+	    *ierr = ZOLTAN_FATAL;
+	    return;
+	}
+    
+	// Zoltan needs interleaved coordinates.
+	int n = 0;
+	Teuchos::ArrayRCP<const double> mesh_coords;
+	GlobalOrdinal num_vertices;
+	BlockIterator block_iterator;
+	for ( block_iterator = mesh_manager->blocksBegin();
+	      block_iterator != mesh_manager->blocksEnd();
+	      ++block_iterator )
+	{
+	    int block_id = std::distance( mesh_manager->blocksBegin(),
+					  block_iterator );
+	    Teuchos::ArrayView<short int> active_vertices =
+		mesh_manager->getActiveVertices( block_id );
+
+	    mesh_coords = MeshTools<Mesh>::coordsView( *(*block_iterator) );
+	    num_vertices = std::distance( MT::verticesBegin( *(*block_iterator) ),
+					  MT::verticesEnd( *(*block_iterator) ) );
+	    for ( GlobalOrdinal i = 0; i < num_vertices; ++i )
+	    {
+		if ( active_vertices[i] )
+		{
+		    for ( int d = 0; d < vertex_dim; ++d )
+		    {
+			geom_vec[ vertex_dim*n + d ] = 
+			    mesh_coords[ d*num_vertices + i ];
+		    }
+		    ++n;
+		}
 	    }
 	}
     }
+	  
+    *ierr = ZOLTAN_OK;
 }
 
 //---------------------------------------------------------------------------//

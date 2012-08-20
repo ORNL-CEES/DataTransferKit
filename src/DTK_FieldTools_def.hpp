@@ -194,6 +194,30 @@ FieldTools<Field>::nonConstView( const Field& field )
     }
 }
 
+/*!
+ * \brief Get a deep-copy of the field. The arrayRCP object will manage the
+ * memory.
+ *
+ * \param field The field to copy.
+ *
+ * \return A copy of the field.
+ */
+template<class Field>
+Teuchos::ArrayRCP<typename FieldTools<Field>::value_type>
+FieldTools<Field>::copy( const Field& field )
+{
+    if ( FT::empty(field) )
+    {
+	return Teuchos::ArrayRCP<value_type>(0,0);
+    }
+    else
+    {
+	Teuchos::ArrayRCP<value_type> field_copy( FT::size(field) );
+	std::copy( FT::begin(field), FT::end(field), field_copy.begin() );
+	return field_copy;
+    }
+}
+
 //---------------------------------------------------------------------------//
 /*!
  * \brief Fill a field with a scalar.

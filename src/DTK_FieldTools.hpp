@@ -115,6 +115,10 @@ class FieldTools
     // Get a non-const view of the field. The ArrayRCP object will not manage
     // the memory. 
     static Teuchos::ArrayRCP<value_type> nonConstView( const Field& field );
+
+    // Get a deep-copy of the field. The arrayRCP object will manage the
+    // memory.
+    static Teuchos::ArrayRCP<value_type> copy( const Field& field );
     //@}
 
 
