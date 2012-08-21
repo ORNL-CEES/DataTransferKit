@@ -10,6 +10,7 @@
 #define DTK_EXAMPLE_WAVEADAPTER_HPP
 
 #include "Wave.hpp"
+#include "WaveEvaluator.hpp"
 
 #include <DTK_MeshManager.hpp>
 #include <DTK_MeshContainer.hpp>
@@ -68,40 +69,6 @@ class WaveAdapter
     // Get the wave target space.
     static Teuchos::RCP<DataTransferKit::FieldManager<FieldType> >
     getTargetSpace( const RCP_Wave& wave );
-};
-
-//---------------------------------------------------------------------------//
-/*!
-  \class WaveEvaluator
-  \brief Field Evaluator for the Wave code.
- */
-//---------------------------------------------------------------------------//
-class WaveEvaluator : 
-    public DataTransferKit::FieldEvaluator<DataTransferKit::MeshContainer<int>,
-					   DataTransferKit::FieldContainer<double> >
-{
-  public:
-
-    // Typedef.
-    typedef Teuchos::RCP<Wave>  RCP_Wave;
-
-    // Constructor.
-    WaveEvaluator( const RCP_Wave& wave )
-	: d_wave( wave )
-    { /* ... */ }
-
-    // Destructor.
-    ~WaveEvaluator();
-
-    // Function evaluator.
-    DataTransferKit::FieldContainer<double> evaluate( 
-	const Teuchos::ArrayRCP<int>& elements,
-	const Teuchos::ArrayRCP<double>& coords );
-
-  private:
-
-    // Wave instance.
-    RCP_Wave d_wave;
 };
 
 #endif // end DTK_EXAMPLE_WAVEADAPTER_HPP
