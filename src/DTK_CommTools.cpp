@@ -42,27 +42,25 @@
 
 #include "DTK_CommTools.hpp"
 
-#include <mpi.h>
-
 #include <Teuchos_Array.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_Ptr.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*
- * \brief Get MPI_COMM_WORLD in an RCP_Comm data structure.
+ * \brief Get MPI_COMM_WORLD in an RCP_Comm data structure if MPI is used,
+ * otherwise get the default serial communicator.
  * 
- * \param mpi_comm_world MPI_COMM_WORLD wrapped in Teuchos::Comm object.
+ * \param comm_world Worl communicator.
  */
-void CommTools::getMpiCommWorld( RCP_Comm& mpi_comm_world )
+void CommTools::getCommWorld( RCP_Comm& comm_world )
 {
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
-	Teuchos::rcp( new Teuchos::OpaqueWrapper<MPI_Comm>( MPI_COMM_WORLD ) );
-    mpi_comm_world = Teuchos::rcp( new Teuchos::MpiComm<int>( opaque_comm ) );
+    comm_world = Teuchos::DefaultComm<int>::getComm();
 }
 
 //---------------------------------------------------------------------------//
@@ -82,7 +80,7 @@ void CommTools::getMpiCommWorld( RCP_Comm& mpi_comm_world )
 bool CommTools::equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B )
 {
     RCP_Comm comm_world;
-    getMpiCommWorld( comm_world );
+    getCommWorld( comm_world );
 
     int existence = 0;
 
@@ -133,7 +131,7 @@ void CommTools::unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 		       RCP_Comm& comm_union )
 {
     RCP_Comm comm_world;
-    getMpiCommWorld( comm_world );
+    getCommWorld( comm_world );
 
     Teuchos::Array<int> existence( comm_world->getSize(), 0 );
 
@@ -189,7 +187,7 @@ void CommTools::intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 			   RCP_Comm& comm_intersection )
 {
     RCP_Comm comm_world;
-    getMpiCommWorld( comm_world );
+    getCommWorld( comm_world );
 
     Teuchos::Array<int> existence( comm_world->getSize(), 0 );
 

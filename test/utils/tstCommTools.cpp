@@ -44,7 +44,7 @@ TEUCHOS_UNIT_TEST( CommTools, comm_world_test )
     typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
 
     RCP_Comm comm_world;
-    CommTools::getMpiCommWorld( comm_world );
+    CommTools::getCommWorld( comm_world );
 
     RCP_Comm default_comm = getDefaultComm<int>();
     TEST_ASSERT( comm_world->getRank() == default_comm->getRank() );

@@ -71,8 +71,8 @@ class CommTools
     ~CommTools()
     { /* ... */ }
 
-    // Get MPI_COMM_WORLD in an RCP_Comm data structure.
-    static void getMpiCommWorld( RCP_Comm& mpi_comm_world );
+    // Get comm world.
+    static void getCommWorld( RCP_Comm& comm_world );
 
     // Check whether two communicators own the same communication space.
     static bool equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B );
