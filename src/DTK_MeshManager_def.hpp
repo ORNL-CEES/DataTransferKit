@@ -53,6 +53,7 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Ptr.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_as.hpp>
 
 namespace DataTransferKit
 {
@@ -251,7 +252,8 @@ void MeshManager<Mesh>::validate()
 	    MT::coordsEnd( *(*block_iterator) ) );
 	if ( num_vertices > 0 )
 	{
-	    testPrecondition( num_coords / num_vertices == d_dim );
+	    testPrecondition( num_coords / num_vertices 
+			      == Teuchos::as<GlobalOrdinal>(d_dim) );
 	}
 	
 	// Check that the element topology is valid for the given dimension.
@@ -303,15 +305,15 @@ void MeshManager<Mesh>::validate()
 	GlobalOrdinal num_conn = std::distance( 
 	    MT::connectivityBegin( *(*block_iterator) ),
 	    MT::connectivityEnd( *(*block_iterator) ) );
-	if ( num_elements > 0 )
+	if ( num_elements > Teuchos::as<GlobalOrdinal>(0) )
 	{
-	    testPrecondition( num_conn / num_elements ==
+	    testPrecondition( Teuchos::as<int>(num_conn / num_elements) ==
 			      MT::verticesPerElement( *(*block_iterator) ) );
 	}
 
 	// Check that the size of the permutation vector is the same as the
 	// number of vertices per element.
-	GlobalOrdinal num_permutation = std::distance(
+	int num_permutation = std::distance(
 	    MT::permutationBegin( *(*block_iterator) ),
 	    MT::permutationEnd( *(*block_iterator) ) );
 	testPrecondition( MT::verticesPerElement( *(*block_iterator) ) ==

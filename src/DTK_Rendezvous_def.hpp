@@ -724,7 +724,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // unique list of the elements and build the rendezvous mesh element to
     // source proc map.
     std::set<GlobalOrdinal> rendezvous_elements_set;
-    for ( int n = 0; n < num_import_elements; ++n )
+    for ( GlobalOrdinal n = 0; n < num_import_elements; ++n )
     {
 	if ( rendezvous_elements_set.insert( import_elements[n] ).second )
 	{
