@@ -14,6 +14,7 @@
 #include <cassert>
 #include <ctime>
 #include <cstdlib>
+#include <limits>
 
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
@@ -661,11 +662,11 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test2 )
 	     (edge_size-1) < points[num_points + i] ||
 	     points[2*num_points + i] < 0.0 || 1.0 < points[2*num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == -1 );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
 	}
 	else
 	{
-	    TEST_ASSERT( elements[i] != -1 );
+	    TEST_ASSERT( elements[i] != std::numeric_limits<int>::max() );
 	    ++num_found;
 	}
     }

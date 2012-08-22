@@ -42,6 +42,7 @@
 #define DTK_SHAREDDOMAINMAP_DEF_HPP
 
 #include <algorithm>
+#include <limits>
 
 #include "DTK_FieldTools.hpp"
 #include "DTK_Assertion.hpp"
@@ -50,7 +51,6 @@
 #include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_as.hpp>
 #include <Teuchos_Ptr.hpp>
 
@@ -230,7 +230,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	  in_box_iterator != targets_in_box.end();
 	  ++in_box_iterator )
     {
-	if ( *in_box_iterator == -1 )
+	if ( *in_box_iterator == std::numeric_limits<GlobalOrdinal>::max() )
 	{
 	    not_in_box.push_back( 
 		std::distance( in_box_begin, in_box_iterator ) );
@@ -248,7 +248,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     not_in_box.clear();
 
     typename Teuchos::Array<GlobalOrdinal>::iterator targets_bound =
-	std::remove( targets_in_box.begin(), targets_in_box.end(), -1 );
+	std::remove( targets_in_box.begin(), targets_in_box.end(), 
+		     std::numeric_limits<GlobalOrdinal>::max() );
     GlobalOrdinal targets_in_box_size = 
 	std::distance( targets_in_box.begin(), targets_bound );
 
@@ -308,7 +309,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	  rendezvous_elements_iterator != rendezvous_elements.end();
 	  ++rendezvous_elements_iterator )
     {
-	if ( *rendezvous_elements_iterator == -1 )
+	if ( *rendezvous_elements_iterator == 
+	     std::numeric_limits<GlobalOrdinal>::max() )
 	{
 	    target_index = std::distance( rendezvous_elements_begin, 
 					  rendezvous_elements_iterator );
@@ -361,7 +363,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	GlobalOrdinal num_missed_targets = 
 	    target_to_rendezvous_distributor.createFromSends( 
 		missed_target_procs() );
-	int offset = d_missed_points.size();
+	GlobalOrdinal offset = d_missed_points.size();
 	d_missed_points.resize( offset + num_missed_targets );
 	target_to_rendezvous_distributor.doPostsAndWaits( 
 	    missed_in_mesh_ordinal_view, 1, 
@@ -369,7 +371,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
 	// Convert the missed point global indices to local indices and add
 	// them to the list.
-	for ( int n = offset; n < offset+num_missed_targets; ++n )
+	for ( GlobalOrdinal n = offset; n < offset+num_missed_targets; ++n )
 	{
 	    d_missed_points[n] = 
 		d_target_g2l.find( d_missed_points[n] )->second;
@@ -393,14 +395,15 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     typename Teuchos::Array<GlobalOrdinal>::iterator rendezvous_elements_bound =
 	std::remove( rendezvous_elements.begin(), 
-		     rendezvous_elements.end(), -1 );
+		     rendezvous_elements.end(), 
+		     std::numeric_limits<GlobalOrdinal>::max() );
     GlobalOrdinal rendezvous_elements_size = 
 	std::distance( rendezvous_elements.begin(), rendezvous_elements_bound );
 
     typename Teuchos::Array<int>::iterator rendezvous_element_src_procs_bound =
 	std::remove( rendezvous_element_src_procs.begin(), 
 		     rendezvous_element_src_procs.end(), -1 );
-    GlobalOrdinal rendezvous_element_src_procs_size = 
+    int rendezvous_element_src_procs_size = 
 	std::distance( rendezvous_element_src_procs.begin(), 
 		       rendezvous_element_src_procs_bound );
     testInvariant( rendezvous_elements_size == 
@@ -598,7 +601,10 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute globally unique ordinals for the target points.
+ * \brief Compute globally unique ordinals for the target points. Here an
+ * invalid ordinal will be designated as the maximum value as specified by the
+ * limits header for the ordinal type. We do this so that 0 may be a valid
+ * ordinal.
  *
  * \param target_coords The coordinates to compute global ordinals for.
  *
@@ -657,7 +663,7 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
  *
  * \param targets_in_box The global ordinals of the target coordinates in the
  * box. If a target point was not found in the box, return an invalid ordinal,
- * -1, in its positition.
+ * std::numeric_limits<GlobalOrdinal>::max(), in its positition.
  */
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
@@ -688,12 +694,13 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
 	}
 	else
 	{
-	    targets_in_box[n] = -1;
+	    targets_in_box[n] = std::numeric_limits<GlobalOrdinal>::max();
 	}
 
 	// If we're keeping track of the points not being mapped, add this
 	// point's local index to the list if its not in the box.
-	if ( d_store_missed_points && targets_in_box[n] == -1 )
+	if ( d_store_missed_points && targets_in_box[n] == 
+	     std::numeric_limits<GlobalOrdinal>::max() )
 	{
 	    d_missed_points.push_back(n);
 	}

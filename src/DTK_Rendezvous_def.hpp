@@ -43,6 +43,7 @@
 
 #include <set>
 #include <algorithm>
+#include <limits>
 
 #include "DTK_MeshTools.hpp"
 #include "DTK_Assertion.hpp"
@@ -177,7 +178,7 @@ Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
  * \param elements An array of the elements the points were found in. An
  * element will be returned for each point in the order they were provided
  * in. If a point is not found in an element, return an invalid element
- * ordinal, -1, for that point.
+ * ordinal, std::numeric_limits<GlobalOrdinal>::max(), for that point.
  *
  * \param element_src_procs The source procs that own the elements. Once proc
  * is provided for each element in the order that the elements were
@@ -213,7 +214,7 @@ void Rendezvous<Mesh>::elementsContainingPoints(
 	}
 	else
 	{
-	    elements[n] = -1;
+	    elements[n] = std::numeric_limits<GlobalOrdinal>::max();
 	    element_src_procs[n] = -1;
 	}
     }

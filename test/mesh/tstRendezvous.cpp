@@ -12,6 +12,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <limits>
 
 #include <DTK_Rendezvous.hpp>
 #include <DTK_RendezvousMesh.hpp>
@@ -899,9 +900,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_test )
     {
 	if ( points[i] < 0.0 || my_size < points[i] )
 	{
-	    TEST_ASSERT( elements[i] == -1 );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
 	}
-	else if ( elements[i] != -1 )
+	else if ( elements[i] != std::numeric_limits<int>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -967,9 +968,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_test )
 	if ( points[i] < 0.0 || my_size < points[i] ||
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == -1 );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
 	}
-	else if ( elements[i] != -1 )
+	else if ( elements[i] != std::numeric_limits<int>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -1035,9 +1036,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_test )
 	if ( points[i] < 0.0 || my_size < points[i] ||
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == -1 );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
 	}
-	else if ( elements[i] != -1 )
+	else if ( elements[i] != std::numeric_limits<int>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -1102,9 +1103,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_test )
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] ||
 	     points[2*num_points + i] < 0.0 || my_size < points[2*num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == -1 );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
 	}
-	else if ( elements[i] != -1 )
+	else if ( elements[i] != std::numeric_limits<int>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -1169,9 +1170,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_test )
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] ||
 	     points[2*num_points + i] < 0.0 || my_size < points[2*num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == -1 );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
 	}
-	else if ( elements[i] != -1 )
+	else if ( elements[i] != std::numeric_limits<int>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -1236,9 +1237,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_test )
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] ||
 	     points[2*num_points + i] < 0.0 || my_size < points[2*num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == -1 );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
 	}
-	else if ( elements[i] != -1 )
+	else if ( elements[i] != std::numeric_limits<int>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -1303,9 +1304,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_test )
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] ||
 	     points[2*num_points+i] < 0.0 || points[2*num_points+i] > 1.0 )
 	{
-	    TEST_ASSERT( elements[i] == -1 );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
 	}
-	else if ( elements[i] != -1 )
+	else if ( elements[i] != std::numeric_limits<int>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -1370,9 +1371,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_test )
 	if ( points[i] < 0.0 || my_size < points[i] ||
 	     points[num_points + i] < -1.0 || my_size < points[num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == -1 );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
 	}
-	else if ( elements[i] != -1 )
+	else if ( elements[i] != std::numeric_limits<int>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) ||
 			 elements[i] == 12 + std::floor( points[i] ) + my_size );
@@ -1439,9 +1440,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_test )
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] ||
 	     points[2*num_points + i] < -2.0 || my_size < points[2*num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == -1 );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
 	}
-	else if ( elements[i] != -1 )
+	else if ( elements[i] != std::numeric_limits<int>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) ||
 			 elements[i] == 12 + std::floor( points[i] ) + my_size ||
