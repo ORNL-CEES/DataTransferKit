@@ -56,7 +56,8 @@
 
 #include <Tpetra_Import.hpp>
 #include <Tpetra_Distributor.hpp>
-#include <Tpetra_MultiVector.hpp>
+#include <Tpetra_MultiVector_decl.hpp>
+#include <Tpetra_MultiVector_def.hpp>
 
 namespace DataTransferKit
 {
@@ -403,7 +404,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     typename Teuchos::Array<int>::iterator rendezvous_element_src_procs_bound =
 	std::remove( rendezvous_element_src_procs.begin(), 
 		     rendezvous_element_src_procs.end(), -1 );
-    int rendezvous_element_src_procs_size = 
+    GlobalOrdinal rendezvous_element_src_procs_size = 
 	std::distance( rendezvous_element_src_procs.begin(), 
 		       rendezvous_element_src_procs_bound );
     testInvariant( rendezvous_elements_size == 

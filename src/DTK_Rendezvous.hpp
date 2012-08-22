@@ -56,7 +56,10 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 
-#include <Tpetra_Map.hpp>
+#include <Tpetra_Map_decl.hpp>
+#include <Tpetra_Map_def.hpp>
+#include <Tpetra_Directory_decl.hpp>
+#include <Tpetra_Directory_def.hpp>
 
 namespace DataTransferKit
 {

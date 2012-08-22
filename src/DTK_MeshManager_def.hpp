@@ -42,6 +42,7 @@
 #define DTK_MESHMANAGER_DEF_HPP
 
 #include <algorithm>
+#include <limits>
 
 #include "DTK_MeshTypes.hpp"
 #include "DTK_MeshTools.hpp"
@@ -111,7 +112,8 @@ MeshManager<Mesh>::localNumElements() const
 	  block_iterator != d_mesh_blocks.end();
 	  ++block_iterator )
     {
-	local_num_elements += MeshTools<Mesh>::numElements( *(*block_iterator) );
+	local_num_elements += 
+	    MeshTools<Mesh>::numElements( *(*block_iterator) );
     }
     return local_num_elements;
 }
@@ -165,8 +167,8 @@ BoundingBox MeshManager<Mesh>::globalBoundingBox()
 	// If the mesh block is empty, do nothing.
 	if ( MeshTools<Mesh>::numVertices( *(*block_iterator) ) > 0 )
 	{
-	    block_box =
-		MeshTools<Mesh>::globalBoundingBox( *(*block_iterator), d_comm );
+	    block_box =	MeshTools<Mesh>::globalBoundingBox( 
+		*(*block_iterator), d_comm );
 
 	    box_bounds = block_box.getBounds();
 
@@ -297,6 +299,17 @@ void MeshManager<Mesh>::validate()
 	int unique_topo = std::distance( local_topo.begin(), unique_bound );
 	testPrecondition( 1 == unique_topo );
 	local_topo.clear();
+
+	// Check that the element handles are of a value less than the numeric
+	// limit of the ordinal type. This is an invalid element handle.
+	typename MT::const_element_iterator element_iterator;
+	for ( element_iterator = MT::elementsBegin( *(*block_iterator) );
+	      element_iterator != MT::elementsEnd( *(*block_iterator) );
+	      ++element_iterator )
+	{
+	    testPrecondition( *element_iterator < 
+			      std::numeric_limits<GlobalOrdinal>::max() );
+	}
 	
 	// Check that the connectivity size is the same as the number of
 	// vertices per element.
@@ -322,7 +335,8 @@ void MeshManager<Mesh>::validate()
 	// Check that the permutation vector contains unique values.
 	Teuchos::Array<int> permutation( num_permutation );
 	std::copy( MT::permutationBegin( *(*block_iterator) ),
-		   MT::permutationEnd( *(*block_iterator) ), permutation.begin() );
+		   MT::permutationEnd( *(*block_iterator) ), 
+		   permutation.begin() );
 	Teuchos::Array<int>::iterator permutation_bound;
 	permutation_bound = std::unique( permutation.begin(),
 					 permutation.end() );
