@@ -36,6 +36,7 @@ The following compilers have been tested with DTK.
 
 * gcc-4.7.0
 * gcc-4.6.1
+* gcc-4.4.5
 
 
 TEST
