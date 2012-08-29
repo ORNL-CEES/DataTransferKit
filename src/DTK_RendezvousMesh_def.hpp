@@ -53,6 +53,7 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Tuple.hpp>
+#include <Teuchos_as.hpp>
 
 namespace DataTransferKit
 {
@@ -294,6 +295,8 @@ Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
     Teuchos::Tuple<double,6> geom_bounds;
     Teuchos::Array<double> vertex_coords(3*vertices_per_element);
     Teuchos::ArrayRCP<Geometry> geometry = geometry_manager.geometry();
+    typename Teuchos::ArrayRCP<Geometry>::const_iterator geometry_begin = 
+	geometry.begin();
     typename Teuchos::ArrayRCP<Geometry>::const_iterator geometry_iterator;
     for ( geometry_iterator = geometry.begin(); 
 	  geometry_iterator != geometry.end();
@@ -319,7 +322,7 @@ Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
 	    vertex_coords[5] = 0.0;
 	}
 	// 2D Quad case.
-	else if ( vertex_dim == 3 )
+	else if ( vertex_dim == 2 )
 	{
 	    vertex_coords[0] = geom_bounds[0];
 	    vertex_coords[1] = geom_bounds[1];
@@ -376,39 +379,42 @@ Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
 	// Build the vertices.
 	moab::Range moab_vertices;
 #if HAVE_DTK_DBC
-	error = moab->create_vertices( &vertex_coords[0], vertex_coords.size(),
+	error = moab->create_vertices( &vertex_coords[0], vertices_per_element,
 				       moab_vertices );
 #else
-	moab->create_vertices( &vertex_coords[0], vertex_coords.size(),
+	moab->create_vertices( &vertex_coords[0], vertices_per_element,
 			       moab_vertices );
 #endif
 	testInvariant( moab::MB_SUCCESS == error );
-
-
+	testInvariant( (int) moab_vertices.size() == vertices_per_element );
+	Teuchos::Array<moab::EntityHandle> vert_copy( vertices_per_element );
+	std::copy( moab_vertices.begin(), moab_vertices.end(), 
+		   vert_copy.begin() );
+	moab_vertices.clear();
+	
 	// Build the bounding entity.
 	moab::EntityHandle moab_element;
 #if HAVE_DTK_DBC
 	error = moab->create_element( entity_type,
-				      &moab_vertices[0],
-				      moab_vertices.size(),
+				      &vert_copy[0],
+				      vertices_per_element,
 				      moab_element );
 #else
 	moab->create_element( entity_type,
-			      &moab_vertices[0],
-			      moab_vertices.size(),
+			      &vert_copy[0],
+			      vertices_per_element,
 			      moab_element );
 #endif
 	testInvariant( moab::MB_SUCCESS == error );
 
 	// Map the moab element handle to the local geometry ordinal.
 	element_handle_map[ moab_element ] = 
-	    std::distance( geometry.begin(), geometry_iterator );
+	    std::distance( geometry_begin, geometry_iterator );
     }
 
     // Create and return the mesh.
     return Teuchos::rcp( 
 	new RendezvousMesh<GlobalOrdinal>( moab, element_handle_map ) );
-
 }
 
 //---------------------------------------------------------------------------//

@@ -65,6 +65,7 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
 	    Cylinder( length, radius, centroid_x, centroid_y, centroid_z );
     }
 
+    // Build a geometry manager.
     GeometryManager<Cylinder> geometry_manager( cylinders, comm, 3 );
 
     // Check the geometry manager.
@@ -98,6 +99,7 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
 	    Box( x_min, y_min, z_min, x_max, y_max, z_max );
     }
 
+    // Build a geometry manager.
     GeometryManager<Box> geometry_manager( boxes, comm, 3 );
 
     // Check the geometry manager.
