@@ -55,7 +55,7 @@ namespace DataTransferKit
   \brief Interface definition for function integration kernels.
  
   Given a mesh element, integrate a field over that element and return its
-  value.
+  value. Also be able to return that element's measure.
 */
 //---------------------------------------------------------------------------//
 template<class Mesh, class IntegralField, class MeasureField>

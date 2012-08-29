@@ -27,8 +27,10 @@ APPEND_SET(HEADERS
   DTK_CellTopologyFactory.hpp
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
+  DTK_Cylinder.hpp
   DTK_FieldContainer.hpp
   DTK_FieldEvaluator.hpp
+  DTK_FieldIntegrator.hpp
   DTK_FieldManager.hpp
   DTK_FieldManager_def.hpp
   DTK_FieldTools.hpp
@@ -61,6 +63,7 @@ APPEND_SET(SOURCES
   DTK_CellTopologyFactory.cpp
   DTK_CommIndexer.cpp
   DTK_CommTools.cpp
+  DTK_Cylinder.cpp
   DTK_KDTree.cpp
   DTK_MeshContainer.cpp
   DTK_RendezvousMesh.cpp

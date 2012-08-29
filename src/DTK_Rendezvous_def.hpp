@@ -161,7 +161,7 @@ Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
 	{
 	    point[d] = coords[ d*num_points + n ];
 	}
-	rendezvous_proc = d_rcb->getDestinationProc( point );
+	rendezvous_proc = d_rcb->getPointDestinationProc( point );
 	destination_procs[n] = rendezvous_proc;
     }
 
@@ -661,7 +661,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
 		    vertex_coords[d] = 
 			mesh_coords[ d*num_vertices + vertex_index ];
 		}
-		destination_proc = d_rcb->getDestinationProc( vertex_coords );
+		destination_proc = d_rcb->getPointDestinationProc( vertex_coords );
 		export_element_procs_set[n].insert( destination_proc );
 	    }
 	}

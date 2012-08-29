@@ -164,6 +164,9 @@ class RCB
 
   private:
 
+    // The communicator over which RCB is performed.
+    RCP_Comm d_comm;
+
     // The mesh being partitioned.
     RCP_MeshManager d_mesh_manager;
 

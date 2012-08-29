@@ -69,7 +69,8 @@ namespace DataTransferKit
 template<class Mesh>
 RCB<Mesh>::RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager, 
 		const int dimension )
-    : d_mesh_manager( mesh_manager )
+    : d_comm( comm )
+    , d_mesh_manager( mesh_manager )
     , d_dimension( dimension )
 {
     // Get the raw MPI communicator.
@@ -114,7 +115,6 @@ RCB<Mesh>::RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager,
 template<class Mesh>
 RCB<Mesh>::~RCB()
 {
-    // Zoltan cleanup.
     Zoltan_LB_Free_Part( &d_import_global_ids, &d_import_local_ids, 
 			 &d_import_procs, &d_import_to_part );
     Zoltan_LB_Free_Part( &d_export_global_ids, &d_export_local_ids, 
@@ -129,7 +129,6 @@ RCB<Mesh>::~RCB()
 template<class Mesh>
 void RCB<Mesh>::partition()
 {
-    // Run zoltan partitioning.
     rememberValue( int zoltan_error );
 #if HAVE_DTK_DBC
     zoltan_error = Zoltan_LB_Partition( d_zz, 
@@ -213,13 +212,14 @@ RCB<Mesh>::getBoxDestinationProcs( const BoundingBox& box ) const
     rememberValue( int zoltan_error );
 #if HAVE_DTK_DBC
     zoltan_error = Zoltan_LB_Box_Assign( d_zz, 
-					 box[0], box[1], box[2],
-					 box[3], box[4], box[5], 
+					 box_bounds[0], box_bounds[1], 
+					 box_bounds[2], box_bounds[3], 
+					 box_bounds[4], box_bounds[5], 
 					 &procs[0], &num_procs );
 #else
     Zoltan_LB_Box_Assign( d_zz, 
-			  box[0], box[1], box[2],
-			  box[3], box[4], box[5], 
+			  box_bounds[0], box_bounds[1], box_bounds[2],
+			  box_bounds[3], box_bounds[4], box_bounds[5], 
 			  &procs[0], &num_procs );
 #endif
     testInvariant( zoltan_error == ZOLTAN_OK );
