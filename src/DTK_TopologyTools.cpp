@@ -45,7 +45,6 @@
 #include "DTK_Assertion.hpp"
 #include "DataTransferKit_config.hpp"
 
-#include <Teuchos_ENull.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_Tuple.hpp>
@@ -249,8 +248,6 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 	return false;
     }
 }
-
-//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

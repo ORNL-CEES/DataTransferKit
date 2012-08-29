@@ -58,7 +58,7 @@ namespace DataTransferKit
   value.
 */
 //---------------------------------------------------------------------------//
-template<class Mesh, class Field>
+template<class Mesh, class IntegralField, class MeasureField>
 class FieldIntegrator
 {
   public:
@@ -68,9 +68,12 @@ class FieldIntegrator
     typedef Mesh                                mesh_type;
     typedef MeshTraits<Mesh>                    MT;
     typedef typename MT::global_ordinal_type    GlobalOrdinal;
-    typedef Field                               field_type;
-    typedef FieldTraits<Field>                  FT;
-    typedef typename FT::value_type             data_type;
+    typedef IntegralField                       integral_field_type;
+    typedef FieldTraits<IntegralField>          IFT;
+    typedef typename IFT::value_type            integral_type;
+    typedef MeasureField                        measure_field_type;
+    typedef FieldTraits<MeasureField>           MFT;
+    typedef typename MFT::value_type            measure_type;
     //@}
 
     //! Constructor.
@@ -93,8 +96,23 @@ class FieldIntegrator
      * elements input vector. Field data dimensionality and ordering is
      * specified by field traits.
      */
-    virtual Field 
+    virtual IntegralField 
     integrate( const Teuchos::ArrayRCP<GlobalOrdinal>& elements ) = 0;
+
+    /*!
+     * \brief Get the measures of the given elements and return the measures in
+     * a FieldTraits container.
+     *
+     * \param elements A vector of valid element ordinals to get the measures
+     * for. 
+     *
+     * \return A FieldTraits object containing the element measures
+     * (e.g. volume for 3D elements, area for 2D elements, and length for 1D
+     * elements). This returned field is required to be of the same length as the
+     * elements input vector and is required to be of a single dimension.
+     */
+    virtual MeasureField
+    measure( const Teuchos::ArrayRCP<GlobalOrdinal>& elements ) = 0;
 };
 
 } // end namespace DataTransferKit

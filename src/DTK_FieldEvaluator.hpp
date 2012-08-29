@@ -114,7 +114,7 @@ class FieldEvaluator
      * \brief Evaluate the function in the given elements at the given
      * coordinates and return the evaluations in a FieldTraits container.
      *
-     * \param elements A vector of valid element handles in which to evaluate
+     * \param elements A vector of valid element ordinals in which to evaluate
      * the field.
      *
      * \param coords A vector of blocked coordinates 
