@@ -45,6 +45,8 @@
 
 #include "DTK_MeshTraits.hpp"
 #include "DTK_MeshManager.hpp"
+#include "DTK_GeometryTraits.hpp"
+#include "DTK_GeometryManager.hpp"
 
 #include <MBInterface.hpp>
 
@@ -119,10 +121,15 @@ const moab::EntityType moab_topology_table[] =
 // Non-member creation methods.
 //---------------------------------------------------------------------------//
 
-// Create a RendezvousMesh from mesh manager.
-template<class Mesh>
+// Create a RendezvousMesh from a mesh manager.
+template<typename Mesh>
 Teuchos::RCP< RendezvousMesh<typename MeshTraits<Mesh>::global_ordinal_type> >
-createRendezvousMesh( const MeshManager<Mesh>& mesh_manager );
+createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager );
+
+// Create a RendezvousMesh from a geometry manager.
+template<typename GlobalOrdinal, typename Geometry>
+Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
+    const GeometryManager<Geometry>& geometry_manager );
 
 //---------------------------------------------------------------------------//
 

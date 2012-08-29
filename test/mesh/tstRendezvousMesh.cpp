@@ -701,7 +701,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_mesh_test )
     // Create a rendezvous mesh.
     moab::ErrorCode error;
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMesh( mesh_manager );
+	createRendezvousMeshFromMesh( mesh_manager );
 
     // Get the moab interface.
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = 
@@ -770,7 +770,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_mesh_test )
     // Create a rendezvous mesh.
     moab::ErrorCode error;
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMesh( mesh_manager );
+	createRendezvousMeshFromMesh( mesh_manager );
 
     // Get the moab interface.
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
@@ -837,7 +837,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_mesh_test )
     // Create a rendezvous mesh.
     moab::ErrorCode error;
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMesh( mesh_manager );
+	createRendezvousMeshFromMesh( mesh_manager );
 
     // Get the moab interface.
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = 
@@ -903,7 +903,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_mesh_test )
     // Create a rendezvous mesh.
     moab::ErrorCode error;
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMesh( mesh_manager );
+	createRendezvousMeshFromMesh( mesh_manager );
 
     // Get the moab interface.
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
@@ -969,7 +969,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_mesh_test )
     // Create a rendezvous mesh.
     moab::ErrorCode error;
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMesh( mesh_manager );
+	createRendezvousMeshFromMesh( mesh_manager );
 
     // Get the moab interface.
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
@@ -1035,7 +1035,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_mesh_test )
     // Create a rendezvous mesh.
     moab::ErrorCode error;
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMesh( mesh_manager );
+	createRendezvousMeshFromMesh( mesh_manager );
 
     // Get the moab interface.
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
@@ -1101,7 +1101,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_mesh_test )
     // Create a rendezvous mesh.
     moab::ErrorCode error;
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMesh( mesh_manager );
+	createRendezvousMeshFromMesh( mesh_manager );
 
     // Get the moab interface.
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
@@ -1167,7 +1167,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_rendezvous_mesh_test )
     // Create a rendezvous mesh.
     moab::ErrorCode error;
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMesh( mesh_manager );
+	createRendezvousMeshFromMesh( mesh_manager );
 
     // Get the moab interface.
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
@@ -1234,7 +1234,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_mesh_test )
     // Create a rendezvous mesh.
     moab::ErrorCode error;
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMesh( mesh_manager );
+	createRendezvousMeshFromMesh( mesh_manager );
 
     // Get the moab interface.
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
@@ -1320,7 +1320,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_mesh_test )
     // Create a rendezvous mesh.
     moab::ErrorCode error;
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMesh( mesh_manager );
+	createRendezvousMeshFromMesh( mesh_manager );
 
     // Get the moab interface.
     RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();

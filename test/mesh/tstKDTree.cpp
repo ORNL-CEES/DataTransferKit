@@ -941,7 +941,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_kd_tree_test )
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
-	rendezvous_mesh = createRendezvousMesh( mesh_manager );
+	rendezvous_mesh = createRendezvousMeshFromMesh( mesh_manager );
 
     // Create a kD-tree.
     KDTree<MeshType::global_ordinal_type> kd_tree( rendezvous_mesh, 
@@ -953,6 +953,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_kd_tree_test )
     // Search the tree for some random points.
     int num_points = 1000;
     Teuchos::Array<double> point(1);
+    Teuchos::Array<MeshType::global_ordinal_type> leaf_ordinals;
     int ordinal = 0;
     for ( int i = 0; i < num_points; ++i )
     {
@@ -962,6 +963,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_kd_tree_test )
 	{
 	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
 	    TEST_ASSERT( ordinal == 12 );
+	    kd_tree.findLeaf( point, leaf_ordinals );
+	    TEST_ASSERT( leaf_ordinals.size() == 1 );
+	    TEST_ASSERT( leaf_ordinals[0] == 12 );
 	}
 	else
 	{
@@ -988,7 +992,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_kd_tree_test )
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
-	rendezvous_mesh = createRendezvousMesh( mesh_manager );
+	rendezvous_mesh = createRendezvousMeshFromMesh( mesh_manager );
 
     // Create a kD-tree.
     KDTree<MeshType::global_ordinal_type> kd_tree( rendezvous_mesh, 
@@ -1000,6 +1004,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_kd_tree_test )
     // Search the tree for some random points.
     int num_points = 1000;
     Teuchos::Array<double> point(2);
+    Teuchos::Array<MeshType::global_ordinal_type> leaf_ordinals;
     int ordinal = 0;
     for ( int i = 0; i < num_points; ++i )
     {
@@ -1012,6 +1017,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_kd_tree_test )
 	{
 	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
 	    TEST_ASSERT( ordinal == 12 );
+	    kd_tree.findLeaf( point, leaf_ordinals );
+	    TEST_ASSERT( leaf_ordinals.size() == 1 );
+	    TEST_ASSERT( leaf_ordinals[0] == 12 );
 	}
 	else
 	{
@@ -1038,7 +1046,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_kd_tree_test )
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
-	rendezvous_mesh = createRendezvousMesh( mesh_manager );
+	rendezvous_mesh = createRendezvousMeshFromMesh( mesh_manager );
 
     // Create a kD-tree.
     KDTree<MeshType::global_ordinal_type> kd_tree( rendezvous_mesh, 
@@ -1050,6 +1058,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_kd_tree_test )
     // Search the tree for some random points.
     int num_points = 1000;
     Teuchos::Array<double> point(2);
+    Teuchos::Array<MeshType::global_ordinal_type> leaf_ordinals;
     int ordinal = 0;
     for ( int i = 0; i < num_points; ++i )
     {
@@ -1062,6 +1071,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_kd_tree_test )
 	{
 	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
 	    TEST_ASSERT( ordinal == 12 );
+	    kd_tree.findLeaf( point, leaf_ordinals );
+	    TEST_ASSERT( leaf_ordinals.size() == 1 );
+	    TEST_ASSERT( leaf_ordinals[0] == 12 );
 	}
 	else
 	{
@@ -1088,7 +1100,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_kd_tree_test )
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
-	rendezvous_mesh = createRendezvousMesh( mesh_manager );
+	rendezvous_mesh = createRendezvousMeshFromMesh( mesh_manager );
 
     // Create a kD-tree.
     KDTree<MeshType::global_ordinal_type> kd_tree( rendezvous_mesh, 
@@ -1100,6 +1112,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_kd_tree_test )
     // Search the tree for some random points.
     int num_points = 1000;
     Teuchos::Array<double> point(3);
+    Teuchos::Array<MeshType::global_ordinal_type> leaf_ordinals;
     int ordinal = 0;
     for ( int i = 0; i < num_points; ++i )
     {
@@ -1114,6 +1127,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_kd_tree_test )
 	{
 	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
 	    TEST_ASSERT( ordinal == 12 );
+	    kd_tree.findLeaf( point, leaf_ordinals );
+	    TEST_ASSERT( leaf_ordinals.size() == 1 );
+	    TEST_ASSERT( leaf_ordinals[0] == 12 );
 	}
 	else
 	{
@@ -1140,7 +1156,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_kd_tree_test )
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
-	rendezvous_mesh = createRendezvousMesh( mesh_manager );
+	rendezvous_mesh = createRendezvousMeshFromMesh( mesh_manager );
 
     // Create a kD-tree.
     KDTree<MeshType::global_ordinal_type> kd_tree( rendezvous_mesh, 
@@ -1152,6 +1168,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_kd_tree_test )
     // Search the tree for some random points.
     int num_points = 1000;
     Teuchos::Array<double> point(3);
+    Teuchos::Array<MeshType::global_ordinal_type> leaf_ordinals;
     int ordinal = 0;
     for ( int i = 0; i < num_points; ++i )
     {
@@ -1166,6 +1183,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_kd_tree_test )
 	{
 	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
 	    TEST_ASSERT( ordinal == 12 );
+	    kd_tree.findLeaf( point, leaf_ordinals );
+	    TEST_ASSERT( leaf_ordinals.size() == 1 );
+	    TEST_ASSERT( leaf_ordinals[0] == 12 );
 	}
 	else
 	{
@@ -1192,7 +1212,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_kd_tree_test )
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
-	rendezvous_mesh = createRendezvousMesh( mesh_manager );
+	rendezvous_mesh = createRendezvousMeshFromMesh( mesh_manager );
 
     // Create a kD-tree.
     KDTree<MeshType::global_ordinal_type> kd_tree( rendezvous_mesh, 
@@ -1203,6 +1223,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_kd_tree_test )
 
     // Search the tree for some random points.
     int num_points = 1000;
+    Teuchos::Array<MeshType::global_ordinal_type> leaf_ordinals;
     Teuchos::Array<double> point(3);
     int ordinal = 0;
     for ( int i = 0; i < num_points; ++i )
@@ -1218,6 +1239,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_kd_tree_test )
 	{
 	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
 	    TEST_ASSERT( ordinal == 12 );
+	    kd_tree.findLeaf( point, leaf_ordinals );
+	    TEST_ASSERT( leaf_ordinals.size() == 1 );
+	    TEST_ASSERT( leaf_ordinals[0] == 12 );
 	}
 	else
 	{
@@ -1244,7 +1268,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_kd_tree_test )
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
-	rendezvous_mesh = createRendezvousMesh( mesh_manager );
+	rendezvous_mesh = createRendezvousMeshFromMesh( mesh_manager );
 
     // Create a kD-tree.
     KDTree<MeshType::global_ordinal_type> kd_tree( rendezvous_mesh, 
@@ -1256,6 +1280,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_kd_tree_test )
     // Search the tree for some random points.
     int num_points = 1000;
     Teuchos::Array<double> point(3);
+    Teuchos::Array<MeshType::global_ordinal_type> leaf_ordinals;
     int ordinal = 0;
     for ( int i = 0; i < num_points; ++i )
     {
@@ -1270,6 +1295,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_kd_tree_test )
 	{
 	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
 	    TEST_ASSERT( ordinal == 12 );
+	    kd_tree.findLeaf( point, leaf_ordinals );
+	    TEST_ASSERT( leaf_ordinals.size() == 1 );
+	    TEST_ASSERT( leaf_ordinals[0] == 12 );
 	}
 	else
 	{
@@ -1298,7 +1326,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_kd_tree_test )
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
-	rendezvous_mesh = createRendezvousMesh( mesh_manager );
+	rendezvous_mesh = createRendezvousMeshFromMesh( mesh_manager );
 
     // Create a kD-tree.
     KDTree<MeshType::global_ordinal_type> kd_tree( rendezvous_mesh, 
@@ -1310,6 +1338,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_kd_tree_test )
     // Search the tree for some random points.
     int num_points = 1000;
     Teuchos::Array<double> point(3);
+    Teuchos::Array<MeshType::global_ordinal_type> leaf_ordinals;
+
     int ordinal = 0;
     for ( int i = 0; i < num_points; ++i )
     {
@@ -1324,6 +1354,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_kd_tree_test )
 	{
 	    TEST_ASSERT( kd_tree.findPoint( point, ordinal ) );
 	    TEST_ASSERT( ordinal == 12 );
+	    kd_tree.findLeaf( point, leaf_ordinals );
+	    TEST_ASSERT( leaf_ordinals.size() == 1 );
+	    TEST_ASSERT( leaf_ordinals[0] == 12 );
 	}
 	else
 	{
@@ -1351,7 +1384,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_kd_tree_test )
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
-	rendezvous_mesh = createRendezvousMesh( mesh_manager );
+	rendezvous_mesh = createRendezvousMeshFromMesh( mesh_manager );
 
     // Create a kD-tree.
     KDTree<MeshType::global_ordinal_type> kd_tree( rendezvous_mesh, 
@@ -1420,7 +1453,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_kd_tree_test )
 
     // Create a rendezvous mesh.
     Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > 
-	rendezvous_mesh = createRendezvousMesh( mesh_manager );
+	rendezvous_mesh = createRendezvousMeshFromMesh( mesh_manager );
 
     // Create a kD-tree.
     KDTree<MeshType::global_ordinal_type> kd_tree( rendezvous_mesh, 

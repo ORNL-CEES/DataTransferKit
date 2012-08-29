@@ -125,7 +125,7 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 	sendMeshToRendezvous( mesh_manager );
 
     // Build the concrete rendezvous mesh from the mesh container.
-    d_rendezvous_mesh = createRendezvousMesh( rendezvous_mesh_manager );
+    d_rendezvous_mesh = createRendezvousMeshFromMesh( rendezvous_mesh_manager );
     testPostcondition( !d_rendezvous_mesh.is_null() );
 
     // Create a kD-tree in the rendezvous decomposition.

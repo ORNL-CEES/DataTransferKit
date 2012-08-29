@@ -87,15 +87,15 @@ namespace DataTransferKit
  dimensional source geometry and a 2 dimensional target geometry cannot be
  used to generate a shared domain map).
 
-There are several steps in the mapping where target objects may or may not be
-found in the source mesh. Both the RCB decomposition search and kD-tree search
-have the potential to return target objects that were not found in the source
-mesh. The source function will not be evaluated at these points as they are
-not in the domain \f$\Omega_S\f$, and therefore the evaluation operation will
-not be valid. However, a list of these points in the target decomposition may
-be generated for further processing by the client.
+ There are several steps in the mapping where target objects may or may not be
+ found in the source mesh. Both the RCB decomposition search and kD-tree search
+ have the potential to return target objects that were not found in the source
+ mesh. The source function will not be evaluated at these points as they are
+ not in the domain \f$\Omega_S\f$, and therefore the evaluation operation will
+ not be valid. However, a list of these points in the target decomposition may
+ be generated for further processing by the client.
 
- */
+*/
 //---------------------------------------------------------------------------//
 template<class Mesh, class CoordinateField>
 class SharedDomainMap

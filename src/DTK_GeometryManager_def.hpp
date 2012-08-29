@@ -32,17 +32,16 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_FieldManager_def.hpp
+ * \file DTK_GeometryManager_def.hpp
  * \author Stuart R. Slattery
- * \brief Field manager definition.
+ * \brief Geometry manager definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_FIELDMANAGER_DEF_HPP
-#define DTK_FIELDMANAGER_DEF_HPP
+#ifndef DTK_GEOMETRYMANAGER_DEF_HPP
+#define DTK_GEOMETRYMANAGER_DEF_HPP
 
 #include "DTK_Assertion.hpp"
-#include "DTK_FieldTools.hpp"
 #include "DataTransferKit_config.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
@@ -52,20 +51,25 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor. If Design-By-Contract is enabled, the constructor will
- * validate the field description to the domain model. This requires a few
+ * validate the geometry description to the domain model. This requires a few
  * global communications.
  *
- * \param field The field that this object is managing. This field must have
- * FieldTraits.
+ * \param geometry The geometry that this object is managing. This geometry must have
+ * GeometryTraits.
  * 
- * \param comm The communicator over which the field is defined.
+ * \param comm The communicator over which the geometry is defined.
+ *
+ * \param dim The dimension of the geometry.
  */
-template<class Field>
-FieldManager<Field>::FieldManager( const RCP_Field& field, const RCP_Comm& comm )
-    : d_field( field )
+template<class Geometry>
+GeometryManager<Geometry>::GeometryManager( 
+    const Teuchos::ArrayRCP<Geometry>& geometry, const RCP_Comm& comm,
+    const int dim )
+    : d_geometry( geometry )
     , d_comm( comm )
+    , d_dim( dim )
 {
-    // If we're checking with Design-by-Contract, validate the field to the
+    // If we're checking with Design-by-Contract, validate the geometry to the
     // domain model.
 #if HAVE_DTK_DBC
     validate();
@@ -76,20 +80,32 @@ FieldManager<Field>::FieldManager( const RCP_Field& field, const RCP_Comm& comm 
 /*!
  * \brief Destructor.
  */
-template<class Field>
-FieldManager<Field>::~FieldManager()
+template<class Geometry>
+GeometryManager<Geometry>::~GeometryManager()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Validate the field to the domain model.
+ * \brief Validate the geometry to the domain model.
  */
-template<class Field>
-void FieldManager<Field>::validate()
+template<class Geometry>
+void GeometryManager<Geometry>::validate()
 {
-    // Check that the field dimension is the same on every node.
+    // Dimensions greater than 3 are not valid.
+    testPrecondition( 0 <= d_dim && d_dim <= 3 );
+
+    // Check that all local geometries have the same dimension.
+    typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_iterator;
+    for ( geom_iterator = d_geometry.begin();
+	  geom_iterator != d_geometry.end();
+	  ++geom_iterator )
+    {
+	testPrecondition( GT::dim( *geom_iterator ) == d_dim );
+    }
+
+    // Check that the geometry dimension is the same on every node.
     Teuchos::Array<int> local_dims( d_comm->getSize(), 0 );
-    local_dims[ d_comm->getRank() ] = FT::dim( *d_field );
+    local_dims[ d_comm->getRank() ] = d_dim;
     Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
 				 local_dims.size(),
 				 &local_dims[0], &local_dims[0] ); 
@@ -98,25 +114,15 @@ void FieldManager<Field>::validate()
     int unique_dim = std::distance( local_dims.begin(), unique_bound );
     testPrecondition( 1 == unique_dim );
     local_dims.clear();
-
-    // Check that the data dimension is the same as the field dimension.
-    typename FT::size_type num_data = std::distance( FT::begin( *d_field ), 
-						     FT::end( *d_field ) );
-    testPrecondition( num_data == FT::size( *d_field ) );
-    if ( !FT::empty( *d_field ) )
-    {
-	testPrecondition( num_data / FieldTools<Field>::dimSize( *d_field ) 
-			  == FT::dim( *d_field ) );
-    }
 }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_FIELDMANAGER_DEF_HPP
+#endif // end DTK_GEOMETRYMANAGER_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_FieldManager_def.hpp
+// end DTK_GeometryManager_def.hpp
 //---------------------------------------------------------------------------//
 

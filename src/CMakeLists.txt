@@ -37,6 +37,8 @@ APPEND_SET(HEADERS
   DTK_FieldTools.hpp
   DTK_FieldTools_def.hpp
   DTK_FieldTraits.hpp
+  DTK_GeometryManager.hpp
+  DTK_GeometryManager_def.hpp
   DTK_GeometryTraits.hpp
   DTK_KDTree.hpp
   DTK_KDTree_def.hpp

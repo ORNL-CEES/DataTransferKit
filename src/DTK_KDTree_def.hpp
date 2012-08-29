@@ -157,6 +157,67 @@ bool KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords,
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Get all of the elements in the leaf containing a point. 
+ *
+ * \param coords Point coordinates to locate in the tree. Point dimensions
+ * less than or equal to 3 are valid but the point most be the same dimension
+ * as the tree.
+ *
+ * \param elements The global ordinals of the local client elements in the
+ * leaf that the point was found in. 
+ */
+template<typename GlobalOrdinal>
+void KDTree<GlobalOrdinal>::findLeaf( const Teuchos::Array<double>& coords,
+				      Teuchos::Array<GlobalOrdinal>& elements )
+{
+    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
+    testPrecondition( (int) coords.size() == d_dim );
+
+    double point[3];
+    for ( int d = 0; d < d_dim; ++d )
+    {
+	point[d] = coords[d];
+    }
+    for ( int d = d_dim; d < 3; ++d )
+    {
+	point[d] = 0.0;
+    }
+
+    rememberValue( moab::ErrorCode error );
+    moab::EntityHandle leaf;
+#if HAVE_DTK_DBC
+    error = d_tree.leaf_containing_point( d_root, point, leaf );
+#else
+    d_tree.leaf_containing_point( d_root, point, leaf );
+#endif
+    testInvariant( moab::MB_SUCCESS == error );
+
+    // Get the elements in the leaf.
+    std::vector<moab::EntityHandle> leaf_elements;
+#if HAVE_DTK_DBC
+    error = d_mesh->getMoab()->get_entities_by_dimension( 
+	leaf, d_dim, leaf_elements );
+#else
+    d_mesh->getMoab()->get_entities_by_dimension( 
+	leaf, d_dim, leaf_elements );
+#endif
+    testInvariant( moab::MB_SUCCESS == error );
+
+    // Extract the client ordinals.
+    elements.resize( leaf_elements.size() );
+    typename Teuchos::Array<GlobalOrdinal>::iterator element_iterator;
+    std::vector<moab::EntityHandle>::const_iterator leaf_iterator;
+    for ( leaf_iterator = leaf_elements.begin(), 
+       element_iterator = elements.begin();
+	  leaf_iterator != leaf_elements.end();
+	  ++leaf_iterator, ++element_iterator )
+    {
+	*element_iterator = d_mesh->getNativeOrdinal( *leaf_iterator );
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Find a point in a leaf by doing point-in-volume on all elements in
  * the leaf. Return if the point was not found.
  *

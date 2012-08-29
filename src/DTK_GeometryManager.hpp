@@ -32,85 +32,86 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_KDTree.hpp
+ * \file DTK_GeometryManager.hpp
  * \author Stuart R. Slattery
- * \brief KDTree declaration.
+ * \brief Geometry manager declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_KDTREE_HPP
-#define DTK_KDTREE_HPP
+#ifndef DTK_GEOMETRYMANAGER_HPP
+#define DTK_GEOMETRYMANAGER_HPP
 
-#include "DTK_RendezvousMesh.hpp"
+#include "DTK_GeometryTraits.hpp"
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_Array.hpp>
-
-#include <MBAdaptiveKDTree.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
 {
-
 //---------------------------------------------------------------------------//
 /*!
- * \class KDTree
- * \brief A KDTree data structure for local mesh searching in the rendezvous
- * decomposition.
+ \class GeometryManager
+ \brief Manager object for geometry.
 
- A kD-tree provides n*log(n) construction time and space complexity with
- log(n) search time complexity.
+ The geometry manager manages a collection of geometric objects and their
+ parallel decomposition. A geometry has a dimension of arbitrary size. For
+ example, a square has a dimension of 2 while a cylinder has a dimension of
+ 3. A collection of geometric objects need not know their parallel
+ decomposition, but they exist on a shared parallel communicator. Individual
+ geometric objects in the collection may not span a parallel process in
+ pieces. If a geometric object exists on the domain owned by many processors,
+ it must exist on those processors.
 
  */
 //---------------------------------------------------------------------------//
-template<typename GlobalOrdinal>
-class KDTree
+template<class Geometry>
+class GeometryManager
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef GlobalOrdinal                        global_ordinal_type;
-    typedef RendezvousMesh<GlobalOrdinal>        RendezvousMeshType;
-    typedef Teuchos::RCP<RendezvousMeshType>     RCP_RendezvousMesh;
+    typedef Geometry                                          geometry_type;
+    typedef GeometryTraits<Geometry>                          GT;
+    typedef Teuchos::Comm<int>                                CommType;
+    typedef Teuchos::RCP<const CommType>                      RCP_Comm;
     //@}
 
     // Constructor.
-    KDTree( const RCP_RendezvousMesh& mesh, const int dim );
+    GeometryManager( const Teuchos::ArrayRCP<Geometry>& geometry,
+		     const RCP_Comm& comm, const int dim );
 
     // Destructor.
-    ~KDTree();
+    ~GeometryManager();
 
-    // Build the kD-tree.
-    void build();
+    //! Get the geometric objects managed by this manager
+    const Teuchos::ArrayRCP<Geometry>& geometry() const 
+    { return d_geometry; }
 
-    // Find a point in the tree.
-    bool findPoint( const Teuchos::Array<double>& coords,
-		    GlobalOrdinal& element );
+    //! Get the communicator for the geometry.
+    const RCP_Comm& comm() const
+    { return d_comm; }
 
-    // Get all of the elements in a leaf containing a point.
-    void findLeaf( const Teuchos::Array<double>& coords,
-		   Teuchos::Array<GlobalOrdinal>& elements );
-
-  private:
-
-    // Find a point in a leaf.
-    bool findPointInLeaf( const Teuchos::Array<double>& coords,
-			  const moab::EntityHandle leaf,
-			  moab::EntityHandle& element );
+    //! Get the dimension of the geometry.
+    const int dim() const
+    { return d_dim; }
 
   private:
 
-    // Moab Mesh.
-    RCP_RendezvousMesh d_mesh;
+    // Validate the geometric objects to the domain model.
+    void validate();
 
-    // Tree dimension.
+  private:
+
+    // Geometric objects
+    Teuchos::ArrayRCP<Geometry> d_geometry;
+    
+    // Communicator over which the geometry is defined.
+    RCP_Comm d_comm;
+
+    // The dimension of the geometry.
     int d_dim;
-
-    // Adaptive kD-tree.
-    moab::AdaptiveKDTree d_tree;
-
-    // Tree root.
-    moab::EntityHandle d_root;
 };
 
 } // end namespace DataTransferKit
@@ -119,11 +120,13 @@ class KDTree
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_KDTree_def.hpp"
-
-#endif // DTK_KDTREE_HPP
+#include "DTK_GeometryManager_def.hpp"
 
 //---------------------------------------------------------------------------//
-// end KDTree.hpp
+
+#endif // DTK_GEOMETRYMANAGER_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_GeometryManager.hpp
 //---------------------------------------------------------------------------//
 
