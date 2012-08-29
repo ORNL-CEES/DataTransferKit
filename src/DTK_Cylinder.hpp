@@ -42,13 +42,13 @@
 #define DTK_CYLINDER_HPP
 
 #include "DTK_BoundingBox.hpp"
+#include "DTK_GeometryTraits.hpp"
 
 #include <Teuchos_Array.hpp>
 #include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
-
 //---------------------------------------------------------------------------//
 /*!
  * \class Cylinder
@@ -114,6 +114,26 @@ class Cylinder
 //---------------------------------------------------------------------------//
 // GeometryTraits Specialization.
 //---------------------------------------------------------------------------//
+template<>
+class GeometryTraits<Cylinder>
+{
+  public:
+
+    typedef Cylinder geometry_type;
+
+    static inline int dim( const Cylinder& cylinder )
+    { return 3; }
+
+    static inline double measure( const Cylinder& cylinder )
+    { return cylinder.volume(); }
+
+    static inline bool pointInGeometry( const Cylinder& cylinder,
+					const Teuchos::Array<double>& coords )
+    { return cylinder.pointInCylinder( coords ); }
+
+    static inline BoundingBox boundingBox( const Cylinder& cylinder )
+    { return cylinder.boundingBox(); }
+};
 
 //---------------------------------------------------------------------------//
 

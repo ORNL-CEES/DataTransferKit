@@ -24,6 +24,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   DTK_Assertion.hpp
   DTK_BoundingBox.hpp
+  DTK_Box.hpp
   DTK_CellTopologyFactory.hpp
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
@@ -36,6 +37,7 @@ APPEND_SET(HEADERS
   DTK_FieldTools.hpp
   DTK_FieldTools_def.hpp
   DTK_FieldTraits.hpp
+  DTK_GeometryTraits.hpp
   DTK_KDTree.hpp
   DTK_KDTree_def.hpp
   DTK_MeshContainer.hpp
@@ -60,6 +62,7 @@ APPEND_SET(HEADERS
 APPEND_SET(SOURCES
   DTK_Assertion.cpp
   DTK_BoundingBox.cpp
+  DTK_Box.cpp
   DTK_CellTopologyFactory.cpp
   DTK_CommIndexer.cpp
   DTK_CommTools.cpp

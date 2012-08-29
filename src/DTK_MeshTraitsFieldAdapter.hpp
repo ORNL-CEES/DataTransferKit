@@ -112,6 +112,6 @@ class FieldTraits< MeshContainer<GlobalOrdinal> >
 #endif // end DTK_MESHTRAITSFIELDADAPTER
 
 //---------------------------------------------------------------------------//
-// end DTK_MeshAdapater.hpp
+// end DTK_MeshTraitsFieldAdapater.hpp
 //---------------------------------------------------------------------------//
 

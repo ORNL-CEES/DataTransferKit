@@ -32,18 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
-  * \file DTK_Cylinder.cpp
+  * \file DTK_Box.cpp
   * \author Stuart R. Slattery
   * \brief Bounding box definition.
   */
 //---------------------------------------------------------------------------//
 
-#include <cmath>
-
-#include "DTK_Cylinder.hpp"
+#include "DTK_Box.hpp"
 #include "DTK_Assertion.hpp"
-
-#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
@@ -51,70 +47,92 @@ namespace DataTransferKit
 /*!
  * \brief Default constructor.
  */
-Cylinder::Cylinder()
-    : d_length( 0.0 )
-    , d_radius( 0.0 )
-    , d_centroid_x( 0.0 )
-    , d_centroid_y( 0.0 )
-    , d_centroid_z( 0.0 )
+Box::Box()
+    : d_x_min( 0.0 )
+    , d_y_min( 0.0 )
+    , d_z_min( 0.0 )
+    , d_x_max( 0.0 )
+    , d_y_max( 0.0 )
+    , d_z_max( 0.0 )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
  *
- * \param length Length of cylinder along Z-axis.
+ * \param x_min Minimum x coordinate value in the box.
  *
- * \param radius Radius of cylinder.
+ * \param y_min Minimum y coordinate value in the box.
  *
- * \param centroid_x Centroid X-coordinate.
+ * \param z_min Minimum z coordinate value in the box.
  *
- * \param centroid_y Centroid Y-coordinate.
+ * \param x_max Maximum x coordinate value in the box.
  *
- * \param centroid_z Centroid Z-coordinate.
+ * \param y_max Maximum y coordinate value in the box.
+ *
+ * \param z_max Maximum z coordinate value in the box.
  */
-Cylinder::Cylinder( const double length, const double radius,
-		    const double centroid_x, const double centroid_y,
-		    const double centroid_z )
-    : d_length( length )
-    , d_radius( radius )
-    , d_centroid_x( centroid_x )
-    , d_centroid_y( centroid_y )
-    , d_centroid_z( centroid_z )
+Box::Box( 
+    const double x_min, const double y_min, const double z_min,
+    const double x_max, const double y_max, const double z_max )
+    : d_x_min( x_min )
+    , d_y_min( y_min )
+    , d_z_min( z_min )
+    , d_x_max( x_max )
+    , d_y_max( y_max )
+    , d_z_max( z_max )
 {
-    testPrecondition( 0.0 <= d_length );
-    testPrecondition( 0.0 <= d_radius );
+    testPrecondition( d_x_min <= d_x_max );
+    testPrecondition( d_y_min <= d_y_max );
+    testPrecondition( d_z_min <= d_z_max );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Tuple constructor.
+ *
+ * \param bounds Tuple containing {x_min, y_min, z_min, x_max, y_max, z_max}.
+ */
+Box::Box( const Teuchos::Tuple<double,6>& bounds )
+    : d_x_min( bounds[0] )
+    , d_y_min( bounds[1] )
+    , d_z_min( bounds[2] )
+    , d_x_max( bounds[3] )
+    , d_y_max( bounds[4] )
+    , d_z_max( bounds[5] )
+{
+    testPrecondition( d_x_min <= d_x_max );
+    testPrecondition( d_y_min <= d_y_max );
+    testPrecondition( d_z_min <= d_z_max );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Destructor.
  */
-Cylinder::~Cylinder()
+Box::~Box()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Determine if a point is in the cylinder. 
+ * \brief Determine if a point is in the box. 
  *
  * \param coords Cartesian coordinates to check for point inclusion. The
- * coordinates must have a dimension of 3.
+ * coordinates must have a dimension between 0 and 3.
  *
- * \return Return true if the point is in the cylinder, false if not. A point on
- * the cylinder boundary will return true.
+ * \return Return true if the point is in the box, false if not. A point on
+ * the box boundary will return true.
  */
-bool Cylinder::pointInCylinder( const Teuchos::Array<double>& coords ) const
+bool Box::pointInBox( const Teuchos::Array<double>& coords ) const
 {
-    testPrecondition( coords.size() == 3 );
+    testPrecondition( 3 == coords.size() );
 
-    double distance = std::pow(
-	(d_centroid_x - coords[0])*(d_centroid_x - coords[0]) +
-	(d_centroid_y - coords[1])*(d_centroid_y - coords[1]),
-	0.5 );
-
-    if ( distance <= d_radius &&
-	 coords[2] >= d_centroid_z - d_length/2 &&
-	 coords[2] <= d_centroid_z + d_length/2 )
+    if ( coords[0] >= d_x_min &&
+	 coords[1] >= d_y_min &&
+	 coords[2] >= d_z_min &&
+	 coords[0] <= d_x_max &&
+	 coords[1] <= d_y_max &&
+	 coords[2] <= d_z_max )
     {
 	return true;
     }
@@ -124,53 +142,24 @@ bool Cylinder::pointInCylinder( const Teuchos::Array<double>& coords ) const
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the centroid of the cylinder.
+ * \brief Compute the volume of the box.
  *
- * \return The centroid coordinates.
+ * \return Return the volume of the box.
  */
-Teuchos::Array<double> Cylinder::centroid() const
+double Box::volume() const
 {
-    Teuchos::Array<double> coords(3);
-    coords[0] = d_centroid_x;
-    coords[1] = d_centroid_y;
-    coords[2] = d_centroid_z;
-    return coords;
+    return (d_x_max-d_x_min)*(d_y_max-d_y_min)*(d_z_max-d_z_min);
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute the volume of the cylinder given its dimension.
+ * \brief Compute the bounding box around the box.
  *
- * \param dim The dimension of the cylinder we want to compute the volume for. We
- * need this because the cylinder always stores all 3 dimensions. Lower dimension
- * cylinderes are resolved with higher dimensions set to +/-
- * Teuchos::ScalarTraits<double>::rmax(). For dim = 1, only the x dimension is
- * used. For dim = 2, the x and y dimensions are used. For dim = 3, the x, y,
- * and z dimensions are used.
- *
- * \return Return the volume of the cylinder.
+ * \return The bounding box around the box.
  */
-double Cylinder::volume() const
+BoundingBox Box::boundingBox() const
 {
-    double zero = 0.0;
-    double pi = 2.0 * std::acos( zero );
-    return pi * d_radius * d_radius * d_length;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Compute the bounding box around the cylinder.
- *
- * \return The bounding box around the cylinder.
- */
-BoundingBox Cylinder::boundingBox() const
-{
-    return BoundingBox( d_centroid_x - d_radius,
-			d_centroid_y - d_radius,
-			d_centroid_z - d_length/2,
-			d_centroid_x + d_radius,
-			d_centroid_y + d_radius,
-			d_centroid_z + d_length/2 );
+    return BoundingBox( d_x_min, d_y_min, d_z_min, d_x_max, d_y_max, d_z_max );
 }
 
 //---------------------------------------------------------------------------//
@@ -178,6 +167,6 @@ BoundingBox Cylinder::boundingBox() const
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_Cylinder.cpp
+// end DTK_Box.cpp
 //---------------------------------------------------------------------------//
 
