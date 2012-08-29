@@ -94,12 +94,12 @@ class FieldEvaluator
 
     //@{
     //! Typedefs.
-    typedef Mesh                                mesh_type;
-    typedef MeshTraits<Mesh>                    MT;
-    typedef typename MT::global_ordinal_type    GlobalOrdinal;
-    typedef Field                               field_type;
-    typedef FieldTraits<Field>                  FT;
-    typedef typename FT::value_type             data_type;
+    typedef Mesh                                    mesh_type;
+    typedef MeshTraits<Mesh>                        MT;
+    typedef typename MT::global_ordinal_type        GlobalOrdinal;
+    typedef Field                                   field_type;
+    typedef FieldTraits<Field>                      FT;
+    typedef typename FT::value_type                 data_type;
     //@}
 
     //! Constructor.

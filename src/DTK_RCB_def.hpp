@@ -50,6 +50,7 @@
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
@@ -174,21 +175,58 @@ void RCB<Mesh>::partition()
  * \return The RCB destination proc for the point.
  */
 template<class Mesh>
-int RCB<Mesh>::getDestinationProc( Teuchos::Array<double> coords ) const
+int RCB<Mesh>::getPointDestinationProc( Teuchos::Array<double> coords ) const
 {
     testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
     testPrecondition( d_dimension == (int) coords.size() );
 
-    int proc, part;
+    int proc = 0;
     rememberValue( int zoltan_error );
 #if HAVE_DTK_DBC
-    zoltan_error = Zoltan_LB_Point_PP_Assign( d_zz, &coords[0], &proc, &part );
+    zoltan_error = Zoltan_LB_Point_Assign( d_zz, &coords[0], &proc );
 #else
-    Zoltan_LB_Point_PP_Assign( d_zz, &coords[0], &proc, &part );
+    Zoltan_LB_Point_Assign( d_zz, &coords[0], &proc );
 #endif
     testInvariant( zoltan_error == ZOLTAN_OK );
 
     return proc;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the destination processes for a bounding box. This includes all
+ * process domains that the box intersects.
+ *
+ * \param box The bounding box to get the destinations for.
+ *
+ * \return The RCB destination procs for the box
+ */
+template<class Mesh>
+Teuchos::Array<int>
+RCB<Mesh>::getBoxDestinationProcs( const BoundingBox& box ) const
+{
+    Teuchos::Tuple<double,6> box_bounds = box.getBounds();
+
+    int num_procs = 0;
+    Teuchos::Array<int> procs( d_comm->getSize() );
+
+    rememberValue( int zoltan_error );
+#if HAVE_DTK_DBC
+    zoltan_error = Zoltan_LB_Box_Assign( d_zz, 
+					 box[0], box[1], box[2],
+					 box[3], box[4], box[5], 
+					 &procs[0], &num_procs );
+#else
+    Zoltan_LB_Box_Assign( d_zz, 
+			  box[0], box[1], box[2],
+			  box[3], box[4], box[5], 
+			  &procs[0], &num_procs );
+#endif
+    testInvariant( zoltan_error == ZOLTAN_OK );
+
+    procs.resize( num_procs );
+
+    return procs;
 }
 
 //---------------------------------------------------------------------------//

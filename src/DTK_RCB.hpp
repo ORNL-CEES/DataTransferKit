@@ -93,8 +93,11 @@ class RCB
     // Compute RCB partitioning of the mesh.
     void partition();
 
-    // Get the destination process for a vertex given its coordinates.
-    int getDestinationProc( Teuchos::Array<double> coords ) const;
+    // Get the destination process for a point given its coordinates.
+    int getPointDestinationProc( Teuchos::Array<double> coords ) const;
+
+    // Get the destination processes for a bounding box.
+    Teuchos::Array<int> getBoxDestinationProcs( const BoundingBox& box ) const;
 
     //! Get the number of imported vertices.
     int getNumImport() const
