@@ -29,6 +29,7 @@ APPEND_SET(HEADERS
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
   DTK_Cylinder.hpp
+  DTK_ElementMeasure.hpp
   DTK_FieldContainer.hpp
   DTK_FieldEvaluator.hpp
   DTK_FieldIntegrator.hpp
@@ -40,6 +41,8 @@ APPEND_SET(HEADERS
   DTK_GeometryManager.hpp
   DTK_GeometryManager_def.hpp
   DTK_GeometryTraits.hpp
+  DTK_IntegralAssemblyMap.hpp
+  DTK_IntegralAssemblyMap_def.hpp
   DTK_KDTree.hpp
   DTK_KDTree_def.hpp
   DTK_MeshContainer.hpp

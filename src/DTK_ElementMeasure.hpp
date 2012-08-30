@@ -32,34 +32,35 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_FieldIntegrator.hpp
+ * \file DTK_ElementMeasure.hpp
  * \author Stuart R. Slattery
- * \brief Interface definition for function integration kernels.
+ * \brief Interface definition for element measure.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_FIELDINTEGRATOR_HPP
-#define DTK_FIELDINTEGRATOR_HPP
+#ifndef DTK_ELEMENTMEASURE_HPP
+#define DTK_ELEMENTMEASURE_HPP
 
 #include "DTK_FieldTraits.hpp"
 #include "DTK_MeshTraits.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_Array.hpp>
 
 namespace DataTransferKit
 {
 
 //---------------------------------------------------------------------------//
 /*!
-  \class FieldIntegrator
-  \brief Interface definition for function integration kernels.
+  \class ElementMeasure
+  \brief Interface definition for element measures.
  
-  Given a mesh element, integrate a field over that element and return its
-  value. 
+  Given a list of mesh elements return that element's measure (volume for a
+  3D element, area for a 2D element, and length for a 1D element).
 */
 //---------------------------------------------------------------------------//
-template<class Mesh, class IntegralField>
-class FieldIntegrator
+template<class Mesh>
+class ElementMeasure
 {
   public:
 
@@ -68,40 +69,37 @@ class FieldIntegrator
     typedef Mesh                                mesh_type;
     typedef MeshTraits<Mesh>                    MT;
     typedef typename MT::global_ordinal_type    GlobalOrdinal;
-    typedef IntegralField                       integral_field_type;
-    typedef FieldTraits<IntegralField>          IFT;
-    typedef typename IFT::value_type            integral_type;
     //@}
 
     //! Constructor.
-    FieldIntegrator()
+    ElementMeasure()
     { /* ... */ }
 
     //! Destructor.
-    virtual ~FieldIntegrator()
+    virtual ~ElementMeasure()
     { /* ... */ }
 
     /*!
-     * \brief Integrate the function in the given elements and return the
-     * integrals in a FieldTraits container.
+     * \brief Get the measures of the given elements and return the measures in
+     * a FieldTraits container.
      *
-     * \param elements A vector of locally valid element global ordinals in
-     * which to integrate the field.
+     * \param elements A vector of locally valid element global ordinals to
+     * get the measures for.
      *
-     * \return A FieldTraits object containing the integrated function
-     * values. This returned field is required to be of the same length as the
-     * elements input vector. Field data dimensionality and ordering is
-     * specified by field traits.
+     * \return An array containing the element measures (e.g. volume for 3D
+     * elements, area for 2D elements, and length for 1D elements). This
+     * returned field is required to be of the same length as the elements
+     * input vector and is required to be of a single dimension.
      */
-    virtual IntegralField 
-    integrate( const Teuchos::ArrayRCP<GlobalOrdinal>& elements ) = 0;
+    virtual Teuchos::Array<double>
+    measure( const Teuchos::ArrayRCP<GlobalOrdinal>& elements ) = 0;
 };
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_FIELDINTEGRATOR_HPP
+#endif // end DTK_ELEMENTMEASURE_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_FieldIntegrator.hpp
+// end DTK_ElementMeasure.hpp
 //---------------------------------------------------------------------------//
 

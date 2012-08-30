@@ -85,7 +85,7 @@ class GeometryManager
     // Destructor.
     ~GeometryManager();
 
-    //! Get the geometric objects managed by this manager
+    //! Get the geometric objects managed by this manager.
     const Teuchos::ArrayRCP<Geometry>& geometry() const 
     { return d_geometry; }
 
@@ -104,7 +104,7 @@ class GeometryManager
 
   private:
 
-    // Geometric objects
+    // Geometric objects.
     Teuchos::ArrayRCP<Geometry> d_geometry;
     
     // Communicator over which the geometry is defined.
