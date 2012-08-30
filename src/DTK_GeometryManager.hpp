@@ -61,7 +61,8 @@ namespace DataTransferKit
  decomposition, but they exist on a shared parallel communicator. Individual
  geometric objects in the collection may not span a parallel process in
  pieces. If a geometric object exists on the domain owned by many processors,
- it must exist on those processors.
+ it must exist on those processors. All geometric objects managed by the
+ manager may not intersect. This is true for both local and global objects.
 
  */
 //---------------------------------------------------------------------------//

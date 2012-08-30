@@ -67,7 +67,14 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
   \class IntegralAssemblyMap
-  \brief A map for assembling integrals over geometric objects.
+  \brief A map for assembling integrals over geometric objects using a
+  conformal mesh assumption.
+
+  Here we assume that the mesh supplied to the map is conformal to the
+  geometric objects provided by the target For example, if the target
+  geometry consists of a group of cylinders, the source mesh should be the
+  mesh over those cylinders and only that mesh, not the mesh in the domain
+  between the cylinders.
 */
 template<class Mesh, class Geometry>
 class IntegralAssemblyMap
@@ -82,6 +89,8 @@ class IntegralAssemblyMap
     typedef MeshManager<Mesh>                         MeshManagerType;
     typedef Teuchos::RCP<MeshManagerType>             RCP_MeshManager;
     typedef typename MeshManagerType::BlockIterator   MeshBlockIterator;
+    typedef ElementMeasure<Mesh>                      ElementMeasureType;
+    typedef Teuchos::RCP<ElementMeasureType>          RCP_ElementMeasure;
     typedef Geometry                                  geometry_type;
     typedef GeometryTraits<Geometry>                  GT;
     typedef GeometryManager<Geometry>                 GeometryManagerType;
@@ -103,7 +112,7 @@ class IntegralAssemblyMap
     // Generate the integral assembly map.
     void setup( 
 	const RCP_MeshManager& source_mesh_manager,
-	const Teuchos::RCP<ElementMeasure<Mesh> >& source_mesh_measure,
+	const RCP_ElementMeasure& source_mesh_measure,
 	const RCP_GeometryManager& target_geometry_manager );
 
     // Apply the shared domain map by integrating the source function over the

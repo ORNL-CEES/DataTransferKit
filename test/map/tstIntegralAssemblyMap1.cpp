@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 #include <cmath>
 #include <sstream>
 #include <algorithm>
@@ -21,7 +22,8 @@
 #include <DTK_FieldManager.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
-#Include <DTK_MeshManager.hpp>
+#include <DTK_MeshTools.hpp>
+#include <DTK_MeshManager.hpp>
 #include <DTK_GeometryTraits.hpp>
 #include <DTK_GeometryManager.hpp>
 #include <DTK_Cylinder.hpp>
@@ -34,6 +36,7 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_Ptr.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayView.hpp>
@@ -164,7 +167,7 @@ class MyEvaluator : public DataTransferKit::FieldIntegrator<
     ~MyEvaluator()
     { /* ... */ }
 
-    // If the global id is valid, then set the element integral to 1+rank
+    // If the global id is valid, then set the element integral to 2.0*(1+rank)
     MyField integrate( 
 	const Teuchos::ArrayRCP<
 	    DataTransferKit::MeshContainer<int>::global_ordinal_type>& elements )
@@ -176,7 +179,7 @@ class MyEvaluator : public DataTransferKit::FieldIntegrator<
 			    d_mesh.elementsEnd(),
 			    elements[n] ) != d_mesh.elementsEnd() )
 	    {
-		*(integrated_data.begin() + n ) = d_comm->getRank() + 1.0;
+		*(integrated_data.begin() + n ) = 2.0*(d_comm->getRank() + 1.0);
 	    }
 	    else
 	    {
@@ -208,8 +211,8 @@ class MyMeasure : public DataTransferKit::ElementMeasure<
     ~MyMeasure()
     { /* ... */ }
 
-    // If the global id is valid, then set the element measure to 1, -1 if
-    // invalid. 
+    // If the global id is valid, then set the element measure to 1/2, -1/2 if
+    // invalid.
     Teuchos::Array<double> measure( 
 	const Teuchos::ArrayRCP<
 	    DataTransferKit::MeshContainer<int>::global_ordinal_type>& elements )
@@ -221,11 +224,11 @@ class MyMeasure : public DataTransferKit::ElementMeasure<
 			    d_mesh.elementsEnd(),
 			    elements[n] ) != d_mesh.elementsEnd() )
 	    {
-		*(measures.begin() + n ) = 1.0;
+		*(measures.begin() + n ) = 0.5;
 	    }
 	    else
 	    {
- 		*(measures.begin() + n ) = -1.0;
+ 		*(measures.begin() + n ) = -0.5;
 	    }
 	}
 	return measures;
@@ -646,9 +649,9 @@ buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 	{
 	    idx = i + j*edge_length;
 	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
-	    coords[ idx ] = i + my_rank*(edge_length-1);
+	    coords[ idx ] = i;
 	    coords[ num_vertices + idx ] = j;
-	    coords[ 2*num_vertices + idx ] = 0.0;
+	    coords[ 2*num_vertices + idx ] = my_rank;
 	}
     }
     for ( int j = 0; j < edge_length; ++j )
@@ -657,9 +660,9 @@ buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 	{
 	    idx = i + j*edge_length + edge_length*edge_length;
 	    vertex_handles[ idx ] = (int) num_vertices*my_rank + idx + elem_offset;
-	    coords[ idx ] = i + my_rank*(edge_length-1);
+	    coords[ idx ] = i;
 	    coords[ num_vertices + idx ] = j;
-	    coords[ 2*num_vertices + idx ] = 1.0;
+	    coords[ 2*num_vertices + idx ] = my_rank+1;
 	}
     }
     
@@ -740,39 +743,31 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullWedgeMesh()
 }
 
 //---------------------------------------------------------------------------//
-// Geometry create functions.
+// Geometry create functions. These geometries will span the entire domain,
+// requiring them to be broadcast throughout the rendezvous.
 //---------------------------------------------------------------------------//
-void buildCylinderGeometry( int my_rank, int my_size, 
-			    int num_points, int edge_size,
-			    Teuchos::RCP<MyField>& coordinate_field )
+Teuchos::ArrayRCP<DataTransferKit::Cylinder>
+buildCylinderGeometry( int my_size, int edge_size )
 {
-    std::srand( my_rank*num_points*2 );
-    for ( int i = 0; i < num_points; ++i )
-    {
-	*(coordinate_field->begin() + i) = 
-	    my_size * (edge_size-1) * (double) std::rand() / RAND_MAX;
-	*(coordinate_field->begin() + num_points + i ) = 
-	    (edge_size-1) * (double) std::rand() / RAND_MAX;
-	*(coordinate_field->begin() + 2*num_points + i ) = 
-	    (double) std::rand() / RAND_MAX;
-    }
+    Teuchos::ArrayRCP<DataTransferKit::Cylinder> cylinders(1);
+    double length = (double) my_size;
+    double radius = (double) (edge_size-1) / 2.0;
+    double x_center = (double) (edge_size-1) / 2.0;
+    double y_center = (double) (edge_size-1) / 2.0;
+    double z_center = (double) my_size / 2.0;
+    cylinders[0] = DataTransferKit::Cylinder( length, radius,
+					      x_center, y_center, z_center );
+    return cylinders;
 }
 
 //---------------------------------------------------------------------------//
-void buildBoxGeometry( int my_rank, int my_size, 
-				   int num_points, int edge_size,
-				   Teuchos::RCP<MyField>& coordinate_field )
+Teuchos::ArrayRCP<DataTransferKit::Box>
+buildBoxGeometry( int my_size, int edge_size )
 {
-    std::srand( my_rank*num_points*2 );
-    for ( int i = 0; i < num_points; ++i )
-    {
-	*(coordinate_field->begin() + i) = 
-	    my_size * (edge_size) * (double) std::rand() / RAND_MAX - 0.5;
-	*(coordinate_field->begin() + num_points + i ) = 
-	    (edge_size) * (double) std::rand() / RAND_MAX - 0.5;
-	*(coordinate_field->begin() + 2*num_points + i ) = 
-	    1.2 * (double) std::rand() / RAND_MAX - 0.1;
-    }
+    Teuchos::ArrayRCP<DataTransferKit::Box> boxes(1);
+    boxes[0] = DataTransferKit::Box( 0.0, 0.0, 0.0, edge_size-1,
+				     edge_size-1, my_size );
+    return boxes;
 }
 
 //---------------------------------------------------------------------------//
@@ -835,62 +830,124 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
     Teuchos::RCP< MeshManager<MeshType> > source_mesh_manager = Teuchos::rcp(
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
-    // Setup target coordinate field manager.
-    int num_points = 1000;
-    int point_dim = 3;
-    Teuchos::RCP<MyField> coordinate_field = 
-	Teuchos::rcp( new MyField( num_points, point_dim ) );
-    buildCoordinateField( my_rank, my_size, num_points, edge_size,
-			  coordinate_field );
-    Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
-	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
-
-    // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MeshType ,MyField> > source_evaluator;
+    // Setup target geometry manager.
+    int num_geom = 1;
+    int geometry_dim = 3;
+    Teuchos::ArrayRCP<Cylinder> geometry;
+    Teuchos::RCP< GeometryManager<Cylinder> > target_geometry_manager;
     if ( my_rank == 0 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
+	geometry = buildCylinderGeometry( my_size, edge_size );
+	geometry_manager = 
+	    Teuchos::rcp( new GeometryManager<Cylinder>( geometry, comm, dim ) );
+    }
+    comm->barrier();
+
+    // Create field integrator and element measure.
+    Teuchos::RCP< FieldIntegrator<MeshType ,MyField> > source_integrator;
+    Teuchos::RCP<ElementMeasure<MeshType> > source_mesh_measure;
+    if ( my_rank == 0 )
+    {
+    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[0], comm ) );
+    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[0], comm ) );
     }
     else if ( my_rank == 1 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[1], comm ) );
+    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[1], comm ) );
+    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[1], comm ) );
     }
     else if ( my_rank == 2 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[2], comm ) );
+    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[2], comm ) );
+    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[2], comm ) );
     }
     else
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[3], comm ) );
+    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[3], comm ) );
+    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[3], comm ) );
     }
     comm->barrier();
 
     // Create data target. This target is a scalar.
     int target_dim = 1;
     Teuchos::RCP<MyField> target_field =  
-	Teuchos::rcp( new MyField( num_points, target_dim ) );
+	Teuchos::rcp( new MyField( num_geom, target_dim ) );
     Teuchos::RCP< FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
 	new FieldManager<MyField>( target_field, comm ) );
 
-    // Setup and apply the shared domain mapping.
-    SharedDomainMap<MeshType ,MyField> shared_domain_map( 
+    // Setup and apply the integral assembly mapping.
+    IntegralAssemblyMap<MeshType,Cylinder> integral_assembly_map( 
 	comm, source_mesh_manager->dim() );
-    shared_domain_map.setup( source_mesh_manager, target_coord_manager );
-    shared_domain_map.apply( source_evaluator, target_space_manager );
+    integral_assembly_map.setup( source_mesh_manager, source_mesh_measure,
+				 target_geometry_manager );
+    integral_assembly_map.apply( source_integrator, target_space_manager );
 
-    // Check the data transfer. Each target point should have been assigned
-    // its source rank + 1 as data.
-    int source_rank;
-    for ( int n = 0; n < num_points; ++n )
+    // Check the integration. If a mesh element has a vertex in the cylinder,
+    // it should have contributed to the global sum. The global number of
+    // elements that intersect the cylinder will equal the integral. Keep in
+    // mind this is not a formal conformal mesh, but given that there is only
+    // one cylinder across the global domain, we can define how it will
+    // behave.
+    Cylinder global_cylinder;
+    if ( my_rank == 0 )
     {
-	source_rank = std::floor(*(coordinate_field->begin()+n) / (edge_size-1));
-	for ( int d = 0; d < target_dim; ++d )
+	global_cylinder = geometry[0];
+    }
+    comm->barrier();
+    Teuchos::broadcast( *d_comm, 0, Teuchos::Ptr<Cylinder>(&global_cylinder) );
+
+    int num_vertices = MeshTools<MeshType>::numVertices( *mesh_blocks[my_rank] );
+    Teuchos::ArrayRCP<const double> coords = 
+	MeshTools<MeshType>::coordsView( *mesh_blocks[my_rank] );
+    int vertices_per_element = MT::verticesPerElement( *mesh_blocks[my_rank] );
+    int num_elements = MeshTools<MeshType>::numElements( *mesh_blocks[my_rank] );
+    Teuchos::ArrayRCP<const int> connectivity = 
+	MeshTools<MeshType>::connectivityView( *mesh_blocks[my_rank] );
+    Teuchos::ArrayRCP<const int> elements = 
+	MeshTools<MeshType>::elementsView( *mesh_blocks[my_rank] );
+
+    std::map<int,int> element_g2l;
+    for ( int i = 0; i < num_elements; ++i )
+    {
+	element_g2l[ elements[i] ] = i;
+    }
+
+    int vert_index;
+    Teuchos::Array<double> vertex(3);
+    bool found = false;
+    int num_in_cylinder = 0;
+    for ( int i = 0; i < num_elements; ++i )
+    {
+	found = false;
+	for ( int n = 0; n < vertices_per_element; ++n )
 	{
-	    TEST_ASSERT( source_rank+1 == 
-			 *(target_space_manager->field()->begin()
-			   +n+d*num_points) );
+	    if (!found)
+	    {
+		vert_index = 
+		    element_g2l.find(connectivity[i + n*num_elements])->second;
+		vertex[0] = coords[vert_index];
+		vertex[1] = coords[vert_index + num_vertices];
+		vertex[2] = coords[vert_index + 2*num_vertices];
+
+		if ( global_cylinder.pointInCylinder( vertex ) )
+		{
+		    ++num_in_cylinder;
+		    found = true;
+		}
+	    }
 	}
     }
+    comm->barrier();
+
+    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 1, 
+			&num_in_cylinder, &num_in_cylinder );
+
+    if ( my_rank == 0 )
+    {
+	TEST_ASSERT( (double) num_in_cylinder ==
+		     target_field->getData()[0] );
+    }
+    comm->barrier();
 }
 
 //---------------------------------------------------------------------------//
@@ -937,7 +994,7 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
 	    buildPyramidMesh( my_rank, my_size, edge_size, pyramid_offset );
 	mesh_blocks[3] = buildNullWedgeMesh();
     }
-    else 
+    else if ( my_rank == 3 )
     {
 	mesh_blocks[0] = buildNullTetMesh();
 	mesh_blocks[1] = buildNullHexMesh();
@@ -951,268 +1008,67 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
     Teuchos::RCP< MeshManager<MeshType> > source_mesh_manager = Teuchos::rcp(
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
-    // Setup target coordinate field manager.
-    int num_points = 1000;
-    int point_dim = 3;
-    Teuchos::RCP<MyField> coordinate_field =
-	Teuchos::rcp( new MyField( num_points, point_dim ) );
-    buildExpandedCoordinateField( my_rank, my_size, num_points, edge_size,
-				  coordinate_field );
-    Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
-	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
-
-    // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MeshType ,MyField> > source_evaluator;
+    // Setup target geometry manager.
+    int num_geom = 1;
+    int geometry_dim = 3;
+    Teuchos::ArrayRCP<Box> geometry;
+    Teuchos::RCP< GeometryManager<Box> > target_geometry_manager
     if ( my_rank == 0 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
+	geometry = buildBoxGeometry( my_size, edge_size );
+	geometry_manager = 	
+	    Teuchos::rcp( new GeometryManager<Box>( geometry, comm, dim ) );
+    }
+    comm->barrier();
+
+    // Create field integrator and element measure.
+    Teuchos::RCP< FieldIntegrator<MeshType ,MyField> > source_integrator;
+    Teuchos::RCP<ElementMeasure<MeshType> > source_mesh_measure;
+    if ( my_rank == 0 )
+    {
+    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[0], comm ) );
+    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[0], comm ) );
     }
     else if ( my_rank == 1 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[1], comm ) );
+    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[1], comm ) );
+    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[1], comm ) );
     }
     else if ( my_rank == 2 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[2], comm ) );
+    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[2], comm ) );
+    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[2], comm ) );
     }
     else
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[3], comm ) );
+    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[3], comm ) );
+    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[3], comm ) );
     }
     comm->barrier();
 
     // Create data target. This target is a scalar.
     int target_dim = 1;
     Teuchos::RCP<MyField> target_field =  
-	Teuchos::rcp( new MyField( num_points, target_dim ) );
+	Teuchos::rcp( new MyField( num_geom, target_dim ) );
     Teuchos::RCP< FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
 	new FieldManager<MyField>( target_field, comm ) );
 
-    // Setup and apply the shared domain mapping.
-    SharedDomainMap<MeshType ,MyField> shared_domain_map( 
-	comm, source_mesh_manager->dim(), true );
-    shared_domain_map.setup( source_mesh_manager, target_coord_manager );
-    shared_domain_map.apply( source_evaluator, target_space_manager );
+    // Setup and apply the integral assembly mapping.
+    IntegralAssemblyMap<MeshType,Box> integral_assembly_map( 
+	comm, source_mesh_manager->dim() );
+    integral_assembly_map.setup( source_mesh_manager, source_mesh_measure,
+				 target_geometry_manager );
+    integral_assembly_map.apply( source_integrator, target_space_manager );
 
-    // Check the data transfer. Each target point should have been assigned
-    // its source rank + 1 as data if it is in the mesh and 0.0 if it is outside.
-    int source_rank;
-    Teuchos::Array<int> missing_points;
-    for ( int n = 0; n < num_points; ++n )
-    {
-	if ( *(coordinate_field->begin()+n) < 0.0 ||
-	     *(coordinate_field->begin()+n) > (edge_size-1)*my_size ||
-	     *(coordinate_field->begin()+n+num_points) < 0.0 ||
-	     *(coordinate_field->begin()+n+num_points) 
-	     > edge_size-1 ||
-	     *(coordinate_field->begin()+n+2*num_points) < 0.0 ||
-	     *(coordinate_field->begin()+n+2*num_points) > 1.0 )
-	{
-	    missing_points.push_back(n);	
-	    for ( int d = 0; d < target_dim; ++d )
-	    {
-		TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()
-				      +n+d*num_points) );
-	    }
-	}
-	else
-	{
-	    source_rank = std::floor(target_coord_manager->field()->getData()[n] 
-	    			     / (edge_size-1));
-	    for ( int d = 0; d < target_dim; ++d )
-	    {
-		TEST_ASSERT( source_rank+1 == 
-			     *(target_space_manager->field()->begin()
-			       +n+d*num_points) );
-	    }
-	}
-    }
-
-    // Check the missing points.
-    TEST_ASSERT( missing_points.size() > 0 );
-    Teuchos::ArrayView<int> missed_in_map = 
-	shared_domain_map.getMissedTargetPoints();
-    TEST_ASSERT( missing_points.size() == missed_in_map.size() );
-
-    std::sort( missing_points.begin(), missing_points.end() );
-    std::sort( missed_in_map.begin(), missed_in_map.end() );
-
-    for ( int n = 0; n < (int) missing_points.size(); ++n )
-    {
-	TEST_ASSERT( missing_points[n] == missed_in_map[n] );
-    }
-}
-
-//---------------------------------------------------------------------------//
-// Some points will be outside of the mesh in this test. The mesh is not
-// rectilinear so we will be sure to search the kD-tree with points that
-// aren't in the mesh.
-TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test9 )
-{
-    using namespace DataTransferKit;
-    typedef MeshContainer<int> MeshType;
-
-    // Setup communication.
-    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    int my_rank = comm->getRank();
-    int my_size = comm->getSize();
-
-    // Compute element ordinal offsets so we make unique global ordinals.
-    int edge_size = 10;
-    int tet_offset = 0;
-    int hex_offset = tet_offset + (edge_size+1)*(edge_size+1)*5;
-    int pyramid_offset = hex_offset + (edge_size+1)*(edge_size+1);
-    int wedge_offset = pyramid_offset + (edge_size+1)*(edge_size+1)*6;
-
-    // Setup source mesh manager.
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 4 );
+    // Check the integration. All elements in the mesh are in the box as this
+    // is a true conformal situation and therefore the total integral should
+    // be the global number of mesh elements. 
     if ( my_rank == 0 )
     {
-	mesh_blocks[0] = 
-	    buildTiledTetMesh( my_rank, my_size, edge_size, tet_offset );
-	mesh_blocks[1] = buildNullHexMesh();
-	mesh_blocks[2] = buildNullPyramidMesh();
-	mesh_blocks[3] = buildNullWedgeMesh();
-    }
-    else if ( my_rank == 1 )
-    {
-	mesh_blocks[0] = buildNullTetMesh();
-	mesh_blocks[1] = 
-	    buildTiledHexMesh( my_rank, my_size, edge_size, hex_offset );
-	mesh_blocks[2] = buildNullPyramidMesh();
-	mesh_blocks[3] = buildNullWedgeMesh();
-    }
-    else if ( my_rank == 2 )
-    {
-	mesh_blocks[0] = buildNullTetMesh();
-	mesh_blocks[1] = buildNullHexMesh();
-	mesh_blocks[2] = 
-	    buildTiledPyramidMesh( my_rank, my_size, edge_size, pyramid_offset );
-	mesh_blocks[3] = buildNullWedgeMesh();
-    }
-    else 
-    {
-	mesh_blocks[0] = buildNullTetMesh();
-	mesh_blocks[1] = buildNullHexMesh();
-	mesh_blocks[2] = buildNullPyramidMesh();
-	mesh_blocks[3] = 
-	    buildTiledWedgeMesh( my_rank, my_size, edge_size, wedge_offset );
+	TEST_ASSERT( (double) source_mesh_manager->globalNumElements() ==
+		     target_field->getData()[0] );
     }
     comm->barrier();
-
-    // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > source_mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
-
-    // Setup target coordinate field manager.
-    int num_points = 1000;
-    int point_dim = 3;
-    Teuchos::RCP<MyField> coordinate_field = 
-	Teuchos::rcp( new MyField( num_points, point_dim ) );
-    buildTiledCoordinateField( my_rank, my_size, num_points, edge_size,
-			       coordinate_field );
-    Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
-	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
-
-    // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MeshType ,MyField> > source_evaluator;
-    if ( my_rank == 0 )
-    {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
-    }
-    else if ( my_rank == 1 )
-    {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[1], comm ) );
-    }
-    else if ( my_rank == 2 )
-    {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[2], comm ) );
-    }
-    else
-    {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[3], comm ) );
-    }
-    comm->barrier();
-
-    // Create data target. This target is a scalar.
-    int target_dim = 1;
-    Teuchos::RCP<MyField> target_field =  
-	Teuchos::rcp( new MyField( num_points, target_dim ) );
-    Teuchos::RCP< FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
-	new FieldManager<MyField>( target_field, comm ) );
-
-    // Setup and apply the shared domain mapping.
-    SharedDomainMap<MeshType ,MyField> shared_domain_map( 
-	comm, source_mesh_manager->dim(), true );
-    shared_domain_map.setup( source_mesh_manager, target_coord_manager );
-    shared_domain_map.apply( source_evaluator, target_space_manager );
-
-    // Check the data transfer. Each target point should have been assigned
-    // its source rank + 1 as data if it is in the mesh and 0.0 if it is outside.
-    int source_rank;
-    Teuchos::Array<int> missing_points;
-    bool tagged;
-    for ( int n = 0; n < num_points; ++n )
-    {
-	tagged = false;
-
-	if ( *(coordinate_field->begin()+n) < 0.0 ||
-	     *(coordinate_field->begin()+n) > (edge_size-1)*my_size ||
-	     *(coordinate_field->begin()+n+num_points) < 0.0 ||
-	     *(coordinate_field->begin()+n+num_points) > (edge_size-1)*my_size ||
-	     *(coordinate_field->begin()+n+2*num_points) < 0.0 ||
-	     *(coordinate_field->begin()+n+2*num_points) > 1.0 )
-	{
-	    missing_points.push_back(n);	
-	    TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()+n) );
-	    tagged = true;
-	}
-	
-	else
-	{
-	    for ( int i = 0; i < my_size; ++i )
-	    {
-		if ( *(coordinate_field->begin()+n) >= (edge_size-1)*i &&
-		     *(coordinate_field->begin()+n) <= (edge_size-1)*(i+1) &&
-		     *(coordinate_field->begin()+n+num_points) >=
-		     (edge_size-1)*i &&
-		     *(coordinate_field->begin()+n+num_points) <= 
-		     (edge_size-1)*(i+1) &&
-		     *(coordinate_field->begin()+n+2*num_points) >= 0.0 &&
-		     *(coordinate_field->begin()+n+2*num_points) <= 1.0 && !tagged )
-		{
-		    source_rank = std::floor(target_coord_manager->field()->getData()[n] 
-					     / (edge_size-1));
-		    TEST_ASSERT( source_rank+1 == 
-				 target_space_manager->field()->getData()[n] );
-		    tagged = true;
-		}
-	    }
-
-	    if ( !tagged) 
-	    {
-		missing_points.push_back(n);	
-		TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()+n) );
-		tagged = true;
-	    }
-	}
-
-	TEST_ASSERT( tagged );
-    }
-
-    // Check the missing points.
-    TEST_ASSERT( missing_points.size() > 0 );
-    Teuchos::ArrayView<int> missed_in_map = 
-	shared_domain_map.getMissedTargetPoints();
-    TEST_ASSERT( missing_points.size() == missed_in_map.size() );
-
-    std::sort( missing_points.begin(), missing_points.end() );
-    std::sort( missed_in_map.begin(), missed_in_map.end() );
-
-    for ( int n = 0; n < (int) missing_points.size(); ++n )
-    {
-	TEST_ASSERT( missing_points[n] == missed_in_map[n] );
-    }
 }
 
 //---------------------------------------------------------------------------//
