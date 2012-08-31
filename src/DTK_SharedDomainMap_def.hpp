@@ -32,7 +32,7 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_SharedDomainMap.hpp
+ * \file DTK_SharedDomainMap_def.hpp
  * \author Stuart R. Slattery
  * \brief Shared domain map definition.
  */
@@ -48,7 +48,6 @@
 #include "DTK_Assertion.hpp"
 #include "DTK_Rendezvous.hpp"
 #include "DTK_MeshTools.hpp"
-#include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_as.hpp>
@@ -632,17 +631,17 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
     }
     d_comm->barrier();
 
-    GlobalOrdinal global_size;
+    GlobalOrdinal global_max;
     Teuchos::reduceAll<int,GlobalOrdinal>( *d_comm,
 					   Teuchos::REDUCE_MAX,
 					   1,
 					   &local_size,
-					   &global_size );
+					   &global_max );
 
     target_ordinals.resize( local_size );
     for ( GlobalOrdinal n = 0; n < local_size; ++n )
     {
-	target_ordinals[n] = comm_rank*global_size + n;
+	target_ordinals[n] = comm_rank*global_max + n;
 
 	// If we're keeping track of missed points, we also need to build the
 	// global-to-local ordinal map.
@@ -657,7 +656,8 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
 /*!
  * \brief Get the target points that are in the rendezvous decomposition box.
  *
- * \param target_coords The target coordinates to search the box with.
+ * \param target_coord_manager The manager containing the target coordinates
+ * to search the box with.
  *
  * \param target_ordinals The globally unique ordinals for the target
  * coordinates. 

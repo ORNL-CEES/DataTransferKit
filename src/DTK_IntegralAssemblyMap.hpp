@@ -143,9 +143,6 @@ class IntegralAssemblyMap
     // Process indexer for the target application.
     CommIndexer d_target_indexer;
 
-    // Global-to-local ordinal map for target ordinals.
-    std::map<GlobalOrdinal,GlobalOrdinal> d_target_g2l;
-
     // Source field map.
     RCP_TpetraMap d_source_map;
 

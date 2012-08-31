@@ -98,6 +98,11 @@ class GeometryManager
     const int dim() const
     { return d_dim; }
 
+    //! Get the local number of objects owned by this manager.
+    const typename Teuchos::ArrayRCP<Geometry>::size_type
+    numLocalGeometry() const 
+    { return d_geometry.size(); }
+
   private:
 
     // Validate the geometric objects to the domain model.
