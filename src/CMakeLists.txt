@@ -62,6 +62,7 @@ APPEND_SET(HEADERS
   DTK_SharedDomainMap.hpp
   DTK_SharedDomainMap_def.hpp
   DTK_TopologyTools.hpp
+  DTK_TopologyTools_def.hpp
   ) 
 
 APPEND_SET(SOURCES

@@ -147,6 +147,19 @@ class Rendezvous
 	Teuchos::Array<GlobalOrdinal>& elements,
 	Teuchos::Array<int>& element_src_procs ) const;
 
+    // Get the native elements in the rendezvous decomposition that are in
+    // each bounding box in a list.
+    void elementsInBoxes(
+	const Teuchos::Array<BoundingBox>& boxes,
+	Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements ) const;
+
+    // Get the native elements in the rendezvous decomposition that are in
+    // each geometry in a list.
+    template<class Geometry>
+    void elementsInGeometry(
+	const Teuchos::Array<Geometry>& geometry,
+	Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements ) const;
+
     //! Get the rendezvous mesh.
     const RCP_RendezvousMesh& getMesh() const
     { return d_rendezvous_mesh; }
@@ -155,6 +168,11 @@ class Rendezvous
     //! generated.
     const BoundingBox& getBox() const
     { return d_global_box; }
+
+    //! For a list of elements in the rendezvous decomposition, get their
+    //! source procs.
+    Teuchos::Array<int> elementSourceProcs( 
+	const Teuchos::Array<GlobalOrdinal>& elements );
 
   private:
 

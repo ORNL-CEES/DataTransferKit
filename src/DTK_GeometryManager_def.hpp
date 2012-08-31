@@ -86,11 +86,31 @@ GeometryManager<Geometry>::~GeometryManager()
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Get the global number of objects owned by this manager.
+ *
+ * \return The global number of objects owned by this manager.
+ */
+template<class Geometry>
+const typename Teuchos::ArrayRCP<Geometry>::size_type
+GeometryManager<Geometry>::globalNumGeometry() const
+{
+    typename Teuchos::ArrayRCP<Geometry>::size_type global_size =
+	d_geometry.size();
+
+    Teuchos::reduceAll<int,typename Teuchos::ArrayRCP<Geometry>::size_type>( 
+	*d_comm, Teuchos::REDUCE_SUM, 1, &global_size, &global_size );
+
+    return global_size;
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Get the bounding boxes for the objects owned by this manager.
  *
  * \return The bounding boxes for the geometry owned by this manager.
  */
-Teuchos::Array<BoundingBox> GeometryManager<Geometry> boundingBoxes() const
+template<class Geometry>
+Teuchos::Array<BoundingBox> GeometryManager<Geometry>::boundingBoxes() const
 {
     Teuchos::Array<BoundingBox> boxes( d_geometry.size() );
     Teuchos::Array<BoundingBox>::iterator box_iterator;

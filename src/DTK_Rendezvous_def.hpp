@@ -249,6 +249,97 @@ void Rendezvous<Mesh>::elementsContainingPoints(
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Get the native elements in the rendezvous decomposition that are in
+ * each bounding box in a list.
+ *
+ * \param boxes The boxes to get the elements for.
+ *
+ * \param elements The elements found in each of the boxes.
+ *
+ * \param element_src_procs The source procs owning the elements found in the
+ * boxes.
+ */
+template<class Mesh>
+void Rendezvous<Mesh>::elementsInBoxes(
+    const Teuchos::Array<BoundingBox>& boxes,
+    Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements ) const
+{
+    elements.resize( boxes.size() );
+
+    Teuchos::Array<BoundingBox>::const_iterator box_iterator;
+    typename Teuchos::Array<Teuchos::Array<GlobalOrdinal> >::iterator 
+	element_iterator;
+    for ( box_iterator = boxes.begin(), element_iterator = elements.begin();
+	  box_iterator != box_iterator.end();
+	  ++box_iterator, ++element_iterator )
+    {
+	*element_iterator = d_rendezvous_mesh->elementsInBox( *box_iterator );
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the native elements in the rendezvous decomposition that are in
+ * each geometric object in a list.
+ *
+ * \param geometry The geometric object to get the elements for.
+ *
+ * \param elements The elements found in each of the boxes.
+ *
+ * \param element_src_procs The source procs owning the elements found in the
+ * geometry. 
+ */
+template<class Mesh>
+template<class Geometry> 
+void Rendezvous<Mesh>::elementsInGeometry(
+    const Teuchos::Array<Geometry>& geometry,
+    Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements ) const
+{
+    elements.resize( geometry.size() );
+
+    typename Teuchos::Array<Geometry>::const_iterator geometry_iterator;
+    typename Teuchos::Array<Teuchos::Array<GlobalOrdinal> >::iterator 
+	element_iterator;
+    for ( geometry_iterator = geometry.begin(), 
+	   element_iterator = elements.begin();
+	  geometry_iterator != geometry_iterator.end();
+	  ++geometry_iterator, ++element_iterator )
+    {
+	*element_iterator = 
+	    d_rendezvous_mesh->elementsInGeometry( *geometry_iterator );
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief For a list of elements in the rendezvous decomposition, the their
+ * source procs.
+ *
+ * \param elements The elements to get source procs for.
+ *
+ * \return The source procs for the elements.
+ */
+template<class Mesh>
+Teuchos::Array<int> Rendezvous<Mesh>::elementSourceProcs(
+    const Teuchos::Array<GlobalOrdinal>& elements )
+{
+    Teuchos::Array<int> source_procs( elements.size() );
+    Teuchos::Array<int>::iterator source_proc_iterator;
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator element_iterator;
+    for ( element_iterator = elements.begin(),
+      source_proc_iterator = source_procs.begin();
+	  element_iterator != elements.end();
+	  ++element_iterator, ++source_proc_iterator )
+    {
+	*source_proc_iterator = 
+	    d_element_src_procs_map.find( *element_iterator )->second;
+    }
+
+    return source_procs;
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Extract the mesh vertices and elements that are in a bounding box.
  *
  * \param mesh_manager The mesh to search the box with.

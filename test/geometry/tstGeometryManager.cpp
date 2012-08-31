@@ -50,6 +50,7 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+    int my_size = comm->getSize();
 
     // Build a series of random cylinders.
     int num_cylinders = 100;
@@ -70,10 +71,13 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
 
     // Check the geometry manager.
     Teuchos::ArrayRCP<Cylinder> manager_geometry = geometry_manager.geometry();
-    TEST_ASSERT( manager_geometry.size() == 100 );
+    TEST_ASSERT( manager_geometry.size() == num_cylinders );
     TEST_ASSERT( GeometryTraits<Cylinder>::dim(manager_geometry[0]) == 3 );
     TEST_ASSERT( geometry_manager.dim() == 3 );
     TEST_ASSERT( geometry_manager.comm() == comm );
+    TEST_ASSERT( geometry_manager.localNumGeometry() == num_cylinders );
+    TEST_ASSERT( geometry_manager.globalNumGeometry() == 
+		 num_cylinders*my_size );
 }
 
 //---------------------------------------------------------------------------//
@@ -83,6 +87,7 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+    int my_size = comm->getSize();
 
     // Build a series of random boxes.
     int num_boxes = 100;
@@ -104,10 +109,12 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
 
     // Check the geometry manager.
     Teuchos::ArrayRCP<Box> manager_geometry = geometry_manager.geometry();
-    TEST_ASSERT( manager_geometry.size() == 100 );
+    TEST_ASSERT( manager_geometry.size() == num_boxes );
     TEST_ASSERT( GeometryTraits<Box>::dim(manager_geometry[0]) == 3 );
     TEST_ASSERT( geometry_manager.dim() == 3 );
     TEST_ASSERT( geometry_manager.comm() == comm );
+    TEST_ASSERT( geometry_manager.localNumGeometry() == num_boxes );
+    TEST_ASSERT( geometry_manager.globalNumGeometry() == num_boxes*my_size );
 }
 
 //---------------------------------------------------------------------------//

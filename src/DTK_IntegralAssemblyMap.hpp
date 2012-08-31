@@ -41,12 +41,16 @@
 #ifndef DTK_INTEGRALASSEMBLYMAP_HPP
 #define DTK_INTEGRALASSEMBLYMAP_HPP
 
+#include <map>
+#include <set>
+
 #include "DTK_MeshTraits.hpp"
 #include "DTK_MeshManager.hpp"
 #include "DTK_GeometryTraits.hpp"
 #include "DTK_GeometryManager.hpp"
 #include "DTK_ElementMeasure.hpp"
 #include "DTK_FieldIntegrator.hpp"
+#include "DTK_FieldManager.hpp"
 #include "DTK_CommIndexer.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -151,11 +155,24 @@ class IntegralAssemblyMap
     // Source-to-target exporter.
     RCP_TpetraExport d_source_to_target_exporter;
 
-    // Local source elements (source decomposition).
+    // Local source elements to drive the function integrations (source
+    // decomposition).
     Teuchos::Array<GlobalOrdinal> d_source_elements;
 
     // Local source element measures (target decomposition).
-    Teuchos::Array<double> d_source_element_measures;
+    Teuchos::Array<double> d_integral_element_measures;
+
+    // Local geometry measures from element measures.
+    Teuchos::Array<double> d_geometry_measures;
+
+    // Source element local ordinals that construct the local geometry
+    // integral. 
+    Teuchos::Array<std::set<GlobalOrdinal> > d_integral_elements;
+
+    // Global-to-local ordinal map for the target geometry in the target
+    // decomposition. 
+    std::map<GlobalOrdinal, typename Teuchos::ArrayRCP<Geometry>::size_type>
+    d_target_g2l;
 };
 
 } // end namespace DataTransferKit

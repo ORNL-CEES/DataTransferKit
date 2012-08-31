@@ -47,6 +47,7 @@
 #include "DTK_MeshManager.hpp"
 #include "DTK_GeometryTraits.hpp"
 #include "DTK_GeometryManager.hpp"
+#include "DTK_BoundingBox.hpp"
 
 #include <MBInterface.hpp>
 
@@ -93,6 +94,17 @@ class RendezvousMesh
     GlobalOrdinal 
     getNativeOrdinal( const moab::EntityHandle& moab_handle ) const
     { return d_handle_map.find( moab_handle )->second; }
+
+    // Given a bounding box return the native element ordinals that are in
+    // the box.
+    Teuchos::Array<GlobalOrdinal> 
+    elementsInBox( const BoundingBox& box ) const;
+
+    // Given a geometry return the native element ordinals that are in the
+    // geometry. 
+    template<class Geometry>
+    Teuchos::Array<GlobalOrdinal> 
+    elementsInGeometry( const Geometry& geometry ) const;
 
   private:
 

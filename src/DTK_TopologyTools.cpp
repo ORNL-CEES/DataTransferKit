@@ -42,11 +42,14 @@
 
 #include "DTK_CellTopologyFactory.hpp"
 #include "DTK_TopologyTools.hpp"
+#include "DTK_GeometryTraits.hpp"
 #include "DTK_Assertion.hpp"
 #include "DataTransferKit_config.hpp"
 
+#include <MBGeomUtil.hpp>
+#include <MBCartVect.hpp>
+
 #include <Teuchos_ArrayRCP.hpp>
-#include <Teuchos_Array.hpp>
 #include <Teuchos_Tuple.hpp>
 
 #include <Shards_CellTopology.hpp>
@@ -248,6 +251,77 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 	return false;
     }
 }
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Box-element overlap query.
+ *
+ * \param box The box to check overlap with.
+ *
+ * \param element The element to check overlap with.
+ *
+ * \param moab The Moab interface containing the element.
+ *
+ * \return Return true if the box and element overlap, false if not.
+ */
+bool TopologyTools::boxElementOverlap( 
+    const BoundingBox& box,
+    const moab::EntityHandle element,
+    const Teuchos::RCP<moab::Interface>& moab )
+{
+    // Get the element topology.
+    moab::EntityType element_topology = moab->type_from_handle( element );
+
+    // Get the element vertices.
+    rememberValue( moab::ErrorCode error );
+    std::vector<moab::EntityHandle> element_vertices;
+#if HAVE_DTK_DBC
+    error = moab->get_adjacencies( &element,
+				   1,
+				   0,
+				   false,
+				   element_vertices );
+#else
+    moab->get_adjacencies( &element,
+			   1,
+			   0,
+			   false,
+			   element_vertices );
+#endif
+    testInvariant( error == moab::MB_SUCCESS );
+
+    // Extract the vertex coordinates.
+    int num_element_vertices = element_vertices.size();
+    Teuchos::Array<double> element_vertex_coords( 3 * num_element_vertices );
+#if HAVE_DTK_DBC
+    error = moab->get_coords( &element_vertices[0], 
+			      num_element_vertices, 
+			      &element_vertex_coords[0] );
+#else
+    moab->get_coords( &element_vertices[0], 
+		      num_element_vertices, 
+		      &element_vertex_coords[0] );
+#endif
+    testInvariant( error == moab::MB_SUCCESS );
+
+    // Extract box values.
+    Teuchos::Tuple<double,6> bounds = box.getBounds();
+    double half_dims[3] = { (bounds[3]-bounds[0])/2,
+			    (bounds[4]-bounds[1])/2,
+			    (bounds[5]-bounds[2])/2 };
+    double center[3] = { half_dims[0] + bounds[0],
+			 half_dims[1] + bounds[1],
+			 half_dims[2] + bounds[2] };
+
+    // Check for overlap.
+    return moab::GeomUtil::box_elem_overlap( 
+	(moab::CartVect*) &element_vertex_coords[0],
+	element_topology,
+	(moab::CartVect) center,
+	(moab::CartVect) half_dims );
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

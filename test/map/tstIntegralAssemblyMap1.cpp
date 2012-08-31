@@ -153,18 +153,18 @@ class FieldTraits<MyField>
 
 //---------------------------------------------------------------------------//
 // FieldIntegrator Implementation.
-class MyEvaluator : public DataTransferKit::FieldIntegrator<
+class MyIntegrator : public DataTransferKit::FieldIntegrator<
     DataTransferKit::MeshContainer<int> ,MyField>
 {
   public:
 
-    MyEvaluator( const DataTransferKit::MeshContainer<int>& mesh, 
+    MyIntegrator( const DataTransferKit::MeshContainer<int>& mesh, 
 		 const Teuchos::RCP< const Teuchos::Comm<int> >& comm )
 	: d_mesh( mesh )
 	, d_comm( comm )
     { /* ... */ }
 
-    ~MyEvaluator()
+    ~MyIntegrator()
     { /* ... */ }
 
     // If the global id is valid, then set the element integral to 2.0*(1+rank)
@@ -777,6 +777,7 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
 {
     using namespace DataTransferKit;
     typedef MeshContainer<int> MeshType;
+    typedef MeshTraits<MeshType> MT;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
@@ -838,13 +839,14 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
     if ( my_rank == 0 )
     {
 	geometry = buildCylinderGeometry( my_size, edge_size );
-	geometry_manager = 
-	    Teuchos::rcp( new GeometryManager<Cylinder>( geometry, comm, dim ) );
+	target_geometry_manager = 
+	    Teuchos::rcp( new GeometryManager<Cylinder>( 
+			      geometry, comm, geometry_dim ) );
     }
     comm->barrier();
 
     // Create field integrator and element measure.
-    Teuchos::RCP< FieldIntegrator<MeshType ,MyField> > source_integrator;
+    Teuchos::RCP<FieldIntegrator<MeshType ,MyField> > source_integrator;
     Teuchos::RCP<ElementMeasure<MeshType> > source_mesh_measure;
     if ( my_rank == 0 )
     {
@@ -894,7 +896,7 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
 	global_cylinder = geometry[0];
     }
     comm->barrier();
-    Teuchos::broadcast( *d_comm, 0, Teuchos::Ptr<Cylinder>(&global_cylinder) );
+    Teuchos::broadcast( *comm, 0, Teuchos::Ptr<Cylinder>(&global_cylinder) );
 
     int num_vertices = MeshTools<MeshType>::numVertices( *mesh_blocks[my_rank] );
     Teuchos::ArrayRCP<const double> coords = 
@@ -955,6 +957,7 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
 {
     using namespace DataTransferKit;
     typedef MeshContainer<int> MeshType;
+    typedef MeshTraits<MeshType> MT;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
@@ -1012,12 +1015,13 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
     int num_geom = 1;
     int geometry_dim = 3;
     Teuchos::ArrayRCP<Box> geometry;
-    Teuchos::RCP< GeometryManager<Box> > target_geometry_manager
+    Teuchos::RCP< GeometryManager<Box> > target_geometry_manager;
     if ( my_rank == 0 )
     {
 	geometry = buildBoxGeometry( my_size, edge_size );
-	geometry_manager = 	
-	    Teuchos::rcp( new GeometryManager<Box>( geometry, comm, dim ) );
+	target_geometry_manager = 	
+	    Teuchos::rcp( new GeometryManager<Box>( 
+			      geometry, comm, geometry_dim ) );
     }
     comm->barrier();
 

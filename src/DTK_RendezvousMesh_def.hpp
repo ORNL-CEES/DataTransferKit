@@ -45,6 +45,7 @@
 
 #include "DTK_MeshTools.hpp"
 #include "DTK_BoundingBox.hpp"
+#include "DTK_TopologyTools.hpp"
 #include "DTK_Assertion.hpp"
 #include "DataTransferKit_config.hpp"
 
@@ -80,6 +81,104 @@ RendezvousMesh<GlobalOrdinal>::RendezvousMesh( const RCP_Moab& moab,
 template<typename GlobalOrdinal>
 RendezvousMesh<GlobalOrdinal>::~RendezvousMesh()
 { /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Given a bounding box return the native element ordinals that are in
+ * the box.
+ *
+ * \param box The bounding box to search with elements.
+ *
+ * \return The elements in the box.
+ */
+template<typename GlobalOrdinal>
+Teuchos::Array<GlobalOrdinal> 
+RendezvousMesh<GlobalOrdinal>::elementsInBox( const BoundingBox& box ) const
+{
+    // Get the dimension of the mesh.
+    rememberValue( moab::ErrorCode error );
+    int dim = 0;
+#if HAVE_DTK_DBC
+    error = d_moab->get_dimension( dim );
+#else
+    d_moab->get_dimension( dim );
+#endif
+    testInvariant( moab::MB_SUCCESS == error );
+
+    // Get the mesh elements.
+    moab::Range elements;
+#if HAVE_DTK_DBC
+    error = d_moab->get_entities_by_dimension( 0, dim, elements );
+#else
+    d_moab->get_entities_by_dimension( 0, dim, elements );
+#endif
+    testInvariant( moab::MB_SUCCESS == error );
+    
+    // Get the elements that are in the box.
+    Teuchos::Array<GlobalOrdinal> elements_in_box;
+    moab::Range::iterator element_iterator;
+    for ( element_iterator = elements.begin();
+	  element_iterator != elements.end();
+	  ++element_iterator )
+    {
+	if ( TopologyTools::boxElementOverlap( box, *element_iterator, d_moab ) )
+	{
+	    elements_in_box.push_back( getNativeOrdinal( *element_iterator ) );
+	}   
+    }
+
+    return elements_in_box;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Given a geometry return the native element ordinals that are in
+ * the geometry.
+ *
+ * \param geometry The geometry to search with elements.
+ *
+ * \return The elements in the geometry.
+ */
+template<typename GlobalOrdinal>
+template<class Geometry>
+Teuchos::Array<GlobalOrdinal> 
+RendezvousMesh<GlobalOrdinal>::elementsInGeometry( const Geometry& geometry ) const
+{
+    // Get the dimension of the mesh.
+    rememberValue( moab::ErrorCode error );
+    int dim = 0;
+#if HAVE_DTK_DBC
+    error = d_moab->get_dimension( dim );
+#else
+    d_moab->get_dimension( dim );
+#endif
+    testInvariant( moab::MB_SUCCESS == error );
+
+    // Get the mesh elements.
+    moab::Range elements;
+#if HAVE_DTK_DBC
+    error = d_moab->get_entities_by_dimension( 0, dim, elements );
+#else
+    d_moab->get_entities_by_dimension( 0, dim, elements );
+#endif
+    testInvariant( moab::MB_SUCCESS == error );
+    
+    // Get the elements that are in the geometry.
+    Teuchos::Array<GlobalOrdinal> elements_in_geometry;
+    moab::Range::iterator element_iterator;
+    for ( element_iterator = elements.begin();
+	  element_iterator != elements.end();
+	  ++element_iterator )
+    {
+	if ( TopologyTools::elementInGeometry( 
+		 geometry, *element_iterator, d_moab ) )
+	{
+	    elements_in_geometry.push_back( getNativeOrdinal( *element_iterator ) );
+	}   
+    }
+
+    return elements_in_geometry;
+}
 
 //---------------------------------------------------------------------------//
 // Non-member creation methods.

@@ -41,6 +41,8 @@
 #ifndef DTK_TOPOLOGYTOOLS_HPP
 #define DTK_TOPOLOGYTOOLS_HPP
 
+#include <DTK_BoundingBox.hpp>
+
 #include <MBInterface.hpp>
 
 #include <Teuchos_RCP.hpp>
@@ -67,13 +69,32 @@ class TopologyTools
     ~TopologyTools()
     { /* ... */ }
 
-    // Point in element query.
+    // Point-in-element query.
     static bool pointInElement( Teuchos::Array<double> coords,
 				const moab::EntityHandle element,
 				const Teuchos::RCP<moab::Interface>& moab );
+
+    // Box-element overlap query.
+    static bool boxElementOverlap( const BoundingBox& box,
+				   const moab::EntityHandle element,
+				   const Teuchos::RCP<moab::Interface>& moab );
+
+    // Element-in-geometry query.
+    template<class Geometry>
+    static bool elementInGeometry( const Geometry& geometry,
+				   const moab::EntityHandle element,
+				   const Teuchos::RCP<moab::Interface>& moab );
 };
 
 } // end namepsace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_TopologyTools_def.hpp"
+
+//---------------------------------------------------------------------------//
 
 #endif // end DTK_TOPOLOGYTOOLS_HPP
 

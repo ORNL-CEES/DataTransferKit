@@ -157,7 +157,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	target_ordinals();
     d_target_map = Tpetra::createNonContigMap<GlobalOrdinal>(
 	import_ordinal_view, d_comm );
-    testPostcondition( d_target_map != Teuchos::null );
+    testPostcondition( !d_target_map.is_null() );
 
     // Get the global bounding box for the mesh.
     BoundingBox source_box;
@@ -440,7 +440,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	source_points();
     d_source_map = Tpetra::createNonContigMap<GlobalOrdinal>( 
 	source_points_view, d_comm );
-    testPostcondition( d_source_map != Teuchos::null );
+    testPostcondition( !d_source_map.is_null() );
 
     // Send the rendezvous point coordinates to the source decomposition.
     Tpetra::Export<GlobalOrdinal> rendezvous_to_source_exporter( 
@@ -457,7 +457,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     d_source_to_target_exporter = 
 	Teuchos::rcp( new Tpetra::Export<GlobalOrdinal>(
 			  d_source_map, d_target_map ) );
-    testPostcondition( d_source_to_target_exporter != Teuchos::null );
+    testPostcondition( !d_source_to_target_exporter.is_null() );
 }
 
 //---------------------------------------------------------------------------//

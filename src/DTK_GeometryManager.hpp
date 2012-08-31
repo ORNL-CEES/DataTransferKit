@@ -101,8 +101,12 @@ class GeometryManager
 
     //! Get the local number of objects owned by this manager.
     const typename Teuchos::ArrayRCP<Geometry>::size_type
-    numLocalGeometry() const 
+    localNumGeometry() const 
     { return d_geometry.size(); }
+
+    // Get the global number of objects owned by this manager.
+    const typename Teuchos::ArrayRCP<Geometry>::size_type
+    globalNumGeometry() const;
 
     // Get the bounding boxes for the objects owned by this manager.
     Teuchos::Array<BoundingBox> boundingBoxes() const;
