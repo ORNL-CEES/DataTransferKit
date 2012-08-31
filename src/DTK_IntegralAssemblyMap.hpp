@@ -47,7 +47,6 @@
 #include "DTK_GeometryManager.hpp"
 #include "DTK_ElementMeasure.hpp"
 #include "DTK_FieldIntegrator.hpp"
-#include "DTK_BoundingBox.hpp"
 #include "DTK_CommIndexer.hpp"
 
 #include <Teuchos_RCP.hpp>

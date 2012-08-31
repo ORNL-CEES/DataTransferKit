@@ -153,7 +153,6 @@ Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
 {
     Teuchos::Array<double> point( d_dimension );
     GlobalOrdinal num_points = coords.size() / d_dimension;
-    int rendezvous_proc;
     Teuchos::Array<int> destination_procs( num_points );
     for ( GlobalOrdinal n = 0; n < num_points; ++n )
     {
@@ -161,11 +160,38 @@ Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
 	{
 	    point[d] = coords[ d*num_points + n ];
 	}
-	rendezvous_proc = d_rcb->getPointDestinationProc( point );
-	destination_procs[n] = rendezvous_proc;
+	destination_procs[n] = d_rcb->getPointDestinationProc( point );
     }
 
     return destination_procs;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the rendezvous destination processes for a set of bounding
+ * boxes. 
+ *
+ * \param boxes A list of boxes for which the rendezvous decomposition
+ * destination procs are desired.
+ *
+ * \return A list of rendezvous decomposition procs for each box. A box may
+ * have multiple procs that it spans.
+ */
+template<class Mesh>
+Teuchos::Array<Teuchos::Array<int> > Rendezvous<Mesh>::procsContainingBoxes( 
+    const Teuchos::Array<BoundingBox>& boxes ) const
+{
+    Teuchos::Array<Teuchos::Array<int> > box_procs( boxes.size() );
+    Teuchos::Array<Teuchos::Array<int> >::iterator proc_iterator;
+    Teuchos::Array<BoundingBox>::const_iterator box_iterator;
+    for ( box_iterator = boxes.begin(), proc_iterator = box_procs.begin();
+	  box_iterator != boxes.end();
+	  ++box_iterator, ++proc_iterator )
+    {
+	*proc_iterator = d_rcb->getBoxDestinationProcs( *box_iterator );
+    }
+
+    return box_procs;
 }
 
 //---------------------------------------------------------------------------//

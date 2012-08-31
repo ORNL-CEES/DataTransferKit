@@ -53,6 +53,7 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_as.hpp>
 #include <Teuchos_Ptr.hpp>
+#include <Teuchos_ScalarTraits.hpp>
 
 #include <Tpetra_Import.hpp>
 #include <Tpetra_Distributor.hpp>
@@ -110,12 +111,74 @@ IntegralAssemblyMap<Mesh,Geometry>::~IntegralAssemblyMap()
  * communicator.
  */
 template<class Mesh, class Geometry>
-void SharedDomainMap<Mesh,Geometry>::setup( 
+void IntegralAssemblyMap<Mesh,Geometry>::setup( 
     const RCP_MeshManager& source_mesh_manager, 
     const RCP_ElementMeasure& source_mesh_measure,
     const RCP_GeometryManager& target_geometry_manager )
 {
+    // Create existence values for the managers.
+    bool source_exists = true;
+    if ( source_mesh_manager.is_null() ) source_exists = false;
+    bool target_exists = true;
+    if ( target_geometry_manager.is_null() ) target_exists = false;
+    d_comm->barrier();
 
+    // Create local to global process indexers for the managers.
+    RCP_Comm source_comm;
+    if ( source_exists )
+    {
+	source_comm = source_mesh_manager->comm();
+    }
+    RCP_Comm target_comm;
+    if ( target_exists )
+    {
+	target_comm = target_geometry_manager->comm();
+    }
+    d_comm->barrier();
+    d_source_indexer = CommIndexer( d_comm, source_comm );
+    d_target_indexer = CommIndexer( d_comm, target_comm );
+
+    // Check the source and target dimensions for consistency.
+    if ( source_exists )
+    {
+	testPrecondition( source_mesh_manager->dim() == d_dimension );
+    }
+    d_comm->barrier();
+
+    if ( target_exists )
+    {
+	testPrecondition( target_geometry_manager->dim() == d_dimension );
+    }
+    d_comm->barrier();
+
+    // Compute a unique global ordinal for each geometric object.
+    Teuchos::Array<GlobalOrdinal> target_ordinals;
+    computePointOrdinals( target_geometry_manager, target_ordinals );
+
+    // Build the data import map from the point global ordinals.
+    Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
+	target_ordinals();
+    d_target_map = Tpetra::createNonContigMap<GlobalOrdinal>(
+	import_ordinal_view, d_comm );
+    testPostcondition( d_target_map != Teuchos::null );
+
+    // Build a rendezvous decomposition with the source mesh.
+    BoundingBox global_box( -Teuchos::ScalarTraits<double>::rmax(),
+			    -Teuchos::ScalarTraits<double>::rmax(),
+			    -Teuchos::ScalarTraits<double>::rmax(),
+			    Teuchos::ScalarTraits<double>::rmax(),
+			    Teuchos::ScalarTraits<double>::rmax(),
+			    Teuchos::ScalarTraits<double>::rmax() );
+    Rendezvous<Mesh> rendezvous( d_comm, d_dimension, global_box );
+    rendezvous.build( source_mesh_manager );
+
+    // Get the bounding boxes for the target geometries.
+    Teuchos::Array<BoundingBox> target_boxes = 
+	geometry_manager->boundingBoxes();
+
+    // Determine the rendezvous destination procs for the target geometries.
+    Teuchos::Array<Teuchos::Array<int> > rendezvous_procs = 
+	rendezvous.procsContainingBoxes( target_boxes );
 }
 
 //---------------------------------------------------------------------------//

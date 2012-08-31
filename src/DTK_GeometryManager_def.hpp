@@ -86,6 +86,27 @@ GeometryManager<Geometry>::~GeometryManager()
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Get the bounding boxes for the objects owned by this manager.
+ *
+ * \return The bounding boxes for the geometry owned by this manager.
+ */
+Teuchos::Array<BoundingBox> GeometryManager<Geometry> boundingBoxes() const
+{
+    Teuchos::Array<BoundingBox> boxes( d_geometry.size() );
+    Teuchos::Array<BoundingBox>::iterator box_iterator;
+    typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_iterator;
+    for ( geom_iterator = d_geometry.begin(), box_iterator = boxes.begin();
+	  geom_iterator != d_geometry.end();
+	  ++geom_iterator, ++box_iterator )
+    {
+	*box_iterator = GT::boundingBox( *geom_iterator );
+    }
+
+    return boxes;
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Validate the geometry to the domain model.
  */
 template<class Geometry>

@@ -42,6 +42,7 @@
 #define DTK_GEOMETRYMANAGER_HPP
 
 #include "DTK_GeometryTraits.hpp"
+#include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -102,6 +103,9 @@ class GeometryManager
     const typename Teuchos::ArrayRCP<Geometry>::size_type
     numLocalGeometry() const 
     { return d_geometry.size(); }
+
+    // Get the bounding boxes for the objects owned by this manager.
+    Teuchos::Array<BoundingBox> boundingBoxes() const;
 
   private:
 

@@ -133,7 +133,11 @@ class Rendezvous
     // Get the rendezvous destination processes for a blocked list of vertex
     // coordinates that are in the primary decomposition.
     Teuchos::Array<int> 
-    procsContainingPoints( const Teuchos::ArrayRCP<double> &coords ) const;
+    procsContainingPoints( const Teuchos::ArrayRCP<double>& coords ) const;
+
+    // Get the rendezvous destination processes for a set of bounding boxes.
+    Teuchos::Array<Teuchos::Array<int> >
+    procsContainingBoxes( const Teuchos::Array<BoundingBox>& boxes ) const;
 
     // Get the native mesh elements in the rendezvous decomposition and their
     // source decomposition procs containing a blocked list of coordinates
