@@ -270,7 +270,7 @@ void Rendezvous<Mesh>::elementsInBoxes(
     typename Teuchos::Array<Teuchos::Array<GlobalOrdinal> >::iterator 
 	element_iterator;
     for ( box_iterator = boxes.begin(), element_iterator = elements.begin();
-	  box_iterator != box_iterator.end();
+	  box_iterator != boxes.end();
 	  ++box_iterator, ++element_iterator )
     {
 	*element_iterator = d_rendezvous_mesh->elementsInBox( *box_iterator );
@@ -302,7 +302,7 @@ void Rendezvous<Mesh>::elementsInGeometry(
 	element_iterator;
     for ( geometry_iterator = geometry.begin(), 
 	   element_iterator = elements.begin();
-	  geometry_iterator != geometry_iterator.end();
+	  geometry_iterator != geometry.end();
 	  ++geometry_iterator, ++element_iterator )
     {
 	*element_iterator = 

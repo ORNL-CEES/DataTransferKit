@@ -517,7 +517,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
     // start the integral summations at zero.
     GlobalOrdinal integral_size = d_geometry_measures.size();
     int target_dim;
-    GlobalOrdinal target_size = 0;
+    rememberValue( GlobalOrdinal target_size = 0 );
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(0,0);
     if ( target_exists )
     {
@@ -526,7 +526,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 
 	target_dim = TFT::dim( *target_space_manager->field() );
 
-	target_size = target_dim * integral_size;
+	rememberValue( target_size = target_dim * integral_size );
 
 	FieldTools<TargetField>::putScalar( 
 	    *target_space_manager->field(), 0.0 );
