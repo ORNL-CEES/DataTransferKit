@@ -119,6 +119,16 @@ class FieldTools
     // Get a deep-copy of the field. The arrayRCP object will manage the
     // memory.
     static Teuchos::ArrayRCP<value_type> copy( const Field& field );
+
+    // Get a const view of a dimension of the field. The ArrayRCP object will
+    // not manage the memory.
+    static Teuchos::ArrayRCP<const value_type> dimView( const Field& field,
+							const int dim );
+
+    // Get a non-const view of a dimension of the field. The ArrayRCP object
+    // will not manage the memory.
+    static Teuchos::ArrayRCP<value_type> dimNonConstView( const Field& field,
+							  const int dim );
     //@}
 
 

@@ -167,23 +167,28 @@ class MyIntegrator : public DataTransferKit::FieldIntegrator<
     ~MyIntegrator()
     { /* ... */ }
 
-    // If the global id is valid, then set the element integral to 2.0*(1+rank)
+    // If the global id is valid, then set the element integral to 2.0
     MyField integrate( 
 	const Teuchos::ArrayRCP<
 	    DataTransferKit::MeshContainer<int>::global_ordinal_type>& elements )
     {
-	MyField integrated_data( elements.size(), 1 );
+	int num_elements = elements.size();
+	MyField integrated_data( num_elements, 3 );
 	for ( int n = 0; n < elements.size(); ++n )
 	{
 	    if ( std::find( d_mesh.elementsBegin(),
 			    d_mesh.elementsEnd(),
 			    elements[n] ) != d_mesh.elementsEnd() )
 	    {
-		*(integrated_data.begin() + n ) = 2.0*(d_comm->getRank() + 1.0);
+		*(integrated_data.begin() + n ) = 2.0;
+		*(integrated_data.begin() + n + num_elements) = 2.0;
+		*(integrated_data.begin() + n + 2*num_elements) = 2.0;
 	    }
 	    else
 	    {
- 		*(integrated_data.begin() + n ) = 0.0;
+ 		*(integrated_data.begin() + n ) = 6789.443;
+		*(integrated_data.begin() + n + num_elements) = 6789.443;
+		*(integrated_data.begin() + n + 2*num_elements) = 6789.443;
 	    }
 	}
 	return integrated_data;
@@ -211,7 +216,7 @@ class MyMeasure : public DataTransferKit::ElementMeasure<
     ~MyMeasure()
     { /* ... */ }
 
-    // If the global id is valid, then set the element measure to 1/2, -1/2 if
+    // If the global id is valid, then set the element measure to 1, -1 if
     // invalid.
     Teuchos::Array<double> measure( 
 	const Teuchos::ArrayRCP<
@@ -224,11 +229,11 @@ class MyMeasure : public DataTransferKit::ElementMeasure<
 			    d_mesh.elementsEnd(),
 			    elements[n] ) != d_mesh.elementsEnd() )
 	    {
-		*(measures.begin() + n ) = 0.5;
+		measures[n] = 1.0;
 	    }
 	    else
 	    {
- 		*(measures.begin() + n ) = -0.5;
+ 		measures[n] = -1.0;
 	    }
 	}
 	return measures;
@@ -831,21 +836,28 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
     Teuchos::RCP< MeshManager<MeshType> > source_mesh_manager = Teuchos::rcp(
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
-    // Setup target geometry manager.
+    // Setup target.
     int num_geom = 1;
     int geometry_dim = 3;
-    Teuchos::ArrayRCP<Cylinder> geometry;
-    Teuchos::RCP< GeometryManager<Cylinder> > target_geometry_manager;
+    Teuchos::ArrayRCP<Cylinder> geometry(0);
+    int target_dim = 3;
+    Teuchos::RCP<MyField> target_field;
     if ( my_rank == 0 )
     {
 	geometry = buildCylinderGeometry( my_size, edge_size );
-	target_geometry_manager = 
-	    Teuchos::rcp( new GeometryManager<Cylinder>( 
-			      geometry, comm, geometry_dim ) );
+	target_field = 	Teuchos::rcp( new MyField( num_geom, target_dim ) );
+    }
+    else
+    {
+	target_field = 	Teuchos::rcp( new MyField( 0, target_dim ) );
     }
     comm->barrier();
+    Teuchos::RCP< GeometryManager<Cylinder> > target_geometry_manager = Teuchos::rcp( 
+	new GeometryManager<Cylinder>( geometry, comm, geometry_dim ) );
+    Teuchos::RCP<FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
+	new FieldManager<MyField>( target_field, comm ) );
 
-    // Create field integrator and element measure.
+    // Setup source.
     Teuchos::RCP<FieldIntegrator<MeshType ,MyField> > source_integrator;
     Teuchos::RCP<ElementMeasure<MeshType> > source_mesh_measure;
     if ( my_rank == 0 )
@@ -869,13 +881,6 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
     	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[3], comm ) );
     }
     comm->barrier();
-
-    // Create data target. This target is a scalar.
-    int target_dim = 1;
-    Teuchos::RCP<MyField> target_field =  
-	Teuchos::rcp( new MyField( num_geom, target_dim ) );
-    Teuchos::RCP< FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
-	new FieldManager<MyField>( target_field, comm ) );
 
     // Setup and apply the integral assembly mapping.
     IntegralAssemblyMap<MeshType,Cylinder> integral_assembly_map( 
@@ -946,8 +951,10 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
 
     if ( my_rank == 0 )
     {
-	TEST_ASSERT( (double) num_in_cylinder ==
-		     target_field->getData()[0] );
+	for ( int d = 0; d < target_dim; ++d )
+	{
+	    TEST_ASSERT( 2.0 == target_field->getData()[d] );
+	}
     }
     comm->barrier();
 }
@@ -1011,19 +1018,27 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
     Teuchos::RCP< MeshManager<MeshType> > source_mesh_manager = Teuchos::rcp(
 	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
-    // Setup target geometry manager.
+    // Setup target.
     int num_geom = 1;
     int geometry_dim = 3;
-    Teuchos::ArrayRCP<Box> geometry;
-    Teuchos::RCP< GeometryManager<Box> > target_geometry_manager;
+    Teuchos::ArrayRCP<Box> geometry(0);
+    int target_dim = 3;
+    Teuchos::RCP<MyField> target_field;
     if ( my_rank == 0 )
     {
 	geometry = buildBoxGeometry( my_size, edge_size );
-	target_geometry_manager = 	
-	    Teuchos::rcp( new GeometryManager<Box>( 
-			      geometry, comm, geometry_dim ) );
+	target_field = 	Teuchos::rcp( new MyField( num_geom, target_dim ) );
+    }
+    else
+    {
+	target_field = 	Teuchos::rcp( new MyField( 0, target_dim ) );
     }
     comm->barrier();
+    Teuchos::RCP< GeometryManager<Box> > target_geometry_manager =
+	Teuchos::rcp( new GeometryManager<Box>( 
+			  geometry, comm, geometry_dim ) );
+    Teuchos::RCP<FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
+	new FieldManager<MyField>( target_field, comm ) );
 
     // Create field integrator and element measure.
     Teuchos::RCP< FieldIntegrator<MeshType ,MyField> > source_integrator;
@@ -1051,12 +1066,6 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
     comm->barrier();
 
     // Create data target. This target is a scalar.
-    int target_dim = 1;
-    Teuchos::RCP<MyField> target_field =  
-	Teuchos::rcp( new MyField( num_geom, target_dim ) );
-    Teuchos::RCP< FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
-	new FieldManager<MyField>( target_field, comm ) );
-
     // Setup and apply the integral assembly mapping.
     IntegralAssemblyMap<MeshType,Box> integral_assembly_map( 
 	comm, source_mesh_manager->dim() );
@@ -1069,8 +1078,10 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
     // be the global number of mesh elements. 
     if ( my_rank == 0 )
     {
-	TEST_ASSERT( (double) source_mesh_manager->globalNumElements() ==
-		     target_field->getData()[0] );
+	for ( int d = 0; d < target_dim; ++d )
+	{
+	    TEST_ASSERT( 2.0 == target_field->getData()[d] );
+	}
     }
     comm->barrier();
 }

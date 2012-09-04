@@ -42,7 +42,6 @@
 #define DTK_INTEGRALASSEMBLYMAP_HPP
 
 #include <map>
-#include <set>
 
 #include "DTK_MeshTraits.hpp"
 #include "DTK_MeshManager.hpp"
@@ -167,7 +166,7 @@ class IntegralAssemblyMap
 
     // Source element local ordinals that construct the local geometry
     // integral. 
-    Teuchos::Array<std::set<GlobalOrdinal> > d_integral_elements;
+    Teuchos::Array<Teuchos::Array<GlobalOrdinal> > d_integral_elements;
 
     // Global-to-local ordinal map for the target geometry in the target
     // decomposition. 

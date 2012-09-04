@@ -194,6 +194,7 @@ FieldTools<Field>::nonConstView( const Field& field )
     }
 }
 
+//---------------------------------------------------------------------------//
 /*!
  * \brief Get a deep-copy of the field. The arrayRCP object will manage the
  * memory.
@@ -215,6 +216,66 @@ FieldTools<Field>::copy( const Field& field )
 	Teuchos::ArrayRCP<value_type> field_copy( FT::size(field) );
 	std::copy( FT::begin(field), FT::end(field), field_copy.begin() );
 	return field_copy;
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a const view of a dimension of the field. The ArrayRCP object
+ * will not manage the memory.
+ *
+ * \param field The field to get a view of.
+ *
+ * \param dim The dimension to get a view of.
+ *
+ * \return A const view of the field.
+ */
+template<class Field>
+Teuchos::ArrayRCP<const typename FieldTools<Field>::value_type>
+FieldTools<Field>::dimView( const Field& field, const int dim )
+{
+    testPrecondition( FT::dim( field ) > 0 );
+    testPrecondition( dim >= 0 && dim < FT::dim( field ) );
+
+    if ( FT::empty(field) )
+    {
+	return Teuchos::ArrayRCP<value_type>(0,0);
+    }
+    else
+    {
+	size_type dim_size = dimSize( field );
+	Teuchos::ArrayRCP<const value_type> field_view = view( field );
+	return field_view.persistingView( dim*dim_size, dim_size );
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get a non-const view of a dimension of the field. The ArrayRCP
+ * object will not manage the memory.
+ *
+ * \param field The field to get a view of.
+ *
+ * \param dim The dimension to get a view of.
+ *
+ * \return A non-const view of the field.
+ */
+template<class Field>
+Teuchos::ArrayRCP<typename FieldTools<Field>::value_type>
+FieldTools<Field>::dimNonConstView( const Field& field, const int dim )
+{
+    testPrecondition( FT::dim( field ) > 0 );
+    testPrecondition( dim >= 0 && dim < FT::dim( field ) );
+
+    if ( FT::empty(field) )
+    {
+	return Teuchos::ArrayRCP<value_type>(0,0);
+    }
+    else
+    {
+	size_type dim_size = dimSize( field );
+	Teuchos::ArrayRCP<const value_type> field_view = view( field );
+	return field_view.persistingView( dim*dim_size, dim_size );
     }
 }
 
