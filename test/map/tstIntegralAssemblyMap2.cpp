@@ -283,7 +283,7 @@ buildTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     // Make the tetrahedrons. 
     int num_elements = (edge_length-1)*(edge_length-1)*5;
     Teuchos::ArrayRCP<unsigned int> tet_handles( num_elements );
-    Teuchos::ArrayRCP<int> tet_connectivity( 4*num_elements );
+    Teuchos::ArrayRCP<unsigned int> tet_connectivity( 4*num_elements );
     int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7;
     for ( int j = 0; j < (edge_length-1); ++j )
@@ -362,7 +362,7 @@ Teuchos::RCP<DataTransferKit::MeshContainer<unsigned int> > buildNullTetMesh()
     Teuchos::ArrayRCP<unsigned int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
     Teuchos::ArrayRCP<unsigned int> tet_handles(0);
-    Teuchos::ArrayRCP<int> tet_connectivity(0);
+    Teuchos::ArrayRCP<unsigned int> tet_connectivity(0);
     Teuchos::ArrayRCP<int> permutation_list(4);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
@@ -412,7 +412,7 @@ buildHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     // Make the hexahedrons. 
     int num_elements = (edge_length-1)*(edge_length-1);
     Teuchos::ArrayRCP<unsigned int> hex_handles( num_elements );
-    Teuchos::ArrayRCP<int> hex_connectivity( 8*num_elements );
+    Teuchos::ArrayRCP<unsigned int> hex_connectivity( 8*num_elements );
     int elem_idx, vertex_idx;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
@@ -469,7 +469,7 @@ buildNullHexMesh()
     Teuchos::ArrayRCP<unsigned int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
     Teuchos::ArrayRCP<unsigned int> hex_handles(0);
-    Teuchos::ArrayRCP<int> hex_connectivity(0);
+    Teuchos::ArrayRCP<unsigned int> hex_connectivity(0);
     Teuchos::ArrayRCP<int> permutation_list(8);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
@@ -530,7 +530,7 @@ buildPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     // Make the pyramids. 
     int num_elements = (edge_length-1)*(edge_length-1)*6;
     Teuchos::ArrayRCP<unsigned int> pyr_handles( num_elements );
-    Teuchos::ArrayRCP<int> pyr_connectivity( 5*num_elements );
+    Teuchos::ArrayRCP<unsigned int> pyr_connectivity( 5*num_elements );
     int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7, v8;
     for ( int j = 0; j < (edge_length-1); ++j )
@@ -624,7 +624,7 @@ Teuchos::RCP<DataTransferKit::MeshContainer<unsigned int> > buildNullPyramidMesh
     Teuchos::ArrayRCP<unsigned int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
     Teuchos::ArrayRCP<unsigned int> pyramid_handles(0);
-    Teuchos::ArrayRCP<int> pyramid_connectivity(0);
+    Teuchos::ArrayRCP<unsigned int> pyramid_connectivity(0);
     Teuchos::ArrayRCP<int> permutation_list(5);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
@@ -674,7 +674,7 @@ buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     // Make the wedges. 
     int num_elements = (edge_length-1)*(edge_length-1)*2;
     Teuchos::ArrayRCP<unsigned int> wedge_handles( num_elements );
-    Teuchos::ArrayRCP<int> wedge_connectivity( 6*num_elements );
+    Teuchos::ArrayRCP<unsigned int> wedge_connectivity( 6*num_elements );
     int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7;
     for ( int j = 0; j < (edge_length-1); ++j )
@@ -733,7 +733,7 @@ Teuchos::RCP<DataTransferKit::MeshContainer<unsigned int> > buildNullWedgeMesh()
     Teuchos::ArrayRCP<unsigned int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
     Teuchos::ArrayRCP<unsigned int> wedge_handles(0);
-    Teuchos::ArrayRCP<int> wedge_connectivity(0);
+    Teuchos::ArrayRCP<unsigned int> wedge_connectivity(0);
     Teuchos::ArrayRCP<int> permutation_list(6);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
@@ -908,9 +908,9 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
 	MeshTools<MeshType>::coordsView( *mesh_blocks[my_rank] );
     int vertices_per_element = MT::verticesPerElement( *mesh_blocks[my_rank] );
     int num_elements = MeshTools<MeshType>::numElements( *mesh_blocks[my_rank] );
-    Teuchos::ArrayRCP<const int> connectivity = 
+    Teuchos::ArrayRCP<const unsigned int> connectivity = 
 	MeshTools<MeshType>::connectivityView( *mesh_blocks[my_rank] );
-    Teuchos::ArrayRCP<const int> elements = 
+    Teuchos::ArrayRCP<const unsigned int> elements = 
 	MeshTools<MeshType>::elementsView( *mesh_blocks[my_rank] );
 
     std::map<int,int> element_g2l;

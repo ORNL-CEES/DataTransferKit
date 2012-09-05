@@ -61,6 +61,8 @@
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_MultiVector_decl.hpp>
 #include <Tpetra_MultiVector_def.hpp>
+#include <Tpetra_Vector_decl.hpp>
+#include <Tpetra_Vector_def.hpp>
 
 namespace DataTransferKit
 {
@@ -428,10 +430,10 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
     // Communicate the element measures from the source to the target.
     Teuchos::Array<double> source_measures = 
 	source_mesh_measure->measure( Teuchos::arcpFromArray( d_source_elements ) );
-    Teuchos::RCP<Tpetra::Vector<double> > source_vector = 
+    Teuchos::RCP<Tpetra::Vector<double,GlobalOrdinal> > source_vector = 
 	Tpetra::createVectorFromView( 
 	    d_source_map, Teuchos::arcpFromArray( source_measures ) );
-    Teuchos::RCP<Tpetra::Vector<double> > target_vector =
+    Teuchos::RCP<Tpetra::Vector<double,GlobalOrdinal> > target_vector =
 	Tpetra::createVectorFromView( 
 	    d_target_map, Teuchos::arcpFromArray( d_integral_element_measures ) );
     target_vector->doExport( *source_vector, *d_source_to_target_exporter,
@@ -509,7 +511,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 
     // Build a multivector for the function integrations.
     GlobalOrdinal source_size = source_field_copy.size() / source_dim;
-    Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type, GlobalOrdinal> > 
+    Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type,GlobalOrdinal> > 
 	source_vector = Tpetra::createMultiVectorFromView( 
 	    d_source_map, source_field_copy, source_size, source_dim );
 
@@ -543,7 +545,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 
     // Build a multivector for the function integrations in the target
     // decomposition.
-    Tpetra::MultiVector<typename TFT::value_type, GlobalOrdinal> 
+    Tpetra::MultiVector<typename TFT::value_type,GlobalOrdinal> 
 	target_vector( d_target_map, target_dim );
 
     // Export the function integrations.
