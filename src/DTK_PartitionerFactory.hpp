@@ -45,7 +45,7 @@
 #include "DTK_MeshManager.hpp"
 #include "DTK_SerialPartitioner.hpp"
 
-#ifdef HAVE_MPI
+#ifdef HAVE_DTK_MPI
 #include "DTK_RCB.hpp"
 #endif
 
@@ -90,7 +90,7 @@ Teuchos::RCP<Partitioner> PartitionerFactory::create(
     const Teuchos::RCP<MeshManager<Mesh> > mesh_manager,
     const int dimension )
 {
-#ifdef HAVE_MPI
+#ifdef HAVE_DTK_MPI
     return Teuchos::rcp( new RCB<Mesh>( comm, mesh_manager, dimension ) );
 #else
     return Teuchos::rcp( new SerialPartitioner() );

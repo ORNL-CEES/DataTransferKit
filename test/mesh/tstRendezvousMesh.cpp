@@ -22,7 +22,6 @@
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
@@ -695,7 +694,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_mesh_test )
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 1 );
     TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+
     TEST_ASSERT( mesh_manager.dim() == 1 );
 
     // Create a rendezvous mesh.
@@ -764,7 +765,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_mesh_test )
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 2 );
     TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+
     TEST_ASSERT( mesh_manager.dim() == 2 );
 
     // Create a rendezvous mesh.
@@ -831,7 +834,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_mesh_test )
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 2 );
     TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+
     TEST_ASSERT( mesh_manager.dim() == 2 );
 
     // Create a rendezvous mesh.
@@ -897,7 +902,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_mesh_test )
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
     TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+
     TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Create a rendezvous mesh.
@@ -963,7 +970,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_mesh_test )
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
     TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+
     TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Create a rendezvous mesh.
@@ -1029,7 +1038,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_mesh_test )
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
     TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+
     TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Create a rendezvous mesh.
@@ -1095,7 +1106,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_mesh_test )
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
     TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+
     TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Create a rendezvous mesh.
@@ -1161,7 +1174,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_rendezvous_mesh_test )
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
     TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+
     TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Create a rendezvous mesh.
@@ -1228,7 +1243,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_mesh_test )
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 2 );
     TEST_ASSERT( mesh_manager.getNumBlocks() == 2 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+
     TEST_ASSERT( mesh_manager.dim() == 2 );
 
     // Create a rendezvous mesh.
@@ -1314,7 +1331,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_mesh_test )
     // Create a mesh manager.
     MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
     TEST_ASSERT( mesh_manager.getNumBlocks() == 3 );
-    TEST_ASSERT( mesh_manager.comm() == getDefaultComm<int>() );
+    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
+    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+
     TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Create a rendezvous mesh.

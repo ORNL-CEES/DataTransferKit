@@ -43,7 +43,6 @@
 #include "DTK_CommTools.hpp"
 
 #include <Teuchos_Array.hpp>
-#include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_DefaultComm.hpp>

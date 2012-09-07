@@ -19,12 +19,23 @@ TRIBITS_PACKAGE(DataTransferKit)
 ## B) Set up package-specific options
 ##---------------------------------------------------------------------------##
 
+# Design-by-Contract
 TRIBITS_ADD_OPTION_AND_DEFINE(
 	DataTransferKit_ENABLE_DBC
 	HAVE_DTK_DBC
 	"Enable Design-by-Contract checks. WARNING: use for debug checking but disable for production runs as it incurs a significant overhead."
 	OFF
 )
+
+# If Zoltan and MPI must BOTH be enabled to function in parallel. Therefore 
+# here we turn off MPI support for DataTransferKit explicitly if both are
+# not enabled.
+IF( ${PACKAGE_NAME}_ENABLE_MPI AND ${PROJECT_NAME}_ENABLE_Zoltan )
+  GLOBAL_SET( HAVE_DTK_MPI ON )
+ELSE()
+  GLOBAL_SET( HAVE_DTK_MPI OFF )
+  SET( ${PACKAGE_NAME}_ENABLE_MPI OFF )
+ENDIF()
 
 TRIBITS_ADD_DEBUG_OPTION()
 
