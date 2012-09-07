@@ -49,6 +49,7 @@
 #include "DTK_Assertion.hpp"
 #include "DTK_CommIndexer.hpp"
 #include "DTK_MeshTypes.hpp"
+#include "DTK_PartitionerFactory.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ArrayView.hpp>
@@ -113,11 +114,12 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 	getMeshInBox( mesh_manager );
     }
 
-    // Construct the rendezvous partitioning for the mesh with RCB using the
+    // Construct the rendezvous partitioning for the mesh using the
     // vertices that are in the box.
-    d_rcb = Teuchos::rcp( new RCB<Mesh>( d_comm, mesh_manager, d_dimension ) );
-    testPostcondition( !d_rcb.is_null() );
-    d_rcb->partition();
+    d_partitioner = 
+	PartitionerFactory::create( d_comm, mesh_manager, d_dimension );
+    testPostcondition( !d_partitioner.is_null() );
+    d_partitioner->partition();
 
     // Send the mesh in the box to the rendezvous decomposition and build the
     // concrete mesh blocks.
@@ -160,7 +162,7 @@ Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
 	{
 	    point[d] = coords[ d*num_points + n ];
 	}
-	destination_procs[n] = d_rcb->getPointDestinationProc( point );
+	destination_procs[n] = d_partitioner->getPointDestinationProc( point );
     }
 
     return destination_procs;
@@ -188,7 +190,7 @@ Teuchos::Array<Teuchos::Array<int> > Rendezvous<Mesh>::procsContainingBoxes(
 	  box_iterator != boxes.end();
 	  ++box_iterator, ++proc_iterator )
     {
-	*proc_iterator = d_rcb->getBoxDestinationProcs( *box_iterator );
+	*proc_iterator = d_partitioner->getBoxDestinationProcs( *box_iterator );
     }
 
     return box_procs;
@@ -435,8 +437,9 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 	}
 	testInvariant( (GlobalOrdinal) elements_in_box.size() == num_elements );
 
-	// Get the vertices that belong to the elements in the box, but are not
-	// necessarily in the box themselves. These will also be used in RCB.
+	// Get the vertices that belong to the elements in the box, but are
+	// not necessarily in the box themselves. These will also be used in
+	// partitioning.
 	for ( GlobalOrdinal n = 0; n < num_elements; ++n )
 	{
 	    if ( elements_in_box[n] )
@@ -778,7 +781,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
 		    vertex_coords[d] = 
 			mesh_coords[ d*num_vertices + vertex_index ];
 		}
-		destination_proc = d_rcb->getPointDestinationProc( vertex_coords );
+		destination_proc = 
+		    d_partitioner->getPointDestinationProc( vertex_coords );
 		export_element_procs_set[n].insert( destination_proc );
 	    }
 	}
@@ -863,7 +867,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // Now get the destination procs for all the vertices. This will be the
     // same destination procs as all of their parent elements. Therefore,
     // vertices may then also have to go to multiple procs because of this and
-    // these procs may be different than their original RCB procs.
+    // these procs may be different than their original rendezvous procs.
     GlobalOrdinal element_index;
     typename Teuchos::Array<GlobalOrdinal>::const_iterator 
 	export_elements_iterator;

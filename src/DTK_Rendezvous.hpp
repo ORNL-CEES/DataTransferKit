@@ -47,7 +47,7 @@
 #include "DTK_RendezvousMesh.hpp"
 #include "DTK_MeshContainer.hpp"
 #include "DTK_KDTree.hpp"
-#include "DTK_RCB.hpp"
+#include "DTK_Partitioner.hpp"
 #include "DTK_BoundingBox.hpp"
 #include "DTK_MeshTraits.hpp"
 
@@ -97,7 +97,6 @@ namespace DataTransferKit
 template<class Mesh>
 class Rendezvous
 {
-    
   public:
 
     //@{
@@ -112,8 +111,7 @@ class Rendezvous
     typedef Teuchos::RCP<RendezvousMeshType>            RCP_RendezvousMesh;
     typedef KDTree<GlobalOrdinal>                       KDTreeType;
     typedef Teuchos::RCP<KDTreeType>                    RCP_KDTree;
-    typedef RCB<Mesh>                                   RCBType;
-    typedef Teuchos::RCP<RCBType>                       RCP_RCB;
+    typedef Teuchos::RCP<Partitioner>                   RCP_Partitioner;
     typedef Teuchos::Comm<int>                          CommType;
     typedef Teuchos::RCP<const CommType>                RCP_Comm;
     typedef Tpetra::Map<GlobalOrdinal>                  TpetraMap;
@@ -206,7 +204,7 @@ class Rendezvous
     int d_vertex_dim;
 
     // Rendezvous partitioning.
-    RCP_RCB d_rcb;
+    RCP_Partitioner d_partitioner;
 
     // Rendezvous mesh element to source proc map.
     std::map<GlobalOrdinal,int> d_element_src_procs_map;

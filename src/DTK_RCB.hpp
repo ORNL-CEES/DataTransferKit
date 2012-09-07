@@ -43,6 +43,7 @@
 
 #include <set>
 
+#include "DTK_Partitioner.hpp"
 #include "DTK_BoundingBox.hpp"
 #include "DTK_MeshTraits.hpp"
 #include "DTK_MeshManager.hpp"
@@ -65,9 +66,8 @@ namespace DataTransferKit
  */
 //---------------------------------------------------------------------------//
 template<class Mesh>
-class RCB
+class RCB : public Partitioner
 {
-
   public:
     
     //@{

@@ -53,12 +53,15 @@ APPEND_SET(HEADERS
   DTK_MeshTraits.hpp
   DTK_MeshTraitsFieldAdapter.hpp
   DTK_MeshTypes.hpp
+  DTK_Partitioner.hpp
+  DTK_PartitionerFactory.hpp
   DTK_RCB.hpp
   DTK_RCB_def.hpp
   DTK_Rendezvous.hpp
   DTK_Rendezvous_def.hpp
   DTK_RendezvousMesh.hpp
   DTK_RendezvousMesh_def.hpp
+  DTK_SerialPartitioner.hpp
   DTK_SharedDomainMap.hpp
   DTK_SharedDomainMap_def.hpp
   DTK_TopologyTools.hpp
@@ -76,6 +79,7 @@ APPEND_SET(SOURCES
   DTK_KDTree.cpp
   DTK_MeshContainer.cpp
   DTK_RendezvousMesh.cpp
+  DTK_SerialPartitioner.cpp
   DTK_TopologyTools.cpp
   )
 
