@@ -1,0 +1,24 @@
+/*! \mainpage Data Transfer Kit
+   
+ \section DTK_outline Outline
+    
+ - \ref DTK_intro
+ - \ref DTK_contributors
+ - \ref DTK_overview
+ 
+ \section DTK_intro Introduction
+ 
+ The Data Transfer Kit (DTK) provides parallel mesh searching and field
+ mapping services for arbitrary physics codes based on the concept of 
+ geometric rendezevous.
+ 
+ \section DTK_contributors DTK Contributors
+ 
+ The following people have contributed to the development of DTK:
+   - Stuart Slattery, University of Wisconsin - Madison, sslattery@wisc.edu
+ 
+ \section DTK_overview Overview of DTK
+
+
+
+ */
