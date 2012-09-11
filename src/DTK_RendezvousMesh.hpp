@@ -76,11 +76,11 @@ class RendezvousMesh
     //! Typedefs.
     typedef GlobalOrdinal                               global_ordinal_type;
     typedef Teuchos::RCP<moab::Interface>               RCP_Moab;
-    typedef std::map<moab::EntityHandle,GlobalOrdinal>  HandleMap;
+    typedef std::map<moab::EntityHandle,GlobalOrdinal>  OrdinalMap;
     //@}
 
     // Constructor.
-    RendezvousMesh( const RCP_Moab& moab, const HandleMap& handle_map );
+    RendezvousMesh( const RCP_Moab& moab, const OrdinalMap& ordinal_map );
 
     // Destructor.
     ~RendezvousMesh();
@@ -89,11 +89,11 @@ class RendezvousMesh
     const RCP_Moab& getMoab() const
     { return d_moab; }
 
-    //! Given a moab element handle return the corresponding native element
+    //! Given a moab element ordinal return the corresponding native element
     // global ordinal.
     GlobalOrdinal 
-    getNativeOrdinal( const moab::EntityHandle& moab_handle ) const
-    { return d_handle_map.find( moab_handle )->second; }
+    getNativeOrdinal( const moab::EntityHandle& moab_ordinal ) const
+    { return d_ordinal_map.find( moab_ordinal )->second; }
 
     // Given a bounding box return the native element ordinals that are in
     // the box.
@@ -111,8 +111,8 @@ class RendezvousMesh
     //! Moab interface implementation.
     RCP_Moab d_moab;
 
-    //! Moab element handle to native element handle map.
-    HandleMap d_handle_map;
+    //! Moab element ordinal to native element ordinal map.
+    OrdinalMap d_ordinal_map;
 };
 
 //---------------------------------------------------------------------------//

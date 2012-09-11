@@ -61,7 +61,8 @@ namespace DataTransferKit
  * \param comm The communicator over which the field is defined.
  */
 template<class Field>
-FieldManager<Field>::FieldManager( const RCP_Field& field, const RCP_Comm& comm )
+FieldManager<Field>::FieldManager( const RCP_Field& field, 
+				   const RCP_Comm& comm )
     : d_field( field )
     , d_comm( comm )
 {

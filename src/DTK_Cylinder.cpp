@@ -100,8 +100,8 @@ Cylinder::~Cylinder()
  * \param coords Cartesian coordinates to check for point inclusion. The
  * coordinates must have a dimension of 3.
  *
- * \return Return true if the point is in the cylinder, false if not. A point on
- * the cylinder boundary will return true.
+ * \return Return true if the point is in the cylinder, false if not. A point
+ * on the cylinder boundary will return true.
  */
 bool Cylinder::pointInCylinder( const Teuchos::Array<double>& coords ) const
 {
@@ -141,12 +141,12 @@ Teuchos::Array<double> Cylinder::centroid() const
 /*!
  * \brief Compute the volume of the cylinder given its dimension.
  *
- * \param dim The dimension of the cylinder we want to compute the volume for. We
- * need this because the cylinder always stores all 3 dimensions. Lower dimension
- * cylinderes are resolved with higher dimensions set to +/-
- * Teuchos::ScalarTraits<double>::rmax(). For dim = 1, only the x dimension is
- * used. For dim = 2, the x and y dimensions are used. For dim = 3, the x, y,
- * and z dimensions are used.
+ * \param dim The dimension of the cylinder we want to compute the volume
+ * for. We need this because the cylinder always stores all 3
+ * dimensions. Lower dimension cylinderes are resolved with higher dimensions
+ * set to +/- Teuchos::ScalarTraits<double>::rmax(). For dim = 1, only the x
+ * dimension is used. For dim = 2, the x and y dimensions are used. For dim =
+ * 3, the x, y, and z dimensions are used.
  *
  * \return Return the volume of the cylinder.
  */

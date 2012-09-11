@@ -42,6 +42,7 @@
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_as.hpp>
 
 namespace DataTransferKit
 {
@@ -79,7 +80,7 @@ CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
 
     Teuchos::reduceAll<int,int>( *global_comm,
     				 Teuchos::REDUCE_SUM, 
-    				 (int) in_local.size(),
+    				 Teuchos::as<int>(in_local.size()),
     				 &in_local[0], 
     				 &in_local[0]);
 
@@ -87,7 +88,7 @@ CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
     local_ids[ global_rank ] = local_rank;
     Teuchos::reduceAll<int,int>( *global_comm,
 				 Teuchos::REDUCE_SUM, 
-				 (int) local_ids.size(),
+				 Teuchos::as<int>(local_ids.size()),
 				 &local_ids[0], 
 				 &local_ids[0]);
 
@@ -95,7 +96,7 @@ CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
     global_ids[ global_rank ] = global_rank;
     Teuchos::reduceAll<int,int>( *global_comm,
 				 Teuchos::REDUCE_SUM, 
-				 (int) global_ids.size(),
+				 Teuchos::as<int>(global_ids.size()),
 				 &global_ids[0], 
 				 &global_ids[0]);
 

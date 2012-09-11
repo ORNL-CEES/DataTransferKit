@@ -55,6 +55,7 @@
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_Ptr.hpp>
+#include <Teuchos_as.hpp>
 
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_Export.hpp>
@@ -409,7 +410,8 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 	    vertices_in_box.push_back( 
 		d_global_box.pointInBox( vertex_coords ) );
 	}
-	testInvariant( (GlobalOrdinal) vertices_in_box.size() == num_vertices );
+	testInvariant( Teuchos::as<GlobalOrdinal>(vertices_in_box.size()) 
+		       == num_vertices );
 
 	// For those vertices that are in the box, get the elements that they
 	// construct. These elements are in the box.
@@ -435,7 +437,8 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 	    }
 	    elements_in_box.push_back( this_element_in_box );
 	}
-	testInvariant( (GlobalOrdinal) elements_in_box.size() == num_elements );
+	testInvariant( Teuchos::as<GlobalOrdinal>(elements_in_box.size())
+		       == num_elements );
 
 	// Get the vertices that belong to the elements in the box, but are
 	// not necessarily in the box themselves. These will also be used in
@@ -635,11 +638,11 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 				     &permutation_list[0] );
 
 	// broadcast the element topology.
-	int block_topology;
+	int block_topology = 0;
 	if ( mesh_exists )
 	{
 	    block_topology = 
-		(int) MT::elementTopology( *current_block );
+		static_cast<int>(MT::elementTopology( *current_block ));
 	}
 	d_comm->barrier();
 	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0),
@@ -664,7 +667,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 			      d_dimension,
 			      rendezvous_vertices_array,
 			      import_coords.get1dView(),
-			      (DTK_ElementTopology) block_topology,
+			      static_cast<DTK_ElementTopology>(block_topology),
 			      vertices_per_element,
 			      rendezvous_elements_array,
 			      import_conn.get1dView(),

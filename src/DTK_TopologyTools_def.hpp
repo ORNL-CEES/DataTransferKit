@@ -45,6 +45,8 @@
 #include "DTK_Assertion.hpp"
 #include "DataTransferKit_config.hpp"
 
+#include <Teuchos_as.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -114,7 +116,7 @@ bool TopologyTools::elementInGeometry(
 	}
     }
 
-    // If no vertex inclusion, no point inclusion.
+    // If no vertex inclusion, no geometry inclusion.
     return false;
 }
 

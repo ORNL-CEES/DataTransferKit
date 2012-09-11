@@ -54,8 +54,8 @@ namespace DataTransferKit
  * validate the geometry description to the domain model. This requires a few
  * global communications.
  *
- * \param geometry The geometry that this object is managing. This geometry must have
- * GeometryTraits.
+ * \param geometry The geometry that this object is managing. This geometry
+ * must have GeometryTraits.
  * 
  * \param comm The communicator over which the geometry is defined.
  *

@@ -80,8 +80,8 @@ class ElementMeasure
     { /* ... */ }
 
     /*!
-     * \brief Get the measures of the given elements and return the measures in
-     * a FieldTraits container.
+     * \brief Get the measures of the given elements and return the measures
+     * in a FieldTraits container.
      *
      * \param elements A vector of locally valid element global ordinals to
      * get the measures for.

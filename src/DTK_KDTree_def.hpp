@@ -48,6 +48,7 @@
 #include "DataTransferKit_config.hpp"
 
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_as.hpp>
 
 #include <MBRange.hpp>
 
@@ -171,7 +172,7 @@ void KDTree<GlobalOrdinal>::findLeaf( const Teuchos::Array<double>& coords,
 				      Teuchos::Array<GlobalOrdinal>& elements )
 {
     testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
-    testPrecondition( (int) coords.size() == d_dim );
+    testPrecondition( Teuchos::as<int>(coords.size()) == d_dim );
 
     double point[3];
     for ( int d = 0; d < d_dim; ++d )
@@ -239,7 +240,7 @@ bool KDTree<GlobalOrdinal>::findPointInLeaf(
     moab::EntityHandle& element )
 {
     testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
-    testPrecondition( (int) coords.size() == d_dim );
+    testPrecondition( Teuchos::as<int>(coords.size()) == d_dim );
 
     // Get the elements in the leaf.
     rememberValue( moab::ErrorCode error );

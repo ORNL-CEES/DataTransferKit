@@ -215,7 +215,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     Teuchos::Array<GlobalOrdinal> targets_in_box;
     if ( target_exists )
     {
-	getTargetPointsInBox( rendezvous.getBox(), *target_coord_manager->field(),
+	getTargetPointsInBox( rendezvous.getBox(), 
+			      *target_coord_manager->field(),
 			      target_ordinals, targets_in_box );
     }
     d_comm->barrier();
@@ -574,8 +575,8 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     if ( target_exists )
     {
 	testPrecondition( 
-	    target_size == 
-	    (typename TFT::size_type) d_target_map->getNodeNumElements() );
+	    target_size == Teuchos::as<typename TFT::size_type>(
+		d_target_map->getNodeNumElements()) );
     }
     d_comm->barrier();
     

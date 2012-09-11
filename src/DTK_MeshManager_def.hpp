@@ -291,7 +291,7 @@ void MeshManager<Mesh>::validate()
 	// Check that this block has the same topology on all nodes.
 	Teuchos::Array<int> local_topo( d_comm->getSize(), 0 );
 	local_topo[ d_comm->getRank() ] = 
-	    (int) MT::elementTopology( *(*block_iterator) );
+	    Teuchos::as<int>(MT::elementTopology( *(*block_iterator) ));
 	Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
 				     local_topo.size(),
 				     &local_topo[0], &local_topo[0] ); 

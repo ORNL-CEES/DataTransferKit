@@ -50,6 +50,7 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_Ptr.hpp>
+#include <Teuchos_as.hpp>
 
 namespace DataTransferKit
 {
@@ -190,7 +191,8 @@ FieldTools<Field>::nonConstView( const Field& field )
     else
     {
 	return Teuchos::ArrayRCP<value_type>(
-	    (value_type*) &*FT::begin( field ), 0, FT::size( field ), false );
+	    const_cast<value_type*>(&*FT::begin( field )), 0, 
+	    FT::size( field ), false );
     }
 }
 
@@ -307,7 +309,7 @@ template<class Field>
 void FieldTools<Field>::putScalar( 
     Field& field, const Teuchos::ArrayView<value_type>& scalars )
 {
-    testInvariant( FT::dim( field ) == (int) scalars.size() );
+    testInvariant( FT::dim( field ) == Teuchos::as<int>(scalars.size()) );
     for ( int d = 0; d < FT::dim( field ); ++d )
     {
 	std::fill( dimBegin( field, d ), dimEnd( field, d ), scalars[d] );
@@ -348,7 +350,7 @@ template<class Field>
 void FieldTools<Field>::scale( Field& field, 
 			       const Teuchos::ArrayView<value_type>& scalars )
 {
-    testPrecondition( FT::dim( field ) == (int) scalars.size() );
+    testPrecondition( FT::dim( field ) == Teuchos::as<int>(scalars.size()) );
     iterator dim_iterator;
     for ( int d = 0; d < FT::dim( field ); ++d )
     {
