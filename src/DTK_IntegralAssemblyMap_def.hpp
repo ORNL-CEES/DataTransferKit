@@ -437,9 +437,12 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
     testPostcondition( !d_source_to_target_exporter.is_null() );
 
     // Communicate the element measures from the source to the target.
-    Teuchos::Array<double> source_measures = 
-	source_mesh_measure->measure( 
+    Teuchos::Array<double> source_measures(0);
+    if ( source_exists )
+    {
+	source_measures = source_mesh_measure->measure( 
 	    Teuchos::arcpFromArray( d_source_elements ) );
+    }
     Teuchos::RCP<Tpetra::Vector<double,GlobalOrdinal> > source_vector = 
 	Tpetra::createVectorFromView( 
 	    d_source_map, Teuchos::arcpFromArray( source_measures ) );
