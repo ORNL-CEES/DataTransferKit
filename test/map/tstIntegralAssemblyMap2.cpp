@@ -2,7 +2,7 @@
 /*!
  * \file tstIntegralAssemblyMap1.cpp
  * \author Stuart R. Slattery
- * \brief Integral assembly map unit test 2.
+ * \brief Integral assembly map unit test 2 for unsigned ordinals.
  */
 //---------------------------------------------------------------------------//
 
