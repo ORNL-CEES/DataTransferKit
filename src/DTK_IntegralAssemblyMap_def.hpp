@@ -336,6 +336,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 
     // Build a unique list of element ordinals in the target decomposition.
     typename Teuchos::Array<GlobalOrdinal>::iterator mapped_element_bound;
+    std::sort( mapped_target_elements.begin(), mapped_target_elements.end() );
     mapped_element_bound = std::unique( mapped_target_elements.begin(),
 					mapped_target_elements.end() );
     mapped_target_elements.resize( 
@@ -389,12 +390,14 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 
     // Allocate space for the element measures and get rid of the target
     // elements.
-    Teuchos::Array<double> integral_element_measures( mapped_target_elements.size() );
+    Teuchos::Array<double> 
+	integral_element_measures( mapped_target_elements.size() );
     mapped_target_elements.clear();
 
     // Put the rendezvous elements into a unique list and get their source
     // procs to populate the source distributor.
     typename Teuchos::Array<GlobalOrdinal>::iterator rendezvous_element_bound;
+    std::sort( rendezvous_elements.begin(), rendezvous_elements.end() );
     rendezvous_element_bound = std::unique( rendezvous_elements.begin(),
 					    rendezvous_elements.end() );
     rendezvous_elements.resize( std::distance( rendezvous_elements.begin(),
@@ -418,6 +421,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 
     // Build a unique list of the elements.
     typename Teuchos::Array<GlobalOrdinal>::iterator source_element_bound;
+    std::sort( d_source_elements.begin(), d_source_elements.end() );
     source_element_bound = std::unique( d_source_elements.begin(),
 					d_source_elements.end() );
     d_source_elements.resize( std::distance( d_source_elements.begin(),

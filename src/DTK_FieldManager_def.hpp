@@ -95,6 +95,7 @@ void FieldManager<Field>::validate()
 				 local_dims.size(),
 				 &local_dims[0], &local_dims[0] ); 
     Teuchos::Array<int>::iterator unique_bound;
+    std::sort( local_dims.begin(), local_dims.end() );
     unique_bound = std::unique( local_dims.begin(), local_dims.end() );
     int unique_dim = std::distance( local_dims.begin(), unique_bound );
     testPrecondition( 1 == unique_dim );
