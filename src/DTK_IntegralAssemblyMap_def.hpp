@@ -574,7 +574,8 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 	integral_element_iterator;
     typename TFT::size_type target_index;
     Teuchos::ArrayRCP<const typename TFT::value_type> dim_element_integrals;
-    for ( typename TFT::size_type n = 0; n < integral_size; ++n )
+    for ( typename TFT::size_type n = 0; 
+	  n < Teuchos::as<typename TFT::size_type>(integral_size); ++n )
     {
 	for ( int d = 0; d < target_dim; ++d )
 	{
@@ -593,7 +594,8 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
     }
 
     // Scale the results by the inverse geometry measure sums.
-    for ( typename TFT::size_type n = 0; n < integral_size; ++n )
+    for ( typename TFT::size_type n = 0; 
+	  n < Teuchos::as<typename TFT::size_type>(integral_size); ++n )
     {
 	for ( int d = 0; d < target_dim; ++d )
 	{
