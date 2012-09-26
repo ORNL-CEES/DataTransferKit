@@ -389,7 +389,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 
     // Allocate space for the element measures and get rid of the target
     // elements.
-    d_integral_element_measures.resize( mapped_target_elements.size() );
+    Teuchos::Array<double> integral_element_measures( mapped_target_elements.size() );
     mapped_target_elements.clear();
 
     // Put the rendezvous elements into a unique list and get their source
@@ -449,7 +449,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
     Teuchos::RCP<Tpetra::Vector<double,GlobalOrdinal> > target_vector =
 	Tpetra::createVectorFromView( 
 	    d_target_map, 
-	    Teuchos::arcpFromArray( d_integral_element_measures ) );
+	    Teuchos::arcpFromArray( integral_element_measures ) );
     target_vector->doExport( *source_vector, *d_source_to_target_exporter,
 			     Tpetra::INSERT );
 
@@ -471,7 +471,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	      ++integral_element_iterator )
 	{
 	    *geom_measure_iterator +=
-		d_integral_element_measures[*integral_element_iterator];
+		integral_element_measures[*integral_element_iterator];
 	}
     }
 }
@@ -587,7 +587,6 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 		  ++integral_element_iterator )
 	    {
 		target_field_view[ target_index ] +=
-		    d_integral_element_measures[*integral_element_iterator] *
 		    dim_element_integrals[*integral_element_iterator];
 	    }
 	}

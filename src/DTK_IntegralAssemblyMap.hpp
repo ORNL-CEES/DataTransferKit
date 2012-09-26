@@ -158,9 +158,6 @@ class IntegralAssemblyMap
     // decomposition).
     Teuchos::Array<GlobalOrdinal> d_source_elements;
 
-    // Local source element measures (target decomposition).
-    Teuchos::Array<double> d_integral_element_measures;
-
     // Local geometry measures from element measures.
     Teuchos::Array<double> d_geometry_measures;
 
