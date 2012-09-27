@@ -76,12 +76,27 @@ namespace DataTransferKit
  * all source and target objects (i.e. only 3 dimensional geometries will be
  * accepted with a 3 dimensional map). We need this here so we have a global
  * baseline for all objects that may or may not exist on all processes.
+ * 
+ * \param geometric_tolerance Tolerance used for element vertex-in-geometry
+ * checks.
+ *
+ * \param all_vertices_for_inclusion Flag for element-in-geometry
+ * inclusion. If set to true, all of an element's vertices are required to
+ * reside within a geometry within the geometric tolerance in order to be
+ * considered a member of that geometry's conformal mesh. If set to false,
+ * only one of an element's vertices must be contained within the geometric
+ * tolerance of the geometry in order to be considered a member of that
+ * geometry's conformal mesh.
  */
 template<class Mesh, class Geometry>
 IntegralAssemblyMap<Mesh,Geometry>::IntegralAssemblyMap(
-    const RCP_Comm& comm, const int dimension )
+    const RCP_Comm& comm, const int dimension, 
+    const double geometric_tolerance, bool all_vertices_for_inclusion
+ )
     : d_comm( comm )
     , d_dimension( dimension )
+    , d_geometric_tolerance( geometric_tolerance )
+    , d_all_vertices_for_inclusion( all_vertices_for_inclusion )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -194,10 +209,12 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     Teuchos::Array<int> rendezvous_procs;
     Teuchos::Array<Teuchos::Array<int> >::const_iterator box_iterator;
     Teuchos::Array<int>::const_iterator proc_iterator;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator geometry_ordinal_iterator;
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+	geometry_ordinal_iterator;
     Teuchos::Array<GlobalOrdinal> target_ordinals;
     Teuchos::Array<Geometry> target_geom_to_send;
-    typename Teuchos::ArrayRCP<Geometry>::const_iterator target_geometry_iterator;
+    typename Teuchos::ArrayRCP<Geometry>::const_iterator 
+	target_geometry_iterator;
     for ( box_iterator = box_procs.begin(), 
 target_geometry_iterator = target_geometry.begin(),
 geometry_ordinal_iterator = geometry_ordinals.begin();
@@ -244,7 +261,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
     Teuchos::ArrayView<const std::size_t> from_lengths = 
 	target_to_rendezvous_distributor.getLengthsFrom();
     Teuchos::Array<int> geom_target_procs;
-    for ( int i = 0; i < (int) from_images.size(); ++i )
+    for ( int i = 0; i < Teuchos::as<int>(from_images.size()); ++i )
     {
 	for ( std::size_t j = 0; j < from_lengths[i]; ++j )
 	{
@@ -254,11 +271,12 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
     testInvariant( geom_target_procs.size() == num_rendezvous_geom );
 
     // Get the rendezvous source mesh elements that are in the rendezvous
-    // target geometry. This is probably really expensive and we should rather
-    // think of a way to logarithmically use the geometry bounding boxes for
-    // searching. 
+    // target geometry. This is really expensive and we should rather think of
+    // a way to logarithmically use the geometry bounding boxes for searching.
     Teuchos::Array<Teuchos::Array<GlobalOrdinal> > in_geom_elements;
-    rendezvous.elementsInGeometry( rendezvous_geometry, in_geom_elements );
+    rendezvous.elementsInGeometry( rendezvous_geometry, in_geom_elements,
+				   d_geometric_tolerance, 
+				   d_all_vertices_for_inclusion );
 
     // Unroll the rendezvous elements and add the global target ordinal they
     // exist within.
@@ -295,7 +313,8 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
     // integral for each geometry.
     Tpetra::Distributor rendezvous_to_target_distributor( d_comm );
     GlobalOrdinal num_target_elements = 
-	rendezvous_to_target_distributor.createFromSends( in_geom_target_procs() );
+	rendezvous_to_target_distributor.createFromSends( 
+	    in_geom_target_procs() );
     in_geom_target_procs.clear();
 
     Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
@@ -313,8 +332,10 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
     // Generate the list of integral elements.
     Teuchos::Array<std::set<GlobalOrdinal> > 
 	integral_elements( target_geometry.size() );
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator mapped_target_elements_it;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator mapped_target_ordinals_it;
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+	mapped_target_elements_it;
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+	mapped_target_ordinals_it;
     for ( mapped_target_elements_it = mapped_target_elements.begin(),
 	  mapped_target_ordinals_it = mapped_target_ordinals.begin();
 	  mapped_target_elements_it != mapped_target_elements.end();
@@ -323,13 +344,15 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	testInvariant( d_target_g2l.find(*mapped_target_ordinals_it) != 
 		       d_target_g2l.end() );
 
-	integral_elements[ d_target_g2l.find(*mapped_target_ordinals_it)->second ].
+	integral_elements[ 
+	    d_target_g2l.find(*mapped_target_ordinals_it)->second ].
 	    insert( *mapped_target_elements_it );
     }
     mapped_target_ordinals.clear();
 
     // Build a unique list of element ordinals in the target decomposition.
     typename Teuchos::Array<GlobalOrdinal>::iterator mapped_element_bound;
+    std::sort( mapped_target_elements.begin(), mapped_target_elements.end() );
     mapped_element_bound = std::unique( mapped_target_elements.begin(),
 					mapped_target_elements.end() );
     mapped_target_elements.resize( 
@@ -351,7 +374,8 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 
     // Replace the global element ordinals in the integral element sets with
     // local ordinals.
-    typename Teuchos::Array<std::set<GlobalOrdinal> >::iterator integral_set_iterator;
+    typename Teuchos::Array<std::set<GlobalOrdinal> >::iterator 
+	integral_set_iterator;
     typename Teuchos::Array<Teuchos::Array<GlobalOrdinal> >::iterator 
 	integral_elements_iterator;
     typename std::set<GlobalOrdinal>::iterator set_iterator;
@@ -364,7 +388,8 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	      set_iterator != integral_set_iterator->end();
 	      ++set_iterator )
 	{
-	    testInvariant( element_g2l.find( *set_iterator ) != element_g2l.end() );
+	    testInvariant( element_g2l.find( *set_iterator ) != 
+			   element_g2l.end() );
 
 	    integral_elements_iterator->push_back( 
 		element_g2l.find( *set_iterator )->second );
@@ -379,13 +404,16 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	mapped_target_elements_view, d_comm );
     testPostcondition( !d_target_map.is_null() );
 
-    // Allocate space for the element measures and get rid of the target elements.
-    d_integral_element_measures.resize( mapped_target_elements.size() );
+    // Allocate space for the element measures and get rid of the target
+    // elements.
+    Teuchos::Array<double> 
+	integral_element_measures( mapped_target_elements.size() );
     mapped_target_elements.clear();
 
     // Put the rendezvous elements into a unique list and get their source
     // procs to populate the source distributor.
     typename Teuchos::Array<GlobalOrdinal>::iterator rendezvous_element_bound;
+    std::sort( rendezvous_elements.begin(), rendezvous_elements.end() );
     rendezvous_element_bound = std::unique( rendezvous_elements.begin(),
 					    rendezvous_elements.end() );
     rendezvous_elements.resize( std::distance( rendezvous_elements.begin(),
@@ -409,6 +437,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 
     // Build a unique list of the elements.
     typename Teuchos::Array<GlobalOrdinal>::iterator source_element_bound;
+    std::sort( d_source_elements.begin(), d_source_elements.end() );
     source_element_bound = std::unique( d_source_elements.begin(),
 					d_source_elements.end() );
     d_source_elements.resize( std::distance( d_source_elements.begin(),
@@ -428,14 +457,19 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
     testPostcondition( !d_source_to_target_exporter.is_null() );
 
     // Communicate the element measures from the source to the target.
-    Teuchos::Array<double> source_measures = 
-	source_mesh_measure->measure( Teuchos::arcpFromArray( d_source_elements ) );
+    Teuchos::Array<double> source_measures(0);
+    if ( source_exists )
+    {
+	source_measures = source_mesh_measure->measure( 
+	    Teuchos::arcpFromArray( d_source_elements ) );
+    }
     Teuchos::RCP<Tpetra::Vector<double,GlobalOrdinal> > source_vector = 
 	Tpetra::createVectorFromView( 
 	    d_source_map, Teuchos::arcpFromArray( source_measures ) );
     Teuchos::RCP<Tpetra::Vector<double,GlobalOrdinal> > target_vector =
 	Tpetra::createVectorFromView( 
-	    d_target_map, Teuchos::arcpFromArray( d_integral_element_measures ) );
+	    d_target_map, 
+	    Teuchos::arcpFromArray( integral_element_measures ) );
     target_vector->doExport( *source_vector, *d_source_to_target_exporter,
 			     Tpetra::INSERT );
 
@@ -445,7 +479,8 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
     Teuchos::Array<double>::iterator geom_measure_iterator;
     typename Teuchos::Array<Teuchos::Array<GlobalOrdinal> >::const_iterator
 	integral_iterator;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator integral_element_iterator;
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+	integral_element_iterator;
     for ( geom_measure_iterator = d_geometry_measures.begin(),
 	      integral_iterator = d_integral_elements.begin();
 	  geom_measure_iterator != d_geometry_measures.end();
@@ -456,7 +491,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	      ++integral_element_iterator )
 	{
 	    *geom_measure_iterator +=
-		d_integral_element_measures[*integral_element_iterator];
+		integral_element_measures[*integral_element_iterator];
 	}
     }
 }
@@ -541,7 +576,8 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
     testPrecondition( source_dim == target_dim );
 
     // Verify that the target space has the proper amount of memory allocated.
-    testPrecondition( target_size == (GlobalOrdinal) target_field_view.size() );
+    testPrecondition( target_size == 
+		      Teuchos::as<GlobalOrdinal>(target_field_view.size()) );
 
     // Build a multivector for the function integrations in the target
     // decomposition.
@@ -554,10 +590,12 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 
     // Collapse the function integrations over the geometry and apply them to
     // the target space.
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator integral_element_iterator;
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+	integral_element_iterator;
     typename TFT::size_type target_index;
     Teuchos::ArrayRCP<const typename TFT::value_type> dim_element_integrals;
-    for ( typename TFT::size_type n = 0; n < integral_size; ++n )
+    for ( typename TFT::size_type n = 0; 
+	  n < Teuchos::as<typename TFT::size_type>(integral_size); ++n )
     {
 	for ( int d = 0; d < target_dim; ++d )
 	{
@@ -569,20 +607,20 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 		  ++integral_element_iterator )
 	    {
 		target_field_view[ target_index ] +=
-		    d_integral_element_measures[*integral_element_iterator] *
 		    dim_element_integrals[*integral_element_iterator];
 	    }
 	}
     }
 
     // Scale the results by the inverse geometry measure sums.
-    for ( typename TFT::size_type n = 0; n < integral_size; ++n )
+    for ( typename TFT::size_type n = 0; 
+	  n < Teuchos::as<typename TFT::size_type>(integral_size); ++n )
     {
 	for ( int d = 0; d < target_dim; ++d )
 	{
 	    target_index = n + integral_size*d;
 	    target_field_view[ target_index ] /=
-		(typename TFT::value_type) d_geometry_measures[n];
+		Teuchos::as<typename TFT::value_type>(d_geometry_measures[n]);
 	}
     }
 }

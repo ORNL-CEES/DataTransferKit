@@ -24,7 +24,7 @@ TRIBITS_ADD_OPTION_AND_DEFINE(
 	DataTransferKit_ENABLE_DBC
 	HAVE_DTK_DBC
 	"Enable Design-by-Contract checks. WARNING: use for debug checking but disable for production runs as it incurs a significant overhead."
-	OFF
+	${${PROJECT_NAME}_ENABLE_DEBUG}
 )
 
 # If Zoltan and MPI must BOTH be enabled to function in parallel. Therefore 
@@ -33,8 +33,11 @@ TRIBITS_ADD_OPTION_AND_DEFINE(
 IF( ${PACKAGE_NAME}_ENABLE_MPI AND ${PROJECT_NAME}_ENABLE_Zoltan )
   GLOBAL_SET( HAVE_DTK_MPI ON )
 ELSE()
+  IF (${PACKAGE_NAME}_ENABLE_MPI)
+    MESSAGE("WARNING: ${PACKAGE_NAME}_ENABLE_MPI=TRUE but ${PROJECT_NAME}_ENABLE_Zoltan=FALSE,"
+     " DataTransferKit can't provide parallel functionality!")
+  ENDIF()
   GLOBAL_SET( HAVE_DTK_MPI OFF )
-  SET( ${PACKAGE_NAME}_ENABLE_MPI OFF )
 ENDIF()
 
 TRIBITS_ADD_DEBUG_OPTION()

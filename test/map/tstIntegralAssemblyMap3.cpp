@@ -2,7 +2,7 @@
 /*!
  * \file tstIntegralAssemblyMap1.cpp
  * \author Stuart R. Slattery
- * \brief Integral assembly map unit test 2 for unsigned ordinals.
+ * \brief Integral assembly map unit test 3 multiple geometric objects.
  */
 //---------------------------------------------------------------------------//
 
@@ -787,102 +787,91 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
     int my_rank = comm->getRank();
     int my_size = comm->getSize();
 
+    Teuchos::Array<int> source_ranks;
+    source_ranks.push_back(0);
+    if ( my_size > 1 )
+    {
+	source_ranks.push_back(1);
+    }
+    Teuchos::RCP< const Teuchos::Comm<int> > source_comm = 
+	comm->createSubcommunicator( source_ranks() );
+
+    Teuchos::Array<int> target_ranks;
+    target_ranks.push_back(0);
+    Teuchos::RCP< const Teuchos::Comm<int> > target_comm = 
+	comm->createSubcommunicator( target_ranks() );
+
     // Compute element ordinal offsets so we make unique global ordinals.
     int edge_size = 10;
     int tet_offset = 0;
     int hex_offset = tet_offset + (edge_size+1)*(edge_size+1)*5;
-    int pyramid_offset = hex_offset + (edge_size+1)*(edge_size+1);
-    int wedge_offset = pyramid_offset + (edge_size+1)*(edge_size+1)*6;
 
     // Setup source mesh manager.
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 4 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 2 );
     if ( my_rank == 0 )
     {
 	mesh_blocks[0] = 
 	    buildTetMesh( my_rank, my_size, edge_size, tet_offset );
 	mesh_blocks[1] = buildNullHexMesh();
-	mesh_blocks[2] = buildNullPyramidMesh();
-	mesh_blocks[3] = buildNullWedgeMesh();
     }
     else if ( my_rank == 1 )
     {
 	mesh_blocks[0] = buildNullTetMesh();
 	mesh_blocks[1] = 
 	    buildHexMesh( my_rank, my_size, edge_size, hex_offset );
-	mesh_blocks[2] = buildNullPyramidMesh();
-	mesh_blocks[3] = buildNullWedgeMesh();
-    }
-    else if ( my_rank == 2 )
-    {
-	mesh_blocks[0] = buildNullTetMesh();
-	mesh_blocks[1] = buildNullHexMesh();
-	mesh_blocks[2] = 
-	    buildPyramidMesh( my_rank, my_size, edge_size, pyramid_offset );
-	mesh_blocks[3] = buildNullWedgeMesh();
-    }
-    else if ( my_rank == 3 )
-    {
-	mesh_blocks[0] = buildNullTetMesh();
-	mesh_blocks[1] = buildNullHexMesh();
-	mesh_blocks[2] = buildNullPyramidMesh();
-	mesh_blocks[3] = 
-	    buildWedgeMesh( my_rank, my_size, edge_size, wedge_offset );
     }
     comm->barrier();
 
     // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > source_mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
+    Teuchos::RCP< MeshManager<MeshType> > source_mesh_manager;
+    if ( my_rank == 0 || my_rank == 1 )
+    {
+	source_mesh_manager = Teuchos::rcp(
+	    new MeshManager<MeshType>( mesh_blocks, source_comm, 3 ) );
+    }
+    comm->barrier();
 
-    // Setup target.
+    // Setup target on proc 0.
     int num_geom = 1;
     int geometry_dim = 3;
     Teuchos::ArrayRCP<Cylinder> geometry(0);
     int target_dim = 3;
     Teuchos::RCP<MyField> target_field;
+    Teuchos::RCP< GeometryManager<Cylinder> > target_geometry_manager;
+    Teuchos::RCP<FieldManager<MyField> > target_space_manager;
     if ( my_rank == 0 )
     {
 	geometry = buildCylinderGeometry( my_size, edge_size );
+	target_geometry_manager = Teuchos::rcp( 
+	    new GeometryManager<Cylinder>( geometry, target_comm, geometry_dim ) );
 	target_field = 	Teuchos::rcp( new MyField( num_geom, target_dim ) );
-    }
-    else
-    {
-	target_field = 	Teuchos::rcp( new MyField( 0, target_dim ) );
+	target_space_manager = Teuchos::rcp( 
+	    new FieldManager<MyField>( target_field, target_comm ) );
     }
     comm->barrier();
-    Teuchos::RCP< GeometryManager<Cylinder> > target_geometry_manager = Teuchos::rcp( 
-	new GeometryManager<Cylinder>( geometry, comm, geometry_dim ) );
-    Teuchos::RCP<FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
-	new FieldManager<MyField>( target_field, comm ) );
 
     // Setup source.
     Teuchos::RCP<FieldIntegrator<MeshType ,MyField> > source_integrator;
     Teuchos::RCP<ElementMeasure<MeshType> > source_mesh_measure;
     if ( my_rank == 0 )
     {
-    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[0], comm ) );
-    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[0], comm ) );
+    	source_integrator = 
+	    Teuchos::rcp( new MyIntegrator( *mesh_blocks[0], source_comm ) );
+    	source_mesh_measure = 
+	    Teuchos::rcp( new MyMeasure( *mesh_blocks[0], source_comm ) );
     }
     else if ( my_rank == 1 )
     {
-    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[1], comm ) );
-    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[1], comm ) );
-    }
-    else if ( my_rank == 2 )
-    {
-    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[2], comm ) );
-    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[2], comm ) );
-    }
-    else
-    {
-    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[3], comm ) );
-    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[3], comm ) );
+    	source_integrator = 
+	    Teuchos::rcp( new MyIntegrator( *mesh_blocks[1], source_comm ) );
+    	source_mesh_measure = 
+	    Teuchos::rcp( new MyMeasure( *mesh_blocks[1], source_comm ) );
     }
     comm->barrier();
 
     // Setup and apply the integral assembly mapping.
     IntegralAssemblyMap<MeshType,Cylinder> integral_assembly_map( 
-	comm, source_mesh_manager->dim(), 1.0e-6, false );
+	comm, 3, 1.0e-6, false );
     integral_assembly_map.setup( source_mesh_manager, source_mesh_measure,
 				 target_geometry_manager );
     integral_assembly_map.apply( source_integrator, target_space_manager );
@@ -901,44 +890,48 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
     comm->barrier();
     Teuchos::broadcast( *comm, 0, Teuchos::Ptr<Cylinder>(&global_cylinder) );
 
-    int num_vertices = MeshTools<MeshType>::numVertices( *mesh_blocks[my_rank] );
-    Teuchos::ArrayRCP<const double> coords = 
-	MeshTools<MeshType>::coordsView( *mesh_blocks[my_rank] );
-    int vertices_per_element = MT::verticesPerElement( *mesh_blocks[my_rank] );
-    int num_elements = MeshTools<MeshType>::numElements( *mesh_blocks[my_rank] );
-    Teuchos::ArrayRCP<const unsigned int> connectivity = 
-	MeshTools<MeshType>::connectivityView( *mesh_blocks[my_rank] );
-    Teuchos::ArrayRCP<const unsigned int> elements = 
-	MeshTools<MeshType>::elementsView( *mesh_blocks[my_rank] );
-
-    std::map<int,int> element_g2l;
-    for ( int i = 0; i < num_elements; ++i )
-    {
-	element_g2l[ elements[i] ] = i;
-    }
-
-    int vert_index;
-    Teuchos::Array<double> vertex(3);
-    bool found = false;
     int num_in_cylinder = 0;
-    double tol = 1.0e-6;
-    for ( int i = 0; i < num_elements; ++i )
+    if ( my_rank == 0 || my_rank == 1 )
     {
-	found = false;
-	for ( int n = 0; n < vertices_per_element; ++n )
-	{
-	    if (!found)
-	    {
-		vert_index = 
-		    element_g2l.find(connectivity[i + n*num_elements])->second;
-		vertex[0] = coords[vert_index];
-		vertex[1] = coords[vert_index + num_vertices];
-		vertex[2] = coords[vert_index + 2*num_vertices];
+	int num_vertices = MeshTools<MeshType>::numVertices( *mesh_blocks[my_rank] );
+	Teuchos::ArrayRCP<const double> coords = 
+	    MeshTools<MeshType>::coordsView( *mesh_blocks[my_rank] );
+	int vertices_per_element = MT::verticesPerElement( *mesh_blocks[my_rank] );
+	int num_elements = MeshTools<MeshType>::numElements( *mesh_blocks[my_rank] );
+	Teuchos::ArrayRCP<const unsigned int> connectivity = 
+	    MeshTools<MeshType>::connectivityView( *mesh_blocks[my_rank] );
+	Teuchos::ArrayRCP<const unsigned int> elements = 
+	    MeshTools<MeshType>::elementsView( *mesh_blocks[my_rank] );
 
-		if ( global_cylinder.pointInCylinder( vertex, tol ) )
+	std::map<int,int> element_g2l;
+	for ( int i = 0; i < num_elements; ++i )
+	{
+	    element_g2l[ elements[i] ] = i;
+	}
+
+	int vert_index;
+	Teuchos::Array<double> vertex(3);
+	bool found = false;
+	double tol = 1.0e-6;
+	num_in_cylinder = 0;
+	for ( int i = 0; i < num_elements; ++i )
+	{
+	    found = false;
+	    for ( int n = 0; n < vertices_per_element; ++n )
+	    {
+		if (!found)
 		{
-		    ++num_in_cylinder;
-		    found = true;
+		    vert_index = 
+			element_g2l.find(connectivity[i + n*num_elements])->second;
+		    vertex[0] = coords[vert_index];
+		    vertex[1] = coords[vert_index + num_vertices];
+		    vertex[2] = coords[vert_index + 2*num_vertices];
+
+		    if ( global_cylinder.pointInCylinder( vertex, tol ) )
+		    {
+			++num_in_cylinder;
+			found = true;
+		    }
 		}
 	    }
 	}
@@ -959,133 +952,6 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
-{
-    using namespace DataTransferKit;
-    typedef MeshContainer<unsigned int> MeshType;
-    typedef MeshTraits<MeshType> MT;
-
-    // Setup communication.
-    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    int my_rank = comm->getRank();
-    int my_size = comm->getSize();
-
-    // Compute element ordinal offsets so we make unique global ordinals.
-    int edge_size = 10;
-    int tet_offset = 0;
-    int hex_offset = tet_offset + (edge_size+1)*(edge_size+1)*5;
-    int pyramid_offset = hex_offset + (edge_size+1)*(edge_size+1);
-    int wedge_offset = pyramid_offset + (edge_size+1)*(edge_size+1)*6;
-
-    // Setup source mesh manager.
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 4 );
-    if ( my_rank == 0 )
-    {
-	mesh_blocks[0] = 
-	    buildTetMesh( my_rank, my_size, edge_size, tet_offset );
-	mesh_blocks[1] = buildNullHexMesh();
-	mesh_blocks[2] = buildNullPyramidMesh();
-	mesh_blocks[3] = buildNullWedgeMesh();
-    }
-    else if ( my_rank == 1 )
-    {
-	mesh_blocks[0] = buildNullTetMesh();
-	mesh_blocks[1] = 
-	    buildHexMesh( my_rank, my_size, edge_size, hex_offset );
-	mesh_blocks[2] = buildNullPyramidMesh();
-	mesh_blocks[3] = buildNullWedgeMesh();
-    }
-    else if ( my_rank == 2 )
-    {
-	mesh_blocks[0] = buildNullTetMesh();
-	mesh_blocks[1] = buildNullHexMesh();
-	mesh_blocks[2] = 
-	    buildPyramidMesh( my_rank, my_size, edge_size, pyramid_offset );
-	mesh_blocks[3] = buildNullWedgeMesh();
-    }
-    else if ( my_rank == 3 )
-    {
-	mesh_blocks[0] = buildNullTetMesh();
-	mesh_blocks[1] = buildNullHexMesh();
-	mesh_blocks[2] = buildNullPyramidMesh();
-	mesh_blocks[3] = 
-	    buildWedgeMesh( my_rank, my_size, edge_size, wedge_offset );
-    }
-    comm->barrier();
-
-    // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > source_mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
-
-    // Setup target.
-    int num_geom = 1;
-    int geometry_dim = 3;
-    Teuchos::ArrayRCP<Box> geometry(0);
-    int target_dim = 3;
-    Teuchos::RCP<MyField> target_field;
-    if ( my_rank == 0 )
-    {
-	geometry = buildBoxGeometry( my_size, edge_size );
-	target_field = 	Teuchos::rcp( new MyField( num_geom, target_dim ) );
-    }
-    else
-    {
-	target_field = 	Teuchos::rcp( new MyField( 0, target_dim ) );
-    }
-    comm->barrier();
-    Teuchos::RCP< GeometryManager<Box> > target_geometry_manager =
-	Teuchos::rcp( new GeometryManager<Box>( 
-			  geometry, comm, geometry_dim ) );
-    Teuchos::RCP<FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
-	new FieldManager<MyField>( target_field, comm ) );
-
-    // Create field integrator and element measure.
-    Teuchos::RCP< FieldIntegrator<MeshType ,MyField> > source_integrator;
-    Teuchos::RCP<ElementMeasure<MeshType> > source_mesh_measure;
-    if ( my_rank == 0 )
-    {
-    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[0], comm ) );
-    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[0], comm ) );
-    }
-    else if ( my_rank == 1 )
-    {
-    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[1], comm ) );
-    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[1], comm ) );
-    }
-    else if ( my_rank == 2 )
-    {
-    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[2], comm ) );
-    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[2], comm ) );
-    }
-    else
-    {
-    	source_integrator = Teuchos::rcp( new MyIntegrator( *mesh_blocks[3], comm ) );
-    	source_mesh_measure = Teuchos::rcp( new MyMeasure( *mesh_blocks[3], comm ) );
-    }
-    comm->barrier();
-
-    // Create data target. This target is a scalar.
-    // Setup and apply the integral assembly mapping.
-    IntegralAssemblyMap<MeshType,Box> integral_assembly_map( 
-	comm, source_mesh_manager->dim(), 1.0e-6, false );
-    integral_assembly_map.setup( source_mesh_manager, source_mesh_measure,
-				 target_geometry_manager );
-    integral_assembly_map.apply( source_integrator, target_space_manager );
-
-    // Check the integration. All elements in the mesh are in the box as this
-    // is a true conformal situation and therefore the total integral should
-    // be the global number of mesh elements. 
-    if ( my_rank == 0 )
-    {
-	for ( int d = 0; d < target_dim; ++d )
-	{
-	    TEST_ASSERT( 2.0 == target_field->getData()[d] );
-	}
-    }
-    comm->barrier();
-}
-
-//---------------------------------------------------------------------------//
-// end tstIntegralAssemblyMap1.cpp
+// end tstIntegralAssemblyMap3.cpp
 //---------------------------------------------------------------------------//
 

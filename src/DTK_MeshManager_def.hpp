@@ -220,6 +220,7 @@ void MeshManager<Mesh>::validate()
 				 local_dims.size(),
 				 &local_dims[0], &local_dims[0] ); 
     Teuchos::Array<int>::iterator unique_bound;
+    std::sort( local_dims.begin(), local_dims.end() );
     unique_bound = std::unique( local_dims.begin(), local_dims.end() );
     int unique_dim = std::distance( local_dims.begin(), unique_bound );
     testPrecondition( 1 == unique_dim );
@@ -231,6 +232,7 @@ void MeshManager<Mesh>::validate()
     Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
 				 local_blocks.size(),
 				 &local_blocks[0], &local_blocks[0] ); 
+    std::sort( local_blocks.begin(), local_blocks.end() );
     unique_bound = std::unique( local_blocks.begin(), local_blocks.end() );
     int unique_blocks = std::distance( local_blocks.begin(), unique_bound );
     testPrecondition( 1 == unique_blocks );
@@ -291,10 +293,11 @@ void MeshManager<Mesh>::validate()
 	// Check that this block has the same topology on all nodes.
 	Teuchos::Array<int> local_topo( d_comm->getSize(), 0 );
 	local_topo[ d_comm->getRank() ] = 
-	    (int) MT::elementTopology( *(*block_iterator) );
+	    Teuchos::as<int>(MT::elementTopology( *(*block_iterator) ));
 	Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
 				     local_topo.size(),
 				     &local_topo[0], &local_topo[0] ); 
+	std::sort( local_topo.begin(), local_topo.end() );
 	unique_bound = std::unique( local_topo.begin(), local_topo.end() );
 	int unique_topo = std::distance( local_topo.begin(), unique_bound );
 	testPrecondition( 1 == unique_topo );
@@ -338,6 +341,7 @@ void MeshManager<Mesh>::validate()
 		   MT::permutationEnd( *(*block_iterator) ), 
 		   permutation.begin() );
 	Teuchos::Array<int>::iterator permutation_bound;
+	std::sort( permutation.begin(), permutation.end() );
 	permutation_bound = std::unique( permutation.begin(),
 					 permutation.end() );
 	int unique_permutation = std::distance( permutation.begin(),

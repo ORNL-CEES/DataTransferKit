@@ -51,6 +51,7 @@
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Tuple.hpp>
+#include <Teuchos_as.hpp>
 
 namespace DataTransferKit
 {
@@ -177,7 +178,7 @@ template<class Mesh>
 int RCB<Mesh>::getPointDestinationProc( Teuchos::Array<double> coords ) const
 {
     testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
-    testPrecondition( d_dimension == (int) coords.size() );
+    testPrecondition( d_dimension == Teuchos::as<int>(coords.size()) );
 
     int proc = 0;
     rememberValue( int zoltan_error );
@@ -291,8 +292,8 @@ void RCB<Mesh>::getObjectList(
 					  block_iterator );
 
 	    for ( gid_iterator = MT::verticesBegin( *(*block_iterator) ),
-	       active_iterator = 
-				 mesh_manager->getActiveVertices( block_id ).begin();
+	       active_iterator = mesh_manager->getActiveVertices( 
+		   block_id ).begin();
 		  gid_iterator != MT::verticesEnd( *(*block_iterator) );
 		  ++gid_iterator, ++active_iterator )
 	    {
@@ -363,7 +364,8 @@ void RCB<Mesh>::getGeometryList(
 	testInvariant( num_obj == (int) num_active_vertices );
 
 	if ( sizeGID != 1 || sizeLID != 1 || 
-	     num_dim != (int) vertex_dim || num_obj != (int) num_active_vertices )
+	     num_dim != Teuchos::as<int>(vertex_dim) || 
+	     num_obj != Teuchos::as<int>(num_active_vertices) )
 	{
 	    *ierr = ZOLTAN_FATAL;
 	    return;
@@ -384,8 +386,10 @@ void RCB<Mesh>::getGeometryList(
 		mesh_manager->getActiveVertices( block_id );
 
 	    mesh_coords = MeshTools<Mesh>::coordsView( *(*block_iterator) );
-	    num_vertices = std::distance( MT::verticesBegin( *(*block_iterator) ),
-					  MT::verticesEnd( *(*block_iterator) ) );
+	    num_vertices = std::distance( 
+		MT::verticesBegin( *(*block_iterator) ),
+					  
+		MT::verticesEnd( *(*block_iterator) ) );
 	    for ( GlobalOrdinal i = 0; i < num_vertices; ++i )
 	    {
 		if ( active_vertices[i] )

@@ -64,14 +64,14 @@ namespace DataTransferKit
  * 
  * \param moab The Moab interface to build the RendezvousMesh with.
  *
- * \param handle_map A map relating the client element global ordinals to the
+ * \param ordinal_map A map relating the client element global ordinals to the
  * Moab element handles.
  */
 template<typename GlobalOrdinal>
 RendezvousMesh<GlobalOrdinal>::RendezvousMesh( const RCP_Moab& moab, 
-					       const HandleMap& handle_map )
+					       const OrdinalMap& ordinal_map )
     : d_moab( moab )
-    , d_handle_map( handle_map )
+    , d_ordinal_map( ordinal_map )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -121,7 +121,8 @@ RendezvousMesh<GlobalOrdinal>::elementsInBox( const BoundingBox& box ) const
 	  element_iterator != elements.end();
 	  ++element_iterator )
     {
-	if ( TopologyTools::boxElementOverlap( box, *element_iterator, d_moab ) )
+	if ( TopologyTools::boxElementOverlap( 
+		 box, *element_iterator, d_moab ) )
 	{
 	    elements_in_box.push_back( getNativeOrdinal( *element_iterator ) );
 	}   
@@ -137,12 +138,25 @@ RendezvousMesh<GlobalOrdinal>::elementsInBox( const BoundingBox& box ) const
  *
  * \param geometry The geometry to search with elements.
  *
+ * \param tolerance Tolerance used for element vertex-in-geometry
+ * checks.
+ *
+ * \param all_vertices_for_inclusion Flag for element-in-geometry
+ * inclusion. If set to true, all of an element's vertices are required to
+ * reside within a geometry within the geometric tolerance in order to be
+ * considered a member of that geometry's conformal mesh. If set to false,
+ * only one of an element's vertices must be contained within the geometric
+ * tolerance of the geometry in order to be considered a member of that
+ * geometry's conformal mesh.
+ *
  * \return The elements in the geometry.
  */
 template<typename GlobalOrdinal>
 template<class Geometry>
 Teuchos::Array<GlobalOrdinal> 
-RendezvousMesh<GlobalOrdinal>::elementsInGeometry( const Geometry& geometry ) const
+RendezvousMesh<GlobalOrdinal>::elementsInGeometry( 
+    const Geometry& geometry, const double tolerance,
+    bool all_vertices_for_inclusion ) const
 {
     // Get the dimension of the mesh.
     rememberValue( moab::ErrorCode error );
@@ -170,10 +184,12 @@ RendezvousMesh<GlobalOrdinal>::elementsInGeometry( const Geometry& geometry ) co
 	  element_iterator != elements.end();
 	  ++element_iterator )
     {
-	if ( TopologyTools::elementInGeometry( 
-		 geometry, *element_iterator, d_moab ) )
+	if ( TopologyTools::elementInGeometry( geometry, *element_iterator, 
+					       d_moab, tolerance, 
+					       all_vertices_for_inclusion ) )
 	{
-	    elements_in_geometry.push_back( getNativeOrdinal( *element_iterator ) );
+	    elements_in_geometry.push_back( 
+		getNativeOrdinal( *element_iterator ) );
 	}   
     }
 
@@ -201,7 +217,7 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
     typename MT::const_element_iterator element_iterator;
 
     // Setup an element handle map.
-    std::map<moab::EntityHandle,GlobalOrdinal> element_handle_map;
+    std::map<moab::EntityHandle,GlobalOrdinal> element_ordinal_map;
 
     // Create a moab interface.
     rememberValue( moab::ErrorCode error );
@@ -230,7 +246,7 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 		       std::distance( MT::coordsBegin( *(*block_iterator) ),
 				      MT::coordsEnd( *(*block_iterator) ) ) );
 	testInvariant( num_coords == 
-		       (GlobalOrdinal) vertex_dim * num_vertices );
+		       Teuchos::as<GlobalOrdinal>(vertex_dim) * num_vertices );
 
 	// Add the mesh vertices to moab and map the native vertex handles to
 	// the moab vertex handles. This should be in a hash table. We'll need
@@ -238,7 +254,7 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 	double vertex_coords[3];
 	Teuchos::ArrayRCP<const double> mesh_coords = 
 	    MeshTools<Mesh>::coordsView( *(*block_iterator) );
-	std::map<GlobalOrdinal,moab::EntityHandle> vertex_handle_map;
+	std::map<GlobalOrdinal,moab::EntityHandle> vertex_ordinal_map;
 	GlobalOrdinal n = 0;
 	for ( vertex_iterator = MT::verticesBegin( *(*block_iterator) );
 	      vertex_iterator != MT::verticesEnd( *(*block_iterator) );
@@ -260,7 +276,7 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 #endif
 	    testInvariant( moab::MB_SUCCESS == error );
 
-	    vertex_handle_map[ *vertex_iterator ] = moab_vertex;
+	    vertex_ordinal_map[ *vertex_iterator ] = moab_vertex;
 	}
 
 	// Check the elements and connectivity for consistency.
@@ -268,9 +284,9 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 	    MT::verticesPerElement( *(*block_iterator) );
 	GlobalOrdinal num_elements = 
 	    MeshTools<Mesh>::numElements( *(*block_iterator) );
-	rememberValue( GlobalOrdinal num_connect = 
-		       std::distance( MT::connectivityBegin( *(*block_iterator) ),
-				      MT::connectivityEnd( *(*block_iterator) ) ) );
+	rememberValue( GlobalOrdinal num_connect = std::distance( 
+			   MT::connectivityBegin( *(*block_iterator) ),
+			   MT::connectivityEnd( *(*block_iterator) ) ) );
 	testInvariant( num_elements == num_connect / vertices_per_element &&
 		       num_connect % vertices_per_element == 0 );
 
@@ -297,10 +313,10 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 		canonical_idx = permutation_list[i];
 		conn_index = i*num_elements + n;
 		element_connectivity[ canonical_idx ] =
-		    vertex_handle_map.find( 
+		    vertex_ordinal_map.find( 
 			mesh_connectivity[ conn_index ] )->second;
 	    }
-	    testInvariant( (int) element_connectivity.size() 
+	    testInvariant( Teuchos::as<int>(element_connectivity.size())
 			   == vertices_per_element );
 
 	    // Create the element in moab.
@@ -321,13 +337,13 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 	    testInvariant( moab::MB_SUCCESS == error );
 
 	    // Map the moab element handle to the native element handle.
-	    element_handle_map[ moab_element ] = *element_iterator;
+	    element_ordinal_map[ moab_element ] = *element_iterator;
 	}
     }
 
     // Create and return the mesh.
     return Teuchos::rcp( 
-	new RendezvousMesh<GlobalOrdinal>( moab, element_handle_map ) );
+	new RendezvousMesh<GlobalOrdinal>( moab, element_ordinal_map ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -348,7 +364,7 @@ Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
     typedef GeometryTraits<Geometry> GT;
 
     // Setup an element handle map.
-    std::map<moab::EntityHandle,GlobalOrdinal> element_handle_map;
+    std::map<moab::EntityHandle,GlobalOrdinal> element_ordinal_map;
 
     // Create a moab interface.
     rememberValue( moab::ErrorCode error );
@@ -390,7 +406,7 @@ Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
     
     // Extract the geometry bounding boxes from the manager. We will turn
     // these into hexahedrons, squares, or lines.
-    std::map<GlobalOrdinal,moab::EntityHandle> vertex_handle_map;
+    std::map<GlobalOrdinal,moab::EntityHandle> vertex_ordinal_map;
     Teuchos::Tuple<double,6> geom_bounds;
     Teuchos::Array<double> vertex_coords(3*vertices_per_element);
     Teuchos::ArrayRCP<Geometry> geometry = geometry_manager.geometry();
@@ -507,13 +523,13 @@ Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
 	testInvariant( moab::MB_SUCCESS == error );
 
 	// Map the moab element handle to the local geometry ordinal.
-	element_handle_map[ moab_element ] = 
+	element_ordinal_map[ moab_element ] = 
 	    std::distance( geometry_begin, geometry_iterator );
     }
 
     // Create and return the mesh.
     return Teuchos::rcp( 
-	new RendezvousMesh<GlobalOrdinal>( moab, element_handle_map ) );
+	new RendezvousMesh<GlobalOrdinal>( moab, element_ordinal_map ) );
 }
 
 //---------------------------------------------------------------------------//

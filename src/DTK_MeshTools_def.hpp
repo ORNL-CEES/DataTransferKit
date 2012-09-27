@@ -106,7 +106,7 @@ MeshTools<Mesh>::verticesNonConstView( const Mesh& mesh )
     else
     {
 	return Teuchos::ArrayRCP<GlobalOrdinal>(
-	    (GlobalOrdinal*) &*MT::verticesBegin(mesh), 0, 
+	    const_cast<GlobalOrdinal*>(&*MT::verticesBegin(mesh)), 0, 
 	    num_vertices, false );
     }
 }
@@ -165,7 +165,8 @@ MeshTools<Mesh>::coordsNonConstView( const Mesh& mesh )
     else
     {
 	return Teuchos::ArrayRCP<double>(
-	    (double*) &*MT::coordsBegin(mesh), 0, num_coords, false );
+	    const_cast<double*>(&*MT::coordsBegin(mesh)), 0, 
+	    num_coords, false );
     }
 }
 
@@ -222,7 +223,7 @@ MeshTools<Mesh>::elementsNonConstView( const Mesh& mesh )
     else
     {
 	return Teuchos::ArrayRCP<GlobalOrdinal>(
-	    (GlobalOrdinal*) &*MT::elementsBegin(mesh), 
+	    const_cast<GlobalOrdinal*>(&*MT::elementsBegin(mesh)), 
 	    0, num_elements, false );
     }
 }
@@ -283,7 +284,7 @@ MeshTools<Mesh>::connectivityNonConstView( const Mesh& mesh )
     else
     {
 	return Teuchos::ArrayRCP<GlobalOrdinal>(
-	    (GlobalOrdinal*) &*MT::connectivityBegin(mesh), 0, 
+	    const_cast<GlobalOrdinal*>(&*MT::connectivityBegin(mesh)), 0, 
 	    num_connectivity, false );
     }
 }
@@ -344,7 +345,7 @@ MeshTools<Mesh>::permutationNonConstView( const Mesh& mesh )
     else
     {
 	return Teuchos::ArrayRCP<int>(
-	    (int*) &*MT::permutationBegin( mesh ), 0, 
+	    const_cast<int*>(&*MT::permutationBegin( mesh )), 0, 
 	    num_permutation, false );
     }
 }

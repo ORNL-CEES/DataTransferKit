@@ -103,21 +103,22 @@ TEUCHOS_UNIT_TEST( Box, box_test )
 	// Test some random points inside of it.
 	Teuchos::Array<double> point(3);
 	int num_rand = 100;
+	double tol = 1.0e-6;
 	for ( int i = 0; i < num_rand; ++i )
 	{
 	    point[0] = 3.0 * (double) std::rand() / RAND_MAX - 1.5;
 	    point[1] = 3.0 * (double) std::rand() / RAND_MAX - 1.5;
 	    point[2] = 3.0 * (double) std::rand() / RAND_MAX - 1.5;
 
-	    if ( x_min <= point[0] && point[0] <= x_max &&
-		 y_min <= point[1] && point[1] <= y_max &&
-		 z_min <= point[2] && point[2] <= z_max )
+	    if ( x_min - tol <= point[0] && point[0] <= x_max + tol &&
+		 y_min - tol <= point[1] && point[1] <= y_max + tol &&
+		 z_min - tol <= point[2] && point[2] <= z_max + tol )
 	    {
-		TEST_ASSERT( box.pointInBox( point ) );
+		TEST_ASSERT( box.pointInBox( point, tol ) );
 	    }
 	    else
 	    {
-		TEST_ASSERT( !box.pointInBox( point ) );
+		TEST_ASSERT( !box.pointInBox( point, tol ) );
 	    }
 	}
     }
@@ -159,21 +160,22 @@ TEUCHOS_UNIT_TEST( Box, box_traits_test )
 	// Test some random points inside of it.
 	Teuchos::Array<double> point(3);
 	int num_rand = 100;
+	double tol = 1.0e-6;
 	for ( int i = 0; i < num_rand; ++i )
 	{
 	    point[0] = 3.0 * (double) std::rand() / RAND_MAX - 1.5;
 	    point[1] = 3.0 * (double) std::rand() / RAND_MAX - 1.5;
 	    point[2] = 3.0 * (double) std::rand() / RAND_MAX - 1.5;
 
-	    if ( x_min <= point[0] && point[0] <= x_max &&
-		 y_min <= point[1] && point[1] <= y_max &&
-		 z_min <= point[2] && point[2] <= z_max )
+	    if ( x_min - tol <= point[0] && point[0] <= x_max + tol &&
+		 y_min - tol <= point[1] && point[1] <= y_max + tol &&
+		 z_min - tol <= point[2] && point[2] <= z_max + tol )
 	    {
-		TEST_ASSERT( GT::pointInGeometry( box, point ) );
+		TEST_ASSERT( GT::pointInGeometry( box, point, tol ) );
 	    }
 	    else
 	    {
-		TEST_ASSERT( !GT::pointInGeometry( box, point ) );
+		TEST_ASSERT( !GT::pointInGeometry( box, point, tol ) );
 	    }
 	}
     }

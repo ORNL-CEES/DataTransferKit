@@ -108,6 +108,7 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 	double x_distance = 0.0;
 	double y_distance = 0.0;
 	double centroid_distance = 0.0;
+	double tol = 1.0e-6;
 	for ( int i = 0; i < num_rand; ++i )
 	{
 	    point[0] = 2.0 * (double) std::rand() / RAND_MAX - 1.0;
@@ -119,15 +120,15 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 	    centroid_distance = x_distance*x_distance + y_distance*y_distance;
 	    centroid_distance = std::pow( centroid_distance, 0.5 );
 
-	    if ( centroid_distance <= radius &&
-		 centroid_z - length/2 <= point[2] &&
-		 centroid_z + length/2 >= point[2] )
+	    if ( centroid_distance <= radius + tol &&
+		 centroid_z - length/2 <= point[2] + tol &&
+		 centroid_z + length/2 >= point[2] - tol )
 	    {
-		TEST_ASSERT( cylinder.pointInCylinder( point ) );
+		TEST_ASSERT( cylinder.pointInCylinder( point, tol ) );
 	    }
 	    else
 	    {
-		TEST_ASSERT( !cylinder.pointInCylinder( point ) );
+		TEST_ASSERT( !cylinder.pointInCylinder( point, tol ) );
 	    }
 	}
     }
@@ -176,6 +177,7 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_traits_test )
 	double x_distance = 0.0;
 	double y_distance = 0.0;
 	double centroid_distance = 0.0;
+	double tol = 1.0e-6;
 	for ( int i = 0; i < num_rand; ++i )
 	{
 	    point[0] = 2.0 * (double) std::rand() / RAND_MAX - 1.0;
@@ -187,15 +189,15 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_traits_test )
 	    centroid_distance = x_distance*x_distance + y_distance*y_distance;
 	    centroid_distance = std::pow( centroid_distance, 0.5 );
 
-	    if ( centroid_distance <= radius &&
-		 centroid_z - length/2 <= point[2] &&
-		 centroid_z + length/2 >= point[2] )
+	    if ( centroid_distance <= radius + tol &&
+		 centroid_z - length/2 <= point[2] + tol &&
+		 centroid_z + length/2 >= point[2] - tol )
 	    {
-		TEST_ASSERT( GT::pointInGeometry( cylinder, point ) );
+		TEST_ASSERT( GT::pointInGeometry( cylinder, point, tol ) );
 	    }
 	    else
 	    {
-		TEST_ASSERT( !GT::pointInGeometry( cylinder, point ) );
+		TEST_ASSERT( !GT::pointInGeometry( cylinder, point, tol ) );
 	    }
 	}
     }

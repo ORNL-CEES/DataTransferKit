@@ -54,8 +54,8 @@ namespace DataTransferKit
  * validate the geometry description to the domain model. This requires a few
  * global communications.
  *
- * \param geometry The geometry that this object is managing. This geometry must have
- * GeometryTraits.
+ * \param geometry The geometry that this object is managing. This geometry
+ * must have GeometryTraits.
  * 
  * \param comm The communicator over which the geometry is defined.
  *
@@ -151,6 +151,7 @@ void GeometryManager<Geometry>::validate()
 				 local_dims.size(),
 				 &local_dims[0], &local_dims[0] ); 
     Teuchos::Array<int>::iterator unique_bound;
+    std::sort( local_dims.begin(), local_dims.end() );
     unique_bound = std::unique( local_dims.begin(), local_dims.end() );
     int unique_dim = std::distance( local_dims.begin(), unique_bound );
     testPrecondition( 1 == unique_dim );

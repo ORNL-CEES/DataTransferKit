@@ -47,7 +47,7 @@
 
 namespace DataTransferKit
 {
-
+//---------------------------------------------------------------------------//
 /*!
  * \brief Dummy struct. If a type does not create a specialization this will
  * not compile.
@@ -91,10 +91,12 @@ class GeometryTraits
     { UndefinedGeometryTraits<GeometryType>::notDefined(); return 0; }
 
     /*!
-     * \brief Return whether or not a point is in the geometry.
+     * \brief Return whether or not a point is in the geometry within a
+     * specified tolerance.
      */
     static inline bool pointInGeometry( const GeometryType& geometry,
-					const Teuchos::Array<double>& coords )
+					const Teuchos::Array<double>& coords,
+					const double tolerance )
     { UndefinedGeometryTraits<GeometryType>::notDefined(); return 0; }
 
     /*!

@@ -83,7 +83,9 @@ class TopologyTools
     template<class Geometry>
     static bool elementInGeometry( const Geometry& geometry,
 				   const moab::EntityHandle element,
-				   const Teuchos::RCP<moab::Interface>& moab );
+				   const Teuchos::RCP<moab::Interface>& moab,
+				   const double tolerance,
+				   bool all_vertices_for_inclusion );
 };
 
 } // end namepsace DataTransferKit
