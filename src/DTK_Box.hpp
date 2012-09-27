@@ -78,8 +78,9 @@ class Box
     // Destructor.
     ~Box();
 
-    // Determine if a point is in the box.
-    bool pointInBox( const Teuchos::Array<double>& coords ) const;
+    // Determine if a point is in the box within a specified tolerance
+    bool pointInBox( const Teuchos::Array<double>& coords,
+		     const double tolerance ) const;
 
     // Get the boundaries of the box.
     Teuchos::Tuple<double,6> getBounds() const
@@ -130,8 +131,9 @@ class GeometryTraits<Box>
     { return box.volume(); }
 
     static inline bool pointInGeometry( const Box& box,
-					const Teuchos::Array<double>& coords )
-    { return box.pointInBox( coords ); }
+					const Teuchos::Array<double>& coords,
+					const double tolerance )
+    { return box.pointInBox( coords, tolerance ); }
 
     static inline BoundingBox boundingBox( const Box& box )
     { return box.boundingBox(); }

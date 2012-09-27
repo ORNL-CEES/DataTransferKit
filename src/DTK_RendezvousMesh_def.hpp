@@ -138,13 +138,25 @@ RendezvousMesh<GlobalOrdinal>::elementsInBox( const BoundingBox& box ) const
  *
  * \param geometry The geometry to search with elements.
  *
+ * \param tolerance Tolerance used for element vertex-in-geometry
+ * checks.
+ *
+ * \param all_vertices_for_inclusion Flag for element-in-geometry
+ * inclusion. If set to true, all of an element's vertices are required to
+ * reside within a geometry within the geometric tolerance in order to be
+ * considered a member of that geometry's conformal mesh. If set to false,
+ * only one of an element's vertices must be contained within the geometric
+ * tolerance of the geometry in order to be considered a member of that
+ * geometry's conformal mesh.
+ *
  * \return The elements in the geometry.
  */
 template<typename GlobalOrdinal>
 template<class Geometry>
 Teuchos::Array<GlobalOrdinal> 
 RendezvousMesh<GlobalOrdinal>::elementsInGeometry( 
-    const Geometry& geometry ) const
+    const Geometry& geometry, const double tolerance,
+    bool all_vertices_for_inclusion ) const
 {
     // Get the dimension of the mesh.
     rememberValue( moab::ErrorCode error );
@@ -172,8 +184,9 @@ RendezvousMesh<GlobalOrdinal>::elementsInGeometry(
 	  element_iterator != elements.end();
 	  ++element_iterator )
     {
-	if ( TopologyTools::elementInGeometry( 
-		 geometry, *element_iterator, d_moab ) )
+	if ( TopologyTools::elementInGeometry( geometry, *element_iterator, 
+					       d_moab, tolerance, 
+					       all_vertices_for_inclusion ) )
 	{
 	    elements_in_geometry.push_back( 
 		getNativeOrdinal( *element_iterator ) );

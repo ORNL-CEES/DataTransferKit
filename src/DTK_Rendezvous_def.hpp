@@ -289,14 +289,23 @@ void Rendezvous<Mesh>::elementsInBoxes(
  *
  * \param elements The elements found in each of the boxes.
  *
- * \param element_src_procs The source procs owning the elements found in the
- * geometry. 
+ * \param tolerance Tolerance used for element vertex-in-geometry
+ * checks.
+ *
+ * \param all_vertices_for_inclusion Flag for element-in-geometry
+ * inclusion. If set to true, all of an element's vertices are required to
+ * reside within a geometry within the geometric tolerance in order to be
+ * considered a member of that geometry's conformal mesh. If set to false,
+ * only one of an element's vertices must be contained within the geometric
+ * tolerance of the geometry in order to be considered a member of that
+ * geometry's conformal mesh.
  */
 template<class Mesh>
 template<class Geometry> 
 void Rendezvous<Mesh>::elementsInGeometry(
     const Teuchos::Array<Geometry>& geometry,
-    Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements ) const
+    Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements,
+    const double tolerance, bool all_vertices_for_inclusion ) const
 {
     elements.resize( geometry.size() );
 
@@ -309,7 +318,9 @@ void Rendezvous<Mesh>::elementsInGeometry(
 	  ++geometry_iterator, ++element_iterator )
     {
 	*element_iterator = 
-	    d_rendezvous_mesh->elementsInGeometry( *geometry_iterator );
+	    d_rendezvous_mesh->elementsInGeometry( *geometry_iterator,
+						   tolerance,
+						   all_vertices_for_inclusion );
     }
 }
 

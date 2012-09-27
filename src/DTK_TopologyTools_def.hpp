@@ -59,6 +59,17 @@ namespace DataTransferKit
  *
  * \param moab The Moab interface containing the element.
  *
+ * \param tolerance Tolerance used for element vertex-in-geometry
+ * checks.
+ *
+ * \param all_vertices_for_inclusion Flag for element-in-geometry
+ * inclusion. If set to true, all of an element's vertices are required to
+ * reside within a geometry within the geometric tolerance in order to be
+ * considered a member of that geometry's conformal mesh. If set to false,
+ * only one of an element's vertices must be contained within the geometric
+ * tolerance of the geometry in order to be considered a member of that
+ * geometry's conformal mesh.
+ *
  * \return Return true if any of the element's vertices are in the
  * geometry. This is based on the conformal mesh/geometry assumption.
  */
@@ -66,7 +77,9 @@ template<class Geometry>
 bool TopologyTools::elementInGeometry( 
     const Geometry& geometry,
     const moab::EntityHandle element,
-    const Teuchos::RCP<moab::Interface>& moab )
+    const Teuchos::RCP<moab::Interface>& moab,
+    const double tolerance,
+    bool all_vertices_for_inclusion )
 {
     // Get the element vertices.
     rememberValue( moab::ErrorCode error );
@@ -100,9 +113,9 @@ bool TopologyTools::elementInGeometry(
 #endif
     testInvariant( error == moab::MB_SUCCESS );
 
-    // Check the vertex coordinates for inclusion in the geometry. If a single
-    // vertex is included, the entire element is included.
+    // Check the vertex coordinates for inclusion in the geometry. 
     Teuchos::Array<double> vertex_coords(3);
+    int verts_in_geometry = 0;
     for ( int i = 0; i < num_element_vertices; ++i )
     {
 	vertex_coords[0] = element_vertex_coords[3*i];
@@ -110,14 +123,30 @@ bool TopologyTools::elementInGeometry(
 	vertex_coords[2] = element_vertex_coords[3*i + 2];
 
 	if ( GeometryTraits<Geometry>::pointInGeometry( geometry, 
-							vertex_coords ) )
+							vertex_coords,
+							tolerance ) )
 	{
-	    return true;
+	    // All vertices required for inclusion case.
+	    if ( all_vertices_for_inclusion )
+	    {
+		++verts_in_geometry;
+	    }
+	    // Only one vertex required for inclusion case.
+	    else
+	    {
+		return true;
+	    }
 	}
     }
 
-    // If no vertex inclusion, no geometry inclusion.
-    return false;
+    if ( verts_in_geometry == num_element_vertices )
+    { 
+	return true;
+    }
+    else
+    {
+	return false;
+    }
 }
 
 //---------------------------------------------------------------------------//

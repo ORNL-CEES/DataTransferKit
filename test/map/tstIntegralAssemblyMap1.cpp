@@ -882,7 +882,7 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
 
     // Setup and apply the integral assembly mapping.
     IntegralAssemblyMap<MeshType,Cylinder> integral_assembly_map( 
-	comm, source_mesh_manager->dim() );
+	comm, source_mesh_manager->dim(), 1.0e-6, false );
     integral_assembly_map.setup( source_mesh_manager, source_mesh_measure,
 				 target_geometry_manager );
     integral_assembly_map.apply( source_integrator, target_space_manager );
@@ -920,6 +920,7 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
     int vert_index;
     Teuchos::Array<double> vertex(3);
     bool found = false;
+    double tol = 1.0e-6;
     int num_in_cylinder = 0;
     for ( int i = 0; i < num_elements; ++i )
     {
@@ -934,7 +935,7 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
 		vertex[1] = coords[vert_index + num_vertices];
 		vertex[2] = coords[vert_index + 2*num_vertices];
 
-		if ( global_cylinder.pointInCylinder( vertex ) )
+		if ( global_cylinder.pointInCylinder( vertex, tol ) )
 		{
 		    ++num_in_cylinder;
 		    found = true;
@@ -1066,7 +1067,7 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
     // Create data target. This target is a scalar.
     // Setup and apply the integral assembly mapping.
     IntegralAssemblyMap<MeshType,Box> integral_assembly_map( 
-	comm, source_mesh_manager->dim() );
+	comm, source_mesh_manager->dim(), 1.0e-6, false );
     integral_assembly_map.setup( source_mesh_manager, source_mesh_measure,
 				 target_geometry_manager );
     integral_assembly_map.apply( source_integrator, target_space_manager );

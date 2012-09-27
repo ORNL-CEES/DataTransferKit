@@ -156,7 +156,8 @@ class Rendezvous
     template<class Geometry>
     void elementsInGeometry(
 	const Teuchos::Array<Geometry>& geometry,
-	Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements ) const;
+	Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements,
+	const double tolerance,	bool all_vertices_for_inclusion ) const;
 
     //! Get the rendezvous mesh.
     const RCP_RendezvousMesh& getMesh() const

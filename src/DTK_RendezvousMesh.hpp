@@ -104,7 +104,8 @@ class RendezvousMesh
     // geometry. 
     template<class Geometry>
     Teuchos::Array<GlobalOrdinal> 
-    elementsInGeometry( const Geometry& geometry ) const;
+    elementsInGeometry( const Geometry& geometry, const double tolerance, 
+			bool all_vertices_for_inclusion ) const;
 
   private:
 

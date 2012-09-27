@@ -73,8 +73,9 @@ class Cylinder
     // Destructor.
     ~Cylinder();
 
-    // Determine if a point is in the cylinder.
-    bool pointInCylinder( const Teuchos::Array<double>& coords ) const;
+    // Determine if a point is in the cylinder within a specified tolerance.
+    bool pointInCylinder( const Teuchos::Array<double>& coords,
+			  const double tolerance ) const;
 
     //! Get the length of the cylinder.
     double length() const
@@ -128,8 +129,9 @@ class GeometryTraits<Cylinder>
     { return cylinder.volume(); }
 
     static inline bool pointInGeometry( const Cylinder& cylinder,
-					const Teuchos::Array<double>& coords )
-    { return cylinder.pointInCylinder( coords ); }
+					const Teuchos::Array<double>& coords,
+					const double tolerance )
+    { return cylinder.pointInCylinder( coords, tolerance ); }
 
     static inline BoundingBox boundingBox( const Cylinder& cylinder )
     { return cylinder.boundingBox(); }

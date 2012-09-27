@@ -106,7 +106,9 @@ class IntegralAssemblyMap
     //@}
 
     // Constructor.
-    IntegralAssemblyMap( const RCP_Comm& comm, const int dimension );
+    IntegralAssemblyMap( const RCP_Comm& comm, const int dimension, 
+			 const double geometric_tolerance = 1.0e-6, 
+			 bool all_vertices_for_inclusion = true );
 
     // Destructor.
     ~IntegralAssemblyMap();
@@ -138,6 +140,12 @@ class IntegralAssemblyMap
 
     // Map dimension.
     int d_dimension;
+
+    // Geometric tolerance.
+    double d_geometric_tolerance;
+    
+    // Flag for element-in-geometry vertex inclusion requirement.
+    bool d_all_vertices_for_inclusion;
 
     // Process indexer for the source application.
     CommIndexer d_source_indexer;

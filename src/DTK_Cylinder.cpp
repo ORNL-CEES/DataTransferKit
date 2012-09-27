@@ -100,10 +100,14 @@ Cylinder::~Cylinder()
  * \param coords Cartesian coordinates to check for point inclusion. The
  * coordinates must have a dimension of 3.
  *
+ * \param tolerance The geometric tolerance to check point-inclusion with.
+ *
  * \return Return true if the point is in the cylinder, false if not. A point
- * on the cylinder boundary will return true.
+ * on the cylinder boundary or outside but within the tolerance will return
+ * true.
  */
-bool Cylinder::pointInCylinder( const Teuchos::Array<double>& coords ) const
+bool Cylinder::pointInCylinder( const Teuchos::Array<double>& coords,
+				const double tolerance ) const
 {
     testPrecondition( coords.size() == 3 );
 
@@ -112,9 +116,9 @@ bool Cylinder::pointInCylinder( const Teuchos::Array<double>& coords ) const
 	(d_centroid_y - coords[1])*(d_centroid_y - coords[1]),
 	0.5 );
 
-    if ( distance <= d_radius &&
-	 coords[2] >= d_centroid_z - d_length/2 &&
-	 coords[2] <= d_centroid_z + d_length/2 )
+    if ( distance <= d_radius + tolerance &&
+	 coords[2] >= d_centroid_z - d_length/2 - tolerance &&
+	 coords[2] <= d_centroid_z + d_length/2 + tolerance )
     {
 	return true;
     }

@@ -115,24 +115,27 @@ Box::~Box()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Determine if a point is in the box. 
+ * \brief Determine if a point is in the box within a specified tolerance.
  *
  * \param coords Cartesian coordinates to check for point inclusion. The
  * coordinates must have a dimension between 0 and 3.
  *
+ * \param tolerance The geometric tolerance to check point-inclusion with.
+ *
  * \return Return true if the point is in the box, false if not. A point on
  * the box boundary will return true.
  */
-bool Box::pointInBox( const Teuchos::Array<double>& coords ) const
+bool Box::pointInBox( const Teuchos::Array<double>& coords,
+		      const double tolerance ) const
 {
     testPrecondition( 3 == coords.size() );
 
-    if ( coords[0] >= d_x_min &&
-	 coords[1] >= d_y_min &&
-	 coords[2] >= d_z_min &&
-	 coords[0] <= d_x_max &&
-	 coords[1] <= d_y_max &&
-	 coords[2] <= d_z_max )
+    if ( coords[0] >= d_x_min - tolerance &&
+	 coords[1] >= d_y_min - tolerance &&
+	 coords[2] >= d_z_min - tolerance &&
+	 coords[0] <= d_x_max + tolerance &&
+	 coords[1] <= d_y_max + tolerance &&
+	 coords[2] <= d_z_max + tolerance )
     {
 	return true;
     }

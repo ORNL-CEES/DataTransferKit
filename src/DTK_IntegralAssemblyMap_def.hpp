@@ -76,12 +76,27 @@ namespace DataTransferKit
  * all source and target objects (i.e. only 3 dimensional geometries will be
  * accepted with a 3 dimensional map). We need this here so we have a global
  * baseline for all objects that may or may not exist on all processes.
+ * 
+ * \param geometric_tolerance Tolerance used for element vertex-in-geometry
+ * checks.
+ *
+ * \param all_vertices_for_inclusion Flag for element-in-geometry
+ * inclusion. If set to true, all of an element's vertices are required to
+ * reside within a geometry within the geometric tolerance in order to be
+ * considered a member of that geometry's conformal mesh. If set to false,
+ * only one of an element's vertices must be contained within the geometric
+ * tolerance of the geometry in order to be considered a member of that
+ * geometry's conformal mesh.
  */
 template<class Mesh, class Geometry>
 IntegralAssemblyMap<Mesh,Geometry>::IntegralAssemblyMap(
-    const RCP_Comm& comm, const int dimension )
+    const RCP_Comm& comm, const int dimension, 
+    const double geometric_tolerance, bool all_vertices_for_inclusion
+ )
     : d_comm( comm )
     , d_dimension( dimension )
+    , d_geometric_tolerance( geometric_tolerance )
+    , d_all_vertices_for_inclusion( all_vertices_for_inclusion )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -256,11 +271,12 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
     testInvariant( geom_target_procs.size() == num_rendezvous_geom );
 
     // Get the rendezvous source mesh elements that are in the rendezvous
-    // target geometry. This is probably really expensive and we should rather
-    // think of a way to logarithmically use the geometry bounding boxes for
-    // searching. 
+    // target geometry. This is really expensive and we should rather think of
+    // a way to logarithmically use the geometry bounding boxes for searching.
     Teuchos::Array<Teuchos::Array<GlobalOrdinal> > in_geom_elements;
-    rendezvous.elementsInGeometry( rendezvous_geometry, in_geom_elements );
+    rendezvous.elementsInGeometry( rendezvous_geometry, in_geom_elements,
+				   d_geometric_tolerance, 
+				   d_all_vertices_for_inclusion );
 
     // Unroll the rendezvous elements and add the global target ordinal they
     // exist within.
