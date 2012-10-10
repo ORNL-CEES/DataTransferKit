@@ -470,8 +470,6 @@ schemes may be chosen, such as extrapolation, in order to apply the
 field to $\hat{r}$. An evaluator is an object that drives the
 application of Eq~(\ref{eq:element_evaluation}).
 
-\subsection{Field Integrations}
-
 \subsection{The Relationship Between Mesh and Fields}
 \label{subsec:mesh_and_fields}
 The relationship between the mesh and the field in DTK is implicitly
@@ -727,19 +725,6 @@ source function will not be evaluated at these points as they are not
 in the domain $\Omega_S$, and therefore the evaluation operation will
 not be valid. However, a list of these points in the target
 decomposition may be generated for further processing by the client.
-
-\subsection{Ordinal Maps}\label{subsec:ordinal_maps}
-An ordinal map is simply a parallel topology map in which the the
-relationship between the source and target geometries is explicitly
-defined through the same set of shared global ordinals. In this
-context, a representation of the same geometric object exists in both
-the source and target codes, but their parallel decomposition may be
-different for physics-related reasons. These objects are also
-characterized by the same group of global ordinals that provide their
-relationship. ( I'm going to add some more language and a pictoral
-example here. For now, think of this as useful for
-neutronics-subchannel coupling where both codes share the same set of
-pin ID's.)
 
 \clearpage
 
