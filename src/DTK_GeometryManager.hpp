@@ -111,6 +111,12 @@ class GeometryManager
     // Get the bounding boxes for the objects owned by this manager.
     Teuchos::Array<BoundingBox> boundingBoxes() const;
 
+    // Get the local bounding box for the objects owned by this manager.
+    BoundingBox localBoundingBox() const;
+
+    // Get the global bounding box for the objects owned by this manager.
+    BoundingBox globalBoundingBox() const;
+
   private:
 
     // Validate the geometric objects to the domain model.
