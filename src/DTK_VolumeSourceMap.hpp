@@ -41,6 +41,8 @@
 #ifndef DTK_VOLUMESOURCEMAP_HPP
 #define DTK_VOLUMESOURCEMAP_HPP
 
+#include <map>
+
 #include "DTK_GeometryTraits.hpp"
 #include "DTK_GeometryManager.hpp"
 #include "DTK_FieldTraits.hpp"
@@ -102,6 +104,79 @@ class VolumSourceMap
     typedef Tpetra::Export<GlobalOrdinal>             ExportType;
     typedef Teuchos::RCP<ExportType>                  RCP_TpetraExport;
     //@}
+
+    // Constructor.
+    VolumeSourceMap( const RCP_Comm& comm, const int dimension,
+		     bool store_missed_points = false,
+		     const double geometric_tolerance = 1.0e-6 );
+
+    // Destructor.
+    ~VolumeSourceMap();
+
+    // Generate the volume source map.
+    void setup( const RCP_GeometryManager& source_geometry_manager, 
+		const RCP_CoordFieldManager& target_coord_manager );
+
+    //@{
+    // Get the local indices of the target points that were not mapped.
+    Teuchos::ArrayView<GlobalOrdinal>       getMissedTargetPoints();
+    Teuchos::ArrayView<const GlobalOrdinal> getMissedTargetPoints() const;
+    //@}
+
+    // Apply the volume source map by evaluating a function at the target points
+    // that were mapped.
+    template<class SourceField, class TargetField>
+    void apply( 
+	const Teuchos::RCP<FieldEvaluator<Geometry,SourceField> >& source_evaluator,
+	Teuchos::RCP<FieldManager<TargetField> >& target_space_manager );
+
+  private:
+
+    // Compute globally unique ordinals for the target points.
+    void computePointOrdinals( 
+	const RCP_CoordFieldManager& target_coord_manager,
+	Teuchos::Array<GlobalOrdinal>& target_ordinals );
+
+  private:
+
+    // Communicator.
+    RCP_Comm d_comm;
+
+    // Map dimension.
+    int d_dimension;
+
+    // Boolean for storing missed points in the mapping.
+    bool d_store_missed_points;
+
+    // Geometric tolerance.
+    double d_geometric_tolerance;
+
+    // Process indexer for the source application.
+    CommIndexer d_source_indexer;
+
+    // Process indexer for the target application.
+    CommIndexer d_target_indexer;
+
+    // Indices for target points missed in the mapping.
+    Teuchos::Array<GlobalOrdinal> d_missed_points;
+
+    // Global-to-local ordinal map for target ordinals.
+    std::map<GlobalOrdinal,GlobalOrdinal> d_target_g2l;
+
+    // Source field map.
+    RCP_TpetraMap d_source_map;
+
+    // Target field map.
+    RCP_TpetraMap d_target_map;
+
+    // Source-to-target exporter.
+    RCP_TpetraExport d_source_to_target_exporter;
+
+    // Local source geometries.
+    Teuchos::Array<GlobalOrdinal> d_source_geometries;
+
+    // Local target coords.
+    Teuchos::Array<double> d_target_coords;
 };
 
 //---------------------------------------------------------------------------//
