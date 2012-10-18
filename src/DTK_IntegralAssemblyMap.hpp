@@ -73,10 +73,9 @@ namespace DataTransferKit
   conformal mesh assumption.
 
   Here we assume that the mesh supplied to the map is conformal to the
-  geometric objects provided by the target For example, if the target
-  geometry consists of a group of cylinders, the source mesh should be the
-  mesh over those cylinders and only that mesh, not the mesh in the domain
-  between the cylinders.
+  geometric objects provided by the target. For example, if the target
+  geometry consists of a group of cylinders, the source mesh should include
+  the mesh conformal to those cylinders. 
 */
 template<class Mesh, class Geometry>
 class IntegralAssemblyMap
