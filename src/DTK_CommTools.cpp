@@ -133,6 +133,7 @@ void CommTools::unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
     getCommWorld( comm_world );
 
     Teuchos::Array<int> existence( comm_world->getSize(), 0 );
+    Teuchos::Array<int> existence_copy( comm_world->getSize(), 0 );
 
     if ( !comm_A.is_null() )
     {
@@ -149,14 +150,14 @@ void CommTools::unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 				 Teuchos::REDUCE_SUM,
 				 (int) existence.size(),
 				 &existence[0],
-				 &existence[0] );
+				 &existence_copy[0] );
 
     int subrank;
     Teuchos::Array<int> subranks;
-    Teuchos::Array<int>::const_iterator exist_begin = existence.begin();
+    Teuchos::Array<int>::const_iterator exist_begin = existence_copy.begin();
     Teuchos::Array<int>::const_iterator exist_iterator;
-    for ( exist_iterator = existence.begin();
-	  exist_iterator != existence.end();
+    for ( exist_iterator = existence_copy.begin();
+	  exist_iterator != existence_copy.end();
 	  ++exist_iterator )
     {
 	if ( *exist_iterator > 0 )
@@ -189,6 +190,7 @@ void CommTools::intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
     getCommWorld( comm_world );
 
     Teuchos::Array<int> existence( comm_world->getSize(), 0 );
+    Teuchos::Array<int> existence_copy( comm_world->getSize(), 0 );
 
     if ( !comm_A.is_null() )
     {
@@ -204,14 +206,14 @@ void CommTools::intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
 				 Teuchos::REDUCE_SUM,
 				 (int) existence.size(),
 				 &existence[0],
-				 &existence[0] );
+				 &existence_copy[0] );
 
     int subrank;
     Teuchos::Array<int> subranks;
-    Teuchos::Array<int>::const_iterator exist_begin = existence.begin();
+    Teuchos::Array<int>::const_iterator exist_begin = existence_copy.begin();
     Teuchos::Array<int>::const_iterator exist_iterator;
-    for ( exist_iterator = existence.begin();
-	  exist_iterator != existence.end();
+    for ( exist_iterator = existence_copy.begin();
+	  exist_iterator != existence_copy.end();
 	  ++exist_iterator )
     {
 	if ( *exist_iterator == 2)

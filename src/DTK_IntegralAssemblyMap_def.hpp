@@ -32,7 +32,7 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_IntegralAssemblyMap.hpp
+ * \file DTK_IntegralAssemblyMap_def.hpp
  * \author Stuart R. Slattery
  * \brief Integral assembly map definition.
  */

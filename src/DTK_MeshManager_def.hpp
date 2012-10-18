@@ -215,28 +215,30 @@ void MeshManager<Mesh>::validate()
 
     // Check that the mesh dimension is the same on every node.
     Teuchos::Array<int> local_dims( d_comm->getSize(), 0 );
+    Teuchos::Array<int> local_dims_copy( d_comm->getSize(), 0 );
     local_dims[ d_comm->getRank() ] = d_dim;
     Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
 				 local_dims.size(),
-				 &local_dims[0], &local_dims[0] ); 
+				 &local_dims[0], &local_dims_copy[0] ); 
     Teuchos::Array<int>::iterator unique_bound;
-    std::sort( local_dims.begin(), local_dims.end() );
-    unique_bound = std::unique( local_dims.begin(), local_dims.end() );
-    int unique_dim = std::distance( local_dims.begin(), unique_bound );
+    std::sort( local_dims_copy.begin(), local_dims_copy.end() );
+    unique_bound = std::unique( local_dims_copy.begin(), local_dims_copy.end() );
+    int unique_dim = std::distance( local_dims_copy.begin(), unique_bound );
     testPrecondition( 1 == unique_dim );
-    local_dims.clear();
+    local_dims_copy.clear();
 
     // Check that the same number of blocks have been defined on every node.
     Teuchos::Array<int> local_blocks( d_comm->getSize(), 0 );
+    Teuchos::Array<int> local_blocks_copy( d_comm->getSize(), 0 );
     local_blocks[ d_comm->getRank() ] = getNumBlocks();
     Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
 				 local_blocks.size(),
-				 &local_blocks[0], &local_blocks[0] ); 
-    std::sort( local_blocks.begin(), local_blocks.end() );
-    unique_bound = std::unique( local_blocks.begin(), local_blocks.end() );
-    int unique_blocks = std::distance( local_blocks.begin(), unique_bound );
+				 &local_blocks[0], &local_blocks_copy[0] ); 
+    std::sort( local_blocks_copy.begin(), local_blocks_copy.end() );
+    unique_bound = std::unique( local_blocks_copy.begin(), local_blocks_copy.end() );
+    int unique_blocks = std::distance( local_blocks_copy.begin(), unique_bound );
     testPrecondition( 1 == unique_blocks );
-    local_blocks.clear();
+    local_blocks_copy.clear();
 
     // Check the mesh blocks.
     BlockIterator block_iterator;
@@ -292,16 +294,17 @@ void MeshManager<Mesh>::validate()
 
 	// Check that this block has the same topology on all nodes.
 	Teuchos::Array<int> local_topo( d_comm->getSize(), 0 );
+	Teuchos::Array<int> local_topo_copy( d_comm->getSize(), 0 );
 	local_topo[ d_comm->getRank() ] = 
 	    Teuchos::as<int>(MT::elementTopology( *(*block_iterator) ));
 	Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
 				     local_topo.size(),
-				     &local_topo[0], &local_topo[0] ); 
-	std::sort( local_topo.begin(), local_topo.end() );
-	unique_bound = std::unique( local_topo.begin(), local_topo.end() );
-	int unique_topo = std::distance( local_topo.begin(), unique_bound );
+				     &local_topo[0], &local_topo_copy[0] ); 
+	std::sort( local_topo_copy.begin(), local_topo_copy.end() );
+	unique_bound = std::unique( local_topo_copy.begin(), local_topo_copy.end() );
+	int unique_topo = std::distance( local_topo_copy.begin(), unique_bound );
 	testPrecondition( 1 == unique_topo );
-	local_topo.clear();
+	local_topo_copy.clear();
 
 	// Check that the element handles are of a value less than the numeric
 	// limit of the ordinal type. This is an invalid element handle.

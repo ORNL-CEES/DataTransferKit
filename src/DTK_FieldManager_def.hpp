@@ -90,16 +90,17 @@ void FieldManager<Field>::validate()
 {
     // Check that the field dimension is the same on every node.
     Teuchos::Array<int> local_dims( d_comm->getSize(), 0 );
+    Teuchos::Array<int> local_dims_copy( d_comm->getSize(), 0 );
     local_dims[ d_comm->getRank() ] = FT::dim( *d_field );
     Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
 				 local_dims.size(),
-				 &local_dims[0], &local_dims[0] ); 
+				 &local_dims[0], &local_dims_copy[0] ); 
     Teuchos::Array<int>::iterator unique_bound;
-    std::sort( local_dims.begin(), local_dims.end() );
-    unique_bound = std::unique( local_dims.begin(), local_dims.end() );
-    int unique_dim = std::distance( local_dims.begin(), unique_bound );
+    std::sort( local_dims_copy.begin(), local_dims_copy.end() );
+    unique_bound = std::unique( local_dims_copy.begin(), local_dims_copy.end() );
+    int unique_dim = std::distance( local_dims_copy.begin(), unique_bound );
     testPrecondition( 1 == unique_dim );
-    local_dims.clear();
+    local_dims_copy.clear();
 
     // Check that the data dimension is the same as the field dimension.
     typename FT::size_type num_data = std::distance( FT::begin( *d_field ), 
