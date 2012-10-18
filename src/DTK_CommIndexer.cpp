@@ -70,6 +70,7 @@ CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
     int global_size = global_comm->getSize();
 
     Teuchos::Array<int> in_local( global_size, 0 );
+    Teuchos::Array<int> in_local_copy( global_size, 0 );
 
     if ( !local_comm.is_null() )
     {
@@ -82,32 +83,34 @@ CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
     				 Teuchos::REDUCE_SUM, 
     				 Teuchos::as<int>(in_local.size()),
     				 &in_local[0], 
-    				 &in_local[0]);
+    				 &in_local_copy[0]);
 
     Teuchos::Array<int> local_ids( global_size, 0 );
+    Teuchos::Array<int> local_ids_copy( global_size, 0 );
     local_ids[ global_rank ] = local_rank;
     Teuchos::reduceAll<int,int>( *global_comm,
 				 Teuchos::REDUCE_SUM, 
 				 Teuchos::as<int>(local_ids.size()),
 				 &local_ids[0], 
-				 &local_ids[0]);
+				 &local_ids_copy[0]);
 
     Teuchos::Array<int> global_ids( global_size, 0 );
+    Teuchos::Array<int> global_ids_copy( global_size, 0 );
     global_ids[ global_rank ] = global_rank;
     Teuchos::reduceAll<int,int>( *global_comm,
 				 Teuchos::REDUCE_SUM, 
 				 Teuchos::as<int>(global_ids.size()),
 				 &global_ids[0], 
-				 &global_ids[0]);
+				 &global_ids_copy[0]);
 
-    Teuchos::Array<int>::const_iterator in_local_it = in_local.begin();
+    Teuchos::Array<int>::const_iterator in_local_copy_it = in_local_copy.begin();
     Teuchos::Array<int>::const_iterator local_it = 
-	local_ids.begin();
+	local_ids_copy.begin();
     Teuchos::Array<int>::const_iterator global_it;
-    for ( global_it = global_ids.begin(); global_it != global_ids.end();
-    	  ++in_local_it, ++local_it, ++global_it )
+    for ( global_it = global_ids_copy.begin(); global_it != global_ids_copy.end();
+    	  ++in_local_copy_it, ++local_it, ++global_it )
     {
-    	if ( *in_local_it )
+    	if ( *in_local_copy_it )
     	{
     	    d_l2gmap[*local_it] = *global_it;
     	}

@@ -96,11 +96,13 @@ GeometryManager<Geometry>::globalNumGeometry() const
 {
     typename Teuchos::ArrayRCP<Geometry>::size_type global_size =
 	d_geometry.size();
+    typename Teuchos::ArrayRCP<Geometry>::size_type global_size_copy =
+	d_geometry.size();
 
     Teuchos::reduceAll<int,typename Teuchos::ArrayRCP<Geometry>::size_type>( 
-	*d_comm, Teuchos::REDUCE_SUM, 1, &global_size, &global_size );
+	*d_comm, Teuchos::REDUCE_SUM, 1, &global_size, &global_size_copy );
 
-    return global_size;
+    return global_size_copy;
 }
 
 //---------------------------------------------------------------------------//
@@ -146,16 +148,18 @@ void GeometryManager<Geometry>::validate()
 
     // Check that the geometry dimension is the same on every node.
     Teuchos::Array<int> local_dims( d_comm->getSize(), 0 );
+    Teuchos::Array<int> local_dims_copy( d_comm->getSize(), 0 );
     local_dims[ d_comm->getRank() ] = d_dim;
     Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
 				 local_dims.size(),
-				 &local_dims[0], &local_dims[0] ); 
+				 &local_dims[0], &local_dims_copy[0] ); 
     Teuchos::Array<int>::iterator unique_bound;
-    std::sort( local_dims.begin(), local_dims.end() );
-    unique_bound = std::unique( local_dims.begin(), local_dims.end() );
-    int unique_dim = std::distance( local_dims.begin(), unique_bound );
+    std::sort( local_dims_copy.begin(), local_dims_copy.end() );
+    unique_bound = 
+	std::unique( local_dims_copy.begin(), local_dims_copy.end() );
+    int unique_dim = std::distance( local_dims_copy.begin(), unique_bound );
     testPrecondition( 1 == unique_dim );
-    local_dims.clear();
+    local_dims_copy.clear();
 }
 
 //---------------------------------------------------------------------------//
