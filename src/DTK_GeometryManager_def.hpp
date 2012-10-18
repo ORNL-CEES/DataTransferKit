@@ -129,6 +129,114 @@ Teuchos::Array<BoundingBox> GeometryManager<Geometry>::boundingBoxes() const
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Get the local bounding box for the objects owned by this manager.
+ */
+template<class Geometry>
+BoundingBox GeometryManager<Geometry>::localBoundingBox() const
+{
+    double global_x_min = Teuchos::ScalarTraits<double>::rmax();
+    double global_y_min = Teuchos::ScalarTraits<double>::rmax();
+    double global_z_min = Teuchos::ScalarTraits<double>::rmax();
+    double global_x_max = -Teuchos::ScalarTraits<double>::rmax();
+    double global_y_max = -Teuchos::ScalarTraits<double>::rmax();
+    double global_z_max = -Teuchos::ScalarTraits<double>::rmax();
+
+    // Get the local bounding boxes compute the local bounding box.
+    BoundingBox local_box;
+    Teuchos::Tuple<double,6> box_bounds;
+    Teuchos::Array<BoundingBox> boxes = boundingBoxes();
+    Teuchos::Array<BoundingBox>::const_iterator box_iterator;
+    for ( box_iterator = boxes.begin();
+	  box_iterator != boxes.end();
+	  ++box_iterator )
+    {
+	box_bounds = box_iterator->getBounds();
+
+	if ( box_bounds[0] < global_x_min )
+	{
+	    global_x_min = box_bounds[0];
+	}
+	if ( box_bounds[1] < global_y_min )
+	{
+	    global_y_min = box_bounds[1];
+	}
+	if ( box_bounds[2] < global_z_min )
+	{
+	    global_z_min = box_bounds[2];
+	}
+	if ( box_bounds[3] > global_x_max )
+	{
+	    global_x_max = box_bounds[3];
+	}
+	if ( box_bounds[4] > global_y_max )
+	{
+	    global_y_max = box_bounds[4];
+	}
+	if ( box_bounds[5] > global_z_max )
+	{
+	    global_z_max = box_bounds[5];
+	}
+    }
+
+    return BoundingBox( global_x_min, global_y_min, global_z_min,
+			global_x_max, global_y_max, global_z_max );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the global bounding box for the objects owned by this manager.
+ */
+template<class Geometry>
+BoundingBox GeometryManager<Geometry>::globalBoundingBox() const
+{
+    BoundingBox local_box = localBoundingBox();
+    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+
+    double global_x_min, global_y_min, global_z_min;
+    double global_x_max, global_y_max, global_z_max;
+
+    Teuchos::reduceAll<int,double>( *comm, 
+				    Teuchos::REDUCE_MIN,
+				    1,
+				    &local_bounds[0],
+				    &global_x_min );
+
+    Teuchos::reduceAll<int,double>( *comm, 
+				    Teuchos::REDUCE_MIN,
+				    1,
+				    &local_bounds[1],
+				    &global_y_min );
+
+    Teuchos::reduceAll<int,double>( *comm, 
+				    Teuchos::REDUCE_MIN,
+				    1,
+				    &local_bounds[2],
+				    &global_z_min );
+
+    Teuchos::reduceAll<int,double>( *comm, 
+				    Teuchos::REDUCE_MAX,
+				    1,
+				    &local_bounds[3],
+				    &global_x_max );
+
+    Teuchos::reduceAll<int,double>( *comm, 
+				    Teuchos::REDUCE_MAX,
+				    1,
+				    &local_bounds[4],
+				    &global_y_max );
+
+    Teuchos::reduceAll<int,double>( *comm, 
+				    Teuchos::REDUCE_MAX,
+				    1,
+				    &local_bounds[5],
+				    &global_z_max );
+
+    return BoundingBox( global_x_min, global_y_min, global_z_min,
+			global_x_max, global_y_max, global_z_max );
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Validate the geometry to the domain model.
  */
 template<class Geometry>
