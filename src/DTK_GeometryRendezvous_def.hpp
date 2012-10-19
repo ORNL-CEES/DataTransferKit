@@ -334,7 +334,7 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::sendGeometryToRendezvous(
     Teuchos::ArrayRCP<GlobalOrdinal> gids(0);
     RCP_Comm geometry_comm;
     Teuchos::Array<BoundingBox> geom_boxes(0);
-    Teuchos::Array<short int> active_geom(0);
+    Teuchos::ArrayView<short int> active_geom;
     if ( geometry_exists )
     {
 	geometry = geometry_manager->geometry();
@@ -348,14 +348,14 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::sendGeometryToRendezvous(
 
     // Get the rendezvous destination procs for the geometry bounding boxes.
     Teuchos::Array<Teuchos::Array<int> > box_procs =
-	procsContainingBoxes( box_iterator );
+	procsContainingBoxes( geom_boxes );
 
     // Unroll the geometry and procs into vectors for those that are active.
     Teuchos::Array<Teuchos::Array<int> >::const_iterator outer_it;
     Teuchos::Array<int>::const_iterator proc_it;
     typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_it;
     typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator gid_it;
-    Teuchos::Array<short int>::const_iterator active_it;
+    Teuchos::ArrayView<short int>::const_iterator active_it;
     Teuchos::Array<Geometry> geom_to_rendezvous;
     Teuchos::Array<GlobalOrdinal> gids_to_rendezvous;
     Teuchos::Array<int> geom_rendezvous_procs;
@@ -363,9 +363,9 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::sendGeometryToRendezvous(
     for( outer_it = box_procs.begin(), geom_it = geometry.begin(),
 	   gid_it = gids.begin(), active_it = active_geom.begin();
 	 outer_it != box_procs.end();
-	 ++outer_it, ++geom_it, ++gid_it, ++active_geom )
+	 ++outer_it, ++geom_it, ++gid_it, ++active_it )
     {
-	if ( *active_geom )
+	if ( *active_it )
 	{
 	    for ( proc_it = outer_it->begin();
 		  proc_it != outer_it->end();
@@ -384,7 +384,7 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::sendGeometryToRendezvous(
 	geometry_distributor.createFromSends( geom_rendezvous_procs() );
     geom_rendezvous_procs.clear();
 
-    Teuchs::Array<Geometry> import_geom( num_import_geom );
+    Teuchos::Array<Geometry> import_geom( num_import_geom );
     Teuchos::ArrayView<const Geometry> src_geom_view = geom_to_rendezvous();
     geometry_distributor.doPostsAndWaits( src_geom_view, 1, import_geom() );
     geom_to_rendezvous.clear();
@@ -421,7 +421,7 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::sendGeometryToRendezvous(
 	  import_geom_it = import_geom.begin(),
        geometry_src_procs_it = geometry_src_procs.begin();
 	  import_gids_it != import_gids.end();
-	  ++import_gids_it, ++import_geom_it, ++import_src_procs_it );
+	  ++import_gids_it, ++import_geom_it, ++geometry_src_procs_it );
     {
 	if ( import_gids_set.insert( *import_gids_it ).second )
 	{
