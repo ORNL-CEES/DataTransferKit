@@ -81,6 +81,8 @@ namespace DataTransferKit
 template<class Geometry, class GlobalOrdinal>
 class GeometryRendezvous
 {
+  public:
+
     //@{
     //! Typedefs.
     typedef Geometry                                    geometry_type;
@@ -117,7 +119,7 @@ class GeometryRendezvous
     // also in the rendezvous decomposition.
     void geometryContainingPoints( 
 	const Teuchos::ArrayRCP<double>& coords,
-	Teuchos::Array<GlobalOrdinal>& geometry,
+	Teuchos::Array<GlobalOrdinal>& gids,
 	Teuchos::Array<int>& geometry_src_procs,
 	const double geometric_tolerance ) const;
 
@@ -126,10 +128,10 @@ class GeometryRendezvous
     const BoundingBox& getBox() const
     { return d_global_box; }
 
-    //! For a list of geometry in the rendezvous decomposition, get their
+    //! For a list of geometry gids in the rendezvous decomposition, get their
     //! source procs.
     Teuchos::Array<int> geometrySourceProcs( 
-	const Teuchos::Array<GlobalOrdinal>& geometry );
+	const Teuchos::Array<GlobalOrdinal>& gids );
 
   private:
 
