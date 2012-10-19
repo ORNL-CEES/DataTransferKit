@@ -81,8 +81,8 @@ namespace DataTransferKit
  * the local target points missed during map generation. The default value is
  * false. 
  *
- * \param geometric_tolerance Tolerance used for element vertex-in-geometry
- * checks.
+ * \param geometric_tolerance Tolerance used for point-in-geometry checks. The
+ * default value is 1.0e-6.
  */
 template<class Geometry, class CoordinateField>
 VolumeSourceMap<Geometry,CoordinateField>::VolumeSourceMap(
