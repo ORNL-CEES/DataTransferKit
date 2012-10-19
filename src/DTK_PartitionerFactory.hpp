@@ -51,6 +51,7 @@
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
+#include <Teuchos_TypeTraits.hpp>
 
 namespace DataTransferKit
 {

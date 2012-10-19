@@ -43,13 +43,13 @@
 
 #include <map>
 
+#include "DTK_MeshTraits.hpp"
 #include "DTK_MeshManager.hpp"
 #include "DTK_RendezvousMesh.hpp"
 #include "DTK_MeshContainer.hpp"
 #include "DTK_KDTree.hpp"
 #include "DTK_Partitioner.hpp"
 #include "DTK_BoundingBox.hpp"
-#include "DTK_MeshTraits.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -200,9 +200,6 @@ class Rendezvous
 
     // Bounding box in which to perform the rendezvous.
     BoundingBox d_global_box;
-
-    // Mesh vertex dimension.
-    int d_vertex_dim;
 
     // Rendezvous partitioning.
     RCP_Partitioner d_partitioner;
