@@ -74,7 +74,7 @@ GeometryManager<Geometry,GlobalOrdinal>::GeometryManager(
     , d_comm( comm )
     , d_dim( dim )
 {
-    testPrecondition( geometry.size() == geom_gids.size() );
+    testPrecondition( d_geometry.size() == d_geom_gids.size() );
 
     // If we're checking with Design-by-Contract, validate the geometry to the
     // domain model.
