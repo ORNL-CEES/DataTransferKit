@@ -194,11 +194,8 @@ void SharedDomainMap<Geometry,CoordinateField>::setup(
 						      shared_domain_box );
     testAssertion( has_intersect );
 
-    // Build a pseudo-mesh from the geometric bounding boxes so we can use our
-    // rendezvous data structures.
-
     // Build a rendezvous decomposition with the source geometry.
-    Rendezvous<PsuedoMesh> rendezvous( d_comm, d_dimension, shared_domain_box );
+    Rendezvous<Mesh> rendezvous( d_comm, d_dimension, shared_domain_box );
     rendezvous.build( source_mesh_manager );
 
     // Determine the rendezvous destination proc of each point in the

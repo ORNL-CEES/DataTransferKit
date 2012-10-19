@@ -764,8 +764,8 @@ void buildCylinderGeometry(
     double x_center = (double) (edge_size-1) / 2.0;
     double y_center = (double) (edge_size-1) / 2.0;
     double z_center = (double) my_size / 2.0;
-    cylinders[0] = DataTransferKit::Cylinder( length, radius,
-					      x_center, y_center, z_center );
+    new_cylinders[0] = DataTransferKit::Cylinder( length, radius,
+						  x_center, y_center, z_center );
     cylinders = new_cylinders;
     gids = new_gids;
 }
@@ -778,10 +778,10 @@ void buildBoxGeometry( int my_size, int edge_size,
     double tol = 1.0e-3;
     Teuchos::ArrayRCP<DataTransferKit::Box> new_boxes(1);
     Teuchos::ArrayRCP<int> new_gids(1,0);
-    boxes[0] = DataTransferKit::Box( tol, tol, tol, 
-				     edge_size - 1 - tol,
-				     edge_size - 1 - tol, 
-				     my_size - tol );
+    new_boxes[0] = DataTransferKit::Box( tol, tol, tol, 
+					 edge_size - 1 - tol,
+					 edge_size - 1 - tol, 
+					 my_size - tol );
     boxes = new_boxes;
     gids = new_gids;
 }
