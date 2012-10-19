@@ -47,6 +47,8 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 namespace DataTransferKit
 {
@@ -123,6 +125,14 @@ class GeometryManager
     // Get the global bounding box for the objects owned by this manager.
     BoundingBox globalBoundingBox() const;
 
+    //! Set the active geometries.
+    void setActiveGeometry( const Teuchos::Array<short int>& active_geometry )
+    { d_active_geometry = active_geometry; }
+
+    //! Get the active geometry.
+    Teuchos::ArrayView<short int> getActiveGeometry()
+    { return d_active_geometry(); }
+
   private:
 
     // Validate the geometric objects to the domain model.
@@ -141,6 +151,9 @@ class GeometryManager
 
     // The dimension of the geometry.
     int d_dim;
+
+    // Active geometry.
+    Teuchos::Array<short int> d_active_geometry;
 };
 
 } // end namespace DataTransferKit

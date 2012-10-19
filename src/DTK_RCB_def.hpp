@@ -282,7 +282,7 @@ void RCB<Mesh>::getObjectList(
     if ( !mesh_manager.is_null() )
     {
 	// Note here that the local ID is being set as the vertex array index.
-	Teuchos::ArrayRCP<short int>::const_iterator active_iterator;
+	Teuchos::ArrayView<short int>::const_iterator active_iterator;
 	typename MT::const_vertex_iterator gid_iterator;
 	zoltan_id_type i = 0;
 	zoltan_id_type j = 0;

@@ -143,7 +143,7 @@ class MeshManager
 
     //! Set the active vertices for a block.
     void setActiveVertices( const Teuchos::Array<short int>& active_vertices,
-			 const int block_id )
+			    const int block_id )
     { d_active_vertices[ block_id ] = active_vertices; }
 
     //! Set the active elements for a block.

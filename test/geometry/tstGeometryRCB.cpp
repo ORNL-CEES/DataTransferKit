@@ -84,6 +84,9 @@ TEUCHOS_UNIT_TEST( GeometryRCB, cylinder_test )
 	Teuchos::rcp( new GeometryManager<Cylinder,int>( 
 			  cylinders, gids, comm, 3 ) );
 
+    Teuchos::Array<short int> active( num_cylinders, 1 );
+    geometry_manager->setActiveGeometry( active );
+
     // Partition the geometry with GeometryRCB.
     typedef GeometryRCB<Cylinder,int>::zoltan_id_type zoltan_id_type;
     GeometryRCB<Cylinder,int> rcb( getDefaultComm<int>(), geometry_manager, 3 );
@@ -204,6 +207,9 @@ TEUCHOS_UNIT_TEST( GeometryRCB, partitioner_cylinder_test )
 	Teuchos::rcp( new GeometryManager<Cylinder,int>( 
 			  cylinders, gids, comm, 3 ) );
 
+    Teuchos::Array<short int> active( num_cylinders, 1 );
+    geometry_manager->setActiveGeometry( active );
+
     // Partition the geometry with GeometryRCB.
     typedef GeometryRCB<Cylinder,int>::zoltan_id_type zoltan_id_type;
     Teuchos::RCP<Partitioner> partitioner = 
@@ -269,6 +275,9 @@ TEUCHOS_UNIT_TEST( GeometryRCB, box_test )
     Teuchos::RCP<GeometryManager<Box,int> > geometry_manager =
 	Teuchos::rcp( new GeometryManager<Box,int>( 
 			  boxes, gids, comm, 3 ) );
+
+    Teuchos::Array<short int> active( num_boxes, 1 );
+    geometry_manager->setActiveGeometry( active );
 
     // Partition the geometry with GeometryRCB.
     typedef GeometryRCB<Box,int>::zoltan_id_type zoltan_id_type;
@@ -398,6 +407,9 @@ TEUCHOS_UNIT_TEST( GeometryRCB, partitioner_box_test )
 	    getDefaultComm<int>(), geometry_manager, 3 );
     partitioner->partition();
     
+    Teuchos::Array<short int> active( num_boxes, 1 );
+    geometry_manager->setActiveGeometry( active );
+
     // Check the destination proc point search.
     Teuchos::Array<double> point_0(3);
     point_0[0] = 2.0;
