@@ -358,7 +358,7 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
  */
 template<typename GlobalOrdinal, typename Geometry>
 Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
-    const GeometryManager<Geometry>& geometry_manager )
+    const GeometryManager<Geometry,GlobalOrdinal>& geometry_manager )
 {
     // Setup types and iterators as we're outside of the class definition.
     typedef GeometryTraits<Geometry> GT;

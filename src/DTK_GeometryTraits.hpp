@@ -72,10 +72,8 @@ class GeometryTraits
 {
   public:
 
-    //@{
     //! Typedef for geometry type.
     typedef GeometryType geometry_type;
-    //@}
 
     /*!
      * \brief Return the dimension of the geometry.

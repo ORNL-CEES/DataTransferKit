@@ -64,6 +64,7 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
     // Build a series of random cylinders.
     int num_cylinders = 100;
     Teuchos::ArrayRCP<Cylinder> cylinders( num_cylinders );
+    Teuchos::ArrayRCP<int> gids( num_cylinders );
     for ( int i = 0; i < num_cylinders; ++i )
     {
 	double length = (double) std::rand() / RAND_MAX;
@@ -73,10 +74,11 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
 	double centroid_z = (double) std::rand() / RAND_MAX - 0.5 + my_rank;
 	cylinders[i] = 
 	    Cylinder( length, radius, centroid_x, centroid_y, centroid_z );
+	gids[i] = i;
     }
 
     // Build a geometry manager.
-    GeometryManager<Cylinder> geometry_manager( cylinders, comm, 3 );
+    GeometryManager<Cylinder,int> geometry_manager( cylinders, gids, comm, 3 );
 
     // Check the geometry manager.
     Teuchos::ArrayRCP<Cylinder> manager_geometry = geometry_manager.geometry();
@@ -98,8 +100,11 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
 
     Teuchos::Array<BoundingBox> cylinder_boxes = 
 	geometry_manager.boundingBoxes();
+    Teuchos::ArrayRCP<int> cylinder_gids = geometry_manager.gids();
     for ( int i = 0; i < num_cylinders; ++i )
     {
+	TEST_ASSERT( cylinder_gids[i] == gids[i] );
+
 	for ( int d = 0; d < 6; ++d )
 	{
 	    TEST_ASSERT( cylinder_boxes[i].getBounds()[d] ==
@@ -155,6 +160,7 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
     // Build a series of random boxes.
     int num_boxes = 100;
     Teuchos::ArrayRCP<Box> boxes( num_boxes );
+    Teuchos::ArrayRCP<int> gids( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
     {
 	double x_min = -(double) std::rand() / RAND_MAX + my_rank;
@@ -165,10 +171,11 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
 	double z_max =  (double) std::rand() / RAND_MAX + my_rank;
 	boxes[i] = 
 	    Box( x_min, y_min, z_min, x_max, y_max, z_max );
+	gids[i] = i;
     }
 
     // Build a geometry manager.
-    GeometryManager<Box> geometry_manager( boxes, comm, 3 );
+    GeometryManager<Box,int> geometry_manager( boxes, gids, comm, 3 );
 
     // Check the geometry manager.
     Teuchos::ArrayRCP<Box> manager_geometry = geometry_manager.geometry();
@@ -189,8 +196,11 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
 
     Teuchos::Array<BoundingBox> box_boxes = 
 	geometry_manager.boundingBoxes();
+    Teuchos::ArrayRCP<int> box_gids = geometry_manager.gids();
     for ( int i = 0; i < num_boxes; ++i )
     {
+	TEST_ASSERT( box_gids[i] == gids[i] );
+
 	for ( int d = 0; d < 6; ++d )
 	{
 	    TEST_ASSERT( box_boxes[i].getBounds()[d] ==

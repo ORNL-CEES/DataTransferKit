@@ -57,18 +57,25 @@ namespace DataTransferKit
  * \param geometry The geometry that this object is managing. This geometry
  * must have GeometryTraits.
  * 
+ * \param geom_gids The global ordinals for the geometry this object is
+ * managing. 
+ *
  * \param comm The communicator over which the geometry is defined.
  *
  * \param dim The dimension of the geometry.
  */
-template<class Geometry>
-GeometryManager<Geometry>::GeometryManager( 
-    const Teuchos::ArrayRCP<Geometry>& geometry, const RCP_Comm& comm,
-    const int dim )
+template<class Geometry,class GlobalOrdinal>
+GeometryManager<Geometry,GlobalOrdinal>::GeometryManager( 
+    const Teuchos::ArrayRCP<Geometry>& geometry,
+    const Teuchos::ArrayRCP<GlobalOrdinal>& geom_gids,
+    const RCP_Comm& comm, const int dim )
     : d_geometry( geometry )
+    , d_geom_gids( geom_gids )
     , d_comm( comm )
     , d_dim( dim )
 {
+    testPrecondition( geometry.size() == geom_gids.size() );
+
     // If we're checking with Design-by-Contract, validate the geometry to the
     // domain model.
 #if HAVE_DTK_DBC
@@ -80,8 +87,8 @@ GeometryManager<Geometry>::GeometryManager(
 /*!
  * \brief Destructor.
  */
-template<class Geometry>
-GeometryManager<Geometry>::~GeometryManager()
+template<class Geometry,class GlobalOrdinal>
+GeometryManager<Geometry,GlobalOrdinal>::~GeometryManager()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -90,9 +97,9 @@ GeometryManager<Geometry>::~GeometryManager()
  *
  * \return The global number of objects owned by this manager.
  */
-template<class Geometry>
+template<class Geometry,class GlobalOrdinal>
 const typename Teuchos::ArrayRCP<Geometry>::size_type
-GeometryManager<Geometry>::globalNumGeometry() const
+GeometryManager<Geometry,GlobalOrdinal>::globalNumGeometry() const
 {
     typename Teuchos::ArrayRCP<Geometry>::size_type global_size =
 	d_geometry.size();
@@ -111,8 +118,9 @@ GeometryManager<Geometry>::globalNumGeometry() const
  *
  * \return The bounding boxes for the geometry owned by this manager.
  */
-template<class Geometry>
-Teuchos::Array<BoundingBox> GeometryManager<Geometry>::boundingBoxes() const
+template<class Geometry,class GlobalOrdinal>
+Teuchos::Array<BoundingBox> 
+GeometryManager<Geometry,GlobalOrdinal>::boundingBoxes() const
 {
     Teuchos::Array<BoundingBox> boxes( d_geometry.size() );
     Teuchos::Array<BoundingBox>::iterator box_iterator;
@@ -131,8 +139,8 @@ Teuchos::Array<BoundingBox> GeometryManager<Geometry>::boundingBoxes() const
 /*!
  * \brief Get the local bounding box for the objects owned by this manager.
  */
-template<class Geometry>
-BoundingBox GeometryManager<Geometry>::localBoundingBox() const
+template<class Geometry,class GlobalOrdinal>
+BoundingBox GeometryManager<Geometry,GlobalOrdinal>::localBoundingBox() const
 {
     double global_x_min = Teuchos::ScalarTraits<double>::rmax();
     double global_y_min = Teuchos::ScalarTraits<double>::rmax();
@@ -186,8 +194,8 @@ BoundingBox GeometryManager<Geometry>::localBoundingBox() const
 /*!
  * \brief Get the global bounding box for the objects owned by this manager.
  */
-template<class Geometry>
-BoundingBox GeometryManager<Geometry>::globalBoundingBox() const
+template<class Geometry,class GlobalOrdinal>
+BoundingBox GeometryManager<Geometry,GlobalOrdinal>::globalBoundingBox() const
 {
     BoundingBox local_box = localBoundingBox();
     Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
@@ -239,8 +247,8 @@ BoundingBox GeometryManager<Geometry>::globalBoundingBox() const
 /*!
  * \brief Validate the geometry to the domain model.
  */
-template<class Geometry>
-void GeometryManager<Geometry>::validate()
+template<class Geometry,class GlobalOrdinal>
+void GeometryManager<Geometry,GlobalOrdinal>::validate()
 {
     // Dimensions greater than 3 are not valid.
     testPrecondition( 0 <= d_dim && d_dim <= 3 );

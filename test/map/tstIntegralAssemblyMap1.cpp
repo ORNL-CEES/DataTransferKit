@@ -749,10 +749,13 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullWedgeMesh()
 // Geometry create functions. These geometries will span the entire domain,
 // requiring them to be broadcast throughout the rendezvous.
 //---------------------------------------------------------------------------//
-Teuchos::ArrayRCP<DataTransferKit::Cylinder>
-buildCylinderGeometry( int my_size, int edge_size )
+void buildCylinderGeometry( 
+    int my_size, int edge_size,
+    Teuchos::ArrayRCP<DataTransferKit::Cylinder>& cylinders,
+    Teuchos::ArrayRCP<int>& gids )
 {
-    Teuchos::ArrayRCP<DataTransferKit::Cylinder> cylinders(1);
+    Teuchos::ArrayRCP<DataTransferKit::Cylinder> new_cylinders(1);
+    Teuchos::ArrayRCP<int> new_gids(1,0);
     double length = (double) my_size;
     double radius = (double) (edge_size-1) / 2.0;
     double x_center = (double) (edge_size-1) / 2.0;
@@ -760,17 +763,21 @@ buildCylinderGeometry( int my_size, int edge_size )
     double z_center = (double) my_size / 2.0;
     cylinders[0] = DataTransferKit::Cylinder( length, radius,
 					      x_center, y_center, z_center );
-    return cylinders;
+    cylinders = new_cylinders;
+    gids = new_gids;
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::ArrayRCP<DataTransferKit::Box>
-buildBoxGeometry( int my_size, int edge_size )
+void buildBoxGeometry( int my_size, int edge_size,
+		       Teuchos::ArrayRCP<DataTransferKit::Box>& boxes,
+		       Teuchos::ArrayRCP<int> gids )
 {
-    Teuchos::ArrayRCP<DataTransferKit::Box> boxes(1);
+    Teuchos::ArrayRCP<DataTransferKit::Box> new_boxes(1);
+    Teuchos::ArrayRCP<int> new_gids(1,0);
     boxes[0] = DataTransferKit::Box( 0.0, 0.0, 0.0, edge_size-1,
 				     edge_size-1, my_size );
-    return boxes;
+    boxes = new_boxes;
+    gids = new_gids;
 }
 
 //---------------------------------------------------------------------------//
@@ -838,11 +845,12 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
     int num_geom = 1;
     int geometry_dim = 3;
     Teuchos::ArrayRCP<Cylinder> geometry(0);
+    Teuchos::ArrayRCP<int> geom_gids(0);
     int target_dim = 3;
     Teuchos::RCP<MyField> target_field;
     if ( my_rank == 0 )
     {
-	geometry = buildCylinderGeometry( my_size, edge_size );
+	buildCylinderGeometry( my_size, edge_size, geometry, geom_gids );
 	target_field = 	Teuchos::rcp( new MyField( num_geom, target_dim ) );
     }
     else
@@ -850,8 +858,9 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
 	target_field = 	Teuchos::rcp( new MyField( 0, target_dim ) );
     }
     comm->barrier();
-    Teuchos::RCP< GeometryManager<Cylinder> > target_geometry_manager = Teuchos::rcp( 
-	new GeometryManager<Cylinder>( geometry, comm, geometry_dim ) );
+    Teuchos::RCP< GeometryManager<Cylinder,int> > target_geometry_manager = 
+	Teuchos::rcp( new GeometryManager<Cylinder,int>( 
+			  geometry, geom_gids, comm, geometry_dim ) );
     Teuchos::RCP<FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
 	new FieldManager<MyField>( target_field, comm ) );
 
@@ -1021,11 +1030,12 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
     int num_geom = 1;
     int geometry_dim = 3;
     Teuchos::ArrayRCP<Box> geometry(0);
+    Teuchos::ArrayRCP<int> geom_gids(0);
     int target_dim = 3;
     Teuchos::RCP<MyField> target_field;
     if ( my_rank == 0 )
     {
-	geometry = buildBoxGeometry( my_size, edge_size );
+	buildBoxGeometry( my_size, edge_size, geometry, geom_gids );
 	target_field = 	Teuchos::rcp( new MyField( num_geom, target_dim ) );
     }
     else
@@ -1033,9 +1043,9 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
 	target_field = 	Teuchos::rcp( new MyField( 0, target_dim ) );
     }
     comm->barrier();
-    Teuchos::RCP< GeometryManager<Box> > target_geometry_manager =
-	Teuchos::rcp( new GeometryManager<Box>( 
-			  geometry, comm, geometry_dim ) );
+    Teuchos::RCP< GeometryManager<Box,int> > target_geometry_manager =
+	Teuchos::rcp( new GeometryManager<Box,int>( 
+			  geometry, geom_gids, comm, geometry_dim ) );
     Teuchos::RCP<FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
 	new FieldManager<MyField>( target_field, comm ) );
 

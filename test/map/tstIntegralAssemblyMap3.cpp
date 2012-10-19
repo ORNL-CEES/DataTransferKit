@@ -749,10 +749,13 @@ Teuchos::RCP<DataTransferKit::MeshContainer<unsigned int> > buildNullWedgeMesh()
 // Geometry create functions. These geometries will span the entire domain,
 // requiring them to be broadcast throughout the rendezvous.
 //---------------------------------------------------------------------------//
-Teuchos::ArrayRCP<DataTransferKit::Cylinder>
-buildCylinderGeometry( int my_size, int edge_size )
+void buildCylinderGeometry( 
+    unsigned int my_size, unsigned int edge_size,
+    Teuchos::ArrayRCP<DataTransferKit::Cylinder>& cylinders,
+    Teuchos::ArrayRCP<unsigned int>& gids )
 {
-    Teuchos::ArrayRCP<DataTransferKit::Cylinder> cylinders(1);
+    Teuchos::ArrayRCP<DataTransferKit::Cylinder> new_cylinders(1);
+    Teuchos::ArrayRCP<unsigned int> new_gids(1,0);
     double length = (double) my_size;
     double radius = (double) (edge_size-1) / 2.0;
     double x_center = (double) (edge_size-1) / 2.0;
@@ -760,17 +763,21 @@ buildCylinderGeometry( int my_size, int edge_size )
     double z_center = (double) my_size / 2.0;
     cylinders[0] = DataTransferKit::Cylinder( length, radius,
 					      x_center, y_center, z_center );
-    return cylinders;
+    cylinders = new_cylinders;
+    gids = new_gids;
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::ArrayRCP<DataTransferKit::Box>
-buildBoxGeometry( int my_size, int edge_size )
+void buildBoxGeometry( unsigned int my_size, unsigned int edge_size,
+		       Teuchos::ArrayRCP<DataTransferKit::Box>& boxes,
+		       Teuchos::ArrayRCP<unsigned int> gids )
 {
-    Teuchos::ArrayRCP<DataTransferKit::Box> boxes(1);
+    Teuchos::ArrayRCP<DataTransferKit::Box> new_boxes(1);
+    Teuchos::ArrayRCP<unsigned int> new_gids(1,0);
     boxes[0] = DataTransferKit::Box( 0.0, 0.0, 0.0, edge_size-1,
 				     edge_size-1, my_size );
-    return boxes;
+    boxes = new_boxes;
+    gids = new_gids;
 }
 
 //---------------------------------------------------------------------------//
@@ -835,15 +842,17 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
     int num_geom = 1;
     int geometry_dim = 3;
     Teuchos::ArrayRCP<Cylinder> geometry(0);
+    Teuchos::ArrayRCP<unsigned int> geom_ids(0);
     int target_dim = 3;
     Teuchos::RCP<MyField> target_field;
-    Teuchos::RCP< GeometryManager<Cylinder> > target_geometry_manager;
+    Teuchos::RCP< GeometryManager<Cylinder,unsigned int> > target_geometry_manager;
     Teuchos::RCP<FieldManager<MyField> > target_space_manager;
     if ( my_rank == 0 )
     {
-	geometry = buildCylinderGeometry( my_size, edge_size );
-	target_geometry_manager = Teuchos::rcp( 
-	    new GeometryManager<Cylinder>( geometry, target_comm, geometry_dim ) );
+	buildCylinderGeometry( my_size, edge_size, geometry, geom_ids );
+	target_geometry_manager = Teuchos::rcp(
+	    new GeometryManager<Cylinder,unsigned int>( 
+		geometry, geom_ids, target_comm, geometry_dim ) );
 	target_field = 	Teuchos::rcp( new MyField( num_geom, target_dim ) );
 	target_space_manager = Teuchos::rcp( 
 	    new FieldManager<MyField>( target_field, target_comm ) );

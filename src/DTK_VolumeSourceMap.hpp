@@ -49,6 +49,7 @@
 #include "DTK_FieldEvaluator.hpp"
 #include "DTK_FieldManager.hpp"
 #include "DTK_CommIndexer.hpp"
+#include "DTK_MeshContainer.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -76,8 +77,8 @@ namespace DataTransferKit
  * that may be resolved by points. The apply stage will provide the source
  * with a list of local source geometries and a set of target points at which
  * to evaluate the source function. This evaluation can be interpreted in any
- * way, simply moving the volume data or doing a zero order evaluation for the
- * volume to volume case are a higher order functional evaluation for the
+ * way, simply moving the volume data, doing a zero order evaluation for the
+ * volume to volume case, or a higher order functional evaluation for the
  * quadrature point case.
  */
 //---------------------------------------------------------------------------//
@@ -136,6 +137,9 @@ class VolumSourceMap
     void computePointOrdinals( 
 	const RCP_CoordFieldManager& target_coord_manager,
 	Teuchos::Array<GlobalOrdinal>& target_ordinals );
+
+    // Build a psuedo-mesh from the geometry bounding boxes.
+    
 
   private:
 

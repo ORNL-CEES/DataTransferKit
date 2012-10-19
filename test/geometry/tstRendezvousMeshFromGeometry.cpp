@@ -56,6 +56,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, box_rendezvous_mesh_test )
     // Build a series of random boxes.
     int num_boxes = 100;
     Teuchos::ArrayRCP<Box> boxes( num_boxes );
+    Teuchos::ArrayRCP<int> gids( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
     {
 	double x_min = -(double) std::rand() / RAND_MAX;
@@ -66,10 +67,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, box_rendezvous_mesh_test )
 	double z_max =  (double) std::rand() / RAND_MAX;
 	boxes[i] = 
 	    Box( x_min, y_min, z_min, x_max, y_max, z_max );
+	gids[i] = i;
     }
 
     // Build a geometry manager.
-    GeometryManager<Box> geometry_manager( boxes, comm, 3 );
+    GeometryManager<Box,int> geometry_manager( boxes, gids, comm, 3 );
     
     // Build a rendezvous mesh.
     Teuchos::RCP<RendezvousMesh<int> > mesh = 
@@ -97,6 +99,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, cylinder_rendezvous_mesh_test )
     // Build a series of random cylinders.
     int num_cylinders = 100;
     Teuchos::ArrayRCP<Cylinder> cylinders( num_cylinders );
+    Teuchos::ArrayRCP<int> gids( num_cylinders );
     for ( int i = 0; i < num_cylinders; ++i )
     {
 	double length = (double) std::rand() / RAND_MAX;
@@ -106,10 +109,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, cylinder_rendezvous_mesh_test )
 	double centroid_z = (double) std::rand() / RAND_MAX - 0.5;
 	cylinders[i] = 
 	    Cylinder( length, radius, centroid_x, centroid_y, centroid_z );
+	gids[i] = i;
     }
 
     // Build a geometry manager.
-    GeometryManager<Cylinder> geometry_manager( cylinders, comm, 3 );
+    GeometryManager<Cylinder,int> geometry_manager( cylinders, gids, comm, 3 );
     
     // Build a rendezvous mesh.
     Teuchos::RCP<RendezvousMesh<int> > mesh = 
