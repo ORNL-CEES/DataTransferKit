@@ -174,9 +174,9 @@ BoundingBox Box::boundingBox() const
 Teuchos::Array<double> Box::centroid() const
 {
     Teuchos::Array<double> center(3);
-    center[0] = (x_max + x_min) / 2.0;
-    center[1] = (y_max + y_min) / 2.0;
-    center[2] = (z_max + z_min) / 2.0;
+    center[0] = (d_x_max + d_x_min) / 2.0;
+    center[1] = (d_y_max + d_y_min) / 2.0;
+    center[2] = (d_z_max + d_z_min) / 2.0;
     return center;
 }
 

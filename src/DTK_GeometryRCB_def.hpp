@@ -237,10 +237,11 @@ GeometryRCB<Geometry,GlobalOrdinal>::getBoxDestinationProcs(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Zoltan callback for getting the number of vertices.
+ * \brief Zoltan callback for getting the number of centroids.
  */
 template<class Geometry, class GlobalOrdinal>
-int GeometryRCB<Geometry,GlobalOrdinal>::getNumberOfObjects( void *data, int *ierr )
+int GeometryRCB<Geometry,GlobalOrdinal>::getNumberOfObjects( 
+    void *data, int *ierr )
 {
     RCP_GeometryManager geometry_manager = 
 	*static_cast<RCP_GeometryManager*>( data );
@@ -276,19 +277,16 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getObjectList(
 	// index.
 	zoltan_id_type i = 0;
 	GlobalOrdinal lid = 0;
-	Teuchos::ArrayRCP<Geometry> local_geometry = 
-	    geometry_manager->geometry();
-	typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_it;
-	typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_begin = 
-	    local_geometry.begin();
 	Teuchos::ArrayRCP<GlobalOrdinal> local_gids = 
 	    geometry_manager->gids();
 	typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator gid_it;
-	for ( geom_it = local_geometry.begin(), gid_it = local_gids.begin();
-	      geom_it != local_geometry.end();
-	      ++geom_it, ++gid_it )
+	typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator gids_begin = 
+	    local_gids.begin();
+	for ( gid_it = local_gids.begin(); 
+	      gid_it != local_gids.end(); 
+	      ++gid_it )
 	{
-	    lid = std::distance( geom_begin, geom_it );
+	    lid = std::distance( gids_begin, gid_it );
 
 	    globalID[i] = static_cast<zoltan_id_type>( *gid_it );
 	    localID[i] = static_cast<zoltan_id_type>( lid );
@@ -341,7 +339,7 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 
 	if ( sizeGID != 1 || sizeLID != 1 || 
 	     num_dim != Teuchos::as<int>(geom_dim) || 
-	     num_obj != Teuchos::as<int>(local_geometry.size) )
+	     num_obj != Teuchos::as<int>(local_geometry.size()) )
 	{
 	    *ierr = ZOLTAN_FATAL;
 	    return;
@@ -357,9 +355,9 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 	    geometry_coords = GT::centroid( *geom_it );
 	    for ( int d = 0; d < geom_dim; ++d )
 	    {
-		geom_vec[ geom_dim*n + d ] = geometry_coods[d];
-		++n;
+		geom_vec[ geom_dim*n + d ] = geometry_coords[d];
 	    }
+	    ++n;
 	}
     }
 	  

@@ -117,8 +117,8 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 
     // Construct the rendezvous partitioning for the mesh using the
     // vertices that are in the box.
-    d_partitioner = 
-	PartitionerFactory::create( d_comm, mesh_manager, d_dimension );
+    d_partitioner = PartitionerFactory::createMeshPartitioner( 
+	d_comm, mesh_manager, d_dimension );
     testPostcondition( !d_partitioner.is_null() );
     d_partitioner->partition();
 
