@@ -53,8 +53,6 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 
-#include <Tpetra_Map_decl.hpp>
-#include <Tpetra_Map_def.hpp>
 #include <Tpetra_Directory_decl.hpp>
 #include <Tpetra_Directory_def.hpp>
 
@@ -93,8 +91,6 @@ class GeometryRendezvous
     typedef Teuchos::RCP<Partitioner>                   RCP_Partitioner;
     typedef Teuchos::Comm<int>                          CommType;
     typedef Teuchos::RCP<const CommType>                RCP_Comm;
-    typedef Tpetra::Map<GlobalOrdinal>                  TpetraMap;
-    typedef Teuchos::RCP<const TpetraMap>               RCP_TpetraMap;
     //@}
 
     // Constructor.
@@ -122,7 +118,8 @@ class GeometryRendezvous
     void geometryContainingPoints( 
 	const Teuchos::ArrayRCP<double>& coords,
 	Teuchos::Array<GlobalOrdinal>& geometry,
-	Teuchos::Array<int>& geometry_src_procs ) const;
+	Teuchos::Array<int>& geometry_src_procs,
+	const double geometric_tolerance ) const;
 
     //! Get the bounding box over which the rendezvous decomposition was
     //! generated.
@@ -156,11 +153,14 @@ class GeometryRendezvous
     // Rendezvous partitioning.
     RCP_Partitioner d_partitioner;
 
-    // Rendezvous geometry to source proc map.
+    // Rendezvous geometry gid to source proc map.
     std::map<GlobalOrdinal,int> d_geometry_src_procs_map;
 
     // Rendezvous on-process geometry.
     Teuchos::Array<Geometry> d_rendezvous_geometry;
+
+    // Rendezvous on-process geometry gids.
+    Teuchos::Array<GlobalOrdinal> d_rendezvous_gids;
 };
 
 } // end namespace DataTransferKit

@@ -56,9 +56,6 @@
 #include <Teuchos_as.hpp>
 
 #include <Tpetra_Distributor.hpp>
-#include <Tpetra_Export.hpp>
-#include <Tpetra_MultiVector_decl.hpp>
-#include <Tpetra_MultiVector_def.hpp>
 
 namespace DataTransferKit
 {
@@ -108,12 +105,13 @@ template<class Geometry, class GlobalOrdinal>
 void GeometryRendezvous<Geometry,GlobalOrdinal>::build( 
     const RCP_GeometryManager& geometry_manager )
 {
-    // Extract the geometry vertices and elements that are in the bounding
-    // box. These are the pieces of the geometry that will be repartitioned.
+    // Extract the geometry objects that are in the bounding box. These are
+    // the pieces of the geometry that will be repartitioned.
     if ( !geometry_manager.is_null() ) 
     {
 	getGeometryInBox( geometry_manager );
     }
+    d_comm->barrier();
 
     // Construct the rendezvous partitioning for the geometry using the
     // vertices that are in the box.
@@ -189,52 +187,69 @@ GeometryRendezvous<Geometry,GlobalOrdinal>::procsContainingBoxes(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the native geometry ids in the rendezvous decomposition
+ * \brief Get the native geometry gids in the rendezvous decomposition
  * containing a blocked list of coordinates also in the rendezvous
  * decomposition.
  * 
  * \param coords A blocked list of coordinates to search the geometry with. 
 
- * \param geometry An array of the geometries the points were found in. An
- * element will be returned for each point in the order they were provided
- * in. If a point is not found in an geometry, return an invalid geometry
- * ordinal, std::numeric_limits<GlobalOrdinal>::max(), for that point.
+ * \param gids An array of the geometry ordinals the points were found
+ * in. An element will be returned for each point in the order they were
+ * provided in. If a point is not found in an geometry, return an invalid
+ * geometry ordinal, std::numeric_limits<GlobalOrdinal>::max(), for that
+ * point.
  *
  * \param geometry_src_procs The source procs that own the geometries. Once
- * proc is provided for each geometry in the order that the geometrys were
+ * proc is provided for each geometry in the order that the geometries were
  * provided. If a point is not found in an geometry, return an invalid
  * geometry source proc, -1, for that point.
  */
 template<class Geometry, class GlobalOrdinal>
-void GeometryRendezvous<Geometry,GlobalOrdinal>::geometrysContainingPoints( 
+void GeometryRendezvous<Geometry,GlobalOrdinal>::geometryContainingPoints( 
     const Teuchos::ArrayRCP<double>& coords,
-    Teuchos::Array<GlobalOrdinal>& geometry,
-    Teuchos::Array<int>& geometry_src_procs ) const
+    Teuchos::Array<GlobalOrdinal>& gids,
+    Teuchos::Array<int>& geometry_src_procs,
+    const double geometric_tolerance ) const
 {
     Teuchos::Array<double> point( d_dimension );
     GlobalOrdinal geometry_ordinal;
     GlobalOrdinal num_points = coords.size() / d_dimension;
-    bool found_point;
-    geometry.resize( num_points );
+    bool found_point = false;
+    gids.resize( num_points );
     geometry_src_procs.resize( num_points );
+    typename Teuchos::Array<Geometry>::const_iterator geom_it;
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator gid_it;
     for ( GlobalOrdinal n = 0; n < num_points; ++n )
     {
+	found_point = false;
+
 	for ( int d = 0; d < d_dimension; ++d )
 	{
 	    point[d] = coords[ d*num_points + n ];
 	}
 
-	found_point = d_kdtree->findPoint( point, geometry_ordinal );
-
-	if ( found_point )
+	// Check for point inclusion in the geometry.
+	for ( geom_it = d_rendezvous_geometry.begin(),
+	       gid_it = d_rendezvous_gids.begin();
+	      geom_it != d_rendezvous_geometry.end();
+	      ++geom_it, ++gid_it )
 	{
-	    geometry[n] = geometry_ordinal;
-	    geometry_src_procs[n] = 
-		d_geometry_src_procs_map.find( geometry_ordinal )->second;
+	    if ( !found_point )
+	    {
+		if ( GT::pointInGeometry(*geom_it, point, geometric_tolerance) )
+		{
+		    found_point = true;
+		    gids[n] = *gid_it;
+		    geometry_src_procs[n] = 
+			d_geometry_src_procs_map.find( *gid_it )->second;
+		}
+	    }
 	}
-	else
+
+	// If we didnt find the point return invalid results.
+	if ( !found_point )
 	{
-	    geometry[n] = std::numeric_limits<GlobalOrdinal>::max();
+	    gids[n] = std::numeric_limits<GlobalOrdinal>::max();
 	    geometry_src_procs[n] = -1;
 	}
     }
@@ -242,28 +257,28 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::geometrysContainingPoints(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief For a list of geometry in the rendezvous decomposition, the their
+ * \brief For a list of geometry in the rendezvous decomposition, get their
  * source procs.
  *
- * \param geometry The geometry to get source procs for.
+ * \param gids The geometry gids to get source procs for.
  *
  * \return The source procs for the geometry.
  */
 template<class Geometry, class GlobalOrdinal>
 Teuchos::Array<int> 
 GeometryRendezvous<Geometry,GlobalOrdinal>::geometrySourceProcs(
-    const Teuchos::Array<GlobalOrdinal>& geometry )
+    const Teuchos::Array<GlobalOrdinal>& gids )
 {
-    Teuchos::Array<int> source_procs( geometry.size() );
+    Teuchos::Array<int> source_procs( gids.size() );
     Teuchos::Array<int>::iterator source_proc_iterator;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator geometry_iterator;
-    for ( geometry_iterator = geometry.begin(),
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator gids_iterator;
+    for ( gids_iterator = gids.begin(),
       source_proc_iterator = source_procs.begin();
-	  geometry_iterator != geometry.end();
-	  ++geometry_iterator, ++source_proc_iterator )
+	  gids_iterator != gids.end();
+	  ++gids_iterator, ++source_proc_iterator )
     {
 	*source_proc_iterator = 
-	    d_geometry_src_procs_map.find( *geometry_iterator )->second;
+	    d_geometry_src_procs_map.find( *gids_iterator )->second;
     }
 
     return source_procs;
@@ -276,17 +291,35 @@ GeometryRendezvous<Geometry,GlobalOrdinal>::geometrySourceProcs(
  * \param geometry_manager The geometry to search the box with.
  */
 template<class Geometry, class GlobalOrdinal>
-GeometryRendezvous<Geometry,GlobalOrdinal>::getGeometryInBox( 
+void GeometryRendezvous<Geometry,GlobalOrdinal>::getGeometryInBox( 
     const RCP_GeometryManager& geometry_manager )
 {
+    // If the bounding box of a geometry intersects the rendezvous bounding
+    // box then it is made active.
+    Teuchos::ArrayRCP<Geometry> geometry = geometry_manager->geometry();
+    typename Teuchos::ArrayRCP<Geometry>::const_iterator geometry_it;
+    Teuchos::Array<short int> active_geometry( geometry.size(), 0 );
+    Teuchos::Array<short int>::iterator active_it;
+    BoundingBox dummy_box;
 
+    for ( geometry_it = geometry.begin(), active_it = active_geometry.begin();
+	  geometry_it != geometry.end();
+	  ++geometry_it, ++active_it )
+    {
+	if ( BoundingBox::intersectBoxes( GT::boundingBox( *geometry_it ),
+					  d_global_box, dummy_box ) )
+	{
+	    *active_it = 1;
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Send the geometry to the rendezvous decomposition.
  *
- * \param geometry_manager The geometry to send to the rendezvous decomposition.
+ * \param geometry_manager The geometry to send to the rendezvous
+ * decomposition. 
  */
 template<class Geometry, class GlobalOrdinal>
 void GeometryRendezvous<Geometry,GlobalOrdinal>::sendGeometryToRendezvous( 
@@ -296,204 +329,109 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::sendGeometryToRendezvous(
     bool geometry_exists = true;
     if ( geometry_manager.is_null() ) geometry_exists = false;
 
-    // Setup a geometry indexer.
+    // Setup a geometry data.
+    Teuchos::ArrayRCP<Geometry> geometry(0);
+    Teuchos::ArrayRCP<GlobalOrdinal> gids(0);
     RCP_Comm geometry_comm;
+    Teuchos::Array<BoundingBox> geom_boxes(0);
+    Teuchos::Array<short int> active_geom(0);
     if ( geometry_exists )
     {
+	geometry = geometry_manager->geometry();
+	gids = geometry_manager->gids();
 	geometry_comm = geometry_manager->comm();
+	geom_boxes = geometry_manager->boundingBoxes();
+	active_geom = geometry_manager->getActiveGeometry();
     }
     d_comm->barrier();
     CommIndexer geometry_indexer( d_comm, geometry_comm );
 
-    // Setup the geometry blocks.
-    int num_geometry_blocks;
-    if ( geometry_exists )
+    // Get the rendezvous destination procs for the geometry bounding boxes.
+    Teuchos::Array<Teuchos::Array<int> > box_procs =
+	procsContainingBoxes( box_iterator );
+
+    // Unroll the geometry and procs into vectors for those that are active.
+    Teuchos::Array<Teuchos::Array<int> >::const_iterator outer_it;
+    Teuchos::Array<int>::const_iterator proc_it;
+    typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_it;
+    typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator gid_it;
+    Teuchos::Array<short int>::const_iterator active_it;
+    Teuchos::Array<Geometry> geom_to_rendezvous;
+    Teuchos::Array<GlobalOrdinal> gids_to_rendezvous;
+    Teuchos::Array<int> geom_rendezvous_procs;
+
+    for( outer_it = box_procs.begin(), geom_it = geometry.begin(),
+	   gid_it = gids.begin(), active_it = active_geom.begin();
+	 outer_it != box_procs.end();
+	 ++outer_it, ++geom_it, ++gid_it, ++active_geom )
     {
-	num_geometry_blocks = geometry_manager->getNumBlocks();
-    }
-    d_comm->barrier();
-    Teuchos::broadcast<int,int>( *d_comm, geometry_indexer.l2g(0),
-				 Teuchos::Ptr<int>(&num_geometry_blocks) );
-    
-    // Setup an array to store the geometry in the rendezvous decomposition.
-    Teuchos::ArrayRCP<Teuchos::RCP<GeometryContainerType> >
-	rendezvous_block_containers( num_geometry_blocks );
-
-    // Loop through the blocks and move them to the rendezvous decomposition.
-    Teuchos::RCP<Geometry> current_block;
-    for ( int block_id = 0; block_id < num_geometry_blocks; ++block_id )
-    {
-	// Get the current geometry block we are operating on.
-	if ( geometry_exists )
+	if ( *active_geom )
 	{
-	    current_block = geometry_manager->getBlock( block_id );
+	    for ( proc_it = outer_it->begin();
+		  proc_it != outer_it->end();
+		  ++proc_it )
+	    {
+		geom_to_rendezvous.push_back( *geom_it );
+		gids_to_rendezvous.push_back( *gid_it );
+		geom_rendezvous_procs.push_back( *proc_it );
+	    }
 	}
-	d_comm->barrier();
-
-	// Setup the communication patterns for moving the geometry block to the
-	// rendezvous decomposition. This will also move the vertex and element
-	// global ordinals to the rendezvous decomposition.
-	Teuchos::Array<GlobalOrdinal> rendezvous_vertices;
-	Teuchos::Array<GlobalOrdinal> rendezvous_elements;
-	Teuchos::ArrayView<short int> active_block_elements;
-	if ( geometry_exists )
-	{
-	    active_block_elements = geometry_manager->getActiveElements( block_id );
-	}
-	d_comm->barrier();
-	setupImportCommunication( current_block, active_block_elements,
-				  rendezvous_vertices, rendezvous_elements );
-
-	// Setup export vertex map.
-	GlobalOrdinal num_vertices = 0;
-	Teuchos::ArrayRCP<GlobalOrdinal> export_vertex_arcp(0,0);
-	if ( geometry_exists )
-	{
-	    num_vertices = GeometryTools<Geometry>::numVertices( *current_block );
-	    export_vertex_arcp = 
-		GeometryTools<Geometry>::verticesNonConstView( *current_block );
-	}
-	d_comm->barrier();
-	Teuchos::ArrayView<const GlobalOrdinal> export_vertex_view 
-	    = export_vertex_arcp();
-	RCP_TpetraMap export_vertex_map = 
-	    Tpetra::createNonContigMap<GlobalOrdinal>( 
-		export_vertex_view, d_comm );
-	testInvariant( !export_vertex_map.is_null() );
-
-	// Setup import vertex map.
-	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_vertices_view = 
-	    rendezvous_vertices();
-	RCP_TpetraMap import_vertex_map = 
-	    Tpetra::createNonContigMap<GlobalOrdinal>(
-		rendezvous_vertices_view, d_comm );
-	testInvariant( !import_vertex_map.is_null() );
-
-	// Setup export element map.
-	GlobalOrdinal num_elements = 0;
-	Teuchos::ArrayRCP<GlobalOrdinal> export_element_arcp(0,0);
-	if ( geometry_exists )
-	{
-	    num_elements = GeometryTools<Geometry>::numElements( *current_block );
-	    export_element_arcp =
-		GeometryTools<Geometry>::elementsNonConstView( *current_block );
-	}
-	d_comm->barrier();
-	Teuchos::ArrayView<const GlobalOrdinal> export_element_view = 
-	    export_element_arcp();
-	RCP_TpetraMap export_element_map = 
-	    Tpetra::createNonContigMap<GlobalOrdinal>(
-		export_element_view, d_comm );
-	testInvariant( !export_element_map.is_null() );
-
-	// Setup import element map.
-	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
-	    rendezvous_elements();
-	RCP_TpetraMap import_element_map = 
-	    Tpetra::createNonContigMap<GlobalOrdinal>(
-		rendezvous_elements_view, d_comm );
-	testInvariant( !import_element_map.is_null() );
-
-	// Setup importers.
-	Tpetra::Import<GlobalOrdinal> vertex_importer( export_vertex_map, 
-						       import_vertex_map );
-	Tpetra::Import<GlobalOrdinal> element_importer( export_element_map, 
-							import_element_map );
-
-	// Move the vertex coordinates to the rendezvous decomposition.
-	Teuchos::ArrayRCP<double> export_coords_view(0,0);
-	if ( geometry_exists )
-	{
-	    export_coords_view =
-		GeometryTools<Geometry>::coordsNonConstView( *current_block );
-	}
-	d_comm->barrier();
-	Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > 
-	    export_coords = Tpetra::createMultiVectorFromView( 
-		export_vertex_map, export_coords_view, 
-		num_vertices, d_dimension );
-	Tpetra::MultiVector<double,GlobalOrdinal> 
-	    import_coords( import_vertex_map, d_dimension );
-	import_coords.doImport( 
-	    *export_coords, vertex_importer, Tpetra::INSERT );
-
-	// Move the element connectivity to the rendezvous decomposition.
-	int vertices_per_element;
-	if ( geometry_exists )
-	{
-	    vertices_per_element = MT::verticesPerElement( *current_block );
-	}
-	d_comm->barrier();
-	Teuchos::broadcast<int,int>( *d_comm, geometry_indexer.l2g(0),
-				     Teuchos::Ptr<int>(&vertices_per_element) );
-
-	Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view(0,0);
-	if ( geometry_exists ) 
-	{
-	    export_conn_view =
-		GeometryTools<Geometry>::connectivityNonConstView( *current_block );
-	}
-	d_comm->barrier();
-	Teuchos::RCP<Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > 
-	    export_conn = Tpetra::createMultiVectorFromView( 
-		export_element_map, export_conn_view, 
-		num_elements, vertices_per_element );
-	Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> import_conn( 
-	    import_element_map, vertices_per_element );
-	import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
-
-	// Broadcast the permutation list.
-	Teuchos::ArrayRCP<int> permutation_list(vertices_per_element,0);
-	if ( geometry_exists )
-	{
-	    permutation_list = 
-		GeometryTools<Geometry>::permutationNonConstView( *current_block );
-	}
-	d_comm->barrier();
-	Teuchos::broadcast<int,int>( *d_comm, geometry_indexer.l2g(0),
-				     vertices_per_element, 
-				     &permutation_list[0] );
-
-	// broadcast the element topology.
-	int block_topology = 0;
-	if ( geometry_exists )
-	{
-	    block_topology = 
-		static_cast<int>(MT::elementTopology( *current_block ));
-	}
-	d_comm->barrier();
-	Teuchos::broadcast<int,int>( *d_comm, geometry_indexer.l2g(0),
-				     Teuchos::Ptr<int>(&block_topology) );
-
-	// Construct the geometry block container from the collected data,
-	// effectively wrapping it with geometry traits.
-	Teuchos::ArrayRCP<GlobalOrdinal> 
-	    rendezvous_vertices_array( rendezvous_vertices.size() );
-	std::copy( rendezvous_vertices.begin(), rendezvous_vertices.end(),
-		   rendezvous_vertices_array.begin() );
-	rendezvous_vertices.clear();
-
-	Teuchos::ArrayRCP<GlobalOrdinal> 
-	    rendezvous_elements_array( rendezvous_elements.size() );
-	std::copy( rendezvous_elements.begin(), rendezvous_elements.end(),
-		   rendezvous_elements_array.begin() );
-	rendezvous_elements.clear();
-
-	rendezvous_block_containers[ block_id ] = 
-	    Teuchos::rcp( new GeometryContainerType( 
-			      d_dimension,
-			      rendezvous_vertices_array,
-			      import_coords.get1dView(),
-			      static_cast<DTK_ElementTopology>(block_topology),
-			      vertices_per_element,
-			      rendezvous_elements_array,
-			      import_conn.get1dView(),
-			      permutation_list ) );
     }
 
-    // Build the rendezvous geometry manager from the rendezvous geometry blocks.
-    return GeometryManagerType( 
-	rendezvous_block_containers, d_comm, d_dimension );
+    // Distribute the geometry to the rendezvous decomposition.
+    Tpetra::Distributor geometry_distributor( d_comm );
+    GlobalOrdinal num_import_geom = 
+	geometry_distributor.createFromSends( geom_rendezvous_procs() );
+    geom_rendezvous_procs.clear();
+
+    Teuchs::Array<Geometry> import_geom( num_import_geom );
+    Teuchos::ArrayView<const Geometry> src_geom_view = geom_to_rendezvous();
+    geometry_distributor.doPostsAndWaits( src_geom_view, 1, import_geom() );
+    geom_to_rendezvous.clear();
+
+    Teuchos::Array<GlobalOrdinal> import_gids( num_import_geom );
+    Teuchos::ArrayView<const GlobalOrdinal> src_gids_view = 
+	gids_to_rendezvous();
+    geometry_distributor.doPostsAndWaits( src_gids_view, 1, import_gids() );
+    gids_to_rendezvous.clear();
+
+    // Extract the geometry source procs from the distributor.
+    Teuchos::ArrayView<const int> from_images = 
+	geometry_distributor.getImagesFrom();
+    Teuchos::ArrayView<const std::size_t> from_lengths = 
+	geometry_distributor.getLengthsFrom();
+    Teuchos::Array<int> geometry_src_procs;
+    for ( int i = 0; i < (int) from_images.size(); ++i )
+    {
+	for ( std::size_t j = 0; j < from_lengths[i]; ++j )
+	{
+	    geometry_src_procs.push_back( from_images[i] );
+	}
+    }
+    testInvariant( geometry_src_procs.size() == num_import_geom );
+
+    // Build a unique set of local geometry, gids, and the source procs map.
+    d_rendezvous_geometry.clear();
+    d_rendezvous_gids.clear();
+    std::set<GlobalOrdinal> import_gids_set;
+    typename Teuchos::Array<GlobalOrdinal>::const_iterator import_gids_it;
+    typename Teuchos::Array<Geometry>::const_iterator import_geom_it;
+    typename Teuchos::Array<int>::const_iterator geometry_src_procs_it;
+    for ( import_gids_it = import_gids.begin(),
+	  import_geom_it = import_geom.begin(),
+       geometry_src_procs_it = geometry_src_procs.begin();
+	  import_gids_it != import_gids.end();
+	  ++import_gids_it, ++import_geom_it, ++import_src_procs_it );
+    {
+	if ( import_gids_set.insert( *import_gids_it ).second )
+	{
+	    d_geometry_src_procs_map[ *import_gids_it ] = 
+		*geometry_src_procs_it;
+
+	    d_rendezvous_geometry.push_back( *import_geom_it );
+	    d_rendezvous_gids.push_back( *import_gids_it );
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//

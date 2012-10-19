@@ -42,6 +42,8 @@ APPEND_SET(HEADERS
   DTK_GeometryManager_def.hpp
   DTK_GeometryRCB.hpp
   DTK_GeometryRCB_def.hpp
+  DTK_GeometryRendezvous.hpp
+  DTK_GeometryRendezvous_def.hpp
   DTK_GeometryTraits.hpp
   DTK_IntegralAssemblyMap.hpp
   DTK_IntegralAssemblyMap_def.hpp

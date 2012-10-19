@@ -114,6 +114,7 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
     {
 	getMeshInBox( mesh_manager );
     }
+    d_comm->barrier();
 
     // Construct the rendezvous partitioning for the mesh using the
     // vertices that are in the box.
