@@ -32,21 +32,21 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_RCB.hpp
+ * \file DTK_GeometryRCB.hpp
  * \author Stuart R. Slattery
  * \brief Wrapper declaration for Zoltan recursive coordinate bisectioning.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_RCB_HPP
-#define DTK_RCB_HPP
+#ifndef DTK_GEOMETRYRCB_HPP
+#define DTK_GEOMETRYRCB_HPP
 
 #include <set>
 
 #include "DTK_Partitioner.hpp"
 #include "DTK_BoundingBox.hpp"
-#include "DTK_MeshTraits.hpp"
-#include "DTK_MeshManager.hpp"
+#include "DTK_GeometryTraits.hpp"
+#include "DTK_GeometryManager.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -61,36 +61,37 @@ namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 /*!
- * \class RCB
- * \brief Recursive Coordinate Bisectioning partitioner.
+ * \class GeometryRCB
+ * \brief Recursive Coordinate Bisectioning partitioner for geometry
  */
 //---------------------------------------------------------------------------//
-template<class Mesh>
-class RCB : public Partitioner
+template<class Geometry, class GlobalOrdinal>
+class GeometryRCB : public Partitioner
 {
   public:
     
     //@{
     //! Typedefs.
-    typedef Mesh                                        mesh_type;
-    typedef MeshTraits<Mesh>                            MT;
-    typedef typename MT::global_ordinal_type            GlobalOrdinal;
-    typedef Teuchos::RCP< MeshManager<Mesh> >           RCP_MeshManager;
-    typedef typename MeshManager<Mesh>::BlockIterator   BlockIterator;          
-    typedef Teuchos::Comm<int>                          CommType;
-    typedef Teuchos::RCP<const CommType>                RCP_Comm;
-    typedef ZOLTAN_ID_TYPE                              zoltan_id_type;
-    typedef ZOLTAN_ID_PTR                               zoltan_id_ptr;
+    typedef Geometry                                     geometry_type;
+    typedef GlobalOrdinal                                global_ordinal_type;
+    typedef GeometryTraits<Geometry>                     GT;
+    typedef GeometryManager<Geometry,GlobalOrdinal>      GeometryManagerType;
+    typedef Teuchos::RCP<GeometryManagerType>            RCP_GeometryManager;
+    typedef Teuchos::Comm<int>                           CommType;
+    typedef Teuchos::RCP<const CommType>                 RCP_Comm;
+    typedef ZOLTAN_ID_TYPE                               zoltan_id_type;
+    typedef ZOLTAN_ID_PTR                                zoltan_id_ptr;
     //@}
 
     // Constructor.
-    RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager, 
-	 const int dimension );
+    GeometryRCB( const RCP_Comm& comm, 
+		 const RCP_GeometryManager& geometry_manager, 
+		 const int dimension );
 
     // Destructor.
-    ~RCB();
+    ~GeometryRCB();
 
-    // Compute RCB partitioning of the mesh.
+    // Compute GeometryRCB partitioning of the geometry.
     void partition();
 
     // Get the destination process for a point given its coordinates.
@@ -164,13 +165,13 @@ class RCB : public Partitioner
 
   private:
 
-    // The communicator over which RCB is performed.
+    // The communicator over which GeometryRCB is performed.
     RCP_Comm d_comm;
 
-    // The mesh being partitioned.
-    RCP_MeshManager d_mesh_manager;
+    // The geometry being partitioned.
+    RCP_GeometryManager d_geometry_manager;
 
-    // The dimension of the RCB space.
+    // The dimension of the GeometryRCB space.
     int d_dimension;
 
     // Zoltan struct.
@@ -222,12 +223,12 @@ class RCB : public Partitioner
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_RCB_def.hpp"
+#include "DTK_GeometryRCB_def.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_RCB_HPP
+#endif // end DTK_GEOMETRYRCB_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_RCB.hpp
+// end DTK_GeometryRCB.hpp
 //---------------------------------------------------------------------------//

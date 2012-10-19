@@ -102,6 +102,16 @@ class GeometryTraits
      */
     static inline BoundingBox boundingBox( const GeometryType& geometry )
     { UndefinedGeometryTraits<GeometryType>::notDefined(); return 0; }
+
+    /*!
+     * \brief Return the centroid of the geometry.
+     */
+    static inline Teuchos::Array<double> 
+    centroid( const GeometryType& geometry )
+    { 
+	UndefinedGeometryTraits<GeometryType>::notDefined(); 
+	return Teuchos::Array<double>(0);
+    }
 };
 
 } // end namespace DataTransferKit

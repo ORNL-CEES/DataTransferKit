@@ -89,7 +89,7 @@ class GeometryManager
     // Destructor.
     ~GeometryManager();
 
-    //! Get the geometric objects managed by this manager.
+    //! Get the local geometric objects managed by this manager.
     const Teuchos::ArrayRCP<Geometry>& geometry() const 
     { return d_geometry; }
 

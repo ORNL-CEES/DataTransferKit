@@ -32,18 +32,17 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_RCB_def.hpp
+ * \file DTK_GeometryRCB_def.hpp
  * \author Stuart R. Slattery
  * \brief Wrapper definition for Zoltan recursive coordinate bisectioning.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_RCB_DEF_HPP
-#define DTK_RCB_DEF_HPP
+#ifndef DTK_GEOMETRYRCB_DEF_HPP
+#define DTK_GEOMETRYRCB_DEF_HPP
 
 #include <algorithm>
 
-#include "DTK_MeshTools.hpp"
 #include "DTK_Assertion.hpp"
 #include "DTK_CommIndexer.hpp"
 #include "DataTransferKit_config.hpp"
@@ -62,19 +61,20 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  *
- * \param comm The communicator over which to build the RCB partitioning.
+ * \param comm The communicator over which to build the GeometryRCB partitioning.
  *
- * \param mesh_manager The mesh to be partitioned with RCB. A null RCP is
- * valid here as the mesh may or may not exist on all of the processes we want
- * to repartition it to.
+ * \param geometry_manager The geometry to be partitioned with GeometryRCB. A
+ * null RCP is valid here as the geometry may or may not exist on all of the
+ * processes we want to repartition it to.
  *
- * \param dimension The dimension of the RCB space.
+ * \param dimension The dimension of the GeometryRCB space.
  */
-template<class Mesh>
-RCB<Mesh>::RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager, 
-		const int dimension )
+template<class Geometry, class GlobalOrdinal>
+GeometryRCB<Geometry,GlobalOrdinal>::GeometryRCB(
+    const RCP_Comm& comm, const RCP_GeometryManager& geometry_manager, 
+    const int dimension )
     : d_comm( comm )
-    , d_mesh_manager( mesh_manager )
+    , d_geometry_manager( geometry_manager )
     , d_dimension( dimension )
 {
     // Get the raw MPI communicator.
@@ -97,7 +97,7 @@ RCB<Mesh>::RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager,
     Zoltan_Set_Param( d_zz, "EDGE_WEIGHT_DIM", "0" );
     Zoltan_Set_Param( d_zz, "RETURN_LISTS", "ALL" );
 
-    // RCB parameters.
+    // GeometryRCB parameters.
     Zoltan_Set_Param( d_zz, "RCB_OUTPUT_LEVEL", "0" );
     Zoltan_Set_Param( d_zz, "RCB_RECTILINEAR_BLOCKS", "0" );
     Zoltan_Set_Param( d_zz, "KEEP_CUTS", "1" );
@@ -106,18 +106,18 @@ RCB<Mesh>::RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager,
     Zoltan_Set_Param( d_zz, "RCB_SET_DIRECTIONS", "1" );
 
     // Register static functions.
-    Zoltan_Set_Num_Obj_Fn( d_zz, getNumberOfObjects, &d_mesh_manager );
-    Zoltan_Set_Obj_List_Fn( d_zz, getObjectList, &d_mesh_manager );
+    Zoltan_Set_Num_Obj_Fn( d_zz, getNumberOfObjects, &d_geometry_manager );
+    Zoltan_Set_Obj_List_Fn( d_zz, getObjectList, &d_geometry_manager );
     Zoltan_Set_Num_Geom_Fn( d_zz, getNumGeometry, &d_dimension );
-    Zoltan_Set_Geom_Multi_Fn( d_zz, getGeometryList, &d_mesh_manager );
+    Zoltan_Set_Geom_Multi_Fn( d_zz, getGeometryList, &d_geometry_manager );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Destructor. Zoltan memory deallocation happens here and only here.
  */
-template<class Mesh>
-RCB<Mesh>::~RCB()
+template<class Geometry, class GlobalOrdinal>
+GeometryRCB<Geometry,GlobalOrdinal>::~GeometryRCB()
 {
     Zoltan_LB_Free_Part( &d_import_global_ids, &d_import_local_ids, 
 			 &d_import_procs, &d_import_to_part );
@@ -128,10 +128,10 @@ RCB<Mesh>::~RCB()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute RCB partitioning of the mesh.
+ * \brief Compute GeometryRCB partitioning of the geometry.
  */
-template<class Mesh>
-void RCB<Mesh>::partition()
+template<class Geometry, class GlobalOrdinal>
+void GeometryRCB<Geometry,GlobalOrdinal>::partition()
 {
     rememberValue( int zoltan_error );
 #if HAVE_DTK_DBC
@@ -175,10 +175,11 @@ void RCB<Mesh>::partition()
  * \param coords Point coordinates. The dimension of the point must be equal
  * to or less than one.
  *
- * \return The RCB destination proc for the point.
+ * \return The GeometryRCB destination proc for the point.
  */
-template<class Mesh>
-int RCB<Mesh>::getPointDestinationProc( Teuchos::Array<double> coords ) const
+template<class Geometry, class GlobalOrdinal>
+int GeometryRCB<Geometry,GlobalOrdinal>::getPointDestinationProc( 
+    Teuchos::Array<double> coords ) const
 {
     testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
     testPrecondition( d_dimension == Teuchos::as<int>(coords.size()) );
@@ -202,11 +203,12 @@ int RCB<Mesh>::getPointDestinationProc( Teuchos::Array<double> coords ) const
  *
  * \param box The bounding box to get the destinations for.
  *
- * \return The RCB destination procs for the box
+ * \return The GeometryRCB destination procs for the box
  */
-template<class Mesh>
+template<class Geometry, class GlobalOrdinal>
 Teuchos::Array<int>
-RCB<Mesh>::getBoxDestinationProcs( const BoundingBox& box ) const
+GeometryRCB<Geometry,GlobalOrdinal>::getBoxDestinationProcs( 
+    const BoundingBox& box ) const
 {
     Teuchos::Tuple<double,6> box_bounds = box.getBounds();
 
@@ -237,77 +239,60 @@ RCB<Mesh>::getBoxDestinationProcs( const BoundingBox& box ) const
 /*!
  * \brief Zoltan callback for getting the number of vertices.
  */
-template<class Mesh>
-int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
+template<class Geometry, class GlobalOrdinal>
+int GeometryRCB<Geometry,GlobalOrdinal>::getNumberOfObjects( void *data, int *ierr )
 {
-    RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
-    int num_vertices = 0;
+    RCP_GeometryManager geometry_manager = 
+	*static_cast<RCP_GeometryManager*>( data );
+    int num_geometry = 0;
 
-    // We'll only count vertices if the mesh manager is not null.
-    if ( !mesh_manager.is_null() )
+    // We'll only count geometry if the geometry manager is not null.
+    if ( !geometry_manager.is_null() )
     {
-	int num_blocks = mesh_manager->getNumBlocks();
-	Teuchos::ArrayView<short int>::const_iterator active_iterator;
-	for ( int i = 0; i < num_blocks; ++i )
-	{
-	    for ( active_iterator = mesh_manager->getActiveVertices(i).begin();
-		  active_iterator != mesh_manager->getActiveVertices(i).end();
-		  ++active_iterator )
-	    {
-		if ( *active_iterator )
-		{
-		    ++num_vertices;
-		}
-	    }
-	}
+	num_geometry = geometry_manager->localNumGeometry();
     }
 
     *ierr = ZOLTAN_OK;
-    return num_vertices;
+    return num_geometry;
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Zoltan callback for getting the local and global vertex ID's.
+ * \brief Zoltan callback for getting the local and global geometry ID's.
  */
-template<class Mesh>
-void RCB<Mesh>::getObjectList( 
+template<class Geometry, class GlobalOrdinal>
+void GeometryRCB<Geometry,GlobalOrdinal>::getObjectList( 
     void *data, int sizeGID, int sizeLID,
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
     int wgt_dim, float *obj_wgts, int *ierr )
 {
-    RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
+    RCP_GeometryManager geometry_manager = 
+	*static_cast<RCP_GeometryManager*>( data );
 
-    // We'll only build the geometry list is the mesh manager is not null.
-    if ( !mesh_manager.is_null() )
+    // We'll only build the geometry list is the geometry manager is not null.
+    if ( !geometry_manager.is_null() )
     {
-	// Note here that the local ID is being set as the vertex array index.
-	Teuchos::ArrayRCP<short int>::const_iterator active_iterator;
-	typename MT::const_vertex_iterator gid_iterator;
+	// Note here that the local ID is being set to the geometry array
+	// index.
 	zoltan_id_type i = 0;
-	zoltan_id_type j = 0;
-	BlockIterator block_iterator;
-	for ( block_iterator = mesh_manager->blocksBegin();
-	      block_iterator != mesh_manager->blocksEnd();
-	      ++block_iterator )
+	GlobalOrdinal lid = 0;
+	Teuchos::ArrayRCP<Geometry> local_geometry = 
+	    geometry_manager->geometry();
+	typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_it;
+	typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_begin = 
+	    local_geometry.begin();
+	Teuchos::ArrayRCP<GlobalOrdinal> local_gids = 
+	    geometry_manager->gids();
+	typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator gid_it;
+	for ( geom_it = local_geometry.begin(), gid_it = local_gids.begin();
+	      geom_it != local_geometry.end();
+	      ++geom_it, ++gid_it )
 	{
-	    int block_id = std::distance( mesh_manager->blocksBegin(),
-					  block_iterator );
+	    lid = std::distance( geom_begin, geom_it );
 
-	    for ( gid_iterator = MT::verticesBegin( *(*block_iterator) ),
-	       active_iterator = mesh_manager->getActiveVertices( 
-		   block_id ).begin();
-		  gid_iterator != MT::verticesEnd( *(*block_iterator) );
-		  ++gid_iterator, ++active_iterator )
-	    {
-		if ( *active_iterator )
-		{
-		    globalID[i] = static_cast<zoltan_id_type>( *gid_iterator );
-		    localID[i] = j;
-		    ++i;
-		}
-		++j;
-	    }
+	    globalID[i] = static_cast<zoltan_id_type>( *gid_it );
+	    localID[i] = static_cast<zoltan_id_type>( lid );
+	    ++i;
 	}
     }
 
@@ -318,8 +303,8 @@ void RCB<Mesh>::getObjectList(
 /*!
  * \brief Zoltan callback for getting the dimension of the vertices.
  */
-template<class Mesh>
-int RCB<Mesh>::getNumGeometry( void *data, int *ierr )
+template<class Geometry, class GlobalOrdinal>
+int GeometryRCB<Geometry,GlobalOrdinal>::getNumGeometry( void *data, int *ierr )
 {
     int dimension = *static_cast<int*>( data );
     *ierr = ZOLTAN_OK;
@@ -328,47 +313,35 @@ int RCB<Mesh>::getNumGeometry( void *data, int *ierr )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Zoltan callback for getting the vertex coordinates.
+ * \brief Zoltan callback for getting the centroid coordinates.
  */
-template<class Mesh>
-void RCB<Mesh>::getGeometryList(
+template<class Geometry, class GlobalOrdinal>
+void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
     void *data, int sizeGID, int sizeLID,
     int num_obj,
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
     int num_dim, double *geom_vec, int *ierr )
 {
-    RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
+    RCP_GeometryManager geometry_manager = 
+	*static_cast<RCP_GeometryManager*>( data );
 
-    // We will only supply vertex coordinates when the mesh exists.
-    if ( !mesh_manager.is_null() )
+    // We will only supply centroid coordinates when the geometry exists.
+    if ( !geometry_manager.is_null() )
     {
-	// Get the number of active vertices.
-	int num_active_vertices = 0;
-	int num_blocks = mesh_manager->getNumBlocks();
-	Teuchos::ArrayView<short int>::const_iterator active_iterator;
-	for ( int i = 0; i < num_blocks; ++i )
-	{
-	    for ( active_iterator = mesh_manager->getActiveVertices(i).begin();
-		  active_iterator != mesh_manager->getActiveVertices(i).end();
-		  ++active_iterator )
-	    {
-		if ( *active_iterator )
-		{
-		    ++num_active_vertices;
-		}
-	    }
-	}
+	Teuchos::ArrayRCP<Geometry> local_geometry = 
+	    geometry_manager->geometry();
+	typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_it;
 
 	// Check Zoltan for consistency.
-	int vertex_dim = mesh_manager->dim();
+	int geom_dim = geometry_manager->dim();
 	testInvariant( sizeGID == 1 );
 	testInvariant( sizeLID == 1 );
-	testInvariant( num_dim == Teuchos::as<int>(vertex_dim) );
-	testInvariant( num_obj == Teuchos::as<int>(num_active_vertices) );
+	testInvariant( num_dim == Teuchos::as<int>(geom_dim) );
+	testInvariant( num_obj == Teuchos::as<int>(local_geometry.size() ) );
 
 	if ( sizeGID != 1 || sizeLID != 1 || 
-	     num_dim != Teuchos::as<int>(vertex_dim) || 
-	     num_obj != Teuchos::as<int>(num_active_vertices) )
+	     num_dim != Teuchos::as<int>(geom_dim) || 
+	     num_obj != Teuchos::as<int>(local_geometry.size) )
 	{
 	    *ierr = ZOLTAN_FATAL;
 	    return;
@@ -376,34 +349,16 @@ void RCB<Mesh>::getGeometryList(
     
 	// Zoltan needs interleaved coordinates.
 	int n = 0;
-	Teuchos::ArrayRCP<const double> mesh_coords;
-	GlobalOrdinal num_vertices;
-	BlockIterator block_iterator;
-	for ( block_iterator = mesh_manager->blocksBegin();
-	      block_iterator != mesh_manager->blocksEnd();
-	      ++block_iterator )
+	Teuchos::Array<double> geometry_coords;
+	for ( geom_it = local_geometry.begin();
+	      geom_it != local_geometry.end();
+	      ++geom_it )
 	{
-	    int block_id = std::distance( mesh_manager->blocksBegin(),
-					  block_iterator );
-	    Teuchos::ArrayView<short int> active_vertices =
-		mesh_manager->getActiveVertices( block_id );
-
-	    mesh_coords = MeshTools<Mesh>::coordsView( *(*block_iterator) );
-	    num_vertices = std::distance( 
-		MT::verticesBegin( *(*block_iterator) ),
-					  
-		MT::verticesEnd( *(*block_iterator) ) );
-	    for ( GlobalOrdinal i = 0; i < num_vertices; ++i )
+	    geometry_coords = GT::centroid( *geom_it );
+	    for ( int d = 0; d < geom_dim; ++d )
 	    {
-		if ( active_vertices[i] )
-		{
-		    for ( int d = 0; d < vertex_dim; ++d )
-		    {
-			geom_vec[ vertex_dim*n + d ] = 
-			    mesh_coords[ d*num_vertices + i ];
-		    }
-		    ++n;
-		}
+		geom_vec[ geom_dim*n + d ] = geometry_coods[d];
+		++n;
 	    }
 	}
     }
@@ -417,9 +372,8 @@ void RCB<Mesh>::getGeometryList(
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_RCB_DEF_HPP
+#endif // end DTK_GEOMETRYRCB_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_RCB_def.hpp
+// end DTK_GeometryRCB_def.hpp
 //---------------------------------------------------------------------------//
-
