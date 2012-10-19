@@ -70,7 +70,7 @@ WaveEvaluator::evaluate(
 	    eval_data[eval_id] = 0.0;
 	}
     }
-
+    
     return evaluations;
 }
 
