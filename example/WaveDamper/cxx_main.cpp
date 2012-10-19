@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
     // ---------------//
 
     // Setup a FieldContainer for the actual data in the Wave code so we can
-    // compute its norm.
+    // compute its norm for the convergence check.
     Teuchos::Array<double> wave_norm( 1, 1.0 );
     Teuchos::RCP<std::vector<double> > wave_data = 
 	Teuchos::rcp( new std::vector<double>(0,0) );
@@ -200,13 +200,17 @@ int main(int argc, char* argv[])
     int num_iter = 0;
     int max_iter = 100;
     double norm = 1.0;
-    while( norm > 1.0e-6 && num_iter < max_iter )
+    double tolerance = 1.0e-6;
+    while( norm > tolerance && num_iter < max_iter )
     {
 	// Transfer the wave field.
 	wave_to_damper_map.apply( wave_evaluator, damper_target_space );
 
 	// Damper solve.
-	if ( damper_exists ) damper->solve();
+	if ( damper_exists ) 
+	{
+	    damper->solve();
+	}
 	comm_union->barrier();
 
 	// Transfer the damper field.
@@ -237,8 +241,8 @@ int main(int argc, char* argv[])
 	comm_union->barrier();
     }
 
-    // Output results from Wave proc 0.
-    if ( comm_union->getRank() == wave_indexer.l2g(0) )
+    // Output results from proc 0.
+    if ( comm_union->getRank() == 0 )
     {
 	std::cout << "Iterations to converge: " << num_iter << std::endl;
 	std::cout << "L2 norm:                " << norm << std::endl;

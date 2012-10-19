@@ -493,7 +493,7 @@ void FieldTools<Field>::norm2( const Field& field, const RCP_Comm& comm,
  */
 template<class Field>
 void FieldTools<Field>::normQ( const Field& field, const RCP_Comm& comm, 
-			       const int& q,
+			       const int q,
 			       Teuchos::Array<value_type>& norms )
 {
     testPrecondition( q > 0 );
