@@ -195,37 +195,37 @@ BoundingBox GeometryManager<Geometry>::globalBoundingBox() const
     double global_x_min, global_y_min, global_z_min;
     double global_x_max, global_y_max, global_z_max;
 
-    Teuchos::reduceAll<int,double>( *comm, 
+    Teuchos::reduceAll<int,double>( *d_comm, 
 				    Teuchos::REDUCE_MIN,
 				    1,
 				    &local_bounds[0],
 				    &global_x_min );
 
-    Teuchos::reduceAll<int,double>( *comm, 
+    Teuchos::reduceAll<int,double>( *d_comm, 
 				    Teuchos::REDUCE_MIN,
 				    1,
 				    &local_bounds[1],
 				    &global_y_min );
 
-    Teuchos::reduceAll<int,double>( *comm, 
+    Teuchos::reduceAll<int,double>( *d_comm, 
 				    Teuchos::REDUCE_MIN,
 				    1,
 				    &local_bounds[2],
 				    &global_z_min );
 
-    Teuchos::reduceAll<int,double>( *comm, 
+    Teuchos::reduceAll<int,double>( *d_comm, 
 				    Teuchos::REDUCE_MAX,
 				    1,
 				    &local_bounds[3],
 				    &global_x_max );
 
-    Teuchos::reduceAll<int,double>( *comm, 
+    Teuchos::reduceAll<int,double>( *d_comm, 
 				    Teuchos::REDUCE_MAX,
 				    1,
 				    &local_bounds[4],
 				    &global_y_max );
 
-    Teuchos::reduceAll<int,double>( *comm, 
+    Teuchos::reduceAll<int,double>( *d_comm, 
 				    Teuchos::REDUCE_MAX,
 				    1,
 				    &local_bounds[5],
