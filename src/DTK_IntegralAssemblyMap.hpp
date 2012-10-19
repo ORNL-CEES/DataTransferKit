@@ -94,7 +94,7 @@ class IntegralAssemblyMap
     typedef Teuchos::RCP<ElementMeasureType>          RCP_ElementMeasure;
     typedef Geometry                                  geometry_type;
     typedef GeometryTraits<Geometry>                  GT;
-    typedef GeometryManager<Geometry>                 GeometryManagerType;
+    typedef GeometryManager<Geometry,GlobalOrdinal>   GeometryManagerType;
     typedef Teuchos::RCP<GeometryManagerType>         RCP_GeometryManager;
     typedef Teuchos::Comm<int>                        CommType;
     typedef Teuchos::RCP<const CommType>              RCP_Comm;

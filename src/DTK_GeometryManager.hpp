@@ -67,21 +67,23 @@ namespace DataTransferKit
 
  */
 //---------------------------------------------------------------------------//
-template<class Geometry>
+template<class Geometry,class GlobalOrdinal>
 class GeometryManager
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef Geometry                                          geometry_type;
-    typedef GeometryTraits<Geometry>                          GT;
-    typedef Teuchos::Comm<int>                                CommType;
-    typedef Teuchos::RCP<const CommType>                      RCP_Comm;
+    typedef Geometry                                      geometry_type;
+    typedef GeometryTraits<Geometry>                      GT;
+    typedef GlobalOrdinal                                 global_ordinal_type;
+    typedef Teuchos::Comm<int>                            CommType;
+    typedef Teuchos::RCP<const CommType>                  RCP_Comm;
     //@}
 
     // Constructor.
     GeometryManager( const Teuchos::ArrayRCP<Geometry>& geometry,
+		     const Teuchos::ArrayRCP<GlobalOrdinal>& geom_gids,
 		     const RCP_Comm& comm, const int dim );
 
     // Destructor.
@@ -90,6 +92,10 @@ class GeometryManager
     //! Get the geometric objects managed by this manager.
     const Teuchos::ArrayRCP<Geometry>& geometry() const 
     { return d_geometry; }
+
+    //! Get the global ids of the geometric objects managed by this manager.
+    const Teuchos::ArrayRCP<GlobalOrdinal>& gids() const 
+    { return d_geom_gids; }
 
     //! Get the communicator for the geometry.
     const RCP_Comm& comm() const
@@ -126,6 +132,9 @@ class GeometryManager
 
     // Geometric objects.
     Teuchos::ArrayRCP<Geometry> d_geometry;
+
+    // Geometric objects global ids.
+    Teuchos::ArrayRCP<GlobalOrdinal> d_geom_gids;
     
     // Communicator over which the geometry is defined.
     RCP_Comm d_comm;

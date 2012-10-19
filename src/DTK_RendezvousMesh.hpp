@@ -142,7 +142,7 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager );
 // Create a RendezvousMesh from a geometry manager.
 template<typename GlobalOrdinal, typename Geometry>
 Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
-    const GeometryManager<Geometry>& geometry_manager );
+    const GeometryManager<Geometry,GlobalOrdinal>& geometry_manager );
 
 //---------------------------------------------------------------------------//
 

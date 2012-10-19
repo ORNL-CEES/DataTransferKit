@@ -194,8 +194,11 @@ void SharedDomainMap<Geometry,CoordinateField>::setup(
 						      shared_domain_box );
     testAssertion( has_intersect );
 
-    // Build a rendezvous decomposition with the source mesh.
-    Rendezvous<Mesh> rendezvous( d_comm, d_dimension, shared_domain_box );
+    // Build a pseudo-mesh from the geometric bounding boxes so we can use our
+    // rendezvous data structures.
+
+    // Build a rendezvous decomposition with the source geometry.
+    Rendezvous<PsuedoMesh> rendezvous( d_comm, d_dimension, shared_domain_box );
     rendezvous.build( source_mesh_manager );
 
     // Determine the rendezvous destination proc of each point in the
@@ -476,10 +479,10 @@ void SharedDomainMap<Geometry,CoordinateField>::setup(
  *  will be thrown if store_missed_points is false. Returns a null view if all
  *  points have been mapped or the map has not yet been generated.
 */
-template<class Mesh, class CoordinateField>
+template<class Geometry, class CoordinateField>
 Teuchos::ArrayView<const typename 
-		   SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal> 
-SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
+		   VolumeSourceMap<Geometry,CoordinateField>::GlobalOrdinal> 
+VolumeSourceMap<Geometry,CoordinateField>::getMissedTargetPoints() const
 {
     testPrecondition( d_store_missed_points );
     
@@ -495,10 +498,10 @@ SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
  *  will be thrown if store_missed_points is false. Returns a null view if all
  *  points have been mapped or the map has not yet been generated.
 */
-template<class Mesh, class CoordinateField>
+template<class Geometry, class CoordinateField>
 Teuchos::ArrayView<typename 
-		   SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal> 
-SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints()
+		   VolumeSourceMap<Geometry,CoordinateField>::GlobalOrdinal> 
+VolumeSourceMap<Geometry,CoordinateField>::getMissedTargetPoints()
 {
     testPrecondition( d_store_missed_points );
     
@@ -618,8 +621,8 @@ void VolumeSourceMap<Geometry,CoordinateField>::apply(
  * \param target_ordinals The computed globally unique ordinals for the target
  * coordinates. 
  */
-template<class Mesh, class CoordinateField>
-void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
+template<class Geometry, class CoordinateField>
+void VolumeSourceMap<Geometry,CoordinateField>::computePointOrdinals(
     const RCP_CoordFieldManager& target_coord_manager,
     Teuchos::Array<GlobalOrdinal>& target_ordinals )
 {
