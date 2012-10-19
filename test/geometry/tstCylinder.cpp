@@ -102,6 +102,12 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 	TEST_ASSERT( box_bounds[4] == centroid_y + radius );
 	TEST_ASSERT( box_bounds[5] == centroid_z + length/2 );
 
+	// Check the centroid.
+	Teuchos::Array<double> cylinder_centroid = cylinder.centroid();
+	TEST_ASSERT( cylinder_centroid[0] == centroid_x );
+	TEST_ASSERT( cylinder_centroid[1] == centroid_y );
+	TEST_ASSERT( cylinder_centroid[2] == centroid_z );
+
 	// Test some random points inside of it.
 	Teuchos::Array<double> point(3);
 	int num_rand = 100;
@@ -170,6 +176,12 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_traits_test )
 	TEST_ASSERT( box_bounds[3] == centroid_x + radius );
 	TEST_ASSERT( box_bounds[4] == centroid_y + radius );
 	TEST_ASSERT( box_bounds[5] == centroid_z + length/2 );
+
+	// Check the centroid.
+	Teuchos::Array<double> cylinder_centroid = GT::centroid(cylinder);
+	TEST_ASSERT( cylinder_centroid[0] == centroid_x );
+	TEST_ASSERT( cylinder_centroid[1] == centroid_y );
+	TEST_ASSERT( cylinder_centroid[2] == centroid_z );
 
 	// Test some random points inside of it.
 	Teuchos::Array<double> point(3);

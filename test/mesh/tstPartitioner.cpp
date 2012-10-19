@@ -194,7 +194,8 @@ TEUCHOS_UNIT_TEST( Partitioner, 1d_rcb_test )
 
     // Create a partitioner.
     Teuchos::RCP<Partitioner> partitioner = 
-	PartitionerFactory::create( getDefaultComm<int>(), mesh_manager, 1  );
+	PartitionerFactory::createMeshPartitioner( 
+	    getDefaultComm<int>(), mesh_manager, 1  );
 
     // Do the partitioning.
     partitioner->partition();
@@ -261,7 +262,8 @@ TEUCHOS_UNIT_TEST( Partitioner, 2d_rcb_test )
 
     // Create a partitioner.
     Teuchos::RCP<Partitioner> partitioner = 
-	PartitionerFactory::create( getDefaultComm<int>(), mesh_manager, 2  );
+	PartitionerFactory::createMeshPartitioner( 
+	    getDefaultComm<int>(), mesh_manager, 2  );
 
     // Do the partitioning.
     partitioner->partition();
@@ -337,7 +339,8 @@ TEUCHOS_UNIT_TEST( Partitioner, 3d_rcb_test )
 
     // Create a partitioner.
     Teuchos::RCP<Partitioner> partitioner = 
-	PartitionerFactory::create( getDefaultComm<int>(), mesh_manager, 3  );
+	PartitionerFactory::createMeshPartitioner( 
+	    getDefaultComm<int>(), mesh_manager, 3  );
 
     // Do the partitioning.
     partitioner->partition();
@@ -422,7 +425,8 @@ TEUCHOS_UNIT_TEST( Partitioner, partial_1d_partitioner_test )
 
     // Create a partitioner.
     Teuchos::RCP<Partitioner> partitioner = 
-	PartitionerFactory::create( getDefaultComm<int>(), mesh_manager, 1  );
+	PartitionerFactory::createMeshPartitioner( 
+	    getDefaultComm<int>(), mesh_manager, 1  );
 
     // Do the partitioning.
     partitioner->partition();
@@ -490,7 +494,8 @@ TEUCHOS_UNIT_TEST( Partitioner, partial_2d_partitioner_test )
 
     // Create a partitioner.
     Teuchos::RCP<Partitioner> partitioner = 
-	PartitionerFactory::create( getDefaultComm<int>(), mesh_manager, 2  );
+	PartitionerFactory::createMeshPartitioner( 
+	    getDefaultComm<int>(), mesh_manager, 2  );
 
     // Do the partitioning.
     partitioner->partition();
@@ -543,7 +548,8 @@ TEUCHOS_UNIT_TEST( Partitioner, partial_3d_partitioner_test )
 
     // Create a partitioner.
     Teuchos::RCP<Partitioner> partitioner = 
-	PartitionerFactory::create( getDefaultComm<int>(), mesh_manager, 3  );
+	PartitionerFactory::createMeshPartitioner( 
+	    getDefaultComm<int>(), mesh_manager, 3  );
 
     // Do the partitioning.
     partitioner->partition();

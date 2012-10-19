@@ -43,15 +43,16 @@
 
 #include "DTK_Partitioner.hpp"
 #include "DTK_MeshManager.hpp"
+#include "DTK_GeometryManager.hpp"
 #include "DTK_SerialPartitioner.hpp"
 
 #ifdef HAVE_DTK_MPI
 #include "DTK_RCB.hpp"
+#include "DTK_GeometryRCB.hpp"
 #endif
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
-#include <Teuchos_TypeTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -74,25 +75,49 @@ class PartitionerFactory
     ~PartitionerFactory()
     { /* ... */ }
 
-    // Factory method.
+    // Mesh factory method.
     template<class Mesh>
     static inline Teuchos::RCP<Partitioner> 
-    create( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-	    const Teuchos::RCP<MeshManager<Mesh> > mesh_manager,
-	    const int dimension );
+    createMeshPartitioner( 
+	const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+	const Teuchos::RCP<MeshManager<Mesh> > mesh_manager,
+	const int dimension );
+
+    // Geometry factory method.
+    template<class Geometry, class GlobalOrdinal>
+    static inline Teuchos::RCP<Partitioner> 
+    createGeometryPartitioner( 
+	const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+	const Teuchos::RCP<GeometryManager<Geometry,GlobalOrdinal> > geometry_manager,
+	const int dimension );
 };
 
 //---------------------------------------------------------------------------//
 // Inline functions.
 //---------------------------------------------------------------------------//
 template<class Mesh>
-Teuchos::RCP<Partitioner> PartitionerFactory::create(
+Teuchos::RCP<Partitioner> PartitionerFactory::createMeshPartitioner(
     const Teuchos::RCP<const Teuchos::Comm<int> > comm,
     const Teuchos::RCP<MeshManager<Mesh> > mesh_manager,
     const int dimension )
 {
 #ifdef HAVE_DTK_MPI
     return Teuchos::rcp( new RCB<Mesh>( comm, mesh_manager, dimension ) );
+#else
+    return Teuchos::rcp( new SerialPartitioner() );
+#endif
+}
+
+//---------------------------------------------------------------------------//
+template<class Geometry, class GlobalOrdinal>
+Teuchos::RCP<Partitioner> PartitionerFactory::createGeometryPartitioner(
+    const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+    const Teuchos::RCP<GeometryManager<Geometry,GlobalOrdinal> > geometry_manager,
+    const int dimension )
+{
+#ifdef HAVE_DTK_MPI
+    return Teuchos::rcp( new GeometryRCB<Geometry,GlobalOrdinal>( 
+			     comm, geometry_manager, dimension ) );
 #else
     return Teuchos::rcp( new SerialPartitioner() );
 #endif

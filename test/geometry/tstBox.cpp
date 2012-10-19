@@ -100,6 +100,12 @@ TEUCHOS_UNIT_TEST( Box, box_test )
 	TEST_ASSERT( bounding_box_bounds[4] == y_max );
 	TEST_ASSERT( bounding_box_bounds[5] == z_max );
 
+	// Check the centroid.
+	Teuchos::Array<double> box_centroid = box.centroid();
+	TEST_ASSERT( box_centroid[0] == (x_max+x_min)/2.0 );
+	TEST_ASSERT( box_centroid[1] == (y_max+y_min)/2.0 );
+	TEST_ASSERT( box_centroid[2] == (z_max+z_min)/2.0 );
+
 	// Test some random points inside of it.
 	Teuchos::Array<double> point(3);
 	int num_rand = 100;
@@ -156,6 +162,12 @@ TEUCHOS_UNIT_TEST( Box, box_traits_test )
 	TEST_ASSERT( bounding_box_bounds[3] == x_max );
 	TEST_ASSERT( bounding_box_bounds[4] == y_max );
 	TEST_ASSERT( bounding_box_bounds[5] == z_max );
+
+	// Check the centroid.
+	Teuchos::Array<double> box_centroid = GT::centroid(box);
+	TEST_ASSERT( box_centroid[0] == (x_max+x_min)/2.0 );
+	TEST_ASSERT( box_centroid[1] == (y_max+y_min)/2.0 );
+	TEST_ASSERT( box_centroid[2] == (z_max+z_min)/2.0 );
 
 	// Test some random points inside of it.
 	Teuchos::Array<double> point(3);
