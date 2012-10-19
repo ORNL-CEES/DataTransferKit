@@ -166,6 +166,21 @@ BoundingBox Box::boundingBox() const
 }
 
 //---------------------------------------------------------------------------//
+/*!
+ * \brief Get the centroid of the box.
+ *
+ * \return The centroid coordinates.
+ */
+Teuchos::Array<double> Box::centroid() const
+{
+    Teuchos::Array<double> center(3);
+    center[0] = (x_max + x_min) / 2.0;
+    center[1] = (y_max + y_min) / 2.0;
+    center[2] = (z_max + z_min) / 2.0;
+    return center;
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

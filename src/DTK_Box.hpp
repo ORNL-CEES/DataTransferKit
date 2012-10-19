@@ -92,6 +92,9 @@ class Box
 
     // Get the bounding box around the box.
     BoundingBox boundingBox() const;
+
+    // Get the centroid of the box.
+    Teuchos::Array<double> centroid() const;
     
   private:
 
@@ -137,6 +140,9 @@ class GeometryTraits<Box>
 
     static inline BoundingBox boundingBox( const Box& box )
     { return box.boundingBox(); }
+
+    static inline Teuchos::Array<double> centroid( const Box& box )
+    { return box.centroid(); }
 };
 
 //---------------------------------------------------------------------------//

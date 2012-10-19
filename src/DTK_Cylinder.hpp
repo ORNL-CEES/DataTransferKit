@@ -135,6 +135,9 @@ class GeometryTraits<Cylinder>
 
     static inline BoundingBox boundingBox( const Cylinder& cylinder )
     { return cylinder.boundingBox(); }
+
+    static inline Teuchos::Array<double> centroid( const Cylinder& cylinder )
+    { return cylinder.centroid(); }
 };
 
 //---------------------------------------------------------------------------//

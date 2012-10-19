@@ -40,6 +40,8 @@ APPEND_SET(HEADERS
   DTK_FieldTraits.hpp
   DTK_GeometryManager.hpp
   DTK_GeometryManager_def.hpp
+  DTK_GeometryRCB.hpp
+  DTK_GeometryRCB_def.hpp
   DTK_GeometryTraits.hpp
   DTK_IntegralAssemblyMap.hpp
   DTK_IntegralAssemblyMap_def.hpp
