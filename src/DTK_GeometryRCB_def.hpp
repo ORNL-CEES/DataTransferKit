@@ -41,6 +41,7 @@
 #ifndef DTK_GEOMETRYRCB_DEF_HPP
 #define DTK_GEOMETRYRCB_DEF_HPP
 
+#include <numeric>
 #include <algorithm>
 
 #include "DTK_Assertion.hpp"
@@ -250,7 +251,11 @@ int GeometryRCB<Geometry,GlobalOrdinal>::getNumberOfObjects(
     // We'll only count geometry if the geometry manager is not null.
     if ( !geometry_manager.is_null() )
     {
-	num_geometry = geometry_manager->localNumGeometry();
+	Teuchos::ArrayView<short int> active_geom = 
+	    geometry_manager->getActiveGeometry();
+
+	num_geometry = 
+	    std::accumulate( active_geom.begin(), active_geom.end(), 0 );
     }
 
     *ierr = ZOLTAN_OK;
@@ -277,20 +282,26 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getObjectList(
 	// index.
 	zoltan_id_type i = 0;
 	GlobalOrdinal lid = 0;
+	Teuchos::ArrayView<short int> active_geom =
+		     geometry_manager->getActiveGeometry();
+	Teuchos::ArrayView<short int>::const_iterator active_it;
 	Teuchos::ArrayRCP<GlobalOrdinal> local_gids = 
 	    geometry_manager->gids();
 	typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator gid_it;
 	typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator gids_begin = 
 	    local_gids.begin();
-	for ( gid_it = local_gids.begin(); 
+	for ( gid_it = local_gids.begin(), active_it = active_geom.begin();
 	      gid_it != local_gids.end(); 
-	      ++gid_it )
+	      ++gid_it, ++active_it )
 	{
 	    lid = std::distance( gids_begin, gid_it );
 
-	    globalID[i] = static_cast<zoltan_id_type>( *gid_it );
-	    localID[i] = static_cast<zoltan_id_type>( lid );
-	    ++i;
+	    if ( *active_it )
+	    {
+		globalID[i] = static_cast<zoltan_id_type>( *gid_it );
+		localID[i] = static_cast<zoltan_id_type>( lid );
+		++i;
+	    }
 	}
     }
 
@@ -329,6 +340,9 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 	Teuchos::ArrayRCP<Geometry> local_geometry = 
 	    geometry_manager->geometry();
 	typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_it;
+	Teuchos::ArrayView<short int> active_geom =
+		     geometry_manager->getActiveGeometry();
+	Teuchos::ArrayView<short int>::const_iterator active_it;
 
 	// Check Zoltan for consistency.
 	int geom_dim = geometry_manager->dim();
@@ -348,16 +362,19 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 	// Zoltan needs interleaved coordinates.
 	int n = 0;
 	Teuchos::Array<double> geometry_coords;
-	for ( geom_it = local_geometry.begin();
+	for ( geom_it = local_geometry.begin(), active_it = active_geom.begin();
 	      geom_it != local_geometry.end();
-	      ++geom_it )
+	      ++geom_it, ++active_it )
 	{
-	    geometry_coords = GT::centroid( *geom_it );
-	    for ( int d = 0; d < geom_dim; ++d )
+	    if ( *active_it )
 	    {
-		geom_vec[ geom_dim*n + d ] = geometry_coords[d];
+		geometry_coords = GT::centroid( *geom_it );
+		for ( int d = 0; d < geom_dim; ++d )
+		{
+		    geom_vec[ geom_dim*n + d ] = geometry_coords[d];
+		}
+		++n;
 	    }
-	    ++n;
 	}
     }
 	  
