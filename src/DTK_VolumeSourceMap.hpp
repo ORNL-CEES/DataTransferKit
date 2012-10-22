@@ -129,7 +129,7 @@ class VolumSourceMap
     // that were mapped.
     template<class SourceField, class TargetField>
     void apply( 
-	const Teuchos::RCP<FieldEvaluator<Geometry,SourceField> >& source_evaluator,
+	const Teuchos::RCP<FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
 	Teuchos::RCP<FieldManager<TargetField> >& target_space_manager );
 
   private:

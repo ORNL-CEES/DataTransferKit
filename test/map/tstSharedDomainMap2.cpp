@@ -274,7 +274,8 @@ class FieldTraits<MyField>
 
 //---------------------------------------------------------------------------//
 // FieldEvaluator Implementation. This one populates a 3-vector.
-class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
+class MyEvaluator : 
+    public DataTransferKit::FieldEvaluator<MyMesh::global_ordinal_type,MyField>
 {
   public:
 
@@ -575,7 +576,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test2 )
 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
+    Teuchos::RCP< FieldEvaluator<MyMesh::global_ordinal_type,MyField> > source_evaluator = 
     	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     // Create data target. This target is a 3-vector.
@@ -634,7 +635,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test2 )
 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
+    Teuchos::RCP< FieldEvaluator<MyMesh::global_ordinal_type,MyField> > source_evaluator = 
     	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     // Create data target. This target is a 3-vector.
@@ -731,7 +732,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test2 )
 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
+    Teuchos::RCP< FieldEvaluator<MyMesh::global_ordinal_type,MyField> > source_evaluator = 
     	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     // Create data target. This target is a 3-vector.
@@ -851,7 +852,8 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_maps_test2 )
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
+    Teuchos::RCP< FieldEvaluator<MyMesh::global_ordinal_type,MyField> >
+	source_evaluator = 
     	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     int num_points = 1000;
@@ -1022,7 +1024,8 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_targets_test2 )
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
+    Teuchos::RCP< FieldEvaluator<MyMesh::global_ordinal_type,MyField> > 
+	source_evaluator = 
     	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     int num_points = 1000;

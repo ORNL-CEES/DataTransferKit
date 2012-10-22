@@ -266,7 +266,8 @@ class FieldTraits<MyField>
 
 //---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
-class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh,MyField>
+class MyEvaluator : 
+    public DataTransferKit::FieldEvaluator<MyMesh::global_ordinal_type,MyField>
 {
   public:
 
@@ -450,7 +451,8 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test )
 		new FieldManager<MyField>( buildCoordinateField(), comm ) );
 
 	// Create field evaluator.
-	Teuchos::RCP< FieldEvaluator<MyMesh,MyField> > source_evaluator = 
+	Teuchos::RCP< FieldEvaluator<MyMesh::global_ordinal_type,MyField> > 
+	    source_evaluator = 
 	    Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
 	// Create data target manager
