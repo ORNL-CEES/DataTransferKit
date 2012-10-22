@@ -143,8 +143,8 @@ class FieldTraits<MyField>
 
 //---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
-class MyEvaluator : public DataTransferKit::FieldEvaluator<
-    DataTransferKit::MeshContainer<int> ,MyField>
+class MyEvaluator : 
+    public DataTransferKit::FieldEvaluator<int,MyField>
 {
   public:
 
@@ -604,7 +604,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test10 )
 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MeshType ,MyField> > source_evaluator;
+    Teuchos::RCP< FieldEvaluator<int,MyField> > source_evaluator;
     if ( my_rank == 0 )
     {
     	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
@@ -712,7 +712,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test10 )
 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MeshType ,MyField> > source_evaluator;
+    Teuchos::RCP<FieldEvaluator<int,MyField> > source_evaluator;
     if ( my_rank == 0 )
     {
     	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
@@ -850,11 +850,11 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test10 )
 	Teuchos::rcp( new MyField( num_points, point_dim ) );
     buildTiledCoordinateField( my_rank, my_size, num_points, edge_size,
 			       coordinate_field );
-    Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
+    Teuchos::RCP<FieldManager<MyField> > target_coord_manager = 
 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MeshType ,MyField> > source_evaluator;
+    Teuchos::RCP<FieldEvaluator<int,MyField> > source_evaluator;
     if ( my_rank == 0 )
     {
     	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );

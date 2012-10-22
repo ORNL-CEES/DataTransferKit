@@ -518,7 +518,7 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints()
 template<class Geometry, class GlobalOrdinal, class CoordinateField>
 template<class SourceField, class TargetField>
 void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply( 
-    const Teuchos::RCP< FieldEvaluator<Geometry,SourceField> >& source_evaluator,
+    const Teuchos::RCP< FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
     Teuchos::RCP< FieldManager<TargetField> >& target_space_manager )
 {
     typedef FieldTraits<SourceField> SFT;

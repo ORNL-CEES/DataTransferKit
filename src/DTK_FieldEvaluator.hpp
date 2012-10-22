@@ -70,10 +70,10 @@ namespace DataTransferKit
 
  where \f$\hat{r} \in \mathcal{R}^n\f$ is a single point and \f$\hat{f} \in
  \mathcal{R}^D\f$ is representative of the function \f$F(r)\f$ evaluated at
- \f$\hat{r}\f$. This operation is not valid for \f$\hat{r} \notin \Omega\f$. In
- the context of \f$\Omega\f$ discretized by a mesh, these evaluations can
- instead be written in terms of a single mesh element, \f$\omega \in
- \Omega\f$.
+ \f$\hat{r}\f$. This operation is not valid for \f$\hat{r} \notin
+ \Omega\f$. In the context of \f$\Omega\f$ discretized by a mesh, these
+ evaluations can instead be written in terms of a single geometric object
+ (such as a mesh element), \f$\omega \in \Omega\f$.
 
  \f[
  \hat{f} \leftarrow F(\hat{r}), \forall \hat{r} \in \omega
@@ -87,19 +87,17 @@ namespace DataTransferKit
  *
  */
 //---------------------------------------------------------------------------//
-template<class Mesh, class Field>
+template<class GlobalOrdinal, class Field>
 class FieldEvaluator
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef Mesh                                    mesh_type;
-    typedef MeshTraits<Mesh>                        MT;
-    typedef typename MT::global_ordinal_type        GlobalOrdinal;
+    typedef GlobalOrdinal                           global_ordinal_type;
     typedef Field                                   field_type;
     typedef FieldTraits<Field>                      FT;
-    typedef typename FT::value_type                 data_type;
+    typedef typename FT::value_type                 value_type;
     //@}
 
     //! Constructor.
@@ -111,11 +109,12 @@ class FieldEvaluator
     { /* ... */ }
 
     /*!
-     * \brief Evaluate the function in the given elements at the given
-     * coordinates and return the evaluations in a FieldTraits container.
+     * \brief Evaluate the function in the given geometric objects at the
+     * given coordinates and return the evaluations in a container that has
+     * field traits.
      *
-     * \param elements A vector of valid element ordinals in which to evaluate
-     * the field.
+     * \param elements A vector of valid geometric object ordinals in which to
+     * evaluate the field.
      *
      * \param coords A vector of blocked coordinates 
      * { x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN }
