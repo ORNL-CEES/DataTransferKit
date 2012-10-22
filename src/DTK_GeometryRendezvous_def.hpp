@@ -212,7 +212,6 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::geometryContainingPoints(
     const double geometric_tolerance ) const
 {
     Teuchos::Array<double> point( d_dimension );
-    GlobalOrdinal geometry_ordinal;
     GlobalOrdinal num_points = coords.size() / d_dimension;
     bool found_point = false;
     gids.resize( num_points );

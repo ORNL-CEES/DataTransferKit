@@ -87,8 +87,7 @@ template<class Geometry, class GlobalOrdinal, class CoordinateField>
 VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::VolumeSourceMap(
     const RCP_Comm& comm, const int dimension, 
     bool store_missed_points,
-    const double geometric_tolerance, 
- )
+    const double geometric_tolerance )
     : d_comm( comm )
     , d_dimension( dimension )
     , d_store_missed_points( store_missed_points )
@@ -113,7 +112,7 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::VolumeSourceMap(
  * only on processes that reside within the VolumeSourceMap communicator.
  */
 template<class Geometry, class GlobalOrdinal, class CoordinateField>
-void SharedDomainMap<Geometry,CoordinateField>::setup( 
+void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup( 
     const RCP_GeometryManager& source_geometry_manager, 
     const RCP_CoordFieldManager& target_coord_manager )
 {
@@ -469,47 +468,12 @@ void SharedDomainMap<Geometry,CoordinateField>::setup(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the points missed in the map generation.
- *
- * \return If store_missed_points is true, return the local indices of the
- *  points provided by target_coord_manager that were not mapped. An exception
- *  will be thrown if store_missed_points is false. Returns a null view if all
- *  points have been mapped or the map has not yet been generated.
-*/
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
-Teuchos::ArrayView<GlobalOrdinal>
-VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints() const
-{
-    testPrecondition( d_store_missed_points );
-    
-    return d_missed_points();
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the points missed in the map generation.
- *
- * \return If store_missed_points is true, return the local indices of the
- *  points provided by target_coord_manager that were not mapped. An exception
- *  will be thrown if store_missed_points is false. Returns a null view if all
- *  points have been mapped or the map has not yet been generated.
-*/
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
-Teuchos::ArrayView<GlobalOrdinal> 
-VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints()
-{
-    testPrecondition( d_store_missed_points );
-    
-    return d_missed_points();
-}
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Apply the volume source map for a valid source field evaluator and
  * target data space to the target points that were mapped.
  *
  * \param source_evaluator Function evaluator used to apply the mapping. This
- * FieldEvaluator must be valid for the source mesh used to generate the map.
+ * FieldEvaluator must be valid for the source geometry used to generate the
+ * map.
  *
  * \param target_space_manager Target space into which the function
  * evaluations will be written. Enough space must be allocated to hold
@@ -606,6 +570,42 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Get the points missed in the map generation.
+ *
+ * \return If store_missed_points is true, return the local indices of the
+ *  points provided by target_coord_manager that were not mapped. An exception
+ *  will be thrown if store_missed_points is false. Returns a null view if all
+ *  points have been mapped or the map has not yet been generated.
+*/
+template<class Geometry, class GlobalOrdinal, class CoordinateField>
+Teuchos::ArrayView<const GlobalOrdinal>
+VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints() const
+{
+    testPrecondition( d_store_missed_points );
+    
+    return d_missed_points();
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the points missed in the map generation.
+ *
+ * \return If store_missed_points is true, return the local indices of the
+ *  points provided by target_coord_manager that were not mapped. An exception
+ *  will be thrown if store_missed_points is false. Returns a null view if all
+ *  points have been mapped or the map has not yet been generated.
+*/
+template<class Geometry, class GlobalOrdinal, class CoordinateField>
+Teuchos::ArrayView<GlobalOrdinal> 
+VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints()
+{
+    testPrecondition( d_store_missed_points );
+    
+    return d_missed_points();
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Compute globally unique ordinals for the target points. Here an
  * invalid ordinal will be designated as the maximum value as specified by the
  * limits header for the ordinal type. We do this so that 0 may be a valid
@@ -672,8 +672,8 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::computePointOrdinals(
  * box. If a target point was not found in the box, return an invalid ordinal,
  * std::numeric_limits<GlobalOrdinal>::max(), in its positition.
  */
-template<class Mesh, class CoordinateField>
-void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
+template<class Geometry, class GlobalOrdinal, class CoordinateField>
+void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getTargetPointsInBox(
     const BoundingBox& box, const CoordinateField& target_coords,
     const Teuchos::Array<GlobalOrdinal>& target_ordinals,
     Teuchos::Array<GlobalOrdinal>& targets_in_box )
@@ -715,6 +715,8 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
 }
 
 //---------------------------------------------------------------------------//
+
+} // end namespace DataTransferKit
 
 #endif // end DTK_VOLUMESOURCEMAP_DEF_HPP
 
