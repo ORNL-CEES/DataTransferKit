@@ -419,12 +419,12 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::sendGeometryToRendezvous(
     std::set<GlobalOrdinal> import_gids_set;
     typename Teuchos::Array<GlobalOrdinal>::const_iterator import_gids_it;
     typename Teuchos::Array<Geometry>::const_iterator import_geom_it;
-    typename Teuchos::Array<int>::const_iterator geometry_src_procs_it;
+    Teuchos::Array<int>::const_iterator geometry_src_procs_it;
     for ( import_gids_it = import_gids.begin(),
 	  import_geom_it = import_geom.begin(),
        geometry_src_procs_it = geometry_src_procs.begin();
 	  import_gids_it != import_gids.end();
-	  ++import_gids_it, ++import_geom_it, ++geometry_src_procs_it );
+	  ++import_gids_it, ++import_geom_it, ++geometry_src_procs_it )
     {
 	if ( import_gids_set.insert( *import_gids_it ).second )
 	{
@@ -432,6 +432,7 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::sendGeometryToRendezvous(
 		*geometry_src_procs_it;
 
 	    d_rendezvous_geometry.push_back( *import_geom_it );
+
 	    d_rendezvous_gids.push_back( *import_gids_it );
 	}
     }
