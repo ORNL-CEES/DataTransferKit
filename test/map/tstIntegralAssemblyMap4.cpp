@@ -171,9 +171,9 @@ class MyIntegrator : public DataTransferKit::FieldIntegrator<
 	    DataTransferKit::MeshContainer<int>::global_ordinal_type>& elements )
     {
 	int local_num_elements = elements.size();
-	int global_num_elements = local_num_elements;
-	Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_SUM, 1, 
-			    &global_num_elements, &global_num_elements );
+	int global_num_elements = 0;
+	Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_SUM,
+			    local_num_elements, Teuchos::Ptr<int>(&global_num_elements) );
 	MyField integrated_data( local_num_elements, 3 );
 	for ( int n = 0; n < local_num_elements; ++n )
 	{
@@ -964,14 +964,14 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, all_verts_in_cylinder_test )
     comm->barrier();
 
     int global_num_in_cylinder = 0;
-    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 1, 
-			&num_in_cylinder, &global_num_in_cylinder );
+    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM,
+			num_in_cylinder, Teuchos::Ptr<int>(&global_num_in_cylinder) );
 
     if ( my_rank == 0 )
     {
 	for ( int d = 0; d < target_dim; ++d )
 	{
-	    TEST_ASSERT( num_in_cylinder == target_field->getData()[d] );
+	    TEST_ASSERT( global_num_in_cylinder == target_field->getData()[d] );
 	}
     }
     comm->barrier();
@@ -1149,14 +1149,14 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, one_vert_in_cylinder_test )
     comm->barrier();
 
     int global_num_in_cylinder = 0;
-    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 1, 
-			&num_in_cylinder, &global_num_in_cylinder );
+    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM,
+			num_in_cylinder, Teuchos::Ptr<int>(&global_num_in_cylinder) );
 
     if ( my_rank == 0 )
     {
 	for ( int d = 0; d < target_dim; ++d )
 	{
-	    TEST_ASSERT( num_in_cylinder == target_field->getData()[d] );
+	    TEST_ASSERT( global_num_in_cylinder == target_field->getData()[d] );
 	}
     }
     comm->barrier();
