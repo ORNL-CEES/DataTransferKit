@@ -96,6 +96,14 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::VolumeSourceMap(
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Destructor.
+ */
+template<class Geometry, class GlobalOrdinal, class CoordinateField>
+VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::~VolumeSourceMap()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Generate the volume source map.
  *
  * \param source_geometry_manager Source geometry in the volume source
