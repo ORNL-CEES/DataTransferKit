@@ -246,7 +246,8 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::geometryContainingPoints(
 	    }
 	}
 
-	// If we didnt find the point return invalid results.
+	// If we didnt find the point return an invalid geometry gid and
+	// source proc.
 	if ( !found_point )
 	{
 	    gids[n] = std::numeric_limits<GlobalOrdinal>::max();
