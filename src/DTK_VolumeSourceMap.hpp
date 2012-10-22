@@ -82,7 +82,7 @@ namespace DataTransferKit
  * quadrature point case.
  */
 //---------------------------------------------------------------------------//
-template<class Geometry, class CoordinateField>
+template<class Geometry, class GlobalOrdinal, class CoordinateField>
 class VolumSourceMap
 {
   public:
@@ -93,6 +93,7 @@ class VolumSourceMap
     typedef GeometryTraits<Geometry>                  GT;
     typedef GeometryManager<Geometry>                 GeometryManagerType;
     typedef Teuchos::RCP<GeometryManagerType>         RCP_GeometryManager;
+    typedef GlobalOrdinal                             global_ordinal_type;
     typedef CoordinateField                           coord_field_type;
     typedef FieldTraits<CoordinateField>              CFT;
     typedef typename CFT::size_type                   CoordOrdinal;
@@ -138,8 +139,12 @@ class VolumSourceMap
 	const RCP_CoordFieldManager& target_coord_manager,
 	Teuchos::Array<GlobalOrdinal>& target_ordinals );
 
-    // Build a psuedo-mesh from the geometry bounding boxes.
-    
+    // Get the target points that are in the rendezvous decomposition box.
+    void getTargetPointsInBox( 
+	const BoundingBox& box,
+	const CoordinateField& target_coords,
+	const Teuchos::Array<GlobalOrdinal>& target_ordinals,
+	Teuchos::Array<GlobalOrdinal>& targets_in_box );
 
   private:
 
@@ -177,7 +182,7 @@ class VolumSourceMap
     RCP_TpetraExport d_source_to_target_exporter;
 
     // Local source geometries.
-    Teuchos::Array<GlobalOrdinal> d_source_geometries;
+    Teuchos::Array<GlobalOrdinal> d_source_geometry;
 
     // Local target coords.
     Teuchos::Array<double> d_target_coords;
