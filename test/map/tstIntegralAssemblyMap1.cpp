@@ -955,8 +955,8 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, cylinder_test )
     comm->barrier();
 
     int global_num_in_cylinder = 0;
-    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 1, 
-			&num_in_cylinder, &global_num_in_cylinder );
+    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM,
+			num_in_cylinder, Teuchos::Ptr<int>(&global_num_in_cylinder) );
 
     if ( my_rank == 0 )
     {

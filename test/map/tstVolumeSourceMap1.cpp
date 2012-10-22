@@ -338,13 +338,13 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, cylinder_test )
     comm->barrier();
 
     int global_num_in_cylinder = 0;
-    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 1, 
-			&num_in_cylinder, &global_num_in_cylinder );
+    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 
+			num_in_cylinder, Teuchos::Ptr<int>(&global_num_in_cylinder) );
 
     int num_missed = volume_source_map.getMissedTargetPoints().size();
     int global_num_missed = 0;
-    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 1, 
-			&num_missed, &global_num_missed );
+    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 
+			num_missed, Teuchos::Ptr<int>(&global_num_missed) );
     
     TEST_ASSERT( num_target_points*my_size == 
 		 global_num_missed + global_num_in_cylinder );
@@ -441,13 +441,13 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, box_test )
     comm->barrier();
 
     int global_num_in_box = 0;
-    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 1, 
-			&num_in_box, &global_num_in_box );
+    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 
+			num_in_box, Teuchos::Ptr<int>(&global_num_in_box) );
 
     int num_missed = volume_source_map.getMissedTargetPoints().size();
     int global_num_missed = 0;
-    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 1, 
-			&num_missed, &global_num_missed );
+    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM,
+			num_missed, Teuchos::Ptr<int>(&global_num_missed) );
     
     TEST_ASSERT( num_target_points*my_size == 
 		 global_num_missed + global_num_in_box );
