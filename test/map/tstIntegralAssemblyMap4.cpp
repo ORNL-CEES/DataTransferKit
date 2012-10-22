@@ -962,8 +962,10 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, all_verts_in_cylinder_test )
 	}
     }
     comm->barrier();
+
+    int global_num_in_cylinder = 0;
     Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 1, 
-			&num_in_cylinder, &num_in_cylinder );
+			&num_in_cylinder, &global_num_in_cylinder );
 
     if ( my_rank == 0 )
     {
@@ -1145,8 +1147,10 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, one_vert_in_cylinder_test )
 	}
     }
     comm->barrier();
+
+    int global_num_in_cylinder = 0;
     Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 1, 
-			&num_in_cylinder, &num_in_cylinder );
+			&num_in_cylinder, &global_num_in_cylinder );
 
     if ( my_rank == 0 )
     {

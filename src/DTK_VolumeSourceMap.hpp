@@ -49,7 +49,6 @@
 #include "DTK_FieldEvaluator.hpp"
 #include "DTK_FieldManager.hpp"
 #include "DTK_CommIndexer.hpp"
-#include "DTK_MeshContainer.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -83,7 +82,7 @@ namespace DataTransferKit
  */
 //---------------------------------------------------------------------------//
 template<class Geometry, class GlobalOrdinal, class CoordinateField>
-class VolumSourceMap
+class VolumeSourceMap
 {
   public:
 
@@ -91,7 +90,7 @@ class VolumSourceMap
     //! Typedefs.
     typedef Geometry                                  geometry_type;
     typedef GeometryTraits<Geometry>                  GT;
-    typedef GeometryManager<Geometry>                 GeometryManagerType;
+    typedef GeometryManager<Geometry,GlobalOrdinal>   GeometryManagerType;
     typedef Teuchos::RCP<GeometryManagerType>         RCP_GeometryManager;
     typedef GlobalOrdinal                             global_ordinal_type;
     typedef CoordinateField                           coord_field_type;
@@ -188,6 +187,8 @@ class VolumSourceMap
     Teuchos::Array<double> d_target_coords;
 };
 
+} // end namespace DataTransferKit
+
 //---------------------------------------------------------------------------//
 // Template includes.
 //---------------------------------------------------------------------------//
@@ -195,8 +196,6 @@ class VolumSourceMap
 #include "DTK_VolumeSourceMap_def.hpp"
 
 //---------------------------------------------------------------------------//
-
-} // end namespace DataTransferKit
 
 #endif // end DTK_VOLUMESOURCEMAP_HPP
 
