@@ -27,9 +27,9 @@ WaveEvaluator::~WaveEvaluator()
 /*!
  * \brief Wave function evaluator.
  */
-WaveEvaluator::base_type::field_type
+WaveEvaluator::field_type
 WaveEvaluator::evaluate(
-    const Teuchos::ArrayRCP<base_type::GlobalOrdinal>& elements,
+    const Teuchos::ArrayRCP<int>& elements,
     const Teuchos::ArrayRCP<double>& coords )
 {
     // Setup a field to apply the data to.

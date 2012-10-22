@@ -38,12 +38,13 @@ class DamperAdapter
 
     //@{
     //! Typedefs.
-    typedef DataTransferKit::MeshContainer<int>                  MeshType;
-    typedef DataTransferKit::FieldContainer<double>              FieldType;
-    typedef DataTransferKit::MeshTraits<MeshType>                MT;
-    typedef DataTransferKit::FieldEvaluator<MeshType,FieldType>  EvaluatorType;
-    typedef Teuchos::RCP<EvaluatorType>                          RCP_Evaluator;
-    typedef Teuchos::RCP<Damper>                                 RCP_Damper;
+    typedef DataTransferKit::MeshContainer<int>                        MeshType;
+    typedef DataTransferKit::FieldContainer<double>                    FieldType;
+    typedef DataTransferKit::MeshTraits<MeshType>                      MT;
+    typedef DataTransferKit::MeshTraits<MeshType>::global_ordinal_type GlobalOrdinal;
+    typedef DataTransferKit::FieldEvaluator<GlobalOrdinal,FieldType>   EvaluatorType;
+    typedef Teuchos::RCP<EvaluatorType>                                RCP_Evaluator;
+    typedef Teuchos::RCP<Damper>                                       RCP_Damper;
     //@}
 
     // Empty Constructor.
