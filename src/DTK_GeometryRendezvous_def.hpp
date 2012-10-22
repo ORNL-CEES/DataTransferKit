@@ -286,7 +286,8 @@ GeometryRendezvous<Geometry,GlobalOrdinal>::geometrySourceProcs(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Extract the geometry vertices and elements that are in a bounding box.
+ * \brief Extract the geometry vertices and elements that are in a bounding
+ * box. 
  *
  * \param geometry_manager The geometry to search the box with.
  */
@@ -312,6 +313,8 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::getGeometryInBox(
 	    *active_it = 1;
 	}
     }
+
+    geometry_manager->setActiveGeometry( active_geometry );
 }
 
 //---------------------------------------------------------------------------//
