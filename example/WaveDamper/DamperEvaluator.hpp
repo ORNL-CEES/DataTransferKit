@@ -25,8 +25,7 @@
  */
 //---------------------------------------------------------------------------//
 class DamperEvaluator : 
-    public DataTransferKit::FieldEvaluator<DataTransferKit::MeshContainer<int>,
-					   DataTransferKit::FieldContainer<double> >
+    public DataTransferKit::FieldEvaluator<int,DataTransferKit::FieldContainer<double> >
 {
   public:
 
@@ -34,7 +33,6 @@ class DamperEvaluator :
     typedef Teuchos::RCP<Damper>                                  RCP_Damper;
     typedef DataTransferKit::MeshContainer<int>                   mesh_type;
     typedef DataTransferKit::FieldContainer<double>               field_type;
-    typedef DataTransferKit::FieldEvaluator<mesh_type,field_type> base_type;
 
     // Constructor.
     DamperEvaluator( const RCP_Damper& damper );
@@ -43,9 +41,8 @@ class DamperEvaluator :
     ~DamperEvaluator();
 
     // Function evaluator.
-    base_type::field_type evaluate( 
-	const Teuchos::ArrayRCP<base_type::GlobalOrdinal>& elements,
-	const Teuchos::ArrayRCP<double>& coords );
+    field_type evaluate( const Teuchos::ArrayRCP<int>& elements,
+			 const Teuchos::ArrayRCP<double>& coords );
 
   private:
 

@@ -25,8 +25,7 @@
  */
 //---------------------------------------------------------------------------//
 class WaveEvaluator : 
-    public DataTransferKit::FieldEvaluator<DataTransferKit::MeshContainer<int>,
-					   DataTransferKit::FieldContainer<double> >
+    public DataTransferKit::FieldEvaluator<int,DataTransferKit::FieldContainer<double> >
 {
   public:
 
@@ -34,7 +33,6 @@ class WaveEvaluator :
     typedef Teuchos::RCP<Wave>                                    RCP_Wave;
     typedef DataTransferKit::MeshContainer<int>                   mesh_type;
     typedef DataTransferKit::FieldContainer<double>               field_type;
-    typedef DataTransferKit::FieldEvaluator<mesh_type,field_type> base_type;
 
     // Constructor.
     WaveEvaluator( const RCP_Wave& wave );
@@ -43,9 +41,8 @@ class WaveEvaluator :
     ~WaveEvaluator();
 
     // Function evaluator.
-    base_type::field_type evaluate( 
-	const Teuchos::ArrayRCP<base_type::GlobalOrdinal>& elements,
-	const Teuchos::ArrayRCP<double>& coords );
+    field_type evaluate( const Teuchos::ArrayRCP<int>& elements,
+			 const Teuchos::ArrayRCP<double>& coords );
 
   private:
 

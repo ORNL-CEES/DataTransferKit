@@ -27,15 +27,15 @@ DamperEvaluator::~DamperEvaluator()
 /*!
  * \brief Damper function evaluator.
  */
-DamperEvaluator::base_type::field_type
+DamperEvaluator::field_type
 DamperEvaluator::evaluate( 
-    const Teuchos::ArrayRCP<base_type::GlobalOrdinal>& elements,
+    const Teuchos::ArrayRCP<int>& elements,
     const Teuchos::ArrayRCP<double>& coords )
 {
     // Setup a field to apply the data to.
     int field_size = elements.size();
     Teuchos::ArrayRCP<double> eval_data( field_size );
-    base_type::field_type evaluations( eval_data, 1 );
+    field_type evaluations( eval_data, 1 );
 
     // Get the grid.
     Teuchos::RCP<std::vector<double> > grid = d_damper->get_grid();
