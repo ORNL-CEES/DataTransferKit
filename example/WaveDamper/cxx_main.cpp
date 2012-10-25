@@ -118,9 +118,11 @@ int main(int argc, char* argv[])
 	double wave_local_size = (global_max - global_min) / my_wave_size;
 	double my_wave_min = my_wave_rank*wave_local_size + global_min;
 	double my_wave_max = (my_wave_rank+1)*wave_local_size + global_min;
+	int wave_num_local_elements = 11;
 
 	// Create a Wave.
-	wave = Teuchos::rcp( new Wave(wave_comm, my_wave_min, my_wave_max, 10) );
+	wave = Teuchos::rcp( new Wave( wave_comm, my_wave_min, 
+				       my_wave_max, wave_num_local_elements) );
 
 	// Get the Wave mesh.
 	wave_mesh = WaveAdapter::getMesh( wave );
@@ -159,10 +161,12 @@ int main(int argc, char* argv[])
 	double damper_local_size = (global_max - global_min) / my_damper_size;
 	double my_damper_min = my_damper_rank*damper_local_size + global_min;
 	double my_damper_max = (my_damper_rank+1)*damper_local_size + global_min;
-
+	int damper_num_local_elements = 11;
+	
 	// Create a Damper.
 	damper = Teuchos::rcp( 
-	    new Damper(damper_comm, my_damper_min, my_damper_max, 10) ); 
+	    new Damper( damper_comm, my_damper_min, 
+			my_damper_max, damper_num_local_elements) );
 
 	// Get the Damper mesh.
 	damper_mesh = DamperAdapter::getMesh( damper );
@@ -218,7 +222,7 @@ int main(int argc, char* argv[])
 
     // Iterate between the damper and wave until convergence.
     int num_iter = 0;
-    int max_iter = 100;
+    int max_iter = 50;
     double norm = 1.0;
     double tolerance = 1.0e-6;
     while( norm > tolerance && num_iter < max_iter )
