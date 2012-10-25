@@ -40,29 +40,43 @@ int main(int argc, char* argv[])
     Teuchos::GlobalMPISession mpiSession(&argc,&argv);
     Teuchos::RCP<const Teuchos::Comm<int> > comm_default = 
 	Teuchos::DefaultComm<int>::getComm();
+    int num_procs = comm_default->getSize();
 
     // Split the main communicator into 2 separate groups, one from the wave
     // and one for the damper.
     Teuchos::Array<int> sub_ranks_wave, sub_ranks_damper;
-    for ( int n = 0; n < comm_default->getSize(); ++n )
+
+    // Multiple processor case.
+    if ( num_procs > 1 )
     {
-	if ( n % 2 == 0 )
+	for ( int n = 0; n < num_procs; ++n )
 	{
-	    sub_ranks_wave.push_back(n);
-	}
-	else
-	{
-	    sub_ranks_damper.push_back(n);
+	    if ( n % 2 == 0 )
+	    {
+		sub_ranks_wave.push_back(n);
+	    }
+	    else
+	    {
+		sub_ranks_damper.push_back(n);
+	    }
 	}
     }
+    // Single processor case.
+    else
+    {
+	sub_ranks_wave.push_back(0);
+	sub_ranks_damper.push_back(0);
+    }
 
+    // Generate the wave and damper communicators from the sub ranks.
     Teuchos::RCP<const Teuchos::Comm<int> > wave_comm = 
 	comm_default->createSubcommunicator( sub_ranks_wave() );
 
     Teuchos::RCP<const Teuchos::Comm<int> > damper_comm = 
 	comm_default->createSubcommunicator( sub_ranks_damper() );
 
-    // Build the union communicator for the Wave and Damper.
+    // Build the union communicator for the Wave and Damper. This is the
+    // communicator over which we will operate the coupling.
     Teuchos::RCP<const Teuchos::Comm<int> > comm_union;
     DataTransferKit::CommTools::unite( wave_comm, damper_comm, comm_union );
 
@@ -85,7 +99,7 @@ int main(int argc, char* argv[])
     // WAVE SETUP
     // ---------------//
 
-    // Set required variable in the scope of the global communicator.
+    // Set required variables in the scope of the global communicator.
     Teuchos::RCP<Wave> wave;
     Teuchos::RCP<DataTransferKit::MeshManager<WaveAdapter::MeshType> > 
 	wave_mesh;
@@ -172,12 +186,18 @@ int main(int argc, char* argv[])
     // occur over the union communicator in 1 dimensions.
     DataTransferKit::SharedDomainMap<WaveAdapter::MeshType,DamperAdapter::MeshType>
 	wave_to_damper_map( comm_union, 1 );
+
+    // Setup the wave-to-damper map with the wave mesh as the source and the
+    // damper coordinates as the target.
     wave_to_damper_map.setup( wave_mesh, damper_target_coords );
 
     // Create the mapping for the damper-to-wave transfer. The mapping will
     // occur over the union communicator in 1 dimensions.
     DataTransferKit::SharedDomainMap<DamperAdapter::MeshType,WaveAdapter::MeshType>
 	damper_to_wave_map( comm_union, 1 );
+
+    // Setup the damper-to-wave map with the damper mesh as the source and the
+    // wave coordinates as the target.
     damper_to_wave_map.setup( damper_mesh, wave_target_coords );
 
 

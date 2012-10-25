@@ -32,6 +32,9 @@ DamperEvaluator::evaluate(
     const Teuchos::ArrayRCP<int>& elements,
     const Teuchos::ArrayRCP<double>& coords )
 {
+    // Get the process rank.
+    int my_rank = d_damper->get_comm()->getRank();
+    
     // Setup a field to apply the data to.
     int field_size = elements.size();
     Teuchos::ArrayRCP<double> eval_data( field_size );
@@ -40,6 +43,10 @@ DamperEvaluator::evaluate(
     // Get the grid.
     Teuchos::RCP<std::vector<double> > grid = d_damper->get_grid();
     int num_grid_elements = grid->size() - 1;
+
+    // Get the local element ids.
+    int min_local_element_id = my_rank*num_grid_elements;
+    int max_local_element_id = (my_rank+1)*num_grid_elements-1;
 
     // Get the damper data.
     Teuchos::RCP<std::vector<double> > data = d_damper->get_damping();
@@ -55,7 +62,8 @@ DamperEvaluator::evaluate(
 
 	// If this is a valid element id for this process, interpolate with a
 	// linear basis.
-	if ( *element_iterator < num_grid_elements )
+	if ( *element_iterator >= min_local_element_id &&
+	     *element_iterator <= max_local_element_id )
 	{
 	    eval_data[eval_id] = (*data)[eval_id]
 				 + ( coords[eval_id] - (*grid)[eval_id] )

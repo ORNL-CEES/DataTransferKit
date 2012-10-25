@@ -39,7 +39,7 @@ Wave::Wave(Teuchos::RCP<const Teuchos::Comm<int> > _comm,
 	 data_iterator != data->end();
 	 ++data_iterator, ++grid_iterator)
     {
-	*data_iterator = cos( *grid_iterator );
+	*data_iterator = std::cos( *grid_iterator );
     }
 }
 
