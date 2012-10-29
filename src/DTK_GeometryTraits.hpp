@@ -101,7 +101,7 @@ class GeometryTraits
      * \brief Return the axis-aligned bounding box around the geometry.
      */
     static inline BoundingBox boundingBox( const GeometryType& geometry )
-    { UndefinedGeometryTraits<GeometryType>::notDefined(); return 0; }
+  { UndefinedGeometryTraits<GeometryType>::notDefined(); return BoundingBox(); }
 
     /*!
      * \brief Return the centroid of the geometry.

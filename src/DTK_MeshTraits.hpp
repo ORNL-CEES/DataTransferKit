@@ -243,7 +243,7 @@ class MeshTraits
      */
     static inline const_coordinate_iterator 
     coordsBegin( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+    { UndefinedMeshTraits<MeshType>::notDefined(); return const_coordinate_iterator(); }
 
     /*!
      * \brief Return the const iterator to the end of the vertex coordinate
@@ -253,7 +253,7 @@ class MeshTraits
      */
     static inline const_coordinate_iterator 
     coordsEnd( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+    { UndefinedMeshTraits<MeshType>::notDefined(); return const_coordinate_iterator(); }
     //@}
 
 
@@ -265,7 +265,7 @@ class MeshTraits
      */
     static inline DTK_ElementTopology 
     elementTopology( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0;}
+    { UndefinedMeshTraits<MeshType>::notDefined(); return DTK_ElementTopology();}
 
     /*! 
      * \brief Return the number of vertices that constructs an individual
@@ -319,7 +319,7 @@ class MeshTraits
      */
     static inline const_permutation_iterator
     permutationBegin( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+    { UndefinedMeshTraits<MeshType>::notDefined(); return const_permutation_iterator(); }
 
     /*! 
      * \brief Return the const iterator to the end of the element connectivity
@@ -327,7 +327,7 @@ class MeshTraits
      */
     static inline const_permutation_iterator
     permutationEnd( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+    { UndefinedMeshTraits<MeshType>::notDefined(); return const_permutation_iterator(); }
     //@}
 };
 
