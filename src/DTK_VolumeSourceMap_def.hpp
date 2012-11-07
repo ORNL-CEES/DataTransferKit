@@ -449,6 +449,14 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     rendezvous_to_src_distributor.doPostsAndWaits( 
 	reduced_rendezvous_points_view, 1, source_points() );
 
+    // Build a unique list of the points.
+    typename Teuchos::Array<GlobalOrdinal>::iterator source_point_bound;
+    std::sort( source_points.begin(), source_points.end() );
+    source_point_bound = std::unique( source_points.begin(),
+				      source_points.end() );
+    source_points.resize( std::distance( source_points.begin(),
+					 source_point_bound ) );
+
     // Build the source map from the target ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> source_points_view = 
 	source_points();
