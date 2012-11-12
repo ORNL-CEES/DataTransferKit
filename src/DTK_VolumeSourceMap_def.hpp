@@ -168,7 +168,6 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
 	target_ordinals();
-    std::cout << d_comm->getRank() << " TARGET: " << target_ordinals << std::endl;
     d_target_map = Tpetra::createNonContigMap<GlobalOrdinal>(
 	import_ordinal_view, d_comm );
     testPostcondition( !d_target_map.is_null() );
