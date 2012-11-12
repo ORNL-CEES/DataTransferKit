@@ -62,6 +62,7 @@
 #include <Tpetra_MultiVector_def.hpp>
 #include <Tpetra_Vector_decl.hpp>
 #include <Tpetra_Vector_def.hpp>
+#include <Tpetra_Export.hpp>
 
 namespace DataTransferKit
 {
@@ -167,6 +168,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
 	target_ordinals();
+    std::cout << d_comm->getRank() << " TARGET: " << target_ordinals << std::endl;
     d_target_map = Tpetra::createNonContigMap<GlobalOrdinal>(
 	import_ordinal_view, d_comm );
     testPostcondition( !d_target_map.is_null() );
@@ -467,11 +469,11 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     source_coords->doExport( rendezvous_coords, rendezvous_to_source_exporter,
 			     Tpetra::INSERT );
 
-    // Build the source-to-target exporter.
-    d_source_to_target_exporter = 
-	Teuchos::rcp( new Tpetra::Export<GlobalOrdinal>(
+    // Build the source-to-target importer.
+    d_source_to_target_importer = 
+	Teuchos::rcp( new Tpetra::Import<GlobalOrdinal>(
 			  d_source_map, d_target_map ) );
-    testPostcondition( !d_source_to_target_exporter.is_null() );
+    testPostcondition( !d_source_to_target_importer.is_null() );
 }
 
 //---------------------------------------------------------------------------//
@@ -572,7 +574,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 
     // Move the data from the source decomposition to the target
     // decomposition.
-    target_vector->doExport( *source_vector, *d_source_to_target_exporter, 
+    target_vector->doImport( *source_vector, *d_source_to_target_importer, 
 			     Tpetra::INSERT );
 }
 

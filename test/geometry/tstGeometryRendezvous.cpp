@@ -61,7 +61,6 @@ TEUCHOS_UNIT_TEST( GeometryRendezvous, cylinder_test )
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
     int my_rank = comm->getRank();
-    int my_size = comm->getSize();
 
     // Build a series of random cylinders.
     int num_cylinders = 100;
@@ -126,7 +125,6 @@ TEUCHOS_UNIT_TEST( GeometryRCB, box_test )
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
     int my_rank = comm->getRank();
-    int my_size = comm->getSize();
 
     // Build a series of random boxes.
     int num_boxes = 100;
@@ -192,7 +190,6 @@ TEUCHOS_UNIT_TEST( GeometryRendezvous, cylinder_unsigned_test )
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
     int my_rank = comm->getRank();
-    int my_size = comm->getSize();
 
     // Build a series of random cylinders.
     unsigned int num_cylinders = 100;
@@ -257,7 +254,6 @@ TEUCHOS_UNIT_TEST( GeometryRCB, box_unsigned_test )
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
     int my_rank = comm->getRank();
-    int my_size = comm->getSize();
 
     // Build a series of random boxes.
     int num_boxes = 100;
