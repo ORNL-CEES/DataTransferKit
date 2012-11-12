@@ -17,6 +17,7 @@
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_Export.hpp>
+#include <Tpetra_Import.hpp>
 #include <Tpetra_MultiVector.hpp>
 
 //---------------------------------------------------------------------------//
@@ -37,7 +38,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // Tests
 //---------------------------------------------------------------------------//
 
-TEUCHOS_UNIT_TEST( Export, tpetra_export_test )
+TEUCHOS_UNIT_TEST( Export, tpetra_overlap_test )
 {
     /* 
        Export Map.
@@ -144,6 +145,78 @@ TEUCHOS_UNIT_TEST( Export, tpetra_export_test )
 	    }
 	    getDefaultComm<int>()->barrier();
 	}
+    }
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( Export, tpetra_scatter_test )
+{
+    /* 
+       Export Map.
+       Rank 0:      [ 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ]
+       Rank 1:
+       Rank 2:
+       Rank 3:
+       
+       Import Map.
+       Rank 0:      [ 0 1 2 3 ]
+       Rank 1:              [ 4 5 6 7 ]
+       Rank 2:                      [ 8 9 10 11 ]
+       Rank 3:                                [ 12 13 14 15 ]
+     */
+
+    int my_rank = getDefaultComm<int>()->getRank();
+    int my_size = getDefaultComm<int>()->getSize();
+
+    Teuchos::Array<int> export_ids, import_ids;
+    if ( my_rank == 0 )
+    {
+	for ( int i = 0; i < 4*my_size; ++i )
+	{
+	    export_ids.push_back(i);
+	}
+    }
+    getDefaultComm<int>()->barrier();
+
+    for ( int i = 4*my_rank; i < 4*(my_rank+1); ++i )
+    {
+	import_ids.push_back(i);
+    }
+
+    Teuchos::ArrayView<const int> export_view = export_ids();
+    Teuchos::RCP< const Tpetra::Map<int> > export_map =
+	Tpetra::createNonContigMap<int>( 
+	    export_view, getDefaultComm<int>() );
+
+    Teuchos::ArrayView<const int> import_view = import_ids();
+    Teuchos::RCP< const Tpetra::Map<int> > import_map =
+	Tpetra::createNonContigMap<int>( 
+	    import_view, getDefaultComm<int>() );
+
+    Tpetra::Import<int> importer( export_map, import_map );
+
+    Tpetra::MultiVector<int> export_vector( export_map, 1 );
+    export_vector.putScalar( 2 );
+
+    Tpetra::MultiVector<int> import_vector( import_map, 1 );
+    import_vector.doImport( export_vector, importer, Tpetra::INSERT );
+
+    Teuchos::ArrayRCP<const int> import_vector_view = 
+	import_vector.get1dView();
+    TEST_ASSERT( import_vector_view.size() == 4 );
+    Teuchos::ArrayRCP<const int>::const_iterator import_iterator;
+    for ( int i = 0; i < my_size; ++i )
+    {
+	if ( my_rank == i )
+	{
+	    for ( import_iterator = import_vector_view.begin();
+		  import_iterator != import_vector_view.end();
+		  ++import_iterator )
+	    {
+		TEST_ASSERT( *import_iterator == 2 );
+	    }
+	}
+	getDefaultComm<int>()->barrier();
     }
 }
 
