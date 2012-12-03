@@ -3,7 +3,7 @@ BIB    := bibtex
 PDFTEX := pdflatex
 PDF    := dvipdf
 
-all: stencil.pdf
+all:
 	$(PDFTEX) slattery_wilson_pawlowski
 	$(BIB) slattery_wilson_pawlowski
 	$(PDFTEX) slattery_wilson_pawlowski
