@@ -77,7 +77,7 @@
 
 \begin{center}
 \textbf{\large \\%
-THE DATA TRANSFERKIT: A GEOMETRIC RENDEZVOUS-BASED TOOL FOR
+THE DATA TRANSFER KIT: A GEOMETRIC RENDEZVOUS-BASED TOOL FOR
 MULTIPHYSICS DATATRANSFER
 }
 % 
@@ -128,11 +128,12 @@ relative to other types of mapping algorithms. With the increased
 development efforts in multiphysics simulation, adaptive mesh
 simulations, and other multiple mesh problems, generating parallel
 topology maps for transferring fields and other data between meshes is
-a common operation. This document describes a domain model for mesh,
-fields, and parallel topology maps based on the concept of geometric
-rendezvous as implemented in DTK and gives the results of initial
-scaling studies performed on the Jaguar system at Oak Ridge National
-Laboratory.
+a common operation. This document describes the algorithms to generate
+parallel topology maps based on the concept of geometric rendezvous as
+implemented in DTK with examples using the Drekar CFD code a surrogate
+neutronices code and gives the results of initial scaling studies
+performed on the Jaguar system at Oak Ridge National Laboratory for a
+simplified problem.
 
 
 \emph{Key Words}: data transfer, multiphysics, rendezvous, parallel
@@ -144,129 +145,112 @@ Laboratory.
 
 %%---------------------------------------------------------------------------%%
 \Section{INTRODUCTION} 
+\label{sec:intro}
 
-Paper starts here with two blank lines before first section title.  Use 
-8.5 x 11 paper size, with 1" margins on all sides.  Double-space before and
-after each subsequent section's title.  Most of the formatting is globally
-set by the specifications given in the {\it mc2013.cls} file.  
-First-level section titles must be all uppercase and centered, and must 
-be numbered in Arabic numerals as shown above.  Unlike the Word and WordPerfect
-templates, the body text and section titles for this {\LaTeX} template use 
-11-point font.  A. Sood found that the 11-point font in {\LaTeX} more closely 
-matched the 12-point font in Word and WordPerfect.  Introduce the topic of 
-your work in this section.
+In many physics applications, it is often desired to transfer fields
+(i.e. degrees of freedom or other data) between meshes that may or may
+not conform in physical space. In addition, for massively parallel
+simulations, it is typical that meshes not only do not conform
+spatially, but also that their parallel decompositions do not
+correlate and are independent of one another due to physics-based
+partitioning and discretization requirements. As an example, this
+situation can occur in multiphysics simulations where physics fields
+provide feedback between solution iterations or adaptive mesh
+simulations where fields must be moved between meshes after refining
+and coarsening. It is therefore desirable to have a set of tools to
+relate two meshes of arbitrary parallel decomposition such that fields
+and other data can be transferred between them.
 
-The first line of a paragraph is not indented; rather double-space between 
-paragraphs.  This is done automatically. If you are a {\LaTeX} expert you 
-can likely define the established format characteristics in a more elegant 
-manner than what is done here.  This is perfectly fine, so long as the 
-established paper format/appearance is maintained.  This template is merely 
-to assist with maintaining uniformity in paper appearance.
-
-There are four types of reference styles: journal paper\cite{journal}, 
-proceedings paper\cite{proc_paper}, book\cite{book}, and website\cite{website}.
-References to websites are discouraged, but acceptable if absolutely necessary.
-The paper will be included as a {\it .pdf} file for the proceedings. Note that 
-it is the author's responsibility to review the final PDF version of the paper
-to ensure proper translation into PDF.  Final PDF file size should be no more 
-than 10 MB. Recommended paper length is 10-12 pages.
-
-\Section{SECOND OR SUBSEQUENT MAJOR HEADING} 
-\label{sec:first}
-
-This is Section~\ref{sec:first}. It is followed by a subsection, that is, 
-\ref{sec:second}. For this class file you must use the 
-\texttt{$\backslash$Section\{\}} to denote sections (note the capital ``S'').  
-The style for subsection titles and all text in this template is defined in 
-the {\it mc2013.cls} file.  Make sure to avoid widow/orphan lines.
+The Data Transfer Kit (DTK) is a software component devloped as part
+of the Consortium for Advanced Simulation of LWR's (CASL) designed to
+provide parallel services for mesh searching and data transfer based
+on the concept of the rendezvous decomposition as developed by
+Plimpton, Stewart, and Hendrickson \cite{Plimpton_2004}. To achieve a
+component design for use with arbitrary physics codes, general
+concepts of mesh and fields are employed to provide access to these
+services. This document will outline the concepts of parallel
+communicators, mesh, fields, parallel topology maps, and the
+rendezvous decomposition and how they are modeled within the design of
+DTK. An example of data transfer using these concepts is also
+provided.
 
 
-\Subsection{Subsection Title: First Character of Each Non-trivial Word is 
-Uppercase} 
-\label{sec:second}
+%%---------------------------------------------------------------------------%%
+\Section{RENDEZVOUS ALGORITHMS} 
+\label{sec:rendezvous_algorithms}
 
-Double-space before and after secondary titles is automatic.  Figures and 
-tables should appear as close as possible to where they are first
-cited, e.g., Fig. \ref{fig:amdahl}, in the text.  Figures are numbered in 
-Arabic numerals, with the caption centered below the figure, in 
-{\bf boldface}.
-  
-Triple-space before the figure, and after the figure caption.
+%%---------------------------------------------------------------------------%%
+\Section{NEUTRONICS-CFD COUPLING EXAMPLE}
+\label{sec:neutronics_cfd}
 
-%
-\vspace{16pt}
-\begin{figure}[!htb]
-\begin{spacing}{1.0}
-\centering
-\includegraphics[scale=0.60]{./figure.eps}
-\caption{\bf Speedup vs Number of Processors for Varying Parallelizable 
-Fractions in Order to See a Multiple Line Caption} 
-\label{fig:amdahl}
-\end{spacing}
+%%---------------------------------------------------------------------------%%
+\Section{SCALING STUDY}
+\label{sec:scaling_study}
+
+A typical use case of DTK is searching a mesh with a set of points and
+applying field data to those points. For this use case, a scaling
+study of the initial DTK implementation of the rendezvous algorithm
+for data transfer was performed utilizing the Jaguar system. For each
+study, a tri-linear hexahedron mesh was generated and decomposed
+across the parallel domain. Figure~\ref{fig:mesh_partition} shows an
+example of a mesh partition used in the scaling studies. Each
+partition had one element in the z direction while the x and y
+directions were varied to produce the desired number of elements in
+the partition. All partitions in each scaling study are square. This
+mesh is searched with random points generated by sampling the x and y
+directions across the global mesh domain.  By striding the random
+number seed used to generate the point coordinates, each process will
+have a unique set of random points it is searching for. For each
+scaling study, every process generated the same number of random
+points as the number of elements on that process, ensuring that a
+dense, all-to-all communication operation will be required for mapping
+and data transfer. Once the points are mapped to the mesh, the data
+transfer routine applies the process rank in which they were found and
+transfers it back to the original owning process for the point. In
+this way, because of the simple partitioning used for the scaling
+studies, the results of the data transfer to the random points can be
+independently verified by checking the applied data against the
+expected mesh process rank.
+
+\begin{figure}[htpb!]
+  \centering \includegraphics[width=5.5in]{mesh.png}
+  \caption{\sl Local mesh partition for scaling studies. This
+    particular mesh partition has 1.0E4 tri-linear hexahedrons.}
+  \label{fig:mesh_partition}
 \end{figure}
-\vspace{16pt}
-%
 
-When importing figures or any graphical image please verify two things:
-\begin{itemize}
-\item Any number, text or symbol is in Times font and is not smaller than 
-    10-point after reduction to the actual window in your paper
-\item That is can be translated into PDF
-\end{itemize}
+Three scaling variations were investigated. A weak scaling study was
+performed by fixing the problem size per core and increasing the
+number of cores used. A strong scaling study was performed by fixing
+the total problem size while increasing the number of cores
+used. Finally, a study where the number of cores was fixed while
+increasing the total problem size per core was also investigated.
 
 
-Equations, such as Eq. (\ref{sample_equation}), should be centered and 
-sequentially numbered to the flush right of the formula.
-\begin{equation}
-\label{sample_equation}
-Speedup\ =\ {1 \over{{f \over {p}} + (1-f)}}
-\end{equation}
-The continuation of a paragraph after an equation should not be indented.  
-All paragraphs, as well as section or subsection headings, are separated by 
-just one single empty line.
-
-
-\Subsubsection{Sub-section level and lower: only first character uppercase}
-
-See Table \ref{table:example} for a sample table.  The tabls package is
-recommended for improved row and column spacing.  Notice the caption appears 
-above the table by setting the \texttt{$\backslash$caption} command immediately 
-after the \texttt{$\backslash$begin\{table\}}. Tables are numbered in Roman 
-numerals, with the caption centered above the table, in {\bf boldface}.  
-Triple-space before and after the table.
-
-\vspace{16pt}
-\begin{table}[!htb]
-\centering
-\caption{\bf Parallel Performance for the Sample Problem}
-\label{table:example} 
-\vspace{14pt}
-\begin{tabular}{||r||c|c|c||} \hline \hline
- \multicolumn{1}{||c||}{Number of} &
- \multicolumn{1}{c|}{Wall-Clock} &
- \multicolumn{1}{c|}{Speedup} &
- \multicolumn{1}{c||}{Efficiency} \\
- \multicolumn{1}{||c||}{Processors} &
- \multicolumn{1}{c|}{Time$^{a}$ (min)} &
- \multicolumn{1}{c|}{(T$_{s}$/T$_{p}$)} &
- \multicolumn{1}{c||}{(\%)} \\ \hline\hline
-\ 1 &  100.0 & \ ---    & ---  \\ \hline
-\ 2 &   52.6 & \ 1.9    & 95.0 \\ \hline \hline
-\end{tabular}
-\end{table}
-\vspace{16pt}
-
-
+%%---------------------------------------------------------------------------%%
 \Section{CONCLUSIONS}
 
-Present your summary and conclusions here.
+Initial scaling studies have been completed for the Data Transfer Kit
+on the Jaguar system. Their results show comparable qualitative
+behavior to the literature results with improved performance due to
+the more advanced computational resources available. Implementation
+improvements have made significant gains in performance, however, for
+the dense communication patterns required to complete the scaling
+study problem, poor scaling results are still observed above O(10,000)
+processors. It is expected for more physical data transfer problems
+that the communication pattern will be significantly sparser than the
+problem presented here. Because of this, scaling is expected to
+improve for more physical problems. Additional scaling studies will be
+required to test this hypothesis.
 
 
+%%---------------------------------------------------------------------------%%
 \section*{ACKNOWLEDGEMENTS}
 
 This work was performed under funding provided by the Consortium for
 Advanced Simulation of Light Water Reactors (CASL).
 
+%%---------------------------------------------------------------------------%%
 %\Section*{REFERENCES}
 \setlength{\baselineskip}{12pt}
 \bibliography{references}
