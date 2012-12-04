@@ -411,7 +411,8 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::sendGeometryToRendezvous(
 	    geometry_src_procs.push_back( from_images[i] );
 	}
     }
-    testInvariant( geometry_src_procs.size() == num_import_geom );
+    testInvariant( Teuchos::as<GlobalOrdinal>(geometry_src_procs.size()) 
+		   == num_import_geom );
 
     // Build a unique set of local geometry, gids, and the source procs map.
     d_rendezvous_geometry.clear();

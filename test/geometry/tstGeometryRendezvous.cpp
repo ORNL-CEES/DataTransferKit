@@ -192,7 +192,7 @@ TEUCHOS_UNIT_TEST( GeometryRendezvous, cylinder_unsigned_test )
     int my_rank = comm->getRank();
 
     // Build a series of random cylinders.
-    unsigned int num_cylinders = 100;
+    int num_cylinders = 100;
     Teuchos::ArrayRCP<Cylinder> cylinders( num_cylinders );
     Teuchos::ArrayRCP<unsigned int> gids( num_cylinders );
     for ( int i = 0; i < num_cylinders; ++i )
