@@ -128,22 +128,24 @@ rendezvous algorithm provides a means to geometrically correlate two
 geometric domains that may be arbitrarily decomposed in a parallel
 simulation. By repartitioning both domains such that they have the
 same geometric domain on each parallel process, efficient and load
-balanced search operations and field evaluations can be performed at a
+balanced search operations and data transfer can be performed at a
 desirable algorithmic time complexity with low communication overhead
 relative to other types of mapping algorithms. With the increased
 development efforts in multiphysics simulation and other multiple mesh
 and geometry problems, generating parallel topology maps for
 transferring fields and other data between geometric domains is a
-common operation. This document describes the algorithms to generate
-parallel topology maps based on the concept of geometric rendezvous as
-implemented in DTK with examples using a conjugate heat transfer
-calculation with the Drekar CFD code and thermal coupling with a
-surrogate neutronics code. In addition, we provide the results of
-initial scaling studies performed on the Jaguar Cray XK6 system at Oak
-Ridge National Laboratory for a worse-case-scenario problem.
+common operation. This document describes the algorithms used to
+generate parallel topology maps based on the concept of geometric
+rendezvous as implemented in DTK with examples using a conjugate heat
+transfer calculation and thermal coupling with a surrogate neutronics
+code. In addition, we provide the results of initial scaling studies
+performed on the Jaguar Cray XK6 system at Oak Ridge National
+Laboratory for a worse-case-scenario problem in terms of algorithmic
+complexity that shows good scaling on O(10,000) cores.
 
 
 \emph{Key Words}: data transfer, multiphysics, rendezvous, parallel
+computing
 \end{small} 
 \end{quote}
 
@@ -185,82 +187,49 @@ The Data Transfer Kit (DTK) is a software component devloped as part
 of the Consortium for Advanced Simulation of LWR's (CASL)
 \cite{u.s._department_of_energy_casl_2011} designed to provide
 parallel services for mesh and geometry searching and data transfer
-based on the concept of the rendezvous decomposition as developed by
-Plimpton, Hendrickson, and Stewart \cite{Plimpton_2004}. Their work
-has been extended to achieve a component design for use with arbitrary
-physics codes with general concepts of mesh and fields are employed to
-provide access to these services. In addition, their rendezvous
-algorithms have been expanded to be used with both mesh and geometry
-representations of the geometric domain. This document will outline
-the rendezvous algorithms as implemented in DTK. Examples of data
-transfer using a conjugate heat transfer calculation and a
-CFD-neutronics type coupling are provided. Parallel scaling results
-are also presented for the point-to-point mapping algorithm for a
-worse-case-scenario problem where communication costs are at a
-maximum.
+based on the concept of geometric rendezvous as developed by Plimpton,
+Hendrickson, and Stewart \cite{Plimpton_2004}. Their work has been
+extended to move towards a component design for use with arbitrary
+physics codes with general concepts of mesh, geometry, and fields are
+employed to provide access to these services \cite{Chand_2008}. In
+addition, their rendezvous algorithms have been expanded to be used
+with both mesh and geometry representations of the geometric
+domain. This document will briefly outline the rendezvous algorithms
+as implemented in DTK. Examples of data transfer using a conjugate
+heat transfer calculation and a CFD-neutronics type coupling are
+provided. Parallel scaling results are also presented for the
+point-to-point mapping algorithm for a worse-case-scenario problem
+where communication costs are at a maximum.
 
 
 %%---------------------------------------------------------------------------%%
 \Section{RENDEZVOUS ALGORITHMS} 
 \label{sec:rendezvous_algorithms}
 
-The geometric rendezvous concept uses a global formulation for the
-data transfer while maintaining a local formulation for the geometric
-search operations. A geometry that is associated with the providing
-data through function evaluations will be referred to as the source
-geometry while the geometry that will be receiving the data will be
-referred to as the target geometry. 
-
 A set of algorithms based on geometric rendezvous are implemented
-within DTK. A parallel topology map is an operator, $M$, that defines
-the translation of a field, $F(s)$, from a source spatial domain,
-$\Omega_S$, to a field, $G(t)$, in the target spatial domain
-$\Omega_T$, such that $M: \mathbb{R}^D \rightarrow \mathbb{R}^D,
-\forall r \in [\Omega_S \cap \Omega_T]$, using both geometric and
-parallel operations. Using these maps, DTK provides mapping services
-for shared domain problems. A shared domain problem is one in which
-the geometric domains of the source and target intersect over all
-dimensions of the problem. Figure~\ref{fig:shared_domain} gives an
-example of a shared domain problem in 3 dimensions. Here, $\Omega(S)$
-({\sl yellow}) is the source geometry, $\Omega(T)$ ({\sl blue}) is the
-target geometry, and $\Omega(R)$ ({\sl red}) is their intersection and
-the shared domain over which mapping and the rendezvous decomposition
-will be generated.
+within DTK. The purpose of these algorithms is to efficiently generate
+a parallel topology map and the associated parallel communication plan
+that can carry out the data transfer repeatedly with the minumum
+required number of parallel messages and and data. A parallel topology
+map is an operator, $M$, that defines the translation of a field,
+$F(s)$, from a source spatial and parallel domain, $\Omega_S$, to a
+field, $G(t)$, in the target spatial and parallel domain $\Omega_T$,
+such that $M: \mathbb{R}^D \rightarrow \mathbb{R}^D, \forall r \in
+[\Omega_S \cap \Omega_T]$, using both geometric and parallel
+operations.
 
-\begin{figure}[htpb!]
-  \centering \includegraphics[width=5in]{overlapping_domain.pdf}
-  \caption{\bf \sl Shared domain example.} {\sl $\Omega(S)$ (yellow)
-    is the source geometry, $\Omega(T)$ (blue) is the target geometry,
-    and $\Omega(R)$ (red) is the shared domain.}
-  \label{fig:shared_domain}
-\end{figure}
+\Subsection{Point-to-Point Mapping}
+\label{subsec:point_to_point}
 
-The shared domain map has several properties. It is defined over a
-communicator that encapsulates the union of the communication spaces
-owned by the source and target geometries. The map is of the same
-dimension as the source and target geometries. A shared domain map
-cannot be generated with source and target geometries of different
-dimensions (e.g. a 3 dimensional source geometry and a 2 dimensional
-target geometry cannot be used to generate a shared domain map).
-
-In order to access DTK mesh services, a subset of the information
-needed to describe the mesh is required. This subset consists of
-vertices and their coordinates, elements and the vertices that
-construct them, and the communicator over which they are defined. The
-vertices that construct an element have both a canonical ordering
-consistent across all elements of that topology in a mesh and a
-permutation list that describes how this ordering varies from DTK
-canonical ordering. This subset has been demonstrated as sufficient
-for applying data transfer algorithms \cite{Stewart_2004} and can be
-formulated in such a way that algorithms can be generated that are
-data structure neutral \cite{Chand_2008}. In addition, support is
-provided for meshes that contain multiple element topologies.
-
-The actual discretization of the field is not explicitly
-formulated. Rather, access to discretization of fields and the
-associated data is generated through function evaluations at points in
-physical space. Consider a $D$-dimensional function $F(r)$ of
-arbitrary discretization over the spatial domain $\Omega \in
+Point-to-point mapping consists of interpolating data bound to a mesh
+onto a point using the functions that represent the discretization of
+the data over that mesh. For the mapping to access the required
+physics data, fields will be required to be evaluated at points in
+discrete domains. The actual discretization of the field is not
+explicitly formulated. Rather, access to discretization of fields and
+the associated data is generated through function evaluations at
+points in physical space. Consider a $D$-dimensional function $F(r)$
+of arbitrary discretization over the spatial domain $\Omega \in
 \mathbb{R}^n$ where $r \in \mathbb{R}^n$ and $F : \mathbb{R}^n
 \rightarrow \mathbb{R}^D$. Via polynomial interpolation, projection,
 or any other means necessary to most appropriately reflect the
@@ -275,9 +244,9 @@ of the following type can be performed:
 where $\hat{r} \in \mathbb{R}^n$ is a single point and $\hat{f} \in
 \mathbb{R}^D$ is representative of the function $F(r)$ evaluated at
 $\hat{r}$. This operation is not valid for $\hat{r} \notin \Omega$. In
-the context of $\Omega$ discretized by a mesh, these evaluations can
-instead be written in terms of a single mesh element, $\omega \in
-\Omega$.
+the context of $\Omega$ discretized by a geometric domains (such as
+mesh elements or cylinders), these evaluations can instead be written
+in terms of a single domain, $\omega \in \Omega$.
 
 \begin{equation}
   \hat{f} \leftarrow F(\hat{r}), \forall \hat{r} \in \omega
@@ -289,18 +258,13 @@ $\hat{r} \notin \omega$ and $\hat{r} \notin \Omega$, then alternative
 schemes may be chosen, such as extrapolation, in order to apply the
 field to $\hat{r}$.
 
-\Subsection{Point-to-Point Mapping}
-\label{subsec:point_to_point}
-
-Point-to-point mapping consists of interpolating data bound to a mesh
-onto a point using the functions that represent the discretization of
-the data over that mesh. 
 
 \Subsection{Volume-to-Volume Mapping}
 \label{subsec:volume_to_volume}
 
 \Subsection{Integral-to-Volume Mapping}
 \label{subsec:integral_to_volume}
+
 
 %%---------------------------------------------------------------------------%%
 \Section{DATA TRANSFER EXAMPLES}
@@ -343,7 +307,7 @@ independently verified by checking the applied data against the
 expected mesh process rank.
 
 \begin{figure}[htpb!]
-  \centering \includegraphics[width=5.5in]{mesh.png}
+  \centering \includegraphics[width=4.5in]{mesh.png}
   \caption{\sl Local mesh partition for scaling studies. This
     particular mesh partition has 1.0E4 tri-linear hexahedrons.}
   \label{fig:mesh_partition}
@@ -560,17 +524,16 @@ times approximately the same.
 \Section{CONCLUSIONS}
 
 We have presented the Data Transfer Kit, a new tool for massively
-paralle data transfer for multiphysics applications. The concept of
+parallel data transfer for multiphysics applications. The concept of
 geometric rendezvous is used to provide a collection of mesh and
 geometry-based mappings for data transfer in shared domain problems.
 Initial scaling studies have been completed for the Data Transfer Kit
 on the Jaguar system. Their results show comparable qualitative
 behavior to the literature results with improved performance due to
-the more advanced computational resources available. Implementation
-improvements have made significant gains in performance, however, for
-the dense communication patterns required to complete the scaling
-study problem, poor weak scaling results are still observed above
-O(10,000) processors.
+the more advanced computational resources available. However, for the
+dense communication patterns required to complete the scaling study
+problem, poor weak scaling results are still observed above O(10,000)
+cores.
 
 It is expected for more physical data transfer problems that the
 communication pattern will be significantly sparser than the problem
