@@ -141,7 +141,9 @@ transfer calculation and thermal coupling with a surrogate neutronics
 code. In addition, we provide the results of initial scaling studies
 performed on the Jaguar Cray XK6 system at Oak Ridge National
 Laboratory for a worse-case-scenario problem in terms of algorithmic
-complexity that shows good scaling on O(10,000) cores.
+complexity that shows good scaling on O(10,000) cores for topology map
+generation and good scaling on O(100,000) cores for the data transfer
+operation.
 
 
 \emph{Key Words}: data transfer, multiphysics, rendezvous, parallel
@@ -170,19 +172,6 @@ and coarsening. It is therefore desirable to have a set of tools to
 relate two geometric domains of arbitrary parallel decomposition such
 that fields and other data can be transferred between them.
 
-Relating two non-conformal geometric domains will ultimately require
-some type of function evaluation algorithm to apply the data from one
-geometry to another. To drive these evaluation algorithms, the target
-objects to which this data will be applied must be located within the
-the source geometry. In a serial formulation, efficient search
-structures that offer logarithmic asymptotic time complexity are
-available to perform this operation. However, in a parallel
-formulation, if these two geometries are arbitrarily decomposed,
-geometric alignment is not likely and a certain degree of
-communication will be required. A geometric rendezvous manipulates the
-source and target geometries such that all geometric operations have a
-local formulation.
-
 The Data Transfer Kit (DTK) is a software component devloped as part
 of the Consortium for Advanced Simulation of LWR's (CASL)
 \cite{u.s._department_of_energy_casl_2011} designed to provide
@@ -190,21 +179,22 @@ parallel services for mesh and geometry searching and data transfer
 based on the concept of geometric rendezvous as developed by Plimpton,
 Hendrickson, and Stewart \cite{Plimpton_2004}. Their work has been
 extended to move towards a component design for use with arbitrary
-physics codes with general concepts of mesh, geometry, and fields are
-employed to provide access to these services \cite{Chand_2008}. In
-addition, their rendezvous algorithms have been expanded to be used
-with both mesh and geometry representations of the geometric
-domain. This document will briefly outline the rendezvous algorithms
-as implemented in DTK. Examples of data transfer using a conjugate
-heat transfer calculation and a CFD-neutronics type coupling are
-provided. Parallel scaling results are also presented for the
-point-to-point mapping algorithm for a worse-case-scenario problem
-where communication costs are at a maximum.
+physics codes with such that varying representations of mesh,
+geometry, and fields are able to access these services
+\cite{Chand_2008}. In addition, the original mesh-based rendezvous
+algorithms have been expanded to be used with both mesh and geometry
+representations of the geometric domain. This document will briefly
+outline the rendezvous algorithms as implemented in DTK. Examples of
+data transfer using a conjugate heat transfer calculation and a
+CFD-neutronics type coupling are provided. Parallel scaling results
+are also presented for the mesh-based mapping algorithm for a
+worse-case-scenario problem where communication costs are at a
+maximum.
 
 
 %%---------------------------------------------------------------------------%%
-\Section{RENDEZVOUS ALGORITHMS} 
-\label{sec:rendezvous_algorithms}
+\Section{GEOMETRIC RENDEZVOUS} 
+\label{sec:geometric_rendezvous}
 
 A set of algorithms based on geometric rendezvous are implemented
 within DTK. The purpose of these algorithms is to efficiently generate
@@ -218,53 +208,96 @@ such that $M: \mathbb{R}^D \rightarrow \mathbb{R}^D, \forall r \in
 [\Omega_S \cap \Omega_T]$, using both geometric and parallel
 operations.
 
-\Subsection{Point-to-Point Mapping}
-\label{subsec:point_to_point}
+Once the map is generated, moving data between two non-conformal
+geometric domains will ultimately require some type of function
+evaluation algorithm to apply the data from one geometry to
+another. To drive these evaluation algorithms, the target objects to
+which this data will be applied must be located within the the source
+geometry. In a serial formulation, efficient search structures that
+offer logarithmic asymptotic time complexity are available to perform
+this operation. However, in a parallel formulation, if these two
+geometries are arbitrarily decomposed, geometric alignment is not
+likely and a certain degree of communication will be required. A
+geometric rendezvous manipulates the source and target geometries such
+that all geometric operations have a local formulation.
 
-Point-to-point mapping consists of interpolating data bound to a mesh
-onto a point using the functions that represent the discretization of
-the data over that mesh. For the mapping to access the required
-physics data, fields will be required to be evaluated at points in
-discrete domains. The actual discretization of the field is not
-explicitly formulated. Rather, access to discretization of fields and
-the associated data is generated through function evaluations at
-points in physical space. Consider a $D$-dimensional function $F(r)$
-of arbitrary discretization over the spatial domain $\Omega \in
-\mathbb{R}^n$ where $r \in \mathbb{R}^n$ and $F : \mathbb{R}^n
-\rightarrow \mathbb{R}^D$. Via polynomial interpolation, projection,
-or any other means necessary to most appropriately reflect the
-discretization of $F(r)$, it then follows that evaluation operations
-of the following type can be performed:
+\Subsection{Mesh-Based Rendezvous Algorithm}
+\label{subsec:rendezvous_algorithm}
 
-\begin{equation}
-  \hat{f} \leftarrow F(\hat{r}), \forall \hat{r} \in \Omega
-  \label{eq:evaluation}
-\end{equation}
+The geometric rendezvous concept uses a global formulation for the
+data transfer while maintaining a local formulation for the geometric
+search operations. In DTK, the following algorithm developed by
+Plimpton et. al. \cite{Plimpton_2004} mesh-based data transfer
+generates the rendezvous decomposition through global operations in
+order to achieve a local framework for geometric operations.
+\begin{enumerate}
+\item Compute a box that bounds the source and target geometry
+  intersection.
+\item Create a rendezvous decomposition by performing recursive
+  coordinate bisectioning on the source geometry \cite{Berger_1987}.
+\item Send source geometry from the source decomposition to rendezvous
+  decomposition.
+\item Clone source geometry components which overlap into nearby
+  recursive coordinate bisectioning sub-domains.
+\item Build a kD-tree with the local mesh in each rendezvous
+  partition \cite{Bentley_1975}.
+\end{enumerate}
+By implementing the above algorithm, we effectively have a search
+structure that spans both parallel and physical space. We first search
+parallel space by querying the rendezvous decomposition generated
+during repartitioning. Global recursive coordinate bisectioning
+parameters are maintained for global partitioning information, meaning
+that a desintation process in the rendezvous decomposition can be
+determined for any point on any process. Although this is a search
+over parallel space, because of the geometric nature of the rendezvous
+decomposition it is also a search over physical space with each
+process in the rendezvous decomposition owning a specific subset of
+the mesh (with marginal overlap at the boundaries).
+ 
+Once points have been accumulated in the rendezvous decomposition, the
+local kD-tree that is formed over the local mesh can be utilized. By
+searching the kD-tree in logarithmic time, a subset of the mesh that
+is in the vicinity of the target point is generated. This subset,
+which is typically much smaller than the mesh owned by a particular
+rendezvous process, is then searched with a more expensive
+point-in-element operation that transforms the vertex into the
+reference frame of each mesh element in the subset with a Newton
+iteration strategy. This mapped point is then checked against the
+canonical reference cell of that mesh element's topology to determine
+if the vertex is contained within.
 
-where $\hat{r} \in \mathbb{R}^n$ is a single point and $\hat{f} \in
-\mathbb{R}^D$ is representative of the function $F(r)$ evaluated at
-$\hat{r}$. This operation is not valid for $\hat{r} \notin \Omega$. In
-the context of $\Omega$ discretized by a geometric domains (such as
-mesh elements or cylinders), these evaluations can instead be written
-in terms of a single domain, $\omega \in \Omega$.
+\Subsection{Extension to General Geometries}
+\label{subsec:general_geometry}
 
-\begin{equation}
-  \hat{f} \leftarrow F(\hat{r}), \forall \hat{r} \in \omega
-  \label{eq:element_evaluation}
-\end{equation}
+To handle software components that have a geometric entity-based
+representation (e.g. a method of characteristics code with flat source
+regions representing the geometry), the above algorithm has been
+extended to operate on a general geometric description. The mesh-based
+algorithm above is purely geometric, with each element in the mesh
+treated as a separate geometric entity. If this is the case, then
+other geometries such as annular rings, cubes, or any other irregular
+shapes should apply to the algorithm. To extend the above algorithm,
+we require a geometric entity to provide a small set of information
+including point inclusion, the bounding box of the entity, centroid,
+and dimensionality. With this information, the RCB parititoning can be
+generated and the geometry repartitioned to the rendezvous
+decomposition. With the RCB data we can then perform a proximity
+search followed by the more expensive point inclusion checks. 
 
-This operation is then not valid for $\hat{r} \notin \omega$. If
-$\hat{r} \notin \omega$ and $\hat{r} \notin \Omega$, then alternative
-schemes may be chosen, such as extrapolation, in order to apply the
-field to $\hat{r}$.
-
-
-\Subsection{Volume-to-Volume Mapping}
-\label{subsec:volume_to_volume}
-
-\Subsection{Integral-to-Volume Mapping}
-\label{subsec:integral_to_volume}
-
+Given these new search structures, variations of the algorithms
+presented in \cite{Plimpton_2004} can be extended beyond mesh-based
+interpolation. DTK includes a geometric interpolation algorithm, very
+similar to the original algorithm where data is applied to points in
+the domain based on the field discretization in the
+geometry. Geometry-to-geometry transfers are available when the two
+physics components being coupled derive their geometric description
+from the same source. This is useful in cases such as transferring
+fuel temperatures a geometric zone in one physics application to the
+same geometric zone in another application in parallel. Finally, for
+cases where volume-averaged quantities are desired, typically an
+integral is performed. DTK also contains algorithms for volume
+averaging mesh-based fields over the geometry that the mesh has
+discretized.
 
 %%---------------------------------------------------------------------------%%
 \Section{DATA TRANSFER EXAMPLES}
@@ -277,7 +310,7 @@ field to $\hat{r}$.
 \label{subsec:cfd_neutronics}
 
 %%---------------------------------------------------------------------------%%
-\Section{SCALING STUDY}
+\Section{PARALLEL SCALING STUDY}
 \label{sec:scaling_study}
 
 A typical use case of DTK is searching a mesh with a set of points and
@@ -530,10 +563,11 @@ geometry-based mappings for data transfer in shared domain problems.
 Initial scaling studies have been completed for the Data Transfer Kit
 on the Jaguar system. Their results show comparable qualitative
 behavior to the literature results with improved performance due to
-the more advanced computational resources available. However, for the
+the more advanced computational resources available with good scaling
+for the data transfer operation at O(100,000) cores. However, for the
 dense communication patterns required to complete the scaling study
 problem, poor weak scaling results are still observed above O(10,000)
-cores.
+cores for the mapping operation.
 
 It is expected for more physical data transfer problems that the
 communication pattern will be significantly sparser than the problem
