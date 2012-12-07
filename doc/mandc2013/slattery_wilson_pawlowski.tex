@@ -142,9 +142,9 @@ code. In addition, we provide the results of initial scaling studies
 performed on the Jaguar Cray XK6 system at Oak Ridge National
 Laboratory for a worse-case-scenario problem in terms of algorithmic
 complexity that shows good scaling on $O(1 \times 10^4)$ cores for
-topology map generation and good scaling on $O(1 \times 10^5)$ cores
-for the data transfer operation with meshes of $O(1 \times 10^9)$
-elements.
+topology map generation and excellent scaling on $O(1 \times 10^5)$
+cores for the data transfer operation with meshes of $O(1 \times
+10^9)$ elements.
 
 
 \emph{Key Words}: data transfer, multiphysics, rendezvous, parallel
@@ -174,7 +174,7 @@ therefore desirable to have a set of tools to relate two geometric
 domains of arbitrary parallel decomposition such that fields and other
 data can be transferred between them.
 
-The Data Transfer Kit (DTK) is a software component devloped as part
+The Data Transfer Kit (DTK) is a software component developed as part
 of the Consortium for Advanced Simulation of LWR's (CASL)
 \cite{u.s._department_of_energy_casl_2011} designed to provide
 parallel services for mesh and geometry searching and data
@@ -254,7 +254,7 @@ that spans both parallel and physical space. We first search parallel
 space by querying the rendezvous decomposition generated during
 repartitioning. Global recursive coordinate bisectioning parameters
 are maintained for global partitioning information, meaning that a
-desintation process in the rendezvous decomposition can be determined
+destination process in the rendezvous decomposition can be determined
 for any point on any process. Although this is a search over parallel
 space, because of the geometric nature of the rendezvous decomposition
 it is also a search over physical space with each process in the
@@ -294,7 +294,7 @@ generated.
 \end{figure}
 The purpose of these mapping algorithms is to efficiently generate a
 parallel topology map and the associated parallel communication plan
-that can carry out the data transfer repeatedly with the minumum
+that can carry out the data transfer repeatedly with the minimum
 required number of parallel messages and and data. A parallel topology
 map is an operator, $M$, that defines the translation of a field,
 $F(s): \mathbb{R}^D \rightarrow \mathbb{R}^N$, from a source spatial
@@ -322,7 +322,7 @@ annular rings, cubes, or any other irregular shapes should apply to
 the algorithm. To extend the above algorithm, we require a geometric
 entity to provide a small set of information including point inclusion
 tests, the bounding box of the entity, centroid, dimensionality. With
-this information, the RCB parititoning can be generated and the
+this information, the RCB partitioning can be generated and the
 geometry repartitioned to the rendezvous decomposition. With the
 repartitioned geometry data we can then perform a proximity search
 followed by the more expensive point inclusion checks.
@@ -608,14 +608,14 @@ be prohibitive as that operation will only be performed once during a
 setup phase for the problem. Once the map is generated, it and the
 resulting parallel communication plan can be used repeatedly in the
 data transfer operation with excellent scaling and minimal wall time
-obeserved for meshes of $O(1 \times 10^9)$ elements.
+observed for meshes of $O(1 \times 10^9)$ elements.
 
 It is expected for more physical data transfer problems that the
 overall communication pattern will be significantly sparser than the
 problem presented here. Because of this, scaling for the mapping
 algorithm is expected to improve for more physical problems. Further
 scaling studies will be required to test this hypothesis. In addition,
-the code has the potential to be extended to provide
+Data Transfer Kit has the potential to be extended to provide
 surface-to-surface mappings for interface data transfers.
 
 
@@ -626,7 +626,7 @@ This work was performed under funding provided by the Consortium for
 Advanced Simulation of Light Water Reactors (CASL). The authors would
 like to the the CASL Virtual Reactor Integration (VRI) development
 team for their assistance over the course of development of DTK and
-the Oak Ridge Leaderership Computing Facility (OLCF) for providing
+the Oak Ridge Leadership Computing Facility (OLCF) for providing
 computational resources and support.
 
 %%---------------------------------------------------------------------------%%
