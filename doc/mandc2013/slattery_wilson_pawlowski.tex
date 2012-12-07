@@ -403,19 +403,19 @@ transfer of the data is several orders of magnitude less.
   \includegraphics[width=5.5in]{WeakScaling.png}
   \caption{Weak scaling study results. The solid black curve reports
     the wall time to generate the mapping vs. number of processors
-    while the solide red curve reports the wall time to transfer the
-    data (apply) vs. number of processors. The dashed lines give
+    while the solid red curve reports the wall time to transfer the
+    data vs. number of processors. The dashed lines give
     perfect weak scaling the map generation (black) and the data
     transfer (red).}
   \label{fig:weak_scaling}
 \end{figure}
 
 Table~\ref{tab:weak_scaling}. Gives the raw data for the weak scaling
-study. We note here that both the setup time (mapping) and the apply
-time (data transfer) are relatively load balanced with average compute
-times reported near the maximum compute time. In addition it should be
-noted that for even the largest case at 115,072 cores the wall time is
-not prohibitively large with the map generation routine requiring
+study. We note here that both the map generation time and the data
+transfer time are relatively load balanced with average compute times
+reported near the maximum compute time. In addition it should be noted
+that for even the largest case at 115,072 cores the wall time is not
+prohibitively large with the map generation routine requiring
 approximately 10.44 minutes and the data transfer routine requiring
 less than half a second.
 
@@ -512,7 +512,7 @@ dominate when a few thousand cores are used while the data transfer
 scaling is excellent. The raw data for this study is presented in
 table~\ref{tab:strong_scaling}. We see again that the algorithm is
 relatively load balanced with average compute times near the maximum
-reported compute times for the setup
+reported compute times for the map generation
 operation. Table~\ref{tab:strong_efficiency} gives the efficiencies
 computed for the strong scaling study with the 256 processor case used
 as the reference.
@@ -522,8 +522,8 @@ as the reference.
   \includegraphics[width=5.5in]{StrongScaling.png}
   \caption{Strong scaling study results. The solid black curve reports
     the wall time to generate the mapping vs. number of processors
-    while the solide red curve reports the wall time to transfer the
-    data (apply) vs. number of processors. The dashed lines give
+    while the solid red curve reports the wall time to transfer the
+    data vs. number of processors. The dashed lines give
     perfect strong scaling the map generation (black) and the data
     transfer (red).}
   \label{fig:strong_scaling}
