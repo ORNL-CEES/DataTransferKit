@@ -134,21 +134,20 @@ relative to other types of mapping algorithms. With the increased
 development efforts in multiphysics simulation and other multiple mesh
 and geometry problems, generating parallel topology maps for
 transferring fields and other data between geometric domains is a
-common operation. This document describes the algorithms used to
-generate parallel topology maps based on the concept of geometric
-rendezvous as implemented in DTK with examples using a conjugate heat
-transfer calculation and thermal coupling with a surrogate neutronics
-code. In addition, we provide the results of initial scaling studies
-performed on the Jaguar Cray XK6 system at Oak Ridge National
-Laboratory for a worse-case-scenario problem in terms of algorithmic
-complexity that shows good scaling on $O(1 \times 10^4)$ cores for
-topology map generation and excellent scaling on $O(1 \times 10^5)$
-cores for the data transfer operation with meshes of $O(1 \times
-10^9)$ elements.
+common operation. The algorithms used to generate parallel topology
+maps based on the concept of geometric rendezvous as implemented in
+DTK are described with examples using a conjugate heat transfer
+calculation and thermal coupling with a neutronics code. In addition,
+we provide the results of initial scaling studies performed on the
+Jaguar Cray XK6 system at Oak Ridge National Laboratory for a
+worse-case-scenario problem in terms of algorithmic complexity that
+shows good scaling on $O(1 \times 10^4)$ cores for topology map
+generation and excellent scaling on $O(1 \times 10^5)$ cores for the
+data transfer operation with meshes of $O(1 \times 10^9)$ elements.
 
 
-\emph{Key Words}: data transfer, multiphysics, rendezvous, parallel
-computing
+\emph{Key Words}: data transfer, multiphysics, rendezvous algorithm,
+parallel computing
 \end{small} 
 \end{quote}
 
@@ -227,12 +226,13 @@ search operations by generating a secondary decomposition of the
 geometric structures in the problem. In DTK, the following algorithm
 developed by Plimpton et. al. \cite{Plimpton_2004} for mesh-based data
 transfer generates the rendezvous decomposition which behaves as a
-hierarchical parallel geometric search tree:
+hierarchical parallel and geometric search tree:
 \begin{enumerate}
 \item Compute a box that bounds the source and target geometry
   intersection.
 \item Create a rendezvous decomposition by performing recursive
-  coordinate bisectioning on the source geometry \cite{Berger_1987}.
+  coordinate bisectioning on the source geometry in the bounding box
+  \cite{Berger_1987}.
 \item Send source geometry from the source decomposition to rendezvous
   decomposition.
 \item Clone source geometry components which overlap into nearby
@@ -241,13 +241,13 @@ hierarchical parallel geometric search tree:
   partition \cite{Bentley_1975}.
 \end{enumerate}
 Using the above algorithm, a secondary decomposition of a subset of
-the source mesh is generated forming the rendezvous decomposition. The
-rendezvous decomposition is encapsulated as a separate entity from the
-original geometric description of the domain. It can be viewed as a
-copy of the source mesh subset that intersects the target
-geometry. This copy has been repartitioned in a way that fundamental
-geometric search operations are local and proceed globally in a load
-balanced fashion.
+the source mesh that will participate in data transfer is generated,
+forming the rendezvous decomposition. The rendezvous decomposition is
+encapsulated as a separate entity from the original geometric
+description of the domain. It can be viewed as a copy of the source
+mesh subset that intersects the target geometry. This copy has been
+repartitioned in a way that fundamental geometric search operations
+are local and proceed globally in a load balanced fashion.
 
 With the rendezvous algorithm, we effectively have a search structure
 that spans both parallel and physical space. We first search parallel
@@ -287,9 +287,9 @@ domain over which mapping and the rendezvous decomposition will be
 generated.
 \begin{figure}[htpb!]
   \centering \includegraphics[width=4in]{overlapping_domain.pdf}
-  \caption{\bf \sl Shared domain example.} {\sl $\Omega(S)$ (yellow)
-    is the source geometry, $\Omega(T)$ (blue) is the target geometry,
-    and $\Omega(R)$ (red) is the shared domain.}
+  \caption{Shared domain example. $\Omega(S)$ (yellow) is the source
+    geometry, $\Omega(T)$ (blue) is the target geometry, and
+    $\Omega(R)$ (red) is the shared domain.}
   \label{fig:shared_domain}
 \end{figure}
 The purpose of these mapping algorithms is to efficiently generate a
@@ -312,11 +312,11 @@ over the region $\Omega_R = \Omega_S \cap \Omega_T$.
 \label{subsec:general_geometry}
 
 To handle software components that have a geometric entity-based
-representation (e.g. a neutronics code which uses method of
-characteristics with flat source regions representing the geometry),
-the above algorithms have been extended to operate on a general
-geometric description. The mesh-based algorithm above is purely
-geometric, with each element in the mesh treated as a separate
+representation (e.g. a neutronics code which uses a method of
+characteristics scheme with flat source regions representing the
+geometry), the above algorithms have been extended to operate on a
+general geometric description. The mesh-based algorithm above is
+purely geometric, with each element in the mesh treated as a separate
 geometric entity. If this is the case, then other geometries such as
 annular rings, cubes, or any other irregular shapes should apply to
 the algorithm. To extend the above algorithm, we require a geometric
@@ -388,17 +388,17 @@ number of cores used.
 
 \Subsection{Weak Scaling}
 \label{subsec:weak_scaling}
-For the weak scaling study, the number of hexahedrons per partition
-was fixed to 1.0E4 and the number of random points generated per
-partition also fixed to 1.0E4. The number of cores used varied from 16
-to 115,072. Figure~\ref{fig:weak_scaling} gives the results of the
-weak scaling study. The largest case reported here uses 115,072 cores
-and required 10.44 minutes for map generation and 0.48 seconds for
-data transfer. It is clear from the weak scaling study that at high
-numbers of processors communication latency begins to dominate for
-this dense all-to-all problem as described above. However, it is worth
-noting that once the mapping is complete, wall time for the actual
-transfer of the data is several orders of magnitude less.
+For the weak scaling study, the number of hexahedrons and random
+points per partition were fixed to $1 \times 10^4$. The number of cores
+used varied from 16 to 115,072. Figure~\ref{fig:weak_scaling} gives
+the results of the weak scaling study. The largest case reported here
+uses 115,072 cores and required 10.44 minutes for map generation and
+0.48 seconds for data transfer with a mesh size of $1.15 \times 10^9$
+elements. It is clear from the weak scaling study that at high numbers
+of processors communication latency begins to dominate for this dense
+all-to-all problem as described above. However, it is worth noting
+that once the mapping is complete, wall time for the actual transfer
+of the data is several orders of magnitude less.
 
 \begin{figure}[ht!]
   \centering
@@ -412,7 +412,7 @@ transfer of the data is several orders of magnitude less.
   \label{fig:weak_scaling}
 \end{figure}
 
-Table~\ref{tab:weak_scaling}. Gives the raw data for the weak scaling
+Table~\ref{tab:weak_scaling} gives the raw data for the weak scaling
 study. We note here that both the map generation time and the data
 transfer time are relatively load balanced with average compute times
 reported near the maximum compute time. In addition it should be noted
@@ -422,9 +422,9 @@ approximately 10.44 minutes and the data transfer routine requiring
 less than half a second.
 
 The efficiency values for the map generation and data transfer
-routines are also reported in table~\ref{tab:weak_efficiency} with the
+routines are also reported in Table~\ref{tab:weak_efficiency} with the
 16 core case used as the reference computation. In correlation with
-the data presented in table~\ref{tab:weak_scaling}, the efficiencies
+the data presented in Table~\ref{tab:weak_scaling}, the efficiencies
 are observed to be low above 1,000 cores for this dense all-to-all
 communication problem. For more physical coupling problems where the
 communication is expected to be much sparser, this gives and idea of
@@ -504,17 +504,16 @@ limiting behavior is observed.
 
 \Subsection{Strong Scaling}
 \label{subsec:strong_scaling}
-For the strong scaling study, the global number of hexahedrons was
-fixed to 1.0E8 and the global number of points fixed to 1.0E8 as well
-with the number of cores varied from 256 to
-65,536. Figure~\ref{fig:strong_scaling} gives the results of the
-strong scaling study. Again, we note for the all-to-all communication
-pattern required to map the random points that latency again begins to
-dominate when a few thousand cores are used while the data transfer
-scaling is excellent. The raw data for this study is presented in
-table~\ref{tab:strong_scaling}. We see again that the algorithm is
-relatively load balanced with average compute times near the maximum
-reported compute times for the map generation
+For the strong scaling study, the global number of hexahedrons and
+random points were fixed to $1 \times 10^8$ with the number of cores
+varied from 256 to 65,536. Figure~\ref{fig:strong_scaling} gives the
+results of the strong scaling study. Again, we note for the all-to-all
+communication pattern required to map the random points that latency
+again begins to dominate when a few thousand cores are used while the
+data transfer scaling is excellent. The raw data for this study is
+presented in Table~\ref{tab:strong_scaling}. We see again that the
+algorithm is relatively load balanced with average compute times near
+the maximum reported compute times for the map generation
 operation. Table~\ref{tab:strong_efficiency} gives the efficiencies
 computed for the strong scaling study with the 256 processor case used
 as the reference.
