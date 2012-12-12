@@ -188,7 +188,7 @@ original mesh-based rendezvous algorithms have been expanded to be
 used with both mesh and geometry representations of the geometric
 domain. This document will briefly outline the rendezvous algorithms
 as implemented in DTK. Examples of data transfer using a conjugate
-heat transfer calculation and a CFD-neutronics type coupling are
+heat transfer calculation and a thermal-neutronics type coupling are
 provided. Parallel scaling results are also presented for the
 mesh-based mapping algorithm for a worse-case-scenario problem where
 communication costs are at a maximum.
@@ -199,9 +199,9 @@ communication costs are at a maximum.
 \label{sec:geometric_rendezvous}
 
 Relating two non-conformal meshes will ultimately require some type of
-evaluation algorithm to apply the data from one geometry to another
-as. To drive these evaluation algorithms, the target objects to which
-this data will be applied must be located within the the source
+data evaluation algorithm to apply the data from one geometry to
+another. To drive these evaluation algorithms, the target objects to
+which this data will be applied must be located within the the source
 geometry. In a serial formulation, efficient search structures that
 offer logarithmic asymptotic time complexity are available to perform
 this operation. However, in a parallel formulation, if these two
@@ -217,61 +217,48 @@ target geometry. Although explicitly formulated with a source mesh and
 target vertices below, these concepts can be applied to geometric
 structures beyond mesh and vertices.
 
-\Subsection{Mesh-Based Rendezvous Algorithm}
+\Subsection{Rendezvous Decomposition}
 \label{subsec:rendezvous_algorithm}
 
 The geometric rendezvous concept uses a global formulation for the
 data transfer while maintaining a local formulation for the geometric
 search operations by generating a secondary decomposition of the
-geometric structures in the problem. In DTK, the following algorithm
+geometric structures in the problem. In DTK, the rendezvous algorithm
 developed by Plimpton et. al. \cite{Plimpton_2004} for mesh-based data
 transfer generates the rendezvous decomposition which behaves as a
-hierarchical parallel and geometric search tree:
-\begin{enumerate}
-\item Compute a box that bounds the source and target geometry
-  intersection.
-\item Create a rendezvous decomposition by performing recursive
-  coordinate bisectioning on the source geometry in the bounding box
-  \cite{Berger_1987}.
-\item Send source geometry from the source decomposition to rendezvous
-  decomposition.
-\item Clone source geometry components which overlap into nearby
-  recursive coordinate bisectioning sub-domains.
-\item Build a kD-tree with the local mesh in each rendezvous
-  partition \cite{Bentley_1975}.
-\end{enumerate}
-Using the above algorithm, a secondary decomposition of a subset of
-the source mesh that will participate in data transfer is generated,
-forming the rendezvous decomposition. The rendezvous decomposition is
-encapsulated as a separate entity from the original geometric
-description of the domain. It can be viewed as a copy of the source
-mesh subset that intersects the target geometry. This copy has been
-repartitioned in a way that fundamental geometric search operations
-are local and proceed globally in a load balanced fashion.
+hierarchical parallel and geometric search tree.  Using this
+algorithm, a secondary decomposition of a subset of the source mesh
+that will participate in data transfer is generated, forming the
+rendezvous decomposition. The rendezvous decomposition is encapsulated
+as a separate entity from the original geometric description of the
+domain. It can be viewed as a temporary copy of the source mesh subset
+that intersects the target geometry. This copy has been repartitioned
+in a way that fundamental geometric search operations are local and
+proceed globally in a load balanced fashion.
 
-With the rendezvous algorithm, we effectively have a search structure
-that spans both parallel and physical space. We first search parallel
-space by querying the rendezvous decomposition generated during
-repartitioning. Global recursive coordinate bisectioning parameters
-are maintained for global partitioning information, meaning that a
-destination process in the rendezvous decomposition can be determined
-for any point on any process. Although this is a search over parallel
-space, because of the geometric nature of the rendezvous decomposition
-it is also a search over physical space with each process in the
-rendezvous decomposition owning a specific subset of the mesh (with
-marginal overlap at the boundaries).
+With the rendezvous decomposition, we effectively have a search
+structure that spans both parallel and physical space. We first search
+parallel space by querying the rendezvous decomposition generated
+during repartitioning. Global recursive coordinate bisectioning
+parameters are maintained for global partitioning information, meaning
+that a destination process in the rendezvous decomposition can be
+determined for any point on any process \cite{Berger_1987}. Although
+this is a search over parallel space, because of the geometric nature
+of the rendezvous decomposition it is also a search over physical
+space with each process in the rendezvous decomposition owning a
+specific subset of the mesh (with marginal overlap at the boundaries).
  
 Once points have been accumulated in the rendezvous decomposition, the
 local kD-tree that is formed over the local mesh can be utilized. By
 searching the kD-tree in logarithmic time, a subset of the mesh that
-is in the vicinity of the target point is generated. This subset,
-which is typically much smaller than the mesh owned by a particular
-rendezvous process, is then searched with a more expensive
-point-in-element operation that transforms the vertex into the
-reference frame of each mesh element in the subset with a Newton
-iteration strategy. This mapped point is then checked against the
-canonical reference cell of that mesh element's topology to determine
-if the vertex is contained within.
+is in the vicinity of the target point is generated
+\cite{Bentley_1975}. This subset, which is typically much smaller than
+the mesh owned by a particular rendezvous process, is then searched
+with a more expensive point-in-element operation that transforms the
+vertex into the reference frame of each mesh element in the subset
+with a Newton iteration strategy. This mapped point is then checked
+against the canonical reference cell of that mesh element's topology
+to determine if the vertex is contained within.
 
 \Subsection{Parallel Topology Maps}
 
@@ -300,13 +287,29 @@ map is an operator, $M$, that defines the translation of a field,
 $F(s): \mathbb{R}^D \rightarrow \mathbb{R}^N$, from a source spatial
 and parallel domain, $\Omega_S$, to a field, $G(t): \mathbb{R}^D
 \rightarrow \mathbb{R}^N$, in the target spatial and parallel domain
-$\Omega_T$, such that $G(t)\leftarrow M(F(s))$ and $M: \mathbb{R}^D
-\rightarrow \mathbb{R}^D, \forall r \in [\Omega_S \cap \Omega_T]$,
+$\Omega_T$, such that $G(t)\leftarrow M(F(s))$ and $M: \mathbb{R}^N
+\rightarrow \mathbb{R}^N, \forall r \in [\Omega_S \cap \Omega_T]$,
 where $N$ is the dimensionality of the field and $D$ the
 dimensionality of the spatial domain. It then follows that the
 geometric rendezvous is defined as a geometric-based parallel
 redistribution of the original source and target geometries defined
 over the region $\Omega_R = \Omega_S \cap \Omega_T$.
+
+These maps are generated by creating source/target pairs found by
+searching the rendezvous decomposition. For each target object for
+which data is desired, the rendezvous decomposition is searched with
+that object to find the corresponding source object. In the case of
+finite element interpolation, the target object would be a quadrature
+point in the target finite element mesh and the source object would be
+a source element in the source finite element mesh that contains the
+target point. The map would then drive the field evaluation,
+$G(t)\leftarrow M(F(s))$, for all source/target pairs. Embedded within
+the map is a communication plan that describes the communication
+sequence for transferring the data from the source geometry to the
+target geometry. Once the field evaluations are complete, the
+communication sequence moves that data from the source geometry
+decomposition to the target geometry decomposition to complete the
+data transfer and the application to the map operator.
 
 \Subsection{Extension to General Geometries}
 \label{subsec:general_geometry}
