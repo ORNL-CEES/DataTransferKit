@@ -124,11 +124,11 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
     d_partitioner->partition();
 
     // Send the mesh in the box to the rendezvous decomposition and build the
-    // concrete mesh blocks.
+    // mesh blocks.
     MeshManager<MeshContainerType> rendezvous_mesh_manager =
 	sendMeshToRendezvous( mesh_manager );
 
-    // Build the concrete rendezvous mesh from the mesh container.
+    // Build the rendezvous mesh from the mesh container.
     d_rendezvous_mesh = createRendezvousMeshFromMesh( rendezvous_mesh_manager );
     testPostcondition( !d_rendezvous_mesh.is_null() );
 
@@ -856,7 +856,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	    element_src_procs.push_back( from_images[i] );
 	}
     }
-    testInvariant( element_src_procs.size() == num_import_elements );
+    testInvariant( Teuchos::as<GlobalOrdinal>(element_src_procs.size())
+		   == num_import_elements );
         
     // Next, move these into the rendezvous element set so that we have a
     // unique list of the elements and build the rendezvous mesh element to

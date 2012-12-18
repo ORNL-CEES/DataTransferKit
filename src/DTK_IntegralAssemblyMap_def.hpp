@@ -268,7 +268,8 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	    geom_target_procs.push_back( from_images[i] );
 	}
     }
-    testInvariant( geom_target_procs.size() == num_rendezvous_geom );
+    testInvariant( Teuchos::as<GlobalOrdinal>(geom_target_procs.size())
+		   == num_rendezvous_geom );
 
     // Get the rendezvous source mesh elements that are in the rendezvous
     // target geometry. This is really expensive and we should rather think of
