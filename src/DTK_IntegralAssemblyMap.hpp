@@ -62,7 +62,7 @@
 #include <Tpetra_Map_def.hpp>
 #include <Tpetra_Directory_decl.hpp>
 #include <Tpetra_Directory_def.hpp>
-#include <Tpetra_Export.hpp>
+#include <Tpetra_Import.hpp>
 
 namespace DataTransferKit
 {
@@ -100,8 +100,8 @@ class IntegralAssemblyMap
     typedef Teuchos::RCP<const CommType>              RCP_Comm;
     typedef Tpetra::Map<GlobalOrdinal>                TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
-    typedef Tpetra::Export<GlobalOrdinal>             ExportType;
-    typedef Teuchos::RCP<ExportType>                  RCP_TpetraExport;
+    typedef Tpetra::Import<GlobalOrdinal>             ImportType;
+    typedef Teuchos::RCP<ImportType>                  RCP_TpetraImport;
     //@}
 
     // Constructor.
@@ -158,8 +158,8 @@ class IntegralAssemblyMap
     // Target field map.
     RCP_TpetraMap d_target_map;
 
-    // Source-to-target exporter.
-    RCP_TpetraExport d_source_to_target_exporter;
+    // Source-to-target importer.
+    RCP_TpetraImport d_source_to_target_importer;
 
     // Local source elements to drive the function integrations (source
     // decomposition).
