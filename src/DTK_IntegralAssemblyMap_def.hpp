@@ -451,11 +451,11 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	source_elements_view, d_comm );
     testPostcondition( !d_source_map.is_null() );
 
-    // Build the source-to-target exporter.
-    d_source_to_target_exporter = 
-	Teuchos::rcp( new Tpetra::Export<GlobalOrdinal>(
+    // Build the source-to-target importer.
+    d_source_to_target_importer = 
+	Teuchos::rcp( new Tpetra::Import<GlobalOrdinal>(
 			  d_source_map, d_target_map ) );
-    testPostcondition( !d_source_to_target_exporter.is_null() );
+    testPostcondition( !d_source_to_target_importer.is_null() );
 
     // Communicate the element measures from the source to the target.
     Teuchos::Array<double> source_measures(0);
@@ -471,7 +471,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	Tpetra::createVectorFromView( 
 	    d_target_map, 
 	    Teuchos::arcpFromArray( integral_element_measures ) );
-    target_vector->doExport( *source_vector, *d_source_to_target_exporter,
+    target_vector->doImport( *source_vector, *d_source_to_target_importer,
 			     Tpetra::INSERT );
 
     // Compute the local geometry measures from element measure sums. This
@@ -585,8 +585,8 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
     Tpetra::MultiVector<typename TFT::value_type,GlobalOrdinal> 
 	target_vector( d_target_map, target_dim );
 
-    // Export the function integrations.
-    target_vector.doExport( *source_vector, *d_source_to_target_exporter,
+    // Import the function integrations.
+    target_vector.doImport( *source_vector, *d_source_to_target_importer,
 			     Tpetra::INSERT );
 
     // Collapse the function integrations over the geometry and apply them to
