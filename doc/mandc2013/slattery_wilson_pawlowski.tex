@@ -101,9 +101,9 @@ sslattery@wisc.edu; wilsonp@engr.wisc.edu \\
 % SECOND AUTHORS (if not needed delete from here) 
 %
 \vspace{12pt}
-\textbf{R.P. Pawlowski}\\
-Sandia National Laboratories \\
-1515 Eubank SE, Albuquerque, NM 87123 \\
+\textbf{R.P. Pawlowski} \\
+Sandia National Laboratories\footnote{Sandia National Laboratories is a multi-program laboratory managed and operated by Sandia Corporation, a wholly owned subsidiary of Lockheed Martin Corporation, for the U.S. Department of Energy\'s National Nuclear Security Administration under contract DE-AC04-94AL85000.} \\
+P.O. Box 5800, Albuquerque, NM 87185 \\
 rppawlo@sandia.gov \\ 
 %
 % SECOND AUTHORS (to here)
@@ -347,14 +347,42 @@ integrating mesh-based fields over the geometry that the mesh has
 discretized.
 
 %%---------------------------------------------------------------------------%%
-\Section{DATA TRANSFER EXAMPLES}
+\Section{DATA TRANSFER EXAMPLE USE CASES}
 \label{sec:examples}
 
-\Subsection{Conjugate Heat Transfer}
+This section demonstrates important use cases for CASL.  A goal of the CASL program \cite{u.s._department_of_energy_casl_2011} is to develop an advanced simulator capability for a pressurized light water reactor core.  To achieve this, two large-scale parallel codes have been coupled using DTK, a thermal hydraulics (TH) code \cite{drekar_cfd} and a neutronics (NE) code \cite{denovo_2010}.  The TH code performs a multiphysics conjugate heat transfer simulation where energy conservation equation is solved in the fuel pins and energy, momentum and mass conservation equations are solved in the fluid surrounding the fuel pins.  The TH simulation uses fully coupled fully implicit Newton-Krylov solvers with algebraic multigrid preconditioning \cite{shadid_2006}.  The DTK is leveraged to transfer data between the codes and a simple block Gauss-Siedel iteration loop is used to converge the global coupled system.  Both codes have been demonstrated to run on leadership class machines with greater than 100,000 cores.  
+
+The solution is spatially distributed across processes, requiring the use of DTK to identify and execute an efficient data transfer.  The NE code supplies source terms used by the energy conservation equation in the fuel pins of the TH code.  A point-to-point data transfer is required where where the TH code requires source term values at the quadrature points for the finite element integration.   The TH code supplies average temperatures for a section of the fuel pin to the NE code for the cross-section calculations.  An integral assembly transfer is used to provide cell integrated contributions to the total average temperature for the geometric entity (fuel pin section).  Sample 2D verification simulations wil be shown in section \ref{subsec:cht} while 3D results from a unit test of a single pin will be shown in section \ref{subsec:cfd_neutronics}.
+
+\Subsection{Data Transfer Verification}
 \label{subsec:cht}
+
+This simulation was used to verify parallel data transfer.  An analytic solution for the source term was prescribed in the NE code and transferred to the CFD code.  Figure \ref{fig:domain}
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=2.5in]{cht_domains.png}
+  \caption{Verification simulation domain space consisting of a top-down view of a single fuel pin surrounded by a fluid region. The blue region represents the fluid area and the red region represents the solid fuel pin.}
+  \label{fig:domain}
+\end{figure}
+shows the conjugate heat transfer domains for the test problem.  The simulation was run on 10 cores with TH using 5 cores and NE using the remaining 5 cores.  Figure \ref{fig:parallel_decomposition}
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=2.0in]{neutronics_parallel_decomp.png}
+  \includegraphics[width=2.0in]{cfd_parallel_decomp.png}
+  \caption{Parallel decomposition.  The colors indicate ownership of the element by a core.  In this example, a 10 core job is run with the cfd and neutronics applications each owning 5 cores on separate processor spaces.}
+  \label{fig:parallel_decomposition}
+\end{figure}
+ shows the parallel decomposition for each application code.  Note that NE uses a structured mesh while the TH uses an unstructured mesh.  Results showed that data was transferred correctly with machine precision accuracy using DTK.  A plot of the function verification function (source = $x*y$) is shown in Figure \ref{fig:verification_solution}.
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=2.5in]{cfd_transferred_field.png}
+  \caption{Multiphysics domain space}
+  \label{fig:verification_solution}
+\end{figure}
 
 \Subsection{CFD-Neutronics}
 \label{subsec:cfd_neutronics}
+
 
 %%---------------------------------------------------------------------------%%
 \Section{PARALLEL SCALING STUDY}
