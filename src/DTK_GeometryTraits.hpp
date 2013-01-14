@@ -64,7 +64,22 @@ struct UndefinedGeometryTraits
   \class GeometryTraits
   \brief Geometry traits definitions.
 
-  GeometryTraits provide access to basic properites of geometric objects.
+  GeometryTraits provide access to basic properites of geometric objects. A
+  geometry is simply an object or collection of objects that has $n$ physical
+  dimensions and a spatial domain $\Omega \in \mathbb{R}^n$ that is bounded by
+  a boundary $\Gamma \in \mathbb{R}^n$. Concrete examples of geometries in 3
+  dimensions include cubes and cylinders. A geometry can have 1, 2, or three
+  dimensions. To specify the general position in space of the geometry, each
+  object is required to have a centroid given in Cartesian coordinates with
+  (x) given for 1 dimensional geometries, (x,y) for two dimensions, and
+  (x,y,z) for 3 dimensions. A measure is also specified for each geometry
+  where the measure is defined as length in 1 dimension, area in 2 dimensions,
+  and volume for 3 dimensions. In addition to this data, a geometry must be
+  able to provide a Cartesian axis-aligned bounding box that encapsulates the
+  entire geometry. For geometric search operations to be performed, a geometry
+  must be able to determine if a given point of the same dimensionality as the
+  geometry is contained within the boundary of the geometry (i.e. $\hat{r} \in
+  \Omega$).
 */
 //---------------------------------------------------------------------------//
 template<typename GeometryType>
@@ -101,7 +116,10 @@ class GeometryTraits
      * \brief Return the axis-aligned bounding box around the geometry.
      */
     static inline BoundingBox boundingBox( const GeometryType& geometry )
-  { UndefinedGeometryTraits<GeometryType>::notDefined(); return BoundingBox(); }
+    { 
+	UndefinedGeometryTraits<GeometryType>::notDefined();
+	return BoundingBox(); 
+    }
 
     /*!
      * \brief Return the centroid of the geometry.

@@ -49,19 +49,19 @@
 %%---------------------------------------------------------------------------%%
 \begin{abstract}
   The Data Transfer Kit (DTK) is a software component designed to
-  provide parallel services for mesh searching and data transfer for
-  arbitrary physics components. In many physics applications, the
-  concept of mesh is used to subdivide the physical domain into a
-  discrete representation to facilitate the solution of the model
-  problems that describe it. Additionally, the concept of the field is
-  used to apply degrees of freedom to the mesh as a means of function
-  discretization. With the increased development efforts in
-  multiphysics simulation, adaptive mesh simulations, and other
-  multiple mesh problems, generating parallel topology maps for
-  transferring fields and other data between meshes is a common
-  operation. This document describes a domain model for mesh, fields,
-  and parallel topology maps based on the concept of geometric
-  rendezvous as implemented in DTK.
+  provide parallel services for mesh and geometry searching and data
+  transfer for arbitrary physics components. In many physics
+  applications, the concept of mesh and geometry is used to subdivide
+  the physical domain into a discrete representation to facilitate the
+  solution of the model problems that describe it. Additionally, the
+  concept of the field is used to apply degrees of freedom to the mesh
+  or geometry as a means of function discretization. With the
+  increased development efforts in multiphysics simulation, adaptive
+  mesh simulations, and other multiple mesh/geometry problems,
+  generating parallel topology maps for transferring fields and other
+  data between meshes is a common operation. This document describes a
+  domain model for mesh, geometry, fields, and parallel topology maps
+  based on the concept of geometric rendezvous as implemented in DTK.
 \end{abstract}
 
 \newpage
@@ -89,29 +89,30 @@ during the development of this work.
 %%---------------------------------------------------------------------------%%
 \section{Introduction}\label{sec:intro}
 In many physics applications, it is often desired to transfer fields
-(i.e. degrees of freedom or other data) between meshes that may or may
-not conform in physical space. In addition, for massively parallel
-simulations, it is typical that meshes not only do not conform
-spatially, but also that their parallel decompositions do not
-correlate and are independent of one another due to physics-based
-partitioning and discretization requirements. As an example, this
-situation can occur in multiphysics simulations where physics fields
-provide feedback between solution iterations or adaptive mesh
-simulations where fields must be moved between meshes after refining
-and coarsening. It is therefore desirable to have a set of tools to
-relate two meshes of arbitrary parallel decomposition such that fields
-and other data can be transferred between them.
+(i.e. degrees of freedom or other data) between meshes or geometries
+that may or may not conform in physical space. In addition, for
+massively parallel simulations, it is typical that geometric domains
+not only do not conform spatially, but also that their parallel
+decompositions do not correlate and are independent of one another due
+to physics-based partitioning and discretization requirements. As an
+example, this situation can occur in multiphysics simulations where
+physics fields provide feedback between solution iterations or
+adaptive mesh simulations where fields must be moved between meshes
+after refining and coarsening. It is therefore desirable to have a set
+of tools to relate mesh and geometry of arbitrary parallel
+decomposition such that fields and other data can be transferred
+between them.
 
 The Data Transfer Kit (DTK) is a software component designed to
-provide parallel services for mesh searching and data transfer based
-on the concept of the rendezvous decomposition
+provide parallel services for mesh and geometry searching and data
+transfer based on the concept of the rendezvous decomposition
 \cite{Plimpton_2004}. To achieve a component design for use with
-arbitrary physics codes, general concepts of mesh and fields are
-employed to provide access to these services. This document will
-outline the concepts of parallel communicators, mesh, fields, parallel
-topology maps, and the rendezvous decomposition and how they are
-modeled within the design of DTK. An example of data transfer using
-these concepts is also provided.
+arbitrary physics codes, general concepts of mesh, geometry, and
+fields are employed to provide access to these services. This document
+will outline the concepts of parallel communicators, mesh, geometry,
+fields, parallel topology maps, and the rendezvous decomposition and
+how they are modeled within the design of DTK. An example of data
+transfer using these concepts is also provided.
 
 \subsection{Basic Definitions}\label{subsec:basic_defs}
 
@@ -414,6 +415,27 @@ communicator is required.
 \clearpage
 
 %%---------------------------------------------------------------------------%%
+\section{Geometry}\label{sec:geometry}
+A geometry is simply an object or collection of objects that has $n$
+physical dimensions and a spatial domain $\Omega \in \mathbb{R}^n$
+that is bounded by a boundary $\Gamma \in \mathbb{R}^n$. Concrete
+examples of geometries in 3 dimensions include cubes and cylinders. A
+geometry can have 1, 2, or three dimensions. All geometry objects have
+a globally unique ordinal serving as an identification number for the
+geometry in global operations. To specify the general position in
+space of the geometry, each object is required to have a centroid
+given in Cartesian coordinates with (x) given for 1 dimensional
+geometries, (x,y) for two dimensions, and (x,y,z) for 3 dimensions. A
+measure is also specified for each geometry where the measure is
+defined as length in 1 dimension, area in 2 dimensions, and volume for
+3 dimensions. In addition to this data, a geometry must be able to
+provide a Cartesian axis-aligned bounding box that encapsulates the
+entire geometry. For geometric search operations to be performed, a
+geometry must be able to determine if a given point of the same
+dimensionality as the geometry is contained within the boundary of the
+geometry (i.e. $\hat{r} \in \Omega$).
+
+%%---------------------------------------------------------------------------%%
 \section{Fields}\label{sec:field}
 In the most general sense, a field refers to the degrees of freedom
 computed by a physics code or the responses derived from those degrees
@@ -427,13 +449,12 @@ order to access DTK field services, a subset of information needed to
 describe the field is required. A field has a dimension of arbitrary
 size. As examples, for scalar fields this dimension is 1, for
 3-vectors (such as the velocity example above in a 3 dimensional
-computation) the dimension is 3, and for a 3x3 tensor the dimension is
-9.  All local instances of the field must have the same dimension. A
-field can have an arbitrary number of local degrees of freedom and
-this size can differ from local domain to local domain. No knowledge
-of the global field decomposition is required, however, it must exist
-on a single communicator.
-
+computation) the dimension is 3, and for a $3 \times 3$ tensor the
+dimension is 9.  All local instances of the field must have the same
+dimension. A field can have an arbitrary number of local degrees of
+freedom and this size can differ from local domain to local domain. No
+knowledge of the global field decomposition is required, however, it
+must exist on a single communicator.
 
 \subsection{Field Evaluations}\label{subsec:field_eval}
 The actual discretization of the field is not explicitly
@@ -446,39 +467,57 @@ arbitrary discretization over the spatial domain $\Omega \in
 or any other means necessary to most appropriately reflect the
 discretization of $F(r)$, it then follows that evaluation operations
 of the following type can be performed:
-
 \begin{equation}
   \hat{f} \leftarrow F(\hat{r}), \forall \hat{r} \in \Omega
   \label{eq:evaluation}
 \end{equation}
-
 where $\hat{r} \in \mathbb{R}^n$ is a single point and $\hat{f} \in
 \mathbb{R}^D$ is representative of the function $F(r)$ evaluated at
 $\hat{r}$. This operation is not valid for $\hat{r} \notin \Omega$. In
 the context of $\Omega$ discretized by a mesh, these evaluations can
 instead be written in terms of a single mesh element, $\omega \in
-\Omega$.
-
+\Omega$:
 \begin{equation}
   \hat{f} \leftarrow F(\hat{r}), \forall \hat{r} \in \omega
   \label{eq:element_evaluation}
 \end{equation}
-
 This operation is then not valid for $\hat{r} \notin \omega$. If
 $\hat{r} \notin \omega$ and $\hat{r} \notin \Omega$, then alternative
 schemes may be chosen, such as extrapolation, in order to apply the
 field to $\hat{r}$. An evaluator is an object that drives the
 application of Eq~(\ref{eq:element_evaluation}).
 
+\subsection{Field Integrations}\label{subsec:field_integrations}
+As a complement to field evaluations at points, fields may also be
+integrated over a region of space, $\Omega$:
+\begin{equation}
+  f_{\Omega} = \int_{\Omega} F(r) dr\:,
+  \label{eq:integration}
+\end{equation}
+where $f_{\Omega}$ is now representative of the integral of the field
+$F(r)$ over the domain $\Omega$. In the context of $\Omega$
+discretized by a mesh, these integrals can instead be written in terms
+of a single mesh element, $\omega \in \Omega$:
+\begin{equation}
+  f_{\omega} = \int_{\omega} F(r) dr\:,
+  \label{eq:element_integration}
+\end{equation}
+where the integral over $\Omega$ will be the summation of all element
+integrals:
+\begin{equation}
+  f_{\Omega} = \sum_i f_{{\omega}_i},\ \forall \omega_i \in \Omega\:.
+  \label{eq:integral_sum}
+\end{equation}
+
 \subsection{The Relationship Between Mesh and Fields}
 \label{subsec:mesh_and_fields}
-The relationship between the mesh and the field in DTK is implicitly
-defined. As stated in Eq~(\ref{eq:evaluation}), a field evaluation is
-only valid over a particular spatial domain $\Omega$. We define the
-mesh over that same domain $\Omega$. In addition, as stated in
-Eq~(\ref{eq:element_evaluation}), the discrete element components of
-the mesh, $\omega$, also have a relationship with the field. Given a
-particular element in the mesh such that $\omega \in \Omega$, the
+The relationship between the mesh and the field in DTK is
+implicitly defined. As stated in Eq~(\ref{eq:evaluation}), a field
+evaluation is only valid over a particular spatial domain $\Omega$. We
+define the mesh over that same domain $\Omega$. In addition, as stated
+in Eq~(\ref{eq:element_evaluation}), the discrete element components
+of the mesh, $\omega$, also have a relationship with the field. Given
+a particular element in the mesh such that $\omega \in \Omega$, the
 field is then also bound to those discrete components. The discrete
 form of the field then forms an aggregate with the discrete form of
 the mesh. The responses derived from that field also are also bound to
@@ -635,11 +674,7 @@ $\Omega_T$, such that $M: \mathbb{R}^D \rightarrow \mathbb{R}^D,
 \forall r \in [\Omega_S \cap \Omega_T]$, using both geometric and
 parallel operations. There are 3 types of physics-based parallel
 topology maps: shared domain maps, interface maps, and network maps
-\cite{LIME_2011}. In addition, maps based on ordinals that have been
-pre-generated can by other means can also be utilized. Currently, DTK
-only supports shared domain maps and ordinal maps, however, interface
-and network maps are supported by this domain model if they have a
-mesh-based formulation.
+\cite{LIME_2011}.  Currently, DTK only supports shared domain maps.
 
 \subsection{Shared Domain Problems}\label{subsec:shared_domain}
 A shared domain problem is one in which the geometric domains of the
@@ -665,13 +700,17 @@ owned by the source and target geometries.  The map is of the same
 dimension as the source and target geometries. A shared domain map
 cannot be generated with source and target geometries of different
 dimensions (e.g. a 3 dimensional source geometry and a 2 dimensional
-target geometry cannot be used to generate a shared domain map).
+target geometry cannot be used to generate a shared domain map). There
+are 3 types of shared domain mapping algorithms implemented in DTK:
+the traditional mesh-based rendezvous algorithm, the integral assembly
+map, and the geometry source map.
 
-\subsubsection{Shared Domain Mapping Algorithm}
+\subsubsection{Mesh-Based Shared Domain Mapping Algorithm}
 \label{subsubsec:shared_domain_alg}
 The following mapping algorithm is applied using the rendezvous
-decomposition to build a parallel topology map for share domain
-problems.
+decomposition to build a parallel topology map for shared domain
+problems where both the source and target geometries are represented
+by mesh.
 
 \begin{enumerate}
 \item Determine which target geometry components to operate on by
@@ -714,26 +753,58 @@ routines. These pairings must be communicated from the rendezvous
 decomposition back to the source/target decompositions to complete the
 mapping.
 
+\subsubsection{Geometry Source Map}
+\label{subsubsec:geometry_source_map}
+A slight variation of the mesh-based rendezvous algorithm is one in
+which the source field is defined over a set of geometric structures
+instead of the mesh. There are two potential use cases for this type
+of map: one in which the target is a set of points at which the source
+function should be evaluated and another in which the target is a
+group of geometric objects identical to those in the source but with a
+possibly different parallel distribution. For the first case, the
+general point location algorithm is the same as above but instead an
+array of general geometric structures is searched. The result of the
+mapping sequence is a set of geometry/target point pairs used to drive
+the evaluation algorithms for the source functions.
+
+For the second use case, a few assumptions about the source and target
+geometries are used to enable geometry-to-geometry mappings where the
+parallel decompositions of the geometries are not known a priori.
+
+\subsubsection{Integral Assembly Map}
+\label{subsubsec:integral_assembly_map}
+In certain cases of data transfer, a target physics code may desire
+quanities averaged over the spatial domain to be applied to its
+geometry. If the source code uses the same geometric representation,
+then the geometry source map may be used as described above. However,
+if the source code uses a mesh-based discretization of the spatial
+domain, then this averaged quantity will require some sort of measure
+weighted integral to be performed over the source field defined on the
+mesh elements and approriately assembled in parallel over the proper
+geometric structures.
+
 \subsubsection{Handling Target Objects Outside of the Source Domain}
 \label{subsubsec:shared_domain_missed_points}
-The mapping algorithm outlined in
-Section~\ref{subsubsec:shared_domain_alg} has several steps in which
-target objects may or may not be found in the source mesh. Both the
-RCB decomposition search and kD-tree search have the potential to
-return target objects that were not found in the source mesh. The
-source function will not be evaluated at these points as they are not
-in the domain $\Omega_S$, and therefore the evaluation operation will
-not be valid. However, a list of these points in the target
-decomposition may be generated for further processing by the client.
+The mesh-based shared domain map and the geometry source map both have
+several steps in which target objects may or may not be found in the
+source mesh. Both the RCB decomposition search and kD-tree search have
+the potential to return target objects that were not found in the
+source mesh. The source function will not be evaluated at these points
+as they are not in the domain $\Omega_S$, and therefore the evaluation
+operation will not be valid. However, a list of these points in the
+target decomposition may be generated for further processing by the
+client.
+
 
 \clearpage
 
 %%---------------------------------------------------------------------------%%
 \section{An Example}
 Consider the following 2-dimensional shared domain problem that
-utilizes the above concepts to map a field from one mesh to
-another. Note that the data presented in this example was generated
-externally from DTK for the purpose of visualizing the algorithm.
+utilizes the above concepts and the mesh-based rendezvous algorithm to
+map a field from one mesh to another. Note that the data presented in
+this example was generated externally from DTK for the purpose of
+visualizing the algorithm.
 
 A linear triangle mesh is chosen for the source mesh as shown in
 Figure~\ref{fig:source_mesh}. The source mesh is decomposed over 4
