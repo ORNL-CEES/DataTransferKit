@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 	Teuchos::DefaultComm<int>::getComm();
     int num_procs = comm_default->getSize();
 
-    // Split the main communicator into 2 separate groups, one from the wave
+    // Split the main communicator into 2 separate groups, one for the wave
     // and one for the damper.
     Teuchos::Array<int> sub_ranks_wave, sub_ranks_damper;
 

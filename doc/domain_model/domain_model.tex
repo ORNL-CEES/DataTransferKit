@@ -137,6 +137,8 @@ as a basis for the domain model and discussion.
 \item {\bf Geometry:} An object or collection of objects that has $n$
   physical dimensions and a spatial domain $\Omega \in \mathbb{R}^n$
   that is bounded by a boundary $\Gamma \in \mathbb{R}^n$.
+\item {\bf Measure:} The measure of a geometry is defined as length in
+  1 dimension, area in 2 dimensions, and volume in 3 dimensions.
 \item {\bf Vertex:} A zero-dimensional geometric object that has a
   globally unique ordinal and Cartesian coordinates that describe its
   geometric position. Vertices can have coordinates in 1, 2, or 3
@@ -427,7 +429,7 @@ space of the geometry, each object is required to have a centroid
 given in Cartesian coordinates with (x) given for 1 dimensional
 geometries, (x,y) for two dimensions, and (x,y,z) for 3 dimensions. A
 measure is also specified for each geometry where the measure is
-defined as length in 1 dimension, area in 2 dimensions, and volume for
+defined as length in 1 dimension, area in 2 dimensions, and volume in
 3 dimensions. In addition to this data, a geometry must be able to
 provide a Cartesian axis-aligned bounding box that encapsulates the
 entire geometry. For geometric search operations to be performed, a
@@ -502,12 +504,15 @@ of a single mesh element, $\omega \in \Omega$:
   f_{\omega} = \int_{\omega} F(r) dr\:,
   \label{eq:element_integration}
 \end{equation}
-where the integral over $\Omega$ will be the summation of all element
-integrals:
+where the integral over $\Omega$ will be the measure-weighted
+summation of all element integrals:
 \begin{equation}
-  f_{\Omega} = \sum_i f_{{\omega}_i},\ \forall \omega_i \in \Omega\:.
+  f_{\Omega} = \frac{1}{m_{\Omega}} \sum_i m_{{\omega}_i}
+  f_{{\omega}_i},\ \forall \omega_i \in \Omega\:,
   \label{eq:integral_sum}
 \end{equation}
+where $m_{{\omega}_i}$ is the measure of the $i^{th}$ mesh element and
+$m_{\Omega}$ is the measure of the geometric domain.
 
 \subsection{The Relationship Between Mesh and Fields}
 \label{subsec:mesh_and_fields}
@@ -700,10 +705,11 @@ owned by the source and target geometries.  The map is of the same
 dimension as the source and target geometries. A shared domain map
 cannot be generated with source and target geometries of different
 dimensions (e.g. a 3 dimensional source geometry and a 2 dimensional
-target geometry cannot be used to generate a shared domain map). There
-are 3 types of shared domain mapping algorithms implemented in DTK:
-the traditional mesh-based rendezvous algorithm, the integral assembly
-map, and the geometry source map.
+target geometry cannot be used to generate a shared domain map). The
+source and target domains may have an arbitrary parallel decomposition
+unrelated to one another. There are 3 types of shared domain mapping
+algorithms implemented in DTK: the traditional mesh-based rendezvous
+algorithm, the geometry source map, and the integral assembly map.
 
 \subsubsection{Mesh-Based Shared Domain Mapping Algorithm}
 \label{subsubsec:shared_domain_alg}
@@ -757,19 +763,33 @@ mapping.
 \label{subsubsec:geometry_source_map}
 A slight variation of the mesh-based rendezvous algorithm is one in
 which the source field is defined over a set of geometric structures
-instead of the mesh. There are two potential use cases for this type
-of map: one in which the target is a set of points at which the source
+instead of a mesh. There are two potential use cases for this type of
+map: one in which the target is a set of points at which the source
 function should be evaluated and another in which the target is a
 group of geometric objects identical to those in the source but with a
 possibly different parallel distribution. For the first case, the
 general point location algorithm is the same as above but instead an
-array of general geometric structures is searched. The result of the
-mapping sequence is a set of geometry/target point pairs used to drive
-the evaluation algorithms for the source functions.
+array of general geometric structures is searched. Those geometries
+may span the domain of more than one parallel process, but if they do
+then their entire description is required on each process. The result
+of the mapping sequence is a set of geometry/target point pairs used
+to drive the evaluation algorithms for the source functions within the
+geometries.
 
 For the second use case, a few assumptions about the source and target
 geometries are used to enable geometry-to-geometry mappings where the
-parallel decompositions of the geometries are not known a priori.
+parallel decompositions of the geometries are not known a priori. The
+first assumption requires both the source and target geometries to
+occupy the same physical space (i.e. a cylinder in the source code has
+the same height, radius, and centroid as the cylinder in the target
+code). If this assumption is valid, it then follows that if the
+centroids of the target geometries are supplied as the target points
+for this map, then the source geometries in which they are located
+correlate to their identical counterparts in target geometries. In
+this context, the field evaluations are then interpreted as simply
+gathering the geometry-related quanities (which still may involve a
+function evaluation or integration) and redistributing them to the
+target decomposition.
 
 \subsubsection{Integral Assembly Map}
 \label{subsubsec:integral_assembly_map}
@@ -781,7 +801,42 @@ if the source code uses a mesh-based discretization of the spatial
 domain, then this averaged quantity will require some sort of measure
 weighted integral to be performed over the source field defined on the
 mesh elements and approriately assembled in parallel over the proper
-geometric structures.
+geometric structures:
+\begin{equation}
+  f_{\Omega} = \frac{\int_{\Omega} F(r) dr}{\int_{\Omega} dr}\:,
+  \label{eq:measure_weighted_int}
+\end{equation}
+which if interpeted as an integral of a field defined over a mesh:
+\begin{equation}
+  f_{\Omega} = \frac{\sum_i \Big[m_{{\omega}_i} \int_{{\omega}_i} F(r)
+      dr \Big]}{m_{\Omega}}\:,
+  \label{eq:element_weighted_int}
+\end{equation}
+where $m_{{\omega}_i}$ is the measure of the $i^{th}$ mesh element and
+$m_{\Omega}$ is the measure of the target geometry. If the mesh is
+assumed conformal to the geometry then:
+\begin{equation}
+  m_{\Omega} = \sum_i m_{{\omega}_i},\ \forall \omega_i \in \Omega\:.
+  \label{eq:measure_equality}
+\end{equation}
+
+As the source mesh elements and target geometries may have an
+arbitrary parallel decomposition, the rendezvous decomposition is used
+to correlate the two. In this mapping algorithm, the rendezvous
+decomposition is used to determine which mesh elements are contained
+within each geometric entity. As it is assumed that the mesh is
+conformal to the geometry, the vertices of the mesh elements are
+checked for point inclusion with the geometry where either a single
+vertex or all vertices may be required for element inclusion. Once
+this parallel mapping information is acquired, the measures of the
+target geometries are approximated by gathering the measures of the
+individual elements that compute their sums. To drive the application
+of the map, we use a mesh-element integration function for each field
+in the source code to acquire $m_{{\omega}_i} \int_{{\omega}_i} F(r)
+dr$ in the source decomposition. These measure-weighted element
+integrals are then moved into the target decomposition and the sum in
+Eq~(\ref{eq:element_weighted_int}) is computed for each target
+geometry using the computed geometry measures.
 
 \subsubsection{Handling Target Objects Outside of the Source Domain}
 \label{subsubsec:shared_domain_missed_points}
