@@ -20,7 +20,6 @@
 #include <DTK_FieldContainer.hpp>
 #include <DTK_FieldTools.hpp>
 #include <DTK_CommTools.hpp>
-#include <DTK_CommIndexer.hpp>
 #include <DTK_GeometryManager.hpp>
 #include <DTK_Box.hpp>
 
@@ -178,205 +177,203 @@ int main(int argc, char* argv[])
     int num_procs = comm_default->getSize();
 
     // Only 4 procs for this example.
-    assert( num_procs == 4 );
-
-    // Split the main communicator into 2 separate groups, one for the source
-    // geometry and one for the target mesh.
-    Teuchos::Array<int> sub_ranks_src(2), sub_ranks_tgt(2);
-    for ( int i = 0; i < 2; ++i )
+    if( num_procs == 4 )
     {
-	sub_ranks_src[i] = i;
-	sub_ranks_tgt[i] = i+2;
-    }
+	// Split the main communicator into 2 separate groups, one for the source
+	// geometry and one for the target mesh.
+	Teuchos::Array<int> sub_ranks_src(2), sub_ranks_tgt(2);
+	for ( int i = 0; i < 2; ++i )
+	{
+	    sub_ranks_src[i] = i;
+	    sub_ranks_tgt[i] = i+2;
+	}
 
-    // Generate the source and target communicators from the sub ranks.
-    Teuchos::RCP<const Teuchos::Comm<int> > src_comm = 
-	comm_default->createSubcommunicator( sub_ranks_src() );
+	// Generate the source and target communicators from the sub ranks.
+	Teuchos::RCP<const Teuchos::Comm<int> > src_comm = 
+	    comm_default->createSubcommunicator( sub_ranks_src() );
 
-    Teuchos::RCP<const Teuchos::Comm<int> > tgt_comm = 
-	comm_default->createSubcommunicator( sub_ranks_tgt() );
+	Teuchos::RCP<const Teuchos::Comm<int> > tgt_comm = 
+	    comm_default->createSubcommunicator( sub_ranks_tgt() );
 
-    // Build the union communicator for the source and target. This is the
-    // communicator over which we will operate the coupling.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm_union;
-    DataTransferKit::CommTools::unite( src_comm, tgt_comm, comm_union );
+	// Build the union communicator for the source and target. This is the
+	// communicator over which we will operate the coupling.
+	Teuchos::RCP<const Teuchos::Comm<int> > comm_union;
+	DataTransferKit::CommTools::unite( src_comm, tgt_comm, comm_union );
 
-    // Set a boolean for source/target existence.
-    bool src_exists = false;
-    if ( !src_comm.is_null() ) src_exists = true;
-    bool tgt_exists = false;
-    if ( !tgt_comm.is_null() ) tgt_exists = true;
-    comm_union->barrier();
-
-    // Create a local to global process indexer for the source
-    DataTransferKit::CommIndexer src_indexer( comm_union, src_comm );
-
-
-
-    // ---------------//
-    // SOURCE SETUP
-    // ---------------//
-
-    // Set required variables in the scope of the global communicator.
-    Teuchos::RCP<DataTransferKit::GeometryManager<DataTransferKit::Box,int> >
-	src_geometry;
-    Teuchos::RCP<
-	DataTransferKit::FieldEvaluator<int,DataTransferKit::FieldContainer<double> > >
-	src_evaluator;
-
-    // If the source code exists on this process, build its data structures.
-    if ( src_exists )
-    {
-	// Get source geometry.
-	src_geometry = createSourceGeometry( src_comm );
-
-	// Get the source field evaluator.
-	src_evaluator = Teuchos::rcp( 
-	    new SourceEvaluator( src_geometry->gids() ) );
-    }
-    comm_union->barrier();
+	// Set a boolean for source/target existence.
+	bool src_exists = false;
+	if ( !src_comm.is_null() ) src_exists = true;
+	bool tgt_exists = false;
+	if ( !tgt_comm.is_null() ) tgt_exists = true;
+	comm_union->barrier();
 
 
 
-    // ---------------//
-    // TARGET SETUP
-    // ---------------//
+	// ---------------//
+	// SOURCE SETUP
+	// ---------------//
 
-    // Set required variables in the scope of the global communicator.
-    Teuchos::RCP<DataTransferKit::FieldManager<DataTransferKit::MeshContainer<int> > >
-	tgt_coords;
-    Teuchos::ArrayRCP<double> tgt_array;
-    Teuchos::RCP<
-	DataTransferKit::FieldManager<DataTransferKit::FieldContainer<double> > > 
-	tgt_space;
+	// Set required variables in the scope of the global communicator.
+	Teuchos::RCP<DataTransferKit::GeometryManager<DataTransferKit::Box,int> >
+	    src_geometry;
+	Teuchos::RCP<
+	    DataTransferKit::FieldEvaluator<int,DataTransferKit::FieldContainer<double> > >
+	    src_evaluator;
 
-    // If the target code exists on this process, build its data structures.
-    if ( tgt_exists )
-    {
-	// Get the target mesh.
-	Teuchos::RCP<DataTransferKit::MeshContainer<int> > tgt_mesh = 
-	    createTargetMesh( tgt_comm );
+	// If the source code exists on this process, build its data structures.
+	if ( src_exists )
+	{
+	    // Get source geometry.
+	    src_geometry = createSourceGeometry( src_comm );
 
-	// Extract the mesh vertices as the target coordinates.
-	tgt_coords = Teuchos::rcp( 
-	    new DataTransferKit::FieldManager<DataTransferKit::MeshContainer<int> >(
-		tgt_mesh, tgt_comm ) );
+	    // Get the source field evaluator.
+	    src_evaluator = Teuchos::rcp( 
+		new SourceEvaluator( src_geometry->gids() ) );
+	}
+	comm_union->barrier();
 
-	// Get the target data space.
-	tgt_array = Teuchos::ArrayRCP<double>( 12 );
-	Teuchos::RCP<DataTransferKit::FieldContainer<double> > tgt_container = 
-	    Teuchos::rcp( new DataTransferKit::FieldContainer<double>( tgt_array, 1 ) );
-	tgt_space = Teuchos::rcp(
-	    new DataTransferKit::FieldManager<DataTransferKit::FieldContainer<double> >(
-		tgt_container, tgt_comm ) );
-    }
-    comm_union->barrier();
+
+
+	// ---------------//
+	// TARGET SETUP
+	// ---------------//
+
+	// Set required variables in the scope of the global communicator.
+	Teuchos::RCP<DataTransferKit::FieldManager<DataTransferKit::MeshContainer<int> > >
+	    tgt_coords;
+	Teuchos::ArrayRCP<double> tgt_array;
+	Teuchos::RCP<
+	    DataTransferKit::FieldManager<DataTransferKit::FieldContainer<double> > > 
+	    tgt_space;
+
+	// If the target code exists on this process, build its data structures.
+	if ( tgt_exists )
+	{
+	    // Get the target mesh.
+	    Teuchos::RCP<DataTransferKit::MeshContainer<int> > tgt_mesh = 
+		createTargetMesh( tgt_comm );
+
+	    // Extract the mesh vertices as the target coordinates.
+	    tgt_coords = Teuchos::rcp( 
+		new DataTransferKit::FieldManager<DataTransferKit::MeshContainer<int> >(
+		    tgt_mesh, tgt_comm ) );
+
+	    // Get the target data space.
+	    tgt_array = Teuchos::ArrayRCP<double>( 12 );
+	    Teuchos::RCP<DataTransferKit::FieldContainer<double> > tgt_container = 
+		Teuchos::rcp( new DataTransferKit::FieldContainer<double>( tgt_array, 1 ) );
+	    tgt_space = Teuchos::rcp(
+		new DataTransferKit::FieldManager<DataTransferKit::FieldContainer<double> >(
+		    tgt_container, tgt_comm ) );
+	}
+	comm_union->barrier();
     
 
 
-    // ---------------//
-    // MAPPING SETUP
-    // ---------------//
+	// ---------------//
+	// MAPPING SETUP
+	// ---------------//
 
-    // Create the mapping for the source-to-target transfer. The mapping will
-    // occur over the union communicator in 3 dimensions. Keep track of missed
-    // points as we expect to miss some.
-    DataTransferKit::VolumeSourceMap<DataTransferKit::Box,
-				     int,
-				     DataTransferKit::MeshContainer<int> >
-	src_to_tgt_map( comm_union, 3, true );
+	// Create the mapping for the source-to-target transfer. The mapping will
+	// occur over the union communicator in 3 dimensions. Keep track of missed
+	// points as we expect to miss some.
+	DataTransferKit::VolumeSourceMap<DataTransferKit::Box,
+					 int,
+					 DataTransferKit::MeshContainer<int> >
+	    src_to_tgt_map( comm_union, 3, true );
 
-    // Setup the source-to-target map with the source geometry as the source
-    // and the target coordinates as the target.
-    src_to_tgt_map.setup( src_geometry, tgt_coords );
+	// Setup the source-to-target map with the source geometry as the source
+	// and the target coordinates as the target.
+	src_to_tgt_map.setup( src_geometry, tgt_coords );
 
 
 
-    // ---------------//
-    // DATA TRANSFER
-    // ---------------//
+	// ---------------//
+	// DATA TRANSFER
+	// ---------------//
     
-    // Apply the mapping to transfer the data.
-    src_to_tgt_map.apply( src_evaluator, tgt_space );
+	// Apply the mapping to transfer the data.
+	src_to_tgt_map.apply( src_evaluator, tgt_space );
 
-    Teuchos::ArrayView<int> missed = src_to_tgt_map.getMissedTargetPoints();
+	Teuchos::ArrayView<int> missed = src_to_tgt_map.getMissedTargetPoints();
 
-    // Check the resulting data transfer.
-    int fail_count = 0;
-    if ( tgt_exists )
-    {
-	int target_rank = tgt_comm->getRank();
-
-	// First, check for missed points. 
-	// Proc 0 in the target decomposition should have 0.
-	if ( target_rank == 0 )
+	// Check the resulting data transfer.
+	int fail_count = 0;
+	if ( tgt_exists )
 	{
-	    if ( missed.size() > 0 )
-	    {
-		++fail_count;
-	    }
-	}
-	// Proc 1 in the target decomposition should have 4.
-	else if ( target_rank == 1 )
-	{
-	    if ( missed.size() != 4 )
-	    {
-		++fail_count;
-	    }
-	}
+	    int target_rank = tgt_comm->getRank();
 
-	// Next, check the data. 
-	if ( target_rank == 0 )
-	{
-	    // Proc 0 gets 1.0 or 2.0 or 3.0 and no misses.
-	    for ( int i = 0; i < 12; ++i )
+	    // First, check for missed points. 
+	    // Proc 0 in the target decomposition should have 0.
+	    if ( target_rank == 0 )
 	    {
-		if ( tgt_array[i] != 1.0 &&
-		     tgt_array[i] != 2.0 &&
-		     tgt_array[i] != 3.0 )
+		if ( missed.size() > 0 )
 		{
 		    ++fail_count;
 		}
 	    }
-	}
-	else if ( target_rank == 1 )
-	{
-	    for ( int i = 0; i < 12; ++i )
+	    // Proc 1 in the target decomposition should have 4.
+	    else if ( target_rank == 1 )
 	    {
-		// If we missed the point, should have got 0.
-		if ( std::binary_search( missed.begin(), missed.end(), i ) )
+		if ( missed.size() != 4 )
 		{
-		    if ( tgt_array[i] != 0.0 )
+		    ++fail_count;
+		}
+	    }
+
+	    // Next, check the data. 
+	    if ( target_rank == 0 )
+	    {
+		// Proc 0 gets 1.0 or 2.0 or 3.0 and no misses.
+		for ( int i = 0; i < 12; ++i )
+		{
+		    if ( tgt_array[i] != 1.0 &&
+			 tgt_array[i] != 2.0 &&
+			 tgt_array[i] != 3.0 )
 		    {
 			++fail_count;
 		    }
 		}
-		// Otherwise we should have got 2.0 or 3.0.
-		else if ( tgt_array[i] != 2.0 &&
-			  tgt_array[i] != 3.0 )
-		{
-		    ++fail_count;
-		}
 	    }
+	    else if ( target_rank == 1 )
+	    {
+		for ( int i = 0; i < 12; ++i )
+		{
+		    // If we missed the point, should have got 0.
+		    if ( std::binary_search( missed.begin(), missed.end(), i ) )
+		    {
+			if ( tgt_array[i] != 0.0 )
+			{
+			    ++fail_count;
+			}
+		    }
+		    // Otherwise we should have got 2.0 or 3.0.
+		    else if ( tgt_array[i] != 2.0 &&
+			      tgt_array[i] != 3.0 )
+		    {
+			++fail_count;
+		    }
+		}
 
-	}
+	    }
 		     
 
-	std::cout << std::endl;
-	if ( fail_count == 0 )
-	{
-	    std::cout << "TEST PASSED: target proc " 
-		      << tgt_comm->getRank() << std::endl;
+	    std::cout << std::endl;
+	    if ( fail_count == 0 )
+	    {
+		std::cout << "TEST PASSED: target proc " 
+			  << tgt_comm->getRank() << std::endl;
+	    }
+	    else
+	    {
+		std::cout << "TEST FAILED " << fail_count << ": target proc " 
+			  << tgt_comm->getRank() << std::endl;
+	    }
+	    std::cout << std::endl;
 	}
-	else
-	{
-	    std::cout << "TEST FAILED " << fail_count << ": target proc " 
-		      << tgt_comm->getRank() << std::endl;
-	}
-	std::cout << std::endl;
-    }
-    comm_union->barrier();
+	comm_union->barrier();
 
+    }
     return 0;
 }
 
