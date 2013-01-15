@@ -179,8 +179,8 @@ int main(int argc, char* argv[])
     // Only 4 procs for this example.
     if( num_procs == 4 )
     {
-	// Split the main communicator into 2 separate groups, one for the source
-	// geometry and one for the target mesh.
+	// Split the main communicator into 2 separate groups, one for the
+	// source geometry and one for the target mesh.
 	Teuchos::Array<int> sub_ranks_src(2), sub_ranks_tgt(2);
 	for ( int i = 0; i < 2; ++i )
 	{
@@ -274,16 +274,16 @@ int main(int argc, char* argv[])
 	// MAPPING SETUP
 	// ---------------//
 
-	// Create the mapping for the source-to-target transfer. The mapping will
-	// occur over the union communicator in 3 dimensions. Keep track of missed
-	// points as we expect to miss some.
+	// Create the mapping for the source-to-target transfer. The mapping
+	// will occur over the union communicator in 3 dimensions. Keep track
+	// of missed points as we expect to miss some.
 	DataTransferKit::VolumeSourceMap<DataTransferKit::Box,
 					 int,
 					 DataTransferKit::MeshContainer<int> >
 	    src_to_tgt_map( comm_union, 3, true );
 
-	// Setup the source-to-target map with the source geometry as the source
-	// and the target coordinates as the target.
+	// Setup the source-to-target map with the source geometry as the
+	// source and the target coordinates as the target.
 	src_to_tgt_map.setup( src_geometry, tgt_coords );
 
 

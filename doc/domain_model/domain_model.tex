@@ -507,12 +507,11 @@ of a single mesh element, $\omega \in \Omega$:
 where the integral over $\Omega$ will be the measure-weighted
 summation of all element integrals:
 \begin{equation}
-  f_{\Omega} = \frac{1}{m_{\Omega}} \sum_i m_{{\omega}_i}
-  f_{{\omega}_i},\ \forall \omega_i \in \Omega\:,
+  f_{\Omega} = \frac{1}{m_{\Omega}} \sum_i f_{{\omega}_i},\ \forall
+  \omega_i \in \Omega\:,
   \label{eq:integral_sum}
 \end{equation}
-where $m_{{\omega}_i}$ is the measure of the $i^{th}$ mesh element and
-$m_{\Omega}$ is the measure of the geometric domain.
+where $m_{\Omega}$ is the measure of the geometric domain.
 
 \subsection{The Relationship Between Mesh and Fields}
 \label{subsec:mesh_and_fields}
@@ -798,27 +797,30 @@ quanities averaged over the spatial domain to be applied to its
 geometry. If the source code uses the same geometric representation,
 then the geometry source map may be used as described above. However,
 if the source code uses a mesh-based discretization of the spatial
-domain, then this averaged quantity will require some sort of measure
+domain, then this averaged quantity will require the following measure
 weighted integral to be performed over the source field defined on the
-mesh elements and approriately assembled in parallel over the proper
+mesh elements and appropriately assembled in parallel over the proper
 geometric structures:
 \begin{equation}
   f_{\Omega} = \frac{\int_{\Omega} F(r) dr}{\int_{\Omega} dr}\:,
   \label{eq:measure_weighted_int}
 \end{equation}
-which if interpeted as an integral of a field defined over a mesh:
+which if interpeted as an integral of a field defined over a mesh
+gives:
 \begin{equation}
-  f_{\Omega} = \frac{\sum_i \Big[m_{{\omega}_i} \int_{{\omega}_i} F(r)
+  f_{\Omega} = \frac{\sum_i \Big[ \int_{{\omega}_i} F(r)
       dr \Big]}{m_{\Omega}}\:,
   \label{eq:element_weighted_int}
 \end{equation}
-where $m_{{\omega}_i}$ is the measure of the $i^{th}$ mesh element and
-$m_{\Omega}$ is the measure of the target geometry. If the mesh is
-assumed conformal to the geometry then:
+where $m_{\Omega}$ is the measure of the target geometry and the
+integrations are as outlined in \S~\ref{subsec:field_integrations}. If
+the mesh is assumed conformal to the geometry then:
 \begin{equation}
-  m_{\Omega} = \sum_i m_{{\omega}_i},\ \forall \omega_i \in \Omega\:.
+  m_{\Omega} = \sum_i m_{{\omega}_i},\ \forall \omega_i \in \Omega\:,
   \label{eq:measure_equality}
 \end{equation}
+where $m_{{\omega}_i}$ is the measure of the $i^{th}$ mesh element
+that is physically within the geometry.
 
 As the source mesh elements and target geometries may have an
 arbitrary parallel decomposition, the rendezvous decomposition is used
