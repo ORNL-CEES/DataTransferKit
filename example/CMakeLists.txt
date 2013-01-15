@@ -6,4 +6,5 @@ ADD_SUBDIRECTORIES(
   WaveDamper
   GeometryToMesh
   GeometryToGeometry
+  IntegralAssembly
   )
