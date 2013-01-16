@@ -514,8 +514,8 @@ SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints()
 template<class Mesh, class CoordinateField>
 template<class SourceField, class TargetField>
 void SharedDomainMap<Mesh,CoordinateField>::apply( 
-    const Teuchos::RCP< FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
-    Teuchos::RCP< FieldManager<TargetField> >& target_space_manager )
+    const Teuchos::RCP< FieldEvaluator<GlobalOrdinal,SourceField> > source_evaluator,
+    Teuchos::RCP< FieldManager<TargetField> > target_space_manager )
 {
     typedef FieldTraits<SourceField> SFT;
     typedef FieldTraits<TargetField> TFT;

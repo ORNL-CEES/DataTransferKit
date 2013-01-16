@@ -138,8 +138,8 @@ class SharedDomainMap
     // that were mapped.
     template<class SourceField, class TargetField>
     void apply( 
-	const Teuchos::RCP<FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
-	Teuchos::RCP<FieldManager<TargetField> >& target_space_manager );
+	const Teuchos::RCP<FieldEvaluator<GlobalOrdinal,SourceField> > source_evaluator,
+	Teuchos::RCP<FieldManager<TargetField> > target_space_manager );
 
     //@{
     // Get the local indices of the target points that were not mapped.

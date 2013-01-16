@@ -128,7 +128,7 @@ class FieldContainer
     { return d_data.end(); }
     //@}
 
- private:
+// private:
 
     // Field data.
     Teuchos::ArrayRCP<Scalar> d_data;
