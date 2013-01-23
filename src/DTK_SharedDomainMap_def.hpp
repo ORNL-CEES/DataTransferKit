@@ -345,7 +345,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 		point_target_procs.push_back( from_images[i] );
 	    }
 	}
-	testInvariant( point_target_procs.size() == num_rendezvous_points );
+	testInvariant( Teuchos::as<GlobalOrdinal>(point_target_procs.size())
+		       == num_rendezvous_points );
 
 	// Build a list of target procs for the missed points.
 	Teuchos::Array<int> missed_target_procs( missed_in_mesh_idx.size() );
@@ -575,7 +576,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     if ( target_exists )
     {
 	testPrecondition( 
-	    target_size == Teuchos::as<typename TFT::size_type>(
+	    target_size == Teuchos::as<GlobalOrdinal>(
 		d_target_map->getNodeNumElements()) );
     }
     d_comm->barrier();
@@ -678,7 +679,8 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
     GlobalOrdinal dim_size = 
 	FieldTools<CoordinateField>::dimSize( target_coords );
 
-    testPrecondition( dim_size == target_ordinals.size() );
+    testPrecondition( dim_size == 
+		      Teuchos::as<GlobalOrdinal>(target_ordinals.size()) );
 
     targets_in_box.resize( dim_size );
     int field_dim = CFT::dim( target_coords );

@@ -16,7 +16,7 @@
 #include <cstdlib>
 
 #include <DTK_MeshManager.hpp>
-#include <DTK_TransferOperator.hpp>
+#include <DTK_MeshTools.hpp>
 #include <DTK_SharedDomainMap.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTraits.hpp>
@@ -40,51 +40,58 @@
 //---------------------------------------------------------------------------//
 int main(int argc, char* argv[])
 {
+    // Typedefs.
+    typedef MoabMesh::Container MeshType;
+
     // Setup communication.
     Teuchos::GlobalMPISession mpiSession(&argc,&argv);
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 
 	Teuchos::DefaultComm<int>::getComm();
 
     // Setup source mesh.
-    typedef MeshTraits<MoabMesh> MT;
     int mesh_dim = 2;
     MoabMesh source_mesh( comm, "tri_peaks.vtk", moab::MBTRI, 0 );
-    Teuchos::ArrayRCP<MoabMesh> source_blocks( 1, source_mesh );
-    Teuchos::RCP< DataTransferKit::MeshManager<MoabMesh> > source_mesh_manager =
-	Teuchos::rcp( new DataTransferKit::MeshManager<MoabMesh>(
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > 
+	source_blocks( 1, source_mesh.meshContainer() );
+    Teuchos::RCP<DataTransferKit::MeshManager<MeshType> > 
+	source_mesh_manager =
+	Teuchos::rcp( new DataTransferKit::MeshManager<MeshType>(
 			  source_blocks, comm, mesh_dim ) );
 
     // Setup target coordinate field.
     MoabMesh target_mesh( comm, "quad_mesh.vtk", moab::MBQUAD, 1 );
-    Teuchos::RCP< DataTransferKit::FieldManager<MT> > target_coords_manager =
-	Teuchos::rcp( new DataTransferKit::FieldManager<MT>(
-			  target_mesh, comm ) );
+    Teuchos::RCP<DataTransferKit::FieldManager<MeshType> > 
+	target_coords_manager =
+	Teuchos::rcp( new DataTransferKit::FieldManager<MeshType>(
+			  target_mesh.meshContainer(), comm ) );
 
     // Create a peaks function evaluator.
-    Teuchos::RCP< DataTransferKit::FieldEvaluator<MoabMesh,ArrayField> > 
+    Teuchos::RCP<DataTransferKit::FieldEvaluator<MeshType::global_ordinal_type,
+						 ArrayField> > 
 	peaks_evaluator = Teuchos::rcp( new PeaksEvaluator( source_mesh ) );
 
     // Create data target.
-    ArrayField data_target( target_coords.size() / mesh_dim, 1 );
+    int num_targets = DataTransferKit::MeshTools<MeshType>::numVertices( 
+	*(target_mesh.meshContainer()) );
+    Teuchos::RCP<ArrayField> data_target = Teuchos::rcp(
+	new ArrayField( num_targets, 1 ) );
+    Teuchos::RCP<DataTransferKit::FieldManager<ArrayField> > 
+	target_space_manager = 
+	Teuchos::rcp( new DataTransferKit::FieldManager<ArrayField>( 
+			  data_target, comm ) );
 
-    // Setup shared domain mapping.
-    typedef DataTransferKit::SharedDomainMap<MoabMesh,MoabMesh> MapType;
-    Teuchos::RCP<MapType> shared_domain_map = 
-    	Teuchos::rcp( new MapType( comm ) );
+    // Construct shared domain map.
+    DataTransferKit::SharedDomainMap<MeshType,MeshType> 
+	shared_domain_map( comm, mesh_dim );
 
-    // Create the transfer operator.
-    DataTransferKit::TransferOperator<MapType> 
-	transfer_operator( shared_domain_map );
+    // Call setup. This creates the mapping.
+    shared_domain_map.setup( source_mesh_manager, target_coords_manager );
 
-    // Setup the transfer operator ( this creates the mapping ).
-    transfer_operator.setup( source_mesh_manager, target_coords_manager );
-
-    // Apply the transfer operator ( this does the field evaluation and moves
-    // the data ).
-    transfer_operator.apply( peaks_evaluator, target_coords );
+    // Apply the map. This does the field evaluation and moves the data.
+    shared_domain_map.apply( peaks_evaluator, target_space_manager );
 
     // Set the data on the target mesh and write.
-    target_mesh.tag( data_target );
+    target_mesh.tag( *data_target );
     target_mesh.write( "quad_result.vtk" );
 
     return 0;

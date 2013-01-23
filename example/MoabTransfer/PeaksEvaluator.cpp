@@ -16,10 +16,11 @@ ArrayField PeaksEvaluator::evaluate(
 {
     ArrayField evaluations( elements.size(), 1 );
 
-    // If the element is in the local partition, evaluate the peaks function
-    // at the coordinate.
+    // If the element is in the local partition, average the tagged values of
+    // the source field for that element.
     for ( int n = 0; n < elements.size(); ++n )
     {
+	// Insert MOAB code here....
 	double x = coords[n];
 	double y = coords[ elements.size() + n ];
 	evaluations[n] = 3*(1-x)*(1-x)*std::exp(-x*x-(y+1)*(y+1))

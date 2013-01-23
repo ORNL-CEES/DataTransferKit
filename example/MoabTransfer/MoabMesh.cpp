@@ -6,47 +6,54 @@
  */
 //---------------------------------------------------------------------------//
 
-#include "MoabMesh.hpp"
+#include <cassert>
+#include <vector>
 
-#include <DTK_Exception.hpp>
-#include <DTK_MeshTypes.hpp>
+#include "MoabMesh.hpp"
 
 #include <MBCore.hpp>
 
+#include <Teuchos_as.hpp>
+#include <Teuchos_Array.hpp>
+
 //---------------------------------------------------------------------------//
+/*
+ * \brief This constructor will pull the mesh data DTK needs out of Moab and
+ * build a DataTransferKit::MeshContainer object from it. You can directly
+ * write the traits interface yourself, but this is probably the easiest way
+ * to get started (although potentially inefficient).
+ */
 MoabMesh::MoabMesh( const RCP_Comm& comm, 
 		    const std::string& filename,
 		    const moab::EntityType& block_topology,
 		    const int partitioning_type )
     : d_comm( comm )
-    , d_topology( block_topology )
-    , d_node_dim( 0 )
-    , d_nodes_per_element( 0 )
 { 
     // Compute the node dimension.
-    if ( d_topology == moab::MBTRI )
+    int node_dim = 0;
+    if ( block_topology == moab::MBTRI )
     {
-	d_node_dim = 2;
+	node_dim = 2;
     }
-    else if ( d_topology == moab::MBQUAD )
+    else if ( block_topology == moab::MBQUAD )
     {
-	d_node_dim = 2;
+	node_dim = 2;
     }
-    else if ( d_topology == moab::MBTET )
+    else if ( block_topology == moab::MBTET )
     {
-	d_node_dim = 3;
+	node_dim = 3;
     }
-    else if ( d_topology == moab::MBHEX )
+    else if ( block_topology == moab::MBHEX )
     {
-	d_node_dim = 3;
+	node_dim = 3;
     }
-    else if ( d_topology == moab::MBPYRAMID )
+    else if ( block_topology == moab::MBPYRAMID )
     {
-	d_node_dim = 3;
+	node_dim = 3;
     }
     else
     {
-	d_node_dim = 0;
+	node_dim = 0;
     }
 
     // Create a moab instance.
@@ -60,9 +67,8 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
     // Extract the elements with this block's topology.
     std::vector<moab::EntityHandle> global_elements;
     error = d_moab->get_entities_by_type( 
-	root_set, d_topology, global_elements );
-    DataTransferKit::testInvariant( error == moab::MB_SUCCESS,
-				    "Error getting global block elements" );
+	root_set, block_topology, global_elements );
+    assert( error == moab::MB_SUCCESS );
 
     // Partition the mesh.
     int my_rank = d_comm->getRank();
@@ -72,11 +78,11 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
 				     0,
 				     false,
 				     elem_vertices );
-    DataTransferKit::testInvariant( error == moab::MB_SUCCESS,
-				    "Error getting adjacencies." );
-    d_nodes_per_element = elem_vertices.size();
+    assert( error == moab::MB_SUCCESS );
+    int nodes_per_element = elem_vertices.size();
 
-    std::vector<double> elem_coords( 3*d_nodes_per_element );
+    Teuchos::Array<moab::EntityHandle> elements;
+    std::vector<double> elem_coords( 3*nodes_per_element );
     std::vector<moab::EntityHandle>::const_iterator global_elem_iterator;
     for ( global_elem_iterator = global_elements.begin();
 	  global_elem_iterator != global_elements.end();
@@ -87,158 +93,177 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
 					 0,
 					 false,
 					 elem_vertices );
-	DataTransferKit::testInvariant( error == moab::MB_SUCCESS,
-					"Error getting element vertices" );
+	assert( error == moab::MB_SUCCESS );
 
 	error = d_moab->get_coords( &elem_vertices[0], 
 				    elem_vertices.size(),
 				    &elem_coords[0] );
-	DataTransferKit::testInvariant( error == moab::MB_SUCCESS,
-					"Error getting element vertices" );
+	assert( error == moab::MB_SUCCESS );
 
+	// Partition in x direction.
 	if ( partitioning_type == 0 )
 	{
 	    if ( my_rank == 0 )
 	    {
 		if ( elem_coords[0] <= -2.5 )
 		{
-		    d_elements.push_back( *global_elem_iterator );
+		    elements.push_back( *global_elem_iterator );
 		}
 	    }
 	    else if ( my_rank == 1 )
 	    {
 		if ( elem_coords[0] >= -2.5 && elem_coords[0] <= 0.0 )
 		{
-		    d_elements.push_back( *global_elem_iterator );
+		    elements.push_back( *global_elem_iterator );
 		}
 	    }
 	    else if ( my_rank == 2 )
 	    {
 		if ( elem_coords[0] >= 0.0 && elem_coords[0] <= 2.5 )
 		{
-		    d_elements.push_back( *global_elem_iterator );
+		    elements.push_back( *global_elem_iterator );
 		}
 	    }
 	    else
 	    {
 		if ( elem_coords[0] >= 2.5 )
 		{
-		    d_elements.push_back( *global_elem_iterator );
+		    elements.push_back( *global_elem_iterator );
 		}
 	    }
 	}
+
+	// Partition in y direction.
 	else if ( partitioning_type == 1 )
 	{
 	    if ( my_rank == 0 )
 	    {
 		if ( elem_coords[1] <= -2.5 )
 		{
-		    d_elements.push_back( *global_elem_iterator );
+		    elements.push_back( *global_elem_iterator );
 		}
 	    }
 	    else if ( my_rank == 1 )
 	    {
 		if ( elem_coords[1] >= -2.5 && elem_coords[0] <= 0.0 )
 		{
-		    d_elements.push_back( *global_elem_iterator );
+		    elements.push_back( *global_elem_iterator );
 		}
 	    }
 	    else if ( my_rank == 2 )
 	    {
 		if ( elem_coords[1] >= 0.0 && elem_coords[0] <= 2.5 )
 		{
-		    d_elements.push_back( *global_elem_iterator );
+		    elements.push_back( *global_elem_iterator );
 		}
 	    }
 	    else
 	    {
 		if ( elem_coords[1] >= 2.5 )
 		{
-		    d_elements.push_back( *global_elem_iterator );
+		    elements.push_back( *global_elem_iterator );
 		}
 	    }
 	}
 	else
 	{
-	    throw DataTransferKit::InvariantException( 
-		"Partitioning type not supported." );
+	    throw std::logic_error( "Partitioning type not supported." );
 	}
     }
+    Teuchos::ArrayRCP<moab::EntityHandle> elements_arcp( elements.size() );
+    std::copy( elements.begin(), elements.end(), elements_arcp.begin() );
+    elements.clear();
     d_comm->barrier();
 
     // Get the nodes.
-    error = d_moab->get_connectivity( &d_elements[0],
-				      d_elements.size(),
-				      d_vertices );
-    DataTransferKit::testInvariant( error == moab::MB_SUCCESS,
-				    "Error getting connecting vertices" );
+    std::vector<moab::EntityHandle> vertices;
+    error = d_moab->get_connectivity( &elements_arcp[0],
+				      elements_arcp.size(),
+				      vertices );
+    assert( error == moab::MB_SUCCESS );
+    d_vertices = Teuchos::ArrayRCP<moab::EntityHandle>( vertices.size() );
+    std::copy( vertices.begin(), vertices.end(), d_vertices.begin() );
+    vertices.clear();
 
     // Get the node coordinates.
-    d_coords.resize( 3 * d_vertices.size() );
-    std::vector<double> interleaved_coords( d_coords.size() );
+    Teuchos::ArrayRCP<double> coords( node_dim * d_vertices.size() );
+    std::vector<double> interleaved_coords( 3*d_vertices.size() );
     error = d_moab->get_coords( &d_vertices[0], d_vertices.size(),
 				&interleaved_coords[0] );
-    DataTransferKit::testInvariant( error == moab::MB_SUCCESS,
-				    "Error getting mesh coordinates" );
+    assert( error == moab::MB_SUCCESS );
+
     for ( int n = 0; n < (int) d_vertices.size(); ++n )
     {
-	for ( int d = 0; d < (int) d_node_dim; ++d )
+	for ( int d = 0; d < (int) node_dim; ++d )
 	{
-	    d_coords[ d*d_vertices.size() + n ] =
-		interleaved_coords[ n*d_node_dim + d ];
+	    coords[ d*d_vertices.size() + n ] =
+		interleaved_coords[ n*3 + d ];
 	}
     }
+    interleaved_coords.clear();
 
     // Get the connectivity.
-    int connectivity_size = d_elements.size() * d_nodes_per_element;
-    d_connectivity.resize( connectivity_size );
+    int connectivity_size = elements_arcp.size() * nodes_per_element;
+    Teuchos::ArrayRCP<moab::EntityHandle> connectivity( connectivity_size );
     std::vector<moab::EntityHandle> elem_conn;
-    for ( int i = 0; i < (int) d_elements.size(); ++i )
+    for ( int i = 0; i < (int) elements_arcp.size(); ++i )
     {
-	error = d_moab->get_connectivity( &d_elements[i], 1, elem_conn );
+	error = d_moab->get_connectivity( &elements_arcp[i], 1, elem_conn );
 
-	DataTransferKit::testInvariant( error == moab::MB_SUCCESS,
-					"Error getting element vertices." );
-	DataTransferKit::testInvariant( elem_conn.size() == d_nodes_per_element,
-					"Num adj != nodes per element." );
+	assert( error == moab::MB_SUCCESS );
+	assert( Teuchos::as<int>(elem_conn.size()) == nodes_per_element );
 
 	for ( int n = 0; n < (int) elem_conn.size(); ++n )
 	{
-	    d_connectivity[ n*d_elements.size() + i ] = elem_conn[n];
+	    connectivity[ n*elements_arcp.size() + i ] = elem_conn[n];
 	}
     }
 
     // Get the permutation vector.
-    d_permutation_list.resize( d_nodes_per_element );
-    for ( int i = 0; i < (int) d_nodes_per_element; ++i )
+    Teuchos::ArrayRCP<int> permutation_list( nodes_per_element );
+    for ( int i = 0; i < (int) nodes_per_element; ++i )
     {
-	d_permutation_list[i] = i;
+	permutation_list[i] = i;
     }
+
+    // Create the mesh container.
+    d_mesh_container = Teuchos::rcp( 
+	new Container( node_dim,
+		       d_vertices,
+		       coords,
+		       getTopology(block_topology),
+		       nodes_per_element,
+		       elements_arcp,
+		       connectivity,
+		       permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 void MoabMesh::tag( const ArrayField& data )
 {
+    assert( data.size() == d_vertices.size() );
+
     moab::ErrorCode error;
     moab::Tag tag;
-    error = d_moab->tag_get_handle( "data", 1, moab::MB_TYPE_DOUBLE, tag );
-    DataTransferKit::testInvariant( error == moab::MB_SUCCESS,
-				    "Error creating data tag." );
+
+    error = d_moab->tag_get_handle( "mapped_data", 1, moab::MB_TYPE_DOUBLE, 
+				    tag, moab::MB_TAG_CREAT|moab::MB_TAG_DENSE );
+    assert( error == moab::MB_SUCCESS );
+
     error = d_moab->tag_set_data( tag, 
-				  &d_vertices[0], 
+				  d_vertices.getRawPtr(),
 				  d_vertices.size(),
 				  &data[0] );
-    DataTransferKit::testInvariant( error == moab::MB_SUCCESS,
-				    "Error tagging data." );
+    assert( error == moab::MB_SUCCESS );
 }
 
 //---------------------------------------------------------------------------//
 void MoabMesh::write( const std::string& filename )
 {
-    std::string filename0 = "0" + filename;
-    std::string filename1 = "1" + filename;
-    std::string filename2 = "2" + filename;
-    std::string filename3 = "3" + filename;
+    std::string filename0 = filename + ".0";
+    std::string filename1 = filename + ".1";
+    std::string filename2 = filename + ".2";
+    std::string filename3 = filename + ".3";
 
     if ( d_comm->getRank() == 0 )
     {
@@ -260,29 +285,34 @@ void MoabMesh::write( const std::string& filename )
 }
 
 //---------------------------------------------------------------------------//
-std::size_t MoabMesh::blockTopology() const
+DataTransferKit::DTK_ElementTopology
+MoabMesh::getTopology( moab::EntityType topology ) const
 { 
-    if ( d_topology == moab::MBTRI )
+    if ( topology == moab::MBTRI )
     {
 	return DataTransferKit::DTK_TRIANGLE;
     }
-    else if ( d_topology == moab::MBQUAD )
+    else if ( topology == moab::MBQUAD )
     {
 	return DataTransferKit::DTK_QUADRILATERAL;
     }
-    else if ( d_topology == moab::MBTET )
+    else if ( topology == moab::MBTET )
     {
 	return DataTransferKit::DTK_TETRAHEDRON;
     }
-    else if ( d_topology == moab::MBHEX )
+    else if ( topology == moab::MBHEX )
     {
 	return DataTransferKit::DTK_HEXAHEDRON;
     }
-    else if ( d_topology == moab::MBPYRAMID )
+    else if ( topology == moab::MBPYRAMID )
     {
 	return DataTransferKit::DTK_PYRAMID;
     }
-    return 0;
+    else
+    {
+	throw std::logic_error( "Topology type not supported." );
+    }
+    return DataTransferKit::DTK_VERTEX;
 }
 
 //---------------------------------------------------------------------------//
