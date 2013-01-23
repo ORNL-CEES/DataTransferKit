@@ -8,6 +8,8 @@
 
 #include <cassert>
 #include <vector>
+#include <algorithm>
+
 
 #include "MoabMesh.hpp"
 
@@ -18,10 +20,11 @@
 
 //---------------------------------------------------------------------------//
 /*
- * \brief This constructor will pull the mesh data DTK needs out of Moab and
- * build a DataTransferKit::MeshContainer object from it. You can directly
- * write the traits interface yourself, but this is probably the easiest way
- * to get started (although potentially inefficient).
+ * \brief This constructor will pull the mesh data DTK needs out of Moab,
+ * partition it for the example, and build a DataTransferKit::MeshContainer
+ * object from the local data in the partition. You can directly write the
+ * traits interface yourself, but this is probably the easiest way to get
+ * started (although potentially inefficient).
  */
 MoabMesh::MoabMesh( const RCP_Comm& comm, 
 		    const std::string& filename,
@@ -71,7 +74,10 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
     assert( error == moab::MB_SUCCESS );
 
     // Partition the mesh.
-    int my_rank = d_comm->getRank();
+    int comm_size = d_comm->getSize();
+    int comm_rank = d_comm->getRank();
+
+    // Get the number of nodes in an element.
     std::vector<moab::EntityHandle> elem_vertices;
     error = d_moab->get_adjacencies( &global_elements[0],
 				     1,
@@ -81,13 +87,28 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
     assert( error == moab::MB_SUCCESS );
     int nodes_per_element = elem_vertices.size();
 
+    // Get the global element coordinates.
+    std::vector<double> global_coords;
+    error = d_moab->get_vertex_coordinates( global_coords );
+    assert( error == moab::MB_SUCCESS );
+
+    // Get the global max and min values for the coordinates. This problem is
+    // symmetric. 
+    double min = *(std::min_element( global_coords.begin(),
+				     global_coords.end() ) );
+    double max = *(std::max_element( global_coords.begin(),
+				     global_coords.end() ) );
+    double width = max - min;
+
     Teuchos::Array<moab::EntityHandle> elements;
+    elem_vertices.resize( nodes_per_element );
     std::vector<double> elem_coords( 3*nodes_per_element );
     std::vector<moab::EntityHandle>::const_iterator global_elem_iterator;
     for ( global_elem_iterator = global_elements.begin();
 	  global_elem_iterator != global_elements.end();
 	  ++global_elem_iterator )
     {
+	// Get the individual element vertices.
 	error = d_moab->get_adjacencies( &*global_elem_iterator,
 					 1,
 					 0,
@@ -95,6 +116,7 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
 					 elem_vertices );
 	assert( error == moab::MB_SUCCESS );
 
+	// Get the invidivual element coordinates.
 	error = d_moab->get_coords( &elem_vertices[0], 
 				    elem_vertices.size(),
 				    &elem_coords[0] );
@@ -103,30 +125,10 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
 	// Partition in x direction.
 	if ( partitioning_type == 0 )
 	{
-	    if ( my_rank == 0 )
+	    for ( int i = 0; i < comm_size; ++i )
 	    {
-		if ( elem_coords[0] <= -2.5 )
-		{
-		    elements.push_back( *global_elem_iterator );
-		}
-	    }
-	    else if ( my_rank == 1 )
-	    {
-		if ( elem_coords[0] >= -2.5 && elem_coords[0] <= 0.0 )
-		{
-		    elements.push_back( *global_elem_iterator );
-		}
-	    }
-	    else if ( my_rank == 2 )
-	    {
-		if ( elem_coords[0] >= 0.0 && elem_coords[0] <= 2.5 )
-		{
-		    elements.push_back( *global_elem_iterator );
-		}
-	    }
-	    else
-	    {
-		if ( elem_coords[0] >= 2.5 )
+		if ( elem_coords[0] >= min + width*(comm_rank)/comm_size - 1e-6 && 
+		     elem_coords[0] <= min + width*(comm_rank+1)/comm_size + 1e-6 )
 		{
 		    elements.push_back( *global_elem_iterator );
 		}
@@ -136,33 +138,14 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
 	// Partition in y direction.
 	else if ( partitioning_type == 1 )
 	{
-	    if ( my_rank == 0 )
+	    for ( int i = 0; i < comm_size; ++i )
 	    {
-		if ( elem_coords[1] <= -2.5 )
+		if ( elem_coords[1] >= min + width*(comm_rank)/comm_size - 1e-6 && 
+		     elem_coords[1] <= min + width*(comm_rank+1)/comm_size + 1e-6 )
 		{
 		    elements.push_back( *global_elem_iterator );
 		}
-	    }
-	    else if ( my_rank == 1 )
-	    {
-		if ( elem_coords[1] >= -2.5 && elem_coords[0] <= 0.0 )
-		{
-		    elements.push_back( *global_elem_iterator );
-		}
-	    }
-	    else if ( my_rank == 2 )
-	    {
-		if ( elem_coords[1] >= 0.0 && elem_coords[0] <= 2.5 )
-		{
-		    elements.push_back( *global_elem_iterator );
-		}
-	    }
-	    else
-	    {
-		if ( elem_coords[1] >= 2.5 )
-		{
-		    elements.push_back( *global_elem_iterator );
-		}
+
 	    }
 	}
 	else

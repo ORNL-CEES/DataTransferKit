@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 
 	Teuchos::DefaultComm<int>::getComm();
 
-    // Setup source mesh.
+    // Setup source mesh. Partitioned in x.
     int mesh_dim = 2;
     MoabMesh source_mesh( comm, "tri_peaks.vtk", moab::MBTRI, 0 );
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > 
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 	Teuchos::rcp( new DataTransferKit::MeshManager<MeshType>(
 			  source_blocks, comm, mesh_dim ) );
 
-    // Setup target coordinate field.
+    // Setup target coordinate field. Partitioned in y.
     MoabMesh target_mesh( comm, "quad_mesh.vtk", moab::MBQUAD, 1 );
     Teuchos::RCP<DataTransferKit::FieldManager<MeshType> > 
 	target_coords_manager =
