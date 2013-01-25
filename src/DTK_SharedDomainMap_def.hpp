@@ -106,11 +106,15 @@ SharedDomainMap<Mesh,CoordinateField>::~SharedDomainMap()
  * manager is only constructed on a subset of the processes that the shared
  * domain map is constructed over. Note that the target coordinates must exist
  * only on processes that reside within the SharedDomainMap communicator.
+ *
+ * \param tolerance Absolute tolerance for point searching. Will be used when
+ * checking the reference cell ( and is therefore absolute ).
  */
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::setup( 
     const RCP_MeshManager& source_mesh_manager, 
-    const RCP_CoordFieldManager& target_coord_manager )
+    const RCP_CoordFieldManager& target_coord_manager,
+    double tolerance )
 {
     // Create existence values for the managers.
     bool source_exists = true;
@@ -294,7 +298,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     Teuchos::Array<int> rendezvous_element_src_procs;
     rendezvous.elementsContainingPoints( rendezvous_coords.get1dViewNonConst(),
 					 rendezvous_elements,
-					 rendezvous_element_src_procs );
+					 rendezvous_element_src_procs,
+					 tolerance );
 
     // Get the points that were not in the mesh. If we're keeping track of
     // missed points, also make a list of those ordinals.

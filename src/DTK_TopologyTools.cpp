@@ -70,11 +70,15 @@ namespace DataTransferKit
  *
  * \param moab The Moab interface owning the element.
  *
+ * \param tolerance Absolute tolerance for point searching. Will be used when
+ * checking the reference cell ( and is therefore absolute ).
+ *
  * \return Return true if the point is in the element, false if not.
  */
 bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 				    const moab::EntityHandle element,
-				    const Teuchos::RCP<moab::Interface>& moab )
+				    const Teuchos::RCP<moab::Interface>& moab,
+				    double epsilon )
 {
     // Wrap the point in a field container.
     int vertex_dim = coords.size();
@@ -159,7 +163,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 
 	// Check for reference point inclusion in the reference cell.
 	return Intrepid::CellTools<double>::checkPointsetInclusion( 
-	    reference_point, *cell_topo);
+	    reference_point, *cell_topo, epsilon );
     }
 
     // We have to handle pyramids differently because Intrepid doesn't
@@ -204,7 +208,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 
 	// Check for reference point inclusion in tetrahedron 1.
 	bool in_tet_1 = Intrepid::CellTools<double>::checkPointsetInclusion( 
-	    reference_point, *cell_topo);
+	    reference_point, *cell_topo, epsilon );
 
 	// If the point is the first tetrahedron, it is in the pyramid and we
 	// can exit.
@@ -240,7 +244,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 
 	// Check for reference point inclusion in tetrahedron 2.
 	bool in_tet_2 = Intrepid::CellTools<double>::checkPointsetInclusion( 
-	    reference_point, *cell_topo);
+	    reference_point, *cell_topo, epsilon );
 
 	// If the point is the second tetrahedron, it is in the pyramid.
 	if ( in_tet_2 )

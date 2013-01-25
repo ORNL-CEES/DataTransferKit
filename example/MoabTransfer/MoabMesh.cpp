@@ -194,7 +194,8 @@ MoabMesh::MoabMesh( const RCP_Comm& comm,
 	error = d_moab->get_connectivity( &elements_arcp[i], 1, elem_conn );
 
 	assert( error == moab::MB_SUCCESS );
-	assert( Teuchos::as<int>(elem_conn.size()) == nodes_per_element );
+	assert( elem_conn.size() == 
+		Teuchos::as<std::vector<moab::EntityHandle>::size_type>(nodes_per_element) );
 
 	for ( int n = 0; n < (int) elem_conn.size(); ++n )
 	{

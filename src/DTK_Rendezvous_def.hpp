@@ -215,12 +215,16 @@ Teuchos::Array<Teuchos::Array<int> > Rendezvous<Mesh>::procsContainingBoxes(
  * is provided for each element in the order that the elements were
  * provided. If a point is not found in an element, return an invalid element
  * source proc, -1, for that point.
+ *
+ * \param tolerance Absolute tolerance for point searching. Will be used when
+ * checking the reference cell ( and is therefore absolute ).
  */
 template<class Mesh>
 void Rendezvous<Mesh>::elementsContainingPoints( 
     const Teuchos::ArrayRCP<double>& coords,
     Teuchos::Array<GlobalOrdinal>& elements,
-    Teuchos::Array<int>& element_src_procs ) const
+    Teuchos::Array<int>& element_src_procs,
+    double tolerance ) const
 {
     Teuchos::Array<double> point( d_dimension );
     GlobalOrdinal element_ordinal;
@@ -235,7 +239,7 @@ void Rendezvous<Mesh>::elementsContainingPoints(
 	    point[d] = coords[ d*num_points + n ];
 	}
 
-	found_point = d_kdtree->findPoint( point, element_ordinal );
+	found_point = d_kdtree->findPoint( point, element_ordinal, tolerance );
 
 	if ( found_point )
 	{

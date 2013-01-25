@@ -55,6 +55,7 @@
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_ScalarTraits.hpp>
 
 #include <Tpetra_Map_decl.hpp>
 #include <Tpetra_Map_def.hpp>
@@ -143,7 +144,8 @@ class Rendezvous
     void elementsContainingPoints( 
 	const Teuchos::ArrayRCP<double>& coords,
 	Teuchos::Array<GlobalOrdinal>& elements,
-	Teuchos::Array<int>& element_src_procs ) const;
+	Teuchos::Array<int>& element_src_procs,
+	double tolerance = 10*Teuchos::ScalarTraits<double>::eps() ) const;
 
     // Get the native elements in the rendezvous decomposition that are in
     // each bounding box in a list.

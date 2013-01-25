@@ -326,8 +326,9 @@ void MeshManager<Mesh>::validate()
 	    MT::connectivityEnd( *(*block_iterator) ) );
 	if ( num_elements > Teuchos::as<GlobalOrdinal>(0) )
 	{
-	    testPrecondition( Teuchos::as<int>(num_conn / num_elements) ==
-			      MT::verticesPerElement( *(*block_iterator) ) );
+	    testPrecondition( num_conn / num_elements ==
+			      Teuchos::as<GlobalOrdinal>(
+				  MT::verticesPerElement(*(*block_iterator))) );
 	}
 
 	// Check that the size of the permutation vector is the same as the

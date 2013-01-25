@@ -316,8 +316,10 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 		    vertex_ordinal_map.find( 
 			mesh_connectivity[ conn_index ] )->second;
 	    }
-	    testInvariant( Teuchos::as<int>(element_connectivity.size())
-			   == vertices_per_element );
+	    testInvariant( element_connectivity.size()
+			   == Teuchos::as<
+			       Teuchos::Array<moab::EntityHandle>::size_type>(
+				   vertices_per_element) );
 
 	    // Create the element in moab.
 	    moab::EntityType entity_type = 

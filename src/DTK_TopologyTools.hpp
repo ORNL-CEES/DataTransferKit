@@ -47,6 +47,7 @@
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ScalarTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -70,9 +71,11 @@ class TopologyTools
     { /* ... */ }
 
     // Point-in-element query.
-    static bool pointInElement( Teuchos::Array<double> coords,
-				const moab::EntityHandle element,
-				const Teuchos::RCP<moab::Interface>& moab );
+    static bool pointInElement( 
+	Teuchos::Array<double> coords,
+	const moab::EntityHandle element,
+	const Teuchos::RCP<moab::Interface>& moab,
+	double tolerance = 10*Teuchos::ScalarTraits<double>::eps() );
 
     // Box-element overlap query.
     static bool boxElementOverlap( const BoundingBox& box,

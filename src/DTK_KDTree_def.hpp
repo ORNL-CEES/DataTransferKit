@@ -115,11 +115,15 @@ void KDTree<GlobalOrdinal>::build()
  * \param element The global ordinal of the client element the point was found
  * in. This global ordinal is not valid if this function returns false.
  *
+ * \param tolerance Absolute tolerance for point searching. Will be used when
+ * checking the reference cell ( and is therefore absolute ).
+ *
  * \return Return true if the point was found in the kD-tree, false if not.
  */
 template<typename GlobalOrdinal>
 bool KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords,
-				       GlobalOrdinal& element )
+				       GlobalOrdinal& element,
+				       double tolerance )
 {
     testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
     testPrecondition( (int) coords.size() == d_dim );
@@ -144,7 +148,7 @@ bool KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords,
     testInvariant( moab::MB_SUCCESS == error );
 
     moab::EntityHandle mb_element;
-    bool point_in_leaf = findPointInLeaf( coords, leaf, mb_element );
+    bool point_in_leaf = findPointInLeaf( coords, leaf, mb_element, tolerance );
     if ( point_in_leaf )
     {
 	element = d_mesh->getNativeOrdinal( mb_element );
@@ -237,7 +241,8 @@ template<typename GlobalOrdinal>
 bool KDTree<GlobalOrdinal>::findPointInLeaf( 
     const Teuchos::Array<double>& coords, 
     const moab::EntityHandle leaf,
-    moab::EntityHandle& element )
+    moab::EntityHandle& element,
+    double tolerance )
 {
     testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
     testPrecondition( Teuchos::as<int>(coords.size()) == d_dim );
@@ -262,7 +267,7 @@ bool KDTree<GlobalOrdinal>::findPointInLeaf(
 	  ++leaf_iterator )
     {
 	if ( TopologyTools::pointInElement( 
-		 point, *leaf_iterator, d_mesh->getMoab() ) )
+		 point, *leaf_iterator, d_mesh->getMoab(), tolerance ) )
 	{
 	    element = *leaf_iterator;
 	    return true;
