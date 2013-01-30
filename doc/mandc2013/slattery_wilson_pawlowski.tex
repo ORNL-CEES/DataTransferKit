@@ -138,7 +138,7 @@ geometry problems, generating parallel topology maps for transferring
 fields and other data between geometric domains is a common
 operation. The algorithms used to generate parallel topology maps
 based on the concept of geometric rendezvous as implemented in DTK are
-described with examples using a conjugate heat transfer calculation
+described with an example using a conjugate heat transfer calculation
 and thermal coupling with a neutronics code. In addition, we provide
 the results of initial scaling studies performed on the Jaguar Cray
 XK6 system at Oak Ridge National Laboratory for a worse-case-scenario
@@ -175,8 +175,8 @@ therefore desirable to have a set of tools to relate two geometric
 domains of arbitrary parallel decomposition such that fields and other
 data can be transferred between them.
 
-The Data Transfer Kit (DTK) is a software component developed as part
-of the Consortium for Advanced Simulation of LWR's (CASL)
+The Data Transfer Kit (DTK) is a software library developed as part of
+the Consortium for Advanced Simulation of LWR's (CASL)
 \cite{u.s._department_of_energy_casl_2011} designed to provide
 parallel services for mesh and geometry searching and data
 transfer. The algorithms implemented in DTK are based on the concept
@@ -186,14 +186,14 @@ SIERRA framework \cite{Stewart_2004}. Their work has been extended to
 move towards a component design for use with arbitrary physics codes
 such that varying representations of mesh, geometry, and fields are
 able to access these services \cite{Chand_2008}. In addition, the
-original mesh-based rendezvous algorithms have been expanded
-to be used with both mesh and geometry representations of the
-geometric domain. This document will briefly outline the rendezvous
-algorithms as implemented in DTK. Examples of data transfer using a
-conjugate heat transfer calculation and a thermal-neutronics type
-coupling are provided. Parallel scaling results are also presented for
-the mesh-based mapping algorithm for a worse-case-scenario problem
-where communication costs are at a maximum.
+original mesh-based rendezvous algorithms have been expanded to be
+used with both mesh and geometry representations of the geometric
+domain. This document will briefly outline the rendezvous algorithms
+as implemented in DTK. An example of data transfer using a conjugate
+heat transfer calculation and a thermal-neutronics type coupling is
+provided. Parallel scaling results are also presented for the
+mesh-based mapping algorithm for a worse-case-scenario problem where
+communication costs are at a maximum.
 
 
 %%---------------------------------------------------------------------------%%
