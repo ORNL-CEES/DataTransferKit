@@ -147,7 +147,7 @@ bool KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords,
 #endif
     testInvariant( moab::MB_SUCCESS == error );
 
-    moab::EntityHandle mb_element;
+    moab::EntityHandle mb_element = 0;
     bool point_in_leaf = findPointInLeaf( coords, leaf, mb_element, tolerance );
     if ( point_in_leaf )
     {
