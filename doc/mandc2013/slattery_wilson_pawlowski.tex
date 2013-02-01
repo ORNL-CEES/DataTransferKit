@@ -100,11 +100,13 @@ sslattery@wisc.edu; wilsonp@engr.wisc.edu \\
 % 
 % SECOND AUTHORS (if not needed delete from here) 
 %
-\vspace{12pt}
-\textbf{R.P. Pawlowski}\\
-Sandia National Laboratories \\
-1515 Eubank SE, Albuquerque, NM 87123 \\
-rppawlo@sandia.gov \\ 
+\vspace{12pt} \textbf{R.P. Pawlowski} \\ Sandia National
+Laboratories\footnote{Sandia National Laboratories is a multi-program
+  laboratory managed and operated by Sandia Corporation, a wholly
+  owned subsidiary of Lockheed Martin Corporation, for the
+  U.S. Department of Energy\'s National Nuclear Security
+  Administration under contract DE-AC04-94AL85000.} \\ P.O. Box 5800,
+Albuquerque, NM 87185 \\ rppawlo@sandia.gov \\
 %
 % SECOND AUTHORS (to here)
 %
@@ -121,29 +123,29 @@ rppawlo@sandia.gov \\
 \section*{ABSTRACT} 
 \begin{quote}
 \begin{small}
-The Data Transfer Kit (DTK) is a software component designed to
-provide parallel data transfer services for arbitrary physics
-components based on the concept of geometric rendezvous. The
-rendezvous algorithm provides a means to geometrically correlate two
-geometric domains that may be arbitrarily decomposed in a parallel
-simulation. By repartitioning both domains such that they have the
-same geometric domain on each parallel process, efficient and load
-balanced search operations and data transfer can be performed at a
-desirable algorithmic time complexity with low communication overhead
-relative to other types of mapping algorithms. With the increased
-development efforts in multiphysics simulation and other multiple mesh
-and geometry problems, generating parallel topology maps for
-transferring fields and other data between geometric domains is a
-common operation. The algorithms used to generate parallel topology
-maps based on the concept of geometric rendezvous as implemented in
-DTK are described with examples using a conjugate heat transfer
-calculation and thermal coupling with a neutronics code. In addition,
-we provide the results of initial scaling studies performed on the
-Jaguar Cray XK6 system at Oak Ridge National Laboratory for a
-worse-case-scenario problem in terms of algorithmic complexity that
-shows good scaling on $O(1 \times 10^4)$ cores for topology map
-generation and excellent scaling on $O(1 \times 10^5)$ cores for the
-data transfer operation with meshes of $O(1 \times 10^9)$ elements.
+The Data Transfer Kit (DTK) is a software library designed to provide
+parallel data transfer services for arbitrary physics components based
+on the concept of geometric rendezvous. The rendezvous algorithm
+provides a means to geometrically correlate two geometric domains that
+may be arbitrarily decomposed in a parallel simulation. By
+repartitioning both domains such that they have the same geometric
+domain on each parallel process, efficient and load balanced search
+operations and data transfer can be performed at a desirable
+algorithmic time complexity with low communication overhead relative
+to other types of mapping algorithms. With the increased development
+efforts in multiphysics simulation and other multiple mesh and
+geometry problems, generating parallel topology maps for transferring
+fields and other data between geometric domains is a common
+operation. The algorithms used to generate parallel topology maps
+based on the concept of geometric rendezvous as implemented in DTK are
+described with an example using a conjugate heat transfer calculation
+and thermal coupling with a neutronics code. In addition, we provide
+the results of initial scaling studies performed on the Jaguar Cray
+XK6 system at Oak Ridge National Laboratory for a worse-case-scenario
+problem in terms of algorithmic complexity that shows good scaling on
+$O(1 \times 10^4)$ cores for topology map generation and excellent
+scaling on $O(1 \times 10^5)$ cores for the data transfer operation
+with meshes of $O(1 \times 10^9)$ elements.
 
 
 \emph{Key Words}: data transfer, multiphysics, rendezvous algorithm,
@@ -173,8 +175,8 @@ therefore desirable to have a set of tools to relate two geometric
 domains of arbitrary parallel decomposition such that fields and other
 data can be transferred between them.
 
-The Data Transfer Kit (DTK) is a software component developed as part
-of the Consortium for Advanced Simulation of LWR's (CASL)
+The Data Transfer Kit (DTK) is a software library developed as part of
+the Consortium for Advanced Simulation of LWR's (CASL)
 \cite{u.s._department_of_energy_casl_2011} designed to provide
 parallel services for mesh and geometry searching and data
 transfer. The algorithms implemented in DTK are based on the concept
@@ -187,8 +189,8 @@ able to access these services \cite{Chand_2008}. In addition, the
 original mesh-based rendezvous algorithms have been expanded to be
 used with both mesh and geometry representations of the geometric
 domain. This document will briefly outline the rendezvous algorithms
-as implemented in DTK. Examples of data transfer using a conjugate
-heat transfer calculation and a thermal-neutronics type coupling are
+as implemented in DTK. An example of data transfer using a conjugate
+heat transfer calculation and a thermal-neutronics type coupling is
 provided. Parallel scaling results are also presented for the
 mesh-based mapping algorithm for a worse-case-scenario problem where
 communication costs are at a maximum.
@@ -206,16 +208,18 @@ geometry. In a serial formulation, efficient search structures that
 offer logarithmic asymptotic time complexity are available to perform
 this operation. However, in a parallel formulation, if these two
 geometries are arbitrarily decomposed, geometric alignment is not
-likely and a certain degree of communication will be required. A
-geometric rendezvous manipulates the source and target geometries such
-that all geometric operations have a local formulation.
+likely and a certain degree of parallel communication will be
+required. A geometric rendezvous manipulates the source and target
+geometries such that all geometric operations and data evaluation
+operations have a local formulation while data transfer occurs
+globally.
 
-A geometry that is associated with the providing data through function
-evaluations will be referred to as the source geometry while the
-geometry that will be receiving the data will be referred to as the
-target geometry. Although explicitly formulated with a source mesh and
-target vertices below, these concepts can be applied to geometric
-structures beyond mesh and vertices.
+A geometry that is providing data through evaluations will be referred
+to as the source geometry while the geometry that will be receiving
+the data will be referred to as the target geometry. Although
+explicitly formulated with a source mesh and target vertices below,
+these concepts can be applied to geometric structures beyond mesh and
+vertices.
 
 \Subsection{Rendezvous Decomposition}
 \label{subsec:rendezvous_algorithm}
@@ -223,18 +227,39 @@ structures beyond mesh and vertices.
 The geometric rendezvous concept uses a global formulation for the
 data transfer while maintaining a local formulation for the geometric
 search operations by generating a secondary decomposition of the
-geometric structures in the problem. In DTK, the rendezvous algorithm
-developed by Plimpton et. al. \cite{Plimpton_2004} for mesh-based data
-transfer generates the rendezvous decomposition which behaves as a
-hierarchical parallel and geometric search tree.  Using this
-algorithm, a secondary decomposition of a subset of the source mesh
-that will participate in data transfer is generated, forming the
-rendezvous decomposition. The rendezvous decomposition is encapsulated
-as a separate entity from the original geometric description of the
-domain. It can be viewed as a temporary copy of the source mesh subset
-that intersects the target geometry. This copy has been repartitioned
-in a way that fundamental geometric search operations are local and
-proceed globally in a load balanced fashion.
+geometric structures in the problem. This secondary decomposition is
+generated by a geometry-based repartitioning for more load-balanced
+searching algorithms. This repartitioning is shown in the example
+presented in Figure~\ref{fig:rendezvous_example} where two meshes, one
+of triangles and one of quadrilaterals, are decomposed into four
+partitions, shown by color, that are not correlated to one another. To
+transfer data between these meshes, each partition in both meshes will
+need to communicate data to each partition in the other mesh due to
+their geometric overlap. The rendezvous decomposition, shown on the
+right, is a geometrically balanced repartitioning of the source mesh
+in the transfer problem with the partitioning information shared
+amongst both meshes. The components of both meshes that are required
+for data transfer will be gathered into this new partition.
+\begin{figure}[htpb!]
+  \centering \includegraphics[width=6in]{rendezvous_example.png}
+  \caption{Rendezvous decomposition example. A triangle mesh (left)
+    and a quadrilateral mesh (center) are partitioned into 4 parallel
+    domains as indicated by color. The rendezvous decomposition
+    (right) is generated as a geometric-based repartitioning of the
+    source mesh that permits load balanced geometric operations.}
+  \label{fig:rendezvous_example}
+\end{figure}
+
+In DTK, the rendezvous algorithm developed by Plimpton
+et. al. \cite{Plimpton_2004} for mesh-based data transfer generates
+the rendezvous decomposition which behaves as a hierarchical parallel
+and geometric search tree.  Using this algorithm, a secondary
+decomposition of a subset of the source mesh that will participate in
+data transfer is generated, forming the rendezvous decomposition as
+described in the example above. The rendezvous decomposition is
+encapsulated as a separate entity from the original geometric
+description of the domain. It can be viewed as a temporary copy of the
+source mesh subset that intersects the target geometry.
 
 With the rendezvous decomposition, we effectively have a search
 structure that spans both parallel and physical space. We first search
@@ -315,103 +340,166 @@ data transfer and the application to the map operator.
 \label{subsec:general_geometry}
 
 To handle software components that have a geometric entity-based
-representation (e.g. a neutronics code which uses a method of
-characteristics scheme with flat source regions representing the
-geometry), the above algorithms have been extended to operate on a
-general geometric description. The mesh-based algorithm above is
-purely geometric, with each element in the mesh treated as a separate
-geometric entity. If this is the case, then other geometries such as
-annular rings, cubes, or any other irregular shapes should apply to
-the algorithm. To extend the above algorithm, we require a geometric
-entity to provide a small set of information including point inclusion
-tests, the bounding box of the entity, centroid, dimensionality. With
-this information, the RCB partitioning can be generated and the
-geometry repartitioned to the rendezvous decomposition. With the
-repartitioned geometry data we can then perform a proximity search
-followed by the more expensive point inclusion checks.
+representation (e.g. a sub-channel code discretized with a control
+volume approach representing the geometry), the above algorithms have
+been extended to operate on a general geometric description. The
+mesh-based algorithm above is purely geometric, with each element in
+the mesh treated as a separate geometric entity. If this is the case,
+then other geometries such as annular rings, cubes, or any other
+irregular shapes should apply to the algorithm. To extend the above
+algorithm, we require a geometric entity to provide a small set of
+information including point inclusion tests, the bounding box of the
+entity, centroid, dimensionality. With this information, the RCB
+partitioning can be generated and the geometry repartitioned to the
+rendezvous decomposition. With the repartitioned geometry data we can
+then perform a proximity search followed by the more expensive point
+inclusion checks.
 
 Given these new search structures, variations of the algorithms
-presented in \cite{Plimpton_2004} can be extended beyond mesh-based
-interpolation. DTK includes a geometric interpolation algorithm, very
-similar to the original algorithm where data is applied to points in
-the domain based on the field discretization in the geometry rather
-than mesh elements. Geometry-to-geometry transfers are available when
-the two physics components being coupled derive their geometric
-description from the same source. This is useful in cases such as
-transferring fuel temperatures from a geometric zone in one physics
-application to the same geometric zone in another
-application. Finally, for cases where volume-averaged quantities are
-desired, typically an integral is evaluated over some volume of
-space. To support these operations, DTK contains algorithms for
-integrating mesh-based fields over the geometry that the mesh has
-discretized.
+presented in \cite{Plimpton_2004} can be generated to apply to data
+transfer problems beyond mesh-based interpolation. DTK includes a
+geometric data evaluation algorithm, very similar to the original
+algorithm where data is applied to points in the domain based on the
+field discretization in the geometry rather than mesh
+elements. Geometry-to-geometry transfers are available when the two
+physics components being coupled derive their geometric description
+from the same source. This is useful in cases such as transferring
+fuel temperatures from a geometric zone in one physics application to
+the same geometric zone in another application. Finally, for cases
+where volume-averaged quantities are desired, typically an integral is
+evaluated over some volume of space. To support these operations, DTK
+contains algorithms for integrating mesh-based fields over the
+geometry that the mesh has discretized, providing an effective means
+for integral assembly mesh-to-geometry transfers.
 
 %%---------------------------------------------------------------------------%%
-\Section{DATA TRANSFER EXAMPLES}
+\Section{DATA TRANSFER EXAMPLE USE CASE}
 \label{sec:examples}
 
-\Subsection{Conjugate Heat Transfer}
+This section demonstrates an important DTK use case for CASL.  A goal
+of the CASL program \cite{u.s._department_of_energy_casl_2011} is to
+develop an advanced simulator capability for a pressurized light water
+reactor core.  To achieve this, two large-scale parallel codes have
+been coupled using DTK, a thermal hydraulics (TH) code
+\cite{drekar_cfd} and a neutronics (NE) code \cite{denovo_2010}.  The
+TH code performs a multiphysics conjugate heat transfer simulation
+where energy conservation equation is solved in the fuel pins and
+energy, momentum and mass conservation equations are solved in the
+fluid surrounding the fuel pins.  The TH simulation uses fully coupled
+fully implicit Newton-Krylov solvers with algebraic multigrid
+preconditioning \cite{shadid_2006}.  The NE code uses a discrete
+ordinates solution to the radiation transport equation with both
+energy and spatial domain decomposition to achieve high levels of
+parallelism.  In this coupling, DTK is leveraged to transfer data in
+parallel between the codes and a simple block Gauss-Siedel iteration
+loop is used to converge the global coupled system.  Both codes have
+been demonstrated to run on leadership class machines with greater
+than 100,000 cores.
+
+The solution is spatially distributed across processes, requiring the
+use of DTK to identify and execute an efficient communication plan for
+data transfer.  For NE to TH coupling, the NE code supplies source
+terms used by the energy conservation equation in the fuel pins of the
+TH code.  A point-to-point data transfer is required where the TH code
+requires source term values at the quadrature points for the finite
+element integration with the mapping generated by the DTK mesh-to-mesh
+rendezvous capability.  For TH to NE coupling, the TH code supplies
+average temperatures for a section of the fuel pin to the NE code for
+the cross-section calculations.  The DTK mesh-to-geometry integral
+assembly mapping is used to provide cell integrated contributions to
+the total average temperature for the geometric entity (fuel pin
+section).  Sample 2D verification simulations from this work are
+provided in the following section.
+
+\Subsection{Data Transfer Verification}
 \label{subsec:cht}
 
-\Subsection{CFD-Neutronics}
-\label{subsec:cfd_neutronics}
+A simplified form of the full physics simulation was used to verify
+the parallel data transfer.  An analytic solution for the source term
+was prescribed in the NE code and transferred to the TH code.  The
+simulation was run on 10 cores with TH using 5 cores and NE using the
+remaining 5 cores.  Figure \ref{fig:parallel_decomposition}
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=2.0in]{neutronics_parallel_decomp.png}
+  \includegraphics[width=2.0in]{cfd_parallel_decomp.png}
+  \caption{Parallel decomposition for coupled NE/TH verification.  The
+    colors indicate ownership of the element by a core.  In this
+    example, a 10 core job is run with the thermal hydraulics and
+    neutronics applications each owning 5 cores on separate processor
+    spaces.}
+  \label{fig:parallel_decomposition}
+\end{figure}
+ shows the parallel decomposition for each application code with the
+ TH heat transfer and fluid domains shown in Figure~\ref{fig:domain}
+ on the left.  Note that the NE code uses a structured mesh while the
+ TH code uses an unstructured mesh. Results showed that data was
+ transferred correctly with machine precision accuracy using DTK.  A
+ plot of the transferred verification function (source = $x*y$) is
+ shown in Figure \ref{fig:domain} on the right.
+\begin{figure}[ht!]
+  \centering \includegraphics[width=6.0in]{cht_results.png}
+  \caption{(Left) Verification simulation domain space consisting of a
+    top-down view of a single fuel pin surrounded by a fluid
+    region. The blue region represents the fluid area and the red
+    region represents the solid fuel pin. (Right) Multiphysics domain
+    space.}
+  \label{fig:domain}
+\end{figure}
 
 %%---------------------------------------------------------------------------%%
 \Section{PARALLEL SCALING STUDY}
 \label{sec:scaling_study}
 
-A typical use case of DTK is searching a mesh with a set of points and
-applying field data to those points through function evaluations. For
-this use case, a scaling study of the initial DTK implementation of
-the rendezvous algorithm for data transfer was performed utilizing the
-Jaguar Cray XK6 system at Oak Ridge National Laboratory. For each
-study, a tri-linear hexahedron mesh was generated and decomposed
-across the parallel domain. Each partition had one element in the z
-direction while the x and y directions were varied to produce the
-desired number of elements in the partition. All partitions in each
-scaling study are square. This mesh is searched with random points
-generated by sampling the x and y directions across the global mesh
-domain.  By striding the random number seed used to generate the point
-coordinates, each process will have a unique set of random points it
-is searching for. For each scaling study, every process generated the
-same number of random points as the number of elements on that
-process, ensuring that a dense, all-to-all communication operation
-will be required for mapping and data transfer. Once the points are
-mapped to the mesh, the data transfer routine applies the process rank
-in which they were found and transfers it back to the original owning
-process for the point. In this way, because of the simple partitioning
-used for the scaling studies, the results of the data transfer to the
-random points can be independently verified by checking the applied
-data against the expected mesh process rank.
-
-A weak scaling study was performed by fixing the problem size per core
-and increasing the number of cores used while a strong scaling study
-was performed by fixing the total problem size while increasing the
-number of cores used.
+As indicated by the CASL use cases above, the current physics codes
+leveraged scale to leadership class computing facilities. A typical
+use case of DTK in these cases is searching a mesh with a set of
+points and applying field data to those points through function
+evaluations. For this use case, a scaling study of the mesh-based DTK
+implementation of the rendezvous algorithm for data transfer was
+performed utilizing the Jaguar Cray XK6 system at Oak Ridge National
+Laboratory in order to assess performance at these high levels of
+parallelism. For each study, a tri-linear hexahedron mesh was
+generated to represent the source and decomposed across the parallel
+domain. Each partition had one element in the z direction while the x
+and y directions were varied to produce the desired number of elements
+in the partition. All partitions in each scaling study are square.  To
+simulate a worst case problem, each process will search across a set
+of target points generated by sampling the x and y directions over the
+full global mesh domain.  Each process will be guaranteed a unique set
+of random target points by striding the random number seed used to
+generate the point coordinates. For each scaling study, every process
+generated the same number of random points as the number of elements
+on that process, ensuring that a dense, all-to-all communication
+operation will be required for mapping and data transfer. Once the
+points are mapped to the mesh, the data transfer routine applies the
+process rank in which they were found and transfers it back to the
+original owning process for the point. In this way, because of the
+simple partitioning used for the scaling studies, the results of the
+data transfer to the random points can be independently verified by
+checking the applied data against the expected mesh process rank.
 
 \Subsection{Weak Scaling}
 \label{subsec:weak_scaling}
 For the weak scaling study, the number of hexahedrons and random
-points per partition were fixed to $1 \times 10^4$. The number of cores
-used varied from 16 to 115,072. Figure~\ref{fig:weak_scaling} gives
-the results of the weak scaling study. The largest case reported here
-uses 115,072 cores and required 10.44 minutes for map generation and
-0.48 seconds for data transfer with a mesh size of $1.15 \times 10^9$
-elements. It is clear from the weak scaling study that at high numbers
-of processors communication latency begins to dominate for this dense
-all-to-all problem as described above. However, it is worth noting
-that once the mapping is complete, wall time for the actual transfer
-of the data is several orders of magnitude less.
+points per partition were fixed to $1 \times 10^4$. The number of
+cores used varied from 16 to 115,072. Figure~\ref{fig:weak_scaling}
+gives the results of the weak scaling study. The largest case reported
+here uses 115,072 cores and required 10.44 minutes for map generation
+and 0.48 seconds for data transfer with a mesh size of $1.15 \times
+10^9$ elements. It is clear from the weak scaling study that at high
+numbers of processors communication latency begins to dominate for
+this dense all-to-all problem as described above. However, it is worth
+noting that once the mapping is complete, wall time for the actual
+transfer of the data is several orders of magnitude less.
 
 \begin{figure}[ht!]
-  \centering
-  \includegraphics[width=5.5in]{WeakScaling.png}
+  \centering \includegraphics[width=5.5in]{WeakScaling.png}
   \caption{Weak scaling study results. The solid black curve reports
     the wall time to generate the mapping vs. number of processors
     while the solid red curve reports the wall time to transfer the
-    data vs. number of processors. The dashed lines give
-    perfect weak scaling the map generation (black) and the data
-    transfer (red).}
+    data vs. number of processors. The dashed lines give perfect weak
+    scaling the map generation (black) and the data transfer (red).}
   \label{fig:weak_scaling}
 \end{figure}
 
@@ -437,33 +525,25 @@ well.
 \begin{table}[htpb!]
   \begin{center}
     \begin{tabular}{llllllll}\hline\hline
-      \multicolumn{1}{l}{} & 
-      \multicolumn{1}{l}{Global} & 
-      \multicolumn{1}{l}{Map} & 
-      \multicolumn{1}{l}{Map} & 
-      \multicolumn{1}{l}{Map} & 
-      \multicolumn{1}{l}{Transfer} & 
-      \multicolumn{1}{l}{Transfer} & 
-      \multicolumn{1}{l}{Transfer}\\
-      \multicolumn{1}{l}{Cores} & 
-      \multicolumn{1}{l}{Elements} & 
-      \multicolumn{1}{l}{Min (s)} & 
-      \multicolumn{1}{l}{Max (s)} & 
-      \multicolumn{1}{l}{Average (s)} & 
-      \multicolumn{1}{l}{Min (s)} & 
-      \multicolumn{1}{l}{Max (s)} & 
-      \multicolumn{1}{l}{Average (s)}\\ \hline\hline
-      %%
-16 &	1.600E+05 & 2.63 &	2.65 &	  2.635 &	0.06 & 0.07 &	0.062 \\
-128 &	1.280E+06 & 3.25 &	3.31 &	  3.30 &	0.06 &	0.07 &	0.063 \\
-512 &	5.120E+06 & 3.58 &	3.86 &	  3.84 &	0.06 &	0.08 &	0.067 \\
-1,024 &	1.024E+07 & 3.98 &	4.53 &    4.48 &	0.06 &	0.09 &	0.076 \\
-4,096 &	4.096E+07 & 6.54 &	8.51 &	  8.39 &	0.13 &	0.15 &	0.141 \\
-16,384 &	1.638E+08 & 15.98 &	27.0 &	  23.73 &	0.28 &	0.32 &	0.296 \\
-32,768 &	3.277E+08 & 40.03 &	68.18 &   62.88 &	0.36 &	0.39 &	0.375 \\
-65,536 &	6.554E+08 & 214.69 & 239.21	& 234.76 &	0.41 &	0.45 & 0.429 \\
-115,072 & 1.151E+09 & 570.12 & 626.51	& 616.675 &	0.42 &	0.48 &	0.450 \\
-      \hline\hline
+      \multicolumn{1}{l}{} & \multicolumn{1}{l}{Global} &
+      \multicolumn{1}{l}{Map} & \multicolumn{1}{l}{Map} &
+      \multicolumn{1}{l}{Map} & \multicolumn{1}{l}{Transfer} &
+      \multicolumn{1}{l}{Transfer} &
+      \multicolumn{1}{l}{Transfer}\\ \multicolumn{1}{l}{Cores} &
+      \multicolumn{1}{l}{Elements} & \multicolumn{1}{l}{Min (s)} &
+      \multicolumn{1}{l}{Max (s)} & \multicolumn{1}{l}{Average (s)} &
+      \multicolumn{1}{l}{Min (s)} & \multicolumn{1}{l}{Max (s)} &
+      \multicolumn{1}{l}{Average (s)}\\ \hline\hline %% 16 & 1.600E+05
+      & 2.63 & 2.65 & 2.635 & 0.06 & 0.07 & 0.062 \\ 128 & 1.280E+06 &
+      3.25 & 3.31 & 3.30 & 0.06 & 0.07 & 0.063 \\ 512 & 5.120E+06 &
+      3.58 & 3.86 & 3.84 & 0.06 & 0.08 & 0.067 \\ 1,024 & 1.024E+07 &
+      3.98 & 4.53 & 4.48 & 0.06 & 0.09 & 0.076 \\ 4,096 & 4.096E+07 &
+      6.54 & 8.51 & 8.39 & 0.13 & 0.15 & 0.141 \\ 16,384 & 1.638E+08 &
+      15.98 & 27.0 & 23.73 & 0.28 & 0.32 & 0.296 \\ 32,768 & 3.277E+08
+      & 40.03 & 68.18 & 62.88 & 0.36 & 0.39 & 0.375 \\ 65,536 &
+      6.554E+08 & 214.69 & 239.21 & 234.76 & 0.41 & 0.45 & 0.429
+      \\ 115,072 & 1.151E+09 & 570.12 & 626.51 & 616.675 & 0.42 & 0.48
+      & 0.450 \\ \hline\hline
     \end{tabular}
   \end{center}
   \caption{\sl Weak scaling study data with the local problem size
@@ -476,20 +556,12 @@ well.
 \begin{table}[htpb!]
   \begin{center}
     \begin{tabular}{lll}\hline\hline
-      \multicolumn{1}{c}{Cores}& 
-      \multicolumn{1}{c}{Map Efficiency} & 
-      \multicolumn{1}{c}{Transfer Efficiency}\\\hline\hline
-      16 &	1.000 &	1.000 \\
-      128 &	0.800 &	0.974 \\
-      512 &	0.687 &	0.911 \\
-      1,024 &	0.581 &	0.812 \\
-      4,096 &	0.314 &	0.434 \\
-      16,384 &	0.111 &	0.206 \\
-      32,768 &	0.042 &	0.164 \\
-      65,536 &	0.011 &	0.143 \\
-      115,072 &	0.004 &	0.136 \\
-      %%
-      \hline\hline
+      \multicolumn{1}{c}{Cores}& \multicolumn{1}{c}{Map Efficiency} &
+      \multicolumn{1}{c}{Transfer Efficiency}\\\hline\hline 16 & 1.000
+      & 1.000 \\ 128 & 0.800 & 0.974 \\ 512 & 0.687 & 0.911 \\ 1,024 &
+      0.581 & 0.812 \\ 4,096 & 0.314 & 0.434 \\ 16,384 & 0.111 & 0.206
+      \\ 32,768 & 0.042 & 0.164 \\ 65,536 & 0.011 & 0.143 \\ 115,072 &
+      0.004 & 0.136 \\ \hline\hline
     \end{tabular}
   \end{center}
   \caption{\sl Weak scaling efficiencies. The 16 process case was used
@@ -522,44 +594,35 @@ computed for the strong scaling study with the 256 processor case used
 as the reference.
 
 \begin{figure}[htpb!]
-  \centering
-  \includegraphics[width=5.5in]{StrongScaling.png}
+  \centering \includegraphics[width=5.5in]{StrongScaling.png}
   \caption{Strong scaling study results. The solid black curve reports
     the wall time to generate the mapping vs. number of processors
     while the solid red curve reports the wall time to transfer the
-    data vs. number of processors. The dashed lines give
-    perfect strong scaling the map generation (black) and the data
-    transfer (red).}
+    data vs. number of processors. The dashed lines give perfect
+    strong scaling the map generation (black) and the data transfer
+    (red).}
   \label{fig:strong_scaling}
 \end{figure}
 
 \begin{table}[htpb!]
   \begin{center}
     \begin{tabular}{llllllll}\hline\hline
-      \multicolumn{1}{l}{}& 
-      \multicolumn{1}{l}{Local} & 
-      \multicolumn{1}{l}{Map} & 
-      \multicolumn{1}{l}{Map} & 
-      \multicolumn{1}{l}{Map} & 
-      \multicolumn{1}{l}{Transfer} & 
-      \multicolumn{1}{l}{Transfer} & 
-      \multicolumn{1}{l}{Transfer}\\
-      \multicolumn{1}{l}{Cores} & 
-      \multicolumn{1}{l}{Elements} & 
-      \multicolumn{1}{l}{Min (s)} & 
-      \multicolumn{1}{l}{Max (s)} & 
-      \multicolumn{1}{l}{Average (s)} & 
-      \multicolumn{1}{l}{Min (s)} & 
-      \multicolumn{1}{l}{Max (s)} & 
-      \multicolumn{1}{l}{Average (s)}\\ \hline\hline
-      %%
-256 &	3.91E+05 & 149.58&	150.04 & 149.883 & 198.99 & 199.81 & 199.72 \\
-1,024 &	9.77E+04 & 36.08 &	36.68 &	36.60 &	5.52 &	5.59 &	5.55 \\
-4,096 &	2.44E+04 & 12.12 &	14.18 &	14.0558 &	0.37 &	0.45 &	0.04 \\
-16,384 &	6.10E+03 & 9.16 &	15.75 & 14.787	& 0.15 & 0.18 &	0.162 \\
-32,768 &	3.05E+03 & 7.42 &	17.92 &	14.33 & 0.06 &	0.10 &	0.080 \\
-65,536 &	1.53E+03 & 205.54 &	232.01 & 227.07 & 0.02 & 0.05 &	0.034 \\
-      \hline\hline
+      \multicolumn{1}{l}{}& \multicolumn{1}{l}{Local} &
+      \multicolumn{1}{l}{Map} & \multicolumn{1}{l}{Map} &
+      \multicolumn{1}{l}{Map} & \multicolumn{1}{l}{Transfer} &
+      \multicolumn{1}{l}{Transfer} &
+      \multicolumn{1}{l}{Transfer}\\ \multicolumn{1}{l}{Cores} &
+      \multicolumn{1}{l}{Elements} & \multicolumn{1}{l}{Min (s)} &
+      \multicolumn{1}{l}{Max (s)} & \multicolumn{1}{l}{Average (s)} &
+      \multicolumn{1}{l}{Min (s)} & \multicolumn{1}{l}{Max (s)} &
+      \multicolumn{1}{l}{Average (s)}\\ \hline\hline %% 256 & 3.91E+05
+      & 149.58& 150.04 & 149.883 & 198.99 & 199.81 & 199.72 \\ 1,024 &
+      9.77E+04 & 36.08 & 36.68 & 36.60 & 5.52 & 5.59 & 5.55 \\ 4,096 &
+      2.44E+04 & 12.12 & 14.18 & 14.0558 & 0.37 & 0.45 & 0.04
+      \\ 16,384 & 6.10E+03 & 9.16 & 15.75 & 14.787 & 0.15 & 0.18 &
+      0.162 \\ 32,768 & 3.05E+03 & 7.42 & 17.92 & 14.33 & 0.06 & 0.10
+      & 0.080 \\ 65,536 & 1.53E+03 & 205.54 & 232.01 & 227.07 & 0.02 &
+      0.05 & 0.034 \\ \hline\hline
     \end{tabular}
   \end{center}
   \caption{\sl Strong scaling study data. All times reported in
@@ -571,21 +634,15 @@ as the reference.
 \begin{table}[htpb!]
   \begin{center}
     \begin{tabular}{lll}\hline\hline
-      \multicolumn{1}{c}{Cores}& 
-      \multicolumn{1}{c}{Map Efficiency} & 
-      \multicolumn{1}{c}{Transfer Efficiency}\\\hline\hline
-      %%
-      256 &	1.000 &	1.000 \\
-      1,024 &	1.024 &	8.989 \\
-      4,096 &	0.666 &	27.84 \\
-      16,384 &	0.158 &	19.24 \\
-      32,768 &	0.082 &	19.62 \\
-      65,536 &	0.003 &	22.71 \\
-      \hline\hline
+      \multicolumn{1}{c}{Cores}& \multicolumn{1}{c}{Map Efficiency} &
+      \multicolumn{1}{c}{Transfer Efficiency}\\\hline\hline %% 256 &
+      1.000 & 1.000 \\ 1,024 & 1.024 & 8.989 \\ 4,096 & 0.666 & 27.84
+      \\ 16,384 & 0.158 & 19.24 \\ 32,768 & 0.082 & 19.62 \\ 65,536 &
+      0.003 & 22.71 \\ \hline\hline
     \end{tabular}
   \end{center}
-  \caption{\sl Strong scaling efficiencies. The 256 process case was used
-    as the reference case.}
+  \caption{\sl Strong scaling efficiencies. The 256 process case was
+    used as the reference case.}
   \label{tab:strong_efficiency}
 \end{table}
 

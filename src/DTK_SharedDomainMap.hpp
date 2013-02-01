@@ -56,6 +56,7 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_ScalarTraits.hpp>
 
 #include <Tpetra_Map_decl.hpp>
 #include <Tpetra_Map_def.hpp>
@@ -132,7 +133,8 @@ class SharedDomainMap
 
     // Generate the shared domain map.
     void setup( const RCP_MeshManager& source_mesh_manager, 
-		const RCP_CoordFieldManager& target_coord_manager );
+		const RCP_CoordFieldManager& target_coord_manager,
+		double tolerance = 10*Teuchos::ScalarTraits<double>::eps() );
 
     // Apply the shared domain map by evaluating a function at target points
     // that were mapped.

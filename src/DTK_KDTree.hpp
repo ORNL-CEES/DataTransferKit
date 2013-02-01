@@ -45,6 +45,7 @@
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ScalarTraits.hpp>
 
 #include <MBAdaptiveKDTree.hpp>
 
@@ -85,7 +86,8 @@ class KDTree
 
     // Find a point in the tree.
     bool findPoint( const Teuchos::Array<double>& coords,
-		    GlobalOrdinal& element );
+		    GlobalOrdinal& element,
+		    double tolerance = 10*Teuchos::ScalarTraits<double>::eps() );
 
     // Get all of the elements in a leaf containing a point.
     void findLeaf( const Teuchos::Array<double>& coords,
@@ -96,7 +98,8 @@ class KDTree
     // Find a point in a leaf.
     bool findPointInLeaf( const Teuchos::Array<double>& coords,
 			  const moab::EntityHandle leaf,
-			  moab::EntityHandle& element );
+			  moab::EntityHandle& element,
+			  double tolerance );
 
   private:
 

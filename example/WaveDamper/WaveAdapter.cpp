@@ -121,7 +121,7 @@ WaveAdapter::getTargetSpace( const RCP_Wave& wave )
     // Get the wave data vector we will write into.
     Teuchos::RCP<std::vector<double> > damping_space = wave->get_damping();
 
-   // The data we are transferring has 1 dimension.
+    // The data we are transferring has 1 dimension.
     int field_dim = 1;
 
     // Build an ArrayRCP from the data vector.

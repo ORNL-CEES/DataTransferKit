@@ -688,6 +688,16 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getTargetPointsInB
     const Teuchos::Array<GlobalOrdinal>& target_ordinals,
     Teuchos::Array<GlobalOrdinal>& targets_in_box )
 {
+    // Expand the box in all directions by the geometric tolerance. Doing this
+    // catches a few corner cases.
+    Teuchos::Tuple<double,6> box_bounds = box.getBounds();
+    for ( int d = 0; d < d_dimension; ++d )
+    {
+	box_bounds[d] -= d_geometric_tolerance;
+	box_bounds[d+3] += d_geometric_tolerance;
+    }
+    BoundingBox expanded_box( box_bounds );
+
     Teuchos::ArrayRCP<const double> target_coords_view =
 	FieldTools<CoordinateField>::view( target_coords );
     GlobalOrdinal dim_size = 
@@ -706,7 +716,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getTargetPointsInB
 	    target_point[d] = target_coords_view[ dim_size*d + n ];
 	}
 
-	if ( box.pointInBox( target_point ) )
+	if ( expanded_box.pointInBox( target_point ) )
 	{
 	    targets_in_box[n] = target_ordinals[n];
 	}

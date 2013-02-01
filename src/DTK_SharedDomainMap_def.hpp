@@ -106,11 +106,15 @@ SharedDomainMap<Mesh,CoordinateField>::~SharedDomainMap()
  * manager is only constructed on a subset of the processes that the shared
  * domain map is constructed over. Note that the target coordinates must exist
  * only on processes that reside within the SharedDomainMap communicator.
+ *
+ * \param tolerance Absolute tolerance for point searching. Will be used when
+ * checking the reference cell ( and is therefore absolute ).
  */
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::setup( 
     const RCP_MeshManager& source_mesh_manager, 
-    const RCP_CoordFieldManager& target_coord_manager )
+    const RCP_CoordFieldManager& target_coord_manager,
+    double tolerance )
 {
     // Create existence values for the managers.
     bool source_exists = true;
@@ -294,7 +298,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     Teuchos::Array<int> rendezvous_element_src_procs;
     rendezvous.elementsContainingPoints( rendezvous_coords.get1dViewNonConst(),
 					 rendezvous_elements,
-					 rendezvous_element_src_procs );
+					 rendezvous_element_src_procs,
+					 tolerance );
 
     // Get the points that were not in the mesh. If we're keeping track of
     // missed points, also make a list of those ordinals.
@@ -345,7 +350,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 		point_target_procs.push_back( from_images[i] );
 	    }
 	}
-	testInvariant( point_target_procs.size() == num_rendezvous_points );
+	testInvariant( Teuchos::as<GlobalOrdinal>(point_target_procs.size())
+		       == num_rendezvous_points );
 
 	// Build a list of target procs for the missed points.
 	Teuchos::Array<int> missed_target_procs( missed_in_mesh_idx.size() );
@@ -575,7 +581,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     if ( target_exists )
     {
 	testPrecondition( 
-	    target_size == Teuchos::as<typename TFT::size_type>(
+	    target_size == Teuchos::as<GlobalOrdinal>(
 		d_target_map->getNodeNumElements()) );
     }
     d_comm->barrier();
@@ -678,7 +684,8 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
     GlobalOrdinal dim_size = 
 	FieldTools<CoordinateField>::dimSize( target_coords );
 
-    testPrecondition( dim_size == target_ordinals.size() );
+    testPrecondition( dim_size == 
+		      Teuchos::as<GlobalOrdinal>(target_ordinals.size()) );
 
     targets_in_box.resize( dim_size );
     int field_dim = CFT::dim( target_coords );

@@ -109,7 +109,8 @@ void FieldManager<Field>::validate()
     if ( !FT::empty( *d_field ) )
     {
 	testPrecondition( num_data / FieldTools<Field>::dimSize( *d_field ) 
-			  == FT::dim( *d_field ) );
+			  == Teuchos::as<typename FT::size_type>(
+			      FT::dim(*d_field)) );
     }
 }
 

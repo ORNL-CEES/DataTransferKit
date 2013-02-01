@@ -15,7 +15,8 @@
 #include <DTK_FieldEvaluator.hpp>
 
 class PeaksEvaluator 
-    : public DataTransferKit::FieldEvaluator<MoabMesh,ArrayField>
+    : public DataTransferKit::FieldEvaluator<MoabMesh::global_ordinal_type,
+					     ArrayField>
 {
   public:
 
