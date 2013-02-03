@@ -142,7 +142,6 @@ class FieldContainer
  * \brief FieldTraits specialization for the field container.
  */
 //---------------------------------------------------------------------------//
-template<>
 template<typename Scalar>
 class FieldTraits< FieldContainer<Scalar> >
 {
