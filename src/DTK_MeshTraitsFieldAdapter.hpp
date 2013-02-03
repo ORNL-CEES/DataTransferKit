@@ -59,7 +59,6 @@ namespace DataTransferKit
 
  */
 //---------------------------------------------------------------------------//
-template<>
 template<class GlobalOrdinal>
 class FieldTraits< MeshContainer<GlobalOrdinal> >
 {

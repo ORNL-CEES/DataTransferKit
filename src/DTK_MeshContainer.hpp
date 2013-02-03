@@ -217,7 +217,6 @@ class MeshContainer
  * \brief MeshTraits specialization for the mesh container.
  */
 //---------------------------------------------------------------------------//
-template<>
 template<typename GlobalOrdinal>
 class MeshTraits< MeshContainer<GlobalOrdinal> >
 {
