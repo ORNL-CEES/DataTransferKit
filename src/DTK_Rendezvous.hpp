@@ -57,10 +57,8 @@
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_ScalarTraits.hpp>
 
-#include <Tpetra_Map_decl.hpp>
-#include <Tpetra_Map_def.hpp>
-#include <Tpetra_Directory_decl.hpp>
-#include <Tpetra_Directory_def.hpp>
+#include <Tpetra_Map.hpp>
+#include <Tpetra_Directory.hpp>
 
 namespace DataTransferKit
 {

@@ -59,8 +59,7 @@
 
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_Export.hpp>
-#include <Tpetra_MultiVector_decl.hpp>
-#include <Tpetra_MultiVector_def.hpp>
+#include <Tpetra_MultiVector.hpp>
 
 namespace DataTransferKit
 {
