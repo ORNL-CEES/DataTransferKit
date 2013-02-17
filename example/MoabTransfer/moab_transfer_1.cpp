@@ -34,55 +34,66 @@
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_VerboseObject.hpp>
+#include <Teuchos_StandardCatchMacros.hpp>
+
 
 //---------------------------------------------------------------------------//
 // Example driver.
 //---------------------------------------------------------------------------//
 int main(int argc, char* argv[])
 {
-    // Typedefs.
-    typedef MoabMesh::Container MeshType;
+  // Typedefs.
+  typedef MoabMesh::Container MeshType;
 
-    // Setup communication.
-    Teuchos::GlobalMPISession mpiSession(&argc,&argv);
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
-	Teuchos::DefaultComm<int>::getComm();
+  // Setup communication.
+  Teuchos::GlobalMPISession mpiSession(&argc,&argv);
+
+  Teuchos::RCP<Teuchos::FancyOStream>
+    out = Teuchos::VerboseObjectBase::getDefaultOStream();
+  bool success = true;
+  bool verbose = true;
+
+  Teuchos::RCP<const Teuchos::Comm<int> > comm = 
+    Teuchos::DefaultComm<int>::getComm();
+
+  try {
 
     // Setup source mesh. Partitioned in x.
     int mesh_dim = 2;
     MoabMesh source_mesh( comm, "tri_peaks.vtk", moab::MBTRI, 0 );
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > 
-	source_blocks( 1, source_mesh.meshContainer() );
+      source_blocks( 1, source_mesh.meshContainer() );
     Teuchos::RCP<DataTransferKit::MeshManager<MeshType> > 
-	source_mesh_manager =
-	Teuchos::rcp( new DataTransferKit::MeshManager<MeshType>(
-			  source_blocks, comm, mesh_dim ) );
+      source_mesh_manager =
+      Teuchos::rcp( new DataTransferKit::MeshManager<MeshType>(
+          source_blocks, comm, mesh_dim ) );
 
     // Setup target coordinate field. Partitioned in y.
     MoabMesh target_mesh( comm, "quad_mesh.vtk", moab::MBQUAD, 1 );
     Teuchos::RCP<DataTransferKit::FieldManager<MeshType> > 
-	target_coords_manager =
-	Teuchos::rcp( new DataTransferKit::FieldManager<MeshType>(
-			  target_mesh.meshContainer(), comm ) );
+      target_coords_manager =
+      Teuchos::rcp( new DataTransferKit::FieldManager<MeshType>(
+          target_mesh.meshContainer(), comm ) );
 
     // Create a peaks function evaluator.
     Teuchos::RCP<DataTransferKit::FieldEvaluator<MeshType::global_ordinal_type,
-						 ArrayField> > 
-	peaks_evaluator = Teuchos::rcp( new PeaksEvaluator( source_mesh ) );
+      ArrayField> > 
+      peaks_evaluator = Teuchos::rcp( new PeaksEvaluator( source_mesh ) );
 
     // Create data target.
     int num_targets = DataTransferKit::MeshTools<MeshType>::numVertices( 
-	*(target_mesh.meshContainer()) );
+      *(target_mesh.meshContainer()) );
     Teuchos::RCP<ArrayField> data_target = Teuchos::rcp(
-	new ArrayField( num_targets, 1 ) );
+      new ArrayField( num_targets, 1 ) );
     Teuchos::RCP<DataTransferKit::FieldManager<ArrayField> > 
-	target_space_manager = 
-	Teuchos::rcp( new DataTransferKit::FieldManager<ArrayField>( 
-			  data_target, comm ) );
+      target_space_manager = 
+      Teuchos::rcp( new DataTransferKit::FieldManager<ArrayField>( 
+          data_target, comm ) );
 
     // Construct shared domain map.
     DataTransferKit::SharedDomainMap<MeshType,MeshType> 
-	shared_domain_map( comm, mesh_dim );
+      shared_domain_map( comm, mesh_dim );
 
     // Call setup. This creates the mapping.
     shared_domain_map.setup( source_mesh_manager, target_coords_manager );
@@ -93,8 +104,17 @@ int main(int argc, char* argv[])
     // Set the data on the target mesh and write.
     target_mesh.tag( *data_target );
     target_mesh.write( "quad_result.vtk" );
+    
+  }
+  TEUCHOS_STANDARD_CATCH_STATEMENTS(verbose, std::cerr, success)
+  
+    if (verbose) {
+      if(success)  *out << "\nCongratulations! All of the tests checked out!\n";
+      else         *out << "\nOh no! At least one of the tests failed!\n";
+    }
 
-    return 0;
+  return ( success ? 0 : 1 );
+
 }
 
 //---------------------------------------------------------------------------//
