@@ -53,8 +53,7 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 
-#include <Tpetra_Directory_decl.hpp>
-#include <Tpetra_Directory_def.hpp>
+#include <Tpetra_Directory.hpp>
 
 
 namespace DataTransferKit

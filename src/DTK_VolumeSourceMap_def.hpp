@@ -58,10 +58,8 @@
 
 #include <Tpetra_Import.hpp>
 #include <Tpetra_Distributor.hpp>
-#include <Tpetra_MultiVector_decl.hpp>
-#include <Tpetra_MultiVector_def.hpp>
-#include <Tpetra_Vector_decl.hpp>
-#include <Tpetra_Vector_def.hpp>
+#include <Tpetra_MultiVector.hpp>
+#include <Tpetra_Vector.hpp>
 #include <Tpetra_Export.hpp>
 
 namespace DataTransferKit
@@ -168,7 +166,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     // Build the data import map from the point global ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
 	target_ordinals();
-    d_target_map = Tpetra::createNonContigMap<GlobalOrdinal>(
+    d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
 	import_ordinal_view, d_comm );
     testPostcondition( !d_target_map.is_null() );
 
@@ -286,17 +284,17 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     Teuchos::ArrayView<const GlobalOrdinal> rendezvous_points_view =
 	rendezvous_points();
     RCP_TpetraMap rendezvous_coords_map = 
-	Tpetra::createNonContigMap<GlobalOrdinal>(
-	    rendezvous_points_view, d_comm );
-    Tpetra::Export<GlobalOrdinal> 
-	target_to_rendezvous_exporter( d_target_map, rendezvous_coords_map );
+      Tpetra::createNonContigMap<int,GlobalOrdinal>(
+        rendezvous_points_view, d_comm );
+    Tpetra::Export<int,GlobalOrdinal> 
+      target_to_rendezvous_exporter( d_target_map, rendezvous_coords_map );
 
     // Move the target coordinates to the rendezvous decomposition.
     GlobalOrdinal num_points = target_ordinals.size();
-    Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > 
+    Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> > 
 	target_coords =	Tpetra::createMultiVectorFromView( 
 	    d_target_map, coords_view, num_points, coord_dim );
-    Tpetra::MultiVector<double,GlobalOrdinal> rendezvous_coords( 
+    Tpetra::MultiVector<double,int,GlobalOrdinal> rendezvous_coords( 
 	rendezvous_coords_map, coord_dim );
     rendezvous_coords.doExport( *target_coords, target_to_rendezvous_exporter, 
 				Tpetra::INSERT );
@@ -454,15 +452,15 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     // Build the source map from the target ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> source_points_view = 
 	source_points();
-    d_source_map = Tpetra::createNonContigMap<GlobalOrdinal>( 
+    d_source_map = Tpetra::createNonContigMap<int,GlobalOrdinal>( 
 	source_points_view, d_comm );
     testPostcondition( !d_source_map.is_null() );
 
     // Send the rendezvous point coordinates to the source decomposition.
-    Tpetra::Export<GlobalOrdinal> rendezvous_to_source_exporter( 
+    Tpetra::Export<int,GlobalOrdinal> rendezvous_to_source_exporter( 
 	rendezvous_coords_map, d_source_map );
     d_target_coords.resize( num_source_geometry*coord_dim );
-    Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> >
+    Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> >
 	source_coords = Tpetra::createMultiVectorFromView( 
 	    d_source_map, Teuchos::arcpFromArray( d_target_coords ), 
 	    num_source_geometry, coord_dim );
@@ -471,8 +469,8 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 
     // Build the source-to-target importer.
     d_source_to_target_importer = 
-	Teuchos::rcp( new Tpetra::Import<GlobalOrdinal>(
-			  d_source_map, d_target_map ) );
+      Teuchos::rcp( new Tpetra::Import<int,GlobalOrdinal>(
+          d_source_map, d_target_map ) );
     testPostcondition( !d_source_to_target_importer.is_null() );
 }
 
@@ -527,7 +525,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 
     // Build a multivector for the function evaluations.
     GlobalOrdinal source_size = source_field_copy.size() / source_dim;
-    Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type, GlobalOrdinal> > 
+    Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type, int, GlobalOrdinal> > 
 	source_vector = Tpetra::createMultiVectorFromView( 
 	    d_source_map, source_field_copy, source_size, source_dim );
 
@@ -559,7 +557,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     d_comm->barrier();
     
     // Build a multivector for the target space.
-    Teuchos::RCP<Tpetra::MultiVector<typename TFT::value_type, GlobalOrdinal> > 
+    Teuchos::RCP<Tpetra::MultiVector<typename TFT::value_type, int, GlobalOrdinal> > 
 	target_vector =	Tpetra::createMultiVectorFromView( 
 	    d_target_map, target_field_view, target_size, target_dim );
 

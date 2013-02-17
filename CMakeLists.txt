@@ -44,6 +44,11 @@ TRIBITS_ADD_DEBUG_OPTION()
 
 TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
 
+APPEND_SET(Tpetra_ETI_SCALARS "unsigned int;unsigned long int")
+GLOBAL_SET(Tpetra_ETI_SCALARS ${Tpetra_ETI_SCALARS})
+APPEND_SET(Tpetra_ETI_GORDS "unsigned int;unsigned long int")
+GLOBAL_SET(Tpetra_ETI_GORDS ${Tpetra_ETI_GORDS})
+
 ##---------------------------------------------------------------------------##
 ## C) Add library, test, and examples.
 ##---------------------------------------------------------------------------##

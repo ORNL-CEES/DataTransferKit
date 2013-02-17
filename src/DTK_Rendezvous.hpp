@@ -57,10 +57,8 @@
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_ScalarTraits.hpp>
 
-#include <Tpetra_Map_decl.hpp>
-#include <Tpetra_Map_def.hpp>
-#include <Tpetra_Directory_decl.hpp>
-#include <Tpetra_Directory_def.hpp>
+#include <Tpetra_Map.hpp>
+#include <Tpetra_Directory.hpp>
 
 namespace DataTransferKit
 {
@@ -115,7 +113,7 @@ class Rendezvous
     typedef Teuchos::RCP<Partitioner>                   RCP_Partitioner;
     typedef Teuchos::Comm<int>                          CommType;
     typedef Teuchos::RCP<const CommType>                RCP_Comm;
-    typedef Tpetra::Map<GlobalOrdinal>                  TpetraMap;
+    typedef Tpetra::Map<int,GlobalOrdinal>              TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>               RCP_TpetraMap;
     //@}
 

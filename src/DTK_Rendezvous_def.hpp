@@ -59,8 +59,7 @@
 
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_Export.hpp>
-#include <Tpetra_MultiVector_decl.hpp>
-#include <Tpetra_MultiVector_def.hpp>
+#include <Tpetra_MultiVector.hpp>
 
 namespace DataTransferKit
 {
@@ -556,7 +555,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	Teuchos::ArrayView<const GlobalOrdinal> export_vertex_view 
 	    = export_vertex_arcp();
 	RCP_TpetraMap export_vertex_map = 
-	    Tpetra::createNonContigMap<GlobalOrdinal>( 
+    Tpetra::createNonContigMap<int,GlobalOrdinal>( 
 		export_vertex_view, d_comm );
 	testInvariant( !export_vertex_map.is_null() );
 
@@ -564,7 +563,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_vertices_view = 
 	    rendezvous_vertices();
 	RCP_TpetraMap import_vertex_map = 
-	    Tpetra::createNonContigMap<GlobalOrdinal>(
+    Tpetra::createNonContigMap<int,GlobalOrdinal>(
 		rendezvous_vertices_view, d_comm );
 	testInvariant( !import_vertex_map.is_null() );
 
@@ -581,7 +580,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	Teuchos::ArrayView<const GlobalOrdinal> export_element_view = 
 	    export_element_arcp();
 	RCP_TpetraMap export_element_map = 
-	    Tpetra::createNonContigMap<GlobalOrdinal>(
+    Tpetra::createNonContigMap<int,GlobalOrdinal>(
 		export_element_view, d_comm );
 	testInvariant( !export_element_map.is_null() );
 
@@ -589,14 +588,14 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
 	    rendezvous_elements();
 	RCP_TpetraMap import_element_map = 
-	    Tpetra::createNonContigMap<GlobalOrdinal>(
+    Tpetra::createNonContigMap<int,GlobalOrdinal>(
 		rendezvous_elements_view, d_comm );
 	testInvariant( !import_element_map.is_null() );
 
 	// Setup importers.
-	Tpetra::Import<GlobalOrdinal> vertex_importer( export_vertex_map, 
+	Tpetra::Import<int,GlobalOrdinal> vertex_importer( export_vertex_map, 
 						       import_vertex_map );
-	Tpetra::Import<GlobalOrdinal> element_importer( export_element_map, 
+	Tpetra::Import<int,GlobalOrdinal> element_importer( export_element_map, 
 							import_element_map );
 
 	// Move the vertex coordinates to the rendezvous decomposition.
@@ -607,11 +606,11 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 		MeshTools<Mesh>::coordsNonConstView( *current_block );
 	}
 	d_comm->barrier();
-	Teuchos::RCP< Tpetra::MultiVector<double,GlobalOrdinal> > 
+	Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> > 
 	    export_coords = Tpetra::createMultiVectorFromView( 
 		export_vertex_map, export_coords_view, 
 		num_vertices, d_dimension );
-	Tpetra::MultiVector<double,GlobalOrdinal> 
+	Tpetra::MultiVector<double,int,GlobalOrdinal> 
 	    import_coords( import_vertex_map, d_dimension );
 	import_coords.doImport( 
 	    *export_coords, vertex_importer, Tpetra::INSERT );
@@ -633,11 +632,11 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 		MeshTools<Mesh>::connectivityNonConstView( *current_block );
 	}
 	d_comm->barrier();
-	Teuchos::RCP<Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> > 
+	Teuchos::RCP<Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> > 
 	    export_conn = Tpetra::createMultiVectorFromView( 
 		export_element_map, export_conn_view, 
 		num_elements, vertices_per_element );
-	Tpetra::MultiVector<GlobalOrdinal,GlobalOrdinal> import_conn( 
+	Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> import_conn( 
 	    import_element_map, vertices_per_element );
 	import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
 
