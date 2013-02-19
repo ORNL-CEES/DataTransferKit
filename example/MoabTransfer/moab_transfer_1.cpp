@@ -27,6 +27,7 @@
 #include "PeaksEvaluator.hpp"
 
 #include <Teuchos_GlobalMPISession.hpp>
+#include "Teuchos_CommandLineProcessor.hpp"
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_CommHelpers.hpp>
@@ -45,6 +46,7 @@ int main(int argc, char* argv[])
 {
   // Typedefs.
   typedef MoabMesh::Container MeshType;
+  using Teuchos::CommandLineProcessor;
 
   // Setup communication.
   Teuchos::GlobalMPISession mpiSession(&argc,&argv);
@@ -58,6 +60,13 @@ int main(int argc, char* argv[])
     Teuchos::DefaultComm<int>::getComm();
 
   try {
+
+    // Read command-line options
+    CommandLineProcessor  clp(false); // Don't throw exceptions
+    CommandLineProcessor::EParseCommandLineReturn parse_return
+      = clp.parse(argc, argv);
+    if( parse_return != CommandLineProcessor::PARSE_SUCCESSFUL )
+    { return parse_return; }
 
     // Setup source mesh. Partitioned in x.
     int mesh_dim = 2;
