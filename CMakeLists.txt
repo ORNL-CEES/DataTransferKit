@@ -44,10 +44,14 @@ TRIBITS_ADD_DEBUG_OPTION()
 
 TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
 
-APPEND_SET(Tpetra_ETI_SCALARS "unsigned int;unsigned long int")
-GLOBAL_SET(Tpetra_ETI_SCALARS ${Tpetra_ETI_SCALARS})
-APPEND_SET(Tpetra_ETI_GORDS "unsigned int;unsigned long int")
-GLOBAL_SET(Tpetra_ETI_GORDS ${Tpetra_ETI_GORDS})
+TRIBITS_ADD_ETI_INSTANTIATIONS(Tpetra
+  "S={double} LO={int} GO={unsigned int} N={${KokkosClassic_DefaultNode}}"
+  "S={double} LO={int} GO={unsigned long} N={${KokkosClassic_DefaultNode}}"
+  "S={unsigned int} LO={int} GO={unsigned int} N={${KokkosClassic_DefaultNode}}"
+  "S={unsigned long} LO={int} GO={unsigned long} N={${KokkosClassic_DefaultNode}}"
+  "S={int} LO={int} GO={unsigned int} N={${KokkosClassic_DefaultNode}}"
+  "S={int} LO={int} GO={unsigned long} N={${KokkosClassic_DefaultNode}}"
+  )
 
 ##---------------------------------------------------------------------------##
 ## C) Add library, test, and examples.
