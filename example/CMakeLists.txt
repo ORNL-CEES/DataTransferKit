@@ -7,5 +7,4 @@ ADD_SUBDIRECTORIES(
   GeometryToMesh
   GeometryToGeometry
   IntegralAssembly
-  MoabTransfer
   )

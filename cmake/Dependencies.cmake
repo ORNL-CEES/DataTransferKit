@@ -1,4 +1,3 @@
-SET(REGRESSION_EMAIL_LIST casl-vri-testing@casl.gov)
 
 SET(LIB_REQUIRED_DEP_PACKAGES
   Teuchos 
