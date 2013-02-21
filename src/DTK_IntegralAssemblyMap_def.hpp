@@ -399,7 +399,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
     // Build the target map from the unique element ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> mapped_target_elements_view = 
 	mapped_target_elements();
-    d_target_map = Tpetra::createNonContigMap<GlobalOrdinal>(
+    d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
 	mapped_target_elements_view, d_comm );
     testPostcondition( !d_target_map.is_null() );
 
@@ -445,13 +445,13 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
     // Build the source map from the element ordinals.
     Teuchos::ArrayView<const GlobalOrdinal> source_elements_view =
 	d_source_elements();
-    d_source_map = Tpetra::createNonContigMap<GlobalOrdinal>(
+    d_source_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
 	source_elements_view, d_comm );
     testPostcondition( !d_source_map.is_null() );
 
     // Build the source-to-target importer.
     d_source_to_target_importer = 
-	Teuchos::rcp( new Tpetra::Import<GlobalOrdinal>(
+      Teuchos::rcp( new Tpetra::Import<int,GlobalOrdinal>(
 			  d_source_map, d_target_map ) );
     testPostcondition( !d_source_to_target_importer.is_null() );
 
@@ -462,10 +462,10 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	source_measures = source_mesh_measure->measure( 
 	    Teuchos::arcpFromArray( d_source_elements ) );
     }
-    Teuchos::RCP<Tpetra::Vector<double,GlobalOrdinal> > source_vector = 
+    Teuchos::RCP<Tpetra::Vector<double,int,GlobalOrdinal> > source_vector = 
 	Tpetra::createVectorFromView( 
 	    d_source_map, Teuchos::arcpFromArray( source_measures ) );
-    Teuchos::RCP<Tpetra::Vector<double,GlobalOrdinal> > target_vector =
+    Teuchos::RCP<Tpetra::Vector<double,int,GlobalOrdinal> > target_vector =
 	Tpetra::createVectorFromView( 
 	    d_target_map, 
 	    Teuchos::arcpFromArray( integral_element_measures ) );
@@ -545,7 +545,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 
     // Build a multivector for the function integrations.
     GlobalOrdinal source_size = source_field_copy.size() / source_dim;
-    Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type,GlobalOrdinal> > 
+    Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type,int,GlobalOrdinal> > 
 	source_vector = Tpetra::createMultiVectorFromView( 
 	    d_source_map, source_field_copy, source_size, source_dim );
 
@@ -580,7 +580,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 
     // Build a multivector for the function integrations in the target
     // decomposition.
-    Tpetra::MultiVector<typename TFT::value_type,GlobalOrdinal> 
+    Tpetra::MultiVector<typename TFT::value_type,int,GlobalOrdinal> 
 	target_vector( d_target_map, target_dim );
 
     // Import the function integrations.

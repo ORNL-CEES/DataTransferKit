@@ -96,9 +96,9 @@ class IntegralAssemblyMap
     typedef Teuchos::RCP<GeometryManagerType>         RCP_GeometryManager;
     typedef Teuchos::Comm<int>                        CommType;
     typedef Teuchos::RCP<const CommType>              RCP_Comm;
-    typedef Tpetra::Map<GlobalOrdinal>                TpetraMap;
+    typedef Tpetra::Map<int,GlobalOrdinal>            TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
-    typedef Tpetra::Import<GlobalOrdinal>             ImportType;
+    typedef Tpetra::Import<int,GlobalOrdinal>         ImportType;
     typedef Teuchos::RCP<ImportType>                  RCP_TpetraImport;
     //@}
 

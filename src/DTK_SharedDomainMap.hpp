@@ -116,9 +116,9 @@ class SharedDomainMap
     typedef Teuchos::RCP<CoordFieldManagerType>       RCP_CoordFieldManager;
     typedef Teuchos::Comm<int>                        CommType;
     typedef Teuchos::RCP<const CommType>              RCP_Comm;
-    typedef Tpetra::Map<GlobalOrdinal>                TpetraMap;
+    typedef Tpetra::Map<int,GlobalOrdinal>            TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
-    typedef Tpetra::Export<GlobalOrdinal>             ExportType;
+    typedef Tpetra::Export<int,GlobalOrdinal>         ExportType;
     typedef Teuchos::RCP<ExportType>                  RCP_TpetraExport;
     //!@}
 

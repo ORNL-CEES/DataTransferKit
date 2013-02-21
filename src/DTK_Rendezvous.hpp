@@ -113,7 +113,7 @@ class Rendezvous
     typedef Teuchos::RCP<Partitioner>                   RCP_Partitioner;
     typedef Teuchos::Comm<int>                          CommType;
     typedef Teuchos::RCP<const CommType>                RCP_Comm;
-    typedef Tpetra::Map<GlobalOrdinal>                  TpetraMap;
+    typedef Tpetra::Map<int,GlobalOrdinal>              TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>               RCP_TpetraMap;
     //@}
 
