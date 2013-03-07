@@ -1,17 +1,10 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file   tstCommTools.cpp
+ * \file   tstMpiTagConsistency.cpp
  * \author Stuart Slattery
- * \brief  CommTools class unit tests.
+ * \brief  Mpi Tags unit tests.
  */
 //---------------------------------------------------------------------------//
-
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <sstream>
-
-#include <DTK_CommTools.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -19,31 +12,13 @@
 #include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
 #include "Teuchos_Ptr.hpp"
-
-#ifdef HAVE_MPI
 #include "Teuchos_DefaultMpiComm.hpp"
-#endif
-
-//---------------------------------------------------------------------------//
-// HELPER FUNCTIONS
-//---------------------------------------------------------------------------//
-
-// Get the default communicator.
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
-{
-#ifdef HAVE_MPI
-    return Teuchos::DefaultComm<Ordinal>::getComm();
-#else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
-#endif
-}
 
 //---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
-
-TEUCHOS_UNIT_TEST( CommTools, mpi_tag_consistency_1 )
+// This is a 2 processor test.
+TEUCHOS_UNIT_TEST( CommTools, mpi_tag_consistency )
 {
     Teuchos::RCP<const Teuchos::Comm<int> > comm_default = 
 	Teuchos::DefaultComm<int>::getComm();
@@ -53,6 +28,7 @@ TEUCHOS_UNIT_TEST( CommTools, mpi_tag_consistency_1 )
     int comm_size = comm_default->getSize();
     int comm_rank = comm_default->getRank();
 
+    // This is a 2 processor test.
     TEST_EQUALITY( comm_size, 2 );
 
     for ( int n = 0; n < comm_size; ++n )
@@ -71,13 +47,16 @@ TEUCHOS_UNIT_TEST( CommTools, mpi_tag_consistency_1 )
     Teuchos::RCP<const Teuchos::Comm<int> > comm_2 = 
 	comm_default->createSubcommunicator( sub_ranks_2() );
 
-    // Unite the communicators.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm_union;
-    DataTransferKit::CommTools::unite( comm_1, comm_2, comm_union );
+    // Create another communicator.
+    Teuchos::Array<int> sub_ranks_3(comm_size);
+    sub_ranks_3[0] = 0;
+    sub_ranks_3[1] = 1;
+    Teuchos::RCP<const Teuchos::Comm<int> > comm_3 =
+	comm_default->createSubcommunicator( sub_ranks_3() );
 
     // Get my mpi tag.
     int my_tag = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >( 
-        comm_union )->getTag();
+        comm_3 )->getTag();
 
     // Collect the tags.
     int tag1 = 0;
@@ -100,5 +79,5 @@ TEUCHOS_UNIT_TEST( CommTools, mpi_tag_consistency_1 )
 }
 
 //---------------------------------------------------------------------------//
-// end tstCommTools.cpp
+// end tstMpiTagConsistency.cpp
 //---------------------------------------------------------------------------//
