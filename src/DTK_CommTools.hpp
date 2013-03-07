@@ -75,15 +75,21 @@ class CommTools
     static void getCommWorld( RCP_Comm& comm_world );
 
     // Check whether two communicators own the same communication space.
-    static bool equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B );
+    static bool equal( const RCP_Comm& comm_A, 
+                       const RCP_Comm& comm_B,
+                       const RCP_Comm& comm_global = Teuchos::null );
 
     // Generate the union of two communicators.
-    static void unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
-		       RCP_Comm& comm_union );
+    static void unite( const RCP_Comm& comm_A, 
+                       const RCP_Comm& comm_B,
+		       RCP_Comm& comm_union,
+                       const RCP_Comm& comm_global = Teuchos::null );
 
     // Generate the intersection of two communicators.
-    static void intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
-			   RCP_Comm& comm_intersection );
+    static void intersect( const RCP_Comm& comm_A, 
+                           const RCP_Comm& comm_B,
+			   RCP_Comm& comm_intersection,
+                           const RCP_Comm& comm_global = Teuchos::null );
 };
 
 //---------------------------------------------------------------------------//

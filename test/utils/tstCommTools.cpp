@@ -93,6 +93,37 @@ TEUCHOS_UNIT_TEST( CommTools, equal_test_2 )
 }
 
 //---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( CommTools, equal_test_3 )
+{
+    using namespace DataTransferKit;
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
+
+    RCP_Comm comm_A = getDefaultComm<int>();
+    Teuchos::Array<int> sub_ranks;
+    for ( int n = 0; n < comm_A->getSize(); ++n )
+    {
+	if ( n % 2 == 0 )
+	{
+	    sub_ranks.push_back(n);
+	}
+    }
+
+    RCP_Comm comm_B = 
+	comm_A->createSubcommunicator( sub_ranks() );
+
+    RCP_Comm comm_global = comm_A;
+
+    if ( comm_A->getSize() > 1 )
+    {
+	TEST_ASSERT( !CommTools::equal( comm_A, comm_B, comm_global ) );
+    }
+    else 
+    {
+	TEST_ASSERT( CommTools::equal( comm_A, comm_B, comm_global ) );
+    }
+}
+
+//---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CommTools, union_test_1 )
 {
     using namespace DataTransferKit;
@@ -199,6 +230,23 @@ TEUCHOS_UNIT_TEST( CommTools, union_test_4 )
 }
 
 //---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( CommTools, union_test_5 )
+{
+    using namespace DataTransferKit;
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
+
+    RCP_Comm comm_A = getDefaultComm<int>();
+    int inverse_rank = comm_A->getSize() - comm_A->getRank() - 1;
+    RCP_Comm comm_B = comm_A->split( 0, inverse_rank);
+    RCP_Comm comm_global = comm_A;
+
+    RCP_Comm comm_union;
+    CommTools::unite( comm_A, comm_B, comm_union, comm_global );
+    TEST_ASSERT( CommTools::equal( comm_A, comm_union ) );
+    TEST_ASSERT( CommTools::equal( comm_B, comm_union ) );
+}
+
+//---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CommTools, intersect_test_1 )
 {
     using namespace DataTransferKit;
@@ -258,6 +306,23 @@ TEUCHOS_UNIT_TEST( CommTools, intersect_test_3 )
 
     RCP_Comm comm_intersect;
     CommTools::intersect( comm_A, comm_B, comm_intersect );
+    TEST_ASSERT( CommTools::equal( comm_A, comm_intersect ) );
+    TEST_ASSERT( CommTools::equal( comm_B, comm_intersect ) );
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( CommTools, intersect_test_4 )
+{
+    using namespace DataTransferKit;
+    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
+
+    RCP_Comm comm_A = getDefaultComm<int>();
+    int inverse_rank = comm_A->getSize() - comm_A->getRank() - 1;
+    RCP_Comm comm_B = comm_A->split( 0, inverse_rank);
+    RCP_Comm comm_global = comm_A;
+
+    RCP_Comm comm_intersect;
+    CommTools::intersect( comm_A, comm_B, comm_intersect, comm_global );
     TEST_ASSERT( CommTools::equal( comm_A, comm_intersect ) );
     TEST_ASSERT( CommTools::equal( comm_B, comm_intersect ) );
 }

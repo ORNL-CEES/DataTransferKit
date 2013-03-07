@@ -55,7 +55,7 @@ namespace DataTransferKit
  * \brief Get MPI_COMM_WORLD in an RCP_Comm data structure if MPI is used,
  * otherwise get the default serial communicator.
  * 
- * \param comm_world Worl communicator.
+ * \param comm_world World communicator.
  */
 void CommTools::getCommWorld( RCP_Comm& comm_world )
 {
@@ -70,16 +70,25 @@ void CommTools::getCommWorld( RCP_Comm& comm_world )
  *
  * \param comm_B Communicator B.
  *
+ * \param comm_global An optional global communicator over which to check for
+ * equality. If none is provided, MPI_COMM_WORLD will be used for an MPI
+ * build. 
+ *
  * \return Return true if communicator A and B operate on the same group of
  * processes. These processes do not have to have the same ranks in the
  * communicators to be considered equivalent, they are only required to be the
  * same physical process. The same result is produced independent of the
  * ordering of A and B in the input parameters.
  */
-bool CommTools::equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B )
+bool CommTools::equal( const RCP_Comm& comm_A, 
+                       const RCP_Comm& comm_B,
+                       const RCP_Comm& comm_global )
 {
-    RCP_Comm comm_world;
-    getCommWorld( comm_world );
+    RCP_Comm comm_world = comm_global;
+    if ( Teuchos::is_null(comm_global) )
+    {
+        getCommWorld( comm_world );
+    }
 
     int existence = 0;
 
@@ -125,12 +134,20 @@ bool CommTools::equal( const RCP_Comm& comm_A, const RCP_Comm& comm_B )
  * and B is defined as the physical processes that exist in either
  * communicator. The same result is produced independent of the ordering of A
  * and B in the input parameters. 
+ *
+ * \param comm_global An optional global communicator over which to the
+ * union. If none is provided, MPI_COMM_WORLD will be used for an MPI build.
  */
-void CommTools::unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
-		       RCP_Comm& comm_union )
+void CommTools::unite( const RCP_Comm& comm_A, 
+                       const RCP_Comm& comm_B,
+		       RCP_Comm& comm_union,
+                       const RCP_Comm& comm_global )
 {
-    RCP_Comm comm_world;
-    getCommWorld( comm_world );
+    RCP_Comm comm_world = comm_global;
+    if ( Teuchos::is_null(comm_global) )
+    {
+        getCommWorld( comm_world );
+    }
 
     Teuchos::Array<int> existence( comm_world->getSize(), 0 );
     Teuchos::Array<int> existence_copy( comm_world->getSize(), 0 );
@@ -182,12 +199,21 @@ void CommTools::unite( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
  * B. The intersection of A and B is defined to be the group of physical
  * processes that exist in both A and B. The same result is produced
  * independent of the ordering of A and B in the input parameters.
+ *
+ * \param comm_global An optional global communicator over which to the
+ * intersection. If none is provided, MPI_COMM_WORLD will be used for an MPI
+ * build. 
  */
-void CommTools::intersect( const RCP_Comm& comm_A, const RCP_Comm& comm_B,
-			   RCP_Comm& comm_intersection )
+void CommTools::intersect( const RCP_Comm& comm_A, 
+                           const RCP_Comm& comm_B,
+			   RCP_Comm& comm_intersection,
+                           const RCP_Comm& comm_global )
 {
-    RCP_Comm comm_world;
-    getCommWorld( comm_world );
+    RCP_Comm comm_world = comm_global;
+    if ( Teuchos::is_null(comm_global) )
+    {
+        getCommWorld( comm_world );
+    }
 
     Teuchos::Array<int> existence( comm_world->getSize(), 0 );
     Teuchos::Array<int> existence_copy( comm_world->getSize(), 0 );
