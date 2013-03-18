@@ -85,10 +85,10 @@ class CommIndexer
 
     // Given a process id in the local communicator, return the distributed
     // object's process id in the global communicator.
-    const int l2g( const int local_id ) const;
+    int l2g( const int local_id ) const;
 
     //! Return the size of the local to global map.
-    const int size() const
+    int size() const
     { return d_l2gmap.size(); }
 };
 
