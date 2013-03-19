@@ -104,7 +104,7 @@ class GeometryManager
     { return d_comm; }
 
     //! Get the dimension of the geometry.
-    const int dim() const
+    int dim() const
     { return d_dim; }
 
     //! Get the local number of objects owned by this manager.

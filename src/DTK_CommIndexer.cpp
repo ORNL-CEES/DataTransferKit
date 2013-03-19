@@ -136,7 +136,7 @@ CommIndexer::~CommIndexer()
  * \return The global process rank. Return -1 if this local id does not exist
  * in the map.
  */
-const int CommIndexer::l2g( const int local_id ) const
+int CommIndexer::l2g( const int local_id ) const
 {
     int global_id = -1;
     IndexMap::const_iterator l2g_pair = d_l2gmap.find( local_id );

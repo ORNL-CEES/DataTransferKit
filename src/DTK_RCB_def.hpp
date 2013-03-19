@@ -272,9 +272,9 @@ int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
  */
 template<class Mesh>
 void RCB<Mesh>::getObjectList( 
-    void *data, int sizeGID, int sizeLID,
+    void *data, int /*sizeGID*/, int /*sizeLID*/,
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
-    int wgt_dim, float *obj_wgts, int *ierr )
+    int /*wgt_dim*/, float * /*obj_wgts*/, int *ierr )
 {
     RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );
 
@@ -334,7 +334,7 @@ template<class Mesh>
 void RCB<Mesh>::getGeometryList(
     void *data, int sizeGID, int sizeLID,
     int num_obj,
-    ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
+    ZOLTAN_ID_PTR /*globalID*/, ZOLTAN_ID_PTR /*localID*/,
     int num_dim, double *geom_vec, int *ierr )
 {
     RCP_MeshManager mesh_manager = *static_cast<RCP_MeshManager*>( data );

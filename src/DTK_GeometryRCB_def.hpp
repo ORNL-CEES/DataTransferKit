@@ -268,9 +268,9 @@ int GeometryRCB<Geometry,GlobalOrdinal>::getNumberOfObjects(
  */
 template<class Geometry, class GlobalOrdinal>
 void GeometryRCB<Geometry,GlobalOrdinal>::getObjectList( 
-    void *data, int sizeGID, int sizeLID,
+    void *data, int /*sizeGID*/, int /*sizeLID*/,
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
-    int wgt_dim, float *obj_wgts, int *ierr )
+    int /*wgt_dim*/, float * /*obj_wgts*/, int *ierr )
 {
     RCP_GeometryManager geometry_manager = 
 	*static_cast<RCP_GeometryManager*>( data );
@@ -328,7 +328,7 @@ template<class Geometry, class GlobalOrdinal>
 void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
     void *data, int sizeGID, int sizeLID,
     int num_obj,
-    ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
+    ZOLTAN_ID_PTR /*globalID*/, ZOLTAN_ID_PTR /*localID*/,
     int num_dim, double *geom_vec, int *ierr )
 {
     RCP_GeometryManager geometry_manager = 
