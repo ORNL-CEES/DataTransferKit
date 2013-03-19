@@ -127,7 +127,7 @@ class GeometryTraits<Box>
 
     typedef Box geometry_type;
 
-    static inline int dim( const Box& box )
+    static inline int dim( const Box& /*box*/ )
     { return 3; }
 
     static inline double measure( const Box& box )
