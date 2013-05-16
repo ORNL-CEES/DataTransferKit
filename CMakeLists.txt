@@ -27,13 +27,10 @@ TRIBITS_ADD_OPTION_AND_DEFINE(
 	${${PROJECT_NAME}_ENABLE_DEBUG}
 )
 
-# Zoltan and MPI must BOTH be enabled to function in parallel. Therefore 
+# If Zoltan and MPI must BOTH be enabled to function in parallel. Therefore 
 # here we turn off MPI support for DataTransferKit explicitly if both are
 # not enabled.
 IF( ${PACKAGE_NAME}_ENABLE_MPI AND ${PROJECT_NAME}_ENABLE_Zoltan )
-  GLOBAL_SET( HAVE_DTK_MPI ON )
-ELSEIF(TPL_ENABLE_MPI)
-  GLOBAL_SET( ${PROJECT_NAME}_ENABLE_Zoltan ON )
   GLOBAL_SET( HAVE_DTK_MPI ON )
 ELSE()
   IF (${PACKAGE_NAME}_ENABLE_MPI)
