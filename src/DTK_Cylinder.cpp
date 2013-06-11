@@ -178,6 +178,21 @@ BoundingBox Cylinder::boundingBox() const
 }
 
 //---------------------------------------------------------------------------//
+/*!
+ * \brief Print the cylinder description to an ostream.
+ *
+ * \return The ostream.
+ */
+
+//---------------------------------------------------------------------------//
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c)
+{
+  os << "Cylinder: length=" << c.length() << ",radius=" << c.radius()
+     << ", centroid=(" << c.centroid()[0] << "," << c.centroid()[1]
+     << "," << c.centroid()[2] << ")";
+
+  return os;
+}
 
 } // end namespace DataTransferKit
 
