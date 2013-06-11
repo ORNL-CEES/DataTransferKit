@@ -349,11 +349,9 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 	testInvariant( sizeGID == 1 );
 	testInvariant( sizeLID == 1 );
 	testInvariant( num_dim == Teuchos::as<int>(geom_dim) );
-	testInvariant( num_obj == Teuchos::as<int>(local_geometry.size() ) );
 
 	if ( sizeGID != 1 || sizeLID != 1 || 
-	     num_dim != Teuchos::as<int>(geom_dim) || 
-	     num_obj != Teuchos::as<int>(local_geometry.size()) )
+	     num_dim != Teuchos::as<int>(geom_dim) )
 	{
 	    *ierr = ZOLTAN_FATAL;
 	    return;
@@ -376,6 +374,8 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 		++n;
 	    }
 	}
+
+	testPostcondition( num_obj == n );
     }
 	  
     *ierr = ZOLTAN_OK;

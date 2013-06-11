@@ -112,6 +112,9 @@ class Cylinder
     double d_centroid_z;
 };
 
+//! overload for printing cylinder
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c); 
+
 //---------------------------------------------------------------------------//
 // GeometryTraits Specialization.
 //---------------------------------------------------------------------------//

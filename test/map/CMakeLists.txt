@@ -133,3 +133,24 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
+
+# These tests are fixed for 4 mpi processes
+IF (HAVE_DTK_MPI)
+
+  TRIBITS_ADD_EXECUTABLE_AND_TEST(
+    VolumeSourceMap_test4
+    SOURCES tstVolumeSourceMap4.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+    COMM mpi
+    NUM_MPI_PROCS 4
+    STANDARD_PASS_OUTPUT
+    )
+
+  TRIBITS_ADD_EXECUTABLE_AND_TEST(
+    VolumeSourceMap_test5
+    SOURCES tstVolumeSourceMap5.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+    COMM mpi
+    NUM_MPI_PROCS 4
+    STANDARD_PASS_OUTPUT
+    )
+
+ENDIF()
