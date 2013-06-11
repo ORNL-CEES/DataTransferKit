@@ -153,11 +153,4 @@ IF (HAVE_DTK_MPI)
     STANDARD_PASS_OUTPUT
     )
 
-#  TRIBITS_ADD_EXECUTABLE_AND_TEST(
-#    VolumeSourceMap_test6
-#    SOURCES tstVolumeSourceMap6.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-#    COMM mpi
-#    STANDARD_PASS_OUTPUT
-#    )
-
 ENDIF()
