@@ -47,6 +47,8 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_SerializationTraits.hpp>
 
+#include <iostream>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
