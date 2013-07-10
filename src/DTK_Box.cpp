@@ -197,7 +197,7 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
      << ",d_z_min=" << bounds[2]
      << ",d_x_max=" << bounds[3]
      << ",d_y_max=" << bounds[4]
-     << ",d_x_max=" << bounds[5];
+     << ",d_z_max=" << bounds[5];
 
   return os;
 }
