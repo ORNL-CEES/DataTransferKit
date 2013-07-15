@@ -181,6 +181,26 @@ Teuchos::Array<double> Box::centroid() const
 }
 
 //---------------------------------------------------------------------------//
+/*!
+ * \brief Print the box description to an ostream.
+ *
+ * \return The ostream.
+ */
+
+//---------------------------------------------------------------------------//
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
+{
+  Teuchos::Tuple<double,6> bounds = b.getBounds();
+
+  os << "Box: d_x_min=" << bounds[0] 
+     << ",d_y_min=" << bounds[1]
+     << ",d_z_min=" << bounds[2]
+     << ",d_x_max=" << bounds[3]
+     << ",d_y_max=" << bounds[4]
+     << ",d_z_max=" << bounds[5];
+
+  return os;
+}
 
 } // end namespace DataTransferKit
 

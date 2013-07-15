@@ -48,6 +48,8 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_SerializationTraits.hpp>
 
+#include <iostream>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -116,6 +118,9 @@ class Box
     // Z max.
     double d_z_max;
 };
+
+//! overload for printing box
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
 
 //---------------------------------------------------------------------------//
 // GeometryTraits Specialization.
