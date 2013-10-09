@@ -197,8 +197,17 @@ BoundingBox GeometryManager<Geometry,GlobalOrdinal>::localBoundingBox() const
 template<class Geometry,class GlobalOrdinal>
 BoundingBox GeometryManager<Geometry,GlobalOrdinal>::globalBoundingBox() const
 {
-    BoundingBox local_box = localBoundingBox();
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double,6> local_bounds( Teuchos::ScalarTraits<double>::rmax(),
+					   Teuchos::ScalarTraits<double>::rmax(),
+					   Teuchos::ScalarTraits<double>::rmax(),
+					   -Teuchos::ScalarTraits<double>::rmax(),
+					   -Teuchos::ScalarTraits<double>::rmax(),
+					   -Teuchos::ScalarTraits<double>::rmax() );
+    if ( d_geometry->size() > 0 )
+    {
+	BoundingBox local_box = localBoundingBox();
+	local_bounds = local_box.getBounds();
+    }
 
     double global_x_min, global_y_min, global_z_min;
     double global_x_max, global_y_max, global_z_max;
