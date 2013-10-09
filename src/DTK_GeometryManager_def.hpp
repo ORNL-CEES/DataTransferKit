@@ -154,6 +154,7 @@ BoundingBox GeometryManager<Geometry,GlobalOrdinal>::localBoundingBox() const
     Teuchos::Tuple<double,6> box_bounds;
     Teuchos::Array<BoundingBox> boxes = boundingBoxes();
     Teuchos::Array<BoundingBox>::const_iterator box_iterator;
+    testInvariant( !boxes.empty() );
     for ( box_iterator = boxes.begin();
 	  box_iterator != boxes.end();
 	  ++box_iterator )

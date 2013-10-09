@@ -613,6 +613,7 @@ FieldTools<Field>::globalSize( const Field& field,
 template<class Field>
 BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
 {
+    testPrecondition( !FT::empty(field) );
     int dim = FT::dim( field );
     testPrecondition( 0 <= dim && dim <= 3 );
 
@@ -627,8 +628,8 @@ BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
 
     if ( dim > 0 )
     {
-	x_min = *std::min_element( dimBegin( field, 0 ), dimEnd( field, 0 ) );
-	x_max = *std::max_element( dimBegin( field, 0 ), dimEnd( field, 0 ) );
+	x_min = *std::min_element( dimBegin(field, 0), dimEnd(field, 0) );
+	x_max = *std::max_element( dimBegin(field, 0), dimEnd(field, 0) );
     }
     if ( dim > 1 )
     {
@@ -659,8 +660,18 @@ template<class Field>
 BoundingBox FieldTools<Field>::coordGlobalBoundingBox( const Field& field,
 						       const RCP_Comm& comm )
 {
-    BoundingBox local_box = coordLocalBoundingBox( field );
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double,6> local_bounds =
+	Teuchos::tuple( Teuchos::ScalarTraits<double>::rmax(),
+			Teuchos::ScalarTraits<double>::rmax(),
+			Teuchos::ScalarTraits<double>::rmax(),
+			-Teuchos::ScalarTraits<double>::rmax(),
+			-Teuchos::ScalarTraits<double>::rmax(),
+			-Teuchos::ScalarTraits<double>::rmax() );
+    if ( !FT::empty(field) )
+    {
+	BoundingBox local_box = coordLocalBoundingBox( field );
+	local_bounds = local_box.getBounds();
+    }
 
     double global_x_min, global_y_min, global_z_min;
     double global_x_max, global_y_max, global_z_max;
