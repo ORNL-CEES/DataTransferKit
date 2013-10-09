@@ -5,6 +5,7 @@
  - \ref DTK_intro
  - \ref DTK_contributors
  - \ref DTK_overview
+ - \ref DTK_FAQ
  
  \section DTK_intro Introduction
  
@@ -16,9 +17,12 @@
  
  The following people have contributed to the development of DTK:
    - Stuart Slattery, University of Wisconsin - Madison, sslattery@wisc.edu
+   - Roger Pawlowski, Sandia National Laboratories, rppawlo@sandia.gov
  
  \section DTK_overview Overview of DTK
 
+ \section DTK_FAQ FAQ
 
+  - <b>My target points and source geometries completely overlap for a volume to volume transfer, but DTK is not finding the points in the search during the call to the setup() method.  What is happening? </b> Make sure that the source geometries have unique global IDs across the entire process space.  If a source uses the same unique global ID on different processes, only one of the sources will be used by DTK.
 
  */
