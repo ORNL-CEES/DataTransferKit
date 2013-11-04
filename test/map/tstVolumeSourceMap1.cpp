@@ -234,7 +234,7 @@ void buildCoordinateField( int my_rank, int my_size,
     Teuchos::ArrayRCP<double> coords =
 	DataTransferKit::FieldTools<MyField>::nonConstView( *coordinate_field );
     std::srand( my_rank*num_points*2 );
-    for ( int i = 0; i < num_points; ++i )
+    for ( int i = 0; i < num_points-1; ++i )
     {
 	coords[i] = 
 	    my_size * (edge_size-1) * (double) std::rand() / RAND_MAX;
@@ -243,6 +243,12 @@ void buildCoordinateField( int my_rank, int my_size,
 	coords[2*num_points + i] = 
 	    (double) std::rand() / RAND_MAX;
     }
+    
+    // Add a bogus point.
+    int bogus_idx = num_points-1;
+    coords[bogus_idx] = my_size * (edge_size-1) * (double) std::rand();
+    coords[num_points + bogus_idx] = (edge_size-1) * (double) std::rand();
+    coords[2*num_points + bogus_idx] = (double) std::rand();
 }
 
 //---------------------------------------------------------------------------//
@@ -345,7 +351,8 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, cylinder_test )
     int global_num_missed = 0;
     Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 
 			num_missed, Teuchos::Ptr<int>(&global_num_missed) );
-    
+    std::cout << my_rank << " " << num_missed << " " << num_in_cylinder << " " 
+	      << global_num_missed << " " << global_num_in_cylinder << std::endl;
     TEST_ASSERT( num_target_points*my_size == 
 		 global_num_missed + global_num_in_cylinder );
 }
