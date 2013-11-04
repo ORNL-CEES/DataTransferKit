@@ -42,6 +42,20 @@
 #include <Teuchos_FancyOStream.hpp>
 
 //---------------------------------------------------------------------------//
+// MPI Setup
+//---------------------------------------------------------------------------//
+
+template<class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+{
+#ifdef HAVE_MPI
+    return Teuchos::DefaultComm<Ordinal>::getComm();
+#else
+    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+#endif
+}
+
+//---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
 class MyEvaluator : 
     public DataTransferKit::FieldEvaluator<int,DataTransferKit::FieldContainer<double> >
@@ -97,19 +111,15 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, one_to_many_parallel)
   Teuchos::FancyOStream pout(Teuchos::rcp(&std::cout,false));
   pout.setShowProcRank(true);
 
-  // Setup comms: rank 0 is source app, rank 0-3 is target app 
-  Teuchos::RCP<Teuchos::MpiComm<int> > global_comm = 
-    Teuchos::rcp(new Teuchos::MpiComm<int>(Teuchos::opaqueWrapper(MPI_COMM_WORLD)));
-
+  // Setup comms: rank 0 is source app, all ranks are target app 
+  Teuchos::RCP<const Teuchos::Comm<int> > global_comm = getDefaultComm<int>();
   Teuchos::Array<int> subcomm_ranks;
   subcomm_ranks.push_back(0);
-  Teuchos::RCP<Teuchos::Comm<int> > source_comm = global_comm->createSubcommunicator(subcomm_ranks);
-  
-  Teuchos::RCP<Teuchos::Comm<int> > target_comm = global_comm;
-
-  const int geom_dim = 3;
+  Teuchos::RCP<const Teuchos::Comm<int> > source_comm = global_comm->createSubcommunicator(subcomm_ranks);
+  Teuchos::RCP<const Teuchos::Comm<int> > target_comm = global_comm;
 
   // Setup source geometry. Only on proc zero
+  const int geom_dim = 3;
   Teuchos::RCP<GeometryManager<Box,int> > source_geometry_manager;
   Teuchos::RCP<FieldEvaluator<int,FieldType> > source_evaluator;
 

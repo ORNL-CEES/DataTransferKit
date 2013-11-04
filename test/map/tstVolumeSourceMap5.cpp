@@ -41,6 +41,20 @@
 #include <Teuchos_FancyOStream.hpp>
 
 //---------------------------------------------------------------------------//
+// MPI Setup
+//---------------------------------------------------------------------------//
+
+template<class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+{
+#ifdef HAVE_MPI
+    return Teuchos::DefaultComm<Ordinal>::getComm();
+#else
+    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+#endif
+}
+
+//---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
 class MyEvaluator : 
     public DataTransferKit::FieldEvaluator<int,DataTransferKit::FieldContainer<double> >
@@ -102,41 +116,35 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, one_to_many_parallel)
   pout.setShowLinePrefix(true);
   pout.setShowProcRank(true);
 
-  // Setup comms: rank 0 is source app, rank 0-3 is target app 
-  Teuchos::RCP<Teuchos::MpiComm<int> > global_comm = 
-    Teuchos::rcp(new Teuchos::MpiComm<int>(Teuchos::opaqueWrapper(MPI_COMM_WORLD)));
-
+  // Setup comms: rank 0 is source app, all ranks are target app 
+  Teuchos::RCP<const Teuchos::Comm<int> > global_comm = getDefaultComm<int>();
   Teuchos::Array<int> subcomm_ranks;
   subcomm_ranks.push_back(0);
-  Teuchos::RCP<Teuchos::Comm<int> > source_comm = global_comm->createSubcommunicator(subcomm_ranks);
-  
-  Teuchos::RCP<Teuchos::Comm<int> > target_comm = global_comm;
-
-  TEST_ASSERT(global_comm->getSize() == 4);
-
-  const int geom_dim = 3;
+  Teuchos::RCP<const Teuchos::Comm<int> > source_comm = global_comm->createSubcommunicator(subcomm_ranks);
+  Teuchos::RCP<const Teuchos::Comm<int> > target_comm = global_comm;
 
   // Setup source geometry. Only on proc zero
+  const int geom_dim = 3;
   Teuchos::RCP<GeometryManager<Box,int> > source_geometry_manager;
   Teuchos::RCP<FieldEvaluator<int,FieldType> > source_evaluator;
 
   if (global_comm->getRank() == 0) {
-    const int num_geom = 4;
-    Teuchos::ArrayRCP<Box> geometry(num_geom);
-    geometry[0] = Box(-1.0, -1.0, 0.0, 1.0, 1.0, 1.0);
-    geometry[1] = Box(-1.0, -1.0, 1.0, 1.0, 1.0, 2.0);
-    geometry[2] = Box(-1.0, -1.0, 2.0, 1.0, 1.0, 3.0);
-    geometry[3] = Box(-1.0, -1.0, 3.0, 1.0, 1.0, 4.0);
+      const int num_geom = 4;
+      Teuchos::ArrayRCP<Box> geometry(num_geom);
+      geometry[0] = Box(-1.0, -1.0, 0.0, 1.0, 1.0, 1.0);
+      geometry[1] = Box(-1.0, -1.0, 1.0, 1.0, 1.0, 2.0);
+      geometry[2] = Box(-1.0, -1.0, 2.0, 1.0, 1.0, 3.0);
+      geometry[3] = Box(-1.0, -1.0, 3.0, 1.0, 1.0, 4.0);
 
-    Teuchos::ArrayRCP<int> geom_gids(num_geom);
-    for ( int i = 0; i < num_geom; ++i )
-    {
-      geom_gids[i] = i;
-    }
+      Teuchos::ArrayRCP<int> geom_gids(num_geom);
+      for ( int i = 0; i < num_geom; ++i )
+      {
+	  geom_gids[i] = i;
+      }
     
-    source_geometry_manager = Teuchos::rcp(new GeometryManager<Box,int>(geometry,geom_gids,source_comm,geom_dim));
+      source_geometry_manager = Teuchos::rcp(new GeometryManager<Box,int>(geometry,geom_gids,source_comm,geom_dim));
 
-    source_evaluator = Teuchos::rcp(new MyEvaluator(geom_gids,source_comm));
+      source_evaluator = Teuchos::rcp(new MyEvaluator(geom_gids,source_comm));
   }
 
   // Setup target coords.
