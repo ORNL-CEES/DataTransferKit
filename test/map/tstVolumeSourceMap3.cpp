@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <limits>
 #include <cmath>
 #include <sstream>
 #include <algorithm>
@@ -131,14 +132,17 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, cylinder_test )
     Teuchos::RCP<FieldEvaluator<int,FieldType> > source_evaluator = 
 	Teuchos::rcp( new MyEvaluator( geom_gids, comm ) );
 
-    // Setup target coords. Use the geometry centroids.
-    Teuchos::ArrayRCP<double> target_coords( num_geom*geom_dim );
+    // Setup target coords. Use the geometry centroids plus bogus point.
+    Teuchos::ArrayRCP<double> target_coords( (num_geom+1)*geom_dim );
     for ( int i = 0; i < num_geom; ++i )
     {
 	target_coords[i] = geometry[i].centroid()[0];
-	target_coords[i + num_geom] = geometry[i].centroid()[1];
-	target_coords[i + 2*num_geom] = geometry[i].centroid()[2];
+	target_coords[i + num_geom + 1] = geometry[i].centroid()[1];
+	target_coords[i + 2*(num_geom+1)] = geometry[i].centroid()[2];
     }
+    target_coords[num_geom] = std::numeric_limits<int>::max();
+    target_coords[2*num_geom + 1] = std::numeric_limits<int>::max();
+    target_coords[2*(num_geom+1) + num_geom] = std::numeric_limits<int>::max();
     Teuchos::RCP<FieldType > coord_field =
 	Teuchos::rcp( new FieldType( target_coords, geom_dim ) );
 
@@ -147,7 +151,7 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, cylinder_test )
 
     // Setup target field.
     int target_field_dim = 1;
-    Teuchos::ArrayRCP<double> target_data( num_geom );
+    Teuchos::ArrayRCP<double> target_data( num_geom+1 );
     Teuchos::RCP<FieldType> target_field =
 	Teuchos::rcp( new FieldType( target_data, target_field_dim ) );
 
@@ -161,14 +165,14 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, cylinder_test )
     volume_source_map.apply( source_evaluator, target_space_manager );
 
     // Check the evaluation.
-    std::cout << comm->getRank() << ": " << target_data() << std::endl;
     for ( int i = 0; i < num_geom; ++i )
     {
 	TEST_ASSERT( target_data[i] == 1.0 + i );
     }
+    TEST_ASSERT( target_data[num_geom] == 0.0 );
 
-    // Make sure all points were found.
-    TEST_ASSERT( volume_source_map.getMissedTargetPoints().size() == 0 );
+    // Make sure all points were found except the bogus point.
+    TEST_ASSERT( volume_source_map.getMissedTargetPoints().size() == 1 );
 }
 
 //---------------------------------------------------------------------------//
