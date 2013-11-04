@@ -10,6 +10,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <limits>
 #include <cmath>
 #include <sstream>
 #include <algorithm>
@@ -67,8 +68,6 @@ class MyEvaluator :
 
 	  double z = coords[2*num_vals+n];
 	  
-	  //std::cout << "n = " << n << ", z = " << z << std::endl;
-
 	  if ((z >= 0.0) && (z < 1.0))
 	    evaluated_data[n] = 1.0;
 	  else if ((z >= 1.0) && (z < 2.0))
@@ -77,9 +76,6 @@ class MyEvaluator :
 	    evaluated_data[n] = 3.0;
 	  else if ((z >= 3.0) && (z < 4.0))
 	    evaluated_data[n] = 4.0;
-
-	  //std::cout << "value = " << evaluated_data[n] << std::endl;
-
 	}
 	return DataTransferKit::FieldContainer<double>( evaluated_data, 1 );
     }
@@ -111,8 +107,6 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, one_to_many_parallel)
   
   Teuchos::RCP<Teuchos::Comm<int> > target_comm = global_comm;
 
-  TEST_ASSERT(global_comm->getSize() == 4);
-
   const int geom_dim = 3;
 
   // Setup source geometry. Only on proc zero
@@ -138,25 +132,34 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, one_to_many_parallel)
     source_evaluator = Teuchos::rcp(new MyEvaluator(geom_gids,source_comm));
   }
 
-  // Setup target coords.
-  Teuchos::ArrayRCP<double> target_coords(geom_dim);
+  // Setup target coords. The first three procs in the problem will have a
+  // point that should never be found.
+  Teuchos::ArrayRCP<double> target_coords(2*geom_dim);
   if (global_comm->getRank() == 0) {
     target_coords[0] = 0.0;
-    target_coords[1] = 0.0;
-    target_coords[2] = 0.5;
+    target_coords[1] = std::numeric_limits<double>::max();
+    target_coords[2] = 0.0;
+    target_coords[3] = std::numeric_limits<double>::max();
+    target_coords[4] = 0.5;
+    target_coords[5] = std::numeric_limits<double>::max();
   }
   else if (global_comm->getRank() == 1) {
     target_coords[0] = 0.0;
-    target_coords[1] = 0.0;
-    target_coords[2] = 1.5;
+    target_coords[1] = std::numeric_limits<double>::max();
+    target_coords[2] = 0.0;
+    target_coords[3] = std::numeric_limits<double>::max();
+    target_coords[4] = 1.5;
+    target_coords[5] = std::numeric_limits<double>::max();
   }
   else if (global_comm->getRank() == 2) {
     target_coords[0] = 0.0;
-    target_coords[1] = 0.0;
-    target_coords[2] = 2.5;
+    target_coords[1] = std::numeric_limits<double>::max();
+    target_coords[2] = 0.0;
+    target_coords[3] = std::numeric_limits<double>::max();
+    target_coords[4] = 2.5;
+    target_coords[5] = std::numeric_limits<double>::max();
   }
   else if (global_comm->getRank() == 3) {
-    target_coords = Teuchos::ArrayRCP<double>(2*geom_dim);
     target_coords[0] = 0.0; // x0
     target_coords[1] = 0.0; // x1
     target_coords[2] = 0.0; // y0
@@ -173,11 +176,7 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, one_to_many_parallel)
 
   // Setup target field.
   int target_field_dim = 1;
-  Teuchos::ArrayRCP<double> target_data(1);
-
-  if (global_comm->getRank() == 3) {
-    target_data = Teuchos::ArrayRCP<double>(2);
-  }
+  Teuchos::ArrayRCP<double> target_data(2);
 
   Teuchos::RCP<FieldType> target_field =
     Teuchos::rcp( new FieldType( target_data, target_field_dim ) );
@@ -199,12 +198,15 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, one_to_many_parallel)
 
   if (global_comm->getRank() == 0) {
     TEUCHOS_TEST_FLOATING_EQUALITY(target_data[0],1.0,tol,std::cout,success);
+    TEUCHOS_TEST_FLOATING_EQUALITY(target_data[1],0.0,tol,std::cout,success);
   }
   else if (global_comm->getRank() == 1) {
     TEUCHOS_TEST_FLOATING_EQUALITY(target_data[0],2.0,tol,std::cout,success);
+    TEUCHOS_TEST_FLOATING_EQUALITY(target_data[1],0.0,tol,std::cout,success);
   }
   else if (global_comm->getRank() == 2) {
     TEUCHOS_TEST_FLOATING_EQUALITY(target_data[0],3.0,tol,std::cout,success);
+    TEUCHOS_TEST_FLOATING_EQUALITY(target_data[1],0.0,tol,std::cout,success);
   }
   else if (global_comm->getRank() == 3) {
     TEUCHOS_TEST_FLOATING_EQUALITY(target_data[0],3.0,tol,std::cout,success);
@@ -212,7 +214,14 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, one_to_many_parallel)
   }
 
   // Make sure all points were found.
-  TEST_EQUALITY( volume_source_map.getMissedTargetPoints().size(), 0 );
+  if ( global_comm->getRank() < 3 )
+  {
+      TEST_EQUALITY( volume_source_map.getMissedTargetPoints().size(), 1 );
+  }
+  else
+  {
+      TEST_EQUALITY( volume_source_map.getMissedTargetPoints().size(), 0 );
+  }
 }
 
 //---------------------------------------------------------------------------//
