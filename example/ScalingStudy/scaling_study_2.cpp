@@ -2,7 +2,8 @@
 /*!
  * \file scaling_study_2.cpp
  * \author Stuart R. Slattery
- * \brief Scaling study 2. Strong scaling.
+ * \brief Scaling study 2. Strong scaling in 3D over plane of elements with
+ * globally random target points.
  */
 //---------------------------------------------------------------------------//
 

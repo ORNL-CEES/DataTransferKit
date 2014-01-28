@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file scaling_study_1.cpp
+ * \file scaling_study_4.cpp
  * \author Stuart R. Slattery
- * \brief Scaling study 1. Weak scaling in 3D over plane of elements with
+ * \brief Scaling study 4. Strong scaling in 3D over cube of elements with
  * globally random target points.
  */
 //---------------------------------------------------------------------------//
@@ -264,7 +264,8 @@ class FieldTraits<MyField>
 
 //---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
-class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh::global_ordinal_type,MyField>
+class MyEvaluator : 
+    public DataTransferKit::FieldEvaluator<MyMesh::global_ordinal_type,MyField>
 {
   public:
 
@@ -309,72 +310,77 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh::global_ordina
 //---------------------------------------------------------------------------//
 Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
 {
+    // Compute block indices.
+    int num_blocks = std::pow( my_size, 1.0/3.0 );
+    int k_block = std::floor( my_rank / (num_blocks*num_blocks) );
+    int j_block = 
+	std::floor( (my_rank-k_block*num_blocks*num_blocks) / num_blocks );
+    int i_block = my_rank - j_block*num_blocks - k_block*num_blocks*num_blocks;
+
     // Make some vertices.
-    int num_vertices = edge_length*edge_length*2;
+    int num_vertices = edge_length*edge_length*edge_length;
     int vertex_dim = 3;
     Teuchos::Array<long int> vertex_handles( num_vertices );
     Teuchos::Array<double> coords( vertex_dim*num_vertices );
     int idx;
-    for ( int j = 0; j < edge_length; ++j )
+    for ( int k = 0; k < edge_length; ++k )
     {
-	for ( int i = 0; i < edge_length; ++i )
+	for ( int j = 0; j < edge_length; ++j )
 	{
-	    idx = i + j*edge_length;
-	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
-	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_vertices + idx ] = j;
-	    coords[ 2*num_vertices + idx ] = 0.0;
-	}
-    }
-    for ( int j = 0; j < edge_length; ++j )
-    {
-	for ( int i = 0; i < edge_length; ++i )
-	{
-	    idx = i + j*edge_length + num_vertices / 2;
-	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
-	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_vertices + idx ] = j;
-	    coords[ 2*num_vertices + idx ] = 1.0;
+	    for ( int i = 0; i < edge_length; ++i )
+	    {
+		idx = i + j*edge_length + k*edge_length*edge_length;
+		vertex_handles[ idx ] = num_vertices*my_rank + idx;
+		coords[ idx ] = i + i_block*(edge_length-1);
+		coords[ num_vertices + idx ] = j + j_block*(edge_length-1);
+		coords[ 2*num_vertices + idx ] = k + k_block*(edge_length-1);
+	    }
 	}
     }
     
     // Make the hexahedrons. 
-    int num_elements = (edge_length-1)*(edge_length-1);
+    int num_elements = (edge_length-1)*(edge_length-1)*(edge_length-1);
     Teuchos::Array<long int> hex_handles( num_elements );
     Teuchos::Array<long int> hex_connectivity( 8*num_elements );
     int elem_idx, vertex_idx;
-    for ( int j = 0; j < (edge_length-1); ++j )
+    for ( int k = 0; k < (edge_length-1); ++k )
     {
-	for ( int i = 0; i < (edge_length-1); ++i )
+	for ( int j = 0; j < (edge_length-1); ++j )
 	{
-	    vertex_idx = i + j*edge_length;
-	    elem_idx = i + j*(edge_length-1);
+	    for ( int i = 0; i < (edge_length-1); ++i )
+	    {
+		vertex_idx = i + j*edge_length + k*edge_length*edge_length;
+		elem_idx = 
+		    i + j*(edge_length-1) + k*(edge_length-1)*(edge_length-1);
 
-	    hex_handles[elem_idx] = num_elements*my_rank + elem_idx;
+		hex_handles[elem_idx] = num_elements*my_rank + elem_idx;
 
-	    hex_connectivity[elem_idx] 
-		= vertex_handles[vertex_idx];
+		hex_connectivity[elem_idx] 
+		    = vertex_handles[vertex_idx];
 
-	    hex_connectivity[num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+1];
+		hex_connectivity[num_elements+elem_idx] 
+		    = vertex_handles[vertex_idx+1];
 
-	    hex_connectivity[2*num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+edge_length+1];
+		hex_connectivity[2*num_elements+elem_idx] 
+		    = vertex_handles[vertex_idx+edge_length+1];
 
-	    hex_connectivity[3*num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+edge_length];
+		hex_connectivity[3*num_elements+elem_idx] 
+		    = vertex_handles[vertex_idx+edge_length];
 
-	    hex_connectivity[4*num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+num_vertices/2];
+		hex_connectivity[4*num_elements+elem_idx] 
+		    = vertex_handles[vertex_idx+edge_length*edge_length];
 
-	    hex_connectivity[5*num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+num_vertices/2+1];
+		hex_connectivity[5*num_elements+elem_idx] 
+		    = vertex_handles[vertex_idx+edge_length*edge_length+1];
 
- 	    hex_connectivity[6*num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+num_vertices/2+edge_length+1];
+		hex_connectivity[6*num_elements+elem_idx] 
+		    = vertex_handles[
+			vertex_idx+edge_length*edge_length+edge_length+1];
 
-	    hex_connectivity[7*num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+num_vertices/2+edge_length];
+		hex_connectivity[7*num_elements+elem_idx] 
+		    = vertex_handles[
+			vertex_idx+edge_length*edge_length+edge_length];
+	    }
 	}
     }
 
@@ -395,7 +401,8 @@ Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
 Teuchos::RCP<MyField> buildCoordinateField( int my_rank, int my_size, 
 					    int num_points, int edge_size )
 {
-    std::srand( my_rank*num_points*2 );
+    int num_blocks = std::pow( my_size, 1.0/3.0 );
+    std::srand( my_rank*num_points*3 );
     int point_dim = 3;
     Teuchos::RCP<MyField> coordinate_field = 
 	Teuchos::rcp( new MyField(num_points*point_dim, point_dim ) );
@@ -403,10 +410,11 @@ Teuchos::RCP<MyField> buildCoordinateField( int my_rank, int my_size,
     for ( int i = 0; i < num_points; ++i )
     {
 	*(coordinate_field->begin() + i) = 
-	    my_size * (edge_size-1) * (double) std::rand() / RAND_MAX;
+	    num_blocks * (edge_size-1) * (double) std::rand() / RAND_MAX;
 	*(coordinate_field->begin() + num_points + i ) = 
-	    (edge_size-1) * (double) std::rand() / RAND_MAX;
-	*(coordinate_field->begin() + 2*num_points + i ) = 0.5;
+	    num_blocks * (edge_size-1) * (double) std::rand() / RAND_MAX;
+	*(coordinate_field->begin() + 2*num_points + i ) = 
+	    num_blocks * (edge_size-1) * (double) std::rand() / RAND_MAX;
     }
 
     return coordinate_field;
@@ -427,21 +435,23 @@ int main(int argc, char* argv[])
     int my_size = comm->getSize();
 
     // Setup source mesh.
-    int edge_size = 11;
+    int global_size = 10;
+    int edge_size = (global_size / std::pow(my_size,1.0/3.0) ) + 1;
     Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
     Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
     // Setup target coordinate field.
-    int num_points = (edge_size-1)*(edge_size-1);
-    Teuchos::RCP<MyField> target_coords = buildCoordinateField( my_rank, my_size, 
-								num_points, edge_size );
+    int num_points = (edge_size-1)*(edge_size-1)*(edge_size-1);
+    Teuchos::RCP<MyField> target_coords = 
+	buildCoordinateField( my_rank, my_size, num_points, edge_size );
     Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
 	Teuchos::rcp( new FieldManager<MyField>( target_coords, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MyMesh::global_ordinal_type,MyField> > source_evaluator = 
+    Teuchos::RCP<FieldEvaluator<MyMesh::global_ordinal_type,MyField> > 
+	source_evaluator = 
     	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     // Create data target.
@@ -562,13 +572,17 @@ int main(int argc, char* argv[])
     		  << std::endl;
     	std::cout << "DTK weak scaling study" << std::endl;
     	std::cout << "Number of processors:      " << my_size << std::endl;
-    	std::cout << "Local number of elements:  " << (edge_size-1)*(edge_size-1)
+    	std::cout << "Local number of elements:  " 
+		  << (edge_size-1)*(edge_size-1)*(edge_size-1)
     		  << std::endl;
-    	std::cout << "Local number of points:    " << (edge_size-1)*(edge_size-1)
+    	std::cout << "Local number of points:    " 
+		  << (edge_size-1)*(edge_size-1)*(edge_size-1)
     		  << std::endl;
-    	std::cout << "Global number of elements: " << (edge_size-1)*(edge_size-1)*my_size 
+    	std::cout << "Global number of elements: " 
+		  << (edge_size-1)*(edge_size-1)*(edge_size-1)*my_size 
     		  << std::endl;
-    	std::cout << "Global number of points:   " << (edge_size-1)*(edge_size-1)*my_size 
+    	std::cout << "Global number of points:   " 
+		  << (edge_size-1)*(edge_size-1)*(edge_size-1)*my_size 
     		  << std::endl;
     	std::cout << "--------------------------------------------------"
     		  << std::endl;
@@ -596,6 +610,6 @@ int main(int argc, char* argv[])
 }
 
 //---------------------------------------------------------------------------//
-// end scaling_study_1.cpp
+// end scaling_study_4.cpp
 //---------------------------------------------------------------------------//
 
