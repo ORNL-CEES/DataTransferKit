@@ -82,9 +82,7 @@ APPEND_SET(SOURCES
   DTK_CommTools.cpp
   DTK_Cylinder.cpp
   DTK_DBC.cpp
-  DTK_KDTree.cpp
   DTK_MeshContainer.cpp
-  DTK_RendezvousMesh.cpp
   DTK_SerialPartitioner.cpp
   DTK_TopologyTools.cpp
   )
