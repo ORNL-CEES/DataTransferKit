@@ -45,7 +45,7 @@
 #include <algorithm>
 #include <limits>
 
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_CommIndexer.hpp"
 #include "DTK_PartitionerFactory.hpp"
 
@@ -117,7 +117,7 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::build(
     // vertices that are in the box.
     d_partitioner = PartitionerFactory::createGeometryPartitioner( 
 	d_comm, geometry_manager, d_dimension );
-    testPostcondition( !d_partitioner.is_null() );
+    DTK_ENSURE( !d_partitioner.is_null() );
     d_partitioner->partition();
 
     // Send the geometry in the box to the rendezvous decomposition.
@@ -411,7 +411,7 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::sendGeometryToRendezvous(
 	    geometry_src_procs.push_back( from_images[i] );
 	}
     }
-    testInvariant( Teuchos::as<GlobalOrdinal>(geometry_src_procs.size()) 
+    DTK_CHECK( Teuchos::as<GlobalOrdinal>(geometry_src_procs.size()) 
 		   == num_import_geom );
 
     // Build a unique set of local geometry, gids, and the source procs map.

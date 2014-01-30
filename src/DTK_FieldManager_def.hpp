@@ -41,7 +41,7 @@
 #ifndef DTK_FIELDMANAGER_DEF_HPP
 #define DTK_FIELDMANAGER_DEF_HPP
 
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_FieldTools.hpp"
 #include "DataTransferKit_config.hpp"
 
@@ -99,16 +99,16 @@ void FieldManager<Field>::validate()
     std::sort( local_dims_copy.begin(), local_dims_copy.end() );
     unique_bound = std::unique( local_dims_copy.begin(), local_dims_copy.end() );
     int unique_dim = std::distance( local_dims_copy.begin(), unique_bound );
-    testPrecondition( 1 == unique_dim );
+    DTK_REQUIRE( 1 == unique_dim );
     local_dims_copy.clear();
 
     // Check that the data dimension is the same as the field dimension.
     typename FT::size_type num_data = std::distance( FT::begin( *d_field ), 
 						     FT::end( *d_field ) );
-    testPrecondition( num_data == FT::size( *d_field ) );
+    DTK_REQUIRE( num_data == FT::size( *d_field ) );
     if ( !FT::empty( *d_field ) )
     {
-	testPrecondition( num_data / FieldTools<Field>::dimSize( *d_field ) 
+	DTK_REQUIRE( num_data / FieldTools<Field>::dimSize( *d_field ) 
 			  == Teuchos::as<typename FT::size_type>(
 			      FT::dim(*d_field)) );
     }

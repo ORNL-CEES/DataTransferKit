@@ -44,7 +44,7 @@
 #include <vector>
 
 #include "DTK_TopologyTools.hpp"
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 #include "DataTransferKit_config.hpp"
 
 #include <Teuchos_ArrayView.hpp>
@@ -85,7 +85,7 @@ KDTree<GlobalOrdinal>::~KDTree()
 template<typename GlobalOrdinal>
 void KDTree<GlobalOrdinal>::build()
 { 
-    rememberValue( moab::ErrorCode error );
+    DTK_REMEMBER( moab::ErrorCode error );
 
     moab::Range elements;
 #if HAVE_DTK_DBC
@@ -93,14 +93,14 @@ void KDTree<GlobalOrdinal>::build()
 #else
     d_mesh->getMoab()->get_entities_by_dimension( 0, d_dim, elements );
 #endif
-    testInvariant( moab::MB_SUCCESS == error );
+    DTK_CHECK( moab::MB_SUCCESS == error );
 
 #if HAVE_DTK_DBC
     error = d_tree.build_tree( elements , d_root );
 #else
     d_tree.build_tree( elements , d_root );
 #endif
-    testInvariant( moab::MB_SUCCESS == error );
+    DTK_CHECK( moab::MB_SUCCESS == error );
 }
 
 //---------------------------------------------------------------------------//
@@ -125,8 +125,8 @@ bool KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords,
 				       GlobalOrdinal& element,
 				       double tolerance )
 {
-    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
-    testPrecondition( (int) coords.size() == d_dim );
+    DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
+    DTK_REQUIRE( (int) coords.size() == d_dim );
 
     double point[3];
     for ( int d = 0; d < d_dim; ++d )
@@ -138,14 +138,14 @@ bool KDTree<GlobalOrdinal>::findPoint( const Teuchos::Array<double>& coords,
 	point[d] = 0.0;
     }
 
-    rememberValue( moab::ErrorCode error );
+    DTK_REMEMBER( moab::ErrorCode error );
     moab::EntityHandle leaf;
 #if HAVE_DTK_DBC
     error = d_tree.leaf_containing_point( d_root, point, leaf );
 #else
     d_tree.leaf_containing_point( d_root, point, leaf );
 #endif
-    testInvariant( moab::MB_SUCCESS == error );
+    DTK_CHECK( moab::MB_SUCCESS == error );
 
     moab::EntityHandle mb_element = 0;
     bool point_in_leaf = findPointInLeaf( coords, leaf, mb_element, tolerance );
@@ -175,8 +175,8 @@ template<typename GlobalOrdinal>
 void KDTree<GlobalOrdinal>::findLeaf( const Teuchos::Array<double>& coords,
 				      Teuchos::Array<GlobalOrdinal>& elements )
 {
-    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
-    testPrecondition( Teuchos::as<int>(coords.size()) == d_dim );
+    DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
+    DTK_REQUIRE( Teuchos::as<int>(coords.size()) == d_dim );
 
     double point[3];
     for ( int d = 0; d < d_dim; ++d )
@@ -188,14 +188,14 @@ void KDTree<GlobalOrdinal>::findLeaf( const Teuchos::Array<double>& coords,
 	point[d] = 0.0;
     }
 
-    rememberValue( moab::ErrorCode error );
+    DTK_REMEMBER( moab::ErrorCode error );
     moab::EntityHandle leaf;
 #if HAVE_DTK_DBC
     error = d_tree.leaf_containing_point( d_root, point, leaf );
 #else
     d_tree.leaf_containing_point( d_root, point, leaf );
 #endif
-    testInvariant( moab::MB_SUCCESS == error );
+    DTK_CHECK( moab::MB_SUCCESS == error );
 
     // Get the elements in the leaf.
     std::vector<moab::EntityHandle> leaf_elements;
@@ -206,7 +206,7 @@ void KDTree<GlobalOrdinal>::findLeaf( const Teuchos::Array<double>& coords,
     d_mesh->getMoab()->get_entities_by_dimension( 
 	leaf, d_dim, leaf_elements );
 #endif
-    testInvariant( moab::MB_SUCCESS == error );
+    DTK_CHECK( moab::MB_SUCCESS == error );
 
     // Extract the client ordinals.
     elements.resize( leaf_elements.size() );
@@ -244,11 +244,11 @@ bool KDTree<GlobalOrdinal>::findPointInLeaf(
     moab::EntityHandle& element,
     double tolerance )
 {
-    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
-    testPrecondition( Teuchos::as<int>(coords.size()) == d_dim );
+    DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
+    DTK_REQUIRE( Teuchos::as<int>(coords.size()) == d_dim );
 
     // Get the elements in the leaf.
-    rememberValue( moab::ErrorCode error );
+    DTK_REMEMBER( moab::ErrorCode error );
     std::vector<moab::EntityHandle> leaf_elements;
 #if HAVE_DTK_DBC
     error = d_mesh->getMoab()->get_entities_by_dimension( 
@@ -257,7 +257,7 @@ bool KDTree<GlobalOrdinal>::findPointInLeaf(
     d_mesh->getMoab()->get_entities_by_dimension( 
 	leaf, d_dim, leaf_elements );
 #endif
-    testInvariant( moab::MB_SUCCESS == error );
+    DTK_CHECK( moab::MB_SUCCESS == error );
 
     // Search the leaf elements with the point.
     Teuchos::Array<double> point( coords );

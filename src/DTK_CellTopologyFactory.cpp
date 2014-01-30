@@ -40,7 +40,7 @@
 
 
 #include "DTK_CellTopologyFactory.hpp"
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
@@ -76,7 +76,7 @@ CellTopologyFactory::RCP_CellTopology
 CellTopologyFactory::create( const moab::EntityType element_topology,
 			     const int num_element_vertices )
 {
-    testPrecondition( moab::MBEDGE    == element_topology ||
+    DTK_REQUIRE( moab::MBEDGE    == element_topology ||
 		      moab::MBTRI     == element_topology ||
 		      moab::MBQUAD    == element_topology ||
 		      moab::MBTET     == element_topology ||
@@ -288,7 +288,7 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 	    break;
     }
 
-    testPostcondition( !new_topology.is_null() );
+    DTK_ENSURE( !new_topology.is_null() );
 
     return new_topology;
 }

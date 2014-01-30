@@ -44,7 +44,7 @@
 #include <algorithm>
 
 #include "DTK_MeshTools.hpp"
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_CommIndexer.hpp"
 #include "DataTransferKit_config.hpp"
 
@@ -133,7 +133,7 @@ RCB<Mesh>::~RCB()
 template<class Mesh>
 void RCB<Mesh>::partition()
 {
-    rememberValue( int zoltan_error );
+    DTK_REMEMBER( int zoltan_error );
 #if HAVE_DTK_DBC
     zoltan_error = Zoltan_LB_Partition( d_zz, 
 					&d_changes,  
@@ -165,7 +165,7 @@ void RCB<Mesh>::partition()
 			 &d_export_procs,    
 			 &d_export_to_part );
 #endif
-    testInvariant( zoltan_error == ZOLTAN_OK );
+    DTK_CHECK( zoltan_error == ZOLTAN_OK );
 }
 
 //---------------------------------------------------------------------------//
@@ -180,17 +180,17 @@ void RCB<Mesh>::partition()
 template<class Mesh>
 int RCB<Mesh>::getPointDestinationProc( Teuchos::Array<double> coords ) const
 {
-    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
-    testPrecondition( d_dimension == Teuchos::as<int>(coords.size()) );
+    DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
+    DTK_REQUIRE( d_dimension == Teuchos::as<int>(coords.size()) );
 
     int proc = 0;
-    rememberValue( int zoltan_error );
+    DTK_REMEMBER( int zoltan_error );
 #if HAVE_DTK_DBC
     zoltan_error = Zoltan_LB_Point_Assign( d_zz, &coords[0], &proc );
 #else
     Zoltan_LB_Point_Assign( d_zz, &coords[0], &proc );
 #endif
-    testInvariant( zoltan_error == ZOLTAN_OK );
+    DTK_CHECK( zoltan_error == ZOLTAN_OK );
 
     return proc;
 }
@@ -213,7 +213,7 @@ RCB<Mesh>::getBoxDestinationProcs( const BoundingBox& box ) const
     int num_procs = 0;
     Teuchos::Array<int> procs( d_comm->getSize() );
 
-    rememberValue( int zoltan_error );
+    DTK_REMEMBER( int zoltan_error );
 #if HAVE_DTK_DBC
     zoltan_error = Zoltan_LB_Box_Assign( d_zz, 
 					 box_bounds[0], box_bounds[1], 
@@ -226,7 +226,7 @@ RCB<Mesh>::getBoxDestinationProcs( const BoundingBox& box ) const
 			  box_bounds[3], box_bounds[4], box_bounds[5], 
 			  &procs[0], &num_procs );
 #endif
-    testInvariant( zoltan_error == ZOLTAN_OK );
+    DTK_CHECK( zoltan_error == ZOLTAN_OK );
 
     procs.resize( num_procs );
 
@@ -361,10 +361,10 @@ void RCB<Mesh>::getGeometryList(
 
 	// Check Zoltan for consistency.
 	int vertex_dim = mesh_manager->dim();
-	testInvariant( sizeGID == 1 );
-	testInvariant( sizeLID == 1 );
-	testInvariant( num_dim == Teuchos::as<int>(vertex_dim) );
-	testInvariant( num_obj == Teuchos::as<int>(num_active_vertices) );
+	DTK_CHECK( sizeGID == 1 );
+	DTK_CHECK( sizeLID == 1 );
+	DTK_CHECK( num_dim == Teuchos::as<int>(vertex_dim) );
+	DTK_CHECK( num_obj == Teuchos::as<int>(num_active_vertices) );
 
 	if ( sizeGID != 1 || sizeLID != 1 || 
 	     num_dim != Teuchos::as<int>(vertex_dim) || 

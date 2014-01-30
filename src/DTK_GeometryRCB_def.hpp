@@ -44,7 +44,7 @@
 #include <numeric>
 #include <algorithm>
 
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_CommIndexer.hpp"
 #include "DataTransferKit_config.hpp"
 
@@ -134,7 +134,7 @@ GeometryRCB<Geometry,GlobalOrdinal>::~GeometryRCB()
 template<class Geometry, class GlobalOrdinal>
 void GeometryRCB<Geometry,GlobalOrdinal>::partition()
 {
-    rememberValue( int zoltan_error );
+    DTK_REMEMBER( int zoltan_error );
 #if HAVE_DTK_DBC
     zoltan_error = Zoltan_LB_Partition( d_zz, 
 					&d_changes,  
@@ -166,7 +166,7 @@ void GeometryRCB<Geometry,GlobalOrdinal>::partition()
 			 &d_export_procs,    
 			 &d_export_to_part );
 #endif
-    testInvariant( zoltan_error == ZOLTAN_OK );
+    DTK_CHECK( zoltan_error == ZOLTAN_OK );
 }
 
 //---------------------------------------------------------------------------//
@@ -182,17 +182,17 @@ template<class Geometry, class GlobalOrdinal>
 int GeometryRCB<Geometry,GlobalOrdinal>::getPointDestinationProc( 
     Teuchos::Array<double> coords ) const
 {
-    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
-    testPrecondition( d_dimension == Teuchos::as<int>(coords.size()) );
+    DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
+    DTK_REQUIRE( d_dimension == Teuchos::as<int>(coords.size()) );
 
     int proc = 0;
-    rememberValue( int zoltan_error );
+    DTK_REMEMBER( int zoltan_error );
 #if HAVE_DTK_DBC
     zoltan_error = Zoltan_LB_Point_Assign( d_zz, &coords[0], &proc );
 #else
     Zoltan_LB_Point_Assign( d_zz, &coords[0], &proc );
 #endif
-    testInvariant( zoltan_error == ZOLTAN_OK );
+    DTK_CHECK( zoltan_error == ZOLTAN_OK );
 
     return proc;
 }
@@ -216,7 +216,7 @@ GeometryRCB<Geometry,GlobalOrdinal>::getBoxDestinationProcs(
     int num_procs = 0;
     Teuchos::Array<int> procs( d_comm->getSize() );
 
-    rememberValue( int zoltan_error );
+    DTK_REMEMBER( int zoltan_error );
 #if HAVE_DTK_DBC
     zoltan_error = Zoltan_LB_Box_Assign( d_zz, 
 					 box_bounds[0], box_bounds[1], 
@@ -229,7 +229,7 @@ GeometryRCB<Geometry,GlobalOrdinal>::getBoxDestinationProcs(
 			  box_bounds[3], box_bounds[4], box_bounds[5], 
 			  &procs[0], &num_procs );
 #endif
-    testInvariant( zoltan_error == ZOLTAN_OK );
+    DTK_CHECK( zoltan_error == ZOLTAN_OK );
 
     procs.resize( num_procs );
 
@@ -346,9 +346,9 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 
 	// Check Zoltan for consistency.
 	int geom_dim = geometry_manager->dim();
-	testInvariant( sizeGID == 1 );
-	testInvariant( sizeLID == 1 );
-	testInvariant( num_dim == Teuchos::as<int>(geom_dim) );
+	DTK_CHECK( sizeGID == 1 );
+	DTK_CHECK( sizeLID == 1 );
+	DTK_CHECK( num_dim == Teuchos::as<int>(geom_dim) );
 
 	if ( sizeGID != 1 || sizeLID != 1 || 
 	     num_dim != Teuchos::as<int>(geom_dim) )
@@ -375,7 +375,7 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 	    }
 	}
 
-	testPostcondition( num_obj == n );
+	DTK_ENSURE( num_obj == n );
     }
 	  
     *ierr = ZOLTAN_OK;

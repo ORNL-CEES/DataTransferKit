@@ -47,7 +47,7 @@
 
 #include "DTK_FieldTools.hpp"
 #include "DTK_FieldTraits.hpp"
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_Rendezvous.hpp"
 #include "DTK_MeshTools.hpp"
 #include "DTK_BoundingBox.hpp"
@@ -159,13 +159,13 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     // Check the source and target dimensions for consistency.
     if ( source_exists )
     {
-	testPrecondition( source_mesh_manager->dim() == d_dimension );
+	DTK_REQUIRE( source_mesh_manager->dim() == d_dimension );
     }
     d_comm->barrier();
 
     if ( target_exists )
     {
-	testPrecondition( target_geometry_manager->dim() == d_dimension );
+	DTK_REQUIRE( target_geometry_manager->dim() == d_dimension );
     }
     d_comm->barrier();
 
@@ -266,7 +266,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	    geom_target_procs.push_back( from_images[i] );
 	}
     }
-    testInvariant( Teuchos::as<GlobalOrdinal>(geom_target_procs.size())
+    DTK_CHECK( Teuchos::as<GlobalOrdinal>(geom_target_procs.size())
 		   == num_rendezvous_geom );
 
     // Get the rendezvous source mesh elements that are in the rendezvous
@@ -340,7 +340,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	  mapped_target_elements_it != mapped_target_elements.end();
 	  ++mapped_target_elements_it, ++mapped_target_ordinals_it )
     {
-	testInvariant( d_target_g2l.find(*mapped_target_ordinals_it) != 
+	DTK_CHECK( d_target_g2l.find(*mapped_target_ordinals_it) != 
 		       d_target_g2l.end() );
 
 	integral_elements[ 
@@ -387,7 +387,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	      set_iterator != integral_set_iterator->end();
 	      ++set_iterator )
 	{
-	    testInvariant( element_g2l.find( *set_iterator ) != 
+	    DTK_CHECK( element_g2l.find( *set_iterator ) != 
 			   element_g2l.end() );
 
 	    integral_elements_iterator->push_back( 
@@ -401,7 +401,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	mapped_target_elements();
     d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
 	mapped_target_elements_view, d_comm );
-    testPostcondition( !d_target_map.is_null() );
+    DTK_ENSURE( !d_target_map.is_null() );
 
     // Allocate space for the element measures and get rid of the target
     // elements.
@@ -447,13 +447,13 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	d_source_elements();
     d_source_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
 	source_elements_view, d_comm );
-    testPostcondition( !d_source_map.is_null() );
+    DTK_ENSURE( !d_source_map.is_null() );
 
     // Build the source-to-target importer.
     d_source_to_target_importer = 
       Teuchos::rcp( new Tpetra::Import<int,GlobalOrdinal>(
 			  d_source_map, d_target_map ) );
-    testPostcondition( !d_source_to_target_importer.is_null() );
+    DTK_ENSURE( !d_source_to_target_importer.is_null() );
 
     // Communicate the element measures from the source to the target.
     Teuchos::Array<double> source_measures(0);
@@ -553,7 +553,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
     // start the integral summations at zero.
     GlobalOrdinal integral_size = d_geometry_measures.size();
     int target_dim;
-    rememberValue( GlobalOrdinal target_size = 0 );
+    DTK_REMEMBER( GlobalOrdinal target_size = 0 );
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(0,0);
     if ( target_exists )
     {
@@ -562,7 +562,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 
 	target_dim = TFT::dim( *target_space_manager->field() );
 
-	rememberValue( target_size = target_dim * integral_size );
+	DTK_REMEMBER( target_size = target_dim * integral_size );
 
 	FieldTools<TargetField>::putScalar( 
 	    *target_space_manager->field(), 0.0 );
@@ -572,10 +572,10 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 				 Teuchos::Ptr<int>(&target_dim) );
 
     // Check that the source and target have the same field dimension.
-    testPrecondition( source_dim == target_dim );
+    DTK_REQUIRE( source_dim == target_dim );
 
     // Verify that the target space has the proper amount of memory allocated.
-    testPrecondition( target_size == 
+    DTK_REQUIRE( target_size == 
 		      Teuchos::as<GlobalOrdinal>(target_field_view.size()) );
 
     // Build a multivector for the function integrations in the target

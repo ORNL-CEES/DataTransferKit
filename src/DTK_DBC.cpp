@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_Assertion.cpp
+ * \file   DTK_DBC.cpp
  * \author Stuart Slattery
  * \brief  Assertions for error handling and Design-by-Contract.
  */
@@ -8,7 +8,7 @@
 
 #include <sstream>
 
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
@@ -60,5 +60,5 @@ void throwAssertion( const std::string& cond, const std::string& file,
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_Assertion.cpp
+// end DTK_DBC.cpp
 //---------------------------------------------------------------------------//

@@ -22,13 +22,13 @@ SET(HEADERS ${HEADERS}
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_Assertion.hpp
   DTK_BoundingBox.hpp
   DTK_Box.hpp
   DTK_CellTopologyFactory.hpp
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
   DTK_Cylinder.hpp
+  DTK_DBC.hpp
   DTK_ElementMeasure.hpp
   DTK_FieldContainer.hpp
   DTK_FieldEvaluator.hpp
@@ -75,13 +75,13 @@ APPEND_SET(HEADERS
   ) 
 
 APPEND_SET(SOURCES
-  DTK_Assertion.cpp
   DTK_BoundingBox.cpp
   DTK_Box.cpp
   DTK_CellTopologyFactory.cpp
   DTK_CommIndexer.cpp
   DTK_CommTools.cpp
   DTK_Cylinder.cpp
+  DTK_DBC.cpp
   DTK_KDTree.cpp
   DTK_MeshContainer.cpp
   DTK_RendezvousMesh.cpp

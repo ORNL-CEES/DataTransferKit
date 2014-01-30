@@ -1,13 +1,13 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_Assertion.hpp
+ * \file   DTK_DBC.hpp
  * \author Stuart Slattery
  * \brief  Assertions and Design-by-Contract for error handling.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ASSERTION_HPP
-#define DTK_ASSERTION_HPP
+#ifndef DTK_DBC_HPP
+#define DTK_DBC_HPP
 
 #include <stdexcept>
 #include <string>
@@ -94,41 +94,41 @@ void throwAssertion( const std::string& cond, const std::string& file,
   library input arguments. Note that the bounds-checking functionality used
   within the DataTransferKit is only provided by a debug build.
  
-  In addition, rememberValue is provided to store values used only for DBC
+  In addition, DTK_REMEMBER is provided to store values used only for DBC
   checks and no other place in executed code.
 
-  Separate from the DBC build, testAssertion can be used at any time verify a
+  Separate from the DBC build, DTK_INSIST can be used at any time verify a
   conditional. This should be used instead of the standard cassert.
  */
 
 #if HAVE_DTK_DBC
 
-#define testPrecondition(c) \
+#define DTK_REQUIRE(c) \
     if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
-#define testPostcondition(c) \
+#define DTK_ENSURE(c) \
     if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
-#define testInvariant(c) \
+#define DTK_CHECK(c) \
     if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
-#define rememberValue(c) c
+#define DTK_REMEMBER(c) c
 
 #else
 
-#define testPrecondition(c)
-#define testPostcondition(c)
-#define testInvariant(c)
-#define rememberValue(c)
+#define DTK_REQUIRE(c)
+#define DTK_ENSURE(c)
+#define DTK_CHECK(c)
+#define DTK_REMEMBER(c)
 
 #endif
 
 
-#define testAssertion(c) \
+#define DTK_INSIST(c) \
     if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_ASSERTION_HPP
+#endif // end DTK_DBC_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Assertion.hpp
+// end DTK_DBC.hpp
 //---------------------------------------------------------------------------//
 

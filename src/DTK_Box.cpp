@@ -39,7 +39,7 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_Box.hpp"
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
@@ -82,9 +82,9 @@ Box::Box(
     , d_y_max( y_max )
     , d_z_max( z_max )
 {
-    testPrecondition( d_x_min <= d_x_max );
-    testPrecondition( d_y_min <= d_y_max );
-    testPrecondition( d_z_min <= d_z_max );
+    DTK_REQUIRE( d_x_min <= d_x_max );
+    DTK_REQUIRE( d_y_min <= d_y_max );
+    DTK_REQUIRE( d_z_min <= d_z_max );
 }
 
 //---------------------------------------------------------------------------//
@@ -101,9 +101,9 @@ Box::Box( const Teuchos::Tuple<double,6>& bounds )
     , d_y_max( bounds[4] )
     , d_z_max( bounds[5] )
 {
-    testPrecondition( d_x_min <= d_x_max );
-    testPrecondition( d_y_min <= d_y_max );
-    testPrecondition( d_z_min <= d_z_max );
+    DTK_REQUIRE( d_x_min <= d_x_max );
+    DTK_REQUIRE( d_y_min <= d_y_max );
+    DTK_REQUIRE( d_z_min <= d_z_max );
 }
 
 //---------------------------------------------------------------------------//
@@ -128,7 +128,7 @@ Box::~Box()
 bool Box::pointInBox( const Teuchos::Array<double>& coords,
 		      const double tolerance ) const
 {
-    testPrecondition( 3 == coords.size() );
+    DTK_REQUIRE( 3 == coords.size() );
 
     if ( coords[0] >= d_x_min - tolerance &&
 	 coords[1] >= d_y_min - tolerance &&

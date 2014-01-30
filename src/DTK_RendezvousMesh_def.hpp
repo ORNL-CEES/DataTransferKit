@@ -46,7 +46,7 @@
 #include "DTK_MeshTools.hpp"
 #include "DTK_BoundingBox.hpp"
 #include "DTK_TopologyTools.hpp"
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 #include "DataTransferKit_config.hpp"
 
 #include <MBCore.hpp>
@@ -96,14 +96,14 @@ Teuchos::Array<GlobalOrdinal>
 RendezvousMesh<GlobalOrdinal>::elementsInBox( const BoundingBox& box ) const
 {
     // Get the dimension of the mesh.
-    rememberValue( moab::ErrorCode error );
+    DTK_REMEMBER( moab::ErrorCode error );
     int dim = 0;
 #if HAVE_DTK_DBC
     error = d_moab->get_dimension( dim );
 #else
     d_moab->get_dimension( dim );
 #endif
-    testInvariant( moab::MB_SUCCESS == error );
+    DTK_CHECK( moab::MB_SUCCESS == error );
 
     // Get the mesh elements.
     moab::Range elements;
@@ -112,7 +112,7 @@ RendezvousMesh<GlobalOrdinal>::elementsInBox( const BoundingBox& box ) const
 #else
     d_moab->get_entities_by_dimension( 0, dim, elements );
 #endif
-    testInvariant( moab::MB_SUCCESS == error );
+    DTK_CHECK( moab::MB_SUCCESS == error );
     
     // Get the elements that are in the box.
     Teuchos::Array<GlobalOrdinal> elements_in_box;
@@ -159,14 +159,14 @@ RendezvousMesh<GlobalOrdinal>::elementsInGeometry(
     bool all_vertices_for_inclusion ) const
 {
     // Get the dimension of the mesh.
-    rememberValue( moab::ErrorCode error );
+    DTK_REMEMBER( moab::ErrorCode error );
     int dim = 0;
 #if HAVE_DTK_DBC
     error = d_moab->get_dimension( dim );
 #else
     d_moab->get_dimension( dim );
 #endif
-    testInvariant( moab::MB_SUCCESS == error );
+    DTK_CHECK( moab::MB_SUCCESS == error );
 
     // Get the mesh elements.
     moab::Range elements;
@@ -175,7 +175,7 @@ RendezvousMesh<GlobalOrdinal>::elementsInGeometry(
 #else
     d_moab->get_entities_by_dimension( 0, dim, elements );
 #endif
-    testInvariant( moab::MB_SUCCESS == error );
+    DTK_CHECK( moab::MB_SUCCESS == error );
     
     // Get the elements that are in the geometry.
     Teuchos::Array<GlobalOrdinal> elements_in_geometry;
@@ -220,9 +220,9 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
     std::map<moab::EntityHandle,GlobalOrdinal> element_ordinal_map;
 
     // Create a moab interface.
-    rememberValue( moab::ErrorCode error );
+    DTK_REMEMBER( moab::ErrorCode error );
     Teuchos::RCP<moab::Interface> moab = Teuchos::rcp( new moab::Core() );
-    testPostcondition( !moab.is_null() );
+    DTK_ENSURE( !moab.is_null() );
 
     // Set the mesh dimension.
     int vertex_dim = mesh_manager.dim();
@@ -231,7 +231,7 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 #else
     moab->set_dimension( vertex_dim );
 #endif
-    testInvariant( moab::MB_SUCCESS == error );
+    DTK_CHECK( moab::MB_SUCCESS == error );
 
     // Build each mesh block.
     typename MeshManager<Mesh>::BlockIterator block_iterator;
@@ -242,10 +242,10 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 	// Check the vertices and coordinates for consistency.
 	GlobalOrdinal num_vertices = 
 	    MeshTools<Mesh>::numVertices( *(*block_iterator) );
-	rememberValue( GlobalOrdinal num_coords = 
+	DTK_REMEMBER( GlobalOrdinal num_coords = 
 		       std::distance( MT::coordsBegin( *(*block_iterator) ),
 				      MT::coordsEnd( *(*block_iterator) ) ) );
-	testInvariant( num_coords == 
+	DTK_CHECK( num_coords == 
 		       Teuchos::as<GlobalOrdinal>(vertex_dim) * num_vertices );
 
 	// Add the mesh vertices to moab and map the native vertex handles to
@@ -274,7 +274,7 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 #else
 	    moab->create_vertex( vertex_coords, moab_vertex );
 #endif
-	    testInvariant( moab::MB_SUCCESS == error );
+	    DTK_CHECK( moab::MB_SUCCESS == error );
 
 	    vertex_ordinal_map[ *vertex_iterator ] = moab_vertex;
 	}
@@ -284,10 +284,10 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 	    MT::verticesPerElement( *(*block_iterator) );
 	GlobalOrdinal num_elements = 
 	    MeshTools<Mesh>::numElements( *(*block_iterator) );
-	rememberValue( GlobalOrdinal num_connect = std::distance( 
+	DTK_REMEMBER( GlobalOrdinal num_connect = std::distance( 
 			   MT::connectivityBegin( *(*block_iterator) ),
 			   MT::connectivityEnd( *(*block_iterator) ) ) );
-	testInvariant( num_elements == num_connect / vertices_per_element &&
+	DTK_CHECK( num_elements == num_connect / vertices_per_element &&
 		       num_connect % vertices_per_element == 0 );
 
 	// Extract the mesh elements and add them to moab.
@@ -316,7 +316,7 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 		    vertex_ordinal_map.find( 
 			mesh_connectivity[ conn_index ] )->second;
 	    }
-	    testInvariant( element_connectivity.size()
+	    DTK_CHECK( element_connectivity.size()
 			   == Teuchos::as<
 			       Teuchos::Array<moab::EntityHandle>::size_type>(
 				   vertices_per_element) );
@@ -336,7 +336,7 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 				  element_connectivity.size(),
 				  moab_element );
 #endif
-	    testInvariant( moab::MB_SUCCESS == error );
+	    DTK_CHECK( moab::MB_SUCCESS == error );
 
 	    // Map the moab element handle to the native element handle.
 	    element_ordinal_map[ moab_element ] = *element_iterator;
@@ -369,9 +369,9 @@ Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
     std::map<moab::EntityHandle,GlobalOrdinal> element_ordinal_map;
 
     // Create a moab interface.
-    rememberValue( moab::ErrorCode error );
+    DTK_REMEMBER( moab::ErrorCode error );
     Teuchos::RCP<moab::Interface> moab = Teuchos::rcp( new moab::Core() );
-    testPostcondition( !moab.is_null() );
+    DTK_ENSURE( !moab.is_null() );
 
     // Set the mesh dimension.
     int vertex_dim = geometry_manager.dim();
@@ -380,7 +380,7 @@ Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
 #else
     moab->set_dimension( vertex_dim );
 #endif
-    testInvariant( moab::MB_SUCCESS == error );
+    DTK_CHECK( moab::MB_SUCCESS == error );
 
     // Set the mesh topology.
     moab::EntityType entity_type;
@@ -502,8 +502,8 @@ Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
 	moab->create_vertices( &vertex_coords[0], vertices_per_element,
 			       moab_vertices );
 #endif
-	testInvariant( moab::MB_SUCCESS == error );
-	testInvariant( (int) moab_vertices.size() == vertices_per_element );
+	DTK_CHECK( moab::MB_SUCCESS == error );
+	DTK_CHECK( (int) moab_vertices.size() == vertices_per_element );
 	Teuchos::Array<moab::EntityHandle> vert_copy( vertices_per_element );
 	std::copy( moab_vertices.begin(), moab_vertices.end(), 
 		   vert_copy.begin() );
@@ -522,7 +522,7 @@ Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
 			      vertices_per_element,
 			      moab_element );
 #endif
-	testInvariant( moab::MB_SUCCESS == error );
+	DTK_CHECK( moab::MB_SUCCESS == error );
 
 	// Map the moab element handle to the local geometry ordinal.
 	element_ordinal_map[ moab_element ] = 

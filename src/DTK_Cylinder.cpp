@@ -41,7 +41,7 @@
 #include <cmath>
 
 #include "DTK_Cylinder.hpp"
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_Tuple.hpp>
 
@@ -82,8 +82,8 @@ Cylinder::Cylinder( const double length, const double radius,
     , d_centroid_y( centroid_y )
     , d_centroid_z( centroid_z )
 {
-    testPrecondition( 0.0 <= d_length );
-    testPrecondition( 0.0 <= d_radius );
+    DTK_REQUIRE( 0.0 <= d_length );
+    DTK_REQUIRE( 0.0 <= d_radius );
 }
 
 //---------------------------------------------------------------------------//
@@ -109,7 +109,7 @@ Cylinder::~Cylinder()
 bool Cylinder::pointInCylinder( const Teuchos::Array<double>& coords,
 				const double tolerance ) const
 {
-    testPrecondition( coords.size() == 3 );
+    DTK_REQUIRE( coords.size() == 3 );
 
     double distance = std::pow(
 	(d_centroid_x - coords[0])*(d_centroid_x - coords[0]) +

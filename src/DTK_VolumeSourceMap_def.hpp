@@ -47,7 +47,7 @@
 
 #include "DTK_FieldTools.hpp"
 #include "DTK_FieldTraits.hpp"
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_GeometryRendezvous.hpp"
 #include "DTK_BoundingBox.hpp"
 
@@ -146,11 +146,11 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     // Check the source and target dimensions for consistency.
     if ( source_exists )
     {
-	testPrecondition( source_geometry_manager->dim() == d_dimension );
+	DTK_REQUIRE( source_geometry_manager->dim() == d_dimension );
     }
     if ( target_exists )
     {
-	testPrecondition( CFT::dim( *target_coord_manager->field() ) 
+	DTK_REQUIRE( CFT::dim( *target_coord_manager->field() ) 
 			  == d_dimension );
     }
 
@@ -163,7 +163,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	target_ordinals();
     d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
 	import_ordinal_view, d_comm );
-    testPostcondition( !d_target_map.is_null() );
+    DTK_ENSURE( !d_target_map.is_null() );
 
     // Get the global bounding box for the geometry.
     BoundingBox source_box;
@@ -190,7 +190,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     BoundingBox shared_domain_box;
     bool has_intersect = BoundingBox::intersectBoxes( source_box, target_box, 
 						      shared_domain_box );
-    testAssertion( has_intersect );
+    DTK_INSIST( has_intersect );
 
     // Build a rendezvous decomposition with the source geometry.
     GeometryRendezvous<Geometry,GlobalOrdinal> rendezvous( 
@@ -348,7 +348,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 		point_target_procs.push_back( from_images[i] );
 	    }
 	}
-	testInvariant( Teuchos::as<GlobalOrdinal>(point_target_procs.size()) ==
+	DTK_CHECK( Teuchos::as<GlobalOrdinal>(point_target_procs.size()) ==
 		       num_rendezvous_points );
 
 	// Build a list of target procs for the missed points.
@@ -411,7 +411,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     GlobalOrdinal rendezvous_geometry_src_procs_size = 
 	std::distance( rendezvous_geometry_src_procs.begin(), 
 		       rendezvous_geometry_src_procs_bound );
-    testInvariant( rendezvous_geometry_size == 
+    DTK_CHECK( rendezvous_geometry_size == 
 		   rendezvous_geometry_src_procs_size );
 
     rendezvous_geometry.resize( rendezvous_geometry_size );
@@ -445,7 +445,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	source_points();
     d_source_map = Tpetra::createNonContigMap<int,GlobalOrdinal>( 
 	source_points_view, d_comm );
-    testPostcondition( !d_source_map.is_null() );
+    DTK_ENSURE( !d_source_map.is_null() );
 
     // Send the rendezvous point coordinates to the source decomposition.
     Tpetra::Export<int,GlobalOrdinal> rendezvous_to_source_exporter( 
@@ -462,7 +462,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     d_source_to_target_importer = 
       Teuchos::rcp( new Tpetra::Import<int,GlobalOrdinal>(
           d_source_map, d_target_map ) );
-    testPostcondition( !d_source_to_target_importer.is_null() );
+    DTK_ENSURE( !d_source_to_target_importer.is_null() );
 }
 
 //---------------------------------------------------------------------------//
@@ -532,13 +532,13 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 				 Teuchos::Ptr<int>(&target_dim) );
     
     // Check that the source and target have the same field dimension.
-    testPrecondition( source_dim == target_dim );
+    DTK_REQUIRE( source_dim == target_dim );
 
     // Verify that the target space has the proper amount of memory allocated.
     GlobalOrdinal target_size = target_field_view.size() / target_dim;
     if ( target_exists )
     {
-	testPrecondition( 
+	DTK_REQUIRE( 
 	    target_size == Teuchos::as<GlobalOrdinal>(
 		d_target_map->getNodeNumElements()) );
     }
@@ -575,7 +575,7 @@ template<class Geometry, class GlobalOrdinal, class CoordinateField>
 Teuchos::ArrayView<const GlobalOrdinal>
 VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints() const
 {
-    testPrecondition( d_store_missed_points );
+    DTK_REQUIRE( d_store_missed_points );
     
     return d_missed_points();
 }
@@ -593,7 +593,7 @@ template<class Geometry, class GlobalOrdinal, class CoordinateField>
 Teuchos::ArrayView<GlobalOrdinal> 
 VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints()
 {
-    testPrecondition( d_store_missed_points );
+    DTK_REQUIRE( d_store_missed_points );
     
     return d_missed_points();
 }
@@ -686,7 +686,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getTargetPointsInB
     GlobalOrdinal dim_size = 
 	FieldTools<CoordinateField>::dimSize( target_coords );
 
-    testPrecondition( dim_size == 
+    DTK_REQUIRE( dim_size == 
 		      Teuchos::as<GlobalOrdinal>(target_ordinals.size()) );
 
     targets_in_box.resize( dim_size );

@@ -46,7 +46,7 @@
 #include <limits>
 
 #include "DTK_MeshTools.hpp"
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_CommIndexer.hpp"
 #include "DTK_MeshTypes.hpp"
 #include "DTK_PartitionerFactory.hpp"
@@ -119,7 +119,7 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
     // vertices that are in the box.
     d_partitioner = PartitionerFactory::createMeshPartitioner( 
 	d_comm, mesh_manager, d_dimension );
-    testPostcondition( !d_partitioner.is_null() );
+    DTK_ENSURE( !d_partitioner.is_null() );
     d_partitioner->partition();
 
     // Send the mesh in the box to the rendezvous decomposition and build the
@@ -129,12 +129,12 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 
     // Build the rendezvous mesh from the mesh container.
     d_rendezvous_mesh = createRendezvousMeshFromMesh( rendezvous_mesh_manager );
-    testPostcondition( !d_rendezvous_mesh.is_null() );
+    DTK_ENSURE( !d_rendezvous_mesh.is_null() );
 
     // Create a kD-tree in the rendezvous decomposition.
     d_kdtree = Teuchos::rcp( 
 	new KDTree<GlobalOrdinal>( d_rendezvous_mesh , d_dimension ) );
-    testPostcondition( !d_kdtree.is_null() );
+    DTK_ENSURE( !d_kdtree.is_null() );
     d_kdtree->build();
 }
 
@@ -425,7 +425,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 	    vertices_in_box.push_back( 
 		d_global_box.pointInBox( vertex_coords ) );
 	}
-	testInvariant( Teuchos::as<GlobalOrdinal>(vertices_in_box.size()) 
+	DTK_CHECK( Teuchos::as<GlobalOrdinal>(vertices_in_box.size()) 
 		       == num_vertices );
 
 	// For those vertices that are in the box, get the elements that they
@@ -452,7 +452,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 	    }
 	    elements_in_box.push_back( this_element_in_box );
 	}
-	testInvariant( Teuchos::as<GlobalOrdinal>(elements_in_box.size())
+	DTK_CHECK( Teuchos::as<GlobalOrdinal>(elements_in_box.size())
 		       == num_elements );
 
 	// Get the vertices that belong to the elements in the box, but are
@@ -555,17 +555,17 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	Teuchos::ArrayView<const GlobalOrdinal> export_vertex_view 
 	    = export_vertex_arcp();
 	RCP_TpetraMap export_vertex_map = 
-    Tpetra::createNonContigMap<int,GlobalOrdinal>( 
+	    Tpetra::createNonContigMap<int,GlobalOrdinal>( 
 		export_vertex_view, d_comm );
-	testInvariant( !export_vertex_map.is_null() );
+	DTK_CHECK( !export_vertex_map.is_null() );
 
 	// Setup import vertex map.
 	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_vertices_view = 
 	    rendezvous_vertices();
 	RCP_TpetraMap import_vertex_map = 
-    Tpetra::createNonContigMap<int,GlobalOrdinal>(
+	    Tpetra::createNonContigMap<int,GlobalOrdinal>(
 		rendezvous_vertices_view, d_comm );
-	testInvariant( !import_vertex_map.is_null() );
+	DTK_CHECK( !import_vertex_map.is_null() );
 
 	// Setup export element map.
 	GlobalOrdinal num_elements = 0;
@@ -580,23 +580,23 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	Teuchos::ArrayView<const GlobalOrdinal> export_element_view = 
 	    export_element_arcp();
 	RCP_TpetraMap export_element_map = 
-    Tpetra::createNonContigMap<int,GlobalOrdinal>(
+	    Tpetra::createNonContigMap<int,GlobalOrdinal>(
 		export_element_view, d_comm );
-	testInvariant( !export_element_map.is_null() );
+	DTK_CHECK( !export_element_map.is_null() );
 
 	// Setup import element map.
 	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
 	    rendezvous_elements();
 	RCP_TpetraMap import_element_map = 
-    Tpetra::createNonContigMap<int,GlobalOrdinal>(
+	    Tpetra::createNonContigMap<int,GlobalOrdinal>(
 		rendezvous_elements_view, d_comm );
-	testInvariant( !import_element_map.is_null() );
+	DTK_CHECK( !import_element_map.is_null() );
 
 	// Setup importers.
 	Tpetra::Import<int,GlobalOrdinal> vertex_importer( export_vertex_map, 
-						       import_vertex_map );
+							   import_vertex_map );
 	Tpetra::Import<int,GlobalOrdinal> element_importer( export_element_map, 
-							import_element_map );
+							    import_element_map );
 
 	// Move the vertex coordinates to the rendezvous decomposition.
 	Teuchos::ArrayRCP<double> export_coords_view(0,0);
@@ -859,7 +859,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	    element_src_procs.push_back( from_images[i] );
 	}
     }
-    testInvariant( Teuchos::as<GlobalOrdinal>(element_src_procs.size())
+    DTK_CHECK( Teuchos::as<GlobalOrdinal>(element_src_procs.size())
 		   == num_import_elements );
         
     // Next, move these into the rendezvous element set so that we have a

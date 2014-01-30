@@ -42,7 +42,7 @@
 #define DTK_TOPOLOGYTOOLS_DEF_HPP
 
 #include "DTK_GeometryTraits.hpp"
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 #include "DataTransferKit_config.hpp"
 
 #include <Teuchos_as.hpp>
@@ -82,7 +82,7 @@ bool TopologyTools::elementInGeometry(
     bool all_vertices_for_inclusion )
 {
     // Get the element vertices.
-    rememberValue( moab::ErrorCode error );
+    DTK_REMEMBER( moab::ErrorCode error );
     std::vector<moab::EntityHandle> element_vertices;
 #if HAVE_DTK_DBC
     error = moab->get_adjacencies( &element,
@@ -97,7 +97,7 @@ bool TopologyTools::elementInGeometry(
 			   false,
 			   element_vertices );
 #endif
-    testInvariant( error == moab::MB_SUCCESS );
+    DTK_CHECK( error == moab::MB_SUCCESS );
 
     // Extract the vertex coordinates.
     int num_element_vertices = element_vertices.size();
@@ -111,7 +111,7 @@ bool TopologyTools::elementInGeometry(
 		      num_element_vertices, 
 		      &element_vertex_coords[0] );
 #endif
-    testInvariant( error == moab::MB_SUCCESS );
+    DTK_CHECK( error == moab::MB_SUCCESS );
 
     // Check the vertex coordinates for inclusion in the geometry. 
     Teuchos::Array<double> vertex_coords(3);

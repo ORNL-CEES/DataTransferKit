@@ -13,7 +13,7 @@
 #include <stdexcept>
 
 #include <DataTransferKit_config.hpp>
-#include <DTK_Assertion.hpp>
+#include <DTK_DBC.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -110,7 +110,7 @@ TEUCHOS_UNIT_TEST( Assertion, precondition_test )
 {
     try 
     {
-	testPrecondition( 0 );
+	DTK_REQUIRE( 0 );
 	throw std::runtime_error( "this shouldn't be thrown" );
     }
     catch( const DataTransferKit::Assertion& assertion )
@@ -141,7 +141,7 @@ TEUCHOS_UNIT_TEST( Assertion, postcondition_test )
 {
     try 
     {
-	testPostcondition( 0 );
+	DTK_ENSURE( 0 );
 	throw std::runtime_error( "this shouldn't be thrown" );
     }
     catch( const DataTransferKit::Assertion& assertion )
@@ -172,7 +172,7 @@ TEUCHOS_UNIT_TEST( Assertion, invariant_test )
 {
     try 
     {
-	testInvariant( 0 );
+	DTK_CHECK( 0 );
 	throw std::runtime_error( "this shouldn't be thrown" );
     }
     catch( const DataTransferKit::Assertion& assertion )
@@ -201,12 +201,12 @@ TEUCHOS_UNIT_TEST( Assertion, invariant_test )
 // Test that we can remember a value and check it with DBC.
 TEUCHOS_UNIT_TEST( Assertion, remember_test )
 {
-    rememberValue( int test_value_1 = 0 );
-    rememberValue( int test_value_2 = 1 );
+    DTK_REMEMBER( int test_value_1 = 0 );
+    DTK_REMEMBER( int test_value_2 = 1 );
  
     try 
     {
-	testInvariant( test_value_1 );
+	DTK_CHECK( test_value_1 );
     }
     catch( const DataTransferKit::Assertion& assertion )
     {
@@ -225,7 +225,7 @@ TEUCHOS_UNIT_TEST( Assertion, remember_test )
 
     try 
     {
-	testInvariant( test_value_2 );
+	DTK_CHECK( test_value_2 );
 	TEST_ASSERT( 1 );
     }
     catch( ... )
@@ -240,7 +240,7 @@ TEUCHOS_UNIT_TEST( Assertion, assertion_test )
 {
     try 
     {
-	testAssertion( 0 );
+	DTK_INSIST( 0 );
 	throw std::runtime_error( "this shouldn't be thrown" );
     }
     catch( const DataTransferKit::Assertion& assertion )

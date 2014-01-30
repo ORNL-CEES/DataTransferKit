@@ -43,7 +43,7 @@
 #include "DTK_CellTopologyFactory.hpp"
 #include "DTK_TopologyTools.hpp"
 #include "DTK_GeometryTraits.hpp"
-#include "DTK_Assertion.hpp"
+#include "DTK_DBC.hpp"
 #include "DataTransferKit_config.hpp"
 
 #include <MBGeomUtil.hpp>
@@ -82,7 +82,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 {
     // Wrap the point in a field container.
     int vertex_dim = coords.size();
-    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
+    DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
 
     Teuchos::Tuple<int,2> point_dimensions;
     point_dimensions[0] = 1;
@@ -95,7 +95,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
     moab::EntityType element_topology = moab->type_from_handle( element );
 
     // Get the element vertices.
-    rememberValue( moab::ErrorCode error );
+    DTK_REMEMBER( moab::ErrorCode error );
     std::vector<moab::EntityHandle> element_vertices;
 #if HAVE_DTK_DBC
     error = moab->get_adjacencies( &element,
@@ -110,7 +110,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 			   false,
 			   element_vertices );
 #endif
-    testInvariant( error == moab::MB_SUCCESS );
+    DTK_CHECK( error == moab::MB_SUCCESS );
 
     // Extract the vertex coordinates.
     int num_element_vertices = element_vertices.size();
@@ -124,7 +124,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 		      element_vertices.size(), 
 		      &cell_vertex_coords[0] );
 #endif
-    testInvariant( error == moab::MB_SUCCESS );
+    DTK_CHECK( error == moab::MB_SUCCESS );
 
     // Typical topology case.
     if ( moab::MBPYRAMID != element_topology )
@@ -177,7 +177,7 @@ bool TopologyTools::pointInElement( Teuchos::Array<double> coords,
 	    CellTopologyFactory::create( moab::MBTET, 4 );
 
 	// Build 2 tetrahedrons from the 1 pyramid.
-	testInvariant( vertex_dim == 3 );
+	DTK_CHECK( vertex_dim == 3 );
 	Intrepid::FieldContainer<double> cell_vertices( 1, 4, vertex_dim );
 
 	// Tetrahederon 1.
@@ -277,7 +277,7 @@ bool TopologyTools::boxElementOverlap(
     moab::EntityType element_topology = moab->type_from_handle( element );
 
     // Get the element vertices.
-    rememberValue( moab::ErrorCode error );
+    DTK_REMEMBER( moab::ErrorCode error );
     std::vector<moab::EntityHandle> element_vertices;
 #if HAVE_DTK_DBC
     error = moab->get_adjacencies( &element,
@@ -292,7 +292,7 @@ bool TopologyTools::boxElementOverlap(
 			   false,
 			   element_vertices );
 #endif
-    testInvariant( error == moab::MB_SUCCESS );
+    DTK_CHECK( error == moab::MB_SUCCESS );
 
     // Extract the vertex coordinates.
     int num_element_vertices = element_vertices.size();
@@ -306,7 +306,7 @@ bool TopologyTools::boxElementOverlap(
 		      num_element_vertices, 
 		      &element_vertex_coords[0] );
 #endif
-    testInvariant( error == moab::MB_SUCCESS );
+    DTK_CHECK( error == moab::MB_SUCCESS );
 
     // Extract box values.
     Teuchos::Tuple<double,6> bounds = box.getBounds();
