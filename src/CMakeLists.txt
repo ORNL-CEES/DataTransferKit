@@ -25,6 +25,8 @@ APPEND_SET(HEADERS
   DTK_BoundingBox.hpp
   DTK_Box.hpp
   DTK_CellTopologyFactory.hpp
+  DTK_CloudSearch.hpp
+  DTK_CloudSearch_impl.hpp
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
   DTK_Cylinder.hpp

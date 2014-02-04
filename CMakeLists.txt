@@ -57,6 +57,8 @@ TRIBITS_ADD_ETI_INSTANTIATIONS(Tpetra
 ## C) Add library, test, and examples.
 ##---------------------------------------------------------------------------##
 
+ADD_SUBDIRECTORY(nanoflann)
+
 ADD_SUBDIRECTORY(src)
 
 TRIBITS_ADD_TEST_DIRECTORIES(test)
