@@ -41,7 +41,7 @@
 #ifndef DTK_RENDEZVOUSMESH_HPP
 #define DTK_RENDEZVOUSMESH_HPP
 
-#include <map>
+#include <boost/tr1/unordered_map.hpp>
 
 #include "DTK_MeshTraits.hpp"
 #include "DTK_MeshManager.hpp"
@@ -76,7 +76,7 @@ class RendezvousMesh
     //! Typedefs.
     typedef GlobalOrdinal                               global_ordinal_type;
     typedef Teuchos::RCP<moab::Interface>               RCP_Moab;
-    typedef std::map<moab::EntityHandle,GlobalOrdinal>  OrdinalMap;
+    typedef std::tr1::unordered_map<moab::EntityHandle,GlobalOrdinal> OrdinalMap;
     //@}
 
     // Constructor.

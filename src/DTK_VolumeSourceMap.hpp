@@ -41,7 +41,7 @@
 #ifndef DTK_VOLUMESOURCEMAP_HPP
 #define DTK_VOLUMESOURCEMAP_HPP
 
-#include <map>
+#include <boost/tr1/unordered_map.hpp>
 
 #include "DTK_GeometryTraits.hpp"
 #include "DTK_GeometryManager.hpp"
@@ -167,7 +167,7 @@ class VolumeSourceMap
     Teuchos::Array<GlobalOrdinal> d_missed_points;
 
     // Global-to-local ordinal map for target ordinals.
-    std::map<GlobalOrdinal,GlobalOrdinal> d_target_g2l;
+    std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> d_target_g2l;
 
     // Source field map.
     RCP_TpetraMap d_source_map;

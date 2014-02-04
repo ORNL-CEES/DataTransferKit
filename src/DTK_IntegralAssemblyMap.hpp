@@ -41,7 +41,7 @@
 #ifndef DTK_INTEGRALASSEMBLYMAP_HPP
 #define DTK_INTEGRALASSEMBLYMAP_HPP
 
-#include <map>
+#include <boost/tr1/unordered_map.hpp>
 
 #include "DTK_MeshTraits.hpp"
 #include "DTK_MeshManager.hpp"
@@ -172,7 +172,8 @@ class IntegralAssemblyMap
 
     // Global-to-local ordinal map for the target geometry in the target
     // decomposition. 
-    std::map<GlobalOrdinal, typename Teuchos::ArrayRCP<Geometry>::size_type>
+    std::tr1::unordered_map<
+	GlobalOrdinal, typename Teuchos::ArrayRCP<Geometry>::size_type>
     d_target_g2l;
 };
 

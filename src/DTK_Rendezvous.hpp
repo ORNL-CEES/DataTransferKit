@@ -41,7 +41,7 @@
 #ifndef DTK_RENDEZVOUS_HPP
 #define DTK_RENDEZVOUS_HPP
 
-#include <map>
+#include <boost/tr1/unordered_map.hpp>
 
 #include "DTK_MeshTraits.hpp"
 #include "DTK_MeshManager.hpp"
@@ -205,7 +205,7 @@ class Rendezvous
     RCP_Partitioner d_partitioner;
 
     // Rendezvous mesh element to source proc map.
-    std::map<GlobalOrdinal,int> d_element_src_procs_map;
+    std::tr1::unordered_map<GlobalOrdinal,int> d_element_src_procs_map;
 
     // Rendezvous on-process mesh.
     RCP_RendezvousMesh d_rendezvous_mesh;

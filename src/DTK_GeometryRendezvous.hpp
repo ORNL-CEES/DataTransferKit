@@ -41,7 +41,7 @@
 #ifndef DTK_GEOMETRYRENDEZVOUS_HPP
 #define DTK_GEOMETRYRENDEZVOUS_HPP
 
-#include <map>
+#include <boost/tr1/unordered_map.hpp>
 
 #include "DTK_GeometryTraits.hpp"
 #include "DTK_GeometryManager.hpp"
@@ -155,7 +155,7 @@ class GeometryRendezvous
     RCP_Partitioner d_partitioner;
 
     // Rendezvous geometry gid to source proc map.
-    std::map<GlobalOrdinal,int> d_geometry_src_procs_map;
+    std::tr1::unordered_map<GlobalOrdinal,int> d_geometry_src_procs_map;
 
     // Rendezvous on-process geometry.
     Teuchos::Array<Geometry> d_rendezvous_geometry;

@@ -401,7 +401,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 	// most mesh operations.
 	GlobalOrdinal num_vertices = 
 	    MeshTools<Mesh>::numVertices( *(*block_iterator) );
-	std::map<GlobalOrdinal,GlobalOrdinal> vertex_indices;
+	std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> vertex_indices;
 	typename MT::const_vertex_iterator vertex_iterator;
 	GlobalOrdinal array_index = 0;
 	for ( vertex_iterator = MT::verticesBegin( *(*block_iterator) );
@@ -725,7 +725,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // Create a vertex index map for logarithmic time access to connectivity
     // data. 
     typename MT::const_vertex_iterator export_vertex_iterator;
-    std::map<GlobalOrdinal,GlobalOrdinal> vertex_indices;
+    std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> vertex_indices;
     GlobalOrdinal array_index = 0;
     if ( mesh_exists )
     {
@@ -742,7 +742,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // Create a element index map for logarithmic time access to connectivity
     // data. 
     typename MT::const_element_iterator export_element_iterator;
-    std::map<GlobalOrdinal,GlobalOrdinal> element_indices;
+    std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> element_indices;
     array_index = 0;
     if ( mesh_exists )
     {

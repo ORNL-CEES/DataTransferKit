@@ -217,7 +217,7 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
     typename MT::const_element_iterator element_iterator;
 
     // Setup an element handle map.
-    std::map<moab::EntityHandle,GlobalOrdinal> element_ordinal_map;
+    std::tr1::unordered_map<moab::EntityHandle,GlobalOrdinal> element_ordinal_map;
 
     // Create a moab interface.
     DTK_REMEMBER( moab::ErrorCode error );
@@ -254,7 +254,7 @@ createRendezvousMeshFromMesh( const MeshManager<Mesh>& mesh_manager )
 	double vertex_coords[3];
 	Teuchos::ArrayRCP<const double> mesh_coords = 
 	    MeshTools<Mesh>::coordsView( *(*block_iterator) );
-	std::map<GlobalOrdinal,moab::EntityHandle> vertex_ordinal_map;
+	std::tr1::unordered_map<GlobalOrdinal,moab::EntityHandle> vertex_ordinal_map;
 	GlobalOrdinal n = 0;
 	for ( vertex_iterator = MT::verticesBegin( *(*block_iterator) );
 	      vertex_iterator != MT::verticesEnd( *(*block_iterator) );
@@ -366,7 +366,7 @@ Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
     typedef GeometryTraits<Geometry> GT;
 
     // Setup an element handle map.
-    std::map<moab::EntityHandle,GlobalOrdinal> element_ordinal_map;
+    std::tr1::unordered_map<moab::EntityHandle,GlobalOrdinal> element_ordinal_map;
 
     // Create a moab interface.
     DTK_REMEMBER( moab::ErrorCode error );
@@ -408,7 +408,7 @@ Teuchos::RCP< RendezvousMesh<GlobalOrdinal> > createRendezvousMeshFromGeometry(
     
     // Extract the geometry bounding boxes from the manager. We will turn
     // these into hexahedrons, squares, or lines.
-    std::map<GlobalOrdinal,moab::EntityHandle> vertex_ordinal_map;
+    std::tr1::unordered_map<GlobalOrdinal,moab::EntityHandle> vertex_ordinal_map;
     Teuchos::Tuple<double,6> geom_bounds;
     Teuchos::Array<double> vertex_coords(3*vertices_per_element);
     Teuchos::ArrayRCP<Geometry> geometry = geometry_manager.geometry();

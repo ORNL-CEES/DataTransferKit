@@ -41,7 +41,7 @@
 #ifndef DTK_COMMINDEXER_HPP
 #define DTK_COMMINDEXER_HPP
 
-#include <map>
+#include <boost/tr1/unordered_map.hpp>
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -64,7 +64,7 @@ class CommIndexer
     //! Typedefs.
     typedef Teuchos::Comm<int>                             CommType;
     typedef Teuchos::RCP<const CommType>                   RCP_Comm;
-    typedef std::map<int,int>                              IndexMap;
+    typedef std::tr1::unordered_map<int,int>               IndexMap;
     //@}
 
   private:

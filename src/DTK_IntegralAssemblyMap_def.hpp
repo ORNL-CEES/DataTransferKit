@@ -359,7 +359,7 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 		       mapped_element_bound ) );
 
     // Build the element local to global map.
-    std::map<GlobalOrdinal,GlobalOrdinal> element_g2l;
+    std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> element_g2l;
     typename Teuchos::Array<GlobalOrdinal>::const_iterator 
 	mapped_target_elements_begin = mapped_target_elements.begin();
     for ( mapped_target_elements_it = mapped_target_elements.begin();
