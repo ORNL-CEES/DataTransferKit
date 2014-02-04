@@ -73,22 +73,22 @@ CellTopologyFactory::~CellTopologyFactory()
  * \return return The Shards cell topology.
  */
 CellTopologyFactory::RCP_CellTopology
-CellTopologyFactory::create( const moab::EntityType element_topology,
+CellTopologyFactory::create( const DTK_ElementTopology element_topology,
 			     const int num_element_vertices )
 {
-    DTK_REQUIRE( moab::MBEDGE    == element_topology ||
-		      moab::MBTRI     == element_topology ||
-		      moab::MBQUAD    == element_topology ||
-		      moab::MBTET     == element_topology ||
-		      moab::MBPYRAMID == element_topology ||
-		      moab::MBPRISM   == element_topology ||
-		      moab::MBHEX     == element_topology );
+    DTK_REQUIRE( DTK_LINE_SEGMENT    == element_topology ||
+		 DTK_TRIANGLE     == element_topology ||
+		 DTK_QUADRILATERAL    == element_topology ||
+		 DTK_TETRAHEDRON     == element_topology ||
+		 DTK_PYRAMID == element_topology ||
+		 DTK_WEDGE   == element_topology ||
+		 DTK_HEXAHEDRON     == element_topology );
 
     RCP_CellTopology new_topology;
 
     switch( element_topology )
     {
-	case moab::MBEDGE:
+	case DTK_LINE_SEGMENT:
 	    
 	    if ( num_element_vertices == 2 )
 	    {
@@ -109,7 +109,7 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 	    }
 	    break;
 
-	case moab::MBTRI:
+	case DTK_TRIANGLE:
 	    
 	    if ( num_element_vertices == 3 )
 	    {
@@ -137,7 +137,7 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 	    }
 	    break;
 
-	case moab::MBQUAD:
+	case DTK_QUADRILATERAL:
 
 	    if ( num_element_vertices == 4 )
 	    {
@@ -165,7 +165,7 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 	    }
 	    break;
 
-	case moab::MBTET:
+	case DTK_TETRAHEDRON:
 	    
 	    if ( num_element_vertices == 4 )
 	    {
@@ -199,7 +199,7 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 	    }
 	    break;
 
-	case moab::MBPYRAMID:
+	case DTK_PYRAMID:
 	    
 	    if ( num_element_vertices == 5 )
 	    {
@@ -227,7 +227,7 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 	    }
 	    break;
 
-	case moab::MBPRISM:
+	case DTK_WEDGE:
 	    
 	    if ( num_element_vertices == 6 )
 	    {
@@ -255,7 +255,7 @@ CellTopologyFactory::create( const moab::EntityType element_topology,
 	    }
 	    break;
 
-	case moab::MBHEX:
+	case DTK_HEXAHEDRON:
 	    
 	    if ( num_element_vertices == 8 )
 	    {

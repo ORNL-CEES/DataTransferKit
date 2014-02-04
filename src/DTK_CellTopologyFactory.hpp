@@ -41,7 +41,7 @@
 #ifndef DTK_CELLTOPOLOGYFACTORY_HPP
 #define DTK_CELLTOPOLOGYFACTORY_HPP
 
-#include <MBInterface.hpp>
+#include <DTK_MeshTypes.hpp>
 
 #include <Teuchos_RCP.hpp>
 
@@ -73,7 +73,7 @@ class CellTopologyFactory
     ~CellTopologyFactory();
 
     // Factory method.
-    static RCP_CellTopology create( const moab::EntityType element_topology, 
+    static RCP_CellTopology create( const DTK_ElementTopology element_topology, 
 				    const int num_element_vertices );
 };
 

@@ -52,142 +52,142 @@ TEUCHOS_UNIT_TEST( CellTopologyFactory, cell_topology_factory_test )
 
     RCP_CellTopology test_topology;
 
-    test_topology = CellTopologyFactory::create( moab::MBEDGE, 2 );
+    test_topology = CellTopologyFactory::create( DTK_LINE_SEGMENT, 2 );
     TEST_ASSERT( test_topology->getDimension() == 1 );
     TEST_ASSERT( test_topology->getNodeCount() == 2 );
     TEST_ASSERT( test_topology->getVertexCount() == 2 );
 
-    test_topology = CellTopologyFactory::create( moab::MBEDGE, 3 );
+    test_topology = CellTopologyFactory::create( DTK_LINE_SEGMENT, 3 );
     TEST_ASSERT( test_topology->getDimension() == 1 );
     TEST_ASSERT( test_topology->getNodeCount() == 3 );
     TEST_ASSERT( test_topology->getVertexCount() == 2 );
 
-    test_topology = CellTopologyFactory::create( moab::MBEDGE, 100 );
+    test_topology = CellTopologyFactory::create( DTK_LINE_SEGMENT, 100 );
     TEST_ASSERT( test_topology->getDimension() == 1 );
     TEST_ASSERT( test_topology->getNodeCount() == 2 );
     TEST_ASSERT( test_topology->getVertexCount() == 2 );
 
-    test_topology = CellTopologyFactory::create( moab::MBTRI, 3 );
+    test_topology = CellTopologyFactory::create( DTK_TRIANGLE, 3 );
     TEST_ASSERT( test_topology->getDimension() == 2 );
     TEST_ASSERT( test_topology->getNodeCount() == 3 );
     TEST_ASSERT( test_topology->getVertexCount() == 3 );
 
-    test_topology = CellTopologyFactory::create( moab::MBTRI, 4 );
+    test_topology = CellTopologyFactory::create( DTK_TRIANGLE, 4 );
     TEST_ASSERT( test_topology->getDimension() == 2 );
     TEST_ASSERT( test_topology->getNodeCount() == 4 );
     TEST_ASSERT( test_topology->getVertexCount() == 3 );
 
-    test_topology = CellTopologyFactory::create( moab::MBTRI, 6 );
+    test_topology = CellTopologyFactory::create( DTK_TRIANGLE, 6 );
     TEST_ASSERT( test_topology->getDimension() == 2 );
     TEST_ASSERT( test_topology->getNodeCount() == 6 );
     TEST_ASSERT( test_topology->getVertexCount() == 3 );
 
-    test_topology = CellTopologyFactory::create( moab::MBTRI, 100 );
+    test_topology = CellTopologyFactory::create( DTK_TRIANGLE, 100 );
     TEST_ASSERT( test_topology->getDimension() == 2 );
     TEST_ASSERT( test_topology->getNodeCount() == 3 );
     TEST_ASSERT( test_topology->getVertexCount() == 3 );
 
-    test_topology = CellTopologyFactory::create( moab::MBQUAD, 4 );
+    test_topology = CellTopologyFactory::create( DTK_QUADRILATERAL, 4 );
     TEST_ASSERT( test_topology->getDimension() == 2 );
     TEST_ASSERT( test_topology->getNodeCount() == 4 );
     TEST_ASSERT( test_topology->getVertexCount() == 4 );
 
-    test_topology = CellTopologyFactory::create( moab::MBQUAD, 8 );
+    test_topology = CellTopologyFactory::create( DTK_QUADRILATERAL, 8 );
     TEST_ASSERT( test_topology->getDimension() == 2 );
     TEST_ASSERT( test_topology->getNodeCount() == 8 );
     TEST_ASSERT( test_topology->getVertexCount() == 4 );
 
-    test_topology = CellTopologyFactory::create( moab::MBQUAD, 9 );
+    test_topology = CellTopologyFactory::create( DTK_QUADRILATERAL, 9 );
     TEST_ASSERT( test_topology->getDimension() == 2 );
     TEST_ASSERT( test_topology->getNodeCount() == 9 );
     TEST_ASSERT( test_topology->getVertexCount() == 4 );
 
-    test_topology = CellTopologyFactory::create( moab::MBQUAD, 100 );
+    test_topology = CellTopologyFactory::create( DTK_QUADRILATERAL, 100 );
     TEST_ASSERT( test_topology->getDimension() == 2 );
     TEST_ASSERT( test_topology->getNodeCount() == 4 );
     TEST_ASSERT( test_topology->getVertexCount() == 4 );
 
-    test_topology = CellTopologyFactory::create( moab::MBTET, 4 );
+    test_topology = CellTopologyFactory::create( DTK_TETRAHEDRON, 4 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 4 );
     TEST_ASSERT( test_topology->getVertexCount() == 4 );
 
-    test_topology = CellTopologyFactory::create( moab::MBTET, 8 );
+    test_topology = CellTopologyFactory::create( DTK_TETRAHEDRON, 8 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 8 );
     TEST_ASSERT( test_topology->getVertexCount() == 4 );
 
-    test_topology = CellTopologyFactory::create( moab::MBTET, 10 );
+    test_topology = CellTopologyFactory::create( DTK_TETRAHEDRON, 10 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 10 );
     TEST_ASSERT( test_topology->getVertexCount() == 4 );
     
-    test_topology = CellTopologyFactory::create( moab::MBTET, 11 );
+    test_topology = CellTopologyFactory::create( DTK_TETRAHEDRON, 11 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 11 );
     TEST_ASSERT( test_topology->getVertexCount() == 4 );
 
-    test_topology = CellTopologyFactory::create( moab::MBTET, 100 );
+    test_topology = CellTopologyFactory::create( DTK_TETRAHEDRON, 100 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 4 );
     TEST_ASSERT( test_topology->getVertexCount() == 4 );
 
-    test_topology = CellTopologyFactory::create( moab::MBPYRAMID, 5 );
+    test_topology = CellTopologyFactory::create( DTK_PYRAMID, 5 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 5 );
     TEST_ASSERT( test_topology->getVertexCount() == 5 );
 
-    test_topology = CellTopologyFactory::create( moab::MBPYRAMID, 13 );
+    test_topology = CellTopologyFactory::create( DTK_PYRAMID, 13 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 5 );
     TEST_ASSERT( test_topology->getVertexCount() == 5 );
 
-    test_topology = CellTopologyFactory::create( moab::MBPYRAMID, 14 );
+    test_topology = CellTopologyFactory::create( DTK_PYRAMID, 14 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 14 );
     TEST_ASSERT( test_topology->getVertexCount() == 5 );
 
-    test_topology = CellTopologyFactory::create( moab::MBPYRAMID, 100 );
+    test_topology = CellTopologyFactory::create( DTK_PYRAMID, 100 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 5 );
     TEST_ASSERT( test_topology->getVertexCount() == 5 );
 
-    test_topology = CellTopologyFactory::create( moab::MBPRISM, 6 );
+    test_topology = CellTopologyFactory::create( DTK_WEDGE, 6 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 6 );
     TEST_ASSERT( test_topology->getVertexCount() == 6 );
 
-    test_topology = CellTopologyFactory::create( moab::MBPRISM, 15 );
+    test_topology = CellTopologyFactory::create( DTK_WEDGE, 15 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 6 );
     TEST_ASSERT( test_topology->getVertexCount() == 6 );
 
-    test_topology = CellTopologyFactory::create( moab::MBPRISM, 18 );
+    test_topology = CellTopologyFactory::create( DTK_WEDGE, 18 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 18 );
     TEST_ASSERT( test_topology->getVertexCount() == 6 );
 
-    test_topology = CellTopologyFactory::create( moab::MBPRISM, 100 );
+    test_topology = CellTopologyFactory::create( DTK_WEDGE, 100 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 6 );
     TEST_ASSERT( test_topology->getVertexCount() == 6 );
 
-    test_topology = CellTopologyFactory::create( moab::MBHEX, 8 );
+    test_topology = CellTopologyFactory::create( DTK_HEXAHEDRON, 8 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 8 );
     TEST_ASSERT( test_topology->getVertexCount() == 8 );
 
-    test_topology = CellTopologyFactory::create( moab::MBHEX, 20 );
+    test_topology = CellTopologyFactory::create( DTK_HEXAHEDRON, 20 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 8 );
     TEST_ASSERT( test_topology->getVertexCount() == 8 );
 
-    test_topology = CellTopologyFactory::create( moab::MBHEX, 27 );
+    test_topology = CellTopologyFactory::create( DTK_HEXAHEDRON, 27 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 27 );
     TEST_ASSERT( test_topology->getVertexCount() == 8 );
 
-    test_topology = CellTopologyFactory::create( moab::MBHEX, 100 );
+    test_topology = CellTopologyFactory::create( DTK_HEXAHEDRON, 100 );
     TEST_ASSERT( test_topology->getDimension() == 3 );
     TEST_ASSERT( test_topology->getNodeCount() == 8 );
     TEST_ASSERT( test_topology->getVertexCount() == 8 );
