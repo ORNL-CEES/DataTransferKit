@@ -49,6 +49,10 @@ APPEND_SET(HEADERS
   DTK_GeometryTraits.hpp
   DTK_IntegralAssemblyMap.hpp
   DTK_IntegralAssemblyMap_def.hpp
+  DTK_IntrepidCell.hpp
+  DTK_IntrepidCell_impl.hpp
+  DTK_IntrepidSideCell.hpp
+  DTK_IntrepidSideCell_impl.hpp
   DTK_KDTree.hpp
   DTK_KDTree_def.hpp
   DTK_MeshContainer.hpp
