@@ -41,14 +41,11 @@
 #ifndef DTK_ELEMENTTREE_IMPL_HPP
 #define DTK_ELEMENTTREE_IMPL_HPP
 
-#include <vector>
+#include <algorithm>
 #include <cmath>
 
 #include "DTK_TopologyTools.hpp"
 #include "DTK_DBC.hpp"
-
-#include <Teuchos_ArrayView.hpp>
-#include <Teuchos_as.hpp>
 
 #include <Shards_CellTopology.hpp>
 
@@ -71,17 +68,26 @@ ElementTree<Mesh>::ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh )
     // Add the centroids from each block.
     int num_blocks = d_mesh->getNumBlocks();
     d_vertex_g2l.resize( num_blocks );
+    d_dcells.resize( num_blocks );
+    d_cumulative_elements.resize( num_blocks );
+    Teuchos::Array<GlobalOrdinal> elements_per_block( num_blocks );
     Teuchos::RCP<Mesh> block;
     int block_num_elements = 0;
+    int block_num_vertices = 0;
     int block_verts_per_elem = 0;
     Teuchos::ArrayRCP<GlobalOrdinal> block_vertex_ids;
     Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator vertex_id_it;
-    int vlid = 0;
-    Teuchos::ArrayRCP<GlobalOrdinal> block_vertex_coords;
-    Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator vertex_coord_it;
+    Teuchos::ArrayRCP<const GlobalOrdinal> block_vertex_coords;
     Teuchos::ArrayRCP<const GlobalOrdinal> block_connectivity;
-    Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator connectivity_it;
     Teuchos::RCP<shards::CellTopology> block_topology;
+    GlobalOrdinal vertex_gid = 0;
+    int vertex_lid = 0;
+    int elem_lid = 0;
+    Teuchos::Array<int> centroid_array_dims(2);
+    centroid_array_dims[0] = 1;
+    centroid_array_dims[1] = mesh->dim();
+    Intrepid::FieldContainer<double> centroid( 
+	centroid_array_dims, element_centroids.getRawPtr() );
     for ( int b = 0; b < num_blocks; ++i )
     {
 	// Get the current block.
@@ -89,29 +95,70 @@ ElementTree<Mesh>::ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh )
 
 	// Map the vertex ids in this block for faster coordinate access.
 	block_vertex_ids = MeshTools<Mesh>::verticesNonConstView( *block );
-	vlid = 0;
+	vertex_lid = 0;
 	for ( vertex_id_it = block_vertex_ids.begin();
 	      vertex_id_it != block_vertex_ids.end();
-	      ++vertex_id_it, ++vlid )
+	      ++vertex_id_it, ++vertex_lid )
 	{
-	    d_vertex_g2l[b][*vertex_id_it] = vlid;
+	    d_vertex_g2l[b][*vertex_id_it] = vertex_lid;
 	}
 
 	// Make a discretization cell for this block.
+	block_verts_per_elem = MT::verticesPerElement( *block );
 	block_topology = CellTopologyFactory::create(
-	    MT::elementTopology(*block), MT::verticesPerElement(*block) );
+	    MT::elementTopology(*block), block_verts_per_elem );
+	d_dcells[b] = IntrepidCell<Intrepid::FieldContainer<double> >(
+	    *block_topology, 1 );
+
+	// Get the reference cell center for this topology.
+	Intrepid::FieldContainer<double> 
+	    ref_center( 1, d_dcells[b].getSpatialDimension() );
+	TopologyTools::referenceCellCenter( *block_topology, ref_center );
+
+	// Add the cumulative number of elements in this block.
+	block_num_elements = MeshTools<Mesh>::numElements( *block );
+	elements_per_block[b] = block_num_elements;
+	d_cumulative_elements[b] = 
+	    ( b > 0 ) 
+	    ? elements_per_block[b-1] + d_cumulative_elements[b-1] : 0;
 
 	// Get the centroid of each element in the block.
+	block_vertex_coords = MeshTools<Mesh>::coordsView( *block );
 	block_connectivity = MeshTools<Mesh>::connectivityView( *block );
-	block_num_elements = MeshTools<Mesh>::numElements( *block );
-	block_verts_per_elem = MT::verticesPerElement( *block );
+	block_num_vertices = MeshTools<Mesh>::numVertices( *block );
+	Intrepid::FieldContainer<double> node_coords( 
+	    1, block_verts_per_elem, d_mesh->dim() );
 	for ( int e = 0; e < block_num_elements; ++e )
 	{
-	    
+	    // Extract the element node coordinates.
+	    for ( int n = 0; n < block_verts_per_elem; ++n )
+	    {
+		for ( int d = 0; d < mesh->dim(); ++d )
+		{
+		    vertex_gid = block_connectivity[ n*block_num_elements + e ];
+		    vertex_lid = d_vertex_g2l.find( vertex_gid )->second;
+		    node_coords( 0, n, d ) = 
+			block_vertex_coords[ block_num_vertices*vertex_lid + d ];
+		}
+	    }
+
+	    // Set the state of the discretization cell with the coordinates.
+	    d_dcells[b].setCellNodeCoordinates( node_coords );
+
+	    // Map the reference cell center to the physical frame of this
+	    // element to construct the centroid.
+	    elem_lid = d_cumulative_elements[b] + e;
+	    centroid.getData().getRawPtr() = 
+		&element_centroids[ elem_lid*d_mesh->dim() ];
+	    d_dcells[b].mapToCellPhysicalFrame( ref_center, centroid );
 	}
     }
 
     // Build a cloud search.
+    unsigned leaf_size = std::log( d_mesh->localNumElements() );
+    d_tree = createSearchTree( d_mesh->dim(), element_centroids(), leaf_size );
+
+    DTK_ENSURE( Teuchos::nonnull(d_tree) );
 }
 
 //---------------------------------------------------------------------------//
@@ -140,11 +187,84 @@ ElementTree<GlobalOrdinal>::~ElementTree()
  * \return Return true if the point was found in the kD-tree, false if not.
  */
 template<class Mesh>
-bool ElementTree<Mesh>::findPoint( const Teuchos::ArrayView<double>& coords,
-				   GlobalOrdinal& element,
-				   double tolerance )
+bool ElementTree<Mesh>::findPoint( 
+    const Teuchos::ArrayView<const double>& coords,
+    GlobalOrdinal& element,
+    double tolerance )
 {
+    // Wrap the point in a field container.
+    Teuchos::Array<int> point_array_dims(2);
+    point_array_dims[0] = 1;
+    point_array_dims[1] = mesh->dim();
+    Intrepid::FieldContainer<double> point( 
+	point_array_dims, coords.getRawPtr() );
 
+    // Find the leaf of nearest neighbors.
+    unsigned num_neighbors = std::log( d_mesh->localNumElements() );
+    Teuchos::Array<unsigned> neighbors = 
+	d_tree->nnSearch( coords, num_neighbors );
+
+    // Check the leaf for point inclusion.
+    int block_id = 0;
+    int elem_id = 0;
+    Teuchos::RCP<Mesh> block;
+    Teuchos::ArrayRCP<const GlobalOrdinal> block_vertex_coords;
+    Teuchos::ArrayRCP<const GlobalOrdinal> block_connectivity;
+    int block_verts_per_elem = 0;
+    GlobalOrdinal vertex_gid = 0;
+    int vertex_lid = 0;
+    bool point_in_element = false;
+    for ( unsigned n = 0; n < neighbors.size(); ++n )
+    {
+	// Get the block this neighbor resides in.
+	block_id = *std::lower_bound( d_cumulative_elements.begin(),
+				      d_cumulative_elements.end(),
+				      neighbors[n] );
+	block = d_mesh->getBlock(block_id);
+
+	// Get the local id of the element in the block.
+	elem_id = neighbors[n] - d_cumulative_elements[block_id];
+
+	// Get a view of the connectivity and vertex coordinates of that
+	// block.
+	block_vertex_coords = MeshTools<Mesh>::verticesView( *block );
+	block_connectivity = MeshTools<Mesh>::connectivityView( *block );
+	block_verts_per_elem = MT::verticesPerElement( *block );
+
+	// Extract the element node coordinates.
+	Intrepid::FieldContainer<double> node_coords( 
+	    1, block_verts_per_elem, d_mesh->dim() );
+	for ( int n = 0; n < block_verts_per_elem; ++n )
+	{
+	    for ( int d = 0; d < mesh->dim(); ++d )
+	    {
+		vertex_gid = block_connectivity[ n*block_num_elements + e ];
+		vertex_lid = d_vertex_g2l.find( vertex_gid )->second;
+		node_coords( 0, n, d ) = 
+		    block_vertex_coords[ block_num_vertices*vertex_lid + d ];
+	    }
+	}
+
+	// Set the state of the block discretization cell with the
+	// coordinates.
+	d_dcells[block_id].setCellNodeCoordinates( node_coords );
+
+	// Check for point inclusion.
+	point_in_element = 
+	    d_dcells[block_id].pointInPhysicalCell( point, tolerance );
+
+	// If we found the point in one of the elements set the element id to
+	// this element and return true.
+	if ( point_in_element )
+	{
+	    element = MeshTools<Mesh>::elementsView(*block)[elem_id];
+	    return true;
+	}
+    }
+
+    // If we got here we did not find the point in any element.
+    element = Teuchos::OrdinalTraits<GlobalOrdinal>::invalid();
+    return false;
 }
 
 //---------------------------------------------------------------------------//

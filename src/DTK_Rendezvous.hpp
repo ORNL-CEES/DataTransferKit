@@ -45,9 +45,8 @@
 
 #include "DTK_MeshTraits.hpp"
 #include "DTK_MeshManager.hpp"
-#include "DTK_RendezvousMesh.hpp"
 #include "DTK_MeshContainer.hpp"
-#include "DTK_KDTree.hpp"
+#include "DTK_ElementTree.hpp"
 #include "DTK_Partitioner.hpp"
 #include "DTK_BoundingBox.hpp"
 
@@ -106,10 +105,6 @@ class Rendezvous
     typedef Teuchos::RCP< MeshManager<Mesh> >           RCP_MeshManager;
     typedef typename MeshManager<Mesh>::BlockIterator   BlockIterator;
     typedef MeshContainer<GlobalOrdinal>                MeshContainerType;
-    typedef RendezvousMesh<GlobalOrdinal>               RendezvousMeshType;
-    typedef Teuchos::RCP<RendezvousMeshType>            RCP_RendezvousMesh;
-    typedef KDTree<GlobalOrdinal>                       KDTreeType;
-    typedef Teuchos::RCP<KDTreeType>                    RCP_KDTree;
     typedef Teuchos::RCP<Partitioner>                   RCP_Partitioner;
     typedef Teuchos::Comm<int>                          CommType;
     typedef Teuchos::RCP<const CommType>                RCP_Comm;
@@ -159,10 +154,6 @@ class Rendezvous
 	Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements,
 	const double tolerance,	bool all_vertices_for_inclusion ) const;
 
-    //! Get the rendezvous mesh.
-    const RCP_RendezvousMesh& getMesh() const
-    { return d_rendezvous_mesh; }
-
     //! Get the bounding box over which the rendezvous decomposition was
     //! generated.
     const BoundingBox& getBox() const
@@ -207,11 +198,8 @@ class Rendezvous
     // Rendezvous mesh element to source proc map.
     std::tr1::unordered_map<GlobalOrdinal,int> d_element_src_procs_map;
 
-    // Rendezvous on-process mesh.
-    RCP_RendezvousMesh d_rendezvous_mesh;
-
-    // Rendezvous on-process kD-tree.
-    RCP_KDTree d_kdtree;
+    // Rendezvous on-process search tree.
+    Teuchos::RCP<ElementTree<Mesh> > d_element_tree;
 };
 
 } // end namespace DataTransferKit
@@ -221,6 +209,8 @@ class Rendezvous
 //---------------------------------------------------------------------------//
 
 #include "DTK_Rendezvous_def.hpp"
+
+//---------------------------------------------------------------------------//
 
 #endif // end DTK_RENDEZVOUS_HPP
 

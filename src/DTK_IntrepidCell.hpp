@@ -76,6 +76,10 @@ class IntrepidCell
     // Destructor.
     virtual ~IntrepidCell();
 
+    // Given physical coordinates for the cell nodes (Cell,Node,Dim), assign
+    // them to the cell without allocating internal data.
+    void setCellNodeCoordinates( const MDArray& cell_node_coords );
+
     // Given physical coordinates for the cell nodes (Cell,Node,Dim),
     // allocate the state of the cell object.
     void allocateCellState( const MDArray& cell_node_coords );
@@ -97,12 +101,12 @@ class IntrepidCell
     // Determine if a point given in natural coordinates is inside of the
     // reference cell.
     bool pointInReferenceCell( const MDArray& reference_point,
-			       const Tolerances& tolerances );
+			       const double tolerance );
 
     // Determine if a point in physical coordinates is inside of the physical
     // cell.
     bool pointInPhysicalCell( const MDArray& point,
-			      const Tolerances& tolerance );
+			      const double tolerance );
 
     // Get the number of cells in the current state.
     int getNumCells() const;

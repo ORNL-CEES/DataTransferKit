@@ -119,7 +119,7 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
     // vertices that are in the box.
     d_partitioner = PartitionerFactory::createMeshPartitioner( 
 	d_comm, mesh_manager, d_dimension );
-    DTK_ENSURE( !d_partitioner.is_null() );
+    DTK_ENSURE( Teuchos::nonnull(d_partitioner) );
     d_partitioner->partition();
 
     // Send the mesh in the box to the rendezvous decomposition and build the
@@ -127,15 +127,9 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
     MeshManager<MeshContainerType> rendezvous_mesh_manager =
 	sendMeshToRendezvous( mesh_manager );
 
-    // Build the rendezvous mesh from the mesh container.
-    d_rendezvous_mesh = createRendezvousMeshFromMesh( rendezvous_mesh_manager );
-    DTK_ENSURE( !d_rendezvous_mesh.is_null() );
-
-    // Create a kD-tree in the rendezvous decomposition.
-    d_kdtree = Teuchos::rcp( 
-	new KDTree<GlobalOrdinal>( d_rendezvous_mesh , d_dimension ) );
-    DTK_ENSURE( !d_kdtree.is_null() );
-    d_kdtree->build();
+    // Create a search tree in the rendezvous decomposition.
+    d_search_tree = Teuchos::rcp(new ElementTree<Mesh>(rendezvous_mesh_manager));
+    DTK_ENSURE( Teuchos::nonnull(d_search_tree) );
 }
 
 //---------------------------------------------------------------------------//

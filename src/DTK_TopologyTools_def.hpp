@@ -51,6 +51,91 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Get the center of the reference cell of the given topology.
+ */
+template<typename MDArray>
+void TopologyTools::referenceCellCenter( 
+    const shards::CellTopology& cell_topo, MDArray& cell_center )
+{
+    typedef typename MDArray::scalar_type Scalar;
+
+    DTK_REQUIRE( 2 == cell_center.rank() );
+    DTK_REQUIRE( Teuchos::as<unsigned>(cell_center.dimension(1)) == 
+		   cell_topo.getDimension() );
+
+    int num_cells = cell_center.dimension(0);    
+
+    switch( cell_topo.getKey() ){
+	case shards::Line<2>::key:
+	case shards::Line<3>::key:
+	    for ( int n = 0; n < num_cells; ++n )
+	    {
+		cell_center(n,0) = Teuchos::ScalarTraits<Scalar>::zero();
+	    }
+	    break;
+      
+	case shards::Triangle<3>::key:
+	case shards::Triangle<4>::key:
+	case shards::Triangle<6>::key:    
+	    for ( int n = 0; n < num_cells; ++n )
+	    {
+
+		cell_center(n,0) = 1.0/3.0;
+		cell_center(n,1) = 1.0/3.0;  
+	    }
+	    break;
+      
+	case shards::Quadrilateral<4>::key:
+	case shards::Quadrilateral<8>::key:
+	case shards::Quadrilateral<9>::key:
+	    for ( int n = 0; n < num_cells; ++n )
+	    {
+		cell_center(n,0) = Teuchos::ScalarTraits<Scalar>::zero();      
+		cell_center(n,1) = Teuchos::ScalarTraits<Scalar>::zero();    
+	    }
+	    break;
+      
+	case shards::Tetrahedron<4>::key:
+	case shards::Tetrahedron<10>::key:
+	case shards::Tetrahedron<11>::key:
+	    for ( int n = 0; n < num_cells; ++n )
+	    {
+		cell_center(n,0) = 1.0/6.0;    
+		cell_center(n,1) = 1.0/6.0;    
+		cell_center(n,2) = 1.0/6.0; 
+	    }
+	    break;
+      
+	case shards::Hexahedron<8>::key:
+	case shards::Hexahedron<20>::key:
+	case shards::Hexahedron<27>::key:
+	    for ( int n = 0; n < num_cells; ++n )
+	    {
+		cell_center(n,0) = Teuchos::ScalarTraits<Scalar>::zero();
+		cell_center(n,1) = Teuchos::ScalarTraits<Scalar>::zero();
+		cell_center(n,2) = Teuchos::ScalarTraits<Scalar>::zero();
+	    }
+	    break;
+      
+	case shards::Wedge<6>::key:
+	case shards::Wedge<15>::key:
+	case shards::Wedge<18>::key:
+	    for ( int n = 0; n < num_cells; ++n )
+	    {
+		cell_center(n,0) = 1.0/3.0;
+		cell_center(n,1) = 1.0/3.0;
+		cell_center(n,2) = Teuchos::ScalarTraits<Scalar>::zero();
+	    }
+	    break;
+
+	default:
+	    DTK_INSIST( false );
+	    break;
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Element-in-geometry query.
  *
  * \param geometry The geometry.

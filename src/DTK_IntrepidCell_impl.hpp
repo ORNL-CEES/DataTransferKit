@@ -90,6 +90,18 @@ IntrepidCell<MDArray>::~IntrepidCell()
 //---------------------------------------------------------------------------//
 /*!
  * \brief Given physical coordinates for the cell nodes (Cell,Node,Dim),
+ * assign them to the cell without allocating internal data.
+ */
+template<typename MDArray>
+void IntrepidCell<MDArray>::setCellNodeCoordinates( 
+    const MDArray& cell_node_coords )
+{
+    d_cell_node_coords = cell_node_coords;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Given physical coordinates for the cell nodes (Cell,Node,Dim),
  * allocate the state of the cell object.
  */
 template<typename MDArray>
@@ -97,7 +109,7 @@ void IntrepidCell<MDArray>::allocateCellState(
     const MDArray& cell_node_coords )
 {
     // Store the cell node coords as the current state.
-    d_cell_node_coords = cell_node_coords;
+    setCellNodeCoordinates( cell_node_coords );
 
     // Get required dimensions.
     int num_cells = d_cell_node_coords.dimension(0);
@@ -188,10 +200,10 @@ void IntrepidCell<MDArray>::mapToCellPhysicalFrame(
 template<typename MDArray>
 bool IntrepidCell<MDArray>::pointInReferenceCell( 
     const MDArray& reference_point,
-    const Tolerances& tolerances )
+    const double tolerance )
 {
     return Intrepid::CellTools<Scalar>::checkPointsetInclusion( 
-	reference_point, d_topology, tolerances.geometric_tolerance );
+	reference_point, d_topology, tolerance );
 }
 
 //---------------------------------------------------------------------------//
@@ -201,13 +213,13 @@ bool IntrepidCell<MDArray>::pointInReferenceCell(
  */
 template<typename MDArray>
 bool IntrepidCell<MDArray>::pointInPhysicalCell( const MDArray& point,
-						 const Tolerances& tolerances )
+						 const double tolerance )
 {
     MDArray reference_point( point );
     reference_point.initialize();
     Intrepid::CellTools<Scalar>::mapToReferenceFrame( 
 	reference_point, point, d_cell_node_coords, d_topology, 0 );
-    return pointInReferenceCell( reference_point, tolerances );
+    return pointInReferenceCell( reference_point, tolerance );
 }
 
 //---------------------------------------------------------------------------//

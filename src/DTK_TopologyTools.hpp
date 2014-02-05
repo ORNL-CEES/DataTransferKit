@@ -70,12 +70,10 @@ class TopologyTools
     ~TopologyTools()
     { /* ... */ }
 
-    // Point-in-element query.
-    static bool pointInElement( 
-	Teuchos::Array<double> coords,
-	const moab::EntityHandle element,
-	const Teuchos::RCP<moab::Interface>& moab,
-	double tolerance = 10*Teuchos::ScalarTraits<double>::eps() );
+    // Get the center of the reference cell of the given topology.
+    template<typename MDArray>
+    static void referenceCellCenter( const shards::CellTopology& cell_topo,
+				     MDArray& center );
 
     // Box-element overlap query.
     static bool boxElementOverlap( const BoundingBox& box,
