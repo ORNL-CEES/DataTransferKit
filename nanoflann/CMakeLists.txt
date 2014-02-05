@@ -34,7 +34,7 @@ APPEND_SET(SOURCES
 #
 
 TRIBITS_ADD_LIBRARY(
-  paraspin_nanoflann
+  dtk_nanoflann
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )

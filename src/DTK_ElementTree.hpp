@@ -41,8 +41,6 @@
 #ifndef DTK_ELEMENTTREE_HPP
 #define DTK_ELEMENTTREE_HPP
 
-#include <boost/tr1/unordered_map.hpp>
-
 #include "DTK_MeshManager.hpp"
 #include "DTK_IntrepidCell.hpp"
 #include "DTK_CloudSearch.hpp"
@@ -56,7 +54,6 @@
 
 namespace DataTransferKit
 {
-
 //---------------------------------------------------------------------------//
 /*!
  * \class ElementTree 
@@ -98,14 +95,8 @@ class ElementTree
     // Local mesh element centroids.
     Teuchos::Array<double> d_element_centroids;
 
-    // Vertex global-to-local indexers for each block.
-    Teuchos::Array<boost::tr1::unordered_map<GlobalOrdinal,int> > d_vertex_g2l;
-
     // Discretization cell for each block.
     Teuchos::Array<IntrepidCell<Intrepid::FieldContainer<double> > > d_dcells;
-
-    // Array of cumulative number elements in each block.
-    Teuchos::Array<GlobalOrdinal> d_cumulative_elements;
 
     // Cloud Search.
     Teuchos::RCP<SearchTree> d_tree;

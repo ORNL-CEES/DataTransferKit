@@ -54,7 +54,7 @@ namespace DataTransferKit
 /*!
  * \class CellTopologyFactory 
  * \brief A stateless factory class for creating Shards::CellTopology
- * structures based on a moab::EntityType.
+ * structures based on a DTK cell topology enum.
  */
 //---------------------------------------------------------------------------//
 class CellTopologyFactory

@@ -40,10 +40,6 @@ The current Trilinos state is required to build DTK. You can check out
 this git public repository
 [here](http://trilinos.sandia.gov/publicRepo/index.html)
 
-In addition, the mesh database library MOAB is required. DTK has been
-tested with a stable release version of MOAB 4.5. You can get MOAB
-[here](http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB).
-
 DTK can be configured for both serial and parallel builds. For
 parallel builds, an MPI implementation is also required. Both OpenMPI
 and MPICH have been tested.

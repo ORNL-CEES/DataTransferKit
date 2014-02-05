@@ -1,38 +1,38 @@
 //---------------------------------------------------------------------------//
-/*!
- * \file tstRendezvousMesh.cpp
+/*! 
+ * \file tstElementTree.cpp
  * \author Stuart R. Slattery
- * \brief RendezvousMesh unit tests.
+ * \brief ElementTree unit tests.
  */
 //---------------------------------------------------------------------------//
 
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <cstdlib>
 #include <sstream>
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_RendezvousMesh.hpp>
+#include <DTK_ElementTree.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
-#include <DTK_MeshTools.hpp>
 #include <DTK_MeshManager.hpp>
+#include <DTK_MeshTools.hpp>
 #include <DTK_MeshContainer.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
-
-#include <MBRange.hpp>
+#include <Teuchos_OrdinalTraits.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
 //---------------------------------------------------------------------------//
+
 template<class Ordinal>
 Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 {
@@ -102,7 +102,7 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildLineContainer()
 	permutation_list[i] = i;
     }
     
-    return Teuchos::rcp( 
+    return Teuchos::rcp(
 	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
 				DTK_LINE_SEGMENT, num_vertices,
 				line_handle_array, connectivity_array,
@@ -172,7 +172,7 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTriContainer()
 	permutation_list[i] = i;
     }
     
-    return Teuchos::rcp( 
+    return Teuchos::rcp(
 	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
 				DTK_TRIANGLE, num_vertices,
 				tri_handle_array, connectivity_array,
@@ -249,6 +249,78 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildQuadContainer()
 				DTK_QUADRILATERAL, num_vertices,
 				quad_handle_array, connectivity_array,
 				permutation_list ) );
+	}
+
+//---------------------------------------------------------------------------//
+// Shifted quad mesh.
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildShiftedQuadContainer()
+{
+    using namespace DataTransferKit;
+
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<double> coords;
+
+    int vertex_dim = 2;
+    int num_vertices = 4;
+
+    // handles
+    for ( int i = 0; i < num_vertices; ++i )
+    {
+	vertex_handles.push_back( i );
+    }
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
+
+    // y
+    coords.push_back( -1.0 ); 
+    coords.push_back( -1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+
+    // Make the quadahedron.
+    Teuchos::Array<int> quad_handles;
+    Teuchos::Array<int> quad_connectivity;
+    
+    // handles
+    quad_handles.push_back( 9 );
+
+    // connectivity
+    for ( int i = 0; i < num_vertices; ++i )
+    {
+	quad_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> quad_handle_array( quad_handles.size() );
+    std::copy( quad_handles.begin(), quad_handles.end(), 
+	       quad_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( quad_connectivity.size() );
+    std::copy( quad_connectivity.begin(), quad_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_QUADRILATERAL, num_vertices,
+				quad_handle_array, connectivity_array,
+				permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -273,14 +345,14 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTetContainer()
     // x
     coords.push_back( 0.0 ); 
     coords.push_back( 1.0 ); 
-    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
     coords.push_back( 0.0 );
 
     // y
     coords.push_back( 0.0 ); 
     coords.push_back( 0.0 ); 
     coords.push_back( 1.0 ); 
-    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
 
     // z
     coords.push_back( 0.0 );
@@ -322,7 +394,7 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTetContainer()
 	permutation_list[i] = i;
     }
     
-    return Teuchos::rcp( 
+    return Teuchos::rcp(
 	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
 				DTK_TETRAHEDRON, num_vertices,
 				tet_handle_array, connectivity_array,
@@ -413,6 +485,96 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildHexContainer()
     }
     
     return Teuchos::rcp( 
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_HEXAHEDRON, num_vertices,
+				hex_handle_array, connectivity_array,
+				permutation_list ) );
+}
+
+//---------------------------------------------------------------------------//
+// Shifted hex mesh.
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildShiftedHexContainer()
+{
+    using namespace DataTransferKit;
+
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<double> coords;
+
+    int vertex_dim = 3;
+    int num_vertices = 8;
+
+    // handles
+    for ( int i = 0; i < num_vertices; ++i )
+    {
+	vertex_handles.push_back( i );
+    }
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 );
+    coords.push_back( 1.0 );
+    coords.push_back( 1.0 );
+
+    // z
+    coords.push_back( -1.0 );
+    coords.push_back( -1.0 );
+    coords.push_back( -1.0 );
+    coords.push_back( -1.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+    coords.push_back( 0.0 );
+
+    // Make the hexahedron.
+    Teuchos::Array<int> hex_handles;
+    Teuchos::Array<int> hex_connectivity;
+    
+    // handles
+    hex_handles.push_back( 6 );
+
+    // connectivity
+    for ( int i = 0; i < num_vertices; ++i )
+    {
+	hex_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> hex_handle_array( hex_handles.size() );
+    std::copy( hex_handles.begin(), hex_handles.end(), 
+	       hex_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( hex_connectivity.size() );
+    std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return Teuchos::rcp(
 	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
 				DTK_HEXAHEDRON, num_vertices,
 				hex_handle_array, connectivity_array,
@@ -535,14 +697,14 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildPyramidContainer()
     coords.push_back( 1.0 ); 
     coords.push_back( 1.0 ); 
     coords.push_back( 0.0 );
-    coords.push_back( 0.5 );
+    coords.push_back( 0.0 );
 
     // y
     coords.push_back( 0.0 ); 
     coords.push_back( 0.0 ); 
     coords.push_back( 1.0 ); 
     coords.push_back( 1.0 ); 
-    coords.push_back( 0.5 ); 
+    coords.push_back( 0.0 ); 
 
     // z
     coords.push_back( 0.0 );
@@ -551,12 +713,93 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildPyramidContainer()
     coords.push_back( 0.0 );
     coords.push_back( 1.0 );
 
-    // Make the pyramidahedron.
+    // Make the pyramid.
     Teuchos::Array<int> pyramid_handles;
     Teuchos::Array<int> pyramid_connectivity;
     
     // handles
     pyramid_handles.push_back( 12 );
+
+    // connectivity
+    for ( int i = 0; i < num_vertices; ++i )
+    {
+	pyramid_connectivity.push_back( i );
+    }
+    
+    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    std::copy( vertex_handles.begin(), vertex_handles.end(), 
+	       vertex_handle_array.begin() );
+
+    Teuchos::ArrayRCP<double> coords_array( coords.size() );
+    std::copy( coords.begin(), coords.end(), coords_array.begin() );
+
+    Teuchos::ArrayRCP<int> pyramid_handle_array( pyramid_handles.size() );
+    std::copy( pyramid_handles.begin(), pyramid_handles.end(), 
+	       pyramid_handle_array.begin() );
+
+    Teuchos::ArrayRCP<int> connectivity_array( pyramid_connectivity.size() );
+    std::copy( pyramid_connectivity.begin(), pyramid_connectivity.end(), 
+	       connectivity_array.begin() );
+
+    Teuchos::ArrayRCP<int> permutation_list( num_vertices );
+    for ( int i = 0; i < permutation_list.size(); ++i )
+    {
+	permutation_list[i] = i;
+    }
+    
+    return Teuchos::rcp(
+	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
+				DTK_PYRAMID, num_vertices,
+				pyramid_handle_array, connectivity_array,
+				permutation_list ) );
+}
+
+//---------------------------------------------------------------------------//
+// Shifted pyramid mesh.
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildShiftedPyramidContainer()
+{
+    using namespace DataTransferKit;
+
+    // Make some vertices.
+    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<double> coords;
+
+    int vertex_dim = 3;
+    int num_vertices = 5;
+
+    // handles
+    for ( int i = 0; i < num_vertices; ++i )
+    {
+	vertex_handles.push_back( i );
+    }
+
+    // x
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 );
+    coords.push_back( 0.0 );
+
+    // y
+    coords.push_back( 0.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 1.0 ); 
+    coords.push_back( 0.0 ); 
+    coords.push_back( 0.0 ); 
+
+    // z
+    coords.push_back( -1.0 );
+    coords.push_back( -1.0 );
+    coords.push_back( -1.0 );
+    coords.push_back( -1.0 );
+    coords.push_back( -2.0 );
+
+    // Make the pyramidahedron.
+    Teuchos::Array<int> pyramid_handles;
+    Teuchos::Array<int> pyramid_connectivity;
+    
+    // handles
+    pyramid_handles.push_back( 89 );
 
     // connectivity
     for ( int i = 0; i < num_vertices; ++i )
@@ -614,10 +857,10 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildWedgeContainer()
     // x
     coords.push_back( 0.0 ); 
     coords.push_back( 1.0 ); 
-    coords.push_back( 0.5 ); 
+    coords.push_back( 1.0 ); 
     coords.push_back( 0.0 );
     coords.push_back( 1.0 );
-    coords.push_back( 0.5 );
+    coords.push_back( 1.0 );
 
     // y
     coords.push_back( 0.0 ); 
@@ -669,7 +912,7 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildWedgeContainer()
 	permutation_list[i] = i;
     }
     
-    return Teuchos::rcp( 
+    return Teuchos::rcp(
 	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
 				DTK_WEDGE, num_vertices,
 				wedge_handle_array, connectivity_array,
@@ -680,7 +923,7 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildWedgeContainer()
 // Tests
 //---------------------------------------------------------------------------//
 // Line mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_mesh_test )
+TEUCHOS_UNIT_TEST( MeshContainer, line_element_tree_test )
 {
     using namespace DataTransferKit;
 
@@ -692,66 +935,36 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_mesh_test )
     mesh_blocks[0] = buildLineContainer();
 
     // Create a mesh manager.
-    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 1 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
-    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+    Teuchos::RCP<MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
+	new MeshManager<MeshType>(mesh_blocks, getDefaultComm<int>(), 1) );
+    mesh_manager->buildIndexing();
 
-    TEST_ASSERT( mesh_manager.dim() == 1 );
+    // Create an element tree.
+    ElementTree<MeshType> element_tree( mesh_manager );
 
-    // Create a rendezvous mesh.
-    moab::ErrorCode error;
-    Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMeshFromMesh( mesh_manager );
-
-    // Get the moab interface.
-    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = 
-	mesh->getMoab();
-    
-    // Elements.
-    moab::Range mesh_elements;
-    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
-					       mesh_elements );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
-    for ( int i = 0; i < (int) mesh_elements.size(); ++i )
+    // Search the tree for some random points.
+    int num_points = 1000;
+    Teuchos::Array<double> point(1);
+    int ordinal = 0;
+    for ( int i = 0; i < num_points; ++i )
     {
-	moab::EntityType element_type = 
-	    moab->type_from_handle( mesh_elements[i] );
-	TEST_ASSERT( moab_topology_table[ DTK_LINE_SEGMENT ] ==
-		     element_type );
-	TEST_ASSERT( mesh->getNativeOrdinal( mesh_elements[i] ) == 12 );
-    }
-
-    // Vertices
-    moab::Range vertices;
-    error = moab->get_connectivity( mesh_elements, vertices );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-    TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( *mesh_blocks[0] ) );
-
-    // Coords.
-    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
-    std::vector<double> mb_coords( 3*vertices.size() );
-    error = moab->get_coords( vertices, &mb_coords[0] );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( *mesh_blocks[0] );
-    for ( int i = 0; i < (int) vertices.size(); ++i )
-    {
-	for ( int d = 0; d < vertex_dim; ++d )
+	ordinal = 0;
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	if ( 0.0 <= point[0] && point[0] <= 1.0 )
 	{
-	    TEST_ASSERT( coords_view[vertices.size()*d + i] == 
-			 mb_coords[3*i+d] ); 
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 );
+	}
+	else
+	{
+	    TEST_ASSERT( !element_tree.findPoint( point, ordinal ) );
 	}
     }
 }
 
 //---------------------------------------------------------------------------//
 // Tri mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_mesh_test )
+TEUCHOS_UNIT_TEST( MeshContainer, tri_element_tree_test )
 {
     using namespace DataTransferKit;
 
@@ -763,64 +976,39 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_mesh_test )
     mesh_blocks[0] = buildTriContainer();
 
     // Create a mesh manager.
-    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 2 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
-    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+    Teuchos::RCP<MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
+	new MeshManager<MeshType>(mesh_blocks, getDefaultComm<int>(), 2) );
+    mesh_manager->buildIndexing();
 
-    TEST_ASSERT( mesh_manager.dim() == 2 );
+    // Create an element tree.
+    ElementTree<MeshType> element_tree( mesh_manager );
 
-    // Create a rendezvous mesh.
-    moab::ErrorCode error;
-    Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMeshFromMesh( mesh_manager );
-
-    // Get the moab interface.
-    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
-    
-    // Grab the elements.
-    moab::Range mesh_elements;
-    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
-					       mesh_elements );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
-    for ( int i = 0; i < (int) mesh_elements.size(); ++i )
+    // Search the tree for some random points.
+    int num_points = 1000;
+    Teuchos::Array<double> point(2);
+    int ordinal = 0;
+    for ( int i = 0; i < num_points; ++i )
     {
-	moab::EntityType element_type = 
-	    moab->type_from_handle( mesh_elements[i] );
-	TEST_ASSERT( moab_topology_table[ DTK_TRIANGLE ] ==
-		     element_type );
-	TEST_ASSERT( mesh->getNativeOrdinal( mesh_elements[i] ) == 12 );
-    }
+	ordinal = 0;
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[1] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
 
-    // Vertices
-    moab::Range vertices;
-    error = moab->get_connectivity( mesh_elements, vertices );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-    TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( *mesh_blocks[0] ) );
-
-    // Coords.
-    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
-    std::vector<double> mb_coords( 3*vertices.size() );
-    error = moab->get_coords( vertices, &mb_coords[0] );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( *mesh_blocks[0] );
-    for ( int i = 0; i < (int) vertices.size(); ++i )
-    {
-	for ( int d = 0; d < vertex_dim; ++d )
+	if ( 0.0 <= point[0] && point[0] <= 1.0 &&
+	     0.0 <= point[1] && point[1] <= point[0] )
 	{
-	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 );
+	}
+	else
+	{
+	    TEST_ASSERT( !element_tree.findPoint( point, ordinal ) );
 	}
     }
 }
 
 //---------------------------------------------------------------------------//
 // Quad mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_mesh_test )
+TEUCHOS_UNIT_TEST( MeshContainer, quad_element_tree_test )
 {
     using namespace DataTransferKit;
 
@@ -832,63 +1020,39 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_mesh_test )
     mesh_blocks[0] = buildQuadContainer();
 
     // Create a mesh manager.
-    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 2 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
-    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+    Teuchos::RCP<MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
+	new MeshManager<MeshType>(mesh_blocks, getDefaultComm<int>(), 2) );
+    mesh_manager->buildIndexing();
 
-    TEST_ASSERT( mesh_manager.dim() == 2 );
+    // Create an element tree.
+    ElementTree<MeshType> element_tree( mesh_manager );
 
-    // Create a rendezvous mesh.
-    moab::ErrorCode error;
-    Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMeshFromMesh( mesh_manager );
-
-    // Get the moab interface.
-    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = 
-	mesh->getMoab();
-    
-    // Grab the elements.
-    moab::Range mesh_elements;
-    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
-					       mesh_elements );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
-    for ( int i = 0; i < (int) mesh_elements.size(); ++i )
+    // Search the tree for some random points.
+    int num_points = 1000;
+    Teuchos::Array<double> point(2);
+    int ordinal = 0;
+    for ( int i = 0; i < num_points; ++i )
     {
-	moab::EntityType element_type = 
-	    moab->type_from_handle( mesh_elements[i] );
-	TEST_ASSERT( moab_topology_table[ DTK_QUADRILATERAL ] ==
-		     element_type );
-    }
+	ordinal = 0;
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[1] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
 
-    // Vertices
-    moab::Range vertices;
-    error = moab->get_connectivity( mesh_elements, vertices );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-    TEST_ASSERT( (int) vertices.size() == MT::verticesPerElement( *mesh_blocks[0] ) );
-
-    // Coords.
-    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
-    std::vector<double> mb_coords( 3*vertices.size() );
-    error = moab->get_coords( vertices, &mb_coords[0] );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( *mesh_blocks[0] );
-    for ( int i = 0; i < (int) vertices.size(); ++i )
-    {
-	for ( int d = 0; d < vertex_dim; ++d )
+	if ( 0.0 <= point[0] && point[0] <= 1.0 &&
+	     0.0 <= point[1] && point[1] <= 1.0 )
 	{
-	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 );
+	}
+	else
+	{
+	    TEST_ASSERT( !element_tree.findPoint( point, ordinal ) );
 	}
     }
 }
 
 //---------------------------------------------------------------------------//
 // Tet mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_mesh_test )
+TEUCHOS_UNIT_TEST( MeshContainer, tet_element_tree_test )
 {
     using namespace DataTransferKit;
 
@@ -900,63 +1064,41 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_mesh_test )
     mesh_blocks[0] = buildTetContainer();
 
     // Create a mesh manager.
-    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
-    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+    Teuchos::RCP<MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
+	new MeshManager<MeshType>(mesh_blocks, getDefaultComm<int>(), 3) );
+    mesh_manager->buildIndexing();
 
-    TEST_ASSERT( mesh_manager.dim() == 3 );
+    // Create an element tree.
+    ElementTree<MeshType> element_tree( mesh_manager );
 
-    // Create a rendezvous mesh.
-    moab::ErrorCode error;
-    Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMeshFromMesh( mesh_manager );
-
-    // Get the moab interface.
-    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
-    
-    // Grab the elements.
-    moab::Range mesh_elements;
-    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
-					       mesh_elements );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
-    for ( int i = 0; i < (int) mesh_elements.size(); ++i )
+    // Search the tree for some random points.
+    int num_points = 1000;
+    Teuchos::Array<double> point(3);
+    int ordinal = 0;
+    for ( int i = 0; i < num_points; ++i )
     {
-	moab::EntityType element_type = 
-	    moab->type_from_handle( mesh_elements[i] );
-	TEST_ASSERT( moab_topology_table[ DTK_TETRAHEDRON ] ==
-		     element_type );
-    }
-
-    // Vertices
-    moab::Range vertices;
-    error = moab->get_connectivity( mesh_elements, vertices );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-    TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( *mesh_blocks[0] ) );
-
-    // Coords.
-    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
-    std::vector<double> mb_coords( 3*vertices.size() );
-    error = moab->get_coords( vertices, &mb_coords[0] );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( *mesh_blocks[0] );
-    for ( int i = 0; i < (int) vertices.size(); ++i )
-    {
-	for ( int d = 0; d < vertex_dim; ++d )
+	ordinal = 0;
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[1] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[2] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+    	
+	if ( std::max( std::max(-point[0],-point[1]),
+		       std::max(-point[2], point[0]+point[1]+point[2]-1) )
+	     < 1.0e-8 )
 	{
-	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 );
+	}
+	else
+	{
+	    TEST_ASSERT( !element_tree.findPoint( point, ordinal ) );
 	}
     }
 }
 
 //---------------------------------------------------------------------------//
 // Hex mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_mesh_test )
+TEUCHOS_UNIT_TEST( MeshContainer, hex_element_tree_test )
 {
     using namespace DataTransferKit;
 
@@ -968,63 +1110,41 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_mesh_test )
     mesh_blocks[0] = buildHexContainer();
 
     // Create a mesh manager.
-    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
-    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+    Teuchos::RCP<MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
+	new MeshManager<MeshType>(mesh_blocks, getDefaultComm<int>(), 3) );
+    mesh_manager->buildIndexing();
 
-    TEST_ASSERT( mesh_manager.dim() == 3 );
+    // Create an element tree.
+    ElementTree<MeshType> element_tree( mesh_manager );
 
-    // Create a rendezvous mesh.
-    moab::ErrorCode error;
-    Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMeshFromMesh( mesh_manager );
-
-    // Get the moab interface.
-    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
-    
-    // Grab the elements.
-    moab::Range mesh_elements;
-    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
-					       mesh_elements );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
-    for ( int i = 0; i < (int) mesh_elements.size(); ++i )
+    // Search the tree for some random points.
+    int num_points = 1000;
+    Teuchos::Array<double> point(3);
+    int ordinal = 0;
+    for ( int i = 0; i < num_points; ++i )
     {
-	moab::EntityType element_type = 
-	    moab->type_from_handle( mesh_elements[i] );
-	TEST_ASSERT( moab_topology_table[ DTK_HEXAHEDRON ] ==
-		     element_type );
-    }
+	ordinal = 0;
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[1] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[2] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
 
-    // Vertices
-    moab::Range vertices;
-    error = moab->get_connectivity( mesh_elements, vertices );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-    TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( *mesh_blocks[0] ) );
-
-    // Coords.
-    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
-    std::vector<double> mb_coords( 3*vertices.size() );
-    error = moab->get_coords( vertices, &mb_coords[0] );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( *mesh_blocks[0] );
-    for ( int i = 0; i < (int) vertices.size(); ++i )
-    {
-	for ( int d = 0; d < vertex_dim; ++d )
+	if ( 0.0 <= point[0] && point[0] <= 1.0 &&
+	     0.0 <= point[1] && point[1] <= 1.0 &&
+	     0.0 <= point[2] && point[2] <= 1.0 )
 	{
-	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 );
+	}
+	else
+	{
+	    TEST_ASSERT( !element_tree.findPoint( point, ordinal ) );
 	}
     }
 }
 
 //---------------------------------------------------------------------------//
 // Pyramid mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_mesh_test )
+TEUCHOS_UNIT_TEST( MeshContainer, pyramid_element_tree_test )
 {
     using namespace DataTransferKit;
 
@@ -1036,63 +1156,41 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_mesh_test )
     mesh_blocks[0] = buildPyramidContainer();
 
     // Create a mesh manager.
-    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
-    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+    Teuchos::RCP<MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
+	new MeshManager<MeshType>(mesh_blocks, getDefaultComm<int>(), 3) );
+    mesh_manager->buildIndexing();
 
-    TEST_ASSERT( mesh_manager.dim() == 3 );
+    // Create an element tree.
+    ElementTree<MeshType> element_tree( mesh_manager );
 
-    // Create a rendezvous mesh.
-    moab::ErrorCode error;
-    Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMeshFromMesh( mesh_manager );
-
-    // Get the moab interface.
-    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
-    
-    // Grab the elements.
-    moab::Range mesh_elements;
-    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
-					       mesh_elements );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
-    for ( int i = 0; i < (int) mesh_elements.size(); ++i )
+    // Search the tree for some random points.
+    int num_points = 1000;
+    Teuchos::Array<double> point(3);
+    int ordinal = 0;
+    for ( int i = 0; i < num_points; ++i )
     {
-	moab::EntityType element_type = 
-	    moab->type_from_handle( mesh_elements[i] );
-	TEST_ASSERT( moab_topology_table[ DTK_PYRAMID ] ==
-		     element_type );
-    }
-
-    // Vertices
-    moab::Range vertices;
-    error = moab->get_connectivity( mesh_elements, vertices );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-    TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( *mesh_blocks[0] ) );
-
-    // Coords.
-    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
-    std::vector<double> mb_coords( 3*vertices.size() );
-    error = moab->get_coords( vertices, &mb_coords[0] );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( *mesh_blocks[0] );
-    for ( int i = 0; i < (int) vertices.size(); ++i )
-    {
-	for ( int d = 0; d < vertex_dim; ++d )
+	ordinal = 0;
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[1] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[2] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+    	
+	if( 0.0 <= point[0] && point[0] <= 1.0-point[2] &&
+	    0.0 <= point[1] && point[1] <= 1.0-point[2] && 
+	    0.0 <= point[2] && point[2] <= 1.0 )
 	{
-	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 );
+	}
+	else
+	{
+	    TEST_ASSERT( !element_tree.findPoint( point, ordinal ) );
 	}
     }
 }
 
 //---------------------------------------------------------------------------//
 // Wedge mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_mesh_test )
+TEUCHOS_UNIT_TEST( MeshContainer, wedge_element_tree_test )
 {
     using namespace DataTransferKit;
 
@@ -1104,65 +1202,45 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_mesh_test )
     mesh_blocks[0] = buildWedgeContainer();
 
     // Create a mesh manager.
-    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
-    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+    Teuchos::RCP<MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
+	new MeshManager<MeshType>(mesh_blocks, getDefaultComm<int>(), 3) );
+    mesh_manager->buildIndexing();
 
-    TEST_ASSERT( mesh_manager.dim() == 3 );
+    // Create an element tree.
+    ElementTree<MeshType> element_tree( mesh_manager );
 
-    // Create a rendezvous mesh.
-    moab::ErrorCode error;
-    Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMeshFromMesh( mesh_manager );
-
-    // Get the moab interface.
-    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
-    
-    // Grab the elements.
-    moab::Range mesh_elements;
-    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
-					       mesh_elements );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
-    for ( int i = 0; i < (int) mesh_elements.size(); ++i )
+    // Search the tree for some random points.
+    int num_points = 1000;
+    Teuchos::Array<double> point(3);
+    int ordinal = 0;
+    for ( int i = 0; i < num_points; ++i )
     {
-	moab::EntityType element_type = 
-	    moab->type_from_handle( mesh_elements[i] );
-	TEST_ASSERT( moab_topology_table[ DTK_WEDGE ] ==
-		     element_type );
-    }
+	ordinal = 0;
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[1] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[2] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
 
-    // Vertices
-    moab::Range vertices;
-    error = moab->get_connectivity( mesh_elements, vertices );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-    TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( *mesh_blocks[0] ) );
-
-    // Coords.
-    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
-    std::vector<double> mb_coords( 3*vertices.size() );
-    error = moab->get_coords( vertices, &mb_coords[0] );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( *mesh_blocks[0] );
-    for ( int i = 0; i < (int) vertices.size(); ++i )
-    {
-	for ( int d = 0; d < vertex_dim; ++d )
+	if ( 0.0 <= point[0] && point[0] <= 1.0 &&
+	     0.0 <= point[1] && point[1] <= point[0] &&
+	     0.0 <= point[2] && point[2] <= 1.0 )
 	{
-	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 );
+	}
+	else
+	{
+	    TEST_ASSERT( !element_tree.findPoint( point, ordinal ) );
 	}
     }
 }
 
 //---------------------------------------------------------------------------//
 // Parallel hex mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_rendezvous_mesh_test )
+TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_element_tree_test )
 {
     using namespace DataTransferKit;
+
+    int my_rank = getDefaultComm<int>()->getRank();
 
     // Create a mesh container.
     typedef MeshContainer<int> MeshType;
@@ -1172,63 +1250,42 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_rendezvous_mesh_test )
     mesh_blocks[0] = buildParallelHexContainer();
 
     // Create a mesh manager.
-    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 1 );
-    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
-    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+    Teuchos::RCP<MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
+	new MeshManager<MeshType>(mesh_blocks, getDefaultComm<int>(), 3) );
+    mesh_manager->buildIndexing();
 
-    TEST_ASSERT( mesh_manager.dim() == 3 );
+    // Create an element tree.
+    ElementTree<MeshType> element_tree( mesh_manager );
 
-    // Create a rendezvous mesh.
-    moab::ErrorCode error;
-    Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMeshFromMesh( mesh_manager );
+    // Search the tree for some random points.
+    int num_points = 1000;
+    Teuchos::Array<double> point(3);
 
-    // Get the moab interface.
-    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
-    
-    // Grab the elements.
-    moab::Range mesh_elements;
-    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
-					       mesh_elements );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
-    for ( int i = 0; i < (int) mesh_elements.size(); ++i )
+    int ordinal = 0;
+    for ( int i = 0; i < num_points; ++i )
     {
-	moab::EntityType element_type = 
-	    moab->type_from_handle( mesh_elements[i] );
-	TEST_ASSERT( moab_topology_table[ DTK_HEXAHEDRON ] ==
-		     element_type );
-    }
+	ordinal = 0;
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[1] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[2] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
 
-    // Vertices
-    moab::Range vertices;
-    error = moab->get_connectivity( mesh_elements, vertices );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-    TEST_ASSERT( (int) vertices.size() == 
-		 MT::verticesPerElement( *mesh_blocks[0] ) );
-
-    // Coords.
-    int vertex_dim = MT::vertexDim( *mesh_blocks[0] );
-    std::vector<double> mb_coords( 3*vertices.size() );
-    error = moab->get_coords( vertices, &mb_coords[0] );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    Teuchos::ArrayRCP<const double> coords_view = 
-	Tools::coordsView( *mesh_blocks[0] );
-    for ( int i = 0; i < (int) vertices.size(); ++i )
-    {
-	for ( int d = 0; d < vertex_dim; ++d )
+	if ( 0.0 <= point[0] && point[0] <= 1.0 &&
+	     0.0 <= point[1] && point[1] <= 1.0 &&
+	     my_rank <= point[2] && point[2] <= my_rank+1 )
 	{
-	    TEST_ASSERT( coords_view[vertices.size()*d + i] == mb_coords[3*i+d] ); 
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 );
+	}
+	else
+	{
+	    TEST_ASSERT( !element_tree.findPoint( point, ordinal ) );
 	}
     }
 }
 
 //---------------------------------------------------------------------------//
 // 2d hybrid test.
-TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_mesh_test )
+TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_element_tree_test )
 {
     using namespace DataTransferKit;
 
@@ -1238,84 +1295,59 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_mesh_test )
     typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 2 );
     mesh_blocks[0] = buildTriContainer();
-    mesh_blocks[1] = buildQuadContainer();
+    mesh_blocks[1] = buildShiftedQuadContainer();
 
     // Create a mesh manager.
-    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 2 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 2 );
-    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
-    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+    Teuchos::RCP<MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
+	new MeshManager<MeshType>(mesh_blocks, getDefaultComm<int>(), 2) );
+    mesh_manager->buildIndexing();
 
-    TEST_ASSERT( mesh_manager.dim() == 2 );
+    // Create an element tree.
+    ElementTree<MeshType> element_tree( mesh_manager );
 
-    // Create a rendezvous mesh.
-    moab::ErrorCode error;
-    Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMeshFromMesh( mesh_manager );
-
-    // Get the moab interface.
-    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
-    moab::EntityHandle root_set = moab->get_root_set();
-    
-    // Grab the elements.
-    moab::Range mesh_elements;
-    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
-					       mesh_elements );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
-
-    // Check the mesh data.
-    MeshManager<MeshType>::BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager.blocksBegin();
-	  block_iterator != mesh_manager.blocksEnd();
-	  ++block_iterator )
+    // Search the tree for some random points.
+    int num_points = 1000;
+    Teuchos::Array<double> point(2);
+    int ordinal = 0;
+    double tol = 1.0e-8;
+    for ( int i = 0; i < num_points; ++i )
     {
-	int block_id = std::distance( mesh_manager.blocksBegin(),
-				      block_iterator );
-	// Elements.
-	int block_topology = MT::elementTopology( *(*block_iterator) );
-	Teuchos::ArrayRCP<const int> elements_view =
-	    Tools::elementsView( *(*block_iterator) );
-	TEST_ASSERT( elements_view[0] == 12 );
-	moab::EntityType element_type = 
-	    moab->type_from_handle( mesh_elements[block_id] );
-	TEST_ASSERT( moab_topology_table[ block_topology ] ==
-		     element_type );
+	ordinal = 0;
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[1] = 3.0 * (double) std::rand() / RAND_MAX - 1.5;
 
-	// Vertices.
-	int num_vertices = MT::verticesPerElement( *(*block_iterator) );
-	moab::Range block_elements;
-	error = moab->get_entities_by_type( 
-	    root_set, element_type, block_elements );
-	TEST_ASSERT( error == moab::MB_SUCCESS );
-	moab::Range vertices;
-	error = moab->get_connectivity( block_elements, vertices );
-	TEST_ASSERT( error == moab::MB_SUCCESS );
-	TEST_ASSERT( (int) vertices.size() == num_vertices );
-
-	// Coords.
-	int vertex_dim = MT::vertexDim( *(*block_iterator) );
-	std::vector<double> mb_coords( 3*vertices.size() );
-	error = moab->get_coords( vertices, &mb_coords[0] );
-	TEST_ASSERT( error == moab::MB_SUCCESS );
-
-	Teuchos::ArrayRCP<const double> coords_view = 
-	    Tools::coordsView( *(*block_iterator) );
-	for ( int i = 0; i < (int) vertices.size(); ++i )
+	// We can end up either in the quad or tri on their boundary.
+	if ( 0.0 <= point[0] && point[0] <= 1.0 &&
+	     -tol <= point[1] && point[1] <= tol )
 	{
-	    for ( int d = 0; d < vertex_dim; ++d )
-	    {
-		TEST_ASSERT( coords_view[vertices.size()*d + i] == 
-			     mb_coords[3*i+d] ); 
-	    }
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 || ordinal == 9 );
+	}
+	// In the tri.
+	else if ( 0.0 <= point[0] && point[0] <= 1.0 &&
+		  0.0 < point[1] && point[1] <= point[0] )
+	{
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 );
+	}
+	// In the quad.
+	else if ( 0.0 <= point[0] && point[0] <= 1.0 &&
+		  -1.0 <= point[1] && point[1] < 0.0 )
+	{
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 9 );
+	}
+	// Neither
+	else
+	{
+	    TEST_ASSERT( !element_tree.findPoint( point, ordinal ) );
 	}
     }
 }
 
 //---------------------------------------------------------------------------//
 // 3d hybrid test.
-TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_mesh_test )
+TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_element_tree_test )
 {
     using namespace DataTransferKit;
 
@@ -1325,84 +1357,81 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_mesh_test )
     typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 3 );
     mesh_blocks[0] = buildTetContainer();
-    mesh_blocks[1] = buildPyramidContainer();
-    mesh_blocks[2] = buildHexContainer();
+    mesh_blocks[1] = buildShiftedPyramidContainer();
+    mesh_blocks[2] = buildShiftedHexContainer();
 
     // Create a mesh manager.
-    MeshManager<MeshType> mesh_manager( mesh_blocks, getDefaultComm<int>(), 3 );
-    TEST_ASSERT( mesh_manager.getNumBlocks() == 3 );
-    TEST_ASSERT( mesh_manager.comm()->getRank() == getDefaultComm<int>()->getRank() );
-    TEST_ASSERT( mesh_manager.comm()->getSize() == getDefaultComm<int>()->getSize() );
+    Teuchos::RCP<MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
+	new MeshManager<MeshType>(mesh_blocks, getDefaultComm<int>(), 3) );
+    mesh_manager->buildIndexing();
 
-    TEST_ASSERT( mesh_manager.dim() == 3 );
+    // Create an element tree.
+    ElementTree<MeshType> element_tree( mesh_manager );
 
-    // Create a rendezvous mesh.
-    moab::ErrorCode error;
-    Teuchos::RCP< RendezvousMesh<MeshType::global_ordinal_type> > mesh = 
-	createRendezvousMeshFromMesh( mesh_manager );
-
-    // Get the moab interface.
-    RendezvousMesh<MeshType::global_ordinal_type>::RCP_Moab moab = mesh->getMoab();
-    moab::EntityHandle root_set = moab->get_root_set();
-    
-    // Grab the elements.
-    moab::Range mesh_elements;
-    error = moab()->get_entities_by_dimension( 0, mesh_manager.dim(), 
-					       mesh_elements );
-    TEST_ASSERT( error == moab::MB_SUCCESS );
-
-    TEST_ASSERT( (int) mesh_elements.size() == mesh_manager.localNumElements() );
-
-    // Check the mesh data.
-    MeshManager<MeshType>::BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager.blocksBegin();
-	  block_iterator != mesh_manager.blocksEnd();
-	  ++block_iterator )
+    // Search the tree for some random points.
+    double tol = 1.0e-8;
+    int num_points = 1000;
+    Teuchos::Array<double> point(3);
+    int ordinal = 0;
+    for ( int i = 0; i < num_points; ++i )
     {
-	int block_id = std::distance( mesh_manager.blocksBegin(),
-				      block_iterator );
-
-	// Elements.
-	int block_topology = MT::elementTopology( *(*block_iterator) );
-	Teuchos::ArrayRCP<const int> elements_view =
-	    Tools::elementsView( *(*block_iterator) );
-	TEST_ASSERT( elements_view[0] == 12 );
-	moab::EntityType element_type = 
-	    moab->type_from_handle( mesh_elements[block_id] );
-	TEST_ASSERT( moab_topology_table[ block_topology ] ==
-		     element_type );
-
-	// Vertices.
-	int num_vertices = MT::verticesPerElement( *(*block_iterator) );
-	moab::Range block_elements;
-	error = moab->get_entities_by_type( 
-	    root_set, element_type, block_elements );
-	TEST_ASSERT( error == moab::MB_SUCCESS );
-	moab::Range vertices;
-	error = moab->get_connectivity( block_elements, vertices );
-	TEST_ASSERT( error == moab::MB_SUCCESS );
-	TEST_ASSERT( (int) vertices.size() == num_vertices );
-
-	// Coords.
-	int vertex_dim = MT::vertexDim( *(*block_iterator) );
-	std::vector<double> mb_coords( 3*vertices.size() );
-	error = moab->get_coords( vertices, &mb_coords[0] );
-	TEST_ASSERT( error == moab::MB_SUCCESS );
-
-	Teuchos::ArrayRCP<const double> coords_view = 
-	    Tools::coordsView( *(*block_iterator) );
-	for ( int i = 0; i < (int) vertices.size(); ++i )
+	ordinal = 0;
+	point[0] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[1] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
+	point[2] = 4.0 * (double) std::rand() / RAND_MAX - 2.5;
+    	
+	// Hex/Pyramid boundary.
+	if ( 0.0 <= point[0] && point[0] <= 1.0 &&
+	     0.0 <= point[1] && point[1] <= 1.0 &&
+	     -1.0-tol <= point[2] && point[2] <= -1.0+tol )
 	{
-	    for ( int d = 0; d < vertex_dim; ++d )
-	    {
-		TEST_ASSERT( coords_view[vertices.size()*d + i] == 
-			     mb_coords[3*i+d] ); 
-	    }
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 6 || ordinal == 89 );
+	}
+
+	// Hex/Tet boundary.
+	else if ( 0.0 <= point[0] && point[0] <= 1.0 &&
+		  0.0 <= point[1] && point[1] <= 1.0 &&
+		  -tol <= point[2] && point[2] <= tol )
+	{
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 || ordinal == 6 );
+	}
+
+	// Tet
+	else if ( std::max( std::max(-point[0],-point[1]),
+			    std::max(-point[2], point[0]+point[1]+point[2]-1) )
+		  < tol )
+	{
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 12 );
+	}
+
+	// Hex
+	else if ( 0.0 <= point[0] && point[0] <= 1.0 &&
+		  0.0 <= point[1] && point[1] <= 1.0 && 
+		  -1.0 <= point[2] && point[2] <= 0.0 )
+	{
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 6 );
+	}
+	// Pyramid
+	else if( 0.0 <= point[0] && point[0] <= 2.0+point[2] &&
+		 0.0 <= point[1] && point[1] <= 2.0+point[2] && 
+		 -2.0 <= point[2] && point[2] <= -1.0 )
+	{
+	    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+	    TEST_ASSERT( ordinal == 89 );
+	}
+
+	// None
+	else
+	{
+	    TEST_ASSERT( !element_tree.findPoint( point, ordinal ) );
 	}
     }
 }
 
 //---------------------------------------------------------------------------//
-// end tstRendezvousMesh.cpp
+// end tstElementTree.cpp
 //---------------------------------------------------------------------------//
-

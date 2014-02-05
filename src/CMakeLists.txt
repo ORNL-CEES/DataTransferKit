@@ -32,6 +32,8 @@ APPEND_SET(HEADERS
   DTK_Cylinder.hpp
   DTK_DBC.hpp
   DTK_ElementMeasure.hpp
+  DTK_ElementTree.hpp
+  DTK_ElementTree_impl.hpp
   DTK_FieldContainer.hpp
   DTK_FieldEvaluator.hpp
   DTK_FieldIntegrator.hpp
@@ -53,8 +55,6 @@ APPEND_SET(HEADERS
   DTK_IntrepidCell_impl.hpp
   DTK_IntrepidSideCell.hpp
   DTK_IntrepidSideCell_impl.hpp
-  DTK_KDTree.hpp
-  DTK_KDTree_def.hpp
   DTK_MeshContainer.hpp
   DTK_MeshManager.hpp
   DTK_MeshManager_def.hpp
@@ -69,8 +69,6 @@ APPEND_SET(HEADERS
   DTK_RCB_def.hpp
   DTK_Rendezvous.hpp
   DTK_Rendezvous_def.hpp
-  DTK_RendezvousMesh.hpp
-  DTK_RendezvousMesh_def.hpp
   DTK_SerialPartitioner.hpp
   DTK_SharedDomainMap.hpp
   DTK_SharedDomainMap_def.hpp
@@ -90,7 +88,6 @@ APPEND_SET(SOURCES
   DTK_DBC.cpp
   DTK_MeshContainer.cpp
   DTK_SerialPartitioner.cpp
-  DTK_TopologyTools.cpp
   )
 
 #

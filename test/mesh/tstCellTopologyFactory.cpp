@@ -15,10 +15,6 @@
 
 #include <DTK_CellTopologyFactory.hpp>
 
-#include <mpi.h>
-
-#include <MBInterface.hpp>
-
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_RCP.hpp>

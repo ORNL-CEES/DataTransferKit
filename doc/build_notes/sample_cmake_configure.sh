@@ -18,8 +18,6 @@ cmake \
     -D BLAS_LIBRARY_NAMES:STRING="blas" \
     -D LAPACK_LIBRARY_NAMES:STRING="lapack" \
     -D LAPACK_LIBRARY_DIRS:PATH=/Users/uy7/builds/lapack-3.4.1 \
-    -D MOAB_LIBRARY_DIRS:PATH=/Users/uy7/builds/moab-4.5.0/lib \
-    -D MOAB_INCLUDE_DIRS:PATH=/Users/uy7/builds/moab-4.5.0/include \
     -D VERA_EXTRA_REPOSITORIES="Trilinos;DataTransferKit" \
     -D Zoltan_ENABLE_ULLONG_IDS:Bool=ON \
     -D VERA_ENABLE_DataTransferKit:BOOL=ON \

@@ -141,12 +141,6 @@ class Rendezvous
 	double tolerance = 10*Teuchos::ScalarTraits<double>::eps() ) const;
 
     // Get the native elements in the rendezvous decomposition that are in
-    // each bounding box in a list.
-    void elementsInBoxes(
-	const Teuchos::Array<BoundingBox>& boxes,
-	Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements ) const;
-
-    // Get the native elements in the rendezvous decomposition that are in
     // each geometry in a list.
     template<class Geometry>
     void elementsInGeometry(
@@ -171,7 +165,7 @@ class Rendezvous
 
     // Send the mesh to the rendezvous decomposition and build the concrete
     // mesh blocks.
-    MeshManager<MeshContainerType> 
+    Teuchos::RCP<MeshManager<MeshContainerType> >
     sendMeshToRendezvous( const RCP_MeshManager& mesh_manager );
 
     // Setup the import communication patterns.
@@ -198,8 +192,11 @@ class Rendezvous
     // Rendezvous mesh element to source proc map.
     std::tr1::unordered_map<GlobalOrdinal,int> d_element_src_procs_map;
 
+    // Rendezvous mesh manager.
+    Teuchos::RCP<MeshManager<MeshContainerType> > d_rendezvous_mesh_manager;
+
     // Rendezvous on-process search tree.
-    Teuchos::RCP<ElementTree<Mesh> > d_element_tree;
+    Teuchos::RCP<ElementTree<MeshContainerType> > d_element_tree;
 };
 
 } // end namespace DataTransferKit

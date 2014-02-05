@@ -20,7 +20,6 @@
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>
-#include <DTK_RendezvousMesh.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -852,7 +851,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test3 )
 
     for ( int n = 0; n < (int) missing_points.size(); ++n )
     {
-	TEST_ASSERT( missing_points[n] == missed_in_map[n] );
+	TEST_EQUALITY( missing_points[n], missed_in_map[n] );
     }
 }
 

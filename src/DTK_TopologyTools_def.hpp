@@ -43,7 +43,6 @@
 
 #include "DTK_GeometryTraits.hpp"
 #include "DTK_DBC.hpp"
-#include "DataTransferKit_config.hpp"
 
 #include <Teuchos_as.hpp>
 
@@ -140,9 +139,7 @@ void TopologyTools::referenceCellCenter(
  *
  * \param geometry The geometry.
  *
- * \param element The element. 
- *
- * \param moab The Moab interface containing the element.
+ * \param element_node_coords The coordinates of the element vertices.
  *
  * \param tolerance Tolerance used for element vertex-in-geometry
  * checks.
@@ -158,54 +155,23 @@ void TopologyTools::referenceCellCenter(
  * \return Return true if any of the element's vertices are in the
  * geometry. This is based on the conformal mesh/geometry assumption.
  */
-template<class Geometry>
+template<class Geometry, typename MDArray>
 bool TopologyTools::elementInGeometry( 
     const Geometry& geometry,
-    const moab::EntityHandle element,
-    const Teuchos::RCP<moab::Interface>& moab,
+    const MDArray& element_node_coords,
     const double tolerance,
     bool all_vertices_for_inclusion )
 {
-    // Get the element vertices.
-    DTK_REMEMBER( moab::ErrorCode error );
-    std::vector<moab::EntityHandle> element_vertices;
-#if HAVE_DTK_DBC
-    error = moab->get_adjacencies( &element,
-				   1,
-				   0,
-				   false,
-				   element_vertices );
-#else
-    moab->get_adjacencies( &element,
-			   1,
-			   0,
-			   false,
-			   element_vertices );
-#endif
-    DTK_CHECK( error == moab::MB_SUCCESS );
-
-    // Extract the vertex coordinates.
-    int num_element_vertices = element_vertices.size();
-    Teuchos::Array<double> element_vertex_coords( 3 * num_element_vertices );
-#if HAVE_DTK_DBC
-    error = moab->get_coords( &element_vertices[0], 
-			      num_element_vertices, 
-			      &element_vertex_coords[0] );
-#else
-    moab->get_coords( &element_vertices[0], 
-		      num_element_vertices, 
-		      &element_vertex_coords[0] );
-#endif
-    DTK_CHECK( error == moab::MB_SUCCESS );
-
-    // Check the vertex coordinates for inclusion in the geometry. 
-    Teuchos::Array<double> vertex_coords(3);
+    int space_dim = element_node_coords.dimension(0);
+    int num_element_vertices = element_node_coords.dimension(1);
+    Teuchos::Array<double> vertex_coords( space_dim );
     int verts_in_geometry = 0;
-    for ( int i = 0; i < num_element_vertices; ++i )
+    for ( int n = 0; n < num_element_vertices; ++n )
     {
-	vertex_coords[0] = element_vertex_coords[3*i];
-	vertex_coords[1] = element_vertex_coords[3*i + 1];
-	vertex_coords[2] = element_vertex_coords[3*i + 2];
+	for ( int d = 0; d < space_dim; ++d )
+	{
+	    vertex_coords[d] = element_node_coords(0,n,d);
+	}
 
 	if ( GeometryTraits<Geometry>::pointInGeometry( geometry, 
 							vertex_coords,
@@ -228,10 +194,8 @@ bool TopologyTools::elementInGeometry(
     { 
 	return true;
     }
-    else
-    {
-	return false;
-    }
+    
+    return false;
 }
 
 //---------------------------------------------------------------------------//

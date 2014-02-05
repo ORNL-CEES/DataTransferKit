@@ -23,13 +23,6 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  RendezvousMeshFromGeometry_test
-  SOURCES tstRendezvousMeshFromGeometry.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-  COMM serial mpi
-  STANDARD_PASS_OUTPUT
-  )
-
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
   GeometryRCB_test
   SOURCES tstGeometryRCB.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM mpi

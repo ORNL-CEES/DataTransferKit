@@ -50,6 +50,7 @@
 #include "DTK_CommIndexer.hpp"
 #include "DTK_MeshTypes.hpp"
 #include "DTK_PartitionerFactory.hpp"
+#include "DTK_TopologyTools.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ArrayView.hpp>
@@ -60,6 +61,8 @@
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_Export.hpp>
 #include <Tpetra_MultiVector.hpp>
+
+#include <Intrepid_FieldContainer.hpp>
 
 namespace DataTransferKit
 {
@@ -124,12 +127,13 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 
     // Send the mesh in the box to the rendezvous decomposition and build the
     // mesh blocks.
-    MeshManager<MeshContainerType> rendezvous_mesh_manager =
-	sendMeshToRendezvous( mesh_manager );
+    d_rendezvous_mesh_manager = sendMeshToRendezvous( mesh_manager );
+    d_rendezvous_mesh_manager->buildIndexing();
 
     // Create a search tree in the rendezvous decomposition.
-    d_search_tree = Teuchos::rcp(new ElementTree<Mesh>(rendezvous_mesh_manager));
-    DTK_ENSURE( Teuchos::nonnull(d_search_tree) );
+    d_element_tree = Teuchos::rcp(
+	new ElementTree<MeshContainerType>(d_rendezvous_mesh_manager) );
+    DTK_ENSURE( Teuchos::nonnull(d_element_tree) );
 }
 
 //---------------------------------------------------------------------------//
@@ -232,7 +236,8 @@ void Rendezvous<Mesh>::elementsContainingPoints(
 	    point[d] = coords[ d*num_points + n ];
 	}
 
-	found_point = d_kdtree->findPoint( point, element_ordinal, tolerance );
+	found_point = 
+	    d_element_tree->findPoint( point(), element_ordinal, tolerance );
 
 	if ( found_point )
 	{
@@ -251,39 +256,9 @@ void Rendezvous<Mesh>::elementsContainingPoints(
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the native elements in the rendezvous decomposition that are in
- * each bounding box in a list.
- *
- * \param boxes The boxes to get the elements for.
- *
- * \param elements The elements found in each of the boxes.
- *
- * \param element_src_procs The source procs owning the elements found in the
- * boxes.
- */
-template<class Mesh>
-void Rendezvous<Mesh>::elementsInBoxes(
-    const Teuchos::Array<BoundingBox>& boxes,
-    Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements ) const
-{
-    elements.resize( boxes.size() );
-
-    Teuchos::Array<BoundingBox>::const_iterator box_iterator;
-    typename Teuchos::Array<Teuchos::Array<GlobalOrdinal> >::iterator 
-	element_iterator;
-    for ( box_iterator = boxes.begin(), element_iterator = elements.begin();
-	  box_iterator != boxes.end();
-	  ++box_iterator, ++element_iterator )
-    {
-	*element_iterator = d_rendezvous_mesh->elementsInBox( *box_iterator );
-    }
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the native elements in the rendezvous decomposition that are in
  * each geometric object in a list.
  *
- * \param geometry The geometric object to get the elements for.
+ * \param geometry The geometric objects to check for element inclusion.
  *
  * \param elements The elements found in each of the boxes.
  *
@@ -310,15 +285,59 @@ void Rendezvous<Mesh>::elementsInGeometry(
     typename Teuchos::Array<Geometry>::const_iterator geometry_iterator;
     typename Teuchos::Array<Teuchos::Array<GlobalOrdinal> >::iterator 
 	element_iterator;
-    for ( geometry_iterator = geometry.begin(), 
-	   element_iterator = elements.begin();
-	  geometry_iterator != geometry.end();
-	  ++geometry_iterator, ++element_iterator )
+    int num_blocks = d_rendezvous_mesh_manager->getNumBlocks();
+    Teuchos::RCP<MeshContainerType> block;
+    Teuchos::ArrayRCP<const double> block_vertex_coords;
+    Teuchos::ArrayRCP<const GlobalOrdinal> block_element_gids;
+    Teuchos::ArrayRCP<const GlobalOrdinal> block_connectivity;
+    int block_verts_per_elem = 0;
+    int block_num_elements = 0;
+    int block_num_vertices = 0;
+    GlobalOrdinal vertex_gid = 0;
+    int vertex_lid = 0;
+
+    // Mesh elements are the outer loop. That way we only have to extract the
+    // coordinates once.
+    for ( int b = 0; b < num_blocks; ++b )
     {
-	*element_iterator = 
-	    d_rendezvous_mesh->elementsInGeometry( *geometry_iterator,
-						   tolerance,
-						   all_vertices_for_inclusion );
+	block = d_rendezvous_mesh_manager->getBlock( b );
+	block_num_elements = MeshTools<MeshContainerType>::numElements( *block );
+	block_vertex_coords = MeshTools<MeshContainerType>::coordsView( *block );
+	block_element_gids = MeshTools<MeshContainerType>::elementsView( *block );
+	block_connectivity = MeshTools<MeshContainerType>::connectivityView( *block );
+	block_num_vertices = MeshTools<MeshContainerType>::numVertices( *block );
+	Intrepid::FieldContainer<double> node_coords( 
+	    1, block_verts_per_elem, d_rendezvous_mesh_manager->dim() );
+	for ( int e = 0; e < block_num_elements; ++e )
+	{
+	    // Extract the element node coordinates.
+	    for ( int n = 0; n < block_verts_per_elem; ++n )
+	    {
+		vertex_gid = block_connectivity[ n*block_num_elements + e ];
+		vertex_lid = d_rendezvous_mesh_manager->getLocalVertexId( 
+		    b, vertex_gid );
+
+		for ( int d = 0; d < d_rendezvous_mesh_manager->dim(); ++d )
+		{
+		    node_coords( 0, n, d ) = 
+			block_vertex_coords[ block_num_vertices*d + vertex_lid ];
+		}
+	    }
+
+	    // Check for inclusion in the geometry.
+	    for ( geometry_iterator = geometry.begin(), 
+		   element_iterator = elements.begin();
+		  geometry_iterator != geometry.end();
+		  ++geometry_iterator, ++element_iterator )
+	    {
+		if ( TopologyTools::elementInGeometry(
+			 *geometry_iterator, node_coords, 
+			 tolerance, all_vertices_for_inclusion) )
+		{
+		    element_iterator->push_back( block_element_gids[e] );
+		}
+	    }
+	}
     }
 }
 
@@ -480,7 +499,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
  * \param mesh_manager The mesh to send to the rendezvous decomposition.
  */
 template<class Mesh>
-MeshManager<typename Rendezvous<Mesh>::MeshContainerType> 
+Teuchos::RCP<MeshManager<typename Rendezvous<Mesh>::MeshContainerType> >
 Rendezvous<Mesh>::sendMeshToRendezvous( 
     const RCP_MeshManager& mesh_manager )
 {
@@ -684,9 +703,9 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
     }
 
     // Build the rendezvous mesh manager from the rendezvous mesh blocks.
-    return MeshManager<MeshContainerType>( rendezvous_block_containers,
-					   d_comm,
-					   d_dimension );
+    return Teuchos::rcp( 
+	new MeshManager<MeshContainerType>(
+	    rendezvous_block_containers, d_comm, d_dimension) );
 }
 
 //---------------------------------------------------------------------------//

@@ -205,6 +205,75 @@ BoundingBox MeshManager<Mesh>::globalBoundingBox()
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Given the local id of an element in the mesh, get its block id and
+ * its local id in the block.
+ */
+template<class Mesh>
+void MeshManager<Mesh>::buildIndexing()
+{
+    int num_blocks = d_mesh_blocks.size();
+    d_cumulative_elements.resize( num_blocks );
+    d_vertex_g2l.resize( num_blocks );
+    Teuchos::ArrayRCP<GlobalOrdinal> block_vertex_ids;
+    typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator vertex_id_it;
+    int vertex_lid = 0;
+    for ( int b = 0; b < num_blocks; ++b )
+    {
+	// Element accumulation.
+	d_cumulative_elements[b] = 
+	    ( b > 0 ) 
+	    ?  MeshTools<Mesh>::numElements( *d_mesh_blocks[b] ) + 
+	    d_cumulative_elements[b-1] 
+	    : MeshTools<Mesh>::numElements( *d_mesh_blocks[b] );
+
+	// Global-to-local vertex id mapping.
+	block_vertex_ids = 
+	    MeshTools<Mesh>::verticesNonConstView( *d_mesh_blocks[b] );
+	vertex_lid = 0;
+	for ( vertex_id_it = block_vertex_ids.begin();
+	      vertex_id_it != block_vertex_ids.end();
+	      ++vertex_id_it, ++vertex_lid )
+	{
+	    d_vertex_g2l[b][*vertex_id_it] = vertex_lid;
+	}
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Given the local id of an element in the mesh, get its block id and
+ * its local id in the block.
+ */
+template<class Mesh>
+void MeshManager<Mesh>::getLocalElementIds( const int local_elem_id,
+					    int& block_id,
+					    int& block_elem_id ) const
+{
+    block_id = std::distance(
+	d_cumulative_elements.begin(),
+	std::upper_bound( d_cumulative_elements.begin(),
+			  d_cumulative_elements.end(),
+			  local_elem_id) );
+
+    block_elem_id = (block_id > 0)
+		    ? local_elem_id - d_cumulative_elements[block_id-1]
+		    : local_elem_id;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Given the block id of a vertex and its global id, get its local id
+ * in that block
+ */
+template<class Mesh>
+int MeshManager<Mesh>::getLocalVertexId( 
+    const int block_id, const int vertex_gid ) const
+{
+    return d_vertex_g2l[block_id].find( vertex_gid )->second;
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Validate the mesh to the domain model.
  */
 template<class Mesh>

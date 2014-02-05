@@ -15,7 +15,6 @@
 #include <limits>
 
 #include <DTK_Rendezvous.hpp>
-#include <DTK_RendezvousMesh.hpp>
 #include <DTK_BoundingBox.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshTraits.hpp>

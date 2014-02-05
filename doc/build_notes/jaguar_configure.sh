@@ -21,8 +21,6 @@ cmake \
     -D BLAS_LIBRARY_NAMES:STRING="sci_gnu" \
     -D LAPACK_LIBRARY_DIRS:PATH=/opt/xt-libsci/11.0.04.4/gnu/46/interlagos/lib \
     -D LAPACK_LIBRARY_NAMES:STRING="sci_gnu" \
-    -D MOAB_LIBRARY_DIRS:PATH=/ccs/home/uy7/software/uy7/builds/moab-4.5.0/lib \
-    -D MOAB_INCLUDE_DIRS:PATH=/ccs/home/uy7/software/uy7/builds/moab-4.5.0/include \
     -D Zoltan_ENABLE_ULLONG_IDS:Bool=ON \
     -D Trilinos_EXTRA_REPOSITORIES="DataTransferKit" \
     -D Trilinos_ENABLE_DataTransferKit:BOOL=ON \

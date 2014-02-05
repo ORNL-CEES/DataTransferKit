@@ -41,8 +41,6 @@
 #ifndef DTK_INTREPIDCELL_HPP
 #define DTK_INTREPIDCELL_HPP
 
-#include "DTK_Tolerances.hpp"
-
 #include <Teuchos_RCP.hpp>
 
 #include <Shards_CellTopology.hpp>
@@ -68,6 +66,9 @@ class IntrepidCell
     //@}
 
   public:
+
+    // Default constructor.
+    IntrepidCell() { /* ... */ }
 
     // Constructor.
     IntrepidCell( const shards::CellTopology& cell_topology,

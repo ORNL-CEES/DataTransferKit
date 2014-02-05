@@ -41,6 +41,8 @@
 #ifndef DTK_MESHMANAGER_HPP
 #define DTK_MESHMANAGER_HPP
 
+#include <boost/tr1/unordered_map.hpp>
+
 #include "DTK_MeshTraits.hpp"
 #include "DTK_BoundingBox.hpp"
 
@@ -161,6 +163,19 @@ class MeshManager
     // Compute the global bounding box around the entire mesh.
     BoundingBox globalBoundingBox();
 
+    // Building indexing for faster coordinate access via connectivity.
+    void buildIndexing();
+
+    // Given the local id of an element in the mesh, get its block id and its
+    // local id in the block.
+    void getLocalElementIds( const int local_elem_id,
+			     int& block_id,
+			     int& block_elem_id ) const;
+
+    // Given the block id of a vertex and its global id, get its local id in
+    // that block.
+    int getLocalVertexId( const int block_id, const int vertex_gid ) const;
+
   private:
 
     // Validate the mesh to the domain model.
@@ -182,6 +197,12 @@ class MeshManager
 
     // Active elements in each mesh block.
     Teuchos::Array< Teuchos::Array<short int> > d_active_elements;
+
+    // Array of cumulative number elements in each block.
+    Teuchos::Array<GlobalOrdinal> d_cumulative_elements;
+
+    // Vertex global-to-local indexers for each block.
+    Teuchos::Array<std::tr1::unordered_map<GlobalOrdinal,int> > d_vertex_g2l;
 };
 
 } // end namespace DataTransferKit

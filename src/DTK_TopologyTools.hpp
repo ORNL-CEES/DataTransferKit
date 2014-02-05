@@ -43,11 +43,11 @@
 
 #include <DTK_BoundingBox.hpp>
 
-#include <MBInterface.hpp>
-
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ScalarTraits.hpp>
+
+#include <Shards_CellTopology.hpp>
 
 namespace DataTransferKit
 {
@@ -75,16 +75,10 @@ class TopologyTools
     static void referenceCellCenter( const shards::CellTopology& cell_topo,
 				     MDArray& center );
 
-    // Box-element overlap query.
-    static bool boxElementOverlap( const BoundingBox& box,
-				   const moab::EntityHandle element,
-				   const Teuchos::RCP<moab::Interface>& moab );
-
     // Element-in-geometry query.
-    template<class Geometry>
+    template<class Geometry, typename MDArray>
     static bool elementInGeometry( const Geometry& geometry,
-				   const moab::EntityHandle element,
-				   const Teuchos::RCP<moab::Interface>& moab,
+				   const MDArray& element_node_coords,
 				   const double tolerance,
 				   bool all_vertices_for_inclusion );
 };
