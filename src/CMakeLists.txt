@@ -24,7 +24,13 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   DTK_BoundingBox.hpp
   DTK_Box.hpp
+  DTK_BuhmannBasis.hpp
+  DTK_BuhmannBasis_impl.hpp
   DTK_CellTopologyFactory.hpp
+  DTK_CenterDistributor.hpp
+  DTK_CenterDistributor_impl.hpp
+  DTK_CloudDomain.hpp
+  DTK_CloudDomain_impl.hpp
   DTK_CloudSearch.hpp
   DTK_CloudSearch_impl.hpp
   DTK_CommIndexer.hpp
@@ -34,6 +40,8 @@ APPEND_SET(HEADERS
   DTK_ElementMeasure.hpp
   DTK_ElementTree.hpp
   DTK_ElementTree_impl.hpp
+  DTK_EuclideanDistance.hpp
+  DTK_EuclideanDistance_impl.hpp
   DTK_FieldContainer.hpp
   DTK_FieldEvaluator.hpp
   DTK_FieldIntegrator.hpp
@@ -65,6 +73,7 @@ APPEND_SET(HEADERS
   DTK_MeshTypes.hpp
   DTK_Partitioner.hpp
   DTK_PartitionerFactory.hpp
+  DTK_RadialBasisPolicy.hpp
   DTK_RCB.hpp
   DTK_RCB_def.hpp
   DTK_Rendezvous.hpp
@@ -72,10 +81,22 @@ APPEND_SET(HEADERS
   DTK_SerialPartitioner.hpp
   DTK_SharedDomainMap.hpp
   DTK_SharedDomainMap_def.hpp
+  DTK_SplineInterpolationPairing.hpp
+  DTK_SplineInterpolationPairing_impl.hpp
+  DTK_SplineInterpolator.hpp
+  DTK_SplineInterpolator_impl.hpp
+  DTK_SplineOperatorA.hpp
+  DTK_SplineOperatorA_impl.hpp
+  DTK_SplineOperatorC.hpp
+  DTK_SplineOperatorC_impl.hpp
   DTK_TopologyTools.hpp
   DTK_TopologyTools_def.hpp
   DTK_VolumeSourceMap.hpp
   DTK_VolumeSourceMap_def.hpp
+  DTK_WendlandBasis.hpp
+  DTK_WendlandBasis_impl.hpp
+  DTK_WuBasis.hpp
+  DTK_WuBasis_impl.hpp
   ) 
 
 APPEND_SET(SOURCES
