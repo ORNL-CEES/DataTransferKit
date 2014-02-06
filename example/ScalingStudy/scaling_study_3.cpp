@@ -490,7 +490,6 @@ int main(int argc, char* argv[])
 	int source_rank = i_block + j_block*num_blocks + k_block*num_blocks*num_blocks;
     	if ( source_rank+1 != target_space_manager->field()->getData()[n] )
     	{
-	    std::cout << source_rank+1 << " " <<  target_space_manager->field()->getData()[n] << std::endl;
     	    local_test_failed += 1;
     	}
     }

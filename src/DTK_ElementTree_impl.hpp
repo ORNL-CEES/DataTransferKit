@@ -133,8 +133,7 @@ ElementTree<Mesh>::ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh )
     }
 
     // Build a cloud search.
-    unsigned leaf_size = std::log( d_mesh->localNumElements() ) + 1;
-    leaf_size *= leaf_size;
+    unsigned leaf_size = 10;
     d_tree = createSearchTree( d_mesh->dim(), d_element_centroids(), leaf_size );
     DTK_ENSURE( Teuchos::nonnull(d_tree) );
 }
@@ -178,8 +177,7 @@ bool ElementTree<Mesh>::findPoint(
 	point_array_dims, const_cast<double*>(coords.getRawPtr()) );
 
     // Find the leaf of nearest neighbors.
-    unsigned leaf_size = std::log( d_mesh->localNumElements() ) + 1;
-    unsigned num_neighbors = leaf_size*leaf_size;
+    unsigned num_neighbors = 10;
     Teuchos::Array<unsigned> neighbors = 
 	d_tree->nnSearch( coords, num_neighbors );
 
