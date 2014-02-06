@@ -55,6 +55,7 @@
 #include <Teuchos_as.hpp>
 #include <Teuchos_Ptr.hpp>
 #include <Teuchos_ScalarTraits.hpp>
+#include <Teuchos_Tuple.hpp>
 
 #include <Tpetra_Import.hpp>
 #include <Tpetra_Distributor.hpp>

@@ -51,7 +51,6 @@
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ArrayView.hpp>
-#include <Teuchos_Tuple.hpp>
 #include <Teuchos_Ptr.hpp>
 #include <Teuchos_as.hpp>
 
