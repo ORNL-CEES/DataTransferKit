@@ -20,6 +20,7 @@
 #include <DTK_MeshTraits.hpp>
 #include <DTK_Rendezvous.hpp>
 #include <DTK_MeshContainer.hpp>
+#include <DTK_CommIndexer.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_GlobalMPISession.hpp>
@@ -569,6 +570,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test2 )
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
     int my_rank = comm->getRank();
     int my_size = comm->getSize();
+    CommIndexer comm_indexer( comm, comm );
 
     // Create a bounding box that covers the entire mesh.
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
@@ -622,7 +624,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test2 )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager );
+    rendezvous.build( mesh_manager, comm_indexer );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );

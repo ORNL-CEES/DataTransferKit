@@ -21,6 +21,7 @@
 #include <DTK_MeshManager.hpp>
 #include <DTK_MeshTools.hpp>
 #include <DTK_MeshContainer.hpp>
+#include <DTK_CommIndexer.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_Comm.hpp>
@@ -849,6 +850,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_test )
 
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
+    CommIndexer comm_indexer( getDefaultComm<int>(), getDefaultComm<int>() );
 
     // Create a bounding box that covers the entire mesh.
     double min = -Teuchos::ScalarTraits<double>::rmax();
@@ -868,7 +870,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager );
+    rendezvous.build( mesh_manager, comm_indexer );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -917,6 +919,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_test )
 
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
+    CommIndexer comm_indexer( getDefaultComm<int>(), getDefaultComm<int>() );
 
     // Create a bounding box that covers the entire mesh.
     double min = -Teuchos::ScalarTraits<double>::rmax();
@@ -936,7 +939,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager );
+    rendezvous.build( mesh_manager, comm_indexer );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -985,6 +988,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_test )
 
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
+    CommIndexer comm_indexer( getDefaultComm<int>(), getDefaultComm<int>() );
 
     // Create a bounding box that covers the entire mesh.
     double min = -Teuchos::ScalarTraits<double>::rmax();
@@ -1004,7 +1008,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager );
+    rendezvous.build( mesh_manager, comm_indexer );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1053,6 +1057,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_test )
 
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
+    CommIndexer comm_indexer( getDefaultComm<int>(), getDefaultComm<int>() );
 
     // Create a bounding box that covers the entire mesh.
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
@@ -1070,7 +1075,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager );
+    rendezvous.build( mesh_manager, comm_indexer );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1120,6 +1125,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_test )
 
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
+    CommIndexer comm_indexer( getDefaultComm<int>(), getDefaultComm<int>() );
 
     // Create a bounding box that covers the entire mesh.
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
@@ -1137,7 +1143,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager );
+    rendezvous.build( mesh_manager, comm_indexer );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1187,6 +1193,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_test )
 
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
+    CommIndexer comm_indexer( getDefaultComm<int>(), getDefaultComm<int>() );
 
     // Create a bounding box that covers the entire mesh.
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
@@ -1204,7 +1211,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager );
+    rendezvous.build( mesh_manager, comm_indexer );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1254,6 +1261,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_test )
 
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
+    CommIndexer comm_indexer( getDefaultComm<int>(), getDefaultComm<int>() );
 
     // Create a bounding box that covers the entire mesh.
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
@@ -1271,7 +1279,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager );
+    rendezvous.build( mesh_manager, comm_indexer );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1321,6 +1329,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_test )
 
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
+    CommIndexer comm_indexer( getDefaultComm<int>(), getDefaultComm<int>() );
 
     // Create a bounding box that covers the entire mesh.
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
@@ -1339,7 +1348,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager );
+    rendezvous.build( mesh_manager, comm_indexer );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1388,6 +1397,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_test )
 
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();
+    CommIndexer comm_indexer( getDefaultComm<int>(), getDefaultComm<int>() );
 
     // Create a bounding box that covers the entire mesh.
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
@@ -1407,7 +1417,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager );
+    rendezvous.build( mesh_manager, comm_indexer );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );

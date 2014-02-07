@@ -66,13 +66,10 @@ CommIndexer::CommIndexer()
 CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
 {
     // Get my rank in the local communicator.
-    int local_rank = -1;
-    if ( Teuchos::nonnull(local_comm) )
-    {
-	local_rank = local_comm->getRank();
-    }
+    int local_rank = 
+	Teuchos::nonnull(local_comm) ? local_comm->getRank() : -1;
 
-    // Gather everyone's rank in the local communcator.
+    // Gather everyone's rank in the local communicator.
     int global_size = global_comm->getSize();
     Teuchos::Array<int> local_ids( global_size, 0 );
     Teuchos::gatherAll<int,int>( *global_comm,

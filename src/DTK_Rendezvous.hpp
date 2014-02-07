@@ -49,6 +49,7 @@
 #include "DTK_ElementTree.hpp"
 #include "DTK_Partitioner.hpp"
 #include "DTK_BoundingBox.hpp"
+#include "DTK_CommIndexer.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -120,7 +121,8 @@ class Rendezvous
     ~Rendezvous();
 
     // Build the rendezvous decomposition.
-    void build( const RCP_MeshManager& mesh_manager );
+    void build( const RCP_MeshManager& mesh_manager,
+		const CommIndexer& mesh_indexer );
 
     // Get the rendezvous destination processes for a blocked list of vertex
     // coordinates that are in the primary decomposition.
@@ -166,7 +168,8 @@ class Rendezvous
     // Send the mesh to the rendezvous decomposition and build the concrete
     // mesh blocks.
     Teuchos::RCP<MeshManager<MeshContainerType> >
-    sendMeshToRendezvous( const RCP_MeshManager& mesh_manager );
+    sendMeshToRendezvous( const RCP_MeshManager& mesh_manager,
+			  const CommIndexer& mesh_indexer );
 
     // Setup the import communication patterns.
     void setupImportCommunication( 

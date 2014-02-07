@@ -181,7 +181,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
 			    Teuchos::ScalarTraits<double>::rmax(),
 			    Teuchos::ScalarTraits<double>::rmax() );
     Rendezvous<Mesh> rendezvous( d_comm, d_dimension, global_box );
-    rendezvous.build( source_mesh_manager );
+    rendezvous.build( source_mesh_manager, d_source_indexer );
 
     // Get the target geometries and their bounding boxes.
     Teuchos::ArrayRCP<Geometry> target_geometry(0);

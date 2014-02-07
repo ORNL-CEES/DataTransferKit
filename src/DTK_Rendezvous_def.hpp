@@ -47,7 +47,6 @@
 
 #include "DTK_MeshTools.hpp"
 #include "DTK_DBC.hpp"
-#include "DTK_CommIndexer.hpp"
 #include "DTK_MeshTypes.hpp"
 #include "DTK_PartitionerFactory.hpp"
 #include "DTK_TopologyTools.hpp"
@@ -108,11 +107,12 @@ Rendezvous<Mesh>::~Rendezvous()
  * communicator. 
  */
 template<class Mesh> 
-void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
+void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager,
+			      const CommIndexer& mesh_indexer )
 {
     // Extract the mesh vertices and elements that are in the bounding
     // box. These are the pieces of the mesh that will be repartitioned.
-    if ( !mesh_manager.is_null() ) 
+    if ( Teuchos::nonnull(mesh_manager) ) 
     {
 	getMeshInBox( mesh_manager );
     }
@@ -126,16 +126,14 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
 
     // Send the mesh in the box to the rendezvous decomposition and build the
     // mesh blocks.
-    d_rendezvous_mesh_manager = sendMeshToRendezvous( mesh_manager );
+    d_rendezvous_mesh_manager = sendMeshToRendezvous( mesh_manager, 
+						      mesh_indexer );
     d_rendezvous_mesh_manager->buildIndexing();
 
     // Create a search tree in the rendezvous decomposition.
     d_element_tree = Teuchos::rcp(
 	new ElementTree<MeshContainerType>(d_rendezvous_mesh_manager) );
     DTK_ENSURE( Teuchos::nonnull(d_element_tree) );
-
-    // Barrier before exiting.
-    d_comm->barrier();
 }
 
 //---------------------------------------------------------------------------//
@@ -493,7 +491,8 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 template<class Mesh>
 Teuchos::RCP<MeshManager<typename Rendezvous<Mesh>::MeshContainerType> >
 Rendezvous<Mesh>::sendMeshToRendezvous( 
-    const RCP_MeshManager& mesh_manager )
+    const RCP_MeshManager& mesh_manager,
+    const CommIndexer& mesh_indexer )
 {
     // Set a value for mesh existence.
     bool mesh_exists = Teuchos::nonnull( mesh_manager );
@@ -504,7 +503,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
     {
 	mesh_comm = mesh_manager->comm();
     }
-    CommIndexer mesh_indexer( d_comm, mesh_comm );
 
     // Setup the mesh blocks.
     int num_mesh_blocks;

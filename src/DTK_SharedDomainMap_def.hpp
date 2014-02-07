@@ -185,7 +185,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, d_dimension, shared_domain_box );
-    rendezvous.build( source_mesh_manager );
+    rendezvous.build( source_mesh_manager, d_source_indexer );
 
     // Compute a unique global ordinal for each point in the coordinate field.
     Teuchos::Array<GlobalOrdinal> target_ordinals;
@@ -462,9 +462,6 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
       Teuchos::rcp( new Tpetra::Export<int,GlobalOrdinal>(
 			  d_source_map, d_target_map ) );
     DTK_ENSURE( !d_source_to_target_exporter.is_null() );
-
-    // Barrier before exiting.
-    d_comm->barrier();
 }
 
 //---------------------------------------------------------------------------//
@@ -585,9 +582,6 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     // decomposition.
     target_vector->doExport( *source_vector, *d_source_to_target_exporter, 
 			     Tpetra::INSERT );
-
-    // Barrier before exiting.
-    d_comm->barrier();
 }
 
 //---------------------------------------------------------------------------//
