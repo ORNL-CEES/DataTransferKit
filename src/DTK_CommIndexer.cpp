@@ -65,58 +65,30 @@ CommIndexer::CommIndexer()
  */
 CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
 {
+    // Get my rank in the local communicator.
     int local_rank = -1;
-    int global_rank = global_comm->getRank();
-    int global_size = global_comm->getSize();
-
-    Teuchos::Array<int> in_local( global_size, 0 );
-    Teuchos::Array<int> in_local_copy( global_size, 0 );
-
-    if ( !local_comm.is_null() )
+    if ( Teuchos::nonnull(local_comm) )
     {
 	local_rank = local_comm->getRank();
-    	in_local[ global_rank ] = 1;
     }
 
-    Teuchos::reduceAll<int,int>( *global_comm,
-    				 Teuchos::REDUCE_SUM, 
-    				 Teuchos::as<int>(in_local.size()),
-    				 &in_local[0], 
-    				 &in_local_copy[0]);
-
+    // Gather everyone's rank in the local communcator.
+    int global_size = global_comm->getSize();
     Teuchos::Array<int> local_ids( global_size, 0 );
-    Teuchos::Array<int> local_ids_copy( global_size, 0 );
-    local_ids[ global_rank ] = local_rank;
-    Teuchos::reduceAll<int,int>( *global_comm,
-				 Teuchos::REDUCE_SUM, 
-				 Teuchos::as<int>(local_ids.size()),
-				 &local_ids[0], 
-				 &local_ids_copy[0]);
+    Teuchos::gatherAll<int,int>( *global_comm,
+    				 1,
+				 &local_rank,
+				 local_ids.size(),
+    				 local_ids.getRawPtr() );
 
-    Teuchos::Array<int> global_ids( global_size, 0 );
-    Teuchos::Array<int> global_ids_copy( global_size, 0 );
-    global_ids[ global_rank ] = global_rank;
-    Teuchos::reduceAll<int,int>( *global_comm,
-				 Teuchos::REDUCE_SUM, 
-				 Teuchos::as<int>(global_ids.size()),
-				 &global_ids[0], 
-				 &global_ids_copy[0]);
-
-    Teuchos::Array<int>::const_iterator in_local_copy_it = in_local_copy.begin();
-    Teuchos::Array<int>::const_iterator local_it = 
-	local_ids_copy.begin();
-    Teuchos::Array<int>::const_iterator global_it;
-    for ( global_it = global_ids_copy.begin(); global_it != global_ids_copy.end();
-    	  ++in_local_copy_it, ++local_it, ++global_it )
+    // Map the local communicator to the global communicator.
+    for ( int i = 0; i < global_size; ++i )
     {
-    	if ( *in_local_copy_it )
+    	if ( local_ids[i] >= 0 )
     	{
-    	    d_l2gmap[*local_it] = *global_it;
+    	    d_l2gmap[ local_ids[i] ] = i;
     	}
     }
-
-    // Barrier before exiting.
-    global_comm->barrier();
 }
 
 //---------------------------------------------------------------------------//
