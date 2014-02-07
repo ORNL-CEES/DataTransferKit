@@ -163,9 +163,6 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     {
 	source_box = source_mesh_manager->globalBoundingBox();
     }
-    Teuchos::broadcast<int,BoundingBox>(
-	*d_comm, d_source_indexer.l2g(0), 
-	Teuchos::Ptr<BoundingBox>(&source_box) );
 
     // Get the global bounding box for the coordinate field.
     BoundingBox target_box;
@@ -174,15 +171,28 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	target_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
 	    *target_coord_manager->field(), target_coord_manager->comm() );
     }
-    Teuchos::broadcast<int,BoundingBox>( 
-	*d_comm, d_target_indexer.l2g(0), 
-	Teuchos::Ptr<BoundingBox>(&target_box) );
 
-    // Intersect the boxes to get the shared domain bounding box.
+    // Send the target box to source proc zero.
+    if ( d_comm->getRank() == d_target_indexer.l2g(0) )
+    {
+	Teuchos::send<int,BoundingBox>( 
+	    *d_comm, target_box, d_source_indexer.l2g(0) );
+    }
+
+    // Intersect the boxes on source proc 0 to get the shared domain bounding
+    // box.
     BoundingBox shared_domain_box;
-    bool has_intersect = BoundingBox::intersectBoxes( source_box, target_box, 
-						      shared_domain_box );
-    DTK_INSIST( has_intersect );
+    if ( d_comm->getRank() == d_source_indexer.l2g(0) )
+    {
+	Teuchos::receive<int,BoundingBox>(
+	    *d_comm, d_target_indexer.l2g(0), &target_box );
+	bool has_intersect = BoundingBox::intersectBoxes( 
+	    source_box, target_box, shared_domain_box );
+	DTK_INSIST( has_intersect );
+    }
+    Teuchos::broadcast<int,BoundingBox>( 
+	*d_comm, d_source_indexer.l2g(0),
+	Teuchos::Ptr<BoundingBox>(&shared_domain_box) );
 
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, d_dimension, shared_domain_box );
