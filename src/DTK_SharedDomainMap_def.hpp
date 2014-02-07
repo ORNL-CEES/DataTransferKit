@@ -150,11 +150,20 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	    *target_coord_manager->field(), target_coord_manager->comm() );
     }
 
+    // Post a receive for the target box on source proc 0.
+    Teuchos::RCP<Teuchos::CommRequest<int> > box_request;
+    {
+	box_request = Teuchos::ireceive<int,BoundingBox>(
+	    *d_comm, Teuchos::RCP<BoundingBox>(&target_box,false),
+	    d_target_indexer.l2g(0) );
+    }
+
     // Send the target box to source proc zero.
     if ( d_comm->getRank() == d_target_indexer.l2g(0) )
     {
-	Teuchos::send<int,BoundingBox>( 
-	    *d_comm, target_box, d_source_indexer.l2g(0) );
+	Teuchos::isend<int,BoundingBox>( 
+	    *d_comm, Teuchos::RCP<BoundingBox>(&target_box,false), 
+	    d_source_indexer.l2g(0) );
     }
 
     // Intersect the boxes on source proc 0 to get the shared domain bounding
@@ -162,8 +171,9 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     BoundingBox shared_domain_box;
     if ( d_comm->getRank() == d_source_indexer.l2g(0) )
     {
-	Teuchos::receive<int,BoundingBox>(
-	    *d_comm, d_target_indexer.l2g(0), &target_box );
+        Teuchos::Ptr<Teuchos::RCP<Teuchos::CommRequest<int> > > 
+	    request_ptr(&box_request);
+        Teuchos::wait( *d_comm, request_ptr );
 	bool has_intersect = BoundingBox::intersectBoxes( 
 	    source_box, target_box, shared_domain_box );
 	DTK_INSIST( has_intersect );
