@@ -496,8 +496,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
     const RCP_MeshManager& mesh_manager )
 {
     // Set a value for mesh existence.
-    bool mesh_exists = true;
-    if ( mesh_manager.is_null() ) mesh_exists = false;
+    bool mesh_exists = Teuchos::nonnull( mesh_manager );
 
     // Setup a mesh indexer.
     RCP_Comm mesh_comm;
@@ -705,8 +704,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     Teuchos::Array<GlobalOrdinal>& rendezvous_elements )
 {
     // Set a value for mesh existence.
-    bool mesh_exists = true;
-    if ( mesh.is_null() ) mesh_exists = false;
+    bool mesh_exists = Teuchos::nonnull( mesh );
 
     // Create a vertex index map for access to connectivity data.
     typename MT::const_vertex_iterator export_vertex_iterator;

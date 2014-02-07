@@ -116,10 +116,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     double tolerance )
 {
     // Create existence values for the managers.
-    bool source_exists = true;
-    if ( source_mesh_manager.is_null() ) source_exists = false;
-    bool target_exists = true;
-    if ( target_coord_manager.is_null() ) target_exists = false;
+    bool source_exists = Teuchos::nonnull( source_mesh_manager );
+    bool target_exists = Teuchos::nonnull( target_coord_manager );
 
     // Create local to global process indexers for the managers.
     RCP_Comm source_comm;
@@ -135,39 +133,19 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     }
     d_target_indexer = CommIndexer( d_comm, target_comm );
 
-    // Check the source and target dimensions for consistency.
+    // Check the source and target dimensions for consistency and build the
+    // global bounding boxes.
+    BoundingBox source_box;
     if ( source_exists )
     {
 	DTK_REQUIRE( source_mesh_manager->dim() == d_dimension );
+	source_box = source_mesh_manager->globalBoundingBox();
     }
+    BoundingBox target_box;
     if ( target_exists )
     {
 	DTK_REQUIRE( CFT::dim( *target_coord_manager->field() ) 
 			  == d_dimension );
-    }
-
-    // Compute a unique global ordinal for each point in the coordinate field.
-    Teuchos::Array<GlobalOrdinal> target_ordinals;
-    computePointOrdinals( target_coord_manager, target_ordinals );
-
-    // Build the data import map from the point global ordinals.
-    Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
-	target_ordinals();
-    d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
-	import_ordinal_view, d_comm );
-    DTK_ENSURE( !d_target_map.is_null() );
-
-    // Get the global bounding box for the mesh.
-    BoundingBox source_box;
-    if ( source_exists )
-    {
-	source_box = source_mesh_manager->globalBoundingBox();
-    }
-
-    // Get the global bounding box for the coordinate field.
-    BoundingBox target_box;
-    if ( target_exists )
-    {
 	target_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
 	    *target_coord_manager->field(), target_coord_manager->comm() );
     }
@@ -194,31 +172,38 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	*d_comm, d_source_indexer.l2g(0),
 	Teuchos::Ptr<BoundingBox>(&shared_domain_box) );
 
+    // Compute a unique global ordinal for each point in the coordinate field.
+    Teuchos::Array<GlobalOrdinal> target_ordinals;
+    computePointOrdinals( target_coord_manager, target_ordinals );
+
+    // Build the data import map from the point global ordinals.
+    Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
+	target_ordinals();
+    d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
+	import_ordinal_view, d_comm );
+    DTK_ENSURE( !d_target_map.is_null() );
+
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, d_dimension, shared_domain_box );
     rendezvous.build( source_mesh_manager );
 
     // Determine the rendezvous destination proc of each point in the
-    // coordinate field.
+    // coordinate field. Also get the target points that are in the box in
+    // which the rendezvous decomposition was generated. The rendezvous
+    // algorithm will expand the box slightly based on mesh parameters.
     Teuchos::ArrayRCP<double> coords_view(0,0.0);
+    Teuchos::Array<GlobalOrdinal> targets_in_box;
     if ( target_exists )
     {
 	coords_view = FieldTools<CoordinateField>::nonConstView( 
 	    *target_coord_manager->field() );
-    }
-    Teuchos::Array<int> rendezvous_procs = 
-	rendezvous.procsContainingPoints( coords_view );
 
-    // Get the target points that are in the box in which the rendezvous
-    // decomposition was generated. The rendezvous algorithm will expand the
-    // box slightly based on mesh parameters.
-    Teuchos::Array<GlobalOrdinal> targets_in_box;
-    if ( target_exists )
-    {
 	getTargetPointsInBox( rendezvous.getBox(), 
 			      *target_coord_manager->field(),
 			      target_ordinals, targets_in_box );
     }
+    Teuchos::Array<int> rendezvous_procs = 
+	rendezvous.procsContainingPoints( coords_view );
 
     // Extract those target points that are not in the box. We don't want to
     // send these to the rendezvous decomposition.
@@ -555,35 +540,29 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 	source_vector = Tpetra::createMultiVectorFromView( 
 	    d_source_map, source_field_copy, source_size, field_dim );
 
-    // Construct a view of the target space.
+    // Construct a view of the target space. Fill the target space with zeros
+    // so that points we didn't map get some data.
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(0,0);
+    GlobalOrdinal target_size = 0;
     if ( target_exists )
     {
 	target_field_view = FieldTools<TargetField>::nonConstView( 
 	    *target_space_manager->field() );
-    }
 
-    // Verify that the target space has the proper amount of memory allocated.
-    GlobalOrdinal target_size = target_field_view.size() / field_dim;
-    if ( target_exists )
-    {
-	DTK_REQUIRE( 
+	target_size = target_field_view.size() / field_dim;
+
+	FieldTools<TargetField>::putScalar( 
+	    *target_space_manager->field(), 0.0 );
+
+	DTK_CHECK( 
 	    target_size == Teuchos::as<GlobalOrdinal>(
 		d_target_map->getNodeNumElements()) );
     }
-    
+
     // Build a multivector for the target space.
     Teuchos::RCP<Tpetra::MultiVector<typename TFT::value_type, int, GlobalOrdinal> > 
 	target_vector =	Tpetra::createMultiVectorFromView( 
 	    d_target_map, target_field_view, target_size, field_dim );
-
-    // Fill the target space with zeros so that points we didn't map get some
-    // data.
-    if ( target_exists )
-    {
-	FieldTools<TargetField>::putScalar( 
-	    *target_space_manager->field(), 0.0 );
-    }
 
     // Move the data from the source decomposition to the target
     // decomposition.
