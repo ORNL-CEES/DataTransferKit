@@ -179,10 +179,13 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	    source_box, target_box, shared_domain_box );
 	DTK_INSIST( has_intersect );
     }
-
     Teuchos::broadcast<int,BoundingBox>( 
 	*d_comm, d_source_indexer.l2g(0),
 	Teuchos::Ptr<BoundingBox>(&shared_domain_box) );
+
+    // Build a rendezvous decomposition with the source mesh.
+    Rendezvous<Mesh> rendezvous( d_comm, d_dimension, shared_domain_box );
+    rendezvous.build( source_mesh_manager );
 
     // Compute a unique global ordinal for each point in the coordinate field.
     Teuchos::Array<GlobalOrdinal> target_ordinals;
@@ -194,10 +197,6 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
 	import_ordinal_view, d_comm );
     DTK_ENSURE( !d_target_map.is_null() );
-
-    // Build a rendezvous decomposition with the source mesh.
-    Rendezvous<Mesh> rendezvous( d_comm, d_dimension, shared_domain_box );
-    rendezvous.build( source_mesh_manager );
 
     // Determine the rendezvous destination proc of each point in the
     // coordinate field. Also get the target points that are in the box in
@@ -220,17 +219,11 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Extract those target points that are not in the box. We don't want to
     // send these to the rendezvous decomposition.
     Teuchos::Array<GlobalOrdinal> not_in_box;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator in_box_iterator;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator in_box_begin =
-	targets_in_box.begin();
-    for ( in_box_iterator = targets_in_box.begin();
-	  in_box_iterator != targets_in_box.end();
-	  ++in_box_iterator )
+    for ( unsigned i = 0; i < targets_in_box.size(); ++i )
     {
-	if ( *in_box_iterator == std::numeric_limits<GlobalOrdinal>::max() )
+	if ( targets_in_box[i] == std::numeric_limits<GlobalOrdinal>::max() )
 	{
-	    not_in_box.push_back( 
-		std::distance( in_box_begin, in_box_iterator ) );
+	    not_in_box.push_back( i );
 	}
     }
     std::reverse( not_in_box.begin(), not_in_box.end() );
@@ -295,31 +288,20 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Get the points that were not in the mesh. If we're keeping track of
     // missed points, also make a list of those ordinals.
-    GlobalOrdinal target_index;
     Teuchos::Array<GlobalOrdinal> not_in_mesh;
     Teuchos::Array<GlobalOrdinal> missed_in_mesh_idx;
     Teuchos::Array<GlobalOrdinal> missed_in_mesh_ordinal;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
-	rendezvous_elements_iterator;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
-	rendezvous_elements_begin = rendezvous_elements.begin();
-    for ( rendezvous_elements_iterator = rendezvous_elements.begin();
-	  rendezvous_elements_iterator != rendezvous_elements.end();
-	  ++rendezvous_elements_iterator )
+    for ( unsigned i = 0; i < rendezvous_elements.size(); ++i )
     {
-	if ( *rendezvous_elements_iterator == 
+	if ( rendezvous_elements[i] == 
 	     std::numeric_limits<GlobalOrdinal>::max() )
 	{
-	    target_index = std::distance( rendezvous_elements_begin, 
-					  rendezvous_elements_iterator );
-
-	    not_in_mesh.push_back( target_index );
+	    not_in_mesh.push_back( i );
 
 	    if ( d_store_missed_points )
 	    {
-		missed_in_mesh_idx.push_back( target_index );
-		missed_in_mesh_ordinal.push_back( 
-		    rendezvous_points[target_index] );
+		missed_in_mesh_idx.push_back( i );
+		missed_in_mesh_ordinal.push_back( rendezvous_points[i] );
 	    }
 	}
     }
