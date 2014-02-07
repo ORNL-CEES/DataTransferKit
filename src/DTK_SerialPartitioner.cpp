@@ -68,7 +68,7 @@ void SerialPartitioner::partition()
  * \brief Get the destination process for a point given its coordinates.
  */
 int SerialPartitioner::getPointDestinationProc( 
-    Teuchos::Array<double> coords ) const
+    Teuchos::ArrayView<double> coords ) const
 {
     return 0;
 }

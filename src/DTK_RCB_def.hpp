@@ -178,7 +178,7 @@ void RCB<Mesh>::partition()
  * \return The RCB destination proc for the point.
  */
 template<class Mesh>
-int RCB<Mesh>::getPointDestinationProc( Teuchos::Array<double> coords ) const
+int RCB<Mesh>::getPointDestinationProc( Teuchos::ArrayView<double> coords ) const
 {
     DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
     DTK_REQUIRE( d_dimension == Teuchos::as<int>(coords.size()) );
@@ -186,9 +186,9 @@ int RCB<Mesh>::getPointDestinationProc( Teuchos::Array<double> coords ) const
     int proc = 0;
     DTK_REMEMBER( int zoltan_error );
 #if HAVE_DTK_DBC
-    zoltan_error = Zoltan_LB_Point_Assign( d_zz, &coords[0], &proc );
+    zoltan_error = Zoltan_LB_Point_Assign( d_zz, coords.getRawPtr(), &proc );
 #else
-    Zoltan_LB_Point_Assign( d_zz, &coords[0], &proc );
+    Zoltan_LB_Point_Assign( d_zz, coords.getRawPtr(), &proc );
 #endif
     DTK_CHECK( zoltan_error == ZOLTAN_OK );
 

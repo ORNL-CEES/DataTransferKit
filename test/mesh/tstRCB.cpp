@@ -277,19 +277,19 @@ TEUCHOS_UNIT_TEST( RCB, 1d_rcb_test )
     // Check the destination proc point search.
     Teuchos::Array<double> point_0(1);
     point_0[0] = 2.0;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_0 ) == my_size-1 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_0() ) == my_size-1 );
 
     Teuchos::Array<double> point_1(1);
     point_1[0] = -2.0;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_1 ) == 0 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_1() ) == 0 );
 
     Teuchos::Array<double> point_2(1);
     point_2[0] = 0.2;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_2 ) == 0 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_2() ) == 0 );
 
     Teuchos::Array<double> point_3(1);
     point_3[0] = 0.8;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_3 ) == my_size-1 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_3() ) == my_size-1 );
 }
 
 //---------------------------------------------------------------------------//
@@ -409,22 +409,22 @@ TEUCHOS_UNIT_TEST( RCB, 2d_rcb_test )
     Teuchos::Array<double> point_0(2);
     point_0[0] = 2.0;
     point_0[1] = 2.0;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_0 ) == my_size-1 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_0() ) == my_size-1 );
 
     Teuchos::Array<double> point_1(2);
     point_1[0] = -2.0;
     point_1[1] = -2.0;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_1 ) == 0 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_1() ) == 0 );
 
     Teuchos::Array<double> point_2(2);
     point_2[0] = 0.2;
     point_2[1] = 0.2;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_2 ) == 0 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_2() ) == 0 );
 
     Teuchos::Array<double> point_3(2);
     point_3[0] = 0.8;
     point_3[1] = 0.8;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_3 ) == my_size-1 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_3() ) == my_size-1 );
 }
 
 //---------------------------------------------------------------------------//
@@ -547,25 +547,25 @@ TEUCHOS_UNIT_TEST( RCB, 3d_rcb_test )
     point_0[0] = 2.0;
     point_0[1] = 2.0;
     point_0[2] = 2.0;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_0 ) == my_size-1 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_0() ) == my_size-1 );
 
     Teuchos::Array<double> point_1(3);
     point_1[0] = -2.0;
     point_1[1] = -2.0;
     point_1[2] = -2.0;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_1 ) == 0 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_1() ) == 0 );
 
     Teuchos::Array<double> point_2(3);
     point_2[0] = 0.2;
     point_2[1] = 0.2;
     point_2[2] = 0.2;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_2 ) == 0 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_2() ) == 0 );
 
     Teuchos::Array<double> point_3(3);
     point_3[0] = 0.8;
     point_3[1] = 0.8;
     point_3[2] = 0.8;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_3 ) == my_size-1 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_3() ) == my_size-1 );
 }
 
 //---------------------------------------------------------------------------//
@@ -680,19 +680,19 @@ TEUCHOS_UNIT_TEST( RCB, partial_1d_rcb_test )
     // Check the destination proc point search.
     Teuchos::Array<double> point_0(1);
     point_0[0] = 2.0;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_0 ) == my_size-1 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_0() ) == my_size-1 );
 
     Teuchos::Array<double> point_1(1);
     point_1[0] = -2.0;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_1 ) == 0 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_1() ) == 0 );
 
     Teuchos::Array<double> point_2(1);
     point_2[0] = 0.2;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_2 ) == 0 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_2() ) == 0 );
 
     Teuchos::Array<double> point_3(1);
     point_3[0] = 0.8;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_3 ) == my_size-1 );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_3() ) == my_size-1 );
 }
 
 //---------------------------------------------------------------------------//

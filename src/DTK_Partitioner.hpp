@@ -43,7 +43,7 @@
 
 #include "DTK_BoundingBox.hpp"
 
-#include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 namespace DataTransferKit
 {
@@ -71,7 +71,7 @@ class Partitioner
 
     // Get the destination process for a point given its coordinates.
     virtual int 
-    getPointDestinationProc( Teuchos::Array<double> coords ) const = 0;
+    getPointDestinationProc( Teuchos::ArrayView<double> coords ) const = 0;
 
     // Get the destination processes for a bounding box.
     virtual Teuchos::Array<int> 

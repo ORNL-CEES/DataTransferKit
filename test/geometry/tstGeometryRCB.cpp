@@ -155,25 +155,25 @@ TEUCHOS_UNIT_TEST( GeometryRCB, cylinder_test )
     point_0[0] = 2.0;
     point_0[1] = 2.0;
     point_0[2] = 2.0;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_0 ) < my_size );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_0() ) < my_size );
 
     Teuchos::Array<double> point_1(3);
     point_1[0] = -2.0;
     point_1[1] = -2.0;
     point_1[2] = -2.0;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_1 ) < my_size );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_1() ) < my_size );
 
     Teuchos::Array<double> point_2(3);
     point_2[0] = 0.2;
     point_2[1] = 0.2;
     point_2[2] = 0.2;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_2 ) < my_size );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_2() ) < my_size );
 
     Teuchos::Array<double> point_3(3);
     point_3[0] = 0.8;
     point_3[1] = 0.8;
     point_3[2] = 0.8;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_3 ) < my_size );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_3() ) < my_size );
 }
 
 //---------------------------------------------------------------------------//
@@ -222,25 +222,25 @@ TEUCHOS_UNIT_TEST( GeometryRCB, partitioner_cylinder_test )
     point_0[0] = 2.0;
     point_0[1] = 2.0;
     point_0[2] = 2.0;
-    TEST_ASSERT( partitioner->getPointDestinationProc( point_0 ) < my_size );
+    TEST_ASSERT( partitioner->getPointDestinationProc( point_0() ) < my_size );
 
     Teuchos::Array<double> point_1(3);
     point_1[0] = -2.0;
     point_1[1] = -2.0;
     point_1[2] = -2.0;
-    TEST_ASSERT( partitioner->getPointDestinationProc( point_1 ) < my_size );
+    TEST_ASSERT( partitioner->getPointDestinationProc( point_1() ) < my_size );
 
     Teuchos::Array<double> point_2(3);
     point_2[0] = 0.2;
     point_2[1] = 0.2;
     point_2[2] = 0.2;
-    TEST_ASSERT( partitioner->getPointDestinationProc( point_2 ) < my_size );
+    TEST_ASSERT( partitioner->getPointDestinationProc( point_2() ) < my_size );
 
     Teuchos::Array<double> point_3(3);
     point_3[0] = 0.8;
     point_3[1] = 0.8;
     point_3[2] = 0.8;
-    TEST_ASSERT( partitioner->getPointDestinationProc( point_3 ) < my_size );
+    TEST_ASSERT( partitioner->getPointDestinationProc( point_3() ) < my_size );
 }
 
 //---------------------------------------------------------------------------//
@@ -347,25 +347,25 @@ TEUCHOS_UNIT_TEST( GeometryRCB, box_test )
     point_0[0] = 2.0;
     point_0[1] = 2.0;
     point_0[2] = 2.0;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_0 ) < my_size );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_0() ) < my_size );
 
     Teuchos::Array<double> point_1(3);
     point_1[0] = -2.0;
     point_1[1] = -2.0;
     point_1[2] = -2.0;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_1 ) < my_size );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_1() ) < my_size );
 
     Teuchos::Array<double> point_2(3);
     point_2[0] = 0.2;
     point_2[1] = 0.2;
     point_2[2] = 0.2;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_2 ) < my_size );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_2() ) < my_size );
 
     Teuchos::Array<double> point_3(3);
     point_3[0] = 0.8;
     point_3[1] = 0.8;
     point_3[2] = 0.8;
-    TEST_ASSERT( rcb.getPointDestinationProc( point_3 ) < my_size );
+    TEST_ASSERT( rcb.getPointDestinationProc( point_3() ) < my_size );
 }
 
 //---------------------------------------------------------------------------//
@@ -415,25 +415,25 @@ TEUCHOS_UNIT_TEST( GeometryRCB, partitioner_box_test )
     point_0[0] = 2.0;
     point_0[1] = 2.0;
     point_0[2] = 2.0;
-    TEST_ASSERT( partitioner->getPointDestinationProc( point_0 ) < my_size );
+    TEST_ASSERT( partitioner->getPointDestinationProc( point_0() ) < my_size );
 
     Teuchos::Array<double> point_1(3);
     point_1[0] = -2.0;
     point_1[1] = -2.0;
     point_1[2] = -2.0;
-    TEST_ASSERT( partitioner->getPointDestinationProc( point_1 ) < my_size );
+    TEST_ASSERT( partitioner->getPointDestinationProc( point_1() ) < my_size );
 
     Teuchos::Array<double> point_2(3);
     point_2[0] = 0.2;
     point_2[1] = 0.2;
     point_2[2] = 0.2;
-    TEST_ASSERT( partitioner->getPointDestinationProc( point_2 ) < my_size );
+    TEST_ASSERT( partitioner->getPointDestinationProc( point_2() ) < my_size );
 
     Teuchos::Array<double> point_3(3);
     point_3[0] = 0.8;
     point_3[1] = 0.8;
     point_3[2] = 0.8;
-    TEST_ASSERT( partitioner->getPointDestinationProc( point_3 ) < my_size );
+    TEST_ASSERT( partitioner->getPointDestinationProc( point_3() ) < my_size );
 }
 
 //---------------------------------------------------------------------------//

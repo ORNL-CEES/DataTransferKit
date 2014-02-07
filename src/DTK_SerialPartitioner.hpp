@@ -69,7 +69,7 @@ class SerialPartitioner : public Partitioner
     void partition();
 
     // Get the destination process for a point given its coordinates.
-    int getPointDestinationProc( Teuchos::Array<double> coords ) const;
+    int getPointDestinationProc( Teuchos::ArrayView<double> coords ) const;
 
     // Get the destination processes for a bounding box.
     Teuchos::Array<int> getBoxDestinationProcs( const BoundingBox& box ) const;

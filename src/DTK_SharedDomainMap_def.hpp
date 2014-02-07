@@ -191,16 +191,11 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Determine the rendezvous destination proc of each point in the
     // coordinate field.
     Teuchos::ArrayRCP<double> coords_view(0,0.0);
-    int coord_dim;
     if ( target_exists )
     {
-	coord_dim = CFT::dim( *target_coord_manager->field() );
 	coords_view = FieldTools<CoordinateField>::nonConstView( 
 	    *target_coord_manager->field() );
     }
-    Teuchos::broadcast<int,int>( 
-	*d_comm, d_target_indexer.l2g(0), Teuchos::Ptr<int>(&coord_dim) );
-
     Teuchos::Array<int> rendezvous_procs = 
 	rendezvous.procsContainingPoints( coords_view );
 
@@ -276,9 +271,9 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     GlobalOrdinal num_points = target_ordinals.size();
     Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> > 
 	target_coords =	Tpetra::createMultiVectorFromView( 
-	    d_target_map, coords_view, num_points, coord_dim );
+	    d_target_map, coords_view, num_points, d_dimension );
     Tpetra::MultiVector<double,int,GlobalOrdinal> rendezvous_coords( 
-	rendezvous_coords_map, coord_dim );
+	rendezvous_coords_map, d_dimension );
     rendezvous_coords.doExport( *target_coords, target_to_rendezvous_exporter, 
 				Tpetra::INSERT );
 
@@ -442,11 +437,11 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Send the rendezvous point coordinates to the source decomposition.
     Tpetra::Export<int,GlobalOrdinal> rendezvous_to_source_exporter( 
 	rendezvous_coords_map, d_source_map );
-    d_target_coords.resize( num_source_elements*coord_dim );
+    d_target_coords.resize( num_source_elements*d_dimension );
     Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> >
 	source_coords = Tpetra::createMultiVectorFromView( 
 	    d_source_map, Teuchos::arcpFromArray( d_target_coords ), 
-	    num_source_elements, coord_dim );
+	    num_source_elements, d_dimension );
     source_coords->doExport( rendezvous_coords, rendezvous_to_source_exporter,
 			     Tpetra::INSERT );
 

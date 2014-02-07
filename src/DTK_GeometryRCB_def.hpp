@@ -180,7 +180,7 @@ void GeometryRCB<Geometry,GlobalOrdinal>::partition()
  */
 template<class Geometry, class GlobalOrdinal>
 int GeometryRCB<Geometry,GlobalOrdinal>::getPointDestinationProc( 
-    Teuchos::Array<double> coords ) const
+    Teuchos::ArrayView<double> coords ) const
 {
     DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
     DTK_REQUIRE( d_dimension == Teuchos::as<int>(coords.size()) );

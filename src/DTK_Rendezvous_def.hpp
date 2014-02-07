@@ -163,7 +163,7 @@ Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
 	{
 	    point[d] = coords[ d*num_points + n ];
 	}
-	destination_procs[n] = d_partitioner->getPointDestinationProc( point );
+	destination_procs[n] = d_partitioner->getPointDestinationProc( point() );
     }
 
     return destination_procs;
@@ -410,29 +410,22 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 				      block_iterator );
 
 	// Create a map indexed by vertex global ordinal containing the actual
-	// vertex ordinal location in the array. This will give us logarithmic
-	// time access to connectivity. I should write a more general hash
-	// table to improve this access time as I'm using this strategy for
-	// most mesh operations.
+	// vertex ordinal location in the array and get all of the vertices
+	// that are in the box.
 	GlobalOrdinal num_vertices = 
 	    MeshTools<Mesh>::numVertices( *(*block_iterator) );
 	std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> vertex_indices;
-	typename MT::const_vertex_iterator vertex_iterator;
-	GlobalOrdinal array_index = 0;
-	for ( vertex_iterator = MT::verticesBegin( *(*block_iterator) );
-	      vertex_iterator != MT::verticesEnd( *(*block_iterator) );
-	      ++vertex_iterator )
-	{
-	    vertex_indices[ *vertex_iterator ] = array_index;
-	    ++array_index;
-	}
-
-	// Get all of the vertices that are in the box. 
+	Teuchos::ArrayRCP<const GlobalOrdinal> vertex_gids =
+	    MeshTools<Mesh>::verticesView( *(*block_iterator) );
 	Teuchos::Array<double> vertex_coords( d_dimension );
 	Teuchos::ArrayRCP<const double> mesh_coords =
 	    MeshTools<Mesh>::coordsView( *(*block_iterator) );
 	for ( GlobalOrdinal n = 0; n < num_vertices; ++n )
 	{
+	    // Set the mapping.
+	    vertex_indices[ vertex_gids[n] ] = n;
+
+	    // Get all of the vertices that are in the box. 
 	    for ( int d = 0; d < d_dimension; ++d )
 	    {
 		vertex_coords[d] = mesh_coords[ d*num_vertices + n ];
@@ -466,16 +459,11 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 		}
 	    }
 	    elements_in_box.push_back( this_element_in_box );
-	}
-	DTK_CHECK( Teuchos::as<GlobalOrdinal>(elements_in_box.size())
-		       == num_elements );
 
-	// Get the vertices that belong to the elements in the box, but are
-	// not necessarily in the box themselves. These will also be used in
-	// partitioning.
-	for ( GlobalOrdinal n = 0; n < num_elements; ++n )
-	{
-	    if ( elements_in_box[n] )
+	    // Get the vertices that belong to the elements in the box, but
+	    // are not necessarily in the box themselves. These will also be
+	    // used in partitioning.
+	    if ( this_element_in_box )
 	    {
 		for ( int i = 0; i < vertices_per_element; ++i )
 		{
@@ -486,6 +474,8 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 		}
 	    }
 	}
+	DTK_CHECK( Teuchos::as<GlobalOrdinal>(elements_in_box.size())
+		       == num_elements );
 
 	// Set the active vertex/element data in the manager for the block.
 	mesh_manager->setActiveVertices( vertices_in_box, block_id );
@@ -726,8 +716,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     bool mesh_exists = true;
     if ( mesh.is_null() ) mesh_exists = false;
 
-    // Create a vertex index map for logarithmic time access to connectivity
-    // data. 
+    // Create a vertex index map for access to connectivity data.
     typename MT::const_vertex_iterator export_vertex_iterator;
     std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> vertex_indices;
     GlobalOrdinal array_index = 0;
@@ -742,8 +731,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	}
     }
 
-    // Create a element index map for logarithmic time access to connectivity
-    // data. 
+    // Create a element index map for access to connectivity data.
     typename MT::const_element_iterator export_element_iterator;
     std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> element_indices;
     array_index = 0;
@@ -758,34 +746,44 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	}
     }
 
-    // Get destination procs for all local elements in the global bounding
-    // box. The element will need to be sent to each partition that its
-    // connecting vertices exist in. We'll make a unique destination proc set
-    // for each element.
+    // Get the local block data.
     GlobalOrdinal num_vertices = 0;
     GlobalOrdinal num_elements = 0;
     int vertices_per_element = 0;
+    Teuchos::ArrayRCP<double> mesh_coords(0,0);
+    Teuchos::ArrayRCP<GlobalOrdinal> mesh_connectivity(0,0);
     if ( mesh_exists )
     {
 	num_vertices = MeshTools<Mesh>::numVertices( *mesh );
 	num_elements = MeshTools<Mesh>::numElements( *mesh );
 	vertices_per_element = MT::verticesPerElement( *mesh );
-    }
-
-    Teuchos::Array< std::set<int> > export_element_procs_set( num_elements );
-    GlobalOrdinal vertex_index;
-    GlobalOrdinal vertex_ordinal;
-    int destination_proc;
-    Teuchos::Array<double> vertex_coords( d_dimension );
-
-    Teuchos::ArrayRCP<double> mesh_coords(0,0);
-    Teuchos::ArrayRCP<GlobalOrdinal> mesh_connectivity(0,0);
-    if ( mesh_exists )
-    {
 	mesh_coords = MeshTools<Mesh>::coordsNonConstView( *mesh );
 	mesh_connectivity = MeshTools<Mesh>::connectivityNonConstView( *mesh );
     }
 
+    // Get the destination procs for all local vertices in the global
+    // bounding box.
+    Teuchos::Array<int> vertex_procs( num_vertices );
+    Teuchos::Array<double> vertex_coords( d_dimension );
+    for ( GlobalOrdinal n = 0; n < num_vertices; ++n )
+    {
+	for ( int d = 0; d < d_dimension; ++d )
+	{
+	    vertex_coords[d] = 
+		mesh_coords[ d*num_vertices + n ];
+	}
+
+	vertex_procs[n] = 
+	    d_partitioner->getPointDestinationProc( vertex_coords() );
+    }
+
+    // Get destination procs for all local elements in the global bounding
+    // box. The element will need to be sent to each partition that its
+    // connecting vertices exist in. We'll make a unique destination proc set
+    // for each element.
+    Teuchos::Array< std::set<int> > export_element_procs_set( num_elements );
+    GlobalOrdinal vertex_index;
+    GlobalOrdinal vertex_ordinal;
     for ( GlobalOrdinal n = 0; n < num_elements; ++n )
     {
 	if ( elements_in_box[n] )
@@ -794,17 +792,11 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	    {
 		vertex_ordinal = mesh_connectivity[ i*num_elements + n ];
 		vertex_index = vertex_indices.find( vertex_ordinal )->second;
-		for ( int d = 0; d < d_dimension; ++d )
-		{
-		    vertex_coords[d] = 
-			mesh_coords[ d*num_vertices + vertex_index ];
-		}
-		destination_proc = 
-		    d_partitioner->getPointDestinationProc( vertex_coords );
-		export_element_procs_set[n].insert( destination_proc );
+		export_element_procs_set[n].insert(vertex_procs[vertex_index]);
 	    }
 	}
     }
+    vertex_procs.clear();
 
     // Unroll the vector of sets into two vectors; one containing the element
     // ordinal and the other containing the corresponding element destination.

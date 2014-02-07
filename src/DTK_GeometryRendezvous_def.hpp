@@ -149,7 +149,7 @@ GeometryRendezvous<Geometry,GlobalOrdinal>::procsContainingPoints(
 	{
 	    point[d] = coords[ d*num_points + n ];
 	}
-	destination_procs[n] = d_partitioner->getPointDestinationProc( point );
+	destination_procs[n] = d_partitioner->getPointDestinationProc( point() );
     }
 
     return destination_procs;
