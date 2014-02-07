@@ -613,15 +613,18 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	import_coords.doImport( 
 	    *export_coords, vertex_importer, Tpetra::INSERT );
 
-	// Move the element connectivity to the rendezvous decomposition.
-	int vertices_per_element;
+	// Broadcast the number of vertices per element and the element
+	// topology.
+	Teuchos::Array<int> vpm_topo(2,0);
 	if ( mesh_exists )
 	{
-	    vertices_per_element = MT::verticesPerElement( *current_block );
+	    vpm_topo[0] = MT::verticesPerElement( *current_block );
+	    vpm_topo[1] = 
+		static_cast<int>(MT::elementTopology( *current_block ));
 	}
-	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0),
-				     Teuchos::Ptr<int>(&vertices_per_element) );
+	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0), vpm_topo() );
 
+	// Move the element connectivity to the rendezvous decomposition.
 	Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view(0,0);
 	if ( mesh_exists ) 
 	{
@@ -631,31 +634,20 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	Teuchos::RCP<Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> > 
 	    export_conn = Tpetra::createMultiVectorFromView( 
 		export_element_map, export_conn_view, 
-		num_elements, vertices_per_element );
+		num_elements, vpm_topo[0] );
 	Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> import_conn( 
-	    import_element_map, vertices_per_element );
+	    import_element_map, vpm_topo[0] );
 	import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
 
 	// Broadcast the permutation list.
-	Teuchos::ArrayRCP<int> permutation_list(vertices_per_element,0);
+	Teuchos::ArrayRCP<int> permutation_list(vpm_topo[0],0);
 	if ( mesh_exists )
 	{
 	    permutation_list = 
 		MeshTools<Mesh>::permutationNonConstView( *current_block );
 	}
 	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0),
-				     vertices_per_element, 
-				     &permutation_list[0] );
-
-	// broadcast the element topology.
-	int block_topology = 0;
-	if ( mesh_exists )
-	{
-	    block_topology = 
-		static_cast<int>(MT::elementTopology( *current_block ));
-	}
-	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0),
-				     Teuchos::Ptr<int>(&block_topology) );
+				     permutation_list() );
 
 	// Construct the mesh block container from the collected data,
 	// effectively wrapping it with mesh traits.
@@ -676,8 +668,8 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 			      d_dimension,
 			      rendezvous_vertices_array,
 			      import_coords.get1dView(),
-			      static_cast<DTK_ElementTopology>(block_topology),
-			      vertices_per_element,
+			      static_cast<DTK_ElementTopology>(vpm_topo[1]),
+			      vpm_topo[0],
 			      rendezvous_elements_array,
 			      import_conn.get1dView(),
 			      permutation_list ) );
