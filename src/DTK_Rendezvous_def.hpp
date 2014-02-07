@@ -116,7 +116,6 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
     {
 	getMeshInBox( mesh_manager );
     }
-    d_comm->barrier();
 
     // Construct the rendezvous partitioning for the mesh using the
     // vertices that are in the box.
@@ -134,6 +133,9 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager )
     d_element_tree = Teuchos::rcp(
 	new ElementTree<MeshContainerType>(d_rendezvous_mesh_manager) );
     DTK_ENSURE( Teuchos::nonnull(d_element_tree) );
+
+    // Barrier before exiting.
+    d_comm->barrier();
 }
 
 //---------------------------------------------------------------------------//
@@ -513,7 +515,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
     {
 	mesh_comm = mesh_manager->comm();
     }
-    d_comm->barrier();
     CommIndexer mesh_indexer( d_comm, mesh_comm );
 
     // Setup the mesh blocks.
@@ -522,7 +523,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
     {
 	num_mesh_blocks = mesh_manager->getNumBlocks();
     }
-    d_comm->barrier();
     Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0),
 				 Teuchos::Ptr<int>(&num_mesh_blocks) );
     
@@ -539,7 +539,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	{
 	    current_block = mesh_manager->getBlock( block_id );
 	}
-	d_comm->barrier();
 
 	// Setup the communication patterns for moving the mesh block to the
 	// rendezvous decomposition. This will also move the vertex and element
@@ -551,7 +550,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	{
 	    active_block_elements = mesh_manager->getActiveElements( block_id );
 	}
-	d_comm->barrier();
 	setupImportCommunication( current_block, active_block_elements,
 				  rendezvous_vertices, rendezvous_elements );
 
@@ -564,7 +562,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	    export_vertex_arcp = 
 		MeshTools<Mesh>::verticesNonConstView( *current_block );
 	}
-	d_comm->barrier();
 	Teuchos::ArrayView<const GlobalOrdinal> export_vertex_view 
 	    = export_vertex_arcp();
 	RCP_TpetraMap export_vertex_map = 
@@ -589,7 +586,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	    export_element_arcp =
 		MeshTools<Mesh>::elementsNonConstView( *current_block );
 	}
-	d_comm->barrier();
 	Teuchos::ArrayView<const GlobalOrdinal> export_element_view = 
 	    export_element_arcp();
 	RCP_TpetraMap export_element_map = 
@@ -618,7 +614,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	    export_coords_view =
 		MeshTools<Mesh>::coordsNonConstView( *current_block );
 	}
-	d_comm->barrier();
 	Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> > 
 	    export_coords = Tpetra::createMultiVectorFromView( 
 		export_vertex_map, export_coords_view, 
@@ -634,7 +629,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	{
 	    vertices_per_element = MT::verticesPerElement( *current_block );
 	}
-	d_comm->barrier();
 	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0),
 				     Teuchos::Ptr<int>(&vertices_per_element) );
 
@@ -644,7 +638,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	    export_conn_view =
 		MeshTools<Mesh>::connectivityNonConstView( *current_block );
 	}
-	d_comm->barrier();
 	Teuchos::RCP<Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> > 
 	    export_conn = Tpetra::createMultiVectorFromView( 
 		export_element_map, export_conn_view, 
@@ -660,7 +653,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	    permutation_list = 
 		MeshTools<Mesh>::permutationNonConstView( *current_block );
 	}
-	d_comm->barrier();
 	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0),
 				     vertices_per_element, 
 				     &permutation_list[0] );
@@ -672,7 +664,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	    block_topology = 
 		static_cast<int>(MT::elementTopology( *current_block ));
 	}
-	d_comm->barrier();
 	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0),
 				     Teuchos::Ptr<int>(&block_topology) );
 
@@ -750,7 +741,6 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	    ++array_index;
 	}
     }
-    d_comm->barrier();
 
     // Create a element index map for logarithmic time access to connectivity
     // data. 
@@ -767,7 +757,6 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	    ++array_index;
 	}
     }
-    d_comm->barrier();
 
     // Get destination procs for all local elements in the global bounding
     // box. The element will need to be sent to each partition that its
@@ -782,7 +771,6 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	num_elements = MeshTools<Mesh>::numElements( *mesh );
 	vertices_per_element = MT::verticesPerElement( *mesh );
     }
-    d_comm->barrier();
 
     Teuchos::Array< std::set<int> > export_element_procs_set( num_elements );
     GlobalOrdinal vertex_index;
@@ -797,7 +785,6 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	mesh_coords = MeshTools<Mesh>::coordsNonConstView( *mesh );
 	mesh_connectivity = MeshTools<Mesh>::connectivityNonConstView( *mesh );
     }
-    d_comm->barrier();
 
     for ( GlobalOrdinal n = 0; n < num_elements; ++n )
     {
@@ -842,8 +829,6 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	    }
 	}
     }
-    d_comm->barrier();
-
     export_element_procs_set.clear();
 
     // Now we know where the elements need to go. Move the elements to the
@@ -950,8 +935,6 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	    }
 	}
     }
-    d_comm->barrier();
-
     export_vertex_procs_set.clear();
 
     // Now we know where the vertices need to go. Move the vertices to the

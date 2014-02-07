@@ -77,7 +77,6 @@ CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
 	local_rank = local_comm->getRank();
     	in_local[ global_rank ] = 1;
     }
-    global_comm->barrier();
 
     Teuchos::reduceAll<int,int>( *global_comm,
     				 Teuchos::REDUCE_SUM, 
@@ -116,6 +115,7 @@ CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
     	}
     }
 
+    // Barrier before exiting.
     global_comm->barrier();
 }
 

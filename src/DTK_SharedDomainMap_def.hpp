@@ -455,6 +455,9 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
       Teuchos::rcp( new Tpetra::Export<int,GlobalOrdinal>(
 			  d_source_map, d_target_map ) );
     DTK_ENSURE( !d_source_to_target_exporter.is_null() );
+
+    // Barrier before exiting.
+    d_comm->barrier();
 }
 
 //---------------------------------------------------------------------------//
@@ -589,6 +592,9 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     // decomposition.
     target_vector->doExport( *source_vector, *d_source_to_target_exporter, 
 			     Tpetra::INSERT );
+
+    // Barrier before exiting.
+    d_comm->barrier();
 }
 
 //---------------------------------------------------------------------------//

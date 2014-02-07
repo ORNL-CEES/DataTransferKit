@@ -433,8 +433,6 @@ void MeshManager<Mesh>::validate()
 	    DTK_REQUIRE( *permutation_it < 
 			      MT::verticesPerElement( *(*block_iterator) ) );
 	}
-
-	d_comm->barrier();
     }
 }
 
