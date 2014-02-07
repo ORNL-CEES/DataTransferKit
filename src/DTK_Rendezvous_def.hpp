@@ -532,8 +532,8 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	// Setup the communication patterns for moving the mesh block to the
 	// rendezvous decomposition. This will also move the vertex and element
 	// global ordinals to the rendezvous decomposition.
-	Teuchos::Array<GlobalOrdinal> rendezvous_vertices;
-	Teuchos::Array<GlobalOrdinal> rendezvous_elements;
+	Teuchos::ArrayRCP<GlobalOrdinal> rendezvous_vertices;
+	Teuchos::ArrayRCP<GlobalOrdinal> rendezvous_elements;
 	Teuchos::ArrayView<short int> active_block_elements;
 	if ( mesh_exists )
 	{
@@ -650,26 +650,14 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 
 	// Construct the mesh block container from the collected data,
 	// effectively wrapping it with mesh traits.
-	Teuchos::ArrayRCP<GlobalOrdinal> 
-	    rendezvous_vertices_array( rendezvous_vertices.size() );
-	std::copy( rendezvous_vertices.begin(), rendezvous_vertices.end(),
-		   rendezvous_vertices_array.begin() );
-	rendezvous_vertices.clear();
-
-	Teuchos::ArrayRCP<GlobalOrdinal> 
-	    rendezvous_elements_array( rendezvous_elements.size() );
-	std::copy( rendezvous_elements.begin(), rendezvous_elements.end(),
-		   rendezvous_elements_array.begin() );
-	rendezvous_elements.clear();
-
 	rendezvous_block_containers[ block_id ] = 
 	    Teuchos::rcp( new MeshContainerType( 
 			      d_dimension,
-			      rendezvous_vertices_array,
+			      rendezvous_vertices,
 			      import_coords.get1dView(),
 			      static_cast<DTK_ElementTopology>(vpm_topo[1]),
 			      vpm_topo[0],
-			      rendezvous_elements_array,
+			      rendezvous_elements,
 			      import_conn.get1dView(),
 			      permutation_list ) );
     }
@@ -700,8 +688,8 @@ template<class Mesh>
 void Rendezvous<Mesh>::setupImportCommunication( 
     const Teuchos::RCP<Mesh>& mesh,
     const Teuchos::ArrayView<short int>& elements_in_box,
-    Teuchos::Array<GlobalOrdinal>& rendezvous_vertices,
-    Teuchos::Array<GlobalOrdinal>& rendezvous_elements )
+    Teuchos::ArrayRCP<GlobalOrdinal>& rendezvous_vertices,
+    Teuchos::ArrayRCP<GlobalOrdinal>& rendezvous_elements )
 {
     // Set a value for mesh existence.
     bool mesh_exists = Teuchos::nonnull( mesh );
@@ -858,7 +846,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
     element_src_procs.clear();
 
     // Finally put the elements in a Teuchos::Array and get rid of the set.
-    rendezvous_elements.resize( rendezvous_elements_set.size() );
+    rendezvous_elements
+	= Teuchos::ArrayRCP<GlobalOrdinal>( rendezvous_elements_set.size() );
     std::copy( rendezvous_elements_set.begin(), rendezvous_elements_set.end(),
 	       rendezvous_elements.begin() );
     rendezvous_elements_set.clear();
@@ -948,7 +937,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
     import_vertices.clear();
 
     // Finally put the vertices in a Teuchos::Array and get rid of the set.
-    rendezvous_vertices.resize( rendezvous_vertices_set.size() );
+    rendezvous_vertices =
+	Teuchos::ArrayRCP<GlobalOrdinal>( rendezvous_vertices_set.size() );
     std::copy( rendezvous_vertices_set.begin(), rendezvous_vertices_set.end(),
 	       rendezvous_vertices.begin() );
     rendezvous_vertices_set.clear();

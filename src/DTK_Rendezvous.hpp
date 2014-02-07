@@ -172,8 +172,8 @@ class Rendezvous
     void setupImportCommunication( 
 	const Teuchos::RCP<Mesh>& mesh,
 	const Teuchos::ArrayView<short int>& elements_in_box,
-	Teuchos::Array<GlobalOrdinal>& rendezvous_vertices,
-	Teuchos::Array<GlobalOrdinal>& rendezvous_elements );
+	Teuchos::ArrayRCP<GlobalOrdinal>& rendezvous_vertices,
+	Teuchos::ArrayRCP<GlobalOrdinal>& rendezvous_elements );
 
   private:
 
