@@ -517,21 +517,8 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
     Teuchos::RCP<Mesh> current_block;
     for ( int block_id = 0; block_id < num_mesh_blocks; ++block_id )
     {
-	// Setup the communication patterns for moving the mesh block to the
-	// rendezvous decomposition. This will also move the vertex and element
-	// global ordinals to the rendezvous decomposition.
-	Teuchos::ArrayRCP<GlobalOrdinal> rendezvous_vertices;
-	Teuchos::ArrayRCP<GlobalOrdinal> rendezvous_elements;
-	Teuchos::ArrayView<short int> active_block_elements;
-	if ( mesh_exists )
-	{
-	    current_block = mesh_manager->getBlock( block_id );
-	    active_block_elements = mesh_manager->getActiveElements( block_id );
-	}
-	setupImportCommunication( current_block, active_block_elements,
-				  rendezvous_vertices, rendezvous_elements );
-
 	// Get the block data.
+	Teuchos::ArrayView<short int> active_block_elements;
 	GlobalOrdinal num_vertices = 0;
 	Teuchos::ArrayRCP<GlobalOrdinal> export_vertex_arcp(0,0);
 	GlobalOrdinal num_elements = 0;
@@ -541,6 +528,8 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view(0,0);
 	if ( mesh_exists )
 	{
+	    current_block = mesh_manager->getBlock( block_id );
+	    active_block_elements = mesh_manager->getActiveElements( block_id );
 	    num_vertices = MeshTools<Mesh>::numVertices( *current_block );
 	    export_vertex_arcp = 
 		MeshTools<Mesh>::verticesNonConstView( *current_block );
@@ -555,6 +544,28 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	    export_conn_view =
 		MeshTools<Mesh>::connectivityNonConstView( *current_block );
 	}
+
+	// Broadcast the number of vertices per element and the element
+	// topology.
+	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0), vpm_topo() );
+
+	// Broadcast the permutation list.
+	Teuchos::ArrayRCP<int> permutation_list(vpm_topo[0],0);
+	if ( mesh_exists )
+	{
+	    permutation_list = 
+		MeshTools<Mesh>::permutationNonConstView( *current_block );
+	}
+	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0),
+				     permutation_list() );
+
+	// Setup the communication patterns for moving the mesh block to the
+	// rendezvous decomposition. This will also move the vertex and element
+	// global ordinals to the rendezvous decomposition.
+	Teuchos::ArrayRCP<GlobalOrdinal> rendezvous_vertices;
+	Teuchos::ArrayRCP<GlobalOrdinal> rendezvous_elements;
+	setupImportCommunication( current_block, active_block_elements,
+				  rendezvous_vertices, rendezvous_elements );
 
 	// Setup export vertex map.
 	Teuchos::ArrayView<const GlobalOrdinal> export_vertex_view 
@@ -572,6 +583,18 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 		rendezvous_vertices_view, d_comm );
 	DTK_CHECK( !import_vertex_map.is_null() );
 
+	// Move the vertex coordinates to the rendezvous decomposition.
+	Tpetra::Import<int,GlobalOrdinal> vertex_importer( export_vertex_map, 
+							   import_vertex_map );
+	Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> > 
+	    export_coords = Tpetra::createMultiVectorFromView( 
+		export_vertex_map, export_coords_view, 
+		num_vertices, d_dimension );
+	Tpetra::MultiVector<double,int,GlobalOrdinal> 
+	    import_coords( import_vertex_map, d_dimension );
+	import_coords.doImport( 
+	    *export_coords, vertex_importer, Tpetra::INSERT );
+
 	// Setup export element map.
 	Teuchos::ArrayView<const GlobalOrdinal> export_element_view = 
 	    export_element_arcp();
@@ -588,27 +611,9 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 		rendezvous_elements_view, d_comm );
 	DTK_CHECK( !import_element_map.is_null() );
 
-	// Setup importers.
-	Tpetra::Import<int,GlobalOrdinal> vertex_importer( export_vertex_map, 
-							   import_vertex_map );
+	// Move the element connectivity to the rendezvous decomposition.
 	Tpetra::Import<int,GlobalOrdinal> element_importer( export_element_map, 
 							    import_element_map );
-
-	// Move the vertex coordinates to the rendezvous decomposition.
-	Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> > 
-	    export_coords = Tpetra::createMultiVectorFromView( 
-		export_vertex_map, export_coords_view, 
-		num_vertices, d_dimension );
-	Tpetra::MultiVector<double,int,GlobalOrdinal> 
-	    import_coords( import_vertex_map, d_dimension );
-	import_coords.doImport( 
-	    *export_coords, vertex_importer, Tpetra::INSERT );
-
-	// Broadcast the number of vertices per element and the element
-	// topology.
-	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0), vpm_topo() );
-
-	// Move the element connectivity to the rendezvous decomposition.
 	Teuchos::RCP<Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> > 
 	    export_conn = Tpetra::createMultiVectorFromView( 
 		export_element_map, export_conn_view, 
@@ -616,16 +621,6 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> import_conn( 
 	    import_element_map, vpm_topo[0] );
 	import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
-
-	// Broadcast the permutation list.
-	Teuchos::ArrayRCP<int> permutation_list(vpm_topo[0],0);
-	if ( mesh_exists )
-	{
-	    permutation_list = 
-		MeshTools<Mesh>::permutationNonConstView( *current_block );
-	}
-	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0),
-				     permutation_list() );
 
 	// Construct the mesh block container from the collected data,
 	// effectively wrapping it with mesh traits.
@@ -673,36 +668,6 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // Set a value for mesh existence.
     bool mesh_exists = Teuchos::nonnull( mesh );
 
-    // Create a vertex index map for access to connectivity data.
-    typename MT::const_vertex_iterator export_vertex_iterator;
-    std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> vertex_indices;
-    GlobalOrdinal array_index = 0;
-    if ( mesh_exists )
-    {
-	for ( export_vertex_iterator = MT::verticesBegin( *mesh );
-	      export_vertex_iterator != MT::verticesEnd( *mesh );
-	      ++export_vertex_iterator )
-	{
-	    vertex_indices[ *export_vertex_iterator ] = array_index;
-	    ++array_index;
-	}
-    }
-
-    // Create a element index map for access to connectivity data.
-    typename MT::const_element_iterator export_element_iterator;
-    std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> element_indices;
-    array_index = 0;
-    if ( mesh_exists )
-    {
-	for ( export_element_iterator = MT::elementsBegin( *mesh );
-	      export_element_iterator != MT::elementsEnd( *mesh );
-	      ++export_element_iterator )
-	{
-	    element_indices[ *export_element_iterator ] = array_index;
-	    ++array_index;
-	}
-    }
-
     // Get the local block data.
     GlobalOrdinal num_vertices = 0;
     GlobalOrdinal num_elements = 0;
@@ -716,6 +681,34 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	vertices_per_element = MT::verticesPerElement( *mesh );
 	mesh_coords = MeshTools<Mesh>::coordsNonConstView( *mesh );
 	mesh_connectivity = MeshTools<Mesh>::connectivityNonConstView( *mesh );
+    }
+
+    // Create a vertex index map and element index map for access to
+    // connectivity data.
+    typename MT::const_vertex_iterator export_vertex_iterator;
+    std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> vertex_indices;
+    typename MT::const_element_iterator export_element_iterator;
+    std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> element_indices;
+    GlobalOrdinal array_index = 0;
+    if ( mesh_exists )
+    {
+	for ( export_vertex_iterator = MT::verticesBegin( *mesh );
+	      export_vertex_iterator != MT::verticesEnd( *mesh );
+	      ++export_vertex_iterator )
+	{
+	    vertex_indices[ *export_vertex_iterator ] = array_index;
+	    ++array_index;
+	}
+
+	array_index = 0;
+
+	for ( export_element_iterator = MT::elementsBegin( *mesh );
+	      export_element_iterator != MT::elementsEnd( *mesh );
+	      ++export_element_iterator )
+	{
+	    element_indices[ *export_element_iterator ] = array_index;
+	    ++array_index;
+	}
     }
 
     // Get the destination procs for all local vertices in the global
