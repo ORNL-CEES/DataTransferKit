@@ -41,7 +41,6 @@
 #ifndef DTK_RENDEZVOUS_DEF_HPP
 #define DTK_RENDEZVOUS_DEF_HPP
 
-#include <boost/tr1/unordered_set.hpp>
 #include <algorithm>
 #include <limits>
 
@@ -499,11 +498,9 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
     bool mesh_exists = Teuchos::nonnull( mesh_manager );
 
     // Setup a mesh indexer and the mesh blocks.
-    RCP_Comm mesh_comm;
     int num_mesh_blocks = 0;
     if ( mesh_exists )
     {
-	mesh_comm = mesh_manager->comm();
 	num_mesh_blocks = mesh_manager->getNumBlocks();
     }
     Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0),
@@ -524,7 +521,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	GlobalOrdinal num_elements = 0;
 	Teuchos::ArrayRCP<GlobalOrdinal> export_element_arcp(0,0);
 	Teuchos::ArrayRCP<double> export_coords_view(0,0);
-	Teuchos::Array<int> vpm_topo(2,0);
+	Teuchos::Array<int> block_packet(29,-1);
 	Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view(0,0);
 	if ( mesh_exists )
 	{
@@ -538,26 +535,32 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 		MeshTools<Mesh>::elementsNonConstView( *current_block );
 	    export_coords_view =
 		MeshTools<Mesh>::coordsNonConstView( *current_block );
-	    vpm_topo[0] = MT::verticesPerElement( *current_block );
-	    vpm_topo[1] = 
-		static_cast<int>(MT::elementTopology( *current_block ));
 	    export_conn_view =
 		MeshTools<Mesh>::connectivityNonConstView( *current_block );
+	    block_packet[0] = MT::verticesPerElement( *current_block );
+	    block_packet[1] = 
+		static_cast<int>(MT::elementTopology( *current_block ));
+	    std::copy( MT::permutationBegin(*current_block),
+		       MT::permutationEnd(*current_block),
+		       &block_packet[2] );
 	}
 
-	// Broadcast the number of vertices per element and the element
-	// topology.
-	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0), vpm_topo() );
+	// Broadcast the number of vertices per element, the element
+	// topology, and the permutation list.
+	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0), block_packet() );
 
-	// Broadcast the permutation list.
-	Teuchos::ArrayRCP<int> permutation_list(vpm_topo[0],0);
-	if ( mesh_exists )
-	{
-	    permutation_list = 
-		MeshTools<Mesh>::permutationNonConstView( *current_block );
-	}
-	Teuchos::broadcast<int,int>( *d_comm, mesh_indexer.l2g(0),
-				     permutation_list() );
+	// Extract the number of vertices per element.
+	int verts_per_elem = block_packet[0];
+
+	// Extract the block topology.
+	DTK_ElementTopology block_topology = 
+	    static_cast<DTK_ElementTopology>( block_packet[1] );
+
+	// Extract the permutation list.
+	Teuchos::ArrayRCP<int> permutation_list(verts_per_elem,0);
+	std::copy( &block_packet[2], &block_packet[2] + verts_per_elem, 
+		   permutation_list.begin() );
+	block_packet.clear();
 
 	// Setup the communication patterns for moving the mesh block to the
 	// rendezvous decomposition. This will also move the vertex and element
@@ -617,9 +620,9 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	Teuchos::RCP<Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> > 
 	    export_conn = Tpetra::createMultiVectorFromView( 
 		export_element_map, export_conn_view, 
-		num_elements, vpm_topo[0] );
+		num_elements, verts_per_elem );
 	Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> import_conn( 
-	    import_element_map, vpm_topo[0] );
+	    import_element_map, verts_per_elem );
 	import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
 
 	// Construct the mesh block container from the collected data,
@@ -629,8 +632,8 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 			      d_dimension,
 			      rendezvous_vertices,
 			      import_coords.get1dView(),
-			      static_cast<DTK_ElementTopology>(vpm_topo[1]),
-			      vpm_topo[0],
+			      block_topology,
+			      verts_per_elem,
 			      rendezvous_elements,
 			      import_conn.get1dView(),
 			      permutation_list ) );
@@ -817,7 +820,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     import_elements.clear();
     element_src_procs.clear();
 
-    // Finally put the elements in a Teuchos::Array and get rid of the set.
+    // Finally put the elements in an array and get rid of the set.
     rendezvous_elements
 	= Teuchos::ArrayRCP<GlobalOrdinal>( rendezvous_elements_set.size() );
     std::copy( rendezvous_elements_set.begin(), rendezvous_elements_set.end(),

@@ -254,10 +254,7 @@ int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
 		  active_iterator != mesh_manager->getActiveVertices(i).end();
 		  ++active_iterator )
 	    {
-		if ( *active_iterator )
-		{
-		    ++num_vertices;
-		}
+		num_vertices += *active_iterator;
 	    }
 	}
     }
@@ -352,10 +349,7 @@ void RCB<Mesh>::getGeometryList(
 		  active_iterator != mesh_manager->getActiveVertices(i).end();
 		  ++active_iterator )
 	    {
-		if ( *active_iterator )
-		{
-		    ++num_active_vertices;
-		}
+		num_active_vertices += *active_iterator;
 	    }
 	}
 
@@ -391,7 +385,6 @@ void RCB<Mesh>::getGeometryList(
 	    mesh_coords = MeshTools<Mesh>::coordsView( *(*block_iterator) );
 	    num_vertices = std::distance( 
 		MT::verticesBegin( *(*block_iterator) ),
-					  
 		MT::verticesEnd( *(*block_iterator) ) );
 	    for ( GlobalOrdinal i = 0; i < num_vertices; ++i )
 	    {

@@ -38,6 +38,7 @@
  */
 //---------------------------------------------------------------------------//
 
+#include "DTK_DBC.hpp"
 #include "DTK_CommIndexer.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
@@ -107,13 +108,8 @@ CommIndexer::~CommIndexer()
  */
 int CommIndexer::l2g( const int local_id ) const
 {
-    int global_id = -1;
     IndexMap::const_iterator l2g_pair = d_l2gmap.find( local_id );
-    if ( l2g_pair != d_l2gmap.end() )
-    {
-	global_id = l2g_pair->second;
-    }
-    return global_id;
+    return ( l2g_pair != d_l2gmap.end() ) ? l2g_pair->second : -1;
 }
 
 //---------------------------------------------------------------------------//
