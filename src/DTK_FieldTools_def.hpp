@@ -673,41 +673,23 @@ BoundingBox FieldTools<Field>::coordGlobalBoundingBox( const Field& field,
 	local_bounds = local_box.getBounds();
     }
 
-    double global_x_min, global_y_min, global_z_min;
-    double global_x_max, global_y_max, global_z_max;
+    double min_bounds[3];
+    double max_bounds[3];
 
     Teuchos::reduceAll<int,double>( *comm, 
 				    Teuchos::REDUCE_MIN,
-				    local_bounds[0],
-				    Teuchos::Ptr<double>( &global_x_min ) );
-
-    Teuchos::reduceAll<int,double>( *comm, 
-				    Teuchos::REDUCE_MIN,
-				    local_bounds[1],
-				    Teuchos::Ptr<double>( &global_y_min ) );
-
-    Teuchos::reduceAll<int,double>( *comm, 
-				    Teuchos::REDUCE_MIN,
-				    local_bounds[2],
-				    Teuchos::Ptr<double>( &global_z_min ) );
+				    3,
+				    &local_bounds[0],
+				    min_bounds );
 
     Teuchos::reduceAll<int,double>( *comm, 
 				    Teuchos::REDUCE_MAX,
-				    local_bounds[3],
-				    Teuchos::Ptr<double>( &global_x_max ) );
+				    3,
+				    &local_bounds[3],
+				    max_bounds );
 
-    Teuchos::reduceAll<int,double>( *comm, 
-				    Teuchos::REDUCE_MAX,
-				    local_bounds[4],
-				    Teuchos::Ptr<double>( &global_y_max ) );
-
-    Teuchos::reduceAll<int,double>( *comm, 
-				    Teuchos::REDUCE_MAX,
-				    local_bounds[5],
-				    Teuchos::Ptr<double>( &global_z_max ) );
-
-    return BoundingBox( global_x_min, global_y_min, global_z_min,
-			global_x_max, global_y_max, global_z_max );
+    return BoundingBox( min_bounds[0], min_bounds[1], min_bounds[2],
+			max_bounds[0], max_bounds[1], max_bounds[2] );
 }
 
 //---------------------------------------------------------------------------//
