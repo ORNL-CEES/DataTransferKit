@@ -41,7 +41,7 @@
 #ifndef DTK_RENDEZVOUS_DEF_HPP
 #define DTK_RENDEZVOUS_DEF_HPP
 
-#include <set>
+#include <boost/tr1/unordered_set.hpp>
 #include <algorithm>
 #include <limits>
 
@@ -801,7 +801,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     }
     DTK_CHECK( Teuchos::as<GlobalOrdinal>(element_src_procs.size())
 		   == num_import_elements );
-        
+
     // Next, move these into the rendezvous element set so that we have a
     // unique list of the elements and build the rendezvous mesh element to
     // source proc map.
@@ -895,25 +895,16 @@ void Rendezvous<Mesh>::setupImportCommunication(
     export_vertices.clear();
     export_vertex_procs.clear();
 
-    // Next move these into the rendezvous vertex set so that we have a unique
-    // list of the vertices.
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
-	import_vertex_iterator;
-    std::set<GlobalOrdinal> rendezvous_vertices_set;
-    for ( import_vertex_iterator = import_vertices.begin();
-	  import_vertex_iterator != import_vertices.end();
-	  ++import_vertex_iterator )
-    {
-	rendezvous_vertices_set.insert( *import_vertex_iterator );
-    }
-    import_vertices.clear();
+    // Create a unique list of vertex ids.
+    std::sort( import_vertices.begin(), import_vertices.end() );
+    typename Teuchos::Array<GlobalOrdinal>::iterator unique_vert_it =
+	std::unique( import_vertices.begin(), import_vertices.end() );
 
-    // Finally put the vertices in a Teuchos::Array and get rid of the set.
-    rendezvous_vertices =
-	Teuchos::ArrayRCP<GlobalOrdinal>( rendezvous_vertices_set.size() );
-    std::copy( rendezvous_vertices_set.begin(), rendezvous_vertices_set.end(),
+    // Finally put the vertices in the output array.
+    rendezvous_vertices = Teuchos::ArrayRCP<GlobalOrdinal>( 
+	std::distance(import_vertices.begin(), unique_vert_it) );
+    std::copy( import_vertices.begin(), unique_vert_it,
 	       rendezvous_vertices.begin() );
-    rendezvous_vertices_set.clear();
 }
 
 //---------------------------------------------------------------------------//
