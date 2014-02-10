@@ -454,6 +454,7 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 		if ( vertices_in_box[ vertex_index ] )
 		{
 		    this_element_in_box = 1;
+		    break;
 		}
 	    }
 	    elements_in_box.push_back( this_element_in_box );
