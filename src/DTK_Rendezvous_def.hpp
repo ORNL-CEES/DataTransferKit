@@ -573,7 +573,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	RCP_TpetraMap export_vertex_map = 
 	    Tpetra::createNonContigMap<int,GlobalOrdinal>( 
 		export_vertex_view, d_comm );
-	DTK_CHECK( !export_vertex_map.is_null() );
+	DTK_CHECK( Teuchos::nonnull(export_vertex_map) );
 
 	// Setup import vertex map.
 	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_vertices_view = 
@@ -581,7 +581,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	RCP_TpetraMap import_vertex_map = 
 	    Tpetra::createNonContigMap<int,GlobalOrdinal>(
 		rendezvous_vertices_view, d_comm );
-	DTK_CHECK( !import_vertex_map.is_null() );
+	DTK_CHECK( Teuchos::nonnull(import_vertex_map) );
 
 	// Move the vertex coordinates to the rendezvous decomposition.
 	Tpetra::Import<int,GlobalOrdinal> vertex_importer( export_vertex_map, 
@@ -601,7 +601,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	RCP_TpetraMap export_element_map = 
 	    Tpetra::createNonContigMap<int,GlobalOrdinal>(
 		export_element_view, d_comm );
-	DTK_CHECK( !export_element_map.is_null() );
+	DTK_CHECK( Teuchos::nonnull(export_element_map) );
 
 	// Setup import element map.
 	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
@@ -609,7 +609,7 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	RCP_TpetraMap import_element_map = 
 	    Tpetra::createNonContigMap<int,GlobalOrdinal>(
 		rendezvous_elements_view, d_comm );
-	DTK_CHECK( !import_element_map.is_null() );
+	DTK_CHECK( Teuchos::nonnull(import_element_map) );
 
 	// Move the element connectivity to the rendezvous decomposition.
 	Tpetra::Import<int,GlobalOrdinal> element_importer( export_element_map, 
@@ -668,23 +668,13 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // Set a value for mesh existence.
     bool mesh_exists = Teuchos::nonnull( mesh );
 
-    // Get the local block data.
+    // Get the local block data and create a vertex index map and element
+    // index map for access to connectivity data.
     GlobalOrdinal num_vertices = 0;
     GlobalOrdinal num_elements = 0;
     int vertices_per_element = 0;
     Teuchos::ArrayRCP<double> mesh_coords(0,0);
     Teuchos::ArrayRCP<GlobalOrdinal> mesh_connectivity(0,0);
-    if ( mesh_exists )
-    {
-	num_vertices = MeshTools<Mesh>::numVertices( *mesh );
-	num_elements = MeshTools<Mesh>::numElements( *mesh );
-	vertices_per_element = MT::verticesPerElement( *mesh );
-	mesh_coords = MeshTools<Mesh>::coordsNonConstView( *mesh );
-	mesh_connectivity = MeshTools<Mesh>::connectivityNonConstView( *mesh );
-    }
-
-    // Create a vertex index map and element index map for access to
-    // connectivity data.
     typename MT::const_vertex_iterator export_vertex_iterator;
     std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> vertex_indices;
     typename MT::const_element_iterator export_element_iterator;
@@ -692,6 +682,14 @@ void Rendezvous<Mesh>::setupImportCommunication(
     GlobalOrdinal array_index = 0;
     if ( mesh_exists )
     {
+	// Get the block data.
+	num_vertices = MeshTools<Mesh>::numVertices( *mesh );
+	num_elements = MeshTools<Mesh>::numElements( *mesh );
+	vertices_per_element = MT::verticesPerElement( *mesh );
+	mesh_coords = MeshTools<Mesh>::coordsNonConstView( *mesh );
+	mesh_connectivity = MeshTools<Mesh>::connectivityNonConstView( *mesh );
+
+	// Make the vertex map.
 	for ( export_vertex_iterator = MT::verticesBegin( *mesh );
 	      export_vertex_iterator != MT::verticesEnd( *mesh );
 	      ++export_vertex_iterator )
@@ -700,8 +698,10 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	    ++array_index;
 	}
 
+	// Reset the index.
 	array_index = 0;
 
+	// Make the element map.
 	for ( export_element_iterator = MT::elementsBegin( *mesh );
 	      export_element_iterator != MT::elementsEnd( *mesh );
 	      ++export_element_iterator )

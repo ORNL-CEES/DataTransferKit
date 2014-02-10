@@ -205,7 +205,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Build the data import map from the point global ordinals.
     d_target_map = Tpetra::createContigMap<int,GlobalOrdinal>(
 	global_num_targets, local_num_targets, d_comm );
-    DTK_ENSURE( !d_target_map.is_null() );
+    DTK_ENSURE( Teuchos::nonnull(d_target_map) );
 
     // Get the target ordinals from the map.
     Teuchos::ArrayView<const GlobalOrdinal> target_ordinals =
@@ -464,7 +464,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	source_points();
     d_source_map = Tpetra::createNonContigMap<int,GlobalOrdinal>( 
 	source_points_view, d_comm );
-    DTK_ENSURE( !d_source_map.is_null() );
+    DTK_ENSURE( Teuchos::nonnull(d_source_map) );
 
     // Send the rendezvous point coordinates to the source decomposition.
     d_target_coords.resize( num_source_elements*d_dimension );
@@ -485,7 +485,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     d_source_to_target_exporter = 
       Teuchos::rcp( new Tpetra::Export<int,GlobalOrdinal>(
 			  d_source_map, d_target_map ) );
-    DTK_ENSURE( !d_source_to_target_exporter.is_null() );
+    DTK_ENSURE( Teuchos::nonnull(d_source_to_target_exporter) );
 }
 
 //---------------------------------------------------------------------------//
