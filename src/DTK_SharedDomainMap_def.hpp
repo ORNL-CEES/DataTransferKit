@@ -53,7 +53,6 @@
 #include <Teuchos_as.hpp>
 #include <Teuchos_Ptr.hpp>
 
-#include <Tpetra_Import.hpp>
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_MultiVector.hpp>
 
@@ -187,16 +186,41 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     Rendezvous<Mesh> rendezvous( d_comm, d_dimension, shared_domain_box );
     rendezvous.build( source_mesh_manager, d_source_indexer );
 
-    // Compute a unique global ordinal for each point in the coordinate field.
-    Teuchos::Array<GlobalOrdinal> target_ordinals;
-    computePointOrdinals( target_coord_manager, target_ordinals );
+    // Get the local number of target points.
+    GlobalOrdinal local_num_targets = 0;
+    if ( target_exists )
+    {
+	local_num_targets = FieldTools<CoordinateField>::dimSize( 
+	    *target_coord_manager->field() );
+    }
+
+    // Get the total number of target points in the entire problem.
+    GlobalOrdinal global_num_targets = 0;
+    Teuchos::reduceAll<int,GlobalOrdinal>( *d_comm,
+					   Teuchos::REDUCE_SUM,
+					   1,
+					   &local_num_targets,
+					   &global_num_targets );
 
     // Build the data import map from the point global ordinals.
-    Teuchos::ArrayView<const GlobalOrdinal> import_ordinal_view =
-	target_ordinals();
-    d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
-	import_ordinal_view, d_comm );
+    d_target_map = Tpetra::createContigMap<int,GlobalOrdinal>(
+	global_num_targets, local_num_targets, d_comm );
     DTK_ENSURE( !d_target_map.is_null() );
+
+    // Get the target ordinals from the map.
+    Teuchos::ArrayView<const GlobalOrdinal> target_ordinals =
+	d_target_map->getNodeElementList();
+    DTK_CHECK( local_num_targets == target_ordinals.size() );
+
+    // If we're keeping track of missed points, we also need to build the
+    // global-to-local ordinal map.
+    if ( d_store_missed_points )
+    {
+	for ( GlobalOrdinal n = 0; n < local_num_targets; ++n )
+	{
+	    d_target_g2l[ target_ordinals[n] ] = n;
+	}
+    }
 
     // Determine the rendezvous destination proc of each point in the
     // coordinate field. Also get the target points that are in the box in
@@ -351,13 +375,13 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	// inverse communication operation and add them to the list.
 	Teuchos::ArrayView<const GlobalOrdinal> missed_in_mesh_ordinal_view = 
 	    missed_in_mesh_ordinal();
-	Tpetra::Distributor target_to_rendezvous_distributor( d_comm );
+	Tpetra::Distributor rendezvous_to_target_distributor( d_comm );
 	GlobalOrdinal num_missed_targets = 
-	    target_to_rendezvous_distributor.createFromSends( 
+	    rendezvous_to_target_distributor.createFromSends( 
 		missed_target_procs() );
 	GlobalOrdinal offset = d_missed_points.size();
 	d_missed_points.resize( offset + num_missed_targets );
-	target_to_rendezvous_distributor.doPostsAndWaits( 
+	rendezvous_to_target_distributor.doPostsAndWaits( 
 	    missed_in_mesh_ordinal_view, 1, 
 	    d_missed_points.view( offset, num_missed_targets ) );
 
@@ -584,57 +608,6 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute globally unique ordinals for the target points. Here an
- * invalid ordinal will be designated as the maximum value as specified by the
- * limits header for the ordinal type. We do this so that 0 may be a valid
- * ordinal.
- *
- * \param target_coords The coordinates to compute global ordinals for.
- *
- * \param target_ordinals The computed globally unique ordinals for the target
- * coordinates. 
- */
-template<class Mesh, class CoordinateField>
-void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
-    const RCP_CoordFieldManager& target_coord_manager,
-    Teuchos::Array<GlobalOrdinal>& target_ordinals )
-{
-    // Set an existence value for the target coords.
-    bool target_exists = Teuchos::nonnull( target_coord_manager );
-    int comm_rank = d_comm->getRank();
-    GlobalOrdinal local_size = 0;
-
-    if ( target_exists )
-    {
-	int point_dim = CFT::dim( *target_coord_manager->field() );
-	local_size = std::distance( 
-	    CFT::begin( *target_coord_manager->field() ),
-	    CFT::end( *target_coord_manager->field() ) ) / point_dim;
-    }
-
-    GlobalOrdinal global_max;
-    Teuchos::reduceAll<int,GlobalOrdinal>( *d_comm,
-					   Teuchos::REDUCE_MAX,
-					   1,
-					   &local_size,
-					   &global_max );
-
-    target_ordinals.resize( local_size );
-    for ( GlobalOrdinal n = 0; n < local_size; ++n )
-    {
-	target_ordinals[n] = comm_rank*global_max + n;
-
-	// If we're keeping track of missed points, we also need to build the
-	// global-to-local ordinal map.
-	if ( d_store_missed_points )
-	{
-	    d_target_g2l[ target_ordinals[n] ] = n;
-	}
-    }
-}
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Get the target points that are in the rendezvous decomposition box.
  *
  * \param target_coord_manager The manager containing the target coordinates
@@ -650,7 +623,7 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
 template<class Mesh, class CoordinateField>
 void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
     const BoundingBox& box, const CoordinateField& target_coords,
-    const Teuchos::Array<GlobalOrdinal>& target_ordinals,
+    const Teuchos::ArrayView<const GlobalOrdinal>& target_ordinals,
     Teuchos::Array<GlobalOrdinal>& targets_in_box )
 {
     Teuchos::ArrayRCP<const double> target_coords_view =

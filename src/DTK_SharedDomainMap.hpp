@@ -149,16 +149,11 @@ class SharedDomainMap
 
   private:
 
-    // Compute globally unique ordinals for the target points.
-    void computePointOrdinals( 
-	const RCP_CoordFieldManager& target_coord_manager,
-	Teuchos::Array<GlobalOrdinal>& target_ordinals );
-
     // Get the target points that are in the rendezvous decomposition box.
     void getTargetPointsInBox( 
 	const BoundingBox& box,
 	const CoordinateField& target_coords,
-	const Teuchos::Array<GlobalOrdinal>& target_ordinals,
+	const Teuchos::ArrayView<const GlobalOrdinal>& target_ordinals,
 	Teuchos::Array<GlobalOrdinal>& targets_in_box );
 
   private:
