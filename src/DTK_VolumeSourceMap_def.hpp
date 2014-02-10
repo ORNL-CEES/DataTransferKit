@@ -46,7 +46,6 @@
 #include <set>
 
 #include "DTK_FieldTools.hpp"
-#include "DTK_FieldTraits.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_GeometryRendezvous.hpp"
 #include "DTK_BoundingBox.hpp"
@@ -124,11 +123,9 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     const RCP_GeometryManager& source_geometry_manager, 
     const RCP_CoordFieldManager& target_coord_manager )
 {
-    // Create existence values for the managers.
-    bool source_exists = true;
-    if ( source_geometry_manager.is_null() ) source_exists = false;
-    bool target_exists = true;
-    if ( target_coord_manager.is_null() ) target_exists = false;
+   // Create existence values for the managers.
+    bool source_exists = Teuchos::nonnull( source_geometry_manager );
+    bool target_exists = Teuchos::nonnull( target_coord_manager );
 
     // Create local to global process indexers for the managers.
     RCP_Comm source_comm;
@@ -144,16 +141,60 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     }
     d_target_indexer = CommIndexer( d_comm, target_comm );
 
-    // Check the source and target dimensions for consistency.
+    // Check the source and target dimensions for consistency and build the
+    // global bounding boxes.
+    BoundingBox source_box;
     if ( source_exists )
     {
 	DTK_REQUIRE( source_geometry_manager->dim() == d_dimension );
+	source_box = source_geometry_manager->globalBoundingBox();
     }
+    BoundingBox target_box;
     if ( target_exists )
     {
 	DTK_REQUIRE( CFT::dim( *target_coord_manager->field() ) 
 			  == d_dimension );
+	target_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
+	    *target_coord_manager->field(), target_coord_manager->comm() );
     }
+
+    // Post a receive for the target box on source proc 0.
+    Teuchos::RCP<Teuchos::CommRequest<int> > box_request;
+    if ( d_comm->getRank() == d_source_indexer.l2g(0) )
+    {
+	box_request = Teuchos::ireceive<int,BoundingBox>(
+	    *d_comm, Teuchos::RCP<BoundingBox>(&target_box,false),
+	    d_target_indexer.l2g(0) );
+    }
+
+    // Send the target box to source proc 0 from target proc 0.
+    if ( d_comm->getRank() == d_target_indexer.l2g(0) )
+    {
+	Teuchos::isend<int,BoundingBox>( 
+	    *d_comm, Teuchos::RCP<BoundingBox>(&target_box,false), 
+	    d_source_indexer.l2g(0) );
+    }
+
+    // Intersect the boxes on source proc 0 to get the shared domain bounding
+    // box.
+    BoundingBox shared_domain_box;
+    if ( d_comm->getRank() == d_source_indexer.l2g(0) )
+    {
+        Teuchos::Ptr<Teuchos::RCP<Teuchos::CommRequest<int> > > 
+	    request_ptr(&box_request);
+        Teuchos::wait( *d_comm, request_ptr );
+	bool has_intersect = BoundingBox::intersectBoxes( 
+	    source_box, target_box, shared_domain_box );
+	DTK_INSIST( has_intersect );
+    }
+    Teuchos::broadcast<int,BoundingBox>( 
+	*d_comm, d_source_indexer.l2g(0),
+	Teuchos::Ptr<BoundingBox>(&shared_domain_box) );
+
+    // Build a rendezvous decomposition with the source geometry.
+    GeometryRendezvous<Geometry,GlobalOrdinal> rendezvous( 
+	d_comm, d_dimension, shared_domain_box );
+    rendezvous.build( source_geometry_manager );
 
     // Compute a unique global ordinal for each point in the coordinate field.
     Teuchos::Array<GlobalOrdinal> target_ordinals;
@@ -166,90 +207,58 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	import_ordinal_view, d_comm );
     DTK_ENSURE( !d_target_map.is_null() );
 
-    // Get the global bounding box for the geometry.
-    BoundingBox source_box;
-    if ( source_exists )
-    {
-	source_box = source_geometry_manager->globalBoundingBox();
-    }
-    Teuchos::broadcast<int,BoundingBox>(
-	*d_comm, d_source_indexer.l2g(0), 
-	Teuchos::Ptr<BoundingBox>(&source_box) );
-
-    // Get the global bounding box for the coordinate field.
-    BoundingBox target_box;
-    if ( target_exists )
-    {
-	target_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
-	    *target_coord_manager->field(), target_coord_manager->comm() );
-    }
-    Teuchos::broadcast<int,BoundingBox>( 
-	*d_comm, d_target_indexer.l2g(0), 
-	Teuchos::Ptr<BoundingBox>(&target_box) );
-
-    // Intersect the boxes to get the shared domain bounding box.
-    BoundingBox shared_domain_box;
-    bool has_intersect = BoundingBox::intersectBoxes( source_box, target_box, 
-						      shared_domain_box );
-    DTK_INSIST( has_intersect );
-
-    // Build a rendezvous decomposition with the source geometry.
-    GeometryRendezvous<Geometry,GlobalOrdinal> rendezvous( 
-	d_comm, d_dimension, shared_domain_box );
-    rendezvous.build( source_geometry_manager );
-
     // Determine the rendezvous destination proc of each point in the
-    // coordinate field.
-    Teuchos::ArrayRCP<double> coords_view(0,0.0);
-    int coord_dim;
-    if ( target_exists )
-    {
-	coord_dim = CFT::dim( *target_coord_manager->field() );
-	coords_view = FieldTools<CoordinateField>::nonConstView( 
-	    *target_coord_manager->field() );
-    }
-    Teuchos::broadcast<int,int>( 
-	*d_comm, d_target_indexer.l2g(0), Teuchos::Ptr<int>(&coord_dim) );
-
-    Teuchos::Array<int> rendezvous_procs = 
-	rendezvous.procsContainingPoints( coords_view );
-
-    // Get the target points that are in the box in which the rendezvous
-    // decomposition was generated. 
+    // coordinate field. Also get the target points that are in the box in
+    // which the rendezvous decomposition was generated. The rendezvous
+    // algorithm will expand the box slightly based on geometry parameters.
+    Teuchos::Array<double> coords_copy(0,0.0);
     Teuchos::Array<GlobalOrdinal> targets_in_box;
     if ( target_exists )
     {
+	coords_copy.resize( CFT::size(*target_coord_manager->field()) );
+	std::copy( CFT::begin(*target_coord_manager->field()),
+		   CFT::end(*target_coord_manager->field()),
+		   coords_copy.begin() );
+
 	getTargetPointsInBox( rendezvous.getBox(), 
 			      *target_coord_manager->field(),
 			      target_ordinals, targets_in_box );
     }
+    Teuchos::Array<int> rendezvous_procs = 
+	rendezvous.procsContainingPoints( Teuchos::arcpFromArray(coords_copy) );
 
     // Extract those target points that are not in the box. We don't want to
     // send these to the rendezvous decomposition.
     Teuchos::Array<GlobalOrdinal> not_in_box;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator in_box_iterator;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator in_box_begin =
-	targets_in_box.begin();
-    for ( in_box_iterator = targets_in_box.begin();
-	  in_box_iterator != targets_in_box.end();
-	  ++in_box_iterator )
+    for ( unsigned i = 0; i < targets_in_box.size(); ++i )
     {
-	if ( *in_box_iterator == std::numeric_limits<GlobalOrdinal>::max() )
+	if ( targets_in_box[i] == std::numeric_limits<GlobalOrdinal>::max() )
 	{
-	    not_in_box.push_back( 
-		std::distance( in_box_begin, in_box_iterator ) );
+	    not_in_box.push_back( i );
 	}
     }
     std::reverse( not_in_box.begin(), not_in_box.end() );
 
     typename Teuchos::Array<GlobalOrdinal>::const_iterator not_in_box_iterator;
+    unsigned remove_stride = 0;
     for ( not_in_box_iterator = not_in_box.begin();
 	  not_in_box_iterator != not_in_box.end();
 	  ++not_in_box_iterator )
     {
+	remove_stride = rendezvous_procs.size();
+
 	rendezvous_procs.remove( *not_in_box_iterator );
+
+	for ( int d = d_dimension - 1; d >= 0; --d )
+	{
+	    coords_copy.remove( 
+		d*remove_stride + (*not_in_box_iterator) );
+	}
     }
     not_in_box.clear();
+    DTK_CHECK( coords_copy.size() % d_dimension == 0 );
+    DTK_CHECK( rendezvous_procs.size() ==
+	       coords_copy.size() / d_dimension );
 
     typename Teuchos::Array<GlobalOrdinal>::iterator targets_bound =
 	std::remove( targets_in_box.begin(), targets_in_box.end(), 
@@ -258,7 +267,6 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	std::distance( targets_in_box.begin(), targets_bound );
 
     targets_in_box.resize( targets_in_box_size );
-    rendezvous_procs.resize( targets_in_box_size );
 
     // Via an inverse communication operation, move the global point ordinals
     // that are in the rendezvous decomposition box to the rendezvous
@@ -272,61 +280,48 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     target_to_rendezvous_distributor.doPostsAndWaits( 
 	targets_in_box_view, 1, rendezvous_points() );
 
-    // Setup target-to-rendezvous communication.
-    Teuchos::ArrayView<const GlobalOrdinal> rendezvous_points_view =
-	rendezvous_points();
-    RCP_TpetraMap rendezvous_coords_map = 
-      Tpetra::createNonContigMap<int,GlobalOrdinal>(
-        rendezvous_points_view, d_comm );
-    Tpetra::Export<int,GlobalOrdinal> 
-      target_to_rendezvous_exporter( d_target_map, rendezvous_coords_map );
-
     // Move the target coordinates to the rendezvous decomposition.
-    GlobalOrdinal num_points = target_ordinals.size();
-    Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> > 
-	target_coords =	Tpetra::createMultiVectorFromView( 
-	    d_target_map, coords_view, num_points, coord_dim );
-    Tpetra::MultiVector<double,int,GlobalOrdinal> rendezvous_coords( 
-	rendezvous_coords_map, coord_dim );
-    rendezvous_coords.doExport( *target_coords, target_to_rendezvous_exporter, 
-				Tpetra::INSERT );
+    Teuchos::Array<double> 
+	rendezvous_coords( d_dimension*num_rendezvous_points );
+    GlobalOrdinal num_points = rendezvous_procs.size();
+    Teuchos::ArrayView<const double> coords_dim;
+    Teuchos::ArrayView<double> points_dim;
+    for ( int d = 0; d < d_dimension; ++d )
+    {
+	coords_dim = coords_copy( d*num_points, num_points );
+	points_dim = rendezvous_coords( d*num_rendezvous_points, 
+					num_rendezvous_points );
+	target_to_rendezvous_distributor.doPostsAndWaits(
+	    coords_dim, 1, points_dim );
+    }
+    coords_copy.clear();
 
     // Search the rendezvous decomposition with the target points to get the
-    // source geometry that contains them.
+    // source geometry that contain them.
     Teuchos::Array<GlobalOrdinal> rendezvous_geometry;
     Teuchos::Array<int> rendezvous_geometry_src_procs;
-    rendezvous.geometryContainingPoints( rendezvous_coords.get1dViewNonConst(),
-					 rendezvous_geometry,
-					 rendezvous_geometry_src_procs,
-					 d_geometric_tolerance );
+    rendezvous.geometryContainingPoints( 
+	Teuchos::arcpFromArray(rendezvous_coords),
+	rendezvous_geometry,
+	rendezvous_geometry_src_procs,
+	d_geometric_tolerance );
 
     // Get the points that were not in the geometry. If we're keeping track of
     // missed points, also make a list of those ordinals.
-    GlobalOrdinal target_index;
     Teuchos::Array<GlobalOrdinal> not_in_geometry;
     Teuchos::Array<GlobalOrdinal> missed_in_geometry_idx;
     Teuchos::Array<GlobalOrdinal> missed_in_geometry_ordinal;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
-	rendezvous_geometry_iterator;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
-	rendezvous_geometry_begin = rendezvous_geometry.begin();
-    for ( rendezvous_geometry_iterator = rendezvous_geometry.begin();
-	  rendezvous_geometry_iterator != rendezvous_geometry.end();
-	  ++rendezvous_geometry_iterator )
+    for ( unsigned i = 0; i < rendezvous_geometry.size(); ++i )
     {
-	if ( *rendezvous_geometry_iterator == 
+	if ( rendezvous_geometry[i] == 
 	     std::numeric_limits<GlobalOrdinal>::max() )
 	{
-	    target_index = std::distance( rendezvous_geometry_begin, 
-					  rendezvous_geometry_iterator );
-
-	    not_in_geometry.push_back( target_index );
+	    not_in_geometry.push_back( i );
 
 	    if ( d_store_missed_points )
 	    {
-		missed_in_geometry_idx.push_back( target_index );
-		missed_in_geometry_ordinal.push_back( 
-		    rendezvous_points[target_index] );
+		missed_in_geometry_idx.push_back( i );
+		missed_in_geometry_ordinal.push_back( rendezvous_points[i] );
 	    }
 	}
     }
@@ -349,8 +344,8 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 		point_target_procs.push_back( from_images[i] );
 	    }
 	}
-	DTK_CHECK( Teuchos::as<GlobalOrdinal>(point_target_procs.size()) ==
-		       num_rendezvous_points );
+	DTK_CHECK( Teuchos::as<GlobalOrdinal>(point_target_procs.size())
+		       == num_rendezvous_points );
 
 	// Build a list of target procs for the missed points.
 	Teuchos::Array<int> missed_target_procs( missed_in_geometry_idx.size() );
@@ -395,9 +390,18 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	  not_in_geometry_iterator != not_in_geometry.end();
 	  ++not_in_geometry_iterator )
     {
+	remove_stride = rendezvous_points.size();
 	rendezvous_points.remove( *not_in_geometry_iterator );
+	for ( int d = d_dimension - 1; d >= 0; --d )
+	{
+	    rendezvous_coords.remove( 
+		d*remove_stride + (*not_in_geometry_iterator) );
+	}
     }
     not_in_geometry.clear();
+    DTK_CHECK( rendezvous_coords.size() % d_dimension == 0 );
+    DTK_CHECK( rendezvous_points.size() ==
+	       rendezvous_coords.size() / d_dimension );
 
     typename Teuchos::Array<GlobalOrdinal>::iterator rendezvous_geometry_bound =
 	std::remove( rendezvous_geometry.begin(), 
@@ -417,7 +421,6 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 
     rendezvous_geometry.resize( rendezvous_geometry_size );
     rendezvous_geometry_src_procs.resize( rendezvous_geometry_src_procs_size );
-    rendezvous_points.resize( rendezvous_geometry_size );
 
     // Setup rendezvous-to-source distributor.
     Tpetra::Distributor rendezvous_to_src_distributor( d_comm );
@@ -430,8 +433,8 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     Teuchos::ArrayView<const GlobalOrdinal> rendezvous_geometry_view =
 	rendezvous_geometry();
     d_source_geometry.resize( num_source_geometry );
-    rendezvous_to_src_distributor.doPostsAndWaits( rendezvous_geometry_view, 1,
-						   d_source_geometry() );
+    rendezvous_to_src_distributor.doPostsAndWaits( 
+	rendezvous_geometry_view, 1, d_source_geometry() );
 
     // Send the rendezvous point global ordinals to the source decomposition
     // via inverse communication.
@@ -449,20 +452,24 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     DTK_ENSURE( !d_source_map.is_null() );
 
     // Send the rendezvous point coordinates to the source decomposition.
-    Tpetra::Export<int,GlobalOrdinal> rendezvous_to_source_exporter( 
-	rendezvous_coords_map, d_source_map );
-    d_target_coords.resize( num_source_geometry*coord_dim );
-    Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> >
-	source_coords = Tpetra::createMultiVectorFromView( 
-	    d_source_map, Teuchos::arcpFromArray( d_target_coords ), 
-	    num_source_geometry, coord_dim );
-    source_coords->doExport( rendezvous_coords, rendezvous_to_source_exporter,
-			     Tpetra::INSERT );
+    d_target_coords.resize( num_source_geometry*d_dimension );
+    Teuchos::ArrayView<const double> const_points_dim;
+    Teuchos::ArrayView<double> target_coord_dim;
+    num_rendezvous_points = rendezvous_points.size();
+    for ( int d = 0; d < d_dimension; ++d )
+    {
+	const_points_dim = rendezvous_coords( d*num_rendezvous_points, 
+					      num_rendezvous_points );
+	target_coord_dim = d_target_coords( d*num_source_geometry,
+					    num_source_geometry );
+	rendezvous_to_src_distributor.doPostsAndWaits(
+	    const_points_dim, 1, target_coord_dim );
+    }
 
     // Build the source-to-target importer.
     d_source_to_target_importer = 
       Teuchos::rcp( new Tpetra::Import<int,GlobalOrdinal>(
-          d_source_map, d_target_map ) );
+			  d_source_map, d_target_map ) );
     DTK_ENSURE( !d_source_to_target_importer.is_null() );
 }
 
