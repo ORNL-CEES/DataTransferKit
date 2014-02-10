@@ -52,7 +52,6 @@
 
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
-#include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_as.hpp>
 
