@@ -496,14 +496,12 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     typedef FieldTraits<TargetField> TFT;
 
     // Set existence values for the source and target.
-    bool source_exists = true;
-    if ( source_evaluator.is_null() ) source_exists = false;
-    bool target_exists = true;
-    if ( target_space_manager.is_null() ) target_exists = false;
+    bool source_exists = Teuchos::nonnull( source_evaluator );
+    bool target_exists = Teuchos::nonnull( target_space_manager );
 
     // Evaluate the source function at the target points and construct a view
     // of the function evaluations.
-    int source_dim;
+    int field_dim = 0;
     Teuchos::ArrayRCP<typename SFT::value_type> source_field_copy(0,0);
     if ( source_exists )
     {
@@ -512,57 +510,43 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 		Teuchos::arcpFromArray( d_source_geometry ),
 		Teuchos::arcpFromArray( d_target_coords ) );
 
-	source_dim = SFT::dim( function_evaluations );
+	field_dim = SFT::dim( function_evaluations );
 
 	source_field_copy =    
 	    FieldTools<SourceField>::copy( function_evaluations );
     }
     Teuchos::broadcast<int,int>( *d_comm, d_source_indexer.l2g(0),
-				 Teuchos::Ptr<int>(&source_dim) );
+				 Teuchos::Ptr<int>(&field_dim) );
 
     // Build a multivector for the function evaluations.
-    GlobalOrdinal source_size = source_field_copy.size() / source_dim;
+    GlobalOrdinal source_size = source_field_copy.size() / field_dim;
     Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type, int, GlobalOrdinal> > 
 	source_vector = Tpetra::createMultiVectorFromView( 
-	    d_source_map, source_field_copy, source_size, source_dim );
+	    d_source_map, source_field_copy, source_size, field_dim );
 
-    // Construct a view of the target space.
-    int target_dim;
+    // Construct a view of the target space. Fill the target space with zeros
+    // so that points we didn't map get some data.
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(0,0);
+    GlobalOrdinal target_size = 0;
     if ( target_exists )
     {
 	target_field_view = FieldTools<TargetField>::nonConstView( 
 	    *target_space_manager->field() );
 
-	target_dim = TFT::dim( *target_space_manager->field() );
-    }
-    Teuchos::broadcast<int,int>( *d_comm, d_target_indexer.l2g(0),
-				 Teuchos::Ptr<int>(&target_dim) );
-    
-    // Check that the source and target have the same field dimension.
-    DTK_REQUIRE( source_dim == target_dim );
+	target_size = target_field_view.size() / field_dim;
 
-    // Verify that the target space has the proper amount of memory allocated.
-    GlobalOrdinal target_size = target_field_view.size() / target_dim;
-    if ( target_exists )
-    {
-	DTK_REQUIRE( 
+	FieldTools<TargetField>::putScalar( 
+	    *target_space_manager->field(), 0.0 );
+
+	DTK_CHECK( 
 	    target_size == Teuchos::as<GlobalOrdinal>(
 		d_target_map->getNodeNumElements()) );
     }
-    
+
     // Build a multivector for the target space.
     Teuchos::RCP<Tpetra::MultiVector<typename TFT::value_type, int, GlobalOrdinal> > 
 	target_vector =	Tpetra::createMultiVectorFromView( 
-	    d_target_map, target_field_view, target_size, target_dim );
-
-    // Fill the target space with zeros so that points we didn't map get some
-    // data.
-    if ( target_exists )
-    {
-	FieldTools<TargetField>::putScalar( 
-	    *target_space_manager->field(), 0.0 );
-    }
+	    d_target_map, target_field_view, target_size, field_dim );
 
     // Move the data from the source decomposition to the target
     // decomposition.

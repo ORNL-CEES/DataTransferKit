@@ -524,10 +524,8 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     typedef FieldTraits<TargetField> TFT;
 
     // Set existence values for the source and target.
-    bool source_exists = true;
-    if ( source_evaluator.is_null() ) source_exists = false;
-    bool target_exists = true;
-    if ( target_space_manager.is_null() ) target_exists = false;
+    bool source_exists = Teuchos::nonnull( source_evaluator );
+    bool target_exists = Teuchos::nonnull( target_space_manager );
 
     // Evaluate the source function at the target points and construct a view
     // of the function evaluations.
@@ -602,8 +600,7 @@ void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
     Teuchos::Array<GlobalOrdinal>& target_ordinals )
 {
     // Set an existence value for the target coords.
-    bool target_exists = true;
-    if ( target_coord_manager.is_null() ) target_exists = false;
+    bool target_exists = Teuchos::nonnull( target_coord_manager );
     int comm_rank = d_comm->getRank();
     GlobalOrdinal local_size = 0;
 
