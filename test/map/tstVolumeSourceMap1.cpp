@@ -351,8 +351,6 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, cylinder_test )
     int global_num_missed = 0;
     Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, 
 			num_missed, Teuchos::Ptr<int>(&global_num_missed) );
-    std::cout << my_rank << " " << num_missed << " " << num_in_cylinder << " " 
-	      << global_num_missed << " " << global_num_in_cylinder << std::endl;
     TEST_ASSERT( num_target_points*my_size == 
 		 global_num_missed + global_num_in_cylinder );
 }
