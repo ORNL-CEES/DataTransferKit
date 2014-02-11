@@ -55,3 +55,17 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   COMM mpi
   DEPLIBS datatransferkit
   )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  ScalingStudy9
+  SOURCES scaling_study_9.cpp
+  COMM mpi
+  DEPLIBS datatransferkit
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  ScalingStudy10
+  SOURCES scaling_study_10.cpp
+  COMM mpi
+  DEPLIBS datatransferkit
+  )
