@@ -473,8 +473,11 @@ int main(int argc, char* argv[])
     AsynchronousMap<MyMesh,MyField,dim> asynchronous_map( comm );
 
     // Setup the shared domain map ( this creates the mapping ).
+    int max_buffer_size = std::atoi(argv[1]);
+    int buffer_check_freq = std::atoi(argv[2]);
     std::clock_t setup_start = clock();
-    asynchronous_map.setup( source_mesh_manager, target_coord_manager );
+    asynchronous_map.setup( source_mesh_manager, target_coord_manager,
+			    max_buffer_size, buffer_check_freq );
     std::clock_t setup_end = clock();
 
     // Apply the shared domain map ( this does the field evaluation and moves
