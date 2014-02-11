@@ -89,7 +89,7 @@ class BufferCommunicator
     BufferCommunicator( const Teuchos::Array<int>& send_ranks,
 			const Teuchos::Array<int>& receive_ranks,
 			const Teuchos::RCP<const Comm>& comm, 
-			const Teuchos::ParameterList& plist );
+			const int max_buffer_size );
 
     // Destructor.
     ~BufferCommunicator()

@@ -75,8 +75,9 @@ class EvaluationPoint
     //! State constructor.
     EvaluationPoint( const Ordinal gid, const double coords[DIM] )
 	: d_gid( gid )
-	, d_coords( coords )
-    { /* ... */ }
+    {
+	std::copy( &coords[0], &coords[DIM]+1, &d_coords[0] );
+    }
 
     // Deserializer constructor.
     explicit EvaluationPoint( const Teuchos::ArrayView<char>& buffer );
@@ -101,8 +102,8 @@ class EvaluationPoint
     { d_coords = coords; }
 
     //! Get the evaluation point coords.
-    inline Ordinal coords() const 
-    { return d_coords; }
+    inline Teuchos::ArrayView<double> coords() const 
+    { return Teuchos::ArrayView<double>(d_coords,DIM); }
 
     //! Get the dimension of the point.
     inline int dim() const

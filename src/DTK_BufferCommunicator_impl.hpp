@@ -57,7 +57,7 @@ BufferCommunicator<T>::BufferCommunicator(
     const Teuchos::Array<int>& send_ranks,
     const Teuchos::Array<int>& receive_ranks,
     const Teuchos::RCP<const Comm>& comm,
-    const Teuchos::ParameterList& plist )
+    const int max_buffer_size )
     : d_send_ranks( send_ranks )
     , d_receive_ranks( receive_ranks )
     , d_num_send_neighbors( d_send_ranks.size() )
@@ -74,12 +74,8 @@ BufferCommunicator<T>::BufferCommunicator(
     DTK_INSIST( BDT::getPackedBytes(), "Packed data size not set." );
     DataBufferType::setSizePackedData( BDT::getPackedBytes() );
 
-    // Get the max number of packets that will be stored in each buffer.
-    if ( plist.isParameter("Max Buffer Size") )
-    {
-	DataBufferType::setMaxNumPackets( 
-	    plist.get<int>("Max Buffer Size") );
-    }
+    // Set the max number of packets that will be stored in each buffer.
+    DataBufferType::setMaxNumPackets( max_buffer_size );
 
     // Duplicate the input communicator so we have a blocking and nonblocking
     // tag for the send and receive buffers.
@@ -355,7 +351,7 @@ void BufferCommunicator<T>::end()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Number of histories in all buffers.
+ * \brief Number of packets in all buffers.
  */
 template<class T>
 std::size_t BufferCommunicator<T>::sendBufferSize() const

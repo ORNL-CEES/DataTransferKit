@@ -96,7 +96,7 @@ namespace DataTransferKit
 
 */
 //---------------------------------------------------------------------------//
-template<class Mesh, class CoordinateField>
+template<class Mesh, class CoordinateField, int DIM>
 class AsynchronousMap
 {
   public:
@@ -123,8 +123,7 @@ class AsynchronousMap
     //!@}
 
     // Constructor.
-    AsynchronousMap( const RCP_Comm& comm, const int dimension, 
-		     bool store_missed_points = false );
+    AsynchronousMap( const RCP_Comm& comm, bool store_missed_points = false );
 
     // Destructor.
     ~AsynchronousMap();
@@ -132,6 +131,8 @@ class AsynchronousMap
     // Generate the shared domain map.
     void setup( const RCP_MeshManager& source_mesh_manager, 
 		const RCP_CoordFieldManager& target_coord_manager,
+		const int max_buffer_size,
+		const int buffer_check_frequency,
 		double tolerance = 10*Teuchos::ScalarTraits<double>::eps() );
 
     // Apply the shared domain map by evaluating a function at target points
@@ -149,29 +150,32 @@ class AsynchronousMap
 
   private:
 
-    // Get the target points that are in the rendezvous decomposition box.
-    void getTargetPointsInBox( 
-	const BoundingBox& box,
-	const CoordinateField& target_coords,
-	const Teuchos::ArrayView<const GlobalOrdinal>& target_ordinals,
-	Teuchos::Array<GlobalOrdinal>& targets_in_box );
+    // Build the target map from the input target coordinates. Each evaluation
+    // point is assumed unique.
+    void buildTargetMap( const RCP_CoordFieldManager& target_coord_manager,
+			 bool target_exists );
+
+    // Create the asynchronous communication plan by discovering neighbors
+    // through bounding box intersection.
+    void createCommunicationPlan( 
+	const RCP_MeshManager& source_mesh_manager,
+	const bool source_exists,
+	const RCP_CoordFieldManager& target_coord_manager,
+	const bool target_exists,
+	Teuchos::Array<int>& source_neighbor_ranks,
+	Teuchos::Array<BoundingBox>& source_neighbor_boxes,
+	Teuchos::Array<int>& target_neighbor_ranks );
 
   private:
 
     // Communicator.
     RCP_Comm d_comm;
 
-    // Map dimension.
-    int d_dimension;
-
     // Boolean for storing missed points in the mapping.
     bool d_store_missed_points;
 
     // Process indexer for the source application.
     CommIndexer d_source_indexer;
-
-    // Process indexer for the target application.
-    CommIndexer d_target_indexer;
 
     // Indices for target points missed in the mapping.
     Teuchos::Array<GlobalOrdinal> d_missed_points;

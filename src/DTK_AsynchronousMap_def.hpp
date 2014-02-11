@@ -46,8 +46,8 @@
 
 #include "DTK_FieldTools.hpp"
 #include "DTK_DBC.hpp"
-#include "DTK_Rendezvous.hpp"
 #include "DTK_MeshTools.hpp"
+#include "DTK_AKDTree.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_as.hpp>
@@ -73,11 +73,10 @@ namespace DataTransferKit
  * the local target points missed during map generation. The default value is
  * false. 
  */
-template<class Mesh, class CoordinateField>
-AsynchronousMap<Mesh,CoordinateField>::AsynchronousMap( 
+template<class Mesh, class CoordinateField, int DIM>
+AsynchronousMap<Mesh,CoordinateField,DIM>::AsynchronousMap( 
     const RCP_Comm& comm, const int dimension, bool store_missed_points )
     : d_comm( comm )
-    , d_dimension( dimension )
     , d_store_missed_points( store_missed_points )
 { /* ... */ }
 
@@ -85,8 +84,8 @@ AsynchronousMap<Mesh,CoordinateField>::AsynchronousMap(
 /*!
  * \brief Destructor.
  */
-template<class Mesh, class CoordinateField>
-AsynchronousMap<Mesh,CoordinateField>::~AsynchronousMap()
+template<class Mesh, class CoordinateField, int DIM>
+AsynchronousMap<Mesh,CoordinateField,DIM>::~AsynchronousMap()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -108,107 +107,64 @@ AsynchronousMap<Mesh,CoordinateField>::~AsynchronousMap()
  * \param tolerance Absolute tolerance for point searching. Will be used when
  * checking the reference cell ( and is therefore absolute ).
  */
-template<class Mesh, class CoordinateField>
-void AsynchronousMap<Mesh,CoordinateField>::setup( 
+template<class Mesh, class CoordinateField, int DIM>
+void AsynchronousMap<Mesh,CoordinateField,DIM>::setup( 
     const RCP_MeshManager& source_mesh_manager, 
     const RCP_CoordFieldManager& target_coord_manager,
+    const int max_buffer_size,
+    const int buffer_check_frequency,
     double tolerance )
 {
     // Create existence values for the managers.
     bool source_exists = Teuchos::nonnull( source_mesh_manager );
     bool target_exists = Teuchos::nonnull( target_coord_manager );
 
-    // Create local to global process indexers for the managers.
+    // Create local to global process indexer for the source.
     RCP_Comm source_comm;
     if ( source_exists )
     {
 	source_comm = source_mesh_manager->comm();
     }
     d_source_indexer = CommIndexer( d_comm, source_comm );
-    RCP_Comm target_comm;
-    if ( target_exists )
-    {
-	target_comm = target_coord_manager->comm();
-    }
-    d_target_indexer = CommIndexer( d_comm, target_comm );
 
-    // Communication plan creation.
-    Teuchos::Array<int> source_neighbor_ranks;
-    Teuchos::Array<int> target_neighbor_ranks;
-    {
-	// Build the local source bounding box.
-	BoundingBox local_source_box;
-	if ( source_exists )
-	{
-	    local_source_box = source_mesh_manager->localBoundingBox();
-	}
-
-	// Gather the source boxes.
-	Teuchos::Array<BoundingBox> source_boxes( d_comm->getRank() );
-	Teuchos::gatherAll<int,BoundingBox>( *d_comm,
-					     1,
-					     &local_source_box,
-					     source_boxes.size(),
-					     source_boxes.getRawPtr() );
-
-	// Build the local target bounding box and find the source procs that
-	// neighbor this target proc.
-	if ( target_exists )
-	{
-	    BoundingBox local_target_box
-		= FieldTools<CoordinateField>::coordGlobalBoundingBox(
-		    *target_coord_manager->field(), target_coord_manager->comm() );
-
-	    for ( unsigned i = 0; i < source_boxes.size(); ++i )
-	    {
-		if ( BoundingBox::checkForIntersection(
-			 local_target_box,source_boxes[i]) )
-		{
-		    source_neighbor_ranks.push_back(i);
-		}
-	    }
-	}
-
-	// Build the communication plan so the source procs know the target
-	// procs they will receive data from.
-	Tpetra::Distributor target_to_source_distributor( d_comm );
-	distributor.createFromSends( source_neighbor_ranks );
-	target_neighbor_ranks = distributor.getImagesFrom();
-    }
-
-    // Asynchronous communication setup.
-
-    // Get the local number of target points.
-    GlobalOrdinal local_num_targets = 0;
-    if ( target_exists )
-    {
-	local_num_targets = FieldTools<CoordinateField>::dimSize( 
-	    *target_coord_manager->field() );
-    }
-
-    // Get the total number of target points in the entire problem.
-    GlobalOrdinal global_num_targets = 0;
-    Teuchos::reduceAll<int,GlobalOrdinal>( *d_comm,
-					   Teuchos::REDUCE_SUM,
-					   1,
-					   &local_num_targets,
-					   &global_num_targets );
-
-    // Build the data import map from the point global ordinals.
-    d_target_map = Tpetra::createContigMap<int,GlobalOrdinal>(
-	global_num_targets, local_num_targets, d_comm );
-    DTK_ENSURE( Teuchos::nonnull(d_target_map) );
-
-    // Get the target ordinals from the map.
+    // Build global indexing for the target points.
+    buildTargetMap( target_coord_manager, target_exists );
     Teuchos::ArrayView<const GlobalOrdinal> target_ordinals =
 	d_target_map->getNodeElementList();
-    DTK_CHECK( local_num_targets == target_ordinals.size() );
+
+    // Create the communication plan.
+    Teuchos::Array<int> source_neighbor_ranks;
+    Teuchos::Array<BoundingBox> source_neighbor_boxes;
+    Teuchos::Array<int> target_neighbor_ranks;
+    createCommunicationPlan( source_mesh_manager,
+			     source_exists,
+			     target_coord_manager,
+			     target_exists,
+			     source_neighbor_ranks,
+			     source_neighbor_boxes,
+			     target_neighbor_ranks );
+
+    // Create the asynchronous tree and perform point location.
+    Teuchos::Array<GlobalOrdinal> target_point_gids;
+    {
+	AKDTree akd_tree<Mesh,CoordinateField,DIM>( 
+	    d_comm, max_buffer_size, buffer_check_frequency,
+	    source_neighbor_ranks, source_neighbor_boxes,
+	    target_neighbor_ranks,
+	    source_mesh_manager, target_coord_manager,
+	    target_ordinals );
+
+	akd_tree.locate( d_source_elements,
+			 target_point_gids,
+			 d_target_coords,
+			 tolerance );
+    }
 
     // Build the source map from the target ordinals.
-    Teuchos::ArrayView<const GlobalOrdinal> source_points_view = 
-	source_points();
+    Teuchos::ArrayView<const GlobalOrdinal> target_point_gids_view = 
+	target_point_gids();
     d_source_map = Tpetra::createNonContigMap<int,GlobalOrdinal>( 
-	source_points_view, d_comm );
+	target_point_gids_view, d_comm );
     DTK_ENSURE( Teuchos::nonnull(d_source_map) );
 
     // Build the source-to-target exporter.
@@ -227,10 +183,10 @@ void AsynchronousMap<Mesh,CoordinateField>::setup(
  *  will be thrown if store_missed_points is false. Returns a null view if all
  *  points have been mapped or the map has not yet been generated.
 */
-template<class Mesh, class CoordinateField>
+template<class Mesh, class CoordinateField, int DIM>
 Teuchos::ArrayView<const typename 
-		   AsynchronousMap<Mesh,CoordinateField>::GlobalOrdinal> 
-AsynchronousMap<Mesh,CoordinateField>::getMissedTargetPoints() const
+		   AsynchronousMap<Mesh,CoordinateField,DIM>::GlobalOrdinal> 
+AsynchronousMap<Mesh,CoordinateField,DIM>::getMissedTargetPoints() const
 {
     DTK_REQUIRE( d_store_missed_points );
     
@@ -246,10 +202,10 @@ AsynchronousMap<Mesh,CoordinateField>::getMissedTargetPoints() const
  *  will be thrown if store_missed_points is false. Returns a null view if all
  *  points have been mapped or the map has not yet been generated.
 */
-template<class Mesh, class CoordinateField>
+template<class Mesh, class CoordinateField, int DIM>
 Teuchos::ArrayView<typename 
-		   AsynchronousMap<Mesh,CoordinateField>::GlobalOrdinal> 
-AsynchronousMap<Mesh,CoordinateField>::getMissedTargetPoints()
+		   AsynchronousMap<Mesh,CoordinateField,DIM>::GlobalOrdinal> 
+AsynchronousMap<Mesh,CoordinateField,DIM>::getMissedTargetPoints()
 {
     DTK_REQUIRE( d_store_missed_points );
     
@@ -268,9 +224,9 @@ AsynchronousMap<Mesh,CoordinateField>::getMissedTargetPoints()
  * evaluations will be written. Enough space must be allocated to hold
  * evaluations at all points in all dimensions of the field.
  */
-template<class Mesh, class CoordinateField>
+template<class Mesh, class CoordinateField, int DIM>
 template<class SourceField, class TargetField>
-void AsynchronousMap<Mesh,CoordinateField>::apply( 
+void AsynchronousMap<Mesh,CoordinateField,DIM>::apply( 
     const Teuchos::RCP< FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
     Teuchos::RCP< FieldManager<TargetField> >& target_space_manager )
 {
@@ -338,59 +294,95 @@ void AsynchronousMap<Mesh,CoordinateField>::apply(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the target points that are in the rendezvous decomposition box.
- *
- * \param target_coord_manager The manager containing the target coordinates
- * to search the box with.
- *
- * \param target_ordinals The globally unique ordinals for the target
- * coordinates. 
- *
- * \param targets_in_box The global ordinals of the target coordinates in the
- * box. If a target point was not found in the box, return an invalid ordinal,
- * std::numeric_limits<GlobalOrdinal>::max(), in its positition.
+ * \brief Build the target map from the input target coordinates. Each
+ * evaluation point is assumed unique.
  */
-template<class Mesh, class CoordinateField>
-void AsynchronousMap<Mesh,CoordinateField>::getTargetPointsInBox(
-    const BoundingBox& box, const CoordinateField& target_coords,
-    const Teuchos::ArrayView<const GlobalOrdinal>& target_ordinals,
-    Teuchos::Array<GlobalOrdinal>& targets_in_box )
+template<class Mesh, class CoordinateField, int DIM>
+Teuchos::ArrayView<typename 
+		   AsynchronousMap<Mesh,CoordinateField,DIM>::GlobalOrdinal> 
+AsynchronousMap<Mesh,CoordinateField,DIM>::buildTargetMap(
+    const RCP_CoordFieldManager& target_coord_manager,
+    bool target_exists )
 {
-    Teuchos::ArrayRCP<const double> target_coords_view =
-	FieldTools<CoordinateField>::view( target_coords );
-    GlobalOrdinal dim_size = 
-	FieldTools<CoordinateField>::dimSize( target_coords );
-
-    DTK_REQUIRE( dim_size == 
-		      Teuchos::as<GlobalOrdinal>(target_ordinals.size()) );
-
-    targets_in_box.resize( dim_size );
-    int field_dim = CFT::dim( target_coords );
-    Teuchos::Array<double> target_point( field_dim );
-    for ( GlobalOrdinal n = 0; n < dim_size; ++n )
+    // Get the local number of target points.
+    GlobalOrdinal local_num_targets = 0;
+    if ( target_exists )
     {
-	for ( int d = 0; d < field_dim; ++d )
-	{
-	    target_point[d] = target_coords_view[ dim_size*d + n ];
-	}
+	local_num_targets = FieldTools<CoordinateField>::dimSize( 
+	    *target_coord_manager->field() );
+    }
 
-	if ( box.pointInBox( target_point ) )
-	{
-	    targets_in_box[n] = target_ordinals[n];
-	}
-	else
-	{
-	    targets_in_box[n] = std::numeric_limits<GlobalOrdinal>::max();
-	}
+    // Get the total number of target points in the entire problem.
+    GlobalOrdinal global_num_targets = 0;
+    Teuchos::reduceAll<int,GlobalOrdinal>( *d_comm,
+					   Teuchos::REDUCE_SUM,
+					   1,
+					   &local_num_targets,
+					   &global_num_targets );
 
-	// If we're keeping track of the points not being mapped, add this
-	// point's local index to the list if its not in the box.
-	if ( d_store_missed_points && targets_in_box[n] == 
-	     std::numeric_limits<GlobalOrdinal>::max() )
+    // Build the data import map from the point global ordinals.
+    d_target_map = Tpetra::createContigMap<int,GlobalOrdinal>(
+	global_num_targets, local_num_targets, d_comm );
+    DTK_ENSURE( Teuchos::nonnull(d_target_map) );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Build the target map from the input target coordinates. Each
+ * evaluation point is assumed unique.
+ */
+template<class Mesh, class CoordinateField, int DIM>
+Teuchos::ArrayView<typename 
+		   AsynchronousMap<Mesh,CoordinateField,DIM>::GlobalOrdinal> 
+AsynchronousMap<Mesh,CoordinateField,DIM>::createCommunicationPlan(
+    const RCP_MeshManager& source_mesh_manager,
+    const bool source_exists,
+    const RCP_CoordFieldManager& target_coord_manager,
+    const bool target_exists,
+    Teuchos::Array<int>& source_neighbor_ranks,
+    Teuchos::Array<BoundingBox>& source_neighbor_boxes,
+    Teuchos::Array<int>& target_neighbor_ranks )
+{
+    // Build the local source bounding box.
+    BoundingBox local_source_box;
+    if ( source_exists )
+    {
+	local_source_box = source_mesh_manager->localBoundingBox();
+    }
+
+    // Gather the source boxes.
+    Teuchos::Array<BoundingBox> source_boxes( d_comm->getRank() );
+    Teuchos::gatherAll<int,BoundingBox>( *d_comm,
+					 1,
+					 &local_source_box,
+					 source_boxes.size(),
+					 source_boxes.getRawPtr() );
+
+    // Build the local target bounding box and find the source procs that
+    // neighbor this target proc. These are our neighbors that we will
+    // send buffers to.
+    if ( target_exists )
+    {
+	BoundingBox local_target_box
+	    = FieldTools<CoordinateField>::coordGlobalBoundingBox(
+		*target_coord_manager->field(), target_coord_manager->comm() );
+
+	for ( unsigned i = 0; i < source_boxes.size(); ++i )
 	{
-	    d_missed_points.push_back(n);
+	    if ( BoundingBox::checkForIntersection(
+		     local_target_box,source_boxes[i]) )
+	    {
+		source_neighbor_ranks.push_back(i);
+		source_neighbor_boxes.push_back(source_boxes[i]);
+	    }
 	}
     }
+
+    // Build the communication plan so the source procs know the
+    // neighboring target procs they will receive buffers from.
+    Tpetra::Distributor target_to_source_distributor( d_comm );
+    distributor.createFromSends( source_neighbor_ranks );
+    target_neighbor_ranks = distributor.getImagesFrom();
 }
 
 //---------------------------------------------------------------------------//
