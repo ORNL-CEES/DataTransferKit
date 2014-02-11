@@ -141,6 +141,70 @@ MeshManager<Mesh>::globalNumElements() const
 
 //---------------------------------------------------------------------------//
 /*!    
+ * \brief Compute the local bounding box around the entire mesh (all
+ * blocks). 
+ *
+ * \return The local bounding box over all mesh blocks.
+ */
+template<class Mesh>
+BoundingBox MeshManager<Mesh>::localBoundingBox()
+{
+    double local_x_min = Teuchos::ScalarTraits<double>::rmax();
+    double local_y_min = Teuchos::ScalarTraits<double>::rmax();
+    double local_z_min = Teuchos::ScalarTraits<double>::rmax();
+    double local_x_max = -Teuchos::ScalarTraits<double>::rmax();
+    double local_y_max = -Teuchos::ScalarTraits<double>::rmax();
+    double local_z_max = -Teuchos::ScalarTraits<double>::rmax();
+
+    // Get the bounding box for each mesh block.
+    Teuchos::Tuple<double,6> box_bounds;
+    BoundingBox block_box;
+    BlockIterator block_iterator;
+    for ( block_iterator = d_mesh_blocks.begin();
+	  block_iterator != d_mesh_blocks.end();
+	  ++block_iterator )
+    {
+	// If the mesh block is empty, do nothing.
+	if ( MeshTools<Mesh>::numVertices( *(*block_iterator) ) > 0 )
+	{
+	    block_box =	MeshTools<Mesh>::localBoundingBox( 
+		*(*block_iterator), d_comm );
+
+	    box_bounds = block_box.getBounds();
+
+	    if ( box_bounds[0] < local_x_min )
+	    {
+		local_x_min = box_bounds[0];
+	    }
+	    if ( box_bounds[1] < local_y_min )
+	    {
+		local_y_min = box_bounds[1];
+	    }
+	    if ( box_bounds[2] < local_z_min )
+	    {
+		local_z_min = box_bounds[2];
+	    }
+	    if ( box_bounds[3] > local_x_max )
+	    {
+		local_x_max = box_bounds[3];
+	    }
+	    if ( box_bounds[4] > local_y_max )
+	    {
+		local_y_max = box_bounds[4];
+	    }
+	    if ( box_bounds[5] > local_z_max )
+	    {
+		local_z_max = box_bounds[5];
+	    }
+	}
+    }
+
+    return BoundingBox( local_x_min, local_y_min, local_z_min,
+			local_x_max, local_y_max, local_z_max );
+}
+
+//---------------------------------------------------------------------------//
+/*!    
  * \brief Compute the global bounding box around the entire mesh (all
  * blocks). 
  *

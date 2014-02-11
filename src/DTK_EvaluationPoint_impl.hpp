@@ -32,86 +32,96 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_CommTools.hpp
+ * \file DTK_EvaluationPoint_impl.hpp
  * \author Stuart R. Slattery
- * \brief CommTools declaration.
+ * \brief EvaluationPoint class declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_COMMTOOLS_HPP
-#define DTK_COMMTOOLS_HPP
+#ifndef DTK_EVALUATIONPOINT_IMPL_HPP
+#define DTK_EVALUATIONPOINT_IMPL_HPP
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
+#include <algorithm>
+
+#include "DTK_DBC.hpp"
+#include "DTK_Serializer.hpp"
+
+#include <Teuchos_as.hpp>
 
 namespace DataTransferKit
 {
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Deserializer constructor.
+ */
+template<class Ordinal>
+EvaluationPoint<Ordinal>::EvaluationPoint( const Teuchos::ArrayView<char>& buffer )
+{
+    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) == d_packed_bytes );
+
+    Deserializer ds;
+    ds.setBuffer( d_packed_bytes, buffer.getRawPtr() );
+    ds >> d_gid >> d_coords;
+
+    DTK_ENSURE( ds.getPtr() == ds.end() );
+}
 
 //---------------------------------------------------------------------------//
 /*!
- * \class CommTools
- * \brief A stateless class with tools for operating on communicators.
- */ 
-//---------------------------------------------------------------------------//
-class CommTools
+ * \brief Pack the history into a buffer.
+ */
+template<class Ordinal>
+Teuchos::Array<char> EvaluationPoint<Ordinal>::pack() const
 {
-  public:
+    DTK_REQUIRE( d_packed_bytes );
+    DTK_REQUIRE( d_packed_bytes > 0 );
 
-    //@{
-    //! Typedefs.
-    typedef Teuchos::Comm<int>                  CommType;
-    typedef Teuchos::RCP<const CommType>        RCP_Comm;
-    //@}
+    Teuchos::Array<char> buffer( d_packed_bytes );
 
-    //! Constructor.
-    CommTools()
-    { /* ... */ }
+    Serializer s;
+    s.setBuffer( d_packed_bytes, buffer.getRawPtr() );
+    s << d_gid << d_coords;
 
-    //! Destructor.
-    ~CommTools()
-    { /* ... */ }
+    DTK_ENSURE( s.getPtr() == s.end() );
+    return buffer;
+}
 
-    // Get comm world.
-    static void getCommWorld( RCP_Comm& comm_world );
+//---------------------------------------------------------------------------//
+// Static members.
+//---------------------------------------------------------------------------//
+template<class Ordinal>
+std::size_t EvaluationPoint<Ordinal>::d_packed_bytes = 0;
 
-    // Check whether two communicators own the same communication space.
-    static bool equal( const RCP_Comm& comm_A, 
-                       const RCP_Comm& comm_B,
-                       const RCP_Comm& comm_global = Teuchos::null );
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Set the byte size of the packed history state.
+ */
+template<class Ordinal>
+void EvaluationPoint<Ordinal>::setByteSize( std::size_t size_rng_state )
+{
+    d_packed_bytes = sizeof(Ordinal) + DIM*sizeof(double);
+}
 
-    // Generate the union of two communicators.
-    static void unite( const RCP_Comm& comm_A, 
-                       const RCP_Comm& comm_B,
-		       RCP_Comm& comm_union,
-                       const RCP_Comm& comm_global = Teuchos::null );
-
-    // Generate the intersection of two communicators.
-    static void intersect( const RCP_Comm& comm_A, 
-                           const RCP_Comm& comm_B,
-			   RCP_Comm& comm_intersection,
-                           const RCP_Comm& comm_global = Teuchos::null );
-
-    // Given a comm request, check to see if it has completed.
-    static bool 
-    isRequestComplete( Teuchos::RCP<Teuchos::CommRequest<int> >& handle );
-
-    // Do a reduce sum for a given buffer.
-    template<class Scalar>
-    static void reduceSum( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-                           const int root,
-                           const int count,
-                           const Scalar send_buffer[],
-                           Scalar global_reducts[] );
-};
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the number of bytes in the packed history state.
+ */
+template<class Ordinal>
+std::size_t EvaluationPoint<Ordinal>::getPackedBytes()
+{
+    DTK_REQUIRE( d_packed_bytes );
+    return d_packed_bytes;
+}
 
 //---------------------------------------------------------------------------//
 
-} // end namepsace DataTransferKit
+} // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_COMMTOOLS_HPP
+#endif // end DTK_EVALUATIONPOINT_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_CommTools.hpp
+// end DTK_EvaluationPoint_impl.hpp
 //---------------------------------------------------------------------------//
+

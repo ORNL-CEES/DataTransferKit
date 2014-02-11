@@ -40,6 +40,7 @@
 
 #include <algorithm>
 
+#include "DTK_DBC.hpp"
 #include "DTK_CommTools.hpp"
 
 #include <Teuchos_Array.hpp>
@@ -47,6 +48,10 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_Ptr.hpp>
+
+#ifdef HAVE_MPI
+#include <Teuchos_DefaultMpiComm.hpp>
+#endif
 
 namespace DataTransferKit
 {
@@ -250,6 +255,98 @@ void CommTools::intersect( const RCP_Comm& comm_A,
     }
    
     comm_intersection = comm_world->createSubcommunicator( subranks() );    
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Given a comm request, check to see if it has completed.
+ */
+bool 
+CommTools::isRequestComplete( Teuchos::RCP<Teuchos::CommRequest<int> >& handle )
+{
+    bool is_complete = false;
+
+#ifdef HAVE_MPI
+    DTK_REQUIRE( Teuchos::nonnull(handle) );
+    Teuchos::RCP<Teuchos::MpiCommRequestBase<int> > handle_base =
+	Teuchos::rcp_dynamic_cast<Teuchos::MpiCommRequestBase<int> >(handle);
+    DTK_CHECK( Teuchos::nonnull(handle_base) );
+    MPI_Request raw_request = handle_base->releaseRawMpiRequest();
+    MPI_Status raw_status;
+    int flag = 0;
+    MPI_Test( &raw_request, &flag, &raw_status );
+    is_complete = ( flag != 0 );
+    handle = Teuchos::rcp( 
+	new Teuchos::MpiCommRequestBase<int>(raw_request) );
+#else
+    is_complete = true;
+#endif
+
+    return is_complete;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Do a reduce sum for a given buffer.
+ *
+ * Float instantiation.
+ */
+template<>
+void CommTools::reduceSum<float>( 
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+    const int root,
+    const int count,
+    const float send_buffer[],
+    float global_reducts[] )
+{
+#ifdef HAVE_MPI
+    const Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+	Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >( comm );
+    MPI_Comm raw_mpi_comm = *( mpi_comm->getRawMpiComm() );
+    const int error = MPI_Reduce( 
+        const_cast<float*>(send_buffer),
+	global_reducts,
+	count,
+	MPI_FLOAT,
+	MPI_SUM,
+	root,
+	raw_mpi_comm );
+    DTK_CHECK( MPI_SUCCESS == error );
+#else
+    std::copy( send_buffer, send_buffer+count, global_reducts );
+#endif
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Do a reduce sum for a given buffer.
+ *
+ * Double instantiation.
+ */
+template<>
+void CommTools::reduceSum<double>( 
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+    const int root,
+    const int count,
+    const double send_buffer[],
+    double global_reducts[] )
+{
+#ifdef HAVE_MPI
+    const Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+	Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >( comm );
+    MPI_Comm raw_mpi_comm = *( mpi_comm->getRawMpiComm() );
+    const int error = MPI_Reduce( 
+        const_cast<double*>(send_buffer),
+	global_reducts,
+	count,
+	MPI_DOUBLE,
+	MPI_SUM,
+	root,
+	raw_mpi_comm );
+    DTK_CHECK( MPI_SUCCESS == error );
+#else
+    std::copy( send_buffer, send_buffer+count, global_reducts );
+#endif
 }
 
 //---------------------------------------------------------------------------//

@@ -198,23 +198,16 @@ double BoundingBox::volume( const int dim ) const
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Static function for box intersection. Return false if they do not
- * intersect. 
+ * \brief Static function for box intersection test.
  *
  * \param box_A Bounding box A.
  *
  * \param box_B Bounding box B.
  *
- * \param intersection A bounding box that is equivalent to the inersection of
- * box A and box B. Box A and B can be provided in any order (the
- * intersection of box A with box B is equal to the intersection of box B with
- * box A).
- *
  * \return Return true if the boxes intersect. False if they do not.
  */
-bool BoundingBox::intersectBoxes( const BoundingBox& box_A,
-				  const BoundingBox& box_B,
-				  BoundingBox& intersection)
+bool BoundingBox::checkForIntersection( const BoundingBox& box_A,
+					const BoundingBox& box_B )
 {
     Teuchos::Tuple<double,6> bounds_A = box_A.getBounds();
     Teuchos::Tuple<double,6> bounds_B = box_B.getBounds();
@@ -236,6 +229,40 @@ bool BoundingBox::intersectBoxes( const BoundingBox& box_A,
     {
 	return false;
     }
+
+    return true;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Static function for box intersection. Return false if they do not
+ * intersect. 
+ *
+ * \param box_A Bounding box A.
+ *
+ * \param box_B Bounding box B.
+ *
+ * \param intersection A bounding box that is equivalent to the inersection of
+ * box A and box B. Box A and B can be provided in any order (the
+ * intersection of box A with box B is equal to the intersection of box B with
+ * box A).
+ *
+ * \return Return true if the boxes intersect. False if they do not.
+ */
+bool BoundingBox::intersectBoxes( const BoundingBox& box_A,
+				  const BoundingBox& box_B,
+				  BoundingBox& intersection)
+{
+    // Check for intersection.
+    if ( !checkForIntersection(box_A,box_B) )
+    {
+	return false;
+    }
+
+    Teuchos::Tuple<double,6> bounds_A = box_A.getBounds();
+    Teuchos::Tuple<double,6> bounds_B = box_B.getBounds();
+
+    double x_min, y_min, z_min, x_max, y_max, z_max;
 
     // Get overlap in X.
     if ( bounds_A[0] > bounds_B[0] )

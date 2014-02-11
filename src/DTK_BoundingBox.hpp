@@ -88,6 +88,10 @@ class BoundingBox
     // Compute the volume of the box given its dimension.
     double volume( const int dim ) const;
 
+    // Static function to check for box intersection but not perform it.
+    static bool checkForIntersection( const BoundingBox& box_A,
+				      const BoundingBox& box_B );
+
     // Static function for box intersection.
     static bool intersectBoxes( const BoundingBox& box_A,
 				const BoundingBox& box_B,

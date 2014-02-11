@@ -3,11 +3,11 @@
   Copyright (c) 2012, Stuart R. Slattery
   All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without
+  Redistribution and use in history and binary forms, with or without
   modification, are permitted provided that the following conditions are
   met:
 
-  *: Redistributions of source code must retain the above copyright
+  *: Redistributions of history code must retain the above copyright
   notice, this list of conditions and the following disclaimer.
 
   *: Redistributions in binary form must reproduce the above copyright
@@ -32,86 +32,98 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_CommTools.hpp
+ * \file DTK_BufferDataTraits.hpp
  * \author Stuart R. Slattery
- * \brief CommTools declaration.
+ * \brief Data buffer type traits definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_COMMTOOLS_HPP
-#define DTK_COMMTOOLS_HPP
+#ifndef DTK_BUFFERDATA_HPP
+#define DTK_BUFFERDATA_HPP
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 namespace DataTransferKit
 {
 
 //---------------------------------------------------------------------------//
 /*!
- * \class CommTools
- * \brief A stateless class with tools for operating on communicators.
- */ 
+ * \class UndefinedBufferDataTraits
+ * \brief Class for undefined data buffer traits. 
+ *
+ * Will throw a compile-time error if these traits are not specialized.
+ */
+template<class T>
+struct UndefinedBufferDataTraits
+{
+    static inline void notDefined()
+    {
+	return T::this_type_is_missing_a_specialization();
+    }
+};
+
 //---------------------------------------------------------------------------//
-class CommTools
+/*!
+ * \class BufferDataTraits
+ * \brief Traits for packing data into buffers.
+ */
+template<class T>
+class BufferDataTraits
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef Teuchos::Comm<int>                  CommType;
-    typedef Teuchos::RCP<const CommType>        RCP_Comm;
+    typedef T                                      data_type;
+    typedef typename T::ordinal_type               ordinal_type;
     //@}
 
-    //! Constructor.
-    CommTools()
-    { /* ... */ }
+    /*!
+     * \brief Create a data from a buffer.
+     */
+    static Teuchos::RCP<T> 
+    createFromBuffer( const Teuchos::ArrayView<char>& buffer )
+    { 
+	UndefinedBufferDataTraits<T>::notDefined(); 
+	return Teuchos::null;
+    }
 
-    //! Destructor.
-    ~CommTools()
-    { /* ... */ }
+    /*!
+     * \brief Pack the data into a buffer.
+     */
+    static Teuchos::Array<char> pack( const T& data )
+    {
+	UndefinedBufferDataTraits<T>::notDefined(); 
+	return Teuchos::Array<char>(0);
+    }
 
-    // Get comm world.
-    static void getCommWorld( RCP_Comm& comm_world );
+    /*!
+     * \brief Set the byte size of the packed data state.
+     */
+    static void setByteSize()
+    {
+	UndefinedBufferDataTraits<T>::notDefined();
+    }
 
-    // Check whether two communicators own the same communication space.
-    static bool equal( const RCP_Comm& comm_A, 
-                       const RCP_Comm& comm_B,
-                       const RCP_Comm& comm_global = Teuchos::null );
-
-    // Generate the union of two communicators.
-    static void unite( const RCP_Comm& comm_A, 
-                       const RCP_Comm& comm_B,
-		       RCP_Comm& comm_union,
-                       const RCP_Comm& comm_global = Teuchos::null );
-
-    // Generate the intersection of two communicators.
-    static void intersect( const RCP_Comm& comm_A, 
-                           const RCP_Comm& comm_B,
-			   RCP_Comm& comm_intersection,
-                           const RCP_Comm& comm_global = Teuchos::null );
-
-    // Given a comm request, check to see if it has completed.
-    static bool 
-    isRequestComplete( Teuchos::RCP<Teuchos::CommRequest<int> >& handle );
-
-    // Do a reduce sum for a given buffer.
-    template<class Scalar>
-    static void reduceSum( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-                           const int root,
-                           const int count,
-                           const Scalar send_buffer[],
-                           Scalar global_reducts[] );
+    /*!
+     * \brief Get the number of bytes in the packed data state.
+     */
+    static std::size_t getPackedBytes()
+    {
+	UndefinedBufferDataTraits<T>::notDefined();
+	return 0;
+    }
 };
 
 //---------------------------------------------------------------------------//
 
-} // end namepsace DataTransferKit
+} // end namespace DataTransferKit
+
+#endif // end DTK_BUFFERDATA_HPP
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_COMMTOOLS_HPP
-
+// end DTK_BufferDataTraits.hpp
 //---------------------------------------------------------------------------//
-// end DTK_CommTools.hpp
-//---------------------------------------------------------------------------//
+
