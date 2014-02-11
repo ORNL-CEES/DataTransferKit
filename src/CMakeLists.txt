@@ -22,10 +22,17 @@ SET(HEADERS ${HEADERS}
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  DTK_AKDTree.hpp
+  DTK_AKDTree_impl.hpp
+  DTK_AsynchronousMap.hpp
+  DTK_AsynchronousMap_def.hpp
   DTK_BoundingBox.hpp
   DTK_Box.hpp
   DTK_BuhmannBasis.hpp
   DTK_BuhmannBasis_impl.hpp
+  DTK_BufferCommunicator.hpp
+  DTK_BufferCommunicator_impl.hpp
+  DTK_BufferDataTraits.hpp
   DTK_CellTopologyFactory.hpp
   DTK_CenterDistributor.hpp
   DTK_CenterDistributor_impl.hpp
@@ -33,15 +40,21 @@ APPEND_SET(HEADERS
   DTK_CloudDomain_impl.hpp
   DTK_CloudSearch.hpp
   DTK_CloudSearch_impl.hpp
+  DTK_CommDataBuffer.hpp
+  DTK_CommDataBuffer_impl.hpp
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
   DTK_Cylinder.hpp
+  DTK_DataBuffer.hpp
+  DTK_DataBuffer_impl.hpp
   DTK_DBC.hpp
   DTK_ElementMeasure.hpp
   DTK_ElementTree.hpp
   DTK_ElementTree_impl.hpp
   DTK_EuclideanDistance.hpp
   DTK_EuclideanDistance_impl.hpp
+  DTK_EvaluationPoint.hpp
+  DTK_EvaluationPoint_impl.hpp
   DTK_FieldContainer.hpp
   DTK_FieldEvaluator.hpp
   DTK_FieldIntegrator.hpp
@@ -78,6 +91,7 @@ APPEND_SET(HEADERS
   DTK_RCB_def.hpp
   DTK_Rendezvous.hpp
   DTK_Rendezvous_def.hpp
+  DTK_Serializer.hpp
   DTK_SerialPartitioner.hpp
   DTK_SharedDomainMap.hpp
   DTK_SharedDomainMap_def.hpp

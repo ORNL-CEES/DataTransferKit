@@ -167,8 +167,7 @@ BoundingBox MeshManager<Mesh>::localBoundingBox()
 	// If the mesh block is empty, do nothing.
 	if ( MeshTools<Mesh>::numVertices( *(*block_iterator) ) > 0 )
 	{
-	    block_box =	MeshTools<Mesh>::localBoundingBox( 
-		*(*block_iterator), d_comm );
+	    block_box =	MeshTools<Mesh>::localBoundingBox( *(*block_iterator) );
 
 	    box_bounds = block_box.getBounds();
 

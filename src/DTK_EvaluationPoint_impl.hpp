@@ -54,24 +54,29 @@ namespace DataTransferKit
 /*!
  * \brief Deserializer constructor.
  */
-template<class Ordinal>
-EvaluationPoint<Ordinal>::EvaluationPoint( const Teuchos::ArrayView<char>& buffer )
+template<class Ordinal, int DIM>
+EvaluationPoint<Ordinal,DIM>::EvaluationPoint( 
+    const Teuchos::ArrayView<char>& buffer )
 {
     DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) == d_packed_bytes );
 
     Deserializer ds;
     ds.setBuffer( d_packed_bytes, buffer.getRawPtr() );
-    ds >> d_gid >> d_coords;
+    ds >> d_gid;
+    for ( int d = 0; d < DIM; ++d )
+    {
+	ds >> d_coords[d];
+    }
 
     DTK_ENSURE( ds.getPtr() == ds.end() );
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Pack the history into a buffer.
+ * \brief Pack the data into a buffer.
  */
-template<class Ordinal>
-Teuchos::Array<char> EvaluationPoint<Ordinal>::pack() const
+template<class Ordinal, int DIM>
+Teuchos::Array<char> EvaluationPoint<Ordinal,DIM>::pack() const
 {
     DTK_REQUIRE( d_packed_bytes );
     DTK_REQUIRE( d_packed_bytes > 0 );
@@ -80,7 +85,11 @@ Teuchos::Array<char> EvaluationPoint<Ordinal>::pack() const
 
     Serializer s;
     s.setBuffer( d_packed_bytes, buffer.getRawPtr() );
-    s << d_gid << d_coords;
+    s << d_gid;
+    for ( int d = 0; d < DIM; ++d )
+    {
+	s << d_coords[d];
+    }
 
     DTK_ENSURE( s.getPtr() == s.end() );
     return buffer;
@@ -89,25 +98,25 @@ Teuchos::Array<char> EvaluationPoint<Ordinal>::pack() const
 //---------------------------------------------------------------------------//
 // Static members.
 //---------------------------------------------------------------------------//
-template<class Ordinal>
-std::size_t EvaluationPoint<Ordinal>::d_packed_bytes = 0;
+template<class Ordinal, int DIM>
+std::size_t EvaluationPoint<Ordinal,DIM>::d_packed_bytes = 0;
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Set the byte size of the packed history state.
+ * \brief Set the byte size of the packed data state.
  */
-template<class Ordinal>
-void EvaluationPoint<Ordinal>::setByteSize( std::size_t size_rng_state )
+template<class Ordinal, int DIM>
+void EvaluationPoint<Ordinal,DIM>::setByteSize()
 {
     d_packed_bytes = sizeof(Ordinal) + DIM*sizeof(double);
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the number of bytes in the packed history state.
+ * \brief Get the number of bytes in the packed data state.
  */
-template<class Ordinal>
-std::size_t EvaluationPoint<Ordinal>::getPackedBytes()
+template<class Ordinal, int DIM>
+std::size_t EvaluationPoint<Ordinal,DIM>::getPackedBytes()
 {
     DTK_REQUIRE( d_packed_bytes );
     return d_packed_bytes;

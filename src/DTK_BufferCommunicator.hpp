@@ -70,7 +70,7 @@ class BufferCommunicator
     typedef T                                            data_type;
     typedef BufferDataTraits<T>                          BDT;
     typedef DataBuffer<T>                                DataBufferType;
-    typedef typename DataBufferType::bank_type           BankType;
+    typedef typename DataBufferType::BankType            BankType;
     typedef SendDataBuffer<T>                            SendBuffer;
     typedef ReceiveDataBuffer<T>                         ReceiveBuffer;
     typedef Teuchos::Comm<int>                           Comm;

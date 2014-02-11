@@ -160,6 +160,9 @@ class MeshManager
     Teuchos::ArrayView<short int> getActiveElements( const int block_id )
     { return d_active_elements[ block_id ](); }
 
+    // Compute the local bounding box around the entire mesh.
+    BoundingBox localBoundingBox();
+
     // Compute the global bounding box around the entire mesh.
     BoundingBox globalBoundingBox();
 

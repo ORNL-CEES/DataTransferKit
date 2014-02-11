@@ -129,7 +129,7 @@ bool ReceiveDataBuffer<T>::check()
 	Base::d_handle = Teuchos::null;
 
 	DTK_ENSURE( Base::d_handle.is_null() );
-	DTK_ENSURE( Root::numHistories() >= 0 );
+	DTK_ENSURE( Root::numPackets() >= 0 );
 	return true;
     }
 

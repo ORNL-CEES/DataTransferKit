@@ -64,7 +64,6 @@ class EvaluationPoint
     //@{
     //! Typedefs.
     typedef Ordinal                                   ordinal_type;
-    typedef RNGControl::RNG                           RNG;
     //@}
 
     //! Default constructor.
@@ -73,11 +72,10 @@ class EvaluationPoint
     { /* ... */ }
 
     //! State constructor.
-    EvaluationPoint( const Ordinal gid, const double coords[DIM] )
+    EvaluationPoint( const Ordinal gid, 
+		     const Teuchos::ArrayView<const double> coords )
 	: d_gid( gid )
-    {
-	std::copy( &coords[0], &coords[DIM]+1, &d_coords[0] );
-    }
+    { std::copy( coords.begin(), coords.end(), &d_coords[0] ); }
 
     // Deserializer constructor.
     explicit EvaluationPoint( const Teuchos::ArrayView<char>& buffer );
@@ -89,21 +87,17 @@ class EvaluationPoint
     // Pack the evaluation point into a buffer.
     Teuchos::Array<char> pack() const;
 
-    //! Set the evaluation point gid.
-    inline void setGid( const Ordinal gid )
-    { d_gid = gid; }
-
     //! Get the evaluation point gid.
     inline Ordinal gid() const 
     { return d_gid; }
 
-    //! Set the evaluation point coordinates.
-    inline void setCoords( const double coords[DIM] )
-    { d_coords = coords; }
-
     //! Get the evaluation point coords.
-    inline Teuchos::ArrayView<double> coords() const 
-    { return Teuchos::ArrayView<double>(d_coords,DIM); }
+    inline Teuchos::ArrayView<const double> coords() const 
+    { return Teuchos::ArrayView<const double>(&d_coords[0],DIM); }
+
+    //! Get the coordinate at the specified dimension.
+    inline double coordinate( const int dimension )
+    { return d_coords[dimension]; }
 
     //! Get the dimension of the point.
     inline int dim() const
@@ -134,14 +128,14 @@ class EvaluationPoint
 //---------------------------------------------------------------------------//
 // BufferDataTraits Implementation.
 //---------------------------------------------------------------------------//
-template<class Ordinal>
-class BufferDataTraits<EvaluationPoint<Ordinal> >
+template<class Ordinal, int DIM>
+class BufferDataTraits<EvaluationPoint<Ordinal,DIM> >
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef EvaluationPoint<Ordinal>                     data_type;
+    typedef EvaluationPoint<Ordinal,DIM>                     data_type;
     typedef typename data_type::ordinal_type             ordinal_type;
     //@}
 
@@ -165,9 +159,9 @@ class BufferDataTraits<EvaluationPoint<Ordinal> >
     /*!
      * \brief Set the byte size of the packed point state.
      */
-    static void setByteSize( std::size_t size_rng_state )
+    static void setByteSize()
     {
-	data_type::setByteSize( size_rng_state );
+	data_type::setByteSize();
     }
 
     /*!

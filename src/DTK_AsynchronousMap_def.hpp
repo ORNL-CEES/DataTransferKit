@@ -75,7 +75,7 @@ namespace DataTransferKit
  */
 template<class Mesh, class CoordinateField, int DIM>
 AsynchronousMap<Mesh,CoordinateField,DIM>::AsynchronousMap( 
-    const RCP_Comm& comm, const int dimension, bool store_missed_points )
+    const RCP_Comm& comm, bool store_missed_points )
     : d_comm( comm )
     , d_store_missed_points( store_missed_points )
 { /* ... */ }
@@ -147,7 +147,7 @@ void AsynchronousMap<Mesh,CoordinateField,DIM>::setup(
     // Create the asynchronous tree and perform point location.
     Teuchos::Array<GlobalOrdinal> target_point_gids;
     {
-	AKDTree akd_tree<Mesh,CoordinateField,DIM>( 
+	AKDTree<Mesh,CoordinateField,DIM> akd_tree( 
 	    d_comm, max_buffer_size, buffer_check_frequency,
 	    source_neighbor_ranks, source_neighbor_boxes,
 	    target_neighbor_ranks,
@@ -298,9 +298,7 @@ void AsynchronousMap<Mesh,CoordinateField,DIM>::apply(
  * evaluation point is assumed unique.
  */
 template<class Mesh, class CoordinateField, int DIM>
-Teuchos::ArrayView<typename 
-		   AsynchronousMap<Mesh,CoordinateField,DIM>::GlobalOrdinal> 
-AsynchronousMap<Mesh,CoordinateField,DIM>::buildTargetMap(
+void AsynchronousMap<Mesh,CoordinateField,DIM>::buildTargetMap(
     const RCP_CoordFieldManager& target_coord_manager,
     bool target_exists )
 {
@@ -332,9 +330,7 @@ AsynchronousMap<Mesh,CoordinateField,DIM>::buildTargetMap(
  * evaluation point is assumed unique.
  */
 template<class Mesh, class CoordinateField, int DIM>
-Teuchos::ArrayView<typename 
-		   AsynchronousMap<Mesh,CoordinateField,DIM>::GlobalOrdinal> 
-AsynchronousMap<Mesh,CoordinateField,DIM>::createCommunicationPlan(
+void AsynchronousMap<Mesh,CoordinateField,DIM>::createCommunicationPlan(
     const RCP_MeshManager& source_mesh_manager,
     const bool source_exists,
     const RCP_CoordFieldManager& target_coord_manager,
@@ -351,7 +347,7 @@ AsynchronousMap<Mesh,CoordinateField,DIM>::createCommunicationPlan(
     }
 
     // Gather the source boxes.
-    Teuchos::Array<BoundingBox> source_boxes( d_comm->getRank() );
+    Teuchos::Array<BoundingBox> source_boxes( d_comm->getSize() );
     Teuchos::gatherAll<int,BoundingBox>( *d_comm,
 					 1,
 					 &local_source_box,
@@ -380,7 +376,7 @@ AsynchronousMap<Mesh,CoordinateField,DIM>::createCommunicationPlan(
 
     // Build the communication plan so the source procs know the
     // neighboring target procs they will receive buffers from.
-    Tpetra::Distributor target_to_source_distributor( d_comm );
+    Tpetra::Distributor distributor( d_comm );
     distributor.createFromSends( source_neighbor_ranks );
     target_neighbor_ranks = distributor.getImagesFrom();
 }

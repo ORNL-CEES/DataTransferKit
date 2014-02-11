@@ -71,7 +71,9 @@ BufferCommunicator<T>::BufferCommunicator(
     DTK_REQUIRE( d_num_send_neighbors >= 0 );
     DTK_REQUIRE( d_num_receive_neighbors >= 0 );
 
-    DTK_INSIST( BDT::getPackedBytes(), "Packed data size not set." );
+    // Set the static packet state.
+    BDT::setByteSize();
+    DTK_INSIST( BDT::getPackedBytes() );
     DataBufferType::setSizePackedData( BDT::getPackedBytes() );
 
     // Set the max number of packets that will be stored in each buffer.

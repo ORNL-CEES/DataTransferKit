@@ -49,6 +49,7 @@
 #include "DTK_EvaluationPoint.hpp"
 #include "DTK_BufferCommunicator.hpp"
 #include "DTK_ElementTree.hpp"
+#include "DTK_DataBuffer.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -77,9 +78,11 @@ class AKDTree
     typedef MeshManager<Mesh>                            MeshManagerType;
     typedef Teuchos::RCP<MeshManagerType>                RCP_MeshManager;
     typedef CoordinateField                              coord_field_type;
+    typedef FieldManager<CoordinateField>                CoordFieldManagerType;
+    typedef Teuchos::RCP<CoordFieldManagerType>          RCP_CoordFieldManager;
     typedef FieldTraits<CoordinateField>                 CFT;
-    typedef EvaluationPoint<DIM>                         packet_type;
-    typedef typename DataBuffer<packet_type>::bank_type  BankType;
+    typedef EvaluationPoint<GlobalOrdinal,DIM>           packet_type;
+    typedef typename DataBuffer<packet_type>::BankType   BankType;
     typedef Teuchos::Comm<int>                           Comm;
     typedef Teuchos::CommRequest<int>                    Request;
     //@}
@@ -93,7 +96,7 @@ class AKDTree
 	     const Teuchos::Array<int>& target_neighbor_ranks,
 	     const RCP_MeshManager& source_mesh_manager,
 	     const RCP_CoordFieldManager& target_coord_manager,
-	     const Teuchos::ArrayView<GlobalOrdinal> target_ordinals );
+	     const Teuchos::ArrayView<const GlobalOrdinal> target_ordinals );
 
     // Destructor.
     ~AKDTree() { /* ... */ }
@@ -157,22 +160,22 @@ class AKDTree
     BufferCommunicator<packet_type> d_buffer_communicator;
 
     // Source mesh manager.
-    RCP_MeshManager source_mesh_manager;
+    RCP_MeshManager d_source_mesh_manager;
 
     // Target coordinate manager.
     RCP_CoordFieldManager d_target_coord_manager;
 
+    // Bounding boxes for the source neighbors.
+    Teuchos::Array<BoundingBox> d_source_neighbor_boxes;
+    
     // Target coordinate global ids.
-    Teuchos::ArrayView<GlobalOrdinal> d_target_ordinals;
+    Teuchos::ArrayView<const GlobalOrdinal> d_target_ordinals;
 
     // Master-worker communicator for reporting number of packets.
     Teuchos::RCP<const Comm> d_comm_num_done;
 
     // Master-worker communicator for reporting completion status.
     Teuchos::RCP<const Comm> d_comm_complete;
-
-    // Source.
-    Teuchos::RCP<Source> d_source;
 
     // Master-worker asynchronous communication request handles for number of
     // packets complete.
@@ -197,19 +200,13 @@ class AKDTree
     int d_num_run;
 
     // Number of target points left to send to their destinations.
-    int d_targets_sent;
+    int d_targets_to_send;
 
     // Boolean-as-integer from completion of search calculation.
     Teuchos::RCP<int> d_complete;
 
     // Check frequency for data buffer communication.
     int d_check_freq;
-
-    // Source existence indicator.
-    bool d_source_exists;
-
-    // Target existence indicator.
-    bool d_target_exists;
 
     // Element tree for searching the local mesh.
     Teuchos::RCP<ElementTree<Mesh> > d_element_tree;

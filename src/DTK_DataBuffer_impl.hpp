@@ -55,7 +55,7 @@ namespace DataTransferKit
  * \brief Size constructor.
  */
 template<class T>
-DataBuffer<T>::DataBuffer( std::size_t size, int num_packes )
+DataBuffer<T>::DataBuffer( std::size_t size, int num_packets )
     : d_number( 0 )
 {
     setSizePackedData( size );
@@ -102,7 +102,7 @@ void DataBuffer<T>::bufferData( const T& packet )
     DTK_REQUIRE( d_number >= 0 );
     DTK_REQUIRE( !d_buffer.empty() );
 
-    Buffer packed_data = BDT::pack( data );
+    Buffer packed_data = BDT::pack( packet );
     DTK_CHECK( Teuchos::as<std::size_t>(packed_data.size()) == 
 	       d_size_packed_data );
 
@@ -186,7 +186,7 @@ void DataBuffer<T>::readNumFromBuffer()
 
 //! Default maximum number of data packets allowed in a buffer.
 template<class T>
-int DataBuffer<T>::d_max_num_packets = 1000;
+int DataBuffer<T>::d_max_num_packets = 1024;
 
 //! Default size of a packed data packet.
 template<class T>

@@ -65,15 +65,16 @@ AKDTree<Mesh,CoordinateField,DIM>::AKDTree(
     const Teuchos::Array<int>& target_neighbor_ranks,
     const RCP_MeshManager& source_mesh_manager,
     const RCP_CoordFieldManager& target_coord_manager,
-    const Teuchos::ArrayView<GlobalOrdinal> target_ordinals )
+    const Teuchos::ArrayView<const GlobalOrdinal> target_ordinals )
     : d_comm( comm )
     , d_parent( Teuchos::OrdinalTraits<int>::invalid() )
     , d_children( Teuchos::OrdinalTraits<int>::invalid(),
                   Teuchos::OrdinalTraits<int>::invalid() )
-    , d_domain_communicator( source_neighbor_ranks, target_neighbor_ranks,
+    , d_buffer_communicator( source_neighbor_ranks, target_neighbor_ranks,
 			     d_comm, max_buffer_size )
     , d_source_mesh_manager( source_mesh_manager )
     , d_target_coord_manager( target_coord_manager )
+    , d_source_neighbor_boxes( source_neighbor_boxes )
     , d_target_ordinals( target_ordinals )
     , d_num_done_report( Teuchos::rcp(new int(0)), Teuchos::rcp(new int(0)) )
     , d_complete_report( Teuchos::rcp(new int(0)) )
@@ -82,11 +83,6 @@ AKDTree<Mesh,CoordinateField,DIM>::AKDTree(
     , d_check_freq( buffer_check_frequency )
 {
     DTK_REQUIRE( Teuchos::nonnull(d_comm) );
-    DTK_REQUIRE( !d_domain.is_null() );
-
-    // Set existence indicators.
-    d_source_exists = Teuchos::nonnull( d_source_mesh_manager );
-    b_target_exists = Teuchos::nonnull( d_target_coord_manager );
 
     // Set the duplicate communicators. This is how we get around not having
     // access to message tags through the abstract Teuchos::Comm interface. We
@@ -152,13 +148,13 @@ void AKDTree<Mesh,CoordinateField,DIM>::locate(
     *d_complete = 0;
     *d_num_done = 0;
     d_num_run = 0;
-    d_targets_to_send = target_ordinals.size();
+    d_targets_to_send = d_target_ordinals.size();
 
     // Get the number of local target points.
     Teuchos::reduceAll<int,GlobalOrdinal>( 
 	*d_comm,
 	Teuchos::REDUCE_SUM,
-	d_target_ordinals.size(),
+	d_targets_to_send,
 	Teuchos::Ptr<GlobalOrdinal>(&d_nh) );
 
     // Make a temporary array of interleaved target coordinates.
@@ -201,7 +197,7 @@ void AKDTree<Mesh,CoordinateField,DIM>::locate(
 
 	// If we're out of source and bank target points or have hit the check
 	// frequency, process incoming messages.
-	if ( ((0 == targets_to_send) && bank.empty()) ||  
+	if ( ((0 == d_targets_to_send) && bank.empty()) ||  
 	     d_num_run == d_check_freq )
 	{
 	    processMessages( bank );
@@ -210,7 +206,7 @@ void AKDTree<Mesh,CoordinateField,DIM>::locate(
 
 	// If everything looks like it is finished locally, report through
 	// the tree to check if transport is done.
-	if ( (0 == targets_to_send) && bank.empty() )
+	if ( (0 == d_targets_to_send) && bank.empty() )
 	{
 	    controlTermination();
 	}
@@ -243,7 +239,7 @@ void AKDTree<Mesh,CoordinateField,DIM>::locate(
 
     // Barrier before completion.
     d_comm->barrier();
-    DTK_ENSURE( 0 == targets_to_send );
+    DTK_ENSURE( 0 == d_targets_to_send );
 }
 
 //---------------------------------------------------------------------------//
@@ -254,27 +250,36 @@ template<class Mesh, class CoordinateField, int DIM>
 void AKDTree<Mesh,CoordinateField,DIM>::sendTargetPoint( BankType& bank )
 {
     DTK_REQUIRE( 0 < d_targets_to_send );
-    DTK_REQUIRE( Teuchos::nonnull(d_coord_field_manager) );
+    DTK_REQUIRE( Teuchos::nonnull(d_target_coord_manager) );
 
     // Get a point from the source.
-    GlobalOrdinal point_id = target_ordinals.size() - d_targets_to_send;
+    GlobalOrdinal num_targets = d_target_ordinals.size();
+    GlobalOrdinal point_id = num_targets - d_targets_to_send;
     Teuchos::Array<double> coords(DIM);
-    Teuchos::ArrayRCP<double> coords_view = 
-	FieldTools<CoordinateField>::view( *d_coord_field_manager->field() );
+    Teuchos::ArrayRCP<const double> coords_view = 
+	FieldTools<CoordinateField>::view( *d_target_coord_manager->field() );
     for ( int d = 0; d < DIM; ++d )
     {
-	point_coords[d] = coords_view[ target_ordinals.size()*d + point_id ];
+	coords[d] = coords_view[ num_targets*d + point_id ];
     }
     Teuchos::RCP<packet_type> point = Teuchos::rcp(
-	new packet_type(target_ordinals[point_id], point_coords.getRawPtr()) );
+	new packet_type(d_target_ordinals[point_id], coords()) );
 
     // Send it to the neighboring boxes in which it resides.
+    bool point_in_domain = false;
     for ( unsigned n = 0; n < d_source_neighbor_boxes.size(); ++n )
     {
 	if ( d_source_neighbor_boxes[n].pointInBox(coords) )
 	{
+	    point_in_domain = true;
 	    d_buffer_communicator.communicate( point, n );
 	}
+    }
+
+    // If the point was outside the domain, update the completion count.
+    if ( !point_in_domain )
+    {
+	++(*d_num_done);
     }
 }
 
@@ -297,18 +302,19 @@ void AKDTree<Mesh,CoordinateField,DIM>::processBankPoint(
     // Get a point from the bank.
     Teuchos::RCP<packet_type> point = bank.top();
     bank.pop();
-    DTK_CHECK( !point.is_null() );
+    DTK_CHECK( Teuchos::nonnull(point) );
 
     // Search in the element tree for the point.
     GlobalOrdinal element_gid = 
 	Teuchos::OrdinalTraits<GlobalOrdinal>::invalid();
-    if ( d_element_tree->findPoint(point->coords(),element,tolerance) )
+    if ( d_element_tree->findPoint(point->coords(),element_gid,tolerance) )
     {
 	source_elements.push_back( element_gid );
 	target_point_gids.push_back( point->gid() );
-	interleaved_target_coords.insert( 
-	    interleaved_target_coords.end(), 
-	    point->coords.begin(), point_coords.end() );
+	for ( int d = 0; d < DIM; ++d )
+	{
+	    interleaved_target_coords.push_back( point->coordinate(d) );
+	}
     }
 
     // Update the completion count.
@@ -323,7 +329,7 @@ template<class Mesh, class CoordinateField, int DIM>
 void AKDTree<Mesh,CoordinateField,DIM>::processMessages( BankType& bank )
 {
     // Check for incoming packets.
-    d_domain_communicator.checkAndPost(bank);
+    d_buffer_communicator.checkAndPost(bank);
 
     // Add to the packet completed tally 
     updateTreeCount();
@@ -483,7 +489,7 @@ template<class Mesh, class CoordinateField, int DIM>
 void AKDTree<Mesh,CoordinateField,DIM>::controlTermination()
 {
     // Send any partially full buffers.
-    d_domain_communicator.send();
+    d_buffer_communicator.send();
 
     // Update the packet count from the children.
     updateTreeCount();
