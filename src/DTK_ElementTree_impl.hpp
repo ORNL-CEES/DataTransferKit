@@ -193,7 +193,6 @@ bool ElementTree<Mesh>::findPoint(
     int block_num_vertices = 0;
     GlobalOrdinal vertex_gid = 0;
     int vertex_lid = 0;
-    bool point_in_element = false;
 
     for ( unsigned n = 0; n < neighbors.size(); ++n )
     {
@@ -228,13 +227,9 @@ bool ElementTree<Mesh>::findPoint(
 	// coordinates.
 	d_dcells[block_id].setCellNodeCoordinates( node_coords );
 
-	// Check for point inclusion.
-	point_in_element = 
-	    d_dcells[block_id].pointInPhysicalCell( point, tolerance );
-
-	// If we found the point in one of the elements set the element id to
+	// If we find the point in one of the elements set the element id to
 	// this element and return true.
-	if ( point_in_element )
+	if ( d_dcells[block_id].pointInPhysicalCell(point, tolerance) )
 	{
 	    block_element_gids = MeshTools<Mesh>::elementsView(*block);
 	    element = block_element_gids[elem_id];

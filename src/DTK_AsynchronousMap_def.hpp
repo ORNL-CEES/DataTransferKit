@@ -64,11 +64,6 @@ namespace DataTransferKit
  *
  * \param comm The communicator over which the map is generated.
  *
- * \param dimension The dimension of the map. This should be consistent with
- * all source and target objects (i.e. only 3 dimensional coordinates will be
- * accepted with a 3 dimensional map). We need this here so we have a global
- * baseline for all objects that may or may not exist on all processes.
- *
  * \param store_missed_points Set to true if it is desired to keep track of
  * the local target points missed during map generation. The default value is
  * false. 
@@ -103,6 +98,12 @@ AsynchronousMap<Mesh,CoordinateField,DIM>::~AsynchronousMap()
  * manager is only constructed on a subset of the processes that the shared
  * domain map is constructed over. Note that the target coordinates must exist
  * only on processes that reside within the AsynchronousMap communicator.
+ *
+ * \param max_buffer_size The maximum size of a buffer in the asynchronous
+ * communication pattern.
+ *
+ * \param buffer_check_frequency The frequency by which buffers are checked in
+ * the asynchronous communication pattern.
  *
  * \param tolerance Absolute tolerance for point searching. Will be used when
  * checking the reference cell ( and is therefore absolute ).

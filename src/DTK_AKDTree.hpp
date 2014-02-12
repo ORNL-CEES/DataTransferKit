@@ -62,7 +62,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class AKDTree 
- * \brief Fully-asynchronous kd-tree.
+ * \brief Fully-asynchronous mutually exclusive kd-tree.
  */
 //---------------------------------------------------------------------------//
 template<class Mesh, class CoordinateField, int DIM>
