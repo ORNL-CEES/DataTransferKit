@@ -43,7 +43,7 @@
 
 #include "DTK_BoundingBox.hpp"
 
-#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
 
 namespace DataTransferKit
 {
@@ -68,6 +68,11 @@ class Partitioner
 
     // Compute partitioning of the mesh.
     virtual void partition() = 0;
+
+    // Given a range of local input point ids in the mesh, get their destination
+    // procs.
+    virtual Teuchos::Array<int> getInputPointDestinationProcs(
+	const int lid_begin, const int num_points ) = 0;
 
     // Get the destination process for a point given its coordinates.
     virtual int 

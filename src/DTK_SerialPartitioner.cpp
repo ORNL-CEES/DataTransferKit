@@ -65,6 +65,17 @@ void SerialPartitioner::partition()
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Given a range of local input point ids in the mesh, get their
+ * destination procs.
+ */
+Teuchos::Array<int> SerialPartitioner::getInputPointDestinationProcs(
+    const int lid_begin, const int num_points )
+{
+    return Teuchos::Array<int>( num_points, 0 );
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Get the destination process for a point given its coordinates.
  */
 int SerialPartitioner::getPointDestinationProc( 

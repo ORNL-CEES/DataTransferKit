@@ -134,6 +134,7 @@ GeometryRCB<Geometry,GlobalOrdinal>::~GeometryRCB()
 template<class Geometry, class GlobalOrdinal>
 void GeometryRCB<Geometry,GlobalOrdinal>::partition()
 {
+    // Partition the problem.
     DTK_REMEMBER( int zoltan_error );
 #if HAVE_DTK_DBC
     zoltan_error = Zoltan_LB_Partition( d_zz, 
@@ -167,6 +168,51 @@ void GeometryRCB<Geometry,GlobalOrdinal>::partition()
 			 &d_export_to_part );
 #endif
     DTK_CHECK( zoltan_error == ZOLTAN_OK );
+
+
+    // Get all of the bounding boxes for future searching.
+    Teuchos::Tuple<double,6> bounds;
+    int dim = 0;
+    for ( int rank = 0; rank < d_comm->getSize(); ++rank )
+    {
+#if HAVE_DTK_DBC
+	zoltan_error = Zoltan_RCB_Box( d_zz, rank, &dim,
+				       &bounds[0], &bounds[1], &bounds[2],
+				       &bounds[3], &bounds[4], &bounds[5] );
+#else
+	Zoltan_RCB_Box( d_zz, rank, &dim,
+			&bounds[0], &bounds[1], &bounds[2],
+			&bounds[3], &bounds[4], &bounds[5] );
+#endif
+	DTK_CHECK( zoltan_error == ZOLTAN_OK );
+	DTK_CHECK( dim == d_dimension );
+	d_rcb_boxes[rank] = BoundingBox(bounds);
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Given a range of local input point ids get their destination procs.
+ *
+ * \return The RCB destination procs for the points.
+ */
+template<class Geometry, class GlobalOrdinal>
+Teuchos::Array<int> 
+GeometryRCB<Geometry,GlobalOrdinal>::getInputPointDestinationProcs(
+    const int lid_begin, const int num_points )
+{
+    Teuchos::Array<int> ranks( num_points, d_comm->getRank() );
+    int lid = 0;
+    for ( int i = 0; i < d_num_export; ++i )
+    {
+	lid = d_export_local_ids[i] - lid_begin;
+	if ( 0 <= lid && num_points > lid )
+	{
+	    ranks[lid] = d_export_procs[i];
+	}
+    }
+
+    return ranks;
 }
 
 //---------------------------------------------------------------------------//
@@ -185,16 +231,15 @@ int GeometryRCB<Geometry,GlobalOrdinal>::getPointDestinationProc(
     DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
     DTK_REQUIRE( d_dimension == Teuchos::as<int>(coords.size()) );
 
-    int proc = 0;
-    DTK_REMEMBER( int zoltan_error );
-#if HAVE_DTK_DBC
-    zoltan_error = Zoltan_LB_Point_Assign( d_zz, &coords[0], &proc );
-#else
-    Zoltan_LB_Point_Assign( d_zz, &coords[0], &proc );
-#endif
-    DTK_CHECK( zoltan_error == ZOLTAN_OK );
+    for ( int rank = 0; rank < d_comm->getSize(); ++rank )
+    {
+	if ( d_rcb_boxes[rank].pointInBox(Teuchos::Array<double>(coords)) )
+	{
+	    return rank;
+	}
+    }
 
-    return proc;
+    return -1;
 }
 
 //---------------------------------------------------------------------------//
@@ -211,27 +256,15 @@ Teuchos::Array<int>
 GeometryRCB<Geometry,GlobalOrdinal>::getBoxDestinationProcs( 
     const BoundingBox& box ) const
 {
-    Teuchos::Tuple<double,6> box_bounds = box.getBounds();
+    Teuchos::Array<int> procs;
 
-    int num_procs = 0;
-    Teuchos::Array<int> procs( d_comm->getSize() );
-
-    DTK_REMEMBER( int zoltan_error );
-#if HAVE_DTK_DBC
-    zoltan_error = Zoltan_LB_Box_Assign( d_zz, 
-					 box_bounds[0], box_bounds[1], 
-					 box_bounds[2], box_bounds[3], 
-					 box_bounds[4], box_bounds[5], 
-					 &procs[0], &num_procs );
-#else
-    Zoltan_LB_Box_Assign( d_zz, 
-			  box_bounds[0], box_bounds[1], box_bounds[2],
-			  box_bounds[3], box_bounds[4], box_bounds[5], 
-			  &procs[0], &num_procs );
-#endif
-    DTK_CHECK( zoltan_error == ZOLTAN_OK );
-
-    procs.resize( num_procs );
+    for ( int rank = 0; rank < d_comm->getSize(); ++rank )
+    {
+	if ( BoundingBox::checkForIntersection(box,d_rcb_boxes[rank]) )
+	{
+	    procs.push_back( rank );
+	}
+    }
 
     return procs;
 }

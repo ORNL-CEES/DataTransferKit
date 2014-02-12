@@ -683,6 +683,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     typename MT::const_element_iterator export_element_iterator;
     std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> element_indices;
     GlobalOrdinal array_index = 0;
+    GlobalOrdinal vertex_sum = 0;
     if ( mesh_exists )
     {
 	// Get the block data.
@@ -716,19 +717,10 @@ void Rendezvous<Mesh>::setupImportCommunication(
 
     // Get the destination procs for all local vertices in the global
     // bounding box.
-    Teuchos::Array<int> vertex_procs( num_vertices );
-    Teuchos::Array<double> vertex_coords( d_dimension );
-    for ( GlobalOrdinal n = 0; n < num_vertices; ++n )
-    {
-	for ( int d = 0; d < d_dimension; ++d )
-	{
-	    vertex_coords[d] = 
-		mesh_coords[ d*num_vertices + n ];
-	}
-
-	vertex_procs[n] = 
-	    d_partitioner->getPointDestinationProc( vertex_coords() );
-    }
+    Teuchos::Array<int> vertex_procs =
+	d_partitioner->getInputPointDestinationProcs( vertex_sum, num_vertices );
+    DTK_CHECK( vertex_procs.size() == num_vertices );
+    vertex_sum += num_vertices;
 
     // Get destination procs for all local elements in the global bounding
     // box. The element will need to be sent to each partition that its
@@ -749,7 +741,6 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	    }
 	}
     }
-    vertex_procs.clear();
 
     // Unroll the vector of sets into two vectors; one containing the element
     // ordinal and the other containing the corresponding element destination.

@@ -436,6 +436,7 @@ int main(int argc, char* argv[])
     int num_points = (edge_size-1)*(edge_size-1);
     Teuchos::RCP<MyField> target_coords = buildCoordinateField( my_rank, my_size, 
 								num_points, edge_size );
+
     Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
 	Teuchos::rcp( new FieldManager<MyField>( target_coords, comm ) );
 

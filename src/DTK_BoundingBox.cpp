@@ -212,23 +212,9 @@ bool BoundingBox::checkForIntersection( const BoundingBox& box_A,
     Teuchos::Tuple<double,6> bounds_A = box_A.getBounds();
     Teuchos::Tuple<double,6> bounds_B = box_B.getBounds();
 
-    // Test for no overlap in X.
-    if ( bounds_A[0] > bounds_B[3] || bounds_A[3] < bounds_B[0] )
-    {
-	return false;
-    }
-    // Test for no overlap in Y.
-    if ( bounds_A[1] > bounds_B[4] || bounds_A[4] < bounds_B[1] )
-    {
-	return false;
-    }
-    // Test for no overlap in Z.
-    if ( bounds_A[2] > bounds_B[5] || bounds_A[5] < bounds_B[2] )
-    {
-	return false;
-    }
-
-    return true;
+    return !( ( bounds_A[0] > bounds_B[3] || bounds_A[3] < bounds_B[0] ) ||
+	      ( bounds_A[1] > bounds_B[4] || bounds_A[4] < bounds_B[1] ) ||
+	      ( bounds_A[2] > bounds_B[5] || bounds_A[5] < bounds_B[2] ) );
 }
 
 //---------------------------------------------------------------------------//

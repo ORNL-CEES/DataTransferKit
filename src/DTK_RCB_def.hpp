@@ -42,6 +42,7 @@
 #define DTK_RCB_DEF_HPP
 
 #include <algorithm>
+#include <limits>
 
 #include "DTK_MeshTools.hpp"
 #include "DTK_DBC.hpp"
@@ -75,6 +76,7 @@ RCB<Mesh>::RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager,
     : d_comm( comm )
     , d_mesh_manager( mesh_manager )
     , d_dimension( dimension )
+    , d_rcb_boxes( d_comm->getSize() )
 {
     // Get the raw MPI communicator.
     Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
@@ -132,6 +134,7 @@ RCB<Mesh>::~RCB()
 template<class Mesh>
 void RCB<Mesh>::partition()
 {
+    // Partition the problem.
     DTK_REMEMBER( int zoltan_error );
 #if HAVE_DTK_DBC
     zoltan_error = Zoltan_LB_Partition( d_zz, 
@@ -165,14 +168,68 @@ void RCB<Mesh>::partition()
 			 &d_export_to_part );
 #endif
     DTK_CHECK( zoltan_error == ZOLTAN_OK );
+
+    // Get all of the bounding boxes for future searching.
+    Teuchos::Tuple<double,6> bounds;
+    if ( 1 < d_comm->getSize() )
+    {
+	int dim = 0;
+	for ( int rank = 0; rank < d_comm->getSize(); ++rank )
+	{
+#if HAVE_DTK_DBC
+	    zoltan_error = Zoltan_RCB_Box( d_zz, rank, &dim,
+					   &bounds[0], &bounds[1], &bounds[2],
+					   &bounds[3], &bounds[4], &bounds[5] );
+#else
+	    Zoltan_RCB_Box( d_zz, rank, &dim,
+			    &bounds[0], &bounds[1], &bounds[2],
+			    &bounds[3], &bounds[4], &bounds[5] );
+#endif
+	    DTK_CHECK( zoltan_error == ZOLTAN_OK );
+	    DTK_CHECK( dim == d_dimension );
+	    d_rcb_boxes[rank] = BoundingBox(bounds);
+	}
+    }
+    else
+    {
+	bounds[0] = -std::numeric_limits<double>::max();
+	bounds[1] = -std::numeric_limits<double>::max();
+	bounds[2] = -std::numeric_limits<double>::max();
+	bounds[3] = std::numeric_limits<double>::max();
+	bounds[4] = std::numeric_limits<double>::max();
+	bounds[5] = std::numeric_limits<double>::max();
+	d_rcb_boxes[0] = BoundingBox(bounds);
+    }
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Given a range of local input point ids get their destination procs.
+ *
+ * \return The RCB destination procs for the points.
+ */
+template<class Mesh>
+Teuchos::Array<int> RCB<Mesh>::getInputPointDestinationProcs(
+    const int lid_begin, const int num_points )
+{
+    Teuchos::Array<int> ranks( num_points, d_comm->getRank() );
+    int lid = 0;
+    for ( int i = 0; i < d_num_export; ++i )
+    {
+	lid = d_export_local_ids[i] - lid_begin;
+	if ( 0 <= lid && num_points > lid )
+	{
+	    ranks[lid] = d_export_procs[i];
+	}
+    }
+    return ranks;
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the destination process for a point given its coordinates.
  *
- * \param coords Point coordinates. The dimension of the point must be equal
- * to or less than one.
+ * \param coords Point coordinates.
  *
  * \return The RCB destination proc for the point.
  */
@@ -182,16 +239,15 @@ int RCB<Mesh>::getPointDestinationProc( Teuchos::ArrayView<double> coords ) cons
     DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
     DTK_REQUIRE( d_dimension == Teuchos::as<int>(coords.size()) );
 
-    int proc = 0;
-    DTK_REMEMBER( int zoltan_error );
-#if HAVE_DTK_DBC
-    zoltan_error = Zoltan_LB_Point_Assign( d_zz, coords.getRawPtr(), &proc );
-#else
-    Zoltan_LB_Point_Assign( d_zz, coords.getRawPtr(), &proc );
-#endif
-    DTK_CHECK( zoltan_error == ZOLTAN_OK );
+    for ( int rank = 0; rank < d_comm->getSize(); ++rank )
+    {
+	if ( d_rcb_boxes[rank].pointInBox(Teuchos::Array<double>(coords)) )
+	{
+	    return rank;
+	}
+    }
 
-    return proc;
+    return -1;
 }
 
 //---------------------------------------------------------------------------//
@@ -207,27 +263,15 @@ template<class Mesh>
 Teuchos::Array<int>
 RCB<Mesh>::getBoxDestinationProcs( const BoundingBox& box ) const
 {
-    Teuchos::Tuple<double,6> box_bounds = box.getBounds();
+    Teuchos::Array<int> procs;
 
-    int num_procs = 0;
-    Teuchos::Array<int> procs( d_comm->getSize() );
-
-    DTK_REMEMBER( int zoltan_error );
-#if HAVE_DTK_DBC
-    zoltan_error = Zoltan_LB_Box_Assign( d_zz, 
-					 box_bounds[0], box_bounds[1], 
-					 box_bounds[2], box_bounds[3], 
-					 box_bounds[4], box_bounds[5], 
-					 &procs[0], &num_procs );
-#else
-    Zoltan_LB_Box_Assign( d_zz, 
-			  box_bounds[0], box_bounds[1], box_bounds[2],
-			  box_bounds[3], box_bounds[4], box_bounds[5], 
-			  &procs[0], &num_procs );
-#endif
-    DTK_CHECK( zoltan_error == ZOLTAN_OK );
-
-    procs.resize( num_procs );
+    for ( int rank = 0; rank < d_comm->getSize(); ++rank )
+    {
+	if ( BoundingBox::checkForIntersection(box,d_rcb_boxes[rank]) )
+	{
+	    procs.push_back( rank );
+	}
+    }
 
     return procs;
 }

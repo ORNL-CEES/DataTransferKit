@@ -45,6 +45,7 @@
 #include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
 {
@@ -67,6 +68,11 @@ class SerialPartitioner : public Partitioner
 
     // Compute partitioning of the mesh.
     void partition();
+
+    // Given a range of local input point ids in the mesh, get their destination
+    // procs.
+    Teuchos::Array<int> getInputPointDestinationProcs(
+	const int lid_begin, const int num_points );
 
     // Get the destination process for a point given its coordinates.
     int getPointDestinationProc( Teuchos::ArrayView<double> coords ) const;

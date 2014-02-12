@@ -336,7 +336,7 @@ Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
 	    }
 	}
     }
-    
+
     // Make the hexahedrons. 
     int num_elements = (edge_length-1)*(edge_length-1)*(edge_length-1);
     Teuchos::Array<long int> hex_handles( num_elements );
@@ -442,7 +442,7 @@ int main(int argc, char* argv[])
     int my_size = comm->getSize();
 
     // Setup source mesh.
-    int edge_size = 11;
+    int edge_size = 3;
     Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
     Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
@@ -452,6 +452,7 @@ int main(int argc, char* argv[])
     int num_points = (edge_size-1)*(edge_size-1)*(edge_size-1);
     Teuchos::RCP<MyField> target_coords = 
 	buildCoordinateField( my_rank, my_size, num_points, edge_size );
+
     Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
 	Teuchos::rcp( new FieldManager<MyField>( target_coords, comm ) );
 

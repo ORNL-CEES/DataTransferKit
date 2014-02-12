@@ -637,9 +637,9 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test3 )
 	source_rank = std::floor(*(coordinate_field->begin()+n) / (edge_size-1));
 	for ( int d = 0; d < target_dim; ++d )
 	{
-	    TEST_ASSERT( source_rank+1 == 
-			 *(target_space_manager->field()->begin()
-			   +n+d*num_points) );
+	    TEST_EQUALITY( source_rank+1,
+			   *(target_space_manager->field()->begin()
+			     +n+d*num_points) );
 	}
     }
 }
@@ -704,7 +704,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test3 )
 	     *(coordinate_field->begin()+n+2*num_points) < 0.0 ||
 	     *(coordinate_field->begin()+n+2*num_points) > 1.0 )
 	{
-	    missing_points.push_back(n);	
+	    missing_points.push_back(n);
 	    for ( int d = 0; d < target_dim; ++d )
 	    {
 		TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()
@@ -728,14 +728,14 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test3 )
     TEST_ASSERT( missing_points.size() > 0 );
     Teuchos::ArrayView<long int> missed_in_map = 
 	shared_domain_map.getMissedTargetPoints();
-    TEST_ASSERT( missing_points.size() == missed_in_map.size() );
+    TEST_EQUALITY( missing_points.size(), missed_in_map.size() );
 
     std::sort( missing_points.begin(), missing_points.end() );
     std::sort( missed_in_map.begin(), missed_in_map.end() );
 
     for ( int n = 0; n < (int) missing_points.size(); ++n )
     {
-	TEST_ASSERT( missing_points[n] == missed_in_map[n] );
+	TEST_EQUALITY( missing_points[n], missed_in_map[n] );
     }
 }
 
@@ -844,7 +844,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test3 )
     TEST_ASSERT( missing_points.size() > 0 );
     Teuchos::ArrayView<long int> missed_in_map = 
 	shared_domain_map.getMissedTargetPoints();
-    TEST_ASSERT( missing_points.size() == missed_in_map.size() );
+    TEST_EQUALITY( missing_points.size(), missed_in_map.size() );
 
     std::sort( missing_points.begin(), missing_points.end() );
     std::sort( missed_in_map.begin(), missed_in_map.end() );

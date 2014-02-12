@@ -93,6 +93,10 @@ class GeometryRCB : public Partitioner
     // Compute GeometryRCB partitioning of the geometry.
     void partition();
 
+    // Given a range of local input point ids get their destination procs.
+    Teuchos::Array<int> getInputPointDestinationProcs(
+	const int lid_begin, const int num_points );
+
     // Get the destination process for a point given its coordinates.
     int getPointDestinationProc( Teuchos::ArrayView<double> coords ) const;
 
@@ -172,6 +176,9 @@ class GeometryRCB : public Partitioner
 
     // The dimension of the GeometryRCB space.
     int d_dimension;
+
+    // Bounding boxes for every process.
+    Teuchos::Array<BoundingBox> d_rcb_boxes;
 
     // Zoltan struct.
     Zoltan_Struct *d_zz;
