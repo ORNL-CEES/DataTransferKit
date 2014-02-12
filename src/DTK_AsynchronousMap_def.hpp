@@ -360,8 +360,8 @@ void AsynchronousMap<Mesh,CoordinateField,DIM>::createCommunicationPlan(
     if ( target_exists )
     {
 	BoundingBox local_target_box
-	    = FieldTools<CoordinateField>::coordGlobalBoundingBox(
-		*target_coord_manager->field(), target_coord_manager->comm() );
+	    = FieldTools<CoordinateField>::coordLocalBoundingBox(
+		*target_coord_manager->field() );
 
 	for ( unsigned i = 0; i < source_boxes.size(); ++i )
 	{
