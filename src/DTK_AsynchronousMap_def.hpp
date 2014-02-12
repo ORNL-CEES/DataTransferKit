@@ -157,6 +157,7 @@ void AsynchronousMap<Mesh,CoordinateField,DIM>::setup(
 	akd_tree.locate( d_source_elements,
 			 target_point_gids,
 			 d_target_coords,
+			 d_target_map->getGlobalNumElements(),
 			 tolerance );
     }
 

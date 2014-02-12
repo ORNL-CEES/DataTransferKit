@@ -142,6 +142,7 @@ void AKDTree<Mesh,CoordinateField,DIM>::locate(
     Teuchos::Array<GlobalOrdinal>& source_elements,
     Teuchos::Array<GlobalOrdinal>& target_point_gids,
     Teuchos::Array<double>& target_coords,
+    const GlobalOrdinal global_num_targets,
     const double tolerance )
 {
     // Initialize.
@@ -151,11 +152,7 @@ void AKDTree<Mesh,CoordinateField,DIM>::locate(
     d_targets_to_send = d_target_ordinals.size();
 
     // Get the number of local target points.
-    Teuchos::reduceAll<int,GlobalOrdinal>( 
-	*d_comm,
-	Teuchos::REDUCE_SUM,
-	d_targets_to_send,
-	Teuchos::Ptr<GlobalOrdinal>(&d_nh) );
+    d_nh = global_num_targets;
 
     // Make a temporary array of interleaved target coordinates.
     Teuchos::Array<double> interleaved_target_coords;

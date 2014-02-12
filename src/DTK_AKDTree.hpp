@@ -107,6 +107,7 @@ class AKDTree
     void locate( Teuchos::Array<GlobalOrdinal>& source_elements,
 		 Teuchos::Array<GlobalOrdinal>& target_point_gids,
 		 Teuchos::Array<double>& target_coords,
+		 const GlobalOrdinal global_num_targets,
 		 const double tolerance );
 
   private:
