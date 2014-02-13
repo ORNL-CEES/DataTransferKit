@@ -717,7 +717,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test3 )
 	    			     / (edge_size-1));
 	    for ( int d = 0; d < target_dim; ++d )
 	    {
-		TEST_ASSERT( source_rank+1 == 
+		TEST_EQUALITY( source_rank+1,
 			     *(target_space_manager->field()->begin()
 			       +n+d*num_points) );
 	    }

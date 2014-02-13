@@ -625,7 +625,7 @@ TEUCHOS_UNIT_TEST( AsynchronousMap, asynchronous_map_test3 )
 
     // Setup and apply the asynchronous mapping.
     const int dim = 3;
-    AsynchronousMap<MyMesh,MyField,3> asynchronous_map( 
+    AsynchronousMap<MyMesh,MyField,dim> asynchronous_map( 
 	comm, source_mesh_manager->dim() );
     asynchronous_map.setup( source_mesh_manager, target_coord_manager );
     asynchronous_map.apply( source_evaluator, target_space_manager );

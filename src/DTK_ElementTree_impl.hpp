@@ -42,6 +42,7 @@
 #define DTK_ELEMENTTREE_IMPL_HPP
 
 #include <cmath>
+#include <algorithm>
 
 #include "DTK_DBC.hpp"
 #include "DTK_CellTopologyFactory.hpp"
@@ -133,7 +134,8 @@ ElementTree<Mesh>::ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh )
     }
 
     // Build a cloud search.
-    unsigned leaf_size = 10;
+    GlobalOrdinal leaf_size = 50;
+    leaf_size = std::min( leaf_size, d_mesh->localNumElements() );
     d_tree = createSearchTree( d_mesh->dim(), d_element_centroids(), leaf_size );
     DTK_ENSURE( Teuchos::nonnull(d_tree) );
 }
@@ -177,7 +179,8 @@ bool ElementTree<Mesh>::findPoint(
 	point_array_dims, const_cast<double*>(coords.getRawPtr()) );
 
     // Find the leaf of nearest neighbors.
-    unsigned num_neighbors = 10;
+    GlobalOrdinal num_neighbors = 100;
+    num_neighbors = std::min( num_neighbors, d_mesh->localNumElements() );
     Teuchos::Array<unsigned> neighbors = 
 	d_tree->nnSearch( coords, num_neighbors );
 

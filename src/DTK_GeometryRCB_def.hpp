@@ -100,7 +100,7 @@ GeometryRCB<Geometry,GlobalOrdinal>::GeometryRCB(
 
     // GeometryRCB parameters.
     Zoltan_Set_Param( d_zz, "RCB_OUTPUT_LEVEL", "0" );
-    Zoltan_Set_Param( d_zz, "RCB_RECTILINEAR_BLOCKS", "0" );
+    Zoltan_Set_Param( d_zz, "RCB_RECTILINEAR_BLOCKS", "1" );
     Zoltan_Set_Param( d_zz, "KEEP_CUTS", "1" );
     Zoltan_Set_Param( d_zz, "AVERAGE_CUTS", "1" );
     Zoltan_Set_Param( d_zz, "RCB_LOCK_DIRECTIONS", "1" );
@@ -169,24 +169,36 @@ void GeometryRCB<Geometry,GlobalOrdinal>::partition()
 #endif
     DTK_CHECK( zoltan_error == ZOLTAN_OK );
 
-
     // Get all of the bounding boxes for future searching.
     Teuchos::Tuple<double,6> bounds;
-    int dim = 0;
-    for ( int rank = 0; rank < d_comm->getSize(); ++rank )
+    if ( 1 < d_comm->getSize() )
     {
+	int dim = 0;
+	for ( int rank = 0; rank < d_comm->getSize(); ++rank )
+	{
 #if HAVE_DTK_DBC
-	zoltan_error = Zoltan_RCB_Box( d_zz, rank, &dim,
-				       &bounds[0], &bounds[1], &bounds[2],
-				       &bounds[3], &bounds[4], &bounds[5] );
+	    zoltan_error = Zoltan_RCB_Box( d_zz, rank, &dim,
+					   &bounds[0], &bounds[1], &bounds[2],
+					   &bounds[3], &bounds[4], &bounds[5] );
 #else
-	Zoltan_RCB_Box( d_zz, rank, &dim,
-			&bounds[0], &bounds[1], &bounds[2],
-			&bounds[3], &bounds[4], &bounds[5] );
+	    Zoltan_RCB_Box( d_zz, rank, &dim,
+			    &bounds[0], &bounds[1], &bounds[2],
+			    &bounds[3], &bounds[4], &bounds[5] );
 #endif
-	DTK_CHECK( zoltan_error == ZOLTAN_OK );
-	DTK_CHECK( dim == d_dimension );
-	d_rcb_boxes[rank] = BoundingBox(bounds);
+	    DTK_CHECK( zoltan_error == ZOLTAN_OK );
+	    DTK_CHECK( dim == d_dimension );
+	    d_rcb_boxes[rank] = BoundingBox(bounds);
+	}
+    }
+    else
+    {
+	bounds[0] = -std::numeric_limits<double>::max();
+	bounds[1] = -std::numeric_limits<double>::max();
+	bounds[2] = -std::numeric_limits<double>::max();
+	bounds[3] = std::numeric_limits<double>::max();
+	bounds[4] = std::numeric_limits<double>::max();
+	bounds[5] = std::numeric_limits<double>::max();
+	d_rcb_boxes[0] = BoundingBox(bounds);
     }
 }
 

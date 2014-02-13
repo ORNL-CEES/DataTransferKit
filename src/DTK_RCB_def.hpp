@@ -100,7 +100,7 @@ RCB<Mesh>::RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager,
 
     // RCB parameters.
     Zoltan_Set_Param( d_zz, "RCB_OUTPUT_LEVEL", "0" );
-    Zoltan_Set_Param( d_zz, "RCB_RECTILINEAR_BLOCKS", "0" );
+    Zoltan_Set_Param( d_zz, "RCB_RECTILINEAR_BLOCKS", "1" );
     Zoltan_Set_Param( d_zz, "KEEP_CUTS", "1" );
     Zoltan_Set_Param( d_zz, "AVERAGE_CUTS", "1" );
     Zoltan_Set_Param( d_zz, "RCB_LOCK_DIRECTIONS", "1" );
