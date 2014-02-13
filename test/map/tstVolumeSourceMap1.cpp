@@ -267,7 +267,7 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, cylinder_test )
 	comm->createSubcommunicator( geom_ranks() );
 
     // Setup source geometry.
-    double edge_size = 1.0;
+    double edge_size = 2.0;
     int geom_dim = 3;
     Teuchos::ArrayRCP<Cylinder> geometry(0);
     Teuchos::ArrayRCP<int> geom_gids(0);
@@ -369,7 +369,7 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, box_test )
 	comm->createSubcommunicator( geom_ranks() );
 
     // Setup source geometry.
-    double edge_size = 1.0;
+    double edge_size = 2.0;
     int geom_dim = 3;
     Teuchos::ArrayRCP<Box> geometry(0);
     Teuchos::ArrayRCP<int> geom_gids(0);

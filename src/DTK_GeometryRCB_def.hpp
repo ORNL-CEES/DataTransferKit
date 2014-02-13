@@ -77,6 +77,7 @@ GeometryRCB<Geometry,GlobalOrdinal>::GeometryRCB(
     : d_comm( comm )
     , d_geometry_manager( geometry_manager )
     , d_dimension( dimension )
+    , d_rcb_boxes( d_comm->getSize() )
 {
     // Get the raw MPI communicator.
     Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
@@ -283,7 +284,7 @@ GeometryRCB<Geometry,GlobalOrdinal>::getBoxDestinationProcs(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Zoltan callback for getting the number of centroids.
+ * \brief Zoltan callback for getting the number of geometry objects.
  */
 template<class Geometry, class GlobalOrdinal>
 int GeometryRCB<Geometry,GlobalOrdinal>::getNumberOfObjects( 
@@ -304,7 +305,10 @@ int GeometryRCB<Geometry,GlobalOrdinal>::getNumberOfObjects(
     }
 
     *ierr = ZOLTAN_OK;
-    return num_geometry;
+
+    // We're going to give zoltan the geometric bounding boxes so there will
+    // be 8 points for each geometric object.
+    return 8*num_geometry;
 }
 
 //---------------------------------------------------------------------------//
@@ -328,7 +332,7 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getObjectList(
 	zoltan_id_type i = 0;
 	GlobalOrdinal lid = 0;
 	Teuchos::ArrayView<short int> active_geom =
-		     geometry_manager->getActiveGeometry();
+	    geometry_manager->getActiveGeometry();
 	Teuchos::ArrayView<short int>::const_iterator active_it;
 	Teuchos::ArrayRCP<GlobalOrdinal> local_gids = 
 	    geometry_manager->gids();
@@ -386,7 +390,7 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 	    geometry_manager->geometry();
 	typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_it;
 	Teuchos::ArrayView<short int> active_geom =
-		     geometry_manager->getActiveGeometry();
+	    geometry_manager->getActiveGeometry();
 	Teuchos::ArrayView<short int>::const_iterator active_it;
 
 	// Check Zoltan for consistency.
@@ -404,18 +408,78 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
     
 	// Zoltan needs interleaved coordinates.
 	int n = 0;
-	Teuchos::Array<double> geometry_coords;
+	Teuchos::Tuple<double,6> geometry_bounds;
 	for ( geom_it = local_geometry.begin(), active_it = active_geom.begin();
 	      geom_it != local_geometry.end();
 	      ++geom_it, ++active_it )
 	{
 	    if ( *active_it )
 	    {
-		geometry_coords = GT::centroid( *geom_it );
-		for ( int d = 0; d < geom_dim; ++d )
-		{
-		    geom_vec[ geom_dim*n + d ] = geometry_coords[d];
-		}
+		// Get the bounding box.
+		geometry_bounds = GT::boundingBox( *geom_it ).getBounds();
+
+		// lo x, lo y, lo z
+		geom_vec[ geom_dim*n ] = geometry_bounds[0];
+		if ( geom_dim < 1 )
+		    geom_vec[ geom_dim*n + 1] = geometry_bounds[1];
+		if ( geom_dim < 2 )
+		    geom_vec[ geom_dim*n + 2] = geometry_bounds[2];
+		++n;
+
+		// hi x, lo y, lo z
+		geom_vec[ geom_dim*n ] = geometry_bounds[3];
+		if ( geom_dim < 1 )
+		    geom_vec[ geom_dim*n + 1] = geometry_bounds[1];
+		if ( geom_dim < 2 )
+		    geom_vec[ geom_dim*n + 2] = geometry_bounds[2];
+		++n;
+
+		// lo x, hi y, lo z
+		geom_vec[ geom_dim*n ] = geometry_bounds[0];
+		if ( geom_dim < 1 )
+		    geom_vec[ geom_dim*n + 1] = geometry_bounds[4];
+		if ( geom_dim < 2 )
+		    geom_vec[ geom_dim*n + 2] = geometry_bounds[2];
+		++n;
+
+		// hi x, hi y, lo z
+		geom_vec[ geom_dim*n ] = geometry_bounds[3];
+		if ( geom_dim < 1 )
+		    geom_vec[ geom_dim*n + 1] = geometry_bounds[4];
+		if ( geom_dim < 2 )
+		    geom_vec[ geom_dim*n + 2] = geometry_bounds[2];
+		++n;
+
+		// lo x, lo y, hi z
+		geom_vec[ geom_dim*n ] = geometry_bounds[0];
+		if ( geom_dim < 1 )
+		    geom_vec[ geom_dim*n + 1] = geometry_bounds[1];
+		if ( geom_dim < 2 )
+		    geom_vec[ geom_dim*n + 2] = geometry_bounds[5];
+		++n;
+
+		// hi x, lo y, hi z
+		geom_vec[ geom_dim*n ] = geometry_bounds[3];
+		if ( geom_dim < 1 )
+		    geom_vec[ geom_dim*n + 1] = geometry_bounds[1];
+		if ( geom_dim < 2 )
+		    geom_vec[ geom_dim*n + 2] = geometry_bounds[5];
+		++n;
+
+		// lo x, hi y, hi z
+		geom_vec[ geom_dim*n ] = geometry_bounds[0];
+		if ( geom_dim < 1 )
+		    geom_vec[ geom_dim*n + 1] = geometry_bounds[4];
+		if ( geom_dim < 2 )
+		    geom_vec[ geom_dim*n + 2] = geometry_bounds[5];
+		++n;
+
+		// hi x, hi y, hi z
+		geom_vec[ geom_dim*n ] = geometry_bounds[3];
+		if ( geom_dim < 1 )
+		    geom_vec[ geom_dim*n + 1] = geometry_bounds[4];
+		if ( geom_dim < 2 )
+		    geom_vec[ geom_dim*n + 2] = geometry_bounds[5];
 		++n;
 	    }
 	}
