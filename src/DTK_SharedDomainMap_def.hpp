@@ -132,6 +132,9 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     }
     d_target_indexer = CommIndexer( d_comm, target_comm );
 
+    // Create a communicator for asynchronous communication.
+    RCP_Comm async_comm = d_comm->duplicate();
+
     // Check the source and target dimensions for consistency and build the
     // global bounding boxes.
     BoundingBox source_box;
@@ -151,29 +154,29 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Post a receive for the target box on source proc 0.
     Teuchos::RCP<Teuchos::CommRequest<int> > box_request;
-    if ( d_comm->getRank() == d_source_indexer.l2g(0) )
+    if ( async_comm->getRank() == d_source_indexer.l2g(0) )
     {
 	box_request = Teuchos::ireceive<int,BoundingBox>(
-	    *d_comm, Teuchos::RCP<BoundingBox>(&target_box,false),
+	    *async_comm, Teuchos::RCP<BoundingBox>(&target_box,false),
 	    d_target_indexer.l2g(0) );
     }
 
     // Send the target box to source proc 0 from target proc 0.
-    if ( d_comm->getRank() == d_target_indexer.l2g(0) )
+    if ( async_comm->getRank() == d_target_indexer.l2g(0) )
     {
 	Teuchos::isend<int,BoundingBox>( 
-	    *d_comm, Teuchos::RCP<BoundingBox>(&target_box,false), 
+	    *async_comm, Teuchos::RCP<BoundingBox>(&target_box,false), 
 	    d_source_indexer.l2g(0) );
     }
 
     // Intersect the boxes on source proc 0 to get the shared domain bounding
     // box.
     BoundingBox shared_domain_box;
-    if ( d_comm->getRank() == d_source_indexer.l2g(0) )
+    if ( async_comm->getRank() == d_source_indexer.l2g(0) )
     {
         Teuchos::Ptr<Teuchos::RCP<Teuchos::CommRequest<int> > > 
 	    request_ptr(&box_request);
-        Teuchos::wait( *d_comm, request_ptr );
+        Teuchos::wait( *async_comm, request_ptr );
 	bool has_intersect = BoundingBox::intersectBoxes( 
 	    source_box, target_box, shared_domain_box );
 	DTK_INSIST( has_intersect );

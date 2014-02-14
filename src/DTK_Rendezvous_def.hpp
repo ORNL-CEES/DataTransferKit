@@ -521,8 +521,10 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	GlobalOrdinal num_elements = 0;
 	Teuchos::ArrayRCP<GlobalOrdinal> export_element_arcp(0,0);
 	Teuchos::ArrayRCP<double> export_coords_view(0,0);
-	Teuchos::Array<int> block_packet(29,-1);
+	int max_verts_per_elem = 27;
+	Teuchos::Array<int> block_packet(max_verts_per_elem+2,-1);
 	Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view(0,0);
+	int topo_int = 0;
 	if ( mesh_exists )
 	{
 	    current_block = mesh_manager->getBlock( block_id );
@@ -537,9 +539,9 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 		MeshTools<Mesh>::coordsNonConstView( *current_block );
 	    export_conn_view =
 		MeshTools<Mesh>::connectivityNonConstView( *current_block );
+	    topo_int = static_cast<int>(MT::elementTopology( *current_block ));
 	    block_packet[0] = MT::verticesPerElement( *current_block );
-	    block_packet[1] = 
-		static_cast<int>(MT::elementTopology( *current_block ));
+	    block_packet[1] = topo_int;
 	    std::copy( MT::permutationBegin(*current_block),
 		       MT::permutationEnd(*current_block),
 		       &block_packet[2] );
@@ -553,10 +555,12 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	int verts_per_elem = block_packet[0];
 
 	// Extract the block topology.
+	topo_int = block_packet[1];
 	DTK_ElementTopology block_topology = 
-	    static_cast<DTK_ElementTopology>( block_packet[1] );
+	    static_cast<DTK_ElementTopology>( topo_int );
 
 	// Extract the permutation list.
+	DTK_CHECK( verts_per_elem <= max_verts_per_elem );
 	Teuchos::ArrayRCP<int> permutation_list(verts_per_elem,0);
 	std::copy( &block_packet[2], &block_packet[2] + verts_per_elem, 
 		   permutation_list.begin() );

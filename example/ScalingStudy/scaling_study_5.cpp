@@ -442,7 +442,7 @@ int main(int argc, char* argv[])
     int my_size = comm->getSize();
 
     // Setup source mesh.
-    int edge_size = 3;
+    int edge_size = 23;
     Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
     Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
