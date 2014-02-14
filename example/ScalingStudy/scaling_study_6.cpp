@@ -307,15 +307,9 @@ class MyEvaluator :
 //---------------------------------------------------------------------------//
 // Mesh create function.
 //---------------------------------------------------------------------------//
-Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
+Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length,
+				  int i_block, int j_block, int k_block )
 {
-    // Compute block indices.
-    int num_blocks = std::pow( my_size, 1.0/3.0 );
-    int k_block = std::floor( my_rank / (num_blocks*num_blocks) );
-    int j_block = 
-	std::floor( (my_rank-k_block*num_blocks*num_blocks) / num_blocks );
-    int i_block = my_rank - j_block*num_blocks - k_block*num_blocks*num_blocks;
-
     // Make some vertices.
     int num_vertices = edge_length*edge_length*edge_length;
     int vertex_dim = 3;
@@ -397,15 +391,12 @@ Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
 //---------------------------------------------------------------------------//
 // Coordinate field create function.
 //---------------------------------------------------------------------------//
-Teuchos::RCP<MyField> buildCoordinateField( int my_rank, int my_size, 
-					    int num_points, int edge_size )
+Teuchos::RCP<MyField> buildCoordinateField( 
+    int my_rank, int my_size, 
+    int num_points, int edge_size,
+    int i_block, int j_block, int k_block,
+    int num_i_blocks, int num_j_blocks, int num_k_blocks )
 {
-   // Compute block indices.
-    int num_blocks = std::pow( my_size, 1.0/3.0 );
-    int k_block = std::floor( my_rank / (num_blocks*num_blocks) );
-    int j_block = 
-	std::floor( (my_rank-k_block*num_blocks*num_blocks) / num_blocks );
-    int i_block = my_rank - j_block*num_blocks - k_block*num_blocks*num_blocks;
     std::srand( my_rank*num_points*3 );
     int point_dim = 3;
     Teuchos::RCP<MyField> coordinate_field = 
@@ -415,13 +406,13 @@ Teuchos::RCP<MyField> buildCoordinateField( int my_rank, int my_size,
     {
 	*(coordinate_field->begin() + i) = 
 	    (edge_size-1) * (double) std::rand() / RAND_MAX + 
-	    (edge_size-1) * (num_blocks-i_block-1);
+	    (edge_size-1) * (num_i_blocks-i_block-1);
 	*(coordinate_field->begin() + num_points + i ) = 
 	    (edge_size-1) * (double) std::rand() / RAND_MAX + 
-	    (edge_size-1) * (num_blocks-j_block-1);
+	    (edge_size-1) * (num_j_blocks-j_block-1);
 	*(coordinate_field->begin() + 2*num_points + i ) = 
 	    (edge_size-1) * (double) std::rand() / RAND_MAX + 
-	    (edge_size-1) * (num_blocks-k_block-1);
+	    (edge_size-1) * (num_k_blocks-k_block-1);
     }
 
     return coordinate_field;
@@ -441,18 +432,35 @@ int main(int argc, char* argv[])
     int my_rank = comm->getRank();
     int my_size = comm->getSize();
 
+    // Get the block data.
+    int num_i_blocks = std::atoi(argv[1]);
+    int num_j_blocks = std::atoi(argv[2]);
+    int num_k_blocks = std::atoi(argv[3]);
+    int k_block = std::floor( my_rank / (num_i_blocks*num_j_blocks) );
+    int j_block = std::floor( (my_rank-k_block*num_i_blocks*num_j_blocks) /
+			      num_i_blocks );
+    int i_block = my_rank - j_block*num_i_blocks - 
+		  k_block*num_i_blocks*num_j_blocks;
+    assert( my_size == num_i_blocks*num_j_blocks*num_k_blocks );
+    assert( i_block < num_i_blocks );
+    assert( j_block < num_j_blocks );
+    assert( k_block < num_k_blocks );
+
     // Setup source mesh.
     int global_size = 10;
     int edge_size = (global_size / std::pow(my_size,1.0/3.0) ) + 1;
     Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
-    mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
+    mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size,
+				  i_block, j_block, k_block );
     Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
     // Setup target coordinate field.
     int num_points = (edge_size-1)*(edge_size-1)*(edge_size-1);
     Teuchos::RCP<MyField> target_coords = 
-	buildCoordinateField( my_rank, my_size, num_points, edge_size );
+	buildCoordinateField( my_rank, my_size, num_points, edge_size,
+			      i_block, j_block, k_block,
+			      num_i_blocks, num_j_blocks, num_k_blocks );
     Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
 	Teuchos::rcp( new FieldManager<MyField>( target_coords, comm ) );
 
@@ -486,13 +494,12 @@ int main(int argc, char* argv[])
     // its source rank + 1 as data. Count the number of target points that
     // failed the test.
     comm->barrier();
-    int num_blocks = std::pow( my_size, 1.0/3.0 );
-    int k_block = std::floor( my_rank / (num_blocks*num_blocks) );
-    int j_block = 
-	std::floor( (my_rank-k_block*num_blocks*num_blocks) / num_blocks );
-    int i_block = my_rank - j_block*num_blocks - k_block*num_blocks*num_blocks;
-    int source_rank = (num_blocks-i_block-1) + (num_blocks-j_block-1)*num_blocks +
-		      (num_blocks-k_block-1)*num_blocks*num_blocks;
+    int inv_i_block = num_i_blocks - i_block - 1;
+    int inv_j_block = num_j_blocks - j_block - 1;
+    int inv_k_block = num_k_blocks - k_block - 1;
+    int source_rank = inv_i_block + inv_j_block*num_i_blocks +
+		      inv_k_block*num_i_blocks*num_j_blocks;
+
     int local_test_failed = 0;
     for ( long int n = 0; n < target_space_manager->field()->size(); ++n )
     {

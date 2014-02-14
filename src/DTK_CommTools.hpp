@@ -94,14 +94,6 @@ class CommTools
     // Given a comm request, check to see if it has completed.
     static bool 
     isRequestComplete( Teuchos::RCP<Teuchos::CommRequest<int> >& handle );
-
-    // Do a reduce sum for a given buffer.
-    template<class Scalar>
-    static void reduceSum( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-                           const int root,
-                           const int count,
-                           const Scalar send_buffer[],
-                           Scalar global_reducts[] );
 };
 
 //---------------------------------------------------------------------------//
