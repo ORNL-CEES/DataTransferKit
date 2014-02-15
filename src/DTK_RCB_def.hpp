@@ -88,10 +88,21 @@ RCB<Mesh>::RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager,
     // Create the Zoltan object.
     d_zz = Zoltan_Create( raw_comm );
 
-    // General parameters.
+    // Debug
+#if HAVE_DTK_DBC
+    Zoltan_Set_Param( d_zz, "DEBUG_LEVEL", "2" );
+    Zoltan_Set_Param( d_zz, "RCB_OUTPUT_LEVEL", "1" );
+    Zoltan_Set_Param( d_zz, "CHECK_GEOM", "1" );
+#else
     Zoltan_Set_Param( d_zz, "DEBUG_LEVEL", "0" );
+    Zoltan_Set_Param( d_zz, "RCB_OUTPUT_LEVEL", "0" );
+    Zoltan_Set_Param( d_zz, "CHECK_GEOM", "0" );
+#endif
+
+
+    // General parameters.
     Zoltan_Set_Param( d_zz, "LB_METHOD", "RCB" );
-    Zoltan_Set_Param( d_zz, "NUM_GID_ENTRIES", "1" ); 
+    Zoltan_Set_Param( d_zz, "NUM_GID_ENTRIES", "1" );
     Zoltan_Set_Param( d_zz, "NUM_LID_ENTRIES", "1" );
     Zoltan_Set_Param( d_zz, "DEBUG_PROCESSOR", "0" );
     Zoltan_Set_Param( d_zz, "OBJ_WEIGHT_DIM", "0" );
@@ -99,12 +110,11 @@ RCB<Mesh>::RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager,
     Zoltan_Set_Param( d_zz, "RETURN_LISTS", "ALL" );
 
     // RCB parameters.
-    Zoltan_Set_Param( d_zz, "RCB_OUTPUT_LEVEL", "0" );
     Zoltan_Set_Param( d_zz, "RCB_RECTILINEAR_BLOCKS", "1" );
     Zoltan_Set_Param( d_zz, "KEEP_CUTS", "1" );
     Zoltan_Set_Param( d_zz, "AVERAGE_CUTS", "1" );
-    Zoltan_Set_Param( d_zz, "RCB_LOCK_DIRECTIONS", "1" );
-    Zoltan_Set_Param( d_zz, "RCB_SET_DIRECTIONS", "1" );
+    Zoltan_Set_Param( d_zz, "RCB_LOCK_DIRECTIONS", "0" );
+    Zoltan_Set_Param( d_zz, "RCB_SET_DIRECTIONS", "0" );
 
     // Register static functions.
     Zoltan_Set_Num_Obj_Fn( d_zz, getNumberOfObjects, &d_mesh_manager );

@@ -447,7 +447,7 @@ int main(int argc, char* argv[])
     assert( k_block < num_k_blocks );
 
     // Setup source mesh.
-    int edge_size = 23;
+    int edge_size = std::atoi(argv[4]);
     Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size,
 				  i_block, j_block, k_block );
@@ -480,8 +480,8 @@ int main(int argc, char* argv[])
     AsynchronousMap<MyMesh,MyField,dim> asynchronous_map( comm );
 
     // Setup the asynchronous map ( this creates the mapping ).
-    int max_buffer_size = std::atoi(argv[4]);
-    int buffer_check_freq = std::atoi(argv[5]);
+    int max_buffer_size = std::atoi(argv[5]);
+    int buffer_check_freq = std::atoi(argv[6]);
     std::clock_t setup_start = clock();
     asynchronous_map.setup( source_mesh_manager, target_coord_manager,
 			    max_buffer_size, buffer_check_freq );
