@@ -83,6 +83,8 @@ AKDTree<Mesh,CoordinateField,DIM>::AKDTree(
     , d_check_freq( buffer_check_frequency )
 {
     DTK_REQUIRE( Teuchos::nonnull(d_comm) );
+    DTK_REQUIRE( buffer_check_frequency > 0 );
+    DTK_REQUIRE( max_buffer_size > 0 );
 
     // Set the duplicate communicators. This is how we get around not having
     // access to message tags through the abstract Teuchos::Comm interface. We

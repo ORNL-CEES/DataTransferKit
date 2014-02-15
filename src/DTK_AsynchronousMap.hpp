@@ -131,8 +131,8 @@ class AsynchronousMap
     // Generate the shared domain map.
     void setup( const RCP_MeshManager& source_mesh_manager, 
 		const RCP_CoordFieldManager& target_coord_manager,
-		const int max_buffer_size = 128,
-		const int buffer_check_frequency = 128,
+		const int max_buffer_size = 1024,
+		const int buffer_check_frequency = 512,
 		double tolerance = 10*Teuchos::ScalarTraits<double>::eps() );
 
     // Apply the shared domain map by evaluating a function at target points
