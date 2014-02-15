@@ -456,7 +456,7 @@ int main(int argc, char* argv[])
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
     // Setup target coordinate field.
-    int num_points = (edge_size-1)*(edge_size-1)*(edge_size-1);
+    int num_points = (edge_size-1)*(edge_size-1)*(edge_size-1)*8;
     Teuchos::RCP<MyField> target_coords = 
 	buildCoordinateField( my_rank, my_size, num_points, edge_size,
 			      i_block, j_block, k_block,
@@ -503,6 +503,7 @@ int main(int argc, char* argv[])
     int inv_k_block = num_k_blocks - k_block - 1;
     int source_rank = inv_i_block + inv_j_block*num_i_blocks +
 		      inv_k_block*num_i_blocks*num_j_blocks;
+    assert( source_rank < my_size );
 
     int local_test_failed = 0;
     for ( long int n = 0; n < target_space_manager->field()->size(); ++n )
@@ -598,13 +599,13 @@ int main(int argc, char* argv[])
 		  << (edge_size-1)*(edge_size-1)*(edge_size-1)
     		  << std::endl;
     	std::cout << "Local number of points:    " 
-		  << (edge_size-1)*(edge_size-1)*(edge_size-1)
+		  << (edge_size-1)*(edge_size-1)*(edge_size-1)*8
     		  << std::endl;
     	std::cout << "Global number of elements: " 
 		  << (edge_size-1)*(edge_size-1)*(edge_size-1)*my_size 
     		  << std::endl;
     	std::cout << "Global number of points:   " 
-		  << (edge_size-1)*(edge_size-1)*(edge_size-1)*my_size 
+		  << (edge_size-1)*(edge_size-1)*(edge_size-1)*my_size*8
     		  << std::endl;
     	std::cout << "--------------------------------------------------"
     		  << std::endl;
