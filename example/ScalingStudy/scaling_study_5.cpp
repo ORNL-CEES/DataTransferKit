@@ -395,7 +395,8 @@ Teuchos::RCP<MyField> buildCoordinateField(
     int my_rank, int my_size, 
     int num_points, int edge_size,
     int i_block, int j_block, int k_block,
-    int num_i_blocks, int num_j_blocks, int num_k_blocks )
+    int num_i_blocks, int num_j_blocks, int num_k_blocks,
+    int num_neighbors )
 {
     std::srand( my_rank*num_points*3 );
     int point_dim = 3;
@@ -405,14 +406,17 @@ Teuchos::RCP<MyField> buildCoordinateField(
     for ( int i = 0; i < num_points; ++i )
     {
 	*(coordinate_field->begin() + i) = 
-	    (edge_size-1) * (double) std::rand() / RAND_MAX + 
-	    (edge_size-1) * (num_i_blocks-i_block-1);
+	    num_neighbors*(edge_size-1) * (double) std::rand() / RAND_MAX + 
+	    (edge_size-1) * (num_i_blocks-i_block-1) - 
+	    (num_neighbors-1)*(edge_size-1) / 2;
 	*(coordinate_field->begin() + num_points + i ) = 
-	    (edge_size-1) * (double) std::rand() / RAND_MAX + 
-	    (edge_size-1) * (num_j_blocks-j_block-1);
+	    num_neighbors*(edge_size-1) * (double) std::rand() / RAND_MAX + 
+	    (edge_size-1) * (num_j_blocks-j_block-1) - 
+	    (num_neighbors-1)*(edge_size-1) / 2;
 	*(coordinate_field->begin() + 2*num_points + i ) = 
-	    (edge_size-1) * (double) std::rand() / RAND_MAX + 
-	    (edge_size-1) * (num_k_blocks-k_block-1);
+	    num_neighbors*(edge_size-1) * (double) std::rand() / RAND_MAX + 
+	    (edge_size-1) * (num_k_blocks-k_block-1) - 
+	    (num_neighbors-1)*(edge_size-1) / 2;
     }
 
     return coordinate_field;
@@ -448,6 +452,7 @@ int main(int argc, char* argv[])
 
     // Setup source mesh.
     int edge_size = std::atoi(argv[4]);
+    assert( 1 < edge_size );
     Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size,
 				  i_block, j_block, k_block );
@@ -455,11 +460,14 @@ int main(int argc, char* argv[])
 	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
     // Setup target coordinate field.
+    int num_neighbors = std::atoi(argv[5]);
+    assert( 0 < num_neighbors );
     int num_points = (edge_size-1)*(edge_size-1)*(edge_size-1)*8;
     Teuchos::RCP<MyField> target_coords = 
 	buildCoordinateField( my_rank, my_size, num_points, edge_size,
 			      i_block, j_block, k_block,
-			      num_i_blocks, num_j_blocks, num_k_blocks );
+			      num_i_blocks, num_j_blocks, num_k_blocks,
+			      num_neighbors );
 
     Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
 	Teuchos::rcp( new FieldManager<MyField>( target_coords, comm ) );
