@@ -183,8 +183,8 @@ void AKDTree<Mesh,CoordinateField,DIM>::locate(
 	    ++d_num_run;
 	}
 
-	// If the source is empty, process the local target points in the bank.
-	else if ( !bank.empty() )
+	// Process any local target points in the bank.
+	if ( !bank.empty() )
 	{
 	    processBankPoint( bank, 
 			      source_elements, 
@@ -194,10 +194,9 @@ void AKDTree<Mesh,CoordinateField,DIM>::locate(
 	    ++d_num_run;
 	}
 
-	// If we're out of source and bank target points or have hit the check
-	// frequency, process incoming messages.
-	if ( ((0 == d_targets_to_send) && bank.empty()) ||  
-	     d_num_run == d_check_freq )
+	// If we're out of bank points or have hit the check frequency,
+	// process incoming messages.
+	if ( bank.empty() || (d_num_run == d_check_freq) )
 	{
 	    processMessages( bank );
 	    d_num_run = 0;
