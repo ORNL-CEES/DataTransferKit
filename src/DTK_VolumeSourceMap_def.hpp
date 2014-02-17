@@ -147,13 +147,16 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	DTK_REQUIRE( source_geometry_manager->dim() == d_dimension );
 	source_box = source_geometry_manager->globalBoundingBox();
     }
-    BoundingBox target_box( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 )
+    BoundingBox local_target_box( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
+    BoundingBox target_box;
     if ( target_exists )
     {
 	DTK_REQUIRE( CFT::dim( *target_coord_manager->field() ) 
 			  == d_dimension );
 	target_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
 	    *target_coord_manager->field(), target_coord_manager->comm() );
+	local_target_box = FieldTools<CoordinateField>::coordLocalBoundingBox(
+	    *target_coord_manager->field() );
     }
 
     // Post a receive for the target box on source proc 0.
@@ -192,7 +195,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     // Build a rendezvous decomposition with the source geometry.
     GeometryRendezvous<Geometry,GlobalOrdinal> rendezvous( 
 	d_comm, d_dimension, shared_domain_box );
-    rendezvous.build( source_geometry_manager, target_box );
+    rendezvous.build( source_geometry_manager, local_target_box );
 
     // Get the local number of target points.
     GlobalOrdinal local_num_targets = 0;
