@@ -106,7 +106,7 @@ BufferCommunicator<T>::BufferCommunicator(
 template<class T>
 const typename BufferCommunicator<T>::Result& 
 BufferCommunicator<T>::communicate( 
-    const Teuchos::RCP<T>& packet, const int neighbor_id )
+    const Teuchos::RCP<T>& packet, const int neighbor_id, BankType& bank )
 {
     DTK_REQUIRE( Teuchos::nonnull(packet) );
 
@@ -124,6 +124,9 @@ BufferCommunicator<T>::communicate(
     // If the buffer is full send it.
     if ( d_sends[neighbor_id].isFull() )
     {
+	// Check and post the receives before sending to avoid locking.
+	checkAndPost( bank );
+
 	DTK_CHECK( d_sends[neighbor_id].numPackets() == 
 	       Teuchos::as<int>(maxBufferSize()) );
 

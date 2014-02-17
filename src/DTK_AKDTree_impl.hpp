@@ -147,6 +147,9 @@ void AKDTree<Mesh,CoordinateField,DIM>::locate(
     const GlobalOrdinal global_num_targets,
     const double tolerance )
 {
+    // Barrier before starting.
+    d_comm->barrier();
+
     // Initialize.
     *d_complete = 0;
     *d_num_done = 0;
@@ -158,9 +161,6 @@ void AKDTree<Mesh,CoordinateField,DIM>::locate(
 
     // Make a temporary array of interleaved target coordinates.
     Teuchos::Array<double> interleaved_target_coords;
-
-    // Barrier before continuing.
-    d_comm->barrier();
 
     // Create a data bank.
     BankType bank;
@@ -194,16 +194,17 @@ void AKDTree<Mesh,CoordinateField,DIM>::locate(
 	    ++d_num_run;
 	}
 
-	// If we're out of bank points or have hit the check frequency,
-	// process incoming messages.
-	if ( bank.empty() || (d_num_run == d_check_freq) )
+	// If we're out of local points to process or have hit the check
+	// frequency, process incoming messages.
+	if ( ((0 == d_targets_to_send) && bank.empty()) || 
+	     (d_num_run == d_check_freq) )
 	{
 	    processMessages( bank );
 	    d_num_run = 0;
 	}
 
 	// If everything looks like it is finished locally, report through
-	// the tree to check if transport is done.
+	// the tree to check if the search is done.
 	if ( (0 == d_targets_to_send) && bank.empty() )
 	{
 	    controlTermination();
@@ -260,8 +261,6 @@ void AKDTree<Mesh,CoordinateField,DIM>::sendTargetPoint( BankType& bank )
     {
 	coords[d] = coords_view[ num_targets*d + point_id ];
     }
-    Teuchos::RCP<packet_type> point = Teuchos::rcp(
-	new packet_type(d_target_ordinals[point_id], coords()) );
 
     // Send it to the neighboring boxes in which it resides.
     bool point_in_domain = false;
@@ -270,7 +269,9 @@ void AKDTree<Mesh,CoordinateField,DIM>::sendTargetPoint( BankType& bank )
 	if ( d_source_neighbor_boxes[n].pointInBox(coords) )
 	{
 	    point_in_domain = true;
-	    d_buffer_communicator.communicate( point, n );
+	    Teuchos::RCP<packet_type> point = Teuchos::rcp(
+		new packet_type(d_target_ordinals[point_id], coords()) );
+	    d_buffer_communicator.communicate( point, n, bank );
 	}
     }
 
@@ -356,7 +357,7 @@ void AKDTree<Mesh,CoordinateField,DIM>::postTreeCount()
 	    *d_comm_num_done, d_num_done_report.second, d_children.second );
     }
 
-    // Post a receive from parent for transport completion.
+    // Post a receive from parent for search completion.
     if ( d_parent != Teuchos::OrdinalTraits<int>::invalid() )
     {
 	d_complete_handle = Teuchos::ireceive<int,int>( 
@@ -504,7 +505,7 @@ void AKDTree<Mesh,CoordinateField,DIM>::controlTermination()
 
     // Other nodes send the number of packets completed to parent and check
     // to see if a message has arrived from the parent indicating that
-    // transport has been completed.
+    // search has been completed.
     else
     {
         // Send completed number of packets to parent.

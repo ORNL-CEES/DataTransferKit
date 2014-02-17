@@ -97,7 +97,8 @@ class BufferCommunicator
 
     // Buffer and send a packet.
     const Result& communicate( const Teuchos::RCP<T>& packet,
-			       const int neighbor_id );
+			       const int neighbor_id,
+			       BankType& bank );
 
     // Send all buffers that are not empty.
     int send();
