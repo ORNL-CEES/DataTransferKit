@@ -447,7 +447,7 @@ int main(int argc, char* argv[])
     assert( k_block < num_k_blocks );
 
     // Setup source mesh.
-    int global_size = 30;
+    int global_size = std::atoi(argv[4]);
     int edge_size = (global_size / std::pow(my_size,1.0/3.0) ) + 1;
     Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size,

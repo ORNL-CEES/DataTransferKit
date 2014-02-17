@@ -107,7 +107,8 @@ Rendezvous<Mesh>::~Rendezvous()
  */
 template<class Mesh> 
 void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager,
-			      const CommIndexer& mesh_indexer )
+			      const CommIndexer& mesh_indexer,
+			      const BoundingBox& target_box )
 {
     // Extract the mesh vertices and elements that are in the bounding
     // box. These are the pieces of the mesh that will be repartitioned.
@@ -121,7 +122,7 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager,
     d_partitioner = PartitionerFactory::createMeshPartitioner( 
 	d_comm, mesh_manager, d_dimension );
     DTK_ENSURE( Teuchos::nonnull(d_partitioner) );
-    d_partitioner->partition();
+    d_partitioner->partition( target_box );
 
     // Send the mesh in the box to the rendezvous decomposition and build the
     // mesh blocks.

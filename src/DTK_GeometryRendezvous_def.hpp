@@ -102,7 +102,8 @@ GeometryRendezvous<Geometry,GlobalOrdinal>::~GeometryRendezvous()
  */
 template<class Geometry, class GlobalOrdinal> 
 void GeometryRendezvous<Geometry,GlobalOrdinal>::build( 
-    const RCP_GeometryManager& geometry_manager )
+    const RCP_GeometryManager& geometry_manager,
+    const BoundingBox& target_box )
 {
     // Extract the geometry objects that are in the bounding box. These are
     // the pieces of the geometry that will be repartitioned.
@@ -117,7 +118,7 @@ void GeometryRendezvous<Geometry,GlobalOrdinal>::build(
     d_partitioner = PartitionerFactory::createGeometryPartitioner( 
 	d_comm, geometry_manager, d_dimension );
     DTK_ENSURE( !d_partitioner.is_null() );
-    d_partitioner->partition();
+    d_partitioner->partition( target_box );
 
     // Send the geometry in the box to the rendezvous decomposition.
     sendGeometryToRendezvous( geometry_manager );

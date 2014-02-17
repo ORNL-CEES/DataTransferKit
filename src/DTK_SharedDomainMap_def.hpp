@@ -143,7 +143,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	DTK_REQUIRE( source_mesh_manager->dim() == d_dimension );
 	source_box = source_mesh_manager->globalBoundingBox();
     }
-    BoundingBox target_box;
+    BoundingBox target_box( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
     if ( target_exists )
     {
 	DTK_REQUIRE( CFT::dim( *target_coord_manager->field() ) 
@@ -187,7 +187,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Build a rendezvous decomposition with the source mesh.
     Rendezvous<Mesh> rendezvous( d_comm, d_dimension, shared_domain_box );
-    rendezvous.build( source_mesh_manager, d_source_indexer );
+    rendezvous.build( source_mesh_manager, d_source_indexer, target_box );
 
     // Get the local number of target points.
     GlobalOrdinal local_num_targets = 0;

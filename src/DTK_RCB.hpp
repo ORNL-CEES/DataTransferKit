@@ -91,7 +91,7 @@ class RCB : public Partitioner
     ~RCB();
 
     // Compute RCB partitioning of the mesh.
-    void partition();
+    void partition( const BoundingBox& local_box );
 
     // Given a range of local input point ids get their destination procs.
     Teuchos::Array<int> getInputPointDestinationProcs(
@@ -177,8 +177,11 @@ class RCB : public Partitioner
     // The dimension of the RCB space.
     int d_dimension;
 
-    // Bounding boxes for every process.
+    // Bounding boxes for source processes that neighbor this process.
     Teuchos::Array<BoundingBox> d_rcb_boxes;
+
+    // Ranks for source processes that neighbor this process.
+    Teuchos::Array<int> d_box_ranks;
 
     // Zoltan struct.
     Zoltan_Struct *d_zz;

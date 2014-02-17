@@ -102,7 +102,8 @@ class GeometryRendezvous
     ~GeometryRendezvous();
 
     // Build the rendezvous decomposition.
-    void build( const RCP_GeometryManager& geometry_manager );
+    void build( const RCP_GeometryManager& geometry_manager,
+		const BoundingBox& target_box );
 
     // Get the rendezvous destination processes for a blocked list of vertex
     // coordinates that are in the primary decomposition.

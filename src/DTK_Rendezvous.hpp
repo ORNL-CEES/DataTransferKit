@@ -122,7 +122,8 @@ class Rendezvous
 
     // Build the rendezvous decomposition.
     void build( const RCP_MeshManager& mesh_manager,
-		const CommIndexer& mesh_indexer );
+		const CommIndexer& mesh_indexer,
+		const BoundingBox& target_box );
 
     // Get the rendezvous destination processes for a blocked list of vertex
     // coordinates that are in the primary decomposition.

@@ -67,7 +67,7 @@ class Partitioner
     { /* ... */ }
 
     // Compute partitioning of the mesh.
-    virtual void partition() = 0;
+    virtual void partition( const BoundingBox& local_box ) = 0;
 
     // Given a range of local input point ids in the mesh, get their destination
     // procs.

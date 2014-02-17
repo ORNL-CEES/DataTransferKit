@@ -67,7 +67,7 @@ class SerialPartitioner : public Partitioner
     ~SerialPartitioner();
 
     // Compute partitioning of the mesh.
-    void partition();
+    void partition( const BoundingBox& local_box );
 
     // Given a range of local input point ids in the mesh, get their destination
     // procs.

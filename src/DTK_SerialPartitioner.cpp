@@ -60,7 +60,7 @@ SerialPartitioner::~SerialPartitioner()
 /*!
  * \brief Compute partitioning of the mesh.
  */
-void SerialPartitioner::partition()
+void SerialPartitioner::partition( const BoundingBox& local_box )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//

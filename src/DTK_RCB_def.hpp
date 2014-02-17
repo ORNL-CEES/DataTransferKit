@@ -76,7 +76,6 @@ RCB<Mesh>::RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager,
     : d_comm( comm )
     , d_mesh_manager( mesh_manager )
     , d_dimension( dimension )
-    , d_rcb_boxes( d_comm->getSize() )
 {
     // Get the raw MPI communicator.
     Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm = 
@@ -142,7 +141,7 @@ RCB<Mesh>::~RCB()
  * \brief Compute RCB partitioning of the mesh.
  */
 template<class Mesh>
-void RCB<Mesh>::partition()
+void RCB<Mesh>::partition( const BoundingBox& local_box )
 {
     // Partition the problem.
     DTK_REMEMBER( int zoltan_error );
@@ -197,7 +196,14 @@ void RCB<Mesh>::partition()
 #endif
 	    DTK_CHECK( zoltan_error == ZOLTAN_OK );
 	    DTK_CHECK( dim == d_dimension );
-	    d_rcb_boxes[rank] = BoundingBox(bounds);
+
+	    // See if the partition domain intersects the local domain.
+	    BoundingBox partition_box( bounds );
+	    if ( BoundingBox::checkForIntersection(local_box,partition_box) )
+	    {
+		d_rcb_boxes.push_back( partition_box );
+		d_box_ranks.push_back( rank );
+	    }
 	}
     }
     else
@@ -208,7 +214,8 @@ void RCB<Mesh>::partition()
 	bounds[3] = std::numeric_limits<double>::max();
 	bounds[4] = std::numeric_limits<double>::max();
 	bounds[5] = std::numeric_limits<double>::max();
-	d_rcb_boxes[0] = BoundingBox(bounds);
+	d_rcb_boxes.push_back( BoundingBox(bounds) );
+	d_box_ranks.push_back( 0 );
     }
 }
 
@@ -249,11 +256,11 @@ int RCB<Mesh>::getPointDestinationProc( Teuchos::ArrayView<double> coords ) cons
     DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
     DTK_REQUIRE( d_dimension == Teuchos::as<int>(coords.size()) );
 
-    for ( int rank = 0; rank < d_comm->getSize(); ++rank )
+    for ( unsigned i = 0; i < d_rcb_boxes.size(); ++i )
     {
-	if ( d_rcb_boxes[rank].pointInBox(Teuchos::Array<double>(coords)) )
+	if ( d_rcb_boxes[i].pointInBox(Teuchos::Array<double>(coords)) )
 	{
-	    return rank;
+	    return d_box_ranks[i];
 	}
     }
 
@@ -275,11 +282,11 @@ RCB<Mesh>::getBoxDestinationProcs( const BoundingBox& box ) const
 {
     Teuchos::Array<int> procs;
 
-    for ( int rank = 0; rank < d_comm->getSize(); ++rank )
+    for ( unsigned i = 0; i < d_rcb_boxes.size(); ++i )
     {
-	if ( BoundingBox::checkForIntersection(box,d_rcb_boxes[rank]) )
+	if ( BoundingBox::checkForIntersection(box,d_rcb_boxes[i]) )
 	{
-	    procs.push_back( rank );
+	    procs.push_back( d_box_ranks[i] );
 	}
     }
 
