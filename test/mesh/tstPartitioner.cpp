@@ -198,7 +198,7 @@ TEUCHOS_UNIT_TEST( Partitioner, 1d_rcb_test )
 	    getDefaultComm<int>(), mesh_manager, 1  );
 
     // Do the partitioning.
-    partitioner->partition();
+    partitioner->partition( mesh_manager->globalBoundingBox() );
     
     // Get the random numbers that were used to compute the vertex coordinates.
     std::srand( 1 );
@@ -266,7 +266,7 @@ TEUCHOS_UNIT_TEST( Partitioner, 2d_rcb_test )
 	    getDefaultComm<int>(), mesh_manager, 2  );
 
     // Do the partitioning.
-    partitioner->partition();
+    partitioner->partition( mesh_manager->globalBoundingBox() );
     
     // Get the random numbers that were used to compute the vertex coordinates.
     std::srand( 1 );
@@ -343,7 +343,7 @@ TEUCHOS_UNIT_TEST( Partitioner, 3d_rcb_test )
 	    getDefaultComm<int>(), mesh_manager, 3  );
 
     // Do the partitioning.
-    partitioner->partition();
+    partitioner->partition( mesh_manager->globalBoundingBox() );
 
     // Get the random numbers that were used to compute the vertex coordinates.
     std::srand( 1 );
@@ -429,7 +429,7 @@ TEUCHOS_UNIT_TEST( Partitioner, partial_1d_partitioner_test )
 	    getDefaultComm<int>(), mesh_manager, 1  );
 
     // Do the partitioning.
-    partitioner->partition();
+    partitioner->partition( mesh_manager->globalBoundingBox() );
     
     // Get the random numbers that were used to compute the vertex coordinates.
     std::srand( 1 );
@@ -498,7 +498,7 @@ TEUCHOS_UNIT_TEST( Partitioner, partial_2d_partitioner_test )
 	    getDefaultComm<int>(), mesh_manager, 2  );
 
     // Do the partitioning.
-    partitioner->partition();
+    partitioner->partition( mesh_manager->globalBoundingBox() );
     
     // Get the random numbers that were used to compute the vertex coordinates.
     std::srand( 1 );
@@ -552,7 +552,7 @@ TEUCHOS_UNIT_TEST( Partitioner, partial_3d_partitioner_test )
 	    getDefaultComm<int>(), mesh_manager, 3  );
 
     // Do the partitioning.
-    partitioner->partition();
+    partitioner->partition( mesh_manager->globalBoundingBox() );
     
     // Get the random numbers that were used to compute the vertex coordinates.
     std::srand( 1 );

@@ -173,6 +173,13 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     Teuchos::Array<GlobalOrdinal> geometry_ordinals;
     computeGeometryOrdinals( target_geometry_manager, geometry_ordinals );
 
+    // Get the local bounding box of the geometry.
+    BoundingBox local_target_box( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
+    if ( target_exists )    
+    {
+	local_target_box = target_geometry_manager->localBoundingBox();
+    }
+
     // Build a rendezvous decomposition with the source mesh.
     BoundingBox global_box( -Teuchos::ScalarTraits<double>::rmax(),
 			    -Teuchos::ScalarTraits<double>::rmax(),
@@ -181,7 +188,8 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
 			    Teuchos::ScalarTraits<double>::rmax(),
 			    Teuchos::ScalarTraits<double>::rmax() );
     Rendezvous<Mesh> rendezvous( d_comm, d_dimension, global_box );
-    rendezvous.build( source_mesh_manager, d_source_indexer );
+    rendezvous.build( source_mesh_manager, d_source_indexer,
+		      local_target_box );
 
     // Get the target geometries and their bounding boxes.
     Teuchos::ArrayRCP<Geometry> target_geometry(0);

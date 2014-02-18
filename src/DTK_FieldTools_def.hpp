@@ -613,36 +613,42 @@ FieldTools<Field>::globalSize( const Field& field,
 template<class Field>
 BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
 {
-    DTK_REQUIRE( !FT::empty(field) );
     int dim = FT::dim( field );
     DTK_REQUIRE( 0 <= dim && dim <= 3 );
 
-    double huge_val = Teuchos::ScalarTraits<double>::rmax();
-    double x_min = -huge_val;
-    double y_min = -huge_val;
-    double z_min = -huge_val;
-
-    double x_max = huge_val;
-    double y_max = huge_val;
-    double z_max = huge_val;
-
-    if ( dim > 0 )
+    if ( !FT::empty(field) )
     {
-	x_min = *std::min_element( dimBegin(field, 0), dimEnd(field, 0) );
-	x_max = *std::max_element( dimBegin(field, 0), dimEnd(field, 0) );
-    }
-    if ( dim > 1 )
-    {
-	y_min = *std::min_element( dimBegin( field, 1 ), dimEnd( field, 1 ) );
-	y_max = *std::max_element( dimBegin( field, 1 ), dimEnd( field, 1 ) );
-    }
-    if ( dim > 2 )
-    {
-	z_min = *std::min_element( dimBegin( field, 2 ), dimEnd( field, 2 ) );
-	z_max = *std::max_element( dimBegin( field, 2 ), dimEnd( field, 2 ) );
-    }
+	double huge_val = Teuchos::ScalarTraits<double>::rmax();
+	double x_min = -huge_val;
+	double y_min = -huge_val;
+	double z_min = -huge_val;
 
-    return BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );
+	double x_max = huge_val;
+	double y_max = huge_val;
+	double z_max = huge_val;
+
+	if ( dim > 0 )
+	{
+	    x_min = *std::min_element( dimBegin(field, 0), dimEnd(field, 0) );
+	    x_max = *std::max_element( dimBegin(field, 0), dimEnd(field, 0) );
+	}
+	if ( dim > 1 )
+	{
+	    y_min = *std::min_element( dimBegin( field, 1 ), dimEnd( field, 1 ) );
+	    y_max = *std::max_element( dimBegin( field, 1 ), dimEnd( field, 1 ) );
+	}
+	if ( dim > 2 )
+	{
+	    z_min = *std::min_element( dimBegin( field, 2 ), dimEnd( field, 2 ) );
+	    z_max = *std::max_element( dimBegin( field, 2 ), dimEnd( field, 2 ) );
+	}
+
+	return BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );
+    }
+    else
+    {
+	return BoundingBox( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
+    }
 }
 
 //---------------------------------------------------------------------------//

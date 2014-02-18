@@ -624,7 +624,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test2 )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager, comm_indexer );
+    rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );

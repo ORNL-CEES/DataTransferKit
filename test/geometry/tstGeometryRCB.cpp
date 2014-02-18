@@ -90,7 +90,7 @@ TEUCHOS_UNIT_TEST( GeometryRCB, cylinder_test )
     // Partition the geometry with GeometryRCB.
     typedef GeometryRCB<Cylinder,int>::zoltan_id_type zoltan_id_type;
     GeometryRCB<Cylinder,int> rcb( getDefaultComm<int>(), geometry_manager, 3 );
-    rcb.partition();
+    rcb.partition( geometry_manager->globalBoundingBox() );
     
     // Check import parameters.
     int num_import = rcb.getNumImport();
@@ -215,7 +215,7 @@ TEUCHOS_UNIT_TEST( GeometryRCB, partitioner_cylinder_test )
     Teuchos::RCP<Partitioner> partitioner = 
 	PartitionerFactory::createGeometryPartitioner( 
 	    getDefaultComm<int>(), geometry_manager, 3 );
-    partitioner->partition();
+    partitioner->partition( geometry_manager->globalBoundingBox() );
     
     // Check the destination proc point search.
     Teuchos::Array<double> point_0(3);
@@ -282,7 +282,7 @@ TEUCHOS_UNIT_TEST( GeometryRCB, box_test )
     // Partition the geometry with GeometryRCB.
     typedef GeometryRCB<Box,int>::zoltan_id_type zoltan_id_type;
     GeometryRCB<Box,int> rcb( getDefaultComm<int>(), geometry_manager, 3 );
-    rcb.partition();
+    rcb.partition( geometry_manager->globalBoundingBox() );
     
     // Check import parameters.
     int num_import = rcb.getNumImport();
@@ -405,7 +405,7 @@ TEUCHOS_UNIT_TEST( GeometryRCB, partitioner_box_test )
     Teuchos::RCP<Partitioner> partitioner = 
 	PartitionerFactory::createGeometryPartitioner( 
 	    getDefaultComm<int>(), geometry_manager, 3 );
-    partitioner->partition();
+    partitioner->partition( geometry_manager->globalBoundingBox() );
     
     Teuchos::Array<short int> active( num_boxes, 1 );
     geometry_manager->setActiveGeometry( active );

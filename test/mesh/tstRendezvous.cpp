@@ -870,7 +870,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager, comm_indexer );
+    rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -939,7 +939,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager, comm_indexer );
+    rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1008,7 +1008,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager, comm_indexer );
+    rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1075,7 +1075,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager, comm_indexer );
+    rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1143,7 +1143,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager, comm_indexer );
+    rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1211,7 +1211,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager, comm_indexer );
+    rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1279,7 +1279,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager, comm_indexer );
+    rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1348,7 +1348,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager, comm_indexer );
+    rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );
@@ -1417,7 +1417,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_test )
 
     // Create a rendezvous.
     Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
-    rendezvous.build( mesh_manager, comm_indexer );
+    rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
     std::srand( my_rank*num_points*mesh_manager->dim() );

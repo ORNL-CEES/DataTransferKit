@@ -120,7 +120,8 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, one_to_many_parallel)
   Teuchos::RCP<const Teuchos::Comm<int> > global_comm = getDefaultComm<int>();
   Teuchos::Array<int> subcomm_ranks;
   subcomm_ranks.push_back(0);
-  Teuchos::RCP<const Teuchos::Comm<int> > source_comm = global_comm->createSubcommunicator(subcomm_ranks);
+  Teuchos::RCP<const Teuchos::Comm<int> > source_comm = 
+      global_comm->createSubcommunicator(subcomm_ranks);
   Teuchos::RCP<const Teuchos::Comm<int> > target_comm = global_comm;
 
   // Setup source geometry. Only on proc zero
@@ -142,7 +143,8 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, one_to_many_parallel)
 	  geom_gids[i] = i;
       }
     
-      source_geometry_manager = Teuchos::rcp(new GeometryManager<Box,int>(geometry,geom_gids,source_comm,geom_dim));
+      source_geometry_manager = Teuchos::rcp(
+	  new GeometryManager<Box,int>(geometry,geom_gids,source_comm,geom_dim));
 
       source_evaluator = Teuchos::rcp(new MyEvaluator(geom_gids,source_comm));
   }

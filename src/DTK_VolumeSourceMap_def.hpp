@@ -147,6 +147,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	DTK_REQUIRE( source_geometry_manager->dim() == d_dimension );
 	source_box = source_geometry_manager->globalBoundingBox();
     }
+
     BoundingBox local_target_box( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
     BoundingBox target_box;
     if ( target_exists )
@@ -196,7 +197,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     GeometryRendezvous<Geometry,GlobalOrdinal> rendezvous( 
 	d_comm, d_dimension, shared_domain_box );
     rendezvous.build( source_geometry_manager, local_target_box );
-
+    
     // Get the local number of target points.
     GlobalOrdinal local_num_targets = 0;
     if ( target_exists )

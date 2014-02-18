@@ -92,7 +92,7 @@ TEUCHOS_UNIT_TEST( GeometryRendezvous, cylinder_test )
 			    Teuchos::ScalarTraits<double>::rmax() );
     GeometryRendezvous<Cylinder,int> rendezvous( 
 	getDefaultComm<int>(), 3, global_box );
-    rendezvous.build( geometry_manager );
+    rendezvous.build( geometry_manager, geometry_manager->globalBoundingBox() );
     
     // Check the rendezvous point search.
     Teuchos::Array<double> point_0(3);
@@ -157,7 +157,7 @@ TEUCHOS_UNIT_TEST( GeometryRCB, box_test )
 			    Teuchos::ScalarTraits<double>::rmax() );
     GeometryRendezvous<Box,int> rendezvous( 
 	getDefaultComm<int>(), 3, global_box );
-    rendezvous.build( geometry_manager );
+    rendezvous.build( geometry_manager, geometry_manager->globalBoundingBox() );
     
     // Check the rendezvous point search.
     Teuchos::Array<double> point_0(3);
@@ -221,7 +221,7 @@ TEUCHOS_UNIT_TEST( GeometryRendezvous, cylinder_unsigned_test )
 			    Teuchos::ScalarTraits<double>::rmax() );
     GeometryRendezvous<Cylinder,unsigned int> rendezvous( 
 	getDefaultComm<int>(), 3, global_box );
-    rendezvous.build( geometry_manager );
+    rendezvous.build( geometry_manager, geometry_manager->globalBoundingBox() );
     
     // Check the rendezvous point search.
     Teuchos::Array<double> point_0(3);
@@ -286,7 +286,7 @@ TEUCHOS_UNIT_TEST( GeometryRCB, box_unsigned_test )
 			    Teuchos::ScalarTraits<double>::rmax() );
     GeometryRendezvous<Box,unsigned int> rendezvous( 
 	getDefaultComm<int>(), 3, global_box );
-    rendezvous.build( geometry_manager );
+    rendezvous.build( geometry_manager, geometry_manager->globalBoundingBox() );
     
     // Check the rendezvous point search.
     Teuchos::Array<double> point_0(3);
