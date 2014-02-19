@@ -47,7 +47,6 @@
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
-#include <Teuchos_ParameterList.hpp>
 
 #include <Tpetra_MultiVector.hpp>
 #include <Tpetra_Operator.hpp>
@@ -75,13 +74,12 @@ class SplineInterpolator
     typedef Tpetra::MultiVector<double,int,GO> MV;
     //@}
 
-    // Single parameter constructor.
+    // Constructor.
     SplineInterpolator( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
 			const Teuchos::ArrayView<const double>& source_centers,
 			const Teuchos::ArrayView<const double>& target_centers,
 			const double radius,
-			const double alpha,
-			const Teuchos::RCP<Teuchos::ParameterList>& params );
+			const double alpha );
 
     //! Destructor.
     ~SplineInterpolator()
@@ -95,7 +93,9 @@ class SplineInterpolator
 		      const int source_lda,
 		      const Teuchos::ArrayView<double>& target_data,
 		      const int num_target_dims,
-		      const int target_lda ) const;
+		      const int target_lda,
+		      const int max_solve_iterations,
+		      const double solve_convergence_tolerance ) const;
 
   private:
 
@@ -106,16 +106,10 @@ class SplineInterpolator
 	const double radius,
 	const double alpha );
 
-    // Build the linear problem.
-    void buildLinearProblem( const Teuchos::ParameterList& params );
-
   private:
 
     // Parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
-
-    // Interpolation parmeters.
-    Teuchos::RCP<Teuchos::ParameterList> d_params;
 
     // The C matrix.
     Teuchos::RCP<Tpetra::Operator<double,int,GO> > d_C;

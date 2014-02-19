@@ -102,9 +102,6 @@ int main( int argc, char * argv[] )
     // Derivative contribution.
     double alpha = 0.0;
 
-    // Set the parameters.
-    Teuchos::RCP<Teuchos::ParameterList> params = Teuchos::parameterList();
-
     // Build the interpolation object.
     typedef DataTransferKit::WendlandBasis<basis_order> WendlandBasis;
     typedef DataTransferKit::WuBasis<basis_order> WuBasis;
@@ -113,7 +110,7 @@ int main( int argc, char * argv[] )
     Teuchos::Time construction_timer("");
     construction_timer.start(true);
     DataTransferKit::SplineInterpolator<WuBasis,int,dim> interpolator( 
-	comm, grid_nodes(), target_centers(), radius, alpha, params );
+	comm, grid_nodes(), target_centers(), radius, alpha );
     construction_timer.stop();
     if ( comm->getRank() == 0 )
     {
@@ -128,7 +125,8 @@ int main( int argc, char * argv[] )
     interpolation_timer.start(true);
     interpolator.interpolate( 
 	source_function(), 1, source_function.size(),
-	target_function(), 1, target_function.size() );
+	target_function(), 1, target_function.size(),
+	100, 1.0e-8 );
     interpolation_timer.stop();
     if ( comm->getRank() == 0 )
     {

@@ -50,6 +50,7 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Ptr.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_ParameterList.hpp>
 
 #include <Tpetra_Map.hpp>
 
@@ -61,7 +62,29 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Single parameter constructor.
+ * \brief Constructor.
+ *
+ * \param comm The parallel communicator over which the perform the
+ * interpolation.
+ *
+ * \param source_centers The cartesian coordinates of the source
+ * centers. Coordinates must be interleaved
+ * (x0,y0,z0,x1,y1,z1,...,xN,yN,zN). If there are no source centers on this
+ * process then provide an array view of size 0.
+ *
+ * \param target_centers The cartesian coordinates of the target
+ * centers. Coordinates must be interleaved
+ * (x0,y0,z0,x1,y1,z1,...,xN,yN,zN). If there are no target centers on this
+ * process then provide an array view of size 0.
+ *
+ * \brief radius The radius over which the basis functions will be
+ * defined. Must be greater than 0.
+ *
+ * \brief alpha Derivative contribution parameter. Must be greater than or
+ * equal to zero. A value of zero will give no derivative contributions to the
+ * interpolation.
+ * 
+ * \brief params
  */
 //---------------------------------------------------------------------------//
 template<class Basis, class GO, int DIM>
@@ -70,23 +93,11 @@ SplineInterpolator<Basis,GO,DIM>::SplineInterpolator(
     const Teuchos::ArrayView<const double>& source_centers,
     const Teuchos::ArrayView<const double>& target_centers,
     const double radius,
-    const double alpha,
-    const Teuchos::RCP<Teuchos::ParameterList>& params )
+    const double alpha )
     : d_comm( comm )
-    , d_params( params )
 {
     DTK_REQUIRE( 0 == source_centers.size() % DIM );
     DTK_REQUIRE( 0 == target_centers.size() % DIM );
-
-    // Add some additional parameters.
-    int verbosityLevel = Belos::IterationDetails | 
-			 Belos::OrthoDetails |
-			 Belos::FinalSummary |
-			 Belos::TimingDetails |
-			 Belos::StatusTestDetails |
-			 Belos::Warnings | 
-			 Belos::Errors;
-    d_params->set("Verbosity", verbosityLevel);
 
     // Build the interpolation and transformation operators.
     buildOperators( source_centers, target_centers, radius, alpha );
@@ -100,6 +111,32 @@ SplineInterpolator<Basis,GO,DIM>::SplineInterpolator(
  * \brief Given a set of scalar values at the given source centers in the
  *  source decomposition, interpolate them onto the target centers in the
  *  target decomposition.
+ *
+ * \param source_data View of the source data defined at the source
+ * centers. The data must be blocked by dimension. If there is no data on this
+ * process then the view must be of size 0.
+ *
+ * \param num_source_dims Number of source data dimensions. Must be the same
+ * as the number of target data dimensions.
+ *
+ * \param source_lda The stride of the source vectors. Must be equal to the
+ * number of source centers.
+ *
+ * \param target_data View of the target data defined at the target
+ * centers. The data must be blocked by dimension. If there is no data on this
+ * process then the view must be of size 0.
+ *
+ * \param num_target_dims Number of target data dimensions. Must be the same
+ * as the number of target data dimensions.
+ *
+ * \param target_lda The stride of the target vectors. Must be equal to the
+ * number of target centers.
+ *
+ * \param max_solve_iterations Maximum number of linear solver iterations
+ * allowed in the interpolation solution.
+ *
+ * \param solve_convergence_tolerance Linear solver convergence tolerance for
+ * the interpolation solution.
  */
 template<class Basis, class GO, int DIM>
 void SplineInterpolator<Basis,GO,DIM>::interpolate( 
@@ -108,11 +145,26 @@ void SplineInterpolator<Basis,GO,DIM>::interpolate(
     const int source_lda,
     const Teuchos::ArrayView<double>& target_data,
     const int num_target_dims,
-    const int target_lda ) const
+    const int target_lda,
+    const int max_solve_iterations,
+    const double solve_convergence_tolerance ) const
 {
     DTK_REQUIRE( num_source_dims == num_target_dims );
     DTK_REQUIRE( source_data.size() == source_lda * num_source_dims );
     DTK_REQUIRE( target_data.size() == target_lda * num_target_dims );
+
+    // Set the linear solver parameters.
+    Teuchos::RCP<Teuchos::ParameterList> params = Teuchos::parameterList();
+    params->set( "Maximum Iterations", max_solve_iterations );
+    params->set( "Convergence Tolerance", solve_convergence_tolerance );
+    int verbosityLevel = Belos::IterationDetails | 
+			 Belos::OrthoDetails |
+			 Belos::FinalSummary |
+			 Belos::TimingDetails |
+			 Belos::StatusTestDetails |
+			 Belos::Warnings | 
+			 Belos::Errors;
+    params->set("Verbosity", verbosityLevel);
 
     // Allocate a work vector.
     MV work_vec( d_C->getDomainMap(), num_source_dims );
@@ -143,7 +195,7 @@ void SplineInterpolator<Basis,GO,DIM>::interpolate(
 
 	// Create the solver.
 	Belos::PseudoBlockGmresSolMgr<double,MV,OP> solver( 
-	    Teuchos::rcpFromRef(problem), d_params );
+	    Teuchos::rcpFromRef(problem), params );
 
 	// Apply the inverse of the interpolation operator.
 	Belos::ReturnType rt = solver.solve();

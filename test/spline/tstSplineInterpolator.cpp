@@ -115,14 +115,14 @@ TEUCHOS_UNIT_TEST( SplineInterpolator, dim_1_test )
     double radius = 1.0;
     double alpha = 1.0;
 
-    Teuchos::RCP<Teuchos::ParameterList> params = Teuchos::parameterList();
     typedef DataTransferKit::WendlandBasis<2> BasisType;
     DataTransferKit::SplineInterpolator<BasisType,int,1> interpolator( 
-	comm, src_coords(), tgt_coords(), radius, alpha, params );
+	comm, src_coords(), tgt_coords(), radius, alpha );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
     interpolator.interpolate( src_data(), 1, src_data.size(),
-			      tgt_data(), 1, tgt_data.size() );
+			      tgt_data(), 1, tgt_data.size(),
+			      100, 1.0e-8 );
 
     for ( int i = 0; i < num_tgt_points; ++i )
     {
@@ -179,14 +179,14 @@ TEUCHOS_UNIT_TEST( SplineInterpolator, dim_2_test )
     double radius = 1.0;
     double alpha = 1.0;
 
-    Teuchos::RCP<Teuchos::ParameterList> params = Teuchos::parameterList();
     typedef DataTransferKit::WendlandBasis<2> BasisType;
     DataTransferKit::SplineInterpolator<BasisType,int,2> interpolator( 
-	comm, src_coords(), tgt_coords(), radius, alpha, params );
+	comm, src_coords(), tgt_coords(), radius, alpha );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
     interpolator.interpolate( src_data(), 1, src_data.size(),
-			      tgt_data(), 1, tgt_data.size() );
+			      tgt_data(), 1, tgt_data.size(),
+			      100, 1.0e-8 );
     for ( int i = 0; i < num_tgt_points; ++i )
     {
 	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*inverse_rank + 1.0, epsilon );
@@ -268,14 +268,14 @@ TEUCHOS_UNIT_TEST( SplineInterpolator, dim_3_test )
     double radius = 1.0;
     double alpha = 1.0;
 
-    Teuchos::RCP<Teuchos::ParameterList> params = Teuchos::parameterList();
     typedef DataTransferKit::WendlandBasis<2> BasisType;
     DataTransferKit::SplineInterpolator<BasisType,int,3> interpolator( 
-	comm, src_coords(), tgt_coords(), radius, alpha, params );
+	comm, src_coords(), tgt_coords(), radius, alpha );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
     interpolator.interpolate( src_data(), 1, src_data.size(),
-			      tgt_data(), 1, tgt_data.size() );
+			      tgt_data(), 1, tgt_data.size(),
+			      100, 1.0e-8 );
     for ( int i = 0; i < num_tgt_points; ++i )
     {
 	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*inverse_rank + 1.0, epsilon );
