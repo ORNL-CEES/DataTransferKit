@@ -76,6 +76,9 @@ class CloudDomain
     // Determine if a point is in the domain.
     bool pointInDomain( const Teuchos::ArrayView<const double>& coords ) const;
 
+    // Determine if the given domain intersects this domain.
+    bool checkForIntersection( const CloudDomain<DIM>& domain ) const;
+
     // Get the center of the domain.
     Teuchos::Array<double> center() const;
 

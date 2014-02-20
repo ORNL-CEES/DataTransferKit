@@ -72,15 +72,31 @@ CenterDistributor<DIM>::CenterDistributor(
 	double radius_tol = 1.0e-2;
 	double radius_expand = radius * (1.0 + radius_tol);
 
-	// Gather the bounding domains for each proc.
-	CloudDomain<DIM> local_domain = localCloudDomain( target_centers );
-	local_domain.expand( radius_expand );
-	Teuchos::Array<CloudDomain<DIM> > global_domains( comm->getSize() );
-	Teuchos::gatherAll<int,CloudDomain<DIM> >( *comm,
-						   1,
-						   &local_domain,
-						   global_domains.size(),
-						   global_domains.getRawPtr() );
+	// Gather the bounding domains for each target proc.
+	CloudDomain<DIM> local_target_domain = localCloudDomain( target_centers );
+	local_target_domain.expand( radius_expand );
+	Teuchos::Array<CloudDomain<DIM> > global_target_domains( comm->getSize() );
+	Teuchos::gatherAll<int,CloudDomain<DIM> >( 
+	    *comm,
+	    1,
+	    &local_target_domain,
+	    global_target_domains.size(),
+	    global_target_domains.getRawPtr() );
+
+	// Get those that are neighbors to this source proc.
+	CloudDomain<DIM> local_source_domain = localCloudDomain( source_centers );
+	Teuchos::Array<CloudDomain<DIM> > neighbor_target_domains;
+	Teuchos::Array<int> neighbor_ranks;
+	for ( unsigned i = 0; i < global_target_domains.size(); ++i )
+	{
+	    if ( local_source_domain.checkForIntersection(
+		     global_target_domains[i]) )
+	    {
+		neighbor_target_domains.push_back(global_target_domains[i]);
+		neighbor_ranks.push_back(i);
+	    }
+	}
+	global_target_domains.clear();
 
 	// Find the procs to which the sources will be sent.
 	Teuchos::ArrayView<const double> source_point;
@@ -89,11 +105,11 @@ CenterDistributor<DIM>::CenterDistributor(
 	      ++source_id )
 	{
 	    source_point = source_centers.view( DIM*source_id, DIM );
-	    for ( unsigned b = 0; b < global_domains.size(); ++b )
+	    for ( unsigned b = 0; b < neighbor_target_domains.size(); ++b )
 	    {
-		if ( global_domains[b].pointInDomain(source_point) )
+		if ( neighbor_target_domains[b].pointInDomain(source_point) )
 		{
-		    export_procs.push_back( b );
+		    export_procs.push_back( neighbor_ranks[b] );
 		    d_export_ids.push_back( source_id );
 		}
 	    }

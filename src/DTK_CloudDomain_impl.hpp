@@ -178,6 +178,60 @@ inline bool CloudDomain<3>::pointInDomain(
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Determine if the given domain intersects this domain. 
+ *
+ * \param domain The domain to check for intersection.
+ *
+ * \return Return true if the there is an intersection. false if not.
+ */
+template<>
+inline bool CloudDomain<1>::checkForIntersection( 
+    const CloudDomain<1>& domain ) const
+{
+    Teuchos::ArrayView<const double> bounds = domain.bounds();
+
+    return !( ( d_bounds[0] > bounds[1] || d_bounds[1] < bounds[0] ) );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Determine if the given domain intersects this domain. 
+ *
+ * \param domain The domain to check for intersection.
+ *
+ * \return Return true if the there is an intersection. false if not.
+ */
+template<>
+inline bool CloudDomain<2>::checkForIntersection( 
+    const CloudDomain<2>& domain ) const
+{
+    Teuchos::ArrayView<const double> bounds = domain.bounds();
+
+    return !( ( d_bounds[0] > bounds[1] || d_bounds[1] < bounds[0] ) ||
+	      ( d_bounds[2] > bounds[3] || d_bounds[3] < bounds[2] ) );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Determine if the given domain intersects this domain. 
+ *
+ * \param domain The domain to check for intersection.
+ *
+ * \return Return true if the there is an intersection. false if not.
+ */
+template<>
+inline bool CloudDomain<3>::checkForIntersection( 
+    const CloudDomain<3>& domain ) const
+{
+    Teuchos::ArrayView<const double> bounds = domain.bounds();
+
+    return !( ( d_bounds[0] > bounds[1] || d_bounds[1] < bounds[0] ) ||
+	      ( d_bounds[2] > bounds[3] || d_bounds[3] < bounds[2] ) ||
+	      ( d_bounds[4] > bounds[5] || d_bounds[5] < bounds[4] ) );
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Compute the center of the domain.
  */
 template<>
