@@ -116,8 +116,8 @@ TEUCHOS_UNIT_TEST( SplineInterpolator, dim_1_test )
     double alpha = 1.0;
 
     typedef DataTransferKit::WendlandBasis<2> BasisType;
-    DataTransferKit::SplineInterpolator<BasisType,int,1> interpolator( 
-	comm, src_coords(), tgt_coords(), radius, alpha );
+    DataTransferKit::SplineInterpolator<BasisType,int,1> interpolator( comm );
+    interpolator.setProblem( src_coords(), tgt_coords(), radius, alpha );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
     interpolator.interpolate( src_data(), 1, src_data.size(),
@@ -180,8 +180,8 @@ TEUCHOS_UNIT_TEST( SplineInterpolator, dim_2_test )
     double alpha = 1.0;
 
     typedef DataTransferKit::WendlandBasis<2> BasisType;
-    DataTransferKit::SplineInterpolator<BasisType,int,2> interpolator( 
-	comm, src_coords(), tgt_coords(), radius, alpha );
+    DataTransferKit::SplineInterpolator<BasisType,int,2> interpolator( comm );
+    interpolator.setProblem( src_coords(), tgt_coords(), radius, alpha );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
     interpolator.interpolate( src_data(), 1, src_data.size(),
@@ -269,8 +269,8 @@ TEUCHOS_UNIT_TEST( SplineInterpolator, dim_3_test )
     double alpha = 1.0;
 
     typedef DataTransferKit::WendlandBasis<2> BasisType;
-    DataTransferKit::SplineInterpolator<BasisType,int,3> interpolator( 
-	comm, src_coords(), tgt_coords(), radius, alpha );
+    DataTransferKit::SplineInterpolator<BasisType,int,3> interpolator( comm );
+    interpolator.setProblem( src_coords(), tgt_coords(), radius, alpha );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
     interpolator.interpolate( src_data(), 1, src_data.size(),

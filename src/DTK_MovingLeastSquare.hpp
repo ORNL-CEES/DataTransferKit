@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_SplineInterpolator.hpp
+ * \file   DTK_MovingLeastSquares.hpp
  * \author Stuart R. Slattery
- * \brief Parallel spline interpolator.
+ * \brief Parallel moving least square interpolator.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SPLINEINTERPOLATOR_HPP
-#define DTK_SPLINEINTERPOLATOR_HPP
+#ifndef DTK_MOVINGLEASTSQUARE_HPP
+#define DTK_MOVINGLEASTSQUARE_HPP
 
 #include "DTK_MeshFreeInterpolator.hpp"
 #include "DTK_RadialBasisPolicy.hpp"
@@ -49,22 +49,19 @@
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
 
-#include <Tpetra_MultiVector.hpp>
-#include <Tpetra_Operator.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class SplineInterpolator
- * \brief Parallel spline interpolator.
+ * \class MovingLeastSquare
+ * \brief Parallel moving least square interpolator.
  *
- * The SplineInterpolator is the top-level driver for parallel interpolation
+ * The MovingLeastSquare is the top-level driver for parallel interpolation
  * problems.
  */
 //---------------------------------------------------------------------------//
 template<class Basis, class GO, int DIM>
-class SplineInterpolator : public MeshFreeInterpolator
+class MovingLeastSquare : public MeshFreeInterpolator
 {
   public:
 
@@ -76,10 +73,10 @@ class SplineInterpolator : public MeshFreeInterpolator
     //@}
 
     // Constructor.
-    SplineInterpolator( const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
+    MovingLeastSquare( const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
 
     //! Destructor.
-    ~SplineInterpolator()
+    ~MovingLeastSquare()
     { /* ... */ }
 
     // Set the interpolation problem.
@@ -102,8 +99,8 @@ class SplineInterpolator : public MeshFreeInterpolator
 
   private:
 
-    // Build the interpolation and transformation operators.
-    void buildOperators(
+    // Build the local interpolation problems.
+    void buildLocalProblems(
 	const Teuchos::ArrayView<const double>& source_centers,
 	const Teuchos::ArrayView<const double>& target_centers,
 	const double radius,
@@ -114,11 +111,11 @@ class SplineInterpolator : public MeshFreeInterpolator
     // Parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
-    // The C matrix.
-    Teuchos::RCP<Tpetra::Operator<double,int,GO> > d_C;
+    // Source-to-target distributor.
+    Teuchos::RCP<CenterDistributor<DIM> > d_distributor;
 
-    // The A matrix.
-    Teuchos::RCP<Tpetra::Operator<double,int,GO> > d_A;
+    // Local interpolation problems.
+    Teuchos::Array<LocalMLSProblem<Basis,GO,DIM> > d_local_problems;
 };
 
 //---------------------------------------------------------------------------//
@@ -129,13 +126,13 @@ class SplineInterpolator : public MeshFreeInterpolator
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_SplineInterpolator_impl.hpp"
+#include "DTK_MovingLeastSquare_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_SPLINEINTERPOLATOR_HPP
+#endif // end DTK_MOVINGLEASTSQUARE_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_SplineInterpolator.hpp
+// end DTK_MovingLeastSquare.hpp
 //---------------------------------------------------------------------------//
 

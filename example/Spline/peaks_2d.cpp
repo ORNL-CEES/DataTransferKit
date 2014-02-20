@@ -94,9 +94,9 @@ int main( int argc, char * argv[] )
     Teuchos::Array<double> target_function( (N-1)*(N-1) );
 
     // Interpolation basis order.
-    const int basis_order = 4;
+    const int basis_order = 2;
 
-    // Radius.
+    // Support radius.
     double radius = 2.0*h;
 
     // Derivative contribution.
@@ -109,8 +109,8 @@ int main( int argc, char * argv[] )
     std::cout << "Building DataTransferKit::SplineInterpolator" << std::endl;
     Teuchos::Time construction_timer("");
     construction_timer.start(true);
-    DataTransferKit::SplineInterpolator<WuBasis,int,dim> interpolator( 
-	comm, grid_nodes(), target_centers(), radius, alpha );
+    DataTransferKit::SplineInterpolator<WendlandBasis,int,dim> interpolator( comm );
+    interpolator.setProblem( grid_nodes(), target_centers(), radius, alpha );
     construction_timer.stop();
     if ( comm->getRank() == 0 )
     {
