@@ -52,6 +52,9 @@
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
 
+#include <Tpetra_CrsMatrix.hpp>
+#include <Tpetra_Map.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -101,8 +104,8 @@ class MovingLeastSquare : public MeshFreeInterpolator
 
   private:
 
-    // Build the local interpolation problems.
-    void buildLocalProblems(
+    // Build the interpolation matrix.
+    void buildInterpolationMatrix(
 	const Teuchos::ArrayView<const double>& source_centers,
 	const Teuchos::ArrayView<const double>& target_centers,
 	const double radius,
@@ -113,14 +116,14 @@ class MovingLeastSquare : public MeshFreeInterpolator
     // Parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
-    // Source-to-target distributor.
-    Teuchos::RCP<CenterDistributor<DIM> > d_distributor;
+    // Source map.
+    Teuchos::RCP<const Tpetra::Map<int,GO> > d_source_map;
+    
+    // Target map.
+    Teuchos::RCP<const Tpetra::Map<int,GO> > d_target_map;
 
-    // Source-target pairings.
-    Teuchos::RCP<SplineInterpolationPairing<DIM> > d_pairings;
-
-    // Local interpolation problems.
-    Teuchos::Array<LocalMLSProblem<Basis,GO,DIM> > d_local_problems;
+    // Interpolation matrix.
+    Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > d_H;
 };
 
 //---------------------------------------------------------------------------//

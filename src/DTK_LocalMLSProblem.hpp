@@ -80,10 +80,9 @@ class LocalMLSProblem
     ~LocalMLSProblem()
     { /* ... */ }
 
-    // Solve the local problem by applying the shape function to the degrees
-    // of freedom at the given source centers.
-    double solve( const Teuchos::ArrayView<const double>& source_data,
-		  const Teuchos::ArrayView<const unsigned>& source_lids ) const;
+    // Get a view of the local shape function.
+    Teuchos::ArrayView<const double> shapeFunction() const
+    { return d_shape_function(); }
 
   private:
 

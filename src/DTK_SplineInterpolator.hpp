@@ -49,8 +49,8 @@
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
 
-#include <Tpetra_MultiVector.hpp>
 #include <Tpetra_Operator.hpp>
+#include <Tpetra_MultiVector.hpp>
 
 namespace DataTransferKit
 {

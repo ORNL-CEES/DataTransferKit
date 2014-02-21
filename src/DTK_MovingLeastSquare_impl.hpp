@@ -48,11 +48,7 @@
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_ParameterList.hpp>
 
-#include <Tpetra_Map.hpp>
-
-#include <BelosPseudoBlockGmresSolMgr.hpp>
-#include <BelosTpetraAdapter.hpp>
-#include <BelosLinearProblem.hpp>
+#include <Tpetra_MultiVector.hpp>
 
 namespace DataTransferKit
 {
@@ -103,11 +99,10 @@ void MovingLeastSquare<Basis,GO,DIM>::setProblem(
     DTK_REQUIRE( alpha >= 0.0 );
     DTK_REQUIRE( radius > 0.0 );
 
-    // Build the local interpolation problems.
-    buildLocalProblems( source_centers, target_centers, radius, alpha );
+    // Build the interpolation matrix.
+    buildInterpolationMatrix( source_centers, target_centers, radius, alpha );
 
-    DTK_ENSURE( Teuchos::nonnull(d_distributor) );
-    DTK_ENSURE( d_local_problems.size() == target_centers.size() / DIM );
+    DTK_ENSURE( Teuchos::nonnull(d_H) );
 }
 
 //---------------------------------------------------------------------------//
@@ -157,71 +152,113 @@ void MovingLeastSquare<Basis,GO,DIM>::interpolate(
     DTK_REQUIRE( source_data.size() == source_lda * num_source_dims );
     DTK_REQUIRE( target_data.size() == target_lda * num_target_dims );
 
-    // Distribute the source data to the target decomposition.
-    int dist_source_lda = d_distributor->getNumImports();
-    Teuchos::Array<double> dist_source_data( num_source_dims*dist_source_lda );
-    Teuchos::ArrayView<const double> source_dim_view;
-    Teuchos::ArrayView<double> dist_source_dim_view;
-    for ( int n = 0; n < num_source_dims; ++n )
-    {
-	source_dim_view = source_data( source_lda*n, source_lda );
-	dist_source_dim_view = dist_source_data(
-	    dist_source_lda*n, dist_source_lda );
-	d_distributor->distribute( source_dim_view, dist_source_dim_view );
-    }
+    // Build the source vector.
+    Teuchos::ArrayRCP<double> source_data_view(
+	const_cast<double*>(source_data.getRawPtr()), 0, 
+	source_data.size(), false );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,GO> >
+	source_vec = Tpetra::createMultiVectorFromView( 
+	    d_source_map, source_data_view, source_lda, num_source_dims );
 
-    // Solve the local interpolation problems.
-    DTK_CHECK( target_lda == d_local_problems.size() );
-    for ( int n = 0; n < num_source_dims; ++n )
-    {
-	dist_source_dim_view = dist_source_data(
-	    dist_source_lda*n, dist_source_lda );
+    // Build the target vector.
+    Teuchos::ArrayRCP<double> target_data_view =
+	Teuchos::arcpFromArrayView(target_data);
+    Teuchos::RCP<Tpetra::MultiVector<double,int,GO> >
+	target_vec = Tpetra::createMultiVectorFromView( 
+	    d_target_map, target_data_view, target_lda, num_target_dims );
 
-	for ( int i = 0; i < target_lda; ++i )
-	{
-	    target_data[n*target_lda+i] =
-		d_local_problems[i].solve( dist_source_dim_view,
-					   d_pairings->childCenterIds(i) );
-	}
-    }
+    // Apply the interpolation matrix.
+    d_H->apply( *source_vec, *target_vec );
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Build the local interpolation problems.
+ * \brief Build the interpolation matrix.
  */
 template<class Basis, class GO, int DIM>
-void MovingLeastSquare<Basis,GO,DIM>::buildLocalProblems(
+void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
     const Teuchos::ArrayView<const double>& source_centers,
     const Teuchos::ArrayView<const double>& target_centers,
     const double radius,
     const double alpha )
 {
+    // Build the source map.
+    GO local_num_src = source_centers.size() / DIM;
+    GO global_num_src = 0;
+    Teuchos::reduceAll<int,GO>( *d_comm, 
+				Teuchos::REDUCE_SUM,
+				local_num_src,
+				Teuchos::Ptr<GO>(&global_num_src) );
+    d_source_map = Tpetra::createContigMap<int,GO>( global_num_src,
+						    local_num_src,
+						    d_comm );
+
+    // Create the source global ids.
+    Teuchos::Array<GO> source_gids( local_num_src );
+    for ( GO j = 0; j < local_num_src; ++j )
+    {
+	source_gids[j] = d_source_map->getMinGlobalIndex() + j;
+    }
+
+    // Build the target map.
+    GO local_num_tgt = target_centers.size() / DIM;
+    GO global_num_tgt = 0;
+    Teuchos::reduceAll<int,GO>( *d_comm, 
+				Teuchos::REDUCE_SUM,
+				local_num_tgt,
+				Teuchos::Ptr<GO>(&global_num_tgt) );
+    d_target_map = Tpetra::createContigMap<int,GO>( global_num_tgt,
+						    local_num_tgt,
+						    d_comm );
+
+    // Create the target global ids.
+    Teuchos::Array<GO> target_gids( local_num_tgt );
+    for ( GO j = 0; j < local_num_tgt; ++j )
+    {
+	target_gids[j] = d_target_map->getMinGlobalIndex() + j;
+    }
+
     // Build the basis.
     Teuchos::RCP<Basis> basis = BP::create( radius );
 
     // Gather the source centers that are within a radius of the target
     // centers on this proc.
     Teuchos::Array<double> dist_sources;
-    d_distributor = Teuchos::rcp( 
-	new CenterDistributor<DIM>( 
-	    d_comm, source_centers, target_centers, radius, dist_sources) );
+    CenterDistributor<DIM> distributor( 
+	d_comm, source_centers, target_centers, radius, dist_sources );
 
     // Build the source/target pairings.
-    d_pairings = Teuchos::rcp( new SplineInterpolationPairing<DIM>(
-				   dist_sources, target_centers, radius) );
+    SplineInterpolationPairing<DIM> pairings( 
+	dist_sources, target_centers, radius );
 
-    // Build the local problems.
-    int num_targets = target_centers.size() / DIM;
-    d_local_problems.resize( num_targets );
+    // Build the interpolation matrix.
+    d_H = Tpetra::createCrsMatrix<double,int,GO>( d_target_map );
     Teuchos::ArrayView<const double> target_view;
-    for ( int n = 0; n < num_targets; ++n )
+    Teuchos::Array<GO> indices;
+    Teuchos::ArrayView<const double> values;
+    for ( int i = 0; i < local_num_tgt; ++i )
     {
-	target_view = target_centers(n*DIM,DIM);
-	d_local_problems[n] = LocalMLSProblem<Basis,GO,DIM>(
-	    target_view, d_pairings->childCenterIds(n),
+	// Get a view of this target center.
+	target_view = target_centers(i*DIM,DIM);
+
+	// Build the local interpolation problem.
+	LocalMLSProblem<Basis,GO,DIM> local_problem(
+	    target_view, pairings.childCenterIds(i),
 	    dist_sources, *basis, alpha );
+
+	// Populate the interpolation matrix row.
+	values = local_problem.shapeFunction();
+	indices.resize( values.size() );
+	for ( unsigned j = 0; j < values.size(); ++j )
+	{
+	    indices[j] = source_gids[ pairings.childCenterIds(i)[j] ];
+	}
+
+	d_H->insertGlobalValues( target_gids[i], indices(), values );
     }
+
+    d_H->fillComplete( d_target_map, d_source_map );
+    DTK_ENSURE( d_H->isFillComplete() );
 }
 
 //---------------------------------------------------------------------------//

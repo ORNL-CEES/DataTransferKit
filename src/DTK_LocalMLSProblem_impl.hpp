@@ -170,30 +170,6 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 }
 
 //---------------------------------------------------------------------------//
-/*!
- * \brief Solve the local problem by applying the shape function to the
- * degrees of freedom at the given source centers.
- */
-template<class Basis, class GO, int DIM>
-double LocalMLSProblem<Basis,GO,DIM>::solve( 
-    const Teuchos::ArrayView<const double>& source_data,
-    const Teuchos::ArrayView<const unsigned>& source_lids ) const
-{
-    DTK_REQUIRE( source_lids.size() == d_shape_function.size() );
-    double target_data = 0.0;
-    Teuchos::Array<double>::const_iterator shape_it;
-    Teuchos::ArrayView<const unsigned>::const_iterator lid_it;
-    for ( shape_it = d_shape_function.begin(), lid_it = source_lids.begin();
-	  shape_it != d_shape_function.end();
-	  ++shape_it, ++lid_it )
-    {
-	target_data += *shape_it * source_data[*lid_it];
-    }
-
-    return target_data;
-}
-
-//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
