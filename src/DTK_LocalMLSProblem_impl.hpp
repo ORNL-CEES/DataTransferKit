@@ -71,7 +71,10 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
     int num_sources = source_lids.size();
 
     // Build the matrix of basis evaluations and the P matrix.
-    int poly_size = DIM+1;
+    int poly_size = 0;
+    if ( 1 == DIM ) poly_size = 2;
+    else if ( 2 == DIM ) poly_size = 5;
+    else if ( 3 == DIM ) poly_size = 9;
     Teuchos::SerialDenseMatrix<int,double> P( num_sources, poly_size );
     Teuchos::SerialDenseMatrix<int,double> phi( num_sources, num_sources );
     Teuchos::ArrayView<const double> source_center_view;
@@ -90,29 +93,59 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 	}
 
 	// Polynomial matrix.
-	P(i,0) = 1;
-	P(i,1) = source_center_view[0];
-	if ( 1 < DIM )
+	if ( 1 == DIM )
 	{
-	    P(i,2) = source_center_view[1];
+	    P(i,0) = source_center_view[0]*source_center_view[0];
+	    P(i,0) = source_center_view[0];
 	}
-	if ( 2 < DIM )
+	else if ( 2 == DIM )
 	{
-	    P(i,3) = source_center_view[2];
+	    P(i,0) = source_center_view[0]*source_center_view[0];
+	    P(i,1) = source_center_view[0]*source_center_view[1];
+	    P(i,2) = source_center_view[1]*source_center_view[1];
+	    P(i,3) = source_center_view[0];
+	    P(i,4) = source_center_view[1];
+	}
+	else if ( 3 == DIM )
+	{
+	    P(i,0) = source_center_view[0]*source_center_view[0];
+	    P(i,1) = source_center_view[0]*source_center_view[1];
+	    P(i,2) = source_center_view[0]*source_center_view[2];
+	    P(i,3) = source_center_view[1]*source_center_view[2];
+	    P(i,4) = source_center_view[1]*source_center_view[1];
+	    P(i,5) = source_center_view[2]*source_center_view[2];
+	    P(i,6) = source_center_view[0];
+	    P(i,7) = source_center_view[1];
+	    P(i,8) = source_center_view[2];
 	}
     }
 
     // Build the target polynomial.
     Teuchos::SerialDenseVector<int,double> target_poly( poly_size );
-    target_poly(0) = 1;
-    target_poly(1) = target_center[0];
-    if ( 1 < DIM )
+    if ( 1 == DIM )
     {
-	target_poly(2) = target_center[1];
+	target_poly(0) = target_center[0]*target_center[0];
+	target_poly(0) = target_center[0];
     }
-    if ( 2 < DIM )
+    else if ( 2 == DIM )
     {
-	target_poly(3) = target_center[2];
+	target_poly(0) = target_center[0]*target_center[0];
+	target_poly(1) = target_center[0]*target_center[1];
+	target_poly(2) = target_center[1]*target_center[1];
+	target_poly(3) = target_center[0];
+	target_poly(4) = target_center[1];
+    }
+    else if ( 3 == DIM )
+    {
+	target_poly(0) = target_center[0]*target_center[0];
+	target_poly(1) = target_center[0]*target_center[1];
+	target_poly(2) = target_center[0]*target_center[2];
+	target_poly(3) = target_center[1]*target_center[2];
+	target_poly(4) = target_center[1]*target_center[1];
+	target_poly(5) = target_center[2]*target_center[2];
+	target_poly(6) = target_center[0];
+	target_poly(7) = target_center[1];
+	target_poly(8) = target_center[2];
     }
 
     // Construct and invert the A matrix.

@@ -52,7 +52,7 @@ namespace DataTransferKit
 /*!
  * \class LocalMLSProblem
  * \brief Local moving least square problem about a single target center using
- * linear polynomials.
+ * quadratic polynomials.
  */
 //---------------------------------------------------------------------------//
 template<class Basis, class GO, int DIM>
