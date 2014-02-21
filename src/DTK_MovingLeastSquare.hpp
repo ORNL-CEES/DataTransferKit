@@ -60,7 +60,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class MovingLeastSquare
- * \brief Parallel moving least square interpolator with quadratic
+ * \brief Parallel moving least square interpolator with linaer
  * polynomials.
  *
  * The MovingLeastSquare is the top-level driver for parallel interpolation

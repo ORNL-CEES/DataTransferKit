@@ -257,7 +257,7 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
 	d_H->insertGlobalValues( target_gids[i], indices(), values );
     }
 
-    d_H->fillComplete( d_target_map, d_source_map );
+    d_H->fillComplete( d_source_map, d_target_map );
     DTK_ENSURE( d_H->isFillComplete() );
 }
 
