@@ -106,6 +106,8 @@ void SplineInterpolator<Basis,GO,DIM>::setProblem(
 {
     DTK_REQUIRE( 0 == source_centers.size() % DIM );
     DTK_REQUIRE( 0 == target_centers.size() % DIM );
+    DTK_REQUIRE( alpha >= 0.0 );
+    DTK_REQUIRE( radius > 0.0 );
 
     // Build the interpolation and transformation operators.
     buildOperators( source_centers, target_centers, radius, alpha );

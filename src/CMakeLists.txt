@@ -63,7 +63,10 @@ APPEND_SET(HEADERS
   DTK_IntrepidCell_impl.hpp
   DTK_IntrepidSideCell.hpp
   DTK_IntrepidSideCell_impl.hpp
+  DTK_LocalMLSProblem.hpp
+  DTK_LocalMLSProblem_impl.hpp
   DTK_MeshContainer.hpp
+  DTK_MeshFreeInterpolator.hpp
   DTK_MeshManager.hpp
   DTK_MeshManager_def.hpp
   DTK_MeshTools.hpp
@@ -71,6 +74,8 @@ APPEND_SET(HEADERS
   DTK_MeshTraits.hpp
   DTK_MeshTraitsFieldAdapter.hpp
   DTK_MeshTypes.hpp
+  DTK_MovingLeastSquare.hpp
+  DTK_MovingLeastSquare_impl.hpp
   DTK_Partitioner.hpp
   DTK_PartitionerFactory.hpp
   DTK_RadialBasisPolicy.hpp

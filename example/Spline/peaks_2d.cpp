@@ -13,6 +13,8 @@
 #include <sstream>
 #include <cstdlib>
 
+#include <DTK_MeshFreeInterpolator.hpp>
+#include <DTK_MovingLeastSquare.hpp>
 #include <DTK_SplineInterpolator.hpp>
 #include <DTK_WendlandBasis.hpp>
 #include <DTK_WuBasis.hpp>
@@ -102,15 +104,29 @@ int main( int argc, char * argv[] )
     // Derivative contribution.
     double alpha = 0.0;
 
+    // Interpolation type.
+    std::string interpolation_type = "MLS";
+
     // Build the interpolation object.
     typedef DataTransferKit::WendlandBasis<basis_order> WendlandBasis;
     typedef DataTransferKit::WuBasis<basis_order> WuBasis;
     typedef DataTransferKit::BuhmannBasis<basis_order> BuhmannBasis;
+    typedef WendlandBasis BasisType;
+    Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator;
+    if ( "MLS" == interpolation_type )
+    {
+	interpolator = Teuchos::rcp( 
+	    new DataTransferKit::MovingLeastSquare<BasisType,int,dim>(comm) );
+    }
+    else if ( "Splines" == interpolation_type )
+    {
+	interpolator = Teuchos::rcp( 
+	    new DataTransferKit::SplineInterpolator<BasisType,int,dim>(comm) );
+    }
     std::cout << "Building DataTransferKit::SplineInterpolator" << std::endl;
     Teuchos::Time construction_timer("");
     construction_timer.start(true);
-    DataTransferKit::SplineInterpolator<WendlandBasis,int,dim> interpolator( comm );
-    interpolator.setProblem( grid_nodes(), target_centers(), radius, alpha );
+    interpolator->setProblem( grid_nodes(), target_centers(), radius, alpha );
     construction_timer.stop();
     if ( comm->getRank() == 0 )
     {
@@ -123,7 +139,7 @@ int main( int argc, char * argv[] )
     std::cout << "Performing interpolation" << std::endl;
     Teuchos::Time interpolation_timer("");
     interpolation_timer.start(true);
-    interpolator.interpolate( 
+    interpolator->interpolate( 
 	source_function(), 1, source_function.size(),
 	target_function(), 1, target_function.size(),
 	100, 1.0e-8 );

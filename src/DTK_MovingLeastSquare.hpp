@@ -43,6 +43,9 @@
 
 #include "DTK_MeshFreeInterpolator.hpp"
 #include "DTK_RadialBasisPolicy.hpp"
+#include "DTK_CenterDistributor.hpp"
+#include "DTK_SplineInterpolationPairing.hpp"
+#include "DTK_LocalMLSProblem.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -54,7 +57,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class MovingLeastSquare
- * \brief Parallel moving least square interpolator with second-order
+ * \brief Parallel moving least square interpolator with quadratic
  * polynomials.
  *
  * The MovingLeastSquare is the top-level driver for parallel interpolation
@@ -69,8 +72,6 @@ class MovingLeastSquare : public MeshFreeInterpolator
     //@{
     //! Typedefs.
     typedef RadialBasisPolicy<Basis> BP;
-    typedef Tpetra::Operator<double,int,GO> OP;
-    typedef Tpetra::MultiVector<double,int,GO> MV;
     //@}
 
     // Constructor.

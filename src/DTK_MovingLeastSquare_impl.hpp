@@ -42,10 +42,6 @@
 #define DTK_MOVINGLEASTSQUARE_IMPL_HPP
 
 #include "DTK_DBC.hpp"
-#include "DTK_CenterDistributor.hpp"
-#include "DTK_SplineInterpolationPairing.hpp"
-#include "DTK_SplineOperatorC.hpp"
-#include "DTK_SplineOperatorA.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Ptr.hpp>
@@ -69,7 +65,7 @@ namespace DataTransferKit
  */
 //---------------------------------------------------------------------------//
 template<class Basis, class GO, int DIM>
-MovingLeastSquares<Basis,GO,DIM>::MovingLeastSquare( 
+MovingLeastSquare<Basis,GO,DIM>::MovingLeastSquare( 
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
     : d_comm( comm )
 { /* ... */ }
@@ -104,6 +100,8 @@ void MovingLeastSquare<Basis,GO,DIM>::setProblem(
 {
     DTK_REQUIRE( 0 == source_centers.size() % DIM );
     DTK_REQUIRE( 0 == target_centers.size() % DIM );
+    DTK_REQUIRE( alpha >= 0.0 );
+    DTK_REQUIRE( radius > 0.0 );
 
     // Build the local interpolation problems.
     buildLocalProblems( source_centers, target_centers, radius, alpha );
@@ -183,7 +181,7 @@ void MovingLeastSquare<Basis,GO,DIM>::interpolate(
 	{
 	    target_data[n*target_lda+i] =
 		d_local_problems[i].solve( dist_source_dim_view,
-					   d_pairings.childCenterIds(i) );
+					   d_pairings->childCenterIds(i) );
 	}
     }
 }
@@ -205,7 +203,7 @@ void MovingLeastSquare<Basis,GO,DIM>::buildLocalProblems(
     // Gather the source centers that are within a radius of the target
     // centers on this proc.
     Teuchos::Array<double> dist_sources;
-    d_target_distributor = Teuchos::rcp( 
+    d_distributor = Teuchos::rcp( 
 	new CenterDistributor<DIM>( 
 	    d_comm, source_centers, target_centers, radius, dist_sources) );
 
@@ -221,7 +219,7 @@ void MovingLeastSquare<Basis,GO,DIM>::buildLocalProblems(
     {
 	target_view = target_centers(n*DIM,DIM);
 	d_local_problems[n] = LocalMLSProblem<Basis,GO,DIM>(
-	    target_view, d_pairings.childCenterIds(n),
+	    target_view, d_pairings->childCenterIds(n),
 	    dist_sources, *basis, alpha );
     }
 }

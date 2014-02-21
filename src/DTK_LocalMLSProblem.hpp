@@ -51,7 +51,8 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class LocalMLSProblem
- * \brief Local moving least square problem about a single target center.
+ * \brief Local moving least square problem about a single target center using
+ * quadratic polynomials.
  */
 //---------------------------------------------------------------------------//
 template<class Basis, class GO, int DIM>
@@ -63,6 +64,10 @@ class LocalMLSProblem
     //! Typedefs.
     typedef RadialBasisPolicy<Basis> BP;
     //@}
+
+    // Default constructor.
+    LocalMLSProblem()
+    { /* ... */ }
 
     // Constructor.
     LocalMLSProblem( const Teuchos::ArrayView<const double>& target_center,

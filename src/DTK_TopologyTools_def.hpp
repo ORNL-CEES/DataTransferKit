@@ -127,6 +127,17 @@ void TopologyTools::referenceCellCenter(
 	    }
 	    break;
 
+	case shards::Pyramid<5>::key:
+	case shards::Pyramid<13>::key:
+	case shards::Pyramid<14>::key:
+	    for ( int n = 0; n < num_cells; ++n )
+	    {
+		cell_center(n,0) = Teuchos::ScalarTraits<Scalar>::zero();
+		cell_center(n,1) = Teuchos::ScalarTraits<Scalar>::zero();
+		cell_center(n,2) = 1.0/4.0;
+	    }
+	    break;
+
 	default:
 	    DTK_INSIST( false );
 	    break;
