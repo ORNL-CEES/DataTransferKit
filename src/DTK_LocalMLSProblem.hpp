@@ -32,17 +32,17 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_MeshFreeInterpolator.hpp
+ * \file   DTK_LocalMLSProblem.hpp
  * \author Stuart R. Slattery
- * \brief Interface for mesh free interpolation.
+ * \brief  Local moving least square problem.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MESHFREEINTERPOLATOR_HPP
-#define DTK_MESHFREEINTERPOLATOR_HPP
+#ifndef DTK_LOCALMLSPROBLEM_HPP
+#define DTK_LOCALMLSPROBLEM_HPP
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
+#include "DTK_RadialBasisPolicy.hpp"
+
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
 
@@ -50,44 +50,40 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class MeshFreeInterpolator
- * \brief Base class for mesh free interpolation.
- *
- * The MeshFreeInterpolator is the top-level driver for parallel interpolation
- * problems.
+ * \class LocalMLSProblem
+ * \brief Local moving least square problem about a single target center.
  */
 //---------------------------------------------------------------------------//
-class MeshFreeInterpolator
+template<class Basis, class GO, int DIM>
+class LocalMLSProblem
 {
   public:
 
+    //@{
+    //! Typedefs.
+    typedef RadialBasisPolicy<Basis> BP;
+    //@}
+
     // Constructor.
-    MeshFreeInterpolator()
-    { /* ... */ }
+    LocalMLSProblem( const Teuchos::ArrayView<const double>& target_center,
+		     const Teuchos::ArrayView<const unsigned>& source_lids,
+		     const Teuchos::ArrayView<const double>& source_centers,
+		     const Basis& basis,
+		     const double alpha );
 
     //! Destructor.
-    virtual ~MeshFreeInterpolator()
+    ~LocalMLSProblem()
     { /* ... */ }
 
-    // Set the interpolation problem.
-    virtual void setProblem(
-	const Teuchos::ArrayView<const double>& source_centers,
-	const Teuchos::ArrayView<const double>& target_centers,
-	const double radius,
-	const double alpha ) = 0;
+    // Solve the local problem by applying the shape function to the degrees
+    // of freedom at the given source centers.
+    double solve( const Teuchos::ArrayView<const double>& source_data,
+		  const Teuchos::ArrayView<const unsigned>& source_lids ) const;
 
-    // Given a set of scalar values at the given source centers in the source
-    // decomposition, interpolate them onto the target centers in the target
-    // decomposition.
-    virtual void interpolate( 
-	const Teuchos::ArrayView<const double>& source_data,
-	const int num_source_dims,
-	const int source_lda,
-	const Teuchos::ArrayView<double>& target_data,
-	const int num_target_dims,
-	const int target_lda,
-	const int max_solve_iterations,
-	const double solve_convergence_tolerance ) const = 0;
+  private:
+
+    // Moving least square shape function.
+    Teuchos::Array<double> d_shape_function;
 };
 
 //---------------------------------------------------------------------------//
@@ -95,10 +91,16 @@ class MeshFreeInterpolator
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
 
-#endif // end DTK_MESHFREEINTERPOLATOR_HPP
+#include "DTK_LocalMLSProblem_impl.hpp"
 
 //---------------------------------------------------------------------------//
-// end DTK_MeshFreeInterpolator.hpp
+
+#endif // end DTK_LOCALMLSPROBLEM_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_LocalMLSProblem.hpp
 //---------------------------------------------------------------------------//
 

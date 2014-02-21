@@ -54,7 +54,8 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class MovingLeastSquare
- * \brief Parallel moving least square interpolator.
+ * \brief Parallel moving least square interpolator with second-order
+ * polynomials.
  *
  * The MovingLeastSquare is the top-level driver for parallel interpolation
  * problems.
@@ -113,6 +114,9 @@ class MovingLeastSquare : public MeshFreeInterpolator
 
     // Source-to-target distributor.
     Teuchos::RCP<CenterDistributor<DIM> > d_distributor;
+
+    // Source-target pairings.
+    Teuchos::RCP<SplineInterpolationPairing<DIM> > d_pairings;
 
     // Local interpolation problems.
     Teuchos::Array<LocalMLSProblem<Basis,GO,DIM> > d_local_problems;

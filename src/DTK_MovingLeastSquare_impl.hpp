@@ -160,8 +160,32 @@ void MovingLeastSquare<Basis,GO,DIM>::interpolate(
     DTK_REQUIRE( target_data.size() == target_lda * num_target_dims );
 
     // Distribute the source data to the target decomposition.
+    int dist_source_lda = d_distributor->getNumImports();
+    Teuchos::Array<double> dist_source_data( num_source_dims*dist_source_lda );
+    Teuchos::ArrayView<const double> source_dim_view;
+    Teuchos::ArrayView<double> dist_source_dim_view;
+    for ( int n = 0; n < num_source_dims; ++n )
+    {
+	source_dim_view = source_data( source_lda*n, source_lda );
+	dist_source_dim_view = dist_source_data(
+	    dist_source_lda*n, dist_source_lda );
+	d_distributor->distribute( source_dim_view, dist_source_dim_view );
+    }
 
     // Solve the local interpolation problems.
+    DTK_CHECK( target_lda == d_local_problems.size() );
+    for ( int n = 0; n < num_source_dims; ++n )
+    {
+	dist_source_dim_view = dist_source_data(
+	    dist_source_lda*n, dist_source_lda );
+
+	for ( int i = 0; i < target_lda; ++i )
+	{
+	    target_data[n*target_lda+i] =
+		d_local_problems[i].solve( dist_source_dim_view,
+					   d_pairings.childCenterIds(i) );
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -186,8 +210,8 @@ void MovingLeastSquare<Basis,GO,DIM>::buildLocalProblems(
 	    d_comm, source_centers, target_centers, radius, dist_sources) );
 
     // Build the source/target pairings.
-    SplineInterpolationPairing<DIM> target_pairings( 
-	dist_sources, target_centers, radius );
+    d_pairings = Teuchos::rcp( new SplineInterpolationPairing<DIM>(
+				   dist_sources, target_centers, radius) );
 
     // Build the local problems.
     int num_targets = target_centers.size() / DIM;
@@ -197,7 +221,7 @@ void MovingLeastSquare<Basis,GO,DIM>::buildLocalProblems(
     {
 	target_view = target_centers(n*DIM,DIM);
 	d_local_problems[n] = LocalMLSProblem<Basis,GO,DIM>(
-	    target_view, target_pairings.childCenterIds(n),
+	    target_view, d_pairings.childCenterIds(n),
 	    dist_sources, *basis, alpha );
     }
 }
