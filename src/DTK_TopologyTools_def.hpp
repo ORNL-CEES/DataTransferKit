@@ -173,7 +173,7 @@ bool TopologyTools::elementInGeometry(
     const double tolerance,
     bool all_vertices_for_inclusion )
 {
-    int space_dim = element_node_coords.dimension(0);
+    int space_dim = element_node_coords.dimension(2);
     int num_element_vertices = element_node_coords.dimension(1);
     Teuchos::Array<double> vertex_coords( space_dim );
     int verts_in_geometry = 0;
@@ -201,12 +201,7 @@ bool TopologyTools::elementInGeometry(
 	}
     }
 
-    if ( verts_in_geometry == num_element_vertices )
-    { 
-	return true;
-    }
-    
-    return false;
+    return ( verts_in_geometry == num_element_vertices );
 }
 
 //---------------------------------------------------------------------------//

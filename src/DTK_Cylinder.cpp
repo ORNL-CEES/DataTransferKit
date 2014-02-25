@@ -112,22 +112,15 @@ bool Cylinder::pointInCylinder( const Teuchos::Array<double>& coords,
 {
     DTK_REQUIRE( coords.size() == 3 );
 
-    double distance = std::pow(
-	(d_centroid_x - coords[0])*(d_centroid_x - coords[0]) +
-	(d_centroid_y - coords[1])*(d_centroid_y - coords[1]),
-	0.5 );
-
+    double x_dist = d_centroid_x - coords[0];
+    double y_dist = d_centroid_y - coords[1];
+    double r = std::sqrt( x_dist*x_dist + y_dist*y_dist );
     double rad_tol = d_radius*tolerance;
-    double z_tol = d_length*tolerance;
+    double half_length_tol = d_length / 2 + d_length*tolerance;
 
-    if ( distance <= d_radius + rad_tol &&
-	 coords[2] >= d_centroid_z - d_length/2 - z_tol &&
-	 coords[2] <= d_centroid_z + d_length/2 + z_tol )
-    {
-	return true;
-    }
-
-    return false;
+    return ( (r <= d_radius + rad_tol) &&
+	     (coords[2] >= d_centroid_z - half_length_tol) &&
+	     (coords[2] <= d_centroid_z + half_length_tol) );
 }
 
 //---------------------------------------------------------------------------//
@@ -197,6 +190,8 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c)
 
   return os;
 }
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

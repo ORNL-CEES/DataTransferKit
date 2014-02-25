@@ -132,8 +132,8 @@ bool Box::pointInBox( const Teuchos::Array<double>& coords,
     DTK_REQUIRE( 3 == coords.size() );
 
     double x_tol = (d_x_max - d_x_min)*tolerance;
-    double y_tol = (d_y_may - d_y_min)*tolerance;
-    double z_tol = (d_z_maz - d_z_min)*tolerance;
+    double y_tol = (d_y_max - d_y_min)*tolerance;
+    double z_tol = (d_z_max - d_z_min)*tolerance;
 
     if ( coords[0] >= d_x_min - x_tol &&
 	 coords[1] >= d_y_min - y_tol &&

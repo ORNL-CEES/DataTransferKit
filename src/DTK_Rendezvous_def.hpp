@@ -306,6 +306,7 @@ void Rendezvous<Mesh>::elementsInGeometry(
 	block_element_gids = MeshTools<MeshContainerType>::elementsView( *block );
 	block_connectivity = MeshTools<MeshContainerType>::connectivityView( *block );
 	block_num_vertices = MeshTools<MeshContainerType>::numVertices( *block );
+	block_verts_per_elem = MT::verticesPerElement( *block );
 	Intrepid::FieldContainer<double> node_coords( 
 	    1, block_verts_per_elem, d_rendezvous_mesh_manager->dim() );
 	for ( int e = 0; e < block_num_elements; ++e )

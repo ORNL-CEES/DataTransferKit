@@ -15,6 +15,7 @@
 #include <cassert>
 #include <ctime>
 #include <cstdlib>
+#include <limits>
 
 #include <DTK_IntegralAssemblyMap.hpp>
 #include <DTK_FieldTraits.hpp>
@@ -157,7 +158,7 @@ class MyIntegrator : public DataTransferKit::FieldIntegrator<
   public:
 
     MyIntegrator( const DataTransferKit::MeshContainer<int>& mesh, 
-		 const Teuchos::RCP< const Teuchos::Comm<int> >& comm )
+		  const Teuchos::RCP< const Teuchos::Comm<int> >& comm )
 	: d_mesh( mesh )
 	, d_comm( comm )
     { /* ... */ }
@@ -171,9 +172,6 @@ class MyIntegrator : public DataTransferKit::FieldIntegrator<
 	    DataTransferKit::MeshContainer<int>::global_ordinal_type>& elements )
     {
 	int local_num_elements = elements.size();
-	int global_num_elements = 0;
-	Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_SUM,
-			    local_num_elements, Teuchos::Ptr<int>(&global_num_elements) );
 	MyField integrated_data( local_num_elements, 3 );
 	for ( int n = 0; n < local_num_elements; ++n )
 	{
@@ -181,15 +179,18 @@ class MyIntegrator : public DataTransferKit::FieldIntegrator<
 			    d_mesh.elementsEnd(),
 			    elements[n] ) != d_mesh.elementsEnd() )
 	    {
-		*(integrated_data.begin() + n ) = global_num_elements;
-		*(integrated_data.begin() + n + local_num_elements) = global_num_elements;
-		*(integrated_data.begin() + n + 2*local_num_elements) = global_num_elements;
+		*(integrated_data.begin() + n ) = elements[n];
+		*(integrated_data.begin() + n + local_num_elements) = elements[n];
+		*(integrated_data.begin() + n + 2*local_num_elements) = elements[n];
 	    }
 	    else
 	    {
- 		*(integrated_data.begin() + n ) = 6789.443;
-		*(integrated_data.begin() + n + local_num_elements) = 6789.443;
-		*(integrated_data.begin() + n + 2*local_num_elements) = 6789.443;
+ 		*(integrated_data.begin() + n ) = 
+		    std::numeric_limits<double>::max() / 2.0;
+		*(integrated_data.begin() + n + local_num_elements) =
+		    std::numeric_limits<double>::max() / 2.0;
+		*(integrated_data.begin() + n + 2*local_num_elements) = 
+		    std::numeric_limits<double>::max() / 2.0;
 	    }
 	}
 	return integrated_data;
@@ -760,10 +761,10 @@ void buildCylinderGeometry(
     Teuchos::ArrayRCP<DataTransferKit::Cylinder> new_cylinders(1);
     Teuchos::ArrayRCP<int> new_gids(1,0);
     double length = (double) my_size;
-    double radius = (double) (edge_size-1) / 2.0;
-    double x_center = (double) (edge_size-1) / 2.0;
-    double y_center = (double) (edge_size-1) / 2.0;
-    double z_center = (double) my_size / 2.0;
+    double radius = (double) (edge_size) / 2.0;
+    double x_center = (double) (edge_size) / 2.0;
+    double y_center = (double) (edge_size) / 2.0;
+    double z_center = (double) length / 2.0;
     new_cylinders[0] = DataTransferKit::Cylinder( length, radius,
 						  x_center, y_center, z_center );
     cylinders = new_cylinders;
@@ -803,9 +804,9 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, all_verts_in_cylinder_test )
     // Compute element ordinal offsets so we make unique global ordinals.
     int edge_size = 10;
     int tet_offset = 0;
-    int hex_offset = tet_offset + (edge_size+1)*(edge_size+1)*5;
-    int pyramid_offset = hex_offset + (edge_size+1)*(edge_size+1);
-    int wedge_offset = pyramid_offset + (edge_size+1)*(edge_size+1)*6;
+    int hex_offset = tet_offset + (edge_size+1)*(edge_size+1)*50;
+    int pyramid_offset = hex_offset + (edge_size+1)*(edge_size+1)*50;
+    int wedge_offset = pyramid_offset + (edge_size+1)*(edge_size+1)*50;
 
     // Setup source mesh manager.
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 4 );
@@ -937,8 +938,9 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, all_verts_in_cylinder_test )
     int vert_index;
     Teuchos::Array<double> vertex(3);
     int num_found = 0;
+    double local_integral = 0.0;
+    int local_num_in_cylinder = 0;
     double tol = 1.0e-6;
-    int num_in_cylinder = 0;
     for ( int i = 0; i < num_elements; ++i )
     {
 	num_found = 0;
@@ -958,20 +960,26 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, all_verts_in_cylinder_test )
 
 	if ( num_found == vertices_per_element )
 	{
-	    ++num_in_cylinder;
+	    local_integral += elements[i];
+	    ++local_num_in_cylinder;
 	}
     }
     comm->barrier();
 
+    double global_integral = 0.0;
+    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM,
+			local_integral, Teuchos::Ptr<double>(&global_integral) );
     int global_num_in_cylinder = 0;
     Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM,
-			num_in_cylinder, Teuchos::Ptr<int>(&global_num_in_cylinder) );
+			local_num_in_cylinder, 
+			Teuchos::Ptr<int>(&global_num_in_cylinder) );
+    global_integral /= global_num_in_cylinder;
 
     if ( my_rank == 0 )
     {
 	for ( int d = 0; d < target_dim; ++d )
 	{
-	    TEST_EQUALITY( global_num_in_cylinder, target_field->getData()[d] );
+	    TEST_EQUALITY( global_integral, target_field->getData()[d] );
 	}
     }
     comm->barrier();
@@ -993,7 +1001,7 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, one_vert_in_cylinder_test )
     int edge_size = 10;
     int tet_offset = 0;
     int hex_offset = tet_offset + (edge_size+1)*(edge_size+1)*5;
-    int pyramid_offset = hex_offset + (edge_size+1)*(edge_size+1);
+    int pyramid_offset = hex_offset + (edge_size+1)*(edge_size+1)*9;
     int wedge_offset = pyramid_offset + (edge_size+1)*(edge_size+1)*6;
 
     // Setup source mesh manager.
@@ -1127,7 +1135,8 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, one_vert_in_cylinder_test )
     Teuchos::Array<double> vertex(3);
     bool found = false;
     double tol = 1.0e-6;
-    int num_in_cylinder = 0;
+    double local_integral = 0.0;
+    int local_num_in_cylinder = 0;
     for ( int i = 0; i < num_elements; ++i )
     {
 	found = false;
@@ -1141,22 +1150,28 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, one_vert_in_cylinder_test )
 
 	    if ( global_cylinder.pointInCylinder( vertex, tol ) && !found)
 	    {
-		++num_in_cylinder;
+		local_integral += elements[i];
+		++local_num_in_cylinder;
 		found = true;
 	    }
 	}
     }
     comm->barrier();
 
+    double global_integral = 0.0;
+    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM,
+			local_integral, Teuchos::Ptr<double>(&global_integral) );
     int global_num_in_cylinder = 0;
     Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM,
-			num_in_cylinder, Teuchos::Ptr<int>(&global_num_in_cylinder) );
+			local_num_in_cylinder, 
+			Teuchos::Ptr<int>(&global_num_in_cylinder) );
+    global_integral /= global_num_in_cylinder;
 
     if ( my_rank == 0 )
     {
 	for ( int d = 0; d < target_dim; ++d )
 	{
-	    TEST_EQUALITY( global_num_in_cylinder, target_field->getData()[d] );
+	    TEST_EQUALITY( global_integral, target_field->getData()[d] );
 	}
     }
     comm->barrier();
@@ -1178,7 +1193,7 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
     int edge_size = 10;
     int tet_offset = 0;
     int hex_offset = tet_offset + (edge_size+1)*(edge_size+1)*5;
-    int pyramid_offset = hex_offset + (edge_size+1)*(edge_size+1);
+    int pyramid_offset = hex_offset + (edge_size+1)*(edge_size+1)*9;
     int wedge_offset = pyramid_offset + (edge_size+1)*(edge_size+1)*6;
 
     // Setup source mesh manager.
@@ -1279,13 +1294,27 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
 
     // Check the integration. All elements in the mesh are in the box as this
     // is a true conformal situation and therefore the total integral should
-    // be the global number of mesh elements. 
-    int global_elems = source_mesh_manager->globalNumElements();
+    // be the global number of mesh elements.
+    int num_elements = MeshTools<MeshType>::numElements( *mesh_blocks[my_rank] );
+    Teuchos::ArrayRCP<const int> elements = 
+	MeshTools<MeshType>::elementsView( *mesh_blocks[my_rank] );
+
+    int local_integral = 0;
+    for ( int i = 0; i < num_elements; ++i )
+    {
+	local_integral += elements[i];
+    }
+    comm->barrier();
+
+    int global_integral = 0;
+    Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM,
+			local_integral, Teuchos::Ptr<int>(&global_integral) );
+    global_integral /= source_mesh_manager->globalNumElements();
     if ( my_rank == 0 )
     {
 	for ( int d = 0; d < target_dim; ++d )
 	{
-	    TEST_ASSERT( global_elems == target_field->getData()[d] );
+	    TEST_ASSERT( global_integral == target_field->getData()[d] );
 	}
     }
     comm->barrier();

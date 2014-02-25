@@ -222,9 +222,9 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     Teuchos::Array<Geometry> target_geom_to_send;
     typename Teuchos::ArrayRCP<Geometry>::const_iterator 
 	target_geometry_iterator;
-    for ( box_iterator = box_procs.begin(), 
-target_geometry_iterator = target_geometry.begin(),
-geometry_ordinal_iterator = geometry_ordinals.begin();
+    for ( target_geometry_iterator = target_geometry.begin(),
+		      box_iterator = box_procs.begin(), 
+	 geometry_ordinal_iterator = geometry_ordinals.begin();
 	  box_iterator != box_procs.end();
 	  ++box_iterator, ++target_geometry_iterator, 
 			 ++geometry_ordinal_iterator )
