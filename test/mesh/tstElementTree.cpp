@@ -1167,13 +1167,20 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_element_tree_test )
     int num_points = 1000;
     Teuchos::Array<double> point(3);
     int ordinal = 0;
+
+    point[0] = 0.25;
+    point[1] = 0.25;
+    point[2] = 0.25;
+    TEST_ASSERT( element_tree.findPoint( point, ordinal ) );
+    TEST_ASSERT( ordinal == 12 );
+
     for ( int i = 0; i < num_points; ++i )
     {
 	ordinal = 0;
 	point[0] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
 	point[1] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
 	point[2] = 2.0 * (double) std::rand() / RAND_MAX - 0.5;
-    	
+	std::cout << point << std::endl;    	
 	if( 0.0 <= point[0] && point[0] <= 1.0-point[2] &&
 	    0.0 <= point[1] && point[1] <= 1.0-point[2] && 
 	    0.0 <= point[2] && point[2] <= 1.0 )

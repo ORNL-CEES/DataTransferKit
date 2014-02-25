@@ -108,7 +108,7 @@ WuBasis<4>::evaluateValue( const double x ) const
 //---------------------------------------------------------------------------//
 /*!
  * \brief Compute the gradient of the basis at the given set of
- * coordinates. 1-D specialization of order 4.
+ * coordinates. Specialization of order 4.
  */
 //---------------------------------------------------------------------------//
 template<>
