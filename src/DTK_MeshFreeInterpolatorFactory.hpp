@@ -34,7 +34,7 @@
 /*!
  * \file DTK_MeshFreeInterpolatorFactory.hpp
  * \author Stuart R. Slattery
- * \brief Linear solver factory declaration.
+ * \brief Mesh free interpolator factory declaration.
  */
 //---------------------------------------------------------------------------//
 
@@ -48,8 +48,6 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 
-#include <boost/tr1/unordered_map.hpp>
-
 namespace DataTransferKit
 {
 
@@ -62,46 +60,20 @@ class MeshFreeInterpolatorFactory
 {
   public:
 
-    //@{
-    //! Typedefs.
-    typedef std::tr1::unordered_map<std::string,int>  MapType;
-    //@}
-
     //! Constructor.
-    MeshFreeInterpolatorFactory();
+    MeshFreeInterpolatorFactory() { /* ... */ }
 
     //! Destructor.
     ~MeshFreeInterpolatorFactory() { /* ... */ }
 
     // Creation method.
-    template<class GO>
+    template<class GO> 
     static Teuchos::RCP<MeshFreeInterpolator> 
     create( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-	    const std::string& interplator_name, 
+	    const std::string& interpolator_name, 
 	    const std::string& basis_name,
 	    const int basis_order,
 	    const int space_dim );
-
-  private:
-
-    // Interpolator enum.
-    enum DTKMeshFreeInterpolatorType {
-	SPLINE,
-        MOVING_LEAST_SQUARE
-    };
-
-    // Basis enum.
-    enum DTKRadialBasisType {
-	WENDLAND,
-        WU,
-	BUHMANN
-    };
-
-    // Interpolator name to enum/integer map.
-    MapType d_interpolator_map;
-
-    // Basis name to enum/integer map.
-    MapType d_basis_map;
 };
 
 //---------------------------------------------------------------------------//

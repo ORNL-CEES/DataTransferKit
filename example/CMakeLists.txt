@@ -7,5 +7,5 @@ ADD_SUBDIRECTORIES(
   GeometryToMesh
   GeometryToGeometry
   IntegralAssembly
-  Spline
+  MeshFree
   )

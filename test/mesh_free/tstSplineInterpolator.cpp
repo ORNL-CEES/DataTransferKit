@@ -44,8 +44,8 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <DTK_WendlandBasis.hpp>
-#include <DTK_SplineInterpolator.hpp>
+#include <DTK_MeshFreeInterpolator.hpp>
+#include <DTK_MeshFreeInterpolatorFactory.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -115,14 +115,15 @@ TEUCHOS_UNIT_TEST( SplineInterpolator, dim_1_test )
     double radius = 1.0;
     double alpha = 1.0;
 
-    typedef DataTransferKit::WendlandBasis<2> BasisType;
-    DataTransferKit::SplineInterpolator<BasisType,int,1> interpolator( comm );
-    interpolator.setProblem( src_coords(), tgt_coords(), radius, alpha );
+    Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator = 
+	DataTransferKit::MeshFreeInterpolatorFactory::create<int>(
+	    comm, "Spline", "Wendland", 2, dim );
+
+    interpolator->setProblem( src_coords(), tgt_coords(), radius, alpha );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
-    interpolator.interpolate( src_data(), 1, src_data.size(),
-			      tgt_data(), 1, tgt_data.size(),
-			      100, 1.0e-8 );
+    interpolator->interpolate( src_data(), 1, src_data.size(),
+			       tgt_data(), 1, tgt_data.size() );
 
     for ( int i = 0; i < num_tgt_points; ++i )
     {
@@ -179,14 +180,15 @@ TEUCHOS_UNIT_TEST( SplineInterpolator, dim_2_test )
     double radius = 1.0;
     double alpha = 1.0;
 
-    typedef DataTransferKit::WendlandBasis<2> BasisType;
-    DataTransferKit::SplineInterpolator<BasisType,int,2> interpolator( comm );
-    interpolator.setProblem( src_coords(), tgt_coords(), radius, alpha );
+    Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator = 
+	DataTransferKit::MeshFreeInterpolatorFactory::create<int>(
+	    comm, "Spline", "Wendland", 2, dim );
+
+    interpolator->setProblem( src_coords(), tgt_coords(), radius, alpha );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
-    interpolator.interpolate( src_data(), 1, src_data.size(),
-			      tgt_data(), 1, tgt_data.size(),
-			      100, 1.0e-8 );
+    interpolator->interpolate( src_data(), 1, src_data.size(),
+			       tgt_data(), 1, tgt_data.size() );
     for ( int i = 0; i < num_tgt_points; ++i )
     {
 	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*inverse_rank + 1.0, epsilon );
@@ -268,14 +270,15 @@ TEUCHOS_UNIT_TEST( SplineInterpolator, dim_3_test )
     double radius = 1.0;
     double alpha = 1.0;
 
-    typedef DataTransferKit::WendlandBasis<2> BasisType;
-    DataTransferKit::SplineInterpolator<BasisType,int,3> interpolator( comm );
-    interpolator.setProblem( src_coords(), tgt_coords(), radius, alpha );
+    Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator = 
+	DataTransferKit::MeshFreeInterpolatorFactory::create<int>(
+	    comm, "Spline", "Wendland", 2, dim );
+
+    interpolator->setProblem( src_coords(), tgt_coords(), radius, alpha );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
-    interpolator.interpolate( src_data(), 1, src_data.size(),
-			      tgt_data(), 1, tgt_data.size(),
-			      100, 1.0e-8 );
+    interpolator->interpolate( src_data(), 1, src_data.size(),
+			       tgt_data(), 1, tgt_data.size() );
     for ( int i = 0; i < num_tgt_points; ++i )
     {
 	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*inverse_rank + 1.0, epsilon );

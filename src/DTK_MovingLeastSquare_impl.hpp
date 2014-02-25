@@ -144,9 +144,7 @@ void MovingLeastSquare<Basis,GO,DIM>::interpolate(
     const int source_lda,
     const Teuchos::ArrayView<double>& target_data,
     const int num_target_dims,
-    const int target_lda,
-    const int max_solve_iterations,
-    const double solve_convergence_tolerance ) const
+    const int target_lda ) const
 {
     DTK_REQUIRE( num_source_dims == num_target_dims );
     DTK_REQUIRE( source_data.size() == source_lda * num_source_dims );

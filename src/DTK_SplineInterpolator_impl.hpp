@@ -155,9 +155,7 @@ void SplineInterpolator<Basis,GO,DIM>::interpolate(
     const int source_lda,
     const Teuchos::ArrayView<double>& target_data,
     const int num_target_dims,
-    const int target_lda,
-    const int max_solve_iterations,
-    const double solve_convergence_tolerance ) const
+    const int target_lda ) const
 {
     DTK_REQUIRE( num_source_dims == num_target_dims );
     DTK_REQUIRE( source_data.size() == source_lda * num_source_dims );
@@ -165,8 +163,8 @@ void SplineInterpolator<Basis,GO,DIM>::interpolate(
 
     // Set the linear solver parameters.
     Teuchos::RCP<Teuchos::ParameterList> params = Teuchos::parameterList();
-    params->set( "Maximum Iterations", max_solve_iterations );
-    params->set( "Convergence Tolerance", solve_convergence_tolerance );
+    params->set( "Maximum Iterations", 1000 );
+    params->set( "Convergence Tolerance", 1.0e-8 );
     int verbosityLevel = Belos::IterationDetails | 
 			 Belos::OrthoDetails |
 			 Belos::FinalSummary |

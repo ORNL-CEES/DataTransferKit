@@ -34,7 +34,7 @@
 /*!
  * \file DTK_MeshFreeInterpolatorFactory_impl.hpp
  * \author Stuart R. Slattery
- * \brief Linear solver factory implementation.
+ * \brief Mesh free interpolator factory implementation.
  */
 //---------------------------------------------------------------------------//
 
@@ -50,24 +50,6 @@
 
 namespace DataTransferKit
 {
-
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Constructor.
- */
-MeshFreeInterpolatorFactory::MeshFreeInterpolatorFactory()
-{
-    // Create the interpolator name-to-enum map.
-    d_interpolator_map["Spline"] = SPLINE;
-    d_interpolator_map["Moving Least Square"] = MOVING_LEAST_SQUARE;
-
-    // Create the basis name-to-enum map.
-    d_basis_map["Wendland"] = WENDLAND;
-    d_basis_map["Wu"] = WU;
-    d_basis_map["Buhmann"] = BUHMANN;
-}
-
 //---------------------------------------------------------------------------//
 /*!
  * \brief Creation method.
@@ -76,7 +58,7 @@ template<class GO>
 Teuchos::RCP<MeshFreeInterpolator>
 MeshFreeInterpolatorFactory::create( 
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-    const std::string& interplator_name, 
+    const std::string& interpolator_name, 
     const std::string& basis_name,
     const int basis_order,
     const int space_dim )
@@ -85,26 +67,30 @@ MeshFreeInterpolatorFactory::create(
 
     Teuchos::RCP<MeshFreeInterpolator> interpolator;
 
-    MapType::const_iterator interpolator_id = 
-	d_interpolator_map.find( interpolator_name );
-    DTK_INSIST( id != d_interpolator_map.end() );
+    int interpolator_id = -1;
+    if ( "Spline" == interpolator_name ) interpolator_id = 0;
+    else if ( "Moving Least Square" == interpolator_name ) interpolator_id = 1;
 
-    MapType::const_iterator basis_id = d_basis_map.find( basis_name );
-    DTK_INSIST( id != d_basis_map.end() );
+    int basis_id = -1;
+    if ( "Wendland" == basis_name ) basis_id = 0;
+    else if ( "Wu" == basis_name ) basis_id = 1;
+    else if ( "Buhmann" == basis_name ) basis_id = 2;
 
-    switch( interpolator_id->second )
+    switch( interpolator_id )
     {
-	case SPLINE:
+	// Spline
+	case 0:
 	{
-	    switch( basis_id->second )
+	    // Wendland
+	    switch( basis_id )
 	    {
-		case WENDLAND:
+		case 0:
 		{
-		    switch basis_order:
+		    switch( basis_order )
 		    {
 			case 0:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
@@ -113,6 +99,7 @@ MeshFreeInterpolatorFactory::create(
 					WendlandBasis<0>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
@@ -120,6 +107,7 @@ MeshFreeInterpolatorFactory::create(
 					WendlandBasis<0>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
@@ -137,7 +125,7 @@ MeshFreeInterpolatorFactory::create(
 
 			case 2:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
@@ -146,6 +134,7 @@ MeshFreeInterpolatorFactory::create(
 					WendlandBasis<2>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
@@ -153,6 +142,7 @@ MeshFreeInterpolatorFactory::create(
 					WendlandBasis<2>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
@@ -170,7 +160,7 @@ MeshFreeInterpolatorFactory::create(
 			
 			case 4:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
@@ -179,6 +169,7 @@ MeshFreeInterpolatorFactory::create(
 					WendlandBasis<4>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
@@ -186,6 +177,7 @@ MeshFreeInterpolatorFactory::create(
 					WendlandBasis<4>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
@@ -203,7 +195,7 @@ MeshFreeInterpolatorFactory::create(
 
 			case 6:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
@@ -212,6 +204,7 @@ MeshFreeInterpolatorFactory::create(
 					WendlandBasis<6>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
@@ -219,6 +212,7 @@ MeshFreeInterpolatorFactory::create(
 					WendlandBasis<6>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
@@ -241,11 +235,14 @@ MeshFreeInterpolatorFactory::create(
 		}
 		break;
 
-		case WU:
+		// Wu
+		case 1:
 		{
+		    switch( basis_order )
+		    {
 			case 2:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
@@ -254,6 +251,7 @@ MeshFreeInterpolatorFactory::create(
 					WuBasis<2>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
@@ -261,6 +259,7 @@ MeshFreeInterpolatorFactory::create(
 					WuBasis<2>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
@@ -278,7 +277,7 @@ MeshFreeInterpolatorFactory::create(
 			
 			case 4:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
@@ -287,6 +286,7 @@ MeshFreeInterpolatorFactory::create(
 					WuBasis<4>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
@@ -294,6 +294,7 @@ MeshFreeInterpolatorFactory::create(
 					WuBasis<4>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
@@ -312,14 +313,18 @@ MeshFreeInterpolatorFactory::create(
 			default:
 			    throw Assertion("Basis order not supported!");
 			    break;
+		    }
 		}
 		break;
 		
-		case BUHMANN:
+		// Buhmann
+		case 2:
 		{
+		    switch( basis_order )
+		    {
 			case 3:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
@@ -328,6 +333,7 @@ MeshFreeInterpolatorFactory::create(
 					BuhmannBasis<3>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
@@ -335,6 +341,7 @@ MeshFreeInterpolatorFactory::create(
 					BuhmannBasis<3>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
@@ -353,6 +360,7 @@ MeshFreeInterpolatorFactory::create(
 			default:
 			    throw Assertion("Basis order not supported!");
 			    break;
+		    }
 		}
 		break;
 
@@ -363,36 +371,40 @@ MeshFreeInterpolatorFactory::create(
 	}
 	break;
 
-	case MOVING_LEAST_SQUARE:
+	// Moving Least Square.
+	case 1:
 	{
-	    switch( basis_id->second )
+	    switch( basis_id )
 	    {
-		case WENDLAND:
+		// Wendland
+		case 0:
 		{
-		    switch basis_order:
+		    switch( basis_order )
 		    {
 			case 0:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WendlandBasis<0>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WendlandBasis<0>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WendlandBasis<0>,GO,3>(comm) );
 				}
 				break;
@@ -406,26 +418,28 @@ MeshFreeInterpolatorFactory::create(
 
 			case 2:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WendlandBasis<2>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WendlandBasis<2>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WendlandBasis<2>,GO,3>(comm) );
 				}
 				break;
@@ -439,26 +453,28 @@ MeshFreeInterpolatorFactory::create(
 			
 			case 4:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WendlandBasis<4>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WendlandBasis<4>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WendlandBasis<4>,GO,3>(comm) );
 				}
 				break;
@@ -472,26 +488,28 @@ MeshFreeInterpolatorFactory::create(
 
 			case 6:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WendlandBasis<6>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WendlandBasis<6>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WendlandBasis<6>,GO,3>(comm) );
 				}
 				break;
@@ -510,30 +528,35 @@ MeshFreeInterpolatorFactory::create(
 		}
 		break;
 
-		case WU:
+		// Wu
+		case 1:
 		{
+		    switch( basis_order )
+		    {
 			case 2:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WuBasis<2>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WuBasis<2>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WuBasis<2>,GO,3>(comm) );
 				}
 				break;
@@ -547,26 +570,28 @@ MeshFreeInterpolatorFactory::create(
 			
 			case 4:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WuBasis<4>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WuBasis<4>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					WuBasis<4>,GO,3>(comm) );
 				}
 				break;
@@ -581,33 +606,39 @@ MeshFreeInterpolatorFactory::create(
 			default:
 			    throw Assertion("Basis order not supported!");
 			    break;
+		    }
 		}
 		break;
 		
-		case BUHMANN:
+		// Buhmann
+		case 2:
 		{
+		    switch( basis_order )
+		    {
 			case 3:
 			{
-			    switch space_dim:
+			    switch( space_dim )
 			    {
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					BuhmannBasis<3>,GO,1>(comm) );
 				}
 				break;
+
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					BuhmannBasis<3>,GO,2>(comm) );
 				}
 				break;
+
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new MovingLeastSquare<
+					new SplineInterpolator<
 					BuhmannBasis<3>,GO,3>(comm) );
 				}
 				break;
@@ -622,6 +653,7 @@ MeshFreeInterpolatorFactory::create(
 			default:
 			    throw Assertion("Basis order not supported!");
 			    break;
+		    }
 		}
 		break;
 

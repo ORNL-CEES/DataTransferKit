@@ -14,11 +14,7 @@
 #include <cstdlib>
 
 #include <DTK_MeshFreeInterpolator.hpp>
-#include <DTK_MovingLeastSquare.hpp>
-#include <DTK_SplineInterpolator.hpp>
-#include <DTK_WendlandBasis.hpp>
-#include <DTK_WuBasis.hpp>
-#include <DTK_BuhmannBasis.hpp>
+#include <DTK_MeshFreeInterpolatorFactory.hpp>
 
 #include <Teuchos_Array.hpp>
 #include <Teuchos_TimeMonitor.hpp>
@@ -95,9 +91,6 @@ int main( int argc, char * argv[] )
     // Allocate space for the target function.
     Teuchos::Array<double> target_function( (N-1)*(N-1) );
 
-    // Interpolation basis order.
-    const int basis_order = 2;
-
     // Support radius.
     double radius = 2.0*h;
 
@@ -105,24 +98,20 @@ int main( int argc, char * argv[] )
     double alpha = 0.0;
 
     // Interpolation type.
-    std::string interpolation_type = "MLS";
+    std::string interpolation_type = "Moving Least Square";
+
+    // Basis Type.
+    std::string basis_type = "Wendland";
+
+    // Interpolation basis order.
+    const int basis_order = 2;
 
     // Build the interpolation object.
-    typedef DataTransferKit::WendlandBasis<basis_order> WendlandBasis;
-    typedef DataTransferKit::WuBasis<basis_order> WuBasis;
-    typedef DataTransferKit::BuhmannBasis<basis_order> BuhmannBasis;
-    typedef WendlandBasis BasisType;
-    Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator;
-    if ( "MLS" == interpolation_type )
-    {
-	interpolator = Teuchos::rcp( 
-	    new DataTransferKit::MovingLeastSquare<BasisType,int,dim>(comm) );
-    }
-    else if ( "Splines" == interpolation_type )
-    {
-	interpolator = Teuchos::rcp( 
-	    new DataTransferKit::SplineInterpolator<BasisType,int,dim>(comm) );
-    }
+    typedef int GlobalOrdinal;
+    Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator =
+	DataTransferKit::MeshFreeInterpolatorFactory::create<GlobalOrdinal>(
+	    comm, interpolation_type, basis_type, basis_order, dim );
+
     std::cout << "Building DataTransferKit::SplineInterpolator" << std::endl;
     Teuchos::Time construction_timer("");
     construction_timer.start(true);
@@ -141,8 +130,7 @@ int main( int argc, char * argv[] )
     interpolation_timer.start(true);
     interpolator->interpolate( 
 	source_function(), 1, source_function.size(),
-	target_function(), 1, target_function.size(),
-	100, 1.0e-8 );
+	target_function(), 1, target_function.size() );
     interpolation_timer.stop();
     if ( comm->getRank() == 0 )
     {

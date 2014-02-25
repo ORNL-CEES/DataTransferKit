@@ -67,6 +67,8 @@ APPEND_SET(HEADERS
   DTK_LocalMLSProblem_impl.hpp
   DTK_MeshContainer.hpp
   DTK_MeshFreeInterpolator.hpp
+  DTK_MeshFreeInterpolatorFactory.hpp
+  DTK_MeshFreeInterpolatorFactory_impl.hpp
   DTK_MeshManager.hpp
   DTK_MeshManager_def.hpp
   DTK_MeshTools.hpp

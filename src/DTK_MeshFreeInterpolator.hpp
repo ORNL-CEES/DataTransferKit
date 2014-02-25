@@ -85,9 +85,7 @@ class MeshFreeInterpolator
 	const int source_lda,
 	const Teuchos::ArrayView<double>& target_data,
 	const int num_target_dims,
-	const int target_lda,
-	const int max_solve_iterations,
-	const double solve_convergence_tolerance ) const = 0;
+	const int target_lda ) const = 0;
 };
 
 //---------------------------------------------------------------------------//
