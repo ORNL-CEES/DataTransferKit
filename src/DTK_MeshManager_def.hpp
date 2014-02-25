@@ -149,6 +149,12 @@ MeshManager<Mesh>::globalNumElements() const
 template<class Mesh>
 BoundingBox MeshManager<Mesh>::localBoundingBox()
 {
+    // Check to see if there are any local elements.
+    if ( 0 == localNumElements() )
+    {
+	return BoundingBox( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
+    }
+
     double local_x_min = Teuchos::ScalarTraits<double>::rmax();
     double local_y_min = Teuchos::ScalarTraits<double>::rmax();
     double local_z_min = Teuchos::ScalarTraits<double>::rmax();

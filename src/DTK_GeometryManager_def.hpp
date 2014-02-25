@@ -142,6 +142,12 @@ GeometryManager<Geometry,GlobalOrdinal>::boundingBoxes() const
 template<class Geometry,class GlobalOrdinal>
 BoundingBox GeometryManager<Geometry,GlobalOrdinal>::localBoundingBox() const
 {
+    // Check to see if there are any local geometry.
+    if ( 0 == localNumGeometry() )
+    {
+	return BoundingBox( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
+    }
+
     double global_x_min = Teuchos::ScalarTraits<double>::rmax();
     double global_y_min = Teuchos::ScalarTraits<double>::rmax();
     double global_z_min = Teuchos::ScalarTraits<double>::rmax();

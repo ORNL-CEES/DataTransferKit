@@ -971,7 +971,7 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, all_verts_in_cylinder_test )
     {
 	for ( int d = 0; d < target_dim; ++d )
 	{
-	    TEST_ASSERT( global_num_in_cylinder == target_field->getData()[d] );
+	    TEST_EQUALITY( global_num_in_cylinder, target_field->getData()[d] );
 	}
     }
     comm->barrier();
@@ -1156,7 +1156,7 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, one_vert_in_cylinder_test )
     {
 	for ( int d = 0; d < target_dim; ++d )
 	{
-	    TEST_ASSERT( global_num_in_cylinder == target_field->getData()[d] );
+	    TEST_EQUALITY( global_num_in_cylinder, target_field->getData()[d] );
 	}
     }
     comm->barrier();

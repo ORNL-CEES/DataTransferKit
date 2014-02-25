@@ -120,7 +120,8 @@ Box::~Box()
  * \param coords Cartesian coordinates to check for point inclusion. The
  * coordinates must have a dimension between 0 and 3.
  *
- * \param tolerance The geometric tolerance to check point-inclusion with.
+ * \param tolerance The geometric tolerance to check point-inclusion
+ * with. This tolerance is realtive.
  *
  * \return Return true if the point is in the box, false if not. A point on
  * the box boundary will return true.
@@ -130,12 +131,16 @@ bool Box::pointInBox( const Teuchos::Array<double>& coords,
 {
     DTK_REQUIRE( 3 == coords.size() );
 
-    if ( coords[0] >= d_x_min - tolerance &&
-	 coords[1] >= d_y_min - tolerance &&
-	 coords[2] >= d_z_min - tolerance &&
-	 coords[0] <= d_x_max + tolerance &&
-	 coords[1] <= d_y_max + tolerance &&
-	 coords[2] <= d_z_max + tolerance )
+    double x_tol = (d_x_max - d_x_min)*tolerance;
+    double y_tol = (d_y_may - d_y_min)*tolerance;
+    double z_tol = (d_z_maz - d_z_min)*tolerance;
+
+    if ( coords[0] >= d_x_min - x_tol &&
+	 coords[1] >= d_y_min - y_tol &&
+	 coords[2] >= d_z_min - z_tol &&
+	 coords[0] <= d_x_max + x_tol &&
+	 coords[1] <= d_y_max + y_tol &&
+	 coords[2] <= d_z_max + z_tol )
     {
 	return true;
     }
