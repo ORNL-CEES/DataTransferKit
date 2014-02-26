@@ -1299,22 +1299,22 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
     Teuchos::ArrayRCP<const int> elements = 
 	MeshTools<MeshType>::elementsView( *mesh_blocks[my_rank] );
 
-    int local_integral = 0;
+    double local_integral = 0.0;
     for ( int i = 0; i < num_elements; ++i )
     {
 	local_integral += elements[i];
     }
     comm->barrier();
 
-    int global_integral = 0;
+    double global_integral = 0.0;
     Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM,
-			local_integral, Teuchos::Ptr<int>(&global_integral) );
+			local_integral, Teuchos::Ptr<double>(&global_integral) );
     global_integral /= source_mesh_manager->globalNumElements();
     if ( my_rank == 0 )
     {
 	for ( int d = 0; d < target_dim; ++d )
 	{
-	    TEST_ASSERT( global_integral == target_field->getData()[d] );
+	    TEST_EQUALITY( global_integral, target_field->getData()[d] );
 	}
     }
     comm->barrier();
