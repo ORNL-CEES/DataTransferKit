@@ -388,7 +388,7 @@ MeshFreeInterpolatorFactory::create(
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WendlandBasis<0>,GO,1>(comm) );
 				}
 				break;
@@ -396,7 +396,7 @@ MeshFreeInterpolatorFactory::create(
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WendlandBasis<0>,GO,2>(comm) );
 				}
 				break;
@@ -404,7 +404,7 @@ MeshFreeInterpolatorFactory::create(
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WendlandBasis<0>,GO,3>(comm) );
 				}
 				break;
@@ -423,7 +423,7 @@ MeshFreeInterpolatorFactory::create(
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WendlandBasis<2>,GO,1>(comm) );
 				}
 				break;
@@ -431,7 +431,7 @@ MeshFreeInterpolatorFactory::create(
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WendlandBasis<2>,GO,2>(comm) );
 				}
 				break;
@@ -439,7 +439,7 @@ MeshFreeInterpolatorFactory::create(
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WendlandBasis<2>,GO,3>(comm) );
 				}
 				break;
@@ -458,7 +458,7 @@ MeshFreeInterpolatorFactory::create(
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WendlandBasis<4>,GO,1>(comm) );
 				}
 				break;
@@ -466,7 +466,7 @@ MeshFreeInterpolatorFactory::create(
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WendlandBasis<4>,GO,2>(comm) );
 				}
 				break;
@@ -474,7 +474,7 @@ MeshFreeInterpolatorFactory::create(
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WendlandBasis<4>,GO,3>(comm) );
 				}
 				break;
@@ -493,7 +493,7 @@ MeshFreeInterpolatorFactory::create(
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WendlandBasis<6>,GO,1>(comm) );
 				}
 				break;
@@ -501,7 +501,7 @@ MeshFreeInterpolatorFactory::create(
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WendlandBasis<6>,GO,2>(comm) );
 				}
 				break;
@@ -509,7 +509,7 @@ MeshFreeInterpolatorFactory::create(
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WendlandBasis<6>,GO,3>(comm) );
 				}
 				break;
@@ -540,7 +540,7 @@ MeshFreeInterpolatorFactory::create(
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WuBasis<2>,GO,1>(comm) );
 				}
 				break;
@@ -548,7 +548,7 @@ MeshFreeInterpolatorFactory::create(
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WuBasis<2>,GO,2>(comm) );
 				}
 				break;
@@ -556,7 +556,7 @@ MeshFreeInterpolatorFactory::create(
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WuBasis<2>,GO,3>(comm) );
 				}
 				break;
@@ -575,7 +575,7 @@ MeshFreeInterpolatorFactory::create(
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WuBasis<4>,GO,1>(comm) );
 				}
 				break;
@@ -583,7 +583,7 @@ MeshFreeInterpolatorFactory::create(
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WuBasis<4>,GO,2>(comm) );
 				}
 				break;
@@ -591,7 +591,7 @@ MeshFreeInterpolatorFactory::create(
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					WuBasis<4>,GO,3>(comm) );
 				}
 				break;
@@ -622,7 +622,7 @@ MeshFreeInterpolatorFactory::create(
 				case 1:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					BuhmannBasis<3>,GO,1>(comm) );
 				}
 				break;
@@ -630,7 +630,7 @@ MeshFreeInterpolatorFactory::create(
 				case 2:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					BuhmannBasis<3>,GO,2>(comm) );
 				}
 				break;
@@ -638,7 +638,7 @@ MeshFreeInterpolatorFactory::create(
 				case 3:
 				{
 				    interpolator = Teuchos::rcp(
-					new SplineInterpolator<
+					new MovingLeastSquare<
 					BuhmannBasis<3>,GO,3>(comm) );
 				}
 				break;
