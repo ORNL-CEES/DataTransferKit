@@ -47,6 +47,7 @@
 #include <Teuchos_SerialDenseMatrix.hpp>
 #include <Teuchos_SerialDenseVector.hpp>
 #include <Teuchos_SerialDenseSolver.hpp>
+#include <Teuchos_LAPACK.hpp>
 
 namespace DataTransferKit
 {
@@ -148,27 +149,54 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 	target_poly(8) = target_center[2];
     }
 
-    // Construct and invert the A matrix.
+    // Construct b.
+    Teuchos::SerialDenseMatrix<int,double> b( poly_size, num_sources );
+    b.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, P, phi, 0.0 );
+
+    // Construct the A matrix.
     Teuchos::SerialDenseMatrix<int,double> A( poly_size, poly_size );
     {
+	// Build A.
 	Teuchos::SerialDenseMatrix<int,double> work( num_sources, poly_size );
 	work.multiply( Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, phi, P, 0.0 );
 	A.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, P, work, 0.0 );
-	Teuchos::SerialDenseSolver<int,double> A_solver;
-	A_solver.setMatrix( Teuchos::rcpFromRef(A) );
-	A_solver.invert();
+    }
+
+    // Apply the inverse of the A matrix to b.
+    {
+	// Compute the reciprocal of the condition number of A.
+	Teuchos::LAPACK<int,double> lapack;
+	double A_norm = A.normOne();
+	double A_rcond = 0.0;
+	Teuchos::Array<double> work( 4 * A.numRows() );
+	Teuchos::Array<int> iwork( A.numRows() );
+	int info = 0;
+	lapack.GECON( '1', A.numRows(), A.values(), A.numCols(), A_norm,
+		      &A_rcond, work.getRawPtr(), iwork.getRawPtr(), &info );
+	DTK_CHECK( 0 == info );
+
+	// A may be possibly rank-deficient so solve the linear least-squares
+	// problem. First get the optimal work size.
+	Teuchos::SerialDenseVector<int,double> s( poly_size );
+	int rank = 0;
+	lapack.GELSS( A.numRows(), A.numCols(), num_sources, A.values(), A.numRows(),
+		      b.values(), b.numRows(), s.values(),
+		      A_rcond, &rank, work.getRawPtr(), -1, &info );
+	DTK_CHECK( 0 == info );
+
+	work.resize( work[0] );
+	lapack.GELSS( A.numRows(), A.numCols(), num_sources, A.values(), A.numRows(),
+		      b.values(), b.numRows(), s.values(),
+		      A_rcond, &rank, work.getRawPtr(), work.size(), &info );
+	DTK_CHECK( 0 == info );
     }
 
     // Construct the basis.
-    Teuchos::SerialDenseMatrix<int,double> b( poly_size, num_sources );
-    b.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, P, phi, 0.0 );
-    Teuchos::SerialDenseMatrix<int,double> work( poly_size, num_sources );
-    work.multiply( Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, A, b, 0.0 );
     Teuchos::SerialDenseMatrix<int,double> shape_matrix(
 	Teuchos::View, d_shape_function.getRawPtr(), 
 	1, 1, d_shape_function.size() );
     shape_matrix.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 
-			   1.0, target_poly, work, 0.0 );
+			   1.0, target_poly, b, 0.0 );
 }
 
 //---------------------------------------------------------------------------//
