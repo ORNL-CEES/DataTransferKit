@@ -165,6 +165,7 @@ void SplineInterpolator<Basis,GO,DIM>::interpolate(
     Teuchos::RCP<Teuchos::ParameterList> params = Teuchos::parameterList();
     params->set( "Maximum Iterations", 1000 );
     params->set( "Convergence Tolerance", 1.0e-8 );
+#if HAVE_TOPAZ_DBC
     int verbosityLevel = Belos::IterationDetails | 
 			 Belos::OrthoDetails |
 			 Belos::FinalSummary |
@@ -172,6 +173,9 @@ void SplineInterpolator<Basis,GO,DIM>::interpolate(
 			 Belos::StatusTestDetails |
 			 Belos::Warnings | 
 			 Belos::Errors;
+#else
+    int verbosityLevel = 0;
+#endif
     params->set("Verbosity", verbosityLevel);
 
     // Allocate a work vector.
