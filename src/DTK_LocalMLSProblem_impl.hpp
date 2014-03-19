@@ -73,9 +73,9 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 
     // Build the matrix of basis evaluations and the P matrix.
     int poly_size = 0;
-    if ( 1 == DIM ) poly_size = 2;
-    else if ( 2 == DIM ) poly_size = 5;
-    else if ( 3 == DIM ) poly_size = 9;
+    if ( 1 == DIM ) poly_size = 3;
+    else if ( 2 == DIM ) poly_size = 6;
+    else if ( 3 == DIM ) poly_size = 10;
     Teuchos::SerialDenseMatrix<int,double> P( num_sources, poly_size );
     Teuchos::SerialDenseMatrix<int,double> phi( num_sources, num_sources );
     Teuchos::ArrayView<const double> source_center_view;
@@ -97,7 +97,8 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 	if ( 1 == DIM )
 	{
 	    P(i,0) = source_center_view[0]*source_center_view[0];
-	    P(i,0) = source_center_view[0];
+	    P(i,1) = source_center_view[0];
+	    P(i,2) = 1.0;
 	}
 	else if ( 2 == DIM )
 	{
@@ -106,6 +107,7 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 	    P(i,2) = source_center_view[1]*source_center_view[1];
 	    P(i,3) = source_center_view[0];
 	    P(i,4) = source_center_view[1];
+	    P(i,5) = 1.0;
 	}
 	else if ( 3 == DIM )
 	{
@@ -118,6 +120,7 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 	    P(i,6) = source_center_view[0];
 	    P(i,7) = source_center_view[1];
 	    P(i,8) = source_center_view[2];
+	    P(i,9) = 1.0;
 	}
     }
 
@@ -126,7 +129,8 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
     if ( 1 == DIM )
     {
 	target_poly(0) = target_center[0]*target_center[0];
-	target_poly(0) = target_center[0];
+	target_poly(1) = target_center[0];
+	target_poly(2) = 1.0;
     }
     else if ( 2 == DIM )
     {
@@ -135,6 +139,7 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 	target_poly(2) = target_center[1]*target_center[1];
 	target_poly(3) = target_center[0];
 	target_poly(4) = target_center[1];
+	target_poly(5) = 1.0;
     }
     else if ( 3 == DIM )
     {
@@ -147,6 +152,7 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 	target_poly(6) = target_center[0];
 	target_poly(7) = target_center[1];
 	target_poly(8) = target_center[2];
+	target_poly(9) = 1.0;
     }
 
     // Construct b.
