@@ -1,1 +1,1 @@
-SET_DEFAULT(DataTransferKit_REPOSITORY_MASTER_EMAIL_ADDRESSS coupler-infrastructure@casl-dev.ornl.gov)
+SET_DEFAULT(DataTransferKit_REPOSITORY_MASTER_EMAIL_ADDRESS coupler-infrastructure@casl-dev.ornl.gov)
