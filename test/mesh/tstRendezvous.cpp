@@ -859,8 +859,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_test )
 
     // Create a mesh container.
     typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildLineContainer( my_rank );
 
@@ -928,8 +926,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_test )
 
     // Create a mesh container.
     typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildTriContainer( my_rank );
 
@@ -997,8 +993,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_test )
 
     // Create a mesh container.
     typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildQuadContainer( my_rank );
 
@@ -1064,8 +1058,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_test )
 
     // Create a mesh container.
     typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildTetContainer( my_rank );
 
@@ -1132,8 +1124,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_test )
 
     // Create a mesh container.
     typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildHexContainer( my_rank );
 
@@ -1200,8 +1190,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_test )
 
     // Create a mesh container.
     typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildPyramidContainer( my_rank );
 
@@ -1268,8 +1256,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_test )
 
     // Create a mesh container.
     typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildWedgeContainer( my_rank );
 
@@ -1336,8 +1322,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_test )
 
     // Create a mesh container.
     typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 2 );
     mesh_blocks[0] = buildTriContainer( my_rank );
     mesh_blocks[1] = buildShiftedQuadContainer( my_rank, my_size );
@@ -1404,8 +1388,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_test )
 
     // Create a mesh container.
     typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 3 );
     mesh_blocks[0] = buildTetContainer( my_rank );
     mesh_blocks[1] = buildShiftedPyramidContainer( my_rank, my_size );

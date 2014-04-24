@@ -211,7 +211,6 @@ TEUCHOS_UNIT_TEST( GeometryRCB, partitioner_cylinder_test )
     geometry_manager->setActiveGeometry( active );
 
     // Partition the geometry with GeometryRCB.
-    typedef GeometryRCB<Cylinder,int>::zoltan_id_type zoltan_id_type;
     Teuchos::RCP<Partitioner> partitioner = 
 	PartitionerFactory::createGeometryPartitioner( 
 	    getDefaultComm<int>(), geometry_manager, 3 );
@@ -401,7 +400,6 @@ TEUCHOS_UNIT_TEST( GeometryRCB, partitioner_box_test )
 			  boxes, gids, comm, 3 ) );
 
     // Partition the geometry with GeometryRCB.
-    typedef GeometryRCB<Box,int>::zoltan_id_type zoltan_id_type;
     Teuchos::RCP<Partitioner> partitioner = 
 	PartitionerFactory::createGeometryPartitioner( 
 	    getDefaultComm<int>(), geometry_manager, 3 );

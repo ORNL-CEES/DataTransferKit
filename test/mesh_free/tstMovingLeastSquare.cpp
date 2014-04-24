@@ -127,7 +127,7 @@ TEUCHOS_UNIT_TEST( MovingLeastSquare, dim_1_test )
 
     for ( int i = 0; i < num_tgt_points; ++i )
     {
-	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*inverse_rank + 1.0, epsilon );
+	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*rank + 1.0, epsilon );
     }
 }
 
@@ -191,7 +191,7 @@ TEUCHOS_UNIT_TEST( MovingLeastSquare, dim_2_test )
 			       tgt_data(), 1, tgt_data.size() );
     for ( int i = 0; i < num_tgt_points; ++i )
     {
-	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*inverse_rank + 1.0, epsilon );
+	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*rank + 1.0, epsilon );
     }
 }
 
@@ -281,7 +281,7 @@ TEUCHOS_UNIT_TEST( MovingLeastSquare, dim_3_test )
 			       tgt_data(), 1, tgt_data.size() );
     for ( int i = 0; i < num_tgt_points; ++i )
     {
-	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*inverse_rank + 1.0, epsilon );
+	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*rank + 1.0, epsilon );
     }
 }
 

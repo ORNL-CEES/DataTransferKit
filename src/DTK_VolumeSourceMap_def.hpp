@@ -149,12 +149,13 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     }
 
     BoundingBox local_target_box( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
-    BoundingBox target_box;
+    BoundingBox send_target_box;
+    BoundingBox receive_target_box;
     if ( target_exists )
     {
 	DTK_REQUIRE( CFT::dim( *target_coord_manager->field() ) 
 			  == d_dimension );
-	target_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
+	send_target_box = FieldTools<CoordinateField>::coordGlobalBoundingBox(
 	    *target_coord_manager->field(), target_coord_manager->comm() );
 	local_target_box = FieldTools<CoordinateField>::coordLocalBoundingBox(
 	    *target_coord_manager->field() );
@@ -165,7 +166,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     if ( d_comm->getRank() == d_source_indexer.l2g(0) )
     {
 	box_request = Teuchos::ireceive<int,BoundingBox>(
-	    *d_comm, Teuchos::RCP<BoundingBox>(&target_box,false),
+	    *d_comm, Teuchos::RCP<BoundingBox>(&receive_target_box,false),
 	    d_target_indexer.l2g(0) );
     }
 
@@ -173,7 +174,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     if ( d_comm->getRank() == d_target_indexer.l2g(0) )
     {
 	Teuchos::isend<int,BoundingBox>( 
-	    *d_comm, Teuchos::RCP<BoundingBox>(&target_box,false), 
+	    *d_comm, Teuchos::RCP<BoundingBox>(&send_target_box,false), 
 	    d_source_indexer.l2g(0) );
     }
 
@@ -186,7 +187,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	    request_ptr(&box_request);
         Teuchos::wait( *d_comm, request_ptr );
 	bool has_intersect = BoundingBox::intersectBoxes( 
-	    source_box, target_box, shared_domain_box );
+	    source_box, receive_target_box, shared_domain_box );
 	DTK_INSIST( has_intersect );
     }
     Teuchos::broadcast<int,BoundingBox>( 

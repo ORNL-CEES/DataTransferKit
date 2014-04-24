@@ -973,7 +973,6 @@ TEUCHOS_UNIT_TEST( IntegralAssemblyMap, box_test )
 {
     using namespace DataTransferKit;
     typedef MeshContainer<int> MeshType;
-    typedef MeshTraits<MeshType> MT;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
