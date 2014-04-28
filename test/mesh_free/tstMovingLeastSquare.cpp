@@ -113,13 +113,12 @@ TEUCHOS_UNIT_TEST( MovingLeastSquare, dim_1_test )
     tgt_coords[1] = 2.0*inverse_rank + 0.6;
 
     double radius = 1.0;
-    double alpha = 1.0;
 
     Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator = 
 	DataTransferKit::MeshFreeInterpolatorFactory::create<int>(
 	    comm, "Moving Least Square", "Wendland", 2, dim );
 
-    interpolator->setProblem( src_coords(), tgt_coords(), radius, alpha );
+    interpolator->setProblem( src_coords(), tgt_coords(), radius );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
     interpolator->interpolate( src_data(), 1, src_data.size(),
@@ -178,13 +177,12 @@ TEUCHOS_UNIT_TEST( MovingLeastSquare, dim_2_test )
     tgt_coords[3] = 0.5;
 
     double radius = 1.0;
-    double alpha = 1.0;
 
     Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator = 
 	DataTransferKit::MeshFreeInterpolatorFactory::create<int>(
 	    comm, "Moving Least Square", "Wendland", 2, dim );
 
-    interpolator->setProblem( src_coords(), tgt_coords(), radius, alpha );
+    interpolator->setProblem( src_coords(), tgt_coords(), radius );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
     interpolator->interpolate( src_data(), 1, src_data.size(),
@@ -268,13 +266,12 @@ TEUCHOS_UNIT_TEST( MovingLeastSquare, dim_3_test )
     tgt_coords[5] = 0.5;
 
     double radius = 1.0;
-    double alpha = 1.0;
 
     Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator = 
 	DataTransferKit::MeshFreeInterpolatorFactory::create<int>(
 	    comm, "Moving Least Square", "Wendland", 2, dim );
 
-    interpolator->setProblem( src_coords(), tgt_coords(), radius, alpha );
+    interpolator->setProblem( src_coords(), tgt_coords(), radius );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
     interpolator->interpolate( src_data(), 1, src_data.size(),

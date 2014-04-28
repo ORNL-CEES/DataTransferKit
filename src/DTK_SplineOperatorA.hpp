@@ -85,8 +85,7 @@ class SplineOperatorA
 	const Teuchos::ArrayView<const double>& dist_source_centers,
 	const Teuchos::ArrayView<const GO>& dist_source_center_gids,
 	const Teuchos::RCP<SplineInterpolationPairing<DIM> >& target_pairings,
-	const Basis& basis,
-	const double alpha );
+	const Basis& basis );
 };
 
 //---------------------------------------------------------------------------//

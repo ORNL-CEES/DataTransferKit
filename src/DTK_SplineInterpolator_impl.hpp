@@ -92,25 +92,19 @@ SplineInterpolator<Basis,GO,DIM>::SplineInterpolator(
  *
  * \brief radius The radius over which the basis functions will be
  * defined. Must be greater than 0.
- *
- * \brief alpha Derivative contribution parameter. Must be greater than or
- * equal to zero. A value of zero will give no derivative contributions to the
- * interpolation.
  */
 template<class Basis, class GO, int DIM>
 void SplineInterpolator<Basis,GO,DIM>::setProblem(
     const Teuchos::ArrayView<const double>& source_centers,
     const Teuchos::ArrayView<const double>& target_centers,
-    const double radius,
-    const double alpha )
+    const double radius )
 {
     DTK_REQUIRE( 0 == source_centers.size() % DIM );
     DTK_REQUIRE( 0 == target_centers.size() % DIM );
-    DTK_REQUIRE( alpha >= 0.0 );
     DTK_REQUIRE( radius > 0.0 );
 
     // Build the interpolation and transformation operators.
-    buildOperators( source_centers, target_centers, radius, alpha );
+    buildOperators( source_centers, target_centers, radius );
 
     DTK_ENSURE( Teuchos::nonnull(d_C) );
     DTK_ENSURE( Teuchos::nonnull(d_A) );
@@ -233,8 +227,7 @@ template<class Basis, class GO, int DIM>
 void SplineInterpolator<Basis,GO,DIM>::buildOperators(
     const Teuchos::ArrayView<const double>& source_centers,
     const Teuchos::ArrayView<const double>& target_centers,
-    const double radius,
-    const double alpha )
+    const double radius )
 {
     // INTERPOLATION OPERATOR.
     // Gather the source centers that are within a radius of the source
@@ -289,7 +282,7 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
 	    source_map,
 	    source_centers, source_gids,
 	    dist_sources, dist_source_gids,
-	    Teuchos::rcpFromRef(source_pairings), *basis, alpha) );
+	    Teuchos::rcpFromRef(source_pairings), *basis) );
 
     // Cleanup.
     dist_source_gids.clear();
@@ -337,7 +330,7 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
 	target_map, source_map,
 	target_centers, target_gids,
 	dist_sources, dist_source_gids,
-	Teuchos::rcpFromRef(target_pairings), *basis, alpha );
+	Teuchos::rcpFromRef(target_pairings), *basis );
 }
 
 //---------------------------------------------------------------------------//

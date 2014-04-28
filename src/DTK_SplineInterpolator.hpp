@@ -85,8 +85,7 @@ class SplineInterpolator : public MeshFreeInterpolator
     // Set the interpolation problem.
     void setProblem( const Teuchos::ArrayView<const double>& source_centers,
 		     const Teuchos::ArrayView<const double>& target_centers,
-		     const double radius,
-		     const double alpha );
+		     const double radius );
 
     // Given a set of scalar values at the given source centers in the source
     // decomposition, interpolate them onto the target centers in the target
@@ -104,8 +103,7 @@ class SplineInterpolator : public MeshFreeInterpolator
     void buildOperators(
 	const Teuchos::ArrayView<const double>& source_centers,
 	const Teuchos::ArrayView<const double>& target_centers,
-	const double radius,
-	const double alpha );
+	const double radius );
 
   private:
 

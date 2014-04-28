@@ -60,13 +60,11 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
     const Teuchos::ArrayView<const double>& target_center,
     const Teuchos::ArrayView<const unsigned>& source_lids,
     const Teuchos::ArrayView<const double>& source_centers,
-    const Basis& basis,
-    const double alpha )
+    const Basis& basis )
     : d_shape_function( source_lids.size() )
 {
     DTK_REQUIRE( 0 == source_centers.size() % DIM );
     DTK_REQUIRE( 0 == target_center.size() % DIM );
-    DTK_REQUIRE( alpha >= 0.0 );
 
     // Number of source centers supporting this target center.
     int num_sources = source_lids.size();
@@ -88,10 +86,6 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 
 	// Basis values.
 	phi(i,i) = BP::evaluateValue( basis, dist );
-	if ( alpha > 0.0 )
-	{
-	    phi(i,i) += alpha * BP::evaluateGradient( basis, dist );
-	}
 
 	// Polynomial matrix.
 	if ( 1 == DIM )

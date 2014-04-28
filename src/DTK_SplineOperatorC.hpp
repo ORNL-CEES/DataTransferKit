@@ -79,8 +79,7 @@ class SplineOperatorC : public Tpetra::Operator<double,int,GO>
 	const Teuchos::ArrayView<const double>& dist_source_centers,
 	const Teuchos::ArrayView<const GO>& dist_source_center_gids,
 	const Teuchos::RCP<SplineInterpolationPairing<DIM> >& source_pairings,
-	const Basis& basis,
-	const double alpha );
+	const Basis& basis );
 
     //! Destructor.
     ~SplineOperatorC()

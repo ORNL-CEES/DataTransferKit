@@ -82,25 +82,19 @@ MovingLeastSquare<Basis,GO,DIM>::MovingLeastSquare(
  *
  * \brief radius The radius over which the basis functions will be
  * defined. Must be greater than 0.
- *
- * \brief alpha Derivative contribution parameter. Must be greater than or
- * equal to zero. A value of zero will give no derivative contributions to the
- * interpolation.
  */
 template<class Basis, class GO, int DIM>
 void MovingLeastSquare<Basis,GO,DIM>::setProblem(
     const Teuchos::ArrayView<const double>& source_centers,
     const Teuchos::ArrayView<const double>& target_centers,
-    const double radius,
-    const double alpha )
+    const double radius )
 {
     DTK_REQUIRE( 0 == source_centers.size() % DIM );
     DTK_REQUIRE( 0 == target_centers.size() % DIM );
-    DTK_REQUIRE( alpha >= 0.0 );
     DTK_REQUIRE( radius > 0.0 );
 
     // Build the interpolation matrix.
-    buildInterpolationMatrix( source_centers, target_centers, radius, alpha );
+    buildInterpolationMatrix( source_centers, target_centers, radius );
 
     DTK_ENSURE( Teuchos::nonnull(d_H) );
 }
@@ -177,8 +171,7 @@ template<class Basis, class GO, int DIM>
 void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
     const Teuchos::ArrayView<const double>& source_centers,
     const Teuchos::ArrayView<const double>& target_centers,
-    const double radius,
-    const double alpha )
+    const double radius )
 {
     // Build the source map.
     GO local_num_src = source_centers.size() / DIM;
@@ -242,7 +235,7 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
 	// Build the local interpolation problem.
 	LocalMLSProblem<Basis,GO,DIM> local_problem(
 	    target_view, pairings.childCenterIds(i),
-	    dist_sources, *basis, alpha );
+	    dist_sources, *basis );
 
 	// Populate the interpolation matrix row.
 	values = local_problem.shapeFunction();

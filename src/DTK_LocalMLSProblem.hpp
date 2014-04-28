@@ -73,8 +73,7 @@ class LocalMLSProblem
     LocalMLSProblem( const Teuchos::ArrayView<const double>& target_center,
 		     const Teuchos::ArrayView<const unsigned>& source_lids,
 		     const Teuchos::ArrayView<const double>& source_centers,
-		     const Basis& basis,
-		     const double alpha );
+		     const Basis& basis );
 
     //! Destructor.
     ~LocalMLSProblem()

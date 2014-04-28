@@ -62,8 +62,7 @@ SplineOperatorA<Basis,GO,DIM>::create(
     const Teuchos::ArrayView<const double>& dist_source_centers,
     const Teuchos::ArrayView<const GO>& dist_source_center_gids,
     const Teuchos::RCP<SplineInterpolationPairing<DIM> >& target_pairings,
-    const Basis& basis,
-    const double alpha )
+    const Basis& basis )
 {
     DTK_CHECK( 0 == target_centers.size() % DIM );
     DTK_CHECK( target_centers.size() / DIM == 
@@ -119,10 +118,6 @@ SplineOperatorA<Basis,GO,DIM>::create(
 		&target_centers[di], &dist_source_centers[dj] );
 
     	    values[jpoffset] = BP::evaluateValue( basis, dist );
-    	    if ( alpha > 0.0 )
-    	    {
-    		values[jpoffset] += alpha * BP::evaluateGradient( basis, dist );
-    	    }
     	}
 
 	A->insertGlobalValues( target_center_gids[i], indices(), values() );
