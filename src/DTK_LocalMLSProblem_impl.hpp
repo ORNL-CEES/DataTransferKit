@@ -184,6 +184,7 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 		      A_rcond, &rank, work.getRawPtr(), -1, &info );
 	DTK_CHECK( 0 == info );
 
+	// Apply the inverse of A to b.
 	work.resize( work[0] );
 	lapack.GELSS( A.numRows(), A.numCols(), num_sources, A.values(), A.numRows(),
 		      b.values(), b.numRows(), s.values(),

@@ -194,7 +194,7 @@ void IntrepidCell<MDArray>::mapToCellPhysicalFrame(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Determine if a point given in natural coordinates is inside of the
+ * \brief Determine if a point given in parametric coordinates is inside of the
  * reference cell.
  */
 template<typename MDArray>

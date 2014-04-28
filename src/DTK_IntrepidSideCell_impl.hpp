@@ -120,8 +120,7 @@ void IntrepidSideCell<MDArray>::updateCellState()
 	break;
 
 	default:
-	    DTK_INSIST( 3 == space_dim || 2 == space_dim,
-			  "Subcell cell not supported for dimension" );
+	    DTK_INSIST( 3 == space_dim || 2 == space_dim );
 	    break;
     }
 

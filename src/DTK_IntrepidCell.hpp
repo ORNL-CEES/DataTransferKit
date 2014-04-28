@@ -99,7 +99,7 @@ class IntrepidCell
     virtual void mapToCellPhysicalFrame( const MDArray& parametric_coords,
 					 MDArray& physical_coords );
 
-    // Determine if a point given in natural coordinates is inside of the
+    // Determine if a point given in parametric coordinates is inside of the
     // reference cell.
     bool pointInReferenceCell( const MDArray& reference_point,
 			       const double tolerance );

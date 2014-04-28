@@ -244,7 +244,6 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
 	{
 	    indices[j] = source_gids[ pairings.childCenterIds(i)[j] ];
 	}
-
 	d_H->insertGlobalValues( target_gids[i], indices(), values );
     }
 
