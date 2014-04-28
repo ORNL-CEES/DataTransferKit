@@ -34,7 +34,7 @@
 /*!
  * \file   tstCloudDomain.cpp
  * \author Stuart R. Slattery
- * \brief  Bounding box unit tests.
+ * \brief  CloudDomain unit tests.
  */
 //---------------------------------------------------------------------------//
 
