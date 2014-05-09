@@ -75,7 +75,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // CONSTANTS
 //---------------------------------------------------------------------------//
 
-double epsilon = 1.0e-14;
+const double epsilon = 10.0*std::numeric_limits<double>::epsilon();
 
 //---------------------------------------------------------------------------//
 // Tests.

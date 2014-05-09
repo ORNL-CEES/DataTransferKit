@@ -159,7 +159,7 @@ void SplineInterpolator<Basis,GO,DIM>::interpolate(
     Teuchos::RCP<Teuchos::ParameterList> params = Teuchos::parameterList();
     params->set( "Maximum Iterations", 1000 );
     params->set( "Convergence Tolerance", 1.0e-8 );
-#if HAVE_TOPAZ_DBC
+#if HAVE_DTK_DBC
     int verbosityLevel = Belos::IterationDetails | 
 			 Belos::OrthoDetails |
 			 Belos::FinalSummary |
@@ -204,8 +204,12 @@ void SplineInterpolator<Basis,GO,DIM>::interpolate(
 	    Teuchos::rcpFromRef(problem), params );
 
 	// Apply the inverse of the interpolation operator.
+#if HAVE_DTK_DBC
 	Belos::ReturnType rt = solver.solve();
-	DTK_INSIST( Belos::Converged == rt );
+	DTK_ENSURE( Belos::Converged == rt );
+#else
+	solver.solve();
+#endif
     }
 
     // Create a multivector with a view of the target data.
