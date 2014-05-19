@@ -94,9 +94,6 @@ int main( int argc, char * argv[] )
     // Support radius.
     double radius = 2.0*h;
 
-    // Derivative contribution.
-    double alpha = 0.0;
-
     // Interpolation type.
     std::string interpolation_type = "Moving Least Square";
 
@@ -115,7 +112,7 @@ int main( int argc, char * argv[] )
     std::cout << "Building DataTransferKit::SplineInterpolator" << std::endl;
     Teuchos::Time construction_timer("");
     construction_timer.start(true);
-    interpolator->setProblem( grid_nodes(), target_centers(), radius, alpha );
+    interpolator->setProblem( grid_nodes(), target_centers(), radius );
     construction_timer.stop();
     if ( comm->getRank() == 0 )
     {

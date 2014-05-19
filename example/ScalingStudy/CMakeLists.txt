@@ -42,3 +42,10 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   DEPLIBS datatransferkit
   )
 
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  ScalingStudy7
+  SOURCES scaling_study_7.cpp
+  COMM mpi
+  DEPLIBS datatransferkit
+  )
+

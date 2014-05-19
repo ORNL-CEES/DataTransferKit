@@ -218,6 +218,11 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
     CenterDistributor<DIM> distributor( 
 	d_comm, source_centers, target_centers, radius, dist_sources );
 
+    // Gather the global ids of the source centers.
+    Teuchos::ArrayView<const GO> source_gids_view = source_gids();
+    Teuchos::Array<GO> dist_source_gids( distributor.getNumImports() );
+    distributor.distribute( source_gids_view, dist_source_gids() );
+
     // Build the source/target pairings.
     SplineInterpolationPairing<DIM> pairings( 
 	dist_sources, target_centers, radius );
@@ -242,7 +247,7 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
 	indices.resize( values.size() );
 	for ( unsigned j = 0; j < values.size(); ++j )
 	{
-	    indices[j] = source_gids[ pairings.childCenterIds(i)[j] ];
+	    indices[j] = dist_source_gids[ pairings.childCenterIds(i)[j] ];
 	}
 	d_H->insertGlobalValues( target_gids[i], indices(), values );
     }
