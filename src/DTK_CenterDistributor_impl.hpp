@@ -70,7 +70,7 @@ CenterDistributor<DIM>::CenterDistributor(
     {
 	// Compute the radius to expand the local domain with.
 	double radius_tol = 1.0e-2;
-	double radius_expand = radius * (1.0 + radius_tol);
+	double radius_expand = radius * radius_tol;
 
 	// Gather the bounding domains for each target proc.
 	CloudDomain<DIM> local_target_domain = localCloudDomain( target_centers );

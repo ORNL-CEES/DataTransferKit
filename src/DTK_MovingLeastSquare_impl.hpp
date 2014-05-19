@@ -232,6 +232,7 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
     Teuchos::ArrayView<const double> target_view;
     Teuchos::Array<GO> indices;
     Teuchos::ArrayView<const double> values;
+    Teuchos::ArrayView<const unsigned> pair_gids;
     for ( int i = 0; i < local_num_tgt; ++i )
     {
 	// Get a view of this target center.
@@ -245,9 +246,10 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
 	// Populate the interpolation matrix row.
 	values = local_problem.shapeFunction();
 	indices.resize( values.size() );
+	pair_gids = pairings.childCenterIds(i);
 	for ( unsigned j = 0; j < values.size(); ++j )
 	{
-	    indices[j] = dist_source_gids[ pairings.childCenterIds(i)[j] ];
+	    indices[j] = dist_source_gids[ pair_gids[j] ];
 	}
 	d_H->insertGlobalValues( target_gids[i], indices(), values );
     }

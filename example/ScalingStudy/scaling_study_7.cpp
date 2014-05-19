@@ -160,11 +160,18 @@ int main(int argc, char* argv[])
     comm->barrier();
     double point_error = 0.0;
     double local_error = 0.0;
+    double local_min = 1.0;
+    double local_max = 0.0;
+    double local_sum = 0.0;
     for ( int i = 0; i < num_points; ++i )
     {
-	point_error = ( target_centers[3*i] + target_centers[3*i+1] +
-			target_centers[3*i+2] ) - target_function[i];
+	point_error = std::abs( 
+	    ( target_centers[3*i] + target_centers[3*i+1] +
+	      target_centers[3*i+2] ) - target_function[i] );
 	local_error += point_error*point_error;
+	local_min = std::min( local_min, point_error );
+	local_max = std::max( local_max, point_error );
+	local_sum += point_error;
     }
 
     double global_error = 0.0;
@@ -174,9 +181,31 @@ int main(int argc, char* argv[])
 				    &local_error,
 				    &global_error );
     global_error = std::sqrt( global_error );   
+    double global_min = 0.0;
+    Teuchos::reduceAll<int,double>( *comm,
+				    Teuchos::REDUCE_MIN,
+				    1,
+				    &local_min,
+				    &global_min );
+    double global_max = 0.0;
+    Teuchos::reduceAll<int,double>( *comm,
+				    Teuchos::REDUCE_MAX,
+				    1,
+				    &local_max,
+				    &global_max );
+    double global_sum = 0.0;
+    Teuchos::reduceAll<int,double>( *comm,
+				    Teuchos::REDUCE_SUM,
+				    1,
+				    &local_sum,
+				    &global_sum );
+    global_sum /= num_points * my_size;
     if ( my_rank == 0 )
     {
 	std::cout << std::endl << "Error L2 " << global_error << std::endl;
+	std::cout << "Error Min " << global_min << std::endl;
+	std::cout << "Error Max " << global_max << std::endl;
+	std::cout << "Error Ave " << global_sum << std::endl;
     }
     comm->barrier();
 
