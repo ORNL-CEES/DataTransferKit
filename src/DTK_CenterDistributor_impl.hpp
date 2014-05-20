@@ -73,9 +73,11 @@ CenterDistributor<DIM>::CenterDistributor(
 	double radius_expand = radius * radius_tol;
 
 	// Gather the bounding domains for each target proc.
-	CloudDomain<DIM> local_target_domain = localCloudDomain( target_centers );
+	CloudDomain<DIM> local_target_domain = 
+	    localCloudDomain( target_centers );
 	local_target_domain.expand( radius_expand );
-	Teuchos::Array<CloudDomain<DIM> > global_target_domains( comm->getSize() );
+	Teuchos::Array<CloudDomain<DIM> > global_target_domains( 
+	    comm->getSize() );
 	Teuchos::gatherAll<int,CloudDomain<DIM> >( 
 	    *comm,
 	    1,
@@ -84,7 +86,8 @@ CenterDistributor<DIM>::CenterDistributor(
 	    global_target_domains.getRawPtr() );
 
 	// Get those that are neighbors to this source proc.
-	CloudDomain<DIM> local_source_domain = localCloudDomain( source_centers );
+	CloudDomain<DIM> local_source_domain = 
+	    localCloudDomain( source_centers );
 	Teuchos::Array<CloudDomain<DIM> > neighbor_target_domains;
 	Teuchos::Array<int> neighbor_ranks;
 	for ( unsigned i = 0; i < global_target_domains.size(); ++i )

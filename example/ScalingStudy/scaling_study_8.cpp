@@ -1,9 +1,9 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file scaling_study_7.cpp
+ * \file scaling_study_8.cpp
  * \author Stuart R. Slattery
- * \brief Scaling study 7. Mesh-free weak scaling in 3D over cube of points
- * locally random source and target points.
+ * \brief Scaling study 8. Mesh-free strong scaling in 3D over cube of
+ * elements with locally random source and target points.
  */
 //---------------------------------------------------------------------------//
 
@@ -75,6 +75,8 @@ Teuchos::ArrayRCP<double> buildCoordinates(
 //---------------------------------------------------------------------------//
 int main(int argc, char* argv[])
 {
+    using namespace DataTransferKit;
+
     // Setup communication.
     Teuchos::GlobalMPISession mpiSession(&argc,&argv);
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 
@@ -97,7 +99,8 @@ int main(int argc, char* argv[])
     assert( k_block < num_k_blocks );
 
     // Setup source mesh.
-    int edge_size = std::atoi(argv[4]);
+    int global_size = std::atoi(argv[4]);
+    int edge_size = (global_size / std::pow(my_size,1.0/3.0) ) + 1;
     int num_points = (edge_size-1)*(edge_size-1)*(edge_size-1)*8;
     assert( 1 < edge_size );
     Teuchos::ArrayRCP<double> source_centers = 
@@ -300,6 +303,6 @@ int main(int argc, char* argv[])
 }
 
 //---------------------------------------------------------------------------//
-// end scaling_study_7.cpp
+// end scaling_study_8.cpp
 //---------------------------------------------------------------------------//
 
