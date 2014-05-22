@@ -108,6 +108,8 @@ int main(int argc, char* argv[])
     int edge_size = (global_size / std::pow(my_size,1.0/3.0) ) + 1;
     int num_points = (edge_size-1)*(edge_size-1)*(edge_size-1)*8;
     assert( 1 < edge_size );
+    int num_neighbors = std::atoi(argv[5]);
+    assert( 0 < num_neighbors );
     Teuchos::ArrayRCP<double> source_centers = 
 	buildCoordinates( inverse_rank, my_size, num_points, edge_size,
 			  i_block, j_block, k_block,
@@ -115,8 +117,6 @@ int main(int argc, char* argv[])
 			  num_neighbors, 219384801 );
 
     // Setup target coordinate field.
-    int num_neighbors = std::atoi(argv[5]);
-    assert( 0 < num_neighbors );
     Teuchos::ArrayRCP<double> target_centers = 
 	buildCoordinates( my_rank, my_size, num_points, edge_size,
 			  inv_i_block, inv_j_block, inv_k_block,
