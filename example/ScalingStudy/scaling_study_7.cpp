@@ -53,13 +53,13 @@ Teuchos::ArrayRCP<double> buildCoordinates(
     {
 	coordinate_field[point_dim*i] = 
 	    num_neighbors * (double) std::rand() / RAND_MAX + 
-	    i_block - (num_neighbors-1)*i_block/2;
+	    i_block - (num_neighbors-1)/2;
 	coordinate_field[point_dim*i + 1] = 
 	    num_neighbors * (double) std::rand() / RAND_MAX + 
-	    j_block - (num_neighbors-1)*j_block/2;
+	    j_block - (num_neighbors-1)/2;
 	coordinate_field[point_dim*i + 2] = 
 	    num_neighbors * (double) std::rand() / RAND_MAX + 
-	    k_block - (num_neighbors-1)*k_block/2;
+	    k_block - (num_neighbors-1)/2;
     }
 
     return coordinate_field;
