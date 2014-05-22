@@ -45,9 +45,9 @@ Teuchos::ArrayRCP<double> buildCoordinates(
     int num_points, int edge_size,
     int i_block, int j_block, int k_block,
     int num_i_blocks, int num_j_blocks, int num_k_blocks,
-    int num_neighbors, int seed_multiplier )
+    int num_neighbors, int seed_add )
 {
-    std::srand( my_rank*num_points*3*seed_multiplier );
+    std::srand( my_rank*num_points*3 + seed_add );
     int point_dim = 3;
     Teuchos::ArrayRCP<double> coordinate_field(num_points*point_dim);
 
@@ -96,24 +96,28 @@ int main(int argc, char* argv[])
     assert( j_block < num_j_blocks );
     assert( k_block < num_k_blocks );
 
+    int inv_i_block = num_i_blocks - i_block - 1;
+    int inv_j_block = num_j_blocks - j_block - 1;
+    int inv_k_block = num_k_blocks - k_block - 1;
+
     // Setup source mesh.
     int edge_size = std::atoi(argv[4]);
     int num_points = (edge_size-1)*(edge_size-1)*(edge_size-1)*8;
     assert( 1 < edge_size );
+    int num_neighbors = std::atoi(argv[5]);
+    assert( 0 < num_neighbors );
     Teuchos::ArrayRCP<double> source_centers = 
 	buildCoordinates( my_rank, my_size, num_points, edge_size,
 			  i_block, j_block, k_block,
 			  num_i_blocks, num_j_blocks, num_k_blocks,
-			  1, 2 );
+			  num_neighbors, 219384801 );
 
     // Setup target coordinate field.
-    int num_neighbors = std::atoi(argv[5]);
-    assert( 0 < num_neighbors );
     Teuchos::ArrayRCP<double> target_centers = 
 	buildCoordinates( my_rank, my_size, num_points, edge_size,
-			  i_block, j_block, k_block,
+			  inv_i_block, inv_j_block, inv_k_block,
 			  num_i_blocks, num_j_blocks, num_k_blocks,
-			  num_neighbors, 3 );
+			  1, 383950983 );
 
     // Evaluate the source function at the source centers.
     Teuchos::Array<double> source_function( num_points );
@@ -126,7 +130,7 @@ int main(int argc, char* argv[])
     Teuchos::Array<double> target_function( num_points );
 
     // Support radius.
-    double radius = 1.0;
+    double radius = 2.5;
 
     // Interpolation type.
     std::string interpolation_type = argv[6];
@@ -166,8 +170,10 @@ int main(int argc, char* argv[])
     for ( int i = 0; i < num_points; ++i )
     {
 	point_error = std::abs( 
+	    (( target_centers[3*i] + target_centers[3*i+1] +
+	       target_centers[3*i+2] ) - target_function[i])  / 
 	    ( target_centers[3*i] + target_centers[3*i+1] +
-	      target_centers[3*i+2] ) - target_function[i] );
+	      target_centers[3*i+2] ) );
 	local_error += point_error*point_error;
 	local_min = std::min( local_min, point_error );
 	local_max = std::max( local_max, point_error );

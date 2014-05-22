@@ -183,13 +183,8 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
     d_source_map = Tpetra::createContigMap<int,GO>( global_num_src,
 						    local_num_src,
 						    d_comm );
-
-    // Create the source global ids.
-    Teuchos::Array<GO> source_gids( local_num_src );
-    for ( GO j = 0; j < local_num_src; ++j )
-    {
-	source_gids[j] = d_source_map->getMinGlobalIndex() + j;
-    }
+    Teuchos::ArrayView<const GO> source_gids = 
+	d_source_map->getNodeElementList();
 
     // Build the target map.
     GO local_num_tgt = target_centers.size() / DIM;
@@ -201,13 +196,8 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
     d_target_map = Tpetra::createContigMap<int,GO>( global_num_tgt,
 						    local_num_tgt,
 						    d_comm );
-
-    // Create the target global ids.
-    Teuchos::Array<GO> target_gids( local_num_tgt );
-    for ( GO j = 0; j < local_num_tgt; ++j )
-    {
-	target_gids[j] = d_target_map->getMinGlobalIndex() + j;
-    }
+    Teuchos::ArrayView<const GO> target_gids = 
+	d_target_map->getNodeElementList();
 
     // Build the basis.
     Teuchos::RCP<Basis> basis = BP::create( radius );
@@ -218,10 +208,10 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
     CenterDistributor<DIM> distributor( 
 	d_comm, source_centers, target_centers, radius, dist_sources );
 
-    // Gather the global ids of the source centers.
-    Teuchos::ArrayView<const GO> source_gids_view = source_gids();
+    // Gather the global ids of the source centers that are within a radius of
+    // the target centers on this proc.
     Teuchos::Array<GO> dist_source_gids( distributor.getNumImports() );
-    distributor.distribute( source_gids_view, dist_source_gids() );
+    distributor.distribute( source_gids, dist_source_gids() );
 
     // Build the source/target pairings.
     SplineInterpolationPairing<DIM> pairings( 
@@ -235,23 +225,28 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
     Teuchos::ArrayView<const unsigned> pair_gids;
     for ( int i = 0; i < local_num_tgt; ++i )
     {
-	// Get a view of this target center.
-	target_view = target_centers(i*DIM,DIM);
-
-	// Build the local interpolation problem.
-	LocalMLSProblem<Basis,GO,DIM> local_problem(
-	    target_view, pairings.childCenterIds(i),
-	    dist_sources, *basis );
-
-	// Populate the interpolation matrix row.
-	values = local_problem.shapeFunction();
-	indices.resize( values.size() );
-	pair_gids = pairings.childCenterIds(i);
-	for ( unsigned j = 0; j < values.size(); ++j )
+	// If there is no support for this target center then do not build a
+	// local basis.
+	if ( 0 < pairings.childCenterIds(i).size() )
 	{
-	    indices[j] = dist_source_gids[ pair_gids[j] ];
+	    // Get a view of this target center.
+	    target_view = target_centers(i*DIM,DIM);
+
+	    // Build the local interpolation problem. 
+	    LocalMLSProblem<Basis,GO,DIM> local_problem(
+		target_view, pairings.childCenterIds(i),
+		dist_sources, *basis );
+
+	    // Populate the interpolation matrix row.
+	    values = local_problem.shapeFunction();
+	    indices.resize( values.size() );
+	    pair_gids = pairings.childCenterIds(i);
+	    for ( unsigned j = 0; j < values.size(); ++j )
+	    {
+		indices[j] = dist_source_gids[ pair_gids[j] ];
+	    }
+	    d_H->insertGlobalValues( target_gids[i], indices(), values );
 	}
-	d_H->insertGlobalValues( target_gids[i], indices(), values );
     }
 
     d_H->fillComplete( d_source_map, d_target_map );

@@ -59,8 +59,7 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
     DTK_REQUIRE( 0 == child_centers.size() % DIM );
     DTK_REQUIRE( 0 == parent_centers.size() % DIM );
 
-    unsigned leaf_size = 5;
-
+    unsigned leaf_size = 3;
     CloudSearch<DIM> cloud_search( child_centers, leaf_size );
 
     unsigned num_parents = parent_centers.size() / DIM;
@@ -78,7 +77,8 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
  * within the given radius.
  */
 template<int DIM>
-Teuchos::ArrayView<const unsigned> SplineInterpolationPairing<DIM>::childCenterIds(
+Teuchos::ArrayView<const unsigned> 
+SplineInterpolationPairing<DIM>::childCenterIds(
     const unsigned parent_id ) const
 {
     DTK_REQUIRE( parent_id < d_pairings.size() );

@@ -83,6 +83,7 @@ int main(int argc, char* argv[])
 	Teuchos::DefaultComm<int>::getComm();
     int my_rank = comm->getRank();
     int my_size = comm->getSize();
+    int inverse_rank = my_size - my_rank - 1;
 
     // Get the block data.
     int num_i_blocks = std::atoi(argv[1]);
@@ -98,25 +99,29 @@ int main(int argc, char* argv[])
     assert( j_block < num_j_blocks );
     assert( k_block < num_k_blocks );
 
+    int inv_i_block = num_i_blocks - i_block - 1;
+    int inv_j_block = num_j_blocks - j_block - 1;
+    int inv_k_block = num_k_blocks - k_block - 1;
+
     // Setup source mesh.
     int global_size = std::atoi(argv[4]);
     int edge_size = (global_size / std::pow(my_size,1.0/3.0) ) + 1;
     int num_points = (edge_size-1)*(edge_size-1)*(edge_size-1)*8;
     assert( 1 < edge_size );
     Teuchos::ArrayRCP<double> source_centers = 
-	buildCoordinates( my_rank, my_size, num_points, edge_size,
+	buildCoordinates( inverse_rank, my_size, num_points, edge_size,
 			  i_block, j_block, k_block,
 			  num_i_blocks, num_j_blocks, num_k_blocks,
-			  1, 2 );
+			  num_neighbors, 219384801 );
 
     // Setup target coordinate field.
     int num_neighbors = std::atoi(argv[5]);
     assert( 0 < num_neighbors );
     Teuchos::ArrayRCP<double> target_centers = 
 	buildCoordinates( my_rank, my_size, num_points, edge_size,
-			  i_block, j_block, k_block,
+			  inv_i_block, inv_j_block, inv_k_block,
 			  num_i_blocks, num_j_blocks, num_k_blocks,
-			  num_neighbors, 3 );
+			  1, 383950983 );
 
     // Evaluate the source function at the source centers.
     Teuchos::Array<double> source_function( num_points );
@@ -129,7 +134,7 @@ int main(int argc, char* argv[])
     Teuchos::Array<double> target_function( num_points );
 
     // Support radius.
-    double radius = 1.0;
+    double radius = 2.5;
 
     // Interpolation type.
     std::string interpolation_type = argv[6];
