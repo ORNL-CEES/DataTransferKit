@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
 				    1,
 				    &local_sum,
 				    &global_sum );
-    global_sum /= num_points * my_size;
+    global_sum /= long(num_points) * long(my_size);
     if ( my_rank == 0 )
     {
 	std::cout << std::endl << "Error L2 " << global_error << std::endl;
@@ -269,11 +269,9 @@ int main(int argc, char* argv[])
     	std::cout << "DTK weak scaling study" << std::endl;
     	std::cout << "Number of processors:      " << my_size << std::endl;
     	std::cout << "Local number of points:    " 
-		  << (edge_size-1)*(edge_size-1)*(edge_size-1)*8
-    		  << std::endl;
+		  << num_points << std::endl;
     	std::cout << "Global number of points:   " 
-		  << (edge_size-1)*(edge_size-1)*(edge_size-1)*my_size*8
-    		  << std::endl;
+		  << long(num_points)*long(my_size) << std::endl;
     	std::cout << "--------------------------------------------------"
     		  << std::endl;
     	std::cout << "Global min setup time (s):     " 
