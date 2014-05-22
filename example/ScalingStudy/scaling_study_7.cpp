@@ -41,10 +41,8 @@ double evaluateSourceFunction( const Teuchos::ArrayView<double>& coords )
 // Coordinate field create function.
 //---------------------------------------------------------------------------//
 Teuchos::ArrayRCP<double> buildCoordinates(
-    int my_rank, int my_size, 
-    int num_points, int edge_size,
+    int my_rank, int num_points,
     int i_block, int j_block, int k_block,
-    int num_i_blocks, int num_j_blocks, int num_k_blocks,
     int num_neighbors, int seed_add )
 {
     std::srand( my_rank*num_points*3 + seed_add );
@@ -54,17 +52,14 @@ Teuchos::ArrayRCP<double> buildCoordinates(
     for ( int i = 0; i < num_points; ++i )
     {
 	coordinate_field[point_dim*i] = 
-	    num_neighbors*(edge_size-1) * (double) std::rand() / RAND_MAX + 
-	    (edge_size-1) * (num_i_blocks-i_block-1) - 
-	    (num_neighbors-1)*(edge_size-1) / 2;
+	    num_neighbors * (double) std::rand() / RAND_MAX + 
+	    i_block - (num_neighbors-1)*i_block/2;
 	coordinate_field[point_dim*i + 1] = 
-	    num_neighbors*(edge_size-1) * (double) std::rand() / RAND_MAX + 
-	    (edge_size-1) * (num_j_blocks-j_block-1) - 
-	    (num_neighbors-1)*(edge_size-1) / 2;
+	    num_neighbors * (double) std::rand() / RAND_MAX + 
+	    j_block - (num_neighbors-1)*j_block/2;
 	coordinate_field[point_dim*i + 2] = 
-	    num_neighbors*(edge_size-1) * (double) std::rand() / RAND_MAX + 
-	    (edge_size-1) * (num_k_blocks-k_block-1) - 
-	    (num_neighbors-1)*(edge_size-1) / 2;
+	    num_neighbors * (double) std::rand() / RAND_MAX + 
+	    k_block - (num_neighbors-1)*k_block/2;
     }
 
     return coordinate_field;
@@ -107,16 +102,14 @@ int main(int argc, char* argv[])
     int num_neighbors = std::atoi(argv[5]);
     assert( 0 < num_neighbors );
     Teuchos::ArrayRCP<double> source_centers = 
-	buildCoordinates( my_rank, my_size, num_points, edge_size,
+	buildCoordinates( my_rank, num_points,
 			  i_block, j_block, k_block,
-			  num_i_blocks, num_j_blocks, num_k_blocks,
 			  num_neighbors, 219384801 );
 
     // Setup target coordinate field.
     Teuchos::ArrayRCP<double> target_centers = 
-	buildCoordinates( my_rank, my_size, num_points, edge_size,
+	buildCoordinates( my_rank, num_points,
 			  inv_i_block, inv_j_block, inv_k_block,
-			  num_i_blocks, num_j_blocks, num_k_blocks,
 			  1, 383950983 );
 
     // Evaluate the source function at the source centers.
@@ -130,7 +123,7 @@ int main(int argc, char* argv[])
     Teuchos::Array<double> target_function( num_points );
 
     // Support radius.
-    double radius = 2.5;
+    double radius = 1.0 / (edge_size - 1);
 
     // Interpolation type.
     std::string interpolation_type = argv[6];
