@@ -103,6 +103,11 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, dim_1_test )
     view = pairing.childCenterIds( 1 );
     TEST_EQUALITY( 1, view.size() );
     TEST_EQUALITY( 9, view[0] );
+
+    Teuchos::ArrayRCP<std::size_t> children_per_parent = 
+	pairing.childrenPerParent();
+    TEST_EQUALITY( children_per_parent[0], 3 );
+    TEST_EQUALITY( children_per_parent[1], 1 );
 }
 
 //---------------------------------------------------------------------------//
@@ -141,6 +146,11 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, dim_2_test )
     view = pairing.childCenterIds( 1 );
     TEST_EQUALITY( 1, view.size() );
     TEST_EQUALITY( 9, view[0] );
+
+    Teuchos::ArrayRCP<std::size_t> children_per_parent = 
+	pairing.childrenPerParent();
+    TEST_EQUALITY( children_per_parent[0], 3 );
+    TEST_EQUALITY( children_per_parent[1], 1 );
 }
 
 //---------------------------------------------------------------------------//
@@ -182,6 +192,11 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, dim_3_test )
     view = pairing.childCenterIds( 1 );
     TEST_EQUALITY( 1, view.size() );
     TEST_EQUALITY( 9, view[0] );
+
+    Teuchos::ArrayRCP<std::size_t> children_per_parent = 
+	pairing.childrenPerParent();
+    TEST_EQUALITY( children_per_parent[0], 3 );
+    TEST_EQUALITY( children_per_parent[1], 1 );
 }
 
 //---------------------------------------------------------------------------//
