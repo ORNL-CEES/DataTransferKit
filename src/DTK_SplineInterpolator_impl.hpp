@@ -135,12 +135,6 @@ void SplineInterpolator<Basis,GO,DIM>::setProblem(
  *
  * \param target_lda The stride of the target vectors. Must be equal to the
  * number of target centers.
- *
- * \param max_solve_iterations Maximum number of linear solver iterations
- * allowed in the interpolation solution.
- *
- * \param solve_convergence_tolerance Linear solver convergence tolerance for
- * the interpolation solution.
  */
 template<class Basis, class GO, int DIM>
 void SplineInterpolator<Basis,GO,DIM>::interpolate( 
@@ -233,9 +227,8 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
     const Teuchos::ArrayView<const double>& target_centers,
     const double radius )
 {
-    // INTERPOLATION OPERATOR.
-    // Gather the source centers that are within a radius of the source
-    // centers on this  proc.
+    // INTERPOLATION OPERATOR. Gather the source centers that are within a
+    // radius of the source centers on this proc.
     Teuchos::Array<double> dist_sources;
     CenterDistributor<DIM> source_distributor( 
 	d_comm, source_centers, source_centers, radius, dist_sources );
@@ -291,10 +284,8 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
     // Cleanup.
     dist_source_gids.clear();
     
-    // TRANSFORMATION OPERATOR.
-    // Gather the source centers that are within a radius of the target
-    // centers on this
-    // proc.
+    // TRANSFORMATION OPERATOR. Gather the source centers that are within a
+    // radius of the target centers on this proc.
     CenterDistributor<DIM> target_distributor( 
 	d_comm, source_centers, target_centers, radius, dist_sources  );
 
@@ -321,13 +312,8 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
 	Tpetra::createContigMap<int,GO>( global_num_tgt,
 					 local_num_tgt,
 					 d_comm );
-
-    // Create the target global ids.
-    Teuchos::Array<GO> target_gids( local_num_tgt );
-    for ( GO j = 0; j < local_num_tgt; ++j )
-    {
-	target_gids[j] = target_map->getMinGlobalIndex() + j;
-    }
+    Teuchos::ArrayView<const GO> target_gids = 
+	target_map->getNodeElementList();
 
     // Build the transformation operator.
     d_A = SplineOperatorA<Basis,GO,DIM>::create( 

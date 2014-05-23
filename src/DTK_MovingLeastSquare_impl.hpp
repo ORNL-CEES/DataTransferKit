@@ -124,12 +124,6 @@ void MovingLeastSquare<Basis,GO,DIM>::setProblem(
  *
  * \param target_lda The stride of the target vectors. Must be equal to the
  * number of target centers.
- *
- * \param max_solve_iterations Maximum number of linear solver iterations
- * allowed in the interpolation solution.
- *
- * \param solve_convergence_tolerance Linear solver convergence tolerance for
- * the interpolation solution.
  */
 template<class Basis, class GO, int DIM>
 void MovingLeastSquare<Basis,GO,DIM>::interpolate( 
