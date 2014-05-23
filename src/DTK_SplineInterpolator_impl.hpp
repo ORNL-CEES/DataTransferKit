@@ -239,11 +239,7 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
 
     // Build the interpolation operator map.
     GO local_num_src = source_centers.size() / DIM;
-    GO offset = 0;
-    if ( 0 == d_comm->getRank() )
-    {
-	offset = DIM + 1;
-    }
+    GO offset = d_comm->getRank() ? 0 : DIM + 1;
     local_num_src += offset;
     GO global_num_src = 0;
     Teuchos::reduceAll<int,GO>( *d_comm, 
@@ -316,11 +312,11 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
 	target_map->getNodeElementList();
 
     // Build the transformation operator.
-    d_A = SplineOperatorA<Basis,GO,DIM>::create( 
+    d_A = Teuchos::rcp( new SplineOperatorA<Basis,GO,DIM>( 
 	target_map, source_map,
 	target_centers, target_gids,
 	dist_sources, dist_source_gids,
-	Teuchos::rcpFromRef(target_pairings), *basis );
+	Teuchos::rcpFromRef(target_pairings), *basis) );
 }
 
 //---------------------------------------------------------------------------//

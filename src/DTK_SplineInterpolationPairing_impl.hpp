@@ -64,10 +64,12 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
 
     unsigned num_parents = parent_centers.size() / DIM;
     d_pairings.resize( num_parents );
+    d_pair_sizes = Teuchos::ArrayRCP<std::size_t>( num_parents );
     for ( unsigned i = 0; i < num_parents; ++i )
     {
 	d_pairings[i] = cloud_search.radiusSearch( 
 	    parent_centers(DIM*i,DIM), radius );
+	d_pair_sizes[i] = d_pairings[i].size();
     }
 }
 

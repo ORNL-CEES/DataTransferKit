@@ -76,12 +76,11 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
     d_P_trans = Teuchos::rcp( 
 	new Tpetra::CrsMatrix<double,int,GO>( 
 	    operator_map, 1 + DIM, Tpetra::StaticProfile) );
-
     int offset = DIM+1;
     int di = 0; 
-    Teuchos::Array<GO> indices(offset,0);
+    Teuchos::Array<GO> indices(offset);
     Teuchos::Array<double> values(offset,1);
-    for ( int i = 1; i < offset; ++i )
+    for ( int i = 0; i < offset; ++i )
     {
 	indices[i] = i;
     }
@@ -100,7 +99,25 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
     d_P_trans->fillComplete();
 
     // Create the M matrix.
-    d_M = Tpetra::createCrsMatrix<double,int,GO>( operator_map );
+    {
+	Teuchos::ArrayRCP<std::size_t> entries_per_row;
+	if ( 0 == operator_map->getComm()->getRank() )
+	{
+	    entries_per_row = Teuchos::ArrayRCP<std::size_t>(
+		num_source_centers + offset, 0 );
+	    Teuchos::ArrayRCP<std::size_t> children_per_parent =
+		source_pairings->childrenPerParent();
+	    std::copy( children_per_parent.begin(), children_per_parent.end(),
+		       entries_per_row.begin() + offset );
+	}
+	else
+	{
+	    entries_per_row = source_pairings->childrenPerParent();
+	}
+	d_M = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>(
+				operator_map,
+				entries_per_row, Tpetra::StaticProfile) );
+    }
     int dj = 0;
     Teuchos::ArrayView<const unsigned> source_neighbors;
     double dist = 0.0;

@@ -50,11 +50,10 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Build the transformation matrix.
+ * \brief Constructor.
  */
 template<class Basis, class GO, int DIM>
-Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > 
-SplineOperatorA<Basis,GO,DIM>::create(
+SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
     Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map,
     Teuchos::RCP<const Tpetra::Map<int,GO> >& range_map,
     const Teuchos::ArrayView<const double>& target_centers,
@@ -71,19 +70,44 @@ SplineOperatorA<Basis,GO,DIM>::create(
     DTK_CHECK( dist_source_centers.size() / DIM == 
 		    dist_source_center_gids.size() );
 
-    // Create the matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > A =
-	Tpetra::createCrsMatrix<double,int,GO>( domain_map );
-
+    // Get the number of target centers.
     unsigned num_target_centers = target_center_gids.size();
 
+    // Create the Q matrix.
+    d_Q = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>( 
+			    domain_map,
+			    1 + DIM, Tpetra::StaticProfile) );
     int offset = DIM+1;
-    int di = 0;
+    int di = 0; 
+    Teuchos::Array<GO> indices(offset);
+    Teuchos::Array<double> values(offset,1);
+    for ( int i = 0; i < offset; ++i )
+    {
+	indices[i] = i;
+    }
+    for ( unsigned i = 0; i < num_target_centers; ++i )
+    {
+	di = DIM*i;
+
+	for ( int d = 0; d < DIM; ++d )
+	{
+	    values[d+1] = target_centers[di+d];
+	}
+
+	d_Q->insertGlobalValues( 
+	    target_center_gids[i], indices(), values() );
+    }
+
+    d_Q->fillComplete( range_map, domain_map );
+    DTK_ENSURE( d_Q->isFillComplete() );
+
+    // Create the N matrix.
+    d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>( 
+			    domain_map,
+			    target_pairings->childrenPerParent(), 
+			    Tpetra::StaticProfile) );
     int dj = 0;
-    int jpoffset = 0;
     Teuchos::ArrayView<const unsigned> target_neighbors;
-    Teuchos::Array<double> values;
-    Teuchos::Array<GO> indices;
     double dist = 0.0;
     for ( unsigned i = 0; i < num_target_centers; ++i )
     {
@@ -91,42 +115,51 @@ SplineOperatorA<Basis,GO,DIM>::create(
 
 	// Get the source points neighboring this target point.
 	target_neighbors = target_pairings->childCenterIds( i );
-	values.resize( offset + target_neighbors.size() );
-	indices.resize( offset + target_neighbors.size() );
-
-	// 1's column.
-	indices[0] = 0;
-	values[0] = 1.0;
-
-	// Add the coordinates.
-	for ( int d = 0; d < DIM; ++d )
-	{
-	    indices[d+1] = d+1;
-	    values[d+1] = target_centers[di+d];
-	}
+	values.resize( target_neighbors.size() );
+	indices.resize( target_neighbors.size() );
 
 	// Add the local basis contributions.
     	for ( unsigned j = 0; j < target_neighbors.size(); ++j )
     	{
 	    dj = DIM*target_neighbors[j];
-	    jpoffset = j+offset;
 
-	    indices[jpoffset] = 
+	    indices[j] = 
 		dist_source_center_gids[ target_neighbors[j] ];
 
 	    dist = EuclideanDistance<DIM>::distance(
 		&target_centers[di], &dist_source_centers[dj] );
 
-    	    values[jpoffset] = BP::evaluateValue( basis, dist );
+    	    values[j] = BP::evaluateValue( basis, dist );
     	}
 
-	A->insertGlobalValues( target_center_gids[i], indices(), values() );
+	d_N->insertGlobalValues( target_center_gids[i], indices(), values() );
     }
 
-    A->fillComplete( range_map, domain_map );
-    DTK_ENSURE( A->isFillComplete() );
+    d_N->fillComplete( range_map, domain_map );
+    DTK_ENSURE( d_N->isFillComplete() );
+}
 
-    return A;
+//---------------------------------------------------------------------------//
+// Apply operation. 
+template<class Basis, class GO, int DIM>
+void SplineOperatorA<Basis,GO,DIM>::apply(
+    const Tpetra::MultiVector<double,int,GO> &X,
+    Tpetra::MultiVector<double,int,GO> &Y,
+    Teuchos::ETransp mode,
+    double alpha,
+    double beta ) const
+{
+    // Make a work vector.
+    Tpetra::MultiVector<double,int,GO> work( Y );
+
+    // Apply Q
+    d_Q->apply( X, Y, Teuchos::NO_TRANS, alpha, beta );
+
+    // Apply N.
+    d_N->apply( X, work, Teuchos::NO_TRANS, alpha, beta );
+
+    // Update Y.
+    Y.update( 1.0, work, 1.0 );
 }
 
 //---------------------------------------------------------------------------//

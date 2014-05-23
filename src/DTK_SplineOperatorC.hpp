@@ -58,7 +58,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class SplineOperatorC
- * \brief Sparse spline interpolation operator (the C matrix).
+ * \brief Sparse spline interpolation operator (the C matrix). C = P^T + M + P
  */
 //---------------------------------------------------------------------------//
 template<class Basis, class GO, int DIM>

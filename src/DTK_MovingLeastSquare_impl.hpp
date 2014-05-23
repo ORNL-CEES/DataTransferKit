@@ -212,7 +212,10 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
 	dist_sources, target_centers, radius );
 
     // Build the interpolation matrix.
-    d_H = Tpetra::createCrsMatrix<double,int,GO>( d_target_map );
+    d_H = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>( 
+			    d_target_map,
+			    pairings.childrenPerParent(), 
+			    Tpetra::StaticProfile) );
     Teuchos::ArrayView<const double> target_view;
     Teuchos::Array<GO> indices;
     Teuchos::ArrayView<const double> values;

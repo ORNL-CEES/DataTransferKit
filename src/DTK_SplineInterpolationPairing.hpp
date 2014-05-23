@@ -75,10 +75,17 @@ class SplineInterpolationPairing
     Teuchos::ArrayView<const unsigned> 
     childCenterIds( const unsigned parent_id ) const;
 
+    // Get the number of child centers per parent center.
+    Teuchos::ArrayRCP<std::size_t> childrenPerParent() const
+    { return d_pair_sizes; }
+
   private:
 
     // Pairings.
     Teuchos::Array<Teuchos::Array<unsigned> > d_pairings;
+
+    // Number of child centers per parent center.
+    Teuchos::ArrayRCP<std::size_t> d_pair_sizes;
 };
 
 //---------------------------------------------------------------------------//
