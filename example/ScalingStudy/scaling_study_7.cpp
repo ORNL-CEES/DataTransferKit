@@ -38,12 +38,13 @@ double evaluateSourceFunction( const Teuchos::ArrayView<double>& coords )
 }
 
 //---------------------------------------------------------------------------//
-// Coordinate field create function.
+// Overlapping coordinate field.
 //---------------------------------------------------------------------------//
-Teuchos::ArrayRCP<double> buildCoordinates(
+Teuchos::ArrayRCP<double> buildOverlappingCoordinates(
     int my_rank, int num_points,
-    int i_block, int j_block, int k_block,
-    int num_neighbors, int seed_add )
+    double i_width, double j_width, double k_width, 
+    double i_offset, double j_offset, double k_offset, 
+    int seed_add )
 {
     std::srand( my_rank*num_points*3 + seed_add );
     int point_dim = 3;
@@ -52,14 +53,36 @@ Teuchos::ArrayRCP<double> buildCoordinates(
     for ( int i = 0; i < num_points; ++i )
     {
 	coordinate_field[point_dim*i] = 
-	    num_neighbors * (double) std::rand() / RAND_MAX + 
-	    i_block - (num_neighbors-1)/2;
+	    i_width * (double) std::rand() / RAND_MAX + i_offset;
 	coordinate_field[point_dim*i + 1] = 
-	    num_neighbors * (double) std::rand() / RAND_MAX + 
-	    j_block - (num_neighbors-1)/2;
+	    j_width * (double) std::rand() / RAND_MAX + j_offset;
 	coordinate_field[point_dim*i + 2] = 
-	    num_neighbors * (double) std::rand() / RAND_MAX + 
-	    k_block - (num_neighbors-1)/2;
+	    k_width * (double) std::rand() / RAND_MAX + k_offset;
+    }
+
+    return coordinate_field;
+}
+
+//---------------------------------------------------------------------------//
+// Non-overlapping coordinate field.
+//---------------------------------------------------------------------------//
+Teuchos::ArrayRCP<double> buildCoordinates(
+    int my_rank, int num_points,
+    int i_block, int j_block, int k_block, 
+    int seed_add )
+{
+    std::srand( my_rank*num_points*3 + seed_add );
+    int point_dim = 3;
+    Teuchos::ArrayRCP<double> coordinate_field(num_points*point_dim);
+
+    for ( int i = 0; i < num_points; ++i )
+    {
+	coordinate_field[point_dim*i] = 
+	    (double) std::rand() / RAND_MAX + i_block;
+	coordinate_field[point_dim*i + 1] = 
+	    (double) std::rand() / RAND_MAX + j_block;
+	coordinate_field[point_dim*i + 2] = 
+	    (double) std::rand() / RAND_MAX + k_block;
     }
 
     return coordinate_field;
@@ -95,22 +118,38 @@ int main(int argc, char* argv[])
     int inv_j_block = num_j_blocks - j_block - 1;
     int inv_k_block = num_k_blocks - k_block - 1;
 
-    // Setup source mesh.
+    // Setup source coordinates.    
     int edge_size = std::atoi(argv[4]);
     int num_points = (edge_size-1)*(edge_size-1)*(edge_size-1)*8;
     assert( 1 < edge_size );
-    int num_neighbors = std::atoi(argv[5]);
-    assert( 0 < num_neighbors );
-    Teuchos::ArrayRCP<double> source_centers = 
-	buildCoordinates( my_rank, num_points,
-			  i_block, j_block, k_block,
-			  num_neighbors, 219384801 );
+    int overlap = std::atoi(argv[5]);
+    assert( -1 < overlap );
+    Teuchos::ArrayRCP<double> source_centers;
+    if ( overlap ) 
+    {
+	double i_width = double(num_i_blocks + 1.0) / double(num_i_blocks);
+	double j_width = double(num_j_blocks + 1.0) / double(num_j_blocks);
+	double k_width = double(num_k_blocks + 1.0) / double(num_k_blocks);
+	double i_offset = i_width*i_block - 0.5;
+	double j_offset = j_width*j_block - 0.5;
+	double k_offset = k_width*k_block - 0.5;
+	source_centers =
+	    buildOverlappingCoordinates( my_rank, num_points,
+					 i_width, j_width, k_width,
+					 i_offset, j_offset, k_offset,
+					 219381 );
+    }
+    else
+    {
+	source_centers = buildCoordinates( my_rank, num_points,
+					   i_block, j_block, k_block,
+					   98483 );
+    }
 
     // Setup target coordinate field.
     Teuchos::ArrayRCP<double> target_centers = 
 	buildCoordinates( my_rank, num_points,
-			  inv_i_block, inv_j_block, inv_k_block,
-			  1, 383950983 );
+			  inv_i_block, inv_j_block, inv_k_block, 756781 );
 
     // Evaluate the source function at the source centers.
     Teuchos::Array<double> source_function( num_points );
@@ -123,7 +162,7 @@ int main(int argc, char* argv[])
     Teuchos::Array<double> target_function( num_points );
 
     // Support radius.
-    double radius = 1.0 / (edge_size - 1);
+    double radius = 1.1 / double(edge_size - 1.0);
 
     // Interpolation type.
     std::string interpolation_type = argv[6];
