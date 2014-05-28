@@ -54,7 +54,7 @@ namespace DataTransferKit
  * \brief Base class for mesh free interpolation.
  *
  * The MeshFreeInterpolator is the top-level driver for parallel interpolation
- * problems.
+ * problems via compactly supported radial basis functions.
  */
 //---------------------------------------------------------------------------//
 class MeshFreeInterpolator

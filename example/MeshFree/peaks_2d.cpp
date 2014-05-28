@@ -42,53 +42,53 @@ double peaks( const double x, const double y )
 //---------------------------------------------------------------------------//
 int main( int argc, char * argv[] )
 {
-    // Problem dimension.
-    const int dim = 2;
+    // Problem spatial dimension.
+    const int space_dim = 2;
 
     // Initialize communication.
     Teuchos::GlobalMPISession mpi_session( &argc, &argv );
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
 	Teuchos::DefaultComm<int>::getComm();
 
-    // Setup the grid nodes.
+    // Setup the source centers.
     int N = 1000;
-    Teuchos::Array<double> grid_nodes( dim*N*N );
-    Teuchos::Array<unsigned> grid_node_ids( N*N );
+    Teuchos::Array<double> source_centers( space_dim*N*N );
+    Teuchos::Array<unsigned> source_center_ids( N*N );
     double h = 6.0 / N;
     for ( int i = 0; i < N; ++i )
     {
 	for ( int j = 0; j < N; ++j )
 	{
-	    grid_nodes[ (i*N + j)*dim ] = -3.0 + h*i;
-	    grid_nodes[ (i*N + j)*dim + 1 ] = -3.0 + h*j;
-	    grid_node_ids[ i*N + j ] = i*N + j;
+	    source_centers[ (i*N + j)*space_dim ] = -3.0 + h*i;
+	    source_centers[ (i*N + j)*space_dim + 1 ] = -3.0 + h*j;
+	    source_center_ids[ i*N + j ] = i*N + j;
 	}
     }
 
-    // Set the source function values on the grid nodes.
+    // Set the source function values on the source centers.
     Teuchos::Array<double> source_function( N*N );
     for ( int i = 0; i < N; ++i )
     {
 	for ( int j = 0; j < N; ++j )
 	{
 	    source_function[ i*N + j ] = 
-		peaks( grid_nodes[ (i*N + j)*dim ],
-		       grid_nodes[ (i*N + j)*dim + 1] );
+		peaks( source_centers[ (i*N + j)*space_dim ],
+		       source_centers[ (i*N + j)*space_dim + 1] );
 	}
     }
 
-    // Build the target centers at the grid element centers.
-    Teuchos::Array<double> target_centers( dim*(N-1)*(N-1) );
+    // Build the target centers in between the source centers.
+    Teuchos::Array<double> target_centers( space_dim*(N-1)*(N-1) );
     for ( int i = 0; i < N-1; ++i )
     {
 	for ( int j = 0; j < N-1; ++j )
 	{
-	    target_centers[ (i*(N-1) + j)*dim ] = -3.0 + h*i + 0.5*h;
-	    target_centers[ (i*(N-1) + j)*dim + 1 ] = -3.0 + h*j + 0.5*h;
+	    target_centers[ (i*(N-1) + j)*space_dim ] = -3.0 + h*i + 0.5*h;
+	    target_centers[ (i*(N-1) + j)*space_dim + 1 ] = -3.0 + h*j + 0.5*h;
 	}
     }
 
-    // Allocate space for the target function.
+    // Allocate memory for the target function.
     Teuchos::Array<double> target_function( (N-1)*(N-1) );
 
     // Support radius.
@@ -103,49 +103,33 @@ int main( int argc, char * argv[] )
     // Interpolation basis order.
     const int basis_order = 2;
 
-    // Data dimension.
+    // Data space_dimension.
     const int data_dim = 1;
 
     // Build the interpolation object.
     typedef int GlobalOrdinal;
     Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator =
 	DataTransferKit::MeshFreeInterpolatorFactory::create<GlobalOrdinal>(
-	    comm, interpolation_type, basis_type, basis_order, dim );
+	    comm, interpolation_type, basis_type, basis_order, space_dim );
 
+    // Assign the source centers, target centers, and support radius to the
+    // interpolator.
     std::cout << "Building DataTransferKit::SplineInterpolator" << std::endl;
-    Teuchos::Time construction_timer("");
-    construction_timer.start(true);
-    interpolator->setProblem( grid_nodes(), target_centers(), radius );
-    construction_timer.stop();
-    if ( comm->getRank() == 0 )
-    {
-	std::cout << "DataTransferKit construction: Complete in " 
-		  << construction_timer.totalElapsedTime() 
-		  << " seconds." << std::endl << std::endl;
-    }
+    interpolator->setProblem( source_centers(), target_centers(), radius );
 
     // Perform the interpolation.
     std::cout << "Performing interpolation" << std::endl;
-    Teuchos::Time interpolation_timer("");
-    interpolation_timer.start(true);
     interpolator->interpolate( source_function(), target_function(), data_dim );
-    interpolation_timer.stop();
-    if ( comm->getRank() == 0 )
-    {
-	std::cout << "DataTransferKit interpolation: Complete in " 
-		  << interpolation_timer.totalElapsedTime() 
-		  << " seconds." << std::endl << std::endl;
-    }
 
-    // Calculate the true solution at the element centers.
+    // Calculate the true solution at the target centers.
     Teuchos::Array<double> true_solution( (N-1)*(N-1) );
     for ( int i = 0; i < N-1; ++i )
     {
 	for ( int j = 0; j < N-1; ++j )
 	{
 	    true_solution[ i*(N-1) + j ] = 
-		peaks( target_centers[ (i*(N-1) + j)*dim ],
-		       target_centers[ (i*(N-1) + j)*dim + 1] );
+		peaks( target_centers[ (i*(N-1) + j)*space_dim ],
+		       target_centers[ (i*(N-1) + j)*space_dim + 1] );
 	}
     }
     
