@@ -91,11 +91,8 @@ class SplineInterpolator : public MeshFreeInterpolator
     // decomposition, interpolate them onto the target centers in the target
     // decomposition.
     void interpolate( const Teuchos::ArrayView<const double>& source_data,
-		      const int num_source_dims,
-		      const int source_lda,
 		      const Teuchos::ArrayView<double>& target_data,
-		      const int num_target_dims,
-		      const int target_lda ) const;
+		      const int data_dim ) const;
 
   private:
 

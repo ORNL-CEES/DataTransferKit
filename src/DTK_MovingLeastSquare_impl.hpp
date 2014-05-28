@@ -109,34 +109,26 @@ void MovingLeastSquare<Basis,GO,DIM>::setProblem(
  * centers. The data must be blocked by dimension. If there is no data on this
  * process then the view must be of size 0.
  *
- * \param num_source_dims Number of source data dimensions. Must be the same
- * as the number of target data dimensions.
- *
- * \param source_lda The stride of the source vectors. Must be equal to the
- * number of source centers.
- *
  * \param target_data View of the target data defined at the target
  * centers. The data must be blocked by dimension. If there is no data on this
  * process then the view must be of size 0.
  *
- * \param num_target_dims Number of target data dimensions. Must be the same
- * as the number of target data dimensions.
- *
- * \param target_lda The stride of the target vectors. Must be equal to the
- * number of target centers.
+ * \param data_dim Dimension of the data.
  */
 template<class Basis, class GO, int DIM>
 void MovingLeastSquare<Basis,GO,DIM>::interpolate( 
     const Teuchos::ArrayView<const double>& source_data,
-    const int num_source_dims,
-    const int source_lda,
     const Teuchos::ArrayView<double>& target_data,
-    const int num_target_dims,
-    const int target_lda ) const
+    const int data_dim ) const
 {
-    DTK_REQUIRE( num_source_dims == num_target_dims );
-    DTK_REQUIRE( source_data.size() == source_lda * num_source_dims );
-    DTK_REQUIRE( target_data.size() == target_lda * num_target_dims );
+    DTK_REQUIRE( Teuchos::nonnull(d_H) );
+    DTK_REQUIRE( 0 < data_dim );
+    DTK_REQUIRE( 0 == source_data.size() % data_dim );
+    DTK_REQUIRE( 0 == target_data.size() % data_dim );
+    std::size_t num_sources = source_data.size() / data_dim;
+    std::size_t num_targets = target_data.size() / data_dim;
+    DTK_REQUIRE( d_H->getDomainMap()->getNodeNumElements() == num_sources );
+    DTK_REQUIRE( d_H->getRangeMap()->getNodeNumElements() == num_targets );
 
     // Build the source vector.
     Teuchos::ArrayRCP<double> source_data_view(
@@ -144,14 +136,14 @@ void MovingLeastSquare<Basis,GO,DIM>::interpolate(
 	source_data.size(), false );
     Teuchos::RCP<Tpetra::MultiVector<double,int,GO> >
 	source_vec = Tpetra::createMultiVectorFromView( 
-	    d_source_map, source_data_view, source_lda, num_source_dims );
+	    d_H->getDomainMap(), source_data_view, num_sources, data_dim );
 
     // Build the target vector.
     Teuchos::ArrayRCP<double> target_data_view =
 	Teuchos::arcpFromArrayView(target_data);
     Teuchos::RCP<Tpetra::MultiVector<double,int,GO> >
 	target_vec = Tpetra::createMultiVectorFromView( 
-	    d_target_map, target_data_view, target_lda, num_target_dims );
+	    d_H->getRangeMap(), target_data_view, num_targets, data_dim );
 
     // Apply the interpolation matrix.
     d_H->apply( *source_vec, *target_vec );
@@ -174,11 +166,12 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
 				Teuchos::REDUCE_SUM,
 				local_num_src,
 				Teuchos::Ptr<GO>(&global_num_src) );
-    d_source_map = Tpetra::createContigMap<int,GO>( global_num_src,
-						    local_num_src,
-						    d_comm );
+    Teuchos::RCP<const Tpetra::Map<int,GO> > source_map =
+	Tpetra::createContigMap<int,GO>( global_num_src,
+					 local_num_src,
+					 d_comm );
     Teuchos::ArrayView<const GO> source_gids = 
-	d_source_map->getNodeElementList();
+	source_map->getNodeElementList();
 
     // Build the target map.
     GO local_num_tgt = target_centers.size() / DIM;
@@ -187,11 +180,12 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
 				Teuchos::REDUCE_SUM,
 				local_num_tgt,
 				Teuchos::Ptr<GO>(&global_num_tgt) );
-    d_target_map = Tpetra::createContigMap<int,GO>( global_num_tgt,
-						    local_num_tgt,
-						    d_comm );
+    Teuchos::RCP<const Tpetra::Map<int,GO> > target_map =
+	Tpetra::createContigMap<int,GO>( global_num_tgt,
+					 local_num_tgt,
+					 d_comm );
     Teuchos::ArrayView<const GO> target_gids = 
-	d_target_map->getNodeElementList();
+	target_map->getNodeElementList();
 
     // Build the basis.
     Teuchos::RCP<Basis> basis = BP::create( radius );
@@ -213,7 +207,7 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
 
     // Build the interpolation matrix.
     d_H = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>( 
-			    d_target_map,
+			    target_map,
 			    pairings.childrenPerParent(), 
 			    Tpetra::StaticProfile) );
     Teuchos::ArrayView<const double> target_view;
@@ -245,7 +239,7 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
 	    d_H->insertGlobalValues( target_gids[i], indices(), values );
 	}
     }
-    d_H->fillComplete( d_source_map, d_target_map );
+    d_H->fillComplete( source_map, target_map );
     DTK_ENSURE( d_H->isFillComplete() );
 }
 

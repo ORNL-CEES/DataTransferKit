@@ -103,6 +103,9 @@ int main( int argc, char * argv[] )
     // Interpolation basis order.
     const int basis_order = 2;
 
+    // Data dimension.
+    const int data_dim = 1;
+
     // Build the interpolation object.
     typedef int GlobalOrdinal;
     Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator =
@@ -125,9 +128,7 @@ int main( int argc, char * argv[] )
     std::cout << "Performing interpolation" << std::endl;
     Teuchos::Time interpolation_timer("");
     interpolation_timer.start(true);
-    interpolator->interpolate( 
-	source_function(), 1, source_function.size(),
-	target_function(), 1, target_function.size() );
+    interpolator->interpolate( source_function(), target_function(), data_dim );
     interpolation_timer.stop();
     if ( comm->getRank() == 0 )
     {

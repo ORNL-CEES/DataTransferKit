@@ -190,9 +190,7 @@ int main(int argc, char* argv[])
     // Apply the shared domain map ( this does the field evaluation and moves
     // the data ).
     std::clock_t apply_start = clock();
-    interpolator->interpolate( 
-	source_function(), 1, source_function.size(),
-	target_function(), 1, target_function.size() );
+    interpolator->interpolate( source_function(), target_function(), 1 );
     std::clock_t apply_end = clock();
 
     // Check the data transfer.

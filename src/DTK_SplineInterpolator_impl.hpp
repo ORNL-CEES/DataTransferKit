@@ -120,34 +120,27 @@ void SplineInterpolator<Basis,GO,DIM>::setProblem(
  * centers. The data must be blocked by dimension. If there is no data on this
  * process then the view must be of size 0.
  *
- * \param num_source_dims Number of source data dimensions. Must be the same
- * as the number of target data dimensions.
- *
- * \param source_lda The stride of the source vectors. Must be equal to the
- * number of source centers.
- *
  * \param target_data View of the target data defined at the target
  * centers. The data must be blocked by dimension. If there is no data on this
  * process then the view must be of size 0.
  *
- * \param num_target_dims Number of target data dimensions. Must be the same
- * as the number of target data dimensions.
- *
- * \param target_lda The stride of the target vectors. Must be equal to the
- * number of target centers.
+ * \param data_dim Dimension of the data.
  */
 template<class Basis, class GO, int DIM>
 void SplineInterpolator<Basis,GO,DIM>::interpolate( 
     const Teuchos::ArrayView<const double>& source_data,
-    const int num_source_dims,
-    const int source_lda,
     const Teuchos::ArrayView<double>& target_data,
-    const int num_target_dims,
-    const int target_lda ) const
+    const int data_dim ) const
 {
-    DTK_REQUIRE( num_source_dims == num_target_dims );
-    DTK_REQUIRE( source_data.size() == source_lda * num_source_dims );
-    DTK_REQUIRE( target_data.size() == target_lda * num_target_dims );
+    DTK_REQUIRE( Teuchos::nonnull(d_C) );
+    DTK_REQUIRE( Teuchos::nonnull(d_A) );
+    DTK_REQUIRE( 0 < data_dim );
+    DTK_REQUIRE( 0 == source_data.size() % data_dim );
+    DTK_REQUIRE( 0 == target_data.size() % data_dim );
+    DTK_REMEMBER( std::size_t num_sources = source_data.size() / data_dim );
+    std::size_t num_targets = target_data.size() / data_dim;
+    DTK_REQUIRE( d_C->getDomainMap()->getNodeNumElements() == num_sources );
+    DTK_REQUIRE( d_A->getRangeMap()->getNodeNumElements() == num_targets );
 
     // Set the linear solver parameters.
     Teuchos::RCP<Teuchos::ParameterList> params = Teuchos::parameterList();
@@ -167,11 +160,11 @@ void SplineInterpolator<Basis,GO,DIM>::interpolate(
     params->set("Verbosity", verbosityLevel);
 
     // Allocate a work vector.
-    MV work_vec( d_C->getDomainMap(), num_source_dims );
+    MV work_vec( d_C->getDomainMap(), data_dim );
     {
 	// Copy the source data into a multivector.
-	MV source_vec( d_C->getDomainMap(), num_source_dims );
-	for ( int i = 0; i < num_source_dims; ++i )
+	MV source_vec( d_C->getDomainMap(), data_dim );
+	for ( int i = 0; i < data_dim; ++i )
 	{
 	    Teuchos::ArrayRCP<double> vec_data = source_vec.getDataNonConst(i);
 
@@ -209,9 +202,8 @@ void SplineInterpolator<Basis,GO,DIM>::interpolate(
     // Create a multivector with a view of the target data.
     Teuchos::ArrayRCP<double> target_data_view =
 	Teuchos::arcpFromArrayView(target_data);
-    Teuchos::RCP<Tpetra::MultiVector<double,int,GO> >
-	target_vec = Tpetra::createMultiVectorFromView( 
-	    d_A->getRangeMap(), target_data_view, target_lda, num_target_dims );
+    Teuchos::RCP<MV> target_vec = Tpetra::createMultiVectorFromView( 
+	d_A->getRangeMap(), target_data_view, num_targets, data_dim );
 
     // Apply the transformation operator.
     d_A->apply( work_vec, *target_vec );

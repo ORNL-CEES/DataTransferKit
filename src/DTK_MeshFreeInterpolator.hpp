@@ -69,22 +69,53 @@ class MeshFreeInterpolator
     virtual ~MeshFreeInterpolator()
     { /* ... */ }
 
-    // Set the interpolation problem.
+    /*!
+     * \brief Set the interpolation problem.
+     *
+     * \param source_centers Coordinates of the source centers. Must be of the
+     * same dimension as the interpolator. Coordinates must be strided such
+     * that in 3D: (x1,y1,z1,x2,y2,z2,.....,xN,yN,zN). If there are no source
+     * centers on this process then provide an array view of size 0.
+     *
+     * \param target_centers Coordinates of the target centers. Must be of the
+     * same dimension as the interpolator. Coordinates must be strided such
+     * that in 3D: (x1,y1,z1,x2,y2,z2,...,xN,yN,zN). If there are no target
+     * centers on this process then provide an array view of size 0.
+     *
+     * \param radius Radius of support for the interpolation. Must be greater
+     * than 0.
+     */
     virtual void setProblem(
 	const Teuchos::ArrayView<const double>& source_centers,
 	const Teuchos::ArrayView<const double>& target_centers,
 	const double radius ) = 0;
 
-    // Given a set of scalar values at the given source centers in the source
-    // decomposition, interpolate them onto the target centers in the target
-    // decomposition.
+    /*!
+     * \brief Given a set of scalar values at the given source centers in the
+     * source decomposition, interpolate them onto the target centers in the
+     * target decomposition.
+     *
+     * \param source_data Data values at the source centers. For
+     * multi-dimensional data these values must be blocked such that for
+     * 3-dimensional data where a, b, and c are the dimensions: 
+     * (a1,a2,...,aN,b1,b2,...,bN,c1,c2,...,cN). Length of this array must be
+     * dimension * number of source centers. If there is no data on this
+     * process then the view must be of size 0.
+     *
+     * \param target_data Empty data values at the target centers. For
+     * multi-dimensional data these values must be blocked such that for
+     * 3-dimensional data where a, b, and c are the dimensions:
+     * (a1,a2,...,aN,b1,b2,...,bN,c1,c2,...,cN). The interpolated values will
+     * be written into this array. Length of this array must be dimension *
+     * number of target centers. If there is no data on this process then the
+     * view must be of size 0.
+     *
+     * \param data_dim The dimension of the data. Must be greater than 0.
+     */
     virtual void interpolate( 
 	const Teuchos::ArrayView<const double>& source_data,
-	const int num_source_dims,
-	const int source_lda,
 	const Teuchos::ArrayView<double>& target_data,
-	const int num_target_dims,
-	const int target_lda ) const = 0;
+	const int data_dim ) const = 0;
 };
 
 //---------------------------------------------------------------------------//

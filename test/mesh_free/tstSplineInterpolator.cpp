@@ -121,8 +121,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolator, dim_1_test )
     interpolator->setProblem( src_coords(), tgt_coords(), radius );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
-    interpolator->interpolate( src_data(), 1, src_data.size(),
-			       tgt_data(), 1, tgt_data.size() );
+    interpolator->interpolate( src_data(), tgt_data(), 1 );
 
     for ( int i = 0; i < num_tgt_points; ++i )
     {
@@ -185,8 +184,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolator, dim_2_test )
     interpolator->setProblem( src_coords(), tgt_coords(), radius );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
-    interpolator->interpolate( src_data(), 1, src_data.size(),
-			       tgt_data(), 1, tgt_data.size() );
+    interpolator->interpolate( src_data(), tgt_data(), 1 );
     for ( int i = 0; i < num_tgt_points; ++i )
     {
 	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*inverse_rank + 1.0, epsilon );
@@ -274,8 +272,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolator, dim_3_test )
     interpolator->setProblem( src_coords(), tgt_coords(), radius );
 
     Teuchos::Array<double> tgt_data( num_tgt_points );
-    interpolator->interpolate( src_data(), 1, src_data.size(),
-			       tgt_data(), 1, tgt_data.size() );
+    interpolator->interpolate( src_data(), tgt_data(), 1 );
     for ( int i = 0; i < num_tgt_points; ++i )
     {
 	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*inverse_rank + 1.0, epsilon );
