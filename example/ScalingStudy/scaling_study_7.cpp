@@ -13,7 +13,6 @@
 #include <sstream>
 #include <algorithm>
 #include <cassert>
-#include <ctime>
 #include <cstdlib>
 
 #include <DTK_MeshFreeInterpolator.hpp>
@@ -28,6 +27,7 @@
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_TimeMonitor.hpp>
 
 //---------------------------------------------------------------------------//
 // Source function.
@@ -179,16 +179,22 @@ int main(int argc, char* argv[])
 	DataTransferKit::MeshFreeInterpolatorFactory::create<GlobalOrdinal>(
 	    comm, interpolation_type, basis_type, basis_order, 3 );
 
-    // Setup the mesh interpolator.
-    std::clock_t setup_start = clock();
-    interpolator->setProblem( source_centers(), target_centers(), radius );
-    std::clock_t setup_end = clock();
+    // Setup the mesh interpolator.    
+    {
+	Teuchos::RCP<Teuchos::Time> timer = 
+	    Teuchos::TimeMonitor::getNewCounter("Setup");
+	Teuchos::TimeMonitor monitor(*timer);
+	interpolator->setProblem( source_centers(), target_centers(), radius );
+    }
 
     // Apply the shared domain map ( this does the field evaluation and moves
     // the data ).
-    std::clock_t apply_start = clock();
-    interpolator->interpolate( source_function(), target_function(), 1 );
-    std::clock_t apply_end = clock();
+    {
+	Teuchos::RCP<Teuchos::Time> timer = 
+	    Teuchos::TimeMonitor::getNewCounter("Apply");
+	Teuchos::TimeMonitor monitor(*timer);
+	interpolator->interpolate( source_function(), target_function(), 1 );
+    }
 
     // Check the data transfer.
     comm->barrier();
@@ -236,68 +242,8 @@ int main(int argc, char* argv[])
 				    &local_sum,
 				    &global_sum );
     global_sum /= long(num_points) * long(my_size);
-    if ( my_rank == 0 )
-    {
-	std::cout << std::endl << "Error L2 " << global_error << std::endl;
-	std::cout << "Error Min " << global_min << std::endl;
-	std::cout << "Error Max " << global_max << std::endl;
-	std::cout << "Error Ave " << global_sum << std::endl;
-    }
-    comm->barrier();
 
-    // Timing.
-    double local_setup_time = 
-    	(double)(setup_end - setup_start) / CLOCKS_PER_SEC;
-
-    double global_min_setup_time;
-    Teuchos::reduceAll<int,double>( *comm,
-    				    Teuchos::REDUCE_MIN,
-    				    1,
-    				    &local_setup_time,
-    				    &global_min_setup_time );
-
-    double global_max_setup_time;
-    Teuchos::reduceAll<int,double>( *comm,
-    				    Teuchos::REDUCE_MAX,
-    				    1,
-    				    &local_setup_time,
-    				    &global_max_setup_time );
-
-    double global_average_setup_time;
-    Teuchos::reduceAll<int,double>( *comm,
-    				    Teuchos::REDUCE_SUM,
-    				    1,
-    				    &local_setup_time,
-    				    &global_average_setup_time );
-    global_average_setup_time /= my_size;
-
-    double local_apply_time = 
-    	(double)(apply_end - apply_start) / CLOCKS_PER_SEC;
-
-    double global_min_apply_time;
-    Teuchos::reduceAll<int,double>( *comm,
-    				    Teuchos::REDUCE_MIN,
-    				    1,
-    				    &local_apply_time,
-    				    &global_min_apply_time );
-
-    double global_max_apply_time;
-    Teuchos::reduceAll<int,double>( *comm,
-    				    Teuchos::REDUCE_MAX,
-    				    1,
-    				    &local_apply_time,
-    				    &global_max_apply_time );
-
-    double global_average_apply_time;
-    Teuchos::reduceAll<int,double>( *comm,
-    				    Teuchos::REDUCE_SUM,
-    				    1,
-    				    &local_apply_time,
-    				    &global_average_apply_time );
-    global_average_apply_time /= my_size;
-
-    comm->barrier();
-
+    // Output results
     if ( my_rank == 0 )
     {
     	std::cout << "==================================================" 
@@ -308,27 +254,18 @@ int main(int argc, char* argv[])
 		  << num_points << std::endl;
     	std::cout << "Global number of points:   " 
 		  << long(num_points)*long(my_size) << std::endl;
-    	std::cout << "--------------------------------------------------"
-    		  << std::endl;
-    	std::cout << "Global min setup time (s):     " 
-    		  << global_min_setup_time << std::endl;
-    	std::cout << "Global max setup time (s):     " 
-    		  << global_max_setup_time << std::endl;
-    	std::cout << "Global average setup time (s): " 
-    		  << global_average_setup_time << std::endl;
-    	std::cout << "--------------------------------------------------"
-    		  << std::endl;
-    	std::cout << "Global min apply time (s):     " 
-    		  << global_min_apply_time << std::endl;
-    	std::cout << "Global max apply time (s):     " 
-    		  << global_max_apply_time << std::endl;
-    	std::cout << "Global average apply time (s): " 
-    		  << global_average_apply_time << std::endl;
+	std::cout << std::endl << "Error L2 " << global_error << std::endl;
+	std::cout << "Error Min " << global_min << std::endl;
+	std::cout << "Error Max " << global_max << std::endl;
+	std::cout << "Error Ave " << global_sum << std::endl;
     	std::cout << "==================================================" 
     		  << std::endl;
     }
-
     comm->barrier();
+
+    Teuchos::TableFormat &format = Teuchos::TimeMonitor::format();
+    format.setPrecision(5);
+    Teuchos::TimeMonitor::summarize();
 
     return 0;
 }

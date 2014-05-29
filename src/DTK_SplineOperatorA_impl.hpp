@@ -45,6 +45,7 @@
 #include "DTK_EuclideanDistance.hpp"
 
 #include <Teuchos_Array.hpp>
+#include <Teuchos_TimeMonitor.hpp>
 
 namespace DataTransferKit
 {
@@ -74,6 +75,10 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
     unsigned num_target_centers = target_center_gids.size();
 
     // Create the Q matrix.
+    Teuchos::RCP<Teuchos::Time> aq_assembly_timer = 
+	Teuchos::TimeMonitor::getNewCounter("AQ Assembly");
+    Teuchos::RCP<Teuchos::TimeMonitor> aq_assembly_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*aq_assembly_timer));
+
     d_Q = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>( 
 			    domain_map,
 			    1 + DIM, Tpetra::StaticProfile) );
@@ -98,10 +103,21 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
 	    target_center_gids[i], indices(), values() );
     }
 
+    aq_assembly_monitor = Teuchos::null;
+    Teuchos::RCP<Teuchos::Time> aq_fillcomplete_timer = 
+	Teuchos::TimeMonitor::getNewCounter("AQ Fill Complete");
+    Teuchos::RCP<Teuchos::TimeMonitor> aq_fillcomplete_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*aq_fillcomplete_timer));
+
     d_Q->fillComplete( range_map, domain_map );
     DTK_ENSURE( d_Q->isFillComplete() );
 
+    aq_fillcomplete_timer = Teuchos::null;
+
     // Create the N matrix.
+    Teuchos::RCP<Teuchos::Time> an_assembly_timer = 
+	Teuchos::TimeMonitor::getNewCounter("AN Assembly");
+    Teuchos::RCP<Teuchos::TimeMonitor> an_assembly_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*an_assembly_timer));
+
     d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>( 
 			    domain_map,
 			    target_pairings->childrenPerParent(), 
@@ -135,8 +151,16 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
 	d_N->insertGlobalValues( target_center_gids[i], indices(), values() );
     }
 
+    an_assembly_monitor = Teuchos::null;
+    Teuchos::RCP<Teuchos::Time> an_fillcomplete_timer = 
+	Teuchos::TimeMonitor::getNewCounter("AN Fill Complete");
+    Teuchos::RCP<Teuchos::TimeMonitor> an_fillcomplete_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*an_fillcomplete_timer));
+
+
     d_N->fillComplete( range_map, domain_map );
     DTK_ENSURE( d_N->isFillComplete() );
+
+    aq_fillcomplete_timer = Teuchos::null;
 }
 
 //---------------------------------------------------------------------------//

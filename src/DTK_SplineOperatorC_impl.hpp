@@ -45,6 +45,7 @@
 #include "DTK_EuclideanDistance.hpp"
 
 #include <Teuchos_Array.hpp>
+#include <Teuchos_TimeMonitor.hpp>
 
 namespace DataTransferKit
 {
@@ -73,6 +74,10 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
     unsigned num_source_centers = source_center_gids.size();
 
     // Create the P^T matrix.
+    Teuchos::RCP<Teuchos::Time> cp_assembly_timer = 
+	Teuchos::TimeMonitor::getNewCounter("CP Assembly");
+    Teuchos::RCP<Teuchos::TimeMonitor> cp_assembly_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*cp_assembly_timer));
+
     d_P_trans = Teuchos::rcp( 
 	new Tpetra::CrsMatrix<double,int,GO>( 
 	    operator_map, 1 + DIM, Tpetra::StaticProfile) );
@@ -96,9 +101,19 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
 	d_P_trans->insertGlobalValues( 
 	    source_center_gids[i], indices(), values() );
     }
+
+    cp_assembly_monitor = Teuchos::null;
+    Teuchos::RCP<Teuchos::Time> cp_fillcomplete_timer = 
+	Teuchos::TimeMonitor::getNewCounter("CP Fill Complete");
+    Teuchos::RCP<Teuchos::TimeMonitor> cp_fillcomplete_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*cp_fillcomplete_timer));
+
     d_P_trans->fillComplete();
 
     // Create the M matrix.
+    Teuchos::RCP<Teuchos::Time> cm_assembly_timer = 
+	Teuchos::TimeMonitor::getNewCounter("CM Assembly");
+    Teuchos::RCP<Teuchos::TimeMonitor> cm_assembly_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*cm_assembly_timer));
+
     {
 	Teuchos::ArrayRCP<std::size_t> entries_per_row;
 	if ( 0 == operator_map->getComm()->getRank() )
@@ -141,10 +156,18 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
 
 	d_M->insertGlobalValues( source_center_gids[i], indices(), values() );
     }
+
+    cm_assembly_monitor = Teuchos::null;
+    Teuchos::RCP<Teuchos::Time> cm_fillcomplete_timer = 
+	Teuchos::TimeMonitor::getNewCounter("CM Fill Complete");
+    Teuchos::RCP<Teuchos::TimeMonitor> cm_fillcomplete_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*cm_fillcomplete_timer));
+
     d_M->fillComplete();
 
     DTK_ENSURE( d_P_trans->isFillComplete() );
     DTK_ENSURE( d_M->isFillComplete() );
+
+    cm_fillcomplete_timer = Teuchos::null;
 }
 
 //---------------------------------------------------------------------------//
