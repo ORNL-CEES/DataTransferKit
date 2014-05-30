@@ -74,24 +74,38 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
     unsigned num_source_centers = source_center_gids.size();
 
     // Create the P^T matrix.
-    Teuchos::RCP<Teuchos::Time> cp_assembly_timer = 
-	Teuchos::TimeMonitor::getNewCounter("CP Assembly");
-    Teuchos::RCP<Teuchos::TimeMonitor> cp_assembly_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*cp_assembly_timer));
-
+    Teuchos::RCP<Teuchos::Time> p_graph_assembly_timer = 
+	Teuchos::TimeMonitor::getNewCounter("CP Graph Assembly");
+    Teuchos::RCP<Teuchos::TimeMonitor> p_graph_assembly_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*p_graph_assembly_timer));
     int offset = DIM + 1;
     unsigned lid_offset = operator_map->getComm()->getRank() ? 0 : offset;
     Teuchos::RCP<const Tpetra::Map<int,GO> > P_col_map =
 	Tpetra::createLocalMap<int,GO>( offset, operator_map->getComm() );
-    d_P_trans = Teuchos::rcp( 
-	new Tpetra::CrsMatrix<double,int,GO>( 
-	    operator_map, P_col_map, offset, Tpetra::StaticProfile) );
+    Teuchos::RCP<Tpetra::CrsGraph<int,GO> > P_graph = Teuchos::rcp( 
+	new Tpetra::CrsGraph<int,GO>(operator_map, P_col_map, offset, Tpetra::StaticProfile) );
     int di = 0; 
     Teuchos::Array<int> P_indices(offset);
-    Teuchos::Array<double> values(offset,1);
     for ( int i = 0; i < offset; ++i )
     {
 	P_indices[i] = i;
     }
+    for ( unsigned i = lid_offset; i < num_source_centers + lid_offset; ++i )
+    {
+	P_graph->insertLocalIndices( i, P_indices() );
+    }
+    p_graph_assembly_monitor = Teuchos::null;
+
+    Teuchos::RCP<Teuchos::Time> p_graph_fillcomplete_timer = 
+	Teuchos::TimeMonitor::getNewCounter("CP Graph FC");
+    Teuchos::RCP<Teuchos::TimeMonitor> p_graph_fillcomplete_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*p_graph_fillcomplete_timer));
+    P_graph->fillComplete();
+    p_graph_fillcomplete_monitor = Teuchos::null;
+
+    Teuchos::RCP<Teuchos::Time> cp_assembly_timer = 
+	Teuchos::TimeMonitor::getNewCounter("CP Assembly");
+    Teuchos::RCP<Teuchos::TimeMonitor> cp_assembly_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*cp_assembly_timer));
+    d_P_trans = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>(P_graph) );
+    Teuchos::Array<double> values(offset,1);
     for ( unsigned i = lid_offset; i < num_source_centers + lid_offset; ++i )
     {
 	di = DIM*(i-lid_offset);
@@ -101,7 +115,7 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
 	    values[d+1] = source_centers[di+d];
 	}
 
-	d_P_trans->insertLocalValues( i, P_indices(), values() );
+	d_P_trans->replaceLocalValues( i, P_indices(), values() );
     }
 
     cp_assembly_monitor = Teuchos::null;
