@@ -51,7 +51,6 @@
 #include <Teuchos_Ptr.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_ParameterList.hpp>
-#include <Teuchos_TimeMonitor.hpp>
 
 #include <Tpetra_Map.hpp>
 
@@ -220,28 +219,15 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
     const Teuchos::ArrayView<const double>& target_centers,
     const double radius )
 {
-    // Total spline operator construction timer.
-    Teuchos::RCP<Teuchos::Time> ops_timer = 
-	Teuchos::TimeMonitor::getNewCounter("Spline Ops");
-    Teuchos::RCP<Teuchos::TimeMonitor> ops_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*ops_timer));
-
     // INTERPOLATION OPERATOR. Gather the source centers that are within a
     // radius of the source centers on this proc.
-    Teuchos::RCP<Teuchos::Time> nnassembly_timer = 
-	Teuchos::TimeMonitor::getNewCounter("SSNN Assembly");
-    Teuchos::RCP<Teuchos::TimeMonitor> nnassembly_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*nnassembly_timer));
     Teuchos::Array<double> dist_sources;
     CenterDistributor<DIM> source_distributor( 
 	d_comm, source_centers, source_centers, radius, dist_sources );
-    nnassembly_monitor = Teuchos::null;
     
     // Build the source/source pairings.
-    Teuchos::RCP<Teuchos::Time> nnpairing_timer = 
-	Teuchos::TimeMonitor::getNewCounter("SSNN Pairing");
-    Teuchos::RCP<Teuchos::TimeMonitor> nnpairing_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*nnpairing_timer));
     SplineInterpolationPairing<DIM> source_pairings( 
 	dist_sources, source_centers, radius );
-    nnpairing_monitor = Teuchos::null;
 
     // Build the interpolation operator map.
     GO local_num_src = source_centers.size() / DIM;
@@ -276,28 +262,20 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
     Teuchos::RCP<Basis> basis = BP::create( radius );
 
     // Build the interpolation operator.
-    Teuchos::RCP<Teuchos::Time> opc_timer = 
-	Teuchos::TimeMonitor::getNewCounter("Spline Op C");
-    Teuchos::RCP<Teuchos::TimeMonitor> opc_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*opc_timer));
     d_C = Teuchos::rcp( 
 	new SplineOperatorC<Basis,GO,DIM>( 
 	    source_map,
 	    source_centers, source_gids,
 	    dist_sources, dist_source_gids,
 	    Teuchos::rcpFromRef(source_pairings), *basis) );
-    opc_monitor = Teuchos::null;
 
     // Cleanup.
     dist_source_gids.clear();
     
     // TRANSFORMATION OPERATOR. Gather the source centers that are within a
     // radius of the target centers on this proc.
-    Teuchos::RCP<Teuchos::Time> stnnassembly_timer = 
-	Teuchos::TimeMonitor::getNewCounter("STNN Assembly");
-    Teuchos::RCP<Teuchos::TimeMonitor> stnnassembly_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*stnnassembly_timer));
     CenterDistributor<DIM> target_distributor( 
 	d_comm, source_centers, target_centers, radius, dist_sources  );
-    stnnassembly_monitor = Teuchos::null;
 
     // Distribute the global source ids.
     dist_source_gids.resize( 
@@ -307,12 +285,8 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
     target_distributor.distribute( source_gids_view, dist_gids_view );
 
     // Build the source/target pairings.
-    Teuchos::RCP<Teuchos::Time> stnnpairing_timer = 
-	Teuchos::TimeMonitor::getNewCounter("STNN Pairing");
-    Teuchos::RCP<Teuchos::TimeMonitor> stnnpairing_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*stnnpairing_timer));
     SplineInterpolationPairing<DIM> target_pairings( 
 	dist_sources, target_centers, radius );
-    stnnpairing_monitor = Teuchos::null;
 
     // Build the operator map.
     GO local_num_tgt = target_centers.size() / DIM;
@@ -330,15 +304,11 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
 	target_map->getNodeElementList();
 
     // Build the transformation operator.
-    Teuchos::RCP<Teuchos::Time> opa_timer = 
-	Teuchos::TimeMonitor::getNewCounter("Spline Op A");
-    Teuchos::RCP<Teuchos::TimeMonitor> opa_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*opa_timer));
     d_A = Teuchos::rcp( new SplineOperatorA<Basis,GO,DIM>( 
 			    target_map, source_map,
 			    target_centers, target_gids,
 			    dist_sources, dist_source_gids,
 			    Teuchos::rcpFromRef(target_pairings), *basis) );
-    opa_monitor = Teuchos::null;
 }
 
 //---------------------------------------------------------------------------//
