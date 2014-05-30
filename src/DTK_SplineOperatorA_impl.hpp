@@ -79,16 +79,18 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
 	Teuchos::TimeMonitor::getNewCounter("AQ Assembly");
     Teuchos::RCP<Teuchos::TimeMonitor> aq_assembly_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*aq_assembly_timer));
 
+    int offset = DIM +1 ;
+    Teuchos::RCP<const Tpetra::Map<int,GO> > Q_col_map =
+	Tpetra::createLocalMap<int,GO>( offset, domain_map->getComm() );
     d_Q = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>( 
-			    domain_map,
+			    domain_map, Q_col_map,
 			    1 + DIM, Tpetra::StaticProfile) );
-    int offset = DIM+1;
     int di = 0; 
-    Teuchos::Array<GO> indices(offset);
+    Teuchos::Array<int> Q_indices(offset);
     Teuchos::Array<double> values(offset,1);
     for ( int i = 0; i < offset; ++i )
     {
-	indices[i] = i;
+	Q_indices[i] = i;
     }
     for ( unsigned i = 0; i < num_target_centers; ++i )
     {
@@ -99,8 +101,7 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
 	    values[d+1] = target_centers[di+d];
 	}
 
-	d_Q->insertGlobalValues( 
-	    target_center_gids[i], indices(), values() );
+	d_Q->insertLocalValues( i, Q_indices(), values() );
     }
 
     aq_assembly_monitor = Teuchos::null;
@@ -111,7 +112,7 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
     d_Q->fillComplete( range_map, domain_map );
     DTK_ENSURE( d_Q->isFillComplete() );
 
-    aq_fillcomplete_timer = Teuchos::null;
+    aq_fillcomplete_monitor = Teuchos::null;
 
     // Create the N matrix.
     Teuchos::RCP<Teuchos::Time> an_assembly_timer = 
@@ -122,6 +123,7 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
 			    domain_map,
 			    target_pairings->childrenPerParent(), 
 			    Tpetra::StaticProfile) );
+    Teuchos::Array<GO> N_indices;
     int dj = 0;
     Teuchos::ArrayView<const unsigned> target_neighbors;
     double dist = 0.0;
@@ -132,14 +134,14 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
 	// Get the source points neighboring this target point.
 	target_neighbors = target_pairings->childCenterIds( i );
 	values.resize( target_neighbors.size() );
-	indices.resize( target_neighbors.size() );
+	N_indices.resize( target_neighbors.size() );
 
 	// Add the local basis contributions.
     	for ( unsigned j = 0; j < target_neighbors.size(); ++j )
     	{
 	    dj = DIM*target_neighbors[j];
 
-	    indices[j] = 
+	    N_indices[j] = 
 		dist_source_center_gids[ target_neighbors[j] ];
 
 	    dist = EuclideanDistance<DIM>::distance(
@@ -148,7 +150,7 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
     	    values[j] = BP::evaluateValue( basis, dist );
     	}
 
-	d_N->insertGlobalValues( target_center_gids[i], indices(), values() );
+	d_N->insertGlobalValues( target_center_gids[i], N_indices(), values() );
     }
 
     an_assembly_monitor = Teuchos::null;
@@ -160,7 +162,7 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
     d_N->fillComplete( range_map, domain_map );
     DTK_ENSURE( d_N->isFillComplete() );
 
-    aq_fillcomplete_timer = Teuchos::null;
+    an_fillcomplete_monitor = Teuchos::null;
 }
 
 //---------------------------------------------------------------------------//

@@ -78,28 +78,30 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
 	Teuchos::TimeMonitor::getNewCounter("CP Assembly");
     Teuchos::RCP<Teuchos::TimeMonitor> cp_assembly_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*cp_assembly_timer));
 
+    int offset = DIM + 1;
+    unsigned lid_offset = operator_map->getComm()->getRank() ? 0 : offset;
+    Teuchos::RCP<const Tpetra::Map<int,GO> > P_col_map =
+	Tpetra::createLocalMap<int,GO>( offset, operator_map->getComm() );
     d_P_trans = Teuchos::rcp( 
 	new Tpetra::CrsMatrix<double,int,GO>( 
-	    operator_map, 1 + DIM, Tpetra::StaticProfile) );
-    int offset = DIM+1;
+	    operator_map, P_col_map, offset, Tpetra::StaticProfile) );
     int di = 0; 
-    Teuchos::Array<GO> indices(offset);
+    Teuchos::Array<int> P_indices(offset);
     Teuchos::Array<double> values(offset,1);
     for ( int i = 0; i < offset; ++i )
     {
-	indices[i] = i;
+	P_indices[i] = i;
     }
-    for ( unsigned i = 0; i < num_source_centers; ++i )
+    for ( unsigned i = lid_offset; i < num_source_centers + lid_offset; ++i )
     {
-	di = DIM*i;
+	di = DIM*(i-lid_offset);
 
 	for ( int d = 0; d < DIM; ++d )
 	{
 	    values[d+1] = source_centers[di+d];
 	}
 
-	d_P_trans->insertGlobalValues( 
-	    source_center_gids[i], indices(), values() );
+	d_P_trans->insertLocalValues( i, P_indices(), values() );
     }
 
     cp_assembly_monitor = Teuchos::null;
@@ -108,6 +110,8 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
     Teuchos::RCP<Teuchos::TimeMonitor> cp_fillcomplete_monitor = Teuchos::rcp( new Teuchos::TimeMonitor(*cp_fillcomplete_timer));
 
     d_P_trans->fillComplete();
+
+    cp_fillcomplete_monitor = Teuchos::null;
 
     // Create the M matrix.
     Teuchos::RCP<Teuchos::Time> cm_assembly_timer = 
@@ -133,6 +137,7 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
 				operator_map,
 				entries_per_row, Tpetra::StaticProfile) );
     }
+    Teuchos::Array<GO> M_indices;
     int dj = 0;
     Teuchos::ArrayView<const unsigned> source_neighbors;
     double dist = 0.0;
@@ -140,12 +145,12 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
     {
     	di = DIM*i;
 	source_neighbors = source_pairings->childCenterIds( i );
-	indices.resize( source_neighbors.size() );
+	M_indices.resize( source_neighbors.size() );
 	values.resize( source_neighbors.size() );
     	for ( unsigned j = 0; j < source_neighbors.size(); ++j )
     	{
 	    dj = DIM*source_neighbors[j];
-	    indices[j] = 
+	    M_indices[j] = 
 		dist_source_center_gids[ source_neighbors[j] ];
 
 	    dist = EuclideanDistance<DIM>::distance(
@@ -154,7 +159,7 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
     	    values[j] = BP::evaluateValue( basis, dist );
     	}
 
-	d_M->insertGlobalValues( source_center_gids[i], indices(), values() );
+	d_M->insertGlobalValues( source_center_gids[i], M_indices(), values() );
     }
 
     cm_assembly_monitor = Teuchos::null;
@@ -167,7 +172,7 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
     DTK_ENSURE( d_P_trans->isFillComplete() );
     DTK_ENSURE( d_M->isFillComplete() );
 
-    cm_fillcomplete_timer = Teuchos::null;
+    cm_fillcomplete_monitor = Teuchos::null;
 }
 
 //---------------------------------------------------------------------------//
