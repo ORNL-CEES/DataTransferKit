@@ -42,7 +42,6 @@
 #define DTK_CLOUDSEARCH_IMPL_HPP
 
 #include <limits>
-#include <vector>
 
 #include "DTK_DBC.hpp"
 
@@ -180,14 +179,14 @@ Teuchos::Array<unsigned> CloudSearch<DIM>::radiusSearch(
     const double radius ) const
 {
     DTK_REQUIRE( DIM == point.size() );
-    std::vector<std::pair<unsigned,double> > neighbor_pairs;
+    Teuchos::Array<std::pair<unsigned,double> > neighbor_pairs;
     nanoflann::SearchParams params;
     double l2_radius = radius*radius + 
 		       100.0*std::numeric_limits<double>::epsilon();
     d_tree->radiusSearch( 
 	point.getRawPtr(), l2_radius, neighbor_pairs, params );
 
-    std::vector<std::pair<unsigned,double> >::const_iterator pair_it;
+    Teuchos::Array<std::pair<unsigned,double> >::const_iterator pair_it;
     Teuchos::Array<unsigned> neighbors( neighbor_pairs.size() );
     Teuchos::Array<unsigned>::iterator id_it;
     for ( id_it = neighbors.begin(),

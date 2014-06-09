@@ -30,16 +30,17 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************/
 
-#ifndef  NANOFLANN_HPP_
-#define  NANOFLANN_HPP_
+#ifndef  DTK_NANOFLANN_HPP_
+#define  DTK_NANOFLANN_HPP_
 
-#include <vector>
 #include <cassert>
 #include <algorithm>
 #include <stdexcept>
 #include <cstdio>  // for fwrite()
 #include <cmath>   // for fabs(),...
 #include <limits>
+
+#include <Teuchos_Array.hpp>
 
 // Avoid conflicting declaration of min/max macros in windows headers
 #if !defined(NOMINMAX) && (defined(_WIN32) || defined(_WIN32_)  || defined(WIN32) || defined(_WIN64))
@@ -136,9 +137,9 @@ namespace nanoflann
 	public:
 		const DistanceType radius;
 
-		std::vector<std::pair<IndexType,DistanceType> >& m_indices_dists;
+		Teuchos::Array<std::pair<IndexType,DistanceType> >& m_indices_dists;
 
-		inline RadiusResultSet(DistanceType radius_, std::vector<std::pair<IndexType,DistanceType> >& indices_dists) : radius(radius_), m_indices_dists(indices_dists)
+		inline RadiusResultSet(DistanceType radius_, Teuchos::Array<std::pair<IndexType,DistanceType> >& indices_dists) : radius(radius_), m_indices_dists(indices_dists)
 		{
 			init();
 		}
@@ -174,7 +175,7 @@ namespace nanoflann
 		std::pair<IndexType,DistanceType> worst_item() const
 		{
 		   if (m_indices_dists.empty()) throw std::runtime_error("Cannot invoke RadiusResultSet::worst_item() on an empty list of results.");
-		   typedef typename std::vector<std::pair<IndexType,DistanceType> >::const_iterator DistIt;
+		   typedef typename Teuchos::Array<std::pair<IndexType,DistanceType> >::const_iterator DistIt;
 		   DistIt it = std::max_element(m_indices_dists.begin(), m_indices_dists.end());
 		   return *it;
 		}
@@ -202,7 +203,7 @@ namespace nanoflann
 	}
 
 	template<typename T>
-	void save_value(FILE* stream, const std::vector<T>& value)
+	void save_value(FILE* stream, const Teuchos::Array<T>& value)
 	{
 		size_t size = value.size();
 		fwrite(&size, sizeof(size_t), 1, stream);
@@ -220,7 +221,7 @@ namespace nanoflann
 
 
 	template<typename T>
-	void load_value(FILE* stream, std::vector<T>& value)
+	void load_value(FILE* stream, Teuchos::Array<T>& value)
 	{
 		size_t size;
 		size_t read_cnt = fread(&size, sizeof(size_t), 1, stream);
@@ -676,7 +677,7 @@ namespace nanoflann
         }
         // assign one value to all elements
         inline void assign (const T& value) { for (size_t i=0;i<N;i++) elems[i]=value; }
-        // assign (compatible with std::vector's one) (by JLBC for MRPT)
+        // assign (compatible with Teuchos::Array's one) (by JLBC for MRPT)
         void assign (const size_t n, const T& value) { assert(N==n); for (size_t i=0;i<N;i++) elems[i]=value; }
       private:
         // check range (may be private because it is static)
@@ -694,7 +695,7 @@ namespace nanoflann
 	/** Dynamic size version */
 	template <typename T>
 	struct array_or_vector_selector<-1,T> {
-		typedef std::vector<T> container_t;
+		typedef Teuchos::Array<T> container_t;
 	};
 	/** @} */
 
@@ -745,7 +746,7 @@ namespace nanoflann
 		/**
 		 *  Array of indices to vectors in the dataset.
 		 */
-		std::vector<IndexType> vind;
+		Teuchos::Array<IndexType> vind;
 
 		size_t m_leaf_max_size;
 
@@ -968,7 +969,7 @@ namespace nanoflann
 		 *  \sa knnSearch, findNeighbors
 		 * \return The number of points within the given radius (i.e. indices.size() or dists.size() )
 		 */
-		size_t radiusSearch(const ElementType *query_point,const DistanceType radius, std::vector<std::pair<IndexType,DistanceType> >& IndicesDists, const SearchParams& searchParams) const
+		size_t radiusSearch(const ElementType *query_point,const DistanceType radius, Teuchos::Array<std::pair<IndexType,DistanceType> >& IndicesDists, const SearchParams& searchParams) const
 		{
 			RadiusResultSet<DistanceType,IndexType> resultSet(radius,IndicesDists);
 			this->findNeighbors(resultSet, query_point, searchParams);
@@ -1452,4 +1453,4 @@ namespace nanoflann
 
 } // end namespace DataTransferKit
 
-#endif /* NANOFLANN_HPP_ */
+#endif /* DTK_NANOFLANN_HPP_ */
