@@ -188,12 +188,20 @@ void GeometryRCB<Geometry,GlobalOrdinal>::partition( const BoundingBox& local_bo
 	    DTK_CHECK( zoltan_error == ZOLTAN_OK );
 	    DTK_CHECK( dim == d_dimension );
 
-	    // See if the partition domain intersects the local domain.
-	    BoundingBox partition_box( bounds );
-	    if ( BoundingBox::checkForIntersection(local_box,partition_box) )
+	    // If there was no geometry in the local domain for a given rank
+	    // then Zoltan will give us a bogus bounding box. Check for this.
+	    if ( (bounds[3] >= bounds[0]) &&
+		 (bounds[4] >= bounds[1]) &&
+		 (bounds[5] >= bounds[2]) )
 	    {
-		d_rcb_boxes.push_back( partition_box );
-		d_box_ranks.push_back( rank );
+		// If the bounding box is valid, see if the partition domain
+		// intersects the local domain.
+		BoundingBox partition_box( bounds );
+		if ( BoundingBox::checkForIntersection(local_box,partition_box) )
+		{
+		    d_rcb_boxes.push_back( partition_box );
+		    d_box_ranks.push_back( rank );
+		}
 	    }
 	}
     }

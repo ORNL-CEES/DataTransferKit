@@ -139,7 +139,8 @@ void SplineInterpolator<Basis,GO,DIM>::interpolate(
     DTK_REQUIRE( 0 == target_data.size() % data_dim );
     DTK_REMEMBER( std::size_t num_sources = source_data.size() / data_dim );
     std::size_t num_targets = target_data.size() / data_dim;
-    DTK_REQUIRE( d_C->getDomainMap()->getNodeNumElements() == num_sources );
+    DTK_REMEMBER( GO offset = d_comm->getRank() ? 0 : DIM + 1 );
+    DTK_REQUIRE( d_C->getDomainMap()->getNodeNumElements() == num_sources+offset );
     DTK_REQUIRE( d_A->getRangeMap()->getNodeNumElements() == num_targets );
 
     // Set the linear solver parameters.
