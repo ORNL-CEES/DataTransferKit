@@ -45,7 +45,7 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_RCP.hpp>
 
-#include <nanoflann.hpp>
+#include <DTK_nanoflann.hpp>
 
 namespace DataTransferKit
 {

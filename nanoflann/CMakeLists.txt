@@ -22,11 +22,11 @@ SET(HEADERS ${HEADERS}
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  nanoflann.hpp
+  DTK_nanoflann.hpp
   ) 
 
 APPEND_SET(SOURCES
-  nanoflann_dummy.cpp
+  DTK_nanoflann_dummy.cpp
   )
 
 #
