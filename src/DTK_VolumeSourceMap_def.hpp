@@ -223,7 +223,8 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     // Get the target ordinals from the map.
     Teuchos::ArrayView<const GlobalOrdinal> target_ordinals =
 	d_target_map->getNodeElementList();
-    DTK_CHECK( local_num_targets == target_ordinals.size() );
+    DTK_CHECK( Teuchos::as<std::size_t>(local_num_targets) ==
+	       Teuchos::as<std::size_t>(target_ordinals.size()) );
 
     // If we're keeping track of missed points, we also need to build the
     // global-to-local ordinal map.
