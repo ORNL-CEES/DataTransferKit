@@ -73,6 +73,12 @@ class SearchTree
     virtual Teuchos::Array<unsigned> radiusSearch( 
 	const Teuchos::ArrayView<const double>& point, 
 	const double radius ) const = 0;
+
+    // Base class creation method.
+    static Teuchos::RCP<SearchTree> createSearchTree( 
+	const unsigned dim,
+	const Teuchos::ArrayView<const double>& cloud_centers,
+	const unsigned leaf_size );
 };
 
 //---------------------------------------------------------------------------//
@@ -164,43 +170,6 @@ class CloudSearch : public SearchTree
     // kD-tree.
     Teuchos::RCP<TreeType> d_tree;
 };
-
-//---------------------------------------------------------------------------//
-// Base class creation method.
-//---------------------------------------------------------------------------//
-Teuchos::RCP<SearchTree> createSearchTree( 
-    const unsigned dim,
-    const Teuchos::ArrayView<const double>& cloud_centers,
-    const unsigned leaf_size )
-{
-    Teuchos::RCP<SearchTree> tree;
-
-    switch ( dim )
-    {
-	case 1:
-	{
-	    tree = Teuchos::rcp( 
-		new CloudSearch<1>(cloud_centers, leaf_size) );
-	}
-	break;
-
-	case 2:
-	{
-	    tree = Teuchos::rcp( 
-		new CloudSearch<2>(cloud_centers, leaf_size) );
-	}
-	break;
-
-	case 3:
-	{
-	    tree = Teuchos::rcp( 
-		new CloudSearch<3>(cloud_centers, leaf_size) );
-	}
-	break;
-    };
-
-    return tree;
-}
 
 //---------------------------------------------------------------------------//
 

@@ -136,7 +136,8 @@ ElementTree<Mesh>::ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh )
     // Build a cloud search.
     GlobalOrdinal leaf_size = 20;
     leaf_size = std::min( leaf_size, d_mesh->localNumElements() );
-    d_tree = createSearchTree( d_mesh->dim(), d_element_centroids(), leaf_size );
+    d_tree = SearchTree::createSearchTree( 
+	d_mesh->dim(), d_element_centroids(), leaf_size );
     DTK_ENSURE( Teuchos::nonnull(d_tree) );
 }
 
