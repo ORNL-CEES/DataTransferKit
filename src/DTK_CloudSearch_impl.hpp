@@ -50,48 +50,6 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// SearchTree Implementation
-//---------------------------------------------------------------------------//
-/*!
- * \brief Base class creation method.
- */
-Teuchos::RCP<SearchTree> SearchTree::createSearchTree( 
-    const unsigned dim,
-    const Teuchos::ArrayView<const double>& cloud_centers,
-    const unsigned leaf_size )
-{
-    Teuchos::RCP<SearchTree> tree;
-
-    switch ( dim )
-    {
-	case 1:
-	{
-	    tree = Teuchos::rcp( 
-		new CloudSearch<1>(cloud_centers, leaf_size) );
-	}
-	break;
-
-	case 2:
-	{
-	    tree = Teuchos::rcp( 
-		new CloudSearch<2>(cloud_centers, leaf_size) );
-	}
-	break;
-
-	case 3:
-	{
-	    tree = Teuchos::rcp( 
-		new CloudSearch<3>(cloud_centers, leaf_size) );
-	}
-	break;
-    };
-
-    return tree;
-}
-
-//---------------------------------------------------------------------------//
-// Cloud implementation.
-//---------------------------------------------------------------------------//
 /*! 
  * \brief Compute the distance between a given point and a point in the cloud.
  */

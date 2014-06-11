@@ -47,6 +47,7 @@
 #include "DTK_DBC.hpp"
 #include "DTK_CellTopologyFactory.hpp"
 #include "DTK_TopologyTools.hpp"
+#include "DTK_SearchTreeFactory.hpp"
 
 #include <Shards_CellTopology.hpp>
 
@@ -136,7 +137,7 @@ ElementTree<Mesh>::ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh )
     // Build a cloud search.
     GlobalOrdinal leaf_size = 20;
     leaf_size = std::min( leaf_size, d_mesh->localNumElements() );
-    d_tree = SearchTree::createSearchTree( 
+    d_tree = SearchTreeFactory::create(
 	d_mesh->dim(), d_element_centroids(), leaf_size );
     DTK_ENSURE( Teuchos::nonnull(d_tree) );
 }

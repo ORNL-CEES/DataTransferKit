@@ -85,6 +85,7 @@ APPEND_SET(HEADERS
   DTK_RCB_def.hpp
   DTK_Rendezvous.hpp
   DTK_Rendezvous_def.hpp
+  DTK_SearchTreeFactory.hpp
   DTK_SerialPartitioner.hpp
   DTK_SharedDomainMap.hpp
   DTK_SharedDomainMap_def.hpp
@@ -115,6 +116,7 @@ APPEND_SET(SOURCES
   DTK_Cylinder.cpp
   DTK_DBC.cpp
   DTK_MeshContainer.cpp
+  DTK_SearchTreeFactory.cpp
   DTK_SerialPartitioner.cpp
   )
 

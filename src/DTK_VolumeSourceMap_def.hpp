@@ -633,8 +633,10 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints()
  * std::numeric_limits<GlobalOrdinal>::max(), in its positition.
  */
 template<class Geometry, class GlobalOrdinal, class CoordinateField>
-void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getTargetPointsInBox(
-    const BoundingBox& box, const CoordinateField& target_coords,
+void 
+VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getTargetPointsInBox(
+    const BoundingBox& box, 
+    const CoordinateField& target_coords,
     const Teuchos::ArrayView<const GlobalOrdinal>& target_ordinals,
     Teuchos::Array<GlobalOrdinal>& targets_in_box )
 {

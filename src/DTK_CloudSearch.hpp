@@ -73,12 +73,6 @@ class SearchTree
     virtual Teuchos::Array<unsigned> radiusSearch( 
 	const Teuchos::ArrayView<const double>& point, 
 	const double radius ) const = 0;
-
-    // Base class creation method.
-    static Teuchos::RCP<SearchTree> createSearchTree( 
-	const unsigned dim,
-	const Teuchos::ArrayView<const double>& cloud_centers,
-	const unsigned leaf_size );
 };
 
 //---------------------------------------------------------------------------//
