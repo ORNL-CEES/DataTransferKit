@@ -121,10 +121,9 @@ int main(int argc, char* argv[])
     int inv_k_block = num_k_blocks - k_block - 1;
 
     // Setup source mesh.
-    int global_size = std::atoi(argv[4]);
-    int edge_size = (global_size / std::pow(my_size,1.0/3.0) ) + 1;
-    int num_points = (edge_size-1)*(edge_size-1)*(edge_size-1)*8;
-    assert( 1 < edge_size );
+    long global_points = std::atoi(argv[4]);
+    int num_points = global_points / my_size;
+    assert( 1 < global_points );
     int overlap = std::atoi(argv[5]);
     assert( -1 < overlap );
     Teuchos::ArrayRCP<double> source_centers;
@@ -165,7 +164,8 @@ int main(int argc, char* argv[])
     Teuchos::Array<double> target_function( num_points );
 
     // Support radius.
-    double radius = 1.1 / double(edge_size - 1.0);
+    double h = 1.0 / std::pow( num_points, 1.0/3.0 );
+    double radius = 3.0*h;
 
     // Interpolation type.
     std::string interpolation_type = argv[6];
