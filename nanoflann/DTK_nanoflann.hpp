@@ -988,7 +988,8 @@ namespace nanoflann
 		{
 			// Create a permutable array of indices to the input vectors.
 			m_size = dataset.kdtree_get_point_count();
-			if (Teuchos::as<int>(vind.size())!=m_size) vind.resize(m_size);
+			if (Teuchos::as<std::size_t>(vind.size())!=
+			    Teuchos::as<std::size_t>(m_size)) vind.resize(m_size);
 			for (size_t i = 0; i < m_size; i++) vind[i] = i;
 		}
 
