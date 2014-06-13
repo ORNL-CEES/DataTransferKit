@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_CloudSearch.hpp
+ * \file DTK_StaticSearchTree.hpp
  * \author Stuart R. Slattery
  * \brief Spatial searching for point clouds.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CLOUDSEARCH_HPP
-#define DTK_CLOUDSEARCH_HPP
+#ifndef DTK_STATICSEARCHTREE_HPP
+#define DTK_STATICSEARCHTREE_HPP
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
@@ -50,18 +50,18 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Non-templated search tree base class.
+// Non-templated static search tree base class.
 //---------------------------------------------------------------------------//
-class SearchTree
+class StaticSearchTree
 {
   public:
 
     // Default constructor.
-    SearchTree()
+    StaticSearchTree()
     { /* ... */ }
 
     // Destructor.
-    virtual ~SearchTree()
+    virtual ~StaticSearchTree()
     { /* ... */ }
 
     // Perform an n-nearest neighbor search.
@@ -79,21 +79,21 @@ class SearchTree
 // Point cloud structure.
 //---------------------------------------------------------------------------//
 template<int DIM>
-class Cloud
+class PointCloud
 {
   public:
     
     //! Default constructor.
-    Cloud()
+    PointCloud()
     { /* ... */ }
 
     //! Constructor.
-    Cloud( const Teuchos::ArrayView<const double>& points )
+    PointCloud( const Teuchos::ArrayView<const double>& points )
 	: d_points( points )
     { /* ... */ }
 
     //! Destructor.
-    ~Cloud()
+    ~PointCloud()
     { /* ... */ }
 
     //! Number of cloud points.
@@ -114,36 +114,36 @@ class Cloud
 
   private:
 
-    // Cloud points.
+    // PointCloud points.
     Teuchos::ArrayView<const double> d_points;
 };
 
 //---------------------------------------------------------------------------//
 /*!
- * \class CloudSearch
+ * \class NanoflannTree
  * \brief Spatial searching for point clouds.
  */
 //---------------------------------------------------------------------------//
 template<int DIM>
-class CloudSearch : public SearchTree
+class NanoflannTree : public StaticSearchTree
 {
   public:
 
     //! Tree typedef.
     typedef nanoflann::KDTreeSingleIndexAdaptor<
-      nanoflann::L2_Simple_Adaptor<double,Cloud<DIM> >,
-      Cloud<DIM>,
+      nanoflann::L2_Simple_Adaptor<double,PointCloud<DIM> >,
+      PointCloud<DIM>,
       DIM,
       unsigned> TreeType;
 
   public:
 
     // Default constructor.
-    CloudSearch( const Teuchos::ArrayView<const double>& cloud_centers,
-		 const unsigned max_leaf_size );
+    NanoflannTree( const Teuchos::ArrayView<const double>& cloud_centers,
+		   const unsigned max_leaf_size );
 
     // Destructor.
-    ~CloudSearch()
+    ~NanoflannTree()
     { /* ... */ }
 
     // Perform an n-nearest neighbor search.
@@ -156,10 +156,10 @@ class CloudSearch : public SearchTree
 	const Teuchos::ArrayView<const double>& point, 
 	const double radius ) const;
 
- private:
+  private:
 
-    // Cloud.
-    Cloud<DIM> d_cloud;
+    // PointCloud.
+    PointCloud<DIM> d_cloud;
 
     // kD-tree.
     Teuchos::RCP<TreeType> d_tree;
@@ -173,13 +173,13 @@ class CloudSearch : public SearchTree
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_CloudSearch_impl.hpp"
+#include "DTK_StaticSearchTree_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_CLOUDSEARCH_HPP
+#endif // end DTK_STATICSEARCHTREE_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_CloudSearch.hpp
+// end DTK_StaticSearchTree.hpp
 //---------------------------------------------------------------------------//
 

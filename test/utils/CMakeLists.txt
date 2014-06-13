@@ -31,8 +31,8 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  CloudSearch_test
-  SOURCES tstCloudSearch.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  StaticSearchTree_test
+  SOURCES tstStaticSearchTree.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )

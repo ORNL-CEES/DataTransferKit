@@ -43,7 +43,7 @@
 
 #include "DTK_MeshManager.hpp"
 #include "DTK_IntrepidCell.hpp"
-#include "DTK_CloudSearch.hpp"
+#include "DTK_StaticSearchTree.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
@@ -98,8 +98,8 @@ class ElementTree
     // Discretization cell for each block.
     Teuchos::Array<IntrepidCell<Intrepid::FieldContainer<double> > > d_dcells;
 
-    // Cloud Search.
-    Teuchos::RCP<SearchTree> d_tree;
+    // Static search tree.
+    Teuchos::RCP<StaticSearchTree> d_tree;
 };
 
 } // end namespace DataTransferKit

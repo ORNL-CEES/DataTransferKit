@@ -32,9 +32,9 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   tstCloudSearch.cpp
+ * \file   tstStaticSearchTree.cpp
  * \author Stuart R. Slattery
- * \brief  Cloud search unit tests.
+ * \brief  Static search tree unit tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -44,7 +44,8 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <DTK_CloudSearch.hpp>
+#include <DTK_StaticSearchTree.hpp>
+#include <DTK_SearchTreeFactory.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -71,7 +72,7 @@ Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
 //---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( CloudSearch, dim_1_test )
+TEUCHOS_UNIT_TEST( NanoflannTree, dim_1_test )
 {
     int dim = 1;
     int num_points = 10;
@@ -84,7 +85,7 @@ TEUCHOS_UNIT_TEST( CloudSearch, dim_1_test )
     }
 
     int max_leaf_size = 3;
-    DataTransferKit::CloudSearch<1> cloud_search( coords(), max_leaf_size );
+    DataTransferKit::NanoflannTree<1> tree( coords(), max_leaf_size );
     
     Teuchos::Array<double> p1( dim );
     p1[0] = 4.9;
@@ -93,32 +94,81 @@ TEUCHOS_UNIT_TEST( CloudSearch, dim_1_test )
 
     int num_neighbors = 1;
     Teuchos::Array<unsigned> nnearest = 
-	cloud_search.nnSearch( p1(), num_neighbors );
+	tree.nnSearch( p1(), num_neighbors );
     TEST_EQUALITY( num_neighbors, nnearest.size() );
     TEST_EQUALITY( 5, nnearest[0] );
 
-    nnearest = cloud_search.nnSearch( p2(), num_neighbors );
+    nnearest = tree.nnSearch( p2(), num_neighbors );
     TEST_EQUALITY( num_neighbors, nnearest.size() );
     TEST_EQUALITY( 9, nnearest[0] );
 
     double radius = 1.1;
-    nnearest = cloud_search.radiusSearch( p1(), radius );
+    nnearest = tree.radiusSearch( p1(), radius );
     TEST_EQUALITY( 3, nnearest.size() );
     TEST_EQUALITY( 5, nnearest[0] )
     TEST_EQUALITY( 4, nnearest[1] )
     TEST_EQUALITY( 6, nnearest[2] )
 
-    nnearest = cloud_search.radiusSearch( p2(), radius );
+    nnearest = tree.radiusSearch( p2(), radius );
     TEST_EQUALITY( 0, nnearest.size() );
 
     radius = 2.4;
-    nnearest = cloud_search.radiusSearch( p2(), radius );
+    nnearest = tree.radiusSearch( p2(), radius );
     TEST_EQUALITY( 1, nnearest.size() );
     TEST_EQUALITY( 9, nnearest[0] )
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( CloudSearch, dim_2_test )
+TEUCHOS_UNIT_TEST( NanoflannTree, dim_1_factory_test )
+{
+    int dim = 1;
+    int num_points = 10;
+    int num_coords = dim*num_points;
+
+    Teuchos::Array<double> coords(num_coords);
+    for ( int i = 0; i < num_points; ++i )
+    {
+	coords[i] = 1.0*i;
+    }
+
+    int max_leaf_size = 3;
+    Teuchos::RCP<DataTransferKit::StaticSearchTree> tree =
+	DataTransferKit::SearchTreeFactory::createStaticTree(
+	    1, coords(), max_leaf_size );
+    
+    Teuchos::Array<double> p1( dim );
+    p1[0] = 4.9;
+    Teuchos::Array<double> p2( dim );
+    p2[0] = 11.4;
+
+    int num_neighbors = 1;
+    Teuchos::Array<unsigned> nnearest = 
+	tree->nnSearch( p1(), num_neighbors );
+    TEST_EQUALITY( num_neighbors, nnearest.size() );
+    TEST_EQUALITY( 5, nnearest[0] );
+
+    nnearest = tree->nnSearch( p2(), num_neighbors );
+    TEST_EQUALITY( num_neighbors, nnearest.size() );
+    TEST_EQUALITY( 9, nnearest[0] );
+
+    double radius = 1.1;
+    nnearest = tree->radiusSearch( p1(), radius );
+    TEST_EQUALITY( 3, nnearest.size() );
+    TEST_EQUALITY( 5, nnearest[0] )
+    TEST_EQUALITY( 4, nnearest[1] )
+    TEST_EQUALITY( 6, nnearest[2] )
+
+    nnearest = tree->radiusSearch( p2(), radius );
+    TEST_EQUALITY( 0, nnearest.size() );
+
+    radius = 2.4;
+    nnearest = tree->radiusSearch( p2(), radius );
+    TEST_EQUALITY( 1, nnearest.size() );
+    TEST_EQUALITY( 9, nnearest[0] )
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( NanoflannTree, dim_2_test )
 {
     int dim = 2;
     int num_points = 10;
@@ -132,7 +182,7 @@ TEUCHOS_UNIT_TEST( CloudSearch, dim_2_test )
     }
 
     int max_leaf_size = 2;
-    DataTransferKit::CloudSearch<2> cloud_search( coords(), max_leaf_size );
+    DataTransferKit::NanoflannTree<2> tree( coords(), max_leaf_size );
     
     Teuchos::Array<double> p1( dim );
     p1[0] = 4.9;
@@ -143,32 +193,84 @@ TEUCHOS_UNIT_TEST( CloudSearch, dim_2_test )
 
     int num_neighbors = 1;
     Teuchos::Array<unsigned> nnearest = 
-	cloud_search.nnSearch( p1(), num_neighbors );
+	tree.nnSearch( p1(), num_neighbors );
     TEST_EQUALITY( num_neighbors, nnearest.size() );
     TEST_EQUALITY( 5, nnearest[0] );
 
-    nnearest = cloud_search.nnSearch( p2(), num_neighbors );
+    nnearest = tree.nnSearch( p2(), num_neighbors );
     TEST_EQUALITY( num_neighbors, nnearest.size() );
     TEST_EQUALITY( 9, nnearest[0] );
 
     double radius = 1.1;
-    nnearest = cloud_search.radiusSearch( p1(), radius );
+    nnearest = tree.radiusSearch( p1(), radius );
     TEST_EQUALITY( 3, nnearest.size() );
     TEST_EQUALITY( 5, nnearest[0] )
     TEST_EQUALITY( 4, nnearest[1] )
     TEST_EQUALITY( 6, nnearest[2] )
 
-    nnearest = cloud_search.radiusSearch( p2(), radius );
+    nnearest = tree.radiusSearch( p2(), radius );
     TEST_EQUALITY( 0, nnearest.size() );
 
     radius = 2.4;
-    nnearest = cloud_search.radiusSearch( p2(), radius );
+    nnearest = tree.radiusSearch( p2(), radius );
     TEST_EQUALITY( 1, nnearest.size() );
     TEST_EQUALITY( 9, nnearest[0] )
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( CloudSearch, dim_3_test )
+TEUCHOS_UNIT_TEST( NanoflannTree, dim_2_factory_test )
+{
+    int dim = 2;
+    int num_points = 10;
+    int num_coords = dim*num_points;
+
+    Teuchos::Array<double> coords(num_coords);
+    for ( int i = 0; i < num_points; ++i )
+    {
+	coords[dim*i] = 1.0*i;
+	coords[dim*i+1] = 1.0;
+    }
+
+    int max_leaf_size = 2;
+    Teuchos::RCP<DataTransferKit::StaticSearchTree> tree =
+	DataTransferKit::SearchTreeFactory::createStaticTree(
+	    2, coords(), max_leaf_size );
+    
+    Teuchos::Array<double> p1( dim );
+    p1[0] = 4.9;
+    p1[1] = 1.0;
+    Teuchos::Array<double> p2( dim );
+    p2[0] = 11.4;
+    p2[1] = 1.0;
+
+    int num_neighbors = 1;
+    Teuchos::Array<unsigned> nnearest = 
+	tree->nnSearch( p1(), num_neighbors );
+    TEST_EQUALITY( num_neighbors, nnearest.size() );
+    TEST_EQUALITY( 5, nnearest[0] );
+
+    nnearest = tree->nnSearch( p2(), num_neighbors );
+    TEST_EQUALITY( num_neighbors, nnearest.size() );
+    TEST_EQUALITY( 9, nnearest[0] );
+
+    double radius = 1.1;
+    nnearest = tree->radiusSearch( p1(), radius );
+    TEST_EQUALITY( 3, nnearest.size() );
+    TEST_EQUALITY( 5, nnearest[0] )
+    TEST_EQUALITY( 4, nnearest[1] )
+    TEST_EQUALITY( 6, nnearest[2] )
+
+    nnearest = tree->radiusSearch( p2(), radius );
+    TEST_EQUALITY( 0, nnearest.size() );
+
+    radius = 2.4;
+    nnearest = tree->radiusSearch( p2(), radius );
+    TEST_EQUALITY( 1, nnearest.size() );
+    TEST_EQUALITY( 9, nnearest[0] )
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( NanoflannTree, dim_3_test )
 {
     int dim = 3;
     int num_points = 10;
@@ -183,7 +285,7 @@ TEUCHOS_UNIT_TEST( CloudSearch, dim_3_test )
     }
 
     int max_leaf_size = 3;
-    DataTransferKit::CloudSearch<3> cloud_search( coords(), max_leaf_size );
+    DataTransferKit::NanoflannTree<3> tree( coords(), max_leaf_size );
     
     Teuchos::Array<double> p1( dim );
     p1[0] = 4.9;
@@ -196,30 +298,85 @@ TEUCHOS_UNIT_TEST( CloudSearch, dim_3_test )
 
     int num_neighbors = 1;
     Teuchos::Array<unsigned> nnearest = 
-	cloud_search.nnSearch( p1(), num_neighbors );
+	tree.nnSearch( p1(), num_neighbors );
     TEST_EQUALITY( num_neighbors, nnearest.size() );
     TEST_EQUALITY( 5, nnearest[0] );
 
-    nnearest = cloud_search.nnSearch( p2(), num_neighbors );
+    nnearest = tree.nnSearch( p2(), num_neighbors );
     TEST_EQUALITY( num_neighbors, nnearest.size() );
     TEST_EQUALITY( 9, nnearest[0] );
 
     double radius = 1.1;
-    nnearest = cloud_search.radiusSearch( p1(), radius );
+    nnearest = tree.radiusSearch( p1(), radius );
     TEST_EQUALITY( 3, nnearest.size() );
     TEST_EQUALITY( 5, nnearest[0] )
     TEST_EQUALITY( 4, nnearest[1] )
     TEST_EQUALITY( 6, nnearest[2] )
 
-    nnearest = cloud_search.radiusSearch( p2(), radius );
+    nnearest = tree.radiusSearch( p2(), radius );
     TEST_EQUALITY( 0, nnearest.size() );
 
     radius = 2.4;
-    nnearest = cloud_search.radiusSearch( p2(), radius );
+    nnearest = tree.radiusSearch( p2(), radius );
     TEST_EQUALITY( 1, nnearest.size() );
     TEST_EQUALITY( 9, nnearest[0] )
 }
 
 //---------------------------------------------------------------------------//
-// end tstCloudSearch.cpp
+TEUCHOS_UNIT_TEST( NanoflannTree, dim_3_factory_test )
+{
+    int dim = 3;
+    int num_points = 10;
+    int num_coords = dim*num_points;
+
+    Teuchos::Array<double> coords(num_coords);
+    for ( int i = 0; i < num_points; ++i )
+    {
+	coords[dim*i] = 1.0*i;
+	coords[dim*i+1] = 1.0;
+	coords[dim*i+2] = 1.0;
+    }
+
+    int max_leaf_size = 3;
+    Teuchos::RCP<DataTransferKit::StaticSearchTree> tree =
+	DataTransferKit::SearchTreeFactory::createStaticTree(
+	    3, coords(), max_leaf_size );
+    
+    Teuchos::Array<double> p1( dim );
+    p1[0] = 4.9;
+    p1[1] = 1.0;
+    p1[2] = 1.0;
+    Teuchos::Array<double> p2( dim );
+    p2[0] = 11.4;
+    p2[1] = 1.0;
+    p2[2] = 1.0;
+
+    int num_neighbors = 1;
+    Teuchos::Array<unsigned> nnearest = 
+	tree->nnSearch( p1(), num_neighbors );
+    TEST_EQUALITY( num_neighbors, nnearest.size() );
+    TEST_EQUALITY( 5, nnearest[0] );
+
+    nnearest = tree->nnSearch( p2(), num_neighbors );
+    TEST_EQUALITY( num_neighbors, nnearest.size() );
+    TEST_EQUALITY( 9, nnearest[0] );
+
+    double radius = 1.1;
+    nnearest = tree->radiusSearch( p1(), radius );
+    TEST_EQUALITY( 3, nnearest.size() );
+    TEST_EQUALITY( 5, nnearest[0] )
+    TEST_EQUALITY( 4, nnearest[1] )
+    TEST_EQUALITY( 6, nnearest[2] )
+
+    nnearest = tree->radiusSearch( p2(), radius );
+    TEST_EQUALITY( 0, nnearest.size() );
+
+    radius = 2.4;
+    nnearest = tree->radiusSearch( p2(), radius );
+    TEST_EQUALITY( 1, nnearest.size() );
+    TEST_EQUALITY( 9, nnearest[0] )
+}
+
+//---------------------------------------------------------------------------//
+// end tstStaticSearchTree.cpp
 //---------------------------------------------------------------------------//

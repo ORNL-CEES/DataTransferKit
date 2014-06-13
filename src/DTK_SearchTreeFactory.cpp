@@ -44,7 +44,7 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Creation method.
+ * \brief Static tree creation method.
  *
  * \param dim Spatial dimension of the tree.
  *
@@ -54,33 +54,33 @@ namespace DataTransferKit
  *
  * \return The constructed tree.
  */
-Teuchos::RCP<SearchTree> SearchTreeFactory::create( 
+Teuchos::RCP<StaticSearchTree> SearchTreeFactory::createStaticTree( 
     const unsigned dim,
     const Teuchos::ArrayView<const double>& cloud_centers,
     const unsigned leaf_size )
 {
-    Teuchos::RCP<SearchTree> tree;
+    Teuchos::RCP<StaticSearchTree> tree;
 
     switch ( dim )
     {
 	case 1:
 	{
 	    tree = Teuchos::rcp( 
-		new CloudSearch<1>(cloud_centers, leaf_size) );
+		new NanoflannTree<1>(cloud_centers, leaf_size) );
 	}
 	break;
 
 	case 2:
 	{
 	    tree = Teuchos::rcp( 
-		new CloudSearch<2>(cloud_centers, leaf_size) );
+		new NanoflannTree<2>(cloud_centers, leaf_size) );
 	}
 	break;
 
 	case 3:
 	{
 	    tree = Teuchos::rcp( 
-		new CloudSearch<3>(cloud_centers, leaf_size) );
+		new NanoflannTree<3>(cloud_centers, leaf_size) );
 	}
 	break;
     };

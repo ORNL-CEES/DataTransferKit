@@ -42,7 +42,7 @@
 #define DTK_SPLINEINTERPOLATIONPAIRING_IMPL_HPP
 
 #include "DTK_DBC.hpp"
-#include "DTK_CloudSearch.hpp"
+#include "DTK_StaticSearchTree.hpp"
 
 namespace DataTransferKit
 {
@@ -60,15 +60,14 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
     DTK_REQUIRE( 0 == parent_centers.size() % DIM );
 
     unsigned leaf_size = 30;
-    CloudSearch<DIM> cloud_search( child_centers, leaf_size );
+    NanoflannTree<DIM> tree( child_centers, leaf_size );
 
     unsigned num_parents = parent_centers.size() / DIM;
     d_pairings.resize( num_parents );
     d_pair_sizes = Teuchos::ArrayRCP<std::size_t>( num_parents );
     for ( unsigned i = 0; i < num_parents; ++i )
     {
-	d_pairings[i] = cloud_search.radiusSearch( 
-	    parent_centers(DIM*i,DIM), radius );
+	d_pairings[i] = tree.radiusSearch( parent_centers(DIM*i,DIM), radius );
 	d_pair_sizes[i] = d_pairings[i].size();
     }
 }

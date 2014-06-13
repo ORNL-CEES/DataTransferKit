@@ -31,8 +31,8 @@ APPEND_SET(HEADERS
   DTK_CenterDistributor_impl.hpp
   DTK_CloudDomain.hpp
   DTK_CloudDomain_impl.hpp
-  DTK_CloudSearch.hpp
-  DTK_CloudSearch_impl.hpp
+  DTK_StaticSearchTree.hpp
+  DTK_StaticSearchTree_impl.hpp
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
   DTK_Cylinder.hpp

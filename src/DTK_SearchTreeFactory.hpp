@@ -41,7 +41,7 @@
 #ifndef DTK_SEARCHTREEFACTORY_HPP
 #define DTK_SEARCHTREEFACTORY_HPP
 
-#include "DTK_CloudSearch.hpp"
+#include "DTK_StaticSearchTree.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -66,8 +66,8 @@ class SearchTreeFactory
     ~SearchTreeFactory()
     { /* ... */ }
 
-    // Base class creation method.
-    static Teuchos::RCP<SearchTree> create(
+    // Static tree creation method.
+    static Teuchos::RCP<StaticSearchTree> createStaticTree(
 	const unsigned dim,
 	const Teuchos::ArrayView<const double>& cloud_centers,
 	const unsigned leaf_size );

@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_CloudSearch_impl.hpp
+ * \file DTK_StaticSearchTree_impl.hpp
  * \author Stuart R. Slattery
  * \brief Spatial searching for point clouds.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CLOUDSEARCH_IMPL_HPP
-#define DTK_CLOUDSEARCH_IMPL_HPP
+#ifndef DTK_STATICSEARCHTREE_IMPL_HPP
+#define DTK_STATICSEARCHTREE_IMPL_HPP
 
 #include <limits>
 
@@ -54,7 +54,7 @@ namespace DataTransferKit
  * \brief Compute the distance between a given point and a point in the cloud.
  */
 template<>
-inline double Cloud<1>::kdtree_distance( 
+inline double PointCloud<1>::kdtree_distance( 
     const double *p1, const std::size_t idx_p2, std::size_t size) const
 {
     DTK_REQUIRE( 1 == size );
@@ -68,7 +68,7 @@ inline double Cloud<1>::kdtree_distance(
  * \brief Compute the distance between a given point and a point in the cloud.
  */
 template<>
-inline double Cloud<2>::kdtree_distance( 
+inline double PointCloud<2>::kdtree_distance( 
     const double *p1, const std::size_t idx_p2, std::size_t size) const
 {
     DTK_REQUIRE( 2 == size );
@@ -83,7 +83,7 @@ inline double Cloud<2>::kdtree_distance(
  * \brief Compute the distance between a given point and a point in the cloud.
  */
 template<>
-inline double Cloud<3>::kdtree_distance( 
+inline double PointCloud<3>::kdtree_distance( 
     const double *p1, const std::size_t idx_p2, std::size_t size) const
 {
     DTK_REQUIRE( 3 == size );
@@ -99,7 +99,7 @@ inline double Cloud<3>::kdtree_distance(
  * \brief Get the point coordinate at the given dimension.
  */
 template<>
-inline double Cloud<1>::kdtree_get_pt( const std::size_t idx, int dim ) const
+inline double PointCloud<1>::kdtree_get_pt( const std::size_t idx, int dim ) const
 {
     DTK_REQUIRE( dim < 1 );
     DTK_REQUIRE( idx < Teuchos::as<std::size_t>(d_points.size()));
@@ -111,7 +111,7 @@ inline double Cloud<1>::kdtree_get_pt( const std::size_t idx, int dim ) const
  * \brief Get the point coordinate at the given dimension.
  */
 template<>
-inline double Cloud<2>::kdtree_get_pt( const std::size_t idx, int dim ) const
+inline double PointCloud<2>::kdtree_get_pt( const std::size_t idx, int dim ) const
 {
     DTK_REQUIRE( dim < 2 );
     DTK_REQUIRE( 2*idx+dim < Teuchos::as<std::size_t>(d_points.size()));
@@ -123,7 +123,7 @@ inline double Cloud<2>::kdtree_get_pt( const std::size_t idx, int dim ) const
  * \brief Get the point coordinate at the given dimension.
  */
 template<>
-inline double Cloud<3>::kdtree_get_pt( const std::size_t idx, int dim ) const
+inline double PointCloud<3>::kdtree_get_pt( const std::size_t idx, int dim ) const
 {
     DTK_REQUIRE( dim < 3 );
     DTK_REQUIRE( 3*idx+dim < Teuchos::as<std::size_t>(d_points.size()));
@@ -131,19 +131,19 @@ inline double Cloud<3>::kdtree_get_pt( const std::size_t idx, int dim ) const
 }
 
 //---------------------------------------------------------------------------//
-// CloudSearch Implementation.
+// NanoflannTree Implementation.
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
  */
 template<int DIM>
-CloudSearch<DIM>::CloudSearch(
+NanoflannTree<DIM>::NanoflannTree(
     const Teuchos::ArrayView<const double>& cloud_centers, 
     const unsigned max_leaf_size )
 {
     DTK_CHECK( 0 == cloud_centers.size() % DIM );
 
-    d_cloud = Cloud<DIM>( cloud_centers );
+    d_cloud = PointCloud<DIM>( cloud_centers );
     d_tree = Teuchos::rcp( 
 	new TreeType(DIM, d_cloud, 
 		     nanoflann::KDTreeSingleIndexAdaptorParams(max_leaf_size)) );
@@ -155,7 +155,7 @@ CloudSearch<DIM>::CloudSearch(
  * \brief Perform an n-nearest neighbor search.
  */
 template<int DIM>
-Teuchos::Array<unsigned> CloudSearch<DIM>::nnSearch( 
+Teuchos::Array<unsigned> NanoflannTree<DIM>::nnSearch( 
     const Teuchos::ArrayView<const double>& point, 
     const unsigned num_neighbors ) const
 {
@@ -172,7 +172,7 @@ Teuchos::Array<unsigned> CloudSearch<DIM>::nnSearch(
  * \brief Perform a nearest neighbor search within a specified radius.
  */ 
 template<int DIM>
-Teuchos::Array<unsigned> CloudSearch<DIM>::radiusSearch( 
+Teuchos::Array<unsigned> NanoflannTree<DIM>::radiusSearch( 
     const Teuchos::ArrayView<const double>& point, 
     const double radius ) const
 {
@@ -204,9 +204,9 @@ Teuchos::Array<unsigned> CloudSearch<DIM>::radiusSearch(
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_CLOUDSEARCH_IMPL_HPP
+#endif // end DTK_STATICSEARCHTREE_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_CloudSearch_impl.hpp
+// end DTK_StaticSearchTree_impl.hpp
 //---------------------------------------------------------------------------//
 
