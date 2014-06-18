@@ -42,6 +42,9 @@
 #define DTK_MOVINGLEASTSQUARE_IMPL_HPP
 
 #include "DTK_DBC.hpp"
+#include "DTK_LocalMLSProblem.hpp"
+#include "DTK_CenterDistributor.hpp"
+#include "DTK_SplineInterpolationPairing.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Ptr.hpp>

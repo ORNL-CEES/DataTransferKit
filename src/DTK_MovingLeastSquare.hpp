@@ -32,7 +32,7 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_MovingLeastSquares.hpp
+ * \file   DTK_MovingLeastSquare.hpp
  * \author Stuart R. Slattery
  * \brief Parallel moving least square interpolator.
  */
@@ -43,9 +43,6 @@
 
 #include "DTK_MeshFreeInterpolator.hpp"
 #include "DTK_RadialBasisPolicy.hpp"
-#include "DTK_CenterDistributor.hpp"
-#include "DTK_SplineInterpolationPairing.hpp"
-#include "DTK_LocalMLSProblem.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
