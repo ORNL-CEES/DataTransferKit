@@ -94,6 +94,12 @@ class CommTools
     // Given a comm request, check to see if it has completed.
     static bool 
     isRequestComplete( Teuchos::RCP<Teuchos::CommRequest<int> >& handle );
+
+    // Given a comm request, check to see if it has completed and get the
+    // sending rank.
+    static bool 
+    isRequestCompleteWithRank( 
+	Teuchos::RCP<Teuchos::CommRequest<int> >& handle, int& rank );
 };
 
 //---------------------------------------------------------------------------//

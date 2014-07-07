@@ -53,6 +53,16 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \brief Creation method.
+ *
+ * \param comm The parallel communicator over which to build the interpolator.
+ *
+ * \param interpolator_name The name of the interpolation type.
+ *
+ * \param basis_name The name of the basis type supporting the interpolation.
+ *
+ * \param basis_order The order of the basis supporting the interpolation.
+ *
+ * \param space_dim The spatial dimension of the interpolation problem.
  */
 template<class GO>
 Teuchos::RCP<MeshFreeInterpolator>

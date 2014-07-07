@@ -31,12 +31,11 @@ APPEND_SET(HEADERS
   DTK_CenterDistributor_impl.hpp
   DTK_CloudDomain.hpp
   DTK_CloudDomain_impl.hpp
-  DTK_StaticSearchTree.hpp
-  DTK_StaticSearchTree_impl.hpp
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
   DTK_Cylinder.hpp
   DTK_DBC.hpp
+  DTK_Distributor.hpp
   DTK_ElementMeasure.hpp
   DTK_ElementTree.hpp
   DTK_ElementTree_impl.hpp
@@ -97,6 +96,8 @@ APPEND_SET(HEADERS
   DTK_SplineOperatorA_impl.hpp
   DTK_SplineOperatorC.hpp
   DTK_SplineOperatorC_impl.hpp
+  DTK_StaticSearchTree.hpp
+  DTK_StaticSearchTree_impl.hpp
   DTK_TopologyTools.hpp
   DTK_TopologyTools_def.hpp
   DTK_VolumeSourceMap.hpp
@@ -115,6 +116,7 @@ APPEND_SET(SOURCES
   DTK_CommTools.cpp
   DTK_Cylinder.cpp
   DTK_DBC.cpp
+  DTK_Distributor.cpp
   DTK_MeshContainer.cpp
   DTK_SearchTreeFactory.cpp
   DTK_SerialPartitioner.cpp
