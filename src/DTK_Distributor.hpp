@@ -78,7 +78,7 @@ class Distributor
     createFromSends( const Teuchos::ArrayView<const int>& export_node_ids );
 
     // Get the number of messages I will send.
-    int getNumSends() const
+    std::size_t getNumSends() const
     { return d_num_sends; }
 
     // Get the images to which I am sending.
@@ -90,7 +90,7 @@ class Distributor
     { return d_lengths_to(); }
 
     // Get the number of messages I will receive.
-    int getNumReceives() const
+    std::size_t getNumReceives() const
     { return d_num_receives; }
 
     // Get the images from which I am receiveing.
@@ -110,7 +110,7 @@ class Distributor
     // cycle.
     void completeTreeCount();
 
-    // Update the binary tree count of completed histories.
+    // Update the binary tree count of completed receives.
     void updateTreeCount();
 
     // Send the global finished message to the children.
@@ -142,10 +142,10 @@ class Distributor
     Teuchos::RCP<const Comm> d_comm_complete;
 
     // Master-worker asynchronous communication request handles for number of
-    // histories complete.
+    // receives complete.
     std::pair<Teuchos::RCP<Request>,Teuchos::RCP<Request> > d_num_done_handles;
 
-    // Master-worker reports for number of histories complete communications. 
+    // Master-worker reports for number of receives complete communications. 
     std::pair<Teuchos::RCP<int>,Teuchos::RCP<int> > d_num_done_report;
 
     // Request handle for completed work on worker nodes.

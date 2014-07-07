@@ -70,6 +70,8 @@ TEUCHOS_UNIT_TEST( Distributor, distributor_test )
     
 
     // Check DTK against Tpetra.
+
+    // Check the number of sends and receives.
     int tpetra_self_message = tpetra_distributor.hasSelfMessage() ? 1 : 0;
     TEST_EQUALITY( num_import_tpetra, num_import_dtk );
     TEST_EQUALITY( tpetra_distributor.getNumSends() + tpetra_self_message,
@@ -77,6 +79,7 @@ TEUCHOS_UNIT_TEST( Distributor, distributor_test )
     TEST_EQUALITY( tpetra_distributor.getNumReceives() + tpetra_self_message,
 		   dtk_distributor.getNumReceives() );
 
+    // Check the images we are sending to.
     Teuchos::Array<int> tpetra_images_to( tpetra_distributor.getImagesTo() );
     std::sort( tpetra_images_to.begin(), tpetra_images_to.end() );
     Teuchos::Array<int> dtk_images_to( dtk_distributor.getImagesTo() );
@@ -87,6 +90,7 @@ TEUCHOS_UNIT_TEST( Distributor, distributor_test )
 	TEST_EQUALITY( tpetra_images_to[i], dtk_images_to[i] );
     }
 
+    // Check the images we are receiving from.
     Teuchos::Array<int> tpetra_images_from( tpetra_distributor.getImagesFrom() );
     std::sort( tpetra_images_from.begin(), tpetra_images_from.end() );
     Teuchos::Array<int> dtk_images_from( dtk_distributor.getImagesFrom() );
@@ -97,6 +101,7 @@ TEUCHOS_UNIT_TEST( Distributor, distributor_test )
 	TEST_EQUALITY( tpetra_images_from[i], dtk_images_from[i] );
     }
 
+    // Check the number of packets we are sending to each image.
     Teuchos::Array<std::size_t> tpetra_lengths_to( tpetra_distributor.getLengthsTo() );
     std::sort( tpetra_lengths_to.begin(), tpetra_lengths_to.end() );
     Teuchos::Array<std::size_t> dtk_lengths_to( dtk_distributor.getLengthsTo() );
@@ -107,6 +112,7 @@ TEUCHOS_UNIT_TEST( Distributor, distributor_test )
 	TEST_EQUALITY( tpetra_lengths_to[i], dtk_lengths_to[i] );
     }
 
+    // Check the number of packets we are receiving from each image.
     Teuchos::Array<std::size_t> tpetra_lengths_from( tpetra_distributor.getLengthsFrom() );
     std::sort( tpetra_lengths_from.begin(), tpetra_lengths_from.end() );
     Teuchos::Array<std::size_t> dtk_lengths_from( dtk_distributor.getLengthsFrom() );

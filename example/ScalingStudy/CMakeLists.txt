@@ -56,3 +56,10 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   DEPLIBS datatransferkit
   )
 
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  DistributorScaling
+  SOURCES distributor_scaling_study.cpp
+  COMM mpi
+  DEPLIBS datatransferkit
+  )
+

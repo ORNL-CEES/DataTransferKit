@@ -50,6 +50,7 @@
 #include <Teuchos_OpaqueWrapper.hpp>
 
 #ifdef HAVE_MPI
+#include <Teuchos_DefaultMpiComm.hpp>
 #include <mpi.h>
 #endif
 
@@ -72,9 +73,21 @@ Distributor::Distributor( const Teuchos::RCP<const Comm>& comm )
     DTK_REQUIRE( !d_comm.is_null() );
 
     // We are constructing a separate messaging space for each of these
-    // bookeeping operations.
-    d_comm_num_done = comm->duplicate();
-    d_comm_complete = comm->duplicate();
+    // bookeeping operations. Right now we are using the copy constructor to
+    // simply change the tag of the messages. If isend and ireceive had single
+    // object semantics with a tag option in Teuchos::CommHelpers we would use
+    // that instead.
+#ifdef HAVE_MPI
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
+	Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >( d_comm );
+    Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
+	mpi_comm->getRawMpiComm();
+    d_comm_num_done = Teuchos::rcp( new Teuchos::MpiComm<int>(opaque_comm) );
+    d_comm_complete = Teuchos::rcp( new Teuchos::MpiComm<int>(opaque_comm) );
+#else
+    d_comm_num_done = comm;
+    d_comm_complete = comm;
+#endif
 
     // Get the comm parameters.
     int my_rank = d_comm->getRank();
@@ -173,8 +186,7 @@ std::size_t Distributor::createFromSends(
     Teuchos::RCP<std::size_t> receive_packet = 
 	Teuchos::rcp( new std::size_t(0) );
     Teuchos::RCP<Teuchos::CommRequest<int> > receive_request =
-	Teuchos::ireceive<int,std::size_t>( 
-	    *d_comm, receive_packet, MPI_ANY_SOURCE );
+	Teuchos::ireceive<int,std::size_t>( *d_comm, receive_packet, any_rank );
 
     // Post asynchronous communications in the binary tree for completion count.
     postTreeCount();
@@ -200,7 +212,7 @@ std::size_t Distributor::createFromSends(
 
 	    // Repost the request.
 	    receive_request = Teuchos::ireceive<int,std::size_t>( 
-		*d_comm, receive_packet, MPI_ANY_SOURCE );
+		*d_comm, receive_packet, any_rank );
 
 	    // Update the completion count.
 	    *d_num_done += 1;
@@ -224,8 +236,8 @@ std::size_t Distributor::createFromSends(
 	    }
 	}
 
-	// If all of our local messages have been received then check for the
-	// end of the send process.
+	// If all of our sends have been received then check for the
+	// termination condition.
 	if ( local_sends_done )
 	{
 	    controlTermination();
@@ -245,12 +257,8 @@ std::size_t Distributor::createFromSends(
     d_num_receives = d_images_from.size();
 
     // Return the number of imports this process will receive.
-    std::size_t num_imports = 0;
-    for ( std::size_t n = 0; n < d_num_receives; ++n )
-    {
-	num_imports += d_lengths_from[n];
-    }
-
+    std::size_t num_imports = 
+	std::accumulate( d_lengths_from.begin(), d_lengths_from.end(), 0 );
     return num_imports;
 }
 
@@ -326,7 +334,7 @@ void Distributor::completeTreeCount()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Update the binary tree count of completed histories.
+ * \brief Update the binary tree count of completed receives.
  */
 void Distributor::updateTreeCount()
 {
@@ -420,7 +428,7 @@ void Distributor::controlTermination()
     // the process has been completed.
     else
     {
-        // Send completed number of histories to parent.
+        // Send completed number of receives to parent.
         if ( *d_num_done > 0 )
         {
             Teuchos::RCP<Request> report = Teuchos::isend<int,int>(
