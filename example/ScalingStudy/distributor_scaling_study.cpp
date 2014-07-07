@@ -45,9 +45,10 @@ int main(int argc, char* argv[])
     // Decide who we are sending to.
     int num_sends = std::atoi( argv[1] );
     Teuchos::Array<int> send_ranks( num_sends );
-    srand( num_sends*my_size );
+    srand( my_rank + my_rank*237 );
     for ( int n = 0; n < num_sends; ++n )
     {
+	rand();
 	send_ranks[n] = std::floor( my_size * double(rand())/double(RAND_MAX) );
     }
 
@@ -55,9 +56,9 @@ int main(int argc, char* argv[])
     Tpetra::Distributor tpetra_distributor( comm );
     int num_import_tpetra = 0;
     {
-	Teuchos::RCP<Teuchos::Time> timer = 
+	Teuchos::RCP<Teuchos::Time> tpetra_timer = 
 	    Teuchos::TimeMonitor::getNewCounter("Tpetra");
-	Teuchos::TimeMonitor monitor(*timer);
+	Teuchos::TimeMonitor monitor(*tpetra_timer);
 	num_import_tpetra = tpetra_distributor.createFromSends( send_ranks() );
     }
 
@@ -65,9 +66,9 @@ int main(int argc, char* argv[])
     DataTransferKit::Distributor dtk_distributor( comm );
     int num_import_dtk = 0;
     {
-	Teuchos::RCP<Teuchos::Time> timer = 
+	Teuchos::RCP<Teuchos::Time> dtk_timer = 
 	    Teuchos::TimeMonitor::getNewCounter("DataTransferKit");
-	Teuchos::TimeMonitor monitor(*timer);
+	Teuchos::TimeMonitor monitor(*dtk_timer);
 	num_import_dtk = dtk_distributor.createFromSends( send_ranks() );
     }
 
