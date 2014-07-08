@@ -39,7 +39,6 @@
 //---------------------------------------------------------------------------//
 
 #include <algorithm>
-#include <cmath>
 
 #include "DTK_Distributor.hpp"
 #include "DTK_DBC.hpp"
@@ -178,22 +177,16 @@ std::size_t Distributor::createFromSends(
 	    d_images_to[m] );
     }
 
-    // Post receives.
-    int num_recv_post = std::log( d_comm->getSize() );
+    // Post a receive.
     int any_rank = 0;
 #ifdef HAVE_MPI
     any_rank = MPI_ANY_SOURCE;
 #endif
     int send_rank = -1;
-    Teuchos::Array<Teuchos::RCP<std::size_t> > receive_packets( num_recv_post );
-    Teuchos::Array<Teuchos::RCP<Teuchos::CommRequest<int> > > 
-	receive_requests( num_recv_post );
-    for ( int n = 0; n < num_recv_post; ++n )
-    {
-	receive_packets[n] = Teuchos::rcp( new std::size_t(0) );
-	receive_requests[n] =
-	    Teuchos::ireceive<int,std::size_t>( *d_comm, receive_packets[n], any_rank );
-    }
+    Teuchos::RCP<std::size_t> receive_packet = 
+	Teuchos::rcp( new std::size_t(0) );
+    Teuchos::RCP<Teuchos::CommRequest<int> > receive_request =
+	Teuchos::ireceive<int,std::size_t>( *d_comm, receive_packet, any_rank );
 
     // Post asynchronous communications in the binary tree for completion count.
     postTreeCount();
@@ -205,28 +198,24 @@ std::size_t Distributor::createFromSends(
     {
 	// Check the receive status. If we got something, process it,
 	// repost, and update the completion count.
-	for ( int n = 0; n < num_recv_post; ++n )
+	if ( CommTools::isRequestCompleteWithRank(receive_request,send_rank) )
 	{
-	    if ( CommTools::isRequestCompleteWithRank(receive_requests[n],send_rank) )
-	    {
-		// Get the rank the message came from.
-		d_images_from.push_back( send_rank );
-		send_rank = -1;
-		DTK_CHECK( d_images_from.back() >= 0 );
-		DTK_CHECK( d_images_from.back() < d_comm->getSize() );
+	    // Get the rank the message came from.
+	    d_images_from.push_back( send_rank );
+	    send_rank = -1;
+	    DTK_CHECK( d_images_from.back() >= 0 );
+	    DTK_CHECK( d_images_from.back() < d_comm->getSize() );
 
-		// Get the number of packets.
-		d_lengths_from.push_back(*receive_packets[n]);
-		DTK_CHECK( d_lengths_from.back() > 0 );
+	    // Get the number of packets.
+	    d_lengths_from.push_back(*receive_packet);
+	    DTK_CHECK( d_lengths_from.back() > 0 );
 
-		// Repost the request.
-		receive_requests[n] = Teuchos::ireceive<int,std::size_t>( 
-		    *d_comm, receive_packets[n], any_rank );
+	    // Repost the request.
+	    receive_request = Teuchos::ireceive<int,std::size_t>( 
+		*d_comm, receive_packet, any_rank );
 
-		// Update the completion count.
-		*d_num_done += 1;
-	    }
-
+	    // Update the completion count.
+	    *d_num_done += 1;
 	}
 
 	// Check to see if the local sends have been completed.
@@ -258,11 +247,8 @@ std::size_t Distributor::createFromSends(
     // Cancel all oustanding send requests.
     Teuchos::waitAll( *d_comm, send_requests() );
 
-    // Cancel the receive requests.
-    for ( int n = 0; n < num_recv_post; ++n )
-    {
-	receive_requests[n] = Teuchos::null;
-    }
+    // Cancel the receive request.
+    receive_request = Teuchos::null;
 
     // End the binary tree outstanding communication.
     completeTreeCount();
