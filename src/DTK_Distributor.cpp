@@ -60,8 +60,10 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-Distributor::Distributor( const Teuchos::RCP<const Comm>& comm )
+Distributor::Distributor( const Teuchos::RCP<const Comm>& comm,
+			  const int check_frequency )
     : d_comm( comm )
+    , d_check_freq( check_frequency )
     , d_parent( Teuchos::OrdinalTraits<int>::invalid() )
     , d_children( Teuchos::OrdinalTraits<int>::invalid(),
                   Teuchos::OrdinalTraits<int>::invalid() )
@@ -164,9 +166,8 @@ std::size_t Distributor::createFromSends(
     d_global_sends = d_num_sends;
 #endif
 
-    // Everyone posts sends to get started.
+    // Everyone posts their sends to get started.
     int sends_not_done = 0;
-    bool local_sends_done = false;
     Teuchos::Array<Teuchos::RCP<Teuchos::CommRequest<int> > > 
 	send_requests( d_num_sends );
     for ( std::size_t m = 0; m < d_num_sends; ++m )
@@ -182,7 +183,6 @@ std::size_t Distributor::createFromSends(
 #ifdef HAVE_MPI
     any_rank = MPI_ANY_SOURCE;
 #endif
-    int send_rank = -1;
     Teuchos::RCP<std::size_t> receive_packet = 
 	Teuchos::rcp( new std::size_t(0) );
     Teuchos::RCP<Teuchos::CommRequest<int> > receive_request =
@@ -194,10 +194,13 @@ std::size_t Distributor::createFromSends(
     // Keep checking for receives until all send requests have been completed.
     *d_complete = 0;
     *d_num_done = 0;
+    int send_rank = -1;
+    int num_check = 0;
+    bool local_sends_done = false;
     while ( !(*d_complete) )
     {
 	// Check the receive status. If we got something, process it,
-	// repost, and update the completion count.
+	// repost, and update the receive count.
 	if ( CommTools::isRequestCompleteWithRank(receive_request,send_rank) )
 	{
 	    // Get the rank the message came from.
@@ -214,33 +217,19 @@ std::size_t Distributor::createFromSends(
 	    receive_request = Teuchos::ireceive<int,std::size_t>( 
 		*d_comm, receive_packet, any_rank );
 
-	    // Update the completion count.
+	    // Update the receive count.
 	    *d_num_done += 1;
 	}
 
-	// Check to see if the local sends have been completed.
-	if ( !local_sends_done )
-	{
-	    sends_not_done = 0;
-	    for ( std::size_t m = 0; m < d_num_sends; ++m )
-	    {
-		if ( !CommTools::isRequestComplete(send_requests[m]) )
-		{
-		    ++sends_not_done;
-		}
-	    }
+	// Update the number of checks for receives.
+	++num_check;
 
-	    if ( !local_sends_done && 0 == sends_not_done )
-	    {
-		local_sends_done = true;
-	    }
-	}
-
-	// If all of our sends have been received then check for the
+	// Periodically check for the termination condition.
 	// termination condition.
-	if ( local_sends_done )
+	if ( num_check == d_check_freq )
 	{
 	    controlTermination();
+	    num_check = 0;
 	}
     }
 

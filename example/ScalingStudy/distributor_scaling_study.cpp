@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
     }
 
     // Create the DTK distributor.
-    DataTransferKit::Distributor dtk_distributor( comm );
+    DataTransferKit::Distributor dtk_distributor( comm, 8 );
     int num_import_dtk = 0;
     {
 	Teuchos::RCP<Teuchos::Time> dtk_timer = 

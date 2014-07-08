@@ -68,7 +68,8 @@ class Distributor
     //@}
 
     // Constructor.
-    Distributor( const Teuchos::RCP<const Comm>& comm );
+    Distributor( const Teuchos::RCP<const Comm>& comm,
+		 const int check_frequency = 10 );
 
     // Destructor.
     ~Distributor() { /* ... */ }
@@ -128,6 +129,9 @@ class Distributor
 
     // Parallel communicator for this set.
     Teuchos::RCP<const Comm> d_comm;
+
+    // Check frequency.
+    int d_check_freq;
 
     // Parent process.
     int d_parent;
