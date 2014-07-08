@@ -158,13 +158,9 @@ std::size_t Distributor::createFromSends(
     Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
 	mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
-    MPI_Request reduce_request;
     d_global_sends = 0;
-    MPI_Ireduce( 
-	&d_num_sends, &d_global_sends, 1, MPI_INT, MPI_SUM, 
-	MASTER, raw_comm, &reduce_request );
-    MPI_Status reduce_status;
-    MPI_Wait( &reduce_request, &reduce_status );
+    MPI_Reduce( 
+	&d_num_sends, &d_global_sends, 1, MPI_INT, MPI_SUM, MASTER, raw_comm );
 #else
     d_global_sends = d_num_sends;
 #endif
@@ -230,6 +226,7 @@ std::size_t Distributor::createFromSends(
 		// Update the completion count.
 		*d_num_done += 1;
 	    }
+
 	}
 
 	// Check to see if the local sends have been completed.
