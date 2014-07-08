@@ -1,6 +1,6 @@
 INCLUDE(TribitsAddExecutableAndTest)
 
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
+TRIBITS_ADD_EXECUTABLE(
   GeometryToMeshExample
   SOURCES cxx_main.cpp
   COMM serial mpi  
