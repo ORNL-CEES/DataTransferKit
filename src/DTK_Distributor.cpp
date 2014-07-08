@@ -183,7 +183,7 @@ std::size_t Distributor::createFromSends(
     }
 
     // Post receives.
-    int num_recv_post = std::log( d_comm->getSize() );
+    int num_recv_post = std::log(d_comm->getSize()) + 1;
     int any_rank = 0;
 #ifdef HAVE_MPI
     any_rank = MPI_ANY_SOURCE;
@@ -274,9 +274,7 @@ std::size_t Distributor::createFromSends(
     d_num_receives = d_images_from.size();
 
     // Return the number of imports this process will receive.
-    std::size_t num_imports = 
-	std::accumulate( d_lengths_from.begin(), d_lengths_from.end(), 0 );
-    return num_imports;
+    return std::accumulate( d_lengths_from.begin(), d_lengths_from.end(), 0 );
 }
 
 //---------------------------------------------------------------------------//
