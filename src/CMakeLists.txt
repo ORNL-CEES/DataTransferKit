@@ -35,7 +35,6 @@ APPEND_SET(HEADERS
   DTK_CommTools.hpp
   DTK_Cylinder.hpp
   DTK_DBC.hpp
-  DTK_Distributor.hpp
   DTK_ElementMeasure.hpp
   DTK_ElementTree.hpp
   DTK_ElementTree_impl.hpp
@@ -116,7 +115,6 @@ APPEND_SET(SOURCES
   DTK_CommTools.cpp
   DTK_Cylinder.cpp
   DTK_DBC.cpp
-  DTK_Distributor.cpp
   DTK_MeshContainer.cpp
   DTK_SearchTreeFactory.cpp
   DTK_SerialPartitioner.cpp
