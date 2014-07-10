@@ -150,6 +150,8 @@ void SplineOperatorA<Basis,GO,DIM>::apply(
     double alpha,
     double beta ) const
 {
+    DTK_REQUIRE( Teuchos::NO_TRANS == mode );
+
     // Make a work vector.
     Tpetra::MultiVector<double,int,GO> work( Y );
 

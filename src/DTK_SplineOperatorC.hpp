@@ -112,10 +112,6 @@ class SplineOperatorC : public Tpetra::Operator<double,int,GO>
 
     /// \brief Whether this operator supports applying the transpose or
     /// conjugate transpose.
-    ///
-    /// By default, this returns false.  Subclasses must override this method
-    /// if they can support apply() with <tt>mode=Teuchos::TRANS</tt> or
-    /// <tt>mode=Teuchos::CONJ_TRANS</tt>.
     bool hasTransposeApply() const
     { return true; }
 

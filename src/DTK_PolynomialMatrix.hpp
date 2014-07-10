@@ -32,20 +32,17 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_SplineOperatorA.hpp
+ * \file   DTK_PolynomialMatrix.hpp
  * \author Stuart R. Slattery
  * \brief  Spline transformation operator.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SPLINEOPERATORA_HPP
-#define DTK_SPLINEOPERATORA_HPP
+#ifndef DTK_POLYNOMIALMATRIX_HPP
+#define DTK_POLYNOMIALMATRIX_HPP
 
-#include "DTK_RadialBasisPolicy.hpp"
-#include "DTK_SplineInterpolationPairing.hpp"
-
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_MultiVector.hpp>
@@ -56,44 +53,32 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class SplineOperatorA
- * \brief Sparse spline transformation operator (the A matrix). A = N + Q
+ * \class PolynomialMatrix
+ * \brief Vector apply implementation for polynomial matrices.
  */
 //---------------------------------------------------------------------------//
-template<class Basis, class GO, int DIM>
-class SplineOperatorA : public Tpetra::Operator<double,int,GO>
+template<class GO>
+class PolynomialMatrix : public Tpetra::Operator<double,int,GO>
 {
   public:
 
-    //@{
-    //! Typedefs.
-    typedef RadialBasisPolicy<Basis> BP;
-    //@}
-
     // Constructor.
-    SplineOperatorA(
-	Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map,
-	Teuchos::RCP<const Tpetra::Map<int,GO> >& range_map,
-	const Teuchos::ArrayView<const double>& target_centers,
-	const Teuchos::ArrayView<const GO>& target_center_gids,
-	const Teuchos::ArrayView<const double>& dist_source_centers,
-	const Teuchos::ArrayView<const GO>& dist_source_center_gids,
-	const Teuchos::RCP<SplineInterpolationPairing<DIM> >& target_pairings,
-	const Basis& basis );
+    PolynomialMatrix(
+	const Teuchos::RCP<const Tpetra::Multivector<double,int,GO>& polynomial );
 
     //! Destructor.
-    ~SplineOperatorA()
+    ~PolynomialMatrix()
     { /* ... */ }
 
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
     Teuchos::RCP<const Tpetra::Map<int,GO> > getDomainMap() const
-    { return d_N->getDomainMap(); }
+    { return d_polynomial->getMap(); }
 
     //! The Map associated with the range of this operator, which must be
     //! compatible with Y.getMap().
     Teuchos::RCP<const Tpetra::Map<int,GO> > getRangeMap() const
-    { return d_N->getRangeMap(); }
+    { return d_polynomial->getMap(); }
 
     //! \brief Computes the operator-multivector application.
     /*! Loosely, performs \f$Y = \alpha \cdot A^{\textrm{mode}} \cdot X +
@@ -113,15 +98,15 @@ class SplineOperatorA : public Tpetra::Operator<double,int,GO>
     /// \brief Whether this operator supports applying the transpose or
     /// conjugate transpose.
     bool hasTransposeApply() const
-    { return false; }
+    { return true; }
 
   private:
 
-    // The N matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > d_N;
+    // Parallel communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
-    // The Q matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > d_Q;
+    // The polynomial.
+    Teuchos::RCP<const Tpetra::Multivector<double,int,GO>& d_polynomial
 };
 
 //---------------------------------------------------------------------------//
@@ -132,13 +117,13 @@ class SplineOperatorA : public Tpetra::Operator<double,int,GO>
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_SplineOperatorA_impl.hpp"
+#include "DTK_PolynomialMatrix_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_SPLINEOPERATORA_HPP
+#endif // end DTK_POLYNOMIALMATRIX_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_SplineOperatorA.hpp
+// end DTK_PolynomialMatrix.hpp
 //---------------------------------------------------------------------------//
 

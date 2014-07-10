@@ -78,6 +78,8 @@ APPEND_SET(HEADERS
   DTK_MovingLeastSquare_impl.hpp
   DTK_Partitioner.hpp
   DTK_PartitionerFactory.hpp
+  DTK_PolynomialMatrix.hpp
+  DTK_PolynomialMatrix_impl.hpp
   DTK_RadialBasisPolicy.hpp
   DTK_RCB.hpp
   DTK_RCB_def.hpp
