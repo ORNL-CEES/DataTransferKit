@@ -74,31 +74,22 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
     unsigned num_target_centers = target_center_gids.size();
 
     // Create the Q matrix.
-    int offset = DIM +1 ;
-    Teuchos::RCP<const Tpetra::Map<int,GO> > Q_col_map =
-	Tpetra::createLocalMap<int,GO>( offset, domain_map->getComm() );
-    d_Q = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>( 
-			    domain_map, Q_col_map,
-			    1 + DIM, Tpetra::StaticProfile) );
+    int offset = DIM + 1;
+    Teuchos::RCP<Tpetra::MultiVector<double,int,GO> > Q_vec = 
+	Tpetra::createMultiVector<double,int,GO>( domain_map, offset );
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > Q_view = 
+	Q_vec->get2dViewNonConst();
     int di = 0; 
-    Teuchos::Array<int> Q_indices(offset);
-    Teuchos::Array<double> values(offset,1);
-    for ( int i = 0; i < offset; ++i )
-    {
-	Q_indices[i] = i;
-    }
     for ( unsigned i = 0; i < num_target_centers; ++i )
     {
+	Q_view[0][i] = 1.0;
 	di = DIM*i;
-
 	for ( int d = 0; d < DIM; ++d )
 	{
-	    values[d+1] = target_centers[di+d];
+	    Q_view[d+1][i] = target_centers[di+d];
 	}
-
-	d_Q->insertLocalValues( i, Q_indices(), values() );
     }
-    d_Q->fillComplete( range_map, domain_map );
+    d_Q = Teuchos::rcp( new PolynomialMatrix<GO>(Q_vec) );
 
     // Create the N matrix.
     d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>( 
@@ -106,6 +97,7 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
 			    target_pairings->childrenPerParent(), 
 			    Tpetra::StaticProfile) );
     Teuchos::Array<GO> N_indices;
+    Teuchos::Array<double> values;
     int dj = 0;
     Teuchos::ArrayView<const unsigned> target_neighbors;
     double dist = 0.0;
@@ -136,7 +128,6 @@ SplineOperatorA<Basis,GO,DIM>::SplineOperatorA(
     }
     d_N->fillComplete( range_map, domain_map );
 
-    DTK_ENSURE( d_Q->isFillComplete() );
     DTK_ENSURE( d_N->isFillComplete() );
 }
 

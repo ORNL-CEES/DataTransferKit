@@ -75,30 +75,21 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
     // Create the P^T matrix.
     int offset = DIM + 1;
     unsigned lid_offset = operator_map->getComm()->getRank() ? 0 : offset;
-    Teuchos::RCP<const Tpetra::Map<int,GO> > P_col_map =
-	Tpetra::createLocalMap<int,GO>( offset, operator_map->getComm() );
-    d_P_trans = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>(
-				  operator_map, P_col_map, 
-				  offset, Tpetra::StaticProfile) );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,GO> > P_trans_vec = 
+	Tpetra::createMultiVector<double,int,GO>( operator_map, offset );
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > P_trans_view = 
+	P_trans_vec->get2dViewNonConst();
     int di = 0; 
-    Teuchos::Array<int> P_indices(offset);
-    Teuchos::Array<double> values(offset,1);
-    for ( int i = 0; i < offset; ++i )
-    {
-	P_indices[i] = i;
-    }
     for ( unsigned i = lid_offset; i < num_source_centers + lid_offset; ++i )
     {
+	P_trans_view[0][i] = 1.0;
 	di = DIM*(i-lid_offset);
-
 	for ( int d = 0; d < DIM; ++d )
 	{
-	    values[d+1] = source_centers[di+d];
+	    P_trans_view[d+1][i] = source_centers[di+d];
 	}
-
-	d_P_trans->insertLocalValues( i, P_indices(), values() );
     }
-    d_P_trans->fillComplete();
+    d_P_trans =Teuchos::rcp( new PolynomialMatrix<GO>(P_trans_vec) );
 
     // Create the M matrix.
     Teuchos::ArrayRCP<std::size_t> entries_per_row;
@@ -119,6 +110,7 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
 			    operator_map,
 			    entries_per_row, Tpetra::StaticProfile) );
     Teuchos::Array<GO> M_indices;
+    Teuchos::Array<double> values;
     int dj = 0;
     Teuchos::ArrayView<const unsigned> source_neighbors;
     double dist = 0.0;
@@ -144,7 +136,6 @@ SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
     }
     d_M->fillComplete();
 
-    DTK_ENSURE( d_P_trans->isFillComplete() );
     DTK_ENSURE( d_M->isFillComplete() );
 }
 

@@ -52,6 +52,8 @@
 #include <mpi.h>
 #endif
 
+#include <Tpetra_Export.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -60,8 +62,8 @@ namespace DataTransferKit
  */
 template<class GO>
 PolynomialMatrix<GO>::PolynomialMatrix(
-    const Teuchos::RCP<const Tpetra::Multivector<double,int,GO>& polynomial )
-    : d_comm( polynomial->getComm() )
+    const Teuchos::RCP<const Tpetra::MultiVector<double,int,GO> >& polynomial )
+    : d_comm( polynomial->getMap()->getComm() )
     , d_polynomial( polynomial )
 { /* ... */ }
 
@@ -75,15 +77,22 @@ void PolynomialMatrix<GO>::apply(
     double alpha,
     double beta ) const
 {
-    DTK_REQUIRE( d_polynomial->getMap()->isSameAs(Y.getMap()) );
+    DTK_REQUIRE( d_polynomial->getMap()->isSameAs(*Y.getMap()) );
+
+    // Get the size of the problem and view of the local vectors.
+    int poly_size = d_polynomial->getNumVectors();
+    int num_vec = X.getNumVectors();
+    int local_length = d_polynomial->getLocalLength();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > poly_view =
+	d_polynomial->get2dView();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > y_view =
+	Y.get2dViewNonConst();
 
     // No transpose.
     if ( Teuchos::NO_TRANS == mode )
     {
+
 	// Broadcast the polynomial components of X from the root rank.
-	int poly_size = d_polynomial->getNumVectors();
-	int num_vec = X.getNumVectors();
-	int local_length = d_polynomail->getLocalLength();
 	Teuchos::Array<double> x_poly( poly_size * num_vec, 0.0 );
 	if ( 0 == d_comm()->getRank() )
 	{
@@ -91,17 +100,13 @@ void PolynomialMatrix<GO>::apply(
 		X.get2dView();
 	    for ( int n = 0; n < num_vec; ++n )
 	    {
-		std::copy( &x_view[n][0], &x_view[n][poly_size], 
-			   &x_poly[n*num_poly] );
+		std::copy( &x_view[n][0], &x_view[n][0] + poly_size,
+			   &x_poly[n*poly_size] );
 	    }
 	}
 	Teuchos::broadcast( *d_comm, 0, x_poly() );
 
 	// Do the local mat-vec.
-	Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > y_view =
-	    Y.get2dViewNonConst();
-	Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > poly_view =
-	    d_polynomial.get2dView();
 	int stride = 0;
 	for ( int n = 0; n < num_vec; ++n )
 	{
@@ -123,17 +128,15 @@ void PolynomialMatrix<GO>::apply(
     else if ( Teuchos::TRANS == mode )
     {
 	// Make a work vector.
-	Tpetra::MultiVector<double,int,GO> work( d_polynomial );
+	Tpetra::MultiVector<double,int,GO> work( Y );
 
 	// Export X to the polynomial decomposition.
-	Teuchos::Export<int,GO> exporter( X.getMap(), d_polynomial->getMap() );
+	Tpetra::Export<int,GO> exporter( X.getMap(), Y.getMap() );
 	work.doExport( X, exporter, Tpetra::INSERT );
 
 	// Do the local mat-vec.
 	Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > work_view =
 	    work.get2dViewNonConst();
-	Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > poly_view =
-	    d_polynomial.get2dView();
 	Teuchos::Array<double> products( poly_size * num_vec, 0.0 );
 	int stride = 0;
 	for ( int n = 0; n < num_vec; ++n )
@@ -170,12 +173,10 @@ void PolynomialMatrix<GO>::apply(
 	// Assign the values to Y on the root rank.
 	if ( 0 == d_comm->getRank() )
 	{
-	    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > y_view =
-		Y.get2dViewNonConst();
 	    for ( int n = 0; n < num_vec; ++n )
 	    {
 		std::copy( &product_sums[n*poly_size],
-			   &product_sums[(n+1)*poly_size],
+			   &product_sums[n*poly_size] + poly_size,
 			   &y_view[n][0] );
 	    }
 	}

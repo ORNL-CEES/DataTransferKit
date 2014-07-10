@@ -64,7 +64,7 @@ class PolynomialMatrix : public Tpetra::Operator<double,int,GO>
 
     // Constructor.
     PolynomialMatrix(
-	const Teuchos::RCP<const Tpetra::Multivector<double,int,GO>& polynomial );
+	const Teuchos::RCP<const Tpetra::MultiVector<double,int,GO> >& polynomial );
 
     //! Destructor.
     ~PolynomialMatrix()
@@ -106,7 +106,7 @@ class PolynomialMatrix : public Tpetra::Operator<double,int,GO>
     Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
     // The polynomial.
-    Teuchos::RCP<const Tpetra::Multivector<double,int,GO>& d_polynomial
+    Teuchos::RCP<const Tpetra::MultiVector<double,int,GO> > d_polynomial;
 };
 
 //---------------------------------------------------------------------------//

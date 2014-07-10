@@ -43,6 +43,7 @@
 
 #include "DTK_RadialBasisPolicy.hpp"
 #include "DTK_SplineInterpolationPairing.hpp"
+#include "DTK_PolynomialMatrix.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_RCP.hpp>
@@ -121,7 +122,7 @@ class SplineOperatorA : public Tpetra::Operator<double,int,GO>
     Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > d_N;
 
     // The Q matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > d_Q;
+    Teuchos::RCP<PolynomialMatrix<GO> > d_Q;
 };
 
 //---------------------------------------------------------------------------//
