@@ -91,7 +91,6 @@ void PolynomialMatrix<GO>::apply(
     // No transpose.
     if ( Teuchos::NO_TRANS == mode )
     {
-
 	// Broadcast the polynomial components of X from the root rank.
 	Teuchos::Array<double> x_poly( poly_size * num_vec, 0.0 );
 	if ( 0 == d_comm()->getRank() )
