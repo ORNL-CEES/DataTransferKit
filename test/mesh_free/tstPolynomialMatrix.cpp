@@ -43,6 +43,7 @@
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
+#include <limits>
 
 #include <DTK_PolynomialMatrix.hpp>
 
@@ -71,6 +72,14 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 #endif
 }
 
+//---------------------------------------------------------------------------//
+// Floating point epsilon.
+//---------------------------------------------------------------------------//
+
+const double epsilon = 10.0*std::numeric_limits<double>::epsilon();
+
+//---------------------------------------------------------------------------//
+// Unit tests.
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_apply )
 {
@@ -124,11 +133,13 @@ TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_apply )
     // Apply the CrsMatrix.
     Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Y_crs =
 	Tpetra::createMultiVector<double,int,int>( row_map, num_vec );
+    Y_crs->randomize();
     P_crs->apply( *X, *Y_crs, Teuchos::NO_TRANS );
 
     // Apply the polynomial matrix.
     Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Y_poly_mat =
 	Tpetra::createMultiVector<double,int,int>( row_map, num_vec );
+    Y_poly_mat->randomize();
     P_poly_mat.apply( *X, *Y_poly_mat, Teuchos::NO_TRANS );
 
     // Compare the results.
@@ -140,7 +151,7 @@ TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_apply )
     {
 	for ( int j = 0; j < local_size; ++j )
 	{
-	    TEST_EQUALITY( y_crs_view[i][j], y_pm_view[i][j] );
+	    TEST_FLOATING_EQUALITY( y_crs_view[i][j], y_pm_view[i][j], epsilon );
 	}
     }
 }
@@ -198,11 +209,13 @@ TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_transpose_apply )
     // Transpose apply the CrsMatrix.
     Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Y_crs =
 	Tpetra::createMultiVector<double,int,int>( row_map, num_vec );
+    Y_crs->randomize();
     P_crs->apply( *X, *Y_crs, Teuchos::TRANS );
 
     // Transpose apply the polynomial matrix.
     Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Y_poly_mat =
 	Tpetra::createMultiVector<double,int,int>( row_map, num_vec );
+    Y_poly_mat->randomize();
     P_poly_mat.apply( *X, *Y_poly_mat, Teuchos::TRANS );
 
     // Check the results.
@@ -214,7 +227,7 @@ TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_transpose_apply )
     {
 	for ( int j = 0; j < local_size; ++j )
 	{
-	    TEST_EQUALITY( y_crs_view[i][j], y_pm_view[i][j] );
+	    TEST_FLOATING_EQUALITY( y_crs_view[i][j], y_pm_view[i][j], epsilon );
 	}
     }
 }

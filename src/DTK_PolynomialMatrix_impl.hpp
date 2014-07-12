@@ -88,6 +88,9 @@ void PolynomialMatrix<GO>::apply(
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > y_view =
 	Y.get2dViewNonConst();
 
+    // Zero-out Y to set those components the polynomial will not apply to.
+    Y.putScalar( 0.0 );
+
     // No transpose.
     if ( Teuchos::NO_TRANS == mode )
     {
@@ -113,8 +116,6 @@ void PolynomialMatrix<GO>::apply(
 
 	    for ( int i = 0; i < local_length; ++i )
 	    {
-		y_view[n][i] = 0.0;
-
 		for ( int p = 0; p < poly_size; ++p )
 		{
 		    y_view[n][i] += poly_view[p][i] * x_poly[stride + p];
