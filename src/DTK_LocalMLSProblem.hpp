@@ -41,35 +41,63 @@
 #ifndef DTK_LOCALMLSPROBLEM_HPP
 #define DTK_LOCALMLSPROBLEM_HPP
 
+#include "DTK_RadialBasisPolicy.hpp"
+
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
  * \class LocalMLSProblem
- * \brief Local moving least square problem interface.
+ * \brief Local moving least square problem about a single target center using
+ * quadratic polynomials.
  */
 //---------------------------------------------------------------------------//
+template<class Basis, class GO, int DIM>
 class LocalMLSProblem
 {
   public:
+
+    //@{
+    //! Typedefs.
+    typedef RadialBasisPolicy<Basis> BP;
+    //@}
 
     // Default constructor.
     LocalMLSProblem()
     { /* ... */ }
 
+    // Constructor.
+    LocalMLSProblem( const Teuchos::ArrayView<const double>& target_center,
+		     const Teuchos::ArrayView<const unsigned>& source_lids,
+		     const Teuchos::ArrayView<const double>& source_centers,
+		     const Basis& basis );
+
     //! Destructor.
-    virtual ~LocalMLSProblem()
+    ~LocalMLSProblem()
     { /* ... */ }
 
     // Get a view of the local shape function.
-    virtual Teuchos::ArrayView<const double> shapeFunction() const = 0;
+    Teuchos::ArrayView<const double> shapeFunction() const
+    { return d_shape_function(); }
+
+  private:
+
+    // Moving least square shape function.
+    Teuchos::Array<double> d_shape_function;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_LocalMLSProblem_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

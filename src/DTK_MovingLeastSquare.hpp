@@ -75,8 +75,7 @@ class MovingLeastSquare : public MeshFreeInterpolator
     //@}
 
     // Constructor.
-    MovingLeastSquare( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-		       const std::string& solution_type );
+    MovingLeastSquare( const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
 
     //! Destructor.
     ~MovingLeastSquare()
@@ -106,9 +105,6 @@ class MovingLeastSquare : public MeshFreeInterpolator
 
     // Parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
-
-    // MLS solution type.
-    std::string d_solution_type;
 
     // Interpolation matrix.
     Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > d_H;

@@ -44,13 +44,6 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  OrthogonalPolynomial_test
-  SOURCES tstOrthogonalPolynomial.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-  COMM serial mpi
-  STANDARD_PASS_OUTPUT
-  )
-
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
   MovingLeastSquare_test
   SOURCES tstMovingLeastSquare.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi

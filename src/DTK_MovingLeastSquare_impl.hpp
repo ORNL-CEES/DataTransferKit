@@ -43,8 +43,6 @@
 
 #include "DTK_DBC.hpp"
 #include "DTK_LocalMLSProblem.hpp"
-#include "DTK_SingularValueMLSProblem.hpp"
-#include "DTK_OrthogonalPolynomialMLSProblem.hpp"
 #include "DTK_CenterDistributor.hpp"
 #include "DTK_SplineInterpolationPairing.hpp"
 
@@ -67,10 +65,8 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 template<class Basis, class GO, int DIM>
 MovingLeastSquare<Basis,GO,DIM>::MovingLeastSquare( 
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-    const std::string& solution_type )
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
     : d_comm( comm )
-    , d_solution_type( solution_type )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -221,7 +217,6 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
     Teuchos::Array<GO> indices;
     Teuchos::ArrayView<const double> values;
     Teuchos::ArrayView<const unsigned> pair_gids;
-    Teuchos::RCP<LocalMLSProblem> mls_problem;
     for ( int i = 0; i < local_num_tgt; ++i )
     {
 	// If there is no support for this target center then do not build a
@@ -232,23 +227,12 @@ void MovingLeastSquare<Basis,GO,DIM>::buildInterpolationMatrix(
 	    target_view = target_centers(i*DIM,DIM);
 
 	    // Build the local interpolation problem. 
-	    if ( "SVD" == d_solution_type )
-	    {
-		mls_problem = Teuchos::rcp( 
-		    new SingularValueMLSProblem<Basis,GO,DIM>(
-			target_view, pairings.childCenterIds(i),
-			dist_sources, *basis) );
-	    }
-	    else if ( "OP" == d_solution_type )
-	    {
-		mls_problem = Teuchos::rcp( 
-		    new OrthogonalPolynomialMLSProblem<Basis,GO,DIM>(
-			target_view, pairings.childCenterIds(i),
-			dist_sources, *basis) );
-	    }
+	    LocalMLSProblem<Basis,GO,DIM> local_problem(
+		target_view, pairings.childCenterIds(i),
+		dist_sources, *basis );
 
 	    // Populate the interpolation matrix row.
-	    values = mls_problem->shapeFunction();
+	    values = local_problem.shapeFunction();
 	    indices.resize( values.size() );
 	    pair_gids = pairings.childCenterIds(i);
 	    for ( unsigned j = 0; j < values.size(); ++j )
