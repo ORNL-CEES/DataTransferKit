@@ -32,39 +32,63 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_LocalMLSProblem.hpp
+ * \file   DTK_SingularValueMLSProblem.hpp
  * \author Stuart R. Slattery
- * \brief  Local moving least square problem.
+ * \brief  Local moving least square problem using SVD.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_LOCALMLSPROBLEM_HPP
-#define DTK_LOCALMLSPROBLEM_HPP
+#ifndef DTK_SINGULARVALUEMLSPROBLEM_HPP
+#define DTK_SINGULARVALUEMLSPROBLEM_HPP
+
+#include "DTK_RadialBasisPolicy.hpp"
+#include "DTK_LocalMLSProblem.hpp"
 
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class LocalMLSProblem
- * \brief Local moving least square problem interface.
+ * \class SingularValueMLSProblem
+ * \brief Local moving least square problem about a single target center using
+ * quadratic polynomials and singular value decomposition.
  */
 //---------------------------------------------------------------------------//
-class LocalMLSProblem
+template<class Basis, class GO, int DIM>
+class SingularValueMLSProblem : public LocalMLSProblem
 {
   public:
 
+    //@{
+    //! Typedefs.
+    typedef RadialBasisPolicy<Basis> BP;
+    //@}
+
     // Default constructor.
-    LocalMLSProblem()
+    SingularValueMLSProblem()
     { /* ... */ }
 
+    // Constructor.
+    SingularValueMLSProblem(
+	const Teuchos::ArrayView<const double>& target_center,
+	const Teuchos::ArrayView<const unsigned>& source_lids,
+	const Teuchos::ArrayView<const double>& source_centers,
+	const Basis& basis );
+
     //! Destructor.
-    virtual ~LocalMLSProblem()
+    ~SingularValueMLSProblem()
     { /* ... */ }
 
     // Get a view of the local shape function.
-    virtual Teuchos::ArrayView<const double> shapeFunction() const = 0;
+    Teuchos::ArrayView<const double> shapeFunction() const
+    { return d_shape_function(); }
+
+  private:
+
+    // Moving least square shape function.
+    Teuchos::Array<double> d_shape_function;
 };
 
 //---------------------------------------------------------------------------//
@@ -72,10 +96,16 @@ class LocalMLSProblem
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
 
-#endif // end DTK_LOCALMLSPROBLEM_HPP
+#include "DTK_SingularValueMLSProblem_impl.hpp"
 
 //---------------------------------------------------------------------------//
-// end DTK_LocalMLSProblem.hpp
+
+#endif // end DTK_SINGULARVALUEMLSPROBLEM_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_SingularValueMLSProblem.hpp
 //---------------------------------------------------------------------------//
 

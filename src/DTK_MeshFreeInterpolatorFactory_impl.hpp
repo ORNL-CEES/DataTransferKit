@@ -79,7 +79,8 @@ MeshFreeInterpolatorFactory::create(
 
     int interpolator_id = -1;
     if ( "Spline" == interpolator_name ) interpolator_id = 0;
-    else if ( "Moving Least Square" == interpolator_name ) interpolator_id = 1;
+    else if ( "Moving Least Square SVD" == interpolator_name ) interpolator_id = 1;
+    else if ( "Moving Least Square OP" == interpolator_name ) interpolator_id = 2;
 
     int basis_id = -1;
     if ( "Wendland" == basis_name ) basis_id = 0;
@@ -381,7 +382,7 @@ MeshFreeInterpolatorFactory::create(
 	}
 	break;
 
-	// Moving Least Square.
+	// Moving Least Square with Singular Value Decomposition.
 	case 1:
 	{
 	    switch( basis_id )
@@ -399,7 +400,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WendlandBasis<0>,GO,1>(comm) );
+					WendlandBasis<0>,GO,1>(comm,"SVD") );
 				}
 				break;
 
@@ -407,7 +408,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WendlandBasis<0>,GO,2>(comm) );
+					WendlandBasis<0>,GO,2>(comm,"SVD") );
 				}
 				break;
 
@@ -415,7 +416,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WendlandBasis<0>,GO,3>(comm) );
+					WendlandBasis<0>,GO,3>(comm,"SVD") );
 				}
 				break;
 
@@ -434,7 +435,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WendlandBasis<2>,GO,1>(comm) );
+					WendlandBasis<2>,GO,1>(comm,"SVD") );
 				}
 				break;
 
@@ -442,7 +443,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WendlandBasis<2>,GO,2>(comm) );
+					WendlandBasis<2>,GO,2>(comm,"SVD") );
 				}
 				break;
 
@@ -450,7 +451,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WendlandBasis<2>,GO,3>(comm) );
+					WendlandBasis<2>,GO,3>(comm,"SVD") );
 				}
 				break;
 
@@ -469,7 +470,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WendlandBasis<4>,GO,1>(comm) );
+					WendlandBasis<4>,GO,1>(comm,"SVD") );
 				}
 				break;
 
@@ -477,7 +478,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WendlandBasis<4>,GO,2>(comm) );
+					WendlandBasis<4>,GO,2>(comm,"SVD") );
 				}
 				break;
 
@@ -485,7 +486,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WendlandBasis<4>,GO,3>(comm) );
+					WendlandBasis<4>,GO,3>(comm,"SVD") );
 				}
 				break;
 
@@ -504,7 +505,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WendlandBasis<6>,GO,1>(comm) );
+					WendlandBasis<6>,GO,1>(comm,"SVD") );
 				}
 				break;
 
@@ -512,7 +513,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WendlandBasis<6>,GO,2>(comm) );
+					WendlandBasis<6>,GO,2>(comm,"SVD") );
 				}
 				break;
 
@@ -520,7 +521,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WendlandBasis<6>,GO,3>(comm) );
+					WendlandBasis<6>,GO,3>(comm,"SVD") );
 				}
 				break;
 
@@ -551,7 +552,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WuBasis<2>,GO,1>(comm) );
+					WuBasis<2>,GO,1>(comm,"SVD") );
 				}
 				break;
 
@@ -559,7 +560,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WuBasis<2>,GO,2>(comm) );
+					WuBasis<2>,GO,2>(comm,"SVD") );
 				}
 				break;
 
@@ -567,7 +568,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WuBasis<2>,GO,3>(comm) );
+					WuBasis<2>,GO,3>(comm,"SVD") );
 				}
 				break;
 
@@ -586,7 +587,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WuBasis<4>,GO,1>(comm) );
+					WuBasis<4>,GO,1>(comm,"SVD") );
 				}
 				break;
 
@@ -594,7 +595,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WuBasis<4>,GO,2>(comm) );
+					WuBasis<4>,GO,2>(comm,"SVD") );
 				}
 				break;
 
@@ -602,7 +603,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					WuBasis<4>,GO,3>(comm) );
+					WuBasis<4>,GO,3>(comm,"SVD") );
 				}
 				break;
 
@@ -633,7 +634,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					BuhmannBasis<3>,GO,1>(comm) );
+					BuhmannBasis<3>,GO,1>(comm,"SVD") );
 				}
 				break;
 
@@ -641,7 +642,7 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					BuhmannBasis<3>,GO,2>(comm) );
+					BuhmannBasis<3>,GO,2>(comm,"SVD") );
 				}
 				break;
 
@@ -649,7 +650,300 @@ MeshFreeInterpolatorFactory::create(
 				{
 				    interpolator = Teuchos::rcp(
 					new MovingLeastSquare<
-					BuhmannBasis<3>,GO,3>(comm) );
+					BuhmannBasis<3>,GO,3>(comm,"SVD") );
+				}
+				break;
+
+				default:
+				    throw Assertion("Spatial Dimension not supported!");
+				    break;
+			    }
+			}
+			break;
+
+			default:
+			    throw Assertion("Basis order not supported!");
+			    break;
+		    }
+		}
+		break;
+
+		default:
+		    throw Assertion("Basis type not supported!");
+		    break;
+	    }
+	}
+	break;
+
+	// Moving Least Square with Orthogonal Polynomials.
+	case 2:
+	{
+	    switch( basis_id )
+	    {
+		// Wendland
+		case 0:
+		{
+		    switch( basis_order )
+		    {
+			case 0:
+			{
+			    switch( space_dim )
+			    {
+				case 1:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WendlandBasis<0>,GO,1>(comm,"OP") );
+				}
+				break;
+
+				case 2:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WendlandBasis<0>,GO,2>(comm,"OP") );
+				}
+				break;
+
+				case 3:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WendlandBasis<0>,GO,3>(comm,"OP") );
+				}
+				break;
+
+				default:
+				    throw Assertion("Spatial Dimension not supported!");
+				    break;
+			    }
+			}
+			break;
+
+			case 2:
+			{
+			    switch( space_dim )
+			    {
+				case 1:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WendlandBasis<2>,GO,1>(comm,"OP") );
+				}
+				break;
+
+				case 2:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WendlandBasis<2>,GO,2>(comm,"OP") );
+				}
+				break;
+
+				case 3:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WendlandBasis<2>,GO,3>(comm,"OP") );
+				}
+				break;
+
+				default:
+				    throw Assertion("Spatial Dimension not supported!");
+				    break;
+			    }
+			}
+			break;
+			
+			case 4:
+			{
+			    switch( space_dim )
+			    {
+				case 1:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WendlandBasis<4>,GO,1>(comm,"OP") );
+				}
+				break;
+
+				case 2:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WendlandBasis<4>,GO,2>(comm,"OP") );
+				}
+				break;
+
+				case 3:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WendlandBasis<4>,GO,3>(comm,"OP") );
+				}
+				break;
+
+				default:
+				    throw Assertion("Spatial Dimension not supported!");
+				    break;
+			    }
+			}
+			break;
+
+			case 6:
+			{
+			    switch( space_dim )
+			    {
+				case 1:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WendlandBasis<6>,GO,1>(comm,"OP") );
+				}
+				break;
+
+				case 2:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WendlandBasis<6>,GO,2>(comm,"OP") );
+				}
+				break;
+
+				case 3:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WendlandBasis<6>,GO,3>(comm,"OP") );
+				}
+				break;
+
+				default:
+				    throw Assertion("Spatial Dimension not supported!");
+				    break;
+			    }
+			}
+			break;
+
+			default:
+			    throw Assertion("Basis order not supported!");
+			    break;
+		    }
+		}
+		break;
+
+		// Wu
+		case 1:
+		{
+		    switch( basis_order )
+		    {
+			case 2:
+			{
+			    switch( space_dim )
+			    {
+				case 1:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WuBasis<2>,GO,1>(comm,"OP") );
+				}
+				break;
+
+				case 2:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WuBasis<2>,GO,2>(comm,"OP") );
+				}
+				break;
+
+				case 3:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WuBasis<2>,GO,3>(comm,"OP") );
+				}
+				break;
+
+				default:
+				    throw Assertion("Spatial Dimension not supported!");
+				    break;
+			    }
+			}
+			break;
+			
+			case 4:
+			{
+			    switch( space_dim )
+			    {
+				case 1:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WuBasis<4>,GO,1>(comm,"OP") );
+				}
+				break;
+
+				case 2:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WuBasis<4>,GO,2>(comm,"OP") );
+				}
+				break;
+
+				case 3:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					WuBasis<4>,GO,3>(comm,"OP") );
+				}
+				break;
+
+				default:
+				    throw Assertion("Spatial Dimension not supported!");
+				    break;
+			    }
+			}
+			break;
+
+			default:
+			    throw Assertion("Basis order not supported!");
+			    break;
+		    }
+		}
+		break;
+		
+		// Buhmann
+		case 2:
+		{
+		    switch( basis_order )
+		    {
+			case 3:
+			{
+			    switch( space_dim )
+			    {
+				case 1:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					BuhmannBasis<3>,GO,1>(comm,"OP") );
+				}
+				break;
+
+				case 2:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					BuhmannBasis<3>,GO,2>(comm,"OP") );
+				}
+				break;
+
+				case 3:
+				{
+				    interpolator = Teuchos::rcp(
+					new MovingLeastSquare<
+					BuhmannBasis<3>,GO,3>(comm,"OP") );
 				}
 				break;
 

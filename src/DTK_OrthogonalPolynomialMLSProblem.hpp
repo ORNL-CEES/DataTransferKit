@@ -32,39 +32,73 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_LocalMLSProblem.hpp
+ * \file   DTK_OrthogonalPolynomialMLSProblem.hpp
  * \author Stuart R. Slattery
- * \brief  Local moving least square problem.
+ * \brief  Local moving least square problem with orthogonal polynomials.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_LOCALMLSPROBLEM_HPP
-#define DTK_LOCALMLSPROBLEM_HPP
+#ifndef DTK_ORTHOGONALPOLYNOMIALMLSPROBLEM_HPP
+#define DTK_ORTHOGONALPOLYNOMIALMLSPROBLEM_HPP
+
+#include "DTK_RadialBasisPolicy.hpp"
+#include "DTK_LocalMLSProblem.hpp"
 
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_SerialDenseMatrix.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class LocalMLSProblem
- * \brief Local moving least square problem interface.
+ * \class OrthogonalPolynomialMLSProblem
+ * \brief Local moving least square problem about a single target center using
+ * orthogonal polynomials.
  */
 //---------------------------------------------------------------------------//
-class LocalMLSProblem
+template<class Basis, class GO, int DIM>
+class OrthogonalPolynomialMLSProblem : public LocalMLSProblem
 {
   public:
 
+    //@{
+    //! Typedefs.
+    typedef RadialBasisPolicy<Basis> BP;
+    //@}
+
     // Default constructor.
-    LocalMLSProblem()
+    OrthogonalPolynomialMLSProblem()
     { /* ... */ }
 
+    // Constructor.
+    OrthogonalPolynomialMLSProblem( 
+	const Teuchos::ArrayView<const double>& target_center,
+	const Teuchos::ArrayView<const unsigned>& source_lids,
+	const Teuchos::ArrayView<const double>& source_centers,
+	const Basis& basis );
+
     //! Destructor.
-    virtual ~LocalMLSProblem()
+    ~OrthogonalPolynomialMLSProblem()
     { /* ... */ }
 
     // Get a view of the local shape function.
-    virtual Teuchos::ArrayView<const double> shapeFunction() const = 0;
+    Teuchos::ArrayView<const double> shapeFunction() const
+    { return d_shape_function(); }
+
+  private:
+
+    // Given a set of coordinates, compute a polynomial space.
+    Teuchos::Array<double> polynomialSpace( 
+	const Teuchos::ArrayView<const double>& center ) const;
+
+    // Given an SPD matrix, compute the LDLT factorization.
+    void factorLDLT( Teuchos::SerialDenseMatrix<int,double>& A ) const;
+    
+  private:
+
+    // Moving least square shape function.
+    Teuchos::Array<double> d_shape_function;
 };
 
 //---------------------------------------------------------------------------//
@@ -72,10 +106,16 @@ class LocalMLSProblem
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
 
-#endif // end DTK_LOCALMLSPROBLEM_HPP
+#include "DTK_OrthogonalPolynomialMLSProblem_impl.hpp"
 
 //---------------------------------------------------------------------------//
-// end DTK_LocalMLSProblem.hpp
+
+#endif // end DTK_ORTHOGONALPOLYNOMIALMLSPROBLEM_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_OrthogonalPolynomialMLSProblem.hpp
 //---------------------------------------------------------------------------//
 

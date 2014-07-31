@@ -32,21 +32,21 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_LocalMLSProblem_impl.hpp
+ * \file   DTK_SingularValueMLSProblem_impl.hpp
  * \author Stuart R. Slattery
- * \brief  Local moving least square problem.
+ * \brief  Local moving least square problem using SVD.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_LOCALMLSPROBLEM_IMPL_HPP
-#define DTK_LOCALMLSPROBLEM_IMPL_HPP
+#ifndef DTK_SINGULARVALUEMLSPROBLEM_IMPL_HPP
+#define DTK_SINGULARVALUEMLSPROBLEM_IMPL_HPP
 
 #include "DTK_RadialBasisPolicy.hpp"
 #include "DTK_EuclideanDistance.hpp"
 
+#include <Teuchos_SerialDenseSolver.hpp>
 #include <Teuchos_SerialDenseMatrix.hpp>
 #include <Teuchos_SerialDenseVector.hpp>
-#include <Teuchos_SerialDenseSolver.hpp>
 #include <Teuchos_LAPACK.hpp>
 
 namespace DataTransferKit
@@ -56,7 +56,7 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<class Basis, class GO, int DIM>
-LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem( 
+SingularValueMLSProblem<Basis,GO,DIM>::SingularValueMLSProblem(
     const Teuchos::ArrayView<const double>& target_center,
     const Teuchos::ArrayView<const unsigned>& source_lids,
     const Teuchos::ArrayView<const double>& source_centers,
@@ -69,25 +69,27 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
     // Number of source centers supporting this target center.
     int num_sources = source_lids.size();
 
+    // Build the weight matrix.
+    Teuchos::SerialDenseMatrix<int,double> phi( num_sources, num_sources );
+    double dist = 0.0;
+    Teuchos::ArrayView<const double> source_center_view;
+    for ( int i = 0; i < num_sources; ++i )
+    {
+	source_center_view = source_centers(DIM*source_lids[i],DIM);
+	dist = EuclideanDistance<DIM>::distance(
+	    target_center.getRawPtr(), source_center_view.getRawPtr() );
+	phi(i,i) = BP::evaluateValue( basis, dist );
+    }
+
     // Build the matrix of basis evaluations and the P matrix.
     int poly_size = 0;
     if ( 1 == DIM ) poly_size = 3;
     else if ( 2 == DIM ) poly_size = 6;
     else if ( 3 == DIM ) poly_size = 10;
     Teuchos::SerialDenseMatrix<int,double> P( num_sources, poly_size );
-    Teuchos::SerialDenseMatrix<int,double> phi( num_sources, num_sources );
-    Teuchos::ArrayView<const double> source_center_view;
-    double dist = 0.0;
     for ( int i = 0; i < num_sources; ++i )
     {
 	source_center_view = source_centers(DIM*source_lids[i],DIM);
-	dist = EuclideanDistance<DIM>::distance(
-	    target_center.getRawPtr(), source_center_view.getRawPtr() );
-
-	// Basis values.
-	phi(i,i) = BP::evaluateValue( basis, dist );
-
-	// Polynomial matrix.
 	if ( 1 == DIM )
 	{
 	    P(i,0) = source_center_view[0]*source_center_view[0];
@@ -162,23 +164,26 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 	A.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, P, work, 0.0 );
     }
 
+    // Estimate the reciprocal of the condition number of A.
+    double A_rcond = 0.0;
+    {
+	Teuchos::SerialDenseSolver<int,double> solver;
+	Teuchos::SerialDenseMatrix<int,double> A_copy( A );
+	solver.setMatrix( Teuchos::rcpFromRef(A_copy) );
+	int info = solver.reciprocalConditionEstimate( A_rcond );
+	DTK_CHECK( 0 == info );
+    }    
+
     // Apply the inverse of the A matrix to b.
     {
-	// Compute the reciprocal of the condition number of A.
-	Teuchos::LAPACK<int,double> lapack;
-	double A_norm = A.normOne();
-	double A_rcond = 0.0;
-	Teuchos::Array<double> work( 4 * A.numRows() );
-	Teuchos::Array<int> iwork( A.numRows() );
-	int info = 0;
-	lapack.GECON( '1', A.numRows(), A.values(), A.numCols(), A_norm,
-		      &A_rcond, work.getRawPtr(), iwork.getRawPtr(), &info );
-	DTK_CHECK( 0 == info );
 
 	// A may be possibly rank-deficient so solve the linear least-squares
 	// problem. First get the optimal work size.
+	Teuchos::LAPACK<int,double> lapack;
+	Teuchos::Array<double> work( 4 * A.numRows() );
 	Teuchos::SerialDenseVector<int,double> s( poly_size );
 	int rank = 0;
+	int info = 0;
 	lapack.GELSS( A.numRows(), A.numCols(), num_sources, A.values(), A.numRows(),
 		      b.values(), b.numRows(), s.values(),
 		      A_rcond, &rank, work.getRawPtr(), -1, &info );
@@ -206,9 +211,9 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_LOCALMLSPROBLEM_IMPL_HPP
+#endif // end DTK_SINGULARVALUEMLSPROBLEM_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_LocalMLSProblem_impl.hpp
+// end DTK_SingularValueMLSProblem_impl.hpp
 //---------------------------------------------------------------------------//
 

@@ -62,7 +62,6 @@ APPEND_SET(HEADERS
   DTK_IntrepidSideCell.hpp
   DTK_IntrepidSideCell_impl.hpp
   DTK_LocalMLSProblem.hpp
-  DTK_LocalMLSProblem_impl.hpp
   DTK_MeshContainer.hpp
   DTK_MeshFreeInterpolator.hpp
   DTK_MeshFreeInterpolatorFactory.hpp
@@ -76,6 +75,8 @@ APPEND_SET(HEADERS
   DTK_MeshTypes.hpp
   DTK_MovingLeastSquare.hpp
   DTK_MovingLeastSquare_impl.hpp
+  DTK_OrthogonalPolynomialMLSProblem.hpp
+  DTK_OrthogonalPolynomialMLSProblem_impl.hpp
   DTK_Partitioner.hpp
   DTK_PartitionerFactory.hpp
   DTK_PolynomialMatrix.hpp
@@ -89,6 +90,8 @@ APPEND_SET(HEADERS
   DTK_SerialPartitioner.hpp
   DTK_SharedDomainMap.hpp
   DTK_SharedDomainMap_def.hpp
+  DTK_SingularValueMLSProblem.hpp
+  DTK_SingularValueMLSProblem_impl.hpp
   DTK_SplineInterpolationPairing.hpp
   DTK_SplineInterpolationPairing_impl.hpp
   DTK_SplineInterpolator.hpp
