@@ -41,6 +41,8 @@
 #ifndef DTK_LOCALMLSPROBLEM_IMPL_HPP
 #define DTK_LOCALMLSPROBLEM_IMPL_HPP
 
+#include <limits>
+
 #include "DTK_RadialBasisPolicy.hpp"
 #include "DTK_EuclideanDistance.hpp"
 
@@ -167,7 +169,7 @@ LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem(
 	// A may be possibly rank-deficient so solve the linear least-squares
 	// problem. First get the optimal work size.
 	Teuchos::LAPACK<int,double> lapack;
-	double A_rcond = 1.0e-12;
+	double A_rcond = std::numeric_limits<double>::epsilon();
 	Teuchos::Array<double> work( 4 * A.numRows() );
 	Teuchos::SerialDenseVector<int,double> s( poly_size );
 	int rank = 0;

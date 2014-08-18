@@ -51,7 +51,7 @@ int main( int argc, char * argv[] )
 	Teuchos::DefaultComm<int>::getComm();
 
     // Setup the source centers.
-    int N = 1000;
+    int N = 100;
     Teuchos::Array<double> source_centers( space_dim*N*N );
     Teuchos::Array<unsigned> source_center_ids( N*N );
     double h = 6.0 / N;
@@ -66,7 +66,7 @@ int main( int argc, char * argv[] )
     }
 
     // Set the source function values on the source centers.
-    Teuchos::Array<double> source_function( N*N );
+    Teuchos::Array<double> source_function( 2*N*N );
     for ( int i = 0; i < N; ++i )
     {
 	for ( int j = 0; j < N; ++j )
@@ -74,6 +74,9 @@ int main( int argc, char * argv[] )
 	    source_function[ i*N + j ] = 
 		peaks( source_centers[ (i*N + j)*space_dim ],
 		       source_centers[ (i*N + j)*space_dim + 1] );
+
+	    source_function[ i*N + j + N*N ] = 
+		source_function[ i*N + j ];
 	}
     }
 
@@ -89,7 +92,7 @@ int main( int argc, char * argv[] )
     }
 
     // Allocate memory for the target function.
-    Teuchos::Array<double> target_function( (N-1)*(N-1) );
+    Teuchos::Array<double> target_function( 2*(N-1)*(N-1) );
 
     // Support radius.
     double radius = 2.0*h;
@@ -104,7 +107,7 @@ int main( int argc, char * argv[] )
     const int basis_order = 2;
 
     // Data space_dimension.
-    const int data_dim = 1;
+    const int data_dim = 2;
 
     // Build the interpolation object.
     typedef int GlobalOrdinal;
@@ -134,20 +137,26 @@ int main( int argc, char * argv[] )
     }
     
     // Calculate the point-wise error.
-    Teuchos::Array<double> error( (N-1)*(N-1) );
+    Teuchos::Array<double> error_1( (N-1)*(N-1) );
+    Teuchos::Array<double> error_2( (N-1)*(N-1) );
     for ( unsigned i = 0; i < true_solution.size(); ++i )
     {
-	error[i] = target_function[i] - true_solution[i];
+	error_1[i] = target_function[i] - true_solution[i];
+	error_2[i] = target_function[i+true_solution.size()] - true_solution[i];
     }
 
     // Calculate the 2-norm of the error.
-    double error_norm = 0.0;
-    for ( unsigned i = 0; i < error.size(); ++i )
+    double error_norm_1 = 0.0;
+    double error_norm_2 = 0.0;
+    for ( unsigned i = 0; i < error_1.size(); ++i )
     {
-	error_norm += error[i]*error[i];
+	error_norm_1 += error_1[i]*error_1[i];
+	error_norm_2 += error_2[i]*error_2[i];
     }
-    error_norm = std::sqrt(error_norm);
-    std::cout << "||e||_2 = " << error_norm << std::endl;
+    error_norm_1 = std::sqrt(error_norm_1);
+    error_norm_2 = std::sqrt(error_norm_2);
+    std::cout << "||e1||_2 = " << error_norm_1 << std::endl;
+    std::cout << "||e2||_2 = " << error_norm_2 << std::endl;
 
     // Write the solutions to a VTK file.
     std::ofstream vtk_file;
@@ -209,7 +218,7 @@ int main( int argc, char * argv[] )
     {
 	for ( int j = 0; j < N-1; ++j )
 	{
-	    vtk_file << error[ i*(N-1) + j ] << "\n";
+	    vtk_file << error_1[ i*(N-1) + j ] << "\n";
 	}
     }
 
