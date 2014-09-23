@@ -41,8 +41,15 @@
 #ifndef DTK_MESHTYPES_HPP
 #define DTK_MESHTYPES_HPP
 
+#include <cstring>
+
 namespace DataTransferKit
 {
+
+/*!
+ * \brief Mesh object Id type.
+ */
+typedef std::size_t MeshId;
 
 /*! 
  * \brief Element topology enumerations.

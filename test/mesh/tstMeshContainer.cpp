@@ -16,7 +16,7 @@
 
 #include <DTK_MeshContainer.hpp>
 #include <DTK_MeshTypes.hpp>
-#include <DTK_MeshTraits.hpp>
+#include <DTK_MeshBlock.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -43,10 +43,8 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // Mesh container creation functions.
 //---------------------------------------------------------------------------//
 // Line segment mesh.
-DataTransferKit::MeshContainer<int> buildLineContainer()
+Teuchos::RCP<DataTransferKit::MeshBlock> buildLineBlock()
 {
-    using namespace DataTransferKit;
-
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
@@ -64,7 +62,7 @@ DataTransferKit::MeshContainer<int> buildLineContainer()
     coords.push_back( 0.0 ); 
     coords.push_back( 1.0 ); 
 
-    // Make the lineahedron.
+    // Make the line.
     Teuchos::Array<int> line_handles;
     Teuchos::Array<int> line_connectivity;
     
@@ -77,18 +75,18 @@ DataTransferKit::MeshContainer<int> buildLineContainer()
 	line_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> line_handle_array( line_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> line_handle_array( line_handles.size() );
     std::copy( line_handles.begin(), line_handles.end(), 
 	       line_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( line_connectivity.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> connectivity_array( line_connectivity.size() );
     std::copy( line_connectivity.begin(), line_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -98,18 +96,17 @@ DataTransferKit::MeshContainer<int> buildLineContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_LINE_SEGMENT, num_vertices,
-			       line_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( new DataTransferKit::MeshContainer( 
+			     vertex_dim, vertex_handle_array, coords_array,
+			     DataTransferKit::DTK_LINE_SEGMENT, num_vertices,
+			     line_handle_array, connectivity_array,
+			     permutation_list) );
 }
 
 //---------------------------------------------------------------------------//
 // Tri mesh.
-DataTransferKit::MeshContainer<int> buildTriContainer()
+Teuchos::RCP<DataTransferKit::MeshBlock> buildTriBlock()
 {
-    using namespace DataTransferKit;
-
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
@@ -146,18 +143,18 @@ DataTransferKit::MeshContainer<int> buildTriContainer()
 	tri_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> tri_handle_array( tri_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> tri_handle_array( tri_handles.size() );
     std::copy( tri_handles.begin(), tri_handles.end(), 
 	       tri_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( tri_connectivity.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> connectivity_array( tri_connectivity.size() );
     std::copy( tri_connectivity.begin(), tri_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -167,18 +164,17 @@ DataTransferKit::MeshContainer<int> buildTriContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_TRIANGLE, num_vertices,
-			       tri_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( new DataTransferKit::MeshContainer( 
+			     vertex_dim, vertex_handle_array, coords_array,
+			     DataTransferKit::DTK_TRIANGLE, num_vertices,
+			     tri_handle_array, connectivity_array,
+			     permutation_list)  );
 }
 
 //---------------------------------------------------------------------------//
 // Quad mesh.
-DataTransferKit::MeshContainer<int> buildQuadContainer()
+Teuchos::RCP<DataTransferKit::MeshBlock> buildQuadBlock()
 {
-    using namespace DataTransferKit;
-
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
@@ -217,18 +213,18 @@ DataTransferKit::MeshContainer<int> buildQuadContainer()
 	quad_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> quad_handle_array( quad_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> quad_handle_array( quad_handles.size() );
     std::copy( quad_handles.begin(), quad_handles.end(), 
 	       quad_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( quad_connectivity.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> connectivity_array( quad_connectivity.size() );
     std::copy( quad_connectivity.begin(), quad_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -238,18 +234,17 @@ DataTransferKit::MeshContainer<int> buildQuadContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_QUADRILATERAL, num_vertices,
-			       quad_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( new DataTransferKit::MeshContainer( 
+			     vertex_dim, vertex_handle_array, coords_array,
+			     DataTransferKit::DTK_QUADRILATERAL, num_vertices,
+			     quad_handle_array, connectivity_array,
+			     permutation_list) );
 }
 
 //---------------------------------------------------------------------------//
 // Tet mesh.
-DataTransferKit::MeshContainer<int> buildTetContainer()
+Teuchos::RCP<DataTransferKit::MeshBlock> buildTetBlock()
 {
-    using namespace DataTransferKit;
-
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
@@ -281,7 +276,7 @@ DataTransferKit::MeshContainer<int> buildTetContainer()
     coords.push_back( 0.0 );
     coords.push_back( 1.0 );
 
-    // Make the tetahedron.
+    // Make the tetrahedron.
     Teuchos::Array<int> tet_handles;
     Teuchos::Array<int> tet_connectivity;
     
@@ -294,18 +289,18 @@ DataTransferKit::MeshContainer<int> buildTetContainer()
 	tet_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> tet_handle_array( tet_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> tet_handle_array( tet_handles.size() );
     std::copy( tet_handles.begin(), tet_handles.end(), 
 	       tet_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( tet_connectivity.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> connectivity_array( tet_connectivity.size() );
     std::copy( tet_connectivity.begin(), tet_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -315,18 +310,17 @@ DataTransferKit::MeshContainer<int> buildTetContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_TETRAHEDRON, num_vertices,
-			       tet_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( new DataTransferKit::MeshContainer( 
+			     vertex_dim, vertex_handle_array, coords_array,
+			     DataTransferKit::DTK_TETRAHEDRON, num_vertices,
+			     tet_handle_array, connectivity_array,
+			     permutation_list) );
 }
 
 //---------------------------------------------------------------------------//
 // Hex mesh.
-DataTransferKit::MeshContainer<int> buildHexContainer()
+Teuchos::RCP<DataTransferKit::MeshBlock> buildHexBlock()
 {
-    using namespace DataTransferKit;
-
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
@@ -383,18 +377,18 @@ DataTransferKit::MeshContainer<int> buildHexContainer()
 	hex_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> hex_handle_array( hex_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> hex_handle_array( hex_handles.size() );
     std::copy( hex_handles.begin(), hex_handles.end(), 
 	       hex_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( hex_connectivity.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> connectivity_array( hex_connectivity.size() );
     std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -404,18 +398,17 @@ DataTransferKit::MeshContainer<int> buildHexContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_HEXAHEDRON, num_vertices,
-			       hex_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( new DataTransferKit::MeshContainer( 
+			     vertex_dim, vertex_handle_array, coords_array,
+			     DataTransferKit::DTK_HEXAHEDRON, num_vertices,
+			     hex_handle_array, connectivity_array,
+			     permutation_list) );
 }
 
 //---------------------------------------------------------------------------//
 // Pyramid mesh.
-DataTransferKit::MeshContainer<int> buildPyramidContainer()
+Teuchos::RCP<DataTransferKit::MeshBlock> buildPyramidBlock()
 {
-    using namespace DataTransferKit;
-
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
@@ -450,7 +443,7 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer()
     coords.push_back( 0.0 );
     coords.push_back( 1.0 );
 
-    // Make the pyramidahedron.
+    // Make the pyramid
     Teuchos::Array<int> pyramid_handles;
     Teuchos::Array<int> pyramid_connectivity;
     
@@ -463,18 +456,18 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer()
 	pyramid_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> pyramid_handle_array( pyramid_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> pyramid_handle_array( pyramid_handles.size() );
     std::copy( pyramid_handles.begin(), pyramid_handles.end(), 
 	       pyramid_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( pyramid_connectivity.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> connectivity_array( pyramid_connectivity.size() );
     std::copy( pyramid_connectivity.begin(), pyramid_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -484,18 +477,17 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_PYRAMID, num_vertices,
-			       pyramid_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( new DataTransferKit::MeshContainer( 
+			     vertex_dim, vertex_handle_array, coords_array,
+			     DataTransferKit::DTK_PYRAMID, num_vertices,
+			     pyramid_handle_array, connectivity_array,
+			     permutation_list) );
 }
 
 //---------------------------------------------------------------------------//
 // Wedge mesh.
-DataTransferKit::MeshContainer<int> buildWedgeContainer()
+Teuchos::RCP<DataTransferKit::MeshBlock> buildWedgeBlock()
 {
-    using namespace DataTransferKit;
-
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
     Teuchos::Array<double> coords;
@@ -546,18 +538,18 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer()
 	wedge_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> wedge_handle_array( wedge_handles.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> wedge_handle_array( wedge_handles.size() );
     std::copy( wedge_handles.begin(), wedge_handles.end(), 
 	       wedge_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( wedge_connectivity.size() );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> connectivity_array( wedge_connectivity.size() );
     std::copy( wedge_connectivity.begin(), wedge_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -567,568 +559,414 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer()
 	permutation_list[i] = i;
     }
     
-    return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_WEDGE, num_vertices,
-			       wedge_handle_array, connectivity_array,
-			       permutation_list );
+    return Teuchos::rcp( new DataTransferKit::MeshContainer( 
+			     vertex_dim, vertex_handle_array, coords_array,
+			     DataTransferKit::DTK_WEDGE, num_vertices,
+			     wedge_handle_array, connectivity_array,
+			     permutation_list) );
 }
 
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
 // Line mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, line_container_test )
+TEUCHOS_UNIT_TEST( MeshBlock, line_block_test )
 {
-    using namespace DataTransferKit;
-
-    // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
-    MeshContainer<int> mesh_container = buildLineContainer();
+    // Create a mesh block.
+    Teuchos::RCP<DataTransferKit::MeshBlock> mesh_block = buildLineBlock();
 
     // Mesh parameters.
     int vertex_dim = 1;
     int num_vertices = 2;
-    int element_topo = DTK_LINE_SEGMENT;
+    int element_topo = DataTransferKit::DTK_LINE_SEGMENT;
 
-    // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    // Basic block info.
+    TEST_ASSERT( (int) mesh_block->dimension() == vertex_dim );
+    TEST_ASSERT( (int) mesh_block->verticesPerElement() == num_vertices );
+    TEST_ASSERT( (int) mesh_block->elementTopology() == element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->vertexIds()[i] == i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[0] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[1] == 1.0 ); 
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_ASSERT( mesh_block->elementIds()[0] == 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->connectivity()[i] == i );
     }
 
     // Permutation.
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->permutation()[i] == i );
     }
 }
 
 //---------------------------------------------------------------------------//
 // Tri mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, tri_container_test )
+TEUCHOS_UNIT_TEST( MeshBlock, tri_block_test )
 {
-    using namespace DataTransferKit;
-
-    // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
-    MeshContainer<int> mesh_container = buildTriContainer();
+    // Create a mesh block.
+    Teuchos::RCP<DataTransferKit::MeshBlock> mesh_block = buildTriBlock();
 
     // Mesh parameters.
     int vertex_dim = 2;
     int num_vertices = 3;
-    int element_topo = DTK_TRIANGLE;
+    int element_topo = DataTransferKit::DTK_TRIANGLE;
 
-    // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    // Basic block info.
+    TEST_ASSERT( (int) mesh_block->dimension() == vertex_dim );
+    TEST_ASSERT( (int) mesh_block->verticesPerElement() == num_vertices );
+    TEST_ASSERT( (int) mesh_block->elementTopology() == element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->vertexIds()[i] == i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[2] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[0] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[1] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[2] == 1.0 ); 
 
     // y
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[5] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[4] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[5] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[3] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[4] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[5] == 1.0 ); 
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_ASSERT( mesh_block->elementIds()[0] == 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->connectivity()[i] == i );
     }
 
     // Permutation.
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->permutation()[i] == i );
     }
 }
 
 //---------------------------------------------------------------------------//
 // Quad mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, quad_container_test )
+TEUCHOS_UNIT_TEST( MeshBlock, quad_block_test )
 {
-    using namespace DataTransferKit;
-
-    // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
-    MeshContainer<int> mesh_container = buildQuadContainer();
+    // Create a mesh block.
+    Teuchos::RCP<DataTransferKit::MeshBlock> mesh_block = buildQuadBlock();
 
     // Mesh parameters.
     int vertex_dim = 2;
     int num_vertices = 4;
-    int element_topo = DTK_QUADRILATERAL;
+    int element_topo = DataTransferKit::DTK_QUADRILATERAL;
 
-    // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    // Basic block info.
+    TEST_ASSERT( (int) mesh_block->dimension() == vertex_dim );
+    TEST_ASSERT( (int) mesh_block->verticesPerElement() == num_vertices );
+    TEST_ASSERT( (int) mesh_block->elementTopology() == element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->vertexIds()[i] == i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[2] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[0] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[1] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[2] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[3] == 0.0 );
 
     // y
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[5] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[6] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[7] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[4] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[5] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[6] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[7] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[4] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[5] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[6] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[7] == 1.0 ); 
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_ASSERT( mesh_block->elementIds()[0] == 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->connectivity()[i] == i );
     }
 
     // Permutation.
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->permutation()[i] == i );
     }
 }
 
 //---------------------------------------------------------------------------//
 // Tet mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, tet_container_test )
+TEUCHOS_UNIT_TEST( MeshBlock, tet_block_test )
 {
-    using namespace DataTransferKit;
-
-    // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
-    MeshContainer<int> mesh_container = buildTetContainer();
+    // Create a mesh block.
+    Teuchos::RCP<DataTransferKit::MeshBlock> mesh_block = buildTetBlock();
 
     // Mesh parameters.
     int vertex_dim = 3;
     int num_vertices = 4;
-    int element_topo = DTK_TETRAHEDRON;
+    int element_topo = DataTransferKit::DTK_TETRAHEDRON;
 
-    // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    // Basic block info.
+    TEST_ASSERT( (int) mesh_block->dimension() == vertex_dim );
+    TEST_ASSERT( (int) mesh_block->verticesPerElement() == num_vertices );
+    TEST_ASSERT( (int) mesh_block->elementTopology() == element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->vertexIds()[i] == i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[2] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[0] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[1] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[2] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[3] == 0.0 );
 
     // y
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[5] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[6] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[7] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[4] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[5] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[6] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[7] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[4] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[5] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[6] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[7] == 1.0 ); 
 
     // z
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[8]  == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[9]  == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[10] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[11] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[8]  == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[9]  == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[10] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[11] == 1.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[8]  == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[9]  == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[10] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[11] == 1.0 );
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_ASSERT( mesh_block->elementIds()[0] == 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->connectivity()[i] == i );
     }
 
     // Permutation.
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->permutation()[i] == i );
     }
 }
 
 //---------------------------------------------------------------------------//
 // Hex mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, hex_container_test )
+TEUCHOS_UNIT_TEST( MeshBlock, hex_block_test )
 {
-    using namespace DataTransferKit;
-
-    // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
-    MeshContainer<int> mesh_container = buildHexContainer();
+    // Create a mesh block.
+    Teuchos::RCP<DataTransferKit::MeshBlock> mesh_block = buildHexBlock();
 
     // Mesh parameters.
     int vertex_dim = 3;
     int num_vertices = 8;
-    int element_topo = DTK_HEXAHEDRON;
+    int element_topo = DataTransferKit::DTK_HEXAHEDRON;
 
-    // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    // Basic block info.
+    TEST_ASSERT( (int) mesh_block->dimension() == vertex_dim );
+    TEST_ASSERT( (int) mesh_block->verticesPerElement() == num_vertices );
+    TEST_ASSERT( (int) mesh_block->elementTopology() == element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->vertexIds()[i] == i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[5] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[6] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[7] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[2] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[4] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[5] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[6] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[7] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[0] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[1] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[2] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[3] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[4] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[5] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[6] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[7] == 0.0 ); 
 
     // y
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[8]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[9]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[10] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[11] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[12] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[13] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[14] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[15] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[8]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[9]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[10] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[11] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[12] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[13] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[14] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[15] == 1.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[8]  == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[9]  == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[10] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[11] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[12] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[13] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[14] == 1.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[15] == 1.0 );
 
     // z
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[16] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[17] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[18] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[19] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[20] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[21] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[22] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[23] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[16] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[17] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[18] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[19] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[20] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[21] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[22] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[23] == 1.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[16] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[17] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[18] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[19] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[20] == 1.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[21] == 1.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[22] == 1.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[23] == 1.0 );
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_ASSERT( mesh_block->elementIds()[0] == 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->connectivity()[i] == i );
     }
 
     // Permutation.
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->permutation()[i] == i );
     }
 }
 
 //---------------------------------------------------------------------------//
 // Pyramid mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, pyramid_container_test )
+TEUCHOS_UNIT_TEST( MeshBlock, pyramid_block_test )
 {
-    using namespace DataTransferKit;
-
-    // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
-    MeshContainer<int> mesh_container = buildPyramidContainer();
+    // Create a mesh block.
+    Teuchos::RCP<DataTransferKit::MeshBlock> mesh_block = buildPyramidBlock();
 
     // Mesh parameters.
     int vertex_dim = 3;
     int num_vertices = 5;
-    int element_topo = DTK_PYRAMID;
+    int element_topo = DataTransferKit::DTK_PYRAMID;
 
-    // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    // Basic block info.
+    TEST_ASSERT( (int) mesh_block->dimension() == vertex_dim );
+    TEST_ASSERT( (int) mesh_block->verticesPerElement() == num_vertices );
+    TEST_ASSERT( (int) mesh_block->elementTopology() == element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->vertexIds()[i] == i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 0.5 );
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[2] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[4] == 0.5 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[0] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[1] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[2] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[3] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[4] == 0.5 );
 
     // y
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[5]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[6]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[7] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[8] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[9] == 0.5 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[5]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[6]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[7] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[8] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[9] == 0.5 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[5]  == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[6]  == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[7] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[8] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[9] == 0.5 ); 
 
     // z
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[10] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[11] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[12] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[13] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[14] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[10] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[11] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[12] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[13] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[14] == 1.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[10] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[11] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[12] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[13] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[14] == 1.0 );
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_ASSERT( mesh_block->elementIds()[0] == 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->connectivity()[i] == i );
     }
 
     // Permutation.
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->permutation()[i] == i );
     }
 }
 
 //---------------------------------------------------------------------------//
 // Wedge mesh.
-TEUCHOS_UNIT_TEST( MeshContainer, wedge_container_test )
+TEUCHOS_UNIT_TEST( MeshBlock, wedge_block_test )
 {
-    using namespace DataTransferKit;
-
-    // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
-    MeshContainer<int> mesh_container = buildWedgeContainer();
+    // Create a mesh block.
+    Teuchos::RCP<DataTransferKit::MeshBlock> mesh_block = buildWedgeBlock();
 
     // Mesh parameters.
     int vertex_dim = 3;
     int num_vertices = 6;
-    int element_topo = DTK_WEDGE;
+    int element_topo = DataTransferKit::DTK_WEDGE;
 
-    // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    // Basic block info.
+    TEST_ASSERT( (int) mesh_block->dimension() == vertex_dim );
+    TEST_ASSERT( (int) mesh_block->verticesPerElement() == num_vertices );
+    TEST_ASSERT( (int) mesh_block->elementTopology() == element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->vertexIds()[i] == i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 0.5 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[5] == 0.5 );
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[2] == 0.5 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[4] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[5] == 0.5 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[0] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[1] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[2] == 0.5 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[3] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[4] == 1.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[5] == 0.5 );
 
     // y
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[6]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[7]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[8]  == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[9]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[10] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[11] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[6]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[7]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[8]  == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[9]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[10] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[11] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[6]  == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[7]  == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[8]  == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[9]  == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[10] == 0.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[11] == 1.0 ); 
 
     // z
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[12] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[13] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[14] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[15] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[16] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[17] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[12] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[13] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[14] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[15] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[16] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[17] == 1.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[12] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[13] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[14] == 0.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[15] == 1.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[16] == 1.0 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[17] == 1.0 );
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_ASSERT( mesh_block->elementIds()[0] == 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned i = 0; i < (unsigned) num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->connectivity()[i] == i );
     }
 
     // Permutation.
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_ASSERT( mesh_block->permutation()[i] == i );
     }
 }
 
 //---------------------------------------------------------------------------//
-// end tstMeshContainer.cpp
+// end tstMeshBlock.cpp
 //---------------------------------------------------------------------------//

@@ -63,6 +63,7 @@ APPEND_SET(HEADERS
   DTK_IntrepidSideCell_impl.hpp
   DTK_LocalMLSProblem.hpp
   DTK_LocalMLSProblem_impl.hpp
+  DTK_MeshBlock.hpp
   DTK_MeshContainer.hpp
   DTK_MeshFreeInterpolator.hpp
   DTK_MeshFreeInterpolatorFactory.hpp
@@ -117,7 +118,6 @@ APPEND_SET(SOURCES
   DTK_CommTools.cpp
   DTK_Cylinder.cpp
   DTK_DBC.cpp
-  DTK_MeshContainer.cpp
   DTK_SearchTreeFactory.cpp
   DTK_SerialPartitioner.cpp
   )

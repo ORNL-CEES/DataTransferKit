@@ -34,7 +34,7 @@
 /*!
  * \file DTK_MeshContainer.hpp
  * \author Stuart R. Slattery
- * \brief A simple default mesh container with a mesh traits
+ * \brief A simple default mesh container with a mesh block
  * implementation.
  */
 //---------------------------------------------------------------------------//
@@ -42,7 +42,7 @@
 #ifndef DTK_MESHCONTAINER_HPP
 #define DTK_MESHCONTAINER_HPP
 
-#include "DTK_MeshTraits.hpp"
+#include "DTK_MeshBlock.hpp"
 #include "DTK_MeshTypes.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
@@ -53,22 +53,22 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class MeshContainer
- * \brief A default mesh implementation.
+ * \brief A default mesh block implementation.
 
- The MeshContainer is a default implementation of MeshTraits for clients. Its
- data mimics the structure of MeshTraits with constructor arguments expected
- to have the data layout of a MeshTraits object. Each block of mesh must be in
+ The MeshContainer is a default implementation of MeshBlock for clients. Its
+ data mimics the structure of MeshBlock with constructor arguments expected
+ to have the data layout of a MeshBlock object. Each block of mesh must be in
  a separate mesh container.
  */
 //---------------------------------------------------------------------------//
-template<typename GlobalOrdinal>
-class MeshContainer
+class MeshContainer : public MeshBlock
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef GlobalOrdinal global_ordinal_type;
+    typedef MeshBlock Base;
+    typedef Base::coordinate_type coordinate_type;
     //@}
     
     //! Default Constructor.
@@ -103,15 +103,15 @@ class MeshContainer
      * the same size as vertices_per_element.
      */
     MeshContainer( 
-	const int vertex_dim,
-	const Teuchos::ArrayRCP<GlobalOrdinal>& vertices,
-	const Teuchos::ArrayRCP<const double>& coords,
+	const int dimension,
+	const Teuchos::ArrayRCP<MeshId>& vertices,
+	const Teuchos::ArrayRCP<const coordinate_type>& coords,
 	const DTK_ElementTopology element_topology,
 	const int vertices_per_element,
-	const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
-	const Teuchos::ArrayRCP<const GlobalOrdinal>& connectivity,
+	const Teuchos::ArrayRCP<MeshId>& elements,
+	const Teuchos::ArrayRCP<const MeshId>& connectivity,
 	const Teuchos::ArrayRCP<const int>& permutation_list )
-	: d_vertex_dim( vertex_dim )
+	: d_dimension( dimension )
 	, d_vertices( vertices )
 	, d_coords( coords )
 	, d_element_topology( element_topology )
@@ -125,76 +125,68 @@ class MeshContainer
     ~MeshContainer()
     { /* ... */ }
 
-    //! Get the dimension of the vertices.
-    int getVertexDim() const
-    { return d_vertex_dim; }
+    /*!
+     * \brief Return the spatial dimension of the block.
+     */
+    int dimension()
+    { return d_dimension; }
 
-    //! Get the beginning of the vertices set.
-    typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
-    verticesBegin() const
-    { return d_vertices.begin(); }
+    /*!
+     * \brief Return a reference-counted pointer to the vertex ids.
+     */
+    Teuchos::ArrayRCP<const MeshId> vertexIds()
+    { return d_vertices; }
 
-    //! Get the end of the vertices set.
-    typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
-    verticesEnd() const
-    { return d_vertices.end(); }
+    /*!
+     * \brief Return a reference-counted pointer to the vertex coordinates.
+     */
+    Teuchos::ArrayRCP<const coordinate_type> vertexCoordinates()
+    { return d_coords; }
 
-    //! Get the beginning of the coordinates array.
-    Teuchos::ArrayRCP<const double>::const_iterator coordsBegin() const
-    { return d_coords.begin(); }
-
-    //! Get the end of the coordinates array.
-    Teuchos::ArrayRCP<const double>::const_iterator coordsEnd() const
-    { return d_coords.end(); }
-
-    //! Get the element topology.
-    DTK_ElementTopology getElementTopology() const
+    /*! 
+     * \brief Return the element topology for this mesh block
+     * (DTK_ElementTopology enum).
+     */
+    DTK_ElementTopology elementTopology()
     { return d_element_topology; }
 
-    //! Get the number of vertices constructing a single element.
-    int getVerticesPerElement() const
+    /*! 
+     * \brief Return the number of vertices that constructs an individual
+     * element in this mesh block. All elements in the mesh must be
+     * constructed with the same number of vertices.
+     */
+    int verticesPerElement()
     { return d_vertices_per_element; }
 
-    //! Get the beginning of the elements set.
-    typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
-    elementsBegin() const
-    { return d_elements.begin(); }
+    /*! 
+     * \brief Return a reference-counted pointer to the element ids.
+     */
+    Teuchos::ArrayRCP<const MeshId> elementIds()
+    { return d_elements; }
 
-    //! Get the end of the elements set.
-    typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
-    elementsEnd() const
-    { return d_elements.end(); }
+    /*! 
+     * \brief Return a reference-counted pointer to the element connectivity.
+     */
+    Teuchos::ArrayRCP<const MeshId> connectivity()
+    { return d_connectivity; }
 
-    //! Get the beginning of the connectivity array.
-    typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator 
-    connectivityBegin() const
-    { return d_connectivity.begin(); }
-
-    //! Get the ending of the connectivity array.
-    typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator 
-    connectivityEnd() const
-    { return d_connectivity.end(); }
-
-    //! Get the beginning of the permutation list.
-    typename Teuchos::ArrayRCP<const int>::const_iterator 
-    permutationBegin() const
-    { return d_permutation_list.begin(); }
-
-    //! Get the ending of the permutation list.
-    typename Teuchos::ArrayRCP<const int>::const_iterator 
-    permutationEnd() const
-    { return d_permutation_list.end(); }
+    /*! 
+     * \brief Return a reference-counted pointer to the connectivity
+     * permutation array.
+     */
+    Teuchos::ArrayRCP<const int> permutation()
+    { return d_permutation_list; }
     
   private:
 
-    // Vertex dimension.
-    int d_vertex_dim;
+    // Spatial dimension.
+    int d_dimension;
 
     // Vertices.
-    Teuchos::ArrayRCP<GlobalOrdinal> d_vertices;
+    Teuchos::ArrayRCP<MeshId> d_vertices;
 
     // Coordinates.
-    Teuchos::ArrayRCP<const double> d_coords;
+    Teuchos::ArrayRCP<const coordinate_type> d_coords;
 
     // Element topology.
     DTK_ElementTopology d_element_topology;
@@ -203,95 +195,13 @@ class MeshContainer
     int d_vertices_per_element;
 
     // Elements.
-    Teuchos::ArrayRCP<GlobalOrdinal> d_elements;
+    Teuchos::ArrayRCP<MeshId> d_elements;
 
     // Connectivity.
-    Teuchos::ArrayRCP<const GlobalOrdinal> d_connectivity;
+    Teuchos::ArrayRCP<const MeshId> d_connectivity;
 
     // Permutation list.
     Teuchos::ArrayRCP<const int> d_permutation_list;
-};
-
-//---------------------------------------------------------------------------//
-/*
- * \brief MeshTraits specialization for the mesh container.
- */
-//---------------------------------------------------------------------------//
-template<typename GlobalOrdinal>
-class MeshTraits< MeshContainer<GlobalOrdinal> >
-{
-  public:
-
-    typedef MeshContainer<GlobalOrdinal> Container;
-    typedef Container mesh_type;
-    typedef typename Container::global_ordinal_type global_ordinal_type;
-
-    typedef typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
-    const_vertex_iterator;
-
-    typedef Teuchos::ArrayRCP<const double>::const_iterator 
-    const_coordinate_iterator;
-
-    typedef typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator 
-    const_element_iterator;
-
-    typedef typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator 
-    const_connectivity_iterator;
-
-    typedef typename Teuchos::ArrayRCP<const int>::const_iterator 
-    const_permutation_iterator;
-
-
-    static inline int vertexDim( const Container& container )
-    { return container.getVertexDim(); }
-
-    static inline const_vertex_iterator 
-    verticesBegin( const Container& container )
-    { return container.verticesBegin(); }
-
-    static inline const_vertex_iterator 
-    verticesEnd( const Container& container )
-    { return container.verticesEnd(); }
-
-    static inline const_coordinate_iterator
-    coordsBegin( const Container& container )
-    { return container.coordsBegin(); }
-
-    static inline const_coordinate_iterator
-    coordsEnd( const Container& container )
-    { return container.coordsEnd(); }
-
-
-    static inline DTK_ElementTopology 
-    elementTopology( const Container& container )
-    { return container.getElementTopology(); }
-
-    static inline int verticesPerElement( const Container& container )
-    { return container.getVerticesPerElement(); }
-
-    static inline const_element_iterator
-    elementsBegin( const Container& container )
-    { return container.elementsBegin(); }
-
-    static inline const_element_iterator
-    elementsEnd( const Container& container )
-    { return container.elementsEnd(); }
-
-    static inline const_connectivity_iterator
-    connectivityBegin( const Container& container )
-    { return container.connectivityBegin(); }
-
-    static inline const_connectivity_iterator
-    connectivityEnd( const Container& container )
-    { return container.connectivityEnd(); }
-
-    static inline const_permutation_iterator
-    permutationBegin( const Container& container )
-    { return container.permutationBegin(); }
-
-    static inline const_permutation_iterator
-    permutationEnd( const Container& container )
-    { return container.permutationEnd(); }
 };
 
 //---------------------------------------------------------------------------//
