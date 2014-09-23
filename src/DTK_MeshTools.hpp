@@ -41,9 +41,8 @@
 #ifndef DTK_MESHTOOLS_HPP
 #define DTK_MESHTOOLS_HPP
 
-#include <iterator>
-
-#include "DTK_MeshTraits.hpp"
+#include "DTK_MeshTypes.hpp"
+#include "DTK_MeshBlock.hpp"
 #include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -59,16 +58,12 @@ namespace DataTransferKit
  * \brief A stateless class with tools for operating on single mesh blocks.
  */ 
 //---------------------------------------------------------------------------//
-template<class Mesh>
 class MeshTools
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef Mesh                                mesh_type;
-    typedef MeshTraits<Mesh>                    MT;
-    typedef typename MT::global_ordinal_type    GlobalOrdinal;
     typedef Teuchos::Comm<int>                  CommType;
     typedef Teuchos::RCP<const CommType>        RCP_Comm;
     //@}
@@ -81,70 +76,18 @@ class MeshTools
     ~MeshTools()
     { /* ... */ }
 
-    // Get a view of the of the mesh vertex global ordinals. 
-    static Teuchos::ArrayRCP<const GlobalOrdinal> 
-    verticesView( const Mesh& mesh );
-
-    // Get a non-const view of the of the mesh vertex global ordinals.
-    static Teuchos::ArrayRCP<GlobalOrdinal> 
-    verticesNonConstView( const Mesh& mesh );
-
-    //! Get the number of vertices in a mesh block.
-    static GlobalOrdinal numVertices( const Mesh& mesh )
-    { return std::distance( MT::verticesBegin(mesh), MT::verticesEnd(mesh) ); }
-
-    // Get a view of the of the mesh vertex coordinates.
-    static Teuchos::ArrayRCP<const double> coordsView( const Mesh& mesh );
-
-    // Get a non-const view of the of the mesh vertex coordinates.
-    static Teuchos::ArrayRCP<double> coordsNonConstView( const Mesh& mesh );
-
-    // Get a view of the of the mesh element global ordinals.
-    static Teuchos::ArrayRCP<const GlobalOrdinal> 
-    elementsView( const Mesh& mesh );
-
-    // Get a non-const view of the of the mesh element global ordinals.
-    static Teuchos::ArrayRCP<GlobalOrdinal> 
-    elementsNonConstView( const Mesh& mesh );
-
-    //! Get the number of elements in a mesh block.
-    static GlobalOrdinal numElements( const Mesh& mesh )
-    { return std::distance( MT::elementsBegin(mesh), MT::elementsEnd(mesh) ); }
-
-    // Get a view of the of the mesh element connectivity.
-    static Teuchos::ArrayRCP<const GlobalOrdinal> 
-    connectivityView( const Mesh& mesh );
-
-    // Get a non-const view of the of the mesh element connectivity.
-    static Teuchos::ArrayRCP<GlobalOrdinal> 
-    connectivityNonConstView( const Mesh& mesh );
-
-    // Get a view of the of the mesh connectivity permutation list.
-    static Teuchos::ArrayRCP<const int> 
-    permutationView( const Mesh& mesh );
-
-    // Get a non-const view of the of the mesh connectivity permutation list. 
-    static Teuchos::ArrayRCP<int> 
-    permutationNonConstView( const Mesh& mesh );
-
     // Get the local bounding box for a mesh block.
-    static BoundingBox localBoundingBox( const Mesh& mesh );
+    static BoundingBox localBoundingBox( const Teuchos::RCP<MeshBlock>& mesh );
 
     // Get the global bounding box for a mesh block over the given
     // communicator. 
-    static BoundingBox globalBoundingBox( const Mesh& mesh, 
+    static BoundingBox globalBoundingBox( const Teuchos::RCP<MeshBlock>& mesh, 
 					  const RCP_Comm& comm );
 };
 
+//---------------------------------------------------------------------------//
+
 } // end namepsace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_MeshTools_def.hpp"
-
-//---------------------------------------------------------------------------//
 
 #endif // end DTK_MESHTOOLS_HPP
 

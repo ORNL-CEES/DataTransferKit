@@ -59,16 +59,14 @@ typedef std::size_t MeshId;
  */
 enum DTK_ElementTopology 
 {
-    DTK_ElementTopology_MIN = 0,
-    DTK_VERTEX = DTK_ElementTopology_MIN,
+    DTK_VERTEX = 0,
     DTK_LINE_SEGMENT,
     DTK_TRIANGLE,
     DTK_QUADRILATERAL,
     DTK_TETRAHEDRON,
     DTK_PYRAMID,
     DTK_WEDGE,
-    DTK_HEXAHEDRON,
-    DTK_ElementTopology_MAX = DTK_HEXAHEDRON
+    DTK_HEXAHEDRON
 };
 
 } // end namespace DataTransferKit

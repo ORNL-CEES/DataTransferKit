@@ -69,9 +69,7 @@ APPEND_SET(HEADERS
   DTK_MeshFreeInterpolatorFactory.hpp
   DTK_MeshFreeInterpolatorFactory_impl.hpp
   DTK_MeshManager.hpp
-  DTK_MeshManager_def.hpp
   DTK_MeshTools.hpp
-  DTK_MeshTools_def.hpp
   DTK_MeshTraits.hpp
   DTK_MeshTraitsFieldAdapter.hpp
   DTK_MeshTypes.hpp
@@ -118,6 +116,8 @@ APPEND_SET(SOURCES
   DTK_CommTools.cpp
   DTK_Cylinder.cpp
   DTK_DBC.cpp
+  DTK_MeshManager.cpp
+  DTK_MeshTools.cpp
   DTK_SearchTreeFactory.cpp
   DTK_SerialPartitioner.cpp
   )

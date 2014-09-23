@@ -68,7 +68,6 @@ class MeshContainer : public MeshBlock
     //@{
     //! Typedefs.
     typedef MeshBlock Base;
-    typedef Base::coordinate_type coordinate_type;
     //@}
     
     //! Default Constructor.
@@ -105,7 +104,7 @@ class MeshContainer : public MeshBlock
     MeshContainer( 
 	const int dimension,
 	const Teuchos::ArrayRCP<MeshId>& vertices,
-	const Teuchos::ArrayRCP<const coordinate_type>& coords,
+	const Teuchos::ArrayRCP<const double>& coords,
 	const DTK_ElementTopology element_topology,
 	const int vertices_per_element,
 	const Teuchos::ArrayRCP<MeshId>& elements,
@@ -140,7 +139,7 @@ class MeshContainer : public MeshBlock
     /*!
      * \brief Return a reference-counted pointer to the vertex coordinates.
      */
-    Teuchos::ArrayRCP<const coordinate_type> vertexCoordinates()
+    Teuchos::ArrayRCP<const double> vertexCoordinates()
     { return d_coords; }
 
     /*! 
@@ -186,7 +185,7 @@ class MeshContainer : public MeshBlock
     Teuchos::ArrayRCP<MeshId> d_vertices;
 
     // Coordinates.
-    Teuchos::ArrayRCP<const coordinate_type> d_coords;
+    Teuchos::ArrayRCP<const double> d_coords;
 
     // Element topology.
     DTK_ElementTopology d_element_topology;

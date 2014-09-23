@@ -159,13 +159,6 @@ class MeshBlock
 {
   public:
 
-    //@{
-    //! Typedefs.
-    typedef double   coordinate_type;
-    //@}
-
-  public:
-
     //! Constructor.
     MeshBlock()
     { /* ... */ }
@@ -187,7 +180,7 @@ class MeshBlock
     /*!
      * \brief Return a reference-counted pointer to the vertex coordinates.
      */
-    virtual Teuchos::ArrayRCP<const coordinate_type> vertexCoordinates() = 0;
+    virtual Teuchos::ArrayRCP<const double> vertexCoordinates() = 0;
 
     /*! 
      * \brief Return the element topology for this mesh block

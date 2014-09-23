@@ -79,8 +79,8 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  pyramid_test
-  SOURCES pyramid_test.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  Pyramid_test
+  SOURCES tstPyramids.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )

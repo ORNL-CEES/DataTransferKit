@@ -43,7 +43,8 @@
 
 #include <boost/tr1/unordered_map.hpp>
 
-#include "DTK_MeshTraits.hpp"
+#include "DTK_MeshTypes.hpp"
+#include "DTK_MeshBlock.hpp"
 #include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -87,25 +88,19 @@ namespace DataTransferKit
  proper communicator is required.
  */
 //---------------------------------------------------------------------------//
-template<class Mesh>
 class MeshManager
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef Mesh                                                mesh_type;
-    typedef Teuchos::RCP<Mesh>                                  RCP_Mesh;
-    typedef MeshTraits<Mesh>                                    MT;
-    typedef typename MT::global_ordinal_type                    GlobalOrdinal;
     typedef Teuchos::Comm<int>                                  CommType;
     typedef Teuchos::RCP<const CommType>                        RCP_Comm;
-    typedef Teuchos::ArrayRCP<RCP_Mesh>                         BlockArray;
-    typedef typename BlockArray::const_iterator                 BlockIterator;
+    typedef Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> >::const_iterator BlockIterator;
     //@}
 
     // Constructor.
-    MeshManager( const Teuchos::ArrayRCP<RCP_Mesh>& mesh_blocks,
+    MeshManager( const Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> >& mesh_blocks,
 		 const RCP_Comm& comm,
 		 const int dim );
 
@@ -117,10 +112,10 @@ class MeshManager
     { return d_mesh_blocks.size(); }
 
     // Get the local number of elements in the mesh.    
-    GlobalOrdinal localNumElements() const;
+    MeshId localNumElements() const;
 
     // Get the global number of elements in the mesh.    
-    GlobalOrdinal globalNumElements() const;
+    MeshId globalNumElements() const;
 
     //! Get the iterator to the beginning of the mesh blocks.
     BlockIterator blocksBegin() const
@@ -131,7 +126,7 @@ class MeshManager
     { return d_mesh_blocks.end(); }
 
     //! Get a block of mesh.
-    const RCP_Mesh& getBlock( const int block_id ) const
+    const Teuchos::RCP<MeshBlock>& getBlock( const int block_id ) const
     { return d_mesh_blocks[ block_id ]; }
 
     //! Get the communicator for the mesh.
@@ -143,21 +138,21 @@ class MeshManager
     { return d_dim; }
 
     //! Set the active vertices for a block.
-    void setActiveVertices( const Teuchos::Array<short int>& active_vertices,
+    void setActiveVertices( const Teuchos::Array<short>& active_vertices,
 			    const int block_id )
     { d_active_vertices[ block_id ] = active_vertices; }
 
     //! Set the active elements for a block.
-    void setActiveElements( const Teuchos::Array<short int>& active_elements,
+    void setActiveElements( const Teuchos::Array<short>& active_elements,
 			    const int block_id )
     { d_active_elements[ block_id ] = active_elements; }
 
     //! Get the active vertices for a block.
-    Teuchos::ArrayView<short int> getActiveVertices( const int block_id )
+    Teuchos::ArrayView<short> getActiveVertices( const int block_id )
     { return d_active_vertices[ block_id ](); }
 
     //! Get the active elements for a block.
-    Teuchos::ArrayView<short int> getActiveElements( const int block_id )
+    Teuchos::ArrayView<short> getActiveElements( const int block_id )
     { return d_active_elements[ block_id ](); }
 
     // Compute the local bounding box around the entire mesh.
@@ -181,13 +176,8 @@ class MeshManager
 
   private:
 
-    // Validate the mesh to the domain model.
-    void validate();
-
-  private:
-
     // Mesh block array.
-    Teuchos::ArrayRCP<RCP_Mesh> d_mesh_blocks;
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > d_mesh_blocks;
 
     // Communicator over which the mesh is defined.
     RCP_Comm d_comm;
@@ -196,25 +186,21 @@ class MeshManager
     int d_dim;
 
     // Active vertices in each mesh block.
-    Teuchos::Array< Teuchos::Array<short int> > d_active_vertices;
+    Teuchos::Array<Teuchos::Array<short> > d_active_vertices;
 
     // Active elements in each mesh block.
-    Teuchos::Array< Teuchos::Array<short int> > d_active_elements;
+    Teuchos::Array<Teuchos::Array<short> > d_active_elements;
 
     // Array of cumulative number elements in each block.
-    Teuchos::Array<GlobalOrdinal> d_cumulative_elements;
+    Teuchos::Array<MeshId> d_cumulative_elements;
 
     // Vertex global-to-local indexers for each block.
-    Teuchos::Array<std::tr1::unordered_map<GlobalOrdinal,int> > d_vertex_g2l;
+    Teuchos::Array<std::tr1::unordered_map<MeshId,int> > d_vertex_g2l;
 };
 
+//---------------------------------------------------------------------------//
+
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_MeshManager_def.hpp"
 
 #endif // end DTK_MESHMANAGER_HPP
 
