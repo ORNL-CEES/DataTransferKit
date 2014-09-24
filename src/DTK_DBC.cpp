@@ -56,6 +56,30 @@ void throwAssertion( const std::string& cond, const std::string& file,
 }
 
 //---------------------------------------------------------------------------//
+/*!
+ * \brief Throw a DataTransferKit::Assertion when an error code fails.
+ *
+ * \param cond A string containing the assertion condition that failed.
+ *
+ * \param field A string containing the file name in which the assertion
+ * failed. 
+ *
+ * \param line The line number at which the assertion failed.
+ *
+ * \param error_code
+ */
+void errorCodeFailure( const std::string& cond, const std::string& file,
+		       const int line, const int error_code )
+{
+    std::ostringstream output_msg;
+    output_msg <<  "Error code : " << cond << ", failed in "
+	      << file << ":" << line << std::endl
+	      << "with error code:" << std::endl
+	      << "\"" << error_code << "\"" << std::endl;
+    throw Assertion( output_msg.str() );
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

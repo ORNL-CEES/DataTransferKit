@@ -45,7 +45,6 @@
 
 #include "DTK_Partitioner.hpp"
 #include "DTK_BoundingBox.hpp"
-#include "DTK_MeshTraits.hpp"
 #include "DTK_MeshManager.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -65,26 +64,19 @@ namespace DataTransferKit
  * \brief Recursive Coordinate Bisectioning partitioner.
  */
 //---------------------------------------------------------------------------//
-template<class Mesh>
 class RCB : public Partitioner
 {
   public:
     
     //@{
     //! Typedefs.
-    typedef Mesh                                        mesh_type;
-    typedef MeshTraits<Mesh>                            MT;
-    typedef typename MT::global_ordinal_type            GlobalOrdinal;
-    typedef Teuchos::RCP< MeshManager<Mesh> >           RCP_MeshManager;
-    typedef typename MeshManager<Mesh>::BlockIterator   BlockIterator;          
-    typedef Teuchos::Comm<int>                          CommType;
-    typedef Teuchos::RCP<const CommType>                RCP_Comm;
     typedef ZOLTAN_ID_TYPE                              zoltan_id_type;
     typedef ZOLTAN_ID_PTR                               zoltan_id_ptr;
     //@}
 
     // Constructor.
-    RCB( const RCP_Comm& comm, const RCP_MeshManager& mesh_manager, 
+    RCB( const Teuchos::RCP<const Teuchos::Comm<int> >& comm, 
+	 const Teuchos::RCP<MeshManager>& mesh_manager, 
 	 const int dimension );
 
     // Destructor.
@@ -169,10 +161,10 @@ class RCB : public Partitioner
   private:
 
     // The communicator over which RCB is performed.
-    RCP_Comm d_comm;
+    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
     // The mesh being partitioned.
-    RCP_MeshManager d_mesh_manager;
+    Teuchos::RCP<MeshManager> d_mesh_manager;
 
     // The dimension of the RCB space.
     int d_dimension;
@@ -226,15 +218,9 @@ class RCB : public Partitioner
     int *d_export_to_part;
 };
 
+//---------------------------------------------------------------------------//
+
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_RCB_def.hpp"
-
-//---------------------------------------------------------------------------//
 
 #endif // end DTK_RCB_HPP
 

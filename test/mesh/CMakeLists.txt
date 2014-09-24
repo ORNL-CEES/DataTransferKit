@@ -51,13 +51,6 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  Distributor_test2
-  SOURCES tstDistributor.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-  COMM serial mpi
-  STANDARD_PASS_OUTPUT
-  )
-
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
   TpetraExport_test
   SOURCES tstTpetraExport.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi

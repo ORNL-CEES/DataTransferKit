@@ -65,9 +65,11 @@ TEUCHOS_UNIT_TEST( MeshManager, line_manager_test )
     int num_vertices = 2;
 
     // Check the mesh data.
-    DataTransferKit::MeshManager::BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager.blocksBegin();
-	  block_iterator != mesh_manager.blocksEnd();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> > blocks =
+	mesh_manager.meshBlocks();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> >::const_iterator block_iterator;
+    for ( block_iterator = blocks.begin();
+	  block_iterator != blocks.end();
 	  ++block_iterator )
     {
 	// Basic block info.
@@ -142,9 +144,11 @@ TEUCHOS_UNIT_TEST( MeshBlock, tri_manager_test )
     int num_vertices = 3;
 
     // Check the mesh data.
-    DataTransferKit::MeshManager::BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager.blocksBegin();
-	  block_iterator != mesh_manager.blocksEnd();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> > blocks =
+	mesh_manager.meshBlocks();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> >::const_iterator block_iterator;
+    for ( block_iterator = blocks.begin();
+	  block_iterator != blocks.end();
 	  ++block_iterator )
     {
 	TEST_EQUALITY( (*block_iterator)->vertexIds().size(), num_vertices );
@@ -223,9 +227,11 @@ TEUCHOS_UNIT_TEST( MeshBlock, quad_manager_test )
     int num_vertices = 4;
 
     // Check the mesh data.
-    DataTransferKit::MeshManager::BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager.blocksBegin();
-	  block_iterator != mesh_manager.blocksEnd();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> > blocks =
+	mesh_manager.meshBlocks();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> >::const_iterator block_iterator;
+    for ( block_iterator = blocks.begin();
+	  block_iterator != blocks.end();
 	  ++block_iterator )
     {
 	// Vertices.
@@ -304,9 +310,11 @@ TEUCHOS_UNIT_TEST( MeshBlock, tet_manager_test )
     int num_vertices = 4;
 
     // Check the mesh data.
-    DataTransferKit::MeshManager::BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager.blocksBegin();
-	  block_iterator != mesh_manager.blocksEnd();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> > blocks =
+	mesh_manager.meshBlocks();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> >::const_iterator block_iterator;
+    for ( block_iterator = blocks.begin();
+	  block_iterator != blocks.end();
 	  ++block_iterator )
     {
 	// Vertices.
@@ -392,9 +400,11 @@ TEUCHOS_UNIT_TEST( MeshBlock, hex_manager_test )
     int num_vertices = 8;
 
     // Check the mesh data.
-    DataTransferKit::MeshManager::BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager.blocksBegin();
-	  block_iterator != mesh_manager.blocksEnd();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> > blocks =
+	mesh_manager.meshBlocks();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> >::const_iterator block_iterator;
+    for ( block_iterator = blocks.begin();
+	  block_iterator != blocks.end();
 	  ++block_iterator )
     {
 	// Vertices.
@@ -491,9 +501,11 @@ TEUCHOS_UNIT_TEST( MeshBlock, pyramid_manager_test )
     int num_vertices = 5;
 
     // Check the mesh data.
-    DataTransferKit::MeshManager::BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager.blocksBegin();
-	  block_iterator != mesh_manager.blocksEnd();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> > blocks =
+	mesh_manager.meshBlocks();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> >::const_iterator block_iterator;
+    for ( block_iterator = blocks.begin();
+	  block_iterator != blocks.end();
 	  ++block_iterator )
     {
 	// Vertices.
@@ -581,9 +593,11 @@ TEUCHOS_UNIT_TEST( MeshBlock, wedge_manager_test )
     int num_vertices = 6;
 
     // Check the mesh data.
-    DataTransferKit::MeshManager::BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager.blocksBegin();
-	  block_iterator != mesh_manager.blocksEnd();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> > blocks =
+	mesh_manager.meshBlocks();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> >::const_iterator block_iterator;
+    for ( block_iterator = blocks.begin();
+	  block_iterator != blocks.end();
 	  ++block_iterator )
     {
 	// Vertices.
@@ -677,9 +691,11 @@ TEUCHOS_UNIT_TEST( MeshBlock, parallel_hex_manager_test )
     int num_vertices = 8;
 
     // Check the mesh data.
-    DataTransferKit::MeshManager::BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager.blocksBegin();
-	  block_iterator != mesh_manager.blocksEnd();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> > blocks =
+	mesh_manager.meshBlocks();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> >::const_iterator block_iterator;
+    for ( block_iterator = blocks.begin();
+	  block_iterator != blocks.end();
 	  ++block_iterator )
     {
 	// Vertices.
@@ -775,9 +791,11 @@ TEUCHOS_UNIT_TEST( MeshBlock, 2d_hybrid_manager_test )
     TEST_ASSERT( mesh_manager.dim() == 2 );
 
     // Check the mesh data.
-    DataTransferKit::MeshManager::BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager.blocksBegin();
-	  block_iterator != mesh_manager.blocksEnd();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> > blocks =
+	mesh_manager.meshBlocks();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> >::const_iterator block_iterator;
+    for ( block_iterator = blocks.begin();
+	  block_iterator != blocks.end();
 	  ++block_iterator )
     {
 	TEST_ASSERT( (*block_iterator)->elementIds().size() == 1 );
@@ -842,9 +860,11 @@ TEUCHOS_UNIT_TEST( MeshBlock, 3d_hybrid_manager_test )
     TEST_ASSERT( mesh_manager.dim() == 3 );
 
     // Check the mesh data.
-    DataTransferKit::MeshManager::BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager.blocksBegin();
-	  block_iterator != mesh_manager.blocksEnd();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> > blocks =
+	mesh_manager.meshBlocks();
+    Teuchos::ArrayRCP<Teuchos::RCP<DataTransferKit::MeshBlock> >::const_iterator block_iterator;
+    for ( block_iterator = blocks.begin();
+	  block_iterator != blocks.end();
 	  ++block_iterator )
     {
 	TEST_ASSERT( (*block_iterator)->elementIds().size() == 1 );

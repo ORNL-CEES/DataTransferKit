@@ -71,6 +71,10 @@ class Assertion : public std::logic_error
 void throwAssertion( const std::string& cond, const std::string& file,
 		     const int line );
 
+// Throw an assertion based on an error code failure.
+void errorCodeFailure( const std::string& cond, const std::string& file,
+		       const int line, const int error_code );
+
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
@@ -110,6 +114,7 @@ void throwAssertion( const std::string& cond, const std::string& file,
 #define DTK_CHECK(c) \
     if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
 #define DTK_REMEMBER(c) c
+#define DTK_CHECK_ERROR_CODE(c) do{int ec=c; if (0!=ec) DataTransferKit::errorCodeFailure( #c, __FILE__, __LINE__, ec );} while(0)
 
 #else
 
@@ -117,7 +122,7 @@ void throwAssertion( const std::string& cond, const std::string& file,
 #define DTK_ENSURE(c)
 #define DTK_CHECK(c)
 #define DTK_REMEMBER(c)
-
+#define MCLS_CHECK_ERROR_CODE(c) c
 #endif
 
 

@@ -16,24 +16,15 @@
 #include <DTK_DBC.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Array.hpp"
-#include "Teuchos_DefaultComm.hpp"
-#include "Teuchos_CommHelpers.hpp"
 
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
-
-// Get the default communicator.
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+int error_code_function( int& value )
 {
-#ifdef HAVE_MPI
-    return Teuchos::DefaultComm<Ordinal>::getComm();
-#else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
-#endif
+    int code = value;
+    ++value;
+    return code;
 }
 
 //---------------------------------------------------------------------------//
@@ -252,6 +243,46 @@ TEUCHOS_UNIT_TEST( Assertion, assertion_test )
 	{
 	    TEST_ASSERT( 0 );
 	}
+    }
+    catch( ... )
+    {
+	TEST_ASSERT( 0 );
+    }
+}
+
+//---------------------------------------------------------------------------//
+// Test the error code check.
+TEUCHOS_UNIT_TEST( Assertion, errorcode_test_1 )
+{
+    int value = 1;
+    try 
+    {
+	DTK_CHECK_ERROR_CODE( error_code_function(value) );
+	TEST_EQUALITY( value, 2 );
+    }
+    catch( const DTK::Assertion& assertion )
+    {
+#if HAVE_DTK_DBC
+	TEST_EQUALITY( value, 2 );
+#else
+	TEST_ASSERT( 0 );
+#endif
+    }
+    catch( ... )
+    {
+	TEST_ASSERT( 0 );
+    }
+}
+
+//---------------------------------------------------------------------------//
+// Test the error code check.
+TEUCHOS_UNIT_TEST( Assertion, errorcode_test_2 )
+{
+    int value = 0;
+    try 
+    {
+	DTK_CHECK_ERROR_CODE( error_code_function(value) );
+	TEST_EQUALITY( value, 1 );
     }
     catch( ... )
     {

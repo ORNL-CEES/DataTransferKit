@@ -69,7 +69,8 @@ namespace DataTransferKit
  */
 MeshManager::MeshManager( 
     const Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> >& mesh_blocks,
-    const RCP_Comm& comm, const int dim )
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm, 
+    const int dim )
     : d_mesh_blocks( mesh_blocks )
     , d_comm( comm )
     , d_dim( dim )
@@ -93,7 +94,7 @@ MeshManager::~MeshManager()
 MeshId MeshManager::localNumElements() const
 {
     MeshId local_num_elements = 0;
-    BlockIterator block_iterator;
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> >::const_iterator block_iterator;
     for ( block_iterator = d_mesh_blocks.begin();
 	  block_iterator != d_mesh_blocks.end();
 	  ++block_iterator )
@@ -147,7 +148,7 @@ BoundingBox MeshManager::localBoundingBox()
     // Get the bounding box for each mesh block.
     Teuchos::Tuple<double,6> box_bounds;
     BoundingBox block_box;
-    BlockIterator block_iterator;
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> >::const_iterator block_iterator;
     for ( block_iterator = d_mesh_blocks.begin();
 	  block_iterator != d_mesh_blocks.end();
 	  ++block_iterator )
@@ -209,7 +210,7 @@ BoundingBox MeshManager::globalBoundingBox()
     // Get the bounding box for each mesh block.
     Teuchos::Tuple<double,6> box_bounds;
     BoundingBox block_box;
-    BlockIterator block_iterator;
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> >::const_iterator block_iterator;
     for ( block_iterator = d_mesh_blocks.begin();
 	  block_iterator != d_mesh_blocks.end();
 	  ++block_iterator )

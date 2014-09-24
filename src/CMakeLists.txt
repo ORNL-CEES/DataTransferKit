@@ -81,7 +81,6 @@ APPEND_SET(HEADERS
   DTK_PolynomialMatrix_impl.hpp
   DTK_RadialBasisPolicy.hpp
   DTK_RCB.hpp
-  DTK_RCB_def.hpp
   DTK_Rendezvous.hpp
   DTK_Rendezvous_def.hpp
   DTK_SearchTreeFactory.hpp
@@ -118,6 +117,7 @@ APPEND_SET(SOURCES
   DTK_DBC.cpp
   DTK_MeshManager.cpp
   DTK_MeshTools.cpp
+  DTK_RCB.cpp
   DTK_SearchTreeFactory.cpp
   DTK_SerialPartitioner.cpp
   )
