@@ -102,14 +102,14 @@ class MeshContainer : public MeshBlock
      * the same size as vertices_per_element.
      */
     MeshContainer( 
-	const int dimension,
+	int dimension,
 	const Teuchos::ArrayRCP<MeshId>& vertices,
-	const Teuchos::ArrayRCP<const double>& coords,
-	const DTK_ElementTopology element_topology,
-	const int vertices_per_element,
+	const Teuchos::ArrayRCP<double>& coords,
+	DTK_ElementTopology element_topology,
+	int vertices_per_element,
 	const Teuchos::ArrayRCP<MeshId>& elements,
-	const Teuchos::ArrayRCP<const MeshId>& connectivity,
-	const Teuchos::ArrayRCP<const int>& permutation_list )
+	const Teuchos::ArrayRCP<MeshId>& connectivity,
+	const Teuchos::ArrayRCP<int>& permutation_list )
 	: d_dimension( dimension )
 	, d_vertices( vertices )
 	, d_coords( coords )
@@ -133,13 +133,13 @@ class MeshContainer : public MeshBlock
     /*!
      * \brief Return a reference-counted pointer to the vertex ids.
      */
-    Teuchos::ArrayRCP<const MeshId> vertexIds()
+    Teuchos::ArrayRCP<MeshId> vertexIds()
     { return d_vertices; }
 
     /*!
      * \brief Return a reference-counted pointer to the vertex coordinates.
      */
-    Teuchos::ArrayRCP<const double> vertexCoordinates()
+    Teuchos::ArrayRCP<double> vertexCoordinates()
     { return d_coords; }
 
     /*! 
@@ -160,20 +160,20 @@ class MeshContainer : public MeshBlock
     /*! 
      * \brief Return a reference-counted pointer to the element ids.
      */
-    Teuchos::ArrayRCP<const MeshId> elementIds()
+    Teuchos::ArrayRCP<MeshId> elementIds()
     { return d_elements; }
 
     /*! 
      * \brief Return a reference-counted pointer to the element connectivity.
      */
-    Teuchos::ArrayRCP<const MeshId> connectivity()
+    Teuchos::ArrayRCP<MeshId> connectivity()
     { return d_connectivity; }
 
     /*! 
      * \brief Return a reference-counted pointer to the connectivity
      * permutation array.
      */
-    Teuchos::ArrayRCP<const int> permutation()
+    Teuchos::ArrayRCP<int> permutation()
     { return d_permutation_list; }
     
   private:
@@ -185,7 +185,7 @@ class MeshContainer : public MeshBlock
     Teuchos::ArrayRCP<MeshId> d_vertices;
 
     // Coordinates.
-    Teuchos::ArrayRCP<const double> d_coords;
+    Teuchos::ArrayRCP<double> d_coords;
 
     // Element topology.
     DTK_ElementTopology d_element_topology;
@@ -197,10 +197,10 @@ class MeshContainer : public MeshBlock
     Teuchos::ArrayRCP<MeshId> d_elements;
 
     // Connectivity.
-    Teuchos::ArrayRCP<const MeshId> d_connectivity;
+    Teuchos::ArrayRCP<MeshId> d_connectivity;
 
     // Permutation list.
-    Teuchos::ArrayRCP<const int> d_permutation_list;
+    Teuchos::ArrayRCP<int> d_permutation_list;
 };
 
 //---------------------------------------------------------------------------//

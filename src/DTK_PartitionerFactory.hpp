@@ -76,11 +76,10 @@ class PartitionerFactory
     { /* ... */ }
 
     // Mesh factory method.
-    template<class Mesh>
     static inline Teuchos::RCP<Partitioner> 
     createMeshPartitioner( 
 	const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-	const Teuchos::RCP<MeshManager<Mesh> > mesh_manager,
+	const Teuchos::RCP<MeshManager> mesh_manager,
 	const int dimension );
 
     // Geometry factory method.
@@ -95,14 +94,13 @@ class PartitionerFactory
 //---------------------------------------------------------------------------//
 // Inline functions.
 //---------------------------------------------------------------------------//
-template<class Mesh>
 Teuchos::RCP<Partitioner> PartitionerFactory::createMeshPartitioner(
     const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-    const Teuchos::RCP<MeshManager<Mesh> > mesh_manager,
+    const Teuchos::RCP<MeshManager> mesh_manager,
     const int dimension )
 {
 #ifdef HAVE_DTK_MPI
-    return Teuchos::rcp( new RCB<Mesh>( comm, mesh_manager, dimension ) );
+    return Teuchos::rcp( new RCB( comm, mesh_manager, dimension ) );
 #else
     return Teuchos::rcp( new SerialPartitioner() );
 #endif

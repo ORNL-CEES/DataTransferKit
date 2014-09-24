@@ -43,7 +43,6 @@
 
 #include <boost/tr1/unordered_map.hpp>
 
-#include "DTK_MeshTraits.hpp"
 #include "DTK_MeshManager.hpp"
 #include "DTK_MeshContainer.hpp"
 #include "DTK_ElementTree.hpp"
@@ -93,35 +92,20 @@ namespace DataTransferKit
  generate a rendezvous decomposition).
  */
 //---------------------------------------------------------------------------//
-template<class Mesh>
 class Rendezvous
 {
   public:
 
-    //@{
-    //! Typedefs.
-    typedef Mesh                                        mesh_type;
-    typedef MeshTraits<Mesh>                            MT;
-    typedef typename MT::global_ordinal_type            GlobalOrdinal;
-    typedef Teuchos::RCP< MeshManager<Mesh> >           RCP_MeshManager;
-    typedef typename MeshManager<Mesh>::BlockIterator   BlockIterator;
-    typedef MeshContainer<GlobalOrdinal>                MeshContainerType;
-    typedef Teuchos::RCP<Partitioner>                   RCP_Partitioner;
-    typedef Teuchos::Comm<int>                          CommType;
-    typedef Teuchos::RCP<const CommType>                RCP_Comm;
-    typedef Tpetra::Map<int,GlobalOrdinal>              TpetraMap;
-    typedef Teuchos::RCP<const TpetraMap>               RCP_TpetraMap;
-    //@}
-
     // Constructor.
-    Rendezvous( const RCP_Comm& comm, const int dimension,
+    Rendezvous( const Teuchos::RCP<const Teuchos::Comm<int> >& comm, 
+		const int dimension,
 		const BoundingBox& global_box );
 
     // Destructor.
     ~Rendezvous();
 
     // Build the rendezvous decomposition.
-    void build( const RCP_MeshManager& mesh_manager,
+    void build( const Teuchos::RCP<MeshManager>& mesh_manager,
 		const CommIndexer& mesh_indexer,
 		const BoundingBox& target_box );
 
@@ -139,17 +123,17 @@ class Rendezvous
     // also in the rendezvous decomposition.
     void elementsContainingPoints( 
 	const Teuchos::ArrayRCP<double>& coords,
-	Teuchos::Array<GlobalOrdinal>& elements,
+	Teuchos::Array<MeshId>& elements,
 	Teuchos::Array<int>& element_src_procs,
 	double tolerance = 10*Teuchos::ScalarTraits<double>::eps() ) const;
 
     // Get the native elements in the rendezvous decomposition that are in
     // each geometry in a list.
     template<class Geometry>
-    void elementsInGeometry(
-	const Teuchos::Array<Geometry>& geometry,
-	Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements,
-	const double tolerance,	bool all_vertices_for_inclusion ) const;
+    void elementsInGeometry( const Teuchos::Array<Geometry>& geometry,
+			     Teuchos::Array<Teuchos::Array<MeshId> >& elements,
+			     const double tolerance,	
+			     bool all_vertices_for_inclusion ) const;
 
     //! Get the bounding box over which the rendezvous decomposition was
     //! generated.
@@ -159,30 +143,30 @@ class Rendezvous
     //! For a list of elements in the rendezvous decomposition, get their
     //! source procs.
     Teuchos::Array<int> elementSourceProcs( 
-	const Teuchos::Array<GlobalOrdinal>& elements );
+	const Teuchos::Array<MeshId>& elements );
 
   private:
 
     // Extract the mesh block vertices and elements that are in a bounding box.
-    void getMeshInBox( const RCP_MeshManager& mesh_manager );
+    void getMeshInBox( const Teuchos::RCP<MeshManager>& mesh_manager );
 
     // Send the mesh to the rendezvous decomposition and build the concrete
     // mesh blocks.
-    Teuchos::RCP<MeshManager<MeshContainerType> >
-    sendMeshToRendezvous( const RCP_MeshManager& mesh_manager,
+    Teuchos::RCP<MeshManager>
+    sendMeshToRendezvous( const Teuchos::RCP<MeshManager>& mesh_manager,
 			  const CommIndexer& mesh_indexer );
 
     // Setup the import communication patterns.
     void setupImportCommunication( 
-	const Teuchos::RCP<Mesh>& mesh,
+	const Teuchos::RCP<MeshBlock>& mesh,
 	const Teuchos::ArrayView<short int>& elements_in_box,
-	Teuchos::ArrayRCP<GlobalOrdinal>& rendezvous_vertices,
-	Teuchos::ArrayRCP<GlobalOrdinal>& rendezvous_elements );
+	Teuchos::ArrayRCP<MeshId>& rendezvous_vertices,
+	Teuchos::ArrayRCP<MeshId>& rendezvous_elements );
 
   private:
 
     // Global communicator over which to perform the rendezvous.
-    RCP_Comm d_comm;
+    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
     // The dimension of the rendezvous.
     int d_dimension;
@@ -191,27 +175,21 @@ class Rendezvous
     BoundingBox d_global_box;
 
     // Rendezvous partitioning.
-    RCP_Partitioner d_partitioner;
+    Teuchos::RCP<Partitioner> d_partitioner;
 
     // Rendezvous mesh element to source proc map.
-    std::tr1::unordered_map<GlobalOrdinal,int> d_element_src_procs_map;
+    std::tr1::unordered_map<MeshId,int> d_element_src_procs_map;
 
     // Rendezvous mesh manager.
-    Teuchos::RCP<MeshManager<MeshContainerType> > d_rendezvous_mesh_manager;
+    Teuchos::RCP<MeshManager> d_rendezvous_mesh_manager;
 
     // Rendezvous on-process search tree.
-    Teuchos::RCP<ElementTree<MeshContainerType> > d_element_tree;
+    Teuchos::RCP<ElementTree> d_element_tree;
 };
 
+//---------------------------------------------------------------------------//
+
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_Rendezvous_def.hpp"
-
-//---------------------------------------------------------------------------//
 
 #endif // end DTK_RENDEZVOUS_HPP
 

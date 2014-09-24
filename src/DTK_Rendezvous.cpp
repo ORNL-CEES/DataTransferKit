@@ -32,18 +32,16 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Rendezvous_def.hpp
+ * \file DTK_Rendezvous.cpp
  * \author Stuart R. Slattery
  * \brief Rendezvous definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_RENDEZVOUS_DEF_HPP
-#define DTK_RENDEZVOUS_DEF_HPP
-
 #include <algorithm>
 #include <limits>
 
+#include "DTK_Rendezvous.hpp"
 #include "DTK_MeshTools.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_MeshTypes.hpp"
@@ -78,10 +76,9 @@ namespace DataTransferKit
  * \param global_box The global bounding box inside of which the rendezvous
  * decomposition will be generated.
  */
-template<class Mesh>
-Rendezvous<Mesh>::Rendezvous( const RCP_Comm& comm,
-			      const int dimension,
-			      const BoundingBox& global_box )
+Rendezvous::Rendezvous( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+			const int dimension,
+			const BoundingBox& global_box )
     : d_comm( comm )
     , d_dimension( dimension )
     , d_global_box( global_box )
@@ -91,8 +88,7 @@ Rendezvous<Mesh>::Rendezvous( const RCP_Comm& comm,
 /*!
  * \brief Destructor.
  */
-template<class Mesh>
-Rendezvous<Mesh>::~Rendezvous()
+Rendezvous::~Rendezvous()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -105,10 +101,9 @@ Rendezvous<Mesh>::~Rendezvous()
  * will, however, be redistributed across every process in the global
  * communicator. 
  */
-template<class Mesh> 
-void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager,
-			      const CommIndexer& mesh_indexer,
-			      const BoundingBox& target_box )
+void Rendezvous::build( const Teuchos::RCP<MeshManager>& mesh_manager,
+			const CommIndexer& mesh_indexer,
+			const BoundingBox& target_box )
 {
     // Extract the mesh vertices and elements that are in the bounding
     // box. These are the pieces of the mesh that will be repartitioned.
@@ -131,8 +126,7 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager,
     d_rendezvous_mesh_manager->buildIndexing();
 
     // Create a search tree in the rendezvous decomposition.
-    d_element_tree = Teuchos::rcp(
-	new ElementTree<MeshContainerType>(d_rendezvous_mesh_manager) );
+    d_element_tree = Teuchos::rcp( new ElementTree(d_rendezvous_mesh_manager) );
     DTK_ENSURE( Teuchos::nonnull(d_element_tree) );
 }
 
@@ -148,14 +142,13 @@ void Rendezvous<Mesh>::build( const RCP_MeshManager& mesh_manager,
  * will be returned for each point in the same order as the points were
  * provided. 
  */
-template<class Mesh>
-Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
+Teuchos::Array<int> Rendezvous::procsContainingPoints(
     const Teuchos::ArrayRCP<double>& coords ) const
 {
     Teuchos::Array<double> point( d_dimension );
-    GlobalOrdinal num_points = coords.size() / d_dimension;
+    MeshId num_points = coords.size() / d_dimension;
     Teuchos::Array<int> destination_procs( num_points );
-    for ( GlobalOrdinal n = 0; n < num_points; ++n )
+    for ( MeshId n = 0; n < num_points; ++n )
     {
 	for ( int d = 0; d < d_dimension; ++d )
 	{
@@ -178,8 +171,7 @@ Teuchos::Array<int> Rendezvous<Mesh>::procsContainingPoints(
  * \return A list of rendezvous decomposition procs for each box. A box may
  * have multiple procs that it spans.
  */
-template<class Mesh>
-Teuchos::Array<Teuchos::Array<int> > Rendezvous<Mesh>::procsContainingBoxes( 
+Teuchos::Array<Teuchos::Array<int> > Rendezvous::procsContainingBoxes( 
     const Teuchos::Array<BoundingBox>& boxes ) const
 {
     Teuchos::Array<Teuchos::Array<int> > box_procs( boxes.size() );
@@ -206,7 +198,7 @@ Teuchos::Array<Teuchos::Array<int> > Rendezvous<Mesh>::procsContainingBoxes(
  * \param elements An array of the elements the points were found in. An
  * element will be returned for each point in the order they were provided
  * in. If a point is not found in an element, return an invalid element
- * ordinal, std::numeric_limits<GlobalOrdinal>::max(), for that point.
+ * ordinal, std::numeric_limits<MeshId>::max(), for that point.
  *
  * \param element_src_procs The source procs that own the elements. Once proc
  * is provided for each element in the order that the elements were
@@ -216,20 +208,19 @@ Teuchos::Array<Teuchos::Array<int> > Rendezvous<Mesh>::procsContainingBoxes(
  * \param tolerance Absolute tolerance for point searching. Will be used when
  * checking the reference cell ( and is therefore absolute ).
  */
-template<class Mesh>
-void Rendezvous<Mesh>::elementsContainingPoints( 
+void Rendezvous::elementsContainingPoints( 
     const Teuchos::ArrayRCP<double>& coords,
-    Teuchos::Array<GlobalOrdinal>& elements,
+    Teuchos::Array<MeshId>& elements,
     Teuchos::Array<int>& element_src_procs,
     double tolerance ) const
 {
     Teuchos::Array<double> point( d_dimension );
-    GlobalOrdinal element_ordinal;
-    GlobalOrdinal num_points = coords.size() / d_dimension;
+    MeshId element_ordinal;
+    MeshId num_points = coords.size() / d_dimension;
     bool found_point;
     elements.resize( num_points );
     element_src_procs.resize( num_points );
-    for ( GlobalOrdinal n = 0; n < num_points; ++n )
+    for ( MeshId n = 0; n < num_points; ++n )
     {
 	for ( int d = 0; d < d_dimension; ++d )
 	{
@@ -247,7 +238,7 @@ void Rendezvous<Mesh>::elementsContainingPoints(
 	}
 	else
 	{
-	    elements[n] = std::numeric_limits<GlobalOrdinal>::max();
+	    elements[n] = std::numeric_limits<MeshId>::max();
 	    element_src_procs[n] = -1;
 	}
     }
@@ -273,27 +264,26 @@ void Rendezvous<Mesh>::elementsContainingPoints(
  * tolerance of the geometry in order to be considered a member of that
  * geometry's conformal mesh.
  */
-template<class Mesh>
 template<class Geometry> 
-void Rendezvous<Mesh>::elementsInGeometry(
+void Rendezvous::elementsInGeometry(
     const Teuchos::Array<Geometry>& geometry,
-    Teuchos::Array<Teuchos::Array<GlobalOrdinal> >& elements,
+    Teuchos::Array<Teuchos::Array<MeshId> >& elements,
     const double tolerance, bool all_vertices_for_inclusion ) const
 {
     elements.resize( geometry.size() );
 
     typename Teuchos::Array<Geometry>::const_iterator geometry_iterator;
-    typename Teuchos::Array<Teuchos::Array<GlobalOrdinal> >::iterator 
+    typename Teuchos::Array<Teuchos::Array<MeshId> >::iterator 
 	element_iterator;
     int num_blocks = d_rendezvous_mesh_manager->getNumBlocks();
-    Teuchos::RCP<MeshContainerType> block;
-    Teuchos::ArrayRCP<const double> block_vertex_coords;
-    Teuchos::ArrayRCP<const GlobalOrdinal> block_element_gids;
-    Teuchos::ArrayRCP<const GlobalOrdinal> block_connectivity;
+    Teuchos::RCP<MeshBlock> block;
+    Teuchos::ArrayRCP<double> block_vertex_coords;
+    Teuchos::ArrayRCP<MeshId> block_element_gids;
+    Teuchos::ArrayRCP<MeshId> block_connectivity;
     int block_verts_per_elem = 0;
     int block_num_elements = 0;
     int block_num_vertices = 0;
-    GlobalOrdinal vertex_gid = 0;
+    MeshId vertex_gid = 0;
     int vertex_lid = 0;
 
     // Mesh elements are the outer loop. That way we only have to extract the
@@ -301,12 +291,12 @@ void Rendezvous<Mesh>::elementsInGeometry(
     for ( int b = 0; b < num_blocks; ++b )
     {
 	block = d_rendezvous_mesh_manager->getBlock( b );
-	block_num_elements = MeshTools<MeshContainerType>::numElements( *block );
-	block_vertex_coords = MeshTools<MeshContainerType>::coordsView( *block );
-	block_element_gids = MeshTools<MeshContainerType>::elementsView( *block );
-	block_connectivity = MeshTools<MeshContainerType>::connectivityView( *block );
-	block_num_vertices = MeshTools<MeshContainerType>::numVertices( *block );
-	block_verts_per_elem = MT::verticesPerElement( *block );
+	block_num_elements = block->numElements();
+	block_vertex_coords = block->vertexCoordinates();
+	block_element_gids = block->elementIds();
+	block_connectivity = block->connectivity();
+	block_num_vertices = block->numVertices();
+	block_verts_per_elem = block->verticesPerElement();
 	Intrepid::FieldContainer<double> node_coords( 
 	    1, block_verts_per_elem, d_rendezvous_mesh_manager->dim() );
 	for ( int e = 0; e < block_num_elements; ++e )
@@ -351,13 +341,12 @@ void Rendezvous<Mesh>::elementsInGeometry(
  *
  * \return The source procs for the elements.
  */
-template<class Mesh>
-Teuchos::Array<int> Rendezvous<Mesh>::elementSourceProcs(
-    const Teuchos::Array<GlobalOrdinal>& elements )
+Teuchos::Array<int> Rendezvous::elementSourceProcs(
+    const Teuchos::Array<MeshId>& elements )
 {
     Teuchos::Array<int> source_procs( elements.size() );
     Teuchos::Array<int>::iterator source_proc_iterator;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator element_iterator;
+    typename Teuchos::Array<MeshId>::const_iterator element_iterator;
     for ( element_iterator = elements.begin(),
       source_proc_iterator = source_procs.begin();
 	  element_iterator != elements.end();
@@ -376,15 +365,14 @@ Teuchos::Array<int> Rendezvous<Mesh>::elementSourceProcs(
  *
  * \param mesh_manager The mesh to search the box with.
  */
-template<class Mesh>
-void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
+void Rendezvous::getMeshInBox( const Teuchos::RCP<MeshManager>& mesh_manager )
 {
     // Expand the box by a typical mesh element length in all directions plus
     // some tolerance. Doing this catches a few corner cases.
     double tol = 1.0e-4;
     Teuchos::Tuple<double,6> box_bounds = d_global_box.getBounds();
     double box_volume = d_global_box.volume( d_dimension );
-    GlobalOrdinal global_num_elements = mesh_manager->globalNumElements();
+    MeshId global_num_elements = mesh_manager->globalNumElements();
     double pow = 1 / d_dimension;
     double typical_length = std::pow( box_volume / global_num_elements, pow );
     for ( int d = 0; d < d_dimension; ++d )
@@ -397,29 +385,29 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
     // For every mesh block, get its vertices and elements that are in the
     // expanded box.
     Teuchos::Array<short int> vertices_in_box, elements_in_box;
-    BlockIterator block_iterator;
-    for ( block_iterator = mesh_manager->blocksBegin();
-	  block_iterator != mesh_manager->blocksEnd();
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks;
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> >::iterator block_iterator;
+    for ( block_iterator = mesh_blocks.begin();
+	  block_iterator != mesh_blocks.end();
 	  ++block_iterator )
     {
 	// Setup.
 	vertices_in_box.clear();
 	elements_in_box.clear();
-	int block_id = std::distance( mesh_manager->blocksBegin(), 
+	int block_id = std::distance( mesh_blocks.begin(), 
 				      block_iterator );
 
 	// Create a map indexed by vertex global ordinal containing the actual
 	// vertex ordinal location in the array and get all of the vertices
 	// that are in the box.
-	GlobalOrdinal num_vertices = 
-	    MeshTools<Mesh>::numVertices( *(*block_iterator) );
-	std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> vertex_indices;
-	Teuchos::ArrayRCP<const GlobalOrdinal> vertex_gids =
-	    MeshTools<Mesh>::verticesView( *(*block_iterator) );
+	MeshId num_vertices = (*block_iterator)->numVertices();
+	std::tr1::unordered_map<MeshId,MeshId> vertex_indices;
+	Teuchos::ArrayRCP<MeshId> vertex_gids =
+	    (*block_iterator)->vertexIds();
 	Teuchos::Array<double> vertex_coords( d_dimension );
-	Teuchos::ArrayRCP<const double> mesh_coords =
-	    MeshTools<Mesh>::coordsView( *(*block_iterator) );
-	for ( GlobalOrdinal n = 0; n < num_vertices; ++n )
+	Teuchos::ArrayRCP<double> mesh_coords =
+	    (*block_iterator)->vertexCoordinates();
+	for ( MeshId n = 0; n < num_vertices; ++n )
 	{
 	    // Set the mapping.
 	    vertex_indices[ vertex_gids[n] ] = n;
@@ -432,20 +420,19 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 	    vertices_in_box.push_back( 
 		d_global_box.pointInBox( vertex_coords ) );
 	}
-	DTK_CHECK( Teuchos::as<GlobalOrdinal>(vertices_in_box.size()) 
-		       == num_vertices );
+	DTK_CHECK( Teuchos::as<MeshId>(vertices_in_box.size()) 
+		   == num_vertices );
 
 	// For those vertices that are in the box, get the elements that they
 	// construct. These elements are in the box.
-	GlobalOrdinal num_elements = 
-	    MeshTools<Mesh>::numElements( *(*block_iterator) );
-	int vertices_per_element = MT::verticesPerElement( *(*block_iterator) );
-	GlobalOrdinal vertex_index;
-	GlobalOrdinal vertex_ordinal;
+	MeshId num_elements = (*block_iterator)->numElements();
+	int vertices_per_element = (*block_iterator)->verticesPerElement();
+	MeshId vertex_index;
+	MeshId vertex_ordinal;
 	int this_element_in_box;
-	Teuchos::ArrayRCP<const GlobalOrdinal> mesh_connectivity = 
-	    MeshTools<Mesh>::connectivityView( *(*block_iterator) );
-	for ( GlobalOrdinal n = 0; n < num_elements; ++n )
+	Teuchos::ArrayRCP<MeshId> mesh_connectivity = 
+	    (*block_iterator)->connectivity();
+	for ( MeshId n = 0; n < num_elements; ++n )
 	{
 	    this_element_in_box = 0;
 	    for ( int i = 0; i < vertices_per_element; ++i )
@@ -474,8 +461,8 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
 		}
 	    }
 	}
-	DTK_CHECK( Teuchos::as<GlobalOrdinal>(elements_in_box.size())
-		       == num_elements );
+	DTK_CHECK( Teuchos::as<MeshId>(elements_in_box.size())
+		   == num_elements );
 
 	// Set the active vertex/element data in the manager for the block.
 	mesh_manager->setActiveVertices( vertices_in_box, block_id );
@@ -490,10 +477,8 @@ void Rendezvous<Mesh>::getMeshInBox( const RCP_MeshManager& mesh_manager )
  *
  * \param mesh_manager The mesh to send to the rendezvous decomposition.
  */
-template<class Mesh>
-Teuchos::RCP<MeshManager<typename Rendezvous<Mesh>::MeshContainerType> >
-Rendezvous<Mesh>::sendMeshToRendezvous( 
-    const RCP_MeshManager& mesh_manager,
+Teuchos::RCP<MeshManager> Rendezvous::sendMeshToRendezvous( 
+    const Teuchos::RCP<MeshManager>& mesh_manager,
     const CommIndexer& mesh_indexer )
 {
     // Set a value for mesh existence.
@@ -509,43 +494,39 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 				 Teuchos::Ptr<int>(&num_mesh_blocks) );
     
     // Setup an array to store the mesh in the rendezvous decomposition.
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshContainerType> >
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> >
 	rendezvous_block_containers( num_mesh_blocks );
 
     // Loop through the blocks and move them to the rendezvous decomposition.
-    Teuchos::RCP<Mesh> current_block;
+    Teuchos::RCP<MeshBlock> current_block;
     for ( int block_id = 0; block_id < num_mesh_blocks; ++block_id )
     {
 	// Get the block data.
 	Teuchos::ArrayView<short int> active_block_elements;
-	GlobalOrdinal num_vertices = 0;
-	Teuchos::ArrayRCP<GlobalOrdinal> export_vertex_arcp(0,0);
-	GlobalOrdinal num_elements = 0;
-	Teuchos::ArrayRCP<GlobalOrdinal> export_element_arcp(0,0);
+	MeshId num_vertices = 0;
+	Teuchos::ArrayRCP<MeshId> export_vertex_arcp(0,0);
+	MeshId num_elements = 0;
+	Teuchos::ArrayRCP<MeshId> export_element_arcp(0,0);
 	Teuchos::ArrayRCP<double> export_coords_view(0,0);
 	int max_verts_per_elem = 27;
 	Teuchos::Array<int> block_packet(max_verts_per_elem+2,-1);
-	Teuchos::ArrayRCP<GlobalOrdinal> export_conn_view(0,0);
+	Teuchos::ArrayRCP<MeshId> export_conn_view(0,0);
 	int topo_int = 0;
 	if ( mesh_exists )
 	{
 	    current_block = mesh_manager->getBlock( block_id );
 	    active_block_elements = mesh_manager->getActiveElements( block_id );
-	    num_vertices = MeshTools<Mesh>::numVertices( *current_block );
-	    export_vertex_arcp = 
-		MeshTools<Mesh>::verticesNonConstView( *current_block );
-	    num_elements = MeshTools<Mesh>::numElements( *current_block );
-	    export_element_arcp =
-		MeshTools<Mesh>::elementsNonConstView( *current_block );
-	    export_coords_view =
-		MeshTools<Mesh>::coordsNonConstView( *current_block );
-	    export_conn_view =
-		MeshTools<Mesh>::connectivityNonConstView( *current_block );
-	    topo_int = static_cast<int>(MT::elementTopology( *current_block ));
-	    block_packet[0] = MT::verticesPerElement( *current_block );
+	    num_vertices = current_block->numVertices();
+	    export_vertex_arcp = current_block->vertexIds();
+	    num_elements = current_block->numElements();
+	    export_element_arcp = current_block->elementIds();
+	    export_coords_view = current_block->vertexCoordinates();
+	    export_conn_view = current_block->connectivity();
+	    topo_int = static_cast<int>( current_block->elementTopology() );
+	    block_packet[0] = current_block->verticesPerElement();
 	    block_packet[1] = topo_int;
-	    std::copy( MT::permutationBegin(*current_block),
-		       MT::permutationEnd(*current_block),
+	    std::copy( current_block->permutation().begin(),
+		       current_block->permutation().end(),
 		       &block_packet[2] );
 	}
 
@@ -571,84 +552,83 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 	// Setup the communication patterns for moving the mesh block to the
 	// rendezvous decomposition. This will also move the vertex and element
 	// global ordinals to the rendezvous decomposition.
-	Teuchos::ArrayRCP<GlobalOrdinal> rendezvous_vertices;
-	Teuchos::ArrayRCP<GlobalOrdinal> rendezvous_elements;
+	Teuchos::ArrayRCP<MeshId> rendezvous_vertices;
+	Teuchos::ArrayRCP<MeshId> rendezvous_elements;
 	setupImportCommunication( current_block, active_block_elements,
 				  rendezvous_vertices, rendezvous_elements );
 
 	// Setup export vertex map.
-	Teuchos::ArrayView<const GlobalOrdinal> export_vertex_view 
+	Teuchos::ArrayView<const MeshId> export_vertex_view 
 	    = export_vertex_arcp();
-	RCP_TpetraMap export_vertex_map = 
-	    Tpetra::createNonContigMap<int,GlobalOrdinal>( 
+	Teuchos::RCP<const Tpetra::Map<int,MeshId> > export_vertex_map = 
+	    Tpetra::createNonContigMap<int,MeshId>( 
 		export_vertex_view, d_comm );
 	DTK_CHECK( Teuchos::nonnull(export_vertex_map) );
 
 	// Setup import vertex map.
-	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_vertices_view = 
+	Teuchos::ArrayView<const MeshId> rendezvous_vertices_view = 
 	    rendezvous_vertices();
-	RCP_TpetraMap import_vertex_map = 
-	    Tpetra::createNonContigMap<int,GlobalOrdinal>(
+	Teuchos::RCP<const Tpetra::Map<int,MeshId> > import_vertex_map = 
+	    Tpetra::createNonContigMap<int,MeshId>(
 		rendezvous_vertices_view, d_comm );
 	DTK_CHECK( Teuchos::nonnull(import_vertex_map) );
 
 	// Move the vertex coordinates to the rendezvous decomposition.
-	Tpetra::Import<int,GlobalOrdinal> vertex_importer( export_vertex_map, 
+	Tpetra::Import<int,MeshId> vertex_importer( export_vertex_map, 
 							   import_vertex_map );
-	Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> > 
+	Teuchos::RCP< Tpetra::MultiVector<double,int,MeshId> > 
 	    export_coords = Tpetra::createMultiVectorFromView( 
 		export_vertex_map, export_coords_view, 
 		num_vertices, d_dimension );
-	Tpetra::MultiVector<double,int,GlobalOrdinal> 
+	Tpetra::MultiVector<double,int,MeshId> 
 	    import_coords( import_vertex_map, d_dimension );
 	import_coords.doImport( 
 	    *export_coords, vertex_importer, Tpetra::INSERT );
 
 	// Setup export element map.
-	Teuchos::ArrayView<const GlobalOrdinal> export_element_view = 
+	Teuchos::ArrayView<const MeshId> export_element_view = 
 	    export_element_arcp();
-	RCP_TpetraMap export_element_map = 
-	    Tpetra::createNonContigMap<int,GlobalOrdinal>(
+	Teuchos::RCP<const Tpetra::Map<int,MeshId> > export_element_map = 
+	    Tpetra::createNonContigMap<int,MeshId>(
 		export_element_view, d_comm );
 	DTK_CHECK( Teuchos::nonnull(export_element_map) );
 
 	// Setup import element map.
-	Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
+	Teuchos::ArrayView<const MeshId> rendezvous_elements_view =
 	    rendezvous_elements();
-	RCP_TpetraMap import_element_map = 
-	    Tpetra::createNonContigMap<int,GlobalOrdinal>(
+	Teuchos::RCP<const Tpetra::Map<int,MeshId> > import_element_map = 
+	    Tpetra::createNonContigMap<int,MeshId>(
 		rendezvous_elements_view, d_comm );
 	DTK_CHECK( Teuchos::nonnull(import_element_map) );
 
 	// Move the element connectivity to the rendezvous decomposition.
-	Tpetra::Import<int,GlobalOrdinal> element_importer( export_element_map, 
+	Tpetra::Import<int,MeshId> element_importer( export_element_map, 
 							    import_element_map );
-	Teuchos::RCP<Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> > 
+	Teuchos::RCP<Tpetra::MultiVector<MeshId,int,MeshId> > 
 	    export_conn = Tpetra::createMultiVectorFromView( 
 		export_element_map, export_conn_view, 
 		num_elements, verts_per_elem );
-	Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> import_conn( 
+	Tpetra::MultiVector<MeshId,int,MeshId> import_conn( 
 	    import_element_map, verts_per_elem );
 	import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
 
 	// Construct the mesh block container from the collected data,
 	// effectively wrapping it with mesh traits.
 	rendezvous_block_containers[ block_id ] = 
-	    Teuchos::rcp( new MeshContainerType( 
+	    Teuchos::rcp( new MeshContainer( 
 			      d_dimension,
 			      rendezvous_vertices,
-			      import_coords.get1dView(),
+			      import_coords.get1dViewNonConst(),
 			      block_topology,
 			      verts_per_elem,
 			      rendezvous_elements,
-			      import_conn.get1dView(),
+			      import_conn.get1dViewNonConst(),
 			      permutation_list ) );
     }
 
     // Build the rendezvous mesh manager from the rendezvous mesh blocks.
     return Teuchos::rcp( 
-	new MeshManager<MeshContainerType>(
-	    rendezvous_block_containers, d_comm, d_dimension) );
+	new MeshManager( rendezvous_block_containers, d_comm, d_dimension) );
 }
 
 //---------------------------------------------------------------------------//
@@ -667,41 +647,41 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
  * \param rendezvous_elements An array of the element global ordinals in the
  * rendezvous decomposition.
  */
-template<class Mesh>
-void Rendezvous<Mesh>::setupImportCommunication( 
-    const Teuchos::RCP<Mesh>& mesh,
+void Rendezvous::setupImportCommunication( 
+    const Teuchos::RCP<MeshBlock>& mesh,
     const Teuchos::ArrayView<short int>& elements_in_box,
-    Teuchos::ArrayRCP<GlobalOrdinal>& rendezvous_vertices,
-    Teuchos::ArrayRCP<GlobalOrdinal>& rendezvous_elements )
+    Teuchos::ArrayRCP<MeshId>& rendezvous_vertices,
+    Teuchos::ArrayRCP<MeshId>& rendezvous_elements )
 {
     // Set a value for mesh existence.
     bool mesh_exists = Teuchos::nonnull( mesh );
 
     // Get the local block data and create a vertex index map and element
     // index map for access to connectivity data.
-    GlobalOrdinal num_vertices = 0;
-    GlobalOrdinal num_elements = 0;
+    MeshId num_vertices = 0;
+    MeshId num_elements = 0;
     int vertices_per_element = 0;
-    Teuchos::ArrayRCP<double> mesh_coords(0,0);
-    Teuchos::ArrayRCP<GlobalOrdinal> mesh_connectivity(0,0);
-    typename MT::const_vertex_iterator export_vertex_iterator;
-    std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> vertex_indices;
-    typename MT::const_element_iterator export_element_iterator;
-    std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> element_indices;
-    GlobalOrdinal array_index = 0;
-    GlobalOrdinal vertex_sum = 0;
+    Teuchos::ArrayRCP<MeshId> mesh_vertices(0,0);
+    Teuchos::ArrayRCP<MeshId> mesh_elements(0,0);
+    Teuchos::ArrayRCP<MeshId> mesh_connectivity(0,0);
+    Teuchos::ArrayRCP<MeshId>::const_iterator export_vertex_iterator;
+    Teuchos::ArrayRCP<MeshId>::const_iterator export_element_iterator;
+    std::tr1::unordered_map<MeshId,MeshId> vertex_indices;
+    std::tr1::unordered_map<MeshId,MeshId> element_indices;
+    MeshId array_index = 0;
+    MeshId vertex_sum = 0;
     if ( mesh_exists )
     {
 	// Get the block data.
-	num_vertices = MeshTools<Mesh>::numVertices( *mesh );
-	num_elements = MeshTools<Mesh>::numElements( *mesh );
-	vertices_per_element = MT::verticesPerElement( *mesh );
-	mesh_coords = MeshTools<Mesh>::coordsNonConstView( *mesh );
-	mesh_connectivity = MeshTools<Mesh>::connectivityNonConstView( *mesh );
+	num_vertices = mesh->numVertices();
+	num_elements = mesh->numElements();
+	vertices_per_element = mesh->verticesPerElement();
+	mesh_connectivity = mesh->connectivity();
+	mesh_vertices = mesh->vertexIds();
 
 	// Make the vertex map.
-	for ( export_vertex_iterator = MT::verticesBegin( *mesh );
-	      export_vertex_iterator != MT::verticesEnd( *mesh );
+	for ( export_vertex_iterator = mesh_vertices.begin();
+	      export_vertex_iterator != mesh_vertices.end();
 	      ++export_vertex_iterator )
 	{
 	    vertex_indices[ *export_vertex_iterator ] = array_index;
@@ -712,8 +692,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	array_index = 0;
 
 	// Make the element map.
-	for ( export_element_iterator = MT::elementsBegin( *mesh );
-	      export_element_iterator != MT::elementsEnd( *mesh );
+	for ( export_element_iterator = mesh_elements.begin();
+	      export_element_iterator != mesh_elements.end();
 	      ++export_element_iterator )
 	{
 	    element_indices[ *export_element_iterator ] = array_index;
@@ -725,7 +705,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // bounding box.
     Teuchos::Array<int> vertex_procs =
 	d_partitioner->getInputPointDestinationProcs( vertex_sum, num_vertices );
-    DTK_CHECK( vertex_procs.size() == num_vertices );
+    DTK_CHECK( vertex_procs.size() == (int) num_vertices );
     vertex_sum += num_vertices;
 
     // Get destination procs for all local elements in the global bounding
@@ -733,9 +713,9 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // connecting vertices exist in. We'll make a unique destination proc set
     // for each element.
     Teuchos::Array< std::set<int> > export_element_procs_set( num_elements );
-    GlobalOrdinal vertex_index;
-    GlobalOrdinal vertex_ordinal;
-    for ( GlobalOrdinal n = 0; n < num_elements; ++n )
+    MeshId vertex_index;
+    MeshId vertex_ordinal;
+    for ( MeshId n = 0; n < num_elements; ++n )
     {
 	if ( elements_in_box[n] )
 	{
@@ -750,15 +730,15 @@ void Rendezvous<Mesh>::setupImportCommunication(
 
     // Unroll the vector of sets into two vectors; one containing the element
     // ordinal and the other containing the corresponding element destination.
-    Teuchos::Array<GlobalOrdinal> export_elements;
+    Teuchos::Array<MeshId> export_elements;
     Teuchos::Array<int> export_element_procs;
-    typename MT::const_element_iterator element_iterator;
-    Teuchos::Array< std::set<int> >::const_iterator element_vec_iterator;
+    Teuchos::ArrayRCP<MeshId>::const_iterator element_iterator;
+    Teuchos::Array<std::set<int> >::const_iterator element_vec_iterator;
     std::set<int>::const_iterator element_proc_set_iterator;
     if ( mesh_exists )
     {
 	for ( element_vec_iterator = export_element_procs_set.begin(),
-		  element_iterator = MT::elementsBegin( *mesh );
+		  element_iterator = mesh_elements.begin();
 	      element_vec_iterator != export_element_procs_set.end();
 	      ++element_vec_iterator, ++element_iterator )
 	{
@@ -777,12 +757,12 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // rendezvous decomposition through an inverse communciation operation.
     Tpetra::Distributor element_distributor( d_comm );
     Teuchos::ArrayView<int> export_element_procs_view = export_element_procs();
-    GlobalOrdinal num_import_elements = element_distributor.createFromSends(
+    MeshId num_import_elements = element_distributor.createFromSends(
 	export_element_procs_view );
-    Teuchos::ArrayView<const GlobalOrdinal> export_elements_view =
+    Teuchos::ArrayView<const MeshId> export_elements_view =
 	export_elements();
-    Teuchos::Array<GlobalOrdinal> import_elements( num_import_elements );
-    Teuchos::ArrayView<GlobalOrdinal> import_elements_view = import_elements();
+    Teuchos::Array<MeshId> import_elements( num_import_elements );
+    Teuchos::ArrayView<MeshId> import_elements_view = import_elements();
     element_distributor.doPostsAndWaits( export_elements_view, 1, 
 					 import_elements_view );
     
@@ -799,14 +779,14 @@ void Rendezvous<Mesh>::setupImportCommunication(
 	    element_src_procs.push_back( from_images[i] );
 	}
     }
-    DTK_CHECK( Teuchos::as<GlobalOrdinal>(element_src_procs.size())
-		   == num_import_elements );
+    DTK_CHECK( Teuchos::as<MeshId>(element_src_procs.size())
+	       == num_import_elements );
 
     // Next, move these into the rendezvous element set so that we have a
     // unique list of the elements and build the rendezvous mesh element to
     // source proc map.
-    std::set<GlobalOrdinal> rendezvous_elements_set;
-    for ( GlobalOrdinal n = 0; n < num_import_elements; ++n )
+    std::set<MeshId> rendezvous_elements_set;
+    for ( MeshId n = 0; n < num_import_elements; ++n )
     {
 	if ( rendezvous_elements_set.insert( import_elements[n] ).second )
 	{
@@ -819,7 +799,7 @@ void Rendezvous<Mesh>::setupImportCommunication(
 
     // Finally put the elements in an array and get rid of the set.
     rendezvous_elements
-	= Teuchos::ArrayRCP<GlobalOrdinal>( rendezvous_elements_set.size() );
+	= Teuchos::ArrayRCP<MeshId>( rendezvous_elements_set.size() );
     std::copy( rendezvous_elements_set.begin(), rendezvous_elements_set.end(),
 	       rendezvous_elements.begin() );
     rendezvous_elements_set.clear();
@@ -828,8 +808,8 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // same destination procs as all of their parent elements. Therefore,
     // vertices may then also have to go to multiple procs because of this and
     // these procs may be different than their original rendezvous procs.
-    GlobalOrdinal element_index;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+    MeshId element_index;
+    typename Teuchos::Array<MeshId>::const_iterator 
 	export_elements_iterator;
     Teuchos::Array<int>::const_iterator export_element_procs_iterator;
     Teuchos::Array< std::set<int> > export_vertex_procs_set( num_vertices );
@@ -858,14 +838,14 @@ void Rendezvous<Mesh>::setupImportCommunication(
 
     // Unroll the vector of sets into two vectors; one containing the vertex
     // ordinal and the other containing the corresponding vertex destination.
-    Teuchos::Array<GlobalOrdinal> export_vertices;
+    Teuchos::Array<MeshId> export_vertices;
     Teuchos::Array<int> export_vertex_procs;
     Teuchos::Array< std::set<int> >::const_iterator vertex_vec_iterator;
     std::set<int>::const_iterator vertex_proc_set_iterator;
     if ( mesh_exists )
     {
 	for ( vertex_vec_iterator = export_vertex_procs_set.begin(),
-	   export_vertex_iterator = MT::verticesBegin( *mesh );
+	   export_vertex_iterator = mesh_vertices.begin();
 	      vertex_vec_iterator != export_vertex_procs_set.end();
 	      ++vertex_vec_iterator, ++export_vertex_iterator )
 	{
@@ -884,12 +864,12 @@ void Rendezvous<Mesh>::setupImportCommunication(
     // rendezvous decomposition through an inverse communciation operation.
     Tpetra::Distributor vertex_distributor( d_comm );
     Teuchos::ArrayView<int> export_vertex_procs_view = export_vertex_procs();
-    GlobalOrdinal num_import_vertices = vertex_distributor.createFromSends(
+    MeshId num_import_vertices = vertex_distributor.createFromSends(
 	export_vertex_procs_view );
-    Teuchos::ArrayView<const GlobalOrdinal> export_vertices_view = 
+    Teuchos::ArrayView<const MeshId> export_vertices_view = 
 	export_vertices();
-    Teuchos::Array<GlobalOrdinal> import_vertices( num_import_vertices );
-    Teuchos::ArrayView<GlobalOrdinal> import_vertices_view = import_vertices();
+    Teuchos::Array<MeshId> import_vertices( num_import_vertices );
+    Teuchos::ArrayView<MeshId> import_vertices_view = import_vertices();
     vertex_distributor.doPostsAndWaits( export_vertices_view, 1, 
 					import_vertices_view );
     export_vertices.clear();
@@ -897,11 +877,11 @@ void Rendezvous<Mesh>::setupImportCommunication(
 
     // Create a unique list of vertex ids.
     std::sort( import_vertices.begin(), import_vertices.end() );
-    typename Teuchos::Array<GlobalOrdinal>::iterator unique_vert_it =
+    typename Teuchos::Array<MeshId>::iterator unique_vert_it =
 	std::unique( import_vertices.begin(), import_vertices.end() );
 
     // Finally put the vertices in the output array.
-    rendezvous_vertices = Teuchos::ArrayRCP<GlobalOrdinal>( 
+    rendezvous_vertices = Teuchos::ArrayRCP<MeshId>( 
 	std::distance(import_vertices.begin(), unique_vert_it) );
     std::copy( import_vertices.begin(), unique_vert_it,
 	       rendezvous_vertices.begin() );
@@ -911,8 +891,6 @@ void Rendezvous<Mesh>::setupImportCommunication(
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_RENDEZVOUS_DEF_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_Rendezvous_def.hpp
+// end DTK_Rendezvous.cpp
 //---------------------------------------------------------------------------//

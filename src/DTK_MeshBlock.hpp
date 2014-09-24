@@ -181,12 +181,12 @@ class MeshBlock
     /*!
      * \brief Return a reference-counted pointer to the vertex ids.
      */
-    virtual Teuchos::ArrayRCP<const MeshId> vertexIds() = 0;
+    virtual Teuchos::ArrayRCP<MeshId> vertexIds() = 0;
 
     /*!
      * \brief Return a reference-counted pointer to the vertex coordinates.
      */
-    virtual Teuchos::ArrayRCP<const double> vertexCoordinates() = 0;
+    virtual Teuchos::ArrayRCP<double> vertexCoordinates() = 0;
 
     /*! 
      * \brief Return the element topology for this mesh block
@@ -210,18 +210,18 @@ class MeshBlock
     /*! 
      * \brief Return a reference-counted pointer to the element ids.
      */
-    virtual Teuchos::ArrayRCP<const MeshId> elementIds() = 0;
+    virtual Teuchos::ArrayRCP<MeshId> elementIds() = 0;
 
     /*! 
      * \brief Return a reference-counted pointer to the element connectivity.
      */
-    virtual Teuchos::ArrayRCP<const MeshId> connectivity() = 0;
+    virtual Teuchos::ArrayRCP<MeshId> connectivity() = 0;
 
     /*! 
      * \brief Return a reference-counted pointer to the connectivity
      * permutation array.
      */
-    virtual Teuchos::ArrayRCP<const int> permutation() = 0;
+    virtual Teuchos::ArrayRCP<int> permutation() = 0;
 };
 
 } // end namespace DataTransferKit

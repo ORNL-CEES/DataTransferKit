@@ -18,7 +18,6 @@
 #include <DTK_PartitionerFactory.hpp>
 #include <DTK_BoundingBox.hpp>
 #include <DTK_MeshTypes.hpp>
-#include <DTK_MeshTraits.hpp>
 #include <DTK_MeshManager.hpp>
 #include <DTK_MeshContainer.hpp>
 
@@ -53,7 +52,7 @@ int rand_size = 1000;
 // Mesh container creation functions.
 //---------------------------------------------------------------------------//
 // 1d mesh
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > build1dContainer()
+Teuchos::RCP<DataTransferKit::MeshBlock> build1dContainer()
 {
     using namespace DataTransferKit;
 
@@ -63,7 +62,7 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > build1dContainer()
     int vertex_dim = 1;
     int num_rand = vertex_dim*rand_size;
     std::srand( 1 );
-    Teuchos::ArrayRCP<int> vertex_handles( rand_size );
+    Teuchos::ArrayRCP<MeshId> vertex_handles( rand_size );
     Teuchos::ArrayRCP<double> coords( num_rand );
     for ( int i = 0; i < rand_size; ++i )
     {
@@ -72,8 +71,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > build1dContainer()
     }
 
     // Empty element vectors. We only need vertices for these tests.
-    Teuchos::ArrayRCP<int> element_handles;
-    Teuchos::ArrayRCP<int> element_connectivity;
+    Teuchos::ArrayRCP<MeshId> element_handles;
+    Teuchos::ArrayRCP<MeshId> element_connectivity;
 
     Teuchos::ArrayRCP<int> permutation_list(2);
     for ( int i = 0; i < permutation_list.size(); ++i )
@@ -82,15 +81,15 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > build1dContainer()
     }
 
     return Teuchos::rcp( 
-	new MeshContainer<int>( vertex_dim, vertex_handles, coords, 
-				DTK_LINE_SEGMENT, 2,
-				element_handles, element_connectivity,
-				permutation_list ) );
+	new MeshContainer( vertex_dim, vertex_handles, coords, 
+			   DTK_LINE_SEGMENT, 2,
+			   element_handles, element_connectivity,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // 2d mesh
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > build2dContainer()
+Teuchos::RCP<DataTransferKit::MeshBlock> build2dContainer()
 {
     using namespace DataTransferKit;
 
@@ -100,7 +99,7 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > build2dContainer()
     int vertex_dim = 2;
     int num_rand = vertex_dim*rand_size;
     std::srand( 1 );
-    Teuchos::ArrayRCP<int> vertex_handles( rand_size );
+    Teuchos::ArrayRCP<MeshId> vertex_handles( rand_size );
     Teuchos::ArrayRCP<double> coords( num_rand );
     for ( int i = 0; i < rand_size; ++i )
     {
@@ -110,8 +109,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > build2dContainer()
     }
 
     // Empty element vectors. We only need vertices for these tests.
-    Teuchos::ArrayRCP<int> element_handles;
-    Teuchos::ArrayRCP<int> element_connectivity;
+    Teuchos::ArrayRCP<MeshId> element_handles;
+    Teuchos::ArrayRCP<MeshId> element_connectivity;
     Teuchos::ArrayRCP<int> permutation_list(3);
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
@@ -119,15 +118,15 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > build2dContainer()
     }
 
     return Teuchos::rcp( 
-	new MeshContainer<int>( vertex_dim, vertex_handles, coords, 
-				DTK_TRIANGLE, 3,
-				element_handles, element_connectivity,
-				permutation_list ) );
+	new MeshContainer( vertex_dim, vertex_handles, coords, 
+			   DTK_TRIANGLE, 3,
+			   element_handles, element_connectivity,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // 3d mesh
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > build3dContainer()
+Teuchos::RCP<DataTransferKit::MeshBlock> build3dContainer()
 {
     using namespace DataTransferKit;
 
@@ -137,7 +136,7 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > build3dContainer()
     int vertex_dim = 3;
     int num_rand = vertex_dim*rand_size;
     std::srand( 1 );
-    Teuchos::ArrayRCP<int> vertex_handles( rand_size );
+    Teuchos::ArrayRCP<MeshId> vertex_handles( rand_size );
     Teuchos::ArrayRCP<double> coords( num_rand );
     for ( int i = 0; i < rand_size; ++i )
     {
@@ -148,8 +147,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > build3dContainer()
     }
 
     // Empty element vectors. We only need vertices for these tests.
-    Teuchos::ArrayRCP<int> element_handles;
-    Teuchos::ArrayRCP<int> element_connectivity;
+    Teuchos::ArrayRCP<MeshId> element_handles;
+    Teuchos::ArrayRCP<MeshId> element_connectivity;
     Teuchos::ArrayRCP<int> permutation_list(8);
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
@@ -157,10 +156,10 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > build3dContainer()
     }
 
     return Teuchos::rcp( 
-	new MeshContainer<int>( vertex_dim, vertex_handles, coords, 
-				DTK_HEXAHEDRON, 8,
-				element_handles, element_connectivity,
-				permutation_list ) );
+	new MeshContainer( vertex_dim, vertex_handles, coords, 
+			   DTK_HEXAHEDRON, 8,
+			   element_handles, element_connectivity,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -174,22 +173,18 @@ TEUCHOS_UNIT_TEST( Partitioner, 1d_rcb_test )
     int my_size = getDefaultComm<int>()->getSize();
 
     // create a mesh.
-    typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = build1dContainer();
 
     // All of the vertices will be partitioned.
     int mesh_dim = 1;
-    int num_vertices = Tools::numVertices( *mesh_blocks[0] );
+    int num_vertices = mesh_blocks[0]->numVertices();
     int num_coords = mesh_dim * num_vertices;
     Teuchos::Array<short int> active_vertices( num_vertices, 1 );
 
     // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
-	new MeshManager<MeshType>( 
-	    mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
+    Teuchos::RCP<MeshManager> mesh_manager = Teuchos::rcp( 
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
     mesh_manager->setActiveVertices( active_vertices, 0 );
 
     // Create a partitioner.
@@ -209,11 +204,11 @@ TEUCHOS_UNIT_TEST( Partitioner, 1d_rcb_test )
     }
 
     // Check that these are in fact the random numbers used for the vertices.
-    MT::const_coordinate_iterator coord_iterator 
-	= MT::coordsBegin( *mesh_blocks[0] );
+    Teuchos::ArrayRCP<double> vertex_coordinates =
+	mesh_blocks[0]->vertexCoordinates();
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( coord_iterator[ i ] == 
+	TEST_ASSERT( vertex_coordinates[ i ] == 
 		     random_numbers[mesh_dim*i] );
     }
 
@@ -242,22 +237,18 @@ TEUCHOS_UNIT_TEST( Partitioner, 2d_rcb_test )
     using namespace DataTransferKit;
 
     // create a mesh.
-    typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = build2dContainer();
 
     // All of the vertices will be partitioned.
     int mesh_dim = 2;
-    int num_vertices = Tools::numVertices( *mesh_blocks[0] );
+    int num_vertices = mesh_blocks[0]->numVertices();
     int num_coords = mesh_dim * num_vertices;
     Teuchos::Array<short int> active_vertices( num_vertices, 1 );
 
     // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
-	new MeshManager<MeshType>( 
-	    mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
+    Teuchos::RCP<MeshManager> mesh_manager = Teuchos::rcp( 
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
     mesh_manager->setActiveVertices( active_vertices, 0 );
 
     // Create a partitioner.
@@ -277,13 +268,13 @@ TEUCHOS_UNIT_TEST( Partitioner, 2d_rcb_test )
     }
 
     // Check that these are in fact the random numbers used for the vertices.
-    MT::const_coordinate_iterator coord_iterator 
-	= MT::coordsBegin( *mesh_blocks[0] );
+    Teuchos::ArrayRCP<double> vertex_coordinates =
+	mesh_blocks[0]->vertexCoordinates();
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( coord_iterator[ i ] == 
+	TEST_ASSERT( vertex_coordinates[ i ] == 
 		     random_numbers[mesh_dim*i] );
-	TEST_ASSERT( coord_iterator[ num_vertices + i ] == 
+	TEST_ASSERT( vertex_coordinates[ num_vertices + i ] == 
 		     random_numbers[mesh_dim*i+1] );
     }
 
@@ -319,22 +310,18 @@ TEUCHOS_UNIT_TEST( Partitioner, 3d_rcb_test )
     using namespace DataTransferKit;
 
     // create a mesh.
-    typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = build3dContainer();
 
     // All of the vertices will be partitioned.
     int mesh_dim = 3;
-    int num_vertices = Tools::numVertices( *mesh_blocks[0] );
+    int num_vertices = mesh_blocks[0]->numVertices();
     int num_coords = mesh_dim * num_vertices;
     Teuchos::Array<short int> active_vertices( num_vertices, 1 );
 
     // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
-	new MeshManager<MeshType>( 
-	    mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
+    Teuchos::RCP<MeshManager> mesh_manager = Teuchos::rcp( 
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
     mesh_manager->setActiveVertices( active_vertices, 0 );
 
     // Create a partitioner.
@@ -354,15 +341,15 @@ TEUCHOS_UNIT_TEST( Partitioner, 3d_rcb_test )
     }
 
     // Check that these are in fact the random numbers used for the vertices.
-    MT::const_coordinate_iterator coord_iterator 
-	= MT::coordsBegin( *mesh_blocks[0] );
+    Teuchos::ArrayRCP<double> vertex_coordinates =
+	mesh_blocks[0]->vertexCoordinates();
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( coord_iterator[ i ] == 
+	TEST_ASSERT( vertex_coordinates[ i ] == 
 		     random_numbers[mesh_dim*i] );
-	TEST_ASSERT( coord_iterator[ num_vertices + i ] == 
+	TEST_ASSERT( vertex_coordinates[ num_vertices + i ] == 
 		     random_numbers[mesh_dim*i+1] );
-	TEST_ASSERT( coord_iterator[ 2*num_vertices + i ] == 
+	TEST_ASSERT( vertex_coordinates[ 2*num_vertices + i ] == 
 		     random_numbers[mesh_dim*i+2] );
     }
 
@@ -404,23 +391,19 @@ TEUCHOS_UNIT_TEST( Partitioner, partial_1d_partitioner_test )
     int my_size = getDefaultComm<int>()->getSize();
 
     // create a mesh.
-    typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = build1dContainer();
 
     // Only some of the vertices will be partitioned.
     int mesh_dim = 1;
-    int num_vertices = Tools::numVertices( *mesh_blocks[0] );
+    int num_vertices = mesh_blocks[0]->numVertices();
     int num_coords = mesh_dim * num_vertices;
     Teuchos::Array<short int> active_vertices( num_vertices, 1 );
     active_vertices[0] = 0;
 
     // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
-	new MeshManager<MeshType>( 
-	    mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
+    Teuchos::RCP<MeshManager> mesh_manager = Teuchos::rcp( 
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
     mesh_manager->setActiveVertices( active_vertices, 0 );
 
     // Create a partitioner.
@@ -440,11 +423,11 @@ TEUCHOS_UNIT_TEST( Partitioner, partial_1d_partitioner_test )
     }
 
     // Check that these are in fact the random numbers used for the vertices.
-    MT::const_coordinate_iterator coord_iterator 
-	= MT::coordsBegin( *mesh_blocks[0] );
+    Teuchos::ArrayRCP<double> vertex_coordinates =
+	mesh_blocks[0]->vertexCoordinates();
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( coord_iterator[ i ] == 
+	TEST_ASSERT( vertex_coordinates[ i ] == 
 		     random_numbers[mesh_dim*i] );
     }
 
@@ -473,23 +456,19 @@ TEUCHOS_UNIT_TEST( Partitioner, partial_2d_partitioner_test )
     using namespace DataTransferKit;
 
     // create a mesh.
-    typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = build2dContainer();
 
     // Only some of the vertices will be partitioned.
     int mesh_dim = 2;
-    int num_vertices = Tools::numVertices( *mesh_blocks[0] );
+    int num_vertices = mesh_blocks[0]->numVertices();
     int num_coords = mesh_dim * num_vertices;
     Teuchos::Array<short int> active_vertices( num_vertices, 1 );
     active_vertices[0] = 0;
 
     // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
-	new MeshManager<MeshType>( 
-	    mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
+    Teuchos::RCP<MeshManager> mesh_manager = Teuchos::rcp( 
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
     mesh_manager->setActiveVertices( active_vertices, 0 );
 
     // Create a partitioner.
@@ -509,13 +488,13 @@ TEUCHOS_UNIT_TEST( Partitioner, partial_2d_partitioner_test )
     }
 
     // Check that these are in fact the random numbers used for the vertices.
-    MT::const_coordinate_iterator coord_iterator 
-	= MT::coordsBegin( *mesh_blocks[0] );
+    Teuchos::ArrayRCP<double> vertex_coordinates =
+	mesh_blocks[0]->vertexCoordinates();
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( coord_iterator[ i ] == 
+	TEST_ASSERT( vertex_coordinates[ i ] == 
 		     random_numbers[mesh_dim*i] );
-	TEST_ASSERT( coord_iterator[ num_vertices + i ] == 
+	TEST_ASSERT( vertex_coordinates[ num_vertices + i ] == 
 		     random_numbers[mesh_dim*i+1] );
     }
 }
@@ -527,23 +506,19 @@ TEUCHOS_UNIT_TEST( Partitioner, partial_3d_partitioner_test )
     using namespace DataTransferKit;
 
     // create a mesh.
-    typedef MeshContainer<int> MeshType;
-    typedef MeshTraits< MeshType > MT;
-    typedef MeshTools< MeshType > Tools;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = build3dContainer();
 
     // Not all of the vertices will be partitioned.
     int mesh_dim = 3;
-    int num_vertices = Tools::numVertices( *mesh_blocks[0] );
+    int num_vertices = mesh_blocks[0]->numVertices();
     int num_coords = mesh_dim * num_vertices;
     Teuchos::Array<short int> active_vertices( num_vertices, 1 );
     active_vertices[0] = 0;
 
     // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
-	new MeshManager<MeshType>( 
-	    mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
+    Teuchos::RCP<MeshManager> mesh_manager = Teuchos::rcp( 
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), mesh_dim ) );
     mesh_manager->setActiveVertices( active_vertices, 0 );
 
     // Create a partitioner.
@@ -563,15 +538,15 @@ TEUCHOS_UNIT_TEST( Partitioner, partial_3d_partitioner_test )
     }
 
     // Check that these are in fact the random numbers used for the vertices.
-    MT::const_coordinate_iterator coord_iterator 
-	= MT::coordsBegin( *mesh_blocks[0] );
+    Teuchos::ArrayRCP<double> vertex_coordinates =
+	mesh_blocks[0]->vertexCoordinates();
     for ( int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( coord_iterator[ i ] == 
+	TEST_ASSERT( vertex_coordinates[ i ] == 
 		     random_numbers[mesh_dim*i] );
-	TEST_ASSERT( coord_iterator[ num_vertices + i ] == 
+	TEST_ASSERT( vertex_coordinates[ num_vertices + i ] == 
 		     random_numbers[mesh_dim*i+1] );
-	TEST_ASSERT( coord_iterator[ 2*num_vertices + i ] == 
+	TEST_ASSERT( vertex_coordinates[ 2*num_vertices + i ] == 
 		     random_numbers[mesh_dim*i+2] );
     }
 }

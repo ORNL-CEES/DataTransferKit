@@ -17,7 +17,6 @@
 #include <limits>
 
 #include <DTK_MeshTypes.hpp>
-#include <DTK_MeshTraits.hpp>
 #include <DTK_Rendezvous.hpp>
 #include <DTK_MeshContainer.hpp>
 #include <DTK_CommIndexer.hpp>
@@ -49,13 +48,13 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 //---------------------------------------------------------------------------//
 // Mesh create functions.
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> >
+Teuchos::RCP<DataTransferKit::MeshBlock>
 buildTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length;
     int vertex_dim = 2;
-    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles( num_vertices );
     Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
@@ -71,8 +70,8 @@ buildTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     
     // Make the triangles. 
     int num_elements = (edge_length-1)*(edge_length-1)*2;
-    Teuchos::ArrayRCP<int> tri_handles( num_elements );
-    Teuchos::ArrayRCP<int> tri_connectivity( 3*num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> tri_handles( num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> tri_connectivity( 3*num_elements );
     int elem_idx, vertex_idx;
     int v0, v1, v2, v3;
     for ( int j = 0; j < (edge_length-1); ++j )
@@ -109,19 +108,19 @@ buildTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
-						 DataTransferKit::DTK_TRIANGLE, 3,
-						 tri_handles, tri_connectivity,
-						 permutation_list ) );
+	new DataTransferKit::MeshContainer( 2, vertex_handles, coords, 
+					    DataTransferKit::DTK_TRIANGLE, 3,
+					    tri_handles, tri_connectivity,
+					    permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> >buildNullTriMesh()
+Teuchos::RCP<DataTransferKit::MeshBlock> buildNullTriMesh()
 {
-    Teuchos::ArrayRCP<int> vertex_handles(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
-    Teuchos::ArrayRCP<int> tri_handles(0);
-    Teuchos::ArrayRCP<int> tri_connectivity(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> tri_handles(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> tri_connectivity(0);
     Teuchos::ArrayRCP<int> permutation_list(3);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
@@ -129,20 +128,20 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> >buildNullTriMesh()
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
-						 DataTransferKit::DTK_TRIANGLE, 3,
-						 tri_handles, tri_connectivity,
-						 permutation_list ) );
+	new DataTransferKit::MeshContainer( 2, vertex_handles, coords, 
+					    DataTransferKit::DTK_TRIANGLE, 3,
+					    tri_handles, tri_connectivity,
+					    permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > 
+Teuchos::RCP<DataTransferKit::MeshBlock> 
 buildQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length;
     int vertex_dim = 2;
-    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles( num_vertices );
     Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
@@ -158,8 +157,8 @@ buildQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     
     // Make the quadrilaterals. 
     int num_elements = (edge_length-1)*(edge_length-1);
-    Teuchos::ArrayRCP<int> quad_handles( num_elements );
-    Teuchos::ArrayRCP<int> quad_connectivity( 4*num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> quad_handles( num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> quad_connectivity( 4*num_elements );
     int elem_idx, vertex_idx;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
@@ -191,20 +190,19 @@ buildQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
-						 DataTransferKit::DTK_QUADRILATERAL, 4,
-						 quad_handles, quad_connectivity,
-						 permutation_list ) );
+	new DataTransferKit::MeshContainer( 2, vertex_handles, coords, 
+					    DataTransferKit::DTK_QUADRILATERAL, 4,
+					    quad_handles, quad_connectivity,
+					    permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> >
-buildNullQuadMesh()
+Teuchos::RCP<DataTransferKit::MeshBlock > buildNullQuadMesh()
 {
-    Teuchos::ArrayRCP<int> vertex_handles(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
-    Teuchos::ArrayRCP<int> quad_handles(0);
-    Teuchos::ArrayRCP<int> quad_connectivity(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> quad_handles(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> quad_connectivity(0);
     Teuchos::ArrayRCP<int> permutation_list(4);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
@@ -212,10 +210,10 @@ buildNullQuadMesh()
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
-						 DataTransferKit::DTK_QUADRILATERAL, 4,
-						 quad_handles, quad_connectivity,
-						 permutation_list ) );
+	new DataTransferKit::MeshContainer( 2, vertex_handles, coords, 
+					    DataTransferKit::DTK_QUADRILATERAL, 4,
+					    quad_handles, quad_connectivity,
+					    permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -232,9 +230,6 @@ int num_points = 1000;
 TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test3 )
 {
     using namespace DataTransferKit;
-
-    // Typedefs.
-    typedef MeshContainer<int> MeshType;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
@@ -255,7 +250,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test3 )
     int quad_offset_2 = tri_offset_2 + (edge_size+1)*(edge_size+1)*2;
 
     // Setup source mesh manager.
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 2 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 2 );
     if ( my_rank == 0 )
     {
 	mesh_blocks[0] = 
@@ -283,11 +278,11 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test3 )
     comm->barrier();
 
     // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 2 ) );
+    Teuchos::RCP<MeshManager> mesh_manager = Teuchos::rcp(
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 2 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
+    Rendezvous rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
@@ -313,7 +308,8 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test3 )
     }
 
     // Search the rendezvous decomposition for some random points.
-    Teuchos::Array<int> elements, elem_src_procs;
+    Teuchos::Array<MeshId> elements;
+    Teuchos::Array<int> elem_src_procs;
     rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
 
     // Verify that the points in the mesh were found.
@@ -324,11 +320,11 @@ TEUCHOS_UNIT_TEST( Rendezvous, rendezvous_test3 )
 	     points[num_points + i] < 0.0 || 
 	     (edge_size-1) < points[num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<MeshId>::max() );
 	}
 	else
 	{
-	    TEST_ASSERT( elements[i] != std::numeric_limits<int>::max() );
+	    TEST_ASSERT( elements[i] != std::numeric_limits<MeshId>::max() );
 	    ++num_found;
 	}
     }

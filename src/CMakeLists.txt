@@ -81,7 +81,6 @@ APPEND_SET(HEADERS
   DTK_RadialBasisPolicy.hpp
   DTK_RCB.hpp
   DTK_Rendezvous.hpp
-  DTK_Rendezvous_def.hpp
   DTK_SearchTreeFactory.hpp
   DTK_SerialPartitioner.hpp
   DTK_SharedDomainMap.hpp
@@ -118,6 +117,7 @@ APPEND_SET(SOURCES
   DTK_MeshManager.cpp
   DTK_MeshTools.cpp
   DTK_RCB.cpp
+  DTK_Rendezvous.cpp
   DTK_SearchTreeFactory.cpp
   DTK_SerialPartitioner.cpp
   )
