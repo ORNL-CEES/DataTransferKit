@@ -173,6 +173,12 @@ class MeshBlock
     virtual int dimension() = 0;
 
     /*!
+     * \brief Return the local number of vertices in this block.
+     */
+    virtual int numVertices()
+    { return this->vertexIds().size(); }
+
+    /*!
      * \brief Return a reference-counted pointer to the vertex ids.
      */
     virtual Teuchos::ArrayRCP<const MeshId> vertexIds() = 0;
@@ -194,6 +200,12 @@ class MeshBlock
      * constructed with the same number of vertices.
      */
     virtual int verticesPerElement() = 0;
+
+    /*!
+     * \brief Return the local number of elements in this block.
+     */
+    virtual int numElements()
+    { return this->elementIds().size(); }
 
     /*! 
      * \brief Return a reference-counted pointer to the element ids.

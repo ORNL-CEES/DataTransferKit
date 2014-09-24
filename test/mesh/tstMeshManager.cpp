@@ -327,19 +327,18 @@ TEUCHOS_UNIT_TEST( MeshBlock, tet_manager_test )
 
 	// Coords.
 	Teuchos::ArrayRCP<const double> coords_view = 
-	    (*block_iterator)->vertexCoordinates()
-;
+	    (*block_iterator)->vertexCoordinates();
 	// x
 	TEST_ASSERT( coords_view[0] == 0.0 ); 
 	TEST_ASSERT( coords_view[1] == 1.0 ); 
-	TEST_ASSERT( coords_view[2] == 1.0 ); 
+	TEST_ASSERT( coords_view[2] == 0.0 ); 
 	TEST_ASSERT( coords_view[3] == 0.0 );
 
 	// y
 	TEST_ASSERT( coords_view[4] == 0.0 ); 
 	TEST_ASSERT( coords_view[5] == 0.0 ); 
 	TEST_ASSERT( coords_view[6] == 1.0 ); 
-	TEST_ASSERT( coords_view[7] == 1.0 ); 
+	TEST_ASSERT( coords_view[7] == 0.0 ); 
 
 	// z
 	TEST_ASSERT( coords_view[8]  == 0.0 );
@@ -524,14 +523,14 @@ TEUCHOS_UNIT_TEST( MeshBlock, pyramid_manager_test )
 	TEST_ASSERT( coords_view[1] == 1.0 ); 
 	TEST_ASSERT( coords_view[2] == 1.0 ); 
 	TEST_ASSERT( coords_view[3] == 0.0 );
-	TEST_ASSERT( coords_view[4] == 0.5 );
+	TEST_ASSERT( coords_view[4] == 0.0 );
 
 	// y
 	TEST_ASSERT( coords_view[5]  == 0.0 ); 
 	TEST_ASSERT( coords_view[6]  == 0.0 ); 
 	TEST_ASSERT( coords_view[7] == 1.0 ); 
 	TEST_ASSERT( coords_view[8] == 1.0 ); 
-	TEST_ASSERT( coords_view[9] == 0.5 ); 
+	TEST_ASSERT( coords_view[9] == 0.0 ); 
 
 	// z
 	TEST_ASSERT( coords_view[10] == 0.0 );
@@ -614,10 +613,10 @@ TEUCHOS_UNIT_TEST( MeshBlock, wedge_manager_test )
 	// x
 	TEST_ASSERT( coords_view[0] == 0.0 ); 
 	TEST_ASSERT( coords_view[1] == 1.0 ); 
-	TEST_ASSERT( coords_view[2] == 0.5 ); 
+	TEST_ASSERT( coords_view[2] == 1.0 ); 
 	TEST_ASSERT( coords_view[3] == 0.0 );
 	TEST_ASSERT( coords_view[4] == 1.0 );
-	TEST_ASSERT( coords_view[5] == 0.5 );
+	TEST_ASSERT( coords_view[5] == 1.0 );
 
 	// y
 	TEST_ASSERT( coords_view[6]  == 0.0 ); 

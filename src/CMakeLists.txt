@@ -37,7 +37,6 @@ APPEND_SET(HEADERS
   DTK_DBC.hpp
   DTK_ElementMeasure.hpp
   DTK_ElementTree.hpp
-  DTK_ElementTree_impl.hpp
   DTK_EuclideanDistance.hpp
   DTK_EuclideanDistance_impl.hpp
   DTK_FieldContainer.hpp
@@ -115,6 +114,7 @@ APPEND_SET(SOURCES
   DTK_CommTools.cpp
   DTK_Cylinder.cpp
   DTK_DBC.cpp
+  DTK_ElementTree.cpp
   DTK_MeshManager.cpp
   DTK_MeshTools.cpp
   DTK_RCB.cpp

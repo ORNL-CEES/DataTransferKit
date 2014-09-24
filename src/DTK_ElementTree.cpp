@@ -32,18 +32,16 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_ElementTree_impl.hpp
+ * \file DTK_ElementTree.cpp
  * \author Stuart R. Slattery
  * \brief ElementTree definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ELEMENTTREE_IMPL_HPP
-#define DTK_ELEMENTTREE_IMPL_HPP
-
 #include <cmath>
 #include <algorithm>
 
+#include "DTK_ElementTree.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_CellTopologyFactory.hpp"
 #include "DTK_TopologyTools.hpp"
@@ -59,8 +57,8 @@ namespace DataTransferKit
  *
  * \param mesh The mesh over which to build the kD-tree. 
  */
-template<class Mesh>
-ElementTree<Mesh>::ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh )
+
+ElementTree::ElementTree( const Teuchos::RCP<MeshManager>& mesh )
   : d_mesh( mesh )
 {
     // Setup the centroid array. These will be interleaved.
@@ -69,14 +67,14 @@ ElementTree<Mesh>::ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh )
     // Add the centroids from each block.
     int num_blocks = d_mesh->getNumBlocks();
     d_dcells.resize( num_blocks );
-    Teuchos::RCP<Mesh> block;
+    Teuchos::RCP<MeshBlock> block;
     int block_num_elements = 0;
     int block_num_vertices = 0;
     int block_verts_per_elem = 0;
     Teuchos::ArrayRCP<const double> block_vertex_coords;
-    Teuchos::ArrayRCP<const GlobalOrdinal> block_connectivity;
+    Teuchos::ArrayRCP<const MeshId> block_connectivity;
     Teuchos::RCP<shards::CellTopology> block_topology;
-    GlobalOrdinal vertex_gid = 0;
+    MeshId vertex_gid = 0;
     int vertex_lid = 0;
     int elem_lid = 0;
     Teuchos::Array<int> centroid_array_dims(3);
@@ -89,9 +87,9 @@ ElementTree<Mesh>::ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh )
 	block = d_mesh->getBlock( b );
 
 	// Make a discretization cell for this block.
-	block_verts_per_elem = MT::verticesPerElement( *block );
+	block_verts_per_elem = block->verticesPerElement();
 	block_topology = CellTopologyFactory::create(
-	    MT::elementTopology(*block), block_verts_per_elem );
+	    block->elementTopology(), block_verts_per_elem );
 	d_dcells[b] = IntrepidCell<Intrepid::FieldContainer<double> >(
 	    *block_topology, 1 );
 
@@ -101,10 +99,10 @@ ElementTree<Mesh>::ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh )
 	TopologyTools::referenceCellCenter( *block_topology, ref_center );
 
 	// Get the centroid of each element in the block.
-	block_num_elements = MeshTools<Mesh>::numElements( *block );
-	block_vertex_coords = MeshTools<Mesh>::coordsView( *block );
-	block_connectivity = MeshTools<Mesh>::connectivityView( *block );
-	block_num_vertices = MeshTools<Mesh>::numVertices( *block );
+	block_num_elements = block->numElements();
+	block_vertex_coords = block->vertexCoordinates();
+	block_connectivity = block->connectivity();
+	block_num_vertices = block->numVertices();
 	Intrepid::FieldContainer<double> node_coords( 
 	    1, block_verts_per_elem, d_mesh->dim() );
 	for ( int e = 0; e < block_num_elements; ++e, ++elem_lid )
@@ -135,7 +133,7 @@ ElementTree<Mesh>::ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh )
     }
 
     // Build a cloud search.
-    GlobalOrdinal leaf_size = 20;
+    MeshId leaf_size = 20;
     leaf_size = std::min( leaf_size, d_mesh->localNumElements() );
     d_tree = SearchTreeFactory::createStaticTree(
 	d_mesh->dim(), d_element_centroids(), leaf_size );
@@ -146,8 +144,7 @@ ElementTree<Mesh>::ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh )
 /*!
  * \brief Destructor.
  */
-template<typename GlobalOrdinal>
-ElementTree<GlobalOrdinal>::~ElementTree()
+ElementTree::~ElementTree()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -167,10 +164,9 @@ ElementTree<GlobalOrdinal>::~ElementTree()
  *
  * \return Return true if the point was found in the kD-tree, false if not.
  */
-template<class Mesh>
-bool ElementTree<Mesh>::findPoint( 
+bool ElementTree::findPoint( 
     const Teuchos::ArrayView<const double>& coords,
-    GlobalOrdinal& element,
+    MeshId& element,
     double tolerance )
 {
     // Wrap the point in a field container.
@@ -181,7 +177,7 @@ bool ElementTree<Mesh>::findPoint(
 	point_array_dims, const_cast<double*>(coords.getRawPtr()) );
 
     // Find the leaf of nearest neighbors.
-    GlobalOrdinal num_neighbors = 100;
+    MeshId num_neighbors = 100;
     num_neighbors = std::min( num_neighbors, d_mesh->localNumElements() );
     Teuchos::Array<unsigned> neighbors = 
 	d_tree->nnSearch( coords, num_neighbors );
@@ -189,14 +185,14 @@ bool ElementTree<Mesh>::findPoint(
     // Check the leaf for point inclusion.
     int block_id = 0;
     int elem_id = 0;
-    Teuchos::RCP<Mesh> block;
+    Teuchos::RCP<MeshBlock> block;
     Teuchos::ArrayRCP<const double> block_vertex_coords;
-    Teuchos::ArrayRCP<const GlobalOrdinal> block_element_gids;
-    Teuchos::ArrayRCP<const GlobalOrdinal> block_connectivity;
+    Teuchos::ArrayRCP<const MeshId> block_element_gids;
+    Teuchos::ArrayRCP<const MeshId> block_connectivity;
     int block_verts_per_elem = 0;
     int block_num_elements = 0;
     int block_num_vertices = 0;
-    GlobalOrdinal vertex_gid = 0;
+    MeshId vertex_gid = 0;
     int vertex_lid = 0;
 
     for ( unsigned n = 0; n < neighbors.size(); ++n )
@@ -207,11 +203,11 @@ bool ElementTree<Mesh>::findPoint(
 
 	// Get a view of the connectivity and vertex coordinates of that
 	// block.
-	block_vertex_coords = MeshTools<Mesh>::coordsView( *block );
-	block_connectivity = MeshTools<Mesh>::connectivityView( *block );
-	block_verts_per_elem = MT::verticesPerElement( *block );
-	block_num_elements = MeshTools<Mesh>::numElements( *block );
-	block_num_vertices = MeshTools<Mesh>::numVertices( *block );
+	block_vertex_coords = block->vertexCoordinates();
+	block_connectivity = block->connectivity();
+	block_verts_per_elem = block->verticesPerElement();
+	block_num_elements = block->numElements();
+	block_num_vertices = block->numVertices();
 
 	// Extract the element node coordinates.
 	Intrepid::FieldContainer<double> node_coords( 
@@ -236,14 +232,14 @@ bool ElementTree<Mesh>::findPoint(
 	// this element and return true.
 	if ( d_dcells[block_id].pointInPhysicalCell(point, tolerance) )
 	{
-	    block_element_gids = MeshTools<Mesh>::elementsView(*block);
+	    block_element_gids = block->elementIds();
 	    element = block_element_gids[elem_id];
 	    return true;
 	}
     }
 
     // If we got here we did not find the point in any element.
-    element = Teuchos::OrdinalTraits<GlobalOrdinal>::invalid();
+    element = Teuchos::OrdinalTraits<MeshId>::invalid();
     return false;
 }
 
@@ -251,9 +247,7 @@ bool ElementTree<Mesh>::findPoint(
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_ELEMENTTREE_IMPL_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_ElementTree_impl.hpp
+// end DTK_ElementTree.cpp
 //---------------------------------------------------------------------------//
 

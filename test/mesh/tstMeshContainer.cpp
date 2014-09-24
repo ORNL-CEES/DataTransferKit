@@ -206,14 +206,14 @@ TEUCHOS_UNIT_TEST( MeshBlock, tet_block_test )
     // x
     TEST_ASSERT( mesh_block->vertexCoordinates()[0] == 0.0 ); 
     TEST_ASSERT( mesh_block->vertexCoordinates()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_block->vertexCoordinates()[2] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[2] == 0.0 ); 
     TEST_ASSERT( mesh_block->vertexCoordinates()[3] == 0.0 );
 
     // y
     TEST_ASSERT( mesh_block->vertexCoordinates()[4] == 0.0 ); 
     TEST_ASSERT( mesh_block->vertexCoordinates()[5] == 0.0 ); 
     TEST_ASSERT( mesh_block->vertexCoordinates()[6] == 1.0 ); 
-    TEST_ASSERT( mesh_block->vertexCoordinates()[7] == 1.0 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[7] == 0.0 ); 
 
     // z
     TEST_ASSERT( mesh_block->vertexCoordinates()[8]  == 0.0 );
@@ -338,14 +338,14 @@ TEUCHOS_UNIT_TEST( MeshBlock, pyramid_block_test )
     TEST_ASSERT( mesh_block->vertexCoordinates()[1] == 1.0 ); 
     TEST_ASSERT( mesh_block->vertexCoordinates()[2] == 1.0 ); 
     TEST_ASSERT( mesh_block->vertexCoordinates()[3] == 0.0 );
-    TEST_ASSERT( mesh_block->vertexCoordinates()[4] == 0.5 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[4] == 0.0 );
 
     // y
     TEST_ASSERT( mesh_block->vertexCoordinates()[5]  == 0.0 ); 
     TEST_ASSERT( mesh_block->vertexCoordinates()[6]  == 0.0 ); 
     TEST_ASSERT( mesh_block->vertexCoordinates()[7] == 1.0 ); 
     TEST_ASSERT( mesh_block->vertexCoordinates()[8] == 1.0 ); 
-    TEST_ASSERT( mesh_block->vertexCoordinates()[9] == 0.5 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[9] == 0.0 ); 
 
     // z
     TEST_ASSERT( mesh_block->vertexCoordinates()[10] == 0.0 );
@@ -398,10 +398,10 @@ TEUCHOS_UNIT_TEST( MeshBlock, wedge_block_test )
     // x
     TEST_ASSERT( mesh_block->vertexCoordinates()[0] == 0.0 ); 
     TEST_ASSERT( mesh_block->vertexCoordinates()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_block->vertexCoordinates()[2] == 0.5 ); 
+    TEST_ASSERT( mesh_block->vertexCoordinates()[2] == 1.0 ); 
     TEST_ASSERT( mesh_block->vertexCoordinates()[3] == 0.0 );
     TEST_ASSERT( mesh_block->vertexCoordinates()[4] == 1.0 );
-    TEST_ASSERT( mesh_block->vertexCoordinates()[5] == 0.5 );
+    TEST_ASSERT( mesh_block->vertexCoordinates()[5] == 1.0 );
 
     // y
     TEST_ASSERT( mesh_block->vertexCoordinates()[6]  == 0.0 ); 

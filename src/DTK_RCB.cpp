@@ -418,7 +418,7 @@ void RCB::getGeometryList(
 		mesh_manager->getActiveVertices( block_id );
 
 	    mesh_coords = (*block_iterator)->vertexCoordinates();
-	    num_vertices = (*block_iterator)->vertexIds().size();
+	    num_vertices = (*block_iterator)->numVertices();
 	    for ( MeshId i = 0; i < num_vertices; ++i )
 	    {
 		if ( active_vertices[i] )

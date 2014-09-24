@@ -61,20 +61,12 @@ namespace DataTransferKit
  * rendezvous decomposition.
  */
 //---------------------------------------------------------------------------//
-template<class Mesh>
 class ElementTree
 {
   public:
 
-    //@{
-    //! Typedefs.
-    typedef Mesh                                                mesh_type;
-    typedef MeshTraits<Mesh>                                    MT;
-    typedef typename MT::global_ordinal_type                    GlobalOrdinal;
-    //@}
-
     // Constructor.
-    ElementTree( const Teuchos::RCP<MeshManager<Mesh> >& mesh );
+    ElementTree( const Teuchos::RCP<MeshManager>& mesh );
 
     // Destructor.
     ~ElementTree();
@@ -84,13 +76,13 @@ class ElementTree
 
     // Find a point in the tree.
     bool findPoint( const Teuchos::ArrayView<const double>& coords,
-		    GlobalOrdinal& element,
+		    MeshId& element,
 		    double tolerance = 10*Teuchos::ScalarTraits<double>::eps() );
 
   private:
 
     // Mesh manager.
-    Teuchos::RCP<MeshManager<Mesh> > d_mesh;
+    Teuchos::RCP<MeshManager> d_mesh;
 
     // Local mesh element centroids.
     Teuchos::Array<double> d_element_centroids;
@@ -103,12 +95,6 @@ class ElementTree
 };
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_ElementTree_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

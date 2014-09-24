@@ -99,7 +99,7 @@ MeshId MeshManager::localNumElements() const
 	  block_iterator != d_mesh_blocks.end();
 	  ++block_iterator )
     {
-	local_num_elements += (*block_iterator)->elementIds().size();
+	local_num_elements += (*block_iterator)->numElements();
     }
     return local_num_elements;
 }
@@ -154,7 +154,7 @@ BoundingBox MeshManager::localBoundingBox()
 	  ++block_iterator )
     {
 	// If the mesh block is empty, do nothing.
-	if ( (*block_iterator)->vertexIds().size() > 0 )
+	if ( (*block_iterator)->numVertices() > 0 )
 	{
 	    block_box =	MeshTools::localBoundingBox( *block_iterator );
 
@@ -216,7 +216,7 @@ BoundingBox MeshManager::globalBoundingBox()
 	  ++block_iterator )
     {
 	// If the mesh block is empty, do nothing.
-	if ( (*block_iterator)->vertexIds().size() > 0 )
+	if ( (*block_iterator)->numVertices() > 0 )
 	{
 	    block_box =	MeshTools::globalBoundingBox( 
 		*block_iterator, d_comm );
@@ -271,7 +271,7 @@ void MeshManager::buildIndexing()
     for ( int b = 0; b < num_blocks; ++b )
     {
 	// Element accumulation.
-	num_elements = d_mesh_blocks[b]->elementIds().size();
+	num_elements = d_mesh_blocks[b]->numElements();
 	d_cumulative_elements[b] = 
 	    ( b > 0 ) 
 	    ? num_elements + d_cumulative_elements[b-1] 

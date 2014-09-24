@@ -68,7 +68,7 @@ BoundingBox MeshTools::localBoundingBox( const Teuchos::RCP<MeshBlock>& mesh )
     double y_max = Teuchos::ScalarTraits<double>::rmax();
     double z_max = Teuchos::ScalarTraits<double>::rmax();
 
-    MeshId num_vertices = mesh->vertexIds().size();
+    MeshId num_vertices = mesh->numVertices();
     int vertex_dim = mesh->dimension();
 
     if ( vertex_dim > 0 )
