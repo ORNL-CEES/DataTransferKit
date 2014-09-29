@@ -14,7 +14,7 @@
 #include <cassert>
 
 #include <DTK_GeometryManager.hpp>
-#include <DTK_GeometryTraits.hpp>
+#include <DTK_GeometricEntity.hpp>
 #include <DTK_Cylinder.hpp>
 #include <DTK_Box.hpp>
 #include <DTK_BoundingBox.hpp>
@@ -32,7 +32,6 @@
 //---------------------------------------------------------------------------//
 // MPI Setup
 //---------------------------------------------------------------------------//
-
 template<class Ordinal>
 Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 {
@@ -41,12 +40,6 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 #else
     return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
 #endif
-}
-
-bool softEquivalence( const double t1, const double t2, double tol = 1.0e-6 )
-{
-    if ( std::abs(t1-t2) < tol ) return true;
-    else return false;
 }
 
 //---------------------------------------------------------------------------//
@@ -139,12 +132,12 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
     TEST_ASSERT( local_box.getBounds()[5] == z_max );
 
     BoundingBox global_box = geometry_manager.globalBoundingBox();
-    TEST_ASSERT( softEquivalence( global_box.getBounds()[0] , x_min ) );
-    TEST_ASSERT( softEquivalence( global_box.getBounds()[1] , y_min ) );
-    TEST_ASSERT( softEquivalence( global_box.getBounds()[2] , z_min ) );
-    TEST_ASSERT( softEquivalence( global_box.getBounds()[3] , x_max+my_size-1 ) );
-    TEST_ASSERT( softEquivalence( global_box.getBounds()[4] , y_max+my_size-1 ) );
-    TEST_ASSERT( softEquivalence( global_box.getBounds()[5] , z_max+my_size-1 ) );
+    TEST_FLOATING_EQUALITY( global_box.getBounds()[0] , x_min, 1.0e-6 );
+    TEST_FLOATING_EQUALITY( global_box.getBounds()[1] , y_min, 1.0e-6 );
+    TEST_FLOATING_EQUALITY( global_box.getBounds()[2] , z_min, 1.0e-6 );
+    TEST_FLOATING_EQUALITY( global_box.getBounds()[3] , x_max+my_size-1, 1.0e-6 );
+    TEST_FLOATING_EQUALITY( global_box.getBounds()[4] , y_max+my_size-1, 1.0e-6 );
+    TEST_FLOATING_EQUALITY( global_box.getBounds()[5] , z_max+my_size-1, 1.0e-6 );
 }
 
 //---------------------------------------------------------------------------//
@@ -235,12 +228,12 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
     TEST_ASSERT( local_box.getBounds()[5] == z_max );
 
     BoundingBox global_box = geometry_manager.globalBoundingBox();
-    TEST_ASSERT( softEquivalence( global_box.getBounds()[0] , x_min ) );
-    TEST_ASSERT( softEquivalence( global_box.getBounds()[1] , y_min ) );
-    TEST_ASSERT( softEquivalence( global_box.getBounds()[2] , z_min ) );
-    TEST_ASSERT( softEquivalence( global_box.getBounds()[3] , x_max+my_size-1 ) );
-    TEST_ASSERT( softEquivalence( global_box.getBounds()[4] , y_max+my_size-1 ) );
-    TEST_ASSERT( softEquivalence( global_box.getBounds()[5] , z_max+my_size-1 ) );
+    TEST_FLOATING_EQUALITY( global_box.getBounds()[0] , x_min, 1.0e-6 );
+    TEST_FLOATING_EQUALITY( global_box.getBounds()[1] , y_min, 1.0e-6 );
+    TEST_FLOATING_EQUALITY( global_box.getBounds()[2] , z_min, 1.0e-6 );
+    TEST_FLOATING_EQUALITY( global_box.getBounds()[3] , x_max+my_size-1, 1.0e-6 );
+    TEST_FLOATING_EQUALITY( global_box.getBounds()[4] , y_max+my_size-1, 1.0e-6 );
+    TEST_FLOATING_EQUALITY( global_box.getBounds()[5] , z_max+my_size-1, 1.0e-6 );
 }
 
 //---------------------------------------------------------------------------//

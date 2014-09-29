@@ -32,17 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_GeometryManager_def.hpp
+ * \file DTK_GeometryManager.cpp
  * \author Stuart R. Slattery
  * \brief Geometry manager definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_GEOMETRYMANAGER_DEF_HPP
-#define DTK_GEOMETRYMANAGER_DEF_HPP
-
+#include "DTK_GeometryManager.hpp"
 #include "DTK_DBC.hpp"
-#include "DataTransferKit_config.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 
@@ -64,31 +61,22 @@ namespace DataTransferKit
  *
  * \param dim The dimension of the geometry.
  */
-template<class Geometry,class GlobalOrdinal>
-GeometryManager<Geometry,GlobalOrdinal>::GeometryManager( 
-    const Teuchos::ArrayRCP<Geometry>& geometry,
-    const Teuchos::ArrayRCP<GlobalOrdinal>& geom_gids,
-    const RCP_Comm& comm, const int dim )
+GeometryManager::GeometryManager( 
+    const Teuchos::ArrayRCP<GeometricEntity>& geometry,
+    const Teuchos::ArrayRCP<MeshId>& geom_gids,
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
     : d_geometry( geometry )
     , d_geom_gids( geom_gids )
     , d_comm( comm )
-    , d_dim( dim )
 {
     DTK_REQUIRE( d_geometry.size() == d_geom_gids.size() );
-
-    // If we're checking with Design-by-Contract, validate the geometry to the
-    // domain model.
-#if HAVE_DTK_DBC
-    validate();
-#endif
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Destructor.
  */
-template<class Geometry,class GlobalOrdinal>
-GeometryManager<Geometry,GlobalOrdinal>::~GeometryManager()
+GeometryManager::~GeometryManager()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -97,16 +85,15 @@ GeometryManager<Geometry,GlobalOrdinal>::~GeometryManager()
  *
  * \return The global number of objects owned by this manager.
  */
-template<class Geometry,class GlobalOrdinal>
-const typename Teuchos::ArrayRCP<Geometry>::size_type
-GeometryManager<Geometry,GlobalOrdinal>::globalNumGeometry() const
+const typename Teuchos::ArrayRCP<GeometricEntity>::size_type
+GeometryManager::globalNumGeometry() const
 {
-    typename Teuchos::ArrayRCP<Geometry>::size_type global_size =
+    typename Teuchos::ArrayRCP<GeometricEntity>::size_type global_size =
 	d_geometry.size();
-    typename Teuchos::ArrayRCP<Geometry>::size_type global_size_copy =
+    typename Teuchos::ArrayRCP<GeometricEntity>::size_type global_size_copy =
 	d_geometry.size();
 
-    Teuchos::reduceAll<int,typename Teuchos::ArrayRCP<Geometry>::size_type>( 
+    Teuchos::reduceAll<int,typename Teuchos::ArrayRCP<GeometricEntity>::size_type>( 
 	*d_comm, Teuchos::REDUCE_SUM, 1, &global_size, &global_size_copy );
 
     return global_size_copy;
@@ -118,18 +105,17 @@ GeometryManager<Geometry,GlobalOrdinal>::globalNumGeometry() const
  *
  * \return The bounding boxes for the geometry owned by this manager.
  */
-template<class Geometry,class GlobalOrdinal>
 Teuchos::Array<BoundingBox> 
-GeometryManager<Geometry,GlobalOrdinal>::boundingBoxes() const
+GeometryManager::boundingBoxes() const
 {
     Teuchos::Array<BoundingBox> boxes( d_geometry.size() );
     Teuchos::Array<BoundingBox>::iterator box_iterator;
-    typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_iterator;
+    typename Teuchos::ArrayRCP<GeometricEntity>::const_iterator geom_iterator;
     for ( geom_iterator = d_geometry.begin(), box_iterator = boxes.begin();
 	  geom_iterator != d_geometry.end();
 	  ++geom_iterator, ++box_iterator )
     {
-	*box_iterator = GT::boundingBox( *geom_iterator );
+	*box_iterator = geom_iterator->boundingBox();
     }
 
     return boxes;
@@ -139,8 +125,7 @@ GeometryManager<Geometry,GlobalOrdinal>::boundingBoxes() const
 /*!
  * \brief Get the local bounding box for the objects owned by this manager.
  */
-template<class Geometry,class GlobalOrdinal>
-BoundingBox GeometryManager<Geometry,GlobalOrdinal>::localBoundingBox() const
+BoundingBox GeometryManager::localBoundingBox() const
 {
     // Check to see if there are any local geometry.
     if ( 0 == localNumGeometry() )
@@ -201,8 +186,7 @@ BoundingBox GeometryManager<Geometry,GlobalOrdinal>::localBoundingBox() const
 /*!
  * \brief Get the global bounding box for the objects owned by this manager.
  */
-template<class Geometry,class GlobalOrdinal>
-BoundingBox GeometryManager<Geometry,GlobalOrdinal>::globalBoundingBox() const
+BoundingBox GeometryManager::globalBoundingBox() const
 {
     Teuchos::Tuple<double,6> local_bounds =
 	Teuchos::tuple( Teuchos::ScalarTraits<double>::rmax(),
@@ -261,47 +245,10 @@ BoundingBox GeometryManager<Geometry,GlobalOrdinal>::globalBoundingBox() const
 }
 
 //---------------------------------------------------------------------------//
-/*!
- * \brief Validate the geometry to the domain model.
- */
-template<class Geometry,class GlobalOrdinal>
-void GeometryManager<Geometry,GlobalOrdinal>::validate()
-{
-    // Dimensions greater than 3 are not valid.
-    DTK_REQUIRE( 0 <= d_dim && d_dim <= 3 );
-
-    // Check that all local geometries have the same dimension.
-    typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_iterator;
-    for ( geom_iterator = d_geometry.begin();
-	  geom_iterator != d_geometry.end();
-	  ++geom_iterator )
-    {
-	DTK_REQUIRE( GT::dim( *geom_iterator ) == d_dim );
-    }
-
-    // Check that the geometry dimension is the same on every node.
-    Teuchos::Array<int> local_dims( d_comm->getSize(), 0 );
-    Teuchos::Array<int> local_dims_copy( d_comm->getSize(), 0 );
-    local_dims[ d_comm->getRank() ] = d_dim;
-    Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
-				 local_dims.size(),
-				 &local_dims[0], &local_dims_copy[0] ); 
-    Teuchos::Array<int>::iterator unique_bound;
-    std::sort( local_dims_copy.begin(), local_dims_copy.end() );
-    unique_bound = 
-	std::unique( local_dims_copy.begin(), local_dims_copy.end() );
-    int unique_dim = std::distance( local_dims_copy.begin(), unique_bound );
-    DTK_REQUIRE( 1 == unique_dim );
-    local_dims_copy.clear();
-}
-
-//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_GEOMETRYMANAGER_DEF_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_GeometryManager_def.hpp
+// end DTK_GeometryManager.cpp
 //---------------------------------------------------------------------------//
 

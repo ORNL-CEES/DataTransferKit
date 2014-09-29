@@ -41,21 +41,6 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
-// Helper Functions
-//---------------------------------------------------------------------------//
-bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
-{
-    if ( std::abs( a1 - a2 ) < tol )
-    {
-	return true;
-    }
-    else
-    {
-	return false;
-    }
-}
-
-//---------------------------------------------------------------------------//
 // Global test variables.
 //---------------------------------------------------------------------------//
 int num_rand = 1000;
@@ -81,7 +66,7 @@ TEUCHOS_UNIT_TEST( BoundingBox, default_constructor_test )
     TEST_ASSERT( box_bounds[5] == 8.7 );
 
     // Compute the volume.
-    TEST_ASSERT( softEquivalence( box.volume( 3 ), 77.5986, 1.0e-4 ) );
+    TEST_FLOATING_EQUALITY( box.volume( 3 ), 77.5986, 1.0e-4 );
 
     // Test some random points inside of it.
     Teuchos::Array<double> point(3);
@@ -133,7 +118,7 @@ TEUCHOS_UNIT_TEST( BoundingBox, tuple_constructor_test )
     TEST_ASSERT( box_bounds[5] == 8.7 );
 
     // Compute the volume.
-    TEST_ASSERT( softEquivalence( box.volume( 3 ), 77.5986, 1.0e-4 ) );
+    TEST_FLOATING_EQUALITY( box.volume( 3 ), 77.5986, 1.0e-4 );
 
     // Test some random points inside of it.
     Teuchos::Array<double> point(3);

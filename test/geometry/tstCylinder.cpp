@@ -43,21 +43,6 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
-// Helper Functions
-//---------------------------------------------------------------------------//
-bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
-{
-    if ( std::abs( a1 - a2 ) < tol )
-    {
-	return true;
-    }
-    else
-    {
-	return false;
-    }
-}
-
-//---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
@@ -67,7 +52,7 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
     // Make sure that PI is PI.
     double zero = 0.0;
     double pi = 2.0 * std::acos(zero);
-    TEST_ASSERT( softEquivalence( pi, 3.14159, 1.0e-5 ) );
+    TEST_FLOATING_EQUALITY( pi, 3.14159, 1.0e-5 );
 
     // Build a series of random cylinders.
     int num_cylinders = 100;
@@ -90,7 +75,7 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 
 	// Compute the measure.
 	double measure = pi*radius*radius*length;
-	TEST_ASSERT( softEquivalence( cylinder.measure(), measure, 1.0e-6 ) );
+	TEST_FLOATING_EQUALITY( cylinder.measure(), measure, 1.0e-6 );
 
 	// Compute the bounding box.
 	BoundingBox box = cylinder.boundingBox();
@@ -148,7 +133,7 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_traits_test )
     // Make sure that PI is PI.
     double zero = 0.0;
     double pi = 2.0 * std::acos(zero);
-    TEST_ASSERT( softEquivalence( pi, 3.14159, 1.0e-5 ) );
+    TEST_FLOATING_EQUALITY( pi, 3.14159, 1.0e-5 );
 
     // Build a series of random cylinders.
     int num_cylinders = 100;
@@ -166,7 +151,7 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_traits_test )
 
 	// Compute the measure.
 	double measure = pi*radius*radius*length;
-	TEST_ASSERT( softEquivalence( entity->measure(), measure, 1.0e-6 ) );
+	TEST_FLOATING_EQUALITY( entity->measure(), measure, 1.0e-6 );
 
 	// Compute the bounding box.
 	BoundingBox box = entity->boundingBox();

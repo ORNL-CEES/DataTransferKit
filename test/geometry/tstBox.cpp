@@ -43,21 +43,6 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
-// Helper Functions
-//---------------------------------------------------------------------------//
-bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
-{
-    if ( std::abs( a1 - a2 ) < tol )
-    {
-	return true;
-    }
-    else
-    {
-	return false;
-    }
-}
-
-//---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( Box, box_test )
@@ -88,7 +73,7 @@ TEUCHOS_UNIT_TEST( Box, box_test )
 
 	// Compute the measure.
 	double measure = (x_max-x_min)*(y_max-y_min)*(z_max-z_min);
-	TEST_ASSERT( softEquivalence( box.measure(), measure, 1.0e-6 ) );
+	TEST_FLOATING_EQUALITY( box.measure(), measure, 1.0e-6 );
 
 	// Compute the bounding box.
 	BoundingBox bounding_box = box.boundingBox();
@@ -152,7 +137,7 @@ TEUCHOS_UNIT_TEST( Box, box_traits_test )
 
 	// Compute the measure.
 	double measure = (x_max-x_min)*(y_max-y_min)*(z_max-z_min);
-	TEST_ASSERT( softEquivalence( entity->measure(), measure, 1.0e-6 ) );
+	TEST_FLOATING_EQUALITY( entity->measure(), measure, 1.0e-6 );
 
 	// Compute the bounding box.
 	BoundingBox bounding_box = entity->boundingBox();
