@@ -385,7 +385,8 @@ void Rendezvous::getMeshInBox( const Teuchos::RCP<MeshManager>& mesh_manager )
     // For every mesh block, get its vertices and elements that are in the
     // expanded box.
     Teuchos::Array<short int> vertices_in_box, elements_in_box;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks;
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks =
+	mesh_manager->meshBlocks();
     Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> >::iterator block_iterator;
     for ( block_iterator = mesh_blocks.begin();
 	  block_iterator != mesh_blocks.end();
@@ -678,6 +679,7 @@ void Rendezvous::setupImportCommunication(
 	vertices_per_element = mesh->verticesPerElement();
 	mesh_connectivity = mesh->connectivity();
 	mesh_vertices = mesh->vertexIds();
+	mesh_elements = mesh->elementIds();
 
 	// Make the vertex map.
 	for ( export_vertex_iterator = mesh_vertices.begin();

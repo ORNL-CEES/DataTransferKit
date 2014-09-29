@@ -17,7 +17,7 @@
 #include <DTK_Rendezvous.hpp>
 #include <DTK_BoundingBox.hpp>
 #include <DTK_MeshTypes.hpp>
-#include <DTK_MeshTraits.hpp>
+#include <DTK_MeshBlock.hpp>
 #include <DTK_MeshManager.hpp>
 #include <DTK_MeshTools.hpp>
 #include <DTK_MeshContainer.hpp>
@@ -51,12 +51,12 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // Mesh container creation functions.
 //---------------------------------------------------------------------------//
 // Line segment mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer > buildLineContainer( int my_rank )
+Teuchos::RCP<DataTransferKit::MeshBlock> buildLineContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<MeshId> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 1;
@@ -73,8 +73,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildLineContainer( int my_rank )
     coords.push_back( my_rank+1 ); 
 
     // Make the line.
-    Teuchos::Array<int> line_handles;
-    Teuchos::Array<int> line_connectivity;
+    Teuchos::Array<MeshId> line_handles;
+    Teuchos::Array<MeshId> line_connectivity;
     
     // handles
     line_handles.push_back( 12+my_rank );
@@ -85,18 +85,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildLineContainer( int my_rank )
 	line_connectivity.push_back( vertex_handles[i] );
     }
 
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> line_handle_array( line_handles.size() );
+    Teuchos::ArrayRCP<MeshId> line_handle_array( line_handles.size() );
     std::copy( line_handles.begin(), line_handles.end(), 
 	       line_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( line_connectivity.size() );
+    Teuchos::ArrayRCP<MeshId> connectivity_array( line_connectivity.size() );
     std::copy( line_connectivity.begin(), line_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -108,19 +108,19 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildLineContainer( int my_rank )
     
     return Teuchos::rcp( 
 	new MeshContainer( vertex_dim, vertex_handle_array, coords_array,
-				DTK_LINE_SEGMENT, num_vertices,
-				line_handle_array, connectivity_array,
-				permutation_list ) );
+			   DTK_LINE_SEGMENT, num_vertices,
+			   line_handle_array, connectivity_array,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Tri mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer > buildTriContainer( int my_rank )
+Teuchos::RCP<DataTransferKit::MeshBlock> buildTriContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<MeshId> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 2;
@@ -143,8 +143,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildTriContainer( int my_rank )
     coords.push_back( my_rank+1 ); 
 
     // Make the triahedron.
-    Teuchos::Array<int> tri_handles;
-    Teuchos::Array<int> tri_connectivity;
+    Teuchos::Array<MeshId> tri_handles;
+    Teuchos::Array<MeshId> tri_connectivity;
     
     // handles
     tri_handles.push_back( 12+my_rank );
@@ -155,18 +155,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildTriContainer( int my_rank )
 	tri_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> tri_handle_array( tri_handles.size() );
+    Teuchos::ArrayRCP<MeshId> tri_handle_array( tri_handles.size() );
     std::copy( tri_handles.begin(), tri_handles.end(), 
 	       tri_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( tri_connectivity.size() );
+    Teuchos::ArrayRCP<MeshId> connectivity_array( tri_connectivity.size() );
     std::copy( tri_connectivity.begin(), tri_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -178,19 +178,19 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildTriContainer( int my_rank )
     
     return Teuchos::rcp( 
 	new MeshContainer( vertex_dim, vertex_handle_array, coords_array,
-				DTK_TRIANGLE, num_vertices,
-				tri_handle_array, connectivity_array,
-				permutation_list ) );
+			   DTK_TRIANGLE, num_vertices,
+			   tri_handle_array, connectivity_array,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Quad mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer > buildQuadContainer( int my_rank )
+Teuchos::RCP<DataTransferKit::MeshBlock> buildQuadContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<MeshId> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 2;
@@ -215,8 +215,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildQuadContainer( int my_rank )
     coords.push_back( my_rank+1 ); 
 
     // Make the quadrilateral.
-    Teuchos::Array<int> quad_handles;
-    Teuchos::Array<int> quad_connectivity;
+    Teuchos::Array<MeshId> quad_handles;
+    Teuchos::Array<MeshId> quad_connectivity;
     
     // handles
     quad_handles.push_back( 12+my_rank );
@@ -227,18 +227,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildQuadContainer( int my_rank )
 	quad_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> quad_handle_array( quad_handles.size() );
+    Teuchos::ArrayRCP<MeshId> quad_handle_array( quad_handles.size() );
     std::copy( quad_handles.begin(), quad_handles.end(), 
 	       quad_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( quad_connectivity.size() );
+    Teuchos::ArrayRCP<MeshId> connectivity_array( quad_connectivity.size() );
     std::copy( quad_connectivity.begin(), quad_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -250,20 +250,20 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildQuadContainer( int my_rank )
     
     return Teuchos::rcp( 
 	new MeshContainer( vertex_dim, vertex_handle_array, coords_array,
-				DTK_QUADRILATERAL, num_vertices,
-				quad_handle_array, connectivity_array,
-				permutation_list ) );
+			   DTK_QUADRILATERAL, num_vertices,
+			   quad_handle_array, connectivity_array,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Shifted quad mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer > buildShiftedQuadContainer( int my_rank,
-							       int my_size )
+Teuchos::RCP<DataTransferKit::MeshBlock> buildShiftedQuadContainer( int my_rank,
+								    int my_size )
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<MeshId> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 2;
@@ -288,8 +288,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildShiftedQuadContainer( int my_
     coords.push_back( my_rank ); 
 
     // Make the quadahedron.
-    Teuchos::Array<int> quad_handles;
-    Teuchos::Array<int> quad_connectivity;
+    Teuchos::Array<MeshId> quad_handles;
+    Teuchos::Array<MeshId> quad_connectivity;
     
     // handles
     quad_handles.push_back( 12 + my_size );
@@ -300,18 +300,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildShiftedQuadContainer( int my_
 	quad_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> quad_handle_array( quad_handles.size() );
+    Teuchos::ArrayRCP<MeshId> quad_handle_array( quad_handles.size() );
     std::copy( quad_handles.begin(), quad_handles.end(), 
 	       quad_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( quad_connectivity.size() );
+    Teuchos::ArrayRCP<MeshId> connectivity_array( quad_connectivity.size() );
     std::copy( quad_connectivity.begin(), quad_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -323,19 +323,19 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildShiftedQuadContainer( int my_
     
     return Teuchos::rcp( 
 	new MeshContainer( vertex_dim, vertex_handle_array, coords_array,
-				DTK_QUADRILATERAL, num_vertices,
-				quad_handle_array, connectivity_array,
-				permutation_list ) );
+			   DTK_QUADRILATERAL, num_vertices,
+			   quad_handle_array, connectivity_array,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Tet mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer > buildTetContainer( int my_rank )
+Teuchos::RCP<DataTransferKit::MeshBlock> buildTetContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<MeshId> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
@@ -366,8 +366,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildTetContainer( int my_rank )
     coords.push_back( my_rank+1 );
 
     // Make the tetahedron.
-    Teuchos::Array<int> tet_handles;
-    Teuchos::Array<int> tet_connectivity;
+    Teuchos::Array<MeshId> tet_handles;
+    Teuchos::Array<MeshId> tet_connectivity;
     
     // handles
     tet_handles.push_back( 12+my_rank );
@@ -378,18 +378,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildTetContainer( int my_rank )
 	tet_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> tet_handle_array( tet_handles.size() );
+    Teuchos::ArrayRCP<MeshId> tet_handle_array( tet_handles.size() );
     std::copy( tet_handles.begin(), tet_handles.end(), 
 	       tet_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( tet_connectivity.size() );
+    Teuchos::ArrayRCP<MeshId> connectivity_array( tet_connectivity.size() );
     std::copy( tet_connectivity.begin(), tet_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -401,19 +401,19 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildTetContainer( int my_rank )
     
     return Teuchos::rcp( 
 	new MeshContainer( vertex_dim, vertex_handle_array, coords_array,
-				DTK_TETRAHEDRON, num_vertices,
-				tet_handle_array, connectivity_array,
-				permutation_list ) );
+			   DTK_TETRAHEDRON, num_vertices,
+			   tet_handle_array, connectivity_array,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Hex mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer > buildHexContainer( int my_rank )
+Teuchos::RCP<DataTransferKit::MeshBlock> buildHexContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<MeshId> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
@@ -456,8 +456,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildHexContainer( int my_rank )
     coords.push_back( my_rank+1 );
 
     // Make the hexahedron.
-    Teuchos::Array<int> hex_handles;
-    Teuchos::Array<int> hex_connectivity;
+    Teuchos::Array<MeshId> hex_handles;
+    Teuchos::Array<MeshId> hex_connectivity;
     
     // handles
     hex_handles.push_back( 12+my_rank );
@@ -468,18 +468,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildHexContainer( int my_rank )
 	hex_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> hex_handle_array( hex_handles.size() );
+    Teuchos::ArrayRCP<MeshId> hex_handle_array( hex_handles.size() );
     std::copy( hex_handles.begin(), hex_handles.end(), 
 	       hex_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( hex_connectivity.size() );
+    Teuchos::ArrayRCP<MeshId> connectivity_array( hex_connectivity.size() );
     std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -491,20 +491,20 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildHexContainer( int my_rank )
     
     return Teuchos::rcp( 
 	new MeshContainer( vertex_dim, vertex_handle_array, coords_array,
-				DTK_HEXAHEDRON, num_vertices,
-				hex_handle_array, connectivity_array,
-				permutation_list ) );
+			   DTK_HEXAHEDRON, num_vertices,
+			   hex_handle_array, connectivity_array,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Shifted hex mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer > buildShiftedHexContainer( int my_rank,
-							      int my_size )
+Teuchos::RCP<DataTransferKit::MeshBlock> buildShiftedHexContainer( int my_rank,
+								   int my_size )
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<MeshId> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
@@ -547,8 +547,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildShiftedHexContainer( int my_r
     coords.push_back( my_rank );
 
     // Make the hexahedron.
-    Teuchos::Array<int> hex_handles;
-    Teuchos::Array<int> hex_connectivity;
+    Teuchos::Array<MeshId> hex_handles;
+    Teuchos::Array<MeshId> hex_connectivity;
     
     // handles
     hex_handles.push_back( 12+my_rank+my_size );
@@ -559,18 +559,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildShiftedHexContainer( int my_r
 	hex_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> hex_handle_array( hex_handles.size() );
+    Teuchos::ArrayRCP<MeshId> hex_handle_array( hex_handles.size() );
     std::copy( hex_handles.begin(), hex_handles.end(), 
 	       hex_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( hex_connectivity.size() );
+    Teuchos::ArrayRCP<MeshId> connectivity_array( hex_connectivity.size() );
     std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -582,19 +582,19 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildShiftedHexContainer( int my_r
     
     return Teuchos::rcp( 
 	new MeshContainer( vertex_dim, vertex_handle_array, coords_array,
-				DTK_HEXAHEDRON, num_vertices,
-				hex_handle_array, connectivity_array,
-				permutation_list ) );
+			   DTK_HEXAHEDRON, num_vertices,
+			   hex_handle_array, connectivity_array,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Pyramid mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer > buildPyramidContainer( int my_rank )
+Teuchos::RCP<DataTransferKit::MeshBlock> buildPyramidContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<MeshId> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
@@ -628,8 +628,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildPyramidContainer( int my_rank
     coords.push_back( my_rank+1 );
 
     // Make the pyramid.
-    Teuchos::Array<int> pyramid_handles;
-    Teuchos::Array<int> pyramid_connectivity;
+    Teuchos::Array<MeshId> pyramid_handles;
+    Teuchos::Array<MeshId> pyramid_connectivity;
     
     // handles
     pyramid_handles.push_back( 12+my_rank );
@@ -640,18 +640,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildPyramidContainer( int my_rank
 	pyramid_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> pyramid_handle_array( pyramid_handles.size() );
+    Teuchos::ArrayRCP<MeshId> pyramid_handle_array( pyramid_handles.size() );
     std::copy( pyramid_handles.begin(), pyramid_handles.end(), 
 	       pyramid_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( pyramid_connectivity.size() );
+    Teuchos::ArrayRCP<MeshId> connectivity_array( pyramid_connectivity.size() );
     std::copy( pyramid_connectivity.begin(), pyramid_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -663,20 +663,20 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildPyramidContainer( int my_rank
     
     return Teuchos::rcp( 
 	new MeshContainer( vertex_dim, vertex_handle_array, coords_array,
-				DTK_PYRAMID, num_vertices,
-				pyramid_handle_array, connectivity_array,
-				permutation_list ) );
+			   DTK_PYRAMID, num_vertices,
+			   pyramid_handle_array, connectivity_array,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Shifted pyramid mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer > buildShiftedPyramidContainer( int my_rank,
-								  int my_size )
+Teuchos::RCP<DataTransferKit::MeshBlock> buildShiftedPyramidContainer( int my_rank,
+								       int my_size )
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<MeshId> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
@@ -710,8 +710,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildShiftedPyramidContainer( int 
     coords.push_back( my_rank-2 );
 
     // Make the pyramid.
-    Teuchos::Array<int> pyramid_handles;
-    Teuchos::Array<int> pyramid_connectivity;
+    Teuchos::Array<MeshId> pyramid_handles;
+    Teuchos::Array<MeshId> pyramid_connectivity;
     
     // handles
     pyramid_handles.push_back( 12+2*my_size+my_rank );
@@ -722,18 +722,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildShiftedPyramidContainer( int 
 	pyramid_connectivity.push_back( vertex_handles[i] );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> pyramid_handle_array( pyramid_handles.size() );
+    Teuchos::ArrayRCP<MeshId> pyramid_handle_array( pyramid_handles.size() );
     std::copy( pyramid_handles.begin(), pyramid_handles.end(), 
 	       pyramid_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( pyramid_connectivity.size() );
+    Teuchos::ArrayRCP<MeshId> connectivity_array( pyramid_connectivity.size() );
     std::copy( pyramid_connectivity.begin(), pyramid_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -745,19 +745,19 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildShiftedPyramidContainer( int 
     
     return Teuchos::rcp( 
 	new MeshContainer( vertex_dim, vertex_handle_array, coords_array,
-				DTK_PYRAMID, num_vertices,
-				pyramid_handle_array, connectivity_array,
-				permutation_list ) );
+			   DTK_PYRAMID, num_vertices,
+			   pyramid_handle_array, connectivity_array,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Wedge mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer > buildWedgeContainer( int my_rank )
+Teuchos::RCP<DataTransferKit::MeshBlock> buildWedgeContainer( int my_rank )
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<MeshId> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
@@ -794,8 +794,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildWedgeContainer( int my_rank )
     coords.push_back( my_rank+1 ); 
 
     // Make the wedge.
-    Teuchos::Array<int> wedge_handles;
-    Teuchos::Array<int> wedge_connectivity;
+    Teuchos::Array<MeshId> wedge_handles;
+    Teuchos::Array<MeshId> wedge_connectivity;
     
     // handles
     wedge_handles.push_back( 12 );
@@ -806,18 +806,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildWedgeContainer( int my_rank )
 	wedge_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<MeshId> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> wedge_handle_array( wedge_handles.size() );
+    Teuchos::ArrayRCP<MeshId> wedge_handle_array( wedge_handles.size() );
     std::copy( wedge_handles.begin(), wedge_handles.end(), 
 	       wedge_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( wedge_connectivity.size() );
+    Teuchos::ArrayRCP<MeshId> connectivity_array( wedge_connectivity.size() );
     std::copy( wedge_connectivity.begin(), wedge_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -829,9 +829,9 @@ Teuchos::RCP<DataTransferKit::MeshContainer > buildWedgeContainer( int my_rank )
     
     return Teuchos::rcp( 
 	new MeshContainer( vertex_dim, vertex_handle_array, coords_array,
-				DTK_WEDGE, num_vertices,
-				wedge_handle_array, connectivity_array,
-				permutation_list ) );
+			   DTK_WEDGE, num_vertices,
+			   wedge_handle_array, connectivity_array,
+			   permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -858,16 +858,15 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_test )
     BoundingBox box( -100, min, min, 100, max, max );
 
     // Create a mesh container.
-    typedef MeshContainer MeshType;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = buildLineContainer( my_rank );
 
     // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp( 
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 1 ) );
+    Teuchos::RCP< MeshManager > mesh_manager = Teuchos::rcp( 
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 1 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
+    Rendezvous rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
@@ -891,16 +890,17 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_rendezvous_test )
     // Search the rendezvous decomposition for some random points and check
     // that they are found in the correct element.
     int num_found = 0;
-    Teuchos::Array<int> elements, elem_src_procs;
+    Teuchos::Array<MeshId> elements; 
+    Teuchos::Array<int> elem_src_procs;
     rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
 
     for ( int i = 0; i < num_points; ++i )
     {
 	if ( points[i] < 0.0 || my_size < points[i] )
 	{
-	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<MeshId>::max() );
 	}
-	else if ( elements[i] != std::numeric_limits<int>::max() )
+	else if ( elements[i] != std::numeric_limits<MeshId>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -925,16 +925,15 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_test )
     BoundingBox box( -100, -100, min, 100, 100, max );
 
     // Create a mesh container.
-    typedef MeshContainer MeshType;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = buildTriContainer( my_rank );
 
     // Create a mesh manager. 
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 2 ) );
+    Teuchos::RCP< MeshManager > mesh_manager = Teuchos::rcp(
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 2 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
+    Rendezvous rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
@@ -957,7 +956,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_test )
 
     // Search the rendezvous decomposition for some random points.
     int num_found = 0;
-    Teuchos::Array<int> elements, elem_src_procs;
+    Teuchos::Array<MeshId> elements; 
+    Teuchos::Array<int> elem_src_procs;
     rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
 
     for ( int i = 0; i < num_points; ++i )
@@ -965,9 +965,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_rendezvous_test )
 	if ( points[i] < 0.0 || my_size < points[i] ||
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<MeshId>::max() );
 	}
-	else if ( elements[i] != std::numeric_limits<int>::max() )
+	else if ( elements[i] != std::numeric_limits<MeshId>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -992,16 +992,15 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_test )
     BoundingBox box( -100, -100, min, 100, 100, max );
 
     // Create a mesh container.
-    typedef MeshContainer MeshType;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = buildQuadContainer( my_rank );
 
     // Create a mesh manager. 
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 2 ) );
+    Teuchos::RCP< MeshManager > mesh_manager = Teuchos::rcp(
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 2 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
+    Rendezvous rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
@@ -1024,7 +1023,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_test )
 
     // Search the rendezvous decomposition for some random points.
     int num_found = 0;
-    Teuchos::Array<int> elements, elem_src_procs;
+    Teuchos::Array<MeshId> elements; 
+    Teuchos::Array<int> elem_src_procs;
     rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
 
     for ( int i = 0; i < num_points; ++i )
@@ -1032,9 +1032,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_rendezvous_test )
 	if ( points[i] < 0.0 || my_size < points[i] ||
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<MeshId>::max() );
 	}
-	else if ( elements[i] != std::numeric_limits<int>::max() )
+	else if ( elements[i] != std::numeric_limits<MeshId>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -1057,16 +1057,15 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_test )
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
 
     // Create a mesh container.
-    typedef MeshContainer MeshType;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = buildTetContainer( my_rank );
 
     // Create a mesh manager. 
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
+    Teuchos::RCP< MeshManager > mesh_manager = Teuchos::rcp(
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
+    Rendezvous rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
@@ -1088,7 +1087,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_test )
     }
 
     // Search the rendezvous decomposition for some random points.
-    Teuchos::Array<int> elements, elem_src_procs;
+    Teuchos::Array<MeshId> elements; 
+    Teuchos::Array<int> elem_src_procs;
     rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
 
     int num_found = 0;
@@ -1098,9 +1098,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_rendezvous_test )
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] ||
 	     points[2*num_points + i] < 0.0 || my_size < points[2*num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<MeshId>::max() );
 	}
-	else if ( elements[i] != std::numeric_limits<int>::max() )
+	else if ( elements[i] != std::numeric_limits<MeshId>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -1123,16 +1123,15 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_test )
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
 
     // Create a mesh container.
-    typedef MeshContainer MeshType;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = buildHexContainer( my_rank );
 
     // Create a mesh manager. 
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
+    Teuchos::RCP< MeshManager > mesh_manager = Teuchos::rcp(
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
+    Rendezvous rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
@@ -1154,7 +1153,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_test )
     }
 
     // Search the rendezvous decomposition for some random points.
-    Teuchos::Array<int> elements, elem_src_procs;
+    Teuchos::Array<MeshId> elements; 
+    Teuchos::Array<int> elem_src_procs;
     rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
 
     int num_found = 0;
@@ -1164,9 +1164,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_rendezvous_test )
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] ||
 	     points[2*num_points + i] < 0.0 || my_size < points[2*num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<MeshId>::max() );
 	}
-	else if ( elements[i] != std::numeric_limits<int>::max() )
+	else if ( elements[i] != std::numeric_limits<MeshId>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -1189,16 +1189,15 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_test )
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
 
     // Create a mesh container.
-    typedef MeshContainer MeshType;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = buildPyramidContainer( my_rank );
 
     // Create a mesh manager. 
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
+    Teuchos::RCP< MeshManager > mesh_manager = Teuchos::rcp(
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
+    Rendezvous rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
@@ -1220,7 +1219,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_test )
     }
 
     // Search the rendezvous decomposition for some random points.
-    Teuchos::Array<int> elements, elem_src_procs;
+    Teuchos::Array<MeshId> elements; 
+    Teuchos::Array<int> elem_src_procs;
     rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
 
     int num_found = 0;
@@ -1230,9 +1230,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_rendezvous_test )
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] ||
 	     points[2*num_points + i] < 0.0 || my_size < points[2*num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<MeshId>::max() );
 	}
-	else if ( elements[i] != std::numeric_limits<int>::max() )
+	else if ( elements[i] != std::numeric_limits<MeshId>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -1255,16 +1255,15 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_test )
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
 
     // Create a mesh container.
-    typedef MeshContainer MeshType;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 1 );
     mesh_blocks[0] = buildWedgeContainer( my_rank );
 
     // Create a mesh manager. 
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
+    Teuchos::RCP< MeshManager > mesh_manager = Teuchos::rcp(
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
+    Rendezvous rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
@@ -1287,7 +1286,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_test )
 
     // Search the rendezvous decomposition for some random points.
     int num_found = 0;
-    Teuchos::Array<int> elements, elem_src_procs;
+    Teuchos::Array<MeshId> elements; 
+    Teuchos::Array<int> elem_src_procs;
     rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
 
     for ( int i = 0; i < num_points; ++i )
@@ -1296,9 +1296,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_rendezvous_test )
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] ||
 	     points[2*num_points+i] < 0.0 || points[2*num_points+i] > 1.0 )
 	{
-	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<MeshId>::max() );
 	}
-	else if ( elements[i] != std::numeric_limits<int>::max() )
+	else if ( elements[i] != std::numeric_limits<MeshId>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) );
 	    ++num_found;
@@ -1321,17 +1321,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_test )
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
 
     // Create a mesh container.
-    typedef MeshContainer MeshType;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 2 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 2 );
     mesh_blocks[0] = buildTriContainer( my_rank );
     mesh_blocks[1] = buildShiftedQuadContainer( my_rank, my_size );
 
     // Create a mesh manager. 
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 2 ) );
+    Teuchos::RCP< MeshManager > mesh_manager = Teuchos::rcp(
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 2 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
+    Rendezvous rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
@@ -1353,7 +1352,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_test )
     }
 
     // Search the rendezvous decomposition for some random points.
-    Teuchos::Array<int> elements, elem_src_procs;
+    Teuchos::Array<MeshId> elements; 
+    Teuchos::Array<int> elem_src_procs;
     rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
 
     int num_found = 0;
@@ -1362,9 +1362,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_rendezvous_test )
 	if ( points[i] < 0.0 || my_size < points[i] ||
 	     points[num_points + i] < -1.0 || my_size < points[num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<MeshId>::max() );
 	}
-	else if ( elements[i] != std::numeric_limits<int>::max() )
+	else if ( elements[i] != std::numeric_limits<MeshId>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) ||
 			 elements[i] == 12 + std::floor( points[i] ) + my_size );
@@ -1387,18 +1387,17 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_test )
     BoundingBox box( -100, -100, -100, 100, 100, 100 );
 
     // Create a mesh container.
-    typedef MeshContainer MeshType;
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 3 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 3 );
     mesh_blocks[0] = buildTetContainer( my_rank );
     mesh_blocks[1] = buildShiftedPyramidContainer( my_rank, my_size );
     mesh_blocks[2] = buildShiftedHexContainer( my_rank, my_size );
 
     // Create a mesh manager. 
-    Teuchos::RCP< MeshManager<MeshType> > mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
+    Teuchos::RCP< MeshManager > mesh_manager = Teuchos::rcp(
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Create a rendezvous.
-    Rendezvous<MeshType> rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
+    Rendezvous rendezvous( getDefaultComm<int>(), mesh_manager->dim(), box );
     rendezvous.build( mesh_manager, comm_indexer, mesh_manager->globalBoundingBox() );
 
     // Give every process a unique block of random numbers;
@@ -1420,7 +1419,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_test )
     }
 
     // Search the rendezvous decomposition for some random points.
-    Teuchos::Array<int> elements, elem_src_procs;
+    Teuchos::Array<MeshId> elements; 
+    Teuchos::Array<int> elem_src_procs;
     rendezvous.elementsContainingPoints( points, elements, elem_src_procs );
 
     int num_found = 0;
@@ -1430,9 +1430,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_rendezvous_test )
 	     points[num_points + i] < 0.0 || my_size < points[num_points + i] ||
 	     points[2*num_points + i] < -2.0 || my_size < points[2*num_points + i] )
 	{
-	    TEST_ASSERT( elements[i] == std::numeric_limits<int>::max() );
+	    TEST_ASSERT( elements[i] == std::numeric_limits<MeshId>::max() );
 	}
-	else if ( elements[i] != std::numeric_limits<int>::max() )
+	else if ( elements[i] != std::numeric_limits<MeshId>::max() )
 	{
 	    TEST_ASSERT( elements[i] == 12 + std::floor( points[i] ) ||
 			 elements[i] == 12 + std::floor( points[i] ) + my_size ||
