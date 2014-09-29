@@ -43,7 +43,7 @@
 
 #include <boost/tr1/unordered_map.hpp>
 
-#include "DTK_MeshTraits.hpp"
+#include "DTK_MeshTypes.hpp"
 #include "DTK_MeshManager.hpp"
 #include "DTK_GeometryTraits.hpp"
 #include "DTK_GeometryManager.hpp"
@@ -75,35 +75,22 @@ namespace DataTransferKit
   geometry consists of a group of cylinders, the source mesh should include
   the mesh conformal to those cylinders. 
 */
-template<class Mesh, class Geometry>
+template<class Geometry>
 class IntegralAssemblyMap
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef Mesh                                      mesh_type;
-    typedef MeshTraits<Mesh>                          MT;
-    typedef typename MT::global_ordinal_type          GlobalOrdinal;
-    typedef MeshManager<Mesh>                         MeshManagerType;
-    typedef Teuchos::RCP<MeshManagerType>             RCP_MeshManager;
-    typedef typename MeshManagerType::BlockIterator   MeshBlockIterator;
-    typedef ElementMeasure<Mesh>                      ElementMeasureType;
-    typedef Teuchos::RCP<ElementMeasureType>          RCP_ElementMeasure;
     typedef Geometry                                  geometry_type;
     typedef GeometryTraits<Geometry>                  GT;
-    typedef GeometryManager<Geometry,GlobalOrdinal>   GeometryManagerType;
+    typedef GeometryManager<Geometry,MeshId>          GeometryManagerType;
     typedef Teuchos::RCP<GeometryManagerType>         RCP_GeometryManager;
-    typedef Teuchos::Comm<int>                        CommType;
-    typedef Teuchos::RCP<const CommType>              RCP_Comm;
-    typedef Tpetra::Map<int,GlobalOrdinal>            TpetraMap;
-    typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
-    typedef Tpetra::Import<int,GlobalOrdinal>         ImportType;
-    typedef Teuchos::RCP<ImportType>                  RCP_TpetraImport;
     //@}
 
     // Constructor.
-    IntegralAssemblyMap( const RCP_Comm& comm, const int dimension, 
+    IntegralAssemblyMap( const Teuchos::RCP<const Teuchos::Comm<int> >& comm, 
+			 const int dimension, 
 			 const double geometric_tolerance = 1.0e-6, 
 			 bool all_vertices_for_inclusion = true );
 
@@ -112,15 +99,15 @@ class IntegralAssemblyMap
 
     // Generate the integral assembly map.
     void setup( 
-	const RCP_MeshManager& source_mesh_manager,
-	const RCP_ElementMeasure& source_mesh_measure,
+	const Teuchos::RCP<MeshManager>& source_mesh_manager,
+	const Teuchos::RCP<ElementMeasure>& source_mesh_measure,
 	const RCP_GeometryManager& target_geometry_manager );
 
     // Apply the shared domain map by integrating the source function over the
     // target geometries.
     template<class SourceField, class TargetField>
     void apply(
-	const Teuchos::RCP<FieldIntegrator<Mesh,SourceField> >& source_integrator,
+	const Teuchos::RCP<FieldIntegrator<SourceField> >& source_integrator,
 	Teuchos::RCP<FieldManager<TargetField> >& target_space_manager );
 
   private:
@@ -128,12 +115,12 @@ class IntegralAssemblyMap
     // Compute globally unique ordinals for the target geometries.
     void computeGeometryOrdinals( 
 	const RCP_GeometryManager& target_geometry_manager,
-	Teuchos::Array<GlobalOrdinal>& target_ordinals );
+	Teuchos::Array<MeshId>& target_ordinals );
 
   private:
 
     // Communicator.
-    RCP_Comm d_comm;
+    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
     // Map dimension.
     int d_dimension;
@@ -151,30 +138,29 @@ class IntegralAssemblyMap
     CommIndexer d_target_indexer;
 
     // Source field map.
-    RCP_TpetraMap d_source_map;
+    Teuchos::RCP<const Tpetra::Map<int,MeshId> > d_source_map;
 
     // Target field map.
-    RCP_TpetraMap d_target_map;
+    Teuchos::RCP<const Tpetra::Map<int,MeshId> > d_target_map;
 
     // Source-to-target importer.
-    RCP_TpetraImport d_source_to_target_importer;
+    Teuchos::RCP<const Tpetra::Import<int,MeshId> > d_source_to_target_importer;
 
     // Local source elements to drive the function integrations (source
     // decomposition).
-    Teuchos::Array<GlobalOrdinal> d_source_elements;
+    Teuchos::Array<MeshId> d_source_elements;
 
     // Local geometry measures from element measures.
     Teuchos::Array<double> d_geometry_measures;
 
     // Source element local ordinals that construct the local geometry
     // integral. 
-    Teuchos::Array<Teuchos::Array<GlobalOrdinal> > d_integral_elements;
+    Teuchos::Array<Teuchos::Array<MeshId> > d_integral_elements;
 
     // Global-to-local ordinal map for the target geometry in the target
     // decomposition. 
     std::tr1::unordered_map<
-	GlobalOrdinal, typename Teuchos::ArrayRCP<Geometry>::size_type>
-    d_target_g2l;
+	MeshId, typename Teuchos::ArrayRCP<Geometry>::size_type> d_target_g2l;
 };
 
 } // end namespace DataTransferKit

@@ -41,8 +41,7 @@
 #ifndef DTK_ELEMENTMEASURE_HPP
 #define DTK_ELEMENTMEASURE_HPP
 
-#include "DTK_FieldTraits.hpp"
-#include "DTK_MeshTraits.hpp"
+#include "DTK_MeshTypes.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
@@ -59,17 +58,9 @@ namespace DataTransferKit
   3D element, area for a 2D element, and length for a 1D element).
 */
 //---------------------------------------------------------------------------//
-template<class Mesh>
 class ElementMeasure
 {
   public:
-
-    //@{
-    //! Typedefs.
-    typedef Mesh                                mesh_type;
-    typedef MeshTraits<Mesh>                    MT;
-    typedef typename MT::global_ordinal_type    GlobalOrdinal;
-    //@}
 
     //! Constructor.
     ElementMeasure()
@@ -80,8 +71,7 @@ class ElementMeasure
     { /* ... */ }
 
     /*!
-     * \brief Get the measures of the given elements and return the measures
-     * in a FieldTraits container.
+     * \brief Get the measures of the given elements.
      *
      * \param elements A vector of locally valid element global ordinals to
      * get the measures for.
@@ -92,7 +82,7 @@ class ElementMeasure
      * input vector and is required to be of a single dimension.
      */
     virtual Teuchos::Array<double>
-    measure( const Teuchos::ArrayRCP<GlobalOrdinal>& elements ) = 0;
+    measure( const Teuchos::ArrayRCP<MeshId>& elements ) = 0;
 };
 
 } // end namespace DataTransferKit

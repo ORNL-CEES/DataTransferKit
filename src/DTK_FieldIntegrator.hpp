@@ -42,7 +42,6 @@
 #define DTK_FIELDINTEGRATOR_HPP
 
 #include "DTK_FieldTraits.hpp"
-#include "DTK_MeshTraits.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
 
@@ -58,16 +57,13 @@ namespace DataTransferKit
   value. 
 */
 //---------------------------------------------------------------------------//
-template<class Mesh, class IntegralField>
+template<class IntegralField>
 class FieldIntegrator
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef Mesh                                mesh_type;
-    typedef MeshTraits<Mesh>                    MT;
-    typedef typename MT::global_ordinal_type    GlobalOrdinal;
     typedef IntegralField                       integral_field_type;
     typedef FieldTraits<IntegralField>          IFT;
     typedef typename IFT::value_type            integral_type;
@@ -94,7 +90,7 @@ class FieldIntegrator
      * specified by field traits.
      */
     virtual IntegralField 
-    integrate( const Teuchos::ArrayRCP<GlobalOrdinal>& elements ) = 0;
+    integrate( const Teuchos::ArrayRCP<MeshId>& elements ) = 0;
 };
 
 } // end namespace DataTransferKit

@@ -115,6 +115,43 @@ Box::~Box()
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Compute the volume of the box.
+ *
+ * \return Return the volume of the box.
+ */
+double Box::measure() const
+{
+    return (d_x_max-d_x_min)*(d_y_max-d_y_min)*(d_z_max-d_z_min);
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the centroid of the box.
+ *
+ * \return The centroid coordinates.
+ */
+Teuchos::Array<double> Box::centroid() const
+{
+    Teuchos::Array<double> center(3);
+    center[0] = (d_x_max + d_x_min) / 2.0;
+    center[1] = (d_y_max + d_y_min) / 2.0;
+    center[2] = (d_z_max + d_z_min) / 2.0;
+    return center;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Compute the bounding box around the box.
+ *
+ * \return The bounding box around the box.
+ */
+BoundingBox Box::boundingBox() const
+{
+    return BoundingBox( d_x_min, d_y_min, d_z_min, d_x_max, d_y_max, d_z_max );
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Determine if a point is in the box within a specified tolerance.
  *
  * \param coords Cartesian coordinates to check for point inclusion. The
@@ -126,8 +163,8 @@ Box::~Box()
  * \return Return true if the point is in the box, false if not. A point on
  * the box boundary will return true.
  */
-bool Box::pointInBox( const Teuchos::Array<double>& coords,
-		      const double tolerance ) const
+bool Box::pointInEntity( const Teuchos::ArrayView<double>& coords,
+			 const double tolerance ) const
 {
     DTK_REQUIRE( 3 == coords.size() );
 
@@ -150,49 +187,10 @@ bool Box::pointInBox( const Teuchos::Array<double>& coords,
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute the volume of the box.
- *
- * \return Return the volume of the box.
- */
-double Box::volume() const
-{
-    return (d_x_max-d_x_min)*(d_y_max-d_y_min)*(d_z_max-d_z_min);
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Compute the bounding box around the box.
- *
- * \return The bounding box around the box.
- */
-BoundingBox Box::boundingBox() const
-{
-    return BoundingBox( d_x_min, d_y_min, d_z_min, d_x_max, d_y_max, d_z_max );
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the centroid of the box.
- *
- * \return The centroid coordinates.
- */
-Teuchos::Array<double> Box::centroid() const
-{
-    Teuchos::Array<double> center(3);
-    center[0] = (d_x_max + d_x_min) / 2.0;
-    center[1] = (d_y_max + d_y_min) / 2.0;
-    center[2] = (d_z_max + d_z_min) / 2.0;
-    return center;
-}
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Print the box description to an ostream.
  *
  * \return The ostream.
  */
-
-//---------------------------------------------------------------------------//
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
 {
   Teuchos::Tuple<double,6> bounds = b.getBounds();
@@ -206,6 +204,8 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
 
   return os;
 }
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

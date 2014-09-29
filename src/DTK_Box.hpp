@@ -42,7 +42,7 @@
 #define DTK_BOX_HPP
 
 #include "DTK_BoundingBox.hpp"
-#include "DTK_GeometryTraits.hpp"
+#include "DTK_GeometricEntity.hpp"
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_Array.hpp>
@@ -62,7 +62,7 @@ namespace DataTransferKit
  * fixed 3 dimensions.
  */
 //---------------------------------------------------------------------------//
-class Box
+class Box : public GeometricEntity
 {
 
   public:
@@ -80,24 +80,30 @@ class Box
     // Destructor.
     ~Box();
 
-    // Determine if a point is in the box within a specified tolerance
-    bool pointInBox( const Teuchos::Array<double>& coords,
-		     const double tolerance ) const;
-
     // Get the boundaries of the box.
     Teuchos::Tuple<double,6> getBounds() const
     { return Teuchos::tuple( d_x_min, d_y_min, d_z_min, 
 			     d_x_max, d_y_max, d_z_max ); }
 
-    // Compute the volume of the box.
-    double volume() const;
+    //@{ 
+    //! GeometricEntity implementation.
+    int dimension() const
+    { return 3; }
 
-    // Get the bounding box around the box.
-    BoundingBox boundingBox() const;
+    // Compute the volume of the box.
+    double measure() const;
 
     // Get the centroid of the box.
     Teuchos::Array<double> centroid() const;
-    
+
+    // Compute the bounding box around the box.
+    BoundingBox boundingBox() const;
+
+    // Determine if a point is in the box within a specified tolerance.
+    bool pointInEntity( const Teuchos::ArrayView<double>& coords,
+			const double tolerance ) const;
+    //@}
+
   private:
 
     // X min.
@@ -121,34 +127,6 @@ class Box
 
 //! overload for printing box
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
-
-//---------------------------------------------------------------------------//
-// GeometryTraits Specialization.
-//---------------------------------------------------------------------------//
-template<>
-class GeometryTraits<Box>
-{
-  public:
-
-    typedef Box geometry_type;
-
-    static inline int dim( const Box& /*box*/ )
-    { return 3; }
-
-    static inline double measure( const Box& box )
-    { return box.volume(); }
-
-    static inline bool pointInGeometry( const Box& box,
-					const Teuchos::Array<double>& coords,
-					const double tolerance )
-    { return box.pointInBox( coords, tolerance ); }
-
-    static inline BoundingBox boundingBox( const Box& box )
-    { return box.boundingBox(); }
-
-    static inline Teuchos::Array<double> centroid( const Box& box )
-    { return box.centroid(); }
-};
 
 //---------------------------------------------------------------------------//
 

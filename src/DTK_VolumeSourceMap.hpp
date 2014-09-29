@@ -43,6 +43,7 @@
 
 #include <boost/tr1/unordered_map.hpp>
 
+#include "DTK_MeshTypes.hpp"
 #include "DTK_GeometryTraits.hpp"
 #include "DTK_GeometryManager.hpp"
 #include "DTK_FieldTraits.hpp"

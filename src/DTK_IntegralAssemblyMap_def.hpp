@@ -86,10 +86,12 @@ namespace DataTransferKit
  * tolerance of the geometry in order to be considered a member of that
  * geometry's conformal mesh.
  */
-template<class Mesh, class Geometry>
-IntegralAssemblyMap<Mesh,Geometry>::IntegralAssemblyMap(
-    const RCP_Comm& comm, const int dimension, 
-    const double geometric_tolerance, bool all_vertices_for_inclusion
+template<class Geometry>
+IntegralAssemblyMap<Geometry>::IntegralAssemblyMap(
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm, 
+    const int dimension, 
+    const double geometric_tolerance, 
+    bool all_vertices_for_inclusion
  )
     : d_comm( comm )
     , d_dimension( dimension )
@@ -101,8 +103,8 @@ IntegralAssemblyMap<Mesh,Geometry>::IntegralAssemblyMap(
 /*!
  * \brief Destructor.
  */
-template<class Mesh, class Geometry>
-IntegralAssemblyMap<Mesh,Geometry>::~IntegralAssemblyMap()
+template<class Geometry>
+IntegralAssemblyMap<Geometry>::~IntegralAssemblyMap()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -128,10 +130,10 @@ IntegralAssemblyMap<Mesh,Geometry>::~IntegralAssemblyMap()
  * communicator. Geometry that exists outside this communication space will
  * not be considered in the mapping.
  */
-template<class Mesh, class Geometry>
-void IntegralAssemblyMap<Mesh,Geometry>::setup( 
-    const RCP_MeshManager& source_mesh_manager, 
-    const RCP_ElementMeasure& source_mesh_measure,
+template<class Geometry>
+void IntegralAssemblyMap<Geometry>::setup( 
+    const Teuchos::RCP<MeshManager>& source_mesh_manager, 
+    const Teuchos::RCP<ElementMeasure>& source_mesh_measure,
     const RCP_GeometryManager& target_geometry_manager )
 {
     // Create existence values for the managers.
@@ -142,12 +144,12 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     d_comm->barrier();
 
     // Create local to global process indexers for the managers.
-    RCP_Comm source_comm;
+    Teuchos::RCP<const Teuchos::Comm<int> > source_comm;
     if ( source_exists )
     {
 	source_comm = source_mesh_manager->comm();
     }
-    RCP_Comm target_comm;
+    Teuchos::RCP<const Teuchos::Comm<int> > target_comm;
     if ( target_exists )
     {
 	target_comm = target_geometry_manager->comm();
@@ -170,7 +172,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     d_comm->barrier();
 
     // Compute a unique global ordinal for each geometric object.
-    Teuchos::Array<GlobalOrdinal> geometry_ordinals;
+    Teuchos::Array<MeshId> geometry_ordinals;
     computeGeometryOrdinals( target_geometry_manager, geometry_ordinals );
 
     // Get the local bounding box of the geometry.
@@ -188,7 +190,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
 			    Teuchos::ScalarTraits<double>::rmax(),
 			    Teuchos::ScalarTraits<double>::rmax() );
 
-    Rendezvous<Mesh> rendezvous( d_comm, d_dimension, global_box );
+    Rendezvous rendezvous( d_comm, d_dimension, global_box );
     rendezvous.build( source_mesh_manager, d_source_indexer,
 		      local_target_box );
 
@@ -216,9 +218,9 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     Teuchos::Array<int> rendezvous_procs;
     Teuchos::Array<Teuchos::Array<int> >::const_iterator box_iterator;
     Teuchos::Array<int>::const_iterator proc_iterator;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+    typename Teuchos::Array<MeshId>::const_iterator 
 	geometry_ordinal_iterator;
-    Teuchos::Array<GlobalOrdinal> target_ordinals;
+    Teuchos::Array<MeshId> target_ordinals;
     Teuchos::Array<Geometry> target_geom_to_send;
     typename Teuchos::ArrayRCP<Geometry>::const_iterator 
 	target_geometry_iterator;
@@ -244,7 +246,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     // Via an inverse communication, move the target geometries and their
     // ordinals to the rendezvous decomposition.
     Tpetra::Distributor target_to_rendezvous_distributor( d_comm );
-    GlobalOrdinal num_rendezvous_geom = 
+    MeshId num_rendezvous_geom = 
 	target_to_rendezvous_distributor.createFromSends( rendezvous_procs() );
     rendezvous_procs.clear();
 
@@ -255,9 +257,9 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     target_to_rendezvous_distributor.doPostsAndWaits(
 	target_geom_to_send_view, 1, rendezvous_geometry() );
 
-    Teuchos::ArrayView<const GlobalOrdinal> target_ordinals_view =
+    Teuchos::ArrayView<const MeshId> target_ordinals_view =
 	target_ordinals();
-    Teuchos::Array<GlobalOrdinal> 
+    Teuchos::Array<MeshId> 
 	rendezvous_geometry_ordinals( num_rendezvous_geom );
     target_to_rendezvous_distributor.doPostsAndWaits(
 	target_ordinals_view, 1, rendezvous_geometry_ordinals() );
@@ -275,26 +277,26 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
 	    geom_target_procs.push_back( from_images[i] );
 	}
     }
-    DTK_CHECK( Teuchos::as<GlobalOrdinal>(geom_target_procs.size())
+    DTK_CHECK( Teuchos::as<MeshId>(geom_target_procs.size())
 		   == num_rendezvous_geom );
 
     // Get the rendezvous source mesh elements that are in the rendezvous
     // target geometry. This is really expensive and we should rather think of
     // a way to logarithmically use the geometry bounding boxes for searching.
-    Teuchos::Array<Teuchos::Array<GlobalOrdinal> > in_geom_elements;
+    Teuchos::Array<Teuchos::Array<MeshId> > in_geom_elements;
     rendezvous.elementsInGeometry( rendezvous_geometry, in_geom_elements,
 				   d_geometric_tolerance, 
 				   d_all_vertices_for_inclusion );
 
     // Unroll the rendezvous elements and add the global target ordinal they
     // exist within.
-    Teuchos::Array<GlobalOrdinal> rendezvous_elements;
-    Teuchos::Array<GlobalOrdinal> in_geom_ordinals;
+    Teuchos::Array<MeshId> rendezvous_elements;
+    Teuchos::Array<MeshId> in_geom_ordinals;
     Teuchos::Array<int> in_geom_target_procs;
-    typename Teuchos::Array<Teuchos::Array<GlobalOrdinal> >::const_iterator 
+    typename Teuchos::Array<Teuchos::Array<MeshId> >::const_iterator 
 	in_geom_elements_iterator;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator geom_element_iterator;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+    typename Teuchos::Array<MeshId>::const_iterator geom_element_iterator;
+    typename Teuchos::Array<MeshId>::const_iterator 
 	rendezvous_geom_ordinal_iterator;
     Teuchos::Array<int>::const_iterator geom_target_procs_iterator;
     for ( in_geom_elements_iterator = in_geom_elements.begin(),
@@ -320,29 +322,29 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     // Communicate back to the target the elements that will construct the
     // integral for each geometry.
     Tpetra::Distributor rendezvous_to_target_distributor( d_comm );
-    GlobalOrdinal num_target_elements = 
+    MeshId num_target_elements = 
 	rendezvous_to_target_distributor.createFromSends( 
 	    in_geom_target_procs() );
     in_geom_target_procs.clear();
 
-    Teuchos::ArrayView<const GlobalOrdinal> rendezvous_elements_view =
+    Teuchos::ArrayView<const MeshId> rendezvous_elements_view =
 	rendezvous_elements();
-    Teuchos::Array<GlobalOrdinal> mapped_target_elements( num_target_elements );
+    Teuchos::Array<MeshId> mapped_target_elements( num_target_elements );
     rendezvous_to_target_distributor.doPostsAndWaits(
 	rendezvous_elements_view, 1, mapped_target_elements() );
 
-    Teuchos::ArrayView<const GlobalOrdinal> in_geom_ordinals_view =
+    Teuchos::ArrayView<const MeshId> in_geom_ordinals_view =
 	in_geom_ordinals();
-    Teuchos::Array<GlobalOrdinal> mapped_target_ordinals( num_target_elements );
+    Teuchos::Array<MeshId> mapped_target_ordinals( num_target_elements );
     rendezvous_to_target_distributor.doPostsAndWaits(
 	in_geom_ordinals_view, 1, mapped_target_ordinals() );
 
     // Generate the list of integral elements.
-    Teuchos::Array<std::set<GlobalOrdinal> > 
+    Teuchos::Array<std::set<MeshId> > 
 	integral_elements( target_geometry.size() );
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+    typename Teuchos::Array<MeshId>::const_iterator 
 	mapped_target_elements_it;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+    typename Teuchos::Array<MeshId>::const_iterator 
 	mapped_target_ordinals_it;
     for ( mapped_target_elements_it = mapped_target_elements.begin(),
 	  mapped_target_ordinals_it = mapped_target_ordinals.begin();
@@ -359,7 +361,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     mapped_target_ordinals.clear();
 
     // Build a unique list of element ordinals in the target decomposition.
-    typename Teuchos::Array<GlobalOrdinal>::iterator mapped_element_bound;
+    typename Teuchos::Array<MeshId>::iterator mapped_element_bound;
     std::sort( mapped_target_elements.begin(), mapped_target_elements.end() );
     mapped_element_bound = std::unique( mapped_target_elements.begin(),
 					mapped_target_elements.end() );
@@ -368,8 +370,8 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
 		       mapped_element_bound ) );
 
     // Build the element local to global map.
-    std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> element_g2l;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+    std::tr1::unordered_map<MeshId,MeshId> element_g2l;
+    typename Teuchos::Array<MeshId>::const_iterator 
 	mapped_target_elements_begin = mapped_target_elements.begin();
     for ( mapped_target_elements_it = mapped_target_elements.begin();
 	  mapped_target_elements_it != mapped_target_elements.end();
@@ -382,11 +384,11 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
 
     // Replace the global element ordinals in the integral element sets with
     // local ordinals.
-    typename Teuchos::Array<std::set<GlobalOrdinal> >::iterator 
+    typename Teuchos::Array<std::set<MeshId> >::iterator 
 	integral_set_iterator;
-    typename Teuchos::Array<Teuchos::Array<GlobalOrdinal> >::iterator 
+    typename Teuchos::Array<Teuchos::Array<MeshId> >::iterator 
 	integral_elements_iterator;
-    typename std::set<GlobalOrdinal>::iterator set_iterator;
+    typename std::set<MeshId>::iterator set_iterator;
     for ( integral_set_iterator = integral_elements.begin(),
      integral_elements_iterator = d_integral_elements.begin();
 	  integral_set_iterator != integral_elements.end();
@@ -406,9 +408,9 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     integral_elements.clear();
 
     // Build the target map from the unique element ordinals.
-    Teuchos::ArrayView<const GlobalOrdinal> mapped_target_elements_view = 
+    Teuchos::ArrayView<const MeshId> mapped_target_elements_view = 
 	mapped_target_elements();
-    d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
+    d_target_map = Tpetra::createNonContigMap<int,MeshId>(
 	mapped_target_elements_view, d_comm );
     DTK_ENSURE( !d_target_map.is_null() );
 
@@ -420,7 +422,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
 
     // Put the rendezvous elements into a unique list and get their source
     // procs to populate the source distributor.
-    typename Teuchos::Array<GlobalOrdinal>::iterator rendezvous_element_bound;
+    typename Teuchos::Array<MeshId>::iterator rendezvous_element_bound;
     std::sort( rendezvous_elements.begin(), rendezvous_elements.end() );
     rendezvous_element_bound = std::unique( rendezvous_elements.begin(),
 					    rendezvous_elements.end() );
@@ -434,7 +436,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     Teuchos::ArrayView<const int> rendezvous_element_source_procs_view =
 	rendezvous_element_source_procs();
     Tpetra::Distributor rendezvous_to_source_distributor( d_comm );
-    GlobalOrdinal num_source_elements = 
+    MeshId num_source_elements = 
 	rendezvous_to_source_distributor.createFromSends(
 	    rendezvous_element_source_procs_view );
 
@@ -444,7 +446,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
 	rendezvous_elements_view, 1, d_source_elements() );
 
     // Build a unique list of the elements.
-    typename Teuchos::Array<GlobalOrdinal>::iterator source_element_bound;
+    typename Teuchos::Array<MeshId>::iterator source_element_bound;
     std::sort( d_source_elements.begin(), d_source_elements.end() );
     source_element_bound = std::unique( d_source_elements.begin(),
 					d_source_elements.end() );
@@ -452,15 +454,15 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
 					     source_element_bound ) );
 
     // Build the source map from the element ordinals.
-    Teuchos::ArrayView<const GlobalOrdinal> source_elements_view =
+    Teuchos::ArrayView<const MeshId> source_elements_view =
 	d_source_elements();
-    d_source_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
+    d_source_map = Tpetra::createNonContigMap<int,MeshId>(
 	source_elements_view, d_comm );
     DTK_ENSURE( !d_source_map.is_null() );
 
     // Build the source-to-target importer.
     d_source_to_target_importer = 
-      Teuchos::rcp( new Tpetra::Import<int,GlobalOrdinal>(
+      Teuchos::rcp( new Tpetra::Import<int,MeshId>(
 			  d_source_map, d_target_map ) );
     DTK_ENSURE( !d_source_to_target_importer.is_null() );
 
@@ -471,10 +473,10 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
 	source_measures = source_mesh_measure->measure( 
 	    Teuchos::arcpFromArray( d_source_elements ) );
     }
-    Teuchos::RCP<Tpetra::Vector<double,int,GlobalOrdinal> > source_vector = 
+    Teuchos::RCP<Tpetra::Vector<double,int,MeshId> > source_vector = 
 	Tpetra::createVectorFromView( 
 	    d_source_map, Teuchos::arcpFromArray( source_measures ) );
-    Teuchos::RCP<Tpetra::Vector<double,int,GlobalOrdinal> > target_vector =
+    Teuchos::RCP<Tpetra::Vector<double,int,MeshId> > target_vector =
 	Tpetra::createVectorFromView( 
 	    d_target_map, 
 	    Teuchos::arcpFromArray( integral_element_measures ) );
@@ -485,9 +487,9 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
     // should approximate the true geometry measure.
     std::fill( d_geometry_measures.begin(), d_geometry_measures.end(), 0.0 );
     Teuchos::Array<double>::iterator geom_measure_iterator;
-    typename Teuchos::Array<Teuchos::Array<GlobalOrdinal> >::const_iterator
+    typename Teuchos::Array<Teuchos::Array<MeshId> >::const_iterator
 	integral_iterator;
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+    typename Teuchos::Array<MeshId>::const_iterator 
 	integral_element_iterator;
     for ( geom_measure_iterator = d_geometry_measures.begin(),
 	      integral_iterator = d_integral_elements.begin();
@@ -517,10 +519,10 @@ void IntegralAssemblyMap<Mesh,Geometry>::setup(
  * integrations will be written. Enough space must be allocated to hold
  * integrations in all geometries in all dimensions of the field.
  */
-template<class Mesh, class Geometry>
+template<class Geometry>
 template<class SourceField, class TargetField>
-void IntegralAssemblyMap<Mesh,Geometry>::apply( 
-    const Teuchos::RCP<FieldIntegrator<Mesh,SourceField> >& source_integrator,
+void IntegralAssemblyMap<Geometry>::apply( 
+    const Teuchos::RCP<FieldIntegrator<SourceField> >& source_integrator,
     Teuchos::RCP<FieldManager<TargetField> >& target_space_manager )
 {
     typedef FieldTraits<SourceField> SFT;
@@ -553,16 +555,16 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 				 Teuchos::Ptr<int>(&source_dim) );
 
     // Build a multivector for the function integrations.
-    GlobalOrdinal source_size = source_field_copy.size() / source_dim;
-    Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type,int,GlobalOrdinal> > 
+    MeshId source_size = source_field_copy.size() / source_dim;
+    Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type,int,MeshId> > 
 	source_vector = Tpetra::createMultiVectorFromView( 
 	    d_source_map, source_field_copy, source_size, source_dim );
 
     // Construct a view of the target space and fill it with zeros so that we
     // start the integral summations at zero.
-    GlobalOrdinal integral_size = d_geometry_measures.size();
+    MeshId integral_size = d_geometry_measures.size();
     int target_dim;
-    DTK_REMEMBER( GlobalOrdinal target_size = 0 );
+    DTK_REMEMBER( MeshId target_size = 0 );
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(0,0);
     if ( target_exists )
     {
@@ -585,11 +587,11 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 
     // Verify that the target space has the proper amount of memory allocated.
     DTK_REQUIRE( target_size == 
-		      Teuchos::as<GlobalOrdinal>(target_field_view.size()) );
+		      Teuchos::as<MeshId>(target_field_view.size()) );
 
     // Build a multivector for the function integrations in the target
     // decomposition.
-    Tpetra::MultiVector<typename TFT::value_type,int,GlobalOrdinal> 
+    Tpetra::MultiVector<typename TFT::value_type,int,MeshId> 
 	target_vector( d_target_map, target_dim );
 
     // Import the function integrations.
@@ -598,7 +600,7 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 
     // Collapse the function integrations over the geometry and apply them to
     // the target space.
-    typename Teuchos::Array<GlobalOrdinal>::const_iterator 
+    typename Teuchos::Array<MeshId>::const_iterator 
 	integral_element_iterator;
     typename TFT::size_type target_index;
     Teuchos::ArrayRCP<const typename TFT::value_type> dim_element_integrals;
@@ -645,16 +647,16 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
  * \param target_ordinals The computed globally unique ordinals for the target
  * geometries. 
  */
-template<class Mesh, class Geometry>
-void IntegralAssemblyMap<Mesh,Geometry>::computeGeometryOrdinals(
+template<class Geometry>
+void IntegralAssemblyMap<Geometry>::computeGeometryOrdinals(
     const RCP_GeometryManager& target_geometry_manager,
-    Teuchos::Array<GlobalOrdinal>& target_ordinals )
+    Teuchos::Array<MeshId>& target_ordinals )
 {
     // Set an existence value for the target geometry.
     bool target_exists = true;
     if ( target_geometry_manager.is_null() ) target_exists = false;
     int comm_rank = d_comm->getRank();
-    GlobalOrdinal local_size = 0;
+    MeshId local_size = 0;
 
     if ( target_exists )
     {
@@ -662,15 +664,15 @@ void IntegralAssemblyMap<Mesh,Geometry>::computeGeometryOrdinals(
     }
     d_comm->barrier();
 
-    GlobalOrdinal global_max;
-    Teuchos::reduceAll<int,GlobalOrdinal>( *d_comm,
+    MeshId global_max;
+    Teuchos::reduceAll<int,MeshId>( *d_comm,
 					   Teuchos::REDUCE_MAX,
 					   1,
 					   &local_size,
 					   &global_max );
 
     target_ordinals.resize( local_size );
-    for ( GlobalOrdinal n = 0; n < local_size; ++n )
+    for ( MeshId n = 0; n < local_size; ++n )
     {
 	target_ordinals[n] = comm_rank*global_max + n;
 	d_target_g2l[ target_ordinals[n] ] = n;

@@ -43,8 +43,6 @@
 #include "DTK_Cylinder.hpp"
 #include "DTK_DBC.hpp"
 
-#include <Teuchos_Tuple.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -95,36 +93,6 @@ Cylinder::~Cylinder()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Determine if a point is in the cylinder. 
- *
- * \param coords Cartesian coordinates to check for point inclusion. The
- * coordinates must have a dimension of 3.
- *
- * \param tolerance The geometric tolerance to check point-inclusion
- * with. This tolerance is relative.
- *
- * \return Return true if the point is in the cylinder, false if not. A point
- * on the cylinder boundary or outside but within the tolerance will return
- * true.
- */
-bool Cylinder::pointInCylinder( const Teuchos::Array<double>& coords,
-				const double tolerance ) const
-{
-    DTK_REQUIRE( coords.size() == 3 );
-
-    double x_dist = d_centroid_x - coords[0];
-    double y_dist = d_centroid_y - coords[1];
-    double r = std::sqrt( x_dist*x_dist + y_dist*y_dist );
-    double rad_tol = d_radius*tolerance;
-    double half_length_tol = d_length / 2 + d_length*tolerance;
-
-    return ( (r <= d_radius + rad_tol) &&
-	     (coords[2] >= d_centroid_z - half_length_tol) &&
-	     (coords[2] <= d_centroid_z + half_length_tol) );
-}
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Get the centroid of the cylinder.
  *
  * \return The centroid coordinates.
@@ -151,7 +119,7 @@ Teuchos::Array<double> Cylinder::centroid() const
  *
  * \return Return the volume of the cylinder.
  */
-double Cylinder::volume() const
+double Cylinder::measure() const
 {
     double zero = 0.0;
     double pi = 2.0 * std::acos( zero );
@@ -174,14 +142,43 @@ BoundingBox Cylinder::boundingBox() const
 			d_centroid_z + d_length/2 );
 }
 
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Determine if a point is in the cylinder. 
+ *
+ * \param coords Cartesian coordinates to check for point inclusion. The
+ * coordinates must have a dimension of 3.
+ *
+ * \param tolerance The geometric tolerance to check point-inclusion
+ * with. This tolerance is relative.
+ *
+ * \return Return true if the point is in the cylinder, false if not. A point
+ * on the cylinder boundary or outside but within the tolerance will return
+ * true.
+ */
+bool Cylinder::pointInEntity( const Teuchos::ArrayView<double>& coords,
+			      const double tolerance ) const
+{
+    DTK_REQUIRE( coords.size() == 3 );
+
+    double x_dist = d_centroid_x - coords[0];
+    double y_dist = d_centroid_y - coords[1];
+    double r = std::sqrt( x_dist*x_dist + y_dist*y_dist );
+    double rad_tol = d_radius*tolerance;
+    double half_length_tol = d_length / 2 + d_length*tolerance;
+
+    return ( (r <= d_radius + rad_tol) &&
+	     (coords[2] >= d_centroid_z - half_length_tol) &&
+	     (coords[2] <= d_centroid_z + half_length_tol) );
+}
+
 //---------------------------------------------------------------------------//
 /*!
  * \brief Print the cylinder description to an ostream.
  *
  * \return The ostream.
  */
-
-//---------------------------------------------------------------------------//
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c)
 {
   os << "Cylinder: length=" << c.length() << ",radius=" << c.radius()

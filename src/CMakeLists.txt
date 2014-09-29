@@ -47,13 +47,13 @@ APPEND_SET(HEADERS
   DTK_FieldTools.hpp
   DTK_FieldTools_def.hpp
   DTK_FieldTraits.hpp
+  DTK_GeometricEntity.hpp
   DTK_GeometryManager.hpp
   DTK_GeometryManager_def.hpp
   DTK_GeometryRCB.hpp
   DTK_GeometryRCB_def.hpp
   DTK_GeometryRendezvous.hpp
   DTK_GeometryRendezvous_def.hpp
-  DTK_GeometryTraits.hpp
   DTK_IntegralAssemblyMap.hpp
   DTK_IntegralAssemblyMap_def.hpp
   DTK_IntrepidCell.hpp
@@ -69,7 +69,6 @@ APPEND_SET(HEADERS
   DTK_MeshFreeInterpolatorFactory_impl.hpp
   DTK_MeshManager.hpp
   DTK_MeshTools.hpp
-  DTK_MeshTraits.hpp
   DTK_MeshTraitsFieldAdapter.hpp
   DTK_MeshTypes.hpp
   DTK_MovingLeastSquare.hpp

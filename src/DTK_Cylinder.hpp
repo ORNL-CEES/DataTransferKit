@@ -42,7 +42,7 @@
 #define DTK_CYLINDER_HPP
 
 #include "DTK_BoundingBox.hpp"
-#include "DTK_GeometryTraits.hpp"
+#include "DTK_GeometricEntity.hpp"
 
 #include <Teuchos_Array.hpp>
 #include <Teuchos_SerializationTraits.hpp>
@@ -59,7 +59,7 @@ namespace DataTransferKit
  * All three dimensions are explictly represented in this cylinder.
  */
 //---------------------------------------------------------------------------//
-class Cylinder
+class Cylinder : public GeometricEntity
 {
 
   public:
@@ -75,10 +75,6 @@ class Cylinder
     // Destructor.
     ~Cylinder();
 
-    // Determine if a point is in the cylinder within a specified tolerance.
-    bool pointInCylinder( const Teuchos::Array<double>& coords,
-			  const double tolerance ) const;
-
     //! Get the length of the cylinder.
     double length() const
     { return d_length; }
@@ -87,14 +83,24 @@ class Cylinder
     double radius() const
     { return d_radius; }
 
+    //@{ 
+    //! GeometricEntity implementation.
+    int dimension() const
+    { return 3; }
+
+    // Compute the volume of the cylinder.
+    double measure() const;
+
     // Get the centroid of the cylinder.
     Teuchos::Array<double> centroid() const;
 
-    // Compute the volume of the cylinder.
-    double volume() const;
-
     // Compute the bounding box around the cylinder.
     BoundingBox boundingBox() const;
+
+    // Determine if a point is in the cylinder within a specified tolerance.
+    bool pointInEntity( const Teuchos::ArrayView<double>& coords,
+			const double tolerance ) const;
+    //@}
 
   private:
     
@@ -116,34 +122,6 @@ class Cylinder
 
 //! overload for printing cylinder
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c); 
-
-//---------------------------------------------------------------------------//
-// GeometryTraits Specialization.
-//---------------------------------------------------------------------------//
-template<>
-class GeometryTraits<Cylinder>
-{
-  public:
-
-    typedef Cylinder geometry_type;
-
-    static inline int dim( const Cylinder& cylinder )
-    { return 3; }
-
-    static inline double measure( const Cylinder& cylinder )
-    { return cylinder.volume(); }
-
-    static inline bool pointInGeometry( const Cylinder& cylinder,
-					const Teuchos::Array<double>& coords,
-					const double tolerance )
-    { return cylinder.pointInCylinder( coords, tolerance ); }
-
-    static inline BoundingBox boundingBox( const Cylinder& cylinder )
-    { return cylinder.boundingBox(); }
-
-    static inline Teuchos::Array<double> centroid( const Cylinder& cylinder )
-    { return cylinder.centroid(); }
-};
 
 //---------------------------------------------------------------------------//
 

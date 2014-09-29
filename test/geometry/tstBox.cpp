@@ -16,7 +16,7 @@
 
 #include <DTK_BoundingBox.hpp>
 #include <DTK_Box.hpp>
-#include <DTK_GeometryTraits.hpp>
+#include <DTK_GeometricEntity.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -86,9 +86,9 @@ TEUCHOS_UNIT_TEST( Box, box_test )
 	TEST_ASSERT( box_bounds[4] == y_max );
 	TEST_ASSERT( box_bounds[5] == z_max );
 
-	// Compute the volume.
-	double volume = (x_max-x_min)*(y_max-y_min)*(z_max-z_min);
-	TEST_ASSERT( softEquivalence( box.volume(), volume, 1.0e-6 ) );
+	// Compute the measure.
+	double measure = (x_max-x_min)*(y_max-y_min)*(z_max-z_min);
+	TEST_ASSERT( softEquivalence( box.measure(), measure, 1.0e-6 ) );
 
 	// Compute the bounding box.
 	BoundingBox bounding_box = box.boundingBox();
@@ -120,11 +120,11 @@ TEUCHOS_UNIT_TEST( Box, box_test )
 		 y_min - tol <= point[1] && point[1] <= y_max + tol &&
 		 z_min - tol <= point[2] && point[2] <= z_max + tol )
 	    {
-		TEST_ASSERT( box.pointInBox( point, tol ) );
+		TEST_ASSERT( box.pointInEntity( point(), tol ) );
 	    }
 	    else
 	    {
-		TEST_ASSERT( !box.pointInBox( point, tol ) );
+		TEST_ASSERT( !box.pointInEntity( point(), tol ) );
 	    }
 	}
     }
@@ -134,10 +134,10 @@ TEUCHOS_UNIT_TEST( Box, box_test )
 TEUCHOS_UNIT_TEST( Box, box_traits_test )
 {
     using namespace DataTransferKit;
-    typedef GeometryTraits<Box> GT;
 
     // Build a series of random boxes.
     int num_boxes = 100;
+    Teuchos::RCP<GeometricEntity> entity;
     for ( int i = 0; i < num_boxes; ++i )
     {
 	// Make a box.
@@ -147,14 +147,15 @@ TEUCHOS_UNIT_TEST( Box, box_traits_test )
 	double x_max =  (double) std::rand() / RAND_MAX;
 	double y_max =  (double) std::rand() / RAND_MAX;
 	double z_max =  (double) std::rand() / RAND_MAX;
-	Box box( x_min, y_min, z_min, x_max, y_max, z_max );
+	entity = Teuchos::rcp(
+	    new Box( x_min, y_min, z_min, x_max, y_max, z_max ) );
 
-	// Compute the volume.
-	double volume = (x_max-x_min)*(y_max-y_min)*(z_max-z_min);
-	TEST_ASSERT( softEquivalence( GT::measure(box), volume, 1.0e-6 ) );
+	// Compute the measure.
+	double measure = (x_max-x_min)*(y_max-y_min)*(z_max-z_min);
+	TEST_ASSERT( softEquivalence( entity->measure(), measure, 1.0e-6 ) );
 
 	// Compute the bounding box.
-	BoundingBox bounding_box = GT::boundingBox(box);
+	BoundingBox bounding_box = entity->boundingBox();
 	Teuchos::Tuple<double,6> bounding_box_bounds = bounding_box.getBounds();
 	TEST_ASSERT( bounding_box_bounds[0] == x_min );
 	TEST_ASSERT( bounding_box_bounds[1] == y_min );
@@ -164,7 +165,7 @@ TEUCHOS_UNIT_TEST( Box, box_traits_test )
 	TEST_ASSERT( bounding_box_bounds[5] == z_max );
 
 	// Check the centroid.
-	Teuchos::Array<double> box_centroid = GT::centroid(box);
+	Teuchos::Array<double> box_centroid = entity->centroid();
 	TEST_ASSERT( box_centroid[0] == (x_max+x_min)/2.0 );
 	TEST_ASSERT( box_centroid[1] == (y_max+y_min)/2.0 );
 	TEST_ASSERT( box_centroid[2] == (z_max+z_min)/2.0 );
@@ -183,11 +184,11 @@ TEUCHOS_UNIT_TEST( Box, box_traits_test )
 		 y_min - tol <= point[1] && point[1] <= y_max + tol &&
 		 z_min - tol <= point[2] && point[2] <= z_max + tol )
 	    {
-		TEST_ASSERT( GT::pointInGeometry( box, point, tol ) );
+		TEST_ASSERT( entity->pointInEntity(point(), tol) );
 	    }
 	    else
 	    {
-		TEST_ASSERT( !GT::pointInGeometry( box, point, tol ) );
+		TEST_ASSERT( !entity->pointInEntity(point(), tol) );
 	    }
 	}
     }
