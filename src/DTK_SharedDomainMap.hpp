@@ -46,7 +46,7 @@
 #include "DTK_FieldTraits.hpp"
 #include "DTK_FieldEvaluator.hpp"
 #include "DTK_FieldManager.hpp"
-#include "DTK_MeshTraits.hpp"
+#include "DTK_MeshTypes.hpp"
 #include "DTK_MeshManager.hpp"
 #include "DTK_BoundingBox.hpp"
 #include "DTK_CommIndexer.hpp"
@@ -96,41 +96,30 @@ namespace DataTransferKit
 
 */
 //---------------------------------------------------------------------------//
-template<class Mesh, class CoordinateField>
+template<class CoordinateField>
 class SharedDomainMap
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef Mesh                                      mesh_type;
-    typedef MeshTraits<Mesh>                          MT;
-    typedef typename MT::global_ordinal_type          GlobalOrdinal;
-    typedef MeshManager<Mesh>                         MeshManagerType;
-    typedef Teuchos::RCP<MeshManagerType>             RCP_MeshManager;
-    typedef typename MeshManagerType::BlockIterator   MeshBlockIterator;
     typedef CoordinateField                           coord_field_type;
     typedef FieldTraits<CoordinateField>              CFT;
     typedef typename CFT::size_type                   CoordOrdinal;
     typedef FieldManager<CoordinateField>             CoordFieldManagerType;
     typedef Teuchos::RCP<CoordFieldManagerType>       RCP_CoordFieldManager;
-    typedef Teuchos::Comm<int>                        CommType;
-    typedef Teuchos::RCP<const CommType>              RCP_Comm;
-    typedef Tpetra::Map<int,GlobalOrdinal>            TpetraMap;
-    typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
-    typedef Tpetra::Export<int,GlobalOrdinal>         ExportType;
-    typedef Teuchos::RCP<ExportType>                  RCP_TpetraExport;
     //!@}
 
     // Constructor.
-    SharedDomainMap( const RCP_Comm& comm, const int dimension, 
+    SharedDomainMap( const Teuchos::RCP<const Teuchos::Comm<int> >& comm, 
+		     const int dimension, 
 		     bool store_missed_points = false );
 
     // Destructor.
     ~SharedDomainMap();
 
     // Generate the shared domain map.
-    void setup( const RCP_MeshManager& source_mesh_manager, 
+    void setup( const Teuchos::RCP<MeshManager>& source_mesh_manager, 
 		const RCP_CoordFieldManager& target_coord_manager,
 		double tolerance = 10*Teuchos::ScalarTraits<double>::eps() );
 
@@ -138,13 +127,13 @@ class SharedDomainMap
     // that were mapped.
     template<class SourceField, class TargetField>
     void apply( 
-	const Teuchos::RCP<FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
+	const Teuchos::RCP<FieldEvaluator<MeshId,SourceField> >& source_evaluator,
 	Teuchos::RCP<FieldManager<TargetField> >& target_space_manager );
 
     //@{
     // Get the local indices of the target points that were not mapped.
-    Teuchos::ArrayView<GlobalOrdinal>       getMissedTargetPoints();
-    Teuchos::ArrayView<const GlobalOrdinal> getMissedTargetPoints() const;
+    Teuchos::ArrayView<MeshId>       getMissedTargetPoints();
+    Teuchos::ArrayView<const MeshId> getMissedTargetPoints() const;
     //@}
 
   private:
@@ -153,13 +142,13 @@ class SharedDomainMap
     void getTargetPointsInBox( 
 	const BoundingBox& box,
 	const CoordinateField& target_coords,
-	const Teuchos::ArrayView<const GlobalOrdinal>& target_ordinals,
-	Teuchos::Array<GlobalOrdinal>& targets_in_box );
+	const Teuchos::ArrayView<const MeshId>& target_ordinals,
+	Teuchos::Array<MeshId>& targets_in_box );
 
   private:
 
     // Communicator.
-    RCP_Comm d_comm;
+    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
     // Map dimension.
     int d_dimension;
@@ -174,22 +163,22 @@ class SharedDomainMap
     CommIndexer d_target_indexer;
 
     // Indices for target points missed in the mapping.
-    Teuchos::Array<GlobalOrdinal> d_missed_points;
+    Teuchos::Array<MeshId> d_missed_points;
 
     // Global-to-local ordinal map for target ordinals.
-    std::tr1::unordered_map<GlobalOrdinal,GlobalOrdinal> d_target_g2l;
+    std::tr1::unordered_map<MeshId,MeshId> d_target_g2l;
 
     // Source field map.
-    RCP_TpetraMap d_source_map;
+    Teuchos::RCP<const Tpetra::Map<int,MeshId> > d_source_map;
 
     // Target field map.
-    RCP_TpetraMap d_target_map;
+    Teuchos::RCP<const Tpetra::Map<int,MeshId> > d_target_map;
 
     // Source-to-target exporter.
-    RCP_TpetraExport d_source_to_target_exporter;
+    Teuchos::RCP<Tpetra::Export<int,MeshId> > d_source_to_target_exporter;
 
     // Local source elements.
-    Teuchos::Array<GlobalOrdinal> d_source_elements;
+    Teuchos::Array<MeshId> d_source_elements;
 
     // Local target coords.
     Teuchos::Array<double> d_target_coords;
