@@ -16,7 +16,7 @@
 
 #include <DTK_BoundingBox.hpp>
 #include <DTK_Cylinder.hpp>
-#include <DTK_GeometryTraits.hpp>
+#include <DTK_GeometricEntity.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -88,9 +88,9 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 	TEST_ASSERT( cylinder.centroid()[1] == centroid_y );
 	TEST_ASSERT( cylinder.centroid()[2] == centroid_z );
 
-	// Compute the volume.
-	double volume = pi*radius*radius*length;
-	TEST_ASSERT( softEquivalence( cylinder.volume(), volume, 1.0e-6 ) );
+	// Compute the measure.
+	double measure = pi*radius*radius*length;
+	TEST_ASSERT( softEquivalence( cylinder.measure(), measure, 1.0e-6 ) );
 
 	// Compute the bounding box.
 	BoundingBox box = cylinder.boundingBox();
@@ -130,11 +130,11 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 		 centroid_z - length/2 <= point[2] + tol &&
 		 centroid_z + length/2 >= point[2] - tol )
 	    {
-		TEST_ASSERT( cylinder.pointInCylinder( point, tol ) );
+		TEST_ASSERT( cylinder.pointInEntity( point(), tol ) );
 	    }
 	    else
 	    {
-		TEST_ASSERT( !cylinder.pointInCylinder( point, tol ) );
+		TEST_ASSERT( !cylinder.pointInEntity( point(), tol ) );
 	    }
 	}
     }
@@ -144,7 +144,6 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 TEUCHOS_UNIT_TEST( Cylinder, cylinder_traits_test )
 {
     using namespace DataTransferKit;
-    typedef GeometryTraits<Cylinder> GT;
 
     // Make sure that PI is PI.
     double zero = 0.0;
@@ -153,6 +152,7 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_traits_test )
 
     // Build a series of random cylinders.
     int num_cylinders = 100;
+    Teuchos::RCP<GeometricEntity> entity;
     for ( int i = 0; i < num_cylinders; ++i )
     {
 	// Make a cylinder.
@@ -161,14 +161,15 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_traits_test )
 	double centroid_x = (double) std::rand() / RAND_MAX - 0.5;
 	double centroid_y = (double) std::rand() / RAND_MAX - 0.5;
 	double centroid_z = (double) std::rand() / RAND_MAX - 0.5;
-	Cylinder cylinder( length, radius, centroid_x, centroid_y, centroid_z );
+	entity = Teuchos::rcp(
+	    new Cylinder( length, radius, centroid_x, centroid_y, centroid_z) );
 
-	// Compute the volume.
-	double volume = pi*radius*radius*length;
-	TEST_ASSERT( softEquivalence( GT::measure(cylinder), volume, 1.0e-6 ) );
+	// Compute the measure.
+	double measure = pi*radius*radius*length;
+	TEST_ASSERT( softEquivalence( entity->measure(), measure, 1.0e-6 ) );
 
 	// Compute the bounding box.
-	BoundingBox box = GT::boundingBox(cylinder);
+	BoundingBox box = entity->boundingBox();
 	Teuchos::Tuple<double,6> box_bounds = box.getBounds();
 	TEST_ASSERT( box_bounds[0] == centroid_x - radius );
 	TEST_ASSERT( box_bounds[1] == centroid_y - radius );
@@ -178,7 +179,7 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_traits_test )
 	TEST_ASSERT( box_bounds[5] == centroid_z + length/2 );
 
 	// Check the centroid.
-	Teuchos::Array<double> cylinder_centroid = GT::centroid(cylinder);
+	Teuchos::Array<double> cylinder_centroid = entity->centroid();
 	TEST_ASSERT( cylinder_centroid[0] == centroid_x );
 	TEST_ASSERT( cylinder_centroid[1] == centroid_y );
 	TEST_ASSERT( cylinder_centroid[2] == centroid_z );
@@ -205,11 +206,11 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_traits_test )
 		 centroid_z - length/2 <= point[2] + tol &&
 		 centroid_z + length/2 >= point[2] - tol )
 	    {
-		TEST_ASSERT( GT::pointInGeometry( cylinder, point, tol ) );
+		TEST_ASSERT( entity->pointInEntity(point(), tol) );
 	    }
 	    else
 	    {
-		TEST_ASSERT( !GT::pointInGeometry( cylinder, point, tol ) );
+		TEST_ASSERT( !entity->pointInEntity(point(), tol) );
 	    }
 	}
     }
