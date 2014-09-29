@@ -5,8 +5,6 @@
 ## TriBITS package file for the DataTransferKit package
 ##---------------------------------------------------------------------------##
 
-INCLUDE(TribitsPackageMacros)
-INCLUDE(TribitsAddOptionAndDefine)
 INCLUDE(CombinedOption)
 
 ##---------------------------------------------------------------------------##
