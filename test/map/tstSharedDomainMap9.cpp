@@ -19,7 +19,7 @@
 #include <DTK_FieldTraits.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_MeshTypes.hpp>
-#include <DTK_MeshTraits.hpp>
+#include <DTK_MeshBlock.hpp>
 #include <DTK_MeshContainer.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -142,11 +142,12 @@ class FieldTraits<MyField>
 
 //---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
-class MyEvaluator : public DataTransferKit::FieldEvaluator<int,MyField>
+class MyEvaluator : 
+    public DataTransferKit::FieldEvaluator<DataTransferKit::MeshId,MyField>
 {
   public:
 
-    MyEvaluator( const DataTransferKit::MeshContainer<int>& mesh, 
+    MyEvaluator( const Teuchos::RCP<DataTransferKit::MeshBlock>& mesh, 
 		 const Teuchos::RCP< const Teuchos::Comm<int> >& comm )
 	: d_mesh( mesh )
 	, d_comm( comm )
@@ -156,16 +157,15 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<int,MyField>
     { /* ... */ }
 
     MyField evaluate( 
-	const Teuchos::ArrayRCP<
-	DataTransferKit::MeshContainer<int>::global_ordinal_type>& elements,
+	const Teuchos::ArrayRCP<DataTransferKit::MeshId>& elements,
 	const Teuchos::ArrayRCP<double>& coords )
     {
 	MyField evaluated_data( elements.size(), 1 );
 	for ( int n = 0; n < elements.size(); ++n )
 	{
-	    if ( std::find( d_mesh.elementsBegin(),
-			    d_mesh.elementsEnd(),
-			    elements[n] ) != d_mesh.elementsEnd() )
+	    if ( std::find( d_mesh->elementIds().begin(),
+			    d_mesh->elementIds().end(),
+			    elements[n] ) != d_mesh->elementIds().end() )
 	    {
 		*(evaluated_data.begin() + n ) = d_comm->getRank() + 1.0;
 	    }
@@ -179,20 +179,20 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<int,MyField>
 
   private:
 
-    DataTransferKit::MeshContainer<int>  d_mesh;
+    Teuchos::RCP<DataTransferKit::MeshBlock>  d_mesh;
     Teuchos::RCP< const Teuchos::Comm<int> > d_comm;
 };
 
 //---------------------------------------------------------------------------//
 // Mesh create functions.
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > 
+Teuchos::RCP<DataTransferKit::MeshBlock> 
 buildTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2;
     int vertex_dim = 3;
-    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles( num_vertices );
     Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
@@ -220,8 +220,8 @@ buildTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     
     // Make the tetrahedrons. 
     int num_elements = (edge_length-1)*(edge_length-1)*5;
-    Teuchos::ArrayRCP<int> tet_handles( num_elements );
-    Teuchos::ArrayRCP<int> tet_connectivity( 4*num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> tet_handles( num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> tet_connectivity( 4*num_elements );
     int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7;
     for ( int j = 0; j < (edge_length-1); ++j )
@@ -288,20 +288,21 @@ buildTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::DTK_TETRAHEDRON, 4,
-						 tet_handles, tet_connectivity,
-						 permutation_list ) );
+	new DataTransferKit::MeshContainer( 
+	    3, vertex_handles, coords, 
+	    DataTransferKit::DTK_TETRAHEDRON, 4,
+	    tet_handles, tet_connectivity,
+	    permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > 
+Teuchos::RCP<DataTransferKit::MeshBlock> 
 buildTiledTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2;
     int vertex_dim = 3;
-    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles( num_vertices );
     Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
@@ -329,8 +330,8 @@ buildTiledTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     
     // Make the tetrahedrons. 
     int num_elements = (edge_length-1)*(edge_length-1)*5;
-    Teuchos::ArrayRCP<int> tet_handles( num_elements );
-    Teuchos::ArrayRCP<int> tet_connectivity( 4*num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> tet_handles( num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> tet_connectivity( 4*num_elements );
     int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7;
     for ( int j = 0; j < (edge_length-1); ++j )
@@ -397,19 +398,19 @@ buildTiledTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+	new DataTransferKit::MeshContainer( 3, vertex_handles, coords, 
 						 DataTransferKit::DTK_TETRAHEDRON, 4,
 						 tet_handles, tet_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullTetMesh()
+Teuchos::RCP<DataTransferKit::MeshBlock> buildNullTetMesh()
 {
-    Teuchos::ArrayRCP<int> vertex_handles(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
-    Teuchos::ArrayRCP<int> tet_handles(0);
-    Teuchos::ArrayRCP<int> tet_connectivity(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> tet_handles(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> tet_connectivity(0);
     Teuchos::ArrayRCP<int> permutation_list(4);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
@@ -417,20 +418,20 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullTetMesh()
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+	new DataTransferKit::MeshContainer( 3, vertex_handles, coords, 
 						 DataTransferKit::DTK_TETRAHEDRON, 4,
 						 tet_handles, tet_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshBlock>  
 buildHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2;
     int vertex_dim = 3;
-    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles( num_vertices );
     Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
@@ -458,8 +459,8 @@ buildHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     
     // Make the hexahedrons. 
     int num_elements = (edge_length-1)*(edge_length-1);
-    Teuchos::ArrayRCP<int> hex_handles( num_elements );
-    Teuchos::ArrayRCP<int> hex_connectivity( 8*num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> hex_handles( num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> hex_connectivity( 8*num_elements );
     int elem_idx, vertex_idx;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
@@ -503,20 +504,20 @@ buildHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+	new DataTransferKit::MeshContainer( 3, vertex_handles, coords, 
 						 DataTransferKit::DTK_HEXAHEDRON, 8,
 						 hex_handles, hex_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshBlock>  
 buildTiledHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2;
     int vertex_dim = 3;
-    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles( num_vertices );
     Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
@@ -544,8 +545,8 @@ buildTiledHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     
     // Make the hexahedrons. 
     int num_elements = (edge_length-1)*(edge_length-1);
-    Teuchos::ArrayRCP<int> hex_handles( num_elements );
-    Teuchos::ArrayRCP<int> hex_connectivity( 8*num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> hex_handles( num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> hex_connectivity( 8*num_elements );
     int elem_idx, vertex_idx;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
@@ -589,20 +590,20 @@ buildTiledHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+	new DataTransferKit::MeshContainer( 3, vertex_handles, coords, 
 						 DataTransferKit::DTK_HEXAHEDRON, 8,
 						 hex_handles, hex_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > 
+Teuchos::RCP<DataTransferKit::MeshBlock> 
 buildNullHexMesh()
 {
-    Teuchos::ArrayRCP<int> vertex_handles(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
-    Teuchos::ArrayRCP<int> hex_handles(0);
-    Teuchos::ArrayRCP<int> hex_connectivity(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> hex_handles(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> hex_connectivity(0);
     Teuchos::ArrayRCP<int> permutation_list(8);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
@@ -610,20 +611,20 @@ buildNullHexMesh()
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+	new DataTransferKit::MeshContainer( 3, vertex_handles, coords, 
 						 DataTransferKit::DTK_HEXAHEDRON, 8,
 						 hex_handles, hex_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshBlock>  
 buildPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2 + (edge_length-1)*(edge_length-1);
     int vertex_dim = 3;
-    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles( num_vertices );
     Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
@@ -662,8 +663,8 @@ buildPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     
     // Make the pyramids. 
     int num_elements = (edge_length-1)*(edge_length-1)*6;
-    Teuchos::ArrayRCP<int> pyr_handles( num_elements );
-    Teuchos::ArrayRCP<int> pyr_connectivity( 5*num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> pyr_handles( num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> pyr_connectivity( 5*num_elements );
     int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7, v8;
     for ( int j = 0; j < (edge_length-1); ++j )
@@ -745,20 +746,20 @@ buildPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+	new DataTransferKit::MeshContainer( 3, vertex_handles, coords, 
 						 DataTransferKit::DTK_PYRAMID, 5,
 						 pyr_handles, pyr_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshBlock>  
 buildTiledPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2 + (edge_length-1)*(edge_length-1);
     int vertex_dim = 3;
-    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles( num_vertices );
     Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
@@ -797,8 +798,8 @@ buildTiledPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offse
     
     // Make the pyramids. 
     int num_elements = (edge_length-1)*(edge_length-1)*6;
-    Teuchos::ArrayRCP<int> pyr_handles( num_elements );
-    Teuchos::ArrayRCP<int> pyr_connectivity( 5*num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> pyr_handles( num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> pyr_connectivity( 5*num_elements );
     int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7, v8;
     for ( int j = 0; j < (edge_length-1); ++j )
@@ -880,19 +881,19 @@ buildTiledPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offse
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+	new DataTransferKit::MeshContainer( 3, vertex_handles, coords, 
 						 DataTransferKit::DTK_PYRAMID, 5,
 						 pyr_handles, pyr_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullPyramidMesh()
+Teuchos::RCP<DataTransferKit::MeshBlock> buildNullPyramidMesh()
 {
-    Teuchos::ArrayRCP<int> vertex_handles(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
-    Teuchos::ArrayRCP<int> pyramid_handles(0);
-    Teuchos::ArrayRCP<int> pyramid_connectivity(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> pyramid_handles(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> pyramid_connectivity(0);
     Teuchos::ArrayRCP<int> permutation_list(5);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
@@ -900,20 +901,20 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullPyramidMesh()
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+	new DataTransferKit::MeshContainer( 3, vertex_handles, coords, 
 						 DataTransferKit::DTK_PYRAMID, 5,
 						 pyramid_handles, pyramid_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshBlock>  
 buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2;
     int vertex_dim = 3;
-    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles( num_vertices );
     Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
@@ -941,8 +942,8 @@ buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     
     // Make the wedges. 
     int num_elements = (edge_length-1)*(edge_length-1)*2;
-    Teuchos::ArrayRCP<int> wedge_handles( num_elements );
-    Teuchos::ArrayRCP<int> wedge_connectivity( 6*num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> wedge_handles( num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> wedge_connectivity( 6*num_elements );
     int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7;
     for ( int j = 0; j < (edge_length-1); ++j )
@@ -989,20 +990,20 @@ buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+	new DataTransferKit::MeshContainer( 3, vertex_handles, coords, 
 						 DataTransferKit::DTK_WEDGE, 6,
 						 wedge_handles, wedge_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshBlock>  
 buildTiledWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2;
     int vertex_dim = 3;
-    Teuchos::ArrayRCP<int> vertex_handles( num_vertices );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles( num_vertices );
     Teuchos::ArrayRCP<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
@@ -1030,8 +1031,8 @@ buildTiledWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset 
     
     // Make the wedges. 
     int num_elements = (edge_length-1)*(edge_length-1)*2;
-    Teuchos::ArrayRCP<int> wedge_handles( num_elements );
-    Teuchos::ArrayRCP<int> wedge_connectivity( 6*num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> wedge_handles( num_elements );
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> wedge_connectivity( 6*num_elements );
     int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7;
     for ( int j = 0; j < (edge_length-1); ++j )
@@ -1078,19 +1079,19 @@ buildTiledWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset 
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+	new DataTransferKit::MeshContainer( 3, vertex_handles, coords, 
 						 DataTransferKit::DTK_WEDGE, 6,
 						 wedge_handles, wedge_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullWedgeMesh()
+Teuchos::RCP<DataTransferKit::MeshBlock> buildNullWedgeMesh()
 {
-    Teuchos::ArrayRCP<int> vertex_handles(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
-    Teuchos::ArrayRCP<int> wedge_handles(0);
-    Teuchos::ArrayRCP<int> wedge_connectivity(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> wedge_handles(0);
+    Teuchos::ArrayRCP<DataTransferKit::MeshId> wedge_connectivity(0);
     Teuchos::ArrayRCP<int> permutation_list(6);
     for ( int i = 0; (int) i < permutation_list.size(); ++i )
     {
@@ -1098,7 +1099,7 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullWedgeMesh()
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+	new DataTransferKit::MeshContainer( 3, vertex_handles, coords, 
 						 DataTransferKit::DTK_WEDGE, 6,
 						 wedge_handles, wedge_connectivity,
 						 permutation_list ) );
@@ -1164,7 +1165,6 @@ void buildTiledCoordinateField( int my_rank, int my_size,
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
 {
     using namespace DataTransferKit;
-    typedef MeshContainer<int> MeshType;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
@@ -1179,7 +1179,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
     int wedge_offset = pyramid_offset + (edge_size+1)*(edge_size+1)*6;
 
     // Setup source mesh manager.
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 4 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 4 );
     if ( my_rank == 0 )
     {
 	mesh_blocks[0] = 
@@ -1215,8 +1215,8 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
     comm->barrier();
 
     // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > source_mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
+    Teuchos::RCP< MeshManager > source_mesh_manager = Teuchos::rcp(
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Setup target coordinate field manager.
     int num_points = 1000;
@@ -1229,22 +1229,22 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<int ,MyField> > source_evaluator;
+    Teuchos::RCP< FieldEvaluator<MeshId,MyField> > source_evaluator;
     if ( my_rank == 0 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
     }
     else if ( my_rank == 1 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[1], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[1], comm ) );
     }
     else if ( my_rank == 2 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[2], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[2], comm ) );
     }
     else
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[3], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[3], comm ) );
     }
     comm->barrier();
 
@@ -1256,7 +1256,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
 	new FieldManager<MyField>( target_field, comm ) );
 
     // Setup and apply the shared domain mapping.
-    SharedDomainMap<MeshType ,MyField> shared_domain_map( 
+    SharedDomainMap<MyField> shared_domain_map( 
 	comm, source_mesh_manager->dim() );
     shared_domain_map.setup( source_mesh_manager, target_coord_manager );
     shared_domain_map.apply( source_evaluator, target_space_manager );
@@ -1281,7 +1281,6 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test9 )
 {
     using namespace DataTransferKit;
-    typedef MeshContainer<int> MeshType;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
@@ -1296,7 +1295,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test9 )
     int wedge_offset = pyramid_offset + (edge_size+1)*(edge_size+1)*6;
 
     // Setup source mesh manager.
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 4 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 4 );
     if ( my_rank == 0 )
     {
 	mesh_blocks[0] = 
@@ -1332,8 +1331,8 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test9 )
     comm->barrier();
 
     // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > source_mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
+    Teuchos::RCP< MeshManager > source_mesh_manager = Teuchos::rcp(
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Setup target coordinate field manager.
     int num_points = 1000;
@@ -1346,22 +1345,22 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test9 )
 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<int ,MyField> > source_evaluator;
+    Teuchos::RCP< FieldEvaluator<MeshId,MyField> > source_evaluator;
     if ( my_rank == 0 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
     }
     else if ( my_rank == 1 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[1], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[1], comm ) );
     }
     else if ( my_rank == 2 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[2], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[2], comm ) );
     }
     else
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[3], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[3], comm ) );
     }
     comm->barrier();
 
@@ -1373,7 +1372,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test9 )
 	new FieldManager<MyField>( target_field, comm ) );
 
     // Setup and apply the shared domain mapping.
-    SharedDomainMap<MeshType ,MyField> shared_domain_map( 
+    SharedDomainMap<MyField> shared_domain_map( 
 	comm, source_mesh_manager->dim(), true );
     shared_domain_map.setup( source_mesh_manager, target_coord_manager );
     shared_domain_map.apply( source_evaluator, target_space_manager );
@@ -1381,7 +1380,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test9 )
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data if it is in the mesh and 0.0 if it is outside.
     int source_rank;
-    Teuchos::Array<int> missing_points;
+    Teuchos::Array<MeshId> missing_points;
     for ( int n = 0; n < num_points; ++n )
     {
 	if ( *(coordinate_field->begin()+n) < 0.0 ||
@@ -1414,7 +1413,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test9 )
 
     // Check the missing points.
     TEST_ASSERT( missing_points.size() > 0 );
-    Teuchos::ArrayView<int> missed_in_map = 
+    Teuchos::ArrayView<MeshId> missed_in_map = 
 	shared_domain_map.getMissedTargetPoints();
     TEST_ASSERT( missing_points.size() == missed_in_map.size() );
 
@@ -1434,7 +1433,6 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test9 )
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test9 )
 {
     using namespace DataTransferKit;
-    typedef MeshContainer<int> MeshType;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
@@ -1449,7 +1447,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test9 )
     int wedge_offset = pyramid_offset + (edge_size+1)*(edge_size+1)*6;
 
     // Setup source mesh manager.
-    Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 4 );
+    Teuchos::ArrayRCP<Teuchos::RCP<MeshBlock> > mesh_blocks( 4 );
     if ( my_rank == 0 )
     {
 	mesh_blocks[0] = 
@@ -1485,8 +1483,8 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test9 )
     comm->barrier();
 
     // Create a mesh manager.
-    Teuchos::RCP< MeshManager<MeshType> > source_mesh_manager = Teuchos::rcp(
-	new MeshManager<MeshType>( mesh_blocks, getDefaultComm<int>(), 3 ) );
+    Teuchos::RCP< MeshManager > source_mesh_manager = Teuchos::rcp(
+	new MeshManager( mesh_blocks, getDefaultComm<int>(), 3 ) );
 
     // Setup target coordinate field manager.
     int num_points = 1000;
@@ -1499,22 +1497,22 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test9 )
 	Teuchos::rcp( new FieldManager<MyField>( coordinate_field, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<int ,MyField> > source_evaluator;
+    Teuchos::RCP< FieldEvaluator<MeshId,MyField> > source_evaluator;
     if ( my_rank == 0 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[0], comm ) );
     }
     else if ( my_rank == 1 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[1], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[1], comm ) );
     }
     else if ( my_rank == 2 )
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[2], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[2], comm ) );
     }
     else
     {
-    	source_evaluator = Teuchos::rcp( new MyEvaluator( *mesh_blocks[3], comm ) );
+    	source_evaluator = Teuchos::rcp( new MyEvaluator( mesh_blocks[3], comm ) );
     }
     comm->barrier();
 
@@ -1526,7 +1524,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test9 )
 	new FieldManager<MyField>( target_field, comm ) );
 
     // Setup and apply the shared domain mapping.
-    SharedDomainMap<MeshType ,MyField> shared_domain_map( 
+    SharedDomainMap<MyField> shared_domain_map( 
 	comm, source_mesh_manager->dim(), true );
     shared_domain_map.setup( source_mesh_manager, target_coord_manager );
     shared_domain_map.apply( source_evaluator, target_space_manager );
@@ -1534,7 +1532,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test9 )
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data if it is in the mesh and 0.0 if it is outside.
     int source_rank;
-    Teuchos::Array<int> missing_points;
+    Teuchos::Array<MeshId> missing_points;
     bool tagged;
     for ( int n = 0; n < num_points; ++n )
     {
@@ -1586,7 +1584,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test9 )
 
     // Check the missing points.
     TEST_ASSERT( missing_points.size() > 0 );
-    Teuchos::ArrayView<int> missed_in_map = 
+    Teuchos::ArrayView<MeshId> missed_in_map = 
 	shared_domain_map.getMissedTargetPoints();
     TEST_ASSERT( missing_points.size() == missed_in_map.size() );
 
