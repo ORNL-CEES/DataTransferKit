@@ -49,10 +49,6 @@
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_Ptr.hpp>
 
-#ifdef HAVE_MPI
-#include <Teuchos_DefaultMpiComm.hpp>
-#endif
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -255,65 +251,6 @@ void CommTools::intersect( const RCP_Comm& comm_A,
     }
    
     comm_intersection = comm_world->createSubcommunicator( subranks() );    
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Given a comm request, check to see if it has completed.
- */
-bool 
-CommTools::isRequestComplete( Teuchos::RCP<Teuchos::CommRequest<int> >& handle )
-{
-    bool is_complete = false;
-
-#ifdef HAVE_MPI
-    DTK_REQUIRE( Teuchos::nonnull(handle) );
-    Teuchos::RCP<Teuchos::MpiCommRequestBase<int> > handle_base =
-	Teuchos::rcp_dynamic_cast<Teuchos::MpiCommRequestBase<int> >(handle);
-    DTK_CHECK( Teuchos::nonnull(handle_base) );
-    MPI_Request raw_request = handle_base->releaseRawMpiRequest();
-    MPI_Status raw_status;
-    int flag = 0;
-    MPI_Test( &raw_request, &flag, &raw_status );
-    is_complete = ( flag != 0 );
-    handle = Teuchos::rcp( 
-	new Teuchos::MpiCommRequestBase<int>(raw_request) );
-#else
-    is_complete = true;
-#endif
-
-    return is_complete;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Given a comm request, check to see if it has completed.
- */
-bool 
-CommTools::isRequestCompleteWithRank( 
-    Teuchos::RCP<Teuchos::CommRequest<int> >& handle,
-    int& send_rank )
-{
-    bool is_complete = false;
-
-#ifdef HAVE_MPI
-    DTK_REQUIRE( Teuchos::nonnull(handle) );
-    Teuchos::RCP<Teuchos::MpiCommRequestBase<int> > handle_base =
-	Teuchos::rcp_dynamic_cast<Teuchos::MpiCommRequestBase<int> >(handle);
-    DTK_CHECK( Teuchos::nonnull(handle_base) );
-    MPI_Request raw_request = handle_base->releaseRawMpiRequest();
-    MPI_Status raw_status;
-    int flag = 0;
-    MPI_Test( &raw_request, &flag, &raw_status );
-    send_rank = raw_status.MPI_SOURCE;
-    is_complete = ( flag != 0 );
-    handle = Teuchos::rcp( 
-	new Teuchos::MpiCommRequestBase<int>(raw_request) );
-#else
-    is_complete = true;
-#endif
-
-    return is_complete;
 }
 
 //---------------------------------------------------------------------------//

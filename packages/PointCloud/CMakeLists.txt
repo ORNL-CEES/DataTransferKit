@@ -5,26 +5,27 @@
 ## TriBITS package file for the DataTransferKit package
 ##---------------------------------------------------------------------------##
 
-INCLUDE(TribitsPackageMacros)
-INCLUDE(TribitsAddOptionAndDefine)
-
 ##---------------------------------------------------------------------------##
 ## Define the package
 ##---------------------------------------------------------------------------##
 
-TRIBITS_PACKAGE_DECL(DataTransferKit)
-TRIBITS_ADD_DEBUG_OPTION()
-TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
+TRIBITS_SUBPACKAGE(PointCloud)
 
 ##---------------------------------------------------------------------------##
-## Do standard postprocessing
+## Add library, test, and examples.
 ##---------------------------------------------------------------------------##
 
-TRIBITS_PROCESS_SUBPACKAGES()
+ADD_SUBDIRECTORY(src)
 
-TRIBITS_PACKAGE_DEF()
+TRIBITS_ADD_TEST_DIRECTORIES(test)
 
-TRIBITS_PACKAGE_POSTPROCESS()
+TRIBITS_ADD_EXAMPLE_DIRECTORIES(example)
+
+##---------------------------------------------------------------------------##
+## D) Do standard postprocessing
+##---------------------------------------------------------------------------##
+
+TRIBITS_SUBPACKAGE_POSTPROCESS()
 
 ##---------------------------------------------------------------------------##
 ## end of DataTransferKit/CMakeLists.txt

@@ -1,5 +1,2 @@
 /* Define if we want to use Design-by-Contract functionality. */
 #cmakedefine01 HAVE_DTK_DBC
-
-/* Define if we want to use MPI. */
-#cmakedefine HAVE_DTK_MPI

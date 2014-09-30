@@ -1,0 +1,52 @@
+INCLUDE(TribitsAddExecutableAndTest)
+INCLUDE(TribitsAddAdvancedTest)
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  Assertion_test
+  SOURCES tstAssertion.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  CommIndexer_test
+  SOURCES tstCommIndexer.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  CommTools_test
+  SOURCES tstCommTools.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  MpiTagConsistency_test
+  SOURCES tstMpiTagConsistency.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM mpi
+  NUM_MPI_PROCS 2
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  StaticSearchTree_test
+  SOURCES tstStaticSearchTree.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  Distributor_test
+  SOURCES tstDistributor.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  BoundingBox_test
+  SOURCES tstBoundingBox.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )

@@ -56,8 +56,8 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
 
     // Build a series of random cylinders.
     int num_cylinders = 100;
-    Teuchos::ArrayRCP<Cylinder> cylinders( num_cylinders );
-    Teuchos::ArrayRCP<int> gids( num_cylinders );
+    Teuchos::ArrayRCP<Teuchos::RCP<GeometricEntity> > cylinders( num_cylinders );
+    Teuchos::ArrayRCP<MeshId> gids( num_cylinders );
     for ( int i = 0; i < num_cylinders; ++i )
     {
 	double length = (double) std::rand() / RAND_MAX;
@@ -65,19 +65,19 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
 	double centroid_x = (double) std::rand() / RAND_MAX - 0.5 + my_rank;
 	double centroid_y = (double) std::rand() / RAND_MAX - 0.5 + my_rank;
 	double centroid_z = (double) std::rand() / RAND_MAX - 0.5 + my_rank;
-	cylinders[i] = 
-	    Cylinder( length, radius, centroid_x, centroid_y, centroid_z );
+	cylinders[i] = Teuchos::rcp(
+	    new Cylinder(length, radius, centroid_x, centroid_y, centroid_z) );
 	gids[i] = i;
     }
 
     // Build a geometry manager.
-    GeometryManager<Cylinder,int> geometry_manager( cylinders, gids, comm, 3 );
+    GeometryManager geometry_manager( cylinders, gids, comm, 3 );
 
     // Check the geometry manager.
-    Teuchos::ArrayRCP<Cylinder> manager_geometry = geometry_manager.geometry();
+    Teuchos::ArrayRCP<Teuchos::RCP<GeometricEntity> > manager_geometry = 
+	geometry_manager.geometry();
     TEST_ASSERT( manager_geometry.size() == num_cylinders );
-    TEST_ASSERT( GeometryTraits<Cylinder>::dim(manager_geometry[0]) == 3 );
-    TEST_ASSERT( geometry_manager.dim() == 3 );
+    TEST_ASSERT( manager_geometry[0]->dimension() == 3 );
     TEST_ASSERT( geometry_manager.comm() == comm );
     TEST_ASSERT( geometry_manager.localNumGeometry() == num_cylinders );
     TEST_ASSERT( geometry_manager.globalNumGeometry() == 
@@ -93,7 +93,7 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
 
     Teuchos::Array<BoundingBox> cylinder_boxes = 
 	geometry_manager.boundingBoxes();
-    Teuchos::ArrayRCP<int> cylinder_gids = geometry_manager.gids();
+    Teuchos::ArrayRCP<MeshId> cylinder_gids = geometry_manager.gids();
     for ( int i = 0; i < num_cylinders; ++i )
     {
 	TEST_ASSERT( cylinder_gids[i] == gids[i] );
@@ -101,26 +101,26 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
 	for ( int d = 0; d < 6; ++d )
 	{
 	    TEST_ASSERT( cylinder_boxes[i].getBounds()[d] ==
-			 cylinders[i].boundingBox().getBounds()[d] );
+			 cylinders[i]->boundingBox().getBounds()[d] );
 	}
 
-	if ( cylinders[i].boundingBox().getBounds()[0] < x_min )
-	    x_min = cylinders[i].boundingBox().getBounds()[0];
+	if ( cylinders[i]->boundingBox().getBounds()[0] < x_min )
+	    x_min = cylinders[i]->boundingBox().getBounds()[0];
 
-	if ( cylinders[i].boundingBox().getBounds()[1] < y_min )
-	    y_min = cylinders[i].boundingBox().getBounds()[1];
+	if ( cylinders[i]->boundingBox().getBounds()[1] < y_min )
+	    y_min = cylinders[i]->boundingBox().getBounds()[1];
 
-	if ( cylinders[i].boundingBox().getBounds()[2] < z_min )
-	    z_min = cylinders[i].boundingBox().getBounds()[2];
+	if ( cylinders[i]->boundingBox().getBounds()[2] < z_min )
+	    z_min = cylinders[i]->boundingBox().getBounds()[2];
 
-	if ( cylinders[i].boundingBox().getBounds()[3] > x_max )
-	    x_max = cylinders[i].boundingBox().getBounds()[3];
+	if ( cylinders[i]->boundingBox().getBounds()[3] > x_max )
+	    x_max = cylinders[i]->boundingBox().getBounds()[3];
 
-	if ( cylinders[i].boundingBox().getBounds()[4] > y_max )
-	    y_max = cylinders[i].boundingBox().getBounds()[4];
+	if ( cylinders[i]->boundingBox().getBounds()[4] > y_max )
+	    y_max = cylinders[i]->boundingBox().getBounds()[4];
 
-	if ( cylinders[i].boundingBox().getBounds()[5] > z_max )
-	    z_max = cylinders[i].boundingBox().getBounds()[5];
+	if ( cylinders[i]->boundingBox().getBounds()[5] > z_max )
+	    z_max = cylinders[i]->boundingBox().getBounds()[5];
     }
 
     BoundingBox local_box = geometry_manager.localBoundingBox();
@@ -152,8 +152,8 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
 
     // Build a series of random boxes.
     int num_boxes = 100;
-    Teuchos::ArrayRCP<Box> boxes( num_boxes );
-    Teuchos::ArrayRCP<int> gids( num_boxes );
+    Teuchos::ArrayRCP<Teuchos::RCP<GeometricEntity> > boxes( num_boxes );
+    Teuchos::ArrayRCP<MeshId> gids( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
     {
 	double x_min = -(double) std::rand() / RAND_MAX + my_rank;
@@ -162,19 +162,19 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
 	double x_max =  (double) std::rand() / RAND_MAX + my_rank;
 	double y_max =  (double) std::rand() / RAND_MAX + my_rank;
 	double z_max =  (double) std::rand() / RAND_MAX + my_rank;
-	boxes[i] = 
-	    Box( x_min, y_min, z_min, x_max, y_max, z_max );
+	boxes[i] = Teuchos::rcp(
+	    new Box(x_min, y_min, z_min, x_max, y_max, z_max) );
 	gids[i] = i;
     }
 
     // Build a geometry manager.
-    GeometryManager<Box,int> geometry_manager( boxes, gids, comm, 3 );
+    GeometryManager geometry_manager( boxes, gids, comm, 3 );
 
     // Check the geometry manager.
-    Teuchos::ArrayRCP<Box> manager_geometry = geometry_manager.geometry();
+    Teuchos::ArrayRCP<Teuchos::RCP<GeometricEntity> > manager_geometry = 
+	geometry_manager.geometry();
     TEST_ASSERT( manager_geometry.size() == num_boxes );
-    TEST_ASSERT( GeometryTraits<Box>::dim(manager_geometry[0]) == 3 );
-    TEST_ASSERT( geometry_manager.dim() == 3 );
+    TEST_ASSERT( manager_geometry[0]->dimension() == 3 );
     TEST_ASSERT( geometry_manager.comm() == comm );
     TEST_ASSERT( geometry_manager.localNumGeometry() == num_boxes );
     TEST_ASSERT( geometry_manager.globalNumGeometry() == num_boxes*my_size );
@@ -189,7 +189,7 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
 
     Teuchos::Array<BoundingBox> box_boxes = 
 	geometry_manager.boundingBoxes();
-    Teuchos::ArrayRCP<int> box_gids = geometry_manager.gids();
+    Teuchos::ArrayRCP<MeshId> box_gids = geometry_manager.gids();
     for ( int i = 0; i < num_boxes; ++i )
     {
 	TEST_ASSERT( box_gids[i] == gids[i] );
@@ -197,26 +197,26 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
 	for ( int d = 0; d < 6; ++d )
 	{
 	    TEST_ASSERT( box_boxes[i].getBounds()[d] ==
-			 boxes[i].boundingBox().getBounds()[d] );
+			 boxes[i]->boundingBox().getBounds()[d] );
 	}
 
-	if ( boxes[i].boundingBox().getBounds()[0] < x_min )
-	    x_min = boxes[i].boundingBox().getBounds()[0];
+	if ( boxes[i]->boundingBox().getBounds()[0] < x_min )
+	    x_min = boxes[i]->boundingBox().getBounds()[0];
 
-	if ( boxes[i].boundingBox().getBounds()[1] < y_min )
-	    y_min = boxes[i].boundingBox().getBounds()[1];
+	if ( boxes[i]->boundingBox().getBounds()[1] < y_min )
+	    y_min = boxes[i]->boundingBox().getBounds()[1];
 
-	if ( boxes[i].boundingBox().getBounds()[2] < z_min )
-	    z_min = boxes[i].boundingBox().getBounds()[2];
+	if ( boxes[i]->boundingBox().getBounds()[2] < z_min )
+	    z_min = boxes[i]->boundingBox().getBounds()[2];
 
-	if ( boxes[i].boundingBox().getBounds()[3] > x_max )
-	    x_max = boxes[i].boundingBox().getBounds()[3];
+	if ( boxes[i]->boundingBox().getBounds()[3] > x_max )
+	    x_max = boxes[i]->boundingBox().getBounds()[3];
 
-	if ( boxes[i].boundingBox().getBounds()[4] > y_max )
-	    y_max = boxes[i].boundingBox().getBounds()[4];
+	if ( boxes[i]->boundingBox().getBounds()[4] > y_max )
+	    y_max = boxes[i]->boundingBox().getBounds()[4];
 
-	if ( boxes[i].boundingBox().getBounds()[5] > z_max )
-	    z_max = boxes[i].boundingBox().getBounds()[5];
+	if ( boxes[i]->boundingBox().getBounds()[5] > z_max )
+	    z_max = boxes[i]->boundingBox().getBounds()[5];
     }
 
     BoundingBox local_box = geometry_manager.localBoundingBox();

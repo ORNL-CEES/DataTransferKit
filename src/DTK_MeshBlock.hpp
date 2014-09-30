@@ -42,6 +42,7 @@
 #define DTK_MESHBLOCK_HPP
 
 #include "DTK_MeshTypes.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
 
@@ -170,7 +171,12 @@ class MeshBlock
     /*!
      * \brief Return the spatial dimension of the block.
      */
-    virtual int dimension() = 0;
+    virtual int dimension()
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return -1;
+    }
 
     /*!
      * \brief Return the local number of vertices in this block.
@@ -181,25 +187,45 @@ class MeshBlock
     /*!
      * \brief Return a reference-counted pointer to the vertex ids.
      */
-    virtual Teuchos::ArrayRCP<MeshId> vertexIds() = 0;
+    virtual Teuchos::ArrayRCP<MeshId> vertexIds()
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return Teuchos::ArrayRCP<MeshId>(0);
+    }
 
     /*!
      * \brief Return a reference-counted pointer to the vertex coordinates.
      */
-    virtual Teuchos::ArrayRCP<double> vertexCoordinates() = 0;
+    virtual Teuchos::ArrayRCP<double> vertexCoordinates()
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return Teuchos::ArrayRCP<double>(0);
+    }
 
     /*! 
      * \brief Return the element topology for this mesh block
      * (DTK_ElementTopology enum).
      */
-    virtual DTK_ElementTopology elementTopology() = 0;
+    virtual DTK_ElementTopology elementTopology()
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return -1;
+    }
 
     /*! 
      * \brief Return the number of vertices that constructs an individual
      * element in this mesh block. All elements in the mesh must be
      * constructed with the same number of vertices.
      */
-    virtual int verticesPerElement() = 0;
+    virtual int verticesPerElement()
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return -1;
+    }
 
     /*!
      * \brief Return the local number of elements in this block.
@@ -210,18 +236,33 @@ class MeshBlock
     /*! 
      * \brief Return a reference-counted pointer to the element ids.
      */
-    virtual Teuchos::ArrayRCP<MeshId> elementIds() = 0;
+    virtual Teuchos::ArrayRCP<MeshId> elementIds()
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return Teuchos::ArrayRCP<MeshId>(0);
+    }
 
     /*! 
      * \brief Return a reference-counted pointer to the element connectivity.
      */
-    virtual Teuchos::ArrayRCP<MeshId> connectivity() = 0;
+    virtual Teuchos::ArrayRCP<MeshId> connectivity()
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return Teuchos::ArrayRCP<MeshId>(0);
+    }
 
     /*! 
      * \brief Return a reference-counted pointer to the connectivity
      * permutation array.
      */
-    virtual Teuchos::ArrayRCP<int> permutation() = 0;
+    virtual Teuchos::ArrayRCP<int> permutation()
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return Teuchos::ArrayRCP<int>(0);
+    }
 };
 
 } // end namespace DataTransferKit

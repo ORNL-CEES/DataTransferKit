@@ -49,6 +49,7 @@
 #include "DTK_Partitioner.hpp"
 #include "DTK_BoundingBox.hpp"
 #include "DTK_CommIndexer.hpp"
+#include "DTK_GeometricEntity.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -129,11 +130,11 @@ class Rendezvous
 
     // Get the native elements in the rendezvous decomposition that are in
     // each geometry in a list.
-    template<class Geometry>
-    void elementsInGeometry( const Teuchos::Array<Geometry>& geometry,
-			     Teuchos::Array<Teuchos::Array<MeshId> >& elements,
-			     const double tolerance,	
-			     bool all_vertices_for_inclusion ) const;
+    void elementsInGeometry( 
+	const Teuchos::Array<Teuchos::RCP<GeometricEntity> >& geometry,
+	Teuchos::Array<Teuchos::Array<MeshId> >& elements,
+	const double tolerance,	
+	bool all_vertices_for_inclusion ) const;
 
     //! Get the bounding box over which the rendezvous decomposition was
     //! generated.

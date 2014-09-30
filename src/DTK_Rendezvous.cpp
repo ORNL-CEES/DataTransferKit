@@ -266,13 +266,14 @@ void Rendezvous::elementsContainingPoints(
  */
 template<class Geometry> 
 void Rendezvous::elementsInGeometry(
-    const Teuchos::Array<Geometry>& geometry,
+    const Teuchos::Array<Teuchos::RCO<GeometricEntity> >& geometry,
     Teuchos::Array<Teuchos::Array<MeshId> >& elements,
     const double tolerance, bool all_vertices_for_inclusion ) const
 {
     elements.resize( geometry.size() );
 
-    typename Teuchos::Array<Geometry>::const_iterator geometry_iterator;
+    typename Teuchos::Array<Teuchos::RCP<GeometricEntity>::const_iterator
+			    geometry_iterator;
     typename Teuchos::Array<Teuchos::Array<MeshId> >::iterator 
 	element_iterator;
     int num_blocks = d_rendezvous_mesh_manager->getNumBlocks();

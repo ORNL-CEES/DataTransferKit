@@ -46,7 +46,7 @@
 
 #include "DTK_DBC.hpp"
 #include "DTK_CommIndexer.hpp"
-#include "DataTransferKit_config.hpp"
+#include "DTK_GeometryRCB.hpp"
 
 #include <mpi.h>
 
@@ -70,9 +70,9 @@ namespace DataTransferKit
  *
  * \param dimension The dimension of the GeometryRCB space.
  */
-template<class Geometry, class GlobalOrdinal>
-GeometryRCB<Geometry,GlobalOrdinal>::GeometryRCB(
-    const RCP_Comm& comm, const RCP_GeometryManager& geometry_manager, 
+GeometryRCB::GeometryRCB(
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm, 
+    const Teuchos::RCP<GeometryManager>& geometry_manager, 
     const int dimension )
     : d_comm( comm )
     , d_geometry_manager( geometry_manager )
@@ -117,8 +117,7 @@ GeometryRCB<Geometry,GlobalOrdinal>::GeometryRCB(
 /*!
  * \brief Destructor. Zoltan memory deallocation happens here and only here.
  */
-template<class Geometry, class GlobalOrdinal>
-GeometryRCB<Geometry,GlobalOrdinal>::~GeometryRCB()
+GeometryRCB::~GeometryRCB()
 {
     Zoltan_LB_Free_Part( &d_import_global_ids, &d_import_local_ids, 
 			 &d_import_procs, &d_import_to_part );
@@ -131,43 +130,25 @@ GeometryRCB<Geometry,GlobalOrdinal>::~GeometryRCB()
 /*!
  * \brief Compute GeometryRCB partitioning of the geometry.
  */
-template<class Geometry, class GlobalOrdinal>
-void GeometryRCB<Geometry,GlobalOrdinal>::partition( const BoundingBox& local_box )
+void GeometryRCB::partition( const BoundingBox& local_box )
 {
     // Partition the problem.
-    DTK_REMEMBER( int zoltan_error );
-#if HAVE_DTK_DBC
-    zoltan_error = Zoltan_LB_Partition( d_zz, 
-					&d_changes,  
-					&d_num_gid_entries,
-					&d_num_lid_entries,
-					&d_num_import,    
-					&d_import_global_ids,
-					&d_import_local_ids, 
-					&d_import_procs,    
-					&d_import_to_part,   
-					&d_num_export,      
-					&d_export_global_ids,
-					&d_export_local_ids, 
-					&d_export_procs,    
-					&d_export_to_part );
-#else
-    Zoltan_LB_Partition( d_zz, 
-			 &d_changes,  
-			 &d_num_gid_entries,
-			 &d_num_lid_entries,
-			 &d_num_import,    
-			 &d_import_global_ids,
-			 &d_import_local_ids, 
-			 &d_import_procs,    
-			 &d_import_to_part,   
-			 &d_num_export,      
-			 &d_export_global_ids,
-			 &d_export_local_ids, 
-			 &d_export_procs,    
-			 &d_export_to_part );
-#endif
-    DTK_CHECK( zoltan_error == ZOLTAN_OK );
+    DTK_CHECK_ERROR_CODE(
+	Zoltan_LB_Partition( d_zz, 
+			     &d_changes,  
+			     &d_num_gid_entries,
+			     &d_num_lid_entries,
+			     &d_num_import,    
+			     &d_import_global_ids,
+			     &d_import_local_ids, 
+			     &d_import_procs,    
+			     &d_import_to_part,   
+			     &d_num_export,      
+			     &d_export_global_ids,
+			     &d_export_local_ids, 
+			     &d_export_procs,    
+			     &d_export_to_part )
+	);
 
     // Get all of the bounding boxes for future searching.
     Teuchos::Tuple<double,6> bounds;
@@ -176,16 +157,11 @@ void GeometryRCB<Geometry,GlobalOrdinal>::partition( const BoundingBox& local_bo
 	int dim = 0;
 	for ( int rank = 0; rank < d_comm->getSize(); ++rank )
 	{
-#if HAVE_DTK_DBC
-	    zoltan_error = Zoltan_RCB_Box( d_zz, rank, &dim,
-					   &bounds[0], &bounds[1], &bounds[2],
-					   &bounds[3], &bounds[4], &bounds[5] );
-#else
-	    Zoltan_RCB_Box( d_zz, rank, &dim,
-			    &bounds[0], &bounds[1], &bounds[2],
-			    &bounds[3], &bounds[4], &bounds[5] );
-#endif
-	    DTK_CHECK( zoltan_error == ZOLTAN_OK );
+	    DTK_CHECK_ERROR_CODE(
+		Zoltan_RCB_Box( d_zz, rank, &dim,
+				&bounds[0], &bounds[1], &bounds[2],
+				&bounds[3], &bounds[4], &bounds[5] )
+		); 
 	    DTK_CHECK( dim == d_dimension );
 
 	    // If there was no geometry in the local domain for a given rank
@@ -224,10 +200,9 @@ void GeometryRCB<Geometry,GlobalOrdinal>::partition( const BoundingBox& local_bo
  *
  * \return The RCB destination procs for the points.
  */
-template<class Geometry, class GlobalOrdinal>
 Teuchos::Array<int> 
-GeometryRCB<Geometry,GlobalOrdinal>::getInputPointDestinationProcs(
-    const int lid_begin, const int num_points )
+GeometryRCB::getInputPointDestinationProcs( const int lid_begin, 
+					    const int num_points )
 {
     Teuchos::Array<int> ranks( num_points, d_comm->getRank() );
     int lid = 0;
@@ -252,8 +227,7 @@ GeometryRCB<Geometry,GlobalOrdinal>::getInputPointDestinationProcs(
  *
  * \return The GeometryRCB destination proc for the point.
  */
-template<class Geometry, class GlobalOrdinal>
-int GeometryRCB<Geometry,GlobalOrdinal>::getPointDestinationProc( 
+int GeometryRCB::getPointDestinationProc( 
     Teuchos::ArrayView<double> coords ) const
 {
     DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
@@ -279,10 +253,8 @@ int GeometryRCB<Geometry,GlobalOrdinal>::getPointDestinationProc(
  *
  * \return The GeometryRCB destination procs for the box
  */
-template<class Geometry, class GlobalOrdinal>
 Teuchos::Array<int>
-GeometryRCB<Geometry,GlobalOrdinal>::getBoxDestinationProcs( 
-    const BoundingBox& box ) const
+GeometryRCB::getBoxDestinationProcs( const BoundingBox& box ) const
 {
     Teuchos::Array<int> procs;
 
@@ -301,12 +273,10 @@ GeometryRCB<Geometry,GlobalOrdinal>::getBoxDestinationProcs(
 /*!
  * \brief Zoltan callback for getting the number of geometry objects.
  */
-template<class Geometry, class GlobalOrdinal>
-int GeometryRCB<Geometry,GlobalOrdinal>::getNumberOfObjects( 
-    void *data, int *ierr )
+int GeometryRCB::getNumberOfObjects( void *data, int *ierr )
 {
-    RCP_GeometryManager geometry_manager = 
-	*static_cast<RCP_GeometryManager*>( data );
+    Teuchos::RCP<GeometryManager> geometry_manager = 
+	*static_cast<Teuchos::RCP<GeometryManager>*>( data );
     int num_geometry = 0;
 
     // We'll only count geometry if the geometry manager is not null.
@@ -330,14 +300,13 @@ int GeometryRCB<Geometry,GlobalOrdinal>::getNumberOfObjects(
 /*!
  * \brief Zoltan callback for getting the local and global geometry ID's.
  */
-template<class Geometry, class GlobalOrdinal>
-void GeometryRCB<Geometry,GlobalOrdinal>::getObjectList( 
+void GeometryRCB::getObjectList( 
     void *data, int /*sizeGID*/, int /*sizeLID*/,
     ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
     int /*wgt_dim*/, float * /*obj_wgts*/, int *ierr )
 {
-    RCP_GeometryManager geometry_manager = 
-	*static_cast<RCP_GeometryManager*>( data );
+    Teuchos::RCP<GeometryManager> geometry_manager = 
+	*static_cast<Teuchos::RCP<GeometryManager>*>( data );
 
     // We'll only build the geometry list is the geometry manager is not null.
     if ( !geometry_manager.is_null() )
@@ -376,8 +345,7 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getObjectList(
 /*!
  * \brief Zoltan callback for getting the dimension of the vertices.
  */
-template<class Geometry, class GlobalOrdinal>
-int GeometryRCB<Geometry,GlobalOrdinal>::getNumGeometry( void *data, int *ierr )
+int GeometryRCB::getNumGeometry( void *data, int *ierr )
 {
     int dimension = *static_cast<int*>( data );
     *ierr = ZOLTAN_OK;
@@ -388,15 +356,14 @@ int GeometryRCB<Geometry,GlobalOrdinal>::getNumGeometry( void *data, int *ierr )
 /*!
  * \brief Zoltan callback for getting the centroid coordinates.
  */
-template<class Geometry, class GlobalOrdinal>
-void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
+void GeometryRCB::getGeometryList(
     void *data, int sizeGID, int sizeLID,
     int num_obj,
     ZOLTAN_ID_PTR /*globalID*/, ZOLTAN_ID_PTR /*localID*/,
     int num_dim, double *geom_vec, int *ierr )
 {
-    RCP_GeometryManager geometry_manager = 
-	*static_cast<RCP_GeometryManager*>( data );
+    Teuchos::RCP<GeometryManager> geometry_manager = 
+	*static_cast<Teuchos::RCP<GeometryManager>*>( data );
 
     // We will only supply centroid coordinates when the geometry exists.
     if ( !geometry_manager.is_null() )

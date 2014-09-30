@@ -57,7 +57,7 @@ namespace DataTransferKit
  \class GeometryManager
  \brief Manager object for geometry.
 
- The geometry manager manages a collection of geometric objects and their
+ The geometry manager manages a collection of geometric entities and their
  parallel decomposition. A geometry has a dimension of arbitrary size. For
  example, a square has a dimension of 2 while a cylinder has a dimension of
  3. A collection of geometric objects need not know their parallel
@@ -74,15 +74,16 @@ class GeometryManager
   public:
 
     // Constructor.
-    GeometryManager( const Teuchos::ArrayRCP<GeometricEntity>& geometry,
-		     const Teuchos::ArrayRCP<MeshId>& geom_gids,
-		     const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
+    GeometryManager( 
+	const Teuchos::ArrayRCP<Teuchos::RCP<GeometricEntity> >& geometry,
+	const Teuchos::ArrayRCP<MeshId>& geom_gids,
+	const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
 
     // Destructor.
     ~GeometryManager();
 
     //! Get the local geometric objects managed by this manager.
-    const Teuchos::ArrayRCP<GeometricEntity>& geometry() const 
+    const Teuchos::ArrayRCP<Teuchos::RCP<GeometricEntity> >& geometry() const 
     { return d_geometry; }
 
     //! Get the global ids of the geometric objects managed by this manager.
@@ -94,13 +95,11 @@ class GeometryManager
     { return d_comm; }
 
     //! Get the local number of objects owned by this manager.
-    const typename Teuchos::ArrayRCP<GeometricEntity>::size_type
-    localNumGeometry() const 
+    const int localNumGeometry() const 
     { return d_geometry.size(); }
 
     // Get the global number of objects owned by this manager.
-    const typename Teuchos::ArrayRCP<GeometricEntity>::size_type
-    globalNumGeometry() const;
+    const MeshId globalNumGeometry() const;
 
     // Get the bounding boxes for the objects owned by this manager.
     Teuchos::Array<BoundingBox> boundingBoxes() const;
@@ -122,7 +121,7 @@ class GeometryManager
   private:
 
     // Geometric objects.
-    Teuchos::ArrayRCP<GeometricEntity> d_geometry;
+    Teuchos::ArrayRCP<Teuchos::RCP<GeometricEntity> > d_geometry;
 
     // Geometric objects global ids.
     Teuchos::ArrayRCP<MeshId> d_geom_gids;

@@ -43,8 +43,10 @@
 
 #include "DTK_MeshTypes.hpp"
 #include "DTK_BoundingBox.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -57,18 +59,18 @@ namespace DataTransferKit
   geometry is simply an object or collection of objects that has $n$ physical
   dimensions and a spatial domain $\Omega \in \mathbb{R}^n$ that is bounded by
   a boundary $\Gamma \in \mathbb{R}^n$. Concrete examples of geometries in 3
-  dimensions include cubes and cylinders. A geometry can have 1, 2, or three
-  dimensions. To specify the general position in space of the geometry, each
-  object is required to have a centroid given in Cartesian coordinates with
-  (x) given for 1 dimensional geometries, (x,y) for two dimensions, and
-  (x,y,z) for 3 dimensions. A measure is also specified for each geometry
-  where the measure is defined as length in 1 dimension, area in 2 dimensions,
-  and volume for 3 dimensions. In addition to this data, a geometry must be
-  able to provide a Cartesian axis-aligned bounding box that encapsulates the
-  entire geometry. For geometric search operations to be performed, a geometry
-  must be able to determine if a given point of the same dimensionality as the
-  geometry is contained within the boundary of the geometry (i.e. $\hat{r} \in
-  \Omega$).
+  dimensions include cubes, cylinders, polyhedron, or mesh elements. A
+  geometry can have 1, 2, or three dimensions. To specify the general position
+  in space of the geometry, each object is required to have a centroid given
+  in Cartesian coordinates with (x) given for 1 dimensional geometries, (x,y)
+  for two dimensions, and (x,y,z) for 3 dimensions. A measure is also
+  specified for each geometry where the measure is defined as length in 1
+  dimension, area in 2 dimensions, and volume for 3 dimensions. In addition to
+  this data, a geometry must be able to provide a Cartesian axis-aligned
+  bounding box that encapsulates the entire geometry. For geometric search
+  operations to be performed, a geometry must be able to determine if a given
+  point of the same dimensionality as the geometry is contained within the
+  boundary of the geometry (i.e. $\hat{r} \in \Omega$).
 */
 //---------------------------------------------------------------------------//
 class GeometricEntity
@@ -88,32 +90,101 @@ class GeometricEntity
     { /* ... */ }
 
     /*!
-     * \brief Return the dimension of the geometry.
+     * \brief Get the identifier for the entity.
      */
-    virtual int dimension() const = 0;
+    virtual EntityId id() const
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return -1;
+    }
+
+    //@{
+    //! Geometric functions.
+    /*!
+     * \brief Return the spatial dimension of the entity.
+     */
+    virtual int dimension() const
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return -1;
+    }
 
     /*!
-     * \brief Return the geometry measure (volume for a 3D geometry, area for
+     * \brief Return the entity measure (volume for a 3D entity, area for
      * 2D, and length for 1D).
      */
-    virtual double measure() const = 0;
+    virtual double measure() const
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return -1.0;
+    }
 
     /*!
-     * \brief Return the centroid of the geometry.
+     * \brief Return the centroid of the entity.
      */
-    virtual Teuchos::Array<double> centroid() const = 0;
+    virtual Teuchos::Array<double> centroid() const
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return Teuchos::Array<double>(0);
+    }
 
     /*!
-     * \brief Return the axis-aligned bounding box around the geometry.
+     * \brief Return the axis-aligned bounding box around the entity.
      */
-    virtual BoundingBox boundingBox() const = 0;
+    virtual BoundingBox boundingBox() const
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return BoundingBox();
+    }
 
     /*!
      * \brief Return whether or not a point is in the entity within a
      * specified tolerance.
      */
     virtual bool pointInEntity( const Teuchos::ArrayView<double>& coords,
-				const double tolerance ) const = 0;
+				const double tolerance ) const
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return false;
+    }
+    //@}
+
+    //@{ 
+    //! Serialization functions.
+    /*!
+     * \brief Get the byte size of the entity.
+     */
+    virtual std::size_t byteSize() const
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return 0;
+    }
+
+    /*!
+     * \brief Pack the entity into a view of a buffer.
+     */
+    virtual void pack( Teuchos::ArrayView<char>& buffer )
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+    }
+
+    /*!
+     * \brief Unpack the entity from a view of a buffer.
+     */
+    virtual void unpack( const Teuchos::ArrayView<char>& buffer )
+    { 
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+    }
+    //@}
 };
 
 //---------------------------------------------------------------------------//

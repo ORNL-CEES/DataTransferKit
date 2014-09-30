@@ -22,11 +22,21 @@ SET(HEADERS ${HEADERS}
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_nanoflann.hpp
+  DTK_BoundingBox.hpp
+  DTK_CommIndexer.hpp
+  DTK_CommTools.hpp
+  DTK_DBC.hpp
+  DTK_SearchTreeFactory.hpp
+  DTK_StaticSearchTree.hpp
+  DTK_StaticSearchTree_impl.hpp
   ) 
 
 APPEND_SET(SOURCES
-  DTK_nanoflann_dummy.cpp
+  DTK_BoundingBox.cpp
+  DTK_CommIndexer.cpp
+  DTK_CommTools.cpp
+  DTK_DBC.cpp
+  DTK_SearchTreeFactory.cpp
   )
 
 #
@@ -34,7 +44,13 @@ APPEND_SET(SOURCES
 #
 
 TRIBITS_ADD_LIBRARY(
-  dtk_nanoflann
+  dtk_utils
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )
+
+INSTALL(FILES 
+  ${HEADERS} 
+  DESTINATION 
+  ${CMAKE_INSTALL_PREFIX}/include/
+)

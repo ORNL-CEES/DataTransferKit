@@ -42,6 +42,7 @@
 #include "DTK_DBC.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
@@ -62,7 +63,7 @@ namespace DataTransferKit
  * \param dim The dimension of the geometry.
  */
 GeometryManager::GeometryManager( 
-    const Teuchos::ArrayRCP<GeometricEntity>& geometry,
+    const Teuchos::ArrayRCP<Teuchos::RCP<GeometricEntity> >& geometry,
     const Teuchos::ArrayRCP<MeshId>& geom_gids,
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
     : d_geometry( geometry )
@@ -88,15 +89,15 @@ GeometryManager::~GeometryManager()
 const typename Teuchos::ArrayRCP<GeometricEntity>::size_type
 GeometryManager::globalNumGeometry() const
 {
-    typename Teuchos::ArrayRCP<GeometricEntity>::size_type global_size =
-	d_geometry.size();
-    typename Teuchos::ArrayRCP<GeometricEntity>::size_type global_size_copy =
-	d_geometry.size();
+    typename Teuchos::ArrayRCP<Teuchos::RCP<GeometricEntity> >::size_type 
+	local_size = d_geometry.size();
+    typename Teuchos::ArrayRCP<Teuchos::RCP<GeometricEntity> >::size_type 
+	global_size = 0;
 
     Teuchos::reduceAll<int,typename Teuchos::ArrayRCP<GeometricEntity>::size_type>( 
-	*d_comm, Teuchos::REDUCE_SUM, 1, &global_size, &global_size_copy );
+	*d_comm, Teuchos::REDUCE_SUM, 1, &local_size, &global_size );
 
-    return global_size_copy;
+    return global_size;
 }
 
 //---------------------------------------------------------------------------//
@@ -110,12 +111,13 @@ GeometryManager::boundingBoxes() const
 {
     Teuchos::Array<BoundingBox> boxes( d_geometry.size() );
     Teuchos::Array<BoundingBox>::iterator box_iterator;
-    typename Teuchos::ArrayRCP<GeometricEntity>::const_iterator geom_iterator;
+    typename Teuchos::ArrayRCP<Teuchos::RCP<GeometricEntity> >::const_iterator 
+	geom_iterator;
     for ( geom_iterator = d_geometry.begin(), box_iterator = boxes.begin();
 	  geom_iterator != d_geometry.end();
 	  ++geom_iterator, ++box_iterator )
     {
-	*box_iterator = geom_iterator->boundingBox();
+	*box_iterator = (*geom_iterator)->boundingBox();
     }
 
     return boxes;
@@ -201,47 +203,22 @@ BoundingBox GeometryManager::globalBoundingBox() const
 	local_bounds = local_box.getBounds();
     }
 
-    double global_x_min, global_y_min, global_z_min;
-    double global_x_max, global_y_max, global_z_max;
+    Teuchos::Tuple<double,6> global_bounds = 
+	Teuchos::tuple( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
 
     Teuchos::reduceAll<int,double>( *d_comm, 
 				    Teuchos::REDUCE_MIN,
-				    1,
+				    3,
 				    &local_bounds[0],
-				    &global_x_min );
-
-    Teuchos::reduceAll<int,double>( *d_comm, 
-				    Teuchos::REDUCE_MIN,
-				    1,
-				    &local_bounds[1],
-				    &global_y_min );
-
-    Teuchos::reduceAll<int,double>( *d_comm, 
-				    Teuchos::REDUCE_MIN,
-				    1,
-				    &local_bounds[2],
-				    &global_z_min );
+				    &global_bounds[0] );
 
     Teuchos::reduceAll<int,double>( *d_comm, 
 				    Teuchos::REDUCE_MAX,
-				    1,
+				    3,
 				    &local_bounds[3],
-				    &global_x_max );
+				    &global_bounds[3] );
 
-    Teuchos::reduceAll<int,double>( *d_comm, 
-				    Teuchos::REDUCE_MAX,
-				    1,
-				    &local_bounds[4],
-				    &global_y_max );
-
-    Teuchos::reduceAll<int,double>( *d_comm, 
-				    Teuchos::REDUCE_MAX,
-				    1,
-				    &local_bounds[5],
-				    &global_z_max );
-
-    return BoundingBox( global_x_min, global_y_min, global_z_min,
-			global_x_max, global_y_max, global_z_max );
+    return BoundingBox( global_bounds );
 }
 
 //---------------------------------------------------------------------------//

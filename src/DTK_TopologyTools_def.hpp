@@ -166,9 +166,9 @@ void TopologyTools::referenceCellCenter(
  * \return Return true if any of the element's vertices are in the
  * geometry. This is based on the conformal mesh/geometry assumption.
  */
-template<class Geometry, typename MDArray>
+template<typename MDArray>
 bool TopologyTools::elementInGeometry( 
-    const Geometry& geometry,
+    const Teuchos::RCP<GeometricEntity>& entity,
     const MDArray& element_node_coords,
     const double tolerance,
     bool all_vertices_for_inclusion )
@@ -176,7 +176,7 @@ bool TopologyTools::elementInGeometry(
     int space_dim = element_node_coords.dimension(2);
     int num_element_vertices = element_node_coords.dimension(1);
     Teuchos::Array<double> vertex_coords( space_dim );
-    int verts_in_geometry = 0;
+    int verts_in_entity = 0;
     for ( int n = 0; n < num_element_vertices; ++n )
     {
 	for ( int d = 0; d < space_dim; ++d )
@@ -184,14 +184,12 @@ bool TopologyTools::elementInGeometry(
 	    vertex_coords[d] = element_node_coords(0,n,d);
 	}
 
-	if ( GeometryTraits<Geometry>::pointInGeometry( geometry, 
-							vertex_coords,
-							tolerance ) )
+	if ( entity->pointInEntity(vertex_coords(), tolerance) )
 	{
 	    // All vertices required for inclusion case.
 	    if ( all_vertices_for_inclusion )
 	    {
-		++verts_in_geometry;
+		++verts_in_entity;
 	    }
 	    // Only one vertex required for inclusion case.
 	    else
@@ -201,7 +199,7 @@ bool TopologyTools::elementInGeometry(
 	}
     }
 
-    return ( verts_in_geometry == num_element_vertices );
+    return ( verts_in_entity == num_element_vertices );
 }
 
 //---------------------------------------------------------------------------//

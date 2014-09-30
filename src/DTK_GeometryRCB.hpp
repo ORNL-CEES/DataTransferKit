@@ -45,7 +45,6 @@
 
 #include "DTK_Partitioner.hpp"
 #include "DTK_BoundingBox.hpp"
-#include "DTK_GeometryTraits.hpp"
 #include "DTK_GeometryManager.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -64,27 +63,19 @@ namespace DataTransferKit
  * \brief Recursive Coordinate Bisectioning partitioner for geometry
  */
 //---------------------------------------------------------------------------//
-template<class Geometry, class GlobalOrdinal>
 class GeometryRCB : public Partitioner
 {
   public:
     
     //@{
     //! Typedefs.
-    typedef Geometry                                     geometry_type;
-    typedef GlobalOrdinal                                global_ordinal_type;
-    typedef GeometryTraits<Geometry>                     GT;
-    typedef GeometryManager<Geometry,GlobalOrdinal>      GeometryManagerType;
-    typedef Teuchos::RCP<GeometryManagerType>            RCP_GeometryManager;
-    typedef Teuchos::Comm<int>                           CommType;
-    typedef Teuchos::RCP<const CommType>                 RCP_Comm;
-    typedef ZOLTAN_ID_TYPE                               zoltan_id_type;
-    typedef ZOLTAN_ID_PTR                                zoltan_id_ptr;
+    typedef ZOLTAN_ID_TYPE zoltan_id_type;
+    typedef ZOLTAN_ID_PTR  zoltan_id_ptr;
     //@}
 
     // Constructor.
-    GeometryRCB( const RCP_Comm& comm, 
-		 const RCP_GeometryManager& geometry_manager, 
+    GeometryRCB( const Teuchos::RCP<const Teuchos::Comm<int> >& comm, 
+		 const Teuchos::RCP<GeometryManager>& geometry_manager, 
 		 const int dimension );
 
     // Destructor.
@@ -169,10 +160,10 @@ class GeometryRCB : public Partitioner
   private:
 
     // The communicator over which GeometryRCB is performed.
-    RCP_Comm d_comm;
+    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
     // The geometry being partitioned.
-    RCP_GeometryManager d_geometry_manager;
+    Teuchos::RCP<GeometryManager> d_geometry_manager;
 
     // The dimension of the GeometryRCB space.
     int d_dimension;
@@ -227,12 +218,6 @@ class GeometryRCB : public Partitioner
 };
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_GeometryRCB_def.hpp"
 
 //---------------------------------------------------------------------------//
 

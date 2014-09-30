@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------//
 /*
-  Copyright (c) 2012, Stuart R. Slattery
+  Copyright (c) 2014, Stuart R. Slattery
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
   notice, this list of conditions and the following disclaimer in the
   documentation and/or other materials provided with the distribution.
 
-  *: Neither the name of the University of Wisconsin - Madison nor the
+  *: Neither the name of the Oak Ridge National Laboratory nor the
   names of its contributors may be used to endorse or promote products
   derived from this software without specific prior written permission.
 
@@ -32,70 +32,27 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_TopologyTools.hpp
- * \author Stuart R. Slattery
- * \brief TopologyTools declaration.
- */
+  * \file DTK_PointCloudDummy.cpp
+  * \author Stuart R. Slattery
+  * \brief Dummy to link an empty library.
+  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_TOPOLOGYTOOLS_HPP
-#define DTK_TOPOLOGYTOOLS_HPP
-
-#include <DTK_BoundingBox.hpp>
-#include <DTK_GeometricEntity.hpp>
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_ScalarTraits.hpp>
-
-#include <Shards_CellTopology.hpp>
+#include "DTK_PointCloudDummy.hpp"
 
 namespace DataTransferKit
 {
+PointCloudDummy::PointCloudDummy()
+{ /* ... */ }
 
-//---------------------------------------------------------------------------//
-/*!
- * \class TopologyTools
- * \brief A stateless class with tools for operating on mesh topologies.
- */ 
-//---------------------------------------------------------------------------//
-class TopologyTools
-{
-  public:
-
-    //! Constructor.
-    TopologyTools()
-    { /* ... */ }
-
-    //! Destructor.
-    ~TopologyTools()
-    { /* ... */ }
-
-    // Get the center of the reference cell of the given topology.
-    template<typename MDArray>
-    static void referenceCellCenter( const shards::CellTopology& cell_topo,
-				     MDArray& center );
-
-    // Element-in-geometry query.
-    template<typename MDArray>
-    static bool elementInGeometry( const Teuchos::RCP<GeometricEntity>& entity,
-				   const MDArray& element_node_coords,
-				   const double tolerance,
-				   bool all_vertices_for_inclusion );
-};
-
-} // end namepsace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_TopologyTools_def.hpp"
+PointCloudDummy::~PointCloudDummy()
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_TOPOLOGYTOOLS_HPP
+} // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_TopologyTools.hpp
+// end DTK_PointCloudDummy.cpp
 //---------------------------------------------------------------------------//
+
