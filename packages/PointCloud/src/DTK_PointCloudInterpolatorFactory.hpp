@@ -32,7 +32,7 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_MeshFreeInterpolatorFactory.hpp
+ * \file DTK_PointCloudInterpolatorFactory.hpp
  * \author Stuart R. Slattery
  * \brief Mesh free interpolator factory declaration.
  */
@@ -43,7 +43,7 @@
 
 #include <string>
 
-#include "DTK_MeshFreeInterpolator.hpp"
+#include "DTK_PointCloudInterpolator.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -53,22 +53,22 @@ namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 /*!
- * \class MeshFreeInterpolatorFactory
+ * \class PointCloudInterpolatorFactory
  * \brief Factory class for generating mesh free interpolators.
  */
-class MeshFreeInterpolatorFactory
+class PointCloudInterpolatorFactory
 {
   public:
 
     //! Constructor.
-    MeshFreeInterpolatorFactory() { /* ... */ }
+    PointCloudInterpolatorFactory() { /* ... */ }
 
     //! Destructor.
-    ~MeshFreeInterpolatorFactory() { /* ... */ }
+    ~PointCloudInterpolatorFactory() { /* ... */ }
 
     // Creation method.
     template<class GO> 
-    static Teuchos::RCP<MeshFreeInterpolator> 
+    static Teuchos::RCP<PointCloudInterpolator> 
     create( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
 	    const std::string& interpolator_name, 
 	    const std::string& basis_name,
@@ -84,13 +84,13 @@ class MeshFreeInterpolatorFactory
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_MeshFreeInterpolatorFactory_impl.hpp"
+#include "DTK_PointCloudInterpolatorFactory_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
 #endif // end DTK_MESHFREEINTERPOLATORFACTORY_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_MeshFreeInterpolatorFactory.hpp
-// ---------------------------------------------------------------------------//
+// end DTK_PointCloudInterpolatorFactory.hpp
+//---------------------------------------------------------------------------//
 

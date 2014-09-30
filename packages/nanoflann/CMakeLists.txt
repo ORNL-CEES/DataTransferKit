@@ -9,7 +9,7 @@
 ## Define the package
 ##---------------------------------------------------------------------------##
 
-TRIBITS_SUBPACKAGE(nanoflann)
+TRIBITS_SUBPACKAGE(Nanoflann)
 
 ##---------------------------------------------------------------------------##
 ## Add library, test, and examples.

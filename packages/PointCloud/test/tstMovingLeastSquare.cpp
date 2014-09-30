@@ -44,8 +44,8 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <DTK_MeshFreeInterpolator.hpp>
-#include <DTK_MeshFreeInterpolatorFactory.hpp>
+#include <DTK_PointCloudInterpolator.hpp>
+#include <DTK_PointCloudInterpolatorFactory.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -114,8 +114,8 @@ TEUCHOS_UNIT_TEST( MovingLeastSquare, dim_1_test )
 
     double radius = 1.0;
 
-    Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator = 
-	DataTransferKit::MeshFreeInterpolatorFactory::create<int>(
+    Teuchos::RCP<DataTransferKit::PointCloudInterpolator> interpolator = 
+	DataTransferKit::PointCloudInterpolatorFactory::create<int>(
 	    comm, "Moving Least Square", "Wendland", 2, dim );
 
     interpolator->setProblem( src_coords(), tgt_coords(), radius );
@@ -177,8 +177,8 @@ TEUCHOS_UNIT_TEST( MovingLeastSquare, dim_2_test )
 
     double radius = 1.0;
 
-    Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator = 
-	DataTransferKit::MeshFreeInterpolatorFactory::create<int>(
+    Teuchos::RCP<DataTransferKit::PointCloudInterpolator> interpolator = 
+	DataTransferKit::PointCloudInterpolatorFactory::create<int>(
 	    comm, "Moving Least Square", "Wendland", 2, dim );
 
     interpolator->setProblem( src_coords(), tgt_coords(), radius );
@@ -265,8 +265,8 @@ TEUCHOS_UNIT_TEST( MovingLeastSquare, dim_3_test )
 
     double radius = 1.0;
 
-    Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator = 
-	DataTransferKit::MeshFreeInterpolatorFactory::create<int>(
+    Teuchos::RCP<DataTransferKit::PointCloudInterpolator> interpolator = 
+	DataTransferKit::PointCloudInterpolatorFactory::create<int>(
 	    comm, "Moving Least Square", "Wendland", 2, dim );
 
     interpolator->setProblem( src_coords(), tgt_coords(), radius );

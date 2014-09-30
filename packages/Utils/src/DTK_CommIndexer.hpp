@@ -60,25 +60,12 @@ class CommIndexer
 {
   public:
 
-    //@{
-    //! Typedefs.
-    typedef Teuchos::Comm<int>                             CommType;
-    typedef Teuchos::RCP<const CommType>                   RCP_Comm;
-    typedef std::tr1::unordered_map<int,int>               IndexMap;
-    //@}
-
-  private:
-
-    // Local to global process id map.
-    IndexMap d_l2gmap;
-
-  public:
-
     // Default constructor.
     CommIndexer();
 
     // Constructor.
-    CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm );
+    CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm, 
+		 Teuchos::RCP<const Teuchos::Comm<int> > local_comm );
 
     // Destructor.
     ~CommIndexer();
@@ -90,6 +77,11 @@ class CommIndexer
     //! Return the size of the local to global map.
     int size() const
     { return d_l2gmap.size(); }
+
+  private:
+
+    // Local to global process id map.
+    std::tr1::unordered_map<int,int> d_l2gmap;
 };
 
 } // end namespace DataTransferKit

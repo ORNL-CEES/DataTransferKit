@@ -12,7 +12,6 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <DataTransferKit_config.hpp>
 #include <DTK_DBC.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
@@ -260,7 +259,7 @@ TEUCHOS_UNIT_TEST( Assertion, errorcode_test_1 )
 	DTK_CHECK_ERROR_CODE( error_code_function(value) );
 	TEST_EQUALITY( value, 2 );
     }
-    catch( const DTK::Assertion& assertion )
+    catch( const DataTransferKit::Assertion& assertion )
     {
 #if HAVE_DTK_DBC
 	TEST_EQUALITY( value, 2 );

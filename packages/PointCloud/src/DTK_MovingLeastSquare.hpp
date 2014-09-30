@@ -41,7 +41,7 @@
 #ifndef DTK_MOVINGLEASTSQUARE_HPP
 #define DTK_MOVINGLEASTSQUARE_HPP
 
-#include "DTK_MeshFreeInterpolator.hpp"
+#include "DTK_PointCloudInterpolator.hpp"
 #include "DTK_RadialBasisPolicy.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -65,7 +65,7 @@ namespace DataTransferKit
  */
 //---------------------------------------------------------------------------//
 template<class Basis, class GO, int DIM>
-class MovingLeastSquare : public MeshFreeInterpolator
+class MovingLeastSquare : public PointCloudInterpolator
 {
   public:
 

@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "DataTransferKit_config.hpp"
+#include "DataTransferKitUtils_config.hpp"
 
 namespace DataTransferKit
 {
@@ -103,6 +103,9 @@ void errorCodeFailure( const std::string& cond, const std::string& file,
 
   Separate from the DBC build, DTK_INSIST can be used at any time verify a
   conditional. This should be used instead of the standard cassert.
+
+  DTK_CHECK_ERROR_CODE provides DBC support for libraries that return error
+  codes with 0 as the value for no errors.
  */
 
 #if HAVE_DTK_DBC

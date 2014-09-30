@@ -32,7 +32,7 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_MeshFreeInterpolatorFactory_impl.hpp
+ * \file DTK_PointCloudInterpolatorFactory_impl.hpp
  * \author Stuart R. Slattery
  * \brief Mesh free interpolator factory implementation.
  */
@@ -65,8 +65,8 @@ namespace DataTransferKit
  * \param space_dim The spatial dimension of the interpolation problem.
  */
 template<class GO>
-Teuchos::RCP<MeshFreeInterpolator>
-MeshFreeInterpolatorFactory::create( 
+Teuchos::RCP<PointCloudInterpolator>
+PointCloudInterpolatorFactory::create( 
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
     const std::string& interpolator_name, 
     const std::string& basis_name,
@@ -75,7 +75,7 @@ MeshFreeInterpolatorFactory::create(
 {
     DTK_REQUIRE( Teuchos::nonnull(comm) );
 
-    Teuchos::RCP<MeshFreeInterpolator> interpolator;
+    Teuchos::RCP<PointCloudInterpolator> interpolator;
 
     int interpolator_id = -1;
     if ( "Spline" == interpolator_name ) interpolator_id = 0;
@@ -690,6 +690,6 @@ MeshFreeInterpolatorFactory::create(
 #endif // end DTK_MESHFREEINTERPOLATORFACTORY_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_MeshFreeInterpolatorFactory_impl.hpp
-// ---------------------------------------------------------------------------//
+// end DTK_PointCloudInterpolatorFactory_impl.hpp
+//---------------------------------------------------------------------------//
 

@@ -41,7 +41,7 @@
 #ifndef DTK_SPLINEINTERPOLATOR_HPP
 #define DTK_SPLINEINTERPOLATOR_HPP
 
-#include "DTK_MeshFreeInterpolator.hpp"
+#include "DTK_PointCloudInterpolator.hpp"
 #include "DTK_RadialBasisPolicy.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -64,7 +64,7 @@ namespace DataTransferKit
  */
 //---------------------------------------------------------------------------//
 template<class Basis, class GO, int DIM>
-class SplineInterpolator : public MeshFreeInterpolator
+class SplineInterpolator : public PointCloudInterpolator
 {
   public:
 

@@ -1,5 +1,5 @@
 SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
-  nanoflann  packages/nanoflann  SS  REQUIRED
+  Nanoflann  packages/Nanoflann  SS  REQUIRED
   Utils      packages/Utils      SS  REQUIRED
   PointCloud packages/PointCloud SS  OPTIONAL
 )

@@ -32,7 +32,7 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_MeshFreeInterpolator.hpp
+ * \file DTK_PointCloudInterpolator.hpp
  * \author Stuart R. Slattery
  * \brief Interface for mesh free interpolation.
  */
@@ -50,23 +50,23 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class MeshFreeInterpolator
+ * \class PointCloudInterpolator
  * \brief Base class for mesh free interpolation.
  *
- * The MeshFreeInterpolator is the top-level driver for parallel interpolation
+ * The PointCloudInterpolator is the top-level driver for parallel interpolation
  * problems via compactly supported radial basis functions.
  */
 //---------------------------------------------------------------------------//
-class MeshFreeInterpolator
+class PointCloudInterpolator
 {
   public:
 
     // Constructor.
-    MeshFreeInterpolator()
+    PointCloudInterpolator()
     { /* ... */ }
 
     //! Destructor.
-    virtual ~MeshFreeInterpolator()
+    virtual ~PointCloudInterpolator()
     { /* ... */ }
 
     /*!
@@ -127,6 +127,6 @@ class MeshFreeInterpolator
 #endif // end DTK_MESHFREEINTERPOLATOR_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_MeshFreeInterpolator.hpp
+// end DTK_PointCloudInterpolator.hpp
 //---------------------------------------------------------------------------//
 

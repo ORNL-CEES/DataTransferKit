@@ -64,7 +64,8 @@ CommIndexer::CommIndexer()
  *
  * \param local_comm The local communicator.
  */
-CommIndexer::CommIndexer( RCP_Comm global_comm, RCP_Comm local_comm )
+CommIndexer::CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm, 
+			  Teuchos::RCP<const Teuchos::Comm<int> > local_comm )
 {
     // Get my rank in the local communicator.
     int local_rank = 
@@ -108,7 +109,8 @@ CommIndexer::~CommIndexer()
  */
 int CommIndexer::l2g( const int local_id ) const
 {
-    IndexMap::const_iterator l2g_pair = d_l2gmap.find( local_id );
+    std::tr1::unordered_map<int,int>::const_iterator l2g_pair = 
+	d_l2gmap.find( local_id );
     return ( l2g_pair != d_l2gmap.end() ) ? l2g_pair->second : -1;
 }
 
