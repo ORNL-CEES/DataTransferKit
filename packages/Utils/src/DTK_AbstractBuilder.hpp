@@ -83,9 +83,11 @@ class AbstractBuilder
 	const std::string& name );
 
     /*!
-     * \brief Create a new Abstract with the given name.
-     * \param name Create a Abstract using the factory with this name.
-     * \return The created Abstract.
+     * \brief Create a new base class with the given derived class factory
+     * name.  
+     * \param name Create a base class using the derived class factory with
+     * this name.
+     * \return The created base class object.
      */
     Teuchos::RCP<Base> create( const std::string& name );
 

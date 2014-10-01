@@ -32,145 +32,129 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntitySet.hpp
+ * \brief DTK_EntitySet.cpp
  * \author Stuart R. Slattery
- * \brief Geometric entity interface.
+ * \brief Geometric entity set interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYSET_HPP
-#define DTK_ENTITYSET_HPP
-
-#include "DTK_GeometricEntity.hpp"
-#include "DTK_Box.hpp"
-
-#include <Teuchos_ArrayView.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
+#include "DTK_EntitySet.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*!
-  \class EntitySet
-  \brief Geometric entity set interface definition.
-*/
+// Constructor.
+EntitySet::EntitySet();
+
 //---------------------------------------------------------------------------//
-class EntitySet
+// Destructor.
+EntitySet::~EntitySet();
+
+//---------------------------------------------------------------------------//
+// Return a string indicating the derived entity set type.
+std::string EntitySet::entitySetType() const
 {
-  public:
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return "Not Implemented";
+}
 
-    /*!
-     * \brief Constructor.
-     */
-    EntitySet();
+//---------------------------------------------------------------------------//
+// Get the parallel communicator for the entity set.
+Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return Teuchos::null;
+}
 
-    /*!
-     * \brief Destructor.
-     */
-    virtual ~EntitySet();
+//---------------------------------------------------------------------------//
+// Get the local number of entities in the set of the given
+std::size_t EntitySet::localNumberOfEntities( 
+    const int parametric_dimension ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return 0;
+}
 
-    //@{
-    //! Identification functions.
-    /*!
-     * \brief Return a string indicating the derived entity set type.
-     * \return A string key for the derived set type.
-     */
-    virtual std::string entitySetType() const;
-    //@}
-
-    //@{
-    //! Parallel functions.
-    /*!
-     * \brief Get the parallel communicator for the entity set.
-     * \return A reference-counted pointer to the parallel communicator.
-     */
-    virtual Teuchos::RCP<const Teuchos::Comm<int> > communicator() const;
-    //@}
-
-    //@{
-    //! Entity access functions.
-    /*!
-     * \brief Get the local number of entities in the set of the given
-     * parametric dimension.
-     * \param parametric_dimension Get the number of entities of this
-     * parametric dimension.
-     * \return The local number of entities in the set.
-     */
-    virtual std::size_t localNumberOfEntities( 
-	const int parametric_dimension ) const;
-
-    /*!
-     * \brief Get the global number of entities in the set of the given
-     * parametric dimension.
-     * \param parametric_dimension Get the number of entities of this
-     * parametric dimension.
-     * \return The global number of entities in the set.
-     */
-    virtual std::size_t globalNumberOfEntities(
-	const int parametric_dimension ) const;
+//---------------------------------------------------------------------------//
+// Get the global number of entities in the set of the given
+std::size_t EntitySet::globalNumberOfEntities(
+    const int parametric_dimension ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return 0;
+}
     
-    /*!
-     * \brief Get the identifiers for all local entities in the set of a given
-     * parametric dimension.
-     * \param parametric_dimension Get the entities of this parametric
-     * dimension.
-     * \param entity_ids A view into an array of size localNumberOfEntities(
-     * parametric_dimension ). Write the entity ids into this array.
-     */
-    virtual void localEntityIds( 
-	const int parametric_dimension,
-	const Teuchos::ArrayView<EntityId>& entity_ids ) const;
+//---------------------------------------------------------------------------//
+// Get the identifiers for all local entities in the set of a given
+void EntitySet::localEntityIds( 
+    const int parametric_dimension,
+    const Teuchos::ArrayView<EntityId>& entity_ids ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
 
-    /*!
-     * \brief Given an EntityId, get the entity.
-     * \param entity_id Get the entity with this id.
-     * \param entity The entity with the given id.
-     */
-    virtual void getEntity( const EntityId entity_id, 
-			    GeometricEntity& entity ) const;
-    //@}
+//---------------------------------------------------------------------------//
+// Given an EntityId, get the entity.
+void EntitySet::getEntity( const EntityId entity_id, 
+			   GeometricEntity& entity ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
 
-    //@{
-    //! Entity modification functions.
-    /*!
-     * \brief Indicate that the entity set will be modified.
-     */
-    virtual void startModification();
+//---------------------------------------------------------------------------//
+// Indicate that the entity set will be modified.
+void EntitySet::startModification()
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
 
-    /*!
-     * \brief Add an entity to the set.
-     * \param entity Add this entity to the set.
-     */
-    virtual void addEntity( const GeometricEntity& entity );
+//---------------------------------------------------------------------------//
+// Add an entity to the set.
+void EntitySet::addEntity( const GeometricEntity& entity )
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
 
-    /*!
-     * \brief Indicate that modification of the entity set is complete.
-     */
-    virtual void endModification();
-    //@}
+//---------------------------------------------------------------------------//
+// Indicate that modification of the entity set is complete.
+void EntitySet::endModification()
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
 
-    //@{
-    //! Geometric data functions.
-    /*!
-     * \brief Return the largest spatial dimension of the entities in the set.
-     * \return The spatial dimension of the set.
-     */
-    virtual int spatialDimension() const;
+//---------------------------------------------------------------------------//
+// Return the largest spatial dimension of the entities in the set.
+int EntitySet::spatialDimension() const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
 
-    /*!
-     * \brief Get the local bounding box of entities of the set.
-     * \return A Cartesian box the bounds all local entities in the set.
-     */
-    virtual Box localBoundingBox() const;
+//---------------------------------------------------------------------------//
+// Get the local bounding box of entities of the set.
+void EntitySet::localBoundingBox( Box& bounding_box ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
 
-    /*!
-     * \brief Get the global bounding box of entities of the set.
-     * \return A Cartesian box the bounds all global entities in the set.
-     */
-    virtual Box globalBoundingBox() const;
-    //@}
-};
+//---------------------------------------------------------------------------//
+// Get the global bounding box of entities of the set.
+void EntitySet::globalBoundingBox( Box& bounding_box ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
 
 //---------------------------------------------------------------------------//
 

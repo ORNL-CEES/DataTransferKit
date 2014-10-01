@@ -34,7 +34,7 @@
 /*!
  * \brief DTK_EntitySet.hpp
  * \author Stuart R. Slattery
- * \brief Geometric entity interface.
+ * \brief Geometric entity set interface.
  */
 //---------------------------------------------------------------------------//
 
@@ -162,13 +162,13 @@ class EntitySet
      * \brief Get the local bounding box of entities of the set.
      * \return A Cartesian box the bounds all local entities in the set.
      */
-    virtual Box localBoundingBox() const;
+    virtual void localBoundingBox( Box& bounding_box ) const;
 
     /*!
      * \brief Get the global bounding box of entities of the set.
      * \return A Cartesian box the bounds all global entities in the set.
      */
-    virtual Box globalBoundingBox() const;
+    virtual void globalBoundingBox( Box& bounding_box ) const;
     //@}
 };
 
