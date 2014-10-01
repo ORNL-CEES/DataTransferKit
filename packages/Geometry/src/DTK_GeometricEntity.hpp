@@ -41,6 +41,8 @@
 #ifndef DTK_GEOMETRICENTITY_HPP
 #define DTK_GEOMETRICENTITY_HPP
 
+#include <string>
+
 #include "DTK_GeometryTypes.hpp"
 #include "DTK_MappingStatus.hpp"
 #include "DTK_Box.hpp"
@@ -202,6 +204,30 @@ class GeometricEntity
     virtual void mapToPhysicalFrame( 
 	const Teuchos::ArrayView<const double>& reference_point,
 	const Teuchos::ArrayView<double>& point ) const;
+    //@}
+
+    //@{
+    //! Serialization functions.
+    /*
+     * \brief Get the size of the serialized entity in bytes.
+     * \return The size of the entity when serialized in bytes.
+     */
+    virtual std::size_t byteSize() const;
+
+    /*
+     * \brief Serialize the entity into a buffer.
+     * \param buffer A view into a data buffer of size byteSize(). Write the
+     * serialized entity into this view.
+     */
+    virtual void serialize( const Teuchos::ArrayView<char>& buffer ) const;
+
+    /*!
+     * \brief Deserialize an entity from a buffer.
+     * \param buffer A view into a data buffer of size byteSize(). Deserialize
+     * the entity from this view.
+     */
+    virtual void deserialize( 
+	const Teuchos::ArrayView<const char>& buffer ) const;
     //@}
 };
 

@@ -76,6 +76,12 @@ class EntitySet
      */
     virtual std::string entitySetType() const;
 
+    /*!
+     * \brief Return an empty entity set of the derived type.
+     * \Return An empty entity set.
+     */
+    virtual Teuchos::RCP<EntitySet> clone() const;
+
    /*!
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
@@ -139,6 +145,12 @@ class EntitySet
      */
     virtual void getEntity( const EntityId entity_id, 
 			    GeometricEntity& entity ) const;
+
+    /*!
+     * \brief Add an entity to the set.
+     * \param entity Add this entity.
+     */
+    virtual void addEntity( const GeometricEntity& entity );
 };
 
 //---------------------------------------------------------------------------//
