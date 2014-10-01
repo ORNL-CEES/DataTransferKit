@@ -32,85 +32,66 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_GeometricEntityBuilder.hpp
+ * \brief DTK_AbstractBuilder.cpp
  * \author Stuart R. Slattery
- * \brief Builder for GeometricEntity classes.
+ * \brief Builder for Abstract classes.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_GEOMETRICENTITYBUILDER_HPP
-#define DTK_GEOMETRICENTITYBUILDER_HPP
-
-#include "DTK_GeometricEntity.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_AbstractFactory.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_StandardParameterEntryValidators.hpp>
+#ifndef DTK_ABSTRACTBUILDER_IMPL_HPP
+#define DTK_ABSTRACTBUILDER_IMPL_HPP
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*!
-  \class GeometricEntityBuilder
-  \brief Builder for constructing derived classes of the GeometricEntity
-  class.
-*/
+// Constructor.
+template<class Base>
+AbstractBuilder<Base>::AbstractBuilder()
+{ /* ... */ }
+
 //---------------------------------------------------------------------------//
-class GeometricEntityBuilder
+// Destructor.
+template<class Base>
+AbstractBuilder<Base>::~AbstractBuilder()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Set a new Abstract factory with the builder.
+template<class Base>
+void AbstractBuilder<Base>::setDerivedClassFactory(
+    const Teuchos::RCP<const Teuchos::AbstractFactory<Base> >&
+    entity_factory,
+    const std::string& name )
 {
-  public:
+    d_factories.push_back( entity_factory );
+    d_names.push_back( name );
+}
 
-    /*!
-     * \brief Constructor.
-     */
-    GeometricEntityBuilder();
+//---------------------------------------------------------------------------//
+// Create a new Abstract with the given name.
+template<class Base>
+Teuchos::RCP<Base>
+AbstractBuilder<Base>::create( const std::string& name )
+{
+    if ( Teuchos::is_null(d_validator) )
+    {
+	std::string default_name( "No Default Implementation" );
+	d_validator = Teuchos::rcp(
+	    new Teuchos::StringToIntegralParameterEntryValidator<int>(
+		d_names(), default_name) );
+    }
+    
+    int factory_index = d_validator->getIntegralValue( name );
 
-    /*!
-     * \brief Destructor.
-     */
-    ~GeometricEntityBuilder();
-
-    /*!
-     * \brief Set a new GeometricEntity factory with the builder.
-     * \param entity_factory A factory that can create a GeometricEntity from
-     * a derived class.
-     * \param name A name for the factory. This should be indicative of the
-     * derived class and equivalent to the entityType() field from the
-     * implementation.
-     */
-    void setGeometricEntityFactory(
-	const Teuchos::RCP<const Teuchos::AbstractFactory<GeometricEntity> >&
-	entity_factory,
-	const std::string& name );
-
-    /*!
-     * \brief Create a new GeometricEntity with the given name.
-     * \param name Create a GeometricEntity using the factory with this name.
-     * \return The created GeometricEntity.
-     */
-    Teuchos::RCP<GeometricEntity>
-    createGeometricEntity( const std::string& name ) const;
-
-  private:
-
-    // Factories.
-    Teuchos::Array<Teuchos::RCP<const Teuchos::AbstractFactory<GeometricEntity> > >
-    d_factories;
-
-    // Names.
-    Teuchos::Array<std::string> d_names;
-
-    // Validator.
-    Teuchos::RCP<Teuchos::StringToIntegralParameterEntryValidator<int> > d_validator;
-};
+    return d_factories[ factory_index ]->create();
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_GEOMETRICENTITYBUILDER_HPP
+#endif // end DTK_ABSTRACTBUILDER_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_GeometricEntityBuilder.hpp
+// end DTK_AbstractBuilder_impl.hpp
 //---------------------------------------------------------------------------//

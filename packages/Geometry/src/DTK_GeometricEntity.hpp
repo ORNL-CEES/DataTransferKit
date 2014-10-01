@@ -89,6 +89,8 @@ class GeometricEntity
      */
     virtual ~GeometricEntity();
 
+    //@{
+    //! Identification functions.
     /*!
      * \brief Return a string indicating the derived entity type.
      * \return A string indicating the type of derived entity implementing the
@@ -96,8 +98,6 @@ class GeometricEntity
      */
     virtual std::string entityType() const;
 
-    //@{
-    //! Identification functions.
     /*!
      * \brief Get the unique global identifier for the entity.
      * \return A unique global identifier for the entity.
@@ -105,10 +105,10 @@ class GeometricEntity
     virtual EntityId id() const;
     
     /*!
-     * \brief Get the native parallel rank that owns the entity.
+     * \brief Get the parallel rank that owns the entity.
      * \return The parallel rank that owns the entity.
      */
-    virtual int parallelRank() const;
+    virtual int ownerRank() const;
     //@}
 
     //@{
@@ -160,7 +160,7 @@ class GeometricEntity
      * \param status A status object indicating the results of the safeguard
      * check.
      */
-    virtual void isSafeToMapToReferenceFrame(
+    virtual void safeguardMapToReferenceFrame(
 	const Teuchos::ParameterList& parameters,
 	const Teuchos::ArrayView<const double>& point,
 	MappingStatus& status ) const;

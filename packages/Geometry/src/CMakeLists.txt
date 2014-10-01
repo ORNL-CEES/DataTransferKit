@@ -17,12 +17,14 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   DTK_Box.hpp
+  DTK_EntitySet.hpp
   DTK_GeometricEntity.hpp
   DTK_GeometryTypes.hpp
   ) 
 
 APPEND_SET(SOURCES
   DTK_Box.cpp
+  DTK_EntitySet.cpp
   DTK_GeometricEntity.cpp
   )
 
