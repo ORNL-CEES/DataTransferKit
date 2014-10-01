@@ -46,9 +46,11 @@
 #include "DTK_GeometryTypes.hpp"
 #include "DTK_MappingStatus.hpp"
 #include "DTK_Box.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -230,6 +232,79 @@ class GeometricEntity
 	const Teuchos::ArrayView<const char>& buffer ) const;
     //@}
 };
+
+//---------------------------------------------------------------------------//
+// Teuchos::SerializationTraits implementation.
+//---------------------------------------------------------------------------//
+namespace Teuchos
+{
+template<Ordinal>
+class SerializationTraits<GeometricEntity>
+{
+    // Return the number of bytes for count objects.
+    static Ordinal fromCountToIndirectBytes( const Ordinal count, 
+					     const GeometricEntity buffer[])
+    {
+	Ordinal byte_size = 0;
+	for ( Ordinal i = 0; i < count; ++i )
+	{
+	    // Bytes for the size of the object.
+	    count += sizeof(std::size_t);
+
+	    // Bytes for the object.
+	    count += buffer[i].byteSize();
+	}
+    }
+
+    // Serialize to an indirect char buffer.
+    static void serialize( const Ordinal count, 
+			   const GeometricEntity buffer[], 
+			   const Ordinal bytes, 
+			   char charBuffer[] )
+    {
+	DTK_CHECK( fromCountToIndirectBytes(count,buffer) == bytes );
+	char* buffer_begin = charBuffer;
+	char* buffer_end = charBuffer;
+	std::size_t entity_size = 0;
+	for ( Ordinal i = 0; i < count; ++i )
+	{
+	    // Serialize the size of the object.
+	    entity_size = buffer[i].byteSize();
+	    std::memcpy( charBuffer, &entity_size, sizeof(std::size_t) );
+	    
+	    // Reset the buffer bounds.
+	    buffer_begin += sizeof(std::size_t);
+	    buffer_end = buffer_begin + entity_size;
+
+	    // Serialize the object.
+	    Teuchos::ArrayView<char> buffer_view( buffer_begin, buffer_end );
+	    buffer[i].serialize( buffer_view );
+
+	    // Move the front of the buffer forward.
+	    buffer_begin = buffer_end;
+	}
+	DTK_CHECK( charBuffer[0] + bytes == buffer_begin );
+	DTK_CHECK( charBuffer[0] + bytes == buffer_end );
+    }
+
+    // Return the number of objects for bytes of storage.
+    static Ordinal fromIndirectBytesToCount( const Ordinal bytes, 
+					     const char charBuffer[] )
+    {
+
+    }
+
+    // Deserialize from an indirect char buffer.
+    static void deserialize ( const Ordinal bytes, 
+			      const char charBuffer[], 
+			      const Ordinal count, 
+			      GeometricEntity buffer[] )
+    {
+
+    }
+};
+
+} // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
 

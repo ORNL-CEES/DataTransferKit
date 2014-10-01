@@ -39,7 +39,6 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_GeometricEntity.hpp"
-#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
