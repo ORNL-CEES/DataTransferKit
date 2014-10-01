@@ -13,8 +13,8 @@
 #include <sstream>
 #include <cstdlib>
 
-#include <DTK_MeshFreeInterpolator.hpp>
-#include <DTK_MeshFreeInterpolatorFactory.hpp>
+#include <DTK_PointCloudInterpolator.hpp>
+#include <DTK_PointCloudInterpolatorFactory.hpp>
 
 #include <Teuchos_Array.hpp>
 #include <Teuchos_TimeMonitor.hpp>
@@ -111,8 +111,8 @@ int main( int argc, char * argv[] )
 
     // Build the interpolation object.
     typedef int GlobalOrdinal;
-    Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator =
-	DataTransferKit::MeshFreeInterpolatorFactory::create<GlobalOrdinal>(
+    Teuchos::RCP<DataTransferKit::PointCloudInterpolator> interpolator =
+	DataTransferKit::PointCloudInterpolatorFactory::create<GlobalOrdinal>(
 	    comm, interpolation_type, basis_type, basis_order, space_dim );
 
     // Assign the source centers, target centers, and support radius to the

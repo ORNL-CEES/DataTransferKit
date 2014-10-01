@@ -41,12 +41,11 @@
 #ifndef DTK_GEOMETRICENTITY_HPP
 #define DTK_GEOMETRICENTITY_HPP
 
-#include "DTK_MeshTypes.hpp"
-#include "DTK_BoundingBox.hpp"
-#include "DTK_DBC.hpp"
+#include "DTK_GeometryTypes.hpp"
+#include "DTK_Box.hpp"
 
+#include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayView.hpp>
-#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -80,110 +79,75 @@ class GeometricEntity
     /*!
      * \brief Constructor.
      */
-    GeometricEntity()
-    { /* ... */ }
+    GeometricEntity();
 
     /*!
      * \brief Destructor.
      */
-    virtual ~GeometricEntity()
-    { /* ... */ }
+    virtual ~GeometricEntity();
 
+    //@{
+    //! Identification functions.
     /*!
-     * \brief Get the identifier for the entity.
+     * \brief Get the unique global identifier for the entity.
      */
-    virtual EntityId id() const
-    { 
-	bool not_implemented = true;
-	DTK_INSIST( !not_implemented );
-	return -1;
-    }
+    virtual EntityId id() const;
+    
+    /*!
+     * \brief Get the native parallel rank of the entity.
+     */
+    virtual int parallelRank() const;
+    //@}
 
     //@{
     //! Geometric functions.
     /*!
      * \brief Return the spatial dimension of the entity.
      */
-    virtual int dimension() const
-    { 
-	bool not_implemented = true;
-	DTK_INSIST( !not_implemented );
-	return -1;
-    }
+    virtual int dimension() const;
 
     /*!
      * \brief Return the entity measure (volume for a 3D entity, area for
      * 2D, and length for 1D).
      */
-    virtual double measure() const
-    { 
-	bool not_implemented = true;
-	DTK_INSIST( !not_implemented );
-	return -1.0;
-    }
+    virtual double measure() const;
 
     /*!
      * \brief Return the centroid of the entity.
      */
-    virtual Teuchos::Array<double> centroid() const
-    { 
-	bool not_implemented = true;
-	DTK_INSIST( !not_implemented );
-	return Teuchos::Array<double>(0);
-    }
+    virtual Teuchos::Array<double> centroid() const;
 
     /*!
      * \brief Return the axis-aligned bounding box around the entity.
      */
-    virtual BoundingBox boundingBox() const
-    { 
-	bool not_implemented = true;
-	DTK_INSIST( !not_implemented );
-	return BoundingBox();
-    }
-
-    /*!
-     * \brief Return whether or not a point is in the entity within a
-     * specified tolerance.
-     */
-    virtual bool pointInEntity( const Teuchos::ArrayView<double>& coords,
-				const double tolerance ) const
-    { 
-	bool not_implemented = true;
-	DTK_INSIST( !not_implemented );
-	return false;
-    }
+    virtual Box boundingBox() const;
     //@}
 
-    //@{ 
-    //! Serialization functions.
+    //@{
+    //! Parameteric mapping functions.
     /*!
-     * \brief Get the byte size of the entity.
+     * \brief Perform a safeguard check for mapping a point to the reference
+     * space of an entity using the given tolerance.
      */
-    virtual std::size_t byteSize() const
-    { 
-	bool not_implemented = true;
-	DTK_INSIST( !not_implemented );
-	return 0;
-    }
+    virtual bool isSafeToMapToReferenceFrame(
+	const Teuchos::ArrayView<double>& point,
+	const double tolerance ) const;
 
     /*!
-     * \brief Pack the entity into a view of a buffer.
+     * \brief Map a point to the reference space of an entity. Return the
+     * parameterized point.
      */
-    virtual void pack( Teuchos::ArrayView<char>& buffer )
-    { 
-	bool not_implemented = true;
-	DTK_INSIST( !not_implemented );
-    }
+    virtual void mapToReferenceFrame( 
+	const Teuchos::ArrayView<double>& point,
+	const double tolerance,
+	Teuchos::Array<double>& reference_point ) const;
 
-    /*!
-     * \brief Unpack the entity from a view of a buffer.
-     */
-    virtual void unpack( const Teuchos::ArrayView<char>& buffer )
-    { 
-	bool not_implemented = true;
-	DTK_INSIST( !not_implemented );
-    }
+    /*!  
+     * \brief Determine if a reference point is in the parameterized space of
+     * an entity.
+    */
+    virtual bool checkPointInclusion( 
+	const Teuchos::Array<double>& reference_point ) const;
     //@}
 };
 

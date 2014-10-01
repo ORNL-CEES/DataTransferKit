@@ -15,8 +15,8 @@
 #include <cassert>
 #include <cstdlib>
 
-#include <DTK_MeshFreeInterpolator.hpp>
-#include <DTK_MeshFreeInterpolatorFactory.hpp>
+#include <DTK_PointCloudInterpolator.hpp>
+#include <DTK_PointCloudInterpolatorFactory.hpp>
 
 #include <Teuchos_GlobalMPISession.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -175,8 +175,8 @@ int main(int argc, char* argv[])
 
     // Build the interpolation object.
     typedef long GlobalOrdinal;
-    Teuchos::RCP<DataTransferKit::MeshFreeInterpolator> interpolator =
-	DataTransferKit::MeshFreeInterpolatorFactory::create<GlobalOrdinal>(
+    Teuchos::RCP<DataTransferKit::PointCloudInterpolator> interpolator =
+	DataTransferKit::PointCloudInterpolatorFactory::create<GlobalOrdinal>(
 	    comm, interpolation_type, basis_type, basis_order, 3 );
 
     // Setup the mesh interpolator.    
