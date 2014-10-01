@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------//
 /*
-  Copyright (c) 2012, Stuart R. Slattery
+  Copyright (c) 2014, Stuart R. Slattery
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
   notice, this list of conditions and the following disclaimer in the
   documentation and/or other materials provided with the distribution.
 
-  *: Neither the name of the University of Wisconsin - Madison nor the
+  *: Neither the name of the Oak Ridge National Laboratory nor the
   names of its contributors may be used to endorse or promote products
   derived from this software without specific prior written permission.
 
@@ -32,62 +32,82 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_CommIndexer.hpp
- * \author Stuart Slattery
- * \brief CommIndexer declaration.
+ * \brief DTK_MappingStatus.cpp
+ * \author Stuart R. Slattery
+ * \brief Mapping status.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_COMMINDEXER_HPP
-#define DTK_COMMINDEXER_HPP
-
-#include <unordered_map>
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
+#include "DTK_MappingStatus.cpp"
 
 namespace DataTransferKit
 {
+//---------------------------------------------------------------------------//
+// Constructor.
+MappingStatus::MappingStatus()
+    : d_success( false )
+    , d_num_iters( 0 )
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
-/*!
- * \class CommIndexer
- * \brief Map the process ids of a local communicator into a global
- * communicator that encompasses it.
- */
+// Data constructor.
+MappingStatus::MappingStatus( bool success, unsigned number_of_iterations )
+    : d_success( success )
+    , d_num_iters( number_of_iterations ) 
+{ /* ... */ }
+
 //---------------------------------------------------------------------------//
-class CommIndexer
+// Destructor.
+MappingStatus::~MappingStatus().
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Indicate success.
+void MappingStatus::mappingSucceeded()
 {
-  public:
+    d_success = true;
+}
 
-    // Default constructor.
-    CommIndexer();
+//---------------------------------------------------------------------------//
+// Indicate failure.
+void MappingStatus::mappingFailed()
+{
+    d_success = false;
+}
+    
+//---------------------------------------------------------------------------//
+// Increment the iteration count.
+void MappingStatus::incrementIterations()
+{
+    ++d_num_iters;
+}
 
-    // Constructor.
-    CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm, 
-		 Teuchos::RCP<const Teuchos::Comm<int> > local_comm );
+//---------------------------------------------------------------------------//
+// Mapping success status.
+bool MappingStatus::success() const
+{
+    return d_success;
+}
+    
+//---------------------------------------------------------------------------//
+// Iteration count.
+unsigned MappingStatus::numberOfIterations() const
+{
+    return d_num_iters;
+}
 
-    // Destructor.
-    ~CommIndexer();
+//---------------------------------------------------------------------------//
+// Reset the mapping status.
+void MappingStatus::reset()
+{
+    d_success = false;
+    d_num_iters = 0;
+}
 
-    // Given a process id in the local communicator, return the distributed
-    // object's process id in the global communicator.
-    int l2g( const int local_id ) const;
-
-    //! Return the size of the local to global map.
-    int size() const
-    { return d_l2gmap.size(); }
-
-  private:
-
-    // Local to global process id map.
-    std::unordered_map<int,int> d_l2gmap;
-};
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_COMMINDEXER_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_CommIndexer.hpp
+// end DTK_MappingStatus.cpp
 //---------------------------------------------------------------------------//

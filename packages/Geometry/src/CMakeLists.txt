@@ -23,7 +23,7 @@ APPEND_SET(HEADERS
 
 APPEND_SET(SOURCES
   DTK_Box.cpp
-  DTK_GeometryEntity.cpp
+  DTK_GeometricEntity.cpp
   )
 
 #

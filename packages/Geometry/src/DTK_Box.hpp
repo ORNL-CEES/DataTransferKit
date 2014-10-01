@@ -41,7 +41,6 @@
 #ifndef DTK_BOX_HPP
 #define DTK_BOX_HPP
 
-#include "DTK_BoundingBox.hpp"
 #include "DTK_GeometricEntity.hpp"
 
 #include <Teuchos_Tuple.hpp>
@@ -71,11 +70,14 @@ class Box : public GeometricEntity
     Box();
 
     // Constructor.
-    Box( const double x_min, const double y_min, const double z_min,
+    Box( const EntityId global_id, const int parallel_rank,
+	 const double x_min, const double y_min, const double z_min,
 	 const double x_max, const double y_max, const double z_max );
 
     // Tuple constructor.
-    Box( const Teuchos::Tuple<double,6>& bounds );
+    Box( const EntityId global_id,
+	 const int parallel_rank, 
+	 const Teuchos::Tuple<double,6>& bounds );
 
     // Destructor.
     ~Box();
@@ -94,17 +96,55 @@ class Box : public GeometricEntity
     double measure() const;
 
     // Get the centroid of the box.
-    Teuchos::Array<double> centroid() const;
+    void centroid( Teuchos::ArrayView<double>& centroid ) const;
 
     // Compute the bounding box around the box.
-    BoundingBox boundingBox() const;
+    Box boundingBox() const;
 
-    // Determine if a point is in the box within a specified tolerance.
-    bool pointInEntity( const Teuchos::ArrayView<double>& coords,
-			const double tolerance ) const;
-    //@}
+    // Perform a safeguard check for mapping a point to the reference space of
+    // an entity using the given tolerance.
+    bool isSafeToMapToReferenceFrame(
+	const Teuchos::ArrayView<double>& point,
+	const double tolerance ) const;
+
+    // Map a point to the reference space of an entity. Return the
+    // parameterized point. 
+    void mapToReferenceFrame( 
+	const Teuchos::ArrayView<double>& point,
+	const double tolerance,
+	Teuchos::Array<double>& reference_point ) const;
+
+    // Determine if a reference point is in the parameterized space of an
+    // entity. 
+    bool checkPointInclusion( 
+	const Teuchos::Array<double>& reference_point ) const;
+
+    // Map a reference point to the physical space of an entity.
+    void mapToPhysicalFrame( 
+	const Teuchos::ArrayView<double>& reference_point,
+	Teuchos::ArrayView<double>& point ) const;
+
+    // Static function to check for box intersection but not perform it.
+    static bool checkForIntersection( const Box& box_A,
+				      const Box& box_B );
+
+    // Static function for box intersection.
+    static bool intersectBoxes( const Box& box_A,
+				const Box& box_B,
+				Box& box_intersection );
+
+    // Static function for box union
+    static void uniteBoxes( const Box& box_A,
+			    const Box& box_B,
+			    Box& box_union );
 
   private:
+
+    // Global id.
+    EntityId d_global_id;
+
+    // Owning parallel rank.
+    int d_parallel_rank;
 
     // X min.
     double d_x_min;

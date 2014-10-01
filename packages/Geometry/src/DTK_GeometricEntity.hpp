@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------//
 /*
-  Copyright (c) 2012, Stuart R. Slattery
+  Copyright (c) 2014, Stuart R. Slattery
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
   notice, this list of conditions and the following disclaimer in the
   documentation and/or other materials provided with the distribution.
 
-  *: Neither the name of the University of Wisconsin - Madison nor the
+  *: Neither the name of the Oak Ridge National Laboratory nor the
   names of its contributors may be used to endorse or promote products
   derived from this software without specific prior written permission.
 
@@ -42,19 +42,20 @@
 #define DTK_GEOMETRICENTITY_HPP
 
 #include "DTK_GeometryTypes.hpp"
+#include "DTK_MappingStatus.hpp"
 #include "DTK_Box.hpp"
 
-#include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_ParameterList.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
   \class GeometricEntity
-  \brief Geometry traits definitions.
+  \brief Geometric entity interface definition.
 
-  GeometricEntity provide access to basic properites of geometric objects. A
+  GeometricEntity provides access to basic properites of geometric objects. A
   geometry is simply an object or collection of objects that has $n$ physical
   dimensions and a spatial domain $\Omega \in \mathbb{R}^n$ that is bounded by
   a boundary $\Gamma \in \mathbb{R}^n$. Concrete examples of geometries in 3
@@ -86,15 +87,24 @@ class GeometricEntity
      */
     virtual ~GeometricEntity();
 
+    /*!
+     * \brief Return a string indicating the derived entity type.
+     * \return A string indicating the type of derived entity implementing the
+     * interface.
+     */
+    virtual std::string entityType() const;
+
     //@{
     //! Identification functions.
     /*!
      * \brief Get the unique global identifier for the entity.
+     * \return A unique global identifier for the entity.
      */
     virtual EntityId id() const;
     
     /*!
-     * \brief Get the native parallel rank of the entity.
+     * \brief Get the native parallel rank that owns the entity.
+     * \return The parallel rank that owns the entity.
      */
     virtual int parallelRank() const;
     //@}
@@ -102,25 +112,39 @@ class GeometricEntity
     //@{
     //! Geometric functions.
     /*!
-     * \brief Return the spatial dimension of the entity.
+     * \brief Return the physical dimension of the entity.
+     * \return The physical dimension of the entity. Any physical coordinates
+     * describing the entity will be of this dimension.
      */
-    virtual int dimension() const;
+    virtual int physicalDimension() const;
 
     /*!
-     * \brief Return the entity measure (volume for a 3D entity, area for
-     * 2D, and length for 1D).
+     * \brief Return the parametric dimension of the entity.
+     * \return The parameteric dimension of the entity. This is the dimension
+     * of coordinates needed to parametrize the space of an entity. This may
+     * be different than the physical dimension.
+     */
+    virtual int parametricDimension() const;
+
+    /*!
+     * \brief Return the entity measure with respect to the parameteric
+     * dimension (volume for a 3D entity, area for 2D, and length for 1D).
+     * \return The measure of the entity.
      */
     virtual double measure() const;
 
     /*!
      * \brief Return the centroid of the entity.
+     * \param centroid A view to an array of size physicalDimension(). Write
+     * the centroid into this view.
      */
-    virtual Teuchos::Array<double> centroid() const;
+    virtual void centroid( const Teuchos::ArrayView<double>& centroid ) const;
 
     /*!
      * \brief Return the axis-aligned bounding box around the entity.
+     * \param bounding_box A Cartesian box that bounds the entity.
      */
-    virtual Box boundingBox() const;
+    virtual void boundingBox( Box& bounding_box ) const;
     //@}
 
     //@{
@@ -128,26 +152,56 @@ class GeometricEntity
     /*!
      * \brief Perform a safeguard check for mapping a point to the reference
      * space of an entity using the given tolerance.
+     * \param parameters Parameters to be used for the safeguard check.
+     * \param point A view into an array of size physicalDimension() containing
+     * the coordinates of the point to map.
+     * \param status A status object indicating the results of the safeguard
+     * check.
      */
-    virtual bool isSafeToMapToReferenceFrame(
-	const Teuchos::ArrayView<double>& point,
-	const double tolerance ) const;
+    virtual void isSafeToMapToReferenceFrame(
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& point,
+	MappingStatus& status ) const;
 
     /*!
      * \brief Map a point to the reference space of an entity. Return the
      * parameterized point.
+     * \brief parameters Parameters to be used for the mapping procedure.
+     * \param  A view into an array of size physicalDimension() containing
+     * the coordinates of the point to map.
+     * \param reference_point A view into an array of size physicalDimension()
+     * to write the reference coordinates of the mapped point.
+     * \param status A status object indicating the results of the mapping
+     * procedure.
      */
     virtual void mapToReferenceFrame( 
-	const Teuchos::ArrayView<double>& point,
-	const double tolerance,
-	Teuchos::Array<double>& reference_point ) const;
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& point,
+	const Teuchos::ArrayView<double>& reference_point,
+	MappingStatus& status ) const;
 
     /*!  
      * \brief Determine if a reference point is in the parameterized space of
      * an entity.
+     * \brief parameters Parameters to be used for the point inclusion check.
+     * \param reference_point A view into an array of size physicalDimension()
+     * containing the reference coordinates of the mapped point.
+     * \return True if the point is in the reference space, false if not.
     */
     virtual bool checkPointInclusion( 
-	const Teuchos::Array<double>& reference_point ) const;
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& reference_point ) const;
+
+    /*!
+     * \brief Map a reference point to the physical space of an entity.
+     * \param reference_point A view into an array of size physicalDimension()
+     * containing the reference coordinates of the mapped point.
+     * \param  A view into an array of size physicalDimension() to write
+     * the coordinates of physical point.
+     */
+    virtual void mapToPhysicalFrame( 
+	const Teuchos::ArrayView<const double>& reference_point,
+	const Teuchos::ArrayView<double>& point ) const;
     //@}
 };
 

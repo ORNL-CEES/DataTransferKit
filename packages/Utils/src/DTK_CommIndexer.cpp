@@ -109,7 +109,7 @@ CommIndexer::~CommIndexer()
  */
 int CommIndexer::l2g( const int local_id ) const
 {
-    std::tr1::unordered_map<int,int>::const_iterator l2g_pair = 
+    std::unordered_map<int,int>::const_iterator l2g_pair = 
 	d_l2gmap.find( local_id );
     return ( l2g_pair != d_l2gmap.end() ) ? l2g_pair->second : -1;
 }

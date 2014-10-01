@@ -21,9 +21,7 @@ TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
 ##---------------------------------------------------------------------------##
 
 TRIBITS_PROCESS_SUBPACKAGES()
-
 TRIBITS_PACKAGE_DEF()
-
 TRIBITS_PACKAGE_POSTPROCESS()
 
 ##---------------------------------------------------------------------------##

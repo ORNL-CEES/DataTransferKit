@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------//
 /*
-  Copyright (c) 2012, Stuart R. Slattery
+  Copyright (c) 2014, Stuart R. Slattery
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
   notice, this list of conditions and the following disclaimer in the
   documentation and/or other materials provided with the distribution.
 
-  *: Neither the name of the University of Wisconsin - Madison nor the
+  *: Neither the name of the Oak Ridge National Laboratory nor the
   names of its contributors may be used to endorse or promote products
   derived from this software without specific prior written permission.
 
@@ -54,6 +54,15 @@ GeometricEntity::~GeometricEntity()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Return a string indicating the derived entity type.
+std::string GeometricEntity::entityType() const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return "Not Implemented";
+}
+
+//---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId GeometricEntity::id() const
 { 
@@ -72,7 +81,16 @@ int GeometricEntity::parallelRank() const
 }
 //---------------------------------------------------------------------------//
 // Return the spatial dimension of the entity.
-int GeometricEntity::dimension() const
+int GeometricEntity::spatialDimension() const
+{ 
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return -1;
+}
+
+//---------------------------------------------------------------------------//
+// Return the parametric dimension of the entity.
+int GeometricEntity::parametricDimension() const
 { 
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -91,28 +109,27 @@ double GeometricEntity::measure() const
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-Teuchos::Array<double> centroid() const
+void centroid( const Teuchos::ArrayView<double>& centroid ) const
 { 
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
-    return Teuchos::Array<double>(0);
 }
 
 //---------------------------------------------------------------------------//
 // Return the axis-aligned bounding box around the entity.
-Box GeometricEntity::boundingBox() const
+void GeometricEntity::boundingBox( Box& bounding_box ) const
 { 
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
-    return BoundingBox();
 }
 
 //---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space of an
 // entity using the given tolerance. 
 bool GeometricEntity::isSafeToMapToReferenceFrame(
-    const Teuchos::ArrayView<double>& point,
-    const double tolerance ) const
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& point,
+	MappingStatus& status ) const
 { 
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -123,9 +140,10 @@ bool GeometricEntity::isSafeToMapToReferenceFrame(
 // Map a point to the reference space of an entity. Return the
 // parameterized point. 
 void GeometricEntity::mapToReferenceFrame( 
-    const Teuchos::ArrayView<double>& point,
-    const double tolerance,
-    Teuchos::Array<double>& reference_point ) const
+    const Teuchos::ParameterList& parameters,
+    const Teuchos::ArrayView<const double>& point,
+    const Teuchos::ArrayView<double>& reference_point,
+    MappingStatus& status ) const
 { 
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -134,11 +152,22 @@ void GeometricEntity::mapToReferenceFrame(
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
 bool GeometricEntity::checkPointInclusion( 
-    const Teuchos::Array<double>& reference_point ) const
+    const Teuchos::ParameterList& parameters,
+    const Teuchos::ArrayView<const double>& reference_point ) const
 { 
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
     return false;
+}
+
+//---------------------------------------------------------------------------//
+// Map a reference point to the physical space of an entity.
+void GeometricEntity::mapToPhysicalFrame( 
+    const Teuchos::ArrayView<const double>& reference_point,
+    const Teuchos::ArrayView<double>& point ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//

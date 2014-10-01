@@ -22,7 +22,6 @@ SET(HEADERS ${HEADERS}
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_BoundingBox.hpp
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
   DTK_DBC.hpp
@@ -32,7 +31,6 @@ APPEND_SET(HEADERS
   ) 
 
 APPEND_SET(SOURCES
-  DTK_BoundingBox.cpp
   DTK_CommIndexer.cpp
   DTK_CommTools.cpp
   DTK_DBC.cpp
