@@ -45,9 +45,9 @@
 
 #include "DTK_GeometryTypes.hpp"
 #include "DTK_MappingStatus.hpp"
-#include "DTK_Box.hpp"
 #include "DTK_AbstractBuilder.hpp"
 #include "DTK_SerializableAbstractObjectPolicy.hpp"
+#include "DTK_AbstractSerializer.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -55,6 +55,9 @@
 
 namespace DataTransferKit
 {
+// Forward declaration of box.
+class Box;
+
 //---------------------------------------------------------------------------//
 /*!
   \class GeometricEntity
@@ -242,15 +245,16 @@ class GeometricEntity
     //@{
     //! Static polymorphic construction interface.
     /*!
-     * \brief Set an abstract builder for GeometricEntity subclasses.
-     * \param builder A builder for GeometricEntity subclasses.
+     * \brief Set an abstract factor for a GeometricEntity subclass.
+     * \param builder A factory for a GeometricEntity subclass.
      */
-    static void setBuilder( 
-	const Teuchos::RCP<AbstractBuilder<GeometricEntity> >& builder );
+    static void setDerivedClassFactory(
+	const Teuchos::RCP<
+	const Teuchos::AbstractFactory<GeometricEntity> >& factory );
 
     /*!
-     * \brief Get an abstract builder for GeometricEntity subclasses.
-     * \return A builder for GeometricEntity subclasses.
+     * \brief Get the abstract builder for GeometricEntity subclasses.
+     * \return The builder for GeometricEntity subclasses.
      */
     static Teuchos::RCP<AbstractBuilder<GeometricEntity> > getBuilder();
     //@}
@@ -309,12 +313,13 @@ class SerializableAbstractObjectPolicy<GeometricEntity>
 namespace Teuchos
 {
 template<typename Ordinal>
-class SerializationTraits<Ordinal,Teuchos::RCP<GeometricEntity> > 
+class SerializationTraits<Ordinal,Teuchos::RCP<DataTransferKit::GeometricEntity> > 
 {
   public:
 
-    typedef Teuchos::RCP<GeometricEntity> T;
-    typedef DataTransferKit::AbstractSerializer<Ordinal,GeometricEntity>  
+    typedef DataTransferKit::GeometricEntity Base;
+    typedef Teuchos::RCP<Base> T;
+    typedef DataTransferKit::AbstractSerializer<Ordinal,Base>  
     AbstractSerializer;
 
     static const bool supportsDirectSerialization = 
@@ -351,8 +356,6 @@ class SerializationTraits<Ordinal,Teuchos::RCP<GeometricEntity> >
 } // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
-
-} // end namespace DataTransferKit
 
 #endif // end DTK_GEOMETRICENTITY_HPP
 

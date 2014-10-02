@@ -46,6 +46,7 @@
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_SerializationTraits.hpp>
+#include <Teuchos_ParameterList.hpp>
 
 #include <iostream>
 

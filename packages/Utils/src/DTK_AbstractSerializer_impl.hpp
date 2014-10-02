@@ -88,7 +88,7 @@ void AbstractSerializer<Ordinal,T>::serialize( const Ordinal count,
 					       char charBuffer[] )
 {
     // Get the builder for the objects.
-    Teuchos::RCP<AbstractBuilder<Base> > builder = SAOP::getBuilder();
+    Teuchos::RCP<AbstractBuilder<T> > builder = SAOP::getBuilder();
 
     // Serialize the objects.
     DTK_REQUIRE( fromCountToIndirectBytes(count,buffer) == bytes );
@@ -147,7 +147,7 @@ void AbstractSerializer<Ordinal,T>::deserialize( const Ordinal bytes,
 						 Packet buffer[] )
 {
     // Get the builder for the objects.
-    Teuchos::RCP<AbstractBuilder<Base> > builder = SAOP::getBuilder();
+    Teuchos::RCP<AbstractBuilder<T> > builder = SAOP::getBuilder();
 
     // Deserialize the objects.
     DTK_REQUIRE( fromIndirectBytesToCount(bytes,charBuffer) == count );

@@ -72,16 +72,16 @@ EntityId GeometricEntity::id() const
 }
     
 //---------------------------------------------------------------------------//
-// Get the native parallel rank of the entity.
-int GeometricEntity::parallelRank() const
+// Get the parallel rank that owns the entity.
+int GeometricEntity::ownerRank() const
 { 
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
     return -1;
 }
 //---------------------------------------------------------------------------//
-// Return the spatial dimension of the entity.
-int GeometricEntity::spatialDimension() const
+// Return the physical dimension of the entity.
+int GeometricEntity::physicalDimension() const
 { 
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -109,7 +109,7 @@ double GeometricEntity::measure() const
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void centroid( const Teuchos::ArrayView<double>& centroid ) const
+void GeometricEntity::centroid( const Teuchos::ArrayView<double>& centroid ) const
 { 
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -126,14 +126,13 @@ void GeometricEntity::boundingBox( Box& bounding_box ) const
 //---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space of an
 // entity using the given tolerance. 
-bool GeometricEntity::isSafeToMapToReferenceFrame(
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& point,
-	MappingStatus& status ) const
+void GeometricEntity::safeguardMapToReferenceFrame(
+    const Teuchos::ParameterList& parameters,
+    const Teuchos::ArrayView<const double>& point,
+    MappingStatus& status ) const
 { 
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
-    return false;
 }
 
 //---------------------------------------------------------------------------//
@@ -198,7 +197,7 @@ void GeometricEntity::serialize(
 //---------------------------------------------------------------------------//
 // Deserialize an entity from a buffer.
 void GeometricEntity::deserialize( 
-    const Teuchos::ArrayView<const char>& buffer ) const
+    const Teuchos::ArrayView<const char>& buffer )
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -207,15 +206,19 @@ void GeometricEntity::deserialize(
 //---------------------------------------------------------------------------//
 // Static members.
 //---------------------------------------------------------------------------//
+// Add factories through the setDerivedClassFactory function.
 Teuchos::RCP<AbstractBuilder<GeometricEntity> > 
-GeometricEntity::b_builder = Teuchos::null;
+GeometricEntity::b_builder = 
+    Teuchos::rcp( new AbstractBuilder<GeometricEntity>() );
 
 //---------------------------------------------------------------------------//
 // Set an abstract builder for GeometricEntity subclasses.
-void GeometricEntity::setBuilder( 
-    const Teuchos::RCP<AbstractBuilder<GeometricEntity> >& builder )
+void GeometricEntity::setDerivedClassFactory(
+	const Teuchos::RCP<
+	const Teuchos::AbstractFactory<GeometricEntity> >& factory )
 { 
-    b_builder = builder; 
+    b_builder->setDerivedClassFactory( 
+	factory, factory->create()->objectType() );
 }
 
 //---------------------------------------------------------------------------//

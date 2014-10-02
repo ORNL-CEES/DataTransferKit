@@ -177,13 +177,12 @@ double Box::measure() const
  *
  * \return The centroid coordinates.
  */
-Teuchos::Array<double> Box::centroid() const
+void Box::centroid( const Teuchos::ArrayView<double>& centroid ) const
 {
-    Teuchos::Array<double> center(3);
-    center[0] = (d_x_max + d_x_min) / 2.0;
-    center[1] = (d_y_max + d_y_min) / 2.0;
-    center[2] = (d_z_max + d_z_min) / 2.0;
-    return center;
+    DTK_REQUIRE( 3 == centroid.size() );
+    centroid[0] = (d_x_max + d_x_min) / 2.0;
+    centroid[1] = (d_y_max + d_y_min) / 2.0;
+    centroid[2] = (d_z_max + d_z_min) / 2.0;
 }
 
 //---------------------------------------------------------------------------//
@@ -194,18 +193,7 @@ Teuchos::Array<double> Box::centroid() const
  */
 void Box::boundingBox( Box& bounding_box ) const
 {
-    box = *this;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Perform a safeguard check for mapping a point to the reference
- * space of an entity using the given tolerance.
- */
-bool Box::isSafeToMapToReferenceFrame( const Teuchos::ArrayView<double>& point,
-				       const double tolerance ) const
-{
-    return true;
+    bounding_box = *this;
 }
 
 //---------------------------------------------------------------------------//
@@ -285,9 +273,9 @@ std::size_t Box::byteSize() const
 
 //---------------------------------------------------------------------------//
 // Serialize the entity into a buffer.
-void serialize( const Teuchos::ArrayView<char>& buffer ) const
+void Box::serialize( const Teuchos::ArrayView<char>& buffer ) const
 {
-    DTK_REQUIRE( buffer.size() == d_byte_size );
+    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) == d_byte_size );
     DataSerializer serializer;
     serializer.setBuffer( buffer );
     serializer << d_global_id << d_owner_rank
@@ -297,13 +285,13 @@ void serialize( const Teuchos::ArrayView<char>& buffer ) const
 
 //---------------------------------------------------------------------------//
 // Deserialize an entity from a buffer.
-void deserialize( const Teuchos::ArrayView<const char>& buffer )
+void Box::deserialize( const Teuchos::ArrayView<const char>& buffer )
 {
-    DTK_REQUIRE( buffer.size() == d_byte_size );
+    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) == d_byte_size );
     DataDeserializer deserializer;
     Teuchos::ArrayView<char> buffer_nonconst(
-	const_cast<char*>(buffer.getRawData()), buffer.size() );
-    deserializer.setBuffer( buffer );
+	const_cast<char*>(buffer.getRawPtr()), buffer.size() );
+    deserializer.setBuffer( buffer_nonconst );
     deserializer >> d_global_id >> d_owner_rank
 		 >> d_x_min >> d_y_min >> d_z_min
 		 >> d_x_max >> d_y_max >> d_z_max;
@@ -414,7 +402,9 @@ bool Box::intersectBoxes( const Box& box_A,
 	z_max = bounds_A[5];
     }
 
-    box_intersection = Box( x_min, y_min, z_min, x_max, y_max, z_max );
+    box_intersection = Box( dtk_invalid_entity_id, box_A.ownerRank(),
+			    x_min, y_min, z_min, 
+			    x_max, y_max, z_max );
     return true;
 }
 
@@ -430,9 +420,9 @@ bool Box::intersectBoxes( const Box& box_A,
  * and box B. Box A and B can be provided in any order (the union of
  * box A with box B is equal to the union of box B with box A).
  */
-void Box::unite( const Box& box_A,
-		 const Box& box_B,
-		 Box& box_union)
+void Box::uniteBoxes( const Box& box_A,
+		      const Box& box_B,
+		      Box& box_union)
 {
     Teuchos::Tuple<double,6> bounds_A = box_A.getBounds();
     Teuchos::Tuple<double,6> bounds_B = box_B.getBounds();
@@ -493,7 +483,9 @@ void Box::unite( const Box& box_A,
 	z_max = bounds_A[5];
     }
 
-    box_union = Box( x_min, y_min, z_min, x_max, y_max, z_max );
+    box_union = Box( dtk_invalid_entity_id, box_A.ownerRank(),
+		     x_min, y_min, z_min, 
+		     x_max, y_max, z_max );
 }
 
 //---------------------------------------------------------------------------//

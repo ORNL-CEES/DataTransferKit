@@ -94,7 +94,7 @@ class MappingStatus
      * \brief Iteration count.
      * \return The number of iterations required to construct the mapping.
      */
-    int numberOfIterations() const;
+    unsigned numberOfIterations() const;
 
     /*!
      * \brief Reset the mapping status.

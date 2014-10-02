@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_MapipngStatus.hpp>
+#include <DTK_MappingStatus.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -42,14 +42,14 @@ TEUCHOS_UNIT_TEST( Box, status_test )
     status_1.mappingFailed();
     TEST_EQUALITY( status_1.success(), false );
 
-    int iterations = 100;
-    for ( int i = 0; i < iterations; ++i )
+    unsigned iterations = 100;
+    for ( unsigned i = 0; i < iterations; ++i )
     {
 	status_1.incrementIterations();
     }
     TEST_EQUALITY( status_1.numberOfIterations(), iterations );
 
-    for ( int i = 0; i < iterations; ++i )
+    for ( unsigned i = 0; i < iterations; ++i )
     {
 	status_1.incrementIterations();
     }
@@ -60,12 +60,12 @@ TEUCHOS_UNIT_TEST( Box, status_test )
     TEST_EQUALITY( status_1.numberOfIterations(), 0 );
 
     DataTransferKit::MappingStatus status_2( true, iterations );
-    TEST_EQUALITY( status_1.success(), true );
-    TEST_EQUALITY( status_1.numberOfIterations(), iterations );
+    TEST_EQUALITY( status_2.success(), true );
+    TEST_EQUALITY( status_2.numberOfIterations(), iterations );
 
     DataTransferKit::MappingStatus status_3 = status_2;
-    TEST_EQUALITY( status_1.success(), true );
-    TEST_EQUALITY( status_1.numberOfIterations(), iterations );
+    TEST_EQUALITY( status_3.success(), true );
+    TEST_EQUALITY( status_3.numberOfIterations(), iterations );
 }
 
 //---------------------------------------------------------------------------//

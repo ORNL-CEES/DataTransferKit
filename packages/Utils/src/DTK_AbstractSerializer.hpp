@@ -69,10 +69,9 @@ class AbstractSerializer
 
     //@{
     //! Typdefs.
-    typedef Ordinal                                ordinal_type;
-    typedef T                                      Base;
-    typedef Teuchos::RCP<Base>                     Packet;
-    typedef SerializableAbstractObjectPolicy<Base> SAOP;
+    typedef Ordinal                             ordinal_type;
+    typedef Teuchos::RCP<T>                     Packet;
+    typedef SerializableAbstractObjectPolicy<T> SAOP;
     //@}
 
   public:

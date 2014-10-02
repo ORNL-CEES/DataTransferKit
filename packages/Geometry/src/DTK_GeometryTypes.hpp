@@ -56,7 +56,8 @@ namespace DataTransferKit
 typedef uint64_t EntityId;
 
 //! Invalid entity id.
-static EntityId dtk_invalid_entity_id = std::numeric_limits<EntityId>::max();
+static const EntityId dtk_invalid_entity_id = 
+    std::numeric_limits<EntityId>::max();
 
 //---------------------------------------------------------------------------//
 

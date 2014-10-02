@@ -20,12 +20,14 @@ APPEND_SET(HEADERS
   DTK_EntitySet.hpp
   DTK_GeometricEntity.hpp
   DTK_GeometryTypes.hpp
+  DTK_MappingStatus.hpp
   ) 
 
 APPEND_SET(SOURCES
   DTK_Box.cpp
   DTK_EntitySet.cpp
   DTK_GeometricEntity.cpp
+  DTK_MappingStatus.cpp
   )
 
 #

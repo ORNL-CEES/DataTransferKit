@@ -38,7 +38,7 @@
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_MappingStatus.cpp"
+#include "DTK_MappingStatus.hpp"
 
 namespace DataTransferKit
 {
@@ -58,7 +58,7 @@ MappingStatus::MappingStatus( bool success, unsigned number_of_iterations )
 
 //---------------------------------------------------------------------------//
 // Destructor.
-MappingStatus::~MappingStatus().
+MappingStatus::~MappingStatus()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//

@@ -45,11 +45,13 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-EntitySet::EntitySet();
+EntitySet::EntitySet()
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Destructor.
-EntitySet::~EntitySet();
+EntitySet::~EntitySet()
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Return a string indicating the derived entity set type.
@@ -138,6 +140,7 @@ int EntitySet::spatialDimension() const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
+    return -1;
 }
 
 //---------------------------------------------------------------------------//
@@ -160,8 +163,6 @@ void EntitySet::globalBoundingBox( Box& bounding_box ) const
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_ENTITYSET_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_EntitySet.hpp
+// end DTK_EntitySet.cpp
 //---------------------------------------------------------------------------//
