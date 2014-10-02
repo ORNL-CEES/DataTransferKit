@@ -39,6 +39,7 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_GeometricEntity.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
@@ -201,6 +202,27 @@ void GeometricEntity::deserialize(
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
+// Static members.
+//---------------------------------------------------------------------------//
+Teuchos::RCP<AbstractBuilder<GeometricEntity> > 
+GeometricEntity::b_builder = Teuchos::null;
+
+//---------------------------------------------------------------------------//
+// Set an abstract builder for GeometricEntity subclasses.
+void GeometricEntity::setBuilder( 
+    const Teuchos::RCP<AbstractBuilder<GeometricEntity> >& builder )
+{ 
+    b_builder = builder; 
+}
+
+//---------------------------------------------------------------------------//
+// Get an abstract builder for GeometricEntity subclasses.
+Teuchos::RCP<AbstractBuilder<GeometricEntity> > GeometricEntity::getBuilder()
+{ 
+    return b_builder; 
 }
 
 //---------------------------------------------------------------------------//

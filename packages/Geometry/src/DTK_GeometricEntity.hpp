@@ -43,11 +43,11 @@
 
 #include <string>
 
-#include "DTK_SerializableAbstractObjectPolicy.hpp"
 #include "DTK_GeometryTypes.hpp"
 #include "DTK_MappingStatus.hpp"
 #include "DTK_Box.hpp"
-#include "DTK_DBC.hpp"
+#include "DTK_AbstractBuilder.hpp"
+#include "DTK_SerializableAbstractObjectPolicy.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -239,6 +239,27 @@ class GeometricEntity
     virtual void deserialize( 
 	const Teuchos::ArrayView<const char>& buffer ) const;
     //@}
+
+    //@{
+    //! Static polymorphic construction interface.
+    /*!
+     * \brief Set an abstract builder for GeometricEntity subclasses.
+     * \param builder A builder for GeometricEntity subclasses.
+     */
+    static void setBuilder( 
+	const Teuchos::RCP<AbstractBuilder<GeometricEntity> >& builder );
+
+    /*!
+     * \brief Get an abstract builder for GeometricEntity subclasses.
+     * \return A builder for GeometricEntity subclasses.
+     */
+    static Teuchos::RCP<AbstractBuilder<GeometricEntity> > getBuilder();
+    //@}
+
+  private:
+    
+    // Abstract builder for geometric entity subclasses.
+    static Teuchos::RCP<AbstractBuilder<GeometricEntity> > b_builder;
 };
 
 //---------------------------------------------------------------------------//
