@@ -22,6 +22,8 @@ SET(HEADERS ${HEADERS}
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  DTK_AbstractBuildableObject.hpp
+  DTK_AbstractBuildableObject_impl.hpp
   DTK_AbstractBuilder.hpp
   DTK_AbstractBuilder_impl.hpp
   DTK_AbstractSerializer.hpp

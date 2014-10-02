@@ -204,31 +204,6 @@ void GeometricEntity::deserialize(
 }
 
 //---------------------------------------------------------------------------//
-// Static members.
-//---------------------------------------------------------------------------//
-// Add factories through the setDerivedClassFactory function.
-Teuchos::RCP<AbstractBuilder<GeometricEntity> > 
-GeometricEntity::b_builder = 
-    Teuchos::rcp( new AbstractBuilder<GeometricEntity>() );
-
-//---------------------------------------------------------------------------//
-// Set an abstract builder for GeometricEntity subclasses.
-void GeometricEntity::setDerivedClassFactory(
-	const Teuchos::RCP<
-	const Teuchos::AbstractFactory<GeometricEntity> >& factory )
-{ 
-    b_builder->setDerivedClassFactory( 
-	factory, factory->create()->objectType() );
-}
-
-//---------------------------------------------------------------------------//
-// Get an abstract builder for GeometricEntity subclasses.
-Teuchos::RCP<AbstractBuilder<GeometricEntity> > GeometricEntity::getBuilder()
-{ 
-    return b_builder; 
-}
-
-//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

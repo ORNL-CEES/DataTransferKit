@@ -48,6 +48,7 @@
 #include "DTK_AbstractBuilder.hpp"
 #include "DTK_SerializableAbstractObjectPolicy.hpp"
 #include "DTK_AbstractSerializer.hpp"
+#include "DTK_AbstractBuildableObject.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -81,7 +82,7 @@ class Box;
   boundary of the geometry (i.e. $\hat{r} \in \Omega$).
 */
 //---------------------------------------------------------------------------//
-class GeometricEntity
+class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
 {
   public:
 
@@ -241,28 +242,6 @@ class GeometricEntity
      */
     virtual void deserialize( const Teuchos::ArrayView<const char>& buffer );
     //@}
-
-    //@{
-    //! Static polymorphic construction interface.
-    /*!
-     * \brief Set an abstract factor for a GeometricEntity subclass.
-     * \param builder A factory for a GeometricEntity subclass.
-     */
-    static void setDerivedClassFactory(
-	const Teuchos::RCP<
-	const Teuchos::AbstractFactory<GeometricEntity> >& factory );
-
-    /*!
-     * \brief Get the abstract builder for GeometricEntity subclasses.
-     * \return The builder for GeometricEntity subclasses.
-     */
-    static Teuchos::RCP<AbstractBuilder<GeometricEntity> > getBuilder();
-    //@}
-
-  private:
-    
-    // Abstract builder for geometric entity subclasses.
-    static Teuchos::RCP<AbstractBuilder<GeometricEntity> > b_builder;
 };
 
 //---------------------------------------------------------------------------//
