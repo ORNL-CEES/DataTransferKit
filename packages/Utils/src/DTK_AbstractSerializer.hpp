@@ -69,18 +69,17 @@ class AbstractSerializer
 
     //@{
     //! Typdefs.
-    typedef Ordinal                             ordinal_type;
-    typedef T                                   Base;
-    typedef Teuchos::RCP<T>                     Packet;
-    typedef SerializableAbstractObjectPolicy<T> SAOP;
+    typedef Ordinal                                ordinal_type;
+    typedef T                                      Base;
+    typedef Teuchos::RCP<Base>                     Packet;
+    typedef SerializableAbstractObjectPolicy<Base> SAOP;
     //@}
 
   public:
 
     // Return the number of bytes for count objects.
-    static Ordinal 
-    fromCountToIndirectBytes( const Ordinal count, 
-			      const Packet buffer[] );
+    static Ordinal fromCountToIndirectBytes( const Ordinal count, 
+					     const Packet buffer[] );
 
     // Serialize to an indirect char buffer.
     static void serialize( const Ordinal count, 

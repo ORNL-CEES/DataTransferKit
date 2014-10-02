@@ -43,7 +43,7 @@
 
 #include <string>
 
-#include "DTK_SerializableObject.hpp"
+#include "DTK_SerializableAbstractObjectPolicy.hpp"
 #include "DTK_GeometryTypes.hpp"
 #include "DTK_MappingStatus.hpp"
 #include "DTK_Box.hpp"
@@ -51,6 +51,7 @@
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -77,7 +78,7 @@ namespace DataTransferKit
   boundary of the geometry (i.e. $\hat{r} \in \Omega$).
 */
 //---------------------------------------------------------------------------//
-class GeometricEntity : public SerializableObject<GeometricEntity>
+class GeometricEntity
 {
   public:
 
@@ -209,7 +210,7 @@ class GeometricEntity : public SerializableObject<GeometricEntity>
     //@}
 
     //@{
-    //! SerializableObject interface.
+    //! SerializableAbstractObjectPolicy interface.
     /*!
      * \brief Return a string indicating the derived object type.
      * \return A string indicating the type of derived object implementing the
@@ -240,6 +241,93 @@ class GeometricEntity : public SerializableObject<GeometricEntity>
     //@}
 };
 
+//---------------------------------------------------------------------------//
+// SerializableAbstractObjectPolicy implementation.
+//---------------------------------------------------------------------------//
+
+template<>
+class SerializableAbstractObjectPolicy<GeometricEntity>
+{
+  public:
+
+    typedef GeometricEntity object_type;
+
+    static std::string objectType( const Teuchos::RCP<object_type>& object )
+    {
+	return object->objectType();
+    }
+
+    static std::size_t byteSize( const Teuchos::RCP<object_type>& object )
+    {
+	return object->byteSize();
+    }
+
+    static void serialize( const Teuchos::RCP<object_type>& object,
+			   const Teuchos::ArrayView<char>& buffer )
+    {
+	object->serialize( buffer );
+    }
+
+    static void deserialize( const Teuchos::RCP<object_type>& object,
+			     const Teuchos::ArrayView<const char>& buffer )
+    {
+	object->deserialize( buffer );
+    }
+
+    static Teuchos::RCP<DataTransferKit::AbstractBuilder<object_type> > getBuilder()
+    {
+	return object_type::getBuilder();
+    }
+};
+
+} // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Teuchos::SerializationTraits implementation.
+//---------------------------------------------------------------------------//
+
+namespace Teuchos
+{
+template<typename Ordinal>
+class SerializationTraits<Ordinal,Teuchos::RCP<GeometricEntity> > 
+{
+  public:
+
+    typedef Teuchos::RCP<GeometricEntity> T;
+    typedef DataTransferKit::AbstractSerializer<Ordinal,GeometricEntity>  
+    AbstractSerializer;
+
+    static const bool supportsDirectSerialization = 
+	AbstractSerializer::supportsDirectSerialization;
+
+    static Ordinal fromCountToIndirectBytes( const Ordinal count, 
+					     const T buffer[] ) 
+    { 
+	return AbstractSerializer::fromCountToIndirectBytes( count, buffer );
+    }
+
+    static void serialize( const Ordinal count, 
+			   const T buffer[], 
+			   const Ordinal bytes, 
+			   char charBuffer[] )
+    { 
+	AbstractSerializer::serialize( count, buffer, bytes, charBuffer );
+    }
+
+    static Ordinal fromIndirectBytesToCount( const Ordinal bytes, 
+					     const char charBuffer[] ) 
+    { 
+	return AbstractSerializer::fromIndirectBytesToCount( bytes, charBuffer );
+    }
+
+    static void deserialize( const Ordinal bytes, 
+			     const char charBuffer[], 
+			     const Ordinal count, 
+			     T buffer[] )
+    { 
+	AbstractSerializer::deserialize( bytes, charBuffer, count, buffer );
+    }
+};
 } // end namespace Teuchos
 
 //---------------------------------------------------------------------------//

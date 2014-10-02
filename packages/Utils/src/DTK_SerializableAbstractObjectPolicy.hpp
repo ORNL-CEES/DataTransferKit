@@ -54,7 +54,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
   \class UndefinedSerializableAbstractObjectPolicy
-  \brief Complie time error indicate for policy implementations.
+  \brief Complie time error indicator for policy implementations.
 */
 //---------------------------------------------------------------------------//
 template<typename T>
@@ -71,9 +71,9 @@ struct UndefinedSerializableAbstractObjectPolicy
   \class SerializableAbstractObjectPolicy
   \brief Interface definition for objects that can be serialized.
 
-  This class provides a runtime mechanism to serialize a derived class through
-  a base class interface and deserialize the base class with the correct
-  underlying derived class.
+  This class provides a runtime mechanism to serialize a derived class of
+  arbitrary size through a base class interface and deserialize the base class
+  with the correct underlying derived class.
 */
 //---------------------------------------------------------------------------//
 template<class T>
@@ -144,7 +144,6 @@ class SerializableAbstractObjectPolicy
 	UndefinedSerializableAbstractObjectPolicy<T>::notDefined();
 	return Teuchos::null;
     }
-
     //@}
 };
 

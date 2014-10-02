@@ -72,14 +72,7 @@ void AbstractBuilder<Base>::setDerivedClassFactory(
 template<class Base>
 int AbstractBuilder<Base>::getIntegralKey( const std::string& name )
 {
-    if ( Teuchos::is_null(d_validator) )
-    {
-	std::string default_name( "No Default Implementation" );
-	d_validator = Teuchos::rcp(
-	    new Teuchos::StringToIntegralParameterEntryValidator<int>(
-		d_names(), default_name) );
-    }
-
+    buildValidator();
     return d_validator->getIntegralValue( name );
 }
 
@@ -89,16 +82,8 @@ template<class Base>
 Teuchos::RCP<Base>
 AbstractBuilder<Base>::create( const std::string& name )
 {
-    if ( Teuchos::is_null(d_validator) )
-    {
-	std::string default_name( "No Default Implementation" );
-	d_validator = Teuchos::rcp(
-	    new Teuchos::StringToIntegralParameterEntryValidator<int>(
-		d_names(), default_name) );
-    }
-    
+    buildValidator();
     int factory_index = d_validator->getIntegralValue( name );
-
     return d_factories[ factory_index ]->create();
 }
 //---------------------------------------------------------------------------//
@@ -108,6 +93,20 @@ Teuchos::RCP<Base>
 AbstractBuilder<Base>::create( const int key )
 {
     return d_factories[ key ]->create();
+}
+
+//---------------------------------------------------------------------------//
+// Build the validator.
+template<class Base>
+void AbstractBuilder<Base>::buildValidator()
+{
+    if ( Teuchos::is_null(d_validator) )
+    {
+	std::string default_name( "No Default Implementation" );
+	d_validator = Teuchos::rcp(
+	    new Teuchos::StringToIntegralParameterEntryValidator<int>(
+		d_names(), default_name) );
+    }
 }
 
 //---------------------------------------------------------------------------//

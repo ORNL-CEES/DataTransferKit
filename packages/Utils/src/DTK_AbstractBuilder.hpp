@@ -109,6 +109,11 @@ class AbstractBuilder
 
   private:
 
+    // Build the validator.
+    void buildValidator();
+
+  private:
+
     // Factories.
     Teuchos::Array<Teuchos::RCP<const Teuchos::AbstractFactory<Base> > >
     d_factories;
