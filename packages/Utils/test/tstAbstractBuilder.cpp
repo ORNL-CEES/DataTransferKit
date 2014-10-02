@@ -70,6 +70,14 @@ TEUCHOS_UNIT_TEST( AbstractBuilder, builder_test )
 
     Teuchos::RCP<BaseClass> base_2 = builder.create( "two" );
     TEST_EQUALITY( base_2->myNumber(), 2 );
+
+    int key_1 = builder.getIntegralKey( "one" );
+    Teuchos::RCP<BaseClass> base_3 = builder.create( key_1 );
+    TEST_EQUALITY( base_3->myNumber(), 1 );
+
+    int key_2 = builder.getIntegralKey( "two" );
+    Teuchos::RCP<BaseClass> base_4 = builder.create( key_2 );
+    TEST_EQUALITY( base_4->myNumber(), 2 );
 }
 
 //---------------------------------------------------------------------------//

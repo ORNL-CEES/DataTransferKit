@@ -24,10 +24,13 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   DTK_AbstractBuilder.hpp
   DTK_AbstractBuilder_impl.hpp
+  DTK_AbstractSerializer.hpp
+  DTK_AbstractSerializer_impl.hpp
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
   DTK_DBC.hpp
   DTK_SearchTreeFactory.hpp
+  DTK_SerializableAbstractObjectPolicy.hpp
   DTK_StaticSearchTree.hpp
   DTK_StaticSearchTree_impl.hpp
   ) 

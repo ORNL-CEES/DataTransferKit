@@ -170,6 +170,40 @@ void GeometricEntity::mapToPhysicalFrame(
 }
 
 //---------------------------------------------------------------------------//
+// Return a string indicating the derived object type.
+std::string GeometricEntity::objectType() const
+{
+    return entityType();
+}
+
+//---------------------------------------------------------------------------//
+// Get the size of the serialized entity in bytes.
+std::size_t GeometricEntity::byteSize() const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return 0;
+}
+
+//---------------------------------------------------------------------------//
+// Serialize the entity into a buffer.
+void GeometricEntity::serialize( 
+    const Teuchos::ArrayView<char>& buffer ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
+// Deserialize an entity from a buffer.
+void GeometricEntity::deserialize( 
+    const Teuchos::ArrayView<const char>& buffer ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

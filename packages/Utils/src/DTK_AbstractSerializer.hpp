@@ -32,93 +32,76 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_AbstractBuilder.hpp
+ * \brief DTK_AbstractSerializer.hpp
  * \author Stuart R. Slattery
- * \brief Builder for abstract classes.
+ * \brief Serializable object policy interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ABSTRACTBUILDER_HPP
-#define DTK_ABSTRACTBUILDER_HPP
+#ifndef DTK_ABSTRACTSERIALIZER_HPP
+#define DTK_ABSTRACTSERIALIZER_HPP
+
+#include <string>
+
+#include "DTK_SerializableAbstractObjectPolicy.hpp"
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_AbstractFactory.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_StandardParameterEntryValidators.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class AbstractBuilder
-  \brief Builder for constructing derived classes of the base.
+  \class AbstractSerializer
+  \brief Serializer for abstract objects.
+
+  The data packets are reference counted pointers to the base class
+  objects. Abstract classes that can implement the
+  SerializableAbstractObjectPolicy can use this class to quickly implement
+  Teuchos::SerializationTraits. This object mimics the Teuchos indirect
+  serialization traits.
 */
 //---------------------------------------------------------------------------//
-template<class Base>
-class AbstractBuilder
+template<class Ordinal, class T>
+class AbstractSerializer
 {
   public:
 
-    /*!
-     * \brief Constructor.
-     */
-    AbstractBuilder();
+    //@{
+    //! Typdefs.
+    typedef Ordinal                             ordinal_type;
+    typedef T                                   Base;
+    typedef Teuchos::RCP<T>                     Packet;
+    typedef SerializableAbstractObjectPolicy<T> SAOP;
+    //@}
 
-    /*!
-     * \brief Destructor.
-     */
-    ~AbstractBuilder();
+  public:
 
-    /*!
-     * \brief Set a new Abstract factory with the builder.
-     * \param entity_factory A factory that can create a Abstract from
-     * a derived class.
-     * \param name A name for the factory. This should be indicative of the
-     * derived class and equivalent to the entityType() field from the
-     * implementation.
-     */
-    void setDerivedClassFactory(
-	const Teuchos::RCP<const Teuchos::AbstractFactory<Base> >&
-	entity_factory,
-	const std::string& name );
+    // Return the number of bytes for count objects.
+    static Ordinal 
+    fromCountToIndirectBytes( const Ordinal count, 
+			      const Packet buffer[] );
 
-    /*!
-     * \brief Get the integral key for a string key.
-     * \param The name to get the key for.
-     * \return The integral key.
-     */
-    int getIntegralKey( const std::string& name );
+    // Serialize to an indirect char buffer.
+    static void serialize( const Ordinal count, 
+			   const Packet buffer[], 
+			   const Ordinal bytes, 
+			   char charBuffer[] );
 
-    /*!
-     * \brief Create a new base class with the given derived class factory
-     * name.  
-     * \param name Create a base class using the derived class factory with
-     * this name.
-     * \return The created base class object.
-     */
-    Teuchos::RCP<Base> create( const std::string& name );
-          
-    /*!
-     * \brief Create a new base class with the given derived class factory
-     * integral key.  
-     * \param name Create a base class using the derived class factory with
-     * this integral key.
-     * \return The created base class object.
-     */
-    Teuchos::RCP<Base> create( const int key );
+    // Return the number of objects for bytes of storage.
+    static Ordinal fromIndirectBytesToCount( const Ordinal bytes, 
+					     const char charBuffer[] );
 
-  private:
+    // Deserialize from an indirect char buffer.
+    static void deserialize( const Ordinal bytes, 
+			     const char charBuffer[], 
+			     const Ordinal count, 
+			     Packet buffer[] );
 
-    // Factories.
-    Teuchos::Array<Teuchos::RCP<const Teuchos::AbstractFactory<Base> > >
-    d_factories;
+  public:
 
-    // Names.
-    Teuchos::Array<std::string> d_names;
-
-    // Validator.
-    Teuchos::RCP<Teuchos::StringToIntegralParameterEntryValidator<int> >
-    d_validator;
+    // Direct serialization support.
+    static const bool supportsDirectSerialization;
 };
 
 //---------------------------------------------------------------------------//
@@ -129,10 +112,12 @@ class AbstractBuilder
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_AbstractBuilder_impl.hpp"
-
-#endif // end DTK_ABSTRACTBUILDER_HPP
+#include "DTK_AbstractSerializer_impl.hpp"
 
 //---------------------------------------------------------------------------//
-// end DTK_AbstractBuilder.hpp
+
+#endif // end DTK_ABSTRACTSERIALIZER_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_AbstractSerializer.hpp
 //---------------------------------------------------------------------------//

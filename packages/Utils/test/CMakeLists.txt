@@ -16,6 +16,13 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  AbstractSerializer_test
+  SOURCES tstAbstractSerializer.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
   CommIndexer_test
   SOURCES tstCommIndexer.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi
