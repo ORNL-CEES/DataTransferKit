@@ -70,13 +70,13 @@ class Box : public GeometricEntity
     Box();
 
     // Constructor.
-    Box( const EntityId global_id, const int parallel_rank,
+    Box( const EntityId global_id, const int owner_rank,
 	 const double x_min, const double y_min, const double z_min,
 	 const double x_max, const double y_max, const double z_max );
 
     // Tuple constructor.
     Box( const EntityId global_id,
-	 const int parallel_rank, 
+	 const int owner_rank, 
 	 const Teuchos::Tuple<double,6>& bounds );
 
     // Destructor.
@@ -89,40 +89,62 @@ class Box : public GeometricEntity
 
     //@{ 
     //! GeometricEntity implementation.
-    int dimension() const
-    { return 3; }
+    // Return a string indicating the derived entity type.
+    std::string entityType() const;
 
-    // Compute the volume of the box.
+    // Get the unique global identifier for the entity.
+    EntityId id() const;
+    
+    // Get the parallel rank that owns the entity.
+    int ownerRank() const;
+
+    // Return the physical dimension of the entity.
+    int physicalDimension() const;
+
+    // Return the parametric dimension of the entity.
+    int parametricDimension() const;
+
+    // Return the entity measure with respect to the parameteric
     double measure() const;
 
-    // Get the centroid of the box.
-    void centroid( Teuchos::ArrayView<double>& centroid ) const;
+    // Return the centroid of the entity.
+    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
 
-    // Compute the bounding box around the box.
-    Box boundingBox() const;
+    // Return the axis-aligned bounding box around the entity.
+    void boundingBox( Box& bounding_box ) const;
 
-    // Perform a safeguard check for mapping a point to the reference space of
-    // an entity using the given tolerance.
-    bool isSafeToMapToReferenceFrame(
-	const Teuchos::ArrayView<double>& point,
-	const double tolerance ) const;
+    // Perform a safeguard check for mapping a point to the reference
+    void safeguardMapToReferenceFrame(
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& point,
+	MappingStatus& status ) const;
 
     // Map a point to the reference space of an entity. Return the
-    // parameterized point. 
     void mapToReferenceFrame( 
-	const Teuchos::ArrayView<double>& point,
-	const double tolerance,
-	Teuchos::Array<double>& reference_point ) const;
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& point,
+	const Teuchos::ArrayView<double>& reference_point,
+	MappingStatus& status ) const;
 
-    // Determine if a reference point is in the parameterized space of an
-    // entity. 
+    // Determine if a reference point is in the parameterized space of
     bool checkPointInclusion( 
-	const Teuchos::Array<double>& reference_point ) const;
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& reference_point ) const;
 
     // Map a reference point to the physical space of an entity.
     void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<double>& reference_point,
-	Teuchos::ArrayView<double>& point ) const;
+	const Teuchos::ArrayView<const double>& reference_point,
+	const Teuchos::ArrayView<double>& point ) const;
+     
+    // Get the size of the serialized entity in bytes.
+    std::size_t byteSize() const;
+
+    // Serialize the entity into a buffer.
+    void serialize( const Teuchos::ArrayView<char>& buffer ) const;
+
+    // Deserialize an entity from a buffer.
+    void deserialize( const Teuchos::ArrayView<const char>& buffer );
+    //@}
 
     // Static function to check for box intersection but not perform it.
     static bool checkForIntersection( const Box& box_A,
@@ -144,7 +166,7 @@ class Box : public GeometricEntity
     EntityId d_global_id;
 
     // Owning parallel rank.
-    int d_parallel_rank;
+    int d_owner_rank;
 
     // X min.
     double d_x_min;
@@ -163,6 +185,9 @@ class Box : public GeometricEntity
 
     // Z max.
     double d_z_max;
+
+    // Packed size in bytes.
+    std::size_t d_byte_size;
 };
 
 //! overload for printing box

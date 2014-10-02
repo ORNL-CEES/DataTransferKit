@@ -43,7 +43,7 @@ class BaseClass
     virtual std::string objectType() const { return std::string("0"); }
     virtual std::size_t byteSize() const { return 0; }
     virtual void serialize( const Teuchos::ArrayView<char>& buffer ) const {};
-    virtual void deserialize( const Teuchos::ArrayView<const char>& buffer ) const {};
+    virtual void deserialize( const Teuchos::ArrayView<const char>& buffer ) {};
 
     static void setBuilder( 
 	const Teuchos::RCP<DataTransferKit::AbstractBuilder<BaseClass> >& builder );
@@ -167,7 +167,7 @@ class MyNumberIsOne : public BaseClass
     void serialize( const Teuchos::ArrayView<char>& buffer ) const
     { std::memcpy( const_cast<double*>(d_data.getRawPtr()), 
 		   buffer.getRawPtr(), sizeof(double) ); }
-    void deserialize( const Teuchos::ArrayView<const char>& buffer ) const
+    void deserialize( const Teuchos::ArrayView<const char>& buffer )
     { std::memcpy( const_cast<char*>(buffer.getRawPtr()), 
 		   d_data.getRawPtr(), sizeof(double) ); }
 
@@ -193,7 +193,7 @@ class MyNumberIsTwo : public BaseClass
     void serialize( const Teuchos::ArrayView<char>& buffer ) const
     { std::memcpy( const_cast<double*>(d_data.getRawPtr()), 
 		   buffer.getRawPtr(), sizeof(double) ); }
-    void deserialize( const Teuchos::ArrayView<const char>& buffer ) const
+    void deserialize( const Teuchos::ArrayView<const char>& buffer )
     { std::memcpy( const_cast<char*>(buffer.getRawPtr()), 
 		   d_data.getRawPtr(), sizeof(double) ); }
 

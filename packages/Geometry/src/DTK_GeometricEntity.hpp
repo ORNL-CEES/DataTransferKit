@@ -171,7 +171,7 @@ class GeometricEntity
     /*!
      * \brief Map a point to the reference space of an entity. Return the
      * parameterized point.
-     * \brief parameters Parameters to be used for the mapping procedure.
+     * \param parameters Parameters to be used for the mapping procedure.
      * \param  A view into an array of size physicalDimension() containing
      * the coordinates of the point to map.
      * \param reference_point A view into an array of size physicalDimension()
@@ -188,7 +188,7 @@ class GeometricEntity
     /*!  
      * \brief Determine if a reference point is in the parameterized space of
      * an entity.
-     * \brief parameters Parameters to be used for the point inclusion check.
+     * \param parameters Parameters to be used for the point inclusion check.
      * \param reference_point A view into an array of size physicalDimension()
      * containing the reference coordinates of the mapped point.
      * \return True if the point is in the reference space, false if not.
@@ -236,8 +236,7 @@ class GeometricEntity
      * \param buffer A view into a data buffer of size byteSize(). Deserialize
      * the entity from this view.
      */
-    virtual void deserialize( 
-	const Teuchos::ArrayView<const char>& buffer ) const;
+    virtual void deserialize( const Teuchos::ArrayView<const char>& buffer );
     //@}
 
     //@{

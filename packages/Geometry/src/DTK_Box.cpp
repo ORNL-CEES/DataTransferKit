@@ -40,6 +40,7 @@
 
 #include "DTK_Box.hpp"
 #include "DTK_DBC.hpp"
+#include "DTK_DataSerializer.hpp"
 
 namespace DataTransferKit
 {
@@ -49,13 +50,14 @@ namespace DataTransferKit
  */
 Box::Box()
     : d_global_id( dtk_invalid_entity_id )
-    , d_parallel_rank( -1 )
+    , d_owner_rank( -1 )
     , d_x_min( 0.0 )
     , d_y_min( 0.0 )
     , d_z_min( 0.0 )
     , d_x_max( 0.0 )
     , d_y_max( 0.0 )
     , d_z_max( 0.0 )
+    , d_byte_size( sizeof(EntityId) + sizeof(int) + 6*sizeof(double) )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -74,17 +76,18 @@ Box::Box()
  *
  * \param z_max Maximum z coordinate value in the box.
  */
-Box::Box( const EntityId global_id, const int parallel_rank,
+Box::Box( const EntityId global_id, const int owner_rank,
 	  const double x_min, const double y_min, const double z_min,
 	  const double x_max, const double y_max, const double z_max )
     : d_global_id( global_id )
-    , d_parallel_rank( parallel_rank )
+    , d_owner_rank( owner_rank )
     , d_x_min( x_min )
     , d_y_min( y_min )
     , d_z_min( z_min )
     , d_x_max( x_max )
     , d_y_max( y_max )
     , d_z_max( z_max )
+    , d_byte_size( sizeof(EntityId) + sizeof(int) + 6*sizeof(double) )
 {
     DTK_REQUIRE( d_x_min <= d_x_max );
     DTK_REQUIRE( d_y_min <= d_y_max );
@@ -98,16 +101,17 @@ Box::Box( const EntityId global_id, const int parallel_rank,
  * \param bounds Tuple containing {x_min, y_min, z_min, x_max, y_max, z_max}.
  */
 Box::Box( const EntityId global_id,
-	  const int parallel_rank, 
+	  const int owner_rank, 
 	  const Teuchos::Tuple<double,6>& bounds )
     : d_global_id( global_id )
-    , d_parallel_rank( parallel_rank )
+    , d_owner_rank( owner_rank )
     , d_x_min( bounds[0] )
     , d_y_min( bounds[1] )
     , d_z_min( bounds[2] )
     , d_x_max( bounds[3] )
     , d_y_max( bounds[4] )
     , d_z_max( bounds[5] )
+    , d_byte_size( sizeof(EntityId) + sizeof(int) + 6*sizeof(double) )
 {
     DTK_REQUIRE( d_x_min <= d_x_max );
     DTK_REQUIRE( d_y_min <= d_y_max );
@@ -120,6 +124,41 @@ Box::Box( const EntityId global_id,
  */
 Box::~Box()
 { /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Return a string indicating the derived entity type.
+std::string Box::entityType() const
+{
+    return std::string("DTK Box");
+}
+
+//---------------------------------------------------------------------------//
+// Get the unique global identifier for the entity.
+EntityId Box::id() const
+{
+    return d_global_id;
+}
+    
+//---------------------------------------------------------------------------//
+// Get the parallel rank that owns the entity.
+int Box::ownerRank() const
+{
+    return d_owner_rank;
+}
+
+//---------------------------------------------------------------------------//
+// Return the physical dimension of the entity.
+int Box::physicalDimension() const
+{
+    return 3;
+}
+
+//---------------------------------------------------------------------------//
+// Return the parametric dimension of the entity.
+int Box::parametricDimension() const
+{
+    return 3;
+}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -153,9 +192,9 @@ Teuchos::Array<double> Box::centroid() const
  *
  * \return The bounding box around the box.
  */
-Box Box::boundingBox() const
+void Box::boundingBox( Box& bounding_box ) const
 {
-    return *this
+    box = *this;
 }
 
 //---------------------------------------------------------------------------//
@@ -174,11 +213,26 @@ bool Box::isSafeToMapToReferenceFrame( const Teuchos::ArrayView<double>& point,
  * \brief Map a point to the reference space of an entity. Return the
  * parameterized point.
  */
-void Box::mapToReferenceFrame( const Teuchos::ArrayView<double>& point,
-			       const double tolerance,
-			       Teuchos::ArrayView<double>& reference_point ) const
+void Box::safeguardMapToReferenceFrame(
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& point,
+	MappingStatus& status ) const
+{
+    status.mappingSucceeded();
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Map a point to the reference space of an entity. Return the
+ */
+void Box::mapToReferenceFrame( 
+    const Teuchos::ParameterList& parameters,
+    const Teuchos::ArrayView<const double>& point,
+    const Teuchos::ArrayView<double>& reference_point,
+    MappingStatus& status ) const
 {
     reference_point.assign( point );
+    status.mappingSucceeded();
 }
 
 //---------------------------------------------------------------------------//
@@ -186,10 +240,13 @@ void Box::mapToReferenceFrame( const Teuchos::ArrayView<double>& point,
  * \brief Determine if a reference point is in the parameterized space of
  * an entity.
  */
-bool Box::checkPointInclusion( const Teuchos::Array<double>& reference_point,
-			       const double tolerance ) const
+bool Box::checkPointInclusion( 
+    const Teuchos::ParameterList& parameters,
+    const Teuchos::ArrayView<const double>& reference_point ) const
 {
     DTK_REQUIRE( 3 == reference_point.size() );
+
+    double tolerance = parameters.get<double>("Inclusion Tolerance");
 
     double x_tol = (d_x_max - d_x_min)*tolerance;
     double y_tol = (d_y_max - d_y_min)*tolerance;
@@ -213,10 +270,43 @@ bool Box::checkPointInclusion( const Teuchos::Array<double>& reference_point,
  * \brief Map a reference point to the physical space of an entity.
  */
 void Box::mapToPhysicalFrame( 
-    const Teuchos::ArrayView<double>& reference_point,
-    Teuchos::ArrayView<double>& point ) const
+    const Teuchos::ArrayView<const double>& reference_point,
+    const Teuchos::ArrayView<double>& point ) const
 {
     point.assign( reference_point );
+}
+
+//---------------------------------------------------------------------------//
+// Get the size of the serialized entity in bytes.
+std::size_t Box::byteSize() const
+{
+    return d_byte_size;
+}
+
+//---------------------------------------------------------------------------//
+// Serialize the entity into a buffer.
+void serialize( const Teuchos::ArrayView<char>& buffer ) const
+{
+    DTK_REQUIRE( buffer.size() == d_byte_size );
+    DataSerializer serializer;
+    serializer.setBuffer( buffer );
+    serializer << d_global_id << d_owner_rank
+	       << d_x_min << d_y_min << d_z_min
+	       << d_x_max << d_y_max << d_z_max;
+}
+
+//---------------------------------------------------------------------------//
+// Deserialize an entity from a buffer.
+void deserialize( const Teuchos::ArrayView<const char>& buffer )
+{
+    DTK_REQUIRE( buffer.size() == d_byte_size );
+    DataDeserializer deserializer;
+    Teuchos::ArrayView<char> buffer_nonconst(
+	const_cast<char*>(buffer.getRawData()), buffer.size() );
+    deserializer.setBuffer( buffer );
+    deserializer >> d_global_id >> d_owner_rank
+		 >> d_x_min >> d_y_min >> d_z_min
+		 >> d_x_max >> d_y_max >> d_z_max;
 }
 
 //---------------------------------------------------------------------------//

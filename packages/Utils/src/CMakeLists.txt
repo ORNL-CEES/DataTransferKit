@@ -28,6 +28,7 @@ APPEND_SET(HEADERS
   DTK_AbstractSerializer_impl.hpp
   DTK_CommIndexer.hpp
   DTK_CommTools.hpp
+  DTK_DataSerializer.hpp
   DTK_DBC.hpp
   DTK_SearchTreeFactory.hpp
   DTK_SerializableAbstractObjectPolicy.hpp
