@@ -46,7 +46,7 @@
 #include "DTK_GeometryTypes.hpp"
 #include "DTK_MappingStatus.hpp"
 #include "DTK_AbstractBuilder.hpp"
-#include "DTK_SerializableAbstractObjectPolicy.hpp"
+#include "DTK_AbstractSerializableObjectPolicy.hpp"
 #include "DTK_AbstractSerializer.hpp"
 #include "DTK_AbstractBuildableObject.hpp"
 
@@ -214,7 +214,7 @@ class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
     //@}
 
     //@{
-    //! SerializableAbstractObjectPolicy interface.
+    //! AbstractSerializableObjectPolicy interface.
     /*!
      * \brief Return a string indicating the derived object type.
      * \return A string indicating the type of derived object implementing the
@@ -245,11 +245,11 @@ class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
 };
 
 //---------------------------------------------------------------------------//
-// SerializableAbstractObjectPolicy implementation.
+// AbstractSerializableObjectPolicy implementation.
 //---------------------------------------------------------------------------//
 
 template<>
-class SerializableAbstractObjectPolicy<GeometricEntity>
+class AbstractSerializableObjectPolicy<GeometricEntity>
 {
   public:
 

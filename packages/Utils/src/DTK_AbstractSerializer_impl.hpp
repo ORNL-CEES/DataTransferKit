@@ -74,7 +74,7 @@ Ordinal AbstractSerializer<Ordinal,T>::fromCountToIndirectBytes(
 	byte_size += sizeof(std::size_t);
 
 	// Bytes for the object.
-	byte_size += SAOP::byteSize( buffer[i] );
+	byte_size += ASOP::byteSize( buffer[i] );
     }
     return byte_size;
 }
@@ -88,7 +88,7 @@ void AbstractSerializer<Ordinal,T>::serialize( const Ordinal count,
 					       char charBuffer[] )
 {
     // Get the builder for the objects.
-    Teuchos::RCP<AbstractBuilder<T> > builder = SAOP::getBuilder();
+    Teuchos::RCP<AbstractBuilder<T> > builder = ASOP::getBuilder();
 
     // Serialize the objects.
     DTK_REQUIRE( fromCountToIndirectBytes(count,buffer) == bytes );
@@ -98,18 +98,18 @@ void AbstractSerializer<Ordinal,T>::serialize( const Ordinal count,
     for ( Ordinal i = 0; i < count; ++i )
     {
 	// Serialize the integral key of the object.
-	integral_key = builder->getIntegralKey( SAOP::objectType(buffer[i]) );
+	integral_key = builder->getIntegralKey( ASOP::objectType(buffer[i]) );
 	std::memcpy( buffer_pos, &integral_key, sizeof(int) );
 	buffer_pos += sizeof(int);
 
 	// Serialize the size of the object.
-	object_size = SAOP::byteSize( buffer[i] );
+	object_size = ASOP::byteSize( buffer[i] );
 	std::memcpy( buffer_pos, &object_size, sizeof(std::size_t) );
 	buffer_pos += sizeof(std::size_t);
 	    
 	// Serialize the object.
 	Teuchos::ArrayView<char> buffer_view( buffer_pos, object_size );
-	SAOP::serialize( buffer[i], buffer_view );
+	ASOP::serialize( buffer[i], buffer_view );
 
 	// Move the front of the buffer forward.
 	buffer_pos += object_size;
@@ -147,7 +147,7 @@ void AbstractSerializer<Ordinal,T>::deserialize( const Ordinal bytes,
 						 Packet buffer[] )
 {
     // Get the builder for the objects.
-    Teuchos::RCP<AbstractBuilder<T> > builder = SAOP::getBuilder();
+    Teuchos::RCP<AbstractBuilder<T> > builder = ASOP::getBuilder();
 
     // Deserialize the objects.
     DTK_REQUIRE( fromIndirectBytesToCount(bytes,charBuffer) == count );
@@ -169,7 +169,7 @@ void AbstractSerializer<Ordinal,T>::deserialize( const Ordinal bytes,
 
 	// Deserialize the object.
 	Teuchos::ArrayView<char> buffer_view( buffer_pos, object_size );
-	SAOP::deserialize( buffer[i], buffer_view );
+	ASOP::deserialize( buffer[i], buffer_view );
 
 	// Move the front of the buffer forward.
 	buffer_pos += object_size;

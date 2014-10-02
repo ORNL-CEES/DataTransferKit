@@ -44,7 +44,7 @@
 #include <string>
 
 #include "DTK_AbstractBuilder.hpp"
-#include "DTK_SerializableAbstractObjectPolicy.hpp"
+#include "DTK_AbstractSerializableObjectPolicy.hpp"
 
 namespace DataTransferKit
 {
@@ -53,6 +53,10 @@ namespace DataTransferKit
   \class AbstractBuildableObject
   \brief Interface definition for objects that can be built through an
   abstract builder.
+
+  This class provides the ability to attach a static builder to the derived
+  type. Users can then register factories for subclasses of the derived type
+  and access the builder when needed.
 */
 //---------------------------------------------------------------------------//
 template<class Object>
@@ -61,7 +65,7 @@ class AbstractBuildableObject
   public:
 
     //! Typedefs.
-    typedef SerializableAbstractObjectPolicy<Object> SAOP;
+    typedef AbstractSerializableObjectPolicy<Object> ASOP;
 
     /*!
      * \brief Constructor.

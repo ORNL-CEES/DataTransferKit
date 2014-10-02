@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_SerializableAbstractObjectPolicy.hpp
+ * \brief DTK_AbstractSerializableObjectPolicy.hpp
  * \author Stuart R. Slattery
  * \brief Serializable abstract object policy interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SERIALIZABLEABSTRACTOBJECTPOLICY_HPP
-#define DTK_SERIALIZABLEABSTRACTOBJECTPOLICY_HPP
+#ifndef DTK_ABSTRACTSERIALIZABLEOBJECTPOLICY_HPP
+#define DTK_ABSTRACTSERIALIZABLEOBJECTPOLICY_HPP
 
 #include <string>
 
@@ -53,12 +53,12 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class UndefinedSerializableAbstractObjectPolicy
+  \class UndefinedAbstractSerializableObjectPolicy
   \brief Complie time error indicator for policy implementations.
 */
 //---------------------------------------------------------------------------//
 template<typename T>
-struct UndefinedSerializableAbstractObjectPolicy 
+struct UndefinedAbstractSerializableObjectPolicy 
 {
     static inline T notDefined() 
     {
@@ -68,7 +68,7 @@ struct UndefinedSerializableAbstractObjectPolicy
 
 //---------------------------------------------------------------------------//
 /*!
-  \class SerializableAbstractObjectPolicy
+  \class AbstractSerializableObjectPolicy
   \brief Interface definition for objects that can be serialized.
 
   This class provides a runtime mechanism to serialize a derived class of
@@ -77,7 +77,7 @@ struct UndefinedSerializableAbstractObjectPolicy
 */
 //---------------------------------------------------------------------------//
 template<class T>
-class SerializableAbstractObjectPolicy
+class AbstractSerializableObjectPolicy
 {
   public:
 
@@ -93,7 +93,7 @@ class SerializableAbstractObjectPolicy
      */
     static std::string objectType( const Teuchos::RCP<T>& object )
     {
-	UndefinedSerializableAbstractObjectPolicy<T>::notDefined();
+	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
 	return std::string("Not implemented");
     }
     //@}
@@ -106,7 +106,7 @@ class SerializableAbstractObjectPolicy
      */
     static std::size_t byteSize( const Teuchos::RCP<T>& object )
     {
-	UndefinedSerializableAbstractObjectPolicy<T>::notDefined();
+	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
 	return 0;
     }
 
@@ -118,7 +118,7 @@ class SerializableAbstractObjectPolicy
     static void serialize( const Teuchos::RCP<T>& object,
 			   const Teuchos::ArrayView<char>& buffer )
     {
-	UndefinedSerializableAbstractObjectPolicy<T>::notDefined();
+	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
     }
 
     /*!
@@ -129,7 +129,7 @@ class SerializableAbstractObjectPolicy
     static void deserialize( const Teuchos::RCP<T>& object,
 			     const Teuchos::ArrayView<const char>& buffer )
     {
-	UndefinedSerializableAbstractObjectPolicy<T>::notDefined();
+	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
     }
 
     //@}
@@ -141,7 +141,7 @@ class SerializableAbstractObjectPolicy
      */
     static Teuchos::RCP<AbstractBuilder<T> > getBuilder()
     {
-	UndefinedSerializableAbstractObjectPolicy<T>::notDefined();
+	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
 	return Teuchos::null;
     }
     //@}
@@ -153,8 +153,8 @@ class SerializableAbstractObjectPolicy
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_SERIALIZABLEABSTRACTOBJECTPOLICY_HPP
+#endif // end DTK_ABSTRACTSERIALIZABLEOBJECTPOLICY_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_SerializableAbstractObjectPolicy.hpp
+// end DTK_AbstractSerializableObjectPolicy.hpp
 //---------------------------------------------------------------------------//

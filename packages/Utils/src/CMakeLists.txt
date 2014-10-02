@@ -26,6 +26,7 @@ APPEND_SET(HEADERS
   DTK_AbstractBuildableObject_impl.hpp
   DTK_AbstractBuilder.hpp
   DTK_AbstractBuilder_impl.hpp
+  DTK_AbstractSerializableObjectPolicy.hpp
   DTK_AbstractSerializer.hpp
   DTK_AbstractSerializer_impl.hpp
   DTK_CommIndexer.hpp
@@ -33,7 +34,6 @@ APPEND_SET(HEADERS
   DTK_DataSerializer.hpp
   DTK_DBC.hpp
   DTK_SearchTreeFactory.hpp
-  DTK_SerializableAbstractObjectPolicy.hpp
   DTK_StaticSearchTree.hpp
   DTK_StaticSearchTree_impl.hpp
   ) 

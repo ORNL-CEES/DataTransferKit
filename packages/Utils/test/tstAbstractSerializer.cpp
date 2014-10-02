@@ -1,9 +1,9 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   tstSerializableObject.cpp
+ * \file   tstAbstractSerializer.cpp
  * \author Stuart Slattery
  * \date   Wed May 25 12:36:14 2011
- * \brief  SerializableObject class unit tests.
+ * \brief  Abstract serializer class unit tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -13,7 +13,7 @@
 #include <sstream>
 
 #include <DTK_AbstractSerializer.hpp>
-#include <DTK_SerializableAbstractObjectPolicy.hpp>
+#include <DTK_AbstractSerializableObjectPolicy.hpp>
 #include <DTK_AbstractBuilder.hpp>\
 
 #include "Teuchos_UnitTestHarness.hpp"
@@ -65,11 +65,11 @@ Teuchos::RCP<DataTransferKit::AbstractBuilder<BaseClass> > BaseClass::getBuilder
 { return d_builder; }
 
 //---------------------------------------------------------------------------//
-// SerializableAbstractObjectPolicy implementation for the base class.
+// AbstractSerializableObjectPolicy implementation for the base class.
 namespace DataTransferKit
 {
 template<>
-class SerializableAbstractObjectPolicy<BaseClass>
+class AbstractSerializableObjectPolicy<BaseClass>
 {
   public:
 
@@ -205,7 +205,7 @@ class MyNumberIsTwo : public BaseClass
 //---------------------------------------------------------------------------//
 // TESTS
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( SerializableAbstractObjectPolicy, serializable_object_test )
+TEUCHOS_UNIT_TEST( AbstractSerializableObjectPolicy, serializable_object_test )
 {
     using namespace DataTransferKit;
 
@@ -252,5 +252,5 @@ TEUCHOS_UNIT_TEST( SerializableAbstractObjectPolicy, serializable_object_test )
 }
 
 //---------------------------------------------------------------------------//
-// end of tstSerializableAbstractObjectPolicy.cpp
+// end of tstAbstractSerializer.cpp
 //---------------------------------------------------------------------------//

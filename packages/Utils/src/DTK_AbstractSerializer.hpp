@@ -43,7 +43,7 @@
 
 #include <string>
 
-#include "DTK_SerializableAbstractObjectPolicy.hpp"
+#include "DTK_AbstractSerializableObjectPolicy.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>
@@ -57,7 +57,7 @@ namespace DataTransferKit
 
   The data packets are reference counted pointers to the base class
   objects. Abstract classes that can implement the
-  SerializableAbstractObjectPolicy can use this class to quickly implement
+  AbstractSerializableObjectPolicy can use this class to quickly implement
   Teuchos::SerializationTraits. This object mimics the Teuchos indirect
   serialization traits.
 */
@@ -71,7 +71,7 @@ class AbstractSerializer
     //! Typdefs.
     typedef Ordinal                             ordinal_type;
     typedef Teuchos::RCP<T>                     Packet;
-    typedef SerializableAbstractObjectPolicy<T> SAOP;
+    typedef AbstractSerializableObjectPolicy<T> ASOP;
     //@}
 
   public:
