@@ -63,7 +63,8 @@ Point::Point( const EntityId global_id,
     , d_coordinates( 1 )
 {
     d_coordinates[0] = x;
-    d_byte_size = sizeof(EntityId) + sizeof(int) + sizeof(double);
+    d_byte_size = sizeof(EntityId) + sizeof(int) + 
+		  sizeof(std::size_t) + sizeof(double);
 }
 
 //---------------------------------------------------------------------------//
@@ -78,7 +79,8 @@ Point::Point( const EntityId global_id,
 {
     d_coordinates[0] = x;
     d_coordinates[1] = y;
-    d_byte_size = sizeof(EntityId) + sizeof(int) + 2*sizeof(double);
+    d_byte_size = sizeof(EntityId) + sizeof(int) + 
+		  sizeof(std::size_t) + 2*sizeof(double);
 }
 
 //---------------------------------------------------------------------------//
@@ -95,7 +97,8 @@ Point::Point( const EntityId global_id,
     d_coordinates[0] = x;
     d_coordinates[1] = y;
     d_coordinates[2] = z;
-    d_byte_size = sizeof(EntityId) + sizeof(int) + 3*sizeof(double);
+    d_byte_size = sizeof(EntityId) + sizeof(int) 
+		  + sizeof(std::size_t) + 3*sizeof(double);
 }
 
 //---------------------------------------------------------------------------//
@@ -105,9 +108,9 @@ Point::Point( const EntityId global_id,
 	      const Teuchos::Array<double>& coordinates )
     : d_global_id( global_id )
     , d_owner_rank( owner_rank )
-    , d_coordinates( d_coordinates )
+    , d_coordinates( coordinates )
 {
-    d_byte_size = sizeof(EntityId) + sizeof(int) + 
+    d_byte_size = sizeof(EntityId) + sizeof(int) + sizeof(std::size_t) +
 		  (coordinates.size())*sizeof(double);
 }
 
@@ -118,7 +121,7 @@ Point::~Point()
 
 //---------------------------------------------------------------------------//
 // Get the coordinates of the point.
-void Point::getCoordinates( Teuchos::ArrayView<double>& coordinates ) const
+void Point::getCoordinates( Teuchos::ArrayView<const double>& coordinates ) const
 { 
     coordinates = d_coordinates(); 
 }
@@ -166,7 +169,7 @@ double Point::measure() const
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void Point::centroid( const Teuchos::ArrayView<double>& centroid ) const
+void Point::centroid( Teuchos::ArrayView<const double>& centroid ) const
 {
     getCoordinates( centroid );
 }
@@ -175,11 +178,11 @@ void Point::centroid( const Teuchos::ArrayView<double>& centroid ) const
 // Return the axis-aligned bounding box around the entity.
 void Point::boundingBox( Box& bounding_box ) const
 {
-    Teuchos::ArrayView<double> coordinates;
+    Teuchos::ArrayView<const double> coordinates;
     getCoordinates( coordinates );
-    box = Box( dtk_invalid_entity_type, d_owner_rank,
-		coordinates[0], coordinates[1], coordinates[2], 
-		coordinates[0], coordinates[1], coordinates[2] );
+    bounding_box = Box( dtk_invalid_entity_id, d_owner_rank,
+			coordinates[0], coordinates[1], coordinates[2], 
+			coordinates[0], coordinates[1], coordinates[2] );
 }
 
 //---------------------------------------------------------------------------//
@@ -213,6 +216,7 @@ bool Point::checkPointInclusion(
 {
     bool not_implemented_for_point = true;
     DTK_INSIST( !not_implemented_for_point );
+    return false;
 }
 
 //---------------------------------------------------------------------------//
@@ -229,7 +233,7 @@ void Point::mapToPhysicalFrame(
 // Get the size of the serialized entity in bytes.
 std::size_t Point::byteSize() const
 {
-    DTK_REQUIRE( byte_size > 0 );
+    DTK_REQUIRE( d_byte_size > 0 );
     return d_byte_size;
 }
 
@@ -239,7 +243,7 @@ void Point::serialize( const Teuchos::ArrayView<char>& buffer ) const
 {
     DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) == d_byte_size );
 
-    Teuchos::ArrayView<double> coordinates;
+    Teuchos::ArrayView<const double> coordinates;
     getCoordinates( coordinates );
     std::size_t dimension = coordinates.size();
 
@@ -247,7 +251,7 @@ void Point::serialize( const Teuchos::ArrayView<char>& buffer ) const
     serializer.setBuffer( buffer );
     serializer << d_global_id << d_owner_rank << dimension;
 
-    Teuchos::ArrayView<double>::iterator coord_it;
+    Teuchos::ArrayView<const double>::const_iterator coord_it;
     for ( coord_it = coordinates.begin(); 
 	  coord_it != coordinates.end();
 	  ++coord_it )
@@ -260,8 +264,8 @@ void Point::serialize( const Teuchos::ArrayView<char>& buffer ) const
 // Deserialize an entity from a buffer.
 void Point::deserialize( const Teuchos::ArrayView<const char>& buffer )
 {
-    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) == d_byte_size )
-
+    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) >=
+		 sizeof(EntityId) + sizeof(int) + sizeof(std::size_t) );
     Teuchos::ArrayView<char> buffer_nonconst(
 	const_cast<char*>(buffer.getRawPtr()), buffer.size() );
 
@@ -270,6 +274,10 @@ void Point::deserialize( const Teuchos::ArrayView<const char>& buffer )
     DataDeserializer deserializer;
     deserializer.setBuffer( buffer_nonconst );
     deserializer >> d_global_id >> d_owner_rank >> dimension;
+
+    d_byte_size = sizeof(EntityId) + sizeof(int) + 
+		  sizeof(std::size_t) + dimension*sizeof(double);
+    DTK_CHECK( Teuchos::as<std::size_t>(buffer.size()) == d_byte_size );
 
     d_coordinates.resize( dimension );
     Teuchos::Array<double>::iterator coord_it;
@@ -289,9 +297,11 @@ void Point::deserialize( const Teuchos::ArrayView<const char>& buffer )
  */
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p)
 {
-    os << "Point: d_global_id=" << d_global_id 
-       << ",d_owner_rank=" << d_owner_rank
-       << ",d_coordinates=" << d_coordinates;
+    Teuchos::ArrayView<const double> coords;
+    p.getCoordinates( coords );
+    os << "Point: d_global_id=" << p.id()
+       << ",d_owner_rank=" << p.ownerRank()
+       << ",d_coordinates=" << coords;
 
   return os;
 }

@@ -43,6 +43,7 @@
 
 #include "DTK_GeometryTypes.hpp"
 #include "DTK_GeometricEntity.hpp"
+#include "DTK_Box.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 
@@ -55,11 +56,19 @@ namespace DataTransferKit
  * \class Point
  * \brief Point container.
  *
- * Users can subclass this function for more efficient access to and storage
- * of coordinates. If a set of point coordinates already existed, a subclass
- * could be used to point to those coordinates through this interface. This
- * interface does assume access to contiguous storage of (x,y,z) coordinates
- * for a given point. 
+ * Users can subclass this class for more efficient access to and storage of
+ * point coordinates while getting the rest of the GeometricEntity
+ * implementation for free. For example, if a set of point coordinates already
+ * existed, a subclass could be used to point to those coordinates through
+ * this interface. This interface does assume access to contiguous storage of
+ * (x,y,z) coordinates for a given point such that a pointer to these coordinates
+ * can be accessed with a Teuchos::ArrayView. Serializing a point accesses
+ * coordinates through this interface. Deserializing a point constructs
+ * this class directly instead of potential subclasses. If in the future we
+ * want to directly deserialize to a subclass of Point through the geometric
+ * entity interface we can make the entityType and serialization functions
+ * virtual to permit the subclass to override them. A user could also just
+ * directly subclass GeometricEntity for their particular point type.
  */
 //---------------------------------------------------------------------------//
 class Point : public GeometricEntity
@@ -98,7 +107,8 @@ class Point : public GeometricEntity
     //@{
     //! Coordinate access functions.
     // Get the coordinates of the point.
-    virtual void getCoordinates( Teuchos::ArrayView<double>& coordinates ) const;
+    virtual void 
+    getCoordinates( Teuchos::ArrayView<const double>& coordinates ) const;
     //@}
 
     //@{ 
@@ -122,10 +132,10 @@ class Point : public GeometricEntity
     double measure() const;
 
     // Return the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
+    void centroid( Teuchos::ArrayView<const double>& centroid ) const;
 
     // Return the axis-aligned bounding box around the entity.
-    void boundingPoint( Point& bounding_box ) const;
+    void boundingBox( Box& bounding_box ) const;
 
     // Perform a safeguard check for mapping a point to the reference
     void safeguardMapToReferenceFrame(

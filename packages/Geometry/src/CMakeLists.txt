@@ -21,6 +21,7 @@ APPEND_SET(HEADERS
   DTK_GeometricEntity.hpp
   DTK_GeometryTypes.hpp
   DTK_MappingStatus.hpp
+  DTK_Point.hpp
   ) 
 
 APPEND_SET(SOURCES
@@ -28,6 +29,7 @@ APPEND_SET(SOURCES
   DTK_EntitySet.cpp
   DTK_GeometricEntity.cpp
   DTK_MappingStatus.cpp
+  DTK_Point.cpp
   )
 
 #

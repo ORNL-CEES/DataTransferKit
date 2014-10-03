@@ -144,10 +144,11 @@ class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
 
     /*!
      * \brief Return the centroid of the entity.
-     * \param centroid A view to an array of size physicalDimension(). Write
-     * the centroid into this view.
+     * \param centroid A view of the centroid coordinates. This view will not
+     * be allocated. Assign a view of your centroid to this view.
      */
-    virtual void centroid( const Teuchos::ArrayView<double>& centroid ) const;
+    virtual void 
+    centroid( Teuchos::ArrayView<const double>& centroid ) const;
 
     /*!
      * \brief Return the axis-aligned bounding box around the entity.

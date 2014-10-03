@@ -65,6 +65,13 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
     double z_max = 8.7;
     Box box(  0, 0, x_min, y_min, z_min, x_max, y_max, z_max );
 
+    // Check GeometricEntity data.
+    TEST_EQUALITY( box.entityType(), "DTK Box" );
+    TEST_EQUALITY( box.id(), 0 );
+    TEST_EQUALITY( box.ownerRank(), 0 );
+    TEST_EQUALITY( box.physicalDimension(), 3 );
+    TEST_EQUALITY( box.parametricDimension(), 3 );
+
     // Check the bounds.
     Teuchos::Tuple<double,6> box_bounds = box.getBounds();
     TEST_ASSERT( box_bounds[0] == x_min );
@@ -130,6 +137,13 @@ TEUCHOS_UNIT_TEST( Box, tuple_constructor_test )
     input_bounds[5] = 8.7;
     Teuchos::RCP<GeometricEntity> box = 
 	Teuchos::rcp( new Box(0,0,input_bounds) );
+
+    // Check GeometricEntity data.
+    TEST_EQUALITY( box->entityType(), "DTK Box" );
+    TEST_EQUALITY( box->id(), 0 );
+    TEST_EQUALITY( box->ownerRank(), 0 );
+    TEST_EQUALITY( box->physicalDimension(), 3 );
+    TEST_EQUALITY( box->parametricDimension(), 3 );
 
     // Check the bounds.
     Teuchos::Tuple<double,6> box_bounds = 
@@ -425,7 +439,7 @@ TEUCHOS_UNIT_TEST( Box, inclusion_test )
 	TEST_FLOATING_EQUALITY( box->measure(), measure, 1.0e-6 );
 
 	// Check the centroid.
-	Teuchos::Array<double> box_centroid(3); 
+	Teuchos::ArrayView<const double> box_centroid; 
 	box->centroid( box_centroid );
 	TEST_ASSERT( box_centroid[0] == (x_max+x_min)/2.0 );
 	TEST_ASSERT( box_centroid[1] == (y_max+y_min)/2.0 );

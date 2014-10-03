@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------//
 /*
-  Copyright (c) 2012, Stuart R. Slattery
+  Copyright (c) 2014, Stuart R. Slattery
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
   notice, this list of conditions and the following disclaimer in the
   documentation and/or other materials provided with the distribution.
 
-  *: Neither the name of the University of Wisconsin - Madison nor the
+  *: Neither the name of the Oak Ridge National Laboratory nor the
   names of its contributors may be used to endorse or promote products
   derived from this software without specific prior written permission.
 
@@ -57,8 +57,12 @@ Box::Box()
     , d_x_max( 0.0 )
     , d_y_max( 0.0 )
     , d_z_max( 0.0 )
-    , d_byte_size( 0 )
-{ /* ... */ }
+    , d_byte_size( sizeof(EntityId) + sizeof(int) + 6*sizeof(double) )
+{ 
+    d_centroid[0] = 0.0;
+    d_centroid[1] = 0.0;
+    d_centroid[2] = 0.0;
+}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -92,6 +96,9 @@ Box::Box( const EntityId global_id, const int owner_rank,
     DTK_REQUIRE( d_x_min <= d_x_max );
     DTK_REQUIRE( d_y_min <= d_y_max );
     DTK_REQUIRE( d_z_min <= d_z_max );
+    d_centroid[0] = (d_x_max + d_x_min) / 2.0;
+    d_centroid[1] = (d_y_max + d_y_min) / 2.0;
+    d_centroid[2] = (d_z_max + d_z_min) / 2.0;
 }
 
 //---------------------------------------------------------------------------//
@@ -116,6 +123,9 @@ Box::Box( const EntityId global_id,
     DTK_REQUIRE( d_x_min <= d_x_max );
     DTK_REQUIRE( d_y_min <= d_y_max );
     DTK_REQUIRE( d_z_min <= d_z_max );
+    d_centroid[0] = (d_x_max + d_x_min) / 2.0;
+    d_centroid[1] = (d_y_max + d_y_min) / 2.0;
+    d_centroid[2] = (d_z_max + d_z_min) / 2.0;
 }
 
 //---------------------------------------------------------------------------//
@@ -177,12 +187,9 @@ double Box::measure() const
  *
  * \return The centroid coordinates.
  */
-void Box::centroid( const Teuchos::ArrayView<double>& centroid ) const
+void Box::centroid( Teuchos::ArrayView<const double>& centroid ) const
 {
-    DTK_REQUIRE( 3 == centroid.size() );
-    centroid[0] = (d_x_max + d_x_min) / 2.0;
-    centroid[1] = (d_y_max + d_y_min) / 2.0;
-    centroid[2] = (d_z_max + d_z_min) / 2.0;
+    centroid = Teuchos::ArrayView<const double>(d_centroid,3);
 }
 
 //---------------------------------------------------------------------------//
@@ -287,6 +294,7 @@ void Box::serialize( const Teuchos::ArrayView<char>& buffer ) const
 // Deserialize an entity from a buffer.
 void Box::deserialize( const Teuchos::ArrayView<const char>& buffer )
 {
+    // Unpack the data.
     DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) == d_byte_size );
     DataDeserializer deserializer;
     Teuchos::ArrayView<char> buffer_nonconst(
@@ -295,6 +303,11 @@ void Box::deserialize( const Teuchos::ArrayView<const char>& buffer )
     deserializer >> d_global_id >> d_owner_rank
 		 >> d_x_min >> d_y_min >> d_z_min
 		 >> d_x_max >> d_y_max >> d_z_max;
+
+    // Build the centroid.
+    d_centroid[0] = (d_x_max + d_x_min) / 2.0;
+    d_centroid[1] = (d_y_max + d_y_min) / 2.0;
+    d_centroid[2] = (d_z_max + d_z_min) / 2.0;
 }
 
 //---------------------------------------------------------------------------//
@@ -498,8 +511,8 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
 {
   Teuchos::Tuple<double,6> bounds = b.getBounds();
 
-  os << "Box: d_global_id=" << d_global_id 
-     << ",d_owner_rank=" << d_owner_rank
+  os << "Box: d_global_id=" << b.id()
+     << ",d_owner_rank=" << b.ownerRank()
      << ",d_x_min=" << bounds[0] 
      << ",d_y_min=" << bounds[1]
      << ",d_z_min=" << bounds[2]

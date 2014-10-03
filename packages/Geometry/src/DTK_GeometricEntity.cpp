@@ -109,7 +109,8 @@ double GeometricEntity::measure() const
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void GeometricEntity::centroid( const Teuchos::ArrayView<double>& centroid ) const
+void GeometricEntity::centroid( 
+    Teuchos::ArrayView<const double>& centroid ) const
 { 
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );

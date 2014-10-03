@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------//
 /*
-  Copyright (c) 2012, Stuart R. Slattery
+  Copyright (c) 2014, Stuart R. Slattery
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
   notice, this list of conditions and the following disclaimer in the
   documentation and/or other materials provided with the distribution.
 
-  *: Neither the name of the University of Wisconsin - Madison nor the
+  *: Neither the name of the Oak Ridge National Laboratory nor the
   names of its contributors may be used to endorse or promote products
   derived from this software without specific prior written permission.
 
@@ -109,7 +109,7 @@ class Box : public GeometricEntity
     double measure() const;
 
     // Return the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
+    void centroid( Teuchos::ArrayView<const double>& centroid ) const;
 
     // Return the axis-aligned bounding box around the entity.
     void boundingBox( Box& bounding_box ) const;
@@ -189,6 +189,9 @@ class Box : public GeometricEntity
 
     // Packed size in bytes.
     std::size_t d_byte_size;
+
+    // Centroid coordinates.
+    double d_centroid[3];
 };
 
 //---------------------------------------------------------------------------//

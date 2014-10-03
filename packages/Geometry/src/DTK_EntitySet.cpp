@@ -113,7 +113,7 @@ void EntitySet::localEntityIds(
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
 void EntitySet::getEntity( const EntityId entity_id, 
-			   GeometricEntity& entity ) const
+			   Teuchos::RCP<GeometricEntity>& entity ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -129,7 +129,7 @@ void EntitySet::startModification()
 
 //---------------------------------------------------------------------------//
 // Add an entity to the set.
-void EntitySet::addEntity( const GeometricEntity& entity )
+void EntitySet::addEntity( const Teuchos::RCP<GeometricEntity>& entity )
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
