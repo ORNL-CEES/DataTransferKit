@@ -258,7 +258,7 @@ class AbstractBuildableObjectPolicy<GeometricEntity>
 
     typedef GeometricEntity object_type;
 
-    static std::string entityType( const Teuchos::RCP<GeometricEntity>& entity )
+    static std::string objectType( const Teuchos::RCP<GeometricEntity>& entity )
     {
 	return entity->objectType();
     }

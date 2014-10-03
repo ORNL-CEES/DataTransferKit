@@ -503,6 +503,18 @@ void Box::uniteBoxes( const Box& box_A,
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Addition operator. Adding two boxes together is the same as
+ * computing their union.
+ */
+Box operator+( const Box& box_1, const Box& box_2 )
+{
+    Box union_box;
+    Box::uniteBoxes( box_1, box_2, union_box );
+    return union_box;
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Print the box description to an ostream.
  *
  * \return The ostream.

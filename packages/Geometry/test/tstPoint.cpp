@@ -252,7 +252,8 @@ TEUCHOS_UNIT_TEST( Point, communication_test )
 {
     using namespace DataTransferKit;
 
-    // Register the point class with the geometric entity class.
+    // Register the point class with the geometric entity class so that we can
+    // send the point to a different rank and reconstruct it.
     GeometricEntity::setDerivedClassFactory(
 	Teuchos::abstractFactoryStd<GeometricEntity,Point>() );
 

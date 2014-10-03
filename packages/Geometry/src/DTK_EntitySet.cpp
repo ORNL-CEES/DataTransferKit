@@ -54,15 +54,6 @@ EntitySet::~EntitySet()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Create an empty clone of the EntitySet.
-Teuchos::RCP<EntitySet> EntitySet::clone() const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return Teuchos::null;
-}
-
-//---------------------------------------------------------------------------//
 // Return a string indicating the derived entity set type.
 std::string EntitySet::entitySetType() const
 {
@@ -144,8 +135,8 @@ void EntitySet::endModification()
 }
 
 //---------------------------------------------------------------------------//
-// Return the largest spatial dimension of the entities in the set.
-int EntitySet::spatialDimension() const
+// Return the largest physical dimension of the entities in the set.
+int EntitySet::physicalDimension() const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );

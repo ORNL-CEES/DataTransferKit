@@ -195,6 +195,11 @@ class Box : public GeometricEntity
 };
 
 //---------------------------------------------------------------------------//
+//! Addition operator overload. Adding two boxes together is the same as
+//! computing their union.
+Box operator+( const Box& box_1, const Box& box_2 );
+
+//---------------------------------------------------------------------------//
 //! overload for printing box
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
 

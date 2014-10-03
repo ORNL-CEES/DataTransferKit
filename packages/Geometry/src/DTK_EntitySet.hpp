@@ -46,9 +46,9 @@
 #include "DTK_AbstractBuilder.hpp"
 #include "DTK_AbstractBuildableObject.hpp"
 
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 namespace DataTransferKit
 {
@@ -74,15 +74,6 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
      * \brief Destructor.
      */
     virtual ~EntitySet();
-
-    //@{
-    //! Polymorphic construction functions.
-    /*!
-     * \brief Create an empty clone of the entity set subclass.
-     * \return An empty subclass of the entity set.
-     */
-    virtual Teuchos::RCP<EntitySet> clone() const;
-    //@}
 
     //@{
     //! Identification functions.
@@ -148,10 +139,10 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
     //@{
     //! Geometric data functions.
     /*!
-     * \brief Return the largest spatial dimension of the entities in the set.
-     * \return The spatial dimension of the set.
+     * \brief Return the physical dimension of the entities in the set.
+     * \return The physical dimension of the set.
      */
-    virtual int spatialDimension() const;
+    virtual int physicalDimension() const;
 
     /*!
      * \brief Get the local bounding box of entities of the set.
@@ -198,7 +189,7 @@ class AbstractBuildableObjectPolicy<EntitySet>
     typedef EntitySet object_type;
 
     static std::string 
-    entity_setType( const Teuchos::RCP<EntitySet>& entity_set )
+    objectType( const Teuchos::RCP<EntitySet>& entity_set )
     {
 	return entity_set->entitySetType();
     }
