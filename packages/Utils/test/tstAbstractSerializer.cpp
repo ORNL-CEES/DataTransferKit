@@ -14,7 +14,7 @@
 
 #include <DTK_AbstractSerializer.hpp>
 #include <DTK_AbstractSerializableObjectPolicy.hpp>
-#include <DTK_AbstractBuilder.hpp>\
+#include <DTK_AbstractBuilder.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -65,11 +65,11 @@ Teuchos::RCP<DataTransferKit::AbstractBuilder<BaseClass> > BaseClass::getBuilder
 { return d_builder; }
 
 //---------------------------------------------------------------------------//
-// AbstractSerializableObjectPolicy implementation for the base class.
 namespace DataTransferKit
 {
+// AbstractBuildableObjectPolicy implementation for the base class.
 template<>
-class AbstractSerializableObjectPolicy<BaseClass>
+class AbstractBuildableObjectPolicy<BaseClass>
 {
   public:
 
@@ -79,6 +79,20 @@ class AbstractSerializableObjectPolicy<BaseClass>
     {
 	return object->objectType();
     }
+
+    static Teuchos::RCP<DataTransferKit::AbstractBuilder<object_type> > getBuilder()
+    {
+	return object_type::getBuilder();
+    }
+};
+
+// AbstractSerializableObjectPolicy implementation for the base class.
+template<>
+class AbstractSerializableObjectPolicy<BaseClass>
+{
+  public:
+
+    typedef BaseClass object_type;
 
     static std::size_t byteSize( const Teuchos::RCP<object_type>& object )
     {
@@ -95,11 +109,6 @@ class AbstractSerializableObjectPolicy<BaseClass>
 			     const Teuchos::ArrayView<const char>& buffer )
     {
 	object->deserialize( buffer );
-    }
-
-    static Teuchos::RCP<DataTransferKit::AbstractBuilder<object_type> > getBuilder()
-    {
-	return object_type::getBuilder();
     }
 };
 } // end namespace DataTransferKit

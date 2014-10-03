@@ -69,7 +69,7 @@ struct UndefinedAbstractSerializableObjectPolicy
 //---------------------------------------------------------------------------//
 /*!
   \class AbstractSerializableObjectPolicy
-  \brief Interface definition for objects that can be serialized.
+  \brief Policy definition for objects that can be serialized.
 
   This class provides a runtime mechanism to serialize a derived class of
   arbitrary size through a base class interface and deserialize the base class
@@ -83,20 +83,6 @@ class AbstractSerializableObjectPolicy
 
     //! Base class type.
     typedef T object_type;
-
-    //@{
-    //! Identification functions.
-    /*!
-     * \brief Return a string indicating the derived object type.
-     * \return A string indicating the type of derived object implementing the
-     * interface. This string will drive object construction with the builder.
-     */
-    static std::string objectType( const Teuchos::RCP<T>& object )
-    {
-	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
-	return std::string("Not implemented");
-    }
-    //@}
 
     //@{
     //! Serialization functions.
@@ -132,18 +118,6 @@ class AbstractSerializableObjectPolicy
 	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
     }
 
-    //@}
-
-    //@{
-    //! Polymorphic construction functions.
-    /*!
-     * \brief Static function for getting the builder for the base class.
-     */
-    static Teuchos::RCP<AbstractBuilder<T> > getBuilder()
-    {
-	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
-	return Teuchos::null;
-    }
     //@}
 };
 

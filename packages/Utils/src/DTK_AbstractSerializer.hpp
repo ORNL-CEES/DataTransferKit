@@ -43,6 +43,7 @@
 
 #include <string>
 
+#include "DTK_AbstractBuildableObject.hpp"
 #include "DTK_AbstractSerializableObjectPolicy.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -71,6 +72,7 @@ class AbstractSerializer
     //! Typdefs.
     typedef Ordinal                             ordinal_type;
     typedef Teuchos::RCP<T>                     Packet;
+    typedef AbstractBuildableObjectPolicy<T>    ABOP;
     typedef AbstractSerializableObjectPolicy<T> ASOP;
     //@}
 

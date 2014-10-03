@@ -50,6 +50,64 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
+  \class UndefinedAbstractBuildableObjectPolicy
+  \brief Complie time error indicator for policy implementations.
+*/
+//---------------------------------------------------------------------------//
+template<typename T>
+struct UndefinedAbstractBuildableObjectPolicy 
+{
+    static inline T notDefined() 
+    {
+	return T::this_type_is_missing_a_specialization();
+    }
+};
+
+//---------------------------------------------------------------------------//
+/*!
+  \class AbstractBuildableObjectPolicy
+  \brief Policy definition for objects that can be built through an
+  abstract builder.
+
+*/
+//---------------------------------------------------------------------------//
+template<class T>
+class AbstractBuildableObjectPolicy
+{
+  public:
+
+    //! Base class type.
+    typedef T object_type;
+
+    //@{
+    //! Identification functions.
+    /*!
+     * \brief Return a string indicating the derived object type.
+     * \return A string indicating the type of derived object implementing the
+     * interface. This string will drive object construction with the builder.
+     */
+    static std::string objectType( const Teuchos::RCP<T>& object )
+    {
+	UndefinedAbstractBuildableObjectPolicy<T>::notDefined();
+	return std::string("Not implemented");
+    }
+    //@}
+
+    //@{
+    //! Polymorphic construction functions.
+    /*!
+     * \brief Static function for getting the builder for the base class.
+     */
+    static Teuchos::RCP<AbstractBuilder<T> > getBuilder()
+    {
+	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
+	return Teuchos::null;
+    }
+    //@}
+};
+
+//---------------------------------------------------------------------------//
+/*!
   \class AbstractBuildableObject
   \brief Interface definition for objects that can be built through an
   abstract builder.
@@ -65,7 +123,7 @@ class AbstractBuildableObject
   public:
 
     //! Typedefs.
-    typedef AbstractSerializableObjectPolicy<Object> ASOP;
+    typedef AbstractBuildableObjectPolicy<Object> ABOP;
 
     /*!
      * \brief Constructor.

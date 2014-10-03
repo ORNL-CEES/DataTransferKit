@@ -88,7 +88,7 @@ void AbstractSerializer<Ordinal,T>::serialize( const Ordinal count,
 					       char charBuffer[] )
 {
     // Get the builder for the objects.
-    Teuchos::RCP<AbstractBuilder<T> > builder = ASOP::getBuilder();
+    Teuchos::RCP<AbstractBuilder<T> > builder = ABOP::getBuilder();
 
     // Serialize the objects.
     DTK_REQUIRE( fromCountToIndirectBytes(count,buffer) == bytes );
@@ -98,7 +98,7 @@ void AbstractSerializer<Ordinal,T>::serialize( const Ordinal count,
     for ( Ordinal i = 0; i < count; ++i )
     {
 	// Serialize the integral key of the object.
-	integral_key = builder->getIntegralKey( ASOP::objectType(buffer[i]) );
+	integral_key = builder->getIntegralKey( ABOP::objectType(buffer[i]) );
 	std::memcpy( buffer_pos, &integral_key, sizeof(int) );
 	buffer_pos += sizeof(int);
 
@@ -147,7 +147,7 @@ void AbstractSerializer<Ordinal,T>::deserialize( const Ordinal bytes,
 						 Packet buffer[] )
 {
     // Get the builder for the objects.
-    Teuchos::RCP<AbstractBuilder<T> > builder = ASOP::getBuilder();
+    Teuchos::RCP<AbstractBuilder<T> > builder = ABOP::getBuilder();
 
     // Deserialize the objects.
     DTK_REQUIRE( fromIndirectBytesToCount(bytes,charBuffer) == count );

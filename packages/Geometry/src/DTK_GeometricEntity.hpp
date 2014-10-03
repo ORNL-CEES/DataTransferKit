@@ -46,9 +46,9 @@
 #include "DTK_GeometryTypes.hpp"
 #include "DTK_MappingStatus.hpp"
 #include "DTK_AbstractBuilder.hpp"
+#include "DTK_AbstractBuildableObject.hpp"
 #include "DTK_AbstractSerializableObjectPolicy.hpp"
 #include "DTK_AbstractSerializer.hpp"
-#include "DTK_AbstractBuildableObject.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -215,14 +215,17 @@ class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
     //@}
 
     //@{
-    //! AbstractSerializableObjectPolicy interface.
+    //! AbstractBuildableObjectPolicy interface.
     /*!
      * \brief Return a string indicating the derived object type.
      * \return A string indicating the type of derived object implementing the
      * interface.
      */
     std::string objectType() const;
+    //@}
 
+    //@{
+    //! AbstractSerializableObjectPolicy interface.
     /*
      * \brief Get the size of the serialized entity in bytes.
      * \return The size of the entity when serialized in bytes.
@@ -246,6 +249,28 @@ class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
 };
 
 //---------------------------------------------------------------------------//
+// AbstractBuildableObjectPolicy implementation.
+//---------------------------------------------------------------------------//
+template<>
+class AbstractBuildableObjectPolicy<GeometricEntity>
+{
+  public:
+
+    typedef GeometricEntity object_type;
+
+    static std::string entityType( const Teuchos::RCP<GeometricEntity>& entity )
+    {
+	return entity->objectType();
+    }
+
+    static Teuchos::RCP<DataTransferKit::AbstractBuilder<GeometricEntity> > 
+    getBuilder()
+    {
+	return GeometricEntity::getBuilder();
+    }
+};
+
+//---------------------------------------------------------------------------//
 // AbstractSerializableObjectPolicy implementation.
 //---------------------------------------------------------------------------//
 template<>
@@ -255,31 +280,21 @@ class AbstractSerializableObjectPolicy<GeometricEntity>
 
     typedef GeometricEntity object_type;
 
-    static std::string objectType( const Teuchos::RCP<object_type>& object )
+    static std::size_t byteSize( const Teuchos::RCP<GeometricEntity>& entity )
     {
-	return object->objectType();
+	return entity->byteSize();
     }
 
-    static std::size_t byteSize( const Teuchos::RCP<object_type>& object )
-    {
-	return object->byteSize();
-    }
-
-    static void serialize( const Teuchos::RCP<object_type>& object,
+    static void serialize( const Teuchos::RCP<GeometricEntity>& entity,
 			   const Teuchos::ArrayView<char>& buffer )
     {
-	object->serialize( buffer );
+	entity->serialize( buffer );
     }
 
-    static void deserialize( const Teuchos::RCP<object_type>& object,
+    static void deserialize( const Teuchos::RCP<GeometricEntity>& entity,
 			     const Teuchos::ArrayView<const char>& buffer )
     {
-	object->deserialize( buffer );
-    }
-
-    static Teuchos::RCP<DataTransferKit::AbstractBuilder<object_type> > getBuilder()
-    {
-	return object_type::getBuilder();
+	entity->deserialize( buffer );
     }
 };
 

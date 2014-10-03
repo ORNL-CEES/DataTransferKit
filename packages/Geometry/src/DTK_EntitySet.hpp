@@ -43,6 +43,8 @@
 
 #include "DTK_GeometricEntity.hpp"
 #include "DTK_Box.hpp"
+#include "DTK_AbstractBuilder.hpp"
+#include "DTK_AbstractBuildableObject.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_RCP.hpp>
@@ -54,9 +56,12 @@ namespace DataTransferKit
 /*!
   \class EntitySet
   \brief Geometric entity set interface definition.
+
+  An entity set is a coherent collection of geometric entities with a parallel
+  distribution.
 */
 //---------------------------------------------------------------------------//
-class EntitySet
+class EntitySet : public AbstractBuildableObject<EntitySet>
 {
   public:
 
@@ -169,7 +174,8 @@ class EntitySet
     virtual void startModification();
 
     /*!
-     * \brief Add an entity to the set.
+     * \brief Add an entity to the set. This function can only be called if
+     * entity set has been notified of modification.
      * \param entity Add this entity to the set.
      */
     virtual void addEntity( const Teuchos::RCP<GeometricEntity>& entity );
@@ -180,6 +186,29 @@ class EntitySet
     virtual void endModification();
     //@}
  };
+
+//---------------------------------------------------------------------------//
+// AbstractBuildableObjectPolicy implementation.
+//---------------------------------------------------------------------------//
+template<>
+class AbstractBuildableObjectPolicy<EntitySet>
+{
+  public:
+
+    typedef EntitySet object_type;
+
+    static std::string 
+    entity_setType( const Teuchos::RCP<EntitySet>& entity_set )
+    {
+	return entity_set->entitySetType();
+    }
+
+    static Teuchos::RCP<DataTransferKit::AbstractBuilder<EntitySet> > 
+    getBuilder()
+    {
+	return EntitySet::getBuilder();
+    }
+};
 
 //---------------------------------------------------------------------------//
 

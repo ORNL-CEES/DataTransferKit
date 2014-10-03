@@ -73,7 +73,7 @@ void AbstractBuildableObject<Object>::setDerivedClassFactory(
     const Teuchos::RCP<const Teuchos::AbstractFactory<Object> >& factory )
 { 
     b_builder->setDerivedClassFactory( 
-	factory, ASOP::objectType(factory->create()) );
+	factory, ABOP::objectType(factory->create()) );
 }
 
 //---------------------------------------------------------------------------//
