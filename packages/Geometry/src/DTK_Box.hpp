@@ -161,6 +161,9 @@ class Box : public GeometricEntity
 			    const Box& box_B,
 			    Box& box_union );
 
+    // Compound assignment overload.
+    Box& operator+=(const Box& rhs);
+
   private:
 
     // Global id.

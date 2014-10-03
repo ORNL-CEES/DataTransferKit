@@ -539,6 +539,142 @@ TEUCHOS_UNIT_TEST( Box, add_test )
 }
 
 //---------------------------------------------------------------------------//
+// Box compound test.
+TEUCHOS_UNIT_TEST( Box, compound_test )
+{
+    using namespace DataTransferKit;
+ 
+    Box box_union;
+    Teuchos::Tuple<double,6> bounds;
+
+    Box box_1( 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
+    Box box_2( 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
+    Box box_3( 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
+    Box box_4( 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
+    Box box_5( 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
+
+    box_union = box_1;
+    box_union += box_2;
+    bounds = box_union.getBounds();
+    TEST_EQUALITY( bounds[0], 0.0 );
+    TEST_EQUALITY( bounds[1], 0.0 );
+    TEST_EQUALITY( bounds[2], 0.0 );
+    TEST_EQUALITY( bounds[3], 1.0 );
+    TEST_EQUALITY( bounds[4], 1.0 );
+    TEST_EQUALITY( bounds[5], 1.0 );
+
+    box_union = box_1;
+    box_union += box_1;
+    bounds = box_union.getBounds();
+    TEST_EQUALITY( bounds[0], 0.0 );
+    TEST_EQUALITY( bounds[1], 0.0 );
+    TEST_EQUALITY( bounds[2], 0.0 );
+    TEST_EQUALITY( bounds[3], 1.0 );
+    TEST_EQUALITY( bounds[4], 1.0 );
+    TEST_EQUALITY( bounds[5], 1.0 );
+
+    box_union = box_3;
+    box_union += box_1;
+    bounds = box_union.getBounds();
+    TEST_EQUALITY( bounds[0], -1.0 );
+    TEST_EQUALITY( bounds[1], -1.0 );
+    TEST_EQUALITY( bounds[2], -1.0 );
+    TEST_EQUALITY( bounds[3], 1.0 );
+    TEST_EQUALITY( bounds[4], 1.0 );
+    TEST_EQUALITY( bounds[5], 1.0 );
+
+    box_union = box_4;
+    box_union += box_1;
+    bounds = box_union.getBounds();
+    TEST_EQUALITY( bounds[0], 0.0 );
+    TEST_EQUALITY( bounds[1], 0.0 );
+    TEST_EQUALITY( bounds[2], -1.2 );
+    TEST_EQUALITY( bounds[3], 5.6 );
+    TEST_EQUALITY( bounds[4], 7.8 );
+    TEST_EQUALITY( bounds[5], 1.0 );
+
+    box_union = box_1;
+    box_union += box_5;
+    bounds = box_union.getBounds();
+    TEST_EQUALITY( bounds[0], 0.0 );
+    TEST_EQUALITY( bounds[1], 0.0 );
+    TEST_EQUALITY( bounds[2], 0.0 );
+    TEST_EQUALITY( bounds[3], 1.1 );
+    TEST_EQUALITY( bounds[4], 1.1 );
+    TEST_EQUALITY( bounds[5], 1.1 );
+
+    box_union = box_5;
+    box_union += box_1;
+    bounds = box_union.getBounds();
+    TEST_EQUALITY( bounds[0], 0.0 );
+    TEST_EQUALITY( bounds[1], 0.0 );
+    TEST_EQUALITY( bounds[2], 0.0 );
+    TEST_EQUALITY( bounds[3], 1.1 );
+    TEST_EQUALITY( bounds[4], 1.1 );
+    TEST_EQUALITY( bounds[5], 1.1 );
+
+    box_union = box_2;
+    box_union += box_3;
+    bounds = box_union.getBounds();
+    TEST_EQUALITY( bounds[0], -1.0 );
+    TEST_EQUALITY( bounds[1], -1.0 );
+    TEST_EQUALITY( bounds[2], -1.0 );
+    TEST_EQUALITY( bounds[3], 0.75 );
+    TEST_EQUALITY( bounds[4], 0.75 );
+    TEST_EQUALITY( bounds[5], 0.75 );
+
+    box_union = box_2;
+    box_union += box_4;
+    bounds = box_union.getBounds();
+    TEST_EQUALITY( bounds[0], 0.25 );
+    TEST_EQUALITY( bounds[1], 0.25 );
+    TEST_EQUALITY( bounds[2], -1.2 );
+    TEST_EQUALITY( bounds[3], 5.6 );
+    TEST_EQUALITY( bounds[4], 7.8 );
+    TEST_EQUALITY( bounds[5], 0.75 );
+
+    box_union = box_2;
+    box_union += box_5;
+    bounds = box_union.getBounds();
+    TEST_EQUALITY( bounds[0], 0.25 );
+    TEST_EQUALITY( bounds[1], 0.25 );
+    TEST_EQUALITY( bounds[2], 0.25 );
+    TEST_EQUALITY( bounds[3], 1.1 );
+    TEST_EQUALITY( bounds[4], 1.1 );
+    TEST_EQUALITY( bounds[5], 1.1 );
+
+    box_union = box_3;
+    box_union += box_5;
+    bounds = box_union.getBounds();
+    TEST_EQUALITY( bounds[0], -1.0 );
+    TEST_EQUALITY( bounds[1], -1.0 );
+    TEST_EQUALITY( bounds[2], -1.0 );
+    TEST_EQUALITY( bounds[3], 1.1 );
+    TEST_EQUALITY( bounds[4], 1.1 );
+    TEST_EQUALITY( bounds[5], 1.1 );
+
+    box_union = box_3;
+    box_union += box_4;
+    bounds = box_union.getBounds();
+    TEST_EQUALITY( bounds[0], -1.0 );
+    TEST_EQUALITY( bounds[1], -1.0 );
+    TEST_EQUALITY( bounds[2], -1.2 );
+    TEST_EQUALITY( bounds[3], 5.6 );
+    TEST_EQUALITY( bounds[4], 7.8 );
+    TEST_EQUALITY( bounds[5], 0.67 );
+
+    box_union = box_4;
+    box_union += box_5;
+    bounds = box_union.getBounds();
+    TEST_EQUALITY( bounds[0], 1.0 );
+    TEST_EQUALITY( bounds[1], 1.0 );
+    TEST_EQUALITY( bounds[2], -1.2 );
+    TEST_EQUALITY( bounds[3], 5.6 );
+    TEST_EQUALITY( bounds[4], 7.8 );
+    TEST_EQUALITY( bounds[5], 1.1 );
+}
+
+//---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( Box, inclusion_test )
 {
     using namespace DataTransferKit;

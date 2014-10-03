@@ -503,6 +503,16 @@ void Box::uniteBoxes( const Box& box_A,
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Compound assignment overload.
+ */
+Box& Box::operator+=(const Box& rhs)
+{
+    *this = *this + rhs;
+    return *this;
+}
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Addition operator. Adding two boxes together is the same as
  * computing their union.
  */

@@ -99,7 +99,7 @@ std::size_t BasicEntitySetImplementation::localNumberOfEntities(
 std::size_t BasicEntitySetImplementation::globalNumberOfEntities(
     const int parametric_dimension ) const
 {
-    std::size_t num_local = localNumberOfEntities( parameteric_dimension );
+    std::size_t num_local = localNumberOfEntities( parametric_dimension );
     std::size_t num_global = 0;
     Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_SUM, 
 			num_local, Teuchos::Ptr<std::size_t>(&num_global) );
@@ -112,9 +112,9 @@ void BasicEntitySetImplementation::localEntityIds(
     const int parametric_dimension,
     const Teuchos::ArrayView<EntityId>& entity_ids ) const
 {
-    DTK_REQUIRE( entity_ids.size() == 
+    DTK_REQUIRE( Teuchos::as<std::size_t>(entity_ids.size()) == 
 		 localNumberOfEntities(parametric_dimension) );
-    Teuchos::ArrayView<EntityId>::const_iterator id_it = entity_ids.begin();
+    Teuchos::ArrayView<EntityId>::iterator id_it = entity_ids.begin();
     ConstEntityIterator entity_it;
     for ( entity_it = d_entities.begin();
 	  entity_it != d_entities.end();
@@ -135,7 +135,7 @@ void BasicEntitySetImplementation::getEntity(
     Teuchos::RCP<GeometricEntity>& entity ) const
 {
     DTK_REQUIRE( d_entities.count(entity_id) );
-    return d_entities.find(entity_id)->second;
+    entity = d_entities.find(entity_id)->second;
 }
 
 //---------------------------------------------------------------------------//
@@ -172,14 +172,16 @@ int BasicEntitySetImplementation::physicalDimension() const
 // Get the local bounding box of entities of the set.
 void BasicEntitySetImplementation::localBoundingBox( Box& bounding_box ) const
 {
-    bounding_box = Box( comm->getRank(), comm->getRank(),
+    bounding_box = Box( d_comm->getRank(), d_comm->getRank(),
 			0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
+    Box entity_box;
     ConstEntityIterator entity_it;
     for ( entity_it = d_entities.begin();
 	  entity_it != d_entities.end();
 	  ++entity_it )
     {
-	bounding_box += entity_it->second->boundingBox();
+	entity_it->second->boundingBox( entity_box );
+	bounding_box += entity_box;
     }
 }
 

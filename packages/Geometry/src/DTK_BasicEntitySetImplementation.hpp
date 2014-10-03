@@ -69,7 +69,7 @@ class BasicEntitySetImplementation : public EntitySet
     EntityIterator;
     typedef std::unordered_map<EntityId,Teuchos::RCP<GeometricEntity> >::const_iterator
     ConstEntityIterator;
-    typedef std::pair<EntityId,Teuchos::RCP<GeometricEntity> EntityIdPair;
+    typedef std::pair<EntityId,Teuchos::RCP<GeometricEntity> > EntityIdPair;
 
     /*!
      * \brief Constructor.
