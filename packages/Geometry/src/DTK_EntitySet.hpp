@@ -71,6 +71,15 @@ class EntitySet
     virtual ~EntitySet();
 
     //@{
+    //! Polymorphic construction functions.
+    /*!
+     * \brief Create an empty clone of the entity set subclass.
+     * \return An empty subclass of the entity set.
+     */
+    virtual Teuchos::RCP<EntitySet> clone() const;
+    //@}
+
+    //@{
     //! Identification functions.
     /*!
      * \brief Return a string indicating the derived entity set type.
@@ -128,26 +137,7 @@ class EntitySet
      * \param entity The entity with the given id.
      */
     virtual void getEntity( const EntityId entity_id, 
-			    GeometricEntity& entity ) const;
-    //@}
-
-    //@{
-    //! Entity modification functions.
-    /*!
-     * \brief Indicate that the entity set will be modified.
-     */
-    virtual void startModification();
-
-    /*!
-     * \brief Add an entity to the set.
-     * \param entity Add this entity to the set.
-     */
-    virtual void addEntity( const GeometricEntity& entity );
-
-    /*!
-     * \brief Indicate that modification of the entity set is complete.
-     */
-    virtual void endModification();
+			    Teuchos::RCP<GeometricEntity>& entity ) const;
     //@}
 
     //@{
@@ -170,7 +160,26 @@ class EntitySet
      */
     virtual void globalBoundingBox( Box& bounding_box ) const;
     //@}
-};
+
+    //@{
+    //! EntitySet modification functions.
+    /*!
+     * \brief Indicate that the entity set will be modified.
+     */
+    virtual void startModification();
+
+    /*!
+     * \brief Add an entity to the set.
+     * \param entity Add this entity to the set.
+     */
+    virtual void addEntity( const Teuchos::RCP<GeometricEntity>& entity );
+
+    /*!
+     * \brief Indicate that modification of the entity set is complete.
+     */
+    virtual void endModification();
+    //@}
+ };
 
 //---------------------------------------------------------------------------//
 

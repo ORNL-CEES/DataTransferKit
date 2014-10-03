@@ -57,7 +57,7 @@ Box::Box()
     , d_x_max( 0.0 )
     , d_y_max( 0.0 )
     , d_z_max( 0.0 )
-    , d_byte_size( sizeof(EntityId) + sizeof(int) + 6*sizeof(double) )
+    , d_byte_size( 0 )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -498,7 +498,9 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
 {
   Teuchos::Tuple<double,6> bounds = b.getBounds();
 
-  os << "Box: d_x_min=" << bounds[0] 
+  os << "Box: d_global_id=" << d_global_id 
+     << ",d_owner_rank=" << d_owner_rank
+     << ",d_x_min=" << bounds[0] 
      << ",d_y_min=" << bounds[1]
      << ",d_z_min=" << bounds[2]
      << ",d_x_max=" << bounds[3]

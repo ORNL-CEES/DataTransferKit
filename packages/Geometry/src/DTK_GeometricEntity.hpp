@@ -247,7 +247,6 @@ class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
 //---------------------------------------------------------------------------//
 // AbstractSerializableObjectPolicy implementation.
 //---------------------------------------------------------------------------//
-
 template<>
 class AbstractSerializableObjectPolicy<GeometricEntity>
 {
@@ -282,6 +281,8 @@ class AbstractSerializableObjectPolicy<GeometricEntity>
 	return object_type::getBuilder();
     }
 };
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

@@ -32,21 +32,19 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Box.hpp
+ * \file DTK_Point.hpp
  * \author Stuart R. Slattery
- * \brief Bounding box declaration.
+ * \brief Point declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_BOX_HPP
-#define DTK_BOX_HPP
+#ifndef DTK_POINT_HPP
+#define DTK_POINT_HPP
 
+#include "DTK_GeometryTypes.hpp"
 #include "DTK_GeometricEntity.hpp"
 
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_SerializationTraits.hpp>
-#include <Teuchos_ParameterList.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 #include <iostream>
 
@@ -54,39 +52,54 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class Box
- * \brief Axis-aligned Cartesian box container.
+ * \class Point
+ * \brief Point container.
  *
- * All three dimensions are explictly represented in this bounding box. This
- * is different from a bounding box in that it must always be finite and of a
- * fixed 3 dimensions.
+ * Users can subclass this function for more efficient access to and storage
+ * of coordinates. If a set of point coordinates already existed, a subclass
+ * could be used to point to those coordinates through this interface. This
+ * interface does assume access to contiguous storage of (x,y,z) coordinates
+ * for a given point. 
  */
 //---------------------------------------------------------------------------//
-class Box : public GeometricEntity
+class Point : public GeometricEntity
 {
-
   public:
 
     // Default constructor.
-    Box();
+    Point();
 
-    // Constructor.
-    Box( const EntityId global_id, const int owner_rank,
-	 const double x_min, const double y_min, const double z_min,
-	 const double x_max, const double y_max, const double z_max );
+    // 1D Coordinate constructor.
+    Point( const EntityId global_id, 
+	   const int owner_rank,
+	   const double x );
 
-    // Tuple constructor.
-    Box( const EntityId global_id,
-	 const int owner_rank, 
-	 const Teuchos::Tuple<double,6>& bounds );
+    // 2D Coordinate constructor.
+    Point( const EntityId global_id, 
+	   const int owner_rank, 
+	   const double x, 
+	   const double y );
+
+    // 3D Coordinate constructor.
+    Point( const EntityId global_id, 
+	   const int owner_rank,
+	   const double x, 
+	   const double y, 
+	   const double z );
+
+    // Array constructor.
+    Point( const EntityId global_id, 
+	   const int owner_rank,
+	   const Teuchos::Array<double>& coordinates );
 
     // Destructor.
-    ~Box();
+    ~Point();
 
-    // Get the boundaries of the box.
-    Teuchos::Tuple<double,6> getBounds() const
-    { return Teuchos::tuple( d_x_min, d_y_min, d_z_min, 
-			     d_x_max, d_y_max, d_z_max ); }
+    //@{
+    //! Coordinate access functions.
+    // Get the coordinates of the point.
+    virtual void getCoordinates( Teuchos::ArrayView<double>& coordinates ) const;
+    //@}
 
     //@{ 
     //! GeometricEntity implementation.
@@ -100,7 +113,7 @@ class Box : public GeometricEntity
     int ownerRank() const;
 
     // Return the physical dimension of the entity.
-    int physicalDimension() const;
+    virtual int physicalDimension() const;
 
     // Return the parametric dimension of the entity.
     int parametricDimension() const;
@@ -112,7 +125,7 @@ class Box : public GeometricEntity
     void centroid( const Teuchos::ArrayView<double>& centroid ) const;
 
     // Return the axis-aligned bounding box around the entity.
-    void boundingBox( Box& bounding_box ) const;
+    void boundingPoint( Point& bounding_box ) const;
 
     // Perform a safeguard check for mapping a point to the reference
     void safeguardMapToReferenceFrame(
@@ -147,21 +160,7 @@ class Box : public GeometricEntity
     void deserialize( const Teuchos::ArrayView<const char>& buffer );
     //@}
 
-    // Static function to check for box intersection but not perform it.
-    static bool checkForIntersection( const Box& box_A,
-				      const Box& box_B );
-
-    // Static function for box intersection.
-    static bool intersectBoxes( const Box& box_A,
-				const Box& box_B,
-				Box& box_intersection );
-
-    // Static function for box union
-    static void uniteBoxes( const Box& box_A,
-			    const Box& box_B,
-			    Box& box_union );
-
-  private:
+  protected:
 
     // Global id.
     EntityId d_global_id;
@@ -169,55 +168,28 @@ class Box : public GeometricEntity
     // Owning parallel rank.
     int d_owner_rank;
 
-    // X min.
-    double d_x_min;
+  private:
 
-    // Y min.
-    double d_y_min;
-
-    // Z min.
-    double d_z_min;
-
-    // X max.
-    double d_x_max;
-
-    // Y max.
-    double d_y_max;
-
-    // Z max.
-    double d_z_max;
+    // Coordinates.
+    Teuchos::Array<double> d_coordinates;
 
     // Packed size in bytes.
     std::size_t d_byte_size;
 };
 
 //---------------------------------------------------------------------------//
-//! overload for printing box
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
+//! overload for printing Point
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p); 
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Direct Serialization Traits Specialization.
-//---------------------------------------------------------------------------//
 
-namespace Teuchos
-{
-
-template<typename Ordinal>
-class SerializationTraits<Ordinal, DataTransferKit::Box>
-    : public DirectSerializationTraits<Ordinal, DataTransferKit::Box>
-{};
-
-} // end namespace Teuchos
+#endif // end DTK_POINT_HPP
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_BOX_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_Box.hpp
+// end DTK_Point.hpp
 //---------------------------------------------------------------------------//
 

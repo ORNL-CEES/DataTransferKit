@@ -54,6 +54,15 @@ EntitySet::~EntitySet()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Create an empty clone of the EntitySet.
+Teuchos::RCP<EntitySet> EntitySet::clone() const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return Teuchos::null;
+}
+
+//---------------------------------------------------------------------------//
 // Return a string indicating the derived entity set type.
 std::string EntitySet::entitySetType() const
 {
