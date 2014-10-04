@@ -81,10 +81,13 @@ std::size_t AbstractSerializableObject<Object>::maxByteSize()
 //---------------------------------------------------------------------------//
 // Set the byte size of a derived class with the base class.
 template<class Object>
-void AbstractSerializableObject<Object>::setDerivedClassByteSize( 
-    const std::size_t byte_size )
+template<class DerivedObject>
+void AbstractSerializableObject<Object>::setDerivedClassByteSize()
 {
-    b_max_byte_size = std::max( b_max_byte_size, byte_size );
+    b_max_byte_size = 
+	std::max( 
+	    b_max_byte_size, 
+	    DerivedSerializableObjectPolicy<DerivedObject>::byteSize() );
 }
 
 //---------------------------------------------------------------------------//

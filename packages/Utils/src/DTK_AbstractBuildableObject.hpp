@@ -140,8 +140,8 @@ class AbstractBuildableObject
      * \brief Set an abstract factor for a AbstractBuildableObject subclass.
      * \param builder A factory for a AbstractBuildableObject subclass.
      */
-    static void setDerivedClassFactory(
-	const Teuchos::RCP<const Teuchos::AbstractFactory<Object> >& factory );
+    template<class DerivedObject>
+    static void setDerivedClassFactory();
 
     /*!
      * \brief Get the abstract builder for AbstractBuildableObject subclasses.

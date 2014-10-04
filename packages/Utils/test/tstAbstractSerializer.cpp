@@ -23,7 +23,6 @@
 #include "Teuchos_Array.hpp"
 #include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
-#include "Teuchos_AbstractFactoryStd.hpp"
 #include "Teuchos_SerializationTraits.hpp"
 
 //---------------------------------------------------------------------------//
@@ -172,6 +171,21 @@ class MyNumberIsOne : public BaseClass
 std::size_t MyNumberIsOne::byteSize()
 { return sizeof(double); }
 
+// DerivedSerializableObjectPolicy
+namespace DataTransferKit
+{
+template<>
+class DerivedSerializableObjectPolicy<MyNumberIsOne>
+{
+  public:
+    typedef MyNumberIsOne object_type;
+    static std::size_t byteSize()
+    {
+	return MyNumberIsOne::byteSize();
+    }
+};
+} // end namespace DataTransferKit
+
 //---------------------------------------------------------------------------//
 // Derived class 2.
 class MyNumberIsTwo : public BaseClass
@@ -202,27 +216,40 @@ class MyNumberIsTwo : public BaseClass
 std::size_t MyNumberIsTwo::byteSize()
 { return 2*sizeof(double); }
 
+// DerivedSerializableObjectPolicy
+namespace DataTransferKit
+{
+template<>
+class DerivedSerializableObjectPolicy<MyNumberIsTwo>
+{
+  public:
+    typedef MyNumberIsTwo object_type;
+    static std::size_t byteSize()
+    {
+	return MyNumberIsTwo::byteSize();
+    }
+};
+} // end namespace DataTransferKit
+
 //---------------------------------------------------------------------------//
 // TESTS
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( AbstractSerializableObjectPolicy, serializable_object_test )
+TEUCHOS_UNIT_TEST( AbstractSerializer, abstract_serializer )
 {
     using namespace DataTransferKit;
+
+    // Register derived classes.
+    BaseClass::setDerivedClassFactory<MyNumberIsOne>();
+    BaseClass::setDerivedClassFactory<MyNumberIsTwo>();
+
+    // Set the derived class byte sizes with the base class.
+    BaseClass::setDerivedClassByteSize<MyNumberIsOne>();
+    BaseClass::setDerivedClassByteSize<MyNumberIsTwo>();
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm_default = 
 	Teuchos::DefaultComm<int>::getComm();
     int comm_rank = comm_default->getRank();
-
-    // Register derived classes.
-    BaseClass::setDerivedClassFactory(
-	Teuchos::abstractFactoryStd<BaseClass,MyNumberIsOne>() );
-    BaseClass::setDerivedClassFactory(
-	Teuchos::abstractFactoryStd<BaseClass,MyNumberIsTwo>() );
-
-    // Set the byte sizes with the base class.
-    BaseClass::setDerivedClassByteSize( MyNumberIsOne::byteSize() );
-    BaseClass::setDerivedClassByteSize( MyNumberIsTwo::byteSize() );
 
     // Construct an array of base class objects
     Teuchos::RCP<AbstractBuilder<BaseClass> > builder = BaseClass::getBuilder();

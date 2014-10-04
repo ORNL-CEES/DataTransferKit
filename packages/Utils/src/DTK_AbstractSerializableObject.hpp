@@ -53,6 +53,52 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
+  \class UndefinedDerivedSerializableObjectPolicy
+  \brief Complie time error indicator for policy implementations.
+*/
+//---------------------------------------------------------------------------//
+template<typename T>
+struct UndefinedDerivedSerializableObjectPolicy 
+{
+    static inline T notDefined() 
+    {
+	return T::this_type_is_missing_a_specialization();
+    }
+};
+
+//---------------------------------------------------------------------------//
+/*!
+  \class DerivedSerializableObjectPolicy
+  \brief Policy definition for objects that can be serialized.
+
+  This class provides a runtime mechanism to serialize a derived class of
+  arbitrary size through a base class interface and deserialize the base class
+  with the correct underlying derived class.
+*/
+//---------------------------------------------------------------------------//
+template<class T>
+class DerivedSerializableObjectPolicy
+{
+  public:
+
+    //! Base class type.
+    typedef T object_type;
+
+    //@{
+    //! Serialization functions.
+    /*!
+     * \brief Get the byte size of derived class.
+     * \return The byte size of the derived class.
+     */
+    static std::size_t byteSize()
+    {
+	UndefinedDerivedSerializableObjectPolicy<T>::notDefined();
+	return 0;
+    }
+};
+
+//---------------------------------------------------------------------------//
+/*!
   \class UndefinedAbstractSerializableObjectPolicy
   \brief Complie time error indicator for policy implementations.
 */
@@ -161,7 +207,8 @@ class AbstractSerializableObject
      * \brief Set the byte size of a derived class with the base class.
      * \param byte_size The byte size of the derived class.
      */
-    static void setDerivedClassByteSize( const std::size_t byte_size );
+    template<class DerivedObject>
+    static void setDerivedClassByteSize();
 
   private:
 

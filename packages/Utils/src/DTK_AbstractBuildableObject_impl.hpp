@@ -43,6 +43,8 @@
 
 #include "DTK_DBC.hpp"
 
+#include <Teuchos_AbstractFactoryStd.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -69,10 +71,12 @@ AbstractBuildableObject<Object>::b_builder =
 //---------------------------------------------------------------------------//
 // Set an abstract builder for AbstractBuildableObject subclasses.
 template<class Object>
-void AbstractBuildableObject<Object>::setDerivedClassFactory(
-    const Teuchos::RCP<const Teuchos::AbstractFactory<Object> >& factory )
+template<class DerivedObject>
+void AbstractBuildableObject<Object>::setDerivedClassFactory()
 { 
-    b_builder->setDerivedClassFactory( 
+    Teuchos::RCP<const Teuchos::AbstractFactory<Object> > factory =
+	Teuchos::abstractFactoryStd<Object,DerivedObject>();
+    b_builder->setDerivedClassFactory(
 	factory, ABOP::objectType(factory->create()) );
 }
 
