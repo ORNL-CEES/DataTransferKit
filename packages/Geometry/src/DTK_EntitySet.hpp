@@ -87,6 +87,15 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
     //@{
     //! Parallel functions.
     /*!
+     * \brief Assign a parallel communicator to the entity set. This will only
+     * be done immediately after construct through the AbstractBuilder
+     * interface.
+     * \param comm The communicator to set with the entity set.
+     */
+    virtual void assignCommunicator(
+	const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
+
+    /*!
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
      */
@@ -176,7 +185,7 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
      */
     virtual void endModification();
     //@}
- };
+};
 
 //---------------------------------------------------------------------------//
 // AbstractBuildableObjectPolicy implementation.

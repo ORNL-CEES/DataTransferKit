@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_AbstractSerializableObjectPolicy.hpp
+ * \brief DTK_AbstractSerializableObject_impl.hpp
  * \author Stuart R. Slattery
- * \brief Serializable abstract object policy interface.
+ * \brief Serializable abstract object interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ABSTRACTSERIALIZABLEOBJECTPOLICY_HPP
-#define DTK_ABSTRACTSERIALIZABLEOBJECTPOLICY_HPP
+#ifndef DTK_ABSTRACTSERIALIZABLEOBJECT_IMPL_HPP
+#define DTK_ABSTRACTSERIALIZABLEOBJECT_IMPL_HPP
 
 #include <string>
 
@@ -52,74 +52,40 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*!
-  \class UndefinedAbstractSerializableObjectPolicy
-  \brief Complie time error indicator for policy implementations.
-*/
+// Constructor.
+template<class Object>
+AbstractSerializableObject<Object>::AbstractSerializableObject()
+{ /* ... */ }
+
 //---------------------------------------------------------------------------//
-template<typename T>
-struct UndefinedAbstractSerializableObjectPolicy 
+//brief Destructor.
+template<class Object>
+AbstractSerializableObject<Object>::~AbstractSerializableObject()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Static members.
+//---------------------------------------------------------------------------//
+// Byte size.
+template<class Object>
+std::size_t AbstractSerializableObject<Object>::b_max_byte_size = 0;
+
+//---------------------------------------------------------------------------//
+// Get the maximum byte size of subclasses of the given base class.
+template<class Object>
+std::size_t AbstractSerializableObject<Object>::maxByteSize()
+{ 
+    return b_max_byte_size;
+}
+
+//---------------------------------------------------------------------------//
+// Set the byte size of a derived class with the base class.
+template<class Object>
+void AbstractSerializableObject<Object>::setDerivedClassByteSize( 
+    const std::size_t byte_size )
 {
-    static inline T notDefined() 
-    {
-	return T::this_type_is_missing_a_specialization();
-    }
-};
-
-//---------------------------------------------------------------------------//
-/*!
-  \class AbstractSerializableObjectPolicy
-  \brief Policy definition for objects that can be serialized.
-
-  This class provides a runtime mechanism to serialize a derived class of
-  arbitrary size through a base class interface and deserialize the base class
-  with the correct underlying derived class.
-*/
-//---------------------------------------------------------------------------//
-template<class T>
-class AbstractSerializableObjectPolicy
-{
-  public:
-
-    //! Base class type.
-    typedef T object_type;
-
-    //@{
-    //! Serialization functions.
-    /*
-     * \brief Get the size of the serialized object in bytes.
-     * \return The size of the object when serialized in bytes.
-     */
-    static std::size_t byteSize( const Teuchos::RCP<T>& object )
-    {
-	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
-	return 0;
-    }
-
-    /*
-     * \brief Serialize the object into a buffer.
-     * \param buffer A view into a data buffer of size byteSize(). Write the
-     * serialized object into this view.
-     */
-    static void serialize( const Teuchos::RCP<T>& object,
-			   const Teuchos::ArrayView<char>& buffer )
-    {
-	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
-    }
-
-    /*!
-     * \brief Deserialize an object from a buffer.
-     * \param buffer A view into a data buffer of size byteSize(). Deserialize
-     * the object from this view.
-     */
-    static void deserialize( const Teuchos::RCP<T>& object,
-			     const Teuchos::ArrayView<const char>& buffer )
-    {
-	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
-    }
-
-    //@}
-};
+    b_max_byte_size = std::max( b_max_byte_size, byte_size );
+}
 
 //---------------------------------------------------------------------------//
 
@@ -127,8 +93,8 @@ class AbstractSerializableObjectPolicy
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_ABSTRACTSERIALIZABLEOBJECTPOLICY_HPP
+#endif // end DTK_ABSTRACTSERIALIZABLEOBJECT_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_AbstractSerializableObjectPolicy.hpp
+// end DTK_AbstractSerializableObject_imple.hpp
 //---------------------------------------------------------------------------//

@@ -47,6 +47,11 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
+// Default constructor.
+BasicEntitySetImplementation::BasicEntitySetImplementation()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Constructor.
 BasicEntitySetImplementation::BasicEntitySetImplementation(
     const Teuchos::RCP<const Teuchos::Comm<int> > comm,
@@ -65,6 +70,15 @@ BasicEntitySetImplementation::~BasicEntitySetImplementation()
 std::string BasicEntitySetImplementation::entitySetType() const
 {
     return std::string("DTK Basic Entity Set");
+}
+
+//---------------------------------------------------------------------------//
+// Assign a parallel communicator to the entity set. This will only be done
+// immediately after construct through the AbstractBuilder interface.
+void BasicEntitySetImplementation::assignCommunicator( 
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
+{
+    d_comm = comm;
 }
 
 //---------------------------------------------------------------------------//
@@ -172,8 +186,9 @@ int BasicEntitySetImplementation::physicalDimension() const
 // Get the local bounding box of entities of the set.
 void BasicEntitySetImplementation::localBoundingBox( Box& bounding_box ) const
 {
+    double max = std::numeric_limits<double>::max();
     bounding_box = Box( d_comm->getRank(), d_comm->getRank(),
-			0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
+			max, max, max, -max, -max, -max );
     Box entity_box;
     ConstEntityIterator entity_it;
     for ( entity_it = d_entities.begin();

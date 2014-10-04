@@ -32,30 +32,33 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_AbstractBuildableObject.hpp
+ * \brief DTK_AbstractSerializableObject.hpp
  * \author Stuart R. Slattery
- * \brief Abstract buildable object interface.
+ * \brief Serializable abstract object interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ABSTRACTBUILDABLEOBJECT_HPP
-#define DTK_ABSTRACTBUILDABLEOBJECT_HPP
+#ifndef DTK_ABSTRACTSERIALIZABLEOBJECT_HPP
+#define DTK_ABSTRACTSERIALIZABLEOBJECT_HPP
 
 #include <string>
 
+#include "DTK_DBC.hpp"
 #include "DTK_AbstractBuilder.hpp"
-#include "DTK_AbstractSerializableObject.hpp"
+
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class UndefinedAbstractBuildableObjectPolicy
+  \class UndefinedAbstractSerializableObjectPolicy
   \brief Complie time error indicator for policy implementations.
 */
 //---------------------------------------------------------------------------//
 template<typename T>
-struct UndefinedAbstractBuildableObjectPolicy 
+struct UndefinedAbstractSerializableObjectPolicy 
 {
     static inline T notDefined() 
     {
@@ -65,14 +68,16 @@ struct UndefinedAbstractBuildableObjectPolicy
 
 //---------------------------------------------------------------------------//
 /*!
-  \class AbstractBuildableObjectPolicy
-  \brief Policy definition for objects that can be built through an
-  abstract builder.
+  \class AbstractSerializableObjectPolicy
+  \brief Policy definition for objects that can be serialized.
 
+  This class provides a runtime mechanism to serialize a derived class of
+  arbitrary size through a base class interface and deserialize the base class
+  with the correct underlying derived class.
 */
 //---------------------------------------------------------------------------//
 template<class T>
-class AbstractBuildableObjectPolicy
+class AbstractSerializableObjectPolicy
 {
   public:
 
@@ -80,80 +85,88 @@ class AbstractBuildableObjectPolicy
     typedef T object_type;
 
     //@{
-    //! Identification functions.
+    //! Serialization functions.
     /*!
-     * \brief Return a string indicating the derived object type.
-     * \return A string indicating the type of derived object implementing the
-     * interface. This string will drive object construction with the builder.
+     * \brief Get the maximum byte size of subclasses of the given base
+     * class.
+     * \return The maximum byte size of subclasses of the given base class.
      */
-    static std::string objectType( const Teuchos::RCP<T>& object )
+    static std::size_t maxByteSize()
     {
-	UndefinedAbstractBuildableObjectPolicy<T>::notDefined();
-	return std::string("Not implemented");
+	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
+	return 0;
     }
-    //@}
 
-    //@{
-    //! Polymorphic construction functions.
-    /*!
-     * \brief Static function for getting the builder for the base class.
+    /*
+     * \brief Serialize the subclass into a buffer.
+     * \param buffer A view into a data buffer of size byteSize(). Write the
+     * serialized subclass into this view.
      */
-    static Teuchos::RCP<AbstractBuilder<T> > getBuilder()
+    static void serialize( const Teuchos::RCP<T>& object,
+			   const Teuchos::ArrayView<char>& buffer )
     {
-	UndefinedAbstractBuildableObjectPolicy<T>::notDefined();
-	return Teuchos::null;
+	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
     }
+
+    /*!
+     * \brief Deserialize an subclass from a buffer.
+     * \param buffer A view into a data buffer of size byteSize(). Deserialize
+     * the object from this view.
+     */
+    static void deserialize( const Teuchos::RCP<T>& object,
+			     const Teuchos::ArrayView<const char>& buffer )
+    {
+	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
+    }
+
     //@}
 };
 
 //---------------------------------------------------------------------------//
 /*!
-  \class AbstractBuildableObject
-  \brief Interface definition for objects that can be built through an
-  abstract builder.
+  \class AbstractSerializableObject
+  \brief Interface definition for objects that can be serialized.
 
-  This class provides the ability to attach a static builder to the derived
-  type. Users can then register factories for subclasses of the derived type
-  and access the builder when needed.
+  This class provides a static mechanism to track the byte size of a base
+  class as the maximum size of its derived classes. Derived classes must
+  register with this class.
 */
 //---------------------------------------------------------------------------//
 template<class Object>
-class AbstractBuildableObject
+class AbstractSerializableObject
 {
   public:
 
-    //! Typedefs.
+    //! Base class type.
     typedef Object object_type;
-    typedef AbstractBuildableObjectPolicy<Object> ABOP;
 
     /*!
      * \brief Constructor.
      */
-    AbstractBuildableObject();
+    AbstractSerializableObject();
 
     /*!
      * \brief Destructor.
      */
-    virtual ~AbstractBuildableObject();
+    virtual ~AbstractSerializableObject();
 
     /*!
-     * \brief Set an abstract factor for a AbstractBuildableObject subclass.
-     * \param builder A factory for a AbstractBuildableObject subclass.
+     * \brief Get the maximum byte size of subclasses of the given base
+     * class.
+     * \return The maximum byte size of subclasses of the given base class.
      */
-    static void setDerivedClassFactory(
-	const Teuchos::RCP<const Teuchos::AbstractFactory<Object> >& factory );
+    static std::size_t maxByteSize();
 
-    /*!
-     * \brief Get the abstract builder for AbstractBuildableObject subclasses.
-     * \return The builder for AbstractBuildableObject subclasses.
+    /*
+     * \brief Set the byte size of a derived class with the base class.
+     * \param byte_size The byte size of the derived class.
      */
-    static Teuchos::RCP<AbstractBuilder<Object> > getBuilder();
-    //@}
+    static void setDerivedClassByteSize( const std::size_t byte_size );
 
   private:
-    
-    // Abstract builder for geometric entity subclasses.
-    static Teuchos::RCP<AbstractBuilder<Object> > b_builder;
+
+    // Maximum byte size for the base class.
+    static std::size_t b_max_byte_size;
 };
 
 //---------------------------------------------------------------------------//
@@ -164,12 +177,12 @@ class AbstractBuildableObject
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_AbstractBuildableObject_impl.hpp"
+#include "DTK_AbstractSerializableObject_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_ABSTRACTBUILDABLEOBJECT_HPP
+#endif // end DTK_ABSTRACTSERIALIZABLEOBJECT_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_AbstractBuildableObject.hpp
+// end DTK_AbstractSerializableObject.hpp
 //---------------------------------------------------------------------------//

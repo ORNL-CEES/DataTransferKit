@@ -45,7 +45,7 @@
 
 #include "DTK_DBC.hpp"
 #include "DTK_AbstractBuilder.hpp"
-
+#include <Teuchos_DefaultComm.hpp>
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -64,19 +64,7 @@ template<class Ordinal, class T>
 Ordinal AbstractSerializer<Ordinal,T>::fromCountToIndirectBytes( 
     const Ordinal count, const Packet buffer[])
 {
-    Ordinal byte_size = 0;
-    for ( Ordinal i = 0; i < count; ++i )
-    {
-	// Bytes for the integral key.
-	byte_size += sizeof(int);
-	    
-	// Bytes for the size of the object.
-	byte_size += sizeof(std::size_t);
-
-	// Bytes for the object.
-	byte_size += ASOP::byteSize( buffer[i] );
-    }
-    return byte_size;
+    return count * ( sizeof(int) + ASOP::maxByteSize() );
 }
 
 //---------------------------------------------------------------------------//
@@ -93,26 +81,30 @@ void AbstractSerializer<Ordinal,T>::serialize( const Ordinal count,
     // Serialize the objects.
     DTK_REQUIRE( fromCountToIndirectBytes(count,buffer) == bytes );
     char* buffer_pos = &charBuffer[0];
-    std::size_t object_size = 0;
     int integral_key = 0;
     for ( Ordinal i = 0; i < count; ++i )
     {
-	// Serialize the integral key of the object.
-	integral_key = builder->getIntegralKey( ABOP::objectType(buffer[i]) );
-	std::memcpy( buffer_pos, &integral_key, sizeof(int) );
-	buffer_pos += sizeof(int);
+	// Get a view of the buffer.
+	Teuchos::ArrayView<char> buffer_view( 
+	    buffer_pos, sizeof(int) + ASOP::maxByteSize() );
 
-	// Serialize the size of the object.
-	object_size = ASOP::byteSize( buffer[i] );
-	std::memcpy( buffer_pos, &object_size, sizeof(std::size_t) );
-	buffer_pos += sizeof(std::size_t);
-	    
-	// Serialize the object.
-	Teuchos::ArrayView<char> buffer_view( buffer_pos, object_size );
-	ASOP::serialize( buffer[i], buffer_view );
+	// Fill the buffer with zeros to start.
+	std::fill( buffer_view.begin(), buffer_view.end(), '0' );
+
+	// Serialize nonnull objects.
+	if ( Teuchos::nonnull(buffer[i]) )
+	{
+	    // Serialize the integral key of the object.
+	    integral_key = builder->getIntegralKey( ABOP::objectType(buffer[i]) );
+	    std::memcpy( buffer_pos, &integral_key, sizeof(int) );
+
+	    // Serialize the object.
+	    ASOP::serialize( 
+		buffer[i], buffer_view(sizeof(int), ASOP::maxByteSize()) );
+	}
 
 	// Move the front of the buffer forward.
-	buffer_pos += object_size;
+	buffer_pos += sizeof(int) + ASOP::maxByteSize();
     }
     DTK_ENSURE( &charBuffer[0] + bytes == buffer_pos );
 }
@@ -123,19 +115,7 @@ template<class Ordinal, class T>
 Ordinal AbstractSerializer<Ordinal,T>::fromIndirectBytesToCount( 
     const Ordinal bytes, const char charBuffer[] )
 {
-    char* buffer_pos = const_cast<char*>(&charBuffer[0]);
-    char* buffer_end = const_cast<char*>(&charBuffer[0] + bytes);
-    Ordinal count = 0;
-    std::size_t object_size = 0;
-    while ( buffer_pos < buffer_end )
-    {
-	buffer_pos += sizeof(int);
-	std::memcpy( &object_size, buffer_pos, sizeof(std::size_t) );
-	buffer_pos += sizeof(std::size_t) + object_size;
-	++count;
-    }
-    DTK_ENSURE( buffer_end == buffer_pos );
-    return count;
+    return bytes / ( sizeof(int) + ASOP::maxByteSize() );
 }
 
 //---------------------------------------------------------------------------//
@@ -152,7 +132,6 @@ void AbstractSerializer<Ordinal,T>::deserialize( const Ordinal bytes,
     // Deserialize the objects.
     DTK_REQUIRE( fromIndirectBytesToCount(bytes,charBuffer) == count );
     char* buffer_pos = const_cast<char*>(&charBuffer[0]);
-    std::size_t object_size = 0;
     int integral_key = 0;
     for ( Ordinal i = 0; i < count; ++i )
     {
@@ -163,16 +142,12 @@ void AbstractSerializer<Ordinal,T>::deserialize( const Ordinal bytes,
 	// Create an object of the correct derived class.
 	buffer[i] = builder->create( integral_key );
 
-	// Get the size of the object.
-	std::memcpy( &object_size, buffer_pos, sizeof(std::size_t) );
-	buffer_pos += sizeof(std::size_t);
-
 	// Deserialize the object.
-	Teuchos::ArrayView<char> buffer_view( buffer_pos, object_size );
+	Teuchos::ArrayView<char> buffer_view( buffer_pos, ASOP::maxByteSize() );
 	ASOP::deserialize( buffer[i], buffer_view );
 
 	// Move the front of the buffer forward.
-	buffer_pos += object_size;
+	buffer_pos += ASOP::maxByteSize();
     }
     DTK_ENSURE( &charBuffer[0] + bytes == buffer_pos );
 }

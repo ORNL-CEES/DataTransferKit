@@ -63,6 +63,16 @@ std::string EntitySet::entitySetType() const
 }
 
 //---------------------------------------------------------------------------//
+// Assign a parallel communicator to the entity set. This will only be done
+// immediately after construct through the AbstractBuilder interface.
+void EntitySet::assignCommunicator( 
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
 Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
 {

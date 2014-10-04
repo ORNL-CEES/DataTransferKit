@@ -13,8 +13,9 @@
 #include <sstream>
 
 #include <DTK_AbstractSerializer.hpp>
-#include <DTK_AbstractSerializableObjectPolicy.hpp>
+#include <DTK_AbstractSerializableObject.hpp>
 #include <DTK_AbstractBuilder.hpp>
+#include <DTK_AbstractBuildableObject.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -30,7 +31,8 @@
 //---------------------------------------------------------------------------//
 
 // Base class.
-class BaseClass
+class BaseClass : public DataTransferKit::AbstractBuildableObject<BaseClass>
+		, public DataTransferKit::AbstractSerializableObject<BaseClass>
 {
   public:
 
@@ -41,28 +43,9 @@ class BaseClass
     virtual Teuchos::Array<double> myData() { return Teuchos::Array<double>(0); }
         
     virtual std::string objectType() const { return std::string("0"); }
-    virtual std::size_t byteSize() const { return 0; }
     virtual void serialize( const Teuchos::ArrayView<char>& buffer ) const {};
     virtual void deserialize( const Teuchos::ArrayView<const char>& buffer ) {};
-
-    static void setBuilder( 
-	const Teuchos::RCP<DataTransferKit::AbstractBuilder<BaseClass> >& builder );
-    static Teuchos::RCP<DataTransferKit::AbstractBuilder<BaseClass> > getBuilder();
-
-  private:
-    
-    static Teuchos::RCP<DataTransferKit::AbstractBuilder<BaseClass> > d_builder;
 };
-
-Teuchos::RCP<DataTransferKit::AbstractBuilder<BaseClass> > 
-BaseClass::d_builder = Teuchos::null;
-
-void BaseClass::setBuilder( 
-    const Teuchos::RCP<DataTransferKit::AbstractBuilder<BaseClass> >& builder )
-{ d_builder = builder; }
-
-Teuchos::RCP<DataTransferKit::AbstractBuilder<BaseClass> > BaseClass::getBuilder()
-{ return d_builder; }
 
 //---------------------------------------------------------------------------//
 namespace DataTransferKit
@@ -94,9 +77,9 @@ class AbstractSerializableObjectPolicy<BaseClass>
 
     typedef BaseClass object_type;
 
-    static std::size_t byteSize( const Teuchos::RCP<object_type>& object )
+    static std::size_t maxByteSize()
     {
-	return object->byteSize();
+	return BaseClass::maxByteSize();
     }
 
     static void serialize( const Teuchos::RCP<object_type>& object,
@@ -172,7 +155,6 @@ class MyNumberIsOne : public BaseClass
     Teuchos::Array<double> myData() { return d_data; }
 
     std::string objectType() const { return std::string("one"); }
-    std::size_t byteSize() const { return sizeof(double); }
     void serialize( const Teuchos::ArrayView<char>& buffer ) const
     { std::memcpy( const_cast<double*>(d_data.getRawPtr()), 
 		   buffer.getRawPtr(), sizeof(double) ); }
@@ -180,10 +162,15 @@ class MyNumberIsOne : public BaseClass
     { std::memcpy( const_cast<char*>(buffer.getRawPtr()), 
 		   d_data.getRawPtr(), sizeof(double) ); }
 
+    static std::size_t byteSize();
+
   private: 
     
     Teuchos::Array<double> d_data;
 };
+
+std::size_t MyNumberIsOne::byteSize()
+{ return sizeof(double); }
 
 //---------------------------------------------------------------------------//
 // Derived class 2.
@@ -198,7 +185,6 @@ class MyNumberIsTwo : public BaseClass
     Teuchos::Array<double> myData() { return d_data; }
 
     std::string objectType() const { return std::string("two"); }
-    std::size_t byteSize() const { return 2*sizeof(double); }
     void serialize( const Teuchos::ArrayView<char>& buffer ) const
     { std::memcpy( const_cast<double*>(d_data.getRawPtr()), 
 		   buffer.getRawPtr(), sizeof(double) ); }
@@ -206,10 +192,15 @@ class MyNumberIsTwo : public BaseClass
     { std::memcpy( const_cast<char*>(buffer.getRawPtr()), 
 		   d_data.getRawPtr(), sizeof(double) ); }
 
+    static std::size_t byteSize();
+
   private: 
     
     Teuchos::Array<double> d_data;
 };
+
+std::size_t MyNumberIsTwo::byteSize()
+{ return 2*sizeof(double); }
 
 //---------------------------------------------------------------------------//
 // TESTS
@@ -223,22 +214,18 @@ TEUCHOS_UNIT_TEST( AbstractSerializableObjectPolicy, serializable_object_test )
 	Teuchos::DefaultComm<int>::getComm();
     int comm_rank = comm_default->getRank();
 
-    // Create a builder and register derived classes.
-    Teuchos::RCP<AbstractBuilder<BaseClass> > builder =
-	Teuchos::rcp( new AbstractBuilder<BaseClass>() );
+    // Register derived classes.
+    BaseClass::setDerivedClassFactory(
+	Teuchos::abstractFactoryStd<BaseClass,MyNumberIsOne>() );
+    BaseClass::setDerivedClassFactory(
+	Teuchos::abstractFactoryStd<BaseClass,MyNumberIsTwo>() );
 
-    std::string name_1( "one" );
-    builder->setDerivedClassFactory(
-	Teuchos::abstractFactoryStd<BaseClass,MyNumberIsOne>(), name_1 );
+    // Set the byte sizes with the base class.
+    BaseClass::setDerivedClassByteSize( MyNumberIsOne::byteSize() );
+    BaseClass::setDerivedClassByteSize( MyNumberIsTwo::byteSize() );
 
-    std::string name_2( "two" );
-    builder->setDerivedClassFactory(
-	Teuchos::abstractFactoryStd<BaseClass,MyNumberIsTwo>(), name_2 );
-
-    // Set the builder with the base class.
-    BaseClass::setBuilder( builder );
-
-    // Construct an array of base class objects.
+    // Construct an array of base class objects
+    Teuchos::RCP<AbstractBuilder<BaseClass> > builder = BaseClass::getBuilder();
     Teuchos::Array<Teuchos::RCP<BaseClass> > objects( 2 );
     if ( comm_rank == 0 )
     {

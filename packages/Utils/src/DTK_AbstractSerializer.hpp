@@ -44,7 +44,7 @@
 #include <string>
 
 #include "DTK_AbstractBuildableObject.hpp"
-#include "DTK_AbstractSerializableObjectPolicy.hpp"
+#include "DTK_AbstractSerializableObject.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>

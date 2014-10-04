@@ -72,6 +72,11 @@ class BasicEntitySetImplementation : public EntitySet
     typedef std::pair<EntityId,Teuchos::RCP<GeometricEntity> > EntityIdPair;
 
     /*!
+     * \brief Default constructor.
+     */
+    BasicEntitySetImplementation();
+
+    /*!
      * \brief Constructor.
      */
     BasicEntitySetImplementation( 
@@ -85,6 +90,14 @@ class BasicEntitySetImplementation : public EntitySet
 
     //@{
     //! Identification functions.
+    /*!
+     * \brief Assign a parallel communicator to the entity set. This will only
+     * be done immediately after construct through the AbstractBuilder
+     * interface.
+     * \param comm The communicator to set with the entity set.
+     */
+    void assignCommunicator( 
+	const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
     /*!
      * \brief Return a string indicating the derived entity set type.
      * \return A string key for the derived set type.
@@ -141,7 +154,7 @@ class BasicEntitySetImplementation : public EntitySet
      * \param entity The entity with the given id.
      */
     void getEntity( const EntityId entity_id, 
-			    Teuchos::RCP<GeometricEntity>& entity ) const;
+		    Teuchos::RCP<GeometricEntity>& entity ) const;
     //@}
 
     //@{

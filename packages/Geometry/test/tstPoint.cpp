@@ -16,7 +16,6 @@
 
 #include <DTK_Point.hpp>
 #include <DTK_GeometricEntity.hpp>
-#include <DTK_MappingStatus.hpp>
 #include <DTK_Box.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -258,9 +257,10 @@ TEUCHOS_UNIT_TEST( Point, communication_test )
 	Teuchos::abstractFactoryStd<GeometricEntity,Point>() );
 
     // Get the communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm_default = 
+    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
 	Teuchos::DefaultComm<int>::getComm();
-    int comm_rank = comm_default->getRank();
+    int comm_rank = comm->getRank();
+    int comm_size = comm->getSize();
 
     // Make a point.
     double x = 3.2;
@@ -275,7 +275,7 @@ TEUCHOS_UNIT_TEST( Point, communication_test )
 
     // Broadcast the point with indirect serialization through the geometric
     // entity api.
-    Teuchos::broadcast( *comm_default, 0, 
+    Teuchos::broadcast( *comm, 0, 
 			Teuchos::Ptr<Teuchos::RCP<GeometricEntity> >(&entity) );
 
     // Check the coordinates.
@@ -284,6 +284,29 @@ TEUCHOS_UNIT_TEST( Point, communication_test )
     TEST_ASSERT( coords[0] == x );
     TEST_ASSERT( coords[1] == y );
     TEST_ASSERT( coords[2] == z );
+
+    // Broadcast an array.
+    Teuchos::Array<Teuchos::RCP<GeometricEntity> > points(2);
+    double x_1 = 3.2 + comm_size;
+    double y_1 = -9.233 + comm_size;
+    double z_1 = 1.3 + comm_size;
+    double x_2 = 3.2 - comm_size;
+    double y_2 = -9.233 - comm_size;
+    double z_2 = 1.3 - comm_size;
+    if ( 0 == comm->getRank() )
+    {
+	points[0] = Teuchos::rcp( new Point(0, 0, x_1, y_1, z_1) );
+	points[1] = Teuchos::rcp( new Point(1, 0, x_2, y_2, z_2) );
+    }
+    Teuchos::broadcast( *comm, 0, points() );
+    points[0]->centroid( coords );
+    TEST_EQUALITY( coords[0], x_1 );
+    TEST_EQUALITY( coords[1], y_1 );
+    TEST_EQUALITY( coords[2], z_1 );
+    points[1]->centroid( coords );
+    TEST_EQUALITY( coords[0], x_2 );
+    TEST_EQUALITY( coords[1], y_2 );
+    TEST_EQUALITY( coords[2], z_2 );
 }
 
 //---------------------------------------------------------------------------//
