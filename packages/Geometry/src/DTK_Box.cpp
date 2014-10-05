@@ -57,7 +57,6 @@ Box::Box()
     , d_x_max( 0.0 )
     , d_y_max( 0.0 )
     , d_z_max( 0.0 )
-    , d_byte_size( sizeof(EntityId) + sizeof(int) + 6*sizeof(double) )
 { 
     d_centroid[0] = 0.0;
     d_centroid[1] = 0.0;
@@ -91,7 +90,6 @@ Box::Box( const EntityId global_id, const int owner_rank,
     , d_x_max( x_max )
     , d_y_max( y_max )
     , d_z_max( z_max )
-    , d_byte_size( sizeof(EntityId) + sizeof(int) + 6*sizeof(double) )
 {
     d_centroid[0] = (d_x_max + d_x_min) / 2.0;
     d_centroid[1] = (d_y_max + d_y_min) / 2.0;
@@ -115,7 +113,6 @@ Box::Box( const EntityId global_id,
     , d_x_max( bounds[3] )
     , d_y_max( bounds[4] )
     , d_z_max( bounds[5] )
-    , d_byte_size( sizeof(EntityId) + sizeof(int) + 6*sizeof(double) )
 {
     d_centroid[0] = (d_x_max + d_x_min) / 2.0;
     d_centroid[1] = (d_y_max + d_y_min) / 2.0;
@@ -266,17 +263,10 @@ void Box::mapToPhysicalFrame(
 }
 
 //---------------------------------------------------------------------------//
-// Get the size of the serialized entity in bytes.
-std::size_t Box::byteSize() const
-{
-    return d_byte_size;
-}
-
-//---------------------------------------------------------------------------//
 // Serialize the entity into a buffer.
 void Box::serialize( const Teuchos::ArrayView<char>& buffer ) const
 {
-    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) == d_byte_size );
+    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) >= Box::byteSize() );
     DataSerializer serializer;
     serializer.setBuffer( buffer );
     serializer << d_global_id << d_owner_rank
@@ -289,7 +279,7 @@ void Box::serialize( const Teuchos::ArrayView<char>& buffer ) const
 void Box::deserialize( const Teuchos::ArrayView<const char>& buffer )
 {
     // Unpack the data.
-    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) == d_byte_size );
+    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) >= Box::byteSize() );
     DataDeserializer deserializer;
     Teuchos::ArrayView<char> buffer_nonconst(
 	const_cast<char*>(buffer.getRawPtr()), buffer.size() );
@@ -537,6 +527,20 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
      << ",d_z_max=" << bounds[5];
 
   return os;
+}
+
+//---------------------------------------------------------------------------//
+// Static members.
+//---------------------------------------------------------------------------//
+// Byte size of the object.
+std::size_t 
+Box::d_byte_size = sizeof(EntityId) + sizeof(int) + 6*sizeof(double);
+
+//---------------------------------------------------------------------------//
+// Get the byte size of the box.
+std::size_t Box::byteSize()
+{
+    return d_byte_size;
 }
 
 //---------------------------------------------------------------------------//

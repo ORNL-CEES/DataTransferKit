@@ -32,79 +32,49 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_AbstractBuildableObject_impl.hpp
+ * \brief DTK_DerivedObjectRegistry_impl.hpp
  * \author Stuart R. Slattery
- * \brief Abstract buildable object interface.
+ * \brief Derived class registration with base class.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ABSTRACTBUILDABLEOBJECT_IMPL_HPP
-#define DTK_ABSTRACTBUILDABLEOBJECT_IMPL_HPP
+#ifndef DTK_DERIVEDOBJECTREGISTRY_IMPL_HPP
+#define DTK_DERIVEDOBJECTREGISTRY_IMPL_HPP
 
-#include "DTK_DBC.hpp"
-
-#include <Teuchos_AbstractFactoryStd.hpp>
+#include <Teuchos_CompileTimeAssert.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Constructor.
-template<class Object>
-AbstractBuildableObject<Object>::AbstractBuildableObject()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-//brief Destructor.
-template<class Object>
-AbstractBuildableObject<Object>::~AbstractBuildableObject()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-// Static members.
-//---------------------------------------------------------------------------//
-// Add factories through the setDerivedClassFactory function.
-template<class Object>
-Teuchos::RCP<AbstractBuilder<Object> > 
-AbstractBuildableObject<Object>::b_builder = 
-    Teuchos::rcp( new AbstractBuilder<Object>() );
-
-//---------------------------------------------------------------------------//
-// Set an abstract builder for AbstractBuildableObject subclasses.
-template<class Object>
-void AbstractBuildableObject<Object>::setDerivedClassFactory(
-    const Teuchos::RCP<const Teuchos::AbstractFactory<Object> >& factory  )
-{ 
-    b_builder->setDerivedClassFactory(
-	factory, ABOP::objectType(factory->create()) );
-}
-
-//---------------------------------------------------------------------------//
-// Set an abstract builder for AbstractBuildableObject subclasses that can be
-// built with a Teuchos::AbstractFactoryStd.
-template<class Object>
-template<class DerivedObject>
-void AbstractBuildableObject<Object>::setDerivedClassFactory()
-{ 
-    Teuchos::RCP<const Teuchos::AbstractFactory<Object> > factory =
-	Teuchos::abstractFactoryStd<Object,DerivedObject>();
-    setDerivedClassFactory( factory );
-}
-
-//---------------------------------------------------------------------------//
-// Get an abstract builder for AbstractBuildableObject subclasses.
-template<class Object>
-Teuchos::RCP<AbstractBuilder<Object> > 
-AbstractBuildableObject<Object>::getBuilder()
-{ 
-    return b_builder; 
+template<class Base,
+	 class Derived1,class Derived2,class Derived3,
+	 class Derived4,class Derived5,class Derived6,
+	 class Derived7,class Derived8,class Derived9> 
+void
+DerivedObjectRegistry<Base,
+		      Derived1,Derived2,Derived3,
+		      Derived4,Derived5,Derived6,
+		      Derived7,Derived8,Derived9>::registerDerivedClasses()
+{
+    DerivedObjectRegistrationPolicy<Derived1>::registerDerivedClassWithBaseClass();
+    DerivedObjectRegistrationPolicy<Derived2>::registerDerivedClassWithBaseClass();
+    DerivedObjectRegistrationPolicy<Derived3>::registerDerivedClassWithBaseClass();
+    DerivedObjectRegistrationPolicy<Derived4>::registerDerivedClassWithBaseClass();
+    DerivedObjectRegistrationPolicy<Derived5>::registerDerivedClassWithBaseClass();
+    DerivedObjectRegistrationPolicy<Derived6>::registerDerivedClassWithBaseClass();
+    DerivedObjectRegistrationPolicy<Derived7>::registerDerivedClassWithBaseClass();
+    DerivedObjectRegistrationPolicy<Derived8>::registerDerivedClassWithBaseClass();
+    DerivedObjectRegistrationPolicy<Derived9>::registerDerivedClassWithBaseClass();
 }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_ABSTRACTBUILDABLEOBJECT_IMPL_HPP
+//---------------------------------------------------------------------------//
+
+#endif // end DTK_DERIVEDOBJECTREGISTRY_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_AbstractBuildableObject_impl.hpp
+// end DTK_DerivedObjectRegistry_impl.hpp
 //---------------------------------------------------------------------------//

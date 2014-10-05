@@ -32,137 +32,122 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_AbstractBuildableObject.hpp
+ * \brief DTK_DerivedObjectRegistry.hpp
  * \author Stuart R. Slattery
- * \brief Abstract buildable object interface.
+ * \brief Derived class registration with base class.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ABSTRACTBUILDABLEOBJECT_HPP
-#define DTK_ABSTRACTBUILDABLEOBJECT_HPP
-
-#include <string>
-
-#include "DTK_AbstractBuilder.hpp"
-#include "DTK_AbstractSerializableObject.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_AbstractFactory.hpp>
+#ifndef DTK_DERIVEDOBJECTREGISTRY_HPP
+#define DTK_DERIVEDOBJECTREGISTRY_HPP
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class UndefinedAbstractBuildableObjectPolicy
+  \class UndefinedDerivedObjectRegistrationPolicy
   \brief Complie time error indicator for policy implementations.
 */
 //---------------------------------------------------------------------------//
-template<typename T>
-struct UndefinedAbstractBuildableObjectPolicy 
+template<typename Derived>
+struct UndefinedDerivedObjectRegistrationPolicy 
 {
-    static inline T notDefined() 
+    static inline Derived notDefined() 
     {
-	return T::this_type_is_missing_a_specialization();
+	return Derived::this_type_is_missing_a_specialization();
     }
 };
 
 //---------------------------------------------------------------------------//
 /*!
-  \class AbstractBuildableObjectPolicy
+  \class DerivedObjectRegistrationPolicy
   \brief Policy definition for objects that can be built through an
   abstract builder.
 */
 //---------------------------------------------------------------------------//
-template<class T>
-class AbstractBuildableObjectPolicy
+template<class Derived>
+class DerivedObjectRegistrationPolicy
 {
   public:
 
     //! Base class type.
-    typedef T object_type;
+    typedef Derived object_type;
 
-    //@{
-    //! Identification functions.
     /*!
-     * \brief Return a string indicating the derived object type.
-     * \return A string indicating the type of derived object implementing the
-     * interface. This string will drive object construction with the builder.
+     * \brief Register a derived class with a base class.
      */
-    static std::string objectType( const Teuchos::RCP<T>& object )
+    static void registerDerivedClassWithBaseClass()
     {
-	UndefinedAbstractBuildableObjectPolicy<T>::notDefined();
-	return std::string("Not implemented");
-    }
-    //@}
-
-    //@{
-    //! Polymorphic construction functions.
-    /*!
-     * \brief Static function for getting the builder for the base class.
-     */
-    static Teuchos::RCP<AbstractBuilder<T> > getBuilder()
-    {
-	UndefinedAbstractBuildableObjectPolicy<T>::notDefined();
+	UndefinedDerivedObjectRegistrationPolicy<Derived>::notDefined();
 	return Teuchos::null;
     }
-    //@}
+};
+
+//---------------------------------------------------------------------------//
+// Specialization for void.
+template<>
+class DerivedObjectRegistrationPolicy<void>
+{
+  public:
+    typedef void object_type;
+    static void registerDerivedClassWithBaseClass()
+    { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//
 /*!
-  \class AbstractBuildableObject
-  \brief Interface definition for objects that can be built through an
-  abstract builder.
+  \class DerivedObjectRegistry
+  \brief Compile-time register from derived objects inheriting from a base
+  class.
 
-  This class provides the ability to attach a static builder to the derived
-  type. Users can then register factories for subclasses of the derived type
-  and access the builder when needed.
+  This class lets the user indicate which derived types will be used with a
+  given base class. Derived classes must be registered with base classes
+  inheriting from abstract compile time interfaces before use.
 */
 //---------------------------------------------------------------------------//
-template<class Object>
-class AbstractBuildableObject
+template<class Base, 
+	 class Derived1 = void, 
+	 class Derived2 = void, 
+	 class Derived3 = void,
+	 class Derived4 = void, 
+	 class Derived5 = void, 
+	 class Derived6 = void,
+	 class Derived7 = void, 
+	 class Derived8 = void, 
+	 class Derived9 = void>
+class DerivedObjectRegistry
 {
   public:
 
     //! Typedefs.
-    typedef Object object_type;
-    typedef AbstractBuildableObjectPolicy<Object> ABOP;
+    typedef Base     base_type;
+    typedef Derived1 derived_type_1;
+    typedef Derived1 derived_type_2;
+    typedef Derived1 derived_type_3;
+    typedef Derived1 derived_type_4;
+    typedef Derived1 derived_type_5;
+    typedef Derived1 derived_type_6;
+    typedef Derived1 derived_type_7;
+    typedef Derived1 derived_type_8;
+    typedef Derived1 derived_type_9;
 
     /*!
      * \brief Constructor.
      */
-    AbstractBuildableObject();
+    DerivedObjectRegistry()
+    { /* ... */ }
 
     /*!
      * \brief Destructor.
      */
-    virtual ~AbstractBuildableObject();
+    ~DerivedObjectRegistry()
+    { /* ... */ }
 
     /*!
-     * \brief Set an abstract factory for a AbstractBuildableObject subclass.
-     * \param factory A factory for a AbstractBuildableObject subclass.
+     * \brief Set an abstract factory for a DerivedObjectRegistry subclass.
+     * \param factory A factory for a DerivedObjectRegistry subclass.
      */
-    static void setDerivedClassFactory(
-	const Teuchos::RCP<const Teuchos::AbstractFactory<Object> >& factory );
-
-    /*!
-     * \brief Set an abstract factory for a AbstractBuildableObject subclass
-     * that can be built with a Teuchos::AbstractFactoryStd.
-     */
-    template<class DerivedObject>
-    static void setDerivedClassFactory();
-
-    /*!
-     * \brief Get the abstract builder for AbstractBuildableObject subclasses.
-     * \return The builder for AbstractBuildableObject subclasses.
-     */
-    static Teuchos::RCP<AbstractBuilder<Object> > getBuilder();
-    //@}
-
-  private:
-    
-    // Abstract builder for geometric entity subclasses.
-    static Teuchos::RCP<AbstractBuilder<Object> > b_builder;
+    static void registerDerivedClasses();
 };
 
 //---------------------------------------------------------------------------//
@@ -173,12 +158,12 @@ class AbstractBuildableObject
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_AbstractBuildableObject_impl.hpp"
+#include "DTK_DerivedObjectRegistry_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_ABSTRACTBUILDABLEOBJECT_HPP
+#endif // end DTK_DERIVEDOBJECTREGISTRY_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_AbstractBuildableObject.hpp
+// end DTK_DerivedObjectRegistry.hpp
 //---------------------------------------------------------------------------//

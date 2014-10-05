@@ -178,15 +178,6 @@ std::string GeometricEntity::objectType() const
 }
 
 //---------------------------------------------------------------------------//
-// Get the size of the serialized entity in bytes.
-std::size_t GeometricEntity::byteSize() const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return 0;
-}
-
-//---------------------------------------------------------------------------//
 // Serialize the entity into a buffer.
 void GeometricEntity::serialize( 
     const Teuchos::ArrayView<char>& buffer ) const

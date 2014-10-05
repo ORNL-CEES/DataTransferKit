@@ -32,11 +32,16 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Point.cpp
+ * \file DTK_Point_impl.hpp
  * \author Stuart R. Slattery
  * \brief Point definition
  */
 //---------------------------------------------------------------------------//
+
+#ifndef DTK_POINT_IMPL_HPP
+#define DTK_POINT_IMPL_HPP
+
+#include <limits>
 
 #include "DTK_Point.hpp"
 #include "DTK_DBC.hpp"
@@ -46,137 +51,126 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-Point::Point()
+template<int DIM>
+Point<DIM>::Point()
     : d_global_id( dtk_invalid_entity_id )
     , d_owner_rank( -1 )
     , d_coordinates( 0 )
-    , d_byte_size( 0 )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// 1D Coordinate constructor.
-Point::Point( const EntityId global_id, 
-	      const int owner_rank,
-	      const double x )
-    : d_global_id( global_id )
-    , d_owner_rank( owner_rank )
-    , d_coordinates( 1 )
-{
-    d_coordinates[0] = x;
-    d_byte_size = sizeof(EntityId) + sizeof(int) + 
-		  sizeof(std::size_t) + sizeof(double);
-}
-
-//---------------------------------------------------------------------------//
-// 2D Coordinate constructor.
-Point::Point( const EntityId global_id, 
-	      const int owner_rank, 
-	      const double x, 
-	      const double y )
-    : d_global_id( global_id )
-    , d_owner_rank( owner_rank )
-    , d_coordinates( 2 )
-{
-    d_coordinates[0] = x;
-    d_coordinates[1] = y;
-    d_byte_size = sizeof(EntityId) + sizeof(int) + 
-		  sizeof(std::size_t) + 2*sizeof(double);
-}
-
-//---------------------------------------------------------------------------//
-// 3D Coordinate constructor.
-Point::Point( const EntityId global_id, 
-	      const int owner_rank,
-	      const double x, 
-	      const double y, 
-	      const double z )
-    : d_global_id( global_id )
-    , d_owner_rank( owner_rank )
-    , d_coordinates( 3 )
-{
-    d_coordinates[0] = x;
-    d_coordinates[1] = y;
-    d_coordinates[2] = z;
-    d_byte_size = sizeof(EntityId) + sizeof(int) 
-		  + sizeof(std::size_t) + 3*sizeof(double);
-}
-
-//---------------------------------------------------------------------------//
 // Array constructor.
-Point::Point( const EntityId global_id, 
+template<int DIM>
+Point<DIM>::Point( const EntityId global_id, 
 	      const int owner_rank,
 	      const Teuchos::Array<double>& coordinates )
     : d_global_id( global_id )
     , d_owner_rank( owner_rank )
     , d_coordinates( coordinates )
 {
-    d_byte_size = sizeof(EntityId) + sizeof(int) + sizeof(std::size_t) +
-		  (coordinates.size())*sizeof(double);
+    DTK_REQUIRE( DIM == Teuchos::as<int>(d_coordinates.size()) );
 }
 
 //---------------------------------------------------------------------------//
 // Destructor.
-Point::~Point()
+template<int DIM>
+Point<DIM>::~Point()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Get the coordinates of the point.
-void Point::getCoordinates( Teuchos::ArrayView<const double>& coordinates ) const
+template<int DIM>
+void Point<DIM>::getCoordinates( 
+    Teuchos::ArrayView<const double>& coordinates ) const
 { 
     coordinates = d_coordinates(); 
 }
 //---------------------------------------------------------------------------//
 // Return a string indicating the derived entity type.
-std::string Point::entityType() const
+template<int DIM>
+std::string Point<DIM>::entityType() const
 {
     return std::string("DTK Point");
 }
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-EntityId Point::id() const
+template<int DIM>
+EntityId Point<DIM>::id() const
 {
     return d_global_id;
 }
     
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-int Point::ownerRank() const
+template<int DIM>
+int Point<DIM>::ownerRank() const
 {
     return d_owner_rank;
 }
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-int Point::physicalDimension() const
+template<int DIM>
+int Point<DIM>::physicalDimension() const
 {
-    return d_coordinates.size();
+    return DIM;
 }
 
 //---------------------------------------------------------------------------//
 // Return the parametric dimension of the entity.
-int Point::parametricDimension() const
+template<int DIM>
+int Point<DIM>::parametricDimension() const
 {
     return 0;
 }
 
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric
-double Point::measure() const
+template<int DIM>
+double Point<DIM>::measure() const
 {
     return 0.0;
 }
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void Point::centroid( Teuchos::ArrayView<const double>& centroid ) const
+template<int DIM>
+void Point<DIM>::centroid( Teuchos::ArrayView<const double>& centroid ) const
 {
     getCoordinates( centroid );
 }
 
 //---------------------------------------------------------------------------//
-// Return the axis-aligned bounding box around the entity.
-void Point::boundingBox( Box& bounding_box ) const
+// Return the axis-aligned bounding box around the entity. 1D specialization.
+template<>
+void Point<1>::boundingBox( Box& bounding_box ) const
+{
+    Teuchos::ArrayView<const double> coordinates;
+    getCoordinates( coordinates );
+    double max = std::numeric_limits<double>::max();
+    bounding_box = Box( dtk_invalid_entity_id, d_owner_rank,
+			coordinates[0], -max, -max,
+			coordinates[0], max, max );
+}
+
+//---------------------------------------------------------------------------//
+// Return the axis-aligned bounding box around the entity. 2D specialization.
+template<>
+void Point<2>::boundingBox( Box& bounding_box ) const
+{
+    Teuchos::ArrayView<const double> coordinates;
+    getCoordinates( coordinates );
+    double max = std::numeric_limits<double>::max();
+    bounding_box = Box( dtk_invalid_entity_id, d_owner_rank,
+			coordinates[0], coordinates[1], -max,
+			coordinates[0], coordinates[1], max );
+}
+
+//---------------------------------------------------------------------------//
+// Return the axis-aligned bounding box around the entity. 3D specialization.
+template<>
+void Point<3>::boundingBox( Box& bounding_box ) const
 {
     Teuchos::ArrayView<const double> coordinates;
     getCoordinates( coordinates );
@@ -187,7 +181,8 @@ void Point::boundingBox( Box& bounding_box ) const
 
 //---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference
-void Point::safeguardMapToReferenceFrame(
+template<int DIM>
+void Point<DIM>::safeguardMapToReferenceFrame(
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& point,
     MappingStatus& status ) const
@@ -198,7 +193,8 @@ void Point::safeguardMapToReferenceFrame(
 
 //---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the
-void Point::mapToReferenceFrame( 
+template<int DIM>
+void Point<DIM>::mapToReferenceFrame( 
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point,
@@ -210,7 +206,8 @@ void Point::mapToReferenceFrame(
 
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of
-bool Point::checkPointInclusion( 
+template<int DIM>
+bool Point<DIM>::checkPointInclusion( 
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
@@ -221,7 +218,8 @@ bool Point::checkPointInclusion(
 
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
-void Point::mapToPhysicalFrame( 
+template<int DIM>
+void Point<DIM>::mapToPhysicalFrame( 
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
@@ -230,26 +228,19 @@ void Point::mapToPhysicalFrame(
 }
      
 //---------------------------------------------------------------------------//
-// Get the size of the serialized entity in bytes.
-std::size_t Point::byteSize() const
-{
-    DTK_REQUIRE( d_byte_size > 0 );
-    return d_byte_size;
-}
-
-//---------------------------------------------------------------------------//
 // Serialize the entity into a buffer.
-void Point::serialize( const Teuchos::ArrayView<char>& buffer ) const
+template<int DIM>
+void Point<DIM>::serialize( const Teuchos::ArrayView<char>& buffer ) const
 {
-    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) == d_byte_size );
+    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) >= 
+		 Point<DIM>::byteSize() );
 
     Teuchos::ArrayView<const double> coordinates;
     getCoordinates( coordinates );
-    std::size_t dimension = coordinates.size();
 
     DataSerializer serializer;
     serializer.setBuffer( buffer );
-    serializer << d_global_id << d_owner_rank << dimension;
+    serializer << d_global_id << d_owner_rank;
 
     Teuchos::ArrayView<const double>::const_iterator coord_it;
     for ( coord_it = coordinates.begin(); 
@@ -262,24 +253,19 @@ void Point::serialize( const Teuchos::ArrayView<char>& buffer ) const
 
 //---------------------------------------------------------------------------//
 // Deserialize an entity from a buffer.
-void Point::deserialize( const Teuchos::ArrayView<const char>& buffer )
+template<int DIM>
+void Point<DIM>::deserialize( const Teuchos::ArrayView<const char>& buffer )
 {
     DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) >=
-		 sizeof(EntityId) + sizeof(int) + sizeof(std::size_t) );
+		 sizeof(EntityId) + sizeof(int) + DIM*sizeof(double) );
     Teuchos::ArrayView<char> buffer_nonconst(
 	const_cast<char*>(buffer.getRawPtr()), buffer.size() );
 
-    std::size_t dimension = 0;
-
     DataDeserializer deserializer;
     deserializer.setBuffer( buffer_nonconst );
-    deserializer >> d_global_id >> d_owner_rank >> dimension;
+    deserializer >> d_global_id >> d_owner_rank;
 
-    d_byte_size = sizeof(EntityId) + sizeof(int) + 
-		  sizeof(std::size_t) + dimension*sizeof(double);
-    DTK_CHECK( Teuchos::as<std::size_t>(buffer.size()) == d_byte_size );
-
-    d_coordinates.resize( dimension );
+    d_coordinates.resize( DIM );
     Teuchos::Array<double>::iterator coord_it;
     for ( coord_it = d_coordinates.begin(); 
 	  coord_it != d_coordinates.end();
@@ -295,7 +281,8 @@ void Point::deserialize( const Teuchos::ArrayView<const char>& buffer )
  *
  * \return The ostream.
  */
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p)
+template<int DIM>
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point<DIM>& p)
 {
     Teuchos::ArrayView<const double> coords;
     p.getCoordinates( coords );
@@ -307,10 +294,28 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p)
 }
 
 //---------------------------------------------------------------------------//
+// Static Members.
+//---------------------------------------------------------------------------//
+// Byte size of the object.
+template<int DIM>
+std::size_t 
+Point<DIM>::d_byte_size = sizeof(EntityId) + sizeof(int) + DIM*sizeof(double);
+
+//---------------------------------------------------------------------------//
+// Get the byte size of the box.
+template<int DIM>
+std::size_t Point<DIM>::byteSize()
+{
+    return d_byte_size;
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
+#endif // end DTK_POINT_IMPL_HPP
+
 //---------------------------------------------------------------------------//
-// end DTK_Point.cpp
+// end DTK_Point_impl.hpp
 //---------------------------------------------------------------------------//
 

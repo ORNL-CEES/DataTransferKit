@@ -44,6 +44,7 @@
 #include "DTK_GeometryTypes.hpp"
 #include "DTK_GeometricEntity.hpp"
 #include "DTK_Box.hpp"
+#include "DTK_DerivedObjectRegistry.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 
@@ -71,30 +72,13 @@ namespace DataTransferKit
  * directly subclass GeometricEntity for their particular point type.
  */
 //---------------------------------------------------------------------------//
+template<int DIM>
 class Point : public GeometricEntity
 {
   public:
 
     // Default constructor.
     Point();
-
-    // 1D Coordinate constructor.
-    Point( const EntityId global_id, 
-	   const int owner_rank,
-	   const double x );
-
-    // 2D Coordinate constructor.
-    Point( const EntityId global_id, 
-	   const int owner_rank, 
-	   const double x, 
-	   const double y );
-
-    // 3D Coordinate constructor.
-    Point( const EntityId global_id, 
-	   const int owner_rank,
-	   const double x, 
-	   const double y, 
-	   const double z );
 
     // Array constructor.
     Point( const EntityId global_id, 
@@ -160,15 +144,15 @@ class Point : public GeometricEntity
 	const Teuchos::ArrayView<const double>& reference_point,
 	const Teuchos::ArrayView<double>& point ) const;
      
-    // Get the size of the serialized entity in bytes.
-    std::size_t byteSize() const;
-
     // Serialize the entity into a buffer.
     void serialize( const Teuchos::ArrayView<char>& buffer ) const;
 
     // Deserialize an entity from a buffer.
     void deserialize( const Teuchos::ArrayView<const char>& buffer );
     //@}
+
+    // Get the byte size for the box.
+    static std::size_t byteSize();
 
   protected:
 
@@ -183,17 +167,52 @@ class Point : public GeometricEntity
     // Coordinates.
     Teuchos::Array<double> d_coordinates;
 
+  private:
+
     // Packed size in bytes.
-    std::size_t d_byte_size;
+    static std::size_t d_byte_size;
 };
 
 //---------------------------------------------------------------------------//
 //! overload for printing Point
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p); 
+template<int DIM>
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point<DIM>& p); 
+
+//---------------------------------------------------------------------------//
+// DerivedObjectRegistrationPolicy implementation.
+//---------------------------------------------------------------------------//
+template<int DIM>
+class DerivedObjectRegistrationPolicy<Point<DIM> >
+{
+  public:
+
+    //! Base class type.
+    typedef Point<DIM> object_type;
+
+    /*!
+     * \brief Register a derived class with a base class.
+     */
+    static void registerDerivedClassWithBaseClass()
+    {
+	// Register the constructor with the base class
+	// AbstractBuildableObject interface.
+	GeometricEntity::setDerivedClassFactory<Point<DIM> >();
+
+	// Register the byte size with the base class
+	// AbstractSerializableObject interface.
+	GeometricEntity::setDerivedClassByteSize( Point<DIM>::byteSize() );
+    }
+};
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_Point_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

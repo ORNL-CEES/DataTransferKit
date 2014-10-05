@@ -16,6 +16,7 @@
 #include <DTK_AbstractSerializableObject.hpp>
 #include <DTK_AbstractBuilder.hpp>
 #include <DTK_AbstractBuildableObject.hpp>
+#include <DTK_DerivedObjectRegistry.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -184,6 +185,26 @@ class DerivedSerializableObjectPolicy<MyNumberIsOne>
 	return MyNumberIsOne::byteSize();
     }
 };
+
+// DerivedObjectRegistrationPolicy
+template<>
+class DerivedObjectRegistrationPolicy<MyNumberIsOne>
+{
+  public:
+
+    //! Base class type.
+    typedef MyNumberIsOne object_type;
+
+    /*!
+     * \brief Register a derived class with a base class.
+     */
+    static void registerDerivedClassWithBaseClass()
+    {
+	BaseClass::setDerivedClassFactory<MyNumberIsOne>();
+	BaseClass::setDerivedClassByteSize<MyNumberIsOne>();
+    }
+};
+
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
@@ -229,6 +250,25 @@ class DerivedSerializableObjectPolicy<MyNumberIsTwo>
 	return MyNumberIsTwo::byteSize();
     }
 };
+
+// DerivedObjectRegistrationPolicy
+template<>
+class DerivedObjectRegistrationPolicy<MyNumberIsTwo>
+{
+  public:
+
+    //! Base class type.
+    typedef MyNumberIsTwo object_type;
+
+    /*!
+     * \brief Register a derived class with a base class.
+     */
+    static void registerDerivedClassWithBaseClass()
+    {
+	BaseClass::setDerivedClassFactory<MyNumberIsTwo>();
+	BaseClass::setDerivedClassByteSize<MyNumberIsTwo>();
+    }
+};
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
@@ -239,12 +279,7 @@ TEUCHOS_UNIT_TEST( AbstractSerializer, abstract_serializer )
     using namespace DataTransferKit;
 
     // Register derived classes.
-    BaseClass::setDerivedClassFactory<MyNumberIsOne>();
-    BaseClass::setDerivedClassFactory<MyNumberIsTwo>();
-
-    // Set the derived class byte sizes with the base class.
-    BaseClass::setDerivedClassByteSize<MyNumberIsOne>();
-    BaseClass::setDerivedClassByteSize<MyNumberIsTwo>();
+    DerivedObjectRegistry<BaseClass,MyNumberIsOne,MyNumberIsTwo>::registerDerivedClasses();
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm_default = 

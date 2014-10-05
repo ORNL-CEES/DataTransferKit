@@ -18,6 +18,7 @@
 #include <DTK_Point.hpp>
 #include <DTK_GeometricEntity.hpp>
 #include <DTK_Box.hpp>
+#include <DTK_DerivedObjectRegistry.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -62,15 +63,23 @@ TEUCHOS_UNIT_TEST( Point, set_test )
     double x_1 = 3.2 + comm_rank;
     double y_1 = -9.233 + comm_rank;
     double z_1 = 1.3 + comm_rank;
+    Teuchos::Array<double> p1(3);
+    p1[0] = x_1;
+    p1[1] = y_1;
+    p1[2] = z_1;
     Teuchos::RCP<GeometricEntity> point_1 = Teuchos::rcp(  
-	new Point(0, comm_rank, x_1, y_1, z_1) );
+	new Point<3>(0, comm_rank, p1) );
 
     // Make a second point.
     double x_2 = 3.2 - comm_rank;
     double y_2 = -9.233 - comm_rank;
     double z_2 = 1.3 - comm_rank;
+    Teuchos::Array<double> p2(3);
+    p2[0] = x_2;
+    p2[1] = y_2;
+    p2[2] = z_2;
     Teuchos::RCP<GeometricEntity> point_2 = Teuchos::rcp(  
-	new Point(1, comm_rank, x_2, y_2, z_2) );
+	new Point<3>(1, comm_rank, p2) );
 
     // Make an entity set.
     Teuchos::RCP<EntitySet> entity_set = Teuchos::rcp(
@@ -114,21 +123,21 @@ TEUCHOS_UNIT_TEST( Point, set_test )
     Box local_box;
     entity_set->localBoundingBox( local_box );
     Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
-    TEST_EQUALITY( local_bounds[0], 3.2 - comm_rank );
-    TEST_EQUALITY( local_bounds[1], -9.233 - comm_rank );
-    TEST_EQUALITY( local_bounds[2], 1.3 - comm_rank );
-    TEST_EQUALITY( local_bounds[3], 3.2 + comm_rank );
-    TEST_EQUALITY( local_bounds[4], -9.233 + comm_rank );
-    TEST_EQUALITY( local_bounds[5], 1.3 + comm_rank );
+    TEST_EQUALITY( local_bounds[0], x_2 );
+    TEST_EQUALITY( local_bounds[1], y_2 );
+    TEST_EQUALITY( local_bounds[2], z_2 );
+    TEST_EQUALITY( local_bounds[3], x_1 );
+    TEST_EQUALITY( local_bounds[4], y_1 );
+    TEST_EQUALITY( local_bounds[5], z_1 );
 
     Box global_box;
     entity_set->globalBoundingBox( global_box );
     Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
-    TEST_EQUALITY( global_bounds[0], 3.2 - comm_size + 1.0 );
-    TEST_EQUALITY( global_bounds[1], -9.233 - comm_size + 1.0 );
-    TEST_EQUALITY( global_bounds[2], 1.3 - comm_size + 1.0 );
-    TEST_EQUALITY( global_bounds[3], 3.2 + comm_size - 1.0 );
-    TEST_EQUALITY( global_bounds[4], -9.233 + comm_size - 1.0 );
+    TEST_FLOATING_EQUALITY( global_bounds[0], 3.2 - comm_size + 1.0, 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[1], -9.233 - comm_size + 1.0, 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[2], 1.3 - comm_size + 1.0, 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[3], 3.2 + comm_size - 1.0, 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[4], -9.233 + comm_size - 1.0, 1.0e-12 );
     TEST_FLOATING_EQUALITY( global_bounds[5], 1.3 + comm_size - 1.0, 1.0e-12 );
 }
 
@@ -137,15 +146,12 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
 {
     using namespace DataTransferKit;
 
-    // Register the point class with the geometric entity class so that we can
-    // send the point to a different rank and reconstruct it.
-    GeometricEntity::setDerivedClassFactory(
-	Teuchos::abstractFactoryStd<GeometricEntity,Point>() );
+    // Register the point class.
+    DerivedObjectRegistry<GeometricEntity,Point<3> >::registerDerivedClasses();
 
     // Register the BasicEntitySetImplementation with the entity set class so
     // that we can reconstruct it.
-    EntitySet::setDerivedClassFactory(
-	Teuchos::abstractFactoryStd<EntitySet,BasicEntitySetImplementation>() );
+    DerivedObjectRegistry<EntitySet,BasicEntitySetImplementation>::registerDerivedClasses();
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 
@@ -167,8 +173,16 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
     double z_2 = 1.3 - comm_size;
     if ( 0 == comm->getRank() )
     {
-	points[0] = Teuchos::rcp( new Point(0, 0, x_1, y_1, z_1) );
-	points[1] = Teuchos::rcp( new Point(1, 0, x_2, y_2, z_2) );
+	Teuchos::Array<double> p1(3);
+	p1[0] = x_1;
+	p1[1] = y_1;
+	p1[2] = z_1;
+	points[0] = Teuchos::rcp( new Point<3>(0, 0, p1) );
+	Teuchos::Array<double> p2(3);
+	p2[0] = x_2;
+	p2[1] = y_2;
+	p2[2] = z_2;
+	points[1] = Teuchos::rcp( new Point<3>(1, 0, p2) );
 
 	entity_set = Teuchos::rcp(new BasicEntitySetImplementation(comm,3) );
 	entity_set_key = builder->getIntegralKey( entity_set->entitySetType() );
@@ -178,11 +192,10 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
     Teuchos::broadcast( *comm, 0, Teuchos::Ptr<int>(&entity_set_key) );
     entity_set = builder->create( entity_set_key );
     entity_set->assignCommunicator( comm );
-    std::cout << "HERE " << comm->getRank() << std::endl;
+
     // Broadcast the points with indirect serialization through the geometric
     // entity api.
     Teuchos::broadcast( *comm, 0, points() );
-    std::cout << "HERE " << comm->getRank() << std::endl;
 
     // Add the points to the entity set.
     entity_set->addEntity( points[0] );
@@ -202,12 +215,12 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
     Box global_box;
     entity_set->globalBoundingBox( global_box );
     Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
-    TEST_EQUALITY( global_bounds[0], x_2 );
-    TEST_EQUALITY( global_bounds[1], y_2 );
-    TEST_EQUALITY( global_bounds[2], z_2 );
-    TEST_EQUALITY( global_bounds[3], x_1 );
-    TEST_EQUALITY( global_bounds[4], y_1 );
-    TEST_EQUALITY( global_bounds[5], z_2 );
+    TEST_FLOATING_EQUALITY( global_bounds[0], x_2, 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[1], y_2, 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[2], z_2, 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[3], x_1, 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[4], y_1, 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[5], z_1, 1.0e-12 );
 }
 
 //---------------------------------------------------------------------------//

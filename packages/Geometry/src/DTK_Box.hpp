@@ -42,6 +42,7 @@
 #define DTK_BOX_HPP
 
 #include "DTK_GeometricEntity.hpp"
+#include "DTK_DerivedObjectRegistry.hpp"
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_Array.hpp>
@@ -64,7 +65,6 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 class Box : public GeometricEntity
 {
-
   public:
 
     // Default constructor.
@@ -133,13 +133,10 @@ class Box : public GeometricEntity
 	const Teuchos::ArrayView<const double>& reference_point ) const;
 
     // Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
+    void mapToPhysicalFrame(
 	const Teuchos::ArrayView<const double>& reference_point,
 	const Teuchos::ArrayView<double>& point ) const;
      
-    // Get the size of the serialized entity in bytes.
-    std::size_t byteSize() const;
-
     // Serialize the entity into a buffer.
     void serialize( const Teuchos::ArrayView<char>& buffer ) const;
 
@@ -163,6 +160,9 @@ class Box : public GeometricEntity
 
     // Compound assignment overload.
     Box& operator+=(const Box& rhs);
+
+    // Get the byte size for the box.
+    static std::size_t byteSize();
 
   private:
 
@@ -190,11 +190,13 @@ class Box : public GeometricEntity
     // Z max.
     double d_z_max;
 
-    // Packed size in bytes.
-    std::size_t d_byte_size;
-
     // Centroid coordinates.
     double d_centroid[3];
+
+  private:
+
+    // Packed size in bytes.
+    static std::size_t d_byte_size;
 };
 
 //---------------------------------------------------------------------------//
@@ -205,6 +207,32 @@ Box operator+( const Box& box_1, const Box& box_2 );
 //---------------------------------------------------------------------------//
 //! overload for printing box
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
+
+//---------------------------------------------------------------------------//
+// DerivedObjectRegistrationPolicy implementation.
+//---------------------------------------------------------------------------//
+template<>
+class DerivedObjectRegistrationPolicy<Box>
+{
+  public:
+
+    //! Base class type.
+    typedef Box object_type;
+
+    /*!
+     * \brief Register a derived class with a base class.
+     */
+    static void registerDerivedClassWithBaseClass()
+    {
+	// Register the constructor with the base class
+	// AbstractBuildableObject interface.
+	GeometricEntity::setDerivedClassFactory<Box>();
+
+	// Register the byte size with the base class
+	// AbstractSerializableObject interface.
+	GeometricEntity::setDerivedClassByteSize( Box::byteSize() );
+    }
+};
 
 //---------------------------------------------------------------------------//
 

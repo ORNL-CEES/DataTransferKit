@@ -47,7 +47,7 @@
 #include "DTK_MappingStatus.hpp"
 #include "DTK_AbstractBuilder.hpp"
 #include "DTK_AbstractBuildableObject.hpp"
-#include "DTK_AbstractSerializableObjectPolicy.hpp"
+#include "DTK_AbstractSerializableObject.hpp"
 #include "DTK_AbstractSerializer.hpp"
 
 #include <Teuchos_ArrayView.hpp>
@@ -83,6 +83,7 @@ class Box;
 */
 //---------------------------------------------------------------------------//
 class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
+		      , public AbstractSerializableObject<GeometricEntity>
 {
   public:
 
@@ -227,12 +228,6 @@ class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
     //@{
     //! AbstractSerializableObjectPolicy interface.
     /*
-     * \brief Get the size of the serialized entity in bytes.
-     * \return The size of the entity when serialized in bytes.
-     */
-    virtual std::size_t byteSize() const;
-
-    /*
      * \brief Serialize the entity into a buffer.
      * \param buffer A view into a data buffer of size byteSize(). Write the
      * serialized entity into this view.
@@ -280,9 +275,9 @@ class AbstractSerializableObjectPolicy<GeometricEntity>
 
     typedef GeometricEntity object_type;
 
-    static std::size_t byteSize( const Teuchos::RCP<GeometricEntity>& entity )
+    static std::size_t maxByteSize()
     {
-	return entity->byteSize();
+	return GeometricEntity::maxByteSize();
     }
 
     static void serialize( const Teuchos::RCP<GeometricEntity>& entity,

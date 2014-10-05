@@ -46,6 +46,7 @@
 #include "DTK_EntitySet.hpp"
 #include "DTK_GeometricEntity.hpp"
 #include "DTK_Box.hpp"
+#include "DTK_DerivedObjectRegistry.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -208,7 +209,29 @@ class BasicEntitySetImplementation : public EntitySet
 
     // Entity-to-id map.
     std::unordered_map<EntityId,Teuchos::RCP<GeometricEntity> > d_entities;
- };
+};
+
+//---------------------------------------------------------------------------//
+// DerivedObjectRegistrationPolicy implementation.
+//---------------------------------------------------------------------------//
+template<>
+class DerivedObjectRegistrationPolicy<BasicEntitySetImplementation>
+{
+  public:
+
+    //! Base class type.
+    typedef BasicEntitySetImplementation object_type;
+
+    /*!
+     * \brief Register a derived class with a base class.
+     */
+    static void registerDerivedClassWithBaseClass()
+    {
+	// Register the constructor with the base class
+	// AbstractBuildableObject interface.
+	EntitySet::setDerivedClassFactory<object_type>();
+    }
+};
 
 //---------------------------------------------------------------------------//
 

@@ -34,6 +34,8 @@ APPEND_SET(HEADERS
   DTK_CommTools.hpp
   DTK_DataSerializer.hpp
   DTK_DBC.hpp
+  DTK_DerivedObjectRegistry.hpp
+  DTK_DerivedObjectRegistry_impl.hpp
   DTK_SearchTreeFactory.hpp
   DTK_StaticSearchTree.hpp
   DTK_StaticSearchTree_impl.hpp

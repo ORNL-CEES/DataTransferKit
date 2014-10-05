@@ -204,11 +204,18 @@ class AbstractSerializableObject
     static std::size_t maxByteSize();
 
     /*
-     * \brief Set the byte size of a derived class with the base class.
+     * \brief Set the byte size of a derived class with the base class for a
+     * derived class implementing the DerivedSerializableObjectPolicy.
      * \param byte_size The byte size of the derived class.
      */
     template<class DerivedObject>
     static void setDerivedClassByteSize();
+
+    /*
+     * \brief Set the byte size of a derived class with the base class.
+     * \param byte_size The byte size of the derived class.
+     */
+    static void setDerivedClassByteSize( const std::size_t bytes );
 
   private:
 
