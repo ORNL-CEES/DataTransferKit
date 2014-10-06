@@ -41,6 +41,8 @@
 #ifndef DTK_DERIVEDOBJECTREGISTRY_HPP
 #define DTK_DERIVEDOBJECTREGISTRY_HPP
 
+#include <Teuchos_RCP.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -97,7 +99,7 @@ class DerivedObjectRegistrationPolicy<void>
 //---------------------------------------------------------------------------//
 /*!
   \class DerivedObjectRegistry
-  \brief Compile-time register from derived objects inheriting from a base
+  \brief Compile-time registy from derived objects inheriting from a base
   class.
 
   This class lets the user indicate which derived types will be used with a

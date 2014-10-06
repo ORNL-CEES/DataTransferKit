@@ -34,7 +34,7 @@
 /*!
   * \file DTK_Box.cpp
   * \author Stuart R. Slattery
-  * \brief Bounding box definition.
+  * \brief Box definition.
   */
 //---------------------------------------------------------------------------//
 
@@ -49,18 +49,9 @@ namespace DataTransferKit
  * \brief Default constructor.
  */
 Box::Box()
-    : d_global_id( dtk_invalid_entity_id )
-    , d_owner_rank( -1 )
-    , d_x_min( 0.0 )
-    , d_y_min( 0.0 )
-    , d_z_min( 0.0 )
-    , d_x_max( 0.0 )
-    , d_y_max( 0.0 )
-    , d_z_max( 0.0 )
 { 
-    d_centroid[0] = 0.0;
-    d_centroid[1] = 0.0;
-    d_centroid[2] = 0.0;
+    d_box_impl = Teuchos::rcp( new BoxImpl() );
+    this->b_entity_impl = d_box_impl;
 }
 
 //---------------------------------------------------------------------------//
@@ -82,18 +73,11 @@ Box::Box()
 Box::Box( const EntityId global_id, const int owner_rank,
 	  const double x_min, const double y_min, const double z_min,
 	  const double x_max, const double y_max, const double z_max )
-    : d_global_id( global_id )
-    , d_owner_rank( owner_rank )
-    , d_x_min( x_min )
-    , d_y_min( y_min )
-    , d_z_min( z_min )
-    , d_x_max( x_max )
-    , d_y_max( y_max )
-    , d_z_max( z_max )
 {
-    d_centroid[0] = (d_x_max + d_x_min) / 2.0;
-    d_centroid[1] = (d_y_max + d_y_min) / 2.0;
-    d_centroid[2] = (d_z_max + d_z_min) / 2.0;
+    d_box_impl = Teuchos::rcp( new BoxImpl(global_id, owner_rank,
+					   x_min, y_min, z_min,
+					   x_max, y_max, z_max) );
+    this->b_entity_impl = d_box_impl;
 }
 
 //---------------------------------------------------------------------------//
@@ -105,18 +89,9 @@ Box::Box( const EntityId global_id, const int owner_rank,
 Box::Box( const EntityId global_id,
 	  const int owner_rank, 
 	  const Teuchos::Tuple<double,6>& bounds )
-    : d_global_id( global_id )
-    , d_owner_rank( owner_rank )
-    , d_x_min( bounds[0] )
-    , d_y_min( bounds[1] )
-    , d_z_min( bounds[2] )
-    , d_x_max( bounds[3] )
-    , d_y_max( bounds[4] )
-    , d_z_max( bounds[5] )
 {
-    d_centroid[0] = (d_x_max + d_x_min) / 2.0;
-    d_centroid[1] = (d_y_max + d_y_min) / 2.0;
-    d_centroid[2] = (d_z_max + d_z_min) / 2.0;
+    d_box_impl = Teuchos::rcp( new BoxImpl(global_id, owner_rank, bounds) );
+    this->b_entity_impl = d_box_impl;
 }
 
 //---------------------------------------------------------------------------//
@@ -125,174 +100,6 @@ Box::Box( const EntityId global_id,
  */
 Box::~Box()
 { /* ... */ }
-
-//---------------------------------------------------------------------------//
-// Return a string indicating the derived entity type.
-std::string Box::entityType() const
-{
-    return std::string("DTK Box");
-}
-
-//---------------------------------------------------------------------------//
-// Get the unique global identifier for the entity.
-EntityId Box::id() const
-{
-    return d_global_id;
-}
-    
-//---------------------------------------------------------------------------//
-// Get the parallel rank that owns the entity.
-int Box::ownerRank() const
-{
-    return d_owner_rank;
-}
-
-//---------------------------------------------------------------------------//
-// Return the physical dimension of the entity.
-int Box::physicalDimension() const
-{
-    return 3;
-}
-
-//---------------------------------------------------------------------------//
-// Return the parametric dimension of the entity.
-int Box::parametricDimension() const
-{
-    return 3;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Compute the volume of the box.
- *
- * \return Return the volume of the box.
- */
-double Box::measure() const
-{
-    return (d_x_max-d_x_min)*(d_y_max-d_y_min)*(d_z_max-d_z_min);
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the centroid of the box.
- *
- * \return The centroid coordinates.
- */
-void Box::centroid( Teuchos::ArrayView<const double>& centroid ) const
-{
-    centroid = Teuchos::ArrayView<const double>(d_centroid,3);
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Compute the bounding box around the box.
- *
- * \return The bounding box around the box.
- */
-void Box::boundingBox( Box& bounding_box ) const
-{
-    bounding_box = *this;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Map a point to the reference space of an entity. Return the
- * parameterized point.
- */
-void Box::safeguardMapToReferenceFrame(
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& point,
-	MappingStatus& status ) const
-{
-    status.mappingSucceeded();
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Map a point to the reference space of an entity. Return the
- */
-void Box::mapToReferenceFrame( 
-    const Teuchos::ParameterList& parameters,
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point,
-    MappingStatus& status ) const
-{
-    reference_point.assign( point );
-    status.mappingSucceeded();
-}
-
-//---------------------------------------------------------------------------//
-/*!  
- * \brief Determine if a reference point is in the parameterized space of
- * an entity.
- */
-bool Box::checkPointInclusion( 
-    const Teuchos::ParameterList& parameters,
-    const Teuchos::ArrayView<const double>& reference_point ) const
-{
-    DTK_REQUIRE( 3 == reference_point.size() );
-
-    double tolerance = parameters.get<double>("Inclusion Tolerance");
-
-    double x_tol = (d_x_max - d_x_min)*tolerance;
-    double y_tol = (d_y_max - d_y_min)*tolerance;
-    double z_tol = (d_z_max - d_z_min)*tolerance;
-
-    if ( reference_point[0] >= d_x_min - x_tol &&
-	 reference_point[1] >= d_y_min - y_tol &&
-	 reference_point[2] >= d_z_min - z_tol &&
-	 reference_point[0] <= d_x_max + x_tol &&
-	 reference_point[1] <= d_y_max + y_tol &&
-	 reference_point[2] <= d_z_max + z_tol )
-    {
-	return true;
-    }
-
-    return false;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Map a reference point to the physical space of an entity.
- */
-void Box::mapToPhysicalFrame( 
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& point ) const
-{
-    point.assign( reference_point );
-}
-
-//---------------------------------------------------------------------------//
-// Serialize the entity into a buffer.
-void Box::serialize( const Teuchos::ArrayView<char>& buffer ) const
-{
-    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) >= Box::byteSize() );
-    DataSerializer serializer;
-    serializer.setBuffer( buffer );
-    serializer << d_global_id << d_owner_rank
-	       << d_x_min << d_y_min << d_z_min
-	       << d_x_max << d_y_max << d_z_max;
-}
-
-//---------------------------------------------------------------------------//
-// Deserialize an entity from a buffer.
-void Box::deserialize( const Teuchos::ArrayView<const char>& buffer )
-{
-    // Unpack the data.
-    DTK_REQUIRE( Teuchos::as<std::size_t>(buffer.size()) >= Box::byteSize() );
-    DataDeserializer deserializer;
-    Teuchos::ArrayView<char> buffer_nonconst(
-	const_cast<char*>(buffer.getRawPtr()), buffer.size() );
-    deserializer.setBuffer( buffer_nonconst );
-    deserializer >> d_global_id >> d_owner_rank
-		 >> d_x_min >> d_y_min >> d_z_min
-		 >> d_x_max >> d_y_max >> d_z_max;
-
-    // Build the centroid.
-    d_centroid[0] = (d_x_max + d_x_min) / 2.0;
-    d_centroid[1] = (d_y_max + d_y_min) / 2.0;
-    d_centroid[2] = (d_z_max + d_z_min) / 2.0;
-}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -532,15 +339,10 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
 //---------------------------------------------------------------------------//
 // Static members.
 //---------------------------------------------------------------------------//
-// Byte size of the object.
-std::size_t 
-Box::d_byte_size = sizeof(EntityId) + sizeof(int) + 6*sizeof(double);
-
-//---------------------------------------------------------------------------//
 // Get the byte size of the box.
 std::size_t Box::byteSize()
 {
-    return d_byte_size;
+    return BoxImpl::byteSize();
 }
 
 //---------------------------------------------------------------------------//

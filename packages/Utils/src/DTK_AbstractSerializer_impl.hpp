@@ -46,6 +46,7 @@
 #include "DTK_DBC.hpp"
 #include "DTK_AbstractBuilder.hpp"
 #include <Teuchos_DefaultComm.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -62,7 +63,7 @@ const bool AbstractSerializer<Ordinal,T>::supportsDirectSerialization = false;
 // Return the number of bytes for count objects.
 template<class Ordinal, class T>
 Ordinal AbstractSerializer<Ordinal,T>::fromCountToIndirectBytes( 
-    const Ordinal count, const Packet buffer[])
+    const Ordinal count, const T buffer[])
 {
     return count * ( sizeof(int) + ASOP::maxByteSize() );
 }
@@ -71,7 +72,7 @@ Ordinal AbstractSerializer<Ordinal,T>::fromCountToIndirectBytes(
 // Serialize to an indirect char buffer.
 template<class Ordinal, class T>
 void AbstractSerializer<Ordinal,T>::serialize( const Ordinal count, 
-					       const Packet buffer[], 
+					       const T buffer[], 
 					       const Ordinal bytes, 
 					       char charBuffer[] )
 {
@@ -91,8 +92,8 @@ void AbstractSerializer<Ordinal,T>::serialize( const Ordinal count,
 	// Fill the buffer with zeros to start.
 	std::fill( buffer_view.begin(), buffer_view.end(), '0' );
 
-	// Serialize nonnull objects.
-	if ( Teuchos::nonnull(buffer[i]) )
+	// Only serialize objects that have an underlying implementation.
+	if ( ASOP::objectHasImplementation(buffer[i]) )
 	{
 	    // Serialize the integral key of the object.
 	    integral_key = builder->getIntegralKey( ABOP::objectType(buffer[i]) );
@@ -124,7 +125,7 @@ template<class Ordinal, class T>
 void AbstractSerializer<Ordinal,T>::deserialize( const Ordinal bytes, 
 						 const char charBuffer[], 
 						 const Ordinal count, 
-						 Packet buffer[] )
+						 T buffer[] )
 {
     // Get the builder for the objects.
     Teuchos::RCP<AbstractBuilder<T> > builder = ABOP::getBuilder();
@@ -140,7 +141,8 @@ void AbstractSerializer<Ordinal,T>::deserialize( const Ordinal bytes,
 	buffer_pos += sizeof(int);
 
 	// Create an object of the correct derived class.
-	buffer[i] = builder->create( integral_key );
+	buffer[i] = *( builder->create(integral_key) );
+	DTK_CHECK( ASOP::objectHasImplementation(buffer[i]) );
 
 	// Deserialize the object.
 	Teuchos::ArrayView<char> buffer_view( buffer_pos, ASOP::maxByteSize() );

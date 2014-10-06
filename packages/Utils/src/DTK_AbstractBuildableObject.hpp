@@ -88,7 +88,7 @@ class AbstractBuildableObjectPolicy
      * \return A string indicating the type of derived object implementing the
      * interface. This string will drive object construction with the builder.
      */
-    static std::string objectType( const Teuchos::RCP<T>& object )
+    static std::string objectType( const T& object )
     {
 	UndefinedAbstractBuildableObjectPolicy<T>::notDefined();
 	return std::string("Not implemented");

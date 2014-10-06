@@ -131,6 +131,20 @@ class AbstractSerializableObjectPolicy
     typedef T object_type;
 
     //@{
+    //! Implementation check functions.
+    /*! Check that there is an underlying and non-null implementation. If
+     *  there is, then this object can be serialized.
+     * \param object Check that the implementation under this object is
+     *  nonnull.
+     */
+    static bool objectHasImplementation( const T& object )
+    {
+	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
+	return 0;
+    }
+    //@}
+
+    //@{
     //! Serialization functions.
     /*!
      * \brief Get the maximum byte size of subclasses of the given base
@@ -145,26 +159,27 @@ class AbstractSerializableObjectPolicy
 
     /*
      * \brief Serialize the subclass into a buffer.
+     * \param object Serialize this object into the buffer.
      * \param buffer A view into a data buffer of size byteSize(). Write the
      * serialized subclass into this view.
      */
-    static void serialize( const Teuchos::RCP<T>& object,
+    static void serialize( const T& object,
 			   const Teuchos::ArrayView<char>& buffer )
     {
 	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
     }
 
     /*!
-     * \brief Deserialize an subclass from a buffer.
+     * \brief Deserialize a subclass from a buffer.
+     * \param object Deserialze the buffer to construct this object.
      * \param buffer A view into a data buffer of size byteSize(). Deserialize
      * the object from this view.
      */
-    static void deserialize( const Teuchos::RCP<T>& object,
+    static void deserialize( T& object,
 			     const Teuchos::ArrayView<const char>& buffer )
     {
 	UndefinedAbstractSerializableObjectPolicy<T>::notDefined();
     }
-
     //@}
 };
 

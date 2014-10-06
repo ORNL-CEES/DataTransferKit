@@ -32,79 +32,78 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_AbstractBuildableObject_impl.hpp
+ * \brief DTK_EntitySetIterator.cpp
  * \author Stuart R. Slattery
- * \brief Abstract buildable object interface.
+ * \brief Geometric entity set interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ABSTRACTBUILDABLEOBJECT_IMPL_HPP
-#define DTK_ABSTRACTBUILDABLEOBJECT_IMPL_HPP
-
+#include "DTK_EntitySetIterator.hpp"
 #include "DTK_DBC.hpp"
-
-#include <Teuchos_AbstractFactoryStd.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-template<class Object>
-AbstractBuildableObject<Object>::AbstractBuildableObject()
+EntitySetIterator::EntitySetIterator()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-//brief Destructor.
-template<class Object>
-AbstractBuildableObject<Object>::~AbstractBuildableObject()
+EntitySetIterator::~EntitySetIterator()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Static members.
-//---------------------------------------------------------------------------//
-// Add factories through the setDerivedClassFactory function.
-template<class Object>
-Teuchos::RCP<AbstractBuilder<Object> > 
-AbstractBuildableObject<Object>::b_builder = 
-    Teuchos::rcp( new AbstractBuilder<Object>() );
-
-//---------------------------------------------------------------------------//
-// Set an abstract builder for AbstractBuildableObject subclasses.
-template<class Object>
-void AbstractBuildableObject<Object>::setDerivedClassFactory(
-    const Teuchos::RCP<const Teuchos::AbstractFactory<Object> >& factory  )
-{ 
-    b_builder->setDerivedClassFactory(
-	factory, ABOP::objectType( *(factory->create()) ) );
+// Pre-increment operator.
+EntitySetIterator& EntitySetIterator::operator++()
+{
+    DTK_REQUIRE( Teuchos::nonnull(b_iterator_impl) );
+    return b_iterator_impl->operator++();
 }
 
 //---------------------------------------------------------------------------//
-// Set an abstract builder for AbstractBuildableObject subclasses that can be
-// built with a Teuchos::AbstractFactoryStd.
-template<class Object>
-template<class DerivedObject>
-void AbstractBuildableObject<Object>::setDerivedClassFactory()
-{ 
-    Teuchos::RCP<const Teuchos::AbstractFactory<Object> > factory =
-	Teuchos::abstractFactoryStd<Object,DerivedObject>();
-    setDerivedClassFactory( factory );
+// Post-increment operator.
+EntitySetIterator EntitySetIterator::operator++(int n)
+{
+    DTK_REQUIRE( Teuchos::nonnull(b_iterator_impl) );
+    return b_iterator_impl->operator++(n);
 }
 
 //---------------------------------------------------------------------------//
-// Get an abstract builder for AbstractBuildableObject subclasses.
-template<class Object>
-Teuchos::RCP<AbstractBuilder<Object> > 
-AbstractBuildableObject<Object>::getBuilder()
-{ 
-    return b_builder; 
+// Dereference operator.
+GeometricEntity& EntitySetIterator::operator*(void)
+{
+    DTK_REQUIRE( Teuchos::nonnull(b_iterator_impl) );
+    return b_iterator_impl->operator*();
+}
+
+//---------------------------------------------------------------------------//
+// Dereference operator.
+GeometricEntity* EntitySetIterator::operator->(void)
+{
+    DTK_REQUIRE( Teuchos::nonnull(b_iterator_impl) );
+    return b_iterator_impl->operator->();
+}
+
+//---------------------------------------------------------------------------//
+// Equal comparison operator.
+bool EntitySetIterator::operator==( const EntitySetIterator& rhs ) const
+{
+    DTK_REQUIRE( Teuchos::nonnull(b_iterator_impl) );
+    return b_iterator_impl->operator==( rhs );
+}
+
+//---------------------------------------------------------------------------//
+// Not equal comparison operator.
+bool EntitySetIterator::operator!=( const EntitySetIterator& rhs ) const
+{
+    DTK_REQUIRE( Teuchos::nonnull(b_iterator_impl) );
+    return b_iterator_impl->operator!=( rhs );
 }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_ABSTRACTBUILDABLEOBJECT_IMPL_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_AbstractBuildableObject_impl.hpp
+// end DTK_EntitySetIterator.cpp
 //---------------------------------------------------------------------------//

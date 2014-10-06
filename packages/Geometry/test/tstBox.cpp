@@ -765,43 +765,41 @@ TEUCHOS_UNIT_TEST( Box, communication_test )
     double z_max = 8.7;
 
     Box box;
-    Teuchos::RCP<GeometricEntity> entity;
+    GeometricEntity entity;
     if ( 0 == comm_rank )
     {
 	box = Box(  0, 0, x_min, y_min, z_min, x_max, y_max, z_max );
-	entity = 
-	    Teuchos::rcp( new Box(0, 0, x_min, y_min, z_min, x_max, y_max, z_max) );
+	entity = Box(0, 0, x_min, y_min, z_min, x_max, y_max, z_max);
     }
 
-    // Broadcast the box with direct serialization.
+    // Directly serialize the subclass.
     Teuchos::broadcast( *comm_default, 0, Teuchos::Ptr<Box>(&box) );
 
     // Broadcast the box with indirect serialization through the geometric
     // entity api.
-    Teuchos::broadcast( *comm_default, 0, 
-			Teuchos::Ptr<Teuchos::RCP<GeometricEntity> >(&entity) );
+    Teuchos::broadcast( *comm_default, 0, Teuchos::Ptr<GeometricEntity>(&entity) );
 
     // Check the bounds.
     Teuchos::Tuple<double,6> box_bounds = box.getBounds();
-    TEST_ASSERT( box_bounds[0] == x_min );
-    TEST_ASSERT( box_bounds[1] == y_min );
-    TEST_ASSERT( box_bounds[2] == z_min );
-    TEST_ASSERT( box_bounds[3] == x_max );
-    TEST_ASSERT( box_bounds[4] == y_max );
-    TEST_ASSERT( box_bounds[5] == z_max );
+    TEST_EQUALITY( box_bounds[0], x_min );
+    TEST_EQUALITY( box_bounds[1], y_min );
+    TEST_EQUALITY( box_bounds[2], z_min );
+    TEST_EQUALITY( box_bounds[3], x_max );
+    TEST_EQUALITY( box_bounds[4], y_max );
+    TEST_EQUALITY( box_bounds[5], z_max );
 
-    Teuchos::Tuple<double,6> entity_bounds = 
-	Teuchos::rcp_dynamic_cast<Box>(entity)->getBounds();
-    TEST_ASSERT( entity_bounds[0] == x_min );
-    TEST_ASSERT( entity_bounds[1] == y_min );
-    TEST_ASSERT( entity_bounds[2] == z_min );
-    TEST_ASSERT( entity_bounds[3] == x_max );
-    TEST_ASSERT( entity_bounds[4] == y_max );
-    TEST_ASSERT( entity_bounds[5] == z_max );
+    Teuchos::Tuple<double,6> entity_bounds;
+    entity.boundingBox( entity_bounds );
+    TEST_EQUALITY( entity_bounds[0], x_min );
+    TEST_EQUALITY( entity_bounds[1], y_min );
+    TEST_EQUALITY( entity_bounds[2], z_min );
+    TEST_EQUALITY( entity_bounds[3], x_max );
+    TEST_EQUALITY( entity_bounds[4], y_max );
+    TEST_EQUALITY( entity_bounds[5], z_max );
 
     // Compute the measure.
     TEST_FLOATING_EQUALITY( box.measure(), 77.5986, 1.0e-4 );
-    TEST_FLOATING_EQUALITY( entity->measure(), 77.5986, 1.0e-4 );
+    TEST_FLOATING_EQUALITY( entity.measure(), 77.5986, 1.0e-4 );
 
     // Test some random points inside of the box.
     Teuchos::Array<double> point(3);
@@ -846,13 +844,13 @@ TEUCHOS_UNIT_TEST( Box, communication_test )
 	point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
 	point[2] = 9.0 * (double) std::rand() / RAND_MAX;
 
-	entity->safeguardMapToReferenceFrame( plist, point(), status );
+	entity.safeguardMapToReferenceFrame( plist, point(), status );
 	TEST_ASSERT( status.success() );
 
-	entity->mapToReferenceFrame( plist, point, ref_point(), status );
+	entity.mapToReferenceFrame( plist, point, ref_point(), status );
 	TEST_ASSERT( status.success() );
 
-	point_inclusion = entity->checkPointInclusion(plist,ref_point());
+	point_inclusion = entity.checkPointInclusion(plist,ref_point());
 
 	if ( entity_bounds[0] <= ref_point[0] &&
 	     entity_bounds[1] <= ref_point[1] &&

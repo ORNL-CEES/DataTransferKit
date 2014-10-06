@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstBasicEntitySetImplementation.cpp
+ * \file tstBasicEntitySet.cpp
  * \author Stuart R. Slattery
- * \brief BasicEntitySetImplementation unit tests.
+ * \brief BasicEntitySet unit tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_BasicEntitySetImplementation.hpp>
+#include <DTK_BasicEntitySet.hpp>
 #include <DTK_Point.hpp>
 #include <DTK_GeometricEntity.hpp>
 #include <DTK_Box.hpp>
@@ -67,8 +67,7 @@ TEUCHOS_UNIT_TEST( Point, set_test )
     p1[0] = x_1;
     p1[1] = y_1;
     p1[2] = z_1;
-    Teuchos::RCP<GeometricEntity> point_1 = Teuchos::rcp(  
-	new Point<3>(0, comm_rank, p1) );
+    GeometricEntity point_1 = Point<3>(0, comm_rank, p1);
 
     // Make a second point.
     double x_2 = 3.2 - comm_rank;
@@ -78,12 +77,11 @@ TEUCHOS_UNIT_TEST( Point, set_test )
     p2[0] = x_2;
     p2[1] = y_2;
     p2[2] = z_2;
-    Teuchos::RCP<GeometricEntity> point_2 = Teuchos::rcp(  
-	new Point<3>(1, comm_rank, p2) );
+    GeometricEntity point_2 = Point<3>(1, comm_rank, p2);
 
     // Make an entity set.
     Teuchos::RCP<EntitySet> entity_set = Teuchos::rcp(
-	new BasicEntitySetImplementation(comm, 3) );
+	new BasicEntitySet(comm, 3) );
 
     // Add the points to the set.
     entity_set->addEntity( point_1 );
@@ -113,16 +111,15 @@ TEUCHOS_UNIT_TEST( Point, set_test )
     {
 	TEST_ASSERT( false );
     }
-    Teuchos::RCP<GeometricEntity> entity;
+    GeometricEntity entity;
     entity_set->getEntity( 0, entity );
-    TEST_EQUALITY( 0, entity->id() );
+    TEST_EQUALITY( 0, entity.id() );
     entity_set->getEntity( 1, entity );
-    TEST_EQUALITY( 1, entity->id() );
+    TEST_EQUALITY( 1, entity.id() );
 
     // Check the bounding boxes.
-    Box local_box;
-    entity_set->localBoundingBox( local_box );
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double,6> local_bounds;
+    entity_set->localBoundingBox( local_bounds );
     TEST_EQUALITY( local_bounds[0], x_2 );
     TEST_EQUALITY( local_bounds[1], y_2 );
     TEST_EQUALITY( local_bounds[2], z_2 );
@@ -130,9 +127,8 @@ TEUCHOS_UNIT_TEST( Point, set_test )
     TEST_EQUALITY( local_bounds[4], y_1 );
     TEST_EQUALITY( local_bounds[5], z_1 );
 
-    Box global_box;
-    entity_set->globalBoundingBox( global_box );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    Teuchos::Tuple<double,6> global_bounds;
+    entity_set->globalBoundingBox( global_bounds );
     TEST_FLOATING_EQUALITY( global_bounds[0], 3.2 - comm_size + 1.0, 1.0e-12 );
     TEST_FLOATING_EQUALITY( global_bounds[1], -9.233 - comm_size + 1.0, 1.0e-12 );
     TEST_FLOATING_EQUALITY( global_bounds[2], 1.3 - comm_size + 1.0, 1.0e-12 );
@@ -146,12 +142,11 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
 {
     using namespace DataTransferKit;
 
-    // Register the point class.
+    // Register the GeometricEntity classes.
     DerivedObjectRegistry<GeometricEntity,Point<3> >::registerDerivedClasses();
 
-    // Register the BasicEntitySetImplementation with the entity set class so
-    // that we can reconstruct it.
-    DerivedObjectRegistry<EntitySet,BasicEntitySetImplementation>::registerDerivedClasses();
+    // Register the EntitySet classes.
+    DerivedObjectRegistry<EntitySet,BasicEntitySet>::registerDerivedClasses();
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 
@@ -163,7 +158,7 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
 
     // Make an entity set on process 0.
     Teuchos::RCP<EntitySet> entity_set;
-    Teuchos::Array<Teuchos::RCP<GeometricEntity> > points(2);
+    Teuchos::Array<GeometricEntity> points(2);
     int entity_set_key = -1;
     double x_1 = 3.2 + comm_size;
     double y_1 = -9.233 + comm_size;
@@ -177,14 +172,14 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
 	p1[0] = x_1;
 	p1[1] = y_1;
 	p1[2] = z_1;
-	points[0] = Teuchos::rcp( new Point<3>(0, 0, p1) );
+	points[0] = Point<3>(0, 0, p1);
 	Teuchos::Array<double> p2(3);
 	p2[0] = x_2;
 	p2[1] = y_2;
 	p2[2] = z_2;
-	points[1] = Teuchos::rcp( new Point<3>(1, 0, p2) );
+	points[1] = Point<3>(1, 0, p2);
 
-	entity_set = Teuchos::rcp(new BasicEntitySetImplementation(comm,3) );
+	entity_set = Teuchos::rcp(new BasicEntitySet(comm,3) );
 	entity_set_key = builder->getIntegralKey( entity_set->entitySetType() );
     }
 
@@ -202,9 +197,8 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
     entity_set->addEntity( points[1] );
 
     // Check the bounding boxes.
-    Box local_box;
-    entity_set->localBoundingBox( local_box );
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double,6> local_bounds;
+    entity_set->localBoundingBox( local_bounds );
     TEST_EQUALITY( local_bounds[0], x_2 );
     TEST_EQUALITY( local_bounds[1], y_2 );
     TEST_EQUALITY( local_bounds[2], z_2 );
@@ -212,9 +206,8 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
     TEST_EQUALITY( local_bounds[4], y_1 );
     TEST_EQUALITY( local_bounds[5], z_1 );
 
-    Box global_box;
-    entity_set->globalBoundingBox( global_box );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    Teuchos::Tuple<double,6> global_bounds;
+    entity_set->globalBoundingBox( global_bounds );
     TEST_FLOATING_EQUALITY( global_bounds[0], x_2, 1.0e-12 );
     TEST_FLOATING_EQUALITY( global_bounds[1], y_2, 1.0e-12 );
     TEST_FLOATING_EQUALITY( global_bounds[2], z_2, 1.0e-12 );

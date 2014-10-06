@@ -32,42 +32,46 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_BasicEntitySetImplementation.cpp
+ * \brief DTK_BasicEntitySet.cpp
  * \author Stuart R. Slattery
  * \brief Basic entity set implementation.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_BasicEntitySetImplementation.hpp"
+#include "DTK_BasicEntitySet.hpp"
 #include "DTK_DBC.hpp"
+#include "DTK_Box.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Ptr.hpp>
+#include <Teuchos_OrdinalTraits.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-BasicEntitySetImplementation::BasicEntitySetImplementation()
+BasicEntitySet::BasicEntitySet()
+    : d_entities( 4 )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Constructor.
-BasicEntitySetImplementation::BasicEntitySetImplementation(
+BasicEntitySet::BasicEntitySet(
     const Teuchos::RCP<const Teuchos::Comm<int> > comm,
     const int physical_dimension )
     : d_comm( comm )
     , d_dimension( physical_dimension )
+    , d_entities( 4 )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Destructor.
-BasicEntitySetImplementation::~BasicEntitySetImplementation()
+BasicEntitySet::~BasicEntitySet()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Return a string indicating the derived entity set type.
-std::string BasicEntitySetImplementation::entitySetType() const
+std::string BasicEntitySet::entitySetType() const
 {
     return std::string("DTK Basic Entity Set");
 }
@@ -75,7 +79,7 @@ std::string BasicEntitySetImplementation::entitySetType() const
 //---------------------------------------------------------------------------//
 // Assign a parallel communicator to the entity set. This will only be done
 // immediately after construct through the AbstractBuilder interface.
-void BasicEntitySetImplementation::assignCommunicator( 
+void BasicEntitySet::assignCommunicator( 
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
 {
     d_comm = comm;
@@ -84,35 +88,26 @@ void BasicEntitySetImplementation::assignCommunicator(
 //---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
 Teuchos::RCP<const Teuchos::Comm<int> >
-BasicEntitySetImplementation::communicator() const
+BasicEntitySet::communicator() const
 {
     return d_comm;
 }
 
 //---------------------------------------------------------------------------//
 // Get the local number of entities in the set of the given
-std::size_t BasicEntitySetImplementation::localNumberOfEntities( 
+std::size_t BasicEntitySet::localNumberOfEntities( 
     const int parametric_dimension ) const
 {
-    std::size_t num_local = 0;
-    ConstEntityIterator entity_it;
-    for ( entity_it = d_entities.begin();
-	  entity_it != d_entities.end();
-	  ++entity_it )
-    {
-	if ( entity_it->second->parametricDimension() == parametric_dimension )
-	{
-	    ++num_local;
-	}
-    }
-    return num_local;
+    DTK_REQUIRE( parametric_dimension <= d_dimension );
+    return d_entities[parametric_dimension].size();
 }
 
 //---------------------------------------------------------------------------//
 // Get the global number of entities in the set of the given
-std::size_t BasicEntitySetImplementation::globalNumberOfEntities(
+std::size_t BasicEntitySet::globalNumberOfEntities(
     const int parametric_dimension ) const
 {
+    DTK_REQUIRE( parametric_dimension <= d_dimension );
     std::size_t num_local = localNumberOfEntities( parametric_dimension );
     std::size_t num_global = 0;
     Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_SUM, 
@@ -121,94 +116,137 @@ std::size_t BasicEntitySetImplementation::globalNumberOfEntities(
 }
     
 //---------------------------------------------------------------------------//
+// Get a forward iterator assigned to the beginning of the entities in
+// the set of the given parametric dimension. 
+std::iterator<std::forward_iterator_tag,GeometricEntity>
+BasicEntitySet::entityIteratorBegin( const int parametric_dimension ) const
+{
+    DTK_REQUIRE( parametric_dimension <= d_dimension );
+    std::unordered_map<EntityId,GeometricEntity>::const_iterator begin =
+	d_entities[parametric_dimension].begin();
+    return BasicEntitySetIterator( begin );
+}
+
+//---------------------------------------------------------------------------//
+// Get a forward iterator assigned to the end of the entities in the set
+// of the given parametric dimension.
+std::iterator<std::forward_iterator_tag,GeometricEntity>
+BasicEntitySet::entityIteratorEnd( const int parametric_dimension ) const
+{
+    DTK_REQUIRE( parametric_dimension <= d_dimension );
+    std::unordered_map<EntityId,GeometricEntity>::const_iterator end =
+	d_entities[parametric_dimension].end();
+    return BasicEntitySetIterator( end );
+}
+
+//---------------------------------------------------------------------------//
 // Get the identifiers for all local entities in the set of a given
-void BasicEntitySetImplementation::localEntityIds( 
+void BasicEntitySet::localEntityIds( 
     const int parametric_dimension,
     const Teuchos::ArrayView<EntityId>& entity_ids ) const
 {
+    DTK_REQUIRE( parametric_dimension <= d_dimension );
     DTK_REQUIRE( Teuchos::as<std::size_t>(entity_ids.size()) == 
 		 localNumberOfEntities(parametric_dimension) );
     Teuchos::ArrayView<EntityId>::iterator id_it = entity_ids.begin();
-    ConstEntityIterator entity_it;
-    for ( entity_it = d_entities.begin();
-	  entity_it != d_entities.end();
+
+    std::iterator<std::forward_iterator_tag,GeometricEntity> entity_begin = 
+	entityIteratorBegin( parametric_dimension );
+    std::iterator<std::forward_iterator_tag,GeometricEntity> entity_end =
+	entityIteratorEnd( parametric_dimension );
+
+    std::iterator<std::forward_iterator_tag,GeometricEntity> entity_it;
+    for ( entity_it = entity_begin;
+	  entity_it != entity_end;
 	  ++entity_it )
     {
-	if ( entity_it->second->parametricDimension() == parametric_dimension )
-	{
-	    *id_it = entity_it->second->id();
-	    ++id_it;
-	}
+	*id_it = entity_it->id();
+	++id_it;
     }
 }
 
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
-void BasicEntitySetImplementation::getEntity( 
-    const EntityId entity_id, 
-    Teuchos::RCP<GeometricEntity>& entity ) const
+void BasicEntitySet::getEntity( 
+    const EntityId entity_id, GeometricEntity& entity ) const
 {
-    DTK_REQUIRE( d_entities.count(entity_id) );
-    entity = d_entities.find(entity_id)->second;
+    DTK_REQUIRE( d_entity_dims.count(entity_id) );
+    int entity_dim = d_entity_dims.find(entity_id)->second;
+    DTK_CHECK( d_entities[entity_dim].count(entity_id) );
+    entity = d_entities[entity_dim].find(entity_id)->second;
 }
 
 //---------------------------------------------------------------------------//
 // Indicate that the entity set will be modified.
-void BasicEntitySetImplementation::startModification()
+void BasicEntitySet::startModification()
 {
-    // We can always modify the entity set.
+    // We can always modify the basic entity set.
 }
 
 //---------------------------------------------------------------------------//
 // Add an entity to the set.
-void BasicEntitySetImplementation::addEntity( 
-    const Teuchos::RCP<GeometricEntity>& entity )
+void BasicEntitySet::addEntity( const GeometricEntity& entity )
 {
-    DTK_CHECK( Teuchos::nonnull(entity) );
-    d_entities.insert( EntityIdPair(entity->id(),entity) );
+    int parametric_dimension = entity.parametricDimension();
+    DTK_CHECK( parametric_dimension <= d_dimension );
+    d_entity_dims.insert( 
+	std::pair<EntityId,int>(entity.id(),parametric_dimension) );
+    d_entities[parametric_dimension].insert( EntityIdPair(entity.id(),entity) );
 }
 
 //---------------------------------------------------------------------------//
 // Indicate that modification of the entity set is complete.
-void BasicEntitySetImplementation::endModification()
+void BasicEntitySet::endModification()
 {
     /* ... */
 }
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entities in the set.
-int BasicEntitySetImplementation::physicalDimension() const
+int BasicEntitySet::physicalDimension() const
 {
     return d_dimension;
 }
 
 //---------------------------------------------------------------------------//
 // Get the local bounding box of entities of the set.
-void BasicEntitySetImplementation::localBoundingBox( Box& bounding_box ) const
+void BasicEntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     double max = std::numeric_limits<double>::max();
-    bounding_box = Box( d_comm->getRank(), d_comm->getRank(),
-			max, max, max, -max, -max, -max );
+    Box bounding_box( d_comm->getRank(), d_comm->getRank(),
+		      max, max, max, -max, -max, -max );
     Box entity_box;
-    ConstEntityIterator entity_it;
-    for ( entity_it = d_entities.begin();
-	  entity_it != d_entities.end();
-	  ++entity_it )
+    std::iterator<std::forward_iterator_tag,GeometricEntity> entity_begin;
+    std::iterator<std::forward_iterator_tag,GeometricEntity> entity_end;
+    std::iterator<std::forward_iterator_tag,GeometricEntity> entity_it;
+    Teuchos::Tuple<double,6> entity_bounds;
+    for ( int i = 0; i < 4; ++i )
     {
-	entity_it->second->boundingBox( entity_box );
-	bounding_box += entity_box;
+	entity_begin = entityIteratorBegin( i );
+	entity_end = entityIteratorEnd( i );
+	for ( entity_it = entity_begin;
+	      entity_it != entity_end;
+	      ++entity_it )
+	{
+	    entity_it->boundingBox( entity_bounds );
+	    entity_box = Box( 0, 0, entity_bounds );
+	    bounding_box += entity_box;
+	}
     }
+    bounds = bounding_box.getBounds();
 }
 
 //---------------------------------------------------------------------------//
 // Get the global bounding box of entities of the set.
-void BasicEntitySetImplementation::globalBoundingBox( Box& bounding_box ) const
+void BasicEntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
-    Box local_box;
-    localBoundingBox( local_box );
-    bounding_box = Box();
+    Teuchos::Tuple<double,6> local_bounds;
+    localBoundingBox( local_bounds );
+    Box local_box = Box( 0, 0, local_bounds );
+    Box bounding_box = Box();
     Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_SUM, 
 			local_box, Teuchos::Ptr<Box>(&bounding_box) );
+    bounds = bounding_box.getBounds();
 }
 
 //---------------------------------------------------------------------------//
@@ -216,5 +254,5 @@ void BasicEntitySetImplementation::globalBoundingBox( Box& bounding_box ) const
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_BasicEntitySetImplementation.cpp
+// end DTK_BasicEntitySet.cpp
 //---------------------------------------------------------------------------//

@@ -57,44 +57,34 @@ GeometricEntity::~GeometricEntity()
 // Return a string indicating the derived entity type.
 std::string GeometricEntity::entityType() const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return "Not Implemented";
+    return b_entity_impl->entityType();
 }
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId GeometricEntity::id() const
 { 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return -1;
+    return b_entity_impl->id();
 }
     
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 int GeometricEntity::ownerRank() const
 { 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return -1;
+    return b_entity_impl->ownerRank();
 }
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
 int GeometricEntity::physicalDimension() const
 { 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return -1;
+    return b_entity_impl->physicalDimension();
 }
 
 //---------------------------------------------------------------------------//
 // Return the parametric dimension of the entity.
 int GeometricEntity::parametricDimension() const
 { 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return -1;
+    return b_entity_impl->parametricDimension();
 }
 
 //---------------------------------------------------------------------------//
@@ -102,9 +92,7 @@ int GeometricEntity::parametricDimension() const
 // for 1D). 
 double GeometricEntity::measure() const
 { 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return -1.0;
+    return b_entity_impl->measure();
 }
 
 //---------------------------------------------------------------------------//
@@ -112,16 +100,14 @@ double GeometricEntity::measure() const
 void GeometricEntity::centroid( 
     Teuchos::ArrayView<const double>& centroid ) const
 { 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    b_entity_impl->centroid( centroid );
 }
 
 //---------------------------------------------------------------------------//
 // Return the axis-aligned bounding box around the entity.
-void GeometricEntity::boundingBox( Box& bounding_box ) const
+void GeometricEntity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 { 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    b_entity_impl->boundingBox( bounds );
 }
 
 //---------------------------------------------------------------------------//
@@ -132,8 +118,8 @@ void GeometricEntity::safeguardMapToReferenceFrame(
     const Teuchos::ArrayView<const double>& point,
     MappingStatus& status ) const
 { 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    b_entity_impl->safeguardMapToReferenceFrame(
+	parameters, point, status );
 }
 
 //---------------------------------------------------------------------------//
@@ -145,8 +131,8 @@ void GeometricEntity::mapToReferenceFrame(
     const Teuchos::ArrayView<double>& reference_point,
     MappingStatus& status ) const
 { 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    b_entity_impl->mapToReferenceFrame(
+	parameters, point, reference_point, status );
 }
 
 //---------------------------------------------------------------------------//
@@ -155,9 +141,7 @@ bool GeometricEntity::checkPointInclusion(
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& reference_point ) const
 { 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return false;
+    return b_entity_impl->checkPointInclusion( parameters, reference_point );
 }
 
 //---------------------------------------------------------------------------//
@@ -166,15 +150,14 @@ void GeometricEntity::mapToPhysicalFrame(
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    b_entity_impl->mapToPhysicalFrame( reference_point, point );
 }
 
 //---------------------------------------------------------------------------//
 // Return a string indicating the derived object type.
 std::string GeometricEntity::objectType() const
 {
-    return entityType();
+    return b_entity_impl->entityType();
 }
 
 //---------------------------------------------------------------------------//
@@ -182,8 +165,7 @@ std::string GeometricEntity::objectType() const
 void GeometricEntity::serialize( 
     const Teuchos::ArrayView<char>& buffer ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    b_entity_impl->serialize( buffer );
 }
 
 //---------------------------------------------------------------------------//
@@ -191,8 +173,14 @@ void GeometricEntity::serialize(
 void GeometricEntity::deserialize( 
     const Teuchos::ArrayView<const char>& buffer )
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    b_entity_impl->deserialize( buffer );
+}
+
+//---------------------------------------------------------------------------//
+// Check whether the underlying implementation is available.
+bool GeometricEntity::isEntityImplNonnull() const
+{
+    return Teuchos::nonnull( b_entity_impl );
 }
 
 //---------------------------------------------------------------------------//

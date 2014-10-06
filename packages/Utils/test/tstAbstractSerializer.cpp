@@ -30,7 +30,23 @@
 // HELPER CLASSES
 //---------------------------------------------------------------------------//
 
-// Base class.
+// Base class implementation.
+class BaseClassImpl
+{
+  public:
+
+    BaseClassImpl() { /* ... */ }
+    virtual ~BaseClassImpl() { /* ... */ }
+
+    virtual int myNumber() = 0;
+    virtual Teuchos::Array<double> myData() = 0;
+        
+    virtual std::string objectType() const = 0;
+    virtual void serialize( const Teuchos::ArrayView<char>& buffer ) const = 0;
+    virtual void deserialize( const Teuchos::ArrayView<const char>& buffer ) = 0;
+};
+
+// Base class interface.
 class BaseClass : public DataTransferKit::AbstractBuildableObject<BaseClass>
 		, public DataTransferKit::AbstractSerializableObject<BaseClass>
 {
@@ -39,12 +55,22 @@ class BaseClass : public DataTransferKit::AbstractBuildableObject<BaseClass>
     BaseClass() { /* ... */ }
     virtual ~BaseClass() { /* ... */ }
 
-    virtual int myNumber() { return 0; }
-    virtual Teuchos::Array<double> myData() { return Teuchos::Array<double>(0); }
+    virtual int myNumber() { return b_impl->myNumber(); }
+    virtual Teuchos::Array<double> myData() 
+    { return b_impl->myData(); }
         
-    virtual std::string objectType() const { return std::string("0"); }
-    virtual void serialize( const Teuchos::ArrayView<char>& buffer ) const {};
-    virtual void deserialize( const Teuchos::ArrayView<const char>& buffer ) {};
+    virtual std::string objectType() const 
+    { return b_impl->objectType(); }
+    virtual void serialize( const Teuchos::ArrayView<char>& buffer ) const 
+    { b_impl->serialize(buffer); }
+    virtual void deserialize( const Teuchos::ArrayView<const char>& buffer )
+    { b_impl->deserialize(buffer); }
+
+    bool isImplNonnull() const { return Teuchos::nonnull(b_impl); }
+
+  protected:
+
+    Teuchos::RCP<BaseClassImpl> b_impl;
 };
 
 //---------------------------------------------------------------------------//
@@ -58,14 +84,14 @@ class AbstractBuildableObjectPolicy<BaseClass>
 
     typedef BaseClass object_type;
 
-    static std::string objectType( const Teuchos::RCP<object_type>& object )
+    static std::string objectType( const BaseClass& object )
     {
-	return object->objectType();
+	return object.objectType();
     }
 
-    static Teuchos::RCP<DataTransferKit::AbstractBuilder<object_type> > getBuilder()
+    static Teuchos::RCP<DataTransferKit::AbstractBuilder<BaseClass> > getBuilder()
     {
-	return object_type::getBuilder();
+	return BaseClass::getBuilder();
     }
 };
 
@@ -77,21 +103,26 @@ class AbstractSerializableObjectPolicy<BaseClass>
 
     typedef BaseClass object_type;
 
+    static bool objectHasImplementation( const BaseClass& object )
+    {
+	return object.isImplNonnull();
+    }
+
     static std::size_t maxByteSize()
     {
 	return BaseClass::maxByteSize();
     }
 
-    static void serialize( const Teuchos::RCP<object_type>& object,
+    static void serialize( const BaseClass& object,
 			   const Teuchos::ArrayView<char>& buffer )
     {
-	object->serialize( buffer );
+	object.serialize( buffer );
     }
 
-    static void deserialize( const Teuchos::RCP<object_type>& object,
+    static void deserialize( BaseClass& object,
 			     const Teuchos::ArrayView<const char>& buffer )
     {
-	object->deserialize( buffer );
+	object.deserialize( buffer );
     }
 };
 } // end namespace DataTransferKit
@@ -101,11 +132,10 @@ class AbstractSerializableObjectPolicy<BaseClass>
 namespace Teuchos
 {
 template<typename Ordinal>
-class SerializationTraits<Ordinal,Teuchos::RCP<BaseClass> > 
+class SerializationTraits<Ordinal,BaseClass> 
 {
   public:
 
-    typedef Teuchos::RCP<BaseClass> T;
     typedef DataTransferKit::AbstractSerializer<Ordinal,BaseClass>  
     AbstractSerializer;
 
@@ -113,13 +143,13 @@ class SerializationTraits<Ordinal,Teuchos::RCP<BaseClass> >
 	AbstractSerializer::supportsDirectSerialization;
 
     static Ordinal fromCountToIndirectBytes( const Ordinal count, 
-					     const T buffer[] ) 
+					     const BaseClass buffer[] ) 
     { 
 	return AbstractSerializer::fromCountToIndirectBytes( count, buffer );
     }
 
     static void serialize( const Ordinal count, 
-			   const T buffer[], 
+			   const BaseClass buffer[], 
 			   const Ordinal bytes, 
 			   char charBuffer[] )
     { 
@@ -135,7 +165,7 @@ class SerializationTraits<Ordinal,Teuchos::RCP<BaseClass> >
     static void deserialize( const Ordinal bytes, 
 			     const char charBuffer[], 
 			     const Ordinal count, 
-			     T buffer[] )
+			     BaseClass buffer[] )
     { 
 	AbstractSerializer::deserialize( bytes, charBuffer, count, buffer );
     }
@@ -143,13 +173,13 @@ class SerializationTraits<Ordinal,Teuchos::RCP<BaseClass> >
 } // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
-// Derived class 1
-class MyNumberIsOne : public BaseClass
+// Derived class 1 implementation
+class MyNumberIsOneImpl : public BaseClassImpl
 {
   public:
 
-    MyNumberIsOne() : d_data( 1, 1.0 ) { /* ... */ }
-    ~MyNumberIsOne() { /* ... */ }
+    MyNumberIsOneImpl() : d_data( 1, 1.0 ) { /* ... */ }
+    ~MyNumberIsOneImpl() { /* ... */ }
 
     int myNumber() { return 1; }
     Teuchos::Array<double> myData() { return d_data; }
@@ -169,8 +199,25 @@ class MyNumberIsOne : public BaseClass
     Teuchos::Array<double> d_data;
 };
 
-std::size_t MyNumberIsOne::byteSize()
+std::size_t MyNumberIsOneImpl::byteSize()
 { return sizeof(double); }
+
+// Derived class 1 interface
+class MyNumberIsOne : public BaseClass
+{
+  public:
+
+    MyNumberIsOne()
+    {
+	this->b_impl = Teuchos::rcp( new MyNumberIsOneImpl() );
+    }
+    ~MyNumberIsOne() { /* ... */ }
+
+    static std::size_t byteSize();
+};
+
+std::size_t MyNumberIsOne::byteSize()
+{ return MyNumberIsOneImpl::byteSize(); }
 
 // DerivedSerializableObjectPolicy
 namespace DataTransferKit
@@ -208,13 +255,13 @@ class DerivedObjectRegistrationPolicy<MyNumberIsOne>
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Derived class 2.
-class MyNumberIsTwo : public BaseClass
+// Derived class 2 implementation.
+class MyNumberIsTwoImpl : public BaseClassImpl
 {
   public:
 
-    MyNumberIsTwo() : d_data( 2, 2.0 ) { /* ... */ }
-    ~MyNumberIsTwo() { /* ... */ }
+    MyNumberIsTwoImpl() : d_data( 2, 2.0 ) { /* ... */ }
+    ~MyNumberIsTwoImpl() { /* ... */ }
 
     int myNumber() { return 2; }
     Teuchos::Array<double> myData() { return d_data; }
@@ -234,8 +281,25 @@ class MyNumberIsTwo : public BaseClass
     Teuchos::Array<double> d_data;
 };
 
-std::size_t MyNumberIsTwo::byteSize()
+std::size_t MyNumberIsTwoImpl::byteSize()
 { return 2*sizeof(double); }
+
+// Derived class 2 interface
+class MyNumberIsTwo : public BaseClass
+{
+  public:
+
+    MyNumberIsTwo()
+    {
+	this->b_impl = Teuchos::rcp( new MyNumberIsTwoImpl() );
+    }
+    ~MyNumberIsTwo() { /* ... */ }
+
+    static std::size_t byteSize();
+};
+
+std::size_t MyNumberIsTwo::byteSize()
+{ return MyNumberIsTwoImpl::byteSize(); }
 
 // DerivedSerializableObjectPolicy
 namespace DataTransferKit
@@ -279,7 +343,8 @@ TEUCHOS_UNIT_TEST( AbstractSerializer, abstract_serializer )
     using namespace DataTransferKit;
 
     // Register derived classes.
-    DerivedObjectRegistry<BaseClass,MyNumberIsOne,MyNumberIsTwo>::registerDerivedClasses();
+    DerivedObjectRegistry<BaseClass,
+			  MyNumberIsOne,MyNumberIsTwo>::registerDerivedClasses();
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm_default = 
@@ -288,25 +353,25 @@ TEUCHOS_UNIT_TEST( AbstractSerializer, abstract_serializer )
 
     // Construct an array of base class objects
     Teuchos::RCP<AbstractBuilder<BaseClass> > builder = BaseClass::getBuilder();
-    Teuchos::Array<Teuchos::RCP<BaseClass> > objects( 2 );
+    Teuchos::Array<BaseClass> objects( 2 );
     if ( comm_rank == 0 )
     {
-	objects[0] = builder->create("one");
-	objects[1] = builder->create("two");
+	objects[0] = *( builder->create("one") );
+	objects[1] = *( builder->create("two") );
     }
 
     // Broadcast the objects.
     Teuchos::broadcast( *comm_default, 0, objects() );
 
     // Check the objects.
-    TEST_EQUALITY( 1, objects[0]->myNumber() );
-    TEST_EQUALITY( 1, objects[0]->myData().size() );
-    TEST_EQUALITY( 1.0, objects[0]->myData()[0] );
+    TEST_EQUALITY( 1, objects[0].myNumber() );
+    TEST_EQUALITY( 1, objects[0].myData().size() );
+    TEST_EQUALITY( 1.0, objects[0].myData()[0] );
 
-    TEST_EQUALITY( 2, objects[1]->myNumber() );
-    TEST_EQUALITY( 2, objects[1]->myData().size() );
-    TEST_EQUALITY( 2.0, objects[1]->myData()[0] );
-    TEST_EQUALITY( 2.0, objects[1]->myData()[1] );
+    TEST_EQUALITY( 2, objects[1].myNumber() );
+    TEST_EQUALITY( 2, objects[1].myData().size() );
+    TEST_EQUALITY( 2.0, objects[1].myData()[0] );
+    TEST_EQUALITY( 2.0, objects[1].myData()[1] );
 }
 
 //---------------------------------------------------------------------------//

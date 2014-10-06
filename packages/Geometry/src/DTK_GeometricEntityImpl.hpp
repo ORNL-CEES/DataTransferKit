@@ -32,68 +32,44 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_GeometricEntity.hpp
+ * \brief DTK_GeometricEntityImpl.hpp
  * \author Stuart R. Slattery
  * \brief Geometric entity interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_GEOMETRICENTITY_HPP
-#define DTK_GEOMETRICENTITY_HPP
+#ifndef DTK_GEOMETRICENTITYIMPL_HPP
+#define DTK_GEOMETRICENTITYIMPL_HPP
 
 #include <string>
 
-#include "DTK_GeometricEntityImpl.hpp"
 #include "DTK_GeometryTypes.hpp"
 #include "DTK_MappingStatus.hpp"
-#include "DTK_AbstractBuilder.hpp"
-#include "DTK_AbstractBuildableObject.hpp"
-#include "DTK_AbstractSerializableObject.hpp"
-#include "DTK_AbstractSerializer.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
-#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class GeometricEntity
-  \brief Geometric entity interface definition.
-
-  GeometricEntity provides access to basic properites of geometric objects. A
-  geometry is simply an object or collection of objects that has $n$ physical
-  dimensions and a spatial domain $\Omega \in \mathbb{R}^n$ that is bounded by
-  a boundary $\Gamma \in \mathbb{R}^n$. Concrete examples of geometries in 3
-  dimensions include cubes, cylinders, polyhedron, or mesh elements. A
-  geometry can have 1, 2, or three dimensions. To specify the general position
-  in space of the geometry, each object is required to have a centroid given
-  in Cartesian coordinates with (x) given for 1 dimensional geometries, (x,y)
-  for two dimensions, and (x,y,z) for 3 dimensions. A measure is also
-  specified for each geometry where the measure is defined as length in 1
-  dimension, area in 2 dimensions, and volume for 3 dimensions. In addition to
-  this data, a geometry must be able to provide a Cartesian axis-aligned
-  bounding box that encapsulates the entire geometry. For geometric search
-  operations to be performed, a geometry must be able to determine if a given
-  point of the same dimensionality as the geometry is contained within the
-  boundary of the geometry (i.e. $\hat{r} \in \Omega$).
+  \class GeometricEntityImpl
+  \brief Geometric entity implementation definition.
 */
 //---------------------------------------------------------------------------//
-class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
-		      , public AbstractSerializableObject<GeometricEntity>
+class GeometricEntityImpl
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    GeometricEntity();
+    GeometricEntityImpl();
 
     /*!
      * \brief Destructor.
      */
-    virtual ~GeometricEntity();
+    virtual ~GeometricEntityImpl();
 
     //@{
     //! Identification functions.
@@ -150,9 +126,8 @@ class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
     centroid( Teuchos::ArrayView<const double>& centroid ) const;
 
     /*!
-     * \brief Return the axis-aligned bounding box bounds around the entity.
-     * \param boundings The bounds of a Cartesian box that bounds the entity
-     * (x_min,y_min,z_min,x_max,y_max,z_max).
+     * \brief Return the axis-aligned bounding box around the entity.
+     * \param bounding_box A Cartesian box that bounds the entity.
      */
     virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
     //@}
@@ -240,71 +215,6 @@ class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
      */
     virtual void deserialize( const Teuchos::ArrayView<const char>& buffer );
     //@}
-
-    /*! 
-     * \brief Check whether the underlying implementation is available.
-     */
-    bool isEntityImplNonnull() const;
-
-  protected:
-
-    // Geometric entity implementation.
-    Teuchos::RCP<GeometricEntityImpl> b_entity_impl;
-};
-
-//---------------------------------------------------------------------------//
-// AbstractBuildableObjectPolicy implementation.
-//---------------------------------------------------------------------------//
-template<>
-class AbstractBuildableObjectPolicy<GeometricEntity>
-{
-  public:
-
-    typedef GeometricEntity object_type;
-
-    static std::string objectType( const GeometricEntity& entity )
-    {
-	return entity.objectType();
-    }
-
-    static Teuchos::RCP<DataTransferKit::AbstractBuilder<GeometricEntity> > 
-    getBuilder()
-    {
-	return GeometricEntity::getBuilder();
-    }
-};
-
-//---------------------------------------------------------------------------//
-// AbstractSerializableObjectPolicy implementation.
-//---------------------------------------------------------------------------//
-template<>
-class AbstractSerializableObjectPolicy<GeometricEntity>
-{
-  public:
-
-    typedef GeometricEntity object_type;
-
-    static bool objectHasImplementation( const GeometricEntity& entity )
-    {
-	return entity.isEntityImplNonnull();
-    }
-
-    static std::size_t maxByteSize()
-    {
-	return GeometricEntity::maxByteSize();
-    }
-
-    static void serialize( const GeometricEntity& entity,
-			   const Teuchos::ArrayView<char>& buffer )
-    {
-	entity.serialize( buffer );
-    }
-
-    static void deserialize( GeometricEntity& entity,
-			     const Teuchos::ArrayView<const char>& buffer )
-    {
-	entity.deserialize( buffer );
-    }
 };
 
 //---------------------------------------------------------------------------//
@@ -312,57 +222,9 @@ class AbstractSerializableObjectPolicy<GeometricEntity>
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Teuchos::SerializationTraits implementation.
-//---------------------------------------------------------------------------//
 
-namespace Teuchos
-{
-template<typename Ordinal>
-class SerializationTraits<Ordinal,DataTransferKit::GeometricEntity> 
-{
-  public:
-
-    typedef DataTransferKit::GeometricEntity Base;
-    typedef DataTransferKit::AbstractSerializer<Ordinal,Base>  
-    AbstractSerializer;
-
-    static const bool supportsDirectSerialization = 
-	AbstractSerializer::supportsDirectSerialization;
-
-    static Ordinal fromCountToIndirectBytes( const Ordinal count, 
-					     const Base buffer[] ) 
-    { 
-	return AbstractSerializer::fromCountToIndirectBytes( count, buffer );
-    }
-
-    static void serialize( const Ordinal count, 
-			   const Base buffer[], 
-			   const Ordinal bytes, 
-			   char charBuffer[] )
-    { 
-	AbstractSerializer::serialize( count, buffer, bytes, charBuffer );
-    }
-
-    static Ordinal fromIndirectBytesToCount( const Ordinal bytes, 
-					     const char charBuffer[] ) 
-    { 
-	return AbstractSerializer::fromIndirectBytesToCount( bytes, charBuffer );
-    }
-
-    static void deserialize( const Ordinal bytes, 
-			     const char charBuffer[], 
-			     const Ordinal count, 
-			     Base buffer[] )
-    { 
-	AbstractSerializer::deserialize( bytes, charBuffer, count, buffer );
-    }
-};
-} // end namespace Teuchos
+#endif // end DTK_GEOMETRICENTITYIMPL_HPP
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_GEOMETRICENTITY_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_GeometricEntity.hpp
+// end DTK_GeometricEntityImpl.hpp
 //---------------------------------------------------------------------------//

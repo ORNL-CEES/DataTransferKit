@@ -41,6 +41,7 @@
 #ifndef DTK_POINT_HPP
 #define DTK_POINT_HPP
 
+#include "DTK_PointImpl.hpp"
 #include "DTK_GeometryTypes.hpp"
 #include "DTK_GeometricEntity.hpp"
 #include "DTK_Box.hpp"
@@ -55,21 +56,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class Point
- * \brief Point container.
- *
- * Users can subclass this class for more efficient access to and storage of
- * point coordinates while getting the rest of the GeometricEntity
- * implementation for free. For example, if a set of point coordinates already
- * existed, a subclass could be used to point to those coordinates through
- * this interface. This interface does assume access to contiguous storage of
- * (x,y,z) coordinates for a given point such that a pointer to these coordinates
- * can be accessed with a Teuchos::ArrayView. Serializing a point accesses
- * coordinates through this interface. Deserializing a point constructs
- * this class directly instead of potential subclasses. If in the future we
- * want to directly deserialize to a subclass of Point through the geometric
- * entity interface we can make the entityType and serialization functions
- * virtual to permit the subclass to override them. A user could also just
- * directly subclass GeometricEntity for their particular point type.
+ * \brief Point container declaration.
  */
 //---------------------------------------------------------------------------//
 template<int DIM>
@@ -91,86 +78,17 @@ class Point : public GeometricEntity
     //@{
     //! Coordinate access functions.
     // Get the coordinates of the point.
-    virtual void 
-    getCoordinates( Teuchos::ArrayView<const double>& coordinates ) const;
+    void getCoordinates( Teuchos::ArrayView<const double>& coordinates ) const;
+    //@}
     //@}
 
-    //@{ 
-    //! GeometricEntity implementation.
-    // Return a string indicating the derived entity type.
-    std::string entityType() const;
-
-    // Get the unique global identifier for the entity.
-    EntityId id() const;
-    
-    // Get the parallel rank that owns the entity.
-    int ownerRank() const;
-
-    // Return the physical dimension of the entity.
-    virtual int physicalDimension() const;
-
-    // Return the parametric dimension of the entity.
-    int parametricDimension() const;
-
-    // Return the entity measure with respect to the parameteric
-    double measure() const;
-
-    // Return the centroid of the entity.
-    void centroid( Teuchos::ArrayView<const double>& centroid ) const;
-
-    // Return the axis-aligned bounding box around the entity.
-    void boundingBox( Box& bounding_box ) const;
-
-    // Perform a safeguard check for mapping a point to the reference
-    void safeguardMapToReferenceFrame(
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& point,
-	MappingStatus& status ) const;
-
-    // Map a point to the reference space of an entity. Return the
-    void mapToReferenceFrame( 
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point,
-	MappingStatus& status ) const;
-
-    // Determine if a reference point is in the parameterized space of
-    bool checkPointInclusion( 
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
-
-    // Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
-     
-    // Serialize the entity into a buffer.
-    void serialize( const Teuchos::ArrayView<char>& buffer ) const;
-
-    // Deserialize an entity from a buffer.
-    void deserialize( const Teuchos::ArrayView<const char>& buffer );
-    //@}
-
-    // Get the byte size for the box.
+    // Get the byte size for the point.
     static std::size_t byteSize();
 
-  protected:
-
-    // Global id.
-    EntityId d_global_id;
-
-    // Owning parallel rank.
-    int d_owner_rank;
-
   private:
 
-    // Coordinates.
-    Teuchos::Array<double> d_coordinates;
-
-  private:
-
-    // Packed size in bytes.
-    static std::size_t d_byte_size;
+    // Point implementation.
+    Teuchos::RCP<PointImpl<DIM> > d_point_impl;
 };
 
 //---------------------------------------------------------------------------//

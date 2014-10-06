@@ -41,14 +41,15 @@
 #ifndef DTK_ENTITYSET_HPP
 #define DTK_ENTITYSET_HPP
 
+#include "DTK_EntitySetIterator.hpp"
 #include "DTK_GeometricEntity.hpp"
-#include "DTK_Box.hpp"
 #include "DTK_AbstractBuilder.hpp"
 #include "DTK_AbstractBuildableObject.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
@@ -125,6 +126,28 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
 	const int parametric_dimension ) const;
     
     /*!
+     * \brief Get a forward iterator assigned to the beginning of the
+     * entities in the set of the given parametric dimension.  
+     * \param parametric_dimension Get a forward iterator to the beginning of
+     * the entities of this dimension.  
+     * \return a forward iterator assigned to the beginning of the entities in
+     * the set of the given parametric dimension.
+     */
+    virtual EntitySetIterator
+    entityIteratorBegin( const int parametric_dimension ) const;
+
+    /*!
+     * \brief Get a forward iterator assigned to the end of the entities in
+     * the set of the given parametric dimension.
+     * \param parametric_dimension Get a forward iterator to the end of the
+     * entities of this dimension.
+     * \return a forward iterator assigned to the end of the entities in the
+     * set of the given parametric dimension.
+     */
+    virtual EntitySetIterator
+    entityIteratorEnd( const int parametric_dimension ) const;
+
+    /*!
      * \brief Get the identifiers for all local entities in the set of a given
      * parametric dimension.
      * \param parametric_dimension Get the entities of this parametric
@@ -142,7 +165,7 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
      * \param entity The entity with the given id.
      */
     virtual void getEntity( const EntityId entity_id, 
-			    Teuchos::RCP<GeometricEntity>& entity ) const;
+			    GeometricEntity& entity ) const;
     //@}
 
     //@{
@@ -157,13 +180,13 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
      * \brief Get the local bounding box of entities of the set.
      * \return A Cartesian box the bounds all local entities in the set.
      */
-    virtual void localBoundingBox( Box& bounding_box ) const;
+    virtual void localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;
 
     /*!
      * \brief Get the global bounding box of entities of the set.
      * \return A Cartesian box the bounds all global entities in the set.
      */
-    virtual void globalBoundingBox( Box& bounding_box ) const;
+    virtual void globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;
     //@}
 
     //@{
@@ -178,7 +201,7 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
      * entity set has been notified of modification.
      * \param entity Add this entity to the set.
      */
-    virtual void addEntity( const Teuchos::RCP<GeometricEntity>& entity );
+    virtual void addEntity( const GeometricEntity& entity );
 
     /*!
      * \brief Indicate that modification of the entity set is complete.
@@ -198,9 +221,9 @@ class AbstractBuildableObjectPolicy<EntitySet>
     typedef EntitySet object_type;
 
     static std::string 
-    objectType( const Teuchos::RCP<EntitySet>& entity_set )
+    objectType( const EntitySet& entity_set )
     {
-	return entity_set->entitySetType();
+	return entity_set.entitySetType();
     }
 
     static Teuchos::RCP<DataTransferKit::AbstractBuilder<EntitySet> > 

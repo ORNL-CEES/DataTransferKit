@@ -34,7 +34,7 @@
 /*!
  * \file DTK_Box.hpp
  * \author Stuart R. Slattery
- * \brief Bounding box declaration.
+ * \brief Box declaration.
  */
 //---------------------------------------------------------------------------//
 
@@ -43,11 +43,12 @@
 
 #include "DTK_GeometricEntity.hpp"
 #include "DTK_DerivedObjectRegistry.hpp"
+#include "DTK_BoxImpl.hpp"
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_Array.hpp>
-#include <Teuchos_SerializationTraits.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_SerializationTraits.hpp>
 
 #include <iostream>
 
@@ -85,64 +86,7 @@ class Box : public GeometricEntity
 
     // Get the boundaries of the box.
     Teuchos::Tuple<double,6> getBounds() const
-    { return Teuchos::tuple( d_x_min, d_y_min, d_z_min, 
-			     d_x_max, d_y_max, d_z_max ); }
-
-    //@{ 
-    //! GeometricEntity implementation.
-    // Return a string indicating the derived entity type.
-    std::string entityType() const;
-
-    // Get the unique global identifier for the entity.
-    EntityId id() const;
-    
-    // Get the parallel rank that owns the entity.
-    int ownerRank() const;
-
-    // Return the physical dimension of the entity.
-    int physicalDimension() const;
-
-    // Return the parametric dimension of the entity.
-    int parametricDimension() const;
-
-    // Return the entity measure with respect to the parameteric
-    double measure() const;
-
-    // Return the centroid of the entity.
-    void centroid( Teuchos::ArrayView<const double>& centroid ) const;
-
-    // Return the axis-aligned bounding box around the entity.
-    void boundingBox( Box& bounding_box ) const;
-
-    // Perform a safeguard check for mapping a point to the reference
-    void safeguardMapToReferenceFrame(
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& point,
-	MappingStatus& status ) const;
-
-    // Map a point to the reference space of an entity. Return the
-    void mapToReferenceFrame( 
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point,
-	MappingStatus& status ) const;
-
-    // Determine if a reference point is in the parameterized space of
-    bool checkPointInclusion( 
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
-
-    // Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame(
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
-     
-    // Serialize the entity into a buffer.
-    void serialize( const Teuchos::ArrayView<char>& buffer ) const;
-
-    // Deserialize an entity from a buffer.
-    void deserialize( const Teuchos::ArrayView<const char>& buffer );
-    //@}
+    { return d_box_impl->getBounds(); }
 
     // Static function to check for box intersection but not perform it.
     static bool checkForIntersection( const Box& box_A,
@@ -166,37 +110,8 @@ class Box : public GeometricEntity
 
   private:
 
-    // Global id.
-    EntityId d_global_id;
-
-    // Owning parallel rank.
-    int d_owner_rank;
-
-    // X min.
-    double d_x_min;
-
-    // Y min.
-    double d_y_min;
-
-    // Z min.
-    double d_z_min;
-
-    // X max.
-    double d_x_max;
-
-    // Y max.
-    double d_y_max;
-
-    // Z max.
-    double d_z_max;
-
-    // Centroid coordinates.
-    double d_centroid[3];
-
-  private:
-
-    // Packed size in bytes.
-    static std::size_t d_byte_size;
+    // Pointer to the implementation.
+    Teuchos::RCP<BoxImpl> d_box_impl;
 };
 
 //---------------------------------------------------------------------------//
@@ -239,17 +154,64 @@ class DerivedObjectRegistrationPolicy<Box>
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Direct Serialization Traits Specialization.
+// Teuchos::SerializationTraits implementation.
 //---------------------------------------------------------------------------//
 
 namespace Teuchos
 {
-
 template<typename Ordinal>
-class SerializationTraits<Ordinal, DataTransferKit::Box>
-    : public DirectSerializationTraits<Ordinal, DataTransferKit::Box>
-{};
+class SerializationTraits<Ordinal,DataTransferKit::Box> 
+{
+  public:
 
+    static const bool supportsDirectSerialization = false;
+
+    static Ordinal fromCountToIndirectBytes( const Ordinal count, 
+					     const DataTransferKit::Box buffer[] ) 
+    { 
+	return count * DataTransferKit::Box::byteSize();
+    }
+
+    static void serialize( const Ordinal count, 
+			   const DataTransferKit::Box buffer[], 
+			   const Ordinal bytes, 
+			   char charBuffer[] )
+    {
+	DTK_REQUIRE( fromCountToIndirectBytes(count,buffer) == bytes );
+	std::size_t box_size = DataTransferKit::Box::byteSize();
+	char* buffer_pos = &charBuffer[0];
+	for ( int n = 0; n < count; ++n )
+	{
+	    Teuchos::ArrayView<char> buffer_view( buffer_pos, box_size );
+	    buffer[n].serialize( buffer_view );
+	    buffer_pos += box_size;
+	}
+	DTK_CHECK( &charBuffer[0] + bytes == buffer_pos);
+    }
+
+    static Ordinal fromIndirectBytesToCount( const Ordinal bytes, 
+					     const char charBuffer[] ) 
+    { 
+	return bytes / DataTransferKit::Box::byteSize();
+    }
+
+    static void deserialize( const Ordinal bytes, 
+			     const char charBuffer[], 
+			     const Ordinal count, 
+			     DataTransferKit::Box buffer[] )
+    { 
+	DTK_REQUIRE( fromIndirectBytesToCount(bytes,charBuffer) == count );
+	std::size_t box_size = DataTransferKit::Box::byteSize();
+	char* buffer_pos = const_cast<char*>(&charBuffer[0]);
+	for ( int n = 0; n < count; ++n )
+	{
+	    Teuchos::ArrayView<char> buffer_view( buffer_pos, box_size );
+	    buffer[n].deserialize( buffer_view );
+	    buffer_pos += box_size;
+	}
+	DTK_CHECK( &charBuffer[0] + bytes == buffer_pos );
+    }
+};
 } // end namespace Teuchos
 
 //---------------------------------------------------------------------------//

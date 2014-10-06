@@ -16,10 +16,13 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_BasicEntitySetImplementation.hpp
+  DTK_BasicEntitySet.hpp
   DTK_Box.hpp
+  DTK_BoxImpl.hpp
   DTK_EntitySet.hpp
+  DTK_EntitySetIterator.hpp
   DTK_GeometricEntity.hpp
+  DTK_GeometricEntityImpl.hpp
   DTK_GeometryTypes.hpp
   DTK_MappingStatus.hpp
   DTK_Point.hpp
@@ -27,10 +30,13 @@ APPEND_SET(HEADERS
   ) 
 
 APPEND_SET(SOURCES
-  DTK_BasicEntitySetImplementation.cpp
+  DTK_BasicEntitySet.cpp
   DTK_Box.cpp
+  DTK_BoxImpl.cpp
   DTK_EntitySet.cpp
+  DTK_EntitySetIterator.cpp
   DTK_GeometricEntity.cpp
+  DTK_GeometricEntityImpl.cpp
   DTK_MappingStatus.cpp
   )
 

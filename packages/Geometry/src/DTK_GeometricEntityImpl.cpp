@@ -32,30 +32,30 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntitySet.cpp
+ * \brief DTK_GeometricEntityImpl.cpp
  * \author Stuart R. Slattery
- * \brief Geometric entity set interface.
+ * \brief Geometric entity implementation.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_EntitySet.hpp"
+#include "DTK_GeometricEntityImpl.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-EntitySet::EntitySet()
+GeometricEntityImpl::GeometricEntityImpl()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-EntitySet::~EntitySet()
+//brief Destructor.
+GeometricEntityImpl::~GeometricEntityImpl()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Return a string indicating the derived entity set type.
-std::string EntitySet::entitySetType() const
+// Return a string indicating the derived entity type.
+std::string GeometricEntityImpl::entityType() const
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
@@ -63,129 +63,133 @@ std::string EntitySet::entitySetType() const
 }
 
 //---------------------------------------------------------------------------//
-// Assign a parallel communicator to the entity set. This will only be done
-// immediately after construct through the AbstractBuilder interface.
-void EntitySet::assignCommunicator( 
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
-{
+// Get the unique global identifier for the entity.
+EntityId GeometricEntityImpl::id() const
+{ 
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
+    return -1;
 }
-
+    
 //---------------------------------------------------------------------------//
-// Get the parallel communicator for the entity set.
-Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
-{
+// Get the parallel rank that owns the entity.
+int GeometricEntityImpl::ownerRank() const
+{ 
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
-    return Teuchos::null;
+    return -1;
 }
-
 //---------------------------------------------------------------------------//
-// Get the local number of entities in the set of the given
-std::size_t EntitySet::localNumberOfEntities( 
-    const int parametric_dimension ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return 0;
-}
-
-//---------------------------------------------------------------------------//
-// Get the global number of entities in the set of the given
-std::size_t EntitySet::globalNumberOfEntities(
-    const int parametric_dimension ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return 0;
-}
- 
-//---------------------------------------------------------------------------//
-// Get a forward iterator assigned to the beginning of the entities in the set
-// of the given parametric dimension.
-EntitySetIterator
-EntitySet::entityIteratorBegin( const int parametric_dimension ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return EntitySetIterator();
-}
-
-//---------------------------------------------------------------------------//
-// Get a forward iterator assigned to the end of the entities in the set
-// of the given parametric dimension.
-EntitySetIterator
-EntitySet::entityIteratorEnd( const int parametric_dimension ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return EntitySetIterator();
-}
-
-//---------------------------------------------------------------------------//
-// Get the identifiers for all local entities in the set of a given
-void EntitySet::localEntityIds( 
-    const int parametric_dimension,
-    const Teuchos::ArrayView<EntityId>& entity_ids ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Given an EntityId, get the entity.
-void EntitySet::getEntity( const EntityId entity_id, 
-			   GeometricEntity& entity ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Indicate that the entity set will be modified.
-void EntitySet::startModification()
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Add an entity to the set.
-void EntitySet::addEntity( const GeometricEntity& entity )
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Indicate that modification of the entity set is complete.
-void EntitySet::endModification()
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Return the largest physical dimension of the entities in the set.
-int EntitySet::physicalDimension() const
-{
+// Return the physical dimension of the entity.
+int GeometricEntityImpl::physicalDimension() const
+{ 
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
     return -1;
 }
 
 //---------------------------------------------------------------------------//
-// Get the local bounding box of entities of the set.
-void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
+// Return the parametric dimension of the entity.
+int GeometricEntityImpl::parametricDimension() const
+{ 
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+    return -1;
+}
+
+//---------------------------------------------------------------------------//
+// Return the entity measure (volume for a 3D entity, area for 2D, and length
+// for 1D). 
+double GeometricEntityImpl::measure() const
+{ 
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+    return -1.0;
+}
+
+//---------------------------------------------------------------------------//
+// Return the centroid of the entity.
+void GeometricEntityImpl::centroid( 
+    Teuchos::ArrayView<const double>& centroid ) const
+{ 
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
+// Return the axis-aligned bounding box around the entity.
+void GeometricEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+{ 
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
+// Perform a safeguard check for mapping a point to the reference space of an
+// entity using the given tolerance. 
+void GeometricEntityImpl::safeguardMapToReferenceFrame(
+    const Teuchos::ParameterList& parameters,
+    const Teuchos::ArrayView<const double>& point,
+    MappingStatus& status ) const
+{ 
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
+// Map a point to the reference space of an entity. Return the
+// parameterized point. 
+void GeometricEntityImpl::mapToReferenceFrame( 
+    const Teuchos::ParameterList& parameters,
+    const Teuchos::ArrayView<const double>& point,
+    const Teuchos::ArrayView<double>& reference_point,
+    MappingStatus& status ) const
+{ 
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
+// Determine if a reference point is in the parameterized space of an entity.
+bool GeometricEntityImpl::checkPointInclusion( 
+    const Teuchos::ParameterList& parameters,
+    const Teuchos::ArrayView<const double>& reference_point ) const
+{ 
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+    return false;
+}
+
+//---------------------------------------------------------------------------//
+// Map a reference point to the physical space of an entity.
+void GeometricEntityImpl::mapToPhysicalFrame( 
+    const Teuchos::ArrayView<const double>& reference_point,
+    const Teuchos::ArrayView<double>& point ) const
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//
-// Get the global bounding box of entities of the set.
-void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
+// Return a string indicating the derived object type.
+std::string GeometricEntityImpl::objectType() const
+{
+    return entityType();
+}
+
+//---------------------------------------------------------------------------//
+// Serialize the entity into a buffer.
+void GeometricEntityImpl::serialize( 
+    const Teuchos::ArrayView<char>& buffer ) const
+{
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
+// Deserialize an entity from a buffer.
+void GeometricEntityImpl::deserialize( 
+    const Teuchos::ArrayView<const char>& buffer )
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
@@ -196,5 +200,5 @@ void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_EntitySet.cpp
+// end DTK_GeometricEntityImpl.cpp
 //---------------------------------------------------------------------------//

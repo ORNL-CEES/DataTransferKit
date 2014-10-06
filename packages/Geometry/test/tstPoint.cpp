@@ -173,27 +173,26 @@ TEUCHOS_UNIT_TEST( Point, communication_test )
     p[0] = x;
     p[1] = y;
     p[2] = z;
-    Teuchos::RCP<GeometricEntity> entity;
+    GeometricEntity entity;
     if ( 0 == comm_rank )
     {
-	entity = Teuchos::rcp( new Point<3>(0, 0, p) );
+	entity = Point<3>(0, 0, p);
     }
 
     // Broadcast the point with indirect serialization through the geometric
     // entity api.
-    Teuchos::broadcast( *comm, 0, 
-			Teuchos::Ptr<Teuchos::RCP<GeometricEntity> >(&entity) );
+    Teuchos::broadcast( *comm, 0, Teuchos::Ptr<GeometricEntity>(&entity) );
 
     // Check the coordinates.
     Teuchos::ArrayView<const double> coords;
-    entity->centroid( coords );
+    entity.centroid( coords );
     TEST_EQUALITY( coords.size(), 3 );
     TEST_EQUALITY( coords[0], x );
     TEST_EQUALITY( coords[1], y );
     TEST_EQUALITY( coords[2], z );
 
     // Broadcast an array.
-    Teuchos::Array<Teuchos::RCP<GeometricEntity> > points(2);
+    Teuchos::Array<GeometricEntity> points(2);
     double x_1 = 3.2 + comm_size;
     double y_1 = -9.233 + comm_size;
     double z_1 = 1.3 + comm_size;
@@ -210,15 +209,15 @@ TEUCHOS_UNIT_TEST( Point, communication_test )
     p2[2] = z_2;
     if ( 0 == comm->getRank() )
     {
-	points[0] = Teuchos::rcp( new Point<3>(0, 0, p1) );
-	points[1] = Teuchos::rcp( new Point<3>(1, 0, p2) );
+	points[0] = Point<3>(0, 0, p1);
+	points[1] = Point<3>(1, 0, p2);
     }
     Teuchos::broadcast( *comm, 0, points() );
-    points[0]->centroid( coords );
+    points[0].centroid( coords );
     TEST_EQUALITY( coords[0], x_1 );
     TEST_EQUALITY( coords[1], y_1 );
     TEST_EQUALITY( coords[2], z_1 );
-    points[1]->centroid( coords );
+    points[1].centroid( coords );
     TEST_EQUALITY( coords[0], x_2 );
     TEST_EQUALITY( coords[1], y_2 );
     TEST_EQUALITY( coords[2], z_2 );

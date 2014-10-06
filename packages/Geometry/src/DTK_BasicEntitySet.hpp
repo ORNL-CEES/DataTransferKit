@@ -32,20 +32,19 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_BasicEntitySetImplementation.hpp
+ * \brief DTK_BasicEntitySet.hpp
  * \author Stuart R. Slattery
  * \brief Basic entity set implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_BASICENTITYSETIMPLEMENTATION_HPP
-#define DTK_BASICENTITYSETIMPLEMENTATION_HPP
+#ifndef DTK_BASICENTITYSET_HPP
+#define DTK_BASICENTITYSET_HPP
 
 #include <unordered_map>
 
 #include "DTK_EntitySet.hpp"
 #include "DTK_GeometricEntity.hpp"
-#include "DTK_Box.hpp"
 #include "DTK_DerivedObjectRegistry.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -57,37 +56,95 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class BasicEntitySetImplementation
-  \brief Basic implementation of the entity set interface.
+  \class BasicEntitySetIterator
+  \brief Iterator over entities in a basic set.
 */
-//---------------------------------------------------------------------------//
-class BasicEntitySetImplementation : public EntitySet
+class BasicEntitySetIterator : public EntitySetIterator
 {
   public:
 
+    // Default constructor.
+    BasicEntitySetIterator() { /* ... */ }
+
+    // Constructor.
+    BasicEntitySetIterator(
+	const std::unordered_map<EntityId,GeometricEntity>::const_iterator& 
+	map_it )
+	: d_map_it( map_it )
+    { /* ... */ }
+
+    // Pre-increment operator.
+    EntitySetIterator& operator++()
+    { 
+	++d_map_it; 
+	return *this; 
+    }
+
+    // Post-increment operator.
+    EntitySetIterator operator++(int)
+    { 
+	BasicEntitySetIterator inc_it(d_map_it);
+	++d_map_it;
+	return inc_it;
+    }
+
+    // Dereference operator.
+    const GeometricEntity& operator*(void)
+    { return d_map_it->second; }
+
+    // Dereference operator.
+    const GeometricEntity* operator->(void)
+    { return &(d_map_it->second); }
+
+    // Equal comparison operator.
+    bool operator==( const EntitySetIterator& rhs ) const
+    { return d_map_it == 
+	    Teuchos::rcp_dynamic_cast<BasicEntitySetIterator>( 
+		rhs.b_iterator_impl)->d_map_it; }
+
+    // Not equal comparison operator.
+    bool operator!=( const EntitySetIterator& rhs ) const
+    { return d_map_it != 
+	    Teuchos::rcp_dynamic_cast<BasicEntitySetIterator>( 
+		rhs.b_iterator_impl)->d_map_it; }
+
+  private:
+
+    // Iterator over the entity map.
+    std::unordered_map<EntityId,GeometricEntity>::const_iterator d_map_it;
+};
+
+//---------------------------------------------------------------------------//
+/*!
+  \class BasicEntitySet
+  \brief Basic implementation of the entity set interface.
+*/
+//---------------------------------------------------------------------------//
+class BasicEntitySet : public EntitySet
+{
+  public:
+
+    //@{
     //! Entity map typedefs.
-    typedef std::unordered_map<EntityId,Teuchos::RCP<GeometricEntity> >::iterator
-    EntityIterator;
-    typedef std::unordered_map<EntityId,Teuchos::RCP<GeometricEntity> >::const_iterator
-    ConstEntityIterator;
-    typedef std::pair<EntityId,Teuchos::RCP<GeometricEntity> > EntityIdPair;
+    typedef std::pair<EntityId,GeometricEntity> EntityIdPair;
+    //@}
 
     /*!
      * \brief Default constructor.
      */
-    BasicEntitySetImplementation();
+    BasicEntitySet();
 
     /*!
      * \brief Constructor.
      */
-    BasicEntitySetImplementation( 
+    BasicEntitySet( 
 	const Teuchos::RCP<const Teuchos::Comm<int> > comm,
 	const int physical_dimension );
 
     /*!
      * \brief Destructor.
      */
-    ~BasicEntitySetImplementation();
+    ~BasicEntitySet();
 
     //@{
     //! Identification functions.
@@ -138,6 +195,28 @@ class BasicEntitySetImplementation : public EntitySet
 	const int parametric_dimension ) const;
     
     /*!
+     * \brief Get a forward iterator assigned to the beginning of the
+     * entities in the set of the given parametric dimension.  
+     * \param parametric_dimension Get a forward iterator to the beginning of
+     * the entities of this dimension.  
+     * \return a forward iterator assigned to the beginning of the entities in
+     * the set of the given parametric dimension. 
+     */
+    std::iterator<std::forward_iterator_tag,GeometricEntity>
+    entityIteratorBegin( const int parametric_dimension ) const;
+
+    /*!
+     * \brief Get a forward iterator assigned to the end of the entities in
+     * the set of the given parametric dimension.
+     * \param parametric_dimension Get a forward iterator to the end of the
+     * entities of this dimension.
+     * \return a forward iterator assigned to the end of the entities in the
+     * set of the given parametric dimension.
+     */
+    std::iterator<std::forward_iterator_tag,GeometricEntity>
+    entityIteratorEnd( const int parametric_dimension ) const;
+
+    /*!
      * \brief Get the identifiers for all local entities in the set of a given
      * parametric dimension.
      * \param parametric_dimension Get the entities of this parametric
@@ -155,7 +234,7 @@ class BasicEntitySetImplementation : public EntitySet
      * \param entity The entity with the given id.
      */
     void getEntity( const EntityId entity_id, 
-		    Teuchos::RCP<GeometricEntity>& entity ) const;
+		    GeometricEntity& entity ) const;
     //@}
 
     //@{
@@ -170,17 +249,17 @@ class BasicEntitySetImplementation : public EntitySet
      * \brief Get the local bounding box of entities of the set.
      * \return A Cartesian box the bounds all local entities in the set.
      */
-    void localBoundingBox( Box& bounding_box ) const;
+    void localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;
 
     /*!
      * \brief Get the global bounding box of entities of the set.
      * \return A Cartesian box the bounds all global entities in the set.
      */
-    void globalBoundingBox( Box& bounding_box ) const;
+    void globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;
     //@}
 
     //@{
-    //! BasicEntitySetImplementation modification functions.
+    //! BasicEntitySet modification functions.
     /*!
      * \brief Indicate that the entity set will be modified.
      */
@@ -191,7 +270,7 @@ class BasicEntitySetImplementation : public EntitySet
      * entity set has been notified of modification.
      * \param entity Add this entity to the set.
      */
-    void addEntity( const Teuchos::RCP<GeometricEntity>& entity );
+    void addEntity( const GeometricEntity& entity );
 
     /*!
      * \brief Indicate that modification of the entity set is complete.
@@ -201,26 +280,35 @@ class BasicEntitySetImplementation : public EntitySet
 
   private:
 
+    // Given a parametric dimension, get an id-to-entity map.
+    std::unordered_map<EntityId,GeometricEntity>& getEntityMap(
+	const int parametric_dimension );
+    
+  private:
+
     // Parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
     // Physical dimension.
     int d_dimension;
 
-    // Entity-to-id map.
-    std::unordered_map<EntityId,Teuchos::RCP<GeometricEntity> > d_entities;
+    // Id-to-dimension map.
+    std::unordered_map<EntityId,int> d_entity_dims;
+
+    // Id-to-entity maps.
+    Teuchos::Array<std::unordered_map<EntityId,GeometricEntity> > d_entities;
 };
 
 //---------------------------------------------------------------------------//
 // DerivedObjectRegistrationPolicy implementation.
 //---------------------------------------------------------------------------//
 template<>
-class DerivedObjectRegistrationPolicy<BasicEntitySetImplementation>
+class DerivedObjectRegistrationPolicy<BasicEntitySet>
 {
   public:
 
     //! Base class type.
-    typedef BasicEntitySetImplementation object_type;
+    typedef BasicEntitySet object_type;
 
     /*!
      * \brief Register a derived class with a base class.
@@ -237,8 +325,8 @@ class DerivedObjectRegistrationPolicy<BasicEntitySetImplementation>
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_BASICENTITYSETIMPLEMENTATION_HPP
+#endif // end DTK_BASICENTITYSET_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_BasicEntitySetImplementation.hpp
+// end DTK_BasicEntitySet.hpp
 //---------------------------------------------------------------------------//

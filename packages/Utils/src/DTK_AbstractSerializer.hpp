@@ -56,11 +56,10 @@ namespace DataTransferKit
   \class AbstractSerializer
   \brief Serializer for abstract objects.
 
-  The data packets are reference counted pointers to the base class
-  objects. Abstract classes that can implement the
-  AbstractSerializableObjectPolicy can use this class to quickly implement
-  Teuchos::SerializationTraits. This object mimics the Teuchos indirect
-  serialization traits.
+  The data packets are the base class objects. Abstract classes that can
+  implement the AbstractSerializableObjectPolicy can use this class to quickly
+  implement Teuchos::SerializationTraits. This object mimics the Teuchos
+  indirect serialization traits.
 */
 //---------------------------------------------------------------------------//
 template<class Ordinal, class T>
@@ -71,7 +70,6 @@ class AbstractSerializer
     //@{
     //! Typdefs.
     typedef Ordinal                             ordinal_type;
-    typedef Teuchos::RCP<T>                     Packet;
     typedef AbstractBuildableObjectPolicy<T>    ABOP;
     typedef AbstractSerializableObjectPolicy<T> ASOP;
     //@}
@@ -80,11 +78,11 @@ class AbstractSerializer
 
     // Return the number of bytes for count objects.
     static Ordinal fromCountToIndirectBytes( const Ordinal count, 
-					     const Packet buffer[] );
+					     const T buffer[] );
 
     // Serialize to an indirect char buffer.
     static void serialize( const Ordinal count, 
-			   const Packet buffer[], 
+			   const T buffer[], 
 			   const Ordinal bytes, 
 			   char charBuffer[] );
 
@@ -96,7 +94,7 @@ class AbstractSerializer
     static void deserialize( const Ordinal bytes, 
 			     const char charBuffer[], 
 			     const Ordinal count, 
-			     Packet buffer[] );
+			     T buffer[] );
 
   public:
 
