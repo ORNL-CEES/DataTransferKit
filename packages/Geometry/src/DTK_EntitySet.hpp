@@ -57,6 +57,19 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Enum for entity types.
+ */
+//---------------------------------------------------------------------------//
+enum EntityType
+{
+    NODE,
+    EDGE,
+    FACE,
+    VOLUME
+};
+
+//---------------------------------------------------------------------------//
+/*!
   \class EntitySet
   \brief Geometric entity set interface definition.
 
@@ -114,8 +127,9 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
      * \return An iterator to the entities that satisfy the predicate.
      */
     virtual EntityIterator
-    entityIterator( 
-	const std::function<bool(GeometricEntity)>& predicate = selectAll ) const;
+    entityIterator(
+	const EntityType entity_type,
+	const std::function<bool(const GeometricEntity&)>& predicate = selectAll ) const;
 
     /*!
      * \brief Given an EntityId, get the entity.

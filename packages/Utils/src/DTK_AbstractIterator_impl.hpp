@@ -139,7 +139,7 @@ AbstractIterator<ValueType> AbstractIterator<ValueType>::operator++(ValueType n)
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     const AbstractIterator<ValueType> tmp(*this);
-    AbstractIterator<ValueType> it = tmp;
+    AbstractIterator<ValueType> it = b_iterator_impl->operator++();
     while ( it != end() )
     {
 	if ( !b_predicate(*it) )
@@ -193,14 +193,6 @@ bool AbstractIterator<ValueType>::operator!=(
 }
 
 //---------------------------------------------------------------------------//
-// Create a clone of the iterator.
-template<class ValueType>
-AbstractIterator<ValueType>* AbstractIterator<ValueType>::clone() const
-{
-    return new AbstractIterator<ValueType>();
-}
-
-//---------------------------------------------------------------------------//
 // Size of the iterator.
 template<class ValueType>
 std::size_t AbstractIterator<ValueType>::size() const
@@ -225,6 +217,14 @@ AbstractIterator<ValueType> AbstractIterator<ValueType>::begin() const
 }
 
 //---------------------------------------------------------------------------//
+// Create a clone of the iterator.
+template<class ValueType>
+AbstractIterator<ValueType>* AbstractIterator<ValueType>::clone() const
+{
+    return new AbstractIterator<ValueType>();
+}
+
+//---------------------------------------------------------------------------//
 // An iterator assigned to the end.
 template<class ValueType>
 AbstractIterator<ValueType> AbstractIterator<ValueType>::end() const
@@ -234,6 +234,44 @@ AbstractIterator<ValueType> AbstractIterator<ValueType>::end() const
 	return b_iterator_impl->end();
     }
     return AbstractIterator<ValueType>();
+}
+
+//---------------------------------------------------------------------------//
+// Static Members.
+//---------------------------------------------------------------------------//
+template<class ValueType>
+AbstractIterator<ValueType> AbstractIterator<ValueType>::setOperation(
+    ( const IteratorSetOperation operation,
+      const AbstractIterator<ValueType>& it_1,
+      const AbstractIterator<ValueType>& it_2 )
+{
+    AbstractIterator<ValueType> set_it( it_1 );
+    if ( INTERSECTION == operation )
+    {
+	set_it.b_predicate = 
+	    std::logical_and<std::function<bool(ValueType&)> >(
+		it_1.b_predicate, it_2.b_predicate );
+    }
+    else if ( UNION == operation )
+    {
+	set_it.b_predicate = 
+	    std::logical_or<std::function<bool(ValueType&)> >(
+		it_1.b_predicate, it_2.b_predicate );
+    }
+    else if ( SUBTRACTION == operation )
+    {
+	set_it.b_predicate = 
+	    std::logical_and<std::function<bool(ValueType&)> >(
+		it_1.b_predicate, 
+		std::logical_not<std::function<bool(ValueType&)> >(
+		    it_2.b_predicate) );
+    }
+    else
+    {
+	bool bad_operation_type = true;
+	DTK_INSIST( !bad_operation_type );
+    }
+    return set_it;
 }
 
 //---------------------------------------------------------------------------//

@@ -50,6 +50,18 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
+ \brief Enum for set operators on iterators.
+ */
+//---------------------------------------------------------------------------//
+enum IteratorSetOperation
+{
+    INTERSECTION,
+    UNION,
+    SUBTRACTION
+};
+
+//---------------------------------------------------------------------------//
+/*!
   \class AbstractIterator
   \brief Abstract iterator interface.
 
@@ -105,10 +117,6 @@ class AbstractIterator :
     // Not equal comparison operator.
     virtual bool operator!=( const AbstractIterator<ValueType>& rhs ) const;
 
-    // Create a clone of the iterator. We need this for the copy constructor
-    // and assignment operator to pass along the underlying implementation.
-    virtual AbstractIterator<ValueType>* clone() const;
-
     // Size of the iterator.
     virtual std::size_t size() const;
 
@@ -118,13 +126,23 @@ class AbstractIterator :
     // An iterator assigned to the end.
     virtual AbstractIterator<ValueType> end() const;
 
+    // Apply a set operation to two iterators to create a new iterator.
+    static AbstractIterator<ValueType> 
+    setOperation( const IteratorSetOperation operation,
+		  const AbstractIterator<ValueType>& it_1,
+		  const AbstractIterator<ValueType>& it_2 );
+
   protected:
+
+    // Create a clone of the iterator. We need this for the copy constructor
+    // and assignment operator to pass along the underlying implementation.
+    virtual AbstractIterator<ValueType>* clone() const;
 
     // Implementation.
     AbstractIterator<ValueType>* b_iterator_impl;
 
     // Predicate.
-    std::function<bool(ValueType)> b_predicate;
+    std::function<bool(ValueType&)> b_predicate;
 };
 
 //---------------------------------------------------------------------------//

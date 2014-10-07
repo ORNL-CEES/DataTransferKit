@@ -148,13 +148,6 @@ class VectorIterator : public DataTransferKit::AbstractIterator<T>
 	return ( rhs_vec_impl->d_vec_it != d_vec_it );
     }
 
-    // Create a clone of the iterator. We need this for the copy constructor
-    // and assignment operator to pass along the underlying implementation.
-    DataTransferKit::AbstractIterator<T>* clone() const
-    {
-	return new VectorIterator(*this);
-    }
-
     // Size of the iterator.
     std::size_t size() const
     { 
@@ -175,6 +168,15 @@ class VectorIterator : public DataTransferKit::AbstractIterator<T>
 	return end_it;
     }
 
+    // Create a clone of the iterator. We need this for the copy constructor
+    // and assignment operator to pass along the underlying implementation.
+    DataTransferKit::AbstractIterator<T>* clone() const
+    {
+	return new VectorIterator(*this);
+    }
+
+  private:
+
     // Vector.
     Teuchos::RCP<std::vector<T> > d_values;
 
@@ -188,6 +190,7 @@ class VectorIterator : public DataTransferKit::AbstractIterator<T>
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
+// Basic iterator test.
 TEUCHOS_UNIT_TEST( AbstractIterator, iterator_test )
 {
     using namespace DataTransferKit;
@@ -231,9 +234,36 @@ TEUCHOS_UNIT_TEST( AbstractIterator, iterator_test )
     }
 
     // Check the increment operators.
-
+    abstract_it = begin_it;
+    ++abstract_it;
+    TEST_EQUALITY( *abstract_it, (*data)[1] );
+    abstract_it++;
+    TEST_EQUALITY( *abstract_it, (*data)[2] );
+    int value = *(++abstract_it);
+    TEST_EQUALITY( value, (*data)[3] );
+    value = (*abstract_it++);
+    TEST_EQUALITY( value, (*data)[3] );
+    TEST_EQUALITY( *abstract_it, (*data)[4] );
 }
 
+//---------------------------------------------------------------------------//
+// Even predicate test.
+TEUCHOS_UNIT_TEST( AbstractIterator, even_predicate_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a vector.
+    int num_data = 10;
+    Teuchos::RCP<std::vector<int> > data =
+	Teuchos::rcp( new std::vector<int>(num_data) );
+    for ( int i = 0; i < num_data; ++i )
+    {
+	(*data)[i] = std::rand();
+    }
+
+    // Create an iterator over the vector.
+    AbstractIterator<int> abstract_it = VectorIterator<int>( data );
+}
 //---------------------------------------------------------------------------//
 // end tstAbstractIterator.cpp
 //---------------------------------------------------------------------------//
