@@ -39,7 +39,7 @@ class VectorIterator : public DataTransferKit::AbstractIterator<T>
      * \brief Default constructor.
      */
     VectorIterator()
-	: d_it_value( 0 )
+	: d_it_value( NULL )
     {
 	this->b_iterator_impl = NULL;
     }
@@ -50,7 +50,7 @@ class VectorIterator : public DataTransferKit::AbstractIterator<T>
     VectorIterator( const Teuchos::RCP<std::vector<T> >& values ) 
 	: d_values( values )
 	, d_vec_it( d_values->begin() )
-	, d_it_value( 0 )
+	, d_it_value( &(*d_vec_it) )
     {
 	this->b_iterator_impl = NULL;
     }
@@ -59,10 +59,10 @@ class VectorIterator : public DataTransferKit::AbstractIterator<T>
      * \brief Predicate constructor.
      */
     VectorIterator( const Teuchos::RCP<std::vector<T> >& values,
-		    const std::function<bool(T)>& predicate ) 
+		    const std::function<bool(T&)>& predicate ) 
 	: d_values( values )
 	, d_vec_it( d_values->begin() )
-	, d_it_value( 0 )
+	, d_it_value( &(*d_vec_it) )
     {
 	this->b_iterator_impl = NULL;
 	this->b_predicate = predicate;
@@ -141,11 +141,7 @@ class VectorIterator : public DataTransferKit::AbstractIterator<T>
     // Not equal comparison operator.
     bool operator!=( const DataTransferKit::AbstractIterator<T>& rhs ) const
     {
-	const VectorIterator<T>* rhs_vec = 
-	    static_cast<const VectorIterator<T>*>(&rhs);
-	const VectorIterator<T>* rhs_vec_impl = 
-	    static_cast<const VectorIterator<T>*>(rhs_vec->b_iterator_impl);
-	return ( rhs_vec_impl->d_vec_it != d_vec_it );
+	return !( operator==(rhs) );
     }
 
     // Size of the iterator.
@@ -258,12 +254,50 @@ TEUCHOS_UNIT_TEST( AbstractIterator, even_predicate_test )
 	Teuchos::rcp( new std::vector<int>(num_data) );
     for ( int i = 0; i < num_data; ++i )
     {
-	(*data)[i] = std::rand();
+	(*data)[i] = i;
     }
 
-    // Create an iterator over the vector.
-    AbstractIterator<int> abstract_it = VectorIterator<int>( data );
+    // Create an iterator over the vector for the even numbers.
+    std::function<bool(int&)> even_func = [](int& n){ return ((n%2) == 0); };
+    AbstractIterator<int> even_it = VectorIterator<int>( data, even_func );
+    TEST_ASSERT( even_it.size() > 0 );
+
+    // Check the iterator in a for loop.
+    AbstractIterator<int> begin_it = even_it.begin();
+    AbstractIterator<int> end_it = even_it.end();
+    for ( even_it = begin_it;
+    	  even_it != end_it; 
+    	  ++even_it )
+    {
+	TEST_ASSERT( even_func(*even_it) );
+    }
+
+    // Create an iterator over the vector for numbers with 2 as the last
+    // number.
+    std::function<bool(int&)> ltwo_func = [](int& n){ return ((n%10) == 2); };
+    AbstractIterator<int> ltwo_it = VectorIterator<int>( data, ltwo_func );
+    TEST_ASSERT( ltwo_it.size() > 0 );
+    begin_it = ltwo_it.begin();
+    end_it = ltwo_it.end();
+    for ( ltwo_it = begin_it; ltwo_it != end_it; ++ltwo_it )
+    {
+	TEST_ASSERT( ltwo_func(*ltwo_it) );
+    }
+
+    // // Create an iterator over the vector for the odd numbers.
+    // std::function<bool(int&)> odd_func = [](int& n){ std::cout << "CALL ODD" << std::endl;return ((n%2) == 1); };
+    // AbstractIterator<int> odd_it = VectorIterator<int>( data, odd_func );
+    // TEST_ASSERT( odd_it.size() > 0 );
+
+    // // Reset the even iterator.
+    // even_it = even_it.begin();
+
+    // // Create the intersection of the even and odd set. It should be empty.
+    // AbstractIterator<int> even_odd_intersect_it = 
+    // 	AbstractIterator<int>::setOperation( INTERSECTION, even_it, odd_it );
+    // TEST_EQUALITY( even_odd_intersect_it.size(), 0 );
 }
+
 //---------------------------------------------------------------------------//
 // end tstAbstractIterator.cpp
 //---------------------------------------------------------------------------//

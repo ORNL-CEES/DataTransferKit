@@ -71,6 +71,7 @@ AbstractIterator<ValueType>::AbstractIterator(
 	b_iterator_impl = rhs.b_iterator_impl->clone();
     }
     b_predicate = rhs.b_predicate;
+    advanceToFirstValidElement();
 }
 
 //---------------------------------------------------------------------------//
@@ -97,6 +98,7 @@ AbstractIterator<ValueType>& AbstractIterator<ValueType>::operator=(
 	b_iterator_impl = rhs.b_iterator_impl->clone();
     }
     b_predicate = rhs.b_predicate;
+    advanceToFirstValidElement();
     return *this;
 }
 
@@ -117,19 +119,14 @@ template<class ValueType>
 AbstractIterator<ValueType>& AbstractIterator<ValueType>::operator++()
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
+    DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
     AbstractIterator<ValueType>& it = b_iterator_impl->operator++();
-    while ( it != end() )
+    AbstractIterator<ValueType> end = b_iterator_impl->end();
+    while ( it != end && !b_predicate(*it) )
     {
-	if ( !b_predicate(*it) )
-	{
-	    it = b_iterator_impl->operator++();
-	}
-	else
-	{
-	    break;
-	}
+	it = b_iterator_impl->operator++();
     }
-    return it;
+    return it; 
 }
 
 //---------------------------------------------------------------------------//
@@ -138,18 +135,12 @@ template<class ValueType>
 AbstractIterator<ValueType> AbstractIterator<ValueType>::operator++(ValueType n)
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
+    DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
     const AbstractIterator<ValueType> tmp(*this);
     AbstractIterator<ValueType> it = b_iterator_impl->operator++();
-    while ( it != end() )
+    while ( it != b_iterator_impl->end() && !b_predicate(*it) )
     {
-	if ( !b_predicate(*it) )
-	{
-	    it = b_iterator_impl->operator++();
-	}
-	else
-	{
-	    break;
-	}
+	it = b_iterator_impl->operator++();
     }
     return tmp;
 }
@@ -237,40 +228,60 @@ AbstractIterator<ValueType> AbstractIterator<ValueType>::end() const
 }
 
 //---------------------------------------------------------------------------//
+// Advance the iterator to the first valid element that satisfies the
+// predicate or the end of the iterator. 
+template<class ValueType>
+void AbstractIterator<ValueType>::advanceToFirstValidElement()
+{
+    DTK_REQUIRE( NULL != b_iterator_impl );
+    if ( !b_predicate(**this) && (*this != end()) )
+    {
+	operator++();
+    }
+}
+
+//---------------------------------------------------------------------------//
 // Static Members.
 //---------------------------------------------------------------------------//
 template<class ValueType>
-AbstractIterator<ValueType> AbstractIterator<ValueType>::setOperation(
-    ( const IteratorSetOperation operation,
-      const AbstractIterator<ValueType>& it_1,
-      const AbstractIterator<ValueType>& it_2 )
+AbstractIterator<ValueType> 
+AbstractIterator<ValueType>::setOperation(
+    const IteratorSetOperation operation,
+    const AbstractIterator<ValueType>& it_1,
+    const AbstractIterator<ValueType>& it_2 )
 {
     AbstractIterator<ValueType> set_it( it_1 );
     if ( INTERSECTION == operation )
     {
-	set_it.b_predicate = 
-	    std::logical_and<std::function<bool(ValueType&)> >(
-		it_1.b_predicate, it_2.b_predicate );
+	set_it.b_predicate = std::bind( 
+	    std::logical_and<bool>(),
+	    std::bind(it_1.b_predicate,std::placeholders::_1),
+	    std::bind(it_2.b_predicate,std::placeholders::_1) 
+	    );
     }
     else if ( UNION == operation )
     {
-	set_it.b_predicate = 
-	    std::logical_or<std::function<bool(ValueType&)> >(
-		it_1.b_predicate, it_2.b_predicate );
+    	set_it.b_predicate = std::bind( 
+    	    std::logical_or<bool>(),
+	    std::bind(it_1.b_predicate,std::placeholders::_1),
+	    std::bind(it_2.b_predicate,std::placeholders::_1) 
+	    );
     }
     else if ( SUBTRACTION == operation )
     {
-	set_it.b_predicate = 
-	    std::logical_and<std::function<bool(ValueType&)> >(
-		it_1.b_predicate, 
-		std::logical_not<std::function<bool(ValueType&)> >(
-		    it_2.b_predicate) );
+    	set_it.b_predicate = std::bind( 
+    	    std::logical_and<bool>(),
+	    std::bind(it_1.b_predicate,std::placeholders::_1),
+	    std::bind(std::logical_not<bool>(),
+		      std::bind(it_2.b_predicate,std::placeholders::_1))
+	    );
     }
     else
     {
 	bool bad_operation_type = true;
 	DTK_INSIST( !bad_operation_type );
     }
+    set_it.advanceToFirstValidElement();
     return set_it;
 }
 

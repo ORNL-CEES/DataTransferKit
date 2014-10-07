@@ -143,6 +143,12 @@ class AbstractIterator :
 
     // Predicate.
     std::function<bool(ValueType&)> b_predicate;
+
+  private:
+
+    // Advance the iterator to the first valid element that satisfies the
+    // predicate or the end of the iterator.
+    void advanceToFirstValidElement();
 };
 
 //---------------------------------------------------------------------------//
