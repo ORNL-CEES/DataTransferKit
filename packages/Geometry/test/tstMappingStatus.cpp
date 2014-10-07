@@ -30,7 +30,7 @@
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( Box, status_test )
+TEUCHOS_UNIT_TEST( MappingStatus, status_test )
 {
     DataTransferKit::MappingStatus status_1;
     TEST_EQUALITY( status_1.success(), false );

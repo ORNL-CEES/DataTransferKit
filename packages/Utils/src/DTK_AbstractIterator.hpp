@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------//
 /*
-  Copyright (c) 2012, Stuart R. Slattery
+  Copyright (c) 2014, Stuart R. Slattery
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
   notice, this list of conditions and the following disclaimer in the
   documentation and/or other materials provided with the distribution.
 
-  *: Neither the name of the University of Wisconsin - Madison nor the
+  *: Neither the name of the Oak Ridge National Laboratory nor the
   names of its contributors may be used to endorse or promote products
   derived from this software without specific prior written permission.
 
@@ -32,94 +32,99 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Point.hpp
+ * \brief DTK_AbstractIterator.hpp
  * \author Stuart R. Slattery
- * \brief Point declaration.
+ * \brief Abstract iterator interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_POINT_HPP
-#define DTK_POINT_HPP
+#ifndef DTK_ABSTRACTITERATOR_HPP
+#define DTK_ABSTRACTITERATOR_HPP
 
-#include "DTK_PointImpl.hpp"
-#include "DTK_GeometryTypes.hpp"
-#include "DTK_GeometricEntity.hpp"
-#include "DTK_Box.hpp"
-#include "DTK_AbstractObjectRegistry.hpp"
+#include <iterator>
+#include <functional>
 
-#include <Teuchos_ArrayView.hpp>
-
-#include <iostream>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class Point
- * \brief Point container declaration.
- */
+  \class AbstractIterator
+  \brief Abstract iterator interface.
+
+  This class provides a mechanism to iterate over a group of abstract objects
+  with a specified predicate operation for selection.
+*/
 //---------------------------------------------------------------------------//
-template<int DIM>
-class Point : public GeometricEntity
+template<class ValueType>
+class AbstractIterator : 
+	public std::iterator<std::forward_iterator_tag,ValueType>
 {
   public:
 
-    // Default constructor.
-    Point();
-
-    // Array constructor.
-    Point( const EntityId global_id, 
-	   const int owner_rank,
-	   const Teuchos::Array<double>& coordinates );
-
-    // Destructor.
-    ~Point();
-
-    //@{
-    //! Coordinate access functions.
-    // Get the coordinates of the point.
-    void getCoordinates( Teuchos::ArrayView<const double>& coordinates ) const;
-    //@}
-    //@}
-
-    // Get the byte size for the point.
-    static std::size_t byteSize();
-
-  private:
-
-    // Point implementation.
-    Teuchos::RCP<PointImpl<DIM> > d_point_impl;
-};
-
-//---------------------------------------------------------------------------//
-//! overload for printing Point
-template<int DIM>
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point<DIM>& p); 
-
-//---------------------------------------------------------------------------//
-// AbstractObjectRegistrationPolicy implementation.
-//---------------------------------------------------------------------------//
-template<int DIM>
-class AbstractObjectRegistrationPolicy<Point<DIM> >
-{
-  public:
-
-    //! Base class type.
-    typedef Point<DIM> object_type;
+    //! The value type under the iterator.
+    typedef ValueType value_type;
 
     /*!
-     * \brief Register a derived class with a base class.
+     * \brief Constructor.
      */
-    static void registerDerivedClassWithBaseClass()
-    {
-	// Register the constructor with the base class
-	// AbstractBuildableObject interface.
-	GeometricEntity::setDerivedClassFactory<Point<DIM> >();
+    AbstractIterator();
 
-	// Register the byte size with the base class
-	// AbstractSerializableObject interface.
-	GeometricEntity::setDerivedClassByteSize( Point<DIM>::byteSize() );
-    }
+    /*!
+     * \brief Copy constructor.
+     */
+    AbstractIterator( const AbstractIterator<ValueType>& rhs );
+
+    /*!
+     * \brief Assignment operator.
+     */
+    AbstractIterator& 
+    operator=( const AbstractIterator<ValueType>& rhs );
+
+    /*!
+     * \brief Destructor.
+     */
+    virtual ~AbstractIterator();
+
+    // Pre-increment operator.
+    virtual AbstractIterator<ValueType>& operator++();
+
+    // Post-increment operator.
+    virtual AbstractIterator<ValueType> operator++(ValueType);
+
+    // Dereference operator.
+    virtual ValueType& operator*(void);
+
+    // Dereference operator.
+    virtual ValueType* operator->(void);
+
+    // Equal comparison operator.
+    virtual bool operator==( const AbstractIterator<ValueType>& rhs ) const;
+
+    // Not equal comparison operator.
+    virtual bool operator!=( const AbstractIterator<ValueType>& rhs ) const;
+
+    // Create a clone of the iterator. We need this for the copy constructor
+    // and assignment operator to pass along the underlying implementation.
+    virtual AbstractIterator<ValueType>* clone() const;
+
+    // Size of the iterator.
+    virtual std::size_t size() const;
+
+    // An iterator assigned to the beginning.
+    virtual AbstractIterator<ValueType> begin() const;
+
+    // An iterator assigned to the end.
+    virtual AbstractIterator<ValueType> end() const;
+
+  protected:
+
+    // Implementation.
+    AbstractIterator<ValueType>* b_iterator_impl;
+
+    // Predicate.
+    std::function<bool(ValueType)> b_predicate;
 };
 
 //---------------------------------------------------------------------------//
@@ -130,13 +135,12 @@ class AbstractObjectRegistrationPolicy<Point<DIM> >
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_Point_impl.hpp"
+#include "DTK_AbstractIterator_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_POINT_HPP
+#endif // end DTK_ABSTRACTITERATOR_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Point.hpp
+// end DTK_AbstractIterator.hpp
 //---------------------------------------------------------------------------//
-

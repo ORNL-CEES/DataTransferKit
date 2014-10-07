@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_DerivedObjectRegistry.hpp
+ * \brief DTK_AbstractObjectRegistry.hpp
  * \author Stuart R. Slattery
  * \brief Derived class registration with base class.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_DERIVEDOBJECTREGISTRY_HPP
-#define DTK_DERIVEDOBJECTREGISTRY_HPP
+#ifndef DTK_ABSTRACTOBJECTREGISTRY_HPP
+#define DTK_ABSTRACTOBJECTREGISTRY_HPP
 
 #include <Teuchos_RCP.hpp>
 
@@ -47,12 +47,12 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class UndefinedDerivedObjectRegistrationPolicy
+  \class UndefinedAbstractObjectRegistrationPolicy
   \brief Complie time error indicator for policy implementations.
 */
 //---------------------------------------------------------------------------//
 template<typename Derived>
-struct UndefinedDerivedObjectRegistrationPolicy 
+struct UndefinedAbstractObjectRegistrationPolicy 
 {
     static inline Derived notDefined() 
     {
@@ -62,13 +62,13 @@ struct UndefinedDerivedObjectRegistrationPolicy
 
 //---------------------------------------------------------------------------//
 /*!
-  \class DerivedObjectRegistrationPolicy
+  \class AbstractObjectRegistrationPolicy
   \brief Policy definition for objects that can be built through an
   abstract builder.
 */
 //---------------------------------------------------------------------------//
 template<class Derived>
-class DerivedObjectRegistrationPolicy
+class AbstractObjectRegistrationPolicy
 {
   public:
 
@@ -80,7 +80,7 @@ class DerivedObjectRegistrationPolicy
      */
     static void registerDerivedClassWithBaseClass()
     {
-	UndefinedDerivedObjectRegistrationPolicy<Derived>::notDefined();
+	UndefinedAbstractObjectRegistrationPolicy<Derived>::notDefined();
 	return Teuchos::null;
     }
 };
@@ -88,7 +88,7 @@ class DerivedObjectRegistrationPolicy
 //---------------------------------------------------------------------------//
 // Specialization for void.
 template<>
-class DerivedObjectRegistrationPolicy<void>
+class AbstractObjectRegistrationPolicy<void>
 {
   public:
     typedef void object_type;
@@ -98,7 +98,7 @@ class DerivedObjectRegistrationPolicy<void>
 
 //---------------------------------------------------------------------------//
 /*!
-  \class DerivedObjectRegistry
+  \class AbstractObjectRegistry
   \brief Compile-time registy from derived objects inheriting from a base
   class.
 
@@ -117,7 +117,7 @@ template<class Base,
 	 class Derived7 = void, 
 	 class Derived8 = void, 
 	 class Derived9 = void>
-class DerivedObjectRegistry
+class AbstractObjectRegistry
 {
   public:
 
@@ -136,18 +136,18 @@ class DerivedObjectRegistry
     /*!
      * \brief Constructor.
      */
-    DerivedObjectRegistry()
+    AbstractObjectRegistry()
     { /* ... */ }
 
     /*!
      * \brief Destructor.
      */
-    ~DerivedObjectRegistry()
+    ~AbstractObjectRegistry()
     { /* ... */ }
 
     /*!
-     * \brief Set an abstract factory for a DerivedObjectRegistry subclass.
-     * \param factory A factory for a DerivedObjectRegistry subclass.
+     * \brief Set an abstract factory for a AbstractObjectRegistry subclass.
+     * \param factory A factory for a AbstractObjectRegistry subclass.
      */
     static void registerDerivedClasses();
 };
@@ -160,12 +160,12 @@ class DerivedObjectRegistry
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_DerivedObjectRegistry_impl.hpp"
+#include "DTK_AbstractObjectRegistry_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_DERIVEDOBJECTREGISTRY_HPP
+#endif // end DTK_ABSTRACTOBJECTREGISTRY_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_DerivedObjectRegistry.hpp
+// end DTK_AbstractObjectRegistry.hpp
 //---------------------------------------------------------------------------//

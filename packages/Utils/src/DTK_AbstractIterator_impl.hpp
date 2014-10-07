@@ -32,56 +32,95 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityIterator.cpp
+ * \brief DTK_AbstractIterator_impl.hpp
  * \author Stuart R. Slattery
- * \brief Geometric entity set interface.
+ * \brief Abstract iterator interface.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_EntityIterator.hpp"
+#ifndef DTK_ABSTRACTITERATOR_IMPL_HPP
+#define DTK_ABSTRACTITERATOR_IMPL_HPP
+
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-EntityIterator::EntityIterator()
-{ /* ... */ }
+template<class ValueType>
+AbstractIterator<ValueType>::AbstractIterator()
+{
+    // Default predicate always returns true.
+    b_predicate = [](ValueType v){return true;};
+    b_iterator_impl = NULL;
+}
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-EntityIterator::EntityIterator( const EntityIterator& rhs )
+template<class ValueType>
+AbstractIterator<ValueType>::AbstractIterator( 
+    const AbstractIterator<ValueType>& rhs )
 {
-    b_iterator_impl = rhs.clone();
+    b_iterator_impl = NULL;
+    if ( NULL == rhs.b_iterator_impl )
+    {
+	b_iterator_impl = rhs.clone();
+    }
+    else
+    {
+	b_iterator_impl = rhs.b_iterator_impl->clone();
+    }
     b_predicate = rhs.b_predicate;
 }
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-EntityIterator& EntityIterator::operator=( const EntityIterator& rhs )
+template<class ValueType>
+AbstractIterator<ValueType>& AbstractIterator<ValueType>::operator=( 
+    const AbstractIterator<ValueType>& rhs )
 {
     if ( this == &rhs )
     {
 	return *this;
     }
-    b_iterator_impl = rhs.clone();
-    b_predicate = rhs.b_predicate();
+    if ( NULL != b_iterator_impl )
+    {
+	delete b_iterator_impl;
+	b_iterator_impl = NULL;
+    }
+    if ( NULL == rhs.b_iterator_impl )
+    {
+	b_iterator_impl = rhs.clone();
+    }
+    else
+    {
+	b_iterator_impl = rhs.b_iterator_impl->clone();
+    }
+    b_predicate = rhs.b_predicate;
     return *this;
 }
 
 //---------------------------------------------------------------------------//
-EntityIterator::~EntityIterator()
-{ /* ... */ }
+template<class ValueType>
+AbstractIterator<ValueType>::~AbstractIterator()
+{
+    if ( NULL != b_iterator_impl )
+    {
+	delete b_iterator_impl;
+	b_iterator_impl = NULL;
+    }
+}
 
 //---------------------------------------------------------------------------//
 // Pre-increment operator.
-EntityIterator& EntityIterator::operator++()
+template<class ValueType>
+AbstractIterator<ValueType>& AbstractIterator<ValueType>::operator++()
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_iterator_impl) );
-    EntityIterator& it = b_iterator_impl->operator++();
+    DTK_REQUIRE( NULL != b_iterator_impl );
+    AbstractIterator<ValueType>& it = b_iterator_impl->operator++();
     while ( it != end() )
     {
-	if ( !b_predicate(it) )
+	if ( !b_predicate(*it) )
 	{
 	    it = b_iterator_impl->operator++();
 	}
@@ -95,14 +134,15 @@ EntityIterator& EntityIterator::operator++()
 
 //---------------------------------------------------------------------------//
 // Post-increment operator.
-EntityIterator EntityIterator::operator++(int n)
+template<class ValueType>
+AbstractIterator<ValueType> AbstractIterator<ValueType>::operator++(ValueType n)
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_iterator_impl) );
-    const EntityIterator tmp = *this;
-    EntityIterator it = tmp;
+    DTK_REQUIRE( NULL != b_iterator_impl );
+    const AbstractIterator<ValueType> tmp(*this);
+    AbstractIterator<ValueType> it = tmp;
     while ( it != end() )
     {
-	if ( !b_predicate(it) )
+	if ( !b_predicate(*it) )
 	{
 	    it = b_iterator_impl->operator++();
 	}
@@ -116,40 +156,92 @@ EntityIterator EntityIterator::operator++(int n)
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-GeometricEntity& EntityIterator::operator*(void)
+template<class ValueType>
+ValueType& AbstractIterator<ValueType>::operator*(void)
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_iterator_impl) );
+    DTK_REQUIRE( NULL != b_iterator_impl );
     return b_iterator_impl->operator*();
 }
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-GeometricEntity* EntityIterator::operator->(void)
+template<class ValueType>
+ValueType* AbstractIterator<ValueType>::operator->(void)
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_iterator_impl) );
+    DTK_REQUIRE( NULL != b_iterator_impl );
     return b_iterator_impl->operator->();
 }
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-bool EntityIterator::operator==( const EntityIterator& rhs ) const
+template<class ValueType>
+bool AbstractIterator<ValueType>::operator==( 
+    const AbstractIterator<ValueType>& rhs ) const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_iterator_impl) );
+    DTK_REQUIRE( NULL != b_iterator_impl );
     return b_iterator_impl->operator==( rhs );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-bool EntityIterator::operator!=( const EntityIterator& rhs ) const
+template<class ValueType>
+bool AbstractIterator<ValueType>::operator!=( 
+    const AbstractIterator<ValueType>& rhs ) const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_iterator_impl) );
+    DTK_REQUIRE( NULL != b_iterator_impl );
     return b_iterator_impl->operator!=( rhs );
+}
+
+//---------------------------------------------------------------------------//
+// Create a clone of the iterator.
+template<class ValueType>
+AbstractIterator<ValueType>* AbstractIterator<ValueType>::clone() const
+{
+    return new AbstractIterator<ValueType>();
+}
+
+//---------------------------------------------------------------------------//
+// Size of the iterator.
+template<class ValueType>
+std::size_t AbstractIterator<ValueType>::size() const
+{
+    if ( NULL != b_iterator_impl )
+    {
+	return b_iterator_impl->size();
+    }
+    return 0;
+}
+
+//---------------------------------------------------------------------------//
+// An iterator assigned to the beginning.
+template<class ValueType>
+AbstractIterator<ValueType> AbstractIterator<ValueType>::begin() const
+{
+    if ( NULL != b_iterator_impl )
+    {
+	return b_iterator_impl->begin();
+    }
+    return AbstractIterator<ValueType>();
+}
+
+//---------------------------------------------------------------------------//
+// An iterator assigned to the end.
+template<class ValueType>
+AbstractIterator<ValueType> AbstractIterator<ValueType>::end() const
+{
+    if ( NULL != b_iterator_impl )
+    {
+	return b_iterator_impl->end();
+    }
+    return AbstractIterator<ValueType>();
 }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
+#endif // end DTK_ABSTRACTITERATOR_IMPL_HPP
+
 //---------------------------------------------------------------------------//
-// end DTK_EntityIterator.cpp
+// end DTK_AbstractIterator_impl.hpp
 //---------------------------------------------------------------------------//

@@ -32,16 +32,17 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntitySetIterator.hpp
+ * \brief DTK_EntityIterator.hpp
  * \author Stuart R. Slattery
  * \brief Geometric entity set interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYSETITERATOR_HPP
-#define DTK_ENTITYSETITERATOR_HPP
+#ifndef DTK_ENTITYITERATOR_HPP
+#define DTK_ENTITYITERATOR_HPP
 
 #include <iterator>
+#include <functional>
 
 #include "DTK_GeometricEntity.hpp"
 
@@ -51,11 +52,14 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class EntitySetIterator
+  \class EntityIterator
   \brief Geometric entity set iterator interface definition.
+
+  This class provides a mechanism to iterate over a group of entities with a
+  specified predicate operation for selection.
 */
 //---------------------------------------------------------------------------//
-class EntitySetIterator : 
+class EntityIterator : 
 	public std::iterator<std::forward_iterator_tag,GeometricEntity>
 {
   public:
@@ -63,18 +67,28 @@ class EntitySetIterator :
     /*!
      * \brief Constructor.
      */
-    EntitySetIterator();
+    EntityIterator();
+
+    /*!
+     * \brief Copy constructor.
+     */
+    EntityIterator( const EntityIterator& rhs );
+
+    /*!
+     * \brief Assignment operator.
+     */
+    EntityIterator& operator=( const EntityIterator& rhs );
 
     /*!
      * \brief Destructor.
      */
-    virtual ~EntitySetIterator();
+    virtual ~EntityIterator();
 
     // Pre-increment operator.
-    virtual EntitySetIterator& operator++();
+    virtual EntityIterator& operator++();
 
     // Post-increment operator.
-    virtual EntitySetIterator operator++(int);
+    virtual EntityIterator operator++(int);
 
     // Dereference operator.
     virtual GeometricEntity& operator*(void);
@@ -83,23 +97,39 @@ class EntitySetIterator :
     virtual GeometricEntity* operator->(void);
 
     // Equal comparison operator.
-    virtual bool operator==( const EntitySetIterator& rhs ) const;
+    virtual bool operator==( const EntityIterator& rhs ) const;
 
     // Not equal comparison operator.
-    virtual bool operator!=( const EntitySetIterator& rhs ) const;
+    virtual bool operator!=( const EntityIterator& rhs ) const;
+
+    // Create a clone of the iterator. We need this for the copy constructor
+    // and assignment operator to pass along the underlying implementation.
+    virtual Teuchos::RCP<EntityIterator> clone() const;
+
+    // Size of the iterator.
+    virtual std::size_t size() const;
+
+    // An iterator assigned to the beginning.
+    virtual EntityIterator begin();
+
+    // An iterator assigned to the end.
+    virtual EntityIterator end();
 
   protected:
 
     // Implementation.
-    Teuchos::RCP<EntitySetIterator> b_iterator_impl;
+    Teuchos::RCP<EntityIterator> b_iterator_impl;
+
+    // Predicate.
+    std::function<bool(GeometricEntity)> b_predicate;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_ENTITYSETITERATOR_HPP
+#endif // end DTK_ENTITYITERATOR_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_EntitySetIterator.hpp
+// end DTK_EntityIterator.hpp
 //---------------------------------------------------------------------------//

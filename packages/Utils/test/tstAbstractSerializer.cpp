@@ -16,7 +16,7 @@
 #include <DTK_AbstractSerializableObject.hpp>
 #include <DTK_AbstractBuilder.hpp>
 #include <DTK_AbstractBuildableObject.hpp>
-#include <DTK_DerivedObjectRegistry.hpp>
+#include <DTK_AbstractObjectRegistry.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -233,9 +233,9 @@ class DerivedSerializableObjectPolicy<MyNumberIsOne>
     }
 };
 
-// DerivedObjectRegistrationPolicy
+// AbstractObjectRegistrationPolicy
 template<>
-class DerivedObjectRegistrationPolicy<MyNumberIsOne>
+class AbstractObjectRegistrationPolicy<MyNumberIsOne>
 {
   public:
 
@@ -315,9 +315,9 @@ class DerivedSerializableObjectPolicy<MyNumberIsTwo>
     }
 };
 
-// DerivedObjectRegistrationPolicy
+// AbstractObjectRegistrationPolicy
 template<>
-class DerivedObjectRegistrationPolicy<MyNumberIsTwo>
+class AbstractObjectRegistrationPolicy<MyNumberIsTwo>
 {
   public:
 
@@ -343,8 +343,8 @@ TEUCHOS_UNIT_TEST( AbstractSerializer, abstract_serializer )
     using namespace DataTransferKit;
 
     // Register derived classes.
-    DerivedObjectRegistry<BaseClass,
-			  MyNumberIsOne,MyNumberIsTwo>::registerDerivedClasses();
+    AbstractObjectRegistry<BaseClass,
+			   MyNumberIsOne,MyNumberIsTwo>::registerDerivedClasses();
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm_default = 

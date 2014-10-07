@@ -102,35 +102,14 @@ std::size_t EntitySet::globalNumberOfEntities(
 }
  
 //---------------------------------------------------------------------------//
-// Get a forward iterator assigned to the beginning of the entities in the set
-// of the given parametric dimension.
-EntitySetIterator
-EntitySet::entityIteratorBegin( const int parametric_dimension ) const
+// Get an iterator over a subset of the entity set that satisfies the given
+// predicate. 
+EntityIterator EntitySet::entityIterator( 
+    const std::function<bool(GeometricEntity)>& predicate = selectAll ) const
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
-    return EntitySetIterator();
-}
-
-//---------------------------------------------------------------------------//
-// Get a forward iterator assigned to the end of the entities in the set
-// of the given parametric dimension.
-EntitySetIterator
-EntitySet::entityIteratorEnd( const int parametric_dimension ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return EntitySetIterator();
-}
-
-//---------------------------------------------------------------------------//
-// Get the identifiers for all local entities in the set of a given
-void EntitySet::localEntityIds( 
-    const int parametric_dimension,
-    const Teuchos::ArrayView<EntityId>& entity_ids ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
+    return EntityIterator();
 }
 
 //---------------------------------------------------------------------------//

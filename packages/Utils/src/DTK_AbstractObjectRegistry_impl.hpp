@@ -32,16 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_DerivedObjectRegistry_impl.hpp
+ * \brief DTK_AbstractObjectRegistry_impl.hpp
  * \author Stuart R. Slattery
  * \brief Derived class registration with base class.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_DERIVEDOBJECTREGISTRY_IMPL_HPP
-#define DTK_DERIVEDOBJECTREGISTRY_IMPL_HPP
-
-#include <Teuchos_CompileTimeAssert.hpp>
+#ifndef DTK_ABSTRACTOBJECTREGISTRY_IMPL_HPP
+#define DTK_ABSTRACTOBJECTREGISTRY_IMPL_HPP
 
 namespace DataTransferKit
 {
@@ -51,20 +49,20 @@ template<class Base,
 	 class Derived4,class Derived5,class Derived6,
 	 class Derived7,class Derived8,class Derived9> 
 void
-DerivedObjectRegistry<Base,
+AbstractObjectRegistry<Base,
 		      Derived1,Derived2,Derived3,
 		      Derived4,Derived5,Derived6,
 		      Derived7,Derived8,Derived9>::registerDerivedClasses()
 {
-    DerivedObjectRegistrationPolicy<Derived1>::registerDerivedClassWithBaseClass();
-    DerivedObjectRegistrationPolicy<Derived2>::registerDerivedClassWithBaseClass();
-    DerivedObjectRegistrationPolicy<Derived3>::registerDerivedClassWithBaseClass();
-    DerivedObjectRegistrationPolicy<Derived4>::registerDerivedClassWithBaseClass();
-    DerivedObjectRegistrationPolicy<Derived5>::registerDerivedClassWithBaseClass();
-    DerivedObjectRegistrationPolicy<Derived6>::registerDerivedClassWithBaseClass();
-    DerivedObjectRegistrationPolicy<Derived7>::registerDerivedClassWithBaseClass();
-    DerivedObjectRegistrationPolicy<Derived8>::registerDerivedClassWithBaseClass();
-    DerivedObjectRegistrationPolicy<Derived9>::registerDerivedClassWithBaseClass();
+    AbstractObjectRegistrationPolicy<Derived1>::registerDerivedClassWithBaseClass();
+    AbstractObjectRegistrationPolicy<Derived2>::registerDerivedClassWithBaseClass();
+    AbstractObjectRegistrationPolicy<Derived3>::registerDerivedClassWithBaseClass();
+    AbstractObjectRegistrationPolicy<Derived4>::registerDerivedClassWithBaseClass();
+    AbstractObjectRegistrationPolicy<Derived5>::registerDerivedClassWithBaseClass();
+    AbstractObjectRegistrationPolicy<Derived6>::registerDerivedClassWithBaseClass();
+    AbstractObjectRegistrationPolicy<Derived7>::registerDerivedClassWithBaseClass();
+    AbstractObjectRegistrationPolicy<Derived8>::registerDerivedClassWithBaseClass();
+    AbstractObjectRegistrationPolicy<Derived9>::registerDerivedClassWithBaseClass();
 }
 
 //---------------------------------------------------------------------------//
@@ -73,8 +71,8 @@ DerivedObjectRegistry<Base,
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_DERIVEDOBJECTREGISTRY_IMPL_HPP
+#endif // end DTK_ABSTRACTOBJECTREGISTRY_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_DerivedObjectRegistry_impl.hpp
+// end DTK_AbstractObjectRegistry_impl.hpp
 //---------------------------------------------------------------------------//

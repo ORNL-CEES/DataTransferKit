@@ -41,7 +41,9 @@
 #ifndef DTK_ENTITYSET_HPP
 #define DTK_ENTITYSET_HPP
 
-#include "DTK_EntitySetIterator.hpp"
+#include <functional>
+
+#include "DTK_EntityIterator.hpp"
 #include "DTK_GeometricEntity.hpp"
 #include "DTK_AbstractBuilder.hpp"
 #include "DTK_AbstractBuildableObject.hpp"
@@ -106,58 +108,14 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
     //@{
     //! Entity access functions.
     /*!
-     * \brief Get the local number of entities in the set of the given
-     * parametric dimension.
-     * \param parametric_dimension Get the number of entities of this
-     * parametric dimension.
-     * \return The local number of entities in the set.
+     * \brief Get an iterator over a subset of the entity set that satisfies
+     * the given predicate.
+     * \param predicate A predicate to select the entity set to iterate over.
+     * \return An iterator to the entities that satisfy the predicate.
      */
-    virtual std::size_t localNumberOfEntities( 
-	const int parametric_dimension ) const;
-
-    /*!
-     * \brief Get the global number of entities in the set of the given
-     * parametric dimension.
-     * \param parametric_dimension Get the number of entities of this
-     * parametric dimension.
-     * \return The global number of entities in the set.
-     */
-    virtual std::size_t globalNumberOfEntities(
-	const int parametric_dimension ) const;
-    
-    /*!
-     * \brief Get a forward iterator assigned to the beginning of the
-     * entities in the set of the given parametric dimension.  
-     * \param parametric_dimension Get a forward iterator to the beginning of
-     * the entities of this dimension.  
-     * \return a forward iterator assigned to the beginning of the entities in
-     * the set of the given parametric dimension.
-     */
-    virtual EntitySetIterator
-    entityIteratorBegin( const int parametric_dimension ) const;
-
-    /*!
-     * \brief Get a forward iterator assigned to the end of the entities in
-     * the set of the given parametric dimension.
-     * \param parametric_dimension Get a forward iterator to the end of the
-     * entities of this dimension.
-     * \return a forward iterator assigned to the end of the entities in the
-     * set of the given parametric dimension.
-     */
-    virtual EntitySetIterator
-    entityIteratorEnd( const int parametric_dimension ) const;
-
-    /*!
-     * \brief Get the identifiers for all local entities in the set of a given
-     * parametric dimension.
-     * \param parametric_dimension Get the entities of this parametric
-     * dimension.
-     * \param entity_ids A view into an array of size localNumberOfEntities(
-     * parametric_dimension ). Write the entity ids into this array.
-     */
-    virtual void localEntityIds( 
-	const int parametric_dimension,
-	const Teuchos::ArrayView<EntityId>& entity_ids ) const;
+    virtual EntityIterator
+    entityIterator( 
+	const std::function<bool(GeometricEntity)>& predicate = selectAll ) const;
 
     /*!
      * \brief Given an EntityId, get the entity.
@@ -208,6 +166,12 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
      */
     virtual void endModification();
     //@}
+
+    /*!
+     * \brief Select all entities predicate.
+     */
+    inline bool selectAll( const GeometricEntity& entity ) const
+    { return true; }
 };
 
 //---------------------------------------------------------------------------//

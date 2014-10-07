@@ -57,56 +57,44 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
   \class BasicEntitySetIterator
-  \brief Iterator over entities in a basic set.
+  \brief ementation of iterator over entities in a basic set.
 */
 class BasicEntitySetIterator : public EntitySetIterator
 {
   public:
 
     // Default constructor.
-    BasicEntitySetIterator() { /* ... */ }
+    BasicEntitySetIterator();
 
     // Constructor.
     BasicEntitySetIterator(
 	const std::unordered_map<EntityId,GeometricEntity>::const_iterator& 
-	map_it )
-	: d_map_it( map_it )
-    { /* ... */ }
+	map_it );
+
+    // Destructor.
+    ~BasicEntitySetIterator();
 
     // Pre-increment operator.
-    EntitySetIterator& operator++()
-    { 
-	++d_map_it; 
-	return *this; 
-    }
+    EntitySetIterator& operator++();
 
     // Post-increment operator.
-    EntitySetIterator operator++(int)
-    { 
-	BasicEntitySetIterator inc_it(d_map_it);
-	++d_map_it;
-	return inc_it;
-    }
+    EntitySetIterator operator++(int);
 
     // Dereference operator.
-    const GeometricEntity& operator*(void)
-    { return d_map_it->second; }
+    GeometricEntity& operator*(void);
 
     // Dereference operator.
-    const GeometricEntity* operator->(void)
-    { return &(d_map_it->second); }
+    GeometricEntity* operator->(void);
 
     // Equal comparison operator.
-    bool operator==( const EntitySetIterator& rhs ) const
-    { return d_map_it == 
-	    Teuchos::rcp_dynamic_cast<BasicEntitySetIterator>( 
-		rhs.b_iterator_impl)->d_map_it; }
+    bool operator==( const EntitySetIterator& rhs ) const;
 
     // Not equal comparison operator.
-    bool operator!=( const EntitySetIterator& rhs ) const
-    { return d_map_it != 
-	    Teuchos::rcp_dynamic_cast<BasicEntitySetIterator>( 
-		rhs.b_iterator_impl)->d_map_it; }
+    bool operator!=( const EntitySetIterator& rhs ) const;
+
+    // Create a clone of the iterator. We need this for the copy constructor
+    // and assignment operator to pass along the underlying implementation.
+    Teuchos::RCP<EntitySetIterator> clone() const;
 
   private:
 
@@ -195,38 +183,26 @@ class BasicEntitySet : public EntitySet
 	const int parametric_dimension ) const;
     
     /*!
-     * \brief Get a forward iterator assigned to the beginning of the
+     * \brief Get an iterator assigned to the beginning of the
      * entities in the set of the given parametric dimension.  
-     * \param parametric_dimension Get a forward iterator to the beginning of
+     * \param parametric_dimension Get an iterator to the beginning of
      * the entities of this dimension.  
-     * \return a forward iterator assigned to the beginning of the entities in
+     * \return an iterator assigned to the beginning of the entities in
      * the set of the given parametric dimension. 
      */
-    std::iterator<std::forward_iterator_tag,GeometricEntity>
+    EntitySetIterator
     entityIteratorBegin( const int parametric_dimension ) const;
 
     /*!
-     * \brief Get a forward iterator assigned to the end of the entities in
+     * \brief Get an iterator assigned to the end of the entities in
      * the set of the given parametric dimension.
-     * \param parametric_dimension Get a forward iterator to the end of the
+     * \param parametric_dimension Get an iterator to the end of the
      * entities of this dimension.
-     * \return a forward iterator assigned to the end of the entities in the
+     * \return an iterator assigned to the end of the entities in the
      * set of the given parametric dimension.
      */
-    std::iterator<std::forward_iterator_tag,GeometricEntity>
+    EntitySetIterator
     entityIteratorEnd( const int parametric_dimension ) const;
-
-    /*!
-     * \brief Get the identifiers for all local entities in the set of a given
-     * parametric dimension.
-     * \param parametric_dimension Get the entities of this parametric
-     * dimension.
-     * \param entity_ids A view into an array of size localNumberOfEntities(
-     * parametric_dimension ). Write the entity ids into this array.
-     */
-    void localEntityIds( 
-	const int parametric_dimension,
-	const Teuchos::ArrayView<EntityId>& entity_ids ) const;
 
     /*!
      * \brief Given an EntityId, get the entity.

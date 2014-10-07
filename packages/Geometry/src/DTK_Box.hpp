@@ -42,7 +42,7 @@
 #define DTK_BOX_HPP
 
 #include "DTK_GeometricEntity.hpp"
-#include "DTK_DerivedObjectRegistry.hpp"
+#include "DTK_AbstractObjectRegistry.hpp"
 #include "DTK_BoxImpl.hpp"
 
 #include <Teuchos_Tuple.hpp>
@@ -124,10 +124,10 @@ Box operator+( const Box& box_1, const Box& box_2 );
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
 
 //---------------------------------------------------------------------------//
-// DerivedObjectRegistrationPolicy implementation.
+// AbstractObjectRegistrationPolicy implementation.
 //---------------------------------------------------------------------------//
 template<>
-class DerivedObjectRegistrationPolicy<Box>
+class AbstractObjectRegistrationPolicy<Box>
 {
   public:
 
