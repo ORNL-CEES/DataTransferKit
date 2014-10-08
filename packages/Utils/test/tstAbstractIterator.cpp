@@ -160,7 +160,7 @@ class VectorIterator : public DataTransferKit::AbstractIterator<T>
     // An iterator assigned to the beginning.
     DataTransferKit::AbstractIterator<T> begin() const
     { 
-	return VectorIterator( d_values, this->b_predicate );
+	return VectorIterator( d_values , this->b_predicate );
     }
 
     // An iterator assigned to the end.
@@ -192,6 +192,96 @@ class VectorIterator : public DataTransferKit::AbstractIterator<T>
 
 //---------------------------------------------------------------------------//
 // Tests
+//---------------------------------------------------------------------------//
+// Constructor tests.
+TEUCHOS_UNIT_TEST( AbstractIterator, constructor_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a vector.
+    int num_data = 10;
+    Teuchos::RCP<std::vector<int> > data =
+	Teuchos::rcp( new std::vector<int>(num_data) );
+    for ( int i = 0; i < num_data; ++i )
+    {
+	(*data)[i] = std::rand();
+    }
+
+    // Create an iterator over the vector.
+    AbstractIterator<int> abstract_it = VectorIterator<int>( data );
+
+    // Call the copy constructor.
+    AbstractIterator<int> it_1( abstract_it );
+    TEST_ASSERT( abstract_it == it_1 );
+    TEST_ASSERT( abstract_it.size() == it_1.size() );
+    TEST_ASSERT( abstract_it.begin() == it_1.begin() );
+    TEST_ASSERT( abstract_it.end() == it_1.end() );
+    TEST_EQUALITY( *abstract_it, *it_1 );
+    ++abstract_it;
+    ++it_1;
+    TEST_EQUALITY( *abstract_it, *it_1 );
+    ++it_1;
+    TEST_ASSERT( abstract_it != it_1 );
+
+    // Call the assignment operator.
+    it_1 = abstract_it;
+    TEST_ASSERT( abstract_it == it_1 );
+    TEST_ASSERT( abstract_it.size() == it_1.size() );
+    TEST_ASSERT( abstract_it.begin() == it_1.begin() );
+    TEST_ASSERT( abstract_it.end() == it_1.end() );
+    TEST_EQUALITY( *abstract_it, *it_1 );
+    ++abstract_it;
+    ++it_1;
+    TEST_EQUALITY( *abstract_it, *it_1 );
+    ++it_1;
+    TEST_ASSERT( abstract_it != it_1 );
+}
+
+//---------------------------------------------------------------------------//
+// Predicate constructor tests.
+TEUCHOS_UNIT_TEST( AbstractIterator, predicate_constructor_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a vector.
+    int num_data = 10;
+    Teuchos::RCP<std::vector<int> > data =
+	Teuchos::rcp( new std::vector<int>(num_data) );
+    for ( int i = 0; i < num_data; ++i )
+    {
+	(*data)[i] = std::rand();
+    }
+
+    // Create an iterator over the vector.
+    AbstractIterator<int> abstract_it = VectorIterator<int>( data, odd_func );
+
+    // Call the copy constructor.
+    AbstractIterator<int> it_1( abstract_it );
+    TEST_ASSERT( abstract_it == it_1 );
+    TEST_ASSERT( abstract_it.size() == it_1.size() );
+    TEST_ASSERT( abstract_it.begin() == it_1.begin() );
+    TEST_ASSERT( abstract_it.end() == it_1.end() );
+    TEST_EQUALITY( *abstract_it, *it_1 );
+    ++abstract_it;
+    ++it_1;
+    TEST_EQUALITY( *abstract_it, *it_1 );
+    ++it_1;
+    TEST_ASSERT( abstract_it != it_1 );
+
+    // Call the assignment operator.
+    it_1 = abstract_it;
+    TEST_ASSERT( abstract_it == it_1 );
+    TEST_ASSERT( abstract_it.size() == it_1.size() );
+    TEST_ASSERT( abstract_it.begin() == it_1.begin() );
+    TEST_ASSERT( abstract_it.end() == it_1.end() );
+    TEST_EQUALITY( *abstract_it, *it_1 );
+    ++abstract_it;
+    ++it_1;
+    TEST_EQUALITY( *abstract_it, *it_1 );
+    ++it_1;
+    TEST_ASSERT( abstract_it != it_1 );
+}
+
 //---------------------------------------------------------------------------//
 // Basic iterator test.
 TEUCHOS_UNIT_TEST( AbstractIterator, iterator_test )
@@ -372,6 +462,7 @@ TEUCHOS_UNIT_TEST( AbstractIterator, predicate_intersection_test )
 	    odd_it, odd_it, IteratorIntersectionTag() );
     TEST_EQUALITY( odd_odd_intersect_it.size(), 5 );
 }
+
 //---------------------------------------------------------------------------//
 // Predicate union test.
 TEUCHOS_UNIT_TEST( AbstractIterator, predicate_union_test )

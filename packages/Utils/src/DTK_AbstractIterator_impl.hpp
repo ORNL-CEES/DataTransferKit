@@ -99,7 +99,6 @@ AbstractIterator<ValueType>& AbstractIterator<ValueType>::operator=(
 	b_iterator_impl = rhs.b_iterator_impl->clone();
 	b_predicate = b_iterator_impl->b_predicate;
     }
-    advanceToFirstValidElement();
     return *this;
 }
 
@@ -148,12 +147,22 @@ AbstractIterator<ValueType> AbstractIterator<ValueType>::operator++(ValueType n)
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
+
+    // Apply the increment operator.
     const AbstractIterator<ValueType> tmp(*this);
     AbstractIterator<ValueType> it = b_iterator_impl->operator++();
-    AbstractIterator<ValueType> end = b_iterator_impl->end();
-    while ( it != end && !b_predicate(*it) )
+
+    // If the we are not at the end or the predicate is not satisfied by the
+    // current element, increment until either of these conditions is
+    // satisfied.
+    if ( it != b_iterator_impl->end() && !b_predicate(*it) )
     {
-	it = b_iterator_impl->operator++();
+	AbstractIterator<ValueType> end = b_iterator_impl->end();
+	do
+	{
+	    it = b_iterator_impl->operator++();
+	} 
+	while ( it != end && !b_predicate(*it) );
     }
     return tmp;
 }
@@ -205,10 +214,10 @@ std::size_t AbstractIterator<ValueType>::size() const
     std::size_t size = 0;
     if ( NULL != b_iterator_impl )
     {
-	AbstractIterator<ValueType> begin = this->begin();
-	AbstractIterator<ValueType> end = this->end();
+	AbstractIterator<ValueType> begin_it = this->begin();
+	AbstractIterator<ValueType> end_it = this->end();
 	AbstractIterator<ValueType> impl_copy;
-	for ( impl_copy = begin; impl_copy != end; ++impl_copy )
+	for ( impl_copy = begin_it; impl_copy != end_it; ++impl_copy )
 	{
 	    ++size;
 	}
@@ -317,7 +326,6 @@ AbstractIterator<ValueType>::setOperation(
     IteratorSubtractionTag )
 {
     AbstractIterator<ValueType> set_it( it_1 );
-    set_it.advanceToFirstValidElement();
     set_it.b_predicate = 
 	std::bind( 
 	    std::logical_and<bool>(),
