@@ -16,6 +16,7 @@
 #include <functional>
 
 #include <DTK_AbstractIterator.hpp>
+#include <DTK_PredicateComposition.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -382,8 +383,6 @@ TEUCHOS_UNIT_TEST( AbstractIterator, single_predicate_test )
     	(*data)[i] = i;
     }
 
-    // BASIC PREDICATES
-
     // Create an iterator over the vector for the even numbers.
     AbstractIterator<int> even_it = VectorIterator<int>( data, even_func );
     TEST_EQUALITY( 5, Teuchos::as<int>(even_it.size()) );
@@ -439,50 +438,33 @@ TEUCHOS_UNIT_TEST( AbstractIterator, predicate_intersection_test )
     	(*data)[i] = i;
     }
 
-    // Create an iterator over the vector for the even numbers.
-    AbstractIterator<int> even_it = VectorIterator<int>( data, even_func );
-
-    // Create an iterator over the vector for the odd numbers.
-    AbstractIterator<int> odd_it = VectorIterator<int>( data, odd_func );
-
-    // Create an iterator over the vector for numbers with 2 as the last
-    // number.
-    AbstractIterator<int> two_it = VectorIterator<int>( data, two_func );
-
-    // Create the intersection of the even and odd set.
+    // Create an iterator over the vector for the even and numbers.
     AbstractIterator<int> even_odd_intersect_it = 
-	AbstractIterator<int>::setOperation( 
-	    even_it, odd_it, IteratorIntersectionTag() );
+	VectorIterator<int>( data, PredicateComposition::And(even_func,odd_func) );
     TEST_EQUALITY( even_odd_intersect_it.size(), 0 );
     AbstractIterator<int> odd_even_intersect_it = 
-	AbstractIterator<int>::setOperation( 
-	    odd_it, even_it, IteratorIntersectionTag() );
+	VectorIterator<int>( data, PredicateComposition::And(odd_func,even_func) );
     TEST_EQUALITY( odd_even_intersect_it.size(), 0 );
 
     // Create the intersection of the even and two set.
     AbstractIterator<int> even_two_intersect_it = 
-	AbstractIterator<int>::setOperation( 
-	    even_it, two_it, IteratorIntersectionTag() );
+	VectorIterator<int>( data, PredicateComposition::And(even_func,two_func) );
     TEST_EQUALITY( even_two_intersect_it.size(), 1 );
     AbstractIterator<int> two_even_intersect_it = 
-	AbstractIterator<int>::setOperation( 
-	    two_it, even_it, IteratorIntersectionTag() );
+	VectorIterator<int>( data, PredicateComposition::And(two_func,even_func) );
     TEST_EQUALITY( two_even_intersect_it.size(), 1 );
 
     // Create the intersection of the two and odd set.
     AbstractIterator<int> two_odd_intersection_it = 
-	AbstractIterator<int>::setOperation( 
-	    two_it, odd_it, IteratorIntersectionTag() );
+	VectorIterator<int>( data, PredicateComposition::And(two_func,odd_func) );
     TEST_EQUALITY( two_odd_intersection_it.size(), 0 );
     AbstractIterator<int> odd_two_intersection_it = 
-	AbstractIterator<int>::setOperation( 
-	    odd_it, two_it, IteratorIntersectionTag() );
+	VectorIterator<int>( data, PredicateComposition::And(odd_func,two_func) );
     TEST_EQUALITY( odd_two_intersection_it.size(), 0 );
 
     // Intersect the odd set with itself.
     AbstractIterator<int> odd_odd_intersect_it = 
-	AbstractIterator<int>::setOperation( 
-	    odd_it, odd_it, IteratorIntersectionTag() );
+	VectorIterator<int>( data, PredicateComposition::And(odd_func,odd_func) );
     TEST_EQUALITY( odd_odd_intersect_it.size(), 5 );
 }
 
@@ -501,50 +483,33 @@ TEUCHOS_UNIT_TEST( AbstractIterator, predicate_union_test )
     	(*data)[i] = i;
     }
 
-    // Create an iterator over the vector for the even numbers.
-    AbstractIterator<int> even_it = VectorIterator<int>( data, even_func );
-
-    // Create an iterator over the vector for the odd numbers.
-    AbstractIterator<int> odd_it = VectorIterator<int>( data, odd_func );
-
-    // Create an iterator over the vector for numbers with 2 as the last
-    // number.
-    AbstractIterator<int> two_it = VectorIterator<int>( data, two_func );
-
     // Create the union of the even and odd set.
     AbstractIterator<int> even_odd_union_it = 
-	AbstractIterator<int>::setOperation( 
-	    even_it, odd_it, IteratorUnionTag() );
+	VectorIterator<int>( data, PredicateComposition::Or(even_func,odd_func) );
     TEST_EQUALITY( even_odd_union_it.size(), 10 );
     AbstractIterator<int> odd_even_union_it = 
-	AbstractIterator<int>::setOperation( 
-	    odd_it, even_it, IteratorUnionTag() );
+	VectorIterator<int>( data, PredicateComposition::Or(odd_func,even_func) );
     TEST_EQUALITY( odd_even_union_it.size(), 10 );
 
     // Create the union of the even and two set.
     AbstractIterator<int> even_two_union_it = 
-	AbstractIterator<int>::setOperation( 
-	    even_it, two_it, IteratorUnionTag() );
+	VectorIterator<int>( data, PredicateComposition::Or(even_func,two_func) );
     TEST_EQUALITY( even_two_union_it.size(), 5 );
     AbstractIterator<int> two_even_union_it = 
-	AbstractIterator<int>::setOperation( 
-	    two_it, even_it, IteratorUnionTag() );
+	VectorIterator<int>( data, PredicateComposition::Or(two_func,even_func) );
     TEST_EQUALITY( two_even_union_it.size(), 5 );
 
     // Union the odd set with itself.
     AbstractIterator<int> odd_odd_union_it = 
-	AbstractIterator<int>::setOperation( 
-	    odd_it, odd_it, IteratorUnionTag() );
+	VectorIterator<int>( data, PredicateComposition::Or(odd_func,odd_func) );
     TEST_EQUALITY( odd_odd_union_it.size(), 5 );
 
     // Create the union of the two and odd set.
     AbstractIterator<int> two_odd_union_it = 
-	AbstractIterator<int>::setOperation( 
-	    two_it, odd_it, IteratorUnionTag() );
+	VectorIterator<int>( data, PredicateComposition::Or(two_func,odd_func) );
     TEST_EQUALITY( two_odd_union_it.size(), 6 );
     AbstractIterator<int> odd_two_union_it = 
-	AbstractIterator<int>::setOperation( 
-	    odd_it, two_it, IteratorUnionTag() );
+	VectorIterator<int>( data, PredicateComposition::Or(odd_func,two_func) );
     TEST_EQUALITY( odd_two_union_it.size(), 6 );
 }
 
@@ -563,50 +528,33 @@ TEUCHOS_UNIT_TEST( AbstractIterator, predicate_subtraction_test )
     	(*data)[i] = i;
     }
 
-    // Create an iterator over the vector for the even numbers.
-    AbstractIterator<int> even_it = VectorIterator<int>( data, even_func );
-
-    // Create an iterator over the vector for the odd numbers.
-    AbstractIterator<int> odd_it = VectorIterator<int>( data, odd_func );
-
-    // Create an iterator over the vector for numbers with 2 as the last
-    // number.
-    AbstractIterator<int> two_it = VectorIterator<int>( data, two_func );
-
     // Create the subtraction of the even and odd set.
     AbstractIterator<int> even_odd_subtraction_it = 
-	AbstractIterator<int>::setOperation( 
-	    even_it, odd_it, IteratorSubtractionTag() );
+	VectorIterator<int>( data, PredicateComposition::AndNot(even_func,odd_func) );
     TEST_EQUALITY( even_odd_subtraction_it.size(), 5 );
     AbstractIterator<int> odd_even_subtraction_it = 
-	AbstractIterator<int>::setOperation( 
-	    odd_it, even_it, IteratorSubtractionTag() );
+	VectorIterator<int>( data, PredicateComposition::AndNot(odd_func,even_func) );
     TEST_EQUALITY( odd_even_subtraction_it.size(), 5 );
 
     // Create the subtraction of the even and two set.
     AbstractIterator<int> even_two_subtraction_it = 
-	AbstractIterator<int>::setOperation( 
-	    even_it, two_it, IteratorSubtractionTag() );
+	VectorIterator<int>( data, PredicateComposition::AndNot(even_func,two_func) );
     TEST_EQUALITY( even_two_subtraction_it.size(), 4 );
     AbstractIterator<int> two_even_subtraction_it = 
-	AbstractIterator<int>::setOperation( 
-	    two_it, even_it, IteratorSubtractionTag() );
+	VectorIterator<int>( data, PredicateComposition::AndNot(two_func,even_func) );
     TEST_EQUALITY( two_even_subtraction_it.size(), 0 );
 
     // Subtraction the odd set with itself.
     AbstractIterator<int> odd_odd_subtraction_it = 
-	AbstractIterator<int>::setOperation( 
-	    odd_it, odd_it, IteratorSubtractionTag() );
+	VectorIterator<int>( data, PredicateComposition::AndNot(odd_func,odd_func) );
     TEST_EQUALITY( odd_odd_subtraction_it.size(), 0 );
 
     // Create the subtraction of the odd and two set.
     AbstractIterator<int> odd_two_subtraction_it = 
-	AbstractIterator<int>::setOperation( 
-	    odd_it, two_it, IteratorSubtractionTag() );
+	VectorIterator<int>( data, PredicateComposition::AndNot(odd_func,two_func) );
     TEST_EQUALITY( odd_two_subtraction_it.size(), 5 );
     AbstractIterator<int> two_odd_subtraction_it = 
-	AbstractIterator<int>::setOperation( 
-	    two_it, odd_it, IteratorSubtractionTag() );
+	VectorIterator<int>( data, PredicateComposition::AndNot(two_func,odd_func) );
     TEST_EQUALITY( two_odd_subtraction_it.size(), 1 );
 }
 

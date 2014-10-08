@@ -50,15 +50,6 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- \brief Tags for set operators on iterators.
- */
-//---------------------------------------------------------------------------//
-struct IteratorIntersectionTag {};
-struct IteratorUnionTag {};
-struct IteratorSubtractionTag {};
-
-//---------------------------------------------------------------------------//
-/*!
   \class AbstractIterator
   \brief Abstract iterator interface.
 
@@ -123,43 +114,25 @@ class AbstractIterator :
     // An iterator assigned to the end of all elements under the iterator.
     virtual AbstractIterator<ValueType> end() const;
 
-    // Apply an intersection operation to two iterators to create a new
-    // iterator.
-    static AbstractIterator<ValueType> 
-    setOperation( const AbstractIterator<ValueType>& it_1,
-		  const AbstractIterator<ValueType>& it_2,
-		  IteratorIntersectionTag );
-
-    // Apply a union operation to two iterators to create a new iterator.
-    static AbstractIterator<ValueType> 
-    setOperation( const AbstractIterator<ValueType>& it_1,
-		  const AbstractIterator<ValueType>& it_2,
-		  IteratorUnionTag );
-
-    // Apply a subtraction operation to two iterators to create a new
-    // iterator.
-    static AbstractIterator<ValueType> 
-    setOperation( const AbstractIterator<ValueType>& it_1,
-		  const AbstractIterator<ValueType>& it_2,
-		  IteratorSubtractionTag );
-
   protected:
 
     // Create a clone of the iterator. We need this for the copy constructor
     // and assignment operator to pass along the underlying implementation.
     virtual AbstractIterator<ValueType>* clone() const;
 
-    // Implementation.
-    AbstractIterator<ValueType>* b_iterator_impl;
-
-    // Predicate.
-    std::function<bool(ValueType&)> b_predicate;
-
   private:
 
     // Advance the iterator to the first valid element that satisfies the
     // predicate or the end of the iterator.
     void advanceToFirstValidElement();
+
+  protected:
+
+    // Implementation.
+    AbstractIterator<ValueType>* b_iterator_impl;
+
+    // Predicate.
+    std::function<bool(ValueType&)> b_predicate;
 };
 
 //---------------------------------------------------------------------------//

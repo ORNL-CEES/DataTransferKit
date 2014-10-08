@@ -42,6 +42,7 @@
 #define DTK_ABSTRACTITERATOR_IMPL_HPP
 
 #include "DTK_DBC.hpp"
+#include "DTK_PredicateComposition.hpp"
 
 namespace DataTransferKit
 {
@@ -272,69 +273,6 @@ void AbstractIterator<ValueType>::advanceToFirstValidElement()
     {
 	operator++();
     }
-}
-
-//---------------------------------------------------------------------------//
-// Static Members.
-// ---------------------------------------------------------------------------//
-// Apply a set operation to two iterators to create a new
-// iterator. Intersection overload.
-template<class ValueType>
-AbstractIterator<ValueType> 
-AbstractIterator<ValueType>::setOperation(
-    const AbstractIterator<ValueType>& it_1,
-    const AbstractIterator<ValueType>& it_2,
-    IteratorIntersectionTag )
-{
-    AbstractIterator<ValueType> set_it( it_1 );
-    set_it.b_predicate = 
-	std::bind( 
-	    std::logical_and<bool>(),
-	    std::bind(it_1.b_predicate,std::placeholders::_1),
-	    std::bind(it_2.b_predicate,std::placeholders::_1) 
-	    );
-    return set_it;
-}
-
-//---------------------------------------------------------------------------//
-// Apply a set operation to two iterators to create a new
-// iterator. Union overload.
-template<class ValueType>
-AbstractIterator<ValueType> 
-AbstractIterator<ValueType>::setOperation(
-    const AbstractIterator<ValueType>& it_1,
-    const AbstractIterator<ValueType>& it_2,
-    IteratorUnionTag )
-{
-    AbstractIterator<ValueType> set_it( it_1 );
-    set_it.b_predicate = 
-	std::bind( 
-	    std::logical_or<bool>(),
-	    std::bind(it_1.b_predicate,std::placeholders::_1),
-	    std::bind(it_2.b_predicate,std::placeholders::_1) 
-	    );
-    return set_it;
-}
-
-//---------------------------------------------------------------------------//
-// Apply a set operation to two iterators to create a new
-// iterator. Subtraction overload.
-template<class ValueType>
-AbstractIterator<ValueType> 
-AbstractIterator<ValueType>::setOperation(
-    const AbstractIterator<ValueType>& it_1,
-    const AbstractIterator<ValueType>& it_2,
-    IteratorSubtractionTag )
-{
-    AbstractIterator<ValueType> set_it( it_1 );
-    set_it.b_predicate = 
-	std::bind( 
-	    std::logical_and<bool>(),
-	    std::bind(it_1.b_predicate,std::placeholders::_1),
-	    std::bind(std::logical_not<bool>(),
-		      std::bind(it_2.b_predicate,std::placeholders::_1))
-	    );
-    return set_it;
 }
 
 //---------------------------------------------------------------------------//

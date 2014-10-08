@@ -131,6 +131,48 @@ TEUCHOS_UNIT_TEST( PredicateComposition, predicate_composition_test )
 {
     using namespace DataTransferKit;
 
+    std::function<bool(int&)> even_and_even =
+	PredicateComposition::And( even_func, even_func );
+    TEST_ASSERT( even_and_even(zero) );
+    TEST_ASSERT( !even_and_even(one) );
+    TEST_ASSERT( even_and_even(two) );
+    TEST_ASSERT( !even_and_even(three) );
+    TEST_ASSERT( even_and_even(four) );
+    TEST_ASSERT( !even_and_even(five) );
+    TEST_ASSERT( !even_and_even(seven) );
+    TEST_ASSERT( !even_and_even(nine) );
+    TEST_ASSERT( even_and_even(twelve) );
+    TEST_ASSERT( even_and_even(twentyeight) );
+    TEST_ASSERT( even_and_even(thirty) );
+
+    std::function<bool(int&)> even_or_even =
+	PredicateComposition::Or( even_func, even_func );
+    TEST_ASSERT( even_or_even(zero) );
+    TEST_ASSERT( !even_or_even(one) );
+    TEST_ASSERT( even_or_even(two) );
+    TEST_ASSERT( !even_or_even(three) );
+    TEST_ASSERT( even_or_even(four) );
+    TEST_ASSERT( !even_or_even(five) );
+    TEST_ASSERT( !even_or_even(seven) );
+    TEST_ASSERT( !even_or_even(nine) );
+    TEST_ASSERT( even_or_even(twelve) );
+    TEST_ASSERT( even_or_even(twentyeight) );
+    TEST_ASSERT( even_or_even(thirty) );
+
+    std::function<bool(int&)> even_andnot_even =
+	PredicateComposition::AndNot( even_func, even_func );
+    TEST_ASSERT( !even_andnot_even(zero) );
+    TEST_ASSERT( !even_andnot_even(one) );
+    TEST_ASSERT( !even_andnot_even(two) );
+    TEST_ASSERT( !even_andnot_even(three) );
+    TEST_ASSERT( !even_andnot_even(four) );
+    TEST_ASSERT( !even_andnot_even(five) );
+    TEST_ASSERT( !even_andnot_even(seven) );
+    TEST_ASSERT( !even_andnot_even(nine) );
+    TEST_ASSERT( !even_andnot_even(twelve) );
+    TEST_ASSERT( !even_andnot_even(twentyeight) );
+    TEST_ASSERT( !even_andnot_even(thirty) );
+
     std::function<bool(int&)> even_and_odd =
 	PredicateComposition::And( even_func, odd_func );
     TEST_ASSERT( !even_and_odd(zero) );
@@ -179,11 +221,23 @@ TEUCHOS_UNIT_TEST( PredicateComposition, predicate_composition_test )
     TEST_ASSERT( !div3_and_div4(three) );
     TEST_ASSERT( !div3_and_div4(four) );
 
+    std::function<bool(int&)> div4_and_div3 =
+	PredicateComposition::And( div4_func, div3_func );
+    TEST_ASSERT( div4_and_div3(twelve) );
+    TEST_ASSERT( !div4_and_div3(three) );
+    TEST_ASSERT( !div4_and_div3(four) );
+
     std::function<bool(int&)> div3_or_div4 =
 	PredicateComposition::Or( div3_func, div4_func );
     TEST_ASSERT( div3_or_div4(twelve) );
     TEST_ASSERT( div3_or_div4(three) );
     TEST_ASSERT( div3_or_div4(four) );
+
+    std::function<bool(int&)> div4_or_div3 =
+	PredicateComposition::Or( div4_func, div3_func );
+    TEST_ASSERT( div4_or_div3(twelve) );
+    TEST_ASSERT( div4_or_div3(three) );
+    TEST_ASSERT( div4_or_div3(four) );
 
     std::function<bool(int&)> div3_andnot_div4 =
 	PredicateComposition::AndNot( div3_func, div4_func );
@@ -191,12 +245,25 @@ TEUCHOS_UNIT_TEST( PredicateComposition, predicate_composition_test )
     TEST_ASSERT( div3_andnot_div4(three) );
     TEST_ASSERT( !div3_andnot_div4(four) );
 
+    std::function<bool(int&)> div4_andnot_div3 =
+	PredicateComposition::AndNot( div4_func, div3_func );
+    TEST_ASSERT( !div4_andnot_div3(twelve) );
+    TEST_ASSERT( !div4_andnot_div3(three) );
+    TEST_ASSERT( div4_andnot_div3(four) );
+
     std::function<bool(int&)> div3_ornot_div4 =
 	PredicateComposition::OrNot( div3_func, div4_func );
     TEST_ASSERT( div3_ornot_div4(twelve) );
     TEST_ASSERT( div3_ornot_div4(three) );
     TEST_ASSERT( !div3_ornot_div4(four) );
     TEST_ASSERT( div3_ornot_div4(five) );
+
+    std::function<bool(int&)> div4_ornot_div3 =
+	PredicateComposition::OrNot( div4_func, div3_func );
+    TEST_ASSERT( div4_ornot_div3(twelve) );
+    TEST_ASSERT( !div4_ornot_div3(three) );
+    TEST_ASSERT( div4_ornot_div3(four) );
+    TEST_ASSERT( div4_ornot_div3(five) );
 }
 
 //---------------------------------------------------------------------------//
