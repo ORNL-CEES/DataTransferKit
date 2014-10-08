@@ -17,7 +17,7 @@
 #include <DTK_Point.hpp>
 #include <DTK_GeometricEntity.hpp>
 #include <DTK_Box.hpp>
-#include <DTK_DerivedObjectRegistry.hpp>
+#include <DTK_AbstractObjectRegistry.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -157,7 +157,7 @@ TEUCHOS_UNIT_TEST( Point, communication_test )
     using namespace DataTransferKit;
 
     // Register the point class to use the abstract compile-time interfaces.
-    DerivedObjectRegistry<GeometricEntity,Point<3> >::registerDerivedClasses();
+    AbstractObjectRegistry<GeometricEntity,Point<3> >::registerDerivedClasses();
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 

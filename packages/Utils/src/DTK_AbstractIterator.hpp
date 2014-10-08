@@ -91,7 +91,7 @@ class AbstractIterator :
     virtual AbstractIterator<ValueType>& operator++();
 
     // Post-increment operator.
-    virtual AbstractIterator<ValueType> operator++(ValueType);
+    virtual AbstractIterator<ValueType> operator++(int);
 
     // Dereference operator.
     virtual ValueType& operator*(void);

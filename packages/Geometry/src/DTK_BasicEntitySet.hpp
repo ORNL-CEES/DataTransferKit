@@ -45,7 +45,8 @@
 
 #include "DTK_EntitySet.hpp"
 #include "DTK_GeometricEntity.hpp"
-#include "DTK_DerivedObjectRegistry.hpp"
+#include "DTK_AbstractObjectRegistry.hpp"
+#include "DTK_AbstractIterator.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -59,7 +60,7 @@ namespace DataTransferKit
   \class BasicEntitySetIterator
   \brief ementation of iterator over entities in a basic set.
 */
-class BasicEntitySetIterator : public EntitySetIterator
+class BasicEntitySetIterator : public AbstractIterator<GeometricEntity>
 {
   public:
 
@@ -67,18 +68,25 @@ class BasicEntitySetIterator : public EntitySetIterator
     BasicEntitySetIterator();
 
     // Constructor.
-    BasicEntitySetIterator(
-	const std::unordered_map<EntityId,GeometricEntity>::const_iterator& 
-	map_it );
+    BasicEntitySetIterator( 
+	Teuchos::RCP<std::unordered_map<EntityId,GeometricEntity> > map,
+	const std::function<bool(GeometricEntity&)>& predicate );
 
-    // Destructor.
+    // Copy constructor.
+    BasicEntitySetIterator( const BasicEntitySetIterator& rhs );
+
+    /*!
+     * \brief Assignment operator.
+     */
+    BasicEntitySetIterator& operator=( const BasicEntitySetIterator& rhs );
+
+    /*!
+     * \brief Destructor.
+     */
     ~BasicEntitySetIterator();
 
     // Pre-increment operator.
-    EntitySetIterator& operator++();
-
-    // Post-increment operator.
-    EntitySetIterator operator++(int);
+    AbstractIterator<GeometricEntity>& operator++();
 
     // Dereference operator.
     GeometricEntity& operator*(void);
@@ -87,19 +95,34 @@ class BasicEntitySetIterator : public EntitySetIterator
     GeometricEntity* operator->(void);
 
     // Equal comparison operator.
-    bool operator==( const EntitySetIterator& rhs ) const;
+    bool operator==( const AbstractIterator<GeometricEntity>& rhs ) const;
 
     // Not equal comparison operator.
-    bool operator!=( const EntitySetIterator& rhs ) const;
+    bool operator!=( const AbstractIterator<GeometricEntity>& rhs ) const;
+
+    // Size of the iterator.
+    std::size_t size() const;
+
+    // An iterator assigned to the beginning.
+    AbstractIterator<GeometricEntity> begin() const;
+
+    // An iterator assigned to the end.
+    AbstractIterator<GeometricEntity> end() const;
 
     // Create a clone of the iterator. We need this for the copy constructor
     // and assignment operator to pass along the underlying implementation.
-    Teuchos::RCP<EntitySetIterator> clone() const;
+    AbstractIterator<GeometricEntity>* clone() const;
 
   private:
 
+    // Map to iterate over.
+    Teuchos::RCP<std::unordered_map<EntityId,GeometricEntity> > d_map;
+
     // Iterator over the entity map.
-    std::unordered_map<EntityId,GeometricEntity>::const_iterator d_map_it;
+    std::unordered_map<EntityId,GeometricEntity>::iterator d_map_it;
+
+    // Pointer to the current entity.
+    GeometricEntity* d_entity;
 };
 
 //---------------------------------------------------------------------------//
@@ -137,14 +160,6 @@ class BasicEntitySet : public EntitySet
     //@{
     //! Identification functions.
     /*!
-     * \brief Assign a parallel communicator to the entity set. This will only
-     * be done immediately after construct through the AbstractBuilder
-     * interface.
-     * \param comm The communicator to set with the entity set.
-     */
-    void assignCommunicator( 
-	const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
-    /*!
      * \brief Return a string indicating the derived entity set type.
      * \return A string key for the derived set type.
      */
@@ -153,6 +168,15 @@ class BasicEntitySet : public EntitySet
 
     //@{
     //! Parallel functions.
+    /*!
+     * \brief Assign a parallel communicator to the entity set. This will only
+     * be done immediately after construct through the AbstractBuilder
+     * interface.
+     * \param comm The communicator to set with the entity set.
+     */
+    void assignCommunicator( 
+	const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
+
     /*!
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
@@ -163,54 +187,24 @@ class BasicEntitySet : public EntitySet
     //@{
     //! Entity access functions.
     /*!
-     * \brief Get the local number of entities in the set of the given
-     * parametric dimension.
-     * \param parametric_dimension Get the number of entities of this
-     * parametric dimension.
-     * \return The local number of entities in the set.
+     * \brief Get an iterator over a subset of the entity set that satisfies
+     * the given predicate.
+     * \param entity_type The type of entity to get an iterator over.
+     * \param predicate A predicate to select the entity set to iterate over.
+     * \return An iterator to the entities that satisfy the predicate.
      */
-    std::size_t localNumberOfEntities( 
-	const int parametric_dimension ) const;
-
-    /*!
-     * \brief Get the global number of entities in the set of the given
-     * parametric dimension.
-     * \param parametric_dimension Get the number of entities of this
-     * parametric dimension.
-     * \return The global number of entities in the set.
-     */
-    std::size_t globalNumberOfEntities(
-	const int parametric_dimension ) const;
-    
-    /*!
-     * \brief Get an iterator assigned to the beginning of the
-     * entities in the set of the given parametric dimension.  
-     * \param parametric_dimension Get an iterator to the beginning of
-     * the entities of this dimension.  
-     * \return an iterator assigned to the beginning of the entities in
-     * the set of the given parametric dimension. 
-     */
-    EntitySetIterator
-    entityIteratorBegin( const int parametric_dimension ) const;
-
-    /*!
-     * \brief Get an iterator assigned to the end of the entities in
-     * the set of the given parametric dimension.
-     * \param parametric_dimension Get an iterator to the end of the
-     * entities of this dimension.
-     * \return an iterator assigned to the end of the entities in the
-     * set of the given parametric dimension.
-     */
-    EntitySetIterator
-    entityIteratorEnd( const int parametric_dimension ) const;
+    virtual AbstractIterator<GeometricEntity>
+    entityIterator(
+	const EntityType entity_type,
+	const std::function<bool(const GeometricEntity&)>& predicate ) const;
 
     /*!
      * \brief Given an EntityId, get the entity.
      * \param entity_id Get the entity with this id.
      * \param entity The entity with the given id.
      */
-    void getEntity( const EntityId entity_id, 
-		    GeometricEntity& entity ) const;
+    virtual void getEntity( const EntityId entity_id, 
+			    GeometricEntity& entity ) const;
     //@}
 
     //@{
@@ -265,21 +259,18 @@ class BasicEntitySet : public EntitySet
     // Parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
-    // Physical dimension.
-    int d_dimension;
-
     // Id-to-dimension map.
     std::unordered_map<EntityId,int> d_entity_dims;
 
     // Id-to-entity maps.
-    Teuchos::Array<std::unordered_map<EntityId,GeometricEntity> > d_entities;
+    mutable Teuchos::Array<std::unordered_map<EntityId,GeometricEntity> > d_entities;
 };
 
 //---------------------------------------------------------------------------//
-// DerivedObjectRegistrationPolicy implementation.
+// AbstractObjectRegistrationPolicy implementation.
 //---------------------------------------------------------------------------//
 template<>
-class DerivedObjectRegistrationPolicy<BasicEntitySet>
+class AbstractObjectRegistrationPolicy<BasicEntitySet>
 {
   public:
 

@@ -144,7 +144,7 @@ AbstractIterator<ValueType>& AbstractIterator<ValueType>::operator++()
 //---------------------------------------------------------------------------//
 // Post-increment operator.
 template<class ValueType>
-AbstractIterator<ValueType> AbstractIterator<ValueType>::operator++(ValueType n)
+AbstractIterator<ValueType> AbstractIterator<ValueType>::operator++(int n)
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );

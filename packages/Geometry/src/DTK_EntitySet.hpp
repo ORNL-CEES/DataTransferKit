@@ -43,10 +43,10 @@
 
 #include <functional>
 
-#include "DTK_EntityIterator.hpp"
 #include "DTK_GeometricEntity.hpp"
 #include "DTK_AbstractBuilder.hpp"
 #include "DTK_AbstractBuildableObject.hpp"
+#include "DTK_AbstractIterator.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -62,10 +62,10 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 enum EntityType
 {
-    NODE,
-    EDGE,
-    FACE,
-    VOLUME
+    NODE = 0,
+    EDGE = 1,
+    FACE = 2,
+    VOLUME = 3
 };
 
 //---------------------------------------------------------------------------//
@@ -123,13 +123,15 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
     /*!
      * \brief Get an iterator over a subset of the entity set that satisfies
      * the given predicate.
+     * \param entity_type The type of entity to get an iterator over.
      * \param predicate A predicate to select the entity set to iterate over.
      * \return An iterator to the entities that satisfy the predicate.
      */
-    virtual EntityIterator
+    virtual AbstractIterator<GeometricEntity>
     entityIterator(
 	const EntityType entity_type,
-	const std::function<bool(const GeometricEntity&)>& predicate = selectAll ) const;
+	const std::function<bool(const GeometricEntity&)>& predicate = selectAll 
+	) const;
 
     /*!
      * \brief Given an EntityId, get the entity.
@@ -143,7 +145,8 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
     //@{
     //! Geometric data functions.
     /*!
-     * \brief Return the physical dimension of the entities in the set.
+     * \brief Return the largest physical dimension of the entities in the
+     * set.  
      * \return The physical dimension of the set.
      */
     virtual int physicalDimension() const;
@@ -184,7 +187,7 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
     /*!
      * \brief Select all entities predicate.
      */
-    inline bool selectAll( const GeometricEntity& entity ) const
+    static inline bool selectAll( const GeometricEntity& entity )
     { return true; }
 };
 

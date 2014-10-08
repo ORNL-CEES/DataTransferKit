@@ -82,34 +82,16 @@ Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
 }
 
 //---------------------------------------------------------------------------//
-// Get the local number of entities in the set of the given
-std::size_t EntitySet::localNumberOfEntities( 
-    const int parametric_dimension ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return 0;
-}
-
-//---------------------------------------------------------------------------//
-// Get the global number of entities in the set of the given
-std::size_t EntitySet::globalNumberOfEntities(
-    const int parametric_dimension ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return 0;
-}
- 
-//---------------------------------------------------------------------------//
 // Get an iterator over a subset of the entity set that satisfies the given
 // predicate. 
-EntityIterator EntitySet::entityIterator( 
-    const std::function<bool(GeometricEntity)>& predicate = selectAll ) const
+AbstractIterator<GeometricEntity>
+EntitySet::entityIterator(
+    const EntityType entity_type,
+    const std::function<bool(const GeometricEntity&)>& predicate ) const
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
-    return EntityIterator();
+    return AbstractIterator<GeometricEntity>();
 }
 
 //---------------------------------------------------------------------------//

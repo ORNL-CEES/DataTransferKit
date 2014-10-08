@@ -146,7 +146,7 @@ class GeometricEntity : public AbstractBuildableObject<GeometricEntity>
      * \param centroid A view of the centroid coordinates. This view will not
      * be allocated. Assign a view of your centroid to this view.
      */
-    virtual void 
+    virtual void
     centroid( Teuchos::ArrayView<const double>& centroid ) const;
 
     /*!

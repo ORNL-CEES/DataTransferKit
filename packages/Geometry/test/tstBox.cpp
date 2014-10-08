@@ -17,7 +17,7 @@
 #include <DTK_Box.hpp>
 #include <DTK_GeometricEntity.hpp>
 #include <DTK_MappingStatus.hpp>
-#include <DTK_DerivedObjectRegistry.hpp>
+#include <DTK_AbstractObjectRegistry.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -749,7 +749,7 @@ TEUCHOS_UNIT_TEST( Box, communication_test )
     using namespace DataTransferKit;
 
     // Register the box class to use the abstract compile-time interfaces.
-    DerivedObjectRegistry<GeometricEntity,Box>::registerDerivedClasses();
+    AbstractObjectRegistry<GeometricEntity,Box>::registerDerivedClasses();
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm_default = 
