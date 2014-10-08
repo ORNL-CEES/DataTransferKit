@@ -50,15 +50,12 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- \brief Enum for set operators on iterators.
+ \brief Tags for set operators on iterators.
  */
 //---------------------------------------------------------------------------//
-enum IteratorSetOperation
-{
-    INTERSECTION,
-    UNION,
-    SUBTRACTION
-};
+struct IteratorIntersectionTag {};
+struct IteratorUnionTag {};
+struct IteratorSubtractionTag {};
 
 //---------------------------------------------------------------------------//
 /*!
@@ -117,20 +114,34 @@ class AbstractIterator :
     // Not equal comparison operator.
     virtual bool operator!=( const AbstractIterator<ValueType>& rhs ) const;
 
-    // Size of the iterator.
+    // Number of elements in the iterator that meet the predicate criteria.
     virtual std::size_t size() const;
 
-    // An iterator assigned to the beginning.
+    // An iterator assigned to the first valid element in the iterator.
     virtual AbstractIterator<ValueType> begin() const;
 
-    // An iterator assigned to the end.
+    // An iterator assigned to the end of all elements under the iterator.
     virtual AbstractIterator<ValueType> end() const;
 
-    // Apply a set operation to two iterators to create a new iterator.
+    // Apply an intersection operation to two iterators to create a new
+    // iterator.
     static AbstractIterator<ValueType> 
-    setOperation( const IteratorSetOperation operation,
-		  const AbstractIterator<ValueType>& it_1,
-		  const AbstractIterator<ValueType>& it_2 );
+    setOperation( const AbstractIterator<ValueType>& it_1,
+		  const AbstractIterator<ValueType>& it_2,
+		  IteratorIntersectionTag );
+
+    // Apply a union operation to two iterators to create a new iterator.
+    static AbstractIterator<ValueType> 
+    setOperation( const AbstractIterator<ValueType>& it_1,
+		  const AbstractIterator<ValueType>& it_2,
+		  IteratorUnionTag );
+
+    // Apply a subtraction operation to two iterators to create a new
+    // iterator.
+    static AbstractIterator<ValueType> 
+    setOperation( const AbstractIterator<ValueType>& it_1,
+		  const AbstractIterator<ValueType>& it_2,
+		  IteratorSubtractionTag );
 
   protected:
 

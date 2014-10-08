@@ -65,13 +65,13 @@ AbstractIterator<ValueType>::AbstractIterator(
     if ( NULL == rhs.b_iterator_impl )
     {
 	b_iterator_impl = rhs.clone();
+	b_predicate = rhs.b_predicate;
     }
     else
     {
 	b_iterator_impl = rhs.b_iterator_impl->clone();
+	b_predicate = b_iterator_impl->b_predicate;
     }
-    b_predicate = rhs.b_predicate;
-    advanceToFirstValidElement();
 }
 
 //---------------------------------------------------------------------------//
@@ -92,12 +92,13 @@ AbstractIterator<ValueType>& AbstractIterator<ValueType>::operator=(
     if ( NULL == rhs.b_iterator_impl )
     {
 	b_iterator_impl = rhs.clone();
+	b_predicate = rhs.b_predicate;
     }
     else
     {
 	b_iterator_impl = rhs.b_iterator_impl->clone();
+	b_predicate = b_iterator_impl->b_predicate;
     }
-    b_predicate = rhs.b_predicate;
     advanceToFirstValidElement();
     return *this;
 }
@@ -120,12 +121,23 @@ AbstractIterator<ValueType>& AbstractIterator<ValueType>::operator++()
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
+
+    // Apply the increment operator.
     AbstractIterator<ValueType>& it = b_iterator_impl->operator++();
-    AbstractIterator<ValueType> end = b_iterator_impl->end();
-    while ( it != end && !b_predicate(*it) )
+
+    // If the we are not at the end or the predicate is not satisfied by the
+    // current element, increment until either of these conditions is
+    // satisfied.
+    if ( it != b_iterator_impl->end() && !b_predicate(*it) )
     {
-	it = b_iterator_impl->operator++();
+	AbstractIterator<ValueType> end = b_iterator_impl->end();
+	do
+	{
+	    it = b_iterator_impl->operator++();
+	} 
+	while ( it != end && !b_predicate(*it) );
     }
+
     return it; 
 }
 
@@ -138,7 +150,8 @@ AbstractIterator<ValueType> AbstractIterator<ValueType>::operator++(ValueType n)
     DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
     const AbstractIterator<ValueType> tmp(*this);
     AbstractIterator<ValueType> it = b_iterator_impl->operator++();
-    while ( it != b_iterator_impl->end() && !b_predicate(*it) )
+    AbstractIterator<ValueType> end = b_iterator_impl->end();
+    while ( it != end && !b_predicate(*it) )
     {
 	it = b_iterator_impl->operator++();
     }
@@ -184,15 +197,23 @@ bool AbstractIterator<ValueType>::operator!=(
 }
 
 //---------------------------------------------------------------------------//
-// Size of the iterator.
+// Size of the iterator. This is the number of objects in the iterator that
+// meet the predicate criteria.
 template<class ValueType>
 std::size_t AbstractIterator<ValueType>::size() const
 {
+    std::size_t size = 0;
     if ( NULL != b_iterator_impl )
     {
-	return b_iterator_impl->size();
+	AbstractIterator<ValueType> begin = this->begin();
+	AbstractIterator<ValueType> end = this->end();
+	AbstractIterator<ValueType> impl_copy;
+	for ( impl_copy = begin; impl_copy != end; ++impl_copy )
+	{
+	    ++size;
+	}
     }
-    return 0;
+    return size;
 }
 
 //---------------------------------------------------------------------------//
@@ -200,19 +221,14 @@ std::size_t AbstractIterator<ValueType>::size() const
 template<class ValueType>
 AbstractIterator<ValueType> AbstractIterator<ValueType>::begin() const
 {
+    AbstractIterator<ValueType> begin_it;
     if ( NULL != b_iterator_impl )
     {
-	return b_iterator_impl->begin();
+	begin_it = b_iterator_impl->begin();
     }
-    return AbstractIterator<ValueType>();
-}
-
-//---------------------------------------------------------------------------//
-// Create a clone of the iterator.
-template<class ValueType>
-AbstractIterator<ValueType>* AbstractIterator<ValueType>::clone() const
-{
-    return new AbstractIterator<ValueType>();
+    begin_it.b_predicate = b_predicate;
+    begin_it.advanceToFirstValidElement();
+    return begin_it;
 }
 
 //---------------------------------------------------------------------------//
@@ -228,13 +244,21 @@ AbstractIterator<ValueType> AbstractIterator<ValueType>::end() const
 }
 
 //---------------------------------------------------------------------------//
+// Create a clone of the iterator.
+template<class ValueType>
+AbstractIterator<ValueType>* AbstractIterator<ValueType>::clone() const
+{
+    return new AbstractIterator<ValueType>();
+}
+
+//---------------------------------------------------------------------------//
 // Advance the iterator to the first valid element that satisfies the
 // predicate or the end of the iterator. 
 template<class ValueType>
 void AbstractIterator<ValueType>::advanceToFirstValidElement()
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
-    if ( !b_predicate(**this) && (*this != end()) )
+    if ( (*this != end()) && !b_predicate(**this) )
     {
 	operator++();
     }
@@ -242,46 +266,65 @@ void AbstractIterator<ValueType>::advanceToFirstValidElement()
 
 //---------------------------------------------------------------------------//
 // Static Members.
-//---------------------------------------------------------------------------//
+// ---------------------------------------------------------------------------//
+// Apply a set operation to two iterators to create a new
+// iterator. Intersection overload.
 template<class ValueType>
 AbstractIterator<ValueType> 
 AbstractIterator<ValueType>::setOperation(
-    const IteratorSetOperation operation,
     const AbstractIterator<ValueType>& it_1,
-    const AbstractIterator<ValueType>& it_2 )
+    const AbstractIterator<ValueType>& it_2,
+    IteratorIntersectionTag )
 {
     AbstractIterator<ValueType> set_it( it_1 );
-    if ( INTERSECTION == operation )
-    {
-	set_it.b_predicate = std::bind( 
+    set_it.b_predicate = 
+	std::bind( 
 	    std::logical_and<bool>(),
 	    std::bind(it_1.b_predicate,std::placeholders::_1),
 	    std::bind(it_2.b_predicate,std::placeholders::_1) 
 	    );
-    }
-    else if ( UNION == operation )
-    {
-    	set_it.b_predicate = std::bind( 
-    	    std::logical_or<bool>(),
+    return set_it;
+}
+
+//---------------------------------------------------------------------------//
+// Apply a set operation to two iterators to create a new
+// iterator. Union overload.
+template<class ValueType>
+AbstractIterator<ValueType> 
+AbstractIterator<ValueType>::setOperation(
+    const AbstractIterator<ValueType>& it_1,
+    const AbstractIterator<ValueType>& it_2,
+    IteratorUnionTag )
+{
+    AbstractIterator<ValueType> set_it( it_1 );
+    set_it.b_predicate = 
+	std::bind( 
+	    std::logical_or<bool>(),
 	    std::bind(it_1.b_predicate,std::placeholders::_1),
 	    std::bind(it_2.b_predicate,std::placeholders::_1) 
 	    );
-    }
-    else if ( SUBTRACTION == operation )
-    {
-    	set_it.b_predicate = std::bind( 
-    	    std::logical_and<bool>(),
+    return set_it;
+}
+
+//---------------------------------------------------------------------------//
+// Apply a set operation to two iterators to create a new
+// iterator. Subtraction overload.
+template<class ValueType>
+AbstractIterator<ValueType> 
+AbstractIterator<ValueType>::setOperation(
+    const AbstractIterator<ValueType>& it_1,
+    const AbstractIterator<ValueType>& it_2,
+    IteratorSubtractionTag )
+{
+    AbstractIterator<ValueType> set_it( it_1 );
+    set_it.advanceToFirstValidElement();
+    set_it.b_predicate = 
+	std::bind( 
+	    std::logical_and<bool>(),
 	    std::bind(it_1.b_predicate,std::placeholders::_1),
 	    std::bind(std::logical_not<bool>(),
 		      std::bind(it_2.b_predicate,std::placeholders::_1))
 	    );
-    }
-    else
-    {
-	bool bad_operation_type = true;
-	DTK_INSIST( !bad_operation_type );
-    }
-    set_it.advanceToFirstValidElement();
     return set_it;
 }
 

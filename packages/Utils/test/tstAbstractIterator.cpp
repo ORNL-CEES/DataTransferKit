@@ -28,6 +28,13 @@
 #include <Teuchos_Tuple.hpp>
 
 //---------------------------------------------------------------------------//
+// Helper predicates.
+//---------------------------------------------------------------------------//
+std::function<bool(int&)> even_func = [](int& n){ return ((n%2) == 0); };
+std::function<bool(int&)> odd_func = [](int& n){ return ((n%2) == 1); };
+std::function<bool(int&)> two_func = [](int& n){ return ((n%10) == 2); };
+
+//---------------------------------------------------------------------------//
 // AbstractIterator implementation.
 //---------------------------------------------------------------------------//
 template<class T>
@@ -231,36 +238,42 @@ TEUCHOS_UNIT_TEST( AbstractIterator, iterator_test )
 
     // Check the increment operators.
     abstract_it = begin_it;
+    AbstractIterator<int> cp_it = abstract_it;
     ++abstract_it;
     TEST_EQUALITY( *abstract_it, (*data)[1] );
+    TEST_EQUALITY( *cp_it, (*data)[0] );
     abstract_it++;
     TEST_EQUALITY( *abstract_it, (*data)[2] );
+    TEST_EQUALITY( *cp_it, (*data)[0] );
     int value = *(++abstract_it);
     TEST_EQUALITY( value, (*data)[3] );
+    TEST_EQUALITY( *cp_it, (*data)[0] );
     value = (*abstract_it++);
     TEST_EQUALITY( value, (*data)[3] );
     TEST_EQUALITY( *abstract_it, (*data)[4] );
+    TEST_EQUALITY( *cp_it, (*data)[0] );
 }
 
 //---------------------------------------------------------------------------//
-// Even predicate test.
-TEUCHOS_UNIT_TEST( AbstractIterator, even_predicate_test )
+// Single predicate test.
+TEUCHOS_UNIT_TEST( AbstractIterator, single_predicate_test )
 {
     using namespace DataTransferKit;
 
     // Create a vector.
     int num_data = 10;
     Teuchos::RCP<std::vector<int> > data =
-	Teuchos::rcp( new std::vector<int>(num_data) );
+    	Teuchos::rcp( new std::vector<int>(num_data) );
     for ( int i = 0; i < num_data; ++i )
     {
-	(*data)[i] = i;
+    	(*data)[i] = i;
     }
 
+    // BASIC PREDICATES
+
     // Create an iterator over the vector for the even numbers.
-    std::function<bool(int&)> even_func = [](int& n){ return ((n%2) == 0); };
     AbstractIterator<int> even_it = VectorIterator<int>( data, even_func );
-    TEST_ASSERT( even_it.size() > 0 );
+    TEST_EQUALITY( 5, Teuchos::as<int>(even_it.size()) );
 
     // Check the iterator in a for loop.
     AbstractIterator<int> begin_it = even_it.begin();
@@ -269,33 +282,218 @@ TEUCHOS_UNIT_TEST( AbstractIterator, even_predicate_test )
     	  even_it != end_it; 
     	  ++even_it )
     {
-	TEST_ASSERT( even_func(*even_it) );
+    	TEST_ASSERT( even_func(*even_it) );
+    }
+
+    // Create an iterator over the vector for the odd numbers.
+    AbstractIterator<int> odd_it = VectorIterator<int>( data, odd_func );
+    TEST_EQUALITY( 5, Teuchos::as<int>(odd_it.size()) );
+
+    // Check the iterator in a for loop.
+    begin_it = odd_it.begin();
+    end_it = odd_it.end();
+    for ( odd_it = begin_it;
+    	  odd_it != end_it; 
+    	  ++odd_it )
+    {
+    	TEST_ASSERT( odd_func(*odd_it) );
     }
 
     // Create an iterator over the vector for numbers with 2 as the last
     // number.
-    std::function<bool(int&)> ltwo_func = [](int& n){ return ((n%10) == 2); };
-    AbstractIterator<int> ltwo_it = VectorIterator<int>( data, ltwo_func );
-    TEST_ASSERT( ltwo_it.size() > 0 );
-    begin_it = ltwo_it.begin();
-    end_it = ltwo_it.end();
-    for ( ltwo_it = begin_it; ltwo_it != end_it; ++ltwo_it )
+    AbstractIterator<int> two_it = VectorIterator<int>( data, two_func );
+    TEST_EQUALITY( two_it.size(), 1 );
+    begin_it = two_it.begin();
+    end_it = two_it.end();
+    for ( two_it = begin_it; two_it != end_it; ++two_it )
     {
-	TEST_ASSERT( ltwo_func(*ltwo_it) );
+    	TEST_ASSERT( two_func(*two_it) );
+    }
+}
+
+//---------------------------------------------------------------------------//
+// Predicate intersection test.
+TEUCHOS_UNIT_TEST( AbstractIterator, predicate_intersection_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a vector.
+    int num_data = 10;
+    Teuchos::RCP<std::vector<int> > data =
+    	Teuchos::rcp( new std::vector<int>(num_data) );
+    for ( int i = 0; i < num_data; ++i )
+    {
+    	(*data)[i] = i;
     }
 
-    // // Create an iterator over the vector for the odd numbers.
-    // std::function<bool(int&)> odd_func = [](int& n){ std::cout << "CALL ODD" << std::endl;return ((n%2) == 1); };
-    // AbstractIterator<int> odd_it = VectorIterator<int>( data, odd_func );
-    // TEST_ASSERT( odd_it.size() > 0 );
+    // Create an iterator over the vector for the even numbers.
+    AbstractIterator<int> even_it = VectorIterator<int>( data, even_func );
 
-    // // Reset the even iterator.
-    // even_it = even_it.begin();
+    // Create an iterator over the vector for the odd numbers.
+    AbstractIterator<int> odd_it = VectorIterator<int>( data, odd_func );
 
-    // // Create the intersection of the even and odd set. It should be empty.
-    // AbstractIterator<int> even_odd_intersect_it = 
-    // 	AbstractIterator<int>::setOperation( INTERSECTION, even_it, odd_it );
-    // TEST_EQUALITY( even_odd_intersect_it.size(), 0 );
+    // Create an iterator over the vector for numbers with 2 as the last
+    // number.
+    AbstractIterator<int> two_it = VectorIterator<int>( data, two_func );
+
+    // Create the intersection of the even and odd set.
+    AbstractIterator<int> even_odd_intersect_it = 
+	AbstractIterator<int>::setOperation( 
+	    even_it, odd_it, IteratorIntersectionTag() );
+    TEST_EQUALITY( even_odd_intersect_it.size(), 0 );
+    AbstractIterator<int> odd_even_intersect_it = 
+	AbstractIterator<int>::setOperation( 
+	    odd_it, even_it, IteratorIntersectionTag() );
+    TEST_EQUALITY( odd_even_intersect_it.size(), 0 );
+
+    // Create the intersection of the even and two set.
+    AbstractIterator<int> even_two_intersect_it = 
+	AbstractIterator<int>::setOperation( 
+	    even_it, two_it, IteratorIntersectionTag() );
+    TEST_EQUALITY( even_two_intersect_it.size(), 1 );
+    AbstractIterator<int> two_even_intersect_it = 
+	AbstractIterator<int>::setOperation( 
+	    two_it, even_it, IteratorIntersectionTag() );
+    TEST_EQUALITY( two_even_intersect_it.size(), 1 );
+
+    // Create the intersection of the two and odd set.
+    AbstractIterator<int> two_odd_intersection_it = 
+	AbstractIterator<int>::setOperation( 
+	    two_it, odd_it, IteratorIntersectionTag() );
+    TEST_EQUALITY( two_odd_intersection_it.size(), 0 );
+    AbstractIterator<int> odd_two_intersection_it = 
+	AbstractIterator<int>::setOperation( 
+	    odd_it, two_it, IteratorIntersectionTag() );
+    TEST_EQUALITY( odd_two_intersection_it.size(), 0 );
+
+    // Intersect the odd set with itself.
+    AbstractIterator<int> odd_odd_intersect_it = 
+	AbstractIterator<int>::setOperation( 
+	    odd_it, odd_it, IteratorIntersectionTag() );
+    TEST_EQUALITY( odd_odd_intersect_it.size(), 5 );
+}
+//---------------------------------------------------------------------------//
+// Predicate union test.
+TEUCHOS_UNIT_TEST( AbstractIterator, predicate_union_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a vector.
+    int num_data = 10;
+    Teuchos::RCP<std::vector<int> > data =
+    	Teuchos::rcp( new std::vector<int>(num_data) );
+    for ( int i = 0; i < num_data; ++i )
+    {
+    	(*data)[i] = i;
+    }
+
+    // Create an iterator over the vector for the even numbers.
+    AbstractIterator<int> even_it = VectorIterator<int>( data, even_func );
+
+    // Create an iterator over the vector for the odd numbers.
+    AbstractIterator<int> odd_it = VectorIterator<int>( data, odd_func );
+
+    // Create an iterator over the vector for numbers with 2 as the last
+    // number.
+    AbstractIterator<int> two_it = VectorIterator<int>( data, two_func );
+
+    // Create the union of the even and odd set.
+    AbstractIterator<int> even_odd_union_it = 
+	AbstractIterator<int>::setOperation( 
+	    even_it, odd_it, IteratorUnionTag() );
+    TEST_EQUALITY( even_odd_union_it.size(), 10 );
+    AbstractIterator<int> odd_even_union_it = 
+	AbstractIterator<int>::setOperation( 
+	    odd_it, even_it, IteratorUnionTag() );
+    TEST_EQUALITY( odd_even_union_it.size(), 10 );
+
+    // Create the union of the even and two set.
+    AbstractIterator<int> even_two_union_it = 
+	AbstractIterator<int>::setOperation( 
+	    even_it, two_it, IteratorUnionTag() );
+    TEST_EQUALITY( even_two_union_it.size(), 5 );
+    AbstractIterator<int> two_even_union_it = 
+	AbstractIterator<int>::setOperation( 
+	    two_it, even_it, IteratorUnionTag() );
+    TEST_EQUALITY( two_even_union_it.size(), 5 );
+
+    // Union the odd set with itself.
+    AbstractIterator<int> odd_odd_union_it = 
+	AbstractIterator<int>::setOperation( 
+	    odd_it, odd_it, IteratorUnionTag() );
+    TEST_EQUALITY( odd_odd_union_it.size(), 5 );
+
+    // Create the union of the two and odd set.
+    AbstractIterator<int> two_odd_union_it = 
+	AbstractIterator<int>::setOperation( 
+	    two_it, odd_it, IteratorUnionTag() );
+    TEST_EQUALITY( two_odd_union_it.size(), 6 );
+    AbstractIterator<int> odd_two_union_it = 
+	AbstractIterator<int>::setOperation( 
+	    odd_it, two_it, IteratorUnionTag() );
+    TEST_EQUALITY( odd_two_union_it.size(), 6 );
+}
+
+//---------------------------------------------------------------------------//
+// Predicate subtraction test.
+TEUCHOS_UNIT_TEST( AbstractIterator, predicate_subtraction_test )
+{
+    using namespace DataTransferKit;
+
+    // Create a vector.
+    int num_data = 10;
+    Teuchos::RCP<std::vector<int> > data =
+    	Teuchos::rcp( new std::vector<int>(num_data) );
+    for ( int i = 0; i < num_data; ++i )
+    {
+    	(*data)[i] = i;
+    }
+
+    // Create an iterator over the vector for the even numbers.
+    AbstractIterator<int> even_it = VectorIterator<int>( data, even_func );
+
+    // Create an iterator over the vector for the odd numbers.
+    AbstractIterator<int> odd_it = VectorIterator<int>( data, odd_func );
+
+    // Create an iterator over the vector for numbers with 2 as the last
+    // number.
+    AbstractIterator<int> two_it = VectorIterator<int>( data, two_func );
+
+    // Create the subtraction of the even and odd set.
+    AbstractIterator<int> even_odd_subtraction_it = 
+	AbstractIterator<int>::setOperation( 
+	    even_it, odd_it, IteratorSubtractionTag() );
+    TEST_EQUALITY( even_odd_subtraction_it.size(), 5 );
+    AbstractIterator<int> odd_even_subtraction_it = 
+	AbstractIterator<int>::setOperation( 
+	    odd_it, even_it, IteratorSubtractionTag() );
+    TEST_EQUALITY( odd_even_subtraction_it.size(), 5 );
+
+    // Create the subtraction of the even and two set.
+    AbstractIterator<int> even_two_subtraction_it = 
+	AbstractIterator<int>::setOperation( 
+	    even_it, two_it, IteratorSubtractionTag() );
+    TEST_EQUALITY( even_two_subtraction_it.size(), 4 );
+    AbstractIterator<int> two_even_subtraction_it = 
+	AbstractIterator<int>::setOperation( 
+	    two_it, even_it, IteratorSubtractionTag() );
+    TEST_EQUALITY( two_even_subtraction_it.size(), 0 );
+
+    // Subtraction the odd set with itself.
+    AbstractIterator<int> odd_odd_subtraction_it = 
+	AbstractIterator<int>::setOperation( 
+	    odd_it, odd_it, IteratorSubtractionTag() );
+    TEST_EQUALITY( odd_odd_subtraction_it.size(), 0 );
+
+    // Create the subtraction of the odd and two set.
+    AbstractIterator<int> odd_two_subtraction_it = 
+	AbstractIterator<int>::setOperation( 
+	    odd_it, two_it, IteratorSubtractionTag() );
+    TEST_EQUALITY( odd_two_subtraction_it.size(), 5 );
+    AbstractIterator<int> two_odd_subtraction_it = 
+	AbstractIterator<int>::setOperation( 
+	    two_it, odd_it, IteratorSubtractionTag() );
+    TEST_EQUALITY( two_odd_subtraction_it.size(), 1 );
 }
 
 //---------------------------------------------------------------------------//
