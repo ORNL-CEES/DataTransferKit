@@ -216,8 +216,9 @@ std::size_t AbstractIterator<ValueType>::size() const
     {
 	AbstractIterator<ValueType> begin_it = this->begin();
 	AbstractIterator<ValueType> end_it = this->end();
-	AbstractIterator<ValueType> impl_copy;
-	for ( impl_copy = begin_it; impl_copy != end_it; ++impl_copy )
+	for ( AbstractIterator<ValueType> impl_copy = begin_it; 
+	      impl_copy != end_it; 
+	      ++impl_copy )
 	{
 	    ++size;
 	}

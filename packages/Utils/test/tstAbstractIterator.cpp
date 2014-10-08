@@ -204,7 +204,7 @@ TEUCHOS_UNIT_TEST( AbstractIterator, constructor_test )
 	Teuchos::rcp( new std::vector<int>(num_data) );
     for ( int i = 0; i < num_data; ++i )
     {
-	(*data)[i] = std::rand();
+	(*data)[i] = i;
     }
 
     // Create an iterator over the vector.
@@ -249,37 +249,60 @@ TEUCHOS_UNIT_TEST( AbstractIterator, predicate_constructor_test )
 	Teuchos::rcp( new std::vector<int>(num_data) );
     for ( int i = 0; i < num_data; ++i )
     {
-	(*data)[i] = std::rand();
+	(*data)[i] = i;
     }
 
-    // Create an iterator over the vector.
-    AbstractIterator<int> abstract_it = VectorIterator<int>( data, odd_func );
+    // Create an iterator over the odd components vector.
+    AbstractIterator<int> odd_it = VectorIterator<int>( data, odd_func );
 
     // Call the copy constructor.
-    AbstractIterator<int> it_1( abstract_it );
-    TEST_ASSERT( abstract_it == it_1 );
-    TEST_ASSERT( abstract_it.size() == it_1.size() );
-    TEST_ASSERT( abstract_it.begin() == it_1.begin() );
-    TEST_ASSERT( abstract_it.end() == it_1.end() );
-    TEST_EQUALITY( *abstract_it, *it_1 );
-    ++abstract_it;
+    AbstractIterator<int> it_1( odd_it );
+    TEST_ASSERT( odd_it == it_1 );
+    TEST_ASSERT( odd_it.size() == it_1.size() );
+    TEST_ASSERT( odd_it.begin() == it_1.begin() );
+    TEST_ASSERT( odd_it.end() == it_1.end() );
+    TEST_EQUALITY( *odd_it, *it_1 );
+    ++odd_it;
     ++it_1;
-    TEST_EQUALITY( *abstract_it, *it_1 );
+    TEST_EQUALITY( *odd_it, *it_1 );
     ++it_1;
-    TEST_ASSERT( abstract_it != it_1 );
+    TEST_ASSERT( odd_it != it_1 );
 
     // Call the assignment operator.
-    it_1 = abstract_it;
-    TEST_ASSERT( abstract_it == it_1 );
-    TEST_ASSERT( abstract_it.size() == it_1.size() );
-    TEST_ASSERT( abstract_it.begin() == it_1.begin() );
-    TEST_ASSERT( abstract_it.end() == it_1.end() );
-    TEST_EQUALITY( *abstract_it, *it_1 );
-    ++abstract_it;
+    it_1 = odd_it;
+    TEST_ASSERT( odd_it == it_1 );
+    TEST_ASSERT( odd_it.size() == it_1.size() );
+    TEST_ASSERT( odd_it.begin() == it_1.begin() );
+    TEST_ASSERT( odd_it.end() == it_1.end() );
+    TEST_EQUALITY( *odd_it, *it_1 );
+    ++odd_it;
     ++it_1;
-    TEST_EQUALITY( *abstract_it, *it_1 );
+    TEST_EQUALITY( *odd_it, *it_1 );
     ++it_1;
-    TEST_ASSERT( abstract_it != it_1 );
+    TEST_ASSERT( odd_it != it_1 );
+    TEST_EQUALITY( odd_it.size(), 5 );
+    TEST_EQUALITY( it_1.size(), 5 );
+
+    // Create an iterator over the components vector that end in 2.
+    AbstractIterator<int> two_it = VectorIterator<int>( data, two_func );
+    TEST_EQUALITY( two_it.size(), 1 );
+    AbstractIterator<int>begin_it = two_it.begin();
+    AbstractIterator<int> end_it = two_it.end();
+    for ( two_it = begin_it; two_it != end_it; ++two_it )
+    {
+    	TEST_ASSERT( two_func(*two_it) );
+    }
+
+    // Assign the two iterator to the odd iterator and check that the
+    // predicate was passed.
+    two_it = odd_it;
+    TEST_EQUALITY( two_it.size(), 5 );
+    begin_it = two_it.begin();
+    end_it = two_it.end();
+    for ( two_it = begin_it; two_it != end_it; ++two_it )
+    {
+    	TEST_ASSERT( odd_func(*two_it) );
+    }
 }
 
 //---------------------------------------------------------------------------//
