@@ -211,7 +211,7 @@ void PointImpl<DIM>::mapToReferenceFrame(
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of
 template<int DIM>
-bool PointImpl<DIM>::checkPointImplInclusion( 
+bool PointImpl<DIM>::checkPointInclusion( 
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {

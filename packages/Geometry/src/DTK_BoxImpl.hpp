@@ -81,11 +81,6 @@ class BoxImpl : public EntityImpl
     // Destructor.
     ~BoxImpl();
 
-    // Get the boundaries of the box.
-    Teuchos::Tuple<double,6> getBounds() const
-    { return Teuchos::tuple( d_x_min, d_y_min, d_z_min, 
-			     d_x_max, d_y_max, d_z_max ); }
-
     //@{ 
     //! Entity implementation.
     // Return a string indicating the derived entity type.

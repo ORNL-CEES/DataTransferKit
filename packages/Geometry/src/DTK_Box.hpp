@@ -84,10 +84,6 @@ class Box : public Entity
     // Destructor.
     ~Box();
 
-    // Get the boundaries of the box.
-    Teuchos::Tuple<double,6> getBounds() const
-    { return d_box_impl->getBounds(); }
-
     // Static function to check for box intersection but not perform it.
     static bool checkForIntersection( const Box& box_A,
 				      const Box& box_B );
@@ -107,11 +103,6 @@ class Box : public Entity
 
     // Get the byte size for the box.
     static std::size_t byteSize();
-
-  private:
-
-    // Pointer to the implementation.
-    Teuchos::RCP<BoxImpl> d_box_impl;
 };
 
 //---------------------------------------------------------------------------//

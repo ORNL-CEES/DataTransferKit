@@ -15,10 +15,9 @@
 #include <cassert>
 
 #include <DTK_BasicEntitySet.hpp>
-#include <DTK_Point.hpp>
 #include <DTK_Entity.hpp>
-#include <DTK_Box.hpp>
 #include <DTK_AbstractObjectRegistry.hpp>
+#include <DTK_DataSerializer.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -29,7 +28,6 @@
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
 #include <Teuchos_Tuple.hpp>
-#include <Teuchos_AbstractFactoryStd.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
@@ -44,6 +42,243 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
     return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
+
+//---------------------------------------------------------------------------//
+// NodeImpl implementation for testing.
+//---------------------------------------------------------------------------//
+class NodeImpl : public DataTransferKit::EntityImpl
+{
+  public:
+
+    // Default constructor.
+    NodeImpl() 
+	: d_global_id( DataTransferKit::dtk_invalid_entity_id )
+	, d_owner_rank( -1 )
+	, d_coordinates( 0 )
+    { /* ... */ }
+
+    // Array constructor.
+    NodeImpl( const DataTransferKit::EntityId global_id, 
+	      const int owner_rank,
+	      const Teuchos::Array<double>& coordinates )
+	: d_global_id( global_id )
+	, d_owner_rank( owner_rank )
+	, d_coordinates( coordinates )
+    { /* ... */ }
+
+    // Destructor.
+    ~NodeImpl()
+    { /* ... */ }
+
+    // Return a string indicating the derived entity type.
+    std::string name() const
+    {
+	return std::string("Unit Test Node");
+    }
+
+    // Get the entity type.
+    DataTransferKit::EntityType entityType() const
+    {
+	return DataTransferKit::NODE;
+    }
+
+    // Get the unique global identifier for the entity.
+    DataTransferKit::EntityId id() const
+    {
+	return d_global_id;
+    }
+    
+    // Get the parallel rank that owns the entity.
+    int ownerRank() const
+    {
+	return d_owner_rank;
+    }
+
+    // Return the physical dimension of the entity.
+    int physicalDimension() const
+    {
+	return d_coordinates.size();
+    }
+
+    // Return the parametric dimension of the entity.
+    int parametricDimension() const
+    {
+	return 0;
+    }
+
+    // Return the entity measure with respect to the parameteric
+    double measure() const
+    {
+	return 0.0;
+    }
+
+    // Return the centroid of the entity.
+    void centroid( Teuchos::ArrayView<const double>& centroid ) const
+    {
+	centroid = d_coordinates();
+    }
+
+    // Return the axis-aligned bounding box around the entity.
+    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+    {
+	bounds = Teuchos::tuple( d_coordinates[0], d_coordinates[1], d_coordinates[2], 
+				 d_coordinates[0], d_coordinates[1], d_coordinates[2] );
+    }
+
+    // Perform a safeguard check for mapping a point to the reference
+    void safeguardMapToReferenceFrame(
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& point,
+	DataTransferKit::MappingStatus& status ) const
+    { /* ... */ }
+
+    // Map a point to the reference space of an entity. Return the
+    void mapToReferenceFrame( 
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& point,
+	const Teuchos::ArrayView<double>& reference_point,
+	DataTransferKit::MappingStatus& status ) const
+    { /* ... */ }
+
+    // Determine if a reference point is in the parameterized space of
+    bool checkPointInclusion( 
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& reference_point ) const
+    { return false; }
+
+    // Map a reference point to the physical space of an entity.
+    void mapToPhysicalFrame( 
+	const Teuchos::ArrayView<const double>& reference_point,
+	const Teuchos::ArrayView<double>& point ) const
+    { /* ... */ }
+     
+    // Serialize the entity into a buffer.
+    void serialize( const Teuchos::ArrayView<char>& buffer ) const
+    {
+	DataTransferKit::DataSerializer serializer;
+	serializer.setBuffer( buffer );
+	serializer << d_global_id << d_owner_rank;
+
+	Teuchos::Array<double>::const_iterator coord_it;
+	for ( coord_it = d_coordinates.begin(); 
+	      coord_it != d_coordinates.end();
+	      ++coord_it )
+	{
+	    serializer << *coord_it;
+	}
+    }
+
+    // Deserialize an entity from a buffer.
+    void deserialize( const Teuchos::ArrayView<const char>& buffer )
+    {
+	Teuchos::ArrayView<char> buffer_nonconst(
+	    const_cast<char*>(buffer.getRawPtr()), buffer.size() );
+
+	DataTransferKit::DataDeserializer deserializer;
+	deserializer.setBuffer( buffer_nonconst );
+	deserializer >> d_global_id >> d_owner_rank;
+
+	d_coordinates.resize( 3 );
+	Teuchos::Array<double>::iterator coord_it;
+	for ( coord_it = d_coordinates.begin(); 
+	      coord_it != d_coordinates.end();
+	      ++coord_it )
+	{
+	    deserializer >> *coord_it;
+	}
+    }
+
+    // Get the byte size for the box.
+    static std::size_t byteSize();
+
+  private:
+
+    // Global id.
+    DataTransferKit::EntityId d_global_id;
+
+    // Owning parallel rank.
+    int d_owner_rank;
+
+    // Coordinates.
+    Teuchos::Array<double> d_coordinates;
+
+    // Packed size in bytes.
+    static std::size_t d_byte_size;
+};
+
+// Byte size of the point.
+std::size_t 
+NodeImpl::d_byte_size = 
+    sizeof(DataTransferKit::EntityId) + sizeof(int) + 3*sizeof(double);
+
+//---------------------------------------------------------------------------//
+// Get the byte size of the point.
+std::size_t NodeImpl::byteSize()
+{
+    return d_byte_size;
+}
+
+//---------------------------------------------------------------------------//
+// Node implementation for testing.
+//---------------------------------------------------------------------------//
+class Node : public DataTransferKit::Entity
+{
+  public:
+
+    // Default constructor.
+    Node()
+    {
+	this->b_entity_impl = Teuchos::rcp( new NodeImpl() );
+    }
+
+
+    // Array constructor.
+    Node( const DataTransferKit::EntityId global_id, 
+	  const int owner_rank,
+	  const Teuchos::Array<double>& coordinates )
+    {
+	this->b_entity_impl =
+	    Teuchos::rcp( new NodeImpl(global_id,owner_rank,coordinates) );
+    }
+
+    // Destructor.
+    ~Node() { /* ... */ }
+
+    // Get the byte size for the node.
+    static std::size_t byteSize();
+};
+
+std::size_t Node::byteSize()
+{
+    return NodeImpl::byteSize();
+}
+
+//---------------------------------------------------------------------------//
+namespace DataTransferKit
+{
+template<>
+class AbstractObjectRegistrationPolicy<Node>
+{
+  public:
+
+    //! Base class type.
+    typedef Node object_type;
+
+    /*!
+     * \brief Register a derived class with a base class.
+     */
+    static void registerDerivedClassWithBaseClass()
+    {
+	// Register the constructor with the base class
+	// AbstractBuildableObject interface.
+	Entity::setDerivedClassFactory<Node>();
+
+	// Register the byte size with the base class
+	// AbstractSerializableObject interface.
+	Entity::setDerivedClassByteSize( Node::byteSize() );
+    }
+};
+} // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // Tests
@@ -67,7 +302,7 @@ TEUCHOS_UNIT_TEST( Point, set_test )
     p1[0] = x_1;
     p1[1] = y_1;
     p1[2] = z_1;
-    Entity point_1 = Point<3>(0, comm_rank, p1);
+    Entity point_1 = Node(0, comm_rank, p1);
 
     // Make a second point.
     double x_2 = 3.2 - comm_rank;
@@ -77,7 +312,7 @@ TEUCHOS_UNIT_TEST( Point, set_test )
     p2[0] = x_2;
     p2[1] = y_2;
     p2[2] = z_2;
-    Entity point_2 = Point<3>(1, comm_rank, p2);
+    Entity point_2 = Node(1, comm_rank, p2);
 
     // Make an entity set.
     Teuchos::RCP<EntitySet> entity_set = Teuchos::rcp(
@@ -154,7 +389,7 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
     using namespace DataTransferKit;
 
     // Register the Entity classes.
-    AbstractObjectRegistry<Entity,Point<3> >::registerDerivedClasses();
+    AbstractObjectRegistry<Entity,Node >::registerDerivedClasses();
 
     // Register the EntitySet classes.
     AbstractObjectRegistry<EntitySet,BasicEntitySet>::registerDerivedClasses();
@@ -183,12 +418,12 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
 	p1[0] = x_1;
 	p1[1] = y_1;
 	p1[2] = z_1;
-	points[0] = Point<3>(0, 0, p1);
+	points[0] = Node(0, 0, p1);
 	Teuchos::Array<double> p2(3);
 	p2[0] = x_2;
 	p2[1] = y_2;
 	p2[2] = z_2;
-	points[1] = Point<3>(1, 0, p2);
+	points[1] = Node(1, 0, p2);
 
 	entity_set = Teuchos::rcp(new BasicEntitySet(comm,3) );
 	entity_set_key = builder->getIntegralKey( entity_set->name() );

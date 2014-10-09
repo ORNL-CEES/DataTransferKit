@@ -137,7 +137,7 @@ class PointImpl : public EntityImpl
 	MappingStatus& status ) const;
 
     // Determine if a reference point is in the parameterized space of
-    bool checkPointImplInclusion( 
+    bool checkPointInclusion( 
 	const Teuchos::ParameterList& parameters,
 	const Teuchos::ArrayView<const double>& reference_point ) const;
 

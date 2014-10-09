@@ -50,8 +50,7 @@ namespace DataTransferKit
  */
 Box::Box()
 { 
-    d_box_impl = Teuchos::rcp( new BoxImpl() );
-    this->b_entity_impl = d_box_impl;
+    this->b_entity_impl = Teuchos::rcp( new BoxImpl() );
 }
 
 //---------------------------------------------------------------------------//
@@ -74,10 +73,9 @@ Box::Box( const EntityId global_id, const int owner_rank,
 	  const double x_min, const double y_min, const double z_min,
 	  const double x_max, const double y_max, const double z_max )
 {
-    d_box_impl = Teuchos::rcp( new BoxImpl(global_id, owner_rank,
-					   x_min, y_min, z_min,
-					   x_max, y_max, z_max) );
-    this->b_entity_impl = d_box_impl;
+    this->b_entity_impl = Teuchos::rcp( new BoxImpl(global_id, owner_rank,
+						    x_min, y_min, z_min,
+						    x_max, y_max, z_max) );
 }
 
 //---------------------------------------------------------------------------//
@@ -90,8 +88,8 @@ Box::Box( const EntityId global_id,
 	  const int owner_rank, 
 	  const Teuchos::Tuple<double,6>& bounds )
 {
-    d_box_impl = Teuchos::rcp( new BoxImpl(global_id, owner_rank, bounds) );
-    this->b_entity_impl = d_box_impl;
+    this->b_entity_impl = 
+	Teuchos::rcp( new BoxImpl(global_id, owner_rank, bounds) );
 }
 
 //---------------------------------------------------------------------------//
@@ -114,8 +112,10 @@ Box::~Box()
 bool Box::checkForIntersection( const Box& box_A,
 				const Box& box_B )
 {
-    Teuchos::Tuple<double,6> bounds_A = box_A.getBounds();
-    Teuchos::Tuple<double,6> bounds_B = box_B.getBounds();
+    Teuchos::Tuple<double,6> bounds_A;
+    box_A.boundingBox( bounds_A );
+    Teuchos::Tuple<double,6> bounds_B;
+    box_B.boundingBox( bounds_B );
 
     return !( ( bounds_A[0] > bounds_B[3] || bounds_A[3] < bounds_B[0] ) ||
 	      ( bounds_A[1] > bounds_B[4] || bounds_A[4] < bounds_B[1] ) ||
@@ -147,8 +147,10 @@ bool Box::intersectBoxes( const Box& box_A,
 	return false;
     }
 
-    Teuchos::Tuple<double,6> bounds_A = box_A.getBounds();
-    Teuchos::Tuple<double,6> bounds_B = box_B.getBounds();
+    Teuchos::Tuple<double,6> bounds_A;
+    box_A.boundingBox( bounds_A );
+    Teuchos::Tuple<double,6> bounds_B;
+    box_B.boundingBox( bounds_B );
 
     double x_min, y_min, z_min, x_max, y_max, z_max;
 
@@ -228,8 +230,10 @@ void Box::uniteBoxes( const Box& box_A,
 		      const Box& box_B,
 		      Box& box_union)
 {
-    Teuchos::Tuple<double,6> bounds_A = box_A.getBounds();
-    Teuchos::Tuple<double,6> bounds_B = box_B.getBounds();
+    Teuchos::Tuple<double,6> bounds_A;
+    box_A.boundingBox( bounds_A );
+    Teuchos::Tuple<double,6> bounds_B;
+    box_B.boundingBox( bounds_B );
 
     double x_min, y_min, z_min, x_max, y_max, z_max;
 
@@ -322,7 +326,8 @@ Box operator+( const Box& box_1, const Box& box_2 )
  */
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
 {
-  Teuchos::Tuple<double,6> bounds = b.getBounds();
+    Teuchos::Tuple<double,6> bounds;
+    b.boundingBox( bounds );
 
   os << "Box: d_global_id=" << b.id()
      << ",d_owner_rank=" << b.ownerRank()

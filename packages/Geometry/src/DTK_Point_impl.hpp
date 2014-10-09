@@ -54,7 +54,7 @@ template<int DIM>
 Point<DIM>::Point()
 {
     d_point_impl = Teuchos::rcp( new PointImpl<DIM>() );
-    b_entity_impl = d_point_impl;
+    this->b_entity_impl = d_point_impl;
 }
 
 //---------------------------------------------------------------------------//
@@ -66,7 +66,7 @@ Point<DIM>::Point( const EntityId global_id,
 {
     d_point_impl = 
 	Teuchos::rcp( new PointImpl<DIM>(global_id,owner_rank,coordinates) );
-    b_entity_impl = d_point_impl;
+    this->b_entity_impl = d_point_impl;
 }
 
 //---------------------------------------------------------------------------//

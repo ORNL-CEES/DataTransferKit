@@ -1,6 +1,7 @@
 SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
   Nanoflann  packages/Nanoflann  SS  REQUIRED
   Utils      packages/Utils      SS  REQUIRED
+  Interface  packages/Interface  SS  REQUIRED
   PointCloud packages/PointCloud SS  OPTIONAL
   Geometry   packages/Geometry   SS  OPTIONAL
 )

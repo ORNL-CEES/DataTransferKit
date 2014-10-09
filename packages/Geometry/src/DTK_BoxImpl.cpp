@@ -204,7 +204,8 @@ void BoxImpl::centroid( Teuchos::ArrayView<const double>& centroid ) const
  */
 void BoxImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
-    bounds = getBounds();
+    bounds = Teuchos::tuple( d_x_min, d_y_min, d_z_min,
+			     d_x_max, d_y_max, d_z_max );
 }
 
 //---------------------------------------------------------------------------//

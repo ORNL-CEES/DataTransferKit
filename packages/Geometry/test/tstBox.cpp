@@ -75,7 +75,8 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
     TEST_EQUALITY( box.parametricDimension(), 3 );
 
     // Check the bounds.
-    Teuchos::Tuple<double,6> box_bounds = box.getBounds();
+    Teuchos::Tuple<double,6> box_bounds;
+    box.boundingBox( box_bounds );
     TEST_ASSERT( box_bounds[0] == x_min );
     TEST_ASSERT( box_bounds[1] == y_min );
     TEST_ASSERT( box_bounds[2] == z_min );
@@ -149,8 +150,8 @@ TEUCHOS_UNIT_TEST( Box, tuple_constructor_test )
     TEST_EQUALITY( box->parametricDimension(), 3 );
 
     // Check the bounds.
-    Teuchos::Tuple<double,6> box_bounds = 
-	Teuchos::rcp_dynamic_cast<Box>(box)->getBounds();
+    Teuchos::Tuple<double,6> box_bounds;
+    box->boundingBox( box_bounds );
     TEST_ASSERT( box_bounds[0] == input_bounds[0] );
     TEST_ASSERT( box_bounds[1] == input_bounds[1] );
     TEST_ASSERT( box_bounds[2] == input_bounds[2] );
@@ -216,7 +217,7 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
 
     has_intersect = Box::intersectBoxes( box_1, box_2, intersection );
     TEST_ASSERT( has_intersect );
-    bounds = intersection.getBounds();
+    intersection.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.25 );
     TEST_EQUALITY( bounds[1], 0.25 );
     TEST_EQUALITY( bounds[2], 0.25 );
@@ -226,7 +227,7 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
 
     has_intersect = Box::intersectBoxes( box_1, box_1, intersection );
     TEST_ASSERT( has_intersect );
-    bounds = intersection.getBounds();
+    intersection.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -236,7 +237,7 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
 
     has_intersect = Box::intersectBoxes( box_3, box_1, intersection );
     TEST_ASSERT( has_intersect );
-    bounds = intersection.getBounds();
+    intersection.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -249,7 +250,7 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
 
     has_intersect = Box::intersectBoxes( box_1, box_5, intersection );
     TEST_ASSERT( has_intersect );
-    bounds = intersection.getBounds();
+    intersection.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 1.0 );
     TEST_EQUALITY( bounds[1], 1.0 );
     TEST_EQUALITY( bounds[2], 1.0 );
@@ -259,7 +260,7 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
 
     has_intersect = Box::intersectBoxes( box_5, box_1, intersection );
     TEST_ASSERT( has_intersect );
-    bounds = intersection.getBounds();
+    intersection.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 1.0 );
     TEST_EQUALITY( bounds[1], 1.0 );
     TEST_EQUALITY( bounds[2], 1.0 );
@@ -269,7 +270,7 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
 
     has_intersect = Box::intersectBoxes( box_2, box_3, intersection );
     TEST_ASSERT( has_intersect );
-    bounds = intersection.getBounds();
+    intersection.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.25 );
     TEST_EQUALITY( bounds[1], 0.25 );
     TEST_EQUALITY( bounds[2], 0.25 );
@@ -309,7 +310,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     Box box_5( 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
 
     Box::uniteBoxes( box_1, box_2, box_union );
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -318,7 +319,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[5], 1.0 );
 
     Box::uniteBoxes( box_1, box_1, box_union );
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -327,7 +328,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[5], 1.0 );
 
     Box::uniteBoxes( box_3, box_1, box_union );
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
     TEST_EQUALITY( bounds[2], -1.0 );
@@ -336,7 +337,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[5], 1.0 );
 
     Box::uniteBoxes( box_4, box_1, box_union );
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], -1.2 );
@@ -345,7 +346,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[5], 1.0 );
 
     Box::uniteBoxes( box_1, box_5, box_union );
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -354,7 +355,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[5], 1.1 );
 
     Box::uniteBoxes( box_5, box_1, box_union );
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -363,7 +364,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[5], 1.1 );
 
     Box::uniteBoxes( box_2, box_3, box_union );
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
     TEST_EQUALITY( bounds[2], -1.0 );
@@ -372,7 +373,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[5], 0.75 );
 
     Box::uniteBoxes( box_2, box_4, box_union );
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.25 );
     TEST_EQUALITY( bounds[1], 0.25 );
     TEST_EQUALITY( bounds[2], -1.2 );
@@ -381,7 +382,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[5], 0.75 );
 
     Box::uniteBoxes( box_2, box_5, box_union );
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.25 );
     TEST_EQUALITY( bounds[1], 0.25 );
     TEST_EQUALITY( bounds[2], 0.25 );
@@ -390,7 +391,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[5], 1.1 );
 
     Box::uniteBoxes( box_3, box_5, box_union );
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
     TEST_EQUALITY( bounds[2], -1.0 );
@@ -399,7 +400,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[5], 1.1 );
 
     Box::uniteBoxes( box_3, box_4, box_union );
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
     TEST_EQUALITY( bounds[2], -1.2 );
@@ -408,7 +409,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[5], 0.67 );
 
     Box::uniteBoxes( box_4, box_5, box_union );
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 1.0 );
     TEST_EQUALITY( bounds[1], 1.0 );
     TEST_EQUALITY( bounds[2], -1.2 );
@@ -433,7 +434,7 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     Box box_5( 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
 
     box_union = box_1 + box_2;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -442,7 +443,7 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     TEST_EQUALITY( bounds[5], 1.0 );
 
     box_union = box_1 + box_1;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -451,7 +452,7 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     TEST_EQUALITY( bounds[5], 1.0 );
 
     box_union = box_3 + box_1;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
     TEST_EQUALITY( bounds[2], -1.0 );
@@ -460,7 +461,7 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     TEST_EQUALITY( bounds[5], 1.0 );
 
     box_union = box_4 + box_1;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], -1.2 );
@@ -469,7 +470,7 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     TEST_EQUALITY( bounds[5], 1.0 );
 
     box_union = box_1 + box_5;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -478,7 +479,7 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     TEST_EQUALITY( bounds[5], 1.1 );
 
     box_union = box_5 + box_1;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -487,7 +488,7 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     TEST_EQUALITY( bounds[5], 1.1 );
 
     box_union = box_2 + box_3;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
     TEST_EQUALITY( bounds[2], -1.0 );
@@ -496,7 +497,7 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     TEST_EQUALITY( bounds[5], 0.75 );
 
     box_union = box_2 + box_4;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.25 );
     TEST_EQUALITY( bounds[1], 0.25 );
     TEST_EQUALITY( bounds[2], -1.2 );
@@ -505,7 +506,7 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     TEST_EQUALITY( bounds[5], 0.75 );
 
     box_union = box_2 + box_5;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.25 );
     TEST_EQUALITY( bounds[1], 0.25 );
     TEST_EQUALITY( bounds[2], 0.25 );
@@ -514,7 +515,7 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     TEST_EQUALITY( bounds[5], 1.1 );
 
     box_union = box_3 + box_5;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
     TEST_EQUALITY( bounds[2], -1.0 );
@@ -523,7 +524,7 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     TEST_EQUALITY( bounds[5], 1.1 );
 
     box_union = box_3 + box_4;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
     TEST_EQUALITY( bounds[2], -1.2 );
@@ -532,7 +533,7 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     TEST_EQUALITY( bounds[5], 0.67 );
 
     box_union = box_4 + box_5;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 1.0 );
     TEST_EQUALITY( bounds[1], 1.0 );
     TEST_EQUALITY( bounds[2], -1.2 );
@@ -558,7 +559,7 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 
     box_union = box_1;
     box_union += box_2;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -568,7 +569,7 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 
     box_union = box_1;
     box_union += box_1;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -578,7 +579,7 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 
     box_union = box_3;
     box_union += box_1;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
     TEST_EQUALITY( bounds[2], -1.0 );
@@ -588,7 +589,7 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 
     box_union = box_4;
     box_union += box_1;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], -1.2 );
@@ -598,7 +599,7 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 
     box_union = box_1;
     box_union += box_5;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -608,7 +609,7 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 
     box_union = box_5;
     box_union += box_1;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
     TEST_EQUALITY( bounds[2], 0.0 );
@@ -618,7 +619,7 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 
     box_union = box_2;
     box_union += box_3;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
     TEST_EQUALITY( bounds[2], -1.0 );
@@ -628,7 +629,7 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 
     box_union = box_2;
     box_union += box_4;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.25 );
     TEST_EQUALITY( bounds[1], 0.25 );
     TEST_EQUALITY( bounds[2], -1.2 );
@@ -638,7 +639,7 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 
     box_union = box_2;
     box_union += box_5;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.25 );
     TEST_EQUALITY( bounds[1], 0.25 );
     TEST_EQUALITY( bounds[2], 0.25 );
@@ -648,7 +649,7 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 
     box_union = box_3;
     box_union += box_5;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
     TEST_EQUALITY( bounds[2], -1.0 );
@@ -658,7 +659,7 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 
     box_union = box_3;
     box_union += box_4;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
     TEST_EQUALITY( bounds[2], -1.2 );
@@ -668,7 +669,7 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 
     box_union = box_4;
     box_union += box_5;
-    bounds = box_union.getBounds();
+    box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 1.0 );
     TEST_EQUALITY( bounds[1], 1.0 );
     TEST_EQUALITY( bounds[2], -1.2 );
@@ -782,7 +783,8 @@ TEUCHOS_UNIT_TEST( Box, communication_test )
     Teuchos::broadcast( *comm_default, 0, Teuchos::Ptr<Entity>(&entity) );
 
     // Check the bounds.
-    Teuchos::Tuple<double,6> box_bounds = box.getBounds();
+    Teuchos::Tuple<double,6> box_bounds;
+    box.boundingBox( box_bounds );
     TEST_EQUALITY( box_bounds[0], x_min );
     TEST_EQUALITY( box_bounds[1], y_min );
     TEST_EQUALITY( box_bounds[2], z_min );
