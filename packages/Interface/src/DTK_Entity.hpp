@@ -61,23 +61,6 @@ namespace DataTransferKit
 /*!
   \class Entity
   \brief Geometric entity interface definition.
-
-  Entity provides access to basic properites of geometric objects. A
-  geometry is simply an object or collection of objects that has $n$ physical
-  dimensions and a spatial domain $\Omega \in \mathbb{R}^n$ that is bounded by
-  a boundary $\Gamma \in \mathbb{R}^n$. Concrete examples of geometries in 3
-  dimensions include cubes, cylinders, polyhedron, or mesh elements. A
-  geometry can have 1, 2, or three dimensions. To specify the general position
-  in space of the geometry, each object is required to have a centroid given
-  in Cartesian coordinates with (x) given for 1 dimensional geometries, (x,y)
-  for two dimensions, and (x,y,z) for 3 dimensions. A measure is also
-  specified for each geometry where the measure is defined as length in 1
-  dimension, area in 2 dimensions, and volume for 3 dimensions. In addition to
-  this data, a geometry must be able to provide a Cartesian axis-aligned
-  bounding box that encapsulates the entire geometry. For geometric search
-  operations to be performed, a geometry must be able to determine if a given
-  point of the same dimensionality as the geometry is contained within the
-  boundary of the geometry (i.e. $\hat{r} \in \Omega$).
 */
 //---------------------------------------------------------------------------//
 class Entity : public AbstractBuildableObject<Entity>
@@ -131,22 +114,6 @@ class Entity : public AbstractBuildableObject<Entity>
      * describing the entity will be of this dimension.
      */
     virtual int physicalDimension() const;
-
-    /*!
-     * \brief Return the parametric dimension of the entity.
-     * \return The parameteric dimension of the entity. This is the dimension
-     * of coordinates needed to parametrize the space of an entity. This may
-     * be different than the physical dimension.
-     */
-    virtual int parametricDimension() const;
-
-    /*!
-     * \brief Return the centroid of the entity.
-     * \param centroid A view of the centroid coordinates. This view will not
-     * be allocated. Assign a view of your centroid to this view.
-     */
-    virtual void
-    centroid( Teuchos::ArrayView<const double>& centroid ) const;
 
     /*!
      * \brief Return the axis-aligned bounding box bounds around the entity.

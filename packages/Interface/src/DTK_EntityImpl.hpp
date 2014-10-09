@@ -108,22 +108,6 @@ class EntityImpl
     virtual int physicalDimension() const;
 
     /*!
-     * \brief Return the parametric dimension of the entity.
-     * \return The parameteric dimension of the entity. This is the dimension
-     * of coordinates needed to parametrize the space of an entity. This may
-     * be different than the physical dimension.
-     */
-    virtual int parametricDimension() const;
-
-    /*!
-     * \brief Return the centroid of the entity.
-     * \param centroid A view of the centroid coordinates. This view will not
-     * be allocated. Assign a view of your centroid to this view.
-     */
-    virtual void 
-    centroid( Teuchos::ArrayView<const double>& centroid ) const;
-
-    /*!
      * \brief Return the axis-aligned bounding box around the entity.
      * \param bounding_box A Cartesian box that bounds the entity.
      */

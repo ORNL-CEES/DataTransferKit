@@ -91,7 +91,6 @@ class DOFAccessor
     virtual void access( const EntityId& dof_id,
 			 Kokkos::View<const double>& dof_values ) const;
 
-
     /*!
      * \brief Given a degree of freedom id, get a nonconst view of the data for
      * that degree of freedom. 

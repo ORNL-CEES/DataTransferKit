@@ -88,21 +88,6 @@ int Entity::physicalDimension() const
 }
 
 //---------------------------------------------------------------------------//
-// Return the parametric dimension of the entity.
-int Entity::parametricDimension() const
-{ 
-    return b_entity_impl->parametricDimension();
-}
-
-//---------------------------------------------------------------------------//
-// Return the centroid of the entity.
-void Entity::centroid( 
-    Teuchos::ArrayView<const double>& centroid ) const
-{ 
-    b_entity_impl->centroid( centroid );
-}
-
-//---------------------------------------------------------------------------//
 // Return the axis-aligned bounding box around the entity.
 void Entity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 { 

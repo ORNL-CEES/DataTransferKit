@@ -63,6 +63,16 @@ double EntityFunctionSpace::measure( const Entity& entity ) const
 }
 
 //---------------------------------------------------------------------------//
+// Return the centroid of the entity.
+void EntityFunctionSpace::centroid(
+    const Entity& entity,
+    Teuchos::ArrayView<const double>& centroid ) const
+{ 
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space
 // of an entity using the given tolerance. 
 void EntityFunctionSpace::safeguardMapToReferenceFrame(

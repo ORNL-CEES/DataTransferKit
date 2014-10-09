@@ -85,13 +85,13 @@ class FieldGroup
     ~FieldGroup();
 
     /*!
-     * \brief Set a DOF accessor for a given field.
+     * \brief Add a DOF accessor for a given field to the group.
      * \param dof_accessor Accessor to the degrees of freedom for a field
      * supported by this entity set and functional support.
      * \param name The name of the field the degrees of freedom represent.
      */
-    void setDOFAccessor( const Teuchos::RCP<DOFAccessor>& dof_accessor,
-			 const std::string& name );
+    void registerDOFAccessor( const Teuchos::RCP<DOFAccessor>& dof_accessor,
+			      const std::string& name );
 
     /*!
      * \brief Get the entity set over which the fields are defined.

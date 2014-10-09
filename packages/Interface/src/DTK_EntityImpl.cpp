@@ -98,24 +98,6 @@ int EntityImpl::physicalDimension() const
 }
 
 //---------------------------------------------------------------------------//
-// Return the parametric dimension of the entity.
-int EntityImpl::parametricDimension() const
-{ 
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return -1;
-}
-
-//---------------------------------------------------------------------------//
-// Return the centroid of the entity.
-void EntityImpl::centroid( 
-    Teuchos::ArrayView<const double>& centroid ) const
-{ 
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
 // Return the axis-aligned bounding box around the entity.
 void EntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 { 
