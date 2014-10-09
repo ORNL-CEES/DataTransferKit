@@ -44,7 +44,6 @@
 #include <string>
 
 #include "DTK_Types.hpp"
-#include "DTK_MappingStatus.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -136,63 +135,6 @@ class EntityImpl
      * \param bounding_box A Cartesian box that bounds the entity.
      */
     virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
-    //@}
-
-    //@{
-    //! Parameteric mapping functions.
-    /*!
-     * \brief Perform a safeguard check for mapping a point to the reference
-     * space of an entity using the given tolerance.
-     * \param parameters Parameters to be used for the safeguard check.
-     * \param point A view into an array of size physicalDimension() containing
-     * the coordinates of the point to map.
-     * \param status A status object indicating the results of the safeguard
-     * check.
-     */
-    virtual void safeguardMapToReferenceFrame(
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& point,
-	MappingStatus& status ) const;
-
-    /*!
-     * \brief Map a point to the reference space of an entity. Return the
-     * parameterized point.
-     * \param parameters Parameters to be used for the mapping procedure.
-     * \param  A view into an array of size physicalDimension() containing
-     * the coordinates of the point to map.
-     * \param reference_point A view into an array of size physicalDimension()
-     * to write the reference coordinates of the mapped point.
-     * \param status A status object indicating the results of the mapping
-     * procedure.
-     */
-    virtual void mapToReferenceFrame( 
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point,
-	MappingStatus& status ) const;
-
-    /*!  
-     * \brief Determine if a reference point is in the parameterized space of
-     * an entity.
-     * \param parameters Parameters to be used for the point inclusion check.
-     * \param reference_point A view into an array of size physicalDimension()
-     * containing the reference coordinates of the mapped point.
-     * \return True if the point is in the reference space, false if not.
-     */
-    virtual bool checkPointInclusion( 
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
-
-    /*!
-     * \brief Map a reference point to the physical space of an entity.
-     * \param reference_point A view into an array of size physicalDimension()
-     * containing the reference coordinates of the mapped point.
-     * \param  A view into an array of size physicalDimension() to write
-     * the coordinates of physical point.
-     */
-    virtual void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
     //@}
 
     //@{

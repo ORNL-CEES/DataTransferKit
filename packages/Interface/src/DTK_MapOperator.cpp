@@ -66,27 +66,60 @@ std::string MapOperator::name() const
 
 //---------------------------------------------------------------------------//
 // Setup the map operator from a source entity set and a target entity set.
-void MapOperator::setup( const Teuchos::RCP<const EntitySet>& source_set,
-			 const Teuchos::RCP<const EntitySet>& target_set )
+void MapOperator::setup( const Teuchos::RCP<FieldGroup>& source_group,
+			 const Teuchos::RCP<FieldGroup>& target_group,
+			 const Teuchos::ParameterList>& parameters )
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
 }
+
 //---------------------------------------------------------------------------//
 // Apply the map operator to data defined on the entities.
-void MapOperator::apply( 
-    const Teuchos::RCP<const Thyra::MultiVector<Base> >& source_data,
-    const Teuchos::RCP<Thyra::MultiVector<Base> >& target_data )
+void MapOperator::apply( const std::string& source_field_name,
+			 const std::string& target_field_name ) const
 {
-    DTK_REQUIRE( Teuchos::nonnull(d_mass_matrix_inv) );
-    DTK_REQUIRE( Teuchos::nonnull(d_coupling_matrix) );
-    DTK_REQUIRE( Teuchos::nonnull(d_forcing_vector) );
+    DTK_REQUIRE( Teuchos::nonnull(b_coupling_matrix) );
+    DTK_REQUIRE( Teuchos::nonnull(source_field) );
+    DTK_REQUIRE( Teuchos::nonnull(target_field) );
 
-    Teuchos::RCP<Thyra::MultiVector<Base> > work = d_forcing_vector->clone_mv();
-    d_coupling_matrix->apply( Thyra::NOTRANS, *source_data, *work, 1.0, 1.0 );
-    Thyra::Vt_S( Teuchos::ptr(work->getRawPtr()), -1.0 );
-    Thyra::Vp_V( 1.0, *d_forcing_vector, Teuchos::ptr(work->getRawPtr()) );
-    d_mass_matrix_inv->apply( Thyra::NOTRANS, *work, *target_data, 1.0, 1.0 );
+    // Build the source and target vectors.
+    Teuchos::RCP<const Thyra::MultiVectorBase<double> >& source_data;
+    Teuchos::RCP<Thyra::MultiVectorBase<double> >& target_data;
+    buildSourceAndTargetVectors( source_data, target_data );
+    DTK_CHECK( Teuchos::nonnull(source_data) );
+    DTK_CHECK( Teuchos::nonnull(target_data) );
+
+    // Compute g = Minv*(v-A*f)
+    Teuchos::RCP<Thyra::MultiVectorBase<double> > work = 
+	b_forcing_vector->clone_mv();
+    b_coupling_matrix->apply( 
+	Thyra::NOTRANS, *source_data, Teuchos::ptr(work.getRawPtr()), 1.0, 1.0 );
+    Thyra::Vt_S( Teuchos::ptr(work.getRawPtr()), -1.0 );
+    if ( Teuchos::nonnull(b_forcing_vector) )
+    {
+	Thyra::Vp_V( Teuchos::ptr(work.getRawPtr()), *b_forcing_vector );
+    }
+    if ( Teuchos::nonnull(b_mass_matrix_inv) )
+    {
+	b_mass_matrix_inv->apply( 
+	    Thyra::NOTRANS, *work, Teuchos::ptr(target_data.getRawPtr()), 1.0, 1.0 );
+    }
+    else
+    {
+	target_data = work;
+    }
+}
+
+//---------------------------------------------------------------------------//
+void MapOperator::buildSourceAndTargetVectors( 
+    const Teuchos::RCP<const Field>& source_field,
+    const Teuchos::RCP<Field>& target_field,
+    Teuchos::RCP<const Thyra::MultiVectorBase<double> >& source_data,
+    Teuchos::RCP<Thyra::MultiVectorBase<double> >& target_data ) const
+{
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//

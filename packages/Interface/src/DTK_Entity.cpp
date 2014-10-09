@@ -118,49 +118,6 @@ void Entity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 }
 
 //---------------------------------------------------------------------------//
-// Perform a safeguard check for mapping a point to the reference space of an
-// entity using the given tolerance. 
-void Entity::safeguardMapToReferenceFrame(
-    const Teuchos::ParameterList& parameters,
-    const Teuchos::ArrayView<const double>& point,
-    MappingStatus& status ) const
-{ 
-    b_entity_impl->safeguardMapToReferenceFrame(
-	parameters, point, status );
-}
-
-//---------------------------------------------------------------------------//
-// Map a point to the reference space of an entity. Return the
-// parameterized point. 
-void Entity::mapToReferenceFrame( 
-    const Teuchos::ParameterList& parameters,
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point,
-    MappingStatus& status ) const
-{ 
-    b_entity_impl->mapToReferenceFrame(
-	parameters, point, reference_point, status );
-}
-
-//---------------------------------------------------------------------------//
-// Determine if a reference point is in the parameterized space of an entity.
-bool Entity::checkPointInclusion( 
-    const Teuchos::ParameterList& parameters,
-    const Teuchos::ArrayView<const double>& reference_point ) const
-{ 
-    return b_entity_impl->checkPointInclusion( parameters, reference_point );
-}
-
-//---------------------------------------------------------------------------//
-// Map a reference point to the physical space of an entity.
-void Entity::mapToPhysicalFrame( 
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& point ) const
-{
-    b_entity_impl->mapToPhysicalFrame( reference_point, point );
-}
-
-//---------------------------------------------------------------------------//
 // Return a string indicating the derived object type.
 std::string Entity::objectType() const
 {

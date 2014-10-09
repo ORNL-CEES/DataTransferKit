@@ -3,6 +3,8 @@ SET(LIB_REQUIRED_DEP_PACKAGES
   DataTransferKitNanoflann
   DataTransferKitUtils
   Teuchos
+  Kokkos
+  Tpetra
   Thyra
  )
 

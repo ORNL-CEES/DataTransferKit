@@ -20,8 +20,9 @@ APPEND_SET(HEADERS
   DTK_EntitySet.hpp
   DTK_Entity.hpp
   DTK_EntityImpl.hpp
-  DTK_Types.hpp
+  DTK_MapOperator.hpp
   DTK_MappingStatus.hpp
+  DTK_Types.hpp
   ) 
 
 APPEND_SET(SOURCES
@@ -29,6 +30,7 @@ APPEND_SET(SOURCES
   DTK_EntitySet.cpp
   DTK_Entity.cpp
   DTK_EntityImpl.cpp
+  DTK_MapOperator.cpp
   DTK_MappingStatus.cpp
   )
 

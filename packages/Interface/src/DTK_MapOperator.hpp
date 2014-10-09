@@ -41,12 +41,12 @@
 #ifndef DTK_MAPOPERATOR_HPP
 #define DTK_MAPOPERATOR_HPP
 
-#include "DTK_EntitySet.hpp"
 #include "DTK_AbstractBuilder.hpp"
 #include "DTK_AbstractBuildableObject.hpp"
+#include "DTK_FieldGroup.hpp"
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
+#include <Teuchos_ParameterList.hpp>
 
 #include <Thyra_MultiVectorBase.hpp>
 #include <Thyra_LinearOpBase.hpp>
@@ -89,30 +89,51 @@ class MapOperator : public AbstractBuildableObject<MapOperator>
     /*
      * \brief Setup the map operator from a source entity set and a target
      * entity set.
-     * \param source_set The set of entities that will send the data to be
+     * \param source_group The field group that contains the data that will be
+     * sent to the target.
      * mapped. 
-     * \param target_set The set of entities that will receive the data to be
-     * mapped.
+     * \param target_set The field group that will receive the data from the
+     * source.
+     * \param parameters Parameters for the setup.
      */
-    virtual voie setup( const Teuchos::RCP<const EntitySet>& source_set,
-			const Teuchos::RCP<const EntitySet>& target_set );
+    virtual void setup( const Teuchos::RCP<FieldGroup>& source_group,
+			const Teuchos::RCP<FieldGroup>& target_group,
+			const Teuchos::ParameterList>& parameters );
     //@}
 
     //@{
     //! Apply functions.
     /*
      * \brief Apply the map operator to data defined on the entities.
-     * \param source_data Data defined on the source entities that will be
-     * sent to the target.
-     * \param target_data Data defined on the target entities that will be
-     * received from the source.
+     * \param source_field_name Field defined on the source entities that will
+     * be sent to the target.
+     * \param target_field_name Field defined on the target entities that will
+     * be received from the source.
      */
-    virtual void apply( 
-	const Teuchos::RCP<const Thyra::MultiVector<Base> >& source_data,
-	const Teuchos::RCP<Thyra::MultiVector<Base> >& target_data );
+    virtual void apply( const std::string& source_field_name,
+			const std::string& target_field_name ) const;
     //@}
 
-    protected
+  protected:
+
+    //@{
+    //! Vector construction functions.
+    /* 
+     * \brief Construct the source and target data vectors from the source and
+     * target field.
+     */ 
+    virtual void buildSourceAndTargetVectors( 
+	Teuchos::RCP<const Thyra::MultiVectorBase<double> >& source_data,
+	Teuchos::RCP<Thyra::MultiVectorBase<double> >& target_data ) const;
+    //@}
+
+  protected:
+
+    //! Source field group.
+    Teuchos::RCP<FieldGroup> b_source_group;
+
+    //! Target field group.
+    Teuchos::RCP<FieldGroup> b_target_group;
 
     //! Mass matrix inverse.
     Teuchos::RCP<Thyra::LinearOpBase<double> > b_mass_matrix_inv;
