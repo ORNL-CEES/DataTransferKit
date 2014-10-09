@@ -91,6 +91,9 @@ BoxImpl::BoxImpl( const EntityId global_id, const int owner_rank,
     , d_y_max( y_max )
     , d_z_max( z_max )
 {
+    DTK_REQUIRE( d_x_min <= d_x_max );
+    DTK_REQUIRE( d_y_min <= d_y_max );
+    DTK_REQUIRE( d_z_min <= d_z_max );
     d_centroid[0] = (d_x_max + d_x_min) / 2.0;
     d_centroid[1] = (d_y_max + d_y_min) / 2.0;
     d_centroid[2] = (d_z_max + d_z_min) / 2.0;
@@ -114,6 +117,9 @@ BoxImpl::BoxImpl( const EntityId global_id,
     , d_y_max( bounds[4] )
     , d_z_max( bounds[5] )
 {
+    DTK_REQUIRE( d_x_min <= d_x_max );
+    DTK_REQUIRE( d_y_min <= d_y_max );
+    DTK_REQUIRE( d_z_min <= d_z_max );
     d_centroid[0] = (d_x_max + d_x_min) / 2.0;
     d_centroid[1] = (d_y_max + d_y_min) / 2.0;
     d_centroid[2] = (d_z_max + d_z_min) / 2.0;
@@ -135,7 +141,7 @@ std::string BoxImpl::name() const
 
 //---------------------------------------------------------------------------//
 // Get the entity type.
-EntityType EntityImpl::entityType() const
+EntityType BoxImpl::entityType() const
 {
     return VOLUME;
 }

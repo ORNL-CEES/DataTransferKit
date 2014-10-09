@@ -95,7 +95,7 @@ std::string PointImpl<DIM>::name() const
 //---------------------------------------------------------------------------//
 // Get the entity type.
 template<int DIM>
-EntityType Point<DIM>::entityType() const
+EntityType PointImpl<DIM>::entityType() const
 {
     return NODE;
 }

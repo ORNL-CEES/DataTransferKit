@@ -57,7 +57,7 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
 {
     using namespace DataTransferKit;
 
-    // Make a bounding box.
+    // make a box.
     double x_min = 3.2;
     double y_min = -9.233;
     double z_min = 1.3;
@@ -129,7 +129,7 @@ TEUCHOS_UNIT_TEST( Box, tuple_constructor_test )
 {
     using namespace DataTransferKit;
 
-    // Make a bounding box.
+    // make a box.
     Teuchos::Tuple<double,6> input_bounds;
     input_bounds[0] = 3.2;
     input_bounds[1] = -9.233;
@@ -758,7 +758,7 @@ TEUCHOS_UNIT_TEST( Box, communication_test )
 	Teuchos::DefaultComm<int>::getComm();
     int comm_rank = comm_default->getRank();
 
-    // Make a bounding box.
+    // make a box.
     double x_min = 3.2;
     double y_min = -9.233;
     double z_min = 1.3;

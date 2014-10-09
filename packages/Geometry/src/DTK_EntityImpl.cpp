@@ -64,7 +64,7 @@ std::string EntityImpl::name() const
 
 //---------------------------------------------------------------------------//
 // Get the entity type.
-virtual EntityType entityType() const
+EntityType EntityImpl::entityType() const
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );

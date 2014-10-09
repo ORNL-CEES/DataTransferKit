@@ -40,7 +40,6 @@
 
 #include "DTK_BasicEntitySet.hpp"
 #include "DTK_DBC.hpp"
-#include "DTK_Box.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Ptr.hpp>
@@ -301,9 +300,7 @@ int BasicEntitySet::physicalDimension() const
 void BasicEntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     double max = std::numeric_limits<double>::max();
-    Box bounding_box( d_comm->getRank(), d_comm->getRank(),
-		      max, max, max, -max, -max, -max );
-    Box entity_box;
+    bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
     AbstractIterator<Entity> entity_begin;
     AbstractIterator<Entity> entity_end;
     AbstractIterator<Entity> entity_it;
@@ -319,24 +316,27 @@ void BasicEntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 	      ++entity_it )
 	{
 	    entity_it->boundingBox( entity_bounds );
-	    entity_box = Box( 0, 0, entity_bounds );
-	    bounding_box += entity_box;
+	    for ( int n = 0; n < 3; ++n )
+	    {
+		bounds[n] = std::min( bounds[n], entity_bounds[n] );
+		bounds[n+3] = std::max( bounds[n], entity_bounds[n] );
+	    }
 	}
     }
-    bounds = bounding_box.getBounds();
 }
 
 //---------------------------------------------------------------------------//
 // Get the global bounding box of entities of the set.
 void BasicEntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
+    double max = std::numeric_limits<double>::max();
+    bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
     Teuchos::Tuple<double,6> local_bounds;
     localBoundingBox( local_bounds );
-    Box local_box = Box( 0, 0, local_bounds );
-    Box bounding_box = Box();
-    Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_SUM, 
-			local_box, Teuchos::Ptr<Box>(&bounding_box) );
-    bounds = bounding_box.getBounds();
+    Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_MIN, 3,
+			&local_bounds[0], &bounds[0] ); 
+    Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_MAX, 3,
+			&local_bounds[3], &bounds[3] ); 
 }
 
 //---------------------------------------------------------------------------//

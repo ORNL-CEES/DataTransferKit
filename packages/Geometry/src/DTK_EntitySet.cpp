@@ -84,10 +84,10 @@ Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
 //---------------------------------------------------------------------------//
 // Get an iterator over a subset of the entity set that satisfies the given
 // predicate. 
-AbstractIterator<GeometricEntity>
+AbstractIterator<Entity>
 EntitySet::entityIterator(
     const EntityType entity_type,
-    const std::function<bool(const GeometricEntity&)>& predicate ) const
+    const std::function<bool(const Entity&)>& predicate ) const
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
