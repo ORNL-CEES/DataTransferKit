@@ -41,7 +41,7 @@
 #ifndef DTK_BOXIMPL_HPP
 #define DTK_BOXIMPL_HPP
 
-#include "DTK_GeometricEntityImpl.hpp"
+#include "DTK_EntityImpl.hpp"
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_Array.hpp>
@@ -61,7 +61,7 @@ namespace DataTransferKit
  * fixed 3 dimensions.
  */
 //---------------------------------------------------------------------------//
-class BoxImpl : public GeometricEntityImpl
+class BoxImpl : public EntityImpl
 {
   public:
 
@@ -87,9 +87,12 @@ class BoxImpl : public GeometricEntityImpl
 			     d_x_max, d_y_max, d_z_max ); }
 
     //@{ 
-    //! GeometricEntity implementation.
+    //! Entity implementation.
     // Return a string indicating the derived entity type.
-    std::string entityType() const;
+    std::string name() const;
+
+    // Get the entity type.
+    EntityType entityType() const;
 
     // Get the unique global identifier for the entity.
     EntityId id() const;

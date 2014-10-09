@@ -15,7 +15,7 @@
 #include <cassert>
 
 #include <DTK_Point.hpp>
-#include <DTK_GeometricEntity.hpp>
+#include <DTK_Entity.hpp>
 #include <DTK_Box.hpp>
 #include <DTK_AbstractObjectRegistry.hpp>
 
@@ -58,8 +58,9 @@ TEUCHOS_UNIT_TEST( Point, array_1d_constructor_test )
     p[0] = x;
     Point<1> point(  0, 0, p );
 
-    // Check GeometricEntity data.
-    TEST_EQUALITY( point.entityType(), "DTK Point" );
+    // Check Entity data.
+    TEST_EQUALITY( point.name(), "DTK Point" );
+    TEST_EQUALITY( point.entityType(), NODE );
     TEST_EQUALITY( point.id(), 0 );
     TEST_EQUALITY( point.ownerRank(), 0 );
     TEST_EQUALITY( point.physicalDimension(), 1 );
@@ -91,8 +92,9 @@ TEUCHOS_UNIT_TEST( Point, array_2d_constructor_test )
     p[1] = y;
     Point<2> point(  0, 0, p );
 
-    // Check GeometricEntity data.
-    TEST_EQUALITY( point.entityType(), "DTK Point" );
+    // Check Entity data.
+    TEST_EQUALITY( point.name(), "DTK Point" );
+    TEST_EQUALITY( point.entityType(), NODE );
     TEST_EQUALITY( point.id(), 0 );
     TEST_EQUALITY( point.ownerRank(), 0 );
     TEST_EQUALITY( point.physicalDimension(), 2 );
@@ -128,8 +130,9 @@ TEUCHOS_UNIT_TEST( Point, array_3d_constructor_test )
     p[2] = z;
     Point<3> point(  0, 0, p );
 
-    // Check GeometricEntity data.
-    TEST_EQUALITY( point.entityType(), "DTK Point" );
+    // Check Entity data.
+    TEST_EQUALITY( point.name(), "DTK Point" );
+    TEST_EQUALITY( point.entityType(), NODE );
     TEST_EQUALITY( point.id(), 0 );
     TEST_EQUALITY( point.ownerRank(), 0 );
     TEST_EQUALITY( point.physicalDimension(), 3 );
@@ -157,7 +160,7 @@ TEUCHOS_UNIT_TEST( Point, communication_test )
     using namespace DataTransferKit;
 
     // Register the point class to use the abstract compile-time interfaces.
-    AbstractObjectRegistry<GeometricEntity,Point<3> >::registerDerivedClasses();
+    AbstractObjectRegistry<Entity,Point<3> >::registerDerivedClasses();
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 
@@ -173,7 +176,7 @@ TEUCHOS_UNIT_TEST( Point, communication_test )
     p[0] = x;
     p[1] = y;
     p[2] = z;
-    GeometricEntity entity;
+    Entity entity;
     if ( 0 == comm_rank )
     {
 	entity = Point<3>(0, 0, p);
@@ -181,7 +184,7 @@ TEUCHOS_UNIT_TEST( Point, communication_test )
 
     // Broadcast the point with indirect serialization through the geometric
     // entity api.
-    Teuchos::broadcast( *comm, 0, Teuchos::Ptr<GeometricEntity>(&entity) );
+    Teuchos::broadcast( *comm, 0, Teuchos::Ptr<Entity>(&entity) );
 
     // Check the coordinates.
     Teuchos::ArrayView<const double> coords;
@@ -192,7 +195,7 @@ TEUCHOS_UNIT_TEST( Point, communication_test )
     TEST_EQUALITY( coords[2], z );
 
     // Broadcast an array.
-    Teuchos::Array<GeometricEntity> points(2);
+    Teuchos::Array<Entity> points(2);
     double x_1 = 3.2 + comm_size;
     double y_1 = -9.233 + comm_size;
     double z_1 = 1.3 + comm_size;

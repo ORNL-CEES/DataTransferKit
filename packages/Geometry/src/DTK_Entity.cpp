@@ -32,57 +32,64 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_GeometricEntity.cpp
+ * \brief DTK_Entity.cpp
  * \author Stuart R. Slattery
  * \brief Geometric entity interface.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_GeometricEntity.hpp"
+#include "DTK_Entity.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-GeometricEntity::GeometricEntity()
+Entity::Entity()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 //brief Destructor.
-GeometricEntity::~GeometricEntity()
+Entity::~Entity()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Return a string indicating the derived entity type.
-std::string GeometricEntity::entityType() const
+std::string Entity::name() const
 {
-    return b_entity_impl->entityType();
+    return b_entity_impl->name();
 }
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-EntityId GeometricEntity::id() const
+EntityId Entity::id() const
 { 
     return b_entity_impl->id();
 }
     
 //---------------------------------------------------------------------------//
+// Get the entity type.
+EntityType Entity::entityType() const
+{
+    return b_entity_impl->entityType();
+}
+
+//---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-int GeometricEntity::ownerRank() const
+int Entity::ownerRank() const
 { 
     return b_entity_impl->ownerRank();
 }
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-int GeometricEntity::physicalDimension() const
+int Entity::physicalDimension() const
 { 
     return b_entity_impl->physicalDimension();
 }
 
 //---------------------------------------------------------------------------//
 // Return the parametric dimension of the entity.
-int GeometricEntity::parametricDimension() const
+int Entity::parametricDimension() const
 { 
     return b_entity_impl->parametricDimension();
 }
@@ -90,14 +97,14 @@ int GeometricEntity::parametricDimension() const
 //---------------------------------------------------------------------------//
 // Return the entity measure (volume for a 3D entity, area for 2D, and length
 // for 1D). 
-double GeometricEntity::measure() const
+double Entity::measure() const
 { 
     return b_entity_impl->measure();
 }
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void GeometricEntity::centroid( 
+void Entity::centroid( 
     Teuchos::ArrayView<const double>& centroid ) const
 { 
     b_entity_impl->centroid( centroid );
@@ -105,7 +112,7 @@ void GeometricEntity::centroid(
 
 //---------------------------------------------------------------------------//
 // Return the axis-aligned bounding box around the entity.
-void GeometricEntity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+void Entity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 { 
     b_entity_impl->boundingBox( bounds );
 }
@@ -113,7 +120,7 @@ void GeometricEntity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 //---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space of an
 // entity using the given tolerance. 
-void GeometricEntity::safeguardMapToReferenceFrame(
+void Entity::safeguardMapToReferenceFrame(
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& point,
     MappingStatus& status ) const
@@ -125,7 +132,7 @@ void GeometricEntity::safeguardMapToReferenceFrame(
 //---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the
 // parameterized point. 
-void GeometricEntity::mapToReferenceFrame( 
+void Entity::mapToReferenceFrame( 
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point,
@@ -137,7 +144,7 @@ void GeometricEntity::mapToReferenceFrame(
 
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
-bool GeometricEntity::checkPointInclusion( 
+bool Entity::checkPointInclusion( 
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& reference_point ) const
 { 
@@ -146,7 +153,7 @@ bool GeometricEntity::checkPointInclusion(
 
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
-void GeometricEntity::mapToPhysicalFrame( 
+void Entity::mapToPhysicalFrame( 
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
@@ -155,14 +162,14 @@ void GeometricEntity::mapToPhysicalFrame(
 
 //---------------------------------------------------------------------------//
 // Return a string indicating the derived object type.
-std::string GeometricEntity::objectType() const
+std::string Entity::objectType() const
 {
-    return b_entity_impl->entityType();
+    return b_entity_impl->name();
 }
 
 //---------------------------------------------------------------------------//
 // Serialize the entity into a buffer.
-void GeometricEntity::serialize( 
+void Entity::serialize( 
     const Teuchos::ArrayView<char>& buffer ) const
 {
     b_entity_impl->serialize( buffer );
@@ -170,7 +177,7 @@ void GeometricEntity::serialize(
 
 //---------------------------------------------------------------------------//
 // Deserialize an entity from a buffer.
-void GeometricEntity::deserialize( 
+void Entity::deserialize( 
     const Teuchos::ArrayView<const char>& buffer )
 {
     b_entity_impl->deserialize( buffer );
@@ -178,7 +185,7 @@ void GeometricEntity::deserialize(
 
 //---------------------------------------------------------------------------//
 // Check whether the underlying implementation is available.
-bool GeometricEntity::isEntityImplNonnull() const
+bool Entity::isEntityImplNonnull() const
 {
     return Teuchos::nonnull( b_entity_impl );
 }
@@ -188,5 +195,5 @@ bool GeometricEntity::isEntityImplNonnull() const
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_GeometricEntity.cpp
+// end DTK_Entity.cpp
 //---------------------------------------------------------------------------//

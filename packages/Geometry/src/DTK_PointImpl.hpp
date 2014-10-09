@@ -41,8 +41,8 @@
 #ifndef DTK_POINTIMPL_HPP
 #define DTK_POINTIMPL_HPP
 
-#include "DTK_GeometryTypes.hpp"
-#include "DTK_GeometricEntityImpl.hpp"
+#include "DTK_Types.hpp"
+#include "DTK_EntityImpl.hpp"
 #include "DTK_Box.hpp"
 
 #include <Teuchos_ArrayView.hpp>
@@ -57,7 +57,7 @@ namespace DataTransferKit
  * \brief Point container implementation.
  *
  * Users can subclass this class for more efficient access to and storage of
- * point coordinates while getting the rest of the GeometricEntity
+ * point coordinates while getting the rest of the Entity
  * implementation for free. For example, if a set of point coordinates already
  * existed, a subclass could be used to point to those coordinates through
  * this interface. This interface does assume access to contiguous storage of
@@ -66,13 +66,13 @@ namespace DataTransferKit
  * coordinates through this interface. Deserializing a point constructs
  * this class directly instead of potential subclasses. If in the future we
  * want to directly deserialize to a subclass of Point through the geometric
- * entity interface we can make the entityType and serialization functions
+ * entity interface we can make the name and serialization functions
  * virtual to permit the subclass to override them. A user could also just
- * directly subclass GeometricEntity for their particular point type.
+ * directly subclass Entity for their particular point type.
  */
 //---------------------------------------------------------------------------//
 template<int DIM>
-class PointImpl : public GeometricEntityImpl
+class PointImpl : public EntityImpl
 {
   public:
 
@@ -95,9 +95,12 @@ class PointImpl : public GeometricEntityImpl
     //@}
 
     //@{ 
-    //! GeometricEntity implementation.
+    //! Entity implementation.
     // Return a string indicating the derived entity type.
-    std::string entityType() const;
+    std::string name() const;
+
+    // Get the entity type.
+    EntityType entityType() const;
 
     // Get the unique global identifier for the entity.
     EntityId id() const;

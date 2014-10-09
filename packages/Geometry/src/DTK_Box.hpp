@@ -41,7 +41,7 @@
 #ifndef DTK_BOX_HPP
 #define DTK_BOX_HPP
 
-#include "DTK_GeometricEntity.hpp"
+#include "DTK_Entity.hpp"
 #include "DTK_AbstractObjectRegistry.hpp"
 #include "DTK_BoxImpl.hpp"
 
@@ -64,7 +64,7 @@ namespace DataTransferKit
  * fixed 3 dimensions.
  */
 //---------------------------------------------------------------------------//
-class Box : public GeometricEntity
+class Box : public Entity
 {
   public:
 
@@ -141,11 +141,11 @@ class AbstractObjectRegistrationPolicy<Box>
     {
 	// Register the constructor with the base class
 	// AbstractBuildableObject interface.
-	GeometricEntity::setDerivedClassFactory<Box>();
+	Entity::setDerivedClassFactory<Box>();
 
 	// Register the byte size with the base class
 	// AbstractSerializableObject interface.
-	GeometricEntity::setDerivedClassByteSize( Box::byteSize() );
+	Entity::setDerivedClassByteSize( Box::byteSize() );
     }
 };
 

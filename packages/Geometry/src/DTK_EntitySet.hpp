@@ -43,7 +43,8 @@
 
 #include <functional>
 
-#include "DTK_GeometricEntity.hpp"
+#include "DTK_Types.hpp"
+#include "DTK_Entity.hpp"
 #include "DTK_AbstractBuilder.hpp"
 #include "DTK_AbstractBuildableObject.hpp"
 #include "DTK_AbstractIterator.hpp"
@@ -55,19 +56,6 @@
 
 namespace DataTransferKit
 {
-//---------------------------------------------------------------------------//
-/*!
- * \brief Enum for entity types.
- */
-//---------------------------------------------------------------------------//
-enum EntityType
-{
-    NODE = 0,
-    EDGE = 1,
-    FACE = 2,
-    VOLUME = 3
-};
-
 //---------------------------------------------------------------------------//
 /*!
   \class EntitySet
@@ -97,7 +85,7 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
      * \brief Return a string indicating the derived entity set type.
      * \return A string key for the derived set type.
      */
-    virtual std::string entitySetType() const;
+    virtual std::string name() const;
     //@}
 
     //@{
@@ -127,10 +115,10 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
      * \param predicate A predicate to select the entity set to iterate over.
      * \return An iterator to the entities that satisfy the predicate.
      */
-    virtual AbstractIterator<GeometricEntity>
+    virtual AbstractIterator<Entity>
     entityIterator(
 	const EntityType entity_type,
-	const std::function<bool(const GeometricEntity&)>& predicate = selectAll 
+	const std::function<bool(const Entity&)>& predicate = selectAll 
 	) const;
 
     /*!
@@ -139,7 +127,7 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
      * \param entity The entity with the given id.
      */
     virtual void getEntity( const EntityId entity_id, 
-			    GeometricEntity& entity ) const;
+			    Entity& entity ) const;
     //@}
 
     //@{
@@ -176,7 +164,7 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
      * entity set has been notified of modification.
      * \param entity Add this entity to the set.
      */
-    virtual void addEntity( const GeometricEntity& entity );
+    virtual void addEntity( const Entity& entity );
 
     /*!
      * \brief Indicate that modification of the entity set is complete.
@@ -187,7 +175,7 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
     /*!
      * \brief Select all entities predicate.
      */
-    static inline bool selectAll( const GeometricEntity& entity )
+    static inline bool selectAll( const Entity& entity )
     { return true; }
 };
 
@@ -204,7 +192,7 @@ class AbstractBuildableObjectPolicy<EntitySet>
     static std::string 
     objectType( const EntitySet& entity_set )
     {
-	return entity_set.entitySetType();
+	return entity_set.name();
     }
 
     static Teuchos::RCP<DataTransferKit::AbstractBuilder<EntitySet> > 

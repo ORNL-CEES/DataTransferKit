@@ -15,7 +15,7 @@
 #include <cassert>
 
 #include <DTK_Box.hpp>
-#include <DTK_GeometricEntity.hpp>
+#include <DTK_Entity.hpp>
 #include <DTK_MappingStatus.hpp>
 #include <DTK_AbstractObjectRegistry.hpp>
 
@@ -66,8 +66,9 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
     double z_max = 8.7;
     Box box(  0, 0, x_min, y_min, z_min, x_max, y_max, z_max );
 
-    // Check GeometricEntity data.
-    TEST_EQUALITY( box.entityType(), "DTK Box" );
+    // Check Entity data.
+    TEST_EQUALITY( box.name(), "DTK Box" );
+    TEST_EQUALITY( box.entityType(), VOLUME );
     TEST_EQUALITY( box.id(), 0 );
     TEST_EQUALITY( box.ownerRank(), 0 );
     TEST_EQUALITY( box.physicalDimension(), 3 );
@@ -136,11 +137,12 @@ TEUCHOS_UNIT_TEST( Box, tuple_constructor_test )
     input_bounds[3] = 4.3;
     input_bounds[4] = 0.3;
     input_bounds[5] = 8.7;
-    Teuchos::RCP<GeometricEntity> box = 
+    Teuchos::RCP<Entity> box = 
 	Teuchos::rcp( new Box(0,0,input_bounds) );
 
-    // Check GeometricEntity data.
-    TEST_EQUALITY( box->entityType(), "DTK Box" );
+    // Check Entity data.
+    TEST_EQUALITY( box->name(), "DTK Box" );
+    TEST_EQUALITY( box->entityType(), VOLUME );
     TEST_EQUALITY( box->id(), 0 );
     TEST_EQUALITY( box->ownerRank(), 0 );
     TEST_EQUALITY( box->physicalDimension(), 3 );
@@ -682,7 +684,7 @@ TEUCHOS_UNIT_TEST( Box, inclusion_test )
 
     // Build a series of random boxes.
     int num_boxes = 100;
-    Teuchos::RCP<GeometricEntity> box;
+    Teuchos::RCP<Entity> box;
     for ( int i = 0; i < num_boxes; ++i )
     {
 	// Make a box.
@@ -749,7 +751,7 @@ TEUCHOS_UNIT_TEST( Box, communication_test )
     using namespace DataTransferKit;
 
     // Register the box class to use the abstract compile-time interfaces.
-    AbstractObjectRegistry<GeometricEntity,Box>::registerDerivedClasses();
+    AbstractObjectRegistry<Entity,Box>::registerDerivedClasses();
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm_default = 
@@ -765,7 +767,7 @@ TEUCHOS_UNIT_TEST( Box, communication_test )
     double z_max = 8.7;
 
     Box box;
-    GeometricEntity entity;
+    Entity entity;
     if ( 0 == comm_rank )
     {
 	box = Box(  0, 0, x_min, y_min, z_min, x_max, y_max, z_max );
@@ -777,7 +779,7 @@ TEUCHOS_UNIT_TEST( Box, communication_test )
 
     // Broadcast the box with indirect serialization through the geometric
     // entity api.
-    Teuchos::broadcast( *comm_default, 0, Teuchos::Ptr<GeometricEntity>(&entity) );
+    Teuchos::broadcast( *comm_default, 0, Teuchos::Ptr<Entity>(&entity) );
 
     // Check the bounds.
     Teuchos::Tuple<double,6> box_bounds = box.getBounds();

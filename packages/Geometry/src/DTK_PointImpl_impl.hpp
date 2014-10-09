@@ -87,9 +87,17 @@ void PointImpl<DIM>::getCoordinates(
 //---------------------------------------------------------------------------//
 // Return a string indicating the derived entity type.
 template<int DIM>
-std::string PointImpl<DIM>::entityType() const
+std::string PointImpl<DIM>::name() const
 {
     return std::string("DTK Point");
+}
+
+//---------------------------------------------------------------------------//
+// Get the entity type.
+template<int DIM>
+EntityType Point<DIM>::entityType() const
+{
+    return NODE;
 }
 
 //---------------------------------------------------------------------------//

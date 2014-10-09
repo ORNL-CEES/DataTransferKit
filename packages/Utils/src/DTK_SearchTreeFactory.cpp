@@ -48,7 +48,7 @@ namespace DataTransferKit
  *
  * \param dim Spatial dimension of the tree.
  *
- * \param cloud_centers The point cloud coordinates to build the tree with.
+ * \param points The point cloud coordinates to build the tree with.
  *
  * \param leaf_size The leaft size to build the tree with.
  *
@@ -56,7 +56,7 @@ namespace DataTransferKit
  */
 Teuchos::RCP<StaticSearchTree> SearchTreeFactory::createStaticTree( 
     const unsigned dim,
-    const Teuchos::ArrayView<const double>& cloud_centers,
+    const Teuchos::ArrayView<const double>& points,
     const unsigned leaf_size )
 {
     Teuchos::RCP<StaticSearchTree> tree;
@@ -66,21 +66,21 @@ Teuchos::RCP<StaticSearchTree> SearchTreeFactory::createStaticTree(
 	case 1:
 	{
 	    tree = Teuchos::rcp( 
-		new NanoflannTree<1>(cloud_centers, leaf_size) );
+		new NanoflannTree<1>(points, leaf_size) );
 	}
 	break;
 
 	case 2:
 	{
 	    tree = Teuchos::rcp( 
-		new NanoflannTree<2>(cloud_centers, leaf_size) );
+		new NanoflannTree<2>(points, leaf_size) );
 	}
 	break;
 
 	case 3:
 	{
 	    tree = Teuchos::rcp( 
-		new NanoflannTree<3>(cloud_centers, leaf_size) );
+		new NanoflannTree<3>(points, leaf_size) );
 	}
 	break;
     };

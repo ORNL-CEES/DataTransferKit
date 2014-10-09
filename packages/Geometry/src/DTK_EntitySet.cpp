@@ -55,7 +55,7 @@ EntitySet::~EntitySet()
 
 //---------------------------------------------------------------------------//
 // Return a string indicating the derived entity set type.
-std::string EntitySet::entitySetType() const
+std::string EntitySet::name() const
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
@@ -91,13 +91,13 @@ EntitySet::entityIterator(
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
-    return AbstractIterator<GeometricEntity>();
+    return AbstractIterator<Entity>();
 }
 
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
 void EntitySet::getEntity( const EntityId entity_id, 
-			   GeometricEntity& entity ) const
+			   Entity& entity ) const
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
@@ -113,7 +113,7 @@ void EntitySet::startModification()
 
 //---------------------------------------------------------------------------//
 // Add an entity to the set.
-void EntitySet::addEntity( const GeometricEntity& entity )
+void EntitySet::addEntity( const Entity& entity )
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );

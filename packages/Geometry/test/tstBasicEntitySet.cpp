@@ -16,7 +16,7 @@
 
 #include <DTK_BasicEntitySet.hpp>
 #include <DTK_Point.hpp>
-#include <DTK_GeometricEntity.hpp>
+#include <DTK_Entity.hpp>
 #include <DTK_Box.hpp>
 #include <DTK_AbstractObjectRegistry.hpp>
 
@@ -67,7 +67,7 @@ TEUCHOS_UNIT_TEST( Point, set_test )
     p1[0] = x_1;
     p1[1] = y_1;
     p1[2] = z_1;
-    GeometricEntity point_1 = Point<3>(0, comm_rank, p1);
+    Entity point_1 = Point<3>(0, comm_rank, p1);
 
     // Make a second point.
     double x_2 = 3.2 - comm_rank;
@@ -77,7 +77,7 @@ TEUCHOS_UNIT_TEST( Point, set_test )
     p2[0] = x_2;
     p2[1] = y_2;
     p2[2] = z_2;
-    GeometricEntity point_2 = Point<3>(1, comm_rank, p2);
+    Entity point_2 = Point<3>(1, comm_rank, p2);
 
     // Make an entity set.
     Teuchos::RCP<EntitySet> entity_set = Teuchos::rcp(
@@ -88,17 +88,17 @@ TEUCHOS_UNIT_TEST( Point, set_test )
     entity_set->addEntity( point_2 );
 
     // Get an iterator to the entity set objects.
-    AbstractIterator<GeometricEntity> node_it =
+    AbstractIterator<Entity> node_it =
 	entity_set->entityIterator( NODE );
-    AbstractIterator<GeometricEntity> edge_it =
+    AbstractIterator<Entity> edge_it =
 	entity_set->entityIterator( EDGE );
-    AbstractIterator<GeometricEntity> face_it =
+    AbstractIterator<Entity> face_it =
 	entity_set->entityIterator( FACE );
-    AbstractIterator<GeometricEntity> volume_it =
+    AbstractIterator<Entity> volume_it =
 	entity_set->entityIterator( VOLUME );
 
     // Check the entity set.
-    TEST_EQUALITY( entity_set->entitySetType(), "DTK Basic Entity Set" );
+    TEST_EQUALITY( entity_set->name(), "DTK Basic Entity Set" );
     TEST_EQUALITY( entity_set->physicalDimension(), 3 );
     TEST_EQUALITY( node_it.size(), 2 );
     TEST_EQUALITY( edge_it.size(), 0 );
@@ -107,9 +107,9 @@ TEUCHOS_UNIT_TEST( Point, set_test )
 
     // Check the nodes.
     node_it = node_it.begin();
-    GeometricEntity ge0 = *node_it;
+    Entity ge0 = *node_it;
     ++node_it;
-    GeometricEntity ge1 = *node_it;
+    Entity ge1 = *node_it;
     if ( ge1.id() == 1 )
     {
 	TEST_EQUALITY( ge0.id(), 0 );
@@ -122,7 +122,7 @@ TEUCHOS_UNIT_TEST( Point, set_test )
     {
 	TEST_ASSERT( false );
     }
-    GeometricEntity entity;
+    Entity entity;
     entity_set->getEntity( 0, entity );
     TEST_EQUALITY( 0, entity.id() );
     entity_set->getEntity( 1, entity );
@@ -153,8 +153,8 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
 {
     using namespace DataTransferKit;
 
-    // Register the GeometricEntity classes.
-    AbstractObjectRegistry<GeometricEntity,Point<3> >::registerDerivedClasses();
+    // Register the Entity classes.
+    AbstractObjectRegistry<Entity,Point<3> >::registerDerivedClasses();
 
     // Register the EntitySet classes.
     AbstractObjectRegistry<EntitySet,BasicEntitySet>::registerDerivedClasses();
@@ -169,7 +169,7 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
 
     // Make an entity set on process 0.
     Teuchos::RCP<EntitySet> entity_set;
-    Teuchos::Array<GeometricEntity> points(2);
+    Teuchos::Array<Entity> points(2);
     int entity_set_key = -1;
     double x_1 = 3.2 + comm_size;
     double y_1 = -9.233 + comm_size;
@@ -191,7 +191,7 @@ TEUCHOS_UNIT_TEST( Point, modification_test )
 	points[1] = Point<3>(1, 0, p2);
 
 	entity_set = Teuchos::rcp(new BasicEntitySet(comm,3) );
-	entity_set_key = builder->getIntegralKey( entity_set->entitySetType() );
+	entity_set_key = builder->getIntegralKey( entity_set->name() );
     }
 
     // Create an entity set.

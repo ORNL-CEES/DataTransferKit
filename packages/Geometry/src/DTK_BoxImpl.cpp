@@ -128,9 +128,16 @@ BoxImpl::~BoxImpl()
 
 //---------------------------------------------------------------------------//
 // Return a string indicating the derived entity type.
-std::string BoxImpl::entityType() const
+std::string BoxImpl::name() const
 {
     return std::string("DTK Box");
+}
+
+//---------------------------------------------------------------------------//
+// Get the entity type.
+EntityType EntityImpl::entityType() const
+{
+    return VOLUME;
 }
 
 //---------------------------------------------------------------------------//

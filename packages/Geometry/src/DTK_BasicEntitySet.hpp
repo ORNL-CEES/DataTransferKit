@@ -44,7 +44,7 @@
 #include <unordered_map>
 
 #include "DTK_EntitySet.hpp"
-#include "DTK_GeometricEntity.hpp"
+#include "DTK_Entity.hpp"
 #include "DTK_AbstractObjectRegistry.hpp"
 #include "DTK_AbstractIterator.hpp"
 
@@ -60,7 +60,7 @@ namespace DataTransferKit
   \class BasicEntitySetIterator
   \brief ementation of iterator over entities in a basic set.
 */
-class BasicEntitySetIterator : public AbstractIterator<GeometricEntity>
+class BasicEntitySetIterator : public AbstractIterator<Entity>
 {
   public:
 
@@ -69,8 +69,8 @@ class BasicEntitySetIterator : public AbstractIterator<GeometricEntity>
 
     // Constructor.
     BasicEntitySetIterator( 
-	Teuchos::RCP<std::unordered_map<EntityId,GeometricEntity> > map,
-	const std::function<bool(GeometricEntity&)>& predicate );
+	Teuchos::RCP<std::unordered_map<EntityId,Entity> > map,
+	const std::function<bool(Entity&)>& predicate );
 
     // Copy constructor.
     BasicEntitySetIterator( const BasicEntitySetIterator& rhs );
@@ -86,43 +86,43 @@ class BasicEntitySetIterator : public AbstractIterator<GeometricEntity>
     ~BasicEntitySetIterator();
 
     // Pre-increment operator.
-    AbstractIterator<GeometricEntity>& operator++();
+    AbstractIterator<Entity>& operator++();
 
     // Dereference operator.
-    GeometricEntity& operator*(void);
+    Entity& operator*(void);
 
     // Dereference operator.
-    GeometricEntity* operator->(void);
+    Entity* operator->(void);
 
     // Equal comparison operator.
-    bool operator==( const AbstractIterator<GeometricEntity>& rhs ) const;
+    bool operator==( const AbstractIterator<Entity>& rhs ) const;
 
     // Not equal comparison operator.
-    bool operator!=( const AbstractIterator<GeometricEntity>& rhs ) const;
+    bool operator!=( const AbstractIterator<Entity>& rhs ) const;
 
     // Size of the iterator.
     std::size_t size() const;
 
     // An iterator assigned to the beginning.
-    AbstractIterator<GeometricEntity> begin() const;
+    AbstractIterator<Entity> begin() const;
 
     // An iterator assigned to the end.
-    AbstractIterator<GeometricEntity> end() const;
+    AbstractIterator<Entity> end() const;
 
     // Create a clone of the iterator. We need this for the copy constructor
     // and assignment operator to pass along the underlying implementation.
-    AbstractIterator<GeometricEntity>* clone() const;
+    AbstractIterator<Entity>* clone() const;
 
   private:
 
     // Map to iterate over.
-    Teuchos::RCP<std::unordered_map<EntityId,GeometricEntity> > d_map;
+    Teuchos::RCP<std::unordered_map<EntityId,Entity> > d_map;
 
     // Iterator over the entity map.
-    std::unordered_map<EntityId,GeometricEntity>::iterator d_map_it;
+    std::unordered_map<EntityId,Entity>::iterator d_map_it;
 
     // Pointer to the current entity.
-    GeometricEntity* d_entity;
+    Entity* d_entity;
 };
 
 //---------------------------------------------------------------------------//
@@ -137,7 +137,7 @@ class BasicEntitySet : public EntitySet
 
     //@{
     //! Entity map typedefs.
-    typedef std::pair<EntityId,GeometricEntity> EntityIdPair;
+    typedef std::pair<EntityId,Entity> EntityIdPair;
     //@}
 
     /*!
@@ -163,7 +163,7 @@ class BasicEntitySet : public EntitySet
      * \brief Return a string indicating the derived entity set type.
      * \return A string key for the derived set type.
      */
-    std::string entitySetType() const;
+    std::string name() const;
     //@}
 
     //@{
@@ -193,10 +193,10 @@ class BasicEntitySet : public EntitySet
      * \param predicate A predicate to select the entity set to iterate over.
      * \return An iterator to the entities that satisfy the predicate.
      */
-    virtual AbstractIterator<GeometricEntity>
+    virtual AbstractIterator<Entity>
     entityIterator(
 	const EntityType entity_type,
-	const std::function<bool(const GeometricEntity&)>& predicate ) const;
+	const std::function<bool(const Entity&)>& predicate ) const;
 
     /*!
      * \brief Given an EntityId, get the entity.
@@ -204,7 +204,7 @@ class BasicEntitySet : public EntitySet
      * \param entity The entity with the given id.
      */
     virtual void getEntity( const EntityId entity_id, 
-			    GeometricEntity& entity ) const;
+			    Entity& entity ) const;
     //@}
 
     //@{
@@ -240,7 +240,7 @@ class BasicEntitySet : public EntitySet
      * entity set has been notified of modification.
      * \param entity Add this entity to the set.
      */
-    void addEntity( const GeometricEntity& entity );
+    void addEntity( const Entity& entity );
 
     /*!
      * \brief Indicate that modification of the entity set is complete.
@@ -251,7 +251,7 @@ class BasicEntitySet : public EntitySet
   private:
 
     // Given a parametric dimension, get an id-to-entity map.
-    std::unordered_map<EntityId,GeometricEntity>& getEntityMap(
+    std::unordered_map<EntityId,Entity>& getEntityMap(
 	const int parametric_dimension );
     
   private:
@@ -263,7 +263,7 @@ class BasicEntitySet : public EntitySet
     std::unordered_map<EntityId,int> d_entity_dims;
 
     // Id-to-entity maps.
-    mutable Teuchos::Array<std::unordered_map<EntityId,GeometricEntity> > d_entities;
+    mutable Teuchos::Array<std::unordered_map<EntityId,Entity> > d_entities;
 };
 
 //---------------------------------------------------------------------------//

@@ -32,44 +32,68 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_GeometricEntityImpl.hpp
+ * \brief DTK_Entity.hpp
  * \author Stuart R. Slattery
  * \brief Geometric entity interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_GEOMETRICENTITYIMPL_HPP
-#define DTK_GEOMETRICENTITYIMPL_HPP
+#ifndef DTK_ENTITY_HPP
+#define DTK_ENTITY_HPP
 
 #include <string>
 
-#include "DTK_GeometryTypes.hpp"
+#include "DTK_EntityImpl.hpp"
+#include "DTK_Types.hpp"
 #include "DTK_MappingStatus.hpp"
+#include "DTK_AbstractBuilder.hpp"
+#include "DTK_AbstractBuildableObject.hpp"
+#include "DTK_AbstractSerializableObject.hpp"
+#include "DTK_AbstractSerializer.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class GeometricEntityImpl
-  \brief Geometric entity implementation definition.
+  \class Entity
+  \brief Geometric entity interface definition.
+
+  Entity provides access to basic properites of geometric objects. A
+  geometry is simply an object or collection of objects that has $n$ physical
+  dimensions and a spatial domain $\Omega \in \mathbb{R}^n$ that is bounded by
+  a boundary $\Gamma \in \mathbb{R}^n$. Concrete examples of geometries in 3
+  dimensions include cubes, cylinders, polyhedron, or mesh elements. A
+  geometry can have 1, 2, or three dimensions. To specify the general position
+  in space of the geometry, each object is required to have a centroid given
+  in Cartesian coordinates with (x) given for 1 dimensional geometries, (x,y)
+  for two dimensions, and (x,y,z) for 3 dimensions. A measure is also
+  specified for each geometry where the measure is defined as length in 1
+  dimension, area in 2 dimensions, and volume for 3 dimensions. In addition to
+  this data, a geometry must be able to provide a Cartesian axis-aligned
+  bounding box that encapsulates the entire geometry. For geometric search
+  operations to be performed, a geometry must be able to determine if a given
+  point of the same dimensionality as the geometry is contained within the
+  boundary of the geometry (i.e. $\hat{r} \in \Omega$).
 */
 //---------------------------------------------------------------------------//
-class GeometricEntityImpl
+class Entity : public AbstractBuildableObject<Entity>
+	     , public AbstractSerializableObject<Entity>
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    GeometricEntityImpl();
+    Entity();
 
     /*!
      * \brief Destructor.
      */
-    virtual ~GeometricEntityImpl();
+    virtual ~Entity();
 
     //@{
     //! Identification functions.
@@ -78,7 +102,13 @@ class GeometricEntityImpl
      * \return A string indicating the type of derived entity implementing the
      * interface.
      */
-    virtual std::string entityType() const;
+    virtual std::string name() const;
+
+    /*!
+     * \brief Get the entity type.
+     * \return The entity type.
+     */
+    virtual EntityType entityType() const;
 
     /*!
      * \brief Get the unique global identifier for the entity.
@@ -122,12 +152,13 @@ class GeometricEntityImpl
      * \param centroid A view of the centroid coordinates. This view will not
      * be allocated. Assign a view of your centroid to this view.
      */
-    virtual void 
+    virtual void
     centroid( Teuchos::ArrayView<const double>& centroid ) const;
 
     /*!
-     * \brief Return the axis-aligned bounding box around the entity.
-     * \param bounding_box A Cartesian box that bounds the entity.
+     * \brief Return the axis-aligned bounding box bounds around the entity.
+     * \param boundings The bounds of a Cartesian box that bounds the entity
+     * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
     virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
     //@}
@@ -172,7 +203,7 @@ class GeometricEntityImpl
      * \param reference_point A view into an array of size physicalDimension()
      * containing the reference coordinates of the mapped point.
      * \return True if the point is in the reference space, false if not.
-    */
+     */
     virtual bool checkPointInclusion( 
 	const Teuchos::ParameterList& parameters,
 	const Teuchos::ArrayView<const double>& reference_point ) const;
@@ -215,6 +246,71 @@ class GeometricEntityImpl
      */
     virtual void deserialize( const Teuchos::ArrayView<const char>& buffer );
     //@}
+
+    /*! 
+     * \brief Check whether the underlying implementation is available.
+     */
+    bool isEntityImplNonnull() const;
+
+  protected:
+
+    // Geometric entity implementation.
+    Teuchos::RCP<EntityImpl> b_entity_impl;
+};
+
+//---------------------------------------------------------------------------//
+// AbstractBuildableObjectPolicy implementation.
+//---------------------------------------------------------------------------//
+template<>
+class AbstractBuildableObjectPolicy<Entity>
+{
+  public:
+
+    typedef Entity object_type;
+
+    static std::string objectType( const Entity& entity )
+    {
+	return entity.objectType();
+    }
+
+    static Teuchos::RCP<DataTransferKit::AbstractBuilder<Entity> > 
+    getBuilder()
+    {
+	return Entity::getBuilder();
+    }
+};
+
+//---------------------------------------------------------------------------//
+// AbstractSerializableObjectPolicy implementation.
+//---------------------------------------------------------------------------//
+template<>
+class AbstractSerializableObjectPolicy<Entity>
+{
+  public:
+
+    typedef Entity object_type;
+
+    static bool objectHasImplementation( const Entity& entity )
+    {
+	return entity.isEntityImplNonnull();
+    }
+
+    static std::size_t maxByteSize()
+    {
+	return Entity::maxByteSize();
+    }
+
+    static void serialize( const Entity& entity,
+			   const Teuchos::ArrayView<char>& buffer )
+    {
+	entity.serialize( buffer );
+    }
+
+    static void deserialize( Entity& entity,
+			     const Teuchos::ArrayView<const char>& buffer )
+    {
+	entity.deserialize( buffer );
+    }
 };
 
 //---------------------------------------------------------------------------//
@@ -222,9 +318,57 @@ class GeometricEntityImpl
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Teuchos::SerializationTraits implementation.
+//---------------------------------------------------------------------------//
 
-#endif // end DTK_GEOMETRICENTITYIMPL_HPP
+namespace Teuchos
+{
+template<typename Ordinal>
+class SerializationTraits<Ordinal,DataTransferKit::Entity> 
+{
+  public:
+
+    typedef DataTransferKit::Entity Entity;
+    typedef DataTransferKit::AbstractSerializer<Ordinal,Entity>  
+    AbstractSerializer;
+
+    static const bool supportsDirectSerialization = 
+	AbstractSerializer::supportsDirectSerialization;
+
+    static Ordinal fromCountToIndirectBytes( const Ordinal count, 
+					     const Entity buffer[] ) 
+    { 
+	return AbstractSerializer::fromCountToIndirectBytes( count, buffer );
+    }
+
+    static void serialize( const Ordinal count, 
+			   const Entity buffer[], 
+			   const Ordinal bytes, 
+			   char charBuffer[] )
+    { 
+	AbstractSerializer::serialize( count, buffer, bytes, charBuffer );
+    }
+
+    static Ordinal fromIndirectBytesToCount( const Ordinal bytes, 
+					     const char charBuffer[] ) 
+    { 
+	return AbstractSerializer::fromIndirectBytesToCount( bytes, charBuffer );
+    }
+
+    static void deserialize( const Ordinal bytes, 
+			     const char charBuffer[], 
+			     const Ordinal count, 
+			     Entity buffer[] )
+    { 
+	AbstractSerializer::deserialize( bytes, charBuffer, count, buffer );
+    }
+};
+} // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
-// end DTK_GeometricEntityImpl.hpp
+
+#endif // end DTK_ENTITY_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_Entity.hpp
 //---------------------------------------------------------------------------//

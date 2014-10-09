@@ -32,26 +32,20 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_GeometricEntity.hpp
+ * \brief DTK_Types.hpp
  * \author Stuart R. Slattery
- * \brief Geometric entity interface.
+ * \brief Types
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_GEOMETRYTYPES_HPP
-#define DTK_GEOMETRYTYPES_HPP
+#ifndef DTK_TYPES_HPP
+#define DTK_TYPES_HPP
 
 #include <cstdint>
 #include <limits>
 
 namespace DataTransferKit
 {
-//---------------------------------------------------------------------------//
-/*!
-  \brief Types for geometry.
-*/
-//---------------------------------------------------------------------------//
-
 //! Entity id type.
 typedef uint64_t EntityId;
 
@@ -59,12 +53,21 @@ typedef uint64_t EntityId;
 static const EntityId dtk_invalid_entity_id = 
     std::numeric_limits<EntityId>::max();
 
+//! Enum for entity types.
+enum EntityType
+{
+    NODE = 0,
+    EDGE = 1,
+    FACE = 2,
+    VOLUME = 3
+};
+
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_GEOMETRYTYPES_HPP
+#endif // end DTK_TYPES_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_GeometryTypes.hpp
+// end DTK_Types.hpp
 //---------------------------------------------------------------------------//

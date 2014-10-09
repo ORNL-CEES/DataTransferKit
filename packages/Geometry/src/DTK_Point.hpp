@@ -42,8 +42,8 @@
 #define DTK_POINT_HPP
 
 #include "DTK_PointImpl.hpp"
-#include "DTK_GeometryTypes.hpp"
-#include "DTK_GeometricEntity.hpp"
+#include "DTK_Types.hpp"
+#include "DTK_Entity.hpp"
 #include "DTK_Box.hpp"
 #include "DTK_AbstractObjectRegistry.hpp"
 
@@ -60,7 +60,7 @@ namespace DataTransferKit
  */
 //---------------------------------------------------------------------------//
 template<int DIM>
-class Point : public GeometricEntity
+class Point : public Entity
 {
   public:
 
@@ -114,11 +114,11 @@ class AbstractObjectRegistrationPolicy<Point<DIM> >
     {
 	// Register the constructor with the base class
 	// AbstractBuildableObject interface.
-	GeometricEntity::setDerivedClassFactory<Point<DIM> >();
+	Entity::setDerivedClassFactory<Point<DIM> >();
 
 	// Register the byte size with the base class
 	// AbstractSerializableObject interface.
-	GeometricEntity::setDerivedClassByteSize( Point<DIM>::byteSize() );
+	Entity::setDerivedClassByteSize( Point<DIM>::byteSize() );
     }
 };
 

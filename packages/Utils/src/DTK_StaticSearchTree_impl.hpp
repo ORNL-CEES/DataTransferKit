@@ -138,12 +138,12 @@ inline double PointCloud<3>::kdtree_get_pt( const std::size_t idx, int dim ) con
  */
 template<int DIM>
 NanoflannTree<DIM>::NanoflannTree(
-    const Teuchos::ArrayView<const double>& cloud_centers, 
+    const Teuchos::ArrayView<const double>& points, 
     const unsigned max_leaf_size )
 {
-    DTK_CHECK( 0 == cloud_centers.size() % DIM );
+    DTK_CHECK( 0 == points.size() % DIM );
 
-    d_cloud = PointCloud<DIM>( cloud_centers );
+    d_cloud = PointCloud<DIM>( points );
     d_tree = Teuchos::rcp( 
 	new TreeType(DIM, d_cloud, 
 		     nanoflann::KDTreeSingleIndexAdaptorParams(max_leaf_size)) );

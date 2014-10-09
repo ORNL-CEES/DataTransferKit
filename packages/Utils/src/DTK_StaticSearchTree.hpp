@@ -139,7 +139,7 @@ class NanoflannTree : public StaticSearchTree
   public:
 
     // Default constructor.
-    NanoflannTree( const Teuchos::ArrayView<const double>& cloud_centers,
+    NanoflannTree( const Teuchos::ArrayView<const double>& points,
 		   const unsigned max_leaf_size );
 
     // Destructor.

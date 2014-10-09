@@ -61,8 +61,8 @@ BasicEntitySetIterator::BasicEntitySetIterator()
 //---------------------------------------------------------------------------//
 // Constructor.
 BasicEntitySetIterator::BasicEntitySetIterator(
-    Teuchos::RCP<std::unordered_map<EntityId,GeometricEntity> > map,
-    const std::function<bool(GeometricEntity&)>& predicate )
+    Teuchos::RCP<std::unordered_map<EntityId,Entity> > map,
+    const std::function<bool(Entity&)>& predicate )
     : d_map( map )
     , d_map_it( d_map->begin() )
     , d_entity( &(d_map_it->second) )
@@ -109,7 +109,7 @@ BasicEntitySetIterator::~BasicEntitySetIterator()
 
 //---------------------------------------------------------------------------//
 // Pre-increment operator.
-AbstractIterator<GeometricEntity>& BasicEntitySetIterator::operator++()
+AbstractIterator<Entity>& BasicEntitySetIterator::operator++()
 {
     ++d_map_it;
     return *this;
@@ -117,7 +117,7 @@ AbstractIterator<GeometricEntity>& BasicEntitySetIterator::operator++()
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-GeometricEntity& BasicEntitySetIterator::operator*(void)
+Entity& BasicEntitySetIterator::operator*(void)
 {
     this->operator->();
     return *d_entity;
@@ -125,7 +125,7 @@ GeometricEntity& BasicEntitySetIterator::operator*(void)
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-GeometricEntity* BasicEntitySetIterator::operator->(void)
+Entity* BasicEntitySetIterator::operator->(void)
 {
     d_entity = &(d_map_it->second);
     return d_entity;
@@ -134,7 +134,7 @@ GeometricEntity* BasicEntitySetIterator::operator->(void)
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
 bool BasicEntitySetIterator::operator==( 
-    const AbstractIterator<GeometricEntity>& rhs ) const
+    const AbstractIterator<Entity>& rhs ) const
 { 
     const BasicEntitySetIterator* rhs_vec = 
 	static_cast<const BasicEntitySetIterator*>(&rhs);
@@ -146,7 +146,7 @@ bool BasicEntitySetIterator::operator==(
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
 bool BasicEntitySetIterator::operator!=( 
-    const AbstractIterator<GeometricEntity>& rhs ) const
+    const AbstractIterator<Entity>& rhs ) const
 {
     const BasicEntitySetIterator* rhs_vec = 
 	static_cast<const BasicEntitySetIterator*>(&rhs);
@@ -164,14 +164,14 @@ std::size_t BasicEntitySetIterator::size() const
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the beginning.
-AbstractIterator<GeometricEntity> BasicEntitySetIterator::begin() const
+AbstractIterator<Entity> BasicEntitySetIterator::begin() const
 { 
     return BasicEntitySetIterator( d_map , this->b_predicate );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the end.
-AbstractIterator<GeometricEntity> BasicEntitySetIterator::end() const
+AbstractIterator<Entity> BasicEntitySetIterator::end() const
 {
     BasicEntitySetIterator end_it( d_map, this->b_predicate );
     end_it.d_map_it = d_map->end();
@@ -181,7 +181,7 @@ AbstractIterator<GeometricEntity> BasicEntitySetIterator::end() const
 //---------------------------------------------------------------------------//
 // Create a clone of the iterator. We need this for the copy constructor
 // and assignment operator to pass along the underlying implementation.
-AbstractIterator<GeometricEntity>* BasicEntitySetIterator::clone() const
+AbstractIterator<Entity>* BasicEntitySetIterator::clone() const
 {
     return new BasicEntitySetIterator(*this);
 }
@@ -210,7 +210,7 @@ BasicEntitySet::~BasicEntitySet()
 
 //---------------------------------------------------------------------------//
 // Return a string indicating the derived entity set type.
-std::string BasicEntitySet::entitySetType() const
+std::string BasicEntitySet::name() const
 {
     return std::string("DTK Basic Entity Set");
 }
@@ -235,11 +235,11 @@ BasicEntitySet::communicator() const
 //---------------------------------------------------------------------------//
 // Get an iterator over a subset of the entity set that satisfies the given
 // predicate. 
-AbstractIterator<GeometricEntity> BasicEntitySet::entityIterator(
+AbstractIterator<Entity> BasicEntitySet::entityIterator(
     const EntityType entity_type,
-    const std::function<bool(const GeometricEntity&)>& predicate ) const
+    const std::function<bool(const Entity&)>& predicate ) const
 {
-    Teuchos::RCP<std::unordered_map<EntityId,GeometricEntity> > 
+    Teuchos::RCP<std::unordered_map<EntityId,Entity> > 
 	map_ptr( &d_entities[entity_type], false );
     return BasicEntitySetIterator( map_ptr, predicate );
 }
@@ -247,7 +247,7 @@ AbstractIterator<GeometricEntity> BasicEntitySet::entityIterator(
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
 void BasicEntitySet::getEntity( 
-    const EntityId entity_id, GeometricEntity& entity ) const
+    const EntityId entity_id, Entity& entity ) const
 {
     DTK_REQUIRE( d_entity_dims.count(entity_id) );
     int entity_dim = d_entity_dims.find(entity_id)->second;
@@ -264,7 +264,7 @@ void BasicEntitySet::startModification()
 
 //---------------------------------------------------------------------------//
 // Add an entity to the set.
-void BasicEntitySet::addEntity( const GeometricEntity& entity )
+void BasicEntitySet::addEntity( const Entity& entity )
 {
     int parametric_dimension = entity.parametricDimension();
     DTK_CHECK( parametric_dimension <= 3 );
@@ -304,9 +304,9 @@ void BasicEntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
     Box bounding_box( d_comm->getRank(), d_comm->getRank(),
 		      max, max, max, -max, -max, -max );
     Box entity_box;
-    AbstractIterator<GeometricEntity> entity_begin;
-    AbstractIterator<GeometricEntity> entity_end;
-    AbstractIterator<GeometricEntity> entity_it;
+    AbstractIterator<Entity> entity_begin;
+    AbstractIterator<Entity> entity_end;
+    AbstractIterator<Entity> entity_it;
     Teuchos::Tuple<double,6> entity_bounds;
     for ( int i = 0; i < 4; ++i )
     {
