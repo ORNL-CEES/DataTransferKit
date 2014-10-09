@@ -141,13 +141,6 @@ class Entity : public AbstractBuildableObject<Entity>
     virtual int parametricDimension() const;
 
     /*!
-     * \brief Return the entity measure with respect to the parameteric
-     * dimension (volume for a 3D entity, area for 2D, and length for 1D).
-     * \return The measure of the entity.
-     */
-    virtual double measure() const;
-
-    /*!
      * \brief Return the centroid of the entity.
      * \param centroid A view of the centroid coordinates. This view will not
      * be allocated. Assign a view of your centroid to this view.

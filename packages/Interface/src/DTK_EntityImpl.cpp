@@ -107,16 +107,6 @@ int EntityImpl::parametricDimension() const
 }
 
 //---------------------------------------------------------------------------//
-// Return the entity measure (volume for a 3D entity, area for 2D, and length
-// for 1D). 
-double EntityImpl::measure() const
-{ 
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return -1.0;
-}
-
-//---------------------------------------------------------------------------//
 // Return the centroid of the entity.
 void EntityImpl::centroid( 
     Teuchos::ArrayView<const double>& centroid ) const

@@ -32,111 +32,96 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_Entity.cpp
+ * \brief DTK_EntityFunctionSpace.cpp
  * \author Stuart R. Slattery
- * \brief Geometric entity interface.
+ * \brief Discretization functionspace interface.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_Entity.hpp"
-#include "DTK_DBC.hpp"
+#include "DTK_EntityFunctionSpace.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-Entity::Entity()
+EntityFunctionSpace::EntityFunctionSpace()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-//brief Destructor.
-Entity::~Entity()
+// Destructor.
+EntityFunctionSpace::~EntityFunctionSpace()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Return a string indicating the derived entity type.
-std::string Entity::name() const
+// Return the entity measure with respect to the parameteric dimension (volume
+// for a 3D entity, area for 2D, and length for 1D). 
+double EntityFunctionSpace::measure( const Entity& entity ) const
 {
-    return b_entity_impl->name();
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+    return -1.0;
 }
 
 //---------------------------------------------------------------------------//
-// Get the unique global identifier for the entity.
-EntityId Entity::id() const
-{ 
-    return b_entity_impl->id();
-}
-    
-//---------------------------------------------------------------------------//
-// Get the entity type.
-EntityType Entity::entityType() const
+// Perform a safeguard check for mapping a point to the reference space
+// of an entity using the given tolerance. 
+void EntityFunctionSpace::safeguardMapToReferenceFrame(
+    const Entity& entity,
+    const Teuchos::ParameterList& parameters,
+    const Teuchos::ArrayView<const double>& point,
+    MappingStatus& status ) const
 {
-    return b_entity_impl->entityType();
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//
-// Get the parallel rank that owns the entity.
-int Entity::ownerRank() const
-{ 
-    return b_entity_impl->ownerRank();
-}
-//---------------------------------------------------------------------------//
-// Return the physical dimension of the entity.
-int Entity::physicalDimension() const
-{ 
-    return b_entity_impl->physicalDimension();
-}
-
-//---------------------------------------------------------------------------//
-// Return the parametric dimension of the entity.
-int Entity::parametricDimension() const
-{ 
-    return b_entity_impl->parametricDimension();
-}
-
-//---------------------------------------------------------------------------//
-// Return the centroid of the entity.
-void Entity::centroid( 
-    Teuchos::ArrayView<const double>& centroid ) const
-{ 
-    b_entity_impl->centroid( centroid );
-}
-
-//---------------------------------------------------------------------------//
-// Return the axis-aligned bounding box around the entity.
-void Entity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
-{ 
-    b_entity_impl->boundingBox( bounds );
-}
-
-//---------------------------------------------------------------------------//
-// Return a string indicating the derived object type.
-std::string Entity::objectType() const
+// Map a point to the reference space of an entity. Return the parameterized point.
+void EntityFunctionSpace::mapToReferenceFrame( 
+    const Entity& entity,
+    const Teuchos::ParameterList& parameters,
+    const Teuchos::ArrayView<const double>& point,
+    const Teuchos::ArrayView<double>& reference_point,
+    MappingStatus& status ) const
 {
-    return b_entity_impl->name();
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//
-// Serialize the entity into a buffer.
-void Entity::serialize( 
-    const Teuchos::ArrayView<char>& buffer ) const
+// Determine if a reference point is in the parameterized space of an entity.
+bool EntityFunctionSpace::checkPointInclusion( 
+    const Entity& entity,
+    const Teuchos::ParameterList& parameters,
+    const Teuchos::ArrayView<const double>& reference_point ) const
 {
-    b_entity_impl->serialize( buffer );
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+    return false;
 }
 
 //---------------------------------------------------------------------------//
-// Deserialize an entity from a buffer.
-void Entity::deserialize( 
-    const Teuchos::ArrayView<const char>& buffer )
+// Map a reference point to the physical space of an entity.
+void EntityFunctionSpace::mapToPhysicalFrame( 
+    const Entity& entity,
+    const Teuchos::ArrayView<const double>& reference_point,
+    const Teuchos::ArrayView<double>& point ) const
 {
-    b_entity_impl->deserialize( buffer );
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//
-// Check whether the underlying implementation is available.
-bool Entity::isEntityImplNonnull() const
+// Given an entity and a reference point, evaluate the functional support
+// of the entity at that point. 
+void EntityFunctionSpace::evaluateShapeFunction( 
+    const Entity& entity,
+    const Teuchos::ArrayView<const double>& reference_point,
+    Teuchos::Array<EntityId>& dof_ids,
+    Kokkos::View<double>& values ) const
 {
-    return Teuchos::nonnull( b_entity_impl );
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//
@@ -144,5 +129,5 @@ bool Entity::isEntityImplNonnull() const
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_Entity.cpp
+// end DTK_EntityFunctionSpace.cpp
 //---------------------------------------------------------------------------//
