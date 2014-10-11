@@ -45,8 +45,7 @@
 
 #include "DTK_EntitySet.hpp"
 #include "DTK_Entity.hpp"
-#include "DTK_AbstractObjectRegistry.hpp"
-#include "DTK_AbstractIterator.hpp"
+#include "DTK_EntityIterator.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -60,7 +59,7 @@ namespace DataTransferKit
   \class BasicEntitySetIterator
   \brief ementation of iterator over entities in a basic set.
 */
-class BasicEntitySetIterator : public AbstractIterator<Entity>
+class BasicEntitySetIterator : public EntityIterator
 {
   public:
 
@@ -86,7 +85,7 @@ class BasicEntitySetIterator : public AbstractIterator<Entity>
     ~BasicEntitySetIterator();
 
     // Pre-increment operator.
-    AbstractIterator<Entity>& operator++();
+    EntityIterator& operator++();
 
     // Dereference operator.
     Entity& operator*(void);
@@ -95,23 +94,23 @@ class BasicEntitySetIterator : public AbstractIterator<Entity>
     Entity* operator->(void);
 
     // Equal comparison operator.
-    bool operator==( const AbstractIterator<Entity>& rhs ) const;
+    bool operator==( const EntityIterator& rhs ) const;
 
     // Not equal comparison operator.
-    bool operator!=( const AbstractIterator<Entity>& rhs ) const;
+    bool operator!=( const EntityIterator& rhs ) const;
 
     // Size of the iterator.
     std::size_t size() const;
 
     // An iterator assigned to the beginning.
-    AbstractIterator<Entity> begin() const;
+    EntityIterator begin() const;
 
     // An iterator assigned to the end.
-    AbstractIterator<Entity> end() const;
+    EntityIterator end() const;
 
     // Create a clone of the iterator. We need this for the copy constructor
     // and assignment operator to pass along the underlying implementation.
-    AbstractIterator<Entity>* clone() const;
+    EntityIterator* clone() const;
 
   private:
 
@@ -141,16 +140,10 @@ class BasicEntitySet : public EntitySet
     //@}
 
     /*!
-     * \brief Default constructor.
-     */
-    BasicEntitySet();
-
-    /*!
      * \brief Constructor.
      */
-    BasicEntitySet( 
-	const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-	const int physical_dimension );
+    BasicEntitySet( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+		    const int physical_dimension );
 
     /*!
      * \brief Destructor.
@@ -158,53 +151,12 @@ class BasicEntitySet : public EntitySet
     ~BasicEntitySet();
 
     //@{
-    //! Identification functions.
-    /*!
-     * \brief Return a string indicating the derived entity set type.
-     * \return A string key for the derived set type.
-     */
-    std::string name() const;
-    //@}
-
-    //@{
     //! Parallel functions.
-    /*!
-     * \brief Assign a parallel communicator to the entity set. This will only
-     * be done immediately after construct through the AbstractBuilder
-     * interface.
-     * \param comm The communicator to set with the entity set.
-     */
-    void assignCommunicator( 
-	const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
-
     /*!
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
      */
     Teuchos::RCP<const Teuchos::Comm<int> > communicator() const;
-    //@}
-
-    //@{
-    //! Entity access functions.
-    /*!
-     * \brief Get an iterator over a subset of the entity set that satisfies
-     * the given predicate.
-     * \param entity_type The type of entity to get an iterator over.
-     * \param predicate A predicate to select the entity set to iterate over.
-     * \return An iterator to the entities that satisfy the predicate.
-     */
-    virtual AbstractIterator<Entity>
-    entityIterator(
-	const EntityType entity_type,
-	const std::function<bool(const Entity&)>& predicate ) const;
-
-    /*!
-     * \brief Given an EntityId, get the entity.
-     * \param entity_id Get the entity with this id.
-     * \param entity The entity with the given id.
-     */
-    virtual void getEntity( const EntityId entity_id, 
-			    Entity& entity ) const;
     //@}
 
     //@{
@@ -229,23 +181,25 @@ class BasicEntitySet : public EntitySet
     //@}
 
     //@{
-    //! BasicEntitySet modification functions.
+    //! Entity access functions.
     /*!
-     * \brief Indicate that the entity set will be modified.
+     * \brief Given an EntityId, get the entity.
+     * \param entity_id Get the entity with this id.
+     * \param entity The entity with the given id.
      */
-    void startModification();
+    virtual void getEntity( const EntityId entity_id, 
+			    Entity& entity ) const;
 
     /*!
-     * \brief Add an entity to the set. This function can only be called if
-     * entity set has been notified of modification.
-     * \param entity Add this entity to the set.
+     * \brief Get an iterator over a subset of the entity set that satisfies
+     * the given predicate.
+     * \param entity_type The type of entity to get an iterator over.
+     * \param predicate A predicate to select the entity set to iterate over.
+     * \return An iterator to the entities that satisfy the predicate.
      */
-    void addEntity( const Entity& entity );
-
-    /*!
-     * \brief Indicate that modification of the entity set is complete.
-     */
-    void endModification();
+    virtual EntityIterator entityIterator(
+	const EntityType entity_type,
+	const std::function<bool(const Entity&)>& predicate ) const;
     //@}
 
   private:
@@ -264,28 +218,6 @@ class BasicEntitySet : public EntitySet
 
     // Id-to-entity maps.
     mutable Teuchos::Array<std::unordered_map<EntityId,Entity> > d_entities;
-};
-
-//---------------------------------------------------------------------------//
-// AbstractObjectRegistrationPolicy implementation.
-//---------------------------------------------------------------------------//
-template<>
-class AbstractObjectRegistrationPolicy<BasicEntitySet>
-{
-  public:
-
-    //! Base class type.
-    typedef BasicEntitySet object_type;
-
-    /*!
-     * \brief Register a derived class with a base class.
-     */
-    static void registerDerivedClassWithBaseClass()
-    {
-	// Register the constructor with the base class
-	// AbstractBuildableObject interface.
-	EntitySet::setDerivedClassFactory<object_type>();
-    }
 };
 
 //---------------------------------------------------------------------------//

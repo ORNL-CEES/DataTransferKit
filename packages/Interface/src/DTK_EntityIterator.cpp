@@ -32,35 +32,30 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_AbstractIterator_impl.hpp
+ * \brief DTK_EntityIterator.cpp
  * \author Stuart R. Slattery
- * \brief Abstract iterator interface.
+ * \brief Entity iterator interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ABSTRACTITERATOR_IMPL_HPP
-#define DTK_ABSTRACTITERATOR_IMPL_HPP
-
 #include "DTK_DBC.hpp"
-#include "DTK_PredicateComposition.hpp"
+#include "DTK_EntityIterator.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-template<class ValueType>
-AbstractIterator<ValueType>::AbstractIterator()
+EntityIterator::EntityIterator()
 {
     // Default predicate always returns true.
-    b_predicate = [](ValueType v){return true;};
+    b_predicate = [](Entity v){return true;};
     b_iterator_impl = NULL;
 }
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-template<class ValueType>
-AbstractIterator<ValueType>::AbstractIterator( 
-    const AbstractIterator<ValueType>& rhs )
+EntityIterator::EntityIterator( 
+    const EntityIterator& rhs )
 {
     b_iterator_impl = NULL;
     if ( NULL == rhs.b_iterator_impl )
@@ -77,9 +72,8 @@ AbstractIterator<ValueType>::AbstractIterator(
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-template<class ValueType>
-AbstractIterator<ValueType>& AbstractIterator<ValueType>::operator=( 
-    const AbstractIterator<ValueType>& rhs )
+EntityIterator& EntityIterator::operator=( 
+    const EntityIterator& rhs )
 {
     if ( this == &rhs )
     {
@@ -104,8 +98,7 @@ AbstractIterator<ValueType>& AbstractIterator<ValueType>::operator=(
 }
 
 //---------------------------------------------------------------------------//
-template<class ValueType>
-AbstractIterator<ValueType>::~AbstractIterator()
+EntityIterator::~EntityIterator()
 {
     if ( NULL != b_iterator_impl )
     {
@@ -116,21 +109,20 @@ AbstractIterator<ValueType>::~AbstractIterator()
 
 //---------------------------------------------------------------------------//
 // Pre-increment operator.
-template<class ValueType>
-AbstractIterator<ValueType>& AbstractIterator<ValueType>::operator++()
+EntityIterator& EntityIterator::operator++()
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
 
     // Apply the increment operator.
-    AbstractIterator<ValueType>& it = b_iterator_impl->operator++();
+    EntityIterator& it = b_iterator_impl->operator++();
 
     // If the we are not at the end or the predicate is not satisfied by the
     // current element, increment until either of these conditions is
     // satisfied.
     if ( it != b_iterator_impl->end() && !b_predicate(*it) )
     {
-	AbstractIterator<ValueType> end = b_iterator_impl->end();
+	EntityIterator end = b_iterator_impl->end();
 	do
 	{
 	    it = b_iterator_impl->operator++();
@@ -143,22 +135,21 @@ AbstractIterator<ValueType>& AbstractIterator<ValueType>::operator++()
 
 //---------------------------------------------------------------------------//
 // Post-increment operator.
-template<class ValueType>
-AbstractIterator<ValueType> AbstractIterator<ValueType>::operator++(int n)
+EntityIterator EntityIterator::operator++(int n)
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
 
     // Apply the increment operator.
-    const AbstractIterator<ValueType> tmp(*this);
-    AbstractIterator<ValueType> it = b_iterator_impl->operator++();
+    const EntityIterator tmp(*this);
+    EntityIterator it = b_iterator_impl->operator++();
 
     // If the we are not at the end or the predicate is not satisfied by the
     // current element, increment until either of these conditions is
     // satisfied.
     if ( it != b_iterator_impl->end() && !b_predicate(*it) )
     {
-	AbstractIterator<ValueType> end = b_iterator_impl->end();
+	EntityIterator end = b_iterator_impl->end();
 	do
 	{
 	    it = b_iterator_impl->operator++();
@@ -170,8 +161,7 @@ AbstractIterator<ValueType> AbstractIterator<ValueType>::operator++(int n)
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-template<class ValueType>
-ValueType& AbstractIterator<ValueType>::operator*(void)
+Entity& EntityIterator::operator*(void)
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     return b_iterator_impl->operator*();
@@ -179,8 +169,7 @@ ValueType& AbstractIterator<ValueType>::operator*(void)
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-template<class ValueType>
-ValueType* AbstractIterator<ValueType>::operator->(void)
+Entity* EntityIterator::operator->(void)
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     return b_iterator_impl->operator->();
@@ -188,9 +177,8 @@ ValueType* AbstractIterator<ValueType>::operator->(void)
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-template<class ValueType>
-bool AbstractIterator<ValueType>::operator==( 
-    const AbstractIterator<ValueType>& rhs ) const
+bool EntityIterator::operator==( 
+    const EntityIterator& rhs ) const
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     return b_iterator_impl->operator==( rhs );
@@ -198,9 +186,8 @@ bool AbstractIterator<ValueType>::operator==(
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-template<class ValueType>
-bool AbstractIterator<ValueType>::operator!=( 
-    const AbstractIterator<ValueType>& rhs ) const
+bool EntityIterator::operator!=( 
+    const EntityIterator& rhs ) const
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     return b_iterator_impl->operator!=( rhs );
@@ -209,15 +196,14 @@ bool AbstractIterator<ValueType>::operator!=(
 //---------------------------------------------------------------------------//
 // Size of the iterator. This is the number of objects in the iterator that
 // meet the predicate criteria.
-template<class ValueType>
-std::size_t AbstractIterator<ValueType>::size() const
+std::size_t EntityIterator::size() const
 {
     std::size_t size = 0;
     if ( NULL != b_iterator_impl )
     {
-	AbstractIterator<ValueType> begin_it = this->begin();
-	AbstractIterator<ValueType> end_it = this->end();
-	for ( AbstractIterator<ValueType> impl_copy = begin_it; 
+	EntityIterator begin_it = this->begin();
+	EntityIterator end_it = this->end();
+	for ( EntityIterator impl_copy = begin_it; 
 	      impl_copy != end_it; 
 	      ++impl_copy )
 	{
@@ -229,10 +215,9 @@ std::size_t AbstractIterator<ValueType>::size() const
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the beginning.
-template<class ValueType>
-AbstractIterator<ValueType> AbstractIterator<ValueType>::begin() const
+EntityIterator EntityIterator::begin() const
 {
-    AbstractIterator<ValueType> begin_it;
+    EntityIterator begin_it;
     if ( NULL != b_iterator_impl )
     {
 	begin_it = b_iterator_impl->begin();
@@ -244,29 +229,26 @@ AbstractIterator<ValueType> AbstractIterator<ValueType>::begin() const
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the end.
-template<class ValueType>
-AbstractIterator<ValueType> AbstractIterator<ValueType>::end() const
+EntityIterator EntityIterator::end() const
 {
     if ( NULL != b_iterator_impl )
     {
 	return b_iterator_impl->end();
     }
-    return AbstractIterator<ValueType>();
+    return EntityIterator();
 }
 
 //---------------------------------------------------------------------------//
 // Create a clone of the iterator.
-template<class ValueType>
-AbstractIterator<ValueType>* AbstractIterator<ValueType>::clone() const
+EntityIterator* EntityIterator::clone() const
 {
-    return new AbstractIterator<ValueType>();
+    return new EntityIterator();
 }
 
 //---------------------------------------------------------------------------//
 // Advance the iterator to the first valid element that satisfies the
 // predicate or the end of the iterator. 
-template<class ValueType>
-void AbstractIterator<ValueType>::advanceToFirstValidElement()
+void EntityIterator::advanceToFirstValidElement()
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     if ( (*this != end()) && !b_predicate(**this) )
@@ -279,8 +261,6 @@ void AbstractIterator<ValueType>::advanceToFirstValidElement()
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_ABSTRACTITERATOR_IMPL_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_AbstractIterator_impl.hpp
+// end DTK_EntityIterator.cpp
 //---------------------------------------------------------------------------//

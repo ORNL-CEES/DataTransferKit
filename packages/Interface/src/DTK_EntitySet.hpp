@@ -45,9 +45,7 @@
 
 #include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
-#include "DTK_AbstractBuilder.hpp"
-#include "DTK_AbstractBuildableObject.hpp"
-#include "DTK_AbstractIterator.hpp"
+#include "DTK_EntityIterator.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -65,7 +63,7 @@ namespace DataTransferKit
   distribution.
 */
 //---------------------------------------------------------------------------//
-class EntitySet : public AbstractBuildableObject<EntitySet>
+class EntitySet
 {
   public:
 
@@ -80,54 +78,12 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
     virtual ~EntitySet();
 
     //@{
-    //! Identification functions.
-    /*!
-     * \brief Return a string indicating the derived entity set type.
-     * \return A string key for the derived set type.
-     */
-    virtual std::string name() const;
-    //@}
-
-    //@{
     //! Parallel functions.
-    /*!
-     * \brief Assign a parallel communicator to the entity set. This will only
-     * be done immediately after construct through the AbstractBuilder
-     * interface.
-     * \param comm The communicator to set with the entity set.
-     */
-    virtual void assignCommunicator(
-	const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
-
     /*!
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
      */
     virtual Teuchos::RCP<const Teuchos::Comm<int> > communicator() const;
-    //@}
-
-    //@{
-    //! Entity access functions.
-    /*!
-     * \brief Get an iterator over a subset of the entity set that satisfies
-     * the given predicate.
-     * \param entity_type The type of entity to get an iterator over.
-     * \param predicate A predicate to select the entity set to iterate over.
-     * \return An iterator to the entities that satisfy the predicate.
-     */
-    virtual AbstractIterator<Entity>
-    entityIterator(
-	const EntityType entity_type,
-	const std::function<bool(const Entity&)>& predicate = selectAll 
-	) const;
-
-    /*!
-     * \brief Given an EntityId, get the entity.
-     * \param entity_id Get the entity with this id.
-     * \param entity The entity with the given id.
-     */
-    virtual void getEntity( const EntityId entity_id, 
-			    Entity& entity ) const;
     //@}
 
     //@{
@@ -153,53 +109,31 @@ class EntitySet : public AbstractBuildableObject<EntitySet>
     //@}
 
     //@{
-    //! EntitySet modification functions.
+    //! Entity access functions.
     /*!
-     * \brief Indicate that the entity set will be modified.
+     * \brief Given an EntityId, get the entity.
+     * \param entity_id Get the entity with this id.
+     * \param entity The entity with the given id.
      */
-    virtual void startModification();
+    virtual void getEntity( const EntityId entity_id, Entity& entity ) const;
 
     /*!
-     * \brief Add an entity to the set. This function can only be called if
-     * entity set has been notified of modification.
-     * \param entity Add this entity to the set.
+     * \brief Get an iterator over a subset of the entity set that satisfies
+     * the given predicate.
+     * \param entity_type The type of entity to get an iterator over.
+     * \param predicate A predicate to select the entity set to iterate over.
+     * \return An iterator to the entities that satisfy the predicate.
      */
-    virtual void addEntity( const Entity& entity );
-
-    /*!
-     * \brief Indicate that modification of the entity set is complete.
-     */
-    virtual void endModification();
-    //@}
+    virtual EntityIterator entityIterator(
+	const EntityType entity_type,
+	const std::function<bool(const Entity&)>& predicate = selectAll 
+	) const;
 
     /*!
      * \brief Select all entities predicate.
      */
-    static inline bool selectAll( const Entity& entity )
-    { return true; }
-};
-
-//---------------------------------------------------------------------------//
-// AbstractBuildableObjectPolicy implementation.
-//---------------------------------------------------------------------------//
-template<>
-class AbstractBuildableObjectPolicy<EntitySet>
-{
-  public:
-
-    typedef EntitySet object_type;
-
-    static std::string 
-    objectType( const EntitySet& entity_set )
-    {
-	return entity_set.name();
-    }
-
-    static Teuchos::RCP<DataTransferKit::AbstractBuilder<EntitySet> > 
-    getBuilder()
-    {
-	return EntitySet::getBuilder();
-    }
+    static inline bool selectAll( const Entity& entity ) { return true; }
+    //@}
 };
 
 //---------------------------------------------------------------------------//

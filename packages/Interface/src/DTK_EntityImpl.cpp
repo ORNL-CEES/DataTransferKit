@@ -54,15 +54,6 @@ EntityImpl::~EntityImpl()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Return a string indicating the derived entity type.
-std::string EntityImpl::name() const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return "Not Implemented";
-}
-
-//---------------------------------------------------------------------------//
 // Get the entity type.
 EntityType EntityImpl::entityType() const
 {
@@ -101,31 +92,6 @@ int EntityImpl::physicalDimension() const
 // Return the axis-aligned bounding box around the entity.
 void EntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 { 
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Return a string indicating the derived object type.
-std::string EntityImpl::objectType() const
-{
-    return name();
-}
-
-//---------------------------------------------------------------------------//
-// Serialize the entity into a buffer.
-void EntityImpl::serialize( 
-    const Teuchos::ArrayView<char>& buffer ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Deserialize an entity from a buffer.
-void EntityImpl::deserialize( 
-    const Teuchos::ArrayView<const char>& buffer )
-{
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
 }

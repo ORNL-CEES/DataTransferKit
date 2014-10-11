@@ -54,86 +54,12 @@ EntitySet::~EntitySet()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Return a string indicating the derived entity set type.
-std::string EntitySet::name() const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return "Not Implemented";
-}
-
-//---------------------------------------------------------------------------//
-// Assign a parallel communicator to the entity set. This will only be done
-// immediately after construct through the AbstractBuilder interface.
-void EntitySet::assignCommunicator( 
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
 Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
     return Teuchos::null;
-}
-
-//---------------------------------------------------------------------------//
-// Get an iterator over a subset of the entity set that satisfies the given
-// predicate. 
-AbstractIterator<Entity>
-EntitySet::entityIterator(
-    const EntityType entity_type,
-    const std::function<bool(const Entity&)>& predicate ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return AbstractIterator<Entity>();
-}
-
-//---------------------------------------------------------------------------//
-// Given an EntityId, get the entity.
-void EntitySet::getEntity( const EntityId entity_id, 
-			   Entity& entity ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Indicate that the entity set will be modified.
-void EntitySet::startModification()
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Add an entity to the set.
-void EntitySet::addEntity( const Entity& entity )
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Indicate that modification of the entity set is complete.
-void EntitySet::endModification()
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Return the largest physical dimension of the entities in the set.
-int EntitySet::physicalDimension() const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-    return -1;
 }
 
 //---------------------------------------------------------------------------//
@@ -150,6 +76,35 @@ void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
+// Given an EntityId, get the entity.
+void EntitySet::getEntity( const EntityId entity_id, Entity& entity ) const
+{
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
+// Get an iterator over a subset of the entity set that satisfies the given
+// predicate. 
+EntityIterator EntitySet::entityIterator(
+    const EntityType entity_type,
+    const std::function<bool(const Entity&)>& predicate ) const
+{
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+    return EntityIterator();
+}
+
+//---------------------------------------------------------------------------//
+// Return the largest physical dimension of the entities in the set.
+int EntitySet::physicalDimension() const
+{
+    DTK_REMEMBER( bool not_implemented = true );
+    DTK_INSIST( !not_implemented );
+    return -1;
 }
 
 //---------------------------------------------------------------------------//

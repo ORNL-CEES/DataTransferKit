@@ -32,20 +32,18 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityFunctionSpace.hpp
+ * \brief DTK_EntityReferenceFrame.hpp
  * \author Stuart R. Slattery
- * \brief Discretization interface.
+ * \brief Reference frame interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYFUNCTIONSPACE_HPP
-#define DTK_ENTITYFUNCTIONSPACE_HPP
+#ifndef DTK_ENTITYREFERENCEFRAME_HPP
+#define DTK_ENTITYREFERENCEFRAME_HPP
 
 #include "DTK_Entity.hpp"
 #include "DTK_Types.hpp"
 #include "DTK_MappingStatus.hpp"
-#include "DTK_AbstractBuilder.hpp"
-#include "DTK_AbstractBuildableObject.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 
@@ -53,27 +51,26 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class EntityFunctionSpace
-  \brief Entity functionspace interface definition.
+  \class EntityReferenceFrame
+  \brief Entity referenceframe interface definition.
 
-  An EntityFunctionSpace provides an interface for accessing the functional
-  support of an entity represented by degrees of freedom through cell mappings
-  and function mappings.
+  An EntityReferenceFrame provides an interface for accessing the reference
+  frame of an entity.
 */
 //---------------------------------------------------------------------------//
-class EntityFunctionSpace : public AbstractBuildableObject<EntityFunctionSpace>
+class EntityReferenceFrame
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    EntityFunctionSpace();
+    EntityReferenceFrame();
 
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityFunctionSpace();
+    virtual ~EntityReferenceFrame();
 
     //@{
     //! Geometry functions.
@@ -158,67 +155,14 @@ class EntityFunctionSpace : public AbstractBuildableObject<EntityFunctionSpace>
 	const Teuchos::ArrayView<const double>& reference_point,
 	const Teuchos::ArrayView<double>& point ) const;
     //@}
-
-    //@{
-    //! Field support evaluation functions.
-    /*!
-     * \brief Given an entity, get the ids of the degrees of freedom supporting
-     * it.
-     * \param entity Evaluate the functional support of this entity.
-     * \param dof_ids Return the ids of the degrees of freedom supporting the
-     * entity. 
-     */
-    virtual void getDOFIds( const Entity& entity,
-			    Teuchos::Array<EntityId>& dof_ids ) const;
-
-    /*!
-     * \brief Given an entity and a reference point, evaluate the functional
-     * support of the entity at that point.
-     * \param entity Evaluate the functional support of this entity.
-     * \param reference_point Evaluate the functional support at this point
-     * given in reference coordinates.
-     * \param values Entity discretization evaluated at the reference
-     * point. Return these ordered with respect to those return by
-     * getDOFIds().
-     */
-    virtual void evaluateShapeFunction( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Kokkos::View<double>& values ) const;
-    //@}
-};
-
-//---------------------------------------------------------------------------//
-// AbstractBuildableObjectPolicy implementation.
-//---------------------------------------------------------------------------//
-template<>
-class AbstractBuildableObjectPolicy<EntityFunctionSpace>
-{
-  public:
-
-    typedef EntityFunctionSpace object_type;
-
-    static std::string 
-    objectType( const EntityFunctionSpace& entity_space )
-    {
-	return entity_space.name();
-    }
-
-    static Teuchos::RCP<DataTransferKit::AbstractBuilder<EntityFunctionSpace> > 
-    getBuilder()
-    {
-	return EntityFunctionSpace::getBuilder();
-    }
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-
-#endif // end DTK_ENTITYFUNCTIONSPACE_HPP
+#endif // end DTK_ENTITYREFERENCEFRAME_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityFunctionSpace.hpp
+// end DTK_EntityReferenceFrame.hpp
 //---------------------------------------------------------------------------//

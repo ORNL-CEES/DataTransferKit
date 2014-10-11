@@ -73,13 +73,6 @@ class EntityImpl
     //@{
     //! Identification functions.
     /*!
-     * \brief Return a string indicating the derived entity type.
-     * \return A string indicating the type of derived entity implementing the
-     * interface.
-     */
-    virtual std::string name() const;
-
-    /*!
      * \brief Get the entity type.
      * \return The entity type.
      */
@@ -112,33 +105,6 @@ class EntityImpl
      * \param bounding_box A Cartesian box that bounds the entity.
      */
     virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
-    //@}
-
-    //@{
-    //! AbstractBuildableObjectPolicy interface.
-    /*!
-     * \brief Return a string indicating the derived object type.
-     * \return A string indicating the type of derived object implementing the
-     * interface.
-     */
-    std::string objectType() const;
-    //@}
-
-    //@{
-    //! AbstractSerializableObjectPolicy interface.
-    /*
-     * \brief Serialize the entity into a buffer.
-     * \param buffer A view into a data buffer of size byteSize(). Write the
-     * serialized entity into this view.
-     */
-    virtual void serialize( const Teuchos::ArrayView<char>& buffer ) const;
-
-    /*!
-     * \brief Deserialize an entity from a buffer.
-     * \param buffer A view into a data buffer of size byteSize(). Deserialize
-     * the entity from this view.
-     */
-    virtual void deserialize( const Teuchos::ArrayView<const char>& buffer );
     //@}
 };
 

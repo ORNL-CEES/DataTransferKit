@@ -32,30 +32,30 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityFunctionSpace.cpp
+ * \brief DTK_EntityReferenceFrame.cpp
  * \author Stuart R. Slattery
- * \brief Discretization functionspace interface.
+ * \brief Reference frame interface.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_EntityFunctionSpace.hpp"
+#include "DTK_EntityReferenceFrame.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-EntityFunctionSpace::EntityFunctionSpace()
+EntityReferenceFrame::EntityReferenceFrame()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Destructor.
-EntityFunctionSpace::~EntityFunctionSpace()
+EntityReferenceFrame::~EntityReferenceFrame()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
 // for a 3D entity, area for 2D, and length for 1D). 
-double EntityFunctionSpace::measure( const Entity& entity ) const
+double EntityReferenceFrame::measure( const Entity& entity ) const
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
@@ -64,7 +64,7 @@ double EntityFunctionSpace::measure( const Entity& entity ) const
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void EntityFunctionSpace::centroid(
+void EntityReferenceFrame::centroid(
     const Entity& entity,
     Teuchos::ArrayView<const double>& centroid ) const
 { 
@@ -75,7 +75,7 @@ void EntityFunctionSpace::centroid(
 //---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space
 // of an entity using the given tolerance. 
-void EntityFunctionSpace::safeguardMapToReferenceFrame(
+void EntityReferenceFrame::safeguardMapToReferenceFrame(
     const Entity& entity,
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& point,
@@ -87,7 +87,7 @@ void EntityFunctionSpace::safeguardMapToReferenceFrame(
 
 //---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the parameterized point.
-void EntityFunctionSpace::mapToReferenceFrame( 
+void EntityReferenceFrame::mapToReferenceFrame( 
     const Entity& entity,
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& point,
@@ -100,7 +100,7 @@ void EntityFunctionSpace::mapToReferenceFrame(
 
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
-bool EntityFunctionSpace::checkPointInclusion( 
+bool EntityReferenceFrame::checkPointInclusion( 
     const Entity& entity,
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& reference_point ) const
@@ -112,23 +112,10 @@ bool EntityFunctionSpace::checkPointInclusion(
 
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
-void EntityFunctionSpace::mapToPhysicalFrame( 
+void EntityReferenceFrame::mapToPhysicalFrame( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
-{
-    DTK_REMEMBER( bool not_implemented = true );
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Given an entity and a reference point, evaluate the functional support
-// of the entity at that point. 
-void EntityFunctionSpace::evaluateShapeFunction( 
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    Teuchos::Array<EntityId>& dof_ids,
-    Kokkos::View<double>& values ) const
 {
     DTK_REMEMBER( bool not_implemented = true );
     DTK_INSIST( !not_implemented );
@@ -139,5 +126,5 @@ void EntityFunctionSpace::evaluateShapeFunction(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityFunctionSpace.cpp
+// end DTK_EntityReferenceFrame.cpp
 //---------------------------------------------------------------------------//

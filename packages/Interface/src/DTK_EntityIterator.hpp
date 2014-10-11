@@ -32,93 +32,88 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_AbstractIterator.hpp
+ * \brief DTK_EntityIterator.hpp
  * \author Stuart R. Slattery
- * \brief Abstract iterator interface.
+ * \brief Entity iterator interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ABSTRACTITERATOR_HPP
-#define DTK_ABSTRACTITERATOR_HPP
+#ifndef DTK_ENTITYITERATOR_HPP
+#define DTK_ENTITYITERATOR_HPP
 
 #include <iterator>
 #include <functional>
 
-#include <Teuchos_RCP.hpp>
+#include <DTK_Entity.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class AbstractIterator
-  \brief Abstract iterator interface.
+  \class EntityIterator
+  \brief Entity iterator interface.
 
-  This class provides a mechanism to iterate over a group of abstract objects
+  This class provides a mechanism to iterate over a group of entity objects
   with a specified predicate operation for selection.
 */
 //---------------------------------------------------------------------------//
-template<class ValueType>
-class AbstractIterator : 
-	public std::iterator<std::forward_iterator_tag,ValueType>
+class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
 {
   public:
-
-    //! The value type under the iterator.
-    typedef ValueType value_type;
 
     /*!
      * \brief Constructor.
      */
-    AbstractIterator();
+    EntityIterator();
 
     /*!
      * \brief Copy constructor.
      */
-    AbstractIterator( const AbstractIterator<ValueType>& rhs );
+    EntityIterator( const EntityIterator& rhs );
 
     /*!
      * \brief Assignment operator.
      */
-    AbstractIterator& 
-    operator=( const AbstractIterator<ValueType>& rhs );
+    EntityIterator& 
+    operator=( const EntityIterator& rhs );
 
     /*!
      * \brief Destructor.
      */
-    virtual ~AbstractIterator();
+    virtual ~EntityIterator();
 
     // Pre-increment operator.
-    virtual AbstractIterator<ValueType>& operator++();
+    virtual EntityIterator& operator++();
 
     // Post-increment operator.
-    virtual AbstractIterator<ValueType> operator++(int);
+    virtual EntityIterator operator++(int);
 
     // Dereference operator.
-    virtual ValueType& operator*(void);
+    virtual Entity& operator*(void);
 
     // Dereference operator.
-    virtual ValueType* operator->(void);
+    virtual Entity* operator->(void);
 
     // Equal comparison operator.
-    virtual bool operator==( const AbstractIterator<ValueType>& rhs ) const;
+    virtual bool operator==( const EntityIterator& rhs ) const;
 
     // Not equal comparison operator.
-    virtual bool operator!=( const AbstractIterator<ValueType>& rhs ) const;
+    virtual bool operator!=( const EntityIterator& rhs ) const;
 
     // Number of elements in the iterator that meet the predicate criteria.
     virtual std::size_t size() const;
 
     // An iterator assigned to the first valid element in the iterator.
-    virtual AbstractIterator<ValueType> begin() const;
+    virtual EntityIterator begin() const;
 
     // An iterator assigned to the end of all elements under the iterator.
-    virtual AbstractIterator<ValueType> end() const;
+    virtual EntityIterator end() const;
 
   protected:
 
     // Create a clone of the iterator. We need this for the copy constructor
     // and assignment operator to pass along the underlying implementation.
-    virtual AbstractIterator<ValueType>* clone() const;
+    virtual EntityIterator* clone() const;
 
   private:
 
@@ -129,26 +124,18 @@ class AbstractIterator :
   protected:
 
     // Implementation.
-    AbstractIterator<ValueType>* b_iterator_impl;
+    EntityIterator* b_iterator_impl;
 
     // Predicate.
-    std::function<bool(ValueType&)> b_predicate;
+    std::function<bool(Entity&)> b_predicate;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_AbstractIterator_impl.hpp"
+#endif // end DTK_ENTITYITERATOR_HPP
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_ABSTRACTITERATOR_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_AbstractIterator.hpp
+// end DTK_EntityIterator.hpp
 //---------------------------------------------------------------------------//

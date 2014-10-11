@@ -46,14 +46,9 @@
 #include "DTK_EntityImpl.hpp"
 #include "DTK_Types.hpp"
 #include "DTK_MappingStatus.hpp"
-#include "DTK_AbstractBuilder.hpp"
-#include "DTK_AbstractBuildableObject.hpp"
-#include "DTK_AbstractSerializableObject.hpp"
-#include "DTK_AbstractSerializer.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
-#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -63,8 +58,7 @@ namespace DataTransferKit
   \brief Geometric entity interface definition.
 */
 //---------------------------------------------------------------------------//
-class Entity : public AbstractBuildableObject<Entity>
-	     , public AbstractSerializableObject<Entity>
+class Entity
 {
   public:
 
@@ -80,13 +74,6 @@ class Entity : public AbstractBuildableObject<Entity>
 
     //@{
     //! Identification functions.
-    /*!
-     * \brief Return a string indicating the derived entity type.
-     * \return A string indicating the type of derived entity implementing the
-     * interface.
-     */
-    virtual std::string name() const;
-
     /*!
      * \brief Get the entity type.
      * \return The entity type.
@@ -123,38 +110,6 @@ class Entity : public AbstractBuildableObject<Entity>
     virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
     //@}
 
-    //@{
-    //! AbstractBuildableObjectPolicy interface.
-    /*!
-     * \brief Return a string indicating the derived object type.
-     * \return A string indicating the type of derived object implementing the
-     * interface.
-     */
-    std::string objectType() const;
-    //@}
-
-    //@{
-    //! AbstractSerializableObjectPolicy interface.
-    /*
-     * \brief Serialize the entity into a buffer.
-     * \param buffer A view into a data buffer of size byteSize(). Write the
-     * serialized entity into this view.
-     */
-    virtual void serialize( const Teuchos::ArrayView<char>& buffer ) const;
-
-    /*!
-     * \brief Deserialize an entity from a buffer.
-     * \param buffer A view into a data buffer of size byteSize(). Deserialize
-     * the entity from this view.
-     */
-    virtual void deserialize( const Teuchos::ArrayView<const char>& buffer );
-    //@}
-
-    /*! 
-     * \brief Check whether the underlying implementation is available.
-     */
-    bool isEntityImplNonnull() const;
-
   protected:
 
     // Geometric entity implementation.
@@ -162,113 +117,8 @@ class Entity : public AbstractBuildableObject<Entity>
 };
 
 //---------------------------------------------------------------------------//
-// AbstractBuildableObjectPolicy implementation.
-//---------------------------------------------------------------------------//
-template<>
-class AbstractBuildableObjectPolicy<Entity>
-{
-  public:
-
-    typedef Entity object_type;
-
-    static std::string objectType( const Entity& entity )
-    {
-	return entity.objectType();
-    }
-
-    static Teuchos::RCP<DataTransferKit::AbstractBuilder<Entity> > 
-    getBuilder()
-    {
-	return Entity::getBuilder();
-    }
-};
-
-//---------------------------------------------------------------------------//
-// AbstractSerializableObjectPolicy implementation.
-//---------------------------------------------------------------------------//
-template<>
-class AbstractSerializableObjectPolicy<Entity>
-{
-  public:
-
-    typedef Entity object_type;
-
-    static bool objectHasImplementation( const Entity& entity )
-    {
-	return entity.isEntityImplNonnull();
-    }
-
-    static std::size_t maxByteSize()
-    {
-	return Entity::maxByteSize();
-    }
-
-    static void serialize( const Entity& entity,
-			   const Teuchos::ArrayView<char>& buffer )
-    {
-	entity.serialize( buffer );
-    }
-
-    static void deserialize( Entity& entity,
-			     const Teuchos::ArrayView<const char>& buffer )
-    {
-	entity.deserialize( buffer );
-    }
-};
-
-//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Teuchos::SerializationTraits implementation.
-//---------------------------------------------------------------------------//
-
-namespace Teuchos
-{
-template<typename Ordinal>
-class SerializationTraits<Ordinal,DataTransferKit::Entity> 
-{
-  public:
-
-    typedef DataTransferKit::Entity Entity;
-    typedef DataTransferKit::AbstractSerializer<Ordinal,Entity>  
-    AbstractSerializer;
-
-    static const bool supportsDirectSerialization = 
-	AbstractSerializer::supportsDirectSerialization;
-
-    static Ordinal fromCountToIndirectBytes( const Ordinal count, 
-					     const Entity buffer[] ) 
-    { 
-	return AbstractSerializer::fromCountToIndirectBytes( count, buffer );
-    }
-
-    static void serialize( const Ordinal count, 
-			   const Entity buffer[], 
-			   const Ordinal bytes, 
-			   char charBuffer[] )
-    { 
-	AbstractSerializer::serialize( count, buffer, bytes, charBuffer );
-    }
-
-    static Ordinal fromIndirectBytesToCount( const Ordinal bytes, 
-					     const char charBuffer[] ) 
-    { 
-	return AbstractSerializer::fromIndirectBytesToCount( bytes, charBuffer );
-    }
-
-    static void deserialize( const Ordinal bytes, 
-			     const char charBuffer[], 
-			     const Ordinal count, 
-			     Entity buffer[] )
-    { 
-	AbstractSerializer::deserialize( bytes, charBuffer, count, buffer );
-    }
-};
-} // end namespace Teuchos
-
-//---------------------------------------------------------------------------//
 
 #endif // end DTK_ENTITY_HPP
 

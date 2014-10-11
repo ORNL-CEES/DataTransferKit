@@ -32,66 +32,51 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_FieldGroup.hpp
+ * \brief DTK_FunctionSpace.hpp
  * \author Stuart R. Slattery
- * \brief Field group.
+ * \brief Function space.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_FIELDGROUP_HPP
-#define DTK_FIELDGROUP_HPP
+#ifndef DTK_FUNCTIONSPACE_HPP
+#define DTK_FUNCTIONSPACE_HPP
 
 #include <string>
 
 #include "DTK_EntitySet.hpp"
-#include "DTK_EntityFunctionSpace.hpp"
-#include "DTK_DOFAccessor.hpp"
+#include "DTK_EntityReferenceFrame.hpp"
+#include "DTK_EntityShapeFunction.hpp"
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_StandardParameterEntryValidators.hpp>
+
+#include <Thyra_VectorSpaceBase.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class FieldGroup
-  \brief Group for aggregating entity sets, fields, and their functional
-  support.
+  \class FunctionSpace
+  \brief Space of a function.
 
-  The FieldGroup binds a particular discretization of a field
-  (EntityFunctionSpace) to an entity set. Multiple fields can be supported by
-  this discretization and access to the degrees of freedom for each of these
-  fields is managed by the DOFAccessor. The FieldGroup lets clients register
-  multiple degree of freedom sets with a particular discretization on an
-  entity set.
+  FunctionSpace binds DOFs to a vector space.
 */
 //---------------------------------------------------------------------------//
-class FieldGroup
+class FunctionSpace
 {
   public:
 
     /*!
      * \brief Constructor.
-     * \param entity_set The entity set over which the fields are defined.
-     * \param entity_space Accessor to the functional support of the fields.
      */
-    FieldGroup( const Teuchos::RCP<EntitySet>& entity_set,
-		const Teuchos::RCP<EntityFunctionSpace>& entity_space );
+    FunctionSpace( const Teuchos::RCP<EntitySet>& entity_set,
+		   const Teuchos::RCP<EntityReferenceFrame>& reference_frame,
+		   const Teuchos::RCP<EntityShapeFunction>& shape_function,
+		   const Teuchos::RCP<const ThyraVectorSpace<double> > vector_space );
 
     /*!
      * \brief Destructor.
      */
-    ~FieldGroup();
-
-    /*!
-     * \brief Add a DOF accessor for a given field to the group.
-     * \param dof_accessor Accessor to the degrees of freedom for a field
-     * supported by this entity set and functional support.
-     * \param name The name of the field the degrees of freedom represent.
-     */
-    void registerDOFAccessor( const Teuchos::RCP<DOFAccessor>& dof_accessor,
-			      const std::string& name );
+    ~FunctionSpace();
 
     /*!
      * \brief Get the entity set over which the fields are defined.
@@ -99,35 +84,28 @@ class FieldGroup
     Teuchos::RCP<EntitySet> entitySet() const;
 
     /*!
-     * \brief Get the functional support accessor for the fields.
+     * \brief Get the reference frame for entities supporting the function.
      */
-    Teuchos::RCP<EntityFunctionSpace> entitySpace() const;
+    Teuchos::RCP<EntityReferenceFrame> entityReferenceFrame() const;
 
     /*!
-     * \brief Get a DOF accessor with a given name.
-     * \param The name of the field the degrees of freedom represent.
-     * \return Accessor to the degrees of freedom for a field supported by
-     * this entity set and functional support.
+     * \brief Get the vector space under the DOFs.
      */
-    Teuchos::RCP<DOFAccessor> getDOFAccessor( const std::string& name );
+    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > vectorSpace() const;
 
   private:
 
-    // The entity set over which the field is constructed.
+    // The entity set over which the function space is constructed.
     Teuchos::RCP<EntitySet> d_entity_set;
 
-    // The field support space for the entities in the set.
-    Teuchos::RCP<EntityFunctionSpace> d_entity_space;
+    // The reference frame for entities in the set.
+    Teuchos::RCP<EntityReferenceFrame> d_reference_frame;
 
-    // DOF Accessors.
-    Teuchos::Array<Teuchos::RCP<DOFAccessor> > d_dof_accessor;
+    // The shape function for the entities in the set.
+    Teuchos::RCP<EntityShapeFunction> d_shape_function;
 
-    // DOF Accessor names.
-    Teuchos::Array<std::string> d_accessor_names;
-
-    // DOF Accessor validator.
-    Teuchos::RCP<Teuchos::StringToIntegralParameterEntryValidator<int> >
-    d_accessor_validator;
+    // The vector space under the DOFs.
+    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > d_vector_space;
 };
 
 //---------------------------------------------------------------------------//
@@ -136,8 +114,8 @@ class FieldGroup
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_FIELDGROUP_HPP
+#endif // end DTK_FUNCTIONSPACE_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_FieldGroup.hpp
+// end DTK_FunctionSpace.hpp
 //---------------------------------------------------------------------------//

@@ -32,73 +32,72 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_DOFAccessor.hpp
+ * \brief DTK_EntityShapeFunction.hpp
  * \author Stuart R. Slattery
- * \brief Interface for accessing DOF data.
+ * \brief Function space.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_DOFACCESSOR_HPP
-#define DTK_DOFACCESSOR_HPP
+#ifndef DTK_SHAPEFUNCTION_HPP
+#define DTK_SHAPEFUNCTION_HPP
 
 #include <string>
 
 #include "DTK_Entity.hpp"
-#include "DTK_Types.hpp"
 
-#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Array.hpp>
+
+#include <Kokkos_View.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class DOFAccessor
-  \brief Interface for accessing DOF data for a field.
+  \class EntityShapeFunction
+  \brief Space of a function.
+
+  EntityShapeFunction binds DOFs to a vector space.
 */
 //---------------------------------------------------------------------------//
-class DOFAccessor
+class EntityShapeFunction
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    DOFAccessor();
+    EntityShapeFunction();
 
     /*!
      * \brief Destructor.
      */
-    virtual ~DOFAccessor();
-    
-    /*!
-     * \brief Get the number of dimensions in the field.
-     * \return The dimension of the field.
-     */
-    virtual int dimension() const;
+    virtual ~EntityShapeFunction();
 
     /*!
-     * \brief Get the size of each dimension in the field.
-     * \param dims The size of each dimension in the field.
+     * \brief Given an entity, get the ids of the degrees of freedom in the
+     * vector space supporting it.
+     * \param entity Evaluate the degrees of freedom for this entity.
+     * \param dof_ids Return the ids of the degrees of freedom in the vector
+     * space supporting the entities.
      */
-    virtual void dimensionSizes( Teuchos::Array<int>& dim_sizes ) const;
+    virtual void getDOFIds( const Entity& entity,
+			    Teuchos::Array<std::size_t>& dof_ids ) const;
 
     /*!
-     * \brief Given a degree of freedom id, get a const view of the data for
-     * that degree of freedom. 
-     * \param dof_id Get the data for the degree of freedom with this id.
-     * \param dof_values A const view of the degree of freedom data.
+     * \brief Given an entity and a reference point, evaluate the shape
+     * function of the entity at that point.
+     * \param entity Evaluate the shape function of this entity.
+     * \param reference_point Evaluate the shape function at this point
+     * given in reference coordinates.
+     * \param values Entity discretization evaluated at the reference
+     * point. Return these ordered with respect to those return by
+     * getDOFIds().
      */
-    virtual void access( const EntityId& dof_id,
-			 Kokkos::View<const double>& dof_values ) const;
-
-    /*!
-     * \brief Given a degree of freedom id, get a nonconst view of the data for
-     * that degree of freedom. 
-     * \param dof_id Get the data for the degree of freedom with this id.
-     * \param dof_values A nonconst view of the degree of freedom data.
-     */
-    virtual void accessNonConst( const EntityId& dof_id,
-				 Kokkos::View<double>& dof_values ) const;
+    virtual void evaluateShapeFunction( 
+	const Entity& entity,
+	const Teuchos::ArrayView<const double>& reference_point,
+	Kokkos::View<double>& values ) const;
 };
 
 //---------------------------------------------------------------------------//
@@ -107,8 +106,8 @@ class DOFAccessor
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_DOFACCESSOR_HPP
+#endif // end DTK_SHAPEFUNCTION_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_DOFAccessor.hpp
+// end DTK_EntityShapeFunction.hpp
 //---------------------------------------------------------------------------//

@@ -54,13 +54,6 @@ Entity::~Entity()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Return a string indicating the derived entity type.
-std::string Entity::name() const
-{
-    return b_entity_impl->name();
-}
-
-//---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId Entity::id() const
 { 
@@ -92,36 +85,6 @@ int Entity::physicalDimension() const
 void Entity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 { 
     b_entity_impl->boundingBox( bounds );
-}
-
-//---------------------------------------------------------------------------//
-// Return a string indicating the derived object type.
-std::string Entity::objectType() const
-{
-    return b_entity_impl->name();
-}
-
-//---------------------------------------------------------------------------//
-// Serialize the entity into a buffer.
-void Entity::serialize( 
-    const Teuchos::ArrayView<char>& buffer ) const
-{
-    b_entity_impl->serialize( buffer );
-}
-
-//---------------------------------------------------------------------------//
-// Deserialize an entity from a buffer.
-void Entity::deserialize( 
-    const Teuchos::ArrayView<const char>& buffer )
-{
-    b_entity_impl->deserialize( buffer );
-}
-
-//---------------------------------------------------------------------------//
-// Check whether the underlying implementation is available.
-bool Entity::isEntityImplNonnull() const
-{
-    return Teuchos::nonnull( b_entity_impl );
 }
 
 //---------------------------------------------------------------------------//

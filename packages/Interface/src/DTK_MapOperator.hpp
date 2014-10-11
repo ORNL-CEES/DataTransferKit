@@ -41,9 +41,7 @@
 #ifndef DTK_MAPOPERATOR_HPP
 #define DTK_MAPOPERATOR_HPP
 
-#include "DTK_AbstractBuilder.hpp"
-#include "DTK_AbstractBuildableObject.hpp"
-#include "DTK_FieldGroup.hpp"
+#include "DTK_FunctionSpace.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -61,7 +59,7 @@ namespace DataTransferKit
   A map operator maps a field in one entity set to another entity set.
 */
 //---------------------------------------------------------------------------//
-class MapOperator : public AbstractBuildableObject<MapOperator>
+class MapOperator
 {
   public:
 
@@ -76,64 +74,39 @@ class MapOperator : public AbstractBuildableObject<MapOperator>
     virtual ~MapOperator();
 
     //@{
-    //! Identification functions.
-    /*!
-     * \brief Return a string indicating the derived map operator type.
-     * \return A string key for the derived operator type.
-     */
-    virtual std::string name() const;
-    //@}
-
-    //@{
     //! Setup functions.
     /*
-     * \brief Setup the map operator from a source entity set and a target
+     * \brief Setup the map operator from a domain entity set and a range
      * entity set.
-     * \param source_group The field group that contains the data that will be
-     * sent to the target.
-     * mapped. 
-     * \param target_set The field group that will receive the data from the
-     * source.
+     * \param domain_function The field function that contains the data that
+     * will be sent to the range.
+     * \param range_set The field function that will receive the data from the
+     * domain.
      * \param parameters Parameters for the setup.
      */
-    virtual void setup( const Teuchos::RCP<FieldGroup>& source_group,
-			const Teuchos::RCP<FieldGroup>& target_group,
-			const Teuchos::ParameterList>& parameters );
+    virtual void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
+			const Teuchos::RCP<FunctionSpace>& range_space,
+			const Teuchos::ParameterList& parameters );
     //@}
 
     //@{
     //! Apply functions.
     /*
-     * \brief Apply the map operator to data defined on the entities.
-     * \param source_field_name Field defined on the source entities that will
-     * be sent to the target.
-     * \param target_field_name Field defined on the target entities that will
-     * be received from the source.
+     * \brief Apply the map operator to data defined on the entities by
+     * computing g = Minv*(v-A*f)
+     * \param domain DOFs defined on the domain entities that will be sent to
+     * the range.
+     * \param range DOFs defined on the range entities that will be
+     * received from the domain.
      */
-    virtual void apply( const std::string& source_field_name,
-			const std::string& target_field_name ) const;
+    virtual void apply( 
+	const Thyra::MultiVectorBase<double>& domain_dofs,
+	const Teuchos::Ptr<Thyra::MultiVectorBase<double> >& range_dofs,
+	const double alpha,
+	const double beta ) const;
     //@}
 
   protected:
-
-    //@{
-    //! Vector construction functions.
-    /* 
-     * \brief Construct the source and target data vectors from the source and
-     * target field.
-     */ 
-    virtual void buildSourceAndTargetVectors( 
-	Teuchos::RCP<const Thyra::MultiVectorBase<double> >& source_data,
-	Teuchos::RCP<Thyra::MultiVectorBase<double> >& target_data ) const;
-    //@}
-
-  protected:
-
-    //! Source field group.
-    Teuchos::RCP<FieldGroup> b_source_group;
-
-    //! Target field group.
-    Teuchos::RCP<FieldGroup> b_target_group;
 
     //! Mass matrix inverse.
     Teuchos::RCP<Thyra::LinearOpBase<double> > b_mass_matrix_inv;
@@ -143,28 +116,6 @@ class MapOperator : public AbstractBuildableObject<MapOperator>
 
     //! Forcing vector.
     Teuchos::RCP<Thyra::MultiVectorBase<double> > b_forcing_vector;
-};
-
-//---------------------------------------------------------------------------//
-// AbstractBuildableObjectPolicy implementation.
-//---------------------------------------------------------------------------//
-template<>
-class AbstractBuildableObjectPolicy<MapOperator>
-{
-  public:
-
-    typedef MapOperator object_type;
-
-    static std::string objectType( const MapOperator& map_operator )
-    {
-	return map_operator.name();
-    }
-
-    static Teuchos::RCP<DataTransferKit::AbstractBuilder<MapOperator> > 
-    getBuilder()
-    {
-	return MapOperator::getBuilder();
-    }
 };
 
 //---------------------------------------------------------------------------//
