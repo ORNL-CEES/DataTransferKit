@@ -48,8 +48,6 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
 
-#include <Kokkos_View.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -90,14 +88,31 @@ class EntityShapeFunction
      * \param entity Evaluate the shape function of this entity.
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
-     * \param values Entity discretization evaluated at the reference
+     * \param values Entity shape function evaluated at the reference
      * point. Return these ordered with respect to those return by
-     * getDOFIds().
+     * getDOFIds() such that values[N] gives the value of the shape function
+     * of the Nth DOF.
      */
-    virtual void evaluateShapeFunction( 
+    virtual void evaluateValue( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	Kokkos::View<double>& values ) const;
+	Teuchos::Array<double>& values ) const;
+
+    /*!
+     * \brief Given an entity and a reference point, evaluate the gradient of
+     * the shape function of the entity at that point.
+     * \param entity Evaluate the shape function of this entity.
+     * \param reference_point Evaluate the shape function at this point
+     * given in reference coordinates.
+     * \param gradients Entity shape function gradients evaluated at the reference
+     * point. Return these ordered with respect to those return by
+     * getDOFIds() such that gradients[N][D] gives the gradient value of the
+     * Nth DOF in the Dth spatial dimension.
+     */
+    virtual void evaluateGradient( 
+	const Entity& entity,
+	const Teuchos::ArrayView<const double>& reference_point,
+	Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
 };
 
 //---------------------------------------------------------------------------//

@@ -41,8 +41,6 @@
 #ifndef DTK_FUNCTIONSPACE_HPP
 #define DTK_FUNCTIONSPACE_HPP
 
-#include <string>
-
 #include "DTK_EntitySet.hpp"
 #include "DTK_EntityReferenceFrame.hpp"
 #include "DTK_EntityShapeFunction.hpp"
@@ -70,10 +68,10 @@ class FunctionSpace
      * \brief Constructor.
      */
     FunctionSpace( 
+	const Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > vector_space,
 	const Teuchos::RCP<EntitySet>& entity_set,
-	const Teuchos::RCP<EntityReferenceFrame>& reference_frame,
-	const Teuchos::RCP<EntityShapeFunction>& shape_function,
-	const Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > vector_space );
+	const Teuchos::RCP<EntityReferenceFrame>& reference_frame = Teuchos::null,
+	const Teuchos::RCP<EntityShapeFunction>& shape_function = Teuchos::null );
 
     /*!
      * \brief Destructor.
@@ -102,6 +100,9 @@ class FunctionSpace
 
   private:
 
+    // The vector space under the DOFs.
+    Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > d_vector_space;
+
     // The entity set over which the function space is constructed.
     Teuchos::RCP<EntitySet> d_entity_set;
 
@@ -110,9 +111,6 @@ class FunctionSpace
 
     // The shape function for the entities in the set.
     Teuchos::RCP<EntityShapeFunction> d_shape_function;
-
-    // The vector space under the DOFs.
-    Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > d_vector_space;
 };
 
 //---------------------------------------------------------------------------//

@@ -55,8 +55,8 @@ namespace DataTransferKit
   \class EntitySequence
   \brief Entity sequence interface.
 
-  This class provides a mechanism to iterate over a group of entity objects
-  with a specified predicate operation for selection.
+  This class provides a mechanism to iterate over a sequence of entities with
+  a specified predicate operation for selection.
 */
 //---------------------------------------------------------------------------//
 class EntitySequence
@@ -78,27 +78,46 @@ class EntitySequence
      */
     virtual ~EntitySequence();
 
-    // Number of elements in the sequence that meet the predicate criteria.
+    /*!
+     * \brief Number of elements in the sequence.
+     * \return Number of elements in the sequence.
+     */
     virtual std::size_t size() const;
 
-    // An iterator assigned to the first valid element in the sequence.
+    /*!
+     * \brief An iterator assigned to the beginning the sequence.
+     * \return An iterator assigned to the beginning the sequence.
+     */
     virtual ForwardIterator begin() const;
 
-    // An iterator assigned to the end of all elements under the iterator.
+    /*!
+     * \brief An iterator assigned to the end of the sequence.
+     * \return An iterator assigned to the end of the sequence.
+     */
     virtual ForwardIterator end() const;
 
-    // A filtered iterator assigned to the first valid element in the sequence.
+    /*!
+     * \brief Get an iterator assigned to the beginning of the sequence
+     * filtered by a predicate.
+     * \param predicate The filtering predicate.
+     * \Return A filtered iterator assigned to the beginning of the sequence.
+     */
     FilteredForwardIterator 
     filteredBegin( const Predicate& predicate = selectAll ) const;
 
-    // An filtered iterator  assigned to the last valid element in the sequence.
+    /*!
+     * \brief Get an iterator assigned to the end of the sequence filtered by
+     * a predicate.
+     * \param predicate The filtering predicate.
+     * \Return A filtered iterator assigned to the end of the sequence.
+     */
     FilteredForwardIterator 
     filteredEnd( const Predicate& predicate = selectAll) const;
 
     /*!
      * \brief Select all entities predicate.
      */
-    static inline bool selectAll( const Entity& entity ) { return true; }
+    static inline bool selectAll( Entity entity ) { return true; }
 };
 
 //---------------------------------------------------------------------------//

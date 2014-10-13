@@ -66,10 +66,22 @@ void EntityShapeFunction::getDOFIds(
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the shape function of the
 // entity at that point.
-void EntityShapeFunction::evaluateShapeFunction( 
+void EntityShapeFunction::evaluateValue( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
-    Kokkos::View<double>& values ) const
+    Teuchos::Array<double>& values ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
+// Given an entity and a reference point, evaluate the gradient of the shape
+// function of the entity at that point.
+void EntityShapeFunction::evaluateGradient( 
+	const Entity& entity,
+	const Teuchos::ArrayView<const double>& reference_point,
+	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );

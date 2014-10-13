@@ -44,15 +44,15 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 //! Constructor.
-FunctionSpace::FunctionSpace( 
+FunctionSpace::FunctionSpace(
+    const Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > vector_space,
     const Teuchos::RCP<EntitySet>& entity_set,
     const Teuchos::RCP<EntityReferenceFrame>& reference_frame,
-    const Teuchos::RCP<EntityShapeFunction>& shape_function,
-    const Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > vector_space )
-    : d_entity_set( entity_set )
+    const Teuchos::RCP<EntityShapeFunction>& shape_function )
+    : d_vector_space( vector_space )
+    , d_entity_set( entity_set )
     , d_reference_frame( reference_frame )
     , d_shape_function( shape_function )
-    , d_vector_space( vector_space )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//

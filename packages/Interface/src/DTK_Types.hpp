@@ -56,10 +56,10 @@ static const EntityId dtk_invalid_entity_id =
 //! Enum for entity types.
 enum EntityType
 {
-    NODE = 0,
-    EDGE = 1,
-    FACE = 2,
-    VOLUME = 3
+    ENTITY_TYPE_NODE = 0,
+    ENTITY_TYPE_EDGE = 1,
+    ENTITY_TYPE_FACE = 2,
+    ENTITY_TYPE_VOLUME = 3
 };
 
 //---------------------------------------------------------------------------//
