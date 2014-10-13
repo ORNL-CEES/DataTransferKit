@@ -118,21 +118,11 @@ class EntitySet
     virtual void getEntity( const EntityId entity_id, Entity& entity ) const;
 
     /*!
-     * \brief Get an iterator over a subset of the entity set that satisfies
-     * the given predicate.
-     * \param entity_type The type of entity to get an iterator over.
-     * \param predicate A predicate to select the entity set to iterate over.
-     * \return An iterator to the entities that satisfy the predicate.
+     * \brief Get a sequence of the given entity type.
+     * \param entity_type The type of entity to get a sequence for.
+     * \return A sequence of entities of the given type.
      */
-    virtual EntityIterator entityIterator(
-	const EntityType entity_type,
-	const std::function<bool(const Entity&)>& predicate = selectAll 
-	) const;
-
-    /*!
-     * \brief Select all entities predicate.
-     */
-    static inline bool selectAll( const Entity& entity ) { return true; }
+    virtual EntitySequence entitySequence( const EntityType entity_type ) const;
     //@}
 };
 

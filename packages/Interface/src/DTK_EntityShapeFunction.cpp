@@ -32,87 +32,53 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_PredicateComposition_impl.hpp
+ * \brief DTK_EntityShapeFunction.cpp
  * \author Stuart R. Slattery
- * \brief Abstract iterator interface.
+ * \brief Shape function interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_PREDICATECOMPOSITION_IMPL_HPP
-#define DTK_PREDICATECOMPOSITION_IMPL_HPP
+#include "DTK_ShapeFunction.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Static Members.
-// ---------------------------------------------------------------------------//
-// Apply an and operation to two predicates to create a new
-// predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::And( const std::function<bool(ValueType)>& func_left,
-			   const std::function<bool(ValueType)>& func_right )
+// Constructor.
+EntityShapeFunction::EntityShapeFunction()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Destructor.
+EntityShapeFunction::~EntityShapeFunction()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Given an entity, get the ids of the degrees of freedom in the vector space
+// supporting its shape function.
+void EntityShapeFunction::getDOFIds( 
+    const Entity& entity, Teuchos::Array<std::size_t>& dof_ids ) const
 {
-    return std::bind( std::logical_and<bool>(),
-		      std::bind(func_left,std::placeholders::_1),
-		      std::bind(func_right,std::placeholders::_1) );
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//
-// Apply a or operation to two predicates to create a new predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::Or( const std::function<bool(ValueType)>& func_left,
-			  const std::function<bool(ValueType)>& func_right )
+// Given an entity and a reference point, evaluate the shape function of the
+// entity at that point.
+void EntityShapeFunction::evaluateShapeFunction( 
+    const Entity& entity,
+    const Teuchos::ArrayView<const double>& reference_point,
+    Kokkos::View<double>& values ) const
 {
-    return std::bind( std::logical_or<bool>(),
-		      std::bind(func_left,std::placeholders::_1),
-		      std::bind(func_right,std::placeholders::_1) );
-}
-
-//---------------------------------------------------------------------------//
-// Apply a not operation to two predicates to create a new
-// predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::Not( const std::function<bool(ValueType)>& func )
-{
-    return std::bind( std::logical_not<bool>(),
-		      std::bind(func,std::placeholders::_1) );
-}
-
-//---------------------------------------------------------------------------//
-// Apply an AndNot operation to create a new predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::AndNot( const std::function<bool(ValueType)>& func_left,
-			      const std::function<bool(ValueType)>& func_right )
-{
-    return std::bind( 
-	std::logical_and<bool>(),
-	std::bind(func_left,std::placeholders::_1),
-	std::bind(Not(func_right),std::placeholders::_1) );
-}
-
-//---------------------------------------------------------------------------//
-// Apply an OrNot operation to create a new predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::OrNot( const std::function<bool(ValueType)>& func_left,
-			     const std::function<bool(ValueType)>& func_right )
-{
-    return std::bind( 
-	std::logical_or<bool>(),
-	std::bind(func_left,std::placeholders::_1),
-	std::bind(Not(func_right),std::placeholders::_1) );
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_PREDICATECOMPOSITION_IMPL_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_PredicateComposition_impl.hpp
+// end DTK_EntityShapeFunction.cpp
 //---------------------------------------------------------------------------//

@@ -49,7 +49,7 @@
 
 #include <Teuchos_RCP.hpp>
 
-#include <Thyra_VectorSpaceBase.hpp>
+#include <Thyra_SpmdVectorSpaceBase.hpp>
 
 namespace DataTransferKit
 {
@@ -58,7 +58,8 @@ namespace DataTransferKit
   \class FunctionSpace
   \brief Space of a function.
 
-  FunctionSpace binds DOFs to a vector space.
+  FunctionSpace binds the functional support of a field to a parallel vector
+  space.
 */
 //---------------------------------------------------------------------------//
 class FunctionSpace
@@ -68,10 +69,11 @@ class FunctionSpace
     /*!
      * \brief Constructor.
      */
-    FunctionSpace( const Teuchos::RCP<EntitySet>& entity_set,
-		   const Teuchos::RCP<EntityReferenceFrame>& reference_frame,
-		   const Teuchos::RCP<EntityShapeFunction>& shape_function,
-		   const Teuchos::RCP<const ThyraVectorSpace<double> > vector_space );
+    FunctionSpace( 
+	const Teuchos::RCP<EntitySet>& entity_set,
+	const Teuchos::RCP<EntityReferenceFrame>& reference_frame,
+	const Teuchos::RCP<EntityShapeFunction>& shape_function,
+	const Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > vector_space );
 
     /*!
      * \brief Destructor.
@@ -89,9 +91,14 @@ class FunctionSpace
     Teuchos::RCP<EntityReferenceFrame> entityReferenceFrame() const;
 
     /*!
-     * \brief Get the vector space under the DOFs.
+     * \brief Get the shape function for entities supporting the function.
      */
-    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > vectorSpace() const;
+    Teuchos::RCP<EntityShapeFunction> entityShapeFunction() const;
+
+    /*!
+     * \brief Get the parallel vector space under the DOFs.
+     */
+    Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > vectorSpace() const;
 
   private:
 
@@ -105,7 +112,7 @@ class FunctionSpace
     Teuchos::RCP<EntityShapeFunction> d_shape_function;
 
     // The vector space under the DOFs.
-    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > d_vector_space;
+    Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > d_vector_space;
 };
 
 //---------------------------------------------------------------------------//

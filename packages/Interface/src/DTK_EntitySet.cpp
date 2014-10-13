@@ -57,7 +57,7 @@ EntitySet::~EntitySet()
 // Get the parallel communicator for the entity set.
 Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
     return Teuchos::null;
 }
@@ -66,7 +66,7 @@ Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
 // Get the local bounding box of entities of the set.
 void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
 }
 
@@ -74,7 +74,7 @@ void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 // Get the global bounding box of entities of the set.
 void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
 }
 
@@ -82,7 +82,7 @@ void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 // Given an EntityId, get the entity.
 void EntitySet::getEntity( const EntityId entity_id, Entity& entity ) const
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
 }
 
@@ -91,9 +91,9 @@ void EntitySet::getEntity( const EntityId entity_id, Entity& entity ) const
 // predicate. 
 EntityIterator EntitySet::entityIterator(
     const EntityType entity_type,
-    const std::function<bool(const Entity&)>& predicate ) const
+    const std::function<bool(Entity)>& predicate ) const
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
     return EntityIterator();
 }
@@ -102,7 +102,7 @@ EntityIterator EntitySet::entityIterator(
 // Return the largest physical dimension of the entities in the set.
 int EntitySet::physicalDimension() const
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
     return -1;
 }

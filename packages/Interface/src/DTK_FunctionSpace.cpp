@@ -32,87 +32,67 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_PredicateComposition_impl.hpp
+ * \brief DTK_FunctionSpace.cpp
  * \author Stuart R. Slattery
- * \brief Abstract iterator interface.
+ * \brief Function space.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_PREDICATECOMPOSITION_IMPL_HPP
-#define DTK_PREDICATECOMPOSITION_IMPL_HPP
+#include "DTK_FunctionSpace.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Static Members.
-// ---------------------------------------------------------------------------//
-// Apply an and operation to two predicates to create a new
-// predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::And( const std::function<bool(ValueType)>& func_left,
-			   const std::function<bool(ValueType)>& func_right )
+//! Constructor.
+FunctionSpace::FunctionSpace( 
+    const Teuchos::RCP<EntitySet>& entity_set,
+    const Teuchos::RCP<EntityReferenceFrame>& reference_frame,
+    const Teuchos::RCP<EntityShapeFunction>& shape_function,
+    const Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > vector_space )
+    : d_entity_set( entity_set )
+    , d_reference_frame( reference_frame )
+    , d_shape_function( shape_function )
+    , d_vector_space( vector_space )
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Destructor.
+FunctionSpace::~FunctionSpace()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Get the entity set over which the fields are defined.
+Teuchos::RCP<EntitySet> FunctionSpace::entitySet() const
 {
-    return std::bind( std::logical_and<bool>(),
-		      std::bind(func_left,std::placeholders::_1),
-		      std::bind(func_right,std::placeholders::_1) );
+    return d_entity_set;
 }
 
 //---------------------------------------------------------------------------//
-// Apply a or operation to two predicates to create a new predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::Or( const std::function<bool(ValueType)>& func_left,
-			  const std::function<bool(ValueType)>& func_right )
+// Get the reference frame for entities supporting the function.
+Teuchos::RCP<EntityReferenceFrame> FunctionSpace::entityReferenceFrame() const
 {
-    return std::bind( std::logical_or<bool>(),
-		      std::bind(func_left,std::placeholders::_1),
-		      std::bind(func_right,std::placeholders::_1) );
+    return d_reference_frame;
 }
 
 //---------------------------------------------------------------------------//
-// Apply a not operation to two predicates to create a new
-// predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::Not( const std::function<bool(ValueType)>& func )
+// Get the shape function for entities supporting the function.
+Teuchos::RCP<EntityShapeFunction> FunctionSpace::entityShapeFunction() const
 {
-    return std::bind( std::logical_not<bool>(),
-		      std::bind(func,std::placeholders::_1) );
+    return d_shape_function;
 }
 
 //---------------------------------------------------------------------------//
-// Apply an AndNot operation to create a new predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::AndNot( const std::function<bool(ValueType)>& func_left,
-			      const std::function<bool(ValueType)>& func_right )
+// Get the parallel vector space under the DOFs.
+Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > 
+FunctionSpace::vectorSpace() const
 {
-    return std::bind( 
-	std::logical_and<bool>(),
-	std::bind(func_left,std::placeholders::_1),
-	std::bind(Not(func_right),std::placeholders::_1) );
-}
-
-//---------------------------------------------------------------------------//
-// Apply an OrNot operation to create a new predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::OrNot( const std::function<bool(ValueType)>& func_left,
-			     const std::function<bool(ValueType)>& func_right )
-{
-    return std::bind( 
-	std::logical_or<bool>(),
-	std::bind(func_left,std::placeholders::_1),
-	std::bind(Not(func_right),std::placeholders::_1) );
+    return d_vector_space
 }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_PREDICATECOMPOSITION_IMPL_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_PredicateComposition_impl.hpp
+// end DTK_FunctionSpace.cpp
 //---------------------------------------------------------------------------//

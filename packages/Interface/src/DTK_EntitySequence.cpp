@@ -32,87 +32,72 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_PredicateComposition_impl.hpp
+ * \brief DTK_EntitySequence.cpp
  * \author Stuart R. Slattery
- * \brief Abstract iterator interface.
+ * \brief Entity sequence interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_PREDICATECOMPOSITION_IMPL_HPP
-#define DTK_PREDICATECOMPOSITION_IMPL_HPP
+#include "DTK_EntitySequence.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Static Members.
-// ---------------------------------------------------------------------------//
-// Apply an and operation to two predicates to create a new
-// predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::And( const std::function<bool(ValueType)>& func_left,
-			   const std::function<bool(ValueType)>& func_right )
+// Constructor.
+EntitySequence::EntitySequence()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Destructor.
+EntitySequence::~EntitySequence()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Number of elements in the sequence that meet the predicate criteria.
+std::size_t size() const
 {
-    return std::bind( std::logical_and<bool>(),
-		      std::bind(func_left,std::placeholders::_1),
-		      std::bind(func_right,std::placeholders::_1) );
+    return std::distance( this->begin(), this->end() );
 }
 
 //---------------------------------------------------------------------------//
-// Apply a or operation to two predicates to create a new predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::Or( const std::function<bool(ValueType)>& func_left,
-			  const std::function<bool(ValueType)>& func_right )
+// An iterator assigned to the first valid element in the sequence.
+ForwardIterator EntitySequence::begin() const
 {
-    return std::bind( std::logical_or<bool>(),
-		      std::bind(func_left,std::placeholders::_1),
-		      std::bind(func_right,std::placeholders::_1) );
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return ForwardIterator();
 }
 
 //---------------------------------------------------------------------------//
-// Apply a not operation to two predicates to create a new
-// predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::Not( const std::function<bool(ValueType)>& func )
+// An iterator assigned to the end of all elements under the iterator.
+ForwardIterator EntitySequence::end() const
 {
-    return std::bind( std::logical_not<bool>(),
-		      std::bind(func,std::placeholders::_1) );
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return ForwardIterator();
 }
 
 //---------------------------------------------------------------------------//
-// Apply an AndNot operation to create a new predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::AndNot( const std::function<bool(ValueType)>& func_left,
-			      const std::function<bool(ValueType)>& func_right )
+// A filtered iterator assigned to the first valid element in the sequence.
+FilteredForwardIterator 
+EntitySequence::filteredBegin( const Predicate& predicate ) const
 {
-    return std::bind( 
-	std::logical_and<bool>(),
-	std::bind(func_left,std::placeholders::_1),
-	std::bind(Not(func_right),std::placeholders::_1) );
+    return FilteredForwardIterator( predicate, this->begin(), this->end() );
 }
 
 //---------------------------------------------------------------------------//
-// Apply an OrNot operation to create a new predicate.
-template<class ValueType>
-std::function<bool(ValueType)>
-PredicateComposition::OrNot( const std::function<bool(ValueType)>& func_left,
-			     const std::function<bool(ValueType)>& func_right )
+// An filtered iterator  assigned to the last valid element in the sequence.
+FilteredForwardIterator 
+EntitySequence::filteredEnd( const Predicate& predicate ) const
 {
-    return std::bind( 
-	std::logical_or<bool>(),
-	std::bind(func_left,std::placeholders::_1),
-	std::bind(Not(func_right),std::placeholders::_1) );
+    return FilteredForwardIterator( predicate, this->end(), this->end() );
 }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_PREDICATECOMPOSITION_IMPL_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_PredicateComposition_impl.hpp
+// end DTK_EntitySequence.cpp
 //---------------------------------------------------------------------------//

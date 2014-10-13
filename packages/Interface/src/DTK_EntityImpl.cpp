@@ -57,7 +57,7 @@ EntityImpl::~EntityImpl()
 // Get the entity type.
 EntityType EntityImpl::entityType() const
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
     return static_cast<EntityType>(-1);
 }
@@ -66,7 +66,7 @@ EntityType EntityImpl::entityType() const
 // Get the unique global identifier for the entity.
 EntityId EntityImpl::id() const
 { 
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
     return -1;
 }
@@ -75,7 +75,7 @@ EntityId EntityImpl::id() const
 // Get the parallel rank that owns the entity.
 int EntityImpl::ownerRank() const
 { 
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
     return -1;
 }
@@ -83,7 +83,7 @@ int EntityImpl::ownerRank() const
 // Return the physical dimension of the entity.
 int EntityImpl::physicalDimension() const
 { 
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
     return -1;
 }
@@ -92,7 +92,7 @@ int EntityImpl::physicalDimension() const
 // Return the axis-aligned bounding box around the entity.
 void EntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 { 
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
 }
 

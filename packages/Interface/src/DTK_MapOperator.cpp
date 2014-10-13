@@ -61,7 +61,7 @@ void MapOperator::setup( const Teuchos::RCP<FunctionSpace>& domain_space,
 			 const Teuchos::RCP<FunctionSpace>& range_space,
 			 const Teuchos::ParameterList>& parameters )
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
 }
 

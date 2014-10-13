@@ -57,7 +57,7 @@ EntityReferenceFrame::~EntityReferenceFrame()
 // for a 3D entity, area for 2D, and length for 1D). 
 double EntityReferenceFrame::measure( const Entity& entity ) const
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
     return -1.0;
 }
@@ -68,7 +68,7 @@ void EntityReferenceFrame::centroid(
     const Entity& entity,
     Teuchos::ArrayView<const double>& centroid ) const
 { 
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
 }
 
@@ -81,7 +81,7 @@ void EntityReferenceFrame::safeguardMapToReferenceFrame(
     const Teuchos::ArrayView<const double>& point,
     MappingStatus& status ) const
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
 }
 
@@ -94,7 +94,7 @@ void EntityReferenceFrame::mapToReferenceFrame(
     const Teuchos::ArrayView<double>& reference_point,
     MappingStatus& status ) const
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
 }
 
@@ -105,7 +105,7 @@ bool EntityReferenceFrame::checkPointInclusion(
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
     return false;
 }
@@ -117,7 +117,7 @@ void EntityReferenceFrame::mapToPhysicalFrame(
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
-    DTK_REMEMBER( bool not_implemented = true );
+    bool not_implemented = true;
     DTK_INSIST( !not_implemented );
 }
 

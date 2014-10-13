@@ -32,82 +32,81 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityShapeFunction.hpp
+ * \brief DTK_EntitySequence.hpp
  * \author Stuart R. Slattery
- * \brief Shape function interface.
+ * \brief Entity sequence interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SHAPEFUNCTION_HPP
-#define DTK_SHAPEFUNCTION_HPP
+#ifndef DTK_ENTITYSEQUENCE_HPP
+#define DTK_ENTITYSEQUENCE_HPP
 
-#include <string>
+#include <iterator>
+#include <functional>
 
 #include "DTK_Entity.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Array.hpp>
-
-#include <Kokkos_View.hpp>
+#include <boost/iterator/filter_iterator.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class EntityShapeFunction
-  \brief Space of a function.
+  \class EntitySequence
+  \brief Entity sequence interface.
 
-  EntityShapeFunction binds DOFs to a vector space.
+  This class provides a mechanism to iterate over a group of entity objects
+  with a specified predicate operation for selection.
 */
 //---------------------------------------------------------------------------//
-class EntityShapeFunction
+class EntitySequence
 {
   public:
+
+    //! Iterator typedef.
+    typedef std::iterator<std::forward_iterator_tag,Entity>   ForwardIterator;
+    typedef std::function<bool(Entity)>                       Predicate;
+    typedef boost::filter_iterator<Predicate,ForwardIterator> FilteredForwardIterator;
 
     /*!
      * \brief Constructor.
      */
-    EntityShapeFunction();
+    EntitySequence();
 
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityShapeFunction();
+    virtual ~EntitySequence();
+
+    // Number of elements in the sequence that meet the predicate criteria.
+    virtual std::size_t size() const;
+
+    // An iterator assigned to the first valid element in the sequence.
+    virtual ForwardIterator begin() const;
+
+    // An iterator assigned to the end of all elements under the iterator.
+    virtual ForwardIterator end() const;
+
+    // A filtered iterator assigned to the first valid element in the sequence.
+    FilteredForwardIterator 
+    filteredBegin( const Predicate& predicate = selectAll ) const;
+
+    // An filtered iterator  assigned to the last valid element in the sequence.
+    FilteredForwardIterator 
+    filteredEnd( const Predicate& predicate = selectAll) const;
 
     /*!
-     * \brief Given an entity, get the ids of the degrees of freedom in the
-     * vector space supporting its shape function.
-     * \param entity Get the degrees of freedom for this entity.
-     * \param dof_ids Return the ids of the degrees of freedom in the parallel
-     * vector space supporting the entities.
+     * \brief Select all entities predicate.
      */
-    virtual void getDOFIds( const Entity& entity,
-			    Teuchos::Array<std::size_t>& dof_ids ) const;
-
-    /*!
-     * \brief Given an entity and a reference point, evaluate the shape
-     * function of the entity at that point.
-     * \param entity Evaluate the shape function of this entity.
-     * \param reference_point Evaluate the shape function at this point
-     * given in reference coordinates.
-     * \param values Entity discretization evaluated at the reference
-     * point. Return these ordered with respect to those return by
-     * getDOFIds().
-     */
-    virtual void evaluateShapeFunction( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Kokkos::View<double>& values ) const;
+    static inline bool selectAll( const Entity& entity ) { return true; }
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-
-#endif // end DTK_SHAPEFUNCTION_HPP
+#endif // end DTK_ENTITYSEQUENCE_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityShapeFunction.hpp
+// end DTK_EntitySequence.hpp
 //---------------------------------------------------------------------------//
