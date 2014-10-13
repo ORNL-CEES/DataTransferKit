@@ -42,6 +42,7 @@
 #define DTK_ENTITYITERATOR_HPP
 
 #include <iterator>
+#include <functional>
 
 #include <DTK_Entity.hpp>
 
@@ -114,10 +115,19 @@ class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
     // and assignment operator to pass along the underlying implementation.
     virtual EntityIterator* clone() const;
 
+  private:
+
+    // Advance the iterator to the first valid element that satisfies the
+    // predicate or the end of the iterator.
+    void advanceToFirstValidElement();
+
   protected:
 
     // Implementation.
     EntityIterator* b_iterator_impl;
+
+    // Predicate.
+    std::function<bool(Entity&)> b_predicate;
 };
 
 //---------------------------------------------------------------------------//
