@@ -47,8 +47,6 @@ namespace DataTransferKit
 // Constructor.
 EntityIterator::EntityIterator()
 {
-    // Default predicate always returns true.
-    b_predicate = [](Entity v){return true;};
     b_iterator_impl = NULL;
 }
 
@@ -61,12 +59,10 @@ EntityIterator::EntityIterator(
     if ( NULL == rhs.b_iterator_impl )
     {
 	b_iterator_impl = rhs.clone();
-	b_predicate = rhs.b_predicate;
     }
     else
     {
 	b_iterator_impl = rhs.b_iterator_impl->clone();
-	b_predicate = b_iterator_impl->b_predicate;
     }
 }
 
@@ -87,12 +83,10 @@ EntityIterator& EntityIterator::operator=(
     if ( NULL == rhs.b_iterator_impl )
     {
 	b_iterator_impl = rhs.clone();
-	b_predicate = rhs.b_predicate;
     }
     else
     {
 	b_iterator_impl = rhs.b_iterator_impl->clone();
-	b_predicate = b_iterator_impl->b_predicate;
     }
     return *this;
 }
@@ -113,24 +107,7 @@ EntityIterator& EntityIterator::operator++()
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
-
-    // Apply the increment operator.
-    EntityIterator& it = b_iterator_impl->operator++();
-
-    // If the we are not at the end or the predicate is not satisfied by the
-    // current element, increment until either of these conditions is
-    // satisfied.
-    if ( it != b_iterator_impl->end() && !b_predicate(*it) )
-    {
-	EntityIterator end = b_iterator_impl->end();
-	do
-	{
-	    it = b_iterator_impl->operator++();
-	} 
-	while ( it != end && !b_predicate(*it) );
-    }
-
-    return it; 
+    return b_iterator_impl->operator++();
 }
 
 //---------------------------------------------------------------------------//
@@ -139,24 +116,7 @@ EntityIterator EntityIterator::operator++(int n)
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
-
-    // Apply the increment operator.
-    const EntityIterator tmp(*this);
-    EntityIterator it = b_iterator_impl->operator++();
-
-    // If the we are not at the end or the predicate is not satisfied by the
-    // current element, increment until either of these conditions is
-    // satisfied.
-    if ( it != b_iterator_impl->end() && !b_predicate(*it) )
-    {
-	EntityIterator end = b_iterator_impl->end();
-	do
-	{
-	    it = b_iterator_impl->operator++();
-	} 
-	while ( it != end && !b_predicate(*it) );
-    }
-    return tmp;
+    return b_iterator_impl->operator++(n);
 }
 
 //---------------------------------------------------------------------------//
@@ -198,44 +158,25 @@ bool EntityIterator::operator!=(
 // meet the predicate criteria.
 std::size_t EntityIterator::size() const
 {
-    std::size_t size = 0;
     if ( NULL != b_iterator_impl )
     {
-	EntityIterator begin_it = this->begin();
-	EntityIterator end_it = this->end();
-	for ( EntityIterator impl_copy = begin_it; 
-	      impl_copy != end_it; 
-	      ++impl_copy )
-	{
-	    ++size;
-	}
+	return b_iterator_impl->size();
     }
-    return size;
+    return 0;
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the beginning.
 EntityIterator EntityIterator::begin() const
 {
-    EntityIterator begin_it;
-    if ( NULL != b_iterator_impl )
-    {
-	begin_it = b_iterator_impl->begin();
-    }
-    begin_it.b_predicate = b_predicate;
-    begin_it.advanceToFirstValidElement();
-    return begin_it;
+    return b_iterator_impl->begin();
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the end.
 EntityIterator EntityIterator::end() const
 {
-    if ( NULL != b_iterator_impl )
-    {
-	return b_iterator_impl->end();
-    }
-    return EntityIterator();
+   return b_iterator_impl->end();
 }
 
 //---------------------------------------------------------------------------//
@@ -243,18 +184,6 @@ EntityIterator EntityIterator::end() const
 EntityIterator* EntityIterator::clone() const
 {
     return new EntityIterator();
-}
-
-//---------------------------------------------------------------------------//
-// Advance the iterator to the first valid element that satisfies the
-// predicate or the end of the iterator. 
-void EntityIterator::advanceToFirstValidElement()
-{
-    DTK_REQUIRE( NULL != b_iterator_impl );
-    if ( (*this != end()) && !b_predicate(**this) )
-    {
-	operator++();
-    }
 }
 
 //---------------------------------------------------------------------------//
