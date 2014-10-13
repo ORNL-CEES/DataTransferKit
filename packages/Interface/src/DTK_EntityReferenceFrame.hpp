@@ -72,6 +72,13 @@ class EntityReferenceFrame
      */
     virtual ~EntityReferenceFrame();
 
+    /*
+     * \brief Set parameters for mapping.
+     * \param parameters Parameters for mapping.
+     */
+    void setParameters( 
+	const Teuchos::RCP<ParameterList>& parameters = Teuchos::null );
+
     //@{
     //! Geometry functions.
     /*!
@@ -84,11 +91,11 @@ class EntityReferenceFrame
 
     /*!
      * \brief Return the centroid of the entity.
-     * \param centroid A view of the centroid coordinates. This view will not
+     * \param centroid A view of the centroid coordinates. This view will
      * be allocated. Assign a view of your centroid to this view.
      */
     virtual void centroid( const Entity& entity,
-			   Teuchos::ArrayView<const double>& centroid ) const;
+			   const Teuchos::ArrayView<double>& centroid ) const;
     //@}
 
     //@{
@@ -102,12 +109,12 @@ class EntityReferenceFrame
      * the coordinates of the point to map.
      * \param status A status object indicating the results of the safeguard
      * check.
+     * \return Return true if it is safe to map to the reference frame.
      */
-    virtual void safeguardMapToReferenceFrame(
+    virtual bool safeguardMapToReferenceFrame(
 	const Entity& entity,
-	const Teuchos::ParameterList& parameters,
 	const Teuchos::ArrayView<const double>& point,
-	MappingStatus& status ) const;
+	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const;
 
     /*!
      * \brief Map a point to the reference space of an entity. Return the
@@ -120,13 +127,13 @@ class EntityReferenceFrame
      * to write the reference coordinates of the mapped point.
      * \param status A status object indicating the results of the mapping
      * procedure.
+     * \return Return true if the map to reference frame succeeded.
      */
-    virtual void mapToReferenceFrame( 
+    virtual bool mapToReferenceFrame( 
 	const Entity& entity,
-	const Teuchos::ParameterList& parameters,
 	const Teuchos::ArrayView<const double>& point,
 	const Teuchos::ArrayView<double>& reference_point,
-	MappingStatus& status ) const;
+	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const
 
     /*!  
      * \brief Determine if a reference point is in the parameterized space of
@@ -139,7 +146,6 @@ class EntityReferenceFrame
      */
     virtual bool checkPointInclusion( 
 	const Entity& entity,
-	const Teuchos::ParameterList& parameters,
 	const Teuchos::ArrayView<const double>& reference_point ) const;
 
     /*!
@@ -155,6 +161,11 @@ class EntityReferenceFrame
 	const Teuchos::ArrayView<const double>& reference_point,
 	const Teuchos::ArrayView<double>& point ) const;
     //@}
+
+  protected:
+
+    // Parameters.
+    Teuchos::RCP<Teuchos::ParameterList> b_parameters;
 };
 
 //---------------------------------------------------------------------------//
