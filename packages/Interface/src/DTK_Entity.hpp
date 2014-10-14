@@ -41,11 +41,8 @@
 #ifndef DTK_ENTITY_HPP
 #define DTK_ENTITY_HPP
 
-#include <string>
-
 #include "DTK_EntityImpl.hpp"
 #include "DTK_Types.hpp"
-#include "DTK_MappingStatus.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -108,6 +105,22 @@ class Entity
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
     virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    //@}
+
+    //@{
+    //! Adjacency functions.
+    /*!
+     * \brief Determine if an entity is on the surface of the set.
+     */
+    virtual bool onSurface() const;
+
+    /*!
+     * \brief Get the entities of the given type that are adjacent to this
+     * entity.
+     */
+    virtual void getAdjacentEntities( 
+	const EntityType entity_type,
+	Teuchos::Array<Entity>& adjacent_entities ) const;
     //@}
 
   protected:

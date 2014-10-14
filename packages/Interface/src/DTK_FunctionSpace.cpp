@@ -47,11 +47,11 @@ namespace DataTransferKit
 FunctionSpace::FunctionSpace(
     const Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > vector_space,
     const Teuchos::RCP<EntitySet>& entity_set,
-    const Teuchos::RCP<EntityReferenceFrame>& reference_frame,
+    const Teuchos::RCP<EntityLocalMap>& local_map,
     const Teuchos::RCP<EntityShapeFunction>& shape_function )
     : d_vector_space( vector_space )
     , d_entity_set( entity_set )
-    , d_reference_frame( reference_frame )
+    , d_local_map( local_map )
     , d_shape_function( shape_function )
 { /* ... */ }
 
@@ -69,9 +69,9 @@ Teuchos::RCP<EntitySet> FunctionSpace::entitySet() const
 
 //---------------------------------------------------------------------------//
 // Get the reference frame for entities supporting the function.
-Teuchos::RCP<EntityReferenceFrame> FunctionSpace::entityReferenceFrame() const
+Teuchos::RCP<EntityLocalMap> FunctionSpace::entityLocalMap() const
 {
-    return d_reference_frame;
+    return d_local_map;
 }
 
 //---------------------------------------------------------------------------//

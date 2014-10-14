@@ -32,30 +32,38 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityReferenceFrame.cpp
+ * \brief DTK_EntityLocalMap.cpp
  * \author Stuart R. Slattery
- * \brief Reference frame interface.
+ * \brief Forward and reverse local mappings for entities.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_EntityReferenceFrame.hpp"
+#include "DTK_EntityLocalMap.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-EntityReferenceFrame::EntityReferenceFrame()
+EntityLocalMap::EntityLocalMap()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Destructor.
-EntityReferenceFrame::~EntityReferenceFrame()
+EntityLocalMap::~EntityLocalMap()
 { /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Set parameters for mapping.
+void EntityLocalMap::setParameters( 
+    const Teuchos::RCP<ParameterList>& parameters )
+{
+    b_parameters = parameters;
+}
 
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
 // for a 3D entity, area for 2D, and length for 1D). 
-double EntityReferenceFrame::measure( const Entity& entity ) const
+double EntityLocalMap::measure( const Entity& entity ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -64,7 +72,7 @@ double EntityReferenceFrame::measure( const Entity& entity ) const
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void EntityReferenceFrame::centroid(
+void EntityLocalMap::centroid(
     const Entity& entity,
     Teuchos::ArrayView<const double>& centroid ) const
 { 
@@ -75,7 +83,7 @@ void EntityReferenceFrame::centroid(
 //---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space
 // of an entity using the given tolerance. 
-void EntityReferenceFrame::safeguardMapToReferenceFrame(
+void EntityLocalMap::safeguardMapToReferenceFrame(
     const Entity& entity,
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& point,
@@ -87,7 +95,7 @@ void EntityReferenceFrame::safeguardMapToReferenceFrame(
 
 //---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the parameterized point.
-void EntityReferenceFrame::mapToReferenceFrame( 
+void EntityLocalMap::mapToReferenceFrame( 
     const Entity& entity,
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& point,
@@ -100,7 +108,7 @@ void EntityReferenceFrame::mapToReferenceFrame(
 
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
-bool EntityReferenceFrame::checkPointInclusion( 
+bool EntityLocalMap::checkPointInclusion( 
     const Entity& entity,
     const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& reference_point ) const
@@ -112,7 +120,7 @@ bool EntityReferenceFrame::checkPointInclusion(
 
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
-void EntityReferenceFrame::mapToPhysicalFrame( 
+void EntityLocalMap::mapToPhysicalFrame( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
@@ -126,5 +134,5 @@ void EntityReferenceFrame::mapToPhysicalFrame(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityReferenceFrame.cpp
+// end DTK_EntityLocalMap.cpp
 //---------------------------------------------------------------------------//

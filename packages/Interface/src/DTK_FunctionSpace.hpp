@@ -42,7 +42,7 @@
 #define DTK_FUNCTIONSPACE_HPP
 
 #include "DTK_EntitySet.hpp"
-#include "DTK_EntityReferenceFrame.hpp"
+#include "DTK_EntityLocalMap.hpp"
 #include "DTK_EntityShapeFunction.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -70,7 +70,7 @@ class FunctionSpace
     FunctionSpace( 
 	const Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > vector_space,
 	const Teuchos::RCP<EntitySet>& entity_set,
-	const Teuchos::RCP<EntityReferenceFrame>& reference_frame = Teuchos::null,
+	const Teuchos::RCP<EntityLocalMap>& local_map = Teuchos::null,
 	const Teuchos::RCP<EntityShapeFunction>& shape_function = Teuchos::null );
 
     /*!
@@ -86,7 +86,7 @@ class FunctionSpace
     /*!
      * \brief Get the reference frame for entities supporting the function.
      */
-    Teuchos::RCP<EntityReferenceFrame> entityReferenceFrame() const;
+    Teuchos::RCP<EntityLocalMap> entityLocalMap() const;
 
     /*!
      * \brief Get the shape function for entities supporting the function.
@@ -107,7 +107,7 @@ class FunctionSpace
     Teuchos::RCP<EntitySet> d_entity_set;
 
     // The reference frame for entities in the set.
-    Teuchos::RCP<EntityReferenceFrame> d_reference_frame;
+    Teuchos::RCP<EntityLocalMap> d_local_map;
 
     // The shape function for the entities in the set.
     Teuchos::RCP<EntityShapeFunction> d_shape_function;

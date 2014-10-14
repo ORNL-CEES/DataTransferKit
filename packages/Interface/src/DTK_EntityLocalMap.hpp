@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityReferenceFrame.hpp
+ * \brief DTK_EntityLocalMap.hpp
  * \author Stuart R. Slattery
- * \brief Reference frame interface.
+ * \brief Forward and reverse local mappings for entities.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYREFERENCEFRAME_HPP
-#define DTK_ENTITYREFERENCEFRAME_HPP
+#ifndef DTK_ENTITYLOCALMAP_HPP
+#define DTK_ENTITYLOCALMAP_HPP
 
 #include "DTK_Entity.hpp"
 #include "DTK_Types.hpp"
@@ -51,26 +51,27 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class EntityReferenceFrame
-  \brief Entity referenceframe interface definition.
+  \class EntityLocalMap
+  \brief Entity forward and reverse local map interface definition.
 
-  An EntityReferenceFrame provides an interface for accessing the reference
-  frame of an entity.
+  An EntityLocalMap provides an interface for accessing forward and reverse
+  maps for an entity's local coordinates as well as related convenience
+  functions.
 */
 //---------------------------------------------------------------------------//
-class EntityReferenceFrame
+class EntityLocalMap
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    EntityReferenceFrame();
+    EntityLocalMap();
 
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityReferenceFrame();
+    virtual ~EntityLocalMap();
 
     /*
      * \brief Set parameters for mapping.
@@ -101,8 +102,9 @@ class EntityReferenceFrame
     //@{
     //! Parameteric mapping functions.
     /*!
-     * \brief Perform a safeguard check for mapping a point to the reference
-     * space of an entity using the given tolerance.
+     * \brief (Safeguard the reverse map) Perform a safeguard check for
+     * mapping a point to the reference space of an entity using the given
+     * tolerance.
      * \param Entity Perfrom the mapping for this entity.
      * \param parameters Parameters to be used for the safeguard check.
      * \param point A view into an array of size physicalDimension() containing
@@ -117,8 +119,8 @@ class EntityReferenceFrame
 	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const;
 
     /*!
-     * \brief Map a point to the reference space of an entity. Return the
-     * parameterized point.
+     * \brief (Reverse Map) Map a point to the reference space of an
+     * entity. Return the parameterized point.
      * \param Entity Perfrom the mapping for this entity.
      * \param parameters Parameters to be used for the mapping procedure.
      * \param  A view into an array of size physicalDimension() containing
@@ -149,7 +151,8 @@ class EntityReferenceFrame
 	const Teuchos::ArrayView<const double>& reference_point ) const;
 
     /*!
-     * \brief Map a reference point to the physical space of an entity.
+     * \brief (Forward Map) Map a reference point to the physical space of an
+     * entity. 
      * \param Entity Perfrom the mapping for this entity.
      * \param reference_point A view into an array of size physicalDimension()
      * containing the reference coordinates of the mapped point.
@@ -172,8 +175,8 @@ class EntityReferenceFrame
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_ENTITYREFERENCEFRAME_HPP
+#endif // end DTK_ENTITYLOCALMAP_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityReferenceFrame.hpp
+// end DTK_EntityLocalMap.hpp
 //---------------------------------------------------------------------------//

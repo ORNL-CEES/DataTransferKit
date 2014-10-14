@@ -21,7 +21,7 @@ APPEND_SET(HEADERS
   DTK_Entity.hpp
   DTK_EntityImpl.hpp
   DTK_EntityIterator.hpp
-  DTK_EntityReferenceSpace.hpp
+  DTK_EntityLocalMap.hpp
   DTK_EntityShapeFunction.hpp
   DTK_FunctionSpace.hpp
   DTK_MapOperator.hpp
@@ -35,7 +35,7 @@ APPEND_SET(SOURCES
   DTK_Entity.cpp
   DTK_EntityImpl.cpp
   DTK_EntityIterator.cpp
-  DTK_EntityReferenceSpace.cpp
+  DTK_EntityLocalMap.cpp
   DTK_EntityShapeFunction.cpp
   DTK_FunctionSpace.cpp
   DTK_MapOperator.cpp

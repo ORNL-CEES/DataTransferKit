@@ -84,9 +84,10 @@ class MapOperator
      * domain.
      * \param parameters Parameters for the setup.
      */
-    virtual void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-			const Teuchos::RCP<FunctionSpace>& range_space,
-			const Teuchos::ParameterList& parameters );
+    virtual void 
+    setup( const Teuchos::RCP<FunctionSpace>& domain_space,
+	   const Teuchos::RCP<FunctionSpace>& range_space,
+	   const Teuchos::RCP<Teuchos::ParameterList>& parameters );
     //@}
 
     //@{
@@ -99,14 +100,20 @@ class MapOperator
      * \param range DOFs defined on the range entities that will be
      * received from the domain.
      */
-    virtual void apply( 
-	const Thyra::MultiVectorBase<double>& domain_dofs,
-	const Teuchos::Ptr<Thyra::MultiVectorBase<double> >& range_dofs,
-	const double alpha,
-	const double beta ) const;
+    virtual void 
+    apply( const Thyra::MultiVectorBase<double>& domain_dofs,
+	   const Teuchos::Ptr<Thyra::MultiVectorBase<double> >& range_dofs,
+	   const double alpha,
+	   const double beta ) const;
     //@}
 
   protected:
+
+    //! Domain function space.
+    Teuchos::RCP<FunctionSpace> b_domain_space;
+
+    //! Range function space.
+    Teuchos::RCP<FunctionSpace> b_range_space;
 
     //! Mass matrix inverse.
     Teuchos::RCP<Thyra::LinearOpBase<double> > b_mass_matrix_inv;

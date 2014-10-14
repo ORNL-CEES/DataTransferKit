@@ -127,13 +127,12 @@ class EntitySet
     virtual EntityIterator entityIterator( 
 	const EntityType entity_type,
 	const std::function<bool(Entity)>& predicate = selectAll ) const;
-    //@}
-
 
     /*!
      * \brief Select all entities predicate.
      */
     static inline bool selectAll( Entity entity ) { return true; }
+    //@}
 };
 
 //---------------------------------------------------------------------------//
