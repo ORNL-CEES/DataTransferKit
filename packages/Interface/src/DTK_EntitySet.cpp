@@ -66,16 +66,45 @@ Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
 // Get the local bounding box of entities of the set.
 void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    double max = std::numeric_limits<double>::max();
+    bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
+    EntityIterator entity_begin;
+    EntityIterator entity_end;
+    EntityIterator entity_it;
+    EntityIterator dim_it;
+    Teuchos::Tuple<double,6> entity_bounds;
+    for ( int i = 0; i < 4; ++i )
+    {
+	dim_it = this->entityIterator(
+	    static_cast<EntityType>(i),EntitySet::selectAll);
+	entity_begin = dim_it.begin();
+	entity_end = dim_it.end();
+	for ( entity_it = entity_begin;
+	      entity_it != entity_end;
+	      ++entity_it )
+	{
+	    entity_it->boundingBox( entity_bounds );
+	    for ( int n = 0; n < 3; ++n )
+	    {
+		bounds[n] = std::min( bounds[n], entity_bounds[n] );
+		bounds[n+3] = std::max( bounds[n], entity_bounds[n] );
+	    }
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
 // Get the global bounding box of entities of the set.
 void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    double max = std::numeric_limits<double>::max();
+    bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
+    Teuchos::Tuple<double,6> local_bounds;
+    this->localBoundingBox( local_bounds );
+    Teuchos::reduceAll( *(this->communicator()), Teuchos::REDUCE_MIN, 3,
+			&local_bounds[0], &bounds[0] ); 
+    Teuchos::reduceAll( *(this->communicator()), Teuchos::REDUCE_MAX, 3,
+			&local_bounds[3], &bounds[3] ); 
 }
 
 //---------------------------------------------------------------------------//
