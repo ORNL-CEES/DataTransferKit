@@ -47,7 +47,7 @@
 
 #include <Teuchos_RCP.hpp>
 
-#include <Thyra_SpmdVectorSpaceBase.hpp>
+#include <Tpetra_Map.hpp>
 
 namespace DataTransferKit
 {
@@ -68,7 +68,7 @@ class FunctionSpace
      * \brief Constructor.
      */
     FunctionSpace( 
-	const Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > vector_space,
+	const Teuchos::ArrayView<const std::size_t> local_dof_ids,
 	const Teuchos::RCP<EntitySet>& entity_set,
 	const Teuchos::RCP<EntityLocalMap>& local_map = Teuchos::null,
 	const Teuchos::RCP<EntityShapeFunction>& shape_function = Teuchos::null );
@@ -84,24 +84,21 @@ class FunctionSpace
     Teuchos::RCP<EntitySet> entitySet() const;
 
     /*!
-     * \brief Get the reference frame for entities supporting the function.
+     * \brief Get the local map for entities supporting the function.
      */
-    Teuchos::RCP<EntityLocalMap> entityLocalMap() const;
+    Teuchos::RCP<EntityLocalMap> localMap() const;
 
     /*!
      * \brief Get the shape function for entities supporting the function.
      */
-    Teuchos::RCP<EntityShapeFunction> entityShapeFunction() const;
+    Teuchos::RCP<EntityShapeFunction> shapeFunction() const;
 
     /*!
-     * \brief Get the parallel vector space under the DOFs.
+     * \brief Get the parallel map under the DOFs.
      */
-    Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > vectorSpace() const;
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > dofMap() const;
 
   private:
-
-    // The vector space under the DOFs.
-    Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > d_vector_space;
 
     // The entity set over which the function space is constructed.
     Teuchos::RCP<EntitySet> d_entity_set;
@@ -111,6 +108,9 @@ class FunctionSpace
 
     // The shape function for the entities in the set.
     Teuchos::RCP<EntityShapeFunction> d_shape_function;
+
+    // A parallel map under the DOFs.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > d_dof_map;
 };
 
 //---------------------------------------------------------------------------//
