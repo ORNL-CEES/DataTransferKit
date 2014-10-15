@@ -43,7 +43,6 @@
 
 #include <functional>
 
-#include "DTK_PredicateComposition.hpp"
 #include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 

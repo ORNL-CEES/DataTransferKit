@@ -70,8 +70,6 @@ class EntityImpl
      */
     virtual ~EntityImpl();
 
-    //@{
-    //! Identification functions.
     /*!
      * \brief Get the entity type.
      * \return The entity type.
@@ -89,10 +87,7 @@ class EntityImpl
      * \return The parallel rank that owns the entity.
      */
     virtual int ownerRank() const;
-    //@}
 
-    //@{
-    //! Geometric functions.
     /*!
      * \brief Return the physical dimension of the entity.
      * \return The physical dimension of the entity. Any physical coordinates
@@ -101,11 +96,24 @@ class EntityImpl
     virtual int physicalDimension() const;
 
     /*!
-     * \brief Return the axis-aligned bounding box around the entity.
-     * \param bounding_box A Cartesian box that bounds the entity.
+     * \brief Determine if an entity is on the surface of the set.
      */
-    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
-    //@}
+    virtual bool onSurface() const;
+
+    /*!
+     * \brief Determine if an entity is in the block with the given id.
+     */
+    virtual bool inBlock( const int block_id ) const;
+
+    /*!
+     * \brief Determine if an entity is on the boundary with the given id.
+     */
+    virtual bool onBoundary( const int boundary_id ) const;
+
+    /*!
+     * \brief Get the extra data on the entity.
+     */
+    virtual Teuchos::RCP<EntityExtraData> extraData() const;
 };
 
 //---------------------------------------------------------------------------//

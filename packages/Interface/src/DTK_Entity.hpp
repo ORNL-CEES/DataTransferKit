@@ -43,9 +43,10 @@
 
 #include "DTK_EntityImpl.hpp"
 #include "DTK_Types.hpp"
+#include "DTK_EntityExtraData.hpp"
 
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>
-#include <Teuchos_ParameterList.hpp>
 
 namespace DataTransferKit
 {
@@ -69,8 +70,6 @@ class Entity
      */
     virtual ~Entity();
 
-    //@{
-    //! Identification functions.
     /*!
      * \brief Get the entity type.
      * \return The entity type.
@@ -88,10 +87,7 @@ class Entity
      * \return The parallel rank that owns the entity.
      */
     virtual int ownerRank() const;
-    //@}
 
-    //@{
-    //! Geometric functions.
     /*!
      * \brief Return the physical dimension of the entity.
      * \return The physical dimension of the entity. Any physical coordinates
@@ -100,28 +96,24 @@ class Entity
     virtual int physicalDimension() const;
 
     /*!
-     * \brief Return the axis-aligned bounding box bounds around the entity.
-     * \param boundings The bounds of a Cartesian box that bounds the entity
-     * (x_min,y_min,z_min,x_max,y_max,z_max).
-     */
-    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
-    //@}
-
-    //@{
-    //! Adjacency functions.
-    /*!
      * \brief Determine if an entity is on the surface of the set.
      */
     virtual bool onSurface() const;
 
     /*!
-     * \brief Get the entities of the given type that are adjacent to this
-     * entity.
+     * \brief Determine if an entity is in the block with the given id.
      */
-    virtual void getAdjacentEntities( 
-	const EntityType entity_type,
-	Teuchos::Array<Entity>& adjacent_entities ) const;
-    //@}
+    virtual bool inBlock( const int block_id ) const;
+
+    /*!
+     * \brief Determine if an entity is on the boundary with the given id.
+     */
+    virtual bool onBoundary( const int boundary_id ) const;
+
+    /*!
+     * \brief Get the extra data on the entity.
+     */
+    virtual Teuchos::RCP<EntityExtraData> extraData() const;
 
   protected:
 

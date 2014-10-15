@@ -89,11 +89,37 @@ int EntityImpl::physicalDimension() const
 }
 
 //---------------------------------------------------------------------------//
-// Return the axis-aligned bounding box around the entity.
-void EntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
-{ 
+// Determine if an entity is on the surface of the set.
+bool Entity::onSurface() const
+{
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
+    return false;
+}
+
+//---------------------------------------------------------------------------//
+// Determine if an entity is in the block with the given id.
+bool Entity::inBlock( const int block_id ) const;
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return false;
+}
+
+//---------------------------------------------------------------------------//
+// Determine if an entity is on the boundary with the given id.
+bool Entity::onBoundary( const int boundary_id ) const;
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return false;
+}
+
+//---------------------------------------------------------------------------//
+// Get the extra data on the entity.
+Teuchos::RCP<EntityExtraData> Entity::extraData() const;
+{
+    return Teuchos::null;
 }
 
 //---------------------------------------------------------------------------//
