@@ -80,12 +80,10 @@ class EntityLocalMap
     void setParameters( 
 	const Teuchos::RCP<ParameterList>& parameters = Teuchos::null );
 
-    //@{
-    //! Geometry functions.
     /*!
      * \brief Return the entity measure with respect to the parameteric
      * dimension (volume for a 3D entity, area for 2D, and length for 1D).
-     * \param Entity Compute the measure for this entity.
+     * \param entity Compute the measure for this entity.
      * \return The measure of the entity.
      */
     virtual double measure( const Entity& entity ) const;
@@ -97,15 +95,12 @@ class EntityLocalMap
      */
     virtual void centroid( const Entity& entity,
 			   const Teuchos::ArrayView<double>& centroid ) const;
-    //@}
 
-    //@{
-    //! Parameteric mapping functions.
     /*!
      * \brief (Safeguard the reverse map) Perform a safeguard check for
      * mapping a point to the reference space of an entity using the given
      * tolerance.
-     * \param Entity Perfrom the mapping for this entity.
+     * \param entity Perfrom the mapping for this entity.
      * \param parameters Parameters to be used for the safeguard check.
      * \param point A view into an array of size physicalDimension() containing
      * the coordinates of the point to map.
@@ -113,7 +108,7 @@ class EntityLocalMap
      * check.
      * \return Return true if it is safe to map to the reference frame.
      */
-    virtual bool safeguardMapToReferenceFrame(
+    virtual bool isSafeToMapToReferenceFrame(
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& point,
 	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const;
@@ -121,7 +116,7 @@ class EntityLocalMap
     /*!
      * \brief (Reverse Map) Map a point to the reference space of an
      * entity. Return the parameterized point.
-     * \param Entity Perfrom the mapping for this entity.
+     * \param entity Perfrom the mapping for this entity.
      * \param parameters Parameters to be used for the mapping procedure.
      * \param  A view into an array of size physicalDimension() containing
      * the coordinates of the point to map.
@@ -135,12 +130,12 @@ class EntityLocalMap
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& point,
 	const Teuchos::ArrayView<double>& reference_point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const
+	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const;
 
     /*!  
      * \brief Determine if a reference point is in the parameterized space of
      * an entity.
-     * \param Entity Perfrom the mapping for this entity.
+     * \param entity Perfrom the mapping for this entity.
      * \param parameters Parameters to be used for the point inclusion check.
      * \param reference_point A view into an array of size physicalDimension()
      * containing the reference coordinates of the mapped point.
@@ -153,17 +148,29 @@ class EntityLocalMap
     /*!
      * \brief (Forward Map) Map a reference point to the physical space of an
      * entity. 
-     * \param Entity Perfrom the mapping for this entity.
+     * \param entity Perfrom the mapping for this entity.
      * \param reference_point A view into an array of size physicalDimension()
      * containing the reference coordinates of the mapped point.
-     * \param  A view into an array of size physicalDimension() to write
+     * \param A view into an array of size physicalDimension() to write
      * the coordinates of physical point.
      */
     virtual void mapToPhysicalFrame( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
 	const Teuchos::ArrayView<double>& point ) const;
-    //@}
+
+    /*!
+     * \brief Compute the normal on a face (3D) or edge (2D) at a given
+     * reference point.
+     * \param entity Compute the normal for this entity.
+     * \param reference_point Compute the normal at this reference point.
+     * \param normal A view into an array of size physicalDimension() to write
+     * the normal.
+     */
+    virtual void normalAtReferencePoint( 
+        const Entity& entity,
+        const Teuchos::ArrayView<double>& reference_point,
+        const Teuchos::ArrayView<double>& normal ) const;
 
   protected:
 

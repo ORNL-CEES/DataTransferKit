@@ -83,11 +83,10 @@ void EntityLocalMap::centroid(
 //---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space
 // of an entity using the given tolerance. 
-void EntityLocalMap::safeguardMapToReferenceFrame(
+void EntityLocalMap::isSafeToMapToReferenceFrame(
     const Entity& entity,
-    const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& point,
-    MappingStatus& status ) const
+    const Teuchos::RCP<MappingStatus>& status ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -97,10 +96,9 @@ void EntityLocalMap::safeguardMapToReferenceFrame(
 // Map a point to the reference space of an entity. Return the parameterized point.
 void EntityLocalMap::mapToReferenceFrame( 
     const Entity& entity,
-    const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point,
-    MappingStatus& status ) const
+    const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -110,7 +108,6 @@ void EntityLocalMap::mapToReferenceFrame(
 // Determine if a reference point is in the parameterized space of an entity.
 bool EntityLocalMap::checkPointInclusion( 
     const Entity& entity,
-    const Teuchos::ParameterList& parameters,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
     bool not_implemented = true;
@@ -127,6 +124,20 @@ void EntityLocalMap::mapToPhysicalFrame(
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
+// Compute the normal on a face (3D) or edge (2D) at a given reference point.
+void EntityLocalMap::normalAtReferencePoint( 
+    const Entity& entity,
+    const Teuchos::ArrayView<double>& reference_point,
+    const Teuchos::ArrayView<double>& normal ) const
+{
+    // Provide a default finite difference implementation.
+
+    // 3D
+
+    // 2D
 }
 
 //---------------------------------------------------------------------------//
