@@ -49,7 +49,7 @@
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
-#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
 #include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
@@ -132,6 +132,15 @@ class EntitySet
      * \brief Select all entities predicate.
      */
     static inline bool selectAll( Entity entity ) { return true; }
+
+    /*!
+     * \brief Given an entity, get the entities of the given type that are
+     * adjacent to it.
+     */
+    virtual void getAdjacentEntities(
+	const Entity& entity,
+	const EntityType entity_type,
+	Teuchos::Array<Entity>& adjacent_entities ) const;
     //@}
 };
 

@@ -161,7 +161,8 @@ class EntityLocalMap
 
     /*!
      * \brief Compute the normal on a face (3D) or edge (2D) at a given
-     * reference point.
+     * reference point. A default implementation is provided using a finite
+     * difference scheme.
      * \param entity Compute the normal for this entity.
      * \param reference_point Compute the normal at this reference point.
      * \param normal A view into an array of size physicalDimension() to write

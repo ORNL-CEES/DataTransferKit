@@ -53,6 +53,21 @@ ParallelSearch::ParallelSearch(
     const std::function<bool(Entity)>& range_predicate
     const EntityType range_entity_type )
 {
+
+}
+
+//---------------------------------------------------------------------------//
+// Destructor.
+ParallelSearch::~ParallelSearch()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Search the domain with the range entity centroids and construct the
+// graph. This will update the state of the object.
+void ParallelSearch( const EntityIterator& range_entity_iterator,
+		     const Teuchos::RCP<EntityLocalMap>& range_local_map,
+		     const Teuchos::ParameterList& parameters )
+{
     // COARSE GLOBAL SEARCH
     // Determine which parallel regions for the domain intersect which
     // parallel regions of the range.
@@ -75,11 +90,6 @@ ParallelSearch::ParallelSearch(
 
     // Add the entry to the graph.
 }
-
-//---------------------------------------------------------------------------//
-// Destructor.
-ParallelSearch::~ParallelSearch()
-{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 

@@ -56,7 +56,7 @@ EntityShapeFunction::~EntityShapeFunction()
 //---------------------------------------------------------------------------//
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
-void EntityShapeFunction::getDOFIds( 
+void EntityShapeFunction::entityDOFIds( 
     const Entity& entity, Teuchos::Array<std::size_t>& dof_ids ) const
 {
     bool not_implemented = true;

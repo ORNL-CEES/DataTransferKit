@@ -106,10 +106,7 @@ void MapOperator::apply(
 
     // g = alpha*g + beta*f
     Thyra::Vt_S( range_dofs, alpha );
-    if ( 0.0 != beta )
-    {
-	Thyra::scaleUpdate( beta, domain_dofs, range_dofs );
-    }
+    Thyra::scaleUpdate( beta, domain_dofs, range_dofs );
 }
 
 //---------------------------------------------------------------------------//

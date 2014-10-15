@@ -9,7 +9,7 @@
 ## Define the package
 ##---------------------------------------------------------------------------##
 
-TRIBITS_SUBPACKAGE(BasicGeometry)
+TRIBITS_SUBPACKAGE(Operators)
 
 ##---------------------------------------------------------------------------##
 ## Add library, test, and examples.

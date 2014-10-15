@@ -47,6 +47,7 @@
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
@@ -94,6 +95,8 @@ class Entity
      * describing the entity will be of this dimension.
      */
     virtual int physicalDimension() const;
+
+    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
 
     /*!
      * \brief Determine if an entity is on the surface of the set.

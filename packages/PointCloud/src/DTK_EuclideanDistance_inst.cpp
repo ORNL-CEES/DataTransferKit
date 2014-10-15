@@ -32,85 +32,24 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_FunctionSpace.hpp
+ * \file   DTK_EuclideanDistance_inst.cpp
  * \author Stuart R. Slattery
- * \brief Function space.
+ * \brief  Euclidean distance function.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_FUNCTIONSPACE_HPP
-#define DTK_FUNCTIONSPACE_HPP
-
-#include "DTK_EntitySet.hpp"
-#include "DTK_EntityLocalMap.hpp"
-#include "DTK_EntityShapeFunction.hpp"
-
-#include <Teuchos_RCP.hpp>
-
-#include <Tpetra_Map.hpp>
+#include "DTK_EuclideanDistance_impl.hpp"
 
 namespace DataTransferKit
 {
-//---------------------------------------------------------------------------//
-/*!
-  \class FunctionSpace
-  \brief Space of a function.
 
-  FunctionSpace binds the functional support of a field to a parallel vector
-  space.
-*/
-//---------------------------------------------------------------------------//
-class FunctionSpace
-{
-  public:
-
-    /*!
-     * \brief Constructor.
-     */
-    FunctionSpace( const Teuchos::RCP<EntitySet>& entity_set,
-		   const Teuchos::RCP<EntityLocalMap>& local_map,
-		   const Teuchos::RCP<EntityShapeFunction>& shape_function );
-
-    /*!
-     * \brief Destructor.
-     */
-    ~FunctionSpace();
-
-    /*!
-     * \brief Get the entity set over which the fields are defined.
-     */
-    Teuchos::RCP<EntitySet> entitySet() const;
-
-    /*!
-     * \brief Get the local map for entities supporting the function.
-     */
-    Teuchos::RCP<EntityLocalMap> localMap() const;
-
-    /*!
-     * \brief Get the shape function for entities supporting the function.
-     */
-    Teuchos::RCP<EntityShapeFunction> shapeFunction() const;
-
-  private:
-
-    // The entity set over which the function space is constructed.
-    Teuchos::RCP<EntitySet> d_entity_set;
-
-    // The reference frame for entities in the set.
-    Teuchos::RCP<EntityLocalMap> d_local_map;
-
-    // The shape function for the entities in the set.
-    Teuchos::RCP<EntityShapeFunction> d_shape_function;
-};
-
-//---------------------------------------------------------------------------//
+template class EuclideanDistance<1>;
+template class EuclideanDistance<2>;
+template class EuclideanDistance<3>;
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_FUNCTIONSPACE_HPP
-
+// end DTK_EuclideanDistance.hpp
 //---------------------------------------------------------------------------//
-// end DTK_FunctionSpace.hpp
-//---------------------------------------------------------------------------//
+

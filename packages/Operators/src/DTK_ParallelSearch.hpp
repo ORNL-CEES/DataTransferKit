@@ -44,8 +44,8 @@
 #include <functional>
 
 #include "DTK_Types.hpp"
-#include "DTK_Entity.hpp"
-#include "DTK_FunctionSpace.hpp"
+#include "DTK_EntityIterator.hpp"
+#include "DTK_EntityLocalMap.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -73,17 +73,22 @@ class ParallelSearch
     /*!
      * \brief Constructor.
      */
-    ParallelSearch( const Teuchos::RCP<FunctionSpace>& domain_space,
-		    const std::function<bool(Entity)>& domain_predicate,
-		    const EntityType domain_entity_type,
-		    const Teuchos::RCP<FunctionSpace>& range_space,
-		    const std::function<bool(Entity)>& range_predicate,
-		    const EntityType range_entity_type = ENTITY_TYPE_NODE )
+    ParallelSearch( const EntityIterator& domain_entity_iterator,
+		    const Teuchos::RCP<EntityLocalMap>& domain_local_map,
+		    const Teuchos::ParameterList& parameters );
 
     /*!
      * \brief Destructor.
      */
     ~ParallelSearch();
+
+    /*
+     * \brief Search the domain with the range entity centroids and construct
+     * the graph. This will update the state of the object.
+    */
+    void search( const EntityIterator& range_entity_iterator,
+		 const Teuchos::RCP<EntityLocalMap>& range_local_map,
+		 const Teuchos::ParameterList& parameters );
 
     /*!
      * \brief Get the domain-to-range entity_graph.
@@ -98,6 +103,11 @@ class ParallelSearch
     rangeCoordinates() const;
 
   private:
+
+    // Domain local map.
+    Teuchos::RCP<EntityLocalMap> d_domain_local_map;
+
+    // kD-Tree.
 
     // Domain-to-range entity graph.
     Teuchos::RCP<Tpetra::CrsGraph<int,EntityId> > d_dtr_graph;

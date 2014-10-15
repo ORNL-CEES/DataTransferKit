@@ -79,8 +79,8 @@ class EntityShapeFunction
      * \param dof_ids Return the ids of the degrees of freedom in the parallel
      * vector space supporting the entities.
      */
-    virtual void getDOFIds( const Entity& entity,
-			    Teuchos::Array<std::size_t>& dof_ids ) const;
+    virtual void entityDOFIds( const Entity& entity,
+			       Teuchos::Array<std::size_t>& dof_ids ) const;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -89,14 +89,12 @@ class EntityShapeFunction
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
      * \param values Entity shape function evaluated at the reference
-     * point. Return these ordered with respect to those return by
-     * getDOFIds() such that values[N] gives the value of the shape function
-     * of the Nth DOF.
+     * point. 
      */
     virtual void evaluateValue( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<double>& values ) const;
+	Teuchos::Array<double> & values ) const;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the gradient of
