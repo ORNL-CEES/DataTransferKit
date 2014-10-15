@@ -78,6 +78,7 @@ void MapOperator::apply(
     DTK_REQUIRE( Teuchos::nonnull(domain_dofs) );
     DTK_REQUIRE( Teuchos::nonnull(range_dofs) );
   
+    // Make a work vector.
     Teuchos::RCP<Thyra::MultiVectorBase<double> > work = 
 	b_forcing_vector->clone_mv();
 
