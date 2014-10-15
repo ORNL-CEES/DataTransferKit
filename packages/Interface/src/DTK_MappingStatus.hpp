@@ -46,68 +46,16 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
   \class MappingStatus
-  \brief Mapping status provides status indications for parametric mapping
-  operations.
+  \brief Mapping status provides a base class for status indications for
+  parametric mapping operations.
 */
 //---------------------------------------------------------------------------//
 class MappingStatus
 {
   public:
 
-    /*!
-     * \brief Constructor.
-     */
-    MappingStatus();
-
-    /*!
-     * \brief Data constructor.
-     */
-    MappingStatus( bool success, unsigned number_of_iterations );
-
-    /*!
-     * \brief Destructor.
-     */
-    ~MappingStatus();
-
-    /*!
-     * \brief Indicate success.
-     */
-    void mappingSucceeded();
-
-    /*!
-     * \brief Indicate failure.
-     */
-    void mappingFailed();
-    
-    /*!
-     * \brief Increment the iteration count.
-     */
-    void incrementIterations();
-
-    /*!
-     * \brief Mapping success status.
-     * \return True if the mapping succeeded. False if it failed.
-     */
-    bool success() const;
-    
-    /*!
-     * \brief Iteration count.
-     * \return The number of iterations required to construct the mapping.
-     */
-    unsigned numberOfIterations() const;
-
-    /*!
-     * \brief Reset the mapping status.
-     */
-    void reset();
-
-  private:
-
-    // Success boolean for last mapping.
-    bool d_success;
-
-    // Number of iterations for last mapping.
-    unsigned d_num_iters;
+    MappingStatus() { /* ... */ }
+    ~MappingStatus() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//

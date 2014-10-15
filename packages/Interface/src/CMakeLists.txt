@@ -17,11 +17,12 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   DTK_BasicEntitySet.hpp
-  DTK_EntitySet.hpp
   DTK_Entity.hpp
+  DTK_EntityExtraData.hpp
   DTK_EntityImpl.hpp
   DTK_EntityIterator.hpp
   DTK_EntityLocalMap.hpp
+  DTK_EntitySet.hpp
   DTK_EntityShapeFunction.hpp
   DTK_FunctionSpace.hpp
   DTK_MapOperator.hpp
@@ -31,15 +32,14 @@ APPEND_SET(HEADERS
 
 APPEND_SET(SOURCES
   DTK_BasicEntitySet.cpp
-  DTK_EntitySet.cpp
   DTK_Entity.cpp
   DTK_EntityImpl.cpp
   DTK_EntityIterator.cpp
   DTK_EntityLocalMap.cpp
+  DTK_EntitySet.cpp
   DTK_EntityShapeFunction.cpp
   DTK_FunctionSpace.cpp
   DTK_MapOperator.cpp
-  DTK_MappingStatus.cpp
   )
 
 #

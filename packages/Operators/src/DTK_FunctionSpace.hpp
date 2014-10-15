@@ -70,8 +70,8 @@ class FunctionSpace
     FunctionSpace( 
 	const Teuchos::ArrayView<const std::size_t> local_dof_ids,
 	const Teuchos::RCP<EntitySet>& entity_set,
-	const Teuchos::RCP<EntityLocalMap>& local_map = Teuchos::null,
-	const Teuchos::RCP<EntityShapeFunction>& shape_function = Teuchos::null );
+	const Teuchos::RCP<EntityShapeFunction>& shape_function,
+	const Teuchos::RCP<EntityLocalMap>& local_map = Teuchos::null );
 
     /*!
      * \brief Destructor.

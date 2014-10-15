@@ -32,79 +32,37 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_AbstractBuildableObject_impl.hpp
+ * \brief DTK_EntityExtraData.hpp
  * \author Stuart R. Slattery
- * \brief Abstract buildable object interface.
+ * \brief Extra data for entities.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ABSTRACTBUILDABLEOBJECT_IMPL_HPP
-#define DTK_ABSTRACTBUILDABLEOBJECT_IMPL_HPP
-
-#include "DTK_DBC.hpp"
-
-#include <Teuchos_AbstractFactoryStd.hpp>
+#ifndef DTK_ENTITYEXTRADATA_HPP
+#define DTK_ENTITYEXTRADATA_HPP
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Constructor.
-template<class Object>
-AbstractBuildableObject<Object>::AbstractBuildableObject()
-{ /* ... */ }
+/*!
+  \class EntityExtraData
+  \brief A base class for setting extra data with entities.
+*/
+//---------------------------------------------------------------------------//
+class EntityExtraData
+{
+  public:
 
-//---------------------------------------------------------------------------//
-//brief Destructor.
-template<class Object>
-AbstractBuildableObject<Object>::~AbstractBuildableObject()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-// Static members.
-//---------------------------------------------------------------------------//
-// Add factories through the setDerivedClassFactory function.
-template<class Object>
-Teuchos::RCP<AbstractBuilder<Object> > 
-AbstractBuildableObject<Object>::b_builder = 
-    Teuchos::rcp( new AbstractBuilder<Object>() );
-
-//---------------------------------------------------------------------------//
-// Set an abstract builder for AbstractBuildableObject subclasses.
-template<class Object>
-void AbstractBuildableObject<Object>::setDerivedClassFactory(
-    const Teuchos::RCP<const Teuchos::AbstractFactory<Object> >& factory  )
-{ 
-    b_builder->setDerivedClassFactory(
-	factory, ABOP::objectType( *(factory->create()) ) );
-}
-
-//---------------------------------------------------------------------------//
-// Set an abstract builder for AbstractBuildableObject subclasses that can be
-// built with a Teuchos::AbstractFactoryStd.
-template<class Object>
-template<class DerivedObject>
-void AbstractBuildableObject<Object>::setDerivedClassFactory()
-{ 
-    Teuchos::RCP<const Teuchos::AbstractFactory<Object> > factory =
-	Teuchos::abstractFactoryStd<Object,DerivedObject>();
-    setDerivedClassFactory( factory );
-}
-
-//---------------------------------------------------------------------------//
-// Get an abstract builder for AbstractBuildableObject subclasses.
-template<class Object>
-Teuchos::RCP<AbstractBuilder<Object> > 
-AbstractBuildableObject<Object>::getBuilder()
-{ 
-    return b_builder; 
-}
+    EntityExtraData() { /* ... */ }
+    ~EntityExtraData() { /* ... */ }
+};
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_ABSTRACTBUILDABLEOBJECT_IMPL_HPP
+#endif // end DTK_ENTITYEXTRADATA_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_AbstractBuildableObject_impl.hpp
+// end DTK_EntityExtraData.hpp
 //---------------------------------------------------------------------------//
