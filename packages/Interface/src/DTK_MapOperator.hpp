@@ -46,6 +46,8 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
 
+#include <Tpetra_Map.hpp>
+
 #include <Thyra_MultiVectorBase.hpp>
 #include <Thyra_LinearOpBase.hpp>
 
@@ -59,7 +61,7 @@ namespace DataTransferKit
   A map operator maps a field in one entity set to another entity set.
 */
 //---------------------------------------------------------------------------//
-class MapOperator
+class MapOperator : public Thyra::LinearOpBase<double>
 {
   public:
 
@@ -73,25 +75,20 @@ class MapOperator
      */
     virtual ~MapOperator();
 
-    //@{
-    //! Setup functions.
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
-     * \param domain_function The field function that contains the data that
-     * will be sent to the range.
-     * \param range_set The field function that will receive the data from the
-     * domain.
+     * \param domain_function The function that contains the data that will be
+     * sent to the range.
+     * \param range_set The function that will receive the data from the
+     * domain. 
      * \param parameters Parameters for the setup.
      */
     virtual void 
     setup( const Teuchos::RCP<FunctionSpace>& domain_space,
 	   const Teuchos::RCP<FunctionSpace>& range_space,
 	   const Teuchos::RCP<Teuchos::ParameterList>& parameters );
-    //@}
 
-    //@{
-    //! Apply functions.
     /*
      * \brief Apply the map operator to data defined on the entities by
      * computing g = Minv*(v-A*f)
@@ -105,15 +102,27 @@ class MapOperator
 	   const Teuchos::Ptr<Thyra::MultiVectorBase<double> >& range_dofs,
 	   const double alpha,
 	   const double beta ) const;
+
+    //@{
+    //! Thyra LinearOpBase interface.
+    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > range() const;
+    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > domain() const;
+    Teuchos::RCP<const Thyra::LinearOpBase<double> > clone() const;
+    bool opSupportedImpl( Thyra::EOpTransp M_trans ) const;
+    void applyImpl( const Thyra::EOpTransp M_trans,
+		    const Thyra::MultiVectorBase<double> &X,
+		    const Teuchos::Ptr<Thyra::MultiVectorBase<double> > &Y,
+		    const double alpha,
+		    const double beta ) const;
     //@}
 
   protected:
 
-    //! Domain function space.
-    Teuchos::RCP<FunctionSpace> b_domain_space;
+    //! Domain dof map.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > b_domain_map;
 
-    //! Range function space.
-    Teuchos::RCP<FunctionSpace> b_range_space;
+    //! Range dof map.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > b_range_map;
 
     //! Mass matrix inverse.
     Teuchos::RCP<Thyra::LinearOpBase<double> > b_mass_matrix_inv;
