@@ -32,71 +32,87 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_PredicateComposition.hpp
+ * \brief DTK_EntityPredicates.hpp
  * \author Stuart R. Slattery
- * \brief Tools for predicate composition.
+ * \brief Basic entity predicates.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_PREDICATECOMPOSITION_HPP
-#define DTK_PREDICATECOMPOSITION_HPP
+#ifndef DTK_ENTITYPREDICATES_HPP
+#define DTK_ENTITYPREDICATES_HPP
 
 #include <functional>
+
+#include "DTK_PredicateComposition.hpp"
+#include "DTK_Types.hpp"
+#include "DTK_Entity.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class PredicateComposition
-  \brief Tools for predicate composition.
+  \class EntityPredicates
+  \brief Basic entity predicates.
 
-  A stateless class of tools for predicate composition.
+  A static class of basic entity predicates.
 */
 //---------------------------------------------------------------------------//
-class PredicateComposition
+class EntityPredicates
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    PredicateComposition() { /* ... */ }
+    EntityPredicates() { /* ... */ }
 
     /*!
      * \brief Destructor.
      */
-    ~PredicateComposition() { /* ... */ }
+    ~EntityPredicates() { /* ... */ }
 
-    // Apply an and operation to two predicates to create a new
-    // predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    And( const std::function<bool(ValueType)>& func_left,
-	 const std::function<bool(ValueType)>& func_right );
+    //@{
+    //! Surface predicate.
+    static bool onSurface( Entity entity );
+    //@}
 
-    // Apply an or operation to two predicates to create a new predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    Or( const std::function<bool(ValueType)>& func_left,
-	const std::function<bool(ValueType)>& func_right );
+    //@{
+    //! Block predicate.
+    static void setBlockId( const int block_id );
+    static bool inBlock( Entity entity );
+    //@}
 
-    // Apply a not operation to a predicate to create a new
-    // predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    Not( const std::function<bool(ValueType)>& func );
+    //@{
+    //! Boundary predicate.
+    static void setBoundaryId( const int boundary_id );
+    static bool onBoundary( Entity entity );
+    //@}
 
-    // Apply an AndNot operation to create a new predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    AndNot( const std::function<bool(ValueType)>& func_left,
-	    const std::function<bool(ValueType)>& func_right );
+    //@{
+    //! Owner rank predicate.
+    static void setOwnerRank( const int owner_rank );
+    static bool hasOwner( Entity entity );
+    //@}
 
-    // Apply an OrNot operation to create a new predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    OrNot( const std::function<bool(ValueType)>& func_left,
-	   const std::function<bool(ValueType)>& func_right );
+    //@{
+    //! Entity type predicate.
+    static void setEntityType( const EntityType entity_type );
+    static bool isEntityType( Entity entity );
+    //@}
+
+    private:
+
+    // Current block to check.
+    static int d_block_id;
+
+    // Current boundary to check.
+    static int d_boundary_id;
+
+    // Current owner rank to check.
+    static int d_owner_rank;
+
+    // Current entity type to check.
+    static EntityType d_entity_type;
 };
 
 //---------------------------------------------------------------------------//
@@ -104,15 +120,9 @@ class PredicateComposition
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
 
-#include "DTK_PredicateComposition_impl.hpp"
+#endif // end DTK_ENTITYPREDICATES_HPP
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_PREDICATECOMPOSITION_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_PredicateComposition.hpp
+// end DTK_EntityPredicates.hpp
 //---------------------------------------------------------------------------//

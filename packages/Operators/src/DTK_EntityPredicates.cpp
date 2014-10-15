@@ -32,87 +32,69 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_PredicateComposition.hpp
+ * \brief DTK_EntityPredicates.cpp
  * \author Stuart R. Slattery
- * \brief Tools for predicate composition.
+ * \brief Basic entity predicates.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_PREDICATECOMPOSITION_HPP
-#define DTK_PREDICATECOMPOSITION_HPP
-
-#include <functional>
+#include "DTK_EntityPredicates.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*!
-  \class PredicateComposition
-  \brief Tools for predicate composition.
+//! Surface predicate.
+bool EntityPredicates::onSurface( Entity entity ) 
+{ return entity.onSurface(); }
 
-  A stateless class of tools for predicate composition.
-*/
 //---------------------------------------------------------------------------//
-class PredicateComposition
-{
-  public:
+// Block predicate.
+void EntityPredicates::setBlockId( const int block_id ) 
+{ d_block_id = block_id; }
+bool EntityPredicates::inBlock( Entity entity ) 
+{ return entity.inBlock(d_block_id); }
 
-    /*!
-     * \brief Constructor.
-     */
-    PredicateComposition() { /* ... */ }
+//---------------------------------------------------------------------------//
+// Boundary predicate.
+void EntityPredicates::setBoundaryId( const int boundary_id ) 
+{ d_boundary_id = boundary_id; }
+bool EntityPredicates::onBoundary( Entity entity ) 
+{ return entity.onBoundary(d_boundary_id); }
 
-    /*!
-     * \brief Destructor.
-     */
-    ~PredicateComposition() { /* ... */ }
+//---------------------------------------------------------------------------//
+// Owner rank predicate.
+void EntityPredicates::setOwnerRank( const int owner_rank )
+{ d_owner_rank = owner_rank; }
+bool EntityPredicates::hasOwner( Entity entity )
+{ return (entity.ownerRank() == d_owner_rank); }
 
-    // Apply an and operation to two predicates to create a new
-    // predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    And( const std::function<bool(ValueType)>& func_left,
-	 const std::function<bool(ValueType)>& func_right );
+//---------------------------------------------------------------------------//
+// Entity type predicate.
+void EntityPredicates::setEntityType( const EntityType entity_type )
+{ d_entity_type = entity_type; }
+bool EntityPredicates::isEntityType( Entity entity )
+{ return (entity.entityType == d_entity_type); }
 
-    // Apply an or operation to two predicates to create a new predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    Or( const std::function<bool(ValueType)>& func_left,
-	const std::function<bool(ValueType)>& func_right );
+//---------------------------------------------------------------------------//
+// Current block to check.
+int EntityPredicates::d_block_id = -1;
 
-    // Apply a not operation to a predicate to create a new
-    // predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    Not( const std::function<bool(ValueType)>& func );
+//---------------------------------------------------------------------------//
+// Current boundary to check.
+int EntityPredicates::d_boundary_id = -1;
 
-    // Apply an AndNot operation to create a new predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    AndNot( const std::function<bool(ValueType)>& func_left,
-	    const std::function<bool(ValueType)>& func_right );
+//---------------------------------------------------------------------------//
+// Current owner rank to check.
+int EntityPredicates::d_owner_rank = -1;
 
-    // Apply an OrNot operation to create a new predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    OrNot( const std::function<bool(ValueType)>& func_left,
-	   const std::function<bool(ValueType)>& func_right );
-};
+//---------------------------------------------------------------------------//
+// Current entity type to check.
+EntityType EntityPredicates::d_entity_type = ENTITY_TYPE_NODE
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_PredicateComposition_impl.hpp"
-
-//---------------------------------------------------------------------------//
-
-#endif // end DTK_PREDICATECOMPOSITION_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_PredicateComposition.hpp
+// end DTK_EntityPredicates.cpp
 //---------------------------------------------------------------------------//

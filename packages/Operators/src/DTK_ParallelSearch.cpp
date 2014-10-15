@@ -32,87 +32,63 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_PredicateComposition.hpp
+ * \brief DTK_ParallelSearch.cpp
  * \author Stuart R. Slattery
- * \brief Tools for predicate composition.
+ * \brief Parallel search.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_PREDICATECOMPOSITION_HPP
-#define DTK_PREDICATECOMPOSITION_HPP
-
-#include <functional>
+#include "DTK_ParallelSearch.hpp"
+#include "DTK_EntitySequence.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*!
-  \class PredicateComposition
-  \brief Tools for predicate composition.
-
-  A stateless class of tools for predicate composition.
-*/
-//---------------------------------------------------------------------------//
-class PredicateComposition
+// Constructor.
+ParallelSearch::ParallelSearch( 
+    const Teuchos::RCP<FunctionSpace>& domain_space,
+    const std::function<bool(Entity)>& domain_predicate,
+    const EntityType domain_entity_type,
+    const Teuchos::RCP<FunctionSpace>& range_space,
+    const std::function<bool(Entity)>& range_predicate
+    const EntityType range_entity_type )
 {
-  public:
+    // COARSE GLOBAL SEARCH
+    // Determine which parallel regions for the domain intersect which
+    // parallel regions of the range.
 
-    /*!
-     * \brief Constructor.
-     */
-    PredicateComposition() { /* ... */ }
+    // Determine which centroids in the local range parallel region
+    // will be sent to which domain parallel regions.
 
-    /*!
-     * \brief Destructor.
-     */
-    ~PredicateComposition() { /* ... */ }
+    // Send the range centroids.
 
-    // Apply an and operation to two predicates to create a new
-    // predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    And( const std::function<bool(ValueType)>& func_left,
-	 const std::function<bool(ValueType)>& func_right );
+    // COARSE LOCAL SEARCH
+    // Construct a search tree from the local domain centroids.
 
-    // Apply an or operation to two predicates to create a new predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    Or( const std::function<bool(ValueType)>& func_left,
-	const std::function<bool(ValueType)>& func_right );
+    // Find the set of nearest domain entities to each range centroid.
 
-    // Apply a not operation to a predicate to create a new
-    // predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    Not( const std::function<bool(ValueType)>& func );
+    // FINE LOCAL SEARCH
+    // Map the range centroid to the reference frame of the nearest domain
+    // entities to determine point inclusion.
 
-    // Apply an AndNot operation to create a new predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    AndNot( const std::function<bool(ValueType)>& func_left,
-	    const std::function<bool(ValueType)>& func_right );
+    // Store the parametric coordinates.
 
-    // Apply an OrNot operation to create a new predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    OrNot( const std::function<bool(ValueType)>& func_left,
-	   const std::function<bool(ValueType)>& func_right );
-};
+    // Add the entry to the graph.
+}
+
+//---------------------------------------------------------------------------//
+// Destructor.
+ParallelSearch::~ParallelSearch()
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
 
-#include "DTK_PredicateComposition_impl.hpp"
+#endif // end DTK_PARALLELSEARCH_HPP
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_PREDICATECOMPOSITION_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_PredicateComposition.hpp
+// end DTK_ParallelSearch.hpp
 //---------------------------------------------------------------------------//

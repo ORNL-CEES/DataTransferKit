@@ -32,71 +32,80 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_PredicateComposition.hpp
+ * \brief DTK_ParallelSearch.hpp
  * \author Stuart R. Slattery
- * \brief Tools for predicate composition.
+ * \brief Parallel search.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_PREDICATECOMPOSITION_HPP
-#define DTK_PREDICATECOMPOSITION_HPP
+#ifndef DTK_PARALLELSEARCH_HPP
+#define DTK_PARALLELSEARCH_HPP
 
 #include <functional>
+
+#include "DTK_Types.hpp"
+#include "DTK_Entity.hpp"
+#include "DTK_FunctionSpace.hpp"
+
+#include <Teuchos_RCP.hpp>
+
+#include <Tpetra_MultiVector.hpp>
+#include <Tpetra_CrsGraph.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class PredicateComposition
-  \brief Tools for predicate composition.
+  \class ParallelSearch
+  \brief Parallel search.
 
-  A stateless class of tools for predicate composition.
+  A parallel search finds which domain entities satisfying the domain
+  predicate are correctly mapped to the range entities satisfying the range
+  predicate. The result of the search is a graph mapping the domain to the
+  range and a multivector containing the parametric coordinates of the range
+  entity centroids.
 */
 //---------------------------------------------------------------------------//
-class PredicateComposition
+class ParallelSearch
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    PredicateComposition() { /* ... */ }
+    ParallelSearch( const Teuchos::RCP<FunctionSpace>& domain_space,
+		    const std::function<bool(Entity)>& domain_predicate,
+		    const EntityType domain_entity_type,
+		    const Teuchos::RCP<FunctionSpace>& range_space,
+		    const std::function<bool(Entity)>& range_predicate,
+		    const EntityType range_entity_type = ENTITY_TYPE_NODE )
 
     /*!
      * \brief Destructor.
      */
-    ~PredicateComposition() { /* ... */ }
+    ~ParallelSearch();
 
-    // Apply an and operation to two predicates to create a new
-    // predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    And( const std::function<bool(ValueType)>& func_left,
-	 const std::function<bool(ValueType)>& func_right );
+    /*!
+     * \brief Get the domain-to-range entity_graph.
+     */
+    Teuchos::RCP<Tpetra::CrsGraph<int,EntityId> > graph() const;
 
-    // Apply an or operation to two predicates to create a new predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    Or( const std::function<bool(ValueType)>& func_left,
-	const std::function<bool(ValueType)>& func_right );
+    /*!
+     * \brief Get the parametric coordinates of the range entities in the
+     * domain entities.
+     */
+    Teuchos::RCP<Tpetra::MultiVector<double,int,EntityId> > 
+    rangeCoordinates() const;
 
-    // Apply a not operation to a predicate to create a new
-    // predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    Not( const std::function<bool(ValueType)>& func );
+  private:
 
-    // Apply an AndNot operation to create a new predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    AndNot( const std::function<bool(ValueType)>& func_left,
-	    const std::function<bool(ValueType)>& func_right );
+    // Domain-to-range entity graph.
+    Teuchos::RCP<Tpetra::CrsGraph<int,EntityId> > d_dtr_graph;
 
-    // Apply an OrNot operation to create a new predicate.
-    template<class ValueType>
-    static std::function<bool(ValueType)>
-    OrNot( const std::function<bool(ValueType)>& func_left,
-	   const std::function<bool(ValueType)>& func_right );
+    // Parametric coordinates of the range entities in the domain
+    // entities. The map of the vector is the mapped range entities in the
+    // decomposition of the domain entities they were found in.
+    Teuchos::RCP<Tpetra::MultiVector<double,int,EntityId> > d_parametric_coords;
 };
 
 //---------------------------------------------------------------------------//
@@ -104,15 +113,9 @@ class PredicateComposition
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
 
-#include "DTK_PredicateComposition_impl.hpp"
+#endif // end DTK_PARALLELSEARCH_HPP
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_PREDICATECOMPOSITION_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_PredicateComposition.hpp
+// end DTK_ParallelSearch.hpp
 //---------------------------------------------------------------------------//
