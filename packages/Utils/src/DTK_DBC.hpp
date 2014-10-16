@@ -125,7 +125,7 @@ void errorCodeFailure( const std::string& cond, const std::string& file,
 #define DTK_ENSURE(c)
 #define DTK_CHECK(c)
 #define DTK_REMEMBER(c)
-#define MCLS_CHECK_ERROR_CODE(c) c
+#define DTK_CHECK_ERROR_CODE(c) c
 #endif
 
 
