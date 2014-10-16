@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*! 
- * \file tstElementTree.cpp
+ * \file tstEntityTree.cpp
  * \author Stuart R. Slattery
- * \brief ElementTree unit tests.
+ * \brief EntityTree unit tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_ElementTree.hpp>
+#include <DTK_EntityTree.hpp>
 #include <DTK_MeshTypes.hpp>
 #include <DTK_MeshManager.hpp>
 #include <DTK_MeshContainer.hpp>
@@ -62,7 +62,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_element_tree_test )
     mesh_manager->buildIndexing();
 
     // Create an element tree.
-    ElementTree element_tree( mesh_manager );
+    EntityTree element_tree( mesh_manager );
 
     // Search the tree for some random points.
     int num_points = 1000;
@@ -101,7 +101,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_element_tree_test )
     mesh_manager->buildIndexing();
 
     // Create an element tree.
-    ElementTree element_tree( mesh_manager );
+    EntityTree element_tree( mesh_manager );
 
     // Search the tree for some random points.
     int num_points = 1000;
@@ -143,7 +143,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_element_tree_test )
     mesh_manager->buildIndexing();
 
     // Create an element tree.
-    ElementTree element_tree( mesh_manager );
+    EntityTree element_tree( mesh_manager );
 
     // Search the tree for some random points.
     int num_points = 1000;
@@ -185,7 +185,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_element_tree_test )
     mesh_manager->buildIndexing();
 
     // Create an element tree.
-    ElementTree element_tree( mesh_manager );
+    EntityTree element_tree( mesh_manager );
 
     // Search the tree for some random points.
     int num_points = 1000;
@@ -229,7 +229,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_element_tree_test )
     mesh_manager->buildIndexing();
 
     // Create an element tree.
-    ElementTree element_tree( mesh_manager );
+    EntityTree element_tree( mesh_manager );
 
     // Search the tree for some random points.
     int num_points = 1000;
@@ -273,7 +273,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_element_tree_test )
     mesh_manager->buildIndexing();
 
     // Create an element tree.
-    ElementTree element_tree( mesh_manager );
+    EntityTree element_tree( mesh_manager );
 
     // Search the tree for some random points.
     int num_points = 1000;
@@ -323,7 +323,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_element_tree_test )
     mesh_manager->buildIndexing();
 
     // Create an element tree.
-    ElementTree element_tree( mesh_manager );
+    EntityTree element_tree( mesh_manager );
 
     // Search the tree for some random points.
     int num_points = 1000;
@@ -369,7 +369,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_element_tree_test )
     mesh_manager->buildIndexing();
 
     // Create an element tree.
-    ElementTree element_tree( mesh_manager );
+    EntityTree element_tree( mesh_manager );
 
     // Search the tree for some random points.
     int num_points = 1000;
@@ -416,7 +416,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_element_tree_test )
     mesh_manager->buildIndexing();
 
     // Create an element tree.
-    ElementTree element_tree( mesh_manager );
+    EntityTree element_tree( mesh_manager );
 
     // Search the tree for some random points.
     int num_points = 1000;
@@ -479,7 +479,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_element_tree_test )
     mesh_manager->buildIndexing();
 
     // Create an element tree.
-    ElementTree element_tree( mesh_manager );
+    EntityTree element_tree( mesh_manager );
 
     // Search the tree for some random points.
     double tol = 1.0e-8;
@@ -546,5 +546,5 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_element_tree_test )
 }
 
 //---------------------------------------------------------------------------//
-// end tstElementTree.cpp
+// end tstEntityTree.cpp
 //---------------------------------------------------------------------------//

@@ -32,75 +32,70 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_ElementTree.hpp
+ * \file DTK_CoarseLocalSearch.hpp
  * \author Stuart R. Slattery
- * \brief ElementTree declaration.
+ * \brief CoarseLocalSearch declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ELEMENTTREE_HPP
-#define DTK_ELEMENTTREE_HPP
+#ifndef DTK_COARSELOCALSEARCH_HPP
+#define DTK_COARSELOCALSEARCH_HPP
 
-#include "DTK_MeshManager.hpp"
-#include "DTK_IntrepidCell.hpp"
+#include <unordered_map>
+
+#include "DTK_Types.hpp"
+#include "DTK_EntityIterator.hpp"
+#include "DTK_LocalMap.hpp"
 #include "DTK_StaticSearchTree.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayView.hpp>
-#include <Teuchos_ScalarTraits.hpp>
-
-#include <Intrepid_FieldContainer.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class ElementTree 
- * \brief A ElementTree data structure for local mesh searching in the
- * rendezvous decomposition.
+ * \class CoarseLocalSearch 
+ * \brief A CoarseLocalSearch data structure for local entity coarse search.
  */
 //---------------------------------------------------------------------------//
-class ElementTree
+class CoarseLocalSearch
 {
   public:
 
     // Constructor.
-    ElementTree( const Teuchos::RCP<MeshManager>& mesh );
+    CoarseLocalSearch( const EntityIterator& entity_iterator,
+		       const Teuchos::RCP<EntityLocalMap>& local_map,
+		       const Teuchos::ParameterList& parameters ); 
 
     // Destructor.
-    ~ElementTree();
+    ~CoarseLocalSearch();
 
-    // Build the kD-tree.
-    void build();
-
-    // Find a point in the tree.
-    bool findPoint( const Teuchos::ArrayView<const double>& coords,
-		    MeshId& element,
-		    double tolerance = 10*Teuchos::ScalarTraits<double>::eps() );
+    // Find the set of entities a point neighbors.
+    void search( const Teuchos::ArrayView<const double>& coords,
+		 const Teuchos::ParameterList& parameters,
+		 Teuchos::Array<Entity>& neighbors );
 
   private:
 
-    // Mesh manager.
-    Teuchos::RCP<MeshManager> d_mesh;
+    // Local mesh entity centroids.
+    Teuchos::Array<double> d_entity_centroids;
 
-    // Local mesh element centroids.
-    Teuchos::Array<double> d_element_centroids;
-
-    // Discretization cell for each block.
-    Teuchos::Array<IntrepidCell<Intrepid::FieldContainer<double> > > d_dcells;
+    // Local-id to entity map.
+    std::unordered_map<int,Entity> d_entity_map;
 
     // Static search tree.
     Teuchos::RCP<StaticSearchTree> d_tree;
 };
 
+//---------------------------------------------------------------------------//
+
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-
-#endif // DTK_ELEMENTTREE_HPP
+#endif // DTK_COARSELOCALSEARCH_HPP
 
 //---------------------------------------------------------------------------//
-// end ElementTree.hpp
+// end CoarseLocalSearch.hpp
 //---------------------------------------------------------------------------//
 
