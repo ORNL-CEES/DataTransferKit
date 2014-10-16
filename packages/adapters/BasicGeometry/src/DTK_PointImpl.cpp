@@ -39,28 +39,36 @@
 //---------------------------------------------------------------------------//
 
 #include <limits>
+#include <algorithm>
 
 #include "DTK_DBC.hpp"
+#include "DTK_PointImpl.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
 PointImpl::PointImpl()
-    : d_global_id( dtk_invalid_entity_id )
-    , d_owner_rank( -1 )
-    , d_coordinates( 0 )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Array constructor.
 PointImpl::PointImpl( const EntityId global_id, 
-			   const int owner_rank,
-			   const Teuchos::Array<double>& coordinates )
+		      const int owner_rank,
+		      const Teuchos::Array<double>& coordinates,
+		      const bool on_surface,
+		      const Teuchos::Array<int>& block_ids,
+		      const Teuchos::Array<int>& boundary_ids )
     : d_global_id( global_id )
     , d_owner_rank( owner_rank )
+    , d_on_surface( on_surface )
+    , d_block_ids( block_ids )
+    , d_boundary_ids( boundary_ids )
     , d_coordinates( coordinates )
-{ /* ... */ }
+{
+    std::sort( d_block_ids.begin(), d_block_ids.end() );
+    std::sort( d_boundary_ids.begin(), d_boundary_ids.end() );
+}
 
 //---------------------------------------------------------------------------//
 // Destructor.
@@ -70,9 +78,9 @@ PointImpl::~PointImpl()
 //---------------------------------------------------------------------------//
 // Get the coordinates of the point.
 void PointImpl::getCoordinates( 
-    Teuchos::ArrayView<const double>& coordinates ) const
+    const Teuchos::ArrayView<double>& coordinates ) const
 { 
-    coordinates = d_coordinates(); 
+    coordinates.assign( d_coordinates );
 }
 
 //---------------------------------------------------------------------------//
@@ -104,25 +112,11 @@ int PointImpl::physicalDimension() const
 }
 
 //---------------------------------------------------------------------------//
-// Return the entity measure with respect to the parameteric
-double PointImpl::measure() const
-{
-    return 0.0;
-}
-
-//---------------------------------------------------------------------------//
-// Return the centroid of the entity.
-void PointImpl::centroid( Teuchos::ArrayView<const double>& centroid ) const
-{
-    getCoordinates( centroid );
-}
-
-//---------------------------------------------------------------------------//
-// Return the axis-aligned bounding box around the entity. 1D specialization.
+// Return the axis-aligned bounding box around the entity.
 void PointImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
-    Teuchos::ArrayView<const double> coordinates;
-    getCoordinates( coordinates );
+    Teuchos::Array<double> coordinates( this->physicalDimension() );
+    this->getCoordinates( coordinates );
     double max = std::numeric_limits<double>::max();
     int space_dim = coordinates.size();
     if ( 1 == space_dim )
@@ -140,6 +134,29 @@ void PointImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 	bounds = Teuchos::tuple( coordinates[0], coordinates[1], coordinates[2], 
 				 coordinates[0], coordinates[1], coordinates[2] );
     }
+}
+
+//---------------------------------------------------------------------------//
+// Determine if an entity is on the surface of the set.
+bool PointImpl::onSurface() const
+{
+    return d_on_surface;
+}
+
+//---------------------------------------------------------------------------//
+// Determine if an entity is in the block with the given id.
+bool PointImpl::inBlock( const int block_id ) const
+{
+    return std::binary_search( 
+	d_block_ids.begin(), d_block_ids.end(), block_id );
+}
+
+//---------------------------------------------------------------------------//
+// Determine if an entity is on the boundary with the given id.
+bool PointImpl::onBoundary( const int boundary_id ) const
+{
+    return std::binary_search( 
+	d_boundary_ids.begin(), d_boundary_ids.end(), boundary_id );
 }
 
 //---------------------------------------------------------------------------//

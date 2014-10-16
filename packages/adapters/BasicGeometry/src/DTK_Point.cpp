@@ -57,10 +57,14 @@ Point::Point()
 // Array constructor.
 Point::Point( const EntityId global_id, 
 	      const int owner_rank,
-	      const Teuchos::Array<double>& coordinates )
+	      const Teuchos::Array<double>& coordinates,
+	      const bool on_surface,
+	      const Teuchos::Array<int>& block_ids,
+	      const Teuchos::Array<int>& boundary_ids )
 {
-    d_point_impl = 
-	Teuchos::rcp( new PointImpl(global_id,owner_rank,coordinates) );
+    d_point_impl = Teuchos::rcp( 
+	new PointImpl(global_id,owner_rank,coordinates,		      
+		      on_surface,block_ids,boundary_ids) ); 
     this->b_entity_impl = d_point_impl;
 }
 
@@ -72,7 +76,7 @@ Point::~Point()
 //---------------------------------------------------------------------------//
 // Get the coordinates of the point.
 void Point::getCoordinates( 
-    Teuchos::ArrayView<const double>& coordinates ) const
+    const Teuchos::ArrayView<double>& coordinates ) const
 { 
     d_point_impl->getCoordinates( coordinates );
 }
@@ -85,7 +89,7 @@ void Point::getCoordinates(
  */
 double Point::measure() const
 {
-    return Teuchos::rcp_dynamic_cast<BoxImpl>(this->b_entity_impl)->measure();
+    return 0.0;
 }
 
 //---------------------------------------------------------------------------//
@@ -152,7 +156,7 @@ void Point::mapToPhysicalFrame(
  */
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p)
 {
-    Teuchos::ArrayView<const double> coords;
+    Teuchos::Array<double> coords( p.physicalDimension() );
     p.getCoordinates( coords );
     os << "Point: d_global_id=" << p.id()
        << ",d_owner_rank=" << p.ownerRank()

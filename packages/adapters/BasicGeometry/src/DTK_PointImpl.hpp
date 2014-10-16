@@ -45,6 +45,8 @@
 #include "DTK_EntityImpl.hpp"
 
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_Tuple.hpp>
 
 #include <iostream>
 
@@ -80,7 +82,10 @@ class PointImpl : public EntityImpl
     // Array constructor.
     PointImpl( const EntityId global_id, 
 	       const int owner_rank,
-	       const Teuchos::Array<double>& coordinates );
+	       const Teuchos::Array<double>& coordinates,
+	       const bool on_surface,
+	       const Teuchos::Array<int>& block_ids,
+	       const Teuchos::Array<int>& boundary_ids );
 
     // Destructor.
     ~PointImpl();
@@ -89,7 +94,7 @@ class PointImpl : public EntityImpl
     //! Coordinate access functions.
     // Get the coordinates of the point.
     virtual void 
-    getCoordinates( Teuchos::ArrayView<const double>& coordinates ) const;
+    getCoordinates( const Teuchos::ArrayView<double>& coordinates ) const;
     //@}
 
     // Get the entity type.
@@ -103,7 +108,19 @@ class PointImpl : public EntityImpl
 
     // Return the physical dimension of the entity.
     virtual int physicalDimension() const;
-     
+    
+    //  Return the axis-aligned bounding box around the entity.
+    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    
+    // Determine if an entity is on the surface of the set.
+    bool onSurface() const;
+
+    // Determine if an entity is in the block with the given id.
+    bool inBlock( const int block_id ) const;
+
+    // Determine if an entity is on the boundary with the given id.
+    bool onBoundary( const int boundary_id ) const;
+
   protected:
 
     // Global id.
@@ -111,6 +128,15 @@ class PointImpl : public EntityImpl
 
     // Owning parallel rank.
     int d_owner_rank;
+
+    // Surface boolean.
+    bool d_on_surface;
+
+    // Block ids.
+    Teuchos::Array<int> d_block_ids;
+
+    // Boundary ids.
+    Teuchos::Array<int> d_boundary_ids;
 
   private:
 

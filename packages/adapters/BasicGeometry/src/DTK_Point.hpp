@@ -41,14 +41,16 @@
 #ifndef DTK_POINT_HPP
 #define DTK_POINT_HPP
 
+#include <iostream>
+
 #include "DTK_PointImpl.hpp"
 #include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_Box.hpp"
 
 #include <Teuchos_ArrayView.hpp>
-
-#include <iostream>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
@@ -68,7 +70,10 @@ class Point : public Entity
     // Array constructor.
     Point( const EntityId global_id, 
 	   const int owner_rank,
-	   const Teuchos::Array<double>& coordinates );
+	   const Teuchos::Array<double>& coordinates,
+	   const bool on_surface = false,
+	   const Teuchos::Array<int>& block_ids = Teuchos::Array<int>(0),
+	   const Teuchos::Array<int>& boundary_ids = Teuchos::Array<int>(0) );
 
     // Destructor.
     ~Point();
@@ -76,37 +81,33 @@ class Point : public Entity
     //@{
     //! Coordinate access functions.
     // Get the coordinates of the point.
-    void getCoordinates( Teuchos::ArrayView<const double>& coordinates ) const;
+    void getCoordinates( const Teuchos::ArrayView<double>& coordinates ) const;
     //@}
 
     // Return the entity measure with respect to the parameteric
     double measure() const;
 
-    // Return the centroid of the entity.
-    void centroid( Teuchos::ArrayView<const double>& centroid ) const;
+    // Compute the centroid of the entity.
+    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
 
-    // Return the axis-aligned bounding box around the entity.
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    // (Safeguard the reverse map) Perform a safeguard check for mapping a
+    // point to the reference space of an entity using the given tolerance.
+    bool isSafeToMapToReferenceFrame(
+	const Teuchos::ArrayView<const double>& point ) const;
 
-    // Perform a safeguard check for mapping a point to the reference
-    void safeguardMapToReferenceFrame(
-	const Teuchos::ParameterList& parameters,
+    // (Reverse Map) Map a point to the reference space of an entity. Return
+    // the parameterized point.
+    bool mapToReferenceFrame( 
 	const Teuchos::ArrayView<const double>& point,
-	MappingStatus& status ) const;
+	const Teuchos::ArrayView<double>& reference_point ) const;
 
-    // Map a point to the reference space of an entity. Return the
-    void mapToReferenceFrame( 
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point,
-	MappingStatus& status ) const;
-
-    // Determine if a reference point is in the parameterized space of
+    // Determine if a reference point is in the parameterized space of an
+    // entity.
     bool checkPointInclusion( 
-	const Teuchos::ParameterList& parameters,
+	const double tolerance,
 	const Teuchos::ArrayView<const double>& reference_point ) const;
 
-    // Map a reference point to the physical space of an entity.
+    // (Forward Map) Map a reference point to the physical space of an entity.
     void mapToPhysicalFrame( 
 	const Teuchos::ArrayView<const double>& reference_point,
 	const Teuchos::ArrayView<double>& point ) const;
