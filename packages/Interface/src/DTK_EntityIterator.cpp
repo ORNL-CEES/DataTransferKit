@@ -54,8 +54,7 @@ EntityIterator::EntityIterator()
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-EntityIterator::EntityIterator( 
-    const EntityIterator& rhs )
+EntityIterator::EntityIterator( const EntityIterator& rhs )
 {
     b_iterator_impl = NULL;
     if ( NULL == rhs.b_iterator_impl )
@@ -72,8 +71,7 @@ EntityIterator::EntityIterator(
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-EntityIterator& EntityIterator::operator=( 
-    const EntityIterator& rhs )
+EntityIterator& EntityIterator::operator=( const EntityIterator& rhs )
 {
     if ( this == &rhs )
     {
@@ -177,8 +175,7 @@ Entity* EntityIterator::operator->(void)
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-bool EntityIterator::operator==( 
-    const EntityIterator& rhs ) const
+bool EntityIterator::operator==( const EntityIterator& rhs ) const
 {
     DTK_REQUIRE( NULL != b_iterator_impl );
     return b_iterator_impl->operator==( rhs );

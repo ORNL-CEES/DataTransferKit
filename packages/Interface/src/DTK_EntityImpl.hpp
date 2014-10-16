@@ -44,6 +44,7 @@
 #include <string>
 
 #include "DTK_Types.hpp"
+#include "DTK_EntityExtraData.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -94,6 +95,13 @@ class EntityImpl
      * describing the entity will be of this dimension.
      */
     virtual int physicalDimension() const;
+
+    /*!
+     * \brief Return the Cartesian bounding box around an entity.
+     * \param bounds The bounds of the box
+     * (x_min,y_min,z_min,x_max,y_max,z_max).
+     */
+    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
 
     /*!
      * \brief Determine if an entity is on the surface of the set.

@@ -89,8 +89,16 @@ int EntityImpl::physicalDimension() const
 }
 
 //---------------------------------------------------------------------------//
+// Return the Cartesian bounding box around an entity.
+void EntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
 // Determine if an entity is on the surface of the set.
-bool Entity::onSurface() const
+bool EntityImpl::onSurface() const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -99,7 +107,7 @@ bool Entity::onSurface() const
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
-bool Entity::inBlock( const int block_id ) const;
+bool EntityImpl::inBlock( const int block_id ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -108,7 +116,7 @@ bool Entity::inBlock( const int block_id ) const;
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
-bool Entity::onBoundary( const int boundary_id ) const;
+bool EntityImpl::onBoundary( const int boundary_id ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -117,7 +125,7 @@ bool Entity::onBoundary( const int boundary_id ) const;
 
 //---------------------------------------------------------------------------//
 // Get the extra data on the entity.
-Teuchos::RCP<EntityExtraData> Entity::extraData() const;
+Teuchos::RCP<EntityExtraData> EntityImpl::extraData() const
 {
     return Teuchos::null;
 }

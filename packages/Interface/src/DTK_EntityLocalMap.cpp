@@ -39,6 +39,7 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_EntityLocalMap.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
@@ -55,7 +56,7 @@ EntityLocalMap::~EntityLocalMap()
 //---------------------------------------------------------------------------//
 // Set parameters for mapping.
 void EntityLocalMap::setParameters( 
-    const Teuchos::RCP<ParameterList>& parameters )
+    const Teuchos::RCP<Teuchos::ParameterList>& parameters )
 {
     b_parameters = parameters;
 }
@@ -72,9 +73,8 @@ double EntityLocalMap::measure( const Entity& entity ) const
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void EntityLocalMap::centroid(
-    const Entity& entity,
-    Teuchos::ArrayView<const double>& centroid ) const
+void EntityLocalMap::centroid( 
+    const Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
 { 
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -83,25 +83,27 @@ void EntityLocalMap::centroid(
 //---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space
 // of an entity using the given tolerance. 
-void EntityLocalMap::isSafeToMapToReferenceFrame(
+bool EntityLocalMap::isSafeToMapToReferenceFrame(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::RCP<MappingStatus>& status ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
+    return false;
 }
 
 //---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the parameterized point.
-void EntityLocalMap::mapToReferenceFrame( 
+bool EntityLocalMap::mapToReferenceFrame( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point,
-    const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const
+    const Teuchos::RCP<MappingStatus>& status ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
+    return false;
 }
 
 //---------------------------------------------------------------------------//

@@ -56,12 +56,10 @@ class EuclideanDistance
   public:
 
     // Constructor.
-    EuclideanDistance()
-    { /* ... */ }
+    EuclideanDistance();
 
     // Destructor.
-    ~EuclideanDistance()
-    { /* ... */ }
+    ~EuclideanDistance();
 
     // Compute the Euclidean distance between the given set of coordinates.
     static double distance( const double* x1, const double* x2 );
@@ -70,12 +68,6 @@ class EuclideanDistance
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_EuclideanDistance_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

@@ -38,7 +38,7 @@
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_ShapeFunction.hpp"
+#include "DTK_EntityShapeFunction.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit

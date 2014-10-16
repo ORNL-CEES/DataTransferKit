@@ -45,6 +45,8 @@
 #include "DTK_Types.hpp"
 #include "DTK_MappingStatus.hpp"
 
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_ParameterList.hpp>
 #include <Teuchos_ArrayView.hpp>
 
 namespace DataTransferKit
@@ -78,7 +80,7 @@ class EntityLocalMap
      * \param parameters Parameters for mapping.
      */
     void setParameters( 
-	const Teuchos::RCP<ParameterList>& parameters = Teuchos::null );
+	const Teuchos::RCP<Teuchos::ParameterList>& parameters = Teuchos::null );
 
     /*!
      * \brief Return the entity measure with respect to the parameteric

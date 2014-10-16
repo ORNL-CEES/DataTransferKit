@@ -41,6 +41,8 @@
 #include "DTK_EntitySet.hpp"
 #include "DTK_DBC.hpp"
 
+#include <Teuchos_CommHelpers.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//

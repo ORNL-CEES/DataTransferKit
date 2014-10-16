@@ -57,6 +57,7 @@ Entity::~Entity()
 // Get the unique global identifier for the entity.
 EntityId Entity::id() const
 { 
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->id();
 }
     
@@ -64,6 +65,7 @@ EntityId Entity::id() const
 // Get the entity type.
 EntityType Entity::entityType() const
 {
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->entityType();
 }
 
@@ -71,40 +73,54 @@ EntityType Entity::entityType() const
 // Get the parallel rank that owns the entity.
 int Entity::ownerRank() const
 { 
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->ownerRank();
 }
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
 int Entity::physicalDimension() const
 { 
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->physicalDimension();
+}
+
+//---------------------------------------------------------------------------//
+// Return the Cartesian bounding box around an entity.
+void Entity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+{
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    b_entity_impl->boundingBox( bounds );
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the surface of the set.
 bool Entity::onSurface() const
 {
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->onSurface();
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
-bool Entity::inBlock( const int block_id ) const;
+bool Entity::inBlock( const int block_id ) const
 {
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->inBlock( block_id );
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
-bool Entity::onBoundary( const int boundary_id ) const;
+bool Entity::onBoundary( const int boundary_id ) const
 {
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->onBoundary( boundary_id );
 }
 
 //---------------------------------------------------------------------------//
 // Get the extra data on the entity.
-Teuchos::RCP<EntityExtraData> Entity::extraData() const;
+Teuchos::RCP<EntityExtraData> Entity::extraData() const
 {
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->extraData();
 }
 

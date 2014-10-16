@@ -96,6 +96,11 @@ class Entity
      */
     virtual int physicalDimension() const;
 
+    /*!
+     * \brief Return the Cartesian bounding box around an entity.
+     * \param bounds The bounds of the box
+     * (x_min,y_min,z_min,x_max,y_max,z_max).
+     */
     virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
 
     /*!

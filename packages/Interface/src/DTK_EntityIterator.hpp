@@ -74,8 +74,7 @@ class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
     /*!
      * \brief Assignment operator.
      */
-    EntityIterator& 
-    operator=( const EntityIterator& rhs );
+    EntityIterator& operator=( const EntityIterator& rhs );
 
     /*!
      * \brief Destructor.
@@ -127,7 +126,7 @@ class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
     EntityIterator* b_iterator_impl;
 
     // Predicate.
-    std::function<bool(Entity&)> b_predicate;
+    std::function<bool(Entity)> b_predicate;
 };
 
 //---------------------------------------------------------------------------//
