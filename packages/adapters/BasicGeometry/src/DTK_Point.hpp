@@ -58,7 +58,6 @@ namespace DataTransferKit
  * \brief Point container declaration.
  */
 //---------------------------------------------------------------------------//
-template<int DIM>
 class Point : public Entity
 {
   public:
@@ -79,59 +78,53 @@ class Point : public Entity
     // Get the coordinates of the point.
     void getCoordinates( Teuchos::ArrayView<const double>& coordinates ) const;
     //@}
-    //@}
 
-    // Get the byte size for the point.
-    static std::size_t byteSize();
+    // Return the entity measure with respect to the parameteric
+    double measure() const;
+
+    // Return the centroid of the entity.
+    void centroid( Teuchos::ArrayView<const double>& centroid ) const;
+
+    // Return the axis-aligned bounding box around the entity.
+    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+
+    // Perform a safeguard check for mapping a point to the reference
+    void safeguardMapToReferenceFrame(
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& point,
+	MappingStatus& status ) const;
+
+    // Map a point to the reference space of an entity. Return the
+    void mapToReferenceFrame( 
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& point,
+	const Teuchos::ArrayView<double>& reference_point,
+	MappingStatus& status ) const;
+
+    // Determine if a reference point is in the parameterized space of
+    bool checkPointInclusion( 
+	const Teuchos::ParameterList& parameters,
+	const Teuchos::ArrayView<const double>& reference_point ) const;
+
+    // Map a reference point to the physical space of an entity.
+    void mapToPhysicalFrame( 
+	const Teuchos::ArrayView<const double>& reference_point,
+	const Teuchos::ArrayView<double>& point ) const;
 
   private:
 
     // Point implementation.
-    Teuchos::RCP<PointImpl<DIM> > d_point_impl;
+    Teuchos::RCP<PointImpl > d_point_impl;
 };
 
 //---------------------------------------------------------------------------//
 //! overload for printing Point
 template<int DIM>
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point<DIM>& p); 
-
-//---------------------------------------------------------------------------//
-// AbstractObjectRegistrationPolicy implementation.
-//---------------------------------------------------------------------------//
-template<int DIM>
-class AbstractObjectRegistrationPolicy<Point<DIM> >
-{
-  public:
-
-    //! Base class type.
-    typedef Point<DIM> object_type;
-
-    /*!
-     * \brief Register a derived class with a base class.
-     */
-    static void registerDerivedClassWithBaseClass()
-    {
-	// Register the constructor with the base class
-	// AbstractBuildableObject interface.
-	Entity::setDerivedClassFactory<Point<DIM> >();
-
-	// Register the byte size with the base class
-	// AbstractSerializableObject interface.
-	Entity::setDerivedClassByteSize( Point<DIM>::byteSize() );
-    }
-};
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p); 
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_Point_impl.hpp"
-
-//---------------------------------------------------------------------------//
 
 #endif // end DTK_POINT_HPP
 

@@ -32,56 +32,116 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Point_impl.hpp
+ * \file DTK_Point.cpp
  * \author Stuart R. Slattery
  * \brief Point definition
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_POINT_IMPL_HPP
-#define DTK_POINT_IMPL_HPP
-
 #include <limits>
 
 #include "DTK_DBC.hpp"
-#include "DTK_DataSerializer.hpp"
+#include "DTK_Point.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-template<int DIM>
-Point<DIM>::Point()
+Point::Point()
 {
-    d_point_impl = Teuchos::rcp( new PointImpl<DIM>() );
+    d_point_impl = Teuchos::rcp( new PointImpl() );
     this->b_entity_impl = d_point_impl;
 }
 
 //---------------------------------------------------------------------------//
 // Array constructor.
-template<int DIM>
-Point<DIM>::Point( const EntityId global_id, 
+Point::Point( const EntityId global_id, 
 	      const int owner_rank,
 	      const Teuchos::Array<double>& coordinates )
 {
     d_point_impl = 
-	Teuchos::rcp( new PointImpl<DIM>(global_id,owner_rank,coordinates) );
+	Teuchos::rcp( new PointImpl(global_id,owner_rank,coordinates) );
     this->b_entity_impl = d_point_impl;
 }
 
 //---------------------------------------------------------------------------//
 // Destructor.
-template<int DIM>
-Point<DIM>::~Point()
+Point::~Point()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Get the coordinates of the point.
-template<int DIM>
-void Point<DIM>::getCoordinates( 
+void Point::getCoordinates( 
     Teuchos::ArrayView<const double>& coordinates ) const
 { 
     d_point_impl->getCoordinates( coordinates );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Compute the volume of the box.
+ *
+ * \return Return the volume of the box.
+ */
+double Point::measure() const
+{
+    return Teuchos::rcp_dynamic_cast<BoxImpl>(this->b_entity_impl)->measure();
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the centroid of the box.
+ *
+ * \return The centroid coordinates.
+ */
+void Point::centroid( const Teuchos::ArrayView<double>& centroid ) const
+{
+    this->getCoordinates( centroid );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Safeguard the reverse map.
+ */
+bool Point::isSafeToMapToReferenceFrame(
+    const Teuchos::ArrayView<const double>& point ) const
+{
+    return false;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Map a point to the reference space of an entity. Return the
+ */
+bool Point::mapToReferenceFrame( 
+    const Teuchos::ArrayView<const double>& point,
+    const Teuchos::ArrayView<double>& reference_point ) const
+{
+    reference_point.assign( point );
+    return false;
+}
+
+//---------------------------------------------------------------------------//
+/*!  
+ * \brief Determine if a reference point is in the parameterized space of
+ * an entity.
+ */
+bool Point::checkPointInclusion( 
+    const double tolerance,
+    const Teuchos::ArrayView<const double>& reference_point ) const
+{
+    return false;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Map a reference point to the physical space of an entity.
+ */
+void Point::mapToPhysicalFrame( 
+    const Teuchos::ArrayView<const double>& reference_point,
+    const Teuchos::ArrayView<double>& point ) const
+{
+    point.assign( reference_point );
 }
 
 //---------------------------------------------------------------------------//
@@ -90,8 +150,7 @@ void Point<DIM>::getCoordinates(
  *
  * \return The ostream.
  */
-template<int DIM>
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point<DIM>& p)
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p)
 {
     Teuchos::ArrayView<const double> coords;
     p.getCoordinates( coords );
@@ -103,22 +162,10 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point<DIM>& p)
 }
 
 //---------------------------------------------------------------------------//
-// Static Members.
-//---------------------------------------------------------------------------//
-// Get the byte size of the point.
-template<int DIM>
-std::size_t Point<DIM>::byteSize()
-{
-    return PointImpl<DIM>::byteSize();
-}
-
-//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_POINT_IMPL_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_Point_impl.hpp
+// end DTK_Point.cpp
 //---------------------------------------------------------------------------//
 

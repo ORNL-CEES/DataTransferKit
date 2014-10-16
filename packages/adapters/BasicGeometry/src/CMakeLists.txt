@@ -19,14 +19,14 @@ APPEND_SET(HEADERS
   DTK_Box.hpp
   DTK_BoxImpl.hpp
   DTK_Point.hpp
-  DTK_Point_impl.hpp
   DTK_PointImpl.hpp
-  DTK_PointImpl_impl.hpp
   ) 
 
 APPEND_SET(SOURCES
   DTK_Box.cpp
   DTK_BoxImpl.cpp
+  DTK_Point.cpp
+  DTK_PointImpl.cpp
   )
 
 #
@@ -34,7 +34,7 @@ APPEND_SET(SOURCES
 #
 
 TRIBITS_ADD_LIBRARY(
-  dtk_geometry
+  dtk_basicgeometryadapters
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )

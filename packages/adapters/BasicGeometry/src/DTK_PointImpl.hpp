@@ -43,7 +43,6 @@
 
 #include "DTK_Types.hpp"
 #include "DTK_EntityImpl.hpp"
-#include "DTK_Box.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 
@@ -71,7 +70,6 @@ namespace DataTransferKit
  * directly subclass Entity for their particular point type.
  */
 //---------------------------------------------------------------------------//
-template<int DIM>
 class PointImpl : public EntityImpl
 {
   public:
@@ -94,11 +92,6 @@ class PointImpl : public EntityImpl
     getCoordinates( Teuchos::ArrayView<const double>& coordinates ) const;
     //@}
 
-    //@{ 
-    //! Entity implementation.
-    // Return a string indicating the derived entity type.
-    std::string name() const;
-
     // Get the entity type.
     EntityType entityType() const;
 
@@ -110,52 +103,7 @@ class PointImpl : public EntityImpl
 
     // Return the physical dimension of the entity.
     virtual int physicalDimension() const;
-
-    // Return the parametric dimension of the entity.
-    int parametricDimension() const;
-
-    // Return the entity measure with respect to the parameteric
-    double measure() const;
-
-    // Return the centroid of the entity.
-    void centroid( Teuchos::ArrayView<const double>& centroid ) const;
-
-    // Return the axis-aligned bounding box around the entity.
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
-
-    // Perform a safeguard check for mapping a point to the reference
-    void safeguardMapToReferenceFrame(
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& point,
-	MappingStatus& status ) const;
-
-    // Map a point to the reference space of an entity. Return the
-    void mapToReferenceFrame( 
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point,
-	MappingStatus& status ) const;
-
-    // Determine if a reference point is in the parameterized space of
-    bool checkPointInclusion( 
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
-
-    // Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
      
-    // Serialize the entity into a buffer.
-    void serialize( const Teuchos::ArrayView<char>& buffer ) const;
-
-    // Deserialize an entity from a buffer.
-    void deserialize( const Teuchos::ArrayView<const char>& buffer );
-    //@}
-
-    // Get the byte size for the box.
-    static std::size_t byteSize();
-
   protected:
 
     // Global id.
@@ -168,22 +116,11 @@ class PointImpl : public EntityImpl
 
     // Coordinates.
     Teuchos::Array<double> d_coordinates;
-
-  private:
-
-    // Packed size in bytes.
-    static std::size_t d_byte_size;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_PointImpl_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
