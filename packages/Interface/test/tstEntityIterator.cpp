@@ -15,6 +15,8 @@
 #include <cassert>
 #include <functional>
 
+#include <DTK_Types.hpp>
+#include <DTK_Entity.hpp>
 #include <DTK_EntityIterator.hpp>
 #include <DTK_PredicateComposition.hpp>
 
@@ -29,11 +31,40 @@
 #include <Teuchos_Tuple.hpp>
 
 //---------------------------------------------------------------------------//
+// EntityImpl Implementation.
+//---------------------------------------------------------------------------//
+class TestEntityImpl : public DataTransferKit::EntityImpl
+{
+  public:
+    TestEntityImpl( int id ) { d_id = id; }
+    ~TestEntityImpl() { /* ... */ }
+    DataTransferKit::EntityId id() const { return d_id; }
+  private:
+    DataTransferKit::EntityId d_id;
+};
+
+
+//---------------------------------------------------------------------------//
+// Entity Implementation.
+//---------------------------------------------------------------------------//
+class TestEntity : public DataTransferKit::Entity
+{
+  public:
+    TestEntity( int id ) 
+    { this->b_entity_impl = Teuchos::rcp( new TestEntityImpl(id) ); }
+    ~TestEntity() { /* ... */ }
+};
+
+
+//---------------------------------------------------------------------------//
 // Helper predicates.
 //---------------------------------------------------------------------------//
-std::function<bool(int&)> even_func = [](int& n){ return ((n%2) == 0); };
-std::function<bool(int&)> odd_func = [](int& n){ return ((n%2) == 1); };
-std::function<bool(int&)> two_func = [](int& n){ return ((n%10) == 2); };
+std::function<bool(DataTransferKit::Entity)> even_func = 
+    [](DataTransferKit::Entity e){ return ((e.id()%2) == 0); };
+std::function<bool(DataTransferKit::Entity)> odd_func = 
+    [](DataTransferKit::Entity e){ return ((e.id()%2) == 1); };
+std::function<bool(DataTransferKit::Entity)> two_func = 
+    [](DataTransferKit::Entity e){ return ((e.id()%10) == 2); };
 
 //---------------------------------------------------------------------------//
 // EntityIterator implementation.
@@ -46,7 +77,7 @@ class VectorIterator : public DataTransferKit::EntityIterator
      * \brief Default constructor.
      */
     VectorIterator()
-	: d_it_value( NULL )
+	: d_it_entity( NULL )
     {
 	this->b_iterator_impl = NULL;
     }
@@ -54,10 +85,10 @@ class VectorIterator : public DataTransferKit::EntityIterator
     /*!
      * \brief Constructor.
      */
-    VectorIterator( const Teuchos::RCP<std::vector<DataTransferKit::Entity> >& values ) 
-	: d_values( values )
-	, d_vec_it( d_values->begin() )
-	, d_it_value( &(*d_vec_it) )
+    VectorIterator( const Teuchos::RCP<std::vector<DataTransferKit::Entity> >& entities ) 
+	: d_entities( entities )
+	, d_vec_it( d_entities->begin() )
+	, d_it_entity( &(*d_vec_it) )
     {
 	this->b_iterator_impl = NULL;
     }
@@ -65,11 +96,11 @@ class VectorIterator : public DataTransferKit::EntityIterator
     /*!
      * \brief Predicate constructor.
      */
-    VectorIterator( const Teuchos::RCP<std::vector<DataTransferKit::Entity> >& values,
-		    const std::function<bool(T&)>& predicate ) 
-	: d_values( values )
-	, d_vec_it( d_values->begin() )
-	, d_it_value( &(*d_vec_it) )
+    VectorIterator( const Teuchos::RCP<std::vector<DataTransferKit::Entity> >& entities,
+		    const std::function<bool(DataTransferKit::Entity)>& predicate ) 
+	: d_entities( entities )
+	, d_vec_it( d_entities->begin() )
+	, d_it_entity( &(*d_vec_it) )
     {
 	this->b_iterator_impl = NULL;
 	this->b_predicate = predicate;
@@ -78,11 +109,11 @@ class VectorIterator : public DataTransferKit::EntityIterator
     /*!
      * \brief Copy constructor.
      */
-    VectorIterator( const VectorIterator<DataTransferKit::Entity>& rhs )
-	: d_values( rhs.d_values )
-	, d_vec_it( d_values->begin() + 
-		    std::distance(rhs.d_values->begin(),rhs.d_vec_it) )
-	, d_it_value( &(*d_vec_it) )
+    VectorIterator( const VectorIterator& rhs )
+	: d_entities( rhs.d_entities )
+	, d_vec_it( d_entities->begin() + 
+		    std::distance(rhs.d_entities->begin(),rhs.d_vec_it) )
+	, d_it_entity( &(*d_vec_it) )
     {
 	this->b_iterator_impl = NULL;
 	this->b_predicate = rhs.b_predicate;
@@ -91,7 +122,7 @@ class VectorIterator : public DataTransferKit::EntityIterator
     /*!
      * \brief Assignment operator.
      */
-    VectorIterator& operator=( const VectorIterator<DataTransferKit::Entity>& rhs )
+    VectorIterator& operator=( const VectorIterator& rhs )
     {
 	this->b_iterator_impl = NULL;
 	this->b_predicate = rhs.b_predicate;
@@ -99,10 +130,10 @@ class VectorIterator : public DataTransferKit::EntityIterator
 	{
 	    return *this;
 	}
-	this->d_values = rhs.d_values;
-	this->d_vec_it = this->d_values->begin() + 
-			 std::distance(rhs.d_values->begin(),rhs.d_vec_it);
-	this->d_it_value = &(*(this->d_vec_it));
+	this->d_entities = rhs.d_entities;
+	this->d_vec_it = this->d_entities->begin() + 
+			 std::distance(rhs.d_entities->begin(),rhs.d_vec_it);
+	this->d_it_entity = &(*(this->d_vec_it));
 	return *this;
     }
 
@@ -122,26 +153,26 @@ class VectorIterator : public DataTransferKit::EntityIterator
     }
 
     // Dereference operator.
-    T& operator*(void)
+    DataTransferKit::Entity& operator*(void)
     {
 	this->operator->();
-	return *d_it_value;
+	return *d_it_entity;
     }
 
     // Dereference operator.
-    T* operator->(void)
+    DataTransferKit::Entity* operator->(void)
     {
-	d_it_value = &(*d_vec_it);
-	return d_it_value;
+	d_it_entity = &(*d_vec_it);
+	return d_it_entity;
     }
 
     // Equal comparison operator.
     bool operator==( const DataTransferKit::EntityIterator& rhs ) const
     { 
-	const VectorIterator<DataTransferKit::Entity>* rhs_vec = 
-	    static_cast<const VectorIterator<DataTransferKit::Entity>*>(&rhs);
-	const VectorIterator<DataTransferKit::Entity>* rhs_vec_impl = 
-	    static_cast<const VectorIterator<DataTransferKit::Entity>*>(rhs_vec->b_iterator_impl);
+	const VectorIterator* rhs_vec = 
+	    static_cast<const VectorIterator*>(&rhs);
+	const VectorIterator* rhs_vec_impl = 
+	    static_cast<const VectorIterator*>(rhs_vec->b_iterator_impl);
 	return ( rhs_vec_impl->d_vec_it == d_vec_it );
     }
 
@@ -154,20 +185,20 @@ class VectorIterator : public DataTransferKit::EntityIterator
     // Size of the iterator.
     std::size_t size() const
     { 
-	return d_values->size();
+	return d_entities->size();
     }
 
     // An iterator assigned to the beginning.
     DataTransferKit::EntityIterator begin() const
     { 
-	return VectorIterator( d_values , this->b_predicate );
+	return VectorIterator( d_entities , this->b_predicate );
     }
 
     // An iterator assigned to the end.
     DataTransferKit::EntityIterator end() const
     {
-	VectorIterator end_it( d_values, this->b_predicate );
-	end_it.d_vec_it = d_values->end();
+	VectorIterator end_it( d_entities, this->b_predicate );
+	end_it.d_vec_it = d_entities->end();
 	return end_it;
     }
 
@@ -181,13 +212,13 @@ class VectorIterator : public DataTransferKit::EntityIterator
   private:
 
     // Vector.
-    Teuchos::RCP<std::vector<DataTransferKit::Entity> > d_values;
+    Teuchos::RCP<std::vector<DataTransferKit::Entity> > d_entities;
 
-    // Iterator To vector.
+    // Iterator to vector.
     typename std::vector<DataTransferKit::Entity>::iterator d_vec_it;
 
     // Pointer to the current entity.
-    Entity* d_it_value;
+    DataTransferKit::Entity* d_it_entity;
 };
 
 //---------------------------------------------------------------------------//
@@ -200,41 +231,41 @@ TEUCHOS_UNIT_TEST( EntityIterator, constructor_test )
 
     // Create a vector.
     int num_data = 10;
-    Teuchos::RCP<std::vector<int> > data =
-	Teuchos::rcp( new std::vector<int>(num_data) );
+    Teuchos::RCP<std::vector<Entity> > data =
+	Teuchos::rcp( new std::vector<Entity>(num_data) );
     for ( int i = 0; i < num_data; ++i )
     {
-	(*data)[i] = i;
+	(*data)[i] = TestEntity(i);
     }
 
     // Create an iterator over the vector.
-    EntityIterator<int> abstract_it = VectorIterator<int>( data );
+    EntityIterator entity_it = VectorIterator( data );
 
     // Call the copy constructor.
-    EntityIterator<int> it_1( abstract_it );
-    TEST_ASSERT( abstract_it == it_1 );
-    TEST_ASSERT( abstract_it.size() == it_1.size() );
-    TEST_ASSERT( abstract_it.begin() == it_1.begin() );
-    TEST_ASSERT( abstract_it.end() == it_1.end() );
-    TEST_EQUALITY( *abstract_it, *it_1 );
-    ++abstract_it;
+    EntityIterator it_1( entity_it );
+    TEST_ASSERT( entity_it == it_1 );
+    TEST_ASSERT( entity_it.size() == it_1.size() );
+    TEST_ASSERT( entity_it.begin() == it_1.begin() );
+    TEST_ASSERT( entity_it.end() == it_1.end() );
+    TEST_EQUALITY( entity_it->id(), it_1->id() );
+    ++entity_it;
     ++it_1;
-    TEST_EQUALITY( *abstract_it, *it_1 );
+    TEST_EQUALITY( entity_it->id(), it_1->id() );
     ++it_1;
-    TEST_ASSERT( abstract_it != it_1 );
+    TEST_ASSERT( entity_it != it_1 );
 
     // Call the assignment operator.
-    it_1 = abstract_it;
-    TEST_ASSERT( abstract_it == it_1 );
-    TEST_ASSERT( abstract_it.size() == it_1.size() );
-    TEST_ASSERT( abstract_it.begin() == it_1.begin() );
-    TEST_ASSERT( abstract_it.end() == it_1.end() );
-    TEST_EQUALITY( *abstract_it, *it_1 );
-    ++abstract_it;
+    it_1 = entity_it;
+    TEST_ASSERT( entity_it == it_1 );
+    TEST_ASSERT( entity_it.size() == it_1.size() );
+    TEST_ASSERT( entity_it.begin() == it_1.begin() );
+    TEST_ASSERT( entity_it.end() == it_1.end() );
+    TEST_EQUALITY( entity_it->id(), it_1->id() );
+    ++entity_it;
     ++it_1;
-    TEST_EQUALITY( *abstract_it, *it_1 );
+    TEST_EQUALITY( entity_it->id(), it_1->id() );
     ++it_1;
-    TEST_ASSERT( abstract_it != it_1 );
+    TEST_ASSERT( entity_it != it_1 );
 }
 
 //---------------------------------------------------------------------------//
@@ -245,26 +276,26 @@ TEUCHOS_UNIT_TEST( EntityIterator, predicate_constructor_test )
 
     // Create a vector.
     int num_data = 10;
-    Teuchos::RCP<std::vector<int> > data =
-	Teuchos::rcp( new std::vector<int>(num_data) );
+    Teuchos::RCP<std::vector<Entity> > data =
+	Teuchos::rcp( new std::vector<Entity>(num_data) );
     for ( int i = 0; i < num_data; ++i )
     {
-	(*data)[i] = i;
+	(*data)[i] = TestEntity(i);
     }
 
     // Create an iterator over the odd components vector.
-    EntityIterator<int> odd_it = VectorIterator<int>( data, odd_func );
+    EntityIterator odd_it = VectorIterator( data, odd_func );
 
     // Call the copy constructor.
-    EntityIterator<int> it_1( odd_it );
+    EntityIterator it_1( odd_it );
     TEST_ASSERT( odd_it == it_1 );
     TEST_ASSERT( odd_it.size() == it_1.size() );
     TEST_ASSERT( odd_it.begin() == it_1.begin() );
     TEST_ASSERT( odd_it.end() == it_1.end() );
-    TEST_EQUALITY( *odd_it, *it_1 );
+    TEST_EQUALITY( odd_it->id(), it_1->id() );
     ++odd_it;
     ++it_1;
-    TEST_EQUALITY( *odd_it, *it_1 );
+    TEST_EQUALITY( odd_it->id(), it_1->id() );
     ++it_1;
     TEST_ASSERT( odd_it != it_1 );
 
@@ -274,20 +305,20 @@ TEUCHOS_UNIT_TEST( EntityIterator, predicate_constructor_test )
     TEST_ASSERT( odd_it.size() == it_1.size() );
     TEST_ASSERT( odd_it.begin() == it_1.begin() );
     TEST_ASSERT( odd_it.end() == it_1.end() );
-    TEST_EQUALITY( *odd_it, *it_1 );
+    TEST_EQUALITY( odd_it->id(), it_1->id() );
     ++odd_it;
     ++it_1;
-    TEST_EQUALITY( *odd_it, *it_1 );
+    TEST_EQUALITY( odd_it->id(), it_1->id() );
     ++it_1;
     TEST_ASSERT( odd_it != it_1 );
     TEST_EQUALITY( odd_it.size(), 5 );
     TEST_EQUALITY( it_1.size(), 5 );
 
     // Create an iterator over the components vector that end in 2.
-    EntityIterator<int> two_it = VectorIterator<int>( data, two_func );
+    EntityIterator two_it = VectorIterator( data, two_func );
     TEST_EQUALITY( two_it.size(), 1 );
-    EntityIterator<int>begin_it = two_it.begin();
-    EntityIterator<int> end_it = two_it.end();
+    EntityIterator begin_it = two_it.begin();
+    EntityIterator end_it = two_it.end();
     for ( two_it = begin_it; two_it != end_it; ++two_it )
     {
     	TEST_ASSERT( two_func(*two_it) );
@@ -313,58 +344,58 @@ TEUCHOS_UNIT_TEST( EntityIterator, iterator_test )
 
     // Create a vector.
     int num_data = 10;
-    Teuchos::RCP<std::vector<int> > data =
-	Teuchos::rcp( new std::vector<int>(num_data) );
+    Teuchos::RCP<std::vector<Entity> > data =
+	Teuchos::rcp( new std::vector<Entity>(num_data) );
     for ( int i = 0; i < num_data; ++i )
     {
-	(*data)[i] = std::rand();
+	(*data)[i] = TestEntity( std::rand() );
     }
 
     // Create an iterator over the vector.
-    EntityIterator<int> abstract_it = VectorIterator<int>( data );
+    EntityIterator entity_it = VectorIterator( data );
 
     // Check size.
-    TEST_EQUALITY( num_data, Teuchos::as<int>(abstract_it.size()) );
+    TEST_EQUALITY( num_data, Teuchos::as<int>(entity_it.size()) );
 
     // Check the beginning and end.
-    EntityIterator<int> begin_it = abstract_it.begin();
-    EntityIterator<int> end_it = abstract_it.end();
+    EntityIterator begin_it = entity_it.begin();
+    EntityIterator end_it = entity_it.end();
     TEST_EQUALITY( num_data, Teuchos::as<int>(begin_it.size()) );
     TEST_EQUALITY( num_data, Teuchos::as<int>(end_it.size()) );
 
     // Check the dereference operators.
-    TEST_EQUALITY( *abstract_it, (*data)[0] );
-    TEST_EQUALITY( *begin_it, (*data)[0] );
+    TEST_EQUALITY( entity_it->id(), (*data)[0].id() );
+    TEST_EQUALITY( begin_it->id(), (*data)[0].id() );
 
     // Check the comparison operators.
-    TEST_ASSERT( begin_it == abstract_it );
-    TEST_ASSERT( end_it != abstract_it );
+    TEST_ASSERT( begin_it == entity_it );
+    TEST_ASSERT( end_it != entity_it );
 
     // Check the iterator in a for loop.
-    std::vector<int>::const_iterator data_it;
-    for ( abstract_it = begin_it, data_it = data->begin(); 
-    	  abstract_it != end_it; 
-    	  ++abstract_it, ++data_it )
+    std::vector<Entity>::const_iterator data_it;
+    for ( entity_it = begin_it, data_it = data->begin(); 
+    	  entity_it != end_it; 
+    	  ++entity_it, ++data_it )
     {
-    	TEST_EQUALITY( *data_it, *abstract_it );
+    	TEST_EQUALITY( data_it->id(), entity_it->id() );
     }
 
     // Check the increment operators.
-    abstract_it = begin_it;
-    EntityIterator<int> cp_it = abstract_it;
-    ++abstract_it;
-    TEST_EQUALITY( *abstract_it, (*data)[1] );
-    TEST_EQUALITY( *cp_it, (*data)[0] );
-    abstract_it++;
-    TEST_EQUALITY( *abstract_it, (*data)[2] );
-    TEST_EQUALITY( *cp_it, (*data)[0] );
-    int value = *(++abstract_it);
-    TEST_EQUALITY( value, (*data)[3] );
-    TEST_EQUALITY( *cp_it, (*data)[0] );
-    value = (*abstract_it++);
-    TEST_EQUALITY( value, (*data)[3] );
-    TEST_EQUALITY( *abstract_it, (*data)[4] );
-    TEST_EQUALITY( *cp_it, (*data)[0] );
+    entity_it = begin_it;
+    EntityIterator cp_it = entity_it;
+    ++entity_it;
+    TEST_EQUALITY( entity_it->id(), (*data)[1].id() );
+    TEST_EQUALITY( cp_it->id(), (*data)[0].id() );
+    entity_it++;
+    TEST_EQUALITY( entity_it->id(), (*data)[2].id() );
+    TEST_EQUALITY( cp_it->id(), (*data)[0].id() );
+    DataTransferKit::Entity entity = *(++entity_it);
+    TEST_EQUALITY( entity.id(), (*data)[3].id() );
+    TEST_EQUALITY( cp_it->id(), (*data)[0].id() );
+    entity = *(entity_it++);
+    TEST_EQUALITY( entity.id(), (*data)[3].id() );
+    TEST_EQUALITY( entity_it->id(), (*data)[4].id() );
+    TEST_EQUALITY( cp_it->id(), (*data)[0].id() );
 }
 
 //---------------------------------------------------------------------------//
@@ -375,20 +406,20 @@ TEUCHOS_UNIT_TEST( EntityIterator, single_predicate_test )
 
     // Create a vector.
     int num_data = 10;
-    Teuchos::RCP<std::vector<int> > data =
-    	Teuchos::rcp( new std::vector<int>(num_data) );
+    Teuchos::RCP<std::vector<Entity> > data =
+    	Teuchos::rcp( new std::vector<Entity>(num_data) );
     for ( int i = 0; i < num_data; ++i )
     {
-    	(*data)[i] = i;
+    	(*data)[i] = TestEntity(i);
     }
 
     // Create an iterator over the vector for the even numbers.
-    EntityIterator<int> even_it = VectorIterator<int>( data, even_func );
+    EntityIterator even_it = VectorIterator( data, even_func );
     TEST_EQUALITY( 5, Teuchos::as<int>(even_it.size()) );
 
     // Check the iterator in a for loop.
-    EntityIterator<int> begin_it = even_it.begin();
-    EntityIterator<int> end_it = even_it.end();
+    EntityIterator begin_it = even_it.begin();
+    EntityIterator end_it = even_it.end();
     for ( even_it = begin_it;
     	  even_it != end_it; 
     	  ++even_it )
@@ -397,7 +428,7 @@ TEUCHOS_UNIT_TEST( EntityIterator, single_predicate_test )
     }
 
     // Create an iterator over the vector for the odd numbers.
-    EntityIterator<int> odd_it = VectorIterator<int>( data, odd_func );
+    EntityIterator odd_it = VectorIterator( data, odd_func );
     TEST_EQUALITY( 5, Teuchos::as<int>(odd_it.size()) );
 
     // Check the iterator in a for loop.
@@ -412,7 +443,7 @@ TEUCHOS_UNIT_TEST( EntityIterator, single_predicate_test )
 
     // Create an iterator over the vector for numbers with 2 as the last
     // number.
-    EntityIterator<int> two_it = VectorIterator<int>( data, two_func );
+    EntityIterator two_it = VectorIterator( data, two_func );
     TEST_EQUALITY( two_it.size(), 1 );
     begin_it = two_it.begin();
     end_it = two_it.end();
@@ -430,40 +461,40 @@ TEUCHOS_UNIT_TEST( EntityIterator, predicate_intersection_test )
 
     // Create a vector.
     int num_data = 10;
-    Teuchos::RCP<std::vector<int> > data =
-    	Teuchos::rcp( new std::vector<int>(num_data) );
+    Teuchos::RCP<std::vector<Entity> > data =
+    	Teuchos::rcp( new std::vector<Entity>(num_data) );
     for ( int i = 0; i < num_data; ++i )
     {
-    	(*data)[i] = i;
+    	(*data)[i] = TestEntity(i);
     }
 
     // Create an iterator over the vector for the even and numbers.
-    EntityIterator<int> even_odd_intersect_it = 
-	VectorIterator<int>( data, PredicateComposition::And(even_func,odd_func) );
+    EntityIterator even_odd_intersect_it = 
+	VectorIterator( data, PredicateComposition::And(even_func,odd_func) );
     TEST_EQUALITY( even_odd_intersect_it.size(), 0 );
-    EntityIterator<int> odd_even_intersect_it = 
-	VectorIterator<int>( data, PredicateComposition::And(odd_func,even_func) );
+    EntityIterator odd_even_intersect_it = 
+	VectorIterator( data, PredicateComposition::And(odd_func,even_func) );
     TEST_EQUALITY( odd_even_intersect_it.size(), 0 );
 
     // Create the intersection of the even and two set.
-    EntityIterator<int> even_two_intersect_it = 
-	VectorIterator<int>( data, PredicateComposition::And(even_func,two_func) );
+    EntityIterator even_two_intersect_it = 
+	VectorIterator( data, PredicateComposition::And(even_func,two_func) );
     TEST_EQUALITY( even_two_intersect_it.size(), 1 );
-    EntityIterator<int> two_even_intersect_it = 
-	VectorIterator<int>( data, PredicateComposition::And(two_func,even_func) );
+    EntityIterator two_even_intersect_it = 
+	VectorIterator( data, PredicateComposition::And(two_func,even_func) );
     TEST_EQUALITY( two_even_intersect_it.size(), 1 );
 
     // Create the intersection of the two and odd set.
-    EntityIterator<int> two_odd_intersection_it = 
-	VectorIterator<int>( data, PredicateComposition::And(two_func,odd_func) );
+    EntityIterator two_odd_intersection_it = 
+	VectorIterator( data, PredicateComposition::And(two_func,odd_func) );
     TEST_EQUALITY( two_odd_intersection_it.size(), 0 );
-    EntityIterator<int> odd_two_intersection_it = 
-	VectorIterator<int>( data, PredicateComposition::And(odd_func,two_func) );
+    EntityIterator odd_two_intersection_it = 
+	VectorIterator( data, PredicateComposition::And(odd_func,two_func) );
     TEST_EQUALITY( odd_two_intersection_it.size(), 0 );
 
     // Intersect the odd set with itself.
-    EntityIterator<int> odd_odd_intersect_it = 
-	VectorIterator<int>( data, PredicateComposition::And(odd_func,odd_func) );
+    EntityIterator odd_odd_intersect_it = 
+	VectorIterator( data, PredicateComposition::And(odd_func,odd_func) );
     TEST_EQUALITY( odd_odd_intersect_it.size(), 5 );
 }
 
@@ -475,40 +506,40 @@ TEUCHOS_UNIT_TEST( EntityIterator, predicate_union_test )
 
     // Create a vector.
     int num_data = 10;
-    Teuchos::RCP<std::vector<int> > data =
-    	Teuchos::rcp( new std::vector<int>(num_data) );
+    Teuchos::RCP<std::vector<Entity> > data =
+    	Teuchos::rcp( new std::vector<Entity>(num_data) );
     for ( int i = 0; i < num_data; ++i )
     {
-    	(*data)[i] = i;
+    	(*data)[i] = TestEntity(i);
     }
 
     // Create the union of the even and odd set.
-    EntityIterator<int> even_odd_union_it = 
-	VectorIterator<int>( data, PredicateComposition::Or(even_func,odd_func) );
+    EntityIterator even_odd_union_it = 
+	VectorIterator( data, PredicateComposition::Or(even_func,odd_func) );
     TEST_EQUALITY( even_odd_union_it.size(), 10 );
-    EntityIterator<int> odd_even_union_it = 
-	VectorIterator<int>( data, PredicateComposition::Or(odd_func,even_func) );
+    EntityIterator odd_even_union_it = 
+	VectorIterator( data, PredicateComposition::Or(odd_func,even_func) );
     TEST_EQUALITY( odd_even_union_it.size(), 10 );
 
     // Create the union of the even and two set.
-    EntityIterator<int> even_two_union_it = 
-	VectorIterator<int>( data, PredicateComposition::Or(even_func,two_func) );
+    EntityIterator even_two_union_it = 
+	VectorIterator( data, PredicateComposition::Or(even_func,two_func) );
     TEST_EQUALITY( even_two_union_it.size(), 5 );
-    EntityIterator<int> two_even_union_it = 
-	VectorIterator<int>( data, PredicateComposition::Or(two_func,even_func) );
+    EntityIterator two_even_union_it = 
+	VectorIterator( data, PredicateComposition::Or(two_func,even_func) );
     TEST_EQUALITY( two_even_union_it.size(), 5 );
 
     // Union the odd set with itself.
-    EntityIterator<int> odd_odd_union_it = 
-	VectorIterator<int>( data, PredicateComposition::Or(odd_func,odd_func) );
+    EntityIterator odd_odd_union_it = 
+	VectorIterator( data, PredicateComposition::Or(odd_func,odd_func) );
     TEST_EQUALITY( odd_odd_union_it.size(), 5 );
 
     // Create the union of the two and odd set.
-    EntityIterator<int> two_odd_union_it = 
-	VectorIterator<int>( data, PredicateComposition::Or(two_func,odd_func) );
+    EntityIterator two_odd_union_it = 
+	VectorIterator( data, PredicateComposition::Or(two_func,odd_func) );
     TEST_EQUALITY( two_odd_union_it.size(), 6 );
-    EntityIterator<int> odd_two_union_it = 
-	VectorIterator<int>( data, PredicateComposition::Or(odd_func,two_func) );
+    EntityIterator odd_two_union_it = 
+	VectorIterator( data, PredicateComposition::Or(odd_func,two_func) );
     TEST_EQUALITY( odd_two_union_it.size(), 6 );
 }
 
@@ -520,40 +551,40 @@ TEUCHOS_UNIT_TEST( EntityIterator, predicate_subtraction_test )
 
     // Create a vector.
     int num_data = 10;
-    Teuchos::RCP<std::vector<int> > data =
-    	Teuchos::rcp( new std::vector<int>(num_data) );
+    Teuchos::RCP<std::vector<Entity> > data =
+    	Teuchos::rcp( new std::vector<Entity>(num_data) );
     for ( int i = 0; i < num_data; ++i )
     {
-    	(*data)[i] = i;
+    	(*data)[i] = TestEntity(i);
     }
 
     // Create the subtraction of the even and odd set.
-    EntityIterator<int> even_odd_subtraction_it = 
-	VectorIterator<int>( data, PredicateComposition::AndNot(even_func,odd_func) );
+    EntityIterator even_odd_subtraction_it = 
+	VectorIterator( data, PredicateComposition::AndNot(even_func,odd_func) );
     TEST_EQUALITY( even_odd_subtraction_it.size(), 5 );
-    EntityIterator<int> odd_even_subtraction_it = 
-	VectorIterator<int>( data, PredicateComposition::AndNot(odd_func,even_func) );
+    EntityIterator odd_even_subtraction_it = 
+	VectorIterator( data, PredicateComposition::AndNot(odd_func,even_func) );
     TEST_EQUALITY( odd_even_subtraction_it.size(), 5 );
 
     // Create the subtraction of the even and two set.
-    EntityIterator<int> even_two_subtraction_it = 
-	VectorIterator<int>( data, PredicateComposition::AndNot(even_func,two_func) );
+    EntityIterator even_two_subtraction_it = 
+	VectorIterator( data, PredicateComposition::AndNot(even_func,two_func) );
     TEST_EQUALITY( even_two_subtraction_it.size(), 4 );
-    EntityIterator<int> two_even_subtraction_it = 
-	VectorIterator<int>( data, PredicateComposition::AndNot(two_func,even_func) );
+    EntityIterator two_even_subtraction_it = 
+	VectorIterator( data, PredicateComposition::AndNot(two_func,even_func) );
     TEST_EQUALITY( two_even_subtraction_it.size(), 0 );
 
     // Subtraction the odd set with itself.
-    EntityIterator<int> odd_odd_subtraction_it = 
-	VectorIterator<int>( data, PredicateComposition::AndNot(odd_func,odd_func) );
+    EntityIterator odd_odd_subtraction_it = 
+	VectorIterator( data, PredicateComposition::AndNot(odd_func,odd_func) );
     TEST_EQUALITY( odd_odd_subtraction_it.size(), 0 );
 
     // Create the subtraction of the odd and two set.
-    EntityIterator<int> odd_two_subtraction_it = 
-	VectorIterator<int>( data, PredicateComposition::AndNot(odd_func,two_func) );
+    EntityIterator odd_two_subtraction_it = 
+	VectorIterator( data, PredicateComposition::AndNot(odd_func,two_func) );
     TEST_EQUALITY( odd_two_subtraction_it.size(), 5 );
-    EntityIterator<int> two_odd_subtraction_it = 
-	VectorIterator<int>( data, PredicateComposition::AndNot(two_func,odd_func) );
+    EntityIterator two_odd_subtraction_it = 
+	VectorIterator( data, PredicateComposition::AndNot(two_func,odd_func) );
     TEST_EQUALITY( two_odd_subtraction_it.size(), 1 );
 }
 

@@ -49,6 +49,13 @@ Entity::Entity()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Copy constructor.
+Entity::Entity( const Entity& rhs )
+{
+    b_entity_impl = rhs.b_entity_impl;
+}
+
+//---------------------------------------------------------------------------//
 //brief Destructor.
 Entity::~Entity()
 { /* ... */ }
