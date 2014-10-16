@@ -25,9 +25,6 @@ TEUCHOS_UNIT_TEST( CommTools, mpi_tag_consistency )
     int comm_size = comm_default->getSize();
     int comm_rank = comm_default->getRank();
 
-    // This is a 2 processor test.
-    TEST_EQUALITY( comm_size, 2 );
-
     // Split the main communicator into 2 overlapping groups
     Teuchos::Array<int> sub_ranks_1(2);
     sub_ranks_1[0] = 0;
@@ -42,8 +39,10 @@ TEUCHOS_UNIT_TEST( CommTools, mpi_tag_consistency )
 
     // Create another communicator.
     Teuchos::Array<int> sub_ranks_3(comm_size);
-    sub_ranks_3[0] = 0;
-    sub_ranks_3[1] = 1;
+    for ( int i = 0; i < comm_size; ++i )
+    {
+	sub_ranks_3[i] = i;
+    }
     Teuchos::RCP<const Teuchos::Comm<int> > comm_3 =
 	comm_default->createSubcommunicator( sub_ranks_3() );
 
@@ -68,7 +67,7 @@ TEUCHOS_UNIT_TEST( CommTools, mpi_tag_consistency )
     comm_default->barrier();
     Teuchos::broadcast( *comm_default, 1, Teuchos::Ptr<int>(&tag2) );
 
-    // This currently fails.
+    // Test the tags.
     TEST_EQUALITY( tag1, tag2 );
 }
 

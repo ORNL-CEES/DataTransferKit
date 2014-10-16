@@ -33,7 +33,6 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   MpiTagConsistency_test
   SOURCES tstMpiTagConsistency.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM mpi
-  NUM_MPI_PROCS 2
   STANDARD_PASS_OUTPUT
   )
 

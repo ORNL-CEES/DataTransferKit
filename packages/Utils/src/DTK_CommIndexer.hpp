@@ -75,8 +75,7 @@ class CommIndexer
     int l2g( const int local_id ) const;
 
     //! Return the size of the local to global map.
-    int size() const
-    { return d_l2gmap.size(); }
+    int size() const;
 
   private:
 

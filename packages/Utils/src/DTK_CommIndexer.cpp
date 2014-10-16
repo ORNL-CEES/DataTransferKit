@@ -115,6 +115,13 @@ int CommIndexer::l2g( const int local_id ) const
 }
 
 //---------------------------------------------------------------------------//
+//! Return the size of the local to global map.
+int CommIndexer::size() const
+{ 
+    return d_l2gmap.size(); 
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
