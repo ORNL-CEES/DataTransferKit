@@ -50,6 +50,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, duplicate_test )
 
     CommIndexer indexer( global_comm, local_comm );
 
+    std::cout << indexer.size() << "_" << local_comm->getRank() << std::endl;
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
     TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
 		 global_comm->getRank() );
@@ -67,7 +68,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, split_test )
     RCP_Comm local_comm = global_comm->split( 0, rank );
 
     CommIndexer indexer( global_comm, local_comm );
-
+    std::cout << indexer.size() << "_" << local_comm->getRank() << std::endl;
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
     TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
 		 global_comm->getRank() );
@@ -85,7 +86,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, inverse_split_test )
     RCP_Comm local_comm = global_comm->split( 0, inverse_rank);
 
     CommIndexer indexer( global_comm, local_comm );
-
+    std::cout << indexer.size() << "_" << local_comm->getRank() << std::endl;
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
     TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
 		 global_comm->getRank() );
@@ -123,6 +124,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
     {
 	TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == -1 );
     }
+    std::cout << indexer.size() << "_" << local_comm->getRank() << std::endl;
 }
 
 //---------------------------------------------------------------------------//

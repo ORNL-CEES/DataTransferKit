@@ -32,7 +32,7 @@ The current Trilinos state is required to build DTK. You can check out
 this git public repository
 [here](http://trilinos.sandia.gov/publicRepo/index.html)
 
-C++11 support as well as boost are required.
+C++11 support as well as Boost are required.
 
 DTK can be configured for both serial and parallel builds. For
 parallel builds, an MPI implementation is also required. Both OpenMPI
@@ -67,5 +67,5 @@ The following people have made substantial contributions to the
 development of DataTransferKit:
 
 * [Stuart Slattery](https://github.com/sslattery)
-* [Roger Pawlowski](https://github.com/rppawlo)
 * [Damien Lebrun-Grandie](https://github.com/dalg24)
+* [Roger Pawlowski](https://github.com/rppawlo)
