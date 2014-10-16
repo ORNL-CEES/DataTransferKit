@@ -45,7 +45,6 @@
 #include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_Box.hpp"
-#include "DTK_AbstractObjectRegistry.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 

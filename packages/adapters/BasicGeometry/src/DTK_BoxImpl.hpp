@@ -69,22 +69,18 @@ class BoxImpl : public EntityImpl
     BoxImpl();
 
     // Constructor.
-    BoxImpl( const EntityId global_id, const int owner_rank,
+    BoxImpl( const EntityId global_id, const int owner_rank, const int block_id,
 	     const double x_min, const double y_min, const double z_min,
 	     const double x_max, const double y_max, const double z_max );
 
     // Tuple constructor.
     BoxImpl( const EntityId global_id,
 	     const int owner_rank, 
+	     const int block_id, 
 	     const Teuchos::Tuple<double,6>& bounds );
 
     // Destructor.
     ~BoxImpl();
-
-    //@{ 
-    //! Entity implementation.
-    // Return a string indicating the derived entity type.
-    std::string name() const;
 
     // Get the entity type.
     EntityType entityType() const;
@@ -98,50 +94,45 @@ class BoxImpl : public EntityImpl
     // Return the physical dimension of the entity.
     int physicalDimension() const;
 
-    // Return the parametric dimension of the entity.
-    int parametricDimension() const;
+    // Compute the bounding box around the entity.
+    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+
+    // Determine if an entity is on the surface of the set.
+    bool onSurface() const;
+
+    // Determine if an entity is in the block with the given id.
+    bool inBlock( const int block_id ) const;
+
+    // Determine if an entity is on the boundary with the given id.
+    bool onBoundary( const int boundary_id ) const;
 
     // Return the entity measure with respect to the parameteric
     double measure() const;
 
-    // Return the centroid of the entity.
-    void centroid( Teuchos::ArrayView<const double>& centroid ) const;
+    // Compute the centroid of the entity.
+    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
 
-    // Return the axis-aligned bounding box bounds around the entity.
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    // (Safeguard the reverse map) Perform a safeguard check for mapping a
+    // point to the reference space of an entity using the given tolerance.
+    bool isSafeToMapToReferenceFrame(
+	const Teuchos::ArrayView<const double>& point ) const;
 
-    // Perform a safeguard check for mapping a point to the reference
-    void safeguardMapToReferenceFrame(
-	const Teuchos::ParameterList& parameters,
+    // (Reverse Map) Map a point to the reference space of an entity. Return
+    // the parameterized point.
+    bool mapToReferenceFrame( 
 	const Teuchos::ArrayView<const double>& point,
-	MappingStatus& status ) const;
+	const Teuchos::ArrayView<double>& reference_point ) const;
 
-    // Map a point to the reference space of an entity. Return the
-    void mapToReferenceFrame( 
-	const Teuchos::ParameterList& parameters,
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point,
-	MappingStatus& status ) const;
-
-    // Determine if a reference point is in the parameterized space of
+    // Determine if a reference point is in the parameterized space of an
+    // entity.
     bool checkPointInclusion( 
-	const Teuchos::ParameterList& parameters,
+	const double tolerance,
 	const Teuchos::ArrayView<const double>& reference_point ) const;
 
-    // Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame(
+    // (Forward Map) Map a reference point to the physical space of an entity.
+    void mapToPhysicalFrame( 
 	const Teuchos::ArrayView<const double>& reference_point,
 	const Teuchos::ArrayView<double>& point ) const;
-     
-    // Serialize the entity into a buffer.
-    void serialize( const Teuchos::ArrayView<char>& buffer ) const;
-
-    // Deserialize an entity from a buffer.
-    void deserialize( const Teuchos::ArrayView<const char>& buffer );
-    //@}
-
-    // Get the byte size for the box.
-    static std::size_t byteSize();
 
   private:
 
@@ -150,6 +141,9 @@ class BoxImpl : public EntityImpl
 
     // Owning parallel rank.
     int d_owner_rank;
+
+    // Block id.
+    int d_block_id;
 
     // X min.
     double d_x_min;
@@ -168,14 +162,6 @@ class BoxImpl : public EntityImpl
 
     // Z max.
     double d_z_max;
-
-    // Centroid coordinates.
-    double d_centroid[3];
-
-  private:
-
-    // Packed size in bytes.
-    static std::size_t d_byte_size;
 };
 
 //---------------------------------------------------------------------------//

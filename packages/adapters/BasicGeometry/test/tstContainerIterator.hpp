@@ -43,6 +43,7 @@ class TestEntityImpl : public DataTransferKit::EntityImpl
     DataTransferKit::EntityId d_id;
 };
 
+
 //---------------------------------------------------------------------------//
 // Entity Implementation.
 //---------------------------------------------------------------------------//
@@ -53,6 +54,7 @@ class TestEntity : public DataTransferKit::Entity
     { this->b_entity_impl = Teuchos::rcp( new TestEntityImpl(id) ); }
     ~TestEntity() { /* ... */ }
 };
+
 
 //---------------------------------------------------------------------------//
 // Helper predicates.

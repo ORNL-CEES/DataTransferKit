@@ -42,13 +42,11 @@
 #define DTK_BOX_HPP
 
 #include "DTK_Entity.hpp"
-#include "DTK_AbstractObjectRegistry.hpp"
 #include "DTK_BoxImpl.hpp"
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ParameterList.hpp>
-#include <Teuchos_SerializationTraits.hpp>
 
 #include <iostream>
 
@@ -72,13 +70,14 @@ class Box : public Entity
     Box();
 
     // Constructor.
-    Box( const EntityId global_id, const int owner_rank,
+    Box( const EntityId global_id, const int owner_rank, const int block_id,
 	 const double x_min, const double y_min, const double z_min,
 	 const double x_max, const double y_max, const double z_max );
 
     // Tuple constructor.
     Box( const EntityId global_id,
 	 const int owner_rank, 
+	 const int block_id,
 	 const Teuchos::Tuple<double,6>& bounds );
 
     // Destructor.
@@ -101,8 +100,33 @@ class Box : public Entity
     // Compound assignment overload.
     Box& operator+=(const Box& rhs);
 
-    // Get the byte size for the box.
-    static std::size_t byteSize();
+    // Return the entity measure with respect to the parameteric
+    double measure() const;
+
+    // Compute the centroid of the entity.
+    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
+
+    // (Safeguard the reverse map) Perform a safeguard check for mapping a
+    // point to the reference space of an entity using the given tolerance.
+    bool isSafeToMapToReferenceFrame(
+	const Teuchos::ArrayView<const double>& point ) const;
+
+    // (Reverse Map) Map a point to the reference space of an entity. Return
+    // the parameterized point.
+    bool mapToReferenceFrame( 
+	const Teuchos::ArrayView<const double>& point,
+	const Teuchos::ArrayView<double>& reference_point ) const;
+
+    // Determine if a reference point is in the parameterized space of an
+    // entity.
+    bool checkPointInclusion( 
+	const double tolerance,
+	const Teuchos::ArrayView<const double>& reference_point ) const;
+
+    // (Forward Map) Map a reference point to the physical space of an entity.
+    void mapToPhysicalFrame( 
+	const Teuchos::ArrayView<const double>& reference_point,
+	const Teuchos::ArrayView<double>& point ) const;
 };
 
 //---------------------------------------------------------------------------//
@@ -115,95 +139,8 @@ Box operator+( const Box& box_1, const Box& box_2 );
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
 
 //---------------------------------------------------------------------------//
-// AbstractObjectRegistrationPolicy implementation.
-//---------------------------------------------------------------------------//
-template<>
-class AbstractObjectRegistrationPolicy<Box>
-{
-  public:
-
-    //! Base class type.
-    typedef Box object_type;
-
-    /*!
-     * \brief Register a derived class with a base class.
-     */
-    static void registerDerivedClassWithBaseClass()
-    {
-	// Register the constructor with the base class
-	// AbstractBuildableObject interface.
-	Entity::setDerivedClassFactory<Box>();
-
-	// Register the byte size with the base class
-	// AbstractSerializableObject interface.
-	Entity::setDerivedClassByteSize( Box::byteSize() );
-    }
-};
-
-//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Teuchos::SerializationTraits implementation.
-//---------------------------------------------------------------------------//
-
-namespace Teuchos
-{
-template<typename Ordinal>
-class SerializationTraits<Ordinal,DataTransferKit::Box> 
-{
-  public:
-
-    static const bool supportsDirectSerialization = false;
-
-    static Ordinal fromCountToIndirectBytes( const Ordinal count, 
-					     const DataTransferKit::Box buffer[] ) 
-    { 
-	return count * DataTransferKit::Box::byteSize();
-    }
-
-    static void serialize( const Ordinal count, 
-			   const DataTransferKit::Box buffer[], 
-			   const Ordinal bytes, 
-			   char charBuffer[] )
-    {
-	DTK_REQUIRE( fromCountToIndirectBytes(count,buffer) == bytes );
-	std::size_t box_size = DataTransferKit::Box::byteSize();
-	char* buffer_pos = &charBuffer[0];
-	for ( int n = 0; n < count; ++n )
-	{
-	    Teuchos::ArrayView<char> buffer_view( buffer_pos, box_size );
-	    buffer[n].serialize( buffer_view );
-	    buffer_pos += box_size;
-	}
-	DTK_CHECK( &charBuffer[0] + bytes == buffer_pos);
-    }
-
-    static Ordinal fromIndirectBytesToCount( const Ordinal bytes, 
-					     const char charBuffer[] ) 
-    { 
-	return bytes / DataTransferKit::Box::byteSize();
-    }
-
-    static void deserialize( const Ordinal bytes, 
-			     const char charBuffer[], 
-			     const Ordinal count, 
-			     DataTransferKit::Box buffer[] )
-    { 
-	DTK_REQUIRE( fromIndirectBytesToCount(bytes,charBuffer) == count );
-	std::size_t box_size = DataTransferKit::Box::byteSize();
-	char* buffer_pos = const_cast<char*>(&charBuffer[0]);
-	for ( int n = 0; n < count; ++n )
-	{
-	    Teuchos::ArrayView<char> buffer_view( buffer_pos, box_size );
-	    buffer[n].deserialize( buffer_view );
-	    buffer_pos += box_size;
-	}
-	DTK_CHECK( &charBuffer[0] + bytes == buffer_pos );
-    }
-};
-} // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
 

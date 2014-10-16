@@ -43,6 +43,7 @@
 
 #include <unordered_map>
 
+#include "DTK_Types.hpp"
 #include "DTK_EntitySet.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
@@ -69,7 +70,7 @@ class BasicEntitySetIterator : public EntityIterator
     // Constructor.
     BasicEntitySetIterator( 
 	Teuchos::RCP<std::unordered_map<EntityId,Entity> > map,
-	const std::function<bool(Entity&)>& predicate );
+	const std::function<bool(Entity)>& predicate );
 
     // Copy constructor.
     BasicEntitySetIterator( const BasicEntitySetIterator& rhs );
@@ -150,6 +151,11 @@ class BasicEntitySet : public EntitySet
      */
     ~BasicEntitySet();
 
+    /*!
+     * \brief Add an entity to the set.
+     */
+    void addEntity( const Entity& entity );
+
     //@{
     //! Parallel functions.
     /*!
@@ -166,18 +172,6 @@ class BasicEntitySet : public EntitySet
      * \return The physical dimension of the set.
      */
     int physicalDimension() const;
-
-    /*!
-     * \brief Get the local bounding box of entities of the set.
-     * \return A Cartesian box the bounds all local entities in the set.
-     */
-    void localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;
-
-    /*!
-     * \brief Get the global bounding box of entities of the set.
-     * \return A Cartesian box the bounds all global entities in the set.
-     */
-    void globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;
     //@}
 
     //@{
@@ -187,8 +181,7 @@ class BasicEntitySet : public EntitySet
      * \param entity_id Get the entity with this id.
      * \param entity The entity with the given id.
      */
-    virtual void getEntity( const EntityId entity_id, 
-			    Entity& entity ) const;
+    void getEntity( const EntityId entity_id, Entity& entity ) const;
 
     /*!
      * \brief Get an iterator over a subset of the entity set that satisfies
@@ -197,9 +190,18 @@ class BasicEntitySet : public EntitySet
      * \param predicate A predicate to select the entity set to iterate over.
      * \return An iterator to the entities that satisfy the predicate.
      */
-    virtual EntityIterator entityIterator(
+    EntityIterator entityIterator(
 	const EntityType entity_type,
-	const std::function<bool(const Entity&)>& predicate ) const;
+	const std::function<bool(Entity)>& predicate ) const;
+
+    /*!
+     * \brief Given an entity, get the entities of the given type that are
+     * adjacent to it.
+     */
+    virtual void getAdjacentEntities(
+	const Entity& entity,
+	const EntityType entity_type,
+	Teuchos::Array<Entity>& adjacent_entities ) const;
     //@}
 
   private:

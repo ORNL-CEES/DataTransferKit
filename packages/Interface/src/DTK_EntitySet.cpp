@@ -65,7 +65,8 @@ Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
 }
 
 //---------------------------------------------------------------------------//
-// Get the local bounding box of entities of the set.
+// Get the local bounding box of entities of the set. Default implementation
+// gathers the bounding boxes of local entities.
 void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     double max = std::numeric_limits<double>::max();
@@ -96,7 +97,8 @@ void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 }
 
 //---------------------------------------------------------------------------//
-// Get the global bounding box of entities of the set.
+// Get the global bounding box of entities of the set. Default implementation
+// performs a parallel reduction using the local bounding boxes.
 void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     double max = std::numeric_limits<double>::max();
@@ -130,7 +132,7 @@ EntityIterator EntitySet::entityIterator(
 }
 
 //---------------------------------------------------------------------------//
-// Return the largest physical dimension of the entities in the set.
+// Return the largest physical dimension of the entities in the set. 
 int EntitySet::physicalDimension() const
 {
     bool not_implemented = true;

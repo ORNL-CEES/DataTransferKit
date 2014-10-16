@@ -2,7 +2,7 @@ SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
   Nanoflann             packages/Nanoflann              SS  REQUIRED
   Utils                 packages/Utils                  SS  REQUIRED
   Interface             packages/Interface              SS  REQUIRED
-  Operators             packages/Operators              SS  OPTIONAL
+  Operators             packages/Operators              SS  REQUIRED
   PointCloud            packages/PointCloud             SS  OPTIONAL
   BasicGeometryAdapters packages/adapters/BasicGeometry SS  OPTIONAL
 )

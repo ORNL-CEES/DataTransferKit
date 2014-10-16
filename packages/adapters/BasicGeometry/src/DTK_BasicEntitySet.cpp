@@ -61,7 +61,7 @@ BasicEntitySetIterator::BasicEntitySetIterator()
 // Constructor.
 BasicEntitySetIterator::BasicEntitySetIterator(
     Teuchos::RCP<std::unordered_map<EntityId,Entity> > map,
-    const std::function<bool(Entity&)>& predicate )
+    const std::function<bool(Entity)>& predicate )
     : d_map( map )
     , d_map_it( d_map->begin() )
     , d_entity( &(d_map_it->second) )
@@ -93,9 +93,9 @@ BasicEntitySetIterator& BasicEntitySetIterator::operator=(
     {
 	return *this;
     }
-    this->d_map = rhs.d_map;
-    this->d_map_it = rhs.d_map_it;
-    this->d_entity = &(this->d_map_it->second);
+    d_map = rhs.d_map;
+    d_map_it = rhs.d_map_it;
+    d_entity = &(d_map_it->second);
     return *this;
 }
 
@@ -202,6 +202,14 @@ BasicEntitySet::~BasicEntitySet()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Add an entity to the set.
+void BasicEntitySet::addEntity( const Entity& entity )
+{
+    d_entities[ entity.entityType() ].insert(
+	std::pair<EntityId,Entity>(entity.id(), entity) );
+}
+
+//---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
 Teuchos::RCP<const Teuchos::Comm<int> >
 BasicEntitySet::communicator() const
@@ -226,50 +234,6 @@ int BasicEntitySet::physicalDimension() const
 }
 
 //---------------------------------------------------------------------------//
-// Get the local bounding box of entities of the set.
-void BasicEntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
-{
-    double max = std::numeric_limits<double>::max();
-    bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
-    EntityIterator entity_begin;
-    EntityIterator entity_end;
-    EntityIterator entity_it;
-    Teuchos::Tuple<double,6> entity_bounds;
-    for ( int i = 0; i < 4; ++i )
-    {
-	entity_begin = 
-	    entityIterator(static_cast<EntityType>(i),EntitySet::selectAll).begin();
-	entity_end = 
-	    entityIterator(static_cast<EntityType>(i),EntitySet::selectAll).end();
-	for ( entity_it = entity_begin;
-	      entity_it != entity_end;
-	      ++entity_it )
-	{
-	    entity_it->boundingBox( entity_bounds );
-	    for ( int n = 0; n < 3; ++n )
-	    {
-		bounds[n] = std::min( bounds[n], entity_bounds[n] );
-		bounds[n+3] = std::max( bounds[n], entity_bounds[n] );
-	    }
-	}
-    }
-}
-
-//---------------------------------------------------------------------------//
-// Get the global bounding box of entities of the set.
-void BasicEntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
-{
-    double max = std::numeric_limits<double>::max();
-    bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
-    Teuchos::Tuple<double,6> local_bounds;
-    localBoundingBox( local_bounds );
-    Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_MIN, 3,
-			&local_bounds[0], &bounds[0] ); 
-    Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_MAX, 3,
-			&local_bounds[3], &bounds[3] ); 
-}
-
-//---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
 void BasicEntitySet::getEntity( 
     const EntityId entity_id, Entity& entity ) const
@@ -285,11 +249,23 @@ void BasicEntitySet::getEntity(
 // predicate. 
 EntityIterator BasicEntitySet::entityIterator(
     const EntityType entity_type,
-    const std::function<bool(const Entity&)>& predicate ) const
+    const std::function<bool(Entity)>& predicate ) const
 {
     Teuchos::RCP<std::unordered_map<EntityId,Entity> > 
 	map_ptr( &d_entities[entity_type], false );
     return BasicEntitySetIterator( map_ptr, predicate );
+}
+
+//---------------------------------------------------------------------------//
+// Given an entity, get the entities of the given type that are adjacent to
+// it.
+void BasicEntitySet::getAdjacentEntities(
+    const Entity& entity,
+    const EntityType entity_type,
+    Teuchos::Array<Entity>& adjacent_entities ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//

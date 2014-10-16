@@ -40,7 +40,6 @@
 
 #include "DTK_Box.hpp"
 #include "DTK_DBC.hpp"
-#include "DTK_DataSerializer.hpp"
 
 namespace DataTransferKit
 {
@@ -69,13 +68,14 @@ Box::Box()
  *
  * \param z_max Maximum z coordinate value in the box.
  */
-Box::Box( const EntityId global_id, const int owner_rank,
+Box::Box( const EntityId global_id, const int owner_rank, const int block_id,
 	  const double x_min, const double y_min, const double z_min,
 	  const double x_max, const double y_max, const double z_max )
 {
-    this->b_entity_impl = Teuchos::rcp( new BoxImpl(global_id, owner_rank,
-						    x_min, y_min, z_min,
-						    x_max, y_max, z_max) );
+    this->b_entity_impl = Teuchos::rcp( 
+	new BoxImpl(global_id, owner_rank, block_id,
+		    x_min, y_min, z_min,
+		    x_max, y_max, z_max) );
 }
 
 //---------------------------------------------------------------------------//
@@ -86,10 +86,11 @@ Box::Box( const EntityId global_id, const int owner_rank,
  */
 Box::Box( const EntityId global_id,
 	  const int owner_rank, 
+	  const int block_id,
 	  const Teuchos::Tuple<double,6>& bounds )
 {
     this->b_entity_impl = 
-	Teuchos::rcp( new BoxImpl(global_id, owner_rank, bounds) );
+	Teuchos::rcp( new BoxImpl(global_id, owner_rank, block_id, bounds) );
 }
 
 //---------------------------------------------------------------------------//
@@ -208,7 +209,7 @@ bool Box::intersectBoxes( const Box& box_A,
 	z_max = bounds_A[5];
     }
 
-    box_intersection = Box( dtk_invalid_entity_id, box_A.ownerRank(),
+    box_intersection = Box( dtk_invalid_entity_id, box_A.ownerRank(), 0,
 			    x_min, y_min, z_min, 
 			    x_max, y_max, z_max );
     return true;
@@ -291,7 +292,7 @@ void Box::uniteBoxes( const Box& box_A,
 	z_max = bounds_A[5];
     }
 
-    box_union = Box( dtk_invalid_entity_id, box_A.ownerRank(),
+    box_union = Box( dtk_invalid_entity_id, box_A.ownerRank(), 0,
 		     x_min, y_min, z_min, 
 		     x_max, y_max, z_max );
 }
@@ -342,12 +343,73 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
 }
 
 //---------------------------------------------------------------------------//
-// Static members.
-//---------------------------------------------------------------------------//
-// Get the byte size of the box.
-std::size_t Box::byteSize()
+/*!
+ * \brief Compute the volume of the box.
+ *
+ * \return Return the volume of the box.
+ */
+double Box::measure() const
 {
-    return BoxImpl::byteSize();
+    return Teuchos::rcp_dynamic_cast<BoxImpl>(this->b_entity_impl)->measure();
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the centroid of the box.
+ *
+ * \return The centroid coordinates.
+ */
+void Box::centroid( const Teuchos::ArrayView<double>& centroid ) const
+{
+    Teuchos::rcp_dynamic_cast<BoxImpl>(this->b_entity_impl)->centroid(centroid);
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Safeguard the reverse map.
+ */
+bool Box::isSafeToMapToReferenceFrame(
+    const Teuchos::ArrayView<const double>& point ) const
+{
+    return Teuchos::rcp_dynamic_cast<BoxImpl>(
+	this->b_entity_impl)->isSafeToMapToReferenceFrame(point);
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Map a point to the reference space of an entity. Return the
+ */
+bool Box::mapToReferenceFrame( 
+    const Teuchos::ArrayView<const double>& point,
+    const Teuchos::ArrayView<double>& reference_point ) const
+{
+    return Teuchos::rcp_dynamic_cast<BoxImpl>(
+	this->b_entity_impl)->mapToReferenceFrame(point,reference_point);
+}
+
+//---------------------------------------------------------------------------//
+/*!  
+ * \brief Determine if a reference point is in the parameterized space of
+ * an entity.
+ */
+bool Box::checkPointInclusion( 
+    const double tolerance,
+    const Teuchos::ArrayView<const double>& reference_point ) const
+{
+    return Teuchos::rcp_dynamic_cast<BoxImpl>(
+	this->b_entity_impl)->checkPointInclusion(tolerance,reference_point);
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Map a reference point to the physical space of an entity.
+ */
+void Box::mapToPhysicalFrame( 
+    const Teuchos::ArrayView<const double>& reference_point,
+    const Teuchos::ArrayView<double>& point ) const
+{
+    Teuchos::rcp_dynamic_cast<BoxImpl>(
+	this->b_entity_impl)->mapToPhysicalFrame(reference_point,point);
 }
 
 //---------------------------------------------------------------------------//
