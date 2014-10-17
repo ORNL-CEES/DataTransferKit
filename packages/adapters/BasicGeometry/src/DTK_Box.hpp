@@ -100,7 +100,7 @@ class Box : public BasicGeometryEntity
     // Compound assignment overload.
     Box& operator+=(const Box& rhs);
 
-    // Return the entity measure with respect to the parameteric
+    // Return the entity measure.
     double measure() const;
 
     // Compute the centroid of the entity.

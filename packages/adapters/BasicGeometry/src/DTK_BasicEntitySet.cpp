@@ -223,16 +223,14 @@ BasicEntitySet::communicator() const
 // Return the physical dimension of the entities in the set.
 int BasicEntitySet::physicalDimension() const
 {
-    int dim = 0;
     for ( int i = 0; i < 4; ++i )
     {
 	if ( !d_entities[i].empty() )
 	{
-	    dim = d_entities[i].begin()->second.physicalDimension();
-	    break;
+	    return d_entities[i].begin()->second.physicalDimension();
 	}
     }
-    return dim;
+    return 0;
 }
 
 //---------------------------------------------------------------------------//

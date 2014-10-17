@@ -148,12 +148,12 @@ TEUCHOS_UNIT_TEST( BasicEntitySet, basic_entity_set_test )
 
     Teuchos::Tuple<double,6> global_bounds;
     entity_set->globalBoundingBox( global_bounds );
-    TEST_FLOATING_EQUALITY( global_bounds[0], 3.2 - comm_size + 1.0, 1.0e-12 );
-    TEST_FLOATING_EQUALITY( global_bounds[1], -9.233 - comm_size + 1.0, 1.0e-12 );
-    TEST_FLOATING_EQUALITY( global_bounds[2], 1.3 - comm_size + 1.0, 1.0e-12 );
-    TEST_FLOATING_EQUALITY( global_bounds[3], 3.2 + comm_size - 1.0, 1.0e-12 );
-    TEST_FLOATING_EQUALITY( global_bounds[4], -9.233 + comm_size - 1.0, 1.0e-12 );
-    TEST_FLOATING_EQUALITY( global_bounds[5], 1.3 + comm_size - 1.0, 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[0], 3.2 - (comm_size-1.0), 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[1], -9.233 - (comm_size-1.0), 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[2], 1.3 - (comm_size-1.0), 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[3], 3.2 + (comm_size-1.0), 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[4], -9.233 + (comm_size-1.0), 1.0e-12 );
+    TEST_FLOATING_EQUALITY( global_bounds[5], 1.3 + (comm_size-1.0), 1.0e-12 );
 }
 
 //---------------------------------------------------------------------------//
