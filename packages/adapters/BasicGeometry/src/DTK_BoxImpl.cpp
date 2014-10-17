@@ -128,7 +128,7 @@ BoxImpl::~BoxImpl()
 // Get the entity type.
 EntityType BoxImpl::entityType() const
 {
-    return ENTITY_TYPE_VOLUME;
+    return ENTITY_TYPE_MEASURE;
 }
 
 //---------------------------------------------------------------------------//
@@ -187,9 +187,9 @@ bool BoxImpl::onBoundary( const int boundary_id ) const
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute the volume of the box.
+ * \brief Compute the measure of the box.
  *
- * \return Return the volume of the box.
+ * \return Return the measure of the box.
  */
 double BoxImpl::measure() const
 {

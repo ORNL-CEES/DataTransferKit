@@ -1,6 +1,6 @@
-//---------------------------------------------------------------------------//
+_//---------------------------------------------------------------------------//
 /*
-  Copyright (c) 2014, Stuart R. Slattery
+  Copyright (c) 2012, Stuart R. Slattery
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
   notice, this list of conditions and the following disclaimer in the
   documentation and/or other materials provided with the distribution.
 
-  *: Neither the name of the Oak Ridge National Laboratory nor the
+  *: Neither the name of the University of Wisconsin - Madison nor the
   names of its contributors may be used to endorse or promote products
   derived from this software without specific prior written permission.
 
@@ -32,121 +32,85 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Box.hpp
+ * \file DTK_BasicGeometryEntity.hpp
  * \author Stuart R. Slattery
- * \brief Box declaration.
+ * \brief BasicGeometryEntity declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_BOX_HPP
-#define DTK_BOX_HPP
-
-#include "DTK_BasicGeometryEntity.hpp"
-#include "DTK_BoxImpl.hpp"
-
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_ParameterList.hpp>
+#ifndef DTK_BASICGEOMETRYENTITY_HPP
+#define DTK_BASICGEOMETRYENTITY_HPP
 
 #include <iostream>
+
+#include "DTK_Entity.hpp"
+
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class Box
- * \brief Axis-aligned Cartesian box container.
- *
- * All three dimensions are explictly represented in this bounding box. This
- * is different from a bounding box in that it must always be finite and of a
- * fixed 3 dimensions.
- */
+  \class BasicGeometryEntity
+  \brief BasicGeometryEntity interface.
+  
+  BasicGeometryEntity gives an interface for simple geometries. These objects
+  effectivelty define their own EntityLocalMap interface as these functions
+  are typically statisfied with analytic expressions for basic geometric
+  objects.
+*/
 //---------------------------------------------------------------------------//
-class Box : public BasicGeometryEntity
+class BasicGeometryEntity : public Entity
 {
   public:
 
     // Default constructor.
-    Box();
-
-    // Constructor.
-    Box( const EntityId global_id, const int owner_rank, const int block_id,
-	 const double x_min, const double y_min, const double z_min,
-	 const double x_max, const double y_max, const double z_max );
-
-    // Tuple constructor.
-    Box( const EntityId global_id,
-	 const int owner_rank, 
-	 const int block_id,
-	 const Teuchos::Tuple<double,6>& bounds );
+    BasicGeometryEntity();
 
     // Destructor.
-    ~Box();
+    virtual ~BasicGeometryEntity();
 
-    // Static function to check for box intersection but not perform it.
-    static bool checkForIntersection( const Box& box_A,
-				      const Box& box_B );
-
-    // Static function for box intersection.
-    static bool intersectBoxes( const Box& box_A,
-				const Box& box_B,
-				Box& box_intersection );
-
-    // Static function for box union
-    static void uniteBoxes( const Box& box_A,
-			    const Box& box_B,
-			    Box& box_union );
-
-    // Compound assignment overload.
-    Box& operator+=(const Box& rhs);
-
+    //@{
+    //! BasicGeometryEntity interface.
     // Return the entity measure with respect to the parameteric
-    double measure() const;
+    virtual double measure() const;
 
     // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
+    virtual void centroid( const Teuchos::ArrayView<double>& centroid ) const;
 
     // (Safeguard the reverse map) Perform a safeguard check for mapping a
     // point to the reference space of an entity using the given tolerance.
-    bool isSafeToMapToReferenceFrame(
+    virtual bool isSafeToMapToReferenceFrame(
 	const Teuchos::ArrayView<const double>& point ) const;
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
-    bool mapToReferenceFrame( 
+    virtual bool mapToReferenceFrame( 
 	const Teuchos::ArrayView<const double>& point,
 	const Teuchos::ArrayView<double>& reference_point ) const;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
-    bool checkPointInclusion( 
+    virtual bool checkPointInclusion( 
 	const double tolerance,
 	const Teuchos::ArrayView<const double>& reference_point ) const;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
+    virtual void mapToPhysicalFrame( 
 	const Teuchos::ArrayView<const double>& reference_point,
 	const Teuchos::ArrayView<double>& point ) const;
+    //@}
 };
-
-//---------------------------------------------------------------------------//
-//! Addition operator overload. Adding two boxes together is the same as
-//! computing their union.
-Box operator+( const Box& box_1, const Box& box_2 );
-
-//---------------------------------------------------------------------------//
-//! overload for printing box
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-
-#endif // end DTK_BOX_HPP
+#endif // end DTK_BASICGEOMETRYENTITY_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Box.hpp
+// end DTK_BasicGeometryEntity.hpp
 //---------------------------------------------------------------------------//
 

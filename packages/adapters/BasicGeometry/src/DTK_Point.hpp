@@ -45,7 +45,7 @@
 
 #include "DTK_PointImpl.hpp"
 #include "DTK_Types.hpp"
-#include "DTK_Entity.hpp"
+#include "DTK_BasicGeometryEntity.hpp"
 #include "DTK_Box.hpp"
 
 #include <Teuchos_ArrayView.hpp>
@@ -60,7 +60,7 @@ namespace DataTransferKit
  * \brief Point container declaration.
  */
 //---------------------------------------------------------------------------//
-class Point : public Entity
+class Point : public BasicGeometryEntity
 {
   public:
 

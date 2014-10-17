@@ -32,85 +32,64 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Point.cpp
+ * \file DTK_BasicGeometryEntity.cpp
  * \author Stuart R. Slattery
- * \brief Point definition
+ * \brief BasicGeometryEntity definition
  */
 //---------------------------------------------------------------------------//
 
 #include <limits>
 
 #include "DTK_DBC.hpp"
-#include "DTK_Point.hpp"
+#include "DTK_BasicGeometryEntity.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-Point::Point()
-{
-    d_point_impl = Teuchos::rcp( new PointImpl() );
-    this->b_entity_impl = d_point_impl;
-}
-
-//---------------------------------------------------------------------------//
-// Array constructor.
-Point::Point( const EntityId global_id, 
-	      const int owner_rank,
-	      const Teuchos::Array<double>& coordinates,
-	      const bool on_surface,
-	      const Teuchos::Array<int>& block_ids,
-	      const Teuchos::Array<int>& boundary_ids )
-{
-    d_point_impl = Teuchos::rcp( 
-	new PointImpl(global_id,owner_rank,coordinates,		      
-		      on_surface,block_ids,boundary_ids) ); 
-    this->b_entity_impl = d_point_impl;
-}
-
-//---------------------------------------------------------------------------//
-// Destructor.
-Point::~Point()
+BasicGeometryEntity::BasicGeometryEntity()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Get the coordinates of the point.
-void Point::getCoordinates( 
-    const Teuchos::ArrayView<double>& coordinates ) const
-{ 
-    DTK_REQUIRE( Teuchos::nonnull(d_point_impl) );
-    d_point_impl->getCoordinates( coordinates );
-}
+// Destructor.
+BasicGeometryEntity::~BasicGeometryEntity()
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute the measure of the point.
+ * \brief Compute the measure of the entity.
  *
- * \return Return the measure of the point.
+ * \return Return the measure of the entity.
  */
-double Point::measure() const
+double BasicGeometryEntity::measure() const
 {
-    return 0.0;
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return -1.0;
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the centroid of the point.
+ * \brief Get the centroid of the entity.
  *
  * \return The centroid coordinates.
  */
-void Point::centroid( const Teuchos::ArrayView<double>& centroid ) const
+void BasicGeometryEntity::centroid( 
+    const Teuchos::ArrayView<double>& centroid ) const
 {
-    this->getCoordinates( centroid );
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Safeguard the reverse map.
  */
-bool Point::isSafeToMapToReferenceFrame(
+bool BasicGeometryEntity::isSafeToMapToReferenceFrame(
     const Teuchos::ArrayView<const double>& point ) const
 {
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
     return false;
 }
 
@@ -118,11 +97,12 @@ bool Point::isSafeToMapToReferenceFrame(
 /*!
  * \brief Map a point to the reference space of an entity. Return the
  */
-bool Point::mapToReferenceFrame( 
+bool BasicGeometryEntity::mapToReferenceFrame( 
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
-    reference_point.assign( point );
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
     return false;
 }
 
@@ -131,10 +111,12 @@ bool Point::mapToReferenceFrame(
  * \brief Determine if a reference point is in the parameterized space of
  * an entity.
  */
-bool Point::checkPointInclusion( 
+bool BasicGeometryEntity::checkPointInclusion( 
     const double tolerance,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
     return false;
 }
 
@@ -142,28 +124,12 @@ bool Point::checkPointInclusion(
 /*!
  * \brief Map a reference point to the physical space of an entity.
  */
-void Point::mapToPhysicalFrame( 
+void BasicGeometryEntity::mapToPhysicalFrame( 
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
-    point.assign( reference_point );
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Print the point description to an ostream.
- *
- * \return The ostream.
- */
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p)
-{
-    Teuchos::Array<double> coords( p.physicalDimension() );
-    p.getCoordinates( coords );
-    os << "Point: d_global_id=" << p.id()
-       << ",d_owner_rank=" << p.ownerRank()
-       << ",d_coordinates=" << coords;
-
-  return os;
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//
@@ -171,6 +137,6 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p)
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_Point.cpp
+// end DTK_BasicGeometryEntity.cpp
 //---------------------------------------------------------------------------//
 

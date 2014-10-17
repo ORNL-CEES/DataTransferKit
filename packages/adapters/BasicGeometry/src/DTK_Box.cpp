@@ -344,9 +344,9 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute the volume of the box.
+ * \brief Compute the measure of the box.
  *
- * \return Return the volume of the box.
+ * \return Return the measure of the box.
  */
 double Box::measure() const
 {
