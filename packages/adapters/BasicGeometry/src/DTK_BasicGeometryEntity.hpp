@@ -1,4 +1,4 @@
-_//---------------------------------------------------------------------------//
+//---------------------------------------------------------------------------//
 /*
   Copyright (c) 2012, Stuart R. Slattery
   All rights reserved.
@@ -44,6 +44,7 @@ _//---------------------------------------------------------------------------//
 #include <iostream>
 
 #include "DTK_Entity.hpp"
+#include "DTK_BasicGeometryEntityImpl.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>

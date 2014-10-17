@@ -84,73 +84,6 @@ void Point::getCoordinates(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute the measure of the point.
- *
- * \return Return the measure of the point.
- */
-double Point::measure() const
-{
-    return 0.0;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the centroid of the point.
- *
- * \return The centroid coordinates.
- */
-void Point::centroid( const Teuchos::ArrayView<double>& centroid ) const
-{
-    this->getCoordinates( centroid );
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Safeguard the reverse map.
- */
-bool Point::isSafeToMapToReferenceFrame(
-    const Teuchos::ArrayView<const double>& point ) const
-{
-    return false;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Map a point to the reference space of an entity. Return the
- */
-bool Point::mapToReferenceFrame( 
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point ) const
-{
-    reference_point.assign( point );
-    return false;
-}
-
-//---------------------------------------------------------------------------//
-/*!  
- * \brief Determine if a reference point is in the parameterized space of
- * an entity.
- */
-bool Point::checkPointInclusion( 
-    const double tolerance,
-    const Teuchos::ArrayView<const double>& reference_point ) const
-{
-    return false;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Map a reference point to the physical space of an entity.
- */
-void Point::mapToPhysicalFrame( 
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& point ) const
-{
-    point.assign( reference_point );
-}
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Print the point description to an ostream.
  *
  * \return The ostream.
@@ -158,7 +91,7 @@ void Point::mapToPhysicalFrame(
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p)
 {
     Teuchos::Array<double> coords( p.physicalDimension() );
-    p.getCoordinates( coords );
+    p.getCoordinates( coords() );
     os << "Point: d_global_id=" << p.id()
        << ",d_owner_rank=" << p.ownerRank()
        << ",d_coordinates=" << coords;

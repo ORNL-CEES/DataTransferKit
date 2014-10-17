@@ -32,209 +32,164 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Point.cpp
+ * \file DTK_BasicGeometryEntity.cpp
  * \author Stuart R. Slattery
- * \brief Point definition.
+ * \brief BasicGeometryEntity definition
  */
 //---------------------------------------------------------------------------//
 
 #include <limits>
-#include <algorithm>
 
 #include "DTK_DBC.hpp"
-#include "DTK_PointImpl.hpp"
+#include "DTK_BasicGeometryEntityImpl.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-PointImpl::PointImpl()
+BasicGeometryEntityImpl::BasicGeometryEntityImpl()
 { /* ... */ }
-
-//---------------------------------------------------------------------------//
-// Array constructor.
-PointImpl::PointImpl( const EntityId global_id, 
-		      const int owner_rank,
-		      const Teuchos::Array<double>& coordinates,
-		      const bool on_surface,
-		      const Teuchos::Array<int>& block_ids,
-		      const Teuchos::Array<int>& boundary_ids )
-    : d_global_id( global_id )
-    , d_owner_rank( owner_rank )
-    , d_on_surface( on_surface )
-    , d_block_ids( block_ids )
-    , d_boundary_ids( boundary_ids )
-    , d_coordinates( coordinates )
-{
-    std::sort( d_block_ids.begin(), d_block_ids.end() );
-    std::sort( d_boundary_ids.begin(), d_boundary_ids.end() );
-}
 
 //---------------------------------------------------------------------------//
 // Destructor.
-PointImpl::~PointImpl()
+BasicGeometryEntityImpl::~BasicGeometryEntityImpl()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Get the coordinates of the point.
-void PointImpl::getCoordinates( 
-    const Teuchos::ArrayView<double>& coordinates ) const
-{ 
-    coordinates.assign( d_coordinates );
-}
-
-//---------------------------------------------------------------------------//
 // Get the entity type.
-EntityType PointImpl::entityType() const
+EntityType BasicGeometryEntityImpl::entityType() const
 {
-    return ENTITY_TYPE_NODE;
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return static_cast<EntityType>(-1);
 }
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-EntityId PointImpl::id() const
-{
-    return d_global_id;
+EntityId BasicGeometryEntityImpl::id() const
+{ 
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return -1;
 }
     
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-int PointImpl::ownerRank() const
-{
-    return d_owner_rank;
+int BasicGeometryEntityImpl::ownerRank() const
+{ 
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return -1;
 }
-
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-int PointImpl::physicalDimension() const
-{
-    return d_coordinates.size();
+int BasicGeometryEntityImpl::physicalDimension() const
+{ 
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return -1;
 }
 
 //---------------------------------------------------------------------------//
-// Return the axis-aligned bounding box around the entity.
-void PointImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+// Return the Cartesian bounding box around an entity.
+void BasicGeometryEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
-    Teuchos::Array<double> coordinates( this->physicalDimension() );
-    this->getCoordinates( coordinates );
-    double max = std::numeric_limits<double>::max();
-    int space_dim = coordinates.size();
-    if ( 1 == space_dim )
-    {
-	bounds = Teuchos::tuple( coordinates[0], -max, -max,
-				 coordinates[0], max, max );
-    }
-    else if ( 2 == space_dim )
-    {
-	bounds = Teuchos::tuple( coordinates[0], coordinates[1], -max,
-				 coordinates[0], coordinates[1], max );
-    }
-    else if ( 3 == space_dim )
-    {
-	bounds = Teuchos::tuple( coordinates[0], coordinates[1], coordinates[2], 
-				 coordinates[0], coordinates[1], coordinates[2] );
-    }
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the surface of the set.
-bool PointImpl::onSurface() const
+bool BasicGeometryEntityImpl::onSurface() const
 {
-    return d_on_surface;
-}
-
-//---------------------------------------------------------------------------//
-// Determine if an entity is in the block with the given id.
-bool PointImpl::inBlock( const int block_id ) const
-{
-    return std::binary_search( 
-	d_block_ids.begin(), d_block_ids.end(), block_id );
-}
-
-//---------------------------------------------------------------------------//
-// Determine if an entity is on the boundary with the given id.
-bool PointImpl::onBoundary( const int boundary_id ) const
-{
-    return std::binary_search( 
-	d_boundary_ids.begin(), d_boundary_ids.end(), boundary_id );
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Compute the measure of the point.
- *
- * \return Return the measure of the point.
- */
-double PointImpl::measure() const
-{
-    return 0.0;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the centroid of the point.
- *
- * \return The centroid coordinates.
- */
-void PointImpl::centroid( const Teuchos::ArrayView<double>& centroid ) const
-{
-    this->getCoordinates( centroid );
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Safeguard the reverse map.
- */
-bool PointImpl::isSafeToMapToReferenceFrame(
-    const Teuchos::ArrayView<const double>& point ) const
-{
-    return true;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Map a point to the reference space of an entity. Return the
- */
-bool PointImpl::mapToReferenceFrame( 
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point ) const
-{
-    reference_point.assign( point );
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
     return false;
 }
 
 //---------------------------------------------------------------------------//
-/*!  
- * \brief Determine if a reference point is in the parameterized space of
- * an entity. This is true only if the points are separated by a distance less
- * than the tolerance.
- */
-bool PointImpl::checkPointInclusion( 
-    const double tolerance,
-    const Teuchos::ArrayView<const double>& reference_point ) const
+// Determine if an entity is in the block with the given id.
+bool BasicGeometryEntityImpl::inBlock( const int block_id ) const
 {
-    int space_dim = this->physicalDimension();
-    Teuchos::Array<double> coords( space_dim );
-    this->getCoordinates( coords() );
-    double distance = 0.0;
-    double local_dist = 0.0;
-    for ( int d = 0; d < space_dim; ++d )
-    {
-	local_dist = coords[d] - reference_point[d];
-	distance += local_dist*local_dist;
-    }
-    return ( distance < tolerance*tolerance );
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return false;
 }
 
 //---------------------------------------------------------------------------//
-/*!
- * \brief Map a reference point to the physical space of an entity.
- */
-void PointImpl::mapToPhysicalFrame( 
+// Determine if an entity is on the boundary with the given id.
+bool BasicGeometryEntityImpl::onBoundary( const int boundary_id ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return false;
+}
+
+//---------------------------------------------------------------------------//
+// Get the extra data on the entity.
+Teuchos::RCP<EntityExtraData> BasicGeometryEntityImpl::extraData() const
+{
+    return Teuchos::null;
+}
+
+//---------------------------------------------------------------------------//
+// Compute the measure of the entity.
+double BasicGeometryEntityImpl::measure() const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return -1.0;
+}
+
+//---------------------------------------------------------------------------//
+// Get the centroid of the entity.
+void BasicGeometryEntityImpl::centroid( 
+    const Teuchos::ArrayView<double>& centroid ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
+
+//---------------------------------------------------------------------------//
+// Safeguard the reverse map.
+bool BasicGeometryEntityImpl::isSafeToMapToReferenceFrame(
+    const Teuchos::ArrayView<const double>& point ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return false;
+}
+
+//---------------------------------------------------------------------------//
+// Map a point to the reference space of an entity. Return the
+bool BasicGeometryEntityImpl::mapToReferenceFrame( 
+    const Teuchos::ArrayView<const double>& point,
+    const Teuchos::ArrayView<double>& reference_point ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return false;
+}
+
+//---------------------------------------------------------------------------//
+// Determine if a reference point is in the parameterized space of
+bool BasicGeometryEntityImpl::checkPointInclusion( 
+    const double tolerance,
+    const Teuchos::ArrayView<const double>& reference_point ) const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return false;
+}
+
+//---------------------------------------------------------------------------//
+// Map a reference point to the physical space of an entity.
+void BasicGeometryEntityImpl::mapToPhysicalFrame( 
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
-    point.assign( reference_point );
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//
@@ -242,6 +197,6 @@ void PointImpl::mapToPhysicalFrame(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_PointImpl.cpp
+// end DTK_BasicGeometryEntityImpl.cpp
 //---------------------------------------------------------------------------//
 

@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------//
 /*
-  Copyright (c) 2014, Stuart R. Slattery
+  Copyright (c) 2012, Stuart R. Slattery
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
   notice, this list of conditions and the following disclaimer in the
   documentation and/or other materials provided with the distribution.
 
-  *: Neither the name of the Oak Ridge National Laboratory nor the
+  *: Neither the name of the University of Wisconsin - Madison nor the
   names of its contributors may be used to endorse or promote products
   derived from this software without specific prior written permission.
 
@@ -32,147 +32,140 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_BoxImpl.hpp
+ * \file DTK_BasicGeometryEntityImpl.hpp
  * \author Stuart R. Slattery
- * \brief Box implementation.
+ * \brief BasicGeometryEntityImpl declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_BOXIMPL_HPP
-#define DTK_BOXIMPL_HPP
-
-#include "DTK_BasicGeometryEntityImpl.hpp"
-
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_ParameterList.hpp>
+#ifndef DTK_BASICGEOMETRYENTITYIMPL_HPP
+#define DTK_BASICGEOMETRYENTITYIMPL_HPP
 
 #include <iostream>
+
+#include "DTK_EntityImpl.hpp"
+
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class BoxImpl
- * \brief Axis-aligned Cartesian box container implementation.
- *
- * All three dimensions are explictly represented in this bounding box. This
- * is different from a bounding box in that it must always be finite and of a
- * fixed 3 dimensions.
- */
+  \class BasicGeometryEntityImpl
+  \brief BasicGeometryEntityImpl interface.
+  
+  BasicGeometryEntityImpl gives an interface for simple geometries. These objects
+  effectivelty define their own EntityImplLocalMap interface as these functions
+  are typically statisfied with analytic expressions for basic geometric
+  objects.
+*/
 //---------------------------------------------------------------------------//
-class BoxImpl : public BasicGeometryEntityImpl
+class BasicGeometryEntityImpl : public EntityImpl
 {
   public:
 
     // Default constructor.
-    BoxImpl();
-
-    // Constructor.
-    BoxImpl( const EntityId global_id, const int owner_rank, const int block_id,
-	     const double x_min, const double y_min, const double z_min,
-	     const double x_max, const double y_max, const double z_max );
-
-    // Tuple constructor.
-    BoxImpl( const EntityId global_id,
-	     const int owner_rank, 
-	     const int block_id, 
-	     const Teuchos::Tuple<double,6>& bounds );
+    BasicGeometryEntityImpl();
 
     // Destructor.
-    ~BoxImpl();
+    virtual ~BasicGeometryEntityImpl();
 
-    // Get the entity type.
-    EntityType entityType() const;
+    //@{
+    //! EntityImpl interface.
+    /*!
+     * \brief Get the entity type.
+     * \return The entity type.
+     */
+    virtual EntityType entityType() const;
 
-    // Get the unique global identifier for the entity.
-    EntityId id() const;
+    /*!
+     * \brief Get the unique global identifier for the entity.
+     * \return A unique global identifier for the entity.
+     */
+    virtual EntityId id() const;
     
-    // Get the parallel rank that owns the entity.
-    int ownerRank() const;
+    /*!
+     * \brief Get the parallel rank that owns the entity.
+     * \return The parallel rank that owns the entity.
+     */
+    virtual int ownerRank() const;
 
-    // Return the physical dimension of the entity.
-    int physicalDimension() const;
+    /*!
+     * \brief Return the physical dimension of the entity.
+     * \return The physical dimension of the entity. Any physical coordinates
+     * describing the entity will be of this dimension.
+     */
+    virtual int physicalDimension() const;
 
-    // Compute the bounding box around the entity.
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    /*!
+     * \brief Return the Cartesian bounding box around an entity.
+     * \param bounds The bounds of the box
+     * (x_min,y_min,z_min,x_max,y_max,z_max).
+     */
+    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
 
-    // Determine if an entity is on the surface of the set.
-    bool onSurface() const;
+    /*!
+     * \brief Determine if an entity is on the surface of the set.
+     */
+    virtual bool onSurface() const;
 
-    // Determine if an entity is in the block with the given id.
-    bool inBlock( const int block_id ) const;
+    /*!
+     * \brief Determine if an entity is in the block with the given id.
+     */
+    virtual bool inBlock( const int block_id ) const;
 
-    // Determine if an entity is on the boundary with the given id.
-    bool onBoundary( const int boundary_id ) const;
+    /*!
+     * \brief Determine if an entity is on the boundary with the given id.
+     */
+    virtual bool onBoundary( const int boundary_id ) const;
 
+    /*!
+     * \brief Get the extra data on the entity.
+     */
+    virtual Teuchos::RCP<EntityExtraData> extraData() const;
+    //@}
+
+    //@{
+    //! BasicGeometryEntityImpl interface.
     // Return the entity measure with respect to the parameteric
-    double measure() const;
+    virtual double measure() const;
 
     // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
+    virtual void centroid( const Teuchos::ArrayView<double>& centroid ) const;
 
     // (Safeguard the reverse map) Perform a safeguard check for mapping a
     // point to the reference space of an entity using the given tolerance.
-    bool isSafeToMapToReferenceFrame(
+    virtual bool isSafeToMapToReferenceFrame(
 	const Teuchos::ArrayView<const double>& point ) const;
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
-    bool mapToReferenceFrame( 
+    virtual bool mapToReferenceFrame( 
 	const Teuchos::ArrayView<const double>& point,
 	const Teuchos::ArrayView<double>& reference_point ) const;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
-    bool checkPointInclusion( 
+    virtual bool checkPointInclusion( 
 	const double tolerance,
 	const Teuchos::ArrayView<const double>& reference_point ) const;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
+    virtual void mapToPhysicalFrame( 
 	const Teuchos::ArrayView<const double>& reference_point,
 	const Teuchos::ArrayView<double>& point ) const;
-
-  private:
-
-    // Global id.
-    EntityId d_global_id;
-
-    // Owning parallel rank.
-    int d_owner_rank;
-
-    // Block id.
-    int d_block_id;
-
-    // X min.
-    double d_x_min;
-
-    // Y min.
-    double d_y_min;
-
-    // Z min.
-    double d_z_min;
-
-    // X max.
-    double d_x_max;
-
-    // Y max.
-    double d_y_max;
-
-    // Z max.
-    double d_z_max;
+    //@}
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-
-#endif // end DTK_BOXIMPL_HPP
+#endif // end DTK_BASICGEOMETRYENTITYIMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Box.hpp
+// end DTK_BasicGeometryEntityImpl.hpp
 //---------------------------------------------------------------------------//
 

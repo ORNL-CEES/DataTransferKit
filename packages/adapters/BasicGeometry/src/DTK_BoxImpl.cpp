@@ -128,7 +128,7 @@ BoxImpl::~BoxImpl()
 // Get the entity type.
 EntityType BoxImpl::entityType() const
 {
-    return ENTITY_TYPE_MEASURE;
+    return ENTITY_TYPE_VOLUME;
 }
 
 //---------------------------------------------------------------------------//

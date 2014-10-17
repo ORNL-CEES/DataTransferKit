@@ -130,13 +130,14 @@ TEUCHOS_UNIT_TEST( Point, array_3d_constructor_test )
     TEST_EQUALITY( point.ownerRank(), 0 );
     TEST_EQUALITY( point.physicalDimension(), 3 );
 
-    // Check the bounds.
+    // Check the coordinates.
     Teuchos::Array<double> point_coords(3);
     point.getCoordinates( point_coords() );
     TEST_EQUALITY( point_coords[0], x );
     TEST_EQUALITY( point_coords[1], y );
     TEST_EQUALITY( point_coords[2], z );
-
+    point_coords.clear();
+    point_coords.resize(3);
     point.centroid( point_coords() );
     TEST_EQUALITY( point_coords[0], x );
     TEST_EQUALITY( point_coords[1], y );
@@ -144,6 +145,42 @@ TEUCHOS_UNIT_TEST( Point, array_3d_constructor_test )
 
     // Compute the measure.
     TEST_EQUALITY( point.measure(), 0.0 );
+
+    // Copy to the BasicGeometryEntity interface and check.
+    BasicGeometryEntity geom_entity = point;
+    TEST_EQUALITY( geom_entity.entityType(), ENTITY_TYPE_NODE );
+    TEST_EQUALITY( geom_entity.id(), 0 );
+    TEST_EQUALITY( geom_entity.ownerRank(), 0 );
+    TEST_EQUALITY( geom_entity.physicalDimension(), 3 );
+    TEST_EQUALITY( geom_entity.measure(), 0.0 );
+    point_coords.clear();
+    point_coords.resize(3);
+    geom_entity.centroid( point_coords() );
+    TEST_EQUALITY( point_coords[0], x );
+    TEST_EQUALITY( point_coords[1], y );
+    TEST_EQUALITY( point_coords[2], z );
+    Teuchos::Array<double> ref_point(3);
+    TEST_ASSERT( geom_entity.isSafeToMapToReferenceFrame(p()) );
+    geom_entity.mapToReferenceFrame( p(), ref_point() );
+    TEST_EQUALITY( ref_point[0], x );
+    TEST_EQUALITY( ref_point[1], y );
+    TEST_EQUALITY( ref_point[2], z );
+    TEST_ASSERT( geom_entity.checkPointInclusion(1.0e-6,p()) );
+    p[0] += 1.0e-7;
+    TEST_ASSERT( geom_entity.checkPointInclusion(1.0e-6,p()) );
+    p[0] += 1.0e-5;
+    TEST_ASSERT( !geom_entity.checkPointInclusion(1.0e-6,p()) );
+    geom_entity.mapToPhysicalFrame( ref_point(), p() );
+    TEST_EQUALITY( p[0], x );
+    TEST_EQUALITY( p[1], y );
+    TEST_EQUALITY( p[2], z );
+
+    // Copy to the Entity interface and check.
+    Entity entity = point;
+    TEST_EQUALITY( entity.entityType(), ENTITY_TYPE_NODE );
+    TEST_EQUALITY( entity.id(), 0 );
+    TEST_EQUALITY( entity.ownerRank(), 0 );
+    TEST_EQUALITY( entity.physicalDimension(), 3 );
 }
 
 //---------------------------------------------------------------------------//
