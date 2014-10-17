@@ -42,6 +42,7 @@
 
 #include "DTK_DBC.hpp"
 #include "DTK_BasicGeometryEntityImpl.hpp"
+#include "DTK_BasicGeometryExtraData.hpp"
 
 namespace DataTransferKit
 {
@@ -129,7 +130,7 @@ bool BasicGeometryEntityImpl::onBoundary( const int boundary_id ) const
 // Get the extra data on the entity.
 Teuchos::RCP<EntityExtraData> BasicGeometryEntityImpl::extraData() const
 {
-    return Teuchos::null;
+    return Teuchos::rcp( new BasicGeometryExtraData(this) );
 }
 
 //---------------------------------------------------------------------------//

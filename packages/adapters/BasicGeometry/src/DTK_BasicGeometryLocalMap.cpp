@@ -40,6 +40,7 @@
 
 #include "DTK_BasicGeometryLocalMap.hpp"
 #include "DTK_BasicGeometryEntity.hpp"
+#include "DTK_BasicGeometryExtraData.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
@@ -59,8 +60,8 @@ BasicGeometryLocalMap::~BasicGeometryLocalMap()
 // for a 3D entity, area for 2D, and length for 1D). 
 double BasicGeometryLocalMap::measure( const Entity& entity ) const
 {
-    return Teuchos::rcp_dynamic_cast<const BasicGeometryEntityImpl>(
-	entity.implementationConstPtr())->measure();
+    return Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
+	)->implementationConstPtr()->measure();
 }
 
 //---------------------------------------------------------------------------//
@@ -68,8 +69,8 @@ double BasicGeometryLocalMap::measure( const Entity& entity ) const
 void BasicGeometryLocalMap::centroid( 
     const Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
 { 
-    Teuchos::rcp_dynamic_cast<const BasicGeometryEntityImpl>(
-	entity.implementationConstPtr())->centroid(centroid);
+    Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
+	)->implementationConstPtr()->centroid(centroid);
 }
 
 //---------------------------------------------------------------------------//
@@ -80,8 +81,8 @@ bool BasicGeometryLocalMap::isSafeToMapToReferenceFrame(
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::RCP<MappingStatus>& status ) const
 {
-    return Teuchos::rcp_dynamic_cast<const BasicGeometryEntityImpl>(
-	entity.implementationConstPtr())->isSafeToMapToReferenceFrame(point);
+    return Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
+	)->implementationConstPtr()->isSafeToMapToReferenceFrame(point);
 }
 
 //---------------------------------------------------------------------------//
@@ -92,9 +93,8 @@ bool BasicGeometryLocalMap::mapToReferenceFrame(
     const Teuchos::ArrayView<double>& reference_point,
     const Teuchos::RCP<MappingStatus>& status ) const
 {
-    return Teuchos::rcp_dynamic_cast<const BasicGeometryEntityImpl>(
-	entity.implementationConstPtr())->mapToReferenceFrame(
-	    point,reference_point);
+    return Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
+	)->implementationConstPtr()->mapToReferenceFrame(point,reference_point);
 }
 
 //---------------------------------------------------------------------------//
@@ -112,9 +112,8 @@ bool BasicGeometryLocalMap::checkPointInclusion(
 		this->b_parameters->get<double>("Point Inclusion Tolerance");
 	}
     }
-    return Teuchos::rcp_dynamic_cast<const BasicGeometryEntityImpl>(
-	entity.implementationConstPtr())->checkPointInclusion(
-	    tolerance,reference_point);
+    return Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
+	)->implementationConstPtr()->checkPointInclusion(tolerance,reference_point);
 }
 
 //---------------------------------------------------------------------------//
@@ -124,9 +123,8 @@ void BasicGeometryLocalMap::mapToPhysicalFrame(
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
-    Teuchos::rcp_dynamic_cast<const BasicGeometryEntityImpl>(
-	entity.implementationConstPtr())->mapToPhysicalFrame(
-	    reference_point,point);
+    Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
+	)->implementationConstPtr()->mapToPhysicalFrame(reference_point,point);
 }
 
 //---------------------------------------------------------------------------//

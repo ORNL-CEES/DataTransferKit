@@ -54,7 +54,7 @@ class EntityExtraData
   public:
 
     EntityExtraData() { /* ... */ }
-    ~EntityExtraData() { /* ... */ }
+    virtual ~EntityExtraData() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//

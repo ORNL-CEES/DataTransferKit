@@ -38,10 +38,11 @@
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYEXTRADATA_HPP
-#define DTK_ENTITYEXTRADATA_HPP
+#ifndef DTK_BASICGEOMETRYEXTRADATA_HPP
+#define DTK_BASICGEOMETRYEXTRADATA_HPP
 
-#include "DTK_ExtraData.hpp"
+#include "DTK_EntityExtraData.hpp"
+#include "DTK_BasicGeometryEntityImpl.hpp"
 
 namespace DataTransferKit
 {
@@ -55,22 +56,23 @@ class BasicGeometryExtraData : public EntityExtraData
 {
   public:
 
-    BasicGeometryExtraData();
+    BasicGeometryExtraData( const BasicGeometryEntityImpl* implementation );
 
     ~BasicGeometryExtraData();
 
-    
+    const BasicGeometryEntityImpl* implementationConstPtr();
 
   private:
 
-    // Pointer to the BasicGeometryImplementation.
+    // Pointer to the basic geometry implementation.
+    const BasicGeometryEntityImpl* d_implementation;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_ENTITYEXTRADATA_HPP
+#endif // end DTK_BASICGEOMETRYEXTRADATA_HPP
 
 //---------------------------------------------------------------------------//
 // end DTK_BasicGeometryExtraData.hpp

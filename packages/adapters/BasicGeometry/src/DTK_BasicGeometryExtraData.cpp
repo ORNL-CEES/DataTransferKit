@@ -32,38 +32,45 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MappingStatus.hpp
+ * \brief DTK_BasicGeometryExtraData.cpp
  * \author Stuart R. Slattery
- * \brief Mapping status.
+ * \brief Extra data for basic geometry objects.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MAPPINGSTATUS_HPP
-#define DTK_MAPPINGSTATUS_HPP
+#include "DTK_BasicGeometryExtraData.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class MappingStatus
-  \brief Mapping status provides a base class for status indications for
-  parametric mapping operations.
+  \class BasicGeometryExtraData
+  \brief A base class for setting extra data with entities.
 */
 //---------------------------------------------------------------------------//
-class MappingStatus
+BasicGeometryExtraData::BasicGeometryExtraData( 
+    const BasicGeometryEntityImpl* implementation )
 {
-  public:
+    DTK_REQUIRE( implementation );
+    d_implementation = implementation;
+}
 
-    MappingStatus() { /* ... */ }
-    virtual ~MappingStatus() { /* ... */ }
-};
+//---------------------------------------------------------------------------//
+BasicGeometryExtraData::~BasicGeometryExtraData()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+const BasicGeometryEntityImpl* BasicGeometryExtraData::implementationConstPtr()
+{
+    DTK_REQUIRE( d_implementation );
+    return d_implementation;
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_MAPPINGSTATUS_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_MappingStatus.hpp
+// end DTK_BasicGeometryExtraData.cpp
 //---------------------------------------------------------------------------//

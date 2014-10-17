@@ -19,6 +19,7 @@ APPEND_SET(HEADERS
   DTK_BasicEntitySet.hpp
   DTK_BasicGeometryEntity.hpp
   DTK_BasicGeometryEntityImpl.hpp
+  DTK_BasicGeometryExtraData.hpp
   DTK_BasicGeometryLocalMap.hpp
   DTK_Box.hpp
   DTK_BoxImpl.hpp
@@ -30,6 +31,7 @@ APPEND_SET(SOURCES
   DTK_BasicEntitySet.cpp
   DTK_BasicGeometryEntity.cpp
   DTK_BasicGeometryEntityImpl.cpp
+  DTK_BasicGeometryExtraData.cpp
   DTK_BasicGeometryLocalMap.cpp
   DTK_Box.cpp
   DTK_BoxImpl.cpp
