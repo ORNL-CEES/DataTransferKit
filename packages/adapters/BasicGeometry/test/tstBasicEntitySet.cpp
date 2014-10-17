@@ -15,7 +15,6 @@
 #include <cassert>
 
 #include <DTK_BasicEntitySet.hpp>
-#include <DTK_Entity.hpp>
 #include <DTK_Point.hpp>
 #include <DTK_Box.hpp>
 
@@ -64,7 +63,7 @@ TEUCHOS_UNIT_TEST( BasicEntitySet, basic_entity_set_test )
     p1[0] = x_1;
     p1[1] = y_1;
     p1[2] = z_1;
-    Entity point_1 = Node(0, comm_rank, p1);
+    Entity point_1 = Point(0, comm_rank, p1);
 
     // Make a second point.
     double x_2 = 3.2 - comm_rank;
@@ -74,15 +73,25 @@ TEUCHOS_UNIT_TEST( BasicEntitySet, basic_entity_set_test )
     p2[0] = x_2;
     p2[1] = y_2;
     p2[2] = z_2;
-    Entity point_2 = Node(1, comm_rank, p2);
+    Entity point_2 = Point(1, comm_rank, p2);
+
+    // Make a box.
+    Entity box_1 = Box( 2, comm_rank, 1,
+			std::min(p1[0],p2[0]),
+			std::min(p1[1],p2[1]),
+			std::min(p1[2],p2[2]),
+			std::max(p1[0],p2[0]),
+			std::max(p1[1],p2[1]),
+			std::max(p1[2],p2[2]) );
 
     // Make an entity set.
     Teuchos::RCP<EntitySet> entity_set = 
 	Teuchos::rcp( new BasicEntitySet(comm, 3) );
 
-    // Add the points to the set.
+    // Add the points and box to the set.
     Teuchos::rcp_dynamic_cast<BasicEntitySet>(entity_set)->addEntity( point_1 );
     Teuchos::rcp_dynamic_cast<BasicEntitySet>(entity_set)->addEntity( point_2 );
+    Teuchos::rcp_dynamic_cast<BasicEntitySet>(entity_set)->addEntity( box_1 );
 
     // Get an iterator to the entity set objects.
     EntityIterator node_it = entity_set->entityIterator( ENTITY_TYPE_NODE );
@@ -95,7 +104,7 @@ TEUCHOS_UNIT_TEST( BasicEntitySet, basic_entity_set_test )
     TEST_EQUALITY( node_it.size(), 2 );
     TEST_EQUALITY( edge_it.size(), 0 );
     TEST_EQUALITY( face_it.size(), 0 );
-    TEST_EQUALITY( volume_it.size(), 0 );
+    TEST_EQUALITY( volume_it.size(), 1 );
 
     // Check the nodes.
     node_it = node_it.begin();
@@ -119,6 +128,13 @@ TEUCHOS_UNIT_TEST( BasicEntitySet, basic_entity_set_test )
     TEST_EQUALITY( 0, entity.id() );
     entity_set->getEntity( 1, entity );
     TEST_EQUALITY( 1, entity.id() );
+
+    // Check the box.
+    Entity ge2 = *volume_it;
+    TEST_EQUALITY( ge2.id(), 2 );
+    TEST_EQUALITY( ge2.ownerRank(), comm_rank );
+    TEST_ASSERT( !ge2.inBlock(0) );
+    TEST_ASSERT( ge2.inBlock(1) );
 
     // Check the bounding boxes.
     Teuchos::Tuple<double,6> local_bounds;

@@ -65,6 +65,15 @@ Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
 }
 
 //---------------------------------------------------------------------------//
+// Return the largest physical dimension of the entities in the set. 
+int EntitySet::physicalDimension() const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+    return -1;
+}
+
+//---------------------------------------------------------------------------//
 // Get the local bounding box of entities of the set. Default implementation
 // gathers the bounding boxes of local entities.
 void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
@@ -132,12 +141,15 @@ EntityIterator EntitySet::entityIterator(
 }
 
 //---------------------------------------------------------------------------//
-// Return the largest physical dimension of the entities in the set. 
-int EntitySet::physicalDimension() const
+// Given an entity, get the entities of the given type that are adjacent to
+// it. 
+void EntitySet::getAdjacentEntities(
+    const Entity& entity,
+    const EntityType entity_type,
+    Teuchos::Array<Entity>& adjacent_entities ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
-    return -1;
 }
 
 //---------------------------------------------------------------------------//

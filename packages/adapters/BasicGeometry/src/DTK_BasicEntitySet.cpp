@@ -205,6 +205,8 @@ BasicEntitySet::~BasicEntitySet()
 // Add an entity to the set.
 void BasicEntitySet::addEntity( const Entity& entity )
 {
+    d_entity_dims.insert( 
+	std::pair<EntityId,int>(entity.id(),entity.entityType()) );
     d_entities[ entity.entityType() ].insert(
 	std::pair<EntityId,Entity>(entity.id(), entity) );
 }
