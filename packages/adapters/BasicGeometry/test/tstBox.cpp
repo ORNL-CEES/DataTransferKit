@@ -63,6 +63,8 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
     double y_max = 0.3;
     double z_max = 8.7;
     Box box(  0, 0, 0, x_min, y_min, z_min, x_max, y_max, z_max );
+    BasicGeometryEntity box_entity = box;
+    Entity entity = box;
 
     // Check Entity data.
     TEST_EQUALITY( box.entityType(), ENTITY_TYPE_VOLUME );
@@ -72,6 +74,22 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
     TEST_ASSERT( !box.onSurface() );
     TEST_ASSERT( !box.onBoundary(0) );
     TEST_EQUALITY( box.physicalDimension(), 3 );
+
+    TEST_EQUALITY( box_entity.entityType(), ENTITY_TYPE_VOLUME );
+    TEST_EQUALITY( box_entity.id(), 0 );
+    TEST_EQUALITY( box_entity.ownerRank(), 0 );
+    TEST_ASSERT( box_entity.inBlock(0) );
+    TEST_ASSERT( !box_entity.onSurface() );
+    TEST_ASSERT( !box_entity.onBoundary(0) );
+    TEST_EQUALITY( box_entity.physicalDimension(), 3 );
+
+    TEST_EQUALITY( entity.entityType(), ENTITY_TYPE_VOLUME );
+    TEST_EQUALITY( entity.id(), 0 );
+    TEST_EQUALITY( entity.ownerRank(), 0 );
+    TEST_ASSERT( entity.inBlock(0) );
+    TEST_ASSERT( !entity.onSurface() );
+    TEST_ASSERT( !entity.onBoundary(0) );
+    TEST_EQUALITY( entity.physicalDimension(), 3 );
 
     // Check the bounds.
     Teuchos::Tuple<double,6> box_bounds;
@@ -100,13 +118,32 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
 	point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
 	point[2] = 9.0 * (double) std::rand() / RAND_MAX;
 
+	// Box API
 	safe_to_map = box.isSafeToMapToReferenceFrame( point() );
 	TEST_ASSERT( safe_to_map );
 	map_ok = box.mapToReferenceFrame( point, ref_point() );
 	TEST_ASSERT( map_ok );
-
 	point_inclusion = box.checkPointInclusion(tol,ref_point());
+	if ( box_bounds[0] <= ref_point[0] &&
+	     box_bounds[1] <= ref_point[1] &&
+	     box_bounds[2] <= ref_point[2] &&
+	     box_bounds[3] >= ref_point[0] &&
+	     box_bounds[4] >= ref_point[1] &&
+	     box_bounds[5] >= ref_point[2] )
+	{
+	    TEST_ASSERT( point_inclusion );
+	}
+	else
+	{
+	    TEST_ASSERT( !point_inclusion );
+	}
 
+	// BasicGeometryEntity API
+	safe_to_map = box_entity.isSafeToMapToReferenceFrame( point() );
+	TEST_ASSERT( safe_to_map );
+	map_ok = box_entity.mapToReferenceFrame( point, ref_point() );
+	TEST_ASSERT( map_ok );
+	point_inclusion = box_entity.checkPointInclusion(tol,ref_point());
 	if ( box_bounds[0] <= ref_point[0] &&
 	     box_bounds[1] <= ref_point[1] &&
 	     box_bounds[2] <= ref_point[2] &&
