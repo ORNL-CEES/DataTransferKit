@@ -37,8 +37,15 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  BasicGeometryEntityCenteredShapeFunction_test
-  SOURCES tstBasicGeometryEntityCenteredShapeFunction.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  EntityCenteredShapeFunction_test
+  SOURCES tstEntityCenteredShapeFunction.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  EntityCenteredDOFVector_test
+  SOURCES tstEntityCenteredDOFVector.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )

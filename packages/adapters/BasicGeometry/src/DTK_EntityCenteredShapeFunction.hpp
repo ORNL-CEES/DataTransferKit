@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_BasicGeometryEntityCenteredShapeFunction.hpp
+ * \brief DTK_EntityCenteredShapeFunction.hpp
  * \author Stuart R. Slattery
  * \brief Shape function interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_BASICGEOMETRYENTITYCENTEREDSHAPEFUNCTION
-#define DTK_BASICGEOMETRYENTITYCENTEREDSHAPEFUNCTION
+#ifndef DTK_ENTITYCENTEREDSHAPEFUNCTION
+#define DTK_ENTITYCENTEREDSHAPEFUNCTION
 
 #include "DTK_EntityShapeFunction.hpp"
 
@@ -50,27 +50,27 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class BasicGeometryEntityCenteredShapeFunction
+  \class EntityCenteredShapeFunction
   \brief Entity-centered shape function.
 
-  BasicGeometryEntityCenteredShapeFunction provides a shape function for
+  EntityCenteredShapeFunction provides a shape function for
   entity-centered quantities. For example, a cell-averaged quantity can be
   defined with this shape function as well as quantities attached to nodes.
 */
 //---------------------------------------------------------------------------//
-class BasicGeometryEntityCenteredShapeFunction : public EntityShapeFunction
+class EntityCenteredShapeFunction : public EntityShapeFunction
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    BasicGeometryEntityCenteredShapeFunction();
+    EntityCenteredShapeFunction();
 
     /*!
      * \brief Destructor.
      */
-    ~BasicGeometryEntityCenteredShapeFunction();
+    ~EntityCenteredShapeFunction();
 
     /*!
      * \brief Given an entity, get the ids of the degrees of freedom in the
@@ -119,8 +119,8 @@ class BasicGeometryEntityCenteredShapeFunction : public EntityShapeFunction
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_BASICGEOMETRYENTITYCENTEREDSHAPEFUNCTION
+#endif // end DTK_ENTITYCENTEREDSHAPEFUNCTION
 
 //---------------------------------------------------------------------------//
-// end DTK_BasicGeometryEntityCenteredShapeFunction.hpp
+// end DTK_EntityCenteredShapeFunction.hpp
 //---------------------------------------------------------------------------//

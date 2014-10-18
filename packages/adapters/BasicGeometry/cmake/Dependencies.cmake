@@ -5,7 +5,8 @@ SET(LIB_REQUIRED_DEP_PACKAGES
   DataTransferKitInterface
   Teuchos 
   Tpetra
-  Thyra
+  ThyraCore
+  ThyraTpetraAdapters
  )
 
 SET(LIB_OPTIONAL_DEP_PACKAGES)

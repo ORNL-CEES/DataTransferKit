@@ -32,63 +32,48 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_BasicGeometryEntityCenteredShapeFunction.cpp
+ * \brief DTK_EntityCenteredDOFVector_impl.hpp
  * \author Stuart R. Slattery
- * \brief Shape function interface.
+ * \brief Entity-centered DOF vector.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_BasicGeometryEntityCenteredShapeFunction.hpp"
+#ifndef DTK_ENTITYCENTEREDDOFVECTOR_IMPL_HPP
+#define DTK_ENTITYCENTEREDDOFVECTOR_IMPL_HPP
+
+#include "DTK_EntityCenteredDOFVector.hpp"
 #include "DTK_DBC.hpp"
+
+#include <Tpetra_Map.hpp>
+#include <Tpetra_MultiVector.hpp>
+
+#include <Thyra_TpetraThyraWrappers.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Constructor.
-BasicGeometryEntityCenteredShapeFunction::BasicGeometryEntityCenteredShapeFunction()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-// Destructor.
-BasicGeometryEntityCenteredShapeFunction::~BasicGeometryEntityCenteredShapeFunction()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-// Given an entity, get the ids of the degrees of freedom in the vector space
-// supporting its shape function.
-void BasicGeometryEntityCenteredShapeFunction::entityDOFIds( 
-    const Entity& entity, Teuchos::Array<std::size_t>& dof_ids ) const
+template<class Scalar>
+Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > 
+EntityCenteredDOFVector::createThyraMultiVector( 
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+    const Teuchos::ArrayView<const std::size_t>& entity_ids,
+    const Teuchos::ArrayRCP<Scalar>& dof_data,
+    const std::size_t lda,
+    const std::size_t num_vectors )
 {
-    // There is one DOF for an entity-centered quantity. We will assign the
-    // DOF id to be the same as the entity id.
-    dof_ids.assign( 1, Teuchos::as<std::size_t>(entity.id()) );
-}
+    DTK_REQUIRE( lda*num_vectors == dof_data.size() );
 
-//---------------------------------------------------------------------------//
-// Given an entity and a reference point, evaluate the shape function of the
-// entity at that point.
-void BasicGeometryEntityCenteredShapeFunction::evaluateValue( 
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    Teuchos::Array<double>& values ) const
-{
-    // There is one DOF and therefore the shape function value is 1.0
-    values.assign( 1, 1.0 );
-}
+    // Construct a map.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > map =
+	Tpetra::createNonContigMap<int,std::size_t>( entity_ids, comm );
 
-//---------------------------------------------------------------------------//
-// Given an entity and a reference point, evaluate the gradient of the shape
-// function of the entity at that point.
-void BasicGeometryEntityCenteredShapeFunction::evaluateGradient( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
-{
-    // For now there is no gradient in the entity as we have a constant shape
-    // function over its entire domain. In the future, we could use adjacency
-    // information to construct some approximation to the derivative via a
-    // Taylor expansion.
-    gradients.assign( 1, Teuchos::Array<double>(1,0.0) );
+    // Build a tpetra multivector.
+    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > tpetra_mv =
+	Tpetra::createMultiVectorFromView<Scalar,int,std::size_t>( 
+	    map, dof_data, lda, num_vectors );
+
+    // Return a thyra multivector.
+    return Thyra::createMultiVector( tpetra_mv );
 }
 
 //---------------------------------------------------------------------------//
@@ -96,5 +81,9 @@ void BasicGeometryEntityCenteredShapeFunction::evaluateGradient(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_BasicGeometryEntityCenteredShapeFunction.cpp
+
+#endif // end DTK_ENTITYCENTEREDDOFVECTOR_IMPL_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_EntityCenteredDOFVector_impl.hpp
 //---------------------------------------------------------------------------//

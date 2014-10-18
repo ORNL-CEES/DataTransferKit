@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*!
- * \file tstBasicGeometryEntityCenteredShapeFunction.cpp
+ * \file tstEntityCenteredShapeFunction.cpp
  * \author Stuart R. Slattery
- * \brief BasicGeometryEntityCenteredShapeFunction unit tests.
+ * \brief EntityCenteredShapeFunction unit tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -15,7 +15,7 @@
 #include <cassert>
 
 #include <DTK_EntityShapeFunction.hpp>
-#include <DTK_BasicGeometryEntityCenteredShapeFunction.hpp>
+#include <DTK_EntityCenteredShapeFunction.hpp>
 #include <DTK_Point.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -31,7 +31,7 @@
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( BasicGeometryEntityCenteredShapeFunction, shape_func_test )
+TEUCHOS_UNIT_TEST( EntityCenteredShapeFunction, shape_func_test )
 {
     using namespace DataTransferKit;
 
@@ -45,7 +45,7 @@ TEUCHOS_UNIT_TEST( BasicGeometryEntityCenteredShapeFunction, shape_func_test )
 
     // Make a shape function.
     Teuchos::RCP<EntityShapeFunction> shape_function =
-	Teuchos::rcp( new BasicGeometryEntityCenteredShapeFunction() );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Test the shape function.
     Teuchos::Array<std::size_t> dof_ids;
@@ -66,6 +66,6 @@ TEUCHOS_UNIT_TEST( BasicGeometryEntityCenteredShapeFunction, shape_func_test )
 }
 
 //---------------------------------------------------------------------------//
-// end tstBasicGeometryEntityCenteredShapeFunction.cpp
+// end tstEntityCenteredShapeFunction.cpp
 //---------------------------------------------------------------------------//
 
