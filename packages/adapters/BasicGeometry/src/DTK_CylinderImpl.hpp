@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_BoxImpl.hpp
+ * \file DTK_CylinderImpl.hpp
  * \author Stuart R. Slattery
- * \brief Box implementation.
+ * \brief Cylinder implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_BOXIMPL_HPP
-#define DTK_BOXIMPL_HPP
+#ifndef DTK_CYLINDERIMPL_HPP
+#define DTK_CYLINDERIMPL_HPP
 
 #include "DTK_BasicGeometryEntityImpl.hpp"
 
@@ -50,34 +50,40 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class BoxImpl
- * \brief Axis-aligned Cartesian box container implementation.
+ * \class CylinderImpl
+ * \brief Z-axis-aligned Cartesian cylinder container implementation.
  *
- * All three dimensions are explictly represented in this bounding box. This
- * is different from a bounding box in that it must always be finite and of a
- * fixed 3 dimensions.
+ * All three dimensions are explictly represented in this cylinder.
  */
 //---------------------------------------------------------------------------//
-class BoxImpl : public BasicGeometryEntityImpl
+class CylinderImpl : public BasicGeometryEntityImpl
 {
+
   public:
 
     // Default constructor.
-    BoxImpl();
+    CylinderImpl();
 
     // Constructor.
-    BoxImpl( const EntityId global_id, const int owner_rank, const int block_id,
-	     const double x_min, const double y_min, const double z_min,
-	     const double x_max, const double y_max, const double z_max );
-
-    // Tuple constructor.
-    BoxImpl( const EntityId global_id,
-	     const int owner_rank, 
-	     const int block_id, 
-	     const Teuchos::Tuple<double,6>& bounds );
+    CylinderImpl( const EntityId global_id, 
+		  const int owner_rank, 
+		  const int block_id,
+		  const double length, 
+		  const double radius,
+		  const double centroid_x, 
+		  const double centroid_y,
+		  const double centroid_z );
 
     // Destructor.
-    ~BoxImpl();
+    ~CylinderImpl();
+
+    //! Get the length of the cylinder.
+    double length() const
+    { return d_length; }
+
+    //! Get the radius of the cylinder.
+    double radius() const
+    { return d_radius; }
 
     // Get the entity type.
     EntityType entityType() const;
@@ -132,44 +138,39 @@ class BoxImpl : public BasicGeometryEntityImpl
 	const Teuchos::ArrayView<double>& point ) const;
 
   private:
-
-    // Global id.
+    
+    // Entity id.
     EntityId d_global_id;
 
-    // Owning parallel rank.
+    // Owner rank.
     int d_owner_rank;
 
     // Block id.
     int d_block_id;
 
-    // X min.
-    double d_x_min;
+    // Length.
+    double d_length;
 
-    // Y min.
-    double d_y_min;
+    // Radius.
+    double d_radius;
 
-    // Z min.
-    double d_z_min;
+    // Centroid X-coordinate
+    double d_centroid_x;
 
-    // X max.
-    double d_x_max;
+    // Centroid Y-coordinate
+    double d_centroid_y;
 
-    // Y max.
-    double d_y_max;
-
-    // Z max.
-    double d_z_max;
+    // Centroid Z-coordinate
+    double d_centroid_z;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-
-#endif // end DTK_BOXIMPL_HPP
+#endif // end DTK_CYLINDERIMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Box.hpp
+// end DTK_CylinderImpl.hpp
 //---------------------------------------------------------------------------//
 

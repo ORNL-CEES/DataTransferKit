@@ -41,11 +41,10 @@
 #ifndef DTK_CYLINDER_HPP
 #define DTK_CYLINDER_HPP
 
-#include "DTK_BoundingBox.hpp"
-#include "DTK_GeometricEntity.hpp"
+#include "DTK_BasicGeometryEntity.hpp"
 
-#include <Teuchos_Array.hpp>
-#include <Teuchos_SerializationTraits.hpp>
+#include <Teuchos_Tuple.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 #include <iostream>
 
@@ -59,7 +58,7 @@ namespace DataTransferKit
  * All three dimensions are explictly represented in this cylinder.
  */
 //---------------------------------------------------------------------------//
-class Cylinder : public GeometricEntity
+class Cylinder : public BasicGeometryEntity
 {
 
   public:
@@ -68,8 +67,13 @@ class Cylinder : public GeometricEntity
     Cylinder();
 
     // Constructor.
-    Cylinder( const double length, const double radius,
-	      const double centroid_x, const double centroid_y,
+    Cylinder( const EntityId global_id, 
+	      const int owner_rank, 
+	      const int block_id,
+	      const double length, 
+	      const double radius,
+	      const double centroid_x, 
+	      const double centroid_y, 
 	      const double centroid_z );
 
     // Destructor.
@@ -83,41 +87,33 @@ class Cylinder : public GeometricEntity
     double radius() const
     { return d_radius; }
 
-    //@{ 
-    //! GeometricEntity implementation.
-    int dimension() const
-    { return 3; }
-
-    // Compute the volume of the cylinder.
+    // Return the entity measure.
     double measure() const;
 
-    // Get the centroid of the cylinder.
-    Teuchos::Array<double> centroid() const;
+    // Compute the centroid of the entity.
+    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
 
-    // Compute the bounding box around the cylinder.
-    BoundingBox boundingBox() const;
+    // (Safeguard the reverse map) Perform a safeguard check for mapping a
+    // point to the reference space of an entity using the given tolerance.
+    bool isSafeToMapToReferenceFrame(
+	const Teuchos::ArrayView<const double>& point ) const;
 
-    // Determine if a point is in the cylinder within a specified tolerance.
-    bool pointInEntity( const Teuchos::ArrayView<double>& coords,
-			const double tolerance ) const;
-    //@}
+    // (Reverse Map) Map a point to the reference space of an entity. Return
+    // the parameterized point.
+    bool mapToReferenceFrame( 
+	const Teuchos::ArrayView<const double>& point,
+	const Teuchos::ArrayView<double>& reference_point ) const;
 
-  private:
-    
-    // Length.
-    double d_length;
+    // Determine if a reference point is in the parameterized space of an
+    // entity.
+    bool checkPointInclusion( 
+	const double tolerance,
+	const Teuchos::ArrayView<const double>& reference_point ) const;
 
-    // Radius.
-    double d_radius;
-
-    // Centroid X-coordinate
-    double d_centroid_x;
-
-    // Centroid Y-coordinate
-    double d_centroid_y;
-
-    // Centroid Z-coordinate
-    double d_centroid_z;
+    // (Forward Map) Map a reference point to the physical space of an entity.
+    void mapToPhysicalFrame( 
+	const Teuchos::ArrayView<const double>& reference_point,
+	const Teuchos::ArrayView<double>& point ) const;
 };
 
 //! overload for printing cylinder
@@ -126,19 +122,6 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c);
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Serialization Traits Specialization.
-//---------------------------------------------------------------------------//
-namespace Teuchos
-{
-
-template<typename Ordinal>
-class SerializationTraits<Ordinal, DataTransferKit::Cylinder>
-    : public DirectSerializationTraits<Ordinal, DataTransferKit::Cylinder>
-{};
-
-} // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
 

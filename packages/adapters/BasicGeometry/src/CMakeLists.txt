@@ -23,6 +23,8 @@ APPEND_SET(HEADERS
   DTK_BasicGeometryLocalMap.hpp
   DTK_Box.hpp
   DTK_BoxImpl.hpp
+  DTK_Cylinder.hpp
+  DTK_CylinderImpl.hpp
   DTK_Point.hpp
   DTK_PointImpl.hpp
   ) 
@@ -35,6 +37,8 @@ APPEND_SET(SOURCES
   DTK_BasicGeometryLocalMap.cpp
   DTK_Box.cpp
   DTK_BoxImpl.cpp
+  DTK_Cylinder.cpp
+  DTK_CylinderImpl.cpp
   DTK_Point.cpp
   DTK_PointImpl.cpp
   )

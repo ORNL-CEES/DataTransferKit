@@ -42,11 +42,9 @@
 #define DTK_BOX_HPP
 
 #include "DTK_BasicGeometryEntity.hpp"
-#include "DTK_BoxImpl.hpp"
 
 #include <Teuchos_Tuple.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_ParameterList.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 #include <iostream>
 

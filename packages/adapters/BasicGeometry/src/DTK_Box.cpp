@@ -39,6 +39,7 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_Box.hpp"
+#include "DTK_BoxImpl.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit

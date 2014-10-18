@@ -50,12 +50,9 @@ namespace DataTransferKit
  * \brief Default constructor.
  */
 Cylinder::Cylinder()
-    : d_length( 0.0 )
-    , d_radius( 0.0 )
-    , d_centroid_x( 0.0 )
-    , d_centroid_y( 0.0 )
-    , d_centroid_z( 0.0 )
-{ /* ... */ }
+{
+    this->b_entity_impl = Teuchos::rcp( new CylinderImpl() );
+}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -71,17 +68,18 @@ Cylinder::Cylinder()
  *
  * \param centroid_z Centroid Z-coordinate.
  */
-Cylinder::Cylinder( const double length, const double radius,
-		    const double centroid_x, const double centroid_y,
+Cylinder::Cylinder( const EntityId global_id, 
+		    const int owner_rank, 
+		    const int block_id,
+		    const double length, 
+		    const double radius,
+		    const double centroid_x, 
+		    const double centroid_y, 
 		    const double centroid_z )
-    : d_length( length )
-    , d_radius( radius )
-    , d_centroid_x( centroid_x )
-    , d_centroid_y( centroid_y )
-    , d_centroid_z( centroid_z )
 {
-    DTK_REQUIRE( 0.0 <= d_length );
-    DTK_REQUIRE( 0.0 <= d_radius );
+    this->b_entity_impl = Teuchos::rcp( 
+	new CylinderImpl(global_id,owner_rank,block_id,length,radius,
+			 centroid_x,centroid_y,centroid_z) );
 }
 
 //---------------------------------------------------------------------------//
@@ -92,85 +90,89 @@ Cylinder::~Cylinder()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-/*!
- * \brief Get the centroid of the cylinder.
- *
- * \return The centroid coordinates.
- */
-Teuchos::Array<double> Cylinder::centroid() const
-{
-    Teuchos::Array<double> coords(3);
-    coords[0] = d_centroid_x;
-    coords[1] = d_centroid_y;
-    coords[2] = d_centroid_z;
-    return coords;
+// Get the length of the cylinder.
+double Cylinder::length() const
+{ 
+    return 
+	Teuchos::rcp_dynamic_cast<CylinderImpl>(this->b_entity_impl)->length();
+}
+
+//---------------------------------------------------------------------------//
+// Get the radius of the cylinder.
+double Cylinder::radius() const
+{ 
+    return 
+	Teuchos::rcp_dynamic_cast<CylinderImpl>(this->b_entity_impl)->radius();
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute the volume of the cylinder given its dimension.
+ * \brief Compute the measure of the box.
  *
- * \param dim The dimension of the cylinder we want to compute the volume
- * for. We need this because the cylinder always stores all 3
- * dimensions. Lower dimension cylinderes are resolved with higher dimensions
- * set to +/- Teuchos::ScalarTraits<double>::rmax(). For dim = 1, only the x
- * dimension is used. For dim = 2, the x and y dimensions are used. For dim =
- * 3, the x, y, and z dimensions are used.
- *
- * \return Return the volume of the cylinder.
+ * \return Return the measure of the box.
  */
 double Cylinder::measure() const
 {
-    double zero = 0.0;
-    double pi = 2.0 * std::acos( zero );
-    return pi * d_radius * d_radius * d_length;
+    return Teuchos::rcp_dynamic_cast<BoxImpl>(this->b_entity_impl)->measure();
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Compute the bounding box around the cylinder.
+ * \brief Get the centroid of the box.
  *
- * \return The bounding box around the cylinder.
+ * \return The centroid coordinates.
  */
-BoundingBox Cylinder::boundingBox() const
+void Cylinder::centroid( const Teuchos::ArrayView<double>& centroid ) const
 {
-    return BoundingBox( d_centroid_x - d_radius,
-			d_centroid_y - d_radius,
-			d_centroid_z - d_length/2,
-			d_centroid_x + d_radius,
-			d_centroid_y + d_radius,
-			d_centroid_z + d_length/2 );
+    Teuchos::rcp_dynamic_cast<BoxImpl>(this->b_entity_impl)->centroid(centroid);
 }
-
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Determine if a point is in the cylinder. 
- *
- * \param coords Cartesian coordinates to check for point inclusion. The
- * coordinates must have a dimension of 3.
- *
- * \param tolerance The geometric tolerance to check point-inclusion
- * with. This tolerance is relative.
- *
- * \return Return true if the point is in the cylinder, false if not. A point
- * on the cylinder boundary or outside but within the tolerance will return
- * true.
+ * \brief Safeguard the reverse map.
  */
-bool Cylinder::pointInEntity( const Teuchos::ArrayView<double>& coords,
-			      const double tolerance ) const
+bool Cylinder::isSafeToMapToReferenceFrame(
+    const Teuchos::ArrayView<const double>& point ) const
 {
-    DTK_REQUIRE( coords.size() == 3 );
+    return Teuchos::rcp_dynamic_cast<BoxImpl>(
+	this->b_entity_impl)->isSafeToMapToReferenceFrame(point);
+}
 
-    double x_dist = d_centroid_x - coords[0];
-    double y_dist = d_centroid_y - coords[1];
-    double r = std::sqrt( x_dist*x_dist + y_dist*y_dist );
-    double rad_tol = d_radius*tolerance;
-    double half_length_tol = d_length / 2 + d_length*tolerance;
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Map a point to the reference space of an entity. Return the
+ */
+bool Cylinder::mapToReferenceFrame( 
+    const Teuchos::ArrayView<const double>& point,
+    const Teuchos::ArrayView<double>& reference_point ) const
+{
+    return Teuchos::rcp_dynamic_cast<BoxImpl>(
+	this->b_entity_impl)->mapToReferenceFrame(point,reference_point);
+}
 
-    return ( (r <= d_radius + rad_tol) &&
-	     (coords[2] >= d_centroid_z - half_length_tol) &&
-	     (coords[2] <= d_centroid_z + half_length_tol) );
+//---------------------------------------------------------------------------//
+/*!  
+ * \brief Determine if a reference point is in the parameterized space of
+ * an entity.
+ */
+bool Cylinder::checkPointInclusion( 
+    const double tolerance,
+    const Teuchos::ArrayView<const double>& reference_point ) const
+{
+    return Teuchos::rcp_dynamic_cast<BoxImpl>(
+	this->b_entity_impl)->checkPointInclusion(tolerance,reference_point);
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Map a reference point to the physical space of an entity.
+ */
+void Cylinder::mapToPhysicalFrame( 
+    const Teuchos::ArrayView<const double>& reference_point,
+    const Teuchos::ArrayView<double>& point ) const
+{
+    Teuchos::rcp_dynamic_cast<BoxImpl>(
+	this->b_entity_impl)->mapToPhysicalFrame(reference_point,point);
 }
 
 //---------------------------------------------------------------------------//
