@@ -80,12 +80,10 @@ class Cylinder : public BasicGeometryEntity
     ~Cylinder();
 
     //! Get the length of the cylinder.
-    double length() const
-    { return d_length; }
+    double length() const;
 
     //! Get the radius of the cylinder.
-    double radius() const
-    { return d_radius; }
+    double radius() const;
 
     // Return the entity measure.
     double measure() const;

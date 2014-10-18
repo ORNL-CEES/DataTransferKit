@@ -41,6 +41,7 @@
 #include <cmath>
 
 #include "DTK_Cylinder.hpp"
+#include "DTK_CylinderImpl.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
@@ -113,7 +114,7 @@ double Cylinder::radius() const
  */
 double Cylinder::measure() const
 {
-    return Teuchos::rcp_dynamic_cast<BoxImpl>(this->b_entity_impl)->measure();
+    return Teuchos::rcp_dynamic_cast<CylinderImpl>(this->b_entity_impl)->measure();
 }
 
 //---------------------------------------------------------------------------//
@@ -124,7 +125,7 @@ double Cylinder::measure() const
  */
 void Cylinder::centroid( const Teuchos::ArrayView<double>& centroid ) const
 {
-    Teuchos::rcp_dynamic_cast<BoxImpl>(this->b_entity_impl)->centroid(centroid);
+    Teuchos::rcp_dynamic_cast<CylinderImpl>(this->b_entity_impl)->centroid(centroid);
 }
 
 //---------------------------------------------------------------------------//
@@ -134,7 +135,7 @@ void Cylinder::centroid( const Teuchos::ArrayView<double>& centroid ) const
 bool Cylinder::isSafeToMapToReferenceFrame(
     const Teuchos::ArrayView<const double>& point ) const
 {
-    return Teuchos::rcp_dynamic_cast<BoxImpl>(
+    return Teuchos::rcp_dynamic_cast<CylinderImpl>(
 	this->b_entity_impl)->isSafeToMapToReferenceFrame(point);
 }
 
@@ -146,7 +147,7 @@ bool Cylinder::mapToReferenceFrame(
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
-    return Teuchos::rcp_dynamic_cast<BoxImpl>(
+    return Teuchos::rcp_dynamic_cast<CylinderImpl>(
 	this->b_entity_impl)->mapToReferenceFrame(point,reference_point);
 }
 
@@ -159,7 +160,7 @@ bool Cylinder::checkPointInclusion(
     const double tolerance,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
-    return Teuchos::rcp_dynamic_cast<BoxImpl>(
+    return Teuchos::rcp_dynamic_cast<CylinderImpl>(
 	this->b_entity_impl)->checkPointInclusion(tolerance,reference_point);
 }
 
@@ -171,7 +172,7 @@ void Cylinder::mapToPhysicalFrame(
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
-    Teuchos::rcp_dynamic_cast<BoxImpl>(
+    Teuchos::rcp_dynamic_cast<CylinderImpl>(
 	this->b_entity_impl)->mapToPhysicalFrame(reference_point,point);
 }
 
@@ -183,9 +184,11 @@ void Cylinder::mapToPhysicalFrame(
  */
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c)
 {
-  os << "Cylinder: length=" << c.length() << ",radius=" << c.radius()
-     << ", centroid=(" << c.centroid()[0] << "," << c.centroid()[1]
-     << "," << c.centroid()[2] << ")";
+    Teuchos::Array<double> centroid(3);
+    c.centroid( centroid() );
+    os << "Cylinder: length=" << c.length() << ",radius=" << c.radius()
+       << ", centroid=(" << centroid[0] << "," << centroid[1]
+       << "," << centroid[2] << ")";
 
   return os;
 }

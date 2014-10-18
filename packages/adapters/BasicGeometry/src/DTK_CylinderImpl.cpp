@@ -104,28 +104,28 @@ CylinderImpl::~CylinderImpl()
 
 //---------------------------------------------------------------------------//
 // Get the entity type.
-EntityType BoxImpl::entityType() const
+EntityType CylinderImpl::entityType() const
 {
     return ENTITY_TYPE_VOLUME;
 }
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-EntityId BoxImpl::id() const
+EntityId CylinderImpl::id() const
 {
     return d_global_id;
 }
     
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-int BoxImpl::ownerRank() const
+int CylinderImpl::ownerRank() const
 {
     return d_owner_rank;
 }
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-int BoxImpl::physicalDimension() const
+int CylinderImpl::physicalDimension() const
 {
     return 3;
 }
@@ -136,7 +136,7 @@ int BoxImpl::physicalDimension() const
  *
  * \return The bounding box bounds.
  */
-void BoxImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+void CylinderImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     bounds = Teuchos::tuple( d_centroid_x - d_radius,
 			     d_centroid_y - d_radius,
@@ -148,21 +148,21 @@ void BoxImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the surface of the set.
-bool BoxImpl::onSurface() const
+bool CylinderImpl::onSurface() const
 {
     return false;
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
-bool BoxImpl::inBlock( const int block_id ) const
+bool CylinderImpl::inBlock( const int block_id ) const
 {
     return ( block_id == d_block_id );
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
-bool BoxImpl::onBoundary( const int boundary_id ) const
+bool CylinderImpl::onBoundary( const int boundary_id ) const
 {
     return false;
 }
@@ -173,7 +173,7 @@ bool BoxImpl::onBoundary( const int boundary_id ) const
  *
  * \return Return the measure of the box.
  */
-double BoxImpl::measure() const
+double CylinderImpl::measure() const
 {
     double zero = 0.0;
     double pi = 2.0 * std::acos( zero );
@@ -186,7 +186,7 @@ double BoxImpl::measure() const
  *
  * \return The centroid coordinates.
  */
-void BoxImpl::centroid( const Teuchos::ArrayView<double>& centroid ) const
+void CylinderImpl::centroid( const Teuchos::ArrayView<double>& centroid ) const
 {
     centroid[0] = d_centroid_x;
     centroid[1] = d_centroid_y;
@@ -197,7 +197,7 @@ void BoxImpl::centroid( const Teuchos::ArrayView<double>& centroid ) const
 /*!
  * \brief Safeguard the reverse map.
  */
-bool BoxImpl::isSafeToMapToReferenceFrame(
+bool CylinderImpl::isSafeToMapToReferenceFrame(
     const Teuchos::ArrayView<const double>& point ) const
 {
     return true;
@@ -207,7 +207,7 @@ bool BoxImpl::isSafeToMapToReferenceFrame(
 /*!
  * \brief Map a point to the reference space of an entity. Return the
  */
-bool BoxImpl::mapToReferenceFrame( 
+bool CylinderImpl::mapToReferenceFrame( 
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
@@ -220,7 +220,7 @@ bool BoxImpl::mapToReferenceFrame(
  * \brief Determine if a reference point is in the parameterized space of
  * an entity.
  */
-bool BoxImpl::checkPointInclusion( 
+bool CylinderImpl::checkPointInclusion( 
     const double tolerance,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
@@ -241,7 +241,7 @@ bool BoxImpl::checkPointInclusion(
 /*!
  * \brief Map a reference point to the physical space of an entity.
  */
-void BoxImpl::mapToPhysicalFrame( 
+void CylinderImpl::mapToPhysicalFrame( 
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
