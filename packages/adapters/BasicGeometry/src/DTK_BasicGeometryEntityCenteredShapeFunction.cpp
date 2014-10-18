@@ -32,93 +32,69 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityShapeFunction.hpp
+ * \brief DTK_BasicGeometryEntityCenteredShapeFunction.cpp
  * \author Stuart R. Slattery
  * \brief Shape function interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SHAPEFUNCTION_HPP
-#define DTK_SHAPEFUNCTION_HPP
-
-#include "DTK_Entity.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Array.hpp>
+#include "DTK_BasicGeometryEntityCenteredShapeFunction.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*!
-  \class EntityShapeFunction
-  \brief Shape function interface.
+// Constructor.
+BasicGeometryEntityCenteredShapeFunction::BasicGeometryEntityCenteredShapeFunction()
+{ /* ... */ }
 
-  EntityShapeFunction binds DOFs to a vector space.
-*/
 //---------------------------------------------------------------------------//
-class EntityShapeFunction
+// Destructor.
+BasicGeometryEntityCenteredShapeFunction::~BasicGeometryEntityCenteredShapeFunction()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Given an entity, get the ids of the degrees of freedom in the vector space
+// supporting its shape function.
+void BasicGeometryEntityCenteredShapeFunction::entityDOFIds( 
+    const Entity& entity, Teuchos::Array<std::size_t>& dof_ids ) const
 {
-  public:
+    // There is one DOF for an entity-centered quantity. We will assign the
+    // DOF id to be the same as the entity id.
+    dof_ids.assign( 1, Teuchos::as<std::size_t>(entity.id()) );
+}
 
-    /*!
-     * \brief Constructor.
-     */
-    EntityShapeFunction();
+//---------------------------------------------------------------------------//
+// Given an entity and a reference point, evaluate the shape function of the
+// entity at that point.
+void BasicGeometryEntityCenteredShapeFunction::evaluateValue( 
+    const Entity& entity,
+    const Teuchos::ArrayView<const double>& reference_point,
+    Teuchos::Array<double>& values ) const
+{
+    // There is one DOF and therefore the shape function value is 1.0
+    values.assign( 1, 1.0 );
+}
 
-    /*!
-     * \brief Destructor.
-     */
-    virtual ~EntityShapeFunction();
-
-    /*!
-     * \brief Given an entity, get the ids of the degrees of freedom in the
-     * vector space supporting its shape function.
-     * \param entity Get the degrees of freedom for this entity.
-     * \param dof_ids Return the ids of the degrees of freedom in the parallel
-     * vector space supporting the entities.
-     */
-    virtual void entityDOFIds( const Entity& entity,
-			       Teuchos::Array<std::size_t>& dof_ids ) const;
-
-    /*!
-     * \brief Given an entity and a reference point, evaluate the shape
-     * function of the entity at that point.
-     * \param entity Evaluate the shape function of this entity.
-     * \param reference_point Evaluate the shape function at this point
-     * given in reference coordinates.
-     * \param values Entity shape function evaluated at the reference
-     * point. 
-     */
-    virtual void evaluateValue( 
+//---------------------------------------------------------------------------//
+// Given an entity and a reference point, evaluate the gradient of the shape
+// function of the entity at that point.
+void BasicGeometryEntityCenteredShapeFunction::evaluateGradient( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<double> & values ) const;
-
-    /*!
-     * \brief Given an entity and a reference point, evaluate the gradient of
-     * the shape function of the entity at that point.
-     * \param entity Evaluate the shape function of this entity.
-     * \param reference_point Evaluate the shape function at this point
-     * given in reference coordinates.
-     * \param gradients Entity shape function gradients evaluated at the reference
-     * point. Return these ordered with respect to those return by
-     * getDOFIds() such that gradients[N][D] gives the gradient value of the
-     * Nth DOF in the Dth spatial dimension.
-     */
-    virtual void evaluateGradient( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
-};
+	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
+{
+    // For now there is no gradient in the entity as we have a constant shape
+    // function over its entire domain. In the future, we could use adjacency
+    // information to construct some approximation to the derivative via a
+    // Taylor expansion.
+    gradients.assign( 1, Teuchos::Array<double>(1,0.0) );
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_SHAPEFUNCTION_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_EntityShapeFunction.hpp
+// end DTK_BasicGeometryEntityCenteredShapeFunction.cpp
 //---------------------------------------------------------------------------//
