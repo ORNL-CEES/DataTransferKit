@@ -32,71 +32,86 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_CoarseLocalSearch.hpp
+ * \file DTK_FineLocalSearch.cpp
  * \author Stuart R. Slattery
- * \brief CoarseLocalSearch declaration.
+ * \brief FineLocalSearch definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_COARSELOCALSEARCH_HPP
-#define DTK_COARSELOCALSEARCH_HPP
+#include <cmath>
+#include <algorithm>
 
-#include <unordered_map>
-
-#include "DTK_Types.hpp"
-#include "DTK_EntityIterator.hpp"
-#include "DTK_EntityLocalMap.hpp"
-#include "DTK_StaticSearchTree.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_ArrayView.hpp>
-#include <Teuchos_ParameterList.hpp>
+#include "DTK_FineLocalSearch.hpp"
+#include "DTK_DBC.hpp"
+#include "DTK_SearchTreeFactory.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class CoarseLocalSearch 
- * \brief A CoarseLocalSearch data structure for local entity coarse search.
+ * \brief Constructor.
  */
+FineLocalSearch::FineLocalSearch( 
+    const Teuchos::RCP<EntityLocalMap>& local_map )
+    : d_local_map( local_map )
+{ /* ... */ }
+
 //---------------------------------------------------------------------------//
-class CoarseLocalSearch
+/*!
+ * \brief Destructor.
+ */
+FineLocalSearch::~FineLocalSearch()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Find the set of entities to which a point maps.
+ */
+void FineLocalSearch::search( 
+    const Teuchos::ArrayView<const Entity>& neighbors,
+    const Teuchos::ArrayView<const double>& point,
+    const Teuchos::ParameterList& parameters,
+    Teuchos::Array<Entity>& mapped_entities )
 {
-  public:
+    bool return_all = false;
+    if ( parameters.isParameter("Fine Local Search Return All") )
+    {
+	return_all = parameters.get<bool>("Fine Local Search Return All");
+    }
+    
+    mapped_entities.clear();
+    Teuchos::Array<double> ref_point( point.size() );
+    Teuchos::ArrayView<const Entity>::const_iterator neighbor_it;
+    for ( neighbor_it = neighbors.begin();
+	  neighbor_it != neighbors.end();
+	  ++neighbor_it )
+    {
+	DTK_ENSURE( neighbor_it->physicalDimension() == point.size() );
 
-    // Constructor.
-    CoarseLocalSearch( const EntityIterator& entity_iterator,
-		       const Teuchos::RCP<EntityLocalMap>& local_map,
-		       const Teuchos::ParameterList& parameters ); 
-
-    // Destructor.
-    ~CoarseLocalSearch();
-
-    // Find the set of entities a point neighbors.
-    void search( const Teuchos::ArrayView<const double>& point,
-		 const Teuchos::ParameterList& parameters,
-		 Teuchos::Array<Entity>& neighbors );
-
-  private:
-
-    // Local mesh entity centroids.
-    Teuchos::Array<double> d_entity_centroids;
-
-    // Local-id to entity map.
-    std::unordered_map<int,Entity> d_entity_map;
-
-    // Static search tree.
-    Teuchos::RCP<StaticSearchTree> d_tree;
-};
+	if ( d_local_map->isSafeToMapToReferenceFrame(*neighbor_it,point) )
+	{
+	    if ( d_local_map->mapToReferenceFrame(
+		     *neighbor_it,point,ref_point()) )
+	    {
+		if ( d_local_map->checkPointInclusion(
+			 *neighbor_it,ref_point()) )
+		{
+		    mapped_entities.push_back( *neighbor_it );
+		    if ( !return_all )
+		    {
+			return;
+		    }
+		}
+	    }
+	}
+    }
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // DTK_COARSELOCALSEARCH_HPP
-
 //---------------------------------------------------------------------------//
-// end CoarseLocalSearch.hpp
+// end DTK_FineLocalSearch.cpp
 //---------------------------------------------------------------------------//
 

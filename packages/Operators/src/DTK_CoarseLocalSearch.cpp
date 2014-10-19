@@ -50,10 +50,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \brief Constructor.
- *
- * \param mesh The mesh over which to build the kD-tree. 
  */
-
 CoarseLocalSearch::CoarseLocalSearch( 
     const EntityIterator& entity_iterator,
     const Teuchos::RCP<EntityLocalMap>& local_map,
@@ -108,7 +105,7 @@ CoarseLocalSearch::~CoarseLocalSearch()
 /*!
  * \brief Find the set of entities a point neighbors.
  */
-void CoarseLocalSearch::search( const Teuchos::ArrayView<const double>& coords,
+void CoarseLocalSearch::search( const Teuchos::ArrayView<const double>& point,
 				const Teuchos::ParameterList& parameters,
 				Teuchos::Array<Entity>& neighbors )
 {
@@ -121,7 +118,7 @@ void CoarseLocalSearch::search( const Teuchos::ArrayView<const double>& coords,
     num_neighbors = 
 	std::min( num_neighbors, Teuchos::as<int>(d_entity_map.size()) );
     Teuchos::Array<unsigned> local_neighbors = 
-	d_tree->nnSearch( coords, num_neighbors );
+	d_tree->nnSearch( point, num_neighbors );
 
     // Extract the neighbors.
     neighbors.resize( local_neighbors.size() );
