@@ -50,7 +50,6 @@ APPEND_SET(HEADERS
   ) 
 
 APPEND_SET(SOURCES
-  DTK_EuclideanDistance_inst.cpp
   DTK_PointCloudDummy.cpp
   )
 

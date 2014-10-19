@@ -43,8 +43,6 @@
 
 #include <cmath>
 
-#include "DTK_EuclideanDistance.hpp"
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -62,6 +60,47 @@ EuclideanDistance<DIM>::EuclideanDistance()
 template<int DIM>
 EuclideanDistance<DIM>::~EuclideanDistance()
 { /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Compute Euclidean distance between the given set of coordinates. 1-D
+ * specialization.
+ */
+template<>
+inline double 
+EuclideanDistance<1>::distance( const double* x1, const double* x2 )
+{
+    return std::abs(x1[0]-x2[0]);
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Compute Euclidean distance between the given set of coordinates. 2-D
+ * specialization.
+ */
+template<>
+inline double 
+EuclideanDistance<2>::distance( const double* x1, const double* x2 )
+{
+    double xx = x1[0]-x2[0];
+    double xy = x1[1]-x2[1];
+    return std::sqrt(xx*xx+xy*xy);
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Compute Euclidean distance between the given set of coordinates. 3-D
+ * specialization.
+ */
+template<>
+inline double 
+EuclideanDistance<3>::distance( const double* x1, const double* x2 )
+{
+    double xx = x1[0]-x2[0];
+    double xy = x1[1]-x2[1];
+    double xz = x1[2]-x2[2];
+    return std::sqrt(xx*xx+xy*xy+xz*xz);
+}
 
 //---------------------------------------------------------------------------//
 
