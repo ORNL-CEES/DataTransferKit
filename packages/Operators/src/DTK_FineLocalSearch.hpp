@@ -75,7 +75,7 @@ class FineLocalSearch
     void search( const Teuchos::ArrayView<const Entity>& neighbors,
 		 const Teuchos::ArrayView<const double>& point,
 		 const Teuchos::ParameterList& parameters,
-		 Teuchos::Array<Entity>& mapped_entities );
+		 Teuchos::Array<Entity>& mapped_entities ) const;
 
   private:
 

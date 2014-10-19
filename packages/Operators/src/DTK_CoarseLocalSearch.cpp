@@ -107,7 +107,7 @@ CoarseLocalSearch::~CoarseLocalSearch()
  */
 void CoarseLocalSearch::search( const Teuchos::ArrayView<const double>& point,
 				const Teuchos::ParameterList& parameters,
-				Teuchos::Array<Entity>& neighbors )
+				Teuchos::Array<Entity>& neighbors ) const
 {
     // Find the leaf of nearest neighbors.
     int num_neighbors = 100;

@@ -32,71 +32,73 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_CoarseLocalSearch.hpp
+ * \file DTK_CoarseGlobalSearch.hpp
  * \author Stuart R. Slattery
- * \brief CoarseLocalSearch declaration.
+ * \brief CoarseGlobalSearch declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_COARSELOCALSEARCH_HPP
-#define DTK_COARSELOCALSEARCH_HPP
+#ifndef DTK_COARSEGLOBALSEARCH_HPP
+#define DTK_COARSEGLOBALSEARCH_HPP
 
 #include <unordered_map>
 
 #include "DTK_Types.hpp"
 #include "DTK_EntityIterator.hpp"
-#include "DTK_EntityLocalMap.hpp"
+#include "DTK_EntityGlobalMap.hpp"
 #include "DTK_StaticSearchTree.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class CoarseLocalSearch 
- * \brief A CoarseLocalSearch data structure for local entity coarse search.
+ * \class CoarseGlobalSearch 
+ * \brief A CoarseGlobalSearch data structure for global entity coarse search.
  */
 //---------------------------------------------------------------------------//
-class CoarseLocalSearch
+class CoarseGlobalSearch
 {
   public:
 
     // Constructor.
-    CoarseLocalSearch( const EntityIterator& entity_iterator,
-		       const Teuchos::RCP<EntityLocalMap>& local_map,
-		       const Teuchos::ParameterList& parameters ); 
+    CoarseGlobalSearch( const EntityIterator& domain_iterator,
+			const Teuchos::ParameterList& parameters ); 
 
     // Destructor.
-    ~CoarseLocalSearch();
+    ~CoarseGlobalSearch();
 
-    // Find the set of entities a point neighbors.
-    void search( const Teuchos::ArrayView<const double>& point,
+    // Redistribute a set of range entity centroid coordinates to the correct
+    // process.
+    void search( const EntityIterator& range_iterator,
+		 const Teuchos::RCP<EntityLocalMap>& range_local_map,
 		 const Teuchos::ParameterList& parameters,
-		 Teuchos::Array<Entity>& neighbors ) const;
+		 Teuchos::Array<double>& range_centroids ) const;
 
   private:
 
-    // Local mesh entity centroids.
-    Teuchos::Array<double> d_entity_centroids;
+    // Assemble the local bounding box around an iterator.
+    void assembleBoundingBox( const EntityIterator& entity_iterator,
+			      Teuchos::Tuple<double,6>& bounding_box ) const;
+    
+  private:
 
-    // Local-id to entity map.
-    std::unordered_map<int,Entity> d_entity_map;
-
-    // Static search tree.
-    Teuchos::RCP<StaticSearchTree> d_tree;
+    // Domain bounding boxes.
+    Teuchos::Array<Teuchos::Tuple<double,6> > d_domain_boxes;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // DTK_COARSELOCALSEARCH_HPP
+#endif // DTK_COARSEGLOBALSEARCH_HPP
 
 //---------------------------------------------------------------------------//
-// end CoarseLocalSearch.hpp
+// end CoarseGlobalSearch.hpp
 //---------------------------------------------------------------------------//
 
