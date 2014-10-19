@@ -73,7 +73,7 @@ bool EntityPredicates::hasOwner( Entity entity )
 void EntityPredicates::setEntityType( const EntityType entity_type )
 { d_entity_type = entity_type; }
 bool EntityPredicates::isEntityType( Entity entity )
-{ return (entity.entityType == d_entity_type); }
+{ return (entity.entityType() == d_entity_type); }
 
 //---------------------------------------------------------------------------//
 // Current block to check.
@@ -89,7 +89,7 @@ int EntityPredicates::d_owner_rank = -1;
 
 //---------------------------------------------------------------------------//
 // Current entity type to check.
-EntityType EntityPredicates::d_entity_type = ENTITY_TYPE_NODE
+EntityType EntityPredicates::d_entity_type = ENTITY_TYPE_NODE;
 
 //---------------------------------------------------------------------------//
 

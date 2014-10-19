@@ -17,16 +17,12 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   DTK_EntityPredicates.hpp
-  DTK_FunctionSpace.hpp
-  DTK_MapOperator.hpp
-  DTK_ParallelSearch.hpp
+  DTK_CoarseLocalSearch.hpp
   ) 
 
 APPEND_SET(SOURCES
   DTK_EntityPredicates.cpp
-  DTK_FunctionSpace.cpp
-  DTK_MapOperator.cpp
-  DTK_ParallelSearch.cpp
+  DTK_CoarseLocalSearch.cpp
   )
 
 #

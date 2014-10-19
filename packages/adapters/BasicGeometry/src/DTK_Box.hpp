@@ -133,7 +133,7 @@ class Box : public BasicGeometryEntity
 Box operator+( const Box& box_1, const Box& box_2 );
 
 //---------------------------------------------------------------------------//
-//! overload for printing box
+//! Overload for printing box.
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
 
 //---------------------------------------------------------------------------//

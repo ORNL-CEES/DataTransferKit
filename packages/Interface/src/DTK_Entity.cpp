@@ -132,6 +132,19 @@ Teuchos::RCP<EntityExtraData> Entity::extraData() const
 }
 
 //---------------------------------------------------------------------------//
+// Overload for printing basic entity data.
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Entity& e)
+{
+    os << "Entity: Id=" << e.id()
+       << ",EntityType=" << e.entityType()
+       << ",OwnerRank=" << e.ownerRank()
+       << ",PhysicalDimension=" << e.physicalDimension()
+       << ",OnSurface=" << e.onSurface();
+
+    return os;
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

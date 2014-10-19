@@ -45,7 +45,7 @@
 
 #include "DTK_Types.hpp"
 #include "DTK_EntityIterator.hpp"
-#include "DTK_LocalMap.hpp"
+#include "DTK_EntityLocalMap.hpp"
 #include "DTK_StaticSearchTree.hpp"
 
 #include <Teuchos_RCP.hpp>

@@ -64,23 +64,24 @@ CoarseLocalSearch::CoarseLocalSearch(
     int num_entity = entity_iterator.size();
     if ( num_entity > 0 )
     {
-	space_dim = entity_iterator.begin()->spatialDimension();
+	space_dim = entity_iterator.begin()->physicalDimension();
     }
     d_entity_centroids.resize( space_dim * num_entity );
 
     // Add the centroids.
+    EntityIterator entity_it;
     EntityIterator begin_it = entity_iterator.begin();
     EntityIterator end_it = entity_iterator.end();
     int entity_local_id = 0;
-    for ( entity_iterator = begin_it;
-	  entity_iterator != end_it;
-	  ++entity_iterator )
+    for ( entity_it = begin_it;
+	  entity_it != end_it;
+	  ++entity_it )
     {
 	local_map->centroid( 
-	    *entity_iterator, 
+	    *entity_it, 
 	    d_entity_centroids(space_dim*entity_local_id,space_dim) );
 	d_entity_map.insert( 
-	    std::pair<int,Entity>(entity_local_id,*entity_iterator) );
+	    std::pair<int,Entity>(entity_local_id,*entity_it) );
 	++entity_local_id;
     }
 
@@ -117,7 +118,8 @@ void CoarseLocalSearch::search( const Teuchos::ArrayView<const double>& coords,
     {
 	num_neighbors = parameters.get<int>("Coarse Local Search kNN");
     }
-    num_neighbors = std::min( num_neighbors, d_entity_map.size() );
+    num_neighbors = 
+	std::min( num_neighbors, Teuchos::as<int>(d_entity_map.size()) );
     Teuchos::Array<unsigned> local_neighbors = 
 	d_tree->nnSearch( coords, num_neighbors );
 
