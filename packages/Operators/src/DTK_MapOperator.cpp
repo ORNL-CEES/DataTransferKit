@@ -47,17 +47,20 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-MapOperator::MapOperator()
+template<class Scalar>
+MapOperator<Scalar>::MapOperator()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Destructor.
-MapOperator::~MapOperator()
+template<class Scalar>
+MapOperator<Scalar>::~MapOperator()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Setup the map operator.
-void MapOperator::setup( const Teuchos::RCP<FunctionSpace>& domain_space,
+template<class Scalar>
+void MapOperator<Scalar>::setup( const Teuchos::RCP<FunctionSpace>& domain_space,
 			 const Teuchos::RCP<FunctionSpace>& range_space,
 			 const Teuchos::ParameterList>& parameters )
 {
@@ -68,18 +71,19 @@ void MapOperator::setup( const Teuchos::RCP<FunctionSpace>& domain_space,
 //---------------------------------------------------------------------------//
 // Apply the map operator to data defined on the entities by computing g =
 // Minv*(v-A*f).
-void MapOperator::apply( 
-    const Thyra::MultiVectorBase<double>& domain_dofs,
-    const Teuchos::Ptr<Thyra::MultiVectorBase<double> >& range_dofs,
-    const double alpha,
-    const double beta ) const
+template<class Scalar>
+void MapOperator<Scalar>::apply( 
+    const Thyra::MultiVectorBase<Scalar>& domain_dofs,
+    const Teuchos::Ptr<Thyra::MultiVectorBase<Scalar> >& range_dofs,
+    const Scalar alpha,
+    const Scalar beta ) const
 {
     DTK_REQUIRE( Teuchos::nonnull(b_coupling_matrix) );
     DTK_REQUIRE( Teuchos::nonnull(domain_dofs) );
     DTK_REQUIRE( Teuchos::nonnull(range_dofs) );
   
     // Make a work vector.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > work = 
+    Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > work = 
 	b_forcing_vector->clone_mv();
 
     // A*f

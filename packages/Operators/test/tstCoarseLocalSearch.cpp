@@ -31,7 +31,7 @@
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( CoarseLocalSeearch, coarse_search_test )
+TEUCHOS_UNIT_TEST( CoarseLocalSearch, coarse_local_search_test )
 {
     using namespace DataTransferKit;
 

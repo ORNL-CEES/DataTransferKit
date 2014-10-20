@@ -41,14 +41,13 @@
 #ifndef DTK_COARSEGLOBALSEARCH_HPP
 #define DTK_COARSEGLOBALSEARCH_HPP
 
-#include <unordered_map>
-
 #include "DTK_Types.hpp"
 #include "DTK_EntityIterator.hpp"
-#include "DTK_EntityGlobalMap.hpp"
-#include "DTK_StaticSearchTree.hpp"
+#include "DTK_EntityLocalMap.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -67,17 +66,21 @@ class CoarseGlobalSearch
   public:
 
     // Constructor.
-    CoarseGlobalSearch( const EntityIterator& domain_iterator,
+    CoarseGlobalSearch( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+			const int physical_dimension,
+			const EntityIterator& domain_iterator,
 			const Teuchos::ParameterList& parameters ); 
 
     // Destructor.
     ~CoarseGlobalSearch();
 
-    // Redistribute a set of range entity centroid coordinates to the correct
-    // process.
+    // Redistribute a set of range entity centroid coordinates with their
+    // owner ranks to the owning domain process.
     void search( const EntityIterator& range_iterator,
 		 const Teuchos::RCP<EntityLocalMap>& range_local_map,
 		 const Teuchos::ParameterList& parameters,
+		 Teuchos::Array<EntityId>& range_entity_ids,
+		 Teuchos::Array<int>& range_owner_ranks,
 		 Teuchos::Array<double>& range_centroids ) const;
 
   private:
@@ -85,12 +88,73 @@ class CoarseGlobalSearch
     // Assemble the local bounding box around an iterator.
     void assembleBoundingBox( const EntityIterator& entity_iterator,
 			      Teuchos::Tuple<double,6>& bounding_box ) const;
+
+    // Check if two bounding boxes have an intersection.
+    inline bool boxesIntersect( const Teuchos::Tuple<double,6>& box_A,
+				const Teuchos::Tuple<double,6>& box_B ) const;
+
+    // Determine if a point is in a bounding box.
+    inline bool pointInBox( const Teuchos::ArrayView<const double>& point,
+			    const Teuchos::Tuple<double,6>& box ) const;
     
   private:
+
+    // Communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
+
+    // Spatial dimension.
+    int d_space_dim;
 
     // Domain bounding boxes.
     Teuchos::Array<Teuchos::Tuple<double,6> > d_domain_boxes;
 };
+
+//---------------------------------------------------------------------------//
+// Inline functions.
+//---------------------------------------------------------------------------//
+// Check if two bounding boxes have an intersection.
+bool CoarseGlobalSearch::boxesIntersect( 
+    const Teuchos::Tuple<double,6>& box_A,
+    const Teuchos::Tuple<double,6>& box_B ) const
+{
+    return !( ( box_A[0] > box_B[3] || box_A[3] < box_B[0] ) ||
+	      ( box_A[1] > box_B[4] || box_A[4] < box_B[1] ) ||
+	      ( box_A[2] > box_B[5] || box_A[5] < box_B[2] ) );
+}
+
+//---------------------------------------------------------------------------//
+// Determine if a point is in a bounding box.
+bool CoarseGlobalSearch::pointInBox( 
+    const Teuchos::ArrayView<const double>& point,
+    const Teuchos::Tuple<double,6>& box ) const
+{
+    if( 3 == point.size() )
+    {
+	if ( point[0] >= box[0] && point[1] >= box[1] && point[2] >= box[2] &&
+	     point[0] <= box[3] && point[1] <= box[4] && point[2] <= box[5] )
+	{
+	    return true;
+	}
+    }
+    else if( 2 == point.size() )
+    {
+	if ( point[0] >= box[0] && point[1] >= box[1] &&
+	     point[0] <= box[3] && point[1] <= box[4] )
+	{
+	    return true;
+	}
+    }
+    else if( 1 == point.size() )
+    {
+	if ( point[0] >= box[0] &&
+	     point[0] <= box[3] )
+	{
+	    return true;
+	}
+    }
+
+    return false;
+}
 
 //---------------------------------------------------------------------------//
 

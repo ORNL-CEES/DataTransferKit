@@ -34,7 +34,7 @@
 /*!
  * \brief DTK_Types.hpp
  * \author Stuart R. Slattery
- * \brief Types
+ * \brief Types.
  */
 //---------------------------------------------------------------------------//
 
@@ -43,6 +43,8 @@
 
 #include <cstdint>
 #include <limits>
+
+#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -65,6 +67,21 @@ enum EntityType
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Specialization of SerializationTraits for DataTransferKit::EntityId.
+//---------------------------------------------------------------------------//
+namespace Teuchos
+{
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal,DataTransferKit::EntityId>
+    : public DirectSerializationTraits<Ordinal,DataTransferKit::EntityId>
+{ /* ... */ };
+
+} // end namespace Teuchos
+
+//---------------------------------------------------------------------------//
 
 #endif // end DTK_TYPES_HPP
 

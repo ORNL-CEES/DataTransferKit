@@ -61,7 +61,8 @@ namespace DataTransferKit
   A map operator maps a field in one entity set to another entity set.
 */
 //---------------------------------------------------------------------------//
-class MapOperator : public Thyra::LinearOpBase<double>
+template<class Scalar>
+class MapOperator : public Thyra::LinearOpBase<Scalar>
 {
   public:
 
@@ -98,22 +99,22 @@ class MapOperator : public Thyra::LinearOpBase<double>
      * received from the domain.
      */
     virtual void 
-    apply( const Thyra::MultiVectorBase<double>& domain_dofs,
-	   const Teuchos::Ptr<Thyra::MultiVectorBase<double> >& range_dofs,
-	   const double alpha,
-	   const double beta ) const;
+    apply( const Thyra::MultiVectorBase<Scalar>& domain_dofs,
+	   const Teuchos::Ptr<Thyra::MultiVectorBase<Scalar> >& range_dofs,
+	   const Scalar alpha,
+	   const Scalar beta ) const;
 
     //@{
     //! Thyra LinearOpBase interface.
-    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > range() const;
-    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > domain() const;
-    Teuchos::RCP<const Thyra::LinearOpBase<double> > clone() const;
+    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > range() const;
+    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > domain() const;
+    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > clone() const;
     bool opSupportedImpl( Thyra::EOpTransp M_trans ) const;
     void applyImpl( const Thyra::EOpTransp M_trans,
-		    const Thyra::MultiVectorBase<double> &X,
-		    const Teuchos::Ptr<Thyra::MultiVectorBase<double> > &Y,
-		    const double alpha,
-		    const double beta ) const;
+		    const Thyra::MultiVectorBase<Scalar> &X,
+		    const Teuchos::Ptr<Thyra::MultiVectorBase<Scalar> > &Y,
+		    const Scalar alpha,
+		    const Scalar beta ) const;
     //@}
 
   protected:
@@ -125,13 +126,13 @@ class MapOperator : public Thyra::LinearOpBase<double>
     Teuchos::RCP<const Tpetra::Map<int,std::size_t> > b_range_map;
 
     //! Mass matrix inverse.
-    Teuchos::RCP<Thyra::LinearOpBase<double> > b_mass_matrix_inv;
+    Teuchos::RCP<Thyra::LinearOpBase<Scalar> > b_mass_matrix_inv;
 
     //! Coupling matrix.
-    Teuchos::RCP<Thyra::LinearOpBase<double> > b_coupling_matrix;
+    Teuchos::RCP<Thyra::LinearOpBase<Scalar> > b_coupling_matrix;
 
     //! Forcing vector.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > b_forcing_vector;
+    Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > b_forcing_vector;
 };
 
 //---------------------------------------------------------------------------//
