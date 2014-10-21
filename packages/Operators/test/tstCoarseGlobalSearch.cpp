@@ -537,20 +537,20 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_multiple_neighbors_test )
     if ( comm_rank > 0 )
     {
     	TEST_EQUALITY( 2, range_ids.size() );
-    	TEST_EQUALITY( 2, range_ranks.size() );
-    	TEST_EQUALITY( 6, range_centroids.size() );
-    	std::sort( range_ids.begin(), range_ids.end() );
-    	std::sort( range_ranks.begin(), range_ranks.end() );
-    	TEST_EQUALITY( Teuchos::as<int>(range_ids[0]), comm_size-comm_rank-2 );
-    	TEST_EQUALITY( Teuchos::as<int>(range_ids[1]), comm_size-comm_rank-1);
-    	TEST_EQUALITY( range_ranks[0], comm_size-comm_rank-2 );
-    	TEST_EQUALITY( range_ranks[1], comm_size-comm_rank-1 );
+     	TEST_EQUALITY( 2, range_ranks.size() );
+     	TEST_EQUALITY( 6, range_centroids.size() );
+     	std::sort( range_ids.begin(), range_ids.end() );
+     	std::sort( range_ranks.begin(), range_ranks.end() );
+     	TEST_EQUALITY( Teuchos::as<int>(range_ids[0]), comm_size-comm_rank-1 );
+     	TEST_EQUALITY( Teuchos::as<int>(range_ids[1]), comm_size-comm_rank );
+    	TEST_EQUALITY( range_ranks[0], comm_size-comm_rank-1 );
+    	TEST_EQUALITY( range_ranks[1], comm_size-comm_rank );
     	TEST_EQUALITY( range_centroids[0], 0.5 );
     	TEST_EQUALITY( range_centroids[1], 0.5 );
-    	TEST_EQUALITY( range_centroids[2], comm_size-comm_rank-2 );
+    	TEST_EQUALITY( range_centroids[2], comm_size-comm_rank-1 );
     	TEST_EQUALITY( range_centroids[3], 0.5 );
     	TEST_EQUALITY( range_centroids[4], 0.5 );
-    	TEST_EQUALITY( range_centroids[5], comm_size-comm_rank-1 );
+    	TEST_EQUALITY( range_centroids[5], comm_size-comm_rank );
     }
     else
     {
