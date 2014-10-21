@@ -63,8 +63,8 @@ namespace DataTransferKit
   A parallel search finds which domain entities satisfying the domain
   predicate are correctly mapped to the range entities satisfying the range
   predicate. The result of the search is a graph mapping the domain to the
-  range and a multivector containing the parametric coordinates of the range
-  entity centroids.
+  range and the parametric coordinates of the range entity centroids in their
+  respective domain entities.
 */
 //---------------------------------------------------------------------------//
 class ParallelSearch
@@ -98,27 +98,31 @@ class ParallelSearch
      * mapped to it.
      */
     void getRangeEntitiesFromDomain( 
-	const EntityId& domain_id, Teuchos::Array<EntityId>& range_ids ) const;
+	const EntityId domain_id, Teuchos::Array<EntityId>& range_ids ) const;
 
     /*!
      * \brief Given a range entity id, get the ids of the domain entities that
      * it mapped to.
      */
     void getDomainEntitiesFromRange( 
-	const EntityId& range_id, Teuchos::Array<EntityId>& domain_ids ) const;
+	const EntityId range_id, Teuchos::Array<EntityId>& domain_ids ) const;
 
     /*!
      * \brief Get the parametric coordinates of the range entities in the
      * domain entities.
      */
-    void rangeParametricCoordinates( 
-	const std::pair<EntityId,EntityId>& domain_range_pair,
+    void rangeParametricCoordinatesInDomain( 
+	const EntityId domain_id,
+	const EntityId range_id,
 	Teuchos::ArrayView<const double>& parametric_coords ) const;
 
   private:
 
     // Phyiscal dimension.
     int d_physical_dim;
+
+    // Empty domain flag.
+    bool d_empty_domain;
 
     // Coarse global search.
     Teuchos::RCP<CoarseGlobalSearch> d_coarse_global_search;
@@ -139,9 +143,11 @@ class ParallelSearch
     std::unordered_multimap<EntityId,EntityId> d_range_to_domain_map;
 
     // Parametric coordinates of the range entities in the domain
-    // entities. They map key is a domain-range EntityId pair.
-    std::unordered_map<std::pair<EntityId,EntityId>,
-		       Teuchos::Array<double> > d_parametric_coords;
+    // entities. The first key is the range id, the second key is the domain
+    // id.
+    std::unordered_map<EntityId,
+		       std::unordered_map<EntityId,Teuchos::Array<double> > 
+		       > d_parametric_coords;
 };
 
 //---------------------------------------------------------------------------//

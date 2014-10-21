@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
-/*!
- * \file tstEntityIterator.cpp
+/*! 
+ * \file tstParallelSearch.cpp
  * \author Stuart R. Slattery
- * \brief Abstract iterator unit tests.
+ * \brief ParallelSearch unit tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -13,580 +13,579 @@
 #include <sstream>
 #include <algorithm>
 #include <cassert>
-#include <functional>
 
-#include <DTK_Types.hpp>
-#include <DTK_Entity.hpp>
-#include <DTK_EntityIterator.hpp>
-#include <DTK_PredicateComposition.hpp>
+#include <DTK_ParallelSearch.hpp>
+#include <DTK_BasicEntitySet.hpp>
+#include <DTK_BasicGeometryLocalMap.hpp>
+#include <DTK_Box.hpp>
+#include <DTK_Point.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_TypeTraits.hpp>
-#include <Teuchos_Tuple.hpp>
-
-//---------------------------------------------------------------------------//
-// EntityImpl Implementation.
-//---------------------------------------------------------------------------//
-class TestEntityImpl : public DataTransferKit::EntityImpl
-{
-  public:
-    TestEntityImpl( int id ) { d_id = id; }
-    ~TestEntityImpl() { /* ... */ }
-    DataTransferKit::EntityId id() const { return d_id; }
-  private:
-    DataTransferKit::EntityId d_id;
-};
-
-//---------------------------------------------------------------------------//
-// Entity Implementation.
-//---------------------------------------------------------------------------//
-class TestEntity : public DataTransferKit::Entity
-{
-  public:
-    TestEntity( int id ) 
-    { this->b_entity_impl = Teuchos::rcp( new TestEntityImpl(id) ); }
-    ~TestEntity() { /* ... */ }
-};
-
-//---------------------------------------------------------------------------//
-// Helper predicates.
-//---------------------------------------------------------------------------//
-std::function<bool(DataTransferKit::Entity)> even_func = 
-    [](DataTransferKit::Entity e){ return ((e.id()%2) == 0); };
-std::function<bool(DataTransferKit::Entity)> odd_func = 
-    [](DataTransferKit::Entity e){ return ((e.id()%2) == 1); };
-std::function<bool(DataTransferKit::Entity)> two_func = 
-    [](DataTransferKit::Entity e){ return ((e.id()%10) == 2); };
-
-//---------------------------------------------------------------------------//
-// EntityIterator implementation.
-//---------------------------------------------------------------------------//
-class VectorIterator : public DataTransferKit::EntityIterator
-{
-  public:
-
-    /*!
-     * \brief Default constructor.
-     */
-    VectorIterator()
-	: d_it_entity( NULL )
-    {
-	this->b_iterator_impl = NULL;
-    }
-
-    /*!
-     * \brief Constructor.
-     */
-    VectorIterator( const Teuchos::RCP<std::vector<DataTransferKit::Entity> >& entities ) 
-	: d_entities( entities )
-	, d_vec_it( d_entities->begin() )
-	, d_it_entity( &(*d_vec_it) )
-    {
-	this->b_iterator_impl = NULL;
-    }
-
-    /*!
-     * \brief Predicate constructor.
-     */
-    VectorIterator( const Teuchos::RCP<std::vector<DataTransferKit::Entity> >& entities,
-		    const std::function<bool(DataTransferKit::Entity)>& predicate ) 
-	: d_entities( entities )
-	, d_vec_it( d_entities->begin() )
-	, d_it_entity( &(*d_vec_it) )
-    {
-	this->b_iterator_impl = NULL;
-	this->b_predicate = predicate;
-    }
-
-    /*!
-     * \brief Copy constructor.
-     */
-    VectorIterator( const VectorIterator& rhs )
-	: d_entities( rhs.d_entities )
-	, d_vec_it( d_entities->begin() + 
-		    std::distance(rhs.d_entities->begin(),rhs.d_vec_it) )
-	, d_it_entity( &(*d_vec_it) )
-    {
-	this->b_iterator_impl = NULL;
-	this->b_predicate = rhs.b_predicate;
-    }
-
-    /*!
-     * \brief Assignment operator.
-     */
-    VectorIterator& operator=( const VectorIterator& rhs )
-    {
-	this->b_iterator_impl = NULL;
-	this->b_predicate = rhs.b_predicate;
-	if ( &rhs == this )
-	{
-	    return *this;
-	}
-	this->d_entities = rhs.d_entities;
-	this->d_vec_it = this->d_entities->begin() + 
-			 std::distance(rhs.d_entities->begin(),rhs.d_vec_it);
-	this->d_it_entity = &(*(this->d_vec_it));
-	return *this;
-    }
-
-    /*!
-     * \brief Destructor.
-     */
-    ~VectorIterator()
-    {
-	this->b_iterator_impl = NULL;
-    }
-
-    // Pre-increment operator.
-    DataTransferKit::EntityIterator& operator++()
-    {
-	++d_vec_it;
-	return *this;
-    }
-
-    // Dereference operator.
-    DataTransferKit::Entity& operator*(void)
-    {
-	this->operator->();
-	return *d_it_entity;
-    }
-
-    // Dereference operator.
-    DataTransferKit::Entity* operator->(void)
-    {
-	d_it_entity = &(*d_vec_it);
-	return d_it_entity;
-    }
-
-    // Equal comparison operator.
-    bool operator==( const DataTransferKit::EntityIterator& rhs ) const
-    { 
-	const VectorIterator* rhs_vec = 
-	    static_cast<const VectorIterator*>(&rhs);
-	const VectorIterator* rhs_vec_impl = 
-	    static_cast<const VectorIterator*>(rhs_vec->b_iterator_impl);
-	return ( rhs_vec_impl->d_vec_it == d_vec_it );
-    }
-
-    // Not equal comparison operator.
-    bool operator!=( const DataTransferKit::EntityIterator& rhs ) const
-    {
-	return !( operator==(rhs) );
-    }
-
-    // Size of the iterator.
-    std::size_t size() const
-    { 
-	return d_entities->size();
-    }
-
-    // An iterator assigned to the beginning.
-    DataTransferKit::EntityIterator begin() const
-    { 
-	return VectorIterator( d_entities , this->b_predicate );
-    }
-
-    // An iterator assigned to the end.
-    DataTransferKit::EntityIterator end() const
-    {
-	VectorIterator end_it( d_entities, this->b_predicate );
-	end_it.d_vec_it = d_entities->end();
-	return end_it;
-    }
-
-    // Create a clone of the iterator. We need this for the copy constructor
-    // and assignment operator to pass along the underlying implementation.
-    DataTransferKit::EntityIterator* clone() const
-    {
-	return new VectorIterator(*this);
-    }
-
-  private:
-
-    // Vector.
-    Teuchos::RCP<std::vector<DataTransferKit::Entity> > d_entities;
-
-    // Iterator to vector.
-    typename std::vector<DataTransferKit::Entity>::iterator d_vec_it;
-
-    // Pointer to the current entity.
-    DataTransferKit::Entity* d_it_entity;
-};
+#include <Teuchos_OrdinalTraits.hpp>
+#include <Teuchos_ParameterList.hpp>
 
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-// Constructor tests.
-TEUCHOS_UNIT_TEST( EntityIterator, constructor_test )
+TEUCHOS_UNIT_TEST( ParallelSearch, all_to_all_test )
 {
     using namespace DataTransferKit;
 
-    // Create a vector.
-    int num_data = 10;
-    Teuchos::RCP<std::vector<Entity> > data =
-	Teuchos::rcp( new std::vector<Entity>(num_data) );
-    for ( int i = 0; i < num_data; ++i )
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::DefaultComm<int>::getComm();
+    int comm_rank = comm->getRank();
+    int comm_size = comm->getSize();
+
+    // Make a domain entity set.
+    Teuchos::RCP<EntitySet> domain_set = 
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    int num_boxes = 5;
+    for ( int i = 0; i < num_boxes; ++i )
     {
-	(*data)[i] = TestEntity(i);
+	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
+	    Box(i,comm_rank,i,0.0,0.0,i,1.0,1.0,i+1.0) );
     }
 
-    // Create an iterator over the vector.
-    EntityIterator entity_it = VectorIterator( data );
+    // Construct a local map for the boxes.
+    Teuchos::RCP<EntityLocalMap> domain_map = 
+	Teuchos::rcp( new BasicGeometryLocalMap() );
 
-    // Call the copy constructor.
-    EntityIterator it_1( entity_it );
-    TEST_ASSERT( entity_it == it_1 );
-    TEST_ASSERT( entity_it.size() == it_1.size() );
-    TEST_ASSERT( entity_it.begin() == it_1.begin() );
-    TEST_ASSERT( entity_it.end() == it_1.end() );
-    TEST_EQUALITY( entity_it->id(), it_1->id() );
-    ++entity_it;
-    ++it_1;
-    TEST_EQUALITY( entity_it->id(), it_1->id() );
-    ++it_1;
-    TEST_ASSERT( entity_it != it_1 );
+    // Get an iterator over all of the boxes.
+    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    
+    // Build a parallel search over the boxes.
+    Teuchos::ParameterList plist;
+    ParallelSearch parallel_search( comm, 3, domain_it, domain_map, plist );
 
-    // Call the assignment operator.
-    it_1 = entity_it;
-    TEST_ASSERT( entity_it == it_1 );
-    TEST_ASSERT( entity_it.size() == it_1.size() );
-    TEST_ASSERT( entity_it.begin() == it_1.begin() );
-    TEST_ASSERT( entity_it.end() == it_1.end() );
-    TEST_EQUALITY( entity_it->id(), it_1->id() );
-    ++entity_it;
-    ++it_1;
-    TEST_EQUALITY( entity_it->id(), it_1->id() );
-    ++it_1;
-    TEST_ASSERT( entity_it != it_1 );
-}
-
-//---------------------------------------------------------------------------//
-// Predicate constructor tests.
-TEUCHOS_UNIT_TEST( EntityIterator, predicate_constructor_test )
-{
-    using namespace DataTransferKit;
-
-    // Create a vector.
-    int num_data = 10;
-    Teuchos::RCP<std::vector<Entity> > data =
-	Teuchos::rcp( new std::vector<Entity>(num_data) );
-    for ( int i = 0; i < num_data; ++i )
+    // Make a range entity set.
+    Teuchos::RCP<EntitySet> range_set =
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    int num_points = 5;
+    Teuchos::Array<double> point(3);
+    for ( int i = 0; i < num_points; ++i )
     {
-	(*data)[i] = TestEntity(i);
+	point[0] = 0.5;
+	point[1] = 0.5;
+	point[2] = i + 0.5;
+	bool on_surface = (i%2==0);
+	int id = num_points*comm_rank + i;
+	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
+	    Point(id,comm_rank,point,on_surface) );
     }
 
-    // Create an iterator over the odd components vector.
-    EntityIterator odd_it = VectorIterator( data, odd_func );
+    // Construct a local map for the points.
+    Teuchos::RCP<EntityLocalMap> range_map = 
+	Teuchos::rcp( new BasicGeometryLocalMap() );
 
-    // Call the copy constructor.
-    EntityIterator it_1( odd_it );
-    TEST_ASSERT( odd_it == it_1 );
-    TEST_ASSERT( odd_it.size() == it_1.size() );
-    TEST_ASSERT( odd_it.begin() == it_1.begin() );
-    TEST_ASSERT( odd_it.end() == it_1.end() );
-    TEST_EQUALITY( odd_it->id(), it_1->id() );
-    ++odd_it;
-    ++it_1;
-    TEST_EQUALITY( odd_it->id(), it_1->id() );
-    ++it_1;
-    TEST_ASSERT( odd_it != it_1 );
+    // Get an iterator over the points.
+    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
 
-    // Call the assignment operator.
-    it_1 = odd_it;
-    TEST_ASSERT( odd_it == it_1 );
-    TEST_ASSERT( odd_it.size() == it_1.size() );
-    TEST_ASSERT( odd_it.begin() == it_1.begin() );
-    TEST_ASSERT( odd_it.end() == it_1.end() );
-    TEST_EQUALITY( odd_it->id(), it_1->id() );
-    ++odd_it;
-    ++it_1;
-    TEST_EQUALITY( odd_it->id(), it_1->id() );
-    ++it_1;
-    TEST_ASSERT( odd_it != it_1 );
-    TEST_EQUALITY( odd_it.size(), 5 );
-    TEST_EQUALITY( it_1.size(), 5 );
+    // Do the search.
+    parallel_search.search( range_it, range_map, plist );
 
-    // Create an iterator over the components vector that end in 2.
-    EntityIterator two_it = VectorIterator( data, two_func );
-    TEST_EQUALITY( two_it.size(), 1 );
-    EntityIterator begin_it = two_it.begin();
-    EntityIterator end_it = two_it.end();
-    for ( two_it = begin_it; two_it != end_it; ++two_it )
+    // Check the results of the search.
+    Teuchos::Array<EntityId> local_range;
+    Teuchos::Array<EntityId> range_entities;
+    for ( domain_it = domain_it.begin();
+	  domain_it != domain_it.end();
+	  ++domain_it )
     {
-    	TEST_ASSERT( two_func(*two_it) );
+	parallel_search.getRangeEntitiesFromDomain(
+	    domain_it->id(), range_entities );
+	TEST_EQUALITY( comm_size, range_entities.size() );
+	for ( int n = 0; n < comm_size; ++n )
+	{
+	    TEST_EQUALITY( range_entities[n] % num_points, domain_it->id() );
+	    local_range.push_back( range_entities[n] );
+	}
     }
-
-    // Assign the two iterator to the odd iterator and check that the
-    // predicate was passed.
-    two_it = odd_it;
-    TEST_EQUALITY( two_it.size(), 5 );
-    begin_it = two_it.begin();
-    end_it = two_it.end();
-    for ( two_it = begin_it; two_it != end_it; ++two_it )
+    TEST_EQUALITY( local_range.size(), num_points*comm_size );
+    Teuchos::ArrayView<const double> range_coords;
+    Teuchos::Array<EntityId> domain_entities;
+    for ( int i = 0; i < num_points*comm_size; ++i )
     {
-    	TEST_ASSERT( odd_func(*two_it) );
+	parallel_search.getDomainEntitiesFromRange(
+	    local_range[i], domain_entities );
+	TEST_EQUALITY( 1, domain_entities.size() );
+	TEST_EQUALITY( local_range[i] % num_points, domain_entities[0] );
+	parallel_search.rangeParametricCoordinatesInDomain( 
+	    domain_entities[0], local_range[i], range_coords );
+	TEST_EQUALITY( range_coords[0], 0.5 );
+	TEST_EQUALITY( range_coords[1], 0.5 );
+	TEST_EQUALITY( range_coords[2], domain_entities[0] + 0.5 );
     }
 }
 
 //---------------------------------------------------------------------------//
-// Basic iterator test.
-TEUCHOS_UNIT_TEST( EntityIterator, iterator_test )
+TEUCHOS_UNIT_TEST( ParallelSearch, one_to_one_test )
 {
     using namespace DataTransferKit;
 
-    // Create a vector.
-    int num_data = 10;
-    Teuchos::RCP<std::vector<Entity> > data =
-	Teuchos::rcp( new std::vector<Entity>(num_data) );
-    for ( int i = 0; i < num_data; ++i )
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::DefaultComm<int>::getComm();
+    int comm_rank = comm->getRank();
+    int comm_size = comm->getSize();
+
+    // Make a domain entity set.
+    Teuchos::RCP<EntitySet> domain_set = 
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    int num_boxes = 5;
+    int id = 0;
+    for ( int i = 0; i < num_boxes; ++i )
     {
-	(*data)[i] = TestEntity( std::rand() );
+	id = num_boxes*(comm_size-comm_rank-1) + i;
+	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
+	    Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
     }
 
-    // Create an iterator over the vector.
-    EntityIterator entity_it = VectorIterator( data );
+    // Construct a local map for the boxes.
+    Teuchos::RCP<EntityLocalMap> domain_map = 
+	Teuchos::rcp( new BasicGeometryLocalMap() );
 
-    // Check size.
-    TEST_EQUALITY( num_data, Teuchos::as<int>(entity_it.size()) );
+    // Get an iterator over all of the boxes.
+    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    
+    // Build a parallel search over the boxes.
+    Teuchos::ParameterList plist;
+    ParallelSearch parallel_search( comm, 3, domain_it, domain_map, plist );
 
-    // Check the beginning and end.
-    EntityIterator begin_it = entity_it.begin();
-    EntityIterator end_it = entity_it.end();
-    TEST_EQUALITY( num_data, Teuchos::as<int>(begin_it.size()) );
-    TEST_EQUALITY( num_data, Teuchos::as<int>(end_it.size()) );
-
-    // Check the dereference operators.
-    TEST_EQUALITY( entity_it->id(), (*data)[0].id() );
-    TEST_EQUALITY( begin_it->id(), (*data)[0].id() );
-
-    // Check the comparison operators.
-    TEST_ASSERT( begin_it == entity_it );
-    TEST_ASSERT( end_it != entity_it );
-
-    // Check the iterator in a for loop.
-    std::vector<Entity>::const_iterator data_it;
-    for ( entity_it = begin_it, data_it = data->begin(); 
-    	  entity_it != end_it; 
-    	  ++entity_it, ++data_it )
+    // Make a range entity set.
+    Teuchos::RCP<EntitySet> range_set =
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    int num_points = 5;
+    Teuchos::Array<double> point(3);
+    for ( int i = 0; i < num_points; ++i )
     {
-    	TEST_EQUALITY( data_it->id(), entity_it->id() );
+	bool on_surface = (i%2==0);
+	id = num_points*comm_rank + i;
+	point[0] = 0.5;
+	point[1] = 0.5;
+	point[2] = id + 0.5;
+	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
+	    Point(id,comm_rank,point,on_surface) );
     }
 
-    // Check the increment operators.
-    entity_it = begin_it;
-    EntityIterator cp_it = entity_it;
-    ++entity_it;
-    TEST_EQUALITY( entity_it->id(), (*data)[1].id() );
-    TEST_EQUALITY( cp_it->id(), (*data)[0].id() );
-    entity_it++;
-    TEST_EQUALITY( entity_it->id(), (*data)[2].id() );
-    TEST_EQUALITY( cp_it->id(), (*data)[0].id() );
-    DataTransferKit::Entity entity = *(++entity_it);
-    TEST_EQUALITY( entity.id(), (*data)[3].id() );
-    TEST_EQUALITY( cp_it->id(), (*data)[0].id() );
-    entity = *(entity_it++);
-    TEST_EQUALITY( entity.id(), (*data)[3].id() );
-    TEST_EQUALITY( entity_it->id(), (*data)[4].id() );
-    TEST_EQUALITY( cp_it->id(), (*data)[0].id() );
-}
+    // Construct a local map for the points.
+    Teuchos::RCP<EntityLocalMap> range_map = 
+	Teuchos::rcp( new BasicGeometryLocalMap() );
 
-//---------------------------------------------------------------------------//
-// Single predicate test.
-TEUCHOS_UNIT_TEST( EntityIterator, single_predicate_test )
-{
-    using namespace DataTransferKit;
+    // Get an iterator over the points.
+    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
 
-    // Create a vector.
-    int num_data = 10;
-    Teuchos::RCP<std::vector<Entity> > data =
-    	Teuchos::rcp( new std::vector<Entity>(num_data) );
-    for ( int i = 0; i < num_data; ++i )
+    // Do the search.
+    parallel_search.search( range_it, range_map, plist );
+
+    // Check the results of the search.
+    Teuchos::Array<EntityId> local_range;
+    Teuchos::Array<EntityId> range_entities;
+    for ( domain_it = domain_it.begin();
+	  domain_it != domain_it.end();
+	  ++domain_it )
     {
-    	(*data)[i] = TestEntity(i);
+	parallel_search.getRangeEntitiesFromDomain(
+	    domain_it->id(), range_entities );
+	TEST_EQUALITY( 1, range_entities.size() );
+	TEST_EQUALITY( range_entities[0], domain_it->id() );
+	local_range.push_back( range_entities[0] );
     }
-
-    // Create an iterator over the vector for the even numbers.
-    EntityIterator even_it = VectorIterator( data, even_func );
-    TEST_EQUALITY( 5, Teuchos::as<int>(even_it.size()) );
-
-    // Check the iterator in a for loop.
-    EntityIterator begin_it = even_it.begin();
-    EntityIterator end_it = even_it.end();
-    for ( even_it = begin_it;
-    	  even_it != end_it; 
-    	  ++even_it )
+    TEST_EQUALITY( local_range.size(), 5 );
+    Teuchos::ArrayView<const double> range_coords;
+    Teuchos::Array<EntityId> domain_entities;
+    for ( int i = 0; i < 5; ++i )
     {
-    	TEST_ASSERT( even_func(*even_it) );
-    }
-
-    // Create an iterator over the vector for the odd numbers.
-    EntityIterator odd_it = VectorIterator( data, odd_func );
-    TEST_EQUALITY( 5, Teuchos::as<int>(odd_it.size()) );
-
-    // Check the iterator in a for loop.
-    begin_it = odd_it.begin();
-    end_it = odd_it.end();
-    for ( odd_it = begin_it;
-    	  odd_it != end_it; 
-    	  ++odd_it )
-    {
-    	TEST_ASSERT( odd_func(*odd_it) );
-    }
-
-    // Create an iterator over the vector for numbers with 2 as the last
-    // number.
-    EntityIterator two_it = VectorIterator( data, two_func );
-    TEST_EQUALITY( two_it.size(), 1 );
-    begin_it = two_it.begin();
-    end_it = two_it.end();
-    for ( two_it = begin_it; two_it != end_it; ++two_it )
-    {
-    	TEST_ASSERT( two_func(*two_it) );
+	parallel_search.getDomainEntitiesFromRange(
+	    local_range[i], domain_entities );
+	TEST_EQUALITY( 1, domain_entities.size() );
+	TEST_EQUALITY( local_range[i], domain_entities[0] );
+	parallel_search.rangeParametricCoordinatesInDomain( 
+	    domain_entities[0], local_range[i], range_coords );
+	TEST_EQUALITY( range_coords[0], 0.5 );
+	TEST_EQUALITY( range_coords[1], 0.5 );
+	TEST_EQUALITY( range_coords[2], local_range[i] + 0.5 );
     }
 }
 
 //---------------------------------------------------------------------------//
-// Predicate intersection test.
-TEUCHOS_UNIT_TEST( EntityIterator, predicate_intersection_test )
+TEUCHOS_UNIT_TEST( ParallelSearch, no_domain_0_test )
 {
     using namespace DataTransferKit;
 
-    // Create a vector.
-    int num_data = 10;
-    Teuchos::RCP<std::vector<Entity> > data =
-    	Teuchos::rcp( new std::vector<Entity>(num_data) );
-    for ( int i = 0; i < num_data; ++i )
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::DefaultComm<int>::getComm();
+    int comm_size = comm->getSize();
+    int comm_rank = comm->getRank();
+
+    // Make a domain entity set.
+    Teuchos::RCP<EntitySet> domain_set = 
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+
+    // Don't put domain entities on proc 0.
+    int num_boxes = 0;
+    int id = 0;
+    if ( comm_rank > 0 )
     {
-    	(*data)[i] = TestEntity(i);
+	num_boxes = 5;
+	for ( int i = 0; i < num_boxes; ++i )
+	{
+	    id = num_boxes*(comm_size-comm_rank-1) + i;
+	    Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
+		Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+	}
     }
 
-    // Create an iterator over the vector for the even and numbers.
-    EntityIterator even_odd_intersect_it = 
-	VectorIterator( data, PredicateComposition::And(even_func,odd_func) );
-    TEST_EQUALITY( even_odd_intersect_it.size(), 0 );
-    EntityIterator odd_even_intersect_it = 
-	VectorIterator( data, PredicateComposition::And(odd_func,even_func) );
-    TEST_EQUALITY( odd_even_intersect_it.size(), 0 );
+    // Construct a local map for the boxes.
+    Teuchos::RCP<EntityLocalMap> domain_map = 
+	Teuchos::rcp( new BasicGeometryLocalMap() );
 
-    // Create the intersection of the even and two set.
-    EntityIterator even_two_intersect_it = 
-	VectorIterator( data, PredicateComposition::And(even_func,two_func) );
-    TEST_EQUALITY( even_two_intersect_it.size(), 1 );
-    EntityIterator two_even_intersect_it = 
-	VectorIterator( data, PredicateComposition::And(two_func,even_func) );
-    TEST_EQUALITY( two_even_intersect_it.size(), 1 );
+    // Get an iterator over all of the boxes.
+    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    
+    // Build a parallel search over the boxes.
+    Teuchos::ParameterList plist;
+    ParallelSearch parallel_search( comm, 3, domain_it, domain_map, plist );
 
-    // Create the intersection of the two and odd set.
-    EntityIterator two_odd_intersection_it = 
-	VectorIterator( data, PredicateComposition::And(two_func,odd_func) );
-    TEST_EQUALITY( two_odd_intersection_it.size(), 0 );
-    EntityIterator odd_two_intersection_it = 
-	VectorIterator( data, PredicateComposition::And(odd_func,two_func) );
-    TEST_EQUALITY( odd_two_intersection_it.size(), 0 );
-
-    // Intersect the odd set with itself.
-    EntityIterator odd_odd_intersect_it = 
-	VectorIterator( data, PredicateComposition::And(odd_func,odd_func) );
-    TEST_EQUALITY( odd_odd_intersect_it.size(), 5 );
-}
-
-//---------------------------------------------------------------------------//
-// Predicate union test.
-TEUCHOS_UNIT_TEST( EntityIterator, predicate_union_test )
-{
-    using namespace DataTransferKit;
-
-    // Create a vector.
-    int num_data = 10;
-    Teuchos::RCP<std::vector<Entity> > data =
-    	Teuchos::rcp( new std::vector<Entity>(num_data) );
-    for ( int i = 0; i < num_data; ++i )
+    // Make a range entity set.
+    Teuchos::RCP<EntitySet> range_set =
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    int num_points = 5;
+    Teuchos::Array<double> point(3);
+    for ( int i = 0; i < num_points; ++i )
     {
-    	(*data)[i] = TestEntity(i);
+	bool on_surface = (i%2==0);
+	id = num_points*comm_rank + i;
+	point[0] = 0.5;
+	point[1] = 0.5;
+	point[2] = id + 0.5;
+	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
+	    Point(id,comm_rank,point,on_surface) );
     }
 
-    // Create the union of the even and odd set.
-    EntityIterator even_odd_union_it = 
-	VectorIterator( data, PredicateComposition::Or(even_func,odd_func) );
-    TEST_EQUALITY( even_odd_union_it.size(), 10 );
-    EntityIterator odd_even_union_it = 
-	VectorIterator( data, PredicateComposition::Or(odd_func,even_func) );
-    TEST_EQUALITY( odd_even_union_it.size(), 10 );
+    // Construct a local map for the points.
+    Teuchos::RCP<EntityLocalMap> range_map = 
+	Teuchos::rcp( new BasicGeometryLocalMap() );
 
-    // Create the union of the even and two set.
-    EntityIterator even_two_union_it = 
-	VectorIterator( data, PredicateComposition::Or(even_func,two_func) );
-    TEST_EQUALITY( even_two_union_it.size(), 5 );
-    EntityIterator two_even_union_it = 
-	VectorIterator( data, PredicateComposition::Or(two_func,even_func) );
-    TEST_EQUALITY( two_even_union_it.size(), 5 );
+    // Get an iterator over the points.
+    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
 
-    // Union the odd set with itself.
-    EntityIterator odd_odd_union_it = 
-	VectorIterator( data, PredicateComposition::Or(odd_func,odd_func) );
-    TEST_EQUALITY( odd_odd_union_it.size(), 5 );
+    // Do the search.
+    parallel_search.search( range_it, range_map, plist );
 
-    // Create the union of the two and odd set.
-    EntityIterator two_odd_union_it = 
-	VectorIterator( data, PredicateComposition::Or(two_func,odd_func) );
-    TEST_EQUALITY( two_odd_union_it.size(), 6 );
-    EntityIterator odd_two_union_it = 
-	VectorIterator( data, PredicateComposition::Or(odd_func,two_func) );
-    TEST_EQUALITY( odd_two_union_it.size(), 6 );
-}
-
-//---------------------------------------------------------------------------//
-// Predicate subtraction test.
-TEUCHOS_UNIT_TEST( EntityIterator, predicate_subtraction_test )
-{
-    using namespace DataTransferKit;
-
-    // Create a vector.
-    int num_data = 10;
-    Teuchos::RCP<std::vector<Entity> > data =
-    	Teuchos::rcp( new std::vector<Entity>(num_data) );
-    for ( int i = 0; i < num_data; ++i )
+    // Check the results of the search.
+    if ( comm_rank > 0 )
     {
-    	(*data)[i] = TestEntity(i);
+	Teuchos::Array<EntityId> local_range;
+	Teuchos::Array<EntityId> range_entities;
+	for ( domain_it = domain_it.begin();
+	      domain_it != domain_it.end();
+	      ++domain_it )
+	{
+	    parallel_search.getRangeEntitiesFromDomain(
+		domain_it->id(), range_entities );
+	    TEST_EQUALITY( 1, range_entities.size() );
+	    TEST_EQUALITY( range_entities[0], domain_it->id() );
+	    local_range.push_back( range_entities[0] );
+	}
+	TEST_EQUALITY( local_range.size(), 5 );
+	Teuchos::ArrayView<const double> range_coords;
+	Teuchos::Array<EntityId> domain_entities;
+	for ( int i = 0; i < 5; ++i )
+	{
+	    parallel_search.getDomainEntitiesFromRange(
+		local_range[i], domain_entities );
+	    TEST_EQUALITY( 1, domain_entities.size() );
+	    TEST_EQUALITY( local_range[i], domain_entities[0] );
+	    parallel_search.rangeParametricCoordinatesInDomain( 
+		domain_entities[0], local_range[i], range_coords );
+	    TEST_EQUALITY( range_coords[0], 0.5 );
+	    TEST_EQUALITY( range_coords[1], 0.5 );
+	    TEST_EQUALITY( range_coords[2], local_range[i] + 0.5 );
+	}
     }
-
-    // Create the subtraction of the even and odd set.
-    EntityIterator even_odd_subtraction_it = 
-	VectorIterator( data, PredicateComposition::AndNot(even_func,odd_func) );
-    TEST_EQUALITY( even_odd_subtraction_it.size(), 5 );
-    EntityIterator odd_even_subtraction_it = 
-	VectorIterator( data, PredicateComposition::AndNot(odd_func,even_func) );
-    TEST_EQUALITY( odd_even_subtraction_it.size(), 5 );
-
-    // Create the subtraction of the even and two set.
-    EntityIterator even_two_subtraction_it = 
-	VectorIterator( data, PredicateComposition::AndNot(even_func,two_func) );
-    TEST_EQUALITY( even_two_subtraction_it.size(), 4 );
-    EntityIterator two_even_subtraction_it = 
-	VectorIterator( data, PredicateComposition::AndNot(two_func,even_func) );
-    TEST_EQUALITY( two_even_subtraction_it.size(), 0 );
-
-    // Subtraction the odd set with itself.
-    EntityIterator odd_odd_subtraction_it = 
-	VectorIterator( data, PredicateComposition::AndNot(odd_func,odd_func) );
-    TEST_EQUALITY( odd_odd_subtraction_it.size(), 0 );
-
-    // Create the subtraction of the odd and two set.
-    EntityIterator odd_two_subtraction_it = 
-	VectorIterator( data, PredicateComposition::AndNot(odd_func,two_func) );
-    TEST_EQUALITY( odd_two_subtraction_it.size(), 5 );
-    EntityIterator two_odd_subtraction_it = 
-	VectorIterator( data, PredicateComposition::AndNot(two_func,odd_func) );
-    TEST_EQUALITY( two_odd_subtraction_it.size(), 1 );
 }
 
-//---------------------------------------------------------------------------//
-// end tstEntityIterator.cpp
-//---------------------------------------------------------------------------//
+// //---------------------------------------------------------------------------//
+// TEUCHOS_UNIT_TEST( ParallelSearch, no_range_0_test )
+// {
+//     using namespace DataTransferKit;
 
+//     // Get the communicator.
+//     Teuchos::RCP<const Teuchos::Comm<int> > comm =
+// 	Teuchos::DefaultComm<int>::getComm();
+//     int comm_rank = comm->getRank();
+//     int comm_size = comm->getSize();
+
+//     // Make a domain entity set.
+//     Teuchos::RCP<EntitySet> domain_set = 
+// 	Teuchos::rcp( new BasicEntitySet(comm,3) );
+//     int num_boxes = 5;
+//     int id = 0;
+//     for ( int i = 0; i < num_boxes; ++i )
+//     {
+// 	id = num_boxes*(comm_size-comm_rank-1) + i;
+// 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
+// 	    Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+//     }
+
+//     // Get an iterator over all of the boxes.
+//     EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    
+//     // Build a parallel search over the boxes.
+//     Teuchos::ParameterList plist;
+//     ParallelSearch parallel_search( comm, 3, domain_it, plist );
+
+//     // Make a range entity set.
+//     Teuchos::RCP<EntitySet> range_set =
+// 	Teuchos::rcp( new BasicEntitySet(comm,3) );
+//     int num_points = 5;
+//     if ( comm_rank > 0 )
+//     {
+// 	Teuchos::Array<double> point(3);
+// 	for ( int i = 0; i < num_points; ++i )
+// 	{
+// 	    bool on_surface = (i%2==0);
+// 	    id = num_points*comm_rank + i;
+// 	    point[0] = 0.5;
+// 	    point[1] = 0.5;
+// 	    point[2] = id + 0.5;
+// 	    Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
+// 		Point(id,comm_rank,point,on_surface) );
+// 	}
+//     }
+
+//     // Construct a local map for the points.
+//     Teuchos::RCP<EntityLocalMap> range_map = 
+// 	Teuchos::rcp( new BasicGeometryLocalMap() );
+
+//     // Get an iterator over the points.
+//     EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+
+//     // Search the tree.
+//     Teuchos::Array<EntityId> range_ids;
+//     Teuchos::Array<int> range_ranks;
+//     Teuchos::Array<double> range_centroids;
+//     parallel_search.search( range_it, range_map, plist,
+// 				 range_ids, range_ranks, range_centroids );
+
+//     // Check the results of the search.
+//     if ( comm_rank < comm_size - 1 )
+//     {
+// 	int num_recv = num_points;
+// 	TEST_EQUALITY( num_recv, range_ids.size() );
+// 	TEST_EQUALITY( num_recv, range_ranks.size() );
+// 	TEST_EQUALITY( 3*num_recv, range_centroids.size() );
+// 	for ( int i = 0; i < num_recv; ++i )
+// 	{
+// 	    TEST_EQUALITY( range_ranks[i], comm_size - comm_rank - 1 );
+// 	    TEST_EQUALITY( range_centroids[3*i], 0.5 );
+// 	    TEST_EQUALITY( range_centroids[3*i+1], 0.5 );
+// 	    TEST_EQUALITY( range_centroids[3*i+2], range_ids[i]+0.5 );
+// 	}
+// 	std::sort( range_ids.begin(), range_ids.end() );
+// 	for ( int j = 0; j < num_recv; ++j )
+// 	{
+// 	    id = num_points*(comm_size-comm_rank-1) + j;
+// 	    TEST_EQUALITY( Teuchos::as<int>(range_ids[j]), id );
+// 	}
+//     }
+//     else
+//     {
+// 	TEST_EQUALITY( 0, range_ids.size() );
+// 	TEST_EQUALITY( 0, range_ranks.size() );
+// 	TEST_EQUALITY( 0, range_centroids.size() );
+//     }
+// }
+
+// //---------------------------------------------------------------------------//
+// TEUCHOS_UNIT_TEST( ParallelSearch, many_to_many_test )
+// {
+//     using namespace DataTransferKit;
+
+//     // Get the communicator.
+//     Teuchos::RCP<const Teuchos::Comm<int> > comm =
+// 	Teuchos::DefaultComm<int>::getComm();
+//     int comm_rank = comm->getRank();
+//     int comm_size = comm->getSize();
+
+//     // Make a domain entity set.
+//     Teuchos::RCP<EntitySet> domain_set = 
+// 	Teuchos::rcp( new BasicEntitySet(comm,3) );
+//     int num_boxes = 5;
+//     int id = 0;
+//     for ( int i = 0; i < num_boxes; ++i )
+//     {
+// 	id = num_boxes*(comm_size-comm_rank-1) + i;
+// 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
+// 	    Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+//     }
+
+//     // Get an iterator over all of the boxes.
+//     EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    
+//     // Build a parallel search over the boxes.
+//     Teuchos::ParameterList plist;
+//     ParallelSearch parallel_search( comm, 3, domain_it, plist );
+
+//     // Make a range entity set.
+//     Teuchos::RCP<EntitySet> range_set =
+// 	Teuchos::rcp( new BasicEntitySet(comm,3) );
+//     int num_points = 10;
+//     Teuchos::Array<double> point(3);
+//     for ( int i = 0; i < num_points; ++i )
+//     {
+// 	bool on_surface = (i%2==0);
+// 	id = num_points*comm_rank + i;
+// 	point[0] = 0.5;
+// 	point[1] = 0.5;
+// 	point[2] = comm_rank*5.0 + i + 0.5;
+// 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
+// 	    Point(id,comm_rank,point,on_surface) );
+//     }
+
+//     // Construct a local map for the points.
+//     Teuchos::RCP<EntityLocalMap> range_map = 
+// 	Teuchos::rcp( new BasicGeometryLocalMap() );
+
+//     // Get an iterator over the points.
+//     EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+
+//     // Search the tree.
+//     Teuchos::Array<EntityId> range_ids;
+//     Teuchos::Array<int> range_ranks;
+//     Teuchos::Array<double> range_centroids;
+//     parallel_search.search( range_it, range_map, plist,
+// 				 range_ids, range_ranks, range_centroids );
+
+//     // Check the results of the search.
+//     if ( comm_rank < comm_size - 1 )
+//     {
+// 	int num_recv = num_points;
+// 	TEST_EQUALITY( num_recv, range_ids.size() );
+// 	TEST_EQUALITY( num_recv, range_ranks.size() );
+// 	TEST_EQUALITY( 3*num_recv, range_centroids.size() );
+// 	for ( int i = 0; i < num_recv; ++i )
+// 	{
+// 	    TEST_EQUALITY( range_centroids[3*i], 0.5 );
+// 	    TEST_EQUALITY( range_centroids[3*i+1], 0.5 );
+// 	    TEST_EQUALITY( range_centroids[3*i+2], 
+// 			   range_ids[i]-5.0*range_ranks[i]+0.5 );
+// 	}
+// 	std::sort( range_ranks.begin(), range_ranks.end() );
+// 	int k = 0;
+// 	for ( int j = 1; j > -1; --j )
+// 	{
+// 	    for ( int i = 0; i < num_points / 2; ++i, ++k )
+// 	    {
+// 		TEST_EQUALITY( range_ranks[k], comm_size - comm_rank - 1 - j );
+// 	    }
+// 	}
+//     }
+//     else
+//     {
+// 	int num_recv = num_points / 2;
+// 	TEST_EQUALITY( num_recv, range_ids.size() );
+// 	TEST_EQUALITY( num_recv, range_ranks.size() );
+// 	TEST_EQUALITY( 3*num_recv, range_centroids.size() );
+// 	for ( int i = 0; i < num_recv; ++i )
+// 	{
+// 	    TEST_EQUALITY( range_centroids[3*i], 0.5 );
+// 	    TEST_EQUALITY( range_centroids[3*i+1], 0.5 );
+// 	    TEST_EQUALITY( range_centroids[3*i+2], 
+// 			   range_ids[i]-5.0*range_ranks[i]+0.5 );
+// 	    TEST_EQUALITY( range_ranks[i], 0 );
+// 	}
+//     }
+// }
+
+// //---------------------------------------------------------------------------//
+// TEUCHOS_UNIT_TEST( ParallelSearch, point_multiple_neighbors_test )
+// {
+//     using namespace DataTransferKit;
+
+//     // Get the communicator.
+//     Teuchos::RCP<const Teuchos::Comm<int> > comm =
+// 	Teuchos::DefaultComm<int>::getComm();
+//     int comm_rank = comm->getRank();
+//     int comm_size = comm->getSize();
+
+//     // Make a domain entity set.
+//     Teuchos::RCP<EntitySet> domain_set = 
+// 	Teuchos::rcp( new BasicEntitySet(comm,3) );
+//     int id = comm_size - comm_rank - 1;
+//     Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
+// 	Box(id,id,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+
+//     // Get an iterator over all of the boxes.
+//     EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    
+//     // Build a parallel search over the boxes.
+//     Teuchos::ParameterList plist;
+//     ParallelSearch parallel_search( comm, 3, domain_it, plist );
+
+//     // Make a range entity set.
+//     Teuchos::RCP<EntitySet> range_set =
+// 	Teuchos::rcp( new BasicEntitySet(comm,3) );
+//     Teuchos::Array<double> point(3);
+//     point[0] = 0.5;
+//     point[1] = 0.5;
+//     point[2] = comm_rank;
+//     id = comm_rank;
+//     Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
+// 	Point(id,comm_rank,point,false) );
+
+//     // Construct a local map for the points.
+//     Teuchos::RCP<EntityLocalMap> range_map = 
+// 	Teuchos::rcp( new BasicGeometryLocalMap() );
+
+//     // Get an iterator over the points.
+//     EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+
+//     // Search the tree.
+//     Teuchos::Array<EntityId> range_ids;
+//     Teuchos::Array<int> range_ranks;
+//     Teuchos::Array<double> range_centroids;
+//     parallel_search.search( range_it, range_map, plist,
+//     				 range_ids, range_ranks, range_centroids );
+
+//     // Check the results of the search.
+//     if ( comm_rank > 0 )
+//     {
+//     	TEST_EQUALITY( 2, range_ids.size() );
+//     	TEST_EQUALITY( 2, range_ranks.size() );
+//     	TEST_EQUALITY( 6, range_centroids.size() );
+//     	std::sort( range_ids.begin(), range_ids.end() );
+//     	std::sort( range_ranks.begin(), range_ranks.end() );
+//     	TEST_EQUALITY( Teuchos::as<int>(range_ids[0]), comm_size-comm_rank-2 );
+//     	TEST_EQUALITY( Teuchos::as<int>(range_ids[1]), comm_size-comm_rank-1);
+//     	TEST_EQUALITY( range_ranks[0], comm_size-comm_rank-2 );
+//     	TEST_EQUALITY( range_ranks[1], comm_size-comm_rank-1 );
+//     	TEST_EQUALITY( range_centroids[0], 0.5 );
+//     	TEST_EQUALITY( range_centroids[1], 0.5 );
+//     	TEST_EQUALITY( range_centroids[2], comm_size-comm_rank-2 );
+//     	TEST_EQUALITY( range_centroids[3], 0.5 );
+//     	TEST_EQUALITY( range_centroids[4], 0.5 );
+//     	TEST_EQUALITY( range_centroids[5], comm_size-comm_rank-1 );
+//     }
+//     else
+//     {
+//     	TEST_EQUALITY( 1, range_ids.size() );
+//     	TEST_EQUALITY( 1, range_ranks.size() );
+//     	TEST_EQUALITY( 3, range_centroids.size() );
+//     	TEST_EQUALITY( Teuchos::as<int>(range_ids[0]), comm_size-comm_rank-1 );
+//     	TEST_EQUALITY( Teuchos::as<int>(range_ranks[0]), comm_size-comm_rank-1 );
+//     	TEST_EQUALITY( range_centroids[0], 0.5 );
+//     	TEST_EQUALITY( range_centroids[1], 0.5 );
+//     	TEST_EQUALITY( range_centroids[2], comm_size-comm_rank-1 );
+//     }
+// }
+
+//---------------------------------------------------------------------------//
+// end tstParallelSearch.cpp
+//---------------------------------------------------------------------------//

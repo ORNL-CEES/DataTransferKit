@@ -20,6 +20,7 @@ APPEND_SET(HEADERS
   DTK_CoarseGlobalSearch.hpp
   DTK_CoarseLocalSearch.hpp
   DTK_FineLocalSearch.hpp
+  DTK_ParallelSearch.hpp
   ) 
 
 APPEND_SET(SOURCES
@@ -27,6 +28,7 @@ APPEND_SET(SOURCES
   DTK_CoarseGlobalSearch.cpp
   DTK_CoarseLocalSearch.cpp
   DTK_FineLocalSearch.cpp
+  DTK_ParallelSearch.cpp
   )
 
 #

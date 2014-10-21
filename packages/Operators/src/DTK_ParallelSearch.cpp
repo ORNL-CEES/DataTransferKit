@@ -56,10 +56,16 @@ ParallelSearch::ParallelSearch(
     d_coarse_global_search = Teuchos::rcp(
 	new CoarseGlobalSearch(comm, physical_dimension, 
 			       domain_iterator, parameters) );
-    d_coarse_local_search = Teuchos::rcp(
-	new CoarseLocalSearch(domain_iterator, domain_local_map, parameters) );
-    d_fine_local_search = Teuchos::rcp(
-	new FineLocalSearch(domain_local_map) );
+
+    // Only do the local search if there are local domain entities.
+    d_empty_domain = ( 0 == domain_iterator.size() );
+    if ( !d_empty_domain )
+    {
+	d_coarse_local_search = Teuchos::rcp(
+	    new CoarseLocalSearch(domain_iterator, domain_local_map, parameters) );
+	d_fine_local_search = Teuchos::rcp(
+	    new FineLocalSearch(domain_local_map) );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -75,72 +81,94 @@ void ParallelSearch::search(
     const Teuchos::RCP<EntityLocalMap>& range_local_map,
     const Teuchos::ParameterList& parameters )
 {
+    // Reset the state of the object.
+    d_range_owner_ranks.clear();
+    d_domain_to_range_map.clear();
+    d_range_to_domain_map.clear();
+    d_parametric_coords.clear();
+
     // Perform a coarse global search to redistribute the range entities.
     Teuchos::Array<EntityId> range_entity_ids;
     Teuchos::Array<int> range_owner_ranks;
     Teuchos::Array<double> range_centroids;
-    d_coarse_global_search( 
+    d_coarse_global_search->search( 
 	range_iterator, range_local_map, parameters,
 	range_entity_ids, range_owner_ranks, range_centroids );
 
-    // For each range centroid, perform a local search.
-    int num_range = range_entity_ids.size();
-    Teuchos::Array<EntityId> domain_neighbors;
-    Teuchos::Array<EntityId> domain_parents;
-    Teuchos::Array<double> reference_coordinates;
-    Teuchos::Array<double> local_coords( d_physical_dim );
-    int num_neighbors = 0;
-    int num_parents = 0;
-    for ( int n = 0; n < num_range; ++n )
+    // Only do the local search if there are local domain entities.
+    if ( !d_empty_domain )
     {
-	// Perform a coarse local search to get the nearest domain entities to
-	// the point.
-	d_coarse_local_search( range_centroids(d_physical_dim*n,d_physical_dim),
-			       parameters,
-			       domain_neighbors );
-	num_neighbors = domain_neighbors.size();
-	
-	// Perform a fine local search to get the entities the point maps to.
-	d_fine_local_search( domain_neighbors,
-			     range_centroids(d_physical_dim*n,d_physical_dim),
-			     parameters,
-			     domain_parents,
-			     reference_coordinates );
-
-	// Store the mapped point.
-	num_parents = domain_parents.size();
-	for ( int p = 0; p < num_parents; ++p )
+	// For each range centroid, perform a local search.
+	int num_range = range_entity_ids.size();
+	Teuchos::Array<Entity> domain_neighbors;
+	Teuchos::Array<Entity> domain_parents;
+	Teuchos::Array<double> reference_coordinates;
+	Teuchos::Array<double> local_coords( d_physical_dim );
+	int num_parents = 0;
+	for ( int n = 0; n < num_range; ++n )
 	{
-	    std::pair<EntityId,int> range_rank(
-		range_entity_ids[n], range_owner_ranks[n] );
+	    // Perform a coarse local search to get the nearest domain
+	    // entities to the point.
+	    d_coarse_local_search->search( 
+		range_centroids(d_physical_dim*n,d_physical_dim),
+		parameters,
+		domain_neighbors );
+	
+	    // Perform a fine local search to get the entities the point maps
+	    // to.
+	    d_fine_local_search->search( 
+		domain_neighbors,
+		range_centroids(d_physical_dim*n,d_physical_dim),
+		parameters,
+		domain_parents,
+		reference_coordinates );
 
-	    std::pair<EntityId,EntityId> domain_range(
-		domain_parents[p].id(), range_entity_ids[n] );
+	    // Store the potentially multiple parametric realizations of the
+	    // point.
+	    std::unordered_map<EntityId,Teuchos::Array<double> > ref_map;
+	    num_parents = domain_parents.size();
+	    for ( int p = 0; p < num_parents; ++p )
+	    {
+		std::pair<EntityId,int> range_rank(
+		    range_entity_ids[n], range_owner_ranks[n] );
 
-	    std::pairt<EntityId,EntityId> range_domain(
-		range_entity_ids[n], domain_parents[p].id() );
+		std::pair<EntityId,EntityId> domain_range(
+		    domain_parents[p].id(), range_entity_ids[n] );
 
-	    local_coords.assign( 
-		reference_coordinates(d_physical_dim*p,d_physical_dim) );
-	    std::pair<std::pair<EntityId,EntityId>,Teuchos::Array<double> > 
-		ref_pair( domain_range, local_coords );
+		std::pair<EntityId,EntityId> range_domain(
+		    range_entity_ids[n], domain_parents[p].id() );
 
-	    d_range_owner_ranks.insert( range_rank );
-	    d_domain_to_range_map.insert( domain_range );
-	    d_range_to_domain_map.insert( range_domain);
-	    d_parametric_coordinates.insert( ref_pair );
+		local_coords().assign( 
+		    reference_coordinates(d_physical_dim*p,d_physical_dim) );
+		std::pair<EntityId,Teuchos::Array<double> >
+		    domain_ref_pair( domain_parents[p].id(), local_coords );
+
+		d_range_owner_ranks.insert( range_rank );
+		d_domain_to_range_map.insert( domain_range );
+		d_range_to_domain_map.insert( range_domain );
+		ref_map.insert( domain_ref_pair );
+	    }
+	    if ( num_parents > 0 )
+	    {
+		std::pair<EntityId,
+			  std::unordered_map<EntityId,Teuchos::Array<double> > 
+			  > range_ref_pair( range_entity_ids[n], ref_map );
+		d_parametric_coords.insert( range_ref_pair );
+	    }
+	}
     }
 }
 
 //---------------------------------------------------------------------------//
 // Given a domain entity id, get the ids of the range entities that mapped to it.
-void ParallelSearch::getRangeIdsFromDomain( 
-    const EntityId& domain_id,
+void ParallelSearch::getRangeEntitiesFromDomain( 
+    const EntityId domain_id,
     Teuchos::Array<EntityId>& range_ids ) const
 {
+    DTK_REQUIRE( !d_empty_domain );
     std::pair<std::unordered_multimap<EntityId,EntityId>::const_iterator,
 	      std::unordered_multimap<EntityId,EntityId>::const_iterator >
-	domain_pair = d_domain_to_domain_map.equal_range( domain_id );
+	domain_pair = d_domain_to_range_map.equal_range( domain_id );
     std::unordered_multimap<EntityId,EntityId>::const_iterator domain_it;
     range_ids.resize( std::distance(domain_pair.first,domain_pair.second) );
     Teuchos::Array<EntityId>::iterator range_it;
@@ -154,10 +182,11 @@ void ParallelSearch::getRangeIdsFromDomain(
 
 //---------------------------------------------------------------------------//
 // Given a range entity id, get the ids of the domain entities that it mapped to.
-void ParallelSearch::getDomainIdsFromRange( 
-    const EntityId& range_id,
+void ParallelSearch::getDomainEntitiesFromRange( 
+    const EntityId range_id,
     Teuchos::Array<EntityId>& domain_ids ) const
 {
+    DTK_REQUIRE( !d_empty_domain );
     std::pair<std::unordered_multimap<EntityId,EntityId>::const_iterator,
 	      std::unordered_multimap<EntityId,EntityId>::const_iterator >
 	range_pair = d_range_to_domain_map.equal_range( range_id );
@@ -174,12 +203,16 @@ void ParallelSearch::getDomainIdsFromRange(
 
 //---------------------------------------------------------------------------//
 // Get the parametric coordinates of the range entities in the domain entities.
-void ParallelSearch::rangeParametricCoordinates( 
-    const std::pair<EntityId,EntityId>& domain_range_pair,
+void ParallelSearch::rangeParametricCoordinatesInDomain( 
+    const EntityId domain_id,
+    const EntityId range_id,
     Teuchos::ArrayView<const double>& parametric_coords ) const
 {
-    DTK_REQUIRE( d_parametric_coords.count(domain_range_pair) );
-    parametric_coords =	d_parametric_coords.find(domain_range_pair)->second();
+    DTK_REQUIRE( !d_empty_domain );
+    DTK_REQUIRE( d_parametric_coords.count(range_id) );
+    DTK_REQUIRE( d_parametric_coords.find(range_id)->second.count(domain_id) );
+    parametric_coords =	
+	d_parametric_coords.find(range_id)->second.find(domain_id)->second;
 }
 
 //---------------------------------------------------------------------------//
@@ -187,9 +220,5 @@ void ParallelSearch::rangeParametricCoordinates(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_PARALLELSEARCH_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_ParallelSearch.hpp
+// end DTK_ParallelSearch.cpp
 //---------------------------------------------------------------------------//
