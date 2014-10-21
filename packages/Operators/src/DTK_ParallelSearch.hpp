@@ -41,16 +41,17 @@
 #ifndef DTK_PARALLELSEARCH_HPP
 #define DTK_PARALLELSEARCH_HPP
 
-#include <functional>
+#include <unordered_map>
 
 #include "DTK_Types.hpp"
 #include "DTK_EntityIterator.hpp"
 #include "DTK_EntityLocalMap.hpp"
+#include "DTK_CoarseGlobalSearch.hpp"
+#include "DTK_CoarseLocalSearch.hpp"
+#include "DTK_FineLocalSearch.hpp"
 
 #include <Teuchos_RCP.hpp>
-
-#include <Tpetra_MultiVector.hpp>
-#include <Tpetra_CrsGraph.hpp>
+#include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
 {
@@ -73,7 +74,9 @@ class ParallelSearch
     /*!
      * \brief Constructor.
      */
-    ParallelSearch( const EntityIterator& domain_entity_iterator,
+    ParallelSearch( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+		    const int physical_dimension,
+		    const EntityIterator& domain_iterator,
 		    const Teuchos::RCP<EntityLocalMap>& domain_local_map,
 		    const Teuchos::ParameterList& parameters );
 
@@ -86,36 +89,59 @@ class ParallelSearch
      * \brief Search the domain with the range entity centroids and construct
      * the graph. This will update the state of the object.
     */
-    void search( const EntityIterator& range_entity_iterator,
+    void search( const EntityIterator& range_iterator,
 		 const Teuchos::RCP<EntityLocalMap>& range_local_map,
 		 const Teuchos::ParameterList& parameters );
 
     /*!
-     * \brief Get the domain-to-range entity_graph.
+     * \brief Given a domain entity id, get the ids of the range entities that
+     * mapped to it.
      */
-    Teuchos::RCP<Tpetra::CrsGraph<int,EntityId> > graph() const;
+    void getRangeEntitiesFromDomain( 
+	const EntityId& domain_id, Teuchos::Array<EntityId>& range_ids ) const;
+
+    /*!
+     * \brief Given a range entity id, get the ids of the domain entities that
+     * it mapped to.
+     */
+    void getDomainEntitiesFromRange( 
+	const EntityId& range_id, Teuchos::Array<EntityId>& domain_ids ) const;
 
     /*!
      * \brief Get the parametric coordinates of the range entities in the
      * domain entities.
      */
-    Teuchos::RCP<Tpetra::MultiVector<double,int,EntityId> > 
-    rangeCoordinates() const;
+    void rangeParametricCoordinates( 
+	const std::pair<EntityId,EntityId>& domain_range_pair,
+	Teuchos::ArrayView<const double>& parametric_coords ) const;
 
   private:
 
-    // Domain local map.
-    Teuchos::RCP<EntityLocalMap> d_domain_local_map;
+    // Phyiscal dimension.
+    int d_physical_dim;
 
-    // kD-Tree.
+    // Coarse global search.
+    Teuchos::RCP<CoarseGlobalSearch> d_coarse_global_search;
 
-    // Domain-to-range entity graph.
-    Teuchos::RCP<Tpetra::CrsGraph<int,EntityId> > d_dtr_graph;
+    // Coarse local search.
+    Teuchos::RCP<CoarseLocalSearch> d_coarse_local_search;
+
+    // Fine local search.
+    Teuchos::RCP<FineLocalSearch> d_fine_local_search;
+
+    // Range owner rank map.
+    std::unordered_map<EntityId,int> d_range_owner_ranks;
+
+    // Domain-to-range entity map.
+    std::unordered_multimap<EntityId,EntityId> d_domain_to_range_map;
+
+    // Range-to-domain entity map.
+    std::unordered_multimap<EntityId,EntityId> d_range_to_domain_map;
 
     // Parametric coordinates of the range entities in the domain
-    // entities. The map of the vector is the mapped range entities in the
-    // decomposition of the domain entities they were found in.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,EntityId> > d_parametric_coords;
+    // entities. They map key is a domain-range EntityId pair.
+    std::unordered_map<std::pair<EntityId,EntityId>,
+		       Teuchos::Array<double> > d_parametric_coords;
 };
 
 //---------------------------------------------------------------------------//

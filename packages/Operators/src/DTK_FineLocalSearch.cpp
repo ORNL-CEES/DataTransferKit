@@ -71,7 +71,8 @@ void FineLocalSearch::search(
     const Teuchos::ArrayView<const Entity>& neighbors,
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ParameterList& parameters,
-    Teuchos::Array<Entity>& mapped_entities ) const
+    Teuchos::Array<Entity>& parents,
+    Teuchos::Array<double>& reference_coordinates ) const
 {
     bool return_all = false;
     if ( parameters.isParameter("Fine Local Search Return All") )
@@ -79,8 +80,10 @@ void FineLocalSearch::search(
 	return_all = parameters.get<bool>("Fine Local Search Return All");
     }
     
-    mapped_entities.clear();
-    Teuchos::Array<double> ref_point( point.size() );
+    parents.clear();
+    reference_coordinates.clear();
+    int physical_dim = point.size();
+    Teuchos::Array<double> ref_point( physical_dim );
     Teuchos::ArrayView<const Entity>::const_iterator neighbor_it;
     for ( neighbor_it = neighbors.begin();
 	  neighbor_it != neighbors.end();
@@ -96,7 +99,11 @@ void FineLocalSearch::search(
 		if ( d_local_map->checkPointInclusion(
 			 *neighbor_it,ref_point()) )
 		{
-		    mapped_entities.push_back( *neighbor_it );
+		    parents.push_back( *neighbor_it );
+		    for ( int d = 0; d < physical_dim; ++d )
+		    {
+			reference_coordinates.push_back( ref_point[d] );
+		    }
 		    if ( !return_all )
 		    {
 			return;

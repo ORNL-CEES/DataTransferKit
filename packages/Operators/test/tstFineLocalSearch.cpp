@@ -57,23 +57,32 @@ TEUCHOS_UNIT_TEST( FineLocalSeearch, search_test_1 )
     point[2] = 2.2;
 
     // Search the boxes.
-    Teuchos::Array<Entity> mapped_boxes;
-    fine_local_search.search( boxes(), point(), plist, mapped_boxes );
-    TEST_EQUALITY( 1, mapped_boxes.size() );
-    TEST_EQUALITY( 2, mapped_boxes[0].id() );
+    Teuchos::Array<Entity> parents;
+    Teuchos::Array<double> reference_coordinates;
+    fine_local_search.search( boxes(), point(), plist, 
+			      parents, reference_coordinates );
+    TEST_EQUALITY( 1, parents.size() );
+    TEST_EQUALITY( 2, parents[0].id() );
+    TEST_EQUALITY( 3, reference_coordinates.size() );
+    TEST_EQUALITY( point[0], reference_coordinates[0] );
+    TEST_EQUALITY( point[1], reference_coordinates[1] );
+    TEST_EQUALITY( point[2], reference_coordinates[2] );
 
     // Change the return type.
     plist.set<bool>("Fine Local Search Return All", true);
-    fine_local_search.search( boxes(), point(), plist, mapped_boxes );
-    TEST_EQUALITY( 1, mapped_boxes.size() );
-    TEST_EQUALITY( 2, mapped_boxes[0].id() );
+    fine_local_search.search( boxes(), point(), plist, 
+			      parents, reference_coordinates );
+    TEST_EQUALITY( 1, parents.size() );
+    TEST_EQUALITY( 2, parents[0].id() );
 
     // Make a different point in no boxes.
     point[0] = 0.5;
     point[1] = 0.5;
     point[2] = 5.1;
-    fine_local_search.search( boxes(), point(), plist, mapped_boxes );
-    TEST_EQUALITY( 0, mapped_boxes.size() );
+    fine_local_search.search( boxes(), point(), plist, 
+			      parents, reference_coordinates );
+    TEST_EQUALITY( 0, parents.size() );
+    TEST_EQUALITY( 0, reference_coordinates.size() );
 }
 
 //---------------------------------------------------------------------------//
@@ -104,27 +113,43 @@ TEUCHOS_UNIT_TEST( FineLocalSeearch, search_test_2 )
     point[2] = 0.3;
 
     // Search the boxes.
-    Teuchos::Array<Entity> mapped_boxes;
-    fine_local_search.search( boxes(), point(), plist, mapped_boxes );
-    TEST_EQUALITY( 1, mapped_boxes.size() );
-    TEST_EQUALITY( 0, mapped_boxes[0].id() );
+    Teuchos::Array<Entity> parents;
+    Teuchos::Array<double> reference_coordinates;
+    fine_local_search.search( boxes(), point(), plist, 
+			      parents, reference_coordinates );
+    TEST_EQUALITY( 1, parents.size() );
+    TEST_EQUALITY( 0, parents[0].id() );
+    TEST_EQUALITY( 3, reference_coordinates.size() );
+    TEST_EQUALITY( point[0], reference_coordinates[0] );
+    TEST_EQUALITY( point[1], reference_coordinates[1] );
+    TEST_EQUALITY( point[2], reference_coordinates[2] );
 
     // Change the return type.
     plist.set<bool>("Fine Local Search Return All", true);
-    fine_local_search.search( boxes(), point(), plist, mapped_boxes );
-    TEST_EQUALITY( 5, mapped_boxes.size() );
-    TEST_EQUALITY( 0, mapped_boxes[0].id() );
-    TEST_EQUALITY( 1, mapped_boxes[1].id() );
-    TEST_EQUALITY( 2, mapped_boxes[2].id() );
-    TEST_EQUALITY( 3, mapped_boxes[3].id() );
-    TEST_EQUALITY( 4, mapped_boxes[4].id() );
+    fine_local_search.search( boxes(), point(), plist, 
+			      parents, reference_coordinates );
+    TEST_EQUALITY( 5, parents.size() );
+    TEST_EQUALITY( 0, parents[0].id() );
+    TEST_EQUALITY( 1, parents[1].id() );
+    TEST_EQUALITY( 2, parents[2].id() );
+    TEST_EQUALITY( 3, parents[3].id() );
+    TEST_EQUALITY( 4, parents[4].id() );
+    TEST_EQUALITY( 15, reference_coordinates.size() );
+    for ( int i = 0; i < 5; ++i )
+    {
+	TEST_EQUALITY( point[0], reference_coordinates[3*i] );
+	TEST_EQUALITY( point[1], reference_coordinates[3*i+1] );
+	TEST_EQUALITY( point[2], reference_coordinates[3*i+2] );
+    }
 
     // Make a different point in no boxes.
     point[0] = 0.5;
     point[1] = 0.5;
     point[2] = 5.1;
-    fine_local_search.search( boxes(), point(), plist, mapped_boxes );
-    TEST_EQUALITY( 0, mapped_boxes.size() );
+    fine_local_search.search( boxes(), point(), plist, 
+			      parents, reference_coordinates );
+    TEST_EQUALITY( 0, parents.size() );
+    TEST_EQUALITY( 0, reference_coordinates.size() );
 }
 
 //---------------------------------------------------------------------------//
