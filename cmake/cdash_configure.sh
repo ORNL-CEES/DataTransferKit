@@ -35,7 +35,6 @@ cmake \
     -D Trilinos_ASSERT_MISSING_PACKAGES=OFF \
     -D Trilinos_ENABLE_CXX11:BOOL=ON \
     -D Trilinos_ENABLE_DataTransferKit:BOOL=ON \
-    -D Trilinos_ENABLE_DataTransferKitPointCloud:BOOL=OFF \
     -D DataTransferKit_ENABLE_DBC:BOOL=${DTK_USE_DBC} \
     -D DataTransferKit_ENABLE_TESTS:BOOL=ON \
     -D DataTransferKit_ENABLE_EXAMPLES:BOOL=OFF \
