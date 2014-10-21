@@ -119,6 +119,9 @@ TEUCHOS_UNIT_TEST( ParallelSearch, all_to_all_test )
 	TEST_EQUALITY( range_coords[0], 0.5 );
 	TEST_EQUALITY( range_coords[1], 0.5 );
 	TEST_EQUALITY( range_coords[2], domain_entities[0] + 0.5 );
+	TEST_EQUALITY( Teuchos::as<int>(
+			   (local_range[i] - domain_entities[0])/num_points),
+		       parallel_search.rangeEntityOwnerRank(local_range[i]) );
     }
 }
 
@@ -209,6 +212,8 @@ TEUCHOS_UNIT_TEST( ParallelSearch, one_to_one_test )
 	TEST_EQUALITY( range_coords[0], 0.5 );
 	TEST_EQUALITY( range_coords[1], 0.5 );
 	TEST_EQUALITY( range_coords[2], local_range[i] + 0.5 );
+	TEST_EQUALITY( comm_size - comm_rank - 1,
+		       parallel_search.rangeEntityOwnerRank(local_range[i]) );
     }
 }
 
@@ -307,6 +312,8 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_domain_0_test )
 	    TEST_EQUALITY( range_coords[0], 0.5 );
 	    TEST_EQUALITY( range_coords[1], 0.5 );
 	    TEST_EQUALITY( range_coords[2], local_range[i] + 0.5 );
+	    TEST_EQUALITY( comm_size - comm_rank - 1,
+			   parallel_search.rangeEntityOwnerRank(local_range[i]) );
 	}
     }
 }
@@ -403,6 +410,8 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_range_0_test )
 	    TEST_EQUALITY( range_coords[0], 0.5 );
 	    TEST_EQUALITY( range_coords[1], 0.5 );
 	    TEST_EQUALITY( range_coords[2], local_range[i] + 0.5 );
+	    TEST_EQUALITY( comm_size - comm_rank - 1,
+			   parallel_search.rangeEntityOwnerRank(local_range[i]) );
 	}
     }
 }
@@ -470,6 +479,37 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_range_0_test )
 //     // Check the results of the search.
 //     if ( comm_rank < comm_size - 1 )
 //     {
+// 	Teuchos::Array<EntityId> local_range;
+// 	Teuchos::Array<EntityId> range_entities;
+// 	for ( domain_it = domain_it.begin();
+// 	      domain_it != domain_it.end();
+// 	      ++domain_it )
+// 	{
+// 	    parallel_search.getRangeEntitiesFromDomain(
+// 		domain_it->id(), range_entities );
+// 	    TEST_EQUALITY( 1, range_entities.size() );
+// 	    TEST_EQUALITY( range_entities[0], domain_it->id() );
+// 	    local_range.push_back( range_entities[0] );
+// 	}
+// 	TEST_EQUALITY( local_range.size(), 5 );
+// 	Teuchos::ArrayView<const double> range_coords;
+// 	Teuchos::Array<EntityId> domain_entities;
+// 	for ( int i = 0; i < 5; ++i )
+// 	{
+// 	    parallel_search.getDomainEntitiesFromRange(
+// 		local_range[i], domain_entities );
+// 	    TEST_EQUALITY( 1, domain_entities.size() );
+// 	    TEST_EQUALITY( local_range[i], domain_entities[0] );
+// 	    parallel_search.rangeParametricCoordinatesInDomain( 
+// 		domain_entities[0], local_range[i], range_coords );
+// 	    TEST_EQUALITY( range_coords[0], 0.5 );
+// 	    TEST_EQUALITY( range_coords[1], 0.5 );
+// 	    TEST_EQUALITY( range_coords[2], local_range[i] + 0.5 );
+// 	}
+
+
+// ///////////////
+
 // 	int num_recv = num_points;
 // 	TEST_EQUALITY( num_recv, range_ids.size() );
 // 	TEST_EQUALITY( num_recv, range_ranks.size() );

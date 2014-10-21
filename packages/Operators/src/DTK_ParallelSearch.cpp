@@ -202,6 +202,15 @@ void ParallelSearch::getDomainEntitiesFromRange(
 }
 
 //---------------------------------------------------------------------------//
+// Get the owner rank of a given range entity.
+int ParallelSearch::rangeEntityOwnerRank( const EntityId range_id ) const
+{
+    DTK_REQUIRE( !d_empty_domain );
+    DTK_REQUIRE( d_range_owner_ranks.count(range_id) );
+    return d_range_owner_ranks.find(range_id)->second;
+}
+
+//---------------------------------------------------------------------------//
 // Get the parametric coordinates of the range entities in the domain entities.
 void ParallelSearch::rangeParametricCoordinatesInDomain( 
     const EntityId domain_id,

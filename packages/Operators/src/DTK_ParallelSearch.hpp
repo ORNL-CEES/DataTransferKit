@@ -108,6 +108,11 @@ class ParallelSearch
 	const EntityId range_id, Teuchos::Array<EntityId>& domain_ids ) const;
 
     /*!
+     * \brief Get the owner rank of a given range entity.
+     */
+    int rangeEntityOwnerRank( const EntityId range_id ) const;
+
+    /*!
      * \brief Get the parametric coordinates of the range entities in the
      * domain entities.
      */
