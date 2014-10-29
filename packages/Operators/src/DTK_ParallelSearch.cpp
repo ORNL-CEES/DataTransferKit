@@ -188,7 +188,7 @@ void ParallelSearch::getDomainEntitiesFromRange(
 {
     DTK_REQUIRE( !d_empty_domain );
     std::pair<std::unordered_multimap<EntityId,EntityId>::const_iterator,
-	      std::unordered_multimap<EntityId,EntityId>::const_iterator >
+	      std::unordered_multimap<EntityId,EntityId>::const_iterator>
 	range_pair = d_range_to_domain_map.equal_range( range_id );
     std::unordered_multimap<EntityId,EntityId>::const_iterator range_it;
     domain_ids.resize( std::distance(range_pair.first,range_pair.second) );
