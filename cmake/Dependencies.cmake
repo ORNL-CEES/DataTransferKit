@@ -1,6 +1,5 @@
 SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
   Nanoflann             packages/Nanoflann              SS  REQUIRED
-  Triangle              packages/Triangle               SS  REQUIRED
   Utils                 packages/Utils                  SS  REQUIRED
   Interface             packages/Interface              SS  REQUIRED
   Operators             packages/Operators              SS  REQUIRED

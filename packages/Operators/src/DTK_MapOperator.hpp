@@ -90,25 +90,11 @@ class MapOperator : public Thyra::LinearOpBase<Scalar>
 	   const Teuchos::RCP<FunctionSpace>& range_space,
 	   const Teuchos::RCP<Teuchos::ParameterList>& parameters );
 
-    /*
-     * \brief Apply the map operator to data defined on the entities by
-     * computing g = Minv*(v-A*f)
-     * \param domain DOFs defined on the domain entities that will be sent to
-     * the range.
-     * \param range DOFs defined on the range entities that will be
-     * received from the domain.
-     */
-    virtual void 
-    apply( const Thyra::MultiVectorBase<Scalar>& domain_dofs,
-	   const Teuchos::Ptr<Thyra::MultiVectorBase<Scalar> >& range_dofs,
-	   const Scalar alpha,
-	   const Scalar beta ) const;
-
     //@{
     //! Thyra LinearOpBase interface.
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > range() const;
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > domain() const;
-    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > clone() const;
+    virtual Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > clone() const;
     bool opSupportedImpl( Thyra::EOpTransp M_trans ) const;
     void applyImpl( const Thyra::EOpTransp M_trans,
 		    const Thyra::MultiVectorBase<Scalar> &X,
@@ -120,10 +106,10 @@ class MapOperator : public Thyra::LinearOpBase<Scalar>
   protected:
 
     //! Domain dof map.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > b_domain_map;
+    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > b_domain_space;
 
     //! Range dof map.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > b_range_map;
+    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > b_range_space;
 
     //! Mass matrix inverse.
     Teuchos::RCP<Thyra::LinearOpBase<Scalar> > b_mass_matrix_inv;

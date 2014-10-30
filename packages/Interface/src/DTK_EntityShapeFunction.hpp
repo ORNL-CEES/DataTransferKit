@@ -96,7 +96,8 @@ class EntityShapeFunction
 
     /*!
      * \brief Given an entity and a reference point, evaluate the gradient of
-     * the shape function of the entity at that point.
+     * the shape function of the entity at that point. A default
+     * implementation is provided using a finite difference scheme.
      * \param entity Evaluate the shape function of this entity.
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.

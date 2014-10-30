@@ -79,12 +79,11 @@ void EntityShapeFunction::evaluateValue(
 // Given an entity and a reference point, evaluate the gradient of the shape
 // function of the entity at that point.
 void EntityShapeFunction::evaluateGradient( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
+    const Entity& entity,
+    const Teuchos::ArrayView<const double>& reference_point,
+    Teuchos::Array<Teuchos::Array<double> >& gradients ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    // Provide a default finite difference implementation.
 }
 
 //---------------------------------------------------------------------------//

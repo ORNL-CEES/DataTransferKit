@@ -69,15 +69,53 @@ void MapOperator<Scalar>::setup( const Teuchos::RCP<FunctionSpace>& domain_space
 }
 
 //---------------------------------------------------------------------------//
+// Get the range space.
+template<class Scalar>
+Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > 
+MapOperator<Scalar>::range() const
+{
+    return b_range_space;
+}
+
+//---------------------------------------------------------------------------//
+// Get the domain space.
+template<class Scalar>
+Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > 
+MapOperator<Scalar>::domain() const
+{
+    return b_domain_space;
+}
+
+//---------------------------------------------------------------------------//
+// Clone the operator.
+template<class Scalar>
+Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > 
+MapOperator<Scalar>::clone() const
+{
+    bool not_implemented = true;
+    DTK_INSIST( !not_implemented );
+}
+ 
+//---------------------------------------------------------------------------//
+// Check if the given operator is supported.
+template<class Scalar>
+bool MapOperator<Scalar>::opSupportedImpl( Thyra::EOpTransp M_trans ) const
+{
+    return ( M_trans == Thyra::NOTRANS );
+}
+
+//---------------------------------------------------------------------------//
 // Apply the map operator to data defined on the entities by computing g =
 // Minv*(v-A*f).
 template<class Scalar>
-void MapOperator<Scalar>::apply( 
+void MapOperator<Scalar>::applyImpl( 
+    const Thyra::EOpTransp M_trans,
     const Thyra::MultiVectorBase<Scalar>& domain_dofs,
     const Teuchos::Ptr<Thyra::MultiVectorBase<Scalar> >& range_dofs,
     const Scalar alpha,
     const Scalar beta ) const
 {
+    DTK_REQUIRE( opSupportedImpl(M_trans) );
     DTK_REQUIRE( Teuchos::nonnull(b_coupling_matrix) );
     DTK_REQUIRE( Teuchos::nonnull(domain_dofs) );
     DTK_REQUIRE( Teuchos::nonnull(range_dofs) );

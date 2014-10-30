@@ -46,6 +46,8 @@
 #include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 
+#include <Teuchos_Array.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -77,14 +79,14 @@ class EntityPredicates
 
     //@{
     //! Block predicate.
-    static void setBlockId( const int block_id );
-    static bool inBlock( Entity entity );
+    static void setBlockIds( const Teuchos::Array<int>& block_ids );
+    static bool inBlocks( Entity entity );
     //@}
 
     //@{
     //! Boundary predicate.
-    static void setBoundaryId( const int boundary_id );
-    static bool onBoundary( Entity entity );
+    static void setBoundaryIds( const Teuchos::Array<int>& boundary_id );
+    static bool onBoundaries( Entity entity );
     //@}
 
     //@{
@@ -101,11 +103,11 @@ class EntityPredicates
 
     private:
 
-    // Current block to check.
-    static int d_block_id;
+    // Current blocks to check.
+    static Teuchos::Array<int> d_block_ids;
 
-    // Current boundary to check.
-    static int d_boundary_id;
+    // Current boundaries to check.
+    static Teuchos::Array<int> d_boundary_ids;
 
     // Current owner rank to check.
     static int d_owner_rank;

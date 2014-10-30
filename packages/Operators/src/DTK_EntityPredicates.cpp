@@ -49,17 +49,41 @@ bool EntityPredicates::onSurface( Entity entity )
 
 //---------------------------------------------------------------------------//
 // Block predicate.
-void EntityPredicates::setBlockId( const int block_id ) 
-{ d_block_id = block_id; }
-bool EntityPredicates::inBlock( Entity entity ) 
-{ return entity.inBlock(d_block_id); }
+void EntityPredicates::setBlockIds( const Teuchos::Array<int>& block_ids ) 
+{ d_block_ids = block_ids; }
+bool EntityPredicates::inBlocks( Entity entity ) 
+{ 
+    Teuchos::Array<int>::const_iterator block_it;
+    for ( block_it = d_block_ids.begin();
+	  block_it != d_block_ids.end();
+	  ++block_it )
+    {
+	if ( !entity.inBlock(*block_it) )
+	{
+	    return false;
+	}
+    }
+    return true;
+}
 
 //---------------------------------------------------------------------------//
 // Boundary predicate.
-void EntityPredicates::setBoundaryId( const int boundary_id ) 
-{ d_boundary_id = boundary_id; }
-bool EntityPredicates::onBoundary( Entity entity ) 
-{ return entity.onBoundary(d_boundary_id); }
+void EntityPredicates::setBoundaryIds( const Teuchos::Array<int>& boundary_ids ) 
+{ d_boundary_ids = boundary_ids; }
+bool EntityPredicates::onBoundaries( Entity entity ) 
+{ 
+    Teuchos::Array<int>::const_iterator boundary_it;
+    for ( boundary_it = d_boundary_ids.begin();
+	  boundary_it != d_boundary_ids.end();
+	  ++boundary_it )
+    {
+	if ( !entity.onBoundary(*boundary_it) )
+	{
+	    return false;
+	}
+    }
+    return true;
+}
 
 //---------------------------------------------------------------------------//
 // Owner rank predicate.
@@ -76,12 +100,12 @@ bool EntityPredicates::isEntityType( Entity entity )
 { return (entity.entityType() == d_entity_type); }
 
 //---------------------------------------------------------------------------//
-// Current block to check.
-int EntityPredicates::d_block_id = -1;
+// Current blocks to check.
+Teuchos::Array<int> EntityPredicates::d_block_ids = Teuchos::Array<int>();
 
 //---------------------------------------------------------------------------//
 // Current boundary to check.
-int EntityPredicates::d_boundary_id = -1;
+Teuchos::Array<int> EntityPredicates::d_boundary_ids = Teuchos::Array<int>();
 
 //---------------------------------------------------------------------------//
 // Current owner rank to check.
