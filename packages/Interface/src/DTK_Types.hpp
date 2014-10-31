@@ -43,8 +43,6 @@
 
 #include <limits>
 
-#include <Teuchos_SerializationTraits.hpp>
-
 namespace DataTransferKit
 {
 //! Entity id type.
