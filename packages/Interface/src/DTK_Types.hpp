@@ -41,7 +41,6 @@
 #ifndef DTK_TYPES_HPP
 #define DTK_TYPES_HPP
 
-#include <cstdint>
 #include <limits>
 
 #include <Teuchos_SerializationTraits.hpp>
@@ -49,7 +48,7 @@
 namespace DataTransferKit
 {
 //! Entity id type.
-typedef uint64_t EntityId;
+typedef unsigned long int EntityId;
 
 //! Invalid entity id.
 static const EntityId dtk_invalid_entity_id = 
@@ -67,19 +66,6 @@ enum EntityType
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Specialization of SerializationTraits for DataTransferKit::EntityId.
-//---------------------------------------------------------------------------//
-namespace Teuchos
-{
-
-template<typename Ordinal>
-class SerializationTraits<Ordinal,DataTransferKit::EntityId>
-    : public DirectSerializationTraits<Ordinal,DataTransferKit::EntityId>
-{ /* ... */ };
-
-} // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
 
