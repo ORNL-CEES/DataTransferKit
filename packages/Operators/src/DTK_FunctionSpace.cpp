@@ -45,12 +45,10 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 //! Constructor.
 FunctionSpace::FunctionSpace(
-    const Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > vector_space,
     const Teuchos::RCP<EntitySet>& entity_set,
     const Teuchos::RCP<EntityLocalMap>& local_map,
     const Teuchos::RCP<EntityShapeFunction>& shape_function )
-    : d_vector_space( vector_space )
-    , d_entity_set( entity_set )
+    : d_entity_set( entity_set )
     , d_local_map( local_map )
     , d_shape_function( shape_function )
 { /* ... */ }
@@ -69,24 +67,16 @@ Teuchos::RCP<EntitySet> FunctionSpace::entitySet() const
 
 //---------------------------------------------------------------------------//
 // Get the reference frame for entities supporting the function.
-Teuchos::RCP<EntityLocalMap> FunctionSpace::entityLocalMap() const
+Teuchos::RCP<EntityLocalMap> FunctionSpace::localMap() const
 {
     return d_local_map;
 }
 
 //---------------------------------------------------------------------------//
 // Get the shape function for entities supporting the function.
-Teuchos::RCP<EntityShapeFunction> FunctionSpace::entityShapeFunction() const
+Teuchos::RCP<EntityShapeFunction> FunctionSpace::shapeFunction() const
 {
     return d_shape_function;
-}
-
-//---------------------------------------------------------------------------//
-// Get the parallel vector space under the DOFs.
-Teuchos::RCP<const Thyra::SpmdVectorSpaceBase<double> > 
-FunctionSpace::vectorSpace() const
-{
-    return d_vector_space
 }
 
 //---------------------------------------------------------------------------//

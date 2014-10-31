@@ -105,12 +105,6 @@ class MapOperator : public Thyra::LinearOpBase<Scalar>
 
   protected:
 
-    //! Domain dof map.
-    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > b_domain_space;
-
-    //! Range dof map.
-    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > b_range_space;
-
     //! Mass matrix inverse.
     Teuchos::RCP<Thyra::LinearOpBase<Scalar> > b_mass_matrix_inv;
 
@@ -124,6 +118,14 @@ class MapOperator : public Thyra::LinearOpBase<Scalar>
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_MapOperator_impl.hpp"
+
+//---------------------------------------------------------------------------//
 
 #endif // end DTK_MAPOPERATOR_HPP
 

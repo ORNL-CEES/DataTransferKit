@@ -3,28 +3,42 @@ INCLUDE(TribitsAddAdvancedTest)
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   CoarseGlobalSearch_test
-  SOURCES tstCoarseGlobalSearch.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstCoarseGlobalSearch.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   CoarseLocalSearch_test
-  SOURCES tstCoarseLocalSearch.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstCoarseLocalSearch.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   FineLocalSearch_test
-  SOURCES tstFineLocalSearch.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstFineLocalSearch.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ParallelSearch_test
-  SOURCES tstParallelSearch.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstParallelSearch.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  FunctionSpace_test
+  SOURCES tstFunctionSpace.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  MapOperator_test
+  SOURCES tstMapOperator.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )

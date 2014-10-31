@@ -168,7 +168,8 @@ void ParallelSearch::getRangeEntitiesFromDomain(
     DTK_REQUIRE( !d_empty_domain );
     auto domain_pair = d_domain_to_range_map.equal_range( domain_id );
     range_ids.resize( std::distance(domain_pair.first,domain_pair.second) );
-    for ( auto domain_it = domain_pair.first, auto range_it = range_ids.begin();
+    auto range_it = range_ids.begin();
+    for ( auto domain_it = domain_pair.first;
 	  domain_it != domain_pair.second;
 	  ++domain_it, ++range_it )
     {
@@ -185,7 +186,8 @@ void ParallelSearch::getDomainEntitiesFromRange(
     DTK_REQUIRE( !d_empty_domain );
     auto range_pair = d_range_to_domain_map.equal_range( range_id );
     domain_ids.resize( std::distance(range_pair.first,range_pair.second) );
-    for ( auto range_it = range_pair.first, auto domain_it = domain_ids.begin();
+    auto domain_it = domain_ids.begin();
+    for ( auto range_it = range_pair.first;
 	  range_it != range_pair.second;
 	  ++range_it, ++domain_it )
     {

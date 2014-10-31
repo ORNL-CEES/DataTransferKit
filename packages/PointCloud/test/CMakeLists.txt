@@ -3,49 +3,49 @@ INCLUDE(TribitsAddAdvancedTest)
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   RadialBasis_test
-  SOURCES tstRadialBasis.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstRadialBasis.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   CloudDomain_test
-  SOURCES tstCloudDomain.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstCloudDomain.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SplineInterpolationPairing_test
-  SOURCES tstSplineInterpolationPairing.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstSplineInterpolationPairing.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   CenterDistributor_test
-  SOURCES tstCenterDistributor.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstCenterDistributor.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   PolynomialMatrix_test
-  SOURCES tstPolynomialMatrix.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstPolynomialMatrix.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SplineInterpolator_test
-  SOURCES tstSplineInterpolator.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstSplineInterpolator.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   MovingLeastSquare_test
-  SOURCES tstMovingLeastSquare.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  SOURCES tstMovingLeastSquare.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )

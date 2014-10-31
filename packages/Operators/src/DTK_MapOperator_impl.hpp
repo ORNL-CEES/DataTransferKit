@@ -32,13 +32,15 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MapOperator.cpp
+ * \brief DTK_MapOperator_impl.hpp
  * \author Stuart R. Slattery
  * \brief Map operator interface.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_MapOperator.hpp"
+#ifndef DTK_MAPOPERATOR_IMPL_HPP
+#define DTK_MAPOPERATOR_IMPL_HPP
+
 #include "DTK_DBC.hpp"
 
 #include <Thyra_MultiVectorStdOps.hpp>
@@ -60,9 +62,10 @@ MapOperator<Scalar>::~MapOperator()
 //---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar>
-void MapOperator<Scalar>::setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-			 const Teuchos::RCP<FunctionSpace>& range_space,
-			 const Teuchos::ParameterList>& parameters )
+void MapOperator<Scalar>::setup(
+    const Teuchos::RCP<FunctionSpace>& domain_space,
+    const Teuchos::RCP<FunctionSpace>& range_space,
+    const Teuchos::RCP<Teuchos::ParameterList>& parameters )
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -74,7 +77,12 @@ template<class Scalar>
 Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > 
 MapOperator<Scalar>::range() const
 {
-    return b_range_space;
+    DTK_REQUIRE( Teuchos::nonnull(b_coupling_matrix) );
+    if ( Teuchos::nonnull(b_mass_matrix_inv) )
+    {
+	return b_mass_matrix_inv->range();
+    }
+    return b_coupling_matrix->range();
 }
 
 //---------------------------------------------------------------------------//
@@ -83,17 +91,19 @@ template<class Scalar>
 Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > 
 MapOperator<Scalar>::domain() const
 {
-    return b_domain_space;
+    DTK_REQUIRE( Teuchos::nonnull(b_coupling_matrix) );
+    return b_coupling_matrix->domain();
 }
 
 //---------------------------------------------------------------------------//
-// Clone the operator.
+// Clone the operator. The subclass must implement this function.
 template<class Scalar>
 Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > 
 MapOperator<Scalar>::clone() const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
+    return Teuchos::null;
 }
  
 //---------------------------------------------------------------------------//
@@ -115,9 +125,8 @@ void MapOperator<Scalar>::applyImpl(
     const Scalar alpha,
     const Scalar beta ) const
 {
-    DTK_REQUIRE( opSupportedImpl(M_trans) );
+    DTK_INSIST( opSupportedImpl(M_trans) );
     DTK_REQUIRE( Teuchos::nonnull(b_coupling_matrix) );
-    DTK_REQUIRE( Teuchos::nonnull(domain_dofs) );
     DTK_REQUIRE( Teuchos::nonnull(range_dofs) );
   
     // Make a work vector.
@@ -148,13 +157,15 @@ void MapOperator<Scalar>::applyImpl(
 
     // g = alpha*g + beta*f
     Thyra::Vt_S( range_dofs, alpha );
-    Thyra::scaleUpdate( beta, domain_dofs, range_dofs );
+    Thyra::update( beta, domain_dofs, range_dofs );
 }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
+# endif // end DTK_MAPOPERATOR_IMPL_HPP
+
 //---------------------------------------------------------------------------//
-// end DTK_MapOperator.cpp
+// end DTK_MapOperator_impl.hpp
 //---------------------------------------------------------------------------//
