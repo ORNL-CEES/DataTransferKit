@@ -1,34 +1,28 @@
-INCLUDE(TribitsLibraryMacros)
+##---------------------------------------------------------------------------##
+## DataTransferKit/CMakeLists.txt
+## Stuart R. Slattery
+##---------------------------------------------------------------------------##
+## TriBITS package file for the DataTransferKit package
+##---------------------------------------------------------------------------##
 
-#
-# A) Package-specific configuration options
-#
+##---------------------------------------------------------------------------##
+## Define the package
+##---------------------------------------------------------------------------##
 
-#
-# B) Define the header and source files (and directories)
-#
+TRIBITS_SUBPACKAGE(Triangle)
 
-SET(HEADERS "")
-SET(SOURCES "")
+##---------------------------------------------------------------------------##
+## Add library, test, and examples.
+##---------------------------------------------------------------------------##
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+ADD_SUBDIRECTORY(src)
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+##---------------------------------------------------------------------------##
+## D) Do standard postprocessing
+##---------------------------------------------------------------------------##
 
-APPEND_SET(HEADERS
-  DTK_triangle.h
-  ) 
+TRIBITS_SUBPACKAGE_POSTPROCESS()
 
-APPEND_SET(SOURCES
-  DTK_triangle.c
-  )
-
-#
-# C) Define the targets for package's library(s)
-#
-
-TRIBITS_ADD_LIBRARY(
-  dtk_triangle
-  HEADERS ${HEADERS}
-  SOURCES ${SOURCES}
-  )
+##---------------------------------------------------------------------------##
+## end of DataTransferKit/CMakeLists.txt
+##---------------------------------------------------------------------------##
