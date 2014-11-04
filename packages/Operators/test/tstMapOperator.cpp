@@ -61,7 +61,7 @@ createScaledIdentity(
     {
 	global_row = local_size*comm->getRank() + i;
 	indices[0] = global_row;
-	mat->sumIntoGlobalValues( global_row, indices(), values() );
+	mat->insertGlobalValues( global_row, indices(), values() );
     }
     mat->fillComplete();
 
@@ -145,7 +145,48 @@ class TestOperator : public DataTransferKit::MapOperator<double>
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( FineLocalSeearch, apply_test )
+TEUCHOS_UNIT_TEST( MapOperator, scaled_identity_test )
+{
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::DefaultComm<int>::getComm();
+
+    int local_size = 10;
+    double scalar = 2.0;
+    int num_vec = 3;
+
+    Teuchos::RCP<Thyra::LinearOpBase<double> > identity_op =
+	createScaledIdentity( comm, local_size, scalar );
+
+    // Test the apply on some vectors.
+    Teuchos::RCP<const Tpetra::Map<int,int> > map = 
+	Tpetra::createUniformContigMap<int,int>( local_size*comm->getSize(),
+						 comm );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > X =
+	Tpetra::createMultiVector<double,int,int>( map, num_vec );
+    X->randomize();
+    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Y =
+	Tpetra::createMultiVector<double,int,int>( map, num_vec );
+
+    Teuchos::RCP<Thyra::MultiVectorBase<double> > thyra_X =
+	Thyra::createMultiVector( X );	
+    Teuchos::RCP<Thyra::MultiVectorBase<double> > thyra_Y =
+	Thyra::createMultiVector( Y );
+
+    identity_op->apply( Thyra::NOTRANS, *thyra_X, thyra_Y.ptr(), 1.0, 0.0 );
+
+    for ( int n = 0; n < num_vec; ++n )
+    {
+	Teuchos::ArrayRCP<const double> x_view = X->getVector(n)->getData();
+	Teuchos::ArrayRCP<const double> y_view = Y->getVector(n)->getData();
+	for ( int i = 0; i < local_size; ++i )
+	{
+	    TEST_FLOATING_EQUALITY( y_view[i], scalar*x_view[i], 1.0e-14 );
+	}
+    }
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( MapOperator, apply_test )
 {
     using namespace DataTransferKit;
     
@@ -180,6 +221,7 @@ TEUCHOS_UNIT_TEST( FineLocalSeearch, apply_test )
     X->randomize();
     Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Y =
 	Tpetra::createMultiVector<double,int,int>( map, num_vec );
+    Y->putScalar( 1.0 );
 
     Teuchos::RCP<Thyra::MultiVectorBase<double> > thyra_X =
 	Thyra::createMultiVector( X );	
@@ -196,10 +238,38 @@ TEUCHOS_UNIT_TEST( FineLocalSeearch, apply_test )
 	Teuchos::ArrayRCP<const double> y_view = Y->getVector(n)->getData();
 	for ( int i = 0; i < local_size; ++i )
 	{
-	    TEST_EQUALITY( y_view[i], 
-			   alpha*c*(b - x_view[i]*a) + beta*x_view[i] );
+	    TEST_FLOATING_EQUALITY( y_view[i], alpha*a*(c - x_view[i]*b) + beta,
+				    1.0e-14 );
 	}
     }
+
+    // Clone the operator and apply again.
+    Teuchos::RCP<const Thyra::LinearOpBase<double> > map_op_clone =
+	map_op->clone();
+    Teuchos::rcp_const_cast<MapOperator<double> >(
+	Teuchos::rcp_dynamic_cast<const MapOperator<double> >(map_op_clone) )->setup( 
+	function_space, function_space, Teuchos::parameterList() );
+
+    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Z =
+	Tpetra::createMultiVector<double,int,int>( map, num_vec );
+    Z->putScalar( 1.0 );
+
+    Teuchos::RCP<Thyra::MultiVectorBase<double> > thyra_Z =
+	Thyra::createMultiVector( Z );
+
+    map_op_clone->apply( Thyra::NOTRANS, *thyra_X, thyra_Z.ptr(), alpha, beta );
+
+    for ( int n = 0; n < num_vec; ++n )
+    {
+	Teuchos::ArrayRCP<const double> x_view = X->getVector(n)->getData();
+	Teuchos::ArrayRCP<const double> z_view = Z->getVector(n)->getData();
+	for ( int i = 0; i < local_size; ++i )
+	{
+	    TEST_FLOATING_EQUALITY( z_view[i], alpha*a*(c - x_view[i]*b) + beta,
+				    1.0e-14 );
+	}
+    }
+
 }
 
 //---------------------------------------------------------------------------//

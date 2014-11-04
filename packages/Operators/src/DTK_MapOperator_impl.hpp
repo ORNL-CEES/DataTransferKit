@@ -129,26 +129,34 @@ void MapOperator<Scalar>::applyImpl(
     DTK_REQUIRE( Teuchos::nonnull(b_coupling_matrix) );
     DTK_REQUIRE( Teuchos::nonnull(range_dofs) );
   
+    // Make a temporary copy of the range dofs if beta is not zero.
+    Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > range_copy;
+    if ( 0.0 != beta )
+    {
+	range_copy = range_dofs->clone_mv();
+	Thyra::assign( range_copy.ptr(), *range_dofs );
+    }
+
     // Make a work vector.
     Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > work = 
 	b_forcing_vector->clone_mv();
 
     // A*f
     b_coupling_matrix->apply( 
-	Thyra::NOTRANS, domain_dofs, Teuchos::ptr(work.getRawPtr()), 1.0, 1.0 );
+	Thyra::NOTRANS, domain_dofs, work.ptr(), 1.0, 0.0 );
 
     // v-A*f
-    Thyra::Vt_S( Teuchos::ptr(work.getRawPtr()), -1.0 );
+    Thyra::Vt_S( work.ptr(), -1.0 );
     if ( Teuchos::nonnull(b_forcing_vector) )
     {
-	Thyra::Vp_V( Teuchos::ptr(work.getRawPtr()), *b_forcing_vector );
+	Thyra::Vp_V( work.ptr(), *b_forcing_vector );
     }
 
     // Minv*(v-A*f)
     if ( Teuchos::nonnull(b_mass_matrix_inv) )
     {
 	b_mass_matrix_inv->apply( 
-	    Thyra::NOTRANS, *work, range_dofs, 1.0, 1.0 );
+	    Thyra::NOTRANS, *work, range_dofs, 1.0, 0.0 );
     }
     else
     {
@@ -157,7 +165,10 @@ void MapOperator<Scalar>::applyImpl(
 
     // g = alpha*g + beta*f
     Thyra::Vt_S( range_dofs, alpha );
-    Thyra::update( beta, domain_dofs, range_dofs );
+    if ( 0.0 != beta )
+    {
+	Thyra::update( beta, *range_copy, range_dofs );
+    }
 }
 
 //---------------------------------------------------------------------------//
