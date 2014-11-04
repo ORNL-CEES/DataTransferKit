@@ -113,6 +113,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
 
     if ( global_comm->getRank() % 2 == 0 )
     {
+	TEST_ASSERT( indexer.isValid() );
 	TEST_ASSERT( Teuchos::nonnull(local_comm) );
     	TEST_EQUALITY( (int) indexer.size(), local_comm->getSize() );
     	TEST_EQUALITY( indexer.l2g( local_comm->getRank() ), 
@@ -120,8 +121,8 @@ TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
     }
     else
     {
+	TEST_ASSERT( !indexer.isValid() );
 	TEST_ASSERT( Teuchos::is_null(local_comm) );
-    	TEST_EQUALITY( indexer.size(), 0 );
     }
     TEST_EQUALITY( indexer.l2g( -32 ), -1 );
 }

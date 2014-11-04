@@ -74,10 +74,18 @@ class CommIndexer
     // object's process id in the global communicator.
     int l2g( const int local_id ) const;
 
-    //! Return the size of the local to global map.
+    // Return the size of the local to global map.
     int size() const;
 
+    // Return true if the indexer is valid on this process (local_comm is
+    // nonnull).
+    bool isValid() const;
+
   private:
+
+    // True if the indexer is valid on this global rank (local communicator is
+    // nonnull).
+    bool d_is_valid;
 
     // Local to global process id map.
     std::unordered_map<int,int> d_l2gmap;

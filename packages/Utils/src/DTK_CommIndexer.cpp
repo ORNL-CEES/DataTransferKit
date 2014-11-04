@@ -67,9 +67,11 @@ CommIndexer::CommIndexer()
 CommIndexer::CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm, 
 			  Teuchos::RCP<const Teuchos::Comm<int> > local_comm )
 {
+    // Set whether or not the indexer will be valid on this rank.
+    d_is_valid = Teuchos::nonnull(local_comm);
+
     // Get my rank in the local communicator.
-    int local_rank = 
-	Teuchos::nonnull(local_comm) ? local_comm->getRank() : -1;
+    int local_rank = d_is_valid ? local_comm->getRank() : -1;
 
     // Gather everyone's rank in the local communicator.
     int global_size = global_comm->getSize();
@@ -119,6 +121,14 @@ int CommIndexer::l2g( const int local_id ) const
 int CommIndexer::size() const
 { 
     return d_l2gmap.size(); 
+}
+
+//---------------------------------------------------------------------------//
+// Return true if the indexer is valid on this process (local_comm is
+// nonnull).
+bool CommIndexer::isValid() const
+{
+    return d_is_valid;
 }
 
 //---------------------------------------------------------------------------//
