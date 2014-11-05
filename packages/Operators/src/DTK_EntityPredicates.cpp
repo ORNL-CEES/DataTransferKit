@@ -44,14 +44,12 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 //! Surface predicate.
-bool EntityPredicates::onSurface( Entity entity ) 
+bool SurfacePredicate::operator()( Entity entity ) 
 { return entity.onSurface(); }
 
 //---------------------------------------------------------------------------//
 // Block predicate.
-void EntityPredicates::setBlockIds( const Teuchos::Array<int>& block_ids ) 
-{ d_block_ids = block_ids; }
-bool EntityPredicates::inBlocks( Entity entity ) 
+bool BlockPredicate::operator()( Entity entity ) 
 { 
     Teuchos::Array<int>::const_iterator block_it;
     for ( block_it = d_block_ids.begin();
@@ -68,9 +66,7 @@ bool EntityPredicates::inBlocks( Entity entity )
 
 //---------------------------------------------------------------------------//
 // Boundary predicate.
-void EntityPredicates::setBoundaryIds( const Teuchos::Array<int>& boundary_ids ) 
-{ d_boundary_ids = boundary_ids; }
-bool EntityPredicates::onBoundaries( Entity entity ) 
+bool BoundaryPredicate::operator()( Entity entity ) 
 { 
     Teuchos::Array<int>::const_iterator boundary_it;
     for ( boundary_it = d_boundary_ids.begin();
@@ -84,36 +80,6 @@ bool EntityPredicates::onBoundaries( Entity entity )
     }
     return true;
 }
-
-//---------------------------------------------------------------------------//
-// Owner rank predicate.
-void EntityPredicates::setOwnerRank( const int owner_rank )
-{ d_owner_rank = owner_rank; }
-bool EntityPredicates::hasOwner( Entity entity )
-{ return (entity.ownerRank() == d_owner_rank); }
-
-//---------------------------------------------------------------------------//
-// Entity type predicate.
-void EntityPredicates::setEntityType( const EntityType entity_type )
-{ d_entity_type = entity_type; }
-bool EntityPredicates::isEntityType( Entity entity )
-{ return (entity.entityType() == d_entity_type); }
-
-//---------------------------------------------------------------------------//
-// Current blocks to check.
-Teuchos::Array<int> EntityPredicates::d_block_ids = Teuchos::Array<int>();
-
-//---------------------------------------------------------------------------//
-// Current boundary to check.
-Teuchos::Array<int> EntityPredicates::d_boundary_ids = Teuchos::Array<int>();
-
-//---------------------------------------------------------------------------//
-// Current owner rank to check.
-int EntityPredicates::d_owner_rank = -1;
-
-//---------------------------------------------------------------------------//
-// Current entity type to check.
-EntityType EntityPredicates::d_entity_type = ENTITY_TYPE_NODE;
 
 //---------------------------------------------------------------------------//
 

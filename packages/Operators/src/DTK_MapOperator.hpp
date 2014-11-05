@@ -46,8 +46,6 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
 
-#include <Tpetra_Map.hpp>
-
 #include <Thyra_MultiVectorBase.hpp>
 #include <Thyra_LinearOpBase.hpp>
 

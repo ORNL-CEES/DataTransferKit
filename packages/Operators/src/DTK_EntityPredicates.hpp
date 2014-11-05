@@ -52,68 +52,64 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class EntityPredicates
-  \brief Basic entity predicates.
-
-  A static class of basic entity predicates.
+  \class SurfacePredicate
+  \brief Predicates for selecting entities on a surface.
 */
-//---------------------------------------------------------------------------//
-class EntityPredicates
+class SurfacePredicate
 {
   public:
 
-    /*!
-     * \brief Constructor.
-     */
-    EntityPredicates() { /* ... */ }
+    SurfacePredicate() { /* ... */ }
 
-    /*!
-     * \brief Destructor.
-     */
-    ~EntityPredicates() { /* ... */ }
+    ~SurfacePredicate() { /* ... */ }
 
-    //@{
-    //! Surface predicate.
-    static bool onSurface( Entity entity );
-    //@}
+    bool operator()( Entity entity );
+};
 
-    //@{
-    //! Block predicate.
-    static void setBlockIds( const Teuchos::Array<int>& block_ids );
-    static bool inBlocks( Entity entity );
-    //@}
+//---------------------------------------------------------------------------//
+/*!
+  \class BlockPredicate
+  \brief Predicates for selecting entities in a block.
+*/
+class BlockPredicate
+{
+  public:
 
-    //@{
-    //! Boundary predicate.
-    static void setBoundaryIds( const Teuchos::Array<int>& boundary_id );
-    static bool onBoundaries( Entity entity );
-    //@}
+    BlockPredicate( const Teuchos::Array<int>& block_ids) 
+	: d_block_ids( block_ids )
+    { /* ... */ }
 
-    //@{
-    //! Owner rank predicate.
-    static void setOwnerRank( const int owner_rank );
-    static bool hasOwner( Entity entity );
-    //@}
+    ~BlockPredicate() { /* ... */ }
 
-    //@{
-    //! Entity type predicate.
-    static void setEntityType( const EntityType entity_type );
-    static bool isEntityType( Entity entity );
-    //@}
+    bool operator()( Entity entity );
 
-    private:
+  private:
 
-    // Current blocks to check.
-    static Teuchos::Array<int> d_block_ids;
+    // Blocks
+    Teuchos::Array<int> d_block_ids;
+};
 
-    // Current boundaries to check.
-    static Teuchos::Array<int> d_boundary_ids;
+//---------------------------------------------------------------------------//
+/*!
+  \class BoundaryPredicate
+  \brief Predicates for selecting entities on a boundary.
+*/
+class BoundaryPredicate
+{
+  public:
 
-    // Current owner rank to check.
-    static int d_owner_rank;
+    BoundaryPredicate( const Teuchos::Array<int>& boundary_ids) 
+	: d_boundary_ids( boundary_ids )
+    { /* ... */ }
 
-    // Current entity type to check.
-    static EntityType d_entity_type;
+    ~BoundaryPredicate() { /* ... */ }
+
+    bool operator()( Entity entity );
+
+  private:
+
+    // Boundaries.
+    Teuchos::Array<int> d_boundary_ids;
 };
 
 //---------------------------------------------------------------------------//
