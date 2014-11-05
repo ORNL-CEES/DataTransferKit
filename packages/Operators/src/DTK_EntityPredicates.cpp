@@ -47,6 +47,9 @@ namespace DataTransferKit
 bool SurfacePredicate::operator()( Entity entity ) 
 { return entity.onSurface(); }
 
+std::function<bool(Entity)> SurfacePredicate::getFunction() const
+{ return std::function<bool(Entity)>(*this); }
+
 //---------------------------------------------------------------------------//
 // Block predicate.
 bool BlockPredicate::operator()( Entity entity ) 
@@ -64,6 +67,9 @@ bool BlockPredicate::operator()( Entity entity )
     return true;
 }
 
+std::function<bool(Entity)> BlockPredicate::getFunction() const
+{ return std::function<bool(Entity)>(*this); }
+
 //---------------------------------------------------------------------------//
 // Boundary predicate.
 bool BoundaryPredicate::operator()( Entity entity ) 
@@ -80,6 +86,9 @@ bool BoundaryPredicate::operator()( Entity entity )
     }
     return true;
 }
+
+std::function<bool(Entity)> BoundaryPredicate::getFunction() const
+{ return std::function<bool(Entity)>(*this); }
 
 //---------------------------------------------------------------------------//
 

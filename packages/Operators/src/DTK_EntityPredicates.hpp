@@ -64,6 +64,8 @@ class SurfacePredicate
     ~SurfacePredicate() { /* ... */ }
 
     bool operator()( Entity entity );
+
+    std::function<bool(Entity)> getFunction() const;
 };
 
 //---------------------------------------------------------------------------//
@@ -82,6 +84,8 @@ class BlockPredicate
     ~BlockPredicate() { /* ... */ }
 
     bool operator()( Entity entity );
+
+    std::function<bool(Entity)> getFunction() const;
 
   private:
 
@@ -105,6 +109,8 @@ class BoundaryPredicate
     ~BoundaryPredicate() { /* ... */ }
 
     bool operator()( Entity entity );
+
+    std::function<bool(Entity)> getFunction() const;
 
   private:
 

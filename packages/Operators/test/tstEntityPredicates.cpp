@@ -82,14 +82,14 @@ TEUCHOS_UNIT_TEST( BlockPredicate, block_predicate_test )
     TEST_ASSERT( !block_pred_3(p2) );
 
     std::function<bool(Entity)> block_pred_4 =
-	PredicateComposition::And( std::function<bool(Entity)>(block_pred_1), 
-				   std::function<bool(Entity)>(block_pred_2) );
+	PredicateComposition::And( block_pred_1.getFunction(), 
+				   block_pred_2.getFunction() );
     TEST_ASSERT( !block_pred_4(p1) );
     TEST_ASSERT( !block_pred_4(p2) );
 
     std::function<bool(Entity)> block_pred_5 =
-	PredicateComposition::Or( std::function<bool(Entity)>(block_pred_1), 
-				  std::function<bool(Entity)>(block_pred_2) );
+	PredicateComposition::Or( block_pred_1.getFunction(), 
+				  block_pred_2.getFunction() );
     TEST_ASSERT( block_pred_5(p1) );
     TEST_ASSERT( block_pred_5(p2) );
 }
@@ -127,14 +127,14 @@ TEUCHOS_UNIT_TEST( BoundPredicate, bound_predicate_test )
     TEST_ASSERT( !bound_pred_3(p2) );
 
     std::function<bool(Entity)> bound_pred_4 =
-	PredicateComposition::And( std::function<bool(Entity)>(bound_pred_1),
-				   std::function<bool(Entity)>(bound_pred_2) );
+	PredicateComposition::And( bound_pred_1.getFunction(),
+				   bound_pred_2.getFunction() );
     TEST_ASSERT( !bound_pred_4(p1) );
     TEST_ASSERT( !bound_pred_4(p2) );
 
     std::function<bool(Entity)> bound_pred_5 =
-	PredicateComposition::Or( std::function<bool(Entity)>(bound_pred_1), 
-				  std::function<bool(Entity)>(bound_pred_2) );
+	PredicateComposition::Or( bound_pred_1.getFunction(), 
+				  bound_pred_2.getFunction() );
     TEST_ASSERT( bound_pred_5(p1) );
     TEST_ASSERT( bound_pred_5(p2) );
 }
