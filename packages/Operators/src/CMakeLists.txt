@@ -16,18 +16,20 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_EntityPredicates.hpp
   DTK_CoarseGlobalSearch.hpp
   DTK_CoarseLocalSearch.hpp
+  DTK_EntityPredicates.hpp
+  DTK_EntitySelector.hpp
   DTK_FineLocalSearch.hpp
   DTK_FunctionSpace.hpp
   DTK_ParallelSearch.hpp
   ) 
 
 APPEND_SET(SOURCES
-  DTK_EntityPredicates.cpp
   DTK_CoarseGlobalSearch.cpp
   DTK_CoarseLocalSearch.cpp
+  DTK_EntityPredicates.cpp
+  DTK_EntitySelector.cpp
   DTK_FineLocalSearch.cpp
   DTK_FunctionSpace.cpp
   DTK_ParallelSearch.cpp

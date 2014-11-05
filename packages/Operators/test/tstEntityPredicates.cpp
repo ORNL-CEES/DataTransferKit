@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*! 
- * \file tstParallelSearch.cpp
+ * \file tstEntityPredicates.cpp
  * \author Stuart R. Slattery
- * \brief ParallelSearch unit tests.
+ * \brief EntityPredicates unit tests.
  */
 //---------------------------------------------------------------------------//
 

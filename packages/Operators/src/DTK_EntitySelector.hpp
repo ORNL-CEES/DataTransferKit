@@ -32,90 +32,70 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityPredicates.hpp
+ * \brief DTK_EntitySelector.hpp
  * \author Stuart R. Slattery
- * \brief Basic entity predicates.
+ * \brief Entity selector.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYPREDICATES_HPP
-#define DTK_ENTITYPREDICATES_HPP
+#ifndef DTK_ENTITYSELECTOR_HPP
+#define DTK_ENTITYSELECTOR_HPP
 
 #include <functional>
 
 #include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
-
-#include <Teuchos_Array.hpp>
+#include "DTK_EntityIterator.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class SurfacePredicate
-  \brief Predicates for selecting entities on a surface.
+  \class EntitySelector
+  \brief Space of a function.
+
+  EntitySelector binds the functional support of a field to a parallel vector
+  space.
 */
-class SurfacePredicate
-{
-  public:
-
-    SurfacePredicate() { /* ... */ }
-
-    ~SurfacePredicate() { /* ... */ }
-
-    bool operator()( Entity entity );
-
-    std::function<bool(Entity)> getFunction() const;
-};
-
 //---------------------------------------------------------------------------//
-/*!
-  \class BlockPredicate
-  \brief Predicates for selecting entities in a block.
-*/
-class BlockPredicate
+class EntitySelector
 {
   public:
 
-    BlockPredicate( const Teuchos::Array<int>& block_ids ) 
-	: d_block_ids( block_ids )
-    { /* ... */ }
+    /*!
+     * \brief Constructor.
+     */
+    EntitySelector( 
+	const EntityType entity_type,
+	const std::function<bool(Entity)>& select_function = selectAll );
 
-    ~BlockPredicate() { /* ... */ }
+    /*!
+     * \brief Destructor.
+     */
+    ~EntitySelector();
 
-    bool operator()( Entity entity );
+    /*!
+     * \brief Get the entity type to select.
+     */
+    EntityType entityType() const;
 
-    std::function<bool(Entity)> getFunction() const;
+    /*!
+     * \brief Get the selector function.
+     */
+    std::function<bool(Entity)> selectFunction() const;
+
+    /*!
+     * \brief Default select function.
+     */
+    static inline bool selectAll( Entity entity ) { return true; }
 
   private:
 
-    // Blocks
-    Teuchos::Array<int> d_block_ids;
-};
+    // The entity type to select.
+    EntityType d_entity_type;
 
-//---------------------------------------------------------------------------//
-/*!
-  \class BoundaryPredicate
-  \brief Predicates for selecting entities on a boundary.
-*/
-class BoundaryPredicate
-{
-  public:
-
-    BoundaryPredicate( const Teuchos::Array<int>& boundary_ids ) 
-	: d_boundary_ids( boundary_ids )
-    { /* ... */ }
-
-    ~BoundaryPredicate() { /* ... */ }
-
-    bool operator()( Entity entity );
-
-    std::function<bool(Entity)> getFunction() const;
-
-  private:
-
-    // Boundaries.
-    Teuchos::Array<int> d_boundary_ids;
+    // The selector function.
+    std::function<bool(Entity)> d_select_function;
 };
 
 //---------------------------------------------------------------------------//
@@ -124,8 +104,8 @@ class BoundaryPredicate
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_ENTITYPREDICATES_HPP
+#endif // end DTK_ENTITYSELECTOR_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityPredicates.hpp
+// end DTK_EntitySelector.hpp
 //---------------------------------------------------------------------------//
