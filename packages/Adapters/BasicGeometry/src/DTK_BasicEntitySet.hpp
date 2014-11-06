@@ -215,6 +215,9 @@ class BasicEntitySet : public EntitySet
     // Parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
+    // Physical dimension.
+    int d_physical_dim;
+
     // Id-to-dimension map.
     std::unordered_map<EntityId,int> d_entity_dims;
 

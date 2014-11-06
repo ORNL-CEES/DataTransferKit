@@ -101,8 +101,8 @@ class ParallelSearch
 	const EntityId domain_id, Teuchos::Array<EntityId>& range_ids ) const;
 
     /*!
-     * \brief Given a range entity id, get the ids of the domain entities that
-     * it mapped to.
+     * \brief Given a range entity id that was found on the local process, get
+     * the ids of the domain entities that it mapped to.
      */
     void getDomainEntitiesFromRange( 
 	const EntityId range_id, Teuchos::Array<EntityId>& domain_ids ) const;

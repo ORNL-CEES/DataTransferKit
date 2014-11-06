@@ -64,8 +64,11 @@ BasicEntitySetIterator::BasicEntitySetIterator(
     const std::function<bool(Entity)>& predicate )
     : d_map( map )
     , d_map_it( d_map->begin() )
-    , d_entity( &(d_map_it->second) )
 {
+    if ( d_map->size() > 0 )
+    {
+	d_entity = &(d_map_it->second);
+    }
     this->b_iterator_impl = NULL;
     this->b_predicate = predicate;
 }
@@ -76,8 +79,11 @@ BasicEntitySetIterator::BasicEntitySetIterator(
     const BasicEntitySetIterator& rhs )
     : d_map( rhs.d_map )
     , d_map_it( rhs.d_map_it )
-    , d_entity( &(d_map_it->second) )
 {
+    if ( d_map->size() > 0 )
+    {
+	d_entity = &(d_map_it->second);
+    }
     this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
 }
@@ -95,7 +101,10 @@ BasicEntitySetIterator& BasicEntitySetIterator::operator=(
     }
     d_map = rhs.d_map;
     d_map_it = rhs.d_map_it;
-    d_entity = &(d_map_it->second);
+    if ( d_map->size() > 0 )
+    {
+	d_entity = &(d_map_it->second);
+    }
     return *this;
 }
 
@@ -193,6 +202,7 @@ BasicEntitySet::BasicEntitySet(
     const Teuchos::RCP<const Teuchos::Comm<int> > comm,
     const int physical_dimension )
     : d_comm( comm )
+    , d_physical_dim( physical_dimension )
     , d_entities( 4 )
 { /* ... */ }
 
@@ -223,14 +233,7 @@ BasicEntitySet::communicator() const
 // Return the physical dimension of the entities in the set.
 int BasicEntitySet::physicalDimension() const
 {
-    for ( int i = 0; i < 4; ++i )
-    {
-	if ( !d_entities[i].empty() )
-	{
-	    return d_entities[i].begin()->second.physicalDimension();
-	}
-    }
-    return 0;
+    return d_physical_dim;
 }
 
 //---------------------------------------------------------------------------//

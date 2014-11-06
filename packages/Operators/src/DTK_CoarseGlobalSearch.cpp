@@ -99,7 +99,7 @@ void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
     // Assemble the local range bounding box.
     Teuchos::Tuple<double,6> range_box;
     assembleBoundingBox( range_iterator, range_box );
-	
+
     // Find the domain boxes it intersects with.
     Teuchos::Array<int> neighbor_ranks;
     Teuchos::Array<Teuchos::Tuple<double,6> > neighbor_boxes;

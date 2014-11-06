@@ -32,7 +32,7 @@
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( CoarseGlobalSearch, all_to_all_test )
+TEUCHOS_UNIT_TEST( CoarseGlobalSearch, all_to_one_test )
 {
     using namespace DataTransferKit;
 
@@ -45,7 +45,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, all_to_all_test )
     // Make a domain entity set.
     Teuchos::RCP<EntitySet> domain_set = 
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
-    int num_boxes = 5;
+    int num_boxes = (comm->getRank() == 0) ? 5 : 0;
     for ( int i = 0; i < num_boxes; ++i )
     {
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
@@ -90,28 +90,37 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, all_to_all_test )
 				 range_ids, range_ranks, range_centroids );
 
     // Check the results of the search.
-    int num_recv = num_points * comm_size;
-    TEST_EQUALITY( num_recv, range_ids.size() );
-    TEST_EQUALITY( num_recv, range_ranks.size() );
-    TEST_EQUALITY( 3*num_recv, range_centroids.size() );
-    for ( int i = 0; i < num_recv; ++i )
+    if ( 0 == comm_rank )
     {
-	TEST_EQUALITY( range_centroids[3*i], 0.5 );
-	TEST_EQUALITY( range_centroids[3*i+1], 0.5 );
-	TEST_EQUALITY( range_ids[i], 
-		       num_points*range_ranks[i] + (range_centroids[3*i+2]-0.5) );
-    }
-    std::sort( range_ids.begin(), range_ids.end() );
-    std::sort( range_ranks.begin(), range_ranks.end() );
-    int test_id = 0;
-    int idx = 0;
-    for ( int i = 0; i < comm_size; ++i )
-    {
-	for ( int j = 0; j < num_points; ++j, ++test_id, ++idx )
+	int num_recv = num_points * comm_size;
+	TEST_EQUALITY( num_recv, range_ids.size() );
+	TEST_EQUALITY( num_recv, range_ranks.size() );
+	TEST_EQUALITY( 3*num_recv, range_centroids.size() );
+	for ( int i = 0; i < num_recv; ++i )
 	{
-	    TEST_EQUALITY( Teuchos::as<int>(range_ids[idx]), test_id );
-	    TEST_EQUALITY( range_ranks[idx], i );
+	    TEST_EQUALITY( range_centroids[3*i], 0.5 );
+	    TEST_EQUALITY( range_centroids[3*i+1], 0.5 );
+	    TEST_EQUALITY( range_ids[i], 
+			   num_points*range_ranks[i] + (range_centroids[3*i+2]-0.5) );
 	}
+	std::sort( range_ids.begin(), range_ids.end() );
+	std::sort( range_ranks.begin(), range_ranks.end() );
+	int test_id = 0;
+	int idx = 0;
+	for ( int i = 0; i < comm_size; ++i )
+	{
+	    for ( int j = 0; j < num_points; ++j, ++test_id, ++idx )
+	    {
+		TEST_EQUALITY( Teuchos::as<int>(range_ids[idx]), test_id );
+		TEST_EQUALITY( range_ranks[idx], i );
+	    }
+	}
+    }
+    else
+    {
+	TEST_EQUALITY( 0, range_ids.size() );
+	TEST_EQUALITY( 0, range_ranks.size() );
+	TEST_EQUALITY( 0, range_centroids.size() );
     }
 }
 

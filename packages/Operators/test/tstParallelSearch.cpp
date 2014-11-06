@@ -32,7 +32,7 @@
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( ParallelSearch, all_to_all_test )
+TEUCHOS_UNIT_TEST( ParallelSearch, all_to_one_test )
 {
     using namespace DataTransferKit;
 
@@ -45,7 +45,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, all_to_all_test )
     // Make a domain entity set.
     Teuchos::RCP<EntitySet> domain_set = 
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
-    int num_boxes = 5;
+    int num_boxes = (comm->getRank() == 0) ? 5 : 0;
     for ( int i = 0; i < num_boxes; ++i )
     {
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
@@ -105,23 +105,31 @@ TEUCHOS_UNIT_TEST( ParallelSearch, all_to_all_test )
 	    local_range.push_back( range_entities[n] );
 	}
     }
-    TEST_EQUALITY( local_range.size(), num_points*comm_size );
-    Teuchos::ArrayView<const double> range_coords;
-    Teuchos::Array<EntityId> domain_entities;
-    for ( int i = 0; i < num_points*comm_size; ++i )
+
+    if ( 0 == comm_rank )
     {
-	parallel_search.getDomainEntitiesFromRange(
-	    local_range[i], domain_entities );
-	TEST_EQUALITY( 1, domain_entities.size() );
-	TEST_EQUALITY( local_range[i] % num_points, domain_entities[0] );
-	parallel_search.rangeParametricCoordinatesInDomain( 
-	    domain_entities[0], local_range[i], range_coords );
-	TEST_EQUALITY( range_coords[0], 0.5 );
-	TEST_EQUALITY( range_coords[1], 0.5 );
-	TEST_EQUALITY( range_coords[2], domain_entities[0] + 0.5 );
-	TEST_EQUALITY( Teuchos::as<int>(
-			   (local_range[i] - domain_entities[0])/num_points),
-		       parallel_search.rangeEntityOwnerRank(local_range[i]) );
+	TEST_EQUALITY( local_range.size(), num_points*comm_size );
+	Teuchos::ArrayView<const double> range_coords;
+	Teuchos::Array<EntityId> domain_entities;
+	for ( int i = 0; i < num_points*comm_size; ++i )
+	{
+	    parallel_search.getDomainEntitiesFromRange(
+		local_range[i], domain_entities );
+	    TEST_EQUALITY( 1, domain_entities.size() );
+	    TEST_EQUALITY( local_range[i] % num_points, domain_entities[0] );
+	    parallel_search.rangeParametricCoordinatesInDomain( 
+		domain_entities[0], local_range[i], range_coords );
+	    TEST_EQUALITY( range_coords[0], 0.5 );
+	    TEST_EQUALITY( range_coords[1], 0.5 );
+	    TEST_EQUALITY( range_coords[2], domain_entities[0] + 0.5 );
+	    TEST_EQUALITY( Teuchos::as<int>(
+			       (local_range[i] - domain_entities[0])/num_points),
+			   parallel_search.rangeEntityOwnerRank(local_range[i]) );
+	}
+    }
+    else
+    {
+	TEST_EQUALITY( local_range.size(), 0 );
     }
 }
 
