@@ -103,7 +103,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 			    domain_space->entitySet()->physicalDimension(),
 			    domain_iterator,
 			    domain_space->localMap(),
-			    parameters );
+			    *parameters );
 
     // Get an iterator over the range entities.
     EntityIterator range_iterator;
@@ -115,35 +115,19 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     } 
 
     // Search the domain with the range.
-    psearch->search( range_iterator, range_space->localMap(), parameters );
+    psearch.search( range_iterator, range_space->localMap(), *parameters );
 
-    // Build the row map for the coupling matrix. 
-    std::unordered_set<std::size_t> range_dof_set;
-    EntityIterator range_it;
-    EntityIterator range_begin = range_iterator.begin();
-    EntityIterator range_end = range_iterator.end();
-    Teuchos::Array<std::size_t> range_dof_ids;
-    for ( range_it = range_begin; range_it != range_end; ++range_it )
-    {
-	// Get the DOFs supporting this range entity.
-	range_space->shapeFunction()->entityDOFIds( 
-	    *range_it, range_dof_ids );
+    // Build the range map for the coupling matrix. 
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_map =
+	createDOFMap( range_iterator, range_space->shapeFunction() );
 
-	// Consistent interpolation requires one DOF per range entity.
-	DTK_CHECK( 1 == range_dof_ids.size() );
-
-	// Add to the unique list of DOF ids.
-	range_dof_set.insert( range_dof_ids.begin(), range_dof_ids.end() );
-    }
-    range_dof_ids.resize( range_dof_set.size() );
-    std::copy( range_dof_set.begin(), range_dof_set.end(), range_dof_ids );
-    range_dof_set.clear();
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > row_map =
-	Tpetra::createNonContigMap<int,std::size_t>( range_dof_ids(), d_comm );
+    // Build the domain map for the coupling matrix. 
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_map =
+	createDOFMap( domain_iterator, domain_space->shapeFunction() );
 
     // Allocate the coupling matrix.
     Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,std::size_t> > coupling_matrix =
-	Tpetra::createCrsMatrix<Scalar,int,std::size_t>( row_map );
+	Tpetra::createCrsMatrix<Scalar,int,std::size_t>( range_map );
 
     // Construct the entries of the coupling matrix.
     Teuchos::Array<EntityId> domain_entity_ids;
@@ -152,13 +136,18 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     Entity domain_entity;
     Teuchos::ArrayView<const double> range_parametric_coords;
     Teuchos::Array<double> domain_shape_values;
-    Teuchos::Array<std::size_t>::const_iterator range_dof_id_it;
+    Teuchos::ArrayView<const std::size_t> range_dof_ids = 
+	range_map->getNodeElementList();
+    Teuchos::ArrayView<const std::size_t>::const_iterator range_dof_id_it;
+    EntityIterator range_it;
+    EntityIterator range_begin = range_iterator.begin();
+    EntityIterator range_end = range_iterator.end();
     for ( range_it = range_begin, range_dof_id_it = range_dof_ids.begin(); 
 	  range_it != range_end; 
 	  ++range_it, ++range_dof_id_it )
     {
 	// Get the domain entities this to which this range entity mapped.
-	psearch->getDomainEntitiesFromRange( 
+	psearch.getDomainEntitiesFromRange( 
 	    range_it->id(), domain_entity_ids );
 
 	// For now, assume a continuous interpolant and use the first entity,
@@ -175,7 +164,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 
 	    // Get the parametric coordinates of the range entity in the
 	    // domain entity.
-	    psearch->rangeParametricCoordinatesInDomain(
+	    psearch.rangeParametricCoordinatesInDomain(
 		domain_entity.id(), range_it->id(), range_parametric_coords );
 
 	    // Evaluate the shape function at the coordinates.
@@ -191,18 +180,49 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     }
 
     // Finalize the coupling matrix.
-    coupling_matrix->fillComplete();
+    coupling_matrix->fillComplete( domain_map, range_map );
 
     // Wrap the coupling matrix with the Thyra interface.
-    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > thyra_space =
-	Thyra::createVectorSpace<double>( row_map );
-    Teuchos::RCP<Thyra::TpetraLinearOp<double,int,int> > thyra_coupling_matrix =
-	Teuchos::rcp( new Thyra::TpetraLinearOp<double,int,int>() );
-    thyra_coupling_matrix->initialize( thyra_space, thyra_space, coupling_matrix );
+    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space =
+	Thyra::createVectorSpace<Scalar>( coupling_matrix->getRangeMap() );
+    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_domain_vector_space =
+	Thyra::createVectorSpace<Scalar>( coupling_matrix->getDomainMap() );
+    Teuchos::RCP<Thyra::TpetraLinearOp<Scalar,int,std::size_t> > 
+	thyra_coupling_matrix =
+	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,int,std::size_t>() );
+    thyra_coupling_matrix->initialize( thyra_range_vector_space, 
+				       thyra_domain_vector_space, 
+				       coupling_matrix );
 
     // Set the coupling matrix with the base class.
     this->b_coupling_matrix = thyra_coupling_matrix;
     DTK_ENSURE( Teuchos::nonnull(this->b_coupling_matrix) );
+}
+
+//---------------------------------------------------------------------------//
+//! Given an entity iterator and a shape function for those entities,
+//! compute the parallel DOF map.
+template<class Scalar>
+Teuchos::RCP<const Tpetra::Map<int,std::size_t> > 
+ConsistentInterpolationOperator<Scalar>::createDOFMap( 
+    const EntityIterator& entity_iterator,
+    const Teuchos::RCP<EntityShapeFunction>& shape_function ) const
+{
+    std::unordered_set<std::size_t> entity_dof_set;
+    EntityIterator entity_it;
+    EntityIterator entity_begin = entity_iterator.begin();
+    EntityIterator entity_end = entity_iterator.end();
+    Teuchos::Array<std::size_t> entity_dof_ids;
+    for ( entity_it = entity_begin; entity_it != entity_end; ++entity_it )
+    {
+	shape_function->entityDOFIds( *entity_it, entity_dof_ids );
+	entity_dof_set.insert( entity_dof_ids.begin(), entity_dof_ids.end() );
+    }
+    entity_dof_ids.resize( entity_dof_set.size() );
+    entity_dof_ids.assign( entity_dof_set.begin(), entity_dof_set.end() );
+    entity_dof_set.clear();
+    return Tpetra::createNonContigMap<int,std::size_t>( 
+	entity_dof_ids(), d_comm );
 }
 
 //---------------------------------------------------------------------------//

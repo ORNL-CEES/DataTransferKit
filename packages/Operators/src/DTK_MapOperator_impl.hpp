@@ -116,7 +116,7 @@ bool MapOperator<Scalar>::opSupportedImpl( Thyra::EOpTransp M_trans ) const
 
 //---------------------------------------------------------------------------//
 // Apply the map operator to data defined on the entities by computing g =
-// Minv*(v-A*f).
+// Minv*(v+A*f).
 template<class Scalar>
 void MapOperator<Scalar>::applyImpl( 
     const Thyra::EOpTransp M_trans,
@@ -139,22 +139,26 @@ void MapOperator<Scalar>::applyImpl(
 
     // Make a work vector.
     Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > work = 
-	b_forcing_vector->clone_mv();
+	Thyra::createMembers( b_coupling_matrix->range(),
+			      domain_dofs.domain()->dim() );
 
     // A*f
+    DTK_CHECK( domain_dofs.range()->isCompatible(
+		   *(b_coupling_matrix->domain()) ) );
     b_coupling_matrix->apply( 
 	Thyra::NOTRANS, domain_dofs, work.ptr(), 1.0, 0.0 );
 
-    // v-A*f
-    Thyra::Vt_S( work.ptr(), -1.0 );
+    // v+A*f
     if ( Teuchos::nonnull(b_forcing_vector) )
     {
 	Thyra::Vp_V( work.ptr(), *b_forcing_vector );
     }
 
-    // Minv*(v-A*f)
+    // Minv*(v+A*f)
     if ( Teuchos::nonnull(b_mass_matrix_inv) )
     {
+	DTK_CHECK( work->range()->isCompatible(
+		       *(b_mass_matrix_inv->domain()) ) );
 	b_mass_matrix_inv->apply( 
 	    Thyra::NOTRANS, *work, range_dofs, 1.0, 0.0 );
     }

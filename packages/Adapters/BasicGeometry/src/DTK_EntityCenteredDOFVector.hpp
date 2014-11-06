@@ -83,7 +83,7 @@ class EntityCenteredDOFVector
      * (cast as std::size_t instead of EntityId).
      * \param dof_data Reference counted array of the DOF data for the given
      * entity ids.
-     * \param lda Single vecto length. Should be the same as the size of
+     * \param lda Single vector length. Should be the same as the size of
      * entity_ids.
      * \param num_vectors The number of vectors in the multivector.
      */

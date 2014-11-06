@@ -238,7 +238,7 @@ TEUCHOS_UNIT_TEST( MapOperator, apply_test )
 	Teuchos::ArrayRCP<const double> y_view = Y->getVector(n)->getData();
 	for ( int i = 0; i < local_size; ++i )
 	{
-	    TEST_FLOATING_EQUALITY( y_view[i], alpha*a*(c - x_view[i]*b) + beta,
+	    TEST_FLOATING_EQUALITY( y_view[i], alpha*a*(c + x_view[i]*b) + beta,
 				    1.0e-14 );
 	}
     }
@@ -265,7 +265,7 @@ TEUCHOS_UNIT_TEST( MapOperator, apply_test )
 	Teuchos::ArrayRCP<const double> z_view = Z->getVector(n)->getData();
 	for ( int i = 0; i < local_size; ++i )
 	{
-	    TEST_FLOATING_EQUALITY( z_view[i], alpha*a*(c - x_view[i]*b) + beta,
+	    TEST_FLOATING_EQUALITY( z_view[i], alpha*a*(c + x_view[i]*b) + beta,
 				    1.0e-14 );
 	}
     }

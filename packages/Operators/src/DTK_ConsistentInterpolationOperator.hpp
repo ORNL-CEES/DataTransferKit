@@ -48,6 +48,8 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
 
+#include <Tpetra_Map.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -93,14 +95,22 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
 
   private:
 
+    //! Given an entity iterator and a shape function for those entities,
+    //! compute the parallel DOF map.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > 
+    createDOFMap( const EntityIterator& entity_iterator,
+		  const Teuchos::RCP<EntityShapeFunction>& shape_function ) const;
+
+  private:
+
     // Parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
     // The domain entity selector.
-    EntitySelector d_domain_selector;
+    Teuchos::RCP<EntitySelector> d_domain_selector;
 
     // The range entity selector.
-    EntitySelector d_range_selector;
+    Teuchos::RCP<EntitySelector> d_range_selector;
 };
 
 //---------------------------------------------------------------------------//
