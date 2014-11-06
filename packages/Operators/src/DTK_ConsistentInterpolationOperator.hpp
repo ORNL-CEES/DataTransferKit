@@ -32,84 +32,75 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityShapeFunction.hpp
+ * \brief DTK_ConsistentInterpolationOperator.hpp
  * \author Stuart R. Slattery
- * \brief Shape function interface.
+ * \brief Consistent interpolation operator.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SHAPEFUNCTION_HPP
-#define DTK_SHAPEFUNCTION_HPP
+#ifndef DTK_CONSISTENTINTERPOLATIONOPERATOR_HPP
+#define DTK_CONSISTENTINTERPOLATIONOPERATOR_HPP
 
-#include "DTK_Entity.hpp"
+#include "DTK_MapOperator.hpp"
+#include "DTK_Types.hpp"
+#include "DTK_EntitySelector.hpp"
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_Array.hpp>
+#include <Teuchos_ParameterList.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class EntityShapeFunction
-  \brief Shape function interface.
+  \class ConsistentInterpolationOperator
+  \brief Map operator interface.
 
-  EntityShapeFunction binds DOFs to a vector space.
+  A map operator maps a field in one entity set to another entity set.
 */
 //---------------------------------------------------------------------------//
-class EntityShapeFunction
+template<class Scalar>
+class ConsistentInterpolationOperator : public MapOperator<Scalar>
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    EntityShapeFunction();
+    ConsistentInterpolationOperator( 
+	const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+	const Teuchos::RCP<EntitySelector>& domain_selector,
+	const Teuchos::RCP<EntitySelector>& range_selector );
 
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityShapeFunction();
+    ~ConsistentInterpolationOperator();
 
-    /*!
-     * \brief Given an entity, get the ids of the degrees of freedom in the
-     * vector space supporting its shape function.
-     * \param entity Get the degrees of freedom for this entity.
-     * \param dof_ids Return the ids of the degrees of freedom in the parallel
-     * vector space supporting the entities.
+    /*
+     * \brief Setup the map operator from a domain entity set and a range
+     * entity set.
+     * \param domain_function The function that contains the data that will be
+     * sent to the range. Must always be nonnull but the pointers it contains
+     * may be null of no entities are on-process.
+     * \param range_space The function that will receive the data from the
+     * domain. Must always be nonnull but the pointers it contains
+     * may be null of no entities are on-process.
+     * \param parameters Parameters for the setup.
      */
-    virtual void entityDOFIds( const Entity& entity,
-			       Teuchos::Array<std::size_t>& dof_ids ) const;
+    void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
+		const Teuchos::RCP<FunctionSpace>& range_space,
+		const Teuchos::RCP<Teuchos::ParameterList>& parameters );
 
-    /*!
-     * \brief Given an entity and a reference point, evaluate the shape
-     * function of the entity at that point.
-     * \param entity Evaluate the shape function of this entity.
-     * \param reference_point Evaluate the shape function at this point
-     * given in reference coordinates.
-     * \param values Entity shape function evaluated at the reference
-     * point. 
-     */
-    virtual void evaluateValue( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<double>& values ) const;
+  private:
 
-    /*!
-     * \brief Given an entity and a reference point, evaluate the gradient of
-     * the shape function of the entity at that point. A default
-     * implementation is provided using a finite difference scheme.
-     * \param entity Evaluate the shape function of this entity.
-     * \param reference_point Evaluate the shape function at this point
-     * given in reference coordinates.
-     * \param gradients Entity shape function gradients evaluated at the reference
-     * point. Return these ordered with respect to those return by
-     * getDOFIds() such that gradients[N][D] gives the gradient value of the
-     * Nth DOF in the Dth spatial dimension.
-     */
-    virtual void evaluateGradient( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
+    // Parallel communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
+
+    // The domain entity selector.
+    EntitySelector d_domain_selector;
+
+    // The range entity selector.
+    EntitySelector d_range_selector;
 };
 
 //---------------------------------------------------------------------------//
@@ -117,9 +108,15 @@ class EntityShapeFunction
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
 
-#endif // end DTK_SHAPEFUNCTION_HPP
+#include "DTK_ConsistentInterpolationOperator_impl.hpp"
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityShapeFunction.hpp
+
+#endif // end DTK_CONSISTENTINTERPOLATIONOPERATOR_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_ConsistentInterpolationOperator.hpp
 //---------------------------------------------------------------------------//

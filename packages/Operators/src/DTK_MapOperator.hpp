@@ -78,9 +78,11 @@ class MapOperator : public Thyra::LinearOpBase<Scalar>
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
      * \param domain_function The function that contains the data that will be
-     * sent to the range.
-     * \param range_set The function that will receive the data from the
-     * domain. 
+     * sent to the range. Must always be nonnull but the pointers it contains
+     * may be null of no entities are on-process.
+     * \param range_space The function that will receive the data from the
+     * domain. Must always be nonnull but the pointers it contains
+     * may be null of no entities are on-process.
      * \param parameters Parameters for the setup.
      */
     virtual void 
