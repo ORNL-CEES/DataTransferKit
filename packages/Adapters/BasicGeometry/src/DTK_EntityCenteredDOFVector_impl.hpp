@@ -61,7 +61,7 @@ EntityCenteredDOFVector::createThyraMultiVector(
     const std::size_t lda,
     const std::size_t num_vectors )
 {
-    DTK_REQUIRE( lda*num_vectors == dof_data.size() );
+    DTK_REQUIRE( lda*num_vectors == Teuchos::as<std::size_t>(dof_data.size()) );
 
     // Construct a map.
     Teuchos::RCP<const Tpetra::Map<int,std::size_t> > map =
