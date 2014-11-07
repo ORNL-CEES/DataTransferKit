@@ -136,106 +136,67 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 
     // Determine the DOF ids for the range entities found in the local domain
     // on this process and the number of domain entities they were found in
-    // globally. This creates the requirement of uniquely owned domain and
-    // range entities input into the map - no ghosts.
+    // globally for averaging. This creates the requirement of uniquely owned
+    // domain and range entities input into the map - no ghosts.
     std::unordered_map<EntityId,std::size_t> range_dof_id_map;
     std::unordered_map<EntityId,std::size_t> range_dof_count_map;
     {
-	// Extract the set of local range entities that were found in the
-	// domain entities on this process.
-	std::unordered_set<EntityId> local_range_id_set;
-	Teuchos::Array<EntityId> range_entity_ids;
-	EntityIterator domain_it;
-	EntityIterator domain_begin = domain_iterator.begin();
-	EntityIterator domain_end = domain_iterator.end();
-	for ( domain_it = domain_begin; domain_it != domain_end; ++domain_it )
-	{
-	    psearch.getRangeEntitiesFromDomain( 
-		domain_it->id(), range_entity_ids );
-	    local_range_id_set.insert( 
-		range_entity_ids.begin(), range_entity_ids.end() );
-	}
-	Teuchos::Array<EntityId> local_range_ids( local_range_id_set.size() );
-	local_range_ids.assign( 
-	    local_range_id_set.begin(), local_range_id_set.end() );
-	local_range_id_set.clear();
-
-	// Get the owning ranks of the range entities found in the domain on
-	// this process.
-	Teuchos::Array<int> local_range_ranks( local_range_ids.size() );
-	Teuchos::Array<EntityId>::const_iterator local_range_id_it;
-	Teuchos::Array<int>::iterator local_range_rank_it;
-	for ( local_range_id_it = local_range_ids.begin(),
-	    local_range_rank_it = local_range_ranks.begin();
-	      local_range_id_it != local_range_ids.end();
-	      ++local_range_id_it, ++local_range_rank_it )
-	{
-	    *local_range_rank_it = 
-		psearch.rangeEntityOwnerRank( *local_range_id_it );
-	}
-
-	// Create a communication plan to move the range DOF ids.
-	Tpetra::Distributor range_to_domain_dist( d_comm );
-	Teuchos::ArrayView<const EntityId> local_range_ids_view =
-	    local_range_ids();
-	Teuchos::ArrayView<const int> local_range_ranks_view =
-	    local_range_ranks();
-	Teuchos::Array<EntityId> export_ids;
+	// Extract the set of local range entities that were found in domain
+	// entities.
 	Teuchos::Array<int> export_ranks;
-	range_to_domain_dist.createFromRecvs( local_range_ids_view,
-					      local_range_ranks_view,
-					      export_ids,
-					      export_ranks );
-
-	// Make a count of export ids.
-	int num_export = export_ids.size();
-	Teuchos::Array<std::size_t> export_counts( num_export );
-	Teuchos::Array<std::size_t>::iterator export_count_it;
-	Teuchos::Array<EntityId>::const_iterator export_id_it;
-	for ( export_id_it = export_ids.begin(),
-	   export_count_it = export_counts.begin();
-	      export_id_it != export_ids.end();
-	      ++export_id_it, ++export_count_it )
-	{
-	    *export_count_it = std::count( export_ids.begin(), 
-					   export_ids.end(),
-					   *export_id_it );
-	}
-
-	// Extract the range dof ids.
-	Teuchos::Array<std::size_t> export_data( 3*num_export );
+	Teuchos::Array<std::size_t> export_data;
+	Teuchos::Array<EntityId> domain_ids;
+	Teuchos::Array<EntityId>::const_iterator domain_id_it;
 	Teuchos::Array<std::size_t> range_dof_ids;
-	Entity range_entity;
-	for ( int i = 0; i < num_export; ++i )
+	EntityIterator range_it;
+	EntityIterator range_begin = range_iterator.begin();
+	EntityIterator range_end = range_iterator.end();
+	for ( range_it = range_begin;
+	      range_it != range_end;
+	      ++range_it )
 	{
-	    range_space->entitySet()->getEntity( export_ids[i], range_entity );
-	    range_space->shapeFunction()->entityDOFIds(
-		range_entity, range_dof_ids );
-	    DTK_CHECK( 1 == range_dof_ids.size() );
-	    export_data[3*i] = range_dof_ids[0];
-	    export_data[3*i+1] = Teuchos::as<std::size_t>(export_ids[i]);
-	    export_data[3*i+2] = export_counts[i];
+	    psearch.getDomainEntitiesFromRange( range_it->id(), domain_ids );
+
+	    for ( domain_id_it = domain_ids.begin();
+		  domain_id_it != domain_ids.end();
+		  ++domain_id_it )
+	    {
+		range_space->shapeFunction()->entityDOFIds(
+		    *range_it, range_dof_ids );
+		DTK_CHECK( 1 == range_dof_ids.size() );
+
+		export_ranks.push_back( 
+		    psearch.domainEntityOwnerRank(*domain_id_it) );
+
+		export_data.push_back( range_dof_ids[0] );
+		export_data.push_back(
+		    Teuchos::as<std::size_t>(range_it->id()) );
+		export_data.push_back(
+		    Teuchos::as<std::size_t>(domain_ids.size()) );
+	    }
 	}
 
-	// Redistribute the range entity DOF ids to the domain parallel
+	// Communicate the range entity DOF data back to the domain parallel
 	// decomposition.
-	int num_import = local_range_ids.size();
+	Tpetra::Distributor range_to_domain_dist( d_comm );
+	int num_import = range_to_domain_dist.createFromSends( export_ranks() );
+	Teuchos::Array<std::size_t> import_data( 3*num_import );
 	Teuchos::ArrayView<const std::size_t> export_data_view = export_data();
-	Teuchos::Array<std::size_t> imported_dof_ids( 3*num_import );
-	range_to_domain_dist.doPostsAndWaits( 
-	    export_data_view, 3, imported_dof_ids() );
+	range_to_domain_dist.doPostsAndWaits( export_data_view,
+					      3,
+					      import_data() );
 
 	// Map the range entities to their dof ids.
 	for ( int i = 0; i < num_import; ++i )
 	{
 	    range_dof_id_map.insert(
 		std::pair<EntityId,std::size_t>(
-		    Teuchos::as<EntityId>(imported_dof_ids[3*i+1]),
-		    imported_dof_ids[3*i]) );
+		    Teuchos::as<EntityId>(import_data[3*i+1]),
+		    import_data[3*i]) );
 	    range_dof_count_map.insert(
 		std::pair<EntityId,std::size_t>(
-		    Teuchos::as<EntityId>(imported_dof_ids[3*i+1]),
-		    imported_dof_ids[3*i+2]) );
+		    Teuchos::as<EntityId>(import_data[3*i+1]),
+		    import_data[3*i+2]) );
 	}
     }
 
@@ -263,6 +224,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	// Get the range entities that mapped into this domain entity.
 	psearch.getRangeEntitiesFromDomain( domain_it->id(), range_entity_ids );
 
+	// Sum into the global coupling matrix row for each domain.
 	for ( range_entity_id_it = range_entity_ids.begin();
 	      range_entity_id_it != range_entity_ids.end();
 	      ++range_entity_id_it )

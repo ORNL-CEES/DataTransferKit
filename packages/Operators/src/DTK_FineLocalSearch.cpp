@@ -74,13 +74,7 @@ void FineLocalSearch::search(
     Teuchos::Array<Entity>& parents,
     Teuchos::Array<double>& reference_coordinates ) const
 {
-    bool return_all = false;
-    if ( parameters.isParameter("Fine Local Search Return All") )
-    {
-	return_all = parameters.get<bool>("Fine Local Search Return All");
-    }
-    
-    parents.clear();
+   parents.clear();
     reference_coordinates.clear();
     int physical_dim = point.size();
     Teuchos::Array<double> ref_point( physical_dim );
@@ -103,10 +97,6 @@ void FineLocalSearch::search(
 		    for ( int d = 0; d < physical_dim; ++d )
 		    {
 			reference_coordinates.push_back( ref_point[d] );
-		    }
-		    if ( !return_all )
-		    {
-			return;
 		    }
 		}
 	    }

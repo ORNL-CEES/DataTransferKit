@@ -41,6 +41,8 @@
 #include "DTK_ParallelSearch.hpp"
 #include "DTK_DBC.hpp"
 
+#include <Tpetra_Distributor.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -51,10 +53,11 @@ ParallelSearch::ParallelSearch(
     const EntityIterator& domain_iterator,
     const Teuchos::RCP<EntityLocalMap>& domain_local_map,
     const Teuchos::ParameterList& parameters )
-    : d_physical_dim( physical_dimension )
+    : d_comm( comm )
+    , d_physical_dim( physical_dimension )
 {
     d_coarse_global_search = Teuchos::rcp(
-	new CoarseGlobalSearch(comm, physical_dimension, 
+	new CoarseGlobalSearch(d_comm, physical_dimension, 
 			       domain_iterator, parameters) );
 
     // Only do the local search if there are local domain entities.
@@ -81,6 +84,9 @@ void ParallelSearch::search(
     const Teuchos::RCP<EntityLocalMap>& range_local_map,
     const Teuchos::ParameterList& parameters )
 {
+    // Empty range flag.
+    d_empty_range = ( 0 == range_iterator.size() );
+
     // Reset the state of the object.
     d_range_owner_ranks.clear();
     d_domain_to_range_map.clear();
@@ -96,6 +102,8 @@ void ParallelSearch::search(
 	range_entity_ids, range_owner_ranks, range_centroids );
 
     // Only do the local search if there are local domain entities.
+    Teuchos::Array<int> export_range_ranks;
+    Teuchos::Array<EntityId> export_data;
     if ( !d_empty_domain )
     {
 	// For each range centroid, perform a local search.
@@ -129,14 +137,12 @@ void ParallelSearch::search(
 	    num_parents = domain_parents.size();
 	    for ( int p = 0; p < num_parents; ++p )
 	    {
+		// Store the range data in the domain parallel decomposition.
 		std::pair<EntityId,int> range_rank(
 		    range_entity_ids[n], range_owner_ranks[n] );
 
 		std::pair<EntityId,EntityId> domain_range(
 		    domain_parents[p].id(), range_entity_ids[n] );
-
-		std::pair<EntityId,EntityId> range_domain(
-		    range_entity_ids[n], domain_parents[p].id() );
 
 		local_coords().assign( 
 		    reference_coordinates(d_physical_dim*p,d_physical_dim) );
@@ -145,8 +151,15 @@ void ParallelSearch::search(
 
 		d_range_owner_ranks.insert( range_rank );
 		d_domain_to_range_map.insert( domain_range );
-		d_range_to_domain_map.insert( range_domain );
 		ref_map.insert( domain_ref_pair );
+
+		// Extract the data to communicate back to the range parallel
+		// decomposition. 
+		export_range_ranks.push_back( range_owner_ranks[n] );
+		export_data.push_back( range_entity_ids[n] );
+		export_data.push_back( domain_parents[p].id() );
+		export_data.push_back( 
+		    Teuchos::as<EntityId>(d_comm->getRank()) );
 	    }
 	    if ( num_parents > 0 )
 	    {
@@ -156,6 +169,28 @@ void ParallelSearch::search(
 		d_parametric_coords.insert( range_ref_pair );
 	    }
 	}
+    }
+
+    // Back-communicate the domain entities in which we found each range
+    // entity to complete the mapping.
+    Tpetra::Distributor domain_to_range_dist( d_comm );
+    int num_import = 
+	domain_to_range_dist.createFromSends( export_range_ranks() );
+    Teuchos::Array<EntityId> domain_data( 3.0*num_import );
+    Teuchos::ArrayView<const EntityId> export_data_view = export_data();
+    domain_to_range_dist.doPostsAndWaits( export_data_view, 3, domain_data() );
+
+    // Store the domain data in the range parallel decomposition.
+    for ( int i = 0; i < num_import; ++i )
+    {
+	std::pair<EntityId,int> domain_rank(
+	    domain_data[3*i+1], domain_data[3*i+2] );
+
+	std::pair<EntityId,EntityId> range_domain(
+	    domain_data[3*i], domain_data[3*i+1] );
+
+	d_domain_owner_ranks.insert( domain_rank );
+	d_range_to_domain_map.insert( range_domain );
     }
 }
 
@@ -183,7 +218,7 @@ void ParallelSearch::getDomainEntitiesFromRange(
     const EntityId range_id,
     Teuchos::Array<EntityId>& domain_ids ) const
 {
-    DTK_REQUIRE( !d_empty_domain );
+    DTK_REQUIRE( !d_empty_range );
     auto range_pair = d_range_to_domain_map.equal_range( range_id );
     domain_ids.resize( std::distance(range_pair.first,range_pair.second) );
     auto domain_it = domain_ids.begin();
@@ -202,6 +237,15 @@ int ParallelSearch::rangeEntityOwnerRank( const EntityId range_id ) const
     DTK_REQUIRE( !d_empty_domain );
     DTK_REQUIRE( d_range_owner_ranks.count(range_id) );
     return d_range_owner_ranks.find(range_id)->second;
+}
+
+//---------------------------------------------------------------------------//
+// Get the owner rank of a given domain entity.
+int ParallelSearch::domainEntityOwnerRank( const EntityId domain_id ) const
+{
+    DTK_REQUIRE( !d_empty_range );
+    DTK_REQUIRE( d_domain_owner_ranks.count(domain_id) );
+    return d_domain_owner_ranks.find(domain_id)->second;
 }
 
 //---------------------------------------------------------------------------//

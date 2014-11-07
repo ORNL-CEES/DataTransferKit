@@ -65,6 +65,10 @@ namespace DataTransferKit
   predicate. The result of the search is a graph mapping the domain to the
   range and the parametric coordinates of the range entity centroids in their
   respective domain entities.
+
+  The search has two simultaneous states: one in the parallel decomposition of
+  the domain and one in the parallel decomposition of the range. The interface
+  functions assume one decomposition or the other.
 */
 //---------------------------------------------------------------------------//
 class ParallelSearch
@@ -94,23 +98,28 @@ class ParallelSearch
 		 const Teuchos::ParameterList& parameters );
 
     /*!
-     * \brief Given a domain entity id, get the ids of the range entities that
-     * mapped to it.
+     * \brief Given a domain entity id on a domain process, get the ids of the
+     * range entities that mapped to it.
      */
     void getRangeEntitiesFromDomain( 
 	const EntityId domain_id, Teuchos::Array<EntityId>& range_ids ) const;
 
     /*!
-     * \brief Given a range entity id that was found on the local process, get
-     * the ids of the domain entities that it mapped to.
+     * \brief Given a range entity id on a range process, get the ids of the
+     * domain entities that it mapped to.
      */
     void getDomainEntitiesFromRange( 
 	const EntityId range_id, Teuchos::Array<EntityId>& domain_ids ) const;
 
     /*!
-     * \brief Get the owner rank of a given range entity.
+     * \brief Get the owner rank of a given range entity on a domain process.
      */
     int rangeEntityOwnerRank( const EntityId range_id ) const;
+
+    /*!
+     * \brief Get the owner rank of a given domain entity on a rank process.
+     */
+    int domainEntityOwnerRank( const EntityId domain_id ) const;
 
     /*!
      * \brief Get the parametric coordinates of the range entities in the
@@ -123,11 +132,17 @@ class ParallelSearch
 
   private:
 
+    // Parallel communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
+
     // Phyiscal dimension.
     int d_physical_dim;
 
     // Empty domain flag.
     bool d_empty_domain;
+
+    // Empty range flag.
+    bool d_empty_range;
 
     // Coarse global search.
     Teuchos::RCP<CoarseGlobalSearch> d_coarse_global_search;
@@ -140,6 +155,9 @@ class ParallelSearch
 
     // Range owner rank map.
     std::unordered_map<EntityId,int> d_range_owner_ranks;
+
+    // Domain owner rank map.
+    std::unordered_map<EntityId,int> d_domain_owner_ranks;
 
     // Domain-to-range entity map.
     std::unordered_multimap<EntityId,EntityId> d_domain_to_range_map;

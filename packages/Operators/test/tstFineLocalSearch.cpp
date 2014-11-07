@@ -69,7 +69,6 @@ TEUCHOS_UNIT_TEST( FineLocalSeearch, search_test_1 )
     TEST_EQUALITY( point[2], reference_coordinates[2] );
 
     // Change the return type.
-    plist.set<bool>("Fine Local Search Return All", true);
     fine_local_search.search( boxes(), point(), plist, 
 			      parents, reference_coordinates );
     TEST_EQUALITY( 1, parents.size() );
@@ -115,17 +114,6 @@ TEUCHOS_UNIT_TEST( FineLocalSeearch, search_test_2 )
     // Search the boxes.
     Teuchos::Array<Entity> parents;
     Teuchos::Array<double> reference_coordinates;
-    fine_local_search.search( boxes(), point(), plist, 
-			      parents, reference_coordinates );
-    TEST_EQUALITY( 1, parents.size() );
-    TEST_EQUALITY( 0, parents[0].id() );
-    TEST_EQUALITY( 3, reference_coordinates.size() );
-    TEST_EQUALITY( point[0], reference_coordinates[0] );
-    TEST_EQUALITY( point[1], reference_coordinates[1] );
-    TEST_EQUALITY( point[2], reference_coordinates[2] );
-
-    // Change the return type.
-    plist.set<bool>("Fine Local Search Return All", true);
     fine_local_search.search( boxes(), point(), plist, 
 			      parents, reference_coordinates );
     TEST_EQUALITY( 5, parents.size() );

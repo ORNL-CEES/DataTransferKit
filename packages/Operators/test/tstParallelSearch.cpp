@@ -68,15 +68,16 @@ TEUCHOS_UNIT_TEST( ParallelSearch, all_to_one_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
     Teuchos::Array<double> point(3);
+    Teuchos::Array<std::size_t> point_ids( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = i + 0.5;
 	bool on_surface = (i%2==0);
-	int id = num_points*comm_rank + i;
+	point_ids[i] = num_points*comm_rank + i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	    Point(id,comm_rank,point,on_surface) );
+	    Point(point_ids[i],comm_rank,point,on_surface) );
     }
 
     // Construct a local map for the points.
@@ -106,30 +107,29 @@ TEUCHOS_UNIT_TEST( ParallelSearch, all_to_one_test )
 	}
     }
 
-    if ( 0 == comm_rank )
+    int range_size = ( comm_rank == 0 ) ? num_points*comm_size : 0;
+    TEST_EQUALITY( local_range.size(), range_size );
+
+    Teuchos::ArrayView<const double> range_coords;
+    Teuchos::Array<EntityId> domain_entities;
+    for ( int i = 0; i < num_points; ++i )
     {
-	TEST_EQUALITY( local_range.size(), num_points*comm_size );
-	Teuchos::ArrayView<const double> range_coords;
-	Teuchos::Array<EntityId> domain_entities;
-	for ( int i = 0; i < num_points*comm_size; ++i )
-	{
-	    parallel_search.getDomainEntitiesFromRange(
-		local_range[i], domain_entities );
-	    TEST_EQUALITY( 1, domain_entities.size() );
-	    TEST_EQUALITY( local_range[i] % num_points, domain_entities[0] );
-	    parallel_search.rangeParametricCoordinatesInDomain( 
-		domain_entities[0], local_range[i], range_coords );
-	    TEST_EQUALITY( range_coords[0], 0.5 );
-	    TEST_EQUALITY( range_coords[1], 0.5 );
-	    TEST_EQUALITY( range_coords[2], domain_entities[0] + 0.5 );
-	    TEST_EQUALITY( Teuchos::as<int>(
-			       (local_range[i] - domain_entities[0])/num_points),
-			   parallel_search.rangeEntityOwnerRank(local_range[i]) );
-	}
+	parallel_search.getDomainEntitiesFromRange(
+	    point_ids[i], domain_entities );
+	TEST_EQUALITY( 1, domain_entities.size() );
+	TEST_EQUALITY( point_ids[i] % num_points, domain_entities[0] );
     }
-    else
+
+    for ( int i = 0; i < range_size; ++i )
     {
-	TEST_EQUALITY( local_range.size(), 0 );
+	parallel_search.rangeParametricCoordinatesInDomain( 
+	    domain_entities[0], local_range[i], range_coords );
+	TEST_EQUALITY( range_coords[0], 0.5 );
+	TEST_EQUALITY( range_coords[1], 0.5 );
+	TEST_EQUALITY( range_coords[2], domain_entities[0] + 0.5 );
+	TEST_EQUALITY( Teuchos::as<int>(
+			   (local_range[i] - domain_entities[0])/num_points),
+		       parallel_search.rangeEntityOwnerRank(local_range[i]) );
     }
 }
 

@@ -120,7 +120,7 @@ void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
     EntityIterator range_it;
     Teuchos::Array<EntityId> send_ids;
     Teuchos::Array<int> send_ranks;
-    Teuchos::Array<Teuchos::Array<double> > send_centroids(d_space_dim);
+    Teuchos::Array<double> send_centroids;
     Teuchos::Array<double> centroid(d_space_dim);
     for ( range_it = range_begin; range_it != range_end; ++range_it )
     {
@@ -137,7 +137,7 @@ void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
 		send_ranks.push_back( neighbor_ranks[n] );
 		for ( int d = 0; d < d_space_dim; ++d )
 		{
-		    send_centroids[d].push_back( centroid[d] );
+		    send_centroids.push_back( centroid[d] );
 		}
 	    }
 	}
@@ -161,17 +161,9 @@ void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
 
     // Redistribute the range entity centroids.
     range_centroids.resize( d_space_dim*num_range_import );
-    Teuchos::Array<double> temp_receives( num_range_import );
-    for ( int d = 0; d < d_space_dim; ++d )
-    {
-	Teuchos::ArrayView<const double> send_centroids_view = 
-	    send_centroids[d]();
-	distributor.doPostsAndWaits( send_centroids_view, 1, temp_receives() );
-	for ( int n = 0; n < num_range_import; ++n )
-	{
-	    range_centroids[ d_space_dim*n + d ] = temp_receives[n];
-	}
-    }
+    Teuchos::ArrayView<const double> send_centroids_view = send_centroids();
+    distributor.doPostsAndWaits( 
+	send_centroids_view, d_space_dim, range_centroids() );
 }
 
 //---------------------------------------------------------------------------//
