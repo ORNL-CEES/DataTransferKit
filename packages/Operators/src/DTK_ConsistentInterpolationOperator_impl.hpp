@@ -41,11 +41,14 @@
 #ifndef DTK_CONSISTENTINTERPOLATIONOPERATOR_IMPL_HPP
 #define DTK_CONSISTENTINTERPOLATIONOPERATOR_IMPL_HPP
 
+#include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
 
 #include "DTK_DBC.hpp"
 #include "DTK_ParallelSearch.hpp"
+
+#include <Teuchos_OrdinalTraits.hpp>
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_CrsMatrix.hpp>
@@ -132,8 +135,11 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     psearch.search( range_iterator, range_space->localMap(), *parameters );
 
     // Determine the DOF ids for the range entities found in the local domain
-    // on this process.
+    // on this process and the number of domain entities they were found in
+    // globally. This creates the requirement of uniquely owned domain and
+    // range entities input into the map - no ghosts.
     std::unordered_map<EntityId,std::size_t> range_dof_id_map;
+    std::unordered_map<EntityId,std::size_t> range_dof_count_map;
     {
 	// Extract the set of local range entities that were found in the
 	// domain entities on this process.
@@ -181,9 +187,23 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 					      export_ids,
 					      export_ranks );
 
-	// Extract the range dof ids.
+	// Make a count of export ids.
 	int num_export = export_ids.size();
-	Teuchos::Array<std::size_t> export_data( 2*num_export );
+	Teuchos::Array<std::size_t> export_counts( num_export );
+	Teuchos::Array<std::size_t>::iterator export_count_it;
+	Teuchos::Array<EntityId>::const_iterator export_id_it;
+	for ( export_id_it = export_ids.begin(),
+	   export_count_it = export_counts.begin();
+	      export_id_it != export_ids.end();
+	      ++export_id_it, ++export_count_it )
+	{
+	    *export_count_it = std::count( export_ids.begin(), 
+					   export_ids.end(),
+					   *export_id_it );
+	}
+
+	// Extract the range dof ids.
+	Teuchos::Array<std::size_t> export_data( 3*num_export );
 	Teuchos::Array<std::size_t> range_dof_ids;
 	Entity range_entity;
 	for ( int i = 0; i < num_export; ++i )
@@ -192,25 +212,30 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	    range_space->shapeFunction()->entityDOFIds(
 		range_entity, range_dof_ids );
 	    DTK_CHECK( 1 == range_dof_ids.size() );
-	    export_data[2*i] = range_dof_ids[0];
-	    export_data[2*i+1] = Teuchos::as<std::size_t>(export_ids[i]);
+	    export_data[3*i] = range_dof_ids[0];
+	    export_data[3*i+1] = Teuchos::as<std::size_t>(export_ids[i]);
+	    export_data[3*i+2] = export_counts[i];
 	}
 
 	// Redistribute the range entity DOF ids to the domain parallel
 	// decomposition.
 	int num_import = local_range_ids.size();
 	Teuchos::ArrayView<const std::size_t> export_data_view = export_data();
-	Teuchos::Array<std::size_t> imported_dof_ids( 2*num_import );
+	Teuchos::Array<std::size_t> imported_dof_ids( 3*num_import );
 	range_to_domain_dist.doPostsAndWaits( 
-	    export_data_view, 2, imported_dof_ids() );
+	    export_data_view, 3, imported_dof_ids() );
 
 	// Map the range entities to their dof ids.
 	for ( int i = 0; i < num_import; ++i )
 	{
 	    range_dof_id_map.insert(
 		std::pair<EntityId,std::size_t>(
-		    Teuchos::as<EntityId>(imported_dof_ids[2*i+1]),
-		    imported_dof_ids[2*i]) );
+		    Teuchos::as<EntityId>(imported_dof_ids[3*i+1]),
+		    imported_dof_ids[3*i]) );
+	    range_dof_count_map.insert(
+		std::pair<EntityId,std::size_t>(
+		    Teuchos::as<EntityId>(imported_dof_ids[3*i+1]),
+		    imported_dof_ids[3*i+2]) );
 	}
     }
 
@@ -223,10 +248,12 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     Teuchos::Array<EntityId>::const_iterator range_entity_id_it;
     Teuchos::ArrayView<const double> range_parametric_coords;
     Teuchos::Array<double> domain_shape_values;
+    Teuchos::Array<double>::iterator domain_shape_it;
     Teuchos::Array<std::size_t> domain_dof_ids;
     EntityIterator domain_it;
     EntityIterator domain_begin = domain_iterator.begin();
     EntityIterator domain_end = domain_iterator.end();
+    double scale_val = 0.0;
     for ( domain_it = domain_begin; domain_it != domain_end; ++domain_it )
     {
 	// Get the domain DOF ids supporting the domain entity.
@@ -236,8 +263,6 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	// Get the range entities that mapped into this domain entity.
 	psearch.getRangeEntitiesFromDomain( domain_it->id(), range_entity_ids );
 
-	// For now, assume a continuous interpolant and use the first domain entity,
-	// if there are any, for the shape function evaluation.
 	for ( range_entity_id_it = range_entity_ids.begin();
 	      range_entity_id_it != range_entity_ids.end();
 	      ++range_entity_id_it )
@@ -255,8 +280,20 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	    // Add the entries as a row in the matrix.
 	    if ( range_dof_id_map.count(*range_entity_id_it) )
 	    {
+		// Compute an average interpolated quantity if the range
+		// entity was found in multiple domain entities.
+		DTK_CHECK( range_dof_count_map.count(*range_entity_id_it) );
+		scale_val = 
+		    1.0 / range_dof_count_map.find(*range_entity_id_it)->second;
+		for ( domain_shape_it = domain_shape_values.begin();
+		      domain_shape_it != domain_shape_values.end();
+		      ++domain_shape_it )
+		{
+		    *domain_shape_it *= scale_val;
+		}
+
 		// Consistent interpolation requires one DOF per range
-		// entity.
+		// entity. Load the row for this range DOF into the matrix.
 		coupling_matrix->insertGlobalValues( 
 		    range_dof_id_map.find(*range_entity_id_it)->second,
 		    domain_dof_ids(),
