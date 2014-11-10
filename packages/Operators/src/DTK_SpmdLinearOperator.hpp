@@ -32,85 +32,70 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_ConsistentInterpolationOperator.hpp
+ * \brief DTK_SpmdLinearOperator.hpp
  * \author Stuart R. Slattery
- * \brief Consistent interpolation operator.
+ * \brief SPMD operator interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CONSISTENTINTERPOLATIONOPERATOR_HPP
-#define DTK_CONSISTENTINTERPOLATIONOPERATOR_HPP
+#ifndef DTK_SPMDLINEAROPERATOR_HPP
+#define DTK_SPMDLINEAROPERATOR_HPP
 
-#include "DTK_MapOperator.hpp"
-#include "DTK_Types.hpp"
-#include "DTK_EntitySelector.hpp"
+#include "DTK_FunctionSpace.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
 
-#include <Tpetra_Map.hpp>
+#include <Tpetra_CrsMatrix.hpp>
+
+#include <Thyra_MultiVectorBase.hpp>
+#include <Thyra_LinearOpBase.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class ConsistentInterpolationOperator
-  \brief Map operator interface.
+  \class SpmdLinearOperator
+  \brief SPMD operator interface.
 
-  A map operator maps a field in one entity set to another entity set.
+  This operator provides a wrapper around Tpetra::CrsMatrix to provide an
+  apply operation when the operator domain map and vector range map are not
+  identical. 
 */
 //---------------------------------------------------------------------------//
 template<class Scalar>
-class ConsistentInterpolationOperator : public MapOperator<Scalar>
+class SpmdLinearOperator : public Thyra::LinearOpBase<Scalar>
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    ConsistentInterpolationOperator( 
-	const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-	const Teuchos::RCP<EntitySelector>& domain_selector,
-	const Teuchos::RCP<EntitySelector>& range_selector );
+    SpmdLinearOperator( 
+	const Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,std::size_t> >& crs_matrix );
 
     /*!
      * \brief Destructor.
      */
-    ~ConsistentInterpolationOperator();
+    ~SpmdLinearOperator();
 
-    /*
-     * \brief Setup the map operator from a domain entity set and a range
-     * entity set.
-     * \param domain_function The function that contains the data that will be
-     * sent to the range. Must always be nonnull but the pointers it contains
-     * may be null of no entities are on-process.
-     * \param range_space The function that will receive the data from the
-     * domain. Must always be nonnull but the pointers it contains
-     * may be null of no entities are on-process.
-     * \param parameters Parameters for the setup.
-     */
-    void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-		const Teuchos::RCP<FunctionSpace>& range_space,
-		const Teuchos::RCP<Teuchos::ParameterList>& parameters );
+    //@{
+    //! Thyra LinearOpBase interface.
+    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > range() const;
+    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > domain() const;
+    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > clone() const;
+    bool opSupportedImpl( Thyra::EOpTransp M_trans ) const;
+    void applyImpl( const Thyra::EOpTransp M_trans,
+		    const Thyra::MultiVectorBase<Scalar> &X,
+		    const Teuchos::Ptr<Thyra::MultiVectorBase<Scalar> > &Y,
+		    const Scalar alpha,
+		    const Scalar beta ) const;
+    //@}
 
   private:
 
-    //! Given an entity iterator and a shape function for those entities,
-    //! compute the parallel DOF map.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > 
-    createDOFMap( const EntityIterator& entity_iterator,
-		  const Teuchos::RCP<EntityShapeFunction>& shape_function ) const;
-
-  private:
-
-    // Parallel communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
-
-    // The domain entity selector.
-    Teuchos::RCP<EntitySelector> d_domain_selector;
-
-    // The range entity selector.
-    Teuchos::RCP<EntitySelector> d_range_selector;
+    //! CRS matrix.
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,std::size_t> > d_crs_matrix;
 };
 
 //---------------------------------------------------------------------------//
@@ -121,12 +106,12 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_ConsistentInterpolationOperator_impl.hpp"
+#include "DTK_SpmdLinearOperator_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_CONSISTENTINTERPOLATIONOPERATOR_HPP
+#endif // end DTK_SPMDLINEAROPERATOR_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_ConsistentInterpolationOperator.hpp
+// end DTK_SpmdLinearOperator.hpp
 //---------------------------------------------------------------------------//
