@@ -126,41 +126,22 @@ CenterDistributor<DIM>::CenterDistributor(
     d_num_imports = d_distributor->createFromSends( export_procs_view );
     export_procs.clear();
 
-    // Move the source center coordinates to the target decomposition.
-    target_decomp_source_centers.resize( d_num_imports * DIM );
+
+    // Unroll the coordinates to handle cases where single source centers
+    // may have multiple destinations.
     Teuchos::Array<unsigned>::const_iterator export_id_it;
-    Teuchos::Array<double> src_dim_coords( d_num_exports );
-    Teuchos::Array<double>::iterator src_dim_it;
-    Teuchos::Array<double> tgt_dim_coords( d_num_imports );
-    Teuchos::Array<double>::iterator tgt_dim_it;
-    Teuchos::ArrayView<const double> src_dim_view = src_dim_coords();
-    Teuchos::ArrayView<double> tgt_dim_view = tgt_dim_coords();
-    Teuchos::Array<double>::iterator src_tgt_decomp_it;
-    for ( int d = 0; d < DIM; ++d )
+    Teuchos::Array<double> src_coords( d_num_exports * DIM );
+    for ( int n = 0; n < d_num_exports; ++n )
     {
-	// Unroll the coordinates to handle cases where single source centers
-	// may have multiple destinations.
-	for ( export_id_it = d_export_ids.begin(), 
-		src_dim_it = src_dim_coords.begin();
-	      export_id_it != d_export_ids.end();
-	      ++export_id_it, ++src_dim_it )
-	{
-	    *src_dim_it = source_centers[ (*export_id_it)*DIM + d ];
-	}
-
-	// Distribute.
-	d_distributor->doPostsAndWaits( src_dim_view, 1, tgt_dim_view );
-
-	// Extract the coordinates into the local array.
-	for ( src_tgt_decomp_it = target_decomp_source_centers.begin(),
-		     tgt_dim_it = tgt_dim_coords.begin();
-	      src_tgt_decomp_it != target_decomp_source_centers.end();
-	      ++tgt_dim_it )
-	{
-	    *(src_tgt_decomp_it+d) = *tgt_dim_it;
-	    src_tgt_decomp_it += DIM;
-	}
+	src_coords( DIM*n, DIM ).assign( 
+	    source_centers(DIM*d_export_ids[n],DIM) );
     }
+
+    // Move the source center coordinates to the target decomposition.
+    Teuchos::ArrayView<const double> src_coords_view = src_coords();
+    target_decomp_source_centers.resize( d_num_imports * DIM );
+    d_distributor->doPostsAndWaits( 
+	src_coords_view, DIM, target_decomp_source_centers() );
 }
 
 //---------------------------------------------------------------------------//
