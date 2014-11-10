@@ -107,22 +107,23 @@ TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
 	    sub_ranks.push_back(n);
 	}
     }
-    Teuchos::ArrayView<int> sub_ranks_view( sub_ranks );
     RCP_Comm local_comm = 
-	global_comm->createSubcommunicator( sub_ranks_view );
+	global_comm->createSubcommunicator( sub_ranks() );
 
     CommIndexer indexer( global_comm, local_comm );
 
-    TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
     if ( global_comm->getRank() % 2 == 0 )
     {
-    	TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
+	TEST_ASSERT( Teuchos::nonnull(local_comm) );
+	TEST_EQUALITY( (int) indexer.size(), local_comm->getSize() );
+    	TEST_EQUALITY( indexer.l2g( local_comm->getRank() ),
 		     global_comm->getRank() );
     }
     else
     {
-	TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == -1 );
+	TEST_ASSERT( Teuchos::is_null(local_comm) );
     }
+    TEST_EQUALITY( indexer.l2g(-32), -1 );
 }
 
 //---------------------------------------------------------------------------//
