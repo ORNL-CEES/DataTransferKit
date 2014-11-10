@@ -64,9 +64,10 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   STANDARD_PASS_OUTPUT
   )
 
-# TRIBITS_ADD_EXECUTABLE_AND_TEST(
-#   ConsistentInterpolationOperatorFEM_test
-#   SOURCES tstConsistentInterpolationOperatorFEM.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
-#   COMM serial mpi
-#   STANDARD_PASS_OUTPUT
-#   )
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  ConsistentInterpolationOperatorFEM_test
+  SOURCES tstConsistentInterpolationOperatorFEM.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
