@@ -66,7 +66,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction(box_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Construct a function space for the boxes.
     Teuchos::RCP<FunctionSpace> domain_space =
@@ -107,7 +107,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction(point_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Construct a function space for the points.
     Teuchos::RCP<FunctionSpace> range_space =
@@ -175,7 +175,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction(box_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Construct a function space for the boxes.
     Teuchos::RCP<FunctionSpace> domain_space =
@@ -216,7 +216,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction(point_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Construct a function space for the points.
     Teuchos::RCP<FunctionSpace> range_space =
@@ -286,7 +286,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction(box_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Construct a function space for the boxes.
     Teuchos::RCP<FunctionSpace> domain_space =
@@ -327,7 +327,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction(point_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Construct a function space for the points.
     Teuchos::RCP<FunctionSpace> range_space =
@@ -396,7 +396,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction(box_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Construct a function space for the boxes.
     Teuchos::RCP<FunctionSpace> domain_space =
@@ -437,7 +437,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction(point_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Construct a function space for the points.
     Teuchos::RCP<FunctionSpace> range_space =
@@ -505,7 +505,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction(box_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Construct a function space for the boxes.
     Teuchos::RCP<FunctionSpace> domain_space =
@@ -546,7 +546,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction(point_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Construct a function space for the points.
     Teuchos::RCP<FunctionSpace> range_space =
@@ -614,7 +614,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction(box_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Construct a function space for the boxes.
     Teuchos::RCP<FunctionSpace> domain_space =
@@ -651,7 +651,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction(point_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Construct a function space for the points.
     Teuchos::RCP<FunctionSpace> range_space =

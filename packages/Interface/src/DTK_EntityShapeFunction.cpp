@@ -54,17 +54,6 @@ EntityShapeFunction::~EntityShapeFunction()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Get an ordered list of DOF ids on this process. This list must correlate to
-// all DOF vectors based on this shape function. This effectively informs us
-// of the parallel layout of DOF vectors built on this shape function.
-void EntityShapeFunction::allDOFIds(
-    Teuchos::Array<std::size_t>& dof_ids ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-}
-
-// ---------------------------------------------------------------------------//
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
 void EntityShapeFunction::entityDOFIds( 

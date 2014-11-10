@@ -36,28 +36,22 @@ TEUCHOS_UNIT_TEST( EntityCenteredShapeFunction, shape_func_test )
     using namespace DataTransferKit;
 
     // Make point.
-    Teuchos::Array<EntityId> entity_ids(1);
     Teuchos::Array<double> p(3);
     p[0] = 3.2;
     p[1] = 302.3;
     p[2] = 9.32;
-    entity_ids[0] = 12;
-    Entity point = Point( entity_ids[0], 0, p);
+    EntityId id = 12;
+    Entity point = Point( id, 0, p);
 
     // Make a shape function.
     Teuchos::RCP<EntityShapeFunction> shape_function =
-	Teuchos::rcp( new EntityCenteredShapeFunction(entity_ids) );
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Test the shape function.
     Teuchos::Array<std::size_t> dof_ids;
-    shape_function->allDOFIds( dof_ids );
-    TEST_EQUALITY( 1, dof_ids.size() );
-    TEST_EQUALITY( Teuchos::as<std::size_t>(entity_ids[0]), dof_ids[0] );
-    dof_ids.clear();
-
     shape_function->entityDOFIds( point, dof_ids );
     TEST_EQUALITY( 1, dof_ids.size() );
-    TEST_EQUALITY( Teuchos::as<std::size_t>(entity_ids[0]), dof_ids[0] );
+    TEST_EQUALITY( Teuchos::as<std::size_t>(id), dof_ids[0] );
 
     Teuchos::Array<double> values;
     shape_function->evaluateValue( point, p(), values );
