@@ -71,60 +71,6 @@ Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
 //---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( CenterDistributor, dim_1_test )
-{
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm();
-    int rank = comm->getRank();
-    int size = comm->getSize();
-    int inverse_rank = size - rank - 1;
-
-    int dim = 1;
-    int num_src_points = 10;
-    int num_src_coords = dim*num_src_points;
-    double offset = 5.0;
-
-    Teuchos::Array<double> src_coords(num_src_coords);
-    for ( int i = 0; i < num_src_points; ++i )
-    {
-	src_coords[dim*i] = 1.0*i + (offset+num_src_points)*inverse_rank;
-    }
-
-    int num_tgt_points = 2;
-    int num_tgt_coords = dim*num_tgt_points;
-    Teuchos::Array<double> tgt_coords( num_tgt_coords );
-    tgt_coords[0] = 4.9 + (num_src_points+offset)*rank;
-    tgt_coords[1] = 11.4 + (num_src_points+offset)*rank;
-
-    double radius = 1.5;
-
-    Teuchos::Array<double> tgt_decomp_src;
-
-    DataTransferKit::CenterDistributor<1> distributor( 
-	comm, src_coords(), tgt_coords(), radius, tgt_decomp_src );
-
-    int num_import = 6;
-    TEST_EQUALITY( num_import, distributor.getNumImports() ); 
-    TEST_EQUALITY( dim*distributor.getNumImports(), tgt_decomp_src.size() ); 
-    for ( int i = 0; i < num_import; ++i )
-    {
-	TEST_EQUALITY( tgt_decomp_src[dim*i], 4.0+i );
-    }
-
-    Teuchos::Array<double> src_data(num_src_points);
-    for ( int i = 0; i < num_src_points; ++i )
-    {
-	src_data[i] = i*inverse_rank;
-    }
-    Teuchos::Array<double> tgt_data( distributor.getNumImports() );
-    Teuchos::ArrayView<const double> src_view = src_data();
-    distributor.distribute( src_view, tgt_data() );
-    for ( int i = 0; i < num_import; ++i )
-    {
-	TEST_EQUALITY( tgt_data[i], (4.0+i)*rank );
-    }
-}
-
-//---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CenterDistributor, dim_2_test )
 {
     Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm();
