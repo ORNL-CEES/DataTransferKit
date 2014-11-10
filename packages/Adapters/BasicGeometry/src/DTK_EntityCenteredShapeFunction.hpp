@@ -64,13 +64,25 @@ class EntityCenteredShapeFunction : public EntityShapeFunction
 
     /*!
      * \brief Constructor.
+     * \param Entity ids. Ordered list of entity ids on this process. Must
+     * correspond to the list under a DOF vector.
      */
-    EntityCenteredShapeFunction();
+    EntityCenteredShapeFunction( const Teuchos::Array<EntityId>& entity_ids );
 
     /*!
      * \brief Destructor.
      */
     ~EntityCenteredShapeFunction();
+
+    /*!
+     * \brief Get an ordered list of DOF ids on this process. This list must
+     * correlate to all DOF vectors based on this shape function. This
+     * effectively informs us of the parallel layout of DOF vectors built on
+     * this shape function.
+     * \param dof_ids Return the ids of the degrees of freedom owned by the
+     * local process in the parallel vector space supporting the entities.
+     */
+    void allDOFIds( Teuchos::Array<std::size_t>& dof_ids ) const;
 
     /*!
      * \brief Given an entity, get the ids of the degrees of freedom in the
@@ -111,6 +123,11 @@ class EntityCenteredShapeFunction : public EntityShapeFunction
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
 	Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
+
+  private:
+
+    // Ordered list of local dof ids.
+    Teuchos::Array<std::size_t> d_dof_ids;
 };
 
 //---------------------------------------------------------------------------//

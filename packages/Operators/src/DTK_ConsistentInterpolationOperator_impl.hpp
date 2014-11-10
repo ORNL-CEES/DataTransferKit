@@ -265,8 +265,11 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     }
 
     // Build the domain map for the coupling matrix. 
+    Teuchos::Array<std::size_t> all_domain_dof_ids;
+    domain_space->shapeFunction()->allDOFIds( all_domain_dof_ids );
     Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_map =
-	createDOFMap( domain_iterator, domain_space->shapeFunction() );
+	Tpetra::createNonContigMap<int,std::size_t>( 
+	    all_domain_dof_ids(), d_comm );
 
     // Finalize the coupling matrix.
     coupling_matrix->fillComplete( domain_map, range_map );

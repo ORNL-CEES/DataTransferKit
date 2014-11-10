@@ -193,26 +193,14 @@ TEUCHOS_UNIT_TEST( MapOperator, apply_test )
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
 	Teuchos::DefaultComm<int>::getComm();
 
-    Teuchos::RCP<EntitySet> entity_set = Teuchos::rcp(
-	new BasicEntitySet(comm, 1) );
-    Teuchos::RCP<EntityLocalMap> local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
-    Teuchos::RCP<EntityShapeFunction> shape_function =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-    Teuchos::RCP<FunctionSpace> function_space = Teuchos::rcp( 
-	new FunctionSpace(entity_set, local_map, shape_function) );
-
-    // Make a map.
+    // Parameters.
     int local_size = 10;
     double a = 3.2;
     double b = 2.3;
     double c = -1.2;
     int num_vec = 3;
-    Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
-	new TestOperator(comm,local_size,a,b,c,num_vec) );
-    map_op->setup( function_space, function_space, Teuchos::parameterList() );
 
-    // Test the apply on some vectors.
+    // Create some vectors.
     Teuchos::RCP<const Tpetra::Map<int,int> > map = 
 	Tpetra::createUniformContigMap<int,int>( local_size*comm->getSize(),
 						 comm );
@@ -228,6 +216,28 @@ TEUCHOS_UNIT_TEST( MapOperator, apply_test )
     Teuchos::RCP<Thyra::MultiVectorBase<double> > thyra_Y =
 	Thyra::createMultiVector( Y );
 
+    // Make geometry data.
+    Teuchos::Array<int> node_list( map->getNodeElementList() );
+    Teuchos::Array<EntityId> entity_ids( node_list.size() );
+    for ( int i = 0; i < node_list.size(); ++i )
+    {
+	entity_ids[i] = node_list[i];
+    }
+    Teuchos::RCP<EntitySet> entity_set = Teuchos::rcp(
+	new BasicEntitySet(comm, 1) );
+    Teuchos::RCP<EntityLocalMap> local_map = 
+	Teuchos::rcp( new BasicGeometryLocalMap() );
+    Teuchos::RCP<EntityShapeFunction> shape_function =
+	Teuchos::rcp( new EntityCenteredShapeFunction(entity_ids) );
+    Teuchos::RCP<FunctionSpace> function_space = Teuchos::rcp( 
+	new FunctionSpace(entity_set, local_map, shape_function) );
+
+    // Make a map.
+    Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
+	new TestOperator(comm,local_size,a,b,c,num_vec) );
+    map_op->setup( function_space, function_space, Teuchos::parameterList() );
+
+    // Test the apply on some vectors.
     double alpha = 1.3;
     double beta = -2.1;
     map_op->apply( Thyra::NOTRANS, *thyra_X, thyra_Y.ptr(), alpha, beta );

@@ -39,8 +39,8 @@ TEUCHOS_UNIT_TEST( FineLocalSeearch, apply_test )
 	new BasicEntitySet(Teuchos::DefaultComm<int>::getComm(), 1) );
     Teuchos::RCP<EntityLocalMap> local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
-    Teuchos::RCP<EntityShapeFunction> shape_function =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
+    Teuchos::RCP<EntityShapeFunction> shape_function = Teuchos::rcp( 
+	new EntityCenteredShapeFunction(Teuchos::Array<std::size_t>()) );
     FunctionSpace function_space( entity_set, local_map, shape_function );
 
     TEST_EQUALITY( function_space.entitySet().getRawPtr(), 

@@ -45,13 +45,25 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-EntityCenteredShapeFunction::EntityCenteredShapeFunction()
+EntityCenteredShapeFunction::EntityCenteredShapeFunction(
+    const Teuchos::Array<EntityId>& entity_ids )
+    : d_dof_ids( entity_ids )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Destructor.
 EntityCenteredShapeFunction::~EntityCenteredShapeFunction()
 { /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Get an ordered list of DOF ids on this process. This list must correlate to
+// all DOF vectors based on this shape function. This effectively informs us
+// of the parallel layout of DOF vectors built on this shape function.
+void EntityCenteredShapeFunction::allDOFIds(
+    Teuchos::Array<std::size_t>& dof_ids ) const
+{
+    dof_ids = d_dof_ids;
+}
 
 //---------------------------------------------------------------------------//
 // Given an entity, get the ids of the degrees of freedom in the vector space

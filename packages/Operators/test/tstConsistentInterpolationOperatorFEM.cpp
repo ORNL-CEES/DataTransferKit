@@ -47,10 +47,17 @@ class TestShapeFunction : public DataTransferKit::EntityShapeFunction
 {
   public:
 
-    TestShapeFunction( const int dofs_per_entity ) 
-	: d_dofs_per_entity( dofs_per_entity )
+    TestShapeFunction( const Teuchos::ArrayView<const std::size_t>& entity_ids,
+		       const int dofs_per_entity ) 
+	: d_entity_ids( entity_ids )
+	, d_dofs_per_entity( dofs_per_entity )
     { /* ... */ }
     ~TestShapeFunction() { /* ... */ }
+
+    void allDOFIds( Teuchos::Array<std::size_t>& dof_ids ) const
+    {
+	dof_ids = d_entity_ids;
+    }
 
     void entityDOFIds( const DataTransferKit::Entity& entity,
 		       Teuchos::Array<std::size_t>& dof_ids ) const
@@ -71,6 +78,7 @@ class TestShapeFunction : public DataTransferKit::EntityShapeFunction
     }
 
   private:
+    Teuchos::Array<std::size_t> d_entity_ids;
     int d_dofs_per_entity;
 };
 
@@ -130,12 +138,14 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     int dofs_per_entity = 4;
     Teuchos::Array<std::size_t> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( dofs_per_entity * num_boxes );
+    Teuchos::Array<std::size_t> box_dof_ids( dofs_per_entity * num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
     {
 	box_ids[i] = num_boxes*(comm_size-comm_rank-1) + i;
 	for ( int n = 0; n < dofs_per_entity; ++n )
 	{
 	    box_dofs[i*dofs_per_entity+n] = 2.0*box_ids[i] + n;
+	    box_dof_ids[i*dofs_per_entity+n] = box_ids[i]*dofs_per_entity + n;
 	}
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
 	    Box(box_ids[i],comm_rank,box_ids[i],
@@ -148,7 +158,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new TestShapeFunction(dofs_per_entity) );
+	Teuchos::rcp( new TestShapeFunction(box_dof_ids,dofs_per_entity) );
 
     // Construct a function space for the boxes.
     Teuchos::RCP<FunctionSpace> domain_space =
@@ -189,7 +199,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
+	Teuchos::rcp( new EntityCenteredShapeFunction(point_ids) );
 
     // Construct a function space for the points.
     Teuchos::RCP<FunctionSpace> range_space =

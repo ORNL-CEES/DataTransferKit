@@ -71,14 +71,14 @@ class EntityShapeFunction
     virtual ~EntityShapeFunction();
 
     /*!
-     * \brief Get the list of DOF ids on this process. This list must
+     * \brief Get an ordered list of DOF ids on this process. This list must
      * correlate to all DOF vectors based on this shape function. This
      * effectively informs us of the parallel layout of DOF vectors built on
      * this shape function.
      * \param dof_ids Return the ids of the degrees of freedom owned by the
      * local process in the parallel vector space supporting the entities.
      */
-//    virtual void localDOFIds( Teuchos::Array<std::size_t>& dof_ids );
+    virtual void allDOFIds( Teuchos::Array<std::size_t>& dof_ids ) const;
 
     /*!
      * \brief Given an entity, get the ids of the degrees of freedom in the
