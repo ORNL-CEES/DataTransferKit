@@ -33,6 +33,18 @@
 #include <Teuchos_OrdinalTraits.hpp>
 #include <Teuchos_ParameterList.hpp>
 
+#include <Tpetra_Map.hpp>
+
+//---------------------------------------------------------------------------//
+// DOF map.
+//---------------------------------------------------------------------------//
+Teuchos::RCP<const Tpetra::Map<int,std::size_t> > createDOFMap(
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+    const Teuchos::ArrayView<const std::size_t>& entity_ids )
+{
+    return Tpetra::createNonContigMap<int,std::size_t>( entity_ids, comm );
+}
+
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
@@ -61,16 +73,20 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     }
 
     // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_map = 
+    Teuchos::RCP<EntityLocalMap> domain_local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
+    // Construct a dof map for the boxes.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
+	createDOFMap( comm, box_ids() );
+
     // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space =
-	Teuchos::rcp( new FunctionSpace(domain_set,domain_map,domain_shape) );
+    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
+	new FunctionSpace(domain_set,domain_local_map,domain_shape,domain_dof_map) );
 
     // Construct a selector for the boxes.
     Teuchos::RCP<EntitySelector> domain_selector = 
@@ -102,16 +118,20 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     }
 
     // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_map = 
+    Teuchos::RCP<EntityLocalMap> range_local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
+    // Construct a dof map for the points.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
+	createDOFMap( comm, point_ids() );
+
     // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space =
-	Teuchos::rcp( new FunctionSpace(range_set,range_map,range_shape) );
+    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp( 
+	new FunctionSpace(range_set,range_local_map,range_shape,range_dof_map) );
 
     // Construct a selector for the points.
     Teuchos::RCP<EntitySelector> range_selector = 
@@ -170,16 +190,20 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     }
 
     // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_map = 
+    Teuchos::RCP<EntityLocalMap> domain_local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
+    // Construct a dof map for the boxes.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
+	createDOFMap( comm, box_ids() );
+
     // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space =
-	Teuchos::rcp( new FunctionSpace(domain_set,domain_map,domain_shape) );
+    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp(
+	new FunctionSpace(domain_set,domain_local_map,domain_shape,domain_dof_map) );
 
     // Construct a selector for the boxes.
     Teuchos::RCP<EntitySelector> domain_selector = 
@@ -211,16 +235,20 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     }
 
     // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_map = 
+    Teuchos::RCP<EntityLocalMap> range_local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
+    // Construct a dof map for the points.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
+	createDOFMap( comm, point_ids() );
+
     // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space =
-	Teuchos::rcp( new FunctionSpace(range_set,range_map,range_shape) );
+    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp( 
+	new FunctionSpace(range_set,range_local_map,range_shape,range_dof_map) );
 
     // Construct a selector for the points.
     Teuchos::RCP<EntitySelector> range_selector = 
@@ -281,16 +309,20 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     }
 
     // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_map = 
+    Teuchos::RCP<EntityLocalMap> domain_local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
+    // Construct a dof map for the boxes.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
+	createDOFMap( comm, box_ids() );
+
     // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space =
-	Teuchos::rcp( new FunctionSpace(domain_set,domain_map,domain_shape) );
+    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
+	new FunctionSpace(domain_set,domain_local_map,domain_shape,domain_dof_map) );
 
     // Construct a selector for the boxes.
     Teuchos::RCP<EntitySelector> domain_selector = 
@@ -322,16 +354,20 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     }
 
     // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_map = 
+    Teuchos::RCP<EntityLocalMap> range_local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
+    // Construct a dof map for the points.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
+	createDOFMap( comm, point_ids() );
+
     // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space =
-	Teuchos::rcp( new FunctionSpace(range_set,range_map,range_shape) );
+    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp(
+	new FunctionSpace(range_set,range_local_map,range_shape,range_dof_map) );
 
     // Construct a selector for the points.
     Teuchos::RCP<EntitySelector> range_selector = 
@@ -391,16 +427,20 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     }
 
     // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_map = 
+    Teuchos::RCP<EntityLocalMap> domain_local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
+    // Construct a dof map for the boxes.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
+	createDOFMap( comm, box_ids() );
+
     // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space =
-	Teuchos::rcp( new FunctionSpace(domain_set,domain_map,domain_shape) );
+    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
+	new FunctionSpace(domain_set,domain_local_map,domain_shape,domain_dof_map) );
 
     // Construct a selector for the boxes.
     Teuchos::RCP<EntitySelector> domain_selector = 
@@ -432,16 +472,20 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     }
 
     // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_map = 
+    Teuchos::RCP<EntityLocalMap> range_local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
+    // Construct a dof map for the points.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
+	createDOFMap( comm, point_ids() );
+
     // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space =
-	Teuchos::rcp( new FunctionSpace(range_set,range_map,range_shape) );
+    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp(
+	new FunctionSpace(range_set,range_local_map,range_shape,range_dof_map) );
 
     // Construct a selector for the points.
     Teuchos::RCP<EntitySelector> range_selector = 
@@ -500,16 +544,20 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     }
 
     // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_map = 
+    Teuchos::RCP<EntityLocalMap> domain_local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
+    // Construct a dof map for the boxes.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
+	createDOFMap( comm, box_ids() );
+
     // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space =
-	Teuchos::rcp( new FunctionSpace(domain_set,domain_map,domain_shape) );
+    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
+	new FunctionSpace(domain_set,domain_local_map,domain_shape,domain_dof_map) );
 
     // Construct a selector for the boxes.
     Teuchos::RCP<EntitySelector> domain_selector = 
@@ -541,16 +589,20 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     }
 
     // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_map = 
+    Teuchos::RCP<EntityLocalMap> range_local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
+    // Construct a dof map for the points.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
+	createDOFMap( comm, point_ids() );
+
     // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space =
-	Teuchos::rcp( new FunctionSpace(range_set,range_map,range_shape) );
+    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp( 
+	new FunctionSpace(range_set,range_local_map,range_shape,range_dof_map) );
 
     // Construct a selector for the points.
     Teuchos::RCP<EntitySelector> range_selector = 
@@ -609,16 +661,20 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 	    0.0,0.0,box_ids[0],1.0,1.0,box_ids[0]+1.0) );
 
     // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_map = 
+    Teuchos::RCP<EntityLocalMap> domain_local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Construct a shape function for the boxes.
     Teuchos::RCP<EntityShapeFunction> domain_shape =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
+    // Construct a dof map for the boxes.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
+	createDOFMap( comm, box_ids() );
+
     // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space =
-	Teuchos::rcp( new FunctionSpace(domain_set,domain_map,domain_shape) );
+    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
+	new FunctionSpace(domain_set,domain_local_map,domain_shape,domain_dof_map) );
 
     // Construct a selector for the boxes.
     Teuchos::RCP<EntitySelector> domain_selector = 
@@ -646,16 +702,20 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 	Point(point_ids[0],comm_rank,point,false) );
 
     // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_map = 
+    Teuchos::RCP<EntityLocalMap> range_local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Construct a shape function for the points.
     Teuchos::RCP<EntityShapeFunction> range_shape =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
+    // Construct a dof map for the points.
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
+	createDOFMap( comm, point_ids() );
+
     // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space =
-	Teuchos::rcp( new FunctionSpace(range_set,range_map,range_shape) );
+    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp( 
+	new FunctionSpace(range_set,range_local_map,range_shape,range_dof_map) );
 
     // Construct a selector for the points.
     Teuchos::RCP<EntitySelector> range_selector = 

@@ -49,13 +49,13 @@ createScaledIdentity(
     int local_size,
     double val )
 {
-    Teuchos::RCP<const Tpetra::Map<int,int> > map = 
-	Tpetra::createUniformContigMap<int,int>( local_size*comm->getSize(),
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > map = 
+	Tpetra::createUniformContigMap<int,std::size_t>( local_size*comm->getSize(),
 						 comm );
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,int> > mat = Teuchos::rcp( 
-	new Tpetra::CrsMatrix<double,int,int>(map, 1, Tpetra::StaticProfile) );
+    Teuchos::RCP<Tpetra::CrsMatrix<double,int,std::size_t> > mat = Teuchos::rcp( 
+	new Tpetra::CrsMatrix<double,int,std::size_t>(map, 1, Tpetra::StaticProfile) );
     Teuchos::Array<double> values( 1, val );
-    Teuchos::Array<int> indices( 1 );
+    Teuchos::Array<std::size_t> indices( 1 );
     int global_row = 0;
     for ( int i = 0; i < local_size; ++i )
     {
@@ -68,8 +68,8 @@ createScaledIdentity(
     Teuchos::RCP<const Thyra::VectorSpaceBase<double> > space =
 	Thyra::createVectorSpace<double>( map );
 
-    Teuchos::RCP<Thyra::TpetraLinearOp<double,int,int> > tpetra_op =
-	Teuchos::rcp( new Thyra::TpetraLinearOp<double,int,int>() );
+    Teuchos::RCP<Thyra::TpetraLinearOp<double,int,std::size_t> > tpetra_op =
+	Teuchos::rcp( new Thyra::TpetraLinearOp<double,int,std::size_t>() );
     tpetra_op->initialize( space, space, mat );
 
     return tpetra_op;
@@ -79,16 +79,16 @@ createScaledIdentity(
 // Create a vector filled with a scalar.
 //---------------------------------------------------------------------------//
 Teuchos::RCP<Thyra::MultiVectorBase<double> > 
-createdoubleVector( 
+createDOFVector( 
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm, 
     int local_size,
     double val,
     int num_vec )
 {
-    Teuchos::RCP<const Tpetra::Map<int,int> > map = 
-	Tpetra::createUniformContigMap<int,int>( local_size*comm->getSize(),
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > map = 
+	Tpetra::createUniformContigMap<int,std::size_t>( local_size*comm->getSize(),
 						 comm );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > vec =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > vec =
 	Tpetra::createMultiVector<double>( map, num_vec );
     vec->putScalar( val );
 
@@ -124,7 +124,7 @@ class TestOperator : public DataTransferKit::MapOperator<double>
     {
 	this->b_mass_matrix_inv = createScaledIdentity( d_comm, d_local_size, d_a );
 	this->b_coupling_matrix = createScaledIdentity( d_comm, d_local_size, d_b );
-	this->b_forcing_vector = createdoubleVector( d_comm, d_local_size, d_c, d_num_vec );
+	this->b_forcing_vector = createDOFVector( d_comm, d_local_size, d_c, d_num_vec );
     }
 
     Teuchos::RCP<const Thyra::LinearOpBase<double> > clone() const
@@ -158,14 +158,14 @@ TEUCHOS_UNIT_TEST( MapOperator, scaled_identity_test )
 	createScaledIdentity( comm, local_size, scalar );
 
     // Test the apply on some vectors.
-    Teuchos::RCP<const Tpetra::Map<int,int> > map = 
-	Tpetra::createUniformContigMap<int,int>( local_size*comm->getSize(),
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > map = 
+	Tpetra::createUniformContigMap<int,std::size_t>( local_size*comm->getSize(),
 						 comm );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > X =
-	Tpetra::createMultiVector<double,int,int>( map, num_vec );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > X =
+	Tpetra::createMultiVector<double,int,std::size_t>( map, num_vec );
     X->randomize();
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Y =
-	Tpetra::createMultiVector<double,int,int>( map, num_vec );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > Y =
+	Tpetra::createMultiVector<double,int,std::size_t>( map, num_vec );
 
     Teuchos::RCP<Thyra::MultiVectorBase<double> > thyra_X =
 	Thyra::createMultiVector( X );	
@@ -193,34 +193,37 @@ TEUCHOS_UNIT_TEST( MapOperator, apply_test )
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
 	Teuchos::DefaultComm<int>::getComm();
 
+    // Parameters.
+    int local_size = 10;
+    double a = 3.2;
+    double b = 2.3;
+    double c = -1.2;
+    int num_vec = 3;
+
+    // Make a function space.
     Teuchos::RCP<EntitySet> entity_set = Teuchos::rcp(
 	new BasicEntitySet(comm, 1) );
     Teuchos::RCP<EntityLocalMap> local_map = 
 	Teuchos::rcp( new BasicGeometryLocalMap() );
     Teuchos::RCP<EntityShapeFunction> shape_function =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > dof_map = 
+	Tpetra::createUniformContigMap<int,std::size_t>( 
+	    local_size*comm->getSize(), comm );
     Teuchos::RCP<FunctionSpace> function_space = Teuchos::rcp( 
-	new FunctionSpace(entity_set, local_map, shape_function) );
+	new FunctionSpace(entity_set, local_map, shape_function, dof_map) );
 
     // Make a map.
-    int local_size = 10;
-    double a = 3.2;
-    double b = 2.3;
-    double c = -1.2;
-    int num_vec = 3;
     Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
 	new TestOperator(comm,local_size,a,b,c,num_vec) );
     map_op->setup( function_space, function_space, Teuchos::parameterList() );
 
     // Test the apply on some vectors.
-    Teuchos::RCP<const Tpetra::Map<int,int> > map = 
-	Tpetra::createUniformContigMap<int,int>( local_size*comm->getSize(),
-						 comm );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > X =
-	Tpetra::createMultiVector<double,int,int>( map, num_vec );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > X =
+	Tpetra::createMultiVector<double,int,std::size_t>( dof_map, num_vec );
     X->randomize();
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Y =
-	Tpetra::createMultiVector<double,int,int>( map, num_vec );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > Y =
+	Tpetra::createMultiVector<double,int,std::size_t>( dof_map, num_vec );
     Y->putScalar( 1.0 );
 
     Teuchos::RCP<Thyra::MultiVectorBase<double> > thyra_X =
@@ -250,8 +253,8 @@ TEUCHOS_UNIT_TEST( MapOperator, apply_test )
 	Teuchos::rcp_dynamic_cast<const MapOperator<double> >(map_op_clone) )->setup( 
 	function_space, function_space, Teuchos::parameterList() );
 
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Z =
-	Tpetra::createMultiVector<double,int,int>( map, num_vec );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > Z =
+	Tpetra::createMultiVector<double,int,std::size_t>( dof_map, num_vec );
     Z->putScalar( 1.0 );
 
     Teuchos::RCP<Thyra::MultiVectorBase<double> > thyra_Z =

@@ -28,6 +28,8 @@
 #include <Teuchos_OrdinalTraits.hpp>
 #include <Teuchos_ParameterList.hpp>
 
+#include <Tpetra_Map.hpp>
+
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
@@ -41,7 +43,11 @@ TEUCHOS_UNIT_TEST( FineLocalSeearch, apply_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
     Teuchos::RCP<EntityShapeFunction> shape_function =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
-    FunctionSpace function_space( entity_set, local_map, shape_function );
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > dof_map =
+	Tpetra::createLocalMap<int,std::size_t>( 
+	    1, Teuchos::DefaultComm<int>::getComm() );
+    FunctionSpace function_space( 
+	entity_set, local_map, shape_function, dof_map );
 
     TEST_EQUALITY( function_space.entitySet().getRawPtr(), 
 		   entity_set.getRawPtr() );
@@ -49,6 +55,8 @@ TEUCHOS_UNIT_TEST( FineLocalSeearch, apply_test )
 		   local_map.getRawPtr() );
     TEST_EQUALITY( function_space.shapeFunction().getRawPtr(),
 		   shape_function.getRawPtr() );
+    TEST_EQUALITY( function_space.dofMap().getRawPtr(),
+		   dof_map.getRawPtr() );
 }
 
 //---------------------------------------------------------------------------//
