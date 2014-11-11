@@ -124,9 +124,9 @@ TEUCHOS_UNIT_TEST( BasicEntitySet, basic_entity_set_test )
 	TEST_ASSERT( false );
     }
     Entity entity;
-    entity_set->getEntity( 0, entity );
+    entity_set->getEntity( ENTITY_TYPE_NODE, 0, entity );
     TEST_EQUALITY( 0, entity.id() );
-    entity_set->getEntity( 1, entity );
+    entity_set->getEntity( ENTITY_TYPE_NODE, 1, entity );
     TEST_EQUALITY( 1, entity.id() );
 
     // Check the box.

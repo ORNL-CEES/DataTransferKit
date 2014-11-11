@@ -32,96 +32,51 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityImpl.hpp
+ * \brief DTK_STKMeshEntity.hpp
  * \author Stuart R. Slattery
- * \brief Geometric entity implementation.
+ * \brief STK mesh entity interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYIMPL_HPP
-#define DTK_ENTITYIMPL_HPP
+#ifndef DTK_STKMESHENTITY_HPP
+#define DTK_STKMESHENTITY_HPP
 
-#include <string>
+#include <iostream>
 
+#include "DTK_Entity.hpp"
 #include "DTK_Types.hpp"
 #include "DTK_EntityExtraData.hpp"
 
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>
-#include <Teuchos_ParameterList.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class EntityImpl
-  \brief Geometric entity implementation definition.
+  \class Entity
+  \brief Geometric entity interface definition.
 */
 //---------------------------------------------------------------------------//
-class EntityImpl
+class STKMeshEntity : public Entity
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    EntityImpl();
+    STKMeshEntity();
+
+    /*!
+     * \brief Copy constructor.
+     */
+    STKMeshEntity( const STKMeshEntity& rhs );
 
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityImpl();
-
-    /*!
-     * \brief Get the entity type.
-     * \return The entity type.
-     */
-    virtual EntityType entityType() const;
-
-    /*!
-     * \brief Get the unique global identifier for the entity.
-     * \return A unique global identifier for the entity.
-     */
-    virtual EntityId id() const;
-    
-    /*!
-     * \brief Get the parallel rank that owns the entity.
-     * \return The parallel rank that owns the entity.
-     */
-    virtual int ownerRank() const;
-
-    /*!
-     * \brief Return the physical dimension of the entity.
-     * \return The physical dimension of the entity. Any physical coordinates
-     * describing the entity will be of this dimension.
-     */
-    virtual int physicalDimension() const;
-
-    /*!
-     * \brief Return the Cartesian bounding box around an entity.
-     * \param bounds The bounds of the box
-     * (x_min,y_min,z_min,x_max,y_max,z_max).
-     */
-    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
-
-    /*!
-     * \brief Determine if an entity is on the surface of the set.
-     */
-    virtual bool onSurface() const;
-
-    /*!
-     * \brief Determine if an entity is in the block with the given id.
-     */
-    virtual bool inBlock( const int block_id ) const;
-
-    /*!
-     * \brief Determine if an entity is on the boundary with the given id.
-     */
-    virtual bool onBoundary( const int boundary_id ) const;
-
-    /*!
-     * \brief Get the extra data on the entity.
-     */
-    virtual Teuchos::RCP<EntityExtraData> extraData() const;
+     ~STKMeshEntity();
 };
 
 //---------------------------------------------------------------------------//
@@ -130,8 +85,8 @@ class EntityImpl
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_ENTITYIMPL_HPP
+#endif // end DTK_STKMESHENTITY_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityImpl.hpp
+// end DTK_STKMeshEntity.hpp
 //---------------------------------------------------------------------------//

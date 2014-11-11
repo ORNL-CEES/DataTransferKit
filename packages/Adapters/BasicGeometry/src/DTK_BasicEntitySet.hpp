@@ -181,7 +181,9 @@ class BasicEntitySet : public EntitySet
      * \param entity_id Get the entity with this id.
      * \param entity The entity with the given id.
      */
-    void getEntity( const EntityId entity_id, Entity& entity ) const;
+    void getEntity( const EntityType entity_type,
+		    const EntityId entity_id, 
+		    Entity& entity ) const;
 
     /*!
      * \brief Get an iterator over a subset of the entity set that satisfies
@@ -217,9 +219,6 @@ class BasicEntitySet : public EntitySet
 
     // Physical dimension.
     int d_physical_dim;
-
-    // Id-to-dimension map.
-    std::unordered_map<EntityId,int> d_entity_dims;
 
     // Id-to-entity maps.
     mutable Teuchos::Array<std::unordered_map<EntityId,Entity> > d_entities;

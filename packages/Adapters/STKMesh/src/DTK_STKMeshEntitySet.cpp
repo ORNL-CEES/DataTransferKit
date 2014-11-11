@@ -32,32 +32,34 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntitySet.cpp
+ * \brief DTK_STKMeshEntitySet.cpp
  * \author Stuart R. Slattery
  * \brief Geometric entity set interface.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_EntitySet.hpp"
+#include "DTK_STKMeshEntitySet.hpp"
 #include "DTK_DBC.hpp"
-
-#include <Teuchos_CommHelpers.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-EntitySet::EntitySet()
-{ /* ... */ }
+STKMeshEntitySet::STKMeshEntitySet( 
+    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
+    : d_bulk_data( bulk_data )
+{ 
+    DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
+}
 
 //---------------------------------------------------------------------------//
 // Destructor.
-EntitySet::~EntitySet()
+STKMeshEntitySet::~STKMeshEntitySet()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
-Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
+Teuchos::RCP<const Teuchos::Comm<int> > STKMeshEntitySet::communicator() const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -66,73 +68,24 @@ Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
 
 //---------------------------------------------------------------------------//
 // Return the largest physical dimension of the entities in the set. 
-int EntitySet::physicalDimension() const
+int STKMeshEntitySet::physicalDimension() const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return -1;
-}
-
-//---------------------------------------------------------------------------//
-// Get the local bounding box of entities of the set. Default implementation
-// gathers the bounding boxes of local entities.
-void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
-{
-    double max = std::numeric_limits<double>::max();
-    bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
-    EntityIterator entity_begin;
-    EntityIterator entity_end;
-    EntityIterator entity_it;
-    EntityIterator dim_it;
-    Teuchos::Tuple<double,6> entity_bounds;
-    for ( int i = 0; i < 4; ++i )
-    {
-	dim_it = this->entityIterator( static_cast<EntityType>(i) );
-	entity_begin = dim_it.begin();
-	entity_end = dim_it.end();
-	for ( entity_it = entity_begin;
-	      entity_it != entity_end;
-	      ++entity_it )
-	{
-	    entity_it->boundingBox( entity_bounds );
-	    for ( int n = 0; n < 3; ++n )
-	    {
-		bounds[n] = std::min( bounds[n], entity_bounds[n] );
-		bounds[n+3] = std::max( bounds[n+3], entity_bounds[n+3] );
-	    }
-	}
-    }
-}
-
-//---------------------------------------------------------------------------//
-// Get the global bounding box of entities of the set. Default implementation
-// performs a parallel reduction using the local bounding boxes.
-void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
-{
-    double max = std::numeric_limits<double>::max();
-    bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
-    Teuchos::Tuple<double,6> local_bounds;
-    this->localBoundingBox( local_bounds );
-    Teuchos::reduceAll( *(this->communicator()), Teuchos::REDUCE_MIN, 3,
-			&local_bounds[0], &bounds[0] ); 
-    Teuchos::reduceAll( *(this->communicator()), Teuchos::REDUCE_MAX, 3,
-			&local_bounds[3], &bounds[3] ); 
+    return d_bulk_data->mesh_meta_data().spatial_dimension();
 }
 
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
-void EntitySet::getEntity( const EntityType entity_type, 
-			   const EntityId entity_id, 
-			   Entity& entity ) const
+void STKMeshEntitySet::getEntity( const EntityType entity_type,
+				  const EntityId entity_id, 
+				  Entity& entity ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+
 }
 
 //---------------------------------------------------------------------------//
 // Get an iterator over a subset of the entity set that satisfies the given
 // predicate. 
-EntityIterator EntitySet::entityIterator(
+EntityIterator STKMeshEntitySet::entityIterator(
     const EntityType entity_type,
     const std::function<bool(Entity)>& predicate ) const
 {
@@ -144,7 +97,7 @@ EntityIterator EntitySet::entityIterator(
 //---------------------------------------------------------------------------//
 // Given an entity, get the entities of the given type that are adjacent to
 // it. 
-void EntitySet::getAdjacentEntities(
+void STKMeshEntitySet::getAdjacentEntities(
     const Entity& entity,
     const EntityType entity_type,
     Teuchos::Array<Entity>& adjacent_entities ) const
@@ -158,5 +111,5 @@ void EntitySet::getAdjacentEntities(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_EntitySet.cpp
+// end DTK_STKMeshEntitySet.cpp
 //---------------------------------------------------------------------------//

@@ -32,17 +32,18 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntitySet.hpp
+ * \brief DTK_STKMeshEntitySet.hpp
  * \author Stuart R. Slattery
- * \brief Geometric entity set interface.
+ * \brief STK mesh entity set.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYSET_HPP
-#define DTK_ENTITYSET_HPP
+#ifndef DTK_STKMESHENTITYSET_HPP
+#define DTK_STKMESHENTITYSET_HPP
 
 #include <functional>
 
+#include "DTK_EntitySet.hpp"
 #include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
@@ -52,30 +53,31 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_Tuple.hpp>
 
+#include <stk_mesh/base/BulkData.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class EntitySet
-  \brief Geometric entity set interface definition.
+  \class STKMeshEntitySet
+  \brief STK mesh entity set.
 
-  An entity set is a coherent collection of geometric entities with a parallel
-  distribution.
+  Entity set implementation for STK.
 */
 //---------------------------------------------------------------------------//
-class EntitySet
+class STKMeshEntitySet : public EntitySet
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    EntitySet();
+    STKMeshEntitySet( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
 
     /*!
      * \brief Destructor.
      */
-    virtual ~EntitySet();
+    ~STKMeshEntitySet();
 
     //@{
     //! Parallel functions.
@@ -83,7 +85,7 @@ class EntitySet
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
      */
-    virtual Teuchos::RCP<const Teuchos::Comm<int> > communicator() const;
+    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const;
     //@}
 
     //@{
@@ -93,19 +95,7 @@ class EntitySet
      * set.  
      * \return The physical dimension of the set.
      */
-    virtual int physicalDimension() const;
-
-    /*!
-     * \brief Get the local bounding box of entities of the set.
-     * \return A Cartesian box the bounds all local entities in the set.
-     */
-    virtual void localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;
-
-    /*!
-     * \brief Get the global bounding box of entities of the set.
-     * \return A Cartesian box the bounds all global entities in the set.
-     */
-    virtual void globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    int physicalDimension() const;
     //@}
 
     //@{
@@ -115,9 +105,9 @@ class EntitySet
      * \param entity_id Get the entity with this id.
      * \param entity The entity with the given id.
      */
-    virtual void getEntity( const EntityType entity_type, 
-			    const EntityId entity_id, 
-			    Entity& entity ) const;
+    void getEntity( const EntityType entity_type,
+		    const EntityId entity_id, 
+		    Entity& entity ) const;
 
     /*!
      * \brief Get a iterator of the given entity type that satisfy the given
@@ -126,32 +116,38 @@ class EntitySet
      * \param predicate The selection predicate.
      * \return A iterator of entities of the given type.
      */
-    virtual EntityIterator entityIterator( 
+    EntityIterator entityIterator( 
 	const EntityType entity_type,
-	const std::function<bool(Entity)>& predicate = selectAll ) const;
-
-    /*!
-     * \brief Select all entities predicate.
-     */
-    static inline bool selectAll( Entity entity ) { return true; }
+	const std::function<bool(Entity)>& predicate ) const;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
      * adjacent to it.
      */
-    virtual void getAdjacentEntities(
+    void getAdjacentEntities(
 	const Entity& entity,
 	const EntityType entity_type,
 	Teuchos::Array<Entity>& adjacent_entities ) const;
     //@}
+
+  private:
+
+    // Given an entity type, get the STK entity rank.
+    stk::mesh::EntityRank 
+    getRankFromEntityType( const EntityType entity_type ) const;
+
+  private:
+
+    // Mesh bulk data.
+    Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_ENTITYSET_HPP
+#endif // end DTK_STKMESHENTITYSET_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_EntitySet.hpp
+// end DTK_STKMeshEntitySet.hpp
 //---------------------------------------------------------------------------//

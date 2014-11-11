@@ -1,6 +1,5 @@
 
 SET(LIB_REQUIRED_DEP_PACKAGES
-  DataTransferKitNanoflann
   DataTransferKitUtils
   DataTransferKitInterface
   Teuchos 
@@ -10,9 +9,8 @@ SET(LIB_REQUIRED_DEP_PACKAGES
 SET(LIB_OPTIONAL_DEP_PACKAGES)
 
 SET(TEST_REQUIRED_DEP_PACKAGES
-  ThyraCore
-  ThyraTpetraAdapters
-  )
+  DataTransferKitOperators
+)
 
 SET(TEST_OPTIONAL_DEP_PACKAGES)
 

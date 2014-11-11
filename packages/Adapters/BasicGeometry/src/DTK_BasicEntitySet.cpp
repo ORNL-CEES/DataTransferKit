@@ -215,8 +215,6 @@ BasicEntitySet::~BasicEntitySet()
 // Add an entity to the set.
 void BasicEntitySet::addEntity( const Entity& entity )
 {
-    d_entity_dims.insert( 
-	std::pair<EntityId,int>(entity.id(),entity.entityType()) );
     d_entities[ entity.entityType() ].insert(
 	std::pair<EntityId,Entity>(entity.id(), entity) );
 }
@@ -238,13 +236,12 @@ int BasicEntitySet::physicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
-void BasicEntitySet::getEntity( 
-    const EntityId entity_id, Entity& entity ) const
+void BasicEntitySet::getEntity( const EntityType entity_type, 
+				const EntityId entity_id, 
+				Entity& entity ) const
 {
-    DTK_REQUIRE( d_entity_dims.count(entity_id) );
-    int entity_dim = d_entity_dims.find(entity_id)->second;
-    DTK_CHECK( d_entities[entity_dim].count(entity_id) );
-    entity = d_entities[entity_dim].find(entity_id)->second;
+    DTK_CHECK( d_entities[entity_type].count(entity_id) );
+    entity = d_entities[entity_type].find(entity_id)->second;
 }
 
 //---------------------------------------------------------------------------//
