@@ -27,8 +27,6 @@ APPEND_SET(HEADERS
   DTK_MapOperator.hpp
   DTK_MapOperator_impl.hpp
   DTK_ParallelSearch.hpp
-  DTK_SpmdLinearOperator.hpp
-  DTK_SpmdLinearOperator_impl.hpp
   ) 
 
 APPEND_SET(SOURCES

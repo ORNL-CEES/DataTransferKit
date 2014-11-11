@@ -273,15 +273,15 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 
     // Wrap the coupling matrix with the Thyra interface.
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space =
-	Thyra::createVectorSpace<Scalar>( coupling_matrix->getRangeMap() );
+    	Thyra::createVectorSpace<Scalar>( coupling_matrix->getRangeMap() );
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_domain_vector_space =
-	Thyra::createVectorSpace<Scalar>( coupling_matrix->getDomainMap() );
+    	Thyra::createVectorSpace<Scalar>( coupling_matrix->getDomainMap() );
     Teuchos::RCP<Thyra::TpetraLinearOp<Scalar,int,std::size_t> > 
-	thyra_coupling_matrix =
-	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,int,std::size_t>() );
+    	thyra_coupling_matrix =
+    	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,int,std::size_t>() );
     thyra_coupling_matrix->initialize( thyra_range_vector_space, 
-				       thyra_domain_vector_space, 
-				       coupling_matrix );
+    				       thyra_domain_vector_space, 
+    				       coupling_matrix );
 
     // Set the coupling matrix with the base class.
     this->b_coupling_matrix = thyra_coupling_matrix;
