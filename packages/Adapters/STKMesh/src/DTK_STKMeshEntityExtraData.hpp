@@ -32,24 +32,16 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntity.hpp
+ * \brief DTK_STKMeshEntityExtraData.hpp
  * \author Stuart R. Slattery
- * \brief STK mesh entity interface.
+ * \brief Extra data for STK mesh entities.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_STKMESHENTITY_HPP
-#define DTK_STKMESHENTITY_HPP
+#ifndef DTK_STKMESHENTITYEXTRADATA_HPP
+#define DTK_STKMESHENTITYEXTRADATA_HPP
 
-#include <iostream>
-
-#include "DTK_Entity.hpp"
-#include "DTK_Types.hpp"
 #include "DTK_EntityExtraData.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayView.hpp>
-#include <Teuchos_Tuple.hpp>
 
 #include <stk_mesh/base/Entity.hpp>
 
@@ -57,46 +49,30 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class Entity
-  \brief Geometric entity interface definition.
+  \class STKMeshEntityExtraData
+  \brief A base class for setting extra data with entities.
 */
 //---------------------------------------------------------------------------//
-class STKMeshEntity : public Entity
+class STKMeshEntityExtraData
 {
   public:
 
-    /*!
-     * \brief Constructor.
-     * \param stk_entity The entity to wrap this interface around.
-     * \param bulk_data A pointer to the bulk data. We will store a copy of
-     * this pointer but not reference count it. We do this because we will
-     * create *many* copies of this pointer and do not want to incur the
-     * reference counting overhead. We will always make sure that the pointer
-     * is in scope both inside and outside of this class while this class
-     * exists.
-     */
-    STKMeshEntity( const stk::mesh::Entity& stk_entity,
-		   const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
+    STKMeshEntityExtraData( const stk::mesh::Entity stk_entity ) 
+	: d_stk_entity( stk_entity )
+    { /* ... */ }
 
-    /*!
-     * \brief Copy constructor.
-     */
-    STKMeshEntity( const STKMeshEntity& rhs );
+    ~STKMeshEntityExtraData() { /* ... */ }
 
-    /*!
-     * \brief Destructor.
-     */
-     ~STKMeshEntity();
+    // STK mesh entity.
+    const stk::mesh::Entity d_stk_entity;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-
-#endif // end DTK_STKMESHENTITY_HPP
+#endif // end DTK_STKMESHENTITYEXTRADATA_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshEntity.hpp
+// end DTK_STKMeshEntityExtraData.hpp
 //---------------------------------------------------------------------------//

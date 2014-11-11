@@ -45,12 +45,13 @@
 
 #include "DTK_Types.hpp"
 #include "DTK_EntityImpl.hpp"
-#include "DTK_EntityExtraData.hpp"
+#include "DTK_STKMeshEntityExtraData.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
 
 #include <stk_mesh/base/Entity.hpp>
+#include <stk_mesh/base/BulkData.hpp>
 
 namespace DataTransferKit
 {
@@ -67,7 +68,8 @@ class STKMeshEntityImpl : public EntityImpl
     /*!
      * \brief Constructor.
      */
-    STKMeshEntityImpl( const stk::mesh::Entity* entity );
+    STKMeshEntityImpl( const stk::mesh::Entity& stk_entity,
+		       const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
 
     /*!
      * \brief Destructor.
@@ -125,6 +127,14 @@ class STKMeshEntityImpl : public EntityImpl
      * \brief Get the extra data on the entity.
      */
     Teuchos::RCP<EntityExtraData> extraData() const;
+
+  private:
+
+    // STK mesh entity extra data.
+    Teuchos::RCP<STKMeshEntityExtraData> d_extra_data;
+
+    // STK mesh bulk data.
+    Teuchos::Ptr<stk::mesh::Entity> d_bulk_data;
 };
 
 //---------------------------------------------------------------------------//

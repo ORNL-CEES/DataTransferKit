@@ -39,7 +39,12 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_STKMeshEntitySet.hpp"
+#include "DTK_STKMeshEntityExtraData.hpp"
 #include "DTK_DBC.hpp"
+
+#include <stk_topology/topology.hpp>
+
+#include <Teuchos_DefaultMpiComm.hpp>
 
 namespace DataTransferKit
 {
@@ -61,9 +66,7 @@ STKMeshEntitySet::~STKMeshEntitySet()
 // Get the parallel communicator for the entity set.
 Teuchos::RCP<const Teuchos::Comm<int> > STKMeshEntitySet::communicator() const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return Teuchos::null;
+    return Teuchos::rcp( new Teuchos::MpiComm(d_bulk_data->parallel()) );
 }
 
 //---------------------------------------------------------------------------//
@@ -79,7 +82,10 @@ void STKMeshEntitySet::getEntity( const EntityType entity_type,
 				  const EntityId entity_id, 
 				  Entity& entity ) const
 {
-
+    entity = STKMeshEntity( 
+	d_bulk_data->get_entity( getRankFromEntityType(entity_type), entity_id ),
+	d_bulk_data.ptr()
+	);
 }
 
 //---------------------------------------------------------------------------//
@@ -102,8 +108,53 @@ void STKMeshEntitySet::getAdjacentEntities(
     const EntityType entity_type,
     Teuchos::Array<Entity>& adjacent_entities ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    Teuchos::RCP<EntityExtraData> extra_data = entity.extraData();
+    stk::mesh::Entity stk_entity = 
+	Teuchos::rcp_dynamic_cast<STKMeshEntityExtraData>(
+	    extra_data)->d_stk_entity;
+    stk::mesh::EntityRank rank = getRankFromEntityType( entity_type );
+    const Entity* begin = d_bulk_data->begin( stk_entity, entity_rank );
+    const Entity* end = d_bulk_data->end( stk_entity, entity_rank );
+    Teuchos::Array<stk::mesh::Entity> stk_adjacencies( begin, end );
+    adjacent_entities.resize( stk_adjacencies.size() );
+    Teuchos::Array<Entity>::iterator entity_it;
+    Teuchos::Array<stk::mesh::Entity>::iterator stk_it;
+    for ( entity_it = adjacent_entities.begin(),
+	     stk_it = stk_adjacencies.begin();
+	  entity_it != adjacent_entities.end();
+	  ++entity_it; ++stk_it )
+    {
+	*entity_it = STKMeshEntity( *stk_it, d_bulk_data.ptr() );
+    }
+}
+
+//---------------------------------------------------------------------------//
+// Given an entity type, get the STK entity rank.
+stk::mesh::EntityRank 
+STKMeshEntitySet::getRankFromEntityType( const EntityType entity_type ) const
+{
+    stk::mesh::EntityRank rank = 0;
+    switch( entity_type )
+    {
+	case ENTITY_TYPE_NODE:
+	    rank = stk::topology::NODE_RANK;
+	    break;
+	case ENTITY_TYPE_EDGE:
+	    rank = stk::topology::EDGE_RANK;
+	    break;
+	case ENTITY_TYPE_FACE:
+	    rank = stk::topology::FACE_RANK;
+	    break;
+	case ENTITY_TYPE_VOLUME:
+	    rank = stk::topology::ELEM_RANK;
+	    break;
+	default:
+	    DTK_CHECK( ENTITY_TYPE_NODE == entity_type ||
+		       ENTITY_TYPE_EDGE == entity_type ||
+		       ENTITY_TYPE_FACE == entity_type ||
+		       ENTITY_TYPE_ELEM == entity_type );
+	    break;
+    }
 }
 
 //---------------------------------------------------------------------------//
