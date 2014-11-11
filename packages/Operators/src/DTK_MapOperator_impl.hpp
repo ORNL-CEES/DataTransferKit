@@ -64,7 +64,9 @@ MapOperator<Scalar>::~MapOperator()
 // Setup the map operator.
 template<class Scalar>
 void MapOperator<Scalar>::setup(
+    const Teuchos::RCP<const TpetraMap>& domain_map,
     const Teuchos::RCP<FunctionSpace>& domain_space,
+    const Teuchos::RCP<const TpetraMap>& range_map,
     const Teuchos::RCP<FunctionSpace>& range_space,
     const Teuchos::RCP<Teuchos::ParameterList>& parameters )
 {

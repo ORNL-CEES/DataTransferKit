@@ -47,8 +47,6 @@
 
 #include <Teuchos_RCP.hpp>
 
-#include <Tpetra_Map.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -67,11 +65,9 @@ class FunctionSpace
     /*!
      * \brief Constructor.
      */
-    FunctionSpace( 
-	const Teuchos::RCP<EntitySet>& entity_set,
-	const Teuchos::RCP<EntityLocalMap>& local_map,
-	const Teuchos::RCP<EntityShapeFunction>& shape_function,
-	const Teuchos::RCP<const Tpetra::Map<int,std::size_t> >& dof_map );
+    FunctionSpace( const Teuchos::RCP<EntitySet>& entity_set,
+		   const Teuchos::RCP<EntityLocalMap>& local_map,
+		   const Teuchos::RCP<EntityShapeFunction>& shape_function );
 
     /*!
      * \brief Destructor.
@@ -93,11 +89,6 @@ class FunctionSpace
      */
     Teuchos::RCP<EntityShapeFunction> shapeFunction() const;
 
-    /*!
-     * \brief Get the parallel map under the DOFs supporting the function.
-     */
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > dofMap() const;
-
   private:
 
     // The entity set over which the function space is constructed.
@@ -108,9 +99,6 @@ class FunctionSpace
 
     // The shape function for the entities in the set.
     Teuchos::RCP<EntityShapeFunction> d_shape_function;
-
-    // The parallel map under the DOFs supporting the function space.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > d_dof_map;
 };
 
 //---------------------------------------------------------------------------//

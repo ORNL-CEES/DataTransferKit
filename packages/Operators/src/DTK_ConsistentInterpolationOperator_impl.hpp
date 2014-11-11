@@ -83,7 +83,9 @@ ConsistentInterpolationOperator<Scalar>::~ConsistentInterpolationOperator()
 // Setup the map operator.
 template<class Scalar>
 void ConsistentInterpolationOperator<Scalar>::setup(
+    const Teuchos::RCP<const typename Base::TpetraMap>& domain_map,
     const Teuchos::RCP<FunctionSpace>& domain_space,
+    const Teuchos::RCP<const typename Base::TpetraMap>& range_map,
     const Teuchos::RCP<FunctionSpace>& range_space,
     const Teuchos::RCP<Teuchos::ParameterList>& parameters )
 {
@@ -92,8 +94,8 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     bool nonnull_range = Teuchos::nonnull( range_space->entitySet() );
 
     // Extract the DOF maps.
-    this->b_domain_map = domain_space->dofMap();
-    this->b_range_map = range_space->dofMap();
+    this->b_domain_map = domain_map;
+    this->b_range_map = range_map;
 
     // Get the physical dimension.
     int physical_dimension = 0;

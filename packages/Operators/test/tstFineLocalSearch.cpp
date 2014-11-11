@@ -30,7 +30,7 @@
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( FineLocalSeearch, search_test_1 )
+TEUCHOS_UNIT_TEST( FineLocalSearch, search_test_1 )
 {
     using namespace DataTransferKit;
 
@@ -85,7 +85,7 @@ TEUCHOS_UNIT_TEST( FineLocalSeearch, search_test_1 )
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( FineLocalSeearch, search_test_2 )
+TEUCHOS_UNIT_TEST( FineLocalSearch, search_test_2 )
 {
     using namespace DataTransferKit;
 

@@ -39,7 +39,6 @@
 
 #include <Thyra_TpetraThyraWrappers.hpp>
 
-
 //---------------------------------------------------------------------------//
 // Shape function implementation.
 //---------------------------------------------------------------------------//
@@ -164,7 +163,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Construct a function space for the boxes.
     Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
-	new FunctionSpace(domain_set,domain_local_map,domain_shape,domain_dof_map) );
+	new FunctionSpace(domain_set,domain_local_map,domain_shape) );
 
     // Construct a selector for the boxes.
     Teuchos::RCP<EntitySelector> domain_selector = 
@@ -209,7 +208,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Construct a function space for the points.
     Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp(
-	new FunctionSpace(range_set,range_local_map,range_shape,range_dof_map) );
+	new FunctionSpace(range_set,range_local_map,range_shape) );
 
     // Construct a selector for the points.
     Teuchos::RCP<EntitySelector> range_selector = 
@@ -228,7 +227,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    map_op->setup( domain_space, range_space, parameters );
+    map_op->setup( 
+	domain_dof_map, domain_space, range_dof_map, range_space, parameters );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );

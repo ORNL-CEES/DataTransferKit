@@ -101,6 +101,8 @@ class TestOperator : public DataTransferKit::MapOperator<double>
 {
   public:
 
+    typedef MapOperator<double> Base;
+
     TestOperator( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
 		  int local_size,
 		  double scalar_a,
@@ -117,7 +119,9 @@ class TestOperator : public DataTransferKit::MapOperator<double>
 
     ~TestOperator() { /* ... */ }
 
-    void setup( const Teuchos::RCP<DataTransferKit::FunctionSpace>& domain_space,
+    void setup( const Teuchos::RCP<const typename Base::TpetraMap>& domain_map,
+		const Teuchos::RCP<DataTransferKit::FunctionSpace>& domain_space,
+		const Teuchos::RCP<const typename Base::TpetraMap>& range_map,
 		const Teuchos::RCP<DataTransferKit::FunctionSpace>& range_space,
 		const Teuchos::RCP<Teuchos::ParameterList>& parameters )
     {
@@ -205,12 +209,13 @@ TEUCHOS_UNIT_TEST( MapOperator, apply_test )
 	Tpetra::createUniformContigMap<int,std::size_t>( 
 	    local_size*comm->getSize(), comm );
     Teuchos::RCP<FunctionSpace> function_space = Teuchos::rcp( 
-	new FunctionSpace(entity_set, local_map, shape_function, dof_map) );
+	new FunctionSpace(entity_set, local_map, shape_function) );
 
     // Make a map.
     Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
 	new TestOperator(comm,local_size,a,b,c,num_vec) );
-    map_op->setup( function_space, function_space, Teuchos::parameterList() );
+    map_op->setup( 
+	dof_map, function_space, dof_map, function_space, Teuchos::parameterList() );
 
     // Test the apply on some vectors.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > X =
