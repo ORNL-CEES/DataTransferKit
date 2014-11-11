@@ -16,6 +16,7 @@
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayView.hpp"
 #include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
@@ -99,7 +100,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
     typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
 
     RCP_Comm global_comm = getDefaultComm<int>();
-    std::vector<int> sub_ranks;
+    Teuchos::Array<int> sub_ranks;
     for ( int n = 0; n < global_comm->getSize(); ++n )
     {
 	if ( n % 2 == 0 )
