@@ -93,8 +93,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
 
     // Construct a DOF vector for the boxes.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > domain_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, box_ids, box_dofs, num_boxes, 1 );
 
     // RANGE SETUP
@@ -138,8 +138,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
 
     // Construct a DOF vector for the points.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > range_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, point_ids, point_dofs, num_points, 1 );
 
     // MAPPING
@@ -153,7 +153,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     map_op->setup( domain_space, range_space, parameters );
 
     // Apply the map.
-    map_op->apply( Thyra::NOTRANS, *domain_dofs, range_dofs.ptr(), 1.0, 0.0 );
+    map_op->apply( *domain_dofs, *range_dofs );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -210,8 +210,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
 
     // Construct a DOF vector for the boxes.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > domain_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, box_ids, box_dofs, num_boxes, 1 );
 
     // RANGE SETUP
@@ -255,8 +255,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
 
     // Construct a DOF vector for the points.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > range_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, point_ids, point_dofs, num_points, 1 );
 
     // MAPPING
@@ -270,7 +270,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     map_op->setup( domain_space, range_space, parameters );
 
     // Apply the map.
-    map_op->apply( Thyra::NOTRANS, *domain_dofs, range_dofs.ptr(), 1.0, 0.0 );
+    map_op->apply( *domain_dofs, *range_dofs );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -329,8 +329,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
 
     // Construct a DOF vector for the boxes.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > domain_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, box_ids, box_dofs, num_boxes, 1 );
 
     // RANGE SETUP
@@ -374,8 +374,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
 
     // Construct a DOF vector for the points.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > range_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, point_ids, point_dofs, num_points, 1 );
 
     // MAPPING
@@ -389,7 +389,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     map_op->setup( domain_space, range_space, parameters );
 
     // Apply the map.
-    map_op->apply( Thyra::NOTRANS, *domain_dofs, range_dofs.ptr(), 1.0, 0.0 );
+    map_op->apply( *domain_dofs, *range_dofs );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -447,8 +447,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
 
     // Construct a DOF vector for the boxes.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > domain_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, box_ids, box_dofs, num_boxes, 1 );
 
     // RANGE SETUP
@@ -492,8 +492,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
 
     // Construct a DOF vector for the points.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > range_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, point_ids, point_dofs, num_points, 1 );
 
     // MAPPING
@@ -507,7 +507,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     map_op->setup( domain_space, range_space, parameters );
 
     // Apply the map.
-    map_op->apply( Thyra::NOTRANS, *domain_dofs, range_dofs.ptr(), 1.0, 0.0 );
+    map_op->apply( *domain_dofs, *range_dofs );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -564,8 +564,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
 
     // Construct a DOF vector for the boxes.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > domain_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, box_ids, box_dofs, num_boxes, 1 );
 
     // RANGE SETUP
@@ -609,8 +609,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
 
     // Construct a DOF vector for the points.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > range_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, point_ids, point_dofs, num_points, 1 );
 
     // MAPPING
@@ -624,7 +624,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     map_op->setup( domain_space, range_space, parameters );
 
     // Apply the map.
-    map_op->apply( Thyra::NOTRANS, *domain_dofs, range_dofs.ptr(), 1.0, 0.0 );
+    map_op->apply( *domain_dofs, *range_dofs );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -681,8 +681,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
 
     // Construct a DOF vector for the boxes.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > domain_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, box_ids, box_dofs, num_boxes, 1 );
 
     // RANGE SETUP
@@ -722,8 +722,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
 
     // Construct a DOF vector for the points.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > range_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, point_ids, point_dofs, num_points, 1 );
 
     // MAPPING
@@ -737,7 +737,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     map_op->setup( domain_space, range_space, parameters );
 
     // Apply the map.
-    map_op->apply( Thyra::NOTRANS, *domain_dofs, range_dofs.ptr(), 1.0, 0.0 );
+    map_op->apply( *domain_dofs, *range_dofs );
 
     // Check the results of the mapping. We should get an average on some
     // cores because of the location in multiple domains.

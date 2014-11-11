@@ -98,7 +98,7 @@ Teuchos::RCP<const Tpetra::Map<int,std::size_t> > createDOFMap(
 // DOF vector.
 //---------------------------------------------------------------------------//
 template<class Scalar>
-Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > 
+Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
 createTestDOFVector( 
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
     const Teuchos::ArrayView<const std::size_t>& entity_ids,
@@ -113,12 +113,8 @@ createTestDOFVector(
 	createDOFMap( comm, entity_ids, dofs_per_entity );
 
     // Build a tpetra multivector.
-    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > tpetra_mv =
-	Tpetra::createMultiVectorFromView<Scalar,int,std::size_t>( 
-	    map, dof_data, lda, num_vectors );
-
-    // Return a thyra multivector.
-    return Thyra::createMultiVector( tpetra_mv );
+    return Tpetra::createMultiVectorFromView<Scalar,int,std::size_t>( 
+	map, dof_data, lda, num_vectors );
 }
 
 //---------------------------------------------------------------------------//
@@ -175,7 +171,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
 
     // Construct a DOF vector for the boxes.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > domain_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
 	createTestDOFVector(
 	    comm, box_ids, box_dofs, dofs_per_box*num_boxes, 1 );
 
@@ -220,8 +216,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
 
     // Construct a DOF vector for the points.
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > range_dofs =
-	EntityCenteredDOFVector::createThyraMultiVector(
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
 	    comm, point_ids, point_dofs, num_points, 1 );
 
     // MAPPING
@@ -235,7 +231,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     map_op->setup( domain_space, range_space, parameters );
 
     // Apply the map.
-    map_op->apply( Thyra::NOTRANS, *domain_dofs, range_dofs.ptr(), 1.0, 0.0 );
+    map_op->apply( *domain_dofs, *range_dofs );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )

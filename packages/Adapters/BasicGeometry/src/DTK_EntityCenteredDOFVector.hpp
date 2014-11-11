@@ -46,7 +46,7 @@
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Comm.hpp>
 
-#include <Thyra_MultiVectorBase.hpp>
+#include <Tpetra_MultiVector.hpp>
 
 namespace DataTransferKit
 {
@@ -55,8 +55,8 @@ namespace DataTransferKit
   \class EntityCenteredDOFVector
   \brief Entity-centered DOF vector.
 
-  Tools for constructing vectors for data bound to entity-centered shape
-  functions. 
+  Tools for constructing Tpetra vectors for data bound to entity-centered
+  shape functions.
 */
 //---------------------------------------------------------------------------//
 class EntityCenteredDOFVector
@@ -77,7 +77,7 @@ class EntityCenteredDOFVector
 
     /*!
      * \brief Given a set of entity ids and DOF data bound to the center of
-     * those entites, build a Thyra vector.
+     * those entites, build a Tpetra vector.
      * \param comm The communicator the DOFs are defined over.
      * \param entity_ids The ids of the entities the DOFs are defined over
      * (cast as std::size_t instead of EntityId).
@@ -88,12 +88,13 @@ class EntityCenteredDOFVector
      * \param num_vectors The number of vectors in the multivector.
      */
     template<class Scalar>
-    static Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > 
-    createThyraMultiVector( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-			    const Teuchos::ArrayView<const std::size_t>& entity_ids,
-			    const Teuchos::ArrayRCP<Scalar>& dof_data,
-			    const std::size_t lda,
-			    const std::size_t num_vectors );
+    static Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
+    createTpetraMultiVectorFromView(
+	const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+	const Teuchos::ArrayView<const std::size_t>& entity_ids,
+	const Teuchos::ArrayRCP<Scalar>& dof_data,
+	const std::size_t lda,
+	const std::size_t num_vectors );
 };
 
 //---------------------------------------------------------------------------//

@@ -23,6 +23,7 @@
 
 #include <Thyra_MultiVectorBase.hpp>
 #include <Thyra_MultiVectorStdOps.hpp>
+#include <Thyra_TpetraThyraWrappers.hpp>
 
 //---------------------------------------------------------------------------//
 // TESTS
@@ -50,13 +51,15 @@ TEUCHOS_UNIT_TEST( EntityCenteredDOFVector, vector_test )
 
     // Create an input vector.
     Teuchos::RCP<Thyra::MultiVectorBase<double> > in_vec =
-	DataTransferKit::EntityCenteredDOFVector::createThyraMultiVector( 
-	    comm, ids(), in_data, vec_length, num_vec );
+	Thyra::createMultiVector(
+	    DataTransferKit::EntityCenteredDOFVector::createTpetraMultiVectorFromView( 
+		comm, ids(), in_data, vec_length, num_vec) );
         
     // Create an output vector.
     Teuchos::RCP<Thyra::MultiVectorBase<double> > out_vec =
-	DataTransferKit::EntityCenteredDOFVector::createThyraMultiVector( 
-	    comm, ids(), out_data, vec_length, num_vec );
+	Thyra::createMultiVector(
+	    DataTransferKit::EntityCenteredDOFVector::createTpetraMultiVectorFromView( 
+		comm, ids(), out_data, vec_length, num_vec) );
 
     // Add the vectors together.
     Thyra::Vp_V( Teuchos::ptr(out_vec.getRawPtr()), *in_vec );

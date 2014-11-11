@@ -45,16 +45,13 @@
 #include "DTK_DBC.hpp"
 
 #include <Tpetra_Map.hpp>
-#include <Tpetra_MultiVector.hpp>
-
-#include <Thyra_TpetraThyraWrappers.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 template<class Scalar>
-Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > 
-EntityCenteredDOFVector::createThyraMultiVector( 
+Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
+EntityCenteredDOFVector::createTpetraMultiVectorFromView( 
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
     const Teuchos::ArrayView<const std::size_t>& entity_ids,
     const Teuchos::ArrayRCP<Scalar>& dof_data,
@@ -68,12 +65,8 @@ EntityCenteredDOFVector::createThyraMultiVector(
 	Tpetra::createNonContigMap<int,std::size_t>( entity_ids, comm );
 
     // Build a tpetra multivector.
-    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > tpetra_mv =
-	Tpetra::createMultiVectorFromView<Scalar,int,std::size_t>( 
+    return Tpetra::createMultiVectorFromView<Scalar,int,std::size_t>( 
 	    map, dof_data, lda, num_vectors );
-
-    // Return a thyra multivector.
-    return Thyra::createMultiVector( tpetra_mv );
 }
 
 //---------------------------------------------------------------------------//

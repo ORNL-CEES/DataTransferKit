@@ -43,8 +43,8 @@
 namespace DataTransferKit
 {
 
-template Teuchos::RCP<Thyra::MultiVectorBase<double> > 
-EntityCenteredDOFVector::createThyraMultiVector<double>(
+template Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> >
+EntityCenteredDOFVector::createTpetraMultiVectorFromView<double>(
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
     const Teuchos::ArrayView<const std::size_t>& entity_ids,
     const Teuchos::ArrayRCP<double>& dof_data,

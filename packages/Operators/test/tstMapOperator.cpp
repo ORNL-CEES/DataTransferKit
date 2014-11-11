@@ -78,7 +78,7 @@ createScaledIdentity(
 //---------------------------------------------------------------------------//
 // Create a vector filled with a scalar.
 //---------------------------------------------------------------------------//
-Teuchos::RCP<Thyra::MultiVectorBase<double> > 
+Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > 
 createDOFVector( 
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm, 
     int local_size,
@@ -91,8 +91,7 @@ createDOFVector(
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > vec =
 	Tpetra::createMultiVector<double>( map, num_vec );
     vec->putScalar( val );
-
-    return Thyra::createMultiVector( vec );
+    return vec;
 }
 
 //---------------------------------------------------------------------------//
@@ -124,13 +123,8 @@ class TestOperator : public DataTransferKit::MapOperator<double>
     {
 	this->b_mass_matrix_inv = createScaledIdentity( d_comm, d_local_size, d_a );
 	this->b_coupling_matrix = createScaledIdentity( d_comm, d_local_size, d_b );
-	this->b_forcing_vector = createDOFVector( d_comm, d_local_size, d_c, d_num_vec );
-    }
-
-    Teuchos::RCP<const Thyra::LinearOpBase<double> > clone() const
-    {
-	return Teuchos::rcp( 
-	    new TestOperator(d_comm,d_local_size,d_a,d_b,d_c,d_num_vec) );
+	this->b_forcing_vector = Thyra::createMultiVector(
+	    createDOFVector(d_comm, d_local_size, d_c, d_num_vec) );
     }
 
   private:
@@ -226,14 +220,9 @@ TEUCHOS_UNIT_TEST( MapOperator, apply_test )
 	Tpetra::createMultiVector<double,int,std::size_t>( dof_map, num_vec );
     Y->putScalar( 1.0 );
 
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > thyra_X =
-	Thyra::createMultiVector( X );	
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > thyra_Y =
-	Thyra::createMultiVector( Y );
-
     double alpha = 1.3;
     double beta = -2.1;
-    map_op->apply( Thyra::NOTRANS, *thyra_X, thyra_Y.ptr(), alpha, beta );
+    map_op->apply( *X, *Y, Teuchos::NO_TRANS, alpha, beta );
 
     for ( int n = 0; n < num_vec; ++n )
     {
@@ -245,34 +234,6 @@ TEUCHOS_UNIT_TEST( MapOperator, apply_test )
 				    1.0e-14 );
 	}
     }
-
-    // Clone the operator and apply again.
-    Teuchos::RCP<const Thyra::LinearOpBase<double> > map_op_clone =
-	map_op->clone();
-    Teuchos::rcp_const_cast<MapOperator<double> >(
-	Teuchos::rcp_dynamic_cast<const MapOperator<double> >(map_op_clone) )->setup( 
-	function_space, function_space, Teuchos::parameterList() );
-
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > Z =
-	Tpetra::createMultiVector<double,int,std::size_t>( dof_map, num_vec );
-    Z->putScalar( 1.0 );
-
-    Teuchos::RCP<Thyra::MultiVectorBase<double> > thyra_Z =
-	Thyra::createMultiVector( Z );
-
-    map_op_clone->apply( Thyra::NOTRANS, *thyra_X, thyra_Z.ptr(), alpha, beta );
-
-    for ( int n = 0; n < num_vec; ++n )
-    {
-	Teuchos::ArrayRCP<const double> x_view = X->getVector(n)->getData();
-	Teuchos::ArrayRCP<const double> z_view = Z->getVector(n)->getData();
-	for ( int i = 0; i < local_size; ++i )
-	{
-	    TEST_FLOATING_EQUALITY( z_view[i], alpha*a*(c + x_view[i]*b) + beta,
-				    1.0e-14 );
-	}
-    }
-
 }
 
 //---------------------------------------------------------------------------//

@@ -46,6 +46,9 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
 
+#include <Tpetra_Operator.hpp>
+#include <Tpetra_MultiVector.hpp>
+
 #include <Thyra_MultiVectorBase.hpp>
 #include <Thyra_LinearOpBase.hpp>
 
@@ -60,9 +63,18 @@ namespace DataTransferKit
 */
 //---------------------------------------------------------------------------//
 template<class Scalar>
-class MapOperator : public Thyra::LinearOpBase<Scalar>
+class MapOperator : public Tpetra::Operator<Scalar,int,std::size_t>
 {
   public:
+
+    //! Base class typedef.
+    typedef Tpetra::Operator<Scalar,int,std::size_t> Root;
+
+    //! Map typedef.
+    typedef Tpetra::Map<int,std::size_t,typename Root::node_type> TpetraMap;
+
+    //! MultiVector typedef.
+    typedef Tpetra::MultiVector<Scalar,int,std::size_t,typename Root::node_type> TpetraMultiVector;
 
     /*!
      * \brief Constructor.
@@ -91,19 +103,23 @@ class MapOperator : public Thyra::LinearOpBase<Scalar>
 	   const Teuchos::RCP<Teuchos::ParameterList>& parameters );
 
     //@{
-    //! Thyra LinearOpBase interface.
-    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > range() const;
-    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > domain() const;
-    virtual Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > clone() const;
-    bool opSupportedImpl( Thyra::EOpTransp M_trans ) const;
-    void applyImpl( const Thyra::EOpTransp M_trans,
-		    const Thyra::MultiVectorBase<Scalar> &X,
-		    const Teuchos::Ptr<Thyra::MultiVectorBase<Scalar> > &Y,
-		    const Scalar alpha,
-		    const Scalar beta ) const;
+    //! Tpetra::Operator interface.
+    Teuchos::RCP<const TpetraMap> getDomainMap() const;
+    Teuchos::RCP<const TpetraMap> getRangeMap() const;
+    void apply( const TpetraMultiVector& X,
+		TpetraMultiVector &Y,
+		Teuchos::ETransp mode = Teuchos::NO_TRANS,
+		Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
+		Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const;
     //@}
 
   protected:
+
+    //! Domain map.
+    Teuchos::RCP<const TpetraMap> b_domain_map;
+
+    //! Range map.
+    Teuchos::RCP<const TpetraMap> b_range_map;
 
     //! Mass matrix inverse.
     Teuchos::RCP<Thyra::LinearOpBase<Scalar> > b_mass_matrix_inv;

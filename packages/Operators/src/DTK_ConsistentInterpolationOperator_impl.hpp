@@ -91,6 +91,10 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
     bool nonnull_range = Teuchos::nonnull( range_space->entitySet() );
 
+    // Extract the DOF maps.
+    this->b_domain_map = domain_space->dofMap();
+    this->b_range_map = range_space->dofMap();
+
     // Get the physical dimension.
     int physical_dimension = 0;
     if ( nonnull_domain )
@@ -198,7 +202,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 
     // Allocate the coupling matrix.
     Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,std::size_t> > coupling_matrix =
-	Tpetra::createCrsMatrix<Scalar,int,std::size_t>( range_space->dofMap() );
+	Tpetra::createCrsMatrix<Scalar,int,std::size_t>( this->b_range_map );
 
     // Construct the entries of the coupling matrix.
     Teuchos::Array<EntityId> range_entity_ids;
@@ -261,8 +265,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     }
 
     // Finalize the coupling matrix.
-    coupling_matrix->fillComplete( 
-	domain_space->dofMap(), range_space->dofMap() );
+    coupling_matrix->fillComplete( this->b_domain_map, this->b_range_map );
 
     // Wrap the coupling matrix with the Thyra interface.
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space =

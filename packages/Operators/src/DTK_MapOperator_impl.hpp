@@ -44,6 +44,7 @@
 #include "DTK_DBC.hpp"
 
 #include <Thyra_MultiVectorStdOps.hpp>
+#include <Thyra_TpetraThyraWrappers.hpp>
 
 namespace DataTransferKit
 {
@@ -72,63 +73,44 @@ void MapOperator<Scalar>::setup(
 }
 
 //---------------------------------------------------------------------------//
-// Get the range space.
+// Get the range map.
 template<class Scalar>
-Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > 
-MapOperator<Scalar>::range() const
+Teuchos::RCP<const typename MapOperator<Scalar>::TpetraMap> 
+MapOperator<Scalar>::getDomainMap() const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_coupling_matrix) );
-    if ( Teuchos::nonnull(b_mass_matrix_inv) )
-    {
-	return b_mass_matrix_inv->range();
-    }
-    return b_coupling_matrix->range();
+    DTK_REQUIRE( Teuchos::nonnull(b_domain_map) );
+    return b_domain_map;
 }
 
 //---------------------------------------------------------------------------//
-// Get the domain space.
+// Get the domain map.
 template<class Scalar>
-Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > 
-MapOperator<Scalar>::domain() const
+Teuchos::RCP<const typename MapOperator<Scalar>::TpetraMap> 
+MapOperator<Scalar>::getRangeMap() const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_coupling_matrix) );
-    return b_coupling_matrix->domain();
-}
-
-//---------------------------------------------------------------------------//
-// Clone the operator. The subclass must implement this function.
-template<class Scalar>
-Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > 
-MapOperator<Scalar>::clone() const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return Teuchos::null;
-}
- 
-//---------------------------------------------------------------------------//
-// Check if the given operator is supported.
-template<class Scalar>
-bool MapOperator<Scalar>::opSupportedImpl( Thyra::EOpTransp M_trans ) const
-{
-    return ( M_trans == Thyra::NOTRANS );
+    DTK_REQUIRE( Teuchos::nonnull(b_range_map) );
+    return b_range_map;
 }
 
 //---------------------------------------------------------------------------//
 // Apply the map operator to data defined on the entities by computing g =
 // Minv*(v+A*f).
 template<class Scalar>
-void MapOperator<Scalar>::applyImpl( 
-    const Thyra::EOpTransp M_trans,
-    const Thyra::MultiVectorBase<Scalar>& domain_dofs,
-    const Teuchos::Ptr<Thyra::MultiVectorBase<Scalar> >& range_dofs,
-    const Scalar alpha,
-    const Scalar beta ) const
+void MapOperator<Scalar>::apply( const TpetraMultiVector &X,
+				 TpetraMultiVector &Y,
+				 Teuchos::ETransp mode,
+				 const Scalar alpha,
+				 const Scalar beta ) const
 {
-    DTK_INSIST( opSupportedImpl(M_trans) );
+    DTK_INSIST( Teuchos::NO_TRANS == mode );
     DTK_REQUIRE( Teuchos::nonnull(b_coupling_matrix) );
-    DTK_REQUIRE( Teuchos::nonnull(range_dofs) );
   
+    // Create Thyra vectors from the Tpetra vectors.
+    Teuchos::RCP<const Thyra::MultiVectorBase<Scalar> > domain_dofs =
+	Thyra::createConstMultiVector<Scalar>( Teuchos::rcpFromRef(X) );
+    Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > range_dofs =
+	Thyra::createMultiVector<Scalar>( Teuchos::rcpFromRef(Y) );
+
     // Make a temporary copy of the range dofs if beta is not zero.
     Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > range_copy;
     if ( 0.0 != beta )
@@ -140,13 +122,13 @@ void MapOperator<Scalar>::applyImpl(
     // Make a work vector.
     Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > work = 
 	Thyra::createMembers( b_coupling_matrix->range(),
-			      domain_dofs.domain()->dim() );
+			      domain_dofs->domain()->dim() );
 
     // A*f
-    DTK_CHECK( domain_dofs.range()->isCompatible(
+    DTK_CHECK( domain_dofs->range()->isCompatible(
 		   *(b_coupling_matrix->domain()) ) );
     b_coupling_matrix->apply( 
-	Thyra::NOTRANS, domain_dofs, work.ptr(), 1.0, 0.0 );
+	Thyra::NOTRANS, *domain_dofs, work.ptr(), 1.0, 0.0 );
 
     // v+A*f
     if ( Teuchos::nonnull(b_forcing_vector) )
@@ -160,18 +142,18 @@ void MapOperator<Scalar>::applyImpl(
 	DTK_CHECK( work->range()->isCompatible(
 		       *(b_mass_matrix_inv->domain()) ) );
 	b_mass_matrix_inv->apply( 
-	    Thyra::NOTRANS, *work, range_dofs, 1.0, 0.0 );
+	    Thyra::NOTRANS, *work, range_dofs.ptr(), 1.0, 0.0 );
     }
     else
     {
-	Thyra::assign( range_dofs, *work );
+	Thyra::assign( range_dofs.ptr(), *work );
     }
 
     // g = alpha*g + beta*f
-    Thyra::Vt_S( range_dofs, alpha );
+    Thyra::Vt_S( range_dofs.ptr(), alpha );
     if ( 0.0 != beta )
     {
-	Thyra::update( beta, *range_copy, range_dofs );
+	Thyra::update( beta, *range_copy, range_dofs.ptr() );
     }
 }
 

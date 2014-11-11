@@ -85,8 +85,8 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
      * sent to the range. Must always be nonnull but the pointers it contains
      * may be null of no entities are on-process.
      * \param range_space The function that will receive the data from the
-     * domain. Must always be nonnull but the pointers it contains
-     * may be null of no entities are on-process.
+     * domain. Must always be nonnull but the pointers it contains to entity
+     * data may be null of no entities are on-process.
      * \param parameters Parameters for the setup.
      */
     void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
