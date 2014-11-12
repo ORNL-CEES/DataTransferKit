@@ -100,9 +100,6 @@ class BasicEntitySetIterator : public EntityIterator
     // Not equal comparison operator.
     bool operator!=( const EntityIterator& rhs ) const;
 
-    // Size of the iterator.
-    std::size_t size() const;
-
     // An iterator assigned to the beginning.
     EntityIterator begin() const;
 

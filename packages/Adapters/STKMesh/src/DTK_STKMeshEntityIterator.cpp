@@ -40,6 +40,7 @@
 
 #include "DTK_DBC.hpp"
 #include "DTK_STKMeshEntityIterator.hpp"
+#include <DTK_STKMeshEntity.hpp>
 
 namespace DataTransferKit
 {
@@ -53,31 +54,29 @@ STKMeshEntityIterator::STKMeshEntityIterator()
 //---------------------------------------------------------------------------//
 // Constructor.
 STKMeshEntityIterator::STKMeshEntityIterator(
-    const std::vector<stk::mesh::Entity>& stk_entities,
+    const Teuchos::RCP<STKMeshEntityIteratorRange>& entity_range,
     const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
     const std::function<bool(Entity)>& predicate )
-    : d_stk_entities( stk_entities )
-    , d_stk_entity_it( d_stk_entities.begin() )
+    : d_entity_range( entity_range )
+    , d_stk_entity_it( d_entity_range->d_stk_entities.begin() )
     , d_bulk_data( bulk_data )
 {
     this->b_iterator_impl = NULL;
     this->b_predicate = predicate;
-    d_current_entity = 
-	Teuchos::ptr( new STKMeshEntity(*d_stk_entity_it,d_bulk_data.ptr()) );
+    setCurrentEntity();
 }
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
 STKMeshEntityIterator::STKMeshEntityIterator( 
     const STKMeshEntityIterator& rhs )
-    : d_stk_entities( rhs.d_stk_entities )
+    : d_entity_range( rhs.d_entity_range )
     , d_stk_entity_it( rhs.d_stk_entity_it )
     , d_bulk_data( rhs.d_bulk_data )
 {
     this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
-    d_current_entity = 
-	Teuchos::ptr( new STKMeshEntity(*d_stk_entity_it,d_bulk_data.ptr()) );
+    setCurrentEntity();
 }
 
 //---------------------------------------------------------------------------//
@@ -91,11 +90,10 @@ STKMeshEntityIterator& STKMeshEntityIterator::operator=(
     {
 	return *this;
     }
-    d_stk_entities = rhs.d_stk_entities;
+    d_entity_range = rhs.d_entity_range;
     d_stk_entity_it = rhs.d_stk_entity_it;
     d_bulk_data = rhs.d_bulk_data;
-    d_current_entity = 
-	Teuchos::ptr( new STKMeshEntity(*d_stk_entity_it,d_bulk_data.ptr()) );
+    setCurrentEntity();
     return *this;
 }
 
@@ -111,8 +109,6 @@ STKMeshEntityIterator::~STKMeshEntityIterator()
 EntityIterator& STKMeshEntityIterator::operator++()
 {
     ++d_stk_entity_it;
-    d_current_entity = 
-	Teuchos::ptr( new STKMeshEntity(*d_stk_entity_it,d_bulk_data.ptr()) );
     return *this;
 }
 
@@ -121,7 +117,7 @@ EntityIterator& STKMeshEntityIterator::operator++()
 Entity& STKMeshEntityIterator::operator*(void)
 {
     this->operator->();
-    return *d_current_entity;
+    return d_current_entity;
 }
 
 //---------------------------------------------------------------------------//
@@ -129,8 +125,8 @@ Entity& STKMeshEntityIterator::operator*(void)
 Entity* STKMeshEntityIterator::operator->(void)
 {
     d_current_entity = 
-	Teuchos::ptr( new STKMeshEntity(*d_stk_entity_it,d_bulk_data.ptr()) );
-    return d_current_entity.getRawPtr();
+	STKMeshEntity( *d_stk_entity_it, d_bulk_data.ptr() );
+    return &d_current_entity;
 }
 
 //---------------------------------------------------------------------------//
@@ -138,11 +134,11 @@ Entity* STKMeshEntityIterator::operator->(void)
 bool STKMeshEntityIterator::operator==( 
     const EntityIterator& rhs ) const
 { 
-    const STKMeshEntityIterator* rhs_vec = 
+    const STKMeshEntityIterator* rhs_it = 
 	static_cast<const STKMeshEntityIterator*>(&rhs);
-    const STKMeshEntityIterator* rhs_vec_impl = 
-	static_cast<const STKMeshEntityIterator*>(rhs_vec->b_iterator_impl);
-    return ( rhs_vec_impl->d_current_entity->id() == d_current_entity->id() );
+    const STKMeshEntityIterator* rhs_it_impl = 
+	static_cast<const STKMeshEntityIterator*>(rhs_it->b_iterator_impl);
+    return ( rhs_it_impl->d_stk_entity_it == d_stk_entity_it );
 }
 
 //---------------------------------------------------------------------------//
@@ -150,18 +146,11 @@ bool STKMeshEntityIterator::operator==(
 bool STKMeshEntityIterator::operator!=( 
     const EntityIterator& rhs ) const
 {
-    const STKMeshEntityIterator* rhs_vec = 
+    const STKMeshEntityIterator* rhs_it = 
 	static_cast<const STKMeshEntityIterator*>(&rhs);
-    const STKMeshEntityIterator* rhs_vec_impl = 
-	static_cast<const STKMeshEntityIterator*>(rhs_vec->b_iterator_impl);
-    return ( rhs_vec_impl->d_current_entity->id() != d_current_entity->id() );
-}
-
-//---------------------------------------------------------------------------//
-// Size of the iterator.
-std::size_t STKMeshEntityIterator::size() const
-{ 
-    return d_stk_entities.size();
+    const STKMeshEntityIterator* rhs_it_impl = 
+	static_cast<const STKMeshEntityIterator*>(rhs_it->b_iterator_impl);
+    return ( rhs_it_impl->d_stk_entity_it != d_stk_entity_it );
 }
 
 //---------------------------------------------------------------------------//
@@ -169,7 +158,7 @@ std::size_t STKMeshEntityIterator::size() const
 EntityIterator STKMeshEntityIterator::begin() const
 { 
     return STKMeshEntityIterator( 
-	d_stk_entities, d_bulk_data, this->b_predicate );
+	d_entity_range, d_bulk_data, this->b_predicate );
 }
 
 //---------------------------------------------------------------------------//
@@ -177,8 +166,8 @@ EntityIterator STKMeshEntityIterator::begin() const
 EntityIterator STKMeshEntityIterator::end() const
 {
     STKMeshEntityIterator end_it( 
-	d_stk_entities, d_bulk_data, this->b_predicate );
-    end_it.d_stk_entity_it = d_stk_entities.end();
+	d_entity_range, d_bulk_data, this->b_predicate );
+    end_it.d_stk_entity_it = d_entity_range->d_stk_entities.end();
     return end_it;
 }
 
@@ -188,6 +177,17 @@ EntityIterator STKMeshEntityIterator::end() const
 EntityIterator* STKMeshEntityIterator::clone() const
 {
     return new STKMeshEntityIterator(*this);
+}
+
+//---------------------------------------------------------------------------//
+// Set the current entity.
+void STKMeshEntityIterator::setCurrentEntity()
+{
+    if ( d_entity_range->d_stk_entities.size() > 0 )
+    {
+	d_current_entity = 
+	    STKMeshEntity( *d_stk_entity_it, d_bulk_data.ptr() );
+    }
 }
 
 //---------------------------------------------------------------------------//

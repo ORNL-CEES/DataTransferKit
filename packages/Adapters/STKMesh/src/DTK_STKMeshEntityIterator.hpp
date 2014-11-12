@@ -44,9 +44,9 @@
 #include <vector>
 #include <functional>
 
-#include <DTK_EntityIterator.hpp>
-#include <DTK_Entity.hpp>
-#include <DTK_STKMeshEntity.hpp>
+#include "DTK_EntityIterator.hpp"
+#include "DTK_Entity.hpp"
+#include "DTK_STKMeshEntityIteratorRange.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -73,9 +73,10 @@ class STKMeshEntityIterator : public EntityIterator
     /*! 
      * \brief Constructor.
      */
-    STKMeshEntityIterator( const std::vector<stk::mesh::Entity>& stk_entities,
-			   const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-			   const std::function<bool(Entity)>& predicate );
+    STKMeshEntityIterator( 
+	const Teuchos::RCP<STKMeshEntityIteratorRange>& entity_range,
+	const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
+	const std::function<bool(Entity)>& predicate );
 
     /*!
      * \brief Copy constructor.
@@ -107,9 +108,6 @@ class STKMeshEntityIterator : public EntityIterator
     // Not equal comparison operator.
     bool operator!=( const EntityIterator& rhs ) const;
 
-    // Number of elements in the iterator that meet the predicate criteria.
-    std::size_t size() const;
-
     // An iterator assigned to the first valid element in the iterator.
     EntityIterator begin() const;
 
@@ -122,8 +120,13 @@ class STKMeshEntityIterator : public EntityIterator
 
   private:
 
-    // Entities over which the iterator is defined.
-    std::vector<stk::mesh::Entity> d_stk_entities;
+    // Set the current entity.
+    void setCurrentEntity();
+
+  private:
+
+    // Range of entities over which the iterator is defined.
+    Teuchos::RCP<STKMeshEntityIteratorRange> d_entity_range;
 
     // Iterator over the entities.
     std::vector<stk::mesh::Entity>::const_iterator d_stk_entity_it;
@@ -132,7 +135,7 @@ class STKMeshEntityIterator : public EntityIterator
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
 
     // Current entity.
-    Teuchos::Ptr<Entity> d_current_entity;
+    Entity d_current_entity;
 };
 
 //---------------------------------------------------------------------------//

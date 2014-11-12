@@ -100,7 +100,7 @@ class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
     virtual bool operator!=( const EntityIterator& rhs ) const;
 
     // Number of elements in the iterator that meet the predicate criteria.
-    virtual std::size_t size() const;
+    std::size_t size() const;
 
     // An iterator assigned to the first valid element in the iterator.
     virtual EntityIterator begin() const;

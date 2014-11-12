@@ -20,6 +20,7 @@ APPEND_SET(HEADERS
   DTK_STKMeshEntityExtraData.hpp
   DTK_STKMeshEntityImpl.hpp
   DTK_STKMeshEntityIterator.hpp
+  DTK_STKMeshEntityIteratorRange.hpp
   DTK_STKMeshEntitySet.hpp
   ) 
 

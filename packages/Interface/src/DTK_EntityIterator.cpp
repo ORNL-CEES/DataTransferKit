@@ -200,7 +200,8 @@ std::size_t EntityIterator::size() const
     {
 	EntityIterator begin_it = this->begin();
 	EntityIterator end_it = this->end();
-	for ( EntityIterator impl_copy = begin_it; 
+	EntityIterator impl_copy;
+	for ( impl_copy = begin_it; 
 	      impl_copy != end_it; 
 	      ++impl_copy )
 	{

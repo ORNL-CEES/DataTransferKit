@@ -32,102 +32,45 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityPredicates.hpp
+ * \brief DTK_STKMeshEntityIteratorRange.hpp
  * \author Stuart R. Slattery
- * \brief Basic entity predicates.
+ * \brief Iterator range for STK mesh entity iterators.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYPREDICATES_HPP
-#define DTK_ENTITYPREDICATES_HPP
+#ifndef DTK_STKMESHENTITYITERATORRANGE_HPP
+#define DTK_STKMESHENTITYITERATORRANGE_HPP
 
-#include <functional>
+#include <vector>
 
-#include "DTK_Types.hpp"
-#include "DTK_Entity.hpp"
-
-#include <Teuchos_Array.hpp>
+#include <stk_mesh/base/Entity.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class SelectAllPredicate
-  \brief Predicates for selecting all entities.
+  \class STKMeshEntityIteratorRange
+  \brief A container for entity vectors that can be reference-counted.
 */
-class SelectAllPredicate
-{
-  public:
-
-    SelectAllPredicate()
-    { /* ... */ }
-
-    ~SelectAllPredicate() { /* ... */ }
-
-    bool operator()( Entity entity ) { return true; }
-
-    std::function<bool(Entity)> getFunction() const
-    { return std::function<bool(Entity)>(*this); }
-};
-
 //---------------------------------------------------------------------------//
-/*!
-  \class BlockPredicate
-  \brief Predicates for selecting entities in a block.
-*/
-class BlockPredicate
+class STKMeshEntityIteratorRange : public EntityIteratorRange
 {
   public:
 
-    BlockPredicate( const Teuchos::Array<int>& block_ids ) 
-	: d_block_ids( block_ids )
-    { /* ... */ }
+    STKMeshEntityIteratorRange() { /* ... */ }
 
-    ~BlockPredicate() { /* ... */ }
+    ~STKMeshEntityIteratorRange() { /* ... */ }
 
-    bool operator()( Entity entity );
-
-    std::function<bool(Entity)> getFunction() const;
-
-  private:
-
-    // Blocks
-    Teuchos::Array<int> d_block_ids;
-};
-
-//---------------------------------------------------------------------------//
-/*!
-  \class BoundaryPredicate
-  \brief Predicates for selecting entities on a boundary.
-*/
-class BoundaryPredicate
-{
-  public:
-
-    BoundaryPredicate( const Teuchos::Array<int>& boundary_ids ) 
-	: d_boundary_ids( boundary_ids )
-    { /* ... */ }
-
-    ~BoundaryPredicate() { /* ... */ }
-
-    bool operator()( Entity entity );
-
-    std::function<bool(Entity)> getFunction() const;
-
-  private:
-
-    // Boundaries.
-    Teuchos::Array<int> d_boundary_ids;
+    // STK mesh entity range.
+    std::vector<stk::mesh::Entity> d_stk_entities;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-
-#endif // end DTK_ENTITYPREDICATES_HPP
+#endif // end DTK_STKMESHENTITYITERATORRANGE_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityPredicates.hpp
+// end DTK_STKMeshEntityIteratorRange.hpp
 //---------------------------------------------------------------------------//

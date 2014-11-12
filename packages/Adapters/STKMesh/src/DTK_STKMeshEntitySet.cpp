@@ -41,8 +41,10 @@
 #include <vector>
 
 #include "DTK_STKMeshEntitySet.hpp"
+#include "DTK_STKMeshEntity.hpp"
 #include "DTK_STKMeshEntityExtraData.hpp"
 #include "DTK_STKMeshEntityIterator.hpp"
+#include "DTK_STKMeshEntityIteratorRange.hpp"
 #include "DTK_DBC.hpp"
 
 #include <stk_topology/topology.hpp>
@@ -101,9 +103,10 @@ EntityIterator STKMeshEntitySet::entityIterator(
     const std::function<bool(Entity)>& predicate ) const
 {
     stk::mesh::EntityRank rank = getRankFromEntityType( entity_type );
-    std::vector<stk::mesh::Entity> stk_entities;
-    stk::mesh::get_entities( *d_bulk_data, rank, stk_entities );
-    return STKMeshEntityIterator( stk_entities, d_bulk_data, predicate );
+    Teuchos::RCP<STKMeshEntityIteratorRange> iterator_range =
+	Teuchos::rcp( new STKMeshEntityIteratorRange() );
+    stk::mesh::get_entities( *d_bulk_data, rank, iterator_range.d_stk_entities );
+    return STKMeshEntityIterator( iterator_range, d_bulk_data, predicate );
 }
 
 //---------------------------------------------------------------------------//

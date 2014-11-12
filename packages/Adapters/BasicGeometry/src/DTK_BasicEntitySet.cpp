@@ -164,13 +164,6 @@ bool BasicEntitySetIterator::operator!=(
 }
 
 //---------------------------------------------------------------------------//
-// Size of the iterator.
-std::size_t BasicEntitySetIterator::size() const
-{ 
-    return d_map->size();
-}
-
-//---------------------------------------------------------------------------//
 // An iterator assigned to the beginning.
 EntityIterator BasicEntitySetIterator::begin() const
 { 
