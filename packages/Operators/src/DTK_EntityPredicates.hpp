@@ -52,24 +52,6 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class SurfacePredicate
-  \brief Predicates for selecting entities on a surface.
-*/
-class SurfacePredicate
-{
-  public:
-
-    SurfacePredicate() { /* ... */ }
-
-    ~SurfacePredicate() { /* ... */ }
-
-    bool operator()( Entity entity );
-
-    std::function<bool(Entity)> getFunction() const;
-};
-
-//---------------------------------------------------------------------------//
-/*!
   \class BlockPredicate
   \brief Predicates for selecting entities in a block.
 */

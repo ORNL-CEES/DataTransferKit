@@ -152,15 +152,6 @@ void STKMeshEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 }
 
 //---------------------------------------------------------------------------//
-// Determine if an entity is on the surface of the set.
-bool STKMeshEntityImpl::onSurface() const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return false;
-}
-
-//---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
 bool STKMeshEntityImpl::inBlock( const int block_id ) const
 {

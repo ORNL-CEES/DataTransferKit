@@ -69,10 +69,9 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, all_to_one_test )
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = i + 0.5;
-	bool on_surface = (i%2==0);
 	int id = num_points*comm_rank + i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	    Point(id,comm_rank,point,on_surface) );
+	    Point(id,comm_rank,point) );
     }
 
     // Construct a local map for the points.
@@ -161,13 +160,12 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, one_to_one_test )
     Teuchos::Array<double> point(3);
     for ( int i = 0; i < num_points; ++i )
     {
-	bool on_surface = (i%2==0);
 	id = num_points*comm_rank + i;
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = id + 0.5;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	    Point(id,comm_rank,point,on_surface) );
+	    Point(id,comm_rank,point) );
     }
 
     // Construct a local map for the points.
@@ -247,13 +245,12 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, no_domain_0_test )
     Teuchos::Array<double> point(3);
     for ( int i = 0; i < num_points; ++i )
     {
-	bool on_surface = (i%2==0);
 	id = num_points*comm_rank + i;
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = id + 0.5;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	    Point(id,comm_rank,point,on_surface) );
+	    Point(id,comm_rank,point) );
     }
 
     // Construct a local map for the points.
@@ -338,13 +335,12 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, no_range_0_test )
 	Teuchos::Array<double> point(3);
 	for ( int i = 0; i < num_points; ++i )
 	{
-	    bool on_surface = (i%2==0);
 	    id = num_points*comm_rank + i;
 	    point[0] = 0.5;
 	    point[1] = 0.5;
 	    point[2] = id + 0.5;
 	    Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-		Point(id,comm_rank,point,on_surface) );
+		Point(id,comm_rank,point) );
 	}
     }
 
@@ -428,13 +424,12 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, many_to_many_test )
     Teuchos::Array<double> point(3);
     for ( int i = 0; i < num_points; ++i )
     {
-	bool on_surface = (i%2==0);
 	id = num_points*comm_rank + i;
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = comm_rank*5.0 + i + 0.5;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	    Point(id,comm_rank,point,on_surface) );
+	    Point(id,comm_rank,point) );
     }
 
     // Construct a local map for the points.
@@ -526,7 +521,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_multiple_neighbors_test )
     point[2] = comm_rank;
     id = comm_rank;
     Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	Point(id,comm_rank,point,false) );
+	Point(id,comm_rank,point) );
 
     // Construct a local map for the points.
     Teuchos::RCP<EntityLocalMap> range_map = 

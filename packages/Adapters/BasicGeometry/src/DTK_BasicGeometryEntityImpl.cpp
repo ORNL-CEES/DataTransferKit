@@ -100,15 +100,6 @@ void BasicGeometryEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) co
 }
 
 //---------------------------------------------------------------------------//
-// Determine if an entity is on the surface of the set.
-bool BasicGeometryEntityImpl::onSurface() const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return false;
-}
-
-//---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
 bool BasicGeometryEntityImpl::inBlock( const int block_id ) const
 {

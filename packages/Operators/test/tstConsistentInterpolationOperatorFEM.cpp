@@ -184,14 +184,13 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     Teuchos::ArrayRCP<double> point_dofs( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
-	bool on_surface = (i%2==0);
 	point_ids[i] = num_points*comm_rank + i;
 	point_dofs[i] = 0.0;
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = point_ids[i] + 0.5;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	    Point(point_ids[i],comm_rank,point,on_surface) );
+	    Point(point_ids[i],comm_rank,point) );
     }
 
     // Construct a local map for the points.

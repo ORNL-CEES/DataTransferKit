@@ -100,14 +100,6 @@ void Entity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 }
 
 //---------------------------------------------------------------------------//
-// Determine if an entity is on the surface of the set.
-bool Entity::onSurface() const
-{
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
-    return b_entity_impl->onSurface();
-}
-
-//---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
 bool Entity::inBlock( const int block_id ) const
 {
@@ -138,8 +130,7 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Entity& e)
     os << "Entity: Id=" << e.id()
        << ",EntityType=" << e.entityType()
        << ",OwnerRank=" << e.ownerRank()
-       << ",PhysicalDimension=" << e.physicalDimension()
-       << ",OnSurface=" << e.onSurface();
+       << ",PhysicalDimension=" << e.physicalDimension();
 
     return os;
 }

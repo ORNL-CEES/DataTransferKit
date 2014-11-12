@@ -100,9 +100,6 @@ class CylinderImpl : public BasicGeometryEntityImpl
     // Compute the bounding box around the entity.
     void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
 
-    // Determine if an entity is on the surface of the set.
-    bool onSurface() const;
-
     // Determine if an entity is in the block with the given id.
     bool inBlock( const int block_id ) const;
 

@@ -97,15 +97,6 @@ void EntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 }
 
 //---------------------------------------------------------------------------//
-// Determine if an entity is on the surface of the set.
-bool EntityImpl::onSurface() const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return false;
-}
-
-//---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
 bool EntityImpl::inBlock( const int block_id ) const
 {

@@ -83,7 +83,6 @@ class PointImpl : public BasicGeometryEntityImpl
     PointImpl( const EntityId global_id, 
 	       const int owner_rank,
 	       const Teuchos::Array<double>& coordinates,
-	       const bool on_surface,
 	       const Teuchos::Array<int>& block_ids,
 	       const Teuchos::Array<int>& boundary_ids );
 
@@ -112,9 +111,6 @@ class PointImpl : public BasicGeometryEntityImpl
     //  Return the axis-aligned bounding box around the entity.
     void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
     
-    // Determine if an entity is on the surface of the set.
-    bool onSurface() const;
-
     // Determine if an entity is in the block with the given id.
     bool inBlock( const int block_id ) const;
 
@@ -156,9 +152,6 @@ class PointImpl : public BasicGeometryEntityImpl
 
     // Owning parallel rank.
     int d_owner_rank;
-
-    // Surface boolean.
-    bool d_on_surface;
 
     // Block ids.
     Teuchos::Array<int> d_block_ids;

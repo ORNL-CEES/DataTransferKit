@@ -76,10 +76,9 @@ TEUCHOS_UNIT_TEST( ParallelSearch, all_to_one_test )
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = i + 0.5;
-	bool on_surface = (i%2==0);
 	point_ids[i] = num_points*comm_rank + i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	    Point(point_ids[i],comm_rank,point,on_surface) );
+	    Point(point_ids[i],comm_rank,point) );
     }
 
     // Construct a local map for the points.
@@ -179,14 +178,13 @@ TEUCHOS_UNIT_TEST( ParallelSearch, one_to_one_test )
     Teuchos::Array<std::size_t> point_ids( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
-	bool on_surface = (i%2==0);
 	id = num_points*comm_rank + i;
 	point_ids[i] = id;
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = id + 0.5;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	    Point(id,comm_rank,point,on_surface) );
+	    Point(id,comm_rank,point) );
     }
 
     // Construct a local map for the points.
@@ -284,14 +282,13 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_domain_0_test )
     Teuchos::Array<std::size_t> point_ids( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
-	bool on_surface = (i%2==0);
 	id = num_points*comm_rank + i;
 	point_ids[i] = id;
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = id + 0.5;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	    Point(id,comm_rank,point,on_surface) );
+	    Point(id,comm_rank,point) );
     }
 
     // Construct a local map for the points.
@@ -392,14 +389,13 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_range_0_test )
     Teuchos::Array<std::size_t> point_ids( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
-	bool on_surface = (i%2==0);
 	id = num_points*comm_rank + i;
 	point_ids[i] = id;
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = id + 0.5;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	    Point(id,comm_rank,point,on_surface) );
+	    Point(id,comm_rank,point) );
     }
 
     // Construct a local map for the points.
@@ -497,14 +493,13 @@ TEUCHOS_UNIT_TEST( ParallelSearch, many_to_many_test )
     Teuchos::Array<std::size_t> point_ids( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
-	bool on_surface = (i%2==0);
 	id = num_points*comm_rank + i;
 	point_ids[i] = i;
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = comm_rank*5.0 + i + 0.5;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	    Point(id,comm_rank,point,on_surface) );
+	    Point(id,comm_rank,point) );
     }
 
     // Construct a local map for the points.
@@ -629,7 +624,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, point_multiple_neighbors_test )
     point[2] = comm_rank;
     int point_id = comm_rank;
     Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	Point(point_id,comm_rank,point,false) );
+	Point(point_id,comm_rank,point) );
 
     // Construct a local map for the points.
     Teuchos::RCP<EntityLocalMap> range_map = 

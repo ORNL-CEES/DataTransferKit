@@ -71,7 +71,6 @@ class Point : public BasicGeometryEntity
     Point( const EntityId global_id, 
 	   const int owner_rank,
 	   const Teuchos::Array<double>& coordinates,
-	   const bool on_surface = false,
 	   const Teuchos::Array<int>& block_ids = Teuchos::Array<int>(0),
 	   const Teuchos::Array<int>& boundary_ids = Teuchos::Array<int>(0) );
 

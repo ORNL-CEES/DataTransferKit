@@ -43,14 +43,6 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-//! Surface predicate.
-bool SurfacePredicate::operator()( Entity entity ) 
-{ return entity.onSurface(); }
-
-std::function<bool(Entity)> SurfacePredicate::getFunction() const
-{ return std::function<bool(Entity)>(*this); }
-
-//---------------------------------------------------------------------------//
 // Block predicate.
 bool BlockPredicate::operator()( Entity entity ) 
 { 

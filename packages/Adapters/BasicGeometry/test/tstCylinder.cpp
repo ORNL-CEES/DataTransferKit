@@ -58,7 +58,6 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 	TEST_EQUALITY( cylinder.ownerRank(), i );
 	TEST_ASSERT( cylinder.inBlock(i) );
 	TEST_ASSERT( !cylinder.inBlock(i+1) );
-	TEST_ASSERT( !cylinder.onSurface() );
 	TEST_ASSERT( !cylinder.onBoundary(i) );
 	TEST_EQUALITY( cylinder.length(), length );
 	TEST_EQUALITY( cylinder.radius(), radius );

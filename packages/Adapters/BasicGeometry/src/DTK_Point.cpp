@@ -58,13 +58,12 @@ Point::Point()
 Point::Point( const EntityId global_id, 
 	      const int owner_rank,
 	      const Teuchos::Array<double>& coordinates,
-	      const bool on_surface,
 	      const Teuchos::Array<int>& block_ids,
 	      const Teuchos::Array<int>& boundary_ids )
 {
     d_point_impl = Teuchos::rcp( 
 	new PointImpl(global_id,owner_rank,coordinates,		      
-		      on_surface,block_ids,boundary_ids) ); 
+		      block_ids,boundary_ids) ); 
     this->b_entity_impl = d_point_impl;
 }
 

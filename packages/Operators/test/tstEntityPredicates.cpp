@@ -30,26 +30,6 @@
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( SurfacePredicate, surface_predicate_test )
-{
-    using namespace DataTransferKit;
-
-    Teuchos::Array<double> coords1(1,0.0);
-    Teuchos::Array<int> blocks1(0);
-    Teuchos::Array<int> boundaries1(0);
-    Entity p1 = Point( 0, 0, coords1, false, blocks1, boundaries1 );
-
-    Teuchos::Array<double> coords2(2,0.0);
-    Teuchos::Array<int> blocks2(0);
-    Teuchos::Array<int> boundaries2(0);
-    Entity p2 = Point( 0, 0, coords2, true, blocks2, boundaries2 );
-
-    SurfacePredicate surf_pred;
-    TEST_ASSERT( !surf_pred(p1) );
-    TEST_ASSERT( surf_pred(p2) );
-}
-
-//---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( BlockPredicate, block_predicate_test )
 {
     using namespace DataTransferKit;
@@ -57,12 +37,12 @@ TEUCHOS_UNIT_TEST( BlockPredicate, block_predicate_test )
     Teuchos::Array<double> coords1(1,0.0);
     Teuchos::Array<int> blocks1(1,2);
     Teuchos::Array<int> boundaries1(0);
-    Entity p1 = Point( 0, 0, coords1, false, blocks1, boundaries1 );
+    Entity p1 = Point( 0, 0, coords1, blocks1, boundaries1 );
 
     Teuchos::Array<double> coords2(2,0.0);
     Teuchos::Array<int> blocks2(1,1);
     Teuchos::Array<int> boundaries2(0);
-    Entity p2 = Point( 0, 0, coords2, true, blocks2, boundaries2 );
+    Entity p2 = Point( 0, 0, coords2, blocks2, boundaries2 );
 
     Teuchos::Array<int> pred_1(1,1);
     BlockPredicate block_pred_1( pred_1 );
@@ -102,12 +82,12 @@ TEUCHOS_UNIT_TEST( BoundPredicate, bound_predicate_test )
     Teuchos::Array<double> coords1(1,0.0);
     Teuchos::Array<int> bounds1(0);
     Teuchos::Array<int> boundaries1(1,2);
-    Entity p1 = Point( 0, 0, coords1, false, bounds1, boundaries1 );
+    Entity p1 = Point( 0, 0, coords1, bounds1, boundaries1 );
 
     Teuchos::Array<double> coords2(2,0.0);
     Teuchos::Array<int> bounds2(0);
     Teuchos::Array<int> boundaries2(1,1);
-    Entity p2 = Point( 0, 0, coords2, true, bounds2, boundaries2 );
+    Entity p2 = Point( 0, 0, coords2, bounds2, boundaries2 );
 
     Teuchos::Array<int> pred_1(1,1);
     BoundaryPredicate bound_pred_1( pred_1 );

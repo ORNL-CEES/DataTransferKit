@@ -147,13 +147,6 @@ void CylinderImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 }
 
 //---------------------------------------------------------------------------//
-// Determine if an entity is on the surface of the set.
-bool CylinderImpl::onSurface() const
-{
-    return false;
-}
-
-//---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
 bool CylinderImpl::inBlock( const int block_id ) const
 {

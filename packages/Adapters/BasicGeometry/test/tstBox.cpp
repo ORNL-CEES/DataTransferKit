@@ -71,7 +71,6 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
     TEST_EQUALITY( box.id(), 0 );
     TEST_EQUALITY( box.ownerRank(), 0 );
     TEST_ASSERT( box.inBlock(0) );
-    TEST_ASSERT( !box.onSurface() );
     TEST_ASSERT( !box.onBoundary(0) );
     TEST_EQUALITY( box.physicalDimension(), 3 );
 
@@ -79,7 +78,6 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
     TEST_EQUALITY( box_entity.id(), 0 );
     TEST_EQUALITY( box_entity.ownerRank(), 0 );
     TEST_ASSERT( box_entity.inBlock(0) );
-    TEST_ASSERT( !box_entity.onSurface() );
     TEST_ASSERT( !box_entity.onBoundary(0) );
     TEST_EQUALITY( box_entity.physicalDimension(), 3 );
 
@@ -87,7 +85,6 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
     TEST_EQUALITY( entity.id(), 0 );
     TEST_EQUALITY( entity.ownerRank(), 0 );
     TEST_ASSERT( entity.inBlock(0) );
-    TEST_ASSERT( !entity.onSurface() );
     TEST_ASSERT( !entity.onBoundary(0) );
     TEST_EQUALITY( entity.physicalDimension(), 3 );
 
@@ -183,7 +180,6 @@ TEUCHOS_UNIT_TEST( Box, tuple_constructor_test )
     TEST_EQUALITY( entity->id(), 0 );
     TEST_EQUALITY( entity->ownerRank(), 0 );
     TEST_ASSERT( entity->inBlock(0) );
-    TEST_ASSERT( !entity->onSurface() );
     TEST_ASSERT( !entity->onBoundary(0) );
     TEST_EQUALITY( entity->physicalDimension(), 3 );
 

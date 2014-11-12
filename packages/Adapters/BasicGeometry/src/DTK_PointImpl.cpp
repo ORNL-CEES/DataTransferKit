@@ -56,12 +56,10 @@ PointImpl::PointImpl()
 PointImpl::PointImpl( const EntityId global_id, 
 		      const int owner_rank,
 		      const Teuchos::Array<double>& coordinates,
-		      const bool on_surface,
 		      const Teuchos::Array<int>& block_ids,
 		      const Teuchos::Array<int>& boundary_ids )
     : d_global_id( global_id )
     , d_owner_rank( owner_rank )
-    , d_on_surface( on_surface )
     , d_block_ids( block_ids )
     , d_boundary_ids( boundary_ids )
     , d_coordinates( coordinates )
@@ -134,13 +132,6 @@ void PointImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 	bounds = Teuchos::tuple( coordinates[0], coordinates[1], coordinates[2], 
 				 coordinates[0], coordinates[1], coordinates[2] );
     }
-}
-
-//---------------------------------------------------------------------------//
-// Determine if an entity is on the surface of the set.
-bool PointImpl::onSurface() const
-{
-    return d_on_surface;
 }
 
 //---------------------------------------------------------------------------//
