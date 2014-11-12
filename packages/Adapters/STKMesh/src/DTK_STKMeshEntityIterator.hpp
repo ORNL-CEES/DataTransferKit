@@ -48,7 +48,10 @@
 #include <DTK_Entity.hpp>
 #include <DTK_STKMeshEntity.hpp>
 
+#include <Teuchos_RCP.hpp>
+
 #include <stk_mesh/base/Entity.hpp>
+#include <stk_mesh/base/BulkData.hpp>
 
 namespace DataTransferKit
 {
@@ -71,6 +74,7 @@ class STKMeshEntityIterator : public EntityIterator
      * \brief Constructor.
      */
     STKMeshEntityIterator( const std::vector<stk::mesh::Entity>& stk_entities,
+			   const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
 			   const std::function<bool(Entity)>& predicate );
 
     /*!
@@ -89,7 +93,7 @@ class STKMeshEntityIterator : public EntityIterator
     ~STKMeshEntityIterator();
 
     // Pre-increment operator.
-    STKMeshEntityIterator& operator++();
+    EntityIterator& operator++();
 
     // Dereference operator.
     Entity& operator*(void);
@@ -122,7 +126,13 @@ class STKMeshEntityIterator : public EntityIterator
     std::vector<stk::mesh::Entity> d_stk_entities;
 
     // Iterator over the entities.
-    std::vector<stk::mesh::Entity>::iterator d_stk_entity_it;
+    std::vector<stk::mesh::Entity>::const_iterator d_stk_entity_it;
+
+    // The bulk data owning the entities.
+    Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
+
+    // Current entity.
+    Teuchos::Ptr<Entity> d_current_entity;
 };
 
 //---------------------------------------------------------------------------//

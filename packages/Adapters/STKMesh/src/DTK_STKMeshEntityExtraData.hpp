@@ -53,7 +53,7 @@ namespace DataTransferKit
   \brief A base class for setting extra data with entities.
 */
 //---------------------------------------------------------------------------//
-class STKMeshEntityExtraData
+class STKMeshEntityExtraData : public EntityExtraData
 {
   public:
 

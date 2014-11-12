@@ -54,12 +54,16 @@ STKMeshEntityIterator::STKMeshEntityIterator()
 // Constructor.
 STKMeshEntityIterator::STKMeshEntityIterator(
     const std::vector<stk::mesh::Entity>& stk_entities,
+    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
     const std::function<bool(Entity)>& predicate )
     : d_stk_entities( stk_entities )
     , d_stk_entity_it( d_stk_entities.begin() )
+    , d_bulk_data( bulk_data )
 {
     this->b_iterator_impl = NULL;
     this->b_predicate = predicate;
+    d_current_entity = 
+	Teuchos::ptr( new STKMeshEntity(*d_stk_entity_it,d_bulk_data.ptr()) );
 }
 
 //---------------------------------------------------------------------------//
@@ -68,9 +72,12 @@ STKMeshEntityIterator::STKMeshEntityIterator(
     const STKMeshEntityIterator& rhs )
     : d_stk_entities( rhs.d_stk_entities )
     , d_stk_entity_it( rhs.d_stk_entity_it )
+    , d_bulk_data( rhs.d_bulk_data )
 {
     this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
+    d_current_entity = 
+	Teuchos::ptr( new STKMeshEntity(*d_stk_entity_it,d_bulk_data.ptr()) );
 }
 
 //---------------------------------------------------------------------------//
@@ -86,6 +93,9 @@ STKMeshEntityIterator& STKMeshEntityIterator::operator=(
     }
     d_stk_entities = rhs.d_stk_entities;
     d_stk_entity_it = rhs.d_stk_entity_it;
+    d_bulk_data = rhs.d_bulk_data;
+    d_current_entity = 
+	Teuchos::ptr( new STKMeshEntity(*d_stk_entity_it,d_bulk_data.ptr()) );
     return *this;
 }
 
@@ -101,6 +111,8 @@ STKMeshEntityIterator::~STKMeshEntityIterator()
 EntityIterator& STKMeshEntityIterator::operator++()
 {
     ++d_stk_entity_it;
+    d_current_entity = 
+	Teuchos::ptr( new STKMeshEntity(*d_stk_entity_it,d_bulk_data.ptr()) );
     return *this;
 }
 
@@ -109,14 +121,16 @@ EntityIterator& STKMeshEntityIterator::operator++()
 Entity& STKMeshEntityIterator::operator*(void)
 {
     this->operator->();
-    return *d_stk_entity_it;
+    return *d_current_entity;
 }
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
 Entity* STKMeshEntityIterator::operator->(void)
 {
-    return d_stk_entity_it;
+    d_current_entity = 
+	Teuchos::ptr( new STKMeshEntity(*d_stk_entity_it,d_bulk_data.ptr()) );
+    return d_current_entity.getRawPtr();
 }
 
 //---------------------------------------------------------------------------//
@@ -128,7 +142,7 @@ bool STKMeshEntityIterator::operator==(
 	static_cast<const STKMeshEntityIterator*>(&rhs);
     const STKMeshEntityIterator* rhs_vec_impl = 
 	static_cast<const STKMeshEntityIterator*>(rhs_vec->b_iterator_impl);
-    return ( rhs_vec_impl->d_stk_entity_it == d_stk_entity_it );
+    return ( rhs_vec_impl->d_current_entity->id() == d_current_entity->id() );
 }
 
 //---------------------------------------------------------------------------//
@@ -140,29 +154,31 @@ bool STKMeshEntityIterator::operator!=(
 	static_cast<const STKMeshEntityIterator*>(&rhs);
     const STKMeshEntityIterator* rhs_vec_impl = 
 	static_cast<const STKMeshEntityIterator*>(rhs_vec->b_iterator_impl);
-    return ( rhs_vec_impl->d_stk_entity_it != d_stk_entity_it );
+    return ( rhs_vec_impl->d_current_entity->id() != d_current_entity->id() );
 }
 
 //---------------------------------------------------------------------------//
 // Size of the iterator.
 std::size_t STKMeshEntityIterator::size() const
 { 
-    return d_stk_entities->size();
+    return d_stk_entities.size();
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the beginning.
 EntityIterator STKMeshEntityIterator::begin() const
 { 
-    return STKMeshEntityIterator( d_stk_entities , this->b_predicate );
+    return STKMeshEntityIterator( 
+	d_stk_entities, d_bulk_data, this->b_predicate );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the end.
 EntityIterator STKMeshEntityIterator::end() const
 {
-    STKMeshEntityIterator end_it( d_stk_entities, this->b_predicate );
-    end_it.d_stk_entity_it = d_stk_entities->end();
+    STKMeshEntityIterator end_it( 
+	d_stk_entities, d_bulk_data, this->b_predicate );
+    end_it.d_stk_entity_it = d_stk_entities.end();
     return end_it;
 }
 

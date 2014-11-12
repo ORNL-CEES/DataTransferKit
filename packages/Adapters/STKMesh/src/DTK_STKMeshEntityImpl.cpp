@@ -45,6 +45,8 @@
 
 #include <stk_mesh/base/MetaData.hpp>
 #include <stk_mesh/base/FieldBase.hpp>
+#include <stk_mesh/base/Field.hpp>
+#include <stk_mesh/base/CoordinateSystems.hpp>
 
 namespace DataTransferKit
 {
@@ -86,6 +88,10 @@ EntityType STKMeshEntityImpl::entityType() const
 	    entity_type = ENTITY_TYPE_VOLUME;
 	    break;
 	default:
+	    DTK_CHECK( ENTITY_TYPE_NODE == entity_type ||
+		       ENTITY_TYPE_EDGE == entity_type ||
+		       ENTITY_TYPE_FACE == entity_type ||
+		       ENTITY_TYPE_VOLUME == entity_type );
 	    break;
     }
 
@@ -143,15 +149,13 @@ void STKMeshEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
     switch( space_dim )
     {
 	case 3:
-	    getNodeBounds( entity_nodes, bounds, Cartesian3DTag() );
+	    getNodeBounds( entity_nodes, bounds, Cartesian3dTag() );
 	    break;
 	case 2:
-	    getNodeBounds( entity_nodes, bounds, Cartesian2DTag() );
-	    break;
-	case 1:
-	    getNodeBounds( entity_nodes, bounds, Cartesian1DTag() );
+	    getNodeBounds( entity_nodes, bounds, Cartesian2dTag() );
 	    break;
 	default:
+	    DTK_CHECK( 2 == space_dim || 3 == space_dim );
 	    break;
     }
 }
@@ -161,7 +165,7 @@ void STKMeshEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 bool STKMeshEntityImpl::inBlock( const int block_id ) const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
-    stk::mesh::PartVector& all_parts =
+    const stk::mesh::PartVector& all_parts =
 	d_bulk_data->mesh_meta_data().get_parts();
     stk::mesh::Bucket& entity_bucket =
 	d_bulk_data->bucket( d_extra_data->d_stk_entity );
@@ -189,6 +193,68 @@ bool STKMeshEntityImpl::onBoundary( const int boundary_id ) const
 Teuchos::RCP<EntityExtraData> STKMeshEntityImpl::extraData() const
 {
     return d_extra_data;
+}
+
+//---------------------------------------------------------------------------//
+// Bounding box extraction. Cartesian2D specialization.
+void STKMeshEntityImpl::getNodeBounds( 
+    const Teuchos::Array<stk::mesh::Entity>& entity_nodes,
+    Teuchos::Tuple<double,6>& bounds,
+    const Cartesian2dTag tag ) const
+{
+    int space_dim = 2;
+    DTK_REQUIRE( physicalDimension() == space_dim );
+
+    const stk::mesh::FieldBase* coord_field_base= 
+	d_bulk_data->mesh_meta_data().coordinate_field();
+    const stk::mesh::Field<double,stk::mesh::Cartesian2d>* coord_field =
+	dynamic_cast<const stk::mesh::Field<double,stk::mesh::Cartesian2d>* >(
+	    coord_field_base);
+
+    Teuchos::Array<stk::mesh::Entity>::const_iterator entity_node_it;
+    for ( entity_node_it = entity_nodes.begin();
+	  entity_node_it != entity_nodes.end();
+	  ++entity_node_it )
+    {
+	double* node_coords = stk::mesh::field_data( 
+	    *coord_field, *entity_node_it );
+	for ( int d = 0; d < space_dim; ++d )
+	{
+	    bounds[d] = std::min( bounds[d], node_coords[d] );
+	    bounds[d+3] = std::max( bounds[d+3], node_coords[d] );
+	}
+    }
+}
+
+//---------------------------------------------------------------------------//
+// Bounding box extraction. Cartesian3D specialization.
+void STKMeshEntityImpl::getNodeBounds( 
+    const Teuchos::Array<stk::mesh::Entity>& entity_nodes,
+    Teuchos::Tuple<double,6>& bounds,
+    const Cartesian3dTag tag ) const
+{
+    int space_dim = 3;
+    DTK_REQUIRE( physicalDimension() == space_dim );
+
+    const stk::mesh::FieldBase* coord_field_base = 
+	d_bulk_data->mesh_meta_data().coordinate_field();
+    const stk::mesh::Field<double,stk::mesh::Cartesian3d>* coord_field =
+	dynamic_cast<const stk::mesh::Field<double,stk::mesh::Cartesian3d>* >(
+	    coord_field_base);
+
+    Teuchos::Array<stk::mesh::Entity>::const_iterator entity_node_it;
+    for ( entity_node_it = entity_nodes.begin();
+	  entity_node_it != entity_nodes.end();
+	  ++entity_node_it )
+    {
+	double* node_coords = stk::mesh::field_data( 
+	    *coord_field, *entity_node_it );
+	for ( int d = 0; d < space_dim; ++d )
+	{
+	    bounds[d] = std::min( bounds[d], node_coords[d] );
+	    bounds[d+3] = std::max( bounds[d+3], node_coords[d] );
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
