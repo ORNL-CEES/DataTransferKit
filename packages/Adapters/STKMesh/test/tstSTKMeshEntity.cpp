@@ -92,13 +92,13 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
     int comm_rank = comm->getRank();
     stk::mesh::EntityId hex_id = 23 + comm_rank;
     stk::mesh::Entity hex_entity = 
-	bulk_data->declare_entity( stk::topology::ELEM_RANK, 23, part_1 );
+	bulk_data->declare_entity( stk::topology::ELEM_RANK, hex_id, part_1 );
     int num_nodes = 8;
     Teuchos::Array<stk::mesh::EntityId> node_ids( num_nodes );
     Teuchos::Array<stk::mesh::Entity> nodes( num_nodes );
     for ( int i = 0; i < num_nodes; ++i )
     {
-	node_ids[i] = i + 5;
+	node_ids[i] = num_nodes*comm_rank + i + 5;
 	nodes[i] = bulk_data->declare_entity( 
 	    stk::topology::NODE_RANK, node_ids[i], part_1 );
 	bulk_data->declare_relation( hex_entity, nodes[i], i );
