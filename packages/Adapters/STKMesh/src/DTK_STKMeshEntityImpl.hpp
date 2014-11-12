@@ -125,17 +125,10 @@ class STKMeshEntityImpl : public EntityImpl
 
   private:
 
-    // Cartesian coordinate system tags.
-    struct Cartesian2dTag {};
-    struct Cartesian3dTag {};
-
     // Bounding box extraction.
+    template<class FieldType>
     void getNodeBounds( const Teuchos::Array<stk::mesh::Entity>& entity_nodes,
-			Teuchos::Tuple<double,6>& bounds,
-			const Cartesian2dTag tag ) const;
-    void getNodeBounds( const Teuchos::Array<stk::mesh::Entity>& entity_nodes,
-			Teuchos::Tuple<double,6>& bounds,
-			const Cartesian3dTag tag ) const;
+			Teuchos::Tuple<double,6>& bounds ) const;
 
   private:
 
@@ -149,6 +142,12 @@ class STKMeshEntityImpl : public EntityImpl
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_STKMeshEntityImpl_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
