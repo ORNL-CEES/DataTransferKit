@@ -34,15 +34,19 @@
 /*!
  * \brief DTK_STKMeshEntitySet.cpp
  * \author Stuart R. Slattery
- * \brief Geometric entity set interface.
+ * \brief STK mesh entity set.
  */
 //---------------------------------------------------------------------------//
 
+#include <vector>
+
 #include "DTK_STKMeshEntitySet.hpp"
 #include "DTK_STKMeshEntityExtraData.hpp"
+#include "DTK_STKMeshEntityIterator.hpp"
 #include "DTK_DBC.hpp"
 
 #include <stk_topology/topology.hpp>
+#include <stk_mesh/GetEntities.hpp>
 
 #include <Teuchos_DefaultMpiComm.hpp>
 
@@ -95,9 +99,10 @@ EntityIterator STKMeshEntitySet::entityIterator(
     const EntityType entity_type,
     const std::function<bool(Entity)>& predicate ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return EntityIterator();
+    stk::mesh::EntityRank rank = getRankFromEntityType( entity_type );
+    std::vector<stk::mesh::Entity> stk_entities;
+    stk::mesh::get_entities( *d_bulk_data, rank, entities );
+    return STKMeshEntityIterator( stk_entities, predicate );
 }
 
 //---------------------------------------------------------------------------//
