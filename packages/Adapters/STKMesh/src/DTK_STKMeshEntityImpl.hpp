@@ -38,8 +38,8 @@
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYIMPL_HPP
-#define DTK_ENTITYIMPL_HPP
+#ifndef DTK_STKMESHENTITYIMPL_HPP
+#define DTK_STKMESHENTITYIMPL_HPP
 
 #include <string>
 
@@ -125,11 +125,24 @@ class STKMeshEntityImpl : public EntityImpl
 
   private:
 
+    // Cartesian coordinate system tags.
+    struct Cartesian1DTag {};
+    struct Cartesian2DTag {};
+    struct Cartesian3DTag {};
+
+    // Bounding box extraction.
+    template<typename CoordinateSystemTag>
+    void getNodeBounds( const Teuchos::Array<stk::mesh::Entity>& entity_nodes,
+			Teuchos::Tuple<double,6>& bounds,
+			const CoordinateSystemTag tag );
+
+  private:
+
     // STK mesh entity extra data.
     Teuchos::RCP<STKMeshEntityExtraData> d_extra_data;
 
     // STK mesh bulk data.
-    Teuchos::Ptr<stk::mesh::Entity> d_bulk_data;
+    Teuchos::Ptr<stk::mesh::BulkData> d_bulk_data;
 };
 
 //---------------------------------------------------------------------------//
@@ -137,8 +150,14 @@ class STKMeshEntityImpl : public EntityImpl
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
 
-#endif // end DTK_ENTITYIMPL_HPP
+#include "DTK_STKMeshEntityImpl_impl.hpp"
+
+//---------------------------------------------------------------------------//
+
+#endif // end DTK_STKMESHENTITYIMPL_HPP
 
 //---------------------------------------------------------------------------//
 // end DTK_STKMeshEntityImpl.hpp

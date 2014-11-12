@@ -16,9 +16,19 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  DTK_STKMeshEntity.hpp
+  DTK_STKMeshEntityExtraData.hpp
+  DTK_STKMeshEntityImpl.hpp
+  DTK_STKMeshEntityImpl_impl.hpp
+  DTK_STKMeshEntityIterator.hpp
+  DTK_STKMeshEntitySet.hpp
   ) 
 
 APPEND_SET(SOURCES
+  DTK_STKMeshEntity.cpp
+  DTK_STKMeshEntityImpl.cpp
+  DTK_STKMeshEntityIterator.cpp
+  DTK_STKMeshEntitySet.cpp
   )
 
 #

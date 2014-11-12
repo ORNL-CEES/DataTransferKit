@@ -44,7 +44,7 @@
 #include <vector>
 #include <functional>
 
-#include <DTK_EntityIteartor.hpp>
+#include <DTK_EntityIterator.hpp>
 #include <DTK_Entity.hpp>
 #include <DTK_STKMeshEntity.hpp>
 

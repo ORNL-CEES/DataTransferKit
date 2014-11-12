@@ -29,6 +29,7 @@
 
 #include <stk_mesh/base/MetaData.hpp>
 #include <stk_mesh/base/BulkData.hpp>
+#include <stk_mesh/base/FieldBase.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup

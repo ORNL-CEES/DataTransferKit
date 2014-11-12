@@ -43,6 +43,9 @@
 #include "DTK_STKMeshEntityImpl.hpp"
 #include "DTK_DBC.hpp"
 
+#include <stk_mesh/base/MetaData.hpp>
+#include <stk_mesh/base/FieldBase.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -64,11 +67,11 @@ STKMeshEntityImpl::~STKMeshEntityImpl()
 EntityType STKMeshEntityImpl::entityType() const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
-    stk::mesh::EntityRank entity_rank = 
+    stk::mesh::EntityRank rank = 
 	d_bulk_data->entity_rank(d_extra_data->d_stk_entity);
     
     EntityType entity_type = ENTITY_TYPE_NODE;
-    switch( entity_rank )
+    switch( rank )
     {
 	case stk::topology::NODE_RANK:
 	    entity_type = ENTITY_TYPE_NODE;
@@ -81,6 +84,8 @@ EntityType STKMeshEntityImpl::entityType() const
 	    break;
 	case stk::topology::ELEM_RANK:
 	    entity_type = ENTITY_TYPE_VOLUME;
+	    break;
+	default:
 	    break;
     }
 
@@ -125,29 +130,29 @@ void STKMeshEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
     }
     else
     {
-	const Entity* begin = d_bulk_data->begin( stk_entity, entity_rank );
-	const Entity* end = d_bulk_data->end( stk_entity, entity_rank );
+	const stk::mesh::Entity* begin = 
+	    d_bulk_data->begin( d_extra_data->d_stk_entity, entity_rank );
+	const stk::mesh::Entity* end = 
+	    d_bulk_data->end( d_extra_data->d_stk_entity, entity_rank );
 	entity_nodes.assign( begin, end );	
     }
-
-    const stk::mesh::FieldBase* coord_field = 
-	d_bulk_data->mesh_meta_data().coordianate_field();
 
     double max = std::numeric_limits<double>::max();
     bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
     int space_dim = physicalDimension();
-    Teuchos::Array<stk::mesh::Entity>::const_iterator entity_node_it;
-    for ( entity_node_it = entity_nodes.begin();
-	  entity_node_it != entity_nodes.end();
-	  ++entity_node_it )
+    switch( space_dim )
     {
-	auto node_coords = 
-	    stk::mesh::field_data( *coord_field, *entity_node_it );
-	for ( int d = 0; d < space_dim; ++d )
-	{
-	    bounds[d] = std::min( bounds[d], node_coords[d] );
-	    bounds[d+3] = std::max( bounds[d+3], node_coords[d] );
-	}
+	case 3:
+	    getNodeBounds( entity_nodes, bounds, Cartesian3DTag() );
+	    break;
+	case 2:
+	    getNodeBounds( entity_nodes, bounds, Cartesian2DTag() );
+	    break;
+	case 1:
+	    getNodeBounds( entity_nodes, bounds, Cartesian1DTag() );
+	    break;
+	default:
+	    break;
     }
 }
 
@@ -158,7 +163,7 @@ bool STKMeshEntityImpl::inBlock( const int block_id ) const
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
     stk::mesh::PartVector& all_parts =
 	d_bulk_data->mesh_meta_data().get_parts();
-    std::mesh::Bucket& entity_bucket =
+    stk::mesh::Bucket& entity_bucket =
 	d_bulk_data->bucket( d_extra_data->d_stk_entity );
     for ( auto part_it = all_parts.begin(); 
 	  part_it != all_parts.end();

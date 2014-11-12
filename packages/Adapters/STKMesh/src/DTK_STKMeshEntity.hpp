@@ -48,10 +48,9 @@
 #include "DTK_EntityExtraData.hpp"
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayView.hpp>
-#include <Teuchos_Tuple.hpp>
 
 #include <stk_mesh/base/Entity.hpp>
+#include <stk_mesh/base/BulkData.hpp>
 
 namespace DataTransferKit
 {
@@ -77,11 +76,6 @@ class STKMeshEntity : public Entity
      */
     STKMeshEntity( const stk::mesh::Entity& stk_entity,
 		   const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
-
-    /*!
-     * \brief Copy constructor.
-     */
-    STKMeshEntity( const STKMeshEntity& rhs );
 
     /*!
      * \brief Destructor.

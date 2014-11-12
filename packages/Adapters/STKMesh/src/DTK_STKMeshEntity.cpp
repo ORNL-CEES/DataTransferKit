@@ -46,8 +46,9 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-STKMeshEntity::Entity( const stk::mesh::Entity& stk_entity,
-		       const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data )
+STKMeshEntity::STKMeshEntity( 
+    const stk::mesh::Entity& stk_entity,
+    const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data )
 {
     this->b_entity_impl = 
 	Teuchos::rcp( new STKMeshEntityImpl(stk_entity,bulk_data) );
@@ -55,7 +56,7 @@ STKMeshEntity::Entity( const stk::mesh::Entity& stk_entity,
 
 //---------------------------------------------------------------------------//
 //brief Destructor.
-STKMeshEntity::~Entity()
+STKMeshEntity::~STKMeshEntity()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
