@@ -38,8 +38,8 @@
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYPREDICATES_HPP
-#define DTK_ENTITYPREDICATES_HPP
+#ifndef DTK_STKMESHENTITYPREDICATES_HPP
+#define DTK_STKMESHENTITYPREDICATES_HPP
 
 #include <functional>
 #include <string>
@@ -57,16 +57,16 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class PartPredicate
+ * \class STKPartPredicate
  * \part Predicate base class.
  */
-class PartPredicate
+class STKPartPredicate
 {
   public:
 
-    PartPredicate() { /* ... */ }
+    STKPartPredicate() { /* ... */ }
 
-    ~PartPredicate() { /* ... */ }
+    ~STKPartPredicate() { /* ... */ }
 
     bool operator()( Entity entity );
 
@@ -81,45 +81,45 @@ class PartPredicate
 
 //---------------------------------------------------------------------------//
 /*!
-  \class PartNamePredicate
+  \class STKPartNamePredicate
   \brief Predicates for selecting entities in parts by part name.
 */
-class PartNamePredicate : public PartPredicate
+class STKPartNamePredicate : public STKPartPredicate
 {
   public:
 
-    PartNamePredicate( const Teuchos::Array<std::string>& part_names,
+    STKPartNamePredicate( const Teuchos::Array<std::string>& part_names,
 		       const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
 
-    ~PartNamePredicate() { /* ... */ }
+    ~STKPartNamePredicate() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//
 /*!
-  \class PartVectorPredicate
+  \class STKPartVectorPredicate
   \brief Predicates for selecting entities in a part vector.
 */
-class PartVectorPredicate : public PartPredicate
+class STKPartVectorPredicate : public STKPartPredicate
 {
   public:
 
-    PartVectorPredicate( const stk::mesh::PartVector& parts );
+    STKPartVectorPredicate( const stk::mesh::PartVector& parts );
 
-    ~PartVectorPredicate() { /* ... */ }
+    ~STKPartVectorPredicate() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//
 /*!
-  \class SelectorPredicate
+  \class STKSelectorPredicate
   \brief Predicates for selecting entities in a selector.
 */
-class SelectorPredicate : public PartPredicate
+class STKSelectorPredicate : public STKPartPredicate
 {
   public:
 
-    SelectorPredicate( const stk::mesh::Selector& selector );
+    STKSelectorPredicate( const stk::mesh::Selector& selector );
 
-    ~SelectorPredicate() { /* ... */ }
+    ~STKSelectorPredicate() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//
@@ -128,7 +128,7 @@ class SelectorPredicate : public PartPredicate
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_ENTITYPREDICATES_HPP
+#endif // end DTK_STKMESHENTITYPREDICATES_HPP
 
 //---------------------------------------------------------------------------//
 // end DTK_STKMeshEntityPredicates.hpp

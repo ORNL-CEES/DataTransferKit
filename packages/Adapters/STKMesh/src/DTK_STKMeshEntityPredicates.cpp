@@ -40,19 +40,21 @@
 
 #include "DTK_STKMeshEntityPredicates.hpp"
 
+#include <stk_mesh/base/MetaData.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Part predicate.
 //---------------------------------------------------------------------------//
 // Functor.
-bool PartNamePredicate::operator()( Entity entity ) 
+bool STKPartPredicate::operator()( Entity entity ) 
 { 
     for ( auto part_it = b_part_ids.begin();
 	  part_it != b_part_ids.end();
 	  ++part_it )
     {
-	if ( !entity.inBlock(*part_id) )
+	if ( !entity.inBlock(*part_it) )
 	{
 	    return false;
 	}
@@ -63,23 +65,25 @@ bool PartNamePredicate::operator()( Entity entity )
 //---------------------------------------------------------------------------//
 // Part name predicate.
 //---------------------------------------------------------------------------//
-PartNamePredicate::PartNamePredicate( 
+STKPartNamePredicate::STKPartNamePredicate( 
     const Teuchos::Array<std::string>& part_names,
     const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
 {
+    stk::mesh::Part* part = 0;
     for ( auto name_it = part_names.begin(); 
 	  name_it != part_names.end();
 	  ++name_it )
     {
-	Part& part = bulk_data->mesh_meta_data.get_part( *name_it );
-	this->b_part_ids.push_back( part.mesh_meta_data_ordinal() );
+	 part = bulk_data->mesh_meta_data().get_part( *name_it );
+	this->b_part_ids.push_back( part->mesh_meta_data_ordinal() );
     }
 }
 
 //---------------------------------------------------------------------------//
-// PartVector predicate.
+// Part Vector predicate.
 //---------------------------------------------------------------------------//
-PartVectorPredicate::PartVectorPredicate( const stk::mesh::PartVector& parts )
+STKPartVectorPredicate::STKPartVectorPredicate( 
+    const stk::mesh::PartVector& parts )
 {
     for ( auto part_it = parts.begin(); part_it != parts.end(); ++part_it )
     {
@@ -90,7 +94,8 @@ PartVectorPredicate::PartVectorPredicate( const stk::mesh::PartVector& parts )
 //---------------------------------------------------------------------------//
 // Selector predicate.
 //---------------------------------------------------------------------------//
-SelectorPredicate::SelectorPredicate( const stk::mesh::Selector& selector )
+STKSelectorPredicate::STKSelectorPredicate( 
+    const stk::mesh::Selector& selector )
 {
     stk::mesh::PartVector parts;
     selector.get_parts( parts );
