@@ -17,9 +17,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   DTK_IntrepidCell.hpp
-  DTK_IntrepidCell_impl.hpp
   DTK_IntrepidSideCell.hpp
-  DTK_IntrepidSideCell_impl.hpp
   DTK_STKMeshEntity.hpp
   DTK_STKMeshEntityExtraData.hpp
   DTK_STKMeshEntityImpl.hpp
@@ -29,6 +27,8 @@ APPEND_SET(HEADERS
   ) 
 
 APPEND_SET(SOURCES
+  DTK_IntrepidCell.cpp
+  DTK_IntrepidSideCell.cpp
   DTK_STKMeshEntity.cpp
   DTK_STKMeshEntityImpl.cpp
   DTK_STKMeshEntityIterator.cpp

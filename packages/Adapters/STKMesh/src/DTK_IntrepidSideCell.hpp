@@ -55,15 +55,15 @@ namespace DataTransferKit
  * \brief Manager for Intrepid cell-level operations on cell sides.
  */
 //---------------------------------------------------------------------------//
-template<typename MDArray>
-class IntrepidSideCell : public IntrepidCell<MDArray>
+class IntrepidSideCell : public IntrepidCell
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef IntrepidCell<MDArray> Base;
-    typedef typename Base::Scalar Scalar;
+    typedef IntrepidCell Base;
+    typedef Base::Scalar Scalar;
+    typedef Base::MDArray MDArray;
     //@}
 
   public:
@@ -101,12 +101,6 @@ class IntrepidSideCell : public IntrepidCell<MDArray>
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_IntrepidSideCell_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

@@ -135,8 +135,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_all_cells_test )
     shards::CellTopology element_topo =
 	shards::getCellTopologyData<shards::Hexahedron<8> >();
     int degree = 1;
-    DataTransferKit::IntrepidCell<Intrepid::FieldContainer<double> > 
-	intrepid_cell( element_topo, degree );
+    DataTransferKit::IntrepidCell intrepid_cell( element_topo, degree );
 
     // For each element in the mesh compute cell measures, integrals, and
     // physical cubature points and check them.
@@ -209,8 +208,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_single_cell_test )
     shards::CellTopology element_topo =
 	shards::getCellTopologyData<shards::Hexahedron<8> >();
     int degree = 1;
-    DataTransferKit::IntrepidCell<Intrepid::FieldContainer<double> > 
-	intrepid_cell( element_topo, degree );
+    DataTransferKit::IntrepidCell intrepid_cell( element_topo, degree );
 
     // For each element in the mesh compute cell measures, integrals, and
     // physical cubature points and check them.
@@ -285,7 +283,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_all_cells_test )
 	shards::getCellTopologyData<shards::Quadrilateral<4> >();
     int degree = 1;
     int side_id = 0;
-    DataTransferKit::IntrepidSideCell<Intrepid::FieldContainer<double> >
+    DataTransferKit::IntrepidSideCell 
 	intrepid_cell( side_topo, side_id, element_topo, degree);
 
     // For each element in the mesh compute cell measures, integrals, and
@@ -362,7 +360,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_single_cell_test )
 	shards::getCellTopologyData<shards::Quadrilateral<4> >();
     int degree = 1;
     int side_id = 0;
-    DataTransferKit::IntrepidSideCell<Intrepid::FieldContainer<double> >
+    DataTransferKit::IntrepidSideCell
 	intrepid_cell( side_topo, side_id, element_topo, degree);
 
     // For each element in the mesh compute cell measures, integrals, and
@@ -435,8 +433,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_ffupdate_all_cells_test )
     shards::CellTopology element_topo =
 	shards::getCellTopologyData<shards::Hexahedron<8> >();
     int degree = 1;
-    DataTransferKit::IntrepidCell<Intrepid::FieldContainer<double> > 
-	intrepid_cell( element_topo, degree );
+    DataTransferKit::IntrepidCell intrepid_cell( element_topo, degree );
 
     // For each element in the mesh compute cell measures, integrals, and
     // physical cubature points and check them.
@@ -456,7 +453,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_ffupdate_all_cells_test )
     int dof_val = 2.0;
     dofs.initialize( dof_val );
 
-    DataTransferKit::IntrepidCell<Intrepid::FieldContainer<double> >::updateState(
+    DataTransferKit::IntrepidCell::updateState(
 	intrepid_cell, element_coords );
 
     intrepid_cell.getCellMeasures( cell_measure );
@@ -504,7 +501,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_ffupdate_all_cells_test )
 	shards::getCellTopologyData<shards::Quadrilateral<4> >();
     int degree = 1;
     int side_id = 0;
-    DataTransferKit::IntrepidSideCell<Intrepid::FieldContainer<double> >
+    DataTransferKit::IntrepidSideCell
 	intrepid_cell( side_topo, side_id, element_topo, degree);
 
     // For each element in the mesh compute cell measures, integrals, and
@@ -525,7 +522,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_ffupdate_all_cells_test )
     int dof_val = 2.0;
     dofs.initialize( dof_val );
 
-    DataTransferKit::IntrepidCell<Intrepid::FieldContainer<double> >::updateState(
+    DataTransferKit::IntrepidCell::updateState(
 	intrepid_cell, element_coords );
 
     intrepid_cell.getCellMeasures( cell_measure );
@@ -575,8 +572,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, point_in_hex_test )
     point(0,0) = 2.59;
     point(0,1) = 0.54;
     point(0,2) = 0.32;
-    DataTransferKit::IntrepidCell<Intrepid::FieldContainer<double> > hex_cell( 
-	element_topo, 1 );
+    DataTransferKit::IntrepidCell hex_cell( element_topo, 1 );
     Teuchos::Array<int> coord_dims( 3 );
     coord_dims[0] = 1;
     coord_dims[1] = 8;

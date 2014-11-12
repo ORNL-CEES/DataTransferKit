@@ -46,6 +46,7 @@
 #include <Shards_CellTopology.hpp>
 
 #include <Intrepid_Cubature.hpp>
+#include <Intrepid_FieldContainer.hpp>
 
 namespace DataTransferKit
 {
@@ -55,14 +56,13 @@ namespace DataTransferKit
  * \brief Manager for Intrepid cell-level operations.
  */
 //---------------------------------------------------------------------------//
-template<typename MDArray>
 class IntrepidCell
 {
   public:
 
-    //@{
     //! Typedefs.
-    typedef typename MDArray::scalar_type Scalar;
+    typedef double Scalar;
+    typedef Intrepid::FieldContainer<Scalar> MDArray;
     //@}
 
   public:
@@ -168,12 +168,6 @@ class IntrepidCell
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_IntrepidCell_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

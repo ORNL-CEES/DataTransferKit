@@ -32,15 +32,13 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_IntrepidSideCell_impl.hpp
+ * \file   DTK_IntrepidSideCell.cpp
  * \author Stuart Slattery
  * \brief  Manager for intrepid cell-level operations on cell sides.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_INTREPIDSIDECELL_IMPL_HPP
-#define DTK_INTREPIDSIDECELL_IMPL_HPP
-
+#include "DTK_IntrepidSideCell.hpp"
 #include "DTK_DBC.hpp"
 
 #include <Teuchos_as.hpp>
@@ -55,8 +53,7 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<typename MDArray>
-IntrepidSideCell<MDArray>::IntrepidSideCell( 
+IntrepidSideCell::IntrepidSideCell( 
     const shards::CellTopology& side_topology,
     const unsigned side_id,
     const shards::CellTopology& parent_topology,
@@ -78,8 +75,7 @@ IntrepidSideCell<MDArray>::IntrepidSideCell(
 /*!
  * \brief Destructor.
  */
-template<typename MDArray>
-IntrepidSideCell<MDArray>::~IntrepidSideCell()
+IntrepidSideCell::~IntrepidSideCell()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -87,8 +83,7 @@ IntrepidSideCell<MDArray>::~IntrepidSideCell()
  * \brief Update the cell state of the object for the current cell node
  * coordinates.
  */
-template<typename MDArray>
-void IntrepidSideCell<MDArray>::updateCellState()
+void IntrepidSideCell::updateCellState()
 {
     unsigned space_dim = d_parent_topology.getDimension();
 
@@ -135,8 +130,7 @@ void IntrepidSideCell<MDArray>::updateCellState()
  * \brief Given a set of coordinates in the reference frame of the cell, map
  * them to the physical frame.
  */
-template<typename MDArray>
-void IntrepidSideCell<MDArray>::mapToCellPhysicalFrame( 
+void IntrepidSideCell::mapToCellPhysicalFrame( 
     const MDArray& parametric_coords, MDArray& physical_coords )
 {
     DTK_REQUIRE( 2 == parametric_coords.rank() );
@@ -166,8 +160,7 @@ void IntrepidSideCell<MDArray>::mapToCellPhysicalFrame(
 /*!
  * \brief Compute the physical normals of the side.
  */
-template<typename MDArray>
-void IntrepidSideCell<MDArray>::getPhysicalSideNormals( MDArray& side_normals )
+void IntrepidSideCell::getPhysicalSideNormals( MDArray& side_normals )
 {
     Intrepid::CellTools<Scalar>::getPhysicalSideNormals(
 	side_normals, this->d_jacobian, d_side_id, d_parent_topology );
@@ -178,10 +171,6 @@ void IntrepidSideCell<MDArray>::getPhysicalSideNormals( MDArray& side_normals )
 } // End namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_INTREPIDSIDECELL_IMPL_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_IntrepidSideCell.hpp
+// end DTK_IntrepidSideCell.cpp
 //---------------------------------------------------------------------------//
 
