@@ -128,19 +128,19 @@ void STKMeshEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
     Teuchos::Array<stk::mesh::Entity> entity_nodes;
-    stk::mesh::EntityRank entity_rank = 
+    stk::mesh::EntityRank rank = 
 	d_bulk_data->entity_rank(d_extra_data->d_stk_entity);
-    if ( stk::topology::NODE_RANK == entity_rank )
+    if ( stk::topology::NODE_RANK == rank )
     {
 	entity_nodes.push_back( d_extra_data->d_stk_entity );
     }
     else
     {
 	const stk::mesh::Entity* begin = 
-	    d_bulk_data->begin( d_extra_data->d_stk_entity, entity_rank );
+	    d_bulk_data->begin_nodes( d_extra_data->d_stk_entity );
 	const stk::mesh::Entity* end = 
-	    d_bulk_data->end( d_extra_data->d_stk_entity, entity_rank );
-	entity_nodes.assign( begin, end );	
+	    d_bulk_data->end_nodes( d_extra_data->d_stk_entity );
+	entity_nodes.assign( begin, end );
     }
 
     double max = std::numeric_limits<double>::max();
@@ -173,7 +173,7 @@ bool STKMeshEntityImpl::inBlock( const int block_id ) const
 	  part_it != all_parts.end();
 	  ++part_it )
     {
-	if ( (*part_it)->id() == block_id )
+	if ( Teuchos::as<int>((*part_it)->mesh_meta_data_ordinal()) == block_id )
 	{
 	    return entity_bucket.member( **part_it );
 	}

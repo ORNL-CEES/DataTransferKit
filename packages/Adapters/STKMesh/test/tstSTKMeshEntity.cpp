@@ -69,10 +69,10 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
     std::string p1_name = "part_1";
     stk::mesh::Part& part_1 = meta_data.declare_part( p1_name );
     stk::mesh::set_topology( part_1, stk::topology::HEX_8 );
-    int part_1_id = part_1.id();
+    int part_1_id = part_1.mesh_meta_data_ordinal();
     std::string p2_name = "part_2";
     stk::mesh::Part& part_2 = meta_data.declare_part( p2_name );
-    int part_2_id = part_2.id();
+    int part_2_id = part_2.mesh_meta_data_ordinal();
 
     // Make a coordinate field.
     stk::mesh::Field<double, stk::mesh::Cartesian3d>& coord_field =
@@ -163,9 +163,9 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
 
     Teuchos::RCP<DataTransferKit::EntityExtraData> extra_data =
 	dtk_entity.extraData();
-    TEST_EQUALITY( hex_entity.m_value,
+    TEST_EQUALITY( hex_entity,
 		   Teuchos::rcp_dynamic_cast<DataTransferKit::STKMeshEntityExtraData>(
-		       extra_data)->d_stk_entity.m_value );
+		       extra_data)->d_stk_entity );
 
     Teuchos::Tuple<double,6> hex_bounds;
     dtk_entity.boundingBox( hex_bounds );
