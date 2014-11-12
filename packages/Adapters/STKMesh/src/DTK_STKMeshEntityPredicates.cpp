@@ -43,32 +43,16 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Part block predicate.
-//---------------------------------------------------------------------------//
-// Constructor.
-PartBlockPredicate::PartBlockPredicate( 
-    const Teuchos::Array<std::string>& part_names,
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
-{
-    for ( auto name_it = part_names.begin(); 
-	  name_it != part_names.end();
-	  ++name_it )
-    {
-	Part& part = bulk_data->mesh_meta_data.get_part( *name_it );
-	d_block_ids.push_back( part.mesh_meta_data_ordinal() );
-    }
-}
-
+// Part predicate.
 //---------------------------------------------------------------------------//
 // Functor.
-bool PartBlockPredicate::operator()( Entity entity ) 
+bool PartNamePredicate::operator()( Entity entity ) 
 { 
-    Teuchos::Array<int>::const_iterator block_it;
-    for ( block_it = d_block_ids.begin();
-	  block_it != d_block_ids.end();
-	  ++block_it )
+    for ( auto part_it = b_part_ids.begin();
+	  part_it != b_part_ids.end();
+	  ++part_it )
     {
-	if ( !entity.inBlock(*block_it) )
+	if ( !entity.inBlock(*part_id) )
 	{
 	    return false;
 	}
@@ -77,10 +61,9 @@ bool PartBlockPredicate::operator()( Entity entity )
 }
 
 //---------------------------------------------------------------------------//
-// Part boundary predicate.
+// Part name predicate.
 //---------------------------------------------------------------------------//
-// Constructor.
-PartBoundaryPredicate::PartBoundaryPredicate( 
+PartNamePredicate::PartNamePredicate( 
     const Teuchos::Array<std::string>& part_names,
     const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
 {
@@ -89,25 +72,32 @@ PartBoundaryPredicate::PartBoundaryPredicate(
 	  ++name_it )
     {
 	Part& part = bulk_data->mesh_meta_data.get_part( *name_it );
-	d_boundary_ids.push_back( part.mesh_meta_data_ordinal() );
+	this->b_part_ids.push_back( part.mesh_meta_data_ordinal() );
     }
 }
 
 //---------------------------------------------------------------------------//
-// Functor.
-bool PartBoundaryPredicate::operator()( Entity entity ) 
-{ 
-    Teuchos::Array<int>::const_iterator boundary_it;
-    for ( boundary_it = d_boundary_ids.begin();
-	  boundary_it != d_boundary_ids.end();
-	  ++boundary_it )
+// PartVector predicate.
+//---------------------------------------------------------------------------//
+PartVectorPredicate::PartVectorPredicate( const stk::mesh::PartVector& parts )
+{
+    for ( auto part_it = parts.begin(); part_it != parts.end(); ++part_it )
     {
-	if ( !entity.onBoundary(*boundary_it) )
-	{
-	    return false;
-	}
+	this->b_part_ids.push_back( (*part_it)->mesh_meta_data_ordinal() );
     }
-    return true;
+}
+
+//---------------------------------------------------------------------------//
+// Selector predicate.
+//---------------------------------------------------------------------------//
+SelectorPredicate::SelectorPredicate( const stk::mesh::Selector& selector )
+{
+    stk::mesh::PartVector parts;
+    selector.get_parts( parts );
+    for ( auto part_it = parts.begin(); part_it != parts.end(); ++part_it )
+    {
+	this->b_part_ids.push_back( (*part_it)->mesh_meta_data_ordinal() );
+    }
 }
 
 //---------------------------------------------------------------------------//

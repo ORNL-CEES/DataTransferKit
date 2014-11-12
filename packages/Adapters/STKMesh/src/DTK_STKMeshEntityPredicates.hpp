@@ -51,57 +51,75 @@
 #include <Teuchos_RCP.hpp>
 
 #include <stk_mesh/base/BulkData.hpp>
+#include <stk_mesh/base/Selector.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class PartBlockPredicate
-  \brief Predicates for selecting entities in a part representing a block
-*/
-class PartBlockPredicate
+ * \class PartPredicate
+ * \part Predicate base class.
+ */
+class PartPredicate
 {
   public:
 
-    PartBlockPredicate( const Teuchos::Array<std::string>& part_names,
-			const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
+    PartPredicate() { /* ... */ }
 
-    ~PartBlockPredicate() { /* ... */ }
+    ~PartPredicate() { /* ... */ }
 
     bool operator()( Entity entity );
 
     std::function<bool(Entity)> getFunction() const
     { return std::function<bool(Entity)>(*this); }
 
-  private:
+  protected:
 
-    // Part block ids.
-    Teuchos::Array<int> d_block_ids;
+    // Part ids.
+    Teuchos::Array<int> b_part_ids;
 };
 
 //---------------------------------------------------------------------------//
 /*!
-  \class PartBoundaryPredicate
-  \brief Predicates for selecting entities in a part representing a boundary
+  \class PartNamePredicate
+  \brief Predicates for selecting entities in parts by part name.
 */
-class PartBoundaryPredicate
+class PartNamePredicate : public PartPredicate
 {
   public:
 
-    PartBoundaryPredicate( const Teuchos::Array<std::string>& part_names,
-			   const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
+    PartNamePredicate( const Teuchos::Array<std::string>& part_names,
+		       const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
 
-    ~PartBoundaryPredicate() { /* ... */ }
+    ~PartNamePredicate() { /* ... */ }
+};
 
-    bool operator()( Entity entity );
+//---------------------------------------------------------------------------//
+/*!
+  \class PartVectorPredicate
+  \brief Predicates for selecting entities in a part vector.
+*/
+class PartVectorPredicate : public PartPredicate
+{
+  public:
 
-    std::function<bool(Entity)> getFunction() const
-    { return std::function<bool(Entity)>(*this); }
+    PartVectorPredicate( const stk::mesh::PartVector& parts );
 
-  private:
+    ~PartVectorPredicate() { /* ... */ }
+};
 
-    // Part boundary ids.
-    Teuchos::Array<int> d_boundary_ids;
+//---------------------------------------------------------------------------//
+/*!
+  \class SelectorPredicate
+  \brief Predicates for selecting entities in a selector.
+*/
+class SelectorPredicate : public PartPredicate
+{
+  public:
+
+    SelectorPredicate( const stk::mesh::Selector& selector );
+
+    ~SelectorPredicate() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//
