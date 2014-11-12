@@ -156,11 +156,20 @@ void STKMeshEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 bool STKMeshEntityImpl::inBlock( const int block_id ) const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
-    stk::mesh::Part& block_part = 
-	d_bulk_data->mesh_meta_data().get_part( block_id );
+    stk::mesh::PartVector& all_parts =
+	d_bulk_data->mesh_meta_data().get_parts();
     std::mesh::Bucket& entity_bucket =
 	d_bulk_data->bucket( d_extra_data->d_stk_entity );
-    return entity_bucket.member( block_part );
+    for ( auto part_it = all_parts.begin(); 
+	  part_it != all_parts.end();
+	  ++part_it )
+    {
+	if ( (*part_it)->id() == block_id )
+	{
+	    return entity_bucket.member( **part_it );
+	}
+    }
+    return false;
 }
 
 //---------------------------------------------------------------------------//

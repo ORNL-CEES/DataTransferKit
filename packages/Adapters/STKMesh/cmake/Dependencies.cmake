@@ -4,6 +4,9 @@ SET(LIB_REQUIRED_DEP_PACKAGES
   DataTransferKitInterface
   Teuchos 
   Tpetra
+  STKUtil
+  STKTopology
+  STKMesh
  )
 
 SET(LIB_OPTIONAL_DEP_PACKAGES)
