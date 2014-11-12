@@ -4,6 +4,8 @@ SET(LIB_REQUIRED_DEP_PACKAGES
   DataTransferKitInterface
   Teuchos 
   Tpetra
+  Shards
+  Intrepid
   STKUtil
   STKTopology
   STKMesh
