@@ -53,7 +53,7 @@ namespace DataTransferKit
   \brief A container for entity vectors that can be reference-counted.
 */
 //---------------------------------------------------------------------------//
-class STKMeshEntityIteratorRange : public EntityIteratorRange
+class STKMeshEntityIteratorRange
 {
   public:
 

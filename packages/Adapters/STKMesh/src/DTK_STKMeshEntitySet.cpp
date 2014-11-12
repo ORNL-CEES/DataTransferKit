@@ -105,7 +105,7 @@ EntityIterator STKMeshEntitySet::entityIterator(
     stk::mesh::EntityRank rank = getRankFromEntityType( entity_type );
     Teuchos::RCP<STKMeshEntityIteratorRange> iterator_range =
 	Teuchos::rcp( new STKMeshEntityIteratorRange() );
-    stk::mesh::get_entities( *d_bulk_data, rank, iterator_range.d_stk_entities );
+    stk::mesh::get_entities( *d_bulk_data, rank, iterator_range->d_stk_entities );
     return STKMeshEntityIterator( iterator_range, d_bulk_data, predicate );
 }
 
