@@ -94,6 +94,11 @@ class STKMeshHelpers
     static stk::mesh::EntityKey getKeyFromEntity( const Entity dtk_entity );
 
     /*!
+     * \brief Given a DTK entity, extract the STK entity.
+     */
+    static const stk::mesh::Entity& extractEntity( const Entity dtk_entity );
+
+    /*!
      * \brief Given a STK entity, return the coordinates of its nodes in a
      * field container ordered by canonical node order (C,N,D).
      */

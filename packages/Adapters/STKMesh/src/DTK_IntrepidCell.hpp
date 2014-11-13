@@ -94,6 +94,11 @@ class IntrepidCell
     static void updateState( IntrepidCell& Intrepid_cell,
 			     const MDArray& cell_node_coords );
 
+    // Given a set of coordinates in the physical frame of the cell
+    // (Node,Dim), map them to the reference frame (Cell,Node,Dim).
+    virtual void mapToCellReferenceFrame( const MDArray& physical_coords,
+					  MDArray& reference_coords );
+
     // Given a set of coordinates in the reference frame of the cell
     // (Node,Dim), map them to the physical frame (Cell,Node,Dim).
     virtual void mapToCellPhysicalFrame( const MDArray& parametric_coords,

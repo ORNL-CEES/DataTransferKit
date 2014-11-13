@@ -89,8 +89,7 @@ IntrepidCell::~IntrepidCell()
  * \brief Given physical coordinates for the cell nodes (Cell,Node,Dim),
  * assign them to the cell without allocating internal data.
  */
-void IntrepidCell::setCellNodeCoordinates( 
-    const MDArray& cell_node_coords )
+void IntrepidCell::setCellNodeCoordinates( const MDArray& cell_node_coords )
 {
     d_cell_node_coords = cell_node_coords;
 }
@@ -100,8 +99,7 @@ void IntrepidCell::setCellNodeCoordinates(
  * \brief Given physical coordinates for the cell nodes (Cell,Node,Dim),
  * allocate the state of the cell object.
  */
-void IntrepidCell::allocateCellState( 
-    const MDArray& cell_node_coords )
+void IntrepidCell::allocateCellState( const MDArray& cell_node_coords )
 {
     // Store the cell node coords as the current state.
     setCellNodeCoordinates( cell_node_coords );
@@ -152,12 +150,25 @@ void IntrepidCell::updateCellState()
  * \brief Free function for updating the cell state for a new set of
  * physical cells in a single call.
  */
-void IntrepidCell::updateState( 
-    IntrepidCell& intrepid_cell,
-    const MDArray& cell_node_coords )
+void IntrepidCell::updateState( IntrepidCell& intrepid_cell,
+				const MDArray& cell_node_coords )
 {
     intrepid_cell.allocateCellState( cell_node_coords );
     intrepid_cell.updateCellState();
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Given a set of coordinates in the physical frame of the cell, map
+ * them to the reference frame of the cell.
+ */
+void IntrepidCell::mapToCellReferenceFrame( const MDArray& physical_coords,
+					    MDArray& reference_coords )    
+{
+    DTK_REQUIRE( 2 == physical_coords.rank() );
+    DTK_REQUIRE( 2 == reference_coords.rank() );
+    Intrepid::CellTools<Scalar>::mapToReferenceFrame( 
+	reference_coords, physical_coords, d_cell_node_coords, d_topology, 0 );
 }
 
 //---------------------------------------------------------------------------//
@@ -203,12 +214,11 @@ bool IntrepidCell::pointInReferenceCell(
  * phyiscal cell.
  */
 bool IntrepidCell::pointInPhysicalCell( const MDArray& point,
-						 const double tolerance )
+					const double tolerance )
 {
     MDArray reference_point( point );
     reference_point.initialize();
-    Intrepid::CellTools<Scalar>::mapToReferenceFrame( 
-	reference_point, point, d_cell_node_coords, d_topology, 0 );
+    mapToCellReferenceFrame( point, reference_point );
     return pointInReferenceCell( reference_point, tolerance );
 }
 
@@ -244,8 +254,7 @@ int IntrepidCell::getSpatialDimension() const
  * \brief Get the cell measures (Cell). cell_measures must all ready be
  * allocated.
  */
-void IntrepidCell::getCellMeasures( 
-    MDArray& cell_measures ) const
+void IntrepidCell::getCellMeasures( MDArray& cell_measures ) const
 {
     DTK_REQUIRE( 1 == cell_measures.rank() );
     DTK_REQUIRE( cell_measures.dimension(0) == 
@@ -278,8 +287,7 @@ void IntrepidCell::getPhysicalIntegrationCoordinates(
  * tensor fields.} perform the numerical integration in each cell by
  * contracting them with the weighted measures.
  */
-void IntrepidCell::integrate( 
-    const MDArray& dofs, MDArray& integrals ) const
+void IntrepidCell::integrate( const MDArray& dofs, MDArray& integrals ) const
 {
     Intrepid::FunctionSpaceTools::integrate<Scalar>( 
 	integrals, dofs, d_weighted_measures, Intrepid::COMP_BLAS );

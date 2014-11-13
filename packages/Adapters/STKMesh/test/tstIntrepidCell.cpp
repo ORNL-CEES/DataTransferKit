@@ -228,7 +228,9 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_single_cell_test )
     Intrepid::FieldContainer<double> param_coords( 1, dimension );
     param_coords.initialize(0.0);
     Intrepid::FieldContainer<double> physical_coords( workset_size, 1, dimension );
-
+    Intrepid::FieldContainer<double> map2ref_coords( 1, dimension );
+    Intrepid::FieldContainer<double> mapped_coords( 1, dimension );
+    
     for ( int cell = 0; cell < num_elements; ++cell )
     {
 	Intrepid::FieldContainer<double> element_coords( 
@@ -256,6 +258,15 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_single_cell_test )
 
 	intrepid_cell.integrate( dofs, integrals );
 	TEST_EQUALITY( dof_val*cell_measure(0), integrals(0) );
+
+	map2ref_coords(0,0) = 1.0*cell + 0.5;
+	map2ref_coords(0,1) = 0.5;
+	map2ref_coords(0,2) = 0.5;
+	mapped_coords.initialize(1.0);
+	intrepid_cell.mapToCellReferenceFrame( map2ref_coords, mapped_coords );
+	TEST_EQUALITY( mapped_coords(0,0), 0.0 );
+	TEST_EQUALITY( mapped_coords(0,1), 0.0 );
+	TEST_EQUALITY( mapped_coords(0,2), 0.0 );
     }
 }
 

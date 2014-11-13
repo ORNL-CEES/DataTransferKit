@@ -39,6 +39,7 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_STKMeshHelpers.hpp"
+#include "DTK_STKMeshEntityExtraData.hpp"
 #include "DTK_DBC.hpp"
 
 #include <stk_mesh/base/MetaData.hpp>
@@ -147,6 +148,14 @@ STKMeshHelpers::getKeyFromEntity( const Entity dtk_entity )
     return stk::mesh::EntityKey( 
 	getRankFromType(dtk_entity.entityType(),dtk_entity.physicalDimension()),
 	dtk_entity.id() );
+}
+
+//---------------------------------------------------------------------------//
+// Given a DTK entity, extract the STK entity.
+const stk::mesh::Entity& STKMeshHelpers::extractEntity( const Entity dtk_entity )
+{
+    return Teuchos::rcp_dynamic_cast<STKMeshEntityExtraData>(
+	dtk_entity.extraData() )->d_stk_entity;
 }
 
 //---------------------------------------------------------------------------//

@@ -42,7 +42,6 @@
 
 #include "DTK_STKMeshEntitySet.hpp"
 #include "DTK_STKMeshEntity.hpp"
-#include "DTK_STKMeshEntityExtraData.hpp"
 #include "DTK_STKMeshEntityIterator.hpp"
 #include "DTK_STKMeshEntityIteratorRange.hpp"
 #include "DTK_STKMeshHelpers.hpp"
@@ -119,10 +118,7 @@ void STKMeshEntitySet::getAdjacentEntities(
     const EntityType entity_type,
     Teuchos::Array<Entity>& adjacent_entities ) const
 {
-    Teuchos::RCP<EntityExtraData> extra_data = entity.extraData();
-    stk::mesh::Entity stk_entity = 
-	Teuchos::rcp_dynamic_cast<STKMeshEntityExtraData>(
-	    extra_data)->d_stk_entity;
+    const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
     stk::mesh::EntityRank rank = getRankFromEntityType( entity_type );
     const stk::mesh::Entity* begin = 
 	d_bulk_data->begin( stk_entity, rank );
