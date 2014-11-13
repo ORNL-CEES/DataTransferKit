@@ -87,7 +87,9 @@ class EntityShapeFunction
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
      * \param values Entity shape function evaluated at the reference
-     * point. 
+     * point. Return these ordered with respect to those return by
+     * getDOFIds() such that values[N] gives the shape function value of the
+     * Nth DOF supporting the entity.
      */
     virtual void evaluateValue( 
 	const Entity& entity,

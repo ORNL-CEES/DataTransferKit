@@ -74,7 +74,7 @@ EntityType STKMeshEntityImpl::entityType() const
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
     stk::mesh::EntityRank rank = 
 	d_bulk_data->entity_rank(d_extra_data->d_stk_entity);
-    return STKMeshHelpers::getTypeFromRank( rank );
+    return STKMeshHelpers::getTypeFromRank( rank, physicalDimension() );
 }
 
 //---------------------------------------------------------------------------//

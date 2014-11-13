@@ -78,6 +78,11 @@ class STKMeshHelpers
     ~STKMeshHelpers() { /* ... */ }
 
     /*!
+     * \brief Given a DTK entity, extract the STK entity.
+     */
+    static const stk::mesh::Entity& extractEntity( const Entity dtk_entity );
+
+    /*!
      * \brief Given a DTK EntityType, get the STK entity rank.
      */
     static stk::mesh::EntityRank getRankFromType( 
@@ -86,17 +91,13 @@ class STKMeshHelpers
     /*!
      * \brief Given a STK entity rank, get the DTK entity type.
      */
-    static EntityType getTypeFromRank( const stk::mesh::EntityRank stk_rank );
+    static EntityType getTypeFromRank( 
+	const stk::mesh::EntityRank stk_rank, const int space_dim );
 
     /*!
      * \brief Given a DTK entity, return the corresponding STK entity key.
      */
     static stk::mesh::EntityKey getKeyFromEntity( const Entity dtk_entity );
-
-    /*!
-     * \brief Given a DTK entity, extract the STK entity.
-     */
-    static const stk::mesh::Entity& extractEntity( const Entity dtk_entity );
 
     /*!
      * \brief Given a STK entity, return the coordinates of its nodes in a

@@ -174,7 +174,8 @@ class STKMeshEntityLocalMap : public EntityLocalMap
   private:
 
     // Get the Intrepid cell for a given entity.
-    IntrepidCell& getEntityIntrepidCell( const Entity& entity ) const;
+    Teuchos::RCP<IntrepidCell> 
+    getEntityIntrepidCell( const Entity& entity ) const;
 
     // Get the center of the reference cell of the given topology.
     void referenceCellCenter( const Entity& entity,
@@ -184,12 +185,6 @@ class STKMeshEntityLocalMap : public EntityLocalMap
 
     // Bulk data.
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
-
-    // Intrepid cells.
-    Teuchos::Array<Teuchos::RCP<IntrepidCell> > d_intrepid_cells;
-
-    // Cell topology key to intrepid cell map.
-    std::unordered_map<unsigned,unsigned> d_topo_to_cell_map;
 };
 
 //---------------------------------------------------------------------------//

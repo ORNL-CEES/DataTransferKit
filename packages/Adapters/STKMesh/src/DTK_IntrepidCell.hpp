@@ -106,8 +106,8 @@ class IntrepidCell
 
     // Determine if a point given in parametric coordinates is inside of the
     // reference cell.
-    bool pointInReferenceCell( const MDArray& reference_point,
-			       const double tolerance );
+    virtual bool pointInReferenceCell( const MDArray& reference_point,
+				       const double tolerance );
 
     // Determine if a point in physical coordinates is inside of the physical
     // cell.

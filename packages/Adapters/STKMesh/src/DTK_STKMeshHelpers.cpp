@@ -50,6 +50,14 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
+// Given a DTK entity, extract the STK entity.
+const stk::mesh::Entity& STKMeshHelpers::extractEntity( const Entity dtk_entity )
+{
+    return Teuchos::rcp_dynamic_cast<STKMeshEntityExtraData>(
+	dtk_entity.extraData() )->d_stk_entity;
+}
+
+//---------------------------------------------------------------------------//
 // Given a DTK EntityType, get the STK entity rank.
 stk::mesh::EntityRank STKMeshHelpers::getRankFromType( 
     const EntityType dtk_type, const int space_dim )
@@ -112,28 +120,58 @@ stk::mesh::EntityRank STKMeshHelpers::getRankFromType(
 //---------------------------------------------------------------------------//
 // Given a STK entity stk_rank, get the DTK entity type.
 EntityType STKMeshHelpers::getTypeFromRank(
-    const stk::mesh::EntityRank stk_rank )
+    const stk::mesh::EntityRank stk_rank, const int space_dim )
 {
     EntityType dtk_type = ENTITY_TYPE_NODE;
-    switch( stk_rank )
+
+    switch( space_dim )
     {
-	case stk::topology::NODE_RANK:
-	    dtk_type = ENTITY_TYPE_NODE;
+	case 3:
+	    switch( stk_rank )
+	    {
+		case stk::topology::NODE_RANK:
+		    dtk_type = ENTITY_TYPE_NODE;
+		    break;
+		case stk::topology::EDGE_RANK:
+		    dtk_type = ENTITY_TYPE_EDGE;
+		    break;
+		case stk::topology::FACE_RANK:
+		    dtk_type = ENTITY_TYPE_FACE;
+		    break;
+		case stk::topology::ELEM_RANK:
+		    dtk_type = ENTITY_TYPE_VOLUME;
+		    break;
+		default:
+		    DTK_CHECK( stk::topology::NODE_RANK == stk_rank ||
+			       stk::topology::EDGE_RANK == stk_rank ||
+			       stk::topology::FACE_RANK == stk_rank ||
+			       stk::topology::ELEM_RANK == stk_rank );
+		    break;
+	    }
 	    break;
-	case stk::topology::EDGE_RANK:
-	    dtk_type = ENTITY_TYPE_EDGE;
+
+	case 2:
+	    switch( stk_rank )
+	    {
+		case stk::topology::NODE_RANK:
+		    dtk_type = ENTITY_TYPE_NODE;
+		    break;
+		case stk::topology::EDGE_RANK:
+		    dtk_type = ENTITY_TYPE_EDGE;
+		    break;
+		case stk::topology::ELEM_RANK:
+		    dtk_type = ENTITY_TYPE_FACE;
+		    break;
+		default:
+		    DTK_CHECK( stk::topology::NODE_RANK == stk_rank ||
+			       stk::topology::EDGE_RANK == stk_rank ||
+			       stk::topology::ELEM_RANK == stk_rank );
+		    break;
+	    }
 	    break;
-	case stk::topology::FACE_RANK:
-	    dtk_type = ENTITY_TYPE_FACE;
-	    break;
-	case stk::topology::ELEM_RANK:
-	    dtk_type = ENTITY_TYPE_VOLUME;
-	    break;
+
 	default:
-	    DTK_CHECK( ENTITY_TYPE_NODE == dtk_type ||
-		       ENTITY_TYPE_EDGE == dtk_type ||
-		       ENTITY_TYPE_FACE == dtk_type ||
-		       ENTITY_TYPE_VOLUME == dtk_type );
+	    DTK_CHECK( 3 == space_dim || 2 == space_dim );
 	    break;
     }
 
@@ -148,14 +186,6 @@ STKMeshHelpers::getKeyFromEntity( const Entity dtk_entity )
     return stk::mesh::EntityKey( 
 	getRankFromType(dtk_entity.entityType(),dtk_entity.physicalDimension()),
 	dtk_entity.id() );
-}
-
-//---------------------------------------------------------------------------//
-// Given a DTK entity, extract the STK entity.
-const stk::mesh::Entity& STKMeshHelpers::extractEntity( const Entity dtk_entity )
-{
-    return Teuchos::rcp_dynamic_cast<STKMeshEntityExtraData>(
-	dtk_entity.extraData() )->d_stk_entity;
 }
 
 //---------------------------------------------------------------------------//
