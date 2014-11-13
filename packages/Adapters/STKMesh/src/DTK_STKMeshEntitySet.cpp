@@ -45,6 +45,7 @@
 #include "DTK_STKMeshEntityExtraData.hpp"
 #include "DTK_STKMeshEntityIterator.hpp"
 #include "DTK_STKMeshEntityIteratorRange.hpp"
+#include "DTK_STKMeshHelpers.hpp"
 #include "DTK_DBC.hpp"
 
 #include <stk_topology/topology.hpp>
@@ -89,10 +90,11 @@ void STKMeshEntitySet::getEntity( const EntityType entity_type,
 				  const EntityId entity_id, 
 				  Entity& entity ) const
 {
-    entity = STKMeshEntity( 
-	d_bulk_data->get_entity( getRankFromEntityType(entity_type), entity_id ),
-	d_bulk_data.ptr()
-	);
+    stk::mesh::Entity stk_entity = 
+	d_bulk_data->get_entity( 
+	    STKMeshHelpers::getRankFromType(entity_type,physicalDimension()), 
+	    entity_id );
+    entity = STKMeshEntity( stk_entity,	d_bulk_data.ptr() );
 }
 
 //---------------------------------------------------------------------------//
@@ -143,31 +145,7 @@ void STKMeshEntitySet::getAdjacentEntities(
 stk::mesh::EntityRank 
 STKMeshEntitySet::getRankFromEntityType( const EntityType entity_type ) const
 {
-    stk::mesh::EntityRank rank = stk::topology::INVALID_RANK;
-
-    switch( entity_type )
-    {
-	case ENTITY_TYPE_NODE:
-	    rank = stk::topology::NODE_RANK;
-	    break;
-	case ENTITY_TYPE_EDGE:
-	    rank = stk::topology::EDGE_RANK;
-	    break;
-	case ENTITY_TYPE_FACE:
-	    rank = stk::topology::FACE_RANK;
-	    break;
-	case ENTITY_TYPE_VOLUME:
-	    rank = stk::topology::ELEM_RANK;
-	    break;
-	default:
-	    DTK_CHECK( ENTITY_TYPE_NODE == entity_type ||
-		       ENTITY_TYPE_EDGE == entity_type ||
-		       ENTITY_TYPE_FACE == entity_type ||
-		       ENTITY_TYPE_VOLUME == entity_type );
-	    break;
-    }
-
-    return rank;
+    return STKMeshHelpers::getRankFromType( entity_type, physicalDimension() );
 }
 
 //---------------------------------------------------------------------------//

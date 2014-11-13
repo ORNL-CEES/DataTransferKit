@@ -32,62 +32,73 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntityImpl_impl.hpp
+ * \brief DTK_STKMeshHelpers_impl.hpp
  * \author Stuart R. Slattery
- * \brief STK mesh entity implementation.
+ * \brief STK mesh helpers.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_STKMESHENTITYIMPL_IMPL_HPP
-#define DTK_STKMESHENTITYIMPL_IMPL_HPP
+#ifndef DTK_STKMESHHELPERS_IMPL_HPP
+#define DTK_STKMESHHELPERS_IMPL_HPP
 
 #include <limits>
 
-#include "DTK_STKMeshEntityImpl.hpp"
 #include "DTK_DBC.hpp"
 
 #include <stk_mesh/base/MetaData.hpp>
 #include <stk_mesh/base/FieldBase.hpp>
 #include <stk_mesh/base/Field.hpp>
-#include <stk_mesh/base/CoordinateSystems.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Bounding box extraction.
 template<class FieldType>
-void STKMeshEntityImpl::getNodeBounds( 
-    const Teuchos::Array<stk::mesh::Entity>& entity_nodes,
-    Teuchos::Tuple<double,6>& bounds ) const
+Intrepid::FieldContainer<double> STKMeshHelpers::extractEntityNodeCoordinates( 
+    const stk::mesh::Entity stk_entity, 
+    const stk::mesh::BulkData& bulk_data,
+    const int space_dim )
 {
+    Teuchos::Array<stk::mesh::Entity> entity_nodes;
+    stk::mesh::EntityRank rank = bulk_data.entity_rank(stk_entity);
+    if ( stk::topology::NODE_RANK == rank )
+    {
+	entity_nodes.push_back( stk_entity );
+    }
+    else
+    {
+	const stk::mesh::Entity* begin = bulk_data.begin_nodes( stk_entity );
+	const stk::mesh::Entity* end = bulk_data.end_nodes( stk_entity );
+	entity_nodes.assign( begin, end );
+    }
+
     const stk::mesh::FieldBase* coord_field_base= 
-	d_bulk_data->mesh_meta_data().coordinate_field();
+	bulk_data.mesh_meta_data().coordinate_field();
     const stk::mesh::Field<double,FieldType>* coord_field =
 	dynamic_cast<const stk::mesh::Field<double,FieldType>* >(
 	    coord_field_base);
 
-    int space_dim = physicalDimension();
-    Teuchos::Array<stk::mesh::Entity>::const_iterator entity_node_it;
-    for ( entity_node_it = entity_nodes.begin();
-	  entity_node_it != entity_nodes.end();
-	  ++entity_node_it )
+    int num_nodes = entity_nodes.size();
+    Intrepid::FieldContainer<double> coords( num_nodes, space_dim );
+    double* node_coords = 0;
+    for ( int n = 0; n < num_nodes; ++n )
     {
-	double* node_coords = stk::mesh::field_data( 
-	    *coord_field, *entity_node_it );
+	node_coords = stk::mesh::field_data( *coord_field, entity_nodes[n] );
 	for ( int d = 0; d < space_dim; ++d )
 	{
-	    bounds[d] = std::min( bounds[d], node_coords[d] );
-	    bounds[d+3] = std::max( bounds[d+3], node_coords[d] );
+	    coords(n,d) = node_coords[d];
 	}
     }
+
+    return coords;
 }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_STKMESHENTITYIMPL_IMPL_HPP
+#endif // end DTK_STKMESHHELPERS_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshEntityImpl_impl.hpp
+// end DTK_STKMeshHelpers_impl.hpp
 //---------------------------------------------------------------------------//

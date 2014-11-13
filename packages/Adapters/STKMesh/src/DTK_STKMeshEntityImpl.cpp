@@ -41,7 +41,10 @@
 #include <limits>
 
 #include "DTK_STKMeshEntityImpl.hpp"
+#include "DTK_STKMeshHelpers.hpp"
 #include "DTK_DBC.hpp"
+
+#include <Intrepid_FieldContainer.hpp>
 
 #include <stk_mesh/base/MetaData.hpp>
 #include <stk_mesh/base/FieldBase.hpp>
@@ -71,31 +74,7 @@ EntityType STKMeshEntityImpl::entityType() const
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
     stk::mesh::EntityRank rank = 
 	d_bulk_data->entity_rank(d_extra_data->d_stk_entity);
-    
-    EntityType entity_type = ENTITY_TYPE_NODE;
-    switch( rank )
-    {
-	case stk::topology::NODE_RANK:
-	    entity_type = ENTITY_TYPE_NODE;
-	    break;
-	case stk::topology::EDGE_RANK:
-	    entity_type = ENTITY_TYPE_EDGE;
-	    break;
-	case stk::topology::FACE_RANK:
-	    entity_type = ENTITY_TYPE_FACE;
-	    break;
-	case stk::topology::ELEM_RANK:
-	    entity_type = ENTITY_TYPE_VOLUME;
-	    break;
-	default:
-	    DTK_CHECK( ENTITY_TYPE_NODE == entity_type ||
-		       ENTITY_TYPE_EDGE == entity_type ||
-		       ENTITY_TYPE_FACE == entity_type ||
-		       ENTITY_TYPE_VOLUME == entity_type );
-	    break;
-    }
-
-    return entity_type;
+    return STKMeshHelpers::getTypeFromRank( rank );
 }
 
 //---------------------------------------------------------------------------//
@@ -127,36 +106,21 @@ int STKMeshEntityImpl::physicalDimension() const
 void STKMeshEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
-    Teuchos::Array<stk::mesh::Entity> entity_nodes;
-    stk::mesh::EntityRank rank = 
-	d_bulk_data->entity_rank(d_extra_data->d_stk_entity);
-    if ( stk::topology::NODE_RANK == rank )
-    {
-	entity_nodes.push_back( d_extra_data->d_stk_entity );
-    }
-    else
-    {
-	const stk::mesh::Entity* begin = 
-	    d_bulk_data->begin_nodes( d_extra_data->d_stk_entity );
-	const stk::mesh::Entity* end = 
-	    d_bulk_data->end_nodes( d_extra_data->d_stk_entity );
-	entity_nodes.assign( begin, end );
-    }
+
+    Intrepid::FieldContainer<double> node_coords =
+	STKMeshHelpers::getEntityNodeCoordinates(
+	    d_extra_data->d_stk_entity, *d_bulk_data );
 
     double max = std::numeric_limits<double>::max();
     bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
-    int space_dim = physicalDimension();
-    switch( space_dim )
+    Teuchos::Array<stk::mesh::Entity>::const_iterator entity_node_it;
+    for ( int n = 0; n < node_coords.dimension(0); ++n )
     {
-	case 3:
-	    getNodeBounds<stk::mesh::Cartesian3d>( entity_nodes, bounds );
-	    break;
-	case 2:
-	    getNodeBounds<stk::mesh::Cartesian2d>( entity_nodes, bounds );
-	    break;
-	default:
-	    DTK_CHECK( 2 == space_dim || 3 == space_dim );
-	    break;
+	for ( int d = 0; d < node_coords.dimension(1); ++d )
+	{
+	    bounds[d] = std::min( bounds[d], node_coords(n,d) );
+	    bounds[d+3] = std::max( bounds[d+3], node_coords(n,d) );
+	}
     }
 }
 

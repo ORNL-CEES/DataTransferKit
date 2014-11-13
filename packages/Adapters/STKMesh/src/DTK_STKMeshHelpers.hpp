@@ -32,104 +32,85 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntityImpl.hpp
+ * \brief DTK_STKMeshHelpers.hpp
  * \author Stuart R. Slattery
  * \brief STK mesh entity implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_STKMESHENTITYIMPL_HPP
-#define DTK_STKMESHENTITYIMPL_HPP
+#ifndef DTK_STKMESHHELPERS_HPP
+#define DTK_STKMESHHELPERS_HPP
 
 #include <string>
 
 #include "DTK_Types.hpp"
-#include "DTK_EntityImpl.hpp"
-#include "DTK_STKMeshEntityExtraData.hpp"
+#include "DTK_Entity.hpp"
 
-#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
 #include <Teuchos_ParameterList.hpp>
 
+#include <Intrepid_FieldContainer.hpp>
+
 #include <stk_mesh/base/Entity.hpp>
+#include <stk_mesh/base/EntityKey.hpp>
 #include <stk_mesh/base/BulkData.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class STKMeshEntityImpl
-  \brief Geometric entity implementation definition.
+  \class STKMeshHelpers
+  \brief A stateless class of helpers for STK mesh.
 */
 //---------------------------------------------------------------------------//
-class STKMeshEntityImpl : public EntityImpl
+class STKMeshHelpers
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    STKMeshEntityImpl( const stk::mesh::Entity& stk_entity,
-		       const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
+    STKMeshHelpers() { /* ... */ } 
 
     /*!
      * \brief Destructor.
      */
-    ~STKMeshEntityImpl();
+    ~STKMeshHelpers() { /* ... */ }
 
     /*!
-     * \brief Get the entity type.
-     * \return The entity type.
+     * \brief Given a DTK EntityType, get the STK entity rank.
      */
-    EntityType entityType() const;
+    static stk::mesh::EntityRank getRankFromType( 
+	const EntityType dtk_type, const int space_dim );
 
     /*!
-     * \brief Get the unique global identifier for the entity.
-     * \return A unique global identifier for the entity.
+     * \brief Given a STK entity rank, get the DTK entity type.
      */
-    EntityId id() const;
-    
-    /*!
-     * \brief Get the parallel rank that owns the entity.
-     * \return The parallel rank that owns the entity.
-     */
-    int ownerRank() const;
+    static EntityType getTypeFromRank( const stk::mesh::EntityRank stk_rank );
 
     /*!
-     * \brief Return the physical dimension of the entity.
-     * \return The physical dimension of the entity. Any physical coordinates
-     * describing the entity will be of this dimension.
+     * \brief Given a DTK entity, return the corresponding STK entity key.
      */
-    int physicalDimension() const;
+    static stk::mesh::EntityKey getKeyFromEntity( const Entity dtk_entity );
 
     /*!
-     * \brief Return the Cartesian bounding box around an entity.
-     * \param bounds The bounds of the box
-     * (x_min,y_min,z_min,x_max,y_max,z_max).
+     * \brief Given a STK entity, return the coordinates of its nodes in a
+     * field container ordered by canonical node order (N,D).
      */
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    static Intrepid::FieldContainer<double> 
+    getEntityNodeCoordinates( const stk::mesh::Entity stk_entity,
+			      const stk::mesh::BulkData& bulk_data );
 
     /*!
-     * \brief Determine if an entity is in the block with the given id.
+     * \brief Given a STK entity, return the coordinates of its nodes in a
+     * field container ordered by canonical node order (N,D). Templated
+     * extraction layer.
      */
-    bool inBlock( const int block_id ) const;
-
-    /*!
-     * \brief Determine if an entity is on the boundary with the given id.
-     */
-    bool onBoundary( const int boundary_id ) const;
-
-    /*!
-     * \brief Get the extra data on the entity.
-     */
-    Teuchos::RCP<EntityExtraData> extraData() const;
-
-  private:
-
-    // STK mesh entity extra data.
-    Teuchos::RCP<STKMeshEntityExtraData> d_extra_data;
-
-    // STK mesh bulk data.
-    Teuchos::Ptr<stk::mesh::BulkData> d_bulk_data;
+    template<class FieldType>
+    static Intrepid::FieldContainer<double> 
+    extractEntityNodeCoordinates( const stk::mesh::Entity stk_entity,
+				  const stk::mesh::BulkData& bulk_data,
+				  const int space_dim );
 };
 
 //---------------------------------------------------------------------------//
@@ -137,9 +118,15 @@ class STKMeshEntityImpl : public EntityImpl
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
 
-#endif // end DTK_STKMESHENTITYIMPL_HPP
+#include "DTK_STKMeshHelpers_impl.hpp"
 
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshEntityImpl.hpp
+
+#endif // end DTK_STKMESHHELPERS_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_STKMeshHelpers.hpp
 //---------------------------------------------------------------------------//
