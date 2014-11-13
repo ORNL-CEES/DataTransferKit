@@ -109,17 +109,20 @@ void STKMeshEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 
     Intrepid::FieldContainer<double> node_coords =
 	STKMeshHelpers::getEntityNodeCoordinates(
-	    d_extra_data->d_stk_entity, *d_bulk_data );
+	    Teuchos::Array<stk::mesh::Entity>(1,d_extra_data->d_stk_entity), 
+	    *d_bulk_data );
+    DTK_CHECK( node_coords.rank() == 3 );
+    DTK_CHECK( node_coords.dimension(0) == 1 );
 
     double max = std::numeric_limits<double>::max();
     bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
     Teuchos::Array<stk::mesh::Entity>::const_iterator entity_node_it;
-    for ( int n = 0; n < node_coords.dimension(0); ++n )
+    for ( int n = 0; n < node_coords.dimension(1); ++n )
     {
-	for ( int d = 0; d < node_coords.dimension(1); ++d )
+	for ( int d = 0; d < node_coords.dimension(2); ++d )
 	{
-	    bounds[d] = std::min( bounds[d], node_coords(n,d) );
-	    bounds[d+3] = std::max( bounds[d+3], node_coords(n,d) );
+	    bounds[d] = std::min( bounds[d], node_coords(0,n,d) );
+	    bounds[d+3] = std::max( bounds[d+3], node_coords(0,n,d) );
 	}
     }
 }

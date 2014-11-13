@@ -153,8 +153,9 @@ STKMeshHelpers::getKeyFromEntity( const Entity dtk_entity )
 // Given a STK entity, return the coordinates of its nodes in a field
 // container ordered by canonical node order (N,D).
 Intrepid::FieldContainer<double> 
-STKMeshHelpers::getEntityNodeCoordinates( const stk::mesh::Entity stk_entity,
-					  const stk::mesh::BulkData& bulk_data )
+STKMeshHelpers::getEntityNodeCoordinates( 
+    const Teuchos::Array<stk::mesh::Entity>& stk_entities,
+    const stk::mesh::BulkData& bulk_data )
 {
     int space_dim = bulk_data.mesh_meta_data().spatial_dimension();
     switch( space_dim )
@@ -162,12 +163,12 @@ STKMeshHelpers::getEntityNodeCoordinates( const stk::mesh::Entity stk_entity,
 	case 3:
 	    return
 		STKMeshHelpers::extractEntityNodeCoordinates<
-		    stk::mesh::Cartesian3d>( stk_entity, bulk_data, space_dim );
+		    stk::mesh::Cartesian3d>( stk_entities, bulk_data, space_dim );
 	    break;
 	case 2:
 	    return
 		STKMeshHelpers::extractEntityNodeCoordinates<
-		    stk::mesh::Cartesian2d>( stk_entity, bulk_data, space_dim );
+		    stk::mesh::Cartesian2d>( stk_entities, bulk_data, space_dim );
 	    break;
 	default:
 	    DTK_CHECK( 2 == space_dim || 3 == space_dim );

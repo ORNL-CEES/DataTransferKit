@@ -95,22 +95,26 @@ class STKMeshHelpers
 
     /*!
      * \brief Given a STK entity, return the coordinates of its nodes in a
-     * field container ordered by canonical node order (N,D).
+     * field container ordered by canonical node order (C,N,D).
      */
     static Intrepid::FieldContainer<double> 
-    getEntityNodeCoordinates( const stk::mesh::Entity stk_entity,
-			      const stk::mesh::BulkData& bulk_data );
+    getEntityNodeCoordinates( 
+	const Teuchos::Array<stk::mesh::Entity>& stk_entities,
+	const stk::mesh::BulkData& bulk_data );
+
+  private:
 
     /*!
      * \brief Given a STK entity, return the coordinates of its nodes in a
-     * field container ordered by canonical node order (N,D). Templated
+     * field container ordered by canonical node order (C,N,D). Templated
      * extraction layer.
      */
     template<class FieldType>
     static Intrepid::FieldContainer<double> 
-    extractEntityNodeCoordinates( const stk::mesh::Entity stk_entity,
-				  const stk::mesh::BulkData& bulk_data,
-				  const int space_dim );
+    extractEntityNodeCoordinates( 
+	const Teuchos::Array<stk::mesh::Entity>& stk_entities,
+	const stk::mesh::BulkData& bulk_data,
+	const int space_dim );
 };
 
 //---------------------------------------------------------------------------//
