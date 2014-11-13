@@ -68,19 +68,24 @@ STKMeshEntityLocalMap::STKMeshEntityLocalMap(
 	  ++part_it )
     {
 	// Make a selector from the part.
-	Selector part_select( **part_it );
+	stk::mesh::Selector part_select( **part_it );
 
 	// If the part is not empty, make a cell for the part.
 	if ( !part_select.is_empty(stk::topology::ELEM_RANK) )
 	{
-	    shards::CellTopology part_topo =
-		stk::mesh::get_cell_topology( (*part_it)->topology );
-	    if ( !d_topo_to_cell_map.count(part_topo.getKey()) )
+	    stk::topology stk_part_topo = (*part_it)->topology();
+	    if ( stk::topology::INVALID_TOPOLOGY != stk_part_topo )
 	    {
-		d_intrepid_cells.push_back( IntrepidCell(part_topo,1) );
-		d_topo_to_cell_map.insert( 
-		    std::make_pair(part_topo.getKey(),
-				   d_intrepid_cells.size()-1) );
+		shards::CellTopology part_topo = 
+		    stk::mesh::get_cell_topology( stk_part_topo );
+		if ( !d_topo_to_cell_map.count(part_topo.getKey()) )
+		{
+		    d_intrepid_cells.push_back( 
+			Teuchos::rcp(new IntrepidCell(part_topo,1)) );
+		    d_topo_to_cell_map.insert( 
+			std::make_pair(part_topo.getKey(),
+				       d_intrepid_cells.size()-1) );
+		}
 	    }
 	}
     }
@@ -97,7 +102,7 @@ STKMeshEntityLocalMap::~STKMeshEntityLocalMap()
 double STKMeshEntityLocalMap::measure( const Entity& entity ) const
 {
     // Get the Intrepid cell corresponding to the entity topology.
-    IntrepidCell& entity_cell = getEntityCellIntrepidCell( entity );
+    IntrepidCell& entity_cell = getEntityIntrepidCell( entity );
 
     // Load the node coordinates of the entity into the cell.
     Intrepid::FieldContainer<double> entity_coords = 
@@ -118,7 +123,7 @@ void STKMeshEntityLocalMap::centroid(
     const Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
 { 
     // Get the Intrepid cell corresponding to the entity topology.
-    IntrepidCell& entity_cell = getEntityCellIntrepidCell( entity );
+    IntrepidCell& entity_cell = getEntityIntrepidCell( entity );
 
     // Load the node coordinates of the entity into the cell.
     Intrepid::FieldContainer<double> entity_coords = 
@@ -136,8 +141,7 @@ void STKMeshEntityLocalMap::centroid(
     entity_cell.mapToCellPhysicalFrame( ref_center, phys_center );
     
     // Extract the centroid coordinates.
-    centroid.assign( phys_center.getData().begin()
-		     phys_center.getData().end() );
+    centroid.assign( phys_center.getData()() );
 }
 
 //---------------------------------------------------------------------------//
@@ -199,7 +203,7 @@ bool STKMeshEntityLocalMap::mapToReferenceFrame(
     const Teuchos::RCP<MappingStatus>& status ) const
 {
     // Get the Intrepid cell corresponding to the entity topology.
-    IntrepidCell& entity_cell = getEntityCellIntrepidCell( entity );
+    IntrepidCell& entity_cell = getEntityIntrepidCell( entity );
 
     // Load the node coordinates of the entity into the cell.
     Intrepid::FieldContainer<double> entity_coords = 
@@ -241,14 +245,14 @@ bool STKMeshEntityLocalMap::checkPointInclusion(
     }
 
     // Get the Intrepid cell corresponding to the entity topology.
-    IntrepidCell& entity_cell = getEntityCellIntrepidCell( entity );
+    IntrepidCell& entity_cell = getEntityIntrepidCell( entity );
 
     // Check point inclusion.
     Teuchos::Array<int> array_dims(2);
     array_dims[0] = 1;
     array_dims[1] = entity.physicalDimension();
     Intrepid::FieldContainer<double> ref_point_container( 
-	array_dims, reference_point.getRawPtr() );
+	array_dims, const_cast<double*>(reference_point.getRawPtr()) );
     return entity_cell.pointInReferenceCell( ref_point_container, tolerance );
 }
 
@@ -260,7 +264,7 @@ void STKMeshEntityLocalMap::mapToPhysicalFrame(
     const Teuchos::ArrayView<double>& point ) const
 {
     // Get the Intrepid cell corresponding to the entity topology.
-    IntrepidCell& entity_cell = getEntityCellIntrepidCell( entity );
+    IntrepidCell& entity_cell = getEntityIntrepidCell( entity );
 
     // Load the node coordinates of the entity into the cell.
     Intrepid::FieldContainer<double> entity_coords = 
@@ -274,7 +278,7 @@ void STKMeshEntityLocalMap::mapToPhysicalFrame(
     ref_array_dims[0] = 1;
     ref_array_dims[1] = entity.physicalDimension();
     Intrepid::FieldContainer<double> ref_point_container( 
-	ref_array_dims, const_cast<double*>(point.getRawPtr()) );
+	ref_array_dims, const_cast<double*>(reference_point.getRawPtr()) );
     Teuchos::Array<int> phys_array_dims(3);
     phys_array_dims[0] = 1;
     phys_array_dims[1] = 1;
@@ -305,7 +309,9 @@ STKMeshEntityLocalMap::getEntityIntrepidCell( const Entity& entity ) const
 	d_bulk_data->bucket( STKMeshHelpers::extractEntity(entity) ).topology() 
 	    );
     DTK_CHECK( d_topo_to_cell_map.count(entity_topo.getKey()) );
-    return d_topo_to_cell_map.find(entity_topo.getKey())->second;
+    IntrepidCell& entity_cell = *d_intrepid_cells[
+	d_topo_to_cell_map.find(entity_topo.getKey())->second ];
+    return entity_cell;
 }
 
 //---------------------------------------------------------------------------//

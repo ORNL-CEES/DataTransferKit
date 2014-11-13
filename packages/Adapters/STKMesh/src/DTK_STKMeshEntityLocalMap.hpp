@@ -186,7 +186,7 @@ class STKMeshEntityLocalMap : public EntityLocalMap
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
 
     // Intrepid cells.
-    Teuchos::Array<IntrepidCell> d_intrepid_cells;
+    Teuchos::Array<Teuchos::RCP<IntrepidCell> > d_intrepid_cells;
 
     // Cell topology key to intrepid cell map.
     std::unordered_map<unsigned,unsigned> d_topo_to_cell_map;
