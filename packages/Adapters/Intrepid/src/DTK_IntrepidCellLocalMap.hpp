@@ -34,7 +34,8 @@
 /*!
  * \brief DTK_IntrepidCellLocalMap.hpp
  * \author Stuart R. Slattery
- * \brief Forward and reverse local mappings for IntrepidCells.
+ * \brief Helper functions for implementing the local map interface with
+ * Intrepid.
  */
 //---------------------------------------------------------------------------//
 
@@ -56,7 +57,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
   \class IntrepidcellLocalMap
-  \brief A stateless class of IntrepidCell wrappers for implementing
+  \brief A stateless class of IntrepidCell helpers for implementing
   EntityLocalMap for element-level entities.
 */
 //---------------------------------------------------------------------------//

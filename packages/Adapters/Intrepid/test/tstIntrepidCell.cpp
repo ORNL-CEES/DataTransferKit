@@ -150,9 +150,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_all_cells_test )
 	coord_dims, element_coordinates() );
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
-    Intrepid::FieldContainer<double> dofs(workset_size,num_ip);
-    int dof_val = 2.0;
-    dofs.initialize( dof_val );
     Intrepid::FieldContainer<double> param_coords( 1, dimension );
     param_coords.initialize(0.0);
     Intrepid::FieldContainer<double> physical_coords( workset_size, 1, dimension );
@@ -219,9 +216,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_single_cell_test )
     coord_dims[2] = dimension;
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
-    Intrepid::FieldContainer<double> dofs(workset_size,num_ip);
-    int dof_val = 2.0;
-    dofs.initialize( dof_val );
     Intrepid::FieldContainer<double> param_coords( 1, dimension );
     param_coords.initialize(0.0);
     Intrepid::FieldContainer<double> physical_coords( workset_size, 1, dimension );
@@ -304,9 +298,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_all_cells_test )
 	coord_dims, element_coordinates() );
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
-    Intrepid::FieldContainer<double> dofs(workset_size,num_ip);
-    int dof_val = 2.0;
-    dofs.initialize( dof_val );
     Intrepid::FieldContainer<double> param_coords( 1, dimension-1 );
     param_coords.initialize(0.0);
     Intrepid::FieldContainer<double> physical_coords( workset_size, 1, dimension );
@@ -375,9 +366,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_single_cell_test )
     coord_dims[2] = dimension;
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
-    Intrepid::FieldContainer<double> dofs(workset_size,num_ip);
-    int dof_val = 2.0;
-    dofs.initialize( dof_val );
     Intrepid::FieldContainer<double> param_coords( 1, dimension-1 );
     param_coords.initialize(0.0);
     Intrepid::FieldContainer<double> physical_coords( workset_size, 1, dimension );
@@ -446,9 +434,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_ffupdate_all_cells_test )
 	coord_dims, element_coordinates() );
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
-    Intrepid::FieldContainer<double> dofs(workset_size,num_ip);
-    int dof_val = 2.0;
-    dofs.initialize( dof_val );
 
     DataTransferKit::IntrepidCell::updateState(
 	intrepid_cell, element_coords );
@@ -511,9 +496,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_ffupdate_all_cells_test )
 	coord_dims, element_coordinates() );
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
-    Intrepid::FieldContainer<double> dofs(workset_size,num_ip);
-    int dof_val = 2.0;
-    dofs.initialize( dof_val );
 
     DataTransferKit::IntrepidCell::updateState(
 	intrepid_cell, element_coords );

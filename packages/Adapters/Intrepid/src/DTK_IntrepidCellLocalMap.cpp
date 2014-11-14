@@ -34,7 +34,8 @@
 /*!
  * \brief DTK_IntrepidCellLocalMap.cpp
  * \author Stuart R. Slattery
- * \brief Forward and reverse local mappings for entities.
+ * \brief Helper functions for implementing the local map interface with
+ * intrepid.
  */
 //---------------------------------------------------------------------------//
 
