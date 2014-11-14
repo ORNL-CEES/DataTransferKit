@@ -96,8 +96,8 @@ class IntrepidCell
 
     // Given a set of coordinates in the physical frame of the cell
     // (Node,Dim), map them to the reference frame (Cell,Node,Dim).
-    virtual void mapToCellReferenceFrame( const MDArray& physical_coords,
-					  MDArray& reference_coords );
+    void mapToCellReferenceFrame( const MDArray& physical_coords,
+				  MDArray& reference_coords );
 
     // Given a set of coordinates in the reference frame of the cell
     // (Node,Dim), map them to the physical frame (Cell,Node,Dim).
@@ -106,8 +106,8 @@ class IntrepidCell
 
     // Determine if a point given in parametric coordinates is inside of the
     // reference cell.
-    virtual bool pointInReferenceCell( const MDArray& reference_point,
-				       const double tolerance );
+    bool pointInReferenceCell( const MDArray& reference_point,
+			       const double tolerance );
 
     // Determine if a point in physical coordinates is inside of the physical
     // cell.
