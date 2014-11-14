@@ -130,17 +130,6 @@ void Cylinder::centroid( const Teuchos::ArrayView<double>& centroid ) const
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Safeguard the reverse map.
- */
-bool Cylinder::isSafeToMapToReferenceFrame(
-    const Teuchos::ArrayView<const double>& point ) const
-{
-    return Teuchos::rcp_dynamic_cast<CylinderImpl>(
-	this->b_entity_impl)->isSafeToMapToReferenceFrame(point);
-}
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Map a point to the reference space of an entity. Return the
  */
 bool Cylinder::mapToReferenceFrame( 

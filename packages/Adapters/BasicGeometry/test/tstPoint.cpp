@@ -160,7 +160,6 @@ TEUCHOS_UNIT_TEST( Point, array_3d_constructor_test )
     TEST_EQUALITY( point_coords[1], y );
     TEST_EQUALITY( point_coords[2], z );
     Teuchos::Array<double> ref_point(3);
-    TEST_ASSERT( geom_entity.isSafeToMapToReferenceFrame(p()) );
     geom_entity.mapToReferenceFrame( p(), ref_point() );
     TEST_EQUALITY( ref_point[0], x );
     TEST_EQUALITY( ref_point[1], y );

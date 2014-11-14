@@ -18,6 +18,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   DTK_IntrepidBasisFactory.hpp
   DTK_IntrepidCell.hpp
+  DTK_IntrepidCellLocalMap.hpp
   DTK_IntrepidSideCell.hpp
   DTK_NewtonSolver.hpp
   DTK_NewtonSolver_impl.hpp
@@ -29,6 +30,7 @@ APPEND_SET(HEADERS
 APPEND_SET(SOURCES
   DTK_IntrepidBasisFactory.cpp
   DTK_IntrepidCell.cpp
+  DTK_IntrepidCellLocalMap.cpp
   DTK_IntrepidSideCell.cpp
   DTK_ProjectionPrimitiveNonlinearProblems.cpp
   DTK_ProjectionPrimitives.cpp

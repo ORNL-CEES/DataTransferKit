@@ -32,19 +32,16 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntityLocalMap.hpp
+ * \brief DTK_IntrepidCellLocalMap.hpp
  * \author Stuart R. Slattery
- * \brief Forward and reverse local mappings for entities.
+ * \brief Forward and reverse local mappings for IntrepidCells.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_STKMESHENTITYLOCALMAP_HPP
-#define DTK_STKMESHENTITYLOCALMAP_HPP
+#ifndef DTK_INTREPIDCELLLOCALMAP_HPP
+#define DTK_INTREPIDCELLLOCALMAP_HPP
 
 #include <unordered_map>
-
-#include "DTK_EntityLocalMap.hpp"
-#include "DTK_IntrepidCell.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -54,29 +51,28 @@
 
 #include <Intrepid_FieldContainer.hpp>
 
-#include <stk_mesh/base/BulkData.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class STKMeshEntityLocalMap
-  \brief STK mesh forward and reverse local map implementation.
+  \class IntrepidcellLocalMap
+  \brief A stateless class of IntrepidCell wrappers for implementing
+  EntityLocalMap for element-level entities.
 */
 //---------------------------------------------------------------------------//
-class STKMeshEntityLocalMap : public EntityLocalMap
+class IntrepidCellLocalMap
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    STKMeshEntityLocalMap( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
+    IntrepidCellLocalMap() { /* ... */ }
 
     /*!
      * \brief Destructor.
      */
-    ~STKMeshEntityLocalMap();
+    ~IntrepidCellLocalMap() { /* ... */ }
 
     /*!
      * \brief Return the entity measure with respect to the parameteric
@@ -84,32 +80,17 @@ class STKMeshEntityLocalMap : public EntityLocalMap
      * \param entity Compute the measure for this entity.
      * \return The measure of the entity.
      */
-    double measure( const Entity& entity ) const;
+    static double measure( const shards::CellTopology& entity_topo,
+			   const Intrepid::FieldContainer<double>& entity_coords );
 
     /*!
      * \brief Return the centroid of the entity.
      * \param centroid A view of the centroid coordinates. This view will
      * be allocated. Assign a view of your centroid to this view.
      */
-    void centroid( const Entity& entity,
-		   const Teuchos::ArrayView<double>& centroid ) const;
-
-    /*!
-     * \brief (Safeguard the reverse map) Perform a safeguard check for
-     * mapping a point to the reference space of an entity using the given
-     * tolerance.
-     * \param entity Perfrom the mapping for this entity.
-     * \param parameters Parameters to be used for the safeguard check.
-     * \param point A view into an array of size physicalDimension() containing
-     * the coordinates of the point to map.
-     * \param status A status object indicating the results of the safeguard
-     * check.
-     * \return Return true if it is safe to map to the reference frame.
-     */
-    bool isSafeToMapToReferenceFrame(
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const;
+    static void centroid( const shards::CellTopology& entity_topo,
+			  const Intrepid::FieldContainer<double>& entity_coords,
+			  const Teuchos::ArrayView<double>& centroid );
 
     /*!
      * \brief (Reverse Map) Map a point to the reference space of an
@@ -124,11 +105,11 @@ class STKMeshEntityLocalMap : public EntityLocalMap
      * procedure.
      * \return Return true if the map to reference frame succeeded.
      */
-    bool mapToReferenceFrame( 
-	const Entity& entity,
+    static bool mapToReferenceFrame( 
+	const shards::CellTopology& entity_topo,
+	const Intrepid::FieldContainer<double>& entity_coords,
 	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const;
+	const Teuchos::ArrayView<double>& reference_point );
 
     /*!  
      * \brief Determine if a reference point is in the parameterized space of
@@ -139,9 +120,10 @@ class STKMeshEntityLocalMap : public EntityLocalMap
      * containing the reference coordinates of the mapped point.
      * \return True if the point is in the reference space, false if not.
      */
-    bool checkPointInclusion( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
+    static bool checkPointInclusion( 
+	const shards::CellTopology& entity_topo,
+	const Teuchos::ArrayView<const double>& reference_point,
+	const double tolerance );
 
     /*!
      * \brief (Forward Map) Map a reference point to the physical space of an
@@ -152,37 +134,19 @@ class STKMeshEntityLocalMap : public EntityLocalMap
      * \param A view into an array of size physicalDimension() to write
      * the coordinates of physical point.
      */
-    void mapToPhysicalFrame( 
-	const Entity& entity,
+    static void mapToPhysicalFrame( 
+	const shards::CellTopology& entity_topo,
+	const Intrepid::FieldContainer<double>& entity_coords,
 	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
-
-    /*!
-     * \brief Compute the normal on a face (3D) or edge (2D) at a given
-     * reference point. A default implementation is provided using a finite
-     * difference scheme.
-     * \param entity Compute the normal for this entity.
-     * \param reference_point Compute the normal at this reference point.
-     * \param normal A view into an array of size physicalDimension() to write
-     * the normal.
-     */
-    void normalAtReferencePoint( 
-        const Entity& entity,
-        const Teuchos::ArrayView<double>& reference_point,
-        const Teuchos::ArrayView<double>& normal ) const;
-
-  private:
-
-    // Bulk data.
-    Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
+	const Teuchos::ArrayView<double>& point );
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_STKMESHENTITYLOCALMAP_HPP
+#endif // end DTK_INTREPIDCELLLOCALMAP_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshEntityLocalMap.hpp
+// end DTK_IntrepidCellLocalMap.hpp
 //---------------------------------------------------------------------------//

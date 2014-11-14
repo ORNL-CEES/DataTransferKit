@@ -159,10 +159,33 @@ void IntrepidSideCell::mapToCellPhysicalFrame(
 /*!
  * \brief Compute the physical normals of the side.
  */
-void IntrepidSideCell::getPhysicalSideNormals( MDArray& side_normals )
+void IntrepidSideCell::getPhysicalSideNormalsAtIntegrationPoints( 
+    MDArray& side_normals )
 {
     Intrepid::CellTools<Scalar>::getPhysicalSideNormals(
 	side_normals, this->d_jacobian, d_side_id, d_parent_topology );
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Compute the physical normals of the side at a given reference
+ * point.
+ */
+void IntrepidSideCell::getPhysicalSideNormalsAtReferencePoint( 
+	const MDArray& parametric_coords,
+	MDArray& side_normals )
+{
+    int num_cells = d_cell_node_coords.dimension(0);
+    int num_point = parametric_coords.dimension(0);
+    int space_dim = parametric_coords.dimension(1);
+    MDArray jacobian( num_cells, num_point, space_dim, space_dim );
+
+    Intrepid::CellTools<Scalar>::setJacobian( 
+	d_jacobian, parametric_coords, 
+	this->d_cell_node_coords, d_parent_topology );
+
+    Intrepid::CellTools<Scalar>::getPhysicalSideNormals(
+	side_normals, d_jacobian, d_side_id, d_parent_topology );
 }
 
 //---------------------------------------------------------------------------//

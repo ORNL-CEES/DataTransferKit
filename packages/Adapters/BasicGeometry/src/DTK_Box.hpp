@@ -104,11 +104,6 @@ class Box : public BasicGeometryEntity
     // Compute the centroid of the entity.
     void centroid( const Teuchos::ArrayView<double>& centroid ) const;
 
-    // (Safeguard the reverse map) Perform a safeguard check for mapping a
-    // point to the reference space of an entity using the given tolerance.
-    bool isSafeToMapToReferenceFrame(
-	const Teuchos::ArrayView<const double>& point ) const;
-
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
     bool mapToReferenceFrame( 

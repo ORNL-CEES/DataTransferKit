@@ -74,18 +74,6 @@ void BasicGeometryLocalMap::centroid(
 }
 
 //---------------------------------------------------------------------------//
-// Perform a safeguard check for mapping a point to the reference space
-// of an entity using the given tolerance. 
-bool BasicGeometryLocalMap::isSafeToMapToReferenceFrame(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::RCP<MappingStatus>& status ) const
-{
-    return Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
-	)->implementationConstPtr()->isSafeToMapToReferenceFrame(point);
-}
-
-//---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the parameterized point.
 bool BasicGeometryLocalMap::mapToReferenceFrame( 
     const Entity& entity,

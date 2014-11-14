@@ -84,17 +84,6 @@ void BasicGeometryEntity::centroid(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Safeguard the reverse map.
- */
-bool BasicGeometryEntity::isSafeToMapToReferenceFrame(
-    const Teuchos::ArrayView<const double>& point ) const
-{
-    return Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
-	this->b_entity_impl)->isSafeToMapToReferenceFrame(point);
-}
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Map a point to the reference space of an entity. Return the
  */
 bool BasicGeometryEntity::mapToReferenceFrame( 

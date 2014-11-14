@@ -71,7 +71,6 @@ TEUCHOS_UNIT_TEST( BasicGeometryLocalMap, local_map_test )
 	point[2] = 9.0 * (double) std::rand() / RAND_MAX;
 
 	safe_to_map = local_map->isSafeToMapToReferenceFrame( box, point() );
-	TEST_ASSERT( safe_to_map );
 	map_ok = local_map->mapToReferenceFrame( box, point, ref_point() );
 	TEST_ASSERT( map_ok );
 	point_inclusion = local_map->checkPointInclusion(box, ref_point() );
@@ -83,10 +82,12 @@ TEUCHOS_UNIT_TEST( BasicGeometryLocalMap, local_map_test )
 	     box_bounds[5] >= ref_point[2] )
 	{
 	    TEST_ASSERT( point_inclusion );
+	    TEST_ASSERT( safe_to_map );
 	}
 	else
 	{
 	    TEST_ASSERT( !point_inclusion );
+	    TEST_ASSERT( !safe_to_map );
 	}
     }
 }

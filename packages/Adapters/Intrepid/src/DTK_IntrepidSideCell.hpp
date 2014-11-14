@@ -86,12 +86,18 @@ class IntrepidSideCell : public IntrepidCell
     void mapToCellPhysicalFrame( const MDArray& parametric_coords,
 				 MDArray& physical_coords );
 
-    // Compute the physical normals of the side (IP,DIM).
-    void getPhysicalSideNormals( MDArray& side_normals );
+    // Compute the physical normals of the side at the integration points
+    // (IP,DIM). 
+    void getPhysicalSideNormalsAtIntegrationPoints( MDArray& side_normals );
+
+    // Compute the physical normals of the side at a given reference point.
+    void getPhysicalSideNormalsAtReferencePoint( 
+	const MDArray& parametric_coords,
+	MDArray& side_normals );
 
   private:
 
-    // Reference cell side id over which cell is occuring.
+    // Reference cell side id on the parent cell.
     unsigned d_side_id;
 
     // Parent cell topology.

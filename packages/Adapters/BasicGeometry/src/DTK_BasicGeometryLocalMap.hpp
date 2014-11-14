@@ -90,23 +90,6 @@ class BasicGeometryLocalMap : public EntityLocalMap
 		   const Teuchos::ArrayView<double>& centroid ) const;
 
     /*!
-     * \brief (Safeguard the reverse map) Perform a safeguard check for
-     * mapping a point to the reference space of an entity using the given
-     * tolerance.
-     * \param entity Perfrom the mapping for this entity.
-     * \param parameters Parameters to be used for the safeguard check.
-     * \param point A view into an array of size physicalDimension() containing
-     * the coordinates of the point to map.
-     * \param status A status object indicating the results of the safeguard
-     * check.
-     * \return Return true if it is safe to map to the reference frame.
-     */
-    bool isSafeToMapToReferenceFrame(
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const;
-
-    /*!
      * \brief (Reverse Map) Map a point to the reference space of an
      * entity. Return the parameterized point.
      * \param entity Perfrom the mapping for this entity.

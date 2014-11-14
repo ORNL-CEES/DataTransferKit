@@ -143,16 +143,6 @@ void BasicGeometryEntityImpl::centroid(
 }
 
 //---------------------------------------------------------------------------//
-// Safeguard the reverse map.
-bool BasicGeometryEntityImpl::isSafeToMapToReferenceFrame(
-    const Teuchos::ArrayView<const double>& point ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return false;
-}
-
-//---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the
 bool BasicGeometryEntityImpl::mapToReferenceFrame( 
     const Teuchos::ArrayView<const double>& point,

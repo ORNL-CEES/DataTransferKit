@@ -102,7 +102,6 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 	    centroid_distance = x_distance*x_distance + y_distance*y_distance;
 	    centroid_distance = std::pow( centroid_distance, 0.5 );
 
-	    TEST_ASSERT( cylinder.isSafeToMapToReferenceFrame(point()) );
 	    TEST_ASSERT( cylinder.mapToReferenceFrame(point(),ref_point()) );
 	    TEST_EQUALITY( ref_point[0], point[0] );
 	    TEST_EQUALITY( ref_point[1], point[1] );

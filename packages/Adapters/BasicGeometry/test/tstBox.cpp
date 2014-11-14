@@ -116,8 +116,6 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
 	point[2] = 9.0 * (double) std::rand() / RAND_MAX;
 
 	// Box API
-	safe_to_map = box.isSafeToMapToReferenceFrame( point() );
-	TEST_ASSERT( safe_to_map );
 	map_ok = box.mapToReferenceFrame( point, ref_point() );
 	TEST_ASSERT( map_ok );
 	point_inclusion = box.checkPointInclusion(tol,ref_point());
@@ -136,8 +134,6 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
 	}
 
 	// BasicGeometryEntity API
-	safe_to_map = box_entity.isSafeToMapToReferenceFrame( point() );
-	TEST_ASSERT( safe_to_map );
 	map_ok = box_entity.mapToReferenceFrame( point, ref_point() );
 	TEST_ASSERT( map_ok );
 	point_inclusion = box_entity.checkPointInclusion(tol,ref_point());
@@ -210,8 +206,6 @@ TEUCHOS_UNIT_TEST( Box, tuple_constructor_test )
 	point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
 	point[2] = 9.0 * (double) std::rand() / RAND_MAX;
 
-	safe_to_map = box->isSafeToMapToReferenceFrame( point() );
-	TEST_ASSERT( safe_to_map );
 	map_ok = box->mapToReferenceFrame( point, ref_point() );
 	TEST_ASSERT( map_ok );
 	point_inclusion = box->checkPointInclusion(tol,ref_point());

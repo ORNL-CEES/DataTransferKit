@@ -85,15 +85,51 @@ void EntityLocalMap::centroid(
 
 //---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space
-// of an entity using the given tolerance. 
+// of an entity using the given tolerance. Default implementation checks if
+// the point is inside the bounding box of the entity.
 bool EntityLocalMap::isSafeToMapToReferenceFrame(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::RCP<MappingStatus>& status ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return false;
+    // Get the test tolerance.
+    double tolerance = 1.0e-6;
+    if ( Teuchos::nonnull(this->b_parameters) )
+    {
+	if ( b_parameters->isParameter("Point Inclusion Tolerance") )
+	{
+	    tolerance = b_parameters->get<double>("Point Inclusion Tolerance");
+	}
+    }
+
+    // Get the bounding box of the entity.
+    Teuchos::Tuple<double,6> entity_box;
+    entity.boundingBox( entity_box );
+
+    // Check if the point is in the bounding box of the entity.
+    int space_dim = entity.physicalDimension();
+    bool in_x = true;
+    if ( space_dim > 0 )
+    {
+	double x_tol = (entity_box[3] - entity_box[0])*tolerance;
+	in_x = ( (point[0] >= (entity_box[0] - x_tol)) &&
+		 (point[0] <= (entity_box[3] + x_tol)) );
+    }
+    bool in_y = true;
+    if ( space_dim > 1 )
+    {
+	double y_tol = (entity_box[4] - entity_box[1])*tolerance;
+	in_y = ( (point[1] >= (entity_box[1] - y_tol)) &&
+		 (point[1] <= (entity_box[4] + y_tol)) );
+    }
+    bool in_z = true;
+    if ( space_dim > 2 )
+    {
+	double z_tol = (entity_box[5] - entity_box[2])*tolerance;
+	in_z = ( (point[2] >= (entity_box[2] - z_tol)) &&
+		 (point[2] <= (entity_box[5] + z_tol)) );
+    }
+    return (in_x && in_y && in_z);
 }
 
 //---------------------------------------------------------------------------//

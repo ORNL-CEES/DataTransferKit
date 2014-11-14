@@ -205,16 +205,6 @@ void BoxImpl::centroid( const Teuchos::ArrayView<double>& centroid ) const
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Safeguard the reverse map.
- */
-bool BoxImpl::isSafeToMapToReferenceFrame(
-    const Teuchos::ArrayView<const double>& point ) const
-{
-    return true;
-}
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Map a point to the reference space of an entity. Return the
  */
 bool BoxImpl::mapToReferenceFrame( 
