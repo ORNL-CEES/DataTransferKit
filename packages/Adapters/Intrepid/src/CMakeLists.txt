@@ -16,26 +16,13 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_STKMeshEntity.hpp
-  DTK_STKMeshEntityExtraData.hpp
-  DTK_STKMeshEntityImpl.hpp
-  DTK_STKMeshEntityIterator.hpp
-  DTK_STKMeshEntityIteratorRange.hpp
-  DTK_STKMeshEntityLocalMap.hpp
-  DTK_STKMeshEntityPredicates.hpp
-  DTK_STKMeshEntitySet.hpp
-  DTK_STKMeshHelpers.hpp
-  DTK_STKMeshHelpers_impl.hpp
+  DTK_IntrepidCell.hpp
+  DTK_IntrepidSideCell.hpp
   ) 
 
 APPEND_SET(SOURCES
-  DTK_STKMeshEntity.cpp
-  DTK_STKMeshEntityImpl.cpp
-  DTK_STKMeshEntityIterator.cpp
-  DTK_STKMeshEntityLocalMap.cpp
-  DTK_STKMeshEntityPredicates.cpp
-  DTK_STKMeshEntitySet.cpp
-  DTK_STKMeshHelpers.cpp  
+  DTK_IntrepidCell.cpp
+  DTK_IntrepidSideCell.cpp
   )
 
 #
@@ -43,7 +30,7 @@ APPEND_SET(SOURCES
 #
 
 TRIBITS_ADD_LIBRARY(
-  dtk_stkmeshadapters
+  dtk_intrepidadapters
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )
