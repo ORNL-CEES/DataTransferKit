@@ -95,7 +95,6 @@ void IntrepidSideCell::updateCellState()
     // Compute the cell side measures.
     switch ( space_dim )
     {
-
 	case 3:
 	{
 	    // Face case.

@@ -154,19 +154,16 @@ class IntrepidCell
     // Jacobian (Cell,IP,Dim,Dim).
     MDArray d_jacobian;
 
-    // Jacobian inverse (Cell,IP,Dim,Dim).
-    MDArray d_jacobian_inv;
-
     // Jacobian determinant (Cell,IP).
     MDArray d_jacobian_det;
 
     // Weighted cell measures (Cell,IP).
     MDArray d_weighted_measures;
 
-    // Current physical cell node coordinates.
+    // Current physical cell node coordinates (Cell,Node,Dim).
     MDArray d_cell_node_coords;
 
-    // Current physical integration point coordinates.
+    // Current physical integration point coordinates (Cell,IP,Dim).
     MDArray d_physical_ip_coordinates;
 };
 

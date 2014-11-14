@@ -61,8 +61,8 @@ void compute_node_coordinates( int node_id, double coord[] )
     const unsigned i_plane  = node_id % 4 ;
 
     coord[0] = i_length ;
-    coord[1] = i_plane == 1 || i_plane == 2 ? 1.0 : 0.0 ;
-    coord[2] = i_plane == 2 || i_plane == 3 ? 1.0 : 0.0 ;
+    coord[1] = i_plane == 1 || i_plane == 2 ? 2.0 : 0.0 ;
+    coord[2] = i_plane == 2 || i_plane == 3 ? 2.0 : 0.0 ;
 }
 
 //---------------------------------------------------------------------------//
@@ -137,7 +137,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_all_cells_test )
     int degree = 1;
     DataTransferKit::IntrepidCell intrepid_cell( element_topo, degree );
 
-    // For each element in the mesh compute cell measures, integrals, and
+    // For each element in the mesh compute cell measures, and
     // physical cubature points and check them.
     int workset_size = num_elements;
     int num_ip = 1;
@@ -150,7 +150,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_all_cells_test )
 	coord_dims, element_coordinates() );
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
-    Intrepid::FieldContainer<double> integrals(workset_size);
     Intrepid::FieldContainer<double> dofs(workset_size,num_ip);
     int dof_val = 2.0;
     dofs.initialize( dof_val );
@@ -164,7 +163,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_all_cells_test )
     intrepid_cell.mapToCellPhysicalFrame( param_coords, physical_coords );
     intrepid_cell.getCellMeasures( cell_measure );
     intrepid_cell.getPhysicalIntegrationCoordinates( ip_coords );
-    intrepid_cell.integrate( dofs, integrals );
 
     TEST_EQUALITY( workset_size, intrepid_cell.getNumCells() );
     TEST_EQUALITY( num_ip, intrepid_cell.getNumIntegrationPoints() );
@@ -175,15 +173,15 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_all_cells_test )
 	for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
 	{
 	    TEST_EQUALITY( ip_coords(cell,ip,0), 1.0*(cell) + 0.5 );
-	    TEST_EQUALITY( ip_coords(cell,ip,1), 0.5 );
-	    TEST_EQUALITY( ip_coords(cell,ip,2), 0.5 );
+	    TEST_EQUALITY( ip_coords(cell,ip,1), 1.0 );
+	    TEST_EQUALITY( ip_coords(cell,ip,2), 1.0 );
 	}
 	
 	TEST_EQUALITY( physical_coords(cell,0,0), 1.0*(cell) + 0.5 );
-	TEST_EQUALITY( physical_coords(cell,0,1), 0.5 );
-	TEST_EQUALITY( physical_coords(cell,0,2), 0.5 );
-
-	TEST_EQUALITY( dof_val*cell_measure(cell), integrals(cell) );
+	TEST_EQUALITY( physical_coords(cell,0,1), 1.0 );
+	TEST_EQUALITY( physical_coords(cell,0,2), 1.0 );
+	
+	TEST_EQUALITY( cell_measure(cell), 4.0 );
     }
 }
 
@@ -210,7 +208,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_single_cell_test )
     int degree = 1;
     DataTransferKit::IntrepidCell intrepid_cell( element_topo, degree );
 
-    // For each element in the mesh compute cell measures, integrals, and
+    // For each element in the mesh compute cell measures, and
     // physical cubature points and check them.
     int workset_size = 1;
     int num_ip = 1;
@@ -221,7 +219,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_single_cell_test )
     coord_dims[2] = dimension;
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
-    Intrepid::FieldContainer<double> integrals(workset_size);
     Intrepid::FieldContainer<double> dofs(workset_size,num_ip);
     int dof_val = 2.0;
     dofs.initialize( dof_val );
@@ -244,20 +241,17 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_single_cell_test )
 
 	intrepid_cell.mapToCellPhysicalFrame( param_coords, physical_coords );
 	TEST_EQUALITY( physical_coords(0,0,0), 1.0*(cell) + 0.5 );
-	TEST_EQUALITY( physical_coords(0,0,1), 0.5 );
-	TEST_EQUALITY( physical_coords(0,0,2), 0.5 );
+	TEST_EQUALITY( physical_coords(0,0,1), 1.0 );
+	TEST_EQUALITY( physical_coords(0,0,2), 1.0 );
 
 	intrepid_cell.getCellMeasures( cell_measure );
 	intrepid_cell.getPhysicalIntegrationCoordinates( ip_coords );
 	for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
 	{
 	    TEST_EQUALITY( ip_coords(0,ip,0), 1.0*(cell) + 0.5 );
-	    TEST_EQUALITY( ip_coords(0,ip,1), 0.5 );
-	    TEST_EQUALITY( ip_coords(0,ip,2), 0.5 );
+	    TEST_EQUALITY( ip_coords(0,ip,1), 1.0 );
+	    TEST_EQUALITY( ip_coords(0,ip,2), 1.0 );
 	}
-
-	intrepid_cell.integrate( dofs, integrals );
-	TEST_EQUALITY( dof_val*cell_measure(0), integrals(0) );
 
 	map2ref_coords(0,0) = 1.0*cell + 0.5;
 	map2ref_coords(0,1) = 0.5;
@@ -265,8 +259,8 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_single_cell_test )
 	mapped_coords.initialize(1.0);
 	intrepid_cell.mapToCellReferenceFrame( map2ref_coords, mapped_coords );
 	TEST_EQUALITY( mapped_coords(0,0), 0.0 );
-	TEST_EQUALITY( mapped_coords(0,1), 0.0 );
-	TEST_EQUALITY( mapped_coords(0,2), 0.0 );
+	TEST_EQUALITY( mapped_coords(0,1), -0.5 );
+	TEST_EQUALITY( mapped_coords(0,2), -0.5 );
     }
 }
 
@@ -297,7 +291,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_all_cells_test )
     DataTransferKit::IntrepidSideCell 
 	intrepid_cell( side_topo, side_id, element_topo, degree);
 
-    // For each element in the mesh compute cell measures, integrals, and
+    // For each element in the mesh compute cell measures, and
     // physical cubature points and check them.
     int workset_size = num_elements;
     int num_ip = 1;
@@ -310,7 +304,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_all_cells_test )
 	coord_dims, element_coordinates() );
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
-    Intrepid::FieldContainer<double> integrals(workset_size);
     Intrepid::FieldContainer<double> dofs(workset_size,num_ip);
     int dof_val = 2.0;
     dofs.initialize( dof_val );
@@ -324,7 +317,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_all_cells_test )
     intrepid_cell.mapToCellPhysicalFrame( param_coords, physical_coords );
     intrepid_cell.getCellMeasures( cell_measure );
     intrepid_cell.getPhysicalIntegrationCoordinates( ip_coords );
-    intrepid_cell.integrate( dofs, integrals );
 
     TEST_EQUALITY( workset_size, intrepid_cell.getNumCells() );
     TEST_EQUALITY( num_ip, intrepid_cell.getNumIntegrationPoints() );
@@ -336,14 +328,12 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_all_cells_test )
 	{
 	    TEST_EQUALITY( ip_coords(cell,ip,0), 1.0*(cell) + 0.5 );
 	    TEST_EQUALITY( ip_coords(cell,ip,1), 0.0 );
-	    TEST_EQUALITY( ip_coords(cell,ip,2), 0.5 );
+	    TEST_EQUALITY( ip_coords(cell,ip,2), 1.0 );
 	}
 
 	TEST_EQUALITY( physical_coords(cell,0,0), 1.0*(cell) + 0.5 );
 	TEST_EQUALITY( physical_coords(cell,0,1), 0.0 );
-	TEST_EQUALITY( physical_coords(cell,0,2), 0.5 );
-
-	TEST_EQUALITY( dof_val*cell_measure(cell), integrals(cell) );
+	TEST_EQUALITY( physical_coords(cell,0,2), 1.0 );
     }
 }
 
@@ -374,7 +364,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_single_cell_test )
     DataTransferKit::IntrepidSideCell
 	intrepid_cell( side_topo, side_id, element_topo, degree);
 
-    // For each element in the mesh compute cell measures, integrals, and
+    // For each element in the mesh compute cell measures, and
     // physical cubature points and check them.
     int workset_size = 1;
     int num_ip = 1;
@@ -385,7 +375,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_single_cell_test )
     coord_dims[2] = dimension;
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
-    Intrepid::FieldContainer<double> integrals(workset_size);
     Intrepid::FieldContainer<double> dofs(workset_size,num_ip);
     int dof_val = 2.0;
     dofs.initialize( dof_val );
@@ -407,7 +396,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_single_cell_test )
 	intrepid_cell.mapToCellPhysicalFrame( param_coords, physical_coords );
 	TEST_EQUALITY( physical_coords(0,0,0), 1.0*(cell) + 0.5 );
 	TEST_EQUALITY( physical_coords(0,0,1), 0.0 );
-	TEST_EQUALITY( physical_coords(0,0,2), 0.5 );
+	TEST_EQUALITY( physical_coords(0,0,2), 1.0 );
 
 	intrepid_cell.getCellMeasures( cell_measure );
 	intrepid_cell.getPhysicalIntegrationCoordinates( ip_coords );
@@ -415,11 +404,9 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_single_cell_test )
 	{
 	    TEST_EQUALITY( ip_coords(0,ip,0), 1.0*(cell) + 0.5 );
 	    TEST_EQUALITY( ip_coords(0,ip,1), 0.0 );
-	    TEST_EQUALITY( ip_coords(0,ip,2), 0.5 );
+	    TEST_EQUALITY( ip_coords(0,ip,2), 1.0 );
 	}
-
-	intrepid_cell.integrate( dofs, integrals );
-	TEST_EQUALITY( dof_val*cell_measure(0), integrals(0) );
+	TEST_EQUALITY( cell_measure(0), 2.0 );
     }
 }
  
@@ -446,7 +433,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_ffupdate_all_cells_test )
     int degree = 1;
     DataTransferKit::IntrepidCell intrepid_cell( element_topo, degree );
 
-    // For each element in the mesh compute cell measures, integrals, and
+    // For each element in the mesh compute cell measures, and
     // physical cubature points and check them.
     int workset_size = num_elements;
     int num_ip = 1;
@@ -459,7 +446,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_ffupdate_all_cells_test )
 	coord_dims, element_coordinates() );
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
-    Intrepid::FieldContainer<double> integrals(workset_size);
     Intrepid::FieldContainer<double> dofs(workset_size,num_ip);
     int dof_val = 2.0;
     dofs.initialize( dof_val );
@@ -469,7 +455,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_ffupdate_all_cells_test )
 
     intrepid_cell.getCellMeasures( cell_measure );
     intrepid_cell.getPhysicalIntegrationCoordinates( ip_coords );
-    intrepid_cell.integrate( dofs, integrals );
 
     TEST_EQUALITY( workset_size, intrepid_cell.getNumCells() );
     TEST_EQUALITY( num_ip, intrepid_cell.getNumIntegrationPoints() );
@@ -480,11 +465,9 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_ffupdate_all_cells_test )
 	for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
 	{
 	    TEST_EQUALITY( ip_coords(cell,ip,0), 1.0*(cell) + 0.5 );
-	    TEST_EQUALITY( ip_coords(cell,ip,1), 0.5 );
-	    TEST_EQUALITY( ip_coords(cell,ip,2), 0.5 );
+	    TEST_EQUALITY( ip_coords(cell,ip,1), 1.0 );
+	    TEST_EQUALITY( ip_coords(cell,ip,2), 1.0 );
 	}
-
-	TEST_EQUALITY( dof_val*cell_measure(cell), integrals(cell) );
     }
 }
 
@@ -515,7 +498,7 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_ffupdate_all_cells_test )
     DataTransferKit::IntrepidSideCell
 	intrepid_cell( side_topo, side_id, element_topo, degree);
 
-    // For each element in the mesh compute cell measures, integrals, and
+    // For each element in the mesh compute cell measures, and
     // physical cubature points and check them.
     int workset_size = num_elements;
     int num_ip = 1;
@@ -528,7 +511,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_ffupdate_all_cells_test )
 	coord_dims, element_coordinates() );
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
-    Intrepid::FieldContainer<double> integrals(workset_size);
     Intrepid::FieldContainer<double> dofs(workset_size,num_ip);
     int dof_val = 2.0;
     dofs.initialize( dof_val );
@@ -538,7 +520,6 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_ffupdate_all_cells_test )
 
     intrepid_cell.getCellMeasures( cell_measure );
     intrepid_cell.getPhysicalIntegrationCoordinates( ip_coords );
-    intrepid_cell.integrate( dofs, integrals );
 
     TEST_EQUALITY( workset_size, intrepid_cell.getNumCells() );
     TEST_EQUALITY( num_ip, intrepid_cell.getNumIntegrationPoints() );
@@ -550,10 +531,8 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_ffupdate_all_cells_test )
 	{
 	    TEST_EQUALITY( ip_coords(cell,ip,0), 1.0*(cell) + 0.5 );
 	    TEST_EQUALITY( ip_coords(cell,ip,1), 0.0 );
-	    TEST_EQUALITY( ip_coords(cell,ip,2), 0.5 );
+	    TEST_EQUALITY( ip_coords(cell,ip,2), 1.0 );
 	}
-
-	TEST_EQUALITY( dof_val*cell_measure(cell), integrals(cell) );
     }
 }
 

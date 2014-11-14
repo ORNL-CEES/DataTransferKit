@@ -61,7 +61,6 @@ IntrepidCell::IntrepidCell(
     , d_cub_points(0,0)
     , d_cub_weights(0)
     , d_jacobian(0,0,0,0)
-    , d_jacobian_inv(0,0,0,0)
     , d_jacobian_det(0,0)
     , d_weighted_measures(0,0)
     , d_physical_ip_coordinates(0,0,0)
@@ -111,7 +110,6 @@ void IntrepidCell::allocateCellState( const MDArray& cell_node_coords )
 
     // Resize arrays.
     d_jacobian.resize( num_cells, num_ip, space_dim, space_dim );
-    d_jacobian_inv.resize( num_cells, num_ip, space_dim, space_dim );
     d_jacobian_det.resize( num_cells, num_ip );
     d_weighted_measures.resize( num_cells, num_ip );
     d_physical_ip_coordinates.resize( num_cells, num_ip, space_dim );
@@ -128,12 +126,9 @@ void IntrepidCell::updateCellState()
     Intrepid::CellTools<Scalar>::setJacobian( 
 	d_jacobian, d_cub_points, d_cell_node_coords, d_topology );
 
-    // Compute the inverse of the Jacobian.
-    Intrepid::CellTools<Scalar>::setJacobianInv( d_jacobian_inv, d_jacobian );
-
     // Compute the determinant of the Jacobian.
     Intrepid::CellTools<Scalar>::setJacobianDet( 
-	d_jacobian_det, d_jacobian_inv );
+	d_jacobian_det, d_jacobian );
 
     // Compute the cell measures.
     Intrepid::FunctionSpaceTools::computeCellMeasure<Scalar>(
@@ -258,17 +253,12 @@ void IntrepidCell::getCellMeasures( MDArray& cell_measures ) const
 {
     DTK_REQUIRE( 1 == cell_measures.rank() );
     DTK_REQUIRE( cell_measures.dimension(0) == 
-		   d_weighted_measures.dimension(0) );
+		 d_weighted_measures.dimension(0) );
 
-    for ( int cell = 0; cell < d_weighted_measures.dimension(0); ++cell )
-    {
-	cell_measures(cell) = 0.0;
-
-	for ( int ip = 0; ip < d_weighted_measures.dimension(1); ++ip )
-	{
-	    cell_measures(cell) += d_weighted_measures(cell,ip);
-	}
-    }
+    MDArray dofs( d_cell_node_coords.dimension(0), 
+		  d_cub_weights.dimension(0) );
+    dofs.initialize( 1.0 );
+    integrate( dofs, cell_measures );
 }
 
 //---------------------------------------------------------------------------//
