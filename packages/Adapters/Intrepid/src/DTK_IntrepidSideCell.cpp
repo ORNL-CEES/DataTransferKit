@@ -162,6 +162,7 @@ void IntrepidSideCell::mapToCellPhysicalFrame(
 void IntrepidSideCell::getPhysicalSideNormalsAtIntegrationPoints( 
     MDArray& side_normals )
 {
+    // Compute the normal at the integration points.
     Intrepid::CellTools<Scalar>::getPhysicalSideNormals(
 	side_normals, this->d_jacobian, d_side_id, d_parent_topology );
 }

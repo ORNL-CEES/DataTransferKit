@@ -278,21 +278,26 @@ void ProjectionPrimitives::projectPointToFace(
     const Intrepid::FieldContainer<double>& face_nodes,
     const Intrepid::FieldContainer<double>& face_node_normals,
     const shards::CellTopology& face_topology,
-    Intrepid::FieldContainer<double>& projected_point,
+    Intrepid::FieldContainer<double>& parametric_point,
+    Intrepid::FieldContainer<double>& physical_point,
     int& face_edge_id,
     int& face_node_id )
 {
     DTK_REQUIRE( 1 == point.rank() );
     DTK_REQUIRE( 2 == face_nodes.rank() );
     DTK_REQUIRE( 2 == face_node_normals.rank() );
-    DTK_REQUIRE( 1 == projected_point.rank() );
+    DTK_REQUIRE( 1 == physical_point.rank() );
     DTK_REQUIRE( point.dimension(0) == face_nodes.dimension(1) );
     DTK_REQUIRE( point.dimension(0) == face_node_normals.dimension(1) );
-    DTK_REQUIRE( point.dimension(0) == projected_point.dimension(0) );
+    DTK_REQUIRE( point.dimension(0) == physical_point.dimension(0) );
     DTK_REQUIRE( face_nodes.dimension(0) == 
 		   face_node_normals.dimension(0) );
     DTK_REQUIRE( Teuchos::as<unsigned>(face_nodes.dimension(0)) == 
 		   face_topology.getNodeCount() );
+    DTK_REQUIRE( 2 == parametric_point.rank() );
+    DTK_REQUIRE( 1 == parametric_point.dimension(0) );
+    DTK_REQUIRE( point.dimension(0) == parametric_point.dimension(1) );
+
 
     // Get dimensions.
     int space_dim = point.dimension(0);
@@ -311,19 +316,19 @@ void ProjectionPrimitives::projectPointToFace(
     Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
 	face_basis = IntrepidBasisFactory::create( face_topology );
 
-    // Allocate unknown vector.
-    int num_points = 1;
-    Intrepid::FieldContainer<double> u( num_points, space_dim );
+    // Initializeunknown vector.
+    parametric_point.initialize( 0.0 );
    
     // Set the initial solution guess to the center of the cell for the
     // parametric coordinates and 0 for distance.
+    int num_points = 1;
     Intrepid::FieldContainer<double> face_center( num_points, topo_dim );
     referenceCellCenter( face_topology, face_center );
     for ( int n = 0; n < topo_dim; ++n )
     {
-	u(0,n) = face_center(0,n);
+	parametric_point(0,n) = face_center(0,n);
     }
-    u(0,topo_dim) = Teuchos::ScalarTraits<double>::zero();
+    parametric_point(0,topo_dim) = Teuchos::ScalarTraits<double>::zero();
 
     // Build the nonlinear problem data.
     ProjectPointToFaceNonlinearProblem nonlinear_problem( 
@@ -331,49 +336,50 @@ void ProjectionPrimitives::projectPointToFace(
 
     // Solve the nonlinear problem.
     NewtonSolver<ProjectPointToFaceNonlinearProblem>::solve(
-	u, nonlinear_problem, newton_tolerance, max_newton_iters );
+	parametric_point, nonlinear_problem, newton_tolerance, max_newton_iters );
 
     // Apply tolerancing. If the point projected near a face edge or
     // node within the tolerance, move it to that point.
-    if ( std::abs(u(0,0)) < geometric_tolerance )
+    if ( std::abs(parametric_point(0,0)) < geometric_tolerance )
     {
-	u(0,0) = 0.0;
+	parametric_point(0,0) = 0.0;
     }
-    else if ( std::abs(1.0-u(0,0)) < geometric_tolerance )
+    else if ( std::abs(1.0-parametric_point(0,0)) < geometric_tolerance )
     {
-	u(0,0) = 1.0;
+	parametric_point(0,0) = 1.0;
     }
-    else if ( std::abs(1.0+u(0,0)) < geometric_tolerance )
+    else if ( std::abs(1.0+parametric_point(0,0)) < geometric_tolerance )
     {
-	u(0,0) = -1.0;
+	parametric_point(0,0) = -1.0;
     }
-    if ( std::abs(u(0,1)) < geometric_tolerance )
+    if ( std::abs(parametric_point(0,1)) < geometric_tolerance )
     {
-	u(0,1) = 0.0;
+	parametric_point(0,1) = 0.0;
     }
-    else if ( std::abs(1.0-u(0,1)) < geometric_tolerance )
+    else if ( std::abs(1.0-parametric_point(0,1)) < geometric_tolerance )
     {
-	u(0,1) = 1.0;
+	parametric_point(0,1) = 1.0;
     }
-    else if ( std::abs(1.0+u(0,1)) < geometric_tolerance )
+    else if ( std::abs(1.0+parametric_point(0,1)) < geometric_tolerance )
     {
-	u(0,1) = -1.0;
+	parametric_point(0,1) = -1.0;
     }
     // This case is for the diagonal of the triangle reference geometry.
-    if ( std::abs(1.0-u(0,0)-u(0,1)) < geometric_tolerance )
+    if ( std::abs(1.0-parametric_point(0,0)-parametric_point(0,1)) < 
+	 geometric_tolerance )
     {
-	u(0,0) = 1.0 - u(0,1);
+	parametric_point(0,0) = 1.0 - parametric_point(0,1);
     }
 
     // Compute the physical coordinates from the projection in the reference
     // space.
-    nonlinear_problem.updateState( u );
+    nonlinear_problem.updateState( parametric_point );
     for ( int d = 0; d < space_dim; ++d )
     {
-	projected_point(d) = 0.0;
+	physical_point(d) = 0.0;
 	for ( int n = 0; n < nonlinear_problem.d_cardinality; ++n )
 	{
-	    projected_point(d) += 
+	    physical_point(d) += 
 		nonlinear_problem.d_basis_evals(n,0) * face_nodes(n,d);
 	}
     }
@@ -387,27 +393,27 @@ void ProjectionPrimitives::projectPointToFace(
 	 (shards::Triangle<4>::key == face_topology.getKey()) ||
 	 (shards::Triangle<6>::key == face_topology.getKey()) )
     {
-	if ( (0.0 == u(0,0)) && (0.0 == u(0,1)) )
+	if ( (0.0 == parametric_point(0,0)) && (0.0 == parametric_point(0,1)) )
 	{
 	    face_node_id = 0;
 	}
-	else if ( (1.0 == u(0,0)) && (0.0 == u(0,1)) )
+	else if ( (1.0 == parametric_point(0,0)) && (0.0 == parametric_point(0,1)) )
 	{
 	    face_node_id = 1;
 	}
-	else if ( (0.0 == u(0,0)) && (1.0 == u(0,1)) )
+	else if ( (0.0 == parametric_point(0,0)) && (1.0 == parametric_point(0,1)) )
 	{
 	    face_node_id = 2;
 	}
-	else if ( 0.0 == u(0,1) )
+	else if ( 0.0 == parametric_point(0,1) )
 	{
 	    face_edge_id = 0;
 	}
-	else if ( 1.0 == u(0,0) + u(0,1) )
+	else if ( 1.0 == parametric_point(0,0) + parametric_point(0,1) )
 	{
 	    face_edge_id = 1;
 	}
-	else if ( 0.0 == u(0,0) )
+	else if ( 0.0 == parametric_point(0,0) )
 	{
 	    face_edge_id = 2;
 	}
@@ -417,35 +423,35 @@ void ProjectionPrimitives::projectPointToFace(
 	      (shards::Quadrilateral<8>::key == face_topology.getKey()) ||
 	      (shards::Quadrilateral<9>::key == face_topology.getKey()) )
     {
-	if ( (-1.0 == u(0,0)) && (-1.0 == u(0,1)) )
+	if ( (-1.0 == parametric_point(0,0)) && (-1.0 == parametric_point(0,1)) )
 	{
 	    face_node_id = 0;
 	}
-	else if ( (1.0 == u(0,0)) && (-1.0 == u(0,1)) )
+	else if ( (1.0 == parametric_point(0,0)) && (-1.0 == parametric_point(0,1)) )
 	{
 	    face_node_id = 1;
 	}
-	else if ( (1.0 == u(0,0)) && (1.0 == u(0,1)) )
+	else if ( (1.0 == parametric_point(0,0)) && (1.0 == parametric_point(0,1)) )
 	{
 	    face_node_id = 2;
 	}
-	else if ( (-1.0 == u(0,0)) && (1.0 == u(0,1)) )
+	else if ( (-1.0 == parametric_point(0,0)) && (1.0 == parametric_point(0,1)) )
 	{
 	    face_node_id = 3;
 	}
-	else if( -1.0 == u(0,1) )
+	else if( -1.0 == parametric_point(0,1) )
 	{
 	    face_edge_id = 0;
 	}
-	else if( 1.0 == u(0,0) )
+	else if( 1.0 == parametric_point(0,0) )
 	{
 	    face_edge_id = 1;
 	}
-	else if( 1.0 == u(0,1) )
+	else if( 1.0 == parametric_point(0,1) )
 	{
 	    face_edge_id = 2;
 	}
-	else if( -1.0 == u(0,0) )
+	else if( -1.0 == parametric_point(0,0) )
 	{
 	    face_edge_id = 3;
 	}

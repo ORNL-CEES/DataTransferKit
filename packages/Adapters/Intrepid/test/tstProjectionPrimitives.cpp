@@ -371,6 +371,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
     unsigned space_dim = 3;
     Intrepid::FieldContainer<double> point(space_dim);
     Intrepid::FieldContainer<double> proj_point(space_dim);
+    Intrepid::FieldContainer<double> param_point(1,space_dim);
     Intrepid::FieldContainer<double> side_nodes(elem_num_nodes,space_dim);
     Intrepid::FieldContainer<double> side_node_normals(elem_num_nodes,space_dim);
     shards::CellTopology side_topo =
@@ -415,6 +416,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -436,6 +438,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -457,6 +460,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -478,6 +482,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -499,6 +504,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -520,6 +526,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -541,6 +548,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -562,6 +570,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -583,6 +592,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -604,6 +614,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -625,6 +636,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -646,6 +658,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, quad_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -663,6 +676,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, tri_blue_to_green_projection_test )
     int elem_num_nodes = 3;
     unsigned space_dim = 3;
     Intrepid::FieldContainer<double> point(space_dim);
+    Intrepid::FieldContainer<double> param_point(1,space_dim);
     Intrepid::FieldContainer<double> proj_point(space_dim);
     Intrepid::FieldContainer<double> side_nodes(elem_num_nodes,space_dim);
     Intrepid::FieldContainer<double> side_node_normals(elem_num_nodes,space_dim);
@@ -703,6 +717,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, tri_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -726,6 +741,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, tri_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -747,6 +763,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, tri_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -768,6 +785,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, tri_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -789,6 +807,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, tri_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -810,6 +829,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, tri_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -831,6 +851,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, tri_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -852,6 +873,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, tri_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -873,6 +895,7 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, tri_blue_to_green_projection_test )
 	side_nodes,
 	side_node_normals,
 	side_topo,
+	param_point,
 	proj_point,
 	green_edge_id,
 	green_node_id );
@@ -1324,8 +1347,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, -1 );
@@ -1363,8 +1386,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, -1 );
@@ -1402,8 +1425,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, 0 );
@@ -1441,8 +1464,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, 1 );
@@ -1480,8 +1503,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, 0 );
@@ -1519,8 +1542,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, 1 );
@@ -1557,8 +1580,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, 0 );
@@ -1595,8 +1618,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, -1 );
@@ -1633,8 +1656,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, 1 );
@@ -1671,8 +1694,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, -1 );
@@ -1738,8 +1761,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, 0 );
@@ -1779,8 +1802,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( !has_intersection );
 
@@ -1809,8 +1832,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, -1 );
@@ -1879,8 +1902,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, 1 );
@@ -1921,8 +1944,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -1.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, 1 );
@@ -2011,8 +2034,8 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, nonlinear_edge_edge_intersection_test )
     edge_2_node_normals(1,2) = -std::sqrt(2.0) / 2.0;
 
     has_intersection = PP::edgeEdgeIntersection(
-	    parameters, edge_1, edge_2, edge_2_node_normals, 
-	    edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
+	parameters, edge_1, edge_2, edge_2_node_normals, 
+	edge_1_intersection, edge_2_intersection, node_id_1, node_id_2 );
 
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, -1 );

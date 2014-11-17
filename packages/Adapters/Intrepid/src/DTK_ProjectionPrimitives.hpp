@@ -82,7 +82,7 @@ class ProjectionPrimitives
 	const Intrepid::FieldContainer<double>& face_node_normals,
 	const shards::CellTopology& face_topology );
 
-    // Project a point onto a face and return the physical
+    // Project a point onto a face and return the physical and parametric
     // coordinates of the projected point on that face. This
     // requires the solution of a nonlinear parameterized projection problem.
     static void projectPointToFace(
@@ -91,7 +91,8 @@ class ProjectionPrimitives
 	const Intrepid::FieldContainer<double>& face_nodes,
 	const Intrepid::FieldContainer<double>& face_node_normals,
 	const shards::CellTopology& face_topology,
-	Intrepid::FieldContainer<double>& projected_point,
+	Intrepid::FieldContainer<double>& parametric_point,
+	Intrepid::FieldContainer<double>& physical_point,
 	int& face_edge_id,
 	int& face_node_id );
 

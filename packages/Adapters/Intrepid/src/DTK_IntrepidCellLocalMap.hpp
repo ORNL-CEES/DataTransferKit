@@ -42,10 +42,7 @@
 #ifndef DTK_INTREPIDCELLLOCALMAP_HPP
 #define DTK_INTREPIDCELLLOCALMAP_HPP
 
-#include <unordered_map>
-
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
 #include <Teuchos_ArrayView.hpp>
 
 #include <Shards_CellTopology.hpp>
