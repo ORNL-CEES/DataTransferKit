@@ -118,7 +118,7 @@ void STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
 
     // Get the ids of the entities over which the field is defined.
     Teuchos::ArrayView<const std::size_t> field_entity_ids =
-	field_dofs->getMap()->getNodeElementList;
+	field_dofs->getMap()->getNodeElementList();
 
     // Extract the field data from the Tpetra vector into the STK mesh.
     Scalar* field_data;
