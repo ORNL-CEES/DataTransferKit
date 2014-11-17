@@ -59,7 +59,10 @@ namespace DataTransferKit
   \brief Nodal shape function implementation for STK mesh.
 
   STKMeshNodalShapeFunction provides a shape function for node-centered
-  quantities with shape functions evaluated in an element supported by nodes.
+  quantities with shape functions evaluated in an element supported by
+  nodes. The node ids serve as the dof ids for this shape functions. A
+  corresponding DOF vector indexed via node ids should be produced to match
+  this shape function.
 */
 //---------------------------------------------------------------------------//
 class STKMeshNodalShapeFunction : public EntityShapeFunction

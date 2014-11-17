@@ -95,13 +95,17 @@ void STKMeshNodalShapeFunction::evaluateValue(
 	basis = getIntrepidBasis( entity );
 
     // Wrap the reference point.
-    Teuchos::Array<int> point_dims( 1, reference_point.size() );
+    Teuchos::Array<int> point_dims(2);
+    point_dims[0] = 1;
+    point_dims[1] = reference_point.size();
     Intrepid::FieldContainer<double> point_container(
-	point_dims, reference_point.getRawPtr() );
+	point_dims, const_cast<double*>(reference_point.getRawPtr()) );
 
     // Wrap the evaluations.
     values.resize( basis->getCardinality() );
-    Teuchos::Array<int> value_dims( basis->getCardinality(), 1 );
+    Teuchos::Array<int> value_dims(2);
+    value_dims[0] = basis->getCardinality();
+    value_dims[1] = 1;
     Intrepid::FieldContainer<double> value_container(
 	value_dims, values.getRawPtr() );
 
@@ -123,15 +127,17 @@ void STKMeshNodalShapeFunction::evaluateGradient(
 	basis = getIntrepidBasis( entity );
 
     // Wrap the reference point.
-    int space_dim = reference_points.size();
-    Teuchos::Array<int> point_dims( 1, space_dim );
+    int space_dim = reference_point.size();
+    Teuchos::Array<int> point_dims(2);
+    point_dims[0] = 1;
+    point_dims[1] = space_dim;
     Intrepid::FieldContainer<double> point_container( 
-	point_dims, reference_point.getRawPtr() );
+	point_dims, const_cast<double*>(reference_point.getRawPtr()) );
 
     // Evaluate the basis function.
     int cardinality = basis->getCardinality();
     Intrepid::FieldContainer<double> grad_container( cardinality, space_dim );
-    basis->getGrads( 
+    basis->getValues( 
 	grad_container, point_container, Intrepid::OPERATOR_GRAD );
 
     // Extract the evaluations.
