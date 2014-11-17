@@ -136,7 +136,7 @@ void STKMeshNodalShapeFunction::evaluateGradient(
 
     // Evaluate the basis function.
     int cardinality = basis->getCardinality();
-    Intrepid::FieldContainer<double> grad_container( cardinality, space_dim );
+    Intrepid::FieldContainer<double> grad_container( cardinality, 1, space_dim );
     basis->getValues( 
 	grad_container, point_container, Intrepid::OPERATOR_GRAD );
 
@@ -147,7 +147,7 @@ void STKMeshNodalShapeFunction::evaluateGradient(
 	gradients[n].resize( space_dim );
 	for ( int d = 0; d < space_dim; ++d )
 	{
-	    gradients[n][d] = grad_container(n,d);
+	    gradients[n][d] = grad_container(n,0,d);
 	}
     }
 }
