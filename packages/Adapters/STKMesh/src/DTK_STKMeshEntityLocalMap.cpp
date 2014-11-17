@@ -221,7 +221,9 @@ bool STKMeshEntityLocalMap::mapToReferenceFrame(
     // Use the side cell to perform the face mapping.
     else if ( rank == stk::topology::FACE_RANK )
     {
-	
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return false;
     }
 
     // Check for unsupported ranks.
@@ -270,6 +272,9 @@ bool STKMeshEntityLocalMap::checkPointInclusion(
     // Check point inclusion in the face.
     else if ( rank == stk::topology::FACE_RANK )
     {
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return false;
     }
 
     // Check for unsupported ranks.
@@ -303,13 +308,15 @@ void STKMeshEntityLocalMap::mapToPhysicalFrame(
 	Intrepid::FieldContainer<double> entity_coords = 
 	    STKMeshHelpers::getEntityNodeCoordinates(
 		Teuchos::Array<stk::mesh::Entity>(1,stk_entity), *d_bulk_data );
-	return IntrepidCellLocalMap::mapToPhysicalFrame( 
+	IntrepidCellLocalMap::mapToPhysicalFrame( 
 	    entity_topo, entity_coords, reference_point, point );
     }
 
     // Map from the face.
     else if ( rank == stk::topology::FACE_RANK )
     {
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
     }
 
     // Check for unsupported ranks.
@@ -334,7 +341,8 @@ void STKMeshEntityLocalMap::normalAtReferencePoint(
     // We can only compute normals for faces.
     if ( rank == stk::topology::FACE_RANK )
     {
-
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
     }
 
     // Check for unsupported ranks.
