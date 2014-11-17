@@ -91,6 +91,9 @@ double STKMeshEntityLocalMap::measure( const Entity& entity ) const
     // Compute the measure of the face.
     else if ( rank == stk::topology::FACE_RANK )
     {
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return -1.0;
     }
 
     // Check for unsupported ranks.
@@ -128,6 +131,8 @@ void STKMeshEntityLocalMap::centroid(
     // Extract the centroid of the face.
     else if ( rank == stk::topology::FACE_RANK )
     {
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
     }
 
     // The centroid of a node is the node coordinates.
@@ -162,12 +167,16 @@ bool STKMeshEntityLocalMap::isSafeToMapToReferenceFrame(
     // If we have an element, use the default implementation.
     if ( rank == stk::topology::ELEM_RANK )
     {
-	return this->isSafeToMapToReferenceFrame( entity, point );
+	return 
+	    EntityLocalMap::isSafeToMapToReferenceFrame( entity, point, status );
     }
 
     // If we have a face, perform the projection safeguard.
     else if ( rank == stk::topology::FACE_RANK )
     {
+	bool not_implemented = true;
+	DTK_INSIST( !not_implemented );
+	return false;
     }
 
     // Check for unsupported ranks.
@@ -210,7 +219,7 @@ bool STKMeshEntityLocalMap::mapToReferenceFrame(
     }
 
     // Use the side cell to perform the face mapping.
-    else if ( rank == stk::topology::NODE_RANK )
+    else if ( rank == stk::topology::FACE_RANK )
     {
 	
     }

@@ -151,7 +151,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
     DataTransferKit::Entity dtk_entity = 
 	DataTransferKit::STKMeshEntity( hex_entity, bulk_data.ptr() );
 
-    // Test the 
+    // Test the measure.
     TEST_EQUALITY( local_map->measure(dtk_entity), 8.0 );
 
     // Test the centroid.
@@ -173,14 +173,14 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
 
     // Test the reference frame safeguard.
     TEST_ASSERT(
-	local_map->isSafeToMapToReferenceFrame(dtk_entity,good_point()) );
+    	local_map->isSafeToMapToReferenceFrame(dtk_entity,good_point()) );
     TEST_ASSERT(
-	!local_map->isSafeToMapToReferenceFrame(dtk_entity,bad_point()) );
+    	!local_map->isSafeToMapToReferenceFrame(dtk_entity,bad_point()) );
 
     // Test the mapping to reference frame.
     Teuchos::Array<double> ref_good_point( space_dim );
     bool good_map = local_map->mapToReferenceFrame( 
-	dtk_entity, good_point(), ref_good_point() );
+    	dtk_entity, good_point(), ref_good_point() );
     TEST_ASSERT( good_map );
     TEST_EQUALITY( ref_good_point[0], -0.5 );
     TEST_EQUALITY( ref_good_point[1], 0.5 );
@@ -188,7 +188,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
 			    
     Teuchos::Array<double> ref_bad_point( space_dim );
     bool bad_map = local_map->mapToReferenceFrame( 
-	dtk_entity, bad_point(), ref_bad_point() );
+    	dtk_entity, bad_point(), ref_bad_point() );
     TEST_ASSERT( bad_map );
 
     // Test the point inclusion.
