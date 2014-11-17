@@ -41,7 +41,6 @@
 #ifndef DTK_ENTITYCENTEREDDOFVECTOR_IMPL_HPP
 #define DTK_ENTITYCENTEREDDOFVECTOR_IMPL_HPP
 
-#include "DTK_EntityCenteredDOFVector.hpp"
 #include "DTK_DBC.hpp"
 
 #include <Tpetra_Map.hpp>

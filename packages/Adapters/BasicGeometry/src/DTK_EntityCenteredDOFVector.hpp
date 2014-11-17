@@ -102,6 +102,12 @@ class EntityCenteredDOFVector
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_EntityCenteredDOFVector_impl.hpp"
+
+//---------------------------------------------------------------------------//
 
 #endif // end DTK_ENTITYCENTEREDDOFVECTOR_HPP
 

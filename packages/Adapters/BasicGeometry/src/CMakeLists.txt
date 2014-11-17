@@ -35,7 +35,6 @@ APPEND_SET(HEADERS
 APPEND_SET(SOURCES
   DTK_BasicEntitySet.cpp
   DTK_BasicGeometryEntity.cpp
-  DTK_EntityCenteredDOFVector_inst.cpp
   DTK_EntityCenteredShapeFunction.cpp
   DTK_BasicGeometryEntityImpl.cpp
   DTK_BasicGeometryExtraData.cpp
