@@ -52,6 +52,7 @@
 #include "DTK_STKMeshNodalShapeFunction.hpp"
 #include "DTK_STKMeshDOFVector.hpp"
 #include "DTK_STKMeshEntityPredicates.hpp"
+#include "DTK_STKMeshHelpers.hpp"
 #include "DTK_ConsistentInterpolationOperator.hpp"
 
 #include <Teuchos_GlobalMPISession.hpp>
@@ -71,6 +72,8 @@
 #include <Teuchos_TimeMonitor.hpp>
 
 #include <Tpetra_MultiVector.hpp>
+
+#include <Intrepid_FieldContainer.hpp>
 
 #include <stk_util/parallel/Parallel.hpp>
 
@@ -155,19 +158,25 @@ int main(int argc, char* argv[])
     Teuchos::RCP<stk::mesh::BulkData> src_bulk_data = 
 	Teuchos::rcpFromRef( src_broker.bulk_data() );
 
-    // Put some data in the source field. We will use the node ids as the
-    // scalar data.
+    // Put some data in the source field. We will use the distance of the node
+    // from the origin as the data.
     stk::mesh::Selector src_stk_selector( *src_part );
     stk::mesh::BucketVector src_part_buckets = 
 	src_stk_selector.get_buckets( stk::topology::NODE_RANK );
     std::vector<stk::mesh::Entity> src_part_nodes;
     stk::mesh::get_selected_entities( 
 	src_stk_selector, src_part_buckets, src_part_nodes );
+    Intrepid::FieldContainer<double> src_node_coords =
+	DataTransferKit::STKMeshHelpers::getEntityNodeCoordinates(
+	    Teuchos::Array<stk::mesh::Entity>(src_part_nodes), *src_bulk_data );
     double* src_field_data;
-    for ( stk::mesh::Entity entity : src_part_nodes )
+    int num_src_part_nodes = src_part_nodes.size();
+    for ( int n = 0; n < num_src_part_nodes; ++n )
     {
-	src_field_data = stk::mesh::field_data( source_field, entity );
-	src_field_data[0] = 2.0 * src_bulk_data->identifier( entity );
+	src_field_data = stk::mesh::field_data( source_field, src_part_nodes[n] );
+	src_field_data[0] = src_node_coords(n,0,0)*src_node_coords(n,0,0) +
+			    src_node_coords(n,0,1)*src_node_coords(n,0,1) +
+			    src_node_coords(n,0,2)*src_node_coords(n,0,2);
     }
 
 
