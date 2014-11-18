@@ -207,6 +207,20 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
     TEST_EQUALITY( bad_point[0], phy_bad_point[0] );
     TEST_EQUALITY( bad_point[1], phy_bad_point[1] );
     TEST_EQUALITY( bad_point[2], phy_bad_point[2] );
+
+    // Test the coordinates of the points extracted through the centroid
+    // function.
+    DataTransferKit::Entity dtk_node;
+    Teuchos::Array<double> point_coords(space_dim);
+    for ( int n = 0; n < num_nodes; ++n )
+    {
+	dtk_node = DataTransferKit::STKMeshEntity( nodes[n], bulk_data.ptr() );
+	local_map->centroid( dtk_node, point_coords() );
+	node_coords = stk::mesh::field_data( coord_field, nodes[n] );
+	TEST_EQUALITY( node_coords[0], point_coords[0] );
+	TEST_EQUALITY( node_coords[1], point_coords[1] );
+	TEST_EQUALITY( node_coords[2], point_coords[2] );
+    }
 }
 
 //---------------------------------------------------------------------------//

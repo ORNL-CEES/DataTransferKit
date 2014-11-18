@@ -53,13 +53,26 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
     stk::mesh::Part& part_1 = meta_data.declare_part( p1_name );
     stk::mesh::set_topology( part_1, stk::topology::HEX_8 );
 
+    std::string p2_name = "part_2";
+    stk::mesh::Part& part_2 = meta_data.declare_part( p2_name );
+
     // Make a data field.
-    stk::mesh::Field<double, stk::mesh::Cartesian3d>& data_field =
+    stk::mesh::Field<double, stk::mesh::Cartesian3d>& data_field_1 =
 	meta_data.declare_field<
 	stk::mesh::Field<double, stk::mesh::Cartesian3d> >(
-	    stk::topology::NODE_RANK, "test field");
-    meta_data.set_coordinate_field( &data_field );
-    stk::mesh::put_field( data_field, part_1 );
+	    stk::topology::NODE_RANK, "test field 1");
+    meta_data.set_coordinate_field( &data_field_1 );
+    stk::mesh::put_field( data_field_1, part_1 );
+
+    // Make an empty data field.
+    stk::mesh::Field<double, stk::mesh::Cartesian3d>& data_field_2 =
+	meta_data.declare_field<
+	stk::mesh::Field<double, stk::mesh::Cartesian3d> >(
+	    stk::topology::NODE_RANK, "test field 2");
+    meta_data.set_coordinate_field( &data_field_2 );
+    stk::mesh::put_field( data_field_2, part_2 );
+
+    // Commit the meta data.
     meta_data.commit();
 
     // Create bulk data.
@@ -85,40 +98,54 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
     bulk_data->modification_end();
 
     // Create a vector from the nodal field.
-    stk::mesh::Field<double,stk::mesh::Cartesian3d>* test_field =
+    stk::mesh::Field<double,stk::mesh::Cartesian3d>* test_field_1 =
 	bulk_data->mesh_meta_data(
 	    ).get_field<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
-		stk::topology::NODE_RANK, "test field" );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec =
+		stk::topology::NODE_RANK, "test field 1" );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_1 =
 	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromSTKField<double>(
-	    *bulk_data, *test_field, 3 );
+	    *bulk_data, *test_field_1, 3 );
 
     // Test the vector.
     unsigned comm_size = comm->getSize();
-    TEST_EQUALITY( 3, field_vec->getNumVectors() );
-    TEST_EQUALITY( 8, field_vec->getLocalLength() );
-    TEST_EQUALITY( 8*comm_size, field_vec->getGlobalLength() );
+    TEST_EQUALITY( 3, field_vec_1->getNumVectors() );
+    TEST_EQUALITY( 8, field_vec_1->getLocalLength() );
+    TEST_EQUALITY( 8*comm_size, field_vec_1->getGlobalLength() );
     
     // Put some data in the vector.
     double val_0 = 3.3;
     double val_1 = -9.3;
     double val_2 = 1.74;
-    field_vec->getVectorNonConst( 0 )->putScalar( val_0 );
-    field_vec->getVectorNonConst( 1 )->putScalar( val_1 );
-    field_vec->getVectorNonConst( 2 )->putScalar( val_2 );
+    field_vec_1->getVectorNonConst( 0 )->putScalar( val_0 );
+    field_vec_1->getVectorNonConst( 1 )->putScalar( val_1 );
+    field_vec_1->getVectorNonConst( 2 )->putScalar( val_2 );
 
     // Push the data back to STK.
     DataTransferKit::STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
-    	field_vec, *bulk_data, *test_field );
+    	field_vec_1, *bulk_data, *test_field_1 );
 
     // Test the STK field.
     for ( stk::mesh::Entity node : nodes )
     {
-    	double* data = stk::mesh::field_data( *test_field, node );
+    	double* data = stk::mesh::field_data( *test_field_1, node );
     	TEST_EQUALITY( data[0], val_0 );
     	TEST_EQUALITY( data[1], val_1 );
     	TEST_EQUALITY( data[2], val_2 );
     }
+
+    // Now make an empty field vector.
+    stk::mesh::Field<double,stk::mesh::Cartesian3d>* test_field_2 =
+	bulk_data->mesh_meta_data(
+	    ).get_field<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
+		stk::topology::NODE_RANK, "test field 2" );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_2 =
+	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromSTKField<double>(
+	    *bulk_data, *test_field_2, 3 );
+
+    // Test the vector to make sure it is empty.
+    TEST_EQUALITY( 3, field_vec_2->getNumVectors() );
+    TEST_EQUALITY( 0, field_vec_2->getLocalLength() );
+    TEST_EQUALITY( 0, field_vec_2->getGlobalLength() );
 }
 
 //---------------------------------------------------------------------------//
