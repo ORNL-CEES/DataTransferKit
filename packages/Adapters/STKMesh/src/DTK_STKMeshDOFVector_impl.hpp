@@ -138,9 +138,11 @@ void STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
 }
 
 //---------------------------------------------------------------------------//
+// Given a set of entities and DOF data bound to those entities, build a
+// Tpetra vector.
 template<class Scalar>
 Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
-STKMeshDOFVector::createTpetraMultiVectorFromView( 
+STKMeshDOFVector::createTpetraMultiVectorFromEntitiesAndView( 
     const stk::mesh::BulkData& bulk_data,
     const std::vector<stk::mesh::Entity>& entities,
     const int field_dim,
@@ -166,6 +168,65 @@ STKMeshDOFVector::createTpetraMultiVectorFromView(
     // Build a tpetra multivector.
     return Tpetra::createMultiVectorFromView<Scalar,int,std::size_t>( 
 	    map, dof_data, num_entities, field_dim );
+}
+
+//---------------------------------------------------------------------------//
+// Given a set of entity ids and DOF data bound to those entities, build a
+// Tpetra vector.
+template<class Scalar>
+Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
+STKMeshDOFVector::createTpetraMultiVectorFromPartVectorAndView(
+    const stk::mesh::BulkData& bulk_data,
+    const stk::mesh::PartVector& parts,
+    const stk::mesh::EntityRank field_entity_rank,
+    const int field_dim,
+    const Teuchos::ArrayRCP<Scalar>& dof_data )
+{
+    // Create a selector for the parts.
+    stk::mesh::Selector field_selector;
+    for ( stk::mesh::Part* part : parts )
+    {
+	field_selector = field_selector | *part;
+    }
+
+    // Get the buckets.
+    const stk::mesh::BucketVector& field_buckets =
+	field_selector.get_buckets( field_entity_rank );
+
+    // Get the entities.
+    std::vector<stk::mesh::Entity> field_entities;
+    stk::mesh::get_selected_entities( 
+	field_selector, field_buckets, field_entities );
+
+    // Create the vector.
+    return createTpetraMultiVectorFromEntitiesAndView(
+	bulk_data, field_entities, field_dim, dof_data );
+}
+
+//---------------------------------------------------------------------------//
+// Given a set of entity ids and DOF data bound to those entities, build a
+// Tpetra vector.  
+template<class Scalar>
+Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
+STKMeshDOFVector::createTpetraMultiVectorFromSelectorAndView(
+    const stk::mesh::BulkData& bulk_data,
+    const stk::mesh::Selector& selector,
+    const stk::mesh::EntityRank field_entity_rank,
+    const int field_dim,
+    const Teuchos::ArrayRCP<Scalar>& dof_data )
+{
+    // Get the buckets.
+    const stk::mesh::BucketVector& field_buckets =
+	selector.get_buckets( field_entity_rank );
+
+    // Get the entities.
+    std::vector<stk::mesh::Entity> field_entities;
+    stk::mesh::get_selected_entities( 
+	selector, field_buckets, field_entities );
+
+    // Create the vector.
+    return createTpetraMultiVectorFromEntitiesAndView(
+	bulk_data, field_entities, field_dim, dof_data );
 }
 
 //---------------------------------------------------------------------------//

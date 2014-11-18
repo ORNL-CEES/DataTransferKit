@@ -52,6 +52,8 @@
 
 #include <stk_mesh/base/BulkData.hpp>
 #include <stk_mesh/base/Entity.hpp>
+#include <stk_mesh/base/Selector.hpp>
+#include <stk_topology/topology.hpp>
 
 namespace DataTransferKit
 {
@@ -108,7 +110,7 @@ class STKMeshDOFVector
 	FieldType& field );
 
     /*!
-     * \brief Given a set of entity ids and DOF data bound to those entites,
+     * \brief Given a set of entities and DOF data bound to those entites,
      * build a Tpetra vector.
      * \param bulk_data The bulk data that owns the entities.
      * \param entities The entities the DOFs are defined over.
@@ -121,9 +123,55 @@ class STKMeshDOFVector
      */
     template<class Scalar>
     static Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
-    createTpetraMultiVectorFromView(
+    createTpetraMultiVectorFromEntitiesAndView(
 	const stk::mesh::BulkData& bulk_data,
 	const std::vector<stk::mesh::Entity>& entities,
+	const int field_dim,
+	const Teuchos::ArrayRCP<Scalar>& dof_data );
+
+    /*!
+     * \brief Given a set of entity ids and DOF data bound to those entites,
+     * build a Tpetra vector.
+     * \param bulk_data The bulk data that owns the entities.
+     * \param parts The parts over which to build the field.
+     * \param field_entity_rank The rank of the entities in the part over
+     * which to build the field.
+     * \param field_dim The dimension of the field. This is the product of the
+     * size of all ranks.
+     * \param dof_data Reference counted array of the DOF data for the given
+     * entity ids.
+     * \return A Tpetra MultiVector indexed according to the field entities
+     * with a vector for each field dimension.
+     */
+    template<class Scalar>
+    static Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
+    createTpetraMultiVectorFromPartVectorAndView(
+	const stk::mesh::BulkData& bulk_data,
+	const stk::mesh::PartVector& parts,
+	const stk::mesh::EntityRank field_entity_rank,
+	const int field_dim,
+	const Teuchos::ArrayRCP<Scalar>& dof_data );
+
+    /*!
+     * \brief Given a set of entity ids and DOF data bound to those entites,
+     * build a Tpetra vector.
+     * \param bulk_data The bulk data that owns the entities.
+     * \param selector The selector over which to build the field.
+     * \param field_entity_rank The rank of the entities in the part over
+     * which to build the field.
+     * \param field_dim The dimension of the field. This is the product of the
+     * size of all ranks.
+     * \param dof_data Reference counted array of the DOF data for the given
+     * entity ids.
+     * \return A Tpetra MultiVector indexed according to the field entities
+     * with a vector for each field dimension.
+     */
+    template<class Scalar>
+    static Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
+    createTpetraMultiVectorFromSelectorAndView(
+	const stk::mesh::BulkData& bulk_data,
+	const stk::mesh::Selector& selector,
+	const stk::mesh::EntityRank field_entity_rank,
 	const int field_dim,
 	const Teuchos::ArrayRCP<Scalar>& dof_data );
 };

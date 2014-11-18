@@ -214,29 +214,65 @@ TEUCHOS_UNIT_TEST( STKMeshDOFVector, view_test )
 	out_data[i] = 0.0;
     }
 
-    // Create an input vector.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > in_vec =
-	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromView( 
+    // Create a vector from the entities and view.
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > vec_1 =
+	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromEntitiesAndView( 
 	    *bulk_data, mesh_nodes, field_dim, in_data );
     
-    // Test the input vector.
+    // Test the vector.
     unsigned comm_size = comm->getSize();
-    TEST_EQUALITY( 3, in_vec->getNumVectors() );
-    TEST_EQUALITY( num_nodes, in_vec->getLocalLength() );
-    TEST_EQUALITY( num_nodes*comm_size, in_vec->getGlobalLength() );
+    TEST_EQUALITY( 3, vec_1->getNumVectors() );
+    TEST_EQUALITY( num_nodes, vec_1->getLocalLength() );
+    TEST_EQUALITY( num_nodes*comm_size, vec_1->getGlobalLength() );
         
-    // Create an output vector.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > out_vec =
-	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromView( 
+    // Create a second vector from the entities and view.
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > vec_2 =
+	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromEntitiesAndView( 
 	    *bulk_data, mesh_nodes, field_dim, out_data );
 
-    // Test the output vector.
-    TEST_EQUALITY( 3, out_vec->getNumVectors() );
-    TEST_EQUALITY( num_nodes, out_vec->getLocalLength() );
-    TEST_EQUALITY( num_nodes*comm_size, out_vec->getGlobalLength() );
+    // Test the vector.
+    TEST_EQUALITY( 3, vec_2->getNumVectors() );
+    TEST_EQUALITY( num_nodes, vec_2->getLocalLength() );
+    TEST_EQUALITY( num_nodes*comm_size, vec_2->getGlobalLength() );
 
-    // Add the vectors together.
-    out_vec->update( 1.0, *in_vec, 0.0 );
+    // Add vector 1 and vector 2 together.
+    vec_2->update( 1.0, *vec_1, 0.0 );
+
+    // Check the results.
+    for ( unsigned i = 0; i < num_nodes; ++i )
+    {
+	TEST_EQUALITY( in_data[i], out_data[i] );
+    }
+
+    // Create another Tpetra vector from a part vector.
+    stk::mesh::PartVector parts( 1, &part_1 );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > vec_3 =
+	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromPartVectorAndView( 
+	    *bulk_data, parts, stk::topology::NODE_RANK, field_dim, out_data );
+
+    // Test the vector.
+    TEST_EQUALITY( 3, vec_3->getNumVectors() );
+    TEST_EQUALITY( num_nodes, vec_3->getLocalLength() );
+    TEST_EQUALITY( num_nodes*comm_size, vec_3->getGlobalLength() );
+    vec_3->putScalar( 9.9 );
+    for ( unsigned i = 0; i < num_nodes; ++i )
+    {
+	TEST_EQUALITY( 9.9, out_data[i] );
+    }
+
+    // Create another Tpetra vector from a selector.
+    stk::mesh::Selector selector( part_1 );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > vec_4 =
+	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromSelectorAndView( 
+	    *bulk_data, selector, stk::topology::NODE_RANK, field_dim, in_data );
+
+    // Test the vector.
+    TEST_EQUALITY( 3, vec_4->getNumVectors() );
+    TEST_EQUALITY( num_nodes, vec_4->getLocalLength() );
+    TEST_EQUALITY( num_nodes*comm_size, vec_4->getGlobalLength() );
+
+    // Add vector 3 and vector 4 together.
+    vec_4->update( 1.0, *vec_3, 0.0 );
 
     // Check the results.
     for ( unsigned i = 0; i < num_nodes; ++i )
