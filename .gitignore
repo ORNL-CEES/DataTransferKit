@@ -16,5 +16,6 @@
 *.bbl
 *.blg
 *.lot
-html/
-latex/
+/html
+/latex
+/DTKData
