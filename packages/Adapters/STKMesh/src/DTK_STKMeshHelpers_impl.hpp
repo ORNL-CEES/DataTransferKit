@@ -106,7 +106,9 @@ Intrepid::FieldContainer<double> STKMeshHelpers::extractEntityNodeCoordinates(
 	else
 	{
 	    const stk::mesh::Entity* begin = bulk_data.begin_nodes( stk_entities[c] );
-	    const stk::mesh::Entity* end = bulk_data.end_nodes( stk_entities[c] );
+	    DTK_REMEMBER(
+		const stk::mesh::Entity* end = bulk_data.end_nodes( stk_entities[c] ) 
+		);
 	    DTK_CHECK( std::distance(begin,end) == num_nodes );
 	    for ( int n = 0; n < num_nodes; ++n )
 	    {

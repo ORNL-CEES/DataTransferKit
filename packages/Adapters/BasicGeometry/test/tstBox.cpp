@@ -107,7 +107,6 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
     Teuchos::ParameterList plist;
     double tol = 1.0e-12;
     bool point_inclusion = false;
-    bool safe_to_map = false;
     bool map_ok = false;
     for ( int i = 0; i < num_rand; ++i )
     {
@@ -198,7 +197,6 @@ TEUCHOS_UNIT_TEST( Box, tuple_constructor_test )
     Teuchos::ParameterList plist;
     double tol = 1.0e-12;
     bool point_inclusion = false;
-    bool safe_to_map = false;
     bool map_ok = false;
     for ( int i = 0; i < num_rand; ++i )
     {

@@ -81,7 +81,7 @@ class STKMeshDOFVector
 
     /*!
      * \brief Given a STK field, create a Tpetra vector that maps to the field
-     * DOFs.
+     * DOFs and pull the data from the field.
      * \param bulk_data The bulk data over which the STK field is defined.
      * \param field The STK field.
      * \param field_dim The dimension of the field. This is the product of the
@@ -91,9 +91,9 @@ class STKMeshDOFVector
      */
     template<class Scalar,class FieldType>
     static Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
-    createTpetraMultiVectorFromSTKField( const stk::mesh::BulkData& bulk_data,
-					 const FieldType& field,
-					 const int field_dim );
+    pullTpetraMultiVectorFromSTKField( const stk::mesh::BulkData& bulk_data,
+				       const FieldType& field,
+				       const int field_dim );
 
     /*!
      * \brief Given a Tpetra vector of DOF data, push the data into a given

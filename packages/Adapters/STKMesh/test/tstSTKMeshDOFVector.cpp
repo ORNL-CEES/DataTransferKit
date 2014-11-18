@@ -98,13 +98,22 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
     }
     bulk_data->modification_end();
 
-    // Create a vector from the nodal field.
+    // Create a nodal field.
     stk::mesh::Field<double,stk::mesh::Cartesian3d>* test_field_1 =
 	bulk_data->mesh_meta_data(
 	    ).get_field<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 		stk::topology::NODE_RANK, "test field 1" );
+    for ( stk::mesh::Entity node : nodes )
+    {
+    	double* data = stk::mesh::field_data( *test_field_1, node );
+	data[0] = 1.0;
+	data[1] = 2.0;
+	data[2] = 3.0;
+    }
+
+    // Create a vector from the nodal field.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_1 =
-	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromSTKField<double>(
+	DataTransferKit::STKMeshDOFVector::pullTpetraMultiVectorFromSTKField<double>(
 	    *bulk_data, *test_field_1, 3 );
 
     // Test the vector.
@@ -112,6 +121,14 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
     TEST_EQUALITY( 3, field_vec_1->getNumVectors() );
     TEST_EQUALITY( 8, field_vec_1->getLocalLength() );
     TEST_EQUALITY( 8*comm_size, field_vec_1->getGlobalLength() );
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > field_vec_1_view =
+		      field_vec_1->get2dView();
+    for ( unsigned n = 0; n < num_nodes; ++n )
+    {
+	TEST_EQUALITY( field_vec_1_view[0][n], 1.0 );
+	TEST_EQUALITY( field_vec_1_view[1][n], 2.0 );
+	TEST_EQUALITY( field_vec_1_view[2][n], 3.0 );
+    }
     
     // Put some data in the vector.
     double val_0 = 3.3;
@@ -140,7 +157,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
 	    ).get_field<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 		stk::topology::NODE_RANK, "test field 2" );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_2 =
-	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromSTKField<double>(
+	DataTransferKit::STKMeshDOFVector::pullTpetraMultiVectorFromSTKField<double>(
 	    *bulk_data, *test_field_2, 3 );
 
     // Test the vector to make sure it is empty.

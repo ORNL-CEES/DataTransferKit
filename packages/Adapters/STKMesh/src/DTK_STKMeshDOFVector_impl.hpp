@@ -57,10 +57,11 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Given a STK field, create a Tpetra vector that maps to the field DOFs.
+// Given a STK field, create a Tpetra vector that maps to the field DOFs and
+// pull the dofs from the field.
 template<class Scalar,class FieldType>
 Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
-STKMeshDOFVector::createTpetraMultiVectorFromSTKField( 
+STKMeshDOFVector::pullTpetraMultiVectorFromSTKField( 
     const stk::mesh::BulkData& bulk_data,
     const FieldType& field,
     const int field_dim )
@@ -100,7 +101,25 @@ STKMeshDOFVector::createTpetraMultiVectorFromSTKField(
 	Tpetra::createNonContigMap<int,std::size_t>( entity_ids, comm );
 
     // Create a Tpetra vector.
-    return Tpetra::createMultiVector<Scalar,int,std::size_t>( map, field_dim );
+    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > vector =
+	Tpetra::createMultiVector<Scalar,int,std::size_t>( map, field_dim );
+
+    // Pull the data from the field.
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> > vector_view =
+		      vector->get2dViewNonConst();
+    Scalar* field_data;
+    int num_entity = field_entities.size();
+    for ( int n = 0; n < num_entity; ++n )
+    {
+	field_data = stk::mesh::field_data( field, field_entities[n] );
+	for ( int d = 0; d < field_dim; ++d )
+	{
+	   vector_view[d][n] =  field_data[d];
+	}
+    }
+
+    // Return the vector.
+    return vector;
 }
 
 //---------------------------------------------------------------------------//
