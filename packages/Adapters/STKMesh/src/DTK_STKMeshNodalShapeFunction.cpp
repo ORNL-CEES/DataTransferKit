@@ -68,17 +68,28 @@ void STKMeshNodalShapeFunction::entityDOFIds(
     // Extract the stk entity.
     const stk::mesh::Entity& stk_entity = 
 	STKMeshHelpers::extractEntity( entity );
+    const stk::mesh::EntityRank entity_rank =
+	d_bulk_data->entity_rank( stk_entity );
 
-    // Get the ids of the nodes supporting the entity.
-    const stk::mesh::Entity* begin = d_bulk_data->begin_nodes( stk_entity );
-    const stk::mesh::Entity* end = d_bulk_data->end_nodes( stk_entity );
-
-    // Extract the node ids as the dof ids.
-    int num_nodes = std::distance( begin, end );
-    dof_ids.resize( num_nodes );
-    for ( int n = 0; n < num_nodes; ++n )
+    // If the entity is a node, return the id of the node as the dof id.
+    if ( stk::topology::NODE_RANK == entity_rank )
     {
-	dof_ids[n] = d_bulk_data->identifier( begin[n] );
+	dof_ids.assign( 1, d_bulk_data->identifier(stk_entity) );
+    }
+
+    // Otherwise get the ids of the nodes supporting the entity.
+    else 
+    {
+	const stk::mesh::Entity* begin = d_bulk_data->begin_nodes( stk_entity );
+	const stk::mesh::Entity* end = d_bulk_data->end_nodes( stk_entity );
+
+	// Extract the node ids as the dof ids.
+	int num_nodes = std::distance( begin, end );
+	dof_ids.resize( num_nodes );
+	for ( int n = 0; n < num_nodes; ++n )
+	{
+	    dof_ids[n] = d_bulk_data->identifier( begin[n] );
+	}
     }
 }
 

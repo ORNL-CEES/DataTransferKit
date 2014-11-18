@@ -117,10 +117,10 @@ int main(int argc, char* argv[])
     // Read command-line options
     std::string source_mesh_input_file = plist->get<std::string>("Source Mesh Input File");
     std::string source_mesh_output_file = plist->get<std::string>("Source Mesh Output File");
-    std::string source_mesh_part = plist->get<std::string>("Source Mesh Part");
+    std::string source_mesh_part_name = plist->get<std::string>("Source Mesh Part");
     std::string target_mesh_input_file = plist->get<std::string>("Target Mesh Input File");
     std::string target_mesh_output_file = plist->get<std::string>("Target Mesh Output File");
-    std::string target_mesh_part = plist->get<std::string>("Target Mesh Part");
+    std::string target_mesh_part_name = plist->get<std::string>("Target Mesh Part");
 
     // Get the raw mpi communicator (basic typedef in STK).
     Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
@@ -144,16 +144,21 @@ int main(int argc, char* argv[])
     stk::mesh::Field<double>& source_field = 
 	src_broker.meta_data().declare_field<stk::mesh::Field<double> >( 
 	    stk::topology::NODE_RANK, "u_src" );
-    stk::mesh::Part* src_part = src_broker.meta_data().get_part( source_mesh_part );
+    stk::mesh::Part* src_part = src_broker.meta_data().get_part( source_mesh_part_name );
     stk::mesh::put_field( source_field, *src_part );
 
     // Add the rest of the fields.
     src_broker.add_all_mesh_fields_as_input_fields();
 
+    // Create an output mesh.
+    std::size_t src_output_index = src_broker.create_output_mesh(
+	source_mesh_output_file, stk::io::WRITE_RESULTS );
+    src_broker.add_field( src_output_index, source_field );
+
     // Create the source bulk data.
     src_broker.populate_bulk_data();
     Teuchos::RCP<stk::mesh::BulkData> src_bulk_data = 
-	Teuchos::rcp( &(src_broker.bulk_data()), false );
+	Teuchos::rcpFromRef( src_broker.bulk_data() );
 
     // Put some data in the source field. We will use the node ids as the
     // scalar data.
@@ -185,26 +190,31 @@ int main(int argc, char* argv[])
     stk::mesh::Field<double>& target_field = 
 	tgt_broker.meta_data().declare_field<stk::mesh::Field<double> >( 
 	    stk::topology::NODE_RANK, "u_tgt" );
-    stk::mesh::Part* tgt_part = tgt_broker.meta_data().get_part( target_mesh_part );
+    stk::mesh::Part* tgt_part = tgt_broker.meta_data().get_part( target_mesh_part_name );
     stk::mesh::put_field( target_field, *tgt_part );
 
     // Add the rest of the fields.
     tgt_broker.add_all_mesh_fields_as_input_fields();
 
+    // Create an output mesh.
+    std::size_t tgt_output_index = tgt_broker.create_output_mesh(
+	target_mesh_output_file, stk::io::WRITE_RESULTS );
+    tgt_broker.add_field( tgt_output_index, target_field );
+
     // Create the target bulk data.
     tgt_broker.populate_bulk_data();
     Teuchos::RCP<stk::mesh::BulkData> tgt_bulk_data = 
-	Teuchos::rcp( &(tgt_broker.bulk_data()), false );
+	Teuchos::rcpFromRef( tgt_broker.bulk_data() );
 
     
     // SOLUTION TRANSFER SETUP
     // -----------------------
     
-    // Create a selector for the source part nodes.
+    // Create a selector for the source part elements.
     DataTransferKit::STKSelectorPredicate src_predicate( src_stk_selector );
     Teuchos::RCP<DataTransferKit::EntitySelector> src_entity_selector =
 	Teuchos::rcp( new DataTransferKit::EntitySelector(
-			  DataTransferKit::ENTITY_TYPE_NODE, src_predicate.getFunction() ) );
+			  DataTransferKit::ENTITY_TYPE_VOLUME, src_predicate.getFunction() ) );
 
     // Create a selector for the target part nodes.
     stk::mesh::Selector tgt_stk_selector( *tgt_part );
@@ -273,21 +283,10 @@ int main(int argc, char* argv[])
 	*tgt_vector, *tgt_bulk_data, target_field );
 
     
-    // SOURCE MESH WRITE
-    // -----------------
+    // FINALIZE
+    // --------
 
-    std::size_t src_output_index = src_broker.create_output_mesh(
-	source_mesh_output_file, stk::io::WRITE_RESULTS );
-    src_broker.add_field( src_output_index, source_field );
     src_broker.write_output_mesh( src_output_index );
-
-
-    // TARGET MESH WRITE
-    // -----------------
-
-    std::size_t tgt_output_index = tgt_broker.create_output_mesh(
-	target_mesh_output_file, stk::io::WRITE_RESULTS );
-    tgt_broker.add_field( tgt_output_index, target_field );
     tgt_broker.write_output_mesh( tgt_output_index );
 }
 

@@ -93,7 +93,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, hex_8_test )
     Teuchos::RCP<DataTransferKit::EntityShapeFunction> shape_function =
 	Teuchos::rcp( new DataTransferKit::STKMeshNodalShapeFunction(bulk_data) );
 
-    // Test the shape function dof ids.
+    // Test the shape function dof ids for the hex.
     Teuchos::Array<std::size_t> dof_ids;
     shape_function->entityDOFIds( dtk_entity, dof_ids );
     TEST_EQUALITY( num_nodes, dof_ids.size() );
@@ -102,7 +102,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, hex_8_test )
 	TEST_EQUALITY( dof_ids[n], num_nodes*comm_rank + n + 5 );
     }
 
-    // Test the value evaluation.
+    // Test the value evaluation for the hex.
     Teuchos::Array<double> ref_point( space_dim, 0.0 );
     Teuchos::Array<double> values;
     shape_function->evaluateValue( dtk_entity, ref_point(), values );
@@ -112,7 +112,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, hex_8_test )
 	TEST_EQUALITY( values[n], 1.0 / num_nodes );
     }
 
-    // Test the gradient evaluation.
+    // Test the gradient evaluation for the hex.
     Teuchos::Array<Teuchos::Array<double> > grads;
     shape_function->evaluateGradient( dtk_entity, ref_point(), grads );
     TEST_EQUALITY( grads.size(), num_nodes );
@@ -152,6 +152,17 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, hex_8_test )
     TEST_EQUALITY( grads[7][0], -1.0 / num_nodes );
     TEST_EQUALITY( grads[7][1], 1.0 / num_nodes );
     TEST_EQUALITY( grads[7][2], 1.0 / num_nodes );
+
+    // Test the shape function dof ids for the nodes.
+    for ( unsigned n = 0; n < num_nodes; ++n )
+    {
+	dof_ids.clear();
+	DataTransferKit::Entity dtk_node =
+	    DataTransferKit::STKMeshEntity( nodes[n], bulk_data.ptr() );
+	shape_function->entityDOFIds( dtk_node, dof_ids );
+	TEST_EQUALITY( dof_ids.size(), 1 );
+	TEST_EQUALITY( dof_ids[0], node_ids[n] );
+    }
 }
 
 //---------------------------------------------------------------------------//
