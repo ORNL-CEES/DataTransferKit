@@ -107,18 +107,18 @@ STKMeshDOFVector::createTpetraMultiVectorFromSTKField(
 // Given a Tpetra vector of DOF data, push the data into a given STK field.
 template<class Scalar,class FieldType>
 void STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
-    const Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> >& field_dofs,
+    const Tpetra::MultiVector<Scalar,int,std::size_t>& field_dofs,
     const stk::mesh::BulkData& bulk_data,
     FieldType& field )
 {
     // Get a view to the vector data.
-    int field_dim = field_dofs->getNumVectors();
+    int field_dim = field_dofs.getNumVectors();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> > dofs =
-		      field_dofs->get2dView();
+		      field_dofs.get2dView();
 
     // Get the ids of the entities over which the field is defined.
     Teuchos::ArrayView<const std::size_t> field_entity_ids =
-	field_dofs->getMap()->getNodeElementList();
+	field_dofs.getMap()->getNodeElementList();
 
     // Extract the field data from the Tpetra vector into the STK mesh.
     Scalar* field_data;

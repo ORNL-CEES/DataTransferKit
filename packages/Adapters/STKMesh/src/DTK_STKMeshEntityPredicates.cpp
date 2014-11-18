@@ -74,7 +74,7 @@ STKPartNamePredicate::STKPartNamePredicate(
 	  name_it != part_names.end();
 	  ++name_it )
     {
-	 part = bulk_data->mesh_meta_data().get_part( *name_it );
+	part = bulk_data->mesh_meta_data().get_part( *name_it );
 	this->b_part_ids.push_back( part->mesh_meta_data_ordinal() );
     }
 }

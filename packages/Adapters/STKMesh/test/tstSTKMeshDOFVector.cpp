@@ -123,7 +123,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
 
     // Push the data back to STK.
     DataTransferKit::STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
-    	field_vec_1, *bulk_data, *test_field_1 );
+    	*field_vec_1, *bulk_data, *test_field_1 );
 
     // Test the STK field.
     for ( stk::mesh::Entity node : nodes )

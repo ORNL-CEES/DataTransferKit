@@ -105,7 +105,7 @@ class STKMeshDOFVector
      */
     template<class Scalar,class FieldType>
     static void pushTpetraMultiVectorToSTKField(
-	const Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> >& field_dofs,
+	const Tpetra::MultiVector<Scalar,int,std::size_t>& field_dofs,
 	const stk::mesh::BulkData& bulk_data,
 	FieldType& field );
 
