@@ -144,7 +144,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(comm) );
+	new ConsistentInterpolationOperator<double>() );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
@@ -260,7 +260,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(comm) );
+	new ConsistentInterpolationOperator<double>() );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
@@ -378,7 +378,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(comm) );
+	new ConsistentInterpolationOperator<double>() );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
@@ -495,7 +495,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(comm) );
+	new ConsistentInterpolationOperator<double>() );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
@@ -611,7 +611,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(comm) );
+	new ConsistentInterpolationOperator<double>() );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
@@ -724,7 +724,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     // MAPPING
     // Create a map.
     Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(comm) );
+	new ConsistentInterpolationOperator<double>() );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();

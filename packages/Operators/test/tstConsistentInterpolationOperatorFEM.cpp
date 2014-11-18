@@ -221,7 +221,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(comm) );
+	new ConsistentInterpolationOperator<double>() );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();

@@ -72,8 +72,7 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
     /*!
      * \brief Constructor.
      */
-    ConsistentInterpolationOperator( 
-	const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
+    ConsistentInterpolationOperator();
 
     /*!
      * \brief Destructor.
@@ -100,11 +99,6 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
 		const Teuchos::RCP<const typename Base::TpetraMap>& range_map,
 		const Teuchos::RCP<FunctionSpace>& range_space,
 		const Teuchos::RCP<Teuchos::ParameterList>& parameters );
-
-  private:
-
-    // Parallel communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 };
 
 //---------------------------------------------------------------------------//

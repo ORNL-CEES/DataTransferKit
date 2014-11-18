@@ -64,9 +64,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 template<class Scalar>
-ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator(
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
-    : d_comm( comm )
+ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -85,6 +83,15 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     const Teuchos::RCP<FunctionSpace>& range_space,
     const Teuchos::RCP<Teuchos::ParameterList>& parameters )
 {
+    DTK_REQUIRE( Teuchos::nonnull(domain_map) );
+    DTK_REQUIRE( Teuchos::nonnull(domain_space) );
+    DTK_REQUIRE( Teuchos::nonnull(range_map) );
+    DTK_REQUIRE( Teuchos::nonnull(range_space) );
+    DTK_REQUIRE( Teuchos::nonnull(parameters) );
+
+    // Get the parallel communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm = domain_map->getComm();
+
     // Determine if we have range and domain data on this process.
     bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
     bool nonnull_range = Teuchos::nonnull( range_space->entitySet() );
@@ -114,7 +121,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     }
 
     // Build a parallel search over the domain.
-    ParallelSearch psearch( d_comm, 
+    ParallelSearch psearch( comm, 
 			    physical_dimension,
 			    domain_iterator,
 			    domain_space->localMap(),
@@ -176,7 +183,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 
 	// Communicate the range entity DOF data back to the domain parallel
 	// decomposition.
-	Tpetra::Distributor range_to_domain_dist( d_comm );
+	Tpetra::Distributor range_to_domain_dist( comm );
 	int num_import = range_to_domain_dist.createFromSends( export_ranks() );
 	Teuchos::Array<std::size_t> import_data( 3*num_import );
 	Teuchos::ArrayView<const std::size_t> export_data_view = export_data();

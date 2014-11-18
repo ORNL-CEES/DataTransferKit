@@ -211,6 +211,9 @@ int main(int argc, char* argv[])
     // SOLUTION TRANSFER SETUP
     // -----------------------
     
+    // Solution transfer parameters.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+
     // Create a manager for the source part elements.
     DataTransferKit::STKMeshManager src_manager( 
 	src_bulk_data, src_stk_selector, DataTransferKit::ENTITY_TYPE_VOLUME );
@@ -234,23 +237,18 @@ int main(int argc, char* argv[])
     // SOLUTION TRANSFER
     // -----------------
 
-    // Solution transfer parameters.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-
     // Create a consistent interpolation operator.
-    Teuchos::RCP<DataTransferKit::MapOperator<double> > 
-	interpolation_operator = Teuchos::rcp(
-    	    new DataTransferKit::ConsistentInterpolationOperator<double>(comm) );
+    DataTransferKit::ConsistentInterpolationOperator<double> interpolation_operator;
 
     // Setup the consistent interpolation operator.
-    interpolation_operator->setup( src_vector->getMap(),
-    				   src_manager.functionSpace(),
-    				   tgt_vector->getMap(),
-    				   tgt_manager.functionSpace(),
-    				   parameters );
+    interpolation_operator.setup( src_vector->getMap(),
+				  src_manager.functionSpace(),
+				  tgt_vector->getMap(),
+				  tgt_manager.functionSpace(),
+				  parameters );
 
     // Apply the consistent interpolation operator.
-    interpolation_operator->apply( *src_vector, *tgt_vector );
+    interpolation_operator.apply( *src_vector, *tgt_vector );
 
     // Push the target vector onto the target mesh.
     DataTransferKit::STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
