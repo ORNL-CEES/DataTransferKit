@@ -90,6 +90,14 @@
 #include <Ioss_SubSystem.h>
 
 //---------------------------------------------------------------------------//
+// Data field function.
+//---------------------------------------------------------------------------//
+double dataFunction( double x, double y, double z )
+{
+    return std::abs(x) + std::abs(y) + std::abs(z) + 1.0;
+}
+
+//---------------------------------------------------------------------------//
 // Example driver.
 //---------------------------------------------------------------------------//
 int main(int argc, char* argv[])
@@ -178,9 +186,9 @@ int main(int argc, char* argv[])
     for ( int n = 0; n < num_src_part_nodes; ++n )
     {
 	src_field_data = stk::mesh::field_data( source_field, src_part_nodes[n] );
-	src_field_data[0] = src_node_coords(n,0,0)*src_node_coords(n,0,0) +
-			    src_node_coords(n,0,1)*src_node_coords(n,0,1) +
-			    src_node_coords(n,0,2)*src_node_coords(n,0,2);
+	src_field_data[0] = dataFunction( src_node_coords(n,0,0),
+					  src_node_coords(n,0,1),
+					  src_node_coords(n,0,2) );
     }
 
 
@@ -201,6 +209,12 @@ int main(int argc, char* argv[])
     stk::mesh::Part* tgt_part = 
 	tgt_broker.meta_data().get_part( target_mesh_part_name );
     stk::mesh::put_field( target_field, *tgt_part );
+
+    // Add an error nodal field to the target part.
+    stk::mesh::Field<double>& target_error_field = 
+    	tgt_broker.meta_data().declare_field<stk::mesh::Field<double> >( 
+    	    stk::topology::NODE_RANK, "u_err" );
+    stk::mesh::put_field( target_error_field, *tgt_part );
 
     // Create the target bulk data.
     tgt_broker.populate_bulk_data();
@@ -255,6 +269,39 @@ int main(int argc, char* argv[])
     	*tgt_vector, *tgt_bulk_data, target_field );
 
 
+    // COMPUTE THE SOLUTION ERROR
+    // --------------------------
+
+    stk::mesh::BucketVector tgt_part_buckets = 
+	tgt_stk_selector.get_buckets( stk::topology::NODE_RANK );
+    std::vector<stk::mesh::Entity> tgt_part_nodes;
+    stk::mesh::get_selected_entities( 
+	tgt_stk_selector, tgt_part_buckets, tgt_part_nodes );
+    Intrepid::FieldContainer<double> tgt_node_coords =
+	DataTransferKit::STKMeshHelpers::getEntityNodeCoordinates(
+	    Teuchos::Array<stk::mesh::Entity>(tgt_part_nodes), *tgt_bulk_data );
+    double* tgt_field_data;
+    double* err_field_data;
+    int num_tgt_part_nodes = tgt_part_nodes.size();
+    double error_l2_norm = 0.0;
+    double field_l2_norm = 0.0;
+    for ( int n = 0; n < num_tgt_part_nodes; ++n )
+    {
+	double gold_value = dataFunction( tgt_node_coords(n,0,0),
+					  tgt_node_coords(n,0,1),
+					  tgt_node_coords(n,0,2) );
+	tgt_field_data = stk::mesh::field_data( target_field, tgt_part_nodes[n] );
+	err_field_data = stk::mesh::field_data( target_error_field, tgt_part_nodes[n] );
+	err_field_data[0] = tgt_field_data[0] - gold_value;
+	error_l2_norm += err_field_data[0] * err_field_data[0];
+	field_l2_norm += tgt_field_data[0] * tgt_field_data[0];
+	err_field_data[0] /= gold_value;
+    }
+    error_l2_norm = std::sqrt( error_l2_norm );
+    field_l2_norm = std::sqrt( field_l2_norm );
+    std::cout << "|e|_2 / |f|_2: " << error_l2_norm / field_l2_norm << std::endl;
+
+
     // SOURCE MESH WRITE
     // -----------------
 
@@ -272,6 +319,7 @@ int main(int argc, char* argv[])
     std::size_t tgt_output_index = tgt_broker.create_output_mesh(
     	target_mesh_output_file, stk::io::WRITE_RESULTS );
     tgt_broker.add_field( tgt_output_index, target_field );
+    tgt_broker.add_field( tgt_output_index, target_error_field );
     tgt_broker.begin_output_step( tgt_output_index, 0.0 );
     tgt_broker.write_defined_output_fields( tgt_output_index );
     tgt_broker.end_output_step( tgt_output_index );
