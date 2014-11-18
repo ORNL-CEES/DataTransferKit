@@ -65,12 +65,8 @@ namespace DataTransferKit
 // Constructor.
 template<class Scalar>
 ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator(
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-    const Teuchos::RCP<EntitySelector>& domain_selector,
-    const Teuchos::RCP<EntitySelector>& range_selector )
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
     : d_comm( comm )
-    , d_domain_selector( domain_selector )
-    , d_range_selector( range_selector )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -113,8 +109,8 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     if ( nonnull_domain )
     {
 	domain_iterator = domain_space->entitySet()->entityIterator( 
-	    d_domain_selector->entityType(),
-	    d_domain_selector->selectFunction() );
+	    domain_space->entitySelector()->entityType(),
+	    domain_space->entitySelector()->selectFunction() );
     }
 
     // Build a parallel search over the domain.
@@ -129,8 +125,8 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     if ( nonnull_range )
     {
 	range_iterator = range_space->entitySet()->entityIterator( 
-	    d_range_selector->entityType(),
-	    d_range_selector->selectFunction() );
+	    range_space->entitySelector()->entityType(),
+	    range_space->entitySelector()->selectFunction() );
     } 
 
     // Search the domain with the range.

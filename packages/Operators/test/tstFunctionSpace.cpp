@@ -18,6 +18,7 @@
 #include <DTK_BasicEntitySet.hpp>
 #include <DTK_BasicGeometryLocalMap.hpp>
 #include <DTK_EntityCenteredShapeFunction.hpp>
+#include <DTK_EntitySelector.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -41,10 +42,14 @@ TEUCHOS_UNIT_TEST( FunctionSpace, space_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
     Teuchos::RCP<EntityShapeFunction> shape_function =
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
-    FunctionSpace function_space( entity_set, local_map, shape_function );
+    Teuchos::RCP<EntitySelector> selector =
+	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
+    FunctionSpace function_space( entity_set, selector, local_map, shape_function );
 
     TEST_EQUALITY( function_space.entitySet().getRawPtr(), 
 		   entity_set.getRawPtr() );
+    TEST_EQUALITY( function_space.entitySelector().getRawPtr(), 
+		   selector.getRawPtr() );
     TEST_EQUALITY( function_space.localMap().getRawPtr(),
 		   local_map.getRawPtr() );
     TEST_EQUALITY( function_space.shapeFunction().getRawPtr(),

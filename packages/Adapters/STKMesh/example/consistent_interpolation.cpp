@@ -47,12 +47,9 @@
 #include <ctime>
 #include <cstdlib>
 
-#include "DTK_STKMeshEntitySet.hpp"
-#include "DTK_STKMeshEntityLocalMap.hpp"
-#include "DTK_STKMeshNodalShapeFunction.hpp"
 #include "DTK_STKMeshDOFVector.hpp"
-#include "DTK_STKMeshEntityPredicates.hpp"
 #include "DTK_STKMeshHelpers.hpp"
+#include "DTK_STKMeshManager.hpp"
 #include "DTK_ConsistentInterpolationOperator.hpp"
 
 #include <Teuchos_GlobalMPISession.hpp>
@@ -121,12 +118,18 @@ int main(int argc, char* argv[])
 	xml_input_filename, Teuchos::inoutArg(*plist) );
 
     // Read command-line options
-    std::string source_mesh_input_file = plist->get<std::string>("Source Mesh Input File");
-    std::string source_mesh_output_file = plist->get<std::string>("Source Mesh Output File");
-    std::string source_mesh_part_name = plist->get<std::string>("Source Mesh Part");
-    std::string target_mesh_input_file = plist->get<std::string>("Target Mesh Input File");
-    std::string target_mesh_output_file = plist->get<std::string>("Target Mesh Output File");
-    std::string target_mesh_part_name = plist->get<std::string>("Target Mesh Part");
+    std::string source_mesh_input_file = 
+	plist->get<std::string>("Source Mesh Input File");
+    std::string source_mesh_output_file = 
+	plist->get<std::string>("Source Mesh Output File");
+    std::string source_mesh_part_name = 
+	plist->get<std::string>("Source Mesh Part");
+    std::string target_mesh_input_file = 
+	plist->get<std::string>("Target Mesh Input File");
+    std::string target_mesh_output_file = 
+	plist->get<std::string>("Target Mesh Output File");
+    std::string target_mesh_part_name = 
+	plist->get<std::string>("Target Mesh Part");
 
     // Get the raw mpi communicator (basic typedef in STK).
     Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
@@ -150,7 +153,8 @@ int main(int argc, char* argv[])
     stk::mesh::Field<double>& source_field = 
 	src_broker.meta_data().declare_field<stk::mesh::Field<double> >( 
 	    stk::topology::NODE_RANK, "u_src" );
-    stk::mesh::Part* src_part = src_broker.meta_data().get_part( source_mesh_part_name );
+    stk::mesh::Part* src_part = 
+	src_broker.meta_data().get_part( source_mesh_part_name );
     stk::mesh::put_field( source_field, *src_part );
 
     // Create the source bulk data.
@@ -194,7 +198,8 @@ int main(int argc, char* argv[])
     stk::mesh::Field<double>& target_field = 
     	tgt_broker.meta_data().declare_field<stk::mesh::Field<double> >( 
     	    stk::topology::NODE_RANK, "u_tgt" );
-    stk::mesh::Part* tgt_part = tgt_broker.meta_data().get_part( target_mesh_part_name );
+    stk::mesh::Part* tgt_part = 
+	tgt_broker.meta_data().get_part( target_mesh_part_name );
     stk::mesh::put_field( target_field, *tgt_part );
 
     // Create the target bulk data.
@@ -206,40 +211,14 @@ int main(int argc, char* argv[])
     // SOLUTION TRANSFER SETUP
     // -----------------------
     
-    // Create a selector for the source part elements.
-    DataTransferKit::STKSelectorPredicate src_predicate( src_stk_selector );
-    Teuchos::RCP<DataTransferKit::EntitySelector> src_entity_selector =
-    	Teuchos::rcp( new DataTransferKit::EntitySelector(
-    			  DataTransferKit::ENTITY_TYPE_VOLUME, src_predicate.getFunction() ) );
+    // Create a manager for the source part elements.
+    DataTransferKit::STKMeshManager src_manager( 
+	src_bulk_data, src_stk_selector, DataTransferKit::ENTITY_TYPE_VOLUME );
 
-    // Create a selector for the target part nodes.
+    // Create a manager for the target part nodes.
     stk::mesh::Selector tgt_stk_selector( *tgt_part );
-    DataTransferKit::STKSelectorPredicate tgt_predicate( tgt_stk_selector );
-    Teuchos::RCP<DataTransferKit::EntitySelector> tgt_entity_selector =
-    	Teuchos::rcp( new DataTransferKit::EntitySelector(
-    			  DataTransferKit::ENTITY_TYPE_NODE, tgt_predicate.getFunction() ) );
-
-    // Create a function space for the source.
-    Teuchos::RCP<DataTransferKit::EntitySet> src_entity_set =
-    	Teuchos::rcp( new DataTransferKit::STKMeshEntitySet(src_bulk_data) );
-    Teuchos::RCP<DataTransferKit::EntityLocalMap> src_local_map =
-    	Teuchos::rcp( new DataTransferKit::STKMeshEntityLocalMap(src_bulk_data) );
-    Teuchos::RCP<DataTransferKit::STKMeshNodalShapeFunction> src_shape_function =
-    	Teuchos::rcp( new DataTransferKit::STKMeshNodalShapeFunction(src_bulk_data) );
-    Teuchos::RCP<DataTransferKit::FunctionSpace> src_function_space =
-    	Teuchos::rcp( new DataTransferKit::FunctionSpace( 
-    			  src_entity_set, src_local_map, src_shape_function ) );
-
-    // Create a function space for the target.
-    Teuchos::RCP<DataTransferKit::EntitySet> tgt_entity_set =
-    	Teuchos::rcp( new DataTransferKit::STKMeshEntitySet(tgt_bulk_data) );
-    Teuchos::RCP<DataTransferKit::EntityLocalMap> tgt_local_map =
-    	Teuchos::rcp( new DataTransferKit::STKMeshEntityLocalMap(tgt_bulk_data) );
-    Teuchos::RCP<DataTransferKit::STKMeshNodalShapeFunction> tgt_shape_function =
-    	Teuchos::rcp( new DataTransferKit::STKMeshNodalShapeFunction(tgt_bulk_data) );
-    Teuchos::RCP<DataTransferKit::FunctionSpace> tgt_function_space =
-    	Teuchos::rcp( new DataTransferKit::FunctionSpace( 
-    			  tgt_entity_set, tgt_local_map, tgt_shape_function ) );
+    DataTransferKit::STKMeshManager tgt_manager( 
+	tgt_bulk_data, tgt_stk_selector, DataTransferKit::ENTITY_TYPE_NODE );
 
     // Create a solution vector for the source.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > src_vector =
@@ -259,16 +238,15 @@ int main(int argc, char* argv[])
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
 
     // Create a consistent interpolation operator.
-    Teuchos::RCP<DataTransferKit::MapOperator<double> > interpolation_operator =
-    	Teuchos::rcp(
-    	    new DataTransferKit::ConsistentInterpolationOperator<double>(
-    		comm, src_entity_selector, tgt_entity_selector ) );
+    Teuchos::RCP<DataTransferKit::MapOperator<double> > 
+	interpolation_operator = Teuchos::rcp(
+    	    new DataTransferKit::ConsistentInterpolationOperator<double>(comm) );
 
     // Setup the consistent interpolation operator.
     interpolation_operator->setup( src_vector->getMap(),
-    				   src_function_space,
+    				   src_manager.functionSpace(),
     				   tgt_vector->getMap(),
-    				   tgt_function_space,
+    				   tgt_manager.functionSpace(),
     				   parameters );
 
     // Apply the consistent interpolation operator.
@@ -277,6 +255,7 @@ int main(int argc, char* argv[])
     // Push the target vector onto the target mesh.
     DataTransferKit::STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
     	*tgt_vector, *tgt_bulk_data, target_field );
+
 
     // SOURCE MESH WRITE
     // -----------------

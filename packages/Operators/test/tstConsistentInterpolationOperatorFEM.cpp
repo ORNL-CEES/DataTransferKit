@@ -161,13 +161,13 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
 	createDOFMap( comm, box_ids(), dofs_per_box );
 
-    // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
-	new FunctionSpace(domain_set,domain_local_map,domain_shape) );
-
     // Construct a selector for the boxes.
     Teuchos::RCP<EntitySelector> domain_selector = 
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
+
+    // Construct a function space for the boxes.
+    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
+	new FunctionSpace(domain_set,domain_selector,domain_local_map,domain_shape) );
 
     // Construct a DOF vector for the boxes.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
@@ -205,13 +205,13 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
 	createDOFMap( comm, point_ids(), 1 );
 
-    // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp(
-	new FunctionSpace(range_set,range_local_map,range_shape) );
-
     // Construct a selector for the points.
     Teuchos::RCP<EntitySelector> range_selector = 
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
+
+    // Construct a function space for the points.
+    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp(
+	new FunctionSpace(range_set,range_selector,range_local_map,range_shape) );
 
     // Construct a DOF vector for the points.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
@@ -221,8 +221,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(
-	    comm,domain_selector,range_selector) );
+	new ConsistentInterpolationOperator<double>(comm) );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();

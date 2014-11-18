@@ -73,9 +73,7 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
      * \brief Constructor.
      */
     ConsistentInterpolationOperator( 
-	const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-	const Teuchos::RCP<EntitySelector>& domain_selector,
-	const Teuchos::RCP<EntitySelector>& range_selector );
+	const Teuchos::RCP<const Teuchos::Comm<int> >& comm );
 
     /*!
      * \brief Destructor.
@@ -107,12 +105,6 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
 
     // Parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
-
-    // The domain entity selector.
-    Teuchos::RCP<EntitySelector> d_domain_selector;
-
-    // The range entity selector.
-    Teuchos::RCP<EntitySelector> d_range_selector;
 };
 
 //---------------------------------------------------------------------------//

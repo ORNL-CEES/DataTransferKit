@@ -47,9 +47,11 @@ namespace DataTransferKit
 //! Constructor.
 FunctionSpace::FunctionSpace(
     const Teuchos::RCP<EntitySet>& entity_set,
+    const Teuchos::RCP<EntitySelector>& entity_selector,
     const Teuchos::RCP<EntityLocalMap>& local_map,
     const Teuchos::RCP<EntityShapeFunction>& shape_function )
     : d_entity_set( entity_set )
+    , d_entity_selector( entity_selector )
     , d_local_map( local_map )
     , d_shape_function( shape_function )
 { /* ... */ }
@@ -64,6 +66,13 @@ FunctionSpace::~FunctionSpace()
 Teuchos::RCP<EntitySet> FunctionSpace::entitySet() const
 {
     return d_entity_set;
+}
+
+//---------------------------------------------------------------------------//
+// The selector to the entities over which the fields are defined.
+Teuchos::RCP<EntitySelector> FunctionSpace::entitySelector() const
+{
+    return d_entity_selector;
 }
 
 //---------------------------------------------------------------------------//

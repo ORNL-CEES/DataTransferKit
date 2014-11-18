@@ -90,7 +90,7 @@ class STKMeshManager
      */
     STKMeshManager( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
 		    const EntityType entity_type,
-		    const EntityType basis_type = BASIS_TYPE_GRADIENT );
+		    const BasisType basis_type = BASIS_TYPE_GRADIENT );
 
     /*!
      * \brief Part name constructor.
@@ -152,11 +152,6 @@ class STKMeshManager
     ~STKMeshManager();
 
     /*!
-     * \brief Get the selector for the entities in the mesh.
-     */
-    Teuchos::RCP<EntitySelector> entitySelector() const;
-
-    /*!
      * \brief Get the function space over which the mesh and its fields are
      * defined. 
      */
@@ -167,12 +162,10 @@ class STKMeshManager
     // Create the function space.
     void createFunctionSpace( 
 	const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-	const BasisType basis_type );
+	const BasisType basis_type,
+	const Teuchos::RCP<EntitySelector>& entity_selector );
 
   private:
-
-    // The selector for the entities in the mesh.
-    Teuchos::RCP<EntitySelector> d_entity_selector;
 
     // The function space over which the mesh and its fields are defined.
     Teuchos::RCP<FunctionSpace> d_function_space;

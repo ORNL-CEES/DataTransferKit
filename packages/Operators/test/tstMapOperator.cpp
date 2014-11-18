@@ -18,6 +18,7 @@
 #include <DTK_FunctionSpace.hpp>
 #include <DTK_BasicEntitySet.hpp>
 #include <DTK_BasicGeometryLocalMap.hpp>
+#include <DTK_EntitySelector.hpp>
 #include <DTK_EntityCenteredShapeFunction.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -208,8 +209,10 @@ TEUCHOS_UNIT_TEST( MapOperator, apply_test )
     Teuchos::RCP<const Tpetra::Map<int,std::size_t> > dof_map = 
 	Tpetra::createUniformContigMap<int,std::size_t>( 
 	    local_size*comm->getSize(), comm );
+    Teuchos::RCP<EntitySelector> entity_selector
+	= Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
     Teuchos::RCP<FunctionSpace> function_space = Teuchos::rcp( 
-	new FunctionSpace(entity_set, local_map, shape_function) );
+	new FunctionSpace(entity_set, entity_selector, local_map, shape_function) );
 
     // Make a map.
     Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
