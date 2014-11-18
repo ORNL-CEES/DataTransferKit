@@ -68,7 +68,9 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
     //! Root class tyepdef.
     typedef MapOperator<Scalar> Base;
     typedef typename Base::Root Root;
-
+    typedef typename Root::local_ordinal_type LO;
+    typedef typename Root::global_ordinal_type GO;
+    
     /*!
      * \brief Constructor.
      */

@@ -143,16 +143,16 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     // on this process and the number of domain entities they were found in
     // globally for averaging. This creates the requirement of uniquely owned
     // domain and range entities input into the map - no ghosts.
-    std::unordered_map<EntityId,std::size_t> range_dof_id_map;
-    std::unordered_map<EntityId,std::size_t> range_dof_count_map;
+    std::unordered_map<EntityId,GO> range_dof_id_map;
+    std::unordered_map<EntityId,GO> range_dof_count_map;
     {
 	// Extract the set of local range entities that were found in domain
 	// entities.
 	Teuchos::Array<int> export_ranks;
-	Teuchos::Array<std::size_t> export_data;
+	Teuchos::Array<GO> export_data;
 	Teuchos::Array<EntityId> domain_ids;
 	Teuchos::Array<EntityId>::const_iterator domain_id_it;
-	Teuchos::Array<std::size_t> range_dof_ids;
+	Teuchos::Array<GO> range_dof_ids;
 	EntityIterator range_it;
 	EntityIterator range_begin = range_iterator.begin();
 	EntityIterator range_end = range_iterator.end();
@@ -175,9 +175,9 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 
 		export_data.push_back( range_dof_ids[0] );
 		export_data.push_back(
-		    Teuchos::as<std::size_t>(range_it->id()) );
+		    Teuchos::as<GO>(range_it->id()) );
 		export_data.push_back(
-		    Teuchos::as<std::size_t>(domain_ids.size()) );
+		    Teuchos::as<GO>(domain_ids.size()) );
 	    }
 	}
 
@@ -185,8 +185,9 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	// decomposition.
 	Tpetra::Distributor range_to_domain_dist( comm );
 	int num_import = range_to_domain_dist.createFromSends( export_ranks() );
-	Teuchos::Array<std::size_t> import_data( 3*num_import );
-	Teuchos::ArrayView<const std::size_t> export_data_view = export_data();
+	Teuchos::Array<GO> import_data( 3*num_import );
+	Teuchos::ArrayView<const GO> export_data_view = 
+	    export_data();
 	range_to_domain_dist.doPostsAndWaits( export_data_view,
 					      3,
 					      import_data() );
@@ -195,19 +196,19 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	for ( int i = 0; i < num_import; ++i )
 	{
 	    range_dof_id_map.insert(
-		std::pair<EntityId,std::size_t>(
+		std::pair<EntityId,GO>(
 		    Teuchos::as<EntityId>(import_data[3*i+1]),
 		    import_data[3*i]) );
 	    range_dof_count_map.insert(
-		std::pair<EntityId,std::size_t>(
+		std::pair<EntityId,GO>(
 		    Teuchos::as<EntityId>(import_data[3*i+1]),
 		    import_data[3*i+2]) );
 	}
     }
 
     // Allocate the coupling matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,std::size_t> > coupling_matrix =
-	Tpetra::createCrsMatrix<Scalar,int,std::size_t>( this->b_range_map );
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > coupling_matrix =
+	Tpetra::createCrsMatrix<Scalar,LO,GO>( this->b_range_map );
 
     // Construct the entries of the coupling matrix.
     Teuchos::Array<EntityId> range_entity_ids;
@@ -215,7 +216,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     Teuchos::ArrayView<const double> range_parametric_coords;
     Teuchos::Array<double> domain_shape_values;
     Teuchos::Array<double>::iterator domain_shape_it;
-    Teuchos::Array<std::size_t> domain_dof_ids;
+    Teuchos::Array<GO> domain_dof_ids;
     EntityIterator domain_it;
     EntityIterator domain_begin = domain_iterator.begin();
     EntityIterator domain_end = domain_iterator.end();
@@ -277,9 +278,8 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     	Thyra::createVectorSpace<Scalar>( coupling_matrix->getRangeMap() );
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_domain_vector_space =
     	Thyra::createVectorSpace<Scalar>( coupling_matrix->getDomainMap() );
-    Teuchos::RCP<Thyra::TpetraLinearOp<Scalar,int,std::size_t> > 
-    	thyra_coupling_matrix =
-    	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,int,std::size_t>() );
+    Teuchos::RCP<Thyra::TpetraLinearOp<Scalar,LO,GO> > thyra_coupling_matrix =
+    	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,LO,GO>() );
     thyra_coupling_matrix->initialize( thyra_range_vector_space, 
     				       thyra_domain_vector_space, 
     				       coupling_matrix );
