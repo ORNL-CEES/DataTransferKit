@@ -141,21 +141,31 @@ void STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
 template<class Scalar>
 Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
 STKMeshDOFVector::createTpetraMultiVectorFromView( 
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-    const Teuchos::ArrayView<const std::size_t>& entity_ids,
-    const Teuchos::ArrayRCP<Scalar>& dof_data,
-    const std::size_t lda,
-    const std::size_t num_vectors )
+    const stk::mesh::BulkData& bulk_data,
+    const std::vector<stk::mesh::Entity>& entities,
+    const int field_dim,
+    const Teuchos::ArrayRCP<Scalar>& dof_data )
 {
-    DTK_REQUIRE( lda*num_vectors == Teuchos::as<std::size_t>(dof_data.size()) );
+    int num_entities = entities.size();
+    DTK_REQUIRE( num_entities*field_dim == 
+		 Teuchos::as<std::size_t>(dof_data.size()) );
+
+    // Extract the entity ids.
+    Teuchos::Array<std::size_t> entity_ids( num_entities );
+    for ( int n = 0; n < num_entities; ++n )
+    {
+	entity_ids[n] = bulk_data.identifier( entities[n] );
+    }
 
     // Construct a map.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::rcp( new Teuchos::MpiComm<int>(bulk_data.parallel()) );
     Teuchos::RCP<const Tpetra::Map<int,std::size_t> > map =
 	Tpetra::createNonContigMap<int,std::size_t>( entity_ids, comm );
 
     // Build a tpetra multivector.
     return Tpetra::createMultiVectorFromView<Scalar,int,std::size_t>( 
-	    map, dof_data, lda, num_vectors );
+	    map, dof_data, num_entities, field_dim );
 }
 
 //---------------------------------------------------------------------------//

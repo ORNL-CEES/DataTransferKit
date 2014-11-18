@@ -41,6 +41,8 @@
 #ifndef DTK_STKMESHDOFVECTOR_HPP
 #define DTK_STKMESHDOFVECTOR_HPP
 
+#include <vector>
+
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ArrayRCP.hpp>
@@ -49,6 +51,7 @@
 #include <Tpetra_MultiVector.hpp>
 
 #include <stk_mesh/base/BulkData.hpp>
+#include <stk_mesh/base/Entity.hpp>
 
 namespace DataTransferKit
 {
@@ -107,23 +110,22 @@ class STKMeshDOFVector
     /*!
      * \brief Given a set of entity ids and DOF data bound to those entites,
      * build a Tpetra vector.
-     * \param comm The communicator the DOFs are defined over.
-     * \param entity_ids The ids of the entities the DOFs are defined over
-     * (cast as std::size_t instead of EntityId).
+     * \param bulk_data The bulk data that owns the entities.
+     * \param entities The entities the DOFs are defined over.
+     * \param field_dim The dimension of the field. This is the product of the
+     * size of all ranks.
      * \param dof_data Reference counted array of the DOF data for the given
      * entity ids.
-     * \param lda Single vector length. Should be the same as the size of
-     * entity_ids.
-     * \param num_vectors The number of vectors in the multivector.
+     * \return A Tpetra MultiVector indexed according to the field entities
+     * with a vector for each field dimension.
      */
     template<class Scalar>
     static Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
     createTpetraMultiVectorFromView(
-	const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-	const Teuchos::ArrayView<const std::size_t>& entity_ids,
-	const Teuchos::ArrayRCP<Scalar>& dof_data,
-	const std::size_t lda,
-	const std::size_t num_vectors );
+	const stk::mesh::BulkData& bulk_data,
+	const std::vector<stk::mesh::Entity>& entities,
+	const int field_dim,
+	const Teuchos::ArrayRCP<Scalar>& dof_data );
 };
 
 //---------------------------------------------------------------------------//

@@ -60,9 +60,10 @@ namespace DataTransferKit
 
   STKMeshNodalShapeFunction provides a shape function for node-centered
   quantities with shape functions evaluated in an element supported by
-  nodes. The node ids serve as the dof ids for this shape functions. A
+  nodes. The node ids serve as the dof ids for these shape functions. A
   corresponding DOF vector indexed via node ids should be produced to match
-  this shape function.
+  this shape function. STKMeshDOFVector provides services to construct these
+  vectors.
 */
 //---------------------------------------------------------------------------//
 class STKMeshNodalShapeFunction : public EntityShapeFunction
