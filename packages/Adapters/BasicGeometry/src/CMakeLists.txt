@@ -16,8 +16,10 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  DTK_BasicEntityPredicates.hpp
   DTK_BasicEntitySet.hpp
   DTK_BasicGeometryEntity.hpp
+  DTK_BasicGeometryManager.hpp
   DTK_EntityCenteredDOFVector.hpp
   DTK_EntityCenteredDOFVector_impl.hpp
   DTK_EntityCenteredShapeFunction.hpp
@@ -33,8 +35,10 @@ APPEND_SET(HEADERS
   ) 
 
 APPEND_SET(SOURCES
+  DTK_BasicEntityPredicates.cpp
   DTK_BasicEntitySet.cpp
   DTK_BasicGeometryEntity.cpp
+  DTK_BasicGeometryManager.cpp
   DTK_EntityCenteredShapeFunction.cpp
   DTK_BasicGeometryEntityImpl.cpp
   DTK_BasicGeometryExtraData.cpp
@@ -56,9 +60,3 @@ TRIBITS_ADD_LIBRARY(
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )
-
-INSTALL(FILES 
-  ${HEADERS} 
-  DESTINATION 
-  ${CMAKE_INSTALL_PREFIX}/include/
-)

@@ -15,9 +15,9 @@
 #include <cassert>
 
 #include <DTK_FunctionSpace.hpp>
-#include <DTK_BasicEntitySet.hpp>
-#include <DTK_BasicGeometryLocalMap.hpp>
-#include <DTK_EntityCenteredShapeFunction.hpp>
+#include <DTK_EntitySet.hpp>
+#include <DTK_EntityLocalMap.hpp>
+#include <DTK_EntityShapeFunction.hpp>
 #include <DTK_EntitySelector.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -36,12 +36,10 @@ TEUCHOS_UNIT_TEST( FunctionSpace, space_test )
 {
     using namespace DataTransferKit;
 
-    Teuchos::RCP<EntitySet> entity_set = Teuchos::rcp(
-	new BasicEntitySet(Teuchos::DefaultComm<int>::getComm(), 1) );
-    Teuchos::RCP<EntityLocalMap> local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    Teuchos::RCP<EntitySet> entity_set = Teuchos::rcp( new EntitySet() );
+    Teuchos::RCP<EntityLocalMap> local_map = Teuchos::rcp( new EntityLocalMap() );
     Teuchos::RCP<EntityShapeFunction> shape_function =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
+	Teuchos::rcp( new EntityShapeFunction() );
     Teuchos::RCP<EntitySelector> selector =
 	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
     FunctionSpace function_space( entity_set, selector, local_map, shape_function );

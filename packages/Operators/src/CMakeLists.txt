@@ -20,22 +20,14 @@ APPEND_SET(HEADERS
   DTK_CoarseLocalSearch.hpp
   DTK_ConsistentInterpolationOperator.hpp
   DTK_ConsistentInterpolationOperator_impl.hpp
-  DTK_EntityPredicates.hpp
-  DTK_EntitySelector.hpp
   DTK_FineLocalSearch.hpp
-  DTK_FunctionSpace.hpp
-  DTK_MapOperator.hpp
-  DTK_MapOperator_impl.hpp
   DTK_ParallelSearch.hpp
   ) 
 
 APPEND_SET(SOURCES
   DTK_CoarseGlobalSearch.cpp
   DTK_CoarseLocalSearch.cpp
-  DTK_EntityPredicates.cpp
-  DTK_EntitySelector.cpp
   DTK_FineLocalSearch.cpp
-  DTK_FunctionSpace.cpp
   DTK_ParallelSearch.cpp
   )
 
@@ -48,9 +40,3 @@ TRIBITS_ADD_LIBRARY(
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )
-
-INSTALL(FILES 
-  ${HEADERS} 
-  DESTINATION 
-  ${CMAKE_INSTALL_PREFIX}/include/
-)

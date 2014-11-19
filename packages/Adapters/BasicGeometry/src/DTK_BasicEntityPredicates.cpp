@@ -32,102 +32,64 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityPredicates.hpp
+ * \brief DTK_BasicEntityPredicates.cpp
  * \author Stuart R. Slattery
  * \brief Basic entity predicates.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYPREDICATES_HPP
-#define DTK_ENTITYPREDICATES_HPP
-
-#include <functional>
-
-#include "DTK_Types.hpp"
-#include "DTK_Entity.hpp"
-
-#include <Teuchos_Array.hpp>
+#include "DTK_BasicEntityPredicates.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*!
-  \class SelectAllPredicate
-  \brief Predicates for selecting all entities.
-*/
-class SelectAllPredicate
-{
-  public:
+// Block predicate.
+bool BlockPredicate::operator()( Entity entity ) 
+{ 
+    bool found_in_block = false;
+    Teuchos::Array<int>::const_iterator block_it;
+    for ( block_it = d_block_ids.begin();
+	  block_it != d_block_ids.end();
+	  ++block_it )
+    {
+	if ( entity.inBlock(*block_it) )
+	{
+	    found_in_block = true;
+	    break;
+	}
+    }
+    return found_in_block;
+}
 
-    SelectAllPredicate()
-    { /* ... */ }
-
-    ~SelectAllPredicate() { /* ... */ }
-
-    bool operator()( Entity entity ) { return true; }
-
-    std::function<bool(Entity)> getFunction() const
-    { return std::function<bool(Entity)>(*this); }
-};
-
-//---------------------------------------------------------------------------//
-/*!
-  \class BlockPredicate
-  \brief Predicates for selecting entities in a block.
-*/
-class BlockPredicate
-{
-  public:
-
-    BlockPredicate( const Teuchos::Array<int>& block_ids ) 
-	: d_block_ids( block_ids )
-    { /* ... */ }
-
-    ~BlockPredicate() { /* ... */ }
-
-    bool operator()( Entity entity );
-
-    std::function<bool(Entity)> getFunction() const;
-
-  private:
-
-    // Blocks
-    Teuchos::Array<int> d_block_ids;
-};
+std::function<bool(Entity)> BlockPredicate::getFunction() const
+{ return std::function<bool(Entity)>(*this); }
 
 //---------------------------------------------------------------------------//
-/*!
-  \class BoundaryPredicate
-  \brief Predicates for selecting entities on a boundary.
-*/
-class BoundaryPredicate
-{
-  public:
+// Boundary predicate.
+bool BoundaryPredicate::operator()( Entity entity ) 
+{ 
+    bool found_on_boundary = false;
+    Teuchos::Array<int>::const_iterator boundary_it;
+    for ( boundary_it = d_boundary_ids.begin();
+	  boundary_it != d_boundary_ids.end();
+	  ++boundary_it )
+    {
+	if ( entity.onBoundary(*boundary_it) )
+	{
+	    found_on_boundary = true;
+	    break;
+	}
+    }
+    return found_on_boundary;
+}
 
-    BoundaryPredicate( const Teuchos::Array<int>& boundary_ids ) 
-	: d_boundary_ids( boundary_ids )
-    { /* ... */ }
-
-    ~BoundaryPredicate() { /* ... */ }
-
-    bool operator()( Entity entity );
-
-    std::function<bool(Entity)> getFunction() const;
-
-  private:
-
-    // Boundaries.
-    Teuchos::Array<int> d_boundary_ids;
-};
+std::function<bool(Entity)> BoundaryPredicate::getFunction() const
+{ return std::function<bool(Entity)>(*this); }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_ENTITYPREDICATES_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_EntityPredicates.hpp
+// end DTK_BasicEntityPredicates.cpp
 //---------------------------------------------------------------------------//

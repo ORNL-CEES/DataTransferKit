@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 /*! 
- * \file tstEntityPredicates.cpp
+ * \file tstBasicEntityPredicates.cpp
  * \author Stuart R. Slattery
- * \brief EntityPredicates unit tests.
+ * \brief BasicEntityPredicates unit tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_EntityPredicates.hpp>
+#include <DTK_BasicEntityPredicates.hpp>
 #include <DTK_PredicateComposition.hpp>
 #include <DTK_Point.hpp>
 
@@ -58,8 +58,8 @@ TEUCHOS_UNIT_TEST( BlockPredicate, block_predicate_test )
     pred_3[0] = 1;
     pred_3[1] = 2;
     BlockPredicate block_pred_3( pred_3 );
-    TEST_ASSERT( !block_pred_3(p1) );
-    TEST_ASSERT( !block_pred_3(p2) );
+    TEST_ASSERT( block_pred_3(p1) );
+    TEST_ASSERT( block_pred_3(p2) );
 
     std::function<bool(Entity)> block_pred_4 =
 	PredicateComposition::And( block_pred_1.getFunction(), 
@@ -103,8 +103,8 @@ TEUCHOS_UNIT_TEST( BoundPredicate, bound_predicate_test )
     pred_3[0] = 1;
     pred_3[1] = 2;
     BoundaryPredicate bound_pred_3( pred_3 );
-    TEST_ASSERT( !bound_pred_3(p1) );
-    TEST_ASSERT( !bound_pred_3(p2) );
+    TEST_ASSERT( bound_pred_3(p1) );
+    TEST_ASSERT( bound_pred_3(p2) );
 
     std::function<bool(Entity)> bound_pred_4 =
 	PredicateComposition::And( bound_pred_1.getFunction(),
@@ -120,5 +120,5 @@ TEUCHOS_UNIT_TEST( BoundPredicate, bound_predicate_test )
 }
 
 //---------------------------------------------------------------------------//
-// end tstEntityPredicates.cpp
+// end tstBasicEntityPredicates.cpp
 //---------------------------------------------------------------------------//

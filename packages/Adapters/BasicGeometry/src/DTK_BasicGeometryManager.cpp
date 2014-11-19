@@ -32,126 +32,105 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshManager.cpp
+ * \brief DTK_BasicGeometryManager.cpp
  * \author Stuart R. Slattery
- * \brief High-level manager for STK mesh.
+ * \brief High-level manager for basic geometries.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_STKMeshManager.hpp"
-#include "DTK_STKMeshEntityPredicates.hpp"
-#include "DTK_STKMeshNodalShapeFunction.hpp"
-#include "DTK_STKMeshEntitySet.hpp"
-#include "DTK_STKMeshEntityLocalMap.hpp"
+#include "DTK_BasicEntityPredicates.hpp"
+#include "DTK_BasicGeometryManager.hpp"
+#include "DTK_BasicEntitySet.hpp"
+#include "DTK_BasicGeometryLocalMap.hpp"
+#include "DTK_EntityCenteredShapeFunction.hpp"
+#include "DTK_PredicateComposition.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 //! Default constructor.
-STKMeshManager::STKMeshManager(
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-    const EntityType entity_type,
-    const BasisType basis_type )
+BasicGeometryManager::BasicGeometryManager(
+    const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+    const int physical_dimension,
+    const EntityType entity_type )
 {
     Teuchos::RCP<EntitySelector> entity_selector = 
 	Teuchos::rcp( new EntitySelector(entity_type) );
-
-    createFunctionSpace( bulk_data, basis_type, entity_selector );
-
+    Teuchos::Array<Entity> entities(0);
+    createFunctionSpace( comm, physical_dimension, entities, entity_selector );
     DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
 //---------------------------------------------------------------------------//
-//! Part name constructor.
-STKMeshManager::STKMeshManager(
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-    const Teuchos::Array<std::string>& part_names,
+//! Entity constructor.
+BasicGeometryManager::BasicGeometryManager(
+    const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+    const int physical_dimension,
     const EntityType entity_type,
-    const BasisType basis_type )
+    const Teuchos::ArrayView<Entity>& entities )
 {
-    STKPartNamePredicate pred( part_names, bulk_data );
-    Teuchos::RCP<EntitySelector> entity_selector =
-	Teuchos::rcp( new EntitySelector(entity_type,pred.getFunction()) );
-
-    createFunctionSpace( bulk_data, basis_type, entity_selector );
-
+    Teuchos::RCP<EntitySelector> entity_selector = 
+	Teuchos::rcp( new EntitySelector(entity_type) );
+    createFunctionSpace( comm, physical_dimension, entities, entity_selector );
     DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
 //---------------------------------------------------------------------------//
-//! Part vector constructor.
-STKMeshManager::STKMeshManager(
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-    const stk::mesh::PartVector& parts,
+//! Predicate constructor.
+BasicGeometryManager::BasicGeometryManager(
+    const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+    const int physical_dimension,
     const EntityType entity_type,
-    const BasisType basis_type )
+    const Teuchos::ArrayView<Entity>& entities,
+    const Teuchos::ArrayView<int>& block_ids,
+    const Teuchos::ArrayView<int>& boundary_ids )
 {
-    STKPartVectorPredicate pred( parts );
-    Teuchos::RCP<EntitySelector> entity_selector =
-	Teuchos::rcp( new EntitySelector(entity_type,pred.getFunction()) );
-
-    createFunctionSpace( bulk_data, basis_type, entity_selector );
-
-    DTK_ENSURE( Teuchos::nonnull(d_function_space) );
-}
-
-//---------------------------------------------------------------------------//
-//! Selector constructor.
-STKMeshManager::STKMeshManager(
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-    const stk::mesh::Selector& selector,
-    const EntityType entity_type,
-    const BasisType basis_type )
-{
-    STKSelectorPredicate pred( selector );
-    Teuchos::RCP<EntitySelector> entity_selector =
-	Teuchos::rcp( new EntitySelector(entity_type,pred.getFunction()) );
-
-    createFunctionSpace( bulk_data, basis_type, entity_selector );
-
+    Teuchos::Array<int> block_array(block_ids);
+    Teuchos::Array<int> boundary_array(boundary_ids);
+    BlockPredicate block_pred( block_array );
+    BoundaryPredicate boundary_pred( boundary_array );
+    std::function<bool(Entity)> pred = 
+	PredicateComposition::Or( block_pred.getFunction(),
+				  boundary_pred.getFunction() );
+    Teuchos::RCP<EntitySelector> entity_selector = 
+	Teuchos::rcp( new EntitySelector(entity_type,pred) );
+    createFunctionSpace( comm, physical_dimension, entities, entity_selector );
     DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
 //---------------------------------------------------------------------------//
 // Destructor.
-STKMeshManager::~STKMeshManager()
+BasicGeometryManager::~BasicGeometryManager()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Get the function space over which the mesh and its fields are defined. 
-Teuchos::RCP<FunctionSpace> STKMeshManager::functionSpace() const
+Teuchos::RCP<FunctionSpace> BasicGeometryManager::functionSpace() const
 {
     return d_function_space;
 }
 
 //---------------------------------------------------------------------------//
 // Create the function space.
-void STKMeshManager::createFunctionSpace( 
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-    const BasisType basis_type,
-    const Teuchos::RCP<EntitySelector>& entity_selector )
+void BasicGeometryManager::createFunctionSpace( 
+	const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+	const int physical_dimension, 
+	const Teuchos::ArrayView<Entity>& entities,
+	const Teuchos::RCP<EntitySelector>& entity_selector )
 {
-    Teuchos::RCP<EntitySet> entity_set = 
-	Teuchos::rcp( new STKMeshEntitySet(bulk_data) );
+    Teuchos::RCP<BasicEntitySet> entity_set = 
+	Teuchos::rcp( new BasicEntitySet(comm,physical_dimension) );
+    for ( Entity e : entities )
+    {
+	entity_set->addEntity( e );
+    }
     
     Teuchos::RCP<EntityLocalMap> local_map =
-	Teuchos::rcp( new STKMeshEntityLocalMap(bulk_data) );
+	Teuchos::rcp( new BasicGeometryLocalMap() );
 
-    Teuchos::RCP<EntityShapeFunction> shape_function;
-    switch( basis_type )
-    {
-	case BASIS_TYPE_GRADIENT:
-	    shape_function = 
-		Teuchos::rcp( new STKMeshNodalShapeFunction(bulk_data) );
-	    break;
-
-	default:
-	    bool bad_basis_type = true;
-	    DTK_INSIST( !bad_basis_type );
-	    break;
-    }
-    DTK_CHECK( Teuchos::nonnull(shape_function) );
+    Teuchos::RCP<EntityShapeFunction> shape_function =
+	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     d_function_space = Teuchos::rcp( 
 	new FunctionSpace(entity_set,entity_selector,local_map,shape_function) );
@@ -162,5 +141,5 @@ void STKMeshManager::createFunctionSpace(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshManager.cpp
+// end DTK_BasicGeometryManager.cpp
 //---------------------------------------------------------------------------//

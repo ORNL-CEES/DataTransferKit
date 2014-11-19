@@ -16,7 +16,6 @@
 
 #include <DTK_STKMeshEntitySet.hpp>
 #include <DTK_STKMeshEntityExtraData.hpp>
-#include <DTK_EntityPredicates.hpp>
 #include <DTK_EntitySet.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -161,7 +160,8 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, hex_8_test )
     TEST_EQUALITY( space_dim, entity_set->physicalDimension() );
 
     // Make an iterator for the hex.
-    DataTransferKit::SelectAllPredicate all_pred;
+    std::function<bool(DataTransferKit::Entity)> all_pred = 
+	[=] (DataTransferKit::Entity e){return true;};
     DataTransferKit::EntityIterator volume_iterator = 
 	entity_set->entityIterator( DataTransferKit::ENTITY_TYPE_VOLUME, all_pred );
 

@@ -11,28 +11,38 @@ INCLUDE(TribitsLibraryMacros)
 SET(HEADERS "")
 SET(SOURCES "")
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
-
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
-
+SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/Client)
 APPEND_SET(HEADERS
-  DTK_Entity.hpp
-  DTK_EntityExtraData.hpp
-  DTK_EntityImpl.hpp
-  DTK_EntityIterator.hpp
-  DTK_EntityLocalMap.hpp
-  DTK_EntitySet.hpp
-  DTK_EntityShapeFunction.hpp
-  DTK_Types.hpp
+  ${DIR}/DTK_Entity.hpp
+  ${DIR}/DTK_EntityExtraData.hpp
+  ${DIR}/DTK_EntityImpl.hpp
+  ${DIR}/DTK_EntityIterator.hpp
+  ${DIR}/DTK_EntityLocalMap.hpp
+  ${DIR}/DTK_EntitySet.hpp
+  ${DIR}/DTK_EntityShapeFunction.hpp
+  ${DIR}/DTK_Types.hpp
   ) 
 
 APPEND_SET(SOURCES
-  DTK_Entity.cpp
-  DTK_EntityImpl.cpp
-  DTK_EntityIterator.cpp
-  DTK_EntityLocalMap.cpp
-  DTK_EntitySet.cpp
-  DTK_EntityShapeFunction.cpp
+  ${DIR}/DTK_Entity.cpp
+  ${DIR}/DTK_EntityImpl.cpp
+  ${DIR}/DTK_EntityIterator.cpp
+  ${DIR}/DTK_EntityLocalMap.cpp
+  ${DIR}/DTK_EntitySet.cpp
+  ${DIR}/DTK_EntityShapeFunction.cpp
+  )
+
+SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/Operator)
+APPEND_SET(HEADERS
+  ${DIR}/DTK_EntitySelector.hpp
+  ${DIR}/DTK_FunctionSpace.hpp
+  ${DIR}/DTK_MapOperator.hpp
+  ${DIR}/DTK_MapOperator_impl.hpp
+  ) 
+
+APPEND_SET(SOURCES
+  ${DIR}/DTK_EntitySelector.cpp
+  ${DIR}/DTK_FunctionSpace.cpp
   )
 
 #
@@ -44,9 +54,3 @@ TRIBITS_ADD_LIBRARY(
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )
-
-INSTALL(FILES 
-  ${HEADERS} 
-  DESTINATION 
-  ${CMAKE_INSTALL_PREFIX}/include/
-)

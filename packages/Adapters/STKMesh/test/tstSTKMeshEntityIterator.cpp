@@ -17,8 +17,7 @@
 #include <DTK_STKMeshEntityIterator.hpp>
 #include <DTK_STKMeshEntityIteratorRange.hpp>
 #include <DTK_STKMeshEntityExtraData.hpp>
-#include <DTK_EntityPredicates.hpp>
-#include <DTK_EntitySet.hpp>
+#include <DTK_STKMeshEntityPredicates.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -35,6 +34,7 @@
 #include <stk_mesh/base/BulkData.hpp>
 #include <stk_mesh/base/FieldBase.hpp>
 #include <stk_mesh/base/Field.hpp>
+#include <stk_mesh/base/Selector.hpp>
 #include <stk_mesh/base/CoordinateSystems.hpp>
 #include <stk_topology/topology.hpp>
 
@@ -155,13 +155,14 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     std::vector<stk::mesh::Entity> hex_entities( num_hex, hex_entity );
     
     // Make an iterator for the hex.
-    DataTransferKit::SelectAllPredicate all_pred;
+    std::function<bool(DataTransferKit::Entity)> all_pred = 
+	[=] (DataTransferKit::Entity e){return true;};
     Teuchos::RCP<DataTransferKit::STKMeshEntityIteratorRange> iterator_range =
 	Teuchos::rcp( new DataTransferKit::STKMeshEntityIteratorRange() );
     iterator_range->d_stk_entities = hex_entities;
     DataTransferKit::EntityIterator entity_iterator = 
-	DataTransferKit::STKMeshEntityIterator( 
-	    iterator_range, bulk_data, all_pred.getFunction() );
+	DataTransferKit::STKMeshEntityIterator(
+	    iterator_range, bulk_data, all_pred );
 
     // Test the entity iterator.
     TEST_EQUALITY( entity_iterator.size(), num_hex );
@@ -228,14 +229,16 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     TEST_ASSERT( entity_iterator == entity_iterator.end() );
 
     // Make an iterator with a part 1 predicate.
-    DataTransferKit::BlockPredicate part_1_pred( Teuchos::Array<int>(1,part_1_id) );
+    stk::mesh::Selector select_1( part_1 );
+    DataTransferKit::STKSelectorPredicate part_1_pred( select_1 );
     DataTransferKit::EntityIterator part_1_iterator =
 	DataTransferKit::STKMeshEntityIterator(
 	    iterator_range, bulk_data, part_1_pred.getFunction() );
     TEST_EQUALITY( part_1_iterator.size(), num_hex );
 
     // Make an iterator with a part 2 predicate.
-    DataTransferKit::BlockPredicate part_2_pred( Teuchos::Array<int>(1,part_2_id) );
+    stk::mesh::Selector select_2( part_2 );
+    DataTransferKit::STKSelectorPredicate part_2_pred( select_2 );
     DataTransferKit::EntityIterator part_2_iterator =
 	DataTransferKit::STKMeshEntityIterator(
 	    iterator_range, bulk_data, part_2_pred.getFunction() );

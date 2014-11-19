@@ -15,9 +15,6 @@
 #include <cassert>
 
 #include <DTK_EntitySelector.hpp>
-#include <DTK_EntityPredicates.hpp>
-#include <DTK_PredicateComposition.hpp>
-#include <DTK_Point.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -35,15 +32,8 @@ TEUCHOS_UNIT_TEST( EntitySelector, selector_test )
 {
     using namespace DataTransferKit;
 
-    Teuchos::Array<double> coords1(1,0.0);
-    Teuchos::Array<int> blocks1(0);
-    Teuchos::Array<int> boundaries1(0);
-    Entity p1 = Point( 0, 0, coords1, blocks1, boundaries1 );
-
-    Teuchos::Array<double> coords2(2,0.0);
-    Teuchos::Array<int> blocks2(0);
-    Teuchos::Array<int> boundaries2(0);
-    Entity p2 = Point( 0, 0, coords2, blocks2, boundaries2 );
+    Entity p1;
+    Entity p2;
 
     EntitySelector select1( ENTITY_TYPE_NODE );
     TEST_EQUALITY( ENTITY_TYPE_NODE, select1.entityType() );

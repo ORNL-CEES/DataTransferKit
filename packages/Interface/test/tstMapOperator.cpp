@@ -16,10 +16,10 @@
 
 #include <DTK_MapOperator.hpp>
 #include <DTK_FunctionSpace.hpp>
-#include <DTK_BasicEntitySet.hpp>
-#include <DTK_BasicGeometryLocalMap.hpp>
+#include <DTK_EntitySet.hpp>
+#include <DTK_EntityLocalMap.hpp>
 #include <DTK_EntitySelector.hpp>
-#include <DTK_EntityCenteredShapeFunction.hpp>
+#include <DTK_EntityShapeFunction.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -87,8 +87,8 @@ createDOFVector(
     int num_vec )
 {
     Teuchos::RCP<const Tpetra::Map<int,std::size_t> > map = 
-	Tpetra::createUniformContigMap<int,std::size_t>( local_size*comm->getSize(),
-						 comm );
+	Tpetra::createUniformContigMap<int,std::size_t>( 
+	    local_size*comm->getSize(), comm );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > vec =
 	Tpetra::createMultiVector<double>( map, num_vec );
     vec->putScalar( val );
@@ -200,13 +200,11 @@ TEUCHOS_UNIT_TEST( MapOperator, apply_test )
     int num_vec = 3;
 
     // Make a function space.
-    Teuchos::RCP<EntitySet> entity_set = Teuchos::rcp(
-	new BasicEntitySet(comm, 1) );
-    Teuchos::RCP<EntityLocalMap> local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    Teuchos::RCP<EntitySet> entity_set = Teuchos::rcp( new EntitySet() );
+    Teuchos::RCP<EntityLocalMap> local_map = Teuchos::rcp( new EntityLocalMap() );
     Teuchos::RCP<EntityShapeFunction> shape_function =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > dof_map = 
+	Teuchos::rcp( new EntityShapeFunction() );
+   Teuchos::RCP<const Tpetra::Map<int,std::size_t> > dof_map = 
 	Tpetra::createUniformContigMap<int,std::size_t>( 
 	    local_size*comm->getSize(), comm );
     Teuchos::RCP<EntitySelector> entity_selector
