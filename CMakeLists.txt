@@ -20,7 +20,8 @@ TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
 ## Set the path to the DTKData directory.
 ##---------------------------------------------------------------------------##
 
-SET( DTKDATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/DTKData" CACHE PATH "" )
+SET( DTK_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/DTKData" CACHE INTERNAL "" )
+MESSAGE("DTK_DATA_DIR = '${DTK_DATA_DIR}'")
 
 ##---------------------------------------------------------------------------##
 ## Do standard postprocessing

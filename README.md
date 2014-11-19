@@ -28,6 +28,10 @@ creating a new issue.
 DEPENDENCIES
 ------------
 
+To use build some examples and tests you will need the DTKData repository
+which can be found [here](https://github.com/ORNL-CEES/DTKData). Simply
+check out the repository into the top level DataTransferKit directory.
+
 The current Trilinos state is required to build DTK. You can check out
 this git public repository
 [here](http://trilinos.sandia.gov/publicRepo/index.html)
