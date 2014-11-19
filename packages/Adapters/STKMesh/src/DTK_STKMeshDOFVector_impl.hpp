@@ -169,7 +169,7 @@ STKMeshDOFVector::createTpetraMultiVectorFromEntitiesAndView(
 {
     int num_entities = entities.size();
     DTK_REQUIRE( num_entities*field_dim == 
-		 Teuchos::as<std::size_t>(dof_data.size()) );
+		 Teuchos::as<int>(dof_data.size()) );
 
     // Extract the entity ids.
     Teuchos::Array<std::size_t> entity_ids( num_entities );
