@@ -52,6 +52,7 @@
 #include <Teuchos_ParameterList.hpp>
 
 #include <Tpetra_MultiVector.hpp>
+#include <Tpetra_CrsMatrix.hpp>
 
 namespace DataTransferKit
 {

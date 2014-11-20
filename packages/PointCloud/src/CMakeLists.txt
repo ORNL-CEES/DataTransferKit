@@ -35,14 +35,16 @@ APPEND_SET(HEADERS
   DTK_PolynomialMatrix.hpp
   DTK_PolynomialMatrix_impl.hpp
   DTK_RadialBasisPolicy.hpp
+  DTK_SplineCoefficientMatrix.hpp
+  DTK_SplineCoefficientMatrix_impl.hpp
+  DTK_SplineEvaluationMatrix.hpp
+  DTK_SplineEvaluationMatrix_impl.hpp
   DTK_SplineInterpolationPairing.hpp
   DTK_SplineInterpolationPairing_impl.hpp
   DTK_SplineInterpolator.hpp
   DTK_SplineInterpolator_impl.hpp
-  DTK_SplineOperatorA.hpp
-  DTK_SplineOperatorA_impl.hpp
-  DTK_SplineOperatorC.hpp
-  DTK_SplineOperatorC_impl.hpp
+  DTK_SplineProlongationOperator.hpp
+  DTK_SplineProlongationOperator_impl.hpp
   DTK_WendlandBasis.hpp
   DTK_WendlandBasis_impl.hpp
   DTK_WuBasis.hpp

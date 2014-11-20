@@ -34,7 +34,7 @@
 /*!
  * \file   DTK_PolynomialMatrix.hpp
  * \author Stuart R. Slattery
- * \brief  Spline transformation operator.
+ * \brief  Polynomial matrix.
  */
 //---------------------------------------------------------------------------//
 

@@ -32,69 +32,54 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_SplineOperatorC.hpp
+ * \file   DTK_SplineProlongationOperator.hpp
  * \author Stuart R. Slattery
- * \brief  Spline interpolation operator.
+ * \brief  Spline transformation operator.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SPLINEOPERATORC_HPP
-#define DTK_SPLINEOPERATORC_HPP
+#ifndef DTK_SPLINEPROLONGATIONOPERATOR_HPP
+#define DTK_SPLINEPROLONGATIONOPERATOR_HPP
 
-#include "DTK_RadialBasisPolicy.hpp"
-#include "DTK_SplineInterpolationPairing.hpp"
-#include "DTK_PolynomialMatrix.hpp"
-
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_ScalarTraits.hpp>
+#include <Teuchos_Comm.hpp>
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_MultiVector.hpp>
-#include <Tpetra_CrsMatrix.hpp>
 #include <Tpetra_Operator.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class SplineOperatorC
- * \brief Sparse spline interpolation operator (the C matrix). C = P^T + M + P
+ * \class SplineProlongationOperator
+ * \brief Prolongation operator for projecting a vector into the extended
+ * spline space.
  */
 //---------------------------------------------------------------------------//
-template<class Basis, class GO, int DIM>
-class SplineOperatorC : public Tpetra::Operator<double,int,GO>
+template<class Scalar,class GO>
+class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,GO>
 {
   public:
 
-    //@{
-    //! Typedefs.
-    typedef RadialBasisPolicy<Basis> BP;
-    //@}
-
     // Constructor.
-    SplineOperatorC(
-	Teuchos::RCP<const Tpetra::Map<int,GO> >& operator_map,
-	const Teuchos::ArrayView<const double>& source_centers,
-	const Teuchos::ArrayView<const GO>& source_center_gids,
-	const Teuchos::ArrayView<const double>& dist_source_centers,
-	const Teuchos::ArrayView<const GO>& dist_source_center_gids,
-	const Teuchos::RCP<SplineInterpolationPairing<DIM> >& source_pairings,
-	const Basis& basis );
+    SplineProlongationOperator( 
+	const int offset,
+	const Teuchos::RCP<const Tpetra::Map<int,GO>& domain_map );
 
     //! Destructor.
-    ~SplineOperatorC()
+    ~SplineProlongationOperator()
     { /* ... */ }
 
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
     Teuchos::RCP<const Tpetra::Map<int,GO> > getDomainMap() const
-    { return d_M->getDomainMap(); }
+    { return d_domain_map; }
 
     //! The Map associated with the range of this operator, which must be
     //! compatible with Y.getMap().
     Teuchos::RCP<const Tpetra::Map<int,GO> > getRangeMap() const
-    { return d_M->getRangeMap(); }
+    { return d_range_map; }
 
     //! \brief Computes the operator-multivector application.
     /*! Loosely, performs \f$Y = \alpha \cdot A^{\textrm{mode}} \cdot X +
@@ -105,25 +90,27 @@ class SplineOperatorC : public Tpetra::Operator<double,int,GO>
         <b>may</b> short-circuit the operator, so that any values in \c X
         (including NaNs) are ignored.
      */
-    void apply (const Tpetra::MultiVector<double,int,GO> &X,
-		Tpetra::MultiVector<double,int,GO> &Y,
+    void apply (const Tpetra::MultiVector<Scalar,int,GO> &X,
+		Tpetra::MultiVector<Scalar,int,GO> &Y,
 		Teuchos::ETransp mode = Teuchos::NO_TRANS,
-		double alpha = Teuchos::ScalarTraits<double>::one(),
-		double beta = Teuchos::ScalarTraits<double>::zero()) const;
+		Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
+		Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const;
 
     /// \brief Whether this operator supports applying the transpose or
     /// conjugate transpose.
     bool hasTransposeApply() const
-    { return true; }
+    { return false; }
 
   private:
 
-    // The M matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > d_M;
+    // Prolongation offset.
+    int d_offset;
 
-    // The P^T matrix.
-    Teuchos::RCP<PolynomialMatrix<GO> > d_P_trans;
+    // Domain map.
+    Teuchos::RCP<const Tpetra::Map<int,GO> > d_domain_map;
 
+    // Range map.
+    Teuchos::RCP<const Tpetra::Map<int,GO> > d_range_map;
 };
 
 //---------------------------------------------------------------------------//
@@ -134,13 +121,13 @@ class SplineOperatorC : public Tpetra::Operator<double,int,GO>
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_SplineOperatorC_impl.hpp"
+#include "DTK_SplineProlongationOperator_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_SPLINEOPERATORC_HPP
+#endif // end DTK_SPLINEPROLONGATIONOPERATOR_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_SplineOperatorC.hpp
+// end DTK_SplineProlongationOperator.hpp
 //---------------------------------------------------------------------------//
 

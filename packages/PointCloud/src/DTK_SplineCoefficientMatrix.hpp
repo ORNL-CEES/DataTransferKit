@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_SplineOperatorA.hpp
+ * \file   DTK_SplineCoefficientMatrix.hpp
  * \author Stuart R. Slattery
- * \brief  Spline transformation operator.
+ * \brief  Spline interpolation coefficient matrix.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SPLINEOPERATORA_HPP
-#define DTK_SPLINEOPERATORA_HPP
+#ifndef DTK_SPLINECOEFFICIENTMATRIX_HPP
+#define DTK_SPLINECOEFFICIENTMATRIX_HPP
 
 #include "DTK_RadialBasisPolicy.hpp"
 #include "DTK_SplineInterpolationPairing.hpp"
@@ -47,6 +47,7 @@
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_ScalarTraits.hpp>
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_MultiVector.hpp>
@@ -57,12 +58,12 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class SplineOperatorA
- * \brief Sparse spline transformation operator (the A matrix). A = N + Q
+ * \class SplineCoefficientMatrix
+ * \brief Sparse spline coefficient matrix.
  */
 //---------------------------------------------------------------------------//
 template<class Basis, class GO, int DIM>
-class SplineOperatorA : public Tpetra::Operator<double,int,GO>
+class SplineCoefficientMatrix : public Tpetra::Operator<double,int,GO>
 {
   public:
 
@@ -72,29 +73,28 @@ class SplineOperatorA : public Tpetra::Operator<double,int,GO>
     //@}
 
     // Constructor.
-    SplineOperatorA(
-	Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map,
-	Teuchos::RCP<const Tpetra::Map<int,GO> >& range_map,
-	const Teuchos::ArrayView<const double>& target_centers,
-	const Teuchos::ArrayView<const GO>& target_center_gids,
+    SplineCoefficientMatrix(
+	Teuchos::RCP<const Tpetra::Map<int,GO> >& operator_map,
+	const Teuchos::ArrayView<const double>& source_centers,
+	const Teuchos::ArrayView<const GO>& source_center_gids,
 	const Teuchos::ArrayView<const double>& dist_source_centers,
 	const Teuchos::ArrayView<const GO>& dist_source_center_gids,
-	const Teuchos::RCP<SplineInterpolationPairing<DIM> >& target_pairings,
+	const Teuchos::RCP<SplineInterpolationPairing<DIM> >& source_pairings,
 	const Basis& basis );
 
     //! Destructor.
-    ~SplineOperatorA()
+    ~SplineCoefficientMatrix()
     { /* ... */ }
 
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
     Teuchos::RCP<const Tpetra::Map<int,GO> > getDomainMap() const
-    { return d_N->getDomainMap(); }
+    { return d_M->getDomainMap(); }
 
     //! The Map associated with the range of this operator, which must be
     //! compatible with Y.getMap().
     Teuchos::RCP<const Tpetra::Map<int,GO> > getRangeMap() const
-    { return d_N->getRangeMap(); }
+    { return d_M->getRangeMap(); }
 
     //! \brief Computes the operator-multivector application.
     /*! Loosely, performs \f$Y = \alpha \cdot A^{\textrm{mode}} \cdot X +
@@ -114,15 +114,16 @@ class SplineOperatorA : public Tpetra::Operator<double,int,GO>
     /// \brief Whether this operator supports applying the transpose or
     /// conjugate transpose.
     bool hasTransposeApply() const
-    { return false; }
+    { return true; }
 
   private:
 
-    // The N matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > d_N;
+    // The M matrix.
+    Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > d_M;
 
-    // The Q matrix.
-    Teuchos::RCP<PolynomialMatrix<GO> > d_Q;
+    // The P^T matrix.
+    Teuchos::RCP<PolynomialMatrix<GO> > d_P_trans;
+
 };
 
 //---------------------------------------------------------------------------//
@@ -133,13 +134,13 @@ class SplineOperatorA : public Tpetra::Operator<double,int,GO>
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_SplineOperatorA_impl.hpp"
+#include "DTK_SplineCoefficientMatrix_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_SPLINEOPERATORA_HPP
+#endif // end DTK_SPLINECOEFFICIENTMATRIX_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_SplineOperatorA.hpp
+// end DTK_SplineCoefficientMatrix.hpp
 //---------------------------------------------------------------------------//
 

@@ -32,101 +32,97 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_SplineInterpolator.hpp
+ * \file   DTK_SplineEvaluationMatrix.hpp
  * \author Stuart R. Slattery
- * \brief Parallel spline interpolator.
+ * \brief  Spline transformation operator.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SPLINEINTERPOLATOR_HPP
-#define DTK_SPLINEINTERPOLATOR_HPP
+#ifndef DTK_SPLINEEVALUATIONMATRIX_HPP
+#define DTK_SPLINEEVALUATIONMATRIX_HPP
 
-#include "DTK_MapOperator.hpp"
 #include "DTK_RadialBasisPolicy.hpp"
+#include "DTK_SplineInterpolationPairing.hpp"
+#include "DTK_PolynomialMatrix.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_ArrayView.hpp>
-#include <Teuchos_Array.hpp>
+#include <Teuchos_RCP.hpp>
 
-#include <Tpetra_Operator.hpp>
+#include <Tpetra_Map.hpp>
 #include <Tpetra_MultiVector.hpp>
+#include <Tpetra_CrsMatrix.hpp>
+#include <Tpetra_Operator.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class SplineInterpolator
- * \brief Parallel spline interpolator.
- *
- * The SplineInterpolator is the top-level driver for parallel interpolation
- * problems.
+ * \class SplineEvaluationMatrix
+ * \brief Sparse spline transformation operator (the A matrix). A = N + Q
  */
 //---------------------------------------------------------------------------//
-template<class Scalar,class Basis,int DIM>
-class SplineInterpolator : public MapOperator<Scalar>
+template<class Basis, class GO, int DIM>
+class SplineEvaluationMatrix : public Tpetra::Operator<double,int,GO>
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef MapOperator<Scalar> Base;
-    typedef typename Base::Root Root;
-    typedef typename Root::local_ordinal_type LO;
-    typedef typename Root::global_ordinal_type GO;
     typedef RadialBasisPolicy<Basis> BP;
     //@}
 
     // Constructor.
-    SplineInterpolationOperator( const double radius );
+    SplineEvaluationMatrix(
+	Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map,
+	Teuchos::RCP<const Tpetra::Map<int,GO> >& range_map,
+	const Teuchos::ArrayView<const double>& target_centers,
+	const Teuchos::ArrayView<const GO>& target_center_gids,
+	const Teuchos::ArrayView<const double>& dist_source_centers,
+	const Teuchos::ArrayView<const GO>& dist_source_center_gids,
+	const Teuchos::RCP<SplineInterpolationPairing<DIM> >& target_pairings,
+	const Basis& basis );
 
     //! Destructor.
-    ~SplineInterpolationOperator();
+    ~SplineEvaluationMatrix()
+    { /* ... */ }
 
-    /*
-     * \brief Setup the map operator from a domain entity set and a range
-     * entity set.
-     * \param domain_map Parallel map for domain vectors this map should be
-     * compatible with.
-     * \param domain_function The function that contains the data that will be
-     * sent to the range. Must always be nonnull but the pointers it contains
-     * may be null of no entities are on-process.
-     * \param range_map Parallel map for range vectors this map should be
-     * compatible with.
-     * \param range_space The function that will receive the data from the
-     * domain. Must always be nonnull but the pointers it contains to entity
-     * data may be null of no entities are on-process.
-     * \param parameters Parameters for the setup.
+    //! The Map associated with the domain of this operator, which must be
+    //! compatible with X.getMap().
+    Teuchos::RCP<const Tpetra::Map<int,GO> > getDomainMap() const
+    { return d_N->getDomainMap(); }
+
+    //! The Map associated with the range of this operator, which must be
+    //! compatible with Y.getMap().
+    Teuchos::RCP<const Tpetra::Map<int,GO> > getRangeMap() const
+    { return d_N->getRangeMap(); }
+
+    //! \brief Computes the operator-multivector application.
+    /*! Loosely, performs \f$Y = \alpha \cdot A^{\textrm{mode}} \cdot X +
+        \beta \cdot Y\f$. However, the details of operation vary according to
+        the values of \c alpha and \c beta. Specifically - if <tt>beta ==
+        0</tt>, apply() <b>must</b> overwrite \c Y, so that any values in \c Y
+        (including NaNs) are ignored.  - if <tt>alpha == 0</tt>, apply()
+        <b>may</b> short-circuit the operator, so that any values in \c X
+        (including NaNs) are ignored.
      */
-    void setup( const Teuchos::RCP<const typename Base::TpetraMap>& domain_map,
-		const Teuchos::RCP<FunctionSpace>& domain_space,
-		const Teuchos::RCP<const typename Base::TpetraMap>& range_map,
-		const Teuchos::RCP<FunctionSpace>& range_space,
-		const Teuchos::RCP<Teuchos::ParameterList>& parameters );
+    void apply (const Tpetra::MultiVector<double,int,GO> &X,
+		Tpetra::MultiVector<double,int,GO> &Y,
+		Teuchos::ETransp mode = Teuchos::NO_TRANS,
+		double alpha = Teuchos::ScalarTraits<double>::one(),
+		double beta = Teuchos::ScalarTraits<double>::zero()) const;
+
+    /// \brief Whether this operator supports applying the transpose or
+    /// conjugate transpose.
+    bool hasTransposeApply() const
+    { return false; }
 
   private:
 
-    // Support radius.
-    double d_radius;
+    // The N matrix.
+    Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > d_N;
 
-  private:
-
-    // Build the interpolation and transformation operators.
-    void buildOperators(
-	const Teuchos::ArrayView<const double>& source_centers,
-	const Teuchos::ArrayView<const double>& target_centers,
-	const double radius );
-
-  private:
-
-    // Parallel communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
-
-    // The C matrix.
-    Teuchos::RCP<Tpetra::Operator<double,int,GO> > d_C;
-
-    // The A matrix.
-    Teuchos::RCP<Tpetra::Operator<double,int,GO> > d_A;
+    // The Q matrix.
+    Teuchos::RCP<PolynomialMatrix<GO> > d_Q;
 };
 
 //---------------------------------------------------------------------------//
@@ -137,13 +133,13 @@ class SplineInterpolator : public MapOperator<Scalar>
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_SplineInterpolator_impl.hpp"
+#include "DTK_SplineEvaluationMatrix_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_SPLINEINTERPOLATOR_HPP
+#endif // end DTK_SPLINEEVALUATIONMATRIX_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_SplineInterpolator.hpp
+// end DTK_SplineEvaluationMatrix.hpp
 //---------------------------------------------------------------------------//
 

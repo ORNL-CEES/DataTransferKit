@@ -44,8 +44,8 @@
 #include "DTK_DBC.hpp"
 #include "DTK_CenterDistributor.hpp"
 #include "DTK_SplineInterpolationPairing.hpp"
-#include "DTK_SplineOperatorC.hpp"
-#include "DTK_SplineOperatorA.hpp"
+#include "DTK_SplineCoefficientMatrix.hpp"
+#include "DTK_SplineEvaluationMatrix.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Ptr.hpp>
@@ -54,9 +54,10 @@
 
 #include <Tpetra_Map.hpp>
 
-#include <BelosPseudoBlockGmresSolMgr.hpp>
-#include <BelosTpetraAdapter.hpp>
-#include <BelosLinearProblem.hpp>
+#include <Thyra_DefaultInverseLinearOp.hpp>
+#include <Thyra_DefaultMultipliedLinearOp.hpp>
+
+#include <Stratimikos_DefaultLinearSolverBuilder.hpp>
 
 namespace DataTransferKit
 {
@@ -264,7 +265,7 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
 
     // Build the interpolation operator.
     d_C = Teuchos::rcp( 
-	new SplineOperatorC<Basis,GO,DIM>( 
+	new SplineCoefficientMatrix<Basis,GO,DIM>( 
 	    source_map,
 	    source_centers, source_gids,
 	    dist_sources, dist_source_gids,
@@ -305,7 +306,7 @@ void SplineInterpolator<Basis,GO,DIM>::buildOperators(
 	target_map->getNodeElementList();
 
     // Build the transformation operator.
-    d_A = Teuchos::rcp( new SplineOperatorA<Basis,GO,DIM>( 
+    d_A = Teuchos::rcp( new SplineEvaluationMatrix<Basis,GO,DIM>( 
 			    target_map, source_map,
 			    target_centers, target_gids,
 			    dist_sources, dist_source_gids,

@@ -4,9 +4,9 @@ SET(LIB_REQUIRED_DEP_PACKAGES
   DataTransferKitUtils
   Teuchos 
   Tpetra
-  Belos
   ThyraCore
   ThyraTpetraWrappers
+  Stratimikos
  )
 
 SET(LIB_OPTIONAL_DEP_PACKAGES)

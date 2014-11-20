@@ -49,9 +49,6 @@
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
 
-#include <Tpetra_CrsMatrix.hpp>
-#include <Tpetra_Map.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//

@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_SplineOperatorC_impl.hpp
+ * \file   DTK_SplineEvaluationMatrix_impl.hpp
  * \author Stuart R. Slattery
- * \brief  Spline interpolation operator.
+ * \brief  Spline transformation operator.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SPLINEOPERATORC_IMPL_HPP
-#define DTK_SPLINEOPERATORC_IMPL_HPP
+#ifndef DTK_SPLINEEVALUATIONMATRIX_IMPL_HPP
+#define DTK_SPLINEEVALUATIONMATRIX_IMPL_HPP
 
 #include "DTK_DBC.hpp"
 #include "DTK_EuclideanDistance.hpp"
@@ -53,115 +53,106 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<class Basis, class GO, int DIM>
-SplineOperatorC<Basis,GO,DIM>::SplineOperatorC(
-    Teuchos::RCP<const Tpetra::Map<int,GO> >& operator_map,
-    const Teuchos::ArrayView<const double>& source_centers,
-    const Teuchos::ArrayView<const GO>& source_center_gids,
+SplineEvaluationMatrix<Basis,GO,DIM>::SplineEvaluationMatrix(
+    Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map,
+    Teuchos::RCP<const Tpetra::Map<int,GO> >& range_map,
+    const Teuchos::ArrayView<const double>& target_centers,
+    const Teuchos::ArrayView<const GO>& target_center_gids,
     const Teuchos::ArrayView<const double>& dist_source_centers,
     const Teuchos::ArrayView<const GO>& dist_source_center_gids,
-    const Teuchos::RCP<SplineInterpolationPairing<DIM> >& source_pairings,
+    const Teuchos::RCP<SplineInterpolationPairing<DIM> >& target_pairings,
     const Basis& basis )
 {
-    DTK_CHECK( 0 == source_centers.size() % DIM );
-    DTK_CHECK( source_centers.size() / DIM == 
-		    source_center_gids.size() );
+    DTK_CHECK( 0 == target_centers.size() % DIM );
+    DTK_CHECK( target_centers.size() / DIM == 
+		    target_center_gids.size() );
     DTK_CHECK( 0 == dist_source_centers.size() % DIM );
     DTK_CHECK( dist_source_centers.size() / DIM == 
 		    dist_source_center_gids.size() );
 
-    // Get the number of source centers.
-    unsigned num_source_centers = source_center_gids.size();
+    // Get the number of target centers.
+    unsigned num_target_centers = target_center_gids.size();
 
-    // Create the P^T matrix.
+    // Create the Q matrix.
     int offset = DIM + 1;
-    unsigned lid_offset = operator_map->getComm()->getRank() ? 0 : offset;
-    Teuchos::RCP<Tpetra::MultiVector<double,int,GO> > P_trans_vec = 
-	Tpetra::createMultiVector<double,int,GO>( operator_map, offset );
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > P_trans_view = 
-	P_trans_vec->get2dViewNonConst();
+    Teuchos::RCP<Tpetra::MultiVector<double,int,GO> > Q_vec = 
+	Tpetra::createMultiVector<double,int,GO>( domain_map, offset );
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > Q_view = 
+	Q_vec->get2dViewNonConst();
     int di = 0; 
-    for ( unsigned i = lid_offset; i < num_source_centers + lid_offset; ++i )
+    for ( unsigned i = 0; i < num_target_centers; ++i )
     {
-	P_trans_view[0][i] = 1.0;
-	di = DIM*(i-lid_offset);
+	Q_view[0][i] = 1.0;
+	di = DIM*i;
 	for ( int d = 0; d < DIM; ++d )
 	{
-	    P_trans_view[d+1][i] = source_centers[di+d];
+	    Q_view[d+1][i] = target_centers[di+d];
 	}
     }
-    d_P_trans =Teuchos::rcp( new PolynomialMatrix<GO>(P_trans_vec) );
+    d_Q = Teuchos::rcp( new PolynomialMatrix<GO>(Q_vec) );
 
-    // Create the M matrix.
-    Teuchos::ArrayRCP<std::size_t> entries_per_row;
-    if ( 0 == operator_map->getComm()->getRank() )
-    {
-	entries_per_row = Teuchos::ArrayRCP<std::size_t>(
-	    num_source_centers + offset, 0 );
-	Teuchos::ArrayRCP<std::size_t> children_per_parent =
-	    source_pairings->childrenPerParent();
-	std::copy( children_per_parent.begin(), children_per_parent.end(),
-		   entries_per_row.begin() + offset );
-    }
-    else
-    {
-	entries_per_row = source_pairings->childrenPerParent();
-    }
-    d_M = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>(
-			    operator_map,
-			    entries_per_row, Tpetra::StaticProfile) );
-    Teuchos::Array<GO> M_indices;
+    // Create the N matrix.
+    d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>( 
+			    domain_map,
+			    target_pairings->childrenPerParent(), 
+			    Tpetra::StaticProfile) );
+    Teuchos::Array<GO> N_indices;
     Teuchos::Array<double> values;
     int dj = 0;
-    Teuchos::ArrayView<const unsigned> source_neighbors;
+    Teuchos::ArrayView<const unsigned> target_neighbors;
     double dist = 0.0;
-    for ( unsigned i = 0; i < num_source_centers; ++i )
+    for ( unsigned i = 0; i < num_target_centers; ++i )
     {
-    	di = DIM*i;
-	source_neighbors = source_pairings->childCenterIds( i );
-	M_indices.resize( source_neighbors.size() );
-	values.resize( source_neighbors.size() );
-    	for ( unsigned j = 0; j < source_neighbors.size(); ++j )
+	di = DIM*i;
+
+	// Get the source points neighboring this target point.
+	target_neighbors = target_pairings->childCenterIds( i );
+	values.resize( target_neighbors.size() );
+	N_indices.resize( target_neighbors.size() );
+
+	// Add the local basis contributions.
+    	for ( unsigned j = 0; j < target_neighbors.size(); ++j )
     	{
-	    dj = DIM*source_neighbors[j];
-	    M_indices[j] = 
-		dist_source_center_gids[ source_neighbors[j] ];
+	    dj = DIM*target_neighbors[j];
+
+	    N_indices[j] = 
+		dist_source_center_gids[ target_neighbors[j] ];
 
 	    dist = EuclideanDistance<DIM>::distance(
-		&source_centers[di], &dist_source_centers[dj] );
+		&target_centers[di], &dist_source_centers[dj] );
 
     	    values[j] = BP::evaluateValue( basis, dist );
     	}
 
-	d_M->insertGlobalValues( source_center_gids[i], M_indices(), values() );
+	d_N->insertGlobalValues( target_center_gids[i], N_indices(), values() );
     }
-    d_M->fillComplete();
+    d_N->fillComplete( range_map, domain_map );
 
-    DTK_ENSURE( d_M->isFillComplete() );
+    DTK_ENSURE( d_N->isFillComplete() );
 }
 
 //---------------------------------------------------------------------------//
-// Apply operation. The operator is symmetric and therefore the transpose
-// apply is the same as the forward apply.
+// Apply operation. 
 template<class Basis, class GO, int DIM>
-void SplineOperatorC<Basis,GO,DIM>::apply(
+void SplineEvaluationMatrix<Basis,GO,DIM>::apply(
     const Tpetra::MultiVector<double,int,GO> &X,
     Tpetra::MultiVector<double,int,GO> &Y,
     Teuchos::ETransp mode,
     double alpha,
     double beta ) const
 {
+    DTK_REQUIRE( Teuchos::NO_TRANS == mode );
+
     // Make a work vector.
-    Tpetra::MultiVector<double,int,GO> work( X );
+    Tpetra::MultiVector<double,int,GO> work( Y );
 
-    // Apply P^T.
-    d_P_trans->apply( X, Y, Teuchos::NO_TRANS, alpha, beta );
+    // Apply Q
+    d_Q->apply( X, Y, Teuchos::NO_TRANS, alpha, beta );
 
-    // Apply P.
-    d_P_trans->apply( X, work, Teuchos::TRANS, alpha, beta );
-    Y.update( 1.0, work, 1.0 );
+    // Apply N.
+    d_N->apply( X, work, Teuchos::NO_TRANS, alpha, beta );
 
-    // Apply M.
-    d_M->apply( X, work, Teuchos::NO_TRANS, alpha, beta );
+    // Update Y.
     Y.update( 1.0, work, 1.0 );
 }
 
@@ -171,8 +162,9 @@ void SplineOperatorC<Basis,GO,DIM>::apply(
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_SPLINEOPERATORC_IMPL_HPP
+#endif // end DTK_SPLINEEVALUATIONMATRIX_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_SplineOperatorC_impl.hpp
+// end DTK_SplineEvaluationMatrix_impl.hpp
 //---------------------------------------------------------------------------//
+
