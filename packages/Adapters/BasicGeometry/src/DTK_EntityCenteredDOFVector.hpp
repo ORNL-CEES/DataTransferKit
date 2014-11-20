@@ -41,6 +41,8 @@
 #ifndef DTK_ENTITYCENTEREDDOFVECTOR_HPP
 #define DTK_ENTITYCENTEREDDOFVECTOR_HPP
 
+#include <DTK_Entity.hpp>
+
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ArrayRCP.hpp>
@@ -79,8 +81,7 @@ class EntityCenteredDOFVector
      * \brief Given a set of entity ids and DOF data bound to the center of
      * those entites, build a Tpetra vector.
      * \param comm The communicator the DOFs are defined over.
-     * \param entity_ids The ids of the entities the DOFs are defined over
-     * (cast as std::size_t instead of EntityId).
+     * \param entities The entities over which the DOFs are defined.
      * \param dof_data Reference counted array of the DOF data for the given
      * entity ids.
      * \param lda Single vector length. Should be the same as the size of
@@ -89,12 +90,11 @@ class EntityCenteredDOFVector
      */
     template<class Scalar>
     static Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
-    createTpetraMultiVectorFromView(
+    createTpetraMultiVectorFromEntitiesAndView(
 	const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-	const Teuchos::ArrayView<const std::size_t>& entity_ids,
-	const Teuchos::ArrayRCP<Scalar>& dof_data,
-	const std::size_t lda,
-	const std::size_t num_vectors );
+	const Teuchos::ArrayView<Entity>& entities,
+	const int field_dim,
+	const Teuchos::ArrayRCP<Scalar>& dof_data );
 };
 
 //---------------------------------------------------------------------------//

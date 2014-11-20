@@ -65,6 +65,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 class BasicGeometryManager
 {
+  public:
 
     /*!
      * \brief Default constructor. Initializes an empty entity set with a

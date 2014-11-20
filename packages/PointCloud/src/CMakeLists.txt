@@ -26,11 +26,11 @@ APPEND_SET(HEADERS
   DTK_EuclideanDistance_impl.hpp
   DTK_LocalMLSProblem.hpp
   DTK_LocalMLSProblem_impl.hpp
+  DTK_MovingLeastSquareReconstructionOperator.hpp
+  DTK_MovingLeastSquareReconstructionOperator_impl.hpp
   DTK_PointCloudInterpolator.hpp
   DTK_PointCloudInterpolatorFactory.hpp
   DTK_PointCloudInterpolatorFactory_impl.hpp
-  DTK_MovingLeastSquare.hpp
-  DTK_MovingLeastSquare_impl.hpp
   DTK_PointCloudDummy.hpp
   DTK_PolynomialMatrix.hpp
   DTK_PolynomialMatrix_impl.hpp

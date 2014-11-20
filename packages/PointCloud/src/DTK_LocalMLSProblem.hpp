@@ -55,7 +55,7 @@ namespace DataTransferKit
  * quadratic polynomials.
  */
 //---------------------------------------------------------------------------//
-template<class Basis, class GO, int DIM>
+template<class Basis,int DIM>
 class LocalMLSProblem
 {
   public:

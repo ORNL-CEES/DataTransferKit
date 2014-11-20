@@ -57,8 +57,8 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<class Basis, class GO, int DIM>
-LocalMLSProblem<Basis,GO,DIM>::LocalMLSProblem( 
+template<class Basis,int DIM>
+LocalMLSProblem<Basis,DIM>::LocalMLSProblem( 
     const Teuchos::ArrayView<const double>& target_center,
     const Teuchos::ArrayView<const unsigned>& source_lids,
     const Teuchos::ArrayView<const double>& source_centers,

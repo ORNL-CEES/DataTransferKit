@@ -50,22 +50,32 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 template<class Scalar>
 Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
-EntityCenteredDOFVector::createTpetraMultiVectorFromView( 
+EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView( 
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-    const Teuchos::ArrayView<const std::size_t>& entity_ids,
-    const Teuchos::ArrayRCP<Scalar>& dof_data,
-    const std::size_t lda,
-    const std::size_t num_vectors )
+    const Teuchos::ArrayView<Entity>& entities,
+    const int field_dim,
+    const Teuchos::ArrayRCP<Scalar>& dof_data )
 {
-    DTK_REQUIRE( lda*num_vectors == Teuchos::as<std::size_t>(dof_data.size()) );
+    std::size_t lda = entities.size();
+    DTK_REQUIRE( lda*field_dim == Teuchos::as<std::size_t>(dof_data.size()) );
 
+    // Extract the entity ids.
+    Teuchos::Array<std::size_t> entity_ids( lda );
+    auto id_it = entity_ids.begin();
+    for ( auto entity_it = entities.begin();
+	  entity_it != entities.end();
+	  ++entity_it, ++id_it )
+    {
+	*id_it = entity_it->id();
+    }
+	  
     // Construct a map.
     Teuchos::RCP<const Tpetra::Map<int,std::size_t> > map =
-	Tpetra::createNonContigMap<int,std::size_t>( entity_ids, comm );
+	Tpetra::createNonContigMap<int,std::size_t>( entity_ids(), comm );
 
     // Build a tpetra multivector.
     return Tpetra::createMultiVectorFromView<Scalar,int,std::size_t>( 
-	    map, dof_data, lda, num_vectors );
+	    map, dof_data, lda, field_dim );
 }
 
 //---------------------------------------------------------------------------//

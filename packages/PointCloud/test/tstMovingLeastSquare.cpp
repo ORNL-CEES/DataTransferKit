@@ -43,9 +43,14 @@
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
+#include <limits>
 
-#include <DTK_PointCloudInterpolator.hpp>
-#include <DTK_PointCloudInterpolatorFactory.hpp>
+#include <DTK_MovingLeastSquareReconstructionOperator.hpp>
+#include <DTK_WuBasis.hpp>
+#include <DTK_Point.hpp>
+#include <DTK_BasicGeometryManager.hpp>
+#include <DTK_Entity.hpp>
+#include <DTK_EntityCenteredDOFVector.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -57,225 +62,89 @@
 #include "Teuchos_ParameterList.hpp"
 
 //---------------------------------------------------------------------------//
-// HELPER FUNCTIONS
-//---------------------------------------------------------------------------//
-
-// Get the default communicator.
-Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
-{
-#ifdef HAVE_MPI
-    return Teuchos::DefaultComm<int>::getComm();
-#else
-    return Teuchos::rcp(new Teuchos::SerialComm<int>() );
-#endif
-}
-
-//---------------------------------------------------------------------------//
-// Floating point epsilon.
-//---------------------------------------------------------------------------//
-
-const double epsilon = 0.4;
-
-//---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( MovingLeastSquare, dim_1_test )
+TEUCHOS_UNIT_TEST( MovingLeastSquare, mls_test )
 {
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm();
-    int rank = comm->getRank();
-    int size = comm->getSize();
-    int inverse_rank = size - rank - 1;
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::DefaultComm<int>::getComm();
+    int comm_rank = comm->getRank();
+    int comm_size = comm->getSize();
+    int inverse_rank = comm_size - comm_rank - 1;
+    const int space_dim = 3;
+    int field_dim = 1;
 
-    int dim = 1;
-    int num_src_points = 2;
-    int num_src_coords = dim*num_src_points;
-
-    // Source coordinates.
-    Teuchos::Array<double> src_coords(num_src_coords);
-
-    // Point 1.
-    src_coords[0] = 2.0*rank;
-
-    // Point 2.
-    src_coords[1] = 2.0*rank + 1.0;
-
-    // Source Data.
-    Teuchos::Array<double> src_data( num_src_points );
-    for ( int i = 0; i < num_src_points; ++i )
+    // Make a set of domain points.
+    int num_points = 10;
+    Teuchos::Array<DataTransferKit::Entity> domain_points( num_points );
+    Teuchos::Array<double> coords( space_dim );
+    DataTransferKit::EntityId point_id = 0;
+    Teuchos::ArrayRCP<double> domain_data( field_dim*num_points );
+    for ( int i = 0; i < num_points; ++i )
     {
-	src_data[i] = 3.0*rank + 1.0;
+	point_id = num_points*comm_rank + i;
+	coords[0] = point_id;
+	coords[1] = point_id;
+	coords[2] = point_id;
+	domain_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
+	domain_data[i] = point_id;
     }
 
-    int num_tgt_points = 2;
-    int num_tgt_coords = dim*num_tgt_points;
-    Teuchos::Array<double> tgt_coords( num_tgt_coords );
-    tgt_coords[0] = 2.0*inverse_rank + 0.4;
-    tgt_coords[1] = 2.0*inverse_rank + 0.6;
-
-    double radius = 1.0;
-
-    Teuchos::RCP<DataTransferKit::PointCloudInterpolator> interpolator = 
-	DataTransferKit::PointCloudInterpolatorFactory::create<int>(
-	    comm, "Moving Least Square", "Wendland", 2, dim );
-
-    interpolator->setProblem( src_coords(), tgt_coords(), radius );
-
-    Teuchos::Array<double> tgt_data( num_tgt_points );
-    interpolator->interpolate( src_data(), tgt_data(), 1 );
-
-    for ( int i = 0; i < num_tgt_points; ++i )
+    // Make a set of range points.
+    Teuchos::Array<DataTransferKit::Entity> range_points( num_points );
+    Teuchos::ArrayRCP<double> range_data( field_dim*num_points );
+    for ( int i = 0; i < num_points; ++i )
     {
-	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*inverse_rank + 1.0, epsilon );
-    }
-}
-
-//---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( MovingLeastSquare, dim_2_test )
-{
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm();
-    int rank = comm->getRank();
-    int size = comm->getSize();
-    int inverse_rank = size - rank - 1;
-
-    int dim = 2;
-    int num_src_points = 4;
-    int num_src_coords = dim*num_src_points;
-
-    // Source coordinates.
-    Teuchos::Array<double> src_coords(num_src_coords);
-
-    // Point 1.
-    src_coords[0] = 2.0*rank;
-    src_coords[1] = 0.0;
-
-    // Point 2.
-    src_coords[2] = 2.0*rank + 1.0;
-    src_coords[3] = 0.0;
-
-    // Point 3.
-    src_coords[4] = 2.0*rank + 1.0;
-    src_coords[5] = 1.0;
-
-    // Point 4.
-    src_coords[6] = 2.0*rank;
-    src_coords[7] = 1.0;
-
-    // Source Data.
-    Teuchos::Array<double> src_data( num_src_points );
-    for ( int i = 0; i < num_src_points; ++i )
-    {
-	src_data[i] = 3.0*rank + 1.0;
+	point_id = num_points*inverse_rank + i;
+	coords[0] = point_id;
+	coords[1] = point_id;
+	coords[2] = point_id;
+	range_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
+	range_data[i] = 0.0;
     }
 
-    int num_tgt_points = 2;
-    int num_tgt_coords = dim*num_tgt_points;
-    Teuchos::Array<double> tgt_coords( num_tgt_coords );
-    tgt_coords[0] = 2.0*inverse_rank + 0.4;
-    tgt_coords[1] = 0.5;
-    tgt_coords[2] = 2.0*inverse_rank + 0.6;
-    tgt_coords[3] = 0.5;
+    // Make a manager for the domain geometry.
+    DataTransferKit::BasicGeometryManager domain_manager( 
+	comm, space_dim, DataTransferKit::ENTITY_TYPE_NODE, domain_points() );
+					   
+    // Make a manager for the range geometry.
+    DataTransferKit::BasicGeometryManager range_manager( 
+	comm, space_dim, DataTransferKit::ENTITY_TYPE_NODE, range_points() );
 
-    double radius = 1.0;
+    // Make a DOF vector for the domain.
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_vector =
+	DataTransferKit::EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
+	    comm, domain_points(), field_dim, domain_data );
 
-    Teuchos::RCP<DataTransferKit::PointCloudInterpolator> interpolator = 
-	DataTransferKit::PointCloudInterpolatorFactory::create<int>(
-	    comm, "Moving Least Square", "Wendland", 2, dim );
+    // Make a DOF vector for the range.
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_vector =
+	DataTransferKit::EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
+	    comm, range_points(), field_dim, range_data );
 
-    interpolator->setProblem( src_coords(), tgt_coords(), radius );
+    // Make a moving least square reconstruction operator.
+    double radius = 0.25;
+    Teuchos::RCP<DataTransferKit::MapOperator<double> > mls_op =
+	Teuchos::rcp( 
+	    new DataTransferKit::MovingLeastSquareReconstructionOperator<double,DataTransferKit::WuBasis<2>,space_dim>(radius) );
 
-    Teuchos::Array<double> tgt_data( num_tgt_points );
-    interpolator->interpolate( src_data(), tgt_data(), 1 );
-    for ( int i = 0; i < num_tgt_points; ++i )
+    // Setup the operator.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    mls_op->setup( domain_vector->getMap(),
+		   domain_manager.functionSpace(),
+		   range_vector->getMap(),
+		   range_manager.functionSpace(),
+		   parameters );
+
+    // Apply the operator.
+    mls_op->apply( *domain_vector, *range_vector );
+
+    // Check the apply.
+    for ( int i = 0; i < num_points; ++i )
     {
-	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*inverse_rank + 1.0, epsilon );
-    }
-}
-
-//---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( MovingLeastSquare, dim_3_test )
-{
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm();
-    int rank = comm->getRank();
-    int size = comm->getSize();
-    int inverse_rank = size - rank - 1;
-
-    int dim = 3;
-    int num_src_points = 8;
-    int num_src_coords = dim*num_src_points;
-
-    // Source coordinates.
-    Teuchos::Array<double> src_coords(num_src_coords);
-
-    // Point 1.
-    src_coords[0] = 2.0*rank;
-    src_coords[1] = 0.0;
-    src_coords[2] = 0.0;
-
-    // Point 2.
-    src_coords[3] = 2.0*rank + 1.0;
-    src_coords[4] = 0.0;
-    src_coords[5] = 0.0;
-
-    // Point 3.
-    src_coords[6] = 2.0*rank + 1.0;
-    src_coords[7] = 1.0;
-    src_coords[8] = 0.0;
-
-    // Point 4.
-    src_coords[9] = 2.0*rank;
-    src_coords[10] = 1.0;
-    src_coords[11] = 0.0;
-
-    // Point 5.
-    src_coords[12] = 2.0*rank;
-    src_coords[13] = 0.0;
-    src_coords[14] = 1.0;
-
-    // Point 6.
-    src_coords[15] = 2.0*rank + 1.0;
-    src_coords[16] = 0.0;
-    src_coords[17] = 1.0;
-
-    // Point 7.
-    src_coords[18] = 2.0*rank + 1.0;
-    src_coords[19] = 1.0;
-    src_coords[20] = 1.0;
-
-    // Point 8.
-    src_coords[21] = 2.0*rank;
-    src_coords[22] = 1.0;
-    src_coords[23] = 1.0;
-
-    // Source Data.
-    Teuchos::Array<double> src_data( num_src_points );
-    for ( int i = 0; i < num_src_points; ++i )
-    {
-	src_data[i] = 3.0*rank + 1.0;
-    }
-
-    int num_tgt_points = 2;
-    int num_tgt_coords = dim*num_tgt_points;
-    Teuchos::Array<double> tgt_coords( num_tgt_coords );
-    tgt_coords[0] = 2.0*inverse_rank + 0.4;
-    tgt_coords[1] = 0.5;
-    tgt_coords[2] = 0.5;
-    tgt_coords[3] = 2.0*inverse_rank + 0.6;
-    tgt_coords[4] = 0.5;
-    tgt_coords[5] = 0.5;
-
-    double radius = 1.0;
-
-    Teuchos::RCP<DataTransferKit::PointCloudInterpolator> interpolator = 
-	DataTransferKit::PointCloudInterpolatorFactory::create<int>(
-	    comm, "Moving Least Square", "Wendland", 2, dim );
-
-    interpolator->setProblem( src_coords(), tgt_coords(), radius );
-
-    Teuchos::Array<double> tgt_data( num_tgt_points );
-    interpolator->interpolate( src_data(), tgt_data(), 1 );
-    for ( int i = 0; i < num_tgt_points; ++i )
-    {
-	TEST_FLOATING_EQUALITY( tgt_data[i], 3.0*inverse_rank + 1.0, epsilon );
+	double test_val = num_points*inverse_rank + i;
+	TEST_FLOATING_EQUALITY( range_data[i], test_val,
+				10.0*std::numeric_limits<double>::epsilon() );
     }
 }
 

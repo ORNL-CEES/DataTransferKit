@@ -179,18 +179,19 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     Teuchos::RCP<EntitySet> range_set =
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
-    Teuchos::Array<double> point(3);
+    Teuchos::Array<double> coords(3);
+    Teuchos::Array<Entity> points( num_points );
     Teuchos::Array<std::size_t> point_ids( num_points );
     Teuchos::ArrayRCP<double> point_dofs( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
 	point_ids[i] = num_points*comm_rank + i;
 	point_dofs[i] = 0.0;
-	point[0] = 0.5;
-	point[1] = 0.5;
-	point[2] = point_ids[i] + 0.5;
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
-	    Point(point_ids[i],comm_rank,point) );
+	coords[0] = 0.5;
+	coords[1] = 0.5;
+	coords[2] = point_ids[i] + 0.5;
+	points[i] = Point(point_ids[i],comm_rank,coords);
+	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(points[i]);
     }
 
     // Construct a local map for the points.
@@ -215,8 +216,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Construct a DOF vector for the points.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromView(
-	    comm, point_ids, point_dofs, num_points, 1 );
+	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
+	    comm, points, 1, point_dofs );
 
     // MAPPING
     // Create a map.
