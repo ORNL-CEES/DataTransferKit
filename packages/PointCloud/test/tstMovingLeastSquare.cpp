@@ -64,7 +64,7 @@
 //---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( MovingLeastSquare, mls_test )
+TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_test )
 {
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =

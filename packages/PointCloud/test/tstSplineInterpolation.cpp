@@ -45,7 +45,7 @@
 #include <stdexcept>
 #include <limits>
 
-#include <DTK_MovingLeastSquareReconstructionOperator.hpp>
+#include <DTK_SplineInterpolationOperator.hpp>
 #include <DTK_WuBasis.hpp>
 #include <DTK_Point.hpp>
 #include <DTK_BasicGeometryManager.hpp>
@@ -64,7 +64,7 @@
 //---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( MovingLeastSquare, mls_test )
+TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
 {
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
@@ -126,7 +126,7 @@ TEUCHOS_UNIT_TEST( MovingLeastSquare, mls_test )
     double radius = 0.25;
     Teuchos::RCP<DataTransferKit::MapOperator<double> > mls_op =
 	Teuchos::rcp( 
-	    new DataTransferKit::MovingLeastSquareReconstructionOperator<double,DataTransferKit::WuBasis<2>,space_dim>(radius) );
+	    new DataTransferKit::SplineInterpolationOperator<double,DataTransferKit::WuBasis<2>,space_dim>(radius) );
 
     // Setup the operator.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();

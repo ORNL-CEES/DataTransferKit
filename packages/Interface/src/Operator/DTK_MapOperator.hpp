@@ -129,13 +129,13 @@ class MapOperator : public Tpetra::Operator<Scalar,int,std::size_t>
     Teuchos::RCP<const TpetraMap> b_range_map;
 
     //! Mass matrix inverse.
-    Teuchos::RCP<Thyra::LinearOpBase<Scalar> > b_mass_matrix_inv;
+    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > b_mass_matrix_inv;
 
     //! Coupling matrix.
-    Teuchos::RCP<Thyra::LinearOpBase<Scalar> > b_coupling_matrix;
+    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > b_coupling_matrix;
 
     //! Forcing vector.
-    Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > b_forcing_vector;
+    Teuchos::RCP<const Thyra::MultiVectorBase<Scalar> > b_forcing_vector;
 };
 
 //---------------------------------------------------------------------------//

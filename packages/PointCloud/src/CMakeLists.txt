@@ -28,9 +28,6 @@ APPEND_SET(HEADERS
   DTK_LocalMLSProblem_impl.hpp
   DTK_MovingLeastSquareReconstructionOperator.hpp
   DTK_MovingLeastSquareReconstructionOperator_impl.hpp
-  DTK_PointCloudInterpolator.hpp
-  DTK_PointCloudInterpolatorFactory.hpp
-  DTK_PointCloudInterpolatorFactory_impl.hpp
   DTK_PointCloudDummy.hpp
   DTK_PolynomialMatrix.hpp
   DTK_PolynomialMatrix_impl.hpp
@@ -41,8 +38,8 @@ APPEND_SET(HEADERS
   DTK_SplineEvaluationMatrix_impl.hpp
   DTK_SplineInterpolationPairing.hpp
   DTK_SplineInterpolationPairing_impl.hpp
-  DTK_SplineInterpolator.hpp
-  DTK_SplineInterpolator_impl.hpp
+  DTK_SplineInterpolationOperator.hpp
+  DTK_SplineInterpolationOperator_impl.hpp
   DTK_SplineProlongationOperator.hpp
   DTK_SplineProlongationOperator_impl.hpp
   DTK_WendlandBasis.hpp

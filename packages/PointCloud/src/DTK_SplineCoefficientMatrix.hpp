@@ -62,8 +62,8 @@ namespace DataTransferKit
  * \brief Sparse spline coefficient matrix.
  */
 //---------------------------------------------------------------------------//
-template<class Basis, class GO, int DIM>
-class SplineCoefficientMatrix : public Tpetra::Operator<double,int,GO>
+template<class Basis,int DIM>
+class SplineCoefficientMatrix
 {
   public:
 
@@ -74,55 +74,33 @@ class SplineCoefficientMatrix : public Tpetra::Operator<double,int,GO>
 
     // Constructor.
     SplineCoefficientMatrix(
-	Teuchos::RCP<const Tpetra::Map<int,GO> >& operator_map,
+	const Teuchos::RCP<const Tpetra::Map<int,std::size_t> >& operator_map,
 	const Teuchos::ArrayView<const double>& source_centers,
-	const Teuchos::ArrayView<const GO>& source_center_gids,
+	const Teuchos::ArrayView<const std::size_t>& source_center_gids,
 	const Teuchos::ArrayView<const double>& dist_source_centers,
-	const Teuchos::ArrayView<const GO>& dist_source_center_gids,
-	const Teuchos::RCP<SplineInterpolationPairing<DIM> >& source_pairings,
+	const Teuchos::ArrayView<const std::size_t>& dist_source_center_gids,
+	const SplineInterpolationPairing<DIM>& source_pairings,
 	const Basis& basis );
 
     //! Destructor.
     ~SplineCoefficientMatrix()
     { /* ... */ }
 
-    //! The Map associated with the domain of this operator, which must be
-    //! compatible with X.getMap().
-    Teuchos::RCP<const Tpetra::Map<int,GO> > getDomainMap() const
-    { return d_M->getDomainMap(); }
+    // Get the basis component.
+    Teuchos::RCP<Tpetra::Operator<double,int,std::size_t> > getM()
+    { return d_M; }
 
-    //! The Map associated with the range of this operator, which must be
-    //! compatible with Y.getMap().
-    Teuchos::RCP<const Tpetra::Map<int,GO> > getRangeMap() const
-    { return d_M->getRangeMap(); }
-
-    //! \brief Computes the operator-multivector application.
-    /*! Loosely, performs \f$Y = \alpha \cdot A^{\textrm{mode}} \cdot X +
-        \beta \cdot Y\f$. However, the details of operation vary according to
-        the values of \c alpha and \c beta. Specifically - if <tt>beta ==
-        0</tt>, apply() <b>must</b> overwrite \c Y, so that any values in \c Y
-        (including NaNs) are ignored.  - if <tt>alpha == 0</tt>, apply()
-        <b>may</b> short-circuit the operator, so that any values in \c X
-        (including NaNs) are ignored.
-     */
-    void apply (const Tpetra::MultiVector<double,int,GO> &X,
-		Tpetra::MultiVector<double,int,GO> &Y,
-		Teuchos::ETransp mode = Teuchos::NO_TRANS,
-		double alpha = Teuchos::ScalarTraits<double>::one(),
-		double beta = Teuchos::ScalarTraits<double>::zero()) const;
-
-    /// \brief Whether this operator supports applying the transpose or
-    /// conjugate transpose.
-    bool hasTransposeApply() const
-    { return true; }
+    // Get the polynomial component.
+    Teuchos::RCP<Tpetra::Operator<double,int,std::size_t> > getP()
+    { return d_P; }
 
   private:
 
     // The M matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,GO> > d_M;
+    Teuchos::RCP<Tpetra::CrsMatrix<double,int,std::size_t> > d_M;
 
-    // The P^T matrix.
-    Teuchos::RCP<PolynomialMatrix<GO> > d_P_trans;
+    // The P matrix.
+    Teuchos::RCP<PolynomialMatrix<std::size_t> > d_P;
 
 };
 

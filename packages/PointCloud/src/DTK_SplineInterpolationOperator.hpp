@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_SplineInterpolator.hpp
+ * \file   DTK_SplineInterpolationOperator.hpp
  * \author Stuart R. Slattery
  * \brief Parallel spline interpolator.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SPLINEINTERPOLATOR_HPP
-#define DTK_SPLINEINTERPOLATOR_HPP
+#ifndef DTK_SPLINEINTERPOLATIONOPERATOR_HPP
+#define DTK_SPLINEINTERPOLATIONOPERATOR_HPP
 
 #include "DTK_MapOperator.hpp"
 #include "DTK_RadialBasisPolicy.hpp"
@@ -56,15 +56,15 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class SplineInterpolator
+ * \class SplineInterpolationOperator
  * \brief Parallel spline interpolator.
  *
- * The SplineInterpolator is the top-level driver for parallel interpolation
+ * The SplineInterpolationOperator is the top-level driver for parallel interpolation
  * problems.
  */
 //---------------------------------------------------------------------------//
 template<class Scalar,class Basis,int DIM>
-class SplineInterpolator : public MapOperator<Scalar>
+class SplineInterpolationOperator : public MapOperator<Scalar>
 {
   public:
 
@@ -103,30 +103,24 @@ class SplineInterpolator : public MapOperator<Scalar>
 		const Teuchos::RCP<const typename Base::TpetraMap>& range_map,
 		const Teuchos::RCP<FunctionSpace>& range_space,
 		const Teuchos::RCP<Teuchos::ParameterList>& parameters );
+    
+  private:
+
+    // Build the concrete operators.
+    void buildConcreteOperators( 
+	const Teuchos::RCP<FunctionSpace>& domain_space,
+	const Teuchos::RCP<FunctionSpace>& range_space,
+	const Teuchos::RCP<Teuchos::ParameterList>& parameters,
+	Teuchos::RCP<const Root>& S,
+	Teuchos::RCP<const Root>& P,
+	Teuchos::RCP<const Root>& M,
+	Teuchos::RCP<const Root>& Q,
+	Teuchos::RCP<const Root>& N ) const;
 
   private:
 
     // Support radius.
     double d_radius;
-
-  private:
-
-    // Build the interpolation and transformation operators.
-    void buildOperators(
-	const Teuchos::ArrayView<const double>& source_centers,
-	const Teuchos::ArrayView<const double>& target_centers,
-	const double radius );
-
-  private:
-
-    // Parallel communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
-
-    // The C matrix.
-    Teuchos::RCP<Tpetra::Operator<double,int,GO> > d_C;
-
-    // The A matrix.
-    Teuchos::RCP<Tpetra::Operator<double,int,GO> > d_A;
 };
 
 //---------------------------------------------------------------------------//
@@ -137,13 +131,13 @@ class SplineInterpolator : public MapOperator<Scalar>
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_SplineInterpolator_impl.hpp"
+#include "DTK_SplineInterpolationOperator_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_SPLINEINTERPOLATOR_HPP
+#endif // end DTK_SPLINEINTERPOLATIONOPERATOR_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_SplineInterpolator.hpp
+// end DTK_SplineInterpolationOperator.hpp
 //---------------------------------------------------------------------------//
 

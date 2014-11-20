@@ -52,15 +52,15 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<class Basis, class GO, int DIM>
-SplineEvaluationMatrix<Basis,GO,DIM>::SplineEvaluationMatrix(
-    Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map,
-    Teuchos::RCP<const Tpetra::Map<int,GO> >& range_map,
+template<class Basis,int DIM>
+SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
+    const Teuchos::RCP<const Tpetra::Map<int,std::size_t> >& domain_map,
+    const Teuchos::RCP<const Tpetra::Map<int,std::size_t> >& range_map,
     const Teuchos::ArrayView<const double>& target_centers,
-    const Teuchos::ArrayView<const GO>& target_center_gids,
+    const Teuchos::ArrayView<const std::size_t>& target_center_gids,
     const Teuchos::ArrayView<const double>& dist_source_centers,
-    const Teuchos::ArrayView<const GO>& dist_source_center_gids,
-    const Teuchos::RCP<SplineInterpolationPairing<DIM> >& target_pairings,
+    const Teuchos::ArrayView<const std::size_t>& dist_source_center_gids,
+    const SplineInterpolationPairing<DIM>& target_pairings,
     const Basis& basis )
 {
     DTK_CHECK( 0 == target_centers.size() % DIM );
@@ -75,8 +75,8 @@ SplineEvaluationMatrix<Basis,GO,DIM>::SplineEvaluationMatrix(
 
     // Create the Q matrix.
     int offset = DIM + 1;
-    Teuchos::RCP<Tpetra::MultiVector<double,int,GO> > Q_vec = 
-	Tpetra::createMultiVector<double,int,GO>( domain_map, offset );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > Q_vec = 
+	Tpetra::createMultiVector<double,int,std::size_t>( domain_map, offset );
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > Q_view = 
 	Q_vec->get2dViewNonConst();
     int di = 0; 
@@ -89,14 +89,14 @@ SplineEvaluationMatrix<Basis,GO,DIM>::SplineEvaluationMatrix(
 	    Q_view[d+1][i] = target_centers[di+d];
 	}
     }
-    d_Q = Teuchos::rcp( new PolynomialMatrix<GO>(Q_vec) );
+    d_Q = Teuchos::rcp( new PolynomialMatrix<std::size_t>(Q_vec) );
 
     // Create the N matrix.
-    d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>( 
+    d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,std::size_t>( 
 			    domain_map,
-			    target_pairings->childrenPerParent(), 
+			    target_pairings.childrenPerParent(), 
 			    Tpetra::StaticProfile) );
-    Teuchos::Array<GO> N_indices;
+    Teuchos::Array<std::size_t> N_indices;
     Teuchos::Array<double> values;
     int dj = 0;
     Teuchos::ArrayView<const unsigned> target_neighbors;
@@ -106,7 +106,7 @@ SplineEvaluationMatrix<Basis,GO,DIM>::SplineEvaluationMatrix(
 	di = DIM*i;
 
 	// Get the source points neighboring this target point.
-	target_neighbors = target_pairings->childCenterIds( i );
+	target_neighbors = target_pairings.childCenterIds( i );
 	values.resize( target_neighbors.size() );
 	N_indices.resize( target_neighbors.size() );
 
@@ -129,31 +129,6 @@ SplineEvaluationMatrix<Basis,GO,DIM>::SplineEvaluationMatrix(
     d_N->fillComplete( range_map, domain_map );
 
     DTK_ENSURE( d_N->isFillComplete() );
-}
-
-//---------------------------------------------------------------------------//
-// Apply operation. 
-template<class Basis, class GO, int DIM>
-void SplineEvaluationMatrix<Basis,GO,DIM>::apply(
-    const Tpetra::MultiVector<double,int,GO> &X,
-    Tpetra::MultiVector<double,int,GO> &Y,
-    Teuchos::ETransp mode,
-    double alpha,
-    double beta ) const
-{
-    DTK_REQUIRE( Teuchos::NO_TRANS == mode );
-
-    // Make a work vector.
-    Tpetra::MultiVector<double,int,GO> work( Y );
-
-    // Apply Q
-    d_Q->apply( X, Y, Teuchos::NO_TRANS, alpha, beta );
-
-    // Apply N.
-    d_N->apply( X, work, Teuchos::NO_TRANS, alpha, beta );
-
-    // Update Y.
-    Y.update( 1.0, work, 1.0 );
 }
 
 //---------------------------------------------------------------------------//

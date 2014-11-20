@@ -54,7 +54,7 @@ namespace DataTransferKit
 template<class Scalar,class GO>
 SplineProlongationOperator<Scalar,GO>::SplineProlongationOperator(
     const int offset,
-    const Teuchos::RCP<const Tpetra::Map<int,GO>& domain_map )
+    const Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map )
     : d_offset( offset )
     , d_domain_map( domain_map )
 {
@@ -63,12 +63,12 @@ SplineProlongationOperator<Scalar,GO>::SplineProlongationOperator(
 	d_domain_map->getNodeElementList();
     d_lda = domain_elements.size();
     Teuchos::Array<GO> global_ids;
-    if ( comm->getRank() == 0 )
+    if ( d_domain_map->getComm()->getRank() == 0 )
     {
-	global_ids.resize( offset + domain_elements.size() );
+	global_ids.resize( d_offset + domain_elements.size() );
 	global_ids( d_offset, domain_elements.size() ).assign( domain_elements );
 	GO max_id = d_domain_map->getMaxAllGlobalIndex() + 1;
-	for ( int i = 0; i < offset; ++i )
+	for ( int i = 0; i < d_offset; ++i )
 	{
 	    global_ids[i] = max_id + i;
 	}
@@ -76,7 +76,7 @@ SplineProlongationOperator<Scalar,GO>::SplineProlongationOperator(
     }
     else
     {
-	offset = 0;
+	d_offset = 0;
     }
     d_range_map = Tpetra::createNonContigMap<int,GO>(
 	domain_elements, d_domain_map->getComm() );
@@ -93,14 +93,17 @@ void SplineProlongationOperator<Scalar,GO>::apply(
     Scalar alpha,
     Scalar beta ) const
 {
-    DTK_CHECK( d_domain_map->isSameAs(X.getMap()) );
-    DTK_CHECK( d_range_map->isSameAs(Y.getMap()) );
+    DTK_REQUIRE( d_domain_map->isSameAs(*(X.getMap())) );
+    DTK_REQUIRE( d_range_map->isSameAs(*(Y.getMap())) );
+    DTK_REQUIRE( X.getNumVectors() == Y.getNumVectors() );
 
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> X_view = X.get2dView();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> Y_view = X.get2dViewNonConst();
+    Y.putScalar( 0.0 );
+    
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> > X_view = X.get2dView();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> > Y_view = Y.get2dViewNonConst();
     for ( int n = 0; n < X.getNumVectors(); ++n )
     {
-	Y_view[n](offset,lda).assign( X_view[n]() );
+	Y_view[n](d_offset,d_lda).assign( X_view[n]() );
     }
 }
 

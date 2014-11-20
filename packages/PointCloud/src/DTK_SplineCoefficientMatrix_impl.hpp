@@ -52,14 +52,14 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<class Basis, class GO, int DIM>
-SplineCoefficientMatrix<Basis,GO,DIM>::SplineCoefficientMatrix(
-    Teuchos::RCP<const Tpetra::Map<int,GO> >& operator_map,
+template<class Basis,int DIM>
+SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
+    const Teuchos::RCP<const Tpetra::Map<int,std::size_t> >& operator_map,
     const Teuchos::ArrayView<const double>& source_centers,
-    const Teuchos::ArrayView<const GO>& source_center_gids,
+    const Teuchos::ArrayView<const std::size_t>& source_center_gids,
     const Teuchos::ArrayView<const double>& dist_source_centers,
-    const Teuchos::ArrayView<const GO>& dist_source_center_gids,
-    const Teuchos::RCP<SplineInterpolationPairing<DIM> >& source_pairings,
+    const Teuchos::ArrayView<const std::size_t>& dist_source_center_gids,
+    const SplineInterpolationPairing<DIM>& source_pairings,
     const Basis& basis )
 {
     DTK_CHECK( 0 == source_centers.size() % DIM );
@@ -75,21 +75,21 @@ SplineCoefficientMatrix<Basis,GO,DIM>::SplineCoefficientMatrix(
     // Create the P^T matrix.
     int offset = DIM + 1;
     unsigned lid_offset = operator_map->getComm()->getRank() ? 0 : offset;
-    Teuchos::RCP<Tpetra::MultiVector<double,int,GO> > P_trans_vec = 
-	Tpetra::createMultiVector<double,int,GO>( operator_map, offset );
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > P_trans_view = 
-	P_trans_vec->get2dViewNonConst();
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > P_vec = 
+	Tpetra::createMultiVector<double,int,std::size_t>( operator_map, offset );
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > P_view = 
+	P_vec->get2dViewNonConst();
     int di = 0; 
     for ( unsigned i = lid_offset; i < num_source_centers + lid_offset; ++i )
     {
-	P_trans_view[0][i] = 1.0;
+	P_view[0][i] = 1.0;
 	di = DIM*(i-lid_offset);
 	for ( int d = 0; d < DIM; ++d )
 	{
-	    P_trans_view[d+1][i] = source_centers[di+d];
+	    P_view[d+1][i] = source_centers[di+d];
 	}
     }
-    d_P_trans =Teuchos::rcp( new PolynomialMatrix<GO>(P_trans_vec) );
+    d_P =Teuchos::rcp( new PolynomialMatrix<std::size_t>(P_vec) );
 
     // Create the M matrix.
     Teuchos::ArrayRCP<std::size_t> entries_per_row;
@@ -98,18 +98,18 @@ SplineCoefficientMatrix<Basis,GO,DIM>::SplineCoefficientMatrix(
 	entries_per_row = Teuchos::ArrayRCP<std::size_t>(
 	    num_source_centers + offset, 0 );
 	Teuchos::ArrayRCP<std::size_t> children_per_parent =
-	    source_pairings->childrenPerParent();
+	    source_pairings.childrenPerParent();
 	std::copy( children_per_parent.begin(), children_per_parent.end(),
 		   entries_per_row.begin() + offset );
     }
     else
     {
-	entries_per_row = source_pairings->childrenPerParent();
+	entries_per_row = source_pairings.childrenPerParent();
     }
-    d_M = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,GO>(
+    d_M = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,std::size_t>(
 			    operator_map,
 			    entries_per_row, Tpetra::StaticProfile) );
-    Teuchos::Array<GO> M_indices;
+    Teuchos::Array<std::size_t> M_indices;
     Teuchos::Array<double> values;
     int dj = 0;
     Teuchos::ArrayView<const unsigned> source_neighbors;
@@ -117,7 +117,7 @@ SplineCoefficientMatrix<Basis,GO,DIM>::SplineCoefficientMatrix(
     for ( unsigned i = 0; i < num_source_centers; ++i )
     {
     	di = DIM*i;
-	source_neighbors = source_pairings->childCenterIds( i );
+	source_neighbors = source_pairings.childCenterIds( i );
 	M_indices.resize( source_neighbors.size() );
 	values.resize( source_neighbors.size() );
     	for ( unsigned j = 0; j < source_neighbors.size(); ++j )
@@ -137,32 +137,6 @@ SplineCoefficientMatrix<Basis,GO,DIM>::SplineCoefficientMatrix(
     d_M->fillComplete();
 
     DTK_ENSURE( d_M->isFillComplete() );
-}
-
-//---------------------------------------------------------------------------//
-// Apply operation. The operator is symmetric and therefore the transpose
-// apply is the same as the forward apply.
-template<class Basis, class GO, int DIM>
-void SplineCoefficientMatrix<Basis,GO,DIM>::apply(
-    const Tpetra::MultiVector<double,int,GO> &X,
-    Tpetra::MultiVector<double,int,GO> &Y,
-    Teuchos::ETransp mode,
-    double alpha,
-    double beta ) const
-{
-    // Make a work vector.
-    Tpetra::MultiVector<double,int,GO> work( X );
-
-    // Apply P^T.
-    d_P_trans->apply( X, Y, Teuchos::NO_TRANS, alpha, beta );
-
-    // Apply P.
-    d_P_trans->apply( X, work, Teuchos::TRANS, alpha, beta );
-    Y.update( 1.0, work, 1.0 );
-
-    // Apply M.
-    d_M->apply( X, work, Teuchos::NO_TRANS, alpha, beta );
-    Y.update( 1.0, work, 1.0 );
 }
 
 //---------------------------------------------------------------------------//

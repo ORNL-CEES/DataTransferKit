@@ -65,7 +65,7 @@ class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,GO>
     // Constructor.
     SplineProlongationOperator( 
 	const int offset,
-	const Teuchos::RCP<const Tpetra::Map<int,GO>& domain_map );
+	const Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map );
 
     //! Destructor.
     ~SplineProlongationOperator()
@@ -105,6 +105,9 @@ class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,GO>
 
     // Prolongation offset.
     int d_offset;
+
+    // LDA
+    int d_lda;
 
     // Domain map.
     Teuchos::RCP<const Tpetra::Map<int,GO> > d_domain_map;

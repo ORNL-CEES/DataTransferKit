@@ -1,2 +1,2 @@
-ADD_SUBDIRECTORY( PeaksFunction )
-ADD_SUBDIRECTORY( ScalingStudy )
+# ADD_SUBDIRECTORY( PeaksFunction )
+# ADD_SUBDIRECTORY( ScalingStudy )
