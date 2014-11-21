@@ -60,12 +60,19 @@
 #include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
 #include "Teuchos_ParameterList.hpp"
+#include "Teuchos_XMLParameterListCoreHelpers.hpp"
 
 //---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
 {
+    // Get the test parameters.
+    Teuchos::RCP<Teuchos::ParameterList> parameters =
+	Teuchos::rcp( new Teuchos::ParameterList() );
+    Teuchos::updateParametersFromXmlFile(
+	"spline_interpolation_test.xml", Teuchos::inoutArg(*parameters) );
+
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
 	Teuchos::DefaultComm<int>::getComm();
@@ -129,7 +136,6 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
 	    new DataTransferKit::SplineInterpolationOperator<double,DataTransferKit::WuBasis<2>,space_dim>(radius) );
 
     // Setup the operator.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     mls_op->setup( domain_vector->getMap(),
 		   domain_manager.functionSpace(),
 		   range_vector->getMap(),

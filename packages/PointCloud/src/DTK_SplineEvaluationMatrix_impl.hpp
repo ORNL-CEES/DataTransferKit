@@ -76,7 +76,7 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
     // Create the Q matrix.
     int offset = DIM + 1;
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > Q_vec = 
-	Tpetra::createMultiVector<double,int,std::size_t>( domain_map, offset );
+	Tpetra::createMultiVector<double,int,std::size_t>( range_map, offset );
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > Q_view = 
 	Q_vec->get2dViewNonConst();
     int di = 0; 
@@ -89,11 +89,12 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
 	    Q_view[d+1][i] = target_centers[di+d];
 	}
     }
-    d_Q = Teuchos::rcp( new PolynomialMatrix<std::size_t>(Q_vec) );
+    d_Q = Teuchos::rcp( 
+	new PolynomialMatrix<std::size_t>(Q_vec,domain_map,range_map) );
 
     // Create the N matrix.
     d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,std::size_t>( 
-			    domain_map,
+			    range_map,
 			    target_pairings.childrenPerParent(), 
 			    Tpetra::StaticProfile) );
     Teuchos::Array<std::size_t> N_indices;
@@ -126,7 +127,7 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
 
 	d_N->insertGlobalValues( target_center_gids[i], N_indices(), values() );
     }
-    d_N->fillComplete( range_map, domain_map );
+    d_N->fillComplete( domain_map, range_map );
 
     DTK_ENSURE( d_N->isFillComplete() );
 }

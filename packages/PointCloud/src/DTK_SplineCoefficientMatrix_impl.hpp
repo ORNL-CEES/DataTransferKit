@@ -89,7 +89,8 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
 	    P_view[d+1][i] = source_centers[di+d];
 	}
     }
-    d_P =Teuchos::rcp( new PolynomialMatrix<std::size_t>(P_vec) );
+    d_P =Teuchos::rcp( 
+	new PolynomialMatrix<std::size_t>(P_vec,operator_map,operator_map) );
 
     // Create the M matrix.
     Teuchos::ArrayRCP<std::size_t> entries_per_row;

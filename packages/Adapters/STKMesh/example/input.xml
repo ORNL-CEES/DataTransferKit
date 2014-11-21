@@ -1,10 +1,14 @@
-<ParameterList name="ConsistentInterpolation">
+<ParameterList name="STK Interpolation">
   <Parameter name="Source Mesh Input File" type="string" value="cube_mesh.exo"/>
   <Parameter name="Source Mesh Output File" type="string" value="source_out.exo"/>
   <Parameter name="Source Mesh Part" type="string" value="Hex_8_Cube"/>
   <Parameter name="Target Mesh Input File" type="string" value="pincell_mesh.exo"/>
   <Parameter name="Target Mesh Output File" type="string" value="target_out.exo"/>
-  <Parameter name="Target Mesh Part" type="string" value="Tet_4_Cylinder"/>
-  <!-- <Parameter name="Target Mesh Part" type="string" value="Tet_4_Box"/> -->
-  <Parameter name="Reconstruction Radius" type="double" value="1.0"/>
+  <!-- <Parameter name="Target Mesh Part" type="string" value="Tet_4_Cylinder"/> -->
+  <Parameter name="Target Mesh Part" type="string" value="Tet_4_Box"/>
+  <Parameter name="Basis Radius" type="double" value="1.0"/>
+  <Parameter name="Interpolation Type" type="string" value="Consistent"/>
+  <ParameterList name="Stratimikos">
+    <Parameter name="Linear Solver Type" type="string" value="AztecOO"/>
+  </ParameterList>
 </ParameterList>

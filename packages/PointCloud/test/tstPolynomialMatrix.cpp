@@ -123,7 +123,7 @@ TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_apply )
     P_crs->fillComplete();    
 
     // Create the PolynomialMatrix version of the polynomial.
-    DataTransferKit::PolynomialMatrix<int> P_poly_mat( P );
+    DataTransferKit::PolynomialMatrix<int> P_poly_mat( P, row_map, row_map );
 
     // Build a random vector to apply the matrices to.
     Teuchos::RCP<Tpetra::MultiVector<double,int,int> > X =
@@ -199,7 +199,7 @@ TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_transpose_apply )
     P_crs->fillComplete();    
 
     // Create the PolynomialMatrix version of the polynomial.
-    DataTransferKit::PolynomialMatrix<int> P_poly_mat( P );
+    DataTransferKit::PolynomialMatrix<int> P_poly_mat( P, row_map, row_map );
 
     // Build a random vector to apply the matrices to.
     Teuchos::RCP<Tpetra::MultiVector<double,int,int> > X =

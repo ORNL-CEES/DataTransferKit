@@ -56,7 +56,6 @@
 #include <Tpetra_Map.hpp>
 
 #include <Thyra_TpetraThyraWrappers.hpp>
-#include <Thyra_DefaultInverseLinearOp.hpp>
 #include <Thyra_DefaultMultipliedLinearOp.hpp>
 #include <Thyra_DefaultScaledAdjointLinearOp.hpp>
 #include <Thyra_DefaultAddedLinearOp.hpp>
@@ -204,16 +203,18 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
     }
     if ( !builder_params->isParameter("Linear Solver Type") )
     {
-	builder_params->set<std::string>("Linear Solver Type","AztecOO");
+	builder_params->set<std::string>("Linear Solver Type","Belos");
     }
     Stratimikos::DefaultLinearSolverBuilder builder;
     builder.setParameterList( builder_params );
     Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<Scalar> > factory = 
 	Thyra::createLinearSolveStrategy( builder );
+    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > thyra_C_inv =
+    	Thyra::inverse<Scalar>( *factory, thyra_C );
+
     Teuchos::RCP<Thyra::LinearOpWithSolveBase<Scalar> > solver = 
 	Thyra::linearOpWithSolve( *factory, thyra_C );
-    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > thyra_C_inv =
-	Thyra::inverse<Scalar>( solver );
+    solver->describe( std::cout, Teuchos::VERB_HIGH );
 
     // Create the composite operator B = (Q + N);
     Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > thyra_B =
@@ -221,7 +222,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
 
     // Create the coupling matrix A = (B * C^-1 * S).
     this->b_coupling_matrix = 
-	Thyra::multiply<Scalar>( thyra_B, thyra_C_inv, thyra_S );
+    	Thyra::multiply<Scalar>( thyra_B, thyra_C_inv, thyra_S );
     DTK_ENSURE( Teuchos::nonnull(this->b_coupling_matrix) );
 }
 
@@ -353,7 +354,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
 
     // Build the transformation operators.
     SplineEvaluationMatrix<Basis,DIM> B( 
-	this->b_range_map, prolongated_map,
+	prolongated_map, this->b_range_map, 
 	target_centers(), target_gids(),
 	dist_sources(), dist_source_gids(),
 	target_pairings, *basis );

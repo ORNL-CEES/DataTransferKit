@@ -64,7 +64,9 @@ class PolynomialMatrix : public Tpetra::Operator<double,int,GO>
 
     // Constructor.
     PolynomialMatrix(
-	const Teuchos::RCP<const Tpetra::MultiVector<double,int,GO> >& polynomial );
+	const Teuchos::RCP<const Tpetra::MultiVector<double,int,GO> >& polynomial,
+	const Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map,
+	const Teuchos::RCP<const Tpetra::Map<int,GO> >& range_map );
 
     //! Destructor.
     ~PolynomialMatrix()
@@ -73,12 +75,12 @@ class PolynomialMatrix : public Tpetra::Operator<double,int,GO>
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
     Teuchos::RCP<const Tpetra::Map<int,GO> > getDomainMap() const
-    { return d_polynomial->getMap(); }
+    { return d_domain_map; }
 
     //! The Map associated with the range of this operator, which must be
     //! compatible with Y.getMap().
     Teuchos::RCP<const Tpetra::Map<int,GO> > getRangeMap() const
-    { return d_polynomial->getMap(); }
+    { return d_range_map; }
 
     //! \brief Computes the operator-multivector application.
     /*! Loosely, performs \f$Y = \alpha \cdot A^{\textrm{mode}} \cdot X +
@@ -107,6 +109,12 @@ class PolynomialMatrix : public Tpetra::Operator<double,int,GO>
 
     // The polynomial.
     Teuchos::RCP<const Tpetra::MultiVector<double,int,GO> > d_polynomial;
+
+    // Domain map.
+    Teuchos::RCP<const Tpetra::Map<int,GO> > d_domain_map;
+
+    // Range map.
+    Teuchos::RCP<const Tpetra::Map<int,GO> > d_range_map;
 };
 
 //---------------------------------------------------------------------------//

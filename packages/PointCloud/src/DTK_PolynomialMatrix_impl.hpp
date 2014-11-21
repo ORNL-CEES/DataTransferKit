@@ -62,9 +62,13 @@ namespace DataTransferKit
  */
 template<class GO>
 PolynomialMatrix<GO>::PolynomialMatrix(
-    const Teuchos::RCP<const Tpetra::MultiVector<double,int,GO> >& polynomial )
+    const Teuchos::RCP<const Tpetra::MultiVector<double,int,GO> >& polynomial,
+    const Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map,
+    const Teuchos::RCP<const Tpetra::Map<int,GO> >& range_map )
     : d_comm( polynomial->getMap()->getComm() )
     , d_polynomial( polynomial )
+    , d_domain_map( domain_map )
+    , d_range_map( range_map )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -77,7 +81,9 @@ void PolynomialMatrix<GO>::apply(
     double alpha,
     double beta ) const
 {
-    DTK_REQUIRE( d_polynomial->getMap()->isSameAs(*Y.getMap()) );
+    DTK_REQUIRE( d_domain_map->isSameAs(*(X.getMap())) );
+    DTK_REQUIRE( d_range_map->isSameAs(*(Y.getMap())) );
+    DTK_REQUIRE( X.getNumVectors() == Y.getNumVectors() );
 
     // Get the size of the problem and view of the local vectors.
     int poly_size = d_polynomial->getNumVectors();

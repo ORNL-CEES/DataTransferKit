@@ -32,9 +32,9 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   mls_reconstruction.cpp
+ * \file   interpolation.cpp
  * \author Stuart Slattery
- * \brief  STK file-based moving least square reconstruction example.
+ * \brief  STK file-based interpolation example.
  */
 //---------------------------------------------------------------------------//
 
@@ -50,7 +50,9 @@
 #include "DTK_STKMeshDOFVector.hpp"
 #include "DTK_STKMeshHelpers.hpp"
 #include "DTK_STKMeshManager.hpp"
+#include "DTK_ConsistentInterpolationOperator.hpp"
 #include "DTK_MovingLeastSquareReconstructionOperator.hpp"
+#include "DTK_SplineInterpolationOperator.hpp"
 #include "DTK_WuBasis.hpp"
 
 #include <Teuchos_GlobalMPISession.hpp>
@@ -139,8 +141,9 @@ int main(int argc, char* argv[])
 	plist->get<std::string>("Target Mesh Output File");
     std::string target_mesh_part_name = 
 	plist->get<std::string>("Target Mesh Part");
-    double reconstruction_radius =
-	plist->get<double>("Reconstruction Radius");
+    std::string interpolation_type = 
+	plist->get<std::string>("Interpolation Type");
+    double basis_radius = plist->get<double>("Basis Radius");
 
     // Get the raw mpi communicator (basic typedef in STK).
     Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
@@ -254,19 +257,36 @@ int main(int argc, char* argv[])
     // SOLUTION TRANSFER
     // -----------------
 
-    // Create a moving least square reconstruction operator.
-    DataTransferKit::MovingLeastSquareReconstructionOperator<
-	double,DataTransferKit::WuBasis<4>,3> mls_op( reconstruction_radius );
+    // Create a map operator.
+    Teuchos::RCP<DataTransferKit::MapOperator<double> > map_op;
+    if ( "Consistent" == interpolation_type )
+    {
+	map_op = Teuchos::rcp( 
+	    new DataTransferKit::ConsistentInterpolationOperator<double>() );
 
-    // Setup the moving least square reconstruction operator.
-    mls_op.setup( src_vector->getMap(),
-		  src_manager.functionSpace(),
-		  tgt_vector->getMap(),
-		  tgt_manager.functionSpace(),
-		  parameters );
+    }
+    else if ( "Spline" == interpolation_type )
+    {
+	map_op = Teuchos::rcp( 
+	    new DataTransferKit::SplineInterpolationOperator<
+	    double,DataTransferKit::WuBasis<4>,3>(basis_radius) );
+    }
+    else if ( "Moving Least Square" == interpolation_type )
+    {
+	map_op = Teuchos::rcp( 
+	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
+	    double,DataTransferKit::WuBasis<4>,3>(basis_radius) );
+    }
 
-    // Apply the moving least square reconstruction operator.
-    mls_op.apply( *src_vector, *tgt_vector );
+    // Setup the map operator.
+    map_op->setup( src_vector->getMap(),
+		   src_manager.functionSpace(),
+		   tgt_vector->getMap(),
+		   tgt_manager.functionSpace(),
+		   parameters );
+
+    // Apply the map operator.
+    map_op->apply( *src_vector, *tgt_vector );
 
     // Push the target vector onto the target mesh.
     DataTransferKit::STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
