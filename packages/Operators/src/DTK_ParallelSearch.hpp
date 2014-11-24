@@ -130,6 +130,15 @@ class ParallelSearch
 	const EntityId range_id,
 	Teuchos::ArrayView<const double>& parametric_coords ) const;
 
+    /*!
+     * \brief Return the ids of the range entities that were not during the
+     * last search (i.e. those that are guaranteed to not receive data from
+     * the transfer).
+     *
+     * \return A view of the ids.
+     */
+    Teuchos::ArrayView<const EntityId> getMissedRangeEntityIds() const;
+
   private:
 
     // Parallel communicator.
@@ -171,6 +180,13 @@ class ParallelSearch
     std::unordered_map<EntityId,
 		       std::unordered_map<EntityId,Teuchos::Array<double> > 
 		       > d_parametric_coords;
+
+    // Boolean for tracking missed range entities.
+    bool d_track_missed_range_entities;
+
+    // An array of range entity ids that were not mapped during the last call
+    // to setup.
+    mutable Teuchos::Array<EntityId> d_missed_range_entity_ids;
 };
 
 //---------------------------------------------------------------------------//

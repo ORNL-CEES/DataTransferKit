@@ -57,7 +57,16 @@ CoarseGlobalSearch::CoarseGlobalSearch(
     const Teuchos::ParameterList& parameters )
     : d_comm( comm )
     , d_space_dim( physical_dimension )
+    , d_track_missed_range_entities( false )
+    , d_missed_range_entity_ids( 0 )
 {
+    // Determine if we are tracking missed range entities.
+    if ( parameters.isParameter("Track Missed Range Entities") )
+    {
+	d_track_missed_range_entities =
+	    parameters.get<bool>("Track Missed Range Entities");
+    }
+
     // Assemble the local domain bounding box.
     Teuchos::Tuple<double,6> domain_box;
     assembleBoundingBox( domain_iterator, domain_box );
@@ -122,17 +131,20 @@ void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
     Teuchos::Array<int> send_ranks;
     Teuchos::Array<double> send_centroids;
     Teuchos::Array<double> centroid(d_space_dim);
+    bool found_entity = false;
     for ( range_it = range_begin; range_it != range_end; ++range_it )
     {
 	// Get the centroid.
 	range_local_map->centroid( *range_it, centroid() );
 
 	// Check the neighbors.
+	found_entity = false;
 	for ( int n = 0; n < num_neighbors; ++n )
 	{
 	    // If the centroid is in the box, add it to the send list.
 	    if ( pointInBox(centroid(),neighbor_boxes[n]) )
 	    {
+		found_entity = true;
 		send_ids.push_back( range_it->id() );
 		send_ranks.push_back( neighbor_ranks[n] );
 		for ( int d = 0; d < d_space_dim; ++d )
@@ -140,6 +152,13 @@ void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
 		    send_centroids.push_back( centroid[d] );
 		}
 	    }
+	}
+
+	// If we are tracking missed range entities, add the entity to the
+	// list.
+	if ( d_track_missed_range_entities && !found_entity )
+	{
+	    d_missed_range_entity_ids.push_back( range_it->id() );
 	}
     }
     int num_send = send_ranks.size();
@@ -164,6 +183,16 @@ void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
     Teuchos::ArrayView<const double> send_centroids_view = send_centroids();
     distributor.doPostsAndWaits( 
 	send_centroids_view, d_space_dim, range_centroids() );
+}
+
+//---------------------------------------------------------------------------//
+// Return the ids of the range entities that were not mapped during the last
+// setup phase (i.e. those that are guaranteed to not receive data from the
+// transfer). 
+Teuchos::ArrayView<const EntityId> 
+CoarseGlobalSearch::getMissedRangeEntityIds() const
+{
+    return d_missed_range_entity_ids();
 }
 
 //---------------------------------------------------------------------------//

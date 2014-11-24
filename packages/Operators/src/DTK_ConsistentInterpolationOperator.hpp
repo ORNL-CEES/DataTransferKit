@@ -47,6 +47,7 @@
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_Array.hpp>
 
 #include <Tpetra_Map.hpp>
 
@@ -84,16 +85,21 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
+     *
      * \param domain_map Parallel map for domain vectors this map should be
      * compatible with.
+     *
      * \param domain_function The function that contains the data that will be
      * sent to the range. Must always be nonnull but the pointers it contains
      * may be null of no entities are on-process.
+     *
      * \param range_map Parallel map for range vectors this map should be
      * compatible with.
+     *
      * \param range_space The function that will receive the data from the
      * domain. Must always be nonnull but the pointers it contains to entity
      * data may be null of no entities are on-process.
+     *
      * \param parameters Parameters for the setup.
      */
     void setup( const Teuchos::RCP<const typename Base::TpetraMap>& domain_map,
@@ -101,6 +107,21 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
 		const Teuchos::RCP<const typename Base::TpetraMap>& range_map,
 		const Teuchos::RCP<FunctionSpace>& range_space,
 		const Teuchos::RCP<Teuchos::ParameterList>& parameters );
+
+    /*!
+     * \brief Return the ids of the range entities that were not mapped during
+     * the last setup phase (i.e. those that are guaranteed to not receive
+     * data from the transfer).
+     *
+     * \return A view of the ids.
+     */
+    Teuchos::ArrayView<const EntityId> getMissedRangeEntityIds() const;
+
+  private:
+
+    // An array of range entity ids that were not mapped during the last call
+    // to setup.
+    Teuchos::Array<EntityId> d_missed_range_entity_ids;
 };
 
 //---------------------------------------------------------------------------//

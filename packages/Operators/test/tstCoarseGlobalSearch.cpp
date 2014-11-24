@@ -57,6 +57,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, all_to_one_test )
     
     // Build a coarse global search over the boxes.
     Teuchos::ParameterList plist;
+    plist.set<bool>("Track Missed Range Entities",true);
     CoarseGlobalSearch coarse_global_search( comm, 3, domain_it, plist );
 
     // Make a range entity set.
@@ -121,6 +122,9 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, all_to_one_test )
 	TEST_EQUALITY( 0, range_ranks.size() );
 	TEST_EQUALITY( 0, range_centroids.size() );
     }
+
+    // Check that no missed points were found.
+    TEST_EQUALITY( coarse_global_search.getMissedRangeEntityIds().size(), 0 );
 }
 
 //---------------------------------------------------------------------------//
@@ -151,6 +155,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, one_to_one_test )
     
     // Build a coarse global search over the boxes.
     Teuchos::ParameterList plist;
+    plist.set<bool>("Track Missed Range Entities",true);
     CoarseGlobalSearch coarse_global_search( comm, 3, domain_it, plist );
 
     // Make a range entity set.
@@ -200,6 +205,9 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, one_to_one_test )
 	id = num_points*(comm_size-comm_rank-1) + j;
 	TEST_EQUALITY( Teuchos::as<int>(range_ids[j]), id );
     }
+
+    // Check that no missed points were found.
+    TEST_EQUALITY( coarse_global_search.getMissedRangeEntityIds().size(), 0 );
 }
 
 //---------------------------------------------------------------------------//
@@ -236,6 +244,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, no_domain_0_test )
     
     // Build a coarse global search over the boxes.
     Teuchos::ParameterList plist;
+    plist.set<bool>("Track Missed Range Entities",true);
     CoarseGlobalSearch coarse_global_search( comm, 3, domain_it, plist );
 
     // Make a range entity set.
@@ -243,9 +252,11 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, no_domain_0_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
     Teuchos::Array<double> point(3);
+    Teuchos::Array<EntityId> point_ids( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
 	id = num_points*comm_rank + i;
+	point_ids[i] = id;
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = id + 0.5;
@@ -294,6 +305,18 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, no_domain_0_test )
 	TEST_EQUALITY( 0, range_ranks.size() );
 	TEST_EQUALITY( 0, range_centroids.size() );
     }
+
+    // Check that proc zero had all points not found.
+    int num_missed = (comm_rank != comm_size-1) ? 0 : 5;
+    Teuchos::Array<EntityId> missed_ids(
+	coarse_global_search.getMissedRangeEntityIds() );
+    TEST_EQUALITY( missed_ids.size(), num_missed );
+    std::sort( point_ids.begin(), point_ids.end() );
+    std::sort( missed_ids.begin(), missed_ids.end() );
+    for ( int i = 0; i < num_missed; ++i )
+    {
+	TEST_EQUALITY( missed_ids[i], point_ids[i] );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -324,18 +347,21 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, no_range_0_test )
     
     // Build a coarse global search over the boxes.
     Teuchos::ParameterList plist;
+    plist.set<bool>("Track Missed Range Entities",true);
     CoarseGlobalSearch coarse_global_search( comm, 3, domain_it, plist );
 
     // Make a range entity set.
     Teuchos::RCP<EntitySet> range_set =
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
+    Teuchos::Array<EntityId> point_ids( num_points );
     if ( comm_rank > 0 )
     {
 	Teuchos::Array<double> point(3);
 	for ( int i = 0; i < num_points; ++i )
 	{
 	    id = num_points*comm_rank + i;
+	    point_ids[i] = id;
 	    point[0] = 0.5;
 	    point[1] = 0.5;
 	    point[2] = id + 0.5;
@@ -385,6 +411,12 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, no_range_0_test )
 	TEST_EQUALITY( 0, range_ranks.size() );
 	TEST_EQUALITY( 0, range_centroids.size() );
     }
+
+    // Check that no missed points were found.
+    int num_missed = 0;
+    Teuchos::Array<EntityId> missed_ids(
+	coarse_global_search.getMissedRangeEntityIds() );
+    TEST_EQUALITY( missed_ids.size(), num_missed );
 }
 
 //---------------------------------------------------------------------------//
@@ -415,6 +447,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, many_to_many_test )
     
     // Build a coarse global search over the boxes.
     Teuchos::ParameterList plist;
+    plist.set<bool>("Track Missed Range Entities",true);
     CoarseGlobalSearch coarse_global_search( comm, 3, domain_it, plist );
 
     // Make a range entity set.
@@ -422,9 +455,11 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, many_to_many_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 10;
     Teuchos::Array<double> point(3);
+    Teuchos::Array<EntityId> point_ids( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
 	id = num_points*comm_rank + i;
+	point_ids[i] = id;
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = comm_rank*5.0 + i + 0.5;
@@ -485,6 +520,18 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, many_to_many_test )
 	    TEST_EQUALITY( range_ranks[i], 0 );
 	}
     }
+
+    // Check that proc zero had some points not found.
+    int num_missed = (comm_rank != comm_size-1) ? 0 : 5;
+    Teuchos::Array<EntityId> missed_ids(
+	coarse_global_search.getMissedRangeEntityIds() );
+    TEST_EQUALITY( missed_ids.size(), num_missed );
+    std::sort( point_ids.begin(), point_ids.end() );
+    std::sort( missed_ids.begin(), missed_ids.end() );
+    for ( int i = 0; i < num_missed; ++i )
+    {
+	TEST_EQUALITY( missed_ids[i], point_ids[i+5] );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -510,6 +557,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_multiple_neighbors_test )
     
     // Build a coarse global search over the boxes.
     Teuchos::ParameterList plist;
+    plist.set<bool>("Track Missed Range Entities",true);
     CoarseGlobalSearch coarse_global_search( comm, 3, domain_it, plist );
 
     // Make a range entity set.
@@ -567,6 +615,104 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_multiple_neighbors_test )
     	TEST_EQUALITY( range_centroids[1], 0.5 );
     	TEST_EQUALITY( range_centroids[2], comm_size-comm_rank-1 );
     }
+
+    // Check that no missed points were found.
+    TEST_EQUALITY( coarse_global_search.getMissedRangeEntityIds().size(), 0 );
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( CoarseGlobalSearch, missed_range_test )
+{
+    using namespace DataTransferKit;
+
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::DefaultComm<int>::getComm();
+    int comm_rank = comm->getRank();
+    int comm_size = comm->getSize();
+
+    // Make a domain entity set.
+    Teuchos::RCP<EntitySet> domain_set = 
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    int num_boxes = 5;
+    int id = 0;
+    for ( int i = 0; i < num_boxes; ++i )
+    {
+	id = num_boxes*(comm_size-comm_rank-1) + i;
+	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
+	    Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+    }
+
+    // Get an iterator over all of the boxes.
+    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    
+    // Build a coarse global search over the boxes.
+    Teuchos::ParameterList plist;
+    plist.set<bool>("Track Missed Range Entities",true);
+    CoarseGlobalSearch coarse_global_search( comm, 3, domain_it, plist );
+
+    // Make a range entity set.
+    Teuchos::RCP<EntitySet> range_set =
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    int num_points = 5;
+    Teuchos::Array<double> point(3);
+    for ( int i = 0; i < num_points; ++i )
+    {
+	id = num_points*comm_rank + i;
+	point[0] = 0.5;
+	point[1] = 0.5;
+	point[2] = id + 0.5;
+	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
+	    Point(id,comm_rank,point) );
+    }
+
+    // Add a bad point.
+    id = num_points*comm_rank + 1000;
+    point[0] = -100.0;
+    point[1] = 0.0;
+    point[2] = 0.0;
+    Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
+	Point(id,comm_rank,point) );
+
+    // Construct a local map for the points.
+    Teuchos::RCP<EntityLocalMap> range_map = 
+	Teuchos::rcp( new BasicGeometryLocalMap() );
+
+    // Get an iterator over the points.
+    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+
+    // Search the tree.
+    Teuchos::Array<EntityId> range_ids;
+    Teuchos::Array<int> range_ranks;
+    Teuchos::Array<double> range_centroids;
+    coarse_global_search.search( range_it, range_map, plist,
+				 range_ids, range_ranks, range_centroids );
+
+    // Check the results of the search.
+    int num_recv = num_points;
+    TEST_EQUALITY( num_recv, range_ids.size() );
+    TEST_EQUALITY( num_recv, range_ranks.size() );
+    TEST_EQUALITY( 3*num_recv, range_centroids.size() );
+    for ( int i = 0; i < num_recv; ++i )
+    {
+	TEST_EQUALITY( range_ranks[i], comm_size - comm_rank - 1 );
+	TEST_EQUALITY( range_centroids[3*i], 0.5 );
+	TEST_EQUALITY( range_centroids[3*i+1], 0.5 );
+	TEST_EQUALITY( range_centroids[3*i+2], range_ids[i]+0.5 );
+    }
+    std::sort( range_ids.begin(), range_ids.end() );
+    for ( int j = 0; j < num_recv; ++j )
+    {
+	id = num_points*(comm_size-comm_rank-1) + j;
+	TEST_EQUALITY( Teuchos::as<int>(range_ids[j]), id );
+    }
+
+    // Check that the bad point was found.
+    Teuchos::ArrayView<const EntityId> missed_range =
+	coarse_global_search.getMissedRangeEntityIds();
+    TEST_EQUALITY( missed_range.size(), 1 );
+    TEST_EQUALITY( missed_range[0], 
+		   Teuchos::as<EntityId>(num_points*comm_rank + 1000) );
 }
 
 //---------------------------------------------------------------------------//

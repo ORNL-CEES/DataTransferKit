@@ -65,6 +65,7 @@ namespace DataTransferKit
 // Constructor.
 template<class Scalar>
 ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator()
+    : d_missed_range_entity_ids( 0 )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -138,6 +139,11 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 
     // Search the domain with the range.
     psearch.search( range_iterator, range_space->localMap(), *parameters );
+
+    // If we are keeping track of range entities that were not mapped, extract
+    // them.
+    d_missed_range_entity_ids =
+	Teuchos::Array<EntityId>( psearch.getMissedRangeEntityIds() );
 
     // Determine the DOF ids for the range entities found in the local domain
     // on this process and the number of domain entities they were found in
@@ -287,6 +293,17 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     // Set the coupling matrix with the base class.
     this->b_coupling_matrix = thyra_coupling_matrix;
     DTK_ENSURE( Teuchos::nonnull(this->b_coupling_matrix) );
+}
+
+//---------------------------------------------------------------------------//
+// Return the ids of the range entities that were not mapped during the last
+// setup phase (i.e. those that are guaranteed to not receive data from the
+// transfer). 
+template<class Scalar>
+Teuchos::ArrayView<const EntityId> 
+ConsistentInterpolationOperator<Scalar>::getMissedRangeEntityIds() const
+{
+    return d_missed_range_entity_ids();
 }
 
 //---------------------------------------------------------------------------//

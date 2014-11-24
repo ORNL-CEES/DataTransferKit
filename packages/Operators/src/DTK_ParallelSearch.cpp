@@ -55,7 +55,18 @@ ParallelSearch::ParallelSearch(
     const Teuchos::ParameterList& parameters )
     : d_comm( comm )
     , d_physical_dim( physical_dimension )
+    , d_track_missed_range_entities( false )
+    , d_missed_range_entity_ids( 0 )
 {
+    // Determine if we are tracking missed range entities.
+    if ( parameters.isParameter("Track Missed Range Entities") )
+    {
+	d_track_missed_range_entities =
+	    parameters.get<bool>("Track Missed Range Entities");
+    }
+
+    // Build a coarse global search as this object must be collective across
+    // the communicator.
     d_coarse_global_search = Teuchos::rcp(
 	new CoarseGlobalSearch(d_comm, physical_dimension, 
 			       domain_iterator, parameters) );
@@ -100,6 +111,20 @@ void ParallelSearch::search(
     d_coarse_global_search->search( 
 	range_iterator, range_local_map, parameters,
 	range_entity_ids, range_owner_ranks, range_centroids );
+
+    // If needed, extract the range entities that were missed during the
+    // coarse global search.
+    Teuchos::Array<EntityId> found_range_entity_ids;
+    Teuchos::Array<int> found_range_ranks;
+    Teuchos::Array<EntityId> missed_range_entity_ids;
+    Teuchos::Array<int> missed_range_ranks;
+    if ( d_track_missed_range_entities )
+    {
+	missed_range_entity_ids = Teuchos::Array<EntityId>( 
+	    d_coarse_global_search->getMissedRangeEntityIds() );
+	missed_range_ranks.assign( missed_range_entity_ids.size(),
+				   d_comm->getRank() );
+    }
 
     // Only do the local search if there are local domain entities.
     Teuchos::Array<int> export_range_ranks;
@@ -161,12 +186,30 @@ void ParallelSearch::search(
 		export_data.push_back( 
 		    Teuchos::as<EntityId>(d_comm->getRank()) );
 	    }
+
+	    // If we found parents for the point, store them.
 	    if ( num_parents > 0 )
 	    {
 		std::pair<EntityId,
 			  std::unordered_map<EntityId,Teuchos::Array<double> > 
 			  > range_ref_pair( range_entity_ids[n], ref_map );
 		d_parametric_coords.insert( range_ref_pair );
+
+		// If we are tracking missed points, also track those that we
+		// found so we can determine if a point was found after being
+		// sent to multiple destinations.
+		if ( d_track_missed_range_entities )
+		{
+		    found_range_entity_ids.push_back( range_entity_ids[n] );
+		    found_range_ranks.push_back( range_owner_ranks[n] );
+		}
+	    }
+	    
+	    // Otherwise, if we are tracking missed points report this.
+	    else if ( d_track_missed_range_entities )
+	    {
+		missed_range_entity_ids.push_back( range_entity_ids[n] );
+		missed_range_ranks.push_back( range_owner_ranks[n] );
 	    }
 	}
     }
@@ -191,6 +234,55 @@ void ParallelSearch::search(
 
 	d_domain_owner_ranks.insert( domain_rank );
 	d_range_to_domain_map.insert( range_domain );
+    }
+
+    // If we are tracking missed points, back-communicate the missing points
+    // and found points to determine which points are actually missing.
+    if ( d_track_missed_range_entities )
+    {
+	// Back-communicate the missing points.
+	Tpetra::Distributor missed_range_dist( d_comm );
+	int num_import_missed = 
+	    missed_range_dist.createFromSends( missed_range_ranks() );
+	Teuchos::Array<EntityId> import_missed( num_import_missed );
+	Teuchos::ArrayView<const EntityId> missed_view = 
+	    missed_range_entity_ids();
+	missed_range_dist.doPostsAndWaits( missed_view, 1, import_missed() );
+
+	// Back-communicate the found points.
+	Tpetra::Distributor found_range_dist( d_comm );
+	int num_import_found = 
+	    found_range_dist.createFromSends( found_range_ranks() );
+	Teuchos::Array<EntityId> import_found( num_import_found );
+	Teuchos::ArrayView<const EntityId> found_view = 
+	    found_range_entity_ids();
+	found_range_dist.doPostsAndWaits( found_view, 1, import_found() );
+
+	// Intersect the found and missed points to determine if there are any
+	// that were found on one process but missed on another.
+	std::sort( import_missed.begin(), import_missed.end() );
+	std::sort( import_found.begin(), import_found.end() );
+	Teuchos::Array<EntityId> false_positive_missed(
+	    import_missed.size() + import_found.size() );
+	auto false_positive_end = 
+	    std::set_intersection( import_missed.begin(), import_missed.end(),
+				   import_found.begin(), import_found.end(),
+				   false_positive_missed.begin() );
+
+	// Create a list of missed points without the false positives.
+	d_missed_range_entity_ids.resize( num_import_missed );
+	auto missed_range_end = std::set_difference( 
+	    import_missed.begin(), import_missed.end(),
+	    false_positive_missed.begin(), false_positive_missed.end(),
+	    d_missed_range_entity_ids.begin() );
+
+	// Create a unique list of missed points without the false positives.
+	std::sort( d_missed_range_entity_ids.begin(), missed_range_end );
+	auto missed_range_unique_end = std::unique(
+	    d_missed_range_entity_ids.begin(), missed_range_end );
+	d_missed_range_entity_ids.resize(
+	    std::distance(d_missed_range_entity_ids.begin(),
+			  missed_range_unique_end) );
     }
 }
 
@@ -260,6 +352,16 @@ void ParallelSearch::rangeParametricCoordinatesInDomain(
     DTK_REQUIRE( d_parametric_coords.find(range_id)->second.count(domain_id) );
     parametric_coords =	
 	d_parametric_coords.find(range_id)->second.find(domain_id)->second;
+}
+
+//---------------------------------------------------------------------------//
+// Return the ids of the range entities that were not mapped during the last
+// setup phase (i.e. those that are guaranteed to not receive data from the
+// transfer). 
+Teuchos::ArrayView<const EntityId> 
+ParallelSearch::getMissedRangeEntityIds() const
+{
+    return d_missed_range_entity_ids();
 }
 
 //---------------------------------------------------------------------------//

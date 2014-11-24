@@ -74,7 +74,7 @@ void FineLocalSearch::search(
     Teuchos::Array<Entity>& parents,
     Teuchos::Array<double>& reference_coordinates ) const
 {
-   parents.clear();
+    parents.clear();
     reference_coordinates.clear();
     int physical_dim = point.size();
     Teuchos::Array<double> ref_point( physical_dim );

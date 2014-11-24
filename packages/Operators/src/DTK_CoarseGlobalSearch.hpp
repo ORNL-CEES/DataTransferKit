@@ -83,6 +83,15 @@ class CoarseGlobalSearch
 		 Teuchos::Array<int>& range_owner_ranks,
 		 Teuchos::Array<double>& range_centroids ) const;
 
+    /*!
+     * \brief Return the ids of the range entities that were not during the
+     * last search (i.e. those that are guaranteed to not receive data from
+     * the transfer).
+     *
+     * \return A view of the ids.
+     */
+    Teuchos::ArrayView<const EntityId> getMissedRangeEntityIds() const;
+
   private:
 
     // Assemble the local bounding box around an iterator.
@@ -107,6 +116,13 @@ class CoarseGlobalSearch
 
     // Domain bounding boxes.
     Teuchos::Array<Teuchos::Tuple<double,6> > d_domain_boxes;
+
+    // Boolean for tracking missed range entities.
+    bool d_track_missed_range_entities;
+
+    // An array of range entity ids that were not mapped during the last call
+    // to setup.
+    mutable Teuchos::Array<EntityId> d_missed_range_entity_ids;
 };
 
 //---------------------------------------------------------------------------//
