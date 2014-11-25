@@ -63,11 +63,11 @@ SplineProlongationOperator<Scalar,GO>::SplineProlongationOperator(
 	d_domain_map->getNodeElementList();
     d_lda = domain_elements.size();
     Teuchos::Array<GO> global_ids;
+    GO max_id = d_domain_map->getMaxAllGlobalIndex() + 1;
     if ( d_domain_map->getComm()->getRank() == 0 )
     {
 	global_ids.resize( d_offset + domain_elements.size() );
 	global_ids( d_offset, domain_elements.size() ).assign( domain_elements );
-	GO max_id = d_domain_map->getMaxAllGlobalIndex() + 1;
 	for ( int i = 0; i < d_offset; ++i )
 	{
 	    global_ids[i] = max_id + i;
@@ -97,13 +97,16 @@ void SplineProlongationOperator<Scalar,GO>::apply(
     DTK_REQUIRE( d_range_map->isSameAs(*(Y.getMap())) );
     DTK_REQUIRE( X.getNumVectors() == Y.getNumVectors() );
 
-    Y.putScalar( 0.0 );
+    Y.scale( beta );
     
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> > X_view = X.get2dView();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> > Y_view = Y.get2dViewNonConst();
     for ( int n = 0; n < X.getNumVectors(); ++n )
     {
-	Y_view[n](d_offset,d_lda).assign( X_view[n]() );
+	for ( int i = 0; i < d_lda; ++i )
+	{
+	    Y_view[n][i+d_offset] += alpha*X_view[n][i];
+	}
     }
 }
 

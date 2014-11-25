@@ -212,10 +212,6 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
     Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > thyra_C_inv =
     	Thyra::inverse<Scalar>( *factory, thyra_C );
 
-    Teuchos::RCP<Thyra::LinearOpWithSolveBase<Scalar> > solver = 
-	Thyra::linearOpWithSolve( *factory, thyra_C );
-    solver->describe( std::cout, Teuchos::VERB_HIGH );
-
     // Create the composite operator B = (Q + N);
     Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > thyra_B =
 	Thyra::add<Scalar>( thyra_Q, thyra_N );
@@ -306,13 +302,6 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     CenterDistributor<DIM> source_distributor( 
 	comm, source_centers(), source_centers(), d_radius, dist_sources );
     
-    // Build the source/source pairings.
-    SplineInterpolationPairing<DIM> source_pairings( 
-	dist_sources(), source_centers(), d_radius );
-
-    // Build the interpolation operator map.
-    Teuchos::RCP<const Tpetra::Map<int,GO> > prolongated_map = S->getRangeMap();
-
     // Distribute the global source ids.
     Teuchos::Array<GO> dist_source_gids( 
 	source_distributor.getNumImports() );
@@ -320,8 +309,15 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     Teuchos::ArrayView<GO> dist_gids_view = dist_source_gids();
     source_distributor.distribute( source_gids_view, dist_gids_view );
 
+    // Build the source/source pairings.
+    SplineInterpolationPairing<DIM> source_pairings( 
+	dist_sources(), source_centers(), d_radius );
+
     // Build the basis.
     Teuchos::RCP<Basis> basis = BP::create( d_radius );
+
+    // Get the operator map.
+    Teuchos::RCP<const Tpetra::Map<int,GO> > prolongated_map = S->getRangeMap();
 
     // Build the coefficient operators.
     SplineCoefficientMatrix<Basis,DIM> C( 

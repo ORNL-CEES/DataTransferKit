@@ -72,56 +72,46 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
     // Get the number of source centers.
     unsigned num_source_centers = source_center_gids.size();
 
-    // Create the P^T matrix.
+    // Create the P matrix.
     int offset = DIM + 1;
-    unsigned lid_offset = operator_map->getComm()->getRank() ? 0 : offset;
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > P_vec = 
 	Tpetra::createMultiVector<double,int,std::size_t>( operator_map, offset );
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > P_view = 
-	P_vec->get2dViewNonConst();
     int di = 0; 
-    for ( unsigned i = lid_offset; i < num_source_centers + lid_offset; ++i )
+    for ( unsigned i = 0; i < num_source_centers; ++i )
     {
-	P_view[0][i] = 1.0;
-	di = DIM*(i-lid_offset);
+	P_vec->replaceGlobalValue( source_center_gids[i], 0, 1.0 );
+	di = DIM*i;
 	for ( int d = 0; d < DIM; ++d )
 	{
-	    P_view[d+1][i] = source_centers[di+d];
+	    P_vec->replaceGlobalValue( 
+		source_center_gids[i], d+1, source_centers[di+d] );
 	}
     }
-    d_P =Teuchos::rcp( 
+    d_P =Teuchos::rcp(
 	new PolynomialMatrix<std::size_t>(P_vec,operator_map,operator_map) );
 
     // Create the M matrix.
-    Teuchos::ArrayRCP<std::size_t> entries_per_row;
-    if ( 0 == operator_map->getComm()->getRank() )
-    {
-	entries_per_row = Teuchos::ArrayRCP<std::size_t>(
-	    num_source_centers + offset, 0 );
-	Teuchos::ArrayRCP<std::size_t> children_per_parent =
-	    source_pairings.childrenPerParent();
-	std::copy( children_per_parent.begin(), children_per_parent.end(),
-		   entries_per_row.begin() + offset );
-    }
-    else
-    {
-	entries_per_row = source_pairings.childrenPerParent();
-    }
+    Teuchos::ArrayRCP<std::size_t> children_per_parent =
+	source_pairings.childrenPerParent();
+    std::size_t max_entries_per_row = *std::max_element( 
+	children_per_parent.begin(), children_per_parent.end() );
     d_M = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,std::size_t>(
-			    operator_map,
-			    entries_per_row, Tpetra::StaticProfile) );
-    Teuchos::Array<std::size_t> M_indices;
-    Teuchos::Array<double> values;
+			    operator_map, max_entries_per_row) );
+    Teuchos::Array<std::size_t> M_indices( max_entries_per_row );
+    Teuchos::Array<double> values( max_entries_per_row );
     int dj = 0;
     Teuchos::ArrayView<const unsigned> source_neighbors;
     double dist = 0.0;
+    int nsn = 0;
     for ( unsigned i = 0; i < num_source_centers; ++i )
     {
+	// Get the source points neighboring this source point.
     	di = DIM*i;
 	source_neighbors = source_pairings.childCenterIds( i );
-	M_indices.resize( source_neighbors.size() );
-	values.resize( source_neighbors.size() );
-    	for ( unsigned j = 0; j < source_neighbors.size(); ++j )
+	nsn = source_neighbors.size();
+
+	// Add the local basis contributions.
+    	for ( unsigned j = 0; j < nsn; ++j )
     	{
 	    dj = DIM*source_neighbors[j];
 	    M_indices[j] = 
@@ -132,8 +122,8 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
 
     	    values[j] = BP::evaluateValue( basis, dist );
     	}
-
-	d_M->insertGlobalValues( source_center_gids[i], M_indices(), values() );
+	d_M->insertGlobalValues( 
+	    source_center_gids[i], M_indices(0,nsn), values(0,nsn) );
     }
     d_M->fillComplete();
 

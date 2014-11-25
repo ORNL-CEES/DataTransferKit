@@ -94,8 +94,8 @@ void PolynomialMatrix<GO>::apply(
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > y_view =
 	Y.get2dViewNonConst();
 
-    // Zero-out Y to set those components the polynomial will not apply to.
-    Y.putScalar( 0.0 );
+    // Scale Y.
+    Y.scale( beta );
 
     // No transpose.
     if ( Teuchos::NO_TRANS == mode )
@@ -124,7 +124,7 @@ void PolynomialMatrix<GO>::apply(
 	    {
 		for ( int p = 0; p < poly_size; ++p )
 		{
-		    y_view[n][i] += poly_view[p][i] * x_poly[stride + p];
+		    y_view[n][i] += alpha * poly_view[p][i] * x_poly[stride + p];
 		}
 	    }
 	}
@@ -181,9 +181,10 @@ void PolynomialMatrix<GO>::apply(
 	{
 	    for ( int n = 0; n < num_vec; ++n )
 	    {
-		std::copy( &product_sums[n*poly_size],
-			   &product_sums[n*poly_size] + poly_size,
-			   &y_view[n][0] );
+		for ( int p = 0; p < poly_size; ++p )
+		{
+		    y_view[n][p] += alpha * product_sums[n*poly_size+p];
+		}
 	    }
 	}
     }

@@ -77,42 +77,43 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
     int offset = DIM + 1;
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > Q_vec = 
 	Tpetra::createMultiVector<double,int,std::size_t>( range_map, offset );
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > Q_view = 
-	Q_vec->get2dViewNonConst();
     int di = 0; 
     for ( unsigned i = 0; i < num_target_centers; ++i )
     {
-	Q_view[0][i] = 1.0;
+	Q_vec->replaceGlobalValue( target_center_gids[i], 0, 1.0 );
 	di = DIM*i;
 	for ( int d = 0; d < DIM; ++d )
 	{
-	    Q_view[d+1][i] = target_centers[di+d];
+	    Q_vec->replaceGlobalValue( 
+		target_center_gids[i], d+1, target_centers[di+d] );
 	}
     }
     d_Q = Teuchos::rcp( 
 	new PolynomialMatrix<std::size_t>(Q_vec,domain_map,range_map) );
 
     // Create the N matrix.
+    Teuchos::ArrayRCP<std::size_t> children_per_parent =
+	target_pairings.childrenPerParent();
+    std::size_t max_entries_per_row = *std::max_element( 
+	children_per_parent.begin(), children_per_parent.end() );
     d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,std::size_t>( 
-			    range_map,
-			    target_pairings.childrenPerParent(), 
-			    Tpetra::StaticProfile) );
-    Teuchos::Array<std::size_t> N_indices;
-    Teuchos::Array<double> values;
+			    range_map, max_entries_per_row) );
+    Teuchos::Array<std::size_t> N_indices( max_entries_per_row );
+    Teuchos::Array<double> values( max_entries_per_row );
     int dj = 0;
     Teuchos::ArrayView<const unsigned> target_neighbors;
     double dist = 0.0;
+    int ntn = 0;
     for ( unsigned i = 0; i < num_target_centers; ++i )
     {
 	di = DIM*i;
 
 	// Get the source points neighboring this target point.
 	target_neighbors = target_pairings.childCenterIds( i );
-	values.resize( target_neighbors.size() );
-	N_indices.resize( target_neighbors.size() );
+	ntn = target_neighbors.size();
 
 	// Add the local basis contributions.
-    	for ( unsigned j = 0; j < target_neighbors.size(); ++j )
+    	for ( unsigned j = 0; j < ntn; ++j )
     	{
 	    dj = DIM*target_neighbors[j];
 
@@ -125,7 +126,8 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
     	    values[j] = BP::evaluateValue( basis, dist );
     	}
 
-	d_N->insertGlobalValues( target_center_gids[i], N_indices(), values() );
+	d_N->insertGlobalValues( 
+	    target_center_gids[i], N_indices(0,ntn), values(0,ntn) );
     }
     d_N->fillComplete( domain_map, range_map );
 

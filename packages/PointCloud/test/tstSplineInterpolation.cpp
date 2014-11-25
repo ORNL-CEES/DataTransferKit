@@ -62,6 +62,8 @@
 #include "Teuchos_ParameterList.hpp"
 #include "Teuchos_XMLParameterListCoreHelpers.hpp"
 
+#include "BelosTypes.hpp"
+
 //---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
@@ -83,7 +85,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     int field_dim = 1;
 
     // Make a set of domain points.
-    int num_points = 10;
+    int num_points = 1000;
     Teuchos::Array<DataTransferKit::Entity> domain_points( num_points );
     Teuchos::Array<double> coords( space_dim );
     DataTransferKit::EntityId point_id = 0;
@@ -91,24 +93,26 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     for ( int i = 0; i < num_points; ++i )
     {
 	point_id = num_points*comm_rank + i;
-	coords[0] = point_id;
-	coords[1] = point_id;
-	coords[2] = point_id;
+	coords[0] = double(std::rand())/RAND_MAX;
+	coords[1] = double(std::rand())/RAND_MAX;
+	coords[2] = double(std::rand())/RAND_MAX;
 	domain_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
-	domain_data[i] = point_id;
+	domain_data[i] = coords[0];
     }
 
     // Make a set of range points.
     Teuchos::Array<DataTransferKit::Entity> range_points( num_points );
     Teuchos::ArrayRCP<double> range_data( field_dim*num_points );
+    Teuchos::ArrayRCP<double> gold_data( field_dim*num_points );
     for ( int i = 0; i < num_points; ++i )
     {
 	point_id = num_points*inverse_rank + i;
-	coords[0] = point_id;
-	coords[1] = point_id;
-	coords[2] = point_id;
+	coords[0] = double(std::rand())/RAND_MAX;
+	coords[1] = double(std::rand())/RAND_MAX;
+	coords[2] = double(std::rand())/RAND_MAX;
 	range_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
 	range_data[i] = 0.0;
+	gold_data[i] = coords[0];
     }
 
     // Make a manager for the domain geometry.
@@ -130,27 +134,25 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
 	    comm, range_points(), field_dim, range_data );
 
     // Make a moving least square reconstruction operator.
-    double radius = 0.25;
-    Teuchos::RCP<DataTransferKit::MapOperator<double> > mls_op =
+    double radius = parameters->get<double>("Support Radius");
+    Teuchos::RCP<DataTransferKit::MapOperator<double> > spline_op =
 	Teuchos::rcp( 
 	    new DataTransferKit::SplineInterpolationOperator<double,DataTransferKit::WuBasis<2>,space_dim>(radius) );
 
     // Setup the operator.
-    mls_op->setup( domain_vector->getMap(),
-		   domain_manager.functionSpace(),
-		   range_vector->getMap(),
-		   range_manager.functionSpace(),
-		   parameters );
+    spline_op->setup( domain_vector->getMap(),
+		      domain_manager.functionSpace(),
+		      range_vector->getMap(),
+		      range_manager.functionSpace(),
+		      parameters );
 
     // Apply the operator.
-    mls_op->apply( *domain_vector, *range_vector );
+    spline_op->apply( *domain_vector, *range_vector );
 
     // Check the apply.
     for ( int i = 0; i < num_points; ++i )
     {
-	double test_val = num_points*inverse_rank + i;
-	TEST_FLOATING_EQUALITY( range_data[i], test_val,
-				10.0*std::numeric_limits<double>::epsilon() );
+	TEST_FLOATING_EQUALITY( range_data[i], gold_data[i], 1.0 );
     }
 }
 

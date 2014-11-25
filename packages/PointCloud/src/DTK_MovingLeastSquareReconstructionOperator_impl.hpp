@@ -168,15 +168,19 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 	dist_sources, target_centers(), d_radius );
 
     // Build the interpolation matrix.
+    Teuchos::ArrayRCP<std::size_t> children_per_parent =
+	pairings.childrenPerParent();
+    std::size_t max_entries_per_row = *std::max_element( 
+	children_per_parent.begin(), children_per_parent.end() );
     Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,GO> > H = 
 	Teuchos::rcp( new Tpetra::CrsMatrix<Scalar,int,GO>( 
 			  this->b_range_map,
-			  pairings.childrenPerParent(), 
-			  Tpetra::StaticProfile) );
+			  max_entries_per_row) );
     Teuchos::ArrayView<const Scalar> target_view;
-    Teuchos::Array<GO> indices;
+    Teuchos::Array<GO> indices( max_entries_per_row );
     Teuchos::ArrayView<const Scalar> values;
     Teuchos::ArrayView<const unsigned> pair_gids;
+    int nn = 0;
     for ( int i = 0; i < local_num_tgt; ++i )
     {
 	// If there is no support for this target center then do not build a
@@ -191,21 +195,23 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 		target_view, pairings.childCenterIds(i),
 		dist_sources, *basis );
 
-	    // Populate the interpolation matrix row.
+	    // Get MLS shape function values for this target point.
 	    values = local_problem.shapeFunction();
-	    indices.resize( values.size() );
+	    nn = values.size();
+
+	    // Populate the interpolation matrix row.
 	    pair_gids = pairings.childCenterIds(i);
-	    for ( unsigned j = 0; j < values.size(); ++j )
+	    for ( unsigned j = 0; j < nn; ++j )
 	    {
 		indices[j] = dist_source_gids[ pair_gids[j] ];
 	    }
-	    H->insertGlobalValues( target_gids[i], indices(), values );
+	    H->insertGlobalValues( target_gids[i], indices(0,nn), values );
 	}
     }
     H->fillComplete( this->b_domain_map, this->b_range_map );
     DTK_ENSURE( H->isFillComplete() );
     
-    // Wrap the interpolation matrix in a Tpetra wrapper.
+    // Wrap the interpolation matrix in a Thyra wrapper.
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space =
     	Thyra::createVectorSpace<Scalar>( H->getRangeMap() );
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_domain_vector_space =
