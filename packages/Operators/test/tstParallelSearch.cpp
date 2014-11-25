@@ -721,7 +721,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, point_multiple_neighbors_test )
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( ParallelSearch, missed_range_test )
+TEUCHOS_UNIT_TEST( ParallelSearch, global_missed_range_test )
 {
     using namespace DataTransferKit;
 
@@ -822,6 +822,121 @@ TEUCHOS_UNIT_TEST( ParallelSearch, missed_range_test )
 	    local_domain[i], local_range[i], range_coords );
 	TEST_EQUALITY( range_coords[0], 0.5 );
 	TEST_EQUALITY( range_coords[1], 0.5 );
+	TEST_EQUALITY( range_coords[2], local_range[i] + 0.5 );
+	TEST_EQUALITY( comm_size - comm_rank - 1,
+		       parallel_search.rangeEntityOwnerRank(local_range[i]) );
+    }
+
+    // Check that the bad point was found.
+    Teuchos::ArrayView<const EntityId> missed_range =
+	parallel_search.getMissedRangeEntityIds();
+    TEST_EQUALITY( missed_range.size(), 1 );
+    TEST_EQUALITY( missed_range[0], 
+		   Teuchos::as<EntityId>(num_points*comm_rank + 1000) );
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( ParallelSearch, local_missed_range_test )
+{
+    using namespace DataTransferKit;
+
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::DefaultComm<int>::getComm();
+    int comm_rank = comm->getRank();
+    int comm_size = comm->getSize();
+
+    // Make a domain entity set.
+    Teuchos::RCP<EntitySet> domain_set = 
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    int num_boxes = 5;
+    int id = 0;
+    for ( int i = 0; i < num_boxes; ++i )
+    {
+	id = num_boxes*(comm_size-comm_rank-1) + i;
+	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
+	    Box(id,comm_rank,id,id,id,id,id+1.0,id+1.0,id+1.0) );
+    }
+
+    // Construct a local map for the boxes.
+    Teuchos::RCP<EntityLocalMap> domain_map = 
+	Teuchos::rcp( new BasicGeometryLocalMap() );
+
+    // Get an iterator over all of the boxes.
+    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    
+    // Build a parallel search over the boxes.
+    Teuchos::ParameterList plist;
+    plist.set<bool>("Track Missed Range Entities",true);
+    ParallelSearch parallel_search( comm, 3, domain_it, domain_map, plist );
+
+    // Make a range entity set.
+    Teuchos::RCP<EntitySet> range_set =
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    int num_points = 5;
+    Teuchos::Array<double> point(3);
+    Teuchos::Array<std::size_t> point_ids( num_points+1 );
+    for ( int i = 0; i < num_points; ++i )
+    {
+	id = num_points*comm_rank + i;
+	point_ids[i] = id;
+	point[0] = id + 0.5;
+	point[1] = id + 0.5;
+	point[2] = id + 0.5;
+	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
+	    Point(id,comm_rank,point) );
+    }
+
+    // Add a bad point.
+    id = num_points*comm_rank;
+    point_ids[5] = id + 1000;
+    point[0] = id + 0.5;
+    point[1] = id + 0.5;
+    point[2] = id + 1.5;
+    Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
+	Point(point_ids[5],comm_rank,point) );
+
+    // Construct a local map for the points.
+    Teuchos::RCP<EntityLocalMap> range_map = 
+	Teuchos::rcp( new BasicGeometryLocalMap() );
+
+    // Get an iterator over the points.
+    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+
+    // Do the search.
+    parallel_search.search( range_it, range_map, plist );
+
+    // Check the results of the search.
+    Teuchos::Array<EntityId> local_range;
+    Teuchos::Array<EntityId> local_domain;
+    Teuchos::Array<EntityId> range_entities;
+    for ( domain_it = domain_it.begin();
+	  domain_it != domain_it.end();
+	  ++domain_it )
+    {
+	parallel_search.getRangeEntitiesFromDomain(
+	    domain_it->id(), range_entities );
+	TEST_EQUALITY( 1, range_entities.size() );
+	TEST_EQUALITY( range_entities[0], domain_it->id() );
+	local_range.push_back( range_entities[0] );
+	local_domain.push_back( domain_it->id() );
+    }
+    TEST_EQUALITY( local_range.size(), 5 );
+    Teuchos::ArrayView<const double> range_coords;
+    Teuchos::Array<EntityId> domain_entities;
+    for ( int i = 0; i < 5; ++i )
+    {
+	parallel_search.getDomainEntitiesFromRange(
+	    point_ids[i], domain_entities );
+	TEST_EQUALITY( 1, domain_entities.size() );
+	TEST_EQUALITY( point_ids[i], domain_entities[0] );
+    }
+    for ( int i = 0; i < 5; ++i )
+    {
+	parallel_search.rangeParametricCoordinatesInDomain( 
+	    local_domain[i], local_range[i], range_coords );
+	TEST_EQUALITY( range_coords[0], local_range[i] + 0.5 );
+	TEST_EQUALITY( range_coords[1], local_range[i] + 0.5 );
 	TEST_EQUALITY( range_coords[2], local_range[i] + 0.5 );
 	TEST_EQUALITY( comm_size - comm_rank - 1,
 		       parallel_search.rangeEntityOwnerRank(local_range[i]) );

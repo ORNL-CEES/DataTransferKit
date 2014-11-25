@@ -195,9 +195,9 @@ void ParallelSearch::search(
 			  > range_ref_pair( range_entity_ids[n], ref_map );
 		d_parametric_coords.insert( range_ref_pair );
 
-		// If we are tracking missed points, also track those that we
-		// found so we can determine if a point was found after being
-		// sent to multiple destinations.
+		// If we are tracking missed entities, also track those that
+		// we found so we can determine if an entity was found after
+		// being sent to multiple destinations.
 		if ( d_track_missed_range_entities )
 		{
 		    found_range_entity_ids.push_back( range_entity_ids[n] );
@@ -205,7 +205,7 @@ void ParallelSearch::search(
 		}
 	    }
 	    
-	    // Otherwise, if we are tracking missed points report this.
+	    // Otherwise, if we are tracking missed entities report this.
 	    else if ( d_track_missed_range_entities )
 	    {
 		missed_range_entity_ids.push_back( range_entity_ids[n] );
@@ -236,11 +236,11 @@ void ParallelSearch::search(
 	d_range_to_domain_map.insert( range_domain );
     }
 
-    // If we are tracking missed points, back-communicate the missing points
-    // and found points to determine which points are actually missing.
+    // If we are tracking missed entities, back-communicate the missing entities
+    // and found entities to determine which entities are actually missing.
     if ( d_track_missed_range_entities )
     {
-	// Back-communicate the missing points.
+	// Back-communicate the missing entities.
 	Tpetra::Distributor missed_range_dist( d_comm );
 	int num_import_missed = 
 	    missed_range_dist.createFromSends( missed_range_ranks() );
@@ -249,7 +249,7 @@ void ParallelSearch::search(
 	    missed_range_entity_ids();
 	missed_range_dist.doPostsAndWaits( missed_view, 1, import_missed() );
 
-	// Back-communicate the found points.
+	// Back-communicate the found entities.
 	Tpetra::Distributor found_range_dist( d_comm );
 	int num_import_found = 
 	    found_range_dist.createFromSends( found_range_ranks() );
@@ -258,7 +258,7 @@ void ParallelSearch::search(
 	    found_range_entity_ids();
 	found_range_dist.doPostsAndWaits( found_view, 1, import_found() );
 
-	// Intersect the found and missed points to determine if there are any
+	// Intersect the found and missed entities to determine if there are any
 	// that were found on one process but missed on another.
 	std::sort( import_missed.begin(), import_missed.end() );
 	std::sort( import_found.begin(), import_found.end() );
@@ -269,14 +269,14 @@ void ParallelSearch::search(
 				   import_found.begin(), import_found.end(),
 				   false_positive_missed.begin() );
 
-	// Create a list of missed points without the false positives.
+	// Create a list of missed entities without the false positives.
 	d_missed_range_entity_ids.resize( num_import_missed );
 	auto missed_range_end = std::set_difference( 
 	    import_missed.begin(), import_missed.end(),
-	    false_positive_missed.begin(), false_positive_missed.end(),
+	    false_positive_missed.begin(), false_positive_end,
 	    d_missed_range_entity_ids.begin() );
 
-	// Create a unique list of missed points without the false positives.
+	// Create a unique list of missed entities without the false positives.
 	std::sort( d_missed_range_entity_ids.begin(), missed_range_end );
 	auto missed_range_unique_end = std::unique(
 	    d_missed_range_entity_ids.begin(), missed_range_end );
