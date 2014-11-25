@@ -9,8 +9,8 @@
           <ParameterList name="Pseudo Block GMRES">
             <Parameter name="Convergence Tolerance" type="double" value="1e-8"/>
 	    <Parameter name="Num Blocks" type="int" value="1"/>
-	    <Parameter name="Block Size" type="int" value="30000"/>
-            <Parameter name="Maximum Iterations" type="int" value="10000"/>
+	    <Parameter name="Block Size" type="int" value="300"/>
+            <Parameter name="Maximum Iterations" type="int" value="1000"/>
             <Parameter name="Output Frequency" type="int" value="1"/>
 	    <Parameter name="Verbosity" type="int" value="127"/>
           </ParameterList>

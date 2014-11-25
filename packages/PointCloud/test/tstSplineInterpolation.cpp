@@ -85,7 +85,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     int field_dim = 1;
 
     // Make a set of domain points.
-    int num_points = 1000;
+    int num_points = 100;
     Teuchos::Array<DataTransferKit::Entity> domain_points( num_points );
     Teuchos::Array<double> coords( space_dim );
     DataTransferKit::EntityId point_id = 0;
