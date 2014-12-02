@@ -321,8 +321,6 @@ int GeometryRCB<Geometry,GlobalOrdinal>::getNumberOfObjects(
 
     *ierr = ZOLTAN_OK;
 
-    // We're going to give zoltan the geometric bounding boxes so there will
-    // be 8 points for each geometric object.
     return 8*num_geometry;
 }
 
@@ -345,26 +343,24 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getObjectList(
 	// Note here that the local ID is being set to the geometry array
 	// index.
 	zoltan_id_type i = 0;
-	GlobalOrdinal lid = 0;
 	Teuchos::ArrayView<short int> active_geom =
 	    geometry_manager->getActiveGeometry();
 	Teuchos::ArrayView<short int>::const_iterator active_it;
 	Teuchos::ArrayRCP<GlobalOrdinal> local_gids = 
 	    geometry_manager->gids();
 	typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator gid_it;
-	typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator gids_begin = 
-	    local_gids.begin();
 	for ( gid_it = local_gids.begin(), active_it = active_geom.begin();
 	      gid_it != local_gids.end(); 
 	      ++gid_it, ++active_it )
 	{
-	    lid = std::distance( gids_begin, gid_it );
-
 	    if ( *active_it )
 	    {
-		globalID[i] = static_cast<zoltan_id_type>( *gid_it );
-		localID[i] = static_cast<zoltan_id_type>( lid );
-		++i;
+		for ( int j = 0; j < 8; ++j, ++i )
+		{
+		    globalID[i] = 
+			static_cast<zoltan_id_type>( 8*(*gid_it) + j );
+		    localID[i] = static_cast<zoltan_id_type>( i );
+		}
 	    }
 	}
     }
@@ -397,7 +393,6 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 {
     RCP_GeometryManager geometry_manager = 
 	*static_cast<RCP_GeometryManager*>( data );
-
     // We will only supply centroid coordinates when the geometry exists.
     if ( !geometry_manager.is_null() )
     {
@@ -420,7 +415,7 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 	    *ierr = ZOLTAN_FATAL;
 	    return;
 	}
-    
+
 	// Zoltan needs interleaved coordinates.
 	int n = 0;
 	Teuchos::Tuple<double,6> geometry_bounds;
@@ -435,65 +430,65 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 
 		// lo x, lo y, lo z
 		geom_vec[ geom_dim*n ] = geometry_bounds[0];
-		if ( geom_dim < 1 )
+		if ( geom_dim > 1 )
 		    geom_vec[ geom_dim*n + 1] = geometry_bounds[1];
-		if ( geom_dim < 2 )
+		if ( geom_dim > 2 )
 		    geom_vec[ geom_dim*n + 2] = geometry_bounds[2];
 		++n;
 
 		// hi x, lo y, lo z
 		geom_vec[ geom_dim*n ] = geometry_bounds[3];
-		if ( geom_dim < 1 )
+		if ( geom_dim > 1 )
 		    geom_vec[ geom_dim*n + 1] = geometry_bounds[1];
-		if ( geom_dim < 2 )
+		if ( geom_dim > 2 )
 		    geom_vec[ geom_dim*n + 2] = geometry_bounds[2];
 		++n;
 
 		// lo x, hi y, lo z
 		geom_vec[ geom_dim*n ] = geometry_bounds[0];
-		if ( geom_dim < 1 )
+		if ( geom_dim > 1 )
 		    geom_vec[ geom_dim*n + 1] = geometry_bounds[4];
-		if ( geom_dim < 2 )
+		if ( geom_dim > 2 )
 		    geom_vec[ geom_dim*n + 2] = geometry_bounds[2];
 		++n;
 
 		// hi x, hi y, lo z
 		geom_vec[ geom_dim*n ] = geometry_bounds[3];
-		if ( geom_dim < 1 )
+		if ( geom_dim > 1 )
 		    geom_vec[ geom_dim*n + 1] = geometry_bounds[4];
-		if ( geom_dim < 2 )
+		if ( geom_dim > 2 )
 		    geom_vec[ geom_dim*n + 2] = geometry_bounds[2];
 		++n;
 
 		// lo x, lo y, hi z
 		geom_vec[ geom_dim*n ] = geometry_bounds[0];
-		if ( geom_dim < 1 )
+		if ( geom_dim > 1 )
 		    geom_vec[ geom_dim*n + 1] = geometry_bounds[1];
-		if ( geom_dim < 2 )
+		if ( geom_dim > 2 )
 		    geom_vec[ geom_dim*n + 2] = geometry_bounds[5];
 		++n;
 
 		// hi x, lo y, hi z
 		geom_vec[ geom_dim*n ] = geometry_bounds[3];
-		if ( geom_dim < 1 )
+		if ( geom_dim > 1 )
 		    geom_vec[ geom_dim*n + 1] = geometry_bounds[1];
-		if ( geom_dim < 2 )
+		if ( geom_dim > 2 )
 		    geom_vec[ geom_dim*n + 2] = geometry_bounds[5];
 		++n;
 
 		// lo x, hi y, hi z
 		geom_vec[ geom_dim*n ] = geometry_bounds[0];
-		if ( geom_dim < 1 )
+		if ( geom_dim > 1 )
 		    geom_vec[ geom_dim*n + 1] = geometry_bounds[4];
-		if ( geom_dim < 2 )
+		if ( geom_dim > 2 )
 		    geom_vec[ geom_dim*n + 2] = geometry_bounds[5];
 		++n;
 
 		// hi x, hi y, hi z
 		geom_vec[ geom_dim*n ] = geometry_bounds[3];
-		if ( geom_dim < 1 )
+		if ( geom_dim > 1 )
 		    geom_vec[ geom_dim*n + 1] = geometry_bounds[4];
-		if ( geom_dim < 2 )
+		if ( geom_dim > 2 )
 		    geom_vec[ geom_dim*n + 2] = geometry_bounds[5];
 		++n;
 	    }

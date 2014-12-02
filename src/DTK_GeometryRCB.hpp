@@ -147,7 +147,7 @@ class GeometryRCB : public Partitioner
     Teuchos::ArrayView<int> getExportParts() const
     { return Teuchos::ArrayView<int>( d_export_to_part, d_num_export ); }
 
-  private:
+  public:
 
     // Zoltan callback for getting the number of vertices.
     static int getNumberOfObjects( void *data, int *ierr );

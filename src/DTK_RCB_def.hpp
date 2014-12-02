@@ -307,15 +307,13 @@ int RCB<Mesh>::getNumberOfObjects( void *data, int *ierr )
     if ( !mesh_manager.is_null() )
     {
 	int num_blocks = mesh_manager->getNumBlocks();
-	Teuchos::ArrayView<short int>::const_iterator active_iterator;
 	for ( int i = 0; i < num_blocks; ++i )
 	{
-	    for ( active_iterator = mesh_manager->getActiveVertices(i).begin();
-		  active_iterator != mesh_manager->getActiveVertices(i).end();
-		  ++active_iterator )
-	    {
-		num_vertices += *active_iterator;
-	    }
+	    Teuchos::ArrayView<short int> active_verts = 
+		mesh_manager->getActiveVertices(i);
+
+	    num_vertices += 
+		std::accumulate( active_verts.begin(), active_verts.end(), 0 );
 	}
     }
 
