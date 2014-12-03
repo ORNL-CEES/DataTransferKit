@@ -17,6 +17,6 @@
 *.blg
 *.lot
 *.exo
-/html
-/latex
 /DTKData
+/doc/browser/doc/html/
+/doc/doxygen/html/
