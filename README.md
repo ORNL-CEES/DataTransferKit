@@ -15,6 +15,7 @@ services.
 DOCUMENTATION
 -------------
 
+A recent doxygen build is hosted [here](http://ornl-cees.github.io/DataTransferKit/)
 
 
 BUG REPORTING and ISSUE TRACKING
