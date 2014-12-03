@@ -41,5 +41,5 @@ IGNORE_PREFIX          =
 #
 ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = NO
-GENERATE_TAGFILE       = ../../common/tag_files/datatransferkitBrowser.tag
+GENERATE_TAGFILE       = $(TRILINOS_HOME)/packages/common/tag_files/datatransferkitBrowser.tag
 #

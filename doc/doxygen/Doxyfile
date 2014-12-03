@@ -1,7 +1,7 @@
 #
 # Include the global look and feel options
 #
-@INCLUDE               = ../../common/Doxyfile
+@INCLUDE               = $(TRILINOS_HOME)/packages/common/Doxyfile
 #
 # Package options
 #
@@ -98,7 +98,7 @@ EXPAND_AS_DEFINED      =
 # Links to other packages
 #
 TAGFILES               =
-GENERATE_TAGFILE       = ../../common/tag_files/datatransferkit.tag
+GENERATE_TAGFILE       = $(TRILINOS_HOME)/packages/common/tag_files/datatransferkit.tag
 ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = NO
 #
