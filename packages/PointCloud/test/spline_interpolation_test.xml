@@ -1,0 +1,21 @@
+<ParameterList name="Spline Interpolation Unit Test">
+  <Parameter name="Support Radius" type="double" value="0.5"/>
+  <ParameterList name="Stratimikos">
+    <Parameter name="Linear Solver Type" type="string" value="Belos"/>
+    <ParameterList name="Linear Solver Types">
+      <ParameterList name="Belos">
+	<Parameter name="Solver Type" type="string" value="Pseudo Block GMRES"/>
+	<ParameterList name="Solver Types">
+          <ParameterList name="Pseudo Block GMRES">
+            <Parameter name="Convergence Tolerance" type="double" value="1e-8"/>
+	    <Parameter name="Num Blocks" type="int" value="1"/>
+	    <Parameter name="Block Size" type="int" value="300"/>
+            <Parameter name="Maximum Iterations" type="int" value="1000"/>
+            <Parameter name="Output Frequency" type="int" value="1"/>
+	    <Parameter name="Verbosity" type="int" value="127"/>
+          </ParameterList>
+	</ParameterList>
+      </ParameterList>
+    </ParameterList>
+  </ParameterList>
+</ParameterList>

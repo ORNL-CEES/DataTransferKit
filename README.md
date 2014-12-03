@@ -3,42 +3,40 @@ Data Transfer Kit (DTK)
 
 The Data Transfer Kit (DTK) is a software component designed to
 provide parallel services for mesh and geometry searching and data
-transfer for arbitrary physics components. In many physics
-applications, the concept of mesh and geometry is used to subdivide
-the physical domain into a discrete representation to facilitate the
-solution of the model problems that describe it. Additionally, the
-concept of the field is used to apply degrees of freedom to the mesh
-or geometry as a means of function discretization. With the increased
+transfer for arbitrary physics components. With the increased
 development efforts in multiphysics simulation, adaptive mesh
 simulations, and other multiple mesh/geometry problems, generating
 parallel topology maps for transferring fields and other data between
-meshes is a common operation. DTK is being developed to provide a
-suite of concrete algorithm implementations for these services.
+meshes and other geometries is a common operation. DTK is being
+developed to provide a suite of algorithm implementations for these
+services.
 
 
 DOCUMENTATION
 -------------
 
-User and developer documentation is provided by Doxygen
-[here](http://cnerg.github.com/DataTransferKit/). A domain model
-document can be found
-[here](https://github.com/CNERG/DataTransferKit/master/doc/domain_model/domain_model.pdf) for a more formal description.
 
 
 BUG REPORTING and ISSUE TRACKING
 --------------------------------
 
 Bug reporting and issue tracking are provided by GitHub. Please report
-all bugs [here](https://github.com/CNERG/DataTransferKit/issues) by
+all bugs [here](https://github.com/ORNL-CEES/DataTransferKit/issues) by
 creating a new issue.
 
 
 DEPENDENCIES
 ------------
 
+To use build some examples and tests you will need the DTKData repository
+which can be found [here](https://github.com/ORNL-CEES/DTKData). Simply
+check out the repository into the top level DataTransferKit directory.
+
 The current Trilinos state is required to build DTK. You can check out
 this git public repository
 [here](http://trilinos.sandia.gov/publicRepo/index.html)
+
+C++11 support as well as Boost are required.
 
 DTK can be configured for both serial and parallel builds. For
 parallel builds, an MPI implementation is also required. Both OpenMPI
@@ -62,7 +60,8 @@ EXAMPLES
 --------
 
 Several examples are provided for using the DataTransferKit for
-parallel search and transfer operations. See the example directory.
+parallel search and transfer operations. See the examples directory in
+each subpackage.
 
 
 AUTHORS
@@ -71,4 +70,6 @@ AUTHORS
 The following people have made substantial contributions to the
 development of DataTransferKit:
 
-* [Stuart Slattery](http://github.com/sslattery)
+* [Stuart Slattery](https://github.com/sslattery)
+* [Damien Lebrun-Grandie](https://github.com/dalg24)
+* [Roger Pawlowski](https://github.com/rppawlo)
