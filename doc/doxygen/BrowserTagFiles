@@ -1,0 +1,2 @@
+TAGFILES += \
+  $(TRILINOS_HOME)/packages/common/tag_files/datatransferkitBrowser.tag=$(TRILINOS_HOME)/packages/datatransferkit/browser/doc/html

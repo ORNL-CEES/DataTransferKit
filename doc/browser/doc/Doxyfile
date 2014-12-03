@@ -1,0 +1,45 @@
+#
+# Note: all relative paths are relative to package/doc!
+#
+@INCLUDE = Doxyfile.options
+#
+# Override some options from Doxyfile.options
+#
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+#
+# Package options
+#
+PROJECT_NAME           = "DataTransferKit Package Browser (Single Doxygen Collection)"
+OUTPUT_DIRECTORY       = ../browser/doc
+#
+# What and how documentation is extracted
+#
+INPUT                  = ../doxygen/index.doc ../doxygen/groups.doc \
+                         ../../packages/Adapters/BasicGeometry/src \
+ 			 ../../packages/Adapters/Intrepid/src \
+			 ../../packages/Adapters/STKMesh/src \
+			 ../../packages/Interface/src/Client \
+			 ../../packages/Interface/src/Operator \
+			 ../../packages/Operators/src \
+			 ../../packages/PointCloud/src \
+			 ../../packages/Utils/src
+FILE_PATTERNS          = *.h *c *.hpp *.cpp
+RECURSIVE              = YES
+EXCLUDE                = 
+EXCLUDE_PATTERNS       = *.x *.o *.out
+EXAMPLE_PATH           =
+EXAMPLE_PATTERNS       =
+IMAGE_PATH             =
+INPUT_FILTER           = 
+ALPHABETICAL_INDEX     = YES
+IGNORE_PREFIX          = 
+#
+# Links to other packages
+#
+ALLEXTERNALS           = NO
+EXTERNAL_GROUPS        = NO
+GENERATE_TAGFILE       = ../../common/tag_files/datatransferkitBrowser.tag
+#

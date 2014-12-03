@@ -1,0 +1,2 @@
+TAGFILES += \
+  $(TRILINOS_HOME)/packages/common/tag_files/datatransferkit.tag=$(TRILINOS_HOME)/DataTransferKit/doc/doxygen/html

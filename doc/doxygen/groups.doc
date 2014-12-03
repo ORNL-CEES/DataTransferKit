@@ -1,0 +1,8 @@
+
+/** \defgroup datatransferkit_client_api_grp DataTransferKit Client Interfaces */
+
+/** \defgroup datatransferkit_operator_api_grp DataTransferKit Operator Interfaces */
+
+/** \defgroup datatransferkit_client_impl_grp DataTransferKit Client Implementations */
+
+/** \defgroup datatransferkit_operator_impl_grp DataTransferKit Operator Implementations */
