@@ -111,7 +111,7 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
 	nsn = source_neighbors.size();
 
 	// Add the local basis contributions.
-    	for ( unsigned j = 0; j < nsn; ++j )
+    	for ( int j = 0; j < nsn; ++j )
     	{
 	    dj = DIM*source_neighbors[j];
 	    M_indices[j] = 

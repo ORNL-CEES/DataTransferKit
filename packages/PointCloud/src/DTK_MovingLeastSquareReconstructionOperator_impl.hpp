@@ -201,7 +201,7 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 
 	    // Populate the interpolation matrix row.
 	    pair_gids = pairings.childCenterIds(i);
-	    for ( unsigned j = 0; j < nn; ++j )
+	    for ( int j = 0; j < nn; ++j )
 	    {
 		indices[j] = dist_source_gids[ pair_gids[j] ];
 	    }

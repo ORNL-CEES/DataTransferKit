@@ -113,7 +113,7 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
 	ntn = target_neighbors.size();
 
 	// Add the local basis contributions.
-    	for ( unsigned j = 0; j < ntn; ++j )
+    	for ( int j = 0; j < ntn; ++j )
     	{
 	    dj = DIM*target_neighbors[j];
 

@@ -56,8 +56,8 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class Entity
-  \brief Geometric entity interface definition.
+  \class STKMeshEntity
+  \brief STKMesh entity interface definition.
 */
 //---------------------------------------------------------------------------//
 class STKMeshEntity : public Entity

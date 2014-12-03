@@ -101,7 +101,7 @@ void SplineProlongationOperator<Scalar,GO>::apply(
     
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> > X_view = X.get2dView();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> > Y_view = Y.get2dViewNonConst();
-    for ( int n = 0; n < X.getNumVectors(); ++n )
+    for ( unsigned n = 0; n < X.getNumVectors(); ++n )
     {
 	for ( int i = 0; i < d_lda; ++i )
 	{
