@@ -132,12 +132,6 @@ class STKMeshEntitySet : public EntitySet
 
   private:
 
-    // Given an entity type, get the STK entity rank.
-    stk::mesh::EntityRank 
-    getRankFromEntityType( const EntityType entity_type ) const;
-
-  private:
-
     // Mesh bulk data.
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
 };

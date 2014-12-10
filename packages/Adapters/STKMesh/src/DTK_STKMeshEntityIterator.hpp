@@ -120,11 +120,6 @@ class STKMeshEntityIterator : public EntityIterator
 
   private:
 
-    // Set the current entity.
-    void setCurrentEntity();
-
-  private:
-
     // Range of entities over which the iterator is defined.
     Teuchos::RCP<STKMeshEntityIteratorRange> d_entity_range;
 
