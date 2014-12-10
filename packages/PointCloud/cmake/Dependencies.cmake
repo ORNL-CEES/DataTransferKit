@@ -6,7 +6,7 @@ SET(LIB_REQUIRED_DEP_PACKAGES
   AztecOO
   Belos
   ThyraCore
-  ThyraTpetraWrappers
+  ThyraTpetraAdapters
   Stratimikos
  )
 
