@@ -92,8 +92,6 @@ STKMeshManager::STKMeshManager(
 	Teuchos::rcp( new EntitySelector(entity_type,pred.getFunction()) );
 
     createFunctionSpace( bulk_data, basis_type, entity_selector );
-
-    DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
 //---------------------------------------------------------------------------//
@@ -109,8 +107,6 @@ STKMeshManager::STKMeshManager(
 	Teuchos::rcp( new EntitySelector(entity_type,pred.getFunction()) );
 
     createFunctionSpace( bulk_data, basis_type, entity_selector );
-
-    DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
 //---------------------------------------------------------------------------//
@@ -155,6 +151,8 @@ void STKMeshManager::createFunctionSpace(
 
     d_function_space = Teuchos::rcp( 
 	new FunctionSpace(entity_set,entity_selector,local_map,shape_function) );
+
+    DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
 //---------------------------------------------------------------------------//
