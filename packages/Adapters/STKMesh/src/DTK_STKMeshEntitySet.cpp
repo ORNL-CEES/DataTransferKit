@@ -103,7 +103,8 @@ EntityIterator STKMeshEntitySet::entityIterator(
     const EntityType entity_type,
     const std::function<bool(Entity)>& predicate ) const
 {
-    stk::mesh::EntityRank rank = getRankFromEntityType( entity_type );
+    stk::mesh::EntityRank rank = 
+	STKMeshHelpers::getRankFromType( entity_type, physicalDimension() );
     Teuchos::RCP<STKMeshEntityIteratorRange> iterator_range =
 	Teuchos::rcp( new STKMeshEntityIteratorRange() );
     stk::mesh::get_entities( *d_bulk_data, rank, iterator_range->d_stk_entities );
@@ -119,7 +120,8 @@ void STKMeshEntitySet::getAdjacentEntities(
     Teuchos::Array<Entity>& adjacent_entities ) const
 {
     const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
-    stk::mesh::EntityRank rank = getRankFromEntityType( entity_type );
+    stk::mesh::EntityRank rank = 
+	STKMeshHelpers::getRankFromType( entity_type, physicalDimension() );
     const stk::mesh::Entity* begin = 
 	d_bulk_data->begin( stk_entity, rank );
     const stk::mesh::Entity* end = d_bulk_data->end( stk_entity, rank );
@@ -134,14 +136,6 @@ void STKMeshEntitySet::getAdjacentEntities(
     {
 	*entity_it = STKMeshEntity( *stk_it, d_bulk_data.ptr() );
     }
-}
-
-//---------------------------------------------------------------------------//
-// Given an entity type, get the STK entity rank.
-stk::mesh::EntityRank 
-STKMeshEntitySet::getRankFromEntityType( const EntityType entity_type ) const
-{
-    return STKMeshHelpers::getRankFromType( entity_type, physicalDimension() );
 }
 
 //---------------------------------------------------------------------------//

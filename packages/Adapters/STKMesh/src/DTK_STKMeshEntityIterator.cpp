@@ -63,7 +63,6 @@ STKMeshEntityIterator::STKMeshEntityIterator(
 {
     this->b_iterator_impl = NULL;
     this->b_predicate = predicate;
-    setCurrentEntity();
 }
 
 //---------------------------------------------------------------------------//
@@ -76,7 +75,6 @@ STKMeshEntityIterator::STKMeshEntityIterator(
 {
     this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
-    setCurrentEntity();
 }
 
 //---------------------------------------------------------------------------//
@@ -93,7 +91,6 @@ STKMeshEntityIterator& STKMeshEntityIterator::operator=(
     d_entity_range = rhs.d_entity_range;
     d_stk_entity_it = rhs.d_stk_entity_it;
     d_bulk_data = rhs.d_bulk_data;
-    setCurrentEntity();
     return *this;
 }
 
@@ -177,17 +174,6 @@ EntityIterator STKMeshEntityIterator::end() const
 EntityIterator* STKMeshEntityIterator::clone() const
 {
     return new STKMeshEntityIterator(*this);
-}
-
-//---------------------------------------------------------------------------//
-// Set the current entity.
-void STKMeshEntityIterator::setCurrentEntity()
-{
-    if ( d_entity_range->d_stk_entities.size() > 0 )
-    {
-	d_current_entity = 
-	    STKMeshEntity( *d_stk_entity_it, d_bulk_data.ptr() );
-    }
 }
 
 //---------------------------------------------------------------------------//
