@@ -16,7 +16,8 @@
 
 #include <DTK_BasicEntityPredicates.hpp>
 #include <DTK_PredicateComposition.hpp>
-#include <DTK_Point.hpp>
+#include <DTK_Entity.hpp>
+#include <DTK_EntityImpl.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -28,21 +29,69 @@
 #include <Teuchos_ParameterList.hpp>
 
 //---------------------------------------------------------------------------//
+// Basic entity implementation
+//---------------------------------------------------------------------------//
+class MyEntityImpl : public DataTransferKit::EntityImpl
+{
+  public:
+    MyEntityImpl() { /* ... */ }
+    MyEntityImpl( const Teuchos::Array<int>& block_ids,
+		  const Teuchos::Array<int>& boundary_ids )
+	: d_block_ids( block_ids )
+	, d_boundary_ids( boundary_ids )
+    {
+	std::sort( d_block_ids.begin(), d_block_ids.end() );
+	std::sort( d_boundary_ids.begin(), d_boundary_ids.end() );
+    }
+    ~MyEntityImpl() { /* ... */ }
+    DataTransferKit::EntityType entityType() const 
+    { return DataTransferKit::ENTITY_TYPE_NODE; }
+    DataTransferKit::EntityId id() const { return 0; }
+    int ownerRank() const { return 0; }
+    int physicalDimension() const { return 0; }
+    void boundingBox( Teuchos::Tuple<double,6>& bounds ) { }
+    bool inBlock( const int block_id ) const
+    {
+	return std::binary_search( 
+	    d_block_ids.begin(), d_block_ids.end(), block_id );
+    }
+    bool onBoundary( const int boundary_id ) const
+    {
+	return std::binary_search( 
+	    d_boundary_ids.begin(), d_boundary_ids.end(), boundary_id );
+    }
+  private:
+    Teuchos::Array<int> d_block_ids;
+    Teuchos::Array<int> d_boundary_ids;
+};
+
+class MyEntity : public DataTransferKit::Entity
+{
+  public:
+    MyEntity() { /* ... */ }
+    MyEntity( const Teuchos::Array<int>& block_ids = Teuchos::Array<int>(0),
+	      const Teuchos::Array<int>& boundary_ids = Teuchos::Array<int>(0) )
+    {
+	this->b_entity_impl = 
+	    Teuchos::rcp( new MyEntityImpl(block_ids,boundary_ids) );
+    }
+    ~MyEntity() { /* ... */ }
+};
+
+//---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( BlockPredicate, block_predicate_test )
 {
     using namespace DataTransferKit;
 
-    Teuchos::Array<double> coords1(1,0.0);
     Teuchos::Array<int> blocks1(1,2);
     Teuchos::Array<int> boundaries1(0);
-    Entity p1 = Point( 0, 0, coords1, blocks1, boundaries1 );
+    Entity p1 = MyEntity( blocks1, boundaries1 );
 
-    Teuchos::Array<double> coords2(2,0.0);
     Teuchos::Array<int> blocks2(1,1);
     Teuchos::Array<int> boundaries2(0);
-    Entity p2 = Point( 0, 0, coords2, blocks2, boundaries2 );
+    Entity p2 = MyEntity( blocks2, boundaries2 );
 
     Teuchos::Array<int> pred_1(1,1);
     BlockPredicate block_pred_1( pred_1 );
@@ -79,15 +128,13 @@ TEUCHOS_UNIT_TEST( BoundPredicate, bound_predicate_test )
 {
     using namespace DataTransferKit;
 
-    Teuchos::Array<double> coords1(1,0.0);
     Teuchos::Array<int> bounds1(0);
     Teuchos::Array<int> boundaries1(1,2);
-    Entity p1 = Point( 0, 0, coords1, bounds1, boundaries1 );
+    Entity p1 = MyEntity( bounds1, boundaries1 );
 
-    Teuchos::Array<double> coords2(2,0.0);
     Teuchos::Array<int> bounds2(0);
     Teuchos::Array<int> boundaries2(1,1);
-    Entity p2 = Point( 0, 0, coords2, bounds2, boundaries2 );
+    Entity p2 = MyEntity( bounds2, boundaries2 );
 
     Teuchos::Array<int> pred_1(1,1);
     BoundaryPredicate bound_pred_1( pred_1 );
