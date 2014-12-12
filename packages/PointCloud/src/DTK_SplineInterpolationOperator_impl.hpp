@@ -47,6 +47,8 @@
 #include "DTK_SplineCoefficientMatrix.hpp"
 #include "DTK_SplineEvaluationMatrix.hpp"
 #include "DTK_SplineProlongationOperator.hpp"
+#include "DTK_BasicEntityPredicates.hpp"
+#include "DTK_PredicateComposition.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Ptr.hpp>
@@ -244,13 +246,20 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     // Get the parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = this->b_domain_map->getComm();
 
+    // We will only operate on entities that are locally-owned.
+    LocalEntityPredicate local_predicate( comm->getRank() );
+
     // Extract the source centers and their ids.
     EntityIterator domain_iterator;
     if ( nonnull_domain )
     {
+	std::function<bool(Entity)> domain_predicate =
+	    PredicateComposition::And(
+		domain_space->entitySelector()->selectFunction(),
+		local_predicate.getFunction() );
 	domain_iterator = domain_space->entitySet()->entityIterator( 
 	    domain_space->entitySelector()->entityType(),
-	    domain_space->entitySelector()->selectFunction() );
+	    domain_predicate );
     }
     int local_num_src = domain_iterator.size();
     Teuchos::ArrayRCP<double> source_centers( DIM*local_num_src);
@@ -271,9 +280,13 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     EntityIterator range_iterator;
     if ( nonnull_range )
     {
+	std::function<bool(Entity)> range_predicate =
+	    PredicateComposition::And(
+		range_space->entitySelector()->selectFunction(),
+		local_predicate.getFunction() );
 	range_iterator = range_space->entitySet()->entityIterator( 
 	    range_space->entitySelector()->entityType(),
-	    range_space->entitySelector()->selectFunction() );
+	    range_predicate );
     } 
     int local_num_tgt = range_iterator.size();
     Teuchos::ArrayRCP<double> target_centers( DIM*local_num_tgt );

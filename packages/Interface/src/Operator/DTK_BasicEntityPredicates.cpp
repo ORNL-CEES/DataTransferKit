@@ -87,6 +87,16 @@ std::function<bool(Entity)> BoundaryPredicate::getFunction() const
 { return std::function<bool(Entity)>(*this); }
 
 //---------------------------------------------------------------------------//
+// LocalEntity predicate.
+bool LocalEntityPredicate::operator()( Entity entity ) 
+{ 
+    return ( d_my_rank == entity.ownerRank() );
+}
+
+std::function<bool(Entity)> LocalEntityPredicate::getFunction() const
+{ return std::function<bool(Entity)>(*this); }
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

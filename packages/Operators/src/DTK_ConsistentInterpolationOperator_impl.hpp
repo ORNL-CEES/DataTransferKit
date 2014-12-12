@@ -47,6 +47,8 @@
 
 #include "DTK_DBC.hpp"
 #include "DTK_ParallelSearch.hpp"
+#include "DTK_BasicEntityPredicates.hpp"
+#include "DTK_PredicateComposition.hpp"
 
 #include <Teuchos_OrdinalTraits.hpp>
 
@@ -128,13 +130,20 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 			    domain_space->localMap(),
 			    *parameters );
 
+    // We will only operate on range entities that are locally-owned.
+    LocalEntityPredicate local_predicate( comm->getRank() );
+    
     // Get an iterator over the range entities.
     EntityIterator range_iterator;
     if ( nonnull_range )
     {
+	std::function<bool(Entity)> range_predicate =
+	    PredicateComposition::And(
+		range_space->entitySelector()->selectFunction(),
+		local_predicate.getFunction() );
 	range_iterator = range_space->entitySet()->entityIterator( 
 	    range_space->entitySelector()->entityType(),
-	    range_space->entitySelector()->selectFunction() );
+	    range_predicate );
     } 
 
     // Search the domain with the range.

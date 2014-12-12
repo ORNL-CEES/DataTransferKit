@@ -121,6 +121,31 @@ class BoundaryPredicate
 };
 
 //---------------------------------------------------------------------------//
+/*!
+  \class LocalEntityPredicate
+  \brief Predicates for selecting that are locally-owned.
+*/
+class LocalEntityPredicate
+{
+  public:
+
+    LocalEntityPredicate( const int my_rank ) 
+	: d_my_rank( my_rank )
+    { /* ... */ }
+
+    ~LocalEntityPredicate() { /* ... */ }
+
+    bool operator()( Entity entity );
+
+    std::function<bool(Entity)> getFunction() const;
+
+  private:
+
+    // Local communicator rank.
+    int d_my_rank;
+};
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
