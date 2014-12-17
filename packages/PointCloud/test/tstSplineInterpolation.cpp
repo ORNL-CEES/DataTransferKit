@@ -150,10 +150,8 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     spline_op->apply( *domain_vector, *range_vector );
 
     // Check the apply.
-    for ( int i = 0; i < num_points; ++i )
-    {
-	TEST_FLOATING_EQUALITY( range_data[i], gold_data[i], 1.0 );
-    }
+    TEST_COMPARE_FLOATING_ARRAYS(range_data, gold_data, 1.0);
+
 }
 
 //---------------------------------------------------------------------------//
