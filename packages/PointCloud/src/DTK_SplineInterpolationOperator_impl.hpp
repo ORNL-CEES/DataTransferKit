@@ -54,6 +54,7 @@
 #include <Teuchos_Ptr.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_XMLParameterListCoreHelpers.hpp>
 
 #include <Tpetra_Map.hpp>
 
@@ -192,21 +193,16 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
 	Thyra::add<Scalar>( thyra_PpM, thyra_P_T );
 
     // Create the inverse of the composite operator C.
-    Teuchos::RCP<Teuchos::ParameterList> builder_params;
-    if ( parameters->isSublist("Stratimikos") )
-    {
-	builder_params =  
-	    Teuchos::parameterList( parameters->sublist("Stratimikos") );
-    }
-    else 
-    {
-	builder_params = Teuchos::parameterList();
-	builder_params->setName("Stratimikos");
-    }
-    if ( !builder_params->isParameter("Linear Solver Type") )
-    {
-	builder_params->set<std::string>("Linear Solver Type","Belos");
-    }
+    Teuchos::RCP<Teuchos::ParameterList> builder_params =
+      sublist(parameters, "Stratimikos");
+    Teuchos::updateParametersFromXmlString(
+      "<ParameterList name=\"Stratimikos\">"
+        "<Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Belos\"/>"
+        "<Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>"
+      "</ParameterList>"
+      ,
+      builder_params.ptr()
+      );
     Stratimikos::DefaultLinearSolverBuilder builder;
     builder.setParameterList( builder_params );
     Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<Scalar> > factory = 
