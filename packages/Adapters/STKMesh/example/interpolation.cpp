@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
 
     // Create a manager for the source part elements.
     DataTransferKit::STKMeshManager src_manager( 
-	src_bulk_data, src_stk_selector, DataTransferKit::ENTITY_TYPE_NODE );
+	src_bulk_data, src_stk_selector, DataTransferKit::ENTITY_TYPE_VOLUME );
 
     // Create a manager for the target part nodes.
     stk::mesh::Selector tgt_stk_selector( *tgt_part );

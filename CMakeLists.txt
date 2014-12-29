@@ -16,7 +16,7 @@ TRIBITS_PACKAGE_DECL(DataTransferKit)
 TRIBITS_ADD_DEBUG_OPTION()
 TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
 
-TRIBITS_ADD_ETI_INSTANTIATIONS(Tpetra
+TRIBITS_ADD_ETI_INSTANTIATIONS(TpetraCore
   "S={double} LO={int} GO={unsigned long} N={${KokkosClassic_DefaultNode}}"
   "S={unsigned long} LO={int} GO={unsigned long} N={${KokkosClassic_DefaultNode}}"
   "S={int} LO={int} GO={unsigned long} N={${KokkosClassic_DefaultNode}}"
