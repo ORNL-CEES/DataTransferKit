@@ -100,11 +100,13 @@ class CoarseGlobalSearch
 
     // Check if two bounding boxes have an intersection.
     inline bool boxesIntersect( const Teuchos::Tuple<double,6>& box_A,
-				const Teuchos::Tuple<double,6>& box_B ) const;
+				const Teuchos::Tuple<double,6>& box_B,
+				const double tolerance ) const;
 
     // Determine if a point is in a bounding box.
     inline bool pointInBox( const Teuchos::ArrayView<const double>& point,
-			    const Teuchos::Tuple<double,6>& box ) const;
+			    const Teuchos::Tuple<double,6>& box,
+			    const double tolerance ) const;
     
   private:
 
@@ -123,6 +125,9 @@ class CoarseGlobalSearch
     // An array of range entity ids that were not mapped during the last call
     // to setup.
     mutable Teuchos::Array<EntityId> d_missed_range_entity_ids;
+
+    // Point inclusion tolerance.
+    double d_inclusion_tol;
 };
 
 //---------------------------------------------------------------------------//
@@ -131,39 +136,62 @@ class CoarseGlobalSearch
 // Check if two bounding boxes have an intersection.
 bool CoarseGlobalSearch::boxesIntersect( 
     const Teuchos::Tuple<double,6>& box_A,
-    const Teuchos::Tuple<double,6>& box_B ) const
+    const Teuchos::Tuple<double,6>& box_B,
+    const double tolerance ) const
 {
-    return !( ( box_A[0] > box_B[3] || box_A[3] < box_B[0] ) ||
-	      ( box_A[1] > box_B[4] || box_A[4] < box_B[1] ) ||
-	      ( box_A[2] > box_B[5] || box_A[5] < box_B[2] ) );
+    double x_tol_A = (box_A[3] - box_A[0])*tolerance;
+    double y_tol_A = (box_A[4] - box_A[1])*tolerance;
+    double z_tol_A = (box_A[5] - box_A[2])*tolerance;
+
+    double x_tol_B = (box_B[3] - box_B[0])*tolerance;
+    double y_tol_B = (box_B[4] - box_B[1])*tolerance;
+    double z_tol_B = (box_B[5] - box_B[2])*tolerance;
+
+    return !( ( (box_A[0] - x_tol_A) > (box_B[3] + x_tol_B) || 
+		(box_A[3] + x_tol_A) < (box_B[0] - x_tol_B) ) ||
+	      ( (box_A[1] - y_tol_A) > (box_B[4] + y_tol_B) || 
+		(box_A[4] + y_tol_A) < (box_B[1] - y_tol_B) ) ||
+	      ( (box_A[2] - z_tol_A) > (box_B[5] + z_tol_B) || 
+		(box_A[5] + z_tol_A) < (box_B[2] - z_tol_B) ) );
 }
 
 //---------------------------------------------------------------------------//
 // Determine if a point is in a bounding box.
 bool CoarseGlobalSearch::pointInBox( 
     const Teuchos::ArrayView<const double>& point,
-    const Teuchos::Tuple<double,6>& box ) const
+    const Teuchos::Tuple<double,6>& box,
+    const double tolerance ) const
 {
+    double x_tol = (box[3] - box[0])*tolerance;
+    double y_tol = (box[4] - box[1])*tolerance;
+    double z_tol = (box[5] - box[2])*tolerance;
+
     if( 3 == point.size() )
     {
-	if ( point[0] >= box[0] && point[1] >= box[1] && point[2] >= box[2] &&
-	     point[0] <= box[3] && point[1] <= box[4] && point[2] <= box[5] )
+	if ( point[0] >= (box[0] - x_tol) && 
+	     point[1] >= (box[1] - y_tol) && 
+	     point[2] >= (box[2] - z_tol) &&
+	     point[0] <= (box[3] + x_tol) && 
+	     point[1] <= (box[4] + y_tol) && 
+	     point[2] <= (box[5] + z_tol) )
 	{
 	    return true;
 	}
     }
     else if( 2 == point.size() )
     {
-	if ( point[0] >= box[0] && point[1] >= box[1] &&
-	     point[0] <= box[3] && point[1] <= box[4] )
+	if ( point[0] >= (box[0] - x_tol) && 
+	     point[1] >= (box[1] - y_tol) && 
+	     point[0] <= (box[3] + x_tol) && 
+	     point[1] <= (box[4] + y_tol) )
 	{
 	    return true;
 	}
     }
     else if( 1 == point.size() )
     {
-	if ( point[0] >= box[0] &&
-	     point[0] <= box[3] )
+	if ( point[0] >= (box[0] - x_tol) &&
+	     point[0] <= (box[3] + x_tol) )
 	{
 	    return true;
 	}

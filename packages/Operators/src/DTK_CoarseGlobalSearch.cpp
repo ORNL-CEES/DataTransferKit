@@ -59,12 +59,20 @@ CoarseGlobalSearch::CoarseGlobalSearch(
     , d_space_dim( physical_dimension )
     , d_track_missed_range_entities( false )
     , d_missed_range_entity_ids( 0 )
+    , d_inclusion_tol( 1.0e-6 )
 {
     // Determine if we are tracking missed range entities.
     if ( parameters.isParameter("Track Missed Range Entities") )
     {
 	d_track_missed_range_entities =
 	    parameters.get<bool>("Track Missed Range Entities");
+    }
+
+    // Get the point inclusion tolerance.
+    if ( parameters.isParameter("Point Inclusion Tolerance") )
+    {	    
+	d_inclusion_tol = 	
+	    parameters.get<double>("Point Inclusion Tolerance");
     }
 
     // Assemble the local domain bounding box.
@@ -115,7 +123,7 @@ void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
     int num_domains = d_domain_boxes.size();
     for ( int n = 0; n < num_domains; ++n )
     {
-	if ( boxesIntersect(range_box,d_domain_boxes[n]) )
+	if ( boxesIntersect(range_box,d_domain_boxes[n],d_inclusion_tol) )
 	{
 	    neighbor_ranks.push_back(n);
 	    neighbor_boxes.push_back( d_domain_boxes[n] );
@@ -142,7 +150,7 @@ void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
 	for ( int n = 0; n < num_neighbors; ++n )
 	{
 	    // If the centroid is in the box, add it to the send list.
-	    if ( pointInBox(centroid(),neighbor_boxes[n]) )
+	    if ( pointInBox(centroid(),neighbor_boxes[n],d_inclusion_tol) )
 	    {
 		found_entity = true;
 		send_ids.push_back( range_it->id() );

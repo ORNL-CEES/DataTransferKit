@@ -621,6 +621,167 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_multiple_neighbors_test )
 }
 
 //---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_multiple_neighbors_fuzzy_test )
+{
+    using namespace DataTransferKit;
+
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::DefaultComm<int>::getComm();
+    int comm_rank = comm->getRank();
+    int comm_size = comm->getSize();
+
+    // Make a domain entity set.
+    Teuchos::RCP<EntitySet> domain_set = 
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    int id = comm_size - comm_rank - 1;
+    Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
+	Box(id,id,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+
+    // Get an iterator over all of the boxes.
+    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    
+    // Build a coarse global search over the boxes.
+    Teuchos::ParameterList plist;
+    plist.set<bool>("Track Missed Range Entities",true);
+    CoarseGlobalSearch coarse_global_search( comm, 3, domain_it, plist );
+
+    // Make a range entity set.
+    Teuchos::RCP<EntitySet> range_set =
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    Teuchos::Array<double> point(3);
+    double fuzz = 9.9e-7;
+    point[0] = 0.5;
+    point[1] = 0.5;
+    point[2] = comm_rank + fuzz;
+    id = comm_rank;
+    Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
+	Point(id,comm_rank,point) );
+
+    // Construct a local map for the points.
+    Teuchos::RCP<EntityLocalMap> range_map = 
+	Teuchos::rcp( new BasicGeometryLocalMap() );
+
+    // Get an iterator over the points.
+    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+
+    // Search the tree.
+    Teuchos::Array<EntityId> range_ids;
+    Teuchos::Array<int> range_ranks;
+    Teuchos::Array<double> range_centroids;
+    coarse_global_search.search( range_it, range_map, plist,
+    				 range_ids, range_ranks, range_centroids );
+
+    // Check the results of the search.
+    if ( comm_rank > 0 )
+    {
+    	TEST_EQUALITY( 2, range_ids.size() );
+     	TEST_EQUALITY( 2, range_ranks.size() );
+     	TEST_EQUALITY( 6, range_centroids.size() );
+     	std::sort( range_ids.begin(), range_ids.end() );
+     	std::sort( range_ranks.begin(), range_ranks.end() );
+     	TEST_EQUALITY( Teuchos::as<int>(range_ids[0]), comm_size-comm_rank-1 );
+     	TEST_EQUALITY( Teuchos::as<int>(range_ids[1]), comm_size-comm_rank );
+    	TEST_EQUALITY( range_ranks[0], comm_size-comm_rank-1 );
+    	TEST_EQUALITY( range_ranks[1], comm_size-comm_rank );
+    	TEST_EQUALITY( range_centroids[0], 0.5 );
+    	TEST_EQUALITY( range_centroids[1], 0.5 );
+    	TEST_EQUALITY( range_centroids[2], comm_size-comm_rank-1 + fuzz);
+    	TEST_EQUALITY( range_centroids[3], 0.5 );
+    	TEST_EQUALITY( range_centroids[4], 0.5 );
+    	TEST_EQUALITY( range_centroids[5], comm_size-comm_rank + fuzz);
+    }
+    else
+    {
+    	TEST_EQUALITY( 1, range_ids.size() );
+    	TEST_EQUALITY( 1, range_ranks.size() );
+    	TEST_EQUALITY( 3, range_centroids.size() );
+    	TEST_EQUALITY( Teuchos::as<int>(range_ids[0]), comm_size-comm_rank-1 );
+    	TEST_EQUALITY( Teuchos::as<int>(range_ranks[0]), comm_size-comm_rank-1 );
+    	TEST_EQUALITY( range_centroids[0], 0.5 );
+    	TEST_EQUALITY( range_centroids[1], 0.5 );
+    	TEST_EQUALITY( range_centroids[2], comm_size-comm_rank-1 + fuzz);
+    }
+
+    // Check that no missed points were found.
+    TEST_EQUALITY( coarse_global_search.getMissedRangeEntityIds().size(), 0 );
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_single_neighbor_fuzzy_test )
+{
+    using namespace DataTransferKit;
+
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::DefaultComm<int>::getComm();
+    int comm_rank = comm->getRank();
+    int comm_size = comm->getSize();
+
+    // Make a domain entity set.
+    Teuchos::RCP<EntitySet> domain_set = 
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    int id = comm_size - comm_rank - 1;
+    Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
+	Box(id,id,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+
+    // Get an iterator over all of the boxes.
+    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    
+    // Build a coarse global search over the boxes.
+    Teuchos::ParameterList plist;
+    plist.set<bool>("Track Missed Range Entities",true);
+    CoarseGlobalSearch coarse_global_search( comm, 3, domain_it, plist );
+
+    // Make a range entity set.
+    Teuchos::RCP<EntitySet> range_set =
+	Teuchos::rcp( new BasicEntitySet(comm,3) );
+    Teuchos::Array<double> point(3);
+    double fuzz = 2.0e-6;
+    point[0] = 0.5;
+    point[1] = 0.5;
+    point[2] = comm_rank - fuzz;
+    id = comm_rank;
+    Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(
+	Point(id,comm_rank,point) );
+
+    // Construct a local map for the points.
+    Teuchos::RCP<EntityLocalMap> range_map = 
+	Teuchos::rcp( new BasicGeometryLocalMap() );
+
+    // Get an iterator over the points.
+    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+
+    // Search the tree.
+    Teuchos::Array<EntityId> range_ids;
+    Teuchos::Array<int> range_ranks;
+    Teuchos::Array<double> range_centroids;
+    coarse_global_search.search( range_it, range_map, plist,
+    				 range_ids, range_ranks, range_centroids );
+
+    // Check the results of the search.
+    if ( comm_rank > 0 )
+    {
+    	TEST_EQUALITY( 1, range_ids.size() );
+    	TEST_EQUALITY( 1, range_ranks.size() );
+    	TEST_EQUALITY( 3, range_centroids.size() );
+    	TEST_EQUALITY( Teuchos::as<int>(range_ids[0]), comm_size-comm_rank );
+    	TEST_EQUALITY( Teuchos::as<int>(range_ranks[0]), comm_size-comm_rank );
+    	TEST_EQUALITY( range_centroids[0], 0.5 );
+    	TEST_EQUALITY( range_centroids[1], 0.5 );
+    	TEST_EQUALITY( range_centroids[2], comm_size-comm_rank - fuzz);
+	TEST_EQUALITY( coarse_global_search.getMissedRangeEntityIds().size(), 0 );
+    }
+    else
+    {
+	TEST_EQUALITY( 0, range_ids.size() );
+    	TEST_EQUALITY( 0, range_ranks.size() );
+    	TEST_EQUALITY( 0, range_centroids.size() );
+	TEST_EQUALITY( coarse_global_search.getMissedRangeEntityIds().size(), 1 );
+    }
+}
+
+//---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CoarseGlobalSearch, missed_range_test )
 {
     using namespace DataTransferKit;
