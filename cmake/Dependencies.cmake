@@ -1,7 +1,6 @@
 TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
   SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
     Nanoflann             packages/Nanoflann              SS  REQUIRED
-    Triangle              packages/Triangle               SS  OPTIONAL
     Utils                 packages/Utils                  SS  REQUIRED
     Interface             packages/Interface              SS  REQUIRED
     BasicGeometryAdapters packages/Adapters/BasicGeometry SS  OPTIONAL
