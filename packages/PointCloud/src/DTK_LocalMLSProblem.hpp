@@ -45,6 +45,7 @@
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_SerialDenseMatrix.hpp>
 
 namespace DataTransferKit
 {
@@ -82,6 +83,15 @@ class LocalMLSProblem
     // Get a view of the local shape function.
     Teuchos::ArrayView<const double> shapeFunction() const
     { return d_shape_function(); }
+
+  private:
+    
+    // Get a polynomial coefficient.
+    double polynomialCoefficient( 
+	const int coeff, const Teuchos::ArrayView<const double>& center ) const;
+
+    // Check if a matrix is full rank.
+    bool isFullRank( const Teuchos::SerialDenseMatrix<int,double>& matrix ) const;
 
   private:
 

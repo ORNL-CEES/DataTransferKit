@@ -32,9 +32,9 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   interpolation.cpp
+ * \file   repeated.cpp
  * \author Stuart Slattery
- * \brief  STK file-based interpolation example.
+ * \brief  STK file-based repeated interpolation example.
  */
 //---------------------------------------------------------------------------//
 
@@ -84,7 +84,6 @@
 #include <stk_mesh/base/Field.hpp>
 #include <stk_mesh/base/GetEntities.hpp>
 #include <stk_mesh/base/Selector.hpp>
-#include <stk_mesh/base/CoordinateSystems.hpp>
 #include <stk_topology/topology.hpp>
 
 #include <stk_io/IossBridge.hpp>
@@ -144,7 +143,9 @@ int main(int argc, char* argv[])
 	plist->get<std::string>("Target Mesh Part");
     std::string interpolation_type = 
 	plist->get<std::string>("Interpolation Type");
-    double basis_radius = plist->get<double>("Basis Radius");
+    double basis_radius_a = plist->get<double>("Basis Radius A");
+    double basis_radius_b = plist->get<double>("Basis Radius B");
+    int num_transfer_iters = plist->get<int>("Number of Iterations");
 
     // Get the raw mpi communicator (basic typedef in STK).
     Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
@@ -171,6 +172,12 @@ int main(int argc, char* argv[])
     stk::mesh::Part* src_part = 
 	src_broker.meta_data().get_part( source_mesh_part_name );
     stk::mesh::put_field( source_field, *src_part );
+
+    // Add an error nodal field to the source part.
+    stk::mesh::Field<double>& source_error_field = 
+    	src_broker.meta_data().declare_field<stk::mesh::Field<double> >( 
+    	    stk::topology::NODE_RANK, "u_err" );
+    stk::mesh::put_field( source_error_field, *src_part );
 
     // Create the source bulk data.
     src_broker.populate_bulk_data();
@@ -237,7 +244,7 @@ int main(int argc, char* argv[])
 
     // Create a manager for the source part elements.
     DataTransferKit::STKMeshManager src_manager( 
-	src_bulk_data, src_stk_selector, DataTransferKit::ENTITY_TYPE_VOLUME );
+	src_bulk_data, src_stk_selector, DataTransferKit::ENTITY_TYPE_NODE );
 
     // Create a manager for the target part nodes.
     stk::mesh::Selector tgt_stk_selector( *tgt_part );
@@ -258,45 +265,49 @@ int main(int argc, char* argv[])
     // SOLUTION TRANSFER
     // -----------------
 
-    // Create a map operator.
-    Teuchos::RCP<DataTransferKit::MapOperator<double> > map_op;
+    // Create map operators.
+    Teuchos::RCP<DataTransferKit::MapOperator<double> > s2t_map_op;
+    Teuchos::RCP<DataTransferKit::MapOperator<double> > t2s_map_op;
     if ( "Consistent" == interpolation_type )
     {
-	map_op = Teuchos::rcp( 
+	s2t_map_op = Teuchos::rcp( 
 	    new DataTransferKit::ConsistentInterpolationOperator<double>() );
-
+	t2s_map_op = Teuchos::rcp( 
+	    new DataTransferKit::ConsistentInterpolationOperator<double>() );
     }
     else if ( "Spline" == interpolation_type )
     {
-	map_op = Teuchos::rcp( 
+	s2t_map_op = Teuchos::rcp( 
 	    new DataTransferKit::SplineInterpolationOperator<
-	    double,DataTransferKit::WuBasis<4>,3>(basis_radius) );
+	    double,DataTransferKit::WuBasis<4>,3>(basis_radius_a) );
+	t2s_map_op = Teuchos::rcp( 
+	    new DataTransferKit::SplineInterpolationOperator<
+	    double,DataTransferKit::WuBasis<4>,3>(basis_radius_b) );
     }
     else if ( "Moving Least Square" == interpolation_type )
     {
-	map_op = Teuchos::rcp( 
+	s2t_map_op = Teuchos::rcp( 
 	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
-	    double,DataTransferKit::WuBasis<4>,3>(basis_radius) );
+	    double,DataTransferKit::WuBasis<4>,3>(basis_radius_a) );
+	t2s_map_op = Teuchos::rcp( 
+	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
+	    double,DataTransferKit::WuBasis<4>,3>(basis_radius_b) );
     }
 
-    // Setup the map operator.
-    map_op->setup( src_vector->getMap(),
-		   src_manager.functionSpace(),
-		   tgt_vector->getMap(),
-		   tgt_manager.functionSpace(),
-		   parameters );
+    // Setup the map operators.
+    s2t_map_op->setup( src_vector->getMap(),
+		       src_manager.functionSpace(),
+		       tgt_vector->getMap(),
+		       tgt_manager.functionSpace(),
+		       parameters );
 
-    // Apply the map operator.
-    map_op->apply( *src_vector, *tgt_vector );
+    t2s_map_op->setup( tgt_vector->getMap(),
+		       tgt_manager.functionSpace(),
+		       src_vector->getMap(),
+		       src_manager.functionSpace(),
+		       parameters );
 
-    // Push the target vector onto the target mesh.
-    DataTransferKit::STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
-    	*tgt_vector, *tgt_bulk_data, target_field );
-
-
-    // COMPUTE THE SOLUTION ERROR
-    // --------------------------
-
+    // Iterate.
     stk::mesh::BucketVector tgt_part_buckets = 
 	tgt_stk_selector.get_buckets( stk::topology::NODE_RANK );
     std::vector<stk::mesh::Entity> tgt_part_nodes;
@@ -310,21 +321,61 @@ int main(int argc, char* argv[])
     int num_tgt_part_nodes = tgt_part_nodes.size();
     double error_l2_norm = 0.0;
     double field_l2_norm = 0.0;
-    for ( int n = 0; n < num_tgt_part_nodes; ++n )
+    std::cout << "|e|_2 / |f|_2" << std::endl;
+    for ( int i = 0; i < num_transfer_iters; ++i )
     {
-	double gold_value = dataFunction( tgt_node_coords(n,0,0),
-					  tgt_node_coords(n,0,1),
-					  tgt_node_coords(n,0,2) );
-	tgt_field_data = stk::mesh::field_data( target_field, tgt_part_nodes[n] );
-	err_field_data = stk::mesh::field_data( target_error_field, tgt_part_nodes[n] );
-	err_field_data[0] = tgt_field_data[0] - gold_value;
-	error_l2_norm += err_field_data[0] * err_field_data[0];
-	field_l2_norm += tgt_field_data[0] * tgt_field_data[0];
-	err_field_data[0] /= gold_value;
+	// Source to target transfer
+	s2t_map_op->apply( *src_vector, *tgt_vector );
+
+	// Target to source transfer
+	t2s_map_op->apply( *tgt_vector, *src_vector );
+
+	// Push the source vector onto the source mesh.
+	DataTransferKit::STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
+	    *src_vector, *src_bulk_data, source_field );
+
+	// Push the target vector onto the target mesh.
+	DataTransferKit::STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
+	    *tgt_vector, *tgt_bulk_data, target_field );
+
+	// Compute the error on the source mesh.
+	error_l2_norm = 0.0;
+	field_l2_norm = 0.0;
+	for ( int n = 0; n < num_src_part_nodes; ++n )
+	{
+	    double gold_value = dataFunction( src_node_coords(n,0,0),
+					      src_node_coords(n,0,1),
+					      src_node_coords(n,0,2) );
+	    src_field_data = stk::mesh::field_data( source_field, src_part_nodes[n] );
+	    err_field_data = stk::mesh::field_data( source_error_field, src_part_nodes[n] );
+	    err_field_data[0] = src_field_data[0] - gold_value;
+	    error_l2_norm += err_field_data[0] * err_field_data[0];
+	    field_l2_norm += src_field_data[0] * src_field_data[0];
+	    err_field_data[0] /= gold_value;
+	}
+	error_l2_norm = std::sqrt( error_l2_norm );
+	field_l2_norm = std::sqrt( field_l2_norm );
+	std::cout << i << ": " << error_l2_norm / field_l2_norm;
+
+	// Compute the error on the target mesh.
+	error_l2_norm = 0.0;
+	field_l2_norm = 0.0;
+	for ( int n = 0; n < num_tgt_part_nodes; ++n )
+	{
+	    double gold_value = dataFunction( tgt_node_coords(n,0,0),
+					      tgt_node_coords(n,0,1),
+					      tgt_node_coords(n,0,2) );
+	    tgt_field_data = stk::mesh::field_data( target_field, tgt_part_nodes[n] );
+	    err_field_data = stk::mesh::field_data( target_error_field, tgt_part_nodes[n] );
+	    err_field_data[0] = tgt_field_data[0] - gold_value;
+	    error_l2_norm += err_field_data[0] * err_field_data[0];
+	    field_l2_norm += tgt_field_data[0] * tgt_field_data[0];
+	    err_field_data[0] /= gold_value;
+	}
+	error_l2_norm = std::sqrt( error_l2_norm );
+	field_l2_norm = std::sqrt( field_l2_norm );
+	std::cout << " | " << error_l2_norm / field_l2_norm << std::endl;
     }
-    error_l2_norm = std::sqrt( error_l2_norm );
-    field_l2_norm = std::sqrt( field_l2_norm );
-    std::cout << "|e|_2 / |f|_2: " << error_l2_norm / field_l2_norm << std::endl;
 
 
     // SOURCE MESH WRITE

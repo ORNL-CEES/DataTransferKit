@@ -11,4 +11,5 @@
   <ParameterList name="Stratimikos">
     <Parameter name="Linear Solver Type" type="string" value="AztecOO"/>
   </ParameterList>
+  <Parameter name="Number of Iterations" type="int" value="10"/> 
 </ParameterList>

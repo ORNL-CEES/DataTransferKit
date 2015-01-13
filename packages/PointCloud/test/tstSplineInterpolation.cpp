@@ -44,6 +44,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <limits>
+#include <cstdlib>
 
 #include <DTK_SplineInterpolationOperator.hpp>
 #include <DTK_WuBasis.hpp>
@@ -85,17 +86,19 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     int field_dim = 1;
 
     // Make a set of domain points.
-    int num_points = 100;
-    Teuchos::Array<DataTransferKit::Entity> domain_points( num_points );
+    int num_points = 10;
+    int domain_mult = 100;
+    int num_domain_points = num_points * domain_mult;
+    Teuchos::Array<DataTransferKit::Entity> domain_points( num_domain_points );
     Teuchos::Array<double> coords( space_dim );
     DataTransferKit::EntityId point_id = 0;
-    Teuchos::ArrayRCP<double> domain_data( field_dim*num_points );
-    for ( int i = 0; i < num_points; ++i )
+    Teuchos::ArrayRCP<double> domain_data( field_dim*num_domain_points );
+    for ( int i = 0; i < num_domain_points; ++i )
     {
-	point_id = num_points*comm_rank + i;
-	coords[0] = double(std::rand())/RAND_MAX;
-	coords[1] = double(std::rand())/RAND_MAX;
-	coords[2] = double(std::rand())/RAND_MAX;
+	point_id = num_domain_points*comm_rank + i;
+	coords[0] = num_points * (double) std::rand() / (double) RAND_MAX;
+	coords[1] = num_points * (double) std::rand() / (double) RAND_MAX;
+	coords[2] = num_points * (double) std::rand() / (double) RAND_MAX;
 	domain_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
 	domain_data[i] = coords[0];
     }
@@ -103,13 +106,13 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     // Make a set of range points.
     Teuchos::Array<DataTransferKit::Entity> range_points( num_points );
     Teuchos::ArrayRCP<double> range_data( field_dim*num_points );
-    Teuchos::ArrayRCP<double> gold_data( field_dim*num_points );
+    Teuchos::Array<double> gold_data( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
-	point_id = num_points*inverse_rank + i;
-	coords[0] = double(std::rand())/RAND_MAX;
-	coords[1] = double(std::rand())/RAND_MAX;
-	coords[2] = double(std::rand())/RAND_MAX;
+	point_id = num_points*inverse_rank + i + 1;
+	coords[0] = num_points * (double) std::rand() / (double) RAND_MAX;
+	coords[1] = num_points * (double) std::rand() / (double) RAND_MAX;
+	coords[2] = num_points * (double) std::rand() / (double) RAND_MAX;
 	range_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
 	range_data[i] = 0.0;
 	gold_data[i] = coords[0];
@@ -133,7 +136,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
 	DataTransferKit::EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
 	    comm, range_points(), field_dim, range_data );
 
-    // Make a moving least square reconstruction operator.
+    // Make a spline interpolation operator.
     double radius = parameters->get<double>("Support Radius");
     Teuchos::RCP<DataTransferKit::MapOperator<double> > spline_op =
 	Teuchos::rcp( 
@@ -150,8 +153,10 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     spline_op->apply( *domain_vector, *range_vector );
 
     // Check the apply.
-    TEST_COMPARE_FLOATING_ARRAYS(range_data, gold_data, 1.0);
-
+    for ( int i = 0; i < num_points; ++i )
+    {
+	TEST_FLOATING_EQUALITY( gold_data[i], range_data[i], 1.0e-8 );
+    }
 }
 
 //---------------------------------------------------------------------------//

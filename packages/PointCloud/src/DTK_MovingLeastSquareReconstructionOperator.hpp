@@ -99,10 +99,19 @@ class MovingLeastSquareReconstructionOperator : public MapOperator<Scalar>
 		const Teuchos::RCP<FunctionSpace>& range_space,
 		const Teuchos::RCP<Teuchos::ParameterList>& parameters );
 
+    /*!
+     * \brief Get the interpolation matrix.
+     */
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,GO> > getCrsMatrix() const
+    { return d_H; }
+
   private:
 
     // Support radius.
     double d_radius;
+
+    // Interpolation matrix.
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,GO> > d_H;
 };
 
 //---------------------------------------------------------------------------//

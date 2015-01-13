@@ -185,10 +185,9 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 	pairings.childrenPerParent();
     std::size_t max_entries_per_row = *std::max_element( 
 	children_per_parent.begin(), children_per_parent.end() );
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,GO> > H = 
-	Teuchos::rcp( new Tpetra::CrsMatrix<Scalar,int,GO>( 
-			  this->b_range_map,
-			  max_entries_per_row) );
+    d_H = Teuchos::rcp( new Tpetra::CrsMatrix<Scalar,int,GO>( 
+			    this->b_range_map,
+			    max_entries_per_row) );
     Teuchos::ArrayView<const Scalar> target_view;
     Teuchos::Array<GO> indices( max_entries_per_row );
     Teuchos::ArrayView<const Scalar> values;
@@ -218,20 +217,20 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 	    {
 		indices[j] = dist_source_gids[ pair_gids[j] ];
 	    }
-	    H->insertGlobalValues( target_gids[i], indices(0,nn), values );
+	    d_H->insertGlobalValues( target_gids[i], indices(0,nn), values );
 	}
     }
-    H->fillComplete( this->b_domain_map, this->b_range_map );
-    DTK_ENSURE( H->isFillComplete() );
-    
+    d_H->fillComplete( this->b_domain_map, this->b_range_map );
+    DTK_ENSURE( d_H->isFillComplete() );
+
     // Wrap the interpolation matrix in a Thyra wrapper.
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space =
-    	Thyra::createVectorSpace<Scalar>( H->getRangeMap() );
+    	Thyra::createVectorSpace<Scalar>( d_H->getRangeMap() );
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_domain_vector_space =
-    	Thyra::createVectorSpace<Scalar>( H->getDomainMap() );
+    	Thyra::createVectorSpace<Scalar>( d_H->getDomainMap() );
     Teuchos::RCP<Thyra::TpetraLinearOp<Scalar,LO,GO> > thyra_H =
     	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,LO,GO>() );
-    thyra_H->initialize( thyra_range_vector_space, thyra_domain_vector_space, H );
+    thyra_H->initialize( thyra_range_vector_space, thyra_domain_vector_space, d_H );
 
     // Set the coupling matrix with the base class.
     this->b_coupling_matrix = thyra_H;

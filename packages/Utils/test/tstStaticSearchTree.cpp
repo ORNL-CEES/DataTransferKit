@@ -112,7 +112,7 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_1_test )
     nnearest = tree.radiusSearch( p2(), radius );
     TEST_EQUALITY( 0, nnearest.size() );
 
-    radius = 2.4;
+    radius = 2.41;
     nnearest = tree.radiusSearch( p2(), radius );
     TEST_EQUALITY( 1, nnearest.size() );
     TEST_EQUALITY( 9, nnearest[0] )
@@ -161,7 +161,7 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_1_factory_test )
     nnearest = tree->radiusSearch( p2(), radius );
     TEST_EQUALITY( 0, nnearest.size() );
 
-    radius = 2.4;
+    radius = 2.41;
     nnearest = tree->radiusSearch( p2(), radius );
     TEST_EQUALITY( 1, nnearest.size() );
     TEST_EQUALITY( 9, nnearest[0] )
@@ -211,7 +211,7 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_2_test )
     nnearest = tree.radiusSearch( p2(), radius );
     TEST_EQUALITY( 0, nnearest.size() );
 
-    radius = 2.4;
+    radius = 2.41;
     nnearest = tree.radiusSearch( p2(), radius );
     TEST_EQUALITY( 1, nnearest.size() );
     TEST_EQUALITY( 9, nnearest[0] )
@@ -263,7 +263,7 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_2_factory_test )
     nnearest = tree->radiusSearch( p2(), radius );
     TEST_EQUALITY( 0, nnearest.size() );
 
-    radius = 2.4;
+    radius = 2.41;
     nnearest = tree->radiusSearch( p2(), radius );
     TEST_EQUALITY( 1, nnearest.size() );
     TEST_EQUALITY( 9, nnearest[0] )
@@ -316,7 +316,7 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_3_test )
     nnearest = tree.radiusSearch( p2(), radius );
     TEST_EQUALITY( 0, nnearest.size() );
 
-    radius = 2.4;
+    radius = 2.41;
     nnearest = tree.radiusSearch( p2(), radius );
     TEST_EQUALITY( 1, nnearest.size() );
     TEST_EQUALITY( 9, nnearest[0] )
@@ -371,7 +371,7 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_3_factory_test )
     nnearest = tree->radiusSearch( p2(), radius );
     TEST_EQUALITY( 0, nnearest.size() );
 
-    radius = 2.4;
+    radius = 2.41;
     nnearest = tree->radiusSearch( p2(), radius );
     TEST_EQUALITY( 1, nnearest.size() );
     TEST_EQUALITY( 9, nnearest[0] )

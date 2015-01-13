@@ -5,8 +5,10 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     DataTransferKitInterface
     Teuchos
     Tpetra
+    Belos
     ThyraCore
     ThyraTpetraAdapters
+    Stratimikos
   TEST_REQUIRED_PACKAGES
     DataTransferKitBasicGeometryAdapters
   )

@@ -179,8 +179,7 @@ Teuchos::Array<unsigned> NanoflannTree<DIM>::radiusSearch(
     DTK_REQUIRE( DIM == point.size() );
     Teuchos::Array<std::pair<unsigned,double> > neighbor_pairs;
     nanoflann::SearchParams params;
-    double l2_radius = radius*radius + 
-		       100.0*std::numeric_limits<double>::epsilon();
+    double l2_radius = radius*radius;
     d_tree->radiusSearch( 
 	point.getRawPtr(), l2_radius, neighbor_pairs, params );
 
