@@ -50,6 +50,7 @@
 #include <Teuchos_Array.hpp>
 
 #include <Tpetra_Map.hpp>
+#include <Tpetra_CrsMatrix.hpp>
 
 namespace DataTransferKit
 {
@@ -71,11 +72,15 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
     typedef typename Base::Root Root;
     typedef typename Root::local_ordinal_type LO;
     typedef typename Root::global_ordinal_type GO;
+    typedef typename Base::TpetraMultiVector TpetraMultiVector;
+    typedef typename Base::TpetraMap TpetraMap;
     
     /*!
      * \brief Constructor.
      */
-    ConsistentInterpolationOperator();
+    ConsistentInterpolationOperator(
+	const Teuchos::RCP<const TpetraMap>& domain_map,
+	const Teuchos::RCP<const TpetraMap>& range_map );
 
     /*!
      * \brief Destructor.
@@ -102,11 +107,18 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
      *
      * \param parameters Parameters for the setup.
      */
-    void setup( const Teuchos::RCP<const typename Base::TpetraMap>& domain_map,
-		const Teuchos::RCP<FunctionSpace>& domain_space,
-		const Teuchos::RCP<const typename Base::TpetraMap>& range_map,
+    void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
 		const Teuchos::RCP<FunctionSpace>& range_space,
 		const Teuchos::RCP<Teuchos::ParameterList>& parameters );
+
+    /*!
+     * \brief Apply the operator.
+     */
+    void apply( const TpetraMultiVector& X,
+		TpetraMultiVector &Y,
+		Teuchos::ETransp mode = Teuchos::NO_TRANS,
+		Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
+		Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const;
 
     /*!
      * \brief Return the ids of the range entities that were not mapped during
@@ -118,6 +130,9 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
     Teuchos::ArrayView<const EntityId> getMissedRangeEntityIds() const;
 
   private:
+
+    // The coupling matrix.
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > d_coupling_matrix;
 
     // An array of range entity ids that were not mapped during the last call
     // to setup.

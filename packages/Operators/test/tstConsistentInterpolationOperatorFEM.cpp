@@ -222,12 +222,11 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>() );
+	new ConsistentInterpolationOperator<double>(domain_dof_map,range_dof_map) );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    map_op->setup( 
-	domain_dof_map, domain_space, range_dof_map, range_space, parameters );
+    map_op->setup( domain_space, range_space, parameters );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );

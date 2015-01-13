@@ -49,6 +49,8 @@
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
 
+#include <Tpetra_CrsMatrix.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -69,11 +71,15 @@ class MovingLeastSquareReconstructionOperator : public MapOperator<Scalar>
     typedef typename Base::Root Root;
     typedef typename Root::local_ordinal_type LO;
     typedef typename Root::global_ordinal_type GO;
+    typedef typename Base::TpetraMultiVector TpetraMultiVector;
+    typedef typename Base::TpetraMap TpetraMap;
     typedef RadialBasisPolicy<Basis> BP;
     //@}
 
     // Constructor.
-    MovingLeastSquareReconstructionOperator( const double radius );
+    MovingLeastSquareReconstructionOperator(
+	const Teuchos::RCP<const TpetraMap>& domain_map,
+	const Teuchos::RCP<const TpetraMap>& range_map );
 
     //! Destructor.
     ~MovingLeastSquareReconstructionOperator();
@@ -93,25 +99,23 @@ class MovingLeastSquareReconstructionOperator : public MapOperator<Scalar>
      * data may be null of no entities are on-process.
      * \param parameters Parameters for the setup.
      */
-    void setup( const Teuchos::RCP<const typename Base::TpetraMap>& domain_map,
-		const Teuchos::RCP<FunctionSpace>& domain_space,
-		const Teuchos::RCP<const typename Base::TpetraMap>& range_map,
+    void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
 		const Teuchos::RCP<FunctionSpace>& range_space,
 		const Teuchos::RCP<Teuchos::ParameterList>& parameters );
 
     /*!
-     * \brief Get the interpolation matrix.
+     * \brief Apply the operator.
      */
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,GO> > getCrsMatrix() const
-    { return d_H; }
-
+    void apply( const TpetraMultiVector& X,
+		TpetraMultiVector &Y,
+		Teuchos::ETransp mode = Teuchos::NO_TRANS,
+		Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
+		Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const;
+    
   private:
 
-    // Support radius.
-    double d_radius;
-
-    // Interpolation matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,GO> > d_H;
+    // Coupling matrix.
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,GO> > d_coupling_matrix;
 };
 
 //---------------------------------------------------------------------------//

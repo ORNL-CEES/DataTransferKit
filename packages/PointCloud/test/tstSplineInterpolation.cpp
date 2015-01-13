@@ -137,15 +137,12 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
 	    comm, range_points(), field_dim, range_data );
 
     // Make a spline interpolation operator.
-    double radius = parameters->get<double>("Support Radius");
     Teuchos::RCP<DataTransferKit::MapOperator<double> > spline_op =
 	Teuchos::rcp( 
-	    new DataTransferKit::SplineInterpolationOperator<double,DataTransferKit::WuBasis<2>,space_dim>(radius) );
+	    new DataTransferKit::SplineInterpolationOperator<double,DataTransferKit::WuBasis<2>,space_dim>(domain_vector->getMap(),range_vector->getMap()) );
 
     // Setup the operator.
-    spline_op->setup( domain_vector->getMap(),
-		      domain_manager.functionSpace(),
-		      range_vector->getMap(),
+    spline_op->setup( domain_manager.functionSpace(),
 		      range_manager.functionSpace(),
 		      parameters );
 

@@ -53,7 +53,6 @@
 #include <Teuchos_OrdinalTraits.hpp>
 
 #include <Tpetra_Map.hpp>
-#include <Tpetra_CrsMatrix.hpp>
 #include <Tpetra_Distributor.hpp>
 
 #include <Thyra_VectorSpaceBase.hpp>
@@ -66,8 +65,11 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 template<class Scalar>
-ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator()
-    : d_missed_range_entity_ids( 0 )
+ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator(
+    const Teuchos::RCP<const TpetraMap>& domain_map,
+    const Teuchos::RCP<const TpetraMap>& range_map )
+    : Base( domain_map, range_map )
+    , d_missed_range_entity_ids( 0 )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -80,17 +82,19 @@ ConsistentInterpolationOperator<Scalar>::~ConsistentInterpolationOperator()
 // Setup the map operator.
 template<class Scalar>
 void ConsistentInterpolationOperator<Scalar>::setup(
-    const Teuchos::RCP<const typename Base::TpetraMap>& domain_map,
     const Teuchos::RCP<FunctionSpace>& domain_space,
-    const Teuchos::RCP<const typename Base::TpetraMap>& range_map,
     const Teuchos::RCP<FunctionSpace>& range_space,
     const Teuchos::RCP<Teuchos::ParameterList>& parameters )
 {
-    DTK_REQUIRE( Teuchos::nonnull(domain_map) );
     DTK_REQUIRE( Teuchos::nonnull(domain_space) );
-    DTK_REQUIRE( Teuchos::nonnull(range_map) );
     DTK_REQUIRE( Teuchos::nonnull(range_space) );
     DTK_REQUIRE( Teuchos::nonnull(parameters) );
+
+    // Extract the DOF maps.
+    const Teuchos::RCP<const typename Base::TpetraMap> domain_map
+	= this->getDomainMap();
+    const Teuchos::RCP<const typename Base::TpetraMap> range_map
+	= this->getRangeMap();
 
     // Get the parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = domain_map->getComm();
@@ -98,10 +102,6 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     // Determine if we have range and domain data on this process.
     bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
     bool nonnull_range = Teuchos::nonnull( range_space->entitySet() );
-
-    // Extract the DOF maps.
-    this->b_domain_map = domain_map;
-    this->b_range_map = range_map;
 
     // Get the physical dimension.
     int physical_dimension = 0;
@@ -222,8 +222,8 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     }
 
     // Allocate the coupling matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > coupling_matrix =
-	Tpetra::createCrsMatrix<Scalar,LO,GO>( this->b_range_map );
+    d_coupling_matrix = 
+	Tpetra::createCrsMatrix<Scalar,LO,GO>( range_map );
 
     // Construct the entries of the coupling matrix.
     Teuchos::Array<EntityId> range_entity_ids;
@@ -277,7 +277,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 
 		// Consistent interpolation requires one DOF per range
 		// entity. Load the row for this range DOF into the matrix.
-		coupling_matrix->insertGlobalValues( 
+		d_coupling_matrix->insertGlobalValues( 
 		    range_dof_id_map.find(*range_entity_id_it)->second,
 		    domain_dof_ids(),
 		    domain_shape_values() );
@@ -286,22 +286,21 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     }
 
     // Finalize the coupling matrix.
-    coupling_matrix->fillComplete( this->b_domain_map, this->b_range_map );
+    d_coupling_matrix->fillComplete( domain_map, range_map );
+    DTK_ENSURE( Teuchos::nonnull(d_coupling_matrix) );
+}
 
-    // Wrap the coupling matrix with the Thyra interface.
-    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space =
-    	Thyra::createVectorSpace<Scalar>( coupling_matrix->getRangeMap() );
-    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_domain_vector_space =
-    	Thyra::createVectorSpace<Scalar>( coupling_matrix->getDomainMap() );
-    Teuchos::RCP<Thyra::TpetraLinearOp<Scalar,LO,GO> > thyra_coupling_matrix =
-    	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,LO,GO>() );
-    thyra_coupling_matrix->initialize( thyra_range_vector_space, 
-    				       thyra_domain_vector_space, 
-    				       coupling_matrix );
-
-    // Set the coupling matrix with the base class.
-    this->b_coupling_matrix = thyra_coupling_matrix;
-    DTK_ENSURE( Teuchos::nonnull(this->b_coupling_matrix) );
+//---------------------------------------------------------------------------//
+// Apply the operator.
+template<class Scalar>
+void ConsistentInterpolationOperator<Scalar>::apply( 
+    const TpetraMultiVector& X,
+    TpetraMultiVector &Y,
+    Teuchos::ETransp mode,
+    Scalar alpha,
+    Scalar beta ) const
+{
+    d_coupling_matrix->apply( X, Y, mode, alpha, beta );
 }
 
 //---------------------------------------------------------------------------//

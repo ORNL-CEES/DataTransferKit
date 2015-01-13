@@ -49,9 +49,6 @@
 #include <Tpetra_Operator.hpp>
 #include <Tpetra_MultiVector.hpp>
 
-#include <Thyra_MultiVectorBase.hpp>
-#include <Thyra_LinearOpBase.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -80,7 +77,8 @@ class MapOperator : public Tpetra::Operator<Scalar,int,std::size_t>
     /*!
      * \brief Constructor.
      */
-    MapOperator();
+    MapOperator( const Teuchos::RCP<const TpetraMap>& domain_map,
+		 const Teuchos::RCP<const TpetraMap>& range_map );
 
     /*!
      * \brief Destructor.
@@ -103,9 +101,7 @@ class MapOperator : public Tpetra::Operator<Scalar,int,std::size_t>
      * \param parameters Parameters for the setup.
      */
     virtual void 
-    setup( const Teuchos::RCP<const TpetraMap>& domain_map,
-	   const Teuchos::RCP<FunctionSpace>& domain_space,
-	   const Teuchos::RCP<const TpetraMap>& range_map,
+    setup( const Teuchos::RCP<FunctionSpace>& domain_space,
 	   const Teuchos::RCP<FunctionSpace>& range_space,
 	   const Teuchos::RCP<Teuchos::ParameterList>& parameters );
 
@@ -113,29 +109,20 @@ class MapOperator : public Tpetra::Operator<Scalar,int,std::size_t>
     //! Tpetra::Operator interface.
     Teuchos::RCP<const TpetraMap> getDomainMap() const;
     Teuchos::RCP<const TpetraMap> getRangeMap() const;
-    void apply( const TpetraMultiVector& X,
-		TpetraMultiVector &Y,
-		Teuchos::ETransp mode = Teuchos::NO_TRANS,
-		Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-		Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const;
+    virtual void apply( const TpetraMultiVector& X,
+			TpetraMultiVector &Y,
+			Teuchos::ETransp mode = Teuchos::NO_TRANS,
+			Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
+			Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const;
     //@}
 
-  protected:
+  private:
 
     //! Domain map.
-    Teuchos::RCP<const TpetraMap> b_domain_map;
+    Teuchos::RCP<const TpetraMap> d_domain_map;
 
     //! Range map.
-    Teuchos::RCP<const TpetraMap> b_range_map;
-
-    //! Mass matrix inverse.
-    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > b_mass_matrix_inv;
-
-    //! Coupling matrix.
-    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > b_coupling_matrix;
-
-    //! Forcing vector.
-    Teuchos::RCP<const Thyra::MultiVectorBase<Scalar> > b_forcing_vector;
+    Teuchos::RCP<const TpetraMap> d_range_map;
 };
 
 //---------------------------------------------------------------------------//

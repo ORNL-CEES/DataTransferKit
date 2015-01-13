@@ -128,17 +128,17 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_test )
 	    comm, range_points(), field_dim, range_data );
 
     // Make a moving least square reconstruction operator.
-    double radius = 2.0;
     Teuchos::RCP<DataTransferKit::MapOperator<double> > mls_op =
 	Teuchos::rcp( 
 	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
-	    double,DataTransferKit::WuBasis<2>,space_dim>(radius) );
+	    double,DataTransferKit::WuBasis<2>,space_dim>(
+		domain_vector->getMap(), range_vector->getMap()) );
 
     // Setup the operator.
+    double radius = 2.0;
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    mls_op->setup( domain_vector->getMap(),
-		   domain_manager.functionSpace(),
-		   range_vector->getMap(),
+    parameters->set<double>("RBF Radius", radius);
+    mls_op->setup( domain_manager.functionSpace(),
 		   range_manager.functionSpace(),
 		   parameters );
 

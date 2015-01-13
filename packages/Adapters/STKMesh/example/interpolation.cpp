@@ -263,26 +263,29 @@ int main(int argc, char* argv[])
     if ( "Consistent" == interpolation_type )
     {
 	map_op = Teuchos::rcp( 
-	    new DataTransferKit::ConsistentInterpolationOperator<double>() );
+	    new DataTransferKit::ConsistentInterpolationOperator<double>(
+		src_vector->getMap(),tgt_vector->getMap()) );
 
     }
     else if ( "Spline" == interpolation_type )
     {
 	map_op = Teuchos::rcp( 
 	    new DataTransferKit::SplineInterpolationOperator<
-	    double,DataTransferKit::WuBasis<4>,3>(basis_radius) );
+	    double,DataTransferKit::WuBasis<4>,3>(
+		src_vector->getMap(),tgt_vector->getMap()) );
+	parameters->set<double>("RBF Radius",basis_radius);
     }
     else if ( "Moving Least Square" == interpolation_type )
     {
 	map_op = Teuchos::rcp( 
 	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
-	    double,DataTransferKit::WuBasis<4>,3>(basis_radius) );
+	    double,DataTransferKit::WuBasis<4>,3>(
+		src_vector->getMap(),tgt_vector->getMap()) );
+	parameters->set<double>("RBF Radius",basis_radius);
     }
 
     // Setup the map operator.
-    map_op->setup( src_vector->getMap(),
-		   src_manager.functionSpace(),
-		   tgt_vector->getMap(),
+    map_op->setup( src_manager.functionSpace(),
 		   tgt_manager.functionSpace(),
 		   parameters );
 

@@ -54,38 +54,47 @@
 #include <Teuchos_ParameterList.hpp>
 
 #include <Tpetra_MultiVector.hpp>
-#include <Tpetra_CrsMatrix.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
 template<class Scalar,class Basis,int DIM>
-MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::MovingLeastSquareReconstructionOperator( const double radius )
-    : d_radius( radius )
+MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::
+MovingLeastSquareReconstructionOperator(
+    const Teuchos::RCP<const TpetraMap>& domain_map,
+    const Teuchos::RCP<const TpetraMap>& range_map )
+    : Base( domain_map, range_map )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Destructor.
 template<class Scalar,class Basis,int DIM>
-MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::~MovingLeastSquareReconstructionOperator()
+MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::
+~MovingLeastSquareReconstructionOperator()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar,class Basis,int DIM>
 void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
-    const Teuchos::RCP<const typename Base::TpetraMap>& domain_map,
     const Teuchos::RCP<FunctionSpace>& domain_space,
-    const Teuchos::RCP<const typename Base::TpetraMap>& range_map,
     const Teuchos::RCP<FunctionSpace>& range_space,
     const Teuchos::RCP<Teuchos::ParameterList>& parameters )
 {
-    DTK_REQUIRE( Teuchos::nonnull(domain_map) );
     DTK_REQUIRE( Teuchos::nonnull(domain_space) );
-    DTK_REQUIRE( Teuchos::nonnull(range_map) );
     DTK_REQUIRE( Teuchos::nonnull(range_space) );
     DTK_REQUIRE( Teuchos::nonnull(parameters) );
+
+    // Get the basis radius.
+    DTK_REQUIRE( parameters->isParameter("RBF Radius") );
+    double radius = parameters->get<double>("RBF Radius");
+
+    // Extract the DOF maps.
+    const Teuchos::RCP<const typename Base::TpetraMap> domain_map
+	= this->getDomainMap();
+    const Teuchos::RCP<const typename Base::TpetraMap> range_map
+	= this->getRangeMap();
 
     // Get the parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = domain_map->getComm();
@@ -99,10 +108,6 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 		 ENTITY_TYPE_NODE );
     DTK_REQUIRE( range_space->entitySelector()->entityType() ==
 		 ENTITY_TYPE_NODE );
-
-    // Extract the DOF maps.
-    this->b_domain_map = domain_map;
-    this->b_range_map = range_map;
 
     // We will only operate on entities that are locally-owned.
     LocalEntityPredicate local_predicate( comm->getRank() );
@@ -162,13 +167,13 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     }
 
     // Build the basis.
-    Teuchos::RCP<Basis> basis = BP::create( d_radius );
+    Teuchos::RCP<Basis> basis = BP::create( radius );
 
     // Gather the source centers that are within a radius of the target
     // centers on this proc.
     Teuchos::Array<double> dist_sources;
     CenterDistributor<DIM> distributor( 
-	comm, source_centers(), target_centers(), d_radius, dist_sources );
+	comm, source_centers(), target_centers(), radius, dist_sources );
 
     // Gather the global ids of the source centers that are within a radius of
     // the target centers on this proc.
@@ -178,15 +183,15 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 
     // Build the source/target pairings.
     SplineInterpolationPairing<DIM> pairings( 
-	dist_sources, target_centers(), d_radius );
+	dist_sources, target_centers(), radius );
 
     // Build the interpolation matrix.
     Teuchos::ArrayRCP<std::size_t> children_per_parent =
 	pairings.childrenPerParent();
     std::size_t max_entries_per_row = *std::max_element( 
 	children_per_parent.begin(), children_per_parent.end() );
-    d_H = Teuchos::rcp( new Tpetra::CrsMatrix<Scalar,int,GO>( 
-			    this->b_range_map,
+    d_coupling_matrix = Teuchos::rcp( new Tpetra::CrsMatrix<Scalar,int,GO>( 
+			    range_map,
 			    max_entries_per_row) );
     Teuchos::ArrayView<const Scalar> target_view;
     Teuchos::Array<GO> indices( max_entries_per_row );
@@ -217,24 +222,25 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 	    {
 		indices[j] = dist_source_gids[ pair_gids[j] ];
 	    }
-	    d_H->insertGlobalValues( target_gids[i], indices(0,nn), values );
+	    d_coupling_matrix->insertGlobalValues( 
+		target_gids[i], indices(0,nn), values );
 	}
     }
-    d_H->fillComplete( this->b_domain_map, this->b_range_map );
-    DTK_ENSURE( d_H->isFillComplete() );
+    d_coupling_matrix->fillComplete( domain_map, range_map );
+    DTK_ENSURE( d_coupling_matrix->isFillComplete() );
+}
 
-    // Wrap the interpolation matrix in a Thyra wrapper.
-    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space =
-    	Thyra::createVectorSpace<Scalar>( d_H->getRangeMap() );
-    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_domain_vector_space =
-    	Thyra::createVectorSpace<Scalar>( d_H->getDomainMap() );
-    Teuchos::RCP<Thyra::TpetraLinearOp<Scalar,LO,GO> > thyra_H =
-    	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,LO,GO>() );
-    thyra_H->initialize( thyra_range_vector_space, thyra_domain_vector_space, d_H );
-
-    // Set the coupling matrix with the base class.
-    this->b_coupling_matrix = thyra_H;
-    DTK_ENSURE( Teuchos::nonnull(this->b_coupling_matrix) );
+//---------------------------------------------------------------------------//
+// Apply the operator.
+template<class Scalar,class Basis,int DIM>
+void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::apply( 
+    const TpetraMultiVector& X,
+    TpetraMultiVector &Y,
+    Teuchos::ETransp mode,
+    Scalar alpha,
+    Scalar beta ) const
+{
+    d_coupling_matrix->apply( X, Y, mode, alpha, beta );
 }
 
 //---------------------------------------------------------------------------//

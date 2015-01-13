@@ -240,7 +240,8 @@ int main(int argc, char* argv[])
     // -----------------------
     
     // Solution transfer parameters.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    Teuchos::RCP<Teuchos::ParameterList> parameters_A = Teuchos::parameterList();
+    Teuchos::RCP<Teuchos::ParameterList> parameters_B = Teuchos::parameterList();
 
     // Create a manager for the source part elements.
     DataTransferKit::STKMeshManager src_manager( 
@@ -271,41 +272,47 @@ int main(int argc, char* argv[])
     if ( "Consistent" == interpolation_type )
     {
 	s2t_map_op = Teuchos::rcp( 
-	    new DataTransferKit::ConsistentInterpolationOperator<double>() );
+	    new DataTransferKit::ConsistentInterpolationOperator<double>(
+		src_vector->getMap(),tgt_vector->getMap()) );
 	t2s_map_op = Teuchos::rcp( 
-	    new DataTransferKit::ConsistentInterpolationOperator<double>() );
+	    new DataTransferKit::ConsistentInterpolationOperator<double>(
+		tgt_vector->getMap(),src_vector->getMap()) );
     }
     else if ( "Spline" == interpolation_type )
     {
 	s2t_map_op = Teuchos::rcp( 
 	    new DataTransferKit::SplineInterpolationOperator<
-	    double,DataTransferKit::WuBasis<4>,3>(basis_radius_a) );
+	    double,DataTransferKit::WuBasis<4>,3>(
+		src_vector->getMap(),tgt_vector->getMap()) );
 	t2s_map_op = Teuchos::rcp( 
 	    new DataTransferKit::SplineInterpolationOperator<
-	    double,DataTransferKit::WuBasis<4>,3>(basis_radius_b) );
+	    double,DataTransferKit::WuBasis<4>,3>(
+		tgt_vector->getMap(),src_vector->getMap()) );
+	parameters_A->set<double>("RBF Radius",basis_radius_a);
+	parameters_B->set<double>("RBF Radius",basis_radius_b);
     }
     else if ( "Moving Least Square" == interpolation_type )
     {
 	s2t_map_op = Teuchos::rcp( 
 	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
-	    double,DataTransferKit::WuBasis<4>,3>(basis_radius_a) );
+	    double,DataTransferKit::WuBasis<4>,3>(
+		src_vector->getMap(),tgt_vector->getMap()) );
 	t2s_map_op = Teuchos::rcp( 
 	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
-	    double,DataTransferKit::WuBasis<4>,3>(basis_radius_b) );
+	    double,DataTransferKit::WuBasis<4>,3>(
+		tgt_vector->getMap(),src_vector->getMap()) );
+	parameters_A->set<double>("RBF Radius",basis_radius_a);
+	parameters_B->set<double>("RBF Radius",basis_radius_b);
     }
 
     // Setup the map operators.
-    s2t_map_op->setup( src_vector->getMap(),
-		       src_manager.functionSpace(),
-		       tgt_vector->getMap(),
+    s2t_map_op->setup( src_manager.functionSpace(),
 		       tgt_manager.functionSpace(),
-		       parameters );
+		       parameters_A );
 
-    t2s_map_op->setup( tgt_vector->getMap(),
-		       tgt_manager.functionSpace(),
-		       src_vector->getMap(),
+    t2s_map_op->setup( tgt_manager.functionSpace(),
 		       src_manager.functionSpace(),
-		       parameters );
+		       parameters_B );
 
     // Iterate.
     stk::mesh::BucketVector tgt_part_buckets = 
