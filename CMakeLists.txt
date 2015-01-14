@@ -35,5 +35,19 @@ TRIBITS_PACKAGE_DEF()
 TRIBITS_PACKAGE_POSTPROCESS()
 
 ##---------------------------------------------------------------------------##
+## Print the revision number to stdout    
+##---------------------------------------------------------------------------##
+
+FIND_PACKAGE(Git)
+IF(GIT_FOUND)
+    EXECUTE_PROCESS(
+        COMMAND           ${GIT_EXECUTABLE} log --pretty=format:'%H' -n 1
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE   DTK_REVISION
+        )
+    MESSAGE("DTK Revision = ${DTK_REVISION}")
+ENDIF()
+
+##---------------------------------------------------------------------------##
 ## end of DataTransferKit/CMakeLists.txt
 ##---------------------------------------------------------------------------##
