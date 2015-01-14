@@ -287,7 +287,8 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     }
     int local_num_src = domain_iterator.size();
     Teuchos::ArrayRCP<double> source_centers( DIM*local_num_src);
-    Teuchos::ArrayRCP<GO> source_gids( local_num_src );
+    Teuchos::ArrayRCP<GO> source_dof_ids( local_num_src );
+    Teuchos::Array<std::size_t> source_node_dofs;
     EntityIterator domain_begin = domain_iterator.begin();
     EntityIterator domain_end = domain_iterator.end();
     int entity_counter = 0;
@@ -295,7 +296,9 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
 	  domain_entity != domain_end;
 	  ++domain_entity, ++entity_counter )
     {
-	source_gids[entity_counter] = domain_entity->id();
+	domain_space->shapeFunction()->entityDOFIds( *domain_entity, source_node_dofs );
+	DTK_CHECK( 1 == source_node_dofs.size() );
+	source_dof_ids[entity_counter] = source_node_dofs[0];
 	domain_space->localMap()->centroid(
 	    *domain_entity, source_centers(DIM*entity_counter,DIM) );
     }
@@ -314,7 +317,8 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     } 
     int local_num_tgt = range_iterator.size();
     Teuchos::ArrayRCP<double> target_centers( DIM*local_num_tgt );
-    Teuchos::ArrayRCP<GO> target_gids( local_num_tgt );
+    Teuchos::ArrayRCP<GO> target_dof_ids( local_num_tgt );
+    Teuchos::Array<std::size_t> target_node_dofs;
     EntityIterator range_begin = range_iterator.begin();
     EntityIterator range_end = range_iterator.end();
     entity_counter = 0;
@@ -322,7 +326,9 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
 	  range_entity != range_end;
 	  ++range_entity, ++entity_counter )
     {
-	target_gids[entity_counter] = range_entity->id();
+	range_space->shapeFunction()->entityDOFIds( *range_entity, target_node_dofs );
+	DTK_CHECK( 1 == target_node_dofs.size() );
+	target_dof_ids[entity_counter] = target_node_dofs[0];
 	range_space->localMap()->centroid(
 	    *range_entity, target_centers(DIM*entity_counter,DIM) );
     }
@@ -340,11 +346,11 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
 	comm, source_centers(), source_centers(), radius, dist_sources );
     
     // Distribute the global source ids.
-    Teuchos::Array<GO> dist_source_gids( 
+    Teuchos::Array<GO> dist_source_dof_ids( 
 	source_distributor.getNumImports() );
-    Teuchos::ArrayView<const GO> source_gids_view = source_gids();
-    Teuchos::ArrayView<GO> dist_gids_view = dist_source_gids();
-    source_distributor.distribute( source_gids_view, dist_gids_view );
+    Teuchos::ArrayView<const GO> source_dof_ids_view = source_dof_ids();
+    Teuchos::ArrayView<GO> dist_gids_view = dist_source_dof_ids();
+    source_distributor.distribute( source_dof_ids_view, dist_gids_view );
 
     // Build the source/source pairings.
     SplineInterpolationPairing<DIM> source_pairings( 
@@ -359,14 +365,14 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     // Build the coefficient operators.
     SplineCoefficientMatrix<Basis,DIM> C( 
 	prolongated_map,
-	source_centers(), source_gids(),
-	dist_sources(), dist_source_gids(),
+	source_centers(), source_dof_ids(),
+	dist_sources(), dist_source_dof_ids(),
 	source_pairings, *basis );
     P = C.getP();
     M = C.getM();
 
     // Cleanup.
-    dist_source_gids.clear();
+    dist_source_dof_ids.clear();
     
     // EVALUATION OPERATORS. 
     // Gather the source centers that are within a radius of the target
@@ -375,11 +381,11 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
 	comm, source_centers(), target_centers(), radius, dist_sources  );
 
     // Distribute the global source ids.
-    dist_source_gids.resize( 
+    dist_source_dof_ids.resize( 
 	target_distributor.getNumImports() );
-    source_gids_view = source_gids();
-    dist_gids_view = dist_source_gids();
-    target_distributor.distribute( source_gids_view, dist_gids_view );
+    source_dof_ids_view = source_dof_ids();
+    dist_gids_view = dist_source_dof_ids();
+    target_distributor.distribute( source_dof_ids_view, dist_gids_view );
 
     // Build the source/target pairings.
     SplineInterpolationPairing<DIM> target_pairings( 
@@ -388,8 +394,8 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     // Build the transformation operators.
     SplineEvaluationMatrix<Basis,DIM> B( 
 	prolongated_map, range_map,
-	target_centers(), target_gids(),
-	dist_sources(), dist_source_gids(),
+	target_centers(), target_dof_ids(),
+	dist_sources(), dist_source_dof_ids(),
 	target_pairings, *basis );
     N = B.getN();
     Q = B.getQ();
