@@ -700,7 +700,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     Teuchos::Array<Entity> boxes( num_boxes );
     box_ids[0] = comm_size - comm_rank - 1;
     box_dofs[0] = 2.0*box_ids[0];
-    boxes[0] = Box(box_ids[0],box_ids[0],box_ids[0],
+    boxes[0] = Box(box_ids[0],comm_rank,box_ids[0],
 		   0.0,0.0,box_ids[0],1.0,1.0,box_ids[0]+1.0);
     Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(boxes[0]);
 	

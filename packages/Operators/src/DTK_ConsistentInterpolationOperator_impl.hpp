@@ -114,13 +114,20 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	physical_dimension = range_space->entitySet()->physicalDimension();
     }
 
+    // We will only operate on entities that are locally-owned.
+    LocalEntityPredicate local_predicate( comm->getRank() );
+    
     // Get an iterator over the domain entities.
     EntityIterator domain_iterator;
     if ( nonnull_domain )
     {
+	std::function<bool(Entity)> domain_predicate =
+	    PredicateComposition::And(
+		domain_space->entitySelector()->selectFunction(),
+		local_predicate.getFunction() );
 	domain_iterator = domain_space->entitySet()->entityIterator( 
 	    domain_space->entitySelector()->entityType(),
-	    domain_space->entitySelector()->selectFunction() );
+	    domain_predicate );
     }
 
     // Build a parallel search over the domain.
@@ -130,9 +137,6 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 			    domain_space->localMap(),
 			    *parameters );
 
-    // We will only operate on range entities that are locally-owned.
-    LocalEntityPredicate local_predicate( comm->getRank() );
-    
     // Get an iterator over the range entities.
     EntityIterator range_iterator;
     if ( nonnull_range )
