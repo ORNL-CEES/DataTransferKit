@@ -59,14 +59,14 @@ class MoabEntityExtraData : public EntityExtraData
 {
   public:
 
-    MoabEntityExtraData( const Teuchos::Ptr<moab::EntityHandle>& moab_entity )
+    MoabEntityExtraData( const moab::EntityHandle& moab_entity )
 	: d_moab_entity( moab_entity )
     { /* ... */ }
 
     ~MoabEntityExtraData() { /* ... */ }
 
     // MOAB mesh entity.
-    const Teuchos::Ptr<moab::EntityHandle> d_moab_entity;
+    moab::EntityHandle d_moab_entity;
 };
 
 //---------------------------------------------------------------------------//

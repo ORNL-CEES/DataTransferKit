@@ -86,10 +86,7 @@ EntityType MoabHelpers::getEntityTypeFromMoabType(
 	case moab::MBPOLYHEDRON:
 	    dtk_type = ENTITY_TYPE_VOLUME;
 	    break;
-	case moab::MBVERTEX:
-	    dtk_type = ENTITY_TYPE_INVALID;
-	    break;
-	case moab::MBVERTEX:
+	case moab::MBENTITYSET:
 	    dtk_type = ENTITY_TYPE_INVALID;
 	    break;
 	default:
@@ -101,12 +98,12 @@ EntityType MoabHelpers::getEntityTypeFromMoabType(
 
 //---------------------------------------------------------------------------//
 // Get the coordinates of the entity nodes in canonical order.
-void getEntityNodeCoordinates(
-    const moab::EntityHandle moab_entity,
+void MoabHelpers::getEntityNodeCoordinates(
+    const moab::EntityHandle& moab_entity,
     const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
     Teuchos::Array<double>& coordinates )
 {
-    moab::EntityHandle* entity_nodes;
+    const moab::EntityHandle* entity_nodes;
     int num_nodes = 0;
     std::vector<moab::EntityHandle> storage;
     DTK_CHECK_ERROR_CODE(

@@ -52,23 +52,19 @@ MoabMeshSetIndexer::MoabMeshSetIndexer(
 {
     moab::EntityHandle root_set = moab_mesh->get_moab()->get_root_set();
     int root_index = 0;
-    d_handle_to_index_map.insert(
-	std::make_pair<moab::EntityHandle,int>(root_set, root_index) );
-    d_index_to_handle_map.insert(
-	std::make_pair<int,moab::EntityHandle>(root_index, root_set) );
+    d_handle_to_index_map.insert( std::make_pair(root_set, root_index) );
+    d_index_to_handle_map.insert( std::make_pair(root_index, root_set) );
 
-    std::vector<EntityHandle> child_sets;
+    std::vector<moab::EntityHandle> mesh_sets;
     DTK_CHECK_ERROR_CODE(
-	moab_mesh->get_moab()->get_child_meshsets( root_set, child_sets, 0 )
+	moab_mesh->get_moab()->get_contained_meshsets( root_set, mesh_sets, 0 )
 	);
 
-    int num_children = child_sets.size();
-    for ( int i = 0; i < num_children; ++i )
+    int num_sets = mesh_sets.size();
+    for ( int i = 0; i < num_sets; ++i )
     {
-	d_handle_to_index_map.insert(
-	    std::make_pair<moab::EntityHandle,int>(child_sets[i], i+1) );
-	d_index_to_handle_map.insert(
-	    std::make_pair<int,moab::EntityHandle>(i+1, child_sets[i]) );
+	d_handle_to_index_map.insert( std::make_pair(mesh_sets[i], i+1) );
+	d_index_to_handle_map.insert( std::make_pair(i+1, mesh_sets[i]) );
     }
 }
 
@@ -83,12 +79,12 @@ int MoabMeshSetIndexer::getIndexFromMeshSet(
     const moab::EntityHandle mesh_set ) const
 {
     DTK_REQUIRE( d_handle_to_index_map.count(mesh_set) );
-    return d_handl_to_index_map.find( mesh_set )->second;
+    return d_handle_to_index_map.find( mesh_set )->second;
 }
 
 //---------------------------------------------------------------------------//
 // Given an integer index, get the entity set handle.
-moab::EntityHandle getMeshSetFromIndex( const int index ) const
+moab::EntityHandle MoabMeshSetIndexer::getMeshSetFromIndex( const int index ) const
 {
     DTK_REQUIRE( d_index_to_handle_map.count(index) );
     return d_index_to_handle_map.find( index )->second;

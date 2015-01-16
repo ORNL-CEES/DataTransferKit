@@ -51,7 +51,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 MoabEntityImpl::MoabEntityImpl(
-    moab::EntityHandle& moab_entity,
+    const moab::EntityHandle& moab_entity,
     const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
     const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer )
     : d_extra_data( new MoabEntityExtraData(moab_entity) )
@@ -77,8 +77,7 @@ EntityType MoabEntityImpl::entityType() const
 // Get the unique global identifier for the entity.
 EntityId MoabEntityImpl::id() const
 { 
-    return Teuchos::as<EntityId>( d_moab_mesh->get_moab()->id_from_handle( 
-				      d_extra_data->d_moab_entity) );
+    return d_extra_data->d_moab_entity;
 }
     
 //---------------------------------------------------------------------------//
@@ -131,7 +130,7 @@ void MoabEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 bool MoabEntityImpl::inBlock( const int block_id ) const
 {
     moab::EntityHandle block_set = 
-	d_set_indexer.getMeshSetFromIndex( block_id );
+	d_set_indexer->getMeshSetFromIndex( block_id );
     return d_moab_mesh->get_moab()->contains_entities(
 	block_set, &d_extra_data->d_moab_entity, 1 );
 }

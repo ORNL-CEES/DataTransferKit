@@ -44,6 +44,7 @@
 #include "DTK_Types.hpp"
 
 #include <Teuchos_Ptr.hpp>
+#include <Teuchos_Array.hpp>
 
 #include <MBParallelComm.hpp>
 

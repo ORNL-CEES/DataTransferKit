@@ -9,12 +9,14 @@ APPEND_SET(HEADERS
   DTK_MoabEntity.hpp
   DTK_MoabEntityExtraData.hpp
   DTK_MoabEntityImpl.hpp
+  DTK_MoabHelpers.hpp
   DTK_MoabMeshSetIndexer.hpp
   ) 
 
 APPEND_SET(SOURCES
   DTK_MoabEntity.cpp
   DTK_MoabEntityImpl.cpp
+  DTK_MoabHelpers.cpp
   DTK_MoabMeshSetIndexer.cpp
   )
 
