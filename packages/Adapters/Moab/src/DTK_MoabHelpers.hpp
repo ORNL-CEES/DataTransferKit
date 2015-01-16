@@ -71,6 +71,11 @@ class MoabHelpers
     ~MoabHelpers() { /* ... */ }
 
     /*!
+     * \brief Extract the Moab entity from a DTK entity.
+     */
+    static moab::EntityHandle extractEntity( const Entity dtk_entity );
+
+    /*!
      * \brief Given a Moab EntityType, get the DTK EntityType.
      */
     static EntityType 

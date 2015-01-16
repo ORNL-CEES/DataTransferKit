@@ -41,10 +41,19 @@
 #include <vector>
 
 #include "DTK_MoabHelpers.hpp"
+#include "DTK_MoabEntityExtraData.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
+//---------------------------------------------------------------------------//
+// Given a DTK entity, extract the Moab entity.
+moab::EntityHandle MoabMeshHelpers::extractEntity( const Entity dtk_entity )
+{
+    return Teuchos::rcp_dynamic_cast<MoabEntityExtraData>(
+	dtk_entity.extraData() )->d_moab_entity;
+}
+
 //---------------------------------------------------------------------------//
 // Given a Moab EntityType, get the DTK EntityType.
 EntityType MoabHelpers::getEntityTypeFromMoabType( 

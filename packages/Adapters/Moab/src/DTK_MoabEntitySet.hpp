@@ -32,24 +32,27 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MoabEntityIterator.hpp
+ * \brief DTK_MoabEntitySet.hpp
  * \author Stuart R. Slattery
- * \brief Entity iterator interface.
+ * \brief Moab mesh entity set.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MOABENTITYITERATOR_HPP
-#define DTK_MOABENTITYITERATOR_HPP
+#ifndef DTK_MOABENTITYSET_HPP
+#define DTK_MOABENTITYSET_HPP
 
-#include <vector>
 #include <functional>
 
-#include "DTK_EntityIterator.hpp"
+#include "DTK_EntitySet.hpp"
+#include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
-#include "DTK_MoabEntityIteratorRange.hpp"
+#include "DTK_EntityIterator.hpp"
 #include "DTK_MoabMeshSetIndexer.hpp"
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_Tuple.hpp>
 
 #include <MBParallelComm.hpp>
 
@@ -57,92 +60,92 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class MoabEntityIterator
-  \brief Moab mesh entity iterator implementation.
+  \class MoabEntitySet
+  \brief Moab entity set.
+
+  Entity set implementation for Moab.
 */
 //---------------------------------------------------------------------------//
-class MoabEntityIterator : public EntityIterator
+class MoabEntitySet : public EntitySet
 {
   public:
 
     /*!
-     * \brief Default constructor.
-     */
-    MoabEntityIterator();
-
-    /*! 
      * \brief Constructor.
      */
-    MoabEntityIterator( 
-	const Teuchos::RCP<MoabEntityIteratorRange>& entity_range,
-	const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-	const Teuchos::RCP<MoabMeshSetIndexer>& set_indexer,
-	const std::function<bool(Entity)>& predicate );
-
-    /*!
-     * \brief Copy constructor.
-     */
-    MoabEntityIterator( const MoabEntityIterator& rhs );
-
-    /*!
-     * \brief Assignment operator.
-     */
-    MoabEntityIterator& operator=( const MoabEntityIterator& rhs );
+    MoabEntitySet( const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
 
     /*!
      * \brief Destructor.
      */
-    ~MoabEntityIterator();
+    ~MoabEntitySet();
 
-    // Pre-increment operator.
-    EntityIterator& operator++();
+    //@{
+    //! Parallel functions.
+    /*!
+     * \brief Get the parallel communicator for the entity set.
+     * \return A reference-counted pointer to the parallel communicator.
+     */
+    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const;
+    //@}
 
-    // Dereference operator.
-    Entity& operator*(void);
+    //@{
+    //! Geometric data functions.
+    /*!
+     * \brief Return the largest physical dimension of the entities in the
+     * set.  
+     * \return The physical dimension of the set.
+     */
+    int physicalDimension() const;
+    //@}
 
-    // Dereference operator.
-    Entity* operator->(void);
+    //@{
+    //! Entity access functions.
+    /*!
+     * \brief Given an EntityId, get the entity.
+     * \param entity_id Get the entity with this id.
+     * \param entity The entity with the given id.
+     */
+    void getEntity( const EntityType entity_type,
+		    const EntityId entity_id, 
+		    Entity& entity ) const;
 
-    // Equal comparison operator.
-    bool operator==( const EntityIterator& rhs ) const;
+    /*!
+     * \brief Get a iterator of the given entity type that satisfy the given
+     * predicate.
+     * \param entity_type The type of entity to get a iterator for.
+     * \param predicate The selection predicate.
+     * \return A iterator of entities of the given type.
+     */
+    EntityIterator entityIterator( 
+	const EntityType entity_type,
+	const std::function<bool(Entity)>& predicate ) const;
 
-    // Not equal comparison operator.
-    bool operator!=( const EntityIterator& rhs ) const;
-
-    // An iterator assigned to the first valid element in the iterator.
-    EntityIterator begin() const;
-
-    // An iterator assigned to the end of all elements under the iterator.
-    EntityIterator end() const;
-
-    // Create a clone of the iterator. We need this for the copy constructor
-    // and assignment operator to pass along the underlying implementation.
-    EntityIterator* clone() const;
+    /*!
+     * \brief Given an entity, get the entities of the given type that are
+     * adjacent to it.
+     */
+    void getAdjacentEntities(
+	const Entity& entity,
+	const EntityType entity_type,
+	Teuchos::Array<Entity>& adjacent_entities ) const;
+    //@}
 
   private:
 
-    // Range of entities over which the iterator is defined.
-    Teuchos::RCP<MoabEntityIteratorRange> d_entity_range;
-
-    // Iterator over the entities.
-    std::vector<moab::EntityHandle>::const_iterator d_moab_entity_it;
-
-    // The mesh owning the entities.
+    // Moab mesh.
     Teuchos::RCP<moab::ParallelComm> d_moab_mesh;
 
     // Mesh set indexer.
     Teuchos::RCP<MoabMeshSetIndexer> d_set_indexer;
-
-    // Current entity.
-    Entity d_current_entity;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_MOABENTITYITERATOR_HPP
+#endif // end DTK_MOABENTITYSET_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_MoabEntityIterator.hpp
+// end DTK_MoabEntitySet.hpp
 //---------------------------------------------------------------------------//
