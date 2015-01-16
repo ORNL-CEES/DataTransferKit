@@ -38,7 +38,10 @@
  */
 //---------------------------------------------------------------------------//
 
+#include <vector>
+
 #include "DTK_MoabHelpers.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
@@ -94,6 +97,32 @@ EntityType MoabHelpers::getEntityTypeFromMoabType(
 	    break;
     }
     return dtk_type;
+}
+
+//---------------------------------------------------------------------------//
+// Get the coordinates of the entity nodes in canonical order.
+void getEntityNodeCoordinates(
+    const moab::EntityHandle moab_entity,
+    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
+    Teuchos::Array<double>& coordinates )
+{
+    moab::EntityHandle* entity_nodes;
+    int num_nodes = 0;
+    std::vector<moab::EntityHandle> storage;
+    DTK_CHECK_ERROR_CODE(
+	moab_mesh->get_moab()->get_connectivity( moab_entity,
+						 entity_nodes,
+						 num_nodes,
+						 false,
+						 &storage )
+	);
+
+    coordinates.resize( 3 * num_nodes );
+    DTK_CHECK_ERROR_CODE(
+	moab_mesh->get_moab()->get_coords( entity_nodes,
+					   num_nodes,
+					   coordinates.getRawPtr() )
+	);
 }
 
 //---------------------------------------------------------------------------//

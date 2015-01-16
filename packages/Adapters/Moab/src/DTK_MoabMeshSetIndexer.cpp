@@ -32,66 +32,72 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MoabHelpers.hpp
+ * \brief DTK_MoabMeshSetIndexer.cpp
  * \author Stuart R. Slattery
- * \brief Moab helper functions.
+ * \brief Moab mesh set indexer.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MOABHELPERS_HPP
-#define DTK_MOABHELPERS_HPP
+#include <vector>
 
-#include "DTK_Types.hpp"
-
-#include <Teuchos_Ptr.hpp>
-
-#include <MBParallelComm.hpp>
+#include "DTK_MoabMeshSetIndexer.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*!
-  \class MoabHelpers
-  \brief Moab helper functions.
-*/
-//---------------------------------------------------------------------------//
-class MoabHelpers
+// Constructor.
+MoabMeshSetIndexer::MoabMeshSetIndexer( 
+    const Teuchos::RCP<moab::ParallelComm>& moab_mesh )
 {
-  public:
+    moab::EntityHandle root_set = moab_mesh->get_moab()->get_root_set();
+    int root_index = 0;
+    d_handle_to_index_map.insert(
+	std::make_pair<moab::EntityHandle,int>(root_set, root_index) );
+    d_index_to_handle_map.insert(
+	std::make_pair<int,moab::EntityHandle>(root_index, root_set) );
 
-    /*!
-     * \brief Constructor.
-     */
-    MoabHelpers() { /* ... */ }
+    std::vector<EntityHandle> child_sets;
+    DTK_CHECK_ERROR_CODE(
+	moab_mesh->get_moab()->get_child_meshsets( root_set, child_sets, 0 )
+	);
 
-    /*!
-     * \brief Destructor.
-     */
-    ~MoabHelpers() { /* ... */ }
+    int num_children = child_sets.size();
+    for ( int i = 0; i < num_children; ++i )
+    {
+	d_handle_to_index_map.insert(
+	    std::make_pair<moab::EntityHandle,int>(child_sets[i], i+1) );
+	d_index_to_handle_map.insert(
+	    std::make_pair<int,moab::EntityHandle>(i+1, child_sets[i]) );
+    }
+}
 
-    /*!
-     * \brief Given a Moab EntityType, get the DTK EntityType.
-     */
-    static EntityType 
-    getEntityTypeFromMoabType( const moab::EntityType moab_type );
+//---------------------------------------------------------------------------//
+// Destructor.
+MoabMeshSetIndexer::~MoabMeshSetIndexer()
+{ /* ... */ }
 
-    /*!
-     * \brief Get the coordinates of the entity nodes in canonical order.
-     */
-    static void getEntityNodeCoordinates(
-	const moab::EntityHandle& moab_entity,
-	const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
-	Teuchos::Array<double>& coordinates );
-};
+//---------------------------------------------------------------------------//
+// Given an entity set handle, get the integer index in the mesh.
+int MoabMeshSetIndexer::getIndexFromMeshSet( 
+    const moab::EntityHandle mesh_set ) const
+{
+    DTK_REQUIRE( d_handle_to_index_map.count(mesh_set) );
+    return d_handl_to_index_map.find( mesh_set )->second;
+}
+
+//---------------------------------------------------------------------------//
+// Given an integer index, get the entity set handle.
+moab::EntityHandle getMeshSetFromIndex( const int index ) const
+{
+    DTK_REQUIRE( d_index_to_handle_map.count(index) );
+    return d_index_to_handle_map.find( index )->second;
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_MOABHELPERS_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_MoabHelpers.hpp
+// end DTK_MoabMeshSetIndexer.cpp
 //---------------------------------------------------------------------------//

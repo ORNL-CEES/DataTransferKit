@@ -44,15 +44,19 @@
 #include "DTK_MoabHelpers.hpp"
 #include "DTK_DBC.hpp"
 
+#include <Teuchos_Array.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
 MoabEntityImpl::MoabEntityImpl(
-    const Teuchos::Ptr<moab::EntityHandle>& moab_entity,
-    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh )
+    moab::EntityHandle& moab_entity,
+    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
+    const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer )
     : d_extra_data( new MoabEntityExtraData(moab_entity) )
     , d_moab_mesh( moab_mesh )
+    , d_set_indexer( set_indexer )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -66,7 +70,7 @@ EntityType MoabEntityImpl::entityType() const
 {
     return MoabHelpers::getEntityTypeFromMoabType(
 	d_moab_mesh->get_moab()->type_from_handle(
-	    *(d_extra_data->d_moab_entity)) );
+	    d_extra_data->d_moab_entity) );
 }
 
 //---------------------------------------------------------------------------//
@@ -74,7 +78,7 @@ EntityType MoabEntityImpl::entityType() const
 EntityId MoabEntityImpl::id() const
 { 
     return Teuchos::as<EntityId>( d_moab_mesh->get_moab()->id_from_handle( 
-				      *(d_extra_data->d_moab_entity)) );
+				      d_extra_data->d_moab_entity) );
 }
     
 //---------------------------------------------------------------------------//
@@ -83,7 +87,7 @@ int MoabEntityImpl::ownerRank() const
 { 
     int owner_rank = -1;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_owner( *(d_extra_data->d_moab_entity), owner_rank )
+	d_moab_mesh->get_owner( d_extra_data->d_moab_entity, owner_rank )
 	);
     return owner_rank;
 }
@@ -103,21 +107,40 @@ int MoabEntityImpl::physicalDimension() const
 // Return the Cartesian bounding box around an entity.
 void MoabEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
+    Teuchos::Array<double> coordinates;
+    MoabHelpers::getEntityNodeCoordinates( d_extra_data->d_moab_entity,
+					   d_moab_mesh,
+					   coordinates );
 
+    int num_nodes = coordinates.size() / 3;
+    int space_dim = this->physicalDimension();
+    double max = std::numeric_limits<double>::max();
+    bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
+    for ( int d = 0; d < space_dim; ++d )
+    {
+	for ( int n = 0; n < num_nodes; ++n )
+	{
+	    bounds[d] = std::min( bounds[d], coordinates[d*num_nodes+n] );
+	    bounds[d+3] = std::max( bounds[d+3], coordinates[d*num_nodes+n] );
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
 bool MoabEntityImpl::inBlock( const int block_id ) const
 {
-
+    moab::EntityHandle block_set = 
+	d_set_indexer.getMeshSetFromIndex( block_id );
+    return d_moab_mesh->get_moab()->contains_entities(
+	block_set, &d_extra_data->d_moab_entity, 1 );
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
 bool MoabEntityImpl::onBoundary( const int boundary_id ) const
 {
-
+    return this->inBlock( boundary_id );
 }
 
 //---------------------------------------------------------------------------//

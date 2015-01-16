@@ -43,6 +43,7 @@
 
 #include "DTK_Entity.hpp"
 #include "DTK_Types.hpp"
+#include "DTK_MoabMeshSetIndexer.hpp"
 
 #include <Teuchos_Ptr.hpp>
 
@@ -71,8 +72,9 @@ class MoabEntity : public Entity
      * is in scope both inside and outside of this class while this class
      * exists.
      */
-    MoabEntity( const Teuchos::Ptr<moab::EntityHandle>& moab_entity,
-		const Teuchos::Ptr<moab::ParallelComm>& moab_mesh );
+    MoabEntity( const moab::EntityHandle& moab_entity,
+		const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
+		const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer );
 
     /*!
      * \brief Destructor.

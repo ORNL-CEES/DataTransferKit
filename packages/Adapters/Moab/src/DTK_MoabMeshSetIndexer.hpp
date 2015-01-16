@@ -32,18 +32,18 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MoabHelpers.hpp
+ * \brief DTK_MoabMeshSetIndexer.hpp
  * \author Stuart R. Slattery
- * \brief Moab helper functions.
+ * \brief Moab mesh set indexer.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MOABHELPERS_HPP
-#define DTK_MOABHELPERS_HPP
+#ifndef DTK_MOABMESHSETINDEXER_HPP
+#define DTK_MOABMESHSETINDEXER_HPP
 
-#include "DTK_Types.hpp"
+#include <unordered_map>
 
-#include <Teuchos_Ptr.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <MBParallelComm.hpp>
 
@@ -51,37 +51,45 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class MoabHelpers
-  \brief Moab helper functions.
+  \class MoabMeshSetIndexer
+  \brief Moab mesh set indexer.
 */
 //---------------------------------------------------------------------------//
-class MoabHelpers
+class MoabMeshSetIndexer
 {
   public:
 
     /*!
      * \brief Constructor.
+     * \param mesh The moab interface.
      */
-    MoabHelpers() { /* ... */ }
+    MoabMeshSetIndexer( const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
 
     /*!
      * \brief Destructor.
      */
-    ~MoabHelpers() { /* ... */ }
+     ~MoabMeshSetIndexer();
 
     /*!
-     * \brief Given a Moab EntityType, get the DTK EntityType.
+     * \brief Given an entity set handle, get the integer index in the mesh.
      */
-    static EntityType 
-    getEntityTypeFromMoabType( const moab::EntityType moab_type );
+    int getIndexFromMeshSet( const moab::EntityHandle mesh_set ) const;
 
     /*!
-     * \brief Get the coordinates of the entity nodes in canonical order.
+     * \brief Given an integer index, get the entity set handle.
      */
-    static void getEntityNodeCoordinates(
-	const moab::EntityHandle& moab_entity,
-	const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
-	Teuchos::Array<double>& coordinates );
+    moab::EntityHandle getMeshSetFromIndex( const int index ) const;
+
+  private:
+
+    // Moab mesh.
+    Teuchos::RCP<moab::ParallelComm> d_moab_mesh;
+
+    // Handle-to-index map.
+    std::unordered_map<moab::EntityHandle,int> d_handle_to_index_map;
+
+    // Index-to-handle map.
+    std::unordered_map<int,moab::EntityHandle> d_index_to_handle_map;
 };
 
 //---------------------------------------------------------------------------//
@@ -90,8 +98,8 @@ class MoabHelpers
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_MOABHELPERS_HPP
+#endif // end DTK_MOABMESHSETINDEXER_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_MoabHelpers.hpp
+// end DTK_MoabMeshSetIndexer.hpp
 //---------------------------------------------------------------------------//

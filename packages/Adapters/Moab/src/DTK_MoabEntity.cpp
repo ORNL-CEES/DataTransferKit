@@ -45,9 +45,9 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-MoabEntity::MoabEntity( 
-    const Teuchos::Ptr<moab::EntityHandle>& moab_entity,
-    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh )
+MoabEntity::MoabEntity( const moab::EntityHandle& moab_entity,
+			const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
+			const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer )
 {
     this->b_entity_impl = 
 	Teuchos::rcp( new MoabEntityImpl(moab_entity,moab_mesh) );

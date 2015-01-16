@@ -44,6 +44,7 @@
 #include "DTK_Types.hpp"
 #include "DTK_EntityImpl.hpp"
 #include "DTK_MoabEntityExtraData.hpp"
+#include "DTK_MoabMeshSetIndexer.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -65,8 +66,9 @@ class MoabEntityImpl : public EntityImpl
     /*!
      * \brief Constructor.
      */
-    MoabEntityImpl( const Teuchos::Ptr<moab::EntityHandle>& moab_entity,
-		    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh );
+    MoabEntityImpl( const moab::EntityHandle& moab_entity,
+		    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
+		    const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer );
 
     /*!
      * \brief Destructor.
@@ -127,6 +129,9 @@ class MoabEntityImpl : public EntityImpl
 
     // Moab parallel mesh.
     Teuchos::Ptr<moab::ParallelComm> d_moab_mesh;
+
+    // Mesh set indexer.
+    Teuchos::Ptr<MoabMeshSetIndexer> d_set_indexer;
 };
 
 //---------------------------------------------------------------------------//
