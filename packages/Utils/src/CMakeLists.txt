@@ -1,13 +1,5 @@
 
-#
-# A) Package-specific configuration options
-#
-
 TRIBITS_CONFIGURE_FILE(${PACKAGE_NAME}_config.hpp)
-
-#
-# B) Define the header and source files (and directories)
-#
 
 SET(HEADERS "")
 SET(SOURCES "")
@@ -38,9 +30,10 @@ APPEND_SET(SOURCES
   DTK_SearchTreeFactory.cpp
   )
 
-#
-# C) Define the targets for package's library(s)
-#
+SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/Nanoflann)
+APPEND_SET(HEADERS
+  ${DIR}/DTK_nanoflann.hpp
+  ) 
 
 TRIBITS_ADD_LIBRARY(
   dtk_utils
