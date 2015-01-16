@@ -41,8 +41,6 @@
 #ifndef DTK_MOABENTITY_HPP
 #define DTK_MOABENTITY_HPP
 
-#include <iostream>
-
 #include "DTK_Entity.hpp"
 #include "DTK_Types.hpp"
 

@@ -41,8 +41,6 @@
 #ifndef DTK_STKMESHENTITYIMPL_HPP
 #define DTK_STKMESHENTITYIMPL_HPP
 
-#include <string>
-
 #include "DTK_Types.hpp"
 #include "DTK_EntityImpl.hpp"
 #include "DTK_STKMeshEntityExtraData.hpp"

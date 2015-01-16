@@ -41,8 +41,6 @@
 #ifndef DTK_MOABENTITYIMPL_HPP
 #define DTK_MOABENTITYIMPL_HPP
 
-#include <string>
-
 #include "DTK_Types.hpp"
 #include "DTK_EntityImpl.hpp"
 #include "DTK_MoabEntityExtraData.hpp"

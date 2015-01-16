@@ -41,8 +41,6 @@
 #ifndef DTK_ENTITYIMPL_HPP
 #define DTK_ENTITYIMPL_HPP
 
-#include <string>
-
 #include "DTK_Types.hpp"
 #include "DTK_EntityExtraData.hpp"
 

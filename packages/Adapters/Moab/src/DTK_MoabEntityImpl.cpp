@@ -41,6 +41,7 @@
 #include <limits>
 
 #include "DTK_MoabEntityImpl.hpp"
+#include "DTK_MoabHelpers.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
@@ -63,27 +64,39 @@ MoabEntityImpl::~MoabEntityImpl()
 // Get the entity type.
 EntityType MoabEntityImpl::entityType() const
 {
-
+    return MoabHelpers::getEntityTypeFromMoabType(
+	d_moab_mesh->get_moab()->type_from_handle(
+	    *(d_extra_data->d_moab_entity)) );
 }
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId MoabEntityImpl::id() const
 { 
-
+    return Teuchos::as<EntityId>( d_moab_mesh->get_moab()->id_from_handle( 
+				      *(d_extra_data->d_moab_entity)) );
 }
     
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 int MoabEntityImpl::ownerRank() const
 { 
-
+    int owner_rank = -1;
+    DTK_CHECK_ERROR_CODE(
+	d_moab_mesh->get_owner( *(d_extra_data->d_moab_entity), owner_rank )
+	);
+    return owner_rank;
 }
+
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
 int MoabEntityImpl::physicalDimension() const
 { 
-
+    int dimension = 0;
+    DTK_CHECK_ERROR_CODE(
+	d_moab_mesh->get_moab()->get_dimension( dimension )
+	);
+    return dimension;
 }
 
 //---------------------------------------------------------------------------//
