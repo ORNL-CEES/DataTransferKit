@@ -5,7 +5,6 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     Interface             packages/Interface              SS  REQUIRED
     BasicGeometryAdapters packages/Adapters/BasicGeometry SS  OPTIONAL
     Operators             packages/Operators              SS  REQUIRED
-    PointCloud            packages/PointCloud             SS  OPTIONAL
     IntrepidAdapters      packages/Adapters/Intrepid      SS  OPTIONAL
     STKMeshAdapters       packages/Adapters/STKMesh       SS  OPTIONAL
   )

@@ -160,8 +160,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 
     // Determine the DOF ids for the range entities found in the local domain
     // on this process and the number of domain entities they were found in
-    // globally for averaging. This creates the requirement of uniquely owned
-    // domain and range entities input into the map - no ghosts.
+    // globally for averaging.
     std::unordered_map<EntityId,GO> range_dof_id_map;
     std::unordered_map<EntityId,GO> range_dof_count_map;
     {
@@ -269,7 +268,6 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	    {
 		// Compute an average interpolated quantity if the range
 		// entity was found in multiple domain entities.
-		DTK_CHECK( range_dof_count_map.count(*range_entity_id_it) );
 		scale_val = 
 		    1.0 / range_dof_count_map.find(*range_entity_id_it)->second;
 		for ( domain_shape_it = domain_shape_values.begin();
