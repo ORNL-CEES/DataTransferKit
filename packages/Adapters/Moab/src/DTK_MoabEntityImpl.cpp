@@ -32,36 +32,92 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntity.cpp
+ * \brief DTK_MoabEntityImpl.cpp
  * \author Stuart R. Slattery
- * \brief STK mesh entity interface.
+ * \brief Moab entity implementation.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_STKMeshEntity.hpp"
-#include "DTK_STKMeshEntityImpl.hpp"
+#include <limits>
+
+#include "DTK_MoabEntityImpl.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-STKMeshEntity::STKMeshEntity( 
-    const stk::mesh::Entity& stk_entity,
-    const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data )
-{
-    this->b_entity_impl = 
-	Teuchos::rcp( new STKMeshEntityImpl(stk_entity,bulk_data) );
-}
+MoabEntityImpl::MoabEntityImpl(
+    const Teuchos::Ptr<moab::EntityHandle>& moab_entity,
+    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh )
+    : d_extra_data( new MoabEntityExtraData(moab_entity) )
+    , d_moab_mesh( moab_mesh )
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 //brief Destructor.
-STKMeshEntity::~STKMeshEntity()
+MoabEntityImpl::~MoabEntityImpl()
 { /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Get the entity type.
+EntityType MoabEntityImpl::entityType() const
+{
+
+}
+
+//---------------------------------------------------------------------------//
+// Get the unique global identifier for the entity.
+EntityId MoabEntityImpl::id() const
+{ 
+
+}
+    
+//---------------------------------------------------------------------------//
+// Get the parallel rank that owns the entity.
+int MoabEntityImpl::ownerRank() const
+{ 
+
+}
+//---------------------------------------------------------------------------//
+// Return the physical dimension of the entity.
+int MoabEntityImpl::physicalDimension() const
+{ 
+
+}
+
+//---------------------------------------------------------------------------//
+// Return the Cartesian bounding box around an entity.
+void MoabEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+{
+
+}
+
+//---------------------------------------------------------------------------//
+// Determine if an entity is in the block with the given id.
+bool MoabEntityImpl::inBlock( const int block_id ) const
+{
+
+}
+
+//---------------------------------------------------------------------------//
+// Determine if an entity is on the boundary with the given id.
+bool MoabEntityImpl::onBoundary( const int boundary_id ) const
+{
+
+}
+
+//---------------------------------------------------------------------------//
+// Get the extra data on the entity.
+Teuchos::RCP<EntityExtraData> MoabEntityImpl::extraData() const
+{
+    return d_extra_data;
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_Entity.cpp
+// end DTK_MoabEntityImpl.cpp
 //---------------------------------------------------------------------------//

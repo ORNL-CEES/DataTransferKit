@@ -32,54 +32,103 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntity.hpp
+ * \brief DTK_MoabEntityImpl.hpp
  * \author Stuart R. Slattery
- * \brief STK mesh entity interface.
+ * \brief Moab entity implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_STKMESHENTITY_HPP
-#define DTK_STKMESHENTITY_HPP
+#ifndef DTK_MOABENTITYIMPL_HPP
+#define DTK_MOABENTITYIMPL_HPP
 
-#include <iostream>
+#include <string>
 
-#include "DTK_Entity.hpp"
 #include "DTK_Types.hpp"
+#include "DTK_EntityImpl.hpp"
+#include "DTK_MoabEntityExtraData.hpp"
 
-#include <Teuchos_Ptr.hpp>
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_ParameterList.hpp>
 
-#include <stk_mesh/base/Entity.hpp>
-#include <stk_mesh/base/BulkData.hpp>
+#include <MBParallelComm.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class STKMeshEntity
-  \brief STKMesh entity interface definition.
+  \class MoabEntityImpl
+  \brief Geometric entity implementation definition.
 */
 //---------------------------------------------------------------------------//
-class STKMeshEntity : public Entity
+class MoabEntityImpl : public EntityImpl
 {
   public:
 
     /*!
      * \brief Constructor.
-     * \param stk_entity The entity to wrap this interface around.
-     * \param bulk_data A pointer to the bulk data. We will store a copy of
-     * this pointer but not reference count it. We do this because we will
-     * create *many* copies of this pointer and do not want to incur the
-     * reference counting overhead. We will always make sure that the pointer
-     * is in scope both inside and outside of this class while this class
-     * exists.
      */
-    STKMeshEntity( const stk::mesh::Entity& stk_entity,
-		   const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
+    MoabEntityImpl( const Teuchos::Ptr<moab::EntityHandle>& moab_entity,
+		    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh );
 
     /*!
      * \brief Destructor.
      */
-     ~STKMeshEntity();
+    ~MoabEntityImpl();
+
+    /*!
+     * \brief Get the entity type.
+     * \return The entity type.
+     */
+    EntityType entityType() const;
+
+    /*!
+     * \brief Get the unique global identifier for the entity.
+     * \return A unique global identifier for the entity.
+     */
+    EntityId id() const;
+    
+    /*!
+     * \brief Get the parallel rank that owns the entity.
+     * \return The parallel rank that owns the entity.
+     */
+    int ownerRank() const;
+
+    /*!
+     * \brief Return the physical dimension of the entity.
+     * \return The physical dimension of the entity. Any physical coordinates
+     * describing the entity will be of this dimension.
+     */
+    int physicalDimension() const;
+
+    /*!
+     * \brief Return the Cartesian bounding box around an entity.
+     * \param bounds The bounds of the box
+     * (x_min,y_min,z_min,x_max,y_max,z_max).
+     */
+    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+
+    /*!
+     * \brief Determine if an entity is in the block with the given id.
+     */
+    bool inBlock( const int block_id ) const;
+
+    /*!
+     * \brief Determine if an entity is on the boundary with the given id.
+     */
+    bool onBoundary( const int boundary_id ) const;
+
+    /*!
+     * \brief Get the extra data on the entity.
+     */
+    Teuchos::RCP<EntityExtraData> extraData() const;
+
+  private:
+
+    // Moab entity extra data.
+    Teuchos::RCP<MoabEntityExtraData> d_extra_data;
+
+    // Moab parallel mesh.
+    Teuchos::Ptr<moab::ParallelComm> d_moab_mesh;
 };
 
 //---------------------------------------------------------------------------//
@@ -88,8 +137,8 @@ class STKMeshEntity : public Entity
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_STKMESHENTITY_HPP
+#endif // end DTK_MOABENTITYIMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshEntity.hpp
+// end DTK_MoabEntityImpl.hpp
 //---------------------------------------------------------------------------//

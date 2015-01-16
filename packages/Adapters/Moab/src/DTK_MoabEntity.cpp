@@ -32,30 +32,30 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntity.cpp
+ * \brief DTK_MoabEntity.cpp
  * \author Stuart R. Slattery
- * \brief STK mesh entity interface.
+ * \brief Moab entity interface.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_STKMeshEntity.hpp"
-#include "DTK_STKMeshEntityImpl.hpp"
+#include "DTK_MoabEntity.hpp"
+#include "DTK_MoabEntityImpl.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-STKMeshEntity::STKMeshEntity( 
-    const stk::mesh::Entity& stk_entity,
-    const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data )
+MoabEntity::MoabEntity( 
+    const Teuchos::Ptr<moab::EntityHandle>& moab_entity,
+    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh )
 {
     this->b_entity_impl = 
-	Teuchos::rcp( new STKMeshEntityImpl(stk_entity,bulk_data) );
+	Teuchos::rcp( new MoabEntityImpl(moab_entity,moab_mesh) );
 }
 
 //---------------------------------------------------------------------------//
 //brief Destructor.
-STKMeshEntity::~STKMeshEntity()
+MoabEntity::~MoabEntity()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//

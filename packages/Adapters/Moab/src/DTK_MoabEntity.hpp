@@ -32,36 +32,64 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntity.cpp
+ * \brief DTK_MoabEntity.hpp
  * \author Stuart R. Slattery
- * \brief STK mesh entity interface.
+ * \brief Moab entity interface.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_STKMeshEntity.hpp"
-#include "DTK_STKMeshEntityImpl.hpp"
+#ifndef DTK_MOABENTITY_HPP
+#define DTK_MOABENTITY_HPP
+
+#include <iostream>
+
+#include "DTK_Entity.hpp"
+#include "DTK_Types.hpp"
+
+#include <Teuchos_Ptr.hpp>
+
+#include <MBParallelComm.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Constructor.
-STKMeshEntity::STKMeshEntity( 
-    const stk::mesh::Entity& stk_entity,
-    const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data )
-{
-    this->b_entity_impl = 
-	Teuchos::rcp( new STKMeshEntityImpl(stk_entity,bulk_data) );
-}
-
+/*!
+  \class MoabEntity
+  \brief Moab entity interface definition.
+*/
 //---------------------------------------------------------------------------//
-//brief Destructor.
-STKMeshEntity::~STKMeshEntity()
-{ /* ... */ }
+class MoabEntity : public Entity
+{
+  public:
+
+    /*!
+     * \brief Constructor.
+     * \param moab_entity A pointer to the entity to wrap this interface
+     * around.
+     * \param mesh A pointer to the moab interface. We will store a copy of
+     * this pointer but not reference count it. We do this because we will
+     * create *many* copies of this pointer and do not want to incur the
+     * reference counting overhead. We will always make sure that the pointer
+     * is in scope both inside and outside of this class while this class
+     * exists.
+     */
+    MoabEntity( const Teuchos::Ptr<moab::EntityHandle>& moab_entity,
+		const Teuchos::Ptr<moab::ParallelComm>& moab_mesh );
+
+    /*!
+     * \brief Destructor.
+     */
+     ~MoabEntity();
+};
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_Entity.cpp
+
+#endif // end DTK_MOABENTITY_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_MoabEntity.hpp
 //---------------------------------------------------------------------------//

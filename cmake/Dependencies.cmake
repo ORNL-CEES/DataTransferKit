@@ -6,4 +6,5 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     Operators             packages/Operators              SS  REQUIRED
     IntrepidAdapters      packages/Adapters/Intrepid      SS  OPTIONAL
     STKMeshAdapters       packages/Adapters/STKMesh       SS  OPTIONAL
+    MoabAdapters          packages/Adapters/Moab          SS  OPTIONAL
   )

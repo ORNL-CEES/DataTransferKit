@@ -32,36 +32,49 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntity.cpp
+ * \brief DTK_MoabEntityExtraData.hpp
  * \author Stuart R. Slattery
- * \brief STK mesh entity interface.
+ * \brief Extra data for Moab entities.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_STKMeshEntity.hpp"
-#include "DTK_STKMeshEntityImpl.hpp"
+#ifndef DTK_MOABENTITYEXTRADATA_HPP
+#define DTK_MOABENTITYEXTRADATA_HPP
+
+#include "DTK_EntityExtraData.hpp"
+
+#include <Teuchos_Ptr.hpp>
+
+#include <MBInterface.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Constructor.
-STKMeshEntity::STKMeshEntity( 
-    const stk::mesh::Entity& stk_entity,
-    const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data )
-{
-    this->b_entity_impl = 
-	Teuchos::rcp( new STKMeshEntityImpl(stk_entity,bulk_data) );
-}
-
+/*!
+  \class MoabEntityExtraData
+  \brief A base class for setting extra data with entities.
+*/
 //---------------------------------------------------------------------------//
-//brief Destructor.
-STKMeshEntity::~STKMeshEntity()
-{ /* ... */ }
+class MoabEntityExtraData : public EntityExtraData
+{
+  public:
+
+    MoabEntityExtraData( const Teuchos::Ptr<moab::EntityHandle>& moab_entity )
+	: d_moab_entity( moab_entity )
+    { /* ... */ }
+
+    ~MoabEntityExtraData() { /* ... */ }
+
+    // MOAB mesh entity.
+    const Teuchos::Ptr<moab::EntityHandle> d_moab_entity;
+};
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
+#endif // end DTK_MOABENTITYEXTRADATA_HPP
+
 //---------------------------------------------------------------------------//
-// end DTK_Entity.cpp
+// end DTK_MoabEntityExtraData.hpp
 //---------------------------------------------------------------------------//
