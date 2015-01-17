@@ -42,6 +42,7 @@
 #define DTK_MOABHELPERS_HPP
 
 #include "DTK_Types.hpp"
+#include "DTK_Entity.hpp"
 
 #include <Teuchos_Ptr.hpp>
 #include <Teuchos_Array.hpp>

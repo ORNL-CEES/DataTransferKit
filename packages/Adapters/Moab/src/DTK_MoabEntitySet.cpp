@@ -109,7 +109,7 @@ EntityIterator MoabEntitySet::entityIterator(
 	    iterator_range->d_moab_entities )
 	);
     return MoabEntityIterator( 
-	iterator_range, d_bulk_data, d_set_indexer, predicate );
+	iterator_range, d_moab_mesh, d_set_indexer, predicate );
 }
 
 //---------------------------------------------------------------------------//
@@ -120,28 +120,32 @@ void MoabEntitySet::getAdjacentEntities(
     const EntityType entity_type,
     Teuchos::Array<Entity>& adjacent_entities ) const
 {
-    moab::EntityHandle stk_entity = MoabHelpers::extractEntity(entity);
+    moab::EntityHandle moab_entity = MoabHelpers::extractEntity(entity);
 
-    // call get_adjecencies
+    std::vector<moab::EntityHandle> adjacencies;
+    DTK_CHECK_ERROR_CODE(
+	d_moab_mesh->get_moab()->get_adjacencies( 
+	    &moab_entity,
+	    1,
+	    Teuchos::as<int>( entity_type ),
+	    true,
+	    adjacencies )
+	);
 
-    // Load them into the vector
-
-
-    stk::mesh::EntityRank rank = 
-	MoabHelpers::getRankFromType( entity_type, physicalDimension() );
-    const stk::mesh::Entity* begin = 
-	d_bulk_data->begin( stk_entity, rank );
-    const stk::mesh::Entity* end = d_bulk_data->end( stk_entity, rank );
-    Teuchos::Array<stk::mesh::Entity> stk_adjacencies( begin, end );
-    adjacent_entities.resize( stk_adjacencies.size() );
-    Teuchos::Array<Entity>::iterator entity_it;
-    Teuchos::Array<stk::mesh::Entity>::iterator stk_it;
-    for ( entity_it = adjacent_entities.begin(),
-	     stk_it = stk_adjacencies.begin();
-	  entity_it != adjacent_entities.end();
-	  ++entity_it, ++stk_it )
+    if ( entity.entityType() == entity_type )
     {
-	*entity_it = MoabEntity( *stk_it, d_bulk_data.ptr() );
+	auto remove_it = std::remove( adjacencies.begin(),
+				      adjacencies.end(),
+				      moab_entity );
+	adjacencies.resize( std::distance(adjacencies.begin(),remove_it) );
+    }
+
+    int num_adjacencies = adjacencies.size();
+    adjacent_entities.resize( num_adjacencies );
+    for ( int i = 0; i < num_adjacencies; ++i )
+    {
+	adjacent_entities[i] = 
+	    MoabEntity( adjacencies[i], d_moab_mesh.ptr(), d_set_indexer.ptr() );
     }
 }
 

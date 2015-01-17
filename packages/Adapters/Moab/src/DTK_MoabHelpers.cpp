@@ -48,7 +48,7 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Given a DTK entity, extract the Moab entity.
-moab::EntityHandle MoabMeshHelpers::extractEntity( const Entity dtk_entity )
+moab::EntityHandle MoabHelpers::extractEntity( const Entity dtk_entity )
 {
     return Teuchos::rcp_dynamic_cast<MoabEntityExtraData>(
 	dtk_entity.extraData() )->d_moab_entity;
