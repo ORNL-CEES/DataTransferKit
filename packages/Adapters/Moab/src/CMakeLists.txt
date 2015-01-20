@@ -11,6 +11,7 @@ APPEND_SET(HEADERS
   DTK_MoabEntityImpl.hpp
   DTK_MoabEntityIterator.hpp
   DTK_MoabEntityIteratorRange.hpp
+  DTK_MoabEntityLocalMap.hpp
   DTK_MoabEntityPredicates.hpp
   DTK_MoabEntitySet.hpp
   DTK_MoabHelpers.hpp
@@ -21,6 +22,7 @@ APPEND_SET(SOURCES
   DTK_MoabEntity.cpp
   DTK_MoabEntityImpl.cpp
   DTK_MoabEntityIterator.cpp
+  DTK_MoabEntityLocalMap.cpp
   DTK_MoabEntityPredicates.cpp
   DTK_MoabEntitySet.cpp
   DTK_MoabHelpers.cpp
