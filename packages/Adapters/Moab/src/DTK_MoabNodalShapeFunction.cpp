@@ -32,60 +32,133 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityShapeFunction.cpp
+ * \brief DTK_MoabNodalShapeFunction.cpp
  * \author Stuart R. Slattery
- * \brief Shape function interface.
+ * \brief Nodal shape function implementation for STK mesh.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_EntityShapeFunction.hpp"
+#include "DTK_MoabNodalShapeFunction.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-EntityShapeFunction::EntityShapeFunction()
-{ /* ... */ }
+MoabNodalShapeFunction::MoabNodalShapeFunction(
+    const Teuchos::RCP<moab::ParallelComm>& moab_mesh )
+    : d_moab_mesh( moab_mesh )
+{
+    d_moab_evaluator = Teuchos::rcp( 
+	new moab::ElemEvaluator(d_moab_mesh->get_moab()) );
+}
 
 //---------------------------------------------------------------------------//
 // Destructor.
-EntityShapeFunction::~EntityShapeFunction()
+MoabNodalShapeFunction::~MoabNodalShapeFunction()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
-void EntityShapeFunction::entityDOFIds( 
+void MoabNodalShapeFunction::entityDOFIds( 
     const Entity& entity, Teuchos::Array<std::size_t>& dof_ids ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    // Node case.
+    if ( ENTITY_TYPE_NODE == entity.entityType() )
+    {
+	dof_ids.assign( 1, entity.id() );
+    }
+
+    // Element case.
+    else
+    {
+	const moab::EntityHandle* entity_nodes;
+	int num_nodes = 0;
+	std::vector<moab::EntityHandle> storage;
+	DTK_CHECK_ERROR_CODE(
+	    d_moab_mesh->get_moab()->get_connectivity( entity.id(),
+						       entity_nodes,
+						       num_nodes,
+						       false,
+						       &storage )
+	    );
+
+	dof_ids.resize( num_nodes );
+	for ( int i = 0; i < num_nodes; ++i )
+	{
+	    dof_ids[i] = Teuchos::as<std::size_t>( entity_nodes[i] );
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the shape function of the
 // entity at that point.
-void EntityShapeFunction::evaluateValue( 
+void MoabNodalShapeFunction::evaluateValue( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     Teuchos::Array<double>& values ) const
+{
+    // Cache the entity with the evaluator.
+    cacheEntity( entity );
+
+    // Get the number of nodes supporting the entity.
+    const moab::EntityHandle* entity_nodes;
+    int num_nodes = 0;
+    DTK_CHECK_ERROR_CODE(
+	d_moab_mesh->get_moab()->get_connectivity( entity.id(),
+						   entity_nodes,
+						   num_nodes )
+	);
+
+    values.resize( num_nodes );
+
+    // Extract the value of the basis used by the evaluator by passing the
+    // identity matrix through the eval function.
+    int topo_dim =
+	d_moab_mesh->get_moab()->dimension_from_handle( entity.id() );
+    Teuchos::Array<double> field( num_nodes*num_nodes, 0.0 );
+    for ( int n = 0; n < num_nodes; ++n )
+    {
+	field[n*num_nodes + n] = 1.0;
+    }
+ 
+    moab::EntityType moab_type = 
+	d_moab_mesh->get_moab()->type_from_handle( entity.id() );
+    DTK_CHECK_ERROR_CODE(
+	(*d_moab_evaluator->get_eval_set(moab_type).evalFcn)
+	( reference_point.getRawPtr(),
+	  field.getRawPtr(),
+	  topo_dim,
+	  num_nodes,
+	  d_moab_evaluator->get_work_space(),
+	  values.getRawPtr() )
+	);
+}
+
+//---------------------------------------------------------------------------//
+// Given an entity and a reference point, evaluate the gradient of the shape
+// function of the entity at that point.
+void MoabNodalShapeFunction::evaluateGradient( 
+	const Entity& entity,
+	const Teuchos::ArrayView<const double>& reference_point,
+	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//
-// Given an entity and a reference point, evaluate the gradient of the shape
-// function of the entity at that point.
-void EntityShapeFunction::evaluateGradient( 
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    Teuchos::Array<Teuchos::Array<double> >& gradients ) const
+// Cache an entity in the evaluator.
+void MoabNodalShapeFunction::cacheEntity( const Entity& entity ) const
 {
-    // Provide a default finite difference implementation.
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    DTK_CHECK_ERROR_CODE(
+	d_moab_evaluator->set_eval_set( entity.id() )
+	);
+    DTK_CHECK_ERROR_CODE(
+	d_moab_evaluator->set_ent_handle( entity.id() )
+	);
 }
 
 //---------------------------------------------------------------------------//
@@ -93,5 +166,5 @@ void EntityShapeFunction::evaluateGradient(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityShapeFunction.cpp
+// end DTK_MoabNodalShapeFunction.cpp
 //---------------------------------------------------------------------------//

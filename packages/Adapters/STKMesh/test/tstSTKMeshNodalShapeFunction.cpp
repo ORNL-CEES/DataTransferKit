@@ -111,6 +111,16 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, hex_8_test )
     {
 	TEST_EQUALITY( values[n], 1.0 / num_nodes );
     }
+    ref_point[0] = -1.0;
+    ref_point[1] = -1.0;
+    ref_point[2] = -1.0;
+    shape_function->evaluateValue( dtk_entity, ref_point(), values );
+    TEST_EQUALITY( values.size(), num_nodes );
+    TEST_EQUALITY( values[0], 1.0 );
+    for ( unsigned n = 1; n < num_nodes; ++n )
+    {
+	TEST_EQUALITY( values[n], 0.0 );
+    }    
 
     // Test the gradient evaluation for the hex.
     Teuchos::Array<Teuchos::Array<double> > grads;

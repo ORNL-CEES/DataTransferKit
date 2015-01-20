@@ -39,7 +39,6 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_MoabEntityLocalMap.hpp"
-#include "DTK_MoabHelpers.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
