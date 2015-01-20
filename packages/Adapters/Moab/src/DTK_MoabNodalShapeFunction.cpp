@@ -145,8 +145,52 @@ void MoabNodalShapeFunction::evaluateGradient(
 	const Teuchos::ArrayView<const double>& reference_point,
 	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    // Cache the entity with the evaluator.
+    cacheEntity( entity );
+
+    // Get the number of nodes supporting the entity.
+    const moab::EntityHandle* entity_nodes;
+    int num_nodes = 0;
+    DTK_CHECK_ERROR_CODE(
+	d_moab_mesh->get_moab()->get_connectivity( entity.id(),
+						 entity_nodes,
+						 num_nodes )
+	);
+    gradients.resize( num_nodes );
+
+    // Extract the gradient of the basis used by the evaluator by applying the
+    // jacobian.
+    int space_dim = entity.physicalDimension();
+    int vert_size = 3*num_nodes;
+    Teuchos::Array<double> jacobian( 9 );
+    Teuchos::Array<double> verts( vert_size, 0.0 );
+    for ( int n = 0; n < num_nodes; ++n )
+    {
+	gradients[n].assign( space_dim, 0.0 );
+
+	verts.assign( vert_size, 0.0 );
+	for ( int d = 0; d < space_dim; ++d )
+	{
+	    verts[n*3+d] = 1.0;
+	}
+
+	moab::EntityType moab_type = 
+	    d_moab_mesh->get_moab()->type_from_handle( entity.id() );
+	DTK_CHECK_ERROR_CODE(
+	    (*d_moab_evaluator->get_eval_set(moab_type).jacobianFcn)
+	    ( reference_point.getRawPtr(),
+	      verts.getRawPtr(),
+	      num_nodes,
+	      space_dim,
+	      d_moab_evaluator->get_work_space(),
+	      jacobian.getRawPtr() )
+	    );
+
+	for ( int d = 0; d < space_dim; ++d )
+	{
+	    gradients[n][d] = jacobian[d*space_dim + d];
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//

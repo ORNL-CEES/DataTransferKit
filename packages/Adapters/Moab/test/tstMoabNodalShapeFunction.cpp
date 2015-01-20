@@ -150,46 +150,47 @@ TEUCHOS_UNIT_TEST( MoabEntitySet, hex_8_test )
 	TEST_EQUALITY( values[n], 0.0 );
     }    
 
-    // // Test the gradient evaluation for the hex.
-    // Teuchos::Array<Teuchos::Array<double> > grads;
-    // shape_function->evaluateGradient( dtk_entity, ref_point(), grads );
-    // TEST_EQUALITY( grads.size(), num_nodes );
-    // for ( unsigned n = 0; n < num_nodes; ++n )
-    // {
-    // 	TEST_EQUALITY( Teuchos::as<int>(grads[n].size()), space_dim );
-    // }
+    // Test the gradient evaluation for the hex.
+    Teuchos::Array<Teuchos::Array<double> > grads;
+    ref_point.assign( 3, 0.0 );
+    shape_function->evaluateGradient( dtk_entity, ref_point(), grads );
+    TEST_EQUALITY( grads.size(), num_nodes );
+    for ( unsigned n = 0; n < num_nodes; ++n )
+    {
+	TEST_EQUALITY( Teuchos::as<int>(grads[n].size()), space_dim );
+    }
     
-    // TEST_EQUALITY( grads[0][0], -1.0 / num_nodes );
-    // TEST_EQUALITY( grads[0][1], -1.0 / num_nodes );
-    // TEST_EQUALITY( grads[0][2], -1.0 / num_nodes );
+    TEST_EQUALITY( grads[0][0], -1.0 / num_nodes );
+    TEST_EQUALITY( grads[0][1], -1.0 / num_nodes );
+    TEST_EQUALITY( grads[0][2], -1.0 / num_nodes );
 
-    // TEST_EQUALITY( grads[1][0], 1.0 / num_nodes );
-    // TEST_EQUALITY( grads[1][1], -1.0 / num_nodes );
-    // TEST_EQUALITY( grads[1][2], -1.0 / num_nodes );
+    TEST_EQUALITY( grads[1][0], 1.0 / num_nodes );
+    TEST_EQUALITY( grads[1][1], -1.0 / num_nodes );
+    TEST_EQUALITY( grads[1][2], -1.0 / num_nodes );
 
-    // TEST_EQUALITY( grads[2][0], 1.0 / num_nodes );
-    // TEST_EQUALITY( grads[2][1], 1.0 / num_nodes );
-    // TEST_EQUALITY( grads[2][2], -1.0 / num_nodes );
+    TEST_EQUALITY( grads[2][0], 1.0 / num_nodes );
+    TEST_EQUALITY( grads[2][1], 1.0 / num_nodes );
+    TEST_EQUALITY( grads[2][2], -1.0 / num_nodes );
 
-    // TEST_EQUALITY( grads[3][0], -1.0 / num_nodes );
-    // TEST_EQUALITY( grads[3][1], 1.0 / num_nodes );
-    // TEST_EQUALITY( grads[3][2], -1.0 / num_nodes );
+    TEST_EQUALITY( grads[3][0], -1.0 / num_nodes );
+    TEST_EQUALITY( grads[3][1], 1.0 / num_nodes );
+    TEST_EQUALITY( grads[3][2], -1.0 / num_nodes );
 
-    // TEST_EQUALITY( grads[4][0], -1.0 / num_nodes );
-    // TEST_EQUALITY( grads[4][1], -1.0 / num_nodes );
-    // TEST_EQUALITY( grads[4][2], 1.0 / num_nodes );
+    TEST_EQUALITY( grads[4][0], -1.0 / num_nodes );
+    TEST_EQUALITY( grads[4][1], -1.0 / num_nodes );
+    TEST_EQUALITY( grads[4][2], 1.0 / num_nodes );
 
-    // TEST_EQUALITY( grads[5][0], 1.0 / num_nodes );
-    // TEST_EQUALITY( grads[5][1], -1.0 / num_nodes );
-    // TEST_EQUALITY( grads[5][2], 1.0 / num_nodes );
+    TEST_EQUALITY( grads[5][0], 1.0 / num_nodes );
+    TEST_EQUALITY( grads[5][1], -1.0 / num_nodes );
+    TEST_EQUALITY( grads[5][2], 1.0 / num_nodes );
 
-    // TEST_EQUALITY( grads[6][0], 1.0 / num_nodes );
-    // TEST_EQUALITY( grads[6][1], 1.0 / num_nodes );
-    // TEST_EQUALITY( grads[6][2], 1.0 / num_nodes );
+    TEST_EQUALITY( grads[6][0], 1.0 / num_nodes );
+    TEST_EQUALITY( grads[6][1], 1.0 / num_nodes );
+    TEST_EQUALITY( grads[6][2], 1.0 / num_nodes );
 
-    // TEST_EQUALITY( grads[7][0], -1.0 / num_nodes );
-    // TEST_EQUALITY( grads[7][1], 1.0 / num_nodes );
-    // TEST_EQUALITY( grads[7][2], 1.0 / num_nodes );
+    TEST_EQUALITY( grads[7][0], -1.0 / num_nodes );
+    TEST_EQUALITY( grads[7][1], 1.0 / num_nodes );
+    TEST_EQUALITY( grads[7][2], 1.0 / num_nodes );
 
     // Test the shape function dof ids for the nodes.
     for ( unsigned n = 0; n < num_nodes; ++n )
