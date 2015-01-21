@@ -2,7 +2,6 @@
 /*!
  * \file   tstSTKMeshDOFVector.cpp
  * \author Stuart Slattery
- * \date   Wed May 25 12:36:14 2011
  * \brief  Entity-centered DOF vector test.
  */
 //---------------------------------------------------------------------------//

@@ -8,5 +8,5 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     DataTransferKitOperators
   LIB_REQUIRED_TPLS
     MPI
-    Moab
+    MOAB
   )

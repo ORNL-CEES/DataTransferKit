@@ -1,0 +1,209 @@
+//----------------------------------*-C++-*----------------------------------//
+/*!
+ * \file   tstMoabDOFVector.cpp
+ * \author Stuart Slattery
+ * \brief  Entity-centered DOF vector test.
+ */
+//---------------------------------------------------------------------------//
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <cstdlib>
+#include <sstream>
+#include <algorithm>
+#include <cassert>
+
+#include <DTK_MoabDOFVector.hpp>
+
+#include <Teuchos_UnitTestHarness.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_DefaultMpiComm.hpp>
+
+#include <Tpetra_MultiVector.hpp>
+
+#include <MBInterface.hpp>
+#include <MBParallelComm.hpp>
+#include <MBCore.hpp>
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( MoabDOFVector, push_pull_test )
+{
+    // Extract the raw mpi communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
+	Teuchos::DefaultComm<int>::getComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
+	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
+	mpi_comm->getRawMpiComm();
+    MPI_Comm raw_comm = (*opaque_comm)();
+
+    // Create the mesh.
+    Teuchos::RCP<moab::Interface> moab_mesh = Teuchos::rcp( new moab::Core() );
+    Teuchos::RCP<moab::ParallelComm> parallel_mesh =
+    	Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
+
+    // Create the nodes.
+    moab::ErrorCode error = moab::MB_SUCCESS;
+    unsigned num_nodes = 8;
+    Teuchos::Array<moab::EntityHandle> nodes(num_nodes);
+    double node_coords[3];
+    node_coords[0] = 0.0;
+    node_coords[1] = 0.0;
+    node_coords[2] = 0.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[0] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    node_coords[0] = 1.0;
+    node_coords[1] = 0.0;
+    node_coords[2] = 0.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[1] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    node_coords[0] = 1.0;
+    node_coords[1] = 1.0;
+    node_coords[2] = 0.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[2] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    node_coords[0] = 0.0;
+    node_coords[1] = 1.0;
+    node_coords[2] = 0.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[3] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    node_coords[0] = 0.0;
+    node_coords[1] = 0.0;
+    node_coords[2] = 1.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[4] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    node_coords[0] = 1.0;
+    node_coords[1] = 0.0;
+    node_coords[2] = 1.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[5] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    node_coords[0] = 1.0;
+    node_coords[1] = 1.0;
+    node_coords[2] = 1.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[6] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    node_coords[0] = 0.0;
+    node_coords[1] = 1.0;
+    node_coords[2] = 1.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[7] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    // Make 2 entity sets.
+    moab::EntityHandle entity_set_1;
+    error = moab_mesh->create_meshset( 0, entity_set_1 );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+    moab::EntityHandle entity_set_2;
+    error = moab_mesh->create_meshset( 0, entity_set_2 );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    // Put the nodes in the first entity set.
+    error = moab_mesh->add_entities( entity_set_1, nodes.getRawPtr(), num_nodes );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    // Create a tag for entity set 1.
+    int tag_size = 3;
+    moab::Tag tag_1;
+    bool created = false;
+    double default_val = 0.0;
+    Teuchos::Array<double> default_tag( tag_size, default_val );
+    error = moab_mesh->tag_get_handle( 
+    	"Tag_1",
+    	tag_size,
+    	moab::MB_TYPE_DOUBLE,
+    	tag_1,
+    	moab::MB_TAG_DENSE|moab::MB_TAG_CREAT,
+	static_cast<void*>(default_tag.getRawPtr()),
+	&created );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+    TEST_ASSERT( created );
+
+    double test_val = 2.2;
+    Teuchos::Array<double> test_tag( num_nodes*tag_size, test_val );
+    error = moab_mesh->tag_set_data( 
+    	tag_1,
+    	nodes.getRawPtr(),
+    	num_nodes,
+    	static_cast<void*>(test_tag.getRawPtr()) );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    // Create a vector from entity set 1.
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tag_vec_1 =
+    	DataTransferKit::MoabDOFVector::pullTpetraMultiVectorFromMoabTag<double>(
+    	    *parallel_mesh, entity_set_1, tag_1 );
+
+    // Test the vector.
+    unsigned comm_size = comm->getSize();
+    TEST_EQUALITY( tag_size, Teuchos::as<int>(tag_vec_1->getNumVectors()) );
+    TEST_EQUALITY( num_nodes, tag_vec_1->getLocalLength() );
+    TEST_EQUALITY( num_nodes*comm_size, tag_vec_1->getGlobalLength() );
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > tag_vec_1_view =
+    		      tag_vec_1->get2dView();
+    for ( unsigned n = 0; n < num_nodes; ++n )
+    {
+    	TEST_EQUALITY( tag_vec_1_view[0][n], test_val );
+    	TEST_EQUALITY( tag_vec_1_view[1][n], test_val );
+    	TEST_EQUALITY( tag_vec_1_view[2][n], test_val );
+    }
+    
+    // Put some data in the vector.
+    double val_0 = 3.3;
+    double val_1 = -9.3;
+    double val_2 = 1.74;
+    tag_vec_1->getVectorNonConst( 0 )->putScalar( val_0 );
+    tag_vec_1->getVectorNonConst( 1 )->putScalar( val_1 );
+    tag_vec_1->getVectorNonConst( 2 )->putScalar( val_2 );
+
+    // Push the data back to Moab
+    DataTransferKit::MoabDOFVector::pushTpetraMultiVectorToMoabTag(
+    	*tag_vec_1, *parallel_mesh, entity_set_1, tag_1 );
+
+    // Test the Moab tag.
+    Teuchos::Array<const void*> node_data( num_nodes );
+    error = moab_mesh->tag_get_by_ptr( tag_1,
+    				       nodes.getRawPtr(),
+    				       num_nodes,
+    				       node_data.getRawPtr() );
+    for ( unsigned n = 0; n < num_nodes; ++n )
+    {
+    	const double* data = static_cast<const double*>(node_data[n]);
+    	TEST_EQUALITY( data[0], val_0 );
+    	TEST_EQUALITY( data[1], val_1 );
+    	TEST_EQUALITY( data[2], val_2 );
+    }
+
+    // Create a tag for entity set 2.
+    moab::Tag tag_2;
+    error = moab_mesh->tag_get_handle( 
+    	"Tag_2",
+    	tag_size,
+    	moab::MB_TYPE_DOUBLE,
+    	tag_2,
+    	moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    // Make an empty vector over set 2.
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tag_vec_2 =
+    	DataTransferKit::MoabDOFVector::pullTpetraMultiVectorFromMoabTag<double>(
+    	    *parallel_mesh, entity_set_2, tag_2 );
+
+    // Test the vector to make sure it is empty.
+    TEST_EQUALITY( tag_size, Teuchos::as<int>(tag_vec_2->getNumVectors()) );
+    TEST_EQUALITY( 0, tag_vec_2->getLocalLength() );
+    TEST_EQUALITY( 0, tag_vec_2->getGlobalLength() );
+}
+
+//---------------------------------------------------------------------------//
+// end of tstMoabDOFVector.cpp
+//---------------------------------------------------------------------------//
