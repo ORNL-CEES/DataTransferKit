@@ -94,7 +94,7 @@ void PolynomialMatrix<GO>::apply(
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > y_view =
 	Y.get2dViewNonConst();
 
-    // Scale Y.
+    // Scale Y by beta.
     Y.scale( beta );
 
     // No transpose.
@@ -134,10 +134,11 @@ void PolynomialMatrix<GO>::apply(
     else if ( Teuchos::TRANS == mode )
     {
 	// Make a work vector.
-	Tpetra::MultiVector<double,int,GO> work( Y );
+	Tpetra::MultiVector<double,int,GO> work( Y.getMap(),
+						 Y.getNumVectors() );
 
 	// Export X to the polynomial decomposition.
-	Tpetra::Export<int,GO> exporter( X.getMap(), Y.getMap() );
+	Tpetra::Export<int,GO> exporter( X.getMap(), work.getMap() );
 	work.doExport( X, exporter, Tpetra::INSERT );
 
 	// Do the local mat-vec.
