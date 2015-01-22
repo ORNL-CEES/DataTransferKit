@@ -95,8 +95,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 
     // Construct a DOF vector for the boxes.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, boxes(), 1, box_dofs() );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -140,8 +140,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 
     // Construct a DOF vector for the points.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, points(), 1, point_dofs() );
 
     // MAPPING
     // Create a map.
@@ -156,6 +156,10 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
+
+    // Push back to the point dofs.
+    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
+	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -217,8 +221,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Construct a DOF vector for the boxes.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, boxes(), 1, box_dofs() );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -262,8 +266,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Construct a DOF vector for the points.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, points(), 1, point_dofs() );
 
     // MAPPING
     // Create a map.
@@ -278,6 +282,10 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
+
+    // Push back to the point dofs.
+    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
+	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -341,8 +349,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
 
     // Construct a DOF vector for the boxes.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, boxes(), 1, box_dofs() );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -386,8 +394,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
 
     // Construct a DOF vector for the points.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, points(), 1, point_dofs() );
 
     // MAPPING
     // Create a map.
@@ -402,6 +410,10 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
+
+    // Push back to the point dofs.
+    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
+	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -473,8 +485,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 
     // Construct a DOF vector for the boxes.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, boxes(), 1, box_dofs() );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -518,8 +530,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 
     // Construct a DOF vector for the points.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, points(), 1, point_dofs() );
 
     // MAPPING
     // Create a map.
@@ -534,6 +546,10 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
+
+    // Push back to the point dofs.
+    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
+	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -595,8 +611,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 
     // Construct a DOF vector for the boxes.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, boxes(), 1, box_dofs() );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -640,8 +656,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 
     // Construct a DOF vector for the points.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, points(), 1, point_dofs() );
 
     // MAPPING
     // Create a map.
@@ -656,6 +672,10 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
+
+    // Push back to the point dofs.
+    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
+	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -726,8 +746,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 
     // Construct a DOF vector for the boxes.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, boxes(), 1, box_dofs() );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -768,8 +788,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 
     // Construct a DOF vector for the points.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, points(), 1, point_dofs() );
 
     // MAPPING
     // Create a map.
@@ -784,6 +804,10 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
+
+    // Push back to the point dofs.
+    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
+	*range_dofs, point_dofs() );
 
     // Check the results of the mapping. We should get an average on some
     // cores because of the location in multiple domains.
@@ -848,8 +872,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
 
     // Construct a DOF vector for the boxes.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, boxes(), 1, box_dofs() );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -901,8 +925,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
 
     // Construct a DOF vector for the points.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, points(), 1, point_dofs() );
 
     // MAPPING
     // Create a map.
@@ -917,6 +941,10 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
+
+    // Push back to the point dofs.
+    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
+	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -983,8 +1011,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
 
     // Construct a DOF vector for the boxes.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, boxes(), 1, box_dofs() );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -1037,8 +1065,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
 
     // Construct a DOF vector for the points.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, points(), 1, point_dofs() );
 
     // MAPPING
     // Create a map.
@@ -1053,6 +1081,10 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
+
+    // Push back to the point dofs.
+    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
+	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )

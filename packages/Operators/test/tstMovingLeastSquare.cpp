@@ -119,13 +119,13 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_test )
 
     // Make a DOF vector for the domain.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_vector =
-	DataTransferKit::EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, domain_points(), field_dim, domain_data );
+	DataTransferKit::EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, domain_points(), field_dim, domain_data() );
 
     // Make a DOF vector for the range.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_vector =
-	DataTransferKit::EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, range_points(), field_dim, range_data );
+	DataTransferKit::EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, range_points(), field_dim, range_data() );
 
     // Make a moving least square reconstruction operator.
     Teuchos::RCP<DataTransferKit::MapOperator<double> > mls_op =
@@ -144,6 +144,10 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_test )
 
     // Apply the operator.
     mls_op->apply( *domain_vector, *range_vector );
+
+    // Push back to the point dofs.
+    DataTransferKit::EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
+	*range_vector, range_data() );
 
     // Check the apply.
     for ( int i = 0; i < num_points; ++i )

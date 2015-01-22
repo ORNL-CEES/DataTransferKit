@@ -32,75 +32,94 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MoabDOFVector.hpp
+ * \brief DTK_MoabTagVector.hpp
  * \author Stuart R. Slattery
  * \brief Helper functions for managing Moab mesh DOF vectors.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MOABDOFVECTOR_HPP
-#define DTK_MOABDOFVECTOR_HPP
+#ifndef DTK_MOABTAGVECTOR_HPP
+#define DTK_MOABTAGVECTOR_HPP
 
 #include <MBParallelComm.hpp>
 
 #include <Teuchos_RCP.hpp>
 
+#include <Tpetra_Map.hpp>
 #include <Tpetra_MultiVector.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class MoabDOFVector
-  \brief Helper functions for managing Moab mesh DOF vectors.
+  \class MoabTagVector
+  \brief A class for defining Tpetra vectors over Moab tags.
+
+  Use this class to manage Tpetra vectors and Moab tags. This class will
+  create a vector over a mesh set and the tag on that mesh set. There is no
+  gaurantee of consistency between the tag and the vector as the vector does
+  not point to the data in the tag. Instead, the push and pull functions allow
+  the user to move data between the vector and the tag as necessary.
 */
 //---------------------------------------------------------------------------//
-class MoabDOFVector
+template<class Scalar>
+class MoabTagVector
 {
   public:
 
     /*!
      * \brief Constructor.
+     * \param moab_mesh The mesh containing the mesh set and tag.
+     * \param mesh_set The set of mesh entities over which the vector is defined.
+     * \param tag The tag containing the vector data.
      */
-    MoabDOFVector()
-    { /* ... */ }
+    MoabTagVector( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+		   const moab::EntityHandle& mesh_set,
+		   const moab::Tag& tag );
 
     /*!
      * \brief Destructor.
      */
-    ~MoabDOFVector()
+    ~MoabTagVector()
     { /* ... */ }
 
     /*!
-     * \brief Given a Moab tag, create a Tpetra vector that maps to the tag
-     * DOFs on the given mesh set and pull the data from the tag.
-     * \param moab_mesh The mesh over which the tag is defined.
-     * \param mesh_set The mesh set over which the tag is defined.
-     * \param tag The moab tag.
-     * \return A Tpetra MultiVector indexed according to the tag entities
-     * with a vector for each tag dimension.
+     * \brief Get the vector over the tag.
      */
-    template<class Scalar>
-    static Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
-    pullTpetraMultiVectorFromMoabTag( const moab::ParallelComm& moab_mesh,
-				      const moab::EntityHandle& mesh_set,
-				      const moab::Tag& tag );
+    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > getVector() const
+    { return d_vector; }
 
     /*!
-     * \brief Given a Tpetra vector of DOF data, push the data into a given
-     * Moab tag on the given mesh set.
-     * \param tag_dofs A Tpetra vector containing the tag DOFs. One vector
-     * for each dimension of the tag.
-     * \param moab_mesh The mesh over which the tag is defined.
-     * \param mesh_set The mesh set over which the tag is defined.
-     * \param tag The Moab tag.
+     * \brief Get the vector map.
      */
-    template<class Scalar>
-    static void pushTpetraMultiVectorToMoabTag(
-	const Tpetra::MultiVector<Scalar,int,std::size_t>& tag_dofs,
-	const moab::ParallelComm& moab_mesh,
-	const moab::EntityHandle& mesh_set,
-	const moab::Tag& tag );
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > getMap() const
+    { return d_vector->getMap(); }
+
+    /*!
+     * \brief Pull data from the tag and put it into the vector.
+     */
+    void pullDataFromTag();
+
+    /*!
+     * \brief Push data from the vector into the tag.
+     */
+    void pushDataToTag();
+
+  private:
+
+    // The mesh over which the tag is defined.
+    Teuchos::RCP<moab::ParallelComm> d_moab_mesh;
+
+    // The mesh set over which the vector is defined.
+    moab::EntityHandle d_mesh_set;
+
+    // The tag containing the vector data.
+    moab::Tag d_tag;
+
+    // The vector. This is a copy of the data. To put data into the vector
+    // from the tag call pullDataFromTag(). To put data from the vector back
+    // into the tag call pushDataToTag().
+    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > d_vector;  
 };
 
 //---------------------------------------------------------------------------//
@@ -111,12 +130,12 @@ class MoabDOFVector
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_MoabDOFVector_impl.hpp"
+#include "DTK_MoabTagVector_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_MOABDOFVECTOR_HPP
+#endif // end DTK_MOABTAGVECTOR_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_MoabDOFVector.hpp
+// end DTK_MoabTagVector.hpp
 //---------------------------------------------------------------------------//

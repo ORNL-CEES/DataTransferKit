@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MoabDOFVector_impl.hpp
+ * \brief DTK_MoabTagVector_impl.hpp
  * \author Stuart R. Slattery
  * \brief Moab mesh tag DOF vector.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MOABDOFVECTOR_IMPL_HPP
-#define DTK_MOABDOFVECTOR_IMPL_HPP
+#ifndef DTK_MOABTAGVECTOR_IMPL_HPP
+#define DTK_MOABTAGVECTOR_IMPL_HPP
 
 #include <vector>
 
@@ -49,36 +49,34 @@
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 
-#include <Tpetra_Map.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Given a Moab tag, create a Tpetra vector that maps to the tag DOFs on the
-// given mesh set and pull the data from the tag.
+// Constructor.
 template<class Scalar>
-Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
-MoabDOFVector::pullTpetraMultiVectorFromMoabTag( 
-    const moab::ParallelComm& moab_mesh,
+MoabTagVector<Scalar>::MoabTagVector(
+    const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
     const moab::EntityHandle& mesh_set,
     const moab::Tag& tag )
+    : d_moab_mesh( moab_mesh )
+    , d_mesh_set( mesh_set )
+    , d_tag( tag )
 {
     // Get the dimension of the tag.
     int tag_dim = 0;
     DTK_CHECK_ERROR_CODE(
-	moab_mesh.get_moab()->tag_get_length( tag, tag_dim )
+	d_moab_mesh->get_moab()->tag_get_length( d_tag, tag_dim )
 	);
 
     // Get the entities in the set.
     std::vector<moab::EntityHandle> entities;
     DTK_CHECK_ERROR_CODE(
-	moab_mesh.get_moab()->get_entities_by_handle( mesh_set, entities )
+	d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, entities )
 	);
-    int num_entities = entities.size();
 
     // Extract the MPI communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::rcp( new Teuchos::MpiComm<int>(moab_mesh.comm()) );
+	Teuchos::rcp( new Teuchos::MpiComm<int>(d_moab_mesh->comm()) );
 
     // Build a map. The DOF ids are the entity handles.
     Teuchos::Array<std::size_t> dof_ids( entities.begin(), entities.end() );
@@ -86,8 +84,21 @@ MoabDOFVector::pullTpetraMultiVectorFromMoabTag(
 	Tpetra::createNonContigMap<int,std::size_t>( dof_ids(), comm );
 
     // Create a Tpetra vector.
-    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > vector =
-	Tpetra::createMultiVector<Scalar,int,std::size_t>( map, tag_dim );
+    d_vector = Tpetra::createMultiVector<Scalar,int,std::size_t>( map, tag_dim );
+}
+
+//---------------------------------------------------------------------------//
+// Pull data from the tag and put it into the vector.
+template<class Scalar>
+void MoabTagVector<Scalar>::pullDataFromTag()
+{
+    // Get the entities in the set.
+    std::vector<moab::EntityHandle> entities;
+    DTK_CHECK_ERROR_CODE(
+    	d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, entities )
+    	);
+    int num_entities = entities.size();
+    int tag_dim = d_vector->getNumVectors();
 
     // Only populate the vector if there are entities locally in the set.
     if ( 0 < num_entities )
@@ -95,8 +106,8 @@ MoabDOFVector::pullTpetraMultiVectorFromMoabTag(
 	// Extract pointers to the data for each entity handle.
 	Teuchos::Array<const void*> data_ptrs( num_entities );
 	DTK_CHECK_ERROR_CODE(
-	    moab_mesh.get_moab()->tag_get_by_ptr( 
-		tag,
+	    d_moab_mesh->get_moab()->tag_get_by_ptr( 
+		d_tag,
 		entities.data(),
 		num_entities,
 		data_ptrs.getRawPtr() )
@@ -104,7 +115,7 @@ MoabDOFVector::pullTpetraMultiVectorFromMoabTag(
 
 	// Extract the data in blocked form.
 	Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> > vector_view =
-	    vector->get2dViewNonConst();
+	    d_vector->get2dViewNonConst();
 	const Scalar* entity_data;
 	for ( int e = 0; e < num_entities; ++e )
 	{
@@ -115,39 +126,27 @@ MoabDOFVector::pullTpetraMultiVectorFromMoabTag(
 	    }
 	}
     }
-
-    // Return the vector.
-    return vector;    
 }
 
 //---------------------------------------------------------------------------//
 // Given a Tpetra vector of DOF data, push the data into a given Moab tag.
 template<class Scalar>
-void MoabDOFVector::pushTpetraMultiVectorToMoabTag(
-    const Tpetra::MultiVector<Scalar,int,std::size_t>& tag_dofs,
-    const moab::ParallelComm& moab_mesh,
-    const moab::EntityHandle& mesh_set,
-    const moab::Tag& tag )
+void MoabTagVector<Scalar>::pushDataToTag()
 {
     // Get the entities in the set.
     std::vector<moab::EntityHandle> entities;
     DTK_CHECK_ERROR_CODE(
-    	moab_mesh.get_moab()->get_entities_by_handle( mesh_set, entities )
+    	d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, entities )
     	);
     int num_entities = entities.size();
+    int tag_dim = d_vector->getNumVectors();
 
+    // Only extract the data if there are local entities.
     if ( 0 < num_entities )
     {
-	// Get the dimension of the tag.
-	int tag_dim = 0;
-	DTK_CHECK_ERROR_CODE(
-	    moab_mesh.get_moab()->tag_get_length( tag, tag_dim )
-	    );
-	DTK_CHECK( tag_dim == Teuchos::as<int>(tag_dofs.getNumVectors()) );
-
 	// Extract data from the vector in interleaved format.
 	Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> > vector_view =
-	    tag_dofs.get2dView();
+	    d_vector->get2dView();
 	Teuchos::Array<Scalar> interleaved_data( num_entities * tag_dim );
 	for ( int d = 0; d < tag_dim; ++d )
 	{
@@ -159,8 +158,8 @@ void MoabDOFVector::pushTpetraMultiVectorToMoabTag(
 
 	// Set the data with the tag.
 	DTK_CHECK_ERROR_CODE(
-	    moab_mesh.get_moab()->tag_set_data( 
-		tag,
+	    d_moab_mesh->get_moab()->tag_set_data( 
+		d_tag,
 		entities.data(),
 		num_entities,
 		static_cast<void*>(interleaved_data.getRawPtr()) )
@@ -174,8 +173,8 @@ void MoabDOFVector::pushTpetraMultiVectorToMoabTag(
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_MOABDOFVECTOR_IMPL_HPP
+#endif // end DTK_MOABTAGVECTOR_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_MoabDOFVector_impl.hpp
+// end DTK_MoabTagVector_impl.hpp
 //---------------------------------------------------------------------------//

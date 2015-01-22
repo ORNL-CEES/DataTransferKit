@@ -6,8 +6,6 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_MoabDOFVector.hpp
-  DTK_MoabDOFVector_impl.hpp
   DTK_MoabEntity.hpp
   DTK_MoabEntityExtraData.hpp
   DTK_MoabEntityImpl.hpp
@@ -20,6 +18,8 @@ APPEND_SET(HEADERS
   DTK_MoabManager.hpp
   DTK_MoabMeshSetIndexer.hpp
   DTK_MoabNodalShapeFunction.hpp
+  DTK_MoabTagVector.hpp
+  DTK_MoabTagVector_impl.hpp
   ) 
 
 APPEND_SET(SOURCES

@@ -216,8 +216,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Construct a DOF vector for the points.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView(
-	    comm, points, 1, point_dofs );
+	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
+	    comm, points, 1, point_dofs() );
 
     // MAPPING
     // Create a map.
@@ -230,6 +230,10 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
+
+    // Push back to the point dofs.
+    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
+	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
