@@ -32,27 +32,22 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MoabEntitySet.hpp
+ * \brief DTK_MoabManager.hpp
  * \author Stuart R. Slattery
- * \brief Moab mesh entity set.
+ * \brief High-level manager for STK mesh.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MOABENTITYSET_HPP
-#define DTK_MOABENTITYSET_HPP
+#ifndef DTK_MOABMANAGER_HPP
+#define DTK_MOABMANAGER_HPP
 
-#include <functional>
+#include <string>
 
-#include "DTK_EntitySet.hpp"
 #include "DTK_Types.hpp"
-#include "DTK_Entity.hpp"
-#include "DTK_EntityIterator.hpp"
-#include "DTK_MoabMeshSetIndexer.hpp"
+#include "DTK_FunctionSpace.hpp"
+#include "DTK_EntitySelector.hpp"
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
 
 #include <MBParallelComm.hpp>
 
@@ -60,96 +55,70 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class MoabEntitySet
-  \brief Moab entity set.
+  \class MoabManager
+  \brief High-level manager for Moab mesh.
 
-  Entity set implementation for Moab.
+  This manager provides a high-level class for automated construction of DTK
+  interface objects. A user is not required to use this class but rather could
+  use it to reduce code for certain implementations.
 */
 //---------------------------------------------------------------------------//
-class MoabEntitySet : public EntitySet
+class MoabManager
 {
   public:
 
     /*!
-     * \brief Constructor.
+     * \brief Default constructor.
+     *
+     * \param moab_mesh Moab mesh.
+     *
+     * \param entity_type The type of entities in the mesh that will be
+     * mapped. 
+     *
+     * \param basis_type The type of basis function space to use.
      */
-    MoabEntitySet( const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
+    MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+		 const EntityType entity_type );
+
+    /*!
+     * \brief Mesh set constructor.
+     *
+     * \param moab_mesh Moab mesh.
+     *
+     * \param mesh_set The set over which the manager will be constructed.
+     *
+     * \param entity_type The type of entities in the mesh that will be
+     * mapped. 
+     */
+    MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+		 const moab::EntityHandle& mesh_set,
+		 const EntityType entity_type );
 
     /*!
      * \brief Destructor.
      */
-    ~MoabEntitySet();
-
-    //@{
-    //! Parallel functions.
-    /*!
-     * \brief Get the parallel communicator for the entity set.
-     * \return A reference-counted pointer to the parallel communicator.
-     */
-    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const;
-    //@}
-
-    //@{
-    //! Geometric data functions.
-    /*!
-     * \brief Return the largest physical dimension of the entities in the
-     * set.  
-     * \return The physical dimension of the set.
-     */
-    int physicalDimension() const;
-    //@}
-
-    //@{
-    //! Entity access functions.
-    /*!
-     * \brief Given an EntityId, get the entity.
-     * \param entity_id Get the entity with this id.
-     * \param entity The entity with the given id.
-     */
-    void getEntity( const EntityType entity_type,
-		    const EntityId entity_id, 
-		    Entity& entity ) const;
+    ~MoabManager();
 
     /*!
-     * \brief Get a iterator of the given entity type that satisfy the given
-     * predicate.
-     * \param entity_type The type of entity to get a iterator for.
-     * \param predicate The selection predicate.
-     * \return A iterator of entities of the given type.
+     * \brief Get the function space over which the mesh and its fields are
+     * defined. 
      */
-    EntityIterator entityIterator( 
-	const EntityType entity_type,
-	const std::function<bool(Entity)>& predicate ) const;
-
-    /*!
-     * \brief Given an entity, get the entities of the given type that are
-     * adjacent to it.
-     */
-    void getAdjacentEntities(
-	const Entity& entity,
-	const EntityType entity_type,
-	Teuchos::Array<Entity>& adjacent_entities ) const;
-    //@}
-
-    //! Get the mesh set indexer.
-    Teuchos::RCP<MoabMeshSetIndexer> getMeshSetIndexer() const
-    { return d_set_indexer; }
+    Teuchos::RCP<FunctionSpace> functionSpace() const;
 
   private:
 
-    // Moab mesh.
-    Teuchos::RCP<moab::ParallelComm> d_moab_mesh;
-
-    // Mesh set indexer.
-    Teuchos::RCP<MoabMeshSetIndexer> d_set_indexer;
+    // The function space over which the mesh and its fields are defined.
+    Teuchos::RCP<FunctionSpace> d_function_space;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_MOABENTITYSET_HPP
+//---------------------------------------------------------------------------//
+
+#endif // end DTK_MOABMANAGER_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_MoabEntitySet.hpp
+// end DTK_MoabManager.hpp
 //---------------------------------------------------------------------------//

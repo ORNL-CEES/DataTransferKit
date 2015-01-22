@@ -32,71 +32,85 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MoabEntityPredicates.hpp
+ * \brief DTK_MoabManager.cpp
  * \author Stuart R. Slattery
- * \brief Moab entity predicates.
+ * \brief High-level manager for Moab.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MOABMESHENTITYPREDICATES_HPP
-#define DTK_MOABMESHENTITYPREDICATES_HPP
-
-#include <functional>
-#include <string>
-#include <vector>
-
-#include "DTK_Types.hpp"
-#include "DTK_Entity.hpp"
-#include "DTK_MoabMeshSetIndexer.hpp"
-
-#include <Teuchos_RCP.hpp>
-
-#include <MBInterface.hpp>
+#include "DTK_MoabManager.hpp"
+#include "DTK_MoabEntityPredicates.hpp"
+#include "DTK_MoabNodalShapeFunction.hpp"
+#include "DTK_MoabEntitySet.hpp"
+#include "DTK_MoabEntityLocalMap.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*!
- * \class MoabMeshSetPredicate
- * \part Predicate base class.
- */
-class MoabMeshSetPredicate
+//! Default constructor.
+MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+			  const EntityType entity_type )
 {
-  public:
+    Teuchos::RCP<EntitySet> entity_set = 
+	Teuchos::rcp( new MoabEntitySet(moab_mesh) );
+    
+    Teuchos::RCP<EntitySelector> entity_selector = 
+	Teuchos::rcp( new EntitySelector(entity_type) );
 
-    //! Mesh set predicate. Will return true if a given entity is in the mesh
-    //! set.
-    MoabMeshSetPredicate( const moab::EntityHandle& mesh_set,
-			  const Teuchos::RCP<MoabMeshSetIndexer>& set_indexer );
+    Teuchos::RCP<EntityLocalMap> local_map =
+	Teuchos::rcp( new MoabEntityLocalMap(moab_mesh) );
 
-    //! Mesh set union predicate. Will return true if a given entity is in any
-    //! of the given mesh sets. It may be wiser to use moabs set logic to
-    //! build a new mesh set of interest and use the basic constructor to
-    //! query for set inclusion.
-    MoabMeshSetPredicate( const std::vector<moab::EntityHandle>& mesh_sets,
-			  const Teuchos::RCP<MoabMeshSetIndexer>& set_indexer );
+    Teuchos::RCP<EntityShapeFunction> shape_function =
+	Teuchos::rcp( new MoabNodalShapeFunction(moab_mesh) );
 
-    ~MoabMeshSetPredicate() { /* ... */ }
+    d_function_space = Teuchos::rcp( 
+	new FunctionSpace(entity_set,entity_selector,local_map,shape_function) );
+}
 
-    bool operator()( Entity entity );
+//---------------------------------------------------------------------------//
+//! Part name constructor.
+MoabManager::MoabManager(
+    const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+    const moab::EntityHandle& mesh_set,
+    const EntityType entity_type )
+{
+    Teuchos::RCP<EntitySet> entity_set = 
+	Teuchos::rcp( new MoabEntitySet(moab_mesh) );
 
-    std::function<bool(Entity)> getFunction() const
-    { return std::function<bool(Entity)>(*this); }
+    MoabMeshSetPredicate pred( 
+	mesh_set, 
+	Teuchos::rcp_dynamic_cast<MoabEntitySet>(entity_set)->getMeshSetIndexer() );
 
-  private:
+    Teuchos::RCP<EntitySelector> entity_selector =
+	Teuchos::rcp( new EntitySelector(entity_type,pred.getFunction()) );
+    
+    Teuchos::RCP<EntityLocalMap> local_map =
+	Teuchos::rcp( new MoabEntityLocalMap(moab_mesh) );
 
-    // Mesh set ids.
-    Teuchos::Array<int> d_set_ids;
-};
+    Teuchos::RCP<EntityShapeFunction> shape_function =
+	Teuchos::rcp( new MoabNodalShapeFunction(moab_mesh) );
+
+    d_function_space = Teuchos::rcp( 
+	new FunctionSpace(entity_set,entity_selector,local_map,shape_function) );
+}
+
+//---------------------------------------------------------------------------//
+// Destructor.
+MoabManager::~MoabManager()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Get the function space over which the mesh and its fields are defined. 
+Teuchos::RCP<FunctionSpace> MoabManager::functionSpace() const
+{
+    return d_function_space;
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_MOABMESHENTITYPREDICATES_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_MoabEntityPredicates.hpp
+// end DTK_MoabManager.cpp
 //---------------------------------------------------------------------------//

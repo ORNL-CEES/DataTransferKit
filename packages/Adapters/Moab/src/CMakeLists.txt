@@ -17,6 +17,7 @@ APPEND_SET(HEADERS
   DTK_MoabEntityPredicates.hpp
   DTK_MoabEntitySet.hpp
   DTK_MoabHelpers.hpp
+  DTK_MoabManager.hpp
   DTK_MoabMeshSetIndexer.hpp
   DTK_MoabNodalShapeFunction.hpp
   ) 
@@ -29,6 +30,7 @@ APPEND_SET(SOURCES
   DTK_MoabEntityPredicates.cpp
   DTK_MoabEntitySet.cpp
   DTK_MoabHelpers.cpp
+  DTK_MoabManager.cpp
   DTK_MoabMeshSetIndexer.cpp
   DTK_MoabNodalShapeFunction.cpp
   )
