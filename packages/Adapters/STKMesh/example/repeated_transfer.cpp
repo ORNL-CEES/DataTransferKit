@@ -47,7 +47,7 @@
 #include <ctime>
 #include <cstdlib>
 
-#include "DTK_STKMeshDOFVector.hpp"
+#include "DTK_STKMeshFieldVector.hpp"
 #include "DTK_STKMeshHelpers.hpp"
 #include "DTK_STKMeshManager.hpp"
 #include "DTK_ConsistentInterpolationOperator.hpp"
@@ -253,14 +253,18 @@ int main(int argc, char* argv[])
 	tgt_bulk_data, tgt_stk_selector, DataTransferKit::ENTITY_TYPE_NODE );
 
     // Create a solution vector for the source.
+    DataTransferKit::STKMeshFieldVector<double,stk::mesh::Field<double> >
+	source_field_vec( src_bulk_data, Teuchos::ptr(&source_field), 1 );
+    source_field_vec.pullDataFromField();
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > src_vector =
-    	DataTransferKit::STKMeshDOFVector::pullTpetraMultiVectorFromSTKField<double>(
-    	    *src_bulk_data, source_field, 1 );	
+	source_field_vec.getVector();
     
     // Create a solution vector for the target.
+    DataTransferKit::STKMeshFieldVector<double,stk::mesh::Field<double> >
+	target_field_vec( tgt_bulk_data, Teuchos::ptr(&target_field), 1 );
+    target_field_vec.pullDataFromField();
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tgt_vector =
-    	DataTransferKit::STKMeshDOFVector::pullTpetraMultiVectorFromSTKField<double>(
-    	    *tgt_bulk_data, target_field, 1 );
+	target_field_vec.getVector();
 
 
     // SOLUTION TRANSFER
@@ -273,7 +277,7 @@ int main(int argc, char* argv[])
     {
 	s2t_map_op = Teuchos::rcp( 
 	    new DataTransferKit::ConsistentInterpolationOperator<double>(
-		src_vector->getMap(),tgt_vector->getMap()) );
+		source_field_vec.getMap(),target_field_vec.getMap()) );
 	t2s_map_op = Teuchos::rcp( 
 	    new DataTransferKit::ConsistentInterpolationOperator<double>(
 		tgt_vector->getMap(),src_vector->getMap()) );
@@ -283,7 +287,7 @@ int main(int argc, char* argv[])
 	s2t_map_op = Teuchos::rcp( 
 	    new DataTransferKit::SplineInterpolationOperator<
 	    double,DataTransferKit::WuBasis<4>,3>(
-		src_vector->getMap(),tgt_vector->getMap()) );
+		source_field_vec.getMap(),target_field_vec.getMap()) );
 	t2s_map_op = Teuchos::rcp( 
 	    new DataTransferKit::SplineInterpolationOperator<
 	    double,DataTransferKit::WuBasis<4>,3>(
@@ -296,7 +300,7 @@ int main(int argc, char* argv[])
 	s2t_map_op = Teuchos::rcp( 
 	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
 	    double,DataTransferKit::WuBasis<4>,3>(
-		src_vector->getMap(),tgt_vector->getMap()) );
+		source_field_vec.getMap(),target_field_vec.getMap()) );
 	t2s_map_op = Teuchos::rcp( 
 	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
 	    double,DataTransferKit::WuBasis<4>,3>(
@@ -338,12 +342,10 @@ int main(int argc, char* argv[])
 	t2s_map_op->apply( *tgt_vector, *src_vector );
 
 	// Push the source vector onto the source mesh.
-	DataTransferKit::STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
-	    *src_vector, *src_bulk_data, source_field );
+	source_field_vec.pushDataToField();
 
 	// Push the target vector onto the target mesh.
-	DataTransferKit::STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
-	    *tgt_vector, *tgt_bulk_data, target_field );
+	target_field_vec.pushDataToField();
 
 	// Compute the error on the source mesh.
 	error_l2_norm = 0.0;

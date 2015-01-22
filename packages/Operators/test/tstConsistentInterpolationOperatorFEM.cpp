@@ -101,7 +101,6 @@ Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> >
 createTestDOFVector( 
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
     const Teuchos::ArrayView<const std::size_t>& entity_ids,
-    const Teuchos::ArrayRCP<Scalar>& dof_data,
     const std::size_t lda,
     const std::size_t num_vectors )
 {
@@ -112,8 +111,7 @@ createTestDOFVector(
 	createDOFMap( comm, entity_ids, dofs_per_entity );
 
     // Build a tpetra multivector.
-    return Tpetra::createMultiVectorFromView<Scalar,int,std::size_t>( 
-	map, dof_data, lda, num_vectors );
+    return Tpetra::createMultiVector<Scalar,int,std::size_t>( map, num_vectors );
 }
 
 //---------------------------------------------------------------------------//
@@ -136,17 +134,27 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     int num_boxes = 5;
     int dofs_per_box = 4;
     Teuchos::Array<std::size_t> box_ids( num_boxes );
-    Teuchos::ArrayRCP<double> box_dofs( dofs_per_box * num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
     {
 	box_ids[i] = num_boxes*(comm_size-comm_rank-1) + i;
+	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
+	    Box(box_ids[i],comm_rank,box_ids[i],
+		0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0) );
+    }
+
+    // Construct a DOF vector for the boxes.
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+	createTestDOFVector<double>(
+	    comm, box_ids, dofs_per_box*num_boxes, 1 );
+
+    // Make the dofs.
+    Teuchos::ArrayRCP<double> box_dofs = domain_dofs->get1dViewNonConst();
+    for ( int i = 0; i < num_boxes; ++i )
+    {
 	for ( int n = 0; n < dofs_per_box; ++n )
 	{
 	    box_dofs[i*dofs_per_box+n] = 2.0*box_ids[i] + n;
 	}
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	    Box(box_ids[i],comm_rank,box_ids[i],
-		0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0) );
     }
 
     // Construct a local map for the boxes.
@@ -168,11 +176,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     // Construct a function space for the boxes.
     Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
 	new FunctionSpace(domain_set,domain_selector,domain_local_map,domain_shape) );
-
-    // Construct a DOF vector for the boxes.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	createTestDOFVector(
-	    comm, box_ids, box_dofs, dofs_per_box*num_boxes, 1 );
 
     // RANGE SETUP
     // Make a range entity set.

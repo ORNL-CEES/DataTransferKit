@@ -1,6 +1,6 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   tstSTKMeshDOFVector.cpp
+ * \file   tstSTKMeshFieldVector.cpp
  * \author Stuart Slattery
  * \brief  Entity-centered DOF vector test.
  */
@@ -11,7 +11,7 @@
 #include <cmath>
 #include <sstream>
 
-#include "DTK_STKMeshDOFVector.hpp"
+#include "DTK_STKMeshFieldVector.hpp"
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -111,15 +111,19 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
     }
 
     // Create a vector from the nodal field.
+    DataTransferKit::STKMeshFieldVector<double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >
+	stk_field_vec_1( bulk_data, Teuchos::ptr(test_field_1), 3 );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_1 =
-	DataTransferKit::STKMeshDOFVector::pullTpetraMultiVectorFromSTKField<double>(
-	    *bulk_data, *test_field_1, 3 );
+	stk_field_vec_1.getVector();
 
-    // Test the vector.
+    // Test the vector allocation.
     unsigned comm_size = comm->getSize();
     TEST_EQUALITY( 3, field_vec_1->getNumVectors() );
     TEST_EQUALITY( 8, field_vec_1->getLocalLength() );
     TEST_EQUALITY( 8*comm_size, field_vec_1->getGlobalLength() );
+
+    // Test the vector data.
+    stk_field_vec_1.pullDataFromField();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > field_vec_1_view =
 		      field_vec_1->get2dView();
     for ( unsigned n = 0; n < num_nodes; ++n )
@@ -138,8 +142,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
     field_vec_1->getVectorNonConst( 2 )->putScalar( val_2 );
 
     // Push the data back to STK.
-    DataTransferKit::STKMeshDOFVector::pushTpetraMultiVectorToSTKField(
-    	*field_vec_1, *bulk_data, *test_field_1 );
+    stk_field_vec_1.pushDataToField();
 
     // Test the STK field.
     for ( stk::mesh::Entity node : nodes )
@@ -155,9 +158,10 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
 	bulk_data->mesh_meta_data(
 	    ).get_field<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 		stk::topology::NODE_RANK, "test field 2" );
+    DataTransferKit::STKMeshFieldVector<double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >
+	stk_field_vec_2( bulk_data, Teuchos::ptr(test_field_2), 3 );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_2 =
-	DataTransferKit::STKMeshDOFVector::pullTpetraMultiVectorFromSTKField<double>(
-	    *bulk_data, *test_field_2, 3 );
+	stk_field_vec_2.getVector();
 
     // Test the vector to make sure it is empty.
     TEST_EQUALITY( 3, field_vec_2->getNumVectors() );
@@ -166,137 +170,5 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( STKMeshDOFVector, view_test )
-{
-    // Extract the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
-	Teuchos::DefaultComm<int>::getComm();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
-    MPI_Comm raw_comm = (*opaque_comm)();
-
-    // Create meta data.
-    int space_dim = 3;
-    stk::mesh::MetaData meta_data( space_dim );
-
-    // Make two parts.
-    std::string p1_name = "part_1";
-    stk::mesh::Part& part_1 = meta_data.declare_part( p1_name );
-    stk::mesh::set_topology( part_1, stk::topology::HEX_8 );
-
-    // Commit the meta data.
-    meta_data.commit();
-
-    // Create bulk data.
-    Teuchos::RCP<stk::mesh::BulkData> bulk_data =
-	Teuchos::rcp( new stk::mesh::BulkData(meta_data,raw_comm) );
-    bulk_data->modification_begin();
-
-    // Make a hex-8.
-    int comm_rank = comm->getRank();
-    stk::mesh::EntityId hex_id = 23 + comm_rank;
-    stk::mesh::Entity hex_entity = 
-	bulk_data->declare_entity( stk::topology::ELEM_RANK, hex_id, part_1 );
-    unsigned num_nodes = 8;
-    Teuchos::Array<stk::mesh::EntityId> node_ids( num_nodes );
-    Teuchos::Array<stk::mesh::Entity> nodes( num_nodes );
-    for ( unsigned i = 0; i < num_nodes; ++i )
-    {
-	node_ids[i] = num_nodes*comm_rank + i + 5;
-	nodes[i] = bulk_data->declare_entity( 
-	    stk::topology::NODE_RANK, node_ids[i], part_1 );
-	bulk_data->declare_relation( hex_entity, nodes[i], i );
-    }
-    bulk_data->modification_end();
-
-    // Get the nodes.
-    std::vector<stk::mesh::Entity> mesh_nodes;
-    stk::mesh::get_entities( *bulk_data, stk::topology::NODE_RANK, mesh_nodes );
-    TEST_EQUALITY( num_nodes, mesh_nodes.size() );
-
-    // Vector parameters.
-    int field_dim = 3;
-
-    // Create data.
-    Teuchos::Array<std::size_t> ids( num_nodes );
-    Teuchos::ArrayRCP<double> in_data( field_dim*num_nodes );
-    Teuchos::ArrayRCP<double> out_data( field_dim*num_nodes );
-    for ( unsigned i = 0; i < num_nodes; ++i )
-    {
-	ids[i] = i+1;
-	in_data[i] = 2.0*i + 1.0;
-	out_data[i] = 0.0;
-    }
-
-    // Create a vector from the entities and view.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > vec_1 =
-	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromEntitiesAndView( 
-	    *bulk_data, mesh_nodes, field_dim, in_data );
-    
-    // Test the vector.
-    unsigned comm_size = comm->getSize();
-    TEST_EQUALITY( 3, vec_1->getNumVectors() );
-    TEST_EQUALITY( num_nodes, vec_1->getLocalLength() );
-    TEST_EQUALITY( num_nodes*comm_size, vec_1->getGlobalLength() );
-        
-    // Create a second vector from the entities and view.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > vec_2 =
-	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromEntitiesAndView( 
-	    *bulk_data, mesh_nodes, field_dim, out_data );
-
-    // Test the vector.
-    TEST_EQUALITY( 3, vec_2->getNumVectors() );
-    TEST_EQUALITY( num_nodes, vec_2->getLocalLength() );
-    TEST_EQUALITY( num_nodes*comm_size, vec_2->getGlobalLength() );
-
-    // Add vector 1 and vector 2 together.
-    vec_2->update( 1.0, *vec_1, 0.0 );
-
-    // Check the results.
-    for ( unsigned i = 0; i < num_nodes; ++i )
-    {
-	TEST_EQUALITY( in_data[i], out_data[i] );
-    }
-
-    // Create another Tpetra vector from a part vector.
-    stk::mesh::PartVector parts( 1, &part_1 );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > vec_3 =
-	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromPartVectorAndView( 
-	    *bulk_data, parts, stk::topology::NODE_RANK, field_dim, out_data );
-
-    // Test the vector.
-    TEST_EQUALITY( 3, vec_3->getNumVectors() );
-    TEST_EQUALITY( num_nodes, vec_3->getLocalLength() );
-    TEST_EQUALITY( num_nodes*comm_size, vec_3->getGlobalLength() );
-    vec_3->putScalar( 9.9 );
-    for ( unsigned i = 0; i < num_nodes; ++i )
-    {
-	TEST_EQUALITY( 9.9, out_data[i] );
-    }
-
-    // Create another Tpetra vector from a selector.
-    stk::mesh::Selector selector( part_1 );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > vec_4 =
-	DataTransferKit::STKMeshDOFVector::createTpetraMultiVectorFromSelectorAndView( 
-	    *bulk_data, selector, stk::topology::NODE_RANK, field_dim, in_data );
-
-    // Test the vector.
-    TEST_EQUALITY( 3, vec_4->getNumVectors() );
-    TEST_EQUALITY( num_nodes, vec_4->getLocalLength() );
-    TEST_EQUALITY( num_nodes*comm_size, vec_4->getGlobalLength() );
-
-    // Add vector 3 and vector 4 together.
-    vec_4->update( 1.0, *vec_3, 0.0 );
-
-    // Check the results.
-    for ( unsigned i = 0; i < num_nodes; ++i )
-    {
-	TEST_EQUALITY( in_data[i], out_data[i] );
-    }
-}
-
-//---------------------------------------------------------------------------//
-// end of tstSTKMeshDOFVector.cpp
+// end of tstSTKMeshFieldVector.cpp
 //---------------------------------------------------------------------------//

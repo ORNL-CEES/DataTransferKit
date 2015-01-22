@@ -32,59 +32,65 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MoabTagVector.hpp
+ * \brief DTK_STKMeshFieldVector.hpp
  * \author Stuart R. Slattery
- * \brief Moab tag vector manager.
+ * \brief STK field vector manager.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MOABTAGVECTOR_HPP
-#define DTK_MOABTAGVECTOR_HPP
+#ifndef DTK_STKMESHFIELDVECTOR_HPP
+#define DTK_STKMESHFIELDVECTOR_HPP
 
-#include <MBParallelComm.hpp>
+#include <vector>
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Ptr.hpp>
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_Comm.hpp>
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_MultiVector.hpp>
+
+#include <stk_mesh/base/BulkData.hpp>
+#include <stk_mesh/base/Entity.hpp>
+#include <stk_mesh/base/Selector.hpp>
+#include <stk_topology/topology.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class MoabTagVector
-  \brief A class for defining Tpetra vectors over Moab tags.
+  \class STKMeshFieldVector
+  \brief A class for defining Tpetra vectors over STK fields.
 
-  Use this class to manage Tpetra vectors and Moab tags. This class will
-  create a vector over a mesh set and the tag on that mesh set. There is no
-  gaurantee of consistency between the tag and the vector as the vector does
-  not point to the data in the tag. Instead, the push and pull functions allow
-  the user to move data between the vector and the tag as necessary.
+  Use this class to manage Tpetra vectors and STK fields. This class will
+  create a vector over a mesh set and the field on that mesh set. There is no
+  gaurantee of consistency between the field and the vector as the vector does
+  not point to the data in the field. Instead, the push and pull functions allow
+  the user to move data between the vector and the field as necessary.
 */
 //---------------------------------------------------------------------------//
-template<class Scalar>
-class MoabTagVector
+template<class Scalar,class FieldType>
+class STKMeshFieldVector
 {
   public:
 
     /*!
      * \brief Constructor.
-     * \param moab_mesh The mesh containing the mesh set and tag.
-     * \param mesh_set The set of mesh entities over which the vector is defined.
-     * \param tag The tag containing the vector data.
      */
-    MoabTagVector( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-		   const moab::EntityHandle& mesh_set,
-		   const moab::Tag& tag );
+    STKMeshFieldVector( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
+			const Teuchos::Ptr<FieldType>& field,
+			const int field_dim );
 
     /*!
      * \brief Destructor.
      */
-    ~MoabTagVector()
+    ~STKMeshFieldVector()
     { /* ... */ }
 
     /*!
-     * \brief Get the vector over the tag.
+     * \brief Get the vector over the field.
      */
     Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > getVector() const
     { return d_vector; }
@@ -96,29 +102,32 @@ class MoabTagVector
     { return d_vector->getMap(); }
 
     /*!
-     * \brief Pull data from the tag and put it into the vector.
+     * \brief Pull data from the field and put it into the vector.
      */
-    void pullDataFromTag();
+    void pullDataFromField();
 
     /*!
-     * \brief Push data from the vector into the tag.
+     * \brief Push data from the vector into the field.
      */
-    void pushDataToTag();
+    void pushDataToField();
 
   private:
 
-    // The mesh over which the tag is defined.
-    Teuchos::RCP<moab::ParallelComm> d_moab_mesh;
+    // The mesh over which the field is defined.
+    Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
 
-    // The mesh set over which the vector is defined.
-    moab::EntityHandle d_mesh_set;
+    // The field containing the vector data.
+    Teuchos::Ptr<FieldType> d_field;
 
-    // The tag containing the vector data.
-    moab::Tag d_tag;
+    // The dimension of the field.
+    int d_field_dim;
+
+    // The enitities over which the field is defined.
+    std::vector<stk::mesh::Entity> d_field_entities;
 
     // The vector. This is a copy of the data. To put data into the vector
-    // from the tag call pullDataFromTag(). To put data from the vector back
-    // into the tag call pushDataToTag().
+    // from the field call pullDataFromField(). To put data from the vector back
+    // into the field call pushDataToField().
     Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > d_vector;  
 };
 
@@ -130,12 +139,12 @@ class MoabTagVector
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_MoabTagVector_impl.hpp"
+#include "DTK_STKMeshFieldVector_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_MOABTAGVECTOR_HPP
+#endif // end DTK_STKMESHFIELDVECTOR_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_MoabTagVector.hpp
+// end DTK_STKMeshFieldVector.hpp
 //---------------------------------------------------------------------------//

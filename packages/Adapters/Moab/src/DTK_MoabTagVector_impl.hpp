@@ -34,7 +34,7 @@
 /*!
  * \brief DTK_MoabTagVector_impl.hpp
  * \author Stuart R. Slattery
- * \brief Moab mesh tag DOF vector.
+ * \brief Moab tag vector manager
  */
 //---------------------------------------------------------------------------//
 

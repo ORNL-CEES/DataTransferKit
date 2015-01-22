@@ -15,14 +15,14 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_STKMeshDOFVector.hpp
-  DTK_STKMeshDOFVector_impl.hpp
   DTK_STKMeshEntity.hpp
   DTK_STKMeshEntityExtraData.hpp
   DTK_STKMeshEntityImpl.hpp
   DTK_STKMeshEntityIterator.hpp
   DTK_STKMeshEntityIteratorRange.hpp
   DTK_STKMeshEntityLocalMap.hpp
+  DTK_STKMeshFieldVector.hpp
+  DTK_STKMeshFieldVector_impl.hpp
   DTK_STKMeshManager.hpp
   DTK_STKMeshNodalShapeFunction.hpp
   DTK_STKMeshEntityPredicates.hpp
