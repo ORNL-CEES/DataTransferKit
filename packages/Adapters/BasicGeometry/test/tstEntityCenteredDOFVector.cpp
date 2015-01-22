@@ -52,16 +52,20 @@ TEUCHOS_UNIT_TEST( EntityCenteredDOFVector, vector_test )
 
     // Create an input vector.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > in_vec =
-	DataTransferKit::EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView( 
-	    comm, points(), num_vec, in_data );
+	DataTransferKit::EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView( 
+	    comm, points(), num_vec, in_data() );
         
     // Create an output vector.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > out_vec =
-	DataTransferKit::EntityCenteredDOFVector::createTpetraMultiVectorFromEntitiesAndView( 
-	    comm, points(), num_vec, out_data );
+	DataTransferKit::EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView( 
+	    comm, points(), num_vec, out_data() );
 
     // Add the vectors together.
     out_vec->update( 1.0, *in_vec, 0.0 );
+
+    // Push back the results.
+    DataTransferKit::EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView( 
+	*out_vec, out_data() );
 
     // Check the results.
     for ( int i = 0; i < vec_length; ++i )

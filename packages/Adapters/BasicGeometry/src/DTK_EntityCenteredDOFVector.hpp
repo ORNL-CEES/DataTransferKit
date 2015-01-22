@@ -45,7 +45,6 @@
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Comm.hpp>
 
 #include <Tpetra_MultiVector.hpp>
@@ -79,7 +78,8 @@ class EntityCenteredDOFVector
 
     /*!
      * \brief Given a set of entity ids and DOF data bound to the center of
-     * those entites, build a Tpetra vector.
+     * those entites, build a Tpetra vector and copy the data into the
+     * vector.
      * \param comm The communicator the DOFs are defined over.
      * \param entities The entities over which the DOFs are defined.
      * \param dof_data Reference counted array of the DOF data for the given
@@ -90,11 +90,20 @@ class EntityCenteredDOFVector
      */
     template<class Scalar>
     static Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
-    createTpetraMultiVectorFromEntitiesAndView(
+    pullTpetraMultiVectorFromEntitiesAndView(
 	const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
 	const Teuchos::ArrayView<Entity>& entities,
 	const int field_dim,
-	const Teuchos::ArrayRCP<Scalar>& dof_data );
+	const Teuchos::ArrayView<Scalar>& dof_data );
+
+    /*!
+     * \brief Given a Tpetra vector created by pulling from a view, push back
+     * to the same view.
+    */
+    template<class Scalar>
+    static void pushTpetraMultiVectorToEntitiesAndView(
+	const Tpetra::MultiVector<Scalar,int,std::size_t>& vector,
+	Teuchos::ArrayView<Scalar>&& dof_data );
 };
 
 //---------------------------------------------------------------------------//
