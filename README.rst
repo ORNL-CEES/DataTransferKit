@@ -9,13 +9,13 @@ services. DTK is both supported and used by the following Department
 of Energy multiphysics modeling and simulation programs:
 
 * Consortium for Advanced Simulation of Light Water Reactors (CASL)
-  [http://www.casl.gov](http://www.casl.gov)
+  [CASL Homepage](http://www.casl.gov)
 
 * Computer-Aided Engineering of Batteries
-  [http://batterysim.org](http://batterysim.org)
+  [ORNL CAEBAT Homepage](http://batterysim.org)
 
 * Nuclear Energy Advanced Modeling and Simulation
-  [http://www.ne.anl.gov/NEAMS/](http://www.ne.anl.gov/NEAMS/)
+  [NEAMS Homepage](http://www.ne.anl.gov/NEAMS/)
 
 
 DataTransferKit Development Team
@@ -57,7 +57,6 @@ DTK has the following packages:
     * Spline interpolation
 
 **Adapters**
-
     Client interface adapters for common mesh databases,
     discretization libraries, and geometric objects. Implementations
     include:
