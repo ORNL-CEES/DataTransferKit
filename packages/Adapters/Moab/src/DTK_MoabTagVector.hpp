@@ -41,6 +41,8 @@
 #ifndef DTK_MOABTAGVECTOR_HPP
 #define DTK_MOABTAGVECTOR_HPP
 
+#include <vector>
+
 #include <MBParallelComm.hpp>
 
 #include <Teuchos_RCP.hpp>
@@ -115,6 +117,9 @@ class MoabTagVector
 
     // The tag containing the vector data.
     moab::Tag d_tag;
+
+    // The entities over which the vector is defined.
+    std::vector<moab::EntityHandle> d_entities;
 
     // The vector. This is a copy of the data. To put data into the vector
     // from the tag call pullDataFromTag(). To put data from the vector back

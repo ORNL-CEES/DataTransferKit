@@ -69,9 +69,8 @@ MoabTagVector<Scalar>::MoabTagVector(
 	);
 
     // Get the entities in the set.
-    std::vector<moab::EntityHandle> entities;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, entities )
+	d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, d_entities )
 	);
 
     // Extract the MPI communicator.
@@ -79,7 +78,7 @@ MoabTagVector<Scalar>::MoabTagVector(
 	Teuchos::rcp( new Teuchos::MpiComm<int>(d_moab_mesh->comm()) );
 
     // Build a map. The DOF ids are the entity handles.
-    Teuchos::Array<std::size_t> dof_ids( entities.begin(), entities.end() );
+    Teuchos::Array<std::size_t> dof_ids( d_entities.begin(), d_entities.end() );
     Teuchos::RCP<const Tpetra::Map<int,std::size_t> > map =
 	Tpetra::createNonContigMap<int,std::size_t>( dof_ids(), comm );
 
@@ -92,12 +91,7 @@ MoabTagVector<Scalar>::MoabTagVector(
 template<class Scalar>
 void MoabTagVector<Scalar>::pullDataFromTag()
 {
-    // Get the entities in the set.
-    std::vector<moab::EntityHandle> entities;
-    DTK_CHECK_ERROR_CODE(
-    	d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, entities )
-    	);
-    int num_entities = entities.size();
+    int num_entities = d_entities.size();
     int tag_dim = d_vector->getNumVectors();
 
     // Only populate the vector if there are entities locally in the set.
@@ -108,7 +102,7 @@ void MoabTagVector<Scalar>::pullDataFromTag()
 	DTK_CHECK_ERROR_CODE(
 	    d_moab_mesh->get_moab()->tag_get_by_ptr( 
 		d_tag,
-		entities.data(),
+		d_entities.data(),
 		num_entities,
 		data_ptrs.getRawPtr() )
 	    );
@@ -133,12 +127,7 @@ void MoabTagVector<Scalar>::pullDataFromTag()
 template<class Scalar>
 void MoabTagVector<Scalar>::pushDataToTag()
 {
-    // Get the entities in the set.
-    std::vector<moab::EntityHandle> entities;
-    DTK_CHECK_ERROR_CODE(
-    	d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, entities )
-    	);
-    int num_entities = entities.size();
+    int num_entities = d_entities.size();
     int tag_dim = d_vector->getNumVectors();
 
     // Only extract the data if there are local entities.
@@ -160,7 +149,7 @@ void MoabTagVector<Scalar>::pushDataToTag()
 	DTK_CHECK_ERROR_CODE(
 	    d_moab_mesh->get_moab()->tag_set_data( 
 		d_tag,
-		entities.data(),
+		d_entities.data(),
 		num_entities,
 		static_cast<void*>(interleaved_data.getRawPtr()) )
 	    );

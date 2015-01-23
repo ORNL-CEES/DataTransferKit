@@ -107,9 +107,26 @@ int MoabEntityImpl::physicalDimension() const
 void MoabEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     Teuchos::Array<double> coordinates;
-    MoabHelpers::getEntityNodeCoordinates( d_extra_data->d_moab_entity,
-					   d_moab_mesh,
-					   coordinates );
+
+    // Node case.
+    if ( ENTITY_TYPE_NODE == this->entityType() )
+    {
+	coordinates.resize( 3 );
+	DTK_CHECK_ERROR_CODE(
+	    d_moab_mesh->get_moab()->get_coords( 
+		&(d_extra_data->d_moab_entity),
+		1,
+		coordinates.getRawPtr() )
+	    );
+    }
+
+    // Element/face/edge case.
+    else
+    {
+	MoabHelpers::getEntityNodeCoordinates( d_extra_data->d_moab_entity,
+					       d_moab_mesh,
+					       coordinates );
+    }
 
     int num_nodes = coordinates.size() / 3;
     int space_dim = this->physicalDimension();

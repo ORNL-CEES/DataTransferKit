@@ -69,11 +69,12 @@ double MoabEntityLocalMap::measure( const Entity& entity ) const
 	d_moab_evaluator->set_tag( "COORDS", 0 )
 	);
 
-    double measure = 0.0;
+    Teuchos::Array<double> measure(3,0.0);
     DTK_CHECK_ERROR_CODE(
-	d_moab_evaluator->integrate( &measure )
+	d_moab_evaluator->integrate( measure.getRawPtr() )
 	);
-    return measure;
+
+    return measure[0];
 }
 
 //---------------------------------------------------------------------------//
