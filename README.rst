@@ -11,9 +11,9 @@ of Energy multiphysics modeling and simulation programs:
 * Consortium for Advanced Simulation of Light Water Reactors (CASL)
   <http://www.casl.gov>
 
-* Computer-Aided Engineering of Batteries <http://batterysim.org>
+* Computer-Aided Engineering of Batteries (CAEBAT) <http://batterysim.org>
 
-* Nuclear Energy Advanced Modeling and Simulation
+* Nuclear Energy Advanced Modeling and Simulation (NEAMS)
   <http://www.ne.anl.gov/NEAMS/>
 
 
@@ -60,12 +60,14 @@ DTK has the following packages:
     discretization libraries, and geometric objects. Implementations
     include:
 
+    * Sierra Toolkit Mesh (STK Mesh) <http://trilinos.org/packages/stk/>
+
+    * Intrepid: Interoperable Tools for Rapid dEveloPment of compatIble Discretizations <http://trilinos.org/packages/intrepid/>
+
     * MOAB: A Mesh-Oriented datABase
       <http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>
 
-    * Sierra Toolkit Mesh (STK Mesh) <http://trilinos.org/packages/stk/>
-
-    * Basic geometric objects.
+    * Basic geometric objects
 
     Outside of the DTK source code, other applications have
     implementations of the DTK client interfaces in their code base
