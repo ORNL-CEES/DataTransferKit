@@ -20,7 +20,7 @@ of Energy multiphysics modeling and simulation programs:
 DataTransferKit Development Team
 ================================
 
-Profugus is developed and maintained by:
+DTK is developed and maintained by:
 
 * Stuart Slattery <slatterysr@ornl.gov>
 
