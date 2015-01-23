@@ -84,9 +84,9 @@ CoarseLocalSearch::CoarseLocalSearch(
 
     // Build a static search tree.
     int leaf_size = 20;
-    if ( parameters.isParameter("Coarse Search Local Leaf Size") )
+    if ( parameters.isParameter("Coarse Local Search Leaf Size") )
     {
-	leaf_size = parameters.get<int>("Coarse Search Local Leaf Size");
+	leaf_size = parameters.get<int>("Coarse Local Search Leaf Size");
     }
     leaf_size = std::min( leaf_size, num_entity );
     d_tree = SearchTreeFactory::createStaticTree(

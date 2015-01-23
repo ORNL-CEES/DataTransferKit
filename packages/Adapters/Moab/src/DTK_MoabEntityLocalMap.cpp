@@ -65,10 +65,6 @@ double MoabEntityLocalMap::measure( const Entity& entity ) const
 {
     cacheEntity( entity );
 
-    DTK_CHECK_ERROR_CODE(
-	d_moab_evaluator->set_tag( "COORDS", 0 )
-	);
-
     Teuchos::Array<double> measure(3,0.0);
     DTK_CHECK_ERROR_CODE(
 	d_moab_evaluator->integrate( measure.getRawPtr() )
@@ -95,11 +91,9 @@ void MoabEntityLocalMap::centroid(
 	Teuchos::Array<double> param_center;
 	parametricCenter( entity, param_center );
 
-	DTK_CHECK_ERROR_CODE(
-	    d_moab_evaluator->set_tag( "COORDS", 0 )
-	    );
-	DTK_CHECK_ERROR_CODE(
-	    d_moab_evaluator->eval( param_center.getRawPtr(), centroid.getRawPtr() )
+	DTK_CHECK_ERROR_CODE( 
+	    d_moab_evaluator->eval( param_center.getRawPtr(), 
+				    centroid.getRawPtr() )
 	    );    
     }
 }
@@ -200,9 +194,6 @@ void MoabEntityLocalMap::mapToPhysicalFrame(
     cacheEntity( entity );
 
     DTK_CHECK_ERROR_CODE(
-	d_moab_evaluator->set_tag( "COORDS", 0 )
-	);
-    DTK_CHECK_ERROR_CODE(
 	d_moab_evaluator->eval( reference_point.getRawPtr(),
 				point.getRawPtr() )
 	);
@@ -228,6 +219,9 @@ void MoabEntityLocalMap::cacheEntity( const Entity& entity ) const
 	);
     DTK_CHECK_ERROR_CODE(
 	d_moab_evaluator->set_ent_handle( entity.id() )
+	);
+    DTK_CHECK_ERROR_CODE(
+	d_moab_evaluator->set_tag( "COORDS", 0 )
 	);
 }
 

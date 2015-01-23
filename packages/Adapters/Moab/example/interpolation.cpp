@@ -299,9 +299,6 @@ int main(int argc, char* argv[])
     // SOLUTION TRANSFER SETUP
     // -----------------------
     
-    // Solution transfer parameters.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-
     // Create a manager for the source set elements.
     DataTransferKit::MoabManager src_manager( 
 	source_mesh, source_set, DataTransferKit::ENTITY_TYPE_VOLUME );
@@ -341,7 +338,7 @@ int main(int argc, char* argv[])
 	    new DataTransferKit::SplineInterpolationOperator<
 	    double,DataTransferKit::WuBasis<4>,3>(
 		source_tag_vec.getMap(),target_tag_vec.getMap()) );
-	parameters->set<double>("RBF Radius",basis_radius);
+	plist->set<double>("RBF Radius",basis_radius);
     }
     else if ( "Moving Least Square" == interpolation_type )
     {
@@ -349,13 +346,13 @@ int main(int argc, char* argv[])
 	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
 	    double,DataTransferKit::WuBasis<4>,3>(
 		source_tag_vec.getMap(),target_tag_vec.getMap()) );
-	parameters->set<double>("RBF Radius",basis_radius);
+	plist->set<double>("RBF Radius",basis_radius);
     }
 
     // Setup the map operator.
     map_op->setup( src_manager.functionSpace(),
 		   tgt_manager.functionSpace(),
-		   parameters );
+		   plist );
 
     // Pull the source data from Moab into the source vector.
     source_tag_vec.pullDataFromTag();

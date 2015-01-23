@@ -78,49 +78,49 @@ TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
     double node_coords[3];
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
-    node_coords[2] = 0.0;
+    node_coords[2] = -2.0;
     error = moab_mesh->create_vertex( node_coords, nodes[0] );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     node_coords[0] = 2.0;
     node_coords[1] = 0.0;
-    node_coords[2] = 0.0;
+    node_coords[2] = -2.0;
     error = moab_mesh->create_vertex( node_coords, nodes[1] );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     node_coords[0] = 2.0;
     node_coords[1] = 2.0;
-    node_coords[2] = 0.0;
+    node_coords[2] = -2.0;
     error = moab_mesh->create_vertex( node_coords, nodes[2] );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     node_coords[0] = 0.0;
     node_coords[1] = 2.0;
-    node_coords[2] = 0.0;
+    node_coords[2] = -2.0;
     error = moab_mesh->create_vertex( node_coords, nodes[3] );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
-    node_coords[2] = 2.0;
+    node_coords[2] = 0.0;
     error = moab_mesh->create_vertex( node_coords, nodes[4] );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     node_coords[0] = 2.0;
     node_coords[1] = 0.0;
-    node_coords[2] = 2.0;
+    node_coords[2] = 0.0;
     error = moab_mesh->create_vertex( node_coords, nodes[5] );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     node_coords[0] = 2.0;
     node_coords[1] = 2.0;
-    node_coords[2] = 2.0;
+    node_coords[2] = 0.0;
     error = moab_mesh->create_vertex( node_coords, nodes[6] );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     node_coords[0] = 0.0;
     node_coords[1] = 2.0;
-    node_coords[2] = 2.0;
+    node_coords[2] = 0.0;
     error = moab_mesh->create_vertex( node_coords, nodes[7] );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
@@ -152,13 +152,13 @@ TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
     local_map->centroid( dtk_entity, centroid() );
     TEST_EQUALITY( centroid[0], 1.0 );
     TEST_EQUALITY( centroid[1], 1.0 );
-    TEST_EQUALITY( centroid[2], 1.0 );
+    TEST_EQUALITY( centroid[2], -1.0 );
 
     // Make a good point and a bad point.
     Teuchos::Array<double> good_point( space_dim );
     good_point[0] = 0.5;
     good_point[1] = 1.5;
-    good_point[2] = 1.0;
+    good_point[2] = -1.0;
     Teuchos::Array<double> bad_point( space_dim );
     bad_point[0] = 0.75;
     bad_point[1] = -1.75;

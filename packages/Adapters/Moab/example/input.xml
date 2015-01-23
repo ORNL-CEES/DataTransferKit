@@ -5,5 +5,5 @@
   <Parameter name="Target Mesh Output File" type="string" value="target_out.vtk"/>
   <Parameter name="Basis Radius" type="double" value="1.0"/>
   <Parameter name="Interpolation Type" type="string" value="Consistent"/>
-  <Parameter name="Number of Iterations" type="int" value="10"/> 
+  <Parameter name="Track Missed Range Entities" type="bool" value="true"/>
 </ParameterList>
