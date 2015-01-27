@@ -46,7 +46,7 @@ DTK has the following packages:
     polymorphic API implemented by client applications providing
     access to mesh, geometry, parallel decomposition, shape functions,
     and parametric mappings. *Operator* interfaces define the general
-    linear operator for solution transfer and other concepts for
+    operator for solution transfer and other concepts for
     constructing solution transfer operators from client code.
 
 **Operators**
