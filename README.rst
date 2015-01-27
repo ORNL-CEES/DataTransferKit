@@ -5,13 +5,14 @@ The Data Transfer Kit (DTK) is an open-source software library
 designed to provide parallel services for solution transfer for
 multiphysics simulations. DTK uses a general operator design to
 provide scalable parallel services for solution transfer between
-shared volumes and surfaces. DTK is supported by the following
-Department of Energy multiphysics modeling and simulation programs:
+shared volumes and surfaces. DTK is supported and used by the
+following Department of Energy multiphysics modeling and simulation
+programs:
 
 * Consortium for Advanced Simulation of Light Water Reactors (CASL)
   <http://www.casl.gov>
 
-* Computer-Aided Engineering of Batteries (CAEBAT)
+* National Highway Traffic Safety Administration (NHTSA)
   <http://batterysim.org>
 
 * Nuclear Energy Advanced Modeling and Simulation (NEAMS)
