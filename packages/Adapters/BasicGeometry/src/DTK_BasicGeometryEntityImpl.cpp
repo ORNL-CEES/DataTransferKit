@@ -52,11 +52,6 @@ BasicGeometryEntityImpl::BasicGeometryEntityImpl()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-BasicGeometryEntityImpl::~BasicGeometryEntityImpl()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the entity type.
 EntityType BasicGeometryEntityImpl::entityType() const
 {

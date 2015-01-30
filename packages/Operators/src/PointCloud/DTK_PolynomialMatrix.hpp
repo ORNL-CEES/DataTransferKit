@@ -68,10 +68,6 @@ class PolynomialMatrix : public Tpetra::Operator<double,int,GO>
 	const Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map,
 	const Teuchos::RCP<const Tpetra::Map<int,GO> >& range_map );
 
-    //! Destructor.
-    ~PolynomialMatrix()
-    { /* ... */ }
-
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
     Teuchos::RCP<const Tpetra::Map<int,GO> > getDomainMap() const override

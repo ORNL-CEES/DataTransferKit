@@ -76,10 +76,6 @@ class LocalMLSProblem
 		     const Teuchos::ArrayView<const double>& source_centers,
 		     const Basis& basis );
 
-    //! Destructor.
-    ~LocalMLSProblem()
-    { /* ... */ }
-
     // Get a view of the local shape function.
     Teuchos::ArrayView<const double> shapeFunction() const
     { return d_shape_function(); }

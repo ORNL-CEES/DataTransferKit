@@ -96,13 +96,6 @@ CylinderImpl::CylinderImpl( const EntityId global_id,
 }
 
 //---------------------------------------------------------------------------//
-/*!
- * \brief Destructor.
- */
-CylinderImpl::~CylinderImpl()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the entity type.
 EntityType CylinderImpl::entityType() const
 {

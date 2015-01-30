@@ -67,9 +67,6 @@ class CommIndexer
     CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm, 
 		 Teuchos::RCP<const Teuchos::Comm<int> > local_comm );
 
-    // Destructor.
-    ~CommIndexer();
-
     // Given a process id in the local communicator, return the distributed
     // object's process id in the global communicator.
     int l2g( const int local_id ) const;

@@ -67,14 +67,9 @@ class Entity
     Entity();
 
     /*!
-     * \brief Copy constructor.
-     */
-    Entity( const Entity& rhs );
-
-    /*!
      * \brief Destructor.
      */
-    virtual ~Entity();
+    virtual ~Entity() = default;
 
     /*!
      * \brief Get the entity type.

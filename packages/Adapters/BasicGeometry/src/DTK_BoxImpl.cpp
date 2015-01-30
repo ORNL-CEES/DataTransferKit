@@ -119,13 +119,6 @@ BoxImpl::BoxImpl( const EntityId global_id,
 }
 
 //---------------------------------------------------------------------------//
-/*!
- * \brief Destructor.
- */
-BoxImpl::~BoxImpl()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the entity type.
 EntityType BoxImpl::entityType() const
 {

@@ -55,14 +55,6 @@ EuclideanDistance<DIM>::EuclideanDistance()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Destructor.
- */
-template<int DIM>
-EuclideanDistance<DIM>::~EuclideanDistance()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Compute Euclidean distance between the given set of coordinates. 1-D
  * specialization.
  */

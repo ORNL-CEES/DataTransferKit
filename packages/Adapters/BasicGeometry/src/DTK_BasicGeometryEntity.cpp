@@ -53,11 +53,6 @@ BasicGeometryEntity::BasicGeometryEntity()
 }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-BasicGeometryEntity::~BasicGeometryEntity()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 /*!
  * \brief Compute the measure of the entity.
  *

@@ -67,10 +67,6 @@ class CommTools
     CommTools()
     { /* ... */ }
 
-    //! Destructor.
-    ~CommTools()
-    { /* ... */ }
-
     // Get comm world.
     static void getCommWorld( RCP_Comm& comm_world );
 

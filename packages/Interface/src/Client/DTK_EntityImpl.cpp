@@ -49,11 +49,6 @@ EntityImpl::EntityImpl()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-//brief Destructor.
-EntityImpl::~EntityImpl()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the entity type.
 EntityType EntityImpl::entityType() const
 {

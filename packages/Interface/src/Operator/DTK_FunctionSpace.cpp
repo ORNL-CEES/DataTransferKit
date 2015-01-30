@@ -57,11 +57,6 @@ FunctionSpace::FunctionSpace(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-FunctionSpace::~FunctionSpace()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the entity set over which the fields are defined.
 Teuchos::RCP<EntitySet> FunctionSpace::entitySet() const
 {

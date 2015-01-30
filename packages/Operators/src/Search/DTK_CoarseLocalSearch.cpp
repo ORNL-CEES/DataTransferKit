@@ -96,13 +96,6 @@ CoarseLocalSearch::CoarseLocalSearch(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Destructor.
- */
-CoarseLocalSearch::~CoarseLocalSearch()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Find the set of entities a point neighbors.
  */
 void CoarseLocalSearch::search( const Teuchos::ArrayView<const double>& point,

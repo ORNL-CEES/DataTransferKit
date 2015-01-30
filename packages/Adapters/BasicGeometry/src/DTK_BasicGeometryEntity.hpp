@@ -70,9 +70,6 @@ class BasicGeometryEntity : public Entity
     // Default constructor.
     BasicGeometryEntity();
 
-    // Destructor.
-    virtual ~BasicGeometryEntity();
-
     //@{
     //! BasicGeometryEntity interface.
     // Return the entity measure with respect to the parameteric

@@ -49,11 +49,6 @@ EntityShapeFunction::EntityShapeFunction()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-EntityShapeFunction::~EntityShapeFunction()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
 void EntityShapeFunction::entityDOFIds( 

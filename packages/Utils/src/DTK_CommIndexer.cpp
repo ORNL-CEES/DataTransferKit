@@ -94,13 +94,6 @@ CommIndexer::CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm,
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Destructor.
- */
-CommIndexer::~CommIndexer()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Given a process id in the local communicator, return the distributed
  * object's process id in the global communicator. 
  *

@@ -68,7 +68,7 @@ class EntityShapeFunction
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityShapeFunction();
+    virtual ~EntityShapeFunction() = default;
 
     /*!
      * \brief Given an entity, get the ids of the degrees of freedom in the

@@ -83,7 +83,7 @@ class MapOperator : public Tpetra::Operator<Scalar,int,std::size_t>
     /*!
      * \brief Destructor.
      */
-    virtual ~MapOperator();
+    virtual ~MapOperator() = default;
 
     /*
      * \brief Setup the map operator from a domain entity set and a range

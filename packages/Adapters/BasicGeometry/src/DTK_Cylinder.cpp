@@ -84,13 +84,6 @@ Cylinder::Cylinder( const EntityId global_id,
 }
 
 //---------------------------------------------------------------------------//
-/*!
- * \brief Destructor.
- */
-Cylinder::~Cylinder()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the length of the cylinder.
 double Cylinder::length() const
 { 

@@ -61,8 +61,7 @@ class StaticSearchTree
     { /* ... */ }
 
     // Destructor.
-    virtual ~StaticSearchTree()
-    { /* ... */ }
+    virtual ~StaticSearchTree() = default;
 
     // Perform an n-nearest neighbor search.
     virtual Teuchos::Array<unsigned> nnSearch( 
@@ -90,10 +89,6 @@ class PointCloud
     //! Constructor.
     PointCloud( const Teuchos::ArrayView<const double>& points )
 	: d_points( points )
-    { /* ... */ }
-
-    //! Destructor.
-    ~PointCloud()
     { /* ... */ }
 
     //! Number of cloud points.
@@ -141,10 +136,6 @@ class NanoflannTree : public StaticSearchTree
     // Default constructor.
     NanoflannTree( const Teuchos::ArrayView<const double>& points,
 		   const unsigned max_leaf_size );
-
-    // Destructor.
-    ~NanoflannTree()
-    { /* ... */ }
 
     // Perform an n-nearest neighbor search.
     Teuchos::Array<unsigned> nnSearch( 

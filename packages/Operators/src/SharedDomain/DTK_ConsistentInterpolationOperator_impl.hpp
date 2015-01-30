@@ -73,12 +73,6 @@ ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-template<class Scalar>
-ConsistentInterpolationOperator<Scalar>::~ConsistentInterpolationOperator()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar>
 void ConsistentInterpolationOperator<Scalar>::setup(
