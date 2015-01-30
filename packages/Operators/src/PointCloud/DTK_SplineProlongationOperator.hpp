@@ -73,12 +73,12 @@ class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,GO>
 
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
-    Teuchos::RCP<const Tpetra::Map<int,GO> > getDomainMap() const
+    Teuchos::RCP<const Tpetra::Map<int,GO> > getDomainMap() const override
     { return d_domain_map; }
 
     //! The Map associated with the range of this operator, which must be
     //! compatible with Y.getMap().
-    Teuchos::RCP<const Tpetra::Map<int,GO> > getRangeMap() const
+    Teuchos::RCP<const Tpetra::Map<int,GO> > getRangeMap() const override
     { return d_range_map; }
 
     //! \brief Computes the operator-multivector application.
@@ -94,11 +94,11 @@ class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,GO>
 		Tpetra::MultiVector<Scalar,int,GO> &Y,
 		Teuchos::ETransp mode = Teuchos::NO_TRANS,
 		Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-		Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const;
+		Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
 
     /// \brief Whether this operator supports applying the transpose or
     /// conjugate transpose.
-    bool hasTransposeApply() const
+    bool hasTransposeApply() const override
     { return false; }
 
   private:
