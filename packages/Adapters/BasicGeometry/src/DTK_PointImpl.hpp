@@ -97,48 +97,48 @@ class PointImpl : public BasicGeometryEntityImpl
     //@}
 
     // Get the entity type.
-    EntityType entityType() const;
+    EntityType entityType() const override;
 
     // Get the unique global identifier for the entity.
-    EntityId id() const;
+    EntityId id() const override;
     
     // Get the parallel rank that owns the entity.
-    int ownerRank() const;
+    int ownerRank() const override;
 
     // Return the physical dimension of the entity.
-    virtual int physicalDimension() const;
+    virtual int physicalDimension() const override;
     
     //  Return the axis-aligned bounding box around the entity.
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override;
     
     // Determine if an entity is in the block with the given id.
-    bool inBlock( const int block_id ) const;
+    bool inBlock( const int block_id ) const override;
 
     // Determine if an entity is on the boundary with the given id.
-    bool onBoundary( const int boundary_id ) const;
+    bool onBoundary( const int boundary_id ) const override;
 
     // Return the entity measure with respect to the parameteric
-    double measure() const;
+    double measure() const override;
 
     // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
+    void centroid( const Teuchos::ArrayView<double>& centroid ) const override;
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
     bool mapToReferenceFrame( 
 	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const;
+	const Teuchos::ArrayView<double>& reference_point ) const override;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
     bool checkPointInclusion( 
 	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
+	const Teuchos::ArrayView<const double>& reference_point ) const override;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
     void mapToPhysicalFrame( 
 	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
+	const Teuchos::ArrayView<double>& point ) const override;
 
   protected:
 

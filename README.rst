@@ -86,8 +86,8 @@ DTK has the following packages:
 Dependencies
 ============
 
-DataTransferKit is designed to build and run with a minimum of
-dependencies and is structured largely as a Trilinos packages.  The
+DataTransferKit is designed to build and run with a minimum number of
+dependencies and is structured largely as a Trilinos package.  The
 dependenices and third-party libraries (TPLs) necessary to build DTK
 are all open-source and freely available. The Dependencies for DTK are
 listed in the following table:

@@ -107,13 +107,14 @@ class MapOperator : public Tpetra::Operator<Scalar,int,std::size_t>
 
     //@{
     //! Tpetra::Operator interface.
-    Teuchos::RCP<const TpetraMap> getDomainMap() const;
-    Teuchos::RCP<const TpetraMap> getRangeMap() const;
+    Teuchos::RCP<const TpetraMap> getDomainMap() const override;
+    Teuchos::RCP<const TpetraMap> getRangeMap() const override;
     virtual void apply( const TpetraMultiVector& X,
 			TpetraMultiVector &Y,
 			Teuchos::ETransp mode = Teuchos::NO_TRANS,
 			Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-			Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const;
+			Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
+    virtual bool hasTransposeApply() const override { return false; }
     //@}
 
   private:

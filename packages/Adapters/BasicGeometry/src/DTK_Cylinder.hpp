@@ -86,27 +86,27 @@ class Cylinder : public BasicGeometryEntity
     double radius() const;
 
     // Return the entity measure.
-    double measure() const;
+    double measure() const override;
 
     // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
+    void centroid( const Teuchos::ArrayView<double>& centroid ) const override;
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
     bool mapToReferenceFrame( 
 	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const;
+	const Teuchos::ArrayView<double>& reference_point ) const override;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
     bool checkPointInclusion( 
 	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
+	const Teuchos::ArrayView<const double>& reference_point ) const override;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
     void mapToPhysicalFrame( 
 	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
+	const Teuchos::ArrayView<double>& point ) const override;
 };
 
 //! overload for printing cylinder

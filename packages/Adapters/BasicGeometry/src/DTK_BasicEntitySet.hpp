@@ -86,29 +86,29 @@ class BasicEntitySetIterator : public EntityIterator
     ~BasicEntitySetIterator();
 
     // Pre-increment operator.
-    EntityIterator& operator++();
+    EntityIterator& operator++() override;
 
     // Dereference operator.
-    Entity& operator*(void);
+    Entity& operator*(void) override;
 
     // Dereference operator.
-    Entity* operator->(void);
+    Entity* operator->(void) override;
 
     // Equal comparison operator.
-    bool operator==( const EntityIterator& rhs ) const;
+    bool operator==( const EntityIterator& rhs ) const override;
 
     // Not equal comparison operator.
-    bool operator!=( const EntityIterator& rhs ) const;
+    bool operator!=( const EntityIterator& rhs ) const override;
 
     // An iterator assigned to the beginning.
-    EntityIterator begin() const;
+    EntityIterator begin() const override;
 
     // An iterator assigned to the end.
-    EntityIterator end() const;
+    EntityIterator end() const override;
 
     // Create a clone of the iterator. We need this for the copy constructor
     // and assignment operator to pass along the underlying implementation.
-    EntityIterator* clone() const;
+    EntityIterator* clone() const override;
 
   private:
 
@@ -159,7 +159,7 @@ class BasicEntitySet : public EntitySet
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
      */
-    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const;
+    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const override;
     //@}
 
     //@{
@@ -168,7 +168,7 @@ class BasicEntitySet : public EntitySet
      * \brief Return the physical dimension of the entities in the set.
      * \return The physical dimension of the set.
      */
-    int physicalDimension() const;
+    int physicalDimension() const override;
     //@}
 
     //@{
@@ -180,7 +180,7 @@ class BasicEntitySet : public EntitySet
      */
     void getEntity( const EntityType entity_type,
 		    const EntityId entity_id, 
-		    Entity& entity ) const;
+		    Entity& entity ) const override;
 
     /*!
      * \brief Get an iterator over a subset of the entity set that satisfies
@@ -191,7 +191,7 @@ class BasicEntitySet : public EntitySet
      */
     EntityIterator entityIterator(
 	const EntityType entity_type,
-	const std::function<bool(Entity)>& predicate ) const;
+	const std::function<bool(Entity)>& predicate ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
@@ -200,7 +200,7 @@ class BasicEntitySet : public EntitySet
     virtual void getAdjacentEntities(
 	const Entity& entity,
 	const EntityType entity_type,
-	Teuchos::Array<Entity>& adjacent_entities ) const;
+	Teuchos::Array<Entity>& adjacent_entities ) const override;
     //@}
 
   private:

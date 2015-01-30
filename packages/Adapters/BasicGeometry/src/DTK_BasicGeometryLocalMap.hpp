@@ -79,7 +79,7 @@ class BasicGeometryLocalMap : public EntityLocalMap
      * \param entity Compute the measure for this entity.
      * \return The measure of the entity.
      */
-    double measure( const Entity& entity ) const;
+    double measure( const Entity& entity ) const override;
 
     /*!
      * \brief Return the centroid of the entity.
@@ -87,7 +87,7 @@ class BasicGeometryLocalMap : public EntityLocalMap
      * be allocated. Assign a view of your centroid to this view.
      */
     void centroid( const Entity& entity,
-		   const Teuchos::ArrayView<double>& centroid ) const;
+		   const Teuchos::ArrayView<double>& centroid ) const override;
 
     /*!
      * \brief (Reverse Map) Map a point to the reference space of an
@@ -106,7 +106,7 @@ class BasicGeometryLocalMap : public EntityLocalMap
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& point,
 	const Teuchos::ArrayView<double>& reference_point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const;
+	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const override;
 
     /*!  
      * \brief Determine if a reference point is in the parameterized space of
@@ -119,7 +119,7 @@ class BasicGeometryLocalMap : public EntityLocalMap
      */
     bool checkPointInclusion( 
 	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
+	const Teuchos::ArrayView<const double>& reference_point ) const override;
 
     /*!
      * \brief (Forward Map) Map a reference point to the physical space of an
@@ -133,7 +133,7 @@ class BasicGeometryLocalMap : public EntityLocalMap
     void mapToPhysicalFrame( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
+	const Teuchos::ArrayView<double>& point ) const override;
 };
 
 //---------------------------------------------------------------------------//
