@@ -63,8 +63,6 @@ class MoabEntityExtraData : public EntityExtraData
 	: d_moab_entity( moab_entity )
     { /* ... */ }
 
-    ~MoabEntityExtraData() { /* ... */ }
-
     // MOAB mesh entity.
     moab::EntityHandle d_moab_entity;
 };

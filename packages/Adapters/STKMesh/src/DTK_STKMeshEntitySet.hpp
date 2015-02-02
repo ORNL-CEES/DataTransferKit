@@ -74,11 +74,6 @@ class STKMeshEntitySet : public EntitySet
      */
     STKMeshEntitySet( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
 
-    /*!
-     * \brief Destructor.
-     */
-    ~STKMeshEntitySet();
-
     //@{
     //! Parallel functions.
     /*!

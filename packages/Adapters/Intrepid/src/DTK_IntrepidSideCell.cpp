@@ -73,13 +73,6 @@ IntrepidSideCell::IntrepidSideCell(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Destructor.
- */
-IntrepidSideCell::~IntrepidSideCell()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Update the cell state of the object for the current cell node
  * coordinates.
  */

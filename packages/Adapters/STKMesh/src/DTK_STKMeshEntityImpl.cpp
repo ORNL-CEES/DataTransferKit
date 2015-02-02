@@ -63,11 +63,6 @@ STKMeshEntityImpl::STKMeshEntityImpl(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-//brief Destructor.
-STKMeshEntityImpl::~STKMeshEntityImpl()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the entity type.
 EntityType STKMeshEntityImpl::entityType() const
 {

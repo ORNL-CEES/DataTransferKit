@@ -65,11 +65,6 @@ STKMeshEntitySet::STKMeshEntitySet(
 }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-STKMeshEntitySet::~STKMeshEntitySet()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
 Teuchos::RCP<const Teuchos::Comm<int> > STKMeshEntitySet::communicator() const
 {

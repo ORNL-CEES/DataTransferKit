@@ -66,7 +66,7 @@ class STKPartPredicate
 
     STKPartPredicate() { /* ... */ }
 
-    ~STKPartPredicate() { /* ... */ }
+    virtual ~STKPartPredicate() = default;
 
     bool operator()( Entity entity );
 
@@ -90,8 +90,6 @@ class STKPartNamePredicate : public STKPartPredicate
 
     STKPartNamePredicate( const Teuchos::Array<std::string>& part_names,
 			  const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
-
-    ~STKPartNamePredicate() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//
@@ -104,8 +102,6 @@ class STKPartVectorPredicate : public STKPartPredicate
   public:
 
     STKPartVectorPredicate( const stk::mesh::PartVector& parts );
-
-    ~STKPartVectorPredicate() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//
@@ -118,8 +114,6 @@ class STKSelectorPredicate : public STKPartPredicate
   public:
 
     STKSelectorPredicate( const stk::mesh::Selector& selector );
-
-    ~STKSelectorPredicate() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//

@@ -76,9 +76,6 @@ class ProjectPointToFaceNonlinearProblem
 	const Intrepid::FieldContainer<double>& face_nodes,
 	const Intrepid::FieldContainer<double>& face_node_normals );
 
-    //! Destructor.
-    ~ProjectPointToFaceNonlinearProblem() { /* ... */ }
-
     //! Update the state of the problem given the new solution vector.
     void updateState( const Intrepid::FieldContainer<double>& u );
 

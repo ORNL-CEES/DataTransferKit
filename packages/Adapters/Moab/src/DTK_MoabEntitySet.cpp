@@ -60,11 +60,6 @@ MoabEntitySet::MoabEntitySet(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-MoabEntitySet::~MoabEntitySet()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
 Teuchos::RCP<const Teuchos::Comm<int> > MoabEntitySet::communicator() const
 {

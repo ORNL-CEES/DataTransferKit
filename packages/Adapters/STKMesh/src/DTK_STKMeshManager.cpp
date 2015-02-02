@@ -110,11 +110,6 @@ STKMeshManager::STKMeshManager(
 }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-STKMeshManager::~STKMeshManager()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the function space over which the mesh and its fields are defined. 
 Teuchos::RCP<FunctionSpace> STKMeshManager::functionSpace() const
 {

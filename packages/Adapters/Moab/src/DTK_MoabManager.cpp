@@ -96,11 +96,6 @@ MoabManager::MoabManager(
 }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-MoabManager::~MoabManager()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the function space over which the mesh and its fields are defined. 
 Teuchos::RCP<FunctionSpace> MoabManager::functionSpace() const
 {
