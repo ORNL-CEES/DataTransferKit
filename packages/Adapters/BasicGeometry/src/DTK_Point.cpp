@@ -68,6 +68,11 @@ Point::Point( const EntityId global_id,
 }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+Point::~Point()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Get the coordinates of the point.
 void Point::getCoordinates( 
     const Teuchos::ArrayView<double>& coordinates ) const

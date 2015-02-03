@@ -51,6 +51,11 @@ BasicGeometryLocalMap::BasicGeometryLocalMap()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+BasicGeometryLocalMap::~BasicGeometryLocalMap()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
 // for a 3D entity, area for 2D, and length for 1D). 
 double BasicGeometryLocalMap::measure( const Entity& entity ) const

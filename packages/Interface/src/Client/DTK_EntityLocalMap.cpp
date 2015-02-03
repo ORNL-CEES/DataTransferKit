@@ -52,6 +52,11 @@ EntityLocalMap::EntityLocalMap()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+EntityLocalMap::~EntityLocalMap()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Set parameters for mapping.
 void EntityLocalMap::setParameters( 
     const Teuchos::RCP<Teuchos::ParameterList>& parameters )

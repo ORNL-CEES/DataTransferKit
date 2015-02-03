@@ -84,6 +84,11 @@ class ParallelSearch
 		    const Teuchos::RCP<EntityLocalMap>& domain_local_map,
 		    const Teuchos::ParameterList& parameters );
 
+    /*!
+     * \brief Destructor.
+     */
+    ~ParallelSearch();
+
     /*
      * \brief Search the domain with the range entity centroids and construct
      * the graph. This will update the state of the object.

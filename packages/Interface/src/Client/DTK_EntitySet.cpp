@@ -51,6 +51,11 @@ EntitySet::EntitySet()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+EntitySet::~EntitySet()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
 Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
 {

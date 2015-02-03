@@ -78,6 +78,9 @@ class Box : public BasicGeometryEntity
 	 const int block_id,
 	 const Teuchos::Tuple<double,6>& bounds );
 
+    // Destructor.
+    ~Box();
+
     // Static function to check for box intersection but not perform it.
     static bool checkForIntersection( const Box& box_A,
 				      const Box& box_B );

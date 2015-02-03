@@ -67,6 +67,10 @@ class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,GO>
 	const int offset,
 	const Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map );
 
+    //! Destructor.
+    ~SplineProlongationOperator()
+    { /* ... */ }
+
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
     Teuchos::RCP<const Tpetra::Map<int,GO> > getDomainMap() const override

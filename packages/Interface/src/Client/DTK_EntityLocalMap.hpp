@@ -73,7 +73,7 @@ class EntityLocalMap
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityLocalMap() = default;
+    virtual ~EntityLocalMap();
 
     /*
      * \brief Set parameters for mapping.

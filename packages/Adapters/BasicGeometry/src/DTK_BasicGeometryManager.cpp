@@ -100,6 +100,11 @@ BasicGeometryManager::BasicGeometryManager(
 }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+BasicGeometryManager::~BasicGeometryManager()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Get the function space over which the mesh and its fields are defined. 
 Teuchos::RCP<FunctionSpace> BasicGeometryManager::functionSpace() const
 {

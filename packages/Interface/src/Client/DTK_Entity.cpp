@@ -49,6 +49,18 @@ Entity::Entity()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Copy constructor.
+Entity::Entity( const Entity& rhs )
+{
+    b_entity_impl = rhs.b_entity_impl;
+}
+
+//---------------------------------------------------------------------------//
+//brief Destructor.
+Entity::~Entity()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId Entity::id() const
 { 

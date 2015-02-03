@@ -62,6 +62,8 @@ class SelectAllPredicate
     SelectAllPredicate()
     { /* ... */ }
 
+    ~SelectAllPredicate() { /* ... */ }
+
     bool operator()( Entity entity ) { return true; }
 
     std::function<bool(Entity)> getFunction() const
@@ -80,6 +82,8 @@ class BlockPredicate
     BlockPredicate( const Teuchos::Array<int>& block_ids ) 
 	: d_block_ids( block_ids )
     { /* ... */ }
+
+    ~BlockPredicate() { /* ... */ }
 
     bool operator()( Entity entity );
 
@@ -104,6 +108,8 @@ class BoundaryPredicate
 	: d_boundary_ids( boundary_ids )
     { /* ... */ }
 
+    ~BoundaryPredicate() { /* ... */ }
+
     bool operator()( Entity entity );
 
     std::function<bool(Entity)> getFunction() const;
@@ -126,6 +132,8 @@ class LocalEntityPredicate
     LocalEntityPredicate( const int my_rank ) 
 	: d_my_rank( my_rank )
     { /* ... */ }
+
+    ~LocalEntityPredicate() { /* ... */ }
 
     bool operator()( Entity entity );
 

@@ -111,7 +111,7 @@ TEUCHOS_UNIT_TEST( BlockPredicate, block_predicate_test )
     TEST_ASSERT( block_pred_3(p2) );
 
     std::function<bool(Entity)> block_pred_4 =
-	PredicateComposition::And( block_pred_1.getFunction(),
+	PredicateComposition::And( block_pred_1.getFunction(), 
 				   block_pred_2.getFunction() );
     TEST_ASSERT( !block_pred_4(p1) );
     TEST_ASSERT( !block_pred_4(p2) );

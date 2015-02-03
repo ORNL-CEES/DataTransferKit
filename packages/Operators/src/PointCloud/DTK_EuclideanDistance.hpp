@@ -57,6 +57,9 @@ class EuclideanDistance
     // Constructor.
     EuclideanDistance();
 
+    // Destructor.
+    ~EuclideanDistance();
+
     // Compute the Euclidean distance between the given set of coordinates.
     static double distance( const double* x1, const double* x2 );
 };

@@ -62,6 +62,11 @@ class PredicateComposition
      */
     PredicateComposition() { /* ... */ }
 
+    /*!
+     * \brief Destructor.
+     */
+    ~PredicateComposition() { /* ... */ }
+
     // Apply an and operation to two predicates to create a new
     // predicate.
     template<class ValueType>

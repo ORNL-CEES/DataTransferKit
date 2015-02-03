@@ -70,6 +70,11 @@ class EntitySelector
 	const std::function<bool(Entity)>& select_function = selectAll );
 
     /*!
+     * \brief Destructor.
+     */
+    ~EntitySelector();
+
+    /*!
      * \brief Get the entity type to select.
      */
     EntityType entityType() const;

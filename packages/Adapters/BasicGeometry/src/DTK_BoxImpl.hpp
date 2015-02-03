@@ -76,6 +76,9 @@ class BoxImpl : public BasicGeometryEntityImpl
 	     const int block_id, 
 	     const Teuchos::Tuple<double,6>& bounds );
 
+    // Destructor.
+    ~BoxImpl();
+
     // Get the entity type.
     EntityType entityType() const override;
 

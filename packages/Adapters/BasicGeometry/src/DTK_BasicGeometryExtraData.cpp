@@ -57,6 +57,10 @@ BasicGeometryExtraData::BasicGeometryExtraData(
 }
 
 //---------------------------------------------------------------------------//
+BasicGeometryExtraData::~BasicGeometryExtraData()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 const BasicGeometryEntityImpl* BasicGeometryExtraData::implementationConstPtr()
 {
     DTK_REQUIRE( d_implementation );

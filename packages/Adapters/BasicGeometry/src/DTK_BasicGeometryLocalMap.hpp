@@ -69,6 +69,11 @@ class BasicGeometryLocalMap : public EntityLocalMap
     BasicGeometryLocalMap();
 
     /*!
+     * \brief Destructor.
+     */
+    ~BasicGeometryLocalMap();
+
+    /*!
      * \brief Return the entity measure with respect to the parameteric
      * dimension (volume for a 3D entity, area for 2D, and length for 1D).
      * \param entity Compute the measure for this entity.

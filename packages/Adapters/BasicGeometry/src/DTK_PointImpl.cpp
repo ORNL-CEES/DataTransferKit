@@ -69,6 +69,11 @@ PointImpl::PointImpl( const EntityId global_id,
 }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+PointImpl::~PointImpl()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Get the coordinates of the point.
 void PointImpl::getCoordinates( 
     const Teuchos::ArrayView<double>& coordinates ) const

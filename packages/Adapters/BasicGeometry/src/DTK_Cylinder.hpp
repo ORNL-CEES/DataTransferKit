@@ -76,6 +76,9 @@ class Cylinder : public BasicGeometryEntity
 	      const double centroid_y, 
 	      const double centroid_z );
 
+    // Destructor.
+    ~Cylinder();
+
     //! Get the length of the cylinder.
     double length() const;
 

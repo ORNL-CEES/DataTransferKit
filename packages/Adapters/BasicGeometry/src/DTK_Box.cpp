@@ -96,6 +96,13 @@ Box::Box( const EntityId global_id,
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Destructor.
+ */
+Box::~Box()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Static function for box intersection test.
  *
  * \param box_A box A.

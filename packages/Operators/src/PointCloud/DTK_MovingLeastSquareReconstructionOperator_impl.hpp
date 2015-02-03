@@ -68,6 +68,13 @@ MovingLeastSquareReconstructionOperator(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+template<class Scalar,class Basis,int DIM>
+MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::
+~MovingLeastSquareReconstructionOperator()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar,class Basis,int DIM>
 void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(

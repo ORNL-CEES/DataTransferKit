@@ -55,7 +55,7 @@ class MappingStatus
   public:
 
     MappingStatus() { /* ... */ }
-    virtual ~MappingStatus() = default;
+    virtual ~MappingStatus() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//

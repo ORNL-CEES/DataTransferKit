@@ -58,6 +58,8 @@ class BasicGeometryExtraData : public EntityExtraData
 
     BasicGeometryExtraData( const BasicGeometryEntityImpl* implementation );
 
+    ~BasicGeometryExtraData();
+
     const BasicGeometryEntityImpl* implementationConstPtr();
 
   private:

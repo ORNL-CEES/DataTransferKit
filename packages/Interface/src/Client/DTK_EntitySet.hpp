@@ -75,7 +75,7 @@ class EntitySet
     /*!
      * \brief Destructor.
      */
-    virtual ~EntitySet() = default;
+    virtual ~EntitySet();
 
     //@{
     //! Parallel functions.

@@ -99,6 +99,11 @@ CoarseGlobalSearch::CoarseGlobalSearch(
 }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+CoarseGlobalSearch::~CoarseGlobalSearch()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Redistribute a set of range entity centroid coordinates with their owner
 // ranks to the owning domain process.
 void CoarseGlobalSearch::search( const EntityIterator& range_iterator,

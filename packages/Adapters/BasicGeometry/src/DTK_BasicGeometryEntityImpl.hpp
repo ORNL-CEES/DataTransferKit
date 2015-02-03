@@ -69,6 +69,9 @@ class BasicGeometryEntityImpl : public EntityImpl
     // Default constructor.
     BasicGeometryEntityImpl();
 
+    // Destructor.
+    virtual ~BasicGeometryEntityImpl();
+
     //@{
     //! EntityImpl interface.
     /*!

@@ -52,6 +52,11 @@ EntitySelector::EntitySelector(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+EntitySelector::~EntitySelector()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Get the entity type to select.
 EntityType EntitySelector::entityType() const
 {

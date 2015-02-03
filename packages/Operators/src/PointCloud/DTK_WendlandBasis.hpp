@@ -64,6 +64,10 @@ class WendlandBasis
 	: d_radius( radius )
     { /* ... */ }
 
+    // Destructor.
+    ~WendlandBasis()
+    { /* ... */ }
+
     // Compute the value of the basis at the given value.
     double evaluateValue( const double x ) const;
 

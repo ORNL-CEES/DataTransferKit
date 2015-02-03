@@ -62,6 +62,10 @@ class SearchTreeFactory
     SearchTreeFactory()
     { /* ... */ }
 
+    // Destructor.
+    ~SearchTreeFactory()
+    { /* ... */ }
+
     // Static tree creation method.
     static Teuchos::RCP<StaticSearchTree> createStaticTree(
 	const unsigned dim,

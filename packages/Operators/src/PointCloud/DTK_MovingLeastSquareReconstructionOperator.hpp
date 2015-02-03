@@ -81,6 +81,9 @@ class MovingLeastSquareReconstructionOperator : public MapOperator<Scalar>
 	const Teuchos::RCP<const TpetraMap>& domain_map,
 	const Teuchos::RCP<const TpetraMap>& range_map );
 
+    //! Destructor.
+    ~MovingLeastSquareReconstructionOperator();
+
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.

@@ -67,7 +67,7 @@ class EntityImpl
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityImpl() = default;
+    virtual ~EntityImpl();
 
     /*!
      * \brief Get the entity type.

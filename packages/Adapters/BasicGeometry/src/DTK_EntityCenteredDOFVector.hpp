@@ -71,6 +71,12 @@ class EntityCenteredDOFVector
     { /* ... */ }
 
     /*!
+     * \brief Destructor.
+     */
+    ~EntityCenteredDOFVector()
+    { /* ... */ }
+
+    /*!
      * \brief Given a set of entity ids and DOF data bound to the center of
      * those entites, build a Tpetra vector and copy the data into the
      * vector.

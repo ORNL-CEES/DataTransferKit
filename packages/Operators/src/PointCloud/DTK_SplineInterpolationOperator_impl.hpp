@@ -78,6 +78,12 @@ SplineInterpolationOperator<Scalar,Basis,DIM>::SplineInterpolationOperator(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+template<class Scalar,class Basis,int DIM>
+SplineInterpolationOperator<Scalar,Basis,DIM>::~SplineInterpolationOperator()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar,class Basis,int DIM>
 void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
@@ -191,11 +197,6 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
     Teuchos::updateParametersFromXmlString(
       "<ParameterList name=\"Stratimikos\">"
         "<Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Belos\"/>"
-        "<ParameterList name=\"Linear Solver Types\">"
-          "<ParameterList name=\"Belos\">"
-            "<Parameter name=\"Solver Type\" type=\"string\" value=\"Block GMRES\"/>"
-          "</ParameterList>"
-        "</ParameterList>"
         "<Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>"
       "</ParameterList>"
       ,

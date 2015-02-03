@@ -56,6 +56,12 @@ MapOperator<Scalar>::MapOperator(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+template<class Scalar>
+MapOperator<Scalar>::~MapOperator()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar>
 void MapOperator<Scalar>::setup(

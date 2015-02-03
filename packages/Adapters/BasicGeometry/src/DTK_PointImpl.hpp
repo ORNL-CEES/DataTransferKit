@@ -86,6 +86,9 @@ class PointImpl : public BasicGeometryEntityImpl
 	       const Teuchos::Array<int>& block_ids,
 	       const Teuchos::Array<int>& boundary_ids );
 
+    // Destructor.
+    ~PointImpl();
+
     //@{
     //! Coordinate access functions.
     // Get the coordinates of the point.

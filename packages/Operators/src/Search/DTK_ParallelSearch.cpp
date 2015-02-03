@@ -83,6 +83,11 @@ ParallelSearch::ParallelSearch(
 }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+ParallelSearch::~ParallelSearch()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Search the domain with the range entity centroids and construct the
 // graph. This will update the state of the object.
 void ParallelSearch::search( 

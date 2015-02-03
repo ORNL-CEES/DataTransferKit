@@ -82,6 +82,10 @@ class SplineCoefficientMatrix
 	const SplineInterpolationPairing<DIM>& source_pairings,
 	const Basis& basis );
 
+    //! Destructor.
+    ~SplineCoefficientMatrix()
+    { /* ... */ }
+
     // Get the basis component.
     Teuchos::RCP<Tpetra::Operator<double,int,std::size_t> > getM()
     { return d_M; }
