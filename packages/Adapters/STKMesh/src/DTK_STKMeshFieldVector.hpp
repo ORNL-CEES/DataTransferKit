@@ -84,6 +84,12 @@ class STKMeshFieldVector
 			const int field_dim );
 
     /*!
+     * \brief Destructor.
+     */
+    ~STKMeshFieldVector()
+    { /* ... */ }
+
+    /*!
      * \brief Get the vector over the field.
      */
     Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > getVector() const

@@ -54,6 +54,11 @@ MoabEntityLocalMap::MoabEntityLocalMap(
 }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+MoabEntityLocalMap::~MoabEntityLocalMap()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
 // for a 3D entity, area for 2D, and length for 1D). 
 double MoabEntityLocalMap::measure( const Entity& entity ) const

@@ -80,6 +80,12 @@ class MoabTagVector
 		   const moab::Tag& tag );
 
     /*!
+     * \brief Destructor.
+     */
+    ~MoabTagVector()
+    { /* ... */ }
+
+    /*!
      * \brief Get the vector over the tag.
      */
     Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > getVector() const

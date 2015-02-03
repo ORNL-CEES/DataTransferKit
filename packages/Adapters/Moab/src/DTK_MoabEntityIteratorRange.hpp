@@ -59,6 +59,8 @@ class MoabEntityIteratorRange
 
     MoabEntityIteratorRange() { /* ... */ }
 
+    ~MoabEntityIteratorRange() { /* ... */ }
+
     // Moab entity range.
     std::vector<moab::EntityHandle> d_moab_entities;
 };

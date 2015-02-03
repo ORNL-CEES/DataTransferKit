@@ -95,6 +95,11 @@ class MoabManager
 		 const EntityType entity_type );
 
     /*!
+     * \brief Destructor.
+     */
+    ~MoabManager();
+
+    /*!
      * \brief Get the function space over which the mesh and its fields are
      * defined. 
      */

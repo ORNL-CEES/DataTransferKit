@@ -66,6 +66,11 @@ class MoabMeshSetIndexer
     MoabMeshSetIndexer( const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
 
     /*!
+     * \brief Destructor.
+     */
+     ~MoabMeshSetIndexer();
+
+    /*!
      * \brief Given an entity set handle, get the integer index in the mesh.
      */
     int getIndexFromMeshSet( const moab::EntityHandle mesh_set ) const;

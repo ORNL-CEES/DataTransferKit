@@ -76,7 +76,8 @@ class MoabMeshSetPredicate
     MoabMeshSetPredicate( const std::vector<moab::EntityHandle>& mesh_sets,
 			  const Teuchos::RCP<MoabMeshSetIndexer>& set_indexer );
 
-    // Functor.
+    ~MoabMeshSetPredicate() { /* ... */ }
+
     bool operator()( Entity entity );
 
     std::function<bool(Entity)> getFunction() const

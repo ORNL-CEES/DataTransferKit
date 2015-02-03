@@ -54,6 +54,11 @@ STKMeshEntity::STKMeshEntity(
 }
 
 //---------------------------------------------------------------------------//
+//brief Destructor.
+STKMeshEntity::~STKMeshEntity()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

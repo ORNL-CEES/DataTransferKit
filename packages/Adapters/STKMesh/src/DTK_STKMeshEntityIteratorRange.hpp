@@ -59,6 +59,8 @@ class STKMeshEntityIteratorRange
 
     STKMeshEntityIteratorRange() { /* ... */ }
 
+    ~STKMeshEntityIteratorRange() { /* ... */ }
+
     // STK mesh entity range.
     std::vector<stk::mesh::Entity> d_stk_entities;
 };

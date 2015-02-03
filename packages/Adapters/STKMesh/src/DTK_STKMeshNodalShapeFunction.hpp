@@ -77,6 +77,11 @@ class STKMeshNodalShapeFunction : public EntityShapeFunction
 	const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
 
     /*!
+     * \brief Destructor.
+     */
+    ~STKMeshNodalShapeFunction();
+
+    /*!
      * \brief Given an entity, get the ids of the degrees of freedom in the
      * vector space supporting its shape function.
      * \param entity Get the degrees of freedom for this entity.

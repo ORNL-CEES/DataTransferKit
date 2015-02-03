@@ -75,6 +75,11 @@ class MoabEntitySet : public EntitySet
      */
     MoabEntitySet( const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
 
+    /*!
+     * \brief Destructor.
+     */
+    ~MoabEntitySet();
+
     //@{
     //! Parallel functions.
     /*!

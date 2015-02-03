@@ -75,7 +75,7 @@ class IntrepidCell
 		  const unsigned degree );
 
     // Destructor.
-    virtual ~IntrepidCell() = default;
+    virtual ~IntrepidCell();
 
     // Given physical coordinates for the cell nodes (Cell,Node,Dim), assign
     // them to the cell without allocating internal data.

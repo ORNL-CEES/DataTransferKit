@@ -63,6 +63,9 @@ class IntrepidBasisFactory
     // Constructor.
     IntrepidBasisFactory() { /* ... */ }
 
+    // Destructor.
+    ~IntrepidBasisFactory() { /* ... */ }
+
     // Creation method.
     static Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
     create( const shards::CellTopology& cell_topo );

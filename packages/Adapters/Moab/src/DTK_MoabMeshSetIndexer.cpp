@@ -69,6 +69,11 @@ MoabMeshSetIndexer::MoabMeshSetIndexer(
 }
 
 //---------------------------------------------------------------------------//
+// Destructor.
+MoabMeshSetIndexer::~MoabMeshSetIndexer()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 // Given an entity set handle, get the integer index in the mesh.
 int MoabMeshSetIndexer::getIndexFromMeshSet( 
     const moab::EntityHandle mesh_set ) const

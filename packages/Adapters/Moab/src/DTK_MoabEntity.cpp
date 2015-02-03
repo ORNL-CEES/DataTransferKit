@@ -54,6 +54,11 @@ MoabEntity::MoabEntity( const moab::EntityHandle& moab_entity,
 }
 
 //---------------------------------------------------------------------------//
+//brief Destructor.
+MoabEntity::~MoabEntity()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

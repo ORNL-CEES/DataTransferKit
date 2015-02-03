@@ -75,6 +75,11 @@ class MoabNodalShapeFunction : public EntityShapeFunction
 	const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
 
     /*!
+     * \brief Destructor.
+     */
+    ~MoabNodalShapeFunction();
+
+    /*!
      * \brief Given an entity, get the ids of the degrees of freedom in the
      * vector space supporting its shape function.
      * \param entity Get the degrees of freedom for this entity.

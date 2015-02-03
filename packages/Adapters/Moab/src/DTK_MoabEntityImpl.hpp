@@ -71,6 +71,11 @@ class MoabEntityImpl : public EntityImpl
 		    const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer );
 
     /*!
+     * \brief Destructor.
+     */
+    ~MoabEntityImpl();
+
+    /*!
      * \brief Get the entity type.
      * \return The entity type.
      */

@@ -73,6 +73,11 @@ class STKMeshHelpers
     STKMeshHelpers() { /* ... */ } 
 
     /*!
+     * \brief Destructor.
+     */
+    ~STKMeshHelpers() { /* ... */ }
+
+    /*!
      * \brief Given a DTK entity, extract the STK entity.
      */
     static const stk::mesh::Entity& extractEntity( const Entity dtk_entity );

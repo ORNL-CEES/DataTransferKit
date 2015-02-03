@@ -78,6 +78,13 @@ IntrepidCell::IntrepidCell(
 
 //---------------------------------------------------------------------------//
 /*!
+ * \brief Destructor.
+ */
+IntrepidCell::~IntrepidCell()
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
  * \brief Given physical coordinates for the cell nodes (Cell,Node,Dim),
  * assign them to the cell without allocating internal data.
  */
