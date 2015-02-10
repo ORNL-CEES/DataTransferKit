@@ -83,6 +83,15 @@ DTK has the following packages:
       <https://rsicc.ornl.gov/codes/ccc/ccc7/ccc-793.html>
 
 
+Questions, Bug Reporting, and Issue Tracking
+============================================
+
+Questions, bug reporting and issue tracking are provided by
+GitHub. Please report all bugs by creating a new issue. You can ask
+questions by emailing the developers or by creating a issue with the
+question tag.
+
+
 Dependencies
 ============
 
@@ -123,15 +132,6 @@ repository which can be found at
 <https://github.com/ORNL-CEES/DTKData>. Simply check out the
 repository into the top level DataTransferKit directory or provide a
 soft link of to the location of the repository.
-
-
-Questions, Bug Reporting, and Issue Tracking
-============================================
-
-Questions, bug reporting and issue tracking are provided by
-GitHub. Please report all bugs by creating a new issue. You can ask
-questions by emailing the developers or by creating a issue with the
-question tag.
 
 
 Building DTK
