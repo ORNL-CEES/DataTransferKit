@@ -214,7 +214,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
 	Thyra::add<Scalar>( thyra_Q, thyra_N );
 
     // Create the coupling matrix A = (B * C^-1 * S).
-    d_coupling_matrix = 
+    d_coupling_matrix =
 	Thyra::multiply<Scalar>( thyra_B, thyra_C_inv, thyra_S );
     DTK_ENSURE( Teuchos::nonnull(d_coupling_matrix) );
 }

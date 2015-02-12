@@ -32,9 +32,9 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   tstMovingLeastSquare.cpp
+ * \file   tstSplineInterpolation.cpp
  * \author Stuart R. Slattery
- * \brief  MovingLeastSquare tests.
+ * \brief  SplineInterpolation tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -138,8 +138,9 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
 
     // Make a spline interpolation operator.
     Teuchos::RCP<DataTransferKit::MapOperator<double> > spline_op =
-	Teuchos::rcp( 
-	    new DataTransferKit::SplineInterpolationOperator<double,DataTransferKit::WuBasis<2>,space_dim>(domain_vector->getMap(),range_vector->getMap()) );
+	Teuchos::rcp( new DataTransferKit::SplineInterpolationOperator<
+		      double,DataTransferKit::WuBasis<2>,space_dim
+		      >(domain_vector->getMap(),range_vector->getMap()) );
 
     // Setup the operator.
     spline_op->setup( domain_manager.functionSpace(),
@@ -161,5 +162,5 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
 }
 
 //---------------------------------------------------------------------------//
-// end tstMovingLeastSquare.cpp
+// end tstSplineInterpolation.cpp
 //---------------------------------------------------------------------------//
