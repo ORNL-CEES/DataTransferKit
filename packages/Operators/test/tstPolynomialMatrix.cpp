@@ -76,7 +76,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // Floating point epsilon.
 //---------------------------------------------------------------------------//
 
-const double epsilon = 10.0*std::numeric_limits<double>::epsilon();
+const double epsilon = 100.0*std::numeric_limits<double>::epsilon();
 
 //---------------------------------------------------------------------------//
 // Unit tests.
