@@ -80,7 +80,7 @@ class MoabEntityLocalMap : public EntityLocalMap
      * \param entity Compute the measure for this entity.
      * \return The measure of the entity.
      */
-    double measure( const Entity& entity ) const;
+    double measure( const Entity& entity ) const override;
 
     /*!
      * \brief Return the centroid of the entity.
@@ -88,7 +88,7 @@ class MoabEntityLocalMap : public EntityLocalMap
      * be allocated. Assign a view of your centroid to this view.
      */
     void centroid( const Entity& entity,
-		   const Teuchos::ArrayView<double>& centroid ) const;
+		   const Teuchos::ArrayView<double>& centroid ) const override;
 
     /*!
      * \brief (Safeguard the reverse map) Perform a safeguard check for
@@ -105,7 +105,7 @@ class MoabEntityLocalMap : public EntityLocalMap
     bool isSafeToMapToReferenceFrame(
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const;
+	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const override;
 
     /*!
      * \brief (Reverse Map) Map a point to the reference space of an
@@ -124,7 +124,7 @@ class MoabEntityLocalMap : public EntityLocalMap
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& point,
 	const Teuchos::ArrayView<double>& reference_point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const;
+	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const override;
 
     /*!  
      * \brief Determine if a reference point is in the parameterized space of
@@ -137,7 +137,7 @@ class MoabEntityLocalMap : public EntityLocalMap
      */
     bool checkPointInclusion( 
 	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
+	const Teuchos::ArrayView<const double>& reference_point ) const override;
 
     /*!
      * \brief (Forward Map) Map a reference point to the physical space of an
@@ -151,7 +151,7 @@ class MoabEntityLocalMap : public EntityLocalMap
     void mapToPhysicalFrame( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
+	const Teuchos::ArrayView<double>& point ) const override;
 
     /*!
      * \brief Compute the normal on a face (3D) or edge (2D) at a given
@@ -165,7 +165,7 @@ class MoabEntityLocalMap : public EntityLocalMap
     void normalAtReferencePoint( 
         const Entity& entity,
         const Teuchos::ArrayView<double>& reference_point,
-        const Teuchos::ArrayView<double>& normal ) const;
+        const Teuchos::ArrayView<double>& normal ) const override;
 
   private:
 

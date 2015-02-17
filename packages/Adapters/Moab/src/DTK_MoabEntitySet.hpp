@@ -86,7 +86,7 @@ class MoabEntitySet : public EntitySet
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
      */
-    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const;
+    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const override;
     //@}
 
     //@{
@@ -96,7 +96,7 @@ class MoabEntitySet : public EntitySet
      * set.  
      * \return The physical dimension of the set.
      */
-    int physicalDimension() const;
+    int physicalDimension() const override;
     //@}
 
     //@{
@@ -108,7 +108,7 @@ class MoabEntitySet : public EntitySet
      */
     void getEntity( const EntityType entity_type,
 		    const EntityId entity_id, 
-		    Entity& entity ) const;
+		    Entity& entity ) const override;
 
     /*!
      * \brief Get a iterator of the given entity type that satisfy the given
@@ -119,7 +119,7 @@ class MoabEntitySet : public EntitySet
      */
     EntityIterator entityIterator( 
 	const EntityType entity_type,
-	const std::function<bool(Entity)>& predicate ) const;
+	const std::function<bool(Entity)>& predicate ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
@@ -128,7 +128,7 @@ class MoabEntitySet : public EntitySet
     void getAdjacentEntities(
 	const Entity& entity,
 	const EntityType entity_type,
-	Teuchos::Array<Entity>& adjacent_entities ) const;
+	Teuchos::Array<Entity>& adjacent_entities ) const override;
     //@}
 
     //! Get the mesh set indexer.
