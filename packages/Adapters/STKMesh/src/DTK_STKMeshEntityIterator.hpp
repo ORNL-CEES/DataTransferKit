@@ -94,29 +94,29 @@ class STKMeshEntityIterator : public EntityIterator
     ~STKMeshEntityIterator();
 
     // Pre-increment operator.
-    EntityIterator& operator++();
+    EntityIterator& operator++() override;
 
     // Dereference operator.
-    Entity& operator*(void);
+    Entity& operator*(void) override;
 
     // Dereference operator.
-    Entity* operator->(void);
+    Entity* operator->(void) override;
 
     // Equal comparison operator.
-    bool operator==( const EntityIterator& rhs ) const;
+    bool operator==( const EntityIterator& rhs ) const override;
 
     // Not equal comparison operator.
-    bool operator!=( const EntityIterator& rhs ) const;
+    bool operator!=( const EntityIterator& rhs ) const override;
 
     // An iterator assigned to the first valid element in the iterator.
-    EntityIterator begin() const;
+    EntityIterator begin() const override;
 
     // An iterator assigned to the end of all elements under the iterator.
-    EntityIterator end() const;
+    EntityIterator end() const override;
 
     // Create a clone of the iterator. We need this for the copy constructor
     // and assignment operator to pass along the underlying implementation.
-    EntityIterator* clone() const;
+    EntityIterator* clone() const override;
 
   private:
 
