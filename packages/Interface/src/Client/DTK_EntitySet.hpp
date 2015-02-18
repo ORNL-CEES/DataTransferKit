@@ -141,7 +141,7 @@ class EntitySet
      */
     virtual void getAdjacentEntities(
 	const Entity& entity,
-	const EntityType entity_type,
+	const EntityType adjacent_entity_type,
 	Teuchos::Array<Entity>& adjacent_entities ) const;
     //@}
 };

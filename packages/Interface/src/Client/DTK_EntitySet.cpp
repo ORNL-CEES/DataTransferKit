@@ -146,7 +146,7 @@ EntityIterator EntitySet::entityIterator(
 // it. 
 void EntitySet::getAdjacentEntities(
     const Entity& entity,
-    const EntityType entity_type,
+    const EntityType adjacent_entity_type,
     Teuchos::Array<Entity>& adjacent_entities ) const
 {
     bool not_implemented = true;
