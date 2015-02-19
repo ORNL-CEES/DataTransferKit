@@ -133,7 +133,7 @@ class EntitySet
     /*!
      * \brief Select all entities predicate.
      */
-    static inline bool selectAll( Entity entity ) { return true; }
+    static inline bool selectAll( Entity ) { return true; }
 
     /*!
      * \brief Given an entity, get the entities of the given type that are

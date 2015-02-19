@@ -55,8 +55,6 @@
 #include "Teuchos_DefaultComm.hpp"
 #include <Teuchos_DefaultMpiComm.hpp>
 
-#include <Tpetra_MultiVector.hpp>
-
 #include <stk_mesh/base/MetaData.hpp>
 #include <stk_mesh/base/BulkData.hpp>
 #include <stk_mesh/base/FieldBase.hpp>

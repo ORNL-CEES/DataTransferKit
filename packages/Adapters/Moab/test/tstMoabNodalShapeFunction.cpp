@@ -55,8 +55,6 @@
 #include "Teuchos_DefaultComm.hpp"
 #include <Teuchos_DefaultMpiComm.hpp>
 
-#include <Tpetra_MultiVector.hpp>
-
 #include <MBInterface.hpp>
 #include <MBParallelComm.hpp>
 #include <MBCore.hpp>
