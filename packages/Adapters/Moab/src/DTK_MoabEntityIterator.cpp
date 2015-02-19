@@ -55,8 +55,8 @@ MoabEntityIterator::MoabEntityIterator()
 // Constructor.
 MoabEntityIterator::MoabEntityIterator(
     const Teuchos::RCP<MoabEntityIteratorRange>& entity_range,
-    const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-    const Teuchos::RCP<MoabMeshSetIndexer>& set_indexer,
+    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
+    const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer,
     const std::function<bool(Entity)>& predicate )
     : d_entity_range( entity_range )
     , d_moab_entity_it( d_entity_range->d_moab_entities.begin() )
@@ -126,7 +126,7 @@ Entity& MoabEntityIterator::operator*(void)
 Entity* MoabEntityIterator::operator->(void)
 {
     d_current_entity = 
-	MoabEntity( *d_moab_entity_it, d_moab_mesh.ptr(), d_set_indexer.ptr() );
+	MoabEntity( *d_moab_entity_it, d_moab_mesh, d_set_indexer );
     return &d_current_entity;
 }
 

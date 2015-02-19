@@ -109,7 +109,7 @@ EntityIterator MoabEntitySet::entityIterator(
 	    iterator_range->d_moab_entities )
 	);
     return MoabEntityIterator( 
-	iterator_range, d_moab_mesh, d_set_indexer, predicate );
+	iterator_range, d_moab_mesh.ptr(), d_set_indexer.ptr(), predicate );
 }
 
 //---------------------------------------------------------------------------//

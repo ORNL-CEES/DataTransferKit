@@ -50,6 +50,7 @@
 #include "DTK_MoabMeshSetIndexer.hpp"
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Ptr.hpp>
 
 #include <MBParallelComm.hpp>
 
@@ -75,8 +76,8 @@ class MoabEntityIterator : public EntityIterator
      */
     MoabEntityIterator( 
 	const Teuchos::RCP<MoabEntityIteratorRange>& entity_range,
-	const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-	const Teuchos::RCP<MoabMeshSetIndexer>& set_indexer,
+	const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
+	const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer,
 	const std::function<bool(Entity)>& predicate );
 
     /*!
@@ -128,10 +129,10 @@ class MoabEntityIterator : public EntityIterator
     std::vector<moab::EntityHandle>::const_iterator d_moab_entity_it;
 
     // The mesh owning the entities.
-    Teuchos::RCP<moab::ParallelComm> d_moab_mesh;
+    Teuchos::Ptr<moab::ParallelComm> d_moab_mesh;
 
     // Mesh set indexer.
-    Teuchos::RCP<MoabMeshSetIndexer> d_set_indexer;
+    Teuchos::Ptr<MoabMeshSetIndexer> d_set_indexer;
 
     // Current entity.
     Entity d_current_entity;
