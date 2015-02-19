@@ -41,8 +41,6 @@
 #ifndef DTK_MOABENTITYLOCALMAP_HPP
 #define DTK_MOABENTITYLOCALMAP_HPP
 
-#include <unordered_map>
-
 #include "DTK_EntityLocalMap.hpp"
 
 #include <Teuchos_RCP.hpp>

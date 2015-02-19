@@ -41,8 +41,6 @@
 #ifndef DTK_STKMESHENTITYLOCALMAP_HPP
 #define DTK_STKMESHENTITYLOCALMAP_HPP
 
-#include <unordered_map>
-
 #include "DTK_EntityLocalMap.hpp"
 #include "DTK_IntrepidCell.hpp"
 
