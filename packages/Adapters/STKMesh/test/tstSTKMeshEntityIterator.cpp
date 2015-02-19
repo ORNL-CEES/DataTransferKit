@@ -194,7 +194,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     iterator_range->d_stk_entities = hex_entities;
     DataTransferKit::EntityIterator entity_iterator = 
 	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data, all_pred );
+	    iterator_range, bulk_data.ptr(), all_pred );
 
     // Test the entity iterator.
     TEST_EQUALITY( entity_iterator.size(), num_hex );
@@ -265,7 +265,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     DataTransferKit::STKSelectorPredicate part_1_pred( select_1 );
     DataTransferKit::EntityIterator part_1_iterator =
 	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data, part_1_pred.getFunction() );
+	    iterator_range, bulk_data.ptr(), part_1_pred.getFunction() );
     TEST_EQUALITY( part_1_iterator.size(), num_hex );
 
     // Make an iterator with a part 2 predicate.
@@ -273,7 +273,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     DataTransferKit::STKSelectorPredicate part_2_pred( select_2 );
     DataTransferKit::EntityIterator part_2_iterator =
 	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data, part_2_pred.getFunction() );
+	    iterator_range, bulk_data.ptr(), part_2_pred.getFunction() );
     TEST_EQUALITY( part_2_iterator.size(), 0 );
 }
 

@@ -49,6 +49,7 @@
 #include "DTK_STKMeshEntityIteratorRange.hpp"
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Ptr.hpp>
 
 #include <stk_mesh/base/Entity.hpp>
 #include <stk_mesh/base/BulkData.hpp>
@@ -75,7 +76,7 @@ class STKMeshEntityIterator : public EntityIterator
      */
     STKMeshEntityIterator( 
 	const Teuchos::RCP<STKMeshEntityIteratorRange>& entity_range,
-	const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
+	const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data,
 	const std::function<bool(Entity)>& predicate );
 
     /*!
@@ -127,7 +128,7 @@ class STKMeshEntityIterator : public EntityIterator
     std::vector<stk::mesh::Entity>::const_iterator d_stk_entity_it;
 
     // The bulk data owning the entities.
-    Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
+    Teuchos::Ptr<stk::mesh::BulkData> d_bulk_data;
 
     // Current entity.
     Entity d_current_entity;

@@ -55,7 +55,7 @@ STKMeshEntityIterator::STKMeshEntityIterator()
 // Constructor.
 STKMeshEntityIterator::STKMeshEntityIterator(
     const Teuchos::RCP<STKMeshEntityIteratorRange>& entity_range,
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
+    const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data,
     const std::function<bool(Entity)>& predicate )
     : d_entity_range( entity_range )
     , d_stk_entity_it( d_entity_range->d_stk_entities.begin() )
@@ -122,7 +122,7 @@ Entity& STKMeshEntityIterator::operator*(void)
 Entity* STKMeshEntityIterator::operator->(void)
 {
     d_current_entity = 
-	STKMeshEntity( *d_stk_entity_it, d_bulk_data.ptr() );
+	STKMeshEntity( *d_stk_entity_it, d_bulk_data );
     return &d_current_entity;
 }
 
