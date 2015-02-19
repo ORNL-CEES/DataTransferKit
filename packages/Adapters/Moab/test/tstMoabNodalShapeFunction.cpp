@@ -61,7 +61,7 @@
 
 //---------------------------------------------------------------------------//
 // Hex-8 test.
-TEUCHOS_UNIT_TEST( MoabEntitySet, hex_8_test )
+TEUCHOS_UNIT_TEST( MoabNodalShapeFunction, hex_8_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 
