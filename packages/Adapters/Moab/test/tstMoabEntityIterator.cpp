@@ -186,7 +186,7 @@ TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
     iterator_range->d_moab_entities = hex_entities;
     DataTransferKit::EntityIterator entity_iterator = 
 	DataTransferKit::MoabEntityIterator(
-	    iterator_range, parallel_mesh, set_indexer, all_pred );
+	    iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), all_pred );
 
     // Test the entity iterator.
     TEST_EQUALITY( entity_iterator.size(), num_hex );
@@ -260,14 +260,14 @@ TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
     DataTransferKit::MoabMeshSetPredicate set_1_pred( entity_set_1, set_indexer );
     DataTransferKit::EntityIterator set_1_iterator =
 	DataTransferKit::MoabEntityIterator(
-	    iterator_range, parallel_mesh, set_indexer, set_1_pred.getFunction() );
+	    iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), set_1_pred.getFunction() );
     TEST_EQUALITY( set_1_iterator.size(), num_hex );
 
     // Make an iterator with a part 2 predicate.
     DataTransferKit::MoabMeshSetPredicate set_2_pred( entity_set_2, set_indexer );
     DataTransferKit::EntityIterator set_2_iterator =
 	DataTransferKit::MoabEntityIterator(
-	    iterator_range, parallel_mesh, set_indexer, set_2_pred.getFunction() );
+	    iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), set_2_pred.getFunction() );
     TEST_EQUALITY( set_2_iterator.size(), 0 );
 }
 

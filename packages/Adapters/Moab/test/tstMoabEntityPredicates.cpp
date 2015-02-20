@@ -185,14 +185,14 @@ TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
     DataTransferKit::MoabMeshSetPredicate set_1_pred( entity_set_1, set_indexer );
     DataTransferKit::EntityIterator set_1_iterator =
 	DataTransferKit::MoabEntityIterator(
-	    iterator_range, parallel_mesh, set_indexer, set_1_pred.getFunction() );
+	    iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), set_1_pred.getFunction() );
     TEST_EQUALITY( set_1_iterator.size(), num_hex );
 
     // Test the predicate for set 2.
     DataTransferKit::MoabMeshSetPredicate set_2_pred( entity_set_2, set_indexer );
     DataTransferKit::EntityIterator set_2_iterator =
 	DataTransferKit::MoabEntityIterator(
-	    iterator_range, parallel_mesh, set_indexer, set_2_pred.getFunction() );
+	    iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), set_2_pred.getFunction() );
     TEST_EQUALITY( set_2_iterator.size(), 0 );
 
     // Test the vector predicate for part 1.
@@ -200,7 +200,7 @@ TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
     DataTransferKit::MoabMeshSetPredicate entity_set_1_vec_pred( p1_vec, set_indexer );
     DataTransferKit::EntityIterator entity_set_1_vec_iterator =
 	DataTransferKit::MoabEntityIterator(
-	    iterator_range, parallel_mesh, set_indexer, entity_set_1_vec_pred.getFunction() );
+	    iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), entity_set_1_vec_pred.getFunction() );
     TEST_EQUALITY( entity_set_1_vec_iterator.size(), num_hex );
 
     // Test the vector predicate for part 2.
@@ -208,7 +208,7 @@ TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
     DataTransferKit::MoabMeshSetPredicate entity_set_2_vec_pred( p2_vec, set_indexer );
     DataTransferKit::EntityIterator entity_set_2_vec_iterator =
 	DataTransferKit::MoabEntityIterator(
-	    iterator_range, parallel_mesh, set_indexer, entity_set_2_vec_pred.getFunction() );
+	    iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), entity_set_2_vec_pred.getFunction() );
     TEST_EQUALITY( entity_set_2_vec_iterator.size(), 0 );
 
     // Test a vector with 2 part 1's.
@@ -216,7 +216,7 @@ TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
     DataTransferKit::MoabMeshSetPredicate entity_set_11_vec_pred( p11_vec, set_indexer );
     DataTransferKit::EntityIterator entity_set_11_vec_iterator =
 	DataTransferKit::MoabEntityIterator(
-	    iterator_range, parallel_mesh, set_indexer, entity_set_11_vec_pred.getFunction() );
+	    iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), entity_set_11_vec_pred.getFunction() );
     TEST_EQUALITY( entity_set_11_vec_iterator.size(), num_hex );
 
     // Test a vector with a part 1 and part 2
@@ -226,7 +226,7 @@ TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
     DataTransferKit::MoabMeshSetPredicate entity_set_12_vec_pred( p12_vec, set_indexer );
     DataTransferKit::EntityIterator entity_set_12_vec_iterator =
 	DataTransferKit::MoabEntityIterator(
-	    iterator_range, parallel_mesh, set_indexer, entity_set_12_vec_pred.getFunction() );
+	    iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), entity_set_12_vec_pred.getFunction() );
     TEST_EQUALITY( entity_set_12_vec_iterator.size(), 0 );
 }
 

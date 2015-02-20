@@ -32,9 +32,9 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file tstSTKMeshEntityIterator.cpp
+ * \file tstSTKMeshEntityPredicates.cpp
  * \author Stuart R. Slattery
- * \brief STKMeshEntityIterator unit tests.
+ * \brief STKMeshEntityPredicates unit tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -193,7 +193,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
 	Teuchos::Array<std::string>(1,p1_name), bulk_data );
     DataTransferKit::EntityIterator part_1_name_iterator =
 	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data, part_1_name_pred.getFunction() );
+	    iterator_range, bulk_data.ptr(), part_1_name_pred.getFunction() );
     TEST_EQUALITY( part_1_name_iterator.size(), num_hex );
 
     // Test the name predicate for part 2.
@@ -201,7 +201,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
 	Teuchos::Array<std::string>(2,p2_name), bulk_data );
     DataTransferKit::EntityIterator part_2_name_iterator =
 	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data, part_2_name_pred.getFunction() );
+	    iterator_range, bulk_data.ptr(), part_2_name_pred.getFunction() );
     TEST_EQUALITY( part_2_name_iterator.size(), 0 );
 
     // Test the part vector predicate for part 1.
@@ -209,7 +209,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     DataTransferKit::STKPartVectorPredicate part_1_vec_pred( p1_vec );
     DataTransferKit::EntityIterator part_1_vec_iterator =
 	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data, part_1_vec_pred.getFunction() );
+	    iterator_range, bulk_data.ptr(), part_1_vec_pred.getFunction() );
     TEST_EQUALITY( part_1_vec_iterator.size(), num_hex );
 
     // Test the part vector predicate for part 2.
@@ -217,7 +217,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     DataTransferKit::STKPartVectorPredicate part_2_vec_pred( p2_vec );
     DataTransferKit::EntityIterator part_2_vec_iterator =
 	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data, part_2_vec_pred.getFunction() );
+	    iterator_range, bulk_data.ptr(), part_2_vec_pred.getFunction() );
     TEST_EQUALITY( part_2_vec_iterator.size(), 0 );
 
     // Test a part vector with 2 part 1's.
@@ -225,7 +225,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     DataTransferKit::STKPartVectorPredicate part_11_vec_pred( p11_vec );
     DataTransferKit::EntityIterator part_11_vec_iterator =
 	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data, part_11_vec_pred.getFunction() );
+	    iterator_range, bulk_data.ptr(), part_11_vec_pred.getFunction() );
     TEST_EQUALITY( part_11_vec_iterator.size(), num_hex );
 
     // Test a part vector with a part 1 and part 2
@@ -235,7 +235,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     DataTransferKit::STKPartVectorPredicate part_12_vec_pred( p12_vec );
     DataTransferKit::EntityIterator part_12_vec_iterator =
 	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data, part_12_vec_pred.getFunction() );
+	    iterator_range, bulk_data.ptr(), part_12_vec_pred.getFunction() );
     TEST_EQUALITY( part_12_vec_iterator.size(), 0 );
 
     // Test the part selector predicate for part 1.
@@ -243,7 +243,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     DataTransferKit::STKSelectorPredicate part_1_sel_pred( p1_sel );
     DataTransferKit::EntityIterator part_1_sel_iterator =
 	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data, part_1_sel_pred.getFunction() );
+	    iterator_range, bulk_data.ptr(), part_1_sel_pred.getFunction() );
     TEST_EQUALITY( part_1_sel_iterator.size(), num_hex );
 
     // Test the part selector predicate for part 2.
@@ -251,10 +251,10 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     DataTransferKit::STKSelectorPredicate part_2_sel_pred( p2_sel );
     DataTransferKit::EntityIterator part_2_sel_iterator =
 	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data, part_2_sel_pred.getFunction() );
+	    iterator_range, bulk_data.ptr(), part_2_sel_pred.getFunction() );
     TEST_EQUALITY( part_2_sel_iterator.size(), 0 );
 }
 
 //---------------------------------------------------------------------------//
-// end tstSTKMeshEntityIterator.cpp
+// end tstSTKMeshEntityPredicates.cpp
 //---------------------------------------------------------------------------//
