@@ -64,7 +64,7 @@ class SelectAllPredicate
 
     ~SelectAllPredicate() { /* ... */ }
 
-    bool operator()( Entity entity ) { return true; }
+    bool operator()( Entity /*entity*/ ) { return true; }
 
     std::function<bool(Entity)> getFunction() const
     { return std::function<bool(Entity)>(*this); }

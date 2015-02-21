@@ -69,7 +69,7 @@ MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
 }
 
 //---------------------------------------------------------------------------//
-//! Part name constructor.
+//! Mesh set constructor.
 MoabManager::MoabManager(
     const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
     const moab::EntityHandle& mesh_set,

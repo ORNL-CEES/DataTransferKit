@@ -34,7 +34,7 @@
 /*!
  * \brief DTK_MoabManager.hpp
  * \author Stuart R. Slattery
- * \brief High-level manager for STK mesh.
+ * \brief High-level manager for Moab mesh.
  */
 //---------------------------------------------------------------------------//
 
@@ -74,8 +74,6 @@ class MoabManager
      *
      * \param entity_type The type of entities in the mesh that will be
      * mapped. 
-     *
-     * \param basis_type The type of basis function space to use.
      */
     MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
 		 const EntityType entity_type );
