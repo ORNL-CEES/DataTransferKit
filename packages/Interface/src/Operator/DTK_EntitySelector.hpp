@@ -87,7 +87,7 @@ class EntitySelector
     /*!
      * \brief Default select function.
      */
-    static inline bool selectAll( Entity entity ) { return true; }
+    static inline bool selectAll( Entity ) { return true; }
 
   private:
 
