@@ -327,7 +327,7 @@ int GeometryRCB<Geometry,GlobalOrdinal>::getNumGeometry( void *data, int *ierr )
 template<class Geometry, class GlobalOrdinal>
 void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
     void *data, int sizeGID, int sizeLID,
-    int num_obj,
+    int /*num_obj*/,
     ZOLTAN_ID_PTR /*globalID*/, ZOLTAN_ID_PTR /*localID*/,
     int num_dim, double *geom_vec, int *ierr )
 {
@@ -374,8 +374,6 @@ void GeometryRCB<Geometry,GlobalOrdinal>::getGeometryList(
 		++n;
 	    }
 	}
-
-	testPostcondition( num_obj == n );
     }
 	  
     *ierr = ZOLTAN_OK;
