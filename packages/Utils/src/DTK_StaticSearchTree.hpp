@@ -109,7 +109,7 @@ class PointCloud
 
     //! Default bounding box calculation.
     template <class BBOX>
-    bool kdtree_get_bbox( BBOX& bb ) const 
+    bool kdtree_get_bbox( BBOX& /*bb*/ ) const 
     { return false; }
 
   private:

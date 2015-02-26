@@ -65,9 +65,9 @@ MapOperator<Scalar>::~MapOperator()
 // Setup the map operator.
 template<class Scalar>
 void MapOperator<Scalar>::setup(
-    const Teuchos::RCP<FunctionSpace>& domain_space,
-    const Teuchos::RCP<FunctionSpace>& range_space,
-    const Teuchos::RCP<Teuchos::ParameterList>& parameters )
+    const Teuchos::RCP<FunctionSpace>& /*domain_space*/,
+    const Teuchos::RCP<FunctionSpace>& /*range_space*/,
+    const Teuchos::RCP<Teuchos::ParameterList>& /*parameters*/ )
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
@@ -97,11 +97,11 @@ MapOperator<Scalar>::getRangeMap() const
 // Apply the map operator to data defined on the entities by computing g =
 // Minv*(v+A*f).
 template<class Scalar>
-void MapOperator<Scalar>::apply( const TpetraMultiVector &X,
-				 TpetraMultiVector &Y,
-				 Teuchos::ETransp mode,
-				 const Scalar alpha,
-				 const Scalar beta ) const
+void MapOperator<Scalar>::apply( const TpetraMultiVector& /*X*/,
+				 TpetraMultiVector& /*Y*/,
+				 Teuchos::ETransp /*mode*/,
+				 const Scalar /*alpha*/,
+				 const Scalar /*beta*/ ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );
