@@ -110,7 +110,7 @@ listed in the following table:
 +-----------------------+---------------+---------------------------------------+
 | TriBITS               | Yes           | Build system provided with Trilinos   |
 +-----------------------+---------------+---------------------------------------+
-| Trilinos              | Yes           | Current git revision required         |
+| Trilinos              | Yes           | Release 11.14 is required             |
 +-----------------------+---------------+---------------------------------------+
 | BLAS/LAPACK           | Yes           | Use vendor-specific implementation    |
 +-----------------------+---------------+---------------------------------------+
@@ -119,13 +119,8 @@ listed in the following table:
 | MOAB                  | No            | Required to build MOAB adapters       |
 +-----------------------+---------------+---------------------------------------+
 
-You can get the most recent Trilinos git revision at
-<https://software.sandia.gov/trilinos/repositories/publicTrilinos>. It
-is anticipated that when Trilinos 12.0 is released in the spring, DTK
-will depend on that release instead of the development
-head. Currently, features targeted for the 12.0 Trilinos release that
-are not present in the current 11.12 release are required by DTK and
-therefore the development head is needed at present to build DTK.
+You can get the most recent Trilinos version (11.14) at
+<http://trilinos.org/download/>.
 
 To use build some examples and tests you will need the DTKData
 repository which can be found at
