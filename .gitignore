@@ -17,6 +17,8 @@
 *.blg
 *.lot
 *.exo
+/build
+/install
 /DTKData
 /doc/browser/doc/html/
 /doc/doxygen/html/
