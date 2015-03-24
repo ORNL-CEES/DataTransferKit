@@ -65,25 +65,6 @@ void EntityLocalMap::setParameters(
 }
 
 //---------------------------------------------------------------------------//
-// Return the entity measure with respect to the parameteric dimension (volume
-// for a 3D entity, area for 2D, and length for 1D). 
-double EntityLocalMap::measure( const Entity& entity ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return -1.0;
-}
-
-//---------------------------------------------------------------------------//
-// Return the centroid of the entity.
-void EntityLocalMap::centroid( 
-    const Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
-{ 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space
 // of an entity using the given tolerance. Default implementation checks if
 // the point is inside the bounding box of the entity.
@@ -130,41 +111,6 @@ bool EntityLocalMap::isSafeToMapToReferenceFrame(
 		 (point[2] <= (entity_box[5] + z_tol)) );
     }
     return (in_x && in_y && in_z);
-}
-
-//---------------------------------------------------------------------------//
-// Map a point to the reference space of an entity. Return the parameterized point.
-bool EntityLocalMap::mapToReferenceFrame( 
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point,
-    const Teuchos::RCP<MappingStatus>& status ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return false;
-}
-
-//---------------------------------------------------------------------------//
-// Determine if a reference point is in the parameterized space of an entity.
-bool EntityLocalMap::checkPointInclusion( 
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return false;
-}
-
-//---------------------------------------------------------------------------//
-// Map a reference point to the physical space of an entity.
-void EntityLocalMap::mapToPhysicalFrame( 
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& point ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
 }
 
 //---------------------------------------------------------------------------//

@@ -81,7 +81,6 @@ class TestShapeFunction : public DataTransferKit::EntityShapeFunction
     TestShapeFunction( const int dofs_per_entity ) 
 	: d_dofs_per_entity( dofs_per_entity )
     { /* ... */ }
-    ~TestShapeFunction() { /* ... */ }
 
     void entityDOFIds( const DataTransferKit::Entity& entity,
 		       Teuchos::Array<std::size_t>& dof_ids ) const
@@ -101,6 +100,12 @@ class TestShapeFunction : public DataTransferKit::EntityShapeFunction
 	values.assign( d_dofs_per_entity, 1.0 / d_dofs_per_entity );
     }
 
+    void evaluateGradient( 
+	const DataTransferKit::Entity& entity,
+	const Teuchos::ArrayView<const double>& reference_point,
+	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
+    { /* ... */ }
+	
   private:
     int d_dofs_per_entity;
 };

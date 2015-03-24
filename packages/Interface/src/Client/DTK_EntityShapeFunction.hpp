@@ -63,12 +63,12 @@ class EntityShapeFunction
     /*!
      * \brief Constructor.
      */
-    EntityShapeFunction();
+    EntityShapeFunction() { /* ... */ }
 
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityShapeFunction();
+    virtual ~EntityShapeFunction() { /* ... */ }
 
     /*!
      * \brief Given an entity, get the ids of the degrees of freedom in the
@@ -80,7 +80,7 @@ class EntityShapeFunction
      * vector space supporting the entities.
      */
     virtual void entityDOFIds( const Entity& entity,
-			       Teuchos::Array<DofId>& dof_ids ) const;
+			       Teuchos::Array<DofId>& dof_ids ) const = 0;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -99,7 +99,7 @@ class EntityShapeFunction
     virtual void evaluateValue( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<double>& values ) const;
+	Teuchos::Array<double>& values ) const = 0;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the gradient of
@@ -119,7 +119,7 @@ class EntityShapeFunction
     virtual void evaluateGradient( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
+	Teuchos::Array<Teuchos::Array<double> >& gradients ) const = 0;
 };
 
 //---------------------------------------------------------------------------//

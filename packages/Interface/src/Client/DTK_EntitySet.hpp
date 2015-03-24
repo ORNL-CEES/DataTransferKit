@@ -84,7 +84,7 @@ class EntitySet
      *
      * \return A reference-counted pointer to the parallel communicator.
      */
-    virtual Teuchos::RCP<const Teuchos::Comm<int> > communicator() const;
+    virtual Teuchos::RCP<const Teuchos::Comm<int> > communicator() const = 0;
     //@}
 
     //@{
@@ -95,7 +95,7 @@ class EntitySet
      *
      * \return The physical dimension of the set.
      */
-    virtual int physicalDimension() const;
+    virtual int physicalDimension() const = 0;
 
     /*!
      * \brief Get the local bounding box of entities of the set.
@@ -123,7 +123,7 @@ class EntitySet
      */
     virtual void getEntity( const EntityType entity_type, 
 			    const EntityId entity_id, 
-			    Entity& entity ) const;
+			    Entity& entity ) const = 0;
 
     /*!
      * \brief Get an iterator of the given entity type that satisfy the given
@@ -137,7 +137,7 @@ class EntitySet
      */
     virtual EntityIterator entityIterator( 
 	const EntityType entity_type,
-	const PredicateFunction& predicate = selectAll ) const;
+	const PredicateFunction& predicate = selectAll ) const = 0;
 
     /*!
      * \brief Select all entities predicate.

@@ -69,8 +69,18 @@ class TestEntityImpl : public DataTransferKit::EntityImpl
 {
   public:
     TestEntityImpl( int id ) { d_id = id; }
-    ~TestEntityImpl() { /* ... */ }
     DataTransferKit::EntityId id() const { return d_id; }
+    DataTransferKit::EntityType entityType() const
+    { return DataTransferKit::ENTITY_TYPE_INVALID; }
+    int ownerRank() const { return 0; }
+    int physicalDimension() const { return 0; }
+    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const { }
+    bool inBlock( const int block_id ) const
+    { return false; }
+    bool onBoundary( const int boundary_id ) const
+    { return false; }
+    Teuchos::RCP<DataTransferKit::EntityExtraData> extraData() const
+    { return Teuchos::null; }
   private:
     DataTransferKit::EntityId d_id;
 };
@@ -84,7 +94,6 @@ class TestEntity : public DataTransferKit::Entity
   public:
     TestEntity( int id ) 
     { this->b_entity_impl = Teuchos::rcp( new TestEntityImpl(id) ); }
-    ~TestEntity() { /* ... */ }
 };
 
 

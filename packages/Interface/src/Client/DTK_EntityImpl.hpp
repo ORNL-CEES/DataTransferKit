@@ -62,59 +62,59 @@ class EntityImpl
     /*!
      * \brief Constructor.
      */
-    EntityImpl();
+    EntityImpl() { /* ... */ }
 
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityImpl();
+    virtual ~EntityImpl() { /* ... */ }
 
     /*!
      * \brief Get the entity type.
      * \return The entity type.
      */
-    virtual EntityType entityType() const;
+    virtual EntityType entityType() const = 0;
 
     /*!
      * \brief Get the unique global identifier for the entity.
      * \return A unique global identifier for the entity.
      */
-    virtual EntityId id() const;
+    virtual EntityId id() const = 0;
     
     /*!
      * \brief Get the parallel rank that owns the entity.
      * \return The parallel rank that owns the entity.
      */
-    virtual int ownerRank() const;
+    virtual int ownerRank() const = 0;
 
     /*!
      * \brief Return the physical dimension of the entity.
      * \return The physical dimension of the entity. Any physical coordinates
      * describing the entity will be of this dimension.
      */
-    virtual int physicalDimension() const;
+    virtual int physicalDimension() const = 0;
 
     /*!
      * \brief Return the Cartesian bounding box around an entity.
      * \param bounds The bounds of the box
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
-    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const = 0;
 
     /*!
      * \brief Determine if an entity is in the block with the given id.
      */
-    virtual bool inBlock( const int block_id ) const;
+    virtual bool inBlock( const int block_id ) const = 0;
 
     /*!
      * \brief Determine if an entity is on the boundary with the given id.
      */
-    virtual bool onBoundary( const int boundary_id ) const;
+    virtual bool onBoundary( const int boundary_id ) const = 0;
 
     /*!
      * \brief Get the extra data on the entity.
      */
-    virtual Teuchos::RCP<EntityExtraData> extraData() const;
+    virtual Teuchos::RCP<EntityExtraData> extraData() const = 0;
 };
 
 //---------------------------------------------------------------------------//

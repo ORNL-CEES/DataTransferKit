@@ -25,11 +25,9 @@ APPEND_SET(HEADERS
 
 APPEND_SET(SOURCES
   ${DIR}/DTK_Entity.cpp
-  ${DIR}/DTK_EntityImpl.cpp
   ${DIR}/DTK_EntityIterator.cpp
   ${DIR}/DTK_EntityLocalMap.cpp
   ${DIR}/DTK_EntitySet.cpp
-  ${DIR}/DTK_EntityShapeFunction.cpp
   )
 
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/Operator)

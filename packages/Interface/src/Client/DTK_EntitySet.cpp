@@ -56,24 +56,6 @@ EntitySet::~EntitySet()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Get the parallel communicator for the entity set.
-Teuchos::RCP<const Teuchos::Comm<int> > EntitySet::communicator() const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return Teuchos::null;
-}
-
-//---------------------------------------------------------------------------//
-// Return the largest physical dimension of the entities in the set. 
-int EntitySet::physicalDimension() const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return -1;
-}
-
-//---------------------------------------------------------------------------//
 // Get the local bounding box of entities of the set. Default implementation
 // gathers the bounding boxes of local entities.
 void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
@@ -117,28 +99,6 @@ void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 			&local_bounds[0], &bounds[0] ); 
     Teuchos::reduceAll( *(this->communicator()), Teuchos::REDUCE_MAX, 3,
 			&local_bounds[3], &bounds[3] ); 
-}
-
-//---------------------------------------------------------------------------//
-// Given an EntityId, get the entity.
-void EntitySet::getEntity( const EntityType entity_type, 
-			   const EntityId entity_id, 
-			   Entity& entity ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
-// Get an iterator over a subset of the entity set that satisfies the given
-// predicate. 
-EntityIterator EntitySet::entityIterator(
-    const EntityType entity_type,
-    const PredicateFunction& predicate ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return EntityIterator();
 }
 
 //---------------------------------------------------------------------------//

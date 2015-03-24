@@ -88,7 +88,7 @@ class EntityLocalMap
      * \param entity Compute the measure for this entity.
      * \return The measure of the entity.
      */
-    virtual double measure( const Entity& entity ) const;
+    virtual double measure( const Entity& entity ) const = 0;
 
     /*!
      * \brief Return the centroid of the entity.
@@ -96,7 +96,7 @@ class EntityLocalMap
      * be allocated. Assign a view of your centroid to this view.
      */
     virtual void centroid( const Entity& entity,
-			   const Teuchos::ArrayView<double>& centroid ) const;
+			   const Teuchos::ArrayView<double>& centroid ) const = 0;
 
     /*!
      * \brief (Safeguard the reverse map) Perform a safeguard check for
@@ -132,7 +132,7 @@ class EntityLocalMap
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& point,
 	const Teuchos::ArrayView<double>& reference_point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const;
+	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const = 0;
 
     /*!  
      * \brief Determine if a reference point is in the parameterized space of
@@ -145,7 +145,7 @@ class EntityLocalMap
      */
     virtual bool checkPointInclusion( 
 	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
+	const Teuchos::ArrayView<const double>& reference_point ) const = 0;
 
     /*!
      * \brief (Forward Map) Map a reference point to the physical space of an
@@ -159,7 +159,7 @@ class EntityLocalMap
     virtual void mapToPhysicalFrame( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
+	const Teuchos::ArrayView<double>& point ) const = 0;
 
     /*!
      * \brief Compute the normal on a face (3D) or edge (2D) at a given

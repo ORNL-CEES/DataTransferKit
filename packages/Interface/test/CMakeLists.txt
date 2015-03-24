@@ -13,13 +13,6 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  FunctionSpace_test
-  SOURCES tstFunctionSpace.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
-  COMM serial mpi
-  STANDARD_PASS_OUTPUT
-  )
-
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
   BasicEntityPredicates_test
   SOURCES tstBasicEntityPredicates.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
