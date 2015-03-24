@@ -62,8 +62,6 @@ class SelectAllPredicate
     SelectAllPredicate()
     { /* ... */ }
 
-    ~SelectAllPredicate() { /* ... */ }
-
     bool operator()( Entity /*entity*/ ) { return true; }
 
     std::function<bool(Entity)> getFunction() const
@@ -83,11 +81,10 @@ class BlockPredicate
 	: d_block_ids( block_ids )
     { /* ... */ }
 
-    ~BlockPredicate() { /* ... */ }
-
     bool operator()( Entity entity );
 
-    std::function<bool(Entity)> getFunction() const;
+    std::function<bool(Entity)> getFunction() const
+    { return std::function<bool(Entity)>(*this); }
 
   private:
 
@@ -108,11 +105,10 @@ class BoundaryPredicate
 	: d_boundary_ids( boundary_ids )
     { /* ... */ }
 
-    ~BoundaryPredicate() { /* ... */ }
-
     bool operator()( Entity entity );
 
-    std::function<bool(Entity)> getFunction() const;
+    std::function<bool(Entity)> getFunction() const
+    { return std::function<bool(Entity)>(*this); }
 
   private:
 
@@ -133,11 +129,10 @@ class LocalEntityPredicate
 	: d_my_rank( my_rank )
     { /* ... */ }
 
-    ~LocalEntityPredicate() { /* ... */ }
-
     bool operator()( Entity entity );
 
-    std::function<bool(Entity)> getFunction() const;
+    std::function<bool(Entity)> getFunction() const
+    { return std::function<bool(Entity)>(*this); }
 
   private:
 

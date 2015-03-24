@@ -76,6 +76,12 @@ class MapOperator : public Tpetra::Operator<Scalar,int,std::size_t>
 
     /*!
      * \brief Constructor.
+     *
+     * \param domain_map Parallel map for domain vectors this map should be
+     * compatible with.
+     *
+     * \param range_map Parallel map for range vectors this map should be
+     * compatible with.
      */
     MapOperator( const Teuchos::RCP<const TpetraMap>& domain_map,
 		 const Teuchos::RCP<const TpetraMap>& range_map );
@@ -86,18 +92,12 @@ class MapOperator : public Tpetra::Operator<Scalar,int,std::size_t>
     virtual ~MapOperator();
 
     /*
-     * \brief Setup the map operator from a domain entity set and a range
-     * entity set.
-     *
-     * \param domain_map Parallel map for domain vectors this map should be
-     * compatible with.
+     * \brief Setup the map operator from a domain function space and a range
+     * function space.
      *
      * \param domain_function The function that contains the data that will be
      * sent to the range. Must always be nonnull but the pointers it contains
      * may be null of no entities are on-process.
-     *
-     * \param range_map Parallel map for range vectors this map should be
-     * compatible with.
      *
      * \param range_space The function that will receive the data from the
      * domain. Must always be nonnull but the pointers it contains
@@ -114,11 +114,12 @@ class MapOperator : public Tpetra::Operator<Scalar,int,std::size_t>
     //! Tpetra::Operator interface.
     Teuchos::RCP<const TpetraMap> getDomainMap() const override;
     Teuchos::RCP<const TpetraMap> getRangeMap() const override;
-    virtual void apply( const TpetraMultiVector& X,
-			TpetraMultiVector &Y,
-			Teuchos::ETransp mode = Teuchos::NO_TRANS,
-			Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-			Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
+    virtual void apply(
+	const TpetraMultiVector& X,
+	TpetraMultiVector &Y,
+	Teuchos::ETransp mode = Teuchos::NO_TRANS,
+	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
+	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
     virtual bool hasTransposeApply() const override { return false; }
     //@}
 
