@@ -73,7 +73,9 @@ class EntityShapeFunction
     /*!
      * \brief Given an entity, get the ids of the degrees of freedom in the
      * vector space supporting its shape function.
+     *
      * \param entity Get the degrees of freedom for this entity.
+     *
      * \param dof_ids Return the ids of the degrees of freedom in the parallel
      * vector space supporting the entities.
      */
@@ -83,9 +85,12 @@ class EntityShapeFunction
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
      * function of the entity at that point.
+     *
      * \param entity Evaluate the shape function of this entity.
+     *
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
+     *
      * \param values Entity shape function evaluated at the reference
      * point. Return these ordered with respect to those return by
      * getDOFIds() such that values[N] gives the shape function value of the
@@ -100,9 +105,12 @@ class EntityShapeFunction
      * \brief Given an entity and a reference point, evaluate the gradient of
      * the shape function of the entity at that point. A default
      * implementation is provided using a finite difference scheme.
+     *
      * \param entity Evaluate the shape function of this entity.
+     *
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
+     *
      * \param gradients Entity shape function gradients evaluated at the reference
      * point. Return these ordered with respect to those return by
      * getDOFIds() such that gradients[N][D] gives the gradient value of the

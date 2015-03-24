@@ -88,16 +88,21 @@ class MapOperator : public Tpetra::Operator<Scalar,int,std::size_t>
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
+     *
      * \param domain_map Parallel map for domain vectors this map should be
      * compatible with.
+     *
      * \param domain_function The function that contains the data that will be
      * sent to the range. Must always be nonnull but the pointers it contains
      * may be null of no entities are on-process.
+     *
      * \param range_map Parallel map for range vectors this map should be
      * compatible with.
+     *
      * \param range_space The function that will receive the data from the
      * domain. Must always be nonnull but the pointers it contains
      * may be null of no entities are on-process.
+     *
      * \param parameters Parameters for the setup.
      */
     virtual void 
