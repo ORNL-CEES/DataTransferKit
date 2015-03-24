@@ -66,10 +66,6 @@ class SplineInterpolationPairing
 	const Teuchos::ArrayView<const double>& parent_centers,
 	const double radius );
 
-    //! Destructor.
-    ~SplineInterpolationPairing()
-    { /* ... */ }
-
     // Given a parent center local id get the ids of the child centers within
     // the given radius.
     Teuchos::ArrayView<const unsigned> 

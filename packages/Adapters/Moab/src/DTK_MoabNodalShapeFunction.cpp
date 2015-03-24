@@ -57,7 +57,7 @@ MoabNodalShapeFunction::MoabNodalShapeFunction(
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
 void MoabNodalShapeFunction::entityDOFIds( 
-    const Entity& entity, Teuchos::Array<std::size_t>& dof_ids ) const
+    const Entity& entity, Teuchos::Array<DofId>& dof_ids ) const
 {
     // Node case.
     if ( ENTITY_TYPE_NODE == entity.entityType() )
@@ -82,7 +82,7 @@ void MoabNodalShapeFunction::entityDOFIds(
 	dof_ids.resize( num_nodes );
 	for ( int i = 0; i < num_nodes; ++i )
 	{
-	    dof_ids[i] = Teuchos::as<std::size_t>( entity_nodes[i] );
+	    dof_ids[i] = Teuchos::as<DofId>( entity_nodes[i] );
 	}
     }
 }

@@ -43,6 +43,8 @@
 
 #include <vector>
 
+#include "DTK_Types.hpp"
+
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Ptr.hpp>
 #include <Teuchos_ArrayView.hpp>
@@ -86,13 +88,13 @@ class STKMeshFieldVector
     /*!
      * \brief Get the vector over the field.
      */
-    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > getVector() const
+    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,DofId> > getVector() const
     { return d_vector; }
 
     /*!
      * \brief Get the vector map.
      */
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > getMap() const
+    Teuchos::RCP<const Tpetra::Map<int,DofId> > getMap() const
     { return d_vector->getMap(); }
 
     /*!
@@ -122,7 +124,7 @@ class STKMeshFieldVector
     // The vector. This is a copy of the data. To put data into the vector
     // from the field call pullDataFromField(). To put data from the vector back
     // into the field call pushDataToField().
-    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > d_vector;  
+    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,DofId> > d_vector;  
 };
 
 //---------------------------------------------------------------------------//

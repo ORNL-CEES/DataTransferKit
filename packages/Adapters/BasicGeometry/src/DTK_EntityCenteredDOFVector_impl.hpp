@@ -51,18 +51,18 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 template<class Scalar>
-Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
+Teuchos::RCP<Tpetra::MultiVector<Scalar,int,DofId> > 
 EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView( 
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
     const Teuchos::ArrayView<Entity>& entities,
     const int field_dim,
     const Teuchos::ArrayView<Scalar>& dof_data )
 {
-    std::size_t lda = entities.size();
-    DTK_REQUIRE( lda*field_dim == Teuchos::as<std::size_t>(dof_data.size()) );
+    DofId lda = entities.size();
+    DTK_REQUIRE( lda*field_dim == Teuchos::as<DofId>(dof_data.size()) );
 
     // Extract the entity ids.
-    Teuchos::Array<std::size_t> entity_ids( lda );
+    Teuchos::Array<DofId> entity_ids( lda );
     auto id_it = entity_ids.begin();
     for ( auto entity_it = entities.begin();
 	  entity_it != entities.end();
@@ -72,12 +72,12 @@ EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
     }
 	  
     // Construct a map.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > map =
-	Tpetra::createNonContigMap<int,std::size_t>( entity_ids(), comm );
+    Teuchos::RCP<const Tpetra::Map<int,DofId> > map =
+	Tpetra::createNonContigMap<int,DofId>( entity_ids(), comm );
 
     // Build a tpetra multivector.
-    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > vector =
-	Tpetra::createMultiVector<Scalar,int,std::size_t>( map, field_dim );
+    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,DofId> > vector =
+	Tpetra::createMultiVector<Scalar,int,DofId>( map, field_dim );
 
     // Copy the data.
     Teuchos::ArrayRCP<Scalar> vector_view = vector->get1dViewNonConst();
@@ -88,7 +88,7 @@ EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
 //---------------------------------------------------------------------------//
 template<class Scalar>
 void EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
-    const Tpetra::MultiVector<Scalar,int,std::size_t>& vector,
+    const Tpetra::MultiVector<Scalar,int,DofId>& vector,
     Teuchos::ArrayView<Scalar>&& dof_data )
 {
     Teuchos::ArrayRCP<const Scalar> vector_view = vector.get1dView();

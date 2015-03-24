@@ -63,16 +63,6 @@ class EntityCenteredShapeFunction : public EntityShapeFunction
   public:
 
     /*!
-     * \brief Constructor.
-     */
-    EntityCenteredShapeFunction();
-
-    /*!
-     * \brief Destructor.
-     */
-    ~EntityCenteredShapeFunction();
-
-    /*!
      * \brief Given an entity, get the ids of the degrees of freedom in the
      * vector space supporting its shape function.
      * \param entity Get the degrees of freedom for this entity.
@@ -80,7 +70,7 @@ class EntityCenteredShapeFunction : public EntityShapeFunction
      * vector space supporting the entities.
      */
     void entityDOFIds( const Entity& entity,
-		       Teuchos::Array<std::size_t>& dof_ids ) const override;
+		       Teuchos::Array<DofId>& dof_ids ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape

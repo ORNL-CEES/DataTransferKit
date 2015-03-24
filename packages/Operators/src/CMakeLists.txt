@@ -37,7 +37,6 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_MovingLeastSquareReconstructionOperator.hpp
   ${DIR}/DTK_MovingLeastSquareReconstructionOperator_impl.hpp
   ${DIR}/DTK_PolynomialMatrix.hpp
-  ${DIR}/DTK_PolynomialMatrix_impl.hpp
   ${DIR}/DTK_RadialBasisPolicy.hpp
   ${DIR}/DTK_SplineCoefficientMatrix.hpp
   ${DIR}/DTK_SplineCoefficientMatrix_impl.hpp
@@ -54,6 +53,11 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_WuBasis.hpp
   ${DIR}/DTK_WuBasis_impl.hpp
   )
+
+APPEND_SET(SOURCES
+  ${DIR}/DTK_PolynomialMatrix.cpp
+  )
+
 
 TRIBITS_ADD_LIBRARY(
   dtk_operators

@@ -74,9 +74,6 @@ class IntrepidSideCell : public IntrepidCell
 		      const shards::CellTopology& parent_topology,
 		      const unsigned degree );
 
-    // Destructor.
-    ~IntrepidSideCell();
-
     // Update the cell state of the object for the current cell node
     // coordinates.
     void updateCellState();

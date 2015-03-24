@@ -71,9 +71,6 @@ class CoarseGlobalSearch
 			const EntityIterator& domain_iterator,
 			const Teuchos::ParameterList& parameters ); 
 
-    // Destructor.
-    ~CoarseGlobalSearch();
-
     // Redistribute a set of range entity centroid coordinates with their
     // owner ranks to the owning domain process.
     void search( const EntityIterator& range_iterator,

@@ -43,6 +43,8 @@
 
 #include <vector>
 
+#include "DTK_Types.hpp"
+
 #include <MBParallelComm.hpp>
 
 #include <Teuchos_RCP.hpp>
@@ -82,13 +84,13 @@ class MoabTagVector
     /*!
      * \brief Get the vector over the tag.
      */
-    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > getVector() const
+    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,DofId> > getVector() const
     { return d_vector; }
 
     /*!
      * \brief Get the vector map.
      */
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > getMap() const
+    Teuchos::RCP<const Tpetra::Map<int,DofId> > getMap() const
     { return d_vector->getMap(); }
 
     /*!
@@ -118,7 +120,7 @@ class MoabTagVector
     // The vector. This is a copy of the data. To put data into the vector
     // from the tag call pullDataFromTag(). To put data from the vector back
     // into the tag call pushDataToTag().
-    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > d_vector;  
+    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,DofId> > d_vector;  
 };
 
 //---------------------------------------------------------------------------//

@@ -58,7 +58,7 @@ STKMeshNodalShapeFunction::STKMeshNodalShapeFunction(
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
 void STKMeshNodalShapeFunction::entityDOFIds( 
-    const Entity& entity, Teuchos::Array<std::size_t>& dof_ids ) const
+    const Entity& entity, Teuchos::Array<DofId>& dof_ids ) const
 {
     // Extract the stk entity.
     const stk::mesh::Entity& stk_entity = 

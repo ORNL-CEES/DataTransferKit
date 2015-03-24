@@ -80,7 +80,7 @@ class EntityShapeFunction
      * vector space supporting the entities.
      */
     virtual void entityDOFIds( const Entity& entity,
-			       Teuchos::Array<std::size_t>& dof_ids ) const;
+			       Teuchos::Array<DofId>& dof_ids ) const;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape

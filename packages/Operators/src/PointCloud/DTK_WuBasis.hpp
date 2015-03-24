@@ -64,10 +64,6 @@ class WuBasis
 	: d_radius( radius )
     { /* ... */ }
 
-    // Destructor.
-    ~WuBasis()
-    { /* ... */ }
-
     // Compute the value of the basis at the given set of coordinates.
     double evaluateValue( const double x ) const;
 

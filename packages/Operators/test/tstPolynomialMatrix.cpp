@@ -92,17 +92,17 @@ TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_apply )
     int poly_size = 10;
 
     // Create a random polynomial.
-    Teuchos::RCP<const Tpetra::Map<int,int> > row_map = 
-	Tpetra::createUniformContigMap<int,int>( global_size, comm );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > P =
-	Tpetra::createMultiVector<double,int,int>( row_map, poly_size );
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > row_map = 
+	Tpetra::createUniformContigMap<int,std::size_t>( global_size, comm );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > P =
+	Tpetra::createMultiVector<double,int,std::size_t>( row_map, poly_size );
     P->randomize();
 
     // Create the CrsMatrix version of the polynomial.
-    Teuchos::RCP<const Tpetra::Map<int,int> > col_map = 
-	Tpetra::createLocalMap<int,int>( poly_size, comm );
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,int> > P_crs = Teuchos::rcp(
-	new Tpetra::CrsMatrix<double,int,int>( 
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > col_map = 
+	Tpetra::createLocalMap<int,std::size_t>( poly_size, comm );
+    Teuchos::RCP<Tpetra::CrsMatrix<double,int,std::size_t> > P_crs = Teuchos::rcp(
+	new Tpetra::CrsMatrix<double,int,std::size_t>( 
 	    row_map, col_map, poly_size, Tpetra::StaticProfile) );
     Teuchos::Array<int> crs_indices( poly_size );
     for ( int j = 0; j < poly_size; ++j )
@@ -123,22 +123,22 @@ TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_apply )
     P_crs->fillComplete();    
 
     // Create the PolynomialMatrix version of the polynomial.
-    DataTransferKit::PolynomialMatrix<int> P_poly_mat( P, row_map, row_map );
+    DataTransferKit::PolynomialMatrix P_poly_mat( P, row_map, row_map );
 
     // Build a random vector to apply the matrices to.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > X =
-	Tpetra::createMultiVector<double,int,int>( row_map, num_vec );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > X =
+	Tpetra::createMultiVector<double,int,std::size_t>( row_map, num_vec );
     X->randomize();
 
     // Apply the CrsMatrix.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Y_crs =
-	Tpetra::createMultiVector<double,int,int>( row_map, num_vec );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > Y_crs =
+	Tpetra::createMultiVector<double,int,std::size_t>( row_map, num_vec );
     Y_crs->randomize();
     P_crs->apply( *X, *Y_crs, Teuchos::NO_TRANS );
 
     // Apply the polynomial matrix.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Y_poly_mat =
-	Tpetra::createMultiVector<double,int,int>( row_map, num_vec );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > Y_poly_mat =
+	Tpetra::createMultiVector<double,int,std::size_t>( row_map, num_vec );
     Y_poly_mat->randomize();
     P_poly_mat.apply( *X, *Y_poly_mat, Teuchos::NO_TRANS );
 
@@ -168,17 +168,17 @@ TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_transpose_apply )
     int poly_size = 10;
 
     // Create a random polynomial.
-    Teuchos::RCP<const Tpetra::Map<int,int> > row_map = 
-	Tpetra::createUniformContigMap<int,int>( global_size, comm );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > P =
-	Tpetra::createMultiVector<double,int,int>( row_map, poly_size );
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > row_map = 
+	Tpetra::createUniformContigMap<int,std::size_t>( global_size, comm );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > P =
+	Tpetra::createMultiVector<double,int,std::size_t>( row_map, poly_size );
     P->randomize();
 
     // Create the CrsMatrix version of the polynomial.
-    Teuchos::RCP<const Tpetra::Map<int,int> > col_map = 
-	Tpetra::createLocalMap<int,int>( poly_size, comm );
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,int> > P_crs = Teuchos::rcp(
-	new Tpetra::CrsMatrix<double,int,int>( 
+    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > col_map = 
+	Tpetra::createLocalMap<int,std::size_t>( poly_size, comm );
+    Teuchos::RCP<Tpetra::CrsMatrix<double,int,std::size_t> > P_crs = Teuchos::rcp(
+	new Tpetra::CrsMatrix<double,int,std::size_t>( 
 	    row_map, col_map, poly_size, Tpetra::StaticProfile) );
     Teuchos::Array<int> crs_indices( poly_size );
     for ( int j = 0; j < poly_size; ++j )
@@ -199,22 +199,22 @@ TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_transpose_apply )
     P_crs->fillComplete();    
 
     // Create the PolynomialMatrix version of the polynomial.
-    DataTransferKit::PolynomialMatrix<int> P_poly_mat( P, row_map, row_map );
+    DataTransferKit::PolynomialMatrix P_poly_mat( P, row_map, row_map );
 
     // Build a random vector to apply the matrices to.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > X =
-	Tpetra::createMultiVector<double,int,int>( row_map, num_vec );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > X =
+	Tpetra::createMultiVector<double,int,std::size_t>( row_map, num_vec );
     X->randomize();
 
     // Transpose apply the CrsMatrix.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Y_crs =
-	Tpetra::createMultiVector<double,int,int>( row_map, num_vec );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > Y_crs =
+	Tpetra::createMultiVector<double,int,std::size_t>( row_map, num_vec );
     Y_crs->randomize();
     P_crs->apply( *X, *Y_crs, Teuchos::TRANS );
 
     // Transpose apply the polynomial matrix.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,int> > Y_poly_mat =
-	Tpetra::createMultiVector<double,int,int>( row_map, num_vec );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > Y_poly_mat =
+	Tpetra::createMultiVector<double,int,std::size_t>( row_map, num_vec );
     Y_poly_mat->randomize();
     P_poly_mat.apply( *X, *Y_poly_mat, Teuchos::TRANS );
 

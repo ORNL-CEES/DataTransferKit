@@ -282,7 +282,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     int local_num_src = domain_iterator.size();
     Teuchos::ArrayRCP<double> source_centers( DIM*local_num_src);
     Teuchos::ArrayRCP<GO> source_dof_ids( local_num_src );
-    Teuchos::Array<std::size_t> source_node_dofs;
+    Teuchos::Array<DofId> source_node_dofs;
     EntityIterator domain_begin = domain_iterator.begin();
     EntityIterator domain_end = domain_iterator.end();
     int entity_counter = 0;
@@ -312,7 +312,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     int local_num_tgt = range_iterator.size();
     Teuchos::ArrayRCP<double> target_centers( DIM*local_num_tgt );
     Teuchos::ArrayRCP<GO> target_dof_ids( local_num_tgt );
-    Teuchos::Array<std::size_t> target_node_dofs;
+    Teuchos::Array<DofId> target_node_dofs;
     EntityIterator range_begin = range_iterator.begin();
     EntityIterator range_end = range_iterator.end();
     entity_counter = 0;
@@ -330,7 +330,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     // PROLONGATION OPERATOR.
     GO offset = comm->getRank() ? 0 : DIM + 1;
     S =	Teuchos::rcp( 
-	new SplineProlongationOperator<Scalar,GO>(offset,domain_map) );
+	new SplineProlongationOperator<Scalar>(offset,domain_map) );
 
     // COEFFICIENT OPERATORS.
     // Gather the source centers that are within a radius of the source

@@ -74,33 +74,29 @@ class SplineCoefficientMatrix
 
     // Constructor.
     SplineCoefficientMatrix(
-	const Teuchos::RCP<const Tpetra::Map<int,std::size_t> >& operator_map,
+	const Teuchos::RCP<const Tpetra::Map<int,DofId> >& operator_map,
 	const Teuchos::ArrayView<const double>& source_centers,
-	const Teuchos::ArrayView<const std::size_t>& source_center_gids,
+	const Teuchos::ArrayView<const DofId>& source_center_gids,
 	const Teuchos::ArrayView<const double>& dist_source_centers,
-	const Teuchos::ArrayView<const std::size_t>& dist_source_center_gids,
+	const Teuchos::ArrayView<const DofId>& dist_source_center_gids,
 	const SplineInterpolationPairing<DIM>& source_pairings,
 	const Basis& basis );
 
-    //! Destructor.
-    ~SplineCoefficientMatrix()
-    { /* ... */ }
-
     // Get the basis component.
-    Teuchos::RCP<Tpetra::Operator<double,int,std::size_t> > getM()
+    Teuchos::RCP<Tpetra::Operator<double,int,DofId> > getM()
     { return d_M; }
 
     // Get the polynomial component.
-    Teuchos::RCP<Tpetra::Operator<double,int,std::size_t> > getP()
+    Teuchos::RCP<Tpetra::Operator<double,int,DofId> > getP()
     { return d_P; }
 
   private:
 
     // The M matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,std::size_t> > d_M;
+    Teuchos::RCP<Tpetra::CrsMatrix<double,int,DofId> > d_M;
 
     // The P matrix.
-    Teuchos::RCP<PolynomialMatrix<std::size_t> > d_P;
+    Teuchos::RCP<PolynomialMatrix> d_P;
 
 };
 

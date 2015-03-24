@@ -64,12 +64,6 @@ class ProjectionPrimitives
 {
   public:
 
-    // Constructor.
-    ProjectionPrimitives() { /* ... */ }
-
-    // Destructor.
-    ~ProjectionPrimitives() { /* ... */ }
-
     // Get the center of the reference cell of the given topology.
     static void referenceCellCenter( const shards::CellTopology& cell_topo,
 				     Intrepid::FieldContainer<double>& center );

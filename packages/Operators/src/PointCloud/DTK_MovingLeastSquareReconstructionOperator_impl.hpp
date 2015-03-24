@@ -120,7 +120,7 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     int local_num_src = domain_iterator.size();
     Teuchos::ArrayRCP<double> source_centers( DIM*local_num_src);
     Teuchos::ArrayRCP<GO> source_dof_ids( local_num_src );
-    Teuchos::Array<std::size_t> source_node_dofs;
+    Teuchos::Array<DofId> source_node_dofs;
     EntityIterator domain_begin = domain_iterator.begin();
     EntityIterator domain_end = domain_iterator.end();
     int entity_counter = 0;
@@ -150,7 +150,7 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     int local_num_tgt = range_iterator.size();
     Teuchos::ArrayRCP<double> target_centers( DIM*local_num_tgt );
     Teuchos::ArrayRCP<GO> target_dof_ids( local_num_tgt );
-    Teuchos::Array<std::size_t> target_node_dofs;
+    Teuchos::Array<DofId> target_node_dofs;
     EntityIterator range_begin = range_iterator.begin();
     EntityIterator range_end = range_iterator.end();
     entity_counter = 0;
@@ -185,9 +185,9 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 	dist_sources, target_centers(), radius );
 
     // Build the interpolation matrix.
-    Teuchos::ArrayRCP<std::size_t> children_per_parent =
+    Teuchos::ArrayRCP<DofId> children_per_parent =
 	pairings.childrenPerParent();
-    std::size_t max_entries_per_row = *std::max_element( 
+    DofId max_entries_per_row = *std::max_element( 
 	children_per_parent.begin(), children_per_parent.end() );
     d_coupling_matrix = Teuchos::rcp( new Tpetra::CrsMatrix<Scalar,int,GO>( 
 			    range_map,

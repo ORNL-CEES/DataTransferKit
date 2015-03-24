@@ -32,16 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_PolynomialMatrix_impl.hpp
+ * \file   DTK_PolynomialMatrix.cpp
  * \author Stuart R. Slattery
  * \brief  Polynomial matrix.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_POLYNOMIALMATRIX_IMPL_HPP
-#define DTK_POLYNOMIALMATRIX_IMPL_HPP
-
 #include "DTK_DBC.hpp"
+#include "DTK_PolynomialMatrix.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_CommHelpers.hpp>
@@ -60,11 +58,10 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<class GO>
-PolynomialMatrix<GO>::PolynomialMatrix(
-    const Teuchos::RCP<const Tpetra::MultiVector<double,int,GO> >& polynomial,
-    const Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map,
-    const Teuchos::RCP<const Tpetra::Map<int,GO> >& range_map )
+PolynomialMatrix::PolynomialMatrix(
+    const Teuchos::RCP<const Tpetra::MultiVector<double,int,DofId> >& polynomial,
+    const Teuchos::RCP<const Tpetra::Map<int,DofId> >& domain_map,
+    const Teuchos::RCP<const Tpetra::Map<int,DofId> >& range_map )
     : d_comm( polynomial->getMap()->getComm() )
     , d_polynomial( polynomial )
     , d_domain_map( domain_map )
@@ -73,10 +70,9 @@ PolynomialMatrix<GO>::PolynomialMatrix(
 
 //---------------------------------------------------------------------------//
 // Apply operation. 
-template<class GO>
-void PolynomialMatrix<GO>::apply(
-    const Tpetra::MultiVector<double,int,GO> &X,
-    Tpetra::MultiVector<double,int,GO> &Y,
+void PolynomialMatrix::apply(
+    const Tpetra::MultiVector<double,int,DofId> &X,
+    Tpetra::MultiVector<double,int,DofId> &Y,
     Teuchos::ETransp mode,
     double alpha,
     double beta ) const
@@ -134,11 +130,11 @@ void PolynomialMatrix<GO>::apply(
     else if ( Teuchos::TRANS == mode )
     {
 	// Make a work vector.
-	Tpetra::MultiVector<double,int,GO> work( Y.getMap(),
+	Tpetra::MultiVector<double,int,DofId> work( Y.getMap(),
 						 Y.getNumVectors() );
 
 	// Export X to the polynomial decomposition.
-	Tpetra::Export<int,GO> exporter( X.getMap(), work.getMap() );
+	Tpetra::Export<int,DofId> exporter( X.getMap(), work.getMap() );
 	work.doExport( X, exporter, Tpetra::INSERT );
 
 	// Do the local mat-vec.
@@ -201,10 +197,6 @@ void PolynomialMatrix<GO>::apply(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_POLYNOMIALMATRIX_IMPL_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_PolynomialMatrix_impl.hpp
+// end DTK_PolynomialMatrix.cpp
 //---------------------------------------------------------------------------//
 

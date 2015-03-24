@@ -86,7 +86,7 @@ STKMeshFieldVector<Scalar,FieldType>::STKMeshFieldVector(
 
     // Extract the field entity ids.
     int num_entities = d_field_entities.size();
-    Teuchos::Array<std::size_t> entity_ids( num_entities );
+    Teuchos::Array<DofId> entity_ids( num_entities );
     for ( int n = 0; n < num_entities; ++n )
     {
 	entity_ids[n] = d_bulk_data->identifier( d_field_entities[n] );
@@ -95,12 +95,12 @@ STKMeshFieldVector<Scalar,FieldType>::STKMeshFieldVector(
     // Create a Tpetra map.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
 	Teuchos::rcp( new Teuchos::MpiComm<int>(d_bulk_data->parallel()) );
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > map =
-	Tpetra::createNonContigMap<int,std::size_t>( entity_ids, comm );
+    Teuchos::RCP<const Tpetra::Map<int,DofId> > map =
+	Tpetra::createNonContigMap<int,DofId>( entity_ids, comm );
 
     // Create a Tpetra vector.
     d_vector =
-	Tpetra::createMultiVector<Scalar,int,std::size_t>( map, d_field_dim );
+	Tpetra::createMultiVector<Scalar,int,DofId>( map, d_field_dim );
 }
 
 //---------------------------------------------------------------------------//

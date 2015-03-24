@@ -63,12 +63,6 @@ class NewtonSolver
     typedef typename NPT::Scalar                     Scalar;
     //@}
 
-    // Constructor.
-    NewtonSolver() { /* ... */ }
-
-    // Destructor.
-    ~NewtonSolver() { /* ... */ }
-
     // Solve a nonlinear problem with Newton's method.
     static void solve( MDArray& u, 
 		       NonlinearProblem& problem, 

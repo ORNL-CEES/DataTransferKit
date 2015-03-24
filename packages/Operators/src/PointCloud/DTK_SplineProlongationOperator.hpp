@@ -41,6 +41,8 @@
 #ifndef DTK_SPLINEPROLONGATIONOPERATOR_HPP
 #define DTK_SPLINEPROLONGATIONOPERATOR_HPP
 
+#include "DTK_Types.hpp"
+
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 
@@ -57,24 +59,24 @@ namespace DataTransferKit
  * spline space.
  */
 //---------------------------------------------------------------------------//
-template<class Scalar,class GO>
-class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,GO>
+template<class Scalar>
+class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,DofId>
 {
   public:
 
     // Constructor.
     SplineProlongationOperator( 
 	const int offset,
-	const Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map );
+	const Teuchos::RCP<const Tpetra::Map<int,DofId> >& domain_map );
 
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
-    Teuchos::RCP<const Tpetra::Map<int,GO> > getDomainMap() const override
+    Teuchos::RCP<const Tpetra::Map<int,DofId> > getDomainMap() const override
     { return d_domain_map; }
 
     //! The Map associated with the range of this operator, which must be
     //! compatible with Y.getMap().
-    Teuchos::RCP<const Tpetra::Map<int,GO> > getRangeMap() const override
+    Teuchos::RCP<const Tpetra::Map<int,DofId> > getRangeMap() const override
     { return d_range_map; }
 
     //! \brief Computes the operator-multivector application.
@@ -86,8 +88,8 @@ class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,GO>
         <b>may</b> short-circuit the operator, so that any values in \c X
         (including NaNs) are ignored.
      */
-    void apply (const Tpetra::MultiVector<Scalar,int,GO> &X,
-		Tpetra::MultiVector<Scalar,int,GO> &Y,
+    void apply (const Tpetra::MultiVector<Scalar,int,DofId> &X,
+		Tpetra::MultiVector<Scalar,int,DofId> &Y,
 		Teuchos::ETransp mode = Teuchos::NO_TRANS,
 		Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
 		Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
@@ -106,10 +108,10 @@ class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,GO>
     int d_lda;
 
     // Domain map.
-    Teuchos::RCP<const Tpetra::Map<int,GO> > d_domain_map;
+    Teuchos::RCP<const Tpetra::Map<int,DofId> > d_domain_map;
 
     // Range map.
-    Teuchos::RCP<const Tpetra::Map<int,GO> > d_range_map;
+    Teuchos::RCP<const Tpetra::Map<int,DofId> > d_range_map;
 };
 
 //---------------------------------------------------------------------------//

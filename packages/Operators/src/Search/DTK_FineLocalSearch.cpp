@@ -58,13 +58,6 @@ FineLocalSearch::FineLocalSearch(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Destructor.
- */
-FineLocalSearch::~FineLocalSearch()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Find the set of entities to which a point maps.
  */
 void FineLocalSearch::search( 

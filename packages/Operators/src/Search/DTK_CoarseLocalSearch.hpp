@@ -70,9 +70,6 @@ class CoarseLocalSearch
 		       const Teuchos::RCP<EntityLocalMap>& local_map,
 		       const Teuchos::ParameterList& parameters ); 
 
-    // Destructor.
-    ~CoarseLocalSearch();
-
     // Find the set of entities a point neighbors.
     void search( const Teuchos::ArrayView<const double>& point,
 		 const Teuchos::ParameterList& parameters,

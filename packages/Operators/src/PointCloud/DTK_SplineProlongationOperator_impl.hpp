@@ -51,19 +51,19 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<class Scalar,class GO>
-SplineProlongationOperator<Scalar,GO>::SplineProlongationOperator(
+template<class Scalar>
+SplineProlongationOperator<Scalar>::SplineProlongationOperator(
     const int offset,
-    const Teuchos::RCP<const Tpetra::Map<int,GO> >& domain_map )
+    const Teuchos::RCP<const Tpetra::Map<int,DofId> >& domain_map )
     : d_offset( offset )
     , d_domain_map( domain_map )
 {
     // Create a range map.
-    Teuchos::ArrayView<const GO> domain_elements = 
+    Teuchos::ArrayView<const DofId> domain_elements = 
 	d_domain_map->getNodeElementList();
     d_lda = domain_elements.size();
-    Teuchos::Array<GO> global_ids;
-    GO max_id = d_domain_map->getMaxAllGlobalIndex() + 1;
+    Teuchos::Array<DofId> global_ids;
+    DofId max_id = d_domain_map->getMaxAllGlobalIndex() + 1;
     if ( d_domain_map->getComm()->getRank() == 0 )
     {
 	global_ids.resize( d_offset + domain_elements.size() );
@@ -78,17 +78,17 @@ SplineProlongationOperator<Scalar,GO>::SplineProlongationOperator(
     {
 	d_offset = 0;
     }
-    d_range_map = Tpetra::createNonContigMap<int,GO>(
+    d_range_map = Tpetra::createNonContigMap<int,DofId>(
 	domain_elements, d_domain_map->getComm() );
     DTK_ENSURE( Teuchos::nonnull(d_range_map) );
 }
 
 //---------------------------------------------------------------------------//
 // Apply operation. 
-template<class Scalar,class GO>
-void SplineProlongationOperator<Scalar,GO>::apply(
-    const Tpetra::MultiVector<Scalar,int,GO> &X,
-    Tpetra::MultiVector<Scalar,int,GO> &Y,
+template<class Scalar>
+void SplineProlongationOperator<Scalar>::apply(
+    const Tpetra::MultiVector<Scalar,int,DofId> &X,
+    Tpetra::MultiVector<Scalar,int,DofId> &Y,
     Teuchos::ETransp mode,
     Scalar alpha,
     Scalar beta ) const

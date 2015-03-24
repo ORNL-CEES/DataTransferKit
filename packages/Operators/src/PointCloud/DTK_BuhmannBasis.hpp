@@ -64,10 +64,6 @@ class BuhmannBasis
 	: d_radius( radius )
     { /* ... */ }
 
-    // Destructor.
-    ~BuhmannBasis()
-    { /* ... */ }
-
     // Compute the value of the basis at the given set of coordinates.
     double evaluateValue( const double x ) const;
 

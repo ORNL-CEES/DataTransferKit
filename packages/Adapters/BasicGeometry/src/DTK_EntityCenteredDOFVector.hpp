@@ -71,12 +71,6 @@ class EntityCenteredDOFVector
     { /* ... */ }
 
     /*!
-     * \brief Destructor.
-     */
-    ~EntityCenteredDOFVector()
-    { /* ... */ }
-
-    /*!
      * \brief Given a set of entity ids and DOF data bound to the center of
      * those entites, build a Tpetra vector and copy the data into the
      * vector.
@@ -89,7 +83,7 @@ class EntityCenteredDOFVector
      * \param num_vectors The number of vectors in the multivector.
      */
     template<class Scalar>
-    static Teuchos::RCP<Tpetra::MultiVector<Scalar,int,std::size_t> > 
+    static Teuchos::RCP<Tpetra::MultiVector<Scalar,int,DofId> > 
     pullTpetraMultiVectorFromEntitiesAndView(
 	const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
 	const Teuchos::ArrayView<Entity>& entities,
@@ -102,7 +96,7 @@ class EntityCenteredDOFVector
     */
     template<class Scalar>
     static void pushTpetraMultiVectorToEntitiesAndView(
-	const Tpetra::MultiVector<Scalar,int,std::size_t>& vector,
+	const Tpetra::MultiVector<Scalar,int,DofId>& vector,
 	Teuchos::ArrayView<Scalar>&& dof_data );
 };
 

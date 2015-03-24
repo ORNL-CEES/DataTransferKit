@@ -76,9 +76,6 @@ class ProjectPointToFaceNonlinearProblem
 	const Intrepid::FieldContainer<double>& face_nodes,
 	const Intrepid::FieldContainer<double>& face_node_normals );
 
-    //! Destructor.
-    ~ProjectPointToFaceNonlinearProblem() { /* ... */ }
-
     //! Update the state of the problem given the new solution vector.
     void updateState( const Intrepid::FieldContainer<double>& u );
 
@@ -182,9 +179,6 @@ class PointInFaceVolumeOfInfluenceNonlinearProblem
 	const Intrepid::FieldContainer<double>& face_edge_nodes,
 	const Intrepid::FieldContainer<double>& face_edge_node_normals,
 	const double c );
-
-    //! Destructor.
-    ~PointInFaceVolumeOfInfluenceNonlinearProblem() { /* ... */ }
 
     // Update the state of the problem given the new solution vector.
     void updateState( const Intrepid::FieldContainer<double>& u );
@@ -296,9 +290,6 @@ class ProjectPointFeatureToEdgeFeatureNonlinearProblem
 	const Intrepid::FieldContainer<double>& edge_nodes,
 	const Intrepid::FieldContainer<double>& edge_node_normals,
 	const Intrepid::FieldContainer<double>& edge_node_binormals );
-
-    //! Destructor.
-    ~ProjectPointFeatureToEdgeFeatureNonlinearProblem() { /* ... */ }
 
     // Update the state of the problem given the new solution vector.
     void updateState( const Intrepid::FieldContainer<double>& u );

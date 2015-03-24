@@ -41,6 +41,7 @@
 #ifndef DTK_MAPOPERATOR_HPP
 #define DTK_MAPOPERATOR_HPP
 
+#include "DTK_Types.hpp"
 #include "DTK_FunctionSpace.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -60,18 +61,18 @@ namespace DataTransferKit
 */
 //---------------------------------------------------------------------------//
 template<class Scalar>
-class MapOperator : public Tpetra::Operator<Scalar,int,std::size_t>
+class MapOperator : public Tpetra::Operator<Scalar,int,DofId>
 {
   public:
 
     //! Root class typedef.
-    typedef Tpetra::Operator<Scalar,int,std::size_t> Root;
+    typedef Tpetra::Operator<Scalar,int,DofId> Root;
 
     //! Map typedef.
-    typedef Tpetra::Map<int,std::size_t,typename Root::node_type> TpetraMap;
+    typedef Tpetra::Map<int,DofId,typename Root::node_type> TpetraMap;
 
     //! MultiVector typedef.
-    typedef Tpetra::MultiVector<Scalar,int,std::size_t,typename Root::node_type>
+    typedef Tpetra::MultiVector<Scalar,int,DofId,typename Root::node_type>
     TpetraMultiVector;
 
     /*!

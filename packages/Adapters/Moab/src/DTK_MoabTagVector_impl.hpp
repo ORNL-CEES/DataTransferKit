@@ -78,12 +78,12 @@ MoabTagVector<Scalar>::MoabTagVector(
 	Teuchos::rcp( new Teuchos::MpiComm<int>(d_moab_mesh->comm()) );
 
     // Build a map. The DOF ids are the entity handles.
-    Teuchos::Array<std::size_t> dof_ids( d_entities.begin(), d_entities.end() );
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > map =
-	Tpetra::createNonContigMap<int,std::size_t>( dof_ids(), comm );
+    Teuchos::Array<DofId> dof_ids( d_entities.begin(), d_entities.end() );
+    Teuchos::RCP<const Tpetra::Map<int,DofId> > map =
+	Tpetra::createNonContigMap<int,DofId>( dof_ids(), comm );
 
     // Create a Tpetra vector.
-    d_vector = Tpetra::createMultiVector<Scalar,int,std::size_t>( map, tag_dim );
+    d_vector = Tpetra::createMultiVector<Scalar,int,DofId>( map, tag_dim );
 }
 
 //---------------------------------------------------------------------------//

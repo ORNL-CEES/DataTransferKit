@@ -68,9 +68,6 @@ class FineLocalSearch
     // Constructor.
     FineLocalSearch( const Teuchos::RCP<EntityLocalMap>& local_map );
 
-    // Destructor.
-    ~FineLocalSearch();
-
     // Find the set of entities to which a point maps.
     void search( const Teuchos::ArrayView<const Entity>& neighbors,
 		 const Teuchos::ArrayView<const double>& point,

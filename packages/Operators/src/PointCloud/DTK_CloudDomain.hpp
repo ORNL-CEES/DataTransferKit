@@ -66,10 +66,6 @@ class CloudDomain
     // Constructor.
     CloudDomain( const double bounds[2*DIM] );
 
-    // Destructor.
-    ~CloudDomain()
-    { /* ... */ }
-
     // Expand the domain by the given radius.
     void expand( const double radius );
 
