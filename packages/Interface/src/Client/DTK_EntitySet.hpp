@@ -81,6 +81,7 @@ class EntitySet
     //! Parallel functions.
     /*!
      * \brief Get the parallel communicator for the entity set.
+     *
      * \return A reference-counted pointer to the parallel communicator.
      */
     virtual Teuchos::RCP<const Teuchos::Comm<int> > communicator() const;
@@ -91,18 +92,21 @@ class EntitySet
     /*!
      * \brief Return the largest physical dimension of the entities in the
      * set.  
+     *
      * \return The physical dimension of the set.
      */
     virtual int physicalDimension() const;
 
     /*!
      * \brief Get the local bounding box of entities of the set.
+     *
      * \return A Cartesian box the bounds all local entities in the set.
      */
     virtual void localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;
 
     /*!
      * \brief Get the global bounding box of entities of the set.
+     *
      * \return A Cartesian box the bounds all global entities in the set.
      */
     virtual void globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;
@@ -112,7 +116,9 @@ class EntitySet
     //! Entity access functions.
     /*!
      * \brief Given an EntityId, get the entity.
+     *
      * \param entity_id Get the entity with this id.
+     *
      * \param entity The entity with the given id.
      */
     virtual void getEntity( const EntityType entity_type, 
@@ -120,10 +126,13 @@ class EntitySet
 			    Entity& entity ) const;
 
     /*!
-     * \brief Get a iterator of the given entity type that satisfy the given
+     * \brief Get an iterator of the given entity type that satisfy the given
      * predicate.
+     *
      * \param entity_type The type of entity to get a iterator for.
+     *
      * \param predicate The selection predicate.
+     *
      * \return A iterator of entities of the given type.
      */
     virtual EntityIterator entityIterator( 
