@@ -32,66 +32,104 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityShapeFunction.cpp
+ * \brief DTK_Field.hpp
  * \author Stuart R. Slattery
- * \brief Shape function interface.
+ * \brief Application field interface.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_EntityShapeFunction.hpp"
-#include "DTK_DBC.hpp"
+#ifndef DTK_FIELD_HPP
+#define DTK_FIELD_HPP
+
+#include "DTK_Types.hpp"
+
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Constructor.
-EntityShapeFunction::EntityShapeFunction()
-{ /* ... */ }
+/*!
+  \class Field
+  \brief Field interface.
 
-//---------------------------------------------------------------------------//
-// Destructor.
-EntityShapeFunction::~EntityShapeFunction()
-{ /* ... */ }
+  Field provides an access wrapper around application field data. Client API
+  implementations provided read/write access to field data on an
+  entity-by-entity basis.
 
+  We need this extra layer of indirection because MapOperator may be
+  constructed to be compatible with multiple subsets of a single vector in an
+  application. For example, if nodal data of pressure and temperature were in
+  a single state vector in an application, two Field objects could be
+  constructed, one for each field. A single nodal MapOperator could then be
+  applied to each vector constructed from the fields to independently perform
+  the solution transfer.
+*/
 //---------------------------------------------------------------------------//
-// Given an entity, get the ids of the degrees of freedom in the vector space
-// supporting its shape function.
-void EntityShapeFunction::entityDOFIds( 
-    const Entity& entity, Teuchos::Array<DofId>& dof_ids ) const
+template<class Scalar>
+class Field
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-}
+  public:
 
-//---------------------------------------------------------------------------//
-// Given an entity and a reference point, evaluate the shape function of the
-// entity at that point.
-void EntityShapeFunction::evaluateValue( 
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    Teuchos::Array<double>& values ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-}
+    /*!
+     * \brief Constructor. 
+     */
+    Field() { /* ... */ }
 
-//---------------------------------------------------------------------------//
-// Given an entity and a reference point, evaluate the gradient of the shape
-// function of the entity at that point.
-void EntityShapeFunction::evaluateGradient( 
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    Teuchos::Array<Teuchos::Array<double> >& gradients ) const
-{
-    // Provide a default finite difference implementation.
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-}
+    /*!
+     * \brief Destructor.
+     */
+    virtual ~Field() { /* ... */ }
+
+    /*!
+     * \brief Get the parallel communicator for the field.
+     *
+     * \return A reference-counted pointer to the parallel communicator.
+     */
+    virtual Teuchos::RCP<const Teuchos::Comm<int> > communicator() const = 0;
+
+    /*!
+     * \brief Get the dimension of the field.
+     */
+    virtual int dimension() const = 0;
+
+    /*!
+     * \brief Get the locally-owned DOF ids of the field.
+     */
+    virtual Teuchos::ArrayView<DofId> getLocalDofIds() const = 0;
+
+    /*!
+     * \brief Given a local dof id and a dimension, read data from the
+     * application field.
+     */
+    virtual Scalar readFieldData( const DofId dof_id,
+				  const int dimension ) const = 0;
+
+    /*!
+     * \brief Given a local dof id, dimension, and field value, write data
+     * into the application field.
+     */
+    virtual void writeFieldData( const DofId dof_id,
+				 const int dimension,
+				 const Scalar data ) = 0;
+    //@}
+};
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityShapeFunction.cpp
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_Field_impl.hpp"
+
+//---------------------------------------------------------------------------//
+
+#endif // end DTK_FIELD_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_Field.hpp
 //---------------------------------------------------------------------------//

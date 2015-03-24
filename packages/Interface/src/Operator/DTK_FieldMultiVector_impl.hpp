@@ -31,61 +31,79 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 //---------------------------------------------------------------------------//
-/*! 
- * \file tstFunctionSpace.cpp
+/*!
+ * \brief DTK_FieldMultiVector_impl.hpp
  * \author Stuart R. Slattery
- * \brief FunctionSpace unit tests.
+ * \brief MultiVector interface.
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
-#include <algorithm>
-#include <cassert>
+#ifndef DTK_FIELDMULTIVECTOR_IMPL_HPP
+#define DTK_FIELDMULTIVECTOR_IMPL_HPP
 
-#include <DTK_FunctionSpace.hpp>
-#include <DTK_EntitySet.hpp>
-#include <DTK_EntityLocalMap.hpp>
-#include <DTK_EntityShapeFunction.hpp>
-#include <DTK_EntitySelector.hpp>
+#include "DTK_DBC.hpp"
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_OpaqueWrapper.hpp>
-#include <Teuchos_TypeTraits.hpp>
-#include <Teuchos_OrdinalTraits.hpp>
-#include <Teuchos_ParameterList.hpp>
+#include <Tpetra_Map.hpp>
 
-//---------------------------------------------------------------------------//
-// Tests
-//---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( FunctionSpace, space_test )
+namespace DataTransferKit
 {
-    using namespace DataTransferKit;
+//---------------------------------------------------------------------------//
+// Constructor.
+template<class Scalar>
+FieldMultiVector<Scalar>::FieldMultiVector(
+    const Teuchos::RCP<Field<Scalar> >& field )
+    : Base( Tpetra::createNonContigMap<int,DofId>(field->getLocalDofIds(),
+						  field->communicator()),
+	    field->dimension() )
+    , d_field( field )
+{ /* ... */ }
 
-    Teuchos::RCP<EntitySet> entity_set = Teuchos::rcp( new EntitySet() );
-    Teuchos::RCP<EntityLocalMap> local_map = Teuchos::rcp( new EntityLocalMap() );
-    Teuchos::RCP<EntityShapeFunction> shape_function =
-	Teuchos::rcp( new EntityShapeFunction() );
-    Teuchos::RCP<EntitySelector> selector =
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
-    FunctionSpace function_space( entity_set, selector, local_map, shape_function );
-
-    TEST_EQUALITY( function_space.entitySet().getRawPtr(), 
-		   entity_set.getRawPtr() );
-    TEST_EQUALITY( function_space.entitySelector().getRawPtr(), 
-		   selector.getRawPtr() );
-    TEST_EQUALITY( function_space.localMap().getRawPtr(),
-		   local_map.getRawPtr() );
-    TEST_EQUALITY( function_space.shapeFunction().getRawPtr(),
-		   shape_function.getRawPtr() );
+//---------------------------------------------------------------------------//
+// Pull data from the application and put it in the vector.
+template<class Scalar>
+void FieldMultiVector<Scalar>::pullDataFromApplication()
+{
+    Teuchos::ArrayView<DofId> field_dofs = d_field->getLocalDofIds();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> > vector_view =
+	this->get2dViewNonConst();
+    int num_dofs = field_dofs.size();
+    int dim = d_field->dimension();
+    for ( int n = 0; n < num_dofs; ++n )
+    {
+	for ( int d = 0; d < dim; ++d )
+	{
+	    vector_view[d][n] = d_field->readFieldData( field_dofs[n], d );
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
-// end tstFunctionSpace.cpp
+// Push data from the vector into the application.
+template<class Scalar>
+void FieldMultiVector<Scalar>::pushDataToApplication()
+{
+    Teuchos::ArrayView<DofId> field_dofs = d_field->getLocalDofIds();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> > vector_view =
+	this->get2dView();
+    int num_dofs = field_dofs.size();
+    int dim = d_field->dimension();
+    for ( int n = 0; n < num_dofs; ++n )
+    {
+	for ( int d = 0; d < dim; ++d )
+	{
+	    d_field->writeFieldData( field_dofs[n], d, vector_view[d][n] );
+	}
+    }    
+}
+
+//---------------------------------------------------------------------------//
+
+} // end namespace DataTransferKit
+
+//---------------------------------------------------------------------------//
+
+#endif // end DTK_FIELDMULTIVECTOR_IMPL_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_FieldMultiVector_impl.hpp
 //---------------------------------------------------------------------------//

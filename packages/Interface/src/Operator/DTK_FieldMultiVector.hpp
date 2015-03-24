@@ -32,99 +32,87 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityImpl.cpp
+ * \brief DTK_FieldMultiVector.hpp
  * \author Stuart R. Slattery
- * \brief Geometric entity implementation.
+ * \brief MultiVector interface.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_EntityImpl.hpp"
-#include "DTK_DBC.hpp"
+#ifndef DTK_FIELDMULTIVECTOR_HPP
+#define DTK_FIELDMULTIVECTOR_HPP
+
+#include "DTK_Types.hpp"
+#include "DTK_Field.hpp"
+
+#include <Teuchos_RCP.hpp>
+
+#include <Tpetra_MultiVector.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Constructor.
-EntityImpl::EntityImpl()
-{ /* ... */ }
+/*!
+  \class FieldMultiVector
+  \brief MultiVector interface.
 
-//---------------------------------------------------------------------------//
-//brief Destructor.
-EntityImpl::~EntityImpl()
-{ /* ... */ }
+  FieldMultiVector provides a Tpetra::MultiVector wrapper around application
+  field data. Client API implementations provided read/write access to field
+  data on an entity-by-entity basis. The FieldMultiVector then manages the
+  copying of data between the application and the Tpetra vector.
 
+  We need this extra layer of indirection because MapOperator may be
+  constructed to be compatible with multiple subsets of a single vector in an
+  application. For example, if nodal data of pressure and temperature were in
+  a single state vector in an application, two FieldMultiVector objects could
+  be constructed, one for each field. A single nodal MapOperator could then
+  be applied to each vector to independently perform the solution transfer.
+*/
 //---------------------------------------------------------------------------//
-// Get the entity type.
-EntityType EntityImpl::entityType() const
+template<class Scalar>
+class FieldMultiVector : public Tpetra::MultiVector<Scalar,int,DofId>
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return static_cast<EntityType>(-1);
-}
+  public:
 
-//---------------------------------------------------------------------------//
-// Get the unique global identifier for the entity.
-EntityId EntityImpl::id() const
-{ 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return -1;
-}
-    
-//---------------------------------------------------------------------------//
-// Get the parallel rank that owns the entity.
-int EntityImpl::ownerRank() const
-{ 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return -1;
-}
-//---------------------------------------------------------------------------//
-// Return the physical dimension of the entity.
-int EntityImpl::physicalDimension() const
-{ 
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return -1;
-}
+    //! MultiVector typedef.
+    typedef Tpetra::MultiVector<Scalar,int,DofId> Base;
 
-//---------------------------------------------------------------------------//
-// Return the Cartesian bounding box around an entity.
-void EntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-}
+    /*!
+     * \brief Constructor. This will allocate the Tpetra vector.
+     *
+     * \param field The field for which we are building a vector.
+     */
+    FieldMultiVector( const Teuchos::RCP<Field<Scalar> >& field );
 
-//---------------------------------------------------------------------------//
-// Determine if an entity is in the block with the given id.
-bool EntityImpl::inBlock( const int block_id ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return false;
-}
+    /*!
+     * \brief Pull data from the application and put it in the vector.
+     */
+    void pullDataFromApplication();
 
-//---------------------------------------------------------------------------//
-// Determine if an entity is on the boundary with the given id.
-bool EntityImpl::onBoundary( const int boundary_id ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-    return false;
-}
+    /*!
+     * \brief Push data from the vector into the application.
+     */
+    void pushDataToApplication();
 
-//---------------------------------------------------------------------------//
-// Get the extra data on the entity.
-Teuchos::RCP<EntityExtraData> EntityImpl::extraData() const
-{
-    return Teuchos::null;
-}
+  private:
+
+    // The field this multivector is managing.
+    Teuchos::RCP<Field<Scalar> > d_field;
+};
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityImpl.cpp
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_FieldMultiVector_impl.hpp"
+
+//---------------------------------------------------------------------------//
+
+#endif // end DTK_FIELDMULTIVECTOR_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_FieldMultiVector.hpp
 //---------------------------------------------------------------------------//
