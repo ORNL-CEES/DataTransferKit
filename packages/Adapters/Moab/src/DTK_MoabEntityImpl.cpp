@@ -60,11 +60,6 @@ MoabEntityImpl::MoabEntityImpl(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-//brief Destructor.
-MoabEntityImpl::~MoabEntityImpl()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the entity type.
 EntityType MoabEntityImpl::entityType() const
 {

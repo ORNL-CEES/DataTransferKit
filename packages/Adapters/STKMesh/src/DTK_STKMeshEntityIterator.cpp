@@ -56,7 +56,7 @@ STKMeshEntityIterator::STKMeshEntityIterator()
 STKMeshEntityIterator::STKMeshEntityIterator(
     const Teuchos::RCP<STKMeshEntityIteratorRange>& entity_range,
     const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data,
-    const std::function<bool(Entity)>& predicate )
+    const PredicateFunction& predicate )
     : d_entity_range( entity_range )
     , d_stk_entity_it( d_entity_range->d_stk_entities.begin() )
     , d_bulk_data( bulk_data )

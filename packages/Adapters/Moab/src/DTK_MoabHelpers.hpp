@@ -62,16 +62,6 @@ class MoabHelpers
   public:
 
     /*!
-     * \brief Constructor.
-     */
-    MoabHelpers() { /* ... */ }
-
-    /*!
-     * \brief Destructor.
-     */
-    ~MoabHelpers() { /* ... */ }
-
-    /*!
      * \brief Extract the Moab entity from a DTK entity.
      */
     static moab::EntityHandle extractEntity( const Entity dtk_entity );

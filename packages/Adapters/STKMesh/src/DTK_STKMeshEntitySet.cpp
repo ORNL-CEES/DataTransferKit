@@ -65,11 +65,6 @@ STKMeshEntitySet::STKMeshEntitySet(
 }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-STKMeshEntitySet::~STKMeshEntitySet()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
 Teuchos::RCP<const Teuchos::Comm<int> > STKMeshEntitySet::communicator() const
 {
@@ -101,7 +96,7 @@ void STKMeshEntitySet::getEntity( const EntityType entity_type,
 // predicate. 
 EntityIterator STKMeshEntitySet::entityIterator(
     const EntityType entity_type,
-    const std::function<bool(Entity)>& predicate ) const
+    const PredicateFunction& predicate ) const
 {
     stk::mesh::EntityRank rank = 
 	STKMeshHelpers::getRankFromType( entity_type, physicalDimension() );

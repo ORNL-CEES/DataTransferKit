@@ -57,7 +57,7 @@ MoabEntityIterator::MoabEntityIterator(
     const Teuchos::RCP<MoabEntityIteratorRange>& entity_range,
     const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
     const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer,
-    const std::function<bool(Entity)>& predicate )
+    const PredicateFunction& predicate )
     : d_entity_range( entity_range )
     , d_moab_entity_it( d_entity_range->d_moab_entities.begin() )
     , d_moab_mesh( moab_mesh )

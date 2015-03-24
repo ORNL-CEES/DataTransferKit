@@ -70,20 +70,18 @@ class BasicEntitySetIterator : public EntityIterator
     // Constructor.
     BasicEntitySetIterator( 
 	Teuchos::RCP<std::unordered_map<EntityId,Entity> > map,
-	const std::function<bool(Entity)>& predicate );
+	const PredicateFunction& predicate );
 
     // Copy constructor.
     BasicEntitySetIterator( const BasicEntitySetIterator& rhs );
 
+    // Destructor.
+    ~BasicEntitySetIterator();
+    
     /*!
      * \brief Assignment operator.
      */
     BasicEntitySetIterator& operator=( const BasicEntitySetIterator& rhs );
-
-    /*!
-     * \brief Destructor.
-     */
-    ~BasicEntitySetIterator();
 
     // Pre-increment operator.
     EntityIterator& operator++() override;
@@ -144,11 +142,6 @@ class BasicEntitySet : public EntitySet
 		    const int physical_dimension );
 
     /*!
-     * \brief Destructor.
-     */
-    ~BasicEntitySet();
-
-    /*!
      * \brief Add an entity to the set.
      */
     void addEntity( const Entity& entity );
@@ -191,7 +184,7 @@ class BasicEntitySet : public EntitySet
      */
     EntityIterator entityIterator(
 	const EntityType entity_type,
-	const std::function<bool(Entity)>& predicate ) const override;
+	const PredicateFunction& predicate ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are

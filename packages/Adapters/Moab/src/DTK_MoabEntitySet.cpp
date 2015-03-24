@@ -60,11 +60,6 @@ MoabEntitySet::MoabEntitySet(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-MoabEntitySet::~MoabEntitySet()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
 Teuchos::RCP<const Teuchos::Comm<int> > MoabEntitySet::communicator() const
 {
@@ -98,7 +93,7 @@ void MoabEntitySet::getEntity( const EntityType entity_type,
 // predicate. 
 EntityIterator MoabEntitySet::entityIterator(
     const EntityType entity_type,
-    const std::function<bool(Entity)>& predicate ) const
+    const PredicateFunction& predicate ) const
 {
     Teuchos::RCP<MoabEntityIteratorRange> iterator_range =
 	Teuchos::rcp( new MoabEntityIteratorRange() );

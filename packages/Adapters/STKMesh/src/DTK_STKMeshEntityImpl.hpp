@@ -70,11 +70,6 @@ class STKMeshEntityImpl : public EntityImpl
 		       const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
 
     /*!
-     * \brief Destructor.
-     */
-    ~STKMeshEntityImpl();
-
-    /*!
      * \brief Get the entity type.
      * \return The entity type.
      */

@@ -147,11 +147,6 @@ class STKMeshManager
 		    const BasisType basis_type = BASIS_TYPE_GRADIENT );
 
     /*!
-     * \brief Destructor.
-     */
-    ~STKMeshManager();
-
-    /*!
      * \brief Get the function space over which the mesh and its fields are
      * defined. 
      */

@@ -98,11 +98,6 @@ class BasicGeometryManager
 			  const Teuchos::ArrayView<int>& boundary_ids );
 
     /*!
-     * \brief Destructor.
-     */
-    ~BasicGeometryManager();
-
-    /*!
      * \brief Get the function space over which the mesh and its fields are
      * defined. 
      */

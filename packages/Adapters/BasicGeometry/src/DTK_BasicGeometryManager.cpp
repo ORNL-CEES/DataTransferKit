@@ -90,7 +90,7 @@ BasicGeometryManager::BasicGeometryManager(
     Teuchos::Array<int> boundary_array(boundary_ids);
     BlockPredicate block_pred( block_array );
     BoundaryPredicate boundary_pred( boundary_array );
-    std::function<bool(Entity)> pred = 
+    PredicateFunction pred = 
 	PredicateComposition::Or( block_pred.getFunction(),
 				  boundary_pred.getFunction() );
     Teuchos::RCP<EntitySelector> entity_selector = 
@@ -98,11 +98,6 @@ BasicGeometryManager::BasicGeometryManager(
     createFunctionSpace( comm, physical_dimension, entities, entity_selector );
     DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
-
-//---------------------------------------------------------------------------//
-// Destructor.
-BasicGeometryManager::~BasicGeometryManager()
-{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Get the function space over which the mesh and its fields are defined. 

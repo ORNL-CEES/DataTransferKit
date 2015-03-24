@@ -78,7 +78,7 @@ class MoabEntityIterator : public EntityIterator
 	const Teuchos::RCP<MoabEntityIteratorRange>& entity_range,
 	const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
 	const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer,
-	const std::function<bool(Entity)>& predicate );
+	const PredicateFunction& predicate );
 
     /*!
      * \brief Copy constructor.
@@ -86,14 +86,14 @@ class MoabEntityIterator : public EntityIterator
     MoabEntityIterator( const MoabEntityIterator& rhs );
 
     /*!
-     * \brief Assignment operator.
-     */
-    MoabEntityIterator& operator=( const MoabEntityIterator& rhs );
-
-    /*!
      * \brief Destructor.
      */
     ~MoabEntityIterator();
+    
+    /*!
+     * \brief Assignment operator.
+     */
+    MoabEntityIterator& operator=( const MoabEntityIterator& rhs );
 
     // Pre-increment operator.
     EntityIterator& operator++() override;

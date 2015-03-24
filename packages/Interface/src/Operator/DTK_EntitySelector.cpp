@@ -44,9 +44,8 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-EntitySelector::EntitySelector( 
-    const EntityType entity_type,
-    const std::function<bool(Entity)>& select_function )
+EntitySelector::EntitySelector( const EntityType entity_type,
+				const PredicateFunction& select_function )
     : d_entity_type( entity_type )
     , d_select_function( select_function )
 { /* ... */ }
@@ -60,7 +59,7 @@ EntityType EntitySelector::entityType() const
 
 //---------------------------------------------------------------------------//
 // Get the selector function.
-std::function<bool(Entity)> EntitySelector::selectFunction() const
+PredicateFunction EntitySelector::selectFunction() const
 {
     return d_select_function;
 }

@@ -64,8 +64,8 @@ class SelectAllPredicate
 
     bool operator()( Entity /*entity*/ ) { return true; }
 
-    std::function<bool(Entity)> getFunction() const
-    { return std::function<bool(Entity)>(*this); }
+    PredicateFunction getFunction() const
+    { return PredicateFunction(*this); }
 };
 
 //---------------------------------------------------------------------------//
@@ -83,8 +83,8 @@ class BlockPredicate
 
     bool operator()( Entity entity );
 
-    std::function<bool(Entity)> getFunction() const
-    { return std::function<bool(Entity)>(*this); }
+    PredicateFunction getFunction() const
+    { return PredicateFunction(*this); }
 
   private:
 
@@ -107,8 +107,8 @@ class BoundaryPredicate
 
     bool operator()( Entity entity );
 
-    std::function<bool(Entity)> getFunction() const
-    { return std::function<bool(Entity)>(*this); }
+    PredicateFunction getFunction() const
+    { return PredicateFunction(*this); }
 
   private:
 
@@ -131,8 +131,8 @@ class LocalEntityPredicate
 
     bool operator()( Entity entity );
 
-    std::function<bool(Entity)> getFunction() const
-    { return std::function<bool(Entity)>(*this); }
+    PredicateFunction getFunction() const
+    { return PredicateFunction(*this); }
 
   private:
 

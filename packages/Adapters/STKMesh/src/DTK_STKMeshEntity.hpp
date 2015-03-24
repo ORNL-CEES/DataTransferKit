@@ -73,11 +73,6 @@ class STKMeshEntity : public Entity
      */
     STKMeshEntity( const stk::mesh::Entity& stk_entity,
 		   const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
-
-    /*!
-     * \brief Destructor.
-     */
-     ~STKMeshEntity();
 };
 
 //---------------------------------------------------------------------------//

@@ -57,46 +57,45 @@ class PredicateComposition
 {
   public:
 
+    //! Predicate alias.
+    template<class T>
+    using Predicate = std::function<bool(T)>;
+    
     /*!
      * \brief Constructor.
      */
     PredicateComposition() { /* ... */ }
 
-    /*!
-     * \brief Destructor.
-     */
-    ~PredicateComposition() { /* ... */ }
-
     // Apply an and operation to two predicates to create a new
     // predicate.
     template<class ValueType>
-    static std::function<bool(ValueType)>
-    And( const std::function<bool(ValueType)>& func_left,
-	 const std::function<bool(ValueType)>& func_right );
+    static Predicate<ValueType>
+    And( const Predicate<ValueType>& func_left,
+	 const Predicate<ValueType>& func_right );
 
     // Apply an or operation to two predicates to create a new predicate.
     template<class ValueType>
-    static std::function<bool(ValueType)>
-    Or( const std::function<bool(ValueType)>& func_left,
-	const std::function<bool(ValueType)>& func_right );
+    static Predicate<ValueType>
+    Or( const Predicate<ValueType>& func_left,
+	const Predicate<ValueType>& func_right );
 
     // Apply a not operation to a predicate to create a new
     // predicate.
     template<class ValueType>
-    static std::function<bool(ValueType)>
-    Not( const std::function<bool(ValueType)>& func );
+    static Predicate<ValueType>
+    Not( const Predicate<ValueType>& func );
 
     // Apply an AndNot operation to create a new predicate.
     template<class ValueType>
-    static std::function<bool(ValueType)>
-    AndNot( const std::function<bool(ValueType)>& func_left,
-	    const std::function<bool(ValueType)>& func_right );
+    static Predicate<ValueType>
+    AndNot( const Predicate<ValueType>& func_left,
+	    const Predicate<ValueType>& func_right );
 
     // Apply an OrNot operation to create a new predicate.
     template<class ValueType>
-    static std::function<bool(ValueType)>
-    OrNot( const std::function<bool(ValueType)>& func_left,
-	   const std::function<bool(ValueType)>& func_right );
+    static Predicate<ValueType>
+    OrNot( const Predicate<ValueType>& func_left,
+	   const Predicate<ValueType>& func_right );
 };
 
 //---------------------------------------------------------------------------//

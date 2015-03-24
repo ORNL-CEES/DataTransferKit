@@ -82,11 +82,6 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
 	const Teuchos::RCP<const TpetraMap>& domain_map,
 	const Teuchos::RCP<const TpetraMap>& range_map );
 
-    /*!
-     * \brief Destructor.
-     */
-    ~ConsistentInterpolationOperator();
-
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.

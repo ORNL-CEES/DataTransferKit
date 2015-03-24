@@ -134,7 +134,7 @@ void EntitySet::getEntity( const EntityType entity_type,
 // predicate. 
 EntityIterator EntitySet::entityIterator(
     const EntityType entity_type,
-    const std::function<bool(Entity)>& predicate ) const
+    const PredicateFunction& predicate ) const
 {
     bool not_implemented = true;
     DTK_INSIST( !not_implemented );

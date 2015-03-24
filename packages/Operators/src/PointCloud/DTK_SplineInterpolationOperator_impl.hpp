@@ -78,12 +78,6 @@ SplineInterpolationOperator<Scalar,Basis,DIM>::SplineInterpolationOperator(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-template<class Scalar,class Basis,int DIM>
-SplineInterpolationOperator<Scalar,Basis,DIM>::~SplineInterpolationOperator()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar,class Basis,int DIM>
 void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
@@ -277,7 +271,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     EntityIterator domain_iterator;
     if ( nonnull_domain )
     {
-	std::function<bool(Entity)> domain_predicate =
+	PredicateFunction domain_predicate =
 	    PredicateComposition::And(
 		domain_space->entitySelector()->selectFunction(),
 		local_predicate.getFunction() );
@@ -307,7 +301,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     EntityIterator range_iterator;
     if ( nonnull_range )
     {
-	std::function<bool(Entity)> range_predicate =
+	PredicateFunction range_predicate =
 	    PredicateComposition::And(
 		range_space->entitySelector()->selectFunction(),
 		local_predicate.getFunction() );

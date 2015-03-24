@@ -68,13 +68,6 @@ MovingLeastSquareReconstructionOperator(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-template<class Scalar,class Basis,int DIM>
-MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::
-~MovingLeastSquareReconstructionOperator()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar,class Basis,int DIM>
 void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
@@ -116,7 +109,7 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     EntityIterator domain_iterator;
     if ( nonnull_domain )
     {
-	std::function<bool(Entity)> domain_predicate =
+	PredicateFunction domain_predicate =
 	    PredicateComposition::And(
 		domain_space->entitySelector()->selectFunction(),
 		local_predicate.getFunction() );
@@ -146,7 +139,7 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     EntityIterator range_iterator;
     if ( nonnull_range )
     {
-	std::function<bool(Entity)> range_predicate =
+	PredicateFunction range_predicate =
 	    PredicateComposition::And(
 		range_space->entitySelector()->selectFunction(),
 		local_predicate.getFunction() );

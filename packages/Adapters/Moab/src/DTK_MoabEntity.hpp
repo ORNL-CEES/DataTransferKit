@@ -75,11 +75,6 @@ class MoabEntity : public Entity
     MoabEntity( const moab::EntityHandle& moab_entity,
 		const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
 		const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer );
-
-    /*!
-     * \brief Destructor.
-     */
-     ~MoabEntity();
 };
 
 //---------------------------------------------------------------------------//

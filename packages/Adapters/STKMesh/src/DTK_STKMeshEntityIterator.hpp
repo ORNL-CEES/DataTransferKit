@@ -77,7 +77,7 @@ class STKMeshEntityIterator : public EntityIterator
     STKMeshEntityIterator( 
 	const Teuchos::RCP<STKMeshEntityIteratorRange>& entity_range,
 	const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data,
-	const std::function<bool(Entity)>& predicate );
+	const PredicateFunction& predicate );
 
     /*!
      * \brief Copy constructor.
@@ -85,14 +85,14 @@ class STKMeshEntityIterator : public EntityIterator
     STKMeshEntityIterator( const STKMeshEntityIterator& rhs );
 
     /*!
-     * \brief Assignment operator.
-     */
-    STKMeshEntityIterator& operator=( const STKMeshEntityIterator& rhs );
-
-    /*!
      * \brief Destructor.
      */
     ~STKMeshEntityIterator();
+    
+    /*!
+     * \brief Assignment operator.
+     */
+    STKMeshEntityIterator& operator=( const STKMeshEntityIterator& rhs );
 
     // Pre-increment operator.
     EntityIterator& operator++() override;

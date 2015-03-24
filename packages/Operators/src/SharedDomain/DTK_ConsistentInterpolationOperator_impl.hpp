@@ -73,12 +73,6 @@ ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-template<class Scalar>
-ConsistentInterpolationOperator<Scalar>::~ConsistentInterpolationOperator()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar>
 void ConsistentInterpolationOperator<Scalar>::setup(
@@ -121,7 +115,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     EntityIterator domain_iterator;
     if ( nonnull_domain )
     {
-	std::function<bool(Entity)> domain_predicate =
+	PredicateFunction domain_predicate =
 	    PredicateComposition::And(
 		domain_space->entitySelector()->selectFunction(),
 		local_predicate.getFunction() );
@@ -141,7 +135,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     EntityIterator range_iterator;
     if ( nonnull_range )
     {
-	std::function<bool(Entity)> range_predicate =
+	PredicateFunction range_predicate =
 	    PredicateComposition::And(
 		range_space->entitySelector()->selectFunction(),
 		local_predicate.getFunction() );

@@ -41,6 +41,8 @@
 #ifndef DTK_TYPES_HPP
 #define DTK_TYPES_HPP
 
+#include <functional>
+
 #include <limits>
 
 namespace DataTransferKit
@@ -49,8 +51,14 @@ namespace DataTransferKit
 typedef unsigned long int EntityId;
 
 //! Invalid entity id.
-static const EntityId dtk_invalid_entity_id = 
+static const EntityId dtk_invalid_entity_id =
     std::numeric_limits<EntityId>::max();
+
+//! Dof id type.
+typedef std::size_t DofId;
+
+//! Invalid dof id.
+static const DofId dtk_invalid_dof_id = std::numeric_limits<DofId>::max();
 
 //! Enum for entity types.
 enum EntityType
@@ -61,6 +69,12 @@ enum EntityType
     ENTITY_TYPE_VOLUME = 3,
     ENTITY_TYPE_INVALID = 4
 };
+
+// Forward declaration of Entity.
+class Entity;
+
+// Predicate function typedef.
+typedef std::function<bool(Entity)> PredicateFunction;
 
 //---------------------------------------------------------------------------//
 

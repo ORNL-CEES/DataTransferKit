@@ -41,8 +41,6 @@
 #ifndef DTK_ENTITYSELECTOR_HPP
 #define DTK_ENTITYSELECTOR_HPP
 
-#include <functional>
-
 #include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
@@ -65,9 +63,8 @@ class EntitySelector
     /*!
      * \brief Constructor.
      */
-    EntitySelector( 
-	const EntityType entity_type,
-	const std::function<bool(Entity)>& select_function = selectAll );
+    EntitySelector( const EntityType entity_type,
+		    const PredicateFunction& select_function = selectAll );
 
     /*!
      * \brief Get the entity type to select.
@@ -77,7 +74,7 @@ class EntitySelector
     /*!
      * \brief Get the selector function.
      */
-    std::function<bool(Entity)> selectFunction() const;
+    PredicateFunction selectFunction() const;
 
     /*!
      * \brief Default select function.
@@ -90,7 +87,7 @@ class EntitySelector
     EntityType d_entity_type;
 
     // The selector function.
-    std::function<bool(Entity)> d_select_function;
+    PredicateFunction d_select_function;
 };
 
 //---------------------------------------------------------------------------//

@@ -75,11 +75,6 @@ class MoabEntitySet : public EntitySet
      */
     MoabEntitySet( const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
 
-    /*!
-     * \brief Destructor.
-     */
-    ~MoabEntitySet();
-
     //@{
     //! Parallel functions.
     /*!
@@ -119,7 +114,7 @@ class MoabEntitySet : public EntitySet
      */
     EntityIterator entityIterator( 
 	const EntityType entity_type,
-	const std::function<bool(Entity)>& predicate ) const override;
+	const PredicateFunction& predicate ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are

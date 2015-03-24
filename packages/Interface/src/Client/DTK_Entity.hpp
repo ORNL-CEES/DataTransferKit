@@ -78,24 +78,28 @@ class Entity
 
     /*!
      * \brief Get the entity type.
+     *
      * \return The entity type.
      */
     virtual EntityType entityType() const;
 
     /*!
      * \brief Get the unique global identifier for the entity.
+     *
      * \return A unique global identifier for the entity.
      */
     virtual EntityId id() const;
     
     /*!
      * \brief Get the parallel rank that owns the entity.
+     *
      * \return The parallel rank that owns the entity.
      */
     virtual int ownerRank() const;
 
     /*!
      * \brief Return the physical dimension of the entity.
+     *
      * \return The physical dimension of the entity. Any physical coordinates
      * describing the entity will be of this dimension.
      */
@@ -103,6 +107,7 @@ class Entity
 
     /*!
      * \brief Return the Cartesian bounding box around an entity.
+     *
      * \param bounds The bounds of the box
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
@@ -126,7 +131,7 @@ class Entity
 
   protected:
 
-    // Geometric entity implementation.
+    // Entity implementation.
     Teuchos::RCP<EntityImpl> b_entity_impl;
 };
 

@@ -44,6 +44,7 @@
 #include <iterator>
 #include <functional>
 
+#include <DTK_Types.hpp>
 #include <DTK_Entity.hpp>
 
 namespace DataTransferKit
@@ -126,7 +127,7 @@ class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
     EntityIterator* b_iterator_impl;
 
     // Predicate.
-    std::function<bool(Entity)> b_predicate;
+    PredicateFunction b_predicate;
 };
 
 //---------------------------------------------------------------------------//

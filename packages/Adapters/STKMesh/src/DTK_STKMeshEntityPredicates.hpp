@@ -66,12 +66,10 @@ class STKPartPredicate
 
     STKPartPredicate() { /* ... */ }
 
-    ~STKPartPredicate() { /* ... */ }
-
     bool operator()( Entity entity );
 
-    std::function<bool(Entity)> getFunction() const
-    { return std::function<bool(Entity)>(*this); }
+    PredicateFunction getFunction() const
+    { return PredicateFunction(*this); }
 
   protected:
 
@@ -90,8 +88,6 @@ class STKPartNamePredicate : public STKPartPredicate
 
     STKPartNamePredicate( const Teuchos::Array<std::string>& part_names,
 			  const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
-
-    ~STKPartNamePredicate() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//
@@ -104,8 +100,6 @@ class STKPartVectorPredicate : public STKPartPredicate
   public:
 
     STKPartVectorPredicate( const stk::mesh::PartVector& parts );
-
-    ~STKPartVectorPredicate() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//
@@ -118,8 +112,6 @@ class STKSelectorPredicate : public STKPartPredicate
   public:
 
     STKSelectorPredicate( const stk::mesh::Selector& selector );
-
-    ~STKSelectorPredicate() { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//

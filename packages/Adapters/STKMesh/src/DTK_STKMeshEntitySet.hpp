@@ -74,11 +74,6 @@ class STKMeshEntitySet : public EntitySet
      */
     STKMeshEntitySet( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
 
-    /*!
-     * \brief Destructor.
-     */
-    ~STKMeshEntitySet();
-
     //@{
     //! Parallel functions.
     /*!
@@ -118,7 +113,7 @@ class STKMeshEntitySet : public EntitySet
      */
     EntityIterator entityIterator( 
 	const EntityType entity_type,
-	const std::function<bool(Entity)>& predicate ) const override;
+	const PredicateFunction& predicate ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are

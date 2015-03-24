@@ -61,7 +61,7 @@ BasicEntitySetIterator::BasicEntitySetIterator()
 // Constructor.
 BasicEntitySetIterator::BasicEntitySetIterator(
     Teuchos::RCP<std::unordered_map<EntityId,Entity> > map,
-    const std::function<bool(Entity)>& predicate )
+    const PredicateFunction& predicate )
     : d_map( map )
     , d_map_it( d_map->begin() )
 {
@@ -200,11 +200,6 @@ BasicEntitySet::BasicEntitySet(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-BasicEntitySet::~BasicEntitySet()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Add an entity to the set.
 void BasicEntitySet::addEntity( const Entity& entity )
 {
@@ -242,7 +237,7 @@ void BasicEntitySet::getEntity( const EntityType entity_type,
 // predicate. 
 EntityIterator BasicEntitySet::entityIterator(
     const EntityType entity_type,
-    const std::function<bool(Entity)>& predicate ) const
+    const PredicateFunction& predicate ) const
 {
     Teuchos::RCP<std::unordered_map<EntityId,Entity> > 
 	map_ptr( &d_entities[entity_type], false );

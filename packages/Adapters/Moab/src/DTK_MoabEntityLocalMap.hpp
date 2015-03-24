@@ -68,11 +68,6 @@ class MoabEntityLocalMap : public EntityLocalMap
     MoabEntityLocalMap( const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
 
     /*!
-     * \brief Destructor.
-     */
-    ~MoabEntityLocalMap();
-
-    /*!
      * \brief Return the entity measure with respect to the parameteric
      * dimension (volume for a 3D entity, area for 2D, and length for 1D).
      * \param entity Compute the measure for this entity.
