@@ -72,11 +72,6 @@ class FunctionSpace
 		   const Teuchos::RCP<EntityShapeFunction>& shape_function );
 
     /*!
-     * \brief Destructor.
-     */
-    ~FunctionSpace();
-
-    /*!
      * \brief Get the entity set over which the fields are defined.
      */
     Teuchos::RCP<EntitySet> entitySet() const;
