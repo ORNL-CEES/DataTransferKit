@@ -57,19 +57,21 @@ PointCloudOperatorFactory<Scalar>::PointCloudOperatorFactory()
 {
     d_name_map["Spline Interpolation"] = SPLINE_INTERPOLATION;
     d_name_map["Moving Least Square Reconstruction"] = MOVING_LEAST_SQUARE;
+
+    d_basis_map["Wendland"] = WENDLAND;
+    d_basis_map["Wu"] = WU;
+    d_basis_map["Buhmann"] = BUHMANN;
 }
     
 //---------------------------------------------------------------------------//
 // Creation method.
 template<class Scalar>
 Teuchos::RCP<MapOperator<Scalar> >
-PointCloudOperatorFactory::create(
+PointCloudOperatorFactory<Scalar>::create(
     const Teuchos::RCP<const TpetraMap>& domain_map,
     const Teuchos::RCP<const TpetraMap>& range_map,
     const Teuchos::ParameterList& parameters )
 {
-    DTK_REQUIRE( Teuchos::nonnull(parameters) );
-
     // Get the name of the map to build.
     std::string map_name = parameters.get<std::string>("Map Type");
     DTK_REQUIRE( d_name_map.count(map_name) );
@@ -92,7 +94,6 @@ PointCloudOperatorFactory::create(
     {
 	// Spline Interpolation.
 	case SPLINE_INTERPOLATION:
-
 	    switch( space_dim )
 	    {
 		case 1:
@@ -290,7 +291,6 @@ PointCloudOperatorFactory::create(
 
 	// Moving least square reconstruction.
 	case MOVING_LEAST_SQUARE:
-
 	    switch( space_dim )
 	    {
 		case 1:
@@ -487,10 +487,12 @@ PointCloudOperatorFactory::create(
 	    break;
 	    
 	default:
-	    DTK_INSIST( false, "Map operator type not supported!" );
+	    bool map_type_is_valid = false;
+	    DTK_INSIST( map_type_is_valid );
 	    break;
     }
 
+    DTK_ENSURE( Teuchos::nonnull(map) );
     return map;
 }
 

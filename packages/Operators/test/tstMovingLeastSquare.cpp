@@ -46,8 +46,7 @@
 #include <limits>
 #include <cstdlib>
 
-#include <DTK_MovingLeastSquareReconstructionOperator.hpp>
-#include <DTK_WuBasis.hpp>
+#include <DTK_MapOperatorFactory.hpp>
 #include <DTK_Point.hpp>
 #include <DTK_BasicGeometryManager.hpp>
 #include <DTK_Entity.hpp>
@@ -128,16 +127,19 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_test )
 	    comm, range_points(), field_dim, range_data() );
 
     // Make a moving least square reconstruction operator.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    parameters->set<double>("RBF Radius", 2.0);
+    parameters->set<std::string>("Map Type", "Point Cloud");
+    Teuchos::ParameterList& cloud_list = parameters->sublist("Point Cloud");
+    cloud_list.set<std::string>("Map Type","Moving Least Square Reconstruction");
+    cloud_list.set<std::string>("Basis Type", "Wu");
+    cloud_list.set<int>("Basis Order",2);
+    cloud_list.set<int>("Spatial Dimension",space_dim);
+    DataTransferKit::MapOperatorFactory<double> factory;
     Teuchos::RCP<DataTransferKit::MapOperator<double> > mls_op =
-	Teuchos::rcp( 
-	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
-	    double,DataTransferKit::WuBasis<2>,space_dim>(
-		domain_vector->getMap(), range_vector->getMap()) );
+	factory.create( domain_vector->getMap(), range_vector->getMap(), *parameters );
 
     // Setup the operator.
-    double radius = 2.0;
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<double>("RBF Radius", radius);
     mls_op->setup( domain_manager.functionSpace(),
 		   range_manager.functionSpace(),
 		   parameters );

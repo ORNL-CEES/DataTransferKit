@@ -46,7 +46,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_ConsistentInterpolationOperator.hpp>
+#include <DTK_MapOperatorFactory.hpp>
 #include <DTK_EntitySelector.hpp>
 #include <DTK_FunctionSpace.hpp>
 #include <DTK_BasicEntitySet.hpp>
@@ -256,11 +256,14 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // MAPPING
     // Create a map.
-    Teuchos::RCP<MapOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(domain_dof_map,range_dof_map) );
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    parameters->set<std::string>("Map Type", "Consistent Interpolation");
+    Teuchos::ParameterList& map_list = parameters->sublist("Consistent Interpolation");
+    DataTransferKit::MapOperatorFactory<double> factory;
+    Teuchos::RCP<DataTransferKit::MapOperator<double> > map_op =
+	factory.create( domain_dof_map, range_dof_map, *parameters );
 
     // Setup the map.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     map_op->setup( domain_space, range_space, parameters );
 
     // Apply the map.

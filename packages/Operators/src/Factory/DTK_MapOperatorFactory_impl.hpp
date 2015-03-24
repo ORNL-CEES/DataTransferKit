@@ -60,13 +60,11 @@ MapOperatorFactory<Scalar>::MapOperatorFactory()
 // Creation method.
 template<class Scalar>
 Teuchos::RCP<MapOperator<Scalar> >
-MapOperatorFactory::create(
+MapOperatorFactory<Scalar>::create(
     const Teuchos::RCP<const TpetraMap>& domain_map,
     const Teuchos::RCP<const TpetraMap>& range_map,
     const Teuchos::ParameterList& parameters )
 {
-    DTK_REQUIRE( Teuchos::nonnull(parameters) );
-
     // Get the name of the map to build.
     std::string map_name = parameters.get<std::string>("Map Type");
     DTK_REQUIRE( d_name_map.count(map_name) );
@@ -74,6 +72,9 @@ MapOperatorFactory::create(
 
     // Get the parameters for the map.
     Teuchos::ParameterList map_list = parameters.sublist(map_name);
+
+    // Initialize subclass factories.
+    PointCloudOperatorFactory<Scalar> pcloud_factory;
 
     // Build the map.
     Teuchos::RCP<MapOperator<Scalar> > map;
@@ -87,15 +88,17 @@ MapOperatorFactory::create(
 
 	// Spline Interpolation
 	case POINT_CLOUD:
-	    PointCloudOperatorFactory<Scalar> pcloud_factory;
 	    map = pcloud_factory.create( domain_map, range_map, map_list );
 	    break;
-	    
+
+        // Throw on default.
 	default:
-	    DTK_INSIST( false, "Map operator type not supported!" );
+	    bool map_type_is_valid = false;
+	    DTK_INSIST( map_type_is_valid );
 	    break;
     }
 
+    DTK_ENSURE( Teuchos::nonnull(map) );
     return map;
 }
 

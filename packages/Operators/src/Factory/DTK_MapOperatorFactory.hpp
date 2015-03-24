@@ -59,6 +59,8 @@ namespace DataTransferKit
 template<class Scalar>
 class MapOperatorFactory
 {
+  public:
+    
     //! Tpetra Map typedef.
     typedef typename MapOperator<Scalar>::TpetraMap TpetraMap;
 

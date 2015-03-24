@@ -59,6 +59,8 @@ namespace DataTransferKit
 template<class Scalar>
 class PointCloudOperatorFactory
 {
+  public:
+    
     //! Tpetra Map typedef.
     typedef typename MapOperator<Scalar>::TpetraMap TpetraMap;
 
@@ -104,7 +106,7 @@ class PointCloudOperatorFactory
     std::unordered_map<std::string,int> d_name_map;
 
     // Basis name to enum map.
-    std::unordered_map<std::string,int> d_basis_map.
+    std::unordered_map<std::string,int> d_basis_map;
 };
 
 //---------------------------------------------------------------------------//
