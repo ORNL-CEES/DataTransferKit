@@ -47,12 +47,9 @@
 #include <cassert>
 
 #include <DTK_ConsistentInterpolationOperator.hpp>
-#include <DTK_EntitySelector.hpp>
-#include <DTK_FunctionSpace.hpp>
-#include <DTK_BasicEntitySet.hpp>
-#include <DTK_BasicGeometryLocalMap.hpp>
-#include <DTK_EntityCenteredShapeFunction.hpp>
-#include <DTK_EntityCenteredDOFVector.hpp>
+#include <DTK_BasicGeometryManager.hpp>
+#include <DTK_EntityCenteredField.hpp>
+#include <DTK_FieldMultiVector.hpp>
 #include <DTK_Box.hpp>
 #include <DTK_Point.hpp>
 
@@ -68,16 +65,6 @@
 #include <Tpetra_Map.hpp>
 
 //---------------------------------------------------------------------------//
-// DOF map.
-//---------------------------------------------------------------------------//
-Teuchos::RCP<const Tpetra::Map<int,std::size_t> > createDOFMap(
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-    const Teuchos::ArrayView<const std::size_t>& entity_ids )
-{
-    return Tpetra::createNonContigMap<int,std::size_t>( entity_ids, comm );
-}
-
-//---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
@@ -91,8 +78,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 
     // DOMAIN SETUP
     // Make a domain entity set.
-    Teuchos::RCP<EntitySet> domain_set = 
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_boxes = (comm->getRank() == 0) ? 5 : 0;
     Teuchos::Array<std::size_t> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
@@ -102,38 +87,24 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 	box_ids[i] = i;
 	box_dofs[i] = 2.0*box_ids[i];
 	boxes[i] = Box(box_ids[i],comm_rank,i,0.0,0.0,i,1.0,1.0,i+1.0);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(boxes[i]);
     }
 
-    // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
-
-    // Construct a shape function for the boxes.
-    Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the boxes.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
-	createDOFMap( comm, box_ids() );
-
-    // Construct a selector for the boxes.
-    Teuchos::RCP<EntitySelector> domain_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
-
-    // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
-	new FunctionSpace(domain_set,domain_selector,domain_local_map,domain_shape) );
-
-    // Construct a DOF vector for the boxes.
+    // Make a manager for the domain geometry.
+    DataTransferKit::BasicGeometryManager domain_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    
+    // Make a DOF vector for the domain.
+    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  boxes(), 1, box_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  domain_field,
+			  domain_manager.functionSpace()->entitySet()) );
 
     // RANGE SETUP
     // Make a range entity set.
-    Teuchos::RCP<EntitySet> range_set =
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
     Teuchos::Array<double> point(3);
     Teuchos::Array<std::size_t> point_ids( num_points );
@@ -147,51 +118,36 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 	point_ids[i] = num_points*comm_rank + i;
 	point_dofs[i] = 0.0;
 	points[i] = Point(point_ids[i],comm_rank,point);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(points[i]);
     }
 
-    // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    // Make a manager for the range geometry.
+    DataTransferKit::BasicGeometryManager range_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
 
-    // Construct a shape function for the points.
-    Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the points.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
-	createDOFMap( comm, point_ids() );
-
-    // Construct a selector for the points.
-    Teuchos::RCP<EntitySelector> range_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
-
-    // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp( 
-	new FunctionSpace(range_set,range_selector,range_local_map,range_shape) );
-
-    // Construct a DOF vector for the points.
+    // Make a DOF vector for the range.
+    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  points(), 1, point_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  range_field,
+			  range_manager.functionSpace()->entitySet()) );
 
     // MAPPING
     // Create a map.
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(domain_dof_map,range_dof_map) );
+	new ConsistentInterpolationOperator<double>(
+	    domain_dofs->getMap(),range_dofs->getMap()) );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     parameters->set<bool>("Track Missed Range Entities",true);
-    map_op->setup( 
-	domain_space, range_space, parameters );
+    map_op->setup(
+	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
-
-    // Push back to the point dofs.
-    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
-	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -216,8 +172,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // DOMAIN SETUP
     // Make a domain entity set.
-    Teuchos::RCP<EntitySet> domain_set = 
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_boxes = 5;
     Teuchos::Array<std::size_t> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
@@ -228,38 +182,24 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 	box_dofs[i] = 2.0*box_ids[i];
 	boxes[i] = Box(box_ids[i],comm_rank,box_ids[i],
 		       0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(boxes[i]);
     }
 
-    // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
-
-    // Construct a shape function for the boxes.
-    Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the boxes.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
-	createDOFMap( comm, box_ids() );
-
-    // Construct a selector for the boxes.
-    Teuchos::RCP<EntitySelector> domain_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
-
-    // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp(
-	new FunctionSpace(domain_set,domain_selector,domain_local_map,domain_shape) );
-
-    // Construct a DOF vector for the boxes.
+    // Make a manager for the domain geometry.
+    DataTransferKit::BasicGeometryManager domain_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    
+    // Make a DOF vector for the domain.
+    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  boxes(), 1, box_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  domain_field,
+			  domain_manager.functionSpace()->entitySet()) );
 
     // RANGE SETUP
     // Make a range entity set.
-    Teuchos::RCP<EntitySet> range_set =
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
     Teuchos::Array<double> point(3);
     Teuchos::Array<std::size_t> point_ids( num_points );
@@ -273,51 +213,36 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 	point[1] = 0.5;
 	point[2] = point_ids[i] + 0.5;
 	points[i] = Point(point_ids[i],comm_rank,point);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(points[i]);
     }
 
-    // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    // Make a manager for the range geometry.
+    DataTransferKit::BasicGeometryManager range_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
 
-    // Construct a shape function for the points.
-    Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the points.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
-	createDOFMap( comm, point_ids() );
-
-    // Construct a selector for the points.
-    Teuchos::RCP<EntitySelector> range_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
-
-    // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp( 
-	new FunctionSpace(range_set,range_selector,range_local_map,range_shape) );
-
-    // Construct a DOF vector for the points.
+    // Make a DOF vector for the range.
+    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  points(), 1, point_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  range_field,
+			  range_manager.functionSpace()->entitySet()) );
 
     // MAPPING
     // Create a map.
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(domain_dof_map,range_dof_map) );
+	new ConsistentInterpolationOperator<double>(
+	    domain_dofs->getMap(),range_dofs->getMap()) );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     parameters->set<bool>("Track Missed Range Entities",true);
-    map_op->setup( 
-	domain_space, range_space, parameters );
+    map_op->setup(
+	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
-
-    // Push back to the point dofs.
-    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
-	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -341,10 +266,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     int comm_rank = comm->getRank();
 
     // DOMAIN SETUP
-    // Make a domain entity set.
-    Teuchos::RCP<EntitySet> domain_set = 
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
-
     // Don't put domain entities on proc 0.
     int num_boxes = (comm->getRank() != 0) ? 5 : 0;
     Teuchos::Array<std::size_t> box_ids( num_boxes );
@@ -356,38 +277,24 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
 	box_dofs[i] = 2.0*box_ids[i];
 	boxes[i] = Box(box_ids[i],comm_rank,box_ids[i],
 		       0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(boxes[i]);
     }
 
-    // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
-
-    // Construct a shape function for the boxes.
-    Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the boxes.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
-	createDOFMap( comm, box_ids() );
-
-    // Construct a selector for the boxes.
-    Teuchos::RCP<EntitySelector> domain_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
-
-    // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
-	new FunctionSpace(domain_set,domain_selector,domain_local_map,domain_shape) );
-
-    // Construct a DOF vector for the boxes.
+    // Make a manager for the domain geometry.
+    DataTransferKit::BasicGeometryManager domain_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    
+    // Make a DOF vector for the domain.
+    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  boxes(), 1, box_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  domain_field,
+			  domain_manager.functionSpace()->entitySet()) );    
 
     // RANGE SETUP
     // Make a range entity set.
-    Teuchos::RCP<EntitySet> range_set =
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
     Teuchos::Array<double> point(3);
     Teuchos::Array<std::size_t> point_ids( num_points );
@@ -401,51 +308,36 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
 	point[1] = 0.5;
 	point[2] = point_ids[i] + 0.5;
 	points[i] = Point(point_ids[i],comm_rank,point);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(points[i]);
     }
 
-    // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    // Make a manager for the range geometry.
+    DataTransferKit::BasicGeometryManager range_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
 
-    // Construct a shape function for the points.
-    Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the points.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
-	createDOFMap( comm, point_ids() );
-
-    // Construct a selector for the points.
-    Teuchos::RCP<EntitySelector> range_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
-
-    // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp(
-	new FunctionSpace(range_set,range_selector,range_local_map,range_shape) );
-
-    // Construct a DOF vector for the points.
+    // Make a DOF vector for the range.
+    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  points(), 1, point_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  range_field,
+			  range_manager.functionSpace()->entitySet()) );
 
     // MAPPING
     // Create a map.
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(domain_dof_map,range_dof_map) );
+	new ConsistentInterpolationOperator<double>(
+	    domain_dofs->getMap(),range_dofs->getMap()) );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup( 
-	domain_space, range_space, parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
-
-    // Push back to the point dofs.
-    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
-	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -480,8 +372,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 
     // DOMAIN SETUP
     // Make a domain entity set.
-    Teuchos::RCP<EntitySet> domain_set = 
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_boxes = 5;
     Teuchos::Array<std::size_t> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
@@ -492,38 +382,24 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 	box_dofs[i] = 2.0*box_ids[i];
 	boxes[i] = Box(box_ids[i],comm_rank,box_ids[i],
 		       0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(boxes[i]);
     }
 
-    // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
-
-    // Construct a shape function for the boxes.
-    Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the boxes.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
-	createDOFMap( comm, box_ids() );
-
-    // Construct a selector for the boxes.
-    Teuchos::RCP<EntitySelector> domain_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
-
-    // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
-	new FunctionSpace(domain_set,domain_selector,domain_local_map,domain_shape) );
-
-    // Construct a DOF vector for the boxes.
+    // Make a manager for the domain geometry.
+    DataTransferKit::BasicGeometryManager domain_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    
+    // Make a DOF vector for the domain.
+    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  boxes(), 1, box_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  domain_field,
+			  domain_manager.functionSpace()->entitySet()) );
 
     // RANGE SETUP
     // Make a range entity set.
-    Teuchos::RCP<EntitySet> range_set =
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = ( comm_rank != 0 ) ? 5 : 0;
     Teuchos::Array<double> point(3);
     Teuchos::Array<std::size_t> point_ids( num_points );
@@ -537,51 +413,36 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 	point[1] = 0.5;
 	point[2] = point_ids[i] + 0.5;
 	points[i] = Point(point_ids[i],comm_rank,point);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(points[i]);
     }
 
-    // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    // Make a manager for the range geometry.
+    DataTransferKit::BasicGeometryManager range_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
 
-    // Construct a shape function for the points.
-    Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the points.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
-	createDOFMap( comm, point_ids() );
-
-    // Construct a selector for the points.
-    Teuchos::RCP<EntitySelector> range_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
-
-    // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp(
-	new FunctionSpace(range_set,range_selector,range_local_map,range_shape) );
-
-    // Construct a DOF vector for the points.
+    // Make a DOF vector for the range.
+    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  points(), 1, point_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  range_field,
+			  range_manager.functionSpace()->entitySet()) );
 
     // MAPPING
     // Create a map.
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(domain_dof_map,range_dof_map) );
+	new ConsistentInterpolationOperator<double>(
+	    domain_dofs->getMap(),range_dofs->getMap()) );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup( 
-	domain_space, range_space, parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
-
-    // Push back to the point dofs.
-    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
-	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -606,8 +467,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 
     // DOMAIN SETUP
     // Make a domain entity set.
-    Teuchos::RCP<EntitySet> domain_set = 
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_boxes = 5;
     Teuchos::Array<std::size_t> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
@@ -618,38 +477,24 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 	box_dofs[i] = 2.0*box_ids[i];
 	boxes[i] = Box(box_ids[i],comm_rank,box_ids[i],
 		       0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(boxes[i]);
     }
 
-    // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
-
-    // Construct a shape function for the boxes.
-    Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the boxes.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
-	createDOFMap( comm, box_ids() );
-
-    // Construct a selector for the boxes.
-    Teuchos::RCP<EntitySelector> domain_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
-
-    // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
-	new FunctionSpace(domain_set,domain_selector,domain_local_map,domain_shape) );
-
-    // Construct a DOF vector for the boxes.
+    // Make a manager for the domain geometry.
+    DataTransferKit::BasicGeometryManager domain_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    
+    // Make a DOF vector for the domain.
+    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  boxes(), 1, box_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  domain_field,
+			  domain_manager.functionSpace()->entitySet()) );
 
     // RANGE SETUP
     // Make a range entity set.
-    Teuchos::RCP<EntitySet> range_set =
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 10;
     Teuchos::Array<double> point(3);
     Teuchos::Array<std::size_t> point_ids( num_points );
@@ -663,51 +508,36 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 	point[1] = 0.5;
 	point[2] = comm_rank*5.0 + i + 0.5;
 	points[i] = Point(point_ids[i],comm_rank,point);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(points[i]);
     }
 
-    // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    // Make a manager for the range geometry.
+    DataTransferKit::BasicGeometryManager range_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
 
-    // Construct a shape function for the points.
-    Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the points.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
-	createDOFMap( comm, point_ids() );
-
-    // Construct a selector for the points.
-    Teuchos::RCP<EntitySelector> range_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
-
-    // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp( 
-	new FunctionSpace(range_set,range_selector,range_local_map,range_shape) );
-
-    // Construct a DOF vector for the points.
+    // Make a DOF vector for the range.
+    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  points(), 1, point_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  range_field,
+			  range_manager.functionSpace()->entitySet()) );
 
     // MAPPING
     // Create a map.
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(domain_dof_map,range_dof_map) );
+	new ConsistentInterpolationOperator<double>(
+	    domain_dofs->getMap(),range_dofs->getMap()) );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup( 
-	domain_space, range_space, parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
-
-    // Push back to the point dofs.
-    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
-	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -744,8 +574,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 
     // DOMAIN SETUP
     // Make a domain entity set.
-    Teuchos::RCP<EntitySet> domain_set = 
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_boxes = 1;
     Teuchos::Array<std::size_t> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
@@ -754,37 +582,23 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     box_dofs[0] = 2.0*box_ids[0];
     boxes[0] = Box(box_ids[0],comm_rank,box_ids[0],
 		   0.0,0.0,box_ids[0],1.0,1.0,box_ids[0]+1.0);
-    Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(boxes[0]);
 	
-    // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
-
-    // Construct a shape function for the boxes.
-    Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the boxes.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
-	createDOFMap( comm, box_ids() );
-
-    // Construct a selector for the boxes.
-    Teuchos::RCP<EntitySelector> domain_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
-
-    // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp( 
-	new FunctionSpace(domain_set,domain_selector,domain_local_map,domain_shape) );
-
-    // Construct a DOF vector for the boxes.
+    // Make a manager for the domain geometry.
+    DataTransferKit::BasicGeometryManager domain_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    
+    // Make a DOF vector for the domain.
+    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  boxes(), 1, box_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  domain_field,
+			  domain_manager.functionSpace()->entitySet()) );
 
     // RANGE SETUP
     // Make a range entity set.
-    Teuchos::RCP<EntitySet> range_set =
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 1;
     Teuchos::Array<double> point(3);
     Teuchos::Array<std::size_t> point_ids( num_points );
@@ -796,50 +610,35 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     point_ids[0] = comm_rank;
     point_dofs[0] = 0.0;
     points[0] = Point(point_ids[0],comm_rank,point);
-    Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity( points[0] );
 
-    // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    // Make a manager for the range geometry.
+    DataTransferKit::BasicGeometryManager range_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
 
-    // Construct a shape function for the points.
-    Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the points.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
-	createDOFMap( comm, point_ids() );
-
-    // Construct a selector for the points.
-    Teuchos::RCP<EntitySelector> range_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
-
-    // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp( 
-	new FunctionSpace(range_set,range_selector,range_local_map,range_shape) );
-
-    // Construct a DOF vector for the points.
+    // Make a DOF vector for the range.
+    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  points(), 1, point_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  range_field,
+			  range_manager.functionSpace()->entitySet()) );
 
     // MAPPING
     // Create a map.
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(domain_dof_map,range_dof_map) );
+	new ConsistentInterpolationOperator<double>(
+	    domain_dofs->getMap(),range_dofs->getMap()) );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup( 
-	domain_space, range_space, parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
-
-    // Push back to the point dofs.
-    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
-	*range_dofs, point_dofs() );
 
     // Check the results of the mapping. We should get an average on some
     // cores because of the location in multiple domains.
@@ -867,8 +666,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
 
     // DOMAIN SETUP
     // Make a domain entity set.
-    Teuchos::RCP<EntitySet> domain_set = 
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_boxes = 5;
     Teuchos::Array<std::size_t> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
@@ -879,38 +676,24 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
 	box_dofs[i] = 2.0*box_ids[i];
 	boxes[i] = Box(box_ids[i],comm_rank,box_ids[i],
 		       0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(boxes[i]);
     }
 
-    // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
-
-    // Construct a shape function for the boxes.
-    Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the boxes.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
-	createDOFMap( comm, box_ids() );
-
-    // Construct a selector for the boxes.
-    Teuchos::RCP<EntitySelector> domain_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
-
-    // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp(
-	new FunctionSpace(domain_set,domain_selector,domain_local_map,domain_shape) );
-
-    // Construct a DOF vector for the boxes.
+    // Make a manager for the domain geometry.
+    DataTransferKit::BasicGeometryManager domain_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    
+    // Make a DOF vector for the domain.
+    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  boxes(), 1, box_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  domain_field,
+			  domain_manager.functionSpace()->entitySet()) );
 
     // RANGE SETUP
     // Make a range entity set.
-    Teuchos::RCP<EntitySet> range_set =
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
     Teuchos::Array<double> point(3);
     Teuchos::Array<std::size_t> point_ids( num_points+1 );
@@ -924,7 +707,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
 	point[1] = 0.5;
 	point[2] = point_ids[i] + 0.5;
 	points[i] = Point(point_ids[i],comm_rank,point);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(points[i]);
     }
 
     // Add a bad point.
@@ -933,50 +715,35 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
     point[1] = 0.0;
     point[2] = 0.0;
     points[5] = Point(point_ids[5],comm_rank,point);
-    Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(points[5]);
 
-    // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    // Make a manager for the range geometry.
+    DataTransferKit::BasicGeometryManager range_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
 
-    // Construct a shape function for the points.
-    Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the points.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
-	createDOFMap( comm, point_ids() );
-
-    // Construct a selector for the points.
-    Teuchos::RCP<EntitySelector> range_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
-
-    // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp( 
-	new FunctionSpace(range_set,range_selector,range_local_map,range_shape) );
-
-    // Construct a DOF vector for the points.
+    // Make a DOF vector for the range.
+    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  points(), 1, point_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  range_field,
+			  range_manager.functionSpace()->entitySet()) );
 
     // MAPPING
     // Create a map.
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(domain_dof_map,range_dof_map) );
+	new ConsistentInterpolationOperator<double>(
+	    domain_dofs->getMap(),range_dofs->getMap()) );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup( 
-	domain_space, range_space, parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
-
-    // Push back to the point dofs.
-    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
-	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
@@ -1005,8 +772,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
 
     // DOMAIN SETUP
     // Make a domain entity set.
-    Teuchos::RCP<EntitySet> domain_set = 
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_boxes = 5;
     Teuchos::Array<std::size_t> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
@@ -1018,38 +783,24 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
 	boxes[i] = Box(box_ids[i],comm_rank,box_ids[i],
 		       box_ids[i],box_ids[i],box_ids[i],
 		       box_ids[i]+1.0,box_ids[i]+1.0,box_ids[i]+1.0);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(boxes[i]);
     }
 
-    // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> domain_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
-
-    // Construct a shape function for the boxes.
-    Teuchos::RCP<EntityShapeFunction> domain_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the boxes.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > domain_dof_map =
-	createDOFMap( comm, box_ids() );
-
-    // Construct a selector for the boxes.
-    Teuchos::RCP<EntitySelector> domain_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_VOLUME) );
-
-    // Construct a function space for the boxes.
-    Teuchos::RCP<FunctionSpace> domain_space = Teuchos::rcp(
-	new FunctionSpace(domain_set,domain_selector,domain_local_map,domain_shape) );
-
-    // Construct a DOF vector for the boxes.
+    // Make a manager for the domain geometry.
+    DataTransferKit::BasicGeometryManager domain_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    
+    // Make a DOF vector for the domain.
+    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  boxes(), 1, box_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, boxes(), 1, box_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  domain_field,
+			  domain_manager.functionSpace()->entitySet()) );
 
     // RANGE SETUP
     // Make a range entity set.
-    Teuchos::RCP<EntitySet> range_set =
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
     Teuchos::Array<double> point(3);
     Teuchos::Array<std::size_t> point_ids( num_points+1 );
@@ -1063,7 +814,6 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
 	point[1] = point_ids[i] + 0.5;
 	point[2] = point_ids[i] + 0.5;
 	points[i] = Point(point_ids[i],comm_rank,point);
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(points[i]);
     }
 
     // Add a bad point.
@@ -1073,50 +823,35 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
     point[1] = id + 0.5;
     point[2] = id + 1.5;
     points[5] = Point(point_ids[5],comm_rank,point);
-    Teuchos::rcp_dynamic_cast<BasicEntitySet>(range_set)->addEntity(points[5]);
 
-    // Construct a local map for the points.
-    Teuchos::RCP<EntityLocalMap> range_local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    // Make a manager for the range geometry.
+    DataTransferKit::BasicGeometryManager range_manager( 
+	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
 
-    // Construct a shape function for the points.
-    Teuchos::RCP<EntityShapeFunction> range_shape =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
-
-    // Construct a dof map for the points.
-    Teuchos::RCP<const Tpetra::Map<int,std::size_t> > range_dof_map =
-	createDOFMap( comm, point_ids() );
-
-    // Construct a selector for the points.
-    Teuchos::RCP<EntitySelector> range_selector = 
-	Teuchos::rcp( new EntitySelector(ENTITY_TYPE_NODE) );
-
-    // Construct a function space for the points.
-    Teuchos::RCP<FunctionSpace> range_space = Teuchos::rcp( 
-	new FunctionSpace(range_set,range_selector,range_local_map,range_shape) );
-
-    // Construct a DOF vector for the points.
+    // Make a DOF vector for the range.
+    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  points(), 1, point_dofs,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, points(), 1, point_dofs() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  range_field,
+			  range_manager.functionSpace()->entitySet()) );
 
     // MAPPING
     // Create a map.
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(domain_dof_map,range_dof_map) );
+	new ConsistentInterpolationOperator<double>(
+	    domain_dofs->getMap(),range_dofs->getMap()) );
 
     // Setup the map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup( 
-	domain_space, range_space, parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
-
-    // Push back to the point dofs.
-    EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
-	*range_dofs, point_dofs() );
 
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )

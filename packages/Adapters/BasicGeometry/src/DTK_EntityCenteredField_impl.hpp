@@ -32,88 +32,101 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityCenteredDOFVector.hpp
+ * \brief DTK_EntityCenteredField_impl.hpp
  * \author Stuart R. Slattery
- * \brief Entity-centered DOF vector.
+ * \brief Entity-centered field.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYCENTEREDDOFVECTOR_HPP
-#define DTK_ENTITYCENTEREDDOFVECTOR_HPP
+#ifndef DTK_ENTITYCENTEREDFIELD_IMPL_HPP
+#define DTK_ENTITYCENTEREDFIELD_IMPL_HPP
 
-#include <DTK_Entity.hpp>
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayView.hpp>
-#include <Teuchos_Comm.hpp>
-
-#include <Tpetra_MultiVector.hpp>
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*!
-  \class EntityCenteredDOFVector
-  \brief Entity-centered DOF vector.
-
-  Tools for constructing Tpetra vectors for data bound to entity-centered
-  shape functions.
-*/
-//---------------------------------------------------------------------------//
-class EntityCenteredDOFVector
+// Constructor.
+template<class Scalar>
+EntityCenteredField<Scalar>::EntityCenteredField(
+    const Teuchos::ArrayView<Entity>& entities,
+    const int field_dim,
+    const Teuchos::ArrayRCP<Scalar>& dof_data,
+    const DataLayout layout )
+    : d_field_dim( field_dim )
+    , d_data( dof_data )
+    , d_layout( layout )
 {
-  public:
+    d_lda = entities.size();
+    DTK_CHECK( dof_data.size() == d_lda * d_field_dim );
+	       
+    d_dof_ids.resize( d_lda );
+    for ( int n = 0; n < d_lda; ++n )
+    {
+	d_dof_ids[n] = entities[n].id();
+	d_id_map.emplace( d_dof_ids[n], n );
+    }
+}
 
-    /*!
-     * \brief Constructor.
-     */
-    EntityCenteredDOFVector()
-    { /* ... */ }
+//---------------------------------------------------------------------------//
+// Get the dimension of the field.
+template<class Scalar>
+int EntityCenteredField<Scalar>::dimension() const
+{
+    return d_field_dim;
+}
 
-    /*!
-     * \brief Given a set of entity ids and DOF data bound to the center of
-     * those entites, build a Tpetra vector and copy the data into the
-     * vector.
-     * \param comm The communicator the DOFs are defined over.
-     * \param entities The entities over which the DOFs are defined.
-     * \param dof_data Reference counted array of the DOF data for the given
-     * entity ids.
-     * \param lda Single vector length. Should be the same as the size of
-     * entity_ids.
-     * \param num_vectors The number of vectors in the multivector.
-     */
-    template<class Scalar>
-    static Teuchos::RCP<Tpetra::MultiVector<Scalar,int,DofId> > 
-    pullTpetraMultiVectorFromEntitiesAndView(
-	const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-	const Teuchos::ArrayView<Entity>& entities,
-	const int field_dim,
-	const Teuchos::ArrayView<Scalar>& dof_data );
+//---------------------------------------------------------------------------//
+// Get the locally-owned entity DOF ids of the field.
+template<class Scalar>
+Teuchos::ArrayView<const DofId>
+EntityCenteredField<Scalar>::getLocalEntityDOFIds() const
+{
+    return d_dof_ids();
+}
 
-    /*!
-     * \brief Given a Tpetra vector created by pulling from a view, push back
-     * to the same view.
-    */
-    template<class Scalar>
-    static void pushTpetraMultiVectorToEntitiesAndView(
-	const Tpetra::MultiVector<Scalar,int,DofId>& vector,
-	Teuchos::ArrayView<Scalar>&& dof_data );
-};
+//---------------------------------------------------------------------------//
+// Given a local dof id and a dimension, read data from the application
+// field.
+template<class Scalar>
+Scalar EntityCenteredField<Scalar>::readFieldData( const DofId dof_id,
+						   const int dimension ) const
+{
+    DTK_REQUIRE( d_id_map.count(dof_id) );
+    int local_id = d_id_map.find( dof_id )->second;
+    return (BLOCKED == d_layout) ?
+	d_data[dimension*d_lda + local_id] :
+	d_data[local_id*d_field_dim + dimension];
+}
+
+//---------------------------------------------------------------------------//
+// Given a local dof id, dimension, and field value, write data into the
+// application field.
+template<class Scalar>
+void EntityCenteredField<Scalar>::writeFieldData( const DofId dof_id,
+						  const int dimension,
+						  const Scalar data )
+{
+    int local_id = d_id_map.find( dof_id )->second;
+    switch( d_layout )
+    {
+	case BLOCKED:
+	    d_data[dimension*d_lda + local_id] = data;
+	    break;
+	case INTERLEAVED:
+	    d_data[local_id*d_field_dim + dimension] = data;
+	    break;
+    }
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
 
-#include "DTK_EntityCenteredDOFVector_impl.hpp"
+#endif // end DTK_ENTITYCENTEREDFIELD_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_ENTITYCENTEREDDOFVECTOR_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_EntityCenteredDOFVector.hpp
+// end DTK_EntityCenteredField_impl.hpp
 //---------------------------------------------------------------------------//

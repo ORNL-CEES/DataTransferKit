@@ -53,7 +53,7 @@ template<class Scalar>
 FieldMultiVector<Scalar>::FieldMultiVector(
     const Teuchos::RCP<Field<Scalar> >& field,
     const Teuchos::RCP<EntitySet>& entity_set )
-    : Base( Tpetra::createNonContigMap<int,DofId>(field->getLocalDofIds(),
+    : Base( Tpetra::createNonContigMap<int,DofId>(field->getLocalEntityDOFIds(),
 						  entity_set->communicator()),
 	    field->dimension() )
     , d_field( field )
@@ -64,7 +64,7 @@ FieldMultiVector<Scalar>::FieldMultiVector(
 template<class Scalar>
 void FieldMultiVector<Scalar>::pullDataFromApplication()
 {
-    Teuchos::ArrayView<DofId> field_dofs = d_field->getLocalDofIds();
+    Teuchos::ArrayView<const DofId> field_dofs = d_field->getLocalEntityDOFIds();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> > vector_view =
 	this->get2dViewNonConst();
     int num_dofs = field_dofs.size();
@@ -83,7 +83,7 @@ void FieldMultiVector<Scalar>::pullDataFromApplication()
 template<class Scalar>
 void FieldMultiVector<Scalar>::pushDataToApplication()
 {
-    Teuchos::ArrayView<DofId> field_dofs = d_field->getLocalDofIds();
+    Teuchos::ArrayView<const DofId> field_dofs = d_field->getLocalEntityDOFIds();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> > vector_view =
 	this->get2dView();
     int num_dofs = field_dofs.size();

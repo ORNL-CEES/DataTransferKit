@@ -32,69 +32,106 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_FieldMultiVector.hpp
+ * \brief DTK_EntityCenteredField.hpp
  * \author Stuart R. Slattery
- * \brief MultiVector interface.
+ * \brief Entity-centered field.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_FIELDMULTIVECTOR_HPP
-#define DTK_FIELDMULTIVECTOR_HPP
+#ifndef DTK_ENTITYCENTEREDFIELD_HPP
+#define DTK_ENTITYCENTEREDFIELD_HPP
 
-#include "DTK_Types.hpp"
+#include <unordered_map>
+
+#include "DTK_Entity.hpp"
 #include "DTK_Field.hpp"
-#include "DTK_EntitySet.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_RCP.hpp>
-
-#include <Tpetra_MultiVector.hpp>
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class FieldMultiVector
-  \brief MultiVector interface.
+  \class EntityCenteredField
+  \brief Entity-centered field.
 
-  FieldMultiVector provides a Tpetra::MultiVector wrapper around application
-  field data. Client implementations of the Field interface provide read/write
-  access to field data on an entity-by-entity basis. The FieldMultiVector then
-  manages the copying of data between the application and the Tpetra vector
-  using the client implementations for data access.
+  Field implementation for basic geometry fields over entities. Input data is
+  1D but ordered in 2D such that entity 'e' has for dimension 'd' a value of:
+
+  BLOCKED: data[d][e] 
+
+  INTERLEAVED: data[e][d]
+
+  Set the value of data layout in the constructor.
 */
 //---------------------------------------------------------------------------//
 template<class Scalar>
-class FieldMultiVector : public Tpetra::MultiVector<Scalar,int,DofId>
+class EntityCenteredField : public Field<Scalar>
 {
   public:
 
-    //! MultiVector typedef.
-    typedef Tpetra::MultiVector<Scalar,int,DofId> Base;
+    //! Blocked/Interleaved data layout enum.
+    enum DataLayout
+    {
+	BLOCKED,
+	INTERLEAVED
+    };
+    
+    /*!
+     * \brief Constructor.
+     */
+    EntityCenteredField( const Teuchos::ArrayView<Entity>& entities,
+			 const int field_dim,
+			 const Teuchos::ArrayRCP<Scalar>& dof_data,
+			 const DataLayout layout );
 
     /*!
-     * \brief Constructor. This will allocate the Tpetra vector.
-     *
-     * \param field The field for which we are building a vector.
-     *
-     * \param entity_set The entity set over which the field is defined.
+     * \brief Get the dimension of the field.
      */
-    FieldMultiVector( const Teuchos::RCP<Field<Scalar> >& field,
-		      const Teuchos::RCP<EntitySet>& entity_set );
+    int dimension() const;
 
     /*!
-     * \brief Pull data from the application and put it in the vector.
+     * \brief Get the locally-owned entity DOF ids of the field.
      */
-    void pullDataFromApplication();
+    Teuchos::ArrayView<const DofId> getLocalEntityDOFIds() const;
 
     /*!
-     * \brief Push data from the vector into the application.
+     * \brief Given a local dof id and a dimension, read data from the
+     * application field.
      */
-    void pushDataToApplication();
+    Scalar readFieldData( const DofId dof_id,
+			  const int dimension ) const;
 
+    /*!
+     * \brief Given a local dof id, dimension, and field value, write data
+     * into the application field.
+     */
+    void writeFieldData( const DofId dof_id,
+			 const int dimension,
+			 const Scalar data );
+    
   private:
 
-    // The field this multivector is managing.
-    Teuchos::RCP<Field<Scalar> > d_field;
+    // The dof ids of the entities over which the field is constructed.
+    Teuchos::Array<DofId> d_dof_ids;
+
+    // The dimension of the field.
+    int d_field_dim;
+
+    // The field data.
+    Teuchos::ArrayRCP<Scalar> d_data;
+
+    // Data layout.
+    DataLayout d_layout;
+
+    // Field leading dimension.
+    int d_lda;
+    
+    // Dof id to local id map.
+    std::unordered_map<DofId,int> d_id_map;
 };
 
 //---------------------------------------------------------------------------//
@@ -105,12 +142,12 @@ class FieldMultiVector : public Tpetra::MultiVector<Scalar,int,DofId>
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_FieldMultiVector_impl.hpp"
+#include "DTK_EntityCenteredField_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_FIELDMULTIVECTOR_HPP
+#endif // end DTK_ENTITYCENTEREDFIELD_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_FieldMultiVector.hpp
+// end DTK_EntityCenteredField.hpp
 //---------------------------------------------------------------------------//

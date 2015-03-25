@@ -18,8 +18,8 @@ APPEND_SET(HEADERS
   DTK_BasicEntitySet.hpp
   DTK_BasicGeometryEntity.hpp
   DTK_BasicGeometryManager.hpp
-  DTK_EntityCenteredDOFVector.hpp
-  DTK_EntityCenteredDOFVector_impl.hpp
+  DTK_EntityCenteredField.hpp
+  DTK_EntityCenteredField_impl.hpp
   DTK_EntityCenteredShapeFunction.hpp
   DTK_BasicGeometryEntityImpl.hpp
   DTK_BasicGeometryExtraData.hpp

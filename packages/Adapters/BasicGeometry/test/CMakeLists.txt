@@ -42,8 +42,8 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  EntityCenteredDOFVector_test
-  SOURCES tstEntityCenteredDOFVector.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  EntityCenteredField_test
+  SOURCES tstEntityCenteredField.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )

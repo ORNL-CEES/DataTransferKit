@@ -51,7 +51,8 @@
 #include <DTK_Point.hpp>
 #include <DTK_BasicGeometryManager.hpp>
 #include <DTK_Entity.hpp>
-#include <DTK_EntityCenteredDOFVector.hpp>
+#include <DTK_EntityCenteredField.hpp>
+#include <DTK_FieldMultiVector.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -127,14 +128,24 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
 	comm, space_dim, DataTransferKit::ENTITY_TYPE_NODE, range_points() );
 
     // Make a DOF vector for the domain.
+    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  domain_points(), field_dim, domain_data,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_vector =
-	DataTransferKit::EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, domain_points(), field_dim, domain_data() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  domain_field,
+			  domain_manager.functionSpace()->entitySet()) );
 
     // Make a DOF vector for the range.
+    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+			  range_points(), field_dim, range_data,
+			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_vector =
-	DataTransferKit::EntityCenteredDOFVector::pullTpetraMultiVectorFromEntitiesAndView(
-	    comm, range_points(), field_dim, range_data() );
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  range_field,
+			  range_manager.functionSpace()->entitySet()) );
 
     // Make a spline interpolation operator.
     Teuchos::RCP<DataTransferKit::MapOperator<double> > spline_op =
@@ -149,10 +160,6 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
 
     // Apply the operator.
     spline_op->apply( *domain_vector, *range_vector );
-
-    // Push back to the point dofs.
-    DataTransferKit::EntityCenteredDOFVector::pushTpetraMultiVectorToEntitiesAndView(
-	*range_vector, range_data() );
 
     // Check the apply.
     for ( int i = 0; i < num_points; ++i )

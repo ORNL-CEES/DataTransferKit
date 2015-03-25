@@ -17,6 +17,7 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_EntityImpl.hpp
   ${DIR}/DTK_EntityIterator.hpp
   ${DIR}/DTK_EntityLocalMap.hpp
+  ${DIR}/DTK_Field.hpp
   ${DIR}/DTK_MappingStatus.hpp
   ${DIR}/DTK_EntitySet.hpp
   ${DIR}/DTK_EntityShapeFunction.hpp
@@ -34,6 +35,8 @@ SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/Operator)
 APPEND_SET(HEADERS
   ${DIR}/DTK_BasicEntityPredicates.hpp
   ${DIR}/DTK_EntitySelector.hpp
+  ${DIR}/DTK_FieldMultiVector.hpp
+  ${DIR}/DTK_FieldMultiVector_impl.hpp
   ${DIR}/DTK_FunctionSpace.hpp
   ${DIR}/DTK_MapOperator.hpp
   ${DIR}/DTK_MapOperator_impl.hpp

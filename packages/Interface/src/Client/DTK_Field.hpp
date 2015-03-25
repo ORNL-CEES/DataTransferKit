@@ -94,7 +94,7 @@ class Field
     /*!
      * \brief Get the locally-owned entity DOF ids of the field.
      */
-    virtual Teuchos::ArrayView<DofId> getLocalEntityDOFIds() const = 0;
+    virtual Teuchos::ArrayView<const DofId> getLocalEntityDOFIds() const = 0;
 
     /*!
      * \brief Given a local dof id and a dimension, read data from the
@@ -115,12 +115,6 @@ class Field
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_Field_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
