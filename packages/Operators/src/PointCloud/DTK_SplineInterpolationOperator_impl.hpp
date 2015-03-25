@@ -216,7 +216,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
 //---------------------------------------------------------------------------//
 // Apply the operator.
 template<class Scalar,class Basis,int DIM>
-void SplineInterpolationOperator<Scalar,Basis,DIM>::apply( 
+void SplineInterpolationOperator<Scalar,Basis,DIM>::applyImpl( 
     const TpetraMultiVector& X,
     TpetraMultiVector &Y,
     Teuchos::ETransp mode,

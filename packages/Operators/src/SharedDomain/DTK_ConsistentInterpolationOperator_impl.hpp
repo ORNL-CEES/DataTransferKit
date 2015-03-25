@@ -289,7 +289,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 //---------------------------------------------------------------------------//
 // Apply the operator.
 template<class Scalar>
-void ConsistentInterpolationOperator<Scalar>::apply( 
+void ConsistentInterpolationOperator<Scalar>::applyImpl( 
     const TpetraMultiVector& X,
     TpetraMultiVector &Y,
     Teuchos::ETransp mode,

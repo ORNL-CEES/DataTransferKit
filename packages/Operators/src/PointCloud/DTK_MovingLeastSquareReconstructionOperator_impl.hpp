@@ -232,7 +232,7 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 //---------------------------------------------------------------------------//
 // Apply the operator.
 template<class Scalar,class Basis,int DIM>
-void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::apply( 
+void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::applyImpl( 
     const TpetraMultiVector& X,
     TpetraMultiVector &Y,
     Teuchos::ETransp mode,

@@ -63,7 +63,7 @@ namespace DataTransferKit
 */
 //---------------------------------------------------------------------------//
 template<class Scalar>
-class ConsistentInterpolationOperator : public MapOperator<Scalar>
+class ConsistentInterpolationOperator : virtual public MapOperator<Scalar>
 {
   public:
 
@@ -107,15 +107,6 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
 		const Teuchos::RCP<Teuchos::ParameterList>& parameters ) override;
 
     /*!
-     * \brief Apply the operator.
-     */
-    void apply( const TpetraMultiVector& X,
-		TpetraMultiVector &Y,
-		Teuchos::ETransp mode = Teuchos::NO_TRANS,
-		Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-		Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
-
-    /*!
      * \brief Return the ids of the range entities that were not mapped during
      * the last setup phase (i.e. those that are guaranteed to not receive
      * data from the transfer).
@@ -123,6 +114,18 @@ class ConsistentInterpolationOperator : public MapOperator<Scalar>
      * \return A view of the ids.
      */
     Teuchos::ArrayView<const EntityId> getMissedRangeEntityIds() const;
+
+  protected:
+
+    /*!
+     * \brief Apply the operator.
+     */
+    void applyImpl(
+	const TpetraMultiVector& X,
+	TpetraMultiVector &Y,
+	Teuchos::ETransp mode = Teuchos::NO_TRANS,
+	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
+	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
 
   private:
 

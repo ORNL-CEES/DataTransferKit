@@ -61,7 +61,7 @@ namespace DataTransferKit
  */
 //---------------------------------------------------------------------------//
 template<class Scalar,class Basis,int DIM>
-class MovingLeastSquareReconstructionOperator : public MapOperator<Scalar>
+class MovingLeastSquareReconstructionOperator : virtual public MapOperator<Scalar>
 {
   public:
 
@@ -107,14 +107,17 @@ class MovingLeastSquareReconstructionOperator : public MapOperator<Scalar>
 		const Teuchos::RCP<FunctionSpace>& range_space,
 		const Teuchos::RCP<Teuchos::ParameterList>& parameters ) override;
 
+  protected:
+    
     /*!
      * \brief Apply the operator.
      */
-    void apply( const TpetraMultiVector& X,
-		TpetraMultiVector &Y,
-		Teuchos::ETransp mode = Teuchos::NO_TRANS,
-		Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-		Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
+    void applyImpl(
+	const TpetraMultiVector& X,
+	TpetraMultiVector &Y,
+	Teuchos::ETransp mode = Teuchos::NO_TRANS,
+	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
+	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
     
   private:
 
