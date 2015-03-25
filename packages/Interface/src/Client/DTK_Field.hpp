@@ -56,7 +56,11 @@ namespace DataTransferKit
 
   Field provides an access wrapper around application field data. Client API
   implementations provided read/write access to field data on an
-  entity-by-entity basis.
+  entity-by-entity basis. Field is a translation layer between entity DOF ids
+  provided by shape functions and the actual indexing into application data
+  for a given quantity of interest. For example, multiple nodal fields will
+  have entity DOF ids that are identical while the data in the underlying
+  application will be indexed differently.
 
   We need this extra layer of indirection because MapOperator may be
   constructed to be compatible with multiple subsets of a single vector in an
@@ -83,21 +87,14 @@ class Field
     virtual ~Field() { /* ... */ }
 
     /*!
-     * \brief Get the parallel communicator for the field.
-     *
-     * \return A reference-counted pointer to the parallel communicator.
-     */
-    virtual Teuchos::RCP<const Teuchos::Comm<int> > communicator() const = 0;
-
-    /*!
      * \brief Get the dimension of the field.
      */
     virtual int dimension() const = 0;
 
     /*!
-     * \brief Get the locally-owned DOF ids of the field.
+     * \brief Get the locally-owned entity DOF ids of the field.
      */
-    virtual Teuchos::ArrayView<DofId> getLocalDofIds() const = 0;
+    virtual Teuchos::ArrayView<DofId> getLocalEntityDOFIds() const = 0;
 
     /*!
      * \brief Given a local dof id and a dimension, read data from the

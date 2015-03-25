@@ -51,9 +51,10 @@ namespace DataTransferKit
 // Constructor.
 template<class Scalar>
 FieldMultiVector<Scalar>::FieldMultiVector(
-    const Teuchos::RCP<Field<Scalar> >& field )
+    const Teuchos::RCP<Field<Scalar> >& field,
+    const Teuchos::RCP<EntitySet>& entity_set )
     : Base( Tpetra::createNonContigMap<int,DofId>(field->getLocalDofIds(),
-						  field->communicator()),
+						  entity_set->communicator()),
 	    field->dimension() )
     , d_field( field )
 { /* ... */ }

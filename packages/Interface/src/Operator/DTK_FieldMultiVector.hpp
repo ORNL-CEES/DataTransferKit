@@ -43,6 +43,7 @@
 
 #include "DTK_Types.hpp"
 #include "DTK_Field.hpp"
+#include "DTK_EntitySet.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -58,14 +59,8 @@ namespace DataTransferKit
   FieldMultiVector provides a Tpetra::MultiVector wrapper around application
   field data. Client API implementations provided read/write access to field
   data on an entity-by-entity basis. The FieldMultiVector then manages the
-  copying of data between the application and the Tpetra vector.
-
-  We need this extra layer of indirection because MapOperator may be
-  constructed to be compatible with multiple subsets of a single vector in an
-  application. For example, if nodal data of pressure and temperature were in
-  a single state vector in an application, two FieldMultiVector objects could
-  be constructed, one for each field. A single nodal MapOperator could then
-  be applied to each vector to independently perform the solution transfer.
+  copying of data between the application and the Tpetra vector using the
+  client implementations for data access.
 */
 //---------------------------------------------------------------------------//
 template<class Scalar>
@@ -80,8 +75,11 @@ class FieldMultiVector : public Tpetra::MultiVector<Scalar,int,DofId>
      * \brief Constructor. This will allocate the Tpetra vector.
      *
      * \param field The field for which we are building a vector.
+     *
+     * \param entity_set The entity set over which the field is defined.
      */
-    FieldMultiVector( const Teuchos::RCP<Field<Scalar> >& field );
+    FieldMultiVector( const Teuchos::RCP<Field<Scalar> >& field,
+		      const Teuchos::RCP<EntitySet>& entity_set );
 
     /*!
      * \brief Pull data from the application and put it in the vector.

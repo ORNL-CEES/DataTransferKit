@@ -53,7 +53,8 @@ namespace DataTransferKit
   \class EntityShapeFunction
   \brief Shape function interface.
 
-  EntityShapeFunction binds DOFs to a vector space.
+  EntityShapeFunction binds DOFs to an entity and provides kernels to evaluate
+  the function.
 */
 //---------------------------------------------------------------------------//
 class EntityShapeFunction
@@ -71,8 +72,8 @@ class EntityShapeFunction
     virtual ~EntityShapeFunction() { /* ... */ }
 
     /*!
-     * \brief Given an entity, get the ids of the degrees of freedom in the
-     * vector space supporting its shape function.
+     * \brief Given an entity, get the ids of the degrees of freedom
+     * supporting its shape function.
      *
      * \param entity Get the degrees of freedom for this entity.
      *
