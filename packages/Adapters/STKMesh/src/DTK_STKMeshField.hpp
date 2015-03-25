@@ -32,27 +32,26 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshFieldVector.hpp
+ * \brief DTK_STKMeshField.hpp
  * \author Stuart R. Slattery
- * \brief STK field vector manager.
+ * \brief STK field data access.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_STKMESHFIELDVECTOR_HPP
-#define DTK_STKMESHFIELDVECTOR_HPP
+#ifndef DTK_STKMESHFIELD_HPP
+#define DTK_STKMESHFIELD_HPP
 
 #include <vector>
+#include <unordered_map>
 
 #include "DTK_Types.hpp"
+#include "DTK_Field.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Ptr.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
-#include <Teuchos_Comm.hpp>
-
-#include <Tpetra_Map.hpp>
-#include <Tpetra_MultiVector.hpp>
 
 #include <stk_mesh/base/BulkData.hpp>
 #include <stk_mesh/base/Entity.hpp>
@@ -63,49 +62,46 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class STKMeshFieldVector
-  \brief A class for defining Tpetra vectors over STK fields.
-
-  Use this class to manage Tpetra vectors and STK fields. This class will
-  create a vector over a mesh set and the field on that mesh set. There is no
-  gaurantee of consistency between the field and the vector as the vector does
-  not point to the data in the field. Instead, the push and pull functions allow
-  the user to move data between the vector and the field as necessary.
+  \class STKMeshField
+  \brief Field data access for STK mesh.
 */
 //---------------------------------------------------------------------------//
 template<class Scalar,class FieldType>
-class STKMeshFieldVector
+class STKMeshField : public Field<Scalar>
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    STKMeshFieldVector( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
+    STKMeshField( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
 			const Teuchos::Ptr<FieldType>& field,
 			const int field_dim );
 
     /*!
-     * \brief Get the vector over the field.
+     * \brief Get the dimension of the field.
      */
-    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,DofId> > getVector() const
-    { return d_vector; }
+    int dimension() const;
 
     /*!
-     * \brief Get the vector map.
+     * \brief Get the locally-owned entity DOF ids of the field.
      */
-    Teuchos::RCP<const Tpetra::Map<int,DofId> > getMap() const
-    { return d_vector->getMap(); }
+    Teuchos::ArrayView<const DofId> getLocalEntityDOFIds() const;
 
     /*!
-     * \brief Pull data from the field and put it into the vector.
+     * \brief Given a local dof id and a dimension, read data from the
+     * application field.
      */
-    void pullDataFromField();
+    Scalar readFieldData( const DofId dof_id,
+			  const int dimension ) const;
 
     /*!
-     * \brief Push data from the vector into the field.
+     * \brief Given a local dof id, dimension, and field value, write data
+     * into the application field.
      */
-    void pushDataToField();
+    void writeFieldData( const DofId dof_id,
+			 const int dimension,
+			 const Scalar data );
 
   private:
 
@@ -121,10 +117,11 @@ class STKMeshFieldVector
     // The enitities over which the field is defined.
     std::vector<stk::mesh::Entity> d_field_entities;
 
-    // The vector. This is a copy of the data. To put data into the vector
-    // from the field call pullDataFromField(). To put data from the vector back
-    // into the field call pushDataToField().
-    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,DofId> > d_vector;  
+    // The dof ids of the entities over which the field is constructed.
+    Teuchos::Array<DofId> d_dof_ids;
+
+    // Dof id to local id map.
+    std::unordered_map<DofId,int> d_id_map;
 };
 
 //---------------------------------------------------------------------------//
@@ -135,12 +132,12 @@ class STKMeshFieldVector
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_STKMeshFieldVector_impl.hpp"
+#include "DTK_STKMeshField_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_STKMESHFIELDVECTOR_HPP
+#endif // end DTK_STKMESHFIELD_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshFieldVector.hpp
+// end DTK_STKMeshField.hpp
 //---------------------------------------------------------------------------//

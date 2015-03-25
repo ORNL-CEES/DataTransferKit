@@ -12,8 +12,8 @@ APPEND_SET(HEADERS
   DTK_STKMeshEntityIterator.hpp
   DTK_STKMeshEntityIteratorRange.hpp
   DTK_STKMeshEntityLocalMap.hpp
-  DTK_STKMeshFieldVector.hpp
-  DTK_STKMeshFieldVector_impl.hpp
+  DTK_STKMeshField.hpp
+  DTK_STKMeshField_impl.hpp
   DTK_STKMeshManager.hpp
   DTK_STKMeshNodalShapeFunction.hpp
   DTK_STKMeshEntityPredicates.hpp

@@ -32,7 +32,7 @@
 */
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   tstSTKMeshFieldVector.cpp
+ * \file   tstSTKMeshField.cpp
  * \author Stuart Slattery
  * \brief  Entity-centered DOF vector test.
  */
@@ -43,7 +43,9 @@
 #include <cmath>
 #include <sstream>
 
-#include "DTK_STKMeshFieldVector.hpp"
+#include "DTK_STKMeshField.hpp"
+#include "DTK_FieldMultiVector.hpp"
+#include "DTK_STKMeshEntitySet.hpp"
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -142,11 +144,18 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
 	data[2] = 3.0;
     }
 
+    // Create an entity set.
+    Teuchos::RCP<DataTransferKit::EntitySet> entity_set = Teuchos::rcp(
+	new DataTransferKit::STKMeshEntitySet(bulk_data) );
+
     // Create a vector from the nodal field.
-    DataTransferKit::STKMeshFieldVector<double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >
-	stk_field_vec_1( bulk_data, Teuchos::ptr(test_field_1), 3 );
+    Teuchos::RCP<DataTransferKit::Field<double> > field_1 = Teuchos::rcp(
+	new DataTransferKit::STKMeshField<
+	double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >
+	( bulk_data, Teuchos::ptr(test_field_1), 3 ) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_1 =
-	stk_field_vec_1.getVector();
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  field_1, entity_set) );
 
     // Test the vector allocation.
     unsigned comm_size = comm->getSize();
@@ -155,7 +164,8 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
     TEST_EQUALITY( 8*comm_size, field_vec_1->getGlobalLength() );
 
     // Test the vector data.
-    stk_field_vec_1.pullDataFromField();
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
+	field_vec_1)->pullDataFromApplication();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > field_vec_1_view =
 		      field_vec_1->get2dView();
     for ( unsigned n = 0; n < num_nodes; ++n )
@@ -174,7 +184,8 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
     field_vec_1->getVectorNonConst( 2 )->putScalar( val_2 );
 
     // Push the data back to STK.
-    stk_field_vec_1.pushDataToField();
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
+	field_vec_1)->pushDataToApplication();
 
     // Test the STK field.
     for ( stk::mesh::Entity node : nodes )
@@ -190,10 +201,14 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
 	bulk_data->mesh_meta_data(
 	    ).get_field<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 		stk::topology::NODE_RANK, "test field 2" );
-    DataTransferKit::STKMeshFieldVector<double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >
-	stk_field_vec_2( bulk_data, Teuchos::ptr(test_field_2), 3 );
+
+    Teuchos::RCP<DataTransferKit::Field<double> > field_2 = Teuchos::rcp(
+	new DataTransferKit::STKMeshField<
+	double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >
+	( bulk_data, Teuchos::ptr(test_field_2), 3 ) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_2 =
-	stk_field_vec_2.getVector();
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+			  field_2, entity_set) );
 
     // Test the vector to make sure it is empty.
     TEST_EQUALITY( 3, field_vec_2->getNumVectors() );
@@ -202,5 +217,5 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
 }
 
 //---------------------------------------------------------------------------//
-// end of tstSTKMeshFieldVector.cpp
+// end of tstSTKMeshField.cpp
 //---------------------------------------------------------------------------//

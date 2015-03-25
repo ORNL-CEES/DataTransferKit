@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshFieldVector_impl.hpp
+ * \brief DTK_STKMeshField_impl.hpp
  * \author Stuart R. Slattery
  * \brief STK mesh field DOF vector.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_STKMESHFIELDVECTOR_IMPL_HPP
-#define DTK_STKMESHFIELDVECTOR_IMPL_HPP
+#ifndef DTK_STKMESHFIELD_IMPL_HPP
+#define DTK_STKMESHFIELD_IMPL_HPP
 
 #include <vector>
 
@@ -57,7 +57,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 template<class Scalar, class FieldType>
-STKMeshFieldVector<Scalar,FieldType>::STKMeshFieldVector(
+STKMeshField<Scalar,FieldType>::STKMeshField(
     const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
     const Teuchos::Ptr<FieldType>& field,
     const int field_dim )
@@ -86,60 +86,54 @@ STKMeshFieldVector<Scalar,FieldType>::STKMeshFieldVector(
 
     // Extract the field entity ids.
     int num_entities = d_field_entities.size();
-    Teuchos::Array<DofId> entity_ids( num_entities );
+    d_dof_ids.resize( num_entities );
     for ( int n = 0; n < num_entities; ++n )
     {
-	entity_ids[n] = d_bulk_data->identifier( d_field_entities[n] );
-    }
-
-    // Create a Tpetra map.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::rcp( new Teuchos::MpiComm<int>(d_bulk_data->parallel()) );
-    Teuchos::RCP<const Tpetra::Map<int,DofId> > map =
-	Tpetra::createNonContigMap<int,DofId>( entity_ids, comm );
-
-    // Create a Tpetra vector.
-    d_vector =
-	Tpetra::createMultiVector<Scalar,int,DofId>( map, d_field_dim );
-}
-
-//---------------------------------------------------------------------------//
-// Given a STK field, create a Tpetra vector that maps to the field DOFs and
-// pull the dofs from the field.
-template<class Scalar,class FieldType>
-void STKMeshFieldVector<Scalar,FieldType>::pullDataFromField()
-{
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> > vector_view =
-	d_vector->get2dViewNonConst();
-    Scalar* field_data;
-    int num_entity = d_field_entities.size();
-    for ( int n = 0; n < num_entity; ++n )
-    {
-	field_data = stk::mesh::field_data( *d_field, d_field_entities[n] );
-	for ( int d = 0; d < d_field_dim; ++d )
-	{
-	    vector_view[d][n] = field_data[d];
-	}
+	d_dof_ids[n] = d_bulk_data->identifier( d_field_entities[n] );
+	d_id_map.emplace( d_dof_ids[n], n );
     }
 }
 
 //---------------------------------------------------------------------------//
-// Given a Tpetra vector of DOF data, push the data into a given STK field.
-template<class Scalar,class FieldType>
-void STKMeshFieldVector<Scalar,FieldType>::pushDataToField()
+// Get the dimension of the field.
+template<class Scalar, class FieldType>
+int STKMeshField<Scalar,FieldType>::dimension() const
 {
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> > vector_view =
-	d_vector->get2dView();
-    Scalar* field_data;
-    int num_entity = d_field_entities.size();
-    for ( int n = 0; n < num_entity; ++n )
-    {
-	field_data = stk::mesh::field_data( *d_field, d_field_entities[n] );
-	for ( int d = 0; d < d_field_dim; ++d )
-	{
-	    field_data[d] = vector_view[d][n];
-	}
-    }
+    return d_field_dim;
+}
+
+//---------------------------------------------------------------------------//
+// Get the locally-owned entity DOF ids of the field.
+template<class Scalar, class FieldType>
+Teuchos::ArrayView<const DofId>
+STKMeshField<Scalar,FieldType>::getLocalEntityDOFIds() const
+{
+    return d_dof_ids();
+}
+
+//---------------------------------------------------------------------------//
+// Given a local dof id and a dimension, read data from the application
+// field.
+template<class Scalar, class FieldType>
+Scalar STKMeshField<Scalar,FieldType>::readFieldData( const DofId dof_id,
+						      const int dimension ) const
+{
+    DTK_REQUIRE( d_id_map.count(dof_id) );
+    int local_id = d_id_map.find( dof_id )->second;
+    return stk::mesh::field_data(*d_field,d_field_entities[local_id])[dimension];
+}
+
+//---------------------------------------------------------------------------//
+// Given a local dof id, dimension, and field value, write data into the
+// application field.
+template<class Scalar, class FieldType>
+void STKMeshField<Scalar,FieldType>::writeFieldData( const DofId dof_id,
+						     const int dimension,
+						     const Scalar data )
+{
+    int local_id = d_id_map.find( dof_id )->second;
+    stk::mesh::field_data(*d_field,d_field_entities[local_id])[dimension]
+	= data;
 }
 
 //---------------------------------------------------------------------------//
@@ -148,8 +142,8 @@ void STKMeshFieldVector<Scalar,FieldType>::pushDataToField()
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_STKMESHFIELDVECTOR_IMPL_HPP
+#endif // end DTK_STKMESHFIELD_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshFieldVector_impl.hpp
+// end DTK_STKMeshField_impl.hpp
 //---------------------------------------------------------------------------//
