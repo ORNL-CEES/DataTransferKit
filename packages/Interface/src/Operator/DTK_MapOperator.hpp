@@ -94,7 +94,7 @@ class MapOperator : public Tpetra::Operator<Scalar,int,DofId>
 
     /*
      * \brief Setup the map operator from a domain function space and a range
-     * function space.
+     * function space. Subclasses should override.
      *
      * \param domain_function The function that contains the data that will be
      * sent to the range. Must always be nonnull but the pointers it contains
@@ -109,21 +109,31 @@ class MapOperator : public Tpetra::Operator<Scalar,int,DofId>
     virtual void 
     setup( const Teuchos::RCP<FunctionSpace>& domain_space,
 	   const Teuchos::RCP<FunctionSpace>& range_space,
-	   const Teuchos::RCP<Teuchos::ParameterList>& parameters );
+	   const Teuchos::RCP<Teuchos::ParameterList>& parameters ) = 0;
 
     //@{
     //! Tpetra::Operator interface.
     Teuchos::RCP<const TpetraMap> getDomainMap() const override;
     Teuchos::RCP<const TpetraMap> getRangeMap() const override;
-    virtual void apply(
+    void apply(
 	const TpetraMultiVector& X,
 	TpetraMultiVector &Y,
 	Teuchos::ETransp mode = Teuchos::NO_TRANS,
 	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
 	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
-    virtual bool hasTransposeApply() const override { return false; }
+    bool hasTransposeApply() const override { return false; }
     //@}
 
+  protected:
+
+    //! Apply implementation. Subclasses should override.
+    virtual void applyImpl(
+	const TpetraMultiVector& X,
+	TpetraMultiVector &Y,
+	Teuchos::ETransp mode = Teuchos::NO_TRANS,
+	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
+	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const = 0;
+    
   private:
 
     //! Domain map.

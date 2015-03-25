@@ -110,7 +110,6 @@ class Field
     virtual void writeFieldData( const DofId dof_id,
 				 const int dimension,
 				 const Scalar data ) = 0;
-    //@}
 };
 
 //---------------------------------------------------------------------------//

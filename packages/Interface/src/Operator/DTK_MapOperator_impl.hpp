@@ -42,6 +42,7 @@
 #define DTK_MAPOPERATOR_IMPL_HPP
 
 #include "DTK_DBC.hpp"
+#include "DTK_FieldMultiVector.hpp"
 
 namespace DataTransferKit
 {
@@ -60,18 +61,6 @@ MapOperator<Scalar>::MapOperator(
 template<class Scalar>
 MapOperator<Scalar>::~MapOperator()
 { /* ... */ }
-
-//---------------------------------------------------------------------------//
-// Setup the map operator.
-template<class Scalar>
-void MapOperator<Scalar>::setup(
-    const Teuchos::RCP<FunctionSpace>& /*domain_space*/,
-    const Teuchos::RCP<FunctionSpace>& /*range_space*/,
-    const Teuchos::RCP<Teuchos::ParameterList>& /*parameters*/ )
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-}
 
 //---------------------------------------------------------------------------//
 // Get the range map.
@@ -97,14 +86,22 @@ MapOperator<Scalar>::getRangeMap() const
 // Apply the map operator to data defined on the entities by computing g =
 // Minv*(v+A*f).
 template<class Scalar>
-void MapOperator<Scalar>::apply( const TpetraMultiVector& /*X*/,
-				 TpetraMultiVector& /*Y*/,
-				 Teuchos::ETransp /*mode*/,
-				 const Scalar /*alpha*/,
-				 const Scalar /*beta*/ ) const
+void MapOperator<Scalar>::apply( const TpetraMultiVector& X,
+				 TpetraMultiVector& Y,
+				 Teuchos::ETransp mode,
+				 const Scalar alpha,
+				 const Scalar beta ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    // Pull data from the application.
+    const FieldMultiVector<Scalar>& X_fmv =
+	dynamic_cast<const FieldMultiVector<Scalar>&>( X );
+    const_cast<FieldMultiVector<Scalar>&>( X_fmv ).pullDataFromApplication();
+
+    // Apply the operator.
+    applyImpl( X, Y, mode, alpha, beta );
+
+    // Push the data into the application.
+    dynamic_cast<FieldMultiVector<Scalar>&>( Y ).pushDataToApplication();
 }
 
 //---------------------------------------------------------------------------//
