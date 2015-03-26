@@ -126,8 +126,7 @@ class EntityImpl
      * \brief Provide a verbose description of the object.
      */
     virtual void describe( Teuchos::FancyOStream& out,
-			   const Teuchos::EVerbosityLevel verb_level =
-			   Teuchos::Describable::verbLevel_default ) const
+			   const Teuchos::EVerbosityLevel /*verb_level*/ ) const
     { out << "DataTransferKit::EntityImpl" << std::endl; }
 };
 

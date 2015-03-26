@@ -64,12 +64,12 @@ class EntityShapeFunction
     /*!
      * \brief Constructor.
      */
-    EntityShapeFunction() { /* ... */ }
+    EntityShapeFunction();
 
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityShapeFunction() { /* ... */ }
+    virtual ~EntityShapeFunction();
 
     /*!
      * \brief Given an entity, get the ids of the degrees of freedom
@@ -120,7 +120,7 @@ class EntityShapeFunction
     virtual void evaluateGradient( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const = 0;
+	Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
 };
 
 //---------------------------------------------------------------------------//
