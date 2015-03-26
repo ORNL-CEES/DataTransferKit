@@ -48,6 +48,7 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Tuple.hpp>
+#include <Teuchos_Describable.hpp>
 
 namespace DataTransferKit
 {
@@ -57,7 +58,7 @@ namespace DataTransferKit
   \brief Geometric entity interface definition.
 */
 //---------------------------------------------------------------------------//
-class Entity
+class Entity : public Teuchos::Describable
 {
   public:
 
@@ -76,26 +77,28 @@ class Entity
      */
     virtual ~Entity();
 
+    //@{
+    //! Client interface.
     /*!
      * \brief Get the entity type.
      *
      * \return The entity type.
      */
-    virtual EntityType entityType() const;
+    EntityType entityType() const;
 
     /*!
      * \brief Get the unique global identifier for the entity.
      *
      * \return A unique global identifier for the entity.
      */
-    virtual EntityId id() const;
+    EntityId id() const;
     
     /*!
      * \brief Get the parallel rank that owns the entity.
      *
      * \return The parallel rank that owns the entity.
      */
-    virtual int ownerRank() const;
+    int ownerRank() const;
 
     /*!
      * \brief Return the physical dimension of the entity.
@@ -103,7 +106,7 @@ class Entity
      * \return The physical dimension of the entity. Any physical coordinates
      * describing the entity will be of this dimension.
      */
-    virtual int physicalDimension() const;
+    int physicalDimension() const;
 
     /*!
      * \brief Return the Cartesian bounding box around an entity.
@@ -111,33 +114,44 @@ class Entity
      * \param bounds The bounds of the box
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
-    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
 
     /*!
      * \brief Determine if an entity is in the block with the given id.
      */
-    virtual bool inBlock( const int block_id ) const;
+    bool inBlock( const int block_id ) const;
 
     /*!
      * \brief Determine if an entity is on the boundary with the given id.
      */
-    virtual bool onBoundary( const int boundary_id ) const;
+    bool onBoundary( const int boundary_id ) const;
 
     /*!
      * \brief Get the extra data on the entity. This is a convenient helper
      * for implementing the other interfaces.
      */
-    virtual Teuchos::RCP<EntityExtraData> extraData() const;
+    Teuchos::RCP<EntityExtraData> extraData() const;
+    //@}
+
+    //@{
+    //! Teuchos::Describable interface.
+    /*!
+     * \brief Provide a one line description of the object.
+     */
+    std::string description() const;
+
+    /*!
+     * \brief Provide a verbose description of the object.
+     */
+    void describe( Teuchos::FancyOStream& out,
+		   const Teuchos::EVerbosityLevel verb_level ) const;
+    //@}
 
   protected:
 
     // Entity implementation.
     Teuchos::RCP<EntityImpl> b_entity_impl;
 };
-
-//---------------------------------------------------------------------------//
-//! Overload for printing basic entity data.
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Entity& e); 
 
 //---------------------------------------------------------------------------//
 

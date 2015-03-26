@@ -115,6 +115,13 @@ class EntityImpl
      * \brief Get the extra data on the entity.
      */
     virtual Teuchos::RCP<EntityExtraData> extraData() const = 0;
+
+    /*!
+     * \brief Provide a verbose description of the object.
+     */
+    virtual void describe( Teuchos::FancyOStream& out,
+			   const Teuchos::EVerbosityLevel verb_level ) const
+    { out << "DataTransferKit::EntityImpl" << std::endl; }
 };
 
 //---------------------------------------------------------------------------//

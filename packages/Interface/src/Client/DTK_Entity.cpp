@@ -38,6 +38,8 @@
  */
 //---------------------------------------------------------------------------//
 
+#include <sstream>
+
 #include "DTK_Entity.hpp"
 #include "DTK_DBC.hpp"
 
@@ -124,15 +126,24 @@ Teuchos::RCP<EntityExtraData> Entity::extraData() const
 }
 
 //---------------------------------------------------------------------------//
-// Overload for printing basic entity data.
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Entity& e)
+// Provide a one line description of the object.
+std::string Entity::description() const
 {
-    os << "Entity: Id=" << e.id()
-       << ",EntityType=" << e.entityType()
-       << ",OwnerRank=" << e.ownerRank()
-       << ",PhysicalDimension=" << e.physicalDimension();
+    std::stringstream d;
+    d << "DataTransferKit::Entity: Id = " << id()
+      << ", EntityType = " << entityType()
+      << ", OwnerRank = " << ownerRank()
+      << ", PhysicalDimension = " << physicalDimension();
+    return d.str();
+}
 
-    return os;
+//---------------------------------------------------------------------------//
+// Provide a verbose description of the object.
+void Entity::describe( Teuchos::FancyOStream& out,
+		       const Teuchos::EVerbosityLevel verb_level ) const
+{
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    return b_entity_impl->describe(out,verb_level);
 }
 
 //---------------------------------------------------------------------------//
