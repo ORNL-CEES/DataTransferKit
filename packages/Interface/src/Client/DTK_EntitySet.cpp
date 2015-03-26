@@ -114,6 +114,35 @@ void EntitySet::getAdjacentEntities(
 }
 
 //---------------------------------------------------------------------------//
+// Provide a one line description of the object.
+std::string EntitySet::description() const
+{
+    return std::string("DataTransferKit::EntitySet");
+}
+
+//---------------------------------------------------------------------------//
+// Provide a verbose description of the object.
+void EntitySet::describe( Teuchos::FancyOStream& out,
+			  const Teuchos::EVerbosityLevel verb_level ) const
+{
+    EntityIterator node_it = entityIterator( ENTITY_TYPE_NODE );
+    EntityIterator edge_it = entityIterator( ENTITY_TYPE_EDGE );
+    EntityIterator face_it = entityIterator( ENTITY_TYPE_FACE );
+    EntityIterator volume_it = entityIterator( ENTITY_TYPE_VOLUME );
+    
+    Teuchos::Tuple<double,6> local_box;
+    localBoundingBox( local_box );
+    
+    out << description() << std::endl
+	<< "Dimension:          " << physicalDimension() << std::endl
+	<< "Local # Nodes:      " << node_it.size() << std::endl
+	<< "Local # Edges:      " << edge_it.size() << std::endl
+	<< "Local # Faces:      " << face_it.size() << std::endl
+	<< "Local # Volumes:    " << volume_it.size() << std::endl
+	<< "Local bounding box: " << local_box << std::endl;
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

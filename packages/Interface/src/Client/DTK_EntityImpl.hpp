@@ -117,10 +117,17 @@ class EntityImpl
     virtual Teuchos::RCP<EntityExtraData> extraData() const = 0;
 
     /*!
+     * \brief Provide a one line description of the object.
+     */
+    virtual std::string description() const
+    { return std::string("DataTransferKit::EntityImpl"); }
+
+    /*!
      * \brief Provide a verbose description of the object.
      */
     virtual void describe( Teuchos::FancyOStream& out,
-			   const Teuchos::EVerbosityLevel verb_level ) const
+			   const Teuchos::EVerbosityLevel verb_level =
+			   Teuchos::Describable::verbLevel_default ) const
     { out << "DataTransferKit::EntityImpl" << std::endl; }
 };
 

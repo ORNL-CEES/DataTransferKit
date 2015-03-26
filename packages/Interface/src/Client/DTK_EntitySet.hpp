@@ -51,6 +51,7 @@
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_Tuple.hpp>
+#include <Teuchos_Describable.hpp>
 
 namespace DataTransferKit
 {
@@ -63,7 +64,7 @@ namespace DataTransferKit
   distribution.
 */
 //---------------------------------------------------------------------------//
-class EntitySet
+class EntitySet : public Teuchos::Describable
 {
   public:
 
@@ -152,6 +153,21 @@ class EntitySet
 	const Entity& entity,
 	const EntityType adjacent_entity_type,
 	Teuchos::Array<Entity>& adjacent_entities ) const;
+    //@}
+
+    //@{
+    //! Teuchos::Describable interface.
+    /*!
+     * \brief Provide a one line description of the object.
+     */
+    virtual std::string description() const;
+
+    /*!
+     * \brief Provide a verbose description of the object.
+     */
+    virtual void describe( Teuchos::FancyOStream& out,
+			   const Teuchos::EVerbosityLevel verb_level =
+			   Teuchos::Describable::verbLevel_default ) const;
     //@}
 };
 

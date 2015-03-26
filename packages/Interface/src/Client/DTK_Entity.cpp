@@ -129,12 +129,13 @@ Teuchos::RCP<EntityExtraData> Entity::extraData() const
 // Provide a one line description of the object.
 std::string Entity::description() const
 {
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     std::stringstream d;
-    d << "DataTransferKit::Entity: Id = " << id()
+    d << " Id = " << id()
       << ", EntityType = " << entityType()
       << ", OwnerRank = " << ownerRank()
       << ", PhysicalDimension = " << physicalDimension();
-    return d.str();
+    return b_entity_impl->description() + d.str();
 }
 
 //---------------------------------------------------------------------------//

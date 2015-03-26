@@ -144,7 +144,8 @@ class Entity : public Teuchos::Describable
      * \brief Provide a verbose description of the object.
      */
     void describe( Teuchos::FancyOStream& out,
-		   const Teuchos::EVerbosityLevel verb_level ) const;
+		   const Teuchos::EVerbosityLevel verb_level =
+		   Teuchos::Describable::verbLevel_default) const;
     //@}
 
   protected:
