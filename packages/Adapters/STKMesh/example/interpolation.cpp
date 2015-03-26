@@ -225,9 +225,6 @@ int main(int argc, char* argv[])
     // SOLUTION TRANSFER SETUP
     // -----------------------
     
-    // Solution transfer parameters.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-
     // Create a manager for the source part elements.
     DataTransferKit::STKMeshManager src_manager( src_bulk_data, src_stk_selector );
 

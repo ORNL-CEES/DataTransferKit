@@ -113,7 +113,8 @@ class Field
 
     /*!
      * \brief Finalize a field after writing into it. This lets some clients
-     * do a post-process (e.g. update ghost values).
+     * do a post-process (e.g. update ghost values). Default finalize does
+     * nothing.
      */
     virtual void finalizeAfterWrite()
     { /* ... */ }
