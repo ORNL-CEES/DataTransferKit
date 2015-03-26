@@ -245,7 +245,21 @@ int main(int argc, char* argv[])
 	tgt_manager.createFieldMultiVector<double,stk::mesh::Field<double> >(
 	    Teuchos::ptr(&target_field), 1 );
 
+    // Print out source mesh info.
+    Teuchos::RCP<Teuchos::Describable> src_describe =
+	src_manager.functionSpace()->entitySet();
+    std::cout << "Source Mesh" << std::endl;
+    src_describe->describe( std::cout );
+    std::cout << std::endl;
 
+    // Print out target mesh info.
+    Teuchos::RCP<Teuchos::Describable> tgt_describe =
+	tgt_manager.functionSpace()->entitySet();
+    std::cout << "Target Mesh" << std::endl;
+    tgt_describe->describe( std::cout );
+    std::cout << std::endl;
+
+    
     // SOLUTION TRANSFER
     // -----------------
 

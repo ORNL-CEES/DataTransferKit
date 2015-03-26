@@ -102,18 +102,6 @@ void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 }
 
 //---------------------------------------------------------------------------//
-// Given an entity, get the entities of the given type that are adjacent to
-// it. 
-void EntitySet::getAdjacentEntities(
-    const Entity& entity,
-    const EntityType adjacent_entity_type,
-    Teuchos::Array<Entity>& adjacent_entities ) const
-{
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
-}
-
-//---------------------------------------------------------------------------//
 // Provide a one line description of the object.
 std::string EntitySet::description() const
 {
@@ -135,10 +123,10 @@ void EntitySet::describe( Teuchos::FancyOStream& out,
     
     out << description() << std::endl
 	<< "Dimension:          " << physicalDimension() << std::endl
-	<< "Local # Nodes:      " << node_it.size() << std::endl
-	<< "Local # Edges:      " << edge_it.size() << std::endl
-	<< "Local # Faces:      " << face_it.size() << std::endl
-	<< "Local # Volumes:    " << volume_it.size() << std::endl
+	<< "Num Local Nodes:    " << node_it.size() << std::endl
+	<< "Num Local Edges:    " << edge_it.size() << std::endl
+	<< "Num Local Faces:    " << face_it.size() << std::endl
+	<< "Num Local Volumes:  " << volume_it.size() << std::endl
 	<< "Local bounding box: " << local_box << std::endl;
 }
 

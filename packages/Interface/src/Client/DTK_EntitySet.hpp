@@ -152,7 +152,7 @@ class EntitySet : public Teuchos::Describable
     virtual void getAdjacentEntities(
 	const Entity& entity,
 	const EntityType adjacent_entity_type,
-	Teuchos::Array<Entity>& adjacent_entities ) const;
+	Teuchos::Array<Entity>& adjacent_entities ) const = 0;
     //@}
 
     //@{
