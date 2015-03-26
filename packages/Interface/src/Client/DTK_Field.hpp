@@ -110,6 +110,13 @@ class Field
     virtual void writeFieldData( const DofId dof_id,
 				 const int dimension,
 				 const Scalar data ) = 0;
+
+    /*!
+     * \brief Finalize a field after writing into it. This lets some clients
+     * do a post-process (e.g. update ghost values).
+     */
+    virtual void finalizeAfterWrite()
+    { /* ... */ }
 };
 
 //---------------------------------------------------------------------------//

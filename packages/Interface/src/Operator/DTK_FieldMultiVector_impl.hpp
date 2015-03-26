@@ -94,7 +94,9 @@ void FieldMultiVector<Scalar>::pushDataToApplication()
 	{
 	    d_field->writeFieldData( field_dofs[n], d, vector_view[d][n] );
 	}
-    }    
+    }
+
+    d_field->finalizeAfterWrite();
 }
 
 //---------------------------------------------------------------------------//
