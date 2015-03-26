@@ -41,8 +41,8 @@
 #ifndef DTK_FUNCTIONSPACE_HPP
 #define DTK_FUNCTIONSPACE_HPP
 
+#include "DTK_Types.hpp"
 #include "DTK_EntitySet.hpp"
-#include "DTK_EntitySelector.hpp"
 #include "DTK_EntityLocalMap.hpp"
 #include "DTK_EntityShapeFunction.hpp"
 
@@ -56,7 +56,7 @@ namespace DataTransferKit
   \brief Space of a function.
 
   FunctionSpace binds the functional support of a field to a parallel vector
-  space.
+  space over a selected subset of the entity set.
 */
 //---------------------------------------------------------------------------//
 class FunctionSpace
@@ -67,20 +67,14 @@ class FunctionSpace
      * \brief Constructor.
      */
     FunctionSpace( const Teuchos::RCP<EntitySet>& entity_set,
-		   const Teuchos::RCP<EntitySelector>& entity_selector,
 		   const Teuchos::RCP<EntityLocalMap>& local_map,
-		   const Teuchos::RCP<EntityShapeFunction>& shape_function );
+		   const Teuchos::RCP<EntityShapeFunction>& shape_function,
+		   const PredicateFunction& select_function = selectAll );
 
     /*!
      * \brief Get the entity set over which the fields are defined.
      */
     Teuchos::RCP<EntitySet> entitySet() const;
-
-    /*!
-     * \brief Get the selector to the entities over which the fields are
-     * defined.
-     */
-    Teuchos::RCP<EntitySelector> entitySelector() const;
 
     /*!
      * \brief Get the local map for entities supporting the function.
@@ -92,19 +86,29 @@ class FunctionSpace
      */
     Teuchos::RCP<EntityShapeFunction> shapeFunction() const;
 
+    /*!
+     * \brief Get the selector function.
+     */
+    PredicateFunction selectFunction() const;
+
+    /*!
+     * \brief Default select function.
+     */
+    static inline bool selectAll( Entity ) { return true; }
+
   private:
 
     // The entity set over which the function space is constructed.
     Teuchos::RCP<EntitySet> d_entity_set;
-
-    // The selector to the entities over which the fields are defined.
-    Teuchos::RCP<EntitySelector> d_entity_selector;
 
     // The reference frame for entities in the set.
     Teuchos::RCP<EntityLocalMap> d_local_map;
 
     // The shape function for the entities in the set.
     Teuchos::RCP<EntityShapeFunction> d_shape_function;
+
+    // The selector function.
+    PredicateFunction d_select_function;
 };
 
 //---------------------------------------------------------------------------//

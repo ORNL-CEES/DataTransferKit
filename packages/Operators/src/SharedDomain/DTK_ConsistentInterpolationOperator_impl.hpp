@@ -119,11 +119,9 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     {
 	PredicateFunction domain_predicate =
 	    PredicateComposition::And(
-		domain_space->entitySelector()->selectFunction(),
-		local_predicate.getFunction() );
+		domain_space->selectFunction(),	local_predicate.getFunction() );
 	domain_iterator = domain_space->entitySet()->entityIterator( 
-	    domain_space->entitySelector()->entityType(),
-	    domain_predicate );
+	    ENTITY_TYPE_VOLUME, domain_predicate );
     }
 
     // Build a parallel search over the domain.
@@ -139,11 +137,9 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     {
 	PredicateFunction range_predicate =
 	    PredicateComposition::And(
-		range_space->entitySelector()->selectFunction(),
-		local_predicate.getFunction() );
+		range_space->selectFunction(), local_predicate.getFunction() );
 	range_iterator = range_space->entitySet()->entityIterator( 
-	    range_space->entitySelector()->entityType(),
-	    range_predicate );
+	    ENTITY_TYPE_NODE, range_predicate );
     } 
 
     // Search the domain with the range.

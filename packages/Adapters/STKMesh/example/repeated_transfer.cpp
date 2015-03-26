@@ -232,13 +232,11 @@ int main(int argc, char* argv[])
     // -----------------------
     
     // Create a manager for the source part elements.
-    DataTransferKit::STKMeshManager src_manager( 
-	src_bulk_data, src_stk_selector, DataTransferKit::ENTITY_TYPE_NODE );
+    DataTransferKit::STKMeshManager src_manager( src_bulk_data, src_stk_selector );
 
     // Create a manager for the target part nodes.
     stk::mesh::Selector tgt_stk_selector( *tgt_part );
-    DataTransferKit::STKMeshManager tgt_manager( 
-	tgt_bulk_data, tgt_stk_selector, DataTransferKit::ENTITY_TYPE_NODE );
+    DataTransferKit::STKMeshManager tgt_manager( tgt_bulk_data, tgt_stk_selector );
 
     // Create a solution vector for the source.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > src_vector =

@@ -98,12 +98,6 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
     const Teuchos::RCP<const typename Base::TpetraMap> range_map
 	= this->getRangeMap();
 
-    // Make sure we are applying the map to nodes.
-    DTK_REQUIRE( domain_space->entitySelector()->entityType() ==
-		 ENTITY_TYPE_NODE );
-    DTK_REQUIRE( range_space->entitySelector()->entityType() ==
-		 ENTITY_TYPE_NODE );
-
     // Prolongation operator.
     Teuchos::RCP<const Root> S;
 
@@ -271,11 +265,9 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     {
 	PredicateFunction domain_predicate =
 	    PredicateComposition::And(
-		domain_space->entitySelector()->selectFunction(),
-		local_predicate.getFunction() );
+		domain_space->selectFunction(), local_predicate.getFunction() );
 	domain_iterator = domain_space->entitySet()->entityIterator( 
-	    domain_space->entitySelector()->entityType(),
-	    domain_predicate );
+	    ENTITY_TYPE_NODE, domain_predicate );
     }
     int local_num_src = domain_iterator.size();
     Teuchos::ArrayRCP<double> source_centers( DIM*local_num_src);
@@ -301,11 +293,9 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     {
 	PredicateFunction range_predicate =
 	    PredicateComposition::And(
-		range_space->entitySelector()->selectFunction(),
-		local_predicate.getFunction() );
+		range_space->selectFunction(), local_predicate.getFunction() );
 	range_iterator = range_space->entitySet()->entityIterator( 
-	    range_space->entitySelector()->entityType(),
-	    range_predicate );
+	    ENTITY_TYPE_NODE, range_predicate );
     } 
     int local_num_tgt = range_iterator.size();
     Teuchos::ArrayRCP<double> target_centers( DIM*local_num_tgt );

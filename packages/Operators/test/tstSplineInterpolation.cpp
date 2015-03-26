@@ -121,11 +121,11 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
 
     // Make a manager for the domain geometry.
     DataTransferKit::BasicGeometryManager domain_manager( 
-	comm, space_dim, DataTransferKit::ENTITY_TYPE_NODE, domain_points() );
+	comm, space_dim, domain_points() );
 					   
     // Make a manager for the range geometry.
     DataTransferKit::BasicGeometryManager range_manager( 
-	comm, space_dim, DataTransferKit::ENTITY_TYPE_NODE, range_points() );
+	comm, space_dim, range_points() );
 
     // Make a DOF vector for the domain.
     Teuchos::RCP<DataTransferKit::Field<double> > domain_field =

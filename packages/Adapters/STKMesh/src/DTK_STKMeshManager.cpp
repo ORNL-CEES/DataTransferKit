@@ -50,15 +50,10 @@ namespace DataTransferKit
 //! Default constructor.
 STKMeshManager::STKMeshManager(
     const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-    const EntityType entity_type,
     const BasisType basis_type )
     : d_bulk_data( bulk_data )
 {
-    Teuchos::RCP<EntitySelector> entity_selector = 
-	Teuchos::rcp( new EntitySelector(entity_type) );
-
-    createFunctionSpace( basis_type, entity_selector );
-
+    createFunctionSpace( basis_type, FunctionSpace::selectAll );
     DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
@@ -67,16 +62,11 @@ STKMeshManager::STKMeshManager(
 STKMeshManager::STKMeshManager(
     const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
     const Teuchos::Array<std::string>& part_names,
-    const EntityType entity_type,
     const BasisType basis_type )
     : d_bulk_data( bulk_data )
 {
     STKPartNamePredicate pred( part_names, d_bulk_data );
-    Teuchos::RCP<EntitySelector> entity_selector =
-	Teuchos::rcp( new EntitySelector(entity_type,pred.getFunction()) );
-
-    createFunctionSpace( basis_type, entity_selector );
-
+    createFunctionSpace( basis_type, pred.getFunction() );
     DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
@@ -85,15 +75,12 @@ STKMeshManager::STKMeshManager(
 STKMeshManager::STKMeshManager(
     const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
     const stk::mesh::PartVector& parts,
-    const EntityType entity_type,
     const BasisType basis_type )
     : d_bulk_data( bulk_data )
 {
     STKPartVectorPredicate pred( parts );
-    Teuchos::RCP<EntitySelector> entity_selector =
-	Teuchos::rcp( new EntitySelector(entity_type,pred.getFunction()) );
-
-    createFunctionSpace( basis_type, entity_selector );
+    createFunctionSpace( basis_type, pred.getFunction() );
+    DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
 //---------------------------------------------------------------------------//
@@ -101,15 +88,12 @@ STKMeshManager::STKMeshManager(
 STKMeshManager::STKMeshManager(
     const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
     const stk::mesh::Selector& selector,
-    const EntityType entity_type,
     const BasisType basis_type )
     : d_bulk_data( bulk_data )
 {
     STKSelectorPredicate pred( selector );
-    Teuchos::RCP<EntitySelector> entity_selector =
-	Teuchos::rcp( new EntitySelector(entity_type,pred.getFunction()) );
-
-    createFunctionSpace( basis_type, entity_selector );
+    createFunctionSpace( basis_type, pred.getFunction() );
+    DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
 //---------------------------------------------------------------------------//
@@ -123,7 +107,7 @@ Teuchos::RCP<FunctionSpace> STKMeshManager::functionSpace() const
 // Create the function space.
 void STKMeshManager::createFunctionSpace( 
     const BasisType basis_type,
-    const Teuchos::RCP<EntitySelector>& entity_selector )
+    const PredicateFunction& select_function )
 {
     Teuchos::RCP<EntitySet> entity_set = 
 	Teuchos::rcp( new STKMeshEntitySet(d_bulk_data) );
@@ -147,7 +131,7 @@ void STKMeshManager::createFunctionSpace(
     DTK_CHECK( Teuchos::nonnull(shape_function) );
 
     d_function_space = Teuchos::rcp( 
-	new FunctionSpace(entity_set,entity_selector,local_map,shape_function) );
+	new FunctionSpace(entity_set,local_map,shape_function,select_function) );
 
     DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }

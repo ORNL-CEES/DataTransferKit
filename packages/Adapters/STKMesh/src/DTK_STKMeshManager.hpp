@@ -45,7 +45,6 @@
 
 #include "DTK_Types.hpp"
 #include "DTK_FunctionSpace.hpp"
-#include "DTK_EntitySelector.hpp"
 #include "DTK_FieldMultiVector.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_STKMeshField.hpp"
@@ -92,7 +91,6 @@ class STKMeshManager
      * \param basis_type The type of basis function space to use.
      */
     STKMeshManager( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-		    const EntityType entity_type,
 		    const BasisType basis_type = BASIS_TYPE_GRADIENT );
 
     /*!
@@ -110,7 +108,6 @@ class STKMeshManager
      */
     STKMeshManager( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
 		    const Teuchos::Array<std::string>& part_names,
-		    const EntityType entity_type,
 		    const BasisType basis_type = BASIS_TYPE_GRADIENT );
 
     /*!
@@ -128,7 +125,6 @@ class STKMeshManager
      */
     STKMeshManager( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
 		    const stk::mesh::PartVector& parts,
-		    const EntityType entity_type,
 		    const BasisType basis_type = BASIS_TYPE_GRADIENT );
 
     /*!
@@ -146,7 +142,6 @@ class STKMeshManager
      */
     STKMeshManager( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
 		    const stk::mesh::Selector& selector,
-		    const EntityType entity_type,
 		    const BasisType basis_type = BASIS_TYPE_GRADIENT );
 
     /*!
@@ -168,7 +163,7 @@ class STKMeshManager
     // Create the function space.
     void createFunctionSpace( 
 	const BasisType basis_type,
-	const Teuchos::RCP<EntitySelector>& entity_selector );
+	const PredicateFunction& select_function );
 
   private:
 

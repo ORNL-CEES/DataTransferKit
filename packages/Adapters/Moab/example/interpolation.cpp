@@ -292,12 +292,10 @@ int main(int argc, char* argv[])
     // -----------------------
     
     // Create a manager for the source set elements.
-    DataTransferKit::MoabManager src_manager( 
-	source_mesh, source_set, DataTransferKit::ENTITY_TYPE_VOLUME );
+    DataTransferKit::MoabManager src_manager( source_mesh, source_set );
 
     // Create a manager for the target set nodes.
-    DataTransferKit::MoabManager tgt_manager( 
-	target_mesh, target_set, DataTransferKit::ENTITY_TYPE_NODE );
+    DataTransferKit::MoabManager tgt_manager( target_mesh, target_set );
 
     // Create a solution vector for the source.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > src_vector =

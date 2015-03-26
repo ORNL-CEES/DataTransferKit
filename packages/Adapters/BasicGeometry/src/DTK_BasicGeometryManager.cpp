@@ -52,13 +52,11 @@ namespace DataTransferKit
 //! Default constructor.
 BasicGeometryManager::BasicGeometryManager(
     const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-    const int physical_dimension,
-    const EntityType entity_type )
+    const int physical_dimension )
 {
-    Teuchos::RCP<EntitySelector> entity_selector = 
-	Teuchos::rcp( new EntitySelector(entity_type) );
     Teuchos::Array<Entity> entities(0);
-    createFunctionSpace( comm, physical_dimension, entities, entity_selector );
+    createFunctionSpace(
+	comm, physical_dimension, entities, FunctionSpace::selectAll );
     DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
@@ -67,12 +65,10 @@ BasicGeometryManager::BasicGeometryManager(
 BasicGeometryManager::BasicGeometryManager(
     const Teuchos::RCP<const Teuchos::Comm<int> > comm,
     const int physical_dimension,
-    const EntityType entity_type,
     const Teuchos::ArrayView<Entity>& entities )
 {
-    Teuchos::RCP<EntitySelector> entity_selector = 
-	Teuchos::rcp( new EntitySelector(entity_type) );
-    createFunctionSpace( comm, physical_dimension, entities, entity_selector );
+    createFunctionSpace(
+	comm, physical_dimension, entities, FunctionSpace::selectAll );
     DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
@@ -81,7 +77,6 @@ BasicGeometryManager::BasicGeometryManager(
 BasicGeometryManager::BasicGeometryManager(
     const Teuchos::RCP<const Teuchos::Comm<int> > comm,
     const int physical_dimension,
-    const EntityType entity_type,
     const Teuchos::ArrayView<Entity>& entities,
     const Teuchos::ArrayView<int>& block_ids,
     const Teuchos::ArrayView<int>& boundary_ids )
@@ -93,9 +88,7 @@ BasicGeometryManager::BasicGeometryManager(
     PredicateFunction pred = 
 	PredicateComposition::Or( block_pred.getFunction(),
 				  boundary_pred.getFunction() );
-    Teuchos::RCP<EntitySelector> entity_selector = 
-	Teuchos::rcp( new EntitySelector(entity_type,pred) );
-    createFunctionSpace( comm, physical_dimension, entities, entity_selector );
+    createFunctionSpace( comm, physical_dimension, entities, pred );
     DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }
 
@@ -112,7 +105,7 @@ void BasicGeometryManager::createFunctionSpace(
 	const Teuchos::RCP<const Teuchos::Comm<int> > comm,
 	const int physical_dimension, 
 	const Teuchos::ArrayView<Entity>& entities,
-	const Teuchos::RCP<EntitySelector>& entity_selector )
+	const PredicateFunction& select_function )
 {
     Teuchos::RCP<BasicEntitySet> entity_set = 
 	Teuchos::rcp( new BasicEntitySet(comm,physical_dimension) );
@@ -128,7 +121,7 @@ void BasicGeometryManager::createFunctionSpace(
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     d_function_space = Teuchos::rcp( 
-	new FunctionSpace(entity_set,entity_selector,local_map,shape_function) );
+	new FunctionSpace(entity_set,local_map,shape_function,select_function) );
 }
 
 //---------------------------------------------------------------------------//

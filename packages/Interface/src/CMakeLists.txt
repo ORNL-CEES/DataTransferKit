@@ -34,7 +34,6 @@ APPEND_SET(SOURCES
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/Operator)
 APPEND_SET(HEADERS
   ${DIR}/DTK_BasicEntityPredicates.hpp
-  ${DIR}/DTK_EntitySelector.hpp
   ${DIR}/DTK_FieldMultiVector.hpp
   ${DIR}/DTK_FieldMultiVector_impl.hpp
   ${DIR}/DTK_FunctionSpace.hpp
@@ -44,7 +43,6 @@ APPEND_SET(HEADERS
 
 APPEND_SET(SOURCES
   ${DIR}/DTK_BasicEntityPredicates.cpp
-  ${DIR}/DTK_EntitySelector.cpp
   ${DIR}/DTK_FunctionSpace.cpp
   )
 

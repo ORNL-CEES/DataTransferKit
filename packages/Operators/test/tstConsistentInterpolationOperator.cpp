@@ -90,8 +90,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     }
 
     // Make a manager for the domain geometry.
-    DataTransferKit::BasicGeometryManager domain_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
     Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
@@ -121,8 +120,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     }
 
     // Make a manager for the range geometry.
-    DataTransferKit::BasicGeometryManager range_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
+    DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
     Teuchos::RCP<DataTransferKit::Field<double> > range_field =
@@ -186,8 +184,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     }
 
     // Make a manager for the domain geometry.
-    DataTransferKit::BasicGeometryManager domain_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
     Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
@@ -217,8 +214,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     }
 
     // Make a manager for the range geometry.
-    DataTransferKit::BasicGeometryManager range_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
+    DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
     Teuchos::RCP<DataTransferKit::Field<double> > range_field =
@@ -282,8 +278,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     }
 
     // Make a manager for the domain geometry.
-    DataTransferKit::BasicGeometryManager domain_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
     Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
@@ -313,8 +308,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     }
 
     // Make a manager for the range geometry.
-    DataTransferKit::BasicGeometryManager range_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
+    DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
     Teuchos::RCP<DataTransferKit::Field<double> > range_field =
@@ -388,8 +382,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     }
 
     // Make a manager for the domain geometry.
-    DataTransferKit::BasicGeometryManager domain_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
     Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
@@ -419,8 +412,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     }
 
     // Make a manager for the range geometry.
-    DataTransferKit::BasicGeometryManager range_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
+    DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
     Teuchos::RCP<DataTransferKit::Field<double> > range_field =
@@ -484,8 +476,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     }
 
     // Make a manager for the domain geometry.
-    DataTransferKit::BasicGeometryManager domain_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
     Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
@@ -515,8 +506,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     }
 
     // Make a manager for the range geometry.
-    DataTransferKit::BasicGeometryManager range_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
+    DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
     Teuchos::RCP<DataTransferKit::Field<double> > range_field =
@@ -589,8 +579,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 		   0.0,0.0,box_ids[0],1.0,1.0,box_ids[0]+1.0);
 	
     // Make a manager for the domain geometry.
-    DataTransferKit::BasicGeometryManager domain_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
     Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
@@ -617,8 +606,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     points[0] = Point(point_ids[0],comm_rank,point);
 
     // Make a manager for the range geometry.
-    DataTransferKit::BasicGeometryManager range_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
+    DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
     Teuchos::RCP<DataTransferKit::Field<double> > range_field =
@@ -685,8 +673,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
     }
 
     // Make a manager for the domain geometry.
-    DataTransferKit::BasicGeometryManager domain_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
     Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
@@ -723,8 +710,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
     points[5] = Point(point_ids[5],comm_rank,point);
 
     // Make a manager for the range geometry.
-    DataTransferKit::BasicGeometryManager range_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
+    DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
     Teuchos::RCP<DataTransferKit::Field<double> > range_field =
@@ -793,8 +779,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
     }
 
     // Make a manager for the domain geometry.
-    DataTransferKit::BasicGeometryManager domain_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_VOLUME, boxes() );
+    DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
     Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
@@ -832,8 +817,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
     points[5] = Point(point_ids[5],comm_rank,point);
 
     // Make a manager for the range geometry.
-    DataTransferKit::BasicGeometryManager range_manager( 
-	comm, 3, DataTransferKit::ENTITY_TYPE_NODE, points() );
+    DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
     Teuchos::RCP<DataTransferKit::Field<double> > range_field =

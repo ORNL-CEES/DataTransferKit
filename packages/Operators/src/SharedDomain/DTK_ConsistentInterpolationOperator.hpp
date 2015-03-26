@@ -43,7 +43,6 @@
 
 #include "DTK_MapOperator.hpp"
 #include "DTK_Types.hpp"
-#include "DTK_EntitySelector.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>

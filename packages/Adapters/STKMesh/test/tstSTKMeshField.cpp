@@ -144,9 +144,8 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
     }
 
     // Create a manager.
-    DataTransferKit::STKMeshManager manager(
-	bulk_data, DataTransferKit::ENTITY_TYPE_VOLUME );
-
+    DataTransferKit::STKMeshManager manager( bulk_data );
+    
     // Create a vector from the nodal field.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_1 =
 	manager.createFieldMultiVector<double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >(

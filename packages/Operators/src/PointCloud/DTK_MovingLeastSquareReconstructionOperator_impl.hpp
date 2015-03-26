@@ -95,26 +95,18 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
     bool nonnull_range = Teuchos::nonnull( range_space->entitySet() );
 
-    // Make sure we are applying the map to nodes.
-    DTK_REQUIRE( domain_space->entitySelector()->entityType() ==
-		 ENTITY_TYPE_NODE );
-    DTK_REQUIRE( range_space->entitySelector()->entityType() ==
-		 ENTITY_TYPE_NODE );
-
     // We will only operate on entities that are locally-owned.
     LocalEntityPredicate local_predicate( comm->getRank() );
 
-    // Extract the source centers and their ids.
+    // Extract the source centers from the nodes and their ids.
     EntityIterator domain_iterator;
     if ( nonnull_domain )
     {
 	PredicateFunction domain_predicate =
 	    PredicateComposition::And(
-		domain_space->entitySelector()->selectFunction(),
-		local_predicate.getFunction() );
+		domain_space->selectFunction(),	local_predicate.getFunction() );
 	domain_iterator = domain_space->entitySet()->entityIterator( 
-	    domain_space->entitySelector()->entityType(),
-	    domain_predicate );
+	    ENTITY_TYPE_NODE, domain_predicate );
     }
     int local_num_src = domain_iterator.size();
     Teuchos::ArrayRCP<double> source_centers( DIM*local_num_src);
@@ -127,7 +119,8 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 	  domain_entity != domain_end;
 	  ++domain_entity, ++entity_counter )
     {
-	domain_space->shapeFunction()->entityDOFIds( *domain_entity, source_node_dofs );
+	domain_space->shapeFunction()->entityDOFIds(
+	    *domain_entity, source_node_dofs );
 	DTK_CHECK( 1 == source_node_dofs.size() );
 	source_dof_ids[entity_counter] = source_node_dofs[0];
 	domain_space->localMap()->centroid(
@@ -140,11 +133,9 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     {
 	PredicateFunction range_predicate =
 	    PredicateComposition::And(
-		range_space->entitySelector()->selectFunction(),
-		local_predicate.getFunction() );
+		range_space->selectFunction(), local_predicate.getFunction() );
 	range_iterator = range_space->entitySet()->entityIterator( 
-	    range_space->entitySelector()->entityType(),
-	    range_predicate );
+	    ENTITY_TYPE_NODE, range_predicate );
     } 
     int local_num_tgt = range_iterator.size();
     Teuchos::ArrayRCP<double> target_centers( DIM*local_num_tgt );

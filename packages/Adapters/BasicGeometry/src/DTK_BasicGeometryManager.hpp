@@ -45,7 +45,6 @@
 
 #include "DTK_Types.hpp"
 #include "DTK_FunctionSpace.hpp"
-#include "DTK_EntitySelector.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -72,8 +71,7 @@ class BasicGeometryManager
      * function space defined over the given type.
      */
     BasicGeometryManager( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-			  const int physical_dimension,
-			  const EntityType entity_type );
+			  const int physical_dimension );
 
     /*!
      * \brief Entity constructor. Initializes an entity set filled with the
@@ -81,7 +79,6 @@ class BasicGeometryManager
      */
     BasicGeometryManager( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
 			  const int physical_dimension,
-			  const EntityType entity_type,
 			  const Teuchos::ArrayView<Entity>& entities );
 
     /*!
@@ -92,7 +89,6 @@ class BasicGeometryManager
      */
     BasicGeometryManager( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
 			  const int physical_dimension,
-			  const EntityType entity_type,
 			  const Teuchos::ArrayView<Entity>& entities,
 			  const Teuchos::ArrayView<int>& block_ids,
 			  const Teuchos::ArrayView<int>& boundary_ids );
@@ -110,7 +106,7 @@ class BasicGeometryManager
 	const Teuchos::RCP<const Teuchos::Comm<int> > comm,
 	const int physical_dimension, 
 	const Teuchos::ArrayView<Entity>& entities,
-	const Teuchos::RCP<EntitySelector>& entity_selector );
+	const PredicateFunction& select_function );
 
   private:
 

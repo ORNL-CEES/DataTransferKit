@@ -77,8 +77,7 @@ class MoabManager
      * \param entity_type The type of entities in the mesh that will be
      * mapped. 
      */
-    MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-		 const EntityType entity_type );
+    MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
 
     /*!
      * \brief Mesh set constructor.
@@ -91,8 +90,7 @@ class MoabManager
      * mapped. 
      */
     MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-		 const moab::EntityHandle& mesh_set,
-		 const EntityType entity_type );
+		 const moab::EntityHandle& mesh_set );
 
     /*!
      * \brief Get the function space over which the mesh and its fields are
