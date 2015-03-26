@@ -32,31 +32,32 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MoabTagVector.hpp
+ * \brief DTK_MoabTagField.hpp
  * \author Stuart R. Slattery
  * \brief Moab tag vector manager.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MOABTAGVECTOR_HPP
-#define DTK_MOABTAGVECTOR_HPP
+#ifndef DTK_MOABTAGFIELD_HPP
+#define DTK_MOABTAGFIELD_HPP
 
 #include <vector>
+#include <unordered_map>
 
 #include "DTK_Types.hpp"
+#include "DTK_Field.hpp"
 
 #include <MBParallelComm.hpp>
 
 #include <Teuchos_RCP.hpp>
-
-#include <Tpetra_Map.hpp>
-#include <Tpetra_MultiVector.hpp>
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class MoabTagVector
+  \class MoabTagField
   \brief A class for defining Tpetra vectors over Moab tags.
 
   Use this class to manage Tpetra vectors and Moab tags. This class will
@@ -67,7 +68,7 @@ namespace DataTransferKit
 */
 //---------------------------------------------------------------------------//
 template<class Scalar>
-class MoabTagVector
+class MoabTagField : public Field<Scalar>
 {
   public:
 
@@ -77,31 +78,34 @@ class MoabTagVector
      * \param mesh_set The set of mesh entities over which the vector is defined.
      * \param tag The tag containing the vector data.
      */
-    MoabTagVector( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-		   const moab::EntityHandle& mesh_set,
-		   const moab::Tag& tag );
+    MoabTagField( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+		  const moab::EntityHandle& mesh_set,
+		  const moab::Tag& tag );
 
     /*!
-     * \brief Get the vector over the tag.
+     * \brief Get the dimension of the field.
      */
-    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,DofId> > getVector() const
-    { return d_vector; }
+    int dimension() const;
 
     /*!
-     * \brief Get the vector map.
+     * \brief Get the locally-owned entity DOF ids of the field.
      */
-    Teuchos::RCP<const Tpetra::Map<int,DofId> > getMap() const
-    { return d_vector->getMap(); }
+    Teuchos::ArrayView<const DofId> getLocalEntityDOFIds() const;
 
     /*!
-     * \brief Pull data from the tag and put it into the vector.
+     * \brief Given a local dof id and a dimension, read data from the
+     * application field.
      */
-    void pullDataFromTag();
+    Scalar readFieldData( const DofId dof_id,
+			  const int dimension ) const;
 
     /*!
-     * \brief Push data from the vector into the tag.
+     * \brief Given a local dof id, dimension, and field value, write data
+     * into the application field.
      */
-    void pushDataToTag();
+    void writeFieldData( const DofId dof_id,
+			 const int dimension,
+			 const Scalar data );
 
   private:
 
@@ -114,13 +118,17 @@ class MoabTagVector
     // The tag containing the vector data.
     moab::Tag d_tag;
 
-    // The entities over which the vector is defined.
-    std::vector<moab::EntityHandle> d_entities;
+    // The dimension of the tag.
+    int d_tag_dim;
 
-    // The vector. This is a copy of the data. To put data into the vector
-    // from the tag call pullDataFromTag(). To put data from the vector back
-    // into the tag call pushDataToTag().
-    Teuchos::RCP<Tpetra::MultiVector<Scalar,int,DofId> > d_vector;  
+    // Entities in the mesh set.
+    std::vector<moab::EntityHandle> d_entities;
+    
+    // The dof ids of the entities over which the field is constructed.
+    Teuchos::Array<DofId> d_dof_ids;
+
+    // Dof id to local id map.
+    std::unordered_map<DofId,int> d_id_map;
 };
 
 //---------------------------------------------------------------------------//
@@ -131,12 +139,12 @@ class MoabTagVector
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_MoabTagVector_impl.hpp"
+#include "DTK_MoabTagField_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_MOABTAGVECTOR_HPP
+#endif // end DTK_MOABTAGFIELD_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_MoabTagVector.hpp
+// end DTK_MoabTagField.hpp
 //---------------------------------------------------------------------------//

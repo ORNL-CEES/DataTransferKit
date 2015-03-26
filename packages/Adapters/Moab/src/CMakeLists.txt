@@ -18,8 +18,8 @@ APPEND_SET(HEADERS
   DTK_MoabManager.hpp
   DTK_MoabMeshSetIndexer.hpp
   DTK_MoabNodalShapeFunction.hpp
-  DTK_MoabTagVector.hpp
-  DTK_MoabTagVector_impl.hpp
+  DTK_MoabTagField.hpp
+  DTK_MoabTagField_impl.hpp
   ) 
 
 APPEND_SET(SOURCES

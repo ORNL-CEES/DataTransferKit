@@ -34,7 +34,7 @@
 /*!
  * \file   tstSTKMeshField.cpp
  * \author Stuart Slattery
- * \brief  Entity-centered DOF vector test.
+ * \brief  Field test.
  */
 //---------------------------------------------------------------------------//
 
