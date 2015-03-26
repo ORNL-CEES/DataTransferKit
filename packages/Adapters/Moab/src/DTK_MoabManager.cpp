@@ -39,11 +39,11 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_MoabManager.hpp"
+#include "DTK_EntitySelector.hpp"
 #include "DTK_MoabEntityPredicates.hpp"
 #include "DTK_MoabNodalShapeFunction.hpp"
 #include "DTK_MoabEntitySet.hpp"
 #include "DTK_MoabEntityLocalMap.hpp"
-#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
@@ -51,18 +51,19 @@ namespace DataTransferKit
 //! Default constructor.
 MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
 			  const EntityType entity_type )
+    : d_moab_mesh( moab_mesh )
 {
     Teuchos::RCP<EntitySet> entity_set = 
-	Teuchos::rcp( new MoabEntitySet(moab_mesh) );
+	Teuchos::rcp( new MoabEntitySet(d_moab_mesh) );
     
     Teuchos::RCP<EntitySelector> entity_selector = 
 	Teuchos::rcp( new EntitySelector(entity_type) );
 
     Teuchos::RCP<EntityLocalMap> local_map =
-	Teuchos::rcp( new MoabEntityLocalMap(moab_mesh) );
+	Teuchos::rcp( new MoabEntityLocalMap(d_moab_mesh) );
 
     Teuchos::RCP<EntityShapeFunction> shape_function =
-	Teuchos::rcp( new MoabNodalShapeFunction(moab_mesh) );
+	Teuchos::rcp( new MoabNodalShapeFunction(d_moab_mesh) );
 
     d_function_space = Teuchos::rcp( 
 	new FunctionSpace(entity_set,entity_selector,local_map,shape_function) );
@@ -74,9 +75,10 @@ MoabManager::MoabManager(
     const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
     const moab::EntityHandle& mesh_set,
     const EntityType entity_type )
+        : d_moab_mesh( moab_mesh )
 {
     Teuchos::RCP<EntitySet> entity_set = 
-	Teuchos::rcp( new MoabEntitySet(moab_mesh) );
+	Teuchos::rcp( new MoabEntitySet(d_moab_mesh) );
 
     MoabMeshSetPredicate pred( 
 	mesh_set, 
@@ -86,10 +88,10 @@ MoabManager::MoabManager(
 	Teuchos::rcp( new EntitySelector(entity_type,pred.getFunction()) );
     
     Teuchos::RCP<EntityLocalMap> local_map =
-	Teuchos::rcp( new MoabEntityLocalMap(moab_mesh) );
+	Teuchos::rcp( new MoabEntityLocalMap(d_moab_mesh) );
 
     Teuchos::RCP<EntityShapeFunction> shape_function =
-	Teuchos::rcp( new MoabNodalShapeFunction(moab_mesh) );
+	Teuchos::rcp( new MoabNodalShapeFunction(d_moab_mesh) );
 
     d_function_space = Teuchos::rcp( 
 	new FunctionSpace(entity_set,entity_selector,local_map,shape_function) );

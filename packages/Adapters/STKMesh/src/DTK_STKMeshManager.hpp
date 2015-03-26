@@ -46,6 +46,9 @@
 #include "DTK_Types.hpp"
 #include "DTK_FunctionSpace.hpp"
 #include "DTK_EntitySelector.hpp"
+#include "DTK_FieldMultiVector.hpp"
+#include "DTK_DBC.hpp"
+#include "DTK_STKMeshField.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -152,19 +155,46 @@ class STKMeshManager
      */
     Teuchos::RCP<FunctionSpace> functionSpace() const;
 
+    /*!
+     * \brief Given a field and dimension, build a vector over that field.
+     */
+    template<class Scalar,class FieldType>
+    Teuchos::RCP<FieldMultiVector<Scalar> >
+    createFieldMultiVector( const Teuchos::Ptr<FieldType>& field,
+			    const int field_dim );
+
   private:
 
     // Create the function space.
     void createFunctionSpace( 
-	const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
 	const BasisType basis_type,
 	const Teuchos::RCP<EntitySelector>& entity_selector );
 
   private:
 
+    // Bulk data.
+    Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
+    
     // The function space over which the mesh and its fields are defined.
     Teuchos::RCP<FunctionSpace> d_function_space;
 };
+
+//---------------------------------------------------------------------------//
+// Template functions.
+//---------------------------------------------------------------------------//
+template<class Scalar,class FieldType>
+Teuchos::RCP<FieldMultiVector<Scalar> >
+STKMeshManager::createFieldMultiVector( const Teuchos::Ptr<FieldType>& field,
+				     const int field_dim )
+{
+    DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
+    DTK_REQUIRE( Teuchos::nonnull(d_function_space) );
+    
+    Teuchos::RCP<Field<Scalar> > stk_field = Teuchos::rcp(
+	new STKMeshField<Scalar,FieldType>(d_bulk_data,field,field_dim) );
+    return Teuchos::rcp(
+	new FieldMultiVector<Scalar>(stk_field,d_function_space->entitySet()) );
+}
 
 //---------------------------------------------------------------------------//
 

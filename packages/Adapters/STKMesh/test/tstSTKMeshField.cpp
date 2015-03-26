@@ -43,9 +43,8 @@
 #include <cmath>
 #include <sstream>
 
-#include "DTK_STKMeshField.hpp"
 #include "DTK_FieldMultiVector.hpp"
-#include "DTK_STKMeshEntitySet.hpp"
+#include "DTK_STKMeshManager.hpp"
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -67,7 +66,7 @@
 
 //---------------------------------------------------------------------------//
 // Hex-8 test.
-TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
+TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 
@@ -144,18 +143,14 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
 	data[2] = 3.0;
     }
 
-    // Create an entity set.
-    Teuchos::RCP<DataTransferKit::EntitySet> entity_set = Teuchos::rcp(
-	new DataTransferKit::STKMeshEntitySet(bulk_data) );
+    // Create a manager.
+    DataTransferKit::STKMeshManager manager(
+	bulk_data, DataTransferKit::ENTITY_TYPE_VOLUME );
 
     // Create a vector from the nodal field.
-    Teuchos::RCP<DataTransferKit::Field<double> > field_1 = Teuchos::rcp(
-	new DataTransferKit::STKMeshField<
-	double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >
-	( bulk_data, Teuchos::ptr(test_field_1), 3 ) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_1 =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
-			  field_1, entity_set) );
+	manager.createFieldMultiVector<double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
+	    Teuchos::ptr(test_field_1), 3 );
 
     // Test the vector allocation.
     unsigned comm_size = comm->getSize();
@@ -202,13 +197,9 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, pull_push_test )
 	    ).get_field<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 		stk::topology::NODE_RANK, "test field 2" );
 
-    Teuchos::RCP<DataTransferKit::Field<double> > field_2 = Teuchos::rcp(
-	new DataTransferKit::STKMeshField<
-	double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >
-	( bulk_data, Teuchos::ptr(test_field_2), 3 ) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_2 =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
-			  field_2, entity_set) );
+	manager.createFieldMultiVector<double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
+	    Teuchos::ptr(test_field_2), 3 );
 
     // Test the vector to make sure it is empty.
     TEST_EQUALITY( 3, field_vec_2->getNumVectors() );

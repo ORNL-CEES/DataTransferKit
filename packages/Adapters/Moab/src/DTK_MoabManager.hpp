@@ -45,7 +45,9 @@
 
 #include "DTK_Types.hpp"
 #include "DTK_FunctionSpace.hpp"
-#include "DTK_EntitySelector.hpp"
+#include "DTK_FieldMultiVector.hpp"
+#include "DTK_MoabTagField.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -98,11 +100,40 @@ class MoabManager
      */
     Teuchos::RCP<FunctionSpace> functionSpace() const;
 
+    /*!
+     * \brief Given a mesh set and a tag, build a vector over that tag and
+     * mesh set.
+     */
+    template<class Scalar>
+    Teuchos::RCP<FieldMultiVector<Scalar> >
+    createFieldMultiVector( const moab::EntityHandle& mesh_set,
+			    const moab::Tag& tag );
+    
   private:
+
+    // The moab mesh.
+    Teuchos::RCP<moab::ParallelComm> d_moab_mesh;
 
     // The function space over which the mesh and its fields are defined.
     Teuchos::RCP<FunctionSpace> d_function_space;
 };
+
+//---------------------------------------------------------------------------//
+// Template functions.
+//---------------------------------------------------------------------------//
+template<class Scalar>
+Teuchos::RCP<FieldMultiVector<Scalar> >
+MoabManager::createFieldMultiVector( const moab::EntityHandle& mesh_set,
+				     const moab::Tag& tag )
+{
+    DTK_REQUIRE( Teuchos::nonnull(d_moab_mesh) );
+    DTK_REQUIRE( Teuchos::nonnull(d_function_space) );
+    
+    Teuchos::RCP<Field<Scalar> > field = Teuchos::rcp(
+	new MoabTagField<Scalar>(d_moab_mesh, mesh_set, tag) );
+    return Teuchos::rcp(
+	new FieldMultiVector<Scalar>(field,d_function_space->entitySet()) );
+}
 
 //---------------------------------------------------------------------------//
 

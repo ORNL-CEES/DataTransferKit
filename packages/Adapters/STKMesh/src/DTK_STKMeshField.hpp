@@ -75,8 +75,8 @@ class STKMeshField : public Field<Scalar>
      * \brief Constructor.
      */
     STKMeshField( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-			const Teuchos::Ptr<FieldType>& field,
-			const int field_dim );
+		  const Teuchos::Ptr<FieldType>& field,
+		  const int field_dim );
 
     /*!
      * \brief Get the dimension of the field.
