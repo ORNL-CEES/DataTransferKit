@@ -4,9 +4,21 @@
   <Parameter name="Source Mesh Part" type="string" value="Hex_8_Cube"/>
   <Parameter name="Target Mesh Input File" type="string" value="pincell_mesh.exo"/>
   <Parameter name="Target Mesh Output File" type="string" value="target_out.exo"/>
-  <!-- <Parameter name="Target Mesh Part" type="string" value="Tet_4_Cylinder"/> -->
   <Parameter name="Target Mesh Part" type="string" value="Tet_4_Box"/>
-  <Parameter name="Basis Radius" type="double" value="1.0"/>
-  <Parameter name="Interpolation Type" type="string" value="Consistent"/>
   <Parameter name="Number of Iterations" type="int" value="10"/> 
+  <ParameterList name="DataTransferKit">
+    <Parameter name="Map Type" type="string" value="Consistent Interpolation"/>
+    <ParameterList name="Consistent Interpolation">
+    </ParameterList>
+    <ParameterList name="Point Cloud">
+      <Parameter name="Map Type" type="string" value="Moving Least Square"/>
+      <Parameter name="Basis Type" type="string" value="Wu"/>
+      <Parameter name="Basis Order" type="int" value="4"/>
+      <Parameter name="Spatial Dimension" type="int" value="3"/>
+      <Parameter name="RBF Radius" type="double" value="1.0"/>
+    </ParameterList>
+    <ParameterList name="Search">
+      <Parameter name="Track Missed Range Entities" type="bool" value="true"/>
+    </ParameterList>
+  </ParameterList>
 </ParameterList>

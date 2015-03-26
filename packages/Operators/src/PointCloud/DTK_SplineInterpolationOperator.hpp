@@ -89,7 +89,8 @@ class SplineInterpolationOperator : virtual public MapOperator<Scalar>
      */
     SplineInterpolationOperator(     
 	const Teuchos::RCP<const TpetraMap>& domain_map,
-	const Teuchos::RCP<const TpetraMap>& range_map );
+	const Teuchos::RCP<const TpetraMap>& range_map,
+	const Teuchos::ParameterList& parameters );
 
     /*
      * \brief Setup the map operator from a domain entity set and a range
@@ -106,8 +107,7 @@ class SplineInterpolationOperator : virtual public MapOperator<Scalar>
      * \param parameters Parameters for the setup.
      */
     void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-		const Teuchos::RCP<FunctionSpace>& range_space,
-		const Teuchos::RCP<Teuchos::ParameterList>& parameters ) override;
+		const Teuchos::RCP<FunctionSpace>& range_space ) override;
 
   protected:
     
@@ -127,7 +127,6 @@ class SplineInterpolationOperator : virtual public MapOperator<Scalar>
     void buildConcreteOperators(
 	const Teuchos::RCP<FunctionSpace>& domain_space,
 	const Teuchos::RCP<FunctionSpace>& range_space,
-	const Teuchos::RCP<Teuchos::ParameterList>& parameters,
 	Teuchos::RCP<const Root>& S,
 	Teuchos::RCP<const Root>& P,
 	Teuchos::RCP<const Root>& M,
@@ -135,6 +134,9 @@ class SplineInterpolationOperator : virtual public MapOperator<Scalar>
 	Teuchos::RCP<const Root>& N ) const;
 
   private:
+
+    // Basis radius.
+    double d_radius;
 
     // Coupling matrix.
     Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > d_coupling_matrix;

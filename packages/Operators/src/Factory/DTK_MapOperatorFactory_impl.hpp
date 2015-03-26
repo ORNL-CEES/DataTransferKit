@@ -83,7 +83,7 @@ MapOperatorFactory<Scalar>::create(
 	// Consistent Interpolation.
 	case CONSISTENT_INTERPOLATION:
 	    map = Teuchos::rcp(	new ConsistentInterpolationOperator<Scalar>(
-				    domain_map,range_map) );
+				    domain_map,range_map,parameters) );
 	    break;
 
 	// Spline Interpolation

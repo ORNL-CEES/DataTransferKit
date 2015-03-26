@@ -108,8 +108,7 @@ class MapOperator : public Tpetra::Operator<Scalar,int,DofId>
      */
     virtual void 
     setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-	   const Teuchos::RCP<FunctionSpace>& range_space,
-	   const Teuchos::RCP<Teuchos::ParameterList>& parameters ) = 0;
+	   const Teuchos::RCP<FunctionSpace>& range_space ) = 0;
 
     //@{
     //! Tpetra::Operator interface.

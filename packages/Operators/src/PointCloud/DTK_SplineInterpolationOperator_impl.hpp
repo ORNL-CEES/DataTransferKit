@@ -73,21 +73,24 @@ namespace DataTransferKit
 template<class Scalar,class Basis,int DIM>
 SplineInterpolationOperator<Scalar,Basis,DIM>::SplineInterpolationOperator(
     const Teuchos::RCP<const TpetraMap>& domain_map,
-    const Teuchos::RCP<const TpetraMap>& range_map )
+    const Teuchos::RCP<const TpetraMap>& range_map,
+    const Teuchos::ParameterList& parameters )
     : Base( domain_map, range_map )
-{ /* ... */ }
+{
+    // Get the basis radius.
+    DTK_REQUIRE( parameters.isParameter("RBF Radius") );
+    d_radius = parameters.get<double>("RBF Radius");
+}
 
 //---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar,class Basis,int DIM>
 void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
     const Teuchos::RCP<FunctionSpace>& domain_space,
-    const Teuchos::RCP<FunctionSpace>& range_space,
-    const Teuchos::RCP<Teuchos::ParameterList>& parameters )
+    const Teuchos::RCP<FunctionSpace>& range_space )
 {
     DTK_REQUIRE( Teuchos::nonnull(domain_space) );
     DTK_REQUIRE( Teuchos::nonnull(range_space) );
-    DTK_REQUIRE( Teuchos::nonnull(parameters) );
 
     // Extract the DOF maps.
     const Teuchos::RCP<const typename Base::TpetraMap> domain_map
@@ -117,7 +120,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
     Teuchos::RCP<const Root> N;
 
     // Build the concrete operators.
-    buildConcreteOperators( domain_space, range_space, parameters, S, P, M, Q, N );
+    buildConcreteOperators( domain_space, range_space, S, P, M, Q, N );
 
     // Create an abstract wrapper for S.
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space_S =
@@ -187,7 +190,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::setup(
 
     // Create the inverse of the composite operator C.
     Teuchos::RCP<Teuchos::ParameterList> builder_params =
-      sublist(parameters, "Stratimikos");
+	Teuchos::parameterList("Stratimikos");
     Teuchos::updateParametersFromXmlString(
       "<ParameterList name=\"Stratimikos\">"
         "<Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Belos\"/>"
@@ -240,17 +243,12 @@ template<class Scalar,class Basis,int DIM>
 void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
 	const Teuchos::RCP<FunctionSpace>& domain_space,
 	const Teuchos::RCP<FunctionSpace>& range_space,
-	const Teuchos::RCP<Teuchos::ParameterList>& parameters,
 	Teuchos::RCP<const Root>& S,
 	Teuchos::RCP<const Root>& P,
 	Teuchos::RCP<const Root>& M,
 	Teuchos::RCP<const Root>& Q,
 	Teuchos::RCP<const Root>& N ) const
 {
-    // Get the basis radius.
-    DTK_REQUIRE( parameters->isParameter("RBF Radius") );
-    double radius = parameters->get<double>("RBF Radius");
-
     // Extract the DOF maps.
     const Teuchos::RCP<const typename Base::TpetraMap> domain_map
 	= this->getDomainMap();
@@ -333,11 +331,11 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
 	new SplineProlongationOperator<Scalar>(offset,domain_map) );
 
     // COEFFICIENT OPERATORS.
-    // Gather the source centers that are within a radius of the source
+    // Gather the source centers that are within a d_radius of the source
     // centers on this proc.
     Teuchos::Array<double> dist_sources;
     CenterDistributor<DIM> source_distributor( 
-	comm, source_centers(), source_centers(), radius, dist_sources );
+	comm, source_centers(), source_centers(), d_radius, dist_sources );
     
     // Distribute the global source ids.
     Teuchos::Array<GO> dist_source_dof_ids( 
@@ -348,10 +346,10 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
 
     // Build the source/source pairings.
     SplineInterpolationPairing<DIM> source_pairings( 
-	dist_sources(), source_centers(), radius );
+	dist_sources(), source_centers(), d_radius );
 
     // Build the basis.
-    Teuchos::RCP<Basis> basis = BP::create( radius );
+    Teuchos::RCP<Basis> basis = BP::create( d_radius );
 
     // Get the operator map.
     Teuchos::RCP<const Tpetra::Map<int,GO> > prolongated_map = S->getRangeMap();
@@ -369,10 +367,10 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
     dist_source_dof_ids.clear();
     
     // EVALUATION OPERATORS. 
-    // Gather the source centers that are within a radius of the target
+    // Gather the source centers that are within a d_radius of the target
     // centers on this proc.
     CenterDistributor<DIM> target_distributor( 
-	comm, source_centers(), target_centers(), radius, dist_sources  );
+	comm, source_centers(), target_centers(), d_radius, dist_sources  );
 
     // Distribute the global source ids.
     dist_source_dof_ids.resize( 
@@ -383,7 +381,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
 
     // Build the source/target pairings.
     SplineInterpolationPairing<DIM> target_pairings( 
-	dist_sources(), target_centers(), radius );
+	dist_sources(), target_centers(), d_radius );
 
     // Build the transformation operators.
     SplineEvaluationMatrix<Basis,DIM> B( 

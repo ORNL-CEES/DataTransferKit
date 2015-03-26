@@ -139,21 +139,20 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_test )
 
     // Make a moving least square reconstruction operator.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<double>("RBF Radius", 2.0);
     parameters->set<std::string>("Map Type", "Point Cloud");
     Teuchos::ParameterList& cloud_list = parameters->sublist("Point Cloud");
     cloud_list.set<std::string>("Map Type","Moving Least Square Reconstruction");
     cloud_list.set<std::string>("Basis Type", "Wu");
     cloud_list.set<int>("Basis Order",2);
     cloud_list.set<int>("Spatial Dimension",space_dim);
+    cloud_list.set<double>("RBF Radius", 2.0);
     DataTransferKit::MapOperatorFactory<double> factory;
     Teuchos::RCP<DataTransferKit::MapOperator<double> > mls_op =
 	factory.create( domain_vector->getMap(), range_vector->getMap(), *parameters );
 
     // Setup the operator.
     mls_op->setup( domain_manager.functionSpace(),
-		   range_manager.functionSpace(),
-		   parameters );
+		   range_manager.functionSpace() );
 
     // Apply the operator.
     mls_op->apply( *domain_vector, *range_vector );

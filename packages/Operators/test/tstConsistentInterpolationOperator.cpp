@@ -136,15 +136,16 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 
     // MAPPING
     // Create a map.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    Teuchos::ParameterList& search_list = parameters->sublist("Search");
+    search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
 	new ConsistentInterpolationOperator<double>(
-	    domain_dofs->getMap(),range_dofs->getMap()) );
+	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup(
-	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace() );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
@@ -231,15 +232,16 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 
     // MAPPING
     // Create a map.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    Teuchos::ParameterList& search_list = parameters->sublist("Search");
+    search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
 	new ConsistentInterpolationOperator<double>(
-	    domain_dofs->getMap(),range_dofs->getMap()) );
+	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup(
-	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace() );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
@@ -326,15 +328,16 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
 
     // MAPPING
     // Create a map.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    Teuchos::ParameterList& search_list = parameters->sublist("Search");
+    search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
 	new ConsistentInterpolationOperator<double>(
-	    domain_dofs->getMap(),range_dofs->getMap()) );
+	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup( 
-	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace() );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
@@ -431,15 +434,16 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 
     // MAPPING
     // Create a map.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    Teuchos::ParameterList& search_list = parameters->sublist("Search");
+    search_list.set<bool>("Track Missed Range Entities",true);    
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
 	new ConsistentInterpolationOperator<double>(
-	    domain_dofs->getMap(),range_dofs->getMap()) );
+	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup( 
-	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace() );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
@@ -526,15 +530,16 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 
     // MAPPING
     // Create a map.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    Teuchos::ParameterList& search_list = parameters->sublist("Search");
+    search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
 	new ConsistentInterpolationOperator<double>(
-	    domain_dofs->getMap(),range_dofs->getMap()) );
+	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup( 
-	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace() );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
@@ -627,15 +632,16 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 
     // MAPPING
     // Create a map.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    Teuchos::ParameterList& search_list = parameters->sublist("Search");
+    search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
 	new ConsistentInterpolationOperator<double>(
-	    domain_dofs->getMap(),range_dofs->getMap()) );
+	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup( 
-	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace() );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
@@ -732,15 +738,16 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
 
     // MAPPING
     // Create a map.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    Teuchos::ParameterList& search_list = parameters->sublist("Search");
+    search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
 	new ConsistentInterpolationOperator<double>(
-	    domain_dofs->getMap(),range_dofs->getMap()) );
+	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup( 
-	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace() );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );
@@ -840,15 +847,16 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
 
     // MAPPING
     // Create a map.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    Teuchos::ParameterList& search_list = parameters->sublist("Search");
+    search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
 	new ConsistentInterpolationOperator<double>(
-	    domain_dofs->getMap(),range_dofs->getMap()) );
+	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<bool>("Track Missed Range Entities",true);
     map_op->setup( 
-	domain_manager.functionSpace(), range_manager.functionSpace(), parameters );
+	domain_manager.functionSpace(), range_manager.functionSpace() );
 
     // Apply the map.
     map_op->apply( *domain_dofs, *range_dofs );

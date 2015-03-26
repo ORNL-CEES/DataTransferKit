@@ -87,7 +87,8 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator<Scala
      */
     MovingLeastSquareReconstructionOperator(
 	const Teuchos::RCP<const TpetraMap>& domain_map,
-	const Teuchos::RCP<const TpetraMap>& range_map );
+	const Teuchos::RCP<const TpetraMap>& range_map,
+	const Teuchos::ParameterList& parameters );
 
     /*
      * \brief Setup the map operator from a domain entity set and a range
@@ -104,8 +105,7 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator<Scala
      * \param parameters Parameters for the setup.
      */
     void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-		const Teuchos::RCP<FunctionSpace>& range_space,
-		const Teuchos::RCP<Teuchos::ParameterList>& parameters ) override;
+		const Teuchos::RCP<FunctionSpace>& range_space ) override;
 
   protected:
     
@@ -120,6 +120,9 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator<Scala
 	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
     
   private:
+
+    // Basis radius.
+    double d_radius;
 
     // Coupling matrix.
     Teuchos::RCP<Tpetra::CrsMatrix<Scalar,int,GO> > d_coupling_matrix;

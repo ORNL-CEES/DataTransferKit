@@ -63,25 +63,24 @@ template<class Scalar,class Basis,int DIM>
 MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::
 MovingLeastSquareReconstructionOperator(
     const Teuchos::RCP<const TpetraMap>& domain_map,
-    const Teuchos::RCP<const TpetraMap>& range_map )
+    const Teuchos::RCP<const TpetraMap>& range_map,
+    const Teuchos::ParameterList& parameters )
     : Base( domain_map, range_map )
-{ /* ... */ }
+{
+    // Get the basis radius.
+    DTK_REQUIRE( parameters.isParameter("RBF Radius") );
+    d_radius = parameters.get<double>("RBF Radius");
+}
 
 //---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar,class Basis,int DIM>
 void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     const Teuchos::RCP<FunctionSpace>& domain_space,
-    const Teuchos::RCP<FunctionSpace>& range_space,
-    const Teuchos::RCP<Teuchos::ParameterList>& parameters )
+    const Teuchos::RCP<FunctionSpace>& range_space )
 {
     DTK_REQUIRE( Teuchos::nonnull(domain_space) );
     DTK_REQUIRE( Teuchos::nonnull(range_space) );
-    DTK_REQUIRE( Teuchos::nonnull(parameters) );
-
-    // Get the basis radius.
-    DTK_REQUIRE( parameters->isParameter("RBF Radius") );
-    double radius = parameters->get<double>("RBF Radius");
 
     // Extract the DOF maps.
     const Teuchos::RCP<const typename Base::TpetraMap> domain_map
@@ -166,15 +165,15 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     }
 
     // Build the basis.
-    Teuchos::RCP<Basis> basis = BP::create( radius );
+    Teuchos::RCP<Basis> basis = BP::create( d_radius );
 
-    // Gather the source centers that are within a radius of the target
+    // Gather the source centers that are within a d_radius of the target
     // centers on this proc.
     Teuchos::Array<double> dist_sources;
     CenterDistributor<DIM> distributor( 
-	comm, source_centers(), target_centers(), radius, dist_sources );
+	comm, source_centers(), target_centers(), d_radius, dist_sources );
 
-    // Gather the global ids of the source centers that are within a radius of
+    // Gather the global ids of the source centers that are within a d_radius of
     // the target centers on this proc.
     Teuchos::Array<GO> dist_source_dof_ids( distributor.getNumImports() );
     Teuchos::ArrayView<const GO> source_dof_ids_view = source_dof_ids();
@@ -182,7 +181,7 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 
     // Build the source/target pairings.
     SplineInterpolationPairing<DIM> pairings( 
-	dist_sources, target_centers(), radius );
+	dist_sources, target_centers(), d_radius );
 
     // Build the interpolation matrix.
     Teuchos::ArrayRCP<DofId> children_per_parent =

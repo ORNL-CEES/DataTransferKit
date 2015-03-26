@@ -67,22 +67,24 @@ namespace DataTransferKit
 template<class Scalar>
 ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator(
     const Teuchos::RCP<const TpetraMap>& domain_map,
-    const Teuchos::RCP<const TpetraMap>& range_map )
+    const Teuchos::RCP<const TpetraMap>& range_map,
+    const Teuchos::ParameterList& parameters )
     : Base( domain_map, range_map )
     , d_missed_range_entity_ids( 0 )
-{ /* ... */ }
+{
+    // Get the search list.
+    d_search_list = parameters.sublist( "Search" );
+}
 
 //---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar>
 void ConsistentInterpolationOperator<Scalar>::setup(
     const Teuchos::RCP<FunctionSpace>& domain_space,
-    const Teuchos::RCP<FunctionSpace>& range_space,
-    const Teuchos::RCP<Teuchos::ParameterList>& parameters )
+    const Teuchos::RCP<FunctionSpace>& range_space )
 {
     DTK_REQUIRE( Teuchos::nonnull(domain_space) );
     DTK_REQUIRE( Teuchos::nonnull(range_space) );
-    DTK_REQUIRE( Teuchos::nonnull(parameters) );
 
     // Extract the DOF maps.
     const Teuchos::RCP<const typename Base::TpetraMap> domain_map
@@ -129,7 +131,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 			    physical_dimension,
 			    domain_iterator,
 			    domain_space->localMap(),
-			    *parameters );
+			    d_search_list );
 
     // Get an iterator over the range entities.
     EntityIterator range_iterator;
@@ -145,7 +147,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     } 
 
     // Search the domain with the range.
-    psearch.search( range_iterator, range_space->localMap(), *parameters );
+    psearch.search( range_iterator, range_space->localMap(), d_search_list );
 
     // If we are keeping track of range entities that were not mapped, extract
     // them.

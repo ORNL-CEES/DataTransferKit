@@ -47,13 +47,9 @@
 #include <ctime>
 #include <cstdlib>
 
-#include "DTK_STKMeshFieldVector.hpp"
 #include "DTK_STKMeshHelpers.hpp"
 #include "DTK_STKMeshManager.hpp"
-#include "DTK_ConsistentInterpolationOperator.hpp"
-#include "DTK_MovingLeastSquareReconstructionOperator.hpp"
-#include "DTK_SplineInterpolationOperator.hpp"
-#include "DTK_WuBasis.hpp"
+#include "DTK_MapOperatorFactory.hpp"
 
 #include <Teuchos_GlobalMPISession.hpp>
 #include "Teuchos_CommandLineProcessor.hpp"
@@ -142,9 +138,6 @@ int main(int argc, char* argv[])
 	plist->get<std::string>("Target Mesh Output File");
     std::string target_mesh_part_name = 
 	plist->get<std::string>("Target Mesh Part");
-    std::string interpolation_type = 
-	plist->get<std::string>("Interpolation Type");
-    double basis_radius = plist->get<double>("Basis Radius");
 
     // Get the raw mpi communicator (basic typedef in STK).
     Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
@@ -245,60 +238,30 @@ int main(int argc, char* argv[])
 	tgt_bulk_data, tgt_stk_selector, DataTransferKit::ENTITY_TYPE_NODE );
 
     // Create a solution vector for the source.
-    DataTransferKit::STKMeshFieldVector<double,stk::mesh::Field<double> >
-	source_field_vec( src_bulk_data, Teuchos::ptr(&source_field), 1 );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > src_vector =
-	source_field_vec.getVector();
+	src_manager.createFieldMultiVector<double,stk::mesh::Field<double> >(
+	    Teuchos::ptr(&source_field), 1 );
     
     // Create a solution vector for the target.
-    DataTransferKit::STKMeshFieldVector<double,stk::mesh::Field<double> >
-	target_field_vec( tgt_bulk_data, Teuchos::ptr(&target_field), 1 );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tgt_vector =
-	target_field_vec.getVector();
+	tgt_manager.createFieldMultiVector<double,stk::mesh::Field<double> >(
+	    Teuchos::ptr(&target_field), 1 );
 
 
     // SOLUTION TRANSFER
     // -----------------
 
     // Create a map operator.
-    Teuchos::RCP<DataTransferKit::MapOperator<double> > map_op;
-    if ( "Consistent" == interpolation_type )
-    {
-	map_op = Teuchos::rcp( 
-	    new DataTransferKit::ConsistentInterpolationOperator<double>(
-		source_field_vec.getMap(),target_field_vec.getMap()) );
-
-    }
-    else if ( "Spline" == interpolation_type )
-    {
-	map_op = Teuchos::rcp( 
-	    new DataTransferKit::SplineInterpolationOperator<
-	    double,DataTransferKit::WuBasis<4>,3>(
-		source_field_vec.getMap(),target_field_vec.getMap()) );
-	parameters->set<double>("RBF Radius",basis_radius);
-    }
-    else if ( "Moving Least Square" == interpolation_type )
-    {
-	map_op = Teuchos::rcp( 
-	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
-	    double,DataTransferKit::WuBasis<4>,3>(
-		source_field_vec.getMap(),target_field_vec.getMap()) );
-	parameters->set<double>("RBF Radius",basis_radius);
-    }
+    Teuchos::ParameterList& dtk_list = plist->sublist("DataTransferKit");    
+    DataTransferKit::MapOperatorFactory<double> op_factory;
+    Teuchos::RCP<DataTransferKit::MapOperator<double> > map_op =
+	op_factory.create( src_vector->getMap(), tgt_vector->getMap(), dtk_list );
 
     // Setup the map operator.
-    map_op->setup( src_manager.functionSpace(),
-		   tgt_manager.functionSpace(),
-		   parameters );
-
-    // Pull the source data from STK into the source vector.
-    source_field_vec.pullDataFromField();
+    map_op->setup( src_manager.functionSpace(), tgt_manager.functionSpace() );
 
     // Apply the map operator.
     map_op->apply( *src_vector, *tgt_vector );
-
-    // Push the data from the target vector into STK.
-    target_field_vec.pushDataToField();
 
 
     // COMPUTE THE SOLUTION ERROR

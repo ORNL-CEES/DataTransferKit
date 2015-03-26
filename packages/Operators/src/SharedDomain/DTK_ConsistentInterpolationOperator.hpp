@@ -80,7 +80,8 @@ class ConsistentInterpolationOperator : virtual public MapOperator<Scalar>
      */
     ConsistentInterpolationOperator(
 	const Teuchos::RCP<const TpetraMap>& domain_map,
-	const Teuchos::RCP<const TpetraMap>& range_map );
+	const Teuchos::RCP<const TpetraMap>& range_map,
+	const Teuchos::ParameterList& parameters );
 
     /*
      * \brief Setup the map operator from a domain entity set and a range
@@ -103,8 +104,7 @@ class ConsistentInterpolationOperator : virtual public MapOperator<Scalar>
      * \param parameters Parameters for the setup.
      */
     void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-		const Teuchos::RCP<FunctionSpace>& range_space,
-		const Teuchos::RCP<Teuchos::ParameterList>& parameters ) override;
+		const Teuchos::RCP<FunctionSpace>& range_space ) override;
 
     /*!
      * \brief Return the ids of the range entities that were not mapped during
@@ -128,6 +128,9 @@ class ConsistentInterpolationOperator : virtual public MapOperator<Scalar>
 	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
 
   private:
+
+    // Search sublist.
+    Teuchos::ParameterList d_search_list;
 
     // The coupling matrix.
     Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > d_coupling_matrix;

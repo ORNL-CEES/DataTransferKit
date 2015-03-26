@@ -39,6 +39,10 @@
  */
 //---------------------------------------------------------------------------//
 
+#include <MBInterface.hpp>
+#include <MBParallelComm.hpp>
+#include <MBCore.hpp>
+
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -48,19 +52,14 @@
 #include <ctime>
 #include <cstdlib>
 
-#include "DTK_MoabTagVector.hpp"
 #include "DTK_MoabManager.hpp"
-#include "DTK_ConsistentInterpolationOperator.hpp"
-#include "DTK_MovingLeastSquareReconstructionOperator.hpp"
-#include "DTK_SplineInterpolationOperator.hpp"
-#include "DTK_WuBasis.hpp"
+#include "DTK_MapOperatorFactory.hpp"
 
 #include <Teuchos_GlobalMPISession.hpp>
-#include "Teuchos_CommandLineProcessor.hpp"
-#include "Teuchos_XMLParameterListCoreHelpers.hpp"
-#include "Teuchos_ParameterList.hpp"
+#include <Teuchos_CommandLineProcessor.hpp>
+#include <Teuchos_XMLParameterListCoreHelpers.hpp>
+#include <Teuchos_ParameterList.hpp>
 #include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayRCP.hpp>
@@ -72,10 +71,6 @@
 #include <Teuchos_TimeMonitor.hpp>
 
 #include <Tpetra_MultiVector.hpp>
-
-#include <MBInterface.hpp>
-#include <MBParallelComm.hpp>
-#include <MBCore.hpp>
 
 //---------------------------------------------------------------------------//
 // MOAB error check.
@@ -133,9 +128,6 @@ int main(int argc, char* argv[])
 	plist->get<std::string>("Target Mesh Input File");
     std::string target_mesh_output_file = 
 	plist->get<std::string>("Target Mesh Output File");
-    std::string interpolation_type = 
-	plist->get<std::string>("Interpolation Type");
-    double basis_radius = plist->get<double>("Basis Radius");
 
     // Get the raw mpi communicator.
     Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
@@ -308,60 +300,28 @@ int main(int argc, char* argv[])
 	target_mesh, target_set, DataTransferKit::ENTITY_TYPE_NODE );
 
     // Create a solution vector for the source.
-    DataTransferKit::MoabTagVector<double> source_tag_vec( 
-	source_mesh, source_node_set, source_data_tag );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > src_vector =
-	source_tag_vec.getVector();
+	src_manager.createFieldMultiVector<double>( source_node_set, source_data_tag );
     
     // Create a solution vector for the target.
-    DataTransferKit::MoabTagVector<double> target_tag_vec( 
-	target_mesh, target_node_set, target_data_tag );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tgt_vector =
-	target_tag_vec.getVector();
+	tgt_manager.createFieldMultiVector<double>( target_node_set, target_data_tag );
 
 
     // SOLUTION TRANSFER
     // -----------------
 
     // Create a map operator.
-    Teuchos::RCP<DataTransferKit::MapOperator<double> > map_op;
-    if ( "Consistent" == interpolation_type )
-    {
-	map_op = Teuchos::rcp( 
-	    new DataTransferKit::ConsistentInterpolationOperator<double>(
-		source_tag_vec.getMap(),target_tag_vec.getMap()) );
-
-    }
-    else if ( "Spline" == interpolation_type )
-    {
-	map_op = Teuchos::rcp( 
-	    new DataTransferKit::SplineInterpolationOperator<
-	    double,DataTransferKit::WuBasis<4>,3>(
-		source_tag_vec.getMap(),target_tag_vec.getMap()) );
-	plist->set<double>("RBF Radius",basis_radius);
-    }
-    else if ( "Moving Least Square" == interpolation_type )
-    {
-	map_op = Teuchos::rcp( 
-	    new DataTransferKit::MovingLeastSquareReconstructionOperator<
-	    double,DataTransferKit::WuBasis<4>,3>(
-		source_tag_vec.getMap(),target_tag_vec.getMap()) );
-	plist->set<double>("RBF Radius",basis_radius);
-    }
+    Teuchos::ParameterList& dtk_list = plist->sublist("DataTransferKit");    
+    DataTransferKit::MapOperatorFactory<double> op_factory;
+    Teuchos::RCP<DataTransferKit::MapOperator<double> > map_op =
+	op_factory.create( src_vector->getMap(), tgt_vector->getMap(), dtk_list );
 
     // Setup the map operator.
-    map_op->setup( src_manager.functionSpace(),
-		   tgt_manager.functionSpace(),
-		   plist );
-
-    // Pull the source data from Moab into the source vector.
-    source_tag_vec.pullDataFromTag();
+    map_op->setup( src_manager.functionSpace(), tgt_manager.functionSpace() );
 
     // Apply the map operator.
     map_op->apply( *src_vector, *tgt_vector );
-
-    // Push the data from the target vector into Moab.
-    target_tag_vec.pushDataToTag();
 
 
     // COMPUTE THE SOLUTION ERROR

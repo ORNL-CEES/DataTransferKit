@@ -151,12 +151,11 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     Teuchos::RCP<DataTransferKit::MapOperator<double> > spline_op =
 	Teuchos::rcp( new DataTransferKit::SplineInterpolationOperator<
 		      double,DataTransferKit::WuBasis<2>,space_dim
-		      >(domain_vector->getMap(),range_vector->getMap()) );
+		      >(domain_vector->getMap(),range_vector->getMap(),*parameters) );
 
     // Setup the operator.
     spline_op->setup( domain_manager.functionSpace(),
-		      range_manager.functionSpace(),
-		      parameters );
+		      range_manager.functionSpace() );
 
     // Apply the operator.
     spline_op->apply( *domain_vector, *range_vector );
