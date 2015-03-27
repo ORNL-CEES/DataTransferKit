@@ -68,10 +68,11 @@ class BasicGeometryLocalMap : public EntityLocalMap
      */
     BasicGeometryLocalMap();
 
-    /*!
-     * \brief Destructor.
+    /*
+     * \brief Set parameters for mapping.
+     * \param parameters Parameters for mapping.
      */
-    ~BasicGeometryLocalMap();
+    void setParameters( const Teuchos::ParameterList& parameters ) override;
 
     /*!
      * \brief Return the entity measure with respect to the parameteric
@@ -98,15 +99,12 @@ class BasicGeometryLocalMap : public EntityLocalMap
      * the coordinates of the point to map.
      * \param reference_point A view into an array of size physicalDimension()
      * to write the reference coordinates of the mapped point.
-     * \param status A status object indicating the results of the mapping
-     * procedure.
      * \return Return true if the map to reference frame succeeded.
      */
     bool mapToReferenceFrame( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const override;
+	const Teuchos::ArrayView<double>& reference_point ) const override;
 
     /*!  
      * \brief Determine if a reference point is in the parameterized space of
@@ -134,6 +132,11 @@ class BasicGeometryLocalMap : public EntityLocalMap
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
 	const Teuchos::ArrayView<double>& point ) const override;
+
+  private:
+
+    // Point inclusion tolerance.
+    double d_inclusion_tol;
 };
 
 //---------------------------------------------------------------------------//

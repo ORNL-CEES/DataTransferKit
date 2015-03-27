@@ -18,7 +18,6 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_EntityIterator.hpp
   ${DIR}/DTK_EntityLocalMap.hpp
   ${DIR}/DTK_Field.hpp
-  ${DIR}/DTK_MappingStatus.hpp
   ${DIR}/DTK_EntitySet.hpp
   ${DIR}/DTK_EntityShapeFunction.hpp
   ${DIR}/DTK_Types.hpp

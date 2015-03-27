@@ -58,6 +58,9 @@ ParallelSearch::ParallelSearch(
     , d_track_missed_range_entities( false )
     , d_missed_range_entity_ids( 0 )
 {
+    // Set the parameters with the local map.
+    domain_local_map->setParameters( parameters );
+    
     // Determine if we are tracking missed range entities.
     if ( parameters.isParameter("Track Missed Range Entities") )
     {
@@ -90,6 +93,9 @@ void ParallelSearch::search(
     const Teuchos::RCP<EntityLocalMap>& range_local_map,
     const Teuchos::ParameterList& parameters )
 {
+    // Set the parameters with the local map.
+    range_local_map->setParameters( parameters );
+
     // Empty range flag.
     d_empty_range = ( 0 == range_iterator.size() );
 

@@ -43,7 +43,6 @@
 
 #include "DTK_Entity.hpp"
 #include "DTK_Types.hpp"
-#include "DTK_MappingStatus.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -79,8 +78,7 @@ class EntityLocalMap
      * \brief Set parameters for mapping.
      * \param parameters Parameters for mapping.
      */
-    void setParameters( 
-	const Teuchos::RCP<Teuchos::ParameterList>& parameters = Teuchos::null );
+    virtual void setParameters( const Teuchos::ParameterList& parameters ) = 0;
 
     /*!
      * \brief Return the entity measure with respect to the parameteric
@@ -112,8 +110,7 @@ class EntityLocalMap
      */
     virtual bool isSafeToMapToReferenceFrame(
 	const Entity& entity,
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const;
+	const Teuchos::ArrayView<const double>& point ) const;
 
     /*!
      * \brief (Reverse Map) Map a point to the reference space of an
@@ -131,8 +128,7 @@ class EntityLocalMap
     virtual bool mapToReferenceFrame( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const = 0;
+	const Teuchos::ArrayView<double>& reference_point ) const = 0;
 
     /*!  
      * \brief Determine if a reference point is in the parameterized space of
@@ -174,11 +170,6 @@ class EntityLocalMap
         const Entity& entity,
         const Teuchos::ArrayView<double>& reference_point,
         const Teuchos::ArrayView<double>& normal ) const;
-
-  protected:
-
-    // Parameters.
-    Teuchos::RCP<Teuchos::ParameterList> b_parameters;
 };
 
 //---------------------------------------------------------------------------//

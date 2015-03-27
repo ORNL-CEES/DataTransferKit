@@ -48,12 +48,19 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 BasicGeometryLocalMap::BasicGeometryLocalMap()
+    : d_inclusion_tol( 1.0e-6 )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-BasicGeometryLocalMap::~BasicGeometryLocalMap()
-{ /* ... */ }
+// Set parameters for mapping.
+void BasicGeometryLocalMap::setParameters(
+    const Teuchos::ParameterList& parameters )
+{
+    if ( parameters.isParameter("Point Inclusion Tolerance") )
+    {	    
+	d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
+    }
+}
 
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
@@ -78,8 +85,7 @@ void BasicGeometryLocalMap::centroid(
 bool BasicGeometryLocalMap::mapToReferenceFrame( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point,
-    const Teuchos::RCP<MappingStatus>& status ) const
+    const Teuchos::ArrayView<double>& reference_point ) const
 {
     return Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
 	)->implementationConstPtr()->mapToReferenceFrame(point,reference_point);
@@ -91,17 +97,9 @@ bool BasicGeometryLocalMap::checkPointInclusion(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
-    double tolerance = 1.0e-6;
-    if ( Teuchos::nonnull(this->b_parameters) )
-    {
-	if ( this->b_parameters->isParameter("Point Inclusion Tolerance") )
-	{
-	    tolerance = 
-		this->b_parameters->get<double>("Point Inclusion Tolerance");
-	}
-    }
     return Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
-	)->implementationConstPtr()->checkPointInclusion(tolerance,reference_point);
+	)->implementationConstPtr()->checkPointInclusion(
+	    d_inclusion_tol,reference_point);
 }
 
 //---------------------------------------------------------------------------//

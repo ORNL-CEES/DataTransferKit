@@ -48,9 +48,26 @@ namespace DataTransferKit
 MoabEntityLocalMap::MoabEntityLocalMap(
     const Teuchos::RCP<moab::ParallelComm>& moab_mesh )
     : d_moab_mesh( moab_mesh )
+    , d_inclusion_tol( 1.0e-6 )
+    , d_newton_tol( 1.0e-9 )
 {
     d_moab_evaluator = Teuchos::rcp( 
 	new moab::ElemEvaluator(d_moab_mesh->get_moab()) );
+}
+
+//---------------------------------------------------------------------------//
+// Set parameters for mapping.
+void MoabEntityLocalMap::setParameters(
+    const Teuchos::ParameterList& parameters )
+{
+    if ( parameters.isParameter("Point Inclusion Tolerance") )
+    {	    
+	d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
+    }
+    if ( parameters.isParameter("Newton Tolerance") )
+    {	    
+	d_newton_tol = parameters.get<double>("Newton Tolerance");
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -98,16 +115,14 @@ void MoabEntityLocalMap::centroid(
 // of an entity using the given tolerance. 
 bool MoabEntityLocalMap::isSafeToMapToReferenceFrame(
     const Entity& entity,
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::RCP<MappingStatus>& status ) const
+    const Teuchos::ArrayView<const double>& point ) const
 {
     int space_dim = entity.physicalDimension();
     int param_dim = 
 	d_moab_mesh->get_moab()->dimension_from_handle( entity.id() );
     if ( space_dim == param_dim )
     {
-	return EntityLocalMap::isSafeToMapToReferenceFrame(
-	    entity, point, status );
+	return EntityLocalMap::isSafeToMapToReferenceFrame( entity, point );
     }
     else
     {
@@ -123,35 +138,15 @@ bool MoabEntityLocalMap::isSafeToMapToReferenceFrame(
 bool MoabEntityLocalMap::mapToReferenceFrame( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point,
-    const Teuchos::RCP<MappingStatus>& status ) const
+    const Teuchos::ArrayView<double>& reference_point ) const
 {
-    double inclusion_tol = 1.0e-6; 
-    if ( Teuchos::nonnull(this->b_parameters) )  
-    {	
-	if ( this->b_parameters->isParameter("Point Inclusion Tolerance") )
-	{	    
-	    inclusion_tol = 	
-		this->b_parameters->get<double>("Point Inclusion Tolerance");
-	}
-    }
-
-    double newton_tol = 1.0e-9; 
-    if ( Teuchos::nonnull(this->b_parameters) )  
-    {	
-	if ( this->b_parameters->isParameter("Newton Tolerance") )
-	{	    
-	    newton_tol = this->b_parameters->get<double>("Newton Tolerance");
-	}
-    }
-
     cacheEntity( entity );
 
     int is_inside = -1;
     DTK_CHECK_ERROR_CODE(
 	d_moab_evaluator->reverse_eval(
-	    point.getRawPtr(), newton_tol, 
-	    inclusion_tol, reference_point.getRawPtr(), &is_inside )
+	    point.getRawPtr(), d_newton_tol, 
+	    d_inclusion_tol, reference_point.getRawPtr(), &is_inside )
 	);
     return (is_inside > 0);
 }
@@ -162,20 +157,10 @@ bool MoabEntityLocalMap::checkPointInclusion(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
-    double inclusion_tol = 1.0e-6; 
-    if ( Teuchos::nonnull(this->b_parameters) )  
-    {	
-	if ( this->b_parameters->isParameter("Point Inclusion Tolerance") )
-	{	    
-	    inclusion_tol = 	
-		this->b_parameters->get<double>("Point Inclusion Tolerance");
-	}
-    }
-
     cacheEntity( entity );
 
-    int is_inside =
-	d_moab_evaluator->inside( reference_point.getRawPtr(), inclusion_tol );
+    int is_inside = d_moab_evaluator->inside( reference_point.getRawPtr(),
+					      d_inclusion_tol );
     return (is_inside > 0);
 }
 

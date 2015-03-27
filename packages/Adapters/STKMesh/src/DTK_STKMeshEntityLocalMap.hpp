@@ -71,6 +71,12 @@ class STKMeshEntityLocalMap : public EntityLocalMap
      */
     STKMeshEntityLocalMap( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
 
+    /*
+     * \brief Set parameters for mapping.
+     * \param parameters Parameters for mapping.
+     */
+    void setParameters( const Teuchos::ParameterList& parameters ) override;
+
     /*!
      * \brief Return the entity measure with respect to the parameteric
      * dimension (volume for a 3D entity, area for 2D, and length for 1D).
@@ -95,14 +101,11 @@ class STKMeshEntityLocalMap : public EntityLocalMap
      * \param parameters Parameters to be used for the safeguard check.
      * \param point A view into an array of size physicalDimension() containing
      * the coordinates of the point to map.
-     * \param status A status object indicating the results of the safeguard
-     * check.
      * \return Return true if it is safe to map to the reference frame.
      */
     bool isSafeToMapToReferenceFrame(
 	const Entity& entity,
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const override;
+	const Teuchos::ArrayView<const double>& point ) const override;
 
     /*!
      * \brief (Reverse Map) Map a point to the reference space of an
@@ -113,15 +116,12 @@ class STKMeshEntityLocalMap : public EntityLocalMap
      * the coordinates of the point to map.
      * \param reference_point A view into an array of size physicalDimension()
      * to write the reference coordinates of the mapped point.
-     * \param status A status object indicating the results of the mapping
-     * procedure.
      * \return Return true if the map to reference frame succeeded.
      */
     bool mapToReferenceFrame( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point,
-	const Teuchos::RCP<MappingStatus>& status = Teuchos::null ) const override;
+	const Teuchos::ArrayView<double>& reference_point ) const override;
 
     /*!  
      * \brief Determine if a reference point is in the parameterized space of
@@ -168,6 +168,9 @@ class STKMeshEntityLocalMap : public EntityLocalMap
 
     // Bulk data.
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
+
+    // Point inclusion tolerance.
+    double d_inclusion_tol;
 };
 
 //---------------------------------------------------------------------------//

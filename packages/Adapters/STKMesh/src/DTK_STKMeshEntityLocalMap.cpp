@@ -58,7 +58,19 @@ namespace DataTransferKit
 STKMeshEntityLocalMap::STKMeshEntityLocalMap(
     const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
     : d_bulk_data( bulk_data )
+    , d_inclusion_tol( 1.0e-6 )
 { /* ... */ }
+
+//---------------------------------------------------------------------------//
+// Set parameters for mapping.
+void STKMeshEntityLocalMap::setParameters(
+    const Teuchos::ParameterList& parameters )
+{
+    if ( parameters.isParameter("Point Inclusion Tolerance") )
+    {	    
+	d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
+    }
+}
 
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
@@ -152,8 +164,7 @@ void STKMeshEntityLocalMap::centroid(
 // of an entity using the given tolerance. 
 bool STKMeshEntityLocalMap::isSafeToMapToReferenceFrame(
     const Entity& entity,
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::RCP<MappingStatus>& status ) const
+    const Teuchos::ArrayView<const double>& point ) const
 {
     // Get the STK entity.
     const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
@@ -163,7 +174,7 @@ bool STKMeshEntityLocalMap::isSafeToMapToReferenceFrame(
     if ( rank == stk::topology::ELEM_RANK )
     {
 	return 
-	    EntityLocalMap::isSafeToMapToReferenceFrame( entity, point, status );
+	    EntityLocalMap::isSafeToMapToReferenceFrame( entity, point );
     }
 
     // If we have a face, perform the projection safeguard.
@@ -193,8 +204,7 @@ bool STKMeshEntityLocalMap::isSafeToMapToReferenceFrame(
 bool STKMeshEntityLocalMap::mapToReferenceFrame( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point,
-    const Teuchos::RCP<MappingStatus>& status ) const
+    const Teuchos::ArrayView<double>& reference_point ) const
 {
     // Get the STK entity.
     const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
@@ -239,17 +249,6 @@ bool STKMeshEntityLocalMap::checkPointInclusion(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
-    // Get the test tolerance.
-    double tolerance = 1.0e-6; 
-    if ( Teuchos::nonnull(this->b_parameters) )  
-    {	
-	if ( this->b_parameters->isParameter("Point Inclusion Tolerance") )
-	{	    
-	    tolerance = 	
-		this->b_parameters->get<double>("Point Inclusion Tolerance");
-	}
-    }
-
     // Get the STK entity and its topology.
     const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
     stk::mesh::EntityRank rank = d_bulk_data->entity_rank(stk_entity);
@@ -261,7 +260,7 @@ bool STKMeshEntityLocalMap::checkPointInclusion(
     if ( rank == stk::topology::ELEM_RANK )
     {
 	return IntrepidCellLocalMap::checkPointInclusion( 
-	    entity_topo, reference_point, tolerance );
+	    entity_topo, reference_point, d_inclusion_tol );
     }
 
     // Check point inclusion in the face.

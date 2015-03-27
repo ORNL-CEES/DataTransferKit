@@ -57,37 +57,19 @@ EntityLocalMap::~EntityLocalMap()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Set parameters for mapping.
-void EntityLocalMap::setParameters( 
-    const Teuchos::RCP<Teuchos::ParameterList>& parameters )
-{
-    b_parameters = parameters;
-}
-
-//---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space
 // of an entity using the given tolerance. Default implementation checks if
 // the point is inside the bounding box of the entity.
 bool EntityLocalMap::isSafeToMapToReferenceFrame(
     const Entity& entity,
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::RCP<MappingStatus>& status ) const
+    const Teuchos::ArrayView<const double>& point ) const
 {
-    // Get the test tolerance.
-    double tolerance = 1.0e-6;
-    if ( Teuchos::nonnull(this->b_parameters) )
-    {
-	if ( b_parameters->isParameter("Point Inclusion Tolerance") )
-	{
-	    tolerance = b_parameters->get<double>("Point Inclusion Tolerance");
-	}
-    }
-
     // Get the bounding box of the entity.
     Teuchos::Tuple<double,6> entity_box;
     entity.boundingBox( entity_box );
 
     // Check if the point is in the bounding box of the entity.
+    double tolerance = 1.0e-6;
     int space_dim = entity.physicalDimension();
     bool in_x = true;
     if ( space_dim > 0 )
