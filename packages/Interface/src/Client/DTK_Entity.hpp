@@ -73,6 +73,21 @@ class Entity : public Teuchos::Describable
     Entity( const Entity& rhs );
 
     /*!
+     *\brief Copy assignment operator.
+     */
+    Entity& operator=( const Entity& rhs );
+
+    /*!
+     * \brief Move constructor.
+     */
+    Entity( Entity&& rhs );
+
+    /*!
+     *\brief Move assignment operator.
+     */
+    Entity& operator=( Entity&& rhs );
+
+    /*!
      * \brief Destructor.
      */
     virtual ~Entity();
@@ -145,7 +160,7 @@ class Entity : public Teuchos::Describable
      */
     void describe( Teuchos::FancyOStream& out,
 		   const Teuchos::EVerbosityLevel verb_level =
-		   Teuchos::Describable::verbLevel_default) const;
+		   Teuchos::Describable::verbLevel_default ) const;
     //@}
 
   protected:

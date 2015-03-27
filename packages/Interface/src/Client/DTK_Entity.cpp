@@ -58,6 +58,29 @@ Entity::Entity( const Entity& rhs )
 }
 
 //---------------------------------------------------------------------------//
+// Copy assignment operator.
+Entity& Entity::operator=( const Entity& rhs )
+{
+    b_entity_impl = rhs.b_entity_impl;
+    return *this;
+}
+
+//---------------------------------------------------------------------------//
+// Move constructor.
+Entity::Entity( Entity&& rhs )
+{
+    b_entity_impl = rhs.b_entity_impl;
+}
+
+//---------------------------------------------------------------------------//
+// Move assignment operator.
+Entity& Entity::operator=( Entity&& rhs )
+{
+    b_entity_impl = rhs.b_entity_impl;
+    return *this;
+}
+
+//---------------------------------------------------------------------------//
 //brief Destructor.
 Entity::~Entity()
 { /* ... */ }

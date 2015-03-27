@@ -126,12 +126,11 @@ class MapOperator : public Tpetra::Operator<Scalar,int,DofId>
   protected:
 
     //! Apply implementation. Subclasses should override.
-    virtual void applyImpl(
-	const TpetraMultiVector& X,
-	TpetraMultiVector &Y,
-	Teuchos::ETransp mode = Teuchos::NO_TRANS,
-	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const = 0;
+    virtual void applyImpl( const TpetraMultiVector& X,
+			    TpetraMultiVector &Y,
+			    Teuchos::ETransp mode,
+			    Scalar alpha,
+			    Scalar beta ) const = 0;
     
   private:
 

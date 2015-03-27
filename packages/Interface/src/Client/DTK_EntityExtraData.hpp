@@ -47,6 +47,13 @@ namespace DataTransferKit
 /*!
   \class EntityExtraData
   \brief A base class for setting extra data with entities.
+
+  A helper class for implementing client interfaces with entities. This class
+  gives client implementations an easy avenue to store implementation specific
+  data in a data structure of their choosing and extract that data at any time
+  by calling the extraData() function on an entity and casting to their
+  implementation type. See the adapters in packages/Adapters for examples of
+  how this class is used to facilitate implementations.
 */
 //---------------------------------------------------------------------------//
 class EntityExtraData

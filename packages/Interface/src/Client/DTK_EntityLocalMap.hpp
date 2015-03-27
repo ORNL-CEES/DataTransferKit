@@ -76,6 +76,7 @@ class EntityLocalMap
 
     /*
      * \brief Set parameters for mapping.
+     *
      * \param parameters Parameters for mapping.
      */
     virtual void setParameters( const Teuchos::ParameterList& parameters ) = 0;
@@ -83,13 +84,16 @@ class EntityLocalMap
     /*!
      * \brief Return the entity measure with respect to the parameteric
      * dimension (volume for a 3D entity, area for 2D, and length for 1D).
+     *
      * \param entity Compute the measure for this entity.
+     *
      * \return The measure of the entity.
      */
     virtual double measure( const Entity& entity ) const = 0;
 
     /*!
      * \brief Return the centroid of the entity.
+     *
      * \param centroid A view of the centroid coordinates. This view will
      * be allocated. Assign a view of your centroid to this view.
      */
@@ -100,12 +104,17 @@ class EntityLocalMap
      * \brief (Safeguard the reverse map) Perform a safeguard check for
      * mapping a point to the reference space of an entity using the given
      * tolerance.
+     *
      * \param entity Perfrom the mapping for this entity.
+     *
      * \param parameters Parameters to be used for the safeguard check.
+     *
      * \param point A view into an array of size physicalDimension() containing
      * the coordinates of the point to map.
+     *
      * \param status A status object indicating the results of the safeguard
      * check.
+     *
      * \return Return true if it is safe to map to the reference frame.
      */
     virtual bool isSafeToMapToReferenceFrame(
@@ -115,14 +124,20 @@ class EntityLocalMap
     /*!
      * \brief (Reverse Map) Map a point to the reference space of an
      * entity. Return the parameterized point.
+     *
      * \param entity Perfrom the mapping for this entity.
+     *
      * \param parameters Parameters to be used for the mapping procedure.
+     *
      * \param  A view into an array of size physicalDimension() containing
      * the coordinates of the point to map.
+     *
      * \param reference_point A view into an array of size physicalDimension()
      * to write the reference coordinates of the mapped point.
+     *
      * \param status A status object indicating the results of the mapping
      * procedure.
+     *
      * \return Return true if the map to reference frame succeeded.
      */
     virtual bool mapToReferenceFrame( 
@@ -146,9 +161,12 @@ class EntityLocalMap
     /*!
      * \brief (Forward Map) Map a reference point to the physical space of an
      * entity. 
+     *
      * \param entity Perfrom the mapping for this entity.
+     *
      * \param reference_point A view into an array of size physicalDimension()
      * containing the reference coordinates of the mapped point.
+     *
      * \param A view into an array of size physicalDimension() to write
      * the coordinates of physical point.
      */
@@ -161,8 +179,11 @@ class EntityLocalMap
      * \brief Compute the normal on a face (3D) or edge (2D) at a given
      * reference point. A default implementation is provided using a finite
      * difference scheme.
+     *
      * \param entity Compute the normal for this entity.
+     *
      * \param reference_point Compute the normal at this reference point.
+     *
      * \param normal A view into an array of size physicalDimension() to write
      * the normal.
      */

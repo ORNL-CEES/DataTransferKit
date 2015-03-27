@@ -55,7 +55,9 @@ namespace DataTransferKit
   \brief Entity iterator interface.
 
   This class provides a mechanism to iterate over a group of entity objects
-  with a specified predicate operation for selection.
+  with a specified predicate operation for selection. Subclasses are
+  responsible for setting the predicate with the iterator. If no predicate is
+  set the default predicate always return true for any entity.
 */
 //---------------------------------------------------------------------------//
 class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
