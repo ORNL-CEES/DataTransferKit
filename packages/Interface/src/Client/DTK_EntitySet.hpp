@@ -141,11 +141,6 @@ class EntitySet : public Teuchos::Describable
 	const PredicateFunction& predicate = selectAll ) const = 0;
 
     /*!
-     * \brief Select all entities predicate.
-     */
-    static inline bool selectAll( Entity ) { return true; }
-
-    /*!
      * \brief Given an entity, get the entities of the given type that are
      * adjacent to it.
      */
@@ -169,6 +164,11 @@ class EntitySet : public Teuchos::Describable
 			   const Teuchos::EVerbosityLevel verb_level =
 			   Teuchos::Describable::verbLevel_default ) const;
     //@}
+
+    /*!
+     * \brief Select all entities predicate.
+     */
+    static inline bool selectAll( Entity ) { return true; }
 };
 
 //---------------------------------------------------------------------------//

@@ -121,7 +121,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	    PredicateComposition::And(
 		domain_space->selectFunction(),	local_predicate.getFunction() );
 	domain_iterator = domain_space->entitySet()->entityIterator( 
-	    ENTITY_TYPE_VOLUME, domain_predicate );
+	    domain_space->entitySet()->physicalDimension(), domain_predicate );
     }
 
     // Build a parallel search over the domain.

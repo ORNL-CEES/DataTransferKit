@@ -119,7 +119,8 @@ class EntityImpl
     /*!
      * \brief Get the extra data on the entity.
      */
-    virtual Teuchos::RCP<EntityExtraData> extraData() const = 0;
+    virtual Teuchos::RCP<EntityExtraData> extraData() const
+    { return Teuchos::null; }
 
     /*!
      * \brief Provide a one line description of the object.

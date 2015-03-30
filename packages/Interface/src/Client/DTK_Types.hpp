@@ -73,7 +73,7 @@ enum EntityType
 // Forward declaration of Entity.
 class Entity;
 
-// Predicate function typedef.
+//! Predicate function typedef.
 typedef std::function<bool(Entity)> PredicateFunction;
 
 //---------------------------------------------------------------------------//
