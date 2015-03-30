@@ -54,12 +54,12 @@ namespace DataTransferKit
  */
 template<class Basis,int DIM>
 SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
-    const Teuchos::RCP<const Tpetra::Map<int,DofId> >& domain_map,
-    const Teuchos::RCP<const Tpetra::Map<int,DofId> >& range_map,
+    const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map,
+    const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& range_map,
     const Teuchos::ArrayView<const double>& target_centers,
-    const Teuchos::ArrayView<const DofId>& target_center_gids,
+    const Teuchos::ArrayView<const SupportId>& target_center_gids,
     const Teuchos::ArrayView<const double>& dist_source_centers,
-    const Teuchos::ArrayView<const DofId>& dist_source_center_gids,
+    const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
     const SplineInterpolationPairing<DIM>& target_pairings,
     const Basis& basis )
 {
@@ -75,8 +75,8 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
 
     // Create the Q matrix.
     int offset = DIM + 1;
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DofId> > Q_vec = 
-	Tpetra::createMultiVector<double,int,DofId>( range_map, offset );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,SupportId> > Q_vec = 
+	Tpetra::createMultiVector<double,int,SupportId>( range_map, offset );
     int di = 0; 
     for ( unsigned i = 0; i < num_target_centers; ++i )
     {
@@ -91,13 +91,13 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
     d_Q = Teuchos::rcp( new PolynomialMatrix(Q_vec,domain_map,range_map) );
 
     // Create the N matrix.
-    Teuchos::ArrayRCP<DofId> children_per_parent =
+    Teuchos::ArrayRCP<SupportId> children_per_parent =
 	target_pairings.childrenPerParent();
-    DofId max_entries_per_row = *std::max_element( 
+    SupportId max_entries_per_row = *std::max_element( 
 	children_per_parent.begin(), children_per_parent.end() );
-    d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,DofId>( 
+    d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,SupportId>( 
 			    range_map, max_entries_per_row) );
-    Teuchos::Array<DofId> N_indices( max_entries_per_row );
+    Teuchos::Array<SupportId> N_indices( max_entries_per_row );
     Teuchos::Array<double> values( max_entries_per_row );
     int dj = 0;
     Teuchos::ArrayView<const unsigned> target_neighbors;

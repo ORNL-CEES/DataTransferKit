@@ -73,27 +73,27 @@ class SplineEvaluationMatrix
 
     // Constructor.
     SplineEvaluationMatrix(
-	const Teuchos::RCP<const Tpetra::Map<int,DofId> >& domain_map,
-	const Teuchos::RCP<const Tpetra::Map<int,DofId> >& range_map,
+	const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map,
+	const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& range_map,
 	const Teuchos::ArrayView<const double>& target_centers,
-	const Teuchos::ArrayView<const DofId>& target_center_gids,
+	const Teuchos::ArrayView<const SupportId>& target_center_gids,
 	const Teuchos::ArrayView<const double>& dist_source_centers,
-	const Teuchos::ArrayView<const DofId>& dist_source_center_gids,
+	const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
 	const SplineInterpolationPairing<DIM>& target_pairings,
 	const Basis& basis );
 
     // Get the basis component.
-    Teuchos::RCP<Tpetra::Operator<double,int,DofId> > getN()
+    Teuchos::RCP<Tpetra::Operator<double,int,SupportId> > getN()
     { return d_N; }
 
     // Get the polynomial component.
-    Teuchos::RCP<Tpetra::Operator<double,int,DofId> > getQ()
+    Teuchos::RCP<Tpetra::Operator<double,int,SupportId> > getQ()
     { return d_Q; }
 
   private:
 
     // The N matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,DofId> > d_N;
+    Teuchos::RCP<Tpetra::CrsMatrix<double,int,SupportId> > d_N;
 
     // The Q matrix.
     Teuchos::RCP<PolynomialMatrix> d_Q;

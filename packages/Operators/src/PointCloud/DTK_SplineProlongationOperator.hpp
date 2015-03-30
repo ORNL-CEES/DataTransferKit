@@ -60,23 +60,23 @@ namespace DataTransferKit
  */
 //---------------------------------------------------------------------------//
 template<class Scalar>
-class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,DofId>
+class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,SupportId>
 {
   public:
 
     // Constructor.
     SplineProlongationOperator( 
 	const int offset,
-	const Teuchos::RCP<const Tpetra::Map<int,DofId> >& domain_map );
+	const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map );
 
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
-    Teuchos::RCP<const Tpetra::Map<int,DofId> > getDomainMap() const override
+    Teuchos::RCP<const Tpetra::Map<int,SupportId> > getDomainMap() const override
     { return d_domain_map; }
 
     //! The Map associated with the range of this operator, which must be
     //! compatible with Y.getMap().
-    Teuchos::RCP<const Tpetra::Map<int,DofId> > getRangeMap() const override
+    Teuchos::RCP<const Tpetra::Map<int,SupportId> > getRangeMap() const override
     { return d_range_map; }
 
     //! \brief Computes the operator-multivector application.
@@ -88,8 +88,8 @@ class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,DofId>
         <b>may</b> short-circuit the operator, so that any values in \c X
         (including NaNs) are ignored.
      */
-    void apply (const Tpetra::MultiVector<Scalar,int,DofId> &X,
-		Tpetra::MultiVector<Scalar,int,DofId> &Y,
+    void apply (const Tpetra::MultiVector<Scalar,int,SupportId> &X,
+		Tpetra::MultiVector<Scalar,int,SupportId> &Y,
 		Teuchos::ETransp mode = Teuchos::NO_TRANS,
 		Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
 		Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
@@ -108,10 +108,10 @@ class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,DofId>
     int d_lda;
 
     // Domain map.
-    Teuchos::RCP<const Tpetra::Map<int,DofId> > d_domain_map;
+    Teuchos::RCP<const Tpetra::Map<int,SupportId> > d_domain_map;
 
     // Range map.
-    Teuchos::RCP<const Tpetra::Map<int,DofId> > d_range_map;
+    Teuchos::RCP<const Tpetra::Map<int,SupportId> > d_range_map;
 };
 
 //---------------------------------------------------------------------------//

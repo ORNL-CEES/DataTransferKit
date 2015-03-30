@@ -64,12 +64,12 @@ namespace DataTransferKit
 */
 //---------------------------------------------------------------------------//
 template<class Scalar>
-class FieldMultiVector : public Tpetra::MultiVector<Scalar,int,DofId>
+class FieldMultiVector : public Tpetra::MultiVector<Scalar,int,SupportId>
 {
   public:
 
     //! MultiVector typedef.
-    typedef Tpetra::MultiVector<Scalar,int,DofId> Base;
+    typedef Tpetra::MultiVector<Scalar,int,SupportId> Base;
 
     /*!
      * \brief Constructor. This will allocate the Tpetra vector.

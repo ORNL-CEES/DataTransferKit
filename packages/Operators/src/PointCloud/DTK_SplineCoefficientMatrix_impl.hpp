@@ -54,11 +54,11 @@ namespace DataTransferKit
  */
 template<class Basis,int DIM>
 SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
-    const Teuchos::RCP<const Tpetra::Map<int,DofId> >& operator_map,
+    const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& operator_map,
     const Teuchos::ArrayView<const double>& source_centers,
-    const Teuchos::ArrayView<const DofId>& source_center_gids,
+    const Teuchos::ArrayView<const SupportId>& source_center_gids,
     const Teuchos::ArrayView<const double>& dist_source_centers,
-    const Teuchos::ArrayView<const DofId>& dist_source_center_gids,
+    const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
     const SplineInterpolationPairing<DIM>& source_pairings,
     const Basis& basis )
 {
@@ -74,8 +74,8 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
 
     // Create the P matrix.
     int offset = DIM + 1;
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DofId> > P_vec = 
-	Tpetra::createMultiVector<double,int,DofId>( operator_map, offset );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,SupportId> > P_vec = 
+	Tpetra::createMultiVector<double,int,SupportId>( operator_map, offset );
     int di = 0; 
     for ( unsigned i = 0; i < num_source_centers; ++i )
     {
@@ -90,13 +90,13 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
     d_P =Teuchos::rcp( new PolynomialMatrix(P_vec,operator_map,operator_map) );
 
     // Create the M matrix.
-    Teuchos::ArrayRCP<DofId> children_per_parent =
+    Teuchos::ArrayRCP<SupportId> children_per_parent =
 	source_pairings.childrenPerParent();
-    DofId max_entries_per_row = *std::max_element( 
+    SupportId max_entries_per_row = *std::max_element( 
 	children_per_parent.begin(), children_per_parent.end() );
-    d_M = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,DofId>(
+    d_M = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,SupportId>(
 			    operator_map, max_entries_per_row) );
-    Teuchos::Array<DofId> M_indices( max_entries_per_row );
+    Teuchos::Array<SupportId> M_indices( max_entries_per_row );
     Teuchos::Array<double> values( max_entries_per_row );
     int dj = 0;
     Teuchos::ArrayView<const unsigned> source_neighbors;

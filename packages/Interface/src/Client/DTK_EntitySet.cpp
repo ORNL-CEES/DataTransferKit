@@ -40,6 +40,7 @@
 
 #include "DTK_EntitySet.hpp"
 #include "DTK_DBC.hpp"
+#include "DTK_BasicEntityPredicates.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 
@@ -60,6 +61,8 @@ EntitySet::~EntitySet()
 // gathers the bounding boxes of local entities.
 void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
+    LocalEntityPredicate local_predicate( communicator()->getRank() );
+    PredicateFunction select_func = local_predicate.getFunction();
     double max = std::numeric_limits<double>::max();
     bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
     EntityIterator entity_begin;
@@ -69,7 +72,7 @@ void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
     Teuchos::Tuple<double,6> entity_bounds;
     for ( int i = 0; i < 4; ++i )
     {
-	dim_it = this->entityIterator( static_cast<EntityType>(i) );
+	dim_it = this->entityIterator( static_cast<EntityType>(i), select_func );
 	entity_begin = dim_it.begin();
 	entity_end = dim_it.end();
 	for ( entity_it = entity_begin;

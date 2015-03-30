@@ -82,7 +82,7 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     DTK_REQUIRE( Teuchos::nonnull(domain_space) );
     DTK_REQUIRE( Teuchos::nonnull(range_space) );
 
-    // Extract the DOF maps.
+    // Extract the Support maps.
     const Teuchos::RCP<const typename Base::TpetraMap> domain_map
 	= this->getDomainMap();
     const Teuchos::RCP<const typename Base::TpetraMap> range_map
@@ -110,8 +110,8 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     }
     int local_num_src = domain_iterator.size();
     Teuchos::ArrayRCP<double> source_centers( DIM*local_num_src);
-    Teuchos::ArrayRCP<GO> source_dof_ids( local_num_src );
-    Teuchos::Array<DofId> source_node_dofs;
+    Teuchos::ArrayRCP<GO> source_support_ids( local_num_src );
+    Teuchos::Array<SupportId> source_node_supports;
     EntityIterator domain_begin = domain_iterator.begin();
     EntityIterator domain_end = domain_iterator.end();
     int entity_counter = 0;
@@ -119,10 +119,10 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 	  domain_entity != domain_end;
 	  ++domain_entity, ++entity_counter )
     {
-	domain_space->shapeFunction()->entityDOFIds(
-	    *domain_entity, source_node_dofs );
-	DTK_CHECK( 1 == source_node_dofs.size() );
-	source_dof_ids[entity_counter] = source_node_dofs[0];
+	domain_space->shapeFunction()->entitySupportIds(
+	    *domain_entity, source_node_supports );
+	DTK_CHECK( 1 == source_node_supports.size() );
+	source_support_ids[entity_counter] = source_node_supports[0];
 	domain_space->localMap()->centroid(
 	    *domain_entity, source_centers(DIM*entity_counter,DIM) );
     }
@@ -139,8 +139,8 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     } 
     int local_num_tgt = range_iterator.size();
     Teuchos::ArrayRCP<double> target_centers( DIM*local_num_tgt );
-    Teuchos::ArrayRCP<GO> target_dof_ids( local_num_tgt );
-    Teuchos::Array<DofId> target_node_dofs;
+    Teuchos::ArrayRCP<GO> target_support_ids( local_num_tgt );
+    Teuchos::Array<SupportId> target_node_supports;
     EntityIterator range_begin = range_iterator.begin();
     EntityIterator range_end = range_iterator.end();
     entity_counter = 0;
@@ -148,9 +148,10 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 	  range_entity != range_end;
 	  ++range_entity, ++entity_counter )
     {
-	range_space->shapeFunction()->entityDOFIds( *range_entity, target_node_dofs );
-	DTK_CHECK( 1 == target_node_dofs.size() );
-	target_dof_ids[entity_counter] = target_node_dofs[0];
+	range_space->shapeFunction()->entitySupportIds(
+	    *range_entity, target_node_supports );
+	DTK_CHECK( 1 == target_node_supports.size() );
+	target_support_ids[entity_counter] = target_node_supports[0];
 	range_space->localMap()->centroid(
 	    *range_entity, target_centers(DIM*entity_counter,DIM) );
     }
@@ -166,18 +167,18 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 
     // Gather the global ids of the source centers that are within a d_radius of
     // the target centers on this proc.
-    Teuchos::Array<GO> dist_source_dof_ids( distributor.getNumImports() );
-    Teuchos::ArrayView<const GO> source_dof_ids_view = source_dof_ids();
-    distributor.distribute( source_dof_ids_view, dist_source_dof_ids() );
+    Teuchos::Array<GO> dist_source_support_ids( distributor.getNumImports() );
+    Teuchos::ArrayView<const GO> source_support_ids_view = source_support_ids();
+    distributor.distribute( source_support_ids_view, dist_source_support_ids() );
 
     // Build the source/target pairings.
     SplineInterpolationPairing<DIM> pairings( 
 	dist_sources, target_centers(), d_radius );
 
     // Build the interpolation matrix.
-    Teuchos::ArrayRCP<DofId> children_per_parent =
+    Teuchos::ArrayRCP<SupportId> children_per_parent =
 	pairings.childrenPerParent();
-    DofId max_entries_per_row = *std::max_element( 
+    SupportId max_entries_per_row = *std::max_element( 
 	children_per_parent.begin(), children_per_parent.end() );
     d_coupling_matrix = Teuchos::rcp( new Tpetra::CrsMatrix<Scalar,int,GO>( 
 			    range_map,
@@ -209,10 +210,10 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
 	    pair_gids = pairings.childCenterIds(i);
 	    for ( int j = 0; j < nn; ++j )
 	    {
-		indices[j] = dist_source_dof_ids[ pair_gids[j] ];
+		indices[j] = dist_source_support_ids[ pair_gids[j] ];
 	    }
 	    d_coupling_matrix->insertGlobalValues( 
-		target_dof_ids[i], indices(0,nn), values );
+		target_support_ids[i], indices(0,nn), values );
 	}
     }
     d_coupling_matrix->fillComplete( domain_map, range_map );

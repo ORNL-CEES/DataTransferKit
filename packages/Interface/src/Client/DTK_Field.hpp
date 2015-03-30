@@ -56,11 +56,11 @@ namespace DataTransferKit
 
   Field provides an access wrapper around application field data. Client API
   implementations provided read/write access to field data on an
-  entity-by-entity basis. Field is a translation layer between entity DOF ids
-  provided by shape functions and the actual indexing into application data
-  for a given quantity of interest. For example, multiple nodal fields will
-  have entity DOF ids that are identical while the data in the underlying
-  application will be indexed differently.
+  entity-by-entity basis. Field is a translation layer between entity support
+  ids provided by shape functions and the actual indexing into application
+  data for a given quantity of interest. For example, multiple nodal fields
+  will have entity support ids that are identical while the data in the
+  underlying application will be indexed differently.
 
   We need this extra layer of indirection because MapOperator may be
   constructed to be compatible with multiple subsets of a single vector in an
@@ -92,22 +92,23 @@ class Field
     virtual int dimension() const = 0;
 
     /*!
-     * \brief Get the locally-owned entity DOF ids of the field.
+     * \brief Get the locally-owned entity support ids of the field.
      */
-    virtual Teuchos::ArrayView<const DofId> getLocalEntityDOFIds() const = 0;
+    virtual Teuchos::ArrayView<const SupportId>
+    getLocalEntitySupportIds() const = 0;
 
     /*!
-     * \brief Given a local dof id and a dimension, read data from the
+     * \brief Given a local support id and a dimension, read data from the
      * application field.
      */
-    virtual Scalar readFieldData( const DofId dof_id,
+    virtual Scalar readFieldData( const SupportId support_id,
 				  const int dimension ) const = 0;
 
     /*!
-     * \brief Given a local dof id, dimension, and field value, write data
+     * \brief Given a local support id, dimension, and field value, write data
      * into the application field.
      */
-    virtual void writeFieldData( const DofId dof_id,
+    virtual void writeFieldData( const SupportId support_id,
 				 const int dimension,
 				 const Scalar data ) = 0;
 

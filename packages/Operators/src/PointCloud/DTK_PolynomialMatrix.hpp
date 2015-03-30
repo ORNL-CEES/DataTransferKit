@@ -59,24 +59,24 @@ namespace DataTransferKit
  * \brief Vector apply implementation for polynomial matrices.
  */
 //---------------------------------------------------------------------------//
-class PolynomialMatrix : public Tpetra::Operator<double,int,DofId>
+class PolynomialMatrix : public Tpetra::Operator<double,int,SupportId>
 {
   public:
 
     // Constructor.
     PolynomialMatrix(
-	const Teuchos::RCP<const Tpetra::MultiVector<double,int,DofId> >& polynomial,
-	const Teuchos::RCP<const Tpetra::Map<int,DofId> >& domain_map,
-	const Teuchos::RCP<const Tpetra::Map<int,DofId> >& range_map );
+	const Teuchos::RCP<const Tpetra::MultiVector<double,int,SupportId> >& polynomial,
+	const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map,
+	const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& range_map );
 
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
-    Teuchos::RCP<const Tpetra::Map<int,DofId> > getDomainMap() const override
+    Teuchos::RCP<const Tpetra::Map<int,SupportId> > getDomainMap() const override
     { return d_domain_map; }
 
     //! The Map associated with the range of this operator, which must be
     //! compatible with Y.getMap().
-    Teuchos::RCP<const Tpetra::Map<int,DofId> > getRangeMap() const override
+    Teuchos::RCP<const Tpetra::Map<int,SupportId> > getRangeMap() const override
     { return d_range_map; }
 
     //! \brief Computes the operator-multivector application.
@@ -88,8 +88,8 @@ class PolynomialMatrix : public Tpetra::Operator<double,int,DofId>
         <b>may</b> short-circuit the operator, so that any values in \c X
         (including NaNs) are ignored.
      */
-    void apply (const Tpetra::MultiVector<double,int,DofId> &X,
-		Tpetra::MultiVector<double,int,DofId> &Y,
+    void apply (const Tpetra::MultiVector<double,int,SupportId> &X,
+		Tpetra::MultiVector<double,int,SupportId> &Y,
 		Teuchos::ETransp mode = Teuchos::NO_TRANS,
 		double alpha = Teuchos::ScalarTraits<double>::one(),
 		double beta = Teuchos::ScalarTraits<double>::zero()) const override;
@@ -105,13 +105,13 @@ class PolynomialMatrix : public Tpetra::Operator<double,int,DofId>
     Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
     // The polynomial.
-    Teuchos::RCP<const Tpetra::MultiVector<double,int,DofId> > d_polynomial;
+    Teuchos::RCP<const Tpetra::MultiVector<double,int,SupportId> > d_polynomial;
 
     // Domain map.
-    Teuchos::RCP<const Tpetra::Map<int,DofId> > d_domain_map;
+    Teuchos::RCP<const Tpetra::Map<int,SupportId> > d_domain_map;
 
     // Range map.
-    Teuchos::RCP<const Tpetra::Map<int,DofId> > d_range_map;
+    Teuchos::RCP<const Tpetra::Map<int,SupportId> > d_range_map;
 };
 
 //---------------------------------------------------------------------------//

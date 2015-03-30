@@ -54,16 +54,16 @@ namespace DataTransferKit
 template<class Scalar>
 SplineProlongationOperator<Scalar>::SplineProlongationOperator(
     const int offset,
-    const Teuchos::RCP<const Tpetra::Map<int,DofId> >& domain_map )
+    const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map )
     : d_offset( offset )
     , d_domain_map( domain_map )
 {
     // Create a range map.
-    Teuchos::ArrayView<const DofId> domain_elements = 
+    Teuchos::ArrayView<const SupportId> domain_elements = 
 	d_domain_map->getNodeElementList();
     d_lda = domain_elements.size();
-    Teuchos::Array<DofId> global_ids;
-    DofId max_id = d_domain_map->getMaxAllGlobalIndex() + 1;
+    Teuchos::Array<SupportId> global_ids;
+    SupportId max_id = d_domain_map->getMaxAllGlobalIndex() + 1;
     if ( d_domain_map->getComm()->getRank() == 0 )
     {
 	global_ids.resize( d_offset + domain_elements.size() );
@@ -78,7 +78,7 @@ SplineProlongationOperator<Scalar>::SplineProlongationOperator(
     {
 	d_offset = 0;
     }
-    d_range_map = Tpetra::createNonContigMap<int,DofId>(
+    d_range_map = Tpetra::createNonContigMap<int,SupportId>(
 	domain_elements, d_domain_map->getComm() );
     DTK_ENSURE( Teuchos::nonnull(d_range_map) );
 }
@@ -87,8 +87,8 @@ SplineProlongationOperator<Scalar>::SplineProlongationOperator(
 // Apply operation. 
 template<class Scalar>
 void SplineProlongationOperator<Scalar>::apply(
-    const Tpetra::MultiVector<Scalar,int,DofId> &X,
-    Tpetra::MultiVector<Scalar,int,DofId> &Y,
+    const Tpetra::MultiVector<Scalar,int,SupportId> &X,
+    Tpetra::MultiVector<Scalar,int,SupportId> &Y,
     Teuchos::ETransp mode,
     Scalar alpha,
     Scalar beta ) const

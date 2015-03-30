@@ -53,8 +53,8 @@ namespace DataTransferKit
   \class EntityShapeFunction
   \brief Shape function interface.
 
-  EntityShapeFunction binds DOFs to an entity and provides kernels to evaluate
-  the function.
+  EntityShapeFunction binds support ids to an entity and provides kernels to
+  evaluate the function.
 */
 //---------------------------------------------------------------------------//
 class EntityShapeFunction
@@ -72,16 +72,16 @@ class EntityShapeFunction
     virtual ~EntityShapeFunction();
 
     /*!
-     * \brief Given an entity, get the ids of the degrees of freedom
-     * supporting its shape function.
+     * \brief Given an entity, get the ids of its shape function support.
      *
-     * \param entity Get the degrees of freedom for this entity.
+     * \param entity Get the support ids for this entity.
      *
-     * \param dof_ids Return the ids of the degrees of freedom in the parallel
-     * vector space supporting the entities.
+     * \param support_ids Return the ids of the function support for the given
+     * entities.
      */
-    virtual void entityDOFIds( const Entity& entity,
-			       Teuchos::Array<DofId>& dof_ids ) const = 0;
+    virtual void entitySupportIds(
+	const Entity& entity,
+	Teuchos::Array<SupporId>& support_ids ) const = 0;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -94,8 +94,8 @@ class EntityShapeFunction
      *
      * \param values Entity shape function evaluated at the reference
      * point. Return these ordered with respect to those return by
-     * getDOFIds() such that values[N] gives the shape function value of the
-     * Nth DOF supporting the entity.
+     * entitySupportIds() such that values[N] gives the shape function value
+     * of the Nth support supporting the entity.
      */
     virtual void evaluateValue( 
 	const Entity& entity,
@@ -112,10 +112,10 @@ class EntityShapeFunction
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
      *
-     * \param gradients Entity shape function gradients evaluated at the reference
-     * point. Return these ordered with respect to those return by
-     * getDOFIds() such that gradients[N][D] gives the gradient value of the
-     * Nth DOF in the Dth spatial dimension.
+     * \param gradients Entity shape function gradients evaluated at the
+     * reference point. Return these ordered with respect to those return by
+     * entitySupportIds() such that gradients[N][D] gives the gradient value
+     * of the Nth support in the Dth spatial dimension.
      */
     virtual void evaluateGradient( 
 	const Entity& entity,

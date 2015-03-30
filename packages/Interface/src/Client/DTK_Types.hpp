@@ -54,11 +54,12 @@ typedef unsigned long int EntityId;
 static const EntityId dtk_invalid_entity_id =
     std::numeric_limits<EntityId>::max();
 
-//! Dof id type.
-typedef std::size_t DofId;
+//! Support id type.
+typedef std::size_t SupportId;
 
-//! Invalid dof id.
-static const DofId dtk_invalid_dof_id = std::numeric_limits<DofId>::max();
+//! Invalid support id.
+static const SupportId dtk_invalid_support_id =
+    std::numeric_limits<SupportId>::max();
 
 //! Enum for entity types.
 enum EntityType

@@ -99,7 +99,8 @@ bool EntityLocalMap::isSafeToMapToReferenceFrame(
 // Compute the normal on a face (3D) or edge (2D) at a given reference point.
 void EntityLocalMap::normalAtReferencePoint( 
     const Entity& entity,
-    const Teuchos::ArrayView<double>& reference_point,
+    const Entity& parent_entity,
+    const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& normal ) const
 {
     // Determine the reference dimension.

@@ -53,8 +53,9 @@ template<class Scalar>
 FieldMultiVector<Scalar>::FieldMultiVector(
     const Teuchos::RCP<Field<Scalar> >& field,
     const Teuchos::RCP<EntitySet>& entity_set )
-    : Base( Tpetra::createNonContigMap<int,DofId>(field->getLocalEntityDOFIds(),
-						  entity_set->communicator()),
+    : Base( Tpetra::createNonContigMap<int,SupportId>(
+		field->getLocalEntitySupportIds(),
+		entity_set->communicator()),
 	    field->dimension() )
     , d_field( field )
 { /* ... */ }
@@ -64,16 +65,17 @@ FieldMultiVector<Scalar>::FieldMultiVector(
 template<class Scalar>
 void FieldMultiVector<Scalar>::pullDataFromApplication()
 {
-    Teuchos::ArrayView<const DofId> field_dofs = d_field->getLocalEntityDOFIds();
+    Teuchos::ArrayView<const SupportId> field_supports =
+	d_field->getLocalEntitySupportIds();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> > vector_view =
 	this->get2dViewNonConst();
-    int num_dofs = field_dofs.size();
+    int num_supports = field_supports.size();
     int dim = d_field->dimension();
-    for ( int n = 0; n < num_dofs; ++n )
+    for ( int n = 0; n < num_supports; ++n )
     {
 	for ( int d = 0; d < dim; ++d )
 	{
-	    vector_view[d][n] = d_field->readFieldData( field_dofs[n], d );
+	    vector_view[d][n] = d_field->readFieldData( field_supports[n], d );
 	}
     }
 }
@@ -83,16 +85,17 @@ void FieldMultiVector<Scalar>::pullDataFromApplication()
 template<class Scalar>
 void FieldMultiVector<Scalar>::pushDataToApplication()
 {
-    Teuchos::ArrayView<const DofId> field_dofs = d_field->getLocalEntityDOFIds();
+    Teuchos::ArrayView<const SupportId> field_supports =
+	d_field->getLocalEntitySupportIds();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> > vector_view =
 	this->get2dView();
-    int num_dofs = field_dofs.size();
+    int num_supports = field_supports.size();
     int dim = d_field->dimension();
-    for ( int n = 0; n < num_dofs; ++n )
+    for ( int n = 0; n < num_supports; ++n )
     {
 	for ( int d = 0; d < dim; ++d )
 	{
-	    d_field->writeFieldData( field_dofs[n], d, vector_view[d][n] );
+	    d_field->writeFieldData( field_supports[n], d, vector_view[d][n] );
 	}
     }
 

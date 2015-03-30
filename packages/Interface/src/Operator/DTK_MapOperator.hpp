@@ -61,18 +61,18 @@ namespace DataTransferKit
 */
 //---------------------------------------------------------------------------//
 template<class Scalar>
-class MapOperator : public Tpetra::Operator<Scalar,int,DofId>
+class MapOperator : public Tpetra::Operator<Scalar,int,SupportId>
 {
   public:
 
     //! Root class typedef.
-    typedef Tpetra::Operator<Scalar,int,DofId> Root;
+    typedef Tpetra::Operator<Scalar,int,SupportId> Root;
 
     //! Map typedef.
-    typedef Tpetra::Map<int,DofId,typename Root::node_type> TpetraMap;
+    typedef Tpetra::Map<int,SupportId,typename Root::node_type> TpetraMap;
 
     //! MultiVector typedef.
-    typedef Tpetra::MultiVector<Scalar,int,DofId,typename Root::node_type>
+    typedef Tpetra::MultiVector<Scalar,int,SupportId,typename Root::node_type>
     TpetraMultiVector;
 
     /*!

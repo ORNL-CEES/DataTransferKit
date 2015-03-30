@@ -59,9 +59,9 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 PolynomialMatrix::PolynomialMatrix(
-    const Teuchos::RCP<const Tpetra::MultiVector<double,int,DofId> >& polynomial,
-    const Teuchos::RCP<const Tpetra::Map<int,DofId> >& domain_map,
-    const Teuchos::RCP<const Tpetra::Map<int,DofId> >& range_map )
+    const Teuchos::RCP<const Tpetra::MultiVector<double,int,SupportId> >& polynomial,
+    const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map,
+    const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& range_map )
     : d_comm( polynomial->getMap()->getComm() )
     , d_polynomial( polynomial )
     , d_domain_map( domain_map )
@@ -71,8 +71,8 @@ PolynomialMatrix::PolynomialMatrix(
 //---------------------------------------------------------------------------//
 // Apply operation. 
 void PolynomialMatrix::apply(
-    const Tpetra::MultiVector<double,int,DofId> &X,
-    Tpetra::MultiVector<double,int,DofId> &Y,
+    const Tpetra::MultiVector<double,int,SupportId> &X,
+    Tpetra::MultiVector<double,int,SupportId> &Y,
     Teuchos::ETransp mode,
     double alpha,
     double beta ) const
@@ -130,11 +130,11 @@ void PolynomialMatrix::apply(
     else if ( Teuchos::TRANS == mode )
     {
 	// Make a work vector.
-	Tpetra::MultiVector<double,int,DofId> work( Y.getMap(),
+	Tpetra::MultiVector<double,int,SupportId> work( Y.getMap(),
 						 Y.getNumVectors() );
 
 	// Export X to the polynomial decomposition.
-	Tpetra::Export<int,DofId> exporter( X.getMap(), work.getMap() );
+	Tpetra::Export<int,SupportId> exporter( X.getMap(), work.getMap() );
 	work.doExport( X, exporter, Tpetra::INSERT );
 
 	// Do the local mat-vec.
