@@ -72,7 +72,7 @@ void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
     Teuchos::Tuple<double,6> entity_bounds;
     for ( int i = 0; i < 4; ++i )
     {
-	dim_it = this->entityIterator( static_cast<EntityType>(i), select_func );
+	dim_it = this->entityIterator( i, select_func );
 	entity_begin = dim_it.begin();
 	entity_end = dim_it.end();
 	for ( entity_it = entity_begin;

@@ -61,16 +61,6 @@ typedef std::size_t SupportId;
 static const SupportId dtk_invalid_support_id =
     std::numeric_limits<SupportId>::max();
 
-//! Enum for entity types.
-enum EntityType
-{
-    ENTITY_TYPE_NODE = 0,
-    ENTITY_TYPE_EDGE = 1,
-    ENTITY_TYPE_FACE = 2,
-    ENTITY_TYPE_VOLUME = 3,
-    ENTITY_TYPE_INVALID = 4
-};
-
 // Forward declaration of Entity.
 class Entity;
 

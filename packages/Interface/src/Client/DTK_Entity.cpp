@@ -94,20 +94,21 @@ EntityId Entity::id() const
 }
     
 //---------------------------------------------------------------------------//
-// Get the entity type.
-EntityType Entity::entityType() const
-{
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
-    return b_entity_impl->entityType();
-}
-
-//---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 int Entity::ownerRank() const
 { 
     DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->ownerRank();
 }
+
+//---------------------------------------------------------------------------//
+// Return the topological dimension of the entity.
+int Entity::topologicalDimension() const
+{
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    return b_entity_impl->entityType();
+}
+
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
 int Entity::physicalDimension() const
@@ -155,8 +156,8 @@ std::string Entity::description() const
     DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     std::stringstream d;
     d << " Id = " << id()
-      << ", EntityType = " << entityType()
       << ", OwnerRank = " << ownerRank()
+      << ", TopologicalDimension = " << topologicalDimension()
       << ", PhysicalDimension = " << physicalDimension();
     return b_entity_impl->description() + d.str();
 }

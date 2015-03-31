@@ -95,13 +95,6 @@ class Entity : public Teuchos::Describable
     //@{
     //! Client interface.
     /*!
-     * \brief Get the entity type.
-     *
-     * \return The entity type.
-     */
-    EntityType entityType() const;
-
-    /*!
      * \brief Get the unique global identifier for the entity.
      *
      * \return A unique global identifier for the entity.
@@ -114,6 +107,14 @@ class Entity : public Teuchos::Describable
      * \return The parallel rank that owns the entity.
      */
     int ownerRank() const;
+
+    /*!
+     * \brief Return the topological dimension of the entity.
+     *
+     * \return The topological dimension of the entity. Any parametric
+     * coordinates describing the entity will be of this dimension.
+     */
+    int topologicalDimension() const;
 
     /*!
      * \brief Return the physical dimension of the entity.

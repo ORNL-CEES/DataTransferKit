@@ -121,7 +121,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	    PredicateComposition::And(
 		domain_space->selectFunction(),	local_predicate.getFunction() );
 	domain_iterator = domain_space->entitySet()->entityIterator( 
-	    static_cast<EntityType>(domain_space->entitySet()->physicalDimension()),
+	    domain_space->entitySet()->physicalDimension(),
 	    domain_predicate );
     }
 
@@ -139,8 +139,8 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	PredicateFunction range_predicate =
 	    PredicateComposition::And(
 		range_space->selectFunction(), local_predicate.getFunction() );
-	range_iterator = range_space->entitySet()->entityIterator( 
-	    ENTITY_TYPE_NODE, range_predicate );
+	range_iterator =
+	    range_space->entitySet()->entityIterator( 1, range_predicate );
     } 
 
     // Search the domain with the range.

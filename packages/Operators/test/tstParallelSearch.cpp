@@ -91,7 +91,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, all_to_one_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over all of the boxes.
-    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    EntityIterator domain_it = domain_set->entityIterator( 3 );
     
     // Build a parallel search over the boxes.
     Teuchos::ParameterList plist;
@@ -119,7 +119,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, all_to_one_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+    EntityIterator range_it = range_set->entityIterator( 1 );
 
     // Do the search.
     parallel_search.search( range_it, range_map, plist );
@@ -200,7 +200,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, one_to_one_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over all of the boxes.
-    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    EntityIterator domain_it = domain_set->entityIterator( 3 );
     
     // Build a parallel search over the boxes.
     Teuchos::ParameterList plist;
@@ -229,7 +229,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, one_to_one_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+    EntityIterator range_it = range_set->entityIterator( 1 );
 
     // Do the search.
     parallel_search.search( range_it, range_map, plist );
@@ -308,7 +308,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_domain_0_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over all of the boxes.
-    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    EntityIterator domain_it = domain_set->entityIterator( 3 );
     
     // Build a parallel search over the boxes.
     Teuchos::ParameterList plist;
@@ -337,7 +337,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_domain_0_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+    EntityIterator range_it = range_set->entityIterator( 1 );
 
     // Do the search.
     parallel_search.search( range_it, range_map, plist );
@@ -428,7 +428,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_range_0_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over all of the boxes.
-    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    EntityIterator domain_it = domain_set->entityIterator( 3 );
     
     // Build a parallel search over the boxes.
     Teuchos::ParameterList plist;
@@ -457,7 +457,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_range_0_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+    EntityIterator range_it = range_set->entityIterator( 1 );
 
     // Do the search.
     parallel_search.search( range_it, range_map, plist );
@@ -532,7 +532,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, many_to_many_test )
     }
 
     // Get an iterator over all of the boxes.
-    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    EntityIterator domain_it = domain_set->entityIterator( 3 );
     
     // Construct a local map for the boxes.
     Teuchos::RCP<EntityLocalMap> domain_map = 
@@ -565,7 +565,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, many_to_many_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+    EntityIterator range_it = range_set->entityIterator( 1 );
 
     // Do the search.
     parallel_search.search( range_it, range_map, plist );
@@ -679,7 +679,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, point_multiple_neighbors_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over all of the boxes.
-    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    EntityIterator domain_it = domain_set->entityIterator( 3 );
     
     // Build a parallel search over the boxes.
     Teuchos::ParameterList plist;
@@ -702,7 +702,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, point_multiple_neighbors_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+    EntityIterator range_it = range_set->entityIterator( 1 );
 
     // Do the search.
     parallel_search.search( range_it, range_map, plist );
@@ -780,7 +780,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, global_missed_range_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over all of the boxes.
-    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    EntityIterator domain_it = domain_set->entityIterator( 3 );
     
     // Build a parallel search over the boxes.
     Teuchos::ParameterList plist;
@@ -818,7 +818,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, global_missed_range_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+    EntityIterator range_it = range_set->entityIterator( 1 );
 
     // Do the search.
     parallel_search.search( range_it, range_map, plist );
@@ -895,7 +895,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, local_missed_range_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over all of the boxes.
-    EntityIterator domain_it = domain_set->entityIterator( ENTITY_TYPE_VOLUME );
+    EntityIterator domain_it = domain_set->entityIterator( 3 );
     
     // Build a parallel search over the boxes.
     Teuchos::ParameterList plist;
@@ -933,7 +933,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, local_missed_range_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( ENTITY_TYPE_NODE );
+    EntityIterator range_it = range_set->entityIterator( 1 );
 
     // Do the search.
     parallel_search.search( range_it, range_map, plist );

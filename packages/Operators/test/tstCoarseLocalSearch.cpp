@@ -86,7 +86,7 @@ TEUCHOS_UNIT_TEST( CoarseLocalSearch, coarse_local_search_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over all of the boxes.
-    EntityIterator all_it = entity_set->entityIterator( ENTITY_TYPE_VOLUME );
+    EntityIterator all_it = entity_set->entityIterator( 3 );
     
     // Build a coarse local search over the boxes.
     Teuchos::ParameterList plist;

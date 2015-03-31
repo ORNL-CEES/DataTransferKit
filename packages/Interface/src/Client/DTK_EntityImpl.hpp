@@ -70,13 +70,6 @@ class EntityImpl
     virtual ~EntityImpl() { /* ... */ }
 
     /*!
-     * \brief Get the entity type.
-     *
-     * \return The entity type.
-     */
-    virtual EntityType entityType() const = 0;
-
-    /*!
      * \brief Get the unique global identifier for the entity.
      *
      * \return A unique global identifier for the entity.
@@ -89,6 +82,14 @@ class EntityImpl
      * \return The parallel rank that owns the entity.
      */
     virtual int ownerRank() const = 0;
+
+    /*!
+     * \brief Return the topological dimension of the entity.
+     *
+     * \return The topological dimension of the entity. Any parametric
+     * coordinates describing the entity will be of this dimension.
+     */
+    virtual int topologicalDimension() const = 0;
 
     /*!
      * \brief Return the physical dimension of the entity.

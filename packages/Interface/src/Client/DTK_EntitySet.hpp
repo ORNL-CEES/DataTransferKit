@@ -116,37 +116,46 @@ class EntitySet : public Teuchos::Describable
     //@{
     //! Entity access functions.
     /*!
-     * \brief Given an EntityId, get the entity.
+     * \brief Given an EntityId and topological dimension, get the entity.
      *
      * \param entity_id Get the entity with this id.
      *
+     * \param topological_dimension Get the entity with this topological
+     * dimension.
+     *
      * \param entity The entity with the given id.
      */
-    virtual void getEntity( const EntityType entity_type, 
-			    const EntityId entity_id, 
+    virtual void getEntity( const EntityId entity_id,
+			    const int topological_dimension,
 			    Entity& entity ) const = 0;
 
     /*!
      * \brief Get an iterator of the given entity type that satisfy the given
      * predicate.
      *
-     * \param entity_type The type of entity to get a iterator for.
+     * \param topological_dimension The topological dimension of entity to get
+     * an iterator for.
      *
      * \param predicate The selection predicate.
      *
      * \return A iterator of entities of the given type.
      */
     virtual EntityIterator entityIterator( 
-	const EntityType entity_type,
+	const int topological_dimension,
 	const PredicateFunction& predicate = selectAll ) const = 0;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
      * adjacent to it.
+     *
+     * \param entity Get the adjacencies of this entity.
+     *
+     * \param adjacent_dimension Get adjacencies of this topological
+     * dimension. 
      */
     virtual void getAdjacentEntities(
 	const Entity& entity,
-	const EntityType adjacent_entity_type,
+	const int adjacent_dimension,
 	Teuchos::Array<Entity>& adjacent_entities ) const = 0;
     //@}
 
