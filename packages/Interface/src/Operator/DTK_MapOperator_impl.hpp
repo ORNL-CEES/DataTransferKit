@@ -83,8 +83,7 @@ MapOperator<Scalar>::getRangeMap() const
 }
 
 //---------------------------------------------------------------------------//
-// Apply the map operator to data defined on the entities by computing g =
-// Minv*(v+A*f).
+// Apply the map operator.
 template<class Scalar>
 void MapOperator<Scalar>::apply( const TpetraMultiVector& X,
 				 TpetraMultiVector& Y,
@@ -96,7 +95,12 @@ void MapOperator<Scalar>::apply( const TpetraMultiVector& X,
     const FieldMultiVector<Scalar>& X_fmv =
 	dynamic_cast<const FieldMultiVector<Scalar>&>( X );
     const_cast<FieldMultiVector<Scalar>&>( X_fmv ).pullDataFromApplication();
-
+    if ( beta != Teuchos::ScalarTraits<Scalar>::zero() )
+    {
+	dynamic_cast<FieldMultiVector<Scalar>&
+		     >( Y ).pullDataFromApplication();
+    }
+    
     // Apply the operator.
     applyImpl( X, Y, mode, alpha, beta );
 

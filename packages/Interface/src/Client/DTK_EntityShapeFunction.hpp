@@ -81,7 +81,7 @@ class EntityShapeFunction
      */
     virtual void entitySupportIds(
 	const Entity& entity,
-	Teuchos::Array<SupporId>& support_ids ) const = 0;
+	Teuchos::Array<SupportId>& support_ids ) const = 0;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape

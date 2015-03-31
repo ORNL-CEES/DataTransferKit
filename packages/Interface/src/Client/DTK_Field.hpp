@@ -92,10 +92,9 @@ class Field
     virtual int dimension() const = 0;
 
     /*!
-     * \brief Get the locally-owned entity support ids of the field.
+     * \brief Get the locally-owned support location ids of the field.
      */
-    virtual Teuchos::ArrayView<const SupportId>
-    getLocalEntitySupportIds() const = 0;
+    virtual Teuchos::Array<const SupportId> getLocalSupportIds() const = 0;
 
     /*!
      * \brief Given a local support id and a dimension, read data from the

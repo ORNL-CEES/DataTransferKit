@@ -116,7 +116,7 @@ class MapOperator : public Tpetra::Operator<Scalar,int,SupportId>
     Teuchos::RCP<const TpetraMap> getRangeMap() const override;
     void apply(
 	const TpetraMultiVector& X,
-	TpetraMultiVector &Y,
+	TpetraMultiVector& Y,
 	Teuchos::ETransp mode = Teuchos::NO_TRANS,
 	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
 	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
@@ -127,7 +127,7 @@ class MapOperator : public Tpetra::Operator<Scalar,int,SupportId>
 
     //! Apply implementation. Subclasses should override.
     virtual void applyImpl( const TpetraMultiVector& X,
-			    TpetraMultiVector &Y,
+			    TpetraMultiVector& Y,
 			    Teuchos::ETransp mode,
 			    Scalar alpha,
 			    Scalar beta ) const = 0;
