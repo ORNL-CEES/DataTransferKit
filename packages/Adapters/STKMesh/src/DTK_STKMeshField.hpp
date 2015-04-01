@@ -101,6 +101,11 @@ class STKMeshField : public Field<Scalar>
 			 const int dimension,
 			 const Scalar data ) override;
 
+    /*!
+     * \brief Finalize a field after writing into it.
+     */
+    void finalizeAfterWrite() override;
+
   private:
 
     // The mesh over which the field is defined.

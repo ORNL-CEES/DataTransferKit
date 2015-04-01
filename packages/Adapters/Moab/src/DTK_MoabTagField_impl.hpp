@@ -156,7 +156,16 @@ void MoabTagField<Scalar>::writeFieldData( const SupportId support_id,
 template<class Scalar>
 void MoabTagField<Scalar>::finalizeAfterWrite()
 {
-    // Update ghost data.
+    // Get shared ents.
+    moab::Range shared_entities;
+    DTK_CHECK_ERROR_CODE(
+	d_moab_mesh->get_shared_entities( -1, shared_entities, -1, false, true )
+	);
+
+    // Exchange the tag.
+    DTK_CHECK_ERROR_CODE(
+	d_moab_mesh->exchange_tags( d_tag, shared_entities )
+	);
 }
 
 //---------------------------------------------------------------------------//

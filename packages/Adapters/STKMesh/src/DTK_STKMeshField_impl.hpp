@@ -137,6 +137,14 @@ void STKMeshField<Scalar,FieldType>::writeFieldData( const SupportId support_id,
 }
 
 //---------------------------------------------------------------------------//
+// Finalize a field after writing into it.
+template<class Scalar, class FieldType>
+void STKMeshField<Scalar,FieldType>::finalizeAfterWrite()
+{
+    // Update ghost data.
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
