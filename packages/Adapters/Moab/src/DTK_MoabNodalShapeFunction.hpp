@@ -60,8 +60,7 @@ namespace DataTransferKit
   quantities with shape functions evaluated in an element supported by
   nodes. The node ids serve as the dof ids for these shape functions. A
   corresponding DOF vector indexed via node ids should be produced to match
-  this shape function. MoabDOFVector provides services to construct these
-  vectors.
+  this shape function.
 */
 //---------------------------------------------------------------------------//
 class MoabNodalShapeFunction : public EntityShapeFunction
@@ -80,8 +79,8 @@ class MoabNodalShapeFunction : public EntityShapeFunction
      * \param dof_ids Return the ids of the degrees of freedom in the parallel
      * vector space supporting the entities.
      */
-    void entityDOFIds( const Entity& entity,
-		       Teuchos::Array<DofId>& dof_ids ) const;
+    void entitySupportIds( const Entity& entity,
+		       Teuchos::Array<SupportId>& dof_ids ) const;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape

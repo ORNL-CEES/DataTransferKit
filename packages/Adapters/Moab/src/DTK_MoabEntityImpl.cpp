@@ -60,15 +60,6 @@ MoabEntityImpl::MoabEntityImpl(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Get the entity type.
-EntityType MoabEntityImpl::entityType() const
-{
-    return MoabHelpers::getEntityTypeFromMoabType(
-	d_moab_mesh->get_moab()->type_from_handle(
-	    d_extra_data->d_moab_entity) );
-}
-
-//---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId MoabEntityImpl::id() const
 { 
@@ -85,6 +76,16 @@ int MoabEntityImpl::ownerRank() const
 	);
     return owner_rank;
 }
+
+//---------------------------------------------------------------------------//
+// Get the topological dimension of the entity.
+int MoabEntityImpl::topologicalDimension() const
+{
+    return MoabHelpers::getTopologicalDimensionFromMoabType(
+	d_moab_mesh->get_moab()->type_from_handle(
+	    d_extra_data->d_moab_entity) );
+}
+
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
@@ -104,7 +105,7 @@ void MoabEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
     Teuchos::Array<double> coordinates;
 
     // Node case.
-    if ( ENTITY_TYPE_NODE == this->entityType() )
+    if ( 0 == this->topologicalDimension() )
     {
 	coordinates.resize( 3 );
 	DTK_CHECK_ERROR_CODE(
@@ -159,6 +160,59 @@ bool MoabEntityImpl::onBoundary( const int boundary_id ) const
 Teuchos::RCP<EntityExtraData> MoabEntityImpl::extraData() const
 {
     return d_extra_data;
+}
+
+//---------------------------------------------------------------------------//
+// Provide a verbose description of the object.
+void MoabEntityImpl::describe(
+    Teuchos::FancyOStream& out,
+    const Teuchos::EVerbosityLevel /*verb_level*/ ) const
+{
+    std::string name = MoabHelpers::getNameFromMoabType(
+	d_moab_mesh->get_moab()->type_from_handle(
+	    d_extra_data->d_moab_entity) );
+
+    Teuchos::Array<double> coordinates;
+    // Node case.
+    if ( 0 == this->topologicalDimension() )
+    {
+	coordinates.resize( 3 );
+	DTK_CHECK_ERROR_CODE(
+	    d_moab_mesh->get_moab()->get_coords( 
+		&(d_extra_data->d_moab_entity),
+		1,
+		coordinates.getRawPtr() )
+	    );
+    }
+
+    // Element/face/edge case.
+    else
+    {
+	MoabHelpers::getEntityNodeCoordinates( d_extra_data->d_moab_entity,
+					       d_moab_mesh,
+					       coordinates );
+    }
+    int num_nodes = coordinates.size() / 3;
+    int space_dim = this->physicalDimension();
+
+    out << std::endl;
+    out << "---" << std::endl;
+    out << "Moab Entity" << std::endl;
+    out << "Id: " << id() << std::endl;
+    out << "Owner rank: " << ownerRank() << std::endl;
+    out << "Topology: " << name << std::endl;
+    out << "Num nodes: " << num_nodes << std::endl;
+    out << "Node coords: " << std::endl;
+    for ( int n = 0; n < num_nodes; ++n )
+    {
+	out << "    node " << n << ": ";
+	for ( int d = 0; d < space_dim; ++d )
+	{
+	    out << coordinates[n*space_dim + d] << "  "; 
+	}
+	out << std::endl;
+    }
+    out << "---" << std::endl;
 }
 
 //---------------------------------------------------------------------------//

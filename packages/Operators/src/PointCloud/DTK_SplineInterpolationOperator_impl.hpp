@@ -267,7 +267,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
 	    PredicateComposition::And(
 		domain_space->selectFunction(), local_predicate.getFunction() );
 	domain_iterator =
-	    domain_space->entitySet()->entityIterator( 1, domain_predicate );
+	    domain_space->entitySet()->entityIterator( 0, domain_predicate );
     }
     int local_num_src = domain_iterator.size();
     Teuchos::ArrayRCP<double> source_centers( DIM*local_num_src);
@@ -296,7 +296,7 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
 	    PredicateComposition::And(
 		range_space->selectFunction(), local_predicate.getFunction() );
 	range_iterator =
-	    range_space->entitySet()->entityIterator( 1, range_predicate );
+	    range_space->entitySet()->entityIterator( 0, range_predicate );
     } 
     int local_num_tgt = range_iterator.size();
     Teuchos::ArrayRCP<double> target_centers( DIM*local_num_tgt );

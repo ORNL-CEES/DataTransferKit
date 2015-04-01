@@ -91,7 +91,7 @@ void MoabEntityLocalMap::centroid(
     const Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
 { 
     // Node case.
-    if ( ENTITY_TYPE_NODE == entity.entityType() )
+    if ( 0 == entity.topologicalDimension() )
     {
 	moab::EntityHandle handle = entity.id();
 	d_moab_mesh->get_moab()->get_coords( &handle, 1, centroid.getRawPtr() );
@@ -115,14 +115,15 @@ void MoabEntityLocalMap::centroid(
 // of an entity using the given tolerance. 
 bool MoabEntityLocalMap::isSafeToMapToReferenceFrame(
     const Entity& entity,
-    const Teuchos::ArrayView<const double>& point ) const
+    const Teuchos::ArrayView<const double>& physical_point ) const
 {
     int space_dim = entity.physicalDimension();
     int param_dim = 
 	d_moab_mesh->get_moab()->dimension_from_handle( entity.id() );
     if ( space_dim == param_dim )
     {
-	return EntityLocalMap::isSafeToMapToReferenceFrame( entity, point );
+	return EntityLocalMap::isSafeToMapToReferenceFrame(
+	    entity, physical_point );
     }
     else
     {
@@ -137,7 +138,7 @@ bool MoabEntityLocalMap::isSafeToMapToReferenceFrame(
 // point.
 bool MoabEntityLocalMap::mapToReferenceFrame( 
     const Entity& entity,
-    const Teuchos::ArrayView<const double>& point,
+    const Teuchos::ArrayView<const double>& physical_point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
     cacheEntity( entity );
@@ -145,7 +146,7 @@ bool MoabEntityLocalMap::mapToReferenceFrame(
     int is_inside = -1;
     DTK_CHECK_ERROR_CODE(
 	d_moab_evaluator->reverse_eval(
-	    point.getRawPtr(), d_newton_tol, 
+	    physical_point.getRawPtr(), d_newton_tol, 
 	    d_inclusion_tol, reference_point.getRawPtr(), &is_inside )
 	);
     return (is_inside > 0);
@@ -169,13 +170,13 @@ bool MoabEntityLocalMap::checkPointInclusion(
 void MoabEntityLocalMap::mapToPhysicalFrame( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& point ) const
+    const Teuchos::ArrayView<double>& physical_point ) const
 {
     cacheEntity( entity );
 
     DTK_CHECK_ERROR_CODE(
 	d_moab_evaluator->eval( reference_point.getRawPtr(),
-				point.getRawPtr() )
+				physical_point.getRawPtr() )
 	);
 }
 
@@ -183,7 +184,8 @@ void MoabEntityLocalMap::mapToPhysicalFrame(
 // Compute the normal on a face (3D) or edge (2D) at a given reference point.
 void MoabEntityLocalMap::normalAtReferencePoint( 
     const Entity& entity,
-    const Teuchos::ArrayView<double>& reference_point,
+    const Entity& parent_entity,
+    const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& normal ) const
 {
 	bool not_implemented = true;

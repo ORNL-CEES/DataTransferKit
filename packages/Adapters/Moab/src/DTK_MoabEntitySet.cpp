@@ -79,8 +79,8 @@ int MoabEntitySet::physicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
-void MoabEntitySet::getEntity( const EntityType entity_type,
-			       const EntityId entity_id, 
+void MoabEntitySet::getEntity( const EntityId entity_id,
+			       const int topological_dimension,
 			       Entity& entity ) const
 {
     entity = MoabEntity( Teuchos::as<moab::EntityHandle>(entity_id),
@@ -92,7 +92,7 @@ void MoabEntitySet::getEntity( const EntityType entity_type,
 // Get an iterator over a subset of the entity set that satisfies the given
 // predicate. 
 EntityIterator MoabEntitySet::entityIterator(
-    const EntityType entity_type,
+    const int topological_dimension,
     const PredicateFunction& predicate ) const
 {
     Teuchos::RCP<MoabEntityIteratorRange> iterator_range =
@@ -100,7 +100,7 @@ EntityIterator MoabEntitySet::entityIterator(
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->get_entities_by_dimension(
 	    0,
-	    Teuchos::as<int>( entity_type ),
+	    topological_dimension,
 	    iterator_range->d_moab_entities )
 	);
     return MoabEntityIterator( 
@@ -108,11 +108,11 @@ EntityIterator MoabEntitySet::entityIterator(
 }
 
 //---------------------------------------------------------------------------//
-// Given an entity, get the entities of the given type that are adjacent to
+// Given an entity, get the entities of the given dimension that are adjacent to
 // it. 
 void MoabEntitySet::getAdjacentEntities(
     const Entity& entity,
-    const EntityType entity_type,
+    const int adjacent_dimension,
     Teuchos::Array<Entity>& adjacent_entities ) const
 {
     moab::EntityHandle moab_entity = MoabHelpers::extractEntity(entity);
@@ -122,12 +122,12 @@ void MoabEntitySet::getAdjacentEntities(
 	d_moab_mesh->get_moab()->get_adjacencies( 
 	    &moab_entity,
 	    1,
-	    Teuchos::as<int>( entity_type ),
+	    adjacent_dimension,
 	    true,
 	    adjacencies )
 	);
 
-    if ( entity.entityType() == entity_type )
+    if ( entity.topologicalDimension() == adjacent_dimension )
     {
 	auto remove_it = std::remove( adjacencies.begin(),
 				      adjacencies.end(),

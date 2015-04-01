@@ -153,7 +153,7 @@ TEUCHOS_UNIT_TEST( MoabNodalShapeFunction, hex_8_test )
 
     // Test the shape function dof ids for the hex.
     Teuchos::Array<std::size_t> dof_ids;
-    shape_function->entityDOFIds( dtk_entity, dof_ids );
+    shape_function->entitySupportIds( dtk_entity, dof_ids );
     TEST_EQUALITY( num_nodes, dof_ids.size() );
     for ( unsigned n = 0; n < num_nodes; ++n )
     {
@@ -228,7 +228,7 @@ TEUCHOS_UNIT_TEST( MoabNodalShapeFunction, hex_8_test )
 	dof_ids.clear();
 	DataTransferKit::Entity dtk_node = DataTransferKit::MoabEntity( 
 	    nodes[n], parallel_mesh.ptr(), set_indexer.ptr() );
-	shape_function->entityDOFIds( dtk_node, dof_ids );
+	shape_function->entitySupportIds( dtk_node, dof_ids );
 	TEST_EQUALITY( dof_ids.size(), 1 );
 	TEST_EQUALITY( dof_ids[0], nodes[n] );
     }

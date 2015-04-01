@@ -67,10 +67,16 @@ class MoabHelpers
     static moab::EntityHandle extractEntity( const Entity dtk_entity );
 
     /*!
-     * \brief Given a Moab EntityType, get the DTK EntityType.
+     * \brief Given a Moab EntityType, get the topological dimension.
      */
-    static EntityType 
-    getEntityTypeFromMoabType( const moab::EntityType moab_type );
+    static int
+    getTopologicalDimensionFromMoabType( const moab::EntityType moab_type );
+
+    /*!
+     * \brief Given a Moab EntityType, get the name.
+     */
+    static std::string
+    getNameFromMoabType( const moab::EntityType moab_type );
 
     /*!
      * \brief Get the coordinates of the entity nodes in canonical order.

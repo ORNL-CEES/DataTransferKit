@@ -140,7 +140,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	    PredicateComposition::And(
 		range_space->selectFunction(), local_predicate.getFunction() );
 	range_iterator =
-	    range_space->entitySet()->entityIterator( 1, range_predicate );
+	    range_space->entitySet()->entityIterator( 0, range_predicate );
     } 
 
     // Search the domain with the range.

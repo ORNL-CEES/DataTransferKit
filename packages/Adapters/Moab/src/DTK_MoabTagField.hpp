@@ -58,13 +58,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
   \class MoabTagField
-  \brief A class for defining Tpetra vectors over Moab tags.
-
-  Use this class to manage Tpetra vectors and Moab tags. This class will
-  create a vector over a mesh set and the tag on that mesh set. There is no
-  gaurantee of consistency between the tag and the vector as the vector does
-  not point to the data in the tag. Instead, the push and pull functions allow
-  the user to move data between the vector and the tag as necessary.
+  \brief Field implementation for moab tags.
 */
 //---------------------------------------------------------------------------//
 template<class Scalar>
@@ -88,22 +82,22 @@ class MoabTagField : public Field<Scalar>
     int dimension() const;
 
     /*!
-     * \brief Get the locally-owned entity DOF ids of the field.
+     * \brief Get the locally-owned support location ids of the field.
      */
-    Teuchos::ArrayView<const DofId> getLocalEntityDOFIds() const;
+    Teuchos::ArrayView<const SupportId> getLocalSupportIds() const;
 
     /*!
-     * \brief Given a local dof id and a dimension, read data from the
+     * \brief Given a local support id and a dimension, read data from the
      * application field.
      */
-    Scalar readFieldData( const DofId dof_id,
+    Scalar readFieldData( const SupportId support_id,
 			  const int dimension ) const;
 
     /*!
-     * \brief Given a local dof id, dimension, and field value, write data
+     * \brief Given a local support id, dimension, and field value, write data
      * into the application field.
      */
-    void writeFieldData( const DofId dof_id,
+    void writeFieldData( const SupportId support_id,
 			 const int dimension,
 			 const Scalar data );
 
@@ -124,11 +118,11 @@ class MoabTagField : public Field<Scalar>
     // Entities in the mesh set.
     std::vector<moab::EntityHandle> d_entities;
     
-    // The dof ids of the entities over which the field is constructed.
-    Teuchos::Array<DofId> d_dof_ids;
+    // The support ids of the entities over which the field is constructed.
+    Teuchos::Array<SupportId> d_support_ids;
 
-    // Dof id to local id map.
-    std::unordered_map<DofId,int> d_id_map;
+    // Support id to local id map.
+    std::unordered_map<SupportId,int> d_id_map;
 };
 
 //---------------------------------------------------------------------------//

@@ -74,11 +74,11 @@ MoabTagField<Scalar>::MoabTagField(
 
     // Create local ids.
     int num_entities = d_entities.size();
-    d_dof_ids.resize( num_entities );
+    d_support_ids.resize( num_entities );
     for ( int n = 0; n < num_entities; ++n )
     {
-	d_dof_ids[n] = d_entities[n];
-	d_id_map.emplace( d_dof_ids[n], n );
+	d_support_ids[n] = d_entities[n];
+	d_id_map.emplace( d_support_ids[n], n );
     }
 }
 
@@ -91,23 +91,23 @@ int MoabTagField<Scalar>::dimension() const
 }
 
 //---------------------------------------------------------------------------//
-// Get the locally-owned entity DOF ids of the field.
+// Get the locally-owned support location ids of the field.
 template<class Scalar>
-Teuchos::ArrayView<const DofId>
-MoabTagField<Scalar>::getLocalEntityDOFIds() const
+Teuchos::ArrayView<const SupportId>
+MoabTagField<Scalar>::getLocalSupportIds() const
 {
-    return d_dof_ids();
+    return d_support_ids();
 }
 
 //---------------------------------------------------------------------------//
-// Given a local dof id and a dimension, read data from the application
+// Given a local support id and a dimension, read data from the application
 // field.
 template<class Scalar>
-Scalar MoabTagField<Scalar>::readFieldData( const DofId dof_id,
+Scalar MoabTagField<Scalar>::readFieldData( const SupportId support_id,
 					    const int dimension ) const
 {
-    DTK_REQUIRE( d_id_map.count(dof_id) );
-    int local_id = d_id_map.find( dof_id )->second;
+    DTK_REQUIRE( d_id_map.count(support_id) );
+    int local_id = d_id_map.find( support_id )->second;
     const void* tag_data = 0;
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->tag_get_by_ptr(
@@ -120,14 +120,14 @@ Scalar MoabTagField<Scalar>::readFieldData( const DofId dof_id,
 }
 
 //---------------------------------------------------------------------------//
-// Given a local dof id, dimension, and field value, write data into the
+// Given a local support id, dimension, and field value, write data into the
 // application field.
 template<class Scalar>
-void MoabTagField<Scalar>::writeFieldData( const DofId dof_id,
+void MoabTagField<Scalar>::writeFieldData( const SupportId support_id,
 					   const int dimension,
 					   const Scalar data )
 {
-    int local_id = d_id_map.find( dof_id )->second;
+    int local_id = d_id_map.find( support_id )->second;
     const void* tag_data = 0;
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->tag_get_by_ptr(

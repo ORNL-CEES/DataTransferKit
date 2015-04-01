@@ -55,54 +55,106 @@ moab::EntityHandle MoabHelpers::extractEntity( const Entity dtk_entity )
 }
 
 //---------------------------------------------------------------------------//
-// Given a Moab EntityType, get the DTK EntityType.
-EntityType MoabHelpers::getEntityTypeFromMoabType( 
+// Given a Moab EntityType, get the topological dimension.
+int MoabHelpers::getTopologicalDimensionFromMoabType( 
     const moab::EntityType moab_type )
 {
-    EntityType dtk_type = ENTITY_TYPE_INVALID;
+    int topo_dim = 0;
     switch( moab_type )
     {
 	case moab::MBVERTEX:
-	    dtk_type = ENTITY_TYPE_NODE;
+	    topo_dim = 0;
 	    break;
 	case moab::MBEDGE:
-	    dtk_type = ENTITY_TYPE_EDGE;
+	    topo_dim = 1;
 	    break;
 	case moab::MBTRI:
-	    dtk_type = ENTITY_TYPE_FACE;
+	    topo_dim = 2;
 	    break;
 	case moab::MBQUAD:
-	    dtk_type = ENTITY_TYPE_FACE;
+	    topo_dim = 2;
 	    break;
 	case moab::MBPOLYGON:
-	    dtk_type = ENTITY_TYPE_FACE;
+	    topo_dim = 2;
 	    break;
 	case moab::MBTET:
-	    dtk_type = ENTITY_TYPE_VOLUME;
+	    topo_dim = 3;
 	    break;
 	case moab::MBPYRAMID:
-	    dtk_type = ENTITY_TYPE_VOLUME;
+	    topo_dim = 3;
 	    break;
 	case moab::MBPRISM:
-	    dtk_type = ENTITY_TYPE_VOLUME;
+	    topo_dim = 3;
 	    break;
 	case moab::MBKNIFE:
-	    dtk_type = ENTITY_TYPE_VOLUME;
+	    topo_dim = 3;
 	    break;
 	case moab::MBHEX:
-	    dtk_type = ENTITY_TYPE_VOLUME;
+	    topo_dim = 3;
 	    break;
 	case moab::MBPOLYHEDRON:
-	    dtk_type = ENTITY_TYPE_VOLUME;
+	    topo_dim = 3;
 	    break;
 	case moab::MBENTITYSET:
-	    dtk_type = ENTITY_TYPE_INVALID;
+	    topo_dim = -1;
 	    break;
 	default:
-	    dtk_type = ENTITY_TYPE_INVALID;
+	    topo_dim = -1;
 	    break;
     }
-    return dtk_type;
+    return topo_dim;
+}
+
+
+//---------------------------------------------------------------------------//
+// Given a Moab EntityType, get the topological dimension.
+std::string MoabHelpers::getNameFromMoabType( 
+    const moab::EntityType moab_type )
+{
+    std::string name;
+    switch( moab_type )
+    {
+	case moab::MBVERTEX:
+	    name = "Vertex";
+	    break;
+	case moab::MBEDGE:
+	    name = "Edge";
+	    break;
+	case moab::MBTRI:
+	    name = "Triangle";
+	    break;
+	case moab::MBQUAD:
+	    name = "Quadrilateral";
+	    break;
+	case moab::MBPOLYGON:
+	    name = "Polygon";
+	    break;
+	case moab::MBTET:
+	    name = "Tetrahedron";
+	    break;
+	case moab::MBPYRAMID:
+	    name = "Pyramid";
+	    break;
+	case moab::MBPRISM:
+	    name = "Prism";
+	    break;
+	case moab::MBKNIFE:
+	    name = "Knife";
+	    break;
+	case moab::MBHEX:
+	    name = "Hexahedron";
+	    break;
+	case moab::MBPOLYHEDRON:
+	    name = "Polyhedron";
+	    break;
+	case moab::MBENTITYSET:
+	    name = "Entity Set";
+	    break;
+	default:
+	    name = "Not an entity type";
+	    break;
+    }
+    return name;
 }
 
 //---------------------------------------------------------------------------//

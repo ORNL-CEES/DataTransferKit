@@ -101,7 +101,7 @@ class MoabEntityLocalMap : public EntityLocalMap
      */
     bool isSafeToMapToReferenceFrame(
 	const Entity& entity,
-	const Teuchos::ArrayView<const double>& point ) const override;
+	const Teuchos::ArrayView<const double>& physical_point ) const override;
 
     /*!
      * \brief (Reverse Map) Map a point to the reference space of an
@@ -116,7 +116,7 @@ class MoabEntityLocalMap : public EntityLocalMap
      */
     bool mapToReferenceFrame( 
 	const Entity& entity,
-	const Teuchos::ArrayView<const double>& point,
+	const Teuchos::ArrayView<const double>& physical_point,
 	const Teuchos::ArrayView<double>& reference_point ) const override;
 
     /*!  
@@ -144,20 +144,24 @@ class MoabEntityLocalMap : public EntityLocalMap
     void mapToPhysicalFrame( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const override;
+	const Teuchos::ArrayView<double>& physical_point ) const override;
 
     /*!
      * \brief Compute the normal on a face (3D) or edge (2D) at a given
      * reference point. A default implementation is provided using a finite
      * difference scheme.
      * \param entity Compute the normal for this entity.
+     * \param parent_entity The adjacent parent entity used to determine which
+     * direction is outward. The parent entity should be of a higher
+     * topological dimension than the entity and be adjacent to the entity.
      * \param reference_point Compute the normal at this reference point.
      * \param normal A view into an array of size physicalDimension() to write
      * the normal.
      */
     void normalAtReferencePoint( 
         const Entity& entity,
-        const Teuchos::ArrayView<double>& reference_point,
+	const Entity& parent_entity,
+        const Teuchos::ArrayView<const double>& reference_point,
         const Teuchos::ArrayView<double>& normal ) const override;
 
   private:

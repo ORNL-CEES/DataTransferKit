@@ -71,12 +71,6 @@ class MoabEntityImpl : public EntityImpl
 		    const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer );
 
     /*!
-     * \brief Get the entity type.
-     * \return The entity type.
-     */
-    EntityType entityType() const override;
-
-    /*!
      * \brief Get the unique global identifier for the entity.
      * \return A unique global identifier for the entity.
      */
@@ -87,6 +81,13 @@ class MoabEntityImpl : public EntityImpl
      * \return The parallel rank that owns the entity.
      */
     int ownerRank() const override;
+
+    /*!
+     * \brief Return the topological dimension of the entity.
+     * \return The topological dimension of the entity. Any parametric
+     * coordinates describing the entity will be of this dimension.
+     */
+    int topologicalDimension() const override;
 
     /*!
      * \brief Return the physical dimension of the entity.
@@ -116,6 +117,18 @@ class MoabEntityImpl : public EntityImpl
      * \brief Get the extra data on the entity.
      */
     Teuchos::RCP<EntityExtraData> extraData() const override;
+
+    /*!
+     * \brief Provide a one line description of the object.
+     */
+    std::string description() const override
+    { return std::string("MOAB Entity"); }
+
+    /*!
+     * \brief Provide a verbose description of the object.
+     */
+    void describe( Teuchos::FancyOStream& out,
+		   const Teuchos::EVerbosityLevel verb_level ) const override;
 
   private:
 

@@ -80,7 +80,7 @@ int STKMeshEntityImpl::ownerRank() const
 }
 
 //---------------------------------------------------------------------------//
-// Get the entity type.
+// Get the topological dimension of the entity.
 int STKMeshEntityImpl::topologicalDimension() const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );

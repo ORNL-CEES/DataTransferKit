@@ -60,6 +60,8 @@
 #include <Teuchos_TypeTraits.hpp>
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
+#include <Teuchos_VerboseObject.hpp>
+#include <Teuchos_FancyOStream.hpp>
 
 #include <MBInterface.hpp>
 #include <MBParallelComm.hpp>
@@ -176,10 +178,15 @@ TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
     DataTransferKit::Entity dtk_entity = DataTransferKit::MoabEntity( 
 	hex_entity, parallel_mesh.ptr(), set_indexer.ptr() );
 
+    // Print out the entity.
+    Teuchos::RCP<Teuchos::FancyOStream>
+	fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
+    dtk_entity.describe( *fancy_out );
+
     // Test the entity.
-    TEST_EQUALITY( DataTransferKit::ENTITY_TYPE_VOLUME, dtk_entity.entityType() );
     TEST_EQUALITY( hex_entity, dtk_entity.id() );
     TEST_EQUALITY( comm->getRank(), dtk_entity.ownerRank() );
+    TEST_EQUALITY( space_dim, dtk_entity.topologicalDimension() );
     TEST_EQUALITY( space_dim, dtk_entity.physicalDimension() );
 
     int set_1_id = set_indexer->getIndexFromMeshSet( entity_set_1 );
