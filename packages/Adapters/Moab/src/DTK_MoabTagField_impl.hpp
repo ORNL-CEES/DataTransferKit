@@ -74,11 +74,23 @@ MoabTagField<Scalar>::MoabTagField(
 
     // Create local ids.
     int num_entities = d_entities.size();
-    d_support_ids.resize( num_entities );
     for ( int n = 0; n < num_entities; ++n )
     {
-	d_support_ids[n] = d_entities[n];
-	d_id_map.emplace( d_support_ids[n], n );
+	d_id_map.emplace( d_entities[n], n );
+    }
+
+    // Create a list of locally-owned entities from those in the set.
+    int my_rank = moab_mesh->rank();
+    int entity_owner = -1;
+    for ( auto entity : d_entities )
+    {
+	DTK_CHECK_ERROR_CODE(
+	    d_moab_mesh->get_owner( entity, entity_owner )
+	    );
+	if ( entity_owner == my_rank )
+	{
+	    d_support_ids.push_back( entity );
+	}
     }
 }
 
@@ -137,6 +149,14 @@ void MoabTagField<Scalar>::writeFieldData( const SupportId support_id,
 	    &tag_data )
 	);
     const_cast<Scalar*>(static_cast<const Scalar*>(tag_data))[dimension] = data;
+}
+
+//---------------------------------------------------------------------------//
+// Finalize a field after writing into it.
+template<class Scalar>
+void MoabTagField<Scalar>::finalizeAfterWrite()
+{
+    // Update ghost data.
 }
 
 //---------------------------------------------------------------------------//
