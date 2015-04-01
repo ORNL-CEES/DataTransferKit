@@ -95,7 +95,8 @@ class Entity : public Teuchos::Describable
     //@{
     //! Client interface.
     /*!
-     * \brief Get the unique global identifier for the entity.
+     * \brief Get the unique global identifier for the entity. Entities of
+     * different topological dimensions may have the same id.
      *
      * \return A unique global identifier for the entity.
      */
@@ -111,16 +112,18 @@ class Entity : public Teuchos::Describable
     /*!
      * \brief Return the topological dimension of the entity.
      *
-     * \return The topological dimension of the entity. Any parametric
-     * coordinates describing the entity will be of this dimension.
+     * \return The topological dimension of the entity. This is the dimension
+     * of the entity reference frame Any parametric coordinates describing the
+     * entity will be of this dimension.
      */
     int topologicalDimension() const;
 
     /*!
      * \brief Return the physical dimension of the entity.
      *
-     * \return The physical dimension of the entity. Any physical coordinates
-     * describing the entity will be of this dimension.
+     * \return The physical dimension of the entity. This is the dimension of
+     * the entity physical frame. Any physical coordinates describing the
+     * entity will be of this dimension.
      */
     int physicalDimension() const;
 

@@ -72,12 +72,12 @@ class EntityShapeFunction
     virtual ~EntityShapeFunction();
 
     /*!
-     * \brief Given an entity, get the ids of its shape function support.
+     * \brief Given an entity, get the ids of its support locations.
      *
      * \param entity Get the support ids for this entity.
      *
-     * \param support_ids Return the ids of the function support for the given
-     * entities.
+     * \param support_ids Return the ids of the support locations for the
+     * given entity in this array.
      */
     virtual void entitySupportIds(
 	const Entity& entity,
@@ -95,7 +95,7 @@ class EntityShapeFunction
      * \param values Entity shape function evaluated at the reference
      * point. Return these ordered with respect to those return by
      * entitySupportIds() such that values[N] gives the shape function value
-     * of the Nth support supporting the entity.
+     * of the Nth support location of entity.
      */
     virtual void evaluateValue( 
 	const Entity& entity,
@@ -115,7 +115,7 @@ class EntityShapeFunction
      * \param gradients Entity shape function gradients evaluated at the
      * reference point. Return these ordered with respect to those return by
      * entitySupportIds() such that gradients[N][D] gives the gradient value
-     * of the Nth support in the Dth spatial dimension.
+     * of the Nth support location in the Dth spatial dimension.
      */
     virtual void evaluateGradient( 
 	const Entity& entity,

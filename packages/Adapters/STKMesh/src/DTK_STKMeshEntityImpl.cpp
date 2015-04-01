@@ -63,16 +63,6 @@ STKMeshEntityImpl::STKMeshEntityImpl(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Get the entity type.
-EntityType STKMeshEntityImpl::entityType() const
-{
-    DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
-    stk::mesh::EntityRank rank = 
-	d_bulk_data->entity_rank(d_extra_data->d_stk_entity);
-    return STKMeshHelpers::getTypeFromRank( rank, physicalDimension() );
-}
-
-//---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId STKMeshEntityImpl::id() const
 { 
@@ -88,6 +78,18 @@ int STKMeshEntityImpl::ownerRank() const
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
     return d_bulk_data->parallel_owner_rank( d_extra_data->d_stk_entity );
 }
+
+//---------------------------------------------------------------------------//
+// Get the entity type.
+int STKMeshEntityImpl::topologicalDimension() const
+{
+    DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
+    stk::mesh::EntityRank rank = 
+	d_bulk_data->entity_rank(d_extra_data->d_stk_entity);
+    return STKMeshHelpers::getTopologicalDimensionFromRank(
+	rank, physicalDimension() );
+}
+
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
 int STKMeshEntityImpl::physicalDimension() const
@@ -154,6 +156,42 @@ bool STKMeshEntityImpl::onBoundary( const int boundary_id ) const
 Teuchos::RCP<EntityExtraData> STKMeshEntityImpl::extraData() const
 {
     return d_extra_data;
+}
+
+//---------------------------------------------------------------------------//
+// Provide a verbose description of the object.
+void STKMeshEntityImpl::describe(
+    Teuchos::FancyOStream& out,
+    const Teuchos::EVerbosityLevel /*verb_level*/ ) const
+{
+    shards::CellTopology topo =
+	STKMeshHelpers::getShardsTopology( d_extra_data->d_stk_entity,
+					   *d_bulk_data );
+    
+    Intrepid::FieldContainer<double> node_coords =
+	STKMeshHelpers::getEntityNodeCoordinates(
+	    Teuchos::Array<stk::mesh::Entity>(1,d_extra_data->d_stk_entity), 
+	    *d_bulk_data );
+    int num_node = node_coords.dimension(1);
+    int space_dim = node_coords.dimension(2);
+
+    out << std::endl;
+    out << "---" << std::endl;
+    out << "STK Mesh Entity" << std::endl;
+    out << "Id: " << id() << std::endl;
+    out << "Owner rank: " << ownerRank() << std::endl;
+    out << "Topology: " << topo;
+    out << "Node coords: " << std::endl;
+    for ( int n = 0; n < num_node; ++n )
+    {
+	out << "    node " << n << ": ";
+	for ( int d = 0; d < space_dim; ++d )
+	{
+	    out << node_coords(0,n,d) << "  "; 
+	}
+	out << std::endl;
+    }
+    out << "---" << std::endl;
 }
 
 //---------------------------------------------------------------------------//

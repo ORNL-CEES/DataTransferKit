@@ -110,8 +110,8 @@ class EntityLocalMap
      *
      * \param parameters Parameters to be used for the safeguard check.
      *
-     * \param physical_point A view into an array of size physicalDimension() containing
-     * the coordinates of the point to map.
+     * \param physical_point A view into an array of size physicalDimension()
+     * containing the coordinates of the point to map.
      *
      * \return Return true if it is safe to map to the reference frame.
      */

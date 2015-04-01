@@ -50,8 +50,6 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Ptr.hpp>
 #include <Teuchos_ArrayView.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 
 #include <stk_mesh/base/BulkData.hpp>
 #include <stk_mesh/base/Entity.hpp>
@@ -81,27 +79,27 @@ class STKMeshField : public Field<Scalar>
     /*!
      * \brief Get the dimension of the field.
      */
-    int dimension() const;
+    int dimension() const override;
 
     /*!
-     * \brief Get the locally-owned entity DOF ids of the field.
+     * \brief Get the locally-owned entity support location ids of the field.
      */
-    Teuchos::ArrayView<const DofId> getLocalEntityDOFIds() const;
+    Teuchos::ArrayView<const SupportId> getLocalSupportIds() const override;
 
     /*!
-     * \brief Given a local dof id and a dimension, read data from the
+     * \brief Given a local support id and a dimension, read data from the
      * application field.
      */
-    Scalar readFieldData( const DofId dof_id,
-			  const int dimension ) const;
+    Scalar readFieldData( const SupportId support_id,
+			  const int dimension ) const override;
 
     /*!
-     * \brief Given a local dof id, dimension, and field value, write data
+     * \brief Given a local support id, dimension, and field value, write data
      * into the application field.
      */
-    void writeFieldData( const DofId dof_id,
+    void writeFieldData( const SupportId support_id,
 			 const int dimension,
-			 const Scalar data );
+			 const Scalar data ) override;
 
   private:
 
@@ -117,11 +115,11 @@ class STKMeshField : public Field<Scalar>
     // The enitities over which the field is defined.
     std::vector<stk::mesh::Entity> d_field_entities;
 
-    // The dof ids of the entities over which the field is constructed.
-    Teuchos::Array<DofId> d_dof_ids;
+    // The support ids of the entities over which the field is constructed.
+    Teuchos::Array<SupportId> d_support_ids;
 
-    // Dof id to local id map.
-    std::unordered_map<DofId,int> d_id_map;
+    // Support id to local id map.
+    std::unordered_map<SupportId,int> d_id_map;
 };
 
 //---------------------------------------------------------------------------//

@@ -49,6 +49,8 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ParameterList.hpp>
 
+#include <Shards_CellTopology.hpp>
+
 #include <Intrepid_FieldContainer.hpp>
 
 #include <stk_mesh/base/Entity.hpp>
@@ -73,15 +75,15 @@ class STKMeshHelpers
     static const stk::mesh::Entity& extractEntity( const Entity dtk_entity );
 
     /*!
-     * \brief Given a DTK EntityType, get the STK entity rank.
+     * \brief Given a topological dimension, get the STK entity rank.
      */
-    static stk::mesh::EntityRank getRankFromType( 
-	const EntityType dtk_type, const int space_dim );
+    static stk::mesh::EntityRank getRankFromTopologicalDimension( 
+	const int topo_dim, const int space_dim );
 
     /*!
-     * \brief Given a STK entity rank, get the DTK entity type.
+     * \brief Given a STK entity rank, get the topological dimension.
      */
-    static EntityType getTypeFromRank( 
+    static int getTopologicalDimensionFromRank( 
 	const stk::mesh::EntityRank stk_rank, const int space_dim );
 
     /*!
@@ -89,6 +91,13 @@ class STKMeshHelpers
      */
     static stk::mesh::EntityKey getKeyFromEntity( const Entity dtk_entity );
 
+    /*!
+     * \brief Given a STK entity, return its shards topology.
+     */
+    static shards::CellTopology getShardsTopology(
+	const stk::mesh::Entity stk_entity,
+	const stk::mesh::BulkData& bulk_data );
+    
     /*!
      * \brief Given a STK entity, return the coordinates of its nodes in a
      * field container ordered by canonical node order (C,N,D).

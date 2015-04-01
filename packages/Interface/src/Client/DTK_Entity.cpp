@@ -106,7 +106,7 @@ int Entity::ownerRank() const
 int Entity::topologicalDimension() const
 {
     DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
-    return b_entity_impl->entityType();
+    return b_entity_impl->topologicalDimension();
 }
 
 //---------------------------------------------------------------------------//

@@ -114,22 +114,22 @@ std::string EntitySet::description() const
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
 void EntitySet::describe( Teuchos::FancyOStream& out,
-			  const Teuchos::EVerbosityLevel verb_level ) const
+			  const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
-    EntityIterator node_it = entityIterator( ENTITY_TYPE_NODE );
-    EntityIterator edge_it = entityIterator( ENTITY_TYPE_EDGE );
-    EntityIterator face_it = entityIterator( ENTITY_TYPE_FACE );
-    EntityIterator volume_it = entityIterator( ENTITY_TYPE_VOLUME );
+    EntityIterator d0_it = entityIterator( 0 );
+    EntityIterator d1_it = entityIterator( 1 );
+    EntityIterator d2_it = entityIterator( 2 );
+    EntityIterator d3_it = entityIterator( 3 );
     
     Teuchos::Tuple<double,6> local_box;
     localBoundingBox( local_box );
     
     out << description() << std::endl
 	<< "Dimension:          " << physicalDimension() << std::endl
-	<< "Num Local Nodes:    " << node_it.size() << std::endl
-	<< "Num Local Edges:    " << edge_it.size() << std::endl
-	<< "Num Local Faces:    " << face_it.size() << std::endl
-	<< "Num Local Volumes:  " << volume_it.size() << std::endl
+	<< "Num 0-D entities:   " << d0_it.size() << std::endl
+	<< "Num 1-D entities:   " << d1_it.size() << std::endl
+	<< "Num 2-D entities:   " << d2_it.size() << std::endl
+	<< "Num 3-D entities:   " << d3_it.size() << std::endl
 	<< "Local bounding box: " << local_box << std::endl;
 }
 

@@ -59,6 +59,8 @@
 #include <Teuchos_TypeTraits.hpp>
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
+#include <Teuchos_VerboseObject.hpp>
+#include <Teuchos_FancyOStream.hpp>
 
 #include <stk_mesh/base/MetaData.hpp>
 #include <stk_mesh/base/BulkData.hpp>
@@ -183,10 +185,15 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
     DataTransferKit::Entity dtk_entity = 
 	DataTransferKit::STKMeshEntity( hex_entity, bulk_data.ptr() );
 
+    // Print out the entity.
+    Teuchos::RCP<Teuchos::FancyOStream>
+	fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
+    dtk_entity.describe( *fancy_out );
+    
     // Test the entity.
-    TEST_EQUALITY( DataTransferKit::ENTITY_TYPE_VOLUME, dtk_entity.entityType() );
     TEST_EQUALITY( hex_id, dtk_entity.id() );
     TEST_EQUALITY( comm_rank, dtk_entity.ownerRank() );
+    TEST_EQUALITY( 3, dtk_entity.topologicalDimension() );
     TEST_EQUALITY( space_dim, dtk_entity.physicalDimension() );
     TEST_ASSERT( dtk_entity.inBlock(part_1_id) );
     TEST_ASSERT( !dtk_entity.inBlock(part_2_id) );

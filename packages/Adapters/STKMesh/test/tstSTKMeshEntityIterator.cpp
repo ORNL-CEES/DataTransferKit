@@ -202,9 +202,9 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     TEST_ASSERT( entity_iterator != entity_iterator.end() );
 
     // Test the first entity under the iterator with a pointer dereference.
-    TEST_EQUALITY( DataTransferKit::ENTITY_TYPE_VOLUME, entity_iterator->entityType() );
     TEST_EQUALITY( hex_id, entity_iterator->id() );
     TEST_EQUALITY( comm_rank, entity_iterator->ownerRank() );
+    TEST_EQUALITY( space_dim, entity_iterator->topologicalDimension() );
     TEST_EQUALITY( space_dim, entity_iterator->physicalDimension() );
     TEST_ASSERT( entity_iterator->inBlock(part_1_id) );
     TEST_ASSERT( !entity_iterator->inBlock(part_2_id) );
@@ -230,10 +230,9 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     ++entity_iterator;
 
     // Test the second entity under the iterator with a reference dereference.
-    TEST_EQUALITY( DataTransferKit::ENTITY_TYPE_VOLUME, 
-		   (*entity_iterator).entityType() );
     TEST_EQUALITY( hex_id, (*entity_iterator).id() );
     TEST_EQUALITY( comm_rank, (*entity_iterator).ownerRank() );
+    TEST_EQUALITY( space_dim, (*entity_iterator).topologicalDimension() );
     TEST_EQUALITY( space_dim, (*entity_iterator).physicalDimension() );
     TEST_ASSERT( (*entity_iterator).inBlock(part_1_id) );
     TEST_ASSERT( !(*entity_iterator).inBlock(part_2_id) );

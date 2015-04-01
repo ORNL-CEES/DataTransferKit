@@ -34,7 +34,7 @@
 /*!
  * \brief DTK_STKMeshField_impl.hpp
  * \author Stuart R. Slattery
- * \brief STK mesh field DOF vector.
+ * \brief STK mesh field SUPPORT vector.
  */
 //---------------------------------------------------------------------------//
 
@@ -80,17 +80,17 @@ STKMeshField<Scalar,FieldType>::STKMeshField(
     const stk::mesh::BucketVector& field_buckets = 
 	field_selector.get_buckets( d_field->entity_rank() );
     
-    // Get the entities over which the field is defined.
+    // Get the local entities over which the field is defined.
     stk::mesh::get_selected_entities( 
 	field_selector, field_buckets, d_field_entities );
 
     // Extract the field entity ids.
     int num_entities = d_field_entities.size();
-    d_dof_ids.resize( num_entities );
+    d_support_ids.resize( num_entities );
     for ( int n = 0; n < num_entities; ++n )
     {
-	d_dof_ids[n] = d_bulk_data->identifier( d_field_entities[n] );
-	d_id_map.emplace( d_dof_ids[n], n );
+	d_support_ids[n] = d_bulk_data->identifier( d_field_entities[n] );
+	d_id_map.emplace( d_support_ids[n], n );
     }
 }
 
@@ -103,35 +103,35 @@ int STKMeshField<Scalar,FieldType>::dimension() const
 }
 
 //---------------------------------------------------------------------------//
-// Get the locally-owned entity DOF ids of the field.
+// Get the locally-owned entity support location ids of the field.
 template<class Scalar, class FieldType>
-Teuchos::ArrayView<const DofId>
-STKMeshField<Scalar,FieldType>::getLocalEntityDOFIds() const
+Teuchos::ArrayView<const SupportId>
+STKMeshField<Scalar,FieldType>::getLocalSupportIds() const
 {
-    return d_dof_ids();
+    return d_support_ids();
 }
 
 //---------------------------------------------------------------------------//
-// Given a local dof id and a dimension, read data from the application
+// Given a local support id and a dimension, read data from the application
 // field.
 template<class Scalar, class FieldType>
-Scalar STKMeshField<Scalar,FieldType>::readFieldData( const DofId dof_id,
-						      const int dimension ) const
+Scalar STKMeshField<Scalar,FieldType>::readFieldData(
+    const SupportId support_id, const int dimension ) const
 {
-    DTK_REQUIRE( d_id_map.count(dof_id) );
-    int local_id = d_id_map.find( dof_id )->second;
+    DTK_REQUIRE( d_id_map.count(support_id) );
+    int local_id = d_id_map.find( support_id )->second;
     return stk::mesh::field_data(*d_field,d_field_entities[local_id])[dimension];
 }
 
 //---------------------------------------------------------------------------//
-// Given a local dof id, dimension, and field value, write data into the
+// Given a local support id, dimension, and field value, write data into the
 // application field.
 template<class Scalar, class FieldType>
-void STKMeshField<Scalar,FieldType>::writeFieldData( const DofId dof_id,
+void STKMeshField<Scalar,FieldType>::writeFieldData( const SupportId support_id,
 						     const int dimension,
 						     const Scalar data )
 {
-    int local_id = d_id_map.find( dof_id )->second;
+    int local_id = d_id_map.find( support_id )->second;
     stk::mesh::field_data(*d_field,d_field_entities[local_id])[dimension]
 	= data;
 }

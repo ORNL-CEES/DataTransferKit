@@ -43,9 +43,7 @@
 
 #include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>
-#include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
 {
@@ -94,7 +92,7 @@ class Field
     /*!
      * \brief Get the locally-owned support location ids of the field.
      */
-    virtual Teuchos::Array<const SupportId> getLocalSupportIds() const = 0;
+    virtual Teuchos::ArrayView<const SupportId> getLocalSupportIds() const = 0;
 
     /*!
      * \brief Given a local support id and a dimension, read data from the

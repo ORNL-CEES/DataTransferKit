@@ -80,13 +80,14 @@ int STKMeshEntitySet::physicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
-void STKMeshEntitySet::getEntity( const EntityType entity_type,
-				  const EntityId entity_id, 
+void STKMeshEntitySet::getEntity( const EntityId entity_id,
+				  const int topological_dimension,
 				  Entity& entity ) const
 {
     stk::mesh::Entity stk_entity = 
 	d_bulk_data->get_entity( 
-	    STKMeshHelpers::getRankFromType(entity_type,physicalDimension()), 
+	    STKMeshHelpers::getRankFromTopologicalDimension(
+		topological_dimension,physicalDimension()), 
 	    entity_id );
     entity = STKMeshEntity( stk_entity,	d_bulk_data.ptr() );
 }
@@ -95,11 +96,12 @@ void STKMeshEntitySet::getEntity( const EntityType entity_type,
 // Get an iterator over a subset of the entity set that satisfies the given
 // predicate. 
 EntityIterator STKMeshEntitySet::entityIterator(
-    const EntityType entity_type,
+    const int topological_dimension,
     const PredicateFunction& predicate ) const
 {
     stk::mesh::EntityRank rank = 
-	STKMeshHelpers::getRankFromType( entity_type, physicalDimension() );
+	STKMeshHelpers::getRankFromTopologicalDimension(
+	    topological_dimension, physicalDimension() );
     Teuchos::RCP<STKMeshEntityIteratorRange> iterator_range =
 	Teuchos::rcp( new STKMeshEntityIteratorRange() );
     stk::mesh::get_entities( *d_bulk_data, rank, iterator_range->d_stk_entities );
@@ -111,12 +113,13 @@ EntityIterator STKMeshEntitySet::entityIterator(
 // it. 
 void STKMeshEntitySet::getAdjacentEntities(
     const Entity& entity,
-    const EntityType entity_type,
+    const int adjacent_dimension,
     Teuchos::Array<Entity>& adjacent_entities ) const
 {
     const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
     stk::mesh::EntityRank rank = 
-	STKMeshHelpers::getRankFromType( entity_type, physicalDimension() );
+	STKMeshHelpers::getRankFromTopologicalDimension(
+	    adjacent_dimension, physicalDimension() );
     const stk::mesh::Entity* begin = 
 	d_bulk_data->begin( stk_entity, rank );
     const stk::mesh::Entity* end = d_bulk_data->end( stk_entity, rank );

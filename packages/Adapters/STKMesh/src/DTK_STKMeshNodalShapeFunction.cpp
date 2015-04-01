@@ -57,8 +57,8 @@ STKMeshNodalShapeFunction::STKMeshNodalShapeFunction(
 //---------------------------------------------------------------------------//
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
-void STKMeshNodalShapeFunction::entityDOFIds( 
-    const Entity& entity, Teuchos::Array<DofId>& dof_ids ) const
+void STKMeshNodalShapeFunction::entitySupportIds( 
+    const Entity& entity, Teuchos::Array<SupportId>& support_ids ) const
 {
     // Extract the stk entity.
     const stk::mesh::Entity& stk_entity = 
@@ -66,10 +66,10 @@ void STKMeshNodalShapeFunction::entityDOFIds(
     const stk::mesh::EntityRank entity_rank =
 	d_bulk_data->entity_rank( stk_entity );
 
-    // If the entity is a node, return the id of the node as the dof id.
+    // If the entity is a node, return the id of the node as the support id.
     if ( stk::topology::NODE_RANK == entity_rank )
     {
-	dof_ids.assign( 1, d_bulk_data->identifier(stk_entity) );
+	support_ids.assign( 1, d_bulk_data->identifier(stk_entity) );
     }
 
     // Otherwise get the ids of the nodes supporting the entity.
@@ -78,12 +78,12 @@ void STKMeshNodalShapeFunction::entityDOFIds(
 	const stk::mesh::Entity* begin = d_bulk_data->begin_nodes( stk_entity );
 	const stk::mesh::Entity* end = d_bulk_data->end_nodes( stk_entity );
 
-	// Extract the node ids as the dof ids.
+	// Extract the node ids as the support ids.
 	int num_nodes = std::distance( begin, end );
-	dof_ids.resize( num_nodes );
+	support_ids.resize( num_nodes );
 	for ( int n = 0; n < num_nodes; ++n )
 	{
-	    dof_ids[n] = d_bulk_data->identifier( begin[n] );
+	    support_ids[n] = d_bulk_data->identifier( begin[n] );
 	}
     }
 }

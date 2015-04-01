@@ -46,6 +46,7 @@
 #include <stk_mesh/base/FieldBase.hpp>
 #include <stk_mesh/base/Field.hpp>
 #include <stk_mesh/base/CoordinateSystems.hpp>
+#include <stk_topology/topology.hpp>
 
 namespace DataTransferKit
 {
@@ -58,54 +59,54 @@ const stk::mesh::Entity& STKMeshHelpers::extractEntity( const Entity dtk_entity 
 }
 
 //---------------------------------------------------------------------------//
-// Given a DTK EntityType, get the STK entity rank.
-stk::mesh::EntityRank STKMeshHelpers::getRankFromType( 
-    const EntityType dtk_type, const int space_dim )
+// Given a topological dimension, get the STK entity rank.
+stk::mesh::EntityRank STKMeshHelpers::getRankFromTopologicalDimension( 
+    const int topo_dim, const int space_dim )
 {
     stk::mesh::EntityRank stk_rank = stk::topology::INVALID_RANK;
 
     switch( space_dim )
     {
 	case 3:
-	    switch( dtk_type )
+	    switch( topo_dim )
 	    {
-		case ENTITY_TYPE_NODE:
+		case 0:
 		    stk_rank = stk::topology::NODE_RANK;
 		    break;
-		case ENTITY_TYPE_EDGE:
+		case 1:
 		    stk_rank = stk::topology::EDGE_RANK;
 		    break;
-		case ENTITY_TYPE_FACE:
+		case 2:
 		    stk_rank = stk::topology::FACE_RANK;
 		    break;
-		case ENTITY_TYPE_VOLUME:
+		case 3:
 		    stk_rank = stk::topology::ELEM_RANK;
 		    break;
 		default:
-		    DTK_CHECK( ENTITY_TYPE_NODE == dtk_type ||
-			       ENTITY_TYPE_EDGE == dtk_type ||
-			       ENTITY_TYPE_FACE == dtk_type ||
-			       ENTITY_TYPE_VOLUME == dtk_type );
+		    DTK_CHECK( 0 == topo_dim ||
+			       1 == topo_dim ||
+			       2 == topo_dim ||
+			       3 == topo_dim );
 		    break;
 	    }
 	    break;
 
 	case 2:
-	    switch( dtk_type )
+	    switch( topo_dim )
 	    {
-		case ENTITY_TYPE_NODE:
+		case 0:
 		    stk_rank = stk::topology::NODE_RANK;
 		    break;
-		case ENTITY_TYPE_EDGE:
+		case 1:
 		    stk_rank = stk::topology::EDGE_RANK;
 		    break;
-		case ENTITY_TYPE_FACE:
+		case 2:
 		    stk_rank = stk::topology::ELEM_RANK;
 		    break;
 		default:
-		    DTK_CHECK( ENTITY_TYPE_NODE == dtk_type ||
-			       ENTITY_TYPE_EDGE == dtk_type ||
-			       ENTITY_TYPE_FACE == dtk_type );
+		    DTK_CHECK( 0 == topo_dim ||
+			       1 == topo_dim ||
+			       2 == topo_dim );
 		    break;
 	    }
 	    break;
@@ -118,11 +119,11 @@ stk::mesh::EntityRank STKMeshHelpers::getRankFromType(
 }
 
 //---------------------------------------------------------------------------//
-// Given a STK entity stk_rank, get the DTK entity type.
-EntityType STKMeshHelpers::getTypeFromRank(
+// Given a STK entity stk_rank, get the topological dimension.
+int STKMeshHelpers::getTopologicalDimensionFromRank(
     const stk::mesh::EntityRank stk_rank, const int space_dim )
 {
-    EntityType dtk_type = ENTITY_TYPE_NODE;
+    int topo_dim = 0;
 
     switch( space_dim )
     {
@@ -130,16 +131,16 @@ EntityType STKMeshHelpers::getTypeFromRank(
 	    switch( stk_rank )
 	    {
 		case stk::topology::NODE_RANK:
-		    dtk_type = ENTITY_TYPE_NODE;
+		    topo_dim = 0;
 		    break;
 		case stk::topology::EDGE_RANK:
-		    dtk_type = ENTITY_TYPE_EDGE;
+		    topo_dim = 1;
 		    break;
 		case stk::topology::FACE_RANK:
-		    dtk_type = ENTITY_TYPE_FACE;
+		    topo_dim = 2;
 		    break;
 		case stk::topology::ELEM_RANK:
-		    dtk_type = ENTITY_TYPE_VOLUME;
+		    topo_dim = 3;
 		    break;
 		default:
 		    DTK_CHECK( stk::topology::NODE_RANK == stk_rank ||
@@ -154,13 +155,13 @@ EntityType STKMeshHelpers::getTypeFromRank(
 	    switch( stk_rank )
 	    {
 		case stk::topology::NODE_RANK:
-		    dtk_type = ENTITY_TYPE_NODE;
+		    topo_dim = 0;
 		    break;
 		case stk::topology::EDGE_RANK:
-		    dtk_type = ENTITY_TYPE_EDGE;
+		    topo_dim = 1;
 		    break;
 		case stk::topology::ELEM_RANK:
-		    dtk_type = ENTITY_TYPE_FACE;
+		    topo_dim = 2;
 		    break;
 		default:
 		    DTK_CHECK( stk::topology::NODE_RANK == stk_rank ||
@@ -175,7 +176,7 @@ EntityType STKMeshHelpers::getTypeFromRank(
 	    break;
     }
 
-    return dtk_type;
+    return topo_dim;
 }
 
 //---------------------------------------------------------------------------//
@@ -184,12 +185,23 @@ stk::mesh::EntityKey
 STKMeshHelpers::getKeyFromEntity( const Entity dtk_entity )
 {
     return stk::mesh::EntityKey( 
-	getRankFromType(dtk_entity.entityType(),dtk_entity.physicalDimension()),
+	getRankFromTopologicalDimension(
+	    dtk_entity.topologicalDimension(),dtk_entity.physicalDimension()),
 	dtk_entity.id() );
 }
 
 //---------------------------------------------------------------------------//
-// Given a STK entity, return the coordinates of its nodes in a field
+// Given a STK entity, return its shards topology.
+shards::CellTopology
+STKMeshHelpers::getShardsTopology( const stk::mesh::Entity stk_entity,
+				   const stk::mesh::BulkData& bulk_data )
+{
+    return stk::mesh::get_cell_topology(
+	bulk_data.bucket(stk_entity).topology() );
+}
+
+//---------------------------------------------------------------------------//
+// Given a set of STK entities, return the coordinates of its nodes in a field
 // container ordered by canonical node order (N,D).
 Intrepid::FieldContainer<double> 
 STKMeshHelpers::getEntityNodeCoordinates( 

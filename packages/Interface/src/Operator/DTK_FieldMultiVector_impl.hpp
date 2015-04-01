@@ -54,7 +54,7 @@ FieldMultiVector<Scalar>::FieldMultiVector(
     const Teuchos::RCP<Field<Scalar> >& field,
     const Teuchos::RCP<EntitySet>& entity_set )
     : Base( Tpetra::createNonContigMap<int,SupportId>(
-		field->getLocalEntitySupportIds(),
+		field->getLocalSupportIds(),
 		entity_set->communicator()),
 	    field->dimension() )
     , d_field( field )
@@ -66,7 +66,7 @@ template<class Scalar>
 void FieldMultiVector<Scalar>::pullDataFromApplication()
 {
     Teuchos::ArrayView<const SupportId> field_supports =
-	d_field->getLocalEntitySupportIds();
+	d_field->getLocalSupportIds();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> > vector_view =
 	this->get2dViewNonConst();
     int num_supports = field_supports.size();
@@ -86,7 +86,7 @@ template<class Scalar>
 void FieldMultiVector<Scalar>::pushDataToApplication()
 {
     Teuchos::ArrayView<const SupportId> field_supports =
-	d_field->getLocalEntitySupportIds();
+	d_field->getLocalSupportIds();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> > vector_view =
 	this->get2dView();
     int num_supports = field_supports.size();

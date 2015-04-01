@@ -195,7 +195,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, hex_8_test )
     std::function<bool(DataTransferKit::Entity)> all_pred = 
 	[=] (DataTransferKit::Entity e){return true;};
     DataTransferKit::EntityIterator volume_iterator = 
-	entity_set->entityIterator( DataTransferKit::ENTITY_TYPE_VOLUME, all_pred );
+	entity_set->entityIterator( space_dim, all_pred );
 
     // Test the volume iterator.
     TEST_EQUALITY( volume_iterator.size(), 1 );
@@ -203,9 +203,9 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, hex_8_test )
     TEST_ASSERT( volume_iterator != volume_iterator.end() );
 
     // Test the volume under the iterator.
-    TEST_EQUALITY( DataTransferKit::ENTITY_TYPE_VOLUME, volume_iterator->entityType() );
     TEST_EQUALITY( hex_id, volume_iterator->id() );
     TEST_EQUALITY( comm_rank, volume_iterator->ownerRank() );
+    TEST_EQUALITY( space_dim, volume_iterator->topologicalDimension() );
     TEST_EQUALITY( space_dim, volume_iterator->physicalDimension() );
     TEST_ASSERT( volume_iterator->inBlock(part_1_id) );
     TEST_ASSERT( !volume_iterator->inBlock(part_2_id) );
@@ -234,7 +234,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, hex_8_test )
 
     // Make an iterator for the nodes.
     DataTransferKit::EntityIterator node_iterator = 
-	entity_set->entityIterator( DataTransferKit::ENTITY_TYPE_NODE, all_pred );
+	entity_set->entityIterator( 0, all_pred );
 
     // Test the node iterator.
     TEST_EQUALITY( node_iterator.size(), num_nodes );
@@ -252,30 +252,24 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, hex_8_test )
 
     // Get each entity and check.
     DataTransferKit::Entity set_hex;
-    entity_set->getEntity( DataTransferKit::ENTITY_TYPE_VOLUME,
-			   hex_id,
-			   set_hex );
+    entity_set->getEntity( hex_id, space_dim, set_hex );
     TEST_EQUALITY( set_hex.id(), hex_id );
     for ( unsigned i = 0; i < num_nodes; ++i )
     {
 	DataTransferKit::Entity set_node;
-	entity_set->getEntity( DataTransferKit::ENTITY_TYPE_NODE,
-			       node_ids[i],
-			       set_node );
+	entity_set->getEntity( node_ids[i], 0, set_node );
 	TEST_EQUALITY( set_node.id(), node_ids[i] );
     }
 
     // Check the adjacency function.
     Teuchos::Array<DataTransferKit::Entity> hex_adjacent_volumes;
-    entity_set->getAdjacentEntities( set_hex, 
-				     DataTransferKit::ENTITY_TYPE_VOLUME,
+    entity_set->getAdjacentEntities( set_hex,
+				     space_dim,
 				     hex_adjacent_volumes );
     TEST_EQUALITY( 0, hex_adjacent_volumes.size() );
 
     Teuchos::Array<DataTransferKit::Entity> hex_adjacent_nodes;
-    entity_set->getAdjacentEntities( set_hex, 
-				     DataTransferKit::ENTITY_TYPE_NODE,
-				     hex_adjacent_nodes );
+    entity_set->getAdjacentEntities( set_hex, 0, hex_adjacent_nodes );
     TEST_EQUALITY( num_nodes, hex_adjacent_nodes.size() );
     for ( unsigned i = 0; i < num_nodes; ++i )
     {
@@ -286,7 +280,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntitySet, hex_8_test )
     {
 	Teuchos::Array<DataTransferKit::Entity> node_adjacent_volumes;
 	entity_set->getAdjacentEntities( hex_adjacent_nodes[i],
-					 DataTransferKit::ENTITY_TYPE_VOLUME,
+					 space_dim,
 					 node_adjacent_volumes );
 	TEST_EQUALITY( 1, node_adjacent_volumes.size() );
 	TEST_EQUALITY( node_adjacent_volumes[0].id(), hex_id );

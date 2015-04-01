@@ -42,6 +42,7 @@
 #define DTK_STKMESHNODALSHAPEFUNCTION
 
 #include "DTK_EntityShapeFunction.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
@@ -60,10 +61,9 @@ namespace DataTransferKit
 
   STKMeshNodalShapeFunction provides a shape function for node-centered
   quantities with shape functions evaluated in an element supported by
-  nodes. The node ids serve as the dof ids for these shape functions. A
-  corresponding DOF vector indexed via node ids should be produced to match
-  this shape function. STKMeshDOFVector provides services to construct these
-  vectors.
+  nodes. The node ids serve as the support ids for these shape functions. A
+  corresponding field vector indexed via node ids should be produced to match
+  this shape function.
 */
 //---------------------------------------------------------------------------//
 class STKMeshNodalShapeFunction : public EntityShapeFunction
@@ -77,14 +77,13 @@ class STKMeshNodalShapeFunction : public EntityShapeFunction
 	const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
 
     /*!
-     * \brief Given an entity, get the ids of the degrees of freedom in the
-     * vector space supporting its shape function.
+     * \brief Given an entity, get the ids of the support locations.
      * \param entity Get the degrees of freedom for this entity.
-     * \param dof_ids Return the ids of the degrees of freedom in the parallel
-     * vector space supporting the entities.
+     * \param support_ids Return the ids of the support locations for the
+     * given entity in this array.
      */
-    void entityDOFIds( const Entity& entity,
-		       Teuchos::Array<DofId>& dof_ids ) const;
+    void entitySupportIds( const Entity& entity,
+			   Teuchos::Array<SupportId>& support_ids ) const;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -108,8 +107,8 @@ class STKMeshNodalShapeFunction : public EntityShapeFunction
      * given in reference coordinates.
      * \param gradients Entity shape function gradients evaluated at the reference
      * point. Return these ordered with respect to those return by
-     * getDOFIds() such that gradients[N][D] gives the gradient value of the
-     * Nth DOF in the Dth spatial dimension.
+     * getSupportIds() such that gradients[N][D] gives the gradient value of the
+     * Nth support location in the Dth spatial dimension.
      */
     void evaluateGradient( 
 	const Entity& entity,
