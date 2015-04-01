@@ -89,9 +89,9 @@ TEUCHOS_UNIT_TEST( Point, array_1d_constructor_test )
     Point point(  0, 0, p );
 
     // Check Entity data.
-    TEST_EQUALITY( point.entityType(), ENTITY_TYPE_NODE );
     TEST_EQUALITY( point.id(), 0 );
     TEST_EQUALITY( point.ownerRank(), 0 );
+    TEST_EQUALITY( point.topologicalDimension(), 0 );
     TEST_EQUALITY( point.physicalDimension(), 1 );
 
     // Check the bounds.
@@ -121,9 +121,9 @@ TEUCHOS_UNIT_TEST( Point, array_2d_constructor_test )
     Point point(  0, 0, p );
 
     // Check Entity data.
-    TEST_EQUALITY( point.entityType(), ENTITY_TYPE_NODE );
     TEST_EQUALITY( point.id(), 0 );
     TEST_EQUALITY( point.ownerRank(), 0 );
+    TEST_EQUALITY( point.topologicalDimension(), 0 );
     TEST_EQUALITY( point.physicalDimension(), 2 );
 
     // Check the bounds.
@@ -157,9 +157,9 @@ TEUCHOS_UNIT_TEST( Point, array_3d_constructor_test )
     Point point(  0, 0, p );
 
     // Check Entity data.
-    TEST_EQUALITY( point.entityType(), ENTITY_TYPE_NODE );
     TEST_EQUALITY( point.id(), 0 );
     TEST_EQUALITY( point.ownerRank(), 0 );
+    TEST_EQUALITY( point.topologicalDimension(), 0 );
     TEST_EQUALITY( point.physicalDimension(), 3 );
 
     // Check the coordinates.
@@ -180,9 +180,9 @@ TEUCHOS_UNIT_TEST( Point, array_3d_constructor_test )
 
     // Copy to the BasicGeometryEntity interface and check.
     BasicGeometryEntity geom_entity = point;
-    TEST_EQUALITY( geom_entity.entityType(), ENTITY_TYPE_NODE );
     TEST_EQUALITY( geom_entity.id(), 0 );
     TEST_EQUALITY( geom_entity.ownerRank(), 0 );
+    TEST_EQUALITY( geom_entity.topologicalDimension(), 0 );
     TEST_EQUALITY( geom_entity.physicalDimension(), 3 );
     TEST_EQUALITY( geom_entity.measure(), 0.0 );
     point_coords.clear();
@@ -208,9 +208,9 @@ TEUCHOS_UNIT_TEST( Point, array_3d_constructor_test )
 
     // Copy to the Entity interface and check.
     Entity entity = point;
-    TEST_EQUALITY( entity.entityType(), ENTITY_TYPE_NODE );
     TEST_EQUALITY( entity.id(), 0 );
     TEST_EQUALITY( entity.ownerRank(), 0 );
+    TEST_EQUALITY( geom_entity.topologicalDimension(), 0 );
     TEST_EQUALITY( entity.physicalDimension(), 3 );
 }
 

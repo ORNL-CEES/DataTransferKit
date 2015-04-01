@@ -103,7 +103,7 @@ class BasicGeometryLocalMap : public EntityLocalMap
      */
     bool mapToReferenceFrame( 
 	const Entity& entity,
-	const Teuchos::ArrayView<const double>& point,
+	const Teuchos::ArrayView<const double>& physical_point,
 	const Teuchos::ArrayView<double>& reference_point ) const override;
 
     /*!  
@@ -131,7 +131,7 @@ class BasicGeometryLocalMap : public EntityLocalMap
     void mapToPhysicalFrame( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const override;
+	const Teuchos::ArrayView<double>& physical_point ) const override;
 
   private:
 

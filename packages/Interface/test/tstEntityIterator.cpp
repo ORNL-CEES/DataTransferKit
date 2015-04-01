@@ -70,9 +70,8 @@ class TestEntityImpl : public DataTransferKit::EntityImpl
   public:
     TestEntityImpl( int id ) { d_id = id; }
     DataTransferKit::EntityId id() const { return d_id; }
-    DataTransferKit::EntityType entityType() const
-    { return DataTransferKit::ENTITY_TYPE_INVALID; }
     int ownerRank() const { return 0; }
+    int topologicalDimension() const { return 0; }
     int physicalDimension() const { return 0; }
     void boundingBox( Teuchos::Tuple<double,6>& bounds ) const { }
     bool inBlock( const int block_id ) const

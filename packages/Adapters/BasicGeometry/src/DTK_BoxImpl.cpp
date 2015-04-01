@@ -119,20 +119,6 @@ BoxImpl::BoxImpl( const EntityId global_id,
 }
 
 //---------------------------------------------------------------------------//
-/*!
- * \brief Destructor.
- */
-BoxImpl::~BoxImpl()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-// Get the entity type.
-EntityType BoxImpl::entityType() const
-{
-    return ENTITY_TYPE_VOLUME;
-}
-
-//---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId BoxImpl::id() const
 {
@@ -144,6 +130,13 @@ EntityId BoxImpl::id() const
 int BoxImpl::ownerRank() const
 {
     return d_owner_rank;
+}
+
+//---------------------------------------------------------------------------//
+// Return the topological dimension of the entity.
+int BoxImpl::topologicalDimension() const
+{
+    return 3;
 }
 
 //---------------------------------------------------------------------------//
@@ -177,6 +170,20 @@ bool BoxImpl::inBlock( const int block_id ) const
 bool BoxImpl::onBoundary( const int boundary_id ) const
 {
     return false;
+}
+
+//---------------------------------------------------------------------------//
+void BoxImpl::describe( Teuchos::FancyOStream& out,
+			const Teuchos::EVerbosityLevel /*verb_level*/ ) const
+{
+    out << "---" << std::endl;
+    out << description() << std::endl;
+    out << "Id: " << id() << std::endl;
+    out << "Owner rank: " << ownerRank() << std::endl;
+    out << "Block id: " << d_block_id << std::endl;
+    out << "(xmin,ymin,zmin,xmax,ymax,zmax): "
+	<< d_x_min << " " << d_y_min << " " << d_z_min << " "
+	<< d_x_max << " " << d_y_max << " " << d_z_max << std::endl;
 }
 
 //---------------------------------------------------------------------------//

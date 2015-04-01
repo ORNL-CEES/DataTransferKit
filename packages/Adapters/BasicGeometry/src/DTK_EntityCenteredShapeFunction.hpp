@@ -66,11 +66,11 @@ class EntityCenteredShapeFunction : public EntityShapeFunction
      * \brief Given an entity, get the ids of the degrees of freedom in the
      * vector space supporting its shape function.
      * \param entity Get the degrees of freedom for this entity.
-     * \param dof_ids Return the ids of the degrees of freedom in the parallel
+     * \param support_ids Return the ids of the degrees of freedom in the parallel
      * vector space supporting the entities.
      */
-    void entityDOFIds( const Entity& entity,
-		       Teuchos::Array<DofId>& dof_ids ) const override;
+    void entitySupportIds( const Entity& entity,
+			   Teuchos::Array<SupportId>& support_ids ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -94,8 +94,8 @@ class EntityCenteredShapeFunction : public EntityShapeFunction
      * given in reference coordinates.
      * \param gradients Entity shape function gradients evaluated at the reference
      * point. Return these ordered with respect to those return by
-     * getDOFIds() such that gradients[N][D] gives the gradient value of the
-     * Nth DOF in the Dth spatial dimension.
+     * getSupportIds() such that gradients[N][D] gives the gradient value of the
+     * Nth Support in the Dth spatial dimension.
      */
     void evaluateGradient( 
 	const Entity& entity,

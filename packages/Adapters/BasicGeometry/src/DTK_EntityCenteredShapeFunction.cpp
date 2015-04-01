@@ -46,12 +46,12 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
-void EntityCenteredShapeFunction::entityDOFIds( 
-    const Entity& entity, Teuchos::Array<std::size_t>& dof_ids ) const
+void EntityCenteredShapeFunction::entitySupportIds( 
+    const Entity& entity, Teuchos::Array<std::size_t>& support_ids ) const
 {
-    // There is one DOF for an entity-centered quantity. We will assign the
-    // DOF id to be the same as the entity id.
-    dof_ids.assign( 1, Teuchos::as<std::size_t>(entity.id()) );
+    // There is one Support for an entity-centered quantity. We will assign the
+    // Support id to be the same as the entity id.
+    support_ids.assign( 1, Teuchos::as<std::size_t>(entity.id()) );
 }
 
 //---------------------------------------------------------------------------//
@@ -62,7 +62,7 @@ void EntityCenteredShapeFunction::evaluateValue(
     const Teuchos::ArrayView<const double>& reference_point,
     Teuchos::Array<double>& values ) const
 {
-    // There is one DOF and therefore the shape function value is 1.0
+    // There is one Support and therefore the shape function value is 1.0
     values.assign( 1, 1.0 );
 }
 
@@ -70,9 +70,9 @@ void EntityCenteredShapeFunction::evaluateValue(
 // Given an entity and a reference point, evaluate the gradient of the shape
 // function of the entity at that point.
 void EntityCenteredShapeFunction::evaluateGradient( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
+    const Entity& entity,
+    const Teuchos::ArrayView<const double>& reference_point,
+    Teuchos::Array<Teuchos::Array<double> >& gradients ) const
 {
     // For now there is no gradient in the entity as we have a constant shape
     // function over its entire domain. In the future, we could use adjacency

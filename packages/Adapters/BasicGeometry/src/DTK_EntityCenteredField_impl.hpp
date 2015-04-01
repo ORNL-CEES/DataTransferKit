@@ -60,11 +60,11 @@ EntityCenteredField<Scalar>::EntityCenteredField(
     d_lda = entities.size();
     DTK_CHECK( dof_data.size() == d_lda * d_field_dim );
 	       
-    d_dof_ids.resize( d_lda );
+    d_support_ids.resize( d_lda );
     for ( int n = 0; n < d_lda; ++n )
     {
-	d_dof_ids[n] = entities[n].id();
-	d_id_map.emplace( d_dof_ids[n], n );
+	d_support_ids[n] = entities[n].id();
+	d_id_map.emplace( d_support_ids[n], n );
     }
 }
 
@@ -79,21 +79,21 @@ int EntityCenteredField<Scalar>::dimension() const
 //---------------------------------------------------------------------------//
 // Get the locally-owned entity DOF ids of the field.
 template<class Scalar>
-Teuchos::ArrayView<const DofId>
-EntityCenteredField<Scalar>::getLocalEntityDOFIds() const
+Teuchos::ArrayView<const SupportId>
+EntityCenteredField<Scalar>::getLocalSupportIds() const
 {
-    return d_dof_ids();
+    return d_support_ids();
 }
 
 //---------------------------------------------------------------------------//
 // Given a local dof id and a dimension, read data from the application
 // field.
 template<class Scalar>
-Scalar EntityCenteredField<Scalar>::readFieldData( const DofId dof_id,
+Scalar EntityCenteredField<Scalar>::readFieldData( const SupportId support_id,
 						   const int dimension ) const
 {
-    DTK_REQUIRE( d_id_map.count(dof_id) );
-    int local_id = d_id_map.find( dof_id )->second;
+    DTK_REQUIRE( d_id_map.count(support_id) );
+    int local_id = d_id_map.find( support_id )->second;
     return (BLOCKED == d_layout) ?
 	d_data[dimension*d_lda + local_id] :
 	d_data[local_id*d_field_dim + dimension];
@@ -103,11 +103,11 @@ Scalar EntityCenteredField<Scalar>::readFieldData( const DofId dof_id,
 // Given a local dof id, dimension, and field value, write data into the
 // application field.
 template<class Scalar>
-void EntityCenteredField<Scalar>::writeFieldData( const DofId dof_id,
+void EntityCenteredField<Scalar>::writeFieldData( const SupportId support_id,
 						  const int dimension,
 						  const Scalar data )
 {
-    int local_id = d_id_map.find( dof_id )->second;
+    int local_id = d_id_map.find( support_id )->second;
     switch( d_layout )
     {
 	case BLOCKED:

@@ -99,25 +99,25 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
     Entity entity = box;
 
     // Check Entity data.
-    TEST_EQUALITY( box.entityType(), ENTITY_TYPE_VOLUME );
     TEST_EQUALITY( box.id(), 0 );
     TEST_EQUALITY( box.ownerRank(), 0 );
     TEST_ASSERT( box.inBlock(0) );
     TEST_ASSERT( !box.onBoundary(0) );
+    TEST_EQUALITY( box.topologicalDimension(), 3 );
     TEST_EQUALITY( box.physicalDimension(), 3 );
 
-    TEST_EQUALITY( box_entity.entityType(), ENTITY_TYPE_VOLUME );
     TEST_EQUALITY( box_entity.id(), 0 );
     TEST_EQUALITY( box_entity.ownerRank(), 0 );
     TEST_ASSERT( box_entity.inBlock(0) );
     TEST_ASSERT( !box_entity.onBoundary(0) );
+    TEST_EQUALITY( box_entity.topologicalDimension(), 3 );
     TEST_EQUALITY( box_entity.physicalDimension(), 3 );
 
-    TEST_EQUALITY( entity.entityType(), ENTITY_TYPE_VOLUME );
     TEST_EQUALITY( entity.id(), 0 );
     TEST_EQUALITY( entity.ownerRank(), 0 );
     TEST_ASSERT( entity.inBlock(0) );
     TEST_ASSERT( !entity.onBoundary(0) );
+    TEST_EQUALITY( entity.topologicalDimension(), 3 );
     TEST_EQUALITY( entity.physicalDimension(), 3 );
 
     // Check the bounds.
@@ -203,11 +203,11 @@ TEUCHOS_UNIT_TEST( Box, tuple_constructor_test )
     Teuchos::RCP<Entity> entity = box;
 
     // Check Entity data.
-    TEST_EQUALITY( entity->entityType(), ENTITY_TYPE_VOLUME );
     TEST_EQUALITY( entity->id(), 0 );
     TEST_EQUALITY( entity->ownerRank(), 0 );
     TEST_ASSERT( entity->inBlock(0) );
     TEST_ASSERT( !entity->onBoundary(0) );
+    TEST_EQUALITY( entity->topologicalDimension(), 3 );
     TEST_EQUALITY( entity->physicalDimension(), 3 );
 
     // Check the bounds.

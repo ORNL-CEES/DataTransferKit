@@ -69,23 +69,11 @@ PointImpl::PointImpl( const EntityId global_id,
 }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-PointImpl::~PointImpl()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the coordinates of the point.
 void PointImpl::getCoordinates( 
     const Teuchos::ArrayView<double>& coordinates ) const
 { 
     coordinates.assign( d_coordinates );
-}
-
-//---------------------------------------------------------------------------//
-// Get the entity type.
-EntityType PointImpl::entityType() const
-{
-    return ENTITY_TYPE_NODE;
 }
 
 //---------------------------------------------------------------------------//
@@ -100,6 +88,13 @@ EntityId PointImpl::id() const
 int PointImpl::ownerRank() const
 {
     return d_owner_rank;
+}
+
+//---------------------------------------------------------------------------//
+// Return the topological dimension of the entity.
+int PointImpl::topologicalDimension() const
+{
+    return 0;
 }
 
 //---------------------------------------------------------------------------//
@@ -148,6 +143,30 @@ bool PointImpl::onBoundary( const int boundary_id ) const
 {
     return std::binary_search( 
 	d_boundary_ids.begin(), d_boundary_ids.end(), boundary_id );
+}
+
+//---------------------------------------------------------------------------//
+void PointImpl::describe(
+    Teuchos::FancyOStream& out,
+    const Teuchos::EVerbosityLevel /*verb_level*/ ) const
+{
+    int space_dim = this->physicalDimension();
+    Teuchos::Array<double> coordinates( space_dim );
+    this->getCoordinates( coordinates() );
+
+    out << "---" << std::endl;
+    out << description() << std::endl;
+    out << "Id: " << id() << std::endl;
+    out << "Owner rank: " << ownerRank() << std::endl;
+    out << "Block ids: " << d_block_ids << std::endl;
+    out << "Boundary ids: " << d_boundary_ids << std::endl;
+    out << "Coordinates:";
+    for ( int d = 0; d < space_dim; ++d )
+    {
+	out << " " << coordinates[d];
+    }
+    out << std::endl;
+    out << "---" << std::endl;
 }
 
 //---------------------------------------------------------------------------//

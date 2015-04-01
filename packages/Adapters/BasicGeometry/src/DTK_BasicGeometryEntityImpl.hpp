@@ -44,6 +44,7 @@
 #include <iostream>
 
 #include "DTK_EntityImpl.hpp"
+#include "DTK_BasicGeometryExtraData.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
@@ -67,85 +68,99 @@ class BasicGeometryEntityImpl : public EntityImpl
   public:
 
     // Default constructor.
-    BasicGeometryEntityImpl();
+    BasicGeometryEntityImpl() { /* ... */ }
 
     // Destructor.
-    virtual ~BasicGeometryEntityImpl();
+    virtual ~BasicGeometryEntityImpl() { /* ... */ }
 
     //@{
     //! EntityImpl interface.
     /*!
-     * \brief Get the entity type.
-     * \return The entity type.
-     */
-    virtual EntityType entityType() const override;
-
-    /*!
      * \brief Get the unique global identifier for the entity.
      * \return A unique global identifier for the entity.
      */
-    virtual EntityId id() const override;
+    virtual EntityId id() const override = 0;
     
     /*!
      * \brief Get the parallel rank that owns the entity.
      * \return The parallel rank that owns the entity.
      */
-    virtual int ownerRank() const override;
+    virtual int ownerRank() const override = 0;
+
+    /*!
+     * \brief Return the topological dimension of the entity.  \return The
+     * topological dimension of the entity. Any parametric coordinates
+     * describing the entity will be of this dimension.
+     */
+    virtual int topologicalDimension() const override = 0;
 
     /*!
      * \brief Return the physical dimension of the entity.
      * \return The physical dimension of the entity. Any physical coordinates
      * describing the entity will be of this dimension.
      */
-    virtual int physicalDimension() const override;
+    virtual int physicalDimension() const override = 0;
 
     /*!
      * \brief Return the Cartesian bounding box around an entity.
      * \param bounds The bounds of the box
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
-    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override;
+    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override = 0;
 
     /*!
      * \brief Determine if an entity is in the block with the given id.
      */
-    virtual bool inBlock( const int block_id ) const override;
+    virtual bool inBlock( const int block_id ) const override = 0;
 
     /*!
      * \brief Determine if an entity is on the boundary with the given id.
      */
-    virtual bool onBoundary( const int boundary_id ) const override;
+    virtual bool onBoundary( const int boundary_id ) const override = 0;
 
     /*!
      * \brief Get the extra data on the entity.
      */
-    virtual Teuchos::RCP<EntityExtraData> extraData() const override;
+    virtual Teuchos::RCP<EntityExtraData> extraData() const override
+    { return Teuchos::rcp( new BasicGeometryExtraData(this) ); }
+
+    /*!
+     * \brief Provide a one line description of the object.
+     */
+    virtual std::string description() const override = 0;
+
+    /*!
+     * \brief Provide a verbose description of the object.
+     */
+    virtual void describe(
+	Teuchos::FancyOStream& out,
+	const Teuchos::EVerbosityLevel verb_level ) const override = 0;
     //@}
 
     //@{
     //! BasicGeometryEntityImpl interface.
     // Return the entity measure with respect to the parameteric
-    virtual double measure() const;
+    virtual double measure() const = 0;
 
     // Compute the centroid of the entity.
-    virtual void centroid( const Teuchos::ArrayView<double>& centroid ) const;
+    virtual void centroid( const Teuchos::ArrayView<double>& centroid ) const = 0;
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
     virtual bool mapToReferenceFrame( 
 	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const;
+	const Teuchos::ArrayView<double>& reference_point ) const = 0;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
     virtual bool checkPointInclusion( 
 	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
+	const Teuchos::ArrayView<const double>& reference_point ) const = 0;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
     virtual void mapToPhysicalFrame( 
 	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
+	const Teuchos::ArrayView<double>& point ) const = 0;
     //@}
 };
 

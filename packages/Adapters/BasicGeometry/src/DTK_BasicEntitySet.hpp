@@ -169,21 +169,24 @@ class BasicEntitySet : public EntitySet
     /*!
      * \brief Given an EntityId, get the entity.
      * \param entity_id Get the entity with this id.
+     * \param topological_dimension Get the entity with this topological
+     * dimension.
      * \param entity The entity with the given id.
      */
-    void getEntity( const EntityType entity_type,
-		    const EntityId entity_id, 
+    void getEntity( const EntityId entity_id,
+		    const int topological_dimension,
 		    Entity& entity ) const override;
 
     /*!
      * \brief Get an iterator over a subset of the entity set that satisfies
      * the given predicate.
-     * \param entity_type The type of entity to get an iterator over.
+     * \param topological_dimension The topological dimension of entity to get
+     * an iterator for.
      * \param predicate A predicate to select the entity set to iterate over.
      * \return An iterator to the entities that satisfy the predicate.
      */
     EntityIterator entityIterator(
-	const EntityType entity_type,
+	const int topological_dimension,
 	const PredicateFunction& predicate ) const override;
 
     /*!
@@ -192,7 +195,7 @@ class BasicEntitySet : public EntitySet
      */
     virtual void getAdjacentEntities(
 	const Entity& entity,
-	const EntityType entity_type,
+	const int adjacent_dimension,
 	Teuchos::Array<Entity>& adjacent_entities ) const override;
     //@}
 

@@ -84,11 +84,12 @@ void BasicGeometryLocalMap::centroid(
 // Map a point to the reference space of an entity. Return the parameterized point.
 bool BasicGeometryLocalMap::mapToReferenceFrame( 
     const Entity& entity,
-    const Teuchos::ArrayView<const double>& point,
+    const Teuchos::ArrayView<const double>& physical_point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
     return Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
-	)->implementationConstPtr()->mapToReferenceFrame(point,reference_point);
+	)->implementationConstPtr()->mapToReferenceFrame(
+	    physical_point,reference_point);
 }
 
 //---------------------------------------------------------------------------//
@@ -107,10 +108,11 @@ bool BasicGeometryLocalMap::checkPointInclusion(
 void BasicGeometryLocalMap::mapToPhysicalFrame( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& point ) const
+    const Teuchos::ArrayView<double>& physical_point ) const
 {
     Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
-	)->implementationConstPtr()->mapToPhysicalFrame(reference_point,point);
+	)->implementationConstPtr()->mapToPhysicalFrame(
+	    reference_point,physical_point);
 }
 
 //---------------------------------------------------------------------------//

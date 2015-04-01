@@ -42,10 +42,12 @@
 #define DTK_BASICGEOMETRYEXTRADATA_HPP
 
 #include "DTK_EntityExtraData.hpp"
-#include "DTK_BasicGeometryEntityImpl.hpp"
 
 namespace DataTransferKit
 {
+// Forward declaration of BasicGeometryEntityImpl.
+class BasicGeometryEntityImpl;
+
 //---------------------------------------------------------------------------//
 /*!
   \class BasicGeometryExtraData

@@ -96,20 +96,6 @@ CylinderImpl::CylinderImpl( const EntityId global_id,
 }
 
 //---------------------------------------------------------------------------//
-/*!
- * \brief Destructor.
- */
-CylinderImpl::~CylinderImpl()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-// Get the entity type.
-EntityType CylinderImpl::entityType() const
-{
-    return ENTITY_TYPE_VOLUME;
-}
-
-//---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId CylinderImpl::id() const
 {
@@ -121,6 +107,13 @@ EntityId CylinderImpl::id() const
 int CylinderImpl::ownerRank() const
 {
     return d_owner_rank;
+}
+
+//---------------------------------------------------------------------------//
+// Return the topological dimension of the entity.
+int CylinderImpl::topologicalDimension() const
+{
+    return 3;
 }
 
 //---------------------------------------------------------------------------//
@@ -158,6 +151,23 @@ bool CylinderImpl::inBlock( const int block_id ) const
 bool CylinderImpl::onBoundary( const int boundary_id ) const
 {
     return false;
+}
+
+//---------------------------------------------------------------------------//
+void CylinderImpl::describe(
+    Teuchos::FancyOStream& out,
+    const Teuchos::EVerbosityLevel /*verb_level*/ ) const
+{
+    out << "---" << std::endl;
+    out << description() << std::endl;
+    out << "Id: " << id() << std::endl;
+    out << "Owner rank: " << ownerRank() << std::endl;
+    out << "Block id: " << d_block_id << std::endl;
+    out << "Length: " << d_length << std::endl;
+    out << "Radius: " << d_radius << std::endl;
+    out << "Centroid (x,y,z): "
+	<< d_centroid_x << " " << d_centroid_y << " "
+	<< d_centroid_z << std::endl;
 }
 
 //---------------------------------------------------------------------------//

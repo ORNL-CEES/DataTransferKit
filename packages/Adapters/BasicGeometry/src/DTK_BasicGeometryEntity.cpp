@@ -48,9 +48,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Default constructor.
 BasicGeometryEntity::BasicGeometryEntity()
-{
-    this->b_entity_impl = Teuchos::rcp( new BasicGeometryEntityImpl() );
-}
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Destructor.
@@ -65,6 +63,7 @@ BasicGeometryEntity::~BasicGeometryEntity()
  */
 double BasicGeometryEntity::measure() const
 {
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
 	this->b_entity_impl)->measure();
 }
@@ -78,6 +77,7 @@ double BasicGeometryEntity::measure() const
 void BasicGeometryEntity::centroid( 
     const Teuchos::ArrayView<double>& centroid ) const
 {
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
 	this->b_entity_impl)->centroid(centroid);
 }
@@ -90,6 +90,7 @@ bool BasicGeometryEntity::mapToReferenceFrame(
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
 	this->b_entity_impl)->mapToReferenceFrame(point,reference_point);
 }
@@ -103,6 +104,7 @@ bool BasicGeometryEntity::checkPointInclusion(
     const double tolerance,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
 	this->b_entity_impl)->checkPointInclusion(tolerance,reference_point);
 }
@@ -115,6 +117,7 @@ void BasicGeometryEntity::mapToPhysicalFrame(
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
 	this->b_entity_impl)->mapToPhysicalFrame(reference_point,point);
 }

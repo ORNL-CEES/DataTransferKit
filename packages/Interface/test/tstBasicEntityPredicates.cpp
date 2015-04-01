@@ -75,10 +75,9 @@ class MyEntityImpl : public DataTransferKit::EntityImpl
 	std::sort( d_block_ids.begin(), d_block_ids.end() );
 	std::sort( d_boundary_ids.begin(), d_boundary_ids.end() );
     }
-    DataTransferKit::EntityType entityType() const 
-    { return DataTransferKit::ENTITY_TYPE_NODE; }
     DataTransferKit::EntityId id() const { return 0; }
     int ownerRank() const { return 0; }
+    int topologicalDimension() const { return 0; }
     int physicalDimension() const { return 0; }
     void boundingBox( Teuchos::Tuple<double,6>& bounds ) const { }
     bool inBlock( const int block_id ) const

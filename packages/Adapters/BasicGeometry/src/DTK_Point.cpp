@@ -68,34 +68,12 @@ Point::Point( const EntityId global_id,
 }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-Point::~Point()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
 // Get the coordinates of the point.
 void Point::getCoordinates( 
     const Teuchos::ArrayView<double>& coordinates ) const
 { 
     DTK_REQUIRE( Teuchos::nonnull(d_point_impl) );
     d_point_impl->getCoordinates( coordinates );
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Print the point description to an ostream.
- *
- * \return The ostream.
- */
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p)
-{
-    Teuchos::Array<double> coords( p.physicalDimension() );
-    p.getCoordinates( coords() );
-    os << "Point: d_global_id=" << p.id()
-       << ",d_owner_rank=" << p.ownerRank()
-       << ",d_coordinates=" << coords;
-
-  return os;
 }
 
 //---------------------------------------------------------------------------//

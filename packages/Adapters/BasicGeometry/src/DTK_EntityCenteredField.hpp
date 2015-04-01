@@ -95,29 +95,29 @@ class EntityCenteredField : public Field<Scalar>
     int dimension() const;
 
     /*!
-     * \brief Get the locally-owned entity DOF ids of the field.
+     * \brief Get the locally-owned support location ids of the field.
      */
-    Teuchos::ArrayView<const DofId> getLocalEntityDOFIds() const;
+    Teuchos::ArrayView<const SupportId> getLocalSupportIds() const;
 
     /*!
      * \brief Given a local dof id and a dimension, read data from the
      * application field.
      */
-    Scalar readFieldData( const DofId dof_id,
+    Scalar readFieldData( const SupportId support_id,
 			  const int dimension ) const;
 
     /*!
      * \brief Given a local dof id, dimension, and field value, write data
      * into the application field.
      */
-    void writeFieldData( const DofId dof_id,
+    void writeFieldData( const SupportId support_id,
 			 const int dimension,
 			 const Scalar data );
     
   private:
 
     // The dof ids of the entities over which the field is constructed.
-    Teuchos::Array<DofId> d_dof_ids;
+    Teuchos::Array<SupportId> d_support_ids;
 
     // The dimension of the field.
     int d_field_dim;
@@ -132,7 +132,7 @@ class EntityCenteredField : public Field<Scalar>
     int d_lda;
     
     // Dof id to local id map.
-    std::unordered_map<DofId,int> d_id_map;
+    std::unordered_map<SupportId,int> d_id_map;
 };
 
 //---------------------------------------------------------------------------//

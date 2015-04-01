@@ -74,9 +74,6 @@ class Point : public BasicGeometryEntity
 	   const Teuchos::Array<int>& block_ids = Teuchos::Array<int>(0),
 	   const Teuchos::Array<int>& boundary_ids = Teuchos::Array<int>(0) );
 
-    // Destructor.
-    ~Point();
-
     //@{
     //! Coordinate access functions.
     // Get the coordinates of the point.
@@ -88,11 +85,6 @@ class Point : public BasicGeometryEntity
     // Point implementation.
     Teuchos::RCP<PointImpl > d_point_impl;
 };
-
-//---------------------------------------------------------------------------//
-//! overload for printing Point
-template<int DIM>
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Point& p); 
 
 //---------------------------------------------------------------------------//
 

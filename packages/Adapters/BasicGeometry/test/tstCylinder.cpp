@@ -85,7 +85,7 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 	    i, i, i, length, radius, centroid_x, centroid_y, centroid_z );
 
 	// Check the cylinder.
-	TEST_EQUALITY( cylinder.entityType(), ENTITY_TYPE_VOLUME );
+	TEST_EQUALITY( cylinder.topologicalDimension(), 3 );
 	TEST_EQUALITY( Teuchos::as<int>(cylinder.id()), i );
 	TEST_EQUALITY( cylinder.ownerRank(), i );
 	TEST_ASSERT( cylinder.inBlock(i) );

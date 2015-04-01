@@ -112,7 +112,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, all_to_one_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( 1 );
+    EntityIterator range_it = range_set->entityIterator( 0 );
 
     // Search the tree.
     Teuchos::Array<EntityId> range_ids;
@@ -210,7 +210,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, one_to_one_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( 1 );
+    EntityIterator range_it = range_set->entityIterator( 0 );
 
     // Search the tree.
     Teuchos::Array<EntityId> range_ids;
@@ -301,7 +301,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, no_domain_0_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( 1 );
+    EntityIterator range_it = range_set->entityIterator( 0 );
 
     // Search the tree.
     Teuchos::Array<EntityId> range_ids;
@@ -407,7 +407,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, no_range_0_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( 1 );
+    EntityIterator range_it = range_set->entityIterator( 0 );
 
     // Search the tree.
     Teuchos::Array<EntityId> range_ids;
@@ -504,7 +504,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, many_to_many_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( 1 );
+    EntityIterator range_it = range_set->entityIterator( 0 );
 
     // Search the tree.
     Teuchos::Array<EntityId> range_ids;
@@ -608,7 +608,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_multiple_neighbors_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( 1 );
+    EntityIterator range_it = range_set->entityIterator( 0 );
 
     // Search the tree.
     Teuchos::Array<EntityId> range_ids;
@@ -695,7 +695,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_multiple_neighbors_fuzzy_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( 1 );
+    EntityIterator range_it = range_set->entityIterator( 0 );
 
     // Search the tree.
     Teuchos::Array<EntityId> range_ids;
@@ -782,7 +782,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_single_neighbor_fuzzy_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( 1 );
+    EntityIterator range_it = range_set->entityIterator( 0 );
 
     // Search the tree.
     Teuchos::Array<EntityId> range_ids;
@@ -872,7 +872,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, missed_range_test )
 	Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over the points.
-    EntityIterator range_it = range_set->entityIterator( 1 );
+    EntityIterator range_it = range_set->entityIterator( 0 );
 
     // Search the tree.
     Teuchos::Array<EntityId> range_ids;

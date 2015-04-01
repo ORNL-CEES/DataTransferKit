@@ -74,9 +74,6 @@ class CylinderImpl : public BasicGeometryEntityImpl
 		  const double centroid_y,
 		  const double centroid_z );
 
-    // Destructor.
-    ~CylinderImpl();
-
     //! Get the length of the cylinder.
     double length() const
     { return d_length; }
@@ -85,14 +82,14 @@ class CylinderImpl : public BasicGeometryEntityImpl
     double radius() const
     { return d_radius; }
 
-    // Get the entity type.
-    EntityType entityType() const override;
-
     // Get the unique global identifier for the entity.
     EntityId id() const override;
     
     // Get the parallel rank that owns the entity.
     int ownerRank() const override;
+
+    // Return the topological dimension of the entity.
+    int topologicalDimension() const override;
 
     // Return the physical dimension of the entity.
     int physicalDimension() const override;
@@ -105,6 +102,15 @@ class CylinderImpl : public BasicGeometryEntityImpl
 
     // Determine if an entity is on the boundary with the given id.
     bool onBoundary( const int boundary_id ) const override;
+
+    // Provide a one line description of the object.
+    std::string description() const override
+    { return std::string("Basic Geometry Cylinder"); }
+
+    // Provide a verbose description of the object.
+    void describe(
+	Teuchos::FancyOStream& out,
+	const Teuchos::EVerbosityLevel verb_level ) const override;
 
     // Return the entity measure with respect to the parameteric
     double measure() const override;

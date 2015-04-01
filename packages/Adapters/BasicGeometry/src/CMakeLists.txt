@@ -37,7 +37,6 @@ APPEND_SET(SOURCES
   DTK_BasicGeometryEntity.cpp
   DTK_BasicGeometryManager.cpp
   DTK_EntityCenteredShapeFunction.cpp
-  DTK_BasicGeometryEntityImpl.cpp
   DTK_BasicGeometryExtraData.cpp
   DTK_BasicGeometryLocalMap.cpp
   DTK_Box.cpp

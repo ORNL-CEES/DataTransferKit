@@ -86,9 +86,6 @@ class PointImpl : public BasicGeometryEntityImpl
 	       const Teuchos::Array<int>& block_ids,
 	       const Teuchos::Array<int>& boundary_ids );
 
-    // Destructor.
-    ~PointImpl();
-
     //@{
     //! Coordinate access functions.
     // Get the coordinates of the point.
@@ -96,14 +93,14 @@ class PointImpl : public BasicGeometryEntityImpl
     getCoordinates( const Teuchos::ArrayView<double>& coordinates ) const;
     //@}
 
-    // Get the entity type.
-    EntityType entityType() const override;
-
     // Get the unique global identifier for the entity.
     EntityId id() const override;
     
     // Get the parallel rank that owns the entity.
     int ownerRank() const override;
+
+    // Return the topological dimension of the entity.
+    int topologicalDimension() const override;
 
     // Return the physical dimension of the entity.
     virtual int physicalDimension() const override;
@@ -116,6 +113,15 @@ class PointImpl : public BasicGeometryEntityImpl
 
     // Determine if an entity is on the boundary with the given id.
     bool onBoundary( const int boundary_id ) const override;
+
+    // Provide a one line description of the object.
+    std::string description() const override
+    { return std::string("Basic Geometry Point"); }
+
+    // Provide a verbose description of the object.
+    void describe(
+	Teuchos::FancyOStream& out,
+	const Teuchos::EVerbosityLevel verb_level ) const override;
 
     // Return the entity measure with respect to the parameteric
     double measure() const override;

@@ -203,7 +203,7 @@ BasicEntitySet::BasicEntitySet(
 // Add an entity to the set.
 void BasicEntitySet::addEntity( const Entity& entity )
 {
-    d_entities[ entity.entityType() ].insert(
+    d_entities[ entity.topologicalDimension() ].insert(
 	std::pair<EntityId,Entity>(entity.id(), entity) );
 }
 
@@ -224,23 +224,23 @@ int BasicEntitySet::physicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
-void BasicEntitySet::getEntity( const EntityType entity_type, 
-				const EntityId entity_id, 
+void BasicEntitySet::getEntity( const EntityId entity_id,
+				const int topological_dimension,
 				Entity& entity ) const
 {
-    DTK_CHECK( d_entities[entity_type].count(entity_id) );
-    entity = d_entities[entity_type].find(entity_id)->second;
+    DTK_CHECK( d_entities[topological_dimension].count(entity_id) );
+    entity = d_entities[topological_dimension].find(entity_id)->second;
 }
 
 //---------------------------------------------------------------------------//
 // Get an iterator over a subset of the entity set that satisfies the given
 // predicate. 
 EntityIterator BasicEntitySet::entityIterator(
-    const EntityType entity_type,
+    const int topological_dimension,
     const PredicateFunction& predicate ) const
 {
     Teuchos::RCP<std::unordered_map<EntityId,Entity> > 
-	map_ptr( &d_entities[entity_type], false );
+	map_ptr( &d_entities[topological_dimension], false );
     return BasicEntitySetIterator( map_ptr, predicate );
 }
 
@@ -249,7 +249,7 @@ EntityIterator BasicEntitySet::entityIterator(
 // it.
 void BasicEntitySet::getAdjacentEntities(
     const Entity& entity,
-    const EntityType entity_type,
+    const int adjacent_dimension,
     Teuchos::Array<Entity>& adjacent_entities ) const
 {
     bool not_implemented = true;

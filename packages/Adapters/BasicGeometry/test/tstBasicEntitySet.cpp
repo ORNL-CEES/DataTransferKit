@@ -126,10 +126,10 @@ TEUCHOS_UNIT_TEST( BasicEntitySet, basic_entity_set_test )
     Teuchos::rcp_dynamic_cast<BasicEntitySet>(entity_set)->addEntity( box_1 );
 
     // Get an iterator to the entity set objects.
-    EntityIterator node_it = entity_set->entityIterator( ENTITY_TYPE_NODE );
-    EntityIterator edge_it = entity_set->entityIterator( ENTITY_TYPE_EDGE );
-    EntityIterator face_it = entity_set->entityIterator( ENTITY_TYPE_FACE );
-    EntityIterator volume_it = entity_set->entityIterator( ENTITY_TYPE_VOLUME );
+    EntityIterator node_it = entity_set->entityIterator( 0 );
+    EntityIterator edge_it = entity_set->entityIterator( 1 );
+    EntityIterator face_it = entity_set->entityIterator( 2 );
+    EntityIterator volume_it = entity_set->entityIterator( 3 );
 
     // Check the entity set.
     TEST_EQUALITY( entity_set->physicalDimension(), 3 );
@@ -156,9 +156,9 @@ TEUCHOS_UNIT_TEST( BasicEntitySet, basic_entity_set_test )
 	TEST_ASSERT( false );
     }
     Entity entity;
-    entity_set->getEntity( ENTITY_TYPE_NODE, 0, entity );
+    entity_set->getEntity( 0, 0, entity );
     TEST_EQUALITY( 0, entity.id() );
-    entity_set->getEntity( ENTITY_TYPE_NODE, 1, entity );
+    entity_set->getEntity( 1, 0, entity );
     TEST_EQUALITY( 1, entity.id() );
 
     // Check the box.
