@@ -41,9 +41,6 @@
 #ifndef DTK_MOABTAGFIELD_HPP
 #define DTK_MOABTAGFIELD_HPP
 
-#include <vector>
-#include <unordered_map>
-
 #include "DTK_Types.hpp"
 #include "DTK_Field.hpp"
 
@@ -119,15 +116,9 @@ class MoabTagField : public Field<Scalar>
 
     // The dimension of the tag.
     int d_tag_dim;
-
-    // Entities in the mesh set.
-    std::vector<moab::EntityHandle> d_entities;
     
     // The support ids of the entities over which the field is constructed.
     Teuchos::Array<SupportId> d_support_ids;
-
-    // Support id to local id map.
-    std::unordered_map<SupportId,int> d_id_map;
 };
 
 //---------------------------------------------------------------------------//

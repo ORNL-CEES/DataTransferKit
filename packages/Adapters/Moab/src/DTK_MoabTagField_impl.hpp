@@ -68,28 +68,22 @@ MoabTagField<Scalar>::MoabTagField(
 	);
 
     // Get the entities in the set.
+    std::vector<moab::EntityHandle> entities;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, d_entities );
+	d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, entities );
 	);
-
-    // Create local ids.
-    int num_entities = d_entities.size();
-    for ( int n = 0; n < num_entities; ++n )
-    {
-	d_id_map.emplace( d_entities[n], n );
-    }
 
     // Create locally-owned support ids.
     int owner_rank = -1;
     int rank = d_moab_mesh->rank();
-    for ( int n = 0; n < num_entities; ++n )
+    for ( auto entity : entities )
     {
 	DTK_CHECK_ERROR_CODE(
-	    d_moab_mesh->get_owner( d_entities[n], owner_rank )
+	    d_moab_mesh->get_owner( entity, owner_rank )
 	    );
 	if ( rank == owner_rank )
 	{
-	    d_support_ids.push_back( d_entities[n] );
+	    d_support_ids.push_back( entity );
 	}
     }    
 }
@@ -118,13 +112,12 @@ template<class Scalar>
 Scalar MoabTagField<Scalar>::readFieldData( const SupportId support_id,
 					    const int dimension ) const
 {
-    DTK_REQUIRE( d_id_map.count(support_id) );
-    int local_id = d_id_map.find( support_id )->second;
+    moab::EntityHandle entity = support_id;
     const void* tag_data = 0;
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->tag_get_by_ptr(
 	    d_tag,
-	    &d_entities[local_id],
+	    &entity,
 	    1,
 	    &tag_data )
 	);
@@ -139,12 +132,12 @@ void MoabTagField<Scalar>::writeFieldData( const SupportId support_id,
 					   const int dimension,
 					   const Scalar data )
 {
-    int local_id = d_id_map.find( support_id )->second;
+    moab::EntityHandle entity = support_id;
     const void* tag_data = 0;
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->tag_get_by_ptr(
 	    d_tag,
-	    &d_entities[local_id],
+	    &entity,
 	    1,
 	    &tag_data )
 	);

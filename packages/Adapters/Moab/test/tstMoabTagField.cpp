@@ -213,6 +213,7 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     // Push the data back to Moab
     Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
 	tag_vec_1)->pushDataToApplication();
+    std::cout << comm->getRank() << " " << tag_vec_1->getMap()->getNodeElementList() << std::endl;
 
     // Test the Moab tag.
     Teuchos::Array<const void*> node_data( num_nodes );
