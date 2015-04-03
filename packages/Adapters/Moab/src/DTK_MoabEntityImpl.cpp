@@ -86,7 +86,6 @@ int MoabEntityImpl::topologicalDimension() const
 	    d_extra_data->d_moab_entity) );
 }
 
-
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
 int MoabEntityImpl::physicalDimension() const

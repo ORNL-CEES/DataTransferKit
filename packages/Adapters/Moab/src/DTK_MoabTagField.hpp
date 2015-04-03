@@ -84,14 +84,14 @@ class MoabTagField : public Field<Scalar>
     /*!
      * \brief Get the locally-owned support location ids of the field.
      */
-    Teuchos::ArrayView<const SupportId> getLocalSupportIds() const;
+    Teuchos::ArrayView<const SupportId> getLocalSupportIds() const override;
 
     /*!
      * \brief Given a local support id and a dimension, read data from the
      * application field.
      */
     Scalar readFieldData( const SupportId support_id,
-			  const int dimension ) const;
+			  const int dimension ) const override;
 
     /*!
      * \brief Given a local support id, dimension, and field value, write data
@@ -99,7 +99,12 @@ class MoabTagField : public Field<Scalar>
      */
     void writeFieldData( const SupportId support_id,
 			 const int dimension,
-			 const Scalar data );
+			 const Scalar data ) override;
+
+    /*!
+     * \brief Finalize a field after writing into it.
+     */
+    void finalizeAfterWrite() override;
 
   private:
 
