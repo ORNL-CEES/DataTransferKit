@@ -181,8 +181,8 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
     SupportId max_entries_per_row = *std::max_element( 
 	children_per_parent.begin(), children_per_parent.end() );
     d_coupling_matrix = Teuchos::rcp( new Tpetra::CrsMatrix<Scalar,int,GO>( 
-			    range_map,
-			    max_entries_per_row) );
+					  range_map,
+					  max_entries_per_row) );
     Teuchos::ArrayView<const Scalar> target_view;
     Teuchos::Array<GO> indices( max_entries_per_row );
     Teuchos::ArrayView<const Scalar> values;

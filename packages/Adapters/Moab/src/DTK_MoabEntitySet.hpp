@@ -127,6 +127,12 @@ class MoabEntitySet : public EntitySet
 	const Entity& entity,
 	const int adjacent_dimension,
 	Teuchos::Array<Entity>& adjacent_entities ) const override;
+
+    /*!
+     * \brief Provide a one line description of the object.
+     */
+    std::string description() const
+    { return std::string("Moab Mesh"); }
     //@}
 
     //! Get the mesh set indexer.

@@ -74,12 +74,24 @@ MoabTagField<Scalar>::MoabTagField(
 
     // Create local ids.
     int num_entities = d_entities.size();
-    d_support_ids.resize( num_entities );
     for ( int n = 0; n < num_entities; ++n )
     {
-	d_support_ids[n] = d_entities[n];
-	d_id_map.emplace( d_support_ids[n], n );
+	d_id_map.emplace( d_entities[n], n );
     }
+
+    // Create locally-owned support ids.
+    int owner_rank = -1;
+    int rank = d_moab_mesh->rank();
+    for ( int n = 0; n < num_entities; ++n )
+    {
+	DTK_CHECK_ERROR_CODE(
+	    d_moab_mesh->get_owner( d_entities[n], owner_rank )
+	    );
+	if ( rank == owner_rank )
+	{
+	    d_support_ids.push_back( d_entities[n] );
+	}
+    }    
 }
 
 //---------------------------------------------------------------------------//
