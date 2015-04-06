@@ -55,11 +55,6 @@
 #include <Tpetra_Map.hpp>
 #include <Tpetra_Distributor.hpp>
 
-#include <Thyra_VectorSpaceBase.hpp>
-
-#include <Thyra_TpetraThyraWrappers.hpp>
-#include <Thyra_TpetraLinearOp.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -155,7 +150,8 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     // on this process and the number of domain entities they were found in
     // globally for averaging.
     std::unordered_map<EntityId,GO> range_support_id_map;
-    std::unordered_map<EntityId,GO> range_support_count_map;
+    Teuchos::RCP<Tpetra::Vector<Scalar,int,SupportId> > scale_vector =
+	Tpetra::createVector<Scalar,int,SupportId>( range_map );
     {
 	// Extract the set of local range entities that were found in domain
 	// entities.
@@ -171,24 +167,30 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	      range_it != range_end;
 	      ++range_it )
 	{
+	    // Get the support id for the range entity.
+	    range_space->shapeFunction()->entitySupportIds(
+		*range_it, range_support_ids );
+	    DTK_CHECK( 1 == range_support_ids.size() );
+
+	    // Get the domain entities in which the range entity was found.
 	    psearch.getDomainEntitiesFromRange( range_it->id(), domain_ids );
 
+	    // Add a scale factor for this range entity to the scaling vector.
+	    DTK_CHECK( range_map->isNodeGlobalElement(range_support_ids[0]) );
+	    scale_vector->replaceGlobalValue( range_support_ids[0],
+					      1.0 / domain_ids.size() );
+
+	    // For each supporting domain entity, pair the range entity id and
+	    // its support id.
 	    for ( domain_id_it = domain_ids.begin();
 		  domain_id_it != domain_ids.end();
 		  ++domain_id_it )
 	    {
-		range_space->shapeFunction()->entitySupportIds(
-		    *range_it, range_support_ids );
-		DTK_CHECK( 1 == range_support_ids.size() );
-
 		export_ranks.push_back( 
 		    psearch.domainEntityOwnerRank(*domain_id_it) );
 
 		export_data.push_back( range_support_ids[0] );
-		export_data.push_back(
-		    Teuchos::as<GO>(range_it->id()) );
-		export_data.push_back(
-		    Teuchos::as<GO>(domain_ids.size()) );
+		export_data.push_back( Teuchos::as<GO>(range_it->id()) );
 	    }
 	}
 
@@ -196,24 +198,19 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	// decomposition.
 	Tpetra::Distributor range_to_domain_dist( comm );
 	int num_import = range_to_domain_dist.createFromSends( export_ranks() );
-	Teuchos::Array<GO> import_data( 3*num_import );
+	Teuchos::Array<GO> import_data( 2*num_import );
 	Teuchos::ArrayView<const GO> export_data_view = 
 	    export_data();
 	range_to_domain_dist.doPostsAndWaits( export_data_view,
-					      3,
+					      2,
 					      import_data() );
 
 	// Map the range entities to their support ids.
 	for ( int i = 0; i < num_import; ++i )
 	{
-	    range_support_id_map.insert(
-		std::pair<EntityId,GO>(
-		    Teuchos::as<EntityId>(import_data[3*i+1]),
-		    import_data[3*i]) );
-	    range_support_count_map.insert(
-		std::pair<EntityId,GO>(
-		    Teuchos::as<EntityId>(import_data[3*i+1]),
-		    import_data[3*i+2]) );
+	    range_support_id_map.emplace(
+		Teuchos::as<EntityId>(import_data[2*i+1]),
+		import_data[2*i] );
 	}
     }
 
@@ -231,7 +228,6 @@ void ConsistentInterpolationOperator<Scalar>::setup(
     EntityIterator domain_it;
     EntityIterator domain_begin = domain_iterator.begin();
     EntityIterator domain_end = domain_iterator.end();
-    double scale_val = 0.0;
     for ( domain_it = domain_begin; domain_it != domain_end; ++domain_it )
     {
 	// Get the domain Support ids supporting the domain entity.
@@ -256,33 +252,22 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 		*domain_it, range_parametric_coords, domain_shape_values );
 	    DTK_CHECK( domain_shape_values.size() == domain_support_ids.size() );
 
-	    // Add the entries as a row in the matrix.
-	    if ( range_support_id_map.count(*range_entity_id_it) )
-	    {
-		// Compute an average interpolated quantity if the range
-		// entity was found in multiple domain entities.
-		scale_val = 
-		    1.0 / range_support_count_map.find(*range_entity_id_it)->second;
-		for ( domain_shape_it = domain_shape_values.begin();
-		      domain_shape_it != domain_shape_values.end();
-		      ++domain_shape_it )
-		{
-		    *domain_shape_it *= scale_val;
-		}
-
-		// Consistent interpolation requires one Support per range
-		// entity. Load the row for this range Support into the matrix.
-		d_coupling_matrix->insertGlobalValues( 
-		    range_support_id_map.find(*range_entity_id_it)->second,
-		    domain_support_ids(),
-		    domain_shape_values() );
-	    }
+	    // Consistent interpolation requires one support location per
+	    // range entity. Load the row for this range support location into
+	    // the matrix.
+	    d_coupling_matrix->insertGlobalValues(
+		range_support_id_map.find(*range_entity_id_it)->second,
+		domain_support_ids(),
+		domain_shape_values() );
 	}
     }
 
     // Finalize the coupling matrix.
     d_coupling_matrix->fillComplete( domain_map, range_map );
-    DTK_ENSURE( Teuchos::nonnull(d_coupling_matrix) );
+
+    // Left-scale the matrix with the number of domain entities in which each
+    // range entity was found.
+    d_coupling_matrix->leftScale( *scale_vector );
 }
 
 //---------------------------------------------------------------------------//
