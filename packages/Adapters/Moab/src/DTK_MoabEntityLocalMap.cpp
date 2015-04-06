@@ -39,6 +39,7 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_MoabEntityLocalMap.hpp"
+#include "DTK_MoabHelpers.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
@@ -93,7 +94,7 @@ void MoabEntityLocalMap::centroid(
     // Node case.
     if ( 0 == entity.topologicalDimension() )
     {
-	moab::EntityHandle handle = entity.id();
+	moab::EntityHandle handle = MoabHelpers::extractEntity(entity);
 	d_moab_mesh->get_moab()->get_coords( &handle, 1, centroid.getRawPtr() );
     }
     // Element case.
@@ -118,8 +119,8 @@ bool MoabEntityLocalMap::isSafeToMapToReferenceFrame(
     const Teuchos::ArrayView<const double>& physical_point ) const
 {
     int space_dim = entity.physicalDimension();
-    int param_dim = 
-	d_moab_mesh->get_moab()->dimension_from_handle( entity.id() );
+    int param_dim = d_moab_mesh->get_moab()->dimension_from_handle(
+	MoabHelpers::extractEntity(entity) );
     if ( space_dim == param_dim )
     {
 	return EntityLocalMap::isSafeToMapToReferenceFrame(
@@ -197,10 +198,10 @@ void MoabEntityLocalMap::normalAtReferencePoint(
 void MoabEntityLocalMap::cacheEntity( const Entity& entity ) const
 {
     DTK_CHECK_ERROR_CODE(
-	d_moab_evaluator->set_eval_set( entity.id() )
+	d_moab_evaluator->set_eval_set( MoabHelpers::extractEntity(entity) )
 	);
     DTK_CHECK_ERROR_CODE(
-	d_moab_evaluator->set_ent_handle( entity.id() )
+	d_moab_evaluator->set_ent_handle( MoabHelpers::extractEntity(entity) )
 	);
     DTK_CHECK_ERROR_CODE(
 	d_moab_evaluator->set_tag( "COORDS", 0 )
@@ -213,8 +214,8 @@ void MoabEntityLocalMap::parametricCenter(
     const Entity& entity,
     Teuchos::Array<double>& center ) const
 {
-    moab::EntityType moab_type = 
-	d_moab_mesh->get_moab()->type_from_handle( entity.id() );
+    moab::EntityType moab_type = d_moab_mesh->get_moab()->type_from_handle(
+	MoabHelpers::extractEntity(entity) );
 
     switch( moab_type )
     {

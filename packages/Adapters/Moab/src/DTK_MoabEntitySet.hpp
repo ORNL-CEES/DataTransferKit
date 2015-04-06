@@ -42,6 +42,7 @@
 #define DTK_MOABENTITYSET_HPP
 
 #include <functional>
+#include <unordered_set>
 
 #include "DTK_EntitySet.hpp"
 #include "DTK_Types.hpp"
@@ -73,7 +74,8 @@ class MoabEntitySet : public EntitySet
     /*!
      * \brief Constructor.
      */
-    MoabEntitySet( const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
+    MoabEntitySet( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+		   const Teuchos::RCP<MoabMeshSetIndexer> set_indexer );
 
     //@{
     //! Parallel functions.
@@ -134,10 +136,6 @@ class MoabEntitySet : public EntitySet
     std::string description() const
     { return std::string("Moab Mesh"); }
     //@}
-
-    //! Get the mesh set indexer.
-    Teuchos::RCP<MoabMeshSetIndexer> getMeshSetIndexer() const
-    { return d_set_indexer; }
 
   private:
 

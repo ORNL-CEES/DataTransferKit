@@ -43,6 +43,7 @@
 #include "DTK_MoabNodalShapeFunction.hpp"
 #include "DTK_MoabEntitySet.hpp"
 #include "DTK_MoabEntityLocalMap.hpp"
+#include "DTK_MoabMeshSetIndexer.hpp"
 
 namespace DataTransferKit
 {
@@ -51,8 +52,29 @@ namespace DataTransferKit
 MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh )
     : d_moab_mesh( moab_mesh )
 {
+    // DTK needs unique global ids from MOAB. Assign global ids to the root
+    // set if needed.
+    int dimension = 0;
+    DTK_CHECK_ERROR_CODE(
+	d_moab_mesh->get_moab()->get_dimension( dimension )
+	);
+    moab::EntityHandle root_set = d_moab_mesh->get_moab()->get_root_set();
+    DTK_CHECK_ERROR_CODE(
+	moab_mesh->check_global_ids( root_set,
+				     dimension,
+				     1,
+				     false,
+				     true,
+				     false )
+	);
+
+    // Build a mesh set indexer. This must be constructed after the global
+    // indices are created.
+    d_set_indexer = Teuchos::rcp( new MoabMeshSetIndexer(d_moab_mesh) );
+    
+    // Build DTK data structures.
     Teuchos::RCP<EntitySet> entity_set = 
-	Teuchos::rcp( new MoabEntitySet(d_moab_mesh) );
+	Teuchos::rcp( new MoabEntitySet(d_moab_mesh,d_set_indexer) );
     
     Teuchos::RCP<EntityLocalMap> local_map =
 	Teuchos::rcp( new MoabEntityLocalMap(d_moab_mesh) );
@@ -66,17 +88,35 @@ MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh )
 
 //---------------------------------------------------------------------------//
 //! Mesh set constructor.
-MoabManager::MoabManager(
-    const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-    const moab::EntityHandle& mesh_set )
+MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+			  const moab::EntityHandle& mesh_set )
     : d_moab_mesh( moab_mesh )
 {
-    Teuchos::RCP<EntitySet> entity_set = 
-	Teuchos::rcp( new MoabEntitySet(d_moab_mesh) );
+    // DTK needs unique global ids from MOAB. Assign global ids to the root
+    // set if needed.
+    int dimension = 0;
+    DTK_CHECK_ERROR_CODE(
+	d_moab_mesh->get_moab()->get_dimension( dimension )
+	);
+    moab::EntityHandle root_set = d_moab_mesh->get_moab()->get_root_set();
+    DTK_CHECK_ERROR_CODE(
+	moab_mesh->check_global_ids( root_set,
+				     dimension,
+				     1,
+				     false,
+				     true,
+				     false )
+	);
 
-    MoabMeshSetPredicate pred( 
-	mesh_set, 
-	Teuchos::rcp_dynamic_cast<MoabEntitySet>(entity_set)->getMeshSetIndexer() );
+    // Build a mesh set indexer. This must be constructed after the global
+    // indices are created.
+    d_set_indexer = Teuchos::rcp( new MoabMeshSetIndexer(d_moab_mesh) );
+
+    // Build DTK data structures.
+    Teuchos::RCP<EntitySet> entity_set = 
+	Teuchos::rcp( new MoabEntitySet(d_moab_mesh,d_set_indexer) );
+
+    MoabMeshSetPredicate pred( mesh_set, d_set_indexer );
 
    Teuchos::RCP<EntityLocalMap> local_map =
 	Teuchos::rcp( new MoabEntityLocalMap(d_moab_mesh) );

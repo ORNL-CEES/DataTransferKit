@@ -54,9 +54,10 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 MoabEntitySet::MoabEntitySet( 
-    const Teuchos::RCP<moab::ParallelComm>& moab_mesh )
+    const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+    const Teuchos::RCP<MoabMeshSetIndexer> set_indexer )
     : d_moab_mesh( moab_mesh )
-    , d_set_indexer( Teuchos::rcp(new MoabMeshSetIndexer(moab_mesh)) )
+    , d_set_indexer( set_indexer )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -83,9 +84,9 @@ void MoabEntitySet::getEntity( const EntityId entity_id,
 			       const int topological_dimension,
 			       Entity& entity ) const
 {
-    entity = MoabEntity( Teuchos::as<moab::EntityHandle>(entity_id),
-			 d_moab_mesh.ptr(),
-			 d_set_indexer.ptr() );
+    moab::EntityHandle moab_entity =
+	d_set_indexer->getEntityFromGlobalId( entity_id, topological_dimension );
+    entity = MoabEntity( moab_entity, d_moab_mesh.ptr(), d_set_indexer.ptr() );
 }
 
 //---------------------------------------------------------------------------//

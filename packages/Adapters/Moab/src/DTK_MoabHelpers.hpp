@@ -41,6 +41,8 @@
 #ifndef DTK_MOABHELPERS_HPP
 #define DTK_MOABHELPERS_HPP
 
+#include <vector>
+
 #include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 
@@ -65,6 +67,14 @@ class MoabHelpers
      * \brief Extract the Moab entity from a DTK entity.
      */
     static moab::EntityHandle extractEntity( const Entity dtk_entity );
+
+    /*!
+     * \brief Get the global id of a list of entities.
+     */
+    static void getGlobalIds( const moab::ParallelComm& mesh,
+			      const moab::EntityHandle* entities,
+			      const int num_entities,
+			      EntityId* entity_ids );
 
     /*!
      * \brief Given a Moab EntityType, get the topological dimension.

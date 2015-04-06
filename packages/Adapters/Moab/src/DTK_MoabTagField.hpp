@@ -43,6 +43,7 @@
 
 #include "DTK_Types.hpp"
 #include "DTK_Field.hpp"
+#include "DTK_MoabMeshSetIndexer.hpp"
 
 #include <MBParallelComm.hpp>
 
@@ -70,6 +71,7 @@ class MoabTagField : public Field<Scalar>
      * \param tag The tag containing the vector data.
      */
     MoabTagField( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+		  const Teuchos::RCP<MoabMeshSetIndexer> set_indexer,
 		  const moab::EntityHandle& mesh_set,
 		  const moab::Tag& tag );
 
@@ -107,6 +109,9 @@ class MoabTagField : public Field<Scalar>
 
     // The mesh over which the tag is defined.
     Teuchos::RCP<moab::ParallelComm> d_moab_mesh;
+
+    // Mesh set indexer.
+    Teuchos::RCP<MoabMeshSetIndexer> d_set_indexer;
 
     // The mesh set over which the vector is defined.
     moab::EntityHandle d_mesh_set;

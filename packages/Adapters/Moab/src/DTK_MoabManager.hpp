@@ -114,6 +114,9 @@ class MoabManager
 
     // The function space over which the mesh and its fields are defined.
     Teuchos::RCP<FunctionSpace> d_function_space;
+
+    // Mesh set indexer.
+    Teuchos::RCP<MoabMeshSetIndexer> d_set_indexer;
 };
 
 //---------------------------------------------------------------------------//
@@ -128,7 +131,7 @@ MoabManager::createFieldMultiVector( const moab::EntityHandle& mesh_set,
     DTK_REQUIRE( Teuchos::nonnull(d_function_space) );
     
     Teuchos::RCP<Field<Scalar> > field = Teuchos::rcp(
-	new MoabTagField<Scalar>(d_moab_mesh, mesh_set, tag) );
+	new MoabTagField<Scalar>(d_moab_mesh, d_set_indexer, mesh_set, tag) );
     return Teuchos::rcp(
 	new FieldMultiVector<Scalar>(field,d_function_space->entitySet()) );
 }

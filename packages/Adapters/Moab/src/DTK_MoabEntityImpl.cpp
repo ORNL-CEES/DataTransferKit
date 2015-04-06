@@ -57,13 +57,18 @@ MoabEntityImpl::MoabEntityImpl(
     : d_extra_data( new MoabEntityExtraData(moab_entity) )
     , d_moab_mesh( moab_mesh )
     , d_set_indexer( set_indexer )
-{ /* ... */ }
+{
+    MoabHelpers::getGlobalIds( *moab_mesh,
+			       &moab_entity,
+			       1,
+			       &d_id );
+}
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId MoabEntityImpl::id() const
 { 
-    return d_extra_data->d_moab_entity;
+    return d_id;
 }
     
 //---------------------------------------------------------------------------//

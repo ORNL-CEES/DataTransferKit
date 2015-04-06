@@ -43,6 +43,7 @@
 
 #include <vector>
 
+#include "DTK_MoabHelpers.hpp"
 #include "DTK_DBC.hpp"
 
 #include <Teuchos_Comm.hpp>
@@ -56,9 +57,11 @@ namespace DataTransferKit
 template<class Scalar>
 MoabTagField<Scalar>::MoabTagField(
     const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+    const Teuchos::RCP<MoabMeshSetIndexer> set_indexer,
     const moab::EntityHandle& mesh_set,
     const moab::Tag& tag )
     : d_moab_mesh( moab_mesh )
+    , d_set_indexer( set_indexer )
     , d_mesh_set( mesh_set )
     , d_tag( tag )
 {
@@ -73,19 +76,27 @@ MoabTagField<Scalar>::MoabTagField(
 	d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, entities );
 	);
 
+    // Get the global ids.
+    int num_entities = entities.size();
+    Teuchos::Array<EntityId> global_ids( num_entities );
+    MoabHelpers::getGlobalIds( *d_moab_mesh,
+			       entities.data(),
+			       num_entities,
+			       global_ids.getRawPtr() );
+
     // Create locally-owned support ids.
     int owner_rank = -1;
     int rank = d_moab_mesh->rank();
-    for ( auto entity : entities )
+    for ( int n = 0; n < num_entities; ++n )
     {
 	DTK_CHECK_ERROR_CODE(
-	    d_moab_mesh->get_owner( entity, owner_rank )
+	    d_moab_mesh->get_owner( entities[n], owner_rank )
 	    );
 	if ( rank == owner_rank )
 	{
-	    d_support_ids.push_back( entity );
+	    d_support_ids.push_back( global_ids[n] );
 	}
-    }    
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -112,7 +123,8 @@ template<class Scalar>
 Scalar MoabTagField<Scalar>::readFieldData( const SupportId support_id,
 					    const int dimension ) const
 {
-    moab::EntityHandle entity = support_id;
+    moab::EntityHandle entity =
+	d_set_indexer->getEntityFromGlobalId( support_id, 0 );
     const void* tag_data = 0;
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->tag_get_by_ptr(
@@ -132,7 +144,8 @@ void MoabTagField<Scalar>::writeFieldData( const SupportId support_id,
 					   const int dimension,
 					   const Scalar data )
 {
-    moab::EntityHandle entity = support_id;
+    moab::EntityHandle entity =
+	d_set_indexer->getEntityFromGlobalId( support_id, 0 );
     const void* tag_data = 0;
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->tag_get_by_ptr(

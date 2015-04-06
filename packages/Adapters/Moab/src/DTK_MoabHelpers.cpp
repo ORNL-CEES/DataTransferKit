@@ -38,11 +38,11 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <vector>
-
 #include "DTK_MoabHelpers.hpp"
 #include "DTK_MoabEntityExtraData.hpp"
 #include "DTK_DBC.hpp"
+
+#include <MBTagConventions.hpp>
 
 namespace DataTransferKit
 {
@@ -52,6 +52,41 @@ moab::EntityHandle MoabHelpers::extractEntity( const Entity dtk_entity )
 {
     return Teuchos::rcp_dynamic_cast<MoabEntityExtraData>(
 	dtk_entity.extraData() )->d_moab_entity;
+}
+
+//---------------------------------------------------------------------------//
+// Get the global id of a list of entities.
+void MoabHelpers::getGlobalIds( const moab::ParallelComm& mesh,
+				const moab::EntityHandle* entities,
+				const int num_entities,
+				EntityId* entity_ids )
+{
+    // Get the global id tag.
+    moab::Tag id_tag;
+    DTK_CHECK_ERROR_CODE(
+	mesh.get_moab()->tag_get_handle( GLOBAL_ID_TAG_NAME,
+					 1,
+					 moab::MB_TYPE_INTEGER,
+					 id_tag )
+	);
+
+    // Extract the global ids. Note that if the Moab native global id
+    // functionality is used as we are here then only ids of type 'int' are
+    // available. That means no more than 3 billion entities may be uniquely
+    // indexed in a mesh. For large problems we will either have to get Moab
+    // updated to tag the mesh using a 'bit' type or construct global ids
+    // ourselves.
+    Teuchos::Array<int> id_tag_data( num_entities );
+    DTK_CHECK_ERROR_CODE(
+	mesh.get_moab()->tag_get_data(
+	    id_tag,
+	    entities,
+	    num_entities,
+	    static_cast<void*>(id_tag_data.getRawPtr()) )
+	);
+
+    // Copy the integer data into the array of type EntityId.
+    std::copy( id_tag_data.begin(), id_tag_data.end(), entity_ids );
 }
 
 //---------------------------------------------------------------------------//

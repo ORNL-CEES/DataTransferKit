@@ -39,6 +39,7 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_MoabNodalShapeFunction.hpp"
+#include "DTK_MoabHelpers.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
@@ -68,22 +69,25 @@ void MoabNodalShapeFunction::entitySupportIds(
     // Element case.
     else
     {
+	// Get the entity nodes.
 	const moab::EntityHandle* entity_nodes;
 	int num_nodes = 0;
 	std::vector<moab::EntityHandle> storage;
 	DTK_CHECK_ERROR_CODE(
-	    d_moab_mesh->get_moab()->get_connectivity( entity.id(),
-						       entity_nodes,
-						       num_nodes,
-						       false,
-						       &storage )
+	    d_moab_mesh->get_moab()->get_connectivity(
+		MoabHelpers::extractEntity(entity),
+		entity_nodes,
+		num_nodes,
+		false,
+		&storage )
 	    );
 
+	// Get their global ids.
 	dof_ids.resize( num_nodes );
-	for ( int i = 0; i < num_nodes; ++i )
-	{
-	    dof_ids[i] = Teuchos::as<SupportId>( entity_nodes[i] );
-	}
+	MoabHelpers::getGlobalIds( *d_moab_mesh,
+				   entity_nodes,
+				   num_nodes,
+				   &dof_ids[0] );
     }
 }
 
@@ -102,17 +106,18 @@ void MoabNodalShapeFunction::evaluateValue(
     const moab::EntityHandle* entity_nodes;
     int num_nodes = 0;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->get_connectivity( entity.id(),
-						   entity_nodes,
-						   num_nodes )
+	d_moab_mesh->get_moab()->get_connectivity(
+	    MoabHelpers::extractEntity(entity),
+	    entity_nodes,
+	    num_nodes )
 	);
-
     values.resize( num_nodes );
 
     // Extract the value of the basis used by the evaluator by passing the
     // identity matrix through the eval function.
     int topo_dim =
-	d_moab_mesh->get_moab()->dimension_from_handle( entity.id() );
+	d_moab_mesh->get_moab()->dimension_from_handle(
+	    MoabHelpers::extractEntity(entity) );
     Teuchos::Array<double> field( num_nodes*num_nodes, 0.0 );
     for ( int n = 0; n < num_nodes; ++n )
     {
@@ -120,7 +125,8 @@ void MoabNodalShapeFunction::evaluateValue(
     }
  
     moab::EntityType moab_type = 
-	d_moab_mesh->get_moab()->type_from_handle( entity.id() );
+	d_moab_mesh->get_moab()->type_from_handle(
+	    MoabHelpers::extractEntity(entity) );
     DTK_CHECK_ERROR_CODE(
 	(*d_moab_evaluator->get_eval_set(moab_type).evalFcn)
 	( reference_point.getRawPtr(),
@@ -147,9 +153,10 @@ void MoabNodalShapeFunction::evaluateGradient(
     const moab::EntityHandle* entity_nodes;
     int num_nodes = 0;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->get_connectivity( entity.id(),
-						 entity_nodes,
-						 num_nodes )
+	d_moab_mesh->get_moab()->get_connectivity(
+	    MoabHelpers::extractEntity(entity),
+	    entity_nodes,
+	    num_nodes )
 	);
     gradients.resize( num_nodes );
 
@@ -170,7 +177,8 @@ void MoabNodalShapeFunction::evaluateGradient(
 	}
 
 	moab::EntityType moab_type = 
-	    d_moab_mesh->get_moab()->type_from_handle( entity.id() );
+	    d_moab_mesh->get_moab()->type_from_handle(
+		MoabHelpers::extractEntity(entity) );
 	DTK_CHECK_ERROR_CODE(
 	    (*d_moab_evaluator->get_eval_set(moab_type).jacobianFcn)
 	    ( reference_point.getRawPtr(),
@@ -193,10 +201,10 @@ void MoabNodalShapeFunction::evaluateGradient(
 void MoabNodalShapeFunction::cacheEntity( const Entity& entity ) const
 {
     DTK_CHECK_ERROR_CODE(
-	d_moab_evaluator->set_eval_set( entity.id() )
+	d_moab_evaluator->set_eval_set( MoabHelpers::extractEntity(entity) )
 	);
     DTK_CHECK_ERROR_CODE(
-	d_moab_evaluator->set_ent_handle( entity.id() )
+	d_moab_evaluator->set_ent_handle( MoabHelpers::extractEntity(entity) )
 	);
 }
 

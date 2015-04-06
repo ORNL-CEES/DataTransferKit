@@ -140,6 +140,9 @@ class MoabEntityImpl : public EntityImpl
 
     // Mesh set indexer.
     Teuchos::Ptr<MoabMeshSetIndexer> d_set_indexer;
+
+    // Unique global id.
+    EntityId d_id;
 };
 
 //---------------------------------------------------------------------------//
