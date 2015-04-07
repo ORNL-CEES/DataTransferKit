@@ -49,6 +49,7 @@
 
 #include <stk_mesh/base/MetaData.hpp>
 #include <stk_mesh/base/FieldRestriction.hpp>
+#include <stk_mesh/base/FieldParallel.hpp>
 #include <stk_mesh/base/Selector.hpp>
 #include <stk_mesh/base/GetEntities.hpp>
 
@@ -84,13 +85,22 @@ STKMeshField<Scalar,FieldType>::STKMeshField(
     stk::mesh::get_selected_entities( 
 	field_selector, field_buckets, d_field_entities );
 
-    // Extract the field entity ids.
+    // Map the field entity ids.
     int num_entities = d_field_entities.size();
-    d_support_ids.resize( num_entities );
     for ( int n = 0; n < num_entities; ++n )
     {
-	d_support_ids[n] = d_bulk_data->identifier( d_field_entities[n] );
-	d_id_map.emplace( d_support_ids[n], n );
+	d_id_map.emplace( d_bulk_data->identifier(d_field_entities[n]), n );
+    }
+
+    // Get the locally owned field entity ids.
+    for ( int n = 0; n < num_entities; ++n )
+    {
+	if ( d_bulk_data->parallel_owner_rank(d_field_entities[n]) ==
+	     d_bulk_data->parallel_rank() )
+	{
+	    d_support_ids.push_back(
+		d_bulk_data->identifier(d_field_entities[n]) );
+	}
     }
 }
 
@@ -131,6 +141,7 @@ void STKMeshField<Scalar,FieldType>::writeFieldData( const SupportId support_id,
 						     const int dimension,
 						     const Scalar data )
 {
+    DTK_REQUIRE( d_id_map.count(support_id) );
     int local_id = d_id_map.find( support_id )->second;
     stk::mesh::field_data(*d_field,d_field_entities[local_id])[dimension]
 	= data;
@@ -141,7 +152,9 @@ void STKMeshField<Scalar,FieldType>::writeFieldData( const SupportId support_id,
 template<class Scalar, class FieldType>
 void STKMeshField<Scalar,FieldType>::finalizeAfterWrite()
 {
-    // Update ghost data.
+    stk::mesh::copy_owned_to_shared(
+	*d_bulk_data,
+	std::vector<const stk::mesh::FieldBase*>(1,d_field.getRawPtr()) );
 }
 
 //---------------------------------------------------------------------------//

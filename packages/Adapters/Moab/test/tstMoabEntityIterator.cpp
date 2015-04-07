@@ -50,6 +50,7 @@
 #include <DTK_MoabEntityIteratorRange.hpp>
 #include <DTK_MoabEntityExtraData.hpp>
 #include <DTK_MoabMeshSetIndexer.hpp>
+#include <DTK_MoabHelpers.hpp>
 #include <DTK_MoabEntityPredicates.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -194,7 +195,10 @@ TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
     TEST_ASSERT( entity_iterator != entity_iterator.end() );
 
     // Test the first entity under the iterator with a pointer dereference.
-    TEST_EQUALITY( hex_entity, entity_iterator->id() );
+    DataTransferKit::EntityId hex_id = 90343;
+    DataTransferKit::MoabHelpers::getGlobalIds(
+	*parallel_mesh, &hex_entity, 1, &hex_id );
+    TEST_EQUALITY( hex_id, entity_iterator->id() );
     TEST_EQUALITY( comm->getRank(), entity_iterator->ownerRank() );
     TEST_EQUALITY( space_dim, entity_iterator->topologicalDimension() );
     TEST_EQUALITY( space_dim, entity_iterator->physicalDimension() );
@@ -225,7 +229,7 @@ TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
     ++entity_iterator;
 
     // Test the second entity under the iterator with a reference dereference.
-    TEST_EQUALITY( hex_entity, (*entity_iterator).id() );
+    TEST_EQUALITY( hex_id, (*entity_iterator).id() );
     TEST_EQUALITY( comm->getRank(), (*entity_iterator).ownerRank() );
     TEST_EQUALITY( space_dim, (*entity_iterator).topologicalDimension() );
     TEST_EQUALITY( space_dim, (*entity_iterator).physicalDimension() );

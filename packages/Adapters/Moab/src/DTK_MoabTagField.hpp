@@ -78,7 +78,7 @@ class MoabTagField : public Field<Scalar>
     /*!
      * \brief Get the dimension of the field.
      */
-    int dimension() const;
+    int dimension() const override;
 
     /*!
      * \brief Get the locally-owned support location ids of the field.

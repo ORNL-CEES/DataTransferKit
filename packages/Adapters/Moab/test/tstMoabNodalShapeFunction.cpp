@@ -46,6 +46,7 @@
 
 #include "DTK_MoabNodalShapeFunction.hpp"
 #include "DTK_MoabEntity.hpp"
+#include <DTK_MoabHelpers.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -152,12 +153,17 @@ TEUCHOS_UNIT_TEST( MoabNodalShapeFunction, hex_8_test )
 	Teuchos::rcp( new DataTransferKit::MoabNodalShapeFunction(parallel_mesh) );
 
     // Test the shape function dof ids for the hex.
+    std::vector<DataTransferKit::EntityId> node_ids( num_nodes );
+    DataTransferKit::MoabHelpers::getGlobalIds( *parallel_mesh,
+						nodes.getRawPtr(),
+						num_nodes,
+						node_ids.data() );
     Teuchos::Array<std::size_t> dof_ids;
     shape_function->entitySupportIds( dtk_entity, dof_ids );
     TEST_EQUALITY( num_nodes, dof_ids.size() );
     for ( unsigned n = 0; n < num_nodes; ++n )
     {
-	TEST_EQUALITY( dof_ids[n], nodes[n] );
+	TEST_EQUALITY( dof_ids[n], node_ids[n] );
     }
 
     // Test the value evaluation for the hex.
@@ -230,7 +236,7 @@ TEUCHOS_UNIT_TEST( MoabNodalShapeFunction, hex_8_test )
 	    nodes[n], parallel_mesh.ptr(), set_indexer.ptr() );
 	shape_function->entitySupportIds( dtk_node, dof_ids );
 	TEST_EQUALITY( dof_ids.size(), 1 );
-	TEST_EQUALITY( dof_ids[0], nodes[n] );
+	TEST_EQUALITY( dof_ids[0], node_ids[n] );
     }
 }
 

@@ -52,22 +52,6 @@ namespace DataTransferKit
 MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh )
     : d_moab_mesh( moab_mesh )
 {
-    // DTK needs unique global ids from MOAB. Assign global ids to the root
-    // set if needed.
-    int dimension = 0;
-    DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->get_dimension( dimension )
-	);
-    moab::EntityHandle root_set = d_moab_mesh->get_moab()->get_root_set();
-    DTK_CHECK_ERROR_CODE(
-	moab_mesh->check_global_ids( root_set,
-				     dimension,
-				     1,
-				     false,
-				     true,
-				     false )
-	);
-
     // Build a mesh set indexer. This must be constructed after the global
     // indices are created.
     d_set_indexer = Teuchos::rcp( new MoabMeshSetIndexer(d_moab_mesh) );
@@ -92,22 +76,6 @@ MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
 			  const moab::EntityHandle& mesh_set )
     : d_moab_mesh( moab_mesh )
 {
-    // DTK needs unique global ids from MOAB. Assign global ids to the root
-    // set if needed.
-    int dimension = 0;
-    DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->get_dimension( dimension )
-	);
-    moab::EntityHandle root_set = d_moab_mesh->get_moab()->get_root_set();
-    DTK_CHECK_ERROR_CODE(
-	moab_mesh->check_global_ids( root_set,
-				     dimension,
-				     1,
-				     false,
-				     true,
-				     false )
-	);
-
     // Build a mesh set indexer. This must be constructed after the global
     // indices are created.
     d_set_indexer = Teuchos::rcp( new MoabMeshSetIndexer(d_moab_mesh) );

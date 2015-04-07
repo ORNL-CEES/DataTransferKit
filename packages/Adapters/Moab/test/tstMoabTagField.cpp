@@ -47,8 +47,9 @@
 #include <cassert>
 
 #include <DTK_MoabTagField.hpp>
-#include "DTK_FieldMultiVector.hpp"
-#include "DTK_MoabEntitySet.hpp"
+#include <DTK_FieldMultiVector.hpp>
+#include <DTK_MoabEntitySet.hpp>
+#include <DTK_MoabMeshSetIndexer.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_Comm.hpp>
@@ -173,13 +174,15 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     // Create an entity set.
+    Teuchos::RCP<DataTransferKit::MoabMeshSetIndexer> set_indexer = Teuchos::rcp(
+	new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
     Teuchos::RCP<DataTransferKit::EntitySet> dtk_entity_set = Teuchos::rcp(
-	new DataTransferKit::MoabEntitySet(parallel_mesh) );
+	new DataTransferKit::MoabEntitySet(parallel_mesh,set_indexer) );
 
     // Create a vector from entity set 1.
     Teuchos::RCP<DataTransferKit::Field<double> > field_1 = Teuchos::rcp(
 	new DataTransferKit::MoabTagField<double>(
-	    parallel_mesh, entity_set_1, tag_1) );
+	    parallel_mesh, set_indexer, entity_set_1, tag_1) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tag_vec_1 =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
 			  field_1, dtk_entity_set) );
@@ -241,7 +244,7 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     // Make an empty vector over set 2.
     Teuchos::RCP<DataTransferKit::Field<double> > field_2 = Teuchos::rcp(
 	new DataTransferKit::MoabTagField<double>(
-	    parallel_mesh, entity_set_2, tag_2) );
+	    parallel_mesh, set_indexer, entity_set_2, tag_2) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tag_vec_2 =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
 			  field_2, dtk_entity_set) );

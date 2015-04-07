@@ -49,6 +49,7 @@
 #include <DTK_MoabEntity.hpp>
 #include <DTK_MoabEntityExtraData.hpp>
 #include <DTK_MoabMeshSetIndexer.hpp>
+#include <DTK_MoabHelpers.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -184,7 +185,10 @@ TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
     dtk_entity.describe( *fancy_out );
 
     // Test the entity.
-    TEST_EQUALITY( hex_entity, dtk_entity.id() );
+    DataTransferKit::EntityId hex_id = 90343;
+    DataTransferKit::MoabHelpers::getGlobalIds(
+	*parallel_mesh, &hex_entity, 1, &hex_id );
+    TEST_EQUALITY( hex_id, dtk_entity.id() );
     TEST_EQUALITY( comm->getRank(), dtk_entity.ownerRank() );
     TEST_EQUALITY( space_dim, dtk_entity.topologicalDimension() );
     TEST_EQUALITY( space_dim, dtk_entity.physicalDimension() );

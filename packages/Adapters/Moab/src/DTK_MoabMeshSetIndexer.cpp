@@ -52,8 +52,23 @@ MoabMeshSetIndexer::MoabMeshSetIndexer(
     const Teuchos::RCP<moab::ParallelComm>& moab_mesh )
     : d_gid_map( 4 )
 {
-    // Index the entity sets.
+    // DTK needs unique global ids from MOAB. Assign global ids to the root
+    // set if needed.
+    int dimension = 0;
+    DTK_CHECK_ERROR_CODE(
+	moab_mesh->get_moab()->get_dimension( dimension )
+	);
     moab::EntityHandle root_set = moab_mesh->get_moab()->get_root_set();
+    DTK_CHECK_ERROR_CODE(
+	moab_mesh->assign_global_ids( root_set,
+				      dimension,
+				      1,
+				      false,
+				      true,
+				      false )
+	);
+
+    // Index the entity sets.
     int root_index = 0;
     d_handle_to_index_map.insert( std::make_pair(root_set, root_index) );
     d_index_to_handle_map.insert( std::make_pair(root_index, root_set) );
@@ -79,7 +94,7 @@ MoabMeshSetIndexer::MoabMeshSetIndexer(
     std::vector<moab::EntityHandle>::const_iterator entity_it;
     std::vector<EntityId> gid_data;
     std::vector<EntityId>::const_iterator gid_it;
-    for ( int d = 0; d < space_dim; ++d )
+    for ( int d = 0; d < space_dim+1; ++d )
     {
 	// Get the dimension entities.
 	dim_entities.clear();
