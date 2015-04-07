@@ -142,14 +142,21 @@ int main(int argc, char* argv[])
 
     // Create a source database.
     Teuchos::RCP<moab::Interface> source_iface = Teuchos::rcp( new moab::Core() );
-    Teuchos::RCP<moab::ParallelComm> source_mesh =
-	Teuchos::rcp( new moab::ParallelComm(source_iface.getRawPtr(),raw_comm) );
 
     // Load the mesh.
     moab::ErrorCode error;
-    error = source_iface->load_file( source_mesh_input_file.c_str() );
-    checkMoabErrorCode( error );
-    assert( moab::MB_SUCCESS == error );
+    std::string options = std::string(
+	"PARALLEL=READ_PART;PARTITION=PARALLEL_PARTITION;"
+	"PARALLEL_RESOLVE_SHARED_ENTS;PARTITION_DISTRIBUTE;"
+	"PARALLEL_GHOSTS=3.0.1;");
+    moab::ErrorCode error = source_iface->load_file(
+	source_mesh_input_file.c_str(), 0, options.c_str());
+    checkMoabErrorCode(error);
+    assert(moab::MB_SUCCESS == error);
+
+    // Get the parallel moab instance.
+    Teuchos::RCP<moab::ParallelComm> source_mesh = Teuchos::rcp(
+	moab::ParallelComm::get_pcomm(source_iface.getRawPtr(),0), false );
 
     // Get the entity set for the source part. Just use the root set for now.
     moab::EntityHandle source_set = source_iface->get_root_set();
@@ -218,13 +225,16 @@ int main(int argc, char* argv[])
 
     // Create a target database.
     Teuchos::RCP<moab::Interface> target_iface = Teuchos::rcp( new moab::Core() );
-    Teuchos::RCP<moab::ParallelComm> target_mesh =
-	Teuchos::rcp( new moab::ParallelComm(target_iface.getRawPtr(),raw_comm) );
 
     // Load the mesh.
-    error = target_iface->load_file( target_mesh_input_file.c_str() );
-    checkMoabErrorCode( error );
-    assert( moab::MB_SUCCESS == error );
+    error = source_iface->load_file(
+	target_mesh_input_file.c_str(), 0, options.c_str());
+    checkMoabErrorCode(error);
+    assert(moab::MB_SUCCESS == error);
+
+    // Get the parallel moab instance.
+    Teuchos::RCP<moab::ParallelComm> target_mesh = Teuchos::rcp(
+	moab::ParallelComm::get_pcomm(target_iface.getRawPtr(),0), false );
 
     // Get the entity set for the target part. Just use the root set for now.
     moab::EntityHandle target_set = target_iface->get_root_set();
@@ -305,19 +315,12 @@ int main(int argc, char* argv[])
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tgt_vector =
 	tgt_manager.createFieldMultiVector<double>( target_node_set, target_data_tag );
 
-    // Print out source mesh info.
-    Teuchos::RCP<Teuchos::Describable> src_describe =
-	src_manager.functionSpace()->entitySet();
-    std::cout << "Source Mesh" << std::endl;
-    src_describe->describe( std::cout );
-    std::cout << std::endl << std::endl;
-
-    // Print out target mesh info.
-    Teuchos::RCP<Teuchos::Describable> tgt_describe =
-	tgt_manager.functionSpace()->entitySet();
-    std::cout << "Target Mesh" << std::endl;
-    tgt_describe->describe( std::cout );
-    std::cout << std::endl << std::endl;
+    // Print out mesh info.
+    Teuchos::RCP<Teuchos::FancyOStream>
+	fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
+    fancy_out->setShowProcRank( true );
+    src_manager.functionSpace()->entitySet()->describe( *fancy_out );
+    tgt_manager.functionSpace()->entitySet()->describe( *fancy_out );
 
     
     // SOLUTION TRANSFER
@@ -383,16 +386,15 @@ int main(int argc, char* argv[])
     // SOURCE MESH WRITE
     // -----------------
 
-    error = source_iface->write_file( source_mesh_output_file.c_str(),
-				      0,
-				      0,
-    				      &source_set,
-    				      1,
-    				      &source_data_tag,
-    				      1 );
-    checkMoabErrorCode( error );
-    assert( moab::MB_SUCCESS == error );
-				      
+    error = source_iface->write_file(source_mesh_output_file.c_str(),
+				     "H5M",
+				     "PARALLEL=WRITE_PART",
+				     &source_set,
+				     1,
+				     &source_data_tag,
+				     1);
+    checkMoabErrorCode(error);
+    assert(moab::MB_SUCCESS == error);
 
     // TARGET MESH WRITE
     // -----------------
@@ -401,8 +403,8 @@ int main(int argc, char* argv[])
     out_tags[0] = target_data_tag;
     out_tags[1] = target_error_tag;
     error = target_iface->write_file( target_mesh_output_file.c_str(),
-				      0,
-				      0,
+				     "H5M",
+				     "PARALLEL=WRITE_PART",
 				      &target_set,
 				      1,
 				      &out_tags[0],

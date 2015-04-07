@@ -121,6 +121,9 @@ class MoabTagField : public Field<Scalar>
 
     // The dimension of the tag.
     int d_tag_dim;
+
+    // The dimension of the entities supporting the field.
+    int d_entity_dim;
     
     // The support ids of the entities over which the field is constructed.
     Teuchos::Array<SupportId> d_support_ids;

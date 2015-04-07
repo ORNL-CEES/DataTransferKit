@@ -49,6 +49,8 @@
 
 #include <Teuchos_DefaultMpiComm.hpp>
 
+#include <MBParallelConventions.h>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -96,14 +98,30 @@ EntityIterator MoabEntitySet::entityIterator(
     const int topological_dimension,
     const PredicateFunction& predicate ) const
 {
-    Teuchos::RCP<MoabEntityIteratorRange> iterator_range =
-	Teuchos::rcp( new MoabEntityIteratorRange() );
+    // Get all local entities.
+    moab::Range entities;
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->get_entities_by_dimension(
 	    0,
 	    topological_dimension,
-	    iterator_range->d_moab_entities )
+	    entities )
 	);
+
+    // Get the entites that are uniquely owned.
+    moab::Range owned_entities;
+    DTK_CHECK_ERROR_CODE(
+	d_moab_mesh->filter_pstatus( entities,
+				     PSTATUS_NOT_OWNED,
+				     PSTATUS_NOT,
+				     -1,
+				     &owned_entities )
+	);
+
+    // Create an iterator over the unique entities.
+    Teuchos::RCP<MoabEntityIteratorRange> iterator_range =
+	Teuchos::rcp( new MoabEntityIteratorRange() );
+    iterator_range->d_moab_entities.assign( owned_entities.begin(),
+					    owned_entities.end() );
     return MoabEntityIterator( 
 	iterator_range, d_moab_mesh.ptr(), d_set_indexer.ptr(), predicate );
 }

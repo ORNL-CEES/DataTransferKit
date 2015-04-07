@@ -64,6 +64,7 @@ MoabTagField<Scalar>::MoabTagField(
     , d_set_indexer( set_indexer )
     , d_mesh_set( mesh_set )
     , d_tag( tag )
+    , d_entity_dim( -1 )
 {
     // Get the dimension of the tag.
     DTK_CHECK_ERROR_CODE(
@@ -75,11 +76,18 @@ MoabTagField<Scalar>::MoabTagField(
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, entities );
 	);
-
+    
     // Get the global ids.
     int num_entities = entities.size();
     if ( 0 < num_entities )
     {
+	// Get the topological dimension of the entities supporting the
+	// field. We assume all entities supporting a field are of the same
+	// type.
+	d_entity_dim = MoabHelpers::getTopologicalDimensionFromMoabType(
+	    d_moab_mesh->get_moab()->type_from_handle(entities[0]) );
+
+	// Get the global ids of the entities supporting the field.
 	Teuchos::Array<EntityId> global_ids( num_entities );
 	MoabHelpers::getGlobalIds( *d_moab_mesh,
 				   entities.data(),
@@ -127,7 +135,7 @@ Scalar MoabTagField<Scalar>::readFieldData( const SupportId support_id,
 					    const int dimension ) const
 {
     moab::EntityHandle entity =
-	d_set_indexer->getEntityFromGlobalId( support_id, 0 );
+	d_set_indexer->getEntityFromGlobalId( support_id, d_entity_dim );
     const void* tag_data = 0;
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->tag_get_by_ptr( d_tag,
@@ -147,7 +155,7 @@ void MoabTagField<Scalar>::writeFieldData( const SupportId support_id,
 					   const Scalar data )
 {
     moab::EntityHandle entity =
-	d_set_indexer->getEntityFromGlobalId( support_id, 0 );
+	d_set_indexer->getEntityFromGlobalId( support_id, d_entity_dim );
     const void* tag_data = 0;
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->tag_get_by_ptr( d_tag,
