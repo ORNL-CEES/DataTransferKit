@@ -74,10 +74,10 @@ class MoabManager
      *
      * \param moab_mesh Moab mesh.
      *
-     * \param entity_type The type of entities in the mesh that will be
-     * mapped. 
+     * \param create_global_ids If true, build the native moab global id tag.
      */
-    MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
+    MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+		 bool create_global_ids = true );
 
     /*!
      * \brief Mesh set constructor.
@@ -86,11 +86,11 @@ class MoabManager
      *
      * \param mesh_set The set over which the manager will be constructed.
      *
-     * \param entity_type The type of entities in the mesh that will be
-     * mapped. 
+     * \param create_global_ids If true, build the native moab global id tag.
      */
     MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-		 const moab::EntityHandle& mesh_set );
+		 const moab::EntityHandle& mesh_set,
+		 bool create_global_ids = true );
 
     /*!
      * \brief Get the function space over which the mesh and its fields are

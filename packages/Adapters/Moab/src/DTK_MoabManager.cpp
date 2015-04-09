@@ -49,12 +49,14 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 //! Default constructor.
-MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh )
+MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+			  bool create_global_ids )
     : d_moab_mesh( moab_mesh )
 {
     // Build a mesh set indexer. This must be constructed after the global
     // indices are created.
-    d_set_indexer = Teuchos::rcp( new MoabMeshSetIndexer(d_moab_mesh) );
+    d_set_indexer =
+	Teuchos::rcp( new MoabMeshSetIndexer(d_moab_mesh,create_global_ids) );
     
     // Build DTK data structures.
     Teuchos::RCP<EntitySet> entity_set = 
@@ -73,12 +75,14 @@ MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh )
 //---------------------------------------------------------------------------//
 //! Mesh set constructor.
 MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-			  const moab::EntityHandle& mesh_set )
+			  const moab::EntityHandle& mesh_set,
+			  bool create_global_ids )
     : d_moab_mesh( moab_mesh )
 {
     // Build a mesh set indexer. This must be constructed after the global
     // indices are created.
-    d_set_indexer = Teuchos::rcp( new MoabMeshSetIndexer(d_moab_mesh) );
+    d_set_indexer =
+	Teuchos::rcp( new MoabMeshSetIndexer(d_moab_mesh,create_global_ids) );
 
     // Build DTK data structures.
     Teuchos::RCP<EntitySet> entity_set = 

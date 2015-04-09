@@ -66,7 +66,8 @@ class MoabMeshSetIndexer
      * \brief Constructor.
      * \param mesh The moab interface.
      */
-    MoabMeshSetIndexer( const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
+    MoabMeshSetIndexer( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+			bool create_global_ids = true );
 
     /*!
      * \brief Given an entity set handle, get the integer index in the mesh.
