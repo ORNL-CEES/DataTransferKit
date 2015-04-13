@@ -47,7 +47,7 @@
 
 #include "DTK_MoabManager.hpp"
 #include "DTK_MapOperatorFactory.hpp"
-#include "LibmeshDTKAdapters_LibmeshManager.hpp"
+#include "DTK_LibmeshManager.hpp"
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_Comm.hpp>
@@ -223,8 +223,8 @@ TEUCHOS_UNIT_TEST( LibmeshDTKAdapters, MoabToLibmeshTest ) {
     DataTransferKit::MoabManager src_manager(source_mesh, source_set);
 
     // Create a manager for the target set nodes.
-    LibmeshDTKAdapters::LibmeshManager tgt_manager(tgt_mesh,
-						   Teuchos::rcpFromRef(tgt_system));
+    DataTransferKit::LibmeshManager tgt_manager(tgt_mesh,
+						Teuchos::rcpFromRef(tgt_system));
 
     // Create a solution vector for the source.
     Teuchos::RCP<Tpetra::MultiVector<double, int, std::size_t> > src_vector =

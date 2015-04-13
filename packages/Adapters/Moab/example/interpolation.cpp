@@ -145,12 +145,7 @@ int main(int argc, char* argv[])
 
     // Load the mesh.
     moab::ErrorCode error;
-    std::string options = std::string(
-	"PARALLEL=READ_PART;PARTITION=PARALLEL_PARTITION;"
-	"PARALLEL_RESOLVE_SHARED_ENTS;PARTITION_DISTRIBUTE;"
-	"PARALLEL_GHOSTS=3.0.1;");
-    moab::ErrorCode error = source_iface->load_file(
-	source_mesh_input_file.c_str(), 0, options.c_str());
+    error = source_iface->load_file( source_mesh_input_file.c_str(), 0, 0);
     checkMoabErrorCode(error);
     assert(moab::MB_SUCCESS == error);
 
@@ -227,8 +222,7 @@ int main(int argc, char* argv[])
     Teuchos::RCP<moab::Interface> target_iface = Teuchos::rcp( new moab::Core() );
 
     // Load the mesh.
-    error = source_iface->load_file(
-	target_mesh_input_file.c_str(), 0, options.c_str());
+    error = source_iface->load_file( target_mesh_input_file.c_str(), 0, 0 );
     checkMoabErrorCode(error);
     assert(moab::MB_SUCCESS == error);
 
@@ -387,8 +381,8 @@ int main(int argc, char* argv[])
     // -----------------
 
     error = source_iface->write_file(source_mesh_output_file.c_str(),
-				     "H5M",
-				     "PARALLEL=WRITE_PART",
+				     0,
+				     0,
 				     &source_set,
 				     1,
 				     &source_data_tag,
@@ -403,8 +397,8 @@ int main(int argc, char* argv[])
     out_tags[0] = target_data_tag;
     out_tags[1] = target_error_tag;
     error = target_iface->write_file( target_mesh_output_file.c_str(),
-				     "H5M",
-				     "PARALLEL=WRITE_PART",
+				     0,
+				     0,
 				      &target_set,
 				      1,
 				      &out_tags[0],

@@ -49,7 +49,7 @@
 #include <cstdlib>
 #include <unordered_map>
 
-#include "LibmeshDTKAdapters_LibmeshManager.hpp"
+#include "DTK_LibmeshManager.hpp"
 
 #include "DTK_MapOperatorFactory.hpp"
 
@@ -212,11 +212,11 @@ int main(int argc, char* argv[])
     // -----------------------
     
     // Create a manager for the source set elements.
-    LibmeshDTKAdapters::LibmeshManager src_manager(
+    DataTransferKit::LibmeshManager src_manager(
 	src_mesh, Teuchos::rcpFromRef(src_system) );
 
     // Create a manager for the target set nodes.
-    LibmeshDTKAdapters::LibmeshManager tgt_manager( 
+    DataTransferKit::LibmeshManager tgt_manager( 
 	tgt_mesh, Teuchos::rcpFromRef(tgt_system) );
 
     // Create a solution vector for the source.
