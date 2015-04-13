@@ -7,4 +7,5 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     IntrepidAdapters      packages/Adapters/Intrepid      SS  OPTIONAL
     STKMeshAdapters       packages/Adapters/STKMesh       SS  OPTIONAL
     MoabAdapters          packages/Adapters/Moab          SS  OPTIONAL
+    LibmeshAdapters       packages/Adapters/Libmesh       SS  OPTIONAL
   )
