@@ -71,6 +71,9 @@ DTK has the following packages:
     * MOAB: A Mesh-Oriented datABase
       <http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>
 
+    * libMesh - A C++ Finite Element Library
+      <http://libmesh.github.io/>
+    
     * Basic geometric objects
 
     Outside of the DTK source code, other applications have
@@ -79,9 +82,6 @@ DTK has the following packages:
     with other libraries that have implemented the interfaces. These
     include:
 
-    * libMesh - A C++ Finite Element Library
-      <http://libmesh.github.io/>
-    
     * AMP: Advanced Multi-Physics
       <https://rsicc.ornl.gov/codes/ccc/ccc7/ccc-793.html>
 
