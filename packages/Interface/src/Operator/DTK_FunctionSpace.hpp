@@ -45,6 +45,7 @@
 #include "DTK_EntitySet.hpp"
 #include "DTK_EntityLocalMap.hpp"
 #include "DTK_EntityShapeFunction.hpp"
+#include "DTK_EntityIntegrationRule.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -69,6 +70,7 @@ class FunctionSpace
     FunctionSpace( const Teuchos::RCP<EntitySet>& entity_set,
 		   const Teuchos::RCP<EntityLocalMap>& local_map,
 		   const Teuchos::RCP<EntityShapeFunction>& shape_function,
+		   const Teuchos::RCP<EntityIntegrationRule>& integration_rule,
 		   const PredicateFunction& select_function = selectAll );
 
     /*!
@@ -85,6 +87,11 @@ class FunctionSpace
      * \brief Get the shape function for entities supporting the function.
      */
     Teuchos::RCP<EntityShapeFunction> shapeFunction() const;
+
+    /*!
+     * \brief Get the integration rule for entities supporting the function.
+     */
+    Teuchos::RCP<EntityIntegrationRule> integrationRule() const;
 
     /*!
      * \brief Get the selector function.
@@ -106,6 +113,9 @@ class FunctionSpace
 
     // The shape function for the entities in the set.
     Teuchos::RCP<EntityShapeFunction> d_shape_function;
+
+    // The integration rule for the entities in the set.
+    Teuchos::RCP<EntityIntegrationRule> d_integration_rule;
 
     // The selector function.
     PredicateFunction d_select_function;
