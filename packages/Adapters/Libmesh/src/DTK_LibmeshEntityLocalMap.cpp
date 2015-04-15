@@ -41,6 +41,7 @@
 #include <cassert>
 
 #include "DTK_LibmeshEntityLocalMap.hpp"
+#include "DTK_LibmeshHelpers.hpp"
 
 #include <libmesh/fe_interface.h>
 
@@ -83,7 +84,7 @@ double LibmeshEntityLocalMap::measure(
 	return 0.0;
     }
 
-    return extractGeom<libMesh::Elem>( entity )->volume();
+    return LibmeshHelpers::extractGeom<libMesh::Elem>( entity )->volume();
 }
 
 //---------------------------------------------------------------------------//
@@ -96,12 +97,13 @@ void LibmeshEntityLocalMap::centroid(
     
     if ( 0 == entity.topologicalDimension() )
     {
-	Teuchos::Ptr<libMesh::Point> node = extractGeom<libMesh::Node>( entity );
+	Teuchos::Ptr<libMesh::Point> node =
+	    LibmeshHelpers::extractGeom<libMesh::Node>( entity );
 	point = *node;
     }
     else
     {
-	point = extractGeom<libMesh::Elem>( entity )->centroid();
+	point = LibmeshHelpers::extractGeom<libMesh::Elem>( entity )->centroid();
     }
     
     int space_dim = entity.physicalDimension();
@@ -123,7 +125,7 @@ bool LibmeshEntityLocalMap::isSafeToMapToReferenceFrame(
 
     if ( 0 != entity.topologicalDimension() )
     {
-	param_dim = extractGeom<libMesh::Elem>( entity )->dim();
+	param_dim = LibmeshHelpers::extractGeom<libMesh::Elem>( entity )->dim();
     }
     else
     {
@@ -144,7 +146,7 @@ bool LibmeshEntityLocalMap::isSafeToMapToReferenceFrame(
 	    {
 		lm_point(d) = physical_point[d];
 	    }
-	    return extractGeom<libMesh::Elem>(
+	    return LibmeshHelpers::extractGeom<libMesh::Elem>(
 		entity )->close_to_point( lm_point,
 					  d_inclusion_tol );
 	}
@@ -182,7 +184,7 @@ bool LibmeshEntityLocalMap::mapToReferenceFrame(
 	libMesh::FEInterface::inverse_map(
 	    space_dim,
 	    d_libmesh_system->variable_type(0),
-	    extractGeom<libMesh::Elem>( entity ).getRawPtr(),
+	    LibmeshHelpers::extractGeom<libMesh::Elem>( entity ).getRawPtr(),
 	    lm_point,
 	    d_newton_tol );
 
@@ -209,7 +211,7 @@ bool LibmeshEntityLocalMap::checkPointInclusion(
 
     return libMesh::FEInterface::on_reference_element(
 	lm_reference_point,
-	extractGeom<libMesh::Elem>( entity )->type(),
+	LibmeshHelpers::extractGeom<libMesh::Elem>( entity )->type(),
 	d_inclusion_tol );
 }
 
@@ -231,7 +233,7 @@ void LibmeshEntityLocalMap::mapToPhysicalFrame(
        libMesh::FEInterface::map(
 	   space_dim,
 	   d_libmesh_system->variable_type(0),
-	   extractGeom<libMesh::Elem>( entity ).getRawPtr(),
+	   LibmeshHelpers::extractGeom<libMesh::Elem>( entity ).getRawPtr(),
 	   lm_reference_point );
 
     for ( int d = 0; d < space_dim; ++d )

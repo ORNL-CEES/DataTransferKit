@@ -43,6 +43,7 @@
 #include "DTK_LibmeshEntitySet.hpp"
 #include "DTK_LibmeshEntityLocalMap.hpp"
 #include "DTK_LibmeshVariableField.hpp"
+#include "DTK_LibmeshEntityIntegrationRule.hpp"
 
 #include <DTK_BasicEntityPredicates.hpp>
 
@@ -110,9 +111,12 @@ void LibmeshManager::buildFunctionSpace(
     Teuchos::RCP<DataTransferKit::EntityShapeFunction> shape_function =
 	Teuchos::rcp( new LibmeshNodalShapeFunction(d_mesh,d_system) );
 
+    Teuchos::RCP<DataTransferKit::EntityIntegrationRule> integration_rule =
+	Teuchos::rcp( new LibmeshEntityIntegrationRule() );
+
     d_function_space = Teuchos::rcp( 
 	new DataTransferKit::FunctionSpace(
-	    entity_set,local_map,shape_function,pred) );
+	    entity_set,local_map,shape_function,integration_rule,pred) );
 }
 
 //---------------------------------------------------------------------------//
@@ -127,7 +131,6 @@ LibmeshManager::createFieldMultiVector( const std::string& variable_name )
 	new DataTransferKit::FieldMultiVector<double>(
 	    field, d_function_space->entitySet()) );
 }
-
 
 //---------------------------------------------------------------------------//
 

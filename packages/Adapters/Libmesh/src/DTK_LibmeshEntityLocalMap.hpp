@@ -170,13 +170,6 @@ class LibmeshEntityLocalMap : public DataTransferKit::EntityLocalMap
 
   private:
 
-    // Extract the libmesh geom object.
-    template<class LibmeshGeom>
-    Teuchos::Ptr<LibmeshGeom> extractGeom(
-	const DataTransferKit::Entity& entity ) const;
-
-  private:
-
     // Libmesh mesh.
     Teuchos::RCP<libMesh::MeshBase> d_libmesh_mesh;
 
@@ -190,18 +183,6 @@ class LibmeshEntityLocalMap : public DataTransferKit::EntityLocalMap
     double d_inclusion_tol;
 
 };
-
-//---------------------------------------------------------------------------//
-// Template functions.
-//---------------------------------------------------------------------------//
-// Extract the libmesh geom object.
-template<class LibmeshGeom>
-Teuchos::Ptr<LibmeshGeom> LibmeshEntityLocalMap::extractGeom(
-    const DataTransferKit::Entity& entity ) const
-{
-    return Teuchos::rcp_dynamic_cast<LibmeshEntityExtraData<LibmeshGeom> >(
-	entity.extraData())->d_libmesh_geom;
-}
 
 //---------------------------------------------------------------------------//
 

@@ -10,10 +10,12 @@ APPEND_SET(HEADERS
   DTK_LibmeshEntity.hpp
   DTK_LibmeshEntityExtraData.hpp
   DTK_LibmeshEntityImpl.hpp
+  DTK_LibmeshEntityIntegrationRule.hpp
   DTK_LibmeshEntityIterator.hpp
   DTK_LibmeshEntityIterator_impl.hpp
   DTK_LibmeshEntityLocalMap.hpp
   DTK_LibmeshEntitySet.hpp
+  DTK_LibmeshHelpers.hpp
   DTK_LibmeshManager.hpp
   DTK_LibmeshNodalShapeFunction.hpp
   DTK_LibmeshVariableField.hpp
@@ -23,6 +25,7 @@ APPEND_SET(SOURCES
   DTK_LibmeshAdjacencies.cpp
   DTK_LibmeshEntity.cpp
   DTK_LibmeshEntityImpl.cpp
+  DTK_LibmeshEntityIntegrationRule.cpp
   DTK_LibmeshEntityLocalMap.cpp
   DTK_LibmeshEntitySet.cpp
   DTK_LibmeshManager.cpp
