@@ -15,6 +15,7 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_Entity.hpp
   ${DIR}/DTK_EntityExtraData.hpp
   ${DIR}/DTK_EntityImpl.hpp
+  ${DIR}/DTK_EntityIntegrationRule.hpp
   ${DIR}/DTK_EntityIterator.hpp
   ${DIR}/DTK_EntityLocalMap.hpp
   ${DIR}/DTK_Field.hpp
