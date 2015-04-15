@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntityIntegrationRule.hpp
+ * \brief DTK_MoabEntityIntegrationRule.hpp
  * \author Stuart R. Slattery
- * \brief STK mesh integration rule implementation.
+ * \brief moab integration rule implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_STKMESHENTITYINTEGRATIONRULE_HPP
-#define DTK_STKMESHENTITYINTEGRATIONRULE_HPP
+#ifndef DTK_MOABENTITYINTEGRATIONRULE_HPP
+#define DTK_MOABENTITYINTEGRATIONRULE_HPP
 
 #include <map>
 
@@ -48,31 +48,34 @@
 
 #include <Teuchos_Array.hpp>
 
+#include <Shards_CellTopologyData.hpp>
+
 #include <Intrepid_DefaultCubatureFactory.hpp>
 #include <Intrepid_Cubature.hpp>
 
-#include <stk_mesh/base/BulkData.hpp>
+#include <MBParallelComm.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class STKMeshEntityIntegrationRule
+  \class MoabEntityIntegrationRule
   \brief integration rule interface.
 
-  STKMeshEntityIntegrationRule provides numerical quadrature for entities.
+  MoabEntityIntegrationRule provides numerical quadrature for entities. We
+  build intrepid quadrature rules because Shards topologies and Moab
+  topologies have compatible reference frames.
 */
 //---------------------------------------------------------------------------//
-class STKMeshEntityIntegrationRule : public EntityIntegrationRule
+class MoabEntityIntegrationRule : public EntityIntegrationRule
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    STKMeshEntityIntegrationRule(
-	const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
-
+    MoabEntityIntegrationRule( const Teuchos::RCP<moab::ParallelComm>& mesh );
+    
     /*!
      * \brief Given an entity and an integration order, get its integration
      * rule. 
@@ -98,9 +101,12 @@ class STKMeshEntityIntegrationRule : public EntityIntegrationRule
 
   private:
 
-    // STK Mesh.
-    Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
-    
+    // Moab mesh.
+    Teuchos::RCP<moab::ParallelComm> d_mesh;
+
+    // Moab type to shards topology data.
+    std::map<moab::EntityType,const shards::CellTopologyData*> d_topo_map;
+
     // Intrepid cubature factory.
     mutable Intrepid::DefaultCubatureFactory<double> d_intrepid_factory;
 
@@ -115,8 +121,8 @@ class STKMeshEntityIntegrationRule : public EntityIntegrationRule
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_STKMESHENTITYINTEGRATIONRULE_HPP
+#endif // end DTK_MOABENTITYINTEGRATIONRULE_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshEntityIntegrationRule.hpp
+// end DTK_MoabEntityIntegrationRule.hpp
 //---------------------------------------------------------------------------//

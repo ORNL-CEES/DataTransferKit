@@ -4,6 +4,8 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     DataTransferKitInterface
     Teuchos 
     Tpetra
+    Shards
+    Intrepid
   TEST_REQUIRED_PACKAGES
     DataTransferKitOperators
   LIB_REQUIRED_TPLS

@@ -32,7 +32,7 @@
 */
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   tstLibmeshEntityIntegrationRule.cpp
+ * \file   tstMoabEntityIntegrationRule.cpp
  * \author Stuart Slattery
  * \date   Wed May 25 12:36:14 2011
  * \brief  integration rule function test.
@@ -44,9 +44,9 @@
 #include <cmath>
 #include <sstream>
 
-#include "DTK_LibmeshEntityIntegrationRule.hpp"
-#include "DTK_LibmeshEntity.hpp"
-#include "DTK_LibmeshAdjacencies.hpp"
+#include "DTK_MoabEntityIntegrationRule.hpp"
+#include "DTK_MoabEntity.hpp"
+#include <DTK_MoabHelpers.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -56,121 +56,102 @@
 #include "Teuchos_DefaultComm.hpp"
 #include <Teuchos_DefaultMpiComm.hpp>
 
-#include <libmesh/libmesh.h>
-#include <libmesh/parallel.h>
-#include <libmesh/node.h>
-#include <libmesh/point.h>
-#include <libmesh/cell_hex8.h>
-#include <libmesh/mesh.h>
-#include <libmesh/system.h>
-#include <libmesh/equation_systems.h>
-#include <libmesh/linear_implicit_system.h>
+#include <MBInterface.hpp>
+#include <MBParallelComm.hpp>
+#include <MBCore.hpp>
 
 //---------------------------------------------------------------------------//
 // Hex-8 test.
-TEUCHOS_UNIT_TEST( LibmeshEntityIntegrationRule, hex_8_test )
+TEUCHOS_UNIT_TEST( MoabEntityIntegrationRule, hex_8_test )
 {
     // Extract the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
 	Teuchos::DefaultComm<int>::getComm();
     Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
 	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
     Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
 	mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
-    
+
     // Create the mesh.
     int space_dim = 3;
-    const std::string argv_string = "unit_test";
-    const char* argv_char = argv_string.c_str();
-    libMesh::LibMeshInit libmesh_init( 1, &argv_char, raw_comm );
-    TEST_ASSERT( libMesh::initialized() );
-    TEST_EQUALITY( (int) libmesh_init.comm().rank(), comm->getRank() );
-    Teuchos::RCP<libMesh::Mesh> mesh = Teuchos::rcp(
-	new libMesh::Mesh(libmesh_init.comm(),space_dim) );
-    
+    Teuchos::RCP<moab::Interface> moab_mesh = Teuchos::rcp( new moab::Core() );
+    Teuchos::RCP<moab::ParallelComm> parallel_mesh =
+	Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
+
     // Create the nodes.
-    int rank = comm->getRank();
-    Teuchos::Array<libMesh::Node*> nodes( 8 );
+    moab::ErrorCode error = moab::MB_SUCCESS;
+    unsigned num_nodes = 8;
+    Teuchos::Array<moab::EntityHandle> nodes(num_nodes);
     double node_coords[3];
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
     node_coords[2] = 0.0;
-    nodes[0] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 0, rank );
-    
-    node_coords[0] = 1.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[0] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    node_coords[0] = 2.0;
     node_coords[1] = 0.0;
     node_coords[2] = 0.0;
-    nodes[1] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 1, rank );
-    
-    node_coords[0] = 1.0;
-    node_coords[1] = 1.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[1] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    node_coords[0] = 2.0;
+    node_coords[1] = 2.0;
     node_coords[2] = 0.0;
-    nodes[2] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 2, rank );
-    
+    error = moab_mesh->create_vertex( node_coords, nodes[2] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
     node_coords[0] = 0.0;
-    node_coords[1] = 1.0;
+    node_coords[1] = 2.0;
     node_coords[2] = 0.0;
-    nodes[3] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 3, rank );
-    
+    error = moab_mesh->create_vertex( node_coords, nodes[3] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
-    node_coords[2] = 1.0;
-    nodes[4] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 4, rank );
-	
-    node_coords[0] = 1.0;
+    node_coords[2] = 2.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[4] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    node_coords[0] = 2.0;
     node_coords[1] = 0.0;
-    node_coords[2] = 1.0;
-    nodes[5] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 5, rank );
-    
-    node_coords[0] = 1.0;
-    node_coords[1] = 1.0;
-    node_coords[2] = 1.0;
-    nodes[6] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 6, rank );
-	
+    node_coords[2] = 2.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[5] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
+    node_coords[0] = 2.0;
+    node_coords[1] = 2.0;
+    node_coords[2] = 2.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[6] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
+
     node_coords[0] = 0.0;
-    node_coords[1] = 1.0;
-    node_coords[2] = 1.0;
-    nodes[7] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 7, rank );
+    node_coords[1] = 2.0;
+    node_coords[2] = 2.0;
+    error = moab_mesh->create_vertex( node_coords, nodes[7] );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     // Make a hex-8.
-    int num_nodes = 8;
-    libMesh::Elem* hex_elem = mesh->add_elem( new libMesh::Hex8 );
-    hex_elem->processor_id() = rank;
-    hex_elem->set_id() = 2*rank;
-    for ( int i = 0; i < 8; ++i ) hex_elem->set_node(i) = nodes[i];
+    moab::EntityHandle hex_entity;
+    error = moab_mesh->create_element( moab::MBHEX,
+				       nodes.getRawPtr(),
+				       8,
+				       hex_entity );
+    TEST_EQUALITY( error, moab::MB_SUCCESS );
 
-    // Check libmesh validity.
-    mesh->libmesh_assert_valid_parallel_ids();
-
-    // Make an adjacency data structure.
-    DataTransferKit::LibmeshAdjacencies adjacencies( mesh );
+    // Index the sets in the mesh.
+    Teuchos::RCP<DataTransferKit::MoabMeshSetIndexer> set_indexer =
+	Teuchos::rcp( new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
 
     // Create a DTK entity for the hex.
-    DataTransferKit::Entity dtk_entity =
-    	DataTransferKit::LibmeshEntity<libMesh::Elem>(
-	    Teuchos::ptr(hex_elem), mesh.ptr(), Teuchos::ptrFromRef(adjacencies) );
+    DataTransferKit::Entity dtk_entity = DataTransferKit::MoabEntity( 
+	hex_entity, parallel_mesh.ptr(), set_indexer.ptr() );
 
-    // Create an integration rule.
+    // Create an integration rule function.
     Teuchos::RCP<DataTransferKit::EntityIntegrationRule> integration_rule =
-	Teuchos::rcp( new DataTransferKit::LibmeshEntityIntegrationRule() );
-    
+	Teuchos::rcp( new DataTransferKit::MoabEntityIntegrationRule(parallel_mesh) );
+
     // Test the integration rule.
     Teuchos::Array<Teuchos::Array<double> > p_1;
     Teuchos::Array<double> w_1;
@@ -198,9 +179,9 @@ TEUCHOS_UNIT_TEST( LibmeshEntityIntegrationRule, hex_8_test )
 	    TEST_FLOATING_EQUALITY(
 		std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
 	}
-    }
+    }    
 }
 
 //---------------------------------------------------------------------------//
-// end of tstLibmeshEntityIntegrationRule.cpp
+// end of tstMoabEntityIntegrationRule.cpp
 //---------------------------------------------------------------------------//

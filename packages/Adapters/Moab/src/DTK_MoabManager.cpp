@@ -44,6 +44,7 @@
 #include "DTK_MoabEntitySet.hpp"
 #include "DTK_MoabEntityLocalMap.hpp"
 #include "DTK_MoabMeshSetIndexer.hpp"
+#include "DTK_MoabEntityIntegrationRule.hpp"
 
 namespace DataTransferKit
 {
@@ -68,8 +69,11 @@ MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
     Teuchos::RCP<EntityShapeFunction> shape_function =
 	Teuchos::rcp( new MoabNodalShapeFunction(d_moab_mesh) );
 
+    Teuchos::RCP<EntityIntegrationRule> integration_rule =
+	Teuchos::rcp( new MoabEntityIntegrationRule(d_moab_mesh) );
+
     d_function_space = Teuchos::rcp( 
-	new FunctionSpace(entity_set,local_map,shape_function) );
+	new FunctionSpace(entity_set,local_map,shape_function,integration_rule) );
 }
 
 //---------------------------------------------------------------------------//
@@ -96,11 +100,14 @@ MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
     Teuchos::RCP<EntityShapeFunction> shape_function =
 	Teuchos::rcp( new MoabNodalShapeFunction(d_moab_mesh) );
 
-    d_function_space = Teuchos::rcp(
-	new FunctionSpace(entity_set,
-			  local_map,
-			  shape_function,
-			  pred.getFunction()) );
+    Teuchos::RCP<EntityIntegrationRule> integration_rule =
+	Teuchos::rcp( new MoabEntityIntegrationRule(d_moab_mesh) );
+
+    d_function_space = Teuchos::rcp( new FunctionSpace(entity_set,
+						       local_map,
+						       shape_function,
+						       integration_rule,
+						       pred.getFunction()) );
 }
 
 //---------------------------------------------------------------------------//

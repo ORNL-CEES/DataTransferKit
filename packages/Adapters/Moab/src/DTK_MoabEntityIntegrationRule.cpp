@@ -32,16 +32,17 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntityIntegrationRule.cpp
+ * \brief DTK_MoabEntityIntegrationRule.cpp
  * \author Stuart R. Slattery
- * \brief STK mesh integration rule implementation.
+ * \brief moab integration rule implementation.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_STKMeshEntityIntegrationRule.hpp"
-#include "DTK_STKMeshHelpers.hpp"
+#include "DTK_MoabEntityIntegrationRule.hpp"
+#include "DTK_MoabHelpers.hpp"
 
 #include <Shards_CellTopology.hpp>
+#include <Shards_BasicTopologies.hpp>
 
 #include <Intrepid_FieldContainer.hpp>
 
@@ -49,24 +50,39 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-STKMeshEntityIntegrationRule::STKMeshEntityIntegrationRule(
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
-    : d_bulk_data( bulk_data )
-{ /* ... */ }
+MoabEntityIntegrationRule::MoabEntityIntegrationRule(
+    const Teuchos::RCP<moab::ParallelComm>& mesh )
+    : d_mesh( mesh )
+{
+    d_topo_map.emplace( moab::MBEDGE,
+			shards::getCellTopologyData<shards::Line<> > );
+    d_topo_map.emplace( moab::MBTRI,
+			shards::getCellTopologyData<shards::Triangle<> > );
+    d_topo_map.emplace( moab::MBQUAD,
+			shards::getCellTopologyData<shards::Quadrilateral<> > );
+    d_topo_map.emplace( moab::MBTET,
+			shards::getCellTopologyData<shards::Tetrahedron<> > );
+    d_topo_map.emplace( moab::MBPYRAMID,
+			shards::getCellTopologyData<shards::Pyramid<> > );
+    d_topo_map.emplace( moab::MBHEX,
+			shards::getCellTopologyData<shards::Hexahedron<> > );
+}
 
 //---------------------------------------------------------------------------//
 // Given an entity and an integration order, get its integration rule. 
-void STKMeshEntityIntegrationRule::getIntegrationRule(
+void MoabEntityIntegrationRule::getIntegrationRule(
     const Entity& entity,
     const int order,
     Teuchos::Array<Teuchos::Array<double> >& reference_points,
     Teuchos::Array<double>& weights ) const
 {
     // Get entity and topology info.
-    const stk::mesh::Entity& stk_entity =
-	STKMeshHelpers::extractEntity( entity );
-    shards::CellTopology cell_topo =
-	STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
+    moab::EntityType moab_type = d_mesh->get_moab()->type_from_handle(
+	MoabHelpers::extractEntity(entity) );
+    DTK_REQUIRE( d_topo_map.count(moab_type) );
+    const shards::CellTopologyData* topo_data =
+	d_topo_map.find( moab_type )->second;
+    shards::CellTopology cell_topo( topo_data );
     std::pair<unsigned,int> cub_key( cell_topo.getKey(), order );
 
     // If we haven't already created a cubature for this topology and order
@@ -108,5 +124,5 @@ void STKMeshEntityIntegrationRule::getIntegrationRule(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshEntityIntegrationRule.hpp
+// end DTK_MoabEntityIntegrationRule.hpp
 //---------------------------------------------------------------------------//
