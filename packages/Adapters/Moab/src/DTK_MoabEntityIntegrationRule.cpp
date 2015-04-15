@@ -40,6 +40,7 @@
 
 #include "DTK_MoabEntityIntegrationRule.hpp"
 #include "DTK_MoabHelpers.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Shards_CellTopology.hpp>
 #include <Shards_BasicTopologies.hpp>
@@ -55,17 +56,17 @@ MoabEntityIntegrationRule::MoabEntityIntegrationRule(
     : d_mesh( mesh )
 {
     d_topo_map.emplace( moab::MBEDGE,
-			shards::getCellTopologyData<shards::Line<> > );
+			shards::getCellTopologyData<shards::Line<> >() );
     d_topo_map.emplace( moab::MBTRI,
-			shards::getCellTopologyData<shards::Triangle<> > );
+			shards::getCellTopologyData<shards::Triangle<> >() );
     d_topo_map.emplace( moab::MBQUAD,
-			shards::getCellTopologyData<shards::Quadrilateral<> > );
+			shards::getCellTopologyData<shards::Quadrilateral<> >() );
     d_topo_map.emplace( moab::MBTET,
-			shards::getCellTopologyData<shards::Tetrahedron<> > );
+			shards::getCellTopologyData<shards::Tetrahedron<> >() );
     d_topo_map.emplace( moab::MBPYRAMID,
-			shards::getCellTopologyData<shards::Pyramid<> > );
+			shards::getCellTopologyData<shards::Pyramid<> >() );
     d_topo_map.emplace( moab::MBHEX,
-			shards::getCellTopologyData<shards::Hexahedron<> > );
+			shards::getCellTopologyData<shards::Hexahedron<> >() );
 }
 
 //---------------------------------------------------------------------------//
@@ -80,8 +81,7 @@ void MoabEntityIntegrationRule::getIntegrationRule(
     moab::EntityType moab_type = d_mesh->get_moab()->type_from_handle(
 	MoabHelpers::extractEntity(entity) );
     DTK_REQUIRE( d_topo_map.count(moab_type) );
-    const shards::CellTopologyData* topo_data =
-	d_topo_map.find( moab_type )->second;
+    const CellTopologyData* topo_data =	d_topo_map.find( moab_type )->second;
     shards::CellTopology cell_topo( topo_data );
     std::pair<unsigned,int> cub_key( cell_topo.getKey(), order );
 

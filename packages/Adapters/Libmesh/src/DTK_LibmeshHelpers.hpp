@@ -41,10 +41,10 @@
 #ifndef LIBMESHDTKADAPTERS_LIBMESHHELPERS_HPP
 #define LIBMESHDTKADAPTERS_LIBMESHHELPERS_HPP
 
-#include <DTK_Entity.hpp>
-#include <DTK_LibmeshEntityExtraData.hpp>
+#include "DTK_Entity.hpp"
+#include "DTK_LibmeshEntityExtraData.hpp"
 
-#include <Teuchos_RCP.hpp>
+#include <Teuchos_Ptr.hpp>
 
 #include <libmesh/mesh_base.h>
 
@@ -63,11 +63,12 @@ class LibmeshHelpers
     // Extract the libmesh geom object.
     template<class LibmeshGeom>
     static Teuchos::Ptr<LibmeshGeom> extractGeom(
-	const DataTransferKit::Entity& entity ) const
+	const DataTransferKit::Entity& entity )
     {
 	return Teuchos::rcp_dynamic_cast<LibmeshEntityExtraData<LibmeshGeom> >(
 	    entity.extraData())->d_libmesh_geom;
     }
+};
 
 //---------------------------------------------------------------------------//
 

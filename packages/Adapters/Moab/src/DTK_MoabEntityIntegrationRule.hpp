@@ -48,7 +48,7 @@
 
 #include <Teuchos_Array.hpp>
 
-#include <Shards_CellTopologyData.hpp>
+#include <Shards_CellTopologyData.h>
 
 #include <Intrepid_DefaultCubatureFactory.hpp>
 #include <Intrepid_Cubature.hpp>
@@ -64,7 +64,10 @@ namespace DataTransferKit
 
   MoabEntityIntegrationRule provides numerical quadrature for entities. We
   build intrepid quadrature rules because Shards topologies and Moab
-  topologies have compatible reference frames.
+  topologies have compatible reference frames. It should be noted that node
+  orderings for higher order elements are different, however, this is only
+  reflected in shape function evaluation and is independent of the integration
+  rule.
 */
 //---------------------------------------------------------------------------//
 class MoabEntityIntegrationRule : public EntityIntegrationRule
@@ -105,7 +108,7 @@ class MoabEntityIntegrationRule : public EntityIntegrationRule
     Teuchos::RCP<moab::ParallelComm> d_mesh;
 
     // Moab type to shards topology data.
-    std::map<moab::EntityType,const shards::CellTopologyData*> d_topo_map;
+    std::map<moab::EntityType,const CellTopologyData*> d_topo_map;
 
     // Intrepid cubature factory.
     mutable Intrepid::DefaultCubatureFactory<double> d_intrepid_factory;

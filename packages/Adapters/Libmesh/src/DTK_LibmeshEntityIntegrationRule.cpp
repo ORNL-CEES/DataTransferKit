@@ -62,12 +62,12 @@ void LibmeshEntityIntegrationRule::getIntegrationRule(
     libMesh::AutoPtr<libMesh::QBase> libmesh_quadrature =
 	libMesh::QBase::build( d_quad_type,
 			       entity.topologicalDimension(),
-			       order );
+			       static_cast<libMesh::Order>(order) );
 
     // Initialize the quadrature rule for the entity.
     Teuchos::Ptr<libMesh::Elem> libmesh_elem =
 	LibmeshHelpers::extractGeom<libMesh::Elem>( entity );
-    libmesh_quadrature->init( *libmesh_elem );
+    libmesh_quadrature->init( libmesh_elem->type() );
 
     // Extract the data for the quadrature rule.
     int num_points = libmesh_quadrature->n_points();
