@@ -32,24 +32,25 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_SplineInterpolationOperator.hpp
+ * \brief DTK_L2ProjectionOperator.hpp
  * \author Stuart R. Slattery
- * \brief Parallel spline interpolator.
+ * \brief L2 projection operator.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SPLINEINTERPOLATIONOPERATOR_HPP
-#define DTK_SPLINEINTERPOLATIONOPERATOR_HPP
+#ifndef DTK_L2PROJECTIONOPERATOR_HPP
+#define DTK_L2PROJECTIONOPERATOR_HPP
 
 #include "DTK_MapOperator.hpp"
-#include "DTK_RadialBasisPolicy.hpp"
+#include "DTK_Types.hpp"
+#include "DTK_EntityIterator.hpp"
+#include "DTK_IntegrationPointSet.hpp"
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
-#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_ParameterList.hpp>
 #include <Teuchos_Array.hpp>
 
-#include <Tpetra_Map.hpp>
+#include <Tpetra_CrsMatrix.hpp>
 
 #include <Thyra_LinearOpBase.hpp>
 
@@ -57,39 +58,30 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class SplineInterpolationOperator
- * \brief Parallel spline interpolator.
- *
- * The SplineInterpolationOperator is the top-level driver for parallel interpolation
- * problems.
- */
+  \class L2ProjectionOperator
+  \brief L2 projection operator.
+
+  Constructs and solves the L2 projection problem on a shared domain. The
+  Galerkin problem is assembled over the range (target) entity set.
+*/
 //---------------------------------------------------------------------------//
-template<class Scalar,class Basis,int DIM>
-class SplineInterpolationOperator : virtual public MapOperator<Scalar>
+template<class Scalar>
+class L2ProjectionOperator : virtual public MapOperator<Scalar>
 {
   public:
 
-    //@{
-    //! Typedefs.
+    //! Root class tyepdef.
     typedef MapOperator<Scalar> Base;
     typedef typename Base::Root Root;
     typedef typename Root::local_ordinal_type LO;
     typedef typename Root::global_ordinal_type GO;
     typedef typename Base::TpetraMultiVector TpetraMultiVector;
     typedef typename Base::TpetraMap TpetraMap;
-    typedef RadialBasisPolicy<Basis> BP;
-    //@}
-
-    /*
+    
+    /*!
      * \brief Constructor.
-     *
-     * \param domain_map Parallel map for domain vectors this map should be
-     * compatible with.
-     *
-     * \param range_map Parallel map for range vectors this map should be
-     * compatible with.
      */
-    SplineInterpolationOperator(     
+    L2ProjectionOperator(
 	const Teuchos::RCP<const TpetraMap>& domain_map,
 	const Teuchos::RCP<const TpetraMap>& range_map,
 	const Teuchos::ParameterList& parameters );
@@ -98,9 +90,15 @@ class SplineInterpolationOperator : virtual public MapOperator<Scalar>
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
      *
+     * \param domain_map Parallel map for domain vectors this map should be
+     * compatible with.
+     *
      * \param domain_function The function that contains the data that will be
      * sent to the range. Must always be nonnull but the pointers it contains
      * may be null of no entities are on-process.
+     *
+     * \param range_map Parallel map for range vectors this map should be
+     * compatible with.
      *
      * \param range_space The function that will receive the data from the
      * domain. Must always be nonnull but the pointers it contains to entity
@@ -112,7 +110,7 @@ class SplineInterpolationOperator : virtual public MapOperator<Scalar>
 		const Teuchos::RCP<FunctionSpace>& range_space ) override;
 
   protected:
-    
+
     /*!
      * \brief Apply the operator.
      */
@@ -122,23 +120,23 @@ class SplineInterpolationOperator : virtual public MapOperator<Scalar>
 	Teuchos::ETransp mode = Teuchos::NO_TRANS,
 	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
 	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
+
+  private:
+
+    // Assemble the mass matrix and range integration point set.
+    void assembleMassMatrix(
+	const Teuchos::RCP<FunctionSpace>& range_space,
+	EntityIterator range_iterator,
+	Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> >& mass_matrix,
+	Teuchos::RCP<IntegrationPointSet>& range_ip_set );
     
   private:
 
-    // Build the concrete operators.
-    void buildConcreteOperators(
-	const Teuchos::RCP<FunctionSpace>& domain_space,
-	const Teuchos::RCP<FunctionSpace>& range_space,
-	Teuchos::RCP<const Root>& S,
-	Teuchos::RCP<const Root>& P,
-	Teuchos::RCP<const Root>& M,
-	Teuchos::RCP<const Root>& Q,
-	Teuchos::RCP<const Root>& N ) const;
-
-  private:
-
-    // Basis radius.
-    double d_radius;
+    // Order of numerical integration for assembly of the Galerkin problem.
+    int d_int_order;
+    
+    // Search sublist.
+    Teuchos::ParameterList d_search_list;
 
     // Coupling matrix.
     Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > d_coupling_matrix;
@@ -152,13 +150,12 @@ class SplineInterpolationOperator : virtual public MapOperator<Scalar>
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_SplineInterpolationOperator_impl.hpp"
+#include "DTK_L2ProjectionOperator_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_SPLINEINTERPOLATIONOPERATOR_HPP
+#endif // end DTK_L2PROJECTIONOPERATOR_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_SplineInterpolationOperator.hpp
+// end DTK_L2ProjectionOperator.hpp
 //---------------------------------------------------------------------------//
-

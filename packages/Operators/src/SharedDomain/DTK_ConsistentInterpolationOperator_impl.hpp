@@ -34,7 +34,7 @@
 /*!
  * \brief DTK_ConsistentInterpolationOperator_impl.hpp
  * \author Stuart R. Slattery
- * \brief Consistent interpolation oprator.
+ * \brief Consistent interpolation operator.
  */
 //---------------------------------------------------------------------------//
 

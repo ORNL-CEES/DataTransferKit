@@ -56,8 +56,6 @@
 #include <Teuchos_ParameterList.hpp>
 #include <Teuchos_XMLParameterListCoreHelpers.hpp>
 
-#include <Tpetra_Map.hpp>
-
 #include <Thyra_TpetraThyraWrappers.hpp>
 #include <Thyra_DefaultMultipliedLinearOp.hpp>
 #include <Thyra_DefaultScaledAdjointLinearOp.hpp>
