@@ -32,77 +32,79 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityIntegrationRule.hpp
+ * \brief DTK_STKMeshEntityIntegrationRule.cpp
  * \author Stuart R. Slattery
- * \brief integration rule interface.
+ * \brief STK mesh integration rule implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_INTEGRATIONRULE_HPP
-#define DTK_INTEGRATIONRULE_HPP
+#include "DTK_STKMeshEntityIntegrationRule.hpp"
+#include "DTK_STKMeshHelpers.hpp"
 
-#include "DTK_Entity.hpp"
-
-#include <Teuchos_Array.hpp>
+#include <Intrepid_FieldContainer.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*!
-  \class EntityIntegrationRule
-  \brief integration rule interface.
+// Constructor.
+STKMeshEntityIntegrationRule::STKMeshEntityIntegrationRule(
+    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
+    : d_bulk_data( bulk_data )
+{ /* ... */ }
 
-  EntityIntegrationRule provides numerical quadrature for entities.
-*/
 //---------------------------------------------------------------------------//
-class EntityIntegrationRule
+// Given an entity and an integration order, get its integration rule. 
+void STKMeshEntityIntegrationRule::getIntegrationRule(
+    const Entity& entity,
+    const int order,
+    Teuchos::Array<Teuchos::Array<double> >& reference_points,
+    Teuchos::Array<double>& weights ) const override;
 {
-  public:
+    // Get entity and topology info.
+    const stk::mesh::Entity& stk_entity =
+	STKMeshHelpers::extractEntity( entity );
+    shards::CellTopology cell_topo =
+	STKMeshHelpers::getShardsTopology( stk_entity );
+    std::pair<unsigned,int> cub_key( cell_topo.getKey(), order );
 
-    /*!
-     * \brief Constructor.
-     */
-    EntityIntegrationRule()
-    { /* ... */ }
+    // If we haven't already created a cubature for this topology and order
+    // create one.
+    Teuchos::RCP<Intrepid::Cubature<double> > cub_rule;
+    if ( d_cub_rules.count(cub_key) )
+    {
+	cub_rule = d_cub_rules.find( cub_key )->second;
+    }
+    else
+    {
+	cub_rule = d_intrepid_factory.create( cell_topo, order );
+	d_cub_rules.emplace( cub_key, cub_rule );
+    }
 
-    /*!
-     * \brief Destructor.
-     */
-    virtual ~EntityIntegrationRule()
-    { /* ... */ }
+    // Get the cubature rule.
+    int num_points = cub_rule->getNumPoints();
+    int cub_dim = cub_rule->getDimension();
+    Intrepid::FieldContainer<double> cub_points( num_points, cub_dim );
+    Intrepid::FieldContainer<double> cub_weights( num_points );
+    d_cub_rule->getCubature( cub_points, cub_weights );
 
-    /*!
-     * \brief Given an entity and an integration order, get its integration
-     * rule. 
-     *
-     * \param entity Get the integration rule for this entity.
-     *
-     * \param order Get an integration rule of this order.
-     *
-     * \param reference_points Return the integration points in the reference
-     * frame of the entity in this array. If there are N integration points of
-     * topological dimension D then this array is of size
-     * reference_points[N][D].
-     *
-     * \param weights Return the weights of the integration points in this
-     * array. If there are N integration points this array is of size
-     * weights[N].
-     */
-    virtual void getIntegrationRule(
-	const Entity& entity,
-	const int order,
-	Teuchos::Array<Teuchos::Array<double> >& reference_points,
-	Teuchos::Array<double>& weights ) const = 0;
-};
+    // Write the data into the output arrays.
+    reference_points.resize( num_points );
+    weights.resize( num_points );
+    for ( int p = 0; p < num_points; ++p )
+    {
+	weights[p] = cub_weights(p);
+	reference_points[p].resize( cub_dim );
+	for ( int d = 0; d < cub_dim; ++d )
+	{
+	    reference_points[p][d] = cub_points(p,d);
+	}
+    }
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_INTEGRATIONRULE_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_EntityIntegrationRule.hpp
+// end DTK_STKMeshEntityIntegrationRule.hpp
 //---------------------------------------------------------------------------//

@@ -32,44 +32,48 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityIntegrationRule.hpp
+ * \brief DTK_STKMeshEntityIntegrationRule.hpp
  * \author Stuart R. Slattery
- * \brief integration rule interface.
+ * \brief STK mesh integration rule implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_INTEGRATIONRULE_HPP
-#define DTK_INTEGRATIONRULE_HPP
+#ifndef DTK_STKMESHENTITYINTEGRATIONRULE_HPP
+#define DTK_STKMESHENTITYINTEGRATIONRULE_HPP
+
+#include <map>
 
 #include "DTK_Entity.hpp"
+#include "DTK_EntityIntegrationRule.hpp"
 
 #include <Teuchos_Array.hpp>
+
+#include <Shards_CellTopology.hpp>
+
+#include <Intrepid_DefaultCubatureFactory.hpp>
+#include <Intrepid_Cubature.hpp>
+
+#include <stk_mesh/base/BulkData.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class EntityIntegrationRule
+  \class STKMeshEntityIntegrationRule
   \brief integration rule interface.
 
-  EntityIntegrationRule provides numerical quadrature for entities.
+  STKMeshEntityIntegrationRule provides numerical quadrature for entities.
 */
 //---------------------------------------------------------------------------//
-class EntityIntegrationRule
+class STKMeshEntityIntegrationRule
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    EntityIntegrationRule()
-    { /* ... */ }
-
-    /*!
-     * \brief Destructor.
-     */
-    virtual ~EntityIntegrationRule()
-    { /* ... */ }
+    STKMeshEntityIntegrationRule(
+	const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
 
     /*!
      * \brief Given an entity and an integration order, get its integration
@@ -88,11 +92,23 @@ class EntityIntegrationRule
      * array. If there are N integration points this array is of size
      * weights[N].
      */
-    virtual void getIntegrationRule(
+    void getIntegrationRule(
 	const Entity& entity,
 	const int order,
 	Teuchos::Array<Teuchos::Array<double> >& reference_points,
-	Teuchos::Array<double>& weights ) const = 0;
+	Teuchos::Array<double>& weights ) const override;
+
+  private:
+
+    // STK Mesh.
+    Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
+    
+    // Intrepid cubature factory.
+    Intrepid::DefaultCubatureFactory<double> d_intrepid_factory;
+
+    // Map of already created cubature rules.
+    std::unordered_map<std::pair<unsigned,int>,
+		       Teuchos::RCP<Intrepid::Cubature<double> > > d_cub_rules;
 };
 
 //---------------------------------------------------------------------------//
@@ -101,8 +117,8 @@ class EntityIntegrationRule
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_INTEGRATIONRULE_HPP
+#endif // end DTK_STKMESHENTITYINTEGRATIONRULE_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_EntityIntegrationRule.hpp
+// end DTK_STKMeshEntityIntegrationRule.hpp
 //---------------------------------------------------------------------------//
