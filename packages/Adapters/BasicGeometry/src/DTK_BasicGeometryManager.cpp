@@ -121,7 +121,8 @@ void BasicGeometryManager::createFunctionSpace(
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     d_function_space = Teuchos::rcp( 
-	new FunctionSpace(entity_set,local_map,shape_function,select_function) );
+	new FunctionSpace(
+	    entity_set,local_map,shape_function,Teuchos::null,select_function) );
 }
 
 //---------------------------------------------------------------------------//
