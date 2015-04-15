@@ -9,6 +9,7 @@ APPEND_SET(HEADERS
   DTK_STKMeshEntity.hpp
   DTK_STKMeshEntityExtraData.hpp
   DTK_STKMeshEntityImpl.hpp
+  DTK_STKMeshEntityIntegrationRule.hpp
   DTK_STKMeshEntityIterator.hpp
   DTK_STKMeshEntityIteratorRange.hpp
   DTK_STKMeshEntityLocalMap.hpp
@@ -25,6 +26,7 @@ APPEND_SET(HEADERS
 APPEND_SET(SOURCES
   DTK_STKMeshEntity.cpp
   DTK_STKMeshEntityImpl.cpp
+  DTK_STKMeshEntityIntegrationRule.cpp
   DTK_STKMeshEntityIterator.cpp
   DTK_STKMeshEntityLocalMap.cpp
   DTK_STKMeshManager.cpp

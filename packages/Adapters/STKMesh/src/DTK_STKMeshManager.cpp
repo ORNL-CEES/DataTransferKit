@@ -43,6 +43,7 @@
 #include "DTK_STKMeshNodalShapeFunction.hpp"
 #include "DTK_STKMeshEntitySet.hpp"
 #include "DTK_STKMeshEntityLocalMap.hpp"
+#include "DTK_STKMeshEntityIntegrationRule.hpp"
 
 namespace DataTransferKit
 {
@@ -130,8 +131,12 @@ void STKMeshManager::createFunctionSpace(
     }
     DTK_CHECK( Teuchos::nonnull(shape_function) );
 
+    Teuchos::RCP<EntityIntegrationRule> integration_rule =
+	Teuchos::rcp( new STKMeshEntityIntegrationRule(d_bulk_data) );
+
     d_function_space = Teuchos::rcp( 
-	new FunctionSpace(entity_set,local_map,shape_function,select_function) );
+	new FunctionSpace(entity_set,local_map,shape_function,
+			  integration_rule,select_function) );
 
     DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }

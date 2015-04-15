@@ -35,7 +35,7 @@
  * \file   tstSTKMeshEntityIntegrationRule.cpp
  * \author Stuart Slattery
  * \date   Wed May 25 12:36:14 2011
- * \brief  Nodal shape function test.
+ * \brief  Integration rule function test.
  */
 //---------------------------------------------------------------------------//
 
@@ -130,10 +130,27 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIntegrationRule, hex_8_test )
     TEST_EQUALITY( 1, w_1.size() );
     TEST_EQUALITY( 1, p_1.size() );
     TEST_EQUALITY( 3, p_1[0].size() );
-    TEST_EQUALITY( 1.0, w_1[0] );
+    TEST_EQUALITY( 8.0, w_1[0] );
     TEST_EQUALITY( 0.0, p_1[0][0] );
     TEST_EQUALITY( 0.0, p_1[0][1] );
     TEST_EQUALITY( 0.0, p_1[0][2] );
+
+    Teuchos::Array<Teuchos::Array<double> > p_2;
+    Teuchos::Array<double> w_2;
+    integration_rule->getIntegrationRule( dtk_entity, 2, p_2, w_2 );
+    TEST_EQUALITY( 8, w_2.size() );
+    TEST_EQUALITY( 8, p_2.size() );
+    for ( int i = 0; i < 8; ++i )
+    {
+	TEST_EQUALITY( w_2[i], 1.0 );
+	TEST_EQUALITY( p_2[i].size(), 3 );
+
+	for ( int d = 0; d < 3; ++d )
+	{
+	    TEST_FLOATING_EQUALITY(
+		std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//

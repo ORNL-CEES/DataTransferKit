@@ -64,7 +64,7 @@
 
 //---------------------------------------------------------------------------//
 // Hex-8 test.
-TEUCHOS_UNIT_TEST( STKMeshEntitySet, hex_8_test )
+TEUCHOS_UNIT_TEST( STKMeshNodalShapeFunction, hex_8_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 

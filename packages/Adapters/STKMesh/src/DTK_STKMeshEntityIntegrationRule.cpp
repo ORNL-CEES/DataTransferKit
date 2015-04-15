@@ -58,13 +58,13 @@ void STKMeshEntityIntegrationRule::getIntegrationRule(
     const Entity& entity,
     const int order,
     Teuchos::Array<Teuchos::Array<double> >& reference_points,
-    Teuchos::Array<double>& weights ) const override;
+    Teuchos::Array<double>& weights ) const
 {
     // Get entity and topology info.
     const stk::mesh::Entity& stk_entity =
 	STKMeshHelpers::extractEntity( entity );
     shards::CellTopology cell_topo =
-	STKMeshHelpers::getShardsTopology( stk_entity );
+	STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
     std::pair<unsigned,int> cub_key( cell_topo.getKey(), order );
 
     // If we haven't already created a cubature for this topology and order
@@ -85,7 +85,7 @@ void STKMeshEntityIntegrationRule::getIntegrationRule(
     int cub_dim = cub_rule->getDimension();
     Intrepid::FieldContainer<double> cub_points( num_points, cub_dim );
     Intrepid::FieldContainer<double> cub_weights( num_points );
-    d_cub_rule->getCubature( cub_points, cub_weights );
+    cub_rule->getCubature( cub_points, cub_weights );
 
     // Write the data into the output arrays.
     reference_points.resize( num_points );

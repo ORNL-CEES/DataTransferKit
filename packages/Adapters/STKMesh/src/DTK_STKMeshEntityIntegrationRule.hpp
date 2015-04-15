@@ -65,7 +65,7 @@ namespace DataTransferKit
   STKMeshEntityIntegrationRule provides numerical quadrature for entities.
 */
 //---------------------------------------------------------------------------//
-class STKMeshEntityIntegrationRule
+class STKMeshEntityIntegrationRule : public EntityIntegrationRule
 {
   public:
 
@@ -104,11 +104,11 @@ class STKMeshEntityIntegrationRule
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
     
     // Intrepid cubature factory.
-    Intrepid::DefaultCubatureFactory<double> d_intrepid_factory;
+    mutable Intrepid::DefaultCubatureFactory<double> d_intrepid_factory;
 
     // Map of already created cubature rules.
-    std::unordered_map<std::pair<unsigned,int>,
-		       Teuchos::RCP<Intrepid::Cubature<double> > > d_cub_rules;
+    mutable std::map<std::pair<unsigned,int>,
+		     Teuchos::RCP<Intrepid::Cubature<double> > > d_cub_rules;
 };
 
 //---------------------------------------------------------------------------//
