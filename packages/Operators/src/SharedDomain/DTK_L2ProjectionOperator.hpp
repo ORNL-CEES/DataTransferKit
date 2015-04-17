@@ -129,6 +129,13 @@ class L2ProjectionOperator : virtual public MapOperator<Scalar>
 	EntityIterator range_iterator,
 	Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> >& mass_matrix,
 	Teuchos::RCP<IntegrationPointSet>& range_ip_set );
+
+    // Assemble the coupling matrix.
+    void assembleCouplingMatrix(
+	const Teuchos::RCP<FunctionSpace>& domain_space,
+	EntityIterator domain_iterator,
+	const Teuchos::RCP<IntegrationPointSet>& range_ip_set,
+	Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> >& coupling_matrix );
     
   private:
 
@@ -139,7 +146,7 @@ class L2ProjectionOperator : virtual public MapOperator<Scalar>
     Teuchos::ParameterList d_search_list;
 
     // Coupling matrix.
-    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > d_coupling_matrix;
+    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > d_l2_operator;
 };
 
 //---------------------------------------------------------------------------//

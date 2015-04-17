@@ -42,7 +42,6 @@
 #define DTK_CONSISTENTINTERPOLATIONOPERATOR_IMPL_HPP
 
 #include <algorithm>
-#include <unordered_set>
 #include <unordered_map>
 
 #include "DTK_DBC.hpp"

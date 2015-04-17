@@ -20,6 +20,8 @@ SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/SharedDomain)
 APPEND_SET(HEADERS
   ${DIR}/DTK_ConsistentInterpolationOperator.hpp
   ${DIR}/DTK_ConsistentInterpolationOperator_impl.hpp
+  ${DIR}/DTK_L2ProjectionOperator.hpp
+  ${DIR}/DTK_L2ProjectionOperator_impl.hpp
   ) 
 
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/PointCloud)

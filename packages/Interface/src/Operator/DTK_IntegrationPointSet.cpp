@@ -227,6 +227,22 @@ IntegrationPointSet::getPoint( const EntityId ip_id ) const
 }
 
 //---------------------------------------------------------------------------//
+// Get the global maximum support size for all integration points.
+int IntegrationPointSet::globalMaxSupportSize() const
+{
+    auto comp = [](IntegrationPoint& a, IntegrationPoint& b)
+		{
+		    return (a.d_owner_suppport_ids.size() <
+			    b.d_owner_support_ids.size() );
+		};
+    int local_max = *std::max_element( d_points.begin(), d_points.end(), comp );
+    int global_max = 0;
+    Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_MAX,
+			local_max, Teuchos::ptrFromRef(global_max) );
+    return global_max;
+}
+
+//---------------------------------------------------------------------------//
 // Get the centroid of the integration point.
 void IntegrationPointSet::centroid(
     const Entity& entity,

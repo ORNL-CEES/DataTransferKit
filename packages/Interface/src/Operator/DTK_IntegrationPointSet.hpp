@@ -144,6 +144,12 @@ class IntegrationPointSet : public EntityLocalMap
     // Get an entity iterator over the integration points.
     EntityIterator entityIterator() const;
 
+    // Get the number of points.
+    int numPoints() const { return d_points.size(); }
+
+    // Get the global maximum support size for all integration points.
+    int globalMaxSupportSize() const;
+
     //@{
     //! EntityLocalMap interface. Only implement the centroid function for the
     // search.

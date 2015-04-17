@@ -59,12 +59,6 @@ struct IntegrationPoint
 {
     // Global id of the integration point.
     EntityId d_gid;
-    
-    // Global id of the entity that owns the point.
-    EntityId d_owner_gid;
-
-    // Owner rank of the integration point.
-    int d_owner_rank;
 
     // Measure of the entity that owns the point.
     double d_owner_measure;

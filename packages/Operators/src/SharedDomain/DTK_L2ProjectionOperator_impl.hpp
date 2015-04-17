@@ -42,8 +42,7 @@
 #define DTK_L2PROJECTIONOPERATOR_IMPL_HPP
 
 #include <algorithm>
-#include <unordered_set>
-#include <unordered_map>
+#include <map>
 
 #include "DTK_DBC.hpp"
 #include "DTK_ParallelSearch.hpp"
@@ -92,29 +91,12 @@ void L2ProjectionOperator<Scalar>::setup(
     DTK_REQUIRE( Teuchos::nonnull(domain_space) );
     DTK_REQUIRE( Teuchos::nonnull(range_space) );
 
-    // Extract the Support maps.
-    const Teuchos::RCP<const typename Base::TpetraMap> domain_map
-	= this->getDomainMap();
-    const Teuchos::RCP<const typename Base::TpetraMap> range_map
-	= this->getRangeMap();
-
     // Get the parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = domain_map->getComm();
 
     // Determine if we have range and domain data on this process.
     bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
     bool nonnull_range = Teuchos::nonnull( range_space->entitySet() );
-
-    // Get the physical dimension.
-    int physical_dimension = 0;
-    if ( nonnull_domain )
-    {
-	physical_dimension = domain_space->entitySet()->physicalDimension();
-    }
-    else if ( nonnull_range )
-    {
-	physical_dimension = range_space->entitySet()->physicalDimension();
-    }
 
     // We will only operate on entities that are locally-owned.
     LocalEntityPredicate local_predicate( comm->getRank() );
@@ -147,6 +129,58 @@ void L2ProjectionOperator<Scalar>::setup(
     Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > mass_matrix;
     Teuchos::RCP<IntegrationPointSet> range_ip_set;
     assembleMassMatrix( range_space, range_iterator, mass_matrix, range_ip_set );
+
+    // Assemble the coupling matrix.
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > coupling_matrix;
+    assembleCouplingMatrix( domain_space, domain_iterator,
+			    range_ip_set, coupling_matrix );
+
+    // Create an abstract wrapper for the mass matrix.
+    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space_M =
+    	Thyra::createVectorSpace<Scalar>( mass_matrix->getRangeMap() );
+    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_domain_vector_space_M =
+    	Thyra::createVectorSpace<Scalar>( mass_matrix->getDomainMap() );
+    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar,LO,GO> > thyra_M =
+    	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,LO,GO>() );
+    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar,LO,GO> >(
+	thyra_M)->constInitialize( 
+	    thyra_range_vector_space_M, thyra_range_vector_space_M, mass_matrix );
+
+    // Create an abstract wrapper for the coupling matrix.
+    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space_A =
+    	Thyra::createVectorSpace<Scalar>( coupling_matrix->getRangeMap() );
+    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_domain_vector_space_A =
+    	Thyra::createVectorSpace<Scalar>( coupling_matrix->getDomainMap() );
+    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar,LO,GO> > thyra_A =
+    	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,LO,GO>() );
+    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar,LO,GO> >(
+	thyra_A)->constInitialize( 
+	    thyra_range_vector_space_A, thyra_range_vector_space_A, coupling_matrix );
+
+    // Create the inverse of the mass matrix.
+    Teuchos::RCP<Teuchos::ParameterList> builder_params =
+	Teuchos::parameterList("Stratimikos");
+    Teuchos::updateParametersFromXmlString(
+      "<ParameterList name=\"Stratimikos\">"
+        "<Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Belos\"/>"
+        "<Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>"
+          "<ParameterList name=\"Belos\">"
+            "<Parameter name=\"Solver Type\" type=\"string\" value=\"Pseudo Block CG\"/>"
+          "</ParameterList>"
+      "</ParameterList>"
+      ,
+      builder_params.ptr()
+      );
+    Stratimikos::DefaultLinearSolverBuilder builder;
+    builder.setParameterList( builder_params );
+    Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<Scalar> > factory = 
+	Thyra::createLinearSolveStrategy( builder );
+    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > thyra_M_inv =
+    	Thyra::inverse<Scalar>( *factory, thyra_M );
+
+    // Create the projection operator Op = M^-1 * A.
+    d_l2_operator = Thyra::multiply<Scalar>( thyra_M_inv, thyra_A );
+    DTK_ENSURE( Teuchos::nonnull(d_l2_operator) );
 }
 
 //---------------------------------------------------------------------------//
@@ -180,8 +214,7 @@ void L2ProjectionOperator<Scalar>::buildMassMatrix(
     // Initialize output variables.
     Teuchos::RCP<const Teuchos::Comm<int> > range_comm =
 	range_space->entitySet()->communicator();
-    int comm_rank = range_comm->getRank();
-    mass_matrix = Tpetra::createCrsMatrix<Scalar,LO,GO>( range_map );
+    mass_matrix = Tpetra::createCrsMatrix<Scalar,LO,GO>( this->getRangeMap() );
     range_ip_set = Teuchos::rcp( new IntegrationPointSet(range_comm) );
 
     // Get function space objects.
@@ -201,6 +234,7 @@ void L2ProjectionOperator<Scalar>::buildMassMatrix(
     Teuchos::Array<double> mm_values;
     int range_cardinality = 0;
     int num_ip = 0;
+    double temp = 0;
 
     // Assemble the mass matrix and integration point set.
     EntityIterator range_it;
@@ -229,8 +263,6 @@ void L2ProjectionOperator<Scalar>::buildMassMatrix(
 	for ( int p = 0; p < num_ip; ++p )
 	{
 	    // Add owner data.
-	    range_ip.d_owner_gid = range_it->id();
-	    range_ip.d_owner_rank = comm_rank;
 	    range_ip.d_owner_measure = range_entity_measure;
 	    range_ip.d_owner_support_ids = range_support_ids;
 	    range_ip.d_integration_weight = int_weights[p];
@@ -259,14 +291,13 @@ void L2ProjectionOperator<Scalar>::buildMassMatrix(
 	for ( int ni = 0; ni < range_cardinality; ++ni )
 	{
 	    mm_values.assign( range_cardinality, 0.0 );
-	    for ( int nj = 0; nj < range_cardinality; ++nj )
+	    for ( int p = 0; p < num_ip; ++p )
 	    {
-		for ( int p = 0; p < num_ip; ++p )
+		temp =
+		    range_entity_measure * int_weights[p] * shape_evals[p][ni];
+		for ( int nj = 0; nj < range_cardinality; ++nj )
 		{
-		    mm_values[nj] += range_entity_measure *
-				     int_weights[p] *
-				     shape_evals[p][ni] *
-				     shape_evals[p][nj];
+		    mm_values[nj] += temp * shape_evals[p][nj];
 		}
 	    }
 	    mass_matrix->insertGlobalValues( range_support_ids[ni],
@@ -281,6 +312,209 @@ void L2ProjectionOperator<Scalar>::buildMassMatrix(
 
     // Finalize the integration point set.
     range_ip_set->finalize();
+}
+
+//---------------------------------------------------------------------------//
+template<class Scalar>
+void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
+    const Teuchos::RCP<FunctionSpace>& domain_space,
+    EntityIterator domain_iterator,
+    const Teuchos::RCP<IntegrationPointSet>& range_ip_set,
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> >& coupling_matrix )
+{
+    // Get the parallel communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	range_space->entitySet()->communicator();
+
+    // Get the physical dimension.
+    int physical_dimension = 0;
+    if ( nonnull_domain )
+    {
+	physical_dimension = domain_space->entitySet()->physicalDimension();
+    }
+    else if ( nonnull_range )
+    {
+	physical_dimension = range_space->entitySet()->physicalDimension();
+    }
+
+    // Build a parallel search over the domain.
+    ParallelSearch psearch( comm, 
+			    physical_dimension,
+			    domain_iterator,
+			    domain_space->localMap(),
+			    d_search_list );
+
+    // Search the domain with the range integration point set.
+    EntityIterator ip_iterator = range_ip_set->entityIterator();
+    psearch.search( ip_iterator, range_ip_set, d_search_list );
+
+    // Extract the set of local range entities that were found in domain
+    // entities.
+    int global_max_support = range_ip_set->globalMaxSupportSize();
+    int ip_stride = global_max_support + 1;
+    Teuchos::Array<int> export_ranks;
+    Teuchos::Array<EntityId> export_ip_domain_ids;
+    Teuchos::Array<double> export_measures_weights;
+    Teuchos::Array<double> export_shape_evals;
+    Teuchos::Array<SupportId> export_support_ids;
+    Teuchos::Array<EntityId> domain_ids;
+    Teuchos::Array<EntityId>::const_iterator domain_id_it;
+    Teuchos::Array<GO> ip_ids;
+    EntityIterator ip_it;
+    EntityIterator ip_begin = ip_iterator.begin();
+    EntityIterator ip_end = ip_iterator.end();
+    const IntegrationPoint& current_ip;
+    int num_support = 0;
+    for ( ip_it = ip_begin; ip_it != ip_end; ++ip_it )
+    {
+	// Get the domain entities in which the integration point was found.
+	psearch.getDomainEntitiesFromRange( ip_it->id(), domain_ids );
+
+	// Get the current integration point.
+	current_ip = range_ip_set->getPoint( ip_id->id() );
+	
+	// For each supporting domain entity, pair the integration point id
+	// and its support id.
+	for ( domain_id_it = domain_ids.begin();
+	      domain_id_it != domain_ids.end();
+	      ++domain_id_it )
+	{
+	    // Add the domain rank.
+	    export_ranks.push_back( 
+		psearch.domainEntityOwnerRank(*domain_id_it) );
+
+	    // Add the ip-domain id pair.
+	    export_ip_domain_ids.push_back( ip_it->id() );
+	    export_ip_domain_ids.push_back( *domain_id_it );
+	    
+	    // Add the ip weights times measures scaled by the number of
+	    // domains in which ip was found.
+	    export_measures_weights.push_back( current_ip.d_owner_measure *
+					       current_ip.d_integration_weight /
+					       domain_ids.size() );
+
+	    // Add the ip shape function evals and support ids with padding.
+	    num_support = current_ip.d_owner_support_ids.size();
+	    export_shape_evals.push_back( num_support );
+	    export_support_ids.push_back( num_support );
+	    for ( int i = 0; i < num_support; ++i )
+	    {
+		export_shape_evals.push_back(
+		    current_ip.d_owner_shape_evals[i] );
+		export_support_ids.push_back(
+		    current_ip.d_owner_support_ids[i] );
+	    }
+	    for ( int i = num_support; i < global_max_support )
+	    {
+		export_shape_evals.push_back( 0.0 );
+		export_support_ids.push_back( 0 );
+	    }
+	}
+    }
+
+    // Communicate the integration points to the domain parallel
+    // decomposition.
+    Tpetra::Distributor range_to_domain_dist( comm );
+    int num_import = range_to_domain_dist.createFromSends( export_ranks() );
+    Teuchos::Array<EntityId> import_ip_domain_ids( 2*num_import );
+    range_to_domain_dist.doPostsAndWaits(
+	export_ip_domain_ids, 2, import_ip_domain_ids() );
+    Teuchos::Array<double> import_measures_weights( num_import );
+    range_to_domain_dist.doPostsAndWaits(
+	export_measures_weights, 1, import_measures_weights() );
+    Teuchos::Array<double> import_shape_evals( ip_stride*num_import );
+    range_to_domain_dist.doPostsAndWaits(
+	export_shape_evals, global_max_support+1, import_shape_evals() );
+    Teuchos::Array<SupportId> import_support_ids( ip_stride*num_import );
+    range_to_domain_dist.doPostsAndWaits(
+	export_support_ids, global_max_support+1, import_support_ids() );
+
+    // Map the ip-domain pairs to a local id.
+    std::map<std::pair<EntityId,EntityId>,int> ip_domain_lid_map;
+    for ( int n = 0; n < num_import; ++n )
+    {
+	ip_domain_lid_map[
+	    std::make_pair(import_ip_domain_ids[2*num_import],
+			   import_ip_domain_ids[2*num_import+1]) ] = n;
+    }
+
+    // Cleanup before fill.
+    import_ip_domain_ids.clear();
+    export_ranks.clear();
+    export_ip_domain_ids.clear();
+    export_measures_weights.clear();
+    export_shape_evals.clear();
+    export_support_ids.clear();
+    
+    // Allocate the coupling matrix.
+    coupling_matrix = Tpetra::createCrsMatrix<Scalar,LO,GO>( this->getRangeMap() );
+
+    // Construct the entries of the coupling matrix.
+    Teuchos::Array<EntityId> ip_entity_ids;
+    Teuchos::Array<EntityId>::const_iterator ip_entity_id_it;
+    Teuchos::ArrayView<const double> ip_parametric_coords;
+    Teuchos::Array<double> domain_shape_values;
+    Teuchos::Array<double>::iterator domain_shape_it;
+    Teuchos::Array<GO> domain_support_ids;
+    EntityIterator domain_it;
+    EntityIterator domain_begin = domain_iterator.begin();
+    EntityIterator domain_end = domain_iterator.end();
+    int local_id = 0;
+    int range_cardinality = 0;
+    int domain_cardinality = 0;
+    double temp = 0.0;
+    int ip_index.
+    for ( domain_it = domain_begin; domain_it != domain_end; ++domain_it )
+    {
+	// Get the domain Support ids supporting the domain entity.
+	domain_space->shapeFunction()->entitySupportIds( 
+	    *domain_it, domain_support_ids );
+
+	// Get the integration points that mapped into this domain entity.
+	psearch.getRangeEntitiesFromDomain( domain_it->id(), ip_entity_ids );
+
+	// Sum into the global coupling matrix row for each domain.
+	for ( ip_entity_id_it = ip_entity_ids.begin();
+	      ip_entity_id_it != ip_entity_ids.end();
+	      ++ip_entity_id_it )
+	{
+	    // Get the local data id.
+	    DTK_CHECK( id_domain_lid_map.count(
+			   std::make_pair(*ip_entity_id_it,domain_it->id())) );
+	    local_id = id_domain_lid_map.find(
+		std::make_pair(*ip_entity_id_it,domain_it->id()) )->second;
+	    
+	    // Get the parametric coordinates of the range entity in the
+	    // domain entity.
+	    psearch.rangeParametricCoordinatesInDomain(
+		domain_it->id(), *ip_entity_id_it, ip_parametric_coords );
+
+	    // Evaluate the shape function at the coordinates.
+	    domain_space->shapeFunction()->evaluateValue(
+		*domain_it, ip_parametric_coords, domain_shape_values );
+	    DTK_CHECK( domain_shape_values.size() == domain_support_ids.size() );
+
+	    // Fill the coupling matrix.
+	    range_cardinality = import_shape_evals[ip_stride*local_id];
+	    domain_cardinality = domain_shape_values.size();
+	    for ( int i = 0; i < range_cardinality; ++i )
+	    {
+		ip_index = ip_stride*local_id + i + 1;
+		temp = import_measures_weights[local_id] *
+		       import_shape_evals[ip_index];
+		for ( int j = 0; j < domain_cardinality; ++j )
+		{
+		    domain_shape_values[j] *= temp;
+		}
+		coupling_matrix->insertGlobalValues(
+		    import_support_ids[ip_index],
+		    domain_support_ids(),
+		    domain_shape_values() );
+	}
+    }
+
+    // Finalize the coupling matrix.
+    coupling_matrix->fillComplete( this->getDomainMap(), this->getRangeMap() );
 }
 
 //---------------------------------------------------------------------------//
