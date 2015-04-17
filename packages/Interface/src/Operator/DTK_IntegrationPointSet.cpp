@@ -201,7 +201,7 @@ void IntegrationPointSet::finalize()
 
     // Get the starting id for this node.
     DTK_CHECK( map->isContiguous() );
-    DTK_CHECK( map->getMaxGlobalIndex() - map->getMinGlobalIndex() ==
+    DTK_CHECK( map->getMaxGlobalIndex() - map->getMinGlobalIndex() + 1 ==
 	       num_local_ip );
     DTK_CHECK( map->getNodeNumElements() == num_local_ip );
     DTK_CHECK( map->getGlobalNumElements() == num_global_ip );

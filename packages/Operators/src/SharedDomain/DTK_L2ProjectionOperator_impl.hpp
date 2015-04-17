@@ -74,8 +74,9 @@ L2ProjectionOperator<Scalar>::L2ProjectionOperator(
     : Base( domain_map, range_map )
 {
     // Get the integration order.
-    DTK_REQUIRE( parameters.isParameter("Integration Order") );
-    d_int_order = parameters.get<int>("Integration Order");
+    const Teuchos::ParameterList& l2_list = parameters.sublist("L2 Projection");
+    DTK_REQUIRE( l2_list.isParameter("Integration Order") );
+    d_int_order = l2_list.get<int>("Integration Order");
     
     // Get the search list.
     d_search_list = parameters.sublist( "Search" );
@@ -466,7 +467,7 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
 	// Get the integration points that mapped into this domain entity.
 	psearch.getRangeEntitiesFromDomain( domain_it->id(), ip_entity_ids );
 
-	// Sum into the global coupling matrix row for each domain.
+	// Sum into the global coupling matrix row at each integration point.
 	for ( ip_entity_id_it = ip_entity_ids.begin();
 	      ip_entity_id_it != ip_entity_ids.end();
 	      ++ip_entity_id_it )
