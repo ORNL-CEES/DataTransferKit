@@ -41,9 +41,14 @@
 #ifndef DTK_INTEGRATIONPOINT_HPP
 #define DTK_INTEGRATIONPOINT_HPP
 
+#include <limits>
+
 #include "DTK_Types.hpp"
+#include "DTK_Entity.hpp"
+#include "DTK_EntityImpl.hpp"
 
 #include <Teuchos_Array.hpp>
+#include <Teuchos_Ptr.hpp>
 
 namespace DataTransferKit
 {
@@ -52,8 +57,14 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 struct IntegrationPoint
 {
-    // Id of the entity that owns the point.
-    EntityId d_owner_id;
+    // Global id of the integration point.
+    EntityId d_gid;
+    
+    // Global id of the entity that owns the point.
+    EntityId d_owner_gid;
+
+    // Owner rank of the integration point.
+    int d_owner_rank;
 
     // Measure of the entity that owns the point.
     double d_owner_measure;
@@ -69,6 +80,119 @@ struct IntegrationPoint
 
     // Shape function evaluation of the point in the owning entity.
     Teuchos::Array<double> d_owner_shape_evals;
+};
+
+//---------------------------------------------------------------------------//
+// IntegrationPoint EntityImpl subclass.
+//---------------------------------------------------------------------------//
+class IntegrationPointEntityImpl : public EntityImpl
+{
+  public:
+    
+    /*!
+     * \brief Constructor
+     */
+    IntegrationPointEntityImpl( const Teuchos::Ptr<IntegrationPoint>& ip )
+	: d_ip( ip )
+    { /* ... */ }
+    
+    /*!
+     * \brief Get the unique global identifier for the entity.
+     *
+     * \return A unique global identifier for the entity.
+     */
+    EntityId id() const override
+    { return d_ip->d_gid; }
+    
+    /*!
+     * \brief Get the parallel rank that owns the entity.
+     *
+     * \return The parallel rank that owns the entity.
+     */
+    int ownerRank() const override
+    { return d_ip->d_owner_rank; }
+
+    /*!
+     * \brief Return the topological dimension of the entity.
+     *
+     * \return The topological dimension of the entity. Any parametric
+     * coordinates describing the entity will be of this dimension.
+     */
+    int topologicalDimension() const override
+    { return 0; }
+
+    /*!
+     * \brief Return the physical dimension of the entity.
+     *
+     * \return The physical dimension of the entity. Any physical coordinates
+     * describing the entity will be of this dimension.
+     */
+    int physicalDimension() const override
+    { return d_ip->d_physical_coordinates.size(); }
+
+    /*!
+     * \brief Return the Cartesian bounding box around an entity.
+     *
+     * \param bounds The bounds of the box
+     * (x_min,y_min,z_min,x_max,y_max,z_max).
+     */
+    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override
+    {
+	for ( int d = 0; d < physicalDimension(); ++d )
+	{
+	    bounds[d] = d_ip->d_physical_coordinates[d];
+	    bounds[d+3] = d_ip->d_physical_coordinates[d];
+	}
+	for ( int d = physicalDimension(); d < 3; ++d )
+	{
+	    bounds[d] = -std::numeric_limits<double>::max();
+	    bounds[d+3] = std::numeric_limits<double>::max();
+	}
+    }
+
+    /*!
+     * \brief Determine if an entity is in the block with the given id.
+     */
+    bool inBlock( const int block_id ) const override
+    { return false; }
+
+    /*!
+     * \brief Determine if an entity is on the boundary with the given id.
+     */
+    bool onBoundary( const int boundary_id ) const override
+    { return false; }
+
+    /*!
+     * \brief Provide a one line description of the object.
+     */
+    virtual std::string description() const
+    { return std::string("DataTransferKit::IntegrationPointEntityImpl"); }
+
+    /*!
+     * \brief Provide a verbose description of the object.
+     */
+    virtual void describe( Teuchos::FancyOStream& out,
+			   const Teuchos::EVerbosityLevel /*verb_level*/ ) const
+    { out << this->description() << std::endl; }
+
+  private:
+
+    // Pointer to the underlying integration point.
+    Teuchos::Ptr<IntegrationPoint> d_ip;
+};
+
+//---------------------------------------------------------------------------//
+// IntegrationPoint Entity subclass.
+//---------------------------------------------------------------------------//
+class IntegrationPointEntity : public Entity
+{
+  public:
+
+    IntegrationPointEntity( const Teuchos::Ptr<IntegrationPoint>& ip )
+    {
+	this->b_entity_impl =
+	    Teuchos::rcp( new IntegrationPointEntityImpl(ip) );
+    }
 };
 
 //---------------------------------------------------------------------------//

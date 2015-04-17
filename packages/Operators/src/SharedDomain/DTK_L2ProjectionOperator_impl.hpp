@@ -178,9 +178,11 @@ void L2ProjectionOperator<Scalar>::buildMassMatrix(
 	Teuchos::RCP<IntegrationPointSet>& range_ip_set )
 {
     // Initialize output variables.
+    Teuchos::RCP<const Teuchos::Comm<int> > range_comm =
+	range_space->entitySet()->communicator();
+    int comm_rank = range_comm->getRank();
     mass_matrix = Tpetra::createCrsMatrix<Scalar,LO,GO>( range_map );
-    range_ip_set = Teuchos::rcp(
-	new IntegrationPointSet(range_space->entitySet()->communicator()) );
+    range_ip_set = Teuchos::rcp( new IntegrationPointSet(range_comm) );
 
     // Get function space objects.
     Teuchos::RCP<EntityLocalMap> range_local_map = range_space->localMap();
@@ -227,7 +229,8 @@ void L2ProjectionOperator<Scalar>::buildMassMatrix(
 	for ( int p = 0; p < num_ip; ++p )
 	{
 	    // Add owner data.
-	    range_ip.d_owner_id = range_it->id();
+	    range_ip.d_owner_gid = range_it->id();
+	    range_ip.d_owner_rank = comm_rank;
 	    range_ip.d_owner_measure = range_entity_measure;
 	    range_ip.d_owner_support_ids = range_support_ids;
 	    range_ip.d_integration_weight = int_weights[p];

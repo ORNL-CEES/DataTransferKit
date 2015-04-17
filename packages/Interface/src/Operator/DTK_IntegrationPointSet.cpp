@@ -32,26 +32,26 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_BasicEntitySet.cpp
+ * \brief DTK_IntegrationPointSet.cpp
  * \author Stuart R. Slattery
- * \brief Basic entity set implementation.
+ * \brief Integration point set.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_BasicEntitySet.hpp"
+#include "DTK_IntegrationPointSet.hpp"
 #include "DTK_DBC.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_Ptr.hpp>
-#include <Teuchos_OrdinalTraits.hpp>
+
+#include <Tpetra_Map.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// BasicEntitySetIterator implementation.
+// IntegrationPointSetIterator implementation.
 //---------------------------------------------------------------------------//
 // Default constructor.
-BasicEntitySetIterator::BasicEntitySetIterator()
+IntegrationPointSetIterator::IntegrationPointSetIterator()
     : d_entity( NULL )
 {
     this->b_iterator_impl = NULL;
@@ -59,201 +59,181 @@ BasicEntitySetIterator::BasicEntitySetIterator()
 
 //---------------------------------------------------------------------------//
 // Constructor.
-BasicEntitySetIterator::BasicEntitySetIterator(
-    Teuchos::RCP<std::unordered_map<EntityId,Entity> > map,
-    const PredicateFunction& predicate )
-    : d_map( map )
-    , d_map_it( d_map->begin() )
+IntegrationPointSetIterator::IntegrationPointSetIterator(
+    Teuchos::RCP<Teuchos::Array<IntegrationPoint> > points )
+    : d_points( points )
+    , d_points_it( d_points->begin() )
 {
-    if ( d_map->size() > 0 )
-    {
-	d_entity = &(d_map_it->second);
-    }
     this->b_iterator_impl = NULL;
-    this->b_predicate = predicate;
 }
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-BasicEntitySetIterator::BasicEntitySetIterator( 
-    const BasicEntitySetIterator& rhs )
-    : d_map( rhs.d_map )
-    , d_map_it( rhs.d_map_it )
+IntegrationPointSetIterator::IntegrationPointSetIterator( 
+    const IntegrationPointSetIterator& rhs )
+    : d_points( rhs.d_points )
+    , d_points_it( rhs.d_points_it )
 {
-    if ( d_map->size() > 0 )
-    {
-	d_entity = &(d_map_it->second);
-    }
     this->b_iterator_impl = NULL;
-    this->b_predicate = rhs.b_predicate;
 }
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-BasicEntitySetIterator& BasicEntitySetIterator::operator=( 
-    const BasicEntitySetIterator& rhs )
+IntegrationPointSetIterator& IntegrationPointSetIterator::operator=( 
+    const IntegrationPointSetIterator& rhs )
 {
     this->b_iterator_impl = NULL;
-    this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
     {
 	return *this;
     }
-    d_map = rhs.d_map;
-    d_map_it = rhs.d_map_it;
-    if ( d_map->size() > 0 )
-    {
-	d_entity = &(d_map_it->second);
-    }
+    d_points = rhs.d_points;
+    d_points_it = rhs.d_points_it;
     return *this;
 }
 
 //---------------------------------------------------------------------------//
 // Destructor.
-BasicEntitySetIterator::~BasicEntitySetIterator()
+IntegrationPointSetIterator::~IntegrationPointSetIterator()
 {
     this->b_iterator_impl = NULL;
 }
 
 //---------------------------------------------------------------------------//
 // Pre-increment operator.
-EntityIterator& BasicEntitySetIterator::operator++()
+EntityIterator& IntegrationPointSetIterator::operator++()
 {
-    ++d_map_it;
+    ++d_points_it;
     return *this;
 }
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-Entity& BasicEntitySetIterator::operator*(void)
+Entity& IntegrationPointSetIterator::operator*(void)
 {
     this->operator->();
-    return *d_entity;
+    return d_current_entity;
 }
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-Entity* BasicEntitySetIterator::operator->(void)
+Entity* IntegrationPointSetIterator::operator->(void)
 {
-    d_entity = &(d_map_it->second);
-    return d_entity;
+    d_current_entity =
+	IntegrationPointEntity( Teuchos::ptrFromRef(*d_points_it) )
+    return &d_current_entity;
 }
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-bool BasicEntitySetIterator::operator==( 
+bool IntegrationPointSetIterator::operator==( 
     const EntityIterator& rhs ) const
 { 
-    const BasicEntitySetIterator* rhs_vec = 
-	static_cast<const BasicEntitySetIterator*>(&rhs);
-    const BasicEntitySetIterator* rhs_vec_impl = 
-	static_cast<const BasicEntitySetIterator*>(rhs_vec->b_iterator_impl);
-    return ( rhs_vec_impl->d_map_it == d_map_it );
+    const IntegrationPointSetIterator* rhs_vec = 
+	static_cast<const IntegrationPointSetIterator*>(&rhs);
+    const IntegrationPointSetIterator* rhs_vec_impl = 
+	static_cast<const IntegrationPointSetIterator*>(rhs_vec->b_iterator_impl);
+    return ( rhs_vec_impl->d_points_it == d_points_it );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-bool BasicEntitySetIterator::operator!=( 
+bool IntegrationPointSetIterator::operator!=( 
     const EntityIterator& rhs ) const
 {
-    const BasicEntitySetIterator* rhs_vec = 
-	static_cast<const BasicEntitySetIterator*>(&rhs);
-    const BasicEntitySetIterator* rhs_vec_impl = 
-	static_cast<const BasicEntitySetIterator*>(rhs_vec->b_iterator_impl);
-    return ( rhs_vec_impl->d_map_it != d_map_it );
+    const IntegrationPointSetIterator* rhs_vec = 
+	static_cast<const IntegrationPointSetIterator*>(&rhs);
+    const IntegrationPointSetIterator* rhs_vec_impl = 
+	static_cast<const IntegrationPointSetIterator*>(rhs_vec->b_iterator_impl);
+    return ( rhs_vec_impl->d_points_it != d_points_it );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the beginning.
-EntityIterator BasicEntitySetIterator::begin() const
+EntityIterator IntegrationPointSetIterator::begin() const
 { 
-    return BasicEntitySetIterator( d_map , this->b_predicate );
+    return IntegrationPointSetIterator( d_points );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the end.
-EntityIterator BasicEntitySetIterator::end() const
+EntityIterator IntegrationPointSetIterator::end() const
 {
-    BasicEntitySetIterator end_it( d_map, this->b_predicate );
-    end_it.d_map_it = d_map->end();
+    IntegrationPointSetIterator end_it( d_points );
+    end_it.d_points_it = d_points->end();
     return end_it;
 }
 
 //---------------------------------------------------------------------------//
 // Create a clone of the iterator. We need this for the copy constructor
 // and assignment operator to pass along the underlying implementation.
-EntityIterator* BasicEntitySetIterator::clone() const
+EntityIterator* IntegrationPointSetIterator::clone() const
 {
-    return new BasicEntitySetIterator(*this);
+    return new IntegrationPointSetIterator(*this);
 }
 
 //---------------------------------------------------------------------------//
-// BasicEntitySet implementation.
+// IntegrationPointSet Implementation
 //---------------------------------------------------------------------------//
 // Constructor.
-BasicEntitySet::BasicEntitySet(
-    const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-    const int physical_dimension )
+IntegrationPointSet::IntegrationPointSet(
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
     : d_comm( comm )
-    , d_physical_dim( physical_dimension )
-    , d_entities( 4 )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Add an entity to the set.
-void BasicEntitySet::addEntity( const Entity& entity )
+// Add an integration point to the set.
+void IntegrationPointSet::addPoint( const IntegrationPoint& ip )
 {
-    d_entities[ entity.topologicalDimension() ].insert(
-	std::pair<EntityId,Entity>(entity.id(), entity) );
+    d_points.push_back( ip );
+}
+    
+//---------------------------------------------------------------------------//
+// Finalize the point set to construct global ids.
+void IntegrationPointSet::finalize()
+{
+    // Build a globally contiguous ordering of point global ids.
+    int num_local_ip = d_points.size();
+    EntityId num_global_ip = 0;
+    Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_SUM,
+			num_local_ip, Teuchos::ptrFromRef(num_global_ip) );
+    Teuchos::RCP<const Tpetra::Map<int,EntityId> > map =
+	Tpetra::createContigMap<int,EntityId>(num_local_ip,num_global_ip,d_comm);
+
+    // Get the starting id for this node.
+    DTK_CHECK( map->isContiguous() );
+    DTK_CHECK( map->getMaxGlobalIndex() - map->getMinGlobalIndex() ==
+	       num_local_ip );
+    DTK_CHECK( map->getNodeNumElements == num_local_ip );
+    DTK_CHECK( map->getGlobalNumElements == num_global_ip );
+    d_start_gid = map->getMinGlobalIndex();
+
+    // Assign global ids to the points.
+    Teuchos::ArrayView<const EntityId> ip_gids = map->getNodeElementList();
+    for ( int p = 0; p < num_local_ip; ++p )
+    {
+	d_points[p].d_gid = ip_gids[p];
+    }
 }
 
 //---------------------------------------------------------------------------//
-// Get the parallel communicator for the entity set.
-Teuchos::RCP<const Teuchos::Comm<int> >
-BasicEntitySet::communicator() const
+// Get an integration point with the given global id.
+const IntegrationPoint&
+IntegrationPointSet::getPoint( const EntityId ip_id ) const
 {
-    return d_comm;
+    DTK_REQUIRE( ip_id >= d_start_gid );
+    DTK_REQUIRE( ip_id - d_start_gid < d_points.size() );
+    return d_points[ ip_id - d_start_gid ];
 }
 
 //---------------------------------------------------------------------------//
-// Return the physical dimension of the entities in the set.
-int BasicEntitySet::physicalDimension() const
-{
-    return d_physical_dim;
-}
-
-//---------------------------------------------------------------------------//
-// Given an EntityId, get the entity.
-void BasicEntitySet::getEntity( const EntityId entity_id,
-				const int topological_dimension,
-				Entity& entity ) const
-{
-    DTK_CHECK( d_entities[topological_dimension].count(entity_id) );
-    entity = d_entities[topological_dimension].find(entity_id)->second;
-}
-
-//---------------------------------------------------------------------------//
-// Get an iterator over a subset of the entity set that satisfies the given
-// predicate. 
-EntityIterator BasicEntitySet::entityIterator(
-    const int topological_dimension,
-    const PredicateFunction& predicate ) const
-{
-    Teuchos::RCP<std::unordered_map<EntityId,Entity> > map_ptr =
-	Teuchos::rcpFromRef( d_entities[topological_dimension] );
-    return BasicEntitySetIterator( map_ptr, predicate );
-}
-
-//---------------------------------------------------------------------------//
-// Given an entity, get the entities of the given type that are adjacent to
-// it.
-void BasicEntitySet::getAdjacentEntities(
+// Get the centroid of the integration point.
+void IntegrationPointSet::centroid(
     const Entity& entity,
-    const int adjacent_dimension,
-    Teuchos::Array<Entity>& adjacent_entities ) const
+    const Teuchos::ArrayView<double>& centroid ) const
 {
-    bool not_implemented = true;
-    DTK_INSIST( !not_implemented );
+    const IntegrationPoint& point = this->getPoint( entity->id() );
+    centroid = point.d_physical_coordinates();
 }
 
 //---------------------------------------------------------------------------//
@@ -261,5 +241,9 @@ void BasicEntitySet::getAdjacentEntities(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_BasicEntitySet.cpp
+
+#endif // end DTK_INTEGRATIONPOINTSET_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_IntegrationPointSet.hpp
 //---------------------------------------------------------------------------//
