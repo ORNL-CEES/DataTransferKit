@@ -90,6 +90,7 @@ class MapOperatorFactory
     // Operator enum.
     enum MapOperatorType
     {
+	L2_PROJECTION,
 	CONSISTENT_INTERPOLATION,
 	POINT_CLOUD
     };

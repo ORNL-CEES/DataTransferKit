@@ -42,6 +42,7 @@
 #define DTK_MAPOPERATORFACTORY_IMPL_HPP
 
 #include "DTK_DBC.hpp"
+#include "DTK_L2ProjectionOperator.hpp"
 #include "DTK_ConsistentInterpolationOperator.hpp"
 #include "DTK_PointCloudOperatorFactory.hpp"
 
@@ -52,6 +53,7 @@ namespace DataTransferKit
 template<class Scalar>
 MapOperatorFactory<Scalar>::MapOperatorFactory()
 {
+    d_name_map["L2 Projection"] = L2_PROJECTION;
     d_name_map["Consistent Interpolation"] = CONSISTENT_INTERPOLATION;
     d_name_map["Point Cloud"] = POINT_CLOUD;
 }
@@ -80,6 +82,12 @@ MapOperatorFactory<Scalar>::create(
     Teuchos::RCP<MapOperator<Scalar> > map;
     switch( map_id )
     {
+	// L2 Projection.
+	case L2 _INTERPOLATION:
+	    map = Teuchos::rcp(	new L2ProjectionOperator<Scalar>(
+				    domain_map,range_map,parameters) );
+	    break;
+	
 	// Consistent Interpolation.
 	case CONSISTENT_INTERPOLATION:
 	    map = Teuchos::rcp(	new ConsistentInterpolationOperator<Scalar>(
