@@ -52,7 +52,6 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Default constructor.
 IntegrationPointSetIterator::IntegrationPointSetIterator()
-    : d_entity( NULL )
 {
     this->b_iterator_impl = NULL;
 }
@@ -120,7 +119,7 @@ Entity& IntegrationPointSetIterator::operator*(void)
 Entity* IntegrationPointSetIterator::operator->(void)
 {
     d_current_entity =
-	IntegrationPointEntity( Teuchos::ptrFromRef(*d_points_it) )
+	IntegrationPointEntity( Teuchos::ptrFromRef(*d_points_it) );
     return &d_current_entity;
 }
 
@@ -193,7 +192,7 @@ void IntegrationPointSet::addPoint( const IntegrationPoint& ip )
 void IntegrationPointSet::finalize()
 {
     // Build a globally contiguous ordering of point global ids.
-    int num_local_ip = d_points.size();
+    EntityId num_local_ip = d_points.size();
     EntityId num_global_ip = 0;
     Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_SUM,
 			num_local_ip, Teuchos::ptrFromRef(num_global_ip) );
@@ -204,8 +203,8 @@ void IntegrationPointSet::finalize()
     DTK_CHECK( map->isContiguous() );
     DTK_CHECK( map->getMaxGlobalIndex() - map->getMinGlobalIndex() ==
 	       num_local_ip );
-    DTK_CHECK( map->getNodeNumElements == num_local_ip );
-    DTK_CHECK( map->getGlobalNumElements == num_global_ip );
+    DTK_CHECK( map->getNodeNumElements() == num_local_ip );
+    DTK_CHECK( map->getGlobalNumElements() == num_global_ip );
     d_start_gid = map->getMinGlobalIndex();
 
     // Assign global ids to the points.
@@ -227,15 +226,24 @@ IntegrationPointSet::getPoint( const EntityId ip_id ) const
 }
 
 //---------------------------------------------------------------------------//
+// Get an entity iterator over the integration points.
+EntityIterator IntegrationPointSet::entityIterator() const
+{
+    return IntegrationPointSetIterator( Teuchos::rcpFromRef(d_points) );
+}
+
+//---------------------------------------------------------------------------//
 // Get the global maximum support size for all integration points.
 int IntegrationPointSet::globalMaxSupportSize() const
 {
-    auto comp = [](IntegrationPoint& a, IntegrationPoint& b)
+    auto comp = [](const IntegrationPoint& a, const IntegrationPoint& b)
 		{
-		    return (a.d_owner_suppport_ids.size() <
+		    return (a.d_owner_support_ids.size() <
 			    b.d_owner_support_ids.size() );
 		};
-    int local_max = *std::max_element( d_points.begin(), d_points.end(), comp );
+    int local_max = std::max_element( d_points.begin(),
+				      d_points.end(),
+				      comp )->d_owner_support_ids.size();
     int global_max = 0;
     Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_MAX,
 			local_max, Teuchos::ptrFromRef(global_max) );
@@ -248,8 +256,8 @@ void IntegrationPointSet::centroid(
     const Entity& entity,
     const Teuchos::ArrayView<double>& centroid ) const
 {
-    const IntegrationPoint& point = this->getPoint( entity->id() );
-    centroid = point.d_physical_coordinates();
+    const IntegrationPoint& point = getPoint( entity.id() );
+    centroid.assign( point.d_physical_coordinates );
 }
 
 //---------------------------------------------------------------------------//
@@ -257,9 +265,5 @@ void IntegrationPointSet::centroid(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_INTEGRATIONPOINTSET_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_IntegrationPointSet.hpp
+// end DTK_IntegrationPointSet.cpp
 //---------------------------------------------------------------------------//

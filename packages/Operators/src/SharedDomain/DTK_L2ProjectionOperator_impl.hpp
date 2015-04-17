@@ -92,7 +92,8 @@ void L2ProjectionOperator<Scalar>::setup(
     DTK_REQUIRE( Teuchos::nonnull(range_space) );
 
     // Get the parallel communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = domain_map->getComm();
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	this->getDomainMap()->getComm();
 
     // Determine if we have range and domain data on this process.
     bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
@@ -161,16 +162,16 @@ void L2ProjectionOperator<Scalar>::setup(
     Teuchos::RCP<Teuchos::ParameterList> builder_params =
 	Teuchos::parameterList("Stratimikos");
     Teuchos::updateParametersFromXmlString(
-      "<ParameterList name=\"Stratimikos\">"
+	"<ParameterList name=\"Stratimikos\">"
         "<Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Belos\"/>"
         "<Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>"
-          "<ParameterList name=\"Belos\">"
-            "<Parameter name=\"Solver Type\" type=\"string\" value=\"Pseudo Block CG\"/>"
-          "</ParameterList>"
-      "</ParameterList>"
-      ,
-      builder_params.ptr()
-      );
+	"<ParameterList name=\"Belos\">"
+	"<Parameter name=\"Solver Type\" type=\"string\" value=\"Pseudo Block CG\"/>"
+	"</ParameterList>"
+	"</ParameterList>"
+	,
+	builder_params.ptr()
+	);
     Stratimikos::DefaultLinearSolverBuilder builder;
     builder.setParameterList( builder_params );
     Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<Scalar> > factory = 
@@ -198,18 +199,18 @@ void L2ProjectionOperator<Scalar>::applyImpl(
 	Thyra::createConstMultiVector<Scalar>( Teuchos::rcpFromRef(X) );
     Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > thyra_Y =
 	Thyra::createMultiVector<Scalar>( Teuchos::rcpFromRef(Y) );
-    d_coupling_matrix->apply( 
+    d_l2_operator->apply( 
 	Thyra::NOTRANS, *thyra_X, thyra_Y.ptr(), alpha, beta );
 }
 
 //---------------------------------------------------------------------------//
 // Assemble the mass matrix and range integration point set.
 template<class Scalar>
-void L2ProjectionOperator<Scalar>::buildMassMatrix(
-    	const Teuchos::RCP<FunctionSpace>& range_space,
-	EntityIterator range_iterator,
-	Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> >& mass_matrix,
-	Teuchos::RCP<IntegrationPointSet>& range_ip_set )
+void L2ProjectionOperator<Scalar>::assembleMassMatrix(
+    const Teuchos::RCP<FunctionSpace>& range_space,
+    EntityIterator range_iterator,
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> >& mass_matrix,
+    Teuchos::RCP<IntegrationPointSet>& range_ip_set )
 {
     // Initialize output variables.
     Teuchos::RCP<const Teuchos::Comm<int> > range_comm =
@@ -277,7 +278,7 @@ void L2ProjectionOperator<Scalar>::buildMassMatrix(
 	    // entity.
 	    range_ip.d_physical_coordinates.resize(
 		range_it->physicalDimension() );
-	    range_local_map.mapToPhysicalFrame(
+	    range_local_map->mapToPhysicalFrame(
 		*range_it,
 		int_points[p](),
 		range_ip.d_physical_coordinates() );
@@ -324,18 +325,10 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
 {
     // Get the parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	range_space->entitySet()->communicator();
+	domain_space->entitySet()->communicator();
 
     // Get the physical dimension.
-    int physical_dimension = 0;
-    if ( nonnull_domain )
-    {
-	physical_dimension = domain_space->entitySet()->physicalDimension();
-    }
-    else if ( nonnull_range )
-    {
-	physical_dimension = range_space->entitySet()->physicalDimension();
-    }
+    int physical_dimension = domain_space->entitySet()->physicalDimension();
 
     // Build a parallel search over the domain.
     ParallelSearch psearch( comm, 
@@ -359,11 +352,9 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
     Teuchos::Array<SupportId> export_support_ids;
     Teuchos::Array<EntityId> domain_ids;
     Teuchos::Array<EntityId>::const_iterator domain_id_it;
-    Teuchos::Array<GO> ip_ids;
     EntityIterator ip_it;
     EntityIterator ip_begin = ip_iterator.begin();
     EntityIterator ip_end = ip_iterator.end();
-    const IntegrationPoint& current_ip;
     int num_support = 0;
     for ( ip_it = ip_begin; ip_it != ip_end; ++ip_it )
     {
@@ -371,7 +362,8 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
 	psearch.getDomainEntitiesFromRange( ip_it->id(), domain_ids );
 
 	// Get the current integration point.
-	current_ip = range_ip_set->getPoint( ip_id->id() );
+	const IntegrationPoint& current_ip =
+	    range_ip_set->getPoint( ip_it->id() );
 	
 	// For each supporting domain entity, pair the integration point id
 	// and its support id.
@@ -404,7 +396,7 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
 		export_support_ids.push_back(
 		    current_ip.d_owner_support_ids[i] );
 	    }
-	    for ( int i = num_support; i < global_max_support )
+	    for ( int i = num_support; i < global_max_support; ++i )
 	    {
 		export_shape_evals.push_back( 0.0 );
 		export_support_ids.push_back( 0 );
@@ -418,16 +410,16 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
     int num_import = range_to_domain_dist.createFromSends( export_ranks() );
     Teuchos::Array<EntityId> import_ip_domain_ids( 2*num_import );
     range_to_domain_dist.doPostsAndWaits(
-	export_ip_domain_ids, 2, import_ip_domain_ids() );
+	export_ip_domain_ids().getConst(), 2, import_ip_domain_ids() );
     Teuchos::Array<double> import_measures_weights( num_import );
     range_to_domain_dist.doPostsAndWaits(
-	export_measures_weights, 1, import_measures_weights() );
+	export_measures_weights().getConst(), 1, import_measures_weights() );
     Teuchos::Array<double> import_shape_evals( ip_stride*num_import );
     range_to_domain_dist.doPostsAndWaits(
-	export_shape_evals, global_max_support+1, import_shape_evals() );
+	export_shape_evals().getConst(), ip_stride, import_shape_evals() );
     Teuchos::Array<SupportId> import_support_ids( ip_stride*num_import );
     range_to_domain_dist.doPostsAndWaits(
-	export_support_ids, global_max_support+1, import_support_ids() );
+	export_support_ids().getConst(), ip_stride, import_support_ids() );
 
     // Map the ip-domain pairs to a local id.
     std::map<std::pair<EntityId,EntityId>,int> ip_domain_lid_map;
@@ -438,7 +430,7 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
 			   import_ip_domain_ids[2*num_import+1]) ] = n;
     }
 
-    // Cleanup before fill.
+    // Cleanup before filling the matrix.
     import_ip_domain_ids.clear();
     export_ranks.clear();
     export_ip_domain_ids.clear();
@@ -454,6 +446,7 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
     Teuchos::Array<EntityId>::const_iterator ip_entity_id_it;
     Teuchos::ArrayView<const double> ip_parametric_coords;
     Teuchos::Array<double> domain_shape_values;
+    Teuchos::Array<double> cm_values;
     Teuchos::Array<double>::iterator domain_shape_it;
     Teuchos::Array<GO> domain_support_ids;
     EntityIterator domain_it;
@@ -463,7 +456,7 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
     int range_cardinality = 0;
     int domain_cardinality = 0;
     double temp = 0.0;
-    int ip_index.
+    int ip_index;
     for ( domain_it = domain_begin; domain_it != domain_end; ++domain_it )
     {
 	// Get the domain Support ids supporting the domain entity.
@@ -479,9 +472,9 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
 	      ++ip_entity_id_it )
 	{
 	    // Get the local data id.
-	    DTK_CHECK( id_domain_lid_map.count(
+	    DTK_CHECK( ip_domain_lid_map.count(
 			   std::make_pair(*ip_entity_id_it,domain_it->id())) );
-	    local_id = id_domain_lid_map.find(
+	    local_id = ip_domain_lid_map.find(
 		std::make_pair(*ip_entity_id_it,domain_it->id()) )->second;
 	    
 	    // Get the parametric coordinates of the range entity in the
@@ -497,6 +490,7 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
 	    // Fill the coupling matrix.
 	    range_cardinality = import_shape_evals[ip_stride*local_id];
 	    domain_cardinality = domain_shape_values.size();
+	    cm_values.assign( domain_cardinality, 0.0 );
 	    for ( int i = 0; i < range_cardinality; ++i )
 	    {
 		ip_index = ip_stride*local_id + i + 1;
@@ -504,12 +498,13 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
 		       import_shape_evals[ip_index];
 		for ( int j = 0; j < domain_cardinality; ++j )
 		{
-		    domain_shape_values[j] *= temp;
+		    cm_values[j] = temp * domain_shape_values[j];
 		}
 		coupling_matrix->insertGlobalValues(
 		    import_support_ids[ip_index],
 		    domain_support_ids(),
-		    domain_shape_values() );
+		    cm_values() );
+	    }
 	}
     }
 

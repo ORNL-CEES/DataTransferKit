@@ -53,10 +53,12 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// IntegrationPoint 
+// IntegrationPoint container.
 //---------------------------------------------------------------------------//
-struct IntegrationPoint
+class IntegrationPoint
 {
+  public:
+    
     // Global id of the integration point.
     EntityId d_gid;
 
@@ -104,7 +106,7 @@ class IntegrationPointEntityImpl : public EntityImpl
      * \return The parallel rank that owns the entity.
      */
     int ownerRank() const override
-    { return d_ip->d_owner_rank; }
+    { return -1; }
 
     /*!
      * \brief Return the topological dimension of the entity.

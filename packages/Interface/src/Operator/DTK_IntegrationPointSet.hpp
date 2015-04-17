@@ -168,7 +168,7 @@ class IntegrationPointSet : public EntityLocalMap
     { return false; }
     bool checkPointInclusion( 
 	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point ) const
+	const Teuchos::ArrayView<const double>& reference_point ) const override
     { return false; }
     void mapToPhysicalFrame(
 	const Entity& entity,
@@ -183,7 +183,7 @@ class IntegrationPointSet : public EntityLocalMap
     Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
     // Local integration points.
-    Teuchos::Array<IntegrationPoint> d_points;
+    mutable Teuchos::Array<IntegrationPoint> d_points;
     
     // Starting global id for this proc.
     EntityId d_start_gid;

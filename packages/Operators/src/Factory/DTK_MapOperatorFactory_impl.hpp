@@ -83,7 +83,7 @@ MapOperatorFactory<Scalar>::create(
     switch( map_id )
     {
 	// L2 Projection.
-	case L2 _INTERPOLATION:
+	case L2_PROJECTION:
 	    map = Teuchos::rcp(	new L2ProjectionOperator<Scalar>(
 				    domain_map,range_map,parameters) );
 	    break;
