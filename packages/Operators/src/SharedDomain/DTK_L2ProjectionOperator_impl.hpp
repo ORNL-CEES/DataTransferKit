@@ -146,7 +146,7 @@ void L2ProjectionOperator<Scalar>::setup(
     	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,LO,GO>() );
     Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar,LO,GO> >(
 	thyra_M)->constInitialize( 
-	    thyra_range_vector_space_M, thyra_range_vector_space_M, mass_matrix );
+	    thyra_range_vector_space_M, thyra_domain_vector_space_M, mass_matrix );
 
     // Create an abstract wrapper for the coupling matrix.
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space_A =
@@ -157,7 +157,7 @@ void L2ProjectionOperator<Scalar>::setup(
     	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,LO,GO>() );
     Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar,LO,GO> >(
 	thyra_A)->constInitialize( 
-	    thyra_range_vector_space_A, thyra_range_vector_space_A, coupling_matrix );
+	    thyra_range_vector_space_A, thyra_domain_vector_space_A, coupling_matrix );
 
     // Create the inverse of the mass matrix. Use the conjugate gradient
     // method to invert the SPD mass matrix.
@@ -312,7 +312,7 @@ void L2ProjectionOperator<Scalar>::assembleMassMatrix(
     }
 
     // Finalize the mass matrix.
-    mass_matrix->fillComplete();
+    mass_matrix->fillComplete( this->getRangeMap(), this->getRangeMap() );
     DTK_CHECK( mass_matrix->isFillComplete() );
 
     // Finalize the integration point set.

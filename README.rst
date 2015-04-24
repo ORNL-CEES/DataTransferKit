@@ -123,6 +123,8 @@ listed in the following table:
 +-----------------------+---------------+---------------------------------------+
 | MOAB                  | No            | Required to build MOAB adapters       |
 +-----------------------+---------------+---------------------------------------+
+| libMesh               | No            | Required to build libMesh adapters    |
++-----------------------+---------------+---------------------------------------+
 
 You can get the most recent Trilinos version (11.14) at
 <http://trilinos.org/download/>.
