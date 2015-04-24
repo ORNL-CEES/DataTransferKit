@@ -197,7 +197,7 @@ void IntegrationPointSet::finalize()
     Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_SUM,
 			num_local_ip, Teuchos::ptrFromRef(num_global_ip) );
     Teuchos::RCP<const Tpetra::Map<int,EntityId> > map =
-	Tpetra::createContigMap<int,EntityId>(num_local_ip,num_global_ip,d_comm);
+	Tpetra::createContigMap<int,EntityId>(num_global_ip,num_local_ip,d_comm);
 
     // Get the starting id for this node.
     DTK_CHECK( map->isContiguous() );
