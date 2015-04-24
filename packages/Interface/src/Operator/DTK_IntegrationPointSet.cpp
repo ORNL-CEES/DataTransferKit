@@ -209,7 +209,7 @@ void IntegrationPointSet::finalize()
 
     // Assign global ids to the points.
     Teuchos::ArrayView<const EntityId> ip_gids = map->getNodeElementList();
-    for ( int p = 0; p < num_local_ip; ++p )
+    for ( EntityId p = 0; p < num_local_ip; ++p )
     {
 	d_points[p].d_gid = ip_gids[p];
     }
@@ -221,7 +221,7 @@ const IntegrationPoint&
 IntegrationPointSet::getPoint( const EntityId ip_id ) const
 {
     DTK_REQUIRE( ip_id >= d_start_gid );
-    DTK_REQUIRE( ip_id - d_start_gid < d_points.size() );
+    DTK_REQUIRE( ip_id - d_start_gid < Teuchos::as<EntityId>(d_points.size()) );
     return d_points[ ip_id - d_start_gid ];
 }
 

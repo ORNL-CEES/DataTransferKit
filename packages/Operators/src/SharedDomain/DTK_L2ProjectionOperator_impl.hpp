@@ -159,16 +159,19 @@ void L2ProjectionOperator<Scalar>::setup(
 	thyra_A)->constInitialize( 
 	    thyra_range_vector_space_A, thyra_range_vector_space_A, coupling_matrix );
 
-    // Create the inverse of the mass matrix.
+    // Create the inverse of the mass matrix. Use the conjugate gradient
+    // method to invert the SPD mass matrix.
     Teuchos::RCP<Teuchos::ParameterList> builder_params =
 	Teuchos::parameterList("Stratimikos");
     Teuchos::updateParametersFromXmlString(
 	"<ParameterList name=\"Stratimikos\">"
-        "<Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Belos\"/>"
-        "<Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>"
-	"<ParameterList name=\"Belos\">"
-	"<Parameter name=\"Solver Type\" type=\"string\" value=\"Pseudo Block CG\"/>"
-	"</ParameterList>"
+          "<Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Belos\"/>"
+          "<Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>"
+   	  "<ParameterList name=\"Linear Solver Types\">"
+            "<ParameterList name=\"Belos\">"
+	      "<Parameter name=\"Solver Type\" type=\"string\" value=\"Pseudo Block CG\"/>"
+	    "</ParameterList>"
+	  "</ParameterList>"
 	"</ParameterList>"
 	,
 	builder_params.ptr()
@@ -180,7 +183,7 @@ void L2ProjectionOperator<Scalar>::setup(
     Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > thyra_M_inv =
     	Thyra::inverse<Scalar>( *factory, thyra_M );
 
-    // Create the projection operator Op = M^-1 * A.
+    // Create the projection operator: Op = M^-1 * A.
     d_l2_operator = Thyra::multiply<Scalar>( thyra_M_inv, thyra_A );
     DTK_ENSURE( Teuchos::nonnull(d_l2_operator) );
 }
@@ -229,6 +232,8 @@ void L2ProjectionOperator<Scalar>::assembleMassMatrix(
     // Initialize data for assembly loop.
     double range_entity_measure = 0.0;
     IntegrationPoint range_ip;
+    range_ip.d_physical_coordinates.resize(
+	range_space->entitySet()->physicalDimension() );
     Teuchos::Array<Teuchos::Array<double> > int_points;
     Teuchos::Array<double> int_weights;
     Teuchos::Array<Teuchos::Array<double> > shape_evals;
@@ -277,8 +282,6 @@ void L2ProjectionOperator<Scalar>::assembleMassMatrix(
 
 	    // Map the integration point to the physical frame of the range
 	    // entity.
-	    range_ip.d_physical_coordinates.resize(
-		range_it->physicalDimension() );
 	    range_local_map->mapToPhysicalFrame(
 		*range_it,
 		int_points[p](),
@@ -424,11 +427,12 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
 
     // Map the ip-domain pairs to a local id.
     std::map<std::pair<EntityId,EntityId>,int> ip_domain_lid_map;
+    std::pair<EntityId,EntityId> lid_pair;
     for ( int n = 0; n < num_import; ++n )
     {
-	ip_domain_lid_map[
-	    std::make_pair(import_ip_domain_ids[2*num_import],
-			   import_ip_domain_ids[2*num_import+1]) ] = n;
+	lid_pair.first = import_ip_domain_ids[2*n];
+	lid_pair.second = import_ip_domain_ids[2*n+1];
+	ip_domain_lid_map[ lid_pair ] = n;
     }
 
     // Cleanup before filling the matrix.
@@ -473,17 +477,18 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
 	      ++ip_entity_id_it )
 	{
 	    // Get the local data id.
-	    DTK_CHECK( ip_domain_lid_map.count(
-			   std::make_pair(*ip_entity_id_it,domain_it->id())) );
-	    local_id = ip_domain_lid_map.find(
-		std::make_pair(*ip_entity_id_it,domain_it->id()) )->second;
+	    lid_pair.first = *ip_entity_id_it;
+	    lid_pair.second = domain_it->id();
+	    DTK_CHECK( ip_domain_lid_map.count(lid_pair) );
+	    local_id = ip_domain_lid_map.find( lid_pair )->second;
 	    
-	    // Get the parametric coordinates of the range entity in the
+	    // Get the parametric coordinates of the integration point in the
 	    // domain entity.
 	    psearch.rangeParametricCoordinatesInDomain(
 		domain_it->id(), *ip_entity_id_it, ip_parametric_coords );
 
-	    // Evaluate the shape function at the coordinates.
+	    // Evaluate the shape function at the integration point
+	    // parametric coordinates.
 	    domain_space->shapeFunction()->evaluateValue(
 		*domain_it, ip_parametric_coords, domain_shape_values );
 	    DTK_CHECK( domain_shape_values.size() == domain_support_ids.size() );

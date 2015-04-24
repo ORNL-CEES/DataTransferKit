@@ -104,6 +104,7 @@ double LibmeshVariableField::readFieldData(
 {
     DTK_REQUIRE( 0 == dimension );
     const libMesh::Node& node = d_libmesh_mesh->node( support_id );
+    DTK_CHECK( 1 == node.n_comp(d_system_id,d_variable_id) );
     libMesh::dof_id_type dof_id =
 	node.dof_number(d_system_id,d_variable_id,0);
     return d_libmesh_system->current_local_solution->el( dof_id );
@@ -119,6 +120,7 @@ void LibmeshVariableField::writeFieldData(
 {
     DTK_REQUIRE( 0 == dimension );
     const libMesh::Node& node = d_libmesh_mesh->node( support_id );
+    DTK_CHECK( 1 == node.n_comp(d_system_id,d_variable_id) );
     if ( node.processor_id() == d_libmesh_system->processor_id() )
     {
 	libMesh::dof_id_type dof_id =
