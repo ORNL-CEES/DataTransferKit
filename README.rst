@@ -51,10 +51,12 @@ DTK has the following packages:
 
 **Operators**
     DTK solution transfer operator implementation package. Operators
-    contains implementations of the following algorithms:
+    contains parallel implementations of the following algorithms:
 
+    * L2 Projection
     * Shape function interpolation
-    * Moving least square reconstruction
+    * Moving least square reconstruction with degenerate geometry
+      detection
     * Spline interpolation
 
 **Adapters**
