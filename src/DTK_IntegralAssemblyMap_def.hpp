@@ -462,15 +462,14 @@ geometry_ordinal_iterator = geometry_ordinals.begin();
 	source_measures = source_mesh_measure->measure( 
 	    Teuchos::arcpFromArray( d_source_elements ) );
     }
-    Teuchos::RCP<Tpetra::Vector<double,int,GlobalOrdinal> > source_vector = 
-	Tpetra::createVectorFromView( 
-	    d_source_map, Teuchos::arcpFromArray( source_measures ) );
-    Teuchos::RCP<Tpetra::Vector<double,int,GlobalOrdinal> > target_vector =
-	Tpetra::createVectorFromView( 
-	    d_target_map, 
-	    Teuchos::arcpFromArray( integral_element_measures ) );
-    target_vector->doImport( *source_vector, *d_source_to_target_importer,
+    Tpetra::Vector<double,int,GlobalOrdinal> source_vector( d_source_map );
+    source_vector.getDataNonConst().deepCopy( source_measures() );
+    Tpetra::Vector<double,int,GlobalOrdinal> target_vector( d_target_map );
+    target_vector.doImport( source_vector, *d_source_to_target_importer,
 			     Tpetra::INSERT );
+    Teuchos::ArrayRCP<const double> tgt_vec_data = target_vector.getData();
+    integral_element_measures.assign( tgt_vec_data.begin(),
+				      tgt_vec_data.end() );
 
     // Compute the local geometry measures from element measure sums. This
     // should approximate the true geometry measure.
@@ -545,9 +544,9 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 
     // Build a multivector for the function integrations.
     GlobalOrdinal source_size = source_field_copy.size() / source_dim;
-    Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type,int,GlobalOrdinal> > 
-	source_vector = Tpetra::createMultiVectorFromView( 
-	    d_source_map, source_field_copy, source_size, source_dim );
+    Tpetra::MultiVector<typename SFT::value_type,int,GlobalOrdinal> 
+	source_vector( d_source_map, source_dim );
+    source_vector.get1dViewNonConst().deepCopy( source_field_copy() );
 
     // Construct a view of the target space and fill it with zeros so that we
     // start the integral summations at zero.
@@ -584,8 +583,8 @@ void IntegralAssemblyMap<Mesh,Geometry>::apply(
 	target_vector( d_target_map, target_dim );
 
     // Import the function integrations.
-    target_vector.doImport( *source_vector, *d_source_to_target_importer,
-			     Tpetra::INSERT );
+    target_vector.doImport( source_vector, *d_source_to_target_importer,
+			    Tpetra::INSERT );
 
     // Collapse the function integrations over the geometry and apply them to
     // the target space.

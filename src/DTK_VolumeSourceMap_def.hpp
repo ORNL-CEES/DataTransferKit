@@ -291,12 +291,12 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 
     // Move the target coordinates to the rendezvous decomposition.
     GlobalOrdinal num_points = target_ordinals.size();
-    Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> > 
-	target_coords =	Tpetra::createMultiVectorFromView( 
-	    d_target_map, coords_view, num_points, coord_dim );
+    Tpetra::MultiVector<double,int,GlobalOrdinal>
+	target_coords( d_target_map, coord_dim );
+    target_coords.get1dViewNonConst().deepCopy( coords_view() );
     Tpetra::MultiVector<double,int,GlobalOrdinal> rendezvous_coords( 
 	rendezvous_coords_map, coord_dim );
-    rendezvous_coords.doExport( *target_coords, target_to_rendezvous_exporter, 
+    rendezvous_coords.doExport( target_coords, target_to_rendezvous_exporter, 
 				Tpetra::INSERT );
 
     // Search the rendezvous decomposition with the target points to get the
@@ -460,12 +460,13 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     Tpetra::Export<int,GlobalOrdinal> rendezvous_to_source_exporter( 
 	rendezvous_coords_map, d_source_map );
     d_target_coords.resize( num_source_geometry*coord_dim );
-    Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> >
-	source_coords = Tpetra::createMultiVectorFromView( 
-	    d_source_map, Teuchos::arcpFromArray( d_target_coords ), 
-	    num_source_geometry, coord_dim );
-    source_coords->doExport( rendezvous_coords, rendezvous_to_source_exporter,
+    Tpetra::MultiVector<double,int,GlobalOrdinal>
+	source_coords( d_source_map, coord_dim );
+    source_coords.doExport( rendezvous_coords, rendezvous_to_source_exporter,
 			     Tpetra::INSERT );
+    Teuchos::ArrayRCP<const double> src_decomp_coord_view = source_coords.get1dView();
+    d_target_coords.assign( src_decomp_coord_view.begin(),
+			    src_decomp_coord_view.end() );
 
     // Build the source-to-target importer.
     d_source_to_target_importer = 
@@ -525,9 +526,9 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 
     // Build a multivector for the function evaluations.
     GlobalOrdinal source_size = source_field_copy.size() / source_dim;
-    Teuchos::RCP<Tpetra::MultiVector<typename SFT::value_type, int, GlobalOrdinal> > 
-	source_vector = Tpetra::createMultiVectorFromView( 
-	    d_source_map, source_field_copy, source_size, source_dim );
+    Tpetra::MultiVector<typename SFT::value_type, int, GlobalOrdinal>
+	source_vector( d_source_map, source_dim );
+    source_vector.get1dViewNonConst().deepCopy( source_field_copy() );
 
     // Construct a view of the target space.
     int target_dim;
@@ -557,9 +558,8 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     d_comm->barrier();
     
     // Build a multivector for the target space.
-    Teuchos::RCP<Tpetra::MultiVector<typename TFT::value_type, int, GlobalOrdinal> > 
-	target_vector =	Tpetra::createMultiVectorFromView( 
-	    d_target_map, target_field_view, target_size, target_dim );
+    Tpetra::MultiVector<typename TFT::value_type, int, GlobalOrdinal>
+	target_vector( d_target_map, target_dim );
 
     // Fill the target space with zeros so that points we didn't map get some
     // data.
@@ -572,8 +572,9 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 
     // Move the data from the source decomposition to the target
     // decomposition.
-    target_vector->doImport( *source_vector, *d_source_to_target_importer, 
-			     Tpetra::INSERT );
+    target_vector.doImport( source_vector, *d_source_to_target_importer, 
+			    Tpetra::INSERT );
+    target_field_view.deepCopy( target_vector.get1dView()() );
 }
 
 //---------------------------------------------------------------------------//

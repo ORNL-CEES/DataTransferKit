@@ -606,14 +606,13 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 		MeshTools<Mesh>::coordsNonConstView( *current_block );
 	}
 	d_comm->barrier();
-	Teuchos::RCP< Tpetra::MultiVector<double,int,GlobalOrdinal> > 
-	    export_coords = Tpetra::createMultiVectorFromView( 
-		export_vertex_map, export_coords_view, 
-		num_vertices, d_dimension );
+	Tpetra::MultiVector<double,int,GlobalOrdinal> 
+	    export_coords( export_vertex_map, d_dimension );
+	export_coords.get1dViewNonConst().deepCopy( export_coords_view() );
 	Tpetra::MultiVector<double,int,GlobalOrdinal> 
 	    import_coords( import_vertex_map, d_dimension );
 	import_coords.doImport( 
-	    *export_coords, vertex_importer, Tpetra::INSERT );
+	    export_coords, vertex_importer, Tpetra::INSERT );
 
 	// Move the element connectivity to the rendezvous decomposition.
 	int vertices_per_element;
@@ -632,13 +631,12 @@ Rendezvous<Mesh>::sendMeshToRendezvous(
 		MeshTools<Mesh>::connectivityNonConstView( *current_block );
 	}
 	d_comm->barrier();
-	Teuchos::RCP<Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> > 
-	    export_conn = Tpetra::createMultiVectorFromView( 
-		export_element_map, export_conn_view, 
-		num_elements, vertices_per_element );
+	Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> export_conn( 
+	    export_element_map, vertices_per_element );
+	export_conn.get1dViewNonConst().deepCopy( export_conn_view() );
 	Tpetra::MultiVector<GlobalOrdinal,int,GlobalOrdinal> import_conn( 
 	    import_element_map, vertices_per_element );
-	import_conn.doImport( *export_conn, element_importer, Tpetra::INSERT );
+	import_conn.doImport( export_conn, element_importer, Tpetra::INSERT );
 
 	// Broadcast the permutation list.
 	Teuchos::ArrayRCP<int> permutation_list(vertices_per_element,0);
