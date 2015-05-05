@@ -129,13 +129,6 @@ int main(int argc, char* argv[])
     std::string target_mesh_output_file = 
 	plist->get<std::string>("Target Mesh Output File");
 
-    // Get the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
-    MPI_Comm raw_comm = (*opaque_comm)();
-
     
     // SOURCE MESH READ
     // ----------------

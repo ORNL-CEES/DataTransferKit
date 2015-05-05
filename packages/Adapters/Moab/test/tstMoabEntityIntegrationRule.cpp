@@ -39,6 +39,10 @@
  */
 //---------------------------------------------------------------------------//
 
+#include <MBInterface.hpp>
+#include <MBParallelComm.hpp>
+#include <MBCore.hpp>
+
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -46,19 +50,15 @@
 
 #include "DTK_MoabEntityIntegrationRule.hpp"
 #include "DTK_MoabEntity.hpp"
-#include <DTK_MoabHelpers.hpp>
+#include "DTK_MoabHelpers.hpp"
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Ptr.hpp"
-#include "Teuchos_Array.hpp"
-#include "Teuchos_ArrayRCP.hpp"
-#include "Teuchos_DefaultComm.hpp"
+#include <Teuchos_UnitTestHarness.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Ptr.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
-
-#include <MBInterface.hpp>
-#include <MBParallelComm.hpp>
-#include <MBCore.hpp>
 
 //---------------------------------------------------------------------------//
 // Hex-8 test.

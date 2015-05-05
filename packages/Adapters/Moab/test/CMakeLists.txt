@@ -2,7 +2,7 @@
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   MoabEntity_test
   SOURCES tstMoabEntity.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
-  COMM serial mpi
+  COMM mpi 
   STANDARD_PASS_OUTPUT
   )
 

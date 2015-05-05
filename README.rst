@@ -24,7 +24,7 @@ DataTransferKit Development Team
 
 DTK is developed and maintained by:
 
-* Stuart Slattery <slatterysr@ornl.gov>
+* Stuart Slattery (lead) <slatterysr@ornl.gov>
 
 * Damien Lebrun-Grandie <lebrungrandt@ornl.gov>
 
@@ -38,7 +38,7 @@ DTK has the following packages:
 
 **Utils**
     General utilities for software development including exception
-    handling, MPI-based tools, and functional programming tools
+    handling, MPI-based tools, and functional programming tools.
 
 **Interface**
     Core DTK interface package. Interfaces are divided into two
@@ -46,8 +46,9 @@ DTK has the following packages:
     polymorphic API implemented by client applications providing
     access to mesh, geometry, parallel decomposition, shape functions,
     and parametric mappings. *Operator* interfaces define the general
-    operator for solution transfer and other concepts for
-    constructing solution transfer operators from client code.
+    operator and vector objects for solution transfer and other 
+    concepts for constructing solution transfer operators from client 
+    code.
 
 **Operators**
     DTK solution transfer operator implementation package. Operators
@@ -158,8 +159,8 @@ packages. We create this link as::
     > ln -s $PATH_TO_DATATRANSFERKIT
 
 TriBITS is a CMake-based meta-build system
-<https://github.com/TriBITSPub> used by Trilinos. Although freely
-available on GitHub, a version is also included as a snapshot in
+<https://github.com/TriBITSPub/TriBITS> used by Trilinos. Although 
+freely available on GitHub, a version is also included as a snapshot in
 Trilinos and we use that version here. To setup the build we will make
 two directories; one for building and one for installing::
 
