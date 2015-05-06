@@ -51,6 +51,16 @@ TRIBITS_ADD_ETI_INSTANTIATIONS(TpetraCore
   "S={int} LO={int} GO={unsigned long} N={Kokkos::Compat::KokkosSerialWrapperNode}"
   )
 
+IF(DataTransferKit_ENABLE_TESTS OR DataTransferKit_ENABLE_EXAMPLES)
+  
+  TRIBITS_ADD_ETI_INSTANTIATIONS(TpetraCore
+    "S={double} LO={int} GO={long} N={Kokkos::Compat::KokkosSerialWrapperNode}"
+    "S={long} LO={int} GO={long} N={Kokkos::Compat::KokkosSerialWrapperNode}"
+    "S={int} LO={int} GO={long} N={Kokkos::Compat::KokkosSerialWrapperNode}"
+    )
+
+ENDIF()
+
 ##---------------------------------------------------------------------------##
 ## C) Add library, test, and examples.
 ##---------------------------------------------------------------------------##
