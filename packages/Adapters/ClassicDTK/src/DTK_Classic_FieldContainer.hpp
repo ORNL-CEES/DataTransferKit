@@ -92,10 +92,6 @@ class FieldContainer
 	, d_dimension( dimension )
     { /* ... */ }
 
-    //! Destructor.
-    ~FieldContainer()
-    { /* ... */ }
-
     //! Get the dimension of the field.
     int dim() const
     { return d_dimension; }
@@ -128,6 +124,10 @@ class FieldContainer
     const_iterator end() const
     { return d_data.end(); }
     //@}
+
+    //! Get the data.
+    Teuchos::ArrayRCP<Scalar> getData()
+    { return d_data; }
 
  private:
 

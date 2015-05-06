@@ -46,7 +46,7 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Constructor.
+// Entity constructor.
 template<class Scalar>
 EntityCenteredField<Scalar>::EntityCenteredField(
     const Teuchos::ArrayView<Entity>& entities,
@@ -64,6 +64,29 @@ EntityCenteredField<Scalar>::EntityCenteredField(
     for ( int n = 0; n < d_lda; ++n )
     {
 	d_support_ids[n] = entities[n].id();
+	d_id_map.emplace( d_support_ids[n], n );
+    }
+}
+
+//---------------------------------------------------------------------------//
+// Entity id constructor.
+template<class Scalar>
+EntityCenteredField<Scalar>::EntityCenteredField(
+    const Teuchos::ArrayView<EntityId>& entity_ids,
+    const int field_dim,
+    const Teuchos::ArrayRCP<Scalar>& dof_data,
+    const DataLayout layout )
+    : d_field_dim( field_dim )
+    , d_data( dof_data )
+    , d_layout( layout )
+{
+    d_lda = entity_ids.size();
+    DTK_CHECK( dof_data.size() == d_lda * d_field_dim );
+	       
+    d_support_ids.resize( d_lda );
+    for ( int n = 0; n < d_lda; ++n )
+    {
+	d_support_ids[n] = entity_ids[n];
 	d_id_map.emplace( d_support_ids[n], n );
     }
 }

@@ -43,6 +43,8 @@
 
 #include <map>
 
+#include "DTK_ConsistentInterpolationOperator.hpp"
+
 #include "DTK_Classic_GeometryTraits.hpp"
 #include "DTK_Classic_GeometryManager.hpp"
 #include "DTK_Classic_FieldTraits.hpp"
@@ -135,13 +137,6 @@ class VolumeSourceMap
 	const RCP_CoordFieldManager& target_coord_manager,
 	Teuchos::Array<GlobalOrdinal>& target_ordinals );
 
-    // Get the target points that are in the rendezvous decomposition box.
-    void getTargetPointsInBox( 
-	const BoundingBox& box,
-	const CoordinateField& target_coords,
-	const Teuchos::Array<GlobalOrdinal>& target_ordinals,
-	Teuchos::Array<GlobalOrdinal>& targets_in_box );
-
   private:
 
     // Communicator.
@@ -162,26 +157,29 @@ class VolumeSourceMap
     // Process indexer for the target application.
     CommIndexer d_target_indexer;
 
+    // Array of source geometry objects.
+    Teuchos::ArrayRCP<Geometry> d_source_geometry;
+
+    // Array of source geometry centroids.
+    Teuchos::ArrayRCP<double> d_source_centroids;
+
+    // Source entity set.
+    Teuchos::RCP<DataTransferKit::BasicEntitySet> d_source_entity_set;
+    
+    // Array of source geometry entity ids.
+    Teuchos::Array<DataTransferKit::EntityId> d_source_entity_ids;
+
+    // Target entity set.
+    Teuchos::RCP<DataTransferKit::BasicEntitySet> d_target_entity_set;
+    
+    // Array of target point entity ids.
+    Teuchos::Array<DataTransferKit::EntityId> d_target_entity_ids;
+
+    // Interpolation operator.
+    Teuchos::RCP<DataTransferKit::ConsistentInterpolationOperator<double> > d_consistent_operator;
+    
     // Indices for target points missed in the mapping.
     Teuchos::Array<GlobalOrdinal> d_missed_points;
-
-    // Global-to-local ordinal map for target ordinals.
-    std::map<GlobalOrdinal,GlobalOrdinal> d_target_g2l;
-
-    // Source field map.
-    RCP_TpetraMap d_source_map;
-
-    // Target field map.
-    RCP_TpetraMap d_target_map;
-
-    // Source-to-target importer.
-    RCP_TpetraImport d_source_to_target_importer;
-
-    // Local source geometries.
-    Teuchos::Array<GlobalOrdinal> d_source_geometry;
-
-    // Local target coords.
-    Teuchos::Array<double> d_target_coords;
 };
 
 //---------------------------------------------------------------------------//

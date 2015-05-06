@@ -82,9 +82,17 @@ class EntityCenteredField : public Field<Scalar>
     };
     
     /*!
-     * \brief Constructor.
+     * \brief Entity constructor.
      */
     EntityCenteredField( const Teuchos::ArrayView<Entity>& entities,
+			 const int field_dim,
+			 const Teuchos::ArrayRCP<Scalar>& dof_data,
+			 const DataLayout layout );
+
+    /*!
+     * \brief Entity id constructor.
+     */
+    EntityCenteredField( const Teuchos::ArrayView<EntityId>& entity_ids,
 			 const int field_dim,
 			 const Teuchos::ArrayRCP<Scalar>& dof_data,
 			 const DataLayout layout );
