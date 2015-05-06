@@ -130,7 +130,7 @@ Box::~Box()
 bool Box::pointInBox( const Teuchos::Array<double>& coords,
 		      const double tolerance ) const
 {
-    DTK_Classic_REQUIRE( 3 == coords.size() );
+    DTK_REQUIRE( 3 == coords.size() );
 
     if ( coords[0] >= d_x_min - tolerance &&
 	 coords[1] >= d_y_min - tolerance &&
@@ -210,6 +210,6 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Classic::Box& 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_Classic_Box.cpp
+// end DTK_Classic_Box.cpp
 //---------------------------------------------------------------------------//
 

@@ -254,6 +254,7 @@ void ConsistentInterpolationOperator<Scalar>::setup(
 	    // Consistent interpolation requires one support location per
 	    // range entity. Load the row for this range support location into
 	    // the matrix.
+	    DTK_CHECK( range_support_id_map.count(*range_entity_id_it) );
 	    d_coupling_matrix->insertGlobalValues(
 		range_support_id_map.find(*range_entity_id_it)->second,
 		domain_support_ids(),

@@ -137,32 +137,6 @@ class ClassicGeometricEntityImpl : public EntityImpl
 	const Teuchos::EVerbosityLevel verb_level ) const override;
     //@}
 
-    //@{
-    //! ClassicGeometricEntityImpl interface.
-    // Return the entity measure with respect to the parameteric
-    double measure() const;
-
-    // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
-
-    // (Reverse Map) Map a point to the reference space of an entity. Return
-    // the parameterized point.
-    bool mapToReferenceFrame( 
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const;
-
-    // Determine if a reference point is in the parameterized space of an
-    // entity.
-    bool checkPointInclusion( 
-	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
-
-    // (Forward Map) Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
-    //@}
-
   private:
 
     // Extra data.

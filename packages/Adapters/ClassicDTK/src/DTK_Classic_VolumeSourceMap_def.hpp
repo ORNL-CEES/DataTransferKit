@@ -49,7 +49,6 @@
 #include "DTK_FunctionSpace.hpp"
 #include "DTK_FieldMultiVector.hpp"
 
-#include "DTK_BasicEntitySet.hpp"
 #include "DTK_EntityCenteredShapeFunction.hpp"
 #include "DTK_EntityCenteredField.hpp"
 #include "DTK_Point.hpp"
@@ -162,34 +161,47 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     
     // Build the domain space and map from the source information.
     // -----------------------------------------------------------
-    
+
     // Create an entity set from the local source geometry. DTK entities are
     // stored as pointers to the classic geometry objects.
     d_source_entity_set =
 	Teuchos::rcp( new DataTransferKit::BasicEntitySet(d_comm,d_dimension) );
     if ( source_exists )
     {
-	int local_num_source_geom = source_geometry_manager->localNumGeometry();
-	d_source_geometry = source_geometry_manager->geometry();
-	d_source_entity_ids.resize( local_num_source_geom );
-	d_source_centroids.resize( local_num_source_geom*d_dimension );
-	Teuchos::Array<double> source_centroid;
+	// The classic API allowed for input source geometries to have repeated
+	// global ids on different procs. The new API also allows for this but we
+	// need to know which proc is the owning proc. Figure that out.
 	Teuchos::ArrayRCP<GlobalOrdinal> source_gids =
 	    source_geometry_manager->gids();
+	int local_num_source_geom = source_geometry_manager->localNumGeometry();
+	Teuchos::Array<int> source_owners( local_num_source_geom, d_comm->getRank() );
+	// Gather to the root proc and sort by id.
+	// If the same id is on multiple ranks, the owner rank is the lowest
+	// id.
+	// Scatter the new owner ranks back to their procs.
+	
+	// Create the entity set.
+	Teuchos::ArrayRCP<Geometry> source_geometry =
+	    source_geometry_manager->geometry();
+	d_source_entity_ids.resize( local_num_source_geom );
+	d_source_eval_ids.resize( local_num_source_geom );
+	d_source_centroids.resize( local_num_source_geom*d_dimension );
+	Teuchos::Array<double> source_centroid;
 	for ( int i = 0; i < local_num_source_geom; ++i )
 	{
 	    d_source_entity_set->addEntity(
 		DataTransferKit::ClassicGeometricEntity<Geometry>(
-		    Teuchos::ptrFromRef(d_source_geometry[i]),
+		    Teuchos::ptrFromRef(source_geometry[i]),
 		    source_gids[i],
 		    d_comm->getRank())
 		);
 	    d_source_entity_ids[i] = source_gids[i];
-	    source_centroid = GT::centroid( d_source_geometry[i] );
+	    d_source_eval_ids[i] = source_gids[i];
+	    source_centroid = GT::centroid( source_geometry[i] );
 	    for ( int d = 0; d < d_dimension; ++d )
 	    {
 		d_source_centroids[d*local_num_source_geom + i] =
-		    souce_centroid[d];
+		    source_centroid[d];
 	    }
 	}
     }
@@ -209,8 +221,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	d_source_entity_set, source_local_map, source_shape_function, Teuchos::null );
 
     // Make a map for the source vectors.
-    Teuchos::RCP<
-    	const Tpetra::Map<int,DataTransferKit::SupportId> >
+    Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> >
     	domain_vector_map = Tpetra::createNonContigMap<int,DataTransferKit::SupportId>(
 	    d_source_entity_ids(), d_comm );
     
@@ -226,7 +237,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	Teuchos::rcp( new DataTransferKit::BasicEntitySet(d_comm,d_dimension) );
     if ( target_exists )
     {
-	Teuchos::ArrayRCP<const CFT::value_type> coords_view =
+	Teuchos::ArrayRCP<const typename CFT::value_type> coords_view =
 	    FieldTools<CoordinateField>::view( *target_coord_manager->field() );
 	Teuchos::Array<double> target_coords( d_dimension );
 	int local_num_targets = target_ordinals.size();
@@ -242,7 +253,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 					d_comm->getRank(),
 					target_coords )
 		);
-	    d_target_entity_ids[i] = target_oridinals[i];
+	    d_target_entity_ids[i] = target_ordinals[i];
 	}
     }
 
@@ -261,8 +272,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	d_target_entity_set, target_local_map, target_shape_function, Teuchos::null );
 
     // Make a map for the target vectors.
-    Teuchos::RCP<
-    	const Tpetra::Map<int,DataTransferKit::SupportId> >
+    Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> >
     	range_vector_map = Tpetra::createNonContigMap<int,DataTransferKit::SupportId>(
 	    d_target_entity_ids(), d_comm );
 
@@ -272,7 +282,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     // Create parameters for the mapping.
     Teuchos::ParameterList parameters;
     Teuchos::ParameterList& search_list = parameters.sublist("Search");
-    search_list.set<std::string>("Store Missed Range Entities",d_store_missed_points);
+    search_list.set<bool>("Track Missed Range Entities",d_store_missed_points);
     search_list.set<double>("Point Inclusion Tolerance", d_geometric_tolerance );
     
     // Create the interpolation operator.
@@ -317,8 +327,9 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     if ( source_exists )
     {
 	SourceField function_evaluations = 
-	    source_evaluator->evaluate( d_source_geometry,
-					d_source_centroids );
+	    source_evaluator->evaluate(
+		Teuchos::arcpFromArray(d_source_eval_ids),
+		Teuchos::arcpFromArray(d_source_centroids) );
 
 	source_dim = SFT::dim( function_evaluations );
 
@@ -329,14 +340,15 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 				 Teuchos::Ptr<int>(&source_dim) );
 
     // Build a vector for the source values.
-    Teuchos::RCP<DataTransferKit::EntityCenteredField<SFT::value_type> >
+    Teuchos::RCP<DataTransferKit::EntityCenteredField<typename SFT::value_type> >
 	source_dtk_field = Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredField<SFT::value_type>(
+	    new DataTransferKit::EntityCenteredField<typename SFT::value_type>(
 		d_source_entity_ids(),
 		source_dim,
 		source_field_copy,
-		DataTransferKit::DTK_BLOCKED) );
-    DataTransferKit::FieldMultiVector<SFT::value_type> source_vector(
+		DataTransferKit::EntityCenteredField<typename SFT::value_type>::BLOCKED)
+	    );
+    DataTransferKit::FieldMultiVector<typename SFT::value_type> source_vector(
 	source_dtk_field, d_source_entity_set );
 
     // Construct a view of the target space.
@@ -359,24 +371,24 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     GlobalOrdinal target_size = target_field_view.size() / target_dim;
     if ( target_exists )
     {
-	DTK_REQUIRE( 
-	    target_size == Teuchos::as<GlobalOrdinal>(
-		d_target_map->getNodeNumElements()) );
+	DTK_REQUIRE( target_size == Teuchos::as<GlobalOrdinal>(
+			 d_target_entity_ids.size()) );
     }
 
     // Build a vector for the target values.
-    Teuchos::RCP<DataTransferKit::EntityCenteredField<SFT::value_type> >
+    Teuchos::RCP<DataTransferKit::EntityCenteredField<typename TFT::value_type> >
 	target_dtk_field = Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredField<SFT::value_type>(
+	    new DataTransferKit::EntityCenteredField<typename TFT::value_type>(
 		d_target_entity_ids(),
 		target_dim,
 		target_field_view,
-		DataTransferKit::DTK_BLOCKED) );
-    DataTransferKit::FieldMultiVector<SFT::value_type> target_vector(
+		DataTransferKit::EntityCenteredField<typename TFT::value_type>::BLOCKED)
+	    );
+    DataTransferKit::FieldMultiVector<typename TFT::value_type> target_vector(
 	target_dtk_field, d_target_entity_set );
 
     // Apply the DTK operator.
-    d_constsistent_operator->apply( source_vector, target_vector );
+    d_consistent_operator->apply( source_vector, target_vector );
 }
 
 //---------------------------------------------------------------------------//
@@ -462,13 +474,6 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::computePointOrdinals(
     for ( GlobalOrdinal n = 0; n < local_size; ++n )
     {
 	target_ordinals[n] = comm_rank*global_max + n;
-
-	// If we're keeping track of missed points, we also need to build the
-	// global-to-local ordinal map.
-	if ( d_store_missed_points )
-	{
-	    d_target_g2l[ target_ordinals[n] ] = n;
-	}
     }
 }
 

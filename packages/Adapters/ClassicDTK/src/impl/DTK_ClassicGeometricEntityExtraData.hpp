@@ -38,8 +38,8 @@
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_BASICGEOMETRYEXTRADATA_HPP
-#define DTK_BASICGEOMETRYEXTRADATA_HPP
+#ifndef DTK_CLASSICGEOMETRICENTITYEXTRADATA_HPP
+#define DTK_CLASSICGEOMETRICENTITYEXTRADATA_HPP
 
 #include "DTK_EntityExtraData.hpp"
 
@@ -54,11 +54,13 @@ namespace DataTransferKit
 */
 //---------------------------------------------------------------------------//
 template<class Geometry>
-class ClassicGeometricExtraData : public EntityExtraData
+class ClassicGeometricEntityExtraData : public EntityExtraData
 {
   public:
 
-    ClassicGeometricExtraData( const Teuchos::Ptr<Geometry>& geometry );
+    ClassicGeometricEntityExtraData( const Teuchos::Ptr<Geometry>& geometry )
+	: d_geometry( geometry )
+    { /* ... */ }
 
     // Pointer to the classic geometry implementation.
     Teuchos::Ptr<Geometry> d_geometry;
@@ -68,7 +70,7 @@ class ClassicGeometricExtraData : public EntityExtraData
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_BASICGEOMETRYEXTRADATA_HPP
+#endif // end DTK_CLASSICGEOMETRICENTITYEXTRADATA_HPP
 
 //---------------------------------------------------------------------------//
 // end DTK_ClassicGeometricExtraData.hpp

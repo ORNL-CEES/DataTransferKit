@@ -44,7 +44,6 @@
 #include <iostream>
 
 #include "DTK_Entity.hpp"
-#include "DTK_ClassicGeometricEntityImpl.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
@@ -73,32 +72,6 @@ class ClassicGeometricEntity : public Entity
     ClassicGeometricEntity( const Teuchos::Ptr<Geometry>& geometry,
 			    const EntityId global_id,
 			    const int owner_rank );
-
-    //@{
-    //! ClassicGeometricEntity interface.
-    // Return the entity measure with respect to the parameteric
-    double measure() const;
-
-    // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
-
-    // (Reverse Map) Map a point to the reference space of an entity. Return
-    // the parameterized point.
-    bool mapToReferenceFrame( 
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const;
-
-    // Determine if a reference point is in the parameterized space of an
-    // entity.
-    bool checkPointInclusion( 
-	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
-
-    // (Forward Map) Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
-    //@}
 };
 
 //---------------------------------------------------------------------------//
@@ -109,7 +82,7 @@ class ClassicGeometricEntity : public Entity
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_Classic_ClassicGeometricEntity_impl.hpp"
+#include "DTK_ClassicGeometricEntity_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

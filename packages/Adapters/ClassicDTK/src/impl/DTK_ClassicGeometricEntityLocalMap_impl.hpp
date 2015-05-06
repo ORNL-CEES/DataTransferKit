@@ -38,12 +38,13 @@
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CLASSIC_GEOMETRICENTITYENTITYIMPL_IMPL_HPP
-#define DTK_CLASSIC_GEOMETRICENTITYENTITYIMPL_IMPL_HPP
+#ifndef DTK_CLASSICGEOMETRICENTITYLOCALMAP_IMPL_HPP
+#define DTK_CLASSICGEOMETRICENTITYLOCALMAP_IMPL_HPP
 
-#include "DTK_ClassicGeometricEntityEntity.hpp"
 #include "DTK_ClassicGeometricEntityExtraData.hpp"
 #include "DTK_DBC.hpp"
+
+#include "DTK_Classic_GeometryTraits.hpp"
 
 namespace DataTransferKit
 {
@@ -72,8 +73,10 @@ void ClassicGeometricEntityLocalMap<Geometry>::setParameters(
 template<class Geometry>
 double ClassicGeometricEntityLocalMap<Geometry>::measure( const Entity& entity ) const
 {
-    return Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData>(entity.extraData()
-	)->d_geometry->measure();
+    Teuchos::Ptr<Geometry> geometry =
+	Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData<Geometry> >(
+	    entity.extraData())->d_geometry;
+    return Classic::GeometryTraits<Geometry>::measure( *geometry );
 }
 
 //---------------------------------------------------------------------------//
@@ -82,8 +85,12 @@ template<class Geometry>
 void ClassicGeometricEntityLocalMap<Geometry>::centroid( 
     const Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
 { 
-    Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData>(entity.extraData()
-	)->d_geometry->centroid(centroid);
+    Teuchos::Ptr<Geometry> geometry =
+	Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData<Geometry> >(
+	    entity.extraData())->d_geometry;
+    centroid.assign(
+	Classic::GeometryTraits<Geometry>::centroid( *geometry )()
+	);
 }
 
 //---------------------------------------------------------------------------//
@@ -95,9 +102,8 @@ bool ClassicGeometricEntityLocalMap<Geometry>::mapToReferenceFrame(
     const Teuchos::ArrayView<const double>& physical_point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
-    return Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData>(entity.extraData()
-	)->d_geometry->mapToReferenceFrame(
-	    physical_point,reference_point);
+    reference_point.assign( physical_point );
+    return true;
 }
 
 //---------------------------------------------------------------------------//
@@ -107,9 +113,12 @@ bool ClassicGeometricEntityLocalMap<Geometry>::checkPointInclusion(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
-    return Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData>(entity.extraData()
-	)->d_geometry->checkPointInclusion(
-	    d_inclusion_tol,reference_point);
+    Teuchos::Ptr<Geometry> geometry =
+	Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData<Geometry> >(
+	    entity.extraData())->d_geometry;
+    Teuchos::Array<double> coords( reference_point );
+    return Classic::GeometryTraits<Geometry>::pointInGeometry(
+	*geometry, coords, d_inclusion_tol );
 }
 
 //---------------------------------------------------------------------------//
@@ -120,18 +129,16 @@ void ClassicGeometricEntityLocalMap<Geometry>::mapToPhysicalFrame(
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& physical_point ) const
 {
-    Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData>(entity.extraData()
-	)->d_geometry->mapToPhysicalFrame(
-	    reference_point,physical_point);
+    physical_point.assign( reference_point );
 }
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_CLASSIC_GEOMETRICENTITYENTITYIMPL_IMPL_HPP
+} // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+#endif // end DTK_CLASSICGEOMETRICENTITYLOCALMAP_IMPL_HPP
 
 //---------------------------------------------------------------------------//
 // end DTK_ClassicGeometricEntityLocalMap_impl.hpp

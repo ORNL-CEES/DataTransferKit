@@ -60,6 +60,7 @@ ClassicGeometricEntityImpl<Geometry>::ClassicGeometricEntityImpl(
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
+template<class Geometry>
 EntityId ClassicGeometricEntityImpl<Geometry>::id() const
 {
     return d_id;
@@ -67,6 +68,7 @@ EntityId ClassicGeometricEntityImpl<Geometry>::id() const
     
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
+template<class Geometry>
 int ClassicGeometricEntityImpl<Geometry>::ownerRank() const
 {
     return d_owner_rank;
@@ -74,6 +76,7 @@ int ClassicGeometricEntityImpl<Geometry>::ownerRank() const
 
 //---------------------------------------------------------------------------//
 // Return the topological dimension of the entity.
+template<class Geometry>
 int ClassicGeometricEntityImpl<Geometry>::topologicalDimension() const
 {
     return
@@ -82,6 +85,7 @@ int ClassicGeometricEntityImpl<Geometry>::topologicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
+template<class Geometry>
 int ClassicGeometricEntityImpl<Geometry>::physicalDimension() const
 {
     return
@@ -90,6 +94,7 @@ int ClassicGeometricEntityImpl<Geometry>::physicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Return the Cartesian bounding box around an entity.
+template<class Geometry>
 void ClassicGeometricEntityImpl<Geometry>::boundingBox(
     Teuchos::Tuple<double,6>& bounds ) const
 {
@@ -99,6 +104,7 @@ void ClassicGeometricEntityImpl<Geometry>::boundingBox(
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
+template<class Geometry>
 bool ClassicGeometricEntityImpl<Geometry>::inBlock( const int block_id ) const
 {
     return false;
@@ -106,6 +112,7 @@ bool ClassicGeometricEntityImpl<Geometry>::inBlock( const int block_id ) const
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
+template<class Geometry>
 bool ClassicGeometricEntityImpl<Geometry>::onBoundary( const int boundary_id ) const
 {
     return false;
@@ -113,6 +120,7 @@ bool ClassicGeometricEntityImpl<Geometry>::onBoundary( const int boundary_id ) c
 
 //---------------------------------------------------------------------------//
 // Get the extra data on the entity.
+template<class Geometry>
 Teuchos::RCP<EntityExtraData> ClassicGeometricEntityImpl<Geometry>::extraData() const
 {
     return d_extra_data;
@@ -120,6 +128,7 @@ Teuchos::RCP<EntityExtraData> ClassicGeometricEntityImpl<Geometry>::extraData() 
 
 //---------------------------------------------------------------------------//
 // Provide a one line description of the object.
+template<class Geometry>
 std::string ClassicGeometricEntityImpl<Geometry>::description() const
 {
     return std::string("DTK Classic Geometric Entity");
@@ -127,61 +136,12 @@ std::string ClassicGeometricEntityImpl<Geometry>::description() const
 
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
+template<class Geometry>
 void ClassicGeometricEntityImpl<Geometry>::describe(
     Teuchos::FancyOStream& out,
     const Teuchos::EVerbosityLevel verb_level ) const
 {
     out << description();
-}
-
-//---------------------------------------------------------------------------//
-// Return the entity measure with respect to the parameteric
-double ClassicGeometricEntityImpl<Geometry>::measure() const
-{
-    return
-	Classic::GeometryTraits<Geometry>::measure(*(d_extra_data->d_geometry));
-}
-
-//---------------------------------------------------------------------------//
-// Compute the centroid of the entity.
-void ClassicGeometricEntityImpl<Geometry>::centroid(
-    const Teuchos::ArrayView<double>& centroid ) const
-{
-    centroid.assign(
-	Classic::GeometryTraits<Geometry>::centroid(*(d_extra_data->d_geometry))()
-	);
-}
-
-//---------------------------------------------------------------------------//
-// (Reverse Map) Map a point to the reference space of an entity. Return
-// the parameterized point.
-bool ClassicGeometricEntityImpl<Geometry>::mapToReferenceFrame( 
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point ) const
-{
-    reference_point.assign( point );
-    return true;
-}
-
-//---------------------------------------------------------------------------//
-// Determine if a reference point is in the parameterized space of an
-// entity.
-bool ClassicGeometricEntityImpl<Geometry>::checkPointInclusion( 
-    const double tolerance,
-    const Teuchos::ArrayView<const double>& reference_point ) const
-{
-    Teuchos::Array<double> coords( reference_point );
-    return Classic::GeometryTraits<Geometry>::pointInGeometry(
-	*(d_extra_data->d_geometry), coords, tolerance );
-}
-
-//---------------------------------------------------------------------------//
-// (Forward Map) Map a reference point to the physical space of an entity.
-void ClassicGeometricEntityImpl<Geometry>::mapToPhysicalFrame( 
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& point ) const
-{
-    point.assign( reference_point );
 }
 
 //---------------------------------------------------------------------------//

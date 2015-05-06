@@ -148,7 +148,7 @@ class ClassicGeometricEntityLocalMap : public EntityLocalMap
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_ClassicGeometricEntityLocalMap.hpp"
+#include "DTK_ClassicGeometricEntityLocalMap_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

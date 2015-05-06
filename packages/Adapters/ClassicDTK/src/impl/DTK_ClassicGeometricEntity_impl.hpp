@@ -45,6 +45,8 @@
 
 #include "DTK_DBC.hpp"
 
+#include "DTK_ClassicGeometricEntityImpl.hpp"
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -56,79 +58,7 @@ ClassicGeometricEntity<Geometry>::ClassicGeometricEntity(
     const int owner_rank )
 {
     this->b_entity_impl = Teuchos::rcp(
-	new ClassicGeometricEntityImpl(geometry,global_id,rank) );
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Compute the measure of the entity.
- *
- * \return Return the measure of the entity.
- */
-template<class Geometry>
-double ClassicGeometricEntity<Geometry>::measure() const
-{
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
-    return Teuchos::rcp_dynamic_cast<ClassicGeometricEntityImpl>(
-	this->b_entity_impl)->measure();
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the centroid of the entity.
- *
- * \return The centroid coordinates.
- */
-template<class Geometry>
-void ClassicGeometricEntity<Geometry>::centroid( 
-    const Teuchos::ArrayView<double>& centroid ) const
-{
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
-    Teuchos::rcp_dynamic_cast<ClassicGeometricEntityImpl>(
-	this->b_entity_impl)->centroid(centroid);
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Map a point to the reference space of an entity. Return the
- */
-template<class Geometry>
-bool ClassicGeometricEntity<Geometry>::mapToReferenceFrame( 
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point ) const
-{
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
-    return Teuchos::rcp_dynamic_cast<ClassicGeometricEntityImpl>(
-	this->b_entity_impl)->mapToReferenceFrame(point,reference_point);
-}
-
-//---------------------------------------------------------------------------//
-/*!  
- * \brief Determine if a reference point is in the parameterized space of
- * an entity.
- */
-template<class Geometry>
-bool ClassicGeometricEntity<Geometry>::checkPointInclusion( 
-    const double tolerance,
-    const Teuchos::ArrayView<const double>& reference_point ) const
-{
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
-    return Teuchos::rcp_dynamic_cast<ClassicGeometricEntityImpl>(
-	this->b_entity_impl)->checkPointInclusion(tolerance,reference_point);
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Map a reference point to the physical space of an entity.
- */
-template<class Geometry>
-void ClassicGeometricEntity<Geometry>::mapToPhysicalFrame( 
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& point ) const
-{
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
-    Teuchos::rcp_dynamic_cast<ClassicGeometricEntityImpl>(
-	this->b_entity_impl)->mapToPhysicalFrame(reference_point,point);
+	new ClassicGeometricEntityImpl<Geometry>(geometry,global_id,owner_rank) );
 }
 
 //---------------------------------------------------------------------------//
