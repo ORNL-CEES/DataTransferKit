@@ -32,92 +32,96 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Cylinder.hpp
+ * \file DTK_Classic_FieldManager.hpp
  * \author Stuart R. Slattery
- * \brief cylinder declaration.
+ * \brief Field manager declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CYLINDER_HPP
-#define DTK_CYLINDER_HPP
+#ifndef DTK_Classic_FIELDMANAGER_HPP
+#define DTK_Classic_FIELDMANAGER_HPP
 
-#include "DTK_BasicGeometryEntity.hpp"
+#include "DTK_Classic_FieldTraits.hpp"
 
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_ArrayView.hpp>
-
-#include <iostream>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
 {
+namespace Classic
+{
 //---------------------------------------------------------------------------//
 /*!
- * \class Cylinder
- * \brief Z-axis-aligned Cartesian cylinder container
- *
- * All three dimensions are explictly represented in this cylinder.
- */
-//---------------------------------------------------------------------------//
-class Cylinder : public BasicGeometryEntity
-{
+ \class FieldManager
+ \brief Manager object for fields.
 
+ The field manager manages a field and its parallel decomposition. A field has
+ a dimension of arbitrary size. As examples, for scalar fields this dimension
+ is 1, for 3-vectors (such as the velocity example above in a 3 dimensional
+ computation) the dimension is 3, and for a 3x3 tensor the dimension is 9.
+ All local instances of the field must have the same dimension. A field can
+ have an arbitrary number of local degrees of freedom and this size can differ
+ from local domain to local domain. No knowledge of the global field
+ decomposition is required, however, it must exist on a single communicator.
+*/
+//---------------------------------------------------------------------------//
+template<class Field>
+class FieldManager
+{
   public:
 
-    // Default constructor.
-    Cylinder();
+    //@{
+    //! Typedefs.
+    typedef Field                                               field_type;
+    typedef Teuchos::RCP<Field>                                 RCP_Field;
+    typedef FieldTraits<Field>                                  FT;
+    typedef Teuchos::Comm<int>                                  CommType;
+    typedef Teuchos::RCP<const CommType>                        RCP_Comm;
+    //@}
 
     // Constructor.
-    Cylinder( const EntityId global_id, 
-	      const int owner_rank, 
-	      const int block_id,
-	      const double length, 
-	      const double radius,
-	      const double centroid_x, 
-	      const double centroid_y, 
-	      const double centroid_z );
+    FieldManager( const RCP_Field& field, const RCP_Comm& comm );
 
-    //! Get the length of the cylinder.
-    double length() const;
+    // Destructor.
+    ~FieldManager();
 
-    //! Get the radius of the cylinder.
-    double radius() const;
+    //@{
+    //! Get the field.
+    const RCP_Field& field() const { return d_field; }
+    //@}
 
-    // Return the entity measure.
-    double measure() const override;
+    //! Get the communicator for the field.
+    const RCP_Comm& comm() const
+    { return d_comm; }
 
-    // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const override;
+  private:
 
-    // (Reverse Map) Map a point to the reference space of an entity. Return
-    // the parameterized point.
-    bool mapToReferenceFrame( 
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const override;
+    // Validate the field to the domain model.
+    void validate();
 
-    // Determine if a reference point is in the parameterized space of an
-    // entity.
-    bool checkPointInclusion( 
-	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const override;
+  private:
 
-    // (Forward Map) Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const override;
+    // Field.
+    RCP_Field d_field;
+    
+    // Communicator over which the field is defined.
+    RCP_Comm d_comm;
 };
 
-//! overload for printing cylinder
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c); 
-
-//---------------------------------------------------------------------------//
-
+} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
 
-#endif // end DTK_CYLINDER_HPP
+#include "DTK_Classic_FieldManager_def.hpp"
 
 //---------------------------------------------------------------------------//
-// end DTK_Cylinder.hpp
+
+#endif // DTK_Classic_FIELDMANAGER_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_Classic_FieldManager.hpp
 //---------------------------------------------------------------------------//
 

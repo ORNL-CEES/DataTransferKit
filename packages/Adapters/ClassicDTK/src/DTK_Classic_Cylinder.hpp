@@ -32,23 +32,26 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Cylinder.hpp
+ * \file DTK_Classic_Cylinder.hpp
  * \author Stuart R. Slattery
  * \brief cylinder declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CYLINDER_HPP
-#define DTK_CYLINDER_HPP
+#ifndef DTK_Classic_CYLINDER_HPP
+#define DTK_Classic_CYLINDER_HPP
 
-#include "DTK_BasicGeometryEntity.hpp"
+#include "DTK_Classic_BoundingBox.hpp"
+#include "DTK_Classic_GeometryTraits.hpp"
 
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_SerializationTraits.hpp>
 
 #include <iostream>
 
 namespace DataTransferKit
+{
+namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -58,7 +61,7 @@ namespace DataTransferKit
  * All three dimensions are explictly represented in this cylinder.
  */
 //---------------------------------------------------------------------------//
-class Cylinder : public BasicGeometryEntity
+class Cylinder
 {
 
   public:
@@ -67,57 +70,103 @@ class Cylinder : public BasicGeometryEntity
     Cylinder();
 
     // Constructor.
-    Cylinder( const EntityId global_id, 
-	      const int owner_rank, 
-	      const int block_id,
-	      const double length, 
-	      const double radius,
-	      const double centroid_x, 
-	      const double centroid_y, 
+    Cylinder( const double length, const double radius,
+	      const double centroid_x, const double centroid_y,
 	      const double centroid_z );
 
+    // Determine if a point is in the cylinder within a specified tolerance.
+    bool pointInCylinder( const Teuchos::Array<double>& coords,
+			  const double tolerance ) const;
+
     //! Get the length of the cylinder.
-    double length() const;
+    double length() const
+    { return d_length; }
 
     //! Get the radius of the cylinder.
-    double radius() const;
+    double radius() const
+    { return d_radius; }
 
-    // Return the entity measure.
-    double measure() const override;
+    // Get the centroid of the cylinder.
+    Teuchos::Array<double> centroid() const;
 
-    // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const override;
+    // Compute the volume of the cylinder.
+    double volume() const;
 
-    // (Reverse Map) Map a point to the reference space of an entity. Return
-    // the parameterized point.
-    bool mapToReferenceFrame( 
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const override;
+    // Compute the bounding box around the cylinder.
+    BoundingBox boundingBox() const;
 
-    // Determine if a reference point is in the parameterized space of an
-    // entity.
-    bool checkPointInclusion( 
-	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const override;
+  private:
+    
+    // Length.
+    double d_length;
 
-    // (Forward Map) Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const override;
+    // Radius.
+    double d_radius;
+
+    // Centroid X-coordinate
+    double d_centroid_x;
+
+    // Centroid Y-coordinate
+    double d_centroid_y;
+
+    // Centroid Z-coordinate
+    double d_centroid_z;
 };
 
 //! overload for printing cylinder
 std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c); 
 
 //---------------------------------------------------------------------------//
+// GeometryTraits Specialization.
+//---------------------------------------------------------------------------//
+template<>
+class GeometryTraits<Cylinder>
+{
+  public:
 
+    typedef Cylinder geometry_type;
+
+    static inline int dim( const Cylinder& cylinder )
+    { return 3; }
+
+    static inline double measure( const Cylinder& cylinder )
+    { return cylinder.volume(); }
+
+    static inline bool pointInGeometry( const Cylinder& cylinder,
+					const Teuchos::Array<double>& coords,
+					const double tolerance )
+    { return cylinder.pointInCylinder( coords, tolerance ); }
+
+    static inline BoundingBox boundingBox( const Cylinder& cylinder )
+    { return cylinder.boundingBox(); }
+
+    static inline Teuchos::Array<double> centroid( const Cylinder& cylinder )
+    { return cylinder.centroid(); }
+};
+
+//---------------------------------------------------------------------------//
+
+} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Serialization Traits Specialization.
+//---------------------------------------------------------------------------//
+namespace Teuchos
+{
 
-#endif // end DTK_CYLINDER_HPP
+template<typename Ordinal>
+class SerializationTraits<Ordinal, DataTransferKit::Classic::Cylinder>
+    : public DirectSerializationTraits<Ordinal, DataTransferKit::Classic::Cylinder>
+{};
+
+} // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
-// end DTK_Cylinder.hpp
+
+#endif // end DTK_Classic_CYLINDER_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_Classic_Cylinder.hpp
 //---------------------------------------------------------------------------//
 

@@ -32,92 +32,90 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Cylinder.hpp
+ * \file DTK_GeometricEntity.hpp
  * \author Stuart R. Slattery
- * \brief cylinder declaration.
+ * \brief GeometricEntity declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CYLINDER_HPP
-#define DTK_CYLINDER_HPP
-
-#include "DTK_BasicGeometryEntity.hpp"
-
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_ArrayView.hpp>
+#ifndef DTK_CLASSIC_GEOMETRICENTITY_HPP
+#define DTK_CLASSIC_GEOMETRICENTITY_HPP
 
 #include <iostream>
+
+#include "DTK_Entity.hpp"
+#include "DTK_ClassicGeometricEntityImpl.hpp"
+
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_Tuple.hpp>
+#include <Teuchos_Ptr.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class Cylinder
- * \brief Z-axis-aligned Cartesian cylinder container
- *
- * All three dimensions are explictly represented in this cylinder.
- */
+  \class ClassicGeometricEntity
+  \brief ClassicGeometricEntity interface.
+  
+  ClassicGeometricEntity gives an interface for simple geometries. These objects
+  effectivelty define their own EntityLocalMap interface as these functions
+  are typically statisfied with analytic expressions for basic geometric
+  objects.
+*/
 //---------------------------------------------------------------------------//
-class Cylinder : public BasicGeometryEntity
+template<class Geometry>
+class ClassicGeometricEntity : public Entity
 {
-
   public:
 
     // Default constructor.
-    Cylinder();
+    ClassicGeometricEntity( const Teuchos::Ptr<Geometry>& geometry,
+			    const EntityId global_id,
+			    const int owner_rank );
 
-    // Constructor.
-    Cylinder( const EntityId global_id, 
-	      const int owner_rank, 
-	      const int block_id,
-	      const double length, 
-	      const double radius,
-	      const double centroid_x, 
-	      const double centroid_y, 
-	      const double centroid_z );
-
-    //! Get the length of the cylinder.
-    double length() const;
-
-    //! Get the radius of the cylinder.
-    double radius() const;
-
-    // Return the entity measure.
-    double measure() const override;
+    //@{
+    //! ClassicGeometricEntity interface.
+    // Return the entity measure with respect to the parameteric
+    double measure() const;
 
     // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const override;
+    void centroid( const Teuchos::ArrayView<double>& centroid ) const;
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
     bool mapToReferenceFrame( 
 	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const override;
+	const Teuchos::ArrayView<double>& reference_point ) const;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
     bool checkPointInclusion( 
 	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const override;
+	const Teuchos::ArrayView<const double>& reference_point ) const;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
     void mapToPhysicalFrame( 
 	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const override;
+	const Teuchos::ArrayView<double>& point ) const;
+    //@}
 };
-
-//! overload for printing cylinder
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c); 
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
 
-#endif // end DTK_CYLINDER_HPP
+#include "DTK_Classic_ClassicGeometricEntity_impl.hpp"
 
 //---------------------------------------------------------------------------//
-// end DTK_Cylinder.hpp
+
+#endif // end DTK_CLASSIC_GEOMETRICENTITY_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_ClassicGeometricEntity.hpp
 //---------------------------------------------------------------------------//
 

@@ -32,92 +32,44 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Cylinder.hpp
+ * \brief DTK_ClassicGeometricExtraData.hpp
  * \author Stuart R. Slattery
- * \brief cylinder declaration.
+ * \brief Extra data for basic geometry objects.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CYLINDER_HPP
-#define DTK_CYLINDER_HPP
+#ifndef DTK_BASICGEOMETRYEXTRADATA_HPP
+#define DTK_BASICGEOMETRYEXTRADATA_HPP
 
-#include "DTK_BasicGeometryEntity.hpp"
+#include "DTK_EntityExtraData.hpp"
 
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_ArrayView.hpp>
-
-#include <iostream>
+#include <Teuchos_Ptr.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class Cylinder
- * \brief Z-axis-aligned Cartesian cylinder container
- *
- * All three dimensions are explictly represented in this cylinder.
- */
+  \class ClassicGeometricExtraData
+  \brief A base class for setting extra data with entities.
+*/
 //---------------------------------------------------------------------------//
-class Cylinder : public BasicGeometryEntity
+template<class Geometry>
+class ClassicGeometricExtraData : public EntityExtraData
 {
-
   public:
 
-    // Default constructor.
-    Cylinder();
+    ClassicGeometricExtraData( const Teuchos::Ptr<Geometry>& geometry );
 
-    // Constructor.
-    Cylinder( const EntityId global_id, 
-	      const int owner_rank, 
-	      const int block_id,
-	      const double length, 
-	      const double radius,
-	      const double centroid_x, 
-	      const double centroid_y, 
-	      const double centroid_z );
-
-    //! Get the length of the cylinder.
-    double length() const;
-
-    //! Get the radius of the cylinder.
-    double radius() const;
-
-    // Return the entity measure.
-    double measure() const override;
-
-    // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const override;
-
-    // (Reverse Map) Map a point to the reference space of an entity. Return
-    // the parameterized point.
-    bool mapToReferenceFrame( 
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const override;
-
-    // Determine if a reference point is in the parameterized space of an
-    // entity.
-    bool checkPointInclusion( 
-	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const override;
-
-    // (Forward Map) Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const override;
+    // Pointer to the classic geometry implementation.
+    Teuchos::Ptr<Geometry> d_geometry;
 };
-
-//! overload for printing cylinder
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c); 
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-
-#endif // end DTK_CYLINDER_HPP
+#endif // end DTK_BASICGEOMETRYEXTRADATA_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Cylinder.hpp
+// end DTK_ClassicGeometricExtraData.hpp
 //---------------------------------------------------------------------------//
-

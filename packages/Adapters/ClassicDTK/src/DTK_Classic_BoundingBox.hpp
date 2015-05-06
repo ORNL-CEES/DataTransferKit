@@ -32,92 +32,112 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Cylinder.hpp
+ * \file DTK_Classic_BoundingBox.hpp
  * \author Stuart R. Slattery
- * \brief cylinder declaration.
+ * \brief Bounding box declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CYLINDER_HPP
-#define DTK_CYLINDER_HPP
-
-#include "DTK_BasicGeometryEntity.hpp"
+#ifndef DTK_Classic_BOUNDINGBOX_HPP
+#define DTK_Classic_BOUNDINGBOX_HPP
 
 #include <Teuchos_Tuple.hpp>
-#include <Teuchos_ArrayView.hpp>
-
-#include <iostream>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
+namespace Classic
+{
+
 //---------------------------------------------------------------------------//
 /*!
- * \class Cylinder
- * \brief Z-axis-aligned Cartesian cylinder container
+ * \class BoundingBox
+ * \brief Axis-aligned Cartesian bounding box container.
  *
- * All three dimensions are explictly represented in this cylinder.
+ * All three dimensions are explictly represented in this bounding box,
+ * however, from an algorithmic standpoint, this can be treated as a one or
+ * two dimensional box as well by setting the unused dimension bounds to +/-
+ * Teuchos::ScalarTraits<double>::rmax().
  */
 //---------------------------------------------------------------------------//
-class Cylinder : public BasicGeometryEntity
+class BoundingBox
 {
 
   public:
 
     // Default constructor.
-    Cylinder();
+    BoundingBox();
 
     // Constructor.
-    Cylinder( const EntityId global_id, 
-	      const int owner_rank, 
-	      const int block_id,
-	      const double length, 
-	      const double radius,
-	      const double centroid_x, 
-	      const double centroid_y, 
-	      const double centroid_z );
+    BoundingBox( const double x_min, const double y_min, const double z_min,
+		 const double x_max, const double y_max, const double z_max );
 
-    //! Get the length of the cylinder.
-    double length() const;
+    // Tuple constructor.
+    BoundingBox( const Teuchos::Tuple<double,6>& bounds );
 
-    //! Get the radius of the cylinder.
-    double radius() const;
+    // Destructor.
+    ~BoundingBox();
 
-    // Return the entity measure.
-    double measure() const override;
+    // Determine if a point is in the box.
+    bool pointInBox( const Teuchos::Array<double>& coords ) const;
 
-    // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const override;
+    // Get the boundaries of the box.
+    Teuchos::Tuple<double,6> getBounds() const
+    { return Teuchos::tuple( d_x_min, d_y_min, d_z_min, 
+			     d_x_max, d_y_max, d_z_max ); }
 
-    // (Reverse Map) Map a point to the reference space of an entity. Return
-    // the parameterized point.
-    bool mapToReferenceFrame( 
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const override;
+    // Compute the volume of the box given its dimension.
+    double volume( const int dim ) const;
 
-    // Determine if a reference point is in the parameterized space of an
-    // entity.
-    bool checkPointInclusion( 
-	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const override;
+    // Static function for box intersection.
+    static bool intersectBoxes( const BoundingBox& box_A,
+				const BoundingBox& box_B,
+				BoundingBox& intersection );
+    
+  private:
 
-    // (Forward Map) Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const override;
+    // X min.
+    double d_x_min;
+
+    // Y min.
+    double d_y_min;
+
+    // Z min.
+    double d_z_min;
+
+    // X max.
+    double d_x_max;
+
+    // Y max.
+    double d_y_max;
+
+    // Z max.
+    double d_z_max;
 };
 
-//! overload for printing cylinder
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c); 
-
-//---------------------------------------------------------------------------//
-
+} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Serialization Traits Specialization.
+//---------------------------------------------------------------------------//
 
-#endif // end DTK_CYLINDER_HPP
+namespace Teuchos
+{
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal, DataTransferKit::Classic::BoundingBox>
+    : public DirectSerializationTraits<Ordinal, DataTransferKit::Classic::BoundingBox>
+{};
+
+} // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
-// end DTK_Cylinder.hpp
+
+#endif // end DTK_Classic_BOUNDINGBOX_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_Classic_BoundingBox.hpp
 //---------------------------------------------------------------------------//
 

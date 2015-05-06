@@ -32,92 +32,87 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Cylinder.hpp
+ * \file DTK_Classic_MeshTraitsFieldAdapter.hpp
  * \author Stuart R. Slattery
- * \brief cylinder declaration.
+ * \brief FieldTraits adapter for objects that have mesh traits.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CYLINDER_HPP
-#define DTK_CYLINDER_HPP
+#ifndef DTK_Classic_MESHTRAITSFIELDADAPTER_HPP
+#define DTK_Classic_MESHTRAITSFIELDADAPTER_HPP
 
-#include "DTK_BasicGeometryEntity.hpp"
-
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_ArrayView.hpp>
-
-#include <iostream>
+#include "DTK_Classic_FieldTraits.hpp"
+#include "DTK_Classic_MeshTraits.hpp"
+#include "DTK_Classic_MeshTools.hpp"
+#include "DTK_Classic_MeshContainer.hpp"
 
 namespace DataTransferKit
 {
+namespace Classic
+{
 //---------------------------------------------------------------------------//
-/*!
- * \class Cylinder
- * \brief Z-axis-aligned Cartesian cylinder container
- *
- * All three dimensions are explictly represented in this cylinder.
+/*! 
+ * \brief FieldTraits adapter for mesh coordinates in MeshContainers.
+
+ This allows the coordinate information stored in a block of mesh to be
+ accessed as a field with field traits. Other mesh information is not
+ available through this interface. The mesh object must have mesh traits.
+
  */
 //---------------------------------------------------------------------------//
-class Cylinder : public BasicGeometryEntity
+template<class GlobalOrdinal>
+class FieldTraits< MeshContainer<GlobalOrdinal> >
 {
-
   public:
 
-    // Default constructor.
-    Cylinder();
+    typedef MeshContainer<GlobalOrdinal>              MeshType;
+    typedef MeshTraits<MeshType>                      MT;
+    typedef MeshTools<MeshType>                       Tools;
+    typedef MeshType                                  field_type;
+    typedef double                                    value_type;
+    typedef typename MT::global_ordinal_type          size_type;
+    typedef typename MT::const_coordinate_iterator    iterator;
+    typedef typename MT::const_coordinate_iterator    const_iterator;
 
-    // Constructor.
-    Cylinder( const EntityId global_id, 
-	      const int owner_rank, 
-	      const int block_id,
-	      const double length, 
-	      const double radius,
-	      const double centroid_x, 
-	      const double centroid_y, 
-	      const double centroid_z );
+    static inline int dim( const MeshType& mesh )
+    { return MT::vertexDim( mesh ); }
 
-    //! Get the length of the cylinder.
-    double length() const;
+    static inline size_type size( const MeshType& mesh )
+    { return Tools::numVertices( mesh ) * MT::vertexDim( mesh ); }
 
-    //! Get the radius of the cylinder.
-    double radius() const;
+    static inline bool empty( const MeshType& mesh )
+    {
+	if ( Tools::numVertices( mesh ) < 1 )
+	{ 
+	    return true;
+	}
+	else 
+	{
+	    return false;
+	}
+    }
 
-    // Return the entity measure.
-    double measure() const override;
+    static inline iterator begin( MeshType& mesh )
+    { return MT::coordsBegin( mesh ); }
 
-    // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const override;
+    static inline const_iterator begin( const MeshType& mesh )
+    { return MT::coordsBegin( mesh ); }
 
-    // (Reverse Map) Map a point to the reference space of an entity. Return
-    // the parameterized point.
-    bool mapToReferenceFrame( 
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const override;
+    static inline iterator end( MeshType& mesh )
+    { return MT::coordsEnd( mesh ); }
 
-    // Determine if a reference point is in the parameterized space of an
-    // entity.
-    bool checkPointInclusion( 
-	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const override;
-
-    // (Forward Map) Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const override;
+    static inline const_iterator end( const MeshType& mesh )
+    { return MT::coordsEnd( mesh ); }
 };
 
-//! overload for printing cylinder
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c); 
-
 //---------------------------------------------------------------------------//
 
+} // end namespace Classic
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-
-#endif // end DTK_CYLINDER_HPP
+#endif // end DTK_Classic_MESHTRAITSFIELDADAPTER
 
 //---------------------------------------------------------------------------//
-// end DTK_Cylinder.hpp
+// end DTK_Classic_MeshTraitsFieldAdapater.hpp
 //---------------------------------------------------------------------------//
 
