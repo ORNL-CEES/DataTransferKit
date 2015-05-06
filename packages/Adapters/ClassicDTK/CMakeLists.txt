@@ -5,7 +5,7 @@
 ## TriBITS package file for the DataTransferKit package
 ##---------------------------------------------------------------------------##
 
-TRIBITS_SUBPACKAGE(ClassicDTK)
+TRIBITS_SUBPACKAGE(ClassicDTKAdapters)
 
 ADD_SUBDIRECTORY(src)
 

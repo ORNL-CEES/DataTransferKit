@@ -14,10 +14,10 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_MeshContainer.hpp>
-#include <DTK_MeshTypes.hpp>
-#include <DTK_FieldTraits.hpp>
-#include <DTK_MeshTraitsFieldAdapter.hpp>
+#include <DTK_Classic_MeshContainer.hpp>
+#include <DTK_Classic_MeshTypes.hpp>
+#include <DTK_Classic_FieldTraits.hpp>
+#include <DTK_Classic_MeshTraitsFieldAdapter.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -44,9 +44,9 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // Mesh container creation functions.
 //---------------------------------------------------------------------------//
 // Line segment mesh.
-DataTransferKit::MeshContainer<int> buildLineContainer()
+DataTransferKit::Classic::MeshContainer<int> buildLineContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some nodes.
     Teuchos::Array<int> node_handles;
@@ -100,16 +100,16 @@ DataTransferKit::MeshContainer<int> buildLineContainer()
     }
     
     return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_LINE_SEGMENT, num_nodes,
+			       DTK_Classic_LINE_SEGMENT, num_nodes,
 			       line_handle_array, connectivity_array,
 			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Tri mesh.
-DataTransferKit::MeshContainer<int> buildTriContainer()
+DataTransferKit::Classic::MeshContainer<int> buildTriContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some nodes.
     Teuchos::Array<int> node_handles;
@@ -169,16 +169,16 @@ DataTransferKit::MeshContainer<int> buildTriContainer()
     }
     
     return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_TRIANGLE, num_nodes,
+			       DTK_Classic_TRIANGLE, num_nodes,
 			       tri_handle_array, connectivity_array,
 			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Quad mesh.
-DataTransferKit::MeshContainer<int> buildQuadContainer()
+DataTransferKit::Classic::MeshContainer<int> buildQuadContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some nodes.
     Teuchos::Array<int> node_handles;
@@ -240,16 +240,16 @@ DataTransferKit::MeshContainer<int> buildQuadContainer()
     }
     
     return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_QUADRILATERAL, num_nodes,
+			       DTK_Classic_QUADRILATERAL, num_nodes,
 			       quad_handle_array, connectivity_array,
 			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Tet mesh.
-DataTransferKit::MeshContainer<int> buildTetContainer()
+DataTransferKit::Classic::MeshContainer<int> buildTetContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some nodes.
     Teuchos::Array<int> node_handles;
@@ -317,16 +317,16 @@ DataTransferKit::MeshContainer<int> buildTetContainer()
     }
     
     return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_TETRAHEDRON, num_nodes,
+			       DTK_Classic_TETRAHEDRON, num_nodes,
 			       tet_handle_array, connectivity_array,
 			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Hex mesh.
-DataTransferKit::MeshContainer<int> buildHexContainer()
+DataTransferKit::Classic::MeshContainer<int> buildHexContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some nodes.
     Teuchos::Array<int> node_handles;
@@ -406,16 +406,16 @@ DataTransferKit::MeshContainer<int> buildHexContainer()
     }
     
     return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_HEXAHEDRON, num_nodes,
+			       DTK_Classic_HEXAHEDRON, num_nodes,
 			       hex_handle_array, connectivity_array,
 			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Pyramid mesh.
-DataTransferKit::MeshContainer<int> buildPyramidContainer()
+DataTransferKit::Classic::MeshContainer<int> buildPyramidContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some nodes.
     Teuchos::Array<int> node_handles;
@@ -486,15 +486,15 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer()
     }
     
     return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_PYRAMID, num_nodes,
+			       DTK_Classic_PYRAMID, num_nodes,
 			       pyramid_handle_array, connectivity_array,
 			       permutation_list );
 }
  //---------------------------------------------------------------------------//
 // Wedge mesh.
-DataTransferKit::MeshContainer<int> buildWedgeContainer()
+DataTransferKit::Classic::MeshContainer<int> buildWedgeContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some nodes.
     Teuchos::Array<int> node_handles;
@@ -568,7 +568,7 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer()
     }
     
     return MeshContainer<int>( node_dim, node_handle_array, coords_array,
-			       DTK_WEDGE, num_nodes,
+			       DTK_Classic_WEDGE, num_nodes,
 			       wedge_handle_array, connectivity_array,
 			       permutation_list );
 }
@@ -579,7 +579,7 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer()
 // Line mesh.
 TEUCHOS_UNIT_TEST( FieldTraits, line_adapter_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -607,7 +607,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, line_adapter_test )
 // Tri mesh.
 TEUCHOS_UNIT_TEST( FieldTraits, tri_adapter_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -635,7 +635,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, tri_adapter_test )
 // Quad mesh.
 TEUCHOS_UNIT_TEST( FieldTraits, quad_adapter_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -663,7 +663,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, quad_adapter_test )
 // Tet mesh.
 TEUCHOS_UNIT_TEST( FieldTraits, tet_adapter_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -691,7 +691,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, tet_adapter_test )
 // Hex mesh.
 TEUCHOS_UNIT_TEST( FieldTraits, hex_adapter_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -719,7 +719,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, hex_adapter_test )
 // Pyramid mesh.
 TEUCHOS_UNIT_TEST( FieldTraits, pyramid_adapter_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -747,7 +747,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, pyramid_adapter_test )
 // Wedge mesh.
 TEUCHOS_UNIT_TEST( FieldTraits, wedge_adapter_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;

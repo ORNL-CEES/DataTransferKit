@@ -122,7 +122,7 @@ class Box
 };
 
 //! overload for printing box
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Classic::Box& b); 
 
 //---------------------------------------------------------------------------//
 // GeometryTraits Specialization.

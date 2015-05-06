@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_BoundingBox.hpp>
+#include <DTK_Classic_BoundingBox.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -66,7 +66,7 @@ int num_rand = 1000;
 // Default constructor test.
 TEUCHOS_UNIT_TEST( BoundingBox, default_constructor_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make a bounding box.
     BoundingBox box( 3.2, -9.233, 1.3, 4.3, 0.3, 8.7 );
@@ -111,7 +111,7 @@ TEUCHOS_UNIT_TEST( BoundingBox, default_constructor_test )
 // Tuple constructor test.
 TEUCHOS_UNIT_TEST( BoundingBox, tuple_constructor_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make a bounding box.
     Teuchos::Tuple<double,6> input_bounds;
@@ -163,7 +163,7 @@ TEUCHOS_UNIT_TEST( BoundingBox, tuple_constructor_test )
 // Box intersection test.
 TEUCHOS_UNIT_TEST( BoundingBox, intersection_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
  
     bool has_intersect;
     BoundingBox intersection;

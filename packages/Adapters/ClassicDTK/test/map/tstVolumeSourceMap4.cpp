@@ -18,16 +18,16 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_VolumeSourceMap.hpp>
-#include <DTK_FieldTraits.hpp>
-#include <DTK_FieldEvaluator.hpp>
-#include <DTK_FieldManager.hpp>
-#include <DTK_FieldTools.hpp>
-#include <DTK_FieldContainer.hpp>
-#include <DTK_GeometryTraits.hpp>
-#include <DTK_GeometryManager.hpp>
-#include <DTK_Cylinder.hpp>
-#include <DTK_Box.hpp>
+#include <DTK_Classic_VolumeSourceMap.hpp>
+#include <DTK_Classic_FieldTraits.hpp>
+#include <DTK_Classic_FieldEvaluator.hpp>
+#include <DTK_Classic_FieldManager.hpp>
+#include <DTK_Classic_FieldTools.hpp>
+#include <DTK_Classic_FieldContainer.hpp>
+#include <DTK_Classic_GeometryTraits.hpp>
+#include <DTK_Classic_GeometryManager.hpp>
+#include <DTK_Classic_Cylinder.hpp>
+#include <DTK_Classic_Box.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -58,7 +58,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 //---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
 class MyEvaluator : 
-    public DataTransferKit::FieldEvaluator<int,DataTransferKit::FieldContainer<double> >
+    public DataTransferKit::Classic::FieldEvaluator<int,DataTransferKit::Classic::FieldContainer<double> >
 {
   public:
 
@@ -71,7 +71,7 @@ class MyEvaluator :
     ~MyEvaluator()
     { /* ... */ }
 
-    DataTransferKit::FieldContainer<double> evaluate( 
+    DataTransferKit::Classic::FieldContainer<double> evaluate( 
 	const Teuchos::ArrayRCP<int>& gids,
 	const Teuchos::ArrayRCP<double>& coords )
     {
@@ -91,7 +91,7 @@ class MyEvaluator :
 	  else if ((z >= 3.0) && (z < 4.0))
 	    evaluated_data[n] = 4.0;
 	}
-	return DataTransferKit::FieldContainer<double>( evaluated_data, 1 );
+	return DataTransferKit::Classic::FieldContainer<double>( evaluated_data, 1 );
     }
 
   private:
@@ -105,7 +105,7 @@ class MyEvaluator :
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( VolumeSourceMap, one_to_many_parallel)
 {
-  using namespace DataTransferKit;
+  using namespace DataTransferKit::Classic;
   typedef FieldContainer<double> FieldType;
 
   Teuchos::FancyOStream pout(Teuchos::rcp(&std::cout,false));

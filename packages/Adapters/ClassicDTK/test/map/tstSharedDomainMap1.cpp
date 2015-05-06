@@ -13,13 +13,13 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_SharedDomainMap.hpp>
-#include <DTK_FieldTraits.hpp>
-#include <DTK_FieldEvaluator.hpp>
-#include <DTK_FieldManager.hpp>
-#include <DTK_MeshTypes.hpp>
-#include <DTK_MeshTraits.hpp>
-#include <DTK_MeshManager.hpp>
+#include <DTK_Classic_SharedDomainMap.hpp>
+#include <DTK_Classic_FieldTraits.hpp>
+#include <DTK_Classic_FieldEvaluator.hpp>
+#include <DTK_Classic_FieldManager.hpp>
+#include <DTK_Classic_MeshTypes.hpp>
+#include <DTK_Classic_MeshTraits.hpp>
+#include <DTK_Classic_MeshManager.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -165,7 +165,8 @@ class MyField
 //---------------------------------------------------------------------------//
 namespace DataTransferKit
 {
-
+namespace Classic
+{
 //---------------------------------------------------------------------------//
 // Mesh traits specialization for MyMesh
 template<>
@@ -197,8 +198,8 @@ class MeshTraits<MyMesh>
     { return mesh.coordsEnd(); }
 
 
-    static inline DTK_ElementTopology elementTopology( const MyMesh& mesh )
-    { return DTK_QUADRILATERAL; }
+    static inline DTK_Classic_ElementTopology elementTopology( const MyMesh& mesh )
+    { return DTK_Classic_QUADRILATERAL; }
 
     static inline int verticesPerElement( const MyMesh& mesh )
     { return 4; }
@@ -262,12 +263,13 @@ class FieldTraits<MyField>
     { return field.end(); }
 };
 
+} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
 class MyEvaluator : 
-    public DataTransferKit::FieldEvaluator<MyMesh::global_ordinal_type,MyField>
+    public DataTransferKit::Classic::FieldEvaluator<MyMesh::global_ordinal_type,MyField>
 {
   public:
 
@@ -430,7 +432,7 @@ Teuchos::RCP<MyField> buildCoordinateField()
 
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();

@@ -13,8 +13,8 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_FieldContainer.hpp>
-#include <DTK_FieldTraits.hpp>
+#include <DTK_Classic_FieldContainer.hpp>
+#include <DTK_Classic_FieldTraits.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -44,7 +44,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 
 TEUCHOS_UNIT_TEST( FieldManager, field_manager_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
     typedef FieldTraits< FieldContainer<double> >  FT;
 
     // Setup some data.

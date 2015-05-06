@@ -16,10 +16,10 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_FieldTools.hpp>
-#include <DTK_FieldTraits.hpp>
-#include <DTK_FieldManager.hpp>
-#include <DTK_BoundingBox.hpp>
+#include <DTK_Classic_FieldTools.hpp>
+#include <DTK_Classic_FieldTraits.hpp>
+#include <DTK_Classic_FieldManager.hpp>
+#include <DTK_Classic_BoundingBox.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -117,7 +117,8 @@ class ArrayField
 //---------------------------------------------------------------------------//
 namespace DataTransferKit
 {
-
+namespace Classic
+{
 //---------------------------------------------------------------------------//
 // Field Traits specification for ArrayField
 template<>
@@ -153,6 +154,7 @@ class FieldTraits<ArrayField>
     { return field.end(); }
 };
 
+} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
@@ -160,7 +162,7 @@ class FieldTraits<ArrayField>
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Setup random numbers for the test.
     int num_rand = 4;
@@ -378,7 +380,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Setup random numbers for the test.
     int num_rand = 4;
@@ -595,7 +597,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Setup random numbers for the test.
     int num_rand = 4;
@@ -812,7 +814,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( FieldTools, 1d_coordinate_field_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     double double_limit = Teuchos::ScalarTraits<double>::rmax();
 
@@ -896,7 +898,7 @@ TEUCHOS_UNIT_TEST( FieldTools, 1d_coordinate_field_test )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( FieldTools, 2d_coordinate_field_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     double double_limit = Teuchos::ScalarTraits<double>::rmax();
 
@@ -990,7 +992,7 @@ TEUCHOS_UNIT_TEST( FieldTools, 2d_coordinate_field_test )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( FieldTools, 3d_coordinate_field_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();

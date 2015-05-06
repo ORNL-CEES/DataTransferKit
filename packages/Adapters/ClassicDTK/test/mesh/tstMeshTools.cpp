@@ -15,11 +15,11 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_MeshTools.hpp>
-#include <DTK_MeshContainer.hpp>
-#include <DTK_MeshTypes.hpp>
-#include <DTK_MeshTraits.hpp>
-#include <DTK_BoundingBox.hpp>
+#include <DTK_Classic_MeshTools.hpp>
+#include <DTK_Classic_MeshContainer.hpp>
+#include <DTK_Classic_MeshTypes.hpp>
+#include <DTK_Classic_MeshTraits.hpp>
+#include <DTK_Classic_BoundingBox.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_GlobalMPISession.hpp>
@@ -49,9 +49,9 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // Mesh container creation functions.
 //---------------------------------------------------------------------------//
 // Line segment mesh.
-DataTransferKit::MeshContainer<int> buildLineContainer()
+DataTransferKit::Classic::MeshContainer<int> buildLineContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
@@ -105,16 +105,16 @@ DataTransferKit::MeshContainer<int> buildLineContainer()
     }
     
     return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_LINE_SEGMENT, num_vertices,
+			       DTK_Classic_LINE_SEGMENT, num_vertices,
 			       line_handle_array, connectivity_array,
 			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Tri mesh.
-DataTransferKit::MeshContainer<int> buildTriContainer()
+DataTransferKit::Classic::MeshContainer<int> buildTriContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
@@ -174,16 +174,16 @@ DataTransferKit::MeshContainer<int> buildTriContainer()
     }
     
     return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_TRIANGLE, num_vertices,
+			       DTK_Classic_TRIANGLE, num_vertices,
 			       tri_handle_array, connectivity_array,
 			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Quad mesh.
-DataTransferKit::MeshContainer<int> buildQuadContainer()
+DataTransferKit::Classic::MeshContainer<int> buildQuadContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
@@ -245,16 +245,16 @@ DataTransferKit::MeshContainer<int> buildQuadContainer()
     }
     
     return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_QUADRILATERAL, num_vertices,
+			       DTK_Classic_QUADRILATERAL, num_vertices,
 			       quad_handle_array, connectivity_array,
 			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Tet mesh.
-DataTransferKit::MeshContainer<int> buildTetContainer()
+DataTransferKit::Classic::MeshContainer<int> buildTetContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
@@ -322,16 +322,16 @@ DataTransferKit::MeshContainer<int> buildTetContainer()
     }
     
     return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_TETRAHEDRON, num_vertices,
+			       DTK_Classic_TETRAHEDRON, num_vertices,
 			       tet_handle_array, connectivity_array,
 			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Hex mesh.
-DataTransferKit::MeshContainer<int> buildHexContainer()
+DataTransferKit::Classic::MeshContainer<int> buildHexContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
@@ -411,16 +411,16 @@ DataTransferKit::MeshContainer<int> buildHexContainer()
     }
     
     return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_HEXAHEDRON, num_vertices,
+			       DTK_Classic_HEXAHEDRON, num_vertices,
 			       hex_handle_array, connectivity_array,
 			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Wedge mesh.
-DataTransferKit::MeshContainer<int> buildWedgeContainer()
+DataTransferKit::Classic::MeshContainer<int> buildWedgeContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
@@ -494,16 +494,16 @@ DataTransferKit::MeshContainer<int> buildWedgeContainer()
     }
     
     return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_WEDGE, num_vertices,
+			       DTK_Classic_WEDGE, num_vertices,
 			       wedge_handle_array, connectivity_array,
 			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Parallel hex mesh.
-DataTransferKit::MeshContainer<int> buildParallelHexContainer()
+DataTransferKit::Classic::MeshContainer<int> buildParallelHexContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     int my_rank = getDefaultComm<int>()->getRank();
 
@@ -585,16 +585,16 @@ DataTransferKit::MeshContainer<int> buildParallelHexContainer()
     }
     
     return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_HEXAHEDRON, num_vertices,
+			       DTK_Classic_HEXAHEDRON, num_vertices,
 			       hex_handle_array, connectivity_array,
 			       permutation_list );
 }
 
 //---------------------------------------------------------------------------//
 // Pyramid mesh.
-DataTransferKit::MeshContainer<int> buildPyramidContainer()
+DataTransferKit::Classic::MeshContainer<int> buildPyramidContainer()
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Make some vertices.
     Teuchos::Array<int> vertex_handles;
@@ -665,7 +665,7 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer()
     }
     
     return MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-			       DTK_PYRAMID, num_vertices,
+			       DTK_Classic_PYRAMID, num_vertices,
 			       pyramid_handle_array, connectivity_array,
 			       permutation_list );
 }
@@ -676,7 +676,7 @@ DataTransferKit::MeshContainer<int> buildPyramidContainer()
 // Line mesh.
 TEUCHOS_UNIT_TEST( MeshContainer, line_tools_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -766,7 +766,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_tools_test )
 // Tri mesh.
 TEUCHOS_UNIT_TEST( MeshContainer, tri_tools_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -865,7 +865,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_tools_test )
 // Quad mesh.
 TEUCHOS_UNIT_TEST( MeshContainer, quad_tools_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -969,7 +969,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_tools_test )
 // Tet mesh.
 TEUCHOS_UNIT_TEST( MeshContainer, tet_tools_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -1083,7 +1083,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_tools_test )
 // Hex mesh.
 TEUCHOS_UNIT_TEST( MeshContainer, hex_tools_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -1221,7 +1221,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_tools_test )
 // Pyramid mesh.
 TEUCHOS_UNIT_TEST( MeshContainer, pyramid_tools_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -1342,7 +1342,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_tools_test )
 // Wedge mesh.
 TEUCHOS_UNIT_TEST( MeshContainer, wedge_tools_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Create a mesh container.
     typedef MeshTraits< MeshContainer<int> > MT;
@@ -1469,7 +1469,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_tools_test )
 // Parallel hex mesh.
 TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_tools_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     int my_rank = getDefaultComm<int>()->getRank();
     int my_size = getDefaultComm<int>()->getSize();

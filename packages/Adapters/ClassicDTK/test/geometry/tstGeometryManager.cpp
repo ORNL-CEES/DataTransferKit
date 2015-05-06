@@ -13,11 +13,11 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_GeometryManager.hpp>
-#include <DTK_GeometryTraits.hpp>
-#include <DTK_Cylinder.hpp>
-#include <DTK_Box.hpp>
-#include <DTK_BoundingBox.hpp>
+#include <DTK_Classic_GeometryManager.hpp>
+#include <DTK_Classic_GeometryTraits.hpp>
+#include <DTK_Classic_Cylinder.hpp>
+#include <DTK_Classic_Box.hpp>
+#include <DTK_Classic_BoundingBox.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -54,7 +54,7 @@ bool softEquivalence( const double t1, const double t2, double tol = 1.0e-6 )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
@@ -150,7 +150,7 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
 {
-    using namespace DataTransferKit;
+    using namespace DataTransferKit::Classic;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();

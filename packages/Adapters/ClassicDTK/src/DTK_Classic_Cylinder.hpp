@@ -114,7 +114,7 @@ class Cylinder
 };
 
 //! overload for printing cylinder
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c); 
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Classic::Cylinder& c); 
 
 //---------------------------------------------------------------------------//
 // GeometryTraits Specialization.

@@ -180,7 +180,7 @@ BoundingBox Cylinder::boundingBox() const
  */
 
 //---------------------------------------------------------------------------//
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c)
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Classic::Cylinder& c)
 {
   os << "Cylinder: length=" << c.length() << ",radius=" << c.radius()
      << ", centroid=(" << c.centroid()[0] << "," << c.centroid()[1]
