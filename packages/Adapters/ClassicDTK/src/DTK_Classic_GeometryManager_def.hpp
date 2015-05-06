@@ -41,8 +41,7 @@
 #ifndef DTK_Classic_GEOMETRYMANAGER_DEF_HPP
 #define DTK_Classic_GEOMETRYMANAGER_DEF_HPP
 
-#include "DTK_Classic_Assertion.hpp"
-#include "DataTransferKit_config.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 
@@ -76,13 +75,11 @@ GeometryManager<Geometry,GlobalOrdinal>::GeometryManager(
     , d_comm( comm )
     , d_dim( dim )
 {
-    testPrecondition( d_geometry.size() == d_geom_gids.size() );
+    DTK_REQUIRE( d_geometry.size() == d_geom_gids.size() );
 
     // If we're checking with Design-by-Contract, validate the geometry to the
     // domain model.
-#if HAVE_DTK_Classic_DBC
-    validate();
-#endif
+    DTK_REMEMBER( validate() );
 }
 
 //---------------------------------------------------------------------------//
@@ -156,7 +153,7 @@ BoundingBox GeometryManager<Geometry,GlobalOrdinal>::localBoundingBox() const
     Teuchos::Tuple<double,6> box_bounds;
     Teuchos::Array<BoundingBox> boxes = boundingBoxes();
     Teuchos::Array<BoundingBox>::const_iterator box_iterator;
-    testInvariant( !boxes.empty() );
+    DTK_CHECK( !boxes.empty() );
     for ( box_iterator = boxes.begin();
 	  box_iterator != boxes.end();
 	  ++box_iterator )
@@ -264,7 +261,7 @@ template<class Geometry,class GlobalOrdinal>
 void GeometryManager<Geometry,GlobalOrdinal>::validate()
 {
     // Dimensions greater than 3 are not valid.
-    testPrecondition( 0 <= d_dim && d_dim <= 3 );
+    DTK_REQUIRE( 0 <= d_dim && d_dim <= 3 );
 
     // Check that all local geometries have the same dimension.
     typename Teuchos::ArrayRCP<Geometry>::const_iterator geom_iterator;
@@ -272,7 +269,7 @@ void GeometryManager<Geometry,GlobalOrdinal>::validate()
 	  geom_iterator != d_geometry.end();
 	  ++geom_iterator )
     {
-	testPrecondition( GT::dim( *geom_iterator ) == d_dim );
+	DTK_REQUIRE( GT::dim( *geom_iterator ) == d_dim );
     }
 
     // Check that the geometry dimension is the same on every node.
@@ -287,7 +284,7 @@ void GeometryManager<Geometry,GlobalOrdinal>::validate()
     unique_bound = 
 	std::unique( local_dims_copy.begin(), local_dims_copy.end() );
     int unique_dim = std::distance( local_dims_copy.begin(), unique_bound );
-    testPrecondition( 1 == unique_dim );
+    DTK_REQUIRE( 1 == unique_dim );
     local_dims_copy.clear();
 }
 

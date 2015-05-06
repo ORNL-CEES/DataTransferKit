@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
-  * \file DTK_BoundingBox.cpp
+  * \file DTK_Classic_BoundingBox.cpp
   * \author Stuart R. Slattery
   * \brief Bounding box definition.
   */
 //---------------------------------------------------------------------------//
 
-#include "DTK_BoundingBox.hpp"
-#include "DTK_Assertion.hpp"
+#include "DTK_Classic_BoundingBox.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
@@ -84,9 +84,9 @@ BoundingBox::BoundingBox(
     , d_y_max( y_max )
     , d_z_max( z_max )
 {
-    testPrecondition( d_x_min <= d_x_max );
-    testPrecondition( d_y_min <= d_y_max );
-    testPrecondition( d_z_min <= d_z_max );
+    DTK_REQUIRE( d_x_min <= d_x_max );
+    DTK_REQUIRE( d_y_min <= d_y_max );
+    DTK_REQUIRE( d_z_min <= d_z_max );
 }
 
 //---------------------------------------------------------------------------//
@@ -103,9 +103,9 @@ BoundingBox::BoundingBox( const Teuchos::Tuple<double,6>& bounds )
     , d_y_max( bounds[4] )
     , d_z_max( bounds[5] )
 {
-    testPrecondition( d_x_min <= d_x_max );
-    testPrecondition( d_y_min <= d_y_max );
-    testPrecondition( d_z_min <= d_z_max );
+    DTK_REQUIRE( d_x_min <= d_x_max );
+    DTK_REQUIRE( d_y_min <= d_y_max );
+    DTK_REQUIRE( d_z_min <= d_z_max );
 }
 
 //---------------------------------------------------------------------------//
@@ -127,7 +127,7 @@ BoundingBox::~BoundingBox()
  */
 bool BoundingBox::pointInBox( const Teuchos::Array<double>& coords ) const
 {
-    testPrecondition( 0 <= coords.size() && coords.size() <= 3 );
+    DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
 
     if ( coords.size() == 1 )
     {
@@ -180,7 +180,7 @@ bool BoundingBox::pointInBox( const Teuchos::Array<double>& coords ) const
  */
 double BoundingBox::volume( const int dim ) const
 {
-    testPrecondition( 0 <= dim && dim <= 3 );
+    DTK_REQUIRE( 0 <= dim && dim <= 3 );
 
     if ( dim == 1 )
     { 

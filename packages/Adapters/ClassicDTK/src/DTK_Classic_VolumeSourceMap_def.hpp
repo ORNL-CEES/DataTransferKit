@@ -145,8 +145,8 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     {
 	target_comm = target_coord_manager->comm();
     }
-    d_source_indexer = CommIndexer( d_comm, source_comm );
-    d_target_indexer = CommIndexer( d_comm, target_comm );
+    d_source_indexer = DataTransferKit::CommIndexer( d_comm, source_comm );
+    d_target_indexer = DataTransferKit::CommIndexer( d_comm, target_comm );
 
     // Check the source and target dimensions for consistency.
     if ( source_exists )

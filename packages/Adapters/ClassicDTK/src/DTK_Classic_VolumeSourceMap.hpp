@@ -50,7 +50,6 @@
 #include "DTK_Classic_FieldTraits.hpp"
 #include "DTK_Classic_FieldEvaluator.hpp"
 #include "DTK_Classic_FieldManager.hpp"
-#include "DTK_Classic_CommIndexer.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -105,7 +104,7 @@ class VolumeSourceMap
     typedef Tpetra::Map<int,GlobalOrdinal>            TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
     typedef Tpetra::Import<int,GlobalOrdinal>         ImportType;
-    typedef Teuchos::RCP<ImportType>                  RCP_TpetraImport;
+    Typedef Teuchos::RCP<ImportType>                  RCP_TpetraImport;
     //@}
 
     // Constructor.
@@ -152,10 +151,10 @@ class VolumeSourceMap
     double d_geometric_tolerance;
 
     // Process indexer for the source application.
-    CommIndexer d_source_indexer;
+    DataTransferKit::CommIndexer d_source_indexer;
 
     // Process indexer for the target application.
-    CommIndexer d_target_indexer;
+    DataTransferKit::CommIndexer d_target_indexer;
 
     // Array of source geometry objects.
     Teuchos::ArrayRCP<Geometry> d_source_geometry;

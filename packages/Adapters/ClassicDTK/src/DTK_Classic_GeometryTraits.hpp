@@ -106,7 +106,7 @@ class GeometryTraits
     { UndefinedGeometryTraits<GeometryType>::notDefined(); return 0; }
 
     /*!
-     * \brief Return whether or not a point is in the geometry within a
+     * \Brief Return whether or not a point is in the geometry within a
      * specified tolerance.
      */
     static inline bool pointInGeometry( const GeometryType& geometry,

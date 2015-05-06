@@ -45,7 +45,7 @@
 #include <limits>
 
 #include "DTK_Classic_FieldTools.hpp"
-#include "DTK_Classic_Assertion.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_Classic_Rendezvous.hpp"
 #include "DTK_Classic_MeshTools.hpp"
 
@@ -142,13 +142,13 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Check the source and target dimensions for consistency.
     if ( source_exists )
     {
-	testPrecondition( source_mesh_manager->dim() == d_dimension );
+	DTK_REQUIRE( source_mesh_manager->dim() == d_dimension );
     }
     d_comm->barrier();
 
     if ( target_exists )
     {
-	testPrecondition( CFT::dim( *target_coord_manager->field() ) 
+	DTK_REQUIRE( CFT::dim( *target_coord_manager->field() ) 
 			  == d_dimension );
     }
     d_comm->barrier();
@@ -162,7 +162,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	target_ordinals();
     d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
 	import_ordinal_view, d_comm );
-    testPostcondition( !d_target_map.is_null() );
+    DTK_ENSURE( !d_target_map.is_null() );
 
     // Get the global bounding box for the mesh.
     BoundingBox source_box;
@@ -351,7 +351,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 		point_target_procs.push_back( from_images[i] );
 	    }
 	}
-	testInvariant( Teuchos::as<GlobalOrdinal>(point_target_procs.size())
+	DTK_CHECK( Teuchos::as<GlobalOrdinal>(point_target_procs.size())
 		       == num_rendezvous_points );
 
 	// Build a list of target procs for the missed points.
@@ -414,8 +414,8 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     GlobalOrdinal rendezvous_element_src_procs_size = 
 	std::distance( rendezvous_element_src_procs.begin(), 
 		       rendezvous_element_src_procs_bound );
-    testInvariant( rendezvous_elements_size == 
-		   rendezvous_element_src_procs_size );
+    DTK_CHECK( rendezvous_elements_size == 
+	       rendezvous_element_src_procs_size );
 
     rendezvous_elements.resize( rendezvous_elements_size );
     rendezvous_element_src_procs.resize( rendezvous_element_src_procs_size );
@@ -448,7 +448,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	source_points();
     d_source_map = Tpetra::createNonContigMap<int,GlobalOrdinal>( 
 	source_points_view, d_comm );
-    testPostcondition( !d_source_map.is_null() );
+    DTK_ENSURE( !d_source_map.is_null() );
 
     // Send the rendezvous point coordinates to the source decomposition.
     Tpetra::Export<int,GlobalOrdinal> rendezvous_to_source_exporter( 
@@ -466,7 +466,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     d_source_to_target_exporter = 
 	Teuchos::rcp( new Tpetra::Export<int,GlobalOrdinal>(
 			  d_source_map, d_target_map ) );
-    testPostcondition( !d_source_to_target_exporter.is_null() );
+    DTK_ENSURE( !d_source_to_target_exporter.is_null() );
 }
 
 //---------------------------------------------------------------------------//
@@ -483,7 +483,7 @@ Teuchos::ArrayView<const typename
 		   SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal> 
 SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
 {
-    testPrecondition( d_store_missed_points );
+    DTK_REQUIRE( d_store_missed_points );
     
     return d_missed_points();
 }
@@ -502,7 +502,7 @@ Teuchos::ArrayView<typename
 		   SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal> 
 SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints()
 {
-    testPrecondition( d_store_missed_points );
+    DTK_REQUIRE( d_store_missed_points );
     
     return d_missed_points();
 }
@@ -576,13 +576,13 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
 				 Teuchos::Ptr<int>(&target_dim) );
     
     // Check that the source and target have the same field dimension.
-    testPrecondition( source_dim == target_dim );
+    DTK_REQUIRE( source_dim == target_dim );
 
     // Verify that the target space has the proper amount of memory allocated.
     GlobalOrdinal target_size = target_field_view.size() / target_dim;
     if ( target_exists )
     {
-	testPrecondition( 
+	DTK_REQUIRE( 
 	    target_size == Teuchos::as<GlobalOrdinal>(
 		d_target_map->getNodeNumElements()) );
     }
@@ -686,7 +686,7 @@ void SharedDomainMap<Mesh,CoordinateField>::getTargetPointsInBox(
     GlobalOrdinal dim_size = 
 	FieldTools<CoordinateField>::dimSize( target_coords );
 
-    testPrecondition( dim_size == 
+    DTK_REQUIRE( dim_size == 
 		      Teuchos::as<GlobalOrdinal>(target_ordinals.size()) );
 
     targets_in_box.resize( dim_size );

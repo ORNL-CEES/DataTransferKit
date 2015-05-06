@@ -46,8 +46,7 @@
 
 #include "DTK_Classic_MeshTypes.hpp"
 #include "DTK_Classic_MeshTools.hpp"
-#include "DTK_Classic_Assertion.hpp"
-#include "DataTransferKit_config.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_Tuple.hpp>
@@ -85,9 +84,7 @@ MeshManager<Mesh>::MeshManager(
 {
     // If we're checking with Design-by-Contract, validate the mesh to the
     // domain model.
-#if HAVE_DTK_Classic_DBC
-    validate();
-#endif
+    DTK_REMEMBER( validate() );
 }
 
 //---------------------------------------------------------------------------//
@@ -213,7 +210,7 @@ template<class Mesh>
 void MeshManager<Mesh>::validate()
 {
     // Check that the mesh is of a valid dimension.
-    testPrecondition( 0 <= d_dim && d_dim <= 3 );
+    DTK_REQUIRE( 0 <= d_dim && d_dim <= 3 );
 
     // Check that the mesh dimension is the same on every node.
     Teuchos::Array<int> local_dims( d_comm->getSize(), 0 );
@@ -226,7 +223,7 @@ void MeshManager<Mesh>::validate()
     std::sort( local_dims_copy.begin(), local_dims_copy.end() );
     unique_bound = std::unique( local_dims_copy.begin(), local_dims_copy.end() );
     int unique_dim = std::distance( local_dims_copy.begin(), unique_bound );
-    testPrecondition( 1 == unique_dim );
+    DTK_REQUIRE( 1 == unique_dim );
     local_dims_copy.clear();
 
     // Check that the same number of blocks have been defined on every node.
@@ -239,7 +236,7 @@ void MeshManager<Mesh>::validate()
     std::sort( local_blocks_copy.begin(), local_blocks_copy.end() );
     unique_bound = std::unique( local_blocks_copy.begin(), local_blocks_copy.end() );
     int unique_blocks = std::distance( local_blocks_copy.begin(), unique_bound );
-    testPrecondition( 1 == unique_blocks );
+    DTK_REQUIRE( 1 == unique_blocks );
     local_blocks_copy.clear();
 
     // Check the mesh blocks.
@@ -249,7 +246,7 @@ void MeshManager<Mesh>::validate()
 	  ++block_iterator )
     {
 	// Check that the block vertices are the same dimension as the mesh.
-	testPrecondition( d_dim == MT::vertexDim( *(*block_iterator) ) );
+	DTK_REQUIRE( d_dim == MT::vertexDim( *(*block_iterator) ) );
 
 	// Check that the coordinate dimension is the same as the mesh
 	// dimension.
@@ -260,31 +257,31 @@ void MeshManager<Mesh>::validate()
 	    MT::coordsEnd( *(*block_iterator) ) );
 	if ( num_vertices > 0 )
 	{
-	    testPrecondition( num_coords / num_vertices 
+	    DTK_REQUIRE( num_coords / num_vertices 
 			      == Teuchos::as<GlobalOrdinal>(d_dim) );
 	}
 	
 	// Check that the element topology is valid for the given dimension.
 	if ( d_dim == 0 )
 	{
-	    testPrecondition( MT::elementTopology( *(*block_iterator) ) 
+	    DTK_REQUIRE( MT::elementTopology( *(*block_iterator) ) 
 			      == DTK_Classic_VERTEX );
 	}
 	else if ( d_dim == 1 )
 	{
-	    testPrecondition( MT::elementTopology( *(*block_iterator) ) == 
+	    DTK_REQUIRE( MT::elementTopology( *(*block_iterator) ) == 
 			      DTK_Classic_LINE_SEGMENT );
 	}
 	else if ( d_dim == 2 )
 	{
-	    testPrecondition( MT::elementTopology( *(*block_iterator) ) == 
+	    DTK_REQUIRE( MT::elementTopology( *(*block_iterator) ) == 
 			      DTK_Classic_TRIANGLE ||
 			      MT::elementTopology( *(*block_iterator) ) == 
 			      DTK_Classic_QUADRILATERAL );
 	}
 	else if ( d_dim == 3 )
 	{
-	    testPrecondition( MT::elementTopology( *(*block_iterator) ) == 
+	    DTK_REQUIRE( MT::elementTopology( *(*block_iterator) ) == 
 			      DTK_Classic_TETRAHEDRON ||
 			      MT::elementTopology( *(*block_iterator) ) == 
 			      DTK_Classic_HEXAHEDRON ||
@@ -305,7 +302,7 @@ void MeshManager<Mesh>::validate()
 	std::sort( local_topo_copy.begin(), local_topo_copy.end() );
 	unique_bound = std::unique( local_topo_copy.begin(), local_topo_copy.end() );
 	int unique_topo = std::distance( local_topo_copy.begin(), unique_bound );
-	testPrecondition( 1 == unique_topo );
+	DTK_REQUIRE( 1 == unique_topo );
 	local_topo_copy.clear();
 
 	// Check that the element handles are of a value less than the numeric
@@ -315,7 +312,7 @@ void MeshManager<Mesh>::validate()
 	      element_iterator != MT::elementsEnd( *(*block_iterator) );
 	      ++element_iterator )
 	{
-	    testPrecondition( *element_iterator < 
+	    DTK_REQUIRE( *element_iterator < 
 			      std::numeric_limits<GlobalOrdinal>::max() );
 	}
 	
@@ -328,7 +325,7 @@ void MeshManager<Mesh>::validate()
 	    MT::connectivityEnd( *(*block_iterator) ) );
 	if ( num_elements > Teuchos::as<GlobalOrdinal>(0) )
 	{
-	    testPrecondition( num_conn / num_elements ==
+	    DTK_REQUIRE( num_conn / num_elements ==
 			      Teuchos::as<GlobalOrdinal>(
 				  MT::verticesPerElement(*(*block_iterator))) );
 	}
@@ -338,7 +335,7 @@ void MeshManager<Mesh>::validate()
 	int num_permutation = std::distance(
 	    MT::permutationBegin( *(*block_iterator) ),
 	    MT::permutationEnd( *(*block_iterator) ) );
-	testPrecondition( MT::verticesPerElement( *(*block_iterator) ) ==
+	DTK_REQUIRE( MT::verticesPerElement( *(*block_iterator) ) ==
 			  num_permutation );
 
 	// Check that the permutation vector contains unique values.
@@ -352,7 +349,7 @@ void MeshManager<Mesh>::validate()
 					 permutation.end() );
 	int unique_permutation = std::distance( permutation.begin(),
 						permutation_bound );
-	testPrecondition( MT::verticesPerElement( *(*block_iterator) ) ==
+	DTK_REQUIRE( MT::verticesPerElement( *(*block_iterator) ) ==
 			  unique_permutation );
 
 	// Check that the permutation vector contains value less than its
@@ -363,7 +360,7 @@ void MeshManager<Mesh>::validate()
 	      permutation_it != MT::permutationEnd( *(*block_iterator) );
 	      ++permutation_it )
 	{
-	    testPrecondition( *permutation_it < 
+	    DTK_REQUIRE( *permutation_it < 
 			      MT::verticesPerElement( *(*block_iterator) ) );
 	}
 
