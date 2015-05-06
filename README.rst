@@ -79,6 +79,9 @@ DTK has the following packages:
     
     * Basic geometric objects
 
+    * Classic DTK. The classic adapters provide DTK services using
+      the version 1.0 (now deprecated) API using the new 2.0 implementation. 
+
     Outside of the DTK source code, other applications have
     implementations of the DTK client interfaces in their code base
     that may be used to leverage the DTK services and interoperate
@@ -88,6 +91,15 @@ DTK has the following packages:
     * AMP: Advanced Multi-Physics
       <https://rsicc.ornl.gov/codes/ccc/ccc7/ccc-793.html>
 
+**Notes on Classic DTK Adapters**
+
+    This can serve as a starting point for migrating from version 1.0 to 2.0
+    but note that the classic adapters only have version 1.0 functionality -
+    no version 2.0 functionality is provided. To use these adapters, simply
+    change your DTK implementation by renaming all included DTK headers from
+    DTK_SomeFile.hpp to DTK_Classic_SomeFile.hpp and switch from the namespace
+    DataTransferKit to the namespace DataTransferKit::Classic. See the unit 
+    tests in the classic adapters directory for examples of these changes.
 
 Questions, Bug Reporting, and Issue Tracking
 ============================================
