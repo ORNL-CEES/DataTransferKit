@@ -168,22 +168,34 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	Teuchos::rcp( new DataTransferKit::BasicEntitySet(d_comm,d_dimension) );
     if ( source_exists )
     {
-	// The classic API allowed for input source geometries to have repeated
-	// global ids on different procs. The new API also allows for this but we
-	// need to know which proc is the owning proc. Figure that out.
-	Teuchos::ArrayRCP<GlobalOrdinal> source_gids =
-	    source_geometry_manager->gids();
-	int local_num_source_geom = source_geometry_manager->localNumGeometry();
-	Teuchos::Array<int> source_owners( local_num_source_geom, d_comm->getRank() );
-	// Gather to the root proc and sort by id.
-	// If the same id is on multiple ranks, the owner rank is the lowest
-	// id.
-	// Scatter the new owner ranks back to their procs.
-	
-	// Create the entity set.
+	// The classic API allowed for input source geometries to have
+	// repeated global ids on different procs. The new API also allows for
+	// this but we need to know which proc is the owning proc for parallel
+	// uniqueness. Make globally unique ids even if sources are not
+	// globally unique because we don't know with the version 1 API which
+	// proc the user intended to be the owner. The map will handle the
+	// averaging of multiple contributions.
+	std::size_t local_num_source_geom =
+	    source_geometry_manager->localNumGeometry();
+	std::size_t global_num_source_geom =
+	    source_geometry_manager->globalNumGeometry();
+	Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::EntityId> >
+	    source_unique_id_map =
+	    Tpetra::createContigMap<int,DataTransferKit::EntityId>(
+		global_num_source_geom,
+		local_num_source_geom,
+		source_comm );
+	Teuchos::ArrayView<const DataTransferKit::EntityId> unique_src_id_view =
+	    source_unique_id_map->getNodeElementList();
+	d_source_entity_ids.assign( unique_src_id_view.begin(),
+				    unique_src_id_view.end() );
+		
+	// Create the entity set and extract the geometry centroids for future
+	// evaluation.
 	Teuchos::ArrayRCP<Geometry> source_geometry =
 	    source_geometry_manager->geometry();
-	d_source_entity_ids.resize( local_num_source_geom );
+		Teuchos::ArrayRCP<GlobalOrdinal> source_gids =
+		source_geometry_manager->gids();
 	d_source_eval_ids.resize( local_num_source_geom );
 	d_source_centroids.resize( local_num_source_geom*d_dimension );
 	Teuchos::Array<double> source_centroid;
@@ -192,10 +204,9 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	    d_source_entity_set->addEntity(
 		DataTransferKit::ClassicGeometricEntity<Geometry>(
 		    Teuchos::ptrFromRef(source_geometry[i]),
-		    source_gids[i],
+		    d_source_entity_ids[i],
 		    d_comm->getRank())
 		);
-	    d_source_entity_ids[i] = source_gids[i];
 	    d_source_eval_ids[i] = source_gids[i];
 	    source_centroid = GT::centroid( source_geometry[i] );
 	    for ( int d = 0; d < d_dimension; ++d )
@@ -371,8 +382,8 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     GlobalOrdinal target_size = target_field_view.size() / target_dim;
     if ( target_exists )
     {
-	DTK_REQUIRE( target_size == Teuchos::as<GlobalOrdinal>(
-			 d_target_entity_ids.size()) );
+	DTK_REQUIRE( target_size ==
+		     Teuchos::as<GlobalOrdinal>(d_target_entity_ids.size()) );
     }
 
     // Build a vector for the target values.

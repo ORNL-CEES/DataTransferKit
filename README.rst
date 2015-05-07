@@ -79,8 +79,9 @@ DTK has the following packages:
     
     * Basic geometric objects
 
-    * Classic DTK. The classic adapters provide DTK services using
-      the version 1.0 (now deprecated) API using the new 2.0 implementation. 
+    * Classic DTK. The classic adapters provide DTK services using the (now
+      deprecated) version 1.0 API using the new 2.0 implementation. See the
+      notes below for more details.
 
     Outside of the DTK source code, other applications have
     implementations of the DTK client interfaces in their code base
@@ -92,7 +93,6 @@ DTK has the following packages:
       <https://rsicc.ornl.gov/codes/ccc/ccc7/ccc-793.html>
 
 **Notes on Classic DTK Adapters**
-
     This can serve as a starting point for migrating from version 1.0 to 2.0
     but note that the classic adapters only have version 1.0 functionality -
     no version 2.0 functionality is provided. To use these adapters, simply
