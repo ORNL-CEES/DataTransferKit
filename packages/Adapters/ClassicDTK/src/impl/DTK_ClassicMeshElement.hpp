@@ -32,38 +32,59 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_ClassicGeometricEntity_impl.hpp
+ * \file DTK_MeshElement.hpp
  * \author Stuart R. Slattery
- * \brief ClassicGeometricEntity definition
+ * \brief MeshElement declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CLASSIC_GEOMETRICENTITY_IMPL_HPP
-#define DTK_CLASSIC_GEOMETRICENTITY_IMPL_HPP
+#ifndef DTK_CLASSIC_MESHELEMENT_HPP
+#define DTK_CLASSIC_MESHELEMENT_HPP
 
-#include "DTK_ClassicGeometricEntityImpl.hpp"
+#include <iostream>
+
+#include "DTK_Entity.hpp"
+#include "DTK_ClassicMesh.hpp"
+
+#include <Teuchos_Ptr.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Default constructor.
-template<class Geometry>
-ClassicGeometricEntity<Geometry>::ClassicGeometricEntity(
-    const Teuchos::Ptr<Geometry>& geometry,
-    const EntityId global_id,
-    const int owner_rank )
+/*!
+  \class ClassicMeshElement
+  \brief ClassicMeshElement interface.
+  
+  Entity interface implementation for DTK version 1 elements.
+*/
+//---------------------------------------------------------------------------//
+template<class Mesh>
+class ClassicMeshElement : public Entity
 {
-    this->b_entity_impl = Teuchos::rcp(
-	new ClassicGeometricEntityImpl<Geometry>(geometry,global_id,owner_rank) );
-}
+  public:
+
+    // Constructor.
+    ClassicMeshElement(
+	const Teuchos::Ptr<ClassicMesh<Mesh> >& mesh,
+	const int block_id,
+	const typename ClassicMesh<Mesh>::GlobalOrdinal global_id );
+};
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_CLASSIC_GEOMETRICENTITY_IMPL_HPP
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "DTK_ClassicMeshElement_impl.hpp"
 
 //---------------------------------------------------------------------------//
-// end DTK_ClassicGeometricEntity_impl.hpp
+
+#endif // end DTK_CLASSIC_MESHELEMENT_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_ClassicMeshElement.hpp
 //---------------------------------------------------------------------------//
 

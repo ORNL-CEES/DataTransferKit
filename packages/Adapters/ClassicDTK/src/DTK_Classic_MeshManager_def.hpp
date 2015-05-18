@@ -89,14 +89,6 @@ MeshManager<Mesh>::MeshManager(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Destructor.
- */
-template<class Mesh>
-MeshManager<Mesh>::~MeshManager()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Get the local number of elements in the mesh across all mesh blocks.
  *
  * \return The local number of elements across all mesh blocks.

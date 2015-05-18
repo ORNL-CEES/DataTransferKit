@@ -74,14 +74,6 @@ class MeshTools
     typedef Teuchos::RCP<const CommType>        RCP_Comm;
     //@}
 
-    //! Constructor.
-    MeshTools()
-    { /* ... */ }
-
-    //! Destructor.
-    ~MeshTools()
-    { /* ... */ }
-
     // Get a view of the of the mesh vertex global ordinals. 
     static Teuchos::ArrayRCP<const GlobalOrdinal> 
     verticesView( const Mesh& mesh );

@@ -45,9 +45,6 @@
 
 #include "DTK_Entity.hpp"
 
-#include <Teuchos_ArrayView.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
 #include <Teuchos_Ptr.hpp>
 
 namespace DataTransferKit

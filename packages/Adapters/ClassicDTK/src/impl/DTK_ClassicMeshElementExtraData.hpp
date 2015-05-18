@@ -32,38 +32,43 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_ClassicGeometricEntity_impl.hpp
+ * \brief DTK_ClassicMeshElementExtraData.hpp
  * \author Stuart R. Slattery
- * \brief ClassicGeometricEntity definition
+ * \brief Extra data for basic geometry objects.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CLASSIC_GEOMETRICENTITY_IMPL_HPP
-#define DTK_CLASSIC_GEOMETRICENTITY_IMPL_HPP
+#ifndef DTK_CLASSICMESHELEMENTENTITYEXTRADATA_HPP
+#define DTK_CLASSICMESHELEMENTENTITYEXTRADATA_HPP
 
-#include "DTK_ClassicGeometricEntityImpl.hpp"
+#include "DTK_EntityExtraData.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Default constructor.
-template<class Geometry>
-ClassicGeometricEntity<Geometry>::ClassicGeometricEntity(
-    const Teuchos::Ptr<Geometry>& geometry,
-    const EntityId global_id,
-    const int owner_rank )
+/*!
+  \class ClassicMeshElementExtraData
+  \brief A base class for setting extra data with entities.
+*/
+//---------------------------------------------------------------------------//
+class ClassicMeshElementExtraData : public EntityExtraData
 {
-    this->b_entity_impl = Teuchos::rcp(
-	new ClassicGeometricEntityImpl<Geometry>(geometry,global_id,owner_rank) );
-}
+  public:
+
+    ClassicMeshElementExtraData( const int block_id )
+	: d_block_id( block_id )
+    { /* ... */ }
+
+    // Block id.
+    int d_block_id;
+};
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_CLASSIC_GEOMETRICENTITY_IMPL_HPP
+#endif // end DTK_CLASSICMESHELEMENTENTITYEXTRADATA_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_ClassicGeometricEntity_impl.hpp
+// end DTK_ClassicMeshElementExtraData.hpp
 //---------------------------------------------------------------------------//
-

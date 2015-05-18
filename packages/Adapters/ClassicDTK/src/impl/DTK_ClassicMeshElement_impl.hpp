@@ -32,38 +32,39 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_ClassicGeometricEntity_impl.hpp
+ * \file DTK_ClassicMeshElement_impl.hpp
  * \author Stuart R. Slattery
- * \brief ClassicGeometricEntity definition
+ * \brief ClassicMeshElement definition
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CLASSIC_GEOMETRICENTITY_IMPL_HPP
-#define DTK_CLASSIC_GEOMETRICENTITY_IMPL_HPP
+#ifndef DTK_CLASSIC_MESHELEMENT_IMPL_HPP
+#define DTK_CLASSIC_MESHELEMENT_IMPL_HPP
 
-#include "DTK_ClassicGeometricEntityImpl.hpp"
+#include "DTK_ClassicMeshElementImpl.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-template<class Geometry>
-ClassicGeometricEntity<Geometry>::ClassicGeometricEntity(
-    const Teuchos::Ptr<Geometry>& geometry,
-    const EntityId global_id,
+template<class Mesh>
+ClassicMeshElement<Mesh>::ClassicMeshElement(
+    const Teuchos::Ptr<ClassicMesh<Mesh> >& mesh,
+    const int block_id,
+    const int local_id,
     const int owner_rank )
 {
     this->b_entity_impl = Teuchos::rcp(
-	new ClassicGeometricEntityImpl<Geometry>(geometry,global_id,owner_rank) );
+	new ClassicMeshElementImpl<Mesh>(mesh,block_id,local_id,owner_rank) );
 }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_CLASSIC_GEOMETRICENTITY_IMPL_HPP
+#endif // end DTK_CLASSIC_MESHELEMENT_IMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_ClassicGeometricEntity_impl.hpp
+// end DTK_ClassicMeshElement_impl.hpp
 //---------------------------------------------------------------------------//
 

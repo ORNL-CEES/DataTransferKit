@@ -19,14 +19,14 @@ APPEND_SET(HEADERS
   DTK_Classic_GeometryManager.hpp
   DTK_Classic_GeometryManager_def.hpp
   DTK_Classic_GeometryTraits.hpp
-  # DTK_Classic_MeshContainer.hpp
-  # DTK_Classic_MeshManager.hpp
-  # DTK_Classic_MeshManager_def.hpp
-  # DTK_Classic_MeshTools.hpp
-  # DTK_Classic_MeshTools_def.hpp
-  # DTK_Classic_MeshTraits.hpp
-  # DTK_Classic_MeshTraitsFieldAdapter.hpp
-  # DTK_Classic_MeshTypes.hpp
+  DTK_Classic_MeshContainer.hpp
+  DTK_Classic_MeshManager.hpp
+  DTK_Classic_MeshManager_def.hpp
+  DTK_Classic_MeshTools.hpp
+  DTK_Classic_MeshTools_def.hpp
+  DTK_Classic_MeshTraits.hpp
+  DTK_Classic_MeshTraitsFieldAdapter.hpp
+  DTK_Classic_MeshTypes.hpp
   # DTK_Classic_SharedDomainMap.hpp
   # DTK_Classic_SharedDomainMap_def.hpp
   DTK_Classic_VolumeSourceMap.hpp

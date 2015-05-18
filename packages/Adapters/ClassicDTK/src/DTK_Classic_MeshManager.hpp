@@ -108,9 +108,6 @@ class MeshManager
 		 const RCP_Comm& comm,
 		 const int dim );
 
-    // Destructor.
-    ~MeshManager();
-
     //! Get the number of mesh blocks.
     int getNumBlocks() const
     { return d_mesh_blocks.size(); }
