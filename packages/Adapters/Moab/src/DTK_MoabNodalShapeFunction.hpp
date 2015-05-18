@@ -80,7 +80,7 @@ class MoabNodalShapeFunction : public EntityShapeFunction
      * vector space supporting the entities.
      */
     void entitySupportIds( const Entity& entity,
-		       Teuchos::Array<SupportId>& dof_ids ) const;
+			   Teuchos::Array<SupportId>& dof_ids ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -94,7 +94,7 @@ class MoabNodalShapeFunction : public EntityShapeFunction
     void evaluateValue( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<double> & values ) const;
+	Teuchos::Array<double> & values ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the gradient of
@@ -110,7 +110,7 @@ class MoabNodalShapeFunction : public EntityShapeFunction
     void evaluateGradient( 
 	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
+	Teuchos::Array<Teuchos::Array<double> >& gradients ) const override;
 
   private:
 

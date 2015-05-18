@@ -45,6 +45,8 @@
 #include "DTK_IntrepidCellLocalMap.hpp"
 #include "DTK_DBC.hpp"
 
+#include <Shards_CellTopology.hpp>
+
 #include <Intrepid_FieldContainer.hpp>
 
 namespace DataTransferKit

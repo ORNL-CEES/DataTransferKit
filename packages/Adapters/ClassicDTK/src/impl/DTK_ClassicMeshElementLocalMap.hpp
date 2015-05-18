@@ -49,10 +49,6 @@
 #include <Teuchos_ParameterList.hpp>
 #include <Teuchos_ArrayView.hpp>
 
-#include <Shards_CellTopology.hpp>
-
-#include <Intrepid_FieldContainer.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//

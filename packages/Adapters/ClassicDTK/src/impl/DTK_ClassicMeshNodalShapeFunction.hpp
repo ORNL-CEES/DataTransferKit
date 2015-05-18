@@ -32,17 +32,18 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshNodalShapeFunction.hpp
+ * \brief DTK_ClassicMeshNodalShapeFunction.hpp
  * \author Stuart R. Slattery
- * \brief Nodal shape function implementation for STK mesh.
+ * \brief Nodal shape function implementation for Classic mesh.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_STKMESHNODALSHAPEFUNCTION
-#define DTK_STKMESHNODALSHAPEFUNCTION
+#ifndef DTK_CLASSICMESHNODALSHAPEFUNCTION_HPP
+#define DTK_CLASSICMESHNODALSHAPEFUNCTION_HPP
 
 #include "DTK_EntityShapeFunction.hpp"
 #include "DTK_Types.hpp"
+#include "DTK_ClassicMesh.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
@@ -50,31 +51,30 @@
 #include <Intrepid_Basis.hpp>
 #include <Intrepid_FieldContainer.hpp>
 
-#include <stk_mesh/base/BulkData.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class STKMeshNodalShapeFunction
-  \brief Nodal shape function implementation for STK mesh.
+  \class ClassicMeshNodalShapeFunction
+  \brief Nodal shape function implementation for Classic mesh.
 
-  STKMeshNodalShapeFunction provides a shape function for node-centered
+  ClassicMeshNodalShapeFunction provides a shape function for node-centered
   quantities with shape functions evaluated in an element supported by
   nodes. The node ids serve as the support ids for these shape functions. A
   corresponding field vector indexed via node ids should be produced to match
   this shape function.
 */
 //---------------------------------------------------------------------------//
-class STKMeshNodalShapeFunction : public EntityShapeFunction
+template<class Mesh>
+class ClassicMeshNodalShapeFunction : public EntityShapeFunction
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    STKMeshNodalShapeFunction(
-	const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
+    ClassicMeshNodalShapeFunction(
+	const Teuchos::RCP<ClassicMesh<Mesh> >& mesh );
 
     /*!
      * \brief Given an entity, get the ids of the support locations.
@@ -123,8 +123,8 @@ class STKMeshNodalShapeFunction : public EntityShapeFunction
 
   private:
 
-    // Bulk data for the mesh over which the shape function is defined.
-    Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
+    // Classic mesh.
+    Teuchos::RCP<ClassicMesh<Mesh> > d_mesh;
 };
 
 //---------------------------------------------------------------------------//
@@ -132,9 +132,15 @@ class STKMeshNodalShapeFunction : public EntityShapeFunction
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
 
-#endif // end DTK_STKMESHNODALSHAPEFUNCTION
+#include "DTK_ClassicMeshNodalShapeFunction_impl.hpp"
 
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshNodalShapeFunction.hpp
+
+#endif // end DTK_CLASSICMESHNODALSHAPEFUNCTION_HPP
+
+//---------------------------------------------------------------------------//
+// end DTK_ClassicMeshNodalShapeFunction.hpp
 //---------------------------------------------------------------------------//

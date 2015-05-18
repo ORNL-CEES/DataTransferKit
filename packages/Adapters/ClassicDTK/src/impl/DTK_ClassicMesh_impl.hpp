@@ -68,6 +68,7 @@ ClassicMesh<Mesh>::ClassicMesh(
     for ( int b = 0; b < d_mesh_manager->getNumBlocks(); ++b )
     {
 	block = d_mesh_manager->getBlock( b );
+	d_block_topo = createBlockTopology( b );
 	d_vertex_gids[b] = MeshTools<Mesh>::verticesView( *block );
 	d_vertex_coords[b] = MeshTools<Mesh>::coordsView( *block );
 	d_element_gids[b] = MeshTools<Mesh>::elementsView( *block );
@@ -232,6 +233,25 @@ ClassicMesh<Mesh>::getElementNodeCoordinates( const GlobalOrdinal gid,
 	}
     }
     return coords;
+}
+
+//---------------------------------------------------------------------------//
+// Get the connectivity of an element.
+template<class Mesh>
+Teuchos::Array<SupportId>
+ClassicMesh<Mesh>::getElementConnectivity(
+    const GlobalOrdinal gid, const int block_id ) const
+{
+    int element_lid = elementLocalId( gid, block_id );
+    int num_node = d_permutation[block_id].size();
+    GlobalOrdinal conn_stride = 0;
+    Teuchos::Array<GlobalOrdinal> conn( num_node );
+    for ( int n = 0; n < num_node; ++n )
+    {
+	conn_stride = d_permutation[n] * element_size;
+	conn[n] = d_element_conn[block_id][conn_stride + element_lid];
+    }
+    return conn;
 }
 
 //---------------------------------------------------------------------------//

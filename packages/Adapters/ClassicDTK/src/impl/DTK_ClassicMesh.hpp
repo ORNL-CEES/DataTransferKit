@@ -43,6 +43,7 @@
 
 #include <unordered_map>
 
+#include "DTK_Types.hpp"
 #include "DTK_Classic_MeshManager.hpp"
 #include "DTK_Classic_MeshTraits.hpp"
 
@@ -120,6 +121,10 @@ class ClassicMesh
     getElementNodeCoordinates( const GlobalOrdinal gid,
 			       const int block_id ) const;
 
+    // Get the connectivity of an element.
+    Teuchos::Array<SupportId>
+    getElementConnectivity( const GlobalOrdinal gid, const int block_id ) const;
+    
   public:
 
     // Pointer to element global ids. Public for iterator access.
@@ -136,7 +141,7 @@ class ClassicMesh
     Teuchos::RCP<Classic::MeshManager<Mesh> > d_mesh_manager;
 
     // Block topologies.
-    Teuchos::Array<shards::CellTopology.hpp>
+    Teuchos::Array<shards::CellTopology> d_block_topo;
     
     // Element global id to block map.
     std::unordered_map<GlobalOrdinal,int> d_element_block_map;
