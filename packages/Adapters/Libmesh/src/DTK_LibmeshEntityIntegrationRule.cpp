@@ -59,7 +59,7 @@ void LibmeshEntityIntegrationRule::getIntegrationRule(
     Teuchos::Array<double>& weights ) const
 {
     // Create a libmesh quadrature rule. Use Gauss quadrature as the default.
-    libMesh::AutoPtr<libMesh::QBase> libmesh_quadrature =
+    libMesh::UniquePtr<libMesh::QBase> libmesh_quadrature =
 	libMesh::QBase::build( d_quad_type,
 			       entity.topologicalDimension(),
 			       static_cast<libMesh::Order>(order) );
