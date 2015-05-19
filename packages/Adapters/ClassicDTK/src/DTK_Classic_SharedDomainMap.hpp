@@ -41,14 +41,14 @@
 #ifndef DTK_Classic_SHAREDDOMAINMAP_HPP
 #define DTK_Classic_SHAREDDOMAINMAP_HPP
 
-#include <map>
+#include "DTK_BasicEntitySet.hpp"
+#include "DTK_EntitySet.hpp"
 
 #include "DTK_Classic_FieldTraits.hpp"
 #include "DTK_Classic_FieldEvaluator.hpp"
 #include "DTK_Classic_FieldManager.hpp"
 #include "DTK_Classic_MeshTraits.hpp"
 #include "DTK_Classic_MeshManager.hpp"
-#include "DTK_Classic_BoundingBox.hpp"
 #include "DTK_Classic_CommIndexer.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -124,11 +124,9 @@ class SharedDomainMap
     //!@}
 
     // Constructor.
-    SharedDomainMap( const RCP_Comm& comm, const int dimension, 
+    SharedDomainMap( const RCP_Comm& comm,
+		     const int dimension, 
 		     bool store_missed_points = false );
-
-    // Destructor.
-    ~SharedDomainMap();
 
     // Generate the shared domain map.
     void setup( const RCP_MeshManager& source_mesh_manager, 
@@ -155,13 +153,6 @@ class SharedDomainMap
 	const RCP_CoordFieldManager& target_coord_manager,
 	Teuchos::Array<GlobalOrdinal>& target_ordinals );
 
-    // Get the target points that are in the rendezvous decomposition box.
-    void getTargetPointsInBox( 
-	const BoundingBox& box,
-	const CoordinateField& target_coords,
-	const Teuchos::Array<GlobalOrdinal>& target_ordinals,
-	Teuchos::Array<GlobalOrdinal>& targets_in_box );
-
   private:
 
     // Communicator.
@@ -174,31 +165,32 @@ class SharedDomainMap
     bool d_store_missed_points;
 
     // Process indexer for the source application.
-    CommIndexer d_source_indexer;
+    DataTransferKit::CommIndexer d_source_indexer;
 
     // Process indexer for the target application.
-    CommIndexer d_target_indexer;
+    DataTransferKit::CommIndexer d_target_indexer;
 
     // Indices for target points missed in the mapping.
     Teuchos::Array<GlobalOrdinal> d_missed_points;
 
-    // Global-to-local ordinal map for target ordinals.
-    std::map<GlobalOrdinal,GlobalOrdinal> d_target_g2l;
+    // Array of source mesh entity ids.
+    Teuchos::Array<DataTransferKit::EntityId> d_source_entity_ids;
 
-    // Source field map.
-    RCP_TpetraMap d_source_map;
+    // Array of source node coordinates.
+    Teuchos::Array<double> d_source_node_coords;
+    
+    // Source entity set.
+    Teuchos::RCP<DataTransferKit::EntitySet> d_source_entity_set;
 
-    // Target field map.
-    RCP_TpetraMap d_target_map;
+    // Target entity set.
+    Teuchos::RCP<DataTransferKit::BasicEntitySet> d_target_entity_set;
+    
+    // Array of target point entity ids.
+    Teuchos::Array<DataTransferKit::EntityId> d_target_entity_ids;
 
-    // Source-to-target exporter.
-    RCP_TpetraExport d_source_to_target_exporter;
-
-    // Local source elements.
-    Teuchos::Array<GlobalOrdinal> d_source_elements;
-
-    // Local target coords.
-    Teuchos::Array<double> d_target_coords;
+    // Interpolation operator.
+    Teuchos::RCP<DataTransferKit::ConsistentInterpolationOperator<double> >
+    d_consistent_operator;
 };
 
 //---------------------------------------------------------------------------//

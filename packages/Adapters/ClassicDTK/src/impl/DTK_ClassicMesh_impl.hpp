@@ -255,6 +255,24 @@ ClassicMesh<Mesh>::getElementConnectivity(
 }
 
 //---------------------------------------------------------------------------//
+// Get the coordinates of a single node.
+template<class Mesh>
+Teuchos::Array<double>
+ClassicMesh<Mesh>::getNodeCoordinates(
+    const GlobalOrdinal gid, const int block_id ) const
+{
+    int space_dim = dim();
+    int vertex_lid = vertexLocalId( gid, block_id );
+    Teuchos::Array<double> coords( space_dim );
+    GlobalOrdinal vertex_size = d_vertex_gids[block_id].size();
+    for ( int d = 0; d < space_dim; ++d )
+    {
+	coords[d] = d_vertex_coords[block_id][d*vertex_size + vertex_lid];
+    }
+    return coords;
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

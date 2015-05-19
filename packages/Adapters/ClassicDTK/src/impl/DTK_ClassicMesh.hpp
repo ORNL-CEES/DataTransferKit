@@ -124,6 +124,10 @@ class ClassicMesh
     // Get the connectivity of an element.
     Teuchos::Array<SupportId>
     getElementConnectivity( const GlobalOrdinal gid, const int block_id ) const;
+
+    // Get the coordinates of a single node.
+    Teuchos::Array<double>
+    getNodeCoordinates( const GlobalOrdinal gid, const int block_id ) const;
     
   public:
 

@@ -41,8 +41,6 @@
 #ifndef DTK_Classic_VOLUMESOURCEMAP_HPP
 #define DTK_Classic_VOLUMESOURCEMAP_HPP
 
-#include <map>
-
 #include "DTK_ConsistentInterpolationOperator.hpp"
 #include "DTK_CommIndexer.hpp"
 #include "DTK_BasicEntitySet.hpp"
@@ -106,7 +104,8 @@ class VolumeSourceMap
     //@}
 
     // Constructor.
-    VolumeSourceMap( const RCP_Comm& comm, const int dimension,
+    VolumeSourceMap( const RCP_Comm& comm,
+		     const int dimension,
 		     bool store_missed_points = false,
 		     const double geometric_tolerance = 1.0e-6 );
 

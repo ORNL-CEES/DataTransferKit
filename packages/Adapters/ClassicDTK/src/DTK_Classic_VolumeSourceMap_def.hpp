@@ -59,7 +59,6 @@
 
 #include "DTK_Classic_FieldTools.hpp"
 #include "DTK_Classic_FieldTraits.hpp"
-#include "DTK_Classic_BoundingBox.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_as.hpp>
