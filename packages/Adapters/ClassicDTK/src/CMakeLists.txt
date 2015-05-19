@@ -27,8 +27,8 @@ APPEND_SET(HEADERS
   DTK_Classic_MeshTraits.hpp
   DTK_Classic_MeshTraitsFieldAdapter.hpp
   DTK_Classic_MeshTypes.hpp
-  # DTK_Classic_SharedDomainMap.hpp
-  # DTK_Classic_SharedDomainMap_def.hpp
+  DTK_Classic_SharedDomainMap.hpp
+  DTK_Classic_SharedDomainMap_def.hpp
   DTK_Classic_VolumeSourceMap.hpp
   DTK_Classic_VolumeSourceMap_def.hpp
   ) 
@@ -49,6 +49,18 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_ClassicGeometricEntityImpl_impl.hpp
   ${DIR}/DTK_ClassicGeometricEntityLocalMap.hpp
   ${DIR}/DTK_ClassicGeometricEntityLocalMap_impl.hpp
+  ${DIR}/DTK_ClassicMesh.hpp
+  ${DIR}/DTK_ClassicMesh_impl.hpp
+  ${DIR}/DTK_ClassicMeshElement.hpp
+  ${DIR}/DTK_ClassicMeshElement_impl.hpp
+  ${DIR}/DTK_ClassicMeshElementImpl.hpp
+  ${DIR}/DTK_ClassicMeshElementImpl_impl.hpp
+  ${DIR}/DTK_ClassicMeshElementLocalMap.hpp
+  ${DIR}/DTK_ClassicMeshElementLocalMap_impl.hpp
+  ${DIR}/DTK_ClassicMeshEntitySet.hpp
+  ${DIR}/DTK_ClassicMeshEntitySet_impl.hpp
+  ${DIR}/DTK_ClassicMeshNodalShapeFunction.hpp
+  ${DIR}/DTK_ClassicMeshNodalShapeFunction_impl.hpp
   ) 
 
 #

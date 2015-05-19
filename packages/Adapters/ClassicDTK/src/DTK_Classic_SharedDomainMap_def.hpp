@@ -207,7 +207,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Create a function space for the source.
     DataTransferKit::FunctionSpace domain_function_space(
-	d_source_entity_set, source_local_map, source_shape_function, Teuchos::null );   
+	d_source_entity_set, source_local_map, source_shape_function, Teuchos::null );
 
     // Make a map for the source vectors.
     Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> >
