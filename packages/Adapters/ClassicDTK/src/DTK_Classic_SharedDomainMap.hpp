@@ -43,13 +43,14 @@
 
 #include "DTK_BasicEntitySet.hpp"
 #include "DTK_EntitySet.hpp"
+#include "DTK_CommIndexer.hpp"
+#include "DTK_ConsistentInterpolationOperator.hpp"
 
 #include "DTK_Classic_FieldTraits.hpp"
 #include "DTK_Classic_FieldEvaluator.hpp"
 #include "DTK_Classic_FieldManager.hpp"
 #include "DTK_Classic_MeshTraits.hpp"
 #include "DTK_Classic_MeshManager.hpp"
-#include "DTK_Classic_CommIndexer.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -173,8 +174,11 @@ class SharedDomainMap
     // Indices for target points missed in the mapping.
     Teuchos::Array<GlobalOrdinal> d_missed_points;
 
+    // Array of source mesh evaluation ids.
+    Teuchos::Array<GlobalOrdinal> d_source_eval_ids;
+
     // Array of source mesh entity ids.
-    Teuchos::Array<DataTransferKit::EntityId> d_source_entity_ids;
+    Teuchos::Array<DataTransferKit::EntityId> d_source_node_ids;
 
     // Array of source node coordinates.
     Teuchos::Array<double> d_source_node_coords;

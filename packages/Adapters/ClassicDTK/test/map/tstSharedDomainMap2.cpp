@@ -20,7 +20,6 @@
 #include <DTK_Classic_FieldEvaluator.hpp>
 #include <DTK_Classic_MeshTypes.hpp>
 #include <DTK_Classic_MeshTraits.hpp>
-#include <DTK_Classic_RendezvousMesh.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -595,16 +594,20 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test2 )
 
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data.
-    int source_rank;
+    double source_rank;
     for ( int n = 0; n < num_points; ++n )
     {
 	source_rank = std::floor(*(coordinate_field->begin()+n) / (edge_size-1));
-	TEST_ASSERT( source_rank+1 == 
-		     *(target_space_manager->field()->begin()+n) );
-	TEST_ASSERT( source_rank+1 == 
-		     *(target_space_manager->field()->begin()+n+num_points) );
-	TEST_ASSERT( source_rank+1 == 
-		     *(target_space_manager->field()->begin()+n+2*num_points) );
+	TEST_FLOATING_EQUALITY( source_rank+1,
+				*(target_space_manager->field()->begin()+n),
+				1.0e-14 );
+	TEST_FLOATING_EQUALITY( source_rank+1,
+				*(target_space_manager->field()->begin()+n+num_points),
+				1.0e-14 );
+	TEST_FLOATING_EQUALITY(
+	    source_rank+1,
+	    *(target_space_manager->field()->begin()+n+2*num_points),
+	    1.0e-14 );
     }
 }
 
@@ -655,7 +658,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test2 )
 
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data if it is in the mesh and 0.0 if it is outside.
-    int source_rank;
+    double source_rank;
     Teuchos::Array<long int> missing_points;
     for ( int n = 0; n < num_points; ++n )
     {
@@ -667,24 +670,27 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test2 )
 	     *(coordinate_field->begin()+n+2*num_points) > 1.0 )
 	{
 	    missing_points.push_back(n);	
-	    TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()+n) );
-	    TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()
+	    TEST_EQUALITY( 0.0, *(target_space_manager->field()->begin()+n) );
+	    TEST_EQUALITY( 0.0, *(target_space_manager->field()->begin()
 				  +n+num_points) );
-	    TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()
+	    TEST_EQUALITY( 0.0, *(target_space_manager->field()->begin()
 				  +n+2*num_points) );
 	}
 	else
 	{
 	    source_rank = std::floor(target_coord_manager->field()->getData()[n] 
 	    			     / (edge_size-1));
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager->field()->getData()[n] );
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager->field()->getData()[
-	    		     n + num_points] );
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager->field()->getData()[
-	    		     n + 2*num_points] );
+	    TEST_FLOATING_EQUALITY( source_rank+1, 
+				    target_space_manager->field()->getData()[n],
+				    1.0e-14 );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager->field()->getData()[n + num_points],
+		1.0e-14 );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager->field()->getData()[n + 2*num_points],
+		1.0e-14 );
 	}
     }
 
@@ -692,14 +698,14 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test2 )
     TEST_ASSERT( missing_points.size() > 0 );
     Teuchos::ArrayView<long int> missed_in_map = 
 	shared_domain_map.getMissedTargetPoints();
-    TEST_ASSERT( missing_points.size() == missed_in_map.size() );
+    TEST_EQUALITY( missing_points.size(), missed_in_map.size() );
 
     std::sort( missing_points.begin(), missing_points.end() );
     std::sort( missed_in_map.begin(), missed_in_map.end() );
 
     for ( int n = 0; n < (int) missing_points.size(); ++n )
     {
-	TEST_ASSERT( missing_points[n] == missed_in_map[n] );
+	TEST_EQUALITY( missing_points[n], missed_in_map[n] );
     }
 }
 
@@ -752,7 +758,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test2 )
 
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data if it is in the mesh and 0.0 if it is outside.
-    int source_rank;
+    double source_rank;
     Teuchos::Array<long int> missing_points;
     bool tagged;
     for ( int n = 0; n < num_points; ++n )
@@ -767,10 +773,10 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test2 )
 	     *(coordinate_field->begin()+n+2*num_points) > 1.0 )
 	{
 	    missing_points.push_back(n);	
-	    TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()+n) );
-	    TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()
+	    TEST_EQUALITY( 0.0, *(target_space_manager->field()->begin()+n) );
+	    TEST_EQUALITY( 0.0, *(target_space_manager->field()->begin()
 				  +n+num_points) );
-	    TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()
+	    TEST_EQUALITY( 0.0, *(target_space_manager->field()->begin()
 				  +n+2*num_points) );
 	    tagged = true;
 	}
@@ -788,16 +794,21 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test2 )
 		     *(coordinate_field->begin()+n+2*num_points) >= 0.0 &&
 		     *(coordinate_field->begin()+n+2*num_points) <= 1.0 && !tagged )
 		{
-		    source_rank = std::floor(target_coord_manager->field()->getData()[n] 
-					     / (edge_size-1));
-		    TEST_ASSERT( source_rank+1 == 
-				 target_space_manager->field()->getData()[n] );
-		    TEST_ASSERT( source_rank+1 == 
-				 target_space_manager->field()->getData()[
-				     n + num_points] );
-		    TEST_ASSERT( source_rank+1 == 
-				 target_space_manager->field()->getData()[
-				     n + 2*num_points] );
+		    source_rank =
+			std::floor(target_coord_manager->field()->getData()[n] 
+				   / (edge_size-1));
+		    TEST_FLOATING_EQUALITY(
+			source_rank+1, 
+			target_space_manager->field()->getData()[n],
+			1.0e-14 );
+		    TEST_FLOATING_EQUALITY(
+			source_rank+1, 
+			target_space_manager->field()->getData()[n + num_points],
+			1.0e-14 );
+		    TEST_FLOATING_EQUALITY(
+			source_rank+1, 
+			target_space_manager->field()->getData()[n + 2*num_points],
+			1.0e-14 );
 		    tagged = true;
 		}
 	    }
@@ -805,10 +816,10 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test2 )
 	    if ( !tagged) 
 	    {
 		missing_points.push_back(n);	
-		TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()+n) );
-		TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()
+		TEST_EQUALITY( 0.0, *(target_space_manager->field()->begin()+n) );
+		TEST_EQUALITY( 0.0, *(target_space_manager->field()->begin()
 				      +n+num_points) );
-		TEST_ASSERT( 0.0 == *(target_space_manager->field()->begin()
+		TEST_EQUALITY( 0.0, *(target_space_manager->field()->begin()
 				      +n+2*num_points) );
 		tagged = true;
 	    }
@@ -821,14 +832,14 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test2 )
     TEST_ASSERT( missing_points.size() > 0 );
     Teuchos::ArrayView<long int> missed_in_map = 
 	shared_domain_map.getMissedTargetPoints();
-    TEST_ASSERT( missing_points.size() == missed_in_map.size() );
+    TEST_EQUALITY( missing_points.size(), missed_in_map.size() );
 
     std::sort( missing_points.begin(), missing_points.end() );
     std::sort( missed_in_map.begin(), missed_in_map.end() );
 
     for ( int n = 0; n < (int) missing_points.size(); ++n )
     {
-	TEST_ASSERT( missing_points[n] == missed_in_map[n] );
+	TEST_EQUALITY( missing_points[n], missed_in_map[n] );
     }
 }
 
@@ -902,7 +913,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_maps_test2 )
     // Check the first data transfer. Each target point should have been
     // assigned its source rank + 1 as data if it is in the mesh and 0.0 if it
     // is outside.  
-    int source_rank;
+    double source_rank;
     Teuchos::Array<long int> missing_points_1;
     for ( int n = 0; n < num_points; ++n )
     {
@@ -914,24 +925,28 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_maps_test2 )
 	     *(coordinate_field_1->begin()+n+2*num_points) > 1.0 )
 	{
 	    missing_points_1.push_back(n);	
-	    TEST_ASSERT( 0.0 == *(target_space_manager_1->field()->begin()+n) );
-	    TEST_ASSERT( 0.0 == *(target_space_manager_1->field()->begin()
+	    TEST_EQUALITY( 0.0, *(target_space_manager_1->field()->begin()+n) );
+	    TEST_EQUALITY( 0.0, *(target_space_manager_1->field()->begin()
 				  +n+num_points) );
-	    TEST_ASSERT( 0.0 == *(target_space_manager_1->field()->begin()
+	    TEST_EQUALITY( 0.0, *(target_space_manager_1->field()->begin()
 				  +n+2*num_points) );
 	}
 	else
 	{
 	    source_rank = std::floor(
 		target_coord_manager_1->field()->getData()[n] / (edge_size-1));
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager_1->field()->getData()[n] );
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager_1->field()->getData()[
-	    		     n + num_points] );
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager_1->field()->getData()[
-	    		     n + 2*num_points] );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager_1->field()->getData()[n],
+		1.0e-14 );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager_1->field()->getData()[n + num_points],
+		1.0e-14 );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager_1->field()->getData()[n + 2*num_points],
+		1.0e-14);
 	}
     }
 
@@ -939,14 +954,14 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_maps_test2 )
     TEST_ASSERT( missing_points_1.size() > 0 );
     Teuchos::ArrayView<long int> missed_in_map_1 = 
 	shared_domain_map_1.getMissedTargetPoints();
-    TEST_ASSERT( missing_points_1.size() == missed_in_map_1.size() );
+    TEST_EQUALITY( missing_points_1.size(), missed_in_map_1.size() );
 
     std::sort( missing_points_1.begin(), missing_points_1.end() );
     std::sort( missed_in_map_1.begin(), missed_in_map_1.end() );
 
     for ( int n = 0; n < (int) missing_points_1.size(); ++n )
     {
-	TEST_ASSERT( missing_points_1[n] == missed_in_map_1[n] );
+	TEST_EQUALITY( missing_points_1[n], missed_in_map_1[n] );
     }
 
     // Setup and apply the shared domain mapping 2.
@@ -957,7 +972,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_maps_test2 )
 
     // Check the second data transfer. Each target point should have been
     // assigned its source rank + 1 as data if it is in the mesh and 0.0 if it
-    // is outside.  int source_rank;
+    // is outside.
     Teuchos::Array<long int> missing_points_2;
     for ( int n = 0; n < num_points; ++n )
     {
@@ -969,24 +984,28 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_maps_test2 )
 	     *(coordinate_field_2->begin()+n+2*num_points) > 1.0 )
 	{
 	    missing_points_2.push_back(n);	
-	    TEST_ASSERT( 0.0 == *(target_space_manager_2->field()->begin()+n) );
-	    TEST_ASSERT( 0.0 == *(target_space_manager_2->field()->begin()
+	    TEST_EQUALITY( 0.0, *(target_space_manager_2->field()->begin()+n) );
+	    TEST_EQUALITY( 0.0, *(target_space_manager_2->field()->begin()
 				  +n+num_points) );
-	    TEST_ASSERT( 0.0 == *(target_space_manager_2->field()->begin()
+	    TEST_EQUALITY( 0.0, *(target_space_manager_2->field()->begin()
 				  +n+2*num_points) );
 	}
 	else
 	{
 	    source_rank = std::floor(
 		target_coord_manager_2->field()->getData()[n] / (edge_size-1));
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager_2->field()->getData()[n] );
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager_2->field()->getData()[
-	    		     n + num_points] );
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager_2->field()->getData()[
-	    		     n + 2*num_points] );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager_2->field()->getData()[n],
+		1.0e-14 );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager_2->field()->getData()[n + num_points],
+		1.0e-14 );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager_2->field()->getData()[n + 2*num_points],
+		1.0e-14 );
 	}
     }
 
@@ -994,14 +1013,14 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_maps_test2 )
     TEST_ASSERT( missing_points_2.size() > 0 );
     Teuchos::ArrayView<long int> missed_in_map_2 = 
 	shared_domain_map_2.getMissedTargetPoints();
-    TEST_ASSERT( missing_points_2.size() == missed_in_map_2.size() );
+    TEST_EQUALITY( missing_points_2.size(), missed_in_map_2.size() );
 
     std::sort( missing_points_2.begin(), missing_points_2.end() );
     std::sort( missed_in_map_2.begin(), missed_in_map_2.end() );
 
     for ( int n = 0; n < (int) missing_points_2.size(); ++n )
     {
-	TEST_ASSERT( missing_points_2[n] == missed_in_map_2[n] );
+	TEST_EQUALITY( missing_points_2[n], missed_in_map_2[n] );
     }
 }
 
@@ -1063,7 +1082,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_targets_test2 )
 	Teuchos::rcp( new MyField( num_points, target_dim ) );
     Teuchos::RCP< FieldManager<MyField> > target_space_manager_2 = 
 	Teuchos::rcp( 
-	new FieldManager<MyField>( target_field_2, comm ) );
+	    new FieldManager<MyField>( target_field_2, comm ) );
 
     // Setup shared domain mapping.
     SharedDomainMap<MyMesh,MyField> shared_domain_map( 
@@ -1076,7 +1095,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_targets_test2 )
     // Check the first data transfer. Each target point should have been
     // assigned its source rank + 1 as data if it is in the mesh and 0.0 if it
     // is outside.  
-    int source_rank;
+    double source_rank;
     Teuchos::Array<long int> missing_points_1;
     for ( int n = 0; n < num_points; ++n )
     {
@@ -1088,24 +1107,28 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_targets_test2 )
 	     *(coordinate_field_1->begin()+n+2*num_points) > 1.0 )
 	{
 	    missing_points_1.push_back(n);	
-	    TEST_ASSERT( 0.0 == *(target_space_manager_1->field()->begin()+n) );
-	    TEST_ASSERT( 0.0 == *(target_space_manager_1->field()->begin()
+	    TEST_EQUALITY( 0.0, *(target_space_manager_1->field()->begin()+n) );
+	    TEST_EQUALITY( 0.0, *(target_space_manager_1->field()->begin()
 				  +n+num_points) );
-	    TEST_ASSERT( 0.0 == *(target_space_manager_1->field()->begin()
+	    TEST_EQUALITY( 0.0, *(target_space_manager_1->field()->begin()
 				  +n+2*num_points) );
 	}
 	else
 	{
 	    source_rank = std::floor(
 		target_coord_manager_1->field()->getData()[n] / (edge_size-1));
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager_1->field()->getData()[n] );
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager_1->field()->getData()[
-	    		     n + num_points] );
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager_1->field()->getData()[
-	    		     n + 2*num_points] );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager_1->field()->getData()[n],
+		1.0e-14 );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager_1->field()->getData()[n + num_points],
+		1.0e-14 );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager_1->field()->getData()[n + 2*num_points],
+		1.0e-14 );
 	}
     }
 
@@ -1113,14 +1136,14 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_targets_test2 )
     TEST_ASSERT( missing_points_1.size() > 0 );
     Teuchos::ArrayView<long int> missed_in_map_1 = 
 	shared_domain_map.getMissedTargetPoints();
-    TEST_ASSERT( missing_points_1.size() == missed_in_map_1.size() );
+    TEST_EQUALITY( missing_points_1.size(), missed_in_map_1.size() );
 
     std::sort( missing_points_1.begin(), missing_points_1.end() );
     std::sort( missed_in_map_1.begin(), missed_in_map_1.end() );
 
     for ( int n = 0; n < (int) missing_points_1.size(); ++n )
     {
-	TEST_ASSERT( missing_points_1[n] == missed_in_map_1[n] );
+	TEST_EQUALITY( missing_points_1[n], missed_in_map_1[n] );
     }
 
     // Apply the shared domain mapping 2.
@@ -1128,7 +1151,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_targets_test2 )
 
     // Check the second data transfer. Each target point should have been
     // assigned its source rank + 1 as data if it is in the mesh and 0.0 if it
-    // is outside.  int source_rank;
+    // is outside.
     Teuchos::Array<long int> missing_points_2;
     for ( int n = 0; n < num_points; ++n )
     {
@@ -1140,24 +1163,28 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_targets_test2 )
 	     *(coordinate_field_2->begin()+n+2*num_points) > 1.0 )
 	{
 	    missing_points_2.push_back(n);	
-	    TEST_ASSERT( 0.0 == *(target_space_manager_2->field()->begin()+n) );
-	    TEST_ASSERT( 0.0 == *(target_space_manager_2->field()->begin()
+	    TEST_EQUALITY( 0.0, *(target_space_manager_2->field()->begin()+n) );
+	    TEST_EQUALITY( 0.0, *(target_space_manager_2->field()->begin()
 				  +n+num_points) );
-	    TEST_ASSERT( 0.0 == *(target_space_manager_2->field()->begin()
+	    TEST_EQUALITY( 0.0, *(target_space_manager_2->field()->begin()
 				  +n+2*num_points) );
 	}
 	else
 	{
 	    source_rank = std::floor(
 		target_coord_manager_2->field()->getData()[n] / (edge_size-1));
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager_2->field()->getData()[n] );
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager_2->field()->getData()[
-	    		     n + num_points] );
-	    TEST_ASSERT( source_rank+1 == 
-	    		 target_space_manager_2->field()->getData()[
-	    		     n + 2*num_points] );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager_2->field()->getData()[n],
+		1.0e-14 );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager_2->field()->getData()[n + num_points],
+		1.0e-14 );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1, 
+		target_space_manager_2->field()->getData()[n + 2*num_points],
+		1.0e-14 );
 	}
     }
 
@@ -1165,14 +1192,14 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_two_targets_test2 )
     TEST_ASSERT( missing_points_2.size() > 0 );
     Teuchos::ArrayView<long int> missed_in_map_2 = 
 	shared_domain_map.getMissedTargetPoints();
-    TEST_ASSERT( missing_points_2.size() == missed_in_map_2.size() );
+    TEST_EQUALITY( missing_points_2.size(), missed_in_map_2.size() );
 
     std::sort( missing_points_2.begin(), missing_points_2.end() );
     std::sort( missed_in_map_2.begin(), missed_in_map_2.end() );
 
     for ( int n = 0; n < (int) missing_points_2.size(); ++n )
     {
-	TEST_ASSERT( missing_points_2[n] == missed_in_map_2[n] );
+	TEST_EQUALITY( missing_points_2[n], missed_in_map_2[n] );
     }
 }
 

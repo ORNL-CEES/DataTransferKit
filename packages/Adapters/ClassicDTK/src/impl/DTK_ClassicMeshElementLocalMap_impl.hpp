@@ -53,7 +53,8 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-ClassicMeshElementLocalMap::ClassicMeshElementLocalMap(
+template<class Mesh>
+ClassicMeshElementLocalMap<Mesh>::ClassicMeshElementLocalMap(
     const Teuchos::RCP<ClassicMesh<Mesh> >& mesh )
     : d_mesh( mesh )
     , d_inclusion_tol( 1.0e-6 )
@@ -61,7 +62,8 @@ ClassicMeshElementLocalMap::ClassicMeshElementLocalMap(
 
 //---------------------------------------------------------------------------//
 // Set parameters for mapping.
-void ClassicMeshElementLocalMap::setParameters(
+template<class Mesh>
+void ClassicMeshElementLocalMap<Mesh>::setParameters(
     const Teuchos::ParameterList& parameters )
 {
     if ( parameters.isParameter("Point Inclusion Tolerance") )
@@ -72,8 +74,9 @@ void ClassicMeshElementLocalMap::setParameters(
 
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
-// for a 3D entity, area for 2D, and length for 1D). 
-double ClassicMeshElementLocalMap::measure( const Entity& entity ) const
+// for a 3D entity, area for 2D, and length for 1D).
+template<class Mesh>
+double ClassicMeshElementLocalMap<Mesh>::measure( const Entity& entity ) const
 {
     // Get the block id and topology.
     int block_id = Teuchos::rcp_dynamic_cast<ClassicMeshElementExtraData>(
@@ -90,7 +93,8 @@ double ClassicMeshElementLocalMap::measure( const Entity& entity ) const
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void ClassicMeshElementLocalMap::centroid( 
+template<class Mesh>
+void ClassicMeshElementLocalMap<Mesh>::centroid( 
     const Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
 { 
     // Get the block id and topology.
@@ -108,8 +112,9 @@ void ClassicMeshElementLocalMap::centroid(
 
 //---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space
-// of an entity using the given tolerance. 
-bool ClassicMeshElementLocalMap::isSafeToMapToReferenceFrame(
+// of an entity using the given tolerance.
+template<class Mesh>
+bool ClassicMeshElementLocalMap<Mesh>::isSafeToMapToReferenceFrame(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& physical_point ) const
 {
@@ -120,7 +125,8 @@ bool ClassicMeshElementLocalMap::isSafeToMapToReferenceFrame(
 //---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the parameterized
 // point.
-bool ClassicMeshElementLocalMap::mapToReferenceFrame( 
+template<class Mesh>
+bool ClassicMeshElementLocalMap<Mesh>::mapToReferenceFrame( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& physical_point,
     const Teuchos::ArrayView<double>& reference_point ) const
@@ -141,7 +147,8 @@ bool ClassicMeshElementLocalMap::mapToReferenceFrame(
 
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
-bool ClassicMeshElementLocalMap::checkPointInclusion( 
+template<class Mesh>
+bool ClassicMeshElementLocalMap<Mesh>::checkPointInclusion( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
@@ -161,7 +168,8 @@ bool ClassicMeshElementLocalMap::checkPointInclusion(
 
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
-void ClassicMeshElementLocalMap::mapToPhysicalFrame( 
+template<class Mesh>
+void ClassicMeshElementLocalMap<Mesh>::mapToPhysicalFrame( 
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& physical_point ) const
@@ -182,7 +190,8 @@ void ClassicMeshElementLocalMap::mapToPhysicalFrame(
 
 //---------------------------------------------------------------------------//
 // Compute the normal on a face (3D) or edge (2D) at a given reference point.
-void ClassicMeshElementLocalMap::normalAtReferencePoint( 
+template<class Mesh>
+void ClassicMeshElementLocalMap<Mesh>::normalAtReferencePoint( 
     const Entity& entity,
     const Entity& parent_entity,
     const Teuchos::ArrayView<const double>& reference_point,

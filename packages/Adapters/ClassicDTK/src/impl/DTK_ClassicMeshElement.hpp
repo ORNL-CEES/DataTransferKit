@@ -64,10 +64,9 @@ class ClassicMeshElement : public Entity
   public:
 
     // Constructor.
-    ClassicMeshElement(
-	const Teuchos::Ptr<ClassicMesh<Mesh> >& mesh,
-	const int block_id,
-	const typename ClassicMesh<Mesh>::GlobalOrdinal global_id );
+    ClassicMeshElement( const Teuchos::Ptr<ClassicMesh<Mesh> >& mesh,
+			const EntityId global_id,
+			const int block_id );
 };
 
 //---------------------------------------------------------------------------//

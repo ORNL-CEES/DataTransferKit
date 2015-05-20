@@ -165,7 +165,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Create an evaluation set for the source. For each node in the mesh pair
     // it with one of its elements so we can extract its data.
-    std::unordered_map<GlobalOrdinal,GlobalOrdinal> node_to_elem_map;
+    std::unordered_map<GlobalOrdinal,std::pair<GlobalOrdinal,int> > node_to_elem_map;
     int num_src_blocks = classic_mesh->getNumBlocks();
     Teuchos::Array<SupportId> elem_conn;
     for ( int b = 0; b < num_src_blocks; ++b )
@@ -175,19 +175,21 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 	    elem_conn = classic_mesh->getElementConnectivity( elem_gid, b );
 	    for ( auto node_gid : elem_conn )
 	    {
-		node_to_elem_map.emplace( node_gid, elem_gid );
+		node_to_elem_map.emplace( node_gid, std::make_pair(elem_gid,b) );
 	    }
 	}
     }
     int num_node = node_to_elem_map.size();
-    d_source_entity_ids.resize( num_node );
+    d_source_node_ids.resize( num_node );
+    d_source_eval_ids.resize( num_node );
     d_source_node_coords.resize( d_dimension*num_node );
     int n = 0;
     Teuchos::Array<double> node_coords;
     for ( auto ne : node_to_elem_map )
     {
-	d_source_entity_ids[n] = ne.second;
-	node_coords = classic_mesh->getNodeCoordinates( ne.first, b );
+	d_source_node_ids[n] = ne.first;
+	d_source_eval_ids[n] = ne.second.first;
+	node_coords = classic_mesh->getNodeCoordinates( ne.first, ne.second.second );
 	for ( int d = 0; d < d_dimension; ++d )
 	{
 	    d_source_node_coords[d*num_node + n] = node_coords[d];
@@ -212,7 +214,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Make a map for the source vectors.
     Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> >
     	domain_vector_map = Tpetra::createNonContigMap<int,DataTransferKit::SupportId>(
-	    d_source_entity_ids(), d_comm );
+	    d_source_node_ids(), d_comm );
     
     // Build the target space and map from the target information.
     // -----------------------------------------------------------
@@ -267,12 +269,12 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     
     // Build the DTK operator.
     // -----------------------
-    
+
     // Create parameters for the mapping.
     Teuchos::ParameterList parameters;
     Teuchos::ParameterList& search_list = parameters.sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",d_store_missed_points);
-    search_list.set<double>("Point Inclusion Tolerance", d_geometric_tolerance );
+    search_list.set<double>("Point Inclusion Tolerance", tolerance );
     
     // Create the interpolation operator.
     d_consistent_operator = Teuchos::rcp(
@@ -316,7 +318,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     {
 	SourceField function_evaluations = 
 	    source_evaluator->evaluate(
-		Teuchos::arcpFromArray(d_source_entity_ids),
+		Teuchos::arcpFromArray(d_source_eval_ids),
 		Teuchos::arcpFromArray(d_source_node_coords) );
 
 	source_dim = SFT::dim( function_evaluations );
@@ -331,7 +333,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     Teuchos::RCP<DataTransferKit::EntityCenteredField<typename SFT::value_type> >
 	source_dtk_field = Teuchos::rcp(
 	    new DataTransferKit::EntityCenteredField<typename SFT::value_type>(
-		d_source_entity_ids(),
+		d_source_node_ids(),
 		source_dim,
 		source_field_copy,
 		DataTransferKit::EntityCenteredField<typename SFT::value_type>::BLOCKED)
@@ -397,7 +399,12 @@ SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
     DTK_REQUIRE( d_store_missed_points );
     Teuchos::ArrayView<const DataTransferKit::EntityId> missed_ids =
 	d_consistent_operator->getMissedRangeEntityIds();
-    d_missed_points.assign( missed_ids.begin(), missed_ids.end() );
+    int num_missed = missed_ids.size();
+    d_missed_points.resize( num_missed );
+    for ( int n = 0; n < num_missed; ++n )
+    {
+	d_missed_points[n] = missed_ids[n] - d_target_entity_ids.front();
+    }
     return d_missed_points();
 }
 
@@ -418,7 +425,12 @@ SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints()
     DTK_REQUIRE( d_store_missed_points );
     Teuchos::ArrayView<const DataTransferKit::EntityId> missed_ids =
 	d_consistent_operator->getMissedRangeEntityIds();
-    d_missed_points.assign( missed_ids.begin(), missed_ids.end() );
+    int num_missed = missed_ids.size();
+    d_missed_points.resize( num_missed );
+    for ( int n = 0; n < num_missed; ++n )
+    {
+	d_missed_points[n] = missed_ids[n] - d_target_entity_ids.front();
+    }
     return d_missed_points();
 }
 

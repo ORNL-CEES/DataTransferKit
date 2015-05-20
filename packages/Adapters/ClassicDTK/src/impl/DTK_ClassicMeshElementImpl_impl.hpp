@@ -49,15 +49,12 @@ namespace DataTransferKit
 template<class Mesh>
 ClassicMeshElementImpl<Mesh>::ClassicMeshElementImpl(
     const Teuchos::Ptr<ClassicMesh<Mesh> >& mesh,
-    const typename ClassicMesh<Mesh>::GlobalOrdinal global_id,
-    const int block_id,
-    const int owner_rank )
+    const EntityId global_id,
+    const int block_id )
     : d_mesh( mesh )
     , d_id( global_id )
-    , d_block_id( block_id )
 {
-    d_extra_data = Teuchos::rcp(
-	new ClassicMeshElementExtraData<Mesh>(d_block_id) );
+    d_extra_data = Teuchos::rcp( new ClassicMeshElementExtraData(block_id) );
 }
 
 //---------------------------------------------------------------------------//
@@ -83,7 +80,7 @@ int ClassicMeshElementImpl<Mesh>::topologicalDimension() const
 {
     Classic::DTK_Classic_ElementTopology topo =
 	Classic::MeshTraits<Mesh>::elementTopology(
-	    *d_extra_data->d_mesh->getBlock(d_extra_data->d_block_id) );
+	    *d_mesh->getBlock(d_extra_data->d_block_id) );
     int dim = 0;
     switch ( topo )
     {
@@ -123,7 +120,7 @@ int ClassicMeshElementImpl<Mesh>::topologicalDimension() const
 template<class Mesh>
 int ClassicMeshElementImpl<Mesh>::physicalDimension() const
 {
-    return d_extra_data->d_mesh->dim();
+    return d_mesh->dim();
 }
 
 //---------------------------------------------------------------------------//
@@ -133,9 +130,9 @@ void ClassicMeshElementImpl<Mesh>::boundingBox(
     Teuchos::Tuple<double,6>& bounds ) const
 {
     Intrepid::FieldContainer<double> coords =
-	d_mesh->getElementNodeCoordinates( d_id, d_block_id );
-    int num_nodes = coords.dimension( 0 );
-    int space_dim = coords.dimension( 1 );
+	d_mesh->getElementNodeCoordinates( d_id, d_extra_data->d_block_id );
+    int num_nodes = coords.dimension( 1 );
+    int space_dim = coords.dimension( 2 );
     double max = std::numeric_limits<double>::max();
     bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
     for ( int n = 0; n < num_nodes; ++n )

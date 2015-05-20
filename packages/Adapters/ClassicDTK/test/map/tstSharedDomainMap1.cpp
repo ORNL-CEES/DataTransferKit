@@ -475,8 +475,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test )
 	// Check the data transfer.
 	for ( int n = 0; n < target_space_manager->field()->size(); ++n )
 	{
-	    TEST_ASSERT( *(target_space_manager->field()->begin()+n) 
-			 == n + 1 );
+	    TEST_EQUALITY( *(target_space_manager->field()->begin()+n), n + 1 );
 	}
     }
 }

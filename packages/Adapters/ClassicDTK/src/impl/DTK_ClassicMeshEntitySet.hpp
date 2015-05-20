@@ -48,6 +48,7 @@
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
 #include "DTK_ClassicMesh.hpp"
+#include "DTK_Classic_MeshTraits.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Ptr.hpp>
@@ -67,6 +68,10 @@ class ClassicMeshEntitySetIterator : public EntityIterator
 {
   public:
 
+    // Typedefs.
+    typedef Classic::MeshTraits<Mesh> MT;
+    typedef typename MT::global_ordinal_type GlobalOrdinal;
+
     // Default constructor.
     ClassicMeshEntitySetIterator();
 
@@ -75,7 +80,7 @@ class ClassicMeshEntitySetIterator : public EntityIterator
 				  const PredicateFunction& predicate );
 
     // Copy constructor.
-    ClassicMeshEntitySetIterator( const ClassicMeshEntitySetIterator& rhs );
+    ClassicMeshEntitySetIterator( const ClassicMeshEntitySetIterator<Mesh>& rhs );
 
     // Destructor.
     ~ClassicMeshEntitySetIterator();
@@ -83,7 +88,8 @@ class ClassicMeshEntitySetIterator : public EntityIterator
     /*!
      * \brief Assignment operator.
      */
-    ClassicMeshEntitySetIterator& operator=( const ClassicMeshEntitySetIterator& rhs );
+    ClassicMeshEntitySetIterator<Mesh>&
+    operator=( const ClassicMeshEntitySetIterator<Mesh>& rhs );
 
     // Pre-increment operator.
     EntityIterator& operator++() override;
@@ -112,6 +118,11 @@ class ClassicMeshEntitySetIterator : public EntityIterator
 
   private:
 
+    // Move the iterator to the valid block or to the end.
+    void moveToNextBlock();
+    
+  private:
+
     // Classic mesh.
     Teuchos::RCP<ClassicMesh<Mesh> > d_mesh;
 
@@ -119,7 +130,7 @@ class ClassicMeshEntitySetIterator : public EntityIterator
     int d_current_block;
 
     // Iterator over the current block.
-    typename Teuchos::ArrayRCP<const GlobalOrdinal> >::const_iterator d_element_it;
+    typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator d_element_it;
 
     // Pointer to the current entity.
     Entity d_entity;

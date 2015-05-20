@@ -20,7 +20,6 @@
 #include <DTK_Classic_FieldEvaluator.hpp>
 #include <DTK_Classic_MeshTypes.hpp>
 #include <DTK_Classic_MeshTraits.hpp>
-#include <DTK_Classic_RendezvousMesh.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -440,15 +439,16 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test7 )
 
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data.
-    int source_rank;
+    double source_rank;
     for ( int n = 0; n < num_points; ++n )
     {
 	source_rank = std::floor(*(coordinate_field->begin()+n) / (edge_size-1));
 	for ( int d = 0; d < target_dim; ++d )
 	{
-	    TEST_ASSERT( source_rank+1 == 
-			 *(target_space_manager->field()->begin()
-			   +n+d*num_points) );
+	    TEST_FLOATING_EQUALITY(
+		source_rank+1,
+		*(target_space_manager->field()->begin()+n+d*num_points),
+		1.0e-14 );
 	}
     }
 }
@@ -502,7 +502,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test7 )
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data if it is in the mesh
     // and 0.0 if it is outside.
-    int source_rank;
+    double source_rank;
     Teuchos::Array<unsigned int> missing_points;
     for ( int n = 0; n < num_points; ++n )
     {
@@ -522,9 +522,10 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test7 )
 	    			     / (edge_size-1));
 	    for ( int d = 0; d < target_dim; ++d )
 	    {
-		TEST_ASSERT( source_rank+1 == 
-			     *(target_space_manager->field()->begin()
-			       +n+d*num_points) );
+		TEST_FLOATING_EQUALITY(
+		    source_rank+1,
+		    *(target_space_manager->field()->begin()+n+d*num_points),
+		    1.0e-14 );
 	    }
 	}
     }

@@ -71,7 +71,7 @@ class ClassicMesh
   public:
 
     // Typedefs.
-    typedef MeshTraits<Mesh> MT;
+    typedef Classic::MeshTraits<Mesh> MT;
     typedef typename MT::global_ordinal_type GlobalOrdinal;
 
     // Constructor.

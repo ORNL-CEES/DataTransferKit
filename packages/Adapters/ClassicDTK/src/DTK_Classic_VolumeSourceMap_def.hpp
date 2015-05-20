@@ -198,7 +198,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	d_source_eval_ids.resize( local_num_source_geom );
 	d_source_centroids.resize( local_num_source_geom*d_dimension );
 	Teuchos::Array<double> source_centroid;
-	for ( int i = 0; i < local_num_source_geom; ++i )
+	for ( std::size_t i = 0; i < local_num_source_geom; ++i )
 	{
 	    d_source_entity_set->addEntity(
 		DataTransferKit::ClassicGeometricEntity<Geometry>(

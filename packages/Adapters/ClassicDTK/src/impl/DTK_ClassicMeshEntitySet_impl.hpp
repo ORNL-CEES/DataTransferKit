@@ -54,14 +54,16 @@ namespace DataTransferKit
 // ClassicMeshEntitySetIterator implementation.
 //---------------------------------------------------------------------------//
 // Default constructor.
-ClassicMeshEntitySetIterator::ClassicMeshEntitySetIterator()
+template<class Mesh>
+ClassicMeshEntitySetIterator<Mesh>::ClassicMeshEntitySetIterator()
 {
     this->b_iterator_impl = NULL;
 }
 
 //---------------------------------------------------------------------------//
 // Constructor.
-ClassicMeshEntitySetIterator::ClassicMeshEntitySetIterator(
+template<class Mesh>
+ClassicMeshEntitySetIterator<Mesh>::ClassicMeshEntitySetIterator(
     const Teuchos::RCP<ClassicMesh<Mesh> >& mesh,
     const PredicateFunction& predicate )
     : d_mesh( mesh )
@@ -69,14 +71,19 @@ ClassicMeshEntitySetIterator::ClassicMeshEntitySetIterator(
 {
     DTK_REQUIRE( d_mesh->getNumBlocks() > 0 );
     d_element_it = d_mesh->d_element_gids.front().begin();
+    if ( d_mesh->d_element_gids.front().end() == d_element_it )
+    {
+	moveToNextBlock();
+    }
     this->b_iterator_impl = NULL;
     this->b_predicate = predicate;
 }
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-ClassicMeshEntitySetIterator::ClassicMeshEntitySetIterator( 
-    const ClassicMeshEntitySetIterator& rhs )
+template<class Mesh>
+ClassicMeshEntitySetIterator<Mesh>::ClassicMeshEntitySetIterator( 
+    const ClassicMeshEntitySetIterator<Mesh>& rhs )
     : d_mesh( rhs.d_mesh )
     , d_current_block( rhs.d_current_block )
     , d_element_it( rhs.d_element_it )
@@ -87,8 +94,9 @@ ClassicMeshEntitySetIterator::ClassicMeshEntitySetIterator(
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-ClassicMeshEntitySetIterator& ClassicMeshEntitySetIterator::operator=( 
-    const ClassicMeshEntitySetIterator& rhs )
+template<class Mesh>
+ClassicMeshEntitySetIterator<Mesh>& ClassicMeshEntitySetIterator<Mesh>::operator=( 
+    const ClassicMeshEntitySetIterator<Mesh>& rhs )
 {
     this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
@@ -104,28 +112,40 @@ ClassicMeshEntitySetIterator& ClassicMeshEntitySetIterator::operator=(
 
 //---------------------------------------------------------------------------//
 // Destructor.
-ClassicMeshEntitySetIterator::~ClassicMeshEntitySetIterator()
+template<class Mesh>
+ClassicMeshEntitySetIterator<Mesh>::~ClassicMeshEntitySetIterator()
 {
     this->b_iterator_impl = NULL;
 }
 
 //---------------------------------------------------------------------------//
 // Pre-increment operator.
-EntityIterator& ClassicMeshEntitySetIterator::operator++()
+template<class Mesh>
+EntityIterator& ClassicMeshEntitySetIterator<Mesh>::operator++()
 {
     DTK_REQUIRE( d_mesh->getNumBlocks() > 0 );
-    ++d_element_it;
+    DTK_REQUIRE( d_current_block < d_mesh->getNumBlocks() );
+
     if ( d_element_it == d_mesh->d_element_gids[d_current_block].end() )
     {
-	++d_current_block;
-	d_element_it = d_mesh->d_element_gids[d_current_block].begin();
+	moveToNextBlock();
     }
+    else
+    {
+	++d_element_it;
+	if ( d_element_it == d_mesh->d_element_gids[d_current_block].end() )
+	{
+	    moveToNextBlock();
+	}
+    }
+    
     return *this;
 }
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-Entity& ClassicMeshEntitySetIterator::operator*(void)
+template<class Mesh>
+Entity& ClassicMeshEntitySetIterator<Mesh>::operator*(void)
 {
     this->operator->();
     return d_entity;
@@ -133,59 +153,88 @@ Entity& ClassicMeshEntitySetIterator::operator*(void)
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-Entity* ClassicMeshEntitySetIterator::operator->(void)
+template<class Mesh>
+Entity* ClassicMeshEntitySetIterator<Mesh>::operator->(void)
 {
     d_entity =
-	ClassicMeshElement( d_mesh.ptr(), d_current_block, *d_element_it );
+	ClassicMeshElement<Mesh>( d_mesh.ptr(), *d_element_it, d_current_block );
     return &d_entity;
 }
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-bool ClassicMeshEntitySetIterator::operator==( 
+template<class Mesh>
+bool ClassicMeshEntitySetIterator<Mesh>::operator==( 
     const EntityIterator& rhs ) const
 { 
-    const ClassicMeshEntitySetIterator* rhs_vec = 
-	static_cast<const ClassicMeshEntitySetIterator*>(&rhs);
-    const ClassicMeshEntitySetIterator* rhs_vec_impl = 
-	static_cast<const ClassicMeshEntitySetIterator*>(rhs_vec->b_iterator_impl);
+    const ClassicMeshEntitySetIterator<Mesh>* rhs_vec = 
+	static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(&rhs);
+    const ClassicMeshEntitySetIterator<Mesh>* rhs_vec_impl = 
+	static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(
+	    rhs_vec->b_iterator_impl);
     return ( rhs_vec_impl->d_element_it == d_element_it );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-bool ClassicMeshEntitySetIterator::operator!=( 
+template<class Mesh>
+bool ClassicMeshEntitySetIterator<Mesh>::operator!=( 
     const EntityIterator& rhs ) const
 {
-    const ClassicMeshEntitySetIterator* rhs_vec = 
-	static_cast<const ClassicMeshEntitySetIterator*>(&rhs);
-    const ClassicMeshEntitySetIterator* rhs_vec_impl = 
-	static_cast<const ClassicMeshEntitySetIterator*>(rhs_vec->b_iterator_impl);
+    const ClassicMeshEntitySetIterator<Mesh>* rhs_vec = 
+	static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(&rhs);
+    const ClassicMeshEntitySetIterator<Mesh>* rhs_vec_impl = 
+	static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(
+	    rhs_vec->b_iterator_impl);
     return ( rhs_vec_impl->d_element_it != d_element_it );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the beginning.
-EntityIterator ClassicMeshEntitySetIterator::begin() const
+template<class Mesh>
+EntityIterator ClassicMeshEntitySetIterator<Mesh>::begin() const
 { 
-    return ClassicMeshEntitySetIterator( d_mesh , this->b_predicate );
+    return ClassicMeshEntitySetIterator<Mesh>( d_mesh , this->b_predicate );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the end.
-EntityIterator ClassicMeshEntitySetIterator::end() const
+template<class Mesh>
+EntityIterator ClassicMeshEntitySetIterator<Mesh>::end() const
 {
-    ClassicMeshEntitySetIterator end_it( d_mesh, this->b_predicate );
-    end_it.d_element_it = d_mesh->d_element_gids.back().end();
+    ClassicMeshEntitySetIterator<Mesh> end_it( d_mesh, this->b_predicate );
+    end_it.d_element_it = end_it.d_mesh->d_element_gids.back().end();
     return end_it;
 }
 
 //---------------------------------------------------------------------------//
 // Create a clone of the iterator. We need this for the copy constructor
 // and assignment operator to pass along the underlying implementation.
-EntityIterator* ClassicMeshEntitySetIterator::clone() const
+template<class Mesh>
+EntityIterator* ClassicMeshEntitySetIterator<Mesh>::clone() const
 {
-    return new ClassicMeshEntitySetIterator(*this);
+    return new ClassicMeshEntitySetIterator<Mesh>(*this);
+}
+
+//---------------------------------------------------------------------------//
+// Move the iterator to the valid block or to the end.
+template<class Mesh>
+void ClassicMeshEntitySetIterator<Mesh>::moveToNextBlock()
+{
+    DTK_REQUIRE( d_element_it == d_mesh->d_element_gids[d_current_block].end() );
+    ++d_current_block;
+    while ( d_current_block < d_mesh->getNumBlocks() )
+    {
+	d_element_it = d_mesh->d_element_gids[d_current_block].begin();
+	if ( d_mesh->d_element_gids[d_current_block].end() == d_element_it )
+	{
+	    ++d_current_block;
+	}
+	else
+	{
+	    break;
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -222,9 +271,9 @@ void ClassicMeshEntitySet<Mesh>::getEntity( const EntityId entity_id,
 					    const int topological_dimension,
 					    Entity& entity ) const
 {
-    entity = ClassicMeshElement( d_mesh.ptr(),
-				 d_mesh->elementBlockId(entity_id),
-				 entity_id );
+    entity = ClassicMeshElement<Mesh>( d_mesh.ptr(),
+				       entity_id,
+				       d_mesh->elementBlockId(entity_id) );
 }
 
 //---------------------------------------------------------------------------//
@@ -236,7 +285,7 @@ EntityIterator ClassicMeshEntitySet<Mesh>::entityIterator(
     const PredicateFunction& predicate ) const
 {
     DTK_REQUIRE( d_mesh->dim() == topological_dimension );
-    return ClassicMeshEntitySetIterator( d_mesh, predicate );
+    return ClassicMeshEntitySetIterator<Mesh>( d_mesh, predicate );
 }
 
 //---------------------------------------------------------------------------//

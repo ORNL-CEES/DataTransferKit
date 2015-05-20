@@ -50,12 +50,11 @@ namespace DataTransferKit
 template<class Mesh>
 ClassicMeshElement<Mesh>::ClassicMeshElement(
     const Teuchos::Ptr<ClassicMesh<Mesh> >& mesh,
-    const int block_id,
-    const int local_id,
-    const int owner_rank )
+    const EntityId global_id,
+    const int block_id )
 {
     this->b_entity_impl = Teuchos::rcp(
-	new ClassicMeshElementImpl<Mesh>(mesh,block_id,local_id,owner_rank) );
+	new ClassicMeshElementImpl<Mesh>(mesh,global_id,block_id) );
 }
 
 //---------------------------------------------------------------------------//
