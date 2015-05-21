@@ -104,7 +104,8 @@ class EntityLocalMap
     /*!
      * \brief (Safeguard the reverse map) Perform a safeguard check for
      * mapping a point to the reference space of an entity using the given
-     * tolerance.
+     * tolerance. Default implementation checks if the physical point is in
+     * the bounding box of the entity.
      *
      * \param entity Perfrom the mapping for this entity.
      *

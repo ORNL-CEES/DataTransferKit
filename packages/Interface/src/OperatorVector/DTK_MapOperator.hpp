@@ -119,7 +119,7 @@ class MapOperator : public Tpetra::Operator<Scalar,int,SupportId>
 	TpetraMultiVector& Y,
 	Teuchos::ETransp mode = Teuchos::NO_TRANS,
 	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
+	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero() ) const override;
     bool hasTransposeApply() const override { return false; }
     //@}
 

@@ -32,7 +32,7 @@ APPEND_SET(SOURCES
   ${DIR}/DTK_EntityShapeFunction.cpp
   )
 
-SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/Operator)
+SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/OperatorVector)
 APPEND_SET(HEADERS
   ${DIR}/DTK_BasicEntityPredicates.hpp
   ${DIR}/DTK_FieldMultiVector.hpp

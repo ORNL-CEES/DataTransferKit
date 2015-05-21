@@ -74,7 +74,6 @@ TEUCHOS_UNIT_TEST( MoabEntityIntegrationRule, hex_8_test )
     MPI_Comm raw_comm = (*opaque_comm)();
 
     // Create the mesh.
-    int space_dim = 3;
     Teuchos::RCP<moab::Interface> moab_mesh = Teuchos::rcp( new moab::Core() );
     Teuchos::RCP<moab::ParallelComm> parallel_mesh =
 	Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
