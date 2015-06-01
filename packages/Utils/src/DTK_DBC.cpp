@@ -42,6 +42,8 @@
 
 #include "DTK_DBC.hpp"
 
+#include <Teuchos_stacktrace.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -84,6 +86,11 @@ std::string Assertion::generate_output(
 void throwAssertion( const std::string& cond, const std::string& file,
 		     const int line )
 {
+#ifdef HAVE_TEUCHOS_STACKTRACE
+    // If Teuchos stacktrace is turned on, store the stack before we throw so
+    // we can get it later.
+    Teuchos::store_stacktrace();
+#endif
     throw Assertion( cond, file, line );
 }
 
@@ -103,6 +110,11 @@ void throwAssertion( const std::string& cond, const std::string& file,
 void errorCodeFailure( const std::string& cond, const std::string& file,
 		       const int line, const int error_code )
 {
+#ifdef HAVE_TEUCHOS_STACKTRACE
+    // If Teuchos stacktrace is turned on, store the stack before we throw so
+    // we can get it later.
+    Teuchos::store_stacktrace();
+#endif
     std::ostringstream output_msg;
     output_msg <<  "Error code : " << cond << ", failed in "
 	      << file << ":" << line << std::endl
