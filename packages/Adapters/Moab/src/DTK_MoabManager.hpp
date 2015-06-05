@@ -146,7 +146,7 @@ class MoabManager : public ClientManager<double>
     /*!
      * \brief Get the field for the given string key.
      */
-    Teuchos::RCP<Field<Scalar> >
+    Teuchos::RCP<Field<double> >
     field( const std::string& field_name ) const override;
     //@}
 

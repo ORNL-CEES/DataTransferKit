@@ -183,7 +183,7 @@ PredicateFunction MoabManager::selectFunction() const
 
 //---------------------------------------------------------------------------//
 // Get the field for the given string key.
-Teuchos::RCP<Field<Scalar> >
+Teuchos::RCP<Field<double> >
 MoabManager::field( const std::string& field_name ) const
 {
     DTK_REQUIRE( d_tag_indexer.count(field_name) );

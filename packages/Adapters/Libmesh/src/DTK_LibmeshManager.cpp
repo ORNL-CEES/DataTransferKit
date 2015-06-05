@@ -167,7 +167,7 @@ PredicateFunction LibmeshManager::selectFunction() const
 
 //---------------------------------------------------------------------------//
 // Get the field for the given string key.
-Teuchos::RCP<Field<Scalar> >
+Teuchos::RCP<Field<double> >
 LibmeshManager::field( const std::string& field_name ) const
 {
     return Teuchos::rcp(
