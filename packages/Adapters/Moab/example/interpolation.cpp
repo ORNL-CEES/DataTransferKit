@@ -296,11 +296,11 @@ int main(int argc, char* argv[])
 
     // Create a solution vector for the source.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > src_vector =
-	src_manager.createFieldMultiVector<double>( source_node_set, source_data_tag );
+	src_manager.createFieldMultiVector( source_node_set, source_data_tag );
     
     // Create a solution vector for the target.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tgt_vector =
-	tgt_manager.createFieldMultiVector<double>( target_node_set, target_data_tag );
+	tgt_manager.createFieldMultiVector( target_node_set, target_data_tag );
 
     // Print out mesh info.
     Teuchos::RCP<Teuchos::FancyOStream>

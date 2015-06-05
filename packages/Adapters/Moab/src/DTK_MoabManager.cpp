@@ -120,7 +120,7 @@ void MoabManager::registerTag( const moab::EntityHandle& mesh_set,
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->tag_get_name( tag, tag_name )
 	);
-    d_tag_indexer.emplace( tag_name, d_fields.size() );
+    d_field_indexer.emplace( tag_name, d_fields.size() );
     d_fields.push_back(
 	Teuchos::rcp( new MoabTagField<double>(d_moab_mesh,
 					       d_set_indexer,

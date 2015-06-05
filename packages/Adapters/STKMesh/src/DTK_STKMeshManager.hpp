@@ -44,6 +44,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "DTK_ClientManager.hpp"
 #include "DTK_Types.hpp"
 #include "DTK_Field.hpp"
 #include "DTK_FunctionSpace.hpp"
@@ -168,6 +169,40 @@ class STKMeshManager : ClientManager<double>
     Teuchos::RCP<FieldMultiVector<double> >
     createFieldMultiVector( const Teuchos::Ptr<FieldType>& field,
 			    const int field_dim );
+
+    //@{
+    //! ClientManager interface implementation.
+    /*!
+     * \brief Get the entity set over which the fields are defined.
+     */
+    Teuchos::RCP<EntitySet> entitySet() const override;
+
+    /*!
+     * \brief Get the local map for entities supporting the function.
+     */
+    Teuchos::RCP<EntityLocalMap> localMap() const override;
+
+    /*!
+     * \brief Get the shape function for entities supporting the function.
+     */
+    Teuchos::RCP<EntityShapeFunction> shapeFunction() const override;
+
+    /*!
+     * \brief Get the integration rule for entities supporting the function.
+     */
+    Teuchos::RCP<EntityIntegrationRule> integrationRule() const override;
+
+    /*!
+     * \brief Get the selector function.
+     */
+    PredicateFunction selectFunction() const override;
+
+    /*!
+     * \brief Get the field for the given string key.
+     */
+    Teuchos::RCP<Field<double> >
+    field( const std::string& field_name ) const override;
+    //@}
 
   private:
 

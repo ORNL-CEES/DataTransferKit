@@ -148,7 +148,7 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
     
     // Create a vector from the nodal field.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_1 =
-	manager.createFieldMultiVector<double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
+	manager.createFieldMultiVector<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 	    Teuchos::ptr(test_field_1), 3 );
 
     // Test the vector allocation.
@@ -197,7 +197,7 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
 		stk::topology::NODE_RANK, "test field 2" );
 
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_2 =
-	manager.createFieldMultiVector<double,stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
+	manager.createFieldMultiVector<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 	    Teuchos::ptr(test_field_2), 3 );
 
     // Test the vector to make sure it is empty.

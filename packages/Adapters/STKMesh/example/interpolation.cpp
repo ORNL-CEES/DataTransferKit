@@ -234,12 +234,12 @@ int main(int argc, char* argv[])
 
     // Create a solution vector for the source.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > src_vector =
-	src_manager.createFieldMultiVector<double,stk::mesh::Field<double> >(
+	src_manager.createFieldMultiVector<stk::mesh::Field<double> >(
 	    Teuchos::ptr(&source_field), 1 );
     
     // Create a solution vector for the target.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tgt_vector =
-	tgt_manager.createFieldMultiVector<double,stk::mesh::Field<double> >(
+	tgt_manager.createFieldMultiVector<stk::mesh::Field<double> >(
 	    Teuchos::ptr(&target_field), 1 );
 
     // Print out source mesh info.
