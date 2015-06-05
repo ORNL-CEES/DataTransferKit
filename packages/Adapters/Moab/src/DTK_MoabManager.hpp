@@ -42,7 +42,9 @@
 #define DTK_MOABMANAGER_HPP
 
 #include <string>
+#include <unordered_map>
 
+#include "DTK_ClientManager.hpp"
 #include "DTK_Types.hpp"
 #include "DTK_FunctionSpace.hpp"
 #include "DTK_FieldMultiVector.hpp"
@@ -50,6 +52,7 @@
 #include "DTK_DBC.hpp"
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Array.hpp>
 
 #include <MBParallelComm.hpp>
 
@@ -65,7 +68,7 @@ namespace DataTransferKit
   use it to reduce code for certain implementations.
 */
 //---------------------------------------------------------------------------//
-class MoabManager
+class MoabManager : public ClientManager<double>
 {
   public:
 
@@ -93,6 +96,13 @@ class MoabManager
 		 bool create_global_ids = true );
 
     /*!
+     * \brief Register a tag and associated entity set with the manager that
+     * will be available for solution transfer.
+     */
+    void registerTag( const moab::EntityHandle& mesh_set,
+		      const moab::Tag& tag );
+    
+    /*!
      * \brief Get the function space over which the mesh and its fields are
      * defined. 
      */
@@ -102,11 +112,44 @@ class MoabManager
      * \brief Given a mesh set and a tag, build a vector over that tag and
      * mesh set.
      */
-    template<class Scalar>
-    Teuchos::RCP<FieldMultiVector<Scalar> >
+    Teuchos::RCP<FieldMultiVector<double> >
     createFieldMultiVector( const moab::EntityHandle& mesh_set,
 			    const moab::Tag& tag );
-    
+
+    //@{
+    //! ClientManager interface implementation.
+    /*!
+     * \brief Get the entity set over which the fields are defined.
+     */
+    Teuchos::RCP<EntitySet> entitySet() const override;
+
+    /*!
+     * \brief Get the local map for entities supporting the function.
+     */
+    Teuchos::RCP<EntityLocalMap> localMap() const override;
+
+    /*!
+     * \brief Get the shape function for entities supporting the function.
+     */
+    Teuchos::RCP<EntityShapeFunction> shapeFunction() const override;
+
+    /*!
+     * \brief Get the integration rule for entities supporting the function.
+     */
+    Teuchos::RCP<EntityIntegrationRule> integrationRule() const override;
+
+    /*!
+     * \brief Get the selector function.
+     */
+    PredicateFunction selectFunction() const override;
+
+    /*!
+     * \brief Get the field for the given string key.
+     */
+    Teuchos::RCP<Field<Scalar> >
+    field( const std::string& field_name ) const override;
+    //@}
+
   private:
 
     // The moab mesh.
@@ -117,24 +160,16 @@ class MoabManager
 
     // Mesh set indexer.
     Teuchos::RCP<MoabMeshSetIndexer> d_set_indexer;
-};
 
-//---------------------------------------------------------------------------//
-// Template functions.
-//---------------------------------------------------------------------------//
-template<class Scalar>
-Teuchos::RCP<FieldMultiVector<Scalar> >
-MoabManager::createFieldMultiVector( const moab::EntityHandle& mesh_set,
-				     const moab::Tag& tag )
-{
-    DTK_REQUIRE( Teuchos::nonnull(d_moab_mesh) );
-    DTK_REQUIRE( Teuchos::nonnull(d_function_space) );
+    // Tag name to local id indexer.
+    std::unordered_map<std::string,int> d_tag_indexer;
+
+    // Tags.
+    Teuchos::Array<moab::Tag> d_tags;
     
-    Teuchos::RCP<Field<Scalar> > field = Teuchos::rcp(
-	new MoabTagField<Scalar>(d_moab_mesh, d_set_indexer, mesh_set, tag) );
-    return Teuchos::rcp(
-	new FieldMultiVector<Scalar>(field,d_function_space->entitySet()) );
-}
+    // Tag entity sets.
+    Teuchos::Array<moab::EntityHandle> d_tag_entity_sets;
+};
 
 //---------------------------------------------------------------------------//
 

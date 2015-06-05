@@ -111,10 +111,87 @@ MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
 }
 
 //---------------------------------------------------------------------------//
+// Register a tag and associated entity set with the manager that will be
+// available for solution transfer. 
+void MoabManager::registerTag( const moab::EntityHandle& mesh_set,
+			       const moab::Tag& tag )
+{
+    std::string tag_name;
+    DTK_CHECK_ERROR_CODE(
+	d_moab_mesh->get_moab()->tag_get_name( tag, tag_name )
+	);
+    d_tag_indexer.emplace( tag_name, d_tags.size() );
+    d_tags.push_back( tag );
+    d_tag_entity_sets.push_back( mesh_set );
+}
+
+//---------------------------------------------------------------------------//
 // Get the function space over which the mesh and its fields are defined. 
 Teuchos::RCP<FunctionSpace> MoabManager::functionSpace() const
 {
     return d_function_space;
+}
+
+//---------------------------------------------------------------------------//
+Teuchos::RCP<FieldMultiVector<double> >
+MoabManager::createFieldMultiVector( const moab::EntityHandle& mesh_set,
+				     const moab::Tag& tag )
+{
+    DTK_REQUIRE( Teuchos::nonnull(d_moab_mesh) );
+    DTK_REQUIRE( Teuchos::nonnull(d_function_space) );
+    
+    Teuchos::RCP<Field<double> > field = Teuchos::rcp(
+	new MoabTagField<double>(d_moab_mesh, d_set_indexer, mesh_set, tag) );
+    return Teuchos::rcp(
+	new FieldMultiVector<double>(field,d_function_space->entitySet()) );
+}
+
+//---------------------------------------------------------------------------//
+// Get the entity set over which the fields are defined.
+Teuchos::RCP<EntitySet> MoabManager::entitySet() const
+{
+    return d_function_space->entitySet();
+}
+
+//---------------------------------------------------------------------------//
+// Get the local map for entities supporting the function.
+Teuchos::RCP<EntityLocalMap> MoabManager::localMap() const
+{
+    return d_function_space->localMap();
+}
+
+//---------------------------------------------------------------------------//
+// Get the shape function for entities supporting the function.
+Teuchos::RCP<EntityShapeFunction> MoabManager::shapeFunction() const
+{
+    return d_function_space->shapeFunction();
+}
+
+//---------------------------------------------------------------------------//
+// Get the integration rule for entities supporting the function.
+Teuchos::RCP<EntityIntegrationRule> MoabManager::integrationRule() const
+{
+    return d_function_space->integrationRule();
+}
+
+//---------------------------------------------------------------------------//
+// Get the selector function.
+PredicateFunction MoabManager::selectFunction() const
+{
+    return d_function_space->selectFunction();
+}
+
+//---------------------------------------------------------------------------//
+// Get the field for the given string key.
+Teuchos::RCP<Field<Scalar> >
+MoabManager::field( const std::string& field_name ) const
+{
+    DTK_REQUIRE( d_tag_indexer.count(field_name) );
+    int field_id = d_tag_indexer.find(field_name)->second;
+    return Teuchos::rcp( new MoabTagField<double>(d_moab_mesh,
+						  d_set_indexer,
+						  d_entity_set_tags[field_id],
+						  d_tags[field_id]) );
 }
 
 //---------------------------------------------------------------------------//

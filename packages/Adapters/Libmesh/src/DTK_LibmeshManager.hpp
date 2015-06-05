@@ -44,9 +44,10 @@
 #include <string>
 #include <functional>
 
-#include <DTK_Types.hpp>
-#include <DTK_FunctionSpace.hpp>
-#include <DTK_FieldMultiVector.hpp>
+#include "DTK_ClientManager.hpp"
+#include "DTK_Types.hpp"
+#include "DTK_FunctionSpace.hpp"
+#include "DTK_FieldMultiVector.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -65,7 +66,7 @@ namespace DataTransferKit
   use it to reduce code for certain implementations.
 */
 //---------------------------------------------------------------------------//
-class LibmeshManager
+class LibmeshManager : public ClientManager<double>
 {
   public:
 
@@ -120,19 +121,52 @@ class LibmeshManager
      * \brief Get the function space over which the mesh and its fields are
      * defined. 
      */
-    Teuchos::RCP<DataTransferKit::FunctionSpace> functionSpace() const;
+    Teuchos::RCP<FunctionSpace> functionSpace() const;
 
     /*!
      * \brief Given a variable name, build a field vector.
      */
-    Teuchos::RCP<DataTransferKit::FieldMultiVector<double> >
+    Teuchos::RCP<FieldMultiVector<double> >
     createFieldMultiVector( const std::string& variable_name );
+
+    //@{
+    //! ClientManager interface implementation.
+    /*!
+     * \brief Get the entity set over which the fields are defined.
+     */
+    Teuchos::RCP<EntitySet> entitySet() const override;
+
+    /*!
+     * \brief Get the local map for entities supporting the function.
+     */
+    Teuchos::RCP<EntityLocalMap> localMap() const override;
+
+    /*!
+     * \brief Get the shape function for entities supporting the function.
+     */
+    Teuchos::RCP<EntityShapeFunction> shapeFunction() const override;
+
+    /*!
+     * \brief Get the integration rule for entities supporting the function.
+     */
+    Teuchos::RCP<EntityIntegrationRule> integrationRule() const override;
+
+    /*!
+     * \brief Get the selector function.
+     */
+    PredicateFunction selectFunction() const override;
+
+    /*!
+     * \brief Get the field for the given string key.
+     */
+    Teuchos::RCP<Field<Scalar> >
+    field( const std::string& field_name ) const override;
+    //@}
 
   private:
 
     // Build the function space.
-    void buildFunctionSpace(
-	const DataTransferKit::PredicateFunction& pred );
+    void buildFunctionSpace( const PredicateFunction& pred );
     
   private:
 
@@ -143,7 +177,7 @@ class LibmeshManager
     Teuchos::RCP<libMesh::System> d_system;
     
     // The function space over which the mesh and its fields are defined.
-    Teuchos::RCP<DataTransferKit::FunctionSpace> d_function_space;
+    Teuchos::RCP<FunctionSpace> d_function_space;
 };
 
 //---------------------------------------------------------------------------//

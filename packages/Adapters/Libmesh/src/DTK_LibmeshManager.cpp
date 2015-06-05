@@ -57,7 +57,7 @@ LibmeshManager::LibmeshManager(
     : d_mesh( libmesh_mesh )
     , d_system( libmesh_system )
 {
-    DataTransferKit::SelectAllPredicate pred;
+    SelectAllPredicate pred;
     buildFunctionSpace( pred.getFunction() );
 }
 
@@ -71,7 +71,7 @@ LibmeshManager::LibmeshManager(
     , d_system( libmesh_system )
 {
     Teuchos::Array<int> int_ids( subdomain_ids.begin(), subdomain_ids.end() );
-    DataTransferKit::BlockPredicate pred( int_ids );
+    BlockPredicate pred( int_ids );
     buildFunctionSpace( pred.getFunction() );
 }
 
@@ -85,13 +85,13 @@ LibmeshManager::LibmeshManager(
     , d_system( libmesh_system )
 {
     Teuchos::Array<int> int_ids( boundary_ids.begin(), boundary_ids.end() );
-    DataTransferKit::BoundaryPredicate pred( int_ids );
+    BoundaryPredicate pred( int_ids );
     buildFunctionSpace( pred.getFunction() );
 }
 
 //---------------------------------------------------------------------------//
 // Get the function space over which the mesh and its fields are defined. 
-Teuchos::RCP<DataTransferKit::FunctionSpace>
+Teuchos::RCP<FunctionSpace>
 LibmeshManager::functionSpace() const
 {
     return d_function_space;
@@ -100,36 +100,78 @@ LibmeshManager::functionSpace() const
 //---------------------------------------------------------------------------//
 // Build the function space.
 void LibmeshManager::buildFunctionSpace(
-    const DataTransferKit::PredicateFunction& pred )
+    const PredicateFunction& pred )
 {
-    Teuchos::RCP<DataTransferKit::EntitySet> entity_set = 
+    Teuchos::RCP<EntitySet> entity_set = 
 	Teuchos::rcp( new LibmeshEntitySet(d_mesh) );
     
-    Teuchos::RCP<DataTransferKit::EntityLocalMap> local_map =
+    Teuchos::RCP<EntityLocalMap> local_map =
 	Teuchos::rcp( new LibmeshEntityLocalMap(d_mesh,d_system) );
 
-    Teuchos::RCP<DataTransferKit::EntityShapeFunction> shape_function =
+    Teuchos::RCP<EntityShapeFunction> shape_function =
 	Teuchos::rcp( new LibmeshNodalShapeFunction(d_mesh,d_system) );
 
-    Teuchos::RCP<DataTransferKit::EntityIntegrationRule> integration_rule =
+    Teuchos::RCP<EntityIntegrationRule> integration_rule =
 	Teuchos::rcp( new LibmeshEntityIntegrationRule() );
 
     d_function_space = Teuchos::rcp( 
-	new DataTransferKit::FunctionSpace(
+	new FunctionSpace(
 	    entity_set,local_map,shape_function,integration_rule,pred) );
 }
 
 //---------------------------------------------------------------------------//
 // Build a field vector from a variable.
-Teuchos::RCP<DataTransferKit::FieldMultiVector<double> >
+Teuchos::RCP<FieldMultiVector<double> >
 LibmeshManager::createFieldMultiVector( const std::string& variable_name )
 {
-    Teuchos::RCP<DataTransferKit::Field<double> > field = Teuchos::rcp(
-	new DataTransferKit::LibmeshVariableField( 
-	    d_mesh, d_system, variable_name)  );
+    Teuchos::RCP<Field<double> > field = Teuchos::rcp(
+	new LibmeshVariableField(d_mesh, d_system, variable_name)  );
     return Teuchos::rcp(
-	new DataTransferKit::FieldMultiVector<double>(
-	    field, d_function_space->entitySet()) );
+	new FieldMultiVector<double>(field, d_function_space->entitySet()) );
+}
+
+//---------------------------------------------------------------------------//
+// Get the entity set over which the fields are defined.
+Teuchos::RCP<EntitySet> LibmeshManager::entitySet() const
+{
+    return d_function_space->entitySet();
+}
+
+//---------------------------------------------------------------------------//
+// Get the local map for entities supporting the function.
+Teuchos::RCP<EntityLocalMap> LibmeshManager::localMap() const
+{
+    return d_function_space->localMap();
+}
+
+//---------------------------------------------------------------------------//
+// Get the shape function for entities supporting the function.
+Teuchos::RCP<EntityShapeFunction> LibmeshManager::shapeFunction() const
+{
+    return d_function_space->shapeFunction();
+}
+
+//---------------------------------------------------------------------------//
+// Get the integration rule for entities supporting the function.
+Teuchos::RCP<EntityIntegrationRule> LibmeshManager::integrationRule() const
+{
+    return d_function_space->integrationRule();
+}
+
+//---------------------------------------------------------------------------//
+// Get the selector function.
+PredicateFunction LibmeshManager::selectFunction() const
+{
+    return d_function_space->selectFunction();
+}
+
+//---------------------------------------------------------------------------//
+// Get the field for the given string key.
+Teuchos::RCP<Field<Scalar> >
+LibmeshManager::field( const std::string& field_name ) const
+{
+    return Teuchos::rcp(
+	new LibmeshVariableField(d_mesh, d_system, field_name)  );
 }
 
 //---------------------------------------------------------------------------//

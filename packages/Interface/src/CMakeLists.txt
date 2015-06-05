@@ -12,6 +12,7 @@ SET(SOURCES "")
 
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/Client)
 APPEND_SET(HEADERS
+  ${DIR}/DTK_ClientManager.hpp
   ${DIR}/DTK_Entity.hpp
   ${DIR}/DTK_EntityExtraData.hpp
   ${DIR}/DTK_EntityImpl.hpp
