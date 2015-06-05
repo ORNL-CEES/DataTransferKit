@@ -142,6 +142,50 @@ void STKMeshManager::createFunctionSpace(
 }
 
 //---------------------------------------------------------------------------//
+Teuchos::RCP<EntitySet> STKMeshManager::entitySet() const
+{
+    return d_function_space->entitySet();
+}
+
+//---------------------------------------------------------------------------//
+// Get the local map for entities supporting the function.
+Teuchos::RCP<EntityLocalMap> STKMeshManager::localMap() const
+{
+    return d_function_space->localMap();
+}
+
+//---------------------------------------------------------------------------//
+// Get the shape function for entities supporting the function.
+Teuchos::RCP<EntityShapeFunction> STKMeshManager::shapeFunction() const
+{
+    return d_function_space->shapeFunction();
+}
+
+//---------------------------------------------------------------------------//
+// Get the integration rule for entities supporting the function.
+Teuchos::RCP<EntityIntegrationRule> STKMeshManager::integrationRule() const
+{
+    return d_function_space->integrationRule();
+}
+
+//---------------------------------------------------------------------------//
+// Get the selector function.
+PredicateFunction STKMeshManager::selectFunction() const
+{
+    return d_function_space->selectFunction();
+}
+
+//---------------------------------------------------------------------------//
+// Get the field for the given string key.
+Teuchos::RCP<Field<double> >
+STKMeshManager::field( const std::string& field_name ) const
+{
+    DTK_REQUIRE( d_field_indexer.count(field_name) );
+    int field_id = d_field_indexer.find(field_name)->second;
+    return d_fields[ field_id ];
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

@@ -42,14 +42,17 @@
 #define DTK_STKMESHMANAGER_HPP
 
 #include <string>
+#include <unordered_map>
 
 #include "DTK_Types.hpp"
+#include "DTK_Field.hpp"
 #include "DTK_FunctionSpace.hpp"
 #include "DTK_FieldMultiVector.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_STKMeshField.hpp"
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Array.hpp>
 
 #include <stk_mesh/base/BulkData.hpp>
 #include <stk_mesh/base/Selector.hpp>
@@ -66,7 +69,7 @@ namespace DataTransferKit
   use it to reduce code for certain implementations.
 */
 //---------------------------------------------------------------------------//
-class STKMeshManager
+class STKMeshManager : ClientManager<double>
 {
   public:
 
@@ -145,6 +148,14 @@ class STKMeshManager
 		    const BasisType basis_type = BASIS_TYPE_GRADIENT );
 
     /*!
+     * \brief Register a tag with the manager that will be available for
+     * solution transfer.
+     */
+    template<class FieldType>
+    void registerField( const Teuchos::Ptr<FieldType>& field,
+			const int field_dim );
+    
+    /*!
      * \brief Get the function space over which the mesh and its fields are
      * defined. 
      */
@@ -153,8 +164,8 @@ class STKMeshManager
     /*!
      * \brief Given a field and dimension, build a vector over that field.
      */
-    template<class Scalar,class FieldType>
-    Teuchos::RCP<FieldMultiVector<Scalar> >
+    template<class FieldType>
+    Teuchos::RCP<FieldMultiVector<double> >
     createFieldMultiVector( const Teuchos::Ptr<FieldType>& field,
 			    const int field_dim );
 
@@ -172,23 +183,45 @@ class STKMeshManager
     
     // The function space over which the mesh and its fields are defined.
     Teuchos::RCP<FunctionSpace> d_function_space;
+
+    // Field name to local id indexer.
+    std::unordered_map<std::string,int> d_field_indexer;
+    
+    // Registered fields.
+    Teuchos::Array<Teuchos::RCP<Field<double> > > d_fields;
 };
 
 //---------------------------------------------------------------------------//
 // Template functions.
 //---------------------------------------------------------------------------//
-template<class Scalar,class FieldType>
-Teuchos::RCP<FieldMultiVector<Scalar> >
+template<class FieldType>
+Teuchos::RCP<FieldMultiVector<double> >
 STKMeshManager::createFieldMultiVector( const Teuchos::Ptr<FieldType>& field,
-				     const int field_dim )
+					const int field_dim )
 {
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
     DTK_REQUIRE( Teuchos::nonnull(d_function_space) );
     
-    Teuchos::RCP<Field<Scalar> > stk_field = Teuchos::rcp(
-	new STKMeshField<Scalar,FieldType>(d_bulk_data,field,field_dim) );
+    Teuchos::RCP<Field<double> > stk_field = Teuchos::rcp(
+	new STKMeshField<double,FieldType>(d_bulk_data,field,field_dim) );
     return Teuchos::rcp(
-	new FieldMultiVector<Scalar>(stk_field,d_function_space->entitySet()) );
+	new FieldMultiVector<double>(stk_field,d_function_space->entitySet()) );
+}
+
+//---------------------------------------------------------------------------//
+template<class FieldType>
+void STKMeshManager::registerField( const Teuchos::Ptr<FieldType>& field,
+				    const int field_dim )
+{
+    DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
+    DTK_REQUIRE( Teuchos::nonnull(d_function_space) );
+
+    d_field_indexer.emplace( field->name(), d_fields.size() );
+    
+    d_fields.push_back(
+	Teuchos::rcp(
+	    new STKMeshField<double,FieldType>(d_bulk_data,field,field_dim) )
+	);
 }
 
 //---------------------------------------------------------------------------//

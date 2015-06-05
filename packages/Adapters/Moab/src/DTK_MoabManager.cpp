@@ -120,9 +120,13 @@ void MoabManager::registerTag( const moab::EntityHandle& mesh_set,
     DTK_CHECK_ERROR_CODE(
 	d_moab_mesh->get_moab()->tag_get_name( tag, tag_name )
 	);
-    d_tag_indexer.emplace( tag_name, d_tags.size() );
-    d_tags.push_back( tag );
-    d_tag_entity_sets.push_back( mesh_set );
+    d_tag_indexer.emplace( tag_name, d_fields.size() );
+    d_fields.push_back(
+	Teuchos::rcp( new MoabTagField<double>(d_moab_mesh,
+					       d_set_indexer,
+					       mesh_set,
+					       tag) )
+	);
 }
 
 //---------------------------------------------------------------------------//
@@ -147,7 +151,6 @@ MoabManager::createFieldMultiVector( const moab::EntityHandle& mesh_set,
 }
 
 //---------------------------------------------------------------------------//
-// Get the entity set over which the fields are defined.
 Teuchos::RCP<EntitySet> MoabManager::entitySet() const
 {
     return d_function_space->entitySet();
@@ -186,12 +189,9 @@ PredicateFunction MoabManager::selectFunction() const
 Teuchos::RCP<Field<double> >
 MoabManager::field( const std::string& field_name ) const
 {
-    DTK_REQUIRE( d_tag_indexer.count(field_name) );
-    int field_id = d_tag_indexer.find(field_name)->second;
-    return Teuchos::rcp( new MoabTagField<double>(d_moab_mesh,
-						  d_set_indexer,
-						  d_entity_set_tags[field_id],
-						  d_tags[field_id]) );
+    DTK_REQUIRE( d_field_indexer.count(field_name) );
+    int field_id = d_field_indexer.find(field_name)->second;
+    return d_fields[ field_id ];
 }
 
 //---------------------------------------------------------------------------//

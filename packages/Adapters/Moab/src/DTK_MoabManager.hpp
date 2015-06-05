@@ -45,6 +45,7 @@
 #include <unordered_map>
 
 #include "DTK_ClientManager.hpp"
+#include "DTK_Field.hpp"
 #include "DTK_Types.hpp"
 #include "DTK_FunctionSpace.hpp"
 #include "DTK_FieldMultiVector.hpp"
@@ -161,14 +162,11 @@ class MoabManager : public ClientManager<double>
     // Mesh set indexer.
     Teuchos::RCP<MoabMeshSetIndexer> d_set_indexer;
 
-    // Tag name to local id indexer.
-    std::unordered_map<std::string,int> d_tag_indexer;
+    // Field name to local id indexer.
+    std::unordered_map<std::string,int> d_field_indexer;
 
-    // Tags.
-    Teuchos::Array<moab::Tag> d_tags;
-    
-    // Tag entity sets.
-    Teuchos::Array<moab::EntityHandle> d_tag_entity_sets;
+    // Registered fields.
+    Teuchos::Array<Teuchos::RCP<Field<double> > > d_fields;
 };
 
 //---------------------------------------------------------------------------//
