@@ -130,8 +130,8 @@ class EntitySet : public Teuchos::Describable
 			    Entity& entity ) const = 0;
 
     /*!
-     * \brief Get an iterator of the given entity type that satisfy the given
-     * predicate.
+     * \brief Get an iterator of the given entity type that satisfies the
+     * given predicate.
      *
      * \param topological_dimension The topological dimension of entity to get
      * an iterator for.
