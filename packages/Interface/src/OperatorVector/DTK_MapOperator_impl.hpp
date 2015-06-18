@@ -96,7 +96,7 @@ void MapOperator<Scalar>::setup(
 
 //---------------------------------------------------------------------------//
 template<class Scalar>
-bool setupIsComplete() const
+bool MapOperator<Scalar>::setupIsComplete() const
 {
     return d_setup_is_complete;
 }
