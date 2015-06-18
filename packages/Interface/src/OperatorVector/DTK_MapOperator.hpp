@@ -94,7 +94,7 @@ class MapOperator : public Tpetra::Operator<Scalar,int,SupportId>
 
     /*
      * \brief Setup the map operator from a domain function space and a range
-     * function space. Subclasses should override.
+     * function space. Subclasses should override the setupImpl() function.
      *
      * \param domain_function The function that contains the data that will be
      * sent to the range. Must always be nonnull but the pointers it contains
@@ -106,10 +106,14 @@ class MapOperator : public Tpetra::Operator<Scalar,int,SupportId>
      *
      * \param parameters Parameters for the setup.
      */
-    virtual void 
-    setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-	   const Teuchos::RCP<FunctionSpace>& range_space ) = 0;
+    void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
+		const Teuchos::RCP<FunctionSpace>& range_space );
 
+    /*!
+     * \brief Return whether or not the operator has been setup.
+     */
+    bool setupIsComplete() const;
+    
     //@{
     //! Tpetra::Operator interface.
     Teuchos::RCP<const TpetraMap> getDomainMap() const override;
@@ -125,6 +129,11 @@ class MapOperator : public Tpetra::Operator<Scalar,int,SupportId>
 
   protected:
 
+    //! Setup implementation. Subclasses should override.
+    virtual void 
+    setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
+	       const Teuchos::RCP<FunctionSpace>& range_space ) = 0;
+
     //! Apply implementation. Subclasses should override.
     virtual void applyImpl( const TpetraMultiVector& X,
 			    TpetraMultiVector& Y,
@@ -139,6 +148,9 @@ class MapOperator : public Tpetra::Operator<Scalar,int,SupportId>
 
     //! Range map.
     Teuchos::RCP<const TpetraMap> d_range_map;
+
+    //! True if setup has been completed.
+    bool d_setup_is_complete;
 };
 
 //---------------------------------------------------------------------------//

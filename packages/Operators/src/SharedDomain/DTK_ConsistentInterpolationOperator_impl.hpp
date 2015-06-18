@@ -73,7 +73,7 @@ ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator(
 //---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar>
-void ConsistentInterpolationOperator<Scalar>::setup(
+void ConsistentInterpolationOperator<Scalar>::setupImpl(
     const Teuchos::RCP<FunctionSpace>& domain_space,
     const Teuchos::RCP<FunctionSpace>& range_space )
 {

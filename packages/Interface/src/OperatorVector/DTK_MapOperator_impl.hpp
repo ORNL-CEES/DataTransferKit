@@ -54,6 +54,7 @@ MapOperator<Scalar>::MapOperator(
     const Teuchos::RCP<const TpetraMap>& range_map )
     : d_domain_map( domain_map )
     , d_range_map( range_map )
+    , d_setup_is_complete( false )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -80,6 +81,24 @@ MapOperator<Scalar>::getRangeMap() const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_range_map) );
     return d_range_map;
+}
+
+//---------------------------------------------------------------------------//
+// Setup the map operator.
+template<class Scalar>
+void MapOperator<Scalar>::setup( 
+    const Teuchos::RCP<FunctionSpace>& domain_space,
+    const Teuchos::RCP<FunctionSpace>& range_space )
+{
+    setupImpl( domain_space, range_space );
+    d_setup_is_complete = true;
+}
+
+//---------------------------------------------------------------------------//
+template<class Scalar>
+bool setupIsComplete() const
+{
+    return d_setup_is_complete;
 }
 
 //---------------------------------------------------------------------------//

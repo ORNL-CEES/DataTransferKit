@@ -85,7 +85,7 @@ L2ProjectionOperator<Scalar>::L2ProjectionOperator(
 //---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar>
-void L2ProjectionOperator<Scalar>::setup(
+void L2ProjectionOperator<Scalar>::setupImpl(
     const Teuchos::RCP<FunctionSpace>& domain_space,
     const Teuchos::RCP<FunctionSpace>& range_space )
 {

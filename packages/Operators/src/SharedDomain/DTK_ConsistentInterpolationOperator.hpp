@@ -82,6 +82,17 @@ class ConsistentInterpolationOperator : virtual public MapOperator<Scalar>
 	const Teuchos::RCP<const TpetraMap>& range_map,
 	const Teuchos::ParameterList& parameters );
 
+    /*!
+     * \brief Return the ids of the range entities that were not mapped during
+     * the last setup phase (i.e. those that are guaranteed to not receive
+     * data from the transfer).
+     *
+     * \return A view of the ids.
+     */
+    Teuchos::ArrayView<const EntityId> getMissedRangeEntityIds() const;
+
+  protected:
+
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
@@ -102,19 +113,8 @@ class ConsistentInterpolationOperator : virtual public MapOperator<Scalar>
      *
      * \param parameters Parameters for the setup.
      */
-    void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-		const Teuchos::RCP<FunctionSpace>& range_space ) override;
-
-    /*!
-     * \brief Return the ids of the range entities that were not mapped during
-     * the last setup phase (i.e. those that are guaranteed to not receive
-     * data from the transfer).
-     *
-     * \return A view of the ids.
-     */
-    Teuchos::ArrayView<const EntityId> getMissedRangeEntityIds() const;
-
-  protected:
+    void setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
+		    const Teuchos::RCP<FunctionSpace>& range_space ) override;
 
     /*!
      * \brief Apply the operator.

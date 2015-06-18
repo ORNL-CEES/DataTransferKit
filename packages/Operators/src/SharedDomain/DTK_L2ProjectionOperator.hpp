@@ -86,6 +86,8 @@ class L2ProjectionOperator : virtual public MapOperator<Scalar>
 	const Teuchos::RCP<const TpetraMap>& range_map,
 	const Teuchos::ParameterList& parameters );
 
+  protected:
+
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
@@ -106,10 +108,8 @@ class L2ProjectionOperator : virtual public MapOperator<Scalar>
      *
      * \param parameters Parameters for the setup.
      */
-    void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-		const Teuchos::RCP<FunctionSpace>& range_space ) override;
-
-  protected:
+    void setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
+		    const Teuchos::RCP<FunctionSpace>& range_space ) override;
 
     /*!
      * \brief Apply the operator.

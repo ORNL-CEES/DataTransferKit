@@ -75,7 +75,7 @@ MovingLeastSquareReconstructionOperator(
 //---------------------------------------------------------------------------//
 // Setup the map operator.
 template<class Scalar,class Basis,int DIM>
-void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setup(
+void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setupImpl(
     const Teuchos::RCP<FunctionSpace>& domain_space,
     const Teuchos::RCP<FunctionSpace>& range_space )
 {
