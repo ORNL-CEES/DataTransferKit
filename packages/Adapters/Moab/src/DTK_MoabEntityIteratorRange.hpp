@@ -43,7 +43,7 @@
 
 #include <vector>
 
-#include <MBInterface.hpp>
+#include <moab/Interface.hpp>
 
 namespace DataTransferKit
 {

@@ -47,7 +47,7 @@
 
 #include <Teuchos_Ptr.hpp>
 
-#include <MBParallelComm.hpp>
+#include <moab/ParallelComm.hpp>
 
 namespace DataTransferKit
 {

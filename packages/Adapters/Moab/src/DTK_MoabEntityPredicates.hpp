@@ -51,7 +51,7 @@
 
 #include <Teuchos_RCP.hpp>
 
-#include <MBInterface.hpp>
+#include <moab/Interface.hpp>
 
 namespace DataTransferKit
 {

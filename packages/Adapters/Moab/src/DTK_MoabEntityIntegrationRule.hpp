@@ -53,7 +53,7 @@
 #include <Intrepid_DefaultCubatureFactory.hpp>
 #include <Intrepid_Cubature.hpp>
 
-#include <MBParallelComm.hpp>
+#include <moab/ParallelComm.hpp>
 
 namespace DataTransferKit
 {

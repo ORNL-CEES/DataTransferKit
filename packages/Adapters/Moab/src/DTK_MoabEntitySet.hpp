@@ -55,7 +55,7 @@
 #include <Teuchos_Array.hpp>
 #include <Teuchos_Tuple.hpp>
 
-#include <MBParallelComm.hpp>
+#include <moab/ParallelComm.hpp>
 
 namespace DataTransferKit
 {

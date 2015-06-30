@@ -40,7 +40,7 @@
 
 #include "DTK_DBC.hpp"
 #include "DTK_MoabEntityIterator.hpp"
-#include <DTK_MoabEntity.hpp>
+#include "DTK_MoabEntity.hpp"
 
 namespace DataTransferKit
 {

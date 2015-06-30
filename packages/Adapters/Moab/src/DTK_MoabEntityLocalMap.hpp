@@ -47,7 +47,7 @@
 #include <Teuchos_ParameterList.hpp>
 #include <Teuchos_ArrayView.hpp>
 
-#include <MBParallelComm.hpp>
+#include <moab/ParallelComm.hpp>
 #include <moab/ElemEvaluator.hpp>
 
 namespace DataTransferKit

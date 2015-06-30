@@ -45,7 +45,7 @@
 #include "DTK_Field.hpp"
 #include "DTK_MoabMeshSetIndexer.hpp"
 
-#include <MBParallelComm.hpp>
+#include <moab/ParallelComm.hpp>
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>

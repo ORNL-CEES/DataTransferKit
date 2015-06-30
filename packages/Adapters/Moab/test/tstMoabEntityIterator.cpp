@@ -64,9 +64,9 @@
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
 
-#include <MBInterface.hpp>
-#include <MBParallelComm.hpp>
-#include <MBCore.hpp>
+#include <moab/Interface.hpp>
+#include <moab/ParallelComm.hpp>
+#include <moab/Core.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
