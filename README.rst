@@ -12,11 +12,13 @@ programs:
 * Consortium for Advanced Simulation of Light Water Reactors (CASL)
   <http://www.casl.gov>
 
-* National Highway Traffic Safety Administration (NHTSA)
-  <http://batterysim.org>
-
 * Nuclear Energy Advanced Modeling and Simulation (NEAMS)
   <http://www.ne.anl.gov/NEAMS/>
+
+and the following Department of Transportation programs:
+
+* National Highway Traffic Safety Administration (NHTSA)
+  <http://batterysim.org>
 
 
 DataTransferKit Development Team
