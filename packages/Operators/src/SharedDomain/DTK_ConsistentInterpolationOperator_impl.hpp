@@ -64,8 +64,17 @@ ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator(
     const Teuchos::RCP<const TpetraMap>& range_map,
     const Teuchos::ParameterList& parameters )
     : Base( domain_map, range_map )
+    , d_range_entity_dim( 0 )
     , d_missed_range_entity_ids( 0 )
 {
+    // Get the topological dimension of the range entities.
+    Teuchos::ParameterList map_list = 
+	parameters.sublist( "Consistent Interpolation" );
+    if ( map_list.isParameter("Range Entity Dimension") )
+    {
+	d_range_entity_dim = map_list.get<int>("Range Entity Dimension");
+    }
+
     // Get the search list.
     d_search_list = parameters.sublist( "Search" );
 }
@@ -133,8 +142,8 @@ void ConsistentInterpolationOperator<Scalar>::setupImpl(
 	PredicateFunction range_predicate =
 	    PredicateComposition::And(
 		range_space->selectFunction(), local_predicate.getFunction() );
-	range_iterator =
-	    range_space->entitySet()->entityIterator( 0, range_predicate );
+	range_iterator = range_space->entitySet()->entityIterator( 
+	    d_range_entity_dim, range_predicate );
     } 
 
     // Search the domain with the range.
