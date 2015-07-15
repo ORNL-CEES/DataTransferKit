@@ -19,7 +19,6 @@ APPEND_SET(HEADERS
   DTK_BasicGeometryEntity.hpp
   DTK_BasicGeometryManager.hpp
   DTK_EntityCenteredField.hpp
-  DTK_EntityCenteredField_impl.hpp
   DTK_EntityCenteredShapeFunction.hpp
   DTK_BasicGeometryEntityImpl.hpp
   DTK_BasicGeometryExtraData.hpp
@@ -36,6 +35,7 @@ APPEND_SET(SOURCES
   DTK_BasicEntitySet.cpp
   DTK_BasicGeometryEntity.cpp
   DTK_BasicGeometryManager.cpp
+  DTK_EntityCenteredField.cpp
   DTK_EntityCenteredShapeFunction.cpp
   DTK_BasicGeometryExtraData.cpp
   DTK_BasicGeometryLocalMap.cpp

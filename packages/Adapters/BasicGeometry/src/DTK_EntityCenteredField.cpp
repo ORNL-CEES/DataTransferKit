@@ -32,26 +32,23 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_EntityCenteredField_impl.hpp
+ * \brief DTK_EntityCenteredField.cpp
  * \author Stuart R. Slattery
  * \brief Entity-centered field.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_ENTITYCENTEREDFIELD_IMPL_HPP
-#define DTK_ENTITYCENTEREDFIELD_IMPL_HPP
-
+#include "DTK_EntityCenteredField.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Entity constructor.
-template<class Scalar>
-EntityCenteredField<Scalar>::EntityCenteredField(
+EntityCenteredField::EntityCenteredField(
     const Teuchos::ArrayView<Entity>& entities,
     const int field_dim,
-    const Teuchos::ArrayRCP<Scalar>& dof_data,
+    const Teuchos::ArrayRCP<double>& dof_data,
     const DataLayout layout )
     : d_field_dim( field_dim )
     , d_data( dof_data )
@@ -70,11 +67,10 @@ EntityCenteredField<Scalar>::EntityCenteredField(
 
 //---------------------------------------------------------------------------//
 // Entity id constructor.
-template<class Scalar>
-EntityCenteredField<Scalar>::EntityCenteredField(
+EntityCenteredField::EntityCenteredField(
     const Teuchos::ArrayView<EntityId>& entity_ids,
     const int field_dim,
-    const Teuchos::ArrayRCP<Scalar>& dof_data,
+    const Teuchos::ArrayRCP<double>& dof_data,
     const DataLayout layout )
     : d_field_dim( field_dim )
     , d_data( dof_data )
@@ -93,17 +89,15 @@ EntityCenteredField<Scalar>::EntityCenteredField(
 
 //---------------------------------------------------------------------------//
 // Get the dimension of the field.
-template<class Scalar>
-int EntityCenteredField<Scalar>::dimension() const
+int EntityCenteredField::dimension() const
 {
     return d_field_dim;
 }
 
 //---------------------------------------------------------------------------//
 // Get the locally-owned entity DOF ids of the field.
-template<class Scalar>
 Teuchos::ArrayView<const SupportId>
-EntityCenteredField<Scalar>::getLocalSupportIds() const
+EntityCenteredField::getLocalSupportIds() const
 {
     return d_support_ids();
 }
@@ -111,9 +105,8 @@ EntityCenteredField<Scalar>::getLocalSupportIds() const
 //---------------------------------------------------------------------------//
 // Given a local dof id and a dimension, read data from the application
 // field.
-template<class Scalar>
-Scalar EntityCenteredField<Scalar>::readFieldData( const SupportId support_id,
-						   const int dimension ) const
+double EntityCenteredField::readFieldData( const SupportId support_id,
+					   const int dimension ) const
 {
     DTK_REQUIRE( d_id_map.count(support_id) );
     int local_id = d_id_map.find( support_id )->second;
@@ -125,10 +118,9 @@ Scalar EntityCenteredField<Scalar>::readFieldData( const SupportId support_id,
 //---------------------------------------------------------------------------//
 // Given a local dof id, dimension, and field value, write data into the
 // application field.
-template<class Scalar>
-void EntityCenteredField<Scalar>::writeFieldData( const SupportId support_id,
-						  const int dimension,
-						  const Scalar data )
+void EntityCenteredField::writeFieldData( const SupportId support_id,
+					  const int dimension,
+					  const double data )
 {
     int local_id = d_id_map.find( support_id )->second;
     switch( d_layout )
@@ -147,9 +139,5 @@ void EntityCenteredField<Scalar>::writeFieldData( const SupportId support_id,
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_ENTITYCENTEREDFIELD_IMPL_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_EntityCenteredField_impl.hpp
+// end DTK_EntityCenteredField.hpp
 //---------------------------------------------------------------------------//

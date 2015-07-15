@@ -69,8 +69,7 @@ namespace DataTransferKit
   Set the value of data layout in the constructor.
 */
 //---------------------------------------------------------------------------//
-template<class Scalar>
-class EntityCenteredField : public Field<Scalar>
+class EntityCenteredField : public Field
 {
   public:
 
@@ -86,7 +85,7 @@ class EntityCenteredField : public Field<Scalar>
      */
     EntityCenteredField( const Teuchos::ArrayView<Entity>& entities,
 			 const int field_dim,
-			 const Teuchos::ArrayRCP<Scalar>& dof_data,
+			 const Teuchos::ArrayRCP<double>& dof_data,
 			 const DataLayout layout );
 
     /*!
@@ -94,7 +93,7 @@ class EntityCenteredField : public Field<Scalar>
      */
     EntityCenteredField( const Teuchos::ArrayView<EntityId>& entity_ids,
 			 const int field_dim,
-			 const Teuchos::ArrayRCP<Scalar>& dof_data,
+			 const Teuchos::ArrayRCP<double>& dof_data,
 			 const DataLayout layout );
 
     /*!
@@ -111,7 +110,7 @@ class EntityCenteredField : public Field<Scalar>
      * \brief Given a local dof id and a dimension, read data from the
      * application field.
      */
-    Scalar readFieldData( const SupportId support_id,
+    double readFieldData( const SupportId support_id,
 			  const int dimension ) const;
 
     /*!
@@ -120,7 +119,7 @@ class EntityCenteredField : public Field<Scalar>
      */
     void writeFieldData( const SupportId support_id,
 			 const int dimension,
-			 const Scalar data );
+			 const double data );
     
   private:
 
@@ -131,7 +130,7 @@ class EntityCenteredField : public Field<Scalar>
     int d_field_dim;
 
     // The field data.
-    Teuchos::ArrayRCP<Scalar> d_data;
+    Teuchos::ArrayRCP<double> d_data;
 
     // Data layout.
     DataLayout d_layout;
@@ -146,12 +145,6 @@ class EntityCenteredField : public Field<Scalar>
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_EntityCenteredField_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

@@ -92,36 +92,36 @@ TEUCHOS_UNIT_TEST( EntityCenteredField, vector_test )
     }
 
     // Create an input field.
-    Teuchos::RCP<DataTransferKit::Field<double> > in_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field > in_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), num_vec, in_data,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
 
     // Create an input vector.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > in_vec =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  in_field, entity_set) );
 
     // Create an output field.
-    Teuchos::RCP<DataTransferKit::Field<double> > out_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field > out_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), num_vec, out_data,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
 
     // Create an output vector.
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > out_vec =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  out_field, entity_set) );
 
     // Pull in the results.
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
 	in_vec)->pullDataFromApplication();
     
     // Add the vectors together.
     out_vec->update( 1.0, *in_vec, 0.0 );
 
     // Push back the results.
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
 	out_vec)->pushDataToApplication();
 
     // Check the results.
