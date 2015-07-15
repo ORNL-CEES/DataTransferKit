@@ -111,5 +111,5 @@ MapOperatorFactory::create(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_MapOperator.cpp
+// end DTK_MapOperatorFactory.cpp
 //---------------------------------------------------------------------------//

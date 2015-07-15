@@ -59,8 +59,7 @@ namespace DataTransferKit
  * spline space.
  */
 //---------------------------------------------------------------------------//
-template<class Scalar>
-class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,SupportId>
+class SplineProlongationOperator : public Tpetra::Operator<double,int,SupportId>
 {
   public:
 
@@ -88,11 +87,11 @@ class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,SupportId>
         <b>may</b> short-circuit the operator, so that any values in \c X
         (including NaNs) are ignored.
      */
-    void apply (const Tpetra::MultiVector<Scalar,int,SupportId> &X,
-		Tpetra::MultiVector<Scalar,int,SupportId> &Y,
+    void apply (const Tpetra::MultiVector<double,int,SupportId> &X,
+		Tpetra::MultiVector<double,int,SupportId> &Y,
 		Teuchos::ETransp mode = Teuchos::NO_TRANS,
-		Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-		Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
+		double alpha = Teuchos::ScalarTraits<double>::one(),
+		double beta = Teuchos::ScalarTraits<double>::zero()) const override;
 
     /// \brief Whether this operator supports applying the transpose or
     /// conjugate transpose.
@@ -117,12 +116,6 @@ class SplineProlongationOperator : public Tpetra::Operator<Scalar,int,SupportId>
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_SplineProlongationOperator_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

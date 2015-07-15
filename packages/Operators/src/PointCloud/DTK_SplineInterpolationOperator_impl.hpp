@@ -317,8 +317,7 @@ void SplineInterpolationOperator<Basis,DIM>::buildConcreteOperators(
 
     // PROLONGATION OPERATOR.
     GO offset = comm->getRank() ? 0 : DIM + 1;
-    S =	Teuchos::rcp( 
-	new SplineProlongationOperator<Scalar>(offset,domain_map) );
+    S =	Teuchos::rcp( new SplineProlongationOperator(offset,domain_map) );
 
     // COEFFICIENT OPERATORS.
     // Gather the source centers that are within a d_radius of the source

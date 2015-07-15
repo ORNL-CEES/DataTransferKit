@@ -32,15 +32,13 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_SplineProlongationOperator_impl.hpp
+ * \file   DTK_SplineProlongationOperator.cpp
  * \author Stuart R. Slattery
  * \brief  Spline transformation operator.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SPLINEPROLONGATIONOPERATOR_IMPL_HPP
-#define DTK_SPLINEPROLONGATIONOPERATOR_IMPL_HPP
-
+#include "DTK_SplineProlongationOperator.hpp"
 #include "DTK_DBC.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
@@ -51,8 +49,7 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<class Scalar>
-SplineProlongationOperator<Scalar>::SplineProlongationOperator(
+SplineProlongationOperator::SplineProlongationOperator(
     const int offset,
     const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map )
     : d_offset( offset )
@@ -85,13 +82,12 @@ SplineProlongationOperator<Scalar>::SplineProlongationOperator(
 
 //---------------------------------------------------------------------------//
 // Apply operation. 
-template<class Scalar>
-void SplineProlongationOperator<Scalar>::apply(
-    const Tpetra::MultiVector<Scalar,int,SupportId> &X,
-    Tpetra::MultiVector<Scalar,int,SupportId> &Y,
+void SplineProlongationOperator::apply(
+    const Tpetra::MultiVector<double,int,SupportId> &X,
+    Tpetra::MultiVector<double,int,SupportId> &Y,
     Teuchos::ETransp mode,
-    Scalar alpha,
-    Scalar beta ) const
+    double alpha,
+    double beta ) const
 {
     DTK_REQUIRE( d_domain_map->isSameAs(*(X.getMap())) );
     DTK_REQUIRE( d_range_map->isSameAs(*(Y.getMap())) );
@@ -99,8 +95,8 @@ void SplineProlongationOperator<Scalar>::apply(
 
     Y.scale( beta );
     
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> > X_view = X.get2dView();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> > Y_view = Y.get2dViewNonConst();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > X_view = X.get2dView();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > Y_view = Y.get2dViewNonConst();
     for ( unsigned n = 0; n < X.getNumVectors(); ++n )
     {
 	for ( int i = 0; i < d_lda; ++i )
@@ -115,10 +111,6 @@ void SplineProlongationOperator<Scalar>::apply(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_SPLINEPROLONGATIONOPERATOR_IMPL_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_SplineProlongationOperator_impl.hpp
+// end DTK_SplineProlongationOperator.cpp
 //---------------------------------------------------------------------------//
 

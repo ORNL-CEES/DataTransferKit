@@ -32,15 +32,13 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_PointCloudOperatorFactory_impl.hpp
+ * \brief DTK_PointCloudOperatorFactory.cpp
  * \author Stuart R. Slattery
  * \brief Point cloud map operator factory.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_POINTCLOUDOPERATORFACTORY_IMPL_HPP
-#define DTK_POINTCLOUDOPERATORFACTORY_IMPL_HPP
-
+#include "DTK_PointCloudOperatorFactory.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_SplineInterpolationOperator.hpp"
 #include "DTK_MovingLeastSquareReconstructionOperator.hpp"
@@ -541,9 +539,5 @@ PointCloudOperatorFactory::create(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_POINTCLOUDOPERATORFACTORY_IMPL_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_MapOperator_impl.hpp
+// end DTK_MapOperator.cpp
 //---------------------------------------------------------------------------//

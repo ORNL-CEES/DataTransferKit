@@ -52,7 +52,6 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_SplineInterpolationOperator.hpp
   ${DIR}/DTK_SplineInterpolationOperator_impl.hpp
   ${DIR}/DTK_SplineProlongationOperator.hpp
-  ${DIR}/DTK_SplineProlongationOperator_impl.hpp
   ${DIR}/DTK_WendlandBasis.hpp
   ${DIR}/DTK_WendlandBasis_impl.hpp
   ${DIR}/DTK_WuBasis.hpp
@@ -61,6 +60,7 @@ APPEND_SET(HEADERS
 
 APPEND_SET(SOURCES
   ${DIR}/DTK_PolynomialMatrix.cpp
+  ${DIR}/DTK_SplineProlongationOperator.cpp
   )
 
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/Factory)
