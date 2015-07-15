@@ -172,7 +172,7 @@ class VolumeSourceMap
     Teuchos::Array<DataTransferKit::EntityId> d_target_entity_ids;
 
     // Interpolation operator.
-    Teuchos::RCP<DataTransferKit::ConsistentInterpolationOperator<double> >
+    Teuchos::RCP<DataTransferKit::ConsistentInterpolationOperator>
     d_consistent_operator;
     
     // Indices for target points missed in the mapping.

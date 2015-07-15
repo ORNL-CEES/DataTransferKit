@@ -193,7 +193,7 @@ class SharedDomainMap
     Teuchos::Array<DataTransferKit::EntityId> d_target_entity_ids;
 
     // Interpolation operator.
-    Teuchos::RCP<DataTransferKit::ConsistentInterpolationOperator<double> >
+    Teuchos::RCP<DataTransferKit::ConsistentInterpolationOperator>
     d_consistent_operator;
 };
 

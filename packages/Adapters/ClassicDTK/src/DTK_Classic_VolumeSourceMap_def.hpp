@@ -297,7 +297,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     
     // Create the interpolation operator.
     d_consistent_operator = Teuchos::rcp(
-	new DataTransferKit::ConsistentInterpolationOperator<double>(
+	new DataTransferKit::ConsistentInterpolationOperator(
 	    domain_vector_map, range_vector_map, parameters) );
     d_consistent_operator->setup( Teuchos::rcpFromRef(domain_function_space),
 				  Teuchos::rcpFromRef(range_function_space) );
@@ -350,15 +350,15 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 				 Teuchos::Ptr<int>(&source_dim) );
 
     // Build a vector for the source values.
-    Teuchos::RCP<DataTransferKit::EntityCenteredField<typename SFT::value_type> >
+    Teuchos::RCP<DataTransferKit::EntityCenteredField>
 	source_dtk_field = Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredField<typename SFT::value_type>(
+	    new DataTransferKit::EntityCenteredField(
 		d_source_entity_ids(),
 		source_dim,
 		source_field_copy,
-		DataTransferKit::EntityCenteredField<typename SFT::value_type>::BLOCKED)
+		DataTransferKit::EntityCenteredField::BLOCKED)
 	    );
-    DataTransferKit::FieldMultiVector<typename SFT::value_type> source_vector(
+    DataTransferKit::FieldMultiVector source_vector(
 	source_dtk_field, d_source_entity_set );
 
     // Construct a view of the target space.
@@ -386,15 +386,15 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     }
 
     // Build a vector for the target values.
-    Teuchos::RCP<DataTransferKit::EntityCenteredField<typename TFT::value_type> >
+    Teuchos::RCP<DataTransferKit::EntityCenteredField>
 	target_dtk_field = Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredField<typename TFT::value_type>(
+	    new DataTransferKit::EntityCenteredField(
 		d_target_entity_ids(),
 		target_dim,
 		target_field_view,
-		DataTransferKit::EntityCenteredField<typename TFT::value_type>::BLOCKED)
+		DataTransferKit::EntityCenteredField::BLOCKED)
 	    );
-    DataTransferKit::FieldMultiVector<typename TFT::value_type> target_vector(
+    DataTransferKit::FieldMultiVector target_vector(
 	target_dtk_field, d_target_entity_set );
 
     // Apply the DTK operator.
