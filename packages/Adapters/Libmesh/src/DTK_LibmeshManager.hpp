@@ -66,7 +66,7 @@ namespace DataTransferKit
   use it to reduce code for certain implementations.
 */
 //---------------------------------------------------------------------------//
-class LibmeshManager : public ClientManager<double>
+class LibmeshManager : public ClientManager
 {
   public:
 
@@ -126,7 +126,7 @@ class LibmeshManager : public ClientManager<double>
     /*!
      * \brief Given a variable name, build a field vector.
      */
-    Teuchos::RCP<FieldMultiVector<double> >
+    Teuchos::RCP<FieldMultiVector>
     createFieldMultiVector( const std::string& variable_name );
 
     //@{
@@ -159,7 +159,7 @@ class LibmeshManager : public ClientManager<double>
     /*!
      * \brief Get the field for the given string key.
      */
-    Teuchos::RCP<Field<double> >
+    Teuchos::RCP<Field>
     field( const std::string& field_name ) const override;
     //@}
 

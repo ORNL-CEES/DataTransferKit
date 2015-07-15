@@ -143,7 +143,7 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, push_pull_test )
     TEST_EQUALITY( 125, var_vec->getGlobalLength() );
 
     // Test the variable data and add some.
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
 	var_vec)->pullDataFromApplication();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > var_vec_view =
     	var_vec->get2dViewNonConst();
@@ -156,7 +156,7 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, push_pull_test )
     }
     
     // Push the data back to Libmesh
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
 	var_vec)->pushDataToApplication();
 
     // Test the Libmesh variable.
@@ -255,10 +255,10 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, matrix_test )
     matrix->fillComplete( var_vec_1->getMap(), var_vec_2->getMap() );
     
     // Apply the matrix.
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
 	var_vec_1)->pullDataFromApplication();
     matrix->apply( *var_vec_1, *var_vec_2 );
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
 	var_vec_2)->pushDataToApplication();
 
     // Test the Libmesh variable.

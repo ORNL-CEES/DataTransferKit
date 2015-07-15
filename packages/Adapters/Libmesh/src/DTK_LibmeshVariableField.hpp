@@ -62,7 +62,7 @@ namespace DataTransferKit
   \brief DTK field implementation for libmesh variables.
 */
 //---------------------------------------------------------------------------//
-class LibmeshVariableField : public DataTransferKit::Field<double>
+class LibmeshVariableField : public DataTransferKit::Field
 {
   public:
 

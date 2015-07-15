@@ -228,8 +228,8 @@ TEUCHOS_UNIT_TEST( LibmeshDTKAdapters, MoabToLibmeshTest ) {
 
     // Create a solution vector for the source.
     Teuchos::RCP<Tpetra::MultiVector<double, int, std::size_t> > src_vector =
-	src_manager.createFieldMultiVector<double>(source_node_set,
-						   source_data_tag);
+	src_manager.createFieldMultiVector(source_node_set,
+					   source_data_tag);
 
     // Create a solution vector for the target.
     Teuchos::RCP<Tpetra::MultiVector<double, int, std::size_t> > tgt_vector =
@@ -244,8 +244,8 @@ TEUCHOS_UNIT_TEST( LibmeshDTKAdapters, MoabToLibmeshTest ) {
 
     // Create a map operator.
     Teuchos::ParameterList& dtk_list = plist->sublist("DataTransferKit");
-    DataTransferKit::MapOperatorFactory<double> op_factory;
-    Teuchos::RCP<DataTransferKit::MapOperator<double> > map_op =
+    DataTransferKit::MapOperatorFactory op_factory;
+    Teuchos::RCP<DataTransferKit::MapOperator> map_op =
 	op_factory.create(src_vector->getMap(), tgt_vector->getMap(),
 			  dtk_list);
 

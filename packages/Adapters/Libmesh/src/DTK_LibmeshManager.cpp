@@ -121,13 +121,13 @@ void LibmeshManager::buildFunctionSpace(
 
 //---------------------------------------------------------------------------//
 // Build a field vector from a variable.
-Teuchos::RCP<FieldMultiVector<double> >
+Teuchos::RCP<FieldMultiVector>
 LibmeshManager::createFieldMultiVector( const std::string& variable_name )
 {
-    Teuchos::RCP<Field<double> > field = Teuchos::rcp(
+    Teuchos::RCP<Field> field = Teuchos::rcp(
 	new LibmeshVariableField(d_mesh, d_system, variable_name)  );
     return Teuchos::rcp(
-	new FieldMultiVector<double>(field, d_function_space->entitySet()) );
+	new FieldMultiVector(field, d_function_space->entitySet()) );
 }
 
 //---------------------------------------------------------------------------//
@@ -167,7 +167,7 @@ PredicateFunction LibmeshManager::selectFunction() const
 
 //---------------------------------------------------------------------------//
 // Get the field for the given string key.
-Teuchos::RCP<Field<double> >
+Teuchos::RCP<Field>
 LibmeshManager::field( const std::string& field_name ) const
 {
     return Teuchos::rcp(
