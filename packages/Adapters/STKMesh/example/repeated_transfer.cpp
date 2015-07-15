@@ -254,10 +254,10 @@ int main(int argc, char* argv[])
 
     // Create map operators.
     Teuchos::ParameterList& dtk_list = plist->sublist("DataTransferKit");
-        DataTransferKit::MapOperatorFactory<double> op_factory;
-    Teuchos::RCP<DataTransferKit::MapOperator<double> > s2t_map_op =
+        DataTransferKit::MapOperatorFactoryop_factory;
+    Teuchos::RCP<DataTransferKit::MapOperator> s2t_map_op =
 	op_factory.create( src_vector->getMap(), tgt_vector->getMap(), dtk_list );
-    Teuchos::RCP<DataTransferKit::MapOperator<double> > t2s_map_op =
+    Teuchos::RCP<DataTransferKit::MapOperator> t2s_map_op =
 	op_factory.create( tgt_vector->getMap(), src_vector->getMap(), dtk_list );
 
     // Setup the map operators.

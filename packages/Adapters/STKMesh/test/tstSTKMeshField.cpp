@@ -158,7 +158,7 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
     TEST_EQUALITY( 8*comm_size, field_vec_1->getGlobalLength() );
 
     // Test the vector data.
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
 	field_vec_1)->pullDataFromApplication();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > field_vec_1_view =
 		      field_vec_1->get2dView();
@@ -178,7 +178,7 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
     field_vec_1->getVectorNonConst( 2 )->putScalar( val_2 );
 
     // Push the data back to STK.
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
 	field_vec_1)->pushDataToApplication();
 
     // Test the STK field.

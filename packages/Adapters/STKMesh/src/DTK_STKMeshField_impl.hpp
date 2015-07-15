@@ -125,7 +125,7 @@ STKMeshField<Scalar,FieldType>::getLocalSupportIds() const
 // Given a local support id and a dimension, read data from the application
 // field.
 template<class Scalar, class FieldType>
-Scalar STKMeshField<Scalar,FieldType>::readFieldData(
+double STKMeshField<Scalar,FieldType>::readFieldData(
     const SupportId support_id, const int dimension ) const
 {
     DTK_REQUIRE( d_id_map.count(support_id) );
@@ -139,7 +139,7 @@ Scalar STKMeshField<Scalar,FieldType>::readFieldData(
 template<class Scalar, class FieldType>
 void STKMeshField<Scalar,FieldType>::writeFieldData( const SupportId support_id,
 						     const int dimension,
-						     const Scalar data )
+						     const double data )
 {
     DTK_REQUIRE( d_id_map.count(support_id) );
     int local_id = d_id_map.find( support_id )->second;

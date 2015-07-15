@@ -70,7 +70,7 @@ namespace DataTransferKit
   use it to reduce code for certain implementations.
 */
 //---------------------------------------------------------------------------//
-class STKMeshManager : ClientManager<double>
+class STKMeshManager : ClientManager
 {
   public:
 
@@ -166,7 +166,7 @@ class STKMeshManager : ClientManager<double>
      * \brief Given a field and dimension, build a vector over that field.
      */
     template<class FieldType>
-    Teuchos::RCP<FieldMultiVector<double> >
+    Teuchos::RCP<FieldMultiVector>
     createFieldMultiVector( const Teuchos::Ptr<FieldType>& field,
 			    const int field_dim );
 
@@ -200,7 +200,7 @@ class STKMeshManager : ClientManager<double>
     /*!
      * \brief Get the field for the given string key.
      */
-    Teuchos::RCP<Field<double> >
+    Teuchos::RCP<Field>
     field( const std::string& field_name ) const override;
     //@}
 
@@ -230,17 +230,17 @@ class STKMeshManager : ClientManager<double>
 // Template functions.
 //---------------------------------------------------------------------------//
 template<class FieldType>
-Teuchos::RCP<FieldMultiVector<double> >
+Teuchos::RCP<FieldMultiVector>
 STKMeshManager::createFieldMultiVector( const Teuchos::Ptr<FieldType>& field,
 					const int field_dim )
 {
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
     DTK_REQUIRE( Teuchos::nonnull(d_function_space) );
     
-    Teuchos::RCP<Field<double> > stk_field = Teuchos::rcp(
+    Teuchos::RCP<Field> stk_field = Teuchos::rcp(
 	new STKMeshField<double,FieldType>(d_bulk_data,field,field_dim) );
     return Teuchos::rcp(
-	new FieldMultiVector<double>(stk_field,d_function_space->entitySet()) );
+	new FieldMultiVector(stk_field,d_function_space->entitySet()) );
 }
 
 //---------------------------------------------------------------------------//

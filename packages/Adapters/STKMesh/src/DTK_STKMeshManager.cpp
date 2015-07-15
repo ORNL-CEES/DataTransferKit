@@ -177,7 +177,7 @@ PredicateFunction STKMeshManager::selectFunction() const
 
 //---------------------------------------------------------------------------//
 // Get the field for the given string key.
-Teuchos::RCP<Field<double> >
+Teuchos::RCP<Field>
 STKMeshManager::field( const std::string& field_name ) const
 {
     DTK_REQUIRE( d_field_indexer.count(field_name) );
