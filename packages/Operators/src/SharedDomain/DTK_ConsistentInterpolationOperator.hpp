@@ -128,6 +128,9 @@ class ConsistentInterpolationOperator : virtual public MapOperator<Scalar>
 
   private:
 
+    // Range entity topological dimension. Default is 0 (vertex).
+    int d_range_entity_dim;
+
     // Search sublist.
     Teuchos::ParameterList d_search_list;
 
