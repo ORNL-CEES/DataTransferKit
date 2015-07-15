@@ -75,8 +75,7 @@ TEUCHOS_UNIT_TEST( SplineProlongationOperator, polynomial_matrix_apply )
 	Tpetra::createUniformContigMap<int,std::size_t>( global_size, comm );
 
     // Create a prolongator.
-    DataTransferKit::SplineProlongationOperator<double> 
-	prolongation_op( offset, map );
+    DataTransferKit::SplineProlongationOperator prolongation_op( offset, map );
 
     // Check the prolongator.
     TEST_EQUALITY( prolongation_op.getRangeMap()->getNodeNumElements(),

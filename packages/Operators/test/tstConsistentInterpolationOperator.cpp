@@ -93,12 +93,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
-    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
 
@@ -123,12 +123,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
-    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
 
@@ -137,8 +137,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
-    Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(
+    Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
+	new ConsistentInterpolationOperator(
 	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
@@ -187,12 +187,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
-    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
 
@@ -217,12 +217,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
-    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
 
@@ -231,8 +231,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
-    Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(
+    Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
+	new ConsistentInterpolationOperator(
 	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
@@ -281,12 +281,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
-    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );    
 
@@ -311,12 +311,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
-    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
 
@@ -325,8 +325,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
-    Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(
+    Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
+	new ConsistentInterpolationOperator(
 	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
@@ -385,12 +385,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
-    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
 
@@ -415,12 +415,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
-    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
 
@@ -429,8 +429,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);    
-    Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(
+    Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
+	new ConsistentInterpolationOperator(
 	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
@@ -479,12 +479,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
-    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
 
@@ -509,12 +509,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
-    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
 
@@ -523,8 +523,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
-    Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(
+    Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
+	new ConsistentInterpolationOperator(
 	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
@@ -582,12 +582,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
-    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
 
@@ -609,12 +609,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
-    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
 
@@ -623,8 +623,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
-    Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(
+    Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
+	new ConsistentInterpolationOperator(
 	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
@@ -676,12 +676,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
     DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
-    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
 
@@ -713,12 +713,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
     DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
-    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
 
@@ -727,8 +727,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
-    Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(
+    Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
+	new ConsistentInterpolationOperator(
 	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.
@@ -782,12 +782,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
     DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
     
     // Make a DOF vector for the domain.
-    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
 
@@ -820,12 +820,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
     DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
 
     // Make a DOF vector for the range.
-    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
 
@@ -834,8 +834,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
-    Teuchos::RCP<ConsistentInterpolationOperator<double> > map_op = Teuchos::rcp(
-	new ConsistentInterpolationOperator<double>(
+    Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
+	new ConsistentInterpolationOperator(
 	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
 
     // Setup the map.

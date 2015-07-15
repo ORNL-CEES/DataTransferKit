@@ -118,22 +118,22 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_test )
 	comm, space_dim, range_points() );
 
     // Make a DOF vector for the domain.
-    Teuchos::RCP<DataTransferKit::Field<double> > domain_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  domain_points(), field_dim, domain_data,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_vector =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
 
     // Make a DOF vector for the range.
-    Teuchos::RCP<DataTransferKit::Field<double> > range_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField<double>(
+    Teuchos::RCP<DataTransferKit::Field> range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  range_points(), field_dim, range_data,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_vector =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
 
@@ -146,8 +146,8 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_test )
     cloud_list.set<int>("Basis Order",2);
     cloud_list.set<int>("Spatial Dimension",space_dim);
     cloud_list.set<double>("RBF Radius", 2.0);
-    DataTransferKit::MapOperatorFactory<double> factory;
-    Teuchos::RCP<DataTransferKit::MapOperator<double> > mls_op =
+    DataTransferKit::MapOperatorFactory factory;
+    Teuchos::RCP<DataTransferKit::MapOperator> mls_op =
 	factory.create( domain_vector->getMap(), range_vector->getMap(), *parameters );
 
     // Setup the operator.
