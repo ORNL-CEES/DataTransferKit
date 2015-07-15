@@ -60,7 +60,7 @@ namespace DataTransferKit
 */
 //---------------------------------------------------------------------------//
 template<class Scalar>
-class MoabTagField : public Field<Scalar>
+class MoabTagField : public Field
 {
   public:
 
@@ -89,7 +89,7 @@ class MoabTagField : public Field<Scalar>
      * \brief Given a local support id and a dimension, read data from the
      * application field.
      */
-    Scalar readFieldData( const SupportId support_id,
+    double readFieldData( const SupportId support_id,
 			  const int dimension ) const override;
 
     /*!
@@ -98,7 +98,7 @@ class MoabTagField : public Field<Scalar>
      */
     void writeFieldData( const SupportId support_id,
 			 const int dimension,
-			 const Scalar data ) override;
+			 const double data ) override;
 
     /*!
      * \brief Finalize a field after writing into it.

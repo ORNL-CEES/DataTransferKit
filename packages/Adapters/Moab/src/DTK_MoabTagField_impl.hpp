@@ -131,7 +131,7 @@ MoabTagField<Scalar>::getLocalSupportIds() const
 // Given a local support id and a dimension, read data from the application
 // field.
 template<class Scalar>
-Scalar MoabTagField<Scalar>::readFieldData( const SupportId support_id,
+double MoabTagField<Scalar>::readFieldData( const SupportId support_id,
 					    const int dimension ) const
 {
     moab::EntityHandle entity =
@@ -152,7 +152,7 @@ Scalar MoabTagField<Scalar>::readFieldData( const SupportId support_id,
 template<class Scalar>
 void MoabTagField<Scalar>::writeFieldData( const SupportId support_id,
 					   const int dimension,
-					   const Scalar data )
+					   const double data )
 {
     moab::EntityHandle entity =
 	d_set_indexer->getEntityFromGlobalId( support_id, d_entity_dim );

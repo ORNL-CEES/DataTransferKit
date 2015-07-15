@@ -137,17 +137,17 @@ Teuchos::RCP<FunctionSpace> MoabManager::functionSpace() const
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<FieldMultiVector<double> >
+Teuchos::RCP<FieldMultiVector>
 MoabManager::createFieldMultiVector( const moab::EntityHandle& mesh_set,
 				     const moab::Tag& tag )
 {
     DTK_REQUIRE( Teuchos::nonnull(d_moab_mesh) );
     DTK_REQUIRE( Teuchos::nonnull(d_function_space) );
     
-    Teuchos::RCP<Field<double> > field = Teuchos::rcp(
+    Teuchos::RCP<Field> field = Teuchos::rcp(
 	new MoabTagField<double>(d_moab_mesh, d_set_indexer, mesh_set, tag) );
     return Teuchos::rcp(
-	new FieldMultiVector<double>(field,d_function_space->entitySet()) );
+	new FieldMultiVector(field,d_function_space->entitySet()) );
 }
 
 //---------------------------------------------------------------------------//
@@ -186,7 +186,7 @@ PredicateFunction MoabManager::selectFunction() const
 
 //---------------------------------------------------------------------------//
 // Get the field for the given string key.
-Teuchos::RCP<Field<double> >
+Teuchos::RCP<Field>
 MoabManager::field( const std::string& field_name ) const
 {
     DTK_REQUIRE( d_field_indexer.count(field_name) );

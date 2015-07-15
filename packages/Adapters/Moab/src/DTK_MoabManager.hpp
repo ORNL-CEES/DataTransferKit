@@ -69,7 +69,7 @@ namespace DataTransferKit
   use it to reduce code for certain implementations.
 */
 //---------------------------------------------------------------------------//
-class MoabManager : public ClientManager<double>
+class MoabManager : public ClientManager
 {
   public:
 
@@ -113,7 +113,7 @@ class MoabManager : public ClientManager<double>
      * \brief Given a mesh set and a tag, build a vector over that tag and
      * mesh set.
      */
-    Teuchos::RCP<FieldMultiVector<double> >
+    Teuchos::RCP<FieldMultiVector>
     createFieldMultiVector( const moab::EntityHandle& mesh_set,
 			    const moab::Tag& tag );
 
@@ -147,7 +147,7 @@ class MoabManager : public ClientManager<double>
     /*!
      * \brief Get the field for the given string key.
      */
-    Teuchos::RCP<Field<double> >
+    Teuchos::RCP<Field>
     field( const std::string& field_name ) const override;
     //@}
 
@@ -166,7 +166,7 @@ class MoabManager : public ClientManager<double>
     std::unordered_map<std::string,int> d_field_indexer;
 
     // Registered fields.
-    Teuchos::Array<Teuchos::RCP<Field<double> > > d_fields;
+    Teuchos::Array<Teuchos::RCP<Field> > d_fields;
 };
 
 //---------------------------------------------------------------------------//

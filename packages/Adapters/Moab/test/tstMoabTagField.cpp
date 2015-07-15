@@ -180,11 +180,11 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
 	new DataTransferKit::MoabEntitySet(parallel_mesh,set_indexer) );
 
     // Create a vector from entity set 1.
-    Teuchos::RCP<DataTransferKit::Field<double> > field_1 = Teuchos::rcp(
+    Teuchos::RCP<DataTransferKit::Field> field_1 = Teuchos::rcp(
 	new DataTransferKit::MoabTagField<double>(
 	    parallel_mesh, set_indexer, entity_set_1, tag_1) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tag_vec_1 =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  field_1, dtk_entity_set) );
 
     // Test the vector size.
@@ -194,7 +194,7 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     TEST_EQUALITY( num_nodes*comm_size, tag_vec_1->getGlobalLength() );
 
     // Test the default tag data.
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
 	tag_vec_1)->pullDataFromApplication();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > tag_vec_1_view =
     		      tag_vec_1->get2dView();
@@ -214,7 +214,7 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     tag_vec_1->getVectorNonConst( 2 )->putScalar( val_2 );
 
     // Push the data back to Moab
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector<double> >(
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
 	tag_vec_1)->pushDataToApplication();
 
     // Test the Moab tag.
@@ -242,11 +242,11 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     // Make an empty vector over set 2.
-    Teuchos::RCP<DataTransferKit::Field<double> > field_2 = Teuchos::rcp(
+    Teuchos::RCP<DataTransferKit::Field> field_2 = Teuchos::rcp(
 	new DataTransferKit::MoabTagField<double>(
 	    parallel_mesh, set_indexer, entity_set_2, tag_2) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tag_vec_2 =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector<double>(
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  field_2, dtk_entity_set) );
 
     // Test the vector to make sure it is empty.
