@@ -56,13 +56,12 @@ namespace DataTransferKit
   \brief Factory for DTK map operators.
 */
 //---------------------------------------------------------------------------//
-template<class Scalar>
 class MapOperatorFactory
 {
   public:
     
     //! Tpetra Map typedef.
-    typedef typename MapOperator<Scalar>::TpetraMap TpetraMap;
+    typedef typename MapOperator::TpetraMap TpetraMap;
 
     /*!
      * \brief Constructor.
@@ -80,7 +79,7 @@ class MapOperatorFactory
      *
      * \param parameters Creation parameters.
      */
-    Teuchos::RCP<MapOperator<Scalar> >
+    Teuchos::RCP<MapOperator>
     create( const Teuchos::RCP<const TpetraMap>& domain_map,
 	    const Teuchos::RCP<const TpetraMap>& range_map,
 	    const Teuchos::ParameterList& parameters );
@@ -102,12 +101,6 @@ class MapOperatorFactory
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_MapOperatorFactory_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

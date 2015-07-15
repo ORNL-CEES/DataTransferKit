@@ -59,8 +59,8 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-template<class Scalar,class Basis,int DIM>
-MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::
+template<class Basis,int DIM>
+MovingLeastSquareReconstructionOperator<Basis,DIM>::
 MovingLeastSquareReconstructionOperator(
     const Teuchos::RCP<const TpetraMap>& domain_map,
     const Teuchos::RCP<const TpetraMap>& range_map,
@@ -74,8 +74,8 @@ MovingLeastSquareReconstructionOperator(
 
 //---------------------------------------------------------------------------//
 // Setup the map operator.
-template<class Scalar,class Basis,int DIM>
-void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setupImpl(
+template<class Basis,int DIM>
+void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
     const Teuchos::RCP<FunctionSpace>& domain_space,
     const Teuchos::RCP<FunctionSpace>& range_space )
 {
@@ -180,12 +180,12 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setupImpl(
 	pairings.childrenPerParent();
     SupportId max_entries_per_row = *std::max_element( 
 	children_per_parent.begin(), children_per_parent.end() );
-    d_coupling_matrix = Teuchos::rcp( new Tpetra::CrsMatrix<Scalar,int,GO>( 
+    d_coupling_matrix = Teuchos::rcp( new Tpetra::CrsMatrix<Scalar,LO,GO>( 
 					  range_map,
 					  max_entries_per_row) );
-    Teuchos::ArrayView<const Scalar> target_view;
+    Teuchos::ArrayView<const double> target_view;
     Teuchos::Array<GO> indices( max_entries_per_row );
-    Teuchos::ArrayView<const Scalar> values;
+    Teuchos::ArrayView<const double> values;
     Teuchos::ArrayView<const unsigned> pair_gids;
     int nn = 0;
     for ( int i = 0; i < local_num_tgt; ++i )
@@ -222,13 +222,13 @@ void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::setupImpl(
 
 //---------------------------------------------------------------------------//
 // Apply the operator.
-template<class Scalar,class Basis,int DIM>
-void MovingLeastSquareReconstructionOperator<Scalar,Basis,DIM>::applyImpl( 
+template<class Basis,int DIM>
+void MovingLeastSquareReconstructionOperator<Basis,DIM>::applyImpl( 
     const TpetraMultiVector& X,
     TpetraMultiVector &Y,
     Teuchos::ETransp mode,
-    Scalar alpha,
-    Scalar beta ) const
+    double alpha,
+    double beta ) const
 {
     d_coupling_matrix->apply( X, Y, mode, alpha, beta );
 }

@@ -32,15 +32,13 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MapOperator_impl.hpp
+ * \brief DTK_MapOperator.cpp
  * \author Stuart R. Slattery
  * \brief Map operator interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MAPOPERATOR_IMPL_HPP
-#define DTK_MAPOPERATOR_IMPL_HPP
-
+#include "DTK_MapOperator.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_FieldMultiVector.hpp"
 
@@ -48,10 +46,8 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-template<class Scalar>
-MapOperator<Scalar>::MapOperator(
-    const Teuchos::RCP<const TpetraMap>& domain_map,
-    const Teuchos::RCP<const TpetraMap>& range_map )
+MapOperator::MapOperator( const Teuchos::RCP<const TpetraMap>& domain_map,
+			  const Teuchos::RCP<const TpetraMap>& range_map )
     : d_domain_map( domain_map )
     , d_range_map( range_map )
     , d_setup_is_complete( false )
@@ -59,15 +55,13 @@ MapOperator<Scalar>::MapOperator(
 
 //---------------------------------------------------------------------------//
 // Destructor.
-template<class Scalar>
-MapOperator<Scalar>::~MapOperator()
+MapOperator::~MapOperator()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Get the range map.
-template<class Scalar>
-Teuchos::RCP<const typename MapOperator<Scalar>::TpetraMap> 
-MapOperator<Scalar>::getDomainMap() const
+Teuchos::RCP<const typename MapOperator::TpetraMap> 
+MapOperator::getDomainMap() const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_domain_map) );
     return d_domain_map;
@@ -75,9 +69,8 @@ MapOperator<Scalar>::getDomainMap() const
 
 //---------------------------------------------------------------------------//
 // Get the domain map.
-template<class Scalar>
-Teuchos::RCP<const typename MapOperator<Scalar>::TpetraMap> 
-MapOperator<Scalar>::getRangeMap() const
+Teuchos::RCP<const typename MapOperator::TpetraMap> 
+MapOperator::getRangeMap() const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_range_map) );
     return d_range_map;
@@ -85,38 +78,34 @@ MapOperator<Scalar>::getRangeMap() const
 
 //---------------------------------------------------------------------------//
 // Setup the map operator.
-template<class Scalar>
-void MapOperator<Scalar>::setup( 
-    const Teuchos::RCP<FunctionSpace>& domain_space,
-    const Teuchos::RCP<FunctionSpace>& range_space )
+void MapOperator::setup( const Teuchos::RCP<FunctionSpace>& domain_space,
+			 const Teuchos::RCP<FunctionSpace>& range_space )
 {
     setupImpl( domain_space, range_space );
     d_setup_is_complete = true;
 }
 
 //---------------------------------------------------------------------------//
-template<class Scalar>
-bool MapOperator<Scalar>::setupIsComplete() const
+bool MapOperator::setupIsComplete() const
 {
     return d_setup_is_complete;
 }
 
 //---------------------------------------------------------------------------//
 // Apply the map operator.
-template<class Scalar>
-void MapOperator<Scalar>::apply( const TpetraMultiVector& X,
-				 TpetraMultiVector& Y,
-				 Teuchos::ETransp mode,
-				 const Scalar alpha,
-				 const Scalar beta ) const
+void MapOperator::apply( const TpetraMultiVector& X,
+			 TpetraMultiVector& Y,
+			 Teuchos::ETransp mode,
+			 const double alpha,
+			 const double beta ) const
 {
     // Pull data from the application.
-    const FieldMultiVector<Scalar>& X_fmv =
-	dynamic_cast<const FieldMultiVector<Scalar>&>( X );
-    const_cast<FieldMultiVector<Scalar>&>( X_fmv ).pullDataFromApplication();
-    if ( beta != Teuchos::ScalarTraits<Scalar>::zero() )
+    const FieldMultiVector<double>& X_fmv =
+	dynamic_cast<const FieldMultiVector<double>&>( X );
+    const_cast<FieldMultiVector<double>&>( X_fmv ).pullDataFromApplication();
+    if ( beta != Teuchos::ScalarTraits<double>::zero() )
     {
-	dynamic_cast<FieldMultiVector<Scalar>&
+	dynamic_cast<FieldMultiVector<double>&
 		     >( Y ).pullDataFromApplication();
     }
     
@@ -124,15 +113,13 @@ void MapOperator<Scalar>::apply( const TpetraMultiVector& X,
     applyImpl( X, Y, mode, alpha, beta );
 
     // Push the data into the application.
-    dynamic_cast<FieldMultiVector<Scalar>&>( Y ).pushDataToApplication();
+    dynamic_cast<FieldMultiVector<double>&>( Y ).pushDataToApplication();
 }
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-# endif // end DTK_MAPOPERATOR_IMPL_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_MapOperator_impl.hpp
+// end DTK_MapOperator.cpp
 //---------------------------------------------------------------------------//

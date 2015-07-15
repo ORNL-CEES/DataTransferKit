@@ -32,15 +32,13 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_FieldMultiVector_impl.hpp
+ * \brief DTK_FieldMultiVector.cpp
  * \author Stuart R. Slattery
  * \brief MultiVector interface.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_FIELDMULTIVECTOR_IMPL_HPP
-#define DTK_FIELDMULTIVECTOR_IMPL_HPP
-
+#include "DTK_FieldMultiVector.hpp"
 #include "DTK_DBC.hpp"
 
 #include <Tpetra_Map.hpp>
@@ -49,10 +47,8 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-template<class Scalar>
-FieldMultiVector<Scalar>::FieldMultiVector(
-    const Teuchos::RCP<Field<Scalar> >& field,
-    const Teuchos::RCP<EntitySet>& entity_set )
+FieldMultiVector::FieldMultiVector( const Teuchos::RCP<Field>& field,
+				    const Teuchos::RCP<EntitySet>& entity_set )
     : Base( Tpetra::createNonContigMap<int,SupportId>(
 		field->getLocalSupportIds(),
 		entity_set->communicator()),
@@ -62,12 +58,11 @@ FieldMultiVector<Scalar>::FieldMultiVector(
 
 //---------------------------------------------------------------------------//
 // Pull data from the application and put it in the vector.
-template<class Scalar>
-void FieldMultiVector<Scalar>::pullDataFromApplication()
+void FieldMultiVector::pullDataFromApplication()
 {
     Teuchos::ArrayView<const SupportId> field_supports =
 	d_field->getLocalSupportIds();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar> > vector_view =
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > vector_view =
 	this->get2dViewNonConst();
     int num_supports = field_supports.size();
     int dim = d_field->dimension();
@@ -82,12 +77,11 @@ void FieldMultiVector<Scalar>::pullDataFromApplication()
 
 //---------------------------------------------------------------------------//
 // Push data from the vector into the application.
-template<class Scalar>
-void FieldMultiVector<Scalar>::pushDataToApplication()
+void FieldMultiVector::pushDataToApplication()
 {
     Teuchos::ArrayView<const SupportId> field_supports =
 	d_field->getLocalSupportIds();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar> > vector_view =
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > vector_view =
 	this->get2dView();
     int num_supports = field_supports.size();
     int dim = d_field->dimension();

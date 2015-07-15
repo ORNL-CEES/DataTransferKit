@@ -56,13 +56,12 @@ namespace DataTransferKit
   \brief Factory for DTK point cloud map operators.
 */
 //---------------------------------------------------------------------------//
-template<class Scalar>
 class PointCloudOperatorFactory
 {
   public:
     
     //! Tpetra Map typedef.
-    typedef typename MapOperator<Scalar>::TpetraMap TpetraMap;
+    typedef typename MapOperator::TpetraMap TpetraMap;
 
     /*!
      * \brief Constructor.
@@ -80,7 +79,7 @@ class PointCloudOperatorFactory
      *
      * \param parameters Creation parameters.
      */
-    Teuchos::RCP<MapOperator<Scalar> >
+    Teuchos::RCP<MapOperator>
     create( const Teuchos::RCP<const TpetraMap>& domain_map,
 	    const Teuchos::RCP<const TpetraMap>& range_map,
 	    const Teuchos::ParameterList& parameters );
@@ -112,12 +111,6 @@ class PointCloudOperatorFactory
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_PointCloudOperatorFactory_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

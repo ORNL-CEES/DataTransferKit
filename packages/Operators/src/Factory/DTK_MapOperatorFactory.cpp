@@ -32,15 +32,13 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_MapOperatorFactory_impl.hpp
+ * \brief DTK_MapOperatorFactory.cpp
  * \author Stuart R. Slattery
  * \brief Map operator factory.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_MAPOPERATORFACTORY_IMPL_HPP
-#define DTK_MAPOPERATORFACTORY_IMPL_HPP
-
+#include "DTK_MapOperatorFactory.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_L2ProjectionOperator.hpp"
 #include "DTK_ConsistentInterpolationOperator.hpp"
@@ -50,8 +48,7 @@ namespace DataTransferKit
 {
 //--------------------------------------------------------------------------//
 // Constructor
-template<class Scalar>
-MapOperatorFactory<Scalar>::MapOperatorFactory()
+MapOperatorFactory::MapOperatorFactory()
 {
     d_name_map["L2 Projection"] = L2_PROJECTION;
     d_name_map["Consistent Interpolation"] = CONSISTENT_INTERPOLATION;
@@ -60,9 +57,8 @@ MapOperatorFactory<Scalar>::MapOperatorFactory()
     
 //---------------------------------------------------------------------------//
 // Creation method.
-template<class Scalar>
-Teuchos::RCP<MapOperator<Scalar> >
-MapOperatorFactory<Scalar>::create(
+Teuchos::RCP<MapOperator>
+MapOperatorFactory::create(
     const Teuchos::RCP<const TpetraMap>& domain_map,
     const Teuchos::RCP<const TpetraMap>& range_map,
     const Teuchos::ParameterList& parameters )
@@ -76,21 +72,21 @@ MapOperatorFactory<Scalar>::create(
     Teuchos::ParameterList map_list = parameters.sublist(map_name);
 
     // Initialize subclass factories.
-    PointCloudOperatorFactory<Scalar> pcloud_factory;
+    PointCloudOperatorFactory pcloud_factory;
 
     // Build the map.
-    Teuchos::RCP<MapOperator<Scalar> > map;
+    Teuchos::RCP<MapOperator> map;
     switch( map_id )
     {
 	// L2 Projection.
 	case L2_PROJECTION:
-	    map = Teuchos::rcp(	new L2ProjectionOperator<Scalar>(
-				    domain_map,range_map,parameters) );
+	    map = Teuchos::rcp(	
+		new L2ProjectionOperator(domain_map,range_map,parameters) );
 	    break;
 	
 	// Consistent Interpolation.
 	case CONSISTENT_INTERPOLATION:
-	    map = Teuchos::rcp(	new ConsistentInterpolationOperator<Scalar>(
+	    map = Teuchos::rcp(	new ConsistentInterpolationOperator(
 				    domain_map,range_map,parameters) );
 	    break;
 
@@ -115,9 +111,5 @@ MapOperatorFactory<Scalar>::create(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_MAPOPERATORFACTORY_IMPL_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_MapOperator_impl.hpp
+// end DTK_MapOperator.cpp
 //---------------------------------------------------------------------------//

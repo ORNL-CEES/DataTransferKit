@@ -61,7 +61,6 @@ namespace DataTransferKit
   their client interface implementations.
 */
 //---------------------------------------------------------------------------//
-template<class Scalar>
 class ClientManager
 {
   public:
@@ -104,7 +103,7 @@ class ClientManager
     /*!
      * \brief Get the field for the given string key.
      */
-    virtual Teuchos::RCP<Field<Scalar> >
+    virtual Teuchos::RCP<Field>
     field( const std::string& field_name ) const = 0;
 };
 

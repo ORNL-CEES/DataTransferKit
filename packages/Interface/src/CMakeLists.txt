@@ -37,18 +37,18 @@ SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/OperatorVector)
 APPEND_SET(HEADERS
   ${DIR}/DTK_BasicEntityPredicates.hpp
   ${DIR}/DTK_FieldMultiVector.hpp
-  ${DIR}/DTK_FieldMultiVector_impl.hpp
   ${DIR}/DTK_FunctionSpace.hpp
   ${DIR}/DTK_IntegrationPoint.hpp
   ${DIR}/DTK_IntegrationPointSet.hpp
   ${DIR}/DTK_MapOperator.hpp
-  ${DIR}/DTK_MapOperator_impl.hpp
   ) 
 
 APPEND_SET(SOURCES
   ${DIR}/DTK_BasicEntityPredicates.cpp
+  ${DIR}/DTK_FieldMultiVector.cpp
   ${DIR}/DTK_FunctionSpace.cpp
   ${DIR}/DTK_IntegrationPointSet.cpp
+  ${DIR}/DTK_MapOperator.cpp
   )
 
 #

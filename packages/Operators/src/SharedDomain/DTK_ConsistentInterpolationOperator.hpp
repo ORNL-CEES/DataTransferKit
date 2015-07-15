@@ -61,14 +61,14 @@ namespace DataTransferKit
   A map operator maps a field in one entity set to another entity set.
 */
 //---------------------------------------------------------------------------//
-template<class Scalar>
-class ConsistentInterpolationOperator : virtual public MapOperator<Scalar>
+class ConsistentInterpolationOperator : virtual public MapOperator
 {
   public:
 
     //! Root class tyepdef.
-    typedef MapOperator<Scalar> Base;
+    typedef MapOperator Base;
     typedef typename Base::Root Root;
+    typedef typename Root::scalar_type Scalar;
     typedef typename Root::local_ordinal_type LO;
     typedef typename Root::global_ordinal_type GO;
     typedef typename Base::TpetraMultiVector TpetraMultiVector;
@@ -123,8 +123,8 @@ class ConsistentInterpolationOperator : virtual public MapOperator<Scalar>
 	const TpetraMultiVector& X,
 	TpetraMultiVector &Y,
 	Teuchos::ETransp mode = Teuchos::NO_TRANS,
-	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
+	double alpha = Teuchos::ScalarTraits<double>::one(),
+	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
 
   private:
 
@@ -145,12 +145,6 @@ class ConsistentInterpolationOperator : virtual public MapOperator<Scalar>
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_ConsistentInterpolationOperator_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

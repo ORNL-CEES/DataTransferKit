@@ -32,18 +32,16 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_L2ProjectionOperator_impl.hpp
+ * \brief DTK_L2ProjectionOperator.cpp
  * \author Stuart R. Slattery
  * \brief L2 projection operator.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_L2PROJECTIONOPERATOR_IMPL_HPP
-#define DTK_L2PROJECTIONOPERATOR_IMPL_HPP
-
 #include <algorithm>
 #include <map>
 
+#include "DTK_L2ProjectionOperator.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_ParallelSearch.hpp"
 #include "DTK_BasicEntityPredicates.hpp"
@@ -66,8 +64,7 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-template<class Scalar>
-L2ProjectionOperator<Scalar>::L2ProjectionOperator(
+L2ProjectionOperator::L2ProjectionOperator(
     const Teuchos::RCP<const TpetraMap>& domain_map,
     const Teuchos::RCP<const TpetraMap>& range_map,
     const Teuchos::ParameterList& parameters )
@@ -84,8 +81,7 @@ L2ProjectionOperator<Scalar>::L2ProjectionOperator(
 
 //---------------------------------------------------------------------------//
 // Setup the map operator.
-template<class Scalar>
-void L2ProjectionOperator<Scalar>::setupImpl(
+void L2ProjectionOperator::setupImpl(
     const Teuchos::RCP<FunctionSpace>& domain_space,
     const Teuchos::RCP<FunctionSpace>& range_space )
 {
@@ -138,10 +134,10 @@ void L2ProjectionOperator<Scalar>::setupImpl(
 			    range_ip_set, coupling_matrix );
 
     // Create an abstract wrapper for the mass matrix.
-    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space_M =
-    	Thyra::createVectorSpace<Scalar>( mass_matrix->getRangeMap() );
-    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_domain_vector_space_M =
-    	Thyra::createVectorSpace<Scalar>( mass_matrix->getDomainMap() );
+    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > thyra_range_vector_space_M =
+    	Thyra::createVectorSpace<double>( mass_matrix->getRangeMap() );
+    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > thyra_domain_vector_space_M =
+    	Thyra::createVectorSpace<double>( mass_matrix->getDomainMap() );
     Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar,LO,GO> > thyra_M =
     	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,LO,GO>() );
     Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar,LO,GO> >(
@@ -149,10 +145,10 @@ void L2ProjectionOperator<Scalar>::setupImpl(
 	    thyra_range_vector_space_M, thyra_domain_vector_space_M, mass_matrix );
 
     // Create an abstract wrapper for the coupling matrix.
-    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_range_vector_space_A =
-    	Thyra::createVectorSpace<Scalar>( coupling_matrix->getRangeMap() );
-    Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar> > thyra_domain_vector_space_A =
-    	Thyra::createVectorSpace<Scalar>( coupling_matrix->getDomainMap() );
+    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > thyra_range_vector_space_A =
+    	Thyra::createVectorSpace<double>( coupling_matrix->getRangeMap() );
+    Teuchos::RCP<const Thyra::VectorSpaceBase<double> > thyra_domain_vector_space_A =
+    	Thyra::createVectorSpace<double>( coupling_matrix->getDomainMap() );
     Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar,LO,GO> > thyra_A =
     	Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar,LO,GO>() );
     Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar,LO,GO> >(
@@ -178,39 +174,37 @@ void L2ProjectionOperator<Scalar>::setupImpl(
 	);
     Stratimikos::DefaultLinearSolverBuilder builder;
     builder.setParameterList( builder_params );
-    Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<Scalar> > factory = 
+    Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<double> > factory = 
 	Thyra::createLinearSolveStrategy( builder );
-    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > thyra_M_inv =
-    	Thyra::inverse<Scalar>( *factory, thyra_M );
+    Teuchos::RCP<const Thyra::LinearOpBase<double> > thyra_M_inv =
+    	Thyra::inverse<double>( *factory, thyra_M );
 
     // Create the projection operator: Op = M^-1 * A.
-    d_l2_operator = Thyra::multiply<Scalar>( thyra_M_inv, thyra_A );
+    d_l2_operator = Thyra::multiply<double>( thyra_M_inv, thyra_A );
     DTK_ENSURE( Teuchos::nonnull(d_l2_operator) );
 }
 
 //---------------------------------------------------------------------------//
 // Apply the operator.
-template<class Scalar>
-void L2ProjectionOperator<Scalar>::applyImpl( 
+void L2ProjectionOperator::applyImpl( 
     const TpetraMultiVector& X,
     TpetraMultiVector &Y,
     Teuchos::ETransp mode,
-    Scalar alpha,
-    Scalar beta ) const
+    double alpha,
+    double beta ) const
 {
     DTK_REQUIRE( Teuchos::NO_TRANS == mode );
-    Teuchos::RCP<const Thyra::MultiVectorBase<Scalar> > thyra_X =
-	Thyra::createConstMultiVector<Scalar>( Teuchos::rcpFromRef(X) );
-    Teuchos::RCP<Thyra::MultiVectorBase<Scalar> > thyra_Y =
-	Thyra::createMultiVector<Scalar>( Teuchos::rcpFromRef(Y) );
+    Teuchos::RCP<const Thyra::MultiVectorBase<double> > thyra_X =
+	Thyra::createConstMultiVector<double>( Teuchos::rcpFromRef(X) );
+    Teuchos::RCP<Thyra::MultiVectorBase<double> > thyra_Y =
+	Thyra::createMultiVector<double>( Teuchos::rcpFromRef(Y) );
     d_l2_operator->apply( 
 	Thyra::NOTRANS, *thyra_X, thyra_Y.ptr(), alpha, beta );
 }
 
 //---------------------------------------------------------------------------//
 // Assemble the mass matrix and range integration point set.
-template<class Scalar>
-void L2ProjectionOperator<Scalar>::assembleMassMatrix(
+void L2ProjectionOperator::assembleMassMatrix(
     const Teuchos::RCP<FunctionSpace>& range_space,
     EntityIterator range_iterator,
     Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> >& mass_matrix,
@@ -320,8 +314,7 @@ void L2ProjectionOperator<Scalar>::assembleMassMatrix(
 }
 
 //---------------------------------------------------------------------------//
-template<class Scalar>
-void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
+void L2ProjectionOperator::assembleCouplingMatrix(
     const Teuchos::RCP<FunctionSpace>& domain_space,
     EntityIterator domain_iterator,
     const Teuchos::RCP<IntegrationPointSet>& range_ip_set,
@@ -522,8 +515,6 @@ void L2ProjectionOperator<Scalar>::assembleCouplingMatrix(
 
 } // end namespace DataTransferKit
 
-# endif // end DTK_L2PROJECTIONOPERATOR_IMPL_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_L2ProjectionOperator_impl.hpp
+// end DTK_L2ProjectionOperator.cpp
 //---------------------------------------------------------------------------//

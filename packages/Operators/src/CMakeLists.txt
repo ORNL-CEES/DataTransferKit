@@ -19,10 +19,13 @@ APPEND_SET(SOURCES
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/SharedDomain)
 APPEND_SET(HEADERS
   ${DIR}/DTK_ConsistentInterpolationOperator.hpp
-  ${DIR}/DTK_ConsistentInterpolationOperator_impl.hpp
   ${DIR}/DTK_L2ProjectionOperator.hpp
-  ${DIR}/DTK_L2ProjectionOperator_impl.hpp
   ) 
+
+APPEND_SET(SOURCES
+  ${DIR}/DTK_ConsistentInterpolationOperator.cpp
+  ${DIR}/DTK_L2ProjectionOperator.cpp
+  )
 
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/PointCloud)
 APPEND_SET(HEADERS
@@ -63,10 +66,13 @@ APPEND_SET(SOURCES
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/Factory)
 APPEND_SET(HEADERS
   ${DIR}/DTK_MapOperatorFactory.hpp
-  ${DIR}/DTK_MapOperatorFactory_impl.hpp
   ${DIR}/DTK_PointCloudOperatorFactory.hpp
-  ${DIR}/DTK_PointCloudOperatorFactory_impl.hpp
   ) 
+
+APPEND_SET(SOURCES
+  ${DIR}/DTK_MapOperatorFactory.cpp
+  ${DIR}/DTK_PointCloudOperatorFactory.cpp
+  )
 
 TRIBITS_ADD_LIBRARY(
   dtk_operators

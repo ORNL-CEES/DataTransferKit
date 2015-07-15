@@ -64,15 +64,16 @@ namespace DataTransferKit
  * problems.
  */
 //---------------------------------------------------------------------------//
-template<class Scalar,class Basis,int DIM>
-class SplineInterpolationOperator : virtual public MapOperator<Scalar>
+template<class Basis,int DIM>
+class SplineInterpolationOperator : virtual public MapOperator
 {
   public:
 
     //@{
     //! Typedefs.
-    typedef MapOperator<Scalar> Base;
+    typedef MapOperator Base;
     typedef typename Base::Root Root;
+    typedef typename Root::scalar_type Scalar;
     typedef typename Root::local_ordinal_type LO;
     typedef typename Root::global_ordinal_type GO;
     typedef typename Base::TpetraMultiVector TpetraMultiVector;
@@ -120,8 +121,8 @@ class SplineInterpolationOperator : virtual public MapOperator<Scalar>
 	const TpetraMultiVector& X,
 	TpetraMultiVector &Y,
 	Teuchos::ETransp mode = Teuchos::NO_TRANS,
-	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
+	double alpha = Teuchos::ScalarTraits<double>::one(),
+	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
     
   private:
 
@@ -141,7 +142,7 @@ class SplineInterpolationOperator : virtual public MapOperator<Scalar>
     double d_radius;
 
     // Coupling matrix.
-    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > d_coupling_matrix;
+    Teuchos::RCP<const Thyra::LinearOpBase<double> > d_coupling_matrix;
 };
 
 //---------------------------------------------------------------------------//

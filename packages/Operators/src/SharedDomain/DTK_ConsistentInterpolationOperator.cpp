@@ -32,14 +32,11 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_ConsistentInterpolationOperator_impl.hpp
+ * \brief DTK_ConsistentInterpolationOperator.cpp
  * \author Stuart R. Slattery
  * \brief Consistent interpolation operator.
  */
 //---------------------------------------------------------------------------//
-
-#ifndef DTK_CONSISTENTINTERPOLATIONOPERATOR_IMPL_HPP
-#define DTK_CONSISTENTINTERPOLATIONOPERATOR_IMPL_HPP
 
 #include <algorithm>
 #include <unordered_map>
@@ -58,8 +55,7 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-template<class Scalar>
-ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator(
+ConsistentInterpolationOperator::ConsistentInterpolationOperator(
     const Teuchos::RCP<const TpetraMap>& domain_map,
     const Teuchos::RCP<const TpetraMap>& range_map,
     const Teuchos::ParameterList& parameters )
@@ -81,8 +77,7 @@ ConsistentInterpolationOperator<Scalar>::ConsistentInterpolationOperator(
 
 //---------------------------------------------------------------------------//
 // Setup the map operator.
-template<class Scalar>
-void ConsistentInterpolationOperator<Scalar>::setupImpl(
+void ConsistentInterpolationOperator::setupImpl(
     const Teuchos::RCP<FunctionSpace>& domain_space,
     const Teuchos::RCP<FunctionSpace>& range_space )
 {
@@ -158,8 +153,8 @@ void ConsistentInterpolationOperator<Scalar>::setupImpl(
     // on this process and the number of domain entities they were found in
     // globally for averaging.
     std::unordered_map<EntityId,GO> range_support_id_map;
-    Teuchos::RCP<Tpetra::Vector<Scalar,int,SupportId> > scale_vector =
-	Tpetra::createVector<Scalar,int,SupportId>( range_map );
+    Teuchos::RCP<Tpetra::Vector<double,int,SupportId> > scale_vector =
+	Tpetra::createVector<double,int,SupportId>( range_map );
     {
 	// Extract the set of local range entities that were found in domain
 	// entities.
@@ -224,7 +219,7 @@ void ConsistentInterpolationOperator<Scalar>::setupImpl(
 
     // Allocate the coupling matrix.
     d_coupling_matrix = 
-	Tpetra::createCrsMatrix<Scalar,LO,GO>( range_map );
+	Tpetra::createCrsMatrix<double,LO,GO>( range_map );
 
     // Construct the entries of the coupling matrix.
     Teuchos::Array<EntityId> range_entity_ids;
@@ -281,13 +276,12 @@ void ConsistentInterpolationOperator<Scalar>::setupImpl(
 
 //---------------------------------------------------------------------------//
 // Apply the operator.
-template<class Scalar>
-void ConsistentInterpolationOperator<Scalar>::applyImpl( 
+void ConsistentInterpolationOperator::applyImpl( 
     const TpetraMultiVector& X,
     TpetraMultiVector &Y,
     Teuchos::ETransp mode,
-    Scalar alpha,
-    Scalar beta ) const
+    double alpha,
+    double beta ) const
 {
     d_coupling_matrix->apply( X, Y, mode, alpha, beta );
 }
@@ -296,9 +290,8 @@ void ConsistentInterpolationOperator<Scalar>::applyImpl(
 // Return the ids of the range entities that were not mapped during the last
 // setup phase (i.e. those that are guaranteed to not receive data from the
 // transfer). 
-template<class Scalar>
 Teuchos::ArrayView<const EntityId> 
-ConsistentInterpolationOperator<Scalar>::getMissedRangeEntityIds() const
+ConsistentInterpolationOperator::getMissedRangeEntityIds() const
 {
     return d_missed_range_entity_ids();
 }
@@ -307,8 +300,6 @@ ConsistentInterpolationOperator<Scalar>::getMissedRangeEntityIds() const
 
 } // end namespace DataTransferKit
 
-# endif // end DTK_CONSISTENTINTERPOLATIONOPERATOR_IMPL_HPP
-
 //---------------------------------------------------------------------------//
-// end DTK_ConsistentInterpolationOperator_impl.hpp
+// end DTK_ConsistentInterpolationOperator.cpp
 //---------------------------------------------------------------------------//

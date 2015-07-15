@@ -68,8 +68,8 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-template<class Scalar,class Basis,int DIM>
-SplineInterpolationOperator<Scalar,Basis,DIM>::SplineInterpolationOperator(
+template<class Basis,int DIM>
+SplineInterpolationOperator<Basis,DIM>::SplineInterpolationOperator(
     const Teuchos::RCP<const TpetraMap>& domain_map,
     const Teuchos::RCP<const TpetraMap>& range_map,
     const Teuchos::ParameterList& parameters )
@@ -82,8 +82,8 @@ SplineInterpolationOperator<Scalar,Basis,DIM>::SplineInterpolationOperator(
 
 //---------------------------------------------------------------------------//
 // Setup the map operator.
-template<class Scalar,class Basis,int DIM>
-void SplineInterpolationOperator<Scalar,Basis,DIM>::setupImpl(
+template<class Basis,int DIM>
+void SplineInterpolationOperator<Basis,DIM>::setupImpl(
     const Teuchos::RCP<FunctionSpace>& domain_space,
     const Teuchos::RCP<FunctionSpace>& range_space )
 {
@@ -210,8 +210,8 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::setupImpl(
 
 //---------------------------------------------------------------------------//
 // Apply the operator.
-template<class Scalar,class Basis,int DIM>
-void SplineInterpolationOperator<Scalar,Basis,DIM>::applyImpl( 
+template<class Basis,int DIM>
+void SplineInterpolationOperator<Basis,DIM>::applyImpl( 
     const TpetraMultiVector& X,
     TpetraMultiVector &Y,
     Teuchos::ETransp mode,
@@ -231,8 +231,8 @@ void SplineInterpolationOperator<Scalar,Basis,DIM>::applyImpl(
 /*!
  * \brief Build the concrete operators.
  */
-template<class Scalar,class Basis,int DIM>
-void SplineInterpolationOperator<Scalar,Basis,DIM>::buildConcreteOperators(
+template<class Basis,int DIM>
+void SplineInterpolationOperator<Basis,DIM>::buildConcreteOperators(
 	const Teuchos::RCP<FunctionSpace>& domain_space,
 	const Teuchos::RCP<FunctionSpace>& range_space,
 	Teuchos::RCP<const Root>& S,

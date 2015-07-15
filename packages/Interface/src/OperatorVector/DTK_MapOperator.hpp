@@ -60,19 +60,18 @@ namespace DataTransferKit
   A map operator maps a field in one entity set to another entity set.
 */
 //---------------------------------------------------------------------------//
-template<class Scalar>
-class MapOperator : public Tpetra::Operator<Scalar,int,SupportId>
+class MapOperator : public Tpetra::Operator<double,int,SupportId>
 {
   public:
 
     //! Root class typedef.
-    typedef Tpetra::Operator<Scalar,int,SupportId> Root;
+    typedef Tpetra::Operator<double,int,SupportId> Root;
 
     //! Map typedef.
     typedef Tpetra::Map<int,SupportId,typename Root::node_type> TpetraMap;
 
     //! MultiVector typedef.
-    typedef Tpetra::MultiVector<Scalar,int,SupportId,typename Root::node_type>
+    typedef Tpetra::MultiVector<double,int,SupportId,typename Root::node_type>
     TpetraMultiVector;
 
     /*!
@@ -122,8 +121,8 @@ class MapOperator : public Tpetra::Operator<Scalar,int,SupportId>
 	const TpetraMultiVector& X,
 	TpetraMultiVector& Y,
 	Teuchos::ETransp mode = Teuchos::NO_TRANS,
-	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero() ) const override;
+	double alpha = Teuchos::ScalarTraits<double>::one(),
+	double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
     bool hasTransposeApply() const override { return false; }
     //@}
 
@@ -138,8 +137,8 @@ class MapOperator : public Tpetra::Operator<Scalar,int,SupportId>
     virtual void applyImpl( const TpetraMultiVector& X,
 			    TpetraMultiVector& Y,
 			    Teuchos::ETransp mode,
-			    Scalar alpha,
-			    Scalar beta ) const = 0;
+			    double alpha,
+			    double beta ) const = 0;
     
   private:
 
@@ -156,12 +155,6 @@ class MapOperator : public Tpetra::Operator<Scalar,int,SupportId>
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_MapOperator_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

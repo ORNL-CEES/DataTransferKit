@@ -63,13 +63,12 @@ namespace DataTransferKit
   using the client implementations for data access.
 */
 //---------------------------------------------------------------------------//
-template<class Scalar>
-class FieldMultiVector : public Tpetra::MultiVector<Scalar,int,SupportId>
+class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
 {
   public:
 
     //! MultiVector typedef.
-    typedef Tpetra::MultiVector<Scalar,int,SupportId> Base;
+    typedef Tpetra::MultiVector<double,int,SupportId> Base;
 
     /*!
      * \brief Constructor. This will allocate the Tpetra vector.
@@ -78,7 +77,7 @@ class FieldMultiVector : public Tpetra::MultiVector<Scalar,int,SupportId>
      *
      * \param entity_set The entity set over which the field is defined.
      */
-    FieldMultiVector( const Teuchos::RCP<Field<Scalar> >& field,
+    FieldMultiVector( const Teuchos::RCP<Field>& field,
 		      const Teuchos::RCP<EntitySet>& entity_set );
 
     /*!
@@ -94,18 +93,12 @@ class FieldMultiVector : public Tpetra::MultiVector<Scalar,int,SupportId>
   private:
 
     // The field this multivector is managing.
-    Teuchos::RCP<Field<Scalar> > d_field;
+    Teuchos::RCP<Field> d_field;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_FieldMultiVector_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

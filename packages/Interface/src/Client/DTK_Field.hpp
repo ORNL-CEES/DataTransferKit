@@ -69,7 +69,6 @@ namespace DataTransferKit
   the solution transfer.
 */
 //---------------------------------------------------------------------------//
-template<class Scalar>
 class Field
 {
   public:
@@ -98,7 +97,7 @@ class Field
      * \brief Given a local support id and a dimension, read data from the
      * application field.
      */
-    virtual Scalar readFieldData( const SupportId support_id,
+    virtual double readFieldData( const SupportId support_id,
 				  const int dimension ) const = 0;
 
     /*!
@@ -107,7 +106,7 @@ class Field
      */
     virtual void writeFieldData( const SupportId support_id,
 				 const int dimension,
-				 const Scalar data ) = 0;
+				 const double data ) = 0;
 
     /*!
      * \brief Finalize a field after writing into it. This lets some clients

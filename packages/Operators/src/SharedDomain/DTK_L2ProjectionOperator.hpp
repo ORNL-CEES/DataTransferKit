@@ -65,14 +65,14 @@ namespace DataTransferKit
   Galerkin problem is assembled over the range (target) entity set.
 */
 //---------------------------------------------------------------------------//
-template<class Scalar>
-class L2ProjectionOperator : virtual public MapOperator<Scalar>
+class L2ProjectionOperator : virtual public MapOperator
 {
   public:
 
     //! Root class tyepdef.
-    typedef MapOperator<Scalar> Base;
+    typedef MapOperator Base;
     typedef typename Base::Root Root;
+    typedef typename Root::scalar_type Scalar;
     typedef typename Root::local_ordinal_type LO;
     typedef typename Root::global_ordinal_type GO;
     typedef typename Base::TpetraMultiVector TpetraMultiVector;
@@ -118,8 +118,8 @@ class L2ProjectionOperator : virtual public MapOperator<Scalar>
 	const TpetraMultiVector& X,
 	TpetraMultiVector &Y,
 	Teuchos::ETransp mode = Teuchos::NO_TRANS,
-	Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
-	Scalar beta = Teuchos::ScalarTraits<Scalar>::zero()) const override;
+	double alpha = Teuchos::ScalarTraits<double>::one(),
+	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
 
   private:
 
@@ -127,7 +127,7 @@ class L2ProjectionOperator : virtual public MapOperator<Scalar>
     void assembleMassMatrix(
 	const Teuchos::RCP<FunctionSpace>& range_space,
 	EntityIterator range_iterator,
-	Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> >& mass_matrix,
+	Teuchos::RCP<Tpetra::CrsMatrix<double,LO,GO> >& mass_matrix,
 	Teuchos::RCP<IntegrationPointSet>& range_ip_set );
 
     // Assemble the coupling matrix.
@@ -135,7 +135,7 @@ class L2ProjectionOperator : virtual public MapOperator<Scalar>
 	const Teuchos::RCP<FunctionSpace>& domain_space,
 	EntityIterator domain_iterator,
 	const Teuchos::RCP<IntegrationPointSet>& range_ip_set,
-	Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> >& coupling_matrix );
+	Teuchos::RCP<Tpetra::CrsMatrix<double,LO,GO> >& coupling_matrix );
     
   private:
 
@@ -146,18 +146,12 @@ class L2ProjectionOperator : virtual public MapOperator<Scalar>
     Teuchos::ParameterList d_search_list;
 
     // Coupling matrix.
-    Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > d_l2_operator;
+    Teuchos::RCP<const Thyra::LinearOpBase<double> > d_l2_operator;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_L2ProjectionOperator_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
