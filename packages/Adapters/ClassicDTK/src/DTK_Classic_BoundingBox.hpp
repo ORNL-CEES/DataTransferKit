@@ -76,9 +76,6 @@ class BoundingBox
     // Tuple constructor.
     BoundingBox( const Teuchos::Tuple<double,6>& bounds );
 
-    // Destructor.
-    ~BoundingBox();
-
     // Determine if a point is in the box.
     bool pointInBox( const Teuchos::Array<double>& coords ) const;
 

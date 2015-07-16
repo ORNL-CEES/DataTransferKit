@@ -110,13 +110,6 @@ Box::Box( const Teuchos::Tuple<double,6>& bounds )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Destructor.
- */
-Box::~Box()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Determine if a point is in the box within a specified tolerance.
  *
  * \param coords Cartesian coordinates to check for point inclusion. The

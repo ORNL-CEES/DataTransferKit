@@ -52,7 +52,7 @@ namespace DataTransferKit
  */
 Cylinder::Cylinder()
 {
-    this->b_entity_impl = Teuchos::rcp( new CylinderImpl() );
+    this->b_entity_impl = Teuchos::ptr( new CylinderImpl() );
 }
 
 //---------------------------------------------------------------------------//

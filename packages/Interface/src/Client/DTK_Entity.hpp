@@ -46,6 +46,7 @@
 #include "DTK_EntityExtraData.hpp"
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Ptr.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_Describable.hpp>
@@ -56,6 +57,13 @@ namespace DataTransferKit
 /*!
   \class Entity
   \brief Geometric entity interface definition.
+
+  Entity is a bridge pattern to enable objects (such as iterators) to return
+  entities while maintaining the underlying client implementation. The client
+  implementation itself lies in the implementation of the EntityImpl
+  interface. The client implementation of Entity simply constructs the correct
+  pointer to EntityImpl. See the various implementations of Entity and
+  EntityImpl in the Adapters/ packages.
 */
 //---------------------------------------------------------------------------//
 class Entity : public Teuchos::Describable
@@ -170,7 +178,7 @@ class Entity : public Teuchos::Describable
   protected:
 
     // Entity implementation.
-    Teuchos::RCP<EntityImpl> b_entity_impl;
+    Teuchos::Ptr<EntityImpl> b_entity_impl;
 };
 
 //---------------------------------------------------------------------------//

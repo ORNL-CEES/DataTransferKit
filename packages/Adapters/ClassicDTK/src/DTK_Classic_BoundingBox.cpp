@@ -110,13 +110,6 @@ BoundingBox::BoundingBox( const Teuchos::Tuple<double,6>& bounds )
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Destructor.
- */
-BoundingBox::~BoundingBox()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-/*!
  * \brief Determine if a point is in the box. 
  *
  * \param coords Cartesian coordinates to check for point inclusion. The

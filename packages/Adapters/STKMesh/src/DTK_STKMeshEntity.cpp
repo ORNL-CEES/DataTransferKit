@@ -50,7 +50,7 @@ STKMeshEntity::STKMeshEntity(
     const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data )
 {
     this->b_entity_impl = 
-	Teuchos::rcp( new STKMeshEntityImpl(stk_entity,bulk_data) );
+	Teuchos::ptr( new STKMeshEntityImpl(stk_entity,bulk_data) );
 }
 
 //---------------------------------------------------------------------------//

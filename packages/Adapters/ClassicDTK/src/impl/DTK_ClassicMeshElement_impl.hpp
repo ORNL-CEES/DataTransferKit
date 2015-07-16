@@ -53,7 +53,7 @@ ClassicMeshElement<Mesh>::ClassicMeshElement(
     const EntityId global_id,
     const int block_id )
 {
-    this->b_entity_impl = Teuchos::rcp(
+    this->b_entity_impl = Teuchos::ptr(
 	new ClassicMeshElementImpl<Mesh>(mesh,global_id,block_id) );
 }
 
