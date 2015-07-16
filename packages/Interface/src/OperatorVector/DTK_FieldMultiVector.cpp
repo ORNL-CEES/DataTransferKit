@@ -101,9 +101,5 @@ void FieldMultiVector::pushDataToApplication()
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_FIELDMULTIVECTOR_IMPL_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_FieldMultiVector_impl.hpp
+// end DTK_FieldMultiVector.cpp
 //---------------------------------------------------------------------------//

@@ -61,9 +61,9 @@
 
 #include <Tpetra_MultiVector.hpp>
 
-#include <MBInterface.hpp>
-#include <MBParallelComm.hpp>
-#include <MBCore.hpp>
+#include <moab/Interface.hpp>
+#include <moab/ParallelComm.hpp>
+#include <moab/Core.hpp>
 
 #include <libmesh/libmesh.h>
 #include <libmesh/parallel.h>

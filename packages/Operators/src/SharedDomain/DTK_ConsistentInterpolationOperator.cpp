@@ -41,6 +41,7 @@
 #include <algorithm>
 #include <unordered_map>
 
+#include "DTK_ConsistentInterpolationOperator.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_ParallelSearch.hpp"
 #include "DTK_BasicEntityPredicates.hpp"

@@ -100,20 +100,18 @@ void MapOperator::apply( const TpetraMultiVector& X,
 			 const double beta ) const
 {
     // Pull data from the application.
-    const FieldMultiVector<double>& X_fmv =
-	dynamic_cast<const FieldMultiVector<double>&>( X );
-    const_cast<FieldMultiVector<double>&>( X_fmv ).pullDataFromApplication();
+    const FieldMultiVector& X_fmv = dynamic_cast<const FieldMultiVector&>( X );
+    const_cast<FieldMultiVector&>( X_fmv ).pullDataFromApplication();
     if ( beta != Teuchos::ScalarTraits<double>::zero() )
     {
-	dynamic_cast<FieldMultiVector<double>&
-		     >( Y ).pullDataFromApplication();
+	dynamic_cast<FieldMultiVector&>( Y ).pullDataFromApplication();
     }
     
     // Apply the operator.
     applyImpl( X, Y, mode, alpha, beta );
 
     // Push the data into the application.
-    dynamic_cast<FieldMultiVector<double>&>( Y ).pushDataToApplication();
+    dynamic_cast<FieldMultiVector&>( Y ).pushDataToApplication();
 }
 
 //---------------------------------------------------------------------------//

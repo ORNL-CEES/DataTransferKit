@@ -135,6 +135,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    parameters->sublist("Consistent Interpolation");
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
@@ -229,6 +230,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    parameters->sublist("Consistent Interpolation");
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
@@ -323,6 +325,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    parameters->sublist("Consistent Interpolation");
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
@@ -427,6 +430,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    parameters->sublist("Consistent Interpolation");
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);    
     Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
@@ -521,6 +525,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    parameters->sublist("Consistent Interpolation");
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
@@ -621,6 +626,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     // MAPPING
     // Create a map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    parameters->sublist("Consistent Interpolation");
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
@@ -725,6 +731,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    parameters->sublist("Consistent Interpolation");
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
@@ -832,6 +839,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
     // MAPPING
     // Create a map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    parameters->sublist("Consistent Interpolation");
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",true);
     Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(

@@ -74,6 +74,8 @@ SplineInterpolationOperator<Basis,DIM>::SplineInterpolationOperator(
     const Teuchos::RCP<const TpetraMap>& range_map,
     const Teuchos::ParameterList& parameters )
     : Base( domain_map, range_map )
+    , d_domain_entity_dim( 0 )
+    , d_range_entity_dim( 0 )      
 {
     // Get the basis radius.
     DTK_REQUIRE( parameters.isParameter("RBF Radius") );

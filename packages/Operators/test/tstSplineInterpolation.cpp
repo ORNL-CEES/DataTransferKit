@@ -131,7 +131,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     Teuchos::RCP<DataTransferKit::Field> domain_field =
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  domain_points(), field_dim, domain_data,
-			  DataTransferKit::EntityCenteredField<double>::BLOCKED) );
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_vector =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
