@@ -125,6 +125,12 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
     // Basis radius.
     double d_radius;
 
+    // Domain entity topological dimension. Default is 0 (vertex).
+    int d_domain_entity_dim;
+
+    // Range entity topological dimension. Default is 0 (vertex).
+    int d_range_entity_dim;
+
     // Coupling matrix.
     Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > d_coupling_matrix;
 };

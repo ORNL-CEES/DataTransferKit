@@ -66,10 +66,23 @@ MovingLeastSquareReconstructionOperator(
     const Teuchos::RCP<const TpetraMap>& range_map,
     const Teuchos::ParameterList& parameters )
     : Base( domain_map, range_map )
+    , d_domain_entity_dim( 0 )
+    , d_range_entity_dim( 0 )
 {
     // Get the basis radius.
     DTK_REQUIRE( parameters.isParameter("RBF Radius") );
     d_radius = parameters.get<double>("RBF Radius");
+
+    // Get the topological dimension of the domain and range entities. This
+    // map will use their centroids for the point cloud.
+    if ( parameters.isParameter("Domain Entity Dimension") )
+    {
+	d_domain_entity_dim = parameters.get<int>("Domain Entity Dimension");
+    }
+    if ( parameters.isParameter("Range Entity Dimension") )
+    {
+	d_range_entity_dim = parameters.get<int>("Range Entity Dimension");
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -106,7 +119,7 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
 	    PredicateComposition::And(
 		domain_space->selectFunction(),	local_predicate.getFunction() );
 	domain_iterator =
-	    domain_space->entitySet()->entityIterator( 0, domain_predicate );
+	    domain_space->entitySet()->entityIterator( d_domain_entity_dim, domain_predicate );
     }
     int local_num_src = domain_iterator.size();
     Teuchos::ArrayRCP<double> source_centers( DIM*local_num_src);
@@ -135,7 +148,7 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
 	    PredicateComposition::And(
 		range_space->selectFunction(), local_predicate.getFunction() );
 	range_iterator =
-	    range_space->entitySet()->entityIterator( 0, range_predicate );
+	    range_space->entitySet()->entityIterator( d_range_entity_dim, range_predicate );
     } 
     int local_num_tgt = range_iterator.size();
     Teuchos::ArrayRCP<double> target_centers( DIM*local_num_tgt );
