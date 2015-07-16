@@ -291,6 +291,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     
     // Create parameters for the mapping.
     Teuchos::ParameterList parameters;
+    parameters.sublist("Consistent Interpolation");
     Teuchos::ParameterList& search_list = parameters.sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",d_store_missed_points);
     search_list.set<double>("Point Inclusion Tolerance", d_geometric_tolerance );

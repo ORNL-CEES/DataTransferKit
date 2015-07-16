@@ -272,6 +272,7 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
 
     // Create parameters for the mapping.
     Teuchos::ParameterList parameters;
+    parameters.sublist("Consistent Interpolation");
     Teuchos::ParameterList& search_list = parameters.sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",d_store_missed_points);
     search_list.set<double>("Point Inclusion Tolerance", tolerance );
@@ -332,7 +333,7 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     // Build a vector for the source values.
     Teuchos::RCP<DataTransferKit::EntityCenteredField>
 	source_dtk_field = Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredField>(
+	    new DataTransferKit::EntityCenteredField(
 		d_source_node_ids(),
 		source_dim,
 		source_field_copy,

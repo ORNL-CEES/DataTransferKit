@@ -37,6 +37,11 @@
  * \brief  Tag field test
  */
 //---------------------------------------------------------------------------//
+
+#include <moab/Interface.hpp>
+#include <moab/ParallelComm.hpp>
+#include <moab/Core.hpp>
+
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -49,7 +54,6 @@
 #include "DTK_MapOperatorFactory.hpp"
 #include "DTK_LibmeshManager.hpp"
 
-#include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayRCP.hpp>
@@ -58,12 +62,9 @@
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_VerboseObject.hpp>
 #include <Teuchos_FancyOStream.hpp>
+#include "Teuchos_XMLParameterListCoreHelpers.hpp"
 
 #include <Tpetra_MultiVector.hpp>
-
-#include <moab/Interface.hpp>
-#include <moab/ParallelComm.hpp>
-#include <moab/Core.hpp>
 
 #include <libmesh/libmesh.h>
 #include <libmesh/parallel.h>
@@ -76,6 +77,7 @@
 #include <libmesh/explicit_system.h>
 #include <libmesh/exodusII_io.h>
 #include <libmesh/numeric_vector.h>
+
 //---------------------------------------------------------------------------//
 // MOAB error check.
 //---------------------------------------------------------------------------//
@@ -95,12 +97,14 @@ double dataFunction(double x, double y, double z) {
 //---------------------------------------------------------------------------//
 // Example driver.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( LibmeshDTKAdapters, LibmeshToMoabTest ) {
+int main(int argc, char* argv[])
+{
+    // INITIALIZATION
+    // --------------
 
-    // Create input args.
-    const std::string argv_string = "--keep-cout";
-    const char* argv_char = argv_string.c_str();
-
+    // Setup communication.
+    Teuchos::GlobalMPISession mpiSession(&argc,&argv);
+    
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
 	Teuchos::DefaultComm<int>::getComm();
@@ -121,7 +125,7 @@ TEUCHOS_UNIT_TEST( LibmeshDTKAdapters, LibmeshToMoabTest ) {
     // ----------------
     
     // Initialize libmesh.
-    libMesh::LibMeshInit libmesh_init(1, &argv_char, raw_comm);
+    libMesh::LibMeshInit libmesh_init( argc, argv, raw_comm );
 
     // Create a source mesh.
     Teuchos::RCP<libMesh::Mesh> src_mesh = Teuchos::rcp(

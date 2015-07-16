@@ -223,7 +223,7 @@ class STKMeshManager : ClientManager
     std::unordered_map<std::string,int> d_field_indexer;
     
     // Registered fields.
-    Teuchos::Array<Teuchos::RCP<Field<double> > > d_fields;
+    Teuchos::Array<Teuchos::RCP<Field> > d_fields;
 };
 
 //---------------------------------------------------------------------------//

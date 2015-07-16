@@ -7,18 +7,16 @@ TRIBITS_ADD_EXECUTABLE(
   COMM serial mpi
   )
 
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
+TRIBITS_ADD_EXECUTABLE(
   MoabToLibmeshParallel
-  SOURCES tstMoabtoLibmeshParallelTransfer.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  SOURCES tstMoabtoLibmeshParallelTransfer.cpp
   COMM mpi
-  STANDARD_PASS_OUTPUT
   )
 
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
+TRIBITS_ADD_EXECUTABLE(
   LibmeshToMoabParallel
-  SOURCES tstLibmeshToMoabParallelTransfer.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  SOURCES tstLibmeshToMoabParallelTransfer.cpp
   COMM mpi
-  STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_COPY_FILES_TO_BINARY_DIR(
