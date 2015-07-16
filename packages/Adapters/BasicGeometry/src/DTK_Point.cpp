@@ -49,7 +49,7 @@ namespace DataTransferKit
 // Default constructor.
 Point::Point()
 {
-    d_point_impl = Teuchos::ptr( new PointImpl() );
+    d_point_impl = Teuchos::rcp( new PointImpl() );
     this->b_entity_impl = d_point_impl;
 }
 
@@ -61,20 +61,10 @@ Point::Point( const EntityId global_id,
 	      const Teuchos::Array<int>& block_ids,
 	      const Teuchos::Array<int>& boundary_ids )
 {
-    d_point_impl = Teuchos::ptr( 
+    d_point_impl = Teuchos::rcp( 
 	new PointImpl(global_id,owner_rank,coordinates,		      
 		      block_ids,boundary_ids) ); 
     this->b_entity_impl = d_point_impl;
-}
-
-//---------------------------------------------------------------------------//
-// Destructor.
-Point::~Point()
-{
-    if ( Teuchos::nonnull(d_point_impl) )
-    {
-	delete d_point_impl.getRawPtr();
-    }
 }
 
 //---------------------------------------------------------------------------//

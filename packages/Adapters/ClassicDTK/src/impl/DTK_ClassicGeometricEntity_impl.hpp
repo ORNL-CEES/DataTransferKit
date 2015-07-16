@@ -53,7 +53,7 @@ ClassicGeometricEntity<Geometry>::ClassicGeometricEntity(
     const EntityId global_id,
     const int owner_rank )
 {
-    this->b_entity_impl = Teuchos::ptr(
+    this->b_entity_impl = Teuchos::rcp(
 	new ClassicGeometricEntityImpl<Geometry>(geometry,global_id,owner_rank) );
 }
 

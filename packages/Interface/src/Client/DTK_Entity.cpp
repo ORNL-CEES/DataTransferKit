@@ -83,12 +83,7 @@ Entity& Entity::operator=( Entity&& rhs )
 //---------------------------------------------------------------------------//
 //brief Destructor.
 Entity::~Entity()
-{
-    if ( Teuchos::nonnull(b_entity_impl) )
-    {
-	delete b_entity_impl.getRawPtr();
-    }
-}
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.

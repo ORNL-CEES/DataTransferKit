@@ -50,7 +50,7 @@ namespace DataTransferKit
  */
 Box::Box()
 { 
-    this->b_entity_impl = Teuchos::ptr( new BoxImpl() );
+    this->b_entity_impl = Teuchos::rcp( new BoxImpl() );
 }
 
 //---------------------------------------------------------------------------//

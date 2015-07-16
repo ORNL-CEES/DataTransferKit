@@ -79,6 +79,9 @@ class Box
     // Tuple constructor.
     Box( const Teuchos::Tuple<double,6>& bounds );
 
+    // Destructor.
+    ~Box();
+
     // Determine if a point is in the box within a specified tolerance
     bool pointInBox( const Teuchos::Array<double>& coords,
 		     const double tolerance ) const;

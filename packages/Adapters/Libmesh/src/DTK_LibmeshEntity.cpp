@@ -54,7 +54,7 @@ LibmeshEntity<libMesh::Elem>::LibmeshEntity(
     const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
     const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies )
 {
-    this->b_entity_impl = Teuchos::ptr(
+    this->b_entity_impl = Teuchos::rcp(
 	new LibmeshEntityImpl<libMesh::Elem>(
 	    libmesh_elem,libmesh_mesh,adjacencies) );
 }
@@ -67,7 +67,7 @@ LibmeshEntity<libMesh::Node>::LibmeshEntity(
     const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
     const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies )
 {
-    this->b_entity_impl = Teuchos::ptr(
+    this->b_entity_impl = Teuchos::rcp(
 	new LibmeshEntityImpl<libMesh::Node>(
 	    libmesh_node,libmesh_mesh,adjacencies) );
 }
