@@ -68,7 +68,7 @@ Teuchos::RCP<const Teuchos::Comm<int> > LibmeshEntitySet::communicator() const
 // Return the largest physical dimension of the entities in the set. 
 int LibmeshEntitySet::physicalDimension() const
 {
-    return d_libmesh_mesh->spatial_dimension();
+    return d_libmesh_mesh->mesh_dimension();
 }
 
 //---------------------------------------------------------------------------//

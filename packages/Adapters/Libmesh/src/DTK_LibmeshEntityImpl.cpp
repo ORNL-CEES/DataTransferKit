@@ -94,7 +94,7 @@ int LibmeshEntityImpl<libMesh::Elem>::topologicalDimension() const
 template<>
 int LibmeshEntityImpl<libMesh::Elem>::physicalDimension() const
 { 
-    return d_mesh->spatial_dimension();
+    return d_mesh->mesh_dimension();
 }
 
 //---------------------------------------------------------------------------//
@@ -218,7 +218,7 @@ int LibmeshEntityImpl<libMesh::Node>::topologicalDimension() const
 template<>
 int LibmeshEntityImpl<libMesh::Node>::physicalDimension() const
 { 
-    return d_mesh->spatial_dimension();
+    return d_mesh->mesh_dimension();
 }
 
 //---------------------------------------------------------------------------//
