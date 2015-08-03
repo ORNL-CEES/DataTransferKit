@@ -113,14 +113,21 @@ void STKMeshEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 
     double max = std::numeric_limits<double>::max();
     bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
+    int space_dim = node_coords.dimension(2);
     for ( int n = 0; n < node_coords.dimension(1); ++n )
     {
-	for ( int d = 0; d < node_coords.dimension(2); ++d )
+	for ( int d = 0; d < space_dim; ++d )
 	{
 	    bounds[d] = std::min( bounds[d], node_coords(0,n,d) );
 	    bounds[d+3] = std::max( bounds[d+3], node_coords(0,n,d) );
 	}
     }
+    for ( int d = space_dim; d < 3; ++d )
+    {
+	bounds[d] = -max;
+	bounds[d+3] = max;
+    }
+
 }
 
 //---------------------------------------------------------------------------//

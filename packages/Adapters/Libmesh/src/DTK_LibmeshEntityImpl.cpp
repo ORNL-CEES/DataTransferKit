@@ -125,6 +125,11 @@ void LibmeshEntityImpl<libMesh::Elem>::boundingBox(
 	    bounds[d+3] = std::max( bounds[d+3], node(d) );
 	}
     }
+    for ( int d = space_dim; d < 3; ++d )
+    {
+	bounds[d] = -max;
+	bounds[d+3] = max;
+    }
 }
 
 //---------------------------------------------------------------------------//
