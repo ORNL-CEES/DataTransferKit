@@ -160,7 +160,7 @@ class ClassicMeshElementImpl : public EntityImpl
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_ClassicMeshElementImpl_Impl.hpp"
+#include "DTK_ClassicMeshElementImpl_impl.hpp"
 
 //---------------------------------------------------------------------------//
 

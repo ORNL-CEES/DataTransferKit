@@ -158,7 +158,7 @@ class ClassicGeometricEntityImpl : public EntityImpl
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_ClassicGeometricEntityImpl_Impl.hpp"
+#include "DTK_ClassicGeometricEntityImpl_impl.hpp"
 
 //---------------------------------------------------------------------------//
 
