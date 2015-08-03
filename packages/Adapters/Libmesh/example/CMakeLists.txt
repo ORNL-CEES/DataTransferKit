@@ -8,6 +8,12 @@ TRIBITS_ADD_EXECUTABLE(
   )
 
 TRIBITS_ADD_EXECUTABLE(
+  MoabToLibmesh2D
+  SOURCES tstMoabtoLibmesh2D.cpp
+  COMM serial mpi
+  )
+
+TRIBITS_ADD_EXECUTABLE(
   MoabToLibmeshParallel
   SOURCES tstMoabtoLibmeshParallelTransfer.cpp
   COMM mpi
@@ -29,7 +35,7 @@ TRIBITS_COPY_FILES_TO_BINARY_DIR(
 
 TRIBITS_COPY_FILES_TO_BINARY_DIR(
   LibmeshInterpolationEXO 
-  SOURCE_FILES cube_mesh.exo pincell_mesh.exo sahex.e sahex1_unic.h5m
+  SOURCE_FILES cube_mesh.exo pincell_mesh.exo sahex.e sahex1_unic.h5m proteus_fumex_2d.h5m proteus_fumex_2d.exo
   SOURCE_DIR ${DTK_DATA_DIR}/exodus/
   DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
   EXEDEPS LibmeshInterpolation MoabToLibmeshParallel LibmeshToMoabParallel
