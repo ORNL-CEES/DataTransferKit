@@ -136,8 +136,8 @@ void MoabEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
     {
 	for ( int n = 0; n < num_nodes; ++n )
 	{
-	    bounds[d] = std::min( bounds[d], coordinates[n*space_dim + d] );
-	    bounds[d+3] = std::max( bounds[d+3], coordinates[n*space_dim + d] );
+	    bounds[d] = std::min( bounds[d], coordinates[n*3 + d] );
+	    bounds[d+3] = std::max( bounds[d+3], coordinates[n*3 + d] );
 	}
 	for ( int d = space_dim; d < 3; ++d )
 	{
@@ -201,8 +201,8 @@ void MoabEntityImpl::describe(
 					       d_moab_mesh,
 					       coordinates );
     }
-    int num_nodes = coordinates.size() / 3;
     int space_dim = this->physicalDimension();
+    int num_nodes = coordinates.size() / 3;
 
     out << std::endl;
     out << "---" << std::endl;
@@ -217,7 +217,7 @@ void MoabEntityImpl::describe(
 	out << "    node " << n << ": ";
 	for ( int d = 0; d < space_dim; ++d )
 	{
-	    out << coordinates[n*space_dim + d] << "  "; 
+	    out << coordinates[n*3 + d] << "  "; 
 	}
 	out << std::endl;
     }

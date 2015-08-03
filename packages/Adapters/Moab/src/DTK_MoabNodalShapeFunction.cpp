@@ -191,7 +191,7 @@ void MoabNodalShapeFunction::evaluateGradient(
 
 	for ( int d = 0; d < space_dim; ++d )
 	{
-	    gradients[n][d] = jacobian[d*space_dim + d];
+	    gradients[n][d] = jacobian[d*3 + d];
 	}
     }
 }
