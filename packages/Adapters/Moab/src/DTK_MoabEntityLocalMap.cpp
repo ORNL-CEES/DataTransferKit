@@ -145,11 +145,12 @@ bool MoabEntityLocalMap::mapToReferenceFrame(
     cacheEntity( entity );
 
     int is_inside = -1;
-    DTK_CHECK_ERROR_CODE(
-	d_moab_evaluator->reverse_eval(
-	    physical_point.getRawPtr(), d_newton_tol, 
-	    d_inclusion_tol, reference_point.getRawPtr(), &is_inside )
-	);
+
+    // Ignore the error code on this one because of the ridiculous
+    // tolerancing/convergence scheme used in the implementation.
+    d_moab_evaluator->reverse_eval(
+	physical_point.getRawPtr(), d_newton_tol, 
+	d_inclusion_tol, reference_point.getRawPtr(), &is_inside );
     return (is_inside > 0);
 }
 
