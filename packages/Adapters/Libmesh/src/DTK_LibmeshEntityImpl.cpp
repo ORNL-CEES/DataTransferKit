@@ -167,8 +167,6 @@ void LibmeshEntityImpl<libMesh::Elem>::describe(
     Teuchos::FancyOStream& out,
     const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
-    unsigned int num_nodes = d_extra_data->d_libmesh_geom->n_nodes();
- 
     out << std::endl;
     out << "---" << std::endl;
     out << "LibMesh Element" << std::endl;
@@ -283,8 +281,6 @@ void LibmeshEntityImpl<libMesh::Node>::describe(
     Teuchos::FancyOStream& out,
     const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
-    int space_dim = this->physicalDimension();
- 
     out << std::endl;
     out << "---" << std::endl;
     out << "LibMesh Node" << std::endl;
