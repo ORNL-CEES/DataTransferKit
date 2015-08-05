@@ -89,8 +89,8 @@ MoabMeshSetIndexer::MoabMeshSetIndexer(
     
     // Index the entity sets.
     int root_index = 0;
-    d_handle_to_index_map.insert( std::make_pair(root_set, root_index) );
-    d_index_to_handle_map.insert( std::make_pair(root_index, root_set) );
+    d_handle_to_index_map.emplace( root_set, root_index );
+    d_index_to_handle_map.emplace( root_index, root_set );
 
     std::vector<moab::EntityHandle> mesh_sets;
     DTK_CHECK_ERROR_CODE(
@@ -100,8 +100,8 @@ MoabMeshSetIndexer::MoabMeshSetIndexer(
     int num_sets = mesh_sets.size();
     for ( int i = 0; i < num_sets; ++i )
     {
-	d_handle_to_index_map.insert( std::make_pair(mesh_sets[i], i+1) );
-	d_index_to_handle_map.insert( std::make_pair(i+1, mesh_sets[i]) );
+	d_handle_to_index_map.emplace( mesh_sets[i], i+1 );
+	d_index_to_handle_map.emplace( i+1, mesh_sets[i] );
     }
 
     // Map global ids to entities.

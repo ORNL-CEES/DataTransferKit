@@ -203,8 +203,7 @@ BasicEntitySet::BasicEntitySet(
 // Add an entity to the set.
 void BasicEntitySet::addEntity( const Entity& entity )
 {
-    d_entities[ entity.topologicalDimension() ].insert(
-	std::pair<EntityId,Entity>(entity.id(), entity) );
+    d_entities[ entity.topologicalDimension() ].emplace( entity.id(), entity );
 }
 
 //---------------------------------------------------------------------------//

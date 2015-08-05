@@ -185,10 +185,7 @@ void ParallelSearch::search(
 	    // If we found parents for the point, store them.
 	    if ( num_parents > 0 )
 	    {
-		std::pair<EntityId,
-			  std::unordered_map<EntityId,Teuchos::Array<double> > 
-			  > range_ref_pair( range_entity_ids[n], ref_map );
-		d_parametric_coords.insert( range_ref_pair );
+		d_parametric_coords.emplace( range_entity_ids[n], ref_map );
 
 		// If we are tracking missed entities, also track those that
 		// we found so we can determine if an entity was found after

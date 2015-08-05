@@ -77,8 +77,7 @@ CoarseLocalSearch::CoarseLocalSearch(
 	local_map->centroid( 
 	    *entity_it, 
 	    d_entity_centroids(space_dim*entity_local_id,space_dim) );
-	d_entity_map.insert( 
-	    std::pair<int,Entity>(entity_local_id,*entity_it) );
+	d_entity_map.emplace( entity_local_id, *entity_it );
 	++entity_local_id;
     }
 
