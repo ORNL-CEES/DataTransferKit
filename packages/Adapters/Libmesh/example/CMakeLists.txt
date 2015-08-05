@@ -10,7 +10,7 @@ TRIBITS_ADD_EXECUTABLE(
 TRIBITS_ADD_EXECUTABLE(
   MoabToLibmesh2D
   SOURCES tstMoabtoLibmesh2D.cpp
-  COMM serial mpi
+  COMM mpi
   )
 
 TRIBITS_ADD_EXECUTABLE(

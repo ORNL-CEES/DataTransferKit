@@ -168,7 +168,6 @@ void LibmeshEntityImpl<libMesh::Elem>::describe(
     const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
     unsigned int num_nodes = d_extra_data->d_libmesh_geom->n_nodes();
-    int space_dim = this->physicalDimension();
  
     out << std::endl;
     out << "---" << std::endl;

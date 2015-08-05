@@ -164,20 +164,14 @@ void ParallelSearch::search(
 	    for ( int p = 0; p < num_parents; ++p )
 	    {
 		// Store the range data in the domain parallel decomposition.
-		std::pair<EntityId,int> range_rank(
-		    range_entity_ids[n], range_owner_ranks[n] );
-
-		std::pair<EntityId,EntityId> domain_range(
-		    domain_parents[p].id(), range_entity_ids[n] );
-
 		local_coords().assign( 
 		    reference_coordinates(d_physical_dim*p,d_physical_dim) );
-		std::pair<EntityId,Teuchos::Array<double> >
-		    domain_ref_pair( domain_parents[p].id(), local_coords );
-
-		d_range_owner_ranks.insert( range_rank );
-		d_domain_to_range_map.insert( domain_range );
-		ref_map.insert( domain_ref_pair );
+		d_range_owner_ranks.emplace(
+		    range_entity_ids[n], range_owner_ranks[n] );
+		d_domain_to_range_map.emplace(
+		    domain_parents[p].id(), range_entity_ids[n] );
+		ref_map.emplace(
+		    domain_parents[p].id(), local_coords );
 
 		// Extract the data to communicate back to the range parallel
 		// decomposition. 
@@ -220,21 +214,17 @@ void ParallelSearch::search(
     Tpetra::Distributor domain_to_range_dist( d_comm );
     int num_import = 
 	domain_to_range_dist.createFromSends( export_range_ranks() );
-    Teuchos::Array<EntityId> domain_data( 3.0*num_import );
+    Teuchos::Array<EntityId> domain_data( 3*num_import );
     Teuchos::ArrayView<const EntityId> export_data_view = export_data();
     domain_to_range_dist.doPostsAndWaits( export_data_view, 3, domain_data() );
 
     // Store the domain data in the range parallel decomposition.
     for ( int i = 0; i < num_import; ++i )
     {
-	std::pair<EntityId,int> domain_rank(
+	d_domain_owner_ranks.emplace(
 	    domain_data[3*i+1], domain_data[3*i+2] );
-
-	std::pair<EntityId,EntityId> range_domain(
+	d_range_to_domain_map.emplace(
 	    domain_data[3*i], domain_data[3*i+1] );
-
-	d_domain_owner_ranks.insert( domain_rank );
-	d_range_to_domain_map.insert( range_domain );
     }
 
     // If we are tracking missed entities, back-communicate the missing entities
