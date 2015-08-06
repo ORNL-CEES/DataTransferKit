@@ -14,6 +14,12 @@ TRIBITS_ADD_EXECUTABLE(
   )
 
 TRIBITS_ADD_EXECUTABLE(
+  LibmeshToMoabBlockVar2D
+  SOURCES tstLibmeshtoMoabBlockVar2D.cpp
+  COMM mpi
+  )
+
+TRIBITS_ADD_EXECUTABLE(
   MoabToLibmeshParallel
   SOURCES tstMoabtoLibmeshParallelTransfer.cpp
   COMM mpi
