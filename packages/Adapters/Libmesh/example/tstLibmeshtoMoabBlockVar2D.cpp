@@ -136,7 +136,6 @@ int main(int argc, char* argv[])
     libMesh::System& src_system = src_equation_systems.add_system<
 	libMesh::ExplicitSystem>("Source System");
     int src_var_id = src_system.add_variable(src_var_name);
-    int src_err_id = src_system.add_variable(src_err_name);
     src_equation_systems.init();
 
     // Create some data and put it on the variable.
@@ -172,6 +171,9 @@ int main(int argc, char* argv[])
 	"PARALLEL_RESOLVE_SHARED_ENTS;PARTITION_DISTRIBUTE;"
 	"PARALLEL_GHOSTS=3.0.1;");
     target_iface->load_file(meshFileName.c_str(), 0, options.c_str());
+    moab::ErrorCode error = target_iface->set_dimension( 2 );
+    checkMoabErrorCode(error);
+    assert(moab::MB_SUCCESS == error);
 
     // Get the parallel moab instance.
     Teuchos::RCP<moab::ParallelComm> target_mesh = Teuchos::rcp(
@@ -182,7 +184,7 @@ int main(int argc, char* argv[])
 
     // Get the nodes in the target set.
     std::vector<moab::EntityHandle> target_nodes;
-    moab::ErrorCode error = target_iface->get_entities_by_type(
+    error = target_iface->get_entities_by_type(
 	target_set, moab::MBVERTEX, target_nodes);
     checkMoabErrorCode(error);
     assert(moab::MB_SUCCESS == error);
@@ -337,8 +339,8 @@ int main(int argc, char* argv[])
     Teuchos::Array<moab::Tag> out_tags( 2 );
     out_tags[0] = target_data_tag;
     out_tags[1] = target_error_tag;
-    error = target_iface->write_file("target_moab_out.h5m",
-				     "H5M",
+    error = target_iface->write_file("target_moab_out.vtk",
+				     "VTK",
 				     "PARALLEL=WRITE_PART",
 				     &target_set,
 				     1,

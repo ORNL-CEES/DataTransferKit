@@ -236,14 +236,18 @@ EntityIterator IntegrationPointSet::entityIterator() const
 // Get the global maximum support size for all integration points.
 int IntegrationPointSet::globalMaxSupportSize() const
 {
-    auto comp = [](const IntegrationPoint& a, const IntegrationPoint& b)
-		{
-		    return (a.d_owner_support_ids.size() <
-			    b.d_owner_support_ids.size() );
-		};
-    int local_max = std::max_element( d_points.begin(),
+    int local_max = 0;
+    if ( d_points.size() > 0 )
+    {
+	auto comp = [](const IntegrationPoint& a, const IntegrationPoint& b)
+		    {
+			return (a.d_owner_support_ids.size() <
+				b.d_owner_support_ids.size() );
+		    };
+	local_max = std::max_element( d_points.begin(),
 				      d_points.end(),
 				      comp )->d_owner_support_ids.size();
+    }
     int global_max = 0;
     Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_MAX,
 			local_max, Teuchos::ptrFromRef(global_max) );
