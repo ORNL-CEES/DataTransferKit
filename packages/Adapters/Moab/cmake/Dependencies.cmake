@@ -1,0 +1,14 @@
+TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
+  LIB_REQUIRED_PACKAGES
+    DataTransferKitUtils
+    DataTransferKitInterface
+    Teuchos 
+    Tpetra
+    Shards
+    Intrepid
+  TEST_REQUIRED_PACKAGES
+    DataTransferKitOperators
+  LIB_REQUIRED_TPLS
+    MPI
+    MOAB
+  )

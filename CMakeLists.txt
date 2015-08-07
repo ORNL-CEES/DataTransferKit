@@ -5,50 +5,16 @@
 ## TriBITS package file for the DataTransferKit package
 ##---------------------------------------------------------------------------##
 
-INCLUDE(CombinedOption)
-
 ##---------------------------------------------------------------------------##
-## A) Define the package
+## Define the package
 ##---------------------------------------------------------------------------##
 
-TRIBITS_PACKAGE(DataTransferKit)
-
-##---------------------------------------------------------------------------##
-## B) Set up package-specific options
-##---------------------------------------------------------------------------##
-
-# Design-by-Contract
-TRIBITS_ADD_OPTION_AND_DEFINE(
-	DataTransferKit_ENABLE_DBC
-	HAVE_DTK_DBC
-	"Enable Design-by-Contract checks. WARNING: use for debug checking but disable for production runs as it incurs a significant overhead."
-	${${PROJECT_NAME}_ENABLE_DEBUG}
-)
-
-# If Zoltan and MPI must BOTH be enabled to function in parallel. Therefore 
-# here we turn off MPI support for DataTransferKit explicitly if both are
-# not enabled.
-IF( ${PACKAGE_NAME}_ENABLE_MPI AND ${PROJECT_NAME}_ENABLE_Zoltan )
-  GLOBAL_SET( HAVE_DTK_MPI ON )
-ELSE()
-  IF (${PACKAGE_NAME}_ENABLE_MPI)
-    MESSAGE("WARNING: ${PACKAGE_NAME}_ENABLE_MPI=TRUE but ${PROJECT_NAME}_ENABLE_Zoltan=FALSE,"
-     " DataTransferKit can't provide parallel functionality!")
-  ENDIF()
-  GLOBAL_SET( HAVE_DTK_MPI OFF )
-ENDIF()
-
+TRIBITS_PACKAGE_DECL(DataTransferKit)
 TRIBITS_ADD_DEBUG_OPTION()
-
 TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
 
 TRIBITS_ADD_ETI_INSTANTIATIONS(TpetraCore
-  "S={double} LO={int} GO={unsigned int} N={Kokkos::Compat::KokkosSerialWrapperNode}"
-  "S={double} LO={int} GO={unsigned long} N={Kokkos::Compat::KokkosSerialWrapperNode}"
-  "S={unsigned int} LO={int} GO={unsigned int} N={Kokkos::Compat::KokkosSerialWrapperNode}"
-  "S={unsigned long} LO={int} GO={unsigned long} N={Kokkos::Compat::KokkosSerialWrapperNode}"
-  "S={int} LO={int} GO={unsigned int} N={Kokkos::Compat::KokkosSerialWrapperNode}"
-  "S={int} LO={int} GO={unsigned long} N={Kokkos::Compat::KokkosSerialWrapperNode}"
+  "S={double} LO={int} GO={unsigned long} N={${KokkosClassic_DefaultNode}}"
   )
 
 IF(DataTransferKit_ENABLE_TESTS OR DataTransferKit_ENABLE_EXAMPLES)
@@ -62,21 +28,42 @@ IF(DataTransferKit_ENABLE_TESTS OR DataTransferKit_ENABLE_EXAMPLES)
 ENDIF()
 
 ##---------------------------------------------------------------------------##
-## C) Add library, test, and examples.
+## Set the path to the DTKData directory.
 ##---------------------------------------------------------------------------##
 
-ADD_SUBDIRECTORY(src)
-
-TRIBITS_ADD_TEST_DIRECTORIES(test)
-
-TRIBITS_ADD_EXAMPLE_DIRECTORIES(example)
+SET( DTK_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/DTKData" CACHE INTERNAL "" )
+MESSAGE("DTK_DATA_DIR = '${DTK_DATA_DIR}'")
 
 ##---------------------------------------------------------------------------##
-## D) Do standard postprocessing
+## Do standard postprocessing
 ##---------------------------------------------------------------------------##
 
+TRIBITS_PROCESS_SUBPACKAGES()
+TRIBITS_PACKAGE_DEF()
 TRIBITS_PACKAGE_POSTPROCESS()
 
 ##---------------------------------------------------------------------------##
-##                      end of DataTransferKit/CMakeLists.txt
+## Print the revision number to stdout    
+##---------------------------------------------------------------------------##
+
+FIND_PACKAGE(Git)
+IF(GIT_FOUND)
+    EXECUTE_PROCESS(
+        COMMAND           ${GIT_EXECUTABLE} log --pretty=format:%H -n 1
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE   DTK_REVISION
+        )
+    MESSAGE("DTK Revision = '${DTK_REVISION}'")
+ENDIF()
+
+IF(Trilinos_ENABLE_DataTransferKitMoabAdapters)
+    SET(MOAB_STAMP_FILE ${MOAB_LIBRARY_DIRS}/moab-revision)
+    EXECUTE_PROCESS(COMMAND touch ${MOAB_STAMP_FILE})
+    FILE(READ ${MOAB_STAMP_FILE} MOAB_REVISION)
+    STRING(REGEX REPLACE "\n" "" MOAB_REVISION "${MOAB_REVISION}")
+    MESSAGE("MOAB Revision = '${MOAB_REVISION}'")
+ENDIF()
+
+##---------------------------------------------------------------------------##
+## end of DataTransferKit/CMakeLists.txt
 ##---------------------------------------------------------------------------##

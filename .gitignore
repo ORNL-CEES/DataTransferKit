@@ -16,5 +16,9 @@
 *.bbl
 *.blg
 *.lot
-html/
-latex/
+*.exo
+/build
+/install
+/DTKData
+/doc/browser/doc/html/
+/doc/doxygen/html/

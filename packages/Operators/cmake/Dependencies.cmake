@@ -1,0 +1,13 @@
+TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
+  LIB_REQUIRED_PACKAGES
+    Teuchos
+    Tpetra
+    Belos
+    ThyraCore
+    ThyraTpetraAdapters
+    Stratimikos
+    DataTransferKitUtils
+    DataTransferKitInterface
+  TEST_REQUIRED_PACKAGES
+    DataTransferKitBasicGeometryAdapters
+  )
