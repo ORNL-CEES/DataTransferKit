@@ -54,8 +54,8 @@ LibmeshEntityLocalMap::LibmeshEntityLocalMap(
     const Teuchos::RCP<libMesh::System>& libmesh_system )
     : d_libmesh_mesh( libmesh_mesh )
     , d_libmesh_system( libmesh_system )
-    , d_inclusion_tol( 1.0e-6 )
     , d_newton_tol( 1.0e-9 )
+    , d_inclusion_tol( 1.0e-6 )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//

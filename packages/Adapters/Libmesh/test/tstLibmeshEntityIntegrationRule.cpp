@@ -154,7 +154,7 @@ TEUCHOS_UNIT_TEST( LibmeshEntityIntegrationRule, hex_8_test )
     libMesh::Elem* hex_elem = mesh->add_elem( new libMesh::Hex8 );
     hex_elem->processor_id() = rank;
     hex_elem->set_id() = 2*rank;
-    for ( int i = 0; i < 8; ++i ) hex_elem->set_node(i) = nodes[i];
+    for ( int i = 0; i < num_nodes; ++i ) hex_elem->set_node(i) = nodes[i];
 
     // Check libmesh validity.
     mesh->libmesh_assert_valid_parallel_ids();
