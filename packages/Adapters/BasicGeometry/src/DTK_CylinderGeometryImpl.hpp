@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_CylinderImpl.hpp
+ * \file DTK_CylinderGeometryImpl.hpp
  * \author Stuart R. Slattery
- * \brief Cylinder implementation.
+ * \brief CylinderGeometry implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CYLINDERIMPL_HPP
-#define DTK_CYLINDERIMPL_HPP
+#ifndef DTK_CYLINDERGEOMETRYIMPL_HPP
+#define DTK_CYLINDERGEOMETRYIMPL_HPP
 
 #include "DTK_BasicGeometryEntityImpl.hpp"
 
@@ -50,22 +50,22 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class CylinderImpl
+ * \class CylinderGeometryImpl
  * \brief Z-axis-aligned Cartesian cylinder container implementation.
  *
  * All three dimensions are explictly represented in this cylinder.
  */
 //---------------------------------------------------------------------------//
-class CylinderImpl : public BasicGeometryEntityImpl
+class CylinderGeometryImpl : public BasicGeometryEntityImpl
 {
 
   public:
 
     // Default constructor.
-    CylinderImpl();
+    CylinderGeometryImpl();
 
     // Constructor.
-    CylinderImpl( const EntityId global_id, 
+    CylinderGeometryImpl( const EntityId global_id, 
 		  const int owner_rank, 
 		  const int block_id,
 		  const double length, 
@@ -105,7 +105,7 @@ class CylinderImpl : public BasicGeometryEntityImpl
 
     // Provide a one line description of the object.
     std::string description() const override
-    { return std::string("Basic Geometry Cylinder"); }
+    { return std::string("Basic Geometry CylinderGeometry"); }
 
     // Provide a verbose description of the object.
     void describe(
@@ -166,9 +166,9 @@ class CylinderImpl : public BasicGeometryEntityImpl
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_CYLINDERIMPL_HPP
+#endif // end DTK_CYLINDERGEOMETRYIMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_CylinderImpl.hpp
+// end DTK_CylinderGeometryImpl.hpp
 //---------------------------------------------------------------------------//
 

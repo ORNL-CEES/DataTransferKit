@@ -50,7 +50,7 @@
 #include <DTK_BasicGeometryManager.hpp>
 #include <DTK_EntityCenteredField.hpp>
 #include <DTK_FieldMultiVector.hpp>
-#include <DTK_Box.hpp>
+#include <DTK_BoxGeometry.hpp>
 #include <DTK_Point.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -86,7 +86,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     {
 	box_ids[i] = i;
 	box_dofs[i] = 2.0*box_ids[i];
-	boxes[i] = Box(box_ids[i],comm_rank,i,0.0,0.0,i,1.0,1.0,i+1.0);
+	boxes[i] = BoxGeometry(box_ids[i],comm_rank,i,0.0,0.0,i,1.0,1.0,i+1.0);
     }
 
     // Make a manager for the domain geometry.
@@ -180,7 +180,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     {
 	box_ids[i] = num_boxes*(comm_size-comm_rank-1) + i;
 	box_dofs[i] = 2.0*box_ids[i];
-	boxes[i] = Box(box_ids[i],comm_rank,box_ids[i],
+	boxes[i] = BoxGeometry(box_ids[i],comm_rank,box_ids[i],
 		       0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0);
     }
 
@@ -275,7 +275,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     {
 	box_ids[i] = num_boxes*(comm_size-comm_rank-1) + i;
 	box_dofs[i] = 2.0*box_ids[i];
-	boxes[i] = Box(box_ids[i],comm_rank,box_ids[i],
+	boxes[i] = BoxGeometry(box_ids[i],comm_rank,box_ids[i],
 		       0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0);
     }
 
@@ -380,7 +380,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     {
 	box_ids[i] = num_boxes*(comm_size-comm_rank-1) + i;
 	box_dofs[i] = 2.0*box_ids[i];
-	boxes[i] = Box(box_ids[i],comm_rank,box_ids[i],
+	boxes[i] = BoxGeometry(box_ids[i],comm_rank,box_ids[i],
 		       0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0);
     }
 
@@ -475,7 +475,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     {
 	box_ids[i] = num_boxes*(comm_size-comm_rank-1) + i;
 	box_dofs[i] = 2.0*box_ids[i];
-	boxes[i] = Box(box_ids[i],comm_rank,box_ids[i],
+	boxes[i] = BoxGeometry(box_ids[i],comm_rank,box_ids[i],
 		       0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0);
     }
 
@@ -580,7 +580,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     Teuchos::Array<Entity> boxes( num_boxes );
     box_ids[0] = comm_size - comm_rank - 1;
     box_dofs[0] = 2.0*box_ids[0];
-    boxes[0] = Box(box_ids[0],comm_rank,box_ids[0],
+    boxes[0] = BoxGeometry(box_ids[0],comm_rank,box_ids[0],
 		   0.0,0.0,box_ids[0],1.0,1.0,box_ids[0]+1.0);
 	
     // Make a manager for the domain geometry.
@@ -674,7 +674,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
     {
 	box_ids[i] = num_boxes*(comm_size-comm_rank-1) + i;
 	box_dofs[i] = 2.0*box_ids[i];
-	boxes[i] = Box(box_ids[i],comm_rank,box_ids[i],
+	boxes[i] = BoxGeometry(box_ids[i],comm_rank,box_ids[i],
 		       0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0);
     }
 
@@ -780,7 +780,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
     {
 	box_ids[i] = num_boxes*(comm_size-comm_rank-1) + i;
 	box_dofs[i] = 2.0*box_ids[i];
-	boxes[i] = Box(box_ids[i],comm_rank,box_ids[i],
+	boxes[i] = BoxGeometry(box_ids[i],comm_rank,box_ids[i],
 		       box_ids[i],box_ids[i],box_ids[i],
 		       box_ids[i]+1.0,box_ids[i]+1.0,box_ids[i]+1.0);
     }

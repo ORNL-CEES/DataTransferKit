@@ -48,7 +48,7 @@
 
 #include <DTK_FineLocalSearch.hpp>
 #include <DTK_BasicGeometryLocalMap.hpp>
-#include <DTK_Box.hpp>
+#include <DTK_BoxGeometry.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -71,7 +71,7 @@ TEUCHOS_UNIT_TEST( FineLocalSearch, search_test_1 )
     Teuchos::Array<Entity> boxes( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
     {
-	boxes[i] = Box(i,0,i,0.0,0.0,i,1.0,1.0,i+1);
+	boxes[i] = BoxGeometry(i,0,i,0.0,0.0,i,1.0,1.0,i+1);
     }
 
     // Construct a local map for the boxes.
@@ -126,7 +126,7 @@ TEUCHOS_UNIT_TEST( FineLocalSearch, search_test_2 )
     Teuchos::Array<Entity> boxes( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
     {
-	boxes[i] = Box(i,0,i,0.0,0.0,0.0,1.0,1.0,1.0);
+	boxes[i] = BoxGeometry(i,0,i,0.0,0.0,0.0,1.0,1.0,1.0);
     }
 
     // Construct a local map for the boxes.

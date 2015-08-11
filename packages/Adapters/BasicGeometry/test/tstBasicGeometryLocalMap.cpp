@@ -46,7 +46,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_Box.hpp>
+#include <DTK_BoxGeometry.hpp>
 #include <DTK_BasicGeometryLocalMap.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -78,7 +78,7 @@ TEUCHOS_UNIT_TEST( BasicGeometryLocalMap, local_map_test )
     double x_max = 4.3;
     double y_max = 0.3;
     double z_max = 8.7;
-    Entity box = Box(  0, 0, 0, x_min, y_min, z_min, x_max, y_max, z_max );
+    Entity box = BoxGeometry(  0, 0, 0, x_min, y_min, z_min, x_max, y_max, z_max );
 
     // Make a local map.
     Teuchos::RCP<EntityLocalMap> local_map = 

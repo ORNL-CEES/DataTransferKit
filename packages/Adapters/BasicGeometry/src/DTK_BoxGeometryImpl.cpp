@@ -32,13 +32,13 @@
 */
 //---------------------------------------------------------------------------//
 /*!
-  * \file DTK_BoxImpl.cpp
+  * \file DTK_BoxGeometryImpl.cpp
   * \author Stuart R. Slattery
-  * \brief Box implementation.
+  * \brief BoxGeometry implementation.
   */
 //---------------------------------------------------------------------------//
 
-#include "DTK_BoxImpl.hpp"
+#include "DTK_BoxGeometryImpl.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
@@ -47,7 +47,7 @@ namespace DataTransferKit
 /*!
  * \brief Default constructor.
  */
-BoxImpl::BoxImpl()
+BoxGeometryImpl::BoxGeometryImpl()
     : d_global_id( dtk_invalid_entity_id )
     , d_owner_rank( -1 )
     , d_block_id( 0 )
@@ -75,7 +75,7 @@ BoxImpl::BoxImpl()
  *
  * \param z_max Maximum z coordinate value in the box.
  */
-BoxImpl::BoxImpl( const EntityId global_id, const int owner_rank, const int block_id,
+BoxGeometryImpl::BoxGeometryImpl( const EntityId global_id, const int owner_rank, const int block_id,
 		  const double x_min, const double y_min, const double z_min,
 		  const double x_max, const double y_max, const double z_max )
     : d_global_id( global_id )
@@ -99,7 +99,7 @@ BoxImpl::BoxImpl( const EntityId global_id, const int owner_rank, const int bloc
  *
  * \param bounds Tuple containing {x_min, y_min, z_min, x_max, y_max, z_max}.
  */
-BoxImpl::BoxImpl( const EntityId global_id,
+BoxGeometryImpl::BoxGeometryImpl( const EntityId global_id,
 		  const int owner_rank, 
 		  const int block_id,
 		  const Teuchos::Tuple<double,6>& bounds )
@@ -120,28 +120,28 @@ BoxImpl::BoxImpl( const EntityId global_id,
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-EntityId BoxImpl::id() const
+EntityId BoxGeometryImpl::id() const
 {
     return d_global_id;
 }
     
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-int BoxImpl::ownerRank() const
+int BoxGeometryImpl::ownerRank() const
 {
     return d_owner_rank;
 }
 
 //---------------------------------------------------------------------------//
 // Return the topological dimension of the entity.
-int BoxImpl::topologicalDimension() const
+int BoxGeometryImpl::topologicalDimension() const
 {
     return 3;
 }
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-int BoxImpl::physicalDimension() const
+int BoxGeometryImpl::physicalDimension() const
 {
     return 3;
 }
@@ -152,7 +152,7 @@ int BoxImpl::physicalDimension() const
  *
  * \return The bounding box bounds.
  */
-void BoxImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+void BoxGeometryImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     bounds = Teuchos::tuple( d_x_min, d_y_min, d_z_min,
 			     d_x_max, d_y_max, d_z_max );
@@ -160,20 +160,20 @@ void BoxImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
-bool BoxImpl::inBlock( const int block_id ) const
+bool BoxGeometryImpl::inBlock( const int block_id ) const
 {
     return ( block_id == d_block_id );
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
-bool BoxImpl::onBoundary( const int boundary_id ) const
+bool BoxGeometryImpl::onBoundary( const int boundary_id ) const
 {
     return false;
 }
 
 //---------------------------------------------------------------------------//
-void BoxImpl::describe( Teuchos::FancyOStream& out,
+void BoxGeometryImpl::describe( Teuchos::FancyOStream& out,
 			const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
     out << "---" << std::endl;
@@ -192,7 +192,7 @@ void BoxImpl::describe( Teuchos::FancyOStream& out,
  *
  * \return Return the measure of the box.
  */
-double BoxImpl::measure() const
+double BoxGeometryImpl::measure() const
 {
     return (d_x_max-d_x_min)*(d_y_max-d_y_min)*(d_z_max-d_z_min);
 }
@@ -203,7 +203,7 @@ double BoxImpl::measure() const
  *
  * \return The centroid coordinates.
  */
-void BoxImpl::centroid( const Teuchos::ArrayView<double>& centroid ) const
+void BoxGeometryImpl::centroid( const Teuchos::ArrayView<double>& centroid ) const
 {
     centroid[0] = (d_x_max + d_x_min) / 2.0;
     centroid[1] = (d_y_max + d_y_min) / 2.0;
@@ -214,7 +214,7 @@ void BoxImpl::centroid( const Teuchos::ArrayView<double>& centroid ) const
 /*!
  * \brief Map a point to the reference space of an entity. Return the
  */
-bool BoxImpl::mapToReferenceFrame( 
+bool BoxGeometryImpl::mapToReferenceFrame( 
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
@@ -227,7 +227,7 @@ bool BoxImpl::mapToReferenceFrame(
  * \brief Determine if a reference point is in the parameterized space of
  * an entity.
  */
-bool BoxImpl::checkPointInclusion( 
+bool BoxGeometryImpl::checkPointInclusion( 
     const double tolerance,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
@@ -254,7 +254,7 @@ bool BoxImpl::checkPointInclusion(
 /*!
  * \brief Map a reference point to the physical space of an entity.
  */
-void BoxImpl::mapToPhysicalFrame( 
+void BoxGeometryImpl::mapToPhysicalFrame( 
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
@@ -266,6 +266,6 @@ void BoxImpl::mapToPhysicalFrame(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_BoxImpl.cpp
+// end DTK_BoxGeometryImpl.cpp
 //---------------------------------------------------------------------------//
 

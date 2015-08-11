@@ -49,7 +49,7 @@
 #include <DTK_ParallelSearch.hpp>
 #include <DTK_BasicEntitySet.hpp>
 #include <DTK_BasicGeometryLocalMap.hpp>
-#include <DTK_Box.hpp>
+#include <DTK_BoxGeometry.hpp>
 #include <DTK_Point.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -83,7 +83,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, all_to_one_test )
     {
 	box_ids[i] = i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	    Box(i,comm_rank,i,0.0,0.0,i,1.0,1.0,i+1.0) );
+	    BoxGeometry(i,comm_rank,i,0.0,0.0,i,1.0,1.0,i+1.0) );
     }
 
     // Construct a local map for the boxes.
@@ -192,7 +192,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, one_to_one_test )
     {
 	id = num_boxes*(comm_size-comm_rank-1) + i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	    Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+	    BoxGeometry(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
     }
 
     // Construct a local map for the boxes.
@@ -299,7 +299,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_domain_0_test )
 	{
 	    id = num_boxes*(comm_size-comm_rank-1) + i;
 	    Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-		Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+		BoxGeometry(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
 	}
     }
 
@@ -420,7 +420,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_range_0_test )
     {
 	id = num_boxes*(comm_size-comm_rank-1) + i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	    Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+	    BoxGeometry(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
     }
 
     // Construct a local map for the boxes.
@@ -528,7 +528,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, many_to_many_test )
     {
 	id = num_boxes*(comm_size-comm_rank-1) + i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	    Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+	    BoxGeometry(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
     }
 
     // Get an iterator over all of the boxes.
@@ -672,7 +672,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, point_multiple_neighbors_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int box_id = comm_size - comm_rank - 1;
     Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	Box(box_id,box_id,box_id,0.0,0.0,box_id,1.0,1.0,box_id+1.0) );
+	BoxGeometry(box_id,box_id,box_id,0.0,0.0,box_id,1.0,1.0,box_id+1.0) );
 
     // Construct a local map for the boxes.
     Teuchos::RCP<EntityLocalMap> domain_map = 
@@ -772,7 +772,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, global_missed_range_test )
     {
 	id = num_boxes*(comm_size-comm_rank-1) + i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	    Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+	    BoxGeometry(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
     }
 
     // Construct a local map for the boxes.
@@ -887,7 +887,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, local_missed_range_test )
     {
 	id = num_boxes*(comm_size-comm_rank-1) + i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	    Box(id,comm_rank,id,id,id,id,id+1.0,id+1.0,id+1.0) );
+	    BoxGeometry(id,comm_rank,id,id,id,id,id+1.0,id+1.0,id+1.0) );
     }
 
     // Construct a local map for the boxes.

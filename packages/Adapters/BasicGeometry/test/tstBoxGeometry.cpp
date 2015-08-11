@@ -46,7 +46,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_Box.hpp>
+#include <DTK_BoxGeometry.hpp>
 #include <DTK_Entity.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -83,7 +83,7 @@ int num_rand = 1000;
 // Tests
 //---------------------------------------------------------------------------//
 // Default constructor test.
-TEUCHOS_UNIT_TEST( Box, default_constructor_test )
+TEUCHOS_UNIT_TEST( BoxGeometry, default_constructor_test )
 {
     using namespace DataTransferKit;
 
@@ -94,7 +94,7 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
     double x_max = 4.3;
     double y_max = 0.3;
     double z_max = 8.7;
-    Box box(  0, 0, 0, x_min, y_min, z_min, x_max, y_max, z_max );
+    BoxGeometry box(  0, 0, 0, x_min, y_min, z_min, x_max, y_max, z_max );
     BasicGeometryEntity box_entity = box;
     Entity entity = box;
 
@@ -186,7 +186,7 @@ TEUCHOS_UNIT_TEST( Box, default_constructor_test )
 
 //---------------------------------------------------------------------------//
 // Tuple constructor test.
-TEUCHOS_UNIT_TEST( Box, tuple_constructor_test )
+TEUCHOS_UNIT_TEST( BoxGeometry, tuple_constructor_test )
 {
     using namespace DataTransferKit;
 
@@ -198,8 +198,8 @@ TEUCHOS_UNIT_TEST( Box, tuple_constructor_test )
     input_bounds[3] = 4.3;
     input_bounds[4] = 0.3;
     input_bounds[5] = 8.7;
-    Teuchos::RCP<Box> box = 
-	Teuchos::rcp( new Box(0,0,0,input_bounds) );
+    Teuchos::RCP<BoxGeometry> box = 
+	Teuchos::rcp( new BoxGeometry(0,0,0,input_bounds) );
     Teuchos::RCP<Entity> entity = box;
 
     // Check Entity data.
@@ -263,16 +263,16 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
     using namespace DataTransferKit;
  
     bool has_intersect;
-    Box intersection;
+    BoxGeometry intersection;
     Teuchos::Tuple<double,6> bounds;
 
-    Box box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
-    Box box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
-    Box box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
-    Box box_4( 0, 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
-    Box box_5( 0, 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
+    BoxGeometry box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
+    BoxGeometry box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
+    BoxGeometry box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
+    BoxGeometry box_4( 0, 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
+    BoxGeometry box_5( 0, 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
 
-    has_intersect = Box::intersectBoxes( box_1, box_2, intersection );
+    has_intersect = BoxGeometry::intersectBoxes( box_1, box_2, intersection );
     TEST_ASSERT( has_intersect );
     intersection.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.25 );
@@ -282,7 +282,7 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
     TEST_EQUALITY( bounds[4], 0.75 );
     TEST_EQUALITY( bounds[5], 0.75 );
 
-    has_intersect = Box::intersectBoxes( box_1, box_1, intersection );
+    has_intersect = BoxGeometry::intersectBoxes( box_1, box_1, intersection );
     TEST_ASSERT( has_intersect );
     intersection.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
@@ -292,7 +292,7 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
     TEST_EQUALITY( bounds[4], 1.0 );
     TEST_EQUALITY( bounds[5], 1.0 );
 
-    has_intersect = Box::intersectBoxes( box_3, box_1, intersection );
+    has_intersect = BoxGeometry::intersectBoxes( box_3, box_1, intersection );
     TEST_ASSERT( has_intersect );
     intersection.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
@@ -302,10 +302,10 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
     TEST_EQUALITY( bounds[4], 0.67 );
     TEST_EQUALITY( bounds[5], 0.67 );
 
-    has_intersect = Box::intersectBoxes( box_4, box_1, intersection );
+    has_intersect = BoxGeometry::intersectBoxes( box_4, box_1, intersection );
     TEST_ASSERT( !has_intersect );
 
-    has_intersect = Box::intersectBoxes( box_1, box_5, intersection );
+    has_intersect = BoxGeometry::intersectBoxes( box_1, box_5, intersection );
     TEST_ASSERT( has_intersect );
     intersection.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 1.0 );
@@ -315,7 +315,7 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
     TEST_EQUALITY( bounds[4], 1.0 );
     TEST_EQUALITY( bounds[5], 1.0 );
 
-    has_intersect = Box::intersectBoxes( box_5, box_1, intersection );
+    has_intersect = BoxGeometry::intersectBoxes( box_5, box_1, intersection );
     TEST_ASSERT( has_intersect );
     intersection.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 1.0 );
@@ -325,7 +325,7 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
     TEST_EQUALITY( bounds[4], 1.0 );
     TEST_EQUALITY( bounds[5], 1.0 );
 
-    has_intersect = Box::intersectBoxes( box_2, box_3, intersection );
+    has_intersect = BoxGeometry::intersectBoxes( box_2, box_3, intersection );
     TEST_ASSERT( has_intersect );
     intersection.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.25 );
@@ -335,19 +335,19 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
     TEST_EQUALITY( bounds[4], 0.67 );
     TEST_EQUALITY( bounds[5], 0.67 );
 
-    has_intersect = Box::intersectBoxes( box_2, box_4, intersection );
+    has_intersect = BoxGeometry::intersectBoxes( box_2, box_4, intersection );
     TEST_ASSERT( !has_intersect );
 
-    has_intersect = Box::intersectBoxes( box_2, box_5, intersection );
+    has_intersect = BoxGeometry::intersectBoxes( box_2, box_5, intersection );
     TEST_ASSERT( !has_intersect );
 
-    has_intersect = Box::intersectBoxes( box_3, box_5, intersection );
+    has_intersect = BoxGeometry::intersectBoxes( box_3, box_5, intersection );
     TEST_ASSERT( !has_intersect );
 
-    has_intersect = Box::intersectBoxes( box_3, box_4, intersection );
+    has_intersect = BoxGeometry::intersectBoxes( box_3, box_4, intersection );
     TEST_ASSERT( !has_intersect );
 
-    has_intersect = Box::intersectBoxes( box_4, box_5, intersection );
+    has_intersect = BoxGeometry::intersectBoxes( box_4, box_5, intersection );
     TEST_ASSERT( !has_intersect );
 }
 
@@ -357,16 +357,16 @@ TEUCHOS_UNIT_TEST( Box, union_test )
 {
     using namespace DataTransferKit;
  
-    Box box_union;
+    BoxGeometry box_union;
     Teuchos::Tuple<double,6> bounds;
 
-    Box box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
-    Box box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
-    Box box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
-    Box box_4( 0, 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
-    Box box_5( 0, 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
+    BoxGeometry box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
+    BoxGeometry box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
+    BoxGeometry box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
+    BoxGeometry box_4( 0, 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
+    BoxGeometry box_5( 0, 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
 
-    Box::uniteBoxes( box_1, box_2, box_union );
+    BoxGeometry::uniteBoxes( box_1, box_2, box_union );
     box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
@@ -375,7 +375,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[4], 1.0 );
     TEST_EQUALITY( bounds[5], 1.0 );
 
-    Box::uniteBoxes( box_1, box_1, box_union );
+    BoxGeometry::uniteBoxes( box_1, box_1, box_union );
     box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
@@ -384,7 +384,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[4], 1.0 );
     TEST_EQUALITY( bounds[5], 1.0 );
 
-    Box::uniteBoxes( box_3, box_1, box_union );
+    BoxGeometry::uniteBoxes( box_3, box_1, box_union );
     box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
@@ -393,7 +393,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[4], 1.0 );
     TEST_EQUALITY( bounds[5], 1.0 );
 
-    Box::uniteBoxes( box_4, box_1, box_union );
+    BoxGeometry::uniteBoxes( box_4, box_1, box_union );
     box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
@@ -402,7 +402,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[4], 7.8 );
     TEST_EQUALITY( bounds[5], 1.0 );
 
-    Box::uniteBoxes( box_1, box_5, box_union );
+    BoxGeometry::uniteBoxes( box_1, box_5, box_union );
     box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
@@ -411,7 +411,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[4], 1.1 );
     TEST_EQUALITY( bounds[5], 1.1 );
 
-    Box::uniteBoxes( box_5, box_1, box_union );
+    BoxGeometry::uniteBoxes( box_5, box_1, box_union );
     box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.0 );
     TEST_EQUALITY( bounds[1], 0.0 );
@@ -420,7 +420,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[4], 1.1 );
     TEST_EQUALITY( bounds[5], 1.1 );
 
-    Box::uniteBoxes( box_2, box_3, box_union );
+    BoxGeometry::uniteBoxes( box_2, box_3, box_union );
     box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
@@ -429,7 +429,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[4], 0.75 );
     TEST_EQUALITY( bounds[5], 0.75 );
 
-    Box::uniteBoxes( box_2, box_4, box_union );
+    BoxGeometry::uniteBoxes( box_2, box_4, box_union );
     box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.25 );
     TEST_EQUALITY( bounds[1], 0.25 );
@@ -438,7 +438,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[4], 7.8 );
     TEST_EQUALITY( bounds[5], 0.75 );
 
-    Box::uniteBoxes( box_2, box_5, box_union );
+    BoxGeometry::uniteBoxes( box_2, box_5, box_union );
     box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 0.25 );
     TEST_EQUALITY( bounds[1], 0.25 );
@@ -447,7 +447,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[4], 1.1 );
     TEST_EQUALITY( bounds[5], 1.1 );
 
-    Box::uniteBoxes( box_3, box_5, box_union );
+    BoxGeometry::uniteBoxes( box_3, box_5, box_union );
     box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
@@ -456,7 +456,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[4], 1.1 );
     TEST_EQUALITY( bounds[5], 1.1 );
 
-    Box::uniteBoxes( box_3, box_4, box_union );
+    BoxGeometry::uniteBoxes( box_3, box_4, box_union );
     box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], -1.0 );
     TEST_EQUALITY( bounds[1], -1.0 );
@@ -465,7 +465,7 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     TEST_EQUALITY( bounds[4], 7.8 );
     TEST_EQUALITY( bounds[5], 0.67 );
 
-    Box::uniteBoxes( box_4, box_5, box_union );
+    BoxGeometry::uniteBoxes( box_4, box_5, box_union );
     box_union.boundingBox( bounds );
     TEST_EQUALITY( bounds[0], 1.0 );
     TEST_EQUALITY( bounds[1], 1.0 );
@@ -605,14 +605,14 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 {
     using namespace DataTransferKit;
  
-    Box box_union;
+    BoxGeometry box_union;
     Teuchos::Tuple<double,6> bounds;
 
-    Box box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
-    Box box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
-    Box box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
-    Box box_4( 0, 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
-    Box box_5( 0, 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
+    BoxGeometry box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
+    BoxGeometry box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
+    BoxGeometry box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
+    BoxGeometry box_4( 0, 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
+    BoxGeometry box_5( 0, 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
 
     box_union = box_1;
     box_union += box_2;

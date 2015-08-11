@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Box.hpp
+ * \file DTK_BoxGeometry.hpp
  * \author Stuart R. Slattery
- * \brief Box declaration.
+ * \brief BoxGeometry declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_BOX_HPP
-#define DTK_BOX_HPP
+#ifndef DTK_BOXGEOMETRY_HPP
+#define DTK_BOXGEOMETRY_HPP
 
 #include "DTK_BasicGeometryEntity.hpp"
 
@@ -52,7 +52,7 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class Box
+ * \class BoxGeometry
  * \brief Axis-aligned Cartesian box container.
  *
  * All three dimensions are explictly represented in this bounding box. This
@@ -60,43 +60,43 @@ namespace DataTransferKit
  * fixed 3 dimensions.
  */
 //---------------------------------------------------------------------------//
-class Box : public BasicGeometryEntity
+class BoxGeometry : public BasicGeometryEntity
 {
   public:
 
     // Default constructor.
-    Box();
+    BoxGeometry();
 
     // Constructor.
-    Box( const EntityId global_id, const int owner_rank, const int block_id,
+    BoxGeometry( const EntityId global_id, const int owner_rank, const int block_id,
 	 const double x_min, const double y_min, const double z_min,
 	 const double x_max, const double y_max, const double z_max );
 
     // Tuple constructor.
-    Box( const EntityId global_id,
+    BoxGeometry( const EntityId global_id,
 	 const int owner_rank, 
 	 const int block_id,
 	 const Teuchos::Tuple<double,6>& bounds );
 
     // Destructor.
-    ~Box();
+    ~BoxGeometry();
 
     // Static function to check for box intersection but not perform it.
-    static bool checkForIntersection( const Box& box_A,
-				      const Box& box_B );
+    static bool checkForIntersection( const BoxGeometry& box_A,
+				      const BoxGeometry& box_B );
 
     // Static function for box intersection.
-    static bool intersectBoxes( const Box& box_A,
-				const Box& box_B,
-				Box& box_intersection );
+    static bool intersectBoxGeometryes( const BoxGeometry& box_A,
+				const BoxGeometry& box_B,
+				BoxGeometry& box_intersection );
 
     // Static function for box union
-    static void uniteBoxes( const Box& box_A,
-			    const Box& box_B,
-			    Box& box_union );
+    static void uniteBoxGeometryes( const BoxGeometry& box_A,
+			    const BoxGeometry& box_B,
+			    BoxGeometry& box_union );
 
     // Compound assignment overload.
-    Box& operator+=(const Box& rhs);
+    BoxGeometry& operator+=(const BoxGeometry& rhs);
 
     // Return the entity measure.
     double measure() const override;
@@ -125,11 +125,11 @@ class Box : public BasicGeometryEntity
 //---------------------------------------------------------------------------//
 //! Addition operator overload. Adding two boxes together is the same as
 //! computing their union.
-Box operator+( const Box& box_1, const Box& box_2 );
+BoxGeometry operator+( const BoxGeometry& box_1, const BoxGeometry& box_2 );
 
 //---------------------------------------------------------------------------//
 //! Overload for printing box.
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::BoxGeometry& b); 
 
 //---------------------------------------------------------------------------//
 
@@ -137,9 +137,9 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b);
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_BOX_HPP
+#endif // end DTK_BOXGEOMETRY_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Box.hpp
+// end DTK_BoxGeometry.hpp
 //---------------------------------------------------------------------------//
 

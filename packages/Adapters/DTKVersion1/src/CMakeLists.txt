@@ -8,6 +8,8 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   DTK_Classic_BoundingBox.hpp
   DTK_Classic_Box.hpp
+  DTK_CommIndexer.hpp
+  DTK_CommTools.hpp
   DTK_Classic_Cylinder.hpp
   DTK_Classic_FieldContainer.hpp
   DTK_Classic_FieldEvaluator.hpp
@@ -36,6 +38,8 @@ APPEND_SET(HEADERS
 APPEND_SET(SOURCES
   DTK_Classic_BoundingBox.cpp
   DTK_Classic_Box.cpp
+  DTK_CommIndexer.cpp
+  DTK_CommTools.cpp
   DTK_Classic_Cylinder.cpp
   DTK_Classic_MeshContainer.cpp
   )

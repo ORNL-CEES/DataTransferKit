@@ -32,57 +32,81 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Cylinder.hpp
+ * \file DTK_BoxGeometryImpl.hpp
  * \author Stuart R. Slattery
- * \brief cylinder declaration.
+ * \brief BoxGeometry implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CYLINDER_HPP
-#define DTK_CYLINDER_HPP
+#ifndef DTK_BOXGEOMETRYIMPL_HPP
+#define DTK_BOXGEOMETRYIMPL_HPP
 
-#include "DTK_BasicGeometryEntity.hpp"
+#include "DTK_BasicGeometryEntityImpl.hpp"
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_ArrayView.hpp>
-
-#include <iostream>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class Cylinder
- * \brief Z-axis-aligned Cartesian cylinder container
+ * \class BoxGeometryImpl
+ * \brief Axis-aligned Cartesian box container implementation.
  *
- * All three dimensions are explictly represented in this cylinder.
+ * All three dimensions are explictly represented in this bounding box. This
+ * is different from a bounding box in that it must always be finite and of a
+ * fixed 3 dimensions.
  */
 //---------------------------------------------------------------------------//
-class Cylinder : public BasicGeometryEntity
+class BoxGeometryImpl : public BasicGeometryEntityImpl
 {
-
   public:
 
     // Default constructor.
-    Cylinder();
+    BoxGeometryImpl();
 
     // Constructor.
-    Cylinder( const EntityId global_id, 
-	      const int owner_rank, 
-	      const int block_id,
-	      const double length, 
-	      const double radius,
-	      const double centroid_x, 
-	      const double centroid_y, 
-	      const double centroid_z );
+    BoxGeometryImpl( const EntityId global_id, const int owner_rank, const int block_id,
+	     const double x_min, const double y_min, const double z_min,
+	     const double x_max, const double y_max, const double z_max );
 
-    //! Get the length of the cylinder.
-    double length() const;
+    // Tuple constructor.
+    BoxGeometryImpl( const EntityId global_id,
+	     const int owner_rank, 
+	     const int block_id, 
+	     const Teuchos::Tuple<double,6>& bounds );
 
-    //! Get the radius of the cylinder.
-    double radius() const;
+    // Get the unique global identifier for the entity.
+    EntityId id() const override;
+    
+    // Get the parallel rank that owns the entity.
+    int ownerRank() const override;
 
-    // Return the entity measure.
+    // Return the topological dimension of the entity.
+    int topologicalDimension() const override;
+
+    // Return the physical dimension of the entity.
+    int physicalDimension() const override;
+
+    // Compute the bounding box around the entity.
+    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override;
+
+    // Determine if an entity is in the block with the given id.
+    bool inBlock( const int block_id ) const override;
+
+    // Determine if an entity is on the boundary with the given id.
+    bool onBoundary( const int boundary_id ) const override;
+
+    // Provide a one line description of the object.
+    std::string description() const override
+    { return std::string("Basic Geometry BoxGeometry"); }
+
+    // Provide a verbose description of the object.
+    void describe(
+	Teuchos::FancyOStream& out,
+	const Teuchos::EVerbosityLevel verb_level ) const override;
+
+    // Return the entity measure with respect to the parameteric
     double measure() const override;
 
     // Compute the centroid of the entity.
@@ -104,10 +128,36 @@ class Cylinder : public BasicGeometryEntity
     void mapToPhysicalFrame( 
 	const Teuchos::ArrayView<const double>& reference_point,
 	const Teuchos::ArrayView<double>& point ) const override;
-};
 
-//! overload for printing cylinder
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c); 
+  private:
+
+    // Global id.
+    EntityId d_global_id;
+
+    // Owning parallel rank.
+    int d_owner_rank;
+
+    // Block id.
+    int d_block_id;
+
+    // X min.
+    double d_x_min;
+
+    // Y min.
+    double d_y_min;
+
+    // Z min.
+    double d_z_min;
+
+    // X max.
+    double d_x_max;
+
+    // Y max.
+    double d_y_max;
+
+    // Z max.
+    double d_z_max;
+};
 
 //---------------------------------------------------------------------------//
 
@@ -115,9 +165,9 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c);
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_CYLINDER_HPP
+#endif // end DTK_BOXGEOMETRYIMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Cylinder.hpp
+// end DTK_BoxGeometry.hpp
 //---------------------------------------------------------------------------//
 

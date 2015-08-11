@@ -48,7 +48,7 @@
 
 #include <DTK_BasicEntitySet.hpp>
 #include <DTK_Point.hpp>
-#include <DTK_Box.hpp>
+#include <DTK_BoxGeometry.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -108,7 +108,7 @@ TEUCHOS_UNIT_TEST( BasicEntitySet, basic_entity_set_test )
     Entity point_2 = Point(1, comm_rank, p2);
 
     // Make a box.
-    Entity box_1 = Box( 2, comm_rank, 1,
+    Entity box_1 = BoxGeometry( 2, comm_rank, 1,
 			std::min(p1[0],p2[0]),
 			std::min(p1[1],p2[1]),
 			std::min(p1[2],p2[2]),
