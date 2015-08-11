@@ -183,7 +183,7 @@ TEUCHOS_UNIT_TEST( LibmeshNodalShapeFunction, hex_8_test )
     Teuchos::Array<std::size_t> dof_ids;
     shape_function->entitySupportIds( dtk_entity, dof_ids );
     TEST_EQUALITY( num_nodes, dof_ids.size() );
-    for ( unsigned n = 0; n < num_nodes; ++n )
+    for ( int n = 0; n < num_nodes; ++n )
     {
 	TEST_EQUALITY( dof_ids[n], nodes[n]->id() );
     }
@@ -193,7 +193,7 @@ TEUCHOS_UNIT_TEST( LibmeshNodalShapeFunction, hex_8_test )
     Teuchos::Array<double> values;
     shape_function->evaluateValue( dtk_entity, ref_point(), values );
     TEST_EQUALITY( values.size(), num_nodes );
-    for ( unsigned n = 0; n < num_nodes; ++n )
+    for ( int n = 0; n < num_nodes; ++n )
     {
 	TEST_EQUALITY( values[n], 1.0 / num_nodes );
     }
@@ -203,13 +203,13 @@ TEUCHOS_UNIT_TEST( LibmeshNodalShapeFunction, hex_8_test )
     shape_function->evaluateValue( dtk_entity, ref_point(), values );
     TEST_EQUALITY( values.size(), num_nodes );
     TEST_EQUALITY( values[0], 1.0 );
-    for ( unsigned n = 1; n < num_nodes; ++n )
+    for ( int n = 1; n < num_nodes; ++n )
     {
 	TEST_EQUALITY( values[n], 0.0 );
     }    
 
     // Test the shape function dof ids for the nodes.
-    for ( unsigned n = 0; n < num_nodes; ++n )
+    for ( int n = 0; n < num_nodes; ++n )
     {
 	dof_ids.clear();
 	DataTransferKit::Entity dtk_node =

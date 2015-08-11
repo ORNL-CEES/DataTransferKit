@@ -42,8 +42,7 @@
 #include <unordered_map>
 
 #include "DTK_LibmeshVariableField.hpp"
-
-#include <DTK_DBC.hpp>
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_DefaultMpiComm.hpp>
 #include <Teuchos_ArrayRCP.hpp>
