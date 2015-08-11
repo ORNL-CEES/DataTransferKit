@@ -136,7 +136,7 @@ void throwAssertion( const std::string& cond, const std::string& file,
   codes with 0 as the value for no errors.
  */
 
-#if HAVE_DTK_Assertion
+#if HAVE_DTK_DBC
 
 #define testPrecondition(c) \
     if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )

@@ -481,14 +481,14 @@ TEUCHOS_UNIT_TEST( Box, add_test )
 {
     using namespace DataTransferKit;
  
-    Box box_union;
+    BoxGeometry box_union;
     Teuchos::Tuple<double,6> bounds;
 
-    Box box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
-    Box box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
-    Box box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
-    Box box_4( 0, 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
-    Box box_5( 0, 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
+    BoxGeometry box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
+    BoxGeometry box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
+    BoxGeometry box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
+    BoxGeometry box_4( 0, 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
+    BoxGeometry box_5( 0, 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
 
     box_union = box_1 + box_2;
     box_union.boundingBox( bounds );

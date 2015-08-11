@@ -139,7 +139,7 @@ bool BoxGeometry::checkForIntersection( const BoxGeometry& box_A,
  *
  * \return Return true if the boxes intersect. False if they do not.
  */
-bool BoxGeometry::intersectBoxGeometryes( const BoxGeometry& box_A,
+bool BoxGeometry::intersectBoxes( const BoxGeometry& box_A,
 			  const BoxGeometry& box_B,
 			  BoxGeometry& box_intersection)
 {
@@ -228,7 +228,7 @@ bool BoxGeometry::intersectBoxGeometryes( const BoxGeometry& box_A,
  * and box B. BoxGeometry A and B can be provided in any order (the union of
  * box A with box B is equal to the union of box B with box A).
  */
-void BoxGeometry::uniteBoxGeometryes( const BoxGeometry& box_A,
+void BoxGeometry::uniteBoxes( const BoxGeometry& box_A,
 		      const BoxGeometry& box_B,
 		      BoxGeometry& box_union)
 {
@@ -316,7 +316,7 @@ BoxGeometry& BoxGeometry::operator+=(const BoxGeometry& rhs)
 BoxGeometry operator+( const BoxGeometry& box_1, const BoxGeometry& box_2 )
 {
     BoxGeometry union_box;
-    BoxGeometry::uniteBoxGeometryes( box_1, box_2, union_box );
+    BoxGeometry::uniteBoxes( box_1, box_2, union_box );
     return union_box;
 }
 

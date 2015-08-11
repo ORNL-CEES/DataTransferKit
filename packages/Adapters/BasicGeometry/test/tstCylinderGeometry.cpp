@@ -46,7 +46,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_Cylinder.hpp>
+#include <DTK_CylinderGeometry.hpp>
 #include <DTK_Entity.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -62,7 +62,7 @@
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
+TEUCHOS_UNIT_TEST( CylinderGeometry, cylinder_test )
 {
     using namespace DataTransferKit;
 
@@ -81,7 +81,7 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 	double centroid_x = (double) std::rand() / RAND_MAX - 0.5;
 	double centroid_y = (double) std::rand() / RAND_MAX - 0.5;
 	double centroid_z = (double) std::rand() / RAND_MAX - 0.5;
-	Cylinder cylinder( 
+	CylinderGeometry cylinder( 
 	    i, i, i, length, radius, centroid_x, centroid_y, centroid_z );
 
 	// Check the cylinder.
@@ -159,6 +159,6 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 }
 
 //---------------------------------------------------------------------------//
-// end tstCylinder.cpp
+// end tstCylinderGeometry.cpp
 //---------------------------------------------------------------------------//
 

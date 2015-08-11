@@ -86,12 +86,12 @@ class BoxGeometry : public BasicGeometryEntity
 				      const BoxGeometry& box_B );
 
     // Static function for box intersection.
-    static bool intersectBoxGeometryes( const BoxGeometry& box_A,
+    static bool intersectBoxes( const BoxGeometry& box_A,
 				const BoxGeometry& box_B,
 				BoxGeometry& box_intersection );
 
     // Static function for box union
-    static void uniteBoxGeometryes( const BoxGeometry& box_A,
+    static void uniteBoxes( const BoxGeometry& box_A,
 			    const BoxGeometry& box_B,
 			    BoxGeometry& box_union );
 
