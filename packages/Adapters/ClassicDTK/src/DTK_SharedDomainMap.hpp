@@ -32,25 +32,25 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_SharedDomainMap.hpp
+ * \file DTK_SharedDomainMap.hpp
  * \author Stuart R. Slattery
  * \brief Shared domain map declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_SHAREDDOMAINMAP_HPP
-#define DTK_Classic_SHAREDDOMAINMAP_HPP
+#ifndef DTK_SHAREDDOMAINMAP_HPP
+#define DTK_SHAREDDOMAINMAP_HPP
 
 #include "DTK_BasicEntitySet.hpp"
 #include "DTK_EntitySet.hpp"
 #include "DTK_CommIndexer.hpp"
 #include "DTK_ConsistentInterpolationOperator.hpp"
 
-#include "DTK_Classic_FieldTraits.hpp"
-#include "DTK_Classic_FieldEvaluator.hpp"
-#include "DTK_Classic_FieldManager.hpp"
-#include "DTK_Classic_MeshTraits.hpp"
-#include "DTK_Classic_MeshManager.hpp"
+#include "DTK_FieldTraits.hpp"
+#include "DTK_FieldEvaluator.hpp"
+#include "DTK_FieldManager.hpp"
+#include "DTK_MeshTraits.hpp"
+#include "DTK_MeshManager.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -64,8 +64,6 @@
 #include <Tpetra_Export.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -199,20 +197,19 @@ class SharedDomainMap
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_Classic_SharedDomainMap_def.hpp"
+#include "DTK_SharedDomainMap_def.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_Classic_SHAREDDOMAINMAP_HPP
+#endif // end DTK_SHAREDDOMAINMAP_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_SharedDomainMap.hpp
+// end DTK_SharedDomainMap.hpp
 //---------------------------------------------------------------------------//
 

@@ -32,22 +32,20 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_GeometryManager_def.hpp
+ * \file DTK_GeometryManager_def.hpp
  * \author Stuart R. Slattery
  * \brief Geometry manager definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_GEOMETRYMANAGER_DEF_HPP
-#define DTK_Classic_GEOMETRYMANAGER_DEF_HPP
+#ifndef DTK_GEOMETRYMANAGER_DEF_HPP
+#define DTK_GEOMETRYMANAGER_DEF_HPP
 
 #include "DTK_DBC.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -290,12 +288,11 @@ void GeometryManager<Geometry,GlobalOrdinal>::validate()
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_GEOMETRYMANAGER_DEF_HPP
+#endif // end DTK_GEOMETRYMANAGER_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_GeometryManager_def.hpp
+// end DTK_GeometryManager_def.hpp
 //---------------------------------------------------------------------------//
 

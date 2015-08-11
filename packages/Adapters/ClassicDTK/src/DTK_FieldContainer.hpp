@@ -32,23 +32,21 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_FieldContainer.hpp
+ * \file DTK_FieldContainer.hpp
  * \author Stuart R. Slattery
  * \brief A simple default field container with a field traits
  * implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_FIELDCONTAINER_HPP
-#define DTK_Classic_FIELDCONTAINER_HPP
+#ifndef DTK_FIELDCONTAINER_HPP
+#define DTK_FIELDCONTAINER_HPP
 
-#include "DTK_Classic_FieldTraits.hpp"
+#include "DTK_FieldTraits.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -179,11 +177,10 @@ class FieldTraits< FieldContainer<Scalar> >
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_FIELDCONTAINER_HPP
+#endif // end DTK_FIELDCONTAINER_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_FieldContainer.hpp
+// end DTK_FieldContainer.hpp
 //---------------------------------------------------------------------------//

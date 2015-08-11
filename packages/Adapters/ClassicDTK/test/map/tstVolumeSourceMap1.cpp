@@ -16,15 +16,15 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_Classic_VolumeSourceMap.hpp>
-#include <DTK_Classic_FieldTraits.hpp>
-#include <DTK_Classic_FieldEvaluator.hpp>
-#include <DTK_Classic_FieldManager.hpp>
-#include <DTK_Classic_FieldTools.hpp>
-#include <DTK_Classic_GeometryTraits.hpp>
-#include <DTK_Classic_GeometryManager.hpp>
-#include <DTK_Classic_Cylinder.hpp>
-#include <DTK_Classic_Box.hpp>
+#include <DTK_VolumeSourceMap.hpp>
+#include <DTK_FieldTraits.hpp>
+#include <DTK_FieldEvaluator.hpp>
+#include <DTK_FieldManager.hpp>
+#include <DTK_FieldTools.hpp>
+#include <DTK_GeometryTraits.hpp>
+#include <DTK_GeometryManager.hpp>
+#include <DTK_Cylinder.hpp>
+#include <DTK_Box.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -108,8 +108,6 @@ class MyField
 //---------------------------------------------------------------------------//
 namespace DataTransferKit
 {
-namespace Classic
-{
 //---------------------------------------------------------------------------//
 // Field Traits specification for MyField
 template<>
@@ -145,13 +143,12 @@ class FieldTraits<MyField>
     { return field.end(); }
 };
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
 class MyEvaluator : 
-    public DataTransferKit::Classic::FieldEvaluator<int,MyField>
+    public DataTransferKit::FieldEvaluator<int,MyField>
 {
   public:
 
@@ -197,17 +194,17 @@ class MyEvaluator :
 //---------------------------------------------------------------------------//
 void buildCylinderGeometry( 
     int my_size, int edge_size,
-    Teuchos::ArrayRCP<DataTransferKit::Classic::Cylinder>& cylinders,
+    Teuchos::ArrayRCP<DataTransferKit::Cylinder>& cylinders,
     Teuchos::ArrayRCP<int>& gids )
 {
-    Teuchos::ArrayRCP<DataTransferKit::Classic::Cylinder> new_cylinders(1);
+    Teuchos::ArrayRCP<DataTransferKit::Cylinder> new_cylinders(1);
     Teuchos::ArrayRCP<int> new_gids(1,0);
     double length = (double) my_size;
     double radius = (double) (edge_size-1) / 2.0;
     double x_center = (double) (edge_size-1) / 2.0;
     double y_center = (double) (edge_size-1) / 2.0;
     double z_center = (double) my_size / 2.0;
-    new_cylinders[0] = DataTransferKit::Classic::Cylinder( length, radius,
+    new_cylinders[0] = DataTransferKit::Cylinder( length, radius,
 						  x_center, y_center, z_center );
     cylinders = new_cylinders;
     gids = new_gids;
@@ -215,12 +212,12 @@ void buildCylinderGeometry(
 
 //---------------------------------------------------------------------------//
 void buildBoxGeometry( int my_size, int edge_size,
-		       Teuchos::ArrayRCP<DataTransferKit::Classic::Box>& boxes,
+		       Teuchos::ArrayRCP<DataTransferKit::Box>& boxes,
 		       Teuchos::ArrayRCP<int>& gids )
 {
-    Teuchos::ArrayRCP<DataTransferKit::Classic::Box> new_boxes(1);
+    Teuchos::ArrayRCP<DataTransferKit::Box> new_boxes(1);
     Teuchos::ArrayRCP<int> new_gids(1,0);
-    new_boxes[0] = DataTransferKit::Classic::Box( 0.0, 0.0, 0.0, edge_size-1,
+    new_boxes[0] = DataTransferKit::Box( 0.0, 0.0, 0.0, edge_size-1,
 					 edge_size-1, my_size );
     boxes = new_boxes;
     gids = new_gids;
@@ -234,7 +231,7 @@ void buildCoordinateField( int my_rank, int my_size,
 			   Teuchos::RCP<MyField>& coordinate_field )
 {
     Teuchos::ArrayRCP<double> coords =
-	DataTransferKit::Classic::FieldTools<MyField>::nonConstView( *coordinate_field );
+	DataTransferKit::FieldTools<MyField>::nonConstView( *coordinate_field );
     std::srand( my_rank*num_points*2 );
     for ( int i = 0; i < num_points-1; ++i )
     {
@@ -258,7 +255,7 @@ void buildCoordinateField( int my_rank, int my_size,
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( VolumeSourceMap, cylinder_test )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
 
     // Setup communication.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
@@ -362,7 +359,7 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, cylinder_test )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( VolumeSourceMap, box_test )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
 
     // Setup communication.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();

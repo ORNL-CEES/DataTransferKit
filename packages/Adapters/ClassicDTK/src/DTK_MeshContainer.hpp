@@ -32,24 +32,22 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_MeshContainer.hpp
+ * \file DTK_MeshContainer.hpp
  * \author Stuart R. Slattery
  * \brief A simple default mesh container with a mesh traits
  * implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_MESHCONTAINER_HPP
-#define DTK_Classic_MESHCONTAINER_HPP
+#ifndef DTK_MESHCONTAINER_HPP
+#define DTK_MESHCONTAINER_HPP
 
-#include "DTK_Classic_MeshTraits.hpp"
-#include "DTK_Classic_MeshTypes.hpp"
+#include "DTK_MeshTraits.hpp"
+#include "DTK_MeshTypes.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -86,7 +84,7 @@ class MeshContainer
      * \param coordinates The vertex coordinates in the mesh block. These must
      * be blocked by dimension.
      *
-     * \param element_topology The DTK_Classic_ElementTopology of the elements in the
+     * \param element_topology The DTK_ElementTopology of the elements in the
      * mesh block.
      *
      * \param vertices_per_element The number of vertices used to construct
@@ -107,7 +105,7 @@ class MeshContainer
 	const int vertex_dim,
 	const Teuchos::ArrayRCP<GlobalOrdinal>& vertices,
 	const Teuchos::ArrayRCP<const double>& coords,
-	const DTK_Classic_ElementTopology element_topology,
+	const DTK_ElementTopology element_topology,
 	const int vertices_per_element,
 	const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
 	const Teuchos::ArrayRCP<const GlobalOrdinal>& connectivity,
@@ -145,7 +143,7 @@ class MeshContainer
     { return d_coords.end(); }
 
     //! Get the element topology.
-    DTK_Classic_ElementTopology getElementTopology() const
+    DTK_ElementTopology getElementTopology() const
     { return d_element_topology; }
 
     //! Get the number of vertices constructing a single element.
@@ -194,7 +192,7 @@ class MeshContainer
     Teuchos::ArrayRCP<const double> d_coords;
 
     // Element topology.
-    DTK_Classic_ElementTopology d_element_topology;
+    DTK_ElementTopology d_element_topology;
 
     // Vertices per element.
     int d_vertices_per_element;
@@ -259,7 +257,7 @@ class MeshTraits< MeshContainer<GlobalOrdinal> >
     { return container.coordsEnd(); }
 
 
-    static inline DTK_Classic_ElementTopology 
+    static inline DTK_ElementTopology 
     elementTopology( const Container& container )
     { return container.getElementTopology(); }
 
@@ -293,11 +291,10 @@ class MeshTraits< MeshContainer<GlobalOrdinal> >
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_MESHCONTAINER_HPP
+#endif // end DTK_MESHCONTAINER_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_MeshContainer.hpp
+// end DTK_MeshContainer.hpp
 //---------------------------------------------------------------------------//

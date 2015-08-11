@@ -32,27 +32,25 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_MeshTools.hpp
+ * \file DTK_MeshTools.hpp
  * \author Stuart R. Slattery
  * \brief MeshTools declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_MESHTOOLS_HPP
-#define DTK_Classic_MESHTOOLS_HPP
+#ifndef DTK_MESHTOOLS_HPP
+#define DTK_MESHTOOLS_HPP
 
 #include <iterator>
 
-#include "DTK_Classic_MeshTraits.hpp"
-#include "DTK_Classic_BoundingBox.hpp"
+#include "DTK_MeshTraits.hpp"
+#include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -131,19 +129,18 @@ class MeshTools
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namepsace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_Classic_MeshTools_def.hpp"
+#include "DTK_MeshTools_def.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_Classic_MESHTOOLS_HPP
+#endif // end DTK_MESHTOOLS_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_MeshTools.hpp
+// end DTK_MeshTools.hpp
 //---------------------------------------------------------------------------//

@@ -32,96 +32,108 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_FieldManager.hpp
+ * \file DTK_BoundingBox.hpp
  * \author Stuart R. Slattery
- * \brief Field manager declaration.
+ * \brief Bounding box declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_FIELDMANAGER_HPP
-#define DTK_Classic_FIELDMANAGER_HPP
+#ifndef DTK_BOUNDINGBOX_HPP
+#define DTK_BOUNDINGBOX_HPP
 
-#include "DTK_Classic_FieldTraits.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
+#include <Teuchos_Tuple.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_SerializationTraits.hpp>
 
 namespace DataTransferKit
 {
-namespace Classic
-{
 //---------------------------------------------------------------------------//
 /*!
- \class FieldManager
- \brief Manager object for fields.
-
- The field manager manages a field and its parallel decomposition. A field has
- a dimension of arbitrary size. As examples, for scalar fields this dimension
- is 1, for 3-vectors (such as the velocity example above in a 3 dimensional
- computation) the dimension is 3, and for a 3x3 tensor the dimension is 9.
- All local instances of the field must have the same dimension. A field can
- have an arbitrary number of local degrees of freedom and this size can differ
- from local domain to local domain. No knowledge of the global field
- decomposition is required, however, it must exist on a single communicator.
-*/
+ * \class BoundingBox
+ * \brief Axis-aligned Cartesian bounding box container.
+ *
+ * All three dimensions are explictly represented in this bounding box,
+ * however, from an algorithmic standpoint, this can be treated as a one or
+ * two dimensional box as well by setting the unused dimension bounds to +/-
+ * Teuchos::ScalarTraits<double>::rmax().
+ */
 //---------------------------------------------------------------------------//
-template<class Field>
-class FieldManager
+class BoundingBox
 {
+
   public:
 
-    //@{
-    //! Typedefs.
-    typedef Field                                               field_type;
-    typedef Teuchos::RCP<Field>                                 RCP_Field;
-    typedef FieldTraits<Field>                                  FT;
-    typedef Teuchos::Comm<int>                                  CommType;
-    typedef Teuchos::RCP<const CommType>                        RCP_Comm;
-    //@}
+    // Default constructor.
+    BoundingBox();
 
     // Constructor.
-    FieldManager( const RCP_Field& field, const RCP_Comm& comm );
+    BoundingBox( const double x_min, const double y_min, const double z_min,
+		 const double x_max, const double y_max, const double z_max );
+
+    // Tuple constructor.
+    BoundingBox( const Teuchos::Tuple<double,6>& bounds );
 
     // Destructor.
-    ~FieldManager();
+    ~BoundingBox();
 
-    //@{
-    //! Get the field.
-    const RCP_Field& field() const { return d_field; }
-    //@}
+    // Determine if a point is in the box.
+    bool pointInBox( const Teuchos::Array<double>& coords ) const;
 
-    //! Get the communicator for the field.
-    const RCP_Comm& comm() const
-    { return d_comm; }
+    // Get the boundaries of the box.
+    Teuchos::Tuple<double,6> getBounds() const
+    { return Teuchos::tuple( d_x_min, d_y_min, d_z_min, 
+			     d_x_max, d_y_max, d_z_max ); }
 
-  private:
+    // Compute the volume of the box given its dimension.
+    double volume( const int dim ) const;
 
-    // Validate the field to the domain model.
-    void validate();
-
-  private:
-
-    // Field.
-    RCP_Field d_field;
+    // Static function for box intersection.
+    static bool intersectBoxes( const BoundingBox& box_A,
+				const BoundingBox& box_B,
+				BoundingBox& intersection );
     
-    // Communicator over which the field is defined.
-    RCP_Comm d_comm;
+  private:
+
+    // X min.
+    double d_x_min;
+
+    // Y min.
+    double d_y_min;
+
+    // Z min.
+    double d_z_min;
+
+    // X max.
+    double d_x_max;
+
+    // Y max.
+    double d_y_max;
+
+    // Z max.
+    double d_z_max;
 };
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Template includes.
+// Serialization Traits Specialization.
 //---------------------------------------------------------------------------//
 
-#include "DTK_Classic_FieldManager_def.hpp"
+namespace Teuchos
+{
+
+template<typename Ordinal>
+class SerializationTraits<Ordinal, DataTransferKit::BoundingBox>
+    : public DirectSerializationTraits<Ordinal, DataTransferKit::BoundingBox>
+{};
+
+} // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
 
-#endif // DTK_Classic_FIELDMANAGER_HPP
+#endif // end DTK_BOUNDINGBOX_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_FieldManager.hpp
+// end DTK_BoundingBox.hpp
 //---------------------------------------------------------------------------//
 

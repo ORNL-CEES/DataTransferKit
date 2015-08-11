@@ -44,7 +44,7 @@
 #include "DTK_ClassicGeometricEntityExtraData.hpp"
 #include "DTK_DBC.hpp"
 
-#include "DTK_Classic_GeometryTraits.hpp"
+#include "DTK_GeometryTraits.hpp"
 
 namespace DataTransferKit
 {
@@ -76,7 +76,7 @@ double ClassicGeometricEntityLocalMap<Geometry>::measure( const Entity& entity )
     Teuchos::Ptr<Geometry> geometry =
 	Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData<Geometry> >(
 	    entity.extraData())->d_geometry;
-    return Classic::GeometryTraits<Geometry>::measure( *geometry );
+    return GeometryTraits<Geometry>::measure( *geometry );
 }
 
 //---------------------------------------------------------------------------//
@@ -89,7 +89,7 @@ void ClassicGeometricEntityLocalMap<Geometry>::centroid(
 	Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData<Geometry> >(
 	    entity.extraData())->d_geometry;
     centroid.assign(
-	Classic::GeometryTraits<Geometry>::centroid( *geometry )()
+	GeometryTraits<Geometry>::centroid( *geometry )()
 	);
 }
 
@@ -117,7 +117,7 @@ bool ClassicGeometricEntityLocalMap<Geometry>::checkPointInclusion(
 	Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData<Geometry> >(
 	    entity.extraData())->d_geometry;
     Teuchos::Array<double> coords( reference_point );
-    return Classic::GeometryTraits<Geometry>::pointInGeometry(
+    return GeometryTraits<Geometry>::pointInGeometry(
 	*geometry, coords, d_inclusion_tol );
 }
 

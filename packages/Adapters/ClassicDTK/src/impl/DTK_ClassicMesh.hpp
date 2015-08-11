@@ -44,8 +44,8 @@
 #include <unordered_map>
 
 #include "DTK_Types.hpp"
-#include "DTK_Classic_MeshManager.hpp"
-#include "DTK_Classic_MeshTraits.hpp"
+#include "DTK_MeshManager.hpp"
+#include "DTK_MeshTraits.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -71,12 +71,12 @@ class ClassicMesh
   public:
 
     // Typedefs.
-    typedef Classic::MeshTraits<Mesh> MT;
+    typedef MeshTraits<Mesh> MT;
     typedef typename MT::global_ordinal_type GlobalOrdinal;
 
     // Constructor.
     ClassicMesh(
-	const Teuchos::RCP<Classic::MeshManager<Mesh> >& mesh_manager );
+	const Teuchos::RCP<MeshManager<Mesh> >& mesh_manager );
 
     //! Get the number of mesh blocks.
     int getNumBlocks() const
@@ -142,7 +142,7 @@ class ClassicMesh
   private:
 
     // Classic mesh manager.
-    Teuchos::RCP<Classic::MeshManager<Mesh> > d_mesh_manager;
+    Teuchos::RCP<MeshManager<Mesh> > d_mesh_manager;
 
     // Block topologies.
     Teuchos::Array<shards::CellTopology> d_block_topo;

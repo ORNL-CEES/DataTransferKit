@@ -45,7 +45,7 @@
 
 #include "DTK_EntityImpl.hpp"
 #include "DTK_ClassicMeshElementExtraData.hpp"
-#include "DTK_Classic_MeshManager.hpp"
+#include "DTK_MeshManager.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>

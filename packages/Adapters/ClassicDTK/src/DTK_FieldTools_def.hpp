@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_FieldTools_def.hpp
+ * \file DTK_FieldTools_def.hpp
  * \author Stuart R. Slattery
  * \brief FieldTools definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_FIELDTOOLS_DEF_HPP
-#define DTK_Classic_FIELDTOOLS_DEF_HPP
+#ifndef DTK_FIELDTOOLS_DEF_HPP
+#define DTK_FIELDTOOLS_DEF_HPP
 
 #include <algorithm>
 #include <iterator>
@@ -54,8 +54,6 @@
 
 namespace DataTransferKit
 {
-namespace Classic
-{
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the local size of the dimensions.
@@ -64,9 +62,9 @@ namespace Classic
  *
  * \return The size of the dimensions in the field.
  */
-template<class Field>
-typename FieldTools<Field>::size_type
-FieldTools<Field>::dimSize( const Field& field )
+template<class FieldType>
+typename FieldTools<FieldType>::size_type
+FieldTools<FieldType>::dimSize( const FieldType& field )
 {
     DTK_REQUIRE( FT::dim( field ) > 0 );
     size_type field_size = FT::size( field );
@@ -83,9 +81,9 @@ FieldTools<Field>::dimSize( const Field& field )
  *
  * \return The field iterator the beginning given of the dimension
  */
-template<class Field>
-typename FieldTools<Field>::iterator 
-FieldTools<Field>::dimBegin( Field& field, const int dim )
+template<class FieldType>
+typename FieldTools<FieldType>::iterator 
+FieldTools<FieldType>::dimBegin( FieldType& field, const int dim )
 {
     DTK_REQUIRE( FT::dim( field ) > 0 );
     DTK_REQUIRE( dim >= 0 && dim < FT::dim( field ) );
@@ -102,9 +100,9 @@ FieldTools<Field>::dimBegin( Field& field, const int dim )
  *
  * \return The const field iterator the beginning of the given dimension
  */
-template<class Field>
-typename FieldTools<Field>::const_iterator 
-FieldTools<Field>::dimBegin( const Field& field, const int dim )
+template<class FieldType>
+typename FieldTools<FieldType>::const_iterator 
+FieldTools<FieldType>::dimBegin( const FieldType& field, const int dim )
 {
     DTK_REQUIRE( FT::dim( field ) > 0 );
     DTK_REQUIRE( dim >= 0 && dim < FT::dim( field ) );
@@ -121,9 +119,9 @@ FieldTools<Field>::dimBegin( const Field& field, const int dim )
  *
  * \return The field iterator the end of the given dimension
  */
-template<class Field>
-typename FieldTools<Field>::iterator 
-FieldTools<Field>::dimEnd( Field& field, const int dim )
+template<class FieldType>
+typename FieldTools<FieldType>::iterator 
+FieldTools<FieldType>::dimEnd( FieldType& field, const int dim )
 {
     DTK_REQUIRE( FT::dim( field ) > 0 );
     DTK_REQUIRE( dim >= 0 && dim < FT::dim( field ) );
@@ -140,9 +138,9 @@ FieldTools<Field>::dimEnd( Field& field, const int dim )
  *
  * \return The const field iterator the end of the given dimension
  */
-template<class Field>
-typename FieldTools<Field>::const_iterator 
-FieldTools<Field>::dimEnd( const Field& field, const int dim )
+template<class FieldType>
+typename FieldTools<FieldType>::const_iterator 
+FieldTools<FieldType>::dimEnd( const FieldType& field, const int dim )
 {
     DTK_REQUIRE( FT::dim( field ) > 0 );
     DTK_REQUIRE( dim >= 0 && dim < FT::dim( field ) );
@@ -158,9 +156,9 @@ FieldTools<Field>::dimEnd( const Field& field, const int dim )
  *
  * \return A const view of the field.
  */
-template<class Field>
-Teuchos::ArrayRCP<const typename FieldTools<Field>::value_type>
-FieldTools<Field>::view( const Field& field )
+template<class FieldType>
+Teuchos::ArrayRCP<const typename FieldTools<FieldType>::value_type>
+FieldTools<FieldType>::view( const FieldType& field )
 {
     if ( FT::empty(field) )
     {
@@ -182,9 +180,9 @@ FieldTools<Field>::view( const Field& field )
  *
  * \return A non-const view of the field.
  */
-template<class Field>
-Teuchos::ArrayRCP<typename FieldTools<Field>::value_type>
-FieldTools<Field>::nonConstView( const Field& field )
+template<class FieldType>
+Teuchos::ArrayRCP<typename FieldTools<FieldType>::value_type>
+FieldTools<FieldType>::nonConstView( const FieldType& field )
 {
     if ( FT::empty(field) )
     {
@@ -207,9 +205,9 @@ FieldTools<Field>::nonConstView( const Field& field )
  *
  * \return A copy of the field.
  */
-template<class Field>
-Teuchos::ArrayRCP<typename FieldTools<Field>::value_type>
-FieldTools<Field>::copy( const Field& field )
+template<class FieldType>
+Teuchos::ArrayRCP<typename FieldTools<FieldType>::value_type>
+FieldTools<FieldType>::copy( const FieldType& field )
 {
     if ( FT::empty(field) )
     {
@@ -234,9 +232,9 @@ FieldTools<Field>::copy( const Field& field )
  *
  * \return A const view of the field.
  */
-template<class Field>
-Teuchos::ArrayRCP<const typename FieldTools<Field>::value_type>
-FieldTools<Field>::dimView( const Field& field, const int dim )
+template<class FieldType>
+Teuchos::ArrayRCP<const typename FieldTools<FieldType>::value_type>
+FieldTools<FieldType>::dimView( const FieldType& field, const int dim )
 {
     DTK_REQUIRE( FT::dim( field ) > 0 );
     DTK_REQUIRE( dim >= 0 && dim < FT::dim( field ) );
@@ -264,9 +262,9 @@ FieldTools<Field>::dimView( const Field& field, const int dim )
  *
  * \return A non-const view of the field.
  */
-template<class Field>
-Teuchos::ArrayRCP<typename FieldTools<Field>::value_type>
-FieldTools<Field>::dimNonConstView( const Field& field, const int dim )
+template<class FieldType>
+Teuchos::ArrayRCP<typename FieldTools<FieldType>::value_type>
+FieldTools<FieldType>::dimNonConstView( const FieldType& field, const int dim )
 {
     DTK_REQUIRE( FT::dim( field ) > 0 );
     DTK_REQUIRE( dim >= 0 && dim < FT::dim( field ) );
@@ -291,8 +289,8 @@ FieldTools<Field>::dimNonConstView( const Field& field, const int dim )
  *
  * \param scalar The scalar to fill the field with.
  */
-template<class Field>
-void FieldTools<Field>::putScalar( Field& field, const value_type& scalar )
+template<class FieldType>
+void FieldTools<FieldType>::putScalar( FieldType& field, const value_type& scalar )
 {
     std::fill( FT::begin( field ), FT::end( field ), scalar );
 }
@@ -307,9 +305,9 @@ void FieldTools<Field>::putScalar( Field& field, const value_type& scalar )
  * be of the same length as the field dimension. Each entry in the array
  * correlates to the scalar for a particular field dimension.
  */
-template<class Field>
-void FieldTools<Field>::putScalar( 
-    Field& field, const Teuchos::ArrayView<value_type>& scalars )
+template<class FieldType>
+void FieldTools<FieldType>::putScalar( 
+    FieldType& field, const Teuchos::ArrayView<value_type>& scalars )
 {
     DTK_CHECK( FT::dim( field ) == Teuchos::as<int>(scalars.size()) );
     for ( int d = 0; d < FT::dim( field ); ++d )
@@ -326,8 +324,9 @@ void FieldTools<Field>::putScalar(
  *
  * \param The scalar to scale the field with.
  */
-template<class Field>
-void FieldTools<Field>::scale( Field& field, const value_type& scalar )
+template<class FieldType>
+void FieldTools<FieldType>::scale( FieldType& field, 
+				   const value_type& scalar )
 {
     iterator field_iterator;
     for ( field_iterator = FT::begin( field ); 
@@ -348,9 +347,9 @@ void FieldTools<Field>::scale( Field& field, const value_type& scalar )
  * be of the same length as the field dimension. Each entry in the array
  * correlates to the scalar for a particular field dimension.
  */
-template<class Field>
-void FieldTools<Field>::scale( Field& field, 
-			       const Teuchos::ArrayView<value_type>& scalars )
+template<class FieldType>
+void FieldTools<FieldType>::scale( FieldType& field, 
+				   const Teuchos::ArrayView<value_type>& scalars )
 {
     DTK_REQUIRE( FT::dim( field ) == Teuchos::as<int>(scalars.size()) );
     iterator dim_iterator;
@@ -376,9 +375,10 @@ void FieldTools<Field>::scale( Field& field,
  * \param norms The norms for each dimension in the field. This array will be
  * of the same length as the field dimension.
  */
-template<class Field>
-void FieldTools<Field>::normInf( const Field& field, const RCP_Comm& comm,
-				 Teuchos::Array<value_type>& norms )
+template<class FieldType>
+void FieldTools<FieldType>::normInf( const FieldType& field, 
+				     const RCP_Comm& comm,
+				     Teuchos::Array<value_type>& norms )
 {
     norms.resize( FT::dim( field ) );
     value_type local_max, local_min, local_norm;
@@ -413,9 +413,10 @@ void FieldTools<Field>::normInf( const Field& field, const RCP_Comm& comm,
  * \param norms The norms for each dimension in the field. This array will be
  * of the same length as the field dimension.
  */
-template<class Field>
-void FieldTools<Field>::norm1( const Field& field, const RCP_Comm& comm,
-			       Teuchos::Array<value_type>& norms )
+template<class FieldType>
+void FieldTools<FieldType>::norm1( const FieldType& field, 
+				   const RCP_Comm& comm,
+				   Teuchos::Array<value_type>& norms )
 {
     norms.resize( FT::dim( field ) );
     const_iterator dim_iterator;
@@ -451,9 +452,10 @@ void FieldTools<Field>::norm1( const Field& field, const RCP_Comm& comm,
  * \param norms The norms for each dimension in the field. This array will be
  * of the same length as the field dimension.
  */
-template<class Field>
-void FieldTools<Field>::norm2( const Field& field, const RCP_Comm& comm,
-			       Teuchos::Array<value_type>& norms )
+template<class FieldType>
+void FieldTools<FieldType>::norm2( const FieldType& field, 
+				   const RCP_Comm& comm,
+				   Teuchos::Array<value_type>& norms )
 {
     norms.resize( FT::dim( field ) );
     const_iterator dim_iterator;
@@ -493,10 +495,11 @@ void FieldTools<Field>::norm2( const Field& field, const RCP_Comm& comm,
  * \param norms The norms for each dimension in the field. This array will be
  * of the same length as the field dimension.
  */
-template<class Field>
-void FieldTools<Field>::normQ( const Field& field, const RCP_Comm& comm, 
-			       const int q,
-			       Teuchos::Array<value_type>& norms )
+template<class FieldType>
+void FieldTools<FieldType>::normQ( const FieldType& field, 
+				   const RCP_Comm& comm, 
+				   const int q,
+				   Teuchos::Array<value_type>& norms )
 {
     DTK_REQUIRE( q > 0 );
     norms.resize( FT::dim( field ) );
@@ -541,12 +544,12 @@ void FieldTools<Field>::normQ( const Field& field, const RCP_Comm& comm,
  * \param averages The averages for each dimension in the field. This array
  * will bep of the same length as the field dimension.
  */
-template<class Field>
-void FieldTools<Field>::average( const Field& field, const RCP_Comm& comm,
-				 Teuchos::Array<value_type>& averages )
+template<class FieldType>
+void FieldTools<FieldType>::average( const FieldType& field, const RCP_Comm& comm,
+				     Teuchos::Array<value_type>& averages )
 {
     size_type global_length = 
-	FieldTools<Field>::globalSize( field, comm );
+	FieldTools<FieldType>::globalSize( field, comm );
     DTK_REQUIRE( global_length > 0 );
 
     averages.resize( FT::dim( field ) );
@@ -586,10 +589,10 @@ void FieldTools<Field>::average( const Field& field, const RCP_Comm& comm,
  * \return The global size of the field. This is equivalent to all global
  * elements in the field in all dimensions.
  */
-template<class Field>
-typename FieldTools<Field>::size_type 
-FieldTools<Field>::globalSize( const Field& field, 
-			       const RCP_Comm& comm )
+template<class FieldType>
+typename FieldTools<FieldType>::size_type 
+FieldTools<FieldType>::globalSize( const FieldType& field, 
+				   const RCP_Comm& comm )
 {
     size_type local_size = FT::size( field );
     size_type global_size = 0;
@@ -612,8 +615,8 @@ FieldTools<Field>::globalSize( const Field& field,
  *
  * \return The local bounding box of the coordinate field.
  */
-template<class Field>
-BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
+template<class FieldType>
+BoundingBox FieldTools<FieldType>::coordLocalBoundingBox( const FieldType& field )
 {
     DTK_REQUIRE( !FT::empty(field) );
     int dim = FT::dim( field );
@@ -658,9 +661,10 @@ BoundingBox FieldTools<Field>::coordLocalBoundingBox( const Field& field )
  *
  * \return The global bounding box of the coordinate field.
  */
-template<class Field>
-BoundingBox FieldTools<Field>::coordGlobalBoundingBox( const Field& field,
-						       const RCP_Comm& comm )
+template<class FieldType>
+BoundingBox FieldTools<FieldType>::coordGlobalBoundingBox( 
+    const FieldType& field,
+    const RCP_Comm& comm )
 {
     Teuchos::Tuple<double,6> local_bounds =
 	Teuchos::tuple( Teuchos::ScalarTraits<double>::rmax(),
@@ -714,12 +718,11 @@ BoundingBox FieldTools<Field>::coordGlobalBoundingBox( const Field& field,
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_FIELDTOOLS_DEF_HPP
+#endif // end DTK_FIELDTOOLS_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_FieldTools_def.hpp
+// end DTK_FieldTools_def.hpp
 //---------------------------------------------------------------------------//
 

@@ -32,22 +32,20 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_Classic_MeshTraits.hpp
+ * \brief DTK_MeshTraits.hpp
  * \author Stuart R. Slattery
  * \brief Declaration of mesh traits.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_MESHTRAITS_HPP
-#define DTK_Classic_MESHTRAITS_HPP
+#ifndef DTK_MESHTRAITS_HPP
+#define DTK_MESHTRAITS_HPP
 
 #include <iterator>
 
-#include "DTK_Classic_MeshTypes.hpp"
+#include "DTK_MeshTypes.hpp"
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -114,7 +112,7 @@ struct UndefinedMeshTraits
   list specifies the variation in ordering between the DTK canonical numbering
   scheme and the client canonical numbering scheme. A permutation list must be
   described globally, regardless of whether or not elements exist on a
-  particular process. See DTK_Classic_ElementTopology for canonical element topologies
+  particular process. See DTK_ElementTopology for canonical element topologies
   as defined by DTK. Mesh elements may not intersect any other elements in a
   single mesh description. An element may intersect other elements if those
   elements exist in another mesh (this is in fact a common situation in data
@@ -141,7 +139,7 @@ struct UndefinedMeshTraits
   coordinates for a vertex with ordinal \f$ n_N \f$ are \f$ \Big\{ x^N_0,
   x^N_1, x^N_2 \Big\} \f$.
 
-  Mesh elements have a topology defined by a DTK_Classic_ElementTopology enumeration
+  Mesh elements have a topology defined by a DTK_ElementTopology enumeration
   with a specified number of vertices, P, needed to construct the
   topology. Elements are identified by a unique global ordinal. If there are M
   elements in the mesh then their ordinals are given as \f$ \Big\{ m^0, m^1,
@@ -263,11 +261,11 @@ class MeshTraits
     // Mesh element concepts.
     /*! 
      * \brief Return the element topology for this mesh block
-     * (DTK_Classic_ElementTopology enum).
+     * (DTK_ElementTopology enum).
      */
-    static inline DTK_Classic_ElementTopology 
+    static inline DTK_ElementTopology 
     elementTopology( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return DTK_Classic_ElementTopology();}
+    { UndefinedMeshTraits<MeshType>::notDefined(); return DTK_ElementTopology();}
 
     /*! 
      * \brief Return the number of vertices that constructs an individual
@@ -335,11 +333,10 @@ class MeshTraits
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_MESHTRAITS_HPP
+#endif // end DTK_MESHTRAITS_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_MeshTraits.hpp
+// end DTK_MeshTraits.hpp
 //---------------------------------------------------------------------------//

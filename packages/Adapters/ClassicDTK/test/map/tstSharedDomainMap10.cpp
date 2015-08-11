@@ -15,12 +15,12 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_Classic_SharedDomainMap.hpp>
-#include <DTK_Classic_FieldTraits.hpp>
-#include <DTK_Classic_FieldEvaluator.hpp>
-#include <DTK_Classic_MeshTypes.hpp>
-#include <DTK_Classic_MeshTraits.hpp>
-#include <DTK_Classic_MeshContainer.hpp>
+#include <DTK_SharedDomainMap.hpp>
+#include <DTK_FieldTraits.hpp>
+#include <DTK_FieldEvaluator.hpp>
+#include <DTK_MeshTypes.hpp>
+#include <DTK_MeshTraits.hpp>
+#include <DTK_MeshContainer.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -102,8 +102,6 @@ class MyField
 //---------------------------------------------------------------------------//
 namespace DataTransferKit
 {
-namespace Classic
-{
 //---------------------------------------------------------------------------//
 // Field Traits specification for MyField
 template<>
@@ -139,17 +137,16 @@ class FieldTraits<MyField>
     { return field.end(); }
 };
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
 class MyEvaluator : 
-    public DataTransferKit::Classic::FieldEvaluator<int,MyField>
+    public DataTransferKit::FieldEvaluator<int,MyField>
 {
   public:
 
-    MyEvaluator( const DataTransferKit::Classic::MeshContainer<int>& mesh, 
+    MyEvaluator( const DataTransferKit::MeshContainer<int>& mesh, 
 		 const Teuchos::RCP< const Teuchos::Comm<int> >& comm )
 	: d_mesh( mesh )
 	, d_comm( comm )
@@ -160,7 +157,7 @@ class MyEvaluator :
 
     MyField evaluate( 
 	const Teuchos::ArrayRCP<
-	DataTransferKit::Classic::MeshContainer<int>::global_ordinal_type>& elements,
+	DataTransferKit::MeshContainer<int>::global_ordinal_type>& elements,
 	const Teuchos::ArrayRCP<double>& coords )
     {
 	MyField evaluated_data( elements.size(), 1 );
@@ -182,14 +179,14 @@ class MyEvaluator :
 
   private:
 
-    DataTransferKit::Classic::MeshContainer<int>  d_mesh;
+    DataTransferKit::MeshContainer<int>  d_mesh;
     Teuchos::RCP< const Teuchos::Comm<int> > d_comm;
 };
 
 //---------------------------------------------------------------------------//
 // Mesh create functions.
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> >
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >
 buildTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -249,14 +246,14 @@ buildTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 2, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_TRIANGLE, 3,
+	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
+						 DataTransferKit::DTK_TRIANGLE, 3,
 						 tri_handles, tri_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> >
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >
 buildTiledTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -316,14 +313,14 @@ buildTiledTriMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp(
-	new DataTransferKit::Classic::MeshContainer<int>( 2, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_TRIANGLE, 3,
+	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
+						 DataTransferKit::DTK_TRIANGLE, 3,
 						 tri_handles, tri_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> > buildNullTriMesh()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullTriMesh()
 {
     Teuchos::ArrayRCP<int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
@@ -336,14 +333,14 @@ Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> > buildNullTriMesh()
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 2, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_TRIANGLE, 3,
+	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
+						 DataTransferKit::DTK_TRIANGLE, 3,
 						 tri_handles, tri_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
 buildQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -398,14 +395,14 @@ buildQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 2, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_QUADRILATERAL, 4,
+	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
+						 DataTransferKit::DTK_QUADRILATERAL, 4,
 						 quad_handles, quad_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
 buildTiledQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -460,14 +457,14 @@ buildTiledQuadMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 2, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_QUADRILATERAL, 4,
+	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
+						 DataTransferKit::DTK_QUADRILATERAL, 4,
 						 quad_handles, quad_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> > 
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > 
 buildNullQuadMesh()
 {
     Teuchos::ArrayRCP<int> vertex_handles(0);
@@ -481,8 +478,8 @@ buildNullQuadMesh()
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 2, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_QUADRILATERAL, 4,
+	new DataTransferKit::MeshContainer<int>( 2, vertex_handles, coords, 
+						 DataTransferKit::DTK_QUADRILATERAL, 4,
 						 quad_handles, quad_connectivity,
 						 permutation_list ) );
 }
@@ -548,7 +545,7 @@ int num_points = 1000;
 // All points will be in the mesh in this test.
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test10 )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
     typedef MeshContainer<int> MeshType;
 
     // Setup communication.
@@ -657,7 +654,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test10 )
 // Some points will be outside of the mesh in this test.
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test10 )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
     typedef MeshContainer<int> MeshType;
 
     // Setup communication.
@@ -801,7 +798,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test10 )
 // aren't in the mesh.
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test10 )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
     typedef MeshContainer<int> MeshType;
 
     // Setup communication.

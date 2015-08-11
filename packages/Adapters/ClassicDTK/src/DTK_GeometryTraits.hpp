@@ -32,22 +32,20 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_Classic_GeometryTraits.hpp
+ * \brief DTK_GeometryTraits.hpp
  * \author Stuart R. Slattery
  * \brief Declaration of geometry traits.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_GEOMETRYTRAITS_HPP
-#define DTK_Classic_GEOMETRYTRAITS_HPP
+#ifndef DTK_GEOMETRYTRAITS_HPP
+#define DTK_GEOMETRYTRAITS_HPP
 
-#include "DTK_Classic_BoundingBox.hpp"
+#include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_Array.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -136,11 +134,10 @@ class GeometryTraits
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_GEOMETRYTRAITS_HPP
+#endif // end DTK_GEOMETRYTRAITS_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_GeometryTraits.hpp
+// end DTK_GeometryTraits.hpp
 //---------------------------------------------------------------------------//

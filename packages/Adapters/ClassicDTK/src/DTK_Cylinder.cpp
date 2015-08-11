@@ -32,7 +32,7 @@
 */
 //---------------------------------------------------------------------------//
 /*!
-  * \file DTK_Classic_Cylinder.cpp
+  * \file DTK_Cylinder.cpp
   * \author Stuart R. Slattery
   * \brief Bounding box definition.
   */
@@ -40,14 +40,12 @@
 
 #include <cmath>
 
-#include "DTK_Classic_Cylinder.hpp"
+#include "DTK_Cylinder.hpp"
 #include "DTK_DBC.hpp"
 
 #include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -180,7 +178,7 @@ BoundingBox Cylinder::boundingBox() const
  */
 
 //---------------------------------------------------------------------------//
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Classic::Cylinder& c)
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c)
 {
   os << "Cylinder: length=" << c.length() << ",radius=" << c.radius()
      << ", centroid=(" << c.centroid()[0] << "," << c.centroid()[1]
@@ -191,10 +189,9 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Classic::Cylin
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_Cylinder.cpp
+// end DTK_Cylinder.cpp
 //---------------------------------------------------------------------------//
 

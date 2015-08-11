@@ -32,14 +32,14 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_MeshTools_def.hpp
+ * \file DTK_MeshTools_def.hpp
  * \author Stuart R. Slattery
  * \brief MeshTools definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_MESHTOOLS_DEF_HPP
-#define DTK_Classic_MESHTOOLS_DEF_HPP
+#ifndef DTK_MESHTOOLS_DEF_HPP
+#define DTK_MESHTOOLS_DEF_HPP
 
 #include <algorithm>
 #include <iterator>
@@ -51,8 +51,6 @@
 #include <Teuchos_ScalarTraits.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -469,12 +467,11 @@ BoundingBox MeshTools<Mesh>::globalBoundingBox( const Mesh& mesh,
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_MESHTOOLS_DEF_HPP
+#endif // end DTK_MESHTOOLS_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_MeshTools_def.hpp
+// end DTK_MeshTools_def.hpp
 //---------------------------------------------------------------------------//
 

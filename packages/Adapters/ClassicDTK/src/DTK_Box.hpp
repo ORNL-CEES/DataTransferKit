@@ -32,17 +32,17 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_Box.hpp
+ * \file DTK_Box.hpp
  * \author Stuart R. Slattery
  * \brief Bounding box declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_BOX_HPP
-#define DTK_Classic_BOX_HPP
+#ifndef DTK_BOX_HPP
+#define DTK_BOX_HPP
 
-#include "DTK_Classic_BoundingBox.hpp"
-#include "DTK_Classic_GeometryTraits.hpp"
+#include "DTK_BoundingBox.hpp"
+#include "DTK_GeometryTraits.hpp"
 
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_Array.hpp>
@@ -51,8 +51,6 @@
 #include <iostream>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -122,7 +120,7 @@ class Box
 };
 
 //! overload for printing box
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Classic::Box& b); 
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
 
 //---------------------------------------------------------------------------//
 // GeometryTraits Specialization.
@@ -154,7 +152,6 @@ class GeometryTraits<Box>
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
@@ -165,17 +162,17 @@ namespace Teuchos
 {
 
 template<typename Ordinal>
-class SerializationTraits<Ordinal, DataTransferKit::Classic::Box>
-    : public DirectSerializationTraits<Ordinal, DataTransferKit::Classic::Box>
+class SerializationTraits<Ordinal, DataTransferKit::Box>
+    : public DirectSerializationTraits<Ordinal, DataTransferKit::Box>
 {};
 
 } // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_Classic_BOX_HPP
+#endif // end DTK_BOX_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_Box.hpp
+// end DTK_Box.hpp
 //---------------------------------------------------------------------------//
 

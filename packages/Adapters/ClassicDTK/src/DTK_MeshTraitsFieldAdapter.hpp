@@ -32,23 +32,21 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_MeshTraitsFieldAdapter.hpp
+ * \file DTK_MeshTraitsFieldAdapter.hpp
  * \author Stuart R. Slattery
  * \brief FieldTraits adapter for objects that have mesh traits.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_MESHTRAITSFIELDADAPTER_HPP
-#define DTK_Classic_MESHTRAITSFIELDADAPTER_HPP
+#ifndef DTK_MESHTRAITSFIELDADAPTER_HPP
+#define DTK_MESHTRAITSFIELDADAPTER_HPP
 
-#include "DTK_Classic_FieldTraits.hpp"
-#include "DTK_Classic_MeshTraits.hpp"
-#include "DTK_Classic_MeshTools.hpp"
-#include "DTK_Classic_MeshContainer.hpp"
+#include "DTK_FieldTraits.hpp"
+#include "DTK_MeshTraits.hpp"
+#include "DTK_MeshTools.hpp"
+#include "DTK_MeshContainer.hpp"
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*! 
@@ -107,12 +105,11 @@ class FieldTraits< MeshContainer<GlobalOrdinal> >
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_MESHTRAITSFIELDADAPTER
+#endif // end DTK_MESHTRAITSFIELDADAPTER
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_MeshTraitsFieldAdapater.hpp
+// end DTK_MeshTraitsFieldAdapater.hpp
 //---------------------------------------------------------------------------//
 

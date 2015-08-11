@@ -32,23 +32,21 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_FieldEvaluator.hpp
+ * \file DTK_FieldEvaluator.hpp
  * \author Stuart R. Slattery
  * \brief Interface definition for function evaluation kernels.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_FIELDEVALUATOR_HPP
-#define DTK_Classic_FIELDEVALUATOR_HPP
+#ifndef DTK_FIELDEVALUATOR_HPP
+#define DTK_FIELDEVALUATOR_HPP
 
-#include "DTK_Classic_FieldTraits.hpp"
-#include "DTK_Classic_MeshTraits.hpp"
+#include "DTK_FieldTraits.hpp"
+#include "DTK_MeshTraits.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -88,7 +86,7 @@ namespace Classic
  *
  */
 //---------------------------------------------------------------------------//
-template<class GlobalOrdinal, class Field>
+template<class GlobalOrdinal, class FieldType>
 class FieldEvaluator
 {
   public:
@@ -96,8 +94,8 @@ class FieldEvaluator
     //@{
     //! Typedefs.
     typedef GlobalOrdinal                           global_ordinal_type;
-    typedef Field                                   field_type;
-    typedef FieldTraits<Field>                      FT;
+    typedef FieldType                               field_type;
+    typedef FieldTraits<FieldType>                  FT;
     typedef typename FT::value_type                 value_type;
     //@}
 
@@ -128,18 +126,18 @@ class FieldEvaluator
      * the given element, return 0 in their position. Field data
      * dimensionality and ordering is specified by field traits.
      */
-    virtual Field evaluate( const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
-			    const Teuchos::ArrayRCP<double>& coords ) = 0;
+    virtual FieldType evaluate( 
+	const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
+	const Teuchos::ArrayRCP<double>& coords ) = 0;
 };
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_FIELDEVALUATOR_HPP
+#endif // end DTK_FIELDEVALUATOR_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_FieldEvaluator.hpp
+// end DTK_FieldEvaluator.hpp
 //---------------------------------------------------------------------------//
 

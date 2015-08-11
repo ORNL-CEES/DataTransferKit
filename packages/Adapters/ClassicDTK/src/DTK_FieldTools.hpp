@@ -32,17 +32,17 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_FieldTools.hpp
+ * \file DTK_FieldTools.hpp
  * \author Stuart R. Slattery
  * \brief FieldTools definition
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_FIELDTOOLS_HPP
-#define DTK_Classic_FIELDTOOLS_HPP
+#ifndef DTK_FIELDTOOLS_HPP
+#define DTK_FIELDTOOLS_HPP
 
-#include "DTK_Classic_FieldTraits.hpp"
-#include "DTK_Classic_BoundingBox.hpp"
+#include "DTK_FieldTraits.hpp"
+#include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
@@ -50,8 +50,6 @@
 #include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -63,15 +61,15 @@ namespace Classic
  * also provided.
  */
 //---------------------------------------------------------------------------//
-template<class Field>
+template<class FieldType>
 class FieldTools
 {
   public:
 
     //@{
     //! Typedefs. 
-    typedef Field                           field_type;
-    typedef FieldTraits<Field>              FT;
+    typedef FieldType                       field_type;
+    typedef FieldTraits<FieldType>          FT;
     typedef typename FT::value_type         value_type;
     typedef typename FT::size_type          size_type;
     typedef typename FT::iterator           iterator;
@@ -87,19 +85,19 @@ class FieldTools
     //@{
     // Dimension iterators.
     // Get the local size of the dimensions.
-    static size_type dimSize( const Field& field );
+    static size_type dimSize( const FieldType& field );
 
     // Get an iterator to the beginning of a dimension.
-    static iterator dimBegin( Field& field, const int dim );
+    static iterator dimBegin( FieldType& field, const int dim );
 
     // Get a const iterator to the beginning of a dimension.
-    static const_iterator dimBegin( const Field& field, const int dim );
+    static const_iterator dimBegin( const FieldType& field, const int dim );
 
     // Get an iterator to the end of a dimension.
-    static iterator dimEnd( Field& field, const int dim );
+    static iterator dimEnd( FieldType& field, const int dim );
 
     // Get a const iterator to the end of a dimension.
-    static const_iterator dimEnd( const Field& field, const int dim );
+    static const_iterator dimEnd( const FieldType& field, const int dim );
     //@}
 
 
@@ -107,24 +105,24 @@ class FieldTools
     // View methods.
     // Get a const view of the field. The ArrayRCP object will not manage the
     // memory. 
-    static Teuchos::ArrayRCP<const value_type> view( const Field& field );
+    static Teuchos::ArrayRCP<const value_type> view( const FieldType& field );
 
     // Get a non-const view of the field. The ArrayRCP object will not manage
     // the memory. 
-    static Teuchos::ArrayRCP<value_type> nonConstView( const Field& field );
+    static Teuchos::ArrayRCP<value_type> nonConstView( const FieldType& field );
 
     // Get a deep-copy of the field. The arrayRCP object will manage the
     // memory.
-    static Teuchos::ArrayRCP<value_type> copy( const Field& field );
+    static Teuchos::ArrayRCP<value_type> copy( const FieldType& field );
 
     // Get a const view of a dimension of the field. The ArrayRCP object will
     // not manage the memory.
-    static Teuchos::ArrayRCP<const value_type> dimView( const Field& field,
+    static Teuchos::ArrayRCP<const value_type> dimView( const FieldType& field,
 							const int dim );
 
     // Get a non-const view of a dimension of the field. The ArrayRCP object
     // will not manage the memory.
-    static Teuchos::ArrayRCP<value_type> dimNonConstView( const Field& field,
+    static Teuchos::ArrayRCP<value_type> dimNonConstView( const FieldType& field,
 							  const int dim );
     //@}
 
@@ -132,69 +130,68 @@ class FieldTools
     //@{
     // General global mathematical operations.
     // Fill a field with a scalar.
-    static void putScalar( Field& field, const value_type& scalar );
+    static void putScalar( FieldType& field, const value_type& scalar );
 
     // Fill a field with a different scalar in each dimension.
-    static void putScalar( Field& field, 
+    static void putScalar( FieldType& field, 
 			   const Teuchos::ArrayView<value_type>& scalars );
 
     // Scale a each dimension field by a single value.
-    static void scale( Field& field, const value_type& scalar );
+    static void scale( FieldType& field, const value_type& scalar );
 
     // Scale a field by different value for each dimension.
-    static void scale( Field& field, 
+    static void scale( FieldType& field, 
 		       const Teuchos::ArrayView<value_type>& scalars );
 
     // Compute the global infinity norm for each field dimension.
-    static void normInf( const Field& field,
+    static void normInf( const FieldType& field,
 			 const RCP_Comm& comm,
 			 Teuchos::Array<value_type>& norms );
 
     // Compute the global L1 norm for each field dimension.
-    static void norm1( const Field& field, const RCP_Comm& comm,
+    static void norm1( const FieldType& field, const RCP_Comm& comm,
 		       Teuchos::Array<value_type>& norms );
 
 
     // Compute the global L2 norm for each field dimension.
-    static void norm2( const Field& field, const RCP_Comm& comm, 
+    static void norm2( const FieldType& field, const RCP_Comm& comm, 
 		       Teuchos::Array<value_type>& norms );
 
     // Compute the global q-norm for each field dimension.
-    static void normQ( const Field& field, const RCP_Comm& comm, const int q,
+    static void normQ( const FieldType& field, const RCP_Comm& comm, const int q,
 		       Teuchos::Array<value_type>& norms );
 
     // Compute the global average value for each field dimension.
-    static void average( const Field& field, const RCP_Comm& comm, 
+    static void average( const FieldType& field, const RCP_Comm& comm, 
 			 Teuchos::Array<value_type>& averages );
 
     // Get the global size of the field.
-    static size_type globalSize( const Field& field, const RCP_Comm& comm );
+    static size_type globalSize( const FieldType& field, const RCP_Comm& comm );
     //@}
 
 
     //@{
     // Coordinate field operations.
     // Get the local bounding box for a field of coordinates.
-    static BoundingBox coordLocalBoundingBox( const Field& field );
+    static BoundingBox coordLocalBoundingBox( const FieldType& field );
 
     // Get the global bounding box for a field of coordinates.
-    static BoundingBox coordGlobalBoundingBox( const Field& field,
+    static BoundingBox coordGlobalBoundingBox( const FieldType& field,
 					       const RCP_Comm& comm );
     //@}
 };
 
-} // end namespace Classic
 } // end namepsace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_Classic_FieldTools_def.hpp"
+#include "DTK_FieldTools_def.hpp"
 
-#endif // end DTK_Classic_FIELDTOOLS_HPP
+#endif // end DTK_FIELDTOOLS_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_FieldTools.hpp
+// end DTK_FieldTools.hpp
 //---------------------------------------------------------------------------//
 

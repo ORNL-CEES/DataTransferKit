@@ -32,45 +32,35 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_MeshTypes.hpp
+ * \file DTK_MeshContainer.cpp
  * \author Stuart R. Slattery
- * \brief Enumerated types for the mesh subpackage.
+ * \brief Mesh container explicit template instantiations.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_MESHTYPES_HPP
-#define DTK_Classic_MESHTYPES_HPP
+#include "DTK_MeshContainer.hpp"
 
 namespace DataTransferKit
 {
-namespace Classic
-{
-/*! 
- * \brief Element topology enumerations.
- *
- * These are the concrete element topology enumerations used to drive DTK
- * algorithms. 
- */
-enum DTK_Classic_ElementTopology 
-{
-    DTK_Classic_ElementTopology_MIN = 0,
-    DTK_Classic_VERTEX = DTK_Classic_ElementTopology_MIN,
-    DTK_Classic_LINE_SEGMENT,
-    DTK_Classic_TRIANGLE,
-    DTK_Classic_QUADRILATERAL,
-    DTK_Classic_TETRAHEDRON,
-    DTK_Classic_PYRAMID,
-    DTK_Classic_WEDGE,
-    DTK_Classic_HEXAHEDRON,
-    DTK_Classic_ElementTopology_MAX = DTK_Classic_HEXAHEDRON
-};
 
-} // end namespace Classic
+template class MeshContainer<char>;
+
+template class MeshContainer<unsigned short int>;
+template class MeshContainer<short int>;
+
+template class MeshContainer<unsigned int>;
+template class MeshContainer<int>;
+
+template class MeshContainer<long unsigned int>;
+template class MeshContainer<long int>;
+
+template class MeshContainer<long long unsigned int>;
+template class MeshContainer<long long int>;
+
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_MESHTYPES_HPP
+//---------------------------------------------------------------------------//
+// end DTK_MeshContainer.cpp
+//---------------------------------------------------------------------------//
 
-//---------------------------------------------------------------------------//
-// end DTK_Classic_MeshTypes.hpp
-//---------------------------------------------------------------------------//
 

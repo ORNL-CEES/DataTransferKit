@@ -41,7 +41,7 @@
 #ifndef DTK_CLASSIC_GEOMETRICENTITYENTITYIMPL_IMPL_HPP
 #define DTK_CLASSIC_GEOMETRICENTITYENTITYIMPL_IMPL_HPP
 
-#include "DTK_Classic_GeometryTraits.hpp"
+#include "DTK_GeometryTraits.hpp"
 
 namespace DataTransferKit
 {
@@ -80,7 +80,7 @@ template<class Geometry>
 int ClassicGeometricEntityImpl<Geometry>::topologicalDimension() const
 {
     return
-	Classic::GeometryTraits<Geometry>::dim( *(d_extra_data->d_geometry) );
+	GeometryTraits<Geometry>::dim( *(d_extra_data->d_geometry) );
 }
 
 //---------------------------------------------------------------------------//
@@ -89,7 +89,7 @@ template<class Geometry>
 int ClassicGeometricEntityImpl<Geometry>::physicalDimension() const
 {
     return
-	Classic::GeometryTraits<Geometry>::dim( *(d_extra_data->d_geometry) );
+	GeometryTraits<Geometry>::dim( *(d_extra_data->d_geometry) );
 }
 
 //---------------------------------------------------------------------------//
@@ -98,7 +98,7 @@ template<class Geometry>
 void ClassicGeometricEntityImpl<Geometry>::boundingBox(
     Teuchos::Tuple<double,6>& bounds ) const
 {
-    bounds = Classic::GeometryTraits<Geometry>::boundingBox(
+    bounds = GeometryTraits<Geometry>::boundingBox(
 	*(d_extra_data->d_geometry) ).getBounds();
 }
 

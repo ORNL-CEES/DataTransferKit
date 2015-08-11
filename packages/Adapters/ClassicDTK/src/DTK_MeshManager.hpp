@@ -32,17 +32,17 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_MeshManager.hpp
+ * \file DTK_MeshManager.hpp
  * \author Stuart R. Slattery
  * \brief Mesh manager declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_MESHMANAGER_HPP
-#define DTK_Classic_MESHMANAGER_HPP
+#ifndef DTK_MESHMANAGER_HPP
+#define DTK_MESHMANAGER_HPP
 
-#include "DTK_Classic_MeshTraits.hpp"
-#include "DTK_Classic_BoundingBox.hpp"
+#include "DTK_MeshTraits.hpp"
+#include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -50,8 +50,6 @@
 #include <Teuchos_ArrayRCP.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -184,18 +182,17 @@ class MeshManager
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_Classic_MeshManager_def.hpp"
+#include "DTK_MeshManager_def.hpp"
 
-#endif // end DTK_Classic_MESHMANAGER_HPP
+#endif // end DTK_MESHMANAGER_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_MeshManager.hpp
+// end DTK_MeshManager.hpp
 //---------------------------------------------------------------------------//
 

@@ -32,20 +32,20 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_MeshManager_def.hpp
+ * \file DTK_MeshManager_def.hpp
  * \author Stuart R. Slattery
  * \brief Mesh manager definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_MESHMANAGER_DEF_HPP
-#define DTK_Classic_MESHMANAGER_DEF_HPP
+#ifndef DTK_MESHMANAGER_DEF_HPP
+#define DTK_MESHMANAGER_DEF_HPP
 
 #include <algorithm>
 #include <limits>
 
-#include "DTK_Classic_MeshTypes.hpp"
-#include "DTK_Classic_MeshTools.hpp"
+#include "DTK_MeshTypes.hpp"
+#include "DTK_MeshTools.hpp"
 #include "DTK_DBC.hpp"
 
 #include <Teuchos_ScalarTraits.hpp>
@@ -56,8 +56,6 @@
 #include <Teuchos_as.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -257,30 +255,30 @@ void MeshManager<Mesh>::validate()
 	if ( d_dim == 0 )
 	{
 	    DTK_REQUIRE( MT::elementTopology( *(*block_iterator) ) 
-			      == DTK_Classic_VERTEX );
+			      == DTK_VERTEX );
 	}
 	else if ( d_dim == 1 )
 	{
 	    DTK_REQUIRE( MT::elementTopology( *(*block_iterator) ) == 
-			      DTK_Classic_LINE_SEGMENT );
+			      DTK_LINE_SEGMENT );
 	}
 	else if ( d_dim == 2 )
 	{
 	    DTK_REQUIRE( MT::elementTopology( *(*block_iterator) ) == 
-			      DTK_Classic_TRIANGLE ||
+			      DTK_TRIANGLE ||
 			      MT::elementTopology( *(*block_iterator) ) == 
-			      DTK_Classic_QUADRILATERAL );
+			      DTK_QUADRILATERAL );
 	}
 	else if ( d_dim == 3 )
 	{
 	    DTK_REQUIRE( MT::elementTopology( *(*block_iterator) ) == 
-			      DTK_Classic_TETRAHEDRON ||
+			      DTK_TETRAHEDRON ||
 			      MT::elementTopology( *(*block_iterator) ) == 
-			      DTK_Classic_HEXAHEDRON ||
+			      DTK_HEXAHEDRON ||
 			      MT::elementTopology( *(*block_iterator) ) == 
-			      DTK_Classic_PYRAMID ||
+			      DTK_PYRAMID ||
 			      MT::elementTopology( *(*block_iterator) ) == 
-			      DTK_Classic_WEDGE );
+			      DTK_WEDGE );
 	}
 
 	// Check that this block has the same topology on all nodes.
@@ -362,13 +360,12 @@ void MeshManager<Mesh>::validate()
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_MESHMANAGER_DEF_HPP
+#endif // end DTK_MESHMANAGER_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_MeshManager_def.hpp
+// end DTK_MeshManager_def.hpp
 //---------------------------------------------------------------------------//
 
 

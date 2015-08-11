@@ -48,7 +48,7 @@
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
 #include "DTK_ClassicMesh.hpp"
-#include "DTK_Classic_MeshTraits.hpp"
+#include "DTK_MeshTraits.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Ptr.hpp>
@@ -69,7 +69,7 @@ class ClassicMeshEntitySetIterator : public EntityIterator
   public:
 
     // Typedefs.
-    typedef Classic::MeshTraits<Mesh> MT;
+    typedef MeshTraits<Mesh> MT;
     typedef typename MT::global_ordinal_type GlobalOrdinal;
 
     // Default constructor.

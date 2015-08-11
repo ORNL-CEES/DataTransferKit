@@ -14,9 +14,9 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_Classic_BoundingBox.hpp>
-#include <DTK_Classic_Cylinder.hpp>
-#include <DTK_Classic_GeometryTraits.hpp>
+#include <DTK_BoundingBox.hpp>
+#include <DTK_Cylinder.hpp>
+#include <DTK_GeometryTraits.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -62,7 +62,7 @@ bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
 
     // Make sure that PI is PI.
     double zero = 0.0;
@@ -143,7 +143,7 @@ TEUCHOS_UNIT_TEST( Cylinder, cylinder_test )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( Cylinder, cylinder_traits_test )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
     typedef GeometryTraits<Cylinder> GT;
 
     // Make sure that PI is PI.

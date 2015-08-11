@@ -32,48 +32,42 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_VolumeSourceMap_def.hpp
+ * \file DTK_SharedDomainMap_def.hpp
  * \author Stuart R. Slattery
- * \brief Volume source map definition.
+ * \brief Shared domain map definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_VOLUMESOURCEMAP_DEF_HPP
-#define DTK_Classic_VOLUMESOURCEMAP_DEF_HPP
+#ifndef DTK_SHAREDDOMAINMAP_DEF_HPP
+#define DTK_SHAREDDOMAINMAP_DEF_HPP
 
 #include <algorithm>
-#include <limits>
-#include <set>
+#include <unordered_map>
 
 #include "DTK_DBC.hpp"
 #include "DTK_FunctionSpace.hpp"
 #include "DTK_FieldMultiVector.hpp"
 
+#include "DTK_ClassicMesh.hpp"
+#include "DTK_ClassicMeshEntitySet.hpp"
+#include "DTK_ClassicMeshElementLocalMap.hpp"
+#include "DTK_ClassicMeshNodalShapeFunction.hpp"
 #include "DTK_EntityCenteredShapeFunction.hpp"
 #include "DTK_EntityCenteredField.hpp"
 #include "DTK_Point.hpp"
 #include "DTK_BasicGeometryLocalMap.hpp"
 
-#include "DTK_ClassicGeometricEntity.hpp"
-#include "DTK_ClassicGeometricEntityLocalMap.hpp"
-
-#include "DTK_Classic_FieldTools.hpp"
-#include "DTK_Classic_FieldTraits.hpp"
+#include "DTK_FieldTools.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_as.hpp>
 #include <Teuchos_Ptr.hpp>
-#include <Teuchos_ScalarTraits.hpp>
 
 #include <Tpetra_Import.hpp>
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_MultiVector.hpp>
-#include <Tpetra_Vector.hpp>
-#include <Tpetra_Export.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -82,53 +76,50 @@ namespace Classic
  * \param comm The communicator over which the map is generated.
  *
  * \param dimension The dimension of the map. This should be consistent with
- * all source and target objects (i.e. only 3 dimensional geometries will be
+ * all source and target objects (i.e. only 3 dimensional coordinates will be
  * accepted with a 3 dimensional map). We need this here so we have a global
  * baseline for all objects that may or may not exist on all processes.
- * 
+ *
  * \param store_missed_points Set to true if it is desired to keep track of
  * the local target points missed during map generation. The default value is
  * false. 
- *
- * \param geometric_tolerance Tolerance used for point-in-geometry checks. The
- * default value is 1.0e-6.
  */
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
-VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::VolumeSourceMap(
-    const RCP_Comm& comm, const int dimension, 
-    bool store_missed_points,
-    const double geometric_tolerance )
+template<class Mesh, class CoordinateField>
+SharedDomainMap<Mesh,CoordinateField>::SharedDomainMap( 
+    const RCP_Comm& comm, const int dimension, bool store_missed_points )
     : d_comm( comm )
     , d_dimension( dimension )
     , d_store_missed_points( store_missed_points )
-    , d_geometric_tolerance( geometric_tolerance )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Generate the volume source map.
+ * \brief Generate the shared domain map.
  *
- * \param source_geometry_manager Source geometry in the volume source
- * problem. A null RCP is a valid argument. This will be the case when a
- * geometry manager is only constructed on a subset of the processes that the
- * shared domain map is constructed over. Note that the source geometry must
- * exist only on processes that reside within the VolumeSourceMap
- * communicator.
+ * \param source_mesh_manager Source mesh in the shared domain problem. A null
+ * RCP is a valid argument. This will be the case when a mesh manager is only
+ * constructed on a subset of the processes that the shared domain map is
+ * constructed over. Note that the source mesh must exist only on processes
+ * that reside within the SharedDomainMap communicator.
  *
  * \param target_coord_manager Target coordinates in the shared domain
  * problem. A null RCP is a valid argument. This will be the case when a field
  * manager is only constructed on a subset of the processes that the shared
  * domain map is constructed over. Note that the target coordinates must exist
- * only on processes that reside within the VolumeSourceMap communicator.
+ * only on processes that reside within the SharedDomainMap communicator.
+ *
+ * \param tolerance Absolute tolerance for point searching. Will be used when
+ * checking the reference cell ( and is therefore absolute ).
  */
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
-void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup( 
-    const RCP_GeometryManager& source_geometry_manager, 
-    const RCP_CoordFieldManager& target_coord_manager )
+template<class Mesh, class CoordinateField>
+void SharedDomainMap<Mesh,CoordinateField>::setup( 
+    const RCP_MeshManager& source_mesh_manager, 
+    const RCP_CoordFieldManager& target_coord_manager,
+    double tolerance )
 {
     // Create existence values for the managers.
     bool source_exists = true;
-    if ( source_geometry_manager.is_null() ) source_exists = false;
+    if ( source_mesh_manager.is_null() ) source_exists = false;
     bool target_exists = true;
     if ( target_coord_manager.is_null() ) target_exists = false;
 
@@ -136,20 +127,20 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     RCP_Comm source_comm;
     if ( source_exists )
     {
-	source_comm = source_geometry_manager->comm();
+	source_comm = source_mesh_manager->comm();
     }
     RCP_Comm target_comm;
     if ( target_exists )
     {
 	target_comm = target_coord_manager->comm();
     }
-    d_source_indexer = DataTransferKit::CommIndexer( d_comm, source_comm );
-    d_target_indexer = DataTransferKit::CommIndexer( d_comm, target_comm );
+    d_source_indexer = CommIndexer( d_comm, source_comm );
+    d_target_indexer = CommIndexer( d_comm, target_comm );
 
     // Check the source and target dimensions for consistency.
     if ( source_exists )
     {
-	DTK_REQUIRE( source_geometry_manager->dim() == d_dimension );
+	DTK_REQUIRE( source_mesh_manager->dim() == d_dimension );
     }
 
     if ( target_exists )
@@ -157,74 +148,59 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	DTK_REQUIRE( CFT::dim( *target_coord_manager->field() ) 
 			  == d_dimension );
     }
-    
+
     // Build the domain space and map from the source information.
     // -----------------------------------------------------------
 
-    // Create an entity set from the local source geometry. DTK entities are
-    // stored as pointers to the classic geometry objects.
+    // Create an entity set from the local source mesh.
+    Teuchos::RCP<DataTransferKit::ClassicMesh<Mesh> > classic_mesh =
+	Teuchos::rcp( new DataTransferKit::ClassicMesh<Mesh>(source_mesh_manager) );
     d_source_entity_set =
-	Teuchos::rcp( new DataTransferKit::BasicEntitySet(d_comm,d_dimension) );
-    if ( source_exists )
+	Teuchos::rcp( new DataTransferKit::ClassicMeshEntitySet<Mesh>(classic_mesh) );
+
+    // Create an evaluation set for the source. For each node in the mesh pair
+    // it with one of its elements so we can extract its data.
+    std::unordered_map<GlobalOrdinal,std::pair<GlobalOrdinal,int> > node_to_elem_map;
+    int num_src_blocks = classic_mesh->getNumBlocks();
+    Teuchos::Array<SupportId> elem_conn;
+    for ( int b = 0; b < num_src_blocks; ++b )
     {
-	// The classic API allowed for input source geometries to have
-	// repeated global ids on different procs. The new API also allows for
-	// this but we need to know which proc is the owning proc for parallel
-	// uniqueness. Make globally unique ids even if sources are not
-	// globally unique because we don't know with the version 1 API which
-	// proc the user intended to be the owner. The map will handle the
-	// averaging of multiple contributions.
-	std::size_t local_num_source_geom =
-	    source_geometry_manager->localNumGeometry();
-	std::size_t global_num_source_geom =
-	    source_geometry_manager->globalNumGeometry();
-	Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::EntityId> >
-	    source_unique_id_map =
-	    Tpetra::createContigMap<int,DataTransferKit::EntityId>(
-		global_num_source_geom,
-		local_num_source_geom,
-		source_comm );
-	Teuchos::ArrayView<const DataTransferKit::EntityId> unique_src_id_view =
-	    source_unique_id_map->getNodeElementList();
-	d_source_entity_ids.assign( unique_src_id_view.begin(),
-				    unique_src_id_view.end() );
-		
-	// Create the entity set and extract the geometry centroids for future
-	// evaluation.
-	Teuchos::ArrayRCP<Geometry> source_geometry =
-	    source_geometry_manager->geometry();
-		Teuchos::ArrayRCP<GlobalOrdinal> source_gids =
-		source_geometry_manager->gids();
-	d_source_eval_ids.resize( local_num_source_geom );
-	d_source_centroids.resize( local_num_source_geom*d_dimension );
-	Teuchos::Array<double> source_centroid;
-	for ( std::size_t i = 0; i < local_num_source_geom; ++i )
+	for ( auto elem_gid : classic_mesh->d_element_gids[b] )
 	{
-	    d_source_entity_set->addEntity(
-		DataTransferKit::ClassicGeometricEntity<Geometry>(
-		    Teuchos::ptrFromRef(source_geometry[i]),
-		    d_source_entity_ids[i],
-		    d_comm->getRank())
-		);
-	    d_source_eval_ids[i] = source_gids[i];
-	    source_centroid = GT::centroid( source_geometry[i] );
-	    for ( int d = 0; d < d_dimension; ++d )
+	    elem_conn = classic_mesh->getElementConnectivity( elem_gid, b );
+	    for ( auto node_gid : elem_conn )
 	    {
-		d_source_centroids[d*local_num_source_geom + i] =
-		    source_centroid[d];
+		node_to_elem_map.emplace( node_gid, std::make_pair(elem_gid,b) );
 	    }
 	}
     }
+    int num_node = node_to_elem_map.size();
+    d_source_node_ids.resize( num_node );
+    d_source_eval_ids.resize( num_node );
+    d_source_node_coords.resize( d_dimension*num_node );
+    int n = 0;
+    Teuchos::Array<double> node_coords;
+    for ( auto ne : node_to_elem_map )
+    {
+	d_source_node_ids[n] = ne.first;
+	d_source_eval_ids[n] = ne.second.first;
+	node_coords = classic_mesh->getNodeCoordinates( ne.first, ne.second.second );
+	for ( int d = 0; d < d_dimension; ++d )
+	{
+	    d_source_node_coords[d*num_node + n] = node_coords[d];
+	}
+	++n;
+    }
 
     // Create a local map.
-    Teuchos::RCP<DataTransferKit::ClassicGeometricEntityLocalMap<Geometry> >
+    Teuchos::RCP<DataTransferKit::ClassicMeshElementLocalMap<Mesh> >
 	source_local_map = Teuchos::rcp(
-	    new DataTransferKit::ClassicGeometricEntityLocalMap<Geometry>() );
+	    new DataTransferKit::ClassicMeshElementLocalMap<Mesh>(classic_mesh) );
 
     // Create a shape function.
-    Teuchos::RCP<DataTransferKit::EntityCenteredShapeFunction>
+    Teuchos::RCP<DataTransferKit::ClassicMeshNodalShapeFunction<Mesh> >
 	source_shape_function =	Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredShapeFunction() );
+	    new DataTransferKit::ClassicMeshNodalShapeFunction<Mesh>(classic_mesh) );
 
     // Create a function space for the source.
     DataTransferKit::FunctionSpace domain_function_space(
@@ -233,7 +209,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     // Make a map for the source vectors.
     Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> >
     	domain_vector_map = Tpetra::createNonContigMap<int,DataTransferKit::SupportId>(
-	    d_source_entity_ids(), d_comm );
+	    d_source_node_ids(), d_comm );
     
     // Build the target space and map from the target information.
     // -----------------------------------------------------------
@@ -285,16 +261,16 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> >
     	range_vector_map = Tpetra::createNonContigMap<int,DataTransferKit::SupportId>(
 	    d_target_entity_ids(), d_comm );
-
+    
     // Build the DTK operator.
     // -----------------------
-    
+
     // Create parameters for the mapping.
     Teuchos::ParameterList parameters;
     parameters.sublist("Consistent Interpolation");
     Teuchos::ParameterList& search_list = parameters.sublist("Search");
     search_list.set<bool>("Track Missed Range Entities",d_store_missed_points);
-    search_list.set<double>("Point Inclusion Tolerance", d_geometric_tolerance );
+    search_list.set<double>("Point Inclusion Tolerance", tolerance );
     
     // Create the interpolation operator.
     d_consistent_operator = Teuchos::rcp(
@@ -306,20 +282,19 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Apply the volume source map for a valid source field evaluator and
+ * \Brief Apply the shared domain map for a valid source field evaluator and
  * target data space to the target points that were mapped.
  *
  * \param source_evaluator Function evaluator used to apply the mapping. This
- * FieldEvaluator must be valid for the source geometry used to generate the
- * map.
+ * FieldEvaluator must be valid for the source mesh used to generate the map.
  *
  * \param target_space_manager Target space into which the function
  * evaluations will be written. Enough space must be allocated to hold
  * evaluations at all points in all dimensions of the field.
  */
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
+template<class Mesh, class CoordinateField>
 template<class SourceField, class TargetField>
-void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply( 
+void SharedDomainMap<Mesh,CoordinateField>::apply( 
     const Teuchos::RCP< FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
     Teuchos::RCP< FieldManager<TargetField> >& target_space_manager )
 {
@@ -332,7 +307,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     bool target_exists = true;
     if ( target_space_manager.is_null() ) target_exists = false;
 
-    // Evaluate the source function at the centroids to extract the data.
+    // Evaluate the source function at the nodes to extract the data.
     int source_dim;
     Teuchos::ArrayRCP<typename SFT::value_type> source_field_copy(0,0);
     if ( source_exists )
@@ -340,7 +315,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 	SourceField function_evaluations = 
 	    source_evaluator->evaluate(
 		Teuchos::arcpFromArray(d_source_eval_ids),
-		Teuchos::arcpFromArray(d_source_centroids) );
+		Teuchos::arcpFromArray(d_source_node_coords) );
 
 	source_dim = SFT::dim( function_evaluations );
 
@@ -354,7 +329,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     Teuchos::RCP<DataTransferKit::EntityCenteredField>
 	source_dtk_field = Teuchos::rcp(
 	    new DataTransferKit::EntityCenteredField(
-		d_source_entity_ids(),
+		d_source_node_ids(),
 		source_dim,
 		source_field_copy,
 		DataTransferKit::EntityCenteredField::BLOCKED)
@@ -402,6 +377,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     d_consistent_operator->apply( source_vector, target_vector );
 }
 
+
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the points missed in the map generation.
@@ -411,14 +387,20 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
  *  will be thrown if store_missed_points is false. Returns a null view if all
  *  points have been mapped or the map has not yet been generated.
 */
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
-Teuchos::ArrayView<const GlobalOrdinal>
-VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints() const
-{
+template<class Mesh, class CoordinateField>
+Teuchos::ArrayView<const typename 
+		   SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal> 
+SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
+{ 
     DTK_REQUIRE( d_store_missed_points );
     Teuchos::ArrayView<const DataTransferKit::EntityId> missed_ids =
 	d_consistent_operator->getMissedRangeEntityIds();
-    d_missed_points.assign( missed_ids.begin(), missed_ids.end() );
+    int num_missed = missed_ids.size();
+    d_missed_points.resize( num_missed );
+    for ( int n = 0; n < num_missed; ++n )
+    {
+	d_missed_points[n] = missed_ids[n] - d_target_entity_ids.front();
+    }
     return d_missed_points();
 }
 
@@ -431,14 +413,20 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints()
  *  will be thrown if store_missed_points is false. Returns a null view if all
  *  points have been mapped or the map has not yet been generated.
 */
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
-Teuchos::ArrayView<GlobalOrdinal> 
-VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints()
+template<class Mesh, class CoordinateField>
+Teuchos::ArrayView<typename 
+		   SharedDomainMap<Mesh,CoordinateField>::GlobalOrdinal> 
+SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints()
 {
     DTK_REQUIRE( d_store_missed_points );
     Teuchos::ArrayView<const DataTransferKit::EntityId> missed_ids =
 	d_consistent_operator->getMissedRangeEntityIds();
-    d_missed_points.assign( missed_ids.begin(), missed_ids.end() );
+    int num_missed = missed_ids.size();
+    d_missed_points.resize( num_missed );
+    for ( int n = 0; n < num_missed; ++n )
+    {
+	d_missed_points[n] = missed_ids[n] - d_target_entity_ids.front();
+    }
     return d_missed_points();
 }
 
@@ -454,9 +442,8 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints()
  * \param target_ordinals The computed globally unique ordinals for the target
  * coordinates. 
  */
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
-void 
-VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::computePointOrdinals(
+template<class Mesh, class CoordinateField>
+void SharedDomainMap<Mesh,CoordinateField>::computePointOrdinals(
     const RCP_CoordFieldManager& target_coord_manager,
     Teuchos::Array<GlobalOrdinal>& target_ordinals )
 {
@@ -490,13 +477,10 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::computePointOrdinals(
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_VOLUMESOURCEMAP_DEF_HPP
+#endif // end DTK_SHAREDDOMAINMAP_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_VolumeSourceMap_def.hpp
+// end DTK_SharedDomainMap_def.hpp
 //---------------------------------------------------------------------------//
-
-

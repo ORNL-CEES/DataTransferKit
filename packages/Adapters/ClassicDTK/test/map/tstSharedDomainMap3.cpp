@@ -15,11 +15,11 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_Classic_SharedDomainMap.hpp>
-#include <DTK_Classic_FieldTraits.hpp>
-#include <DTK_Classic_FieldEvaluator.hpp>
-#include <DTK_Classic_MeshTypes.hpp>
-#include <DTK_Classic_MeshTraits.hpp>
+#include <DTK_SharedDomainMap.hpp>
+#include <DTK_FieldTraits.hpp>
+#include <DTK_FieldEvaluator.hpp>
+#include <DTK_MeshTypes.hpp>
+#include <DTK_MeshTraits.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -171,8 +171,6 @@ class MyField
 //---------------------------------------------------------------------------//
 namespace DataTransferKit
 {
-namespace Classic
-{
 //---------------------------------------------------------------------------//
 // Mesh traits specialization for MyMesh
 template<>
@@ -209,8 +207,8 @@ class MeshTraits<MyMesh>
     { return mesh.coordsEnd(); }
 
 
-    static inline DTK_Classic_ElementTopology elementTopology( const MyMesh& mesh )
-    { return DTK_Classic_TETRAHEDRON; }
+    static inline DTK_ElementTopology elementTopology( const MyMesh& mesh )
+    { return DTK_TETRAHEDRON; }
 
     static inline int verticesPerElement( const MyMesh& mesh )
     { return 4; }
@@ -270,13 +268,12 @@ class FieldTraits<MyField>
     { return field.end(); }
 };
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
 class MyEvaluator : 
-    public DataTransferKit::Classic::FieldEvaluator<MyMesh::global_ordinal_type,MyField>
+    public DataTransferKit::FieldEvaluator<MyMesh::global_ordinal_type,MyField>
 {
   public:
 
@@ -589,7 +586,7 @@ void buildTiledCoordinateField( int my_rank, int my_size,
 // All points will be in the mesh in this test.
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test3 )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
@@ -651,7 +648,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test3 )
 // Some points will be outside of the mesh in this test.
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test3 )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
@@ -749,7 +746,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test3 )
 // aren't in the mesh.
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test3 )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();

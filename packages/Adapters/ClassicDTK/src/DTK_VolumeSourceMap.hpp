@@ -32,24 +32,24 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_VolumeSourceMap.hpp
+ * \file DTK_VolumeSourceMap.hpp
  * \author Stuart R. Slattery
  * \brief Volume source map declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_VOLUMESOURCEMAP_HPP
-#define DTK_Classic_VOLUMESOURCEMAP_HPP
+#ifndef DTK_VOLUMESOURCEMAP_HPP
+#define DTK_VOLUMESOURCEMAP_HPP
 
 #include "DTK_ConsistentInterpolationOperator.hpp"
 #include "DTK_CommIndexer.hpp"
 #include "DTK_BasicEntitySet.hpp"
 
-#include "DTK_Classic_GeometryTraits.hpp"
-#include "DTK_Classic_GeometryManager.hpp"
-#include "DTK_Classic_FieldTraits.hpp"
-#include "DTK_Classic_FieldEvaluator.hpp"
-#include "DTK_Classic_FieldManager.hpp"
+#include "DTK_GeometryTraits.hpp"
+#include "DTK_GeometryManager.hpp"
+#include "DTK_FieldTraits.hpp"
+#include "DTK_FieldEvaluator.hpp"
+#include "DTK_FieldManager.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -62,8 +62,6 @@
 #include <Tpetra_Import.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -181,20 +179,19 @@ class VolumeSourceMap
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_Classic_VolumeSourceMap_def.hpp"
+#include "DTK_VolumeSourceMap_def.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_Classic_VOLUMESOURCEMAP_HPP
+#endif // end DTK_VOLUMESOURCEMAP_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_VolumeSourceMap.hpp
+// end DTK_VolumeSourceMap.hpp
 //---------------------------------------------------------------------------//
 

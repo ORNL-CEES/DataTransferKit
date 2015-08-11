@@ -14,9 +14,9 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_Classic_BoundingBox.hpp>
-#include <DTK_Classic_Box.hpp>
-#include <DTK_Classic_GeometryTraits.hpp>
+#include <DTK_BoundingBox.hpp>
+#include <DTK_Box.hpp>
+#include <DTK_GeometryTraits.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -62,7 +62,7 @@ bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( Box, box_test )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
 
     // Build a series of random boxes.
     int num_boxes = 100;
@@ -133,7 +133,7 @@ TEUCHOS_UNIT_TEST( Box, box_test )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( Box, box_traits_test )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
     typedef GeometryTraits<Box> GT;
 
     // Build a series of random boxes.

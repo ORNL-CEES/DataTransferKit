@@ -32,24 +32,22 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_FieldManager_def.hpp
+ * \file DTK_FieldManager_def.hpp
  * \author Stuart R. Slattery
  * \brief Field manager definition.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_FIELDMANAGER_DEF_HPP
-#define DTK_Classic_FIELDMANAGER_DEF_HPP
+#ifndef DTK_FIELDMANAGER_DEF_HPP
+#define DTK_FIELDMANAGER_DEF_HPP
 
 #include "DTK_DBC.hpp"
 
-#include "DTK_Classic_FieldTools.hpp"
+#include "DTK_FieldTools.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -62,8 +60,8 @@ namespace Classic
  * 
  * \param comm The communicator over which the field is defined.
  */
-template<class Field>
-FieldManager<Field>::FieldManager( const RCP_Field& field, 
+template<class FieldType>
+FieldManager<FieldType>::FieldManager( const RCP_Field& field, 
 				   const RCP_Comm& comm )
     : d_field( field )
     , d_comm( comm )
@@ -77,16 +75,16 @@ FieldManager<Field>::FieldManager( const RCP_Field& field,
 /*!
  * \brief Destructor.
  */
-template<class Field>
-FieldManager<Field>::~FieldManager()
+template<class FieldType>
+FieldManager<FieldType>::~FieldManager()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Validate the field to the domain model.
  */
-template<class Field>
-void FieldManager<Field>::validate()
+template<class FieldType>
+void FieldManager<FieldType>::validate()
 {
     // Check that the field dimension is the same on every node.
     Teuchos::Array<int> local_dims( d_comm->getSize(), 0 );
@@ -108,7 +106,7 @@ void FieldManager<Field>::validate()
     DTK_REQUIRE( num_data == FT::size( *d_field ) );
     if ( !FT::empty( *d_field ) )
     {
-	DTK_REQUIRE( num_data / FieldTools<Field>::dimSize( *d_field ) 
+	DTK_REQUIRE( num_data / FieldTools<FieldType>::dimSize( *d_field ) 
 			  == Teuchos::as<typename FT::size_type>(
 			      FT::dim(*d_field)) );
     }
@@ -116,12 +114,11 @@ void FieldManager<Field>::validate()
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
-#endif // end DTK_Classic_FIELDMANAGER_DEF_HPP
+#endif // end DTK_FIELDMANAGER_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_FieldManager_def.hpp
+// end DTK_FieldManager_def.hpp
 //---------------------------------------------------------------------------//
 

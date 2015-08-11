@@ -13,8 +13,8 @@
 #include <algorithm>
 #include <cassert>
 
-#include <DTK_Classic_FieldManager.hpp>
-#include <DTK_Classic_FieldTraits.hpp>
+#include <DTK_FieldManager.hpp>
+#include <DTK_FieldTraits.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -92,8 +92,6 @@ class ArrayField
 //---------------------------------------------------------------------------//
 namespace DataTransferKit
 {
-namespace Classic
-{
 //---------------------------------------------------------------------------//
 // Field Traits specification for ArrayField
 template<>
@@ -129,7 +127,6 @@ class FieldTraits<ArrayField>
     { return field.end(); }
 };
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
@@ -138,7 +135,7 @@ class FieldTraits<ArrayField>
 
 TEUCHOS_UNIT_TEST( FieldManager, field_manager_test )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
 
     // Setup communication.
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();

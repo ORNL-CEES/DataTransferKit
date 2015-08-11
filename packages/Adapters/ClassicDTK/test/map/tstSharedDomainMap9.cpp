@@ -15,12 +15,12 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_Classic_SharedDomainMap.hpp>
-#include <DTK_Classic_FieldTraits.hpp>
-#include <DTK_Classic_FieldEvaluator.hpp>
-#include <DTK_Classic_MeshTypes.hpp>
-#include <DTK_Classic_MeshTraits.hpp>
-#include <DTK_Classic_MeshContainer.hpp>
+#include <DTK_SharedDomainMap.hpp>
+#include <DTK_FieldTraits.hpp>
+#include <DTK_FieldEvaluator.hpp>
+#include <DTK_MeshTypes.hpp>
+#include <DTK_MeshTraits.hpp>
+#include <DTK_MeshContainer.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -102,8 +102,6 @@ class MyField
 //---------------------------------------------------------------------------//
 namespace DataTransferKit
 {
-namespace Classic
-{
 //---------------------------------------------------------------------------//
 // Field Traits specification for MyField
 template<>
@@ -139,16 +137,15 @@ class FieldTraits<MyField>
     { return field.end(); }
 };
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
-class MyEvaluator : public DataTransferKit::Classic::FieldEvaluator<int,MyField>
+class MyEvaluator : public DataTransferKit::FieldEvaluator<int,MyField>
 {
   public:
 
-    MyEvaluator( const DataTransferKit::Classic::MeshContainer<int>& mesh, 
+    MyEvaluator( const DataTransferKit::MeshContainer<int>& mesh, 
 		 const Teuchos::RCP< const Teuchos::Comm<int> >& comm )
 	: d_mesh( mesh )
 	, d_comm( comm )
@@ -159,7 +156,7 @@ class MyEvaluator : public DataTransferKit::Classic::FieldEvaluator<int,MyField>
 
     MyField evaluate( 
 	const Teuchos::ArrayRCP<
-	DataTransferKit::Classic::MeshContainer<int>::global_ordinal_type>& elements,
+	DataTransferKit::MeshContainer<int>::global_ordinal_type>& elements,
 	const Teuchos::ArrayRCP<double>& coords )
     {
 	MyField evaluated_data( elements.size(), 1 );
@@ -181,14 +178,14 @@ class MyEvaluator : public DataTransferKit::Classic::FieldEvaluator<int,MyField>
 
   private:
 
-    DataTransferKit::Classic::MeshContainer<int>  d_mesh;
+    DataTransferKit::MeshContainer<int>  d_mesh;
     Teuchos::RCP< const Teuchos::Comm<int> > d_comm;
 };
 
 //---------------------------------------------------------------------------//
 // Mesh create functions.
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> > 
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > 
 buildTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -290,14 +287,14 @@ buildTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_TETRAHEDRON, 4,
+	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+						 DataTransferKit::DTK_TETRAHEDRON, 4,
 						 tet_handles, tet_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> > 
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > 
 buildTiledTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -399,14 +396,14 @@ buildTiledTetMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_TETRAHEDRON, 4,
+	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+						 DataTransferKit::DTK_TETRAHEDRON, 4,
 						 tet_handles, tet_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> > buildNullTetMesh()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullTetMesh()
 {
     Teuchos::ArrayRCP<int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
@@ -419,14 +416,14 @@ Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> > buildNullTetMesh()
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_TETRAHEDRON, 4,
+	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+						 DataTransferKit::DTK_TETRAHEDRON, 4,
 						 tet_handles, tet_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
 buildHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -505,14 +502,14 @@ buildHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_HEXAHEDRON, 8,
+	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+						 DataTransferKit::DTK_HEXAHEDRON, 8,
 						 hex_handles, hex_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
 buildTiledHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -591,14 +588,14 @@ buildTiledHexMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_HEXAHEDRON, 8,
+	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+						 DataTransferKit::DTK_HEXAHEDRON, 8,
 						 hex_handles, hex_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> > 
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > 
 buildNullHexMesh()
 {
     Teuchos::ArrayRCP<int> vertex_handles(0);
@@ -612,14 +609,14 @@ buildNullHexMesh()
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_HEXAHEDRON, 8,
+	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+						 DataTransferKit::DTK_HEXAHEDRON, 8,
 						 hex_handles, hex_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
 buildPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -747,14 +744,14 @@ buildPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_PYRAMID, 5,
+	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+						 DataTransferKit::DTK_PYRAMID, 5,
 						 pyr_handles, pyr_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
 buildTiledPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -882,14 +879,14 @@ buildTiledPyramidMesh( int my_rank, int my_size, int edge_length, int elem_offse
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_PYRAMID, 5,
+	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+						 DataTransferKit::DTK_PYRAMID, 5,
 						 pyr_handles, pyr_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> > buildNullPyramidMesh()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullPyramidMesh()
 {
     Teuchos::ArrayRCP<int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
@@ -902,14 +899,14 @@ Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> > buildNullPyramidMesh
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_PYRAMID, 5,
+	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+						 DataTransferKit::DTK_PYRAMID, 5,
 						 pyramid_handles, pyramid_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
 buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -991,14 +988,14 @@ buildWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_WEDGE, 6,
+	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+						 DataTransferKit::DTK_WEDGE, 6,
 						 wedge_handles, wedge_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> >  
+Teuchos::RCP<DataTransferKit::MeshContainer<int> >  
 buildTiledWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset )
 {
     // Make some vertices.
@@ -1080,14 +1077,14 @@ buildTiledWedgeMesh( int my_rank, int my_size, int edge_length, int elem_offset 
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_WEDGE, 6,
+	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+						 DataTransferKit::DTK_WEDGE, 6,
 						 wedge_handles, wedge_connectivity,
 						 permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> > buildNullWedgeMesh()
+Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildNullWedgeMesh()
 {
     Teuchos::ArrayRCP<int> vertex_handles(0);
     Teuchos::ArrayRCP<double> coords(0);
@@ -1100,8 +1097,8 @@ Teuchos::RCP<DataTransferKit::Classic::MeshContainer<int> > buildNullWedgeMesh()
     }
 
     return Teuchos::rcp( 
-	new DataTransferKit::Classic::MeshContainer<int>( 3, vertex_handles, coords, 
-						 DataTransferKit::Classic::DTK_Classic_WEDGE, 6,
+	new DataTransferKit::MeshContainer<int>( 3, vertex_handles, coords, 
+						 DataTransferKit::DTK_WEDGE, 6,
 						 wedge_handles, wedge_connectivity,
 						 permutation_list ) );
 }
@@ -1165,7 +1162,7 @@ void buildTiledCoordinateField( int my_rank, int my_size,
 // All points will be in the mesh in this test.
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
     typedef MeshContainer<int> MeshType;
 
     // Setup communication.
@@ -1283,7 +1280,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_test9 )
 // Some points will be outside of the mesh in this test.
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test9 )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
     typedef MeshContainer<int> MeshType;
 
     // Setup communication.
@@ -1438,7 +1435,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test9 )
 // aren't in the mesh.
 TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test9 )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
     typedef MeshContainer<int> MeshType;
 
     // Setup communication.

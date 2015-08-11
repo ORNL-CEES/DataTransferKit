@@ -32,17 +32,17 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_Classic_GeometryManager.hpp
+ * \file DTK_GeometryManager.hpp
  * \author Stuart R. Slattery
  * \brief Geometry manager declaration.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_Classic_GEOMETRYMANAGER_HPP
-#define DTK_Classic_GEOMETRYMANAGER_HPP
+#ifndef DTK_GEOMETRYMANAGER_HPP
+#define DTK_GEOMETRYMANAGER_HPP
 
-#include "DTK_Classic_GeometryTraits.hpp"
-#include "DTK_Classic_BoundingBox.hpp"
+#include "DTK_GeometryTraits.hpp"
+#include "DTK_BoundingBox.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -51,8 +51,6 @@
 #include <Teuchos_ArrayView.hpp>
 
 namespace DataTransferKit
-{
-namespace Classic
 {
 //---------------------------------------------------------------------------//
 /*!
@@ -160,20 +158,19 @@ class GeometryManager
 
 //---------------------------------------------------------------------------//
 
-} // end namespace Classic
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // Template includes.
 //---------------------------------------------------------------------------//
 
-#include "DTK_Classic_GeometryManager_def.hpp"
+#include "DTK_GeometryManager_def.hpp"
 
 //---------------------------------------------------------------------------//
 
-#endif // DTK_Classic_GEOMETRYMANAGER_HPP
+#endif // DTK_GEOMETRYMANAGER_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_Classic_GeometryManager.hpp
+// end DTK_GeometryManager.hpp
 //---------------------------------------------------------------------------//
 

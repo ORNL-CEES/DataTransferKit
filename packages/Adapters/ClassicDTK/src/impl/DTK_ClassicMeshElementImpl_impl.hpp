@@ -78,34 +78,34 @@ int ClassicMeshElementImpl<Mesh>::ownerRank() const
 template<class Mesh>
 int ClassicMeshElementImpl<Mesh>::topologicalDimension() const
 {
-    Classic::DTK_Classic_ElementTopology topo =
-	Classic::MeshTraits<Mesh>::elementTopology(
+    DTK_ElementTopology topo =
+	MeshTraits<Mesh>::elementTopology(
 	    *d_mesh->getBlock(d_extra_data->d_block_id) );
     int dim = 0;
     switch ( topo )
     {
-	case Classic::DTK_Classic_VERTEX:
+	case DTK_VERTEX:
 	    dim = 0;
 	    break;
-	case Classic::DTK_Classic_LINE_SEGMENT:
+	case DTK_LINE_SEGMENT:
 	    dim = 1;
 	    break;
-	case Classic::DTK_Classic_TRIANGLE:
+	case DTK_TRIANGLE:
 	    dim = 2;
 	    break;
-	case Classic::DTK_Classic_QUADRILATERAL:
+	case DTK_QUADRILATERAL:
 	    dim = 2;
 	    break;
-	case Classic::DTK_Classic_TETRAHEDRON:
+	case DTK_TETRAHEDRON:
 	    dim = 3;
 	    break;
-	case Classic::DTK_Classic_PYRAMID:
+	case DTK_PYRAMID:
 	    dim = 3;
 	    break;
-	case Classic::DTK_Classic_WEDGE:
+	case DTK_WEDGE:
 	    dim = 3;
 	    break;
-	case Classic::DTK_Classic_HEXAHEDRON:
+	case DTK_HEXAHEDRON:
 	    dim = 3;
 	    break;
 	default:
