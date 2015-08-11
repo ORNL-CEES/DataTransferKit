@@ -98,10 +98,8 @@ DTK has the following packages:
     This can serve as a starting point for migrating from version 1.0 to 2.0
     but note that the classic adapters only have version 1.0 functionality -
     no version 2.0 functionality is provided. To use these adapters, simply
-    change your DTK implementation by renaming all included DTK headers from
-    DTK_SomeFile.hpp to DTK_Classic_SomeFile.hpp and switch from the namespace
-    DataTransferKit to the namespace DataTransferKit::Classic. See the unit 
-    tests in the classic adapters directory for examples of these changes.
+    build them and your code should link. See the unit tests in the classic
+    adapters directory for examples of these changes.
 
 Questions, Bug Reporting, and Issue Tracking
 ============================================
