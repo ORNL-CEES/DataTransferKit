@@ -32,7 +32,7 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   tstAssertion.cpp
+ * \file   tstDBC.cpp
  * \author Stuart Slattery
  * \brief  Assertion class unit tests.
  */
@@ -322,5 +322,5 @@ TEUCHOS_UNIT_TEST( Assertion, errorcode_test_2 )
 }
 
 //---------------------------------------------------------------------------//
-// end tstAssertion.cpp
+// end tstDBC.cpp
 //---------------------------------------------------------------------------//
