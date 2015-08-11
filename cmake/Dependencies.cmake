@@ -8,5 +8,5 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     STKMeshAdapters       packages/Adapters/STKMesh       SS  OPTIONAL
     MoabAdapters          packages/Adapters/Moab          SS  OPTIONAL
     LibmeshAdapters       packages/Adapters/Libmesh       SS  OPTIONAL
-    ClassicDTKAdapters    packages/Adapters/ClassicDTK    SS  OPTIONAL
+    DTKVersion1Adapters   packages/Adapters/DTKVersion1   SS  OPTIONAL
   )
