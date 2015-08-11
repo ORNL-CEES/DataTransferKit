@@ -17,6 +17,16 @@ TRIBITS_ADD_ETI_INSTANTIATIONS(TpetraCore
   "S={double} LO={int} GO={unsigned long} N={${KokkosClassic_DefaultNode}}"
   )
 
+IF(DataTransferKit_ENABLE_TESTS OR DataTransferKit_ENABLE_EXAMPLES)
+  
+  TRIBITS_ADD_ETI_INSTANTIATIONS(TpetraCore
+    "S={double} LO={int} GO={long} N={Kokkos::Compat::KokkosSerialWrapperNode}"
+    "S={long} LO={int} GO={long} N={Kokkos::Compat::KokkosSerialWrapperNode}"
+    "S={int} LO={int} GO={long} N={Kokkos::Compat::KokkosSerialWrapperNode}"
+    )
+
+ENDIF()
+
 ##---------------------------------------------------------------------------##
 ## Set the path to the DTKData directory.
 ##---------------------------------------------------------------------------##

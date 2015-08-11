@@ -1,14 +1,14 @@
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  Box_test
-  SOURCES tstBox.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  BoxGeometry_test
+  SOURCES tstBoxGeometry.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  Cylinder_test
-  SOURCES tstCylinder.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  CylinderGeometry_test
+  SOURCES tstCylinderGeometry.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )

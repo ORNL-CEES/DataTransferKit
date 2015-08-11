@@ -42,7 +42,7 @@
 #define DTK_CLASSICMESH_IMPL_HPP
 
 #include "DTK_DBC.hpp"
-#include "DTK_Classic_MeshTools.hpp"
+#include "DTK_MeshTools.hpp"
 
 #include <Shards_BasicTopologies.hpp>
 #include <Shards_CellTopologyData.h>
@@ -53,7 +53,7 @@ namespace DataTransferKit
 // Constructor.
 template<class Mesh>
 ClassicMesh<Mesh>::ClassicMesh(
-    const Teuchos::RCP<Classic::MeshManager<Mesh> >& mesh_manager )
+    const Teuchos::RCP<MeshManager<Mesh> >& mesh_manager )
     : d_mesh_manager( mesh_manager )
 {
     // Allocate arrays.
@@ -76,11 +76,11 @@ ClassicMesh<Mesh>::ClassicMesh(
     for ( int b = 0; b < num_blocks; ++b )
     {
 	block = d_mesh_manager->getBlock( b );
-	d_vertex_gids[b] = Classic::MeshTools<Mesh>::verticesView( *block );
-	d_vertex_coords[b] = Classic::MeshTools<Mesh>::coordsView( *block );
-	d_element_gids[b] = Classic::MeshTools<Mesh>::elementsView( *block );
-	d_element_conn[b] = Classic::MeshTools<Mesh>::connectivityView( *block );
-	d_permutation[b] = Classic::MeshTools<Mesh>::permutationView( *block );
+	d_vertex_gids[b] = MeshTools<Mesh>::verticesView( *block );
+	d_vertex_coords[b] = MeshTools<Mesh>::coordsView( *block );
+	d_element_gids[b] = MeshTools<Mesh>::elementsView( *block );
+	d_element_conn[b] = MeshTools<Mesh>::connectivityView( *block );
+	d_permutation[b] = MeshTools<Mesh>::permutationView( *block );
 	d_block_topo[b] = createBlockTopology( b );
     }
 
@@ -111,22 +111,22 @@ shards::CellTopology
 ClassicMesh<Mesh>::createBlockTopology( const int block_id ) const
 {
     DTK_REQUIRE( block_id < d_mesh_manager->getNumBlocks() );
-    Classic::DTK_Classic_ElementTopology topo =
-	Classic::MeshTraits<Mesh>::elementTopology( *getBlock(block_id) );
+    DTK_ElementTopology topo =
+	MeshTraits<Mesh>::elementTopology( *getBlock(block_id) );
     int num_nodes = d_permutation[block_id].size();
     const CellTopologyData* topo_data = nullptr;
     switch ( topo )
     {
-	case Classic::DTK_Classic_VERTEX:
+	case DTK_VERTEX:
 	    topo_data = shards::getCellTopologyData<shards::Node>();
 	    break;
-	case Classic::DTK_Classic_LINE_SEGMENT:
+	case DTK_LINE_SEGMENT:
 	    if ( 2 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Line<2> >();
 	    else if ( 3 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Line<3> >();
 	    break;
-	case Classic::DTK_Classic_TRIANGLE:
+	case DTK_TRIANGLE:
 	    if ( 3 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Triangle<3> >();
 	    else if ( 4 == num_nodes )
@@ -134,7 +134,7 @@ ClassicMesh<Mesh>::createBlockTopology( const int block_id ) const
 	    else if ( 6 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Triangle<6> >();
 	    break;
-	case Classic::DTK_Classic_QUADRILATERAL:
+	case DTK_QUADRILATERAL:
 	    if ( 4 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Quadrilateral<4> >();
 	    else if ( 8 == num_nodes )
@@ -142,7 +142,7 @@ ClassicMesh<Mesh>::createBlockTopology( const int block_id ) const
 	    else if ( 9 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Quadrilateral<9> >();
 	    break;
-	case Classic::DTK_Classic_TETRAHEDRON:
+	case DTK_TETRAHEDRON:
 	    if ( 4 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Tetrahedron<4> >();
 	    else if ( 8 == num_nodes )
@@ -152,7 +152,7 @@ ClassicMesh<Mesh>::createBlockTopology( const int block_id ) const
 	    else if ( 11 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Tetrahedron<11> >();
 	    break;
-	case Classic::DTK_Classic_PYRAMID:
+	case DTK_PYRAMID:
 	    if ( 5 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Pyramid<5> >();
 	    else if ( 13 == num_nodes )
@@ -160,7 +160,7 @@ ClassicMesh<Mesh>::createBlockTopology( const int block_id ) const
 	    else if ( 14 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Pyramid<14> >();
 	    break;
-	case Classic::DTK_Classic_WEDGE:
+	case DTK_WEDGE:
 	    if ( 6 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Wedge<6> >();
 	    else if ( 15 == num_nodes )
@@ -168,7 +168,7 @@ ClassicMesh<Mesh>::createBlockTopology( const int block_id ) const
 	    else if ( 18 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Wedge<18> >();
 	    break;
-	case Classic::DTK_Classic_HEXAHEDRON:
+	case DTK_HEXAHEDRON:
 	    if ( 8 == num_nodes )
 		topo_data = shards::getCellTopologyData<shards::Hexahedron<8> >();
 	    else if ( 20 == num_nodes )

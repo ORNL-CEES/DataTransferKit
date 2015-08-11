@@ -46,7 +46,6 @@
 #include "DTK_PointImpl.hpp"
 #include "DTK_Types.hpp"
 #include "DTK_BasicGeometryEntity.hpp"
-#include "DTK_Box.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>

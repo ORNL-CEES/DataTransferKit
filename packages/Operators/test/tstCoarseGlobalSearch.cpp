@@ -49,7 +49,7 @@
 #include <DTK_CoarseGlobalSearch.hpp>
 #include <DTK_BasicEntitySet.hpp>
 #include <DTK_BasicGeometryLocalMap.hpp>
-#include <DTK_Box.hpp>
+#include <DTK_BoxGeometry.hpp>
 #include <DTK_Point.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
@@ -81,7 +81,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, all_to_one_test )
     for ( int i = 0; i < num_boxes; ++i )
     {
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	    Box(i,comm_rank,i,0.0,0.0,i,1.0,1.0,i+1.0) );
+	    BoxGeometry(i,comm_rank,i,0.0,0.0,i,1.0,1.0,i+1.0) );
     }
 
     // Get an iterator over all of the boxes.
@@ -179,7 +179,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, one_to_one_test )
     {
 	id = num_boxes*(comm_size-comm_rank-1) + i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	    Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+	    BoxGeometry(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
     }
 
     // Get an iterator over all of the boxes.
@@ -267,7 +267,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, no_domain_0_test )
 	{
 	    id = num_boxes*(comm_size-comm_rank-1) + i;
 	    Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-		Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+		BoxGeometry(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
 	}
     }
 
@@ -371,7 +371,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, no_range_0_test )
     {
 	id = num_boxes*(comm_size-comm_rank-1) + i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	    Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+	    BoxGeometry(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
     }
 
     // Get an iterator over all of the boxes.
@@ -471,7 +471,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, many_to_many_test )
     {
 	id = num_boxes*(comm_size-comm_rank-1) + i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	    Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+	    BoxGeometry(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
     }
 
     // Get an iterator over all of the boxes.
@@ -582,7 +582,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_multiple_neighbors_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int id = comm_size - comm_rank - 1;
     Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	Box(id,id,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+	BoxGeometry(id,id,id,0.0,0.0,id,1.0,1.0,id+1.0) );
 
     // Get an iterator over all of the boxes.
     EntityIterator domain_it = domain_set->entityIterator( 3 );
@@ -668,7 +668,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_multiple_neighbors_fuzzy_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int id = comm_size - comm_rank - 1;
     Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	Box(id,id,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+	BoxGeometry(id,id,id,0.0,0.0,id,1.0,1.0,id+1.0) );
 
     // Get an iterator over all of the boxes.
     EntityIterator domain_it = domain_set->entityIterator( 3 );
@@ -755,7 +755,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, point_single_neighbor_fuzzy_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int id = comm_size - comm_rank - 1;
     Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	Box(id,id,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+	BoxGeometry(id,id,id,0.0,0.0,id,1.0,1.0,id+1.0) );
 
     // Get an iterator over all of the boxes.
     EntityIterator domain_it = domain_set->entityIterator( 3 );
@@ -833,7 +833,7 @@ TEUCHOS_UNIT_TEST( CoarseGlobalSearch, missed_range_test )
     {
 	id = num_boxes*(comm_size-comm_rank-1) + i;
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(domain_set)->addEntity(
-	    Box(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
+	    BoxGeometry(id,comm_rank,id,0.0,0.0,id,1.0,1.0,id+1.0) );
     }
 
     // Get an iterator over all of the boxes.

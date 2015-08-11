@@ -17,16 +17,16 @@
 #include <ctime>
 #include <cstdlib>
 
-#include <DTK_Classic_VolumeSourceMap.hpp>
-#include <DTK_Classic_FieldTraits.hpp>
-#include <DTK_Classic_FieldEvaluator.hpp>
-#include <DTK_Classic_FieldManager.hpp>
-#include <DTK_Classic_FieldTools.hpp>
-#include <DTK_Classic_FieldContainer.hpp>
-#include <DTK_Classic_GeometryTraits.hpp>
-#include <DTK_Classic_GeometryManager.hpp>
-#include <DTK_Classic_Cylinder.hpp>
-#include <DTK_Classic_Box.hpp>
+#include <DTK_VolumeSourceMap.hpp>
+#include <DTK_FieldTraits.hpp>
+#include <DTK_FieldEvaluator.hpp>
+#include <DTK_FieldManager.hpp>
+#include <DTK_FieldTools.hpp>
+#include <DTK_FieldContainer.hpp>
+#include <DTK_GeometryTraits.hpp>
+#include <DTK_GeometryManager.hpp>
+#include <DTK_Cylinder.hpp>
+#include <DTK_Box.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -56,7 +56,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 //---------------------------------------------------------------------------//
 // FieldEvaluator Implementation.
 class MyEvaluator : 
-    public DataTransferKit::Classic::FieldEvaluator<int,DataTransferKit::Classic::FieldContainer<double> >
+    public DataTransferKit::FieldEvaluator<int,DataTransferKit::FieldContainer<double> >
 {
   public:
 
@@ -69,7 +69,7 @@ class MyEvaluator :
     ~MyEvaluator()
     { /* ... */ }
 
-    DataTransferKit::Classic::FieldContainer<double> evaluate( 
+    DataTransferKit::FieldContainer<double> evaluate( 
 	const Teuchos::ArrayRCP<int>& gids,
 	const Teuchos::ArrayRCP<double>& coords )
     {
@@ -87,7 +87,7 @@ class MyEvaluator :
 		evaluated_data[n] = 0.0;
 	    }
 	}
-	return DataTransferKit::Classic::FieldContainer<double>( evaluated_data, 1 );
+	return DataTransferKit::FieldContainer<double>( evaluated_data, 1 );
     }
 
   private:
@@ -101,7 +101,7 @@ class MyEvaluator :
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( VolumeSourceMap, cylinder_test )
 {
-    using namespace DataTransferKit::Classic;
+    using namespace DataTransferKit;
     typedef FieldContainer<double> FieldType;
 
     // Setup communication.

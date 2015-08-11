@@ -6,38 +6,42 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_Classic_BoundingBox.hpp
-  DTK_Classic_Box.hpp
-  DTK_Classic_Cylinder.hpp
-  DTK_Classic_FieldContainer.hpp
-  DTK_Classic_FieldEvaluator.hpp
-  DTK_Classic_FieldManager.hpp
-  DTK_Classic_FieldManager_def.hpp
-  DTK_Classic_FieldTools.hpp
-  DTK_Classic_FieldTools_def.hpp
-  DTK_Classic_FieldTraits.hpp
-  DTK_Classic_GeometryManager.hpp
-  DTK_Classic_GeometryManager_def.hpp
-  DTK_Classic_GeometryTraits.hpp
-  DTK_Classic_MeshContainer.hpp
-  DTK_Classic_MeshManager.hpp
-  DTK_Classic_MeshManager_def.hpp
-  DTK_Classic_MeshTools.hpp
-  DTK_Classic_MeshTools_def.hpp
-  DTK_Classic_MeshTraits.hpp
-  DTK_Classic_MeshTraitsFieldAdapter.hpp
-  DTK_Classic_MeshTypes.hpp
-  DTK_Classic_SharedDomainMap.hpp
-  DTK_Classic_SharedDomainMap_def.hpp
-  DTK_Classic_VolumeSourceMap.hpp
-  DTK_Classic_VolumeSourceMap_def.hpp
+  DTK_BoundingBox.hpp
+  DTK_Box.hpp
+  DTK_CommIndexer.hpp
+  DTK_CommTools.hpp
+  DTK_Cylinder.hpp
+  DTK_FieldContainer.hpp
+  DTK_FieldEvaluator.hpp
+  DTK_FieldManager.hpp
+  DTK_FieldManager_def.hpp
+  DTK_FieldTools.hpp
+  DTK_FieldTools_def.hpp
+  DTK_FieldTraits.hpp
+  DTK_GeometryManager.hpp
+  DTK_GeometryManager_def.hpp
+  DTK_GeometryTraits.hpp
+  DTK_MeshContainer.hpp
+  DTK_MeshManager.hpp
+  DTK_MeshManager_def.hpp
+  DTK_MeshTools.hpp
+  DTK_MeshTools_def.hpp
+  DTK_MeshTraits.hpp
+  DTK_MeshTraitsFieldAdapter.hpp
+  DTK_MeshTypes.hpp
+  DTK_SharedDomainMap.hpp
+  DTK_SharedDomainMap_def.hpp
+  DTK_VolumeSourceMap.hpp
+  DTK_VolumeSourceMap_def.hpp
   ) 
 
 APPEND_SET(SOURCES
-  DTK_Classic_BoundingBox.cpp
-  DTK_Classic_Box.cpp
-  DTK_Classic_Cylinder.cpp
-  DTK_Classic_MeshContainer.cpp
+  DTK_BoundingBox.cpp
+  DTK_Box.cpp
+  DTK_CommIndexer.cpp
+  DTK_CommTools.cpp
+  DTK_Cylinder.cpp
+  DTK_MeshContainer.cpp
   )
 
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/impl)

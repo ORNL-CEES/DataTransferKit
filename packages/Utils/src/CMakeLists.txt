@@ -13,8 +13,6 @@ SET(HEADERS ${HEADERS}
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  DTK_CommIndexer.hpp
-  DTK_CommTools.hpp
   DTK_DBC.hpp
   DTK_PredicateComposition.hpp
   DTK_PredicateComposition_impl.hpp
@@ -24,8 +22,6 @@ APPEND_SET(HEADERS
   ) 
 
 APPEND_SET(SOURCES
-  DTK_CommIndexer.cpp
-  DTK_CommTools.cpp
   DTK_DBC.cpp
   DTK_SearchTreeFactory.cpp
   )

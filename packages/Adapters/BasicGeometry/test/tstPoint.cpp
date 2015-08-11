@@ -48,7 +48,6 @@
 
 #include <DTK_Point.hpp>
 #include <DTK_Entity.hpp>
-#include <DTK_Box.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>

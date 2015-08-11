@@ -23,10 +23,10 @@ APPEND_SET(HEADERS
   DTK_BasicGeometryEntityImpl.hpp
   DTK_BasicGeometryExtraData.hpp
   DTK_BasicGeometryLocalMap.hpp
-  DTK_Box.hpp
-  DTK_BoxImpl.hpp
-  DTK_Cylinder.hpp
-  DTK_CylinderImpl.hpp
+  DTK_BoxGeometry.hpp
+  DTK_BoxGeometryImpl.hpp
+  DTK_CylinderGeometry.hpp
+  DTK_CylinderGeometryImpl.hpp
   DTK_Point.hpp
   DTK_PointImpl.hpp
   ) 
@@ -39,10 +39,10 @@ APPEND_SET(SOURCES
   DTK_EntityCenteredShapeFunction.cpp
   DTK_BasicGeometryExtraData.cpp
   DTK_BasicGeometryLocalMap.cpp
-  DTK_Box.cpp
-  DTK_BoxImpl.cpp
-  DTK_Cylinder.cpp
-  DTK_CylinderImpl.cpp
+  DTK_BoxGeometry.cpp
+  DTK_BoxGeometryImpl.cpp
+  DTK_CylinderGeometry.cpp
+  DTK_CylinderGeometryImpl.cpp
   DTK_Point.cpp
   DTK_PointImpl.cpp
   )

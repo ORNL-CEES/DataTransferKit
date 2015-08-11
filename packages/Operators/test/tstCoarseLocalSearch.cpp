@@ -49,7 +49,7 @@
 #include <DTK_CoarseLocalSearch.hpp>
 #include <DTK_BasicEntitySet.hpp>
 #include <DTK_BasicGeometryLocalMap.hpp>
-#include <DTK_Box.hpp>
+#include <DTK_BoxGeometry.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -78,7 +78,7 @@ TEUCHOS_UNIT_TEST( CoarseLocalSearch, coarse_local_search_test )
     for ( int i = 0; i < num_boxes; ++i )
     {
 	Teuchos::rcp_dynamic_cast<BasicEntitySet>(entity_set)->addEntity(
-	    Box(i,comm->getRank(),i,0.0,0.0,i,1.0,1.0,i+1) );
+	    BoxGeometry(i,comm->getRank(),i,0.0,0.0,i,1.0,1.0,i+1) );
     }
 
     // Construct a local map for the boxes.
