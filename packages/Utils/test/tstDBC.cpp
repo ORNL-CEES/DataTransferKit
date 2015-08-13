@@ -61,15 +61,15 @@ int error_code_function( int& value )
 //---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
-// Check that a DataTransferKit::Assertion looks different than a
+// Check that a DataTransferKit::DataTransferKitException looks different than a
 // std::runtime_error as it inherits from std::logic_error.
-TEUCHOS_UNIT_TEST( Assertion, differentiation_test )
+TEUCHOS_UNIT_TEST( DataTransferKitException, differentiation_test )
 {
     try
     {
 	throw std::runtime_error( "runtime error" );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch( const DataTransferKit::DataTransferKitException& assertion )
     {
 	TEST_ASSERT( 0 );
     }
@@ -80,17 +80,17 @@ TEUCHOS_UNIT_TEST( Assertion, differentiation_test )
 }
 
 //---------------------------------------------------------------------------//
-// Check that a DataTransferKit::Assertion can be caught and the appropriate
+// Check that a DataTransferKit::DataTransferKitException can be caught and the appropriate
 // error message is written.
-TEUCHOS_UNIT_TEST( Assertion, message_test )
+TEUCHOS_UNIT_TEST( DataTransferKitException, message_test )
 {
     std::string message;
 
     try
     {
-	throw DataTransferKit::Assertion( "cond", "file", 12 );
+	throw DataTransferKit::DataTransferKitException( "cond", "file", 12 );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch( const DataTransferKit::DataTransferKitException& assertion )
     {
 	message = std::string( assertion.what() );
     }
@@ -100,23 +100,23 @@ TEUCHOS_UNIT_TEST( Assertion, message_test )
     }
 
     const std::string true_message( 
-	"DataTransferKit Assertion: cond, failed in file, line 12.\n" );
+	"DataTransferKit DataTransferKitException: cond, failed in file, line 12.\n" );
     TEST_ASSERT( 0 == message.compare( true_message ) );
 }
 
 //---------------------------------------------------------------------------//
-// Check that we can throw a nemesis assertion with throwAssertion.
-TEUCHOS_UNIT_TEST( Assertion, throw_test )
+// Check that we can throw a nemesis assertion with throwDataTransferKitException.
+TEUCHOS_UNIT_TEST( DataTransferKitException, throw_test )
 {
     try
     {
 	const std::string message( "message" );
 	const std::string file( "file" );
 	const int line( 12 );
-	DataTransferKit::throwAssertion( message, file, line );
+	DataTransferKit::throwDataTransferKitException( message, file, line );
 	throw std::runtime_error( "this shouldn't be thrown" );
     }    
-    catch( const DataTransferKit::Assertion& assertion )
+    catch( const DataTransferKit::DataTransferKitException& assertion )
     {
 	TEST_ASSERT( 1 );	
     }
@@ -128,18 +128,18 @@ TEUCHOS_UNIT_TEST( Assertion, throw_test )
 
 //---------------------------------------------------------------------------//
 // Test the precondition check for DBC.
-TEUCHOS_UNIT_TEST( Assertion, precondition_test )
+TEUCHOS_UNIT_TEST( DataTransferKitException, precondition_test )
 {
     try 
     {
 	DTK_REQUIRE( 0 );
 	throw std::runtime_error( "this shouldn't be thrown" );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch( const DataTransferKit::DataTransferKitException& assertion )
     {
 #if HAVE_DTK_DBC
 	std::string message( assertion.what() );
-	std::string true_message( "DataTransferKit Assertion: 0, failed in" );
+	std::string true_message( "DataTransferKit DataTransferKitException: 0, failed in" );
 	std::string::size_type idx = message.find( true_message );
 	if ( idx == std::string::npos )
 	{
@@ -159,18 +159,18 @@ TEUCHOS_UNIT_TEST( Assertion, precondition_test )
 
 //---------------------------------------------------------------------------//
 // Test the postcondition check for DBC.
-TEUCHOS_UNIT_TEST( Assertion, postcondition_test )
+TEUCHOS_UNIT_TEST( DataTransferKitException, postcondition_test )
 {
     try 
     {
 	DTK_ENSURE( 0 );
 	throw std::runtime_error( "this shouldn't be thrown" );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch( const DataTransferKit::DataTransferKitException& assertion )
     {
 #if HAVE_DTK_DBC
 	std::string message( assertion.what() );
-	std::string true_message( "DataTransferKit Assertion: 0, failed in" );
+	std::string true_message( "DataTransferKit DataTransferKitException: 0, failed in" );
 	std::string::size_type idx = message.find( true_message );
 	if ( idx == std::string::npos )
 	{
@@ -190,18 +190,18 @@ TEUCHOS_UNIT_TEST( Assertion, postcondition_test )
 
 //---------------------------------------------------------------------------//
 // Test the invariant check for DBC.
-TEUCHOS_UNIT_TEST( Assertion, invariant_test )
+TEUCHOS_UNIT_TEST( DataTransferKitException, invariant_test )
 {
     try 
     {
 	DTK_CHECK( 0 );
 	throw std::runtime_error( "this shouldn't be thrown" );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch( const DataTransferKit::DataTransferKitException& assertion )
     {
 #if HAVE_DTK_DBC
 	std::string message( assertion.what() );
-	std::string true_message( "DataTransferKit Assertion: 0, failed in" );
+	std::string true_message( "DataTransferKit DataTransferKitException: 0, failed in" );
 	std::string::size_type idx = message.find( true_message );
 	if ( idx == std::string::npos )
 	{
@@ -221,7 +221,7 @@ TEUCHOS_UNIT_TEST( Assertion, invariant_test )
 
 //---------------------------------------------------------------------------//
 // Test that we can remember a value and check it with DBC.
-TEUCHOS_UNIT_TEST( Assertion, remember_test )
+TEUCHOS_UNIT_TEST( DataTransferKitException, remember_test )
 {
     DTK_REMEMBER( int test_value_1 = 0 );
     DTK_REMEMBER( int test_value_2 = 1 );
@@ -230,7 +230,7 @@ TEUCHOS_UNIT_TEST( Assertion, remember_test )
     {
 	DTK_CHECK( test_value_1 );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch( const DataTransferKit::DataTransferKitException& assertion )
     {
 #if HAVE_DTK_DBC
 	TEST_ASSERT( 1 );
@@ -258,17 +258,17 @@ TEUCHOS_UNIT_TEST( Assertion, remember_test )
 
 //---------------------------------------------------------------------------//
 // Test the assertion check for DBC.
-TEUCHOS_UNIT_TEST( Assertion, assertion_test )
+TEUCHOS_UNIT_TEST( DataTransferKitException, assertion_test )
 {
     try 
     {
 	DTK_INSIST( 0 );
 	throw std::runtime_error( "this shouldn't be thrown" );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch( const DataTransferKit::DataTransferKitException& assertion )
     {
 	std::string message( assertion.what() );
-	std::string true_message( "DataTransferKit Assertion: 0, failed in" );
+	std::string true_message( "DataTransferKit DataTransferKitException: 0, failed in" );
 	std::string::size_type idx = message.find( true_message );
 	if ( idx == std::string::npos )
 	{
@@ -283,7 +283,7 @@ TEUCHOS_UNIT_TEST( Assertion, assertion_test )
 
 //---------------------------------------------------------------------------//
 // Test the error code check.
-TEUCHOS_UNIT_TEST( Assertion, errorcode_test_1 )
+TEUCHOS_UNIT_TEST( DataTransferKitException, errorcode_test_1 )
 {
     int value = 1;
     try 
@@ -291,7 +291,7 @@ TEUCHOS_UNIT_TEST( Assertion, errorcode_test_1 )
 	DTK_CHECK_ERROR_CODE( error_code_function(value) );
 	TEST_EQUALITY( value, 2 );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch( const DataTransferKit::DataTransferKitException& assertion )
     {
 #if HAVE_DTK_DBC
 	TEST_EQUALITY( value, 2 );
@@ -307,7 +307,7 @@ TEUCHOS_UNIT_TEST( Assertion, errorcode_test_1 )
 
 //---------------------------------------------------------------------------//
 // Test the error code check.
-TEUCHOS_UNIT_TEST( Assertion, errorcode_test_2 )
+TEUCHOS_UNIT_TEST( DataTransferKitException, errorcode_test_2 )
 {
     int value = 0;
     try 

@@ -59,13 +59,13 @@ namespace DataTransferKit
  *
  * \param line The line number at which the assertion failed.
  *
- * \return Assertion output.
+ * \return DataTransferKitException output.
  */
-std::string Assertion::generate_output( 
+std::string DataTransferKitException::generate_output( 
     const std::string& cond, const std::string& file, const int line ) const
 {
     std::ostringstream output;
-    output << "DataTransferKit Assertion: " << cond << ", failed in " << file
+    output << "DataTransferKit DataTransferKitException: " << cond << ", failed in " << file
 	   << ", line " << line  << "." << std::endl;
     return output.str();
 }
@@ -74,7 +74,7 @@ std::string Assertion::generate_output(
 // Throw functions.
 //---------------------------------------------------------------------------//
 /*!
- * \brief Throw a DataTransferKit::Assertion.
+ * \brief Throw a DataTransferKit::DataTransferKitException.
  *
  * \param cond A string containing the assertion condition that failed.
  *
@@ -83,7 +83,7 @@ std::string Assertion::generate_output(
  *
  * \param line The line number at which the assertion failed.
  */
-void throwAssertion( const std::string& cond, const std::string& file,
+void throwDataTransferKitException( const std::string& cond, const std::string& file,
 		     const int line )
 {
 #ifdef HAVE_TEUCHOS_STACKTRACE
@@ -91,12 +91,12 @@ void throwAssertion( const std::string& cond, const std::string& file,
     // we can get it later.
     Teuchos::store_stacktrace();
 #endif
-    throw Assertion( cond, file, line );
+    throw DataTransferKitException( cond, file, line );
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Throw a DataTransferKit::Assertion when an error code fails.
+ * \brief Throw a DataTransferKit::DataTransferKitException when an error code fails.
  *
  * \param cond A string containing the assertion condition that failed.
  *
@@ -120,7 +120,7 @@ void errorCodeFailure( const std::string& cond, const std::string& file,
 	      << file << ":" << line << std::endl
 	      << "with error code:" << std::endl
 	      << "\"" << error_code << "\"" << std::endl;
-    throw Assertion( output_msg.str() );
+    throw DataTransferKitException( output_msg.str() );
 }
 
 //---------------------------------------------------------------------------//

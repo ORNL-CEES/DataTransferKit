@@ -679,7 +679,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_tools_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
     MeshContainer<int> mesh_container = buildLineContainer();
 
     // Mesh parameters.
@@ -769,7 +768,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_tools_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
     MeshContainer<int> mesh_container = buildTriContainer();
 
     // Mesh parameters.
@@ -868,7 +866,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_tools_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
     MeshContainer<int> mesh_container = buildQuadContainer();
 
     // Mesh parameters.
@@ -972,7 +969,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_tools_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
     MeshContainer<int> mesh_container = buildTetContainer();
 
     // Mesh parameters.
@@ -1086,7 +1082,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_tools_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
     MeshContainer<int> mesh_container = buildHexContainer();
 
     // Mesh parameters.
@@ -1224,7 +1219,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_tools_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
     MeshContainer<int> mesh_container = buildPyramidContainer();
 
     // Mesh parameters.
@@ -1345,7 +1339,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_tools_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
     MeshContainer<int> mesh_container = buildWedgeContainer();
 
     // Mesh parameters.
@@ -1475,7 +1468,6 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_tools_test )
     int my_size = getDefaultComm<int>()->getSize();
 
     // Create a mesh container.
-    typedef MeshTraits< MeshContainer<int> > MT;
     MeshContainer<int> mesh_container = buildParallelHexContainer();
 
     // Mesh parameters.

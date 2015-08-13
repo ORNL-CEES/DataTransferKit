@@ -56,7 +56,7 @@ namespace DataTransferKit
  * that can be prevented before runtime.
  */
 //---------------------------------------------------------------------------//
-class Assertion : public std::logic_error
+class DataTransferKitException : public std::logic_error
 {
   public:
 
@@ -65,7 +65,7 @@ class Assertion : public std::logic_error
      *
      * \param msg Error message.
      */
-    Assertion( const std::string& msg )
+    DataTransferKitException( const std::string& msg )
 	: std::logic_error( msg )
     { /* ... */ }
 
@@ -79,13 +79,13 @@ class Assertion : public std::logic_error
      *
      * \param line The line number at which the assertion failed.
      */
-    Assertion( const std::string& cond, const std::string& file, 
+    DataTransferKitException( const std::string& cond, const std::string& file, 
 	       const int line )
 	: std::logic_error( generate_output( cond, file, line ) )
     { /* ... */ }
 
     //! Destructor.
-    virtual ~Assertion() throw()
+    virtual ~DataTransferKitException() throw()
     { /* ... */ }
 
   private:
@@ -99,8 +99,8 @@ class Assertion : public std::logic_error
 //---------------------------------------------------------------------------//
 // Throw functions.
 //---------------------------------------------------------------------------//
-// Throw a DataTransferKit::Assertion.
-void throwAssertion( const std::string& cond, const std::string& file,
+// Throw a DataTransferKit::DataTransferKitException.
+void throwDataTransferKitException( const std::string& cond, const std::string& file,
 		     const int line );
 
 // Throw an assertion based on an error code failure.
@@ -143,11 +143,11 @@ void errorCodeFailure( const std::string& cond, const std::string& file,
 #if HAVE_DTK_DBC
 
 #define DTK_REQUIRE(c) \
-    if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
+    if (!(c)) DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
 #define DTK_ENSURE(c) \
-    if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
+    if (!(c)) DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
 #define DTK_CHECK(c) \
-    if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
+    if (!(c)) DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
 #define DTK_REMEMBER(c) c
 #define DTK_CHECK_ERROR_CODE(c) do{int ec=c; if (0!=ec) DataTransferKit::errorCodeFailure( #c, __FILE__, __LINE__, ec );} while(0)
 
@@ -162,7 +162,7 @@ void errorCodeFailure( const std::string& cond, const std::string& file,
 
 
 #define DTK_INSIST(c) \
-    if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
+    if (!(c)) DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
 
 //---------------------------------------------------------------------------//
 
