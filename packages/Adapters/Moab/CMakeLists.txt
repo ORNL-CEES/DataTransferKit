@@ -19,7 +19,9 @@ ADD_SUBDIRECTORY(src)
 
 TRIBITS_ADD_TEST_DIRECTORIES(test)
 
-TRIBITS_ADD_EXAMPLE_DIRECTORIES(example)
+IF ( ${PACKAGE_NAME}_FIND_DTK_DATA_DIR )
+   TRIBITS_ADD_EXAMPLE_DIRECTORIES(example)
+ENDIF()
 
 ##---------------------------------------------------------------------------##
 ## D) Do standard postprocessing

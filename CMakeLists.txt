@@ -33,6 +33,9 @@ ENDIF()
 
 SET( DTK_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/DTKData" CACHE INTERNAL "" )
 MESSAGE("DTK_DATA_DIR = '${DTK_DATA_DIR}'")
+FIND_FILE( ${PACKAGE_NAME}_FIND_DTK_DATA_DIR 
+	   cube_mesh.exo
+	   ${DTK_DATA_DIR}/exodus )
 
 ##---------------------------------------------------------------------------##
 ## Do standard postprocessing
