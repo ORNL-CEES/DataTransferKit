@@ -52,7 +52,7 @@ class MyMesh
 {
   public:
 
-    typedef long int    global_ordinal_type;
+    typedef unsigned long int    global_ordinal_type;
     
     MyMesh() 
     { /* ... */ }
@@ -319,7 +319,7 @@ Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2 + (edge_length-1)*(edge_length-1);
     int vertex_dim = 3;
-    Teuchos::Array<long int> vertex_handles( num_vertices );
+    Teuchos::Array<unsigned long int> vertex_handles( num_vertices );
     Teuchos::Array<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
@@ -327,7 +327,7 @@ Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length;
-	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
+	    vertex_handles[ idx ] = (unsigned long int) num_vertices*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
 	    coords[ num_vertices + idx ] = j;
 	    coords[ 2*num_vertices + idx ] = 0.0;
@@ -338,7 +338,7 @@ Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length + edge_length*edge_length;
-	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
+	    vertex_handles[ idx ] = (unsigned long int) num_vertices*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
 	    coords[ num_vertices + idx ] = j;
 	    coords[ 2*num_vertices + idx ] = 1.0;
@@ -349,7 +349,7 @@ Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
 	for ( int i = 0; i < edge_length-1; ++i )
 	{
 	    idx = i + j*(edge_length-1) + edge_length*edge_length*2;
-	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
+	    vertex_handles[ idx ] = (unsigned long int) num_vertices*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1) + 0.5;
 	    coords[ num_vertices + idx ] = j + 0.5;
 	    coords[ 2*num_vertices + idx ] = 0.5;
@@ -358,8 +358,8 @@ Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
     
     // Make the pyramids. 
     int num_elements = (edge_length-1)*(edge_length-1)*6;
-    Teuchos::Array<long int> pyr_handles( num_elements );
-    Teuchos::Array<long int> pyr_connectivity( 5*num_elements );
+    Teuchos::Array<unsigned long int> pyr_handles( num_elements );
+    Teuchos::Array<unsigned long int> pyr_connectivity( 5*num_elements );
     int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7, v8;
     for ( int j = 0; j < (edge_length-1); ++j )
@@ -451,7 +451,7 @@ Teuchos::RCP<MyMesh> buildTiledMesh( int my_rank, int my_size, int edge_length )
     // Make some vertices.
     int num_vertices = edge_length*edge_length*2 + (edge_length-1)*(edge_length-1);
     int vertex_dim = 3;
-    Teuchos::Array<long int> vertex_handles( num_vertices );
+    Teuchos::Array<unsigned long int> vertex_handles( num_vertices );
     Teuchos::Array<double> coords( vertex_dim*num_vertices );
     int idx;
     for ( int j = 0; j < edge_length; ++j )
@@ -459,7 +459,7 @@ Teuchos::RCP<MyMesh> buildTiledMesh( int my_rank, int my_size, int edge_length )
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length;
-	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
+	    vertex_handles[ idx ] = (unsigned long int) num_vertices*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
 	    coords[ num_vertices + idx ] = j + my_rank*(edge_length-1);
 	    coords[ 2*num_vertices + idx ] = 0.0;
@@ -470,7 +470,7 @@ Teuchos::RCP<MyMesh> buildTiledMesh( int my_rank, int my_size, int edge_length )
 	for ( int i = 0; i < edge_length; ++i )
 	{
 	    idx = i + j*edge_length + edge_length*edge_length;
-	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
+	    vertex_handles[ idx ] = (unsigned long int) num_vertices*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1);
 	    coords[ num_vertices + idx ] = j + my_rank*(edge_length-1);
 	    coords[ 2*num_vertices + idx ] = 1.0;
@@ -481,7 +481,7 @@ Teuchos::RCP<MyMesh> buildTiledMesh( int my_rank, int my_size, int edge_length )
 	for ( int i = 0; i < edge_length-1; ++i )
 	{
 	    idx = i + j*(edge_length-1) + edge_length*edge_length*2;
-	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
+	    vertex_handles[ idx ] = (unsigned long int) num_vertices*my_rank + idx;
 	    coords[ idx ] = i + my_rank*(edge_length-1) + 0.5;
 	    coords[ num_vertices + idx ] = j + my_rank*(edge_length-1) + 0.5;
 	    coords[ 2*num_vertices + idx ] = 0.5;
@@ -490,8 +490,8 @@ Teuchos::RCP<MyMesh> buildTiledMesh( int my_rank, int my_size, int edge_length )
     
     // Make the pyramids. 
     int num_elements = (edge_length-1)*(edge_length-1)*6;
-    Teuchos::Array<long int> pyr_handles( num_elements );
-    Teuchos::Array<long int> pyr_connectivity( 5*num_elements );
+    Teuchos::Array<unsigned long int> pyr_handles( num_elements );
+    Teuchos::Array<unsigned long int> pyr_connectivity( 5*num_elements );
     int elem_idx, vertex_idx;
     int v0, v1, v2, v3, v4, v5, v6, v7, v8;
     for ( int j = 0; j < (edge_length-1); ++j )
@@ -743,7 +743,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test6 )
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data if it is in the mesh and 0.0 if it is outside.
     double source_rank;
-    Teuchos::Array<long int> missing_points;
+    Teuchos::Array<unsigned long int> missing_points;
     for ( int n = 0; n < num_points; ++n )
     {
 	if ( *(coordinate_field->begin()+n) < 0.0 ||
@@ -777,7 +777,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test6 )
 
     // Check the missing points.
     TEST_ASSERT( missing_points.size() > 0 );
-    Teuchos::ArrayView<long int> missed_in_map = 
+    Teuchos::ArrayView<unsigned long int> missed_in_map = 
 	shared_domain_map.getMissedTargetPoints();
     TEST_ASSERT( missing_points.size() == missed_in_map.size() );
 
@@ -841,7 +841,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test6 )
     // Check the data transfer. Each target point should have been assigned
     // its source rank + 1 as data if it is in the mesh and 0.0 if it is outside.
     double source_rank;
-    Teuchos::Array<long int> missing_points;
+    Teuchos::Array<unsigned long int> missing_points;
     bool tagged;
     for ( int n = 0; n < num_points; ++n )
     {
@@ -895,7 +895,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_tiled_test6 )
 
     // Check the missing points.
     TEST_ASSERT( missing_points.size() > 0 );
-    Teuchos::ArrayView<long int> missed_in_map = 
+    Teuchos::ArrayView<unsigned long int> missed_in_map = 
 	shared_domain_map.getMissedTargetPoints();
     TEST_ASSERT( missing_points.size() == missed_in_map.size() );
 

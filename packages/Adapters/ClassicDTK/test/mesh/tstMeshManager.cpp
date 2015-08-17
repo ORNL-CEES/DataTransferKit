@@ -46,12 +46,12 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // Mesh container creation functions.
 //---------------------------------------------------------------------------//
 // Line segment mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildLineContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<unsigned long int> > buildLineContainer()
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<unsigned long int> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 1;
@@ -68,8 +68,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildLineContainer()
     coords.push_back( 1.0 ); 
 
     // Make the line.
-    Teuchos::Array<int> line_handles;
-    Teuchos::Array<int> line_connectivity;
+    Teuchos::Array<unsigned long int> line_handles;
+    Teuchos::Array<unsigned long int> line_connectivity;
     
     // handles
     line_handles.push_back( 12 );
@@ -80,18 +80,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildLineContainer()
 	line_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> line_handle_array( line_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> line_handle_array( line_handles.size() );
     std::copy( line_handles.begin(), line_handles.end(), 
 	       line_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( line_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array( line_connectivity.size() );
     std::copy( line_connectivity.begin(), line_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -102,20 +102,20 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildLineContainer()
     }
     
     return Teuchos::rcp( 
-	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-				DTK_LINE_SEGMENT, num_vertices,
-				line_handle_array, connectivity_array,
-				permutation_list ) );
+	new MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
+					      DTK_LINE_SEGMENT, num_vertices,
+					      line_handle_array, connectivity_array,
+					      permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Tri mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTriContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<unsigned long int> > buildTriContainer()
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<unsigned long int> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 2;
@@ -138,8 +138,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTriContainer()
     coords.push_back( 1.0 ); 
 
     // Make the triahedron.
-    Teuchos::Array<int> tri_handles;
-    Teuchos::Array<int> tri_connectivity;
+    Teuchos::Array<unsigned long int> tri_handles;
+    Teuchos::Array<unsigned long int> tri_connectivity;
     
     // handles
     tri_handles.push_back( 12 );
@@ -150,18 +150,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTriContainer()
 	tri_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> tri_handle_array( tri_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> tri_handle_array( tri_handles.size() );
     std::copy( tri_handles.begin(), tri_handles.end(), 
 	       tri_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( tri_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array( tri_connectivity.size() );
     std::copy( tri_connectivity.begin(), tri_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -172,20 +172,20 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTriContainer()
     }
     
     return Teuchos::rcp( 
-	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-				DTK_TRIANGLE, num_vertices,
-				tri_handle_array, connectivity_array,
-				permutation_list ) );
+	new MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
+					      DTK_TRIANGLE, num_vertices,
+					      tri_handle_array, connectivity_array,
+					      permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Quad mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildQuadContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<unsigned long int> > buildQuadContainer()
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<unsigned long int> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 2;
@@ -210,8 +210,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildQuadContainer()
     coords.push_back( 1.0 ); 
 
     // Make the quadahedron.
-    Teuchos::Array<int> quad_handles;
-    Teuchos::Array<int> quad_connectivity;
+    Teuchos::Array<unsigned long int> quad_handles;
+    Teuchos::Array<unsigned long int> quad_connectivity;
     
     // handles
     quad_handles.push_back( 12 );
@@ -222,18 +222,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildQuadContainer()
 	quad_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> quad_handle_array( quad_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> quad_handle_array( quad_handles.size() );
     std::copy( quad_handles.begin(), quad_handles.end(), 
 	       quad_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( quad_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array( quad_connectivity.size() );
     std::copy( quad_connectivity.begin(), quad_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -244,20 +244,20 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildQuadContainer()
     }
     
     return Teuchos::rcp( 
-	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-				DTK_QUADRILATERAL, num_vertices,
-				quad_handle_array, connectivity_array,
-				permutation_list ) );
+	new MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
+					      DTK_QUADRILATERAL, num_vertices,
+					      quad_handle_array, connectivity_array,
+					      permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Tet mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTetContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<unsigned long int> > buildTetContainer()
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<unsigned long int> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
@@ -288,8 +288,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTetContainer()
     coords.push_back( 1.0 );
 
     // Make the tetahedron.
-    Teuchos::Array<int> tet_handles;
-    Teuchos::Array<int> tet_connectivity;
+    Teuchos::Array<unsigned long int> tet_handles;
+    Teuchos::Array<unsigned long int> tet_connectivity;
     
     // handles
     tet_handles.push_back( 12 );
@@ -300,18 +300,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTetContainer()
 	tet_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> tet_handle_array( tet_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> tet_handle_array( tet_handles.size() );
     std::copy( tet_handles.begin(), tet_handles.end(), 
 	       tet_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( tet_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array( tet_connectivity.size() );
     std::copy( tet_connectivity.begin(), tet_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -322,20 +322,20 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildTetContainer()
     }
     
     return Teuchos::rcp( 
-	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-				DTK_TETRAHEDRON, num_vertices,
-				tet_handle_array, connectivity_array,
-				permutation_list ) );
+	new MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
+					      DTK_TETRAHEDRON, num_vertices,
+					      tet_handle_array, connectivity_array,
+					      permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Hex mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildHexContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<unsigned long int> > buildHexContainer()
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<unsigned long int> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
@@ -378,8 +378,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildHexContainer()
     coords.push_back( 1.0 );
 
     // Make the hexahedron.
-    Teuchos::Array<int> hex_handles;
-    Teuchos::Array<int> hex_connectivity;
+    Teuchos::Array<unsigned long int> hex_handles;
+    Teuchos::Array<unsigned long int> hex_connectivity;
     
     // handles
     hex_handles.push_back( 12 );
@@ -390,18 +390,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildHexContainer()
 	hex_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> hex_handle_array( hex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> hex_handle_array( hex_handles.size() );
     std::copy( hex_handles.begin(), hex_handles.end(), 
 	       hex_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( hex_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array( hex_connectivity.size() );
     std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -412,22 +412,22 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildHexContainer()
     }
     
     return Teuchos::rcp( 
-	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-				DTK_HEXAHEDRON, num_vertices,
-				hex_handle_array, connectivity_array,
-				permutation_list ) );
+	new MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
+					      DTK_HEXAHEDRON, num_vertices,
+					      hex_handle_array, connectivity_array,
+					      permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Parallel hex mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildParallelHexContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<unsigned long int> > buildParallelHexContainer()
 {
     using namespace DataTransferKit;
 
     int my_rank = getDefaultComm<int>()->getRank();
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<unsigned long int> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
@@ -470,8 +470,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildParallelHexContainer()
     coords.push_back( my_rank+1 );
 
     // Make the hexahedron.
-    Teuchos::Array<int> hex_handles;
-    Teuchos::Array<int> hex_connectivity;
+    Teuchos::Array<unsigned long int> hex_handles;
+    Teuchos::Array<unsigned long int> hex_connectivity;
     
     // handles
     hex_handles.push_back( 12 );
@@ -482,18 +482,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildParallelHexContainer()
 	hex_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> hex_handle_array( hex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> hex_handle_array( hex_handles.size() );
     std::copy( hex_handles.begin(), hex_handles.end(), 
 	       hex_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( hex_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array( hex_connectivity.size() );
     std::copy( hex_connectivity.begin(), hex_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -504,20 +504,20 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildParallelHexContainer()
     }
     
     return Teuchos::rcp( 
-	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-				DTK_HEXAHEDRON, num_vertices,
-				hex_handle_array, connectivity_array,
-				permutation_list ) );
+	new MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
+					      DTK_HEXAHEDRON, num_vertices,
+					      hex_handle_array, connectivity_array,
+					      permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Pyramid mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildPyramidContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<unsigned long int> > buildPyramidContainer()
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<unsigned long int> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
@@ -551,8 +551,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildPyramidContainer()
     coords.push_back( 1.0 );
 
     // Make the pyramidahedron.
-    Teuchos::Array<int> pyramid_handles;
-    Teuchos::Array<int> pyramid_connectivity;
+    Teuchos::Array<unsigned long int> pyramid_handles;
+    Teuchos::Array<unsigned long int> pyramid_connectivity;
     
     // handles
     pyramid_handles.push_back( 12 );
@@ -563,18 +563,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildPyramidContainer()
 	pyramid_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> pyramid_handle_array( pyramid_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> pyramid_handle_array( pyramid_handles.size() );
     std::copy( pyramid_handles.begin(), pyramid_handles.end(), 
 	       pyramid_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( pyramid_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array( pyramid_connectivity.size() );
     std::copy( pyramid_connectivity.begin(), pyramid_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -585,20 +585,20 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildPyramidContainer()
     }
     
     return Teuchos::rcp( 
-	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-				DTK_PYRAMID, num_vertices,
-				pyramid_handle_array, connectivity_array,
-				permutation_list ) );
+	new MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
+					      DTK_PYRAMID, num_vertices,
+					      pyramid_handle_array, connectivity_array,
+					      permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Wedge mesh.
-Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildWedgeContainer()
+Teuchos::RCP<DataTransferKit::MeshContainer<unsigned long int> > buildWedgeContainer()
 {
     using namespace DataTransferKit;
 
     // Make some vertices.
-    Teuchos::Array<int> vertex_handles;
+    Teuchos::Array<unsigned long int> vertex_handles;
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
@@ -635,8 +635,8 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildWedgeContainer()
     coords.push_back( 1.0 ); 
 
     // Make the wedge.
-    Teuchos::Array<int> wedge_handles;
-    Teuchos::Array<int> wedge_connectivity;
+    Teuchos::Array<unsigned long int> wedge_handles;
+    Teuchos::Array<unsigned long int> wedge_connectivity;
     
     // handles
     wedge_handles.push_back( 12 );
@@ -647,18 +647,18 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildWedgeContainer()
 	wedge_connectivity.push_back( i );
     }
     
-    Teuchos::ArrayRCP<int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(), 
 	       vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<int> wedge_handle_array( wedge_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> wedge_handle_array( wedge_handles.size() );
     std::copy( wedge_handles.begin(), wedge_handles.end(), 
 	       wedge_handle_array.begin() );
 
-    Teuchos::ArrayRCP<int> connectivity_array( wedge_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array( wedge_connectivity.size() );
     std::copy( wedge_connectivity.begin(), wedge_connectivity.end(), 
 	       connectivity_array.begin() );
 
@@ -669,10 +669,10 @@ Teuchos::RCP<DataTransferKit::MeshContainer<int> > buildWedgeContainer()
     }
     
     return Teuchos::rcp( 
-	new MeshContainer<int>( vertex_dim, vertex_handle_array, coords_array,
-				DTK_WEDGE, num_vertices,
-				wedge_handle_array, connectivity_array,
-				permutation_list ) );
+	new MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
+					      DTK_WEDGE, num_vertices,
+					      wedge_handle_array, connectivity_array,
+					      permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -684,7 +684,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_manager_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshContainer<int> MeshType;
+    typedef MeshContainer<unsigned long int> MeshType;
     typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildLineContainer();
@@ -707,14 +707,14 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_manager_test )
     {
 	// Basic container info.
 	TEST_ASSERT( Tools::numElements( *(*block_iterator) ) == 1 );
-	TEST_ASSERT( Tools::numVertices( *(*block_iterator) ) == num_vertices );
+	TEST_ASSERT( (int) Tools::numVertices( *(*block_iterator) ) == num_vertices );
 
 	// Vertices.
-	Teuchos::ArrayRCP<const int> vertices_view = 
+	Teuchos::ArrayRCP<const unsigned long int> vertices_view = 
 	    Tools::verticesView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( vertices_view[i] == i );
+	    TEST_ASSERT( (int) vertices_view[i] == i );
 	}
 
 	// Coords.
@@ -725,16 +725,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_manager_test )
 	TEST_ASSERT( coords_view[1] == 1.0 ); 
 
 	// Elements.
-	Teuchos::ArrayRCP<const int> elements_view =
+	Teuchos::ArrayRCP<const unsigned long int> elements_view =
 	    Tools::elementsView( *(*block_iterator) );
 	TEST_ASSERT( elements_view[0] == 12 );
 
 	// Connectivity.
-	Teuchos::ArrayRCP<const int> connectivity_view =
+	Teuchos::ArrayRCP<const unsigned long int> connectivity_view =
 	    Tools::connectivityView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( connectivity_view[i] == i );
+	    TEST_ASSERT( (int) connectivity_view[i] == i );
 	}
 
 	// Permutation.
@@ -764,7 +764,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_manager_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshContainer<int> MeshType;
+    typedef MeshContainer<unsigned long int> MeshType;
     typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildTriContainer();
@@ -786,14 +786,14 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_manager_test )
 	  ++block_iterator )
     {
 	TEST_ASSERT( Tools::numElements( *(*block_iterator) ) == 1 );
-	TEST_ASSERT( Tools::numVertices( *(*block_iterator) ) == num_vertices );
+	TEST_ASSERT( (int) Tools::numVertices( *(*block_iterator) ) == num_vertices );
 
 	// Vertices.
-	Teuchos::ArrayRCP<const int> vertices_view = 
+	Teuchos::ArrayRCP<const unsigned long int> vertices_view = 
 	    Tools::verticesView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( vertices_view[i] == i );
+	    TEST_ASSERT( (int) vertices_view[i] == i );
 	}
 
 	// Coords.
@@ -810,16 +810,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_manager_test )
 	TEST_ASSERT( coords_view[5] == 1.0 ); 
 
 	// Elements.
-	Teuchos::ArrayRCP<const int> elements_view =
+	Teuchos::ArrayRCP<const unsigned long int> elements_view =
 	    Tools::elementsView( *(*block_iterator) );
 	TEST_ASSERT( elements_view[0] == 12 );
 
 	// Connectivity.
-	Teuchos::ArrayRCP<const int> connectivity_view =
+	Teuchos::ArrayRCP<const unsigned long int> connectivity_view =
 	    Tools::connectivityView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( connectivity_view[i] == i );
+	    TEST_ASSERT( (int) connectivity_view[i] == i );
 	}
 
 	// Permutation.
@@ -848,7 +848,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_manager_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshContainer<int> MeshType;
+    typedef MeshContainer<unsigned long int> MeshType;
     typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildQuadContainer();
@@ -870,11 +870,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_manager_test )
 	  ++block_iterator )
     {
 	// Vertices.
-	Teuchos::ArrayRCP<const int> vertices_view = 
+	Teuchos::ArrayRCP<const unsigned long int> vertices_view = 
 	    Tools::verticesView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( vertices_view[i] == i );
+	    TEST_ASSERT( (int) vertices_view[i] == i );
 	}
 
 	// Coords.
@@ -893,16 +893,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_manager_test )
 	TEST_ASSERT( coords_view[7] == 1.0 ); 
 
 	// Elements.
-	Teuchos::ArrayRCP<const int> elements_view =
+	Teuchos::ArrayRCP<const unsigned long int> elements_view =
 	    Tools::elementsView( *(*block_iterator) );
 	TEST_ASSERT( elements_view[0] == 12 );
 
 	// Connectivity.
-	Teuchos::ArrayRCP<const int> connectivity_view =
+	Teuchos::ArrayRCP<const unsigned long int> connectivity_view =
 	    Tools::connectivityView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( connectivity_view[i] == i );
+	    TEST_ASSERT( (int) connectivity_view[i] == i );
 	}
 
 	// Permutation.
@@ -932,7 +932,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_manager_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshContainer<int> MeshType;
+    typedef MeshContainer<unsigned long int> MeshType;
     typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildTetContainer();
@@ -954,11 +954,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_manager_test )
 	  ++block_iterator )
     {
 	// Vertices.
-	Teuchos::ArrayRCP<const int> vertices_view = 
+	Teuchos::ArrayRCP<const unsigned long int> vertices_view = 
 	    Tools::verticesView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( vertices_view[i] == i );
+	    TEST_ASSERT( (int) vertices_view[i] == i );
 	}
 
 	// Coords.
@@ -983,16 +983,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_manager_test )
 	TEST_ASSERT( coords_view[11] == 1.0 );
 
 	// Elements.
-	Teuchos::ArrayRCP<const int> elements_view =
+	Teuchos::ArrayRCP<const unsigned long int> elements_view =
 	    Tools::elementsView( *(*block_iterator) );
 	TEST_ASSERT( elements_view[0] == 12 );
 
 	// Connectivity.
-	Teuchos::ArrayRCP<const int> connectivity_view =
+	Teuchos::ArrayRCP<const unsigned long int> connectivity_view =
 	    Tools::connectivityView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( connectivity_view[i] == i );
+	    TEST_ASSERT( (int) connectivity_view[i] == i );
 	}
 
 	// Permutation.
@@ -1022,7 +1022,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_manager_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshContainer<int> MeshType;
+    typedef MeshContainer<unsigned long int> MeshType;
     typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildHexContainer();
@@ -1044,11 +1044,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_manager_test )
 	  ++block_iterator )
     {
 	// Vertices.
-	Teuchos::ArrayRCP<const int> vertices_view = 
+	Teuchos::ArrayRCP<const unsigned long int> vertices_view = 
 	    Tools::verticesView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( vertices_view[i] == i );
+	    TEST_ASSERT( (int) vertices_view[i] == i );
 	}
 
 	// Coords.
@@ -1085,16 +1085,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_manager_test )
 	TEST_ASSERT( coords_view[23] == 1.0 );
 
 	// Elements.
-	Teuchos::ArrayRCP<const int> elements_view =
+	Teuchos::ArrayRCP<const unsigned long int> elements_view =
 	    Tools::elementsView( *(*block_iterator) );
 	TEST_ASSERT( elements_view[0] == 12 );
 
 	// Connectivity.
-	Teuchos::ArrayRCP<const int> connectivity_view =
+	Teuchos::ArrayRCP<const unsigned long int> connectivity_view =
 	    Tools::connectivityView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( connectivity_view[i] == i );
+	    TEST_ASSERT( (int) connectivity_view[i] == i );
 	}
 
 	// Permutation.
@@ -1124,7 +1124,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_manager_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshContainer<int> MeshType;
+    typedef MeshContainer<unsigned long int> MeshType;
     typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildPyramidContainer();
@@ -1146,11 +1146,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_manager_test )
 	  ++block_iterator )
     {
 	// Vertices.
-	Teuchos::ArrayRCP<const int> vertices_view = 
+	Teuchos::ArrayRCP<const unsigned long int> vertices_view = 
 	    Tools::verticesView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( vertices_view[i] == i );
+	    TEST_ASSERT( (int) vertices_view[i] == i );
 	}
 
 	// Coords.
@@ -1178,16 +1178,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_manager_test )
 	TEST_ASSERT( coords_view[14] == 1.0 );
 
 	// Elements.
-	Teuchos::ArrayRCP<const int> elements_view =
+	Teuchos::ArrayRCP<const unsigned long int> elements_view =
 	    Tools::elementsView( *(*block_iterator) );
 	TEST_ASSERT( elements_view[0] == 12 );
 
 	// Connectivity.
-	Teuchos::ArrayRCP<const int> connectivity_view =
+	Teuchos::ArrayRCP<const unsigned long int> connectivity_view =
 	    Tools::connectivityView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( connectivity_view[i] == i );
+	    TEST_ASSERT( (int) connectivity_view[i] == i );
 	}
 
 	// Permutation.
@@ -1217,7 +1217,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_manager_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshContainer<int> MeshType;
+    typedef MeshContainer<unsigned long int> MeshType;
     typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildWedgeContainer();
@@ -1239,11 +1239,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_manager_test )
 	  ++block_iterator )
     {
 	// Vertices.
-	Teuchos::ArrayRCP<const int> vertices_view = 
+	Teuchos::ArrayRCP<const unsigned long int> vertices_view = 
 	    Tools::verticesView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( vertices_view[i] == i );
+	    TEST_ASSERT( (int) vertices_view[i] == i );
 	}
 
 	// Coords.
@@ -1274,16 +1274,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_manager_test )
 	TEST_ASSERT( coords_view[17] == 1.0 );
 
 	// Elements.
-	Teuchos::ArrayRCP<const int> elements_view =
+	Teuchos::ArrayRCP<const unsigned long int> elements_view =
 	    Tools::elementsView( *(*block_iterator) );
 	TEST_ASSERT( elements_view[0] == 12 );
 
 	// Connectivity.
-	Teuchos::ArrayRCP<const int> connectivity_view =
+	Teuchos::ArrayRCP<const unsigned long int> connectivity_view =
 	    Tools::connectivityView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( connectivity_view[i] == i );
+	    TEST_ASSERT( (int) connectivity_view[i] == i );
 	}
 
 	// Permutation.
@@ -1316,7 +1316,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_manager_test )
     int my_size = getDefaultComm<int>()->getSize();
 
     // Create a mesh container.
-    typedef MeshContainer<int> MeshType;
+    typedef MeshContainer<unsigned long int> MeshType;
     typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = buildParallelHexContainer();
@@ -1338,11 +1338,11 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_manager_test )
 	  ++block_iterator )
     {
 	// Vertices.
-	Teuchos::ArrayRCP<const int> vertices_view = 
+	Teuchos::ArrayRCP<const unsigned long int> vertices_view = 
 	    Tools::verticesView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( vertices_view[i] == i );
+	    TEST_ASSERT( (int) vertices_view[i] == i );
 	}
 
 	// Coords.
@@ -1379,16 +1379,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_manager_test )
 	TEST_ASSERT( coords_view[23] == my_rank+1 );
 
 	// Elements.
-	Teuchos::ArrayRCP<const int> elements_view =
+	Teuchos::ArrayRCP<const unsigned long int> elements_view =
 	    Tools::elementsView( *(*block_iterator) );
 	TEST_ASSERT( elements_view[0] == 12 );
 
 	// Connectivity.
-	Teuchos::ArrayRCP<const int> connectivity_view =
+	Teuchos::ArrayRCP<const unsigned long int> connectivity_view =
 	    Tools::connectivityView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( connectivity_view[i] == i );
+	    TEST_ASSERT( (int) connectivity_view[i] == i );
 	}
 
 	// Permutation.
@@ -1418,7 +1418,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_manager_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshContainer<int> MeshType;
+    typedef MeshContainer<unsigned long int> MeshType;
     typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 2 );
     mesh_blocks[0] = buildTriContainer();
@@ -1439,27 +1439,27 @@ TEUCHOS_UNIT_TEST( MeshContainer, 2d_hybrid_manager_test )
 	  ++block_iterator )
     {
 	TEST_ASSERT( Tools::numElements( *(*block_iterator) ) == 1 );
-	int num_vertices = Tools::numVertices( *(*block_iterator) );
+	int num_vertices = (int) Tools::numVertices( *(*block_iterator) );
 
 	// Vertices.
-	Teuchos::ArrayRCP<const int> vertices_view = 
+	Teuchos::ArrayRCP<const unsigned long int> vertices_view = 
 	    Tools::verticesView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( vertices_view[i] == i );
+	    TEST_ASSERT( (int) vertices_view[i] == i );
 	}
 
 	// Elements.
-	Teuchos::ArrayRCP<const int> elements_view =
+	Teuchos::ArrayRCP<const unsigned long int> elements_view =
 	    Tools::elementsView( *(*block_iterator) );
 	TEST_ASSERT( elements_view[0] == 12 );
 
 	// Connectivity.
-	Teuchos::ArrayRCP<const int> connectivity_view =
+	Teuchos::ArrayRCP<const unsigned long int> connectivity_view =
 	    Tools::connectivityView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( connectivity_view[i] == i );
+	    TEST_ASSERT( (int) connectivity_view[i] == i );
 	}
 
 	// Permutation.
@@ -1488,7 +1488,7 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_manager_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef MeshContainer<int> MeshType;
+    typedef MeshContainer<unsigned long int> MeshType;
     typedef MeshTools< MeshType > Tools;
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 3 );
     mesh_blocks[0] = buildTetContainer();
@@ -1509,27 +1509,27 @@ TEUCHOS_UNIT_TEST( MeshContainer, 3d_hybrid_manager_test )
 	  ++block_iterator )
     {
 	TEST_ASSERT( Tools::numElements( *(*block_iterator) ) == 1 );
-	int num_vertices = Tools::numVertices( *(*block_iterator) );
+	int num_vertices = (int) Tools::numVertices( *(*block_iterator) );
 
 	// Vertices.
-	Teuchos::ArrayRCP<const int> vertices_view = 
+	Teuchos::ArrayRCP<const unsigned long int> vertices_view = 
 	    Tools::verticesView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( vertices_view[i] == i );
+	    TEST_ASSERT( (int) vertices_view[i] == i );
 	}
 
 	// Elements.
-	Teuchos::ArrayRCP<const int> elements_view =
+	Teuchos::ArrayRCP<const unsigned long int> elements_view =
 	    Tools::elementsView( *(*block_iterator) );
 	TEST_ASSERT( elements_view[0] == 12 );
 
 	// Connectivity.
-	Teuchos::ArrayRCP<const int> connectivity_view =
+	Teuchos::ArrayRCP<const unsigned long int> connectivity_view =
 	    Tools::connectivityView( *(*block_iterator) );
 	for ( int i = 0; i < num_vertices; ++i )
 	{
-	    TEST_ASSERT( connectivity_view[i] == i );
+	    TEST_ASSERT( (int) connectivity_view[i] == i );
 	}
 
 	// Permutation.

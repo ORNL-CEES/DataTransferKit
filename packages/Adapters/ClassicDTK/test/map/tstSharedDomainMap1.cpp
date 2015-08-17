@@ -51,15 +51,15 @@ class MyMesh
 {
   public:
 
-    typedef int    global_ordinal_type;
+    typedef unsigned long int    global_ordinal_type;
     
     MyMesh() 
     { /* ... */ }
 
-    MyMesh( const Teuchos::Array<int>& vertex_handles,
+    MyMesh( const Teuchos::Array<unsigned long int>& vertex_handles,
 	    const Teuchos::Array<double>& coords,
-	    const Teuchos::Array<int>& quad_handles,
-	    const Teuchos::Array<int>& quad_connectivity,
+	    const Teuchos::Array<unsigned long int>& quad_handles,
+	    const Teuchos::Array<unsigned long int>& quad_connectivity,
 	    const Teuchos::Array<int>& permutation_list )
 	: d_vertex_handles( vertex_handles )
 	, d_coords( coords )
@@ -71,10 +71,10 @@ class MyMesh
     ~MyMesh()
     { /* ... */ }
 
-    Teuchos::Array<int>::const_iterator verticesBegin() const
+    Teuchos::Array<unsigned long int>::const_iterator verticesBegin() const
     { return d_vertex_handles.begin(); }
 
-    Teuchos::Array<int>::const_iterator verticesEnd() const
+    Teuchos::Array<unsigned long int>::const_iterator verticesEnd() const
     { return d_vertex_handles.end(); }
 
     Teuchos::Array<double>::const_iterator coordsBegin() const
@@ -83,16 +83,16 @@ class MyMesh
     Teuchos::Array<double>::const_iterator coordsEnd() const
     { return d_coords.end(); }
 
-    Teuchos::Array<int>::const_iterator quadsBegin() const
+    Teuchos::Array<unsigned long int>::const_iterator quadsBegin() const
     { return d_quad_handles.begin(); }
 
-    Teuchos::Array<int>::const_iterator quadsEnd() const
+    Teuchos::Array<unsigned long int>::const_iterator quadsEnd() const
     { return d_quad_handles.end(); }
 
-    Teuchos::Array<int>::const_iterator connectivityBegin() const
+    Teuchos::Array<unsigned long int>::const_iterator connectivityBegin() const
     { return d_quad_connectivity.begin(); }
 
-    Teuchos::Array<int>::const_iterator connectivityEnd() const
+    Teuchos::Array<unsigned long int>::const_iterator connectivityEnd() const
     { return d_quad_connectivity.end(); }
     
     Teuchos::Array<int>::const_iterator permutationBegin() const
@@ -104,10 +104,10 @@ class MyMesh
 
   private:
 
-    Teuchos::Array<int> d_vertex_handles;
+    Teuchos::Array<unsigned long int> d_vertex_handles;
     Teuchos::Array<double> d_coords;
-    Teuchos::Array<int> d_quad_handles;
-    Teuchos::Array<int> d_quad_connectivity;
+    Teuchos::Array<unsigned long int> d_quad_handles;
+    Teuchos::Array<unsigned long int> d_quad_connectivity;
     Teuchos::Array<int> d_permutation_list;
 };
 
@@ -173,10 +173,10 @@ class MeshTraits<MyMesh>
   public:
 
     typedef MyMesh::global_ordinal_type global_ordinal_type;
-    typedef Teuchos::Array<int>::const_iterator const_vertex_iterator;
+    typedef Teuchos::Array<unsigned long int>::const_iterator const_vertex_iterator;
     typedef Teuchos::Array<double>::const_iterator const_coordinate_iterator;
-    typedef Teuchos::Array<int>::const_iterator const_element_iterator;
-    typedef Teuchos::Array<int>::const_iterator const_connectivity_iterator;
+    typedef Teuchos::Array<unsigned long int>::const_iterator const_element_iterator;
+    typedef Teuchos::Array<unsigned long int>::const_iterator const_connectivity_iterator;
     typedef Teuchos::Array<int>::const_iterator 
     const_permutation_iterator;
 
@@ -338,7 +338,7 @@ Teuchos::RCP<MyMesh> buildMyMesh()
     // Make some vertices.
     int num_vertices = 10;
     int vertex_dim = 2;
-    Teuchos::Array<int> vertex_handles( num_vertices );
+    Teuchos::Array<unsigned long int> vertex_handles( num_vertices );
     Teuchos::Array<double> coords( vertex_dim*num_vertices );
 
     for ( int i = 0; i < num_vertices; ++i )
@@ -358,8 +358,8 @@ Teuchos::RCP<MyMesh> buildMyMesh()
     
     // Make the quads.
     int num_quads = 4;
-    Teuchos::Array<int> quad_handles( num_quads );
-    Teuchos::Array<int> quad_connectivity( 4*num_quads );
+    Teuchos::Array<unsigned long int> quad_handles( num_quads );
+    Teuchos::Array<unsigned long int> quad_connectivity( 4*num_quads );
     
     for ( int i = 0; i < num_quads; ++i )
     {

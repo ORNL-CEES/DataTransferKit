@@ -52,7 +52,7 @@ class MyMesh
 {
   public:
 
-    typedef unsigned int    global_ordinal_type;
+    typedef unsigned long int    global_ordinal_type;
     
     MyMesh() 
     { /* ... */ }
@@ -320,18 +320,18 @@ Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
     // Make some vertices.
     int num_vertices = edge_length;
     int vertex_dim = 1;
-    Teuchos::Array<unsigned int> vertex_handles( num_vertices );
+    Teuchos::Array<unsigned long int> vertex_handles( num_vertices );
     Teuchos::Array<double> coords( vertex_dim*num_vertices );
     for ( int i = 0; i < edge_length; ++i )
     {
-	vertex_handles[ i ] = (unsigned int) num_vertices*my_rank + i;
+	vertex_handles[ i ] = (unsigned long int) num_vertices*my_rank + i;
 	coords[ i ] = i + my_rank*(edge_length-1);
     }
 
     // Make the line segments.
     int num_elements = (edge_length-1);
-    Teuchos::Array<unsigned int> line_handles( num_elements );
-    Teuchos::Array<unsigned int> line_connectivity( 2*num_elements );
+    Teuchos::Array<unsigned long int> line_handles( num_elements );
+    Teuchos::Array<unsigned long int> line_connectivity( 2*num_elements );
     int elem_idx, vertex_idx;
     for ( int i = 0; i < (edge_length-1); ++i )
     {
@@ -500,7 +500,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test7 )
     // its source rank + 1 as data if it is in the mesh
     // and 0.0 if it is outside.
     double source_rank;
-    Teuchos::Array<unsigned int> missing_points;
+    Teuchos::Array<unsigned long int> missing_points;
     for ( int n = 0; n < num_points; ++n )
     {
 	if ( *(coordinate_field->begin()+n) < 0.0 ||
@@ -529,7 +529,7 @@ TEUCHOS_UNIT_TEST( SharedDomainMap, shared_domain_map_expanded_test7 )
 
     // Check the missing points.
     TEST_ASSERT( missing_points.size() > 0 );
-    Teuchos::ArrayView<unsigned int> missed_in_map = 
+    Teuchos::ArrayView<unsigned long int> missed_in_map = 
 	shared_domain_map.getMissedTargetPoints();
     TEST_ASSERT( missing_points.size() == missed_in_map.size() );
 
