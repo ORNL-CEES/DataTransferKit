@@ -183,7 +183,7 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     Teuchos::RCP<DataTransferKit::Field> field_1 = Teuchos::rcp(
 	new DataTransferKit::MoabTagField<double>(
 	    parallel_mesh, set_indexer, entity_set_1, tag_1) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tag_vec_1 =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > tag_vec_1 =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  field_1, dtk_entity_set) );
 
@@ -245,7 +245,7 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     Teuchos::RCP<DataTransferKit::Field> field_2 = Teuchos::rcp(
 	new DataTransferKit::MoabTagField<double>(
 	    parallel_mesh, set_indexer, entity_set_2, tag_2) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tag_vec_2 =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > tag_vec_2 =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  field_2, dtk_entity_set) );
 

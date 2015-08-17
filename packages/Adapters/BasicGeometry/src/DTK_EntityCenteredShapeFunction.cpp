@@ -47,11 +47,11 @@ namespace DataTransferKit
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
 void EntityCenteredShapeFunction::entitySupportIds( 
-    const Entity& entity, Teuchos::Array<std::size_t>& support_ids ) const
+    const Entity& entity, Teuchos::Array<SupportId>& support_ids ) const
 {
     // There is one Support for an entity-centered quantity. We will assign the
     // Support id to be the same as the entity id.
-    support_ids.assign( 1, Teuchos::as<std::size_t>(entity.id()) );
+    support_ids.assign( 1, Teuchos::as<SupportId>(entity.id()) );
 }
 
 //---------------------------------------------------------------------------//

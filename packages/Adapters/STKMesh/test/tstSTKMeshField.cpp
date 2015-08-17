@@ -147,7 +147,7 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
     DataTransferKit::STKMeshManager manager( bulk_data );
     
     // Create a vector from the nodal field.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_1 =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > field_vec_1 =
 	manager.createFieldMultiVector<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 	    Teuchos::ptr(test_field_1), 3 );
 
@@ -196,7 +196,7 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
 	    ).get_field<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 		stk::topology::NODE_RANK, "test field 2" );
 
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > field_vec_2 =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > field_vec_2 =
 	manager.createFieldMultiVector<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 	    Teuchos::ptr(test_field_2), 3 );
 

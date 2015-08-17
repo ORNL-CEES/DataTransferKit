@@ -42,7 +42,6 @@
 #define DTK_TYPES_HPP
 
 #include <functional>
-
 #include <limits>
 
 namespace DataTransferKit
@@ -55,7 +54,7 @@ static const EntityId dtk_invalid_entity_id =
     std::numeric_limits<EntityId>::max();
 
 //! Support id type.
-typedef std::size_t SupportId;
+typedef unsigned long int SupportId;
 
 //! Invalid support id.
 static const SupportId dtk_invalid_support_id =

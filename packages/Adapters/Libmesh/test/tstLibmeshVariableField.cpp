@@ -133,7 +133,7 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, push_pull_test )
     
     // Create a vector from the variable over all subdomains.
     DataTransferKit::LibmeshManager manager( mesh, Teuchos::rcpFromRef(system) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > var_vec =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > var_vec =
 	manager.createFieldMultiVector( var_name );
 
     // Test the vector size.
@@ -227,16 +227,16 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, matrix_test )
     
     // Create a vector from the variable over all subdomains.
     DataTransferKit::LibmeshManager manager( mesh, Teuchos::rcpFromRef(system) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > var_vec_1 =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > var_vec_1 =
 	manager.createFieldMultiVector( var_1_name );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > var_vec_2 =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > var_vec_2 =
 	manager.createFieldMultiVector( var_2_name );
 
     // Create a diagonal matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,std::size_t> > matrix =
-	Teuchos::rcp( new Tpetra::CrsMatrix<double,int,std::size_t>(
+    Teuchos::RCP<Tpetra::CrsMatrix<double,int,DataTransferKit::SupportId> > matrix =
+	Teuchos::rcp( new Tpetra::CrsMatrix<double,int,DataTransferKit::SupportId>(
 			  var_vec_2->getMap(), 1) );
-    Teuchos::Array<std::size_t> support_ids;
+    Teuchos::Array<DataTransferKit::SupportId> support_ids;
     Teuchos::Array<double> support_vals(1);
     DataTransferKit::Entity entity;
     for ( auto node_it = nodes_begin; node_it != nodes_end; ++node_it )

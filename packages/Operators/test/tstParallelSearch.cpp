@@ -78,7 +78,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, all_to_one_test )
     Teuchos::RCP<EntitySet> domain_set = 
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_boxes = (comm->getRank() == 0) ? 5 : 0;
-    Teuchos::Array<std::size_t> box_ids( num_boxes );
+    Teuchos::Array<DataTransferKit::SupportId> box_ids( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
     {
 	box_ids[i] = i;
@@ -103,7 +103,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, all_to_one_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
 	point[0] = 0.5;
@@ -212,7 +212,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, one_to_one_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
 	id = num_points*comm_rank + i;
@@ -320,7 +320,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_domain_0_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
 	id = num_points*comm_rank + i;
@@ -440,7 +440,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, no_range_0_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = (comm_rank != 0) ? 5 : 0;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
 	id = num_points*comm_rank + i;
@@ -548,7 +548,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, many_to_many_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 10;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
 	id = num_points*comm_rank + i;
@@ -792,7 +792,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, global_missed_range_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points+1 );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points+1 );
     for ( int i = 0; i < num_points; ++i )
     {
 	id = num_points*comm_rank + i;
@@ -907,7 +907,7 @@ TEUCHOS_UNIT_TEST( ParallelSearch, local_missed_range_test )
 	Teuchos::rcp( new BasicEntitySet(comm,3) );
     int num_points = 5;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points+1 );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points+1 );
     for ( int i = 0; i < num_points; ++i )
     {
 	id = num_points*comm_rank + i;

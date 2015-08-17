@@ -158,7 +158,7 @@ TEUCHOS_UNIT_TEST( MoabNodalShapeFunction, hex_8_test )
 						nodes.getRawPtr(),
 						num_nodes,
 						node_ids.data() );
-    Teuchos::Array<std::size_t> dof_ids;
+    Teuchos::Array<DataTransferKit::SupportId> dof_ids;
     shape_function->entitySupportIds( dtk_entity, dof_ids );
     TEST_EQUALITY( num_nodes, dof_ids.size() );
     for ( unsigned n = 0; n < num_nodes; ++n )
@@ -311,7 +311,7 @@ TEUCHOS_UNIT_TEST( MoabNodalShapeFunction, quad_4_test )
 						nodes.getRawPtr(),
 						num_nodes,
 						node_ids.data() );
-    Teuchos::Array<std::size_t> dof_ids;
+    Teuchos::Array<DataTransferKit::SupportId> dof_ids;
     shape_function->entitySupportIds( dtk_entity, dof_ids );
     TEST_EQUALITY( num_nodes, dof_ids.size() );
     for ( unsigned n = 0; n < num_nodes; ++n )

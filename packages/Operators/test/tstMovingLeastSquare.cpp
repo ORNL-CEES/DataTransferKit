@@ -122,7 +122,7 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  domain_points(), field_dim, domain_data,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_vector =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_vector =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
@@ -132,7 +132,7 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  range_points(), field_dim, range_data,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_vector =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_vector =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );

@@ -79,7 +79,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     // DOMAIN SETUP
     // Make a domain entity set.
     int num_boxes = (comm->getRank() == 0) ? 5 : 0;
-    Teuchos::Array<std::size_t> box_ids( num_boxes );
+    Teuchos::Array<DataTransferKit::SupportId> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
     Teuchos::Array<Entity> boxes( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
@@ -97,7 +97,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
@@ -106,7 +106,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
     // Make a range entity set.
     int num_points = 5;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points );
     Teuchos::ArrayRCP<double> point_dofs( num_points );
     Teuchos::Array<Entity> points( num_points );
     for ( int i = 0; i < num_points; ++i )
@@ -127,7 +127,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
@@ -173,7 +173,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     // DOMAIN SETUP
     // Make a domain entity set.
     int num_boxes = 5;
-    Teuchos::Array<std::size_t> box_ids( num_boxes );
+    Teuchos::Array<DataTransferKit::SupportId> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
     Teuchos::Array<Entity> boxes( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
@@ -192,7 +192,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
@@ -201,7 +201,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
     // Make a range entity set.
     int num_points = 5;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points );
     Teuchos::ArrayRCP<double> point_dofs( num_points );
     Teuchos::Array<Entity> points( num_points );
     for ( int i = 0; i < num_points; ++i )
@@ -222,7 +222,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
@@ -268,7 +268,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     // DOMAIN SETUP
     // Don't put domain entities on proc 0.
     int num_boxes = (comm->getRank() != 0) ? 5 : 0;
-    Teuchos::Array<std::size_t> box_ids( num_boxes );
+    Teuchos::Array<DataTransferKit::SupportId> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
     Teuchos::Array<Entity> boxes( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
@@ -287,7 +287,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );    
@@ -296,7 +296,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     // Make a range entity set.
     int num_points = 5;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points );
     Teuchos::ArrayRCP<double> point_dofs( num_points );
     Teuchos::Array<Entity> points( num_points );
     for ( int i = 0; i < num_points; ++i )
@@ -317,7 +317,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
@@ -373,7 +373,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     // DOMAIN SETUP
     // Make a domain entity set.
     int num_boxes = 5;
-    Teuchos::Array<std::size_t> box_ids( num_boxes );
+    Teuchos::Array<DataTransferKit::SupportId> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
     Teuchos::Array<Entity> boxes( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
@@ -392,7 +392,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
@@ -401,7 +401,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
     // Make a range entity set.
     int num_points = ( comm_rank != 0 ) ? 5 : 0;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points );
     Teuchos::ArrayRCP<double> point_dofs( num_points );
     Teuchos::Array<Entity> points( num_points );
     for ( int i = 0; i < num_points; ++i )
@@ -422,7 +422,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
@@ -468,7 +468,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     // DOMAIN SETUP
     // Make a domain entity set.
     int num_boxes = 5;
-    Teuchos::Array<std::size_t> box_ids( num_boxes );
+    Teuchos::Array<DataTransferKit::SupportId> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
     Teuchos::Array<Entity> boxes( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
@@ -487,7 +487,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
@@ -496,7 +496,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
     // Make a range entity set.
     int num_points = 10;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points );
     Teuchos::ArrayRCP<double> point_dofs( num_points );
     Teuchos::Array<Entity> points( num_points );
     for ( int i = 0; i < num_points; ++i )
@@ -517,7 +517,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
@@ -575,7 +575,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     // DOMAIN SETUP
     // Make a domain entity set.
     int num_boxes = 1;
-    Teuchos::Array<std::size_t> box_ids( num_boxes );
+    Teuchos::Array<DataTransferKit::SupportId> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
     Teuchos::Array<Entity> boxes( num_boxes );
     box_ids[0] = comm_size - comm_rank - 1;
@@ -591,7 +591,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
@@ -600,7 +600,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
     // Make a range entity set.
     int num_points = 1;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points );
     Teuchos::ArrayRCP<double> point_dofs( num_points );
     Teuchos::Array<Entity> points( num_points );
     point[0] = 0.5;
@@ -618,7 +618,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, point_multiple_neighbors_tes
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
@@ -667,7 +667,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
     // DOMAIN SETUP
     // Make a domain entity set.
     int num_boxes = 5;
-    Teuchos::Array<std::size_t> box_ids( num_boxes );
+    Teuchos::Array<DataTransferKit::SupportId> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
     Teuchos::Array<Entity> boxes( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
@@ -686,7 +686,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
@@ -695,7 +695,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
     // Make a range entity set.
     int num_points = 5;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points+1 );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points+1 );
     Teuchos::ArrayRCP<double> point_dofs( num_points+1 );
     Teuchos::Array<Entity> points( num_points+1 );
     for ( int i = 0; i < num_points; ++i )
@@ -723,7 +723,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
@@ -773,7 +773,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
     // DOMAIN SETUP
     // Make a domain entity set.
     int num_boxes = 5;
-    Teuchos::Array<std::size_t> box_ids( num_boxes );
+    Teuchos::Array<DataTransferKit::SupportId> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
     Teuchos::Array<Entity> boxes( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
@@ -793,7 +793,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  boxes(), 1, box_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > domain_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  domain_field,
 			  domain_manager.functionSpace()->entitySet()) );
@@ -802,7 +802,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
     // Make a range entity set.
     int num_points = 5;
     Teuchos::Array<double> point(3);
-    Teuchos::Array<std::size_t> point_ids( num_points+1 );
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points+1 );
     Teuchos::ArrayRCP<double> point_dofs( num_points+1 );
     Teuchos::Array<Entity> points( num_points+1 );
     for ( int i = 0; i < num_points; ++i )
@@ -816,7 +816,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
     }
 
     // Add a bad point.
-    std::size_t id = num_points*comm_rank;
+    DataTransferKit::SupportId id = num_points*comm_rank;
     point_ids[5] = id + 1000;
     point[0] = id + 0.5;
     point[1] = id + 0.5;
@@ -831,7 +831,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
 			  points(), 1, point_dofs,
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > range_dofs =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_dofs =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );

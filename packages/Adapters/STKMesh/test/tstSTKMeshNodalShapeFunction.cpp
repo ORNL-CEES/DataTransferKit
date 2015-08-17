@@ -124,7 +124,7 @@ TEUCHOS_UNIT_TEST( STKMeshNodalShapeFunction, hex_8_test )
 	Teuchos::rcp( new DataTransferKit::STKMeshNodalShapeFunction(bulk_data) );
 
     // Test the shape function dof ids for the hex.
-    Teuchos::Array<std::size_t> dof_ids;
+    Teuchos::Array<DataTransferKit::SupportId> dof_ids;
     shape_function->entitySupportIds( dtk_entity, dof_ids );
     TEST_EQUALITY( num_nodes, dof_ids.size() );
     for ( unsigned n = 0; n < num_nodes; ++n )

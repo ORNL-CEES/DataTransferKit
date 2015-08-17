@@ -220,11 +220,11 @@ int main(int argc, char* argv[])
 	tgt_mesh, Teuchos::rcpFromRef(tgt_system) );
 
     // Create a solution vector for the source.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > src_vector =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > src_vector =
 	src_manager.createFieldMultiVector( src_var_name );
     
     // Create a solution vector for the target.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > tgt_vector =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > tgt_vector =
 	tgt_manager.createFieldMultiVector( tgt_var_name );
 
     // Print out source mesh info.

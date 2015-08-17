@@ -98,7 +98,7 @@ TEUCHOS_UNIT_TEST( EntityCenteredField, vector_test )
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
 
     // Create an input vector.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > in_vec =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > in_vec =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  in_field, entity_set) );
 
@@ -109,7 +109,7 @@ TEUCHOS_UNIT_TEST( EntityCenteredField, vector_test )
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
 
     // Create an output vector.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,std::size_t> > out_vec =
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > out_vec =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  out_field, entity_set) );
 

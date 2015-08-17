@@ -80,10 +80,10 @@ TEUCHOS_UNIT_TEST( EntityCenteredShapeFunction, shape_func_test )
 	Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Test the shape function.
-    Teuchos::Array<std::size_t> dof_ids;
+    Teuchos::Array<DataTransferKit::SupportId> dof_ids;
     shape_function->entitySupportIds( point, dof_ids );
     TEST_EQUALITY( 1, dof_ids.size() );
-    TEST_EQUALITY( Teuchos::as<std::size_t>(id), dof_ids[0] );
+    TEST_EQUALITY( Teuchos::as<DataTransferKit::SupportId>(id), dof_ids[0] );
 
     Teuchos::Array<double> values;
     shape_function->evaluateValue( point, p(), values );
