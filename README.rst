@@ -32,6 +32,8 @@ DTK is developed and maintained by:
 
 * Roger Pawlowski <rppawlo@sandia.gov>
 
+* Alex McCaskey <mccaskeyaj@ornl.gov>
+
 
 DataTransferKit Packages
 ========================
