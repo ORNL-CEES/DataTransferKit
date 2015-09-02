@@ -117,15 +117,15 @@ Publications
 
 Publications to data related to DataTransferKit:
 
-* S. Slattery, S. Hamilton, T. Evans, "A Modified Moving Least Square
-  Algorithm for Solution Transfer on a Spacer Grid Surface", ANS MC2015 -
+* S. Slattery, S. Hamilton, T. Evans, *"A Modified Moving Least Square
+  Algorithm for Solution Transfer on a Spacer Grid Surface"*, ANS MC2015 -
   Joint International Conference on Mathematics and Computation (M&C),
   Supercomputing in Nuclear Applications (SNA) and the Monte Carlo (MC)
   Method, Nashville, Tennessee · April 19–23, 2015, on CD-ROM, American
   Nuclear Society, LaGrange Park, IL (2015).
 
-* S. Slattery, P.P.H. Wilson, R. Pawlowski, “The Data Transfer Kit: A
-  Geometric Rendezvous-Based Tool for Multiphysics Data Transfer”,
+* S. Slattery, P.P.H. Wilson, R. Pawlowski, *“The Data Transfer Kit: A
+  Geometric Rendezvous-Based Tool for Multiphysics Data Transfer”*,
   International Conference on Mathematics and Computational Methods Applied to
   Nuclear Science & Engineering (M&C 2013), American Nuclear Society, Sun
   Valley, ID, May 5-9, 2013.
