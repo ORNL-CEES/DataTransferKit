@@ -115,7 +115,7 @@ question tag.
 Publications
 ============
 
-Publications to data related to DataTransferKit:
+Publications to date related to DataTransferKit:
 
 * S. Slattery, S. Hamilton, T. Evans, *"A Modified Moving Least Square
   Algorithm for Solution Transfer on a Spacer Grid Surface"*, ANS MC2015 -
@@ -124,12 +124,18 @@ Publications to data related to DataTransferKit:
   Method, Nashville, Tennessee · April 19–23, 2015, on CD-ROM, American
   Nuclear Society, LaGrange Park, IL (2015).
 
+* R. Schmidt, K. Belcourt, R. Hooper, R. Pawlowski, K. Clarno,
+  S. Simunovic, S. Slattery, J. Turner, S. Palmtag, *"An Approach for
+  Coupled-Code Multiphysics Core Simulations from a Common Input"*, Annals of
+  Nuclear Energy, Volume 84, pp. 140-152, 2014.
+
 * S. Slattery, P.P.H. Wilson, R. Pawlowski, *“The Data Transfer Kit: A
   Geometric Rendezvous-Based Tool for Multiphysics Data Transfer”*,
   International Conference on Mathematics and Computational Methods Applied to
   Nuclear Science & Engineering (M&C 2013), American Nuclear Society, Sun
   Valley, ID, May 5-9, 2013.
 
+  
 Dependencies
 ============
 
