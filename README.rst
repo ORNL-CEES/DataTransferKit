@@ -130,7 +130,7 @@ listed in the following table:
 +-----------------------+---------------+---------------------------------------+
 | TriBITS               | Yes           | Build system provided with Trilinos   |
 +-----------------------+---------------+---------------------------------------+
-| Trilinos              | Yes           | Release 11.14 is required             |
+| Trilinos              | Yes           | Release 11.14 is required at minimum  |
 +-----------------------+---------------+---------------------------------------+
 | BLAS/LAPACK           | Yes           | Use vendor-specific implementation    |
 +-----------------------+---------------+---------------------------------------+
