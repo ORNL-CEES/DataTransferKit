@@ -190,23 +190,33 @@ int main(int argc, char* argv[])
     Teuchos::RCP<DataTransferKit::ClientManager> tgt_manager =
 	Teuchos::rcp( new DataTransferKit::STKMeshManager(tgt_bulk_data) );
 
-    // Create a parallel search over the elements in the source mesh.
+    // Create a predicate function to select the elements in the source mesh.
     DataTransferKit::PredicateFunction src_select_predicate =
 	DataTransferKit::STKSelectorPredicate( src_stk_selector );
+
+    // Create an iterator over the elements in the source mesh using the
+    // predicate. 
     DataTransferKit::EntityIterator src_element_iterator =
 	src_manager->entitySet()->entityIterator( 3, src_select_predicate );
+
+    // Create a parallel search over the elements in the source mesh.
     DataTransferKit::ParallelSearch parallel_search( comm,
 						     3,
 						     src_element_iterator,
 						     src_manager->localMap(),
 						     search_params );
 
-    // Search for the location of the target mesh nodes in the source mesh
-    // elements.
+    // Create a predicate function to select the nodes in the target mesh.
     DataTransferKit::PredicateFunction tgt_select_predicate =
 	DataTransferKit::STKSelectorPredicate( tgt_stk_selector );
+
+    // Create an iterator over the nodes in the target mesh.
     DataTransferKit::EntityIterator tgt_node_iterator =
 	tgt_manager->entitySet()->entityIterator( 0, tgt_select_predicate );
+
+    // Search for the location of the target mesh nodes in the source mesh
+    // elements. The results of the search will be saved in the object. Below
+    // we demonstrate how to access the search results.
     parallel_search.search( tgt_node_iterator,
 			    tgt_manager->localMap(),
 			    search_params );
@@ -220,10 +230,15 @@ int main(int argc, char* argv[])
     // own those target points.
     Teuchos::Array<DataTransferKit::EntityId> tgt_ids;
     Teuchos::ArrayView<const double> tgt_param_coords;
+
+    // Get the beginning and end of the source element iterator.
     DataTransferKit::EntityIterator src_elems_begin =
 	src_element_iterator.begin();
     DataTransferKit::EntityIterator src_elems_end =
 	src_element_iterator.end();
+
+    // Iterate through the source elements to see what target points we
+    // found.
     for ( auto src_elem = src_elems_begin;
 	  src_elem != src_elems_end;
 	  ++src_elem )
@@ -259,10 +274,14 @@ int main(int argc, char* argv[])
     // ranks of the source elements.
     Teuchos::Array<DataTransferKit::EntityId> src_ids;
     Teuchos::Array<int> src_ranks;
+
+    // Get the beginning and end of the target node iterators.
     DataTransferKit::EntityIterator tgt_nodes_begin =
 	tgt_node_iterator.begin();
     DataTransferKit::EntityIterator tgt_nodes_end =
 	tgt_node_iterator.end();
+
+    // Iterate through the target nodes to see where they were found.
     for ( auto tgt_node = tgt_nodes_begin;
 	  tgt_node != tgt_nodes_end;
 	  ++tgt_node )
