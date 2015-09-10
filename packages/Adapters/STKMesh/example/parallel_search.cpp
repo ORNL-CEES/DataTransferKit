@@ -180,15 +180,15 @@ int main(int argc, char* argv[])
 
     // Get the search parameters.
     Teuchos::ParameterList& dtk_params = plist->sublist( "DataTransferKit" );
-    Teuchos::ParamaterList& search_params = dtk_list->sublist( "Search" );
+    Teuchos::ParameterList& search_params = dtk_params.sublist( "Search" );
     
     // Create a manager for the source mesh.
     Teuchos::RCP<DataTransferKit::ClientManager> src_manager =
-	Teuchos::rcp( new STKMeshManager(src_bulk_data) );
+	Teuchos::rcp( new DataTransferKit::STKMeshManager(src_bulk_data) );
 
     // Create a manager for the target mesh.
     Teuchos::RCP<DataTransferKit::ClientManager> tgt_manager =
-	Teuchos::rcp( new STKMeshManager(tgt_bulk_data) );
+	Teuchos::rcp( new DataTransferKit::STKMeshManager(tgt_bulk_data) );
 
     // Create a parallel search over the elements in the source mesh.
     DataTransferKit::PredicateFunction src_select_predicate =
@@ -289,7 +289,7 @@ int main(int argc, char* argv[])
     // Print the ids of the target mesh nodes on this process that were not
     // found in any source mesh element.
     std::cout << "MISSED TARGET NODES "
-	      << parallel_search->getMissedRangeEntityIds()
+	      << parallel_search.getMissedRangeEntityIds()
 	      << std::endl << std::endl;
 }
 

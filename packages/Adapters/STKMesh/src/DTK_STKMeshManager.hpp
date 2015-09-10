@@ -70,7 +70,7 @@ namespace DataTransferKit
   use it to reduce code for certain implementations.
 */
 //---------------------------------------------------------------------------//
-class STKMeshManager : ClientManager
+class STKMeshManager : public ClientManager
 {
   public:
 
