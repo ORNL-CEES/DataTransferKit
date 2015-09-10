@@ -2,6 +2,12 @@
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 TRIBITS_ADD_EXECUTABLE(
+  STKParallelSearch
+  SOURCES parallel_search.cpp
+  COMM serial mpi
+  )
+
+TRIBITS_ADD_EXECUTABLE(
   STKInterpolation
   SOURCES interpolation.cpp
   COMM serial mpi

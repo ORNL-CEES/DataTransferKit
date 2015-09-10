@@ -118,7 +118,7 @@ class ParallelSearch
 
     /*!
      * \brief Get the parametric coordinates of the range entities in the
-     * domain entities.
+     * domain entities on a domain process.
      */
     void rangeParametricCoordinatesInDomain( 
 	const EntityId domain_id,
@@ -128,7 +128,7 @@ class ParallelSearch
     /*!
      * \brief Return the ids of the range entities that were not during the
      * last search (i.e. those that are guaranteed to not receive data from
-     * the transfer).
+     * the transfer) on a range process.
      *
      * \return A view of the ids.
      */
