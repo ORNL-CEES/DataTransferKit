@@ -167,10 +167,11 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	    source_geometry_manager->geometry();
 	Teuchos::ArrayRCP<GlobalOrdinal> source_gids =
 	    source_geometry_manager->gids();
-	int local_num_source_geom = source_geometry->localNumGeometry();
+	int local_num_source_geom = 
+	    source_geometry_manager->localNumGeometry();
 	for ( std::size_t i = 0; i < local_num_source_geom; ++i )
 	{
-	    d_source_entity_set->addEntity(
+	    source_entity_set.addEntity(
 		ClassicGeometricEntity<Geometry>(
 		    Teuchos::ptrFromRef(source_geometry[i]),
 		    source_gids[i],
@@ -180,7 +181,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     }
 
     // Create a local map.
-    ClassicGeometricEntityLocalMap<Geometry> > source_local_map;
+    ClassicGeometricEntityLocalMap<Geometry> source_local_map;
     
     // Build the target space and map from the target information.
     // -----------------------------------------------------------
@@ -203,7 +204,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	    {
 		target_coords[d] = coords_view[d*local_num_targets + i];
 	    }
-	    d_target_entity_set->addEntity(
+	    target_entity_set.addEntity(
 		Point(target_ordinals[i], d_comm->getRank(), target_coords) );
 	}
     }
@@ -220,12 +221,16 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     search_list.set<double>("Point Inclusion Tolerance", d_geometric_tolerance );
     
     // Do the parallel search.
-    EntityIterator source_iterator = source_entity_set->entityIterator( 3 );
-    EntityIterator target_iterator = target_entity_set->entityIterator( 0 );
-    ParallelSearch parallel_search(
-	d_comm, d_dimension, source_iterator, source_local_map, search_list );
-    parallel_search.search( target_iterator, target_local_map, search_list );
-
+    EntityIterator source_iterator = source_entity_set.entityIterator( 3 );
+    EntityIterator target_iterator = target_entity_set.entityIterator( 0 );
+    ParallelSearch parallel_search( d_comm, 
+				    d_dimension, 
+				    source_iterator, 
+				    Teuchos::rcpFromRef(source_local_map), 
+				    search_list );
+    parallel_search.search( target_iterator, 
+			    Teuchos::rcpFromRef(target_local_map), 
+			    search_list );
     
     // Build the mapping.
     // -----------------------
@@ -235,7 +240,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     EntityIterator source_end = source_iterator.end();
     Teuchos::Array<EntityId> found_targets;
     Teuchos::Array<std::pair<EntityId,EntityId> > src_tgt_pairs;
-    for ( auto src_geom = source_begin; src_geom != src_end; ++src_geom )
+    for ( auto src_geom = source_begin; src_geom != source_end; ++src_geom )
     {
 	// Get the target points found in this source geometry.
 	parallel_search.getRangeEntitiesFromDomain(
@@ -268,6 +273,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     Teuchos::Array<GlobalOrdinal> source_ordinals( num_tgt );
     d_source_geometry.resize( num_tgt );
     d_target_coords.resize( num_tgt * d_dimension );
+    Teuchos::ArrayView<const double> tgt_coords;
     for ( int i = 0; i < num_tgt; ++i )
     {
 	// Get the source geom id.
@@ -280,7 +286,12 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 	parallel_search.rangeParametricCoordinatesInDomain(
 	    src_tgt_pairs[i].first,
 	    src_tgt_pairs[i].second,
-	    d_target_coords(d_dimension*i,d_dimension) );
+	    tgt_coords );
+
+	for ( int d = 0; d < d_dimension; ++d )
+	{
+	    d_target_coords[ d*num_tgt + i ] = tgt_coords[d];
+	}
     }
 
     // Create the data map in the source decomposition.
@@ -355,7 +366,6 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 				 Teuchos::Ptr<int>(&source_dim) );
 
     // Build a multivector for the function evaluations.
-    GlobalOrdinal source_size = source_field_copy.size() / source_dim;
     Tpetra::MultiVector<typename SFT::value_type, int, GlobalOrdinal>
 	source_vector( d_source_map, source_dim );
     source_vector.get1dViewNonConst().deepCopy( source_field_copy() );
@@ -375,13 +385,13 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 				 Teuchos::Ptr<int>(&target_dim) );
     
     // Check that the source and target have the same field dimension.
-    testPrecondition( source_dim == target_dim );
+    DTK_REQUIRE( source_dim == target_dim );
 
     // Verify that the target space has the proper amount of memory allocated.
     GlobalOrdinal target_size = target_field_view.size() / target_dim;
     if ( target_exists )
     {
-	testPrecondition( 
+	DTK_REQUIRE( 
 	    target_size == Teuchos::as<GlobalOrdinal>(
 		d_target_map->getNodeNumElements()) );
     }
