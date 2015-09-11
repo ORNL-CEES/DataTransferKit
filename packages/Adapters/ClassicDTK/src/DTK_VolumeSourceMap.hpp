@@ -41,10 +41,7 @@
 #ifndef DTK_VOLUMESOURCEMAP_HPP
 #define DTK_VOLUMESOURCEMAP_HPP
 
-#include "DTK_ConsistentInterpolationOperator.hpp"
 #include "DTK_CommIndexer.hpp"
-#include "DTK_BasicEntitySet.hpp"
-
 #include "DTK_GeometryTraits.hpp"
 #include "DTK_GeometryManager.hpp"
 #include "DTK_FieldTraits.hpp"
@@ -99,6 +96,10 @@ class VolumeSourceMap
     typedef Teuchos::RCP<CoordFieldManagerType>       RCP_CoordFieldManager;
     typedef Teuchos::Comm<int>                        CommType;
     typedef Teuchos::RCP<const CommType>              RCP_Comm;
+    typedef Tpetra::Map<int,GlobalOrdinal>            TpetraMap;
+    typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
+    typedef Tpetra::Import<int,GlobalOrdinal>         ImportType;
+    typedef Teuchos::RCP<ImportType>                  RCP_TpetraImport;
     //@}
 
     // Constructor.
@@ -151,30 +152,23 @@ class VolumeSourceMap
     // Process indexer for the target application.
     DataTransferKit::CommIndexer d_target_indexer;
 
-    // Array of source geometry centroids.
-    Teuchos::Array<double> d_source_centroids;
-
-    // Source entity set.
-    Teuchos::RCP<DataTransferKit::BasicEntitySet> d_source_entity_set;
-
-    // Array of source geometry evaluation ids.
-    Teuchos::Array<GlobalOrdinal> d_source_eval_ids;
-
-    // Array of source geometry entity ids.
-    Teuchos::Array<DataTransferKit::EntityId> d_source_entity_ids;
-
-    // Target entity set.
-    Teuchos::RCP<DataTransferKit::BasicEntitySet> d_target_entity_set;
-    
-    // Array of target point entity ids.
-    Teuchos::Array<DataTransferKit::EntityId> d_target_entity_ids;
-
-    // Interpolation operator.
-    Teuchos::RCP<DataTransferKit::ConsistentInterpolationOperator>
-    d_consistent_operator;
-    
     // Indices for target points missed in the mapping.
     Teuchos::Array<GlobalOrdinal> d_missed_points;
+
+    // Source field map.
+    RCP_TpetraMap d_source_map;
+
+    // Target field map.
+    RCP_TpetraMap d_target_map;
+
+    // Source-to-target importer.
+    RCP_TpetraImport d_source_to_target_importer;
+
+    // Local source geometries.
+    Teuchos::Array<GlobalOrdinal> d_source_geometry;
+
+    // Local target coords.
+    Teuchos::Array<double> d_target_coords;
 };
 
 //---------------------------------------------------------------------------//

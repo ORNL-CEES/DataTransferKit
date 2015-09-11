@@ -46,11 +46,9 @@
 #include <set>
 
 #include "DTK_DBC.hpp"
-#include "DTK_FunctionSpace.hpp"
-#include "DTK_FieldMultiVector.hpp"
+#include "DTK_ParallelSearch.hpp"
 
-#include "DTK_EntityCenteredShapeFunction.hpp"
-#include "DTK_EntityCenteredField.hpp"
+#include "DTK_BasicEntitySet.hpp"
 #include "DTK_Point.hpp"
 #include "DTK_BasicGeometryLocalMap.hpp"
 
@@ -141,8 +139,8 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     {
 	target_comm = target_coord_manager->comm();
     }
-    d_source_indexer = DataTransferKit::CommIndexer( d_comm, source_comm );
-    d_target_indexer = DataTransferKit::CommIndexer( d_comm, target_comm );
+    d_source_indexer = CommIndexer( d_comm, source_comm );
+    d_target_indexer = CommIndexer( d_comm, target_comm );
 
     // Check the source and target dimensions for consistency.
     if ( source_exists )
@@ -161,77 +159,28 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 
     // Create an entity set from the local source geometry. DTK entities are
     // stored as pointers to the classic geometry objects.
-    d_source_entity_set =
-	Teuchos::rcp( new DataTransferKit::BasicEntitySet(d_comm,d_dimension) );
+    BasicEntitySet source_entity_set( d_comm, d_dimension );
     if ( source_exists )
     {
-	// The classic API allowed for input source geometries to have
-	// repeated global ids on different procs. The new API also allows for
-	// this but we need to know which proc is the owning proc for parallel
-	// uniqueness. Make globally unique ids even if sources are not
-	// globally unique because we don't know with the version 1 API which
-	// proc the user intended to be the owner. The map will handle the
-	// averaging of multiple contributions.
-	std::size_t local_num_source_geom =
-	    source_geometry_manager->localNumGeometry();
-	std::size_t global_num_source_geom =
-	    source_geometry_manager->globalNumGeometry();
-	Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::EntityId> >
-	    source_unique_id_map =
-	    Tpetra::createContigMap<int,DataTransferKit::EntityId>(
-		global_num_source_geom,
-		local_num_source_geom,
-		source_comm );
-	Teuchos::ArrayView<const DataTransferKit::EntityId> unique_src_id_view =
-	    source_unique_id_map->getNodeElementList();
-	d_source_entity_ids.assign( unique_src_id_view.begin(),
-				    unique_src_id_view.end() );
-		
-	// Create the entity set and extract the geometry centroids for future
-	// evaluation.
+	// Add the geometries to the entity set.
 	Teuchos::ArrayRCP<Geometry> source_geometry =
 	    source_geometry_manager->geometry();
-		Teuchos::ArrayRCP<GlobalOrdinal> source_gids =
-		source_geometry_manager->gids();
-	d_source_eval_ids.resize( local_num_source_geom );
-	d_source_centroids.resize( local_num_source_geom*d_dimension );
-	Teuchos::Array<double> source_centroid;
+	Teuchos::ArrayRCP<GlobalOrdinal> source_gids =
+	    source_geometry_manager->gids();
+	int local_num_source_geom = source_geometry->localNumGeometry();
 	for ( std::size_t i = 0; i < local_num_source_geom; ++i )
 	{
 	    d_source_entity_set->addEntity(
-		DataTransferKit::ClassicGeometricEntity<Geometry>(
+		ClassicGeometricEntity<Geometry>(
 		    Teuchos::ptrFromRef(source_geometry[i]),
-		    d_source_entity_ids[i],
+		    source_gids[i],
 		    d_comm->getRank())
 		);
-	    d_source_eval_ids[i] = source_gids[i];
-	    source_centroid = GT::centroid( source_geometry[i] );
-	    for ( int d = 0; d < d_dimension; ++d )
-	    {
-		d_source_centroids[d*local_num_source_geom + i] =
-		    source_centroid[d];
-	    }
 	}
     }
 
     // Create a local map.
-    Teuchos::RCP<DataTransferKit::ClassicGeometricEntityLocalMap<Geometry> >
-	source_local_map = Teuchos::rcp(
-	    new DataTransferKit::ClassicGeometricEntityLocalMap<Geometry>() );
-
-    // Create a shape function.
-    Teuchos::RCP<DataTransferKit::EntityCenteredShapeFunction>
-	source_shape_function =	Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredShapeFunction() );
-
-    // Create a function space for the source.
-    DataTransferKit::FunctionSpace domain_function_space(
-	d_source_entity_set, source_local_map, source_shape_function, Teuchos::null );
-
-    // Make a map for the source vectors.
-    Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> >
-    	domain_vector_map = Tpetra::createNonContigMap<int,DataTransferKit::SupportId>(
-	    d_source_entity_ids(), d_comm );
+    ClassicGeometricEntityLocalMap<Geometry> > source_local_map;
     
     // Build the target space and map from the target information.
     // -----------------------------------------------------------
@@ -241,15 +190,13 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     computePointOrdinals( target_coord_manager, target_ordinals );
 
     // Create an entity set from the local target points.
-    d_target_entity_set =
-	Teuchos::rcp( new DataTransferKit::BasicEntitySet(d_comm,d_dimension) );
+    BasicEntitySet target_entity_set( d_comm, d_dimension );
     if ( target_exists )
     {
 	Teuchos::ArrayRCP<const typename CFT::value_type> coords_view =
 	    FieldTools<CoordinateField>::view( *target_coord_manager->field() );
 	Teuchos::Array<double> target_coords( d_dimension );
 	int local_num_targets = target_ordinals.size();
-	d_target_entity_ids.resize( local_num_targets );
 	for ( int i = 0; i < local_num_targets; ++i )
 	{
 	    for ( int d = 0; d < d_dimension; ++d )
@@ -257,49 +204,105 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 		target_coords[d] = coords_view[d*local_num_targets + i];
 	    }
 	    d_target_entity_set->addEntity(
-		DataTransferKit::Point( target_ordinals[i],
-					d_comm->getRank(),
-					target_coords )
-		);
-	    d_target_entity_ids[i] = target_ordinals[i];
+		Point(target_ordinals[i], d_comm->getRank(), target_coords) );
 	}
     }
 
     // Create a local map.
-    Teuchos::RCP<DataTransferKit::BasicGeometryLocalMap>
-	target_local_map = Teuchos::rcp(
-	    new DataTransferKit::BasicGeometryLocalMap() );
+    BasicGeometryLocalMap target_local_map;
 
-    // Create a shape function.
-    Teuchos::RCP<DataTransferKit::EntityCenteredShapeFunction>
-	target_shape_function =	Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredShapeFunction() );
-
-    // Create a function space for the target.
-    DataTransferKit::FunctionSpace range_function_space(
-	d_target_entity_set, target_local_map, target_shape_function, Teuchos::null );
-
-    // Make a map for the target vectors.
-    Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> >
-    	range_vector_map = Tpetra::createNonContigMap<int,DataTransferKit::SupportId>(
-	    d_target_entity_ids(), d_comm );
-
-    // Build the DTK operator.
-    // -----------------------
+    // Find the location of the target points in the source geometry.
+    // --------------------------------------------------------------
     
     // Create parameters for the mapping.
-    Teuchos::ParameterList parameters;
-    parameters.sublist("Consistent Interpolation");
-    Teuchos::ParameterList& search_list = parameters.sublist("Search");
+    Teuchos::ParameterList search_list;
     search_list.set<bool>("Track Missed Range Entities",d_store_missed_points);
     search_list.set<double>("Point Inclusion Tolerance", d_geometric_tolerance );
     
-    // Create the interpolation operator.
-    d_consistent_operator = Teuchos::rcp(
-	new DataTransferKit::ConsistentInterpolationOperator(
-	    domain_vector_map, range_vector_map, parameters) );
-    d_consistent_operator->setup( Teuchos::rcpFromRef(domain_function_space),
-				  Teuchos::rcpFromRef(range_function_space) );
+    // Do the parallel search.
+    EntityIterator source_iterator = source_entity_set->entityIterator( 3 );
+    EntityIterator target_iterator = target_entity_set->entityIterator( 0 );
+    ParallelSearch parallel_search(
+	d_comm, d_dimension, source_iterator, source_local_map, search_list );
+    parallel_search.search( target_iterator, target_local_map, search_list );
+
+    
+    // Build the mapping.
+    // -----------------------
+
+    // Get the source-target parings.
+    EntityIterator source_begin = source_iterator.begin();
+    EntityIterator source_end = source_iterator.end();
+    Teuchos::Array<EntityId> found_targets;
+    Teuchos::Array<std::pair<EntityId,EntityId> > src_tgt_pairs;
+    for ( auto src_geom = source_begin; src_geom != src_end; ++src_geom )
+    {
+	// Get the target points found in this source geometry.
+	parallel_search.getRangeEntitiesFromDomain(
+	    src_geom->id(), found_targets );
+
+	// If we found any points, add them to the mapping.
+	for ( auto found_tgt : found_targets )
+	{
+	    src_tgt_pairs.push_back(
+		std::make_pair(src_geom->id(),found_tgt) );
+	}
+    }
+
+    // Filter the source-target pairings so we only find a target point in one
+    // geometry on this process. This handles the local uniqueness
+    // problem. The tpetra import will handle the global uniqueness problem.
+    auto sort_func = [] (std::pair<EntityId,EntityId> a,
+			 std::pair<EntityId,EntityId> b )
+		     { return a.second < b.second; };
+    std::sort( src_tgt_pairs.begin(), src_tgt_pairs.end(), sort_func );
+    auto unique_func = [] (std::pair<EntityId,EntityId> a,
+			   std::pair<EntityId,EntityId> b )
+		       { return a.second == b.second; };
+    auto unique_it = std::unique( src_tgt_pairs.begin(),
+				  src_tgt_pairs.end(),
+				  unique_func );
+
+    // Extract the mapping data.
+    int num_tgt = std::distance( src_tgt_pairs.begin(), unique_it );
+    Teuchos::Array<GlobalOrdinal> source_ordinals( num_tgt );
+    d_source_geometry.resize( num_tgt );
+    d_target_coords.resize( num_tgt * d_dimension );
+    for ( int i = 0; i < num_tgt; ++i )
+    {
+	// Get the source geom id.
+	d_source_geometry[i] = src_tgt_pairs[i].first;
+
+	// Get the target point id.
+	source_ordinals[i] = src_tgt_pairs[i].second;
+
+	// Get the coordinates of the target point.
+	parallel_search.rangeParametricCoordinatesInDomain(
+	    src_tgt_pairs[i].first,
+	    src_tgt_pairs[i].second,
+	    d_target_coords(d_dimension*i,d_dimension) );
+    }
+
+    // Create the data map in the source decomposition.
+    d_source_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
+	source_ordinals(), d_comm );
+    
+    // Create the data map in the target decomposition.
+    d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
+	target_ordinals(), d_comm );
+
+    // Build the source-to-target importer.
+    d_source_to_target_importer = 
+      Teuchos::rcp( new Tpetra::Import<int,GlobalOrdinal>(
+          d_source_map, d_target_map ) );
+    
+    // Extract the missed points.
+    if ( d_store_missed_points )
+    {
+	Teuchos::ArrayView<const EntityId> missed =
+	    parallel_search.getMissedRangeEntityIds();
+	d_missed_points.assign( missed.begin(), missed.end() );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -329,36 +332,33 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     if ( source_evaluator.is_null() ) source_exists = false;
     bool target_exists = true;
     if ( target_space_manager.is_null() ) target_exists = false;
+    d_comm->barrier();
 
-    // Evaluate the source function at the centroids to extract the data.
+    // Evaluate the source function at the target points and construct a view
+    // of the function evaluations.
     int source_dim;
     Teuchos::ArrayRCP<typename SFT::value_type> source_field_copy(0,0);
     if ( source_exists )
     {
 	SourceField function_evaluations = 
-	    source_evaluator->evaluate(
-		Teuchos::arcpFromArray(d_source_eval_ids),
-		Teuchos::arcpFromArray(d_source_centroids) );
+	    source_evaluator->evaluate( 
+		Teuchos::arcpFromArray( d_source_geometry ),
+		Teuchos::arcpFromArray( d_target_coords ) );
 
 	source_dim = SFT::dim( function_evaluations );
 
 	source_field_copy =    
 	    FieldTools<SourceField>::copy( function_evaluations );
     }
+    d_comm->barrier();
     Teuchos::broadcast<int,int>( *d_comm, d_source_indexer.l2g(0),
 				 Teuchos::Ptr<int>(&source_dim) );
 
-    // Build a vector for the source values.
-    Teuchos::RCP<DataTransferKit::EntityCenteredField>
-	source_dtk_field = Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredField(
-		d_source_entity_ids(),
-		source_dim,
-		source_field_copy,
-		DataTransferKit::EntityCenteredField::BLOCKED)
-	    );
-    DataTransferKit::FieldMultiVector source_vector(
-	source_dtk_field, d_source_entity_set );
+    // Build a multivector for the function evaluations.
+    GlobalOrdinal source_size = source_field_copy.size() / source_dim;
+    Tpetra::MultiVector<typename SFT::value_type, int, GlobalOrdinal>
+	source_vector( d_source_map, source_dim );
+    source_vector.get1dViewNonConst().deepCopy( source_field_copy() );
 
     // Construct a view of the target space.
     int target_dim;
@@ -370,34 +370,41 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 
 	target_dim = TFT::dim( *target_space_manager->field() );
     }
+    d_comm->barrier();
     Teuchos::broadcast<int,int>( *d_comm, d_target_indexer.l2g(0),
 				 Teuchos::Ptr<int>(&target_dim) );
     
     // Check that the source and target have the same field dimension.
-    DTK_REQUIRE( source_dim == target_dim );
+    testPrecondition( source_dim == target_dim );
 
     // Verify that the target space has the proper amount of memory allocated.
     GlobalOrdinal target_size = target_field_view.size() / target_dim;
     if ( target_exists )
     {
-	DTK_REQUIRE( target_size ==
-		     Teuchos::as<GlobalOrdinal>(d_target_entity_ids.size()) );
+	testPrecondition( 
+	    target_size == Teuchos::as<GlobalOrdinal>(
+		d_target_map->getNodeNumElements()) );
     }
+    d_comm->barrier();
+    
+    // Build a multivector for the target space.
+    Tpetra::MultiVector<typename TFT::value_type, int, GlobalOrdinal>
+	target_vector( d_target_map, target_dim );
 
-    // Build a vector for the target values.
-    Teuchos::RCP<DataTransferKit::EntityCenteredField>
-	target_dtk_field = Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredField(
-		d_target_entity_ids(),
-		target_dim,
-		target_field_view,
-		DataTransferKit::EntityCenteredField::BLOCKED)
-	    );
-    DataTransferKit::FieldMultiVector target_vector(
-	target_dtk_field, d_target_entity_set );
+    // Fill the target space with zeros so that points we didn't map get some
+    // data.
+    if ( target_exists )
+    {
+	FieldTools<TargetField>::putScalar( 
+	    *target_space_manager->field(), 0.0 );
+    }
+    d_comm->barrier();
 
-    // Apply the DTK operator.
-    d_consistent_operator->apply( source_vector, target_vector );
+    // Move the data from the source decomposition to the target
+    // decomposition.
+    target_vector.doImport( source_vector, *d_source_to_target_importer, 
+			    Tpetra::INSERT );
+    target_field_view.deepCopy( target_vector.get1dView()() );
 }
 
 //---------------------------------------------------------------------------//
@@ -414,9 +421,6 @@ Teuchos::ArrayView<const GlobalOrdinal>
 VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints() const
 {
     DTK_REQUIRE( d_store_missed_points );
-    Teuchos::ArrayView<const DataTransferKit::EntityId> missed_ids =
-	d_consistent_operator->getMissedRangeEntityIds();
-    d_missed_points.assign( missed_ids.begin(), missed_ids.end() );
     return d_missed_points();
 }
 
@@ -434,9 +438,6 @@ Teuchos::ArrayView<GlobalOrdinal>
 VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints()
 {
     DTK_REQUIRE( d_store_missed_points );
-    Teuchos::ArrayView<const DataTransferKit::EntityId> missed_ids =
-	d_consistent_operator->getMissedRangeEntityIds();
-    d_missed_points.assign( missed_ids.begin(), missed_ids.end() );
     return d_missed_points();
 }
 

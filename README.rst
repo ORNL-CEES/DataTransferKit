@@ -26,7 +26,7 @@ DataTransferKit Development Team
 
 DTK is developed and maintained by:
 
-* Stuart Slattery (lead) <slatterysr@ornl.gov>
+* Stuart Slattery <slatterysr@ornl.gov>
 
 * Damien Lebrun-Grandie <lebrungrandt@ornl.gov>
 
