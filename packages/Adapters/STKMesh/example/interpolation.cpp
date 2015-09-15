@@ -260,16 +260,20 @@ int main(int argc, char* argv[])
     // SOLUTION TRANSFER
     // -----------------
 
-    // Create a map operator.
+    // Create a map operator. The operator settings are in the
+    // "DataTransferKit" parameter list.
     Teuchos::ParameterList& dtk_list = plist->sublist("DataTransferKit");    
     DataTransferKit::MapOperatorFactory op_factory;
     Teuchos::RCP<DataTransferKit::MapOperator> map_op =
-	op_factory.create( src_vector->getMap(), tgt_vector->getMap(), dtk_list );
+	op_factory.create( src_vector->getMap(),
+			   tgt_vector->getMap(),
+			   dtk_list );
 
-    // Setup the map operator.
+    // Setup the map operator. This creates the underlying linear operators.
     map_op->setup( src_manager.functionSpace(), tgt_manager.functionSpace() );
 
-    // Apply the map operator.
+    // Apply the map operator. This interpolates the data from one STK field
+    // to the other.
     map_op->apply( *src_vector, *tgt_vector );
 
 
