@@ -11,7 +11,7 @@ DTK was originally developed at the University of Wisconsin - Madison as part
 of the Computational Nuclear Engineering Group (CNERG) group
 <http://cnerg.github.io> <https://github.com/CNERG> and is now actively
 developed at the Oak Ridge National Laboratory as part of the Computational
-Engineering and Energy Sciences (CEES) group <https://github.com/ORNL-CEES>
+Engineering and Energy Sciences (CEES) group <https://github.com/ORNL-CEES>.
 
 DTK is supported and used by the following Department of Energy multiphysics
 modeling and simulation programs:
