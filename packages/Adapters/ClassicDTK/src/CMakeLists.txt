@@ -59,6 +59,7 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_ClassicMesh_impl.hpp
   ${DIR}/DTK_ClassicMeshElement.hpp
   ${DIR}/DTK_ClassicMeshElement_impl.hpp
+  ${DIR}/DTK_ClassicMeshElementExtraData.hpp
   ${DIR}/DTK_ClassicMeshElementImpl.hpp
   ${DIR}/DTK_ClassicMeshElementImpl_impl.hpp
   ${DIR}/DTK_ClassicMeshElementLocalMap.hpp

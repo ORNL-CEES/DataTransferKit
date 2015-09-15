@@ -187,7 +187,8 @@ class BasicEntitySet : public EntitySet
      */
     EntityIterator entityIterator(
 	const int topological_dimension,
-	const PredicateFunction& predicate ) const override;
+	const PredicateFunction& predicate = EntitySet::selectAll 
+	) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
