@@ -343,7 +343,6 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     if ( source_evaluator.is_null() ) source_exists = false;
     bool target_exists = true;
     if ( target_space_manager.is_null() ) target_exists = false;
-    d_comm->barrier();
 
     // Evaluate the source function at the target points and construct a view
     // of the function evaluations.
@@ -361,7 +360,6 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 	source_field_copy =    
 	    FieldTools<SourceField>::copy( function_evaluations );
     }
-    d_comm->barrier();
     Teuchos::broadcast<int,int>( *d_comm, d_source_indexer.l2g(0),
 				 Teuchos::Ptr<int>(&source_dim) );
 
@@ -380,7 +378,6 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 
 	target_dim = TFT::dim( *target_space_manager->field() );
     }
-    d_comm->barrier();
     Teuchos::broadcast<int,int>( *d_comm, d_target_indexer.l2g(0),
 				 Teuchos::Ptr<int>(&target_dim) );
     
@@ -395,7 +392,6 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 	    target_size == Teuchos::as<GlobalOrdinal>(
 		d_target_map->getNodeNumElements()) );
     }
-    d_comm->barrier();
     
     // Build a multivector for the target space.
     Tpetra::MultiVector<typename TFT::value_type, int, GlobalOrdinal>
@@ -408,7 +404,6 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 	FieldTools<TargetField>::putScalar( 
 	    *target_space_manager->field(), 0.0 );
     }
-    d_comm->barrier();
 
     // Move the data from the source decomposition to the target
     // decomposition.
