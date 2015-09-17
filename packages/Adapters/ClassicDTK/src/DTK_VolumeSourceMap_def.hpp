@@ -346,7 +346,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 
     // Evaluate the source function at the target points and construct a view
     // of the function evaluations.
-    int source_dim;
+    int source_dim = 0;
     Teuchos::ArrayRCP<typename SFT::value_type> source_field_copy(0,0);
     if ( source_exists )
     {
@@ -369,7 +369,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     source_vector.get1dViewNonConst().deepCopy( source_field_copy() );
 
     // Construct a view of the target space.
-    int target_dim;
+    int target_dim = 0;
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(0,0);
     if ( target_exists )
     {
