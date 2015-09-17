@@ -44,6 +44,7 @@
 #include <algorithm>
 #include <limits>
 #include <set>
+#include <unordered_map>
 
 #include "DTK_DBC.hpp"
 #include "DTK_ParallelSearch.hpp"
@@ -189,7 +190,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     // Compute a unique global ordinal for each point in the coordinate field.
     Teuchos::Array<GlobalOrdinal> target_ordinals;
     computePointOrdinals( target_coord_manager, target_ordinals );
-
+    
     // Create an entity set from the local target points.
     BasicEntitySet target_entity_set( d_comm, d_dimension );
     if ( target_exists )
@@ -310,9 +311,24 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     // Extract the missed points.
     if ( d_store_missed_points )
     {
+	std::unordered_map<GlobalOrdinal,int> target_g2l;
+	int local_num_targets = target_ordinals.size();
+	for ( int t = 0; t < local_num_targets; ++t )
+	{
+	    target_g2l.emplace( target_ordinals[t], t );
+	}
+
 	Teuchos::ArrayView<const EntityId> missed =
 	    parallel_search.getMissedRangeEntityIds();
-	d_missed_points.assign( missed.begin(), missed.end() );
+
+	int num_missed = missed.size();
+	d_missed_points.resize( num_missed );
+	for ( int i = 0; i < num_missed; ++i )
+	{
+	    DTK_CHECK( target_g2l.count(missed[i]) );
+	    d_missed_points[i] =
+		target_g2l.find( missed[i] )->second;
+	}
     }
 }
 

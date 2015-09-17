@@ -183,6 +183,9 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, cylinder_test )
 
 	// Make sure all points were found except the bogus point.
 	TEST_ASSERT( volume_source_map.getMissedTargetPoints().size() == 1 );
+	TEST_EQUALITY( 
+	    Teuchos::as<int>(volume_source_map.getMissedTargetPoints()[0]), 
+	    num_geom );
     }
 }
 

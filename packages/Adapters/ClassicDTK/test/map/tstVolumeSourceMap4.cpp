@@ -227,6 +227,7 @@ TEUCHOS_UNIT_TEST( VolumeSourceMap, one_to_many_parallel)
   if ( global_comm->getRank() < 3 )
   {
       TEST_EQUALITY( volume_source_map.getMissedTargetPoints().size(), 1 );
+      TEST_EQUALITY( (volume_source_map.getMissedTargetPoints())[0], 1 );
   }
   else
   {
