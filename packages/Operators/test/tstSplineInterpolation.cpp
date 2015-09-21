@@ -163,7 +163,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     // Check the apply.
     for ( int i = 0; i < num_points; ++i )
     {
-	TEST_FLOATING_EQUALITY( gold_data[i], range_data[i], 1.0e-8 );
+	TEST_FLOATING_EQUALITY( gold_data[i], range_data[i], 1.0e-7 );
     }
 }
 
