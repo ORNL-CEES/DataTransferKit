@@ -98,7 +98,7 @@ void ClassicGeometricEntityLocalMap<Geometry>::centroid(
 // point.
 template<class Geometry>
 bool ClassicGeometricEntityLocalMap<Geometry>::mapToReferenceFrame( 
-    const Entity& entity,
+    const Entity& ,
     const Teuchos::ArrayView<const double>& physical_point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
@@ -125,7 +125,7 @@ bool ClassicGeometricEntityLocalMap<Geometry>::checkPointInclusion(
 // Map a reference point to the physical space of an entity.
 template<class Geometry>
 void ClassicGeometricEntityLocalMap<Geometry>::mapToPhysicalFrame( 
-    const Entity& entity,
+    const Entity& ,
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& physical_point ) const
 {

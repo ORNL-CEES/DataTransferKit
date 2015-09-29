@@ -401,12 +401,11 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     DTK_REQUIRE( source_dim == target_dim );
 
     // Verify that the target space has the proper amount of memory allocated.
-    GlobalOrdinal target_size = target_field_view.size() / target_dim;
     if ( target_exists )
     {
 	DTK_REQUIRE( 
-	    target_size == Teuchos::as<GlobalOrdinal>(
-		d_target_map->getNodeNumElements()) );
+	    target_field_view.size() == Teuchos::as<GlobalOrdinal>(
+		d_target_map->getNodeNumElements()) * target_dim );
     }
     
     // Build a multivector for the target space.

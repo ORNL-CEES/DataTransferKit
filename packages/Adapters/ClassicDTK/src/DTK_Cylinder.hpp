@@ -124,7 +124,7 @@ class GeometryTraits<Cylinder>
 
     typedef Cylinder geometry_type;
 
-    static inline int dim( const Cylinder& cylinder )
+    static inline int dim( const Cylinder& )
     { return 3; }
 
     static inline double measure( const Cylinder& cylinder )
