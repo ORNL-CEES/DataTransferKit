@@ -81,7 +81,7 @@ class LibmeshEntityIterator : public DataTransferKit::EntityIterator
 	LibmeshGeomIterator libmesh_iterator_end,
 	const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
 	const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies,
-	const std::function<bool(DataTransferKit::Entity)>& predicate );
+	const PredicateFunction& predicate );
 
     /*!
      * \brief Copy constructor.

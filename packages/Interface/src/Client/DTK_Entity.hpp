@@ -113,8 +113,8 @@ class Entity : public Teuchos::Describable
      * \brief Return the topological dimension of the entity.
      *
      * \return The topological dimension of the entity. This is the dimension
-     * of the entity reference frame Any parametric coordinates describing the
-     * entity will be of this dimension.
+     * of the entity reference frame. Any parametric coordinates describing
+     * the entity will be of this dimension.
      */
     int topologicalDimension() const;
 
@@ -157,14 +157,14 @@ class Entity : public Teuchos::Describable
     /*!
      * \brief Provide a one line description of the object.
      */
-    std::string description() const;
+    std::string description() const override;
 
     /*!
      * \brief Provide a verbose description of the object.
      */
     void describe( Teuchos::FancyOStream& out,
 		   const Teuchos::EVerbosityLevel verb_level =
-		   Teuchos::Describable::verbLevel_default ) const;
+		   Teuchos::Describable::verbLevel_default ) const override;
     //@}
 
   protected:

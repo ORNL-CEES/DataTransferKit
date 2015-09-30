@@ -164,14 +164,15 @@ class EntitySet : public Teuchos::Describable
     /*!
      * \brief Provide a one line description of the object.
      */
-    virtual std::string description() const;
+    virtual std::string description() const override;
 
     /*!
      * \brief Provide a verbose description of the object.
      */
-    virtual void describe( Teuchos::FancyOStream& out,
-			   const Teuchos::EVerbosityLevel verb_level =
-			   Teuchos::Describable::verbLevel_default ) const;
+    virtual void describe(
+	Teuchos::FancyOStream& out,
+	const Teuchos::EVerbosityLevel verb_level =
+	Teuchos::Describable::verbLevel_default ) const override;
     //@}
 
     /*!
