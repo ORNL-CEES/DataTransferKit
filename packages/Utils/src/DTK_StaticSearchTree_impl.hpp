@@ -55,7 +55,7 @@ namespace DataTransferKit
  */
 template<>
 inline double PointCloud<1>::kdtree_distance( 
-    const double *p1, const std::size_t idx_p2, std::size_t size) const
+    const double *p1, const std::size_t idx_p2, std::size_t DTK_REMEMBER(size) ) const
 {
     DTK_REQUIRE( 1 == size );
     DTK_REQUIRE( idx_p2 < Teuchos::as<std::size_t>(d_points.size()));
@@ -69,7 +69,7 @@ inline double PointCloud<1>::kdtree_distance(
  */
 template<>
 inline double PointCloud<2>::kdtree_distance( 
-    const double *p1, const std::size_t idx_p2, std::size_t size) const
+    const double *p1, const std::size_t idx_p2, std::size_t DTK_REMEMBER(size) ) const
 {
     DTK_REQUIRE( 2 == size );
     DTK_REQUIRE( 2*idx_p2+1 < Teuchos::as<std::size_t>(d_points.size()));
@@ -84,7 +84,7 @@ inline double PointCloud<2>::kdtree_distance(
  */
 template<>
 inline double PointCloud<3>::kdtree_distance( 
-    const double *p1, const std::size_t idx_p2, std::size_t size) const
+    const double *p1, const std::size_t idx_p2, std::size_t DTK_REMEMBER(size) ) const
 {
     DTK_REQUIRE( 3 == size );
     DTK_REQUIRE( 3*idx_p2+2 < Teuchos::as<std::size_t>(d_points.size()));
@@ -99,7 +99,7 @@ inline double PointCloud<3>::kdtree_distance(
  * \brief Get the point coordinate at the given dimension.
  */
 template<>
-inline double PointCloud<1>::kdtree_get_pt( const std::size_t idx, int dim ) const
+inline double PointCloud<1>::kdtree_get_pt( const std::size_t idx, int DTK_REMEMBER(dim) ) const
 {
     DTK_REQUIRE( dim < 1 );
     DTK_REQUIRE( idx < Teuchos::as<std::size_t>(d_points.size()));

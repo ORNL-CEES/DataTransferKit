@@ -105,7 +105,7 @@ void ClassicGeometricEntityImpl<Geometry>::boundingBox(
 //---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
 template<class Geometry>
-bool ClassicGeometricEntityImpl<Geometry>::inBlock( const int block_id ) const
+bool ClassicGeometricEntityImpl<Geometry>::inBlock( const int ) const
 {
     return false;
 }
@@ -113,7 +113,7 @@ bool ClassicGeometricEntityImpl<Geometry>::inBlock( const int block_id ) const
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
 template<class Geometry>
-bool ClassicGeometricEntityImpl<Geometry>::onBoundary( const int boundary_id ) const
+bool ClassicGeometricEntityImpl<Geometry>::onBoundary( const int ) const
 {
     return false;
 }
@@ -139,7 +139,7 @@ std::string ClassicGeometricEntityImpl<Geometry>::description() const
 template<class Geometry>
 void ClassicGeometricEntityImpl<Geometry>::describe(
     Teuchos::FancyOStream& out,
-    const Teuchos::EVerbosityLevel verb_level ) const
+    const Teuchos::EVerbosityLevel ) const
 {
     out << description();
 }
