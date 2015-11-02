@@ -75,9 +75,6 @@ class BasicEntitySetIterator : public EntityIterator
     // Copy constructor.
     BasicEntitySetIterator( const BasicEntitySetIterator& rhs );
 
-    // Destructor.
-    ~BasicEntitySetIterator();
-    
     /*!
      * \brief Assignment operator.
      */
@@ -106,7 +103,7 @@ class BasicEntitySetIterator : public EntityIterator
 
     // Create a clone of the iterator. We need this for the copy constructor
     // and assignment operator to pass along the underlying implementation.
-    EntityIterator* clone() const override;
+    std::unique_ptr<EntityIterator> clone() const override;
 
   private:
 

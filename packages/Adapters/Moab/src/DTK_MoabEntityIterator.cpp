@@ -47,9 +47,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Default constructor.
 MoabEntityIterator::MoabEntityIterator()
-{
-    this->b_iterator_impl = NULL;
-}
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Constructor.
@@ -63,7 +61,6 @@ MoabEntityIterator::MoabEntityIterator(
     , d_moab_mesh( moab_mesh )
     , d_set_indexer( set_indexer )
 {
-    this->b_iterator_impl = NULL;
     this->b_predicate = predicate;
 }
 
@@ -76,7 +73,6 @@ MoabEntityIterator::MoabEntityIterator(
     , d_moab_mesh( rhs.d_moab_mesh )
     , d_set_indexer( rhs.d_set_indexer )
 {
-    this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
 }
 
@@ -85,7 +81,6 @@ MoabEntityIterator::MoabEntityIterator(
 MoabEntityIterator& MoabEntityIterator::operator=( 
     const MoabEntityIterator& rhs )
 {
-    this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
     {
@@ -96,13 +91,6 @@ MoabEntityIterator& MoabEntityIterator::operator=(
     d_moab_mesh = rhs.d_moab_mesh;
     d_set_indexer = rhs.d_set_indexer;
     return *this;
-}
-
-//---------------------------------------------------------------------------//
-// Destructor.
-MoabEntityIterator::~MoabEntityIterator()
-{
-    this->b_iterator_impl = NULL;
 }
 
 //---------------------------------------------------------------------------//
@@ -138,7 +126,7 @@ bool MoabEntityIterator::operator==(
     const MoabEntityIterator* rhs_it = 
 	static_cast<const MoabEntityIterator*>(&rhs);
     const MoabEntityIterator* rhs_it_impl = 
-	static_cast<const MoabEntityIterator*>(rhs_it->b_iterator_impl);
+	static_cast<const MoabEntityIterator*>(rhs_it->b_iterator_impl.get());
     return ( rhs_it_impl->d_moab_entity_it == d_moab_entity_it );
 }
 
@@ -150,7 +138,7 @@ bool MoabEntityIterator::operator!=(
     const MoabEntityIterator* rhs_it = 
 	static_cast<const MoabEntityIterator*>(&rhs);
     const MoabEntityIterator* rhs_it_impl = 
-	static_cast<const MoabEntityIterator*>(rhs_it->b_iterator_impl);
+	static_cast<const MoabEntityIterator*>(rhs_it->b_iterator_impl.get());
     return ( rhs_it_impl->d_moab_entity_it != d_moab_entity_it );
 }
 
@@ -175,9 +163,9 @@ EntityIterator MoabEntityIterator::end() const
 //---------------------------------------------------------------------------//
 // Create a clone of the iterator. We need this for the copy constructor
 // and assignment operator to pass along the underlying implementation.
-EntityIterator* MoabEntityIterator::clone() const
+std::unique_ptr<EntityIterator> MoabEntityIterator::clone() const
 {
-    return new MoabEntityIterator(*this);
+    return std::unique_ptr<EntityIterator>( new MoabEntityIterator(*this) );
 }
 
 //---------------------------------------------------------------------------//

@@ -43,6 +43,7 @@
 
 #include <iterator>
 #include <functional>
+#include <memory>
 
 #include <DTK_Types.hpp>
 #include <DTK_Entity.hpp>
@@ -113,9 +114,19 @@ class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
 
   protected:
 
+    // Implementation.
+    std::unique_ptr<EntityIterator> b_iterator_impl;
+
+    // Predicate.
+    PredicateFunction b_predicate;
+
+  protected:
+
     // Create a clone of the iterator. We need this for the copy constructor
-    // and assignment operator to pass along the underlying implementation.
-    virtual EntityIterator* clone() const;
+    // and assignment operator to pass along the underlying implementation
+    // without pointing to the same implementation in every instance of the
+    // iterator.
+    virtual std::unique_ptr<EntityIterator> clone() const;
 
   private:
 
@@ -123,13 +134,9 @@ class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
     // predicate or the end of the iterator.
     void advanceToFirstValidElement();
 
-  protected:
-
-    // Implementation.
-    EntityIterator* b_iterator_impl;
-
-    // Predicate.
-    PredicateFunction b_predicate;
+    // Increment the iterator implementation forward until either a valid
+    // increment is found or we have reached the end.
+    void increment();
 };
 
 //---------------------------------------------------------------------------//

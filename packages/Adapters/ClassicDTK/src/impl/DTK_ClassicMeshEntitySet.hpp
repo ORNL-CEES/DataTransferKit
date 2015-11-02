@@ -82,9 +82,6 @@ class ClassicMeshEntitySetIterator : public EntityIterator
     // Copy constructor.
     ClassicMeshEntitySetIterator( const ClassicMeshEntitySetIterator<Mesh>& rhs );
 
-    // Destructor.
-    ~ClassicMeshEntitySetIterator();
-    
     /*!
      * \brief Assignment operator.
      */
@@ -114,7 +111,7 @@ class ClassicMeshEntitySetIterator : public EntityIterator
 
     // Create a clone of the iterator. We need this for the copy constructor
     // and assignment operator to pass along the underlying implementation.
-    EntityIterator* clone() const override;
+    std::unique_ptr<EntityIterator> clone() const override;
 
   private:
 

@@ -51,9 +51,7 @@ namespace DataTransferKit
 // Default constructor.
 template<class LibmeshGeomIterator>
 LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator()
-{
-    this->b_iterator_impl = NULL;
-}
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Constructor.
@@ -64,14 +62,13 @@ LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator(
     LibmeshGeomIterator libmesh_iterator_end,
     const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
     const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies,
-    const std::function<bool(DataTransferKit::Entity)>& predicate )
+    const std::function<bool(Entity)>& predicate )
     : d_libmesh_iterator( libmesh_iterator )
     , d_libmesh_iterator_begin( libmesh_iterator_begin )
     , d_libmesh_iterator_end( libmesh_iterator_end )
     , d_libmesh_mesh( libmesh_mesh )
     , d_adjacencies( adjacencies )
 {
-    this->b_iterator_impl = NULL;
     this->b_predicate = predicate;
 }
 
@@ -86,7 +83,6 @@ LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator(
     , d_libmesh_mesh( rhs.d_libmesh_mesh )
     , d_adjacencies( rhs.d_adjacencies )
 {
-    this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
 }
 
@@ -97,7 +93,6 @@ LibmeshEntityIterator<LibmeshGeomIterator>&
 LibmeshEntityIterator<LibmeshGeomIterator>::operator=( 
     const LibmeshEntityIterator<LibmeshGeomIterator>& rhs )
 {
-    this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
     {
@@ -112,17 +107,9 @@ LibmeshEntityIterator<LibmeshGeomIterator>::operator=(
 }
 
 //---------------------------------------------------------------------------//
-// Destructor.
-template<class LibmeshGeomIterator>
-LibmeshEntityIterator<LibmeshGeomIterator>::~LibmeshEntityIterator()
-{
-    this->b_iterator_impl = NULL;
-}
-
-//---------------------------------------------------------------------------//
 // Pre-increment operator.
 template<class LibmeshGeomIterator>
-DataTransferKit::EntityIterator&
+EntityIterator&
 LibmeshEntityIterator<LibmeshGeomIterator>::operator++()
 {
     ++d_libmesh_iterator;
@@ -132,7 +119,7 @@ LibmeshEntityIterator<LibmeshGeomIterator>::operator++()
 //---------------------------------------------------------------------------//
 // Dereference operator.
 template<class LibmeshGeomIterator>
-DataTransferKit::Entity&
+Entity&
 LibmeshEntityIterator<LibmeshGeomIterator>::operator*(void)
 {
     this->operator->();
@@ -142,7 +129,7 @@ LibmeshEntityIterator<LibmeshGeomIterator>::operator*(void)
 //---------------------------------------------------------------------------//
 // Dereference operator.
 template<class LibmeshGeomIterator>
-DataTransferKit::Entity*
+Entity*
 LibmeshEntityIterator<LibmeshGeomIterator>::operator->(void)
 {
     d_current_entity = 
@@ -157,12 +144,12 @@ LibmeshEntityIterator<LibmeshGeomIterator>::operator->(void)
 // Equal comparison operator.
 template<class LibmeshGeomIterator>
 bool LibmeshEntityIterator<LibmeshGeomIterator>::operator==( 
-    const DataTransferKit::EntityIterator& rhs ) const
+    const EntityIterator& rhs ) const
 { 
     const LibmeshEntityIterator* rhs_it = 
 	static_cast<const LibmeshEntityIterator*>(&rhs);
     const LibmeshEntityIterator* rhs_it_impl = 
-	static_cast<const LibmeshEntityIterator*>(rhs_it->b_iterator_impl);
+	static_cast<const LibmeshEntityIterator*>(rhs_it->b_iterator_impl.get());
     return ( rhs_it_impl->d_libmesh_iterator == d_libmesh_iterator );
 }
 
@@ -170,19 +157,19 @@ bool LibmeshEntityIterator<LibmeshGeomIterator>::operator==(
 // Not equal comparison operator.
 template<class LibmeshGeomIterator>
 bool LibmeshEntityIterator<LibmeshGeomIterator>::operator!=( 
-    const DataTransferKit::EntityIterator& rhs ) const
+    const EntityIterator& rhs ) const
 {
     const LibmeshEntityIterator* rhs_it = 
 	static_cast<const LibmeshEntityIterator*>(&rhs);
     const LibmeshEntityIterator* rhs_it_impl = 
-	static_cast<const LibmeshEntityIterator*>(rhs_it->b_iterator_impl);
+	static_cast<const LibmeshEntityIterator*>(rhs_it->b_iterator_impl.get());
     return ( rhs_it_impl->d_libmesh_iterator != d_libmesh_iterator );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the beginning.
 template<class LibmeshGeomIterator>
-DataTransferKit::EntityIterator
+EntityIterator
 LibmeshEntityIterator<LibmeshGeomIterator>::begin() const
 { 
     return LibmeshEntityIterator( d_libmesh_iterator_begin,
@@ -196,7 +183,7 @@ LibmeshEntityIterator<LibmeshGeomIterator>::begin() const
 //---------------------------------------------------------------------------//
 // An iterator assigned to the end.
 template<class LibmeshGeomIterator>
-DataTransferKit::EntityIterator
+EntityIterator
 LibmeshEntityIterator<LibmeshGeomIterator>::end() const
 {
     return LibmeshEntityIterator( d_libmesh_iterator_end,
@@ -211,10 +198,10 @@ LibmeshEntityIterator<LibmeshGeomIterator>::end() const
 // Create a clone of the iterator. We need this for the copy constructor
 // and assignment operator to pass along the underlying implementation.
 template<class LibmeshGeomIterator>
-DataTransferKit::EntityIterator*
+std::unique_ptr<EntityIterator>
 LibmeshEntityIterator<LibmeshGeomIterator>::clone() const
 {
-    return new LibmeshEntityIterator(*this);
+    return std::unique_ptr<EntityIterator>( new LibmeshEntityIterator(*this) );
 }
 
 //---------------------------------------------------------------------------//

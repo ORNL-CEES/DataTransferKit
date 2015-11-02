@@ -56,9 +56,7 @@ namespace DataTransferKit
 // Default constructor.
 template<class Mesh>
 ClassicMeshEntitySetIterator<Mesh>::ClassicMeshEntitySetIterator()
-{
-    this->b_iterator_impl = NULL;
-}
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Constructor.
@@ -75,7 +73,6 @@ ClassicMeshEntitySetIterator<Mesh>::ClassicMeshEntitySetIterator(
     {
 	moveToNextBlock();
     }
-    this->b_iterator_impl = NULL;
     this->b_predicate = predicate;
 }
 
@@ -88,7 +85,6 @@ ClassicMeshEntitySetIterator<Mesh>::ClassicMeshEntitySetIterator(
     , d_current_block( rhs.d_current_block )
     , d_element_it( rhs.d_element_it )
 {
-    this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
 }
 
@@ -98,7 +94,6 @@ template<class Mesh>
 ClassicMeshEntitySetIterator<Mesh>& ClassicMeshEntitySetIterator<Mesh>::operator=( 
     const ClassicMeshEntitySetIterator<Mesh>& rhs )
 {
-    this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
     {
@@ -108,14 +103,6 @@ ClassicMeshEntitySetIterator<Mesh>& ClassicMeshEntitySetIterator<Mesh>::operator
     d_current_block = rhs.d_current_block;
     d_element_it = rhs.d_element_it;
     return *this;
-}
-
-//---------------------------------------------------------------------------//
-// Destructor.
-template<class Mesh>
-ClassicMeshEntitySetIterator<Mesh>::~ClassicMeshEntitySetIterator()
-{
-    this->b_iterator_impl = NULL;
 }
 
 //---------------------------------------------------------------------------//
@@ -171,7 +158,7 @@ bool ClassicMeshEntitySetIterator<Mesh>::operator==(
 	static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(&rhs);
     const ClassicMeshEntitySetIterator<Mesh>* rhs_vec_impl = 
 	static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(
-	    rhs_vec->b_iterator_impl);
+	    rhs_vec->b_iterator_impl.get());
     return ( rhs_vec_impl->d_element_it == d_element_it );
 }
 
@@ -185,7 +172,7 @@ bool ClassicMeshEntitySetIterator<Mesh>::operator!=(
 	static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(&rhs);
     const ClassicMeshEntitySetIterator<Mesh>* rhs_vec_impl = 
 	static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(
-	    rhs_vec->b_iterator_impl);
+	    rhs_vec->b_iterator_impl.get());
     return ( rhs_vec_impl->d_element_it != d_element_it );
 }
 
@@ -211,9 +198,10 @@ EntityIterator ClassicMeshEntitySetIterator<Mesh>::end() const
 // Create a clone of the iterator. We need this for the copy constructor
 // and assignment operator to pass along the underlying implementation.
 template<class Mesh>
-EntityIterator* ClassicMeshEntitySetIterator<Mesh>::clone() const
+std::unique_ptr<EntityIterator> ClassicMeshEntitySetIterator<Mesh>::clone() const
 {
-    return new ClassicMeshEntitySetIterator<Mesh>(*this);
+    return std::unique_ptr<EntityIterator>(
+	new ClassicMeshEntitySetIterator<Mesh>(*this) );
 }
 
 //---------------------------------------------------------------------------//

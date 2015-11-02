@@ -118,9 +118,7 @@ class VectorIterator : public DataTransferKit::EntityIterator
      */
     VectorIterator()
 	: d_it_entity( NULL )
-    {
-	this->b_iterator_impl = NULL;
-    }
+    { /* ... */ }
 
     /*!
      * \brief Constructor.
@@ -129,9 +127,7 @@ class VectorIterator : public DataTransferKit::EntityIterator
 	: d_entities( entities )
 	, d_vec_it( d_entities->begin() )
 	, d_it_entity( &(*d_vec_it) )
-    {
-	this->b_iterator_impl = NULL;
-    }
+    { /* ... */ }
 
     /*!
      * \brief Predicate constructor.
@@ -142,7 +138,6 @@ class VectorIterator : public DataTransferKit::EntityIterator
 	, d_vec_it( d_entities->begin() )
 	, d_it_entity( &(*d_vec_it) )
     {
-	this->b_iterator_impl = NULL;
 	this->b_predicate = predicate;
     }
 
@@ -155,7 +150,6 @@ class VectorIterator : public DataTransferKit::EntityIterator
 		    std::distance(rhs.d_entities->begin(),rhs.d_vec_it) )
 	, d_it_entity( &(*d_vec_it) )
     {
-	this->b_iterator_impl = NULL;
 	this->b_predicate = rhs.b_predicate;
     }
 
@@ -164,7 +158,6 @@ class VectorIterator : public DataTransferKit::EntityIterator
      */
     VectorIterator& operator=( const VectorIterator& rhs )
     {
-	this->b_iterator_impl = NULL;
 	this->b_predicate = rhs.b_predicate;
 	if ( &rhs == this )
 	{
@@ -177,65 +170,51 @@ class VectorIterator : public DataTransferKit::EntityIterator
 	return *this;
     }
 
-    /*!
-     * \brief Destructor.
-     */
-    ~VectorIterator()
-    {
-	this->b_iterator_impl = NULL;
-    }
-
     // Pre-increment operator.
-    DataTransferKit::EntityIterator& operator++()
+    DataTransferKit::EntityIterator& operator++() override
     {
 	++d_vec_it;
 	return *this;
     }
 
     // Dereference operator.
-    DataTransferKit::Entity& operator*(void)
+    DataTransferKit::Entity& operator*(void) override
     {
 	this->operator->();
 	return *d_it_entity;
     }
 
     // Dereference operator.
-    DataTransferKit::Entity* operator->(void)
+    DataTransferKit::Entity* operator->(void) override
     {
 	d_it_entity = &(*d_vec_it);
 	return d_it_entity;
     }
 
     // Equal comparison operator.
-    bool operator==( const DataTransferKit::EntityIterator& rhs ) const
+    bool operator==( const DataTransferKit::EntityIterator& rhs ) const override
     { 
 	const VectorIterator* rhs_vec = 
 	    static_cast<const VectorIterator*>(&rhs);
 	const VectorIterator* rhs_vec_impl = 
-	    static_cast<const VectorIterator*>(rhs_vec->b_iterator_impl);
+	    static_cast<const VectorIterator*>(rhs_vec->b_iterator_impl.get());
 	return ( rhs_vec_impl->d_vec_it == d_vec_it );
     }
 
     // Not equal comparison operator.
-    bool operator!=( const DataTransferKit::EntityIterator& rhs ) const
+    bool operator!=( const DataTransferKit::EntityIterator& rhs ) const override
     {
 	return !( operator==(rhs) );
     }
 
-    // Size of the iterator.
-    std::size_t size() const
-    { 
-	return d_entities->size();
-    }
-
     // An iterator assigned to the beginning.
-    DataTransferKit::EntityIterator begin() const
+    DataTransferKit::EntityIterator begin() const override
     { 
 	return VectorIterator( d_entities , this->b_predicate );
     }
 
     // An iterator assigned to the end.
-    DataTransferKit::EntityIterator end() const
+    DataTransferKit::EntityIterator end() const override
     {
 	VectorIterator end_it( d_entities, this->b_predicate );
 	end_it.d_vec_it = d_entities->end();
@@ -244,9 +223,10 @@ class VectorIterator : public DataTransferKit::EntityIterator
 
     // Create a clone of the iterator. We need this for the copy constructor
     // and assignment operator to pass along the underlying implementation.
-    DataTransferKit::EntityIterator* clone() const
+    std::unique_ptr<DataTransferKit::EntityIterator> clone() const override
     {
-	return new VectorIterator(*this);
+	return std::unique_ptr<DataTransferKit::EntityIterator>(
+	    new VectorIterator(*this) );
     }
 
   private:

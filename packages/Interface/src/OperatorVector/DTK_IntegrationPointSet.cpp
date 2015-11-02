@@ -52,9 +52,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Default constructor.
 IntegrationPointSetIterator::IntegrationPointSetIterator()
-{
-    this->b_iterator_impl = NULL;
-}
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Constructor.
@@ -62,9 +60,7 @@ IntegrationPointSetIterator::IntegrationPointSetIterator(
     Teuchos::RCP<Teuchos::Array<IntegrationPoint> > points )
     : d_points( points )
     , d_points_it( d_points->begin() )
-{
-    this->b_iterator_impl = NULL;
-}
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
@@ -72,16 +68,13 @@ IntegrationPointSetIterator::IntegrationPointSetIterator(
     const IntegrationPointSetIterator& rhs )
     : d_points( rhs.d_points )
     , d_points_it( rhs.d_points_it )
-{
-    this->b_iterator_impl = NULL;
-}
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
 IntegrationPointSetIterator& IntegrationPointSetIterator::operator=( 
     const IntegrationPointSetIterator& rhs )
 {
-    this->b_iterator_impl = NULL;
     if ( &rhs == this )
     {
 	return *this;
@@ -89,13 +82,6 @@ IntegrationPointSetIterator& IntegrationPointSetIterator::operator=(
     d_points = rhs.d_points;
     d_points_it = rhs.d_points_it;
     return *this;
-}
-
-//---------------------------------------------------------------------------//
-// Destructor.
-IntegrationPointSetIterator::~IntegrationPointSetIterator()
-{
-    this->b_iterator_impl = NULL;
 }
 
 //---------------------------------------------------------------------------//
@@ -131,7 +117,7 @@ bool IntegrationPointSetIterator::operator==(
     const IntegrationPointSetIterator* rhs_vec = 
 	static_cast<const IntegrationPointSetIterator*>(&rhs);
     const IntegrationPointSetIterator* rhs_vec_impl = 
-	static_cast<const IntegrationPointSetIterator*>(rhs_vec->b_iterator_impl);
+	static_cast<const IntegrationPointSetIterator*>(rhs_vec->b_iterator_impl.get());
     return ( rhs_vec_impl->d_points_it == d_points_it );
 }
 
@@ -143,7 +129,7 @@ bool IntegrationPointSetIterator::operator!=(
     const IntegrationPointSetIterator* rhs_vec = 
 	static_cast<const IntegrationPointSetIterator*>(&rhs);
     const IntegrationPointSetIterator* rhs_vec_impl = 
-	static_cast<const IntegrationPointSetIterator*>(rhs_vec->b_iterator_impl);
+	static_cast<const IntegrationPointSetIterator*>(rhs_vec->b_iterator_impl.get());
     return ( rhs_vec_impl->d_points_it != d_points_it );
 }
 
@@ -166,9 +152,10 @@ EntityIterator IntegrationPointSetIterator::end() const
 //---------------------------------------------------------------------------//
 // Create a clone of the iterator. We need this for the copy constructor
 // and assignment operator to pass along the underlying implementation.
-EntityIterator* IntegrationPointSetIterator::clone() const
+std::unique_ptr<EntityIterator> IntegrationPointSetIterator::clone() const
 {
-    return new IntegrationPointSetIterator(*this);
+    return std::unique_ptr<EntityIterator>(
+	new IntegrationPointSetIterator(*this) );
 }
 
 //---------------------------------------------------------------------------//

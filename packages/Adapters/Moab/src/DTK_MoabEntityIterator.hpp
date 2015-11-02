@@ -86,11 +86,6 @@ class MoabEntityIterator : public EntityIterator
     MoabEntityIterator( const MoabEntityIterator& rhs );
 
     /*!
-     * \brief Destructor.
-     */
-    ~MoabEntityIterator();
-    
-    /*!
      * \brief Assignment operator.
      */
     MoabEntityIterator& operator=( const MoabEntityIterator& rhs );
@@ -118,7 +113,7 @@ class MoabEntityIterator : public EntityIterator
 
     // Create a clone of the iterator. We need this for the copy constructor
     // and assignment operator to pass along the underlying implementation.
-    EntityIterator* clone() const override;
+    std::unique_ptr<EntityIterator> clone() const override;
 
   private:
 

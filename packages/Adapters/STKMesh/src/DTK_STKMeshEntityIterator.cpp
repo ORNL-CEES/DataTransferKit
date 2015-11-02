@@ -47,9 +47,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Default constructor.
 STKMeshEntityIterator::STKMeshEntityIterator()
-{
-    this->b_iterator_impl = NULL;
-}
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Constructor.
@@ -61,7 +59,6 @@ STKMeshEntityIterator::STKMeshEntityIterator(
     , d_stk_entity_it( d_entity_range->d_stk_entities.begin() )
     , d_bulk_data( bulk_data )
 {
-    this->b_iterator_impl = NULL;
     this->b_predicate = predicate;
 }
 
@@ -73,7 +70,6 @@ STKMeshEntityIterator::STKMeshEntityIterator(
     , d_stk_entity_it( rhs.d_stk_entity_it )
     , d_bulk_data( rhs.d_bulk_data )
 {
-    this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
 }
 
@@ -82,7 +78,6 @@ STKMeshEntityIterator::STKMeshEntityIterator(
 STKMeshEntityIterator& STKMeshEntityIterator::operator=( 
     const STKMeshEntityIterator& rhs )
 {
-    this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
     {
@@ -92,13 +87,6 @@ STKMeshEntityIterator& STKMeshEntityIterator::operator=(
     d_stk_entity_it = rhs.d_stk_entity_it;
     d_bulk_data = rhs.d_bulk_data;
     return *this;
-}
-
-//---------------------------------------------------------------------------//
-// Destructor.
-STKMeshEntityIterator::~STKMeshEntityIterator()
-{
-    this->b_iterator_impl = NULL;
 }
 
 //---------------------------------------------------------------------------//
@@ -134,7 +122,7 @@ bool STKMeshEntityIterator::operator==(
     const STKMeshEntityIterator* rhs_it = 
 	static_cast<const STKMeshEntityIterator*>(&rhs);
     const STKMeshEntityIterator* rhs_it_impl = 
-	static_cast<const STKMeshEntityIterator*>(rhs_it->b_iterator_impl);
+	static_cast<const STKMeshEntityIterator*>(rhs_it->b_iterator_impl.get());
     return ( rhs_it_impl->d_stk_entity_it == d_stk_entity_it );
 }
 
@@ -146,7 +134,7 @@ bool STKMeshEntityIterator::operator!=(
     const STKMeshEntityIterator* rhs_it = 
 	static_cast<const STKMeshEntityIterator*>(&rhs);
     const STKMeshEntityIterator* rhs_it_impl = 
-	static_cast<const STKMeshEntityIterator*>(rhs_it->b_iterator_impl);
+	static_cast<const STKMeshEntityIterator*>(rhs_it->b_iterator_impl.get());
     return ( rhs_it_impl->d_stk_entity_it != d_stk_entity_it );
 }
 
@@ -171,9 +159,9 @@ EntityIterator STKMeshEntityIterator::end() const
 //---------------------------------------------------------------------------//
 // Create a clone of the iterator. We need this for the copy constructor
 // and assignment operator to pass along the underlying implementation.
-EntityIterator* STKMeshEntityIterator::clone() const
+std::unique_ptr<EntityIterator> STKMeshEntityIterator::clone() const
 {
-    return new STKMeshEntityIterator(*this);
+    return std::unique_ptr<EntityIterator>( new STKMeshEntityIterator(*this) );
 }
 
 //---------------------------------------------------------------------------//

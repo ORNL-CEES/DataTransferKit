@@ -53,9 +53,7 @@ namespace DataTransferKit
 // Default constructor.
 BasicEntitySetIterator::BasicEntitySetIterator()
     : d_entity( NULL )
-{
-    this->b_iterator_impl = NULL;
-}
+{ /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Constructor.
@@ -69,7 +67,6 @@ BasicEntitySetIterator::BasicEntitySetIterator(
     {
 	d_entity = &(d_map_it->second);
     }
-    this->b_iterator_impl = NULL;
     this->b_predicate = predicate;
 }
 
@@ -84,7 +81,6 @@ BasicEntitySetIterator::BasicEntitySetIterator(
     {
 	d_entity = &(d_map_it->second);
     }
-    this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
 }
 
@@ -93,7 +89,6 @@ BasicEntitySetIterator::BasicEntitySetIterator(
 BasicEntitySetIterator& BasicEntitySetIterator::operator=( 
     const BasicEntitySetIterator& rhs )
 {
-    this->b_iterator_impl = NULL;
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
     {
@@ -106,13 +101,6 @@ BasicEntitySetIterator& BasicEntitySetIterator::operator=(
 	d_entity = &(d_map_it->second);
     }
     return *this;
-}
-
-//---------------------------------------------------------------------------//
-// Destructor.
-BasicEntitySetIterator::~BasicEntitySetIterator()
-{
-    this->b_iterator_impl = NULL;
 }
 
 //---------------------------------------------------------------------------//
@@ -147,7 +135,7 @@ bool BasicEntitySetIterator::operator==(
     const BasicEntitySetIterator* rhs_vec = 
 	static_cast<const BasicEntitySetIterator*>(&rhs);
     const BasicEntitySetIterator* rhs_vec_impl = 
-	static_cast<const BasicEntitySetIterator*>(rhs_vec->b_iterator_impl);
+	static_cast<const BasicEntitySetIterator*>(rhs_vec->b_iterator_impl.get());
     return ( rhs_vec_impl->d_map_it == d_map_it );
 }
 
@@ -159,7 +147,7 @@ bool BasicEntitySetIterator::operator!=(
     const BasicEntitySetIterator* rhs_vec = 
 	static_cast<const BasicEntitySetIterator*>(&rhs);
     const BasicEntitySetIterator* rhs_vec_impl = 
-	static_cast<const BasicEntitySetIterator*>(rhs_vec->b_iterator_impl);
+	static_cast<const BasicEntitySetIterator*>(rhs_vec->b_iterator_impl.get());
     return ( rhs_vec_impl->d_map_it != d_map_it );
 }
 
@@ -182,9 +170,9 @@ EntityIterator BasicEntitySetIterator::end() const
 //---------------------------------------------------------------------------//
 // Create a clone of the iterator. We need this for the copy constructor
 // and assignment operator to pass along the underlying implementation.
-EntityIterator* BasicEntitySetIterator::clone() const
+std::unique_ptr<EntityIterator> BasicEntitySetIterator::clone() const
 {
-    return new BasicEntitySetIterator(*this);
+    return std::unique_ptr<EntityIterator>( new BasicEntitySetIterator(*this) );
 }
 
 //---------------------------------------------------------------------------//
