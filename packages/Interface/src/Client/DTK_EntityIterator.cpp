@@ -220,18 +220,16 @@ void EntityIterator::increment()
     // Apply the increment operator.
     EntityIterator& it = b_iterator_impl->operator++();
 
+    // Get the end of the range.
+    EntityIterator end = b_iterator_impl->end();
+
     // If the we are not at the end or the predicate is not satisfied by the
     // current element, increment until either of these conditions is
     // satisfied.
-    if ( it != b_iterator_impl->end() && !b_predicate(*it) )
+    while ( it != end && !b_predicate(*it) )
     {
-	EntityIterator end = b_iterator_impl->end();
-	do
-	{
-	    it = b_iterator_impl->operator++();
-	} 
-	while ( it != end && !b_predicate(*it) );
-    }
+	it = b_iterator_impl->operator++();
+    } 
 }
 
 //---------------------------------------------------------------------------//
