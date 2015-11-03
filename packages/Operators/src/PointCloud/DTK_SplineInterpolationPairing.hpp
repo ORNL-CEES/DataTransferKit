@@ -44,6 +44,8 @@
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
 
+#include <DTK_Types.hpp>
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -72,7 +74,7 @@ class SplineInterpolationPairing
     childCenterIds( const unsigned parent_id ) const;
 
     // Get the number of child centers per parent center.
-    Teuchos::ArrayRCP<std::size_t> childrenPerParent() const
+    Teuchos::ArrayRCP<EntityId> childrenPerParent() const
     { return d_pair_sizes; }
 
   private:
@@ -81,7 +83,7 @@ class SplineInterpolationPairing
     Teuchos::Array<Teuchos::Array<unsigned> > d_pairings;
 
     // Number of child centers per parent center.
-    Teuchos::ArrayRCP<std::size_t> d_pair_sizes;
+    Teuchos::ArrayRCP<EntityId> d_pair_sizes;
 };
 
 //---------------------------------------------------------------------------//

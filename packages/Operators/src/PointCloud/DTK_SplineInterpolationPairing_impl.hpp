@@ -64,7 +64,7 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
 
     unsigned num_parents = parent_centers.size() / DIM;
     d_pairings.resize( num_parents );
-    d_pair_sizes = Teuchos::ArrayRCP<std::size_t>( num_parents );
+    d_pair_sizes = Teuchos::ArrayRCP<EntityId>( num_parents );
     for ( unsigned i = 0; i < num_parents; ++i )
     {
 	d_pairings[i] = tree.radiusSearch( parent_centers(DIM*i,DIM), radius );
