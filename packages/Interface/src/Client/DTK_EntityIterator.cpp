@@ -158,9 +158,7 @@ std::size_t EntityIterator::size() const
     std::size_t size = 0;
     if ( b_iterator_impl )
     {
-	EntityIterator begin_it = this->begin();
-	EntityIterator end_it = this->end();
-	size = std::distance( begin_it, end_it );
+	size = std::distance( this->begin(), this->end() );
     }
     return size;
 }
