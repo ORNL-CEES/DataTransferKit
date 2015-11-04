@@ -132,7 +132,7 @@ class LibmeshEntitySet : public DataTransferKit::EntitySet
     /*!
      * \brief Provide a one line description of the object.
      */
-    std::string description() const
+    std::string description() const override
     { return std::string("libMesh Mesh"); }
     //@}
 
