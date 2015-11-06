@@ -67,7 +67,7 @@ namespace DataTransferKit
   vectors.
 */
 //---------------------------------------------------------------------------//
-class LibmeshNodalShapeFunction : public DataTransferKit::EntityShapeFunction
+class LibmeshNodalShapeFunction : public EntityShapeFunction
 {
   public:
 
@@ -85,8 +85,8 @@ class LibmeshNodalShapeFunction : public DataTransferKit::EntityShapeFunction
      * vector space supporting the entities.
      */
     void entitySupportIds(
-	const DataTransferKit::Entity& entity,
-	Teuchos::Array<DataTransferKit::SupportId>& support_ids ) const;
+	const Entity& entity,
+	Teuchos::Array<SupportId>& support_ids ) const;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -98,7 +98,7 @@ class LibmeshNodalShapeFunction : public DataTransferKit::EntityShapeFunction
      * point. 
      */
     void evaluateValue( 
-	const DataTransferKit::Entity& entity,
+	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
 	Teuchos::Array<double> & values ) const;
 
@@ -114,7 +114,7 @@ class LibmeshNodalShapeFunction : public DataTransferKit::EntityShapeFunction
      * Nth DOF in the Dth spatial dimension.
      */
     void evaluateGradient( 
-	const DataTransferKit::Entity& entity,
+	const Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
 	Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
 
@@ -123,7 +123,7 @@ class LibmeshNodalShapeFunction : public DataTransferKit::EntityShapeFunction
     // Extract the libmesh geom object.
     template<class LibmeshGeom>
     Teuchos::Ptr<LibmeshGeom> extractGeom(
-	const DataTransferKit::Entity& entity ) const;
+	const Entity& entity ) const;
 
   private:
 
@@ -140,7 +140,7 @@ class LibmeshNodalShapeFunction : public DataTransferKit::EntityShapeFunction
 // Extract the libmesh geom object.
 template<class LibmeshGeom>
 Teuchos::Ptr<LibmeshGeom> LibmeshNodalShapeFunction::extractGeom(
-    const DataTransferKit::Entity& entity ) const
+    const Entity& entity ) const
 {
     return Teuchos::rcp_dynamic_cast<LibmeshEntityExtraData<LibmeshGeom> >(
 	entity.extraData())->d_libmesh_geom;
