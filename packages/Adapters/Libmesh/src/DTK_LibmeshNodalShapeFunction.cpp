@@ -58,8 +58,8 @@ LibmeshNodalShapeFunction::LibmeshNodalShapeFunction(
 //---------------------------------------------------------------------------//
 // Given an entity, get the ids of its support locations
 void LibmeshNodalShapeFunction::entitySupportIds( 
-    const DataTransferKit::Entity& entity,
-    Teuchos::Array<DataTransferKit::SupportId>& support_ids ) const
+    const Entity& entity,
+    Teuchos::Array<SupportId>& support_ids ) const
 {
     // Node case.
     if ( 0 == entity.topologicalDimension() )
@@ -86,7 +86,7 @@ void LibmeshNodalShapeFunction::entitySupportIds(
 // Given an entity and a reference point, evaluate the shape function of the
 // entity at that point.
 void LibmeshNodalShapeFunction::evaluateValue( 
-    const DataTransferKit::Entity& entity,
+    const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     Teuchos::Array<double>& values ) const
 {
@@ -113,11 +113,11 @@ void LibmeshNodalShapeFunction::evaluateValue(
 // Given an entity and a reference point, evaluate the gradient of the shape
 // function of the entity at that point.
 void LibmeshNodalShapeFunction::evaluateGradient( 
-    const DataTransferKit::Entity& entity,
+    const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     Teuchos::Array<Teuchos::Array<double> >& gradients ) const
 {
-    return DataTransferKit::EntityShapeFunction::evaluateGradient(
+    return EntityShapeFunction::evaluateGradient(
 	entity, reference_point, gradients );
 }
 
