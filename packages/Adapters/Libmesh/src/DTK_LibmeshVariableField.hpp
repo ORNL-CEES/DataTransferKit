@@ -62,7 +62,7 @@ namespace DataTransferKit
   \brief DTK field implementation for libmesh variables.
 */
 //---------------------------------------------------------------------------//
-class LibmeshVariableField : public DataTransferKit::Field
+class LibmeshVariableField : public Field
 {
   public:
 
@@ -87,21 +87,21 @@ class LibmeshVariableField : public DataTransferKit::Field
     /*!
      * \brief Get the locally-owned entity support ids of the field.
      */
-    Teuchos::ArrayView<const DataTransferKit::SupportId>
+    Teuchos::ArrayView<const SupportId>
     getLocalSupportIds() const override;
 
     /*!
      * \brief Given a local support id and a dimension, read data from the
      * application field.
      */
-    double readFieldData( const DataTransferKit::SupportId support_id,
+    double readFieldData( const SupportId support_id,
 			  const int dimension ) const override;
 
     /*!
      * \brief Given a local support id, dimension, and field value, write data
      * into the application field.
      */
-    void writeFieldData( const DataTransferKit::SupportId support_id,
+    void writeFieldData( const SupportId support_id,
 			 const int dimension,
 			 const double data ) override;
 
@@ -119,14 +119,14 @@ class LibmeshVariableField : public DataTransferKit::Field
     // Libmesh system.
     Teuchos::RCP<libMesh::System> d_libmesh_system;
 
-    // Sysetem id.
+    // System id.
     int d_system_id;
 
     // Variable id.
     int d_variable_id;
 
     // The support ids of the entities over which the field is constructed.
-    Teuchos::Array<DataTransferKit::SupportId> d_support_ids;
+    Teuchos::Array<SupportId> d_support_ids;
 };
 
 //---------------------------------------------------------------------------//
