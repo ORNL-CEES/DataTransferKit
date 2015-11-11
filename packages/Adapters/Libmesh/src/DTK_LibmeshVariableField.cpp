@@ -88,7 +88,7 @@ int LibmeshVariableField::dimension() const
 
 //---------------------------------------------------------------------------//
 // Get the locally-owned entity support ids of the field.
-Teuchos::ArrayView<const DataTransferKit::SupportId>
+Teuchos::ArrayView<const SupportId>
 LibmeshVariableField::getLocalSupportIds() const
 {
     return d_support_ids();
@@ -98,7 +98,7 @@ LibmeshVariableField::getLocalSupportIds() const
 // Given a local support id and a dimension, read data from the application
 // field.
 double LibmeshVariableField::readFieldData(
-    const DataTransferKit::SupportId support_id,
+    const SupportId support_id,
     const int dimension ) const
 {
     DTK_REQUIRE( 0 == dimension );
@@ -113,7 +113,7 @@ double LibmeshVariableField::readFieldData(
 // Given a local support id, dimension, and field value, write data into the
 // application field.
 void LibmeshVariableField::writeFieldData(
-    const DataTransferKit::SupportId support_id,
+    const SupportId support_id,
     const int dimension,
     const double data )
 {
