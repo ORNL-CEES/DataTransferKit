@@ -73,9 +73,9 @@ int LibmeshEntitySet::physicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
-void LibmeshEntitySet::getEntity( const DataTransferKit::EntityId entity_id,
+void LibmeshEntitySet::getEntity( const EntityId entity_id,
 				  const int topological_dimension,
-				  DataTransferKit::Entity& entity ) const
+				  Entity& entity ) const
 {
     if ( 0 == topological_dimension )
     {
@@ -96,11 +96,11 @@ void LibmeshEntitySet::getEntity( const DataTransferKit::EntityId entity_id,
 //---------------------------------------------------------------------------//
 // Get an iterator over a subset of the entity set that satisfies the given
 // predicate. 
-DataTransferKit::EntityIterator LibmeshEntitySet::entityIterator(
+EntityIterator LibmeshEntitySet::entityIterator(
     const int topological_dimension,
-    const std::function<bool(DataTransferKit::Entity)>& predicate ) const
+    const std::function<bool(Entity)>& predicate ) const
 {
-    DataTransferKit::EntityIterator entity_it;
+    EntityIterator entity_it;
     if ( 0 == topological_dimension )
     {
 	entity_it =
@@ -130,9 +130,9 @@ DataTransferKit::EntityIterator LibmeshEntitySet::entityIterator(
 // Given an entity, get the entities of the given type that are adjacent to
 // it. 
 void LibmeshEntitySet::getAdjacentEntities(
-    const DataTransferKit::Entity& entity,
+    const Entity& entity,
     const int adjacent_dimension,
-    Teuchos::Array<DataTransferKit::Entity>& adjacent_entities ) const
+    Teuchos::Array<Entity>& adjacent_entities ) const
 {
     int entity_topo_dim = entity.topologicalDimension();
     
