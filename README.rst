@@ -297,3 +297,7 @@ DTK to ensure that the installation process was correct and that DTK
 has no bugs dependent on your system. If your application code using
 DTK is not working and unit tests are failing, this can help the
 developers track down the problem.
+
+.. image:: http://readthedocs.org/projects/datatransferkit/badge/?version=latest
+:target: http://datatransferkit.readthedocs.org/en/latest/?badge=latest
+:alt: Documentation Status
