@@ -31,6 +31,14 @@ IF( NOT ${PACKAGE_NAME}_FIND_DTK_DATA_DIR AND DataTransferKit_ENABLE_EXAMPLES)
 ENDIF()
 
 ##---------------------------------------------------------------------------##
+## Build the documentation published on http://datatransferkit.readthedocs.org
+##---------------------------------------------------------------------------##
+
+IF(DataTransferKit_ENABLE_ReadTheDocs)
+    ADD_SUBDIRECTORY(docs)
+ENDIF()
+
+##---------------------------------------------------------------------------##
 ## Do standard postprocessing
 ##---------------------------------------------------------------------------##
 
