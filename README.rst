@@ -299,5 +299,5 @@ DTK is not working and unit tests are failing, this can help the
 developers track down the problem.
 
 .. image:: http://readthedocs.org/projects/datatransferkit/badge/?version=latest
-:target: http://datatransferkit.readthedocs.org/en/latest/?badge=latest
-:alt: Documentation Status
+   :target: http://datatransferkit.readthedocs.org/en/latest/?badge=latest
+   :alt: Documentation Status
