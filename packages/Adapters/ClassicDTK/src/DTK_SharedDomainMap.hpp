@@ -61,7 +61,7 @@
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_Directory.hpp>
-#include <Tpetra_Export.hpp>
+#include <Tpetra_Import.hpp>
 
 namespace DataTransferKit
 {
@@ -118,8 +118,8 @@ class SharedDomainMap
     typedef Teuchos::RCP<const CommType>              RCP_Comm;
     typedef Tpetra::Map<int,GlobalOrdinal>            TpetraMap;
     typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
-    typedef Tpetra::Export<int,GlobalOrdinal>         ExportType;
-    typedef Teuchos::RCP<ExportType>                  RCP_TpetraExport;
+    typedef Tpetra::Import<int,GlobalOrdinal>         ImportType;
+    typedef Teuchos::RCP<ImportType>                  RCP_TpetraImport;
     //!@}
 
     // Constructor.
@@ -172,27 +172,20 @@ class SharedDomainMap
     // Indices for target points missed in the mapping.
     Teuchos::Array<GlobalOrdinal> d_missed_points;
 
-    // Array of source mesh evaluation ids.
-    Teuchos::Array<GlobalOrdinal> d_source_eval_ids;
+    // Source field map.
+    RCP_TpetraMap d_source_map;
 
-    // Array of source mesh entity ids.
-    Teuchos::Array<DataTransferKit::EntityId> d_source_node_ids;
+    // Target field map.
+    RCP_TpetraMap d_target_map;
 
-    // Array of source node coordinates.
-    Teuchos::Array<double> d_source_node_coords;
-    
-    // Source entity set.
-    Teuchos::RCP<DataTransferKit::EntitySet> d_source_entity_set;
+    // Source-to-target importer.
+    RCP_TpetraImport d_source_to_target_importer;
 
-    // Target entity set.
-    Teuchos::RCP<DataTransferKit::BasicEntitySet> d_target_entity_set;
-    
-    // Array of target point entity ids.
-    Teuchos::Array<DataTransferKit::EntityId> d_target_entity_ids;
+    // Local source geometries.
+    Teuchos::Array<GlobalOrdinal> d_source_geometry;
 
-    // Interpolation operator.
-    Teuchos::RCP<DataTransferKit::ConsistentInterpolationOperator>
-    d_consistent_operator;
+    // Local target coords.
+    Teuchos::Array<double> d_target_coords;
 };
 
 //---------------------------------------------------------------------------//

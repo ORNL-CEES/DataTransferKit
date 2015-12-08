@@ -45,15 +45,11 @@
 #include <unordered_map>
 
 #include "DTK_DBC.hpp"
-#include "DTK_FunctionSpace.hpp"
-#include "DTK_FieldMultiVector.hpp"
+#include "DTK_ParallelSearch.hpp"
 
 #include "DTK_ClassicMesh.hpp"
 #include "DTK_ClassicMeshEntitySet.hpp"
 #include "DTK_ClassicMeshElementLocalMap.hpp"
-#include "DTK_ClassicMeshNodalShapeFunction.hpp"
-#include "DTK_EntityCenteredShapeFunction.hpp"
-#include "DTK_EntityCenteredField.hpp"
 #include "DTK_Point.hpp"
 #include "DTK_BasicGeometryLocalMap.hpp"
 
@@ -155,61 +151,10 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     // Create an entity set from the local source mesh.
     Teuchos::RCP<DataTransferKit::ClassicMesh<Mesh> > classic_mesh =
 	Teuchos::rcp( new DataTransferKit::ClassicMesh<Mesh>(source_mesh_manager) );
-    d_source_entity_set =
-	Teuchos::rcp( new DataTransferKit::ClassicMeshEntitySet<Mesh>(classic_mesh) );
-
-    // Create an evaluation set for the source. For each node in the mesh pair
-    // it with one of its elements so we can extract its data.
-    std::unordered_map<GlobalOrdinal,std::pair<GlobalOrdinal,int> > node_to_elem_map;
-    int num_src_blocks = classic_mesh->getNumBlocks();
-    Teuchos::Array<SupportId> elem_conn;
-    for ( int b = 0; b < num_src_blocks; ++b )
-    {
-	for ( auto elem_gid : classic_mesh->d_element_gids[b] )
-	{
-	    elem_conn = classic_mesh->getElementConnectivity( elem_gid, b );
-	    for ( auto node_gid : elem_conn )
-	    {
-		node_to_elem_map.emplace( node_gid, std::make_pair(elem_gid,b) );
-	    }
-	}
-    }
-    int num_node = node_to_elem_map.size();
-    d_source_node_ids.resize( num_node );
-    d_source_eval_ids.resize( num_node );
-    d_source_node_coords.resize( d_dimension*num_node );
-    int n = 0;
-    Teuchos::Array<double> node_coords;
-    for ( auto ne : node_to_elem_map )
-    {
-	d_source_node_ids[n] = ne.first;
-	d_source_eval_ids[n] = ne.second.first;
-	node_coords = classic_mesh->getNodeCoordinates( ne.first, ne.second.second );
-	for ( int d = 0; d < d_dimension; ++d )
-	{
-	    d_source_node_coords[d*num_node + n] = node_coords[d];
-	}
-	++n;
-    }
+    ClassicMeshEntitySet<Mesh> source_entity_set( classic_mesh );
 
     // Create a local map.
-    Teuchos::RCP<DataTransferKit::ClassicMeshElementLocalMap<Mesh> >
-	source_local_map = Teuchos::rcp(
-	    new DataTransferKit::ClassicMeshElementLocalMap<Mesh>(classic_mesh) );
-
-    // Create a shape function.
-    Teuchos::RCP<DataTransferKit::ClassicMeshNodalShapeFunction<Mesh> >
-	source_shape_function =	Teuchos::rcp(
-	    new DataTransferKit::ClassicMeshNodalShapeFunction<Mesh>(classic_mesh) );
-
-    // Create a function space for the source.
-    DataTransferKit::FunctionSpace domain_function_space(
-	d_source_entity_set, source_local_map, source_shape_function, Teuchos::null );
-
-    // Make a map for the source vectors.
-    Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> >
-    	domain_vector_map = Tpetra::createNonContigMap<int,DataTransferKit::SupportId>(
-	    d_source_node_ids(), d_comm );
+    ClassicMeshElementLocalMap<Mesh> source_local_map(classic_mesh);
     
     // Build the target space and map from the target information.
     // -----------------------------------------------------------
@@ -219,65 +164,147 @@ void SharedDomainMap<Mesh,CoordinateField>::setup(
     computePointOrdinals( target_coord_manager, target_ordinals );
 
     // Create an entity set from the local target points.
-    d_target_entity_set =
-	Teuchos::rcp( new DataTransferKit::BasicEntitySet(d_comm,d_dimension) );
+    BasicEntitySet target_entity_set( d_comm, d_dimension );
     if ( target_exists )
     {
 	Teuchos::ArrayRCP<const typename CFT::value_type> coords_view =
 	    FieldTools<CoordinateField>::view( *target_coord_manager->field() );
 	Teuchos::Array<double> target_coords( d_dimension );
 	int local_num_targets = target_ordinals.size();
-	d_target_entity_ids.resize( local_num_targets );
 	for ( int i = 0; i < local_num_targets; ++i )
 	{
 	    for ( int d = 0; d < d_dimension; ++d )
 	    {
 		target_coords[d] = coords_view[d*local_num_targets + i];
 	    }
-	    d_target_entity_set->addEntity(
+	    target_entity_set.addEntity(
 		DataTransferKit::Point( target_ordinals[i],
 					d_comm->getRank(),
 					target_coords )
 		);
-	    d_target_entity_ids[i] = target_ordinals[i];
 	}
     }
 
     // Create a local map.
-    Teuchos::RCP<DataTransferKit::BasicGeometryLocalMap>
-	target_local_map = Teuchos::rcp(
-	    new DataTransferKit::BasicGeometryLocalMap() );
-
-    // Create a shape function.
-    Teuchos::RCP<DataTransferKit::EntityCenteredShapeFunction>
-	target_shape_function =	Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredShapeFunction() );
-
-    // Create a function space for the target.
-    DataTransferKit::FunctionSpace range_function_space(
-	d_target_entity_set, target_local_map, target_shape_function, Teuchos::null );
-
-    // Make a map for the target vectors.
-    Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> >
-    	range_vector_map = Tpetra::createNonContigMap<int,DataTransferKit::SupportId>(
-	    d_target_entity_ids(), d_comm );
+    DataTransferKit::BasicGeometryLocalMap target_local_map;
     
-    // Build the DTK operator.
+    // Find the location of the target points in the source mesh.
+    // --------------------------------------------------------------
+    
+    // Create parameters for the mapping.
+    Teuchos::ParameterList search_list;
+    search_list.set<bool>("Track Missed Range Entities",d_store_missed_points);
+    search_list.set<double>("Point Inclusion Tolerance", 1.0e-9 );
+    
+    // Do the parallel search.
+    EntityIterator source_iterator = source_entity_set.entityIterator( d_dimension );
+    EntityIterator target_iterator = target_entity_set.entityIterator( 0 );
+    ParallelSearch parallel_search( d_comm, 
+				    d_dimension, 
+				    source_iterator, 
+				    Teuchos::rcpFromRef(source_local_map), 
+				    search_list );
+    parallel_search.search( target_iterator, 
+			    Teuchos::rcpFromRef(target_local_map), 
+			    search_list );
+    
+    // Build the mapping.
     // -----------------------
 
-    // Create parameters for the mapping.
-    Teuchos::ParameterList parameters;
-    parameters.sublist("Consistent Interpolation");
-    Teuchos::ParameterList& search_list = parameters.sublist("Search");
-    search_list.set<bool>("Track Missed Range Entities",d_store_missed_points);
-    search_list.set<double>("Point Inclusion Tolerance", tolerance );
+    // Get the source-target parings.
+    EntityIterator source_begin = source_iterator.begin();
+    EntityIterator source_end = source_iterator.end();
+    Teuchos::Array<EntityId> found_targets;
+    Teuchos::Array<std::pair<EntityId,EntityId> > src_tgt_pairs;
+    for ( auto src_geom = source_begin; src_geom != source_end; ++src_geom )
+    {
+	// Get the target points found in this source geometry.
+	parallel_search.getRangeEntitiesFromDomain(
+	    src_geom->id(), found_targets );
+
+	// If we found any points, add them to the mapping.
+	for ( auto found_tgt : found_targets )
+	{
+	    src_tgt_pairs.push_back(
+		std::make_pair(src_geom->id(),found_tgt) );
+	}
+    }
+
+    // Filter the source-target pairings so we only find a target point in one
+    // geometry on this process. This handles the local uniqueness
+    // problem. The tpetra import will handle the global uniqueness problem.
+    auto sort_func = [] (std::pair<EntityId,EntityId> a,
+			 std::pair<EntityId,EntityId> b )
+		     { return a.second < b.second; };
+    std::sort( src_tgt_pairs.begin(), src_tgt_pairs.end(), sort_func );
+    auto unique_func = [] (std::pair<EntityId,EntityId> a,
+			   std::pair<EntityId,EntityId> b )
+		       { return a.second == b.second; };
+    auto unique_it = std::unique( src_tgt_pairs.begin(),
+				  src_tgt_pairs.end(),
+				  unique_func );
+
+    // Extract the mapping data.
+    int num_tgt = std::distance( src_tgt_pairs.begin(), unique_it );
+    Teuchos::Array<GlobalOrdinal> source_ordinals( num_tgt );
+    d_source_geometry.resize( num_tgt );
+    d_target_coords.resize( num_tgt * d_dimension );
+    Teuchos::ArrayView<const double> tgt_coords;
+    for ( int i = 0; i < num_tgt; ++i )
+    {
+	// Get the source geom id.
+	d_source_geometry[i] = src_tgt_pairs[i].first;
+
+	// Get the target point id.
+	source_ordinals[i] = src_tgt_pairs[i].second;
+
+	// Get the coordinates of the target point.
+	parallel_search.rangeParametricCoordinatesInDomain(
+	    src_tgt_pairs[i].first,
+	    src_tgt_pairs[i].second,
+	    tgt_coords );
+
+	for ( int d = 0; d < d_dimension; ++d )
+	{
+	    d_target_coords[ d*num_tgt + i ] = tgt_coords[d];
+	}
+    }
+
+    // Create the data map in the source decomposition.
+    d_source_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
+	source_ordinals(), d_comm );
     
-    // Create the interpolation operator.
-    d_consistent_operator = Teuchos::rcp(
-	new DataTransferKit::ConsistentInterpolationOperator(
-	    domain_vector_map, range_vector_map, parameters) );
-    d_consistent_operator->setup( Teuchos::rcpFromRef(domain_function_space),
-				  Teuchos::rcpFromRef(range_function_space) );
+    // Create the data map in the target decomposition.
+    d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
+	target_ordinals(), d_comm );
+
+    // Build the source-to-target importer.
+    d_source_to_target_importer = 
+      Teuchos::rcp( new Tpetra::Import<int,GlobalOrdinal>(
+          d_source_map, d_target_map ) );
+    
+    // Extract the missed points.
+    if ( d_store_missed_points )
+    {
+	std::unordered_map<GlobalOrdinal,int> target_g2l;
+	int local_num_targets = target_ordinals.size();
+	for ( int t = 0; t < local_num_targets; ++t )
+	{
+	    target_g2l.emplace( target_ordinals[t], t );
+	}
+
+	Teuchos::ArrayView<const EntityId> missed =
+	    parallel_search.getMissedRangeEntityIds();
+
+	int num_missed = missed.size();
+	d_missed_points.resize( num_missed );
+	for ( int i = 0; i < num_missed; ++i )
+	{
+	    DTK_CHECK( target_g2l.count(missed[i]) );
+	    d_missed_points[i] =
+		target_g2l.find( missed[i] )->second;
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -307,15 +334,16 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     bool target_exists = true;
     if ( target_space_manager.is_null() ) target_exists = false;
 
-    // Evaluate the source function at the nodes to extract the data.
-    int source_dim;
+    // Evaluate the source function at the target points and construct a view
+    // of the function evaluations.
+    int source_dim = 0;
     Teuchos::ArrayRCP<typename SFT::value_type> source_field_copy(0,0);
     if ( source_exists )
     {
 	SourceField function_evaluations = 
-	    source_evaluator->evaluate(
-		Teuchos::arcpFromArray(d_source_eval_ids),
-		Teuchos::arcpFromArray(d_source_node_coords) );
+	    source_evaluator->evaluate( 
+		Teuchos::arcpFromArray( d_source_geometry ),
+		Teuchos::arcpFromArray( d_target_coords ) );
 
 	source_dim = SFT::dim( function_evaluations );
 
@@ -325,20 +353,13 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     Teuchos::broadcast<int,int>( *d_comm, d_source_indexer.l2g(0),
 				 Teuchos::Ptr<int>(&source_dim) );
 
-    // Build a vector for the source values.
-    Teuchos::RCP<DataTransferKit::EntityCenteredField>
-	source_dtk_field = Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredField(
-		d_source_node_ids(),
-		source_dim,
-		source_field_copy,
-		DataTransferKit::EntityCenteredField::BLOCKED)
-	    );
-    DataTransferKit::FieldMultiVector source_vector(
-	source_dtk_field, d_source_entity_set );
+    // Build a multivector for the function evaluations.
+    Tpetra::MultiVector<typename SFT::value_type, int, GlobalOrdinal>
+	source_vector( d_source_map, source_dim );
+    source_vector.get1dViewNonConst().deepCopy( source_field_copy() );
 
     // Construct a view of the target space.
-    int target_dim;
+    int target_dim = 0;
     Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(0,0);
     if ( target_exists )
     {
@@ -354,27 +375,30 @@ void SharedDomainMap<Mesh,CoordinateField>::apply(
     DTK_REQUIRE( source_dim == target_dim );
 
     // Verify that the target space has the proper amount of memory allocated.
-    GlobalOrdinal target_size = target_field_view.size() / target_dim;
     if ( target_exists )
     {
-	DTK_REQUIRE( target_size ==
-		     Teuchos::as<GlobalOrdinal>(d_target_entity_ids.size()) );
+	DTK_REQUIRE( 
+	    target_field_view.size() == Teuchos::as<GlobalOrdinal>(
+		d_target_map->getNodeNumElements()) * target_dim );
+    }
+    
+    // Build a multivector for the target space.
+    Tpetra::MultiVector<typename TFT::value_type, int, GlobalOrdinal>
+	target_vector( d_target_map, target_dim );
+
+    // Fill the target space with zeros so that points we didn't map get some
+    // data.
+    if ( target_exists )
+    {
+	FieldTools<TargetField>::putScalar( 
+	    *target_space_manager->field(), 0.0 );
     }
 
-    // Build a vector for the target values.
-    Teuchos::RCP<DataTransferKit::EntityCenteredField>
-	target_dtk_field = Teuchos::rcp(
-	    new DataTransferKit::EntityCenteredField(
-		d_target_entity_ids(),
-		target_dim,
-		target_field_view,
-		DataTransferKit::EntityCenteredField::BLOCKED)
-	    );
-    DataTransferKit::FieldMultiVector target_vector(
-	target_dtk_field, d_target_entity_set );
-
-    // Apply the DTK operator.
-    d_consistent_operator->apply( source_vector, target_vector );
+    // Move the data from the source decomposition to the target
+    // decomposition.
+    target_vector.doImport( source_vector, *d_source_to_target_importer, 
+			    Tpetra::INSERT );
+    target_field_view.deepCopy( target_vector.get1dView()() );
 }
 
 
@@ -393,14 +417,6 @@ Teuchos::ArrayView<const typename
 SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints() const
 { 
     DTK_REQUIRE( d_store_missed_points );
-    Teuchos::ArrayView<const DataTransferKit::EntityId> missed_ids =
-	d_consistent_operator->getMissedRangeEntityIds();
-    int num_missed = missed_ids.size();
-    d_missed_points.resize( num_missed );
-    for ( int n = 0; n < num_missed; ++n )
-    {
-	d_missed_points[n] = missed_ids[n] - d_target_entity_ids.front();
-    }
     return d_missed_points();
 }
 
@@ -419,14 +435,6 @@ Teuchos::ArrayView<typename
 SharedDomainMap<Mesh,CoordinateField>::getMissedTargetPoints()
 {
     DTK_REQUIRE( d_store_missed_points );
-    Teuchos::ArrayView<const DataTransferKit::EntityId> missed_ids =
-	d_consistent_operator->getMissedRangeEntityIds();
-    int num_missed = missed_ids.size();
-    d_missed_points.resize( num_missed );
-    for ( int n = 0; n < num_missed; ++n )
-    {
-	d_missed_points[n] = missed_ids[n] - d_target_entity_ids.front();
-    }
     return d_missed_points();
 }
 
