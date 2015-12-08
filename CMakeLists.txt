@@ -26,8 +26,12 @@ MESSAGE("DTK_DATA_DIR = '${DTK_DATA_DIR}'")
 FIND_FILE( ${PACKAGE_NAME}_FIND_DTK_DATA_DIR 
 	   cube_mesh.exo
 	   ${DTK_DATA_DIR}/exodus )
-IF( NOT ${PACKAGE_NAME}_FIND_DTK_DATA_DIR AND DataTransferKit_ENABLE_EXAMPLES)
-     MESSAGE(FATAL_ERROR "DTKData not found - Required to build the examples")
+IF( NOT ${PACKAGE_NAME}_FIND_DTK_DATA_DIR AND DataTransferKit_ENABLE_EXAMPLES )
+  IF( DataTransferKit_ENABLE_STKMeshAdapters OR
+      DataTransferKit_ENABLE_MoabAdapters OR
+      DataTransferKit_ENABLE_LibMeshAdapters )
+    MESSAGE(FATAL_ERROR "DTKData not found - Required to build the examples")
+  ENDIF()
 ENDIF()
 
 ##---------------------------------------------------------------------------##
