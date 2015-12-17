@@ -14,6 +14,12 @@ TRIBITS_ADD_EXECUTABLE(
   )
 
 TRIBITS_ADD_EXECUTABLE(
+  STKInlineInterpolation
+  SOURCES inline_interpolation.cpp
+  COMM serial mpi
+  )
+
+TRIBITS_ADD_EXECUTABLE(
   STKRepeatedTransfer
   SOURCES repeated_transfer.cpp
   COMM serial mpi
