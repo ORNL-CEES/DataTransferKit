@@ -126,8 +126,11 @@ class VectorIterator : public DataTransferKit::EntityIterator
     VectorIterator( const Teuchos::RCP<std::vector<DataTransferKit::Entity> >& entities ) 
 	: d_entities( entities )
 	, d_vec_it( d_entities->begin() )
-	, d_it_entity( &(*d_vec_it) )
-    { /* ... */ }
+    {
+      if (d_vec_it != d_entities->end()) {
+        d_it_entity = &(*d_vec_it);
+      }
+    }
 
     /*!
      * \brief Predicate constructor.
@@ -136,9 +139,11 @@ class VectorIterator : public DataTransferKit::EntityIterator
 		    const std::function<bool(DataTransferKit::Entity)>& predicate ) 
 	: d_entities( entities )
 	, d_vec_it( d_entities->begin() )
-	, d_it_entity( &(*d_vec_it) )
     {
 	this->b_predicate = predicate;
+        if (d_vec_it != d_entities->end()) {
+          d_it_entity = &(*d_vec_it);
+        }
     }
 
     /*!
@@ -148,9 +153,11 @@ class VectorIterator : public DataTransferKit::EntityIterator
 	: d_entities( rhs.d_entities )
 	, d_vec_it( d_entities->begin() + 
 		    std::distance(rhs.d_entities->begin(),rhs.d_vec_it) )
-	, d_it_entity( &(*d_vec_it) )
     {
 	this->b_predicate = rhs.b_predicate;
+        if (d_vec_it != d_entities->end()) {
+          d_it_entity = &(*d_vec_it);
+        }
     }
 
     /*!
@@ -166,7 +173,9 @@ class VectorIterator : public DataTransferKit::EntityIterator
 	this->d_entities = rhs.d_entities;
 	this->d_vec_it = this->d_entities->begin() + 
 			 std::distance(rhs.d_entities->begin(),rhs.d_vec_it);
-	this->d_it_entity = &(*(this->d_vec_it));
+        if (d_vec_it != d_entities->end()) {
+          d_it_entity = &(*d_vec_it);
+        }
 	return *this;
     }
 

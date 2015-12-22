@@ -63,7 +63,7 @@ BasicEntitySetIterator::BasicEntitySetIterator(
     : d_map( map )
     , d_map_it( d_map->begin() )
 {
-    if ( d_map->size() > 0 )
+    if ( (d_map->size() > 0) && (d_map_it != d_map->end()) )
     {
 	d_entity = &(d_map_it->second);
     }
@@ -77,7 +77,7 @@ BasicEntitySetIterator::BasicEntitySetIterator(
     : d_map( rhs.d_map )
     , d_map_it( rhs.d_map_it )
 {
-    if ( d_map->size() > 0 )
+    if ( (d_map->size() > 0)  && (d_map_it != d_map->end()) )
     {
 	d_entity = &(d_map_it->second);
     }
@@ -96,7 +96,7 @@ BasicEntitySetIterator& BasicEntitySetIterator::operator=(
     }
     d_map = rhs.d_map;
     d_map_it = rhs.d_map_it;
-    if ( d_map->size() > 0 )
+    if ( (d_map->size() > 0) && (d_map_it != d_map->end()) )
     {
 	d_entity = &(d_map_it->second);
     }
@@ -123,6 +123,7 @@ Entity& BasicEntitySetIterator::operator*(void)
 // Dereference operator.
 Entity* BasicEntitySetIterator::operator->(void)
 {
+    DTK_REQUIRE(d_map_it != d_map->end());
     d_entity = &(d_map_it->second);
     return d_entity;
 }
