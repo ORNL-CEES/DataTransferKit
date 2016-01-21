@@ -986,9 +986,9 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, project_blue_feature_test )
     
     TEST_ASSERT( has_projection );
     TEST_EQUALITY( green_node_id, -1 );
-    TEST_EQUALITY( projected_blue_point(0), 1.0 );
-    TEST_EQUALITY( projected_blue_point(1), 1.0 );
-    TEST_EQUALITY( projected_blue_point(2), 0.0 );
+    TEST_FLOATING_EQUALITY( projected_blue_point(0), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( projected_blue_point(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( projected_blue_point(2), 0.0, epsilon );
 
     // Projection 2.
     blue_point(0) = 1.0;

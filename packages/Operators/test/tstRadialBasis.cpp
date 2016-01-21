@@ -359,8 +359,8 @@ TEUCHOS_UNIT_TEST( BuhmannBasis, buhmann_basis )
 			448.0*std::sqrt(x*x*x*x*x) + 5.0*x*x*x*x*x*x*x -
 			63.0*x*x*x*x*x - 945.0*x*x*x - 21.0*x);
 
-    TEST_EQUALITY( test_value, basis_value );
-    TEST_EQUALITY( test_grad, basis_grad );
+    TEST_FLOATING_EQUALITY( test_value, basis_value, epsilon );
+    TEST_FLOATING_EQUALITY( test_grad, basis_grad, epsilon );
 
     double radius_2 = 0.1;
     BasisType basis_2( radius_2 );

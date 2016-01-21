@@ -76,7 +76,8 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // Floating point epsilon.
 //---------------------------------------------------------------------------//
 
-const double epsilon = 100.0*std::numeric_limits<double>::epsilon();
+const double epsilon_abs = 1.0e-12;
+const double epsilon_rel = 1.0e-7/100.0; // percent tolerance divided by 100
 
 //---------------------------------------------------------------------------//
 // Unit tests.
@@ -151,7 +152,8 @@ TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_apply )
     {
 	for ( int j = 0; j < local_size; ++j )
 	{
-	    TEST_FLOATING_EQUALITY( y_crs_view[i][j], y_pm_view[i][j], epsilon );
+	    TEST_FLOATING_EQUALITY( y_crs_view[i][j], y_pm_view[i][j], epsilon_rel );
+	    TEST_COMPARE( std::abs(y_crs_view[i][j] - y_pm_view[i][j]), <=, epsilon_abs );
 	}
     }
 }
@@ -227,7 +229,8 @@ TEUCHOS_UNIT_TEST( PolynomialMatrix, polynomial_matrix_transpose_apply )
     {
 	for ( int j = 0; j < local_size; ++j )
 	{
-	    TEST_FLOATING_EQUALITY( y_crs_view[i][j], y_pm_view[i][j], epsilon );
+	    TEST_FLOATING_EQUALITY( y_crs_view[i][j], y_pm_view[i][j], epsilon_rel );
+	    TEST_COMPARE( std::abs(y_crs_view[i][j] - y_pm_view[i][j]), <= , epsilon_abs );
 	}
     }
 }
