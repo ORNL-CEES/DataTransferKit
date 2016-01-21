@@ -1385,14 +1385,14 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     TEST_ASSERT( has_intersection );
     TEST_EQUALITY( node_id_1, -1 );
     TEST_EQUALITY( node_id_2, -1 );
+    
+    TEST_FLOATING_EQUALITY( edge_1_intersection(0), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(2), 0.0, epsilon );
 
-    TEST_EQUALITY( edge_1_intersection(0), 1.0 );
-    TEST_EQUALITY( edge_1_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_1_intersection(2), 0.0 );
-
-    TEST_EQUALITY( edge_2_intersection(0), 1.0 );
-    TEST_EQUALITY( edge_2_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_2_intersection(2), 1.0 );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(0), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(2), 1.0, epsilon );
 
     // Intersection 2. The edges are perpendicular in the xy plane and
     // in the same z plane.
