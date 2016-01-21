@@ -1425,13 +1425,13 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     TEST_EQUALITY( node_id_1, -1 );
     TEST_EQUALITY( node_id_2, -1 );
 
-    TEST_EQUALITY( edge_1_intersection(0), 1.0 );
-    TEST_EQUALITY( edge_1_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_1_intersection(2), 0.0 );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(0), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(2), 0.0, epsilon );
 
-    TEST_EQUALITY( edge_2_intersection(0), 1.0 );
-    TEST_EQUALITY( edge_2_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_2_intersection(2), 0.0 );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(0), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(2), 0.0, epsilon );
 
     // Intersection 3. The edges intersect at a the first blue node and the
     // first green node.
@@ -1464,13 +1464,13 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     TEST_EQUALITY( node_id_1, 0 );
     TEST_EQUALITY( node_id_2, 0 );
 
-    TEST_EQUALITY( edge_1_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_1_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_1_intersection(2), 0.0 );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(2), 0.0, epsilon );
 
-    TEST_EQUALITY( edge_2_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_2_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_2_intersection(2), 1.0 );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(2), 1.0, epsilon );
 
     // Intersection 4. The edges intersect at the second blue node and the
     // first green node.
@@ -1503,13 +1503,13 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     TEST_EQUALITY( node_id_1, 1 );
     TEST_EQUALITY( node_id_2, 0 );
 
-    TEST_EQUALITY( edge_1_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_1_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_1_intersection(2), 0.0 );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(2), 0.0, epsilon );
 
-    TEST_EQUALITY( edge_2_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_2_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_2_intersection(2), 1.0 );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(2), 1.0, epsilon );
 
     // Intersection 5. The edges intersect at the first blue node and the
     // second green node.
@@ -1542,13 +1542,13 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     TEST_EQUALITY( node_id_1, 0 );
     TEST_EQUALITY( node_id_2, 1 );
 
-    TEST_EQUALITY( edge_1_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_1_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_1_intersection(2), 0.0 );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(2), 0.0, epsilon );
 
-    TEST_EQUALITY( edge_2_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_2_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_2_intersection(2), 1.0 );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(2), 1.0, epsilon );
 
     // Intersection 6. The edges intersect at the second blue node and the
     // second green node.
@@ -1581,13 +1581,13 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     TEST_EQUALITY( node_id_1, 1 );
     TEST_EQUALITY( node_id_2, 1 );
 
-    TEST_EQUALITY( edge_1_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_1_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_1_intersection(2), 0.0 );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(2), 0.0, epsilon );
 
-    TEST_EQUALITY( edge_2_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_2_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_2_intersection(2), 1.0 );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(2), 1.0, epsilon );
 
     // Intersection 7. The edges intersect at the first blue node.
     edge_1(0,0) = 0.0;
@@ -1619,13 +1619,13 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     TEST_EQUALITY( node_id_1, 0 );
     TEST_EQUALITY( node_id_2, -1 );
 
-    TEST_EQUALITY( edge_1_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_1_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_1_intersection(2), 0.0 );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(2), 0.0, epsilon );
 
-    TEST_EQUALITY( edge_2_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_2_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_2_intersection(2), 1.0 );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(2), 1.0, epsilon );
 
     // Intersection 8. The edges intersect at the first green node.
     edge_1(0,0) = -1.0;
@@ -1695,13 +1695,13 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     TEST_EQUALITY( node_id_1, 1 );
     TEST_EQUALITY( node_id_2, -1 );
 
-    TEST_EQUALITY( edge_1_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_1_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_1_intersection(2), 0.0 );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(2), 0.0, epsilon );
 
-    TEST_EQUALITY( edge_2_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_2_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_2_intersection(2), 1.0 );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(2), 1.0, epsilon );
 
     // Intersection 10. The edges intersect at the second green node.
     edge_1(0,0) = 2.0;
@@ -1800,13 +1800,13 @@ TEUCHOS_UNIT_TEST( ProjectionPrimitives, linear_edge_edge_intersection_test )
     TEST_EQUALITY( node_id_1, 0 );
     TEST_EQUALITY( node_id_2, 0 );
 
-    TEST_EQUALITY( edge_1_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_1_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_1_intersection(2), 0.0 );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_1_intersection(2), 0.0, epsilon );
 
-    TEST_EQUALITY( edge_2_intersection(0), 0.0 );
-    TEST_EQUALITY( edge_2_intersection(1), 1.0 );
-    TEST_EQUALITY( edge_2_intersection(2), 1.0 );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(0), 0.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(1), 1.0, epsilon );
+    TEST_FLOATING_EQUALITY( edge_2_intersection(2), 1.0, epsilon );
 
     // Intersection 13. The edges do not overlap in the xy plane and therefore
     // do not intersect. This time they differ by a small value close to the
