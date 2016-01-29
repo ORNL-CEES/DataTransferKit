@@ -30,7 +30,7 @@ TRIBITS_COPY_FILES_TO_BINARY_DIR(
   SOURCE_FILES input.xml
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
   DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  EXEDEPS STKInterpolation STKRepeatedTransfer
+  EXEDEPS STKInterpolation STKRepeatedTransfer STKInlineInterpolation
 )
 
 TRIBITS_COPY_FILES_TO_BINARY_DIR(
@@ -38,5 +38,5 @@ TRIBITS_COPY_FILES_TO_BINARY_DIR(
   SOURCE_FILES cube_mesh.exo pincell_mesh.exo
   SOURCE_DIR ${DTK_DATA_DIR}/exodus/
   DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  EXEDEPS STKInterpolation STKRepeatedTransfer
+  EXEDEPS STKInterpolation STKRepeatedTransfer STKInlineInterpolation
 )

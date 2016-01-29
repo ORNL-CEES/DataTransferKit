@@ -127,12 +127,14 @@ int main(int argc, char* argv[])
     Teuchos::updateParametersFromXmlFile(
 	xml_input_filename, Teuchos::inoutArg(*plist) );
 
+    // Get mesh parameters
+    int src_mesh_size = plist->get<int>("Source Mesh Size");
+    int tgt_mesh_size = plist->get<int>("Target Mesh Size");
+
     // Create a bounding box for the test.
     int x_max = 10;
     int y_max = 10;
     int z_max = 10;
-    int src_mesh_size = 10;
-    int tgt_mesh_size = 11;
     stk::mesh::fixtures::FixedCartesianCoordinateMapping 
 	src_coord_mapping( src_mesh_size, src_mesh_size, src_mesh_size, x_max, y_max, z_max );
     stk::mesh::fixtures::FixedCartesianCoordinateMapping 
