@@ -124,6 +124,10 @@ Publications
 
 Publications to date related to DataTransferKit:
 
+* S. Slattery, *"Mesh-Free Data Transfer Algorithms for Partitioned
+  Multiphysics Problems: Conservation, Accuracy, and Parallelism"*, Journal of
+  Computational Physics, vol. 307, pp. 164-188, 2016.
+
 * S. Slattery, S. Hamilton, T. Evans, *"A Modified Moving Least Square
   Algorithm for Solution Transfer on a Spacer Grid Surface"*, ANS MC2015 -
   Joint International Conference on Mathematics and Computation (M&C),
