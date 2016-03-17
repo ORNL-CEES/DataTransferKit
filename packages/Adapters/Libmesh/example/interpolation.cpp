@@ -82,6 +82,8 @@
 #include <libmesh/explicit_system.h>
 #include <libmesh/exodusII_io.h>
 #include <libmesh/numeric_vector.h>
+#include <libmesh/node.h>
+#include <libmesh/elem.h>
 
 //---------------------------------------------------------------------------//
 // Data field function.

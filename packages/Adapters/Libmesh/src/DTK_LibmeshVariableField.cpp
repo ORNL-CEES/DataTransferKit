@@ -49,6 +49,7 @@
 
 #include <libmesh/dof_map.h>
 #include <libmesh/equation_systems.h>
+#include <libmesh/node.h>
 
 namespace DataTransferKit
 {
