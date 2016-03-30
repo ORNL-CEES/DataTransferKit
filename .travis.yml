@@ -9,7 +9,7 @@ notifications:
 before_install:
   - docker pull dalg24/dtk-stack
   - docker run
-        --detachd --tty
+        --detach --tty
         --name=test-machine
         --volume ${TRAVIS_BUILD_DIR}:/scratch/source/dtk
         --env TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
