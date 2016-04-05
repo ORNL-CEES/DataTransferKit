@@ -254,6 +254,30 @@ class VectorIterator : public DataTransferKit::EntityIterator
 // Tests
 //---------------------------------------------------------------------------//
 // Constructor tests.
+TEUCHOS_UNIT_TEST( EntityIterator, empty_iterator_test )
+{
+    using namespace DataTransferKit;
+	
+    EntityIterator empty_iterator;
+    EntityIterator empty_begin = empty_iterator.begin();
+    EntityIterator empty_end = empty_iterator.end();
+
+    TEST_EQUALITY( 0, empty_iterator.size() );
+    TEST_ASSERT( empty_begin == empty_end );
+
+    int pass_counter = 0;
+    for ( empty_iterator = empty_begin;
+	  empty_iterator != empty_end;
+	  ++empty_iterator )
+    {
+	++pass_counter;
+    }
+
+    TEST_EQUALITY( 0, pass_counter );
+}
+
+//---------------------------------------------------------------------------//
+// Constructor tests.
 TEUCHOS_UNIT_TEST( EntityIterator, constructor_test )
 {
     using namespace DataTransferKit;

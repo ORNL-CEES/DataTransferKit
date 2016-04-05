@@ -46,6 +46,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 EntityIterator::EntityIterator()
+    : b_iterator_impl( nullptr )
 {
     // Default predicate always returns true.
     b_predicate = [](Entity v){return true;};
@@ -137,7 +138,8 @@ Entity* EntityIterator::operator->(void)
 // Equal comparison operator.
 bool EntityIterator::operator==( const EntityIterator& rhs ) const
 {
-    DTK_REQUIRE( b_iterator_impl );
+    if ( nullptr == b_iterator_impl )
+	return (nullptr == b_iterator_impl);
     return b_iterator_impl->operator==( rhs );
 }
 
@@ -146,8 +148,7 @@ bool EntityIterator::operator==( const EntityIterator& rhs ) const
 bool EntityIterator::operator!=( 
     const EntityIterator& rhs ) const
 {
-    DTK_REQUIRE( b_iterator_impl );
-    return b_iterator_impl->operator!=( rhs );
+    return !(b_iterator_impl->operator==(rhs) );
 }
 
 //---------------------------------------------------------------------------//
@@ -167,13 +168,13 @@ std::size_t EntityIterator::size() const
 // An iterator assigned to the beginning.
 EntityIterator EntityIterator::begin() const
 {
-    EntityIterator begin_it;
+    EntityIterator begin_it;   
     if ( b_iterator_impl )
     {
 	begin_it = b_iterator_impl->begin();
+	begin_it.b_predicate = b_predicate;
+	begin_it.advanceToFirstValidElement();
     }
-    begin_it.b_predicate = b_predicate;
-    begin_it.advanceToFirstValidElement();
     return begin_it;
 }
 
