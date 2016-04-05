@@ -204,22 +204,29 @@ void CoarseGlobalSearch::assembleBoundingBox(
     const EntityIterator& entity_iterator,
     Teuchos::Tuple<double,6>& bounding_box ) const
 {
-    double max = std::numeric_limits<double>::max();
-    bounding_box = Teuchos::tuple( max, max, max, -max, -max, -max );
-    Teuchos::Tuple<double,6> entity_bounds;
-    EntityIterator entity_begin = entity_iterator.begin();
-    EntityIterator entity_end = entity_iterator.end();
-    EntityIterator entity_it;
-    for ( entity_it = entity_begin; entity_it != entity_end; ++entity_it )
+    if ( entity_iterator.size() > 0 )
     {
-	entity_it->boundingBox( entity_bounds );
-	for ( int n = 0; n < 3; ++n )
+	double max = std::numeric_limits<double>::max();
+	bounding_box = Teuchos::tuple( max, max, max, -max, -max, -max );
+	Teuchos::Tuple<double,6> entity_bounds;
+	EntityIterator entity_begin = entity_iterator.begin();
+	EntityIterator entity_end = entity_iterator.end();
+	EntityIterator entity_it;
+	for ( entity_it = entity_begin; entity_it != entity_end; ++entity_it )
 	{
-	    bounding_box[n] = 
-		std::min( bounding_box[n], entity_bounds[n] );
-	    bounding_box[n+3] = 
-		std::max( bounding_box[n+3], entity_bounds[n+3] );
+	    entity_it->boundingBox( entity_bounds );
+	    for ( int n = 0; n < 3; ++n )
+	    {
+		bounding_box[n] = 
+		    std::min( bounding_box[n], entity_bounds[n] );
+		bounding_box[n+3] = 
+		    std::max( bounding_box[n+3], entity_bounds[n+3] );
+	    }
 	}
+    }
+    else
+    {
+	bounding_box = Teuchos::tuple( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
     }
 }
 
