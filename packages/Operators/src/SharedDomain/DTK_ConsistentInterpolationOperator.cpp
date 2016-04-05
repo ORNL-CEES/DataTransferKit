@@ -109,13 +109,14 @@ void ConsistentInterpolationOperator::setupImpl(
 	physical_dimension = range_space->entitySet()->physicalDimension();
     }
 
-    // We will only operate on entities that are locally-owned.
-    LocalEntityPredicate local_predicate( comm->getRank() );
+
     
     // Get an iterator over the domain entities.
     EntityIterator domain_iterator;
     if ( nonnull_domain )
     {
+	LocalEntityPredicate local_predicate(
+	    domain_space->entitySet()->communicator()->getRank() );	
 	PredicateFunction domain_predicate =
 	    PredicateComposition::And(
 		domain_space->selectFunction(),	local_predicate.getFunction() );
@@ -135,6 +136,8 @@ void ConsistentInterpolationOperator::setupImpl(
     EntityIterator range_iterator;
     if ( nonnull_range )
     {
+	LocalEntityPredicate local_predicate(
+	    range_space->entitySet()->communicator()->getRank() );	
 	PredicateFunction range_predicate =
 	    PredicateComposition::And(
 		range_space->selectFunction(), local_predicate.getFunction() );
