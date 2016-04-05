@@ -48,8 +48,8 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Comm constructor.
 FieldMultiVector::FieldMultiVector(
-    const Teuchos::RCP<Field>& field,
-    const Teuchos::RCP<const Teuchos::Comm<int> >& global_comm )
+    const Teuchos::RCP<const Teuchos::Comm<int> >& global_comm,    
+    const Teuchos::RCP<Field>& field )
     : Base( Tpetra::createNonContigMap<int,SupportId>(
 		field->getLocalSupportIds(),
 		global_comm ),
@@ -59,8 +59,9 @@ FieldMultiVector::FieldMultiVector(
 
 //---------------------------------------------------------------------------//
 // Entity set constructor.
-FieldMultiVector::FieldMultiVector( const Teuchos::RCP<Field>& field,
-				    const Teuchos::RCP<EntitySet>& entity_set )
+FieldMultiVector::FieldMultiVector(
+    const Teuchos::RCP<Field>& field,
+    const Teuchos::RCP<const EntitySet>& entity_set )
     : Base( Tpetra::createNonContigMap<int,SupportId>(
 		field->getLocalSupportIds(),
 		entity_set->communicator()),

@@ -80,8 +80,8 @@ class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
      * defined.
      */
     FieldMultiVector(
-	const Teuchos::RCP<Field>& field,
-	const Teuchos::RCP<const Teuchos::Comm<int> >& global_comm );
+	const Teuchos::RCP<const Teuchos::Comm<int> >& global_comm,
+	const Teuchos::RCP<Field>& field );
     
     /*!
      * \brief Entity set constructor. This will allocate the Tpetra vector.
@@ -91,7 +91,7 @@ class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
      * \param entity_set The entity set over which the field is defined.
      */
     FieldMultiVector( const Teuchos::RCP<Field>& field,
-		      const Teuchos::RCP<EntitySet>& entity_set );
+		      const Teuchos::RCP<const EntitySet>& entity_set );
 
     /*!
      * \brief Pull data from the application and put it in the vector.
