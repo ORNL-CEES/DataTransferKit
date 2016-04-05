@@ -46,6 +46,7 @@
 #include "DTK_EntitySet.hpp"
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
 
 #include <Tpetra_MultiVector.hpp>
 
@@ -71,7 +72,19 @@ class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
     typedef Tpetra::MultiVector<double,int,SupportId> Base;
 
     /*!
-     * \brief Constructor. This will allocate the Tpetra vector.
+     * \brief Comm constructor. This will allocate the Tpetra vector.
+     *
+     * \param field The field for which we are building a vector.
+     *
+     * \param global_comm The global communicator over which the field is
+     * defined.
+     */
+    FieldMultiVector(
+	const Teuchos::RCP<Field>& field,
+	const Teuchos::RCP<const Teuchos::Comm<int> >& global_comm );
+    
+    /*!
+     * \brief Entity set constructor. This will allocate the Tpetra vector.
      *
      * \param field The field for which we are building a vector.
      *
