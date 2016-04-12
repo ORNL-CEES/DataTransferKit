@@ -5,6 +5,7 @@ services:
 
 notifications:
   email: false
+  slack: ornl-cees:0uSbIVFX7WZKEF1OYb0ULMXa
 
 before_install:
   - docker pull dalg24/dtk-stack
