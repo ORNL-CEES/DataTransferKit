@@ -84,7 +84,7 @@ bool BoundaryPredicate::operator()( Entity entity )
 // LocalEntity predicate.
 bool LocalEntityPredicate::operator()( Entity entity ) 
 { 
-    return ( d_my_rank == entity.ownerRank() );
+    return entity.isLocallyOwned();
 }
 
 //---------------------------------------------------------------------------//
