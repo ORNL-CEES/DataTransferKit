@@ -126,6 +126,16 @@ void Entity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 }
 
 //---------------------------------------------------------------------------//
+// Determine if an entity is owned by the calling process.
+bool Entity::isLocallyOwned() const
+{
+{
+    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    return b_entity_impl->isLocallyOwned();
+}
+}
+
+//---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
 bool Entity::inBlock( const int block_id ) const
 {
