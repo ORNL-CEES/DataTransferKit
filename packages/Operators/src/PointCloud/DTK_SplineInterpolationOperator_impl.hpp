@@ -267,13 +267,12 @@ void SplineInterpolationOperator<Basis,DIM>::buildConcreteOperators(
     // Get the parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = domain_map->getComm();
 
-    // We will only operate on entities that are locally-owned.
-    LocalEntityPredicate local_predicate( comm->getRank() );
-
     // Extract the source centers and their ids.
     EntityIterator domain_iterator;
     if ( nonnull_domain )
     {
+	LocalEntityPredicate local_predicate(
+	    domain_space->entitySet()->communicator()->getRank() );	
 	PredicateFunction domain_predicate =
 	    PredicateComposition::And(
 		domain_space->selectFunction(), local_predicate.getFunction() );
@@ -303,6 +302,8 @@ void SplineInterpolationOperator<Basis,DIM>::buildConcreteOperators(
     EntityIterator range_iterator;
     if ( nonnull_range )
     {
+	LocalEntityPredicate local_predicate(
+	    range_space->entitySet()->communicator()->getRank() );	
 	PredicateFunction range_predicate =
 	    PredicateComposition::And(
 		range_space->selectFunction(), local_predicate.getFunction() );

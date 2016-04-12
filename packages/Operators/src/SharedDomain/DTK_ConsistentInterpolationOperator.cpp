@@ -109,8 +109,6 @@ void ConsistentInterpolationOperator::setupImpl(
 	physical_dimension = range_space->entitySet()->physicalDimension();
     }
 
-
-    
     // Get an iterator over the domain entities.
     EntityIterator domain_iterator;
     if ( nonnull_domain )

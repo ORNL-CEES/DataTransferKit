@@ -108,13 +108,12 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
     bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
     bool nonnull_range = Teuchos::nonnull( range_space->entitySet() );
 
-    // We will only operate on entities that are locally-owned.
-    LocalEntityPredicate local_predicate( comm->getRank() );
-
     // Extract the source centers from the nodes and their ids.
     EntityIterator domain_iterator;
     if ( nonnull_domain )
     {
+	LocalEntityPredicate local_predicate(
+	    domain_space->entitySet()->communicator()->getRank() );	
 	PredicateFunction domain_predicate =
 	    PredicateComposition::And(
 		domain_space->selectFunction(),	local_predicate.getFunction() );
@@ -144,6 +143,8 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
     EntityIterator range_iterator;
     if ( nonnull_range )
     {
+	LocalEntityPredicate local_predicate(
+	    range_space->entitySet()->communicator()->getRank() );	
 	PredicateFunction range_predicate =
 	    PredicateComposition::And(
 		range_space->selectFunction(), local_predicate.getFunction() );
