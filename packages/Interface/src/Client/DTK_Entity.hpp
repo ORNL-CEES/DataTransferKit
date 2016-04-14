@@ -136,11 +136,6 @@ class Entity : public Teuchos::Describable
     void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
 
     /*!
-     * \brief Determine if an entity is owned by the calling process.
-     */
-    bool isLocallyOwned() const;
-    
-    /*!
      * \brief Determine if an entity is in the block with the given id.
      */
     bool inBlock( const int block_id ) const;

@@ -108,11 +108,6 @@ class EntityImpl
     virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const = 0;
 
     /*!
-     * \brief Determine if an entity is owned by the calling process.
-     */
-    virtual bool isLocallyOwned() const = 0;
-
-    /*!
      * \brief Determine if an entity is in the block with the given id.
      */
     virtual bool inBlock( const int block_id ) const = 0;
