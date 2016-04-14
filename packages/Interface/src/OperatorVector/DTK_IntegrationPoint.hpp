@@ -147,12 +147,6 @@ class IntegrationPointEntityImpl : public EntityImpl
     }
 
     /*!
-     * \brief Determine if an entity is owned by the calling process.
-     */
-    bool isLocallyOwned() const override
-    { return false; }
-
-    /*!
      * \brief Determine if an entity is in the block with the given id.
      */
     bool inBlock( const int block_id ) const override
