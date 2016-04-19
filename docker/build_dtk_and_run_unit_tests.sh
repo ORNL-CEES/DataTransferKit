@@ -7,5 +7,5 @@ export TRILINOS_INSTALL_DIR=${PREFIX}/install/trilinos/${TRILINOS_VERSION} && \
 useradd -m -s /bin/bash -N -u 1000 jovyan && \
 chown jovyan ${PREFIX} -R && \
 su jovyan <<EOF
-ctest -j2 -V -S ${PREFIX}/source/dtk/docker/TravisCI.cmake
+ctest -j2 -VV -S ${PREFIX}/source/dtk/docker/TravisCI.cmake
 EOF
