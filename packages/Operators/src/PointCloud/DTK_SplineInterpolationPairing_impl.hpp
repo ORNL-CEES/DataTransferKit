@@ -41,6 +41,7 @@
 #ifndef DTK_SPLINEINTERPOLATIONPAIRING_IMPL_HPP
 #define DTK_SPLINEINTERPOLATIONPAIRING_IMPL_HPP
 
+#include "DTK_SplineInterpolationPairing.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_StaticSearchTree.hpp"
 

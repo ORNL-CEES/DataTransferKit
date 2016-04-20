@@ -45,8 +45,10 @@
 #include <functional>
 #include <algorithm>
 
+#include "DTK_LocalMLSProblem.hpp"
 #include "DTK_RadialBasisPolicy.hpp"
 #include "DTK_EuclideanDistance.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_SerialDenseVector.hpp>
 #include <Teuchos_SerialDenseSolver.hpp>

@@ -91,12 +91,6 @@ class SplineInterpolationPairing
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_SplineInterpolationPairing_impl.hpp"
-
-//---------------------------------------------------------------------------//
 
 #endif // end DTK_INTERPOLATIONPAIRING_HPP
 

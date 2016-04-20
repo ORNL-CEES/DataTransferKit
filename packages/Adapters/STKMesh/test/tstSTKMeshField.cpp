@@ -55,6 +55,7 @@
 #include <Teuchos_DefaultMpiComm.hpp>
 
 #include <Tpetra_MultiVector.hpp>
+#include <Tpetra_Vector.hpp>
 
 #include <stk_mesh/base/MetaData.hpp>
 #include <stk_mesh/base/BulkData.hpp>
@@ -147,7 +148,7 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
     DataTransferKit::STKMeshManager manager( bulk_data );
     
     // Create a vector from the nodal field.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > field_vec_1 =
+    auto field_vec_1 =
 	manager.createFieldMultiVector<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 	    Teuchos::ptr(test_field_1), 3 );
 
@@ -158,8 +159,7 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
     TEST_EQUALITY( 8*comm_size, field_vec_1->getGlobalLength() );
 
     // Test the vector data.
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
-	field_vec_1)->pullDataFromApplication();
+    field_vec_1->pullDataFromApplication();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > field_vec_1_view =
 		      field_vec_1->get2dView();
     for ( unsigned n = 0; n < num_nodes; ++n )
@@ -178,8 +178,7 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
     field_vec_1->getVectorNonConst( 2 )->putScalar( val_2 );
 
     // Push the data back to STK.
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
-	field_vec_1)->pushDataToApplication();
+    field_vec_1->pushDataToApplication();
 
     // Test the STK field.
     for ( stk::mesh::Entity node : nodes )
@@ -196,7 +195,7 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
 	    ).get_field<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 		stk::topology::NODE_RANK, "test field 2" );
 
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > field_vec_2 =
+    auto field_vec_2 =
 	manager.createFieldMultiVector<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
 	    Teuchos::ptr(test_field_2), 3 );
 

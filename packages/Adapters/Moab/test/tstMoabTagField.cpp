@@ -60,6 +60,7 @@
 #include <Teuchos_DefaultMpiComm.hpp>
 
 #include <Tpetra_MultiVector.hpp>
+#include <Tpetra_Vector.hpp>
 
 #include <moab/Interface.hpp>
 #include <moab/ParallelComm.hpp>
@@ -183,7 +184,7 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     Teuchos::RCP<DataTransferKit::Field> field_1 = Teuchos::rcp(
 	new DataTransferKit::MoabTagField<double>(
 	    parallel_mesh, set_indexer, entity_set_1, tag_1) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > tag_vec_1 =
+    auto tag_vec_1 =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  field_1, dtk_entity_set) );
 
@@ -194,8 +195,7 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     TEST_EQUALITY( num_nodes*comm_size, tag_vec_1->getGlobalLength() );
 
     // Test the default tag data.
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
-	tag_vec_1)->pullDataFromApplication();
+    tag_vec_1->pullDataFromApplication();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > tag_vec_1_view =
     		      tag_vec_1->get2dView();
     for ( unsigned n = 0; n < num_nodes; ++n )
@@ -245,9 +245,8 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     Teuchos::RCP<DataTransferKit::Field> field_2 = Teuchos::rcp(
 	new DataTransferKit::MoabTagField<double>(
 	    parallel_mesh, set_indexer, entity_set_2, tag_2) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > tag_vec_2 =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-			  field_2, dtk_entity_set) );
+    auto tag_vec_2 = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+				       field_2, dtk_entity_set) );
 
     // Test the vector to make sure it is empty.
     TEST_EQUALITY( tag_size, Teuchos::as<int>(tag_vec_2->getNumVectors()) );

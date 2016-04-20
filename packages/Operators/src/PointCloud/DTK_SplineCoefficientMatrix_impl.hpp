@@ -41,6 +41,7 @@
 #ifndef DTK_SPLINECOEFFICIENTMATRIX_IMPL_HPP
 #define DTK_SPLINECOEFFICIENTMATRIX_IMPL_HPP
 
+#include "DTK_SplineCoefficientMatrix.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_EuclideanDistance.hpp"
 

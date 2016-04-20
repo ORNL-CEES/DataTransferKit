@@ -41,6 +41,7 @@
 #ifndef DTK_SPLINEEVALUATIONMATRIX_IMPL_HPP
 #define DTK_SPLINEEVALUATIONMATRIX_IMPL_HPP
 
+#include "DTK_SplineEvaluationMatrix.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_EuclideanDistance.hpp"
 

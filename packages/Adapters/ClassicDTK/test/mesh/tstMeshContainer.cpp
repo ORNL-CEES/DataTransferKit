@@ -52,10 +52,10 @@ DataTransferKit::MeshContainer<unsigned long int> buildLineContainer()
     Teuchos::Array<double> coords;
 
     int vertex_dim = 1;
-    int num_vertices = 2;
+    unsigned int num_vertices = 2;
 
     // handles
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	vertex_handles.push_back( i );
     }
@@ -72,7 +72,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildLineContainer()
     line_handles.push_back( 12 );
 
     // connectivity
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	line_connectivity.push_back( i );
     }
@@ -93,7 +93,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildLineContainer()
 	       connectivity_array.begin() );
 
     Teuchos::ArrayRCP<int> permutation_list( num_vertices );
-    for ( int i = 0; i < permutation_list.size(); ++i )
+    for ( unsigned int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
@@ -115,10 +115,10 @@ DataTransferKit::MeshContainer<unsigned long int> buildTriContainer()
     Teuchos::Array<double> coords;
 
     int vertex_dim = 2;
-    int num_vertices = 3;
+    unsigned int num_vertices = 3;
 
     // handles
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	vertex_handles.push_back( i );
     }
@@ -141,7 +141,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildTriContainer()
     tri_handles.push_back( 12 );
 
     // connectivity
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	tri_connectivity.push_back( i );
     }
@@ -162,7 +162,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildTriContainer()
 	       connectivity_array.begin() );
 
     Teuchos::ArrayRCP<int> permutation_list( num_vertices );
-    for ( int i = 0; i < permutation_list.size(); ++i )
+    for ( unsigned int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
@@ -184,10 +184,10 @@ DataTransferKit::MeshContainer<unsigned long int> buildQuadContainer()
     Teuchos::Array<double> coords;
 
     int vertex_dim = 2;
-    int num_vertices = 4;
+    unsigned int num_vertices = 4;
 
     // handles
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	vertex_handles.push_back( i );
     }
@@ -212,7 +212,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildQuadContainer()
     quad_handles.push_back( 12 );
 
     // connectivity
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	quad_connectivity.push_back( i );
     }
@@ -233,7 +233,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildQuadContainer()
 	       connectivity_array.begin() );
 
     Teuchos::ArrayRCP<int> permutation_list( num_vertices );
-    for ( int i = 0; i < permutation_list.size(); ++i )
+    for ( unsigned int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
@@ -255,10 +255,10 @@ DataTransferKit::MeshContainer<unsigned long int> buildTetContainer()
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
-    int num_vertices = 4;
+    unsigned int num_vertices = 4;
 
     // handles
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	vertex_handles.push_back( i );
     }
@@ -289,7 +289,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildTetContainer()
     tet_handles.push_back( 12 );
 
     // connectivity
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	tet_connectivity.push_back( i );
     }
@@ -310,7 +310,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildTetContainer()
 	       connectivity_array.begin() );
 
     Teuchos::ArrayRCP<int> permutation_list( num_vertices );
-    for ( int i = 0; i < permutation_list.size(); ++i )
+    for ( unsigned int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
@@ -332,10 +332,10 @@ DataTransferKit::MeshContainer<unsigned long int> buildHexContainer()
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
-    int num_vertices = 8;
+    unsigned int num_vertices = 8;
 
     // handles
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	vertex_handles.push_back( i );
     }
@@ -378,7 +378,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildHexContainer()
     hex_handles.push_back( 12 );
 
     // connectivity
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	hex_connectivity.push_back( i );
     }
@@ -399,7 +399,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildHexContainer()
 	       connectivity_array.begin() );
 
     Teuchos::ArrayRCP<int> permutation_list( num_vertices );
-    for ( int i = 0; i < permutation_list.size(); ++i )
+    for ( unsigned int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
@@ -421,10 +421,10 @@ DataTransferKit::MeshContainer<unsigned long int> buildPyramidContainer()
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
-    int num_vertices = 5;
+    unsigned int num_vertices = 5;
 
     // handles
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	vertex_handles.push_back( i );
     }
@@ -458,7 +458,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildPyramidContainer()
     pyramid_handles.push_back( 12 );
 
     // connectivity
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	pyramid_connectivity.push_back( i );
     }
@@ -479,7 +479,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildPyramidContainer()
 	       connectivity_array.begin() );
 
     Teuchos::ArrayRCP<int> permutation_list( num_vertices );
-    for ( int i = 0; i < permutation_list.size(); ++i )
+    for ( unsigned int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
@@ -501,10 +501,10 @@ DataTransferKit::MeshContainer<unsigned long int> buildWedgeContainer()
     Teuchos::Array<double> coords;
 
     int vertex_dim = 3;
-    int num_vertices = 6;
+    unsigned int num_vertices = 6;
 
     // handles
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	vertex_handles.push_back( i );
     }
@@ -541,7 +541,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildWedgeContainer()
     wedge_handles.push_back( 12 );
 
     // connectivity
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
 	wedge_connectivity.push_back( i );
     }
@@ -562,7 +562,7 @@ DataTransferKit::MeshContainer<unsigned long int> buildWedgeContainer()
 	       connectivity_array.begin() );
 
     Teuchos::ArrayRCP<int> permutation_list( num_vertices );
-    for ( int i = 0; i < permutation_list.size(); ++i )
+    for ( unsigned int i = 0; i < permutation_list.size(); ++i )
     {
 	permutation_list[i] = i;
     }
@@ -587,47 +587,47 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_container_test )
 
     // Mesh parameters.
     int vertex_dim = 1;
-    int num_vertices = 2;
+    unsigned int num_vertices = 2;
     int element_topo = DTK_LINE_SEGMENT;
 
     // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    TEST_EQUALITY( (int) MT::vertexDim( mesh_container ), vertex_dim );
+    TEST_EQUALITY( (int) mesh_container.getVertexDim(), vertex_dim );
+    TEST_EQUALITY( MT::verticesPerElement( mesh_container ), (int) num_vertices );
+    TEST_EQUALITY( mesh_container.getVerticesPerElement(), (int) num_vertices );
+    TEST_EQUALITY( (int) MT::elementTopology( mesh_container ), element_topo );
+    TEST_EQUALITY( (int) mesh_container.getElementTopology(), element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::verticesBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.verticesBegin() + i ), i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[0], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[1], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[0], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[1], 1.0 ); 
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_EQUALITY( *MT::elementsBegin( mesh_container ), 12 );
+    TEST_EQUALITY( *mesh_container.elementsBegin(), 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::connectivityBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.connectivityBegin() + i ), i );
     }
 
     // Permutation.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::permutationBegin( mesh_container ) + i), (int) i );
+	TEST_EQUALITY( *(mesh_container.permutationBegin() + i ), (int) i );
     }
 }
 
@@ -643,57 +643,57 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_container_test )
 
     // Mesh parameters.
     int vertex_dim = 2;
-    int num_vertices = 3;
+    unsigned int num_vertices = 3;
     int element_topo = DTK_TRIANGLE;
 
     // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    TEST_EQUALITY( (int) MT::vertexDim( mesh_container ), vertex_dim );
+    TEST_EQUALITY( (int) mesh_container.getVertexDim(), vertex_dim );
+    TEST_EQUALITY( MT::verticesPerElement( mesh_container ), (int) num_vertices );
+    TEST_EQUALITY( mesh_container.getVerticesPerElement(), (int) num_vertices );
+    TEST_EQUALITY( (int) MT::elementTopology( mesh_container ), element_topo );
+    TEST_EQUALITY( (int) mesh_container.getElementTopology(), element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::verticesBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.verticesBegin() + i ), i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[2] == 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[0], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[1], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[2], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[0], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[1], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[2], 1.0 ); 
 
     // y
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[5] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[4] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[5] == 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[3], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[4], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[5], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[3], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[4], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[5], 1.0 ); 
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_EQUALITY( *MT::elementsBegin( mesh_container ), 12 );
+    TEST_EQUALITY( *mesh_container.elementsBegin(), 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::connectivityBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.connectivityBegin() + i ), i );
     }
 
     // Permutation.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::permutationBegin( mesh_container ) + i), (int) i );
+	TEST_EQUALITY( *(mesh_container.permutationBegin() + i ), (int) i );
     }
 }
 
@@ -709,61 +709,61 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_container_test )
 
     // Mesh parameters.
     int vertex_dim = 2;
-    int num_vertices = 4;
+    unsigned int num_vertices = 4;
     int element_topo = DTK_QUADRILATERAL;
 
     // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    TEST_EQUALITY( (int) MT::vertexDim( mesh_container ), vertex_dim );
+    TEST_EQUALITY( (int) mesh_container.getVertexDim(), vertex_dim );
+    TEST_EQUALITY( MT::verticesPerElement( mesh_container ), (int) num_vertices );
+    TEST_EQUALITY( mesh_container.getVerticesPerElement(), (int) num_vertices );
+    TEST_EQUALITY( (int) MT::elementTopology( mesh_container ), element_topo );
+    TEST_EQUALITY( (int) mesh_container.getElementTopology(), element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::verticesBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.verticesBegin() + i ), i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[2] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[0], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[1], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[2], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[3], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[0], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[1], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[2], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[3], 0.0 );
 
     // y
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[5] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[6] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[7] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[4] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[5] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[6] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[7] == 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[4], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[5], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[6], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[7], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[4], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[5], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[6], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[7], 1.0 ); 
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_EQUALITY( *MT::elementsBegin( mesh_container ), 12 );
+    TEST_EQUALITY( *mesh_container.elementsBegin(), 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::connectivityBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.connectivityBegin() + i ), i );
     }
 
     // Permutation.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::permutationBegin( mesh_container ) + i), (int) i );
+	TEST_EQUALITY( *(mesh_container.permutationBegin() + i ), (int) i );
     }
 }
 
@@ -779,71 +779,71 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_container_test )
 
     // Mesh parameters.
     int vertex_dim = 3;
-    int num_vertices = 4;
+    unsigned int num_vertices = 4;
     int element_topo = DTK_TETRAHEDRON;
 
     // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    TEST_EQUALITY( (int) MT::vertexDim( mesh_container ), vertex_dim );
+    TEST_EQUALITY( (int) mesh_container.getVertexDim(), vertex_dim );
+    TEST_EQUALITY( MT::verticesPerElement( mesh_container ), (int) num_vertices );
+    TEST_EQUALITY( mesh_container.getVerticesPerElement(), (int) num_vertices );
+    TEST_EQUALITY( (int) MT::elementTopology( mesh_container ), element_topo );
+    TEST_EQUALITY( (int) mesh_container.getElementTopology(), element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::verticesBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.verticesBegin() + i ), i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[2] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[0], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[1], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[2], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[3], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[0], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[1], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[2], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[3], 0.0 );
 
     // y
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[5] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[6] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[7] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[4] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[5] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[6] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[7] == 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[4], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[5], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[6], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[7], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[4], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[5], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[6], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[7], 1.0 ); 
 
     // z
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[8]  == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[9]  == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[10] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[11] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[8]  == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[9]  == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[10] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[11] == 1.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[8] , 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[9] , 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[10], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[11], 1.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[8] , 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[9] , 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[10], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[11], 1.0 );
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_EQUALITY( *MT::elementsBegin( mesh_container ), 12 );
+    TEST_EQUALITY( *mesh_container.elementsBegin(), 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::connectivityBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.connectivityBegin() + i ), i );
     }
 
     // Permutation.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::permutationBegin( mesh_container ) + i), (int) i );
+	TEST_EQUALITY( *(mesh_container.permutationBegin() + i ), (int) i );
     }
 }
 
@@ -859,95 +859,95 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_container_test )
 
     // Mesh parameters.
     int vertex_dim = 3;
-    int num_vertices = 8;
+    unsigned int num_vertices = 8;
     int element_topo = DTK_HEXAHEDRON;
 
     // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    TEST_EQUALITY( (int) MT::vertexDim( mesh_container ), vertex_dim );
+    TEST_EQUALITY( (int) mesh_container.getVertexDim(), vertex_dim );
+    TEST_EQUALITY( MT::verticesPerElement( mesh_container ), (int) num_vertices );
+    TEST_EQUALITY( mesh_container.getVerticesPerElement(), (int) num_vertices );
+    TEST_EQUALITY( (int) MT::elementTopology( mesh_container ), element_topo );
+    TEST_EQUALITY( (int) mesh_container.getElementTopology(), element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::verticesBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.verticesBegin() + i ), i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[5] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[6] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[7] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[2] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[4] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[5] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[6] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[7] == 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[0], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[1], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[2], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[3], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[4], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[5], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[6], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[7], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[0], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[1], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[2], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[3], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[4], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[5], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[6], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[7], 0.0 ); 
 
     // y
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[8]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[9]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[10] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[11] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[12] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[13] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[14] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[15] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[8]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[9]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[10] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[11] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[12] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[13] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[14] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[15] == 1.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[8] , 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[9] , 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[10], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[11], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[12], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[13], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[14], 1.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[15], 1.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[8] , 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[9] , 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[10], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[11], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[12], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[13], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[14], 1.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[15], 1.0 );
 
     // z
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[16] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[17] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[18] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[19] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[20] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[21] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[22] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[23] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[16] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[17] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[18] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[19] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[20] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[21] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[22] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[23] == 1.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[16], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[17], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[18], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[19], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[20], 1.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[21], 1.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[22], 1.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[23], 1.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[16], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[17], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[18], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[19], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[20], 1.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[21], 1.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[22], 1.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[23], 1.0 );
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_EQUALITY( *MT::elementsBegin( mesh_container ), 12 );
+    TEST_EQUALITY( *mesh_container.elementsBegin(), 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::connectivityBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.connectivityBegin() + i ), i );
     }
 
     // Permutation.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::permutationBegin( mesh_container ) + i), (int) i );
+	TEST_EQUALITY( *(mesh_container.permutationBegin() + i ), (int) i );
     }
 }
 
@@ -963,77 +963,77 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_container_test )
 
     // Mesh parameters.
     int vertex_dim = 3;
-    int num_vertices = 5;
+    unsigned int num_vertices = 5;
     int element_topo = DTK_PYRAMID;
 
     // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    TEST_EQUALITY( (int) MT::vertexDim( mesh_container ), vertex_dim );
+    TEST_EQUALITY( (int) mesh_container.getVertexDim(), vertex_dim );
+    TEST_EQUALITY( MT::verticesPerElement( mesh_container ), (int) num_vertices );
+    TEST_EQUALITY( mesh_container.getVerticesPerElement(), (int) num_vertices );
+    TEST_EQUALITY( (int) MT::elementTopology( mesh_container ), element_topo );
+    TEST_EQUALITY( (int) mesh_container.getElementTopology(), element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::verticesBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.verticesBegin() + i ), i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 0.5 );
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[2] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[4] == 0.5 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[0], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[1], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[2], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[3], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[4], 0.5 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[0], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[1], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[2], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[3], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[4], 0.5 );
 
     // y
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[5]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[6]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[7] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[8] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[9] == 0.5 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[5]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[6]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[7] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[8] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[9] == 0.5 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[5] , 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[6] , 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[7], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[8], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[9], 0.5 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[5] , 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[6] , 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[7], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[8], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[9], 0.5 ); 
 
     // z
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[10] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[11] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[12] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[13] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[14] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[10] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[11] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[12] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[13] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[14] == 1.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[10], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[11], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[12], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[13], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[14], 1.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[10], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[11], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[12], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[13], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[14], 1.0 );
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_EQUALITY( *MT::elementsBegin( mesh_container ), 12 );
+    TEST_EQUALITY( *mesh_container.elementsBegin(), 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::connectivityBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.connectivityBegin() + i ), i );
     }
 
     // Permutation.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::permutationBegin( mesh_container ) + i), (int) i );
+	TEST_EQUALITY( *(mesh_container.permutationBegin() + i ), (int) i );
     }
 }
 
@@ -1049,83 +1049,83 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_container_test )
 
     // Mesh parameters.
     int vertex_dim = 3;
-    int num_vertices = 6;
+    unsigned int num_vertices = 6;
     int element_topo = DTK_WEDGE;
 
     // Basic container info.
-    TEST_ASSERT( (int) MT::vertexDim( mesh_container ) == vertex_dim );
-    TEST_ASSERT( (int) mesh_container.getVertexDim() == vertex_dim );
-    TEST_ASSERT( (int) MT::verticesPerElement( mesh_container ) == num_vertices );
-    TEST_ASSERT( (int) mesh_container.getVerticesPerElement() == num_vertices );
-    TEST_ASSERT( (int) MT::elementTopology( mesh_container ) == element_topo );
-    TEST_ASSERT( (int) mesh_container.getElementTopology() == element_topo );
+    TEST_EQUALITY( (int) MT::vertexDim( mesh_container ), vertex_dim );
+    TEST_EQUALITY( (int) mesh_container.getVertexDim(), vertex_dim );
+    TEST_EQUALITY( MT::verticesPerElement( mesh_container ), (int) num_vertices );
+    TEST_EQUALITY( mesh_container.getVerticesPerElement(), (int) num_vertices );
+    TEST_EQUALITY( (int) MT::elementTopology( mesh_container ), element_topo );
+    TEST_EQUALITY( (int) mesh_container.getElementTopology(), element_topo );
 
     // Vertices.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::verticesBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.verticesBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::verticesBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.verticesBegin() + i ), i );
     }
 
     // Coords.
     // x
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[0] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[1] == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[2] == 0.5 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[3] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[4] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[5] == 0.5 );
-    TEST_ASSERT( mesh_container.coordsBegin()[0] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[1] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[2] == 0.5 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[3] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[4] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[5] == 0.5 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[0], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[1], 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[2], 0.5 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[3], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[4], 1.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[5], 0.5 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[0], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[1], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[2], 0.5 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[3], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[4], 1.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[5], 0.5 );
 
     // y
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[6]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[7]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[8]  == 1.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[9]  == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[10] == 0.0 ); 
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[11] == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[6]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[7]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[8]  == 1.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[9]  == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[10] == 0.0 ); 
-    TEST_ASSERT( mesh_container.coordsBegin()[11] == 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[6] , 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[7] , 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[8] , 1.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[9] , 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[10], 0.0 ); 
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[11], 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[6] , 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[7] , 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[8] , 1.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[9] , 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[10], 0.0 ); 
+    TEST_EQUALITY( mesh_container.coordsBegin()[11], 1.0 ); 
 
     // z
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[12] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[13] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[14] == 0.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[15] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[16] == 1.0 );
-    TEST_ASSERT( MT::coordsBegin( mesh_container )[17] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[12] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[13] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[14] == 0.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[15] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[16] == 1.0 );
-    TEST_ASSERT( mesh_container.coordsBegin()[17] == 1.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[12], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[13], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[14], 0.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[15], 1.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[16], 1.0 );
+    TEST_EQUALITY( MT::coordsBegin( mesh_container )[17], 1.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[12], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[13], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[14], 0.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[15], 1.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[16], 1.0 );
+    TEST_EQUALITY( mesh_container.coordsBegin()[17], 1.0 );
 
     // Elements.
-    TEST_ASSERT( *MT::elementsBegin( mesh_container ) == 12 );
-    TEST_ASSERT( *mesh_container.elementsBegin() == 12 );
+    TEST_EQUALITY( *MT::elementsBegin( mesh_container ), 12 );
+    TEST_EQUALITY( *mesh_container.elementsBegin(), 12 );
 
     // Connectivity.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( *(MT::connectivityBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( *(mesh_container.connectivityBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::connectivityBegin( mesh_container ) + i), i );
+	TEST_EQUALITY( *(mesh_container.connectivityBegin() + i ), i );
     }
 
     // Permutation.
-    for ( int i = 0; i < num_vertices; ++i )
+    for ( unsigned int i = 0; i < num_vertices; ++i )
     {
-	TEST_ASSERT( (int) *(MT::permutationBegin( mesh_container ) + i) == i );
-	TEST_ASSERT( (int) *(mesh_container.permutationBegin() + i ) == i );
+	TEST_EQUALITY( *(MT::permutationBegin( mesh_container ) + i), (int) i );
+	TEST_EQUALITY( *(mesh_container.permutationBegin() + i ), (int) i );
     }
 }
 

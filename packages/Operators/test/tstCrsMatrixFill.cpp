@@ -46,6 +46,8 @@
 #include <Tpetra_Map.hpp>
 #include <Tpetra_CrsMatrix.hpp>
 
+#include <DTK_Types.hpp>
+
 //---------------------------------------------------------------------------//
 // Tests
 //---------------------------------------------------------------------------//
@@ -53,7 +55,7 @@ TEUCHOS_UNIT_TEST( CrsMatrix, LocalFill )
 {
     typedef double Scalar;
     typedef int LO;
-    typedef int GO;
+    typedef DataTransferKit::SupportId GO;
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
@@ -94,7 +96,7 @@ TEUCHOS_UNIT_TEST( CrsMatrix, EveryoneFill )
 {
     typedef double Scalar;
     typedef int LO;
-    typedef int GO;
+    typedef DataTransferKit::SupportId GO;
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
@@ -139,7 +141,7 @@ TEUCHOS_UNIT_TEST( CrsMatrix, NotMyFill )
 {
     typedef double Scalar;
     typedef int LO;
-    typedef int GO;
+    typedef DataTransferKit::SupportId GO;
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
