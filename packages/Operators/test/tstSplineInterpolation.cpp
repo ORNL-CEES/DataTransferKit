@@ -86,6 +86,9 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     const int space_dim = 3;
     int field_dim = 1;
 
+    // Seed the RNG
+    std::srand( 324903231 );
+
     // Make a set of domain points.
     int num_points = 10;
     int domain_mult = 100;
@@ -163,7 +166,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     // Check the apply.
     for ( int i = 0; i < num_points; ++i )
     {
-	TEST_FLOATING_EQUALITY( gold_data[i], range_data[i], 1.0e-7 );
+	TEST_FLOATING_EQUALITY( gold_data[i], range_data[i], 1.0e-6 );
     }
 }
 
