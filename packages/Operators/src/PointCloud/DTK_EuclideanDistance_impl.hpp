@@ -43,6 +43,8 @@
 
 #include <cmath>
 
+#include "DTK_EuclideanDistance.hpp"
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//

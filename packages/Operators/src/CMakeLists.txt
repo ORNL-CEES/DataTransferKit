@@ -59,7 +59,15 @@ APPEND_SET(HEADERS
   )
 
 APPEND_SET(SOURCES
+  ${DIR}/DTK_CloudDomain.cpp  
+  ${DIR}/DTK_EuclideanDistance.cpp
+  ${DIR}/DTK_LocalMLSProblem.cpp
+  ${DIR}/DTK_MovingLeastSquareReconstructionOperator.cpp
   ${DIR}/DTK_PolynomialMatrix.cpp
+  ${DIR}/DTK_SplineCoefficientMatrix.cpp
+  ${DIR}/DTK_SplineEvaluationMatrix.cpp
+  ${DIR}/DTK_SplineInterpolationOperator.cpp  
+  ${DIR}/DTK_SplineInterpolationPairing.cpp
   ${DIR}/DTK_SplineProlongationOperator.cpp
   )
 

@@ -105,12 +105,6 @@ class SplineCoefficientMatrix
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_SplineCoefficientMatrix_impl.hpp"
-
-//---------------------------------------------------------------------------//
 
 #endif // end DTK_SPLINECOEFFICIENTMATRIX_HPP
 

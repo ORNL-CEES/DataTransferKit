@@ -156,12 +156,6 @@ class SplineInterpolationOperator : virtual public MapOperator
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_SplineInterpolationOperator_impl.hpp"
-
-//---------------------------------------------------------------------------//
 
 #endif // end DTK_SPLINEINTERPOLATIONOPERATOR_HPP
 

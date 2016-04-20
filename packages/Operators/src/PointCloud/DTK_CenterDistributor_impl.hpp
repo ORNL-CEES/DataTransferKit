@@ -47,6 +47,8 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Array.hpp>
 
+#include "DTK_DBC.hpp"
+
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//

@@ -32,78 +32,24 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_LocalMLSProblem.hpp
+ * \file   DTK_EuclideanDistance.cpp
  * \author Stuart R. Slattery
- * \brief  Local moving least square problem.
+ * \brief  Euclidean distance function.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_LOCALMLSPROBLEM_HPP
-#define DTK_LOCALMLSPROBLEM_HPP
-
-#include "DTK_RadialBasisPolicy.hpp"
-
-#include <Teuchos_ArrayView.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_SerialDenseMatrix.hpp>
+#include "DTK_EuclideanDistance_impl.hpp"
 
 namespace DataTransferKit
 {
-//---------------------------------------------------------------------------//
-/*!
- * \class LocalMLSProblem
- * \brief Local moving least square problem about a single target center using
- * quadratic polynomials.
- */
-//---------------------------------------------------------------------------//
-template<class Basis,int DIM>
-class LocalMLSProblem
-{
-  public:
 
-    //@{
-    //! Typedefs.
-    typedef RadialBasisPolicy<Basis> BP;
-    //@}
-
-    // Default constructor.
-    LocalMLSProblem()
-    { /* ... */ }
-
-    // Constructor.
-    LocalMLSProblem( const Teuchos::ArrayView<const double>& target_center,
-		     const Teuchos::ArrayView<const unsigned>& source_lids,
-		     const Teuchos::ArrayView<const double>& source_centers,
-		     const Basis& basis );
-
-    // Get a view of the local shape function.
-    Teuchos::ArrayView<const double> shapeFunction() const
-    { return d_shape_function(); }
-
-  private:
-    
-    // Get a polynomial coefficient.
-    double polynomialCoefficient( 
-	const int coeff, const Teuchos::ArrayView<const double>& center ) const;
-
-    // Check if a matrix is full rank.
-    bool isFullRank( const Teuchos::SerialDenseMatrix<int,double>& matrix ) const;
-
-  private:
-
-    // Moving least square shape function.
-    Teuchos::Array<double> d_shape_function;
-};
-
-//---------------------------------------------------------------------------//
+template class EuclideanDistance<1>;
+template class EuclideanDistance<2>;
+template class EuclideanDistance<3>;
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_LOCALMLSPROBLEM_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_LocalMLSProblem.hpp
+// end DTK_EuclideanDistance.cpp
 //---------------------------------------------------------------------------//
 

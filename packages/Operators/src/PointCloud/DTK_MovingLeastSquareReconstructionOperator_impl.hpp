@@ -41,6 +41,7 @@
 #ifndef DTK_MOVINGLEASTSQUARERECONSTRUCTIONOPERATOR_IMPL_HPP
 #define DTK_MOVINGLEASTSQUARERECONSTRUCTIONOPERATOR_IMPL_HPP
 
+#include "DTK_MovingLeastSquareReconstructionOperator.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_LocalMLSProblem.hpp"
 #include "DTK_CenterDistributor.hpp"

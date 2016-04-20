@@ -42,6 +42,7 @@
 #define DTK_CLOUDDOMAIN_IMPL_HPP
 
 #include "DTK_DBC.hpp"
+#include "DTK_CloudDomain.hpp"
 
 namespace DataTransferKit
 {
@@ -73,7 +74,7 @@ CloudDomain<DIM>::CloudDomain( const double bounds[2*DIM] )
  * \brief Expand the domain by the given radius.
  */
 template<>
-inline void CloudDomain<1>::expand( const double radius )
+void CloudDomain<1>::expand( const double radius )
 {
     DTK_CHECK( radius >= 0.0 );
     d_bounds[0] -= radius;
@@ -85,7 +86,7 @@ inline void CloudDomain<1>::expand( const double radius )
  * \brief Expand the domain by the given radius.
  */
 template<>
-inline void CloudDomain<2>::expand( const double radius )
+void CloudDomain<2>::expand( const double radius )
 {
     DTK_CHECK( radius >= 0.0 );
     d_bounds[0] -= radius;
@@ -99,7 +100,7 @@ inline void CloudDomain<2>::expand( const double radius )
  * \brief Expand the domain by the given radius.
  */
 template<>
-inline void CloudDomain<3>::expand( const double radius )
+void CloudDomain<3>::expand( const double radius )
 {
     DTK_CHECK( radius >= 0.0 );
     d_bounds[0] -= radius;
@@ -120,7 +121,7 @@ inline void CloudDomain<3>::expand( const double radius )
  * the domain boundary will return true.
  */
 template<>
-inline bool CloudDomain<1>::pointInDomain( 
+bool CloudDomain<1>::pointInDomain( 
     const Teuchos::ArrayView<const double>& coords ) const
 {
     DTK_REQUIRE( coords.size() == 1 );
@@ -140,7 +141,7 @@ inline bool CloudDomain<1>::pointInDomain(
  * the domain boundary will return true.
  */
 template<>
-inline bool CloudDomain<2>::pointInDomain( 
+bool CloudDomain<2>::pointInDomain( 
     const Teuchos::ArrayView<const double>& coords ) const
 {
     DTK_REQUIRE( coords.size() == 2 );
@@ -162,7 +163,7 @@ inline bool CloudDomain<2>::pointInDomain(
  * the domain boundary will return true.
  */
 template<>
-inline bool CloudDomain<3>::pointInDomain( 
+bool CloudDomain<3>::pointInDomain( 
     const Teuchos::ArrayView<const double>& coords ) const
 {
     DTK_REQUIRE( coords.size() == 3 );
@@ -185,7 +186,7 @@ inline bool CloudDomain<3>::pointInDomain(
  * \return Return true if the there is an intersection. false if not.
  */
 template<>
-inline bool CloudDomain<1>::checkForIntersection( 
+bool CloudDomain<1>::checkForIntersection( 
     const CloudDomain<1>& domain ) const
 {
     Teuchos::ArrayView<const double> bounds = domain.bounds();
@@ -202,7 +203,7 @@ inline bool CloudDomain<1>::checkForIntersection(
  * \return Return true if the there is an intersection. false if not.
  */
 template<>
-inline bool CloudDomain<2>::checkForIntersection( 
+bool CloudDomain<2>::checkForIntersection( 
     const CloudDomain<2>& domain ) const
 {
     Teuchos::ArrayView<const double> bounds = domain.bounds();
@@ -220,7 +221,7 @@ inline bool CloudDomain<2>::checkForIntersection(
  * \return Return true if the there is an intersection. false if not.
  */
 template<>
-inline bool CloudDomain<3>::checkForIntersection( 
+bool CloudDomain<3>::checkForIntersection( 
     const CloudDomain<3>& domain ) const
 {
     Teuchos::ArrayView<const double> bounds = domain.bounds();
@@ -235,7 +236,7 @@ inline bool CloudDomain<3>::checkForIntersection(
  * \brief Compute the center of the domain.
  */
 template<>
-inline Teuchos::Array<double> CloudDomain<1>::center() const
+Teuchos::Array<double> CloudDomain<1>::center() const
 {
     DTK_CHECK( d_bounds[0] <= d_bounds[1] );
     return Teuchos::Array<double>( 1, (d_bounds[1]+d_bounds[0]) / 2.0 );
@@ -246,7 +247,7 @@ inline Teuchos::Array<double> CloudDomain<1>::center() const
  * \brief Compute the center of the domain.
  */
 template<>
-inline Teuchos::Array<double> CloudDomain<2>::center() const
+Teuchos::Array<double> CloudDomain<2>::center() const
 {
     DTK_CHECK( d_bounds[0] <= d_bounds[1] );
     DTK_CHECK( d_bounds[2] <= d_bounds[3] );
@@ -262,7 +263,7 @@ inline Teuchos::Array<double> CloudDomain<2>::center() const
  * \brief Compute the center of the domain.
  */
 template<>
-inline Teuchos::Array<double> CloudDomain<3>::center() const
+Teuchos::Array<double> CloudDomain<3>::center() const
 {
     DTK_CHECK( d_bounds[0] <= d_bounds[1] );
     DTK_CHECK( d_bounds[2] <= d_bounds[3] );

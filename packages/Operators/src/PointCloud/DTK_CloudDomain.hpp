@@ -117,12 +117,6 @@ class SerializationTraits<Ordinal, DataTransferKit::CloudDomain<3> >
 } // end namespace Teuchos
 
 //---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_CloudDomain_impl.hpp"
-
-//---------------------------------------------------------------------------//
 
 #endif // end DTK_CLOUDDOMAIN_HPP
 

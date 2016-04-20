@@ -104,12 +104,6 @@ class SplineEvaluationMatrix
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_SplineEvaluationMatrix_impl.hpp"
-
-//---------------------------------------------------------------------------//
 
 #endif // end DTK_SPLINEEVALUATIONMATRIX_HPP
 
