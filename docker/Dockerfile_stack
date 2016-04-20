@@ -1,8 +1,8 @@
 from dalg24/cap-stack
 
-ARG NPROCS=8
+ARG NPROC=8
 
-RUN apt-get install -y python2.7
+RUN apt-get update && apt-get install -y python2.7
 
 COPY configure_trilinos.sh ${PREFIX}/build/
 
