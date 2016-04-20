@@ -60,7 +60,6 @@ APPEND_SET(HEADERS
 
 APPEND_SET(SOURCES
   ${DIR}/DTK_CloudDomain.cpp  
-  ${DIR}/DTK_EuclideanDistance.cpp
   ${DIR}/DTK_LocalMLSProblem.cpp
   ${DIR}/DTK_MovingLeastSquareReconstructionOperator.cpp
   ${DIR}/DTK_PolynomialMatrix.cpp
