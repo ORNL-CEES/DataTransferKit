@@ -140,12 +140,6 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// Template includes.
-//---------------------------------------------------------------------------//
-
-#include "DTK_MovingLeastSquareReconstructionOperator_impl.hpp"
-
-//---------------------------------------------------------------------------//
 
 #endif // end DTK_MOVINGLEASTSQUARERECONSTRUCTIONOPERATOR_HPP
 
