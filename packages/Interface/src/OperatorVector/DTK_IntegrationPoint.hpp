@@ -161,15 +161,16 @@ class IntegrationPointEntityImpl : public EntityImpl
     /*!
      * \brief Provide a one line description of the object.
      */
-    virtual std::string description() const
+    virtual std::string description() const override
     { return std::string("DataTransferKit::IntegrationPointEntityImpl"); }
 
     /*!
      * \brief Provide a verbose description of the object.
      */
-    virtual void describe( Teuchos::FancyOStream& out,
-			   const Teuchos::EVerbosityLevel /*verb_level*/ ) const
-    { out << this->description() << std::endl; }
+    virtual void describe(
+	Teuchos::FancyOStream& out,
+	const Teuchos::EVerbosityLevel /*verb_level*/ ) const override
+    { out << this->description() << std::endl; } 
 
   private:
 
