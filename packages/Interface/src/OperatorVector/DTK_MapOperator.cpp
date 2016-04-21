@@ -99,13 +99,10 @@ void MapOperator::apply( const TpetraMultiVector& X,
 			 const double alpha,
 			 const double beta ) const
 {
-    // Pull data from the application.
+    // Pull data from the applications.
     const FieldMultiVector& X_fmv = dynamic_cast<const FieldMultiVector&>( X );
     const_cast<FieldMultiVector&>( X_fmv ).pullDataFromApplication();
-    if ( beta != Teuchos::ScalarTraits<double>::zero() )
-    {
-	dynamic_cast<FieldMultiVector&>( Y ).pullDataFromApplication();
-    }
+    dynamic_cast<FieldMultiVector&>( Y ).pullDataFromApplication();
     
     // Apply the operator.
     applyImpl( X, Y, mode, alpha, beta );

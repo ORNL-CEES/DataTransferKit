@@ -302,7 +302,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
     for ( int i = 0; i < num_points; ++i )
     {
 	point_ids[i] = num_points*comm_rank + i;
-	point_dofs[i] = 0.0;
+	point_dofs[i] = 2.2;
 	point[0] = 0.5;
 	point[1] = 0.5;
 	point[2] = point_ids[i] + 0.5;
@@ -865,6 +865,112 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
     TEST_EQUALITY( missed_range.size(), 1 );
     TEST_EQUALITY( missed_range[0], 
 		   Teuchos::as<EntityId>(num_points*comm_rank + 1000) );
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, keep_range_data_test )
+{
+    using namespace DataTransferKit;
+
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::DefaultComm<int>::getComm();
+    int comm_size = comm->getSize();
+    int comm_rank = comm->getRank();
+
+    // DOMAIN SETUP
+    // Don't put domain entities on proc 0.
+    int num_boxes = (comm->getRank() != 0) ? 5 : 0;
+    Teuchos::Array<DataTransferKit::SupportId> box_ids( num_boxes );
+    Teuchos::ArrayRCP<double> box_dofs( num_boxes );
+    Teuchos::Array<Entity> boxes( num_boxes );
+    for ( int i = 0; i < num_boxes; ++i )
+    {
+	box_ids[i] = num_boxes*(comm_size-comm_rank-1) + i;
+	box_dofs[i] = 2.0*box_ids[i];
+	boxes[i] = BoxGeometry(box_ids[i],comm_rank,box_ids[i],
+		       0.0,0.0,box_ids[i],1.0,1.0,box_ids[i]+1.0);
+    }
+
+    // Make a manager for the domain geometry.
+    DataTransferKit::BasicGeometryManager domain_manager( comm, 3, boxes() );
+    
+    // Make a DOF vector for the domain.
+    Teuchos::RCP<DataTransferKit::Field> domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
+			  boxes(), 1, box_dofs,
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_dofs =
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+			  domain_field,
+			  domain_manager.functionSpace()->entitySet()) );    
+
+    // RANGE SETUP
+    // Make a range entity set.
+    int num_points = 5;
+    Teuchos::Array<double> point(3);
+    Teuchos::Array<DataTransferKit::SupportId> point_ids( num_points );
+    Teuchos::ArrayRCP<double> point_dofs( num_points );
+    Teuchos::Array<Entity> points( num_points );
+    for ( int i = 0; i < num_points; ++i )
+    {
+	point_ids[i] = num_points*comm_rank + i;
+	point_dofs[i] = 2.2;
+	point[0] = 0.5;
+	point[1] = 0.5;
+	point[2] = point_ids[i] + 0.5;
+	points[i] = Point(point_ids[i],comm_rank,point);
+    }
+
+    // Make a manager for the range geometry.
+    DataTransferKit::BasicGeometryManager range_manager( comm, 3, points() );
+
+    // Make a DOF vector for the range.
+    Teuchos::RCP<DataTransferKit::Field> range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
+			  points(), 1, point_dofs,
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_dofs =
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+			  range_field,
+			  range_manager.functionSpace()->entitySet()) );
+
+    // MAPPING
+    // Create a map.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    auto& op_list = parameters->sublist("Consistent Interpolation");
+    op_list.set( "Keep Missed Range Data", true );
+    Teuchos::ParameterList& search_list = parameters->sublist("Search");
+    search_list.set<bool>("Track Missed Range Entities",false);
+    Teuchos::RCP<ConsistentInterpolationOperator> map_op = Teuchos::rcp(
+	new ConsistentInterpolationOperator(
+	    domain_dofs->getMap(),range_dofs->getMap(),*parameters) );
+
+    // Setup the map.
+    map_op->setup( 
+	domain_manager.functionSpace(), range_manager.functionSpace() );
+
+    // Apply the map.
+    map_op->apply( *domain_dofs, *range_dofs );
+
+    // Check the results of the mapping.
+    for ( int i = 0; i < num_points; ++i )
+    {
+	double test_val = (comm_rank != comm_size-1) ? 2.0*point_ids[i] : 2.2;
+	TEST_EQUALITY( test_val, point_dofs[i] );
+    }
+
+    // Check that proc zero had all points not found.
+    int num_missed = (comm_rank != comm_size-1) ? 0 : 5;
+    Teuchos::Array<EntityId> missed_ids(
+	map_op->getMissedRangeEntityIds() );
+    TEST_EQUALITY( missed_ids.size(), num_missed );
+    std::sort( point_ids.begin(), point_ids.end() );
+    std::sort( missed_ids.begin(), missed_ids.end() );
+    for ( int i = 0; i < num_missed; ++i )
+    {
+	TEST_EQUALITY( missed_ids[i], point_ids[i] );
+    }
 }
 
 //---------------------------------------------------------------------------//

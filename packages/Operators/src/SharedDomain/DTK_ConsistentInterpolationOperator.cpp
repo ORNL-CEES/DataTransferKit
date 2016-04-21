@@ -62,6 +62,7 @@ ConsistentInterpolationOperator::ConsistentInterpolationOperator(
     const Teuchos::ParameterList& parameters )
     : Base( domain_map, range_map )
     , d_range_entity_dim( 0 )
+    , d_keep_missed_sol( false )
     , d_missed_range_entity_ids( 0 )
 {
     // Get the topological dimension of the range entities.
@@ -74,6 +75,17 @@ ConsistentInterpolationOperator::ConsistentInterpolationOperator(
 
     // Get the search list.
     d_search_list = parameters.sublist( "Search" );
+
+    // If we want to keep the range data when we miss entities instead of
+    // zeros, turn this on.
+    if ( map_list.isParameter("Keep Missed Range Data") )
+    {
+	d_keep_missed_sol = map_list.get<bool>("Keep Missed Range Data");
+	if ( d_keep_missed_sol )
+	{
+	    d_search_list.set("Track Missed Range Entities",true);
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -274,6 +286,17 @@ void ConsistentInterpolationOperator::setupImpl(
     // Left-scale the matrix with the number of domain entities in which each
     // range entity was found.
     d_coupling_matrix->leftScale( *scale_vector );
+
+    // If we want to keep the range data when we miss points, create the
+    // scaling vector.
+    if ( d_keep_missed_sol )
+    {
+	d_keep_range_vec = Tpetra::createVector<double,LO,GO>( range_map );
+	for ( auto& m : d_missed_range_entity_ids )
+	{
+	    d_keep_range_vec->replaceGlobalValue( m, 1.0 );
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -285,7 +308,27 @@ void ConsistentInterpolationOperator::applyImpl(
     double alpha,
     double beta ) const
 {
+    // If we want to keep the range data when we miss points, make a work vec
+    // and get the parts we will zero out. Beta must be zero or the interface
+    // is violated.
+    Teuchos::RCP<Tpetra::Vector<Scalar,LO,GO> > work_vec;    
+    if ( d_keep_missed_sol )
+    {
+	DTK_REQUIRE( 0.0 == beta );
+	DTK_REQUIRE( Teuchos::nonnull(d_keep_range_vec) );
+	work_vec = Tpetra::createVector<double,LO,GO>( this->getRangeMap() );
+	work_vec->elementWiseMultiply( 1.0, *d_keep_range_vec, Y, 0.0 );	
+    }
+    
+    // Apply the coupling matrix.
     d_coupling_matrix->apply( X, Y, mode, alpha, beta );
+
+    // If we want to keep the range data when we miss points, add back in the
+    // components that got zeroed out.
+    if ( d_keep_missed_sol )
+    {
+	Y.update( 1.0, *work_vec, 1.0 );
+    }
 }
 
 //---------------------------------------------------------------------------//
