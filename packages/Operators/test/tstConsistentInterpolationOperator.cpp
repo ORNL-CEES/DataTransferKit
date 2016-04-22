@@ -548,8 +548,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
 	TEST_EQUALITY( test_val, point_dofs[i] );
     }
 
-    // Check that proc zero had some points not found.
-    int num_missed = (comm_rank != comm_size-1) ? 0 : 5;
+    // Check that the last proc had some points not found.
+    int num_missed = (comm_rank == comm_size-1) ? 5 : 0;
     Teuchos::Array<EntityId> missed_ids(
 	map_op->getMissedRangeEntityIds() );
     TEST_EQUALITY( missed_ids.size(), num_missed );
@@ -880,7 +880,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, keep_range_data_test )
 
     // DOMAIN SETUP
     // Don't put domain entities on proc 0.
-    int num_boxes = (comm->getRank() != 0) ? 5 : 0;
+    int num_boxes = (comm_rank != 0) ? 5 : 0;
     Teuchos::Array<DataTransferKit::SupportId> box_ids( num_boxes );
     Teuchos::ArrayRCP<double> box_dofs( num_boxes );
     Teuchos::Array<Entity> boxes( num_boxes );
@@ -956,12 +956,12 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, keep_range_data_test )
     // Check the results of the mapping.
     for ( int i = 0; i < num_points; ++i )
     {
-	double test_val = (comm_rank != comm_size-1) ? 2.0*point_ids[i] : 2.2;
+	double test_val = (comm_rank == comm_size-1) ? 2.2 : 2.0*point_ids[i];
 	TEST_EQUALITY( test_val, point_dofs[i] );
     }
 
-    // Check that proc zero had all points not found.
-    int num_missed = (comm_rank != comm_size-1) ? 0 : 5;
+    // Check that the last proc had all points not found.
+    int num_missed = (comm_rank == comm_size-1) ? 5 : 0;
     Teuchos::Array<EntityId> missed_ids(
 	map_op->getMissedRangeEntityIds() );
     TEST_EQUALITY( missed_ids.size(), num_missed );
