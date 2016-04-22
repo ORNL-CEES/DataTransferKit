@@ -50,6 +50,7 @@
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_CrsMatrix.hpp>
+#include <Tpetra_Vector.hpp>
 
 namespace DataTransferKit
 {
@@ -131,6 +132,10 @@ class ConsistentInterpolationOperator : virtual public MapOperator
     // Range entity topological dimension. Default is 0 (vertex).
     int d_range_entity_dim;
 
+    // Boolean for keeping the original range data when range entities are not
+    // mapped.
+    bool d_keep_missed_sol;
+
     // Search sublist.
     Teuchos::ParameterList d_search_list;
 
@@ -140,6 +145,9 @@ class ConsistentInterpolationOperator : virtual public MapOperator
     // An array of range entity ids that were not mapped during the last call
     // to setup.
     Teuchos::Array<EntityId> d_missed_range_entity_ids;
+
+    // The missed range entity update vector.
+    Teuchos::RCP<Tpetra::Vector<Scalar,LO,GO> > d_keep_range_vec;
 };
 
 //---------------------------------------------------------------------------//
