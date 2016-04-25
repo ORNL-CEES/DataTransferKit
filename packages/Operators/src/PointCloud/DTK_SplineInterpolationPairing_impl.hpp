@@ -59,8 +59,6 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
     const bool use_knn,
     const unsigned num_neighbors,
     const double radius )
-    : d_use_knn( use_knn )
-    , d_radii( 0 )
 {
     DTK_REQUIRE( 0 == child_centers.size() % DIM );
     DTK_REQUIRE( 0 == parent_centers.size() % DIM );
@@ -73,14 +71,14 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
     unsigned num_parents = parent_centers.size() / DIM;
     d_pairings.resize( num_parents );
     d_pair_sizes = Teuchos::ArrayRCP<EntityId>( num_parents );
-    if ( d_use_knn ) d_radii.resize( num_parents );
+    d_radii.resize( num_parents );
 
     // Search for pairs
     for ( unsigned i = 0; i < num_parents; ++i )
     {
 	// if kNN do the nearest neighbor search for kNN+1 and calculate a
 	// radius
-	if ( d_use_knn )
+	if ( use_knn )
 	{
 	    // Get the knn neighbors
 	    d_pairings[i] =
@@ -104,6 +102,7 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
 	{
 	    d_pairings[i] =
 		tree.radiusSearch( parent_centers(DIM*i,DIM), radius );
+	    d_radii[i] = radius;
 	}
 
 	// get the size of the support.

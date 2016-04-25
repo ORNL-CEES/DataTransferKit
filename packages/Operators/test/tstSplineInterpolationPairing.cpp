@@ -108,6 +108,12 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, radius_dim_1_test )
 	pairing.childrenPerParent();
     TEST_EQUALITY( children_per_parent[0], 3 );
     TEST_EQUALITY( children_per_parent[1], 1 );
+
+    double parent_radius = pairing.parentSupportRadius( 0 );
+    TEST_EQUALITY( parent_radius, radius );
+
+    parent_radius = pairing.parentSupportRadius( 1 );
+    TEST_EQUALITY( parent_radius, radius );
 }
 
 //---------------------------------------------------------------------------//
@@ -151,6 +157,12 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, radius_dim_2_test )
 	pairing.childrenPerParent();
     TEST_EQUALITY( children_per_parent[0], 3 );
     TEST_EQUALITY( children_per_parent[1], 1 );
+
+    double parent_radius = pairing.parentSupportRadius( 0 );
+    TEST_EQUALITY( parent_radius, radius );
+
+    parent_radius = pairing.parentSupportRadius( 1 );
+    TEST_EQUALITY( parent_radius, radius );
 }
 
 //---------------------------------------------------------------------------//
@@ -197,6 +209,12 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, radius_dim_3_test )
 	pairing.childrenPerParent();
     TEST_EQUALITY( children_per_parent[0], 3 );
     TEST_EQUALITY( children_per_parent[1], 1 );
+
+    double parent_radius = pairing.parentSupportRadius( 0 );
+    TEST_EQUALITY( parent_radius, radius );
+
+    parent_radius = pairing.parentSupportRadius( 1 );
+    TEST_EQUALITY( parent_radius, radius );
 }
 
 //---------------------------------------------------------------------------//

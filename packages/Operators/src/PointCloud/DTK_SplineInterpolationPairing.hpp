@@ -85,16 +85,13 @@ class SplineInterpolationPairing
 
   private:
 
-    // kNN flag. True if using kNN search, false if using radius search.
-    bool d_use_knn;
-    
     // Pairings.
     Teuchos::Array<Teuchos::Array<unsigned> > d_pairings;
 
     // Number of child centers per parent center.
     Teuchos::ArrayRCP<EntityId> d_pair_sizes;
 
-    // Parent center support radius. Only computed if using kNN search.
+    // Parent center support radius.
     Teuchos::Array<double> d_radii;
 };
 
