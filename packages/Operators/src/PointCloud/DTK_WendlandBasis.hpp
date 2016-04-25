@@ -59,21 +59,11 @@ class WendlandBasis
 {
   public:
 
-    // Constructor.
-    WendlandBasis( const double radius )
-	: d_radius( radius )
-    { /* ... */ }
-
     // Compute the value of the basis at the given value.
-    double evaluateValue( const double x ) const;
+    double evaluateValue( const double radius, const double x ) const;
 
     // Compute the gradient of the basis at the given value.
-    double evaluateGradient( const double x ) const;
-
-  private:
-
-    // Basis radius.
-    double d_radius;
+    double evaluateGradient( const double radius, const double x ) const;
 };
 
 //---------------------------------------------------------------------------//
@@ -86,17 +76,16 @@ class RadialBasisPolicy<WendlandBasis<ORDER> >
     
     typedef WendlandBasis<ORDER> spline_basis_type;
     
-    static inline Teuchos::RCP<WendlandBasis<ORDER> > 
-    create( const double radius )
-    { return Teuchos::rcp( new WendlandBasis<ORDER>(radius) ); }
+    static inline Teuchos::RCP<WendlandBasis<ORDER> > create()
+    { return Teuchos::rcp( new WendlandBasis<ORDER>() ); }
 
     static inline double evaluateValue( 
-	const WendlandBasis<ORDER>& basis, const double x )
-    { return basis.evaluateValue( x ); }
+	const WendlandBasis<ORDER>& basis, const double radius, const double x )
+    { return basis.evaluateValue( radius, x ); }
 
     static inline double evaluateGradient( 
-	const WendlandBasis<ORDER>& basis, const double x )
-    { return basis.evaluateGradient( x ); }
+	const WendlandBasis<ORDER>& basis, const double radius, const double x )
+    { return basis.evaluateGradient( radius, x ); }
 };
 
 //---------------------------------------------------------------------------//

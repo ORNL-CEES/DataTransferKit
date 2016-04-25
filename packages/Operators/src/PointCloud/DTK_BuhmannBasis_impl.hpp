@@ -56,16 +56,16 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-BuhmannBasis<3>::evaluateValue( const double x ) const
+BuhmannBasis<3>::evaluateValue( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double xp2 = xval*xval;
     double xp4 = xp2*xp2;
     double xp6 = xp4*xp2;
     double xp72 = std::sqrt(xp6*xval);
     double q1 = 84.0/5.0;
     double q2 = 1024.0/5.0;
-    return ( x > d_radius ) ? 0.0 :
+    return ( x > radius ) ? 0.0 :
 	xp4*xp4 - q1*xp6 + q2*xval*xp72 - 378.0*xp4 + q2*xp72 - q1*xp2 + 1.0;
 }
 
@@ -77,14 +77,14 @@ BuhmannBasis<3>::evaluateValue( const double x ) const
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-BuhmannBasis<3>::evaluateGradient( const double x ) const
+BuhmannBasis<3>::evaluateGradient( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double xp2 = xval*xval;
     double xp3 = xp2*xval;
     double xp5 = xp3*xp2;
     double xp52 = std::sqrt(xp5);
-    return ( x > d_radius ) ? 0.0 :
+    return ( x > radius ) ? 0.0 :
 	(8.0/5.0) * (576.0*xval*xp52 + 448.0*xp52 + 5.0*xp5*xp2 -
 		     63.0*xp5 - 945.0*xp3 - 21.0*xval);
 }

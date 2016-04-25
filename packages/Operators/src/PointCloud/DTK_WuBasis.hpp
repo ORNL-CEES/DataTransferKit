@@ -59,21 +59,11 @@ class WuBasis
 {
   public:
 
-    // Constructor.
-    WuBasis( const double radius )
-	: d_radius( radius )
-    { /* ... */ }
-
     // Compute the value of the basis at the given set of coordinates.
-    double evaluateValue( const double x ) const;
+    double evaluateValue( const double radius, const double x ) const;
 
     // Compute the gradient of the basis at the given set of coordinates.
-    double evaluateGradient( const double x ) const;
-
-  private:
-
-    // Basis radius.
-    double d_radius;
+    double evaluateGradient( const double radius, const double x ) const;
 };
 
 //---------------------------------------------------------------------------//
@@ -86,17 +76,16 @@ class RadialBasisPolicy<WuBasis<ORDER> >
     
     typedef WuBasis<ORDER> spline_basis_type;
     
-    static inline Teuchos::RCP<WuBasis<ORDER> > 
-    create( const double radius )
-    { return Teuchos::rcp( new WuBasis<ORDER>(radius) ); }
+    static inline Teuchos::RCP<WuBasis<ORDER> > create()
+    { return Teuchos::rcp( new WuBasis<ORDER>() ); }
 
     static inline double evaluateValue( 
-	const WuBasis<ORDER>& basis, const double x )
-    { return basis.evaluateValue( x ); }
+	const WuBasis<ORDER>& basis, const double radius, const double x )
+    { return basis.evaluateValue( radius, x ); }
 
     static inline double evaluateGradient( 
-	const WuBasis<ORDER>& basis, const double x )
-    { return basis.evaluateGradient( x ); }
+	const WuBasis<ORDER>& basis, const double radius, const double x )
+    { return basis.evaluateGradient( radius, x ); }
 };
 
 //---------------------------------------------------------------------------//

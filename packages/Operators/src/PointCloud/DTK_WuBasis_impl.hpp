@@ -56,9 +56,9 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-WuBasis<2>::evaluateValue( const double x ) const
+WuBasis<2>::evaluateValue( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double onemx = 1.0 - xval;
     double onemx2 = onemx*onemx;
     double xp2 = xval*xval;
@@ -75,9 +75,9 @@ WuBasis<2>::evaluateValue( const double x ) const
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-WuBasis<2>::evaluateGradient( const double x ) const
+WuBasis<2>::evaluateGradient( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double xmone = xval - 1.0;
     double xmone2 = xmone*xmone;
     double xp2 = x*x;
@@ -93,9 +93,9 @@ WuBasis<2>::evaluateGradient( const double x ) const
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-WuBasis<4>::evaluateValue( const double x ) const
+WuBasis<4>::evaluateValue( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double onemx = 1.0 - xval;
     double onemx3 = onemx*onemx*onemx;
     double xp2 = xval*xval;
@@ -113,9 +113,9 @@ WuBasis<4>::evaluateValue( const double x ) const
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-WuBasis<4>::evaluateGradient( const double x ) const
+WuBasis<4>::evaluateGradient( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double xmone = xval - 1.0;
     double xmone2 = xmone*xmone;
     double xp2 = xval*xval;
