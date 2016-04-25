@@ -1,5 +1,6 @@
 <ParameterList name="Spline Interpolation Unit Test">
-  <Parameter name="RBF Radius" type="double" value="1.0"/>
+  <Parameter name="Use kNN Support" type="bool" value="false"/>  
+  <Parameter name="RBF Radius" type="double" value="0.1"/>
   <ParameterList name="Stratimikos">
     <Parameter name="Linear Solver Type" type="string" value="Belos"/>
     <ParameterList name="Linear Solver Types">

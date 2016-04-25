@@ -101,7 +101,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
 
 TRIBITS_COPY_FILES_TO_BINARY_DIR(
   SplineInterpolationXML
-  SOURCE_FILES spline_interpolation_test.xml
+  SOURCE_FILES spline_interpolation_test_radius.xml spline_interpolation_test_knn.xml
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
   DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
   EXEDEPS SplineInterpolation_test

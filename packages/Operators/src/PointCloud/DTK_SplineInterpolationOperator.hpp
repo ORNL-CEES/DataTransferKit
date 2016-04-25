@@ -138,6 +138,12 @@ class SplineInterpolationOperator : virtual public MapOperator
 
   private:
 
+    // Flag for search type. True if kNN, false if radius.
+    bool d_use_knn;
+
+    // k-nearest-neighbors for support.
+    int d_knn;
+
     // Basis radius.
     double d_radius;
 

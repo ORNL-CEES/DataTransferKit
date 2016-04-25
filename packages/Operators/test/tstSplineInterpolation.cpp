@@ -69,13 +69,13 @@
 //---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
+TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_radius_test )
 {
     // Get the test parameters.
     Teuchos::RCP<Teuchos::ParameterList> parameters =
 	Teuchos::rcp( new Teuchos::ParameterList() );
     Teuchos::updateParametersFromXmlFile(
-	"spline_interpolation_test.xml", Teuchos::inoutArg(*parameters) );
+	"spline_interpolation_test_radius.xml", Teuchos::inoutArg(*parameters) );
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
@@ -100,9 +100,9 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     for ( int i = 0; i < num_domain_points; ++i )
     {
 	point_id = num_domain_points*comm_rank + i;
-	coords[0] = num_points * (double) std::rand() / (double) RAND_MAX;
-	coords[1] = num_points * (double) std::rand() / (double) RAND_MAX;
-	coords[2] = num_points * (double) std::rand() / (double) RAND_MAX;
+	coords[0] = (double) std::rand() / (double) RAND_MAX + comm_rank;
+	coords[1] = (double) std::rand() / (double) RAND_MAX;
+	coords[2] = (double) std::rand() / (double) RAND_MAX;
 	domain_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
 	domain_data[i] = coords[0];
     }
@@ -114,9 +114,111 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_test )
     for ( int i = 0; i < num_points; ++i )
     {
 	point_id = num_points*inverse_rank + i + 1;
-	coords[0] = num_points * (double) std::rand() / (double) RAND_MAX;
-	coords[1] = num_points * (double) std::rand() / (double) RAND_MAX;
-	coords[2] = num_points * (double) std::rand() / (double) RAND_MAX;
+	coords[0] = (double) std::rand() / (double) RAND_MAX + inverse_rank;
+	coords[1] = (double) std::rand() / (double) RAND_MAX;
+	coords[2] = (double) std::rand() / (double) RAND_MAX;
+	range_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
+	range_data[i] = 0.0;
+	gold_data[i] = coords[0];
+    }
+
+    // Make a manager for the domain geometry.
+    DataTransferKit::BasicGeometryManager domain_manager( 
+	comm, space_dim, domain_points() );
+					   
+    // Make a manager for the range geometry.
+    DataTransferKit::BasicGeometryManager range_manager( 
+	comm, space_dim, range_points() );
+
+    // Make a DOF vector for the domain.
+    Teuchos::RCP<DataTransferKit::Field> domain_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
+			  domain_points(), field_dim, domain_data,
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_vector =
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+			  domain_field,
+			  domain_manager.functionSpace()->entitySet()) );
+
+    // Make a DOF vector for the range.
+    Teuchos::RCP<DataTransferKit::Field> range_field =
+	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
+			  range_points(), field_dim, range_data,
+			  DataTransferKit::EntityCenteredField::BLOCKED) );
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_vector =
+	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+			  range_field,
+			  range_manager.functionSpace()->entitySet()) );
+
+    // Make a spline interpolation operator.
+    Teuchos::RCP<DataTransferKit::MapOperator> spline_op =
+	Teuchos::rcp( new DataTransferKit::SplineInterpolationOperator<
+		      DataTransferKit::WuBasis<2>,space_dim
+		      >(domain_vector->getMap(),range_vector->getMap(),*parameters) );
+
+    // Setup the operator.
+    spline_op->setup( domain_manager.functionSpace(),
+		      range_manager.functionSpace() );
+
+    // Apply the operator.
+    spline_op->apply( *domain_vector, *range_vector );
+
+    // Check the apply.
+    for ( int i = 0; i < num_points; ++i )
+    {
+	TEST_FLOATING_EQUALITY( gold_data[i], range_data[i], 1.0e-6 );
+    }
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_knn_test )
+{
+    // Get the test parameters.
+    Teuchos::RCP<Teuchos::ParameterList> parameters =
+	Teuchos::rcp( new Teuchos::ParameterList() );
+    Teuchos::updateParametersFromXmlFile(
+	"spline_interpolation_test_knn.xml", Teuchos::inoutArg(*parameters) );
+
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::DefaultComm<int>::getComm();
+    int comm_rank = comm->getRank();
+    int comm_size = comm->getSize();
+    int inverse_rank = comm_size - comm_rank - 1;
+    const int space_dim = 3;
+    int field_dim = 1;
+
+    // Seed the RNG
+    std::srand( 324903231 );
+
+    // Make a set of domain points.
+    int num_points = 10;
+    int domain_mult = 100;
+    int num_domain_points = num_points * domain_mult;
+    Teuchos::Array<DataTransferKit::Entity> domain_points( num_domain_points );
+    Teuchos::Array<double> coords( space_dim );
+    DataTransferKit::EntityId point_id = 0;
+    Teuchos::ArrayRCP<double> domain_data( field_dim*num_domain_points );
+    for ( int i = 0; i < num_domain_points; ++i )
+    {
+	point_id = num_domain_points*comm_rank + i;
+	coords[0] = (double) std::rand() / (double) RAND_MAX + comm_rank;
+	coords[1] = (double) std::rand() / (double) RAND_MAX;
+	coords[2] = (double) std::rand() / (double) RAND_MAX;
+	domain_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
+	domain_data[i] = coords[0];
+    }
+
+    // Make a set of range points.
+    Teuchos::Array<DataTransferKit::Entity> range_points( num_points );
+    Teuchos::ArrayRCP<double> range_data( field_dim*num_points );
+    Teuchos::Array<double> gold_data( num_points );
+    for ( int i = 0; i < num_points; ++i )
+    {
+	point_id = num_points*inverse_rank + i + 1;
+	coords[0] = (double) std::rand() / (double) RAND_MAX + inverse_rank;
+	coords[1] = (double) std::rand() / (double) RAND_MAX;
+	coords[2] = (double) std::rand() / (double) RAND_MAX;
 	range_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
 	range_data[i] = 0.0;
 	gold_data[i] = coords[0];

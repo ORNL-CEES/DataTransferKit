@@ -133,8 +133,8 @@ template<int DIM>
 double SplineInterpolationPairing<DIM>::parentSupportRadius(
     const unsigned parent_id ) const
 {
-    REQUIRE( parent_id < d_radii.size() );
-    return d_radii[i];
+    DTK_REQUIRE( parent_id < d_radii.size() );
+    return d_radii[parent_id];
 }
 
 //---------------------------------------------------------------------------//

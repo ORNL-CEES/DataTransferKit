@@ -62,8 +62,7 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
     const Teuchos::ArrayView<const double>& dist_source_centers,
     const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
     const SplineInterpolationPairing<DIM>& target_pairings,
-    const Basis& basis,
-    const double radius )
+    const Basis& basis )
 {
     DTK_CHECK( 0 == target_centers.size() % DIM );
     DTK_CHECK( target_centers.size() / DIM == 
@@ -105,6 +104,7 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
     Teuchos::ArrayView<const unsigned> target_neighbors;
     double dist = 0.0;
     int ntn = 0;
+    double radius = 0.0;
     for ( unsigned i = 0; i < num_target_centers; ++i )
     {
 	di = DIM*i;
@@ -112,7 +112,8 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
 	// Get the source points neighboring this target point.
 	target_neighbors = target_pairings.childCenterIds( i );
 	ntn = target_neighbors.size();
-
+	radius = target_pairings.parentSupportRadius( i );
+	
 	// Add the local basis contributions.
     	for ( int j = 0; j < ntn; ++j )
     	{

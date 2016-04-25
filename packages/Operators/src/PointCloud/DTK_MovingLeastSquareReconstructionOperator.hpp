@@ -122,7 +122,13 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
     
   private:
 
-    // Basis radius.
+    // Flag for search type. True if kNN, false if radius.
+    bool d_use_knn;
+
+    // k-nearest-neighbors for support.
+    int d_knn;
+    
+    // Basis radius for support.
     double d_radius;
 
     // Domain entity topological dimension. Default is 0 (vertex).

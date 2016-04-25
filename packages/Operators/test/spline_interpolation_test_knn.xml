@@ -1,0 +1,19 @@
+<ParameterList name="Spline Interpolation Unit Test">
+  <Parameter name="Use kNN Support" type="bool" value="true"/>  
+  <Parameter name="kNN" type="int" value="14"/>
+  <ParameterList name="Stratimikos">
+    <Parameter name="Linear Solver Type" type="string" value="Belos"/>
+    <ParameterList name="Linear Solver Types">
+      <ParameterList name="Belos">
+	<Parameter name="Solver Type" type="string" value="Pseudo Block GMRES"/>
+	<ParameterList name="Solver Types">
+          <ParameterList name="Pseudo Block GMRES">
+            <Parameter name="Convergence Tolerance" type="double" value="1e-8"/>
+            <Parameter name="Output Frequency" type="int" value="1"/>
+	    <Parameter name="Verbosity" type="int" value="127"/>
+          </ParameterList>
+	</ParameterList>
+      </ParameterList>
+    </ParameterList>
+  </ParameterList>
+</ParameterList>

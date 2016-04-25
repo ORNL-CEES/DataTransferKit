@@ -77,10 +77,26 @@ SplineInterpolationOperator<Basis,DIM>::SplineInterpolationOperator(
     : Base( domain_map, range_map )
     , d_domain_entity_dim( 0 )
     , d_range_entity_dim( 0 )      
+    , d_knn( 0 )
+    , d_radius( 0.0 )
 {
-    // Get the basis radius.
-    DTK_REQUIRE( parameters.isParameter("RBF Radius") );
-    d_radius = parameters.get<double>("RBF Radius");
+    // Determine if we are doing kNN support or radius support.
+    DTK_REQUIRE( parameters.isParameter("Use kNN Support") );
+    d_use_knn = parameters.get<bool>("Use kNN Support");
+
+    // If we are doing kNN support get the number of neighbors.
+    if( d_use_knn )
+    {
+	DTK_REQUIRE( parameters.isParameter("kNN") );
+	d_knn = parameters.get<int>("kNN");
+    }
+    
+    // Otherwise we are doing the radius search so get the basis radius.
+    else
+    {
+	DTK_REQUIRE( parameters.isParameter("RBF Radius") );
+	d_radius = parameters.get<double>("RBF Radius");
+    }
 
     // Get the topological dimension of the domain and range entities. This
     // map will use their centroids for the point cloud.
@@ -335,11 +351,37 @@ void SplineInterpolationOperator<Basis,DIM>::buildConcreteOperators(
     S =	Teuchos::rcp( new SplineProlongationOperator(offset,domain_map) );
 
     // COEFFICIENT OPERATORS.
-    // Gather the source centers that are within a d_radius of the source
+    // Calculate an approximate neighborhood distance for the local source
+    // centers. If using kNN, compute an approximation. If doing a radial
+    // search, use the radius.
+    double source_proximity = 0.0;
+    if ( d_use_knn )
+    {
+	// Get the local bounding box.
+	Teuchos::Tuple<double,6> local_box;
+	domain_space->entitySet()->localBoundingBox( local_box );
+
+	// Calculate the largest span of the cardinal directions.
+	source_proximity = local_box[3] - local_box[0];
+	for ( int d = 1; d < DIM; ++d )
+	{
+	    source_proximity = std::max( source_proximity,
+					 local_box[d+3] - local_box[d] );
+	}
+
+	// Take the proximity to be 10% of the largest distance.
+	source_proximity *= 0.1;
+    }
+    else
+    {
+	source_proximity = d_radius;
+    }
+
+    // Gather the source centers that are in the proximity of the source
     // centers on this proc.
     Teuchos::Array<double> dist_sources;
     CenterDistributor<DIM> source_distributor( 
-	comm, source_centers(), source_centers(), d_radius, dist_sources );
+	comm, source_centers(), source_centers(), source_proximity, dist_sources );
     
     // Distribute the global source ids.
     Teuchos::Array<GO> dist_source_support_ids( 
@@ -350,7 +392,7 @@ void SplineInterpolationOperator<Basis,DIM>::buildConcreteOperators(
 
     // Build the source/source pairings.
     SplineInterpolationPairing<DIM> source_pairings( 
-	dist_sources(), source_centers(), d_radius );
+	dist_sources(), source_centers(), d_use_knn, d_knn, d_radius );
 
     // Build the basis.
     Teuchos::RCP<Basis> basis = BP::create();
@@ -363,7 +405,7 @@ void SplineInterpolationOperator<Basis,DIM>::buildConcreteOperators(
 	prolongated_map,
 	source_centers(), source_support_ids(),
 	dist_sources(), dist_source_support_ids(),
-	source_pairings, *basis, d_radius );
+	source_pairings, *basis );
     P = C.getP();
     M = C.getM();
 
@@ -371,10 +413,36 @@ void SplineInterpolationOperator<Basis,DIM>::buildConcreteOperators(
     dist_source_support_ids.clear();
     
     // EVALUATION OPERATORS. 
-    // Gather the source centers that are within a d_radius of the target
+    // Calculate an approximate neighborhood distance for the local target
+    // centers. If using kNN, compute an approximation. If doing a radial
+    // search, use the radius.
+    double target_proximity = 0.0;
+    if ( d_use_knn )
+    {
+	// Get the local bounding box.
+	Teuchos::Tuple<double,6> local_box;
+	range_space->entitySet()->localBoundingBox( local_box );
+
+	// Calculate the largest span of the cardinal directions.
+	target_proximity = local_box[3] - local_box[0];
+	for ( int d = 1; d < DIM; ++d )
+	{
+	    target_proximity = std::max( target_proximity,
+					 local_box[d+3] - local_box[d] );
+	}
+
+	// Take the proximity to be 10% of the largest distance.
+	target_proximity *= 0.1;
+    }
+    else
+    {
+	target_proximity = d_radius;
+    }
+
+    // Gather the source centers that are in the proximity of the target
     // centers on this proc.
     CenterDistributor<DIM> target_distributor( 
-	comm, source_centers(), target_centers(), d_radius, dist_sources  );
+	comm, source_centers(), target_centers(), target_proximity, dist_sources  );
 
     // Distribute the global source ids.
     dist_source_support_ids.resize( 
@@ -385,14 +453,14 @@ void SplineInterpolationOperator<Basis,DIM>::buildConcreteOperators(
 
     // Build the source/target pairings.
     SplineInterpolationPairing<DIM> target_pairings( 
-	dist_sources(), target_centers(), d_radius );
+	dist_sources(), target_centers(), d_use_knn, d_knn, d_radius );
 
     // Build the transformation operators.
     SplineEvaluationMatrix<Basis,DIM> B( 
 	prolongated_map, range_map,
 	target_centers(), target_support_ids(),
 	dist_sources(), dist_source_support_ids(),
-	target_pairings, *basis, d_radius );
+	target_pairings, *basis );
     N = B.getN();
     Q = B.getQ();
     

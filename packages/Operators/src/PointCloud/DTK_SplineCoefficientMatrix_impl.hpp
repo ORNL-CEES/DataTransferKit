@@ -61,8 +61,7 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
     const Teuchos::ArrayView<const double>& dist_source_centers,
     const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
     const SplineInterpolationPairing<DIM>& source_pairings,
-    const Basis& basis,
-    const double radius )
+    const Basis& basis )
 {
     DTK_CHECK( 0 == source_centers.size() % DIM );
     DTK_CHECK( source_centers.size() / DIM == 
@@ -104,12 +103,14 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
     Teuchos::ArrayView<const unsigned> source_neighbors;
     double dist = 0.0;
     int nsn = 0;
+    double radius = 0.0;
     for ( unsigned i = 0; i < num_source_centers; ++i )
     {
 	// Get the source points neighboring this source point.
     	di = DIM*i;
 	source_neighbors = source_pairings.childCenterIds( i );
 	nsn = source_neighbors.size();
+	radius = source_pairings.parentSupportRadius( i );
 
 	// Add the local basis contributions.
     	for ( int j = 0; j < nsn; ++j )
