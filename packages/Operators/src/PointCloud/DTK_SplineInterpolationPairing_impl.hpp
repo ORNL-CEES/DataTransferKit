@@ -44,6 +44,7 @@
 #include "DTK_SplineInterpolationPairing.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_StaticSearchTree.hpp"
+#include "DTK_EuclideanDistance.hpp"
 
 namespace DataTransferKit
 {
@@ -55,20 +56,57 @@ template<int DIM>
 SplineInterpolationPairing<DIM>::SplineInterpolationPairing( 
     const Teuchos::ArrayView<const double>& child_centers,
     const Teuchos::ArrayView<const double>& parent_centers,
+    const bool use_knn,
+    const unsigned num_neighbors,
     const double radius )
+    : d_use_knn( use_knn )
+    , d_radii( 0 )
 {
     DTK_REQUIRE( 0 == child_centers.size() % DIM );
     DTK_REQUIRE( 0 == parent_centers.size() % DIM );
 
+    // Setup the kD-tree
     unsigned leaf_size = 30;
     NanoflannTree<DIM> tree( child_centers, leaf_size );
 
+    // Allocate arrays
     unsigned num_parents = parent_centers.size() / DIM;
     d_pairings.resize( num_parents );
     d_pair_sizes = Teuchos::ArrayRCP<EntityId>( num_parents );
+    if ( d_use_knn ) d_radii.resize( num_parents );
+
+    // Search for pairs
     for ( unsigned i = 0; i < num_parents; ++i )
     {
-	d_pairings[i] = tree.radiusSearch( parent_centers(DIM*i,DIM), radius );
+	// if kNN do the nearest neighbor search for kNN+1 and calculate a
+	// radius
+	if ( d_use_knn )
+	{
+	    // Get the knn neighbors
+	    d_pairings[i] =
+		tree.nnSearch( parent_centers(DIM*i,DIM), num_neighbors + 1 );
+
+	    // Get the radius from kNN + 1
+	    d_radii[i] =
+		EuclideanDistance<DIM>::distance(
+		    parent_centers(DIM*i,DIM).getRawPtr(),
+		    child_centers(DIM*d_pairings[i].back(),DIM).getRawPtr() );
+
+	    // Pop the back of the neighbors to get kNN
+	    if ( d_pairings[i].size() > 0 )
+	    {
+		d_pairings[i].pop_back();
+	    }
+	}
+
+	// otherwise do the radius search
+	else
+	{
+	    d_pairings[i] =
+		tree.radiusSearch( parent_centers(DIM*i,DIM), radius );
+	}
+
+	// get the size of the support.
 	d_pair_sizes[i] = d_pairings[i].size();
     }
 }
@@ -86,6 +124,18 @@ SplineInterpolationPairing<DIM>::childCenterIds(
     DTK_REQUIRE( parent_id < d_pairings.size() );
     Teuchos::ArrayView<const unsigned> id_view = d_pairings[parent_id]();
     return id_view;
+}
+
+//---------------------------------------------------------------------------//
+/*
+ * \brief Get the support radius of a given parent.
+ */
+template<int DIM>
+double SplineInterpolationPairing<DIM>::parentSupportRadius(
+    const unsigned parent_id ) const
+{
+    REQUIRE( parent_id < d_radii.size() );
+    return d_radii[i];
 }
 
 //---------------------------------------------------------------------------//

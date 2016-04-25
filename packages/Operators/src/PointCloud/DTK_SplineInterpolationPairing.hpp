@@ -53,8 +53,9 @@ namespace DataTransferKit
  * \class SplineInterpolationPairing
  * \brief Local child/parent center pairings.
  *
- * Build groups of local child centers that are within the given radius of
- * the parent centers. Each parent center will have a list of child centers.
+ * Build groups of local child centers that are within the given radius or the
+ * k-nearest-neighbor set of the parent centers. Each parent center will have
+ * a list of child centers.
  */
 //---------------------------------------------------------------------------//
 template<int DIM>
@@ -66,6 +67,8 @@ class SplineInterpolationPairing
     SplineInterpolationPairing( 
 	const Teuchos::ArrayView<const double>& child_centers,
 	const Teuchos::ArrayView<const double>& parent_centers,
+	const bool use_knn,
+	const unsigned num_neighbors,
 	const double radius );
 
     // Given a parent center local id get the ids of the child centers within
@@ -77,13 +80,22 @@ class SplineInterpolationPairing
     Teuchos::ArrayRCP<EntityId> childrenPerParent() const
     { return d_pair_sizes; }
 
+    // Get the support radius of a given parent.
+    double parentSupportRadius( const unsigned parent_id ) const;
+
   private:
 
+    // kNN flag. True if using kNN search, false if using radius search.
+    bool d_use_knn;
+    
     // Pairings.
     Teuchos::Array<Teuchos::Array<unsigned> > d_pairings;
 
     // Number of child centers per parent center.
     Teuchos::ArrayRCP<EntityId> d_pair_sizes;
+
+    // Parent center support radius. Only computed if using kNN search.
+    Teuchos::Array<double> d_radii;
 };
 
 //---------------------------------------------------------------------------//
