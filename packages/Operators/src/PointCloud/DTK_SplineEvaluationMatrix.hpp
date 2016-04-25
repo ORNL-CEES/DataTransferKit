@@ -80,7 +80,8 @@ class SplineEvaluationMatrix
 	const Teuchos::ArrayView<const double>& dist_source_centers,
 	const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
 	const SplineInterpolationPairing<DIM>& target_pairings,
-	const Basis& basis );
+	const Basis& basis,
+	const double radius );
 
     // Get the basis component.
     Teuchos::RCP<Tpetra::Operator<double,int,SupportId> > getN()

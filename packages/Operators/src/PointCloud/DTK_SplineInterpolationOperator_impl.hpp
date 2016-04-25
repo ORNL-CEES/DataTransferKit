@@ -353,7 +353,7 @@ void SplineInterpolationOperator<Basis,DIM>::buildConcreteOperators(
 	dist_sources(), source_centers(), d_radius );
 
     // Build the basis.
-    Teuchos::RCP<Basis> basis = BP::create( d_radius );
+    Teuchos::RCP<Basis> basis = BP::create();
 
     // Get the operator map.
     Teuchos::RCP<const Tpetra::Map<int,GO> > prolongated_map = S->getRangeMap();
@@ -363,7 +363,7 @@ void SplineInterpolationOperator<Basis,DIM>::buildConcreteOperators(
 	prolongated_map,
 	source_centers(), source_support_ids(),
 	dist_sources(), dist_source_support_ids(),
-	source_pairings, *basis );
+	source_pairings, *basis, d_radius );
     P = C.getP();
     M = C.getM();
 
@@ -392,7 +392,7 @@ void SplineInterpolationOperator<Basis,DIM>::buildConcreteOperators(
 	prolongated_map, range_map,
 	target_centers(), target_support_ids(),
 	dist_sources(), dist_source_support_ids(),
-	target_pairings, *basis );
+	target_pairings, *basis, d_radius );
     N = B.getN();
     Q = B.getQ();
     

@@ -172,7 +172,7 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
     }
 
     // Build the basis.
-    Teuchos::RCP<Basis> basis = BP::create( d_radius );
+    Teuchos::RCP<Basis> basis = BP::create();
 
     // Gather the source centers that are within a d_radius of the target
     // centers on this proc.
@@ -215,7 +215,7 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
 	    // Build the local interpolation problem. 
 	    LocalMLSProblem<Basis,DIM> local_problem(
 		target_view, pairings.childCenterIds(i),
-		dist_sources, *basis );
+		dist_sources, *basis, d_radius );
 
 	    // Get MLS shape function values for this target point.
 	    values = local_problem.shapeFunction();

@@ -61,7 +61,8 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
     const Teuchos::ArrayView<const double>& dist_source_centers,
     const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
     const SplineInterpolationPairing<DIM>& source_pairings,
-    const Basis& basis )
+    const Basis& basis,
+    const double radius )
 {
     DTK_CHECK( 0 == source_centers.size() % DIM );
     DTK_CHECK( source_centers.size() / DIM == 
@@ -120,7 +121,7 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
 	    dist = EuclideanDistance<DIM>::distance(
 		&source_centers[di], &dist_source_centers[dj] );
 
-    	    values[j] = BP::evaluateValue( basis, dist );
+    	    values[j] = BP::evaluateValue( basis, radius, dist );
     	}
 	d_M->insertGlobalValues( 
 	    source_center_gids[i], M_indices(0,nsn), values(0,nsn) );

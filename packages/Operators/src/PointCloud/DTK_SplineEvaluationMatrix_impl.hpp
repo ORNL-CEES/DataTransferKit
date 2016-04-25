@@ -62,7 +62,8 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
     const Teuchos::ArrayView<const double>& dist_source_centers,
     const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
     const SplineInterpolationPairing<DIM>& target_pairings,
-    const Basis& basis )
+    const Basis& basis,
+    const double radius )
 {
     DTK_CHECK( 0 == target_centers.size() % DIM );
     DTK_CHECK( target_centers.size() / DIM == 
@@ -123,7 +124,7 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
 	    dist = EuclideanDistance<DIM>::distance(
 		&target_centers[di], &dist_source_centers[dj] );
 
-    	    values[j] = BP::evaluateValue( basis, dist );
+    	    values[j] = BP::evaluateValue( basis, radius, dist );
     	}
 
 	d_N->insertGlobalValues( 
