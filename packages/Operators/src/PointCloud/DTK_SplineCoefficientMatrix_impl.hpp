@@ -103,12 +103,14 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
     Teuchos::ArrayView<const unsigned> source_neighbors;
     double dist = 0.0;
     int nsn = 0;
+    double radius = 0.0;
     for ( unsigned i = 0; i < num_source_centers; ++i )
     {
 	// Get the source points neighboring this source point.
     	di = DIM*i;
 	source_neighbors = source_pairings.childCenterIds( i );
 	nsn = source_neighbors.size();
+	radius = source_pairings.parentSupportRadius( i );
 
 	// Add the local basis contributions.
     	for ( int j = 0; j < nsn; ++j )
@@ -120,7 +122,7 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
 	    dist = EuclideanDistance<DIM>::distance(
 		&source_centers[di], &dist_source_centers[dj] );
 
-    	    values[j] = BP::evaluateValue( basis, dist );
+    	    values[j] = BP::evaluateValue( basis, radius, dist );
     	}
 	d_M->insertGlobalValues( 
 	    source_center_gids[i], M_indices(0,nsn), values(0,nsn) );

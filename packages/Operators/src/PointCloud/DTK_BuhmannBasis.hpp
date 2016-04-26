@@ -59,21 +59,11 @@ class BuhmannBasis
 {
   public:
 
-    // Constructor.
-    BuhmannBasis( const double radius )
-	: d_radius( radius )
-    { /* ... */ }
-
     // Compute the value of the basis at the given set of coordinates.
-    double evaluateValue( const double x ) const;
+    double evaluateValue( const double radius, const double x ) const;
 
     // Compute the gradient of the basis at the given set of coordinates.
-    double evaluateGradient( const double x ) const;
-
-  private:
-
-    // Basis radius.
-    double d_radius;
+    double evaluateGradient( const double radius, const double x ) const;
 };
 
 //---------------------------------------------------------------------------//
@@ -86,17 +76,16 @@ class RadialBasisPolicy<BuhmannBasis<ORDER> >
     
     typedef BuhmannBasis<ORDER> spline_basis_type;
     
-    static inline Teuchos::RCP<BuhmannBasis<ORDER> > 
-    create( const double radius )
-    { return Teuchos::rcp( new BuhmannBasis<ORDER>(radius) ); }
+    static inline Teuchos::RCP<BuhmannBasis<ORDER> > create()
+    { return Teuchos::rcp( new BuhmannBasis<ORDER>() ); }
 
     static inline double evaluateValue( 
-	const BuhmannBasis<ORDER>& basis, const double x )
-    { return basis.evaluateValue( x ); }
+	const BuhmannBasis<ORDER>& basis, const double radius, const double x )
+    { return basis.evaluateValue( radius, x ); }
 
     static inline double evaluateGradient( 
-	const BuhmannBasis<ORDER>& basis, const double x )
-    { return basis.evaluateGradient( x ); }
+	const BuhmannBasis<ORDER>& basis, const double radius, const double x )
+    { return basis.evaluateGradient( radius, x ); }
 };
 
 //---------------------------------------------------------------------------//

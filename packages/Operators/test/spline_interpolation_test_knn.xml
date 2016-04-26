@@ -1,0 +1,26 @@
+<ParameterList name="Spline Interpolation Unit Test">
+  <Parameter name="Map Type" type="string" value="Point Cloud"/>
+  <ParameterList name="Point Cloud">
+    <Parameter name="Map Type" type="string" value="Spline Interpolation"/>    
+    <Parameter name="Basis Type" type="string" value="Wendland"/>
+    <Parameter name="Basis Order" type="int" value="0"/>
+    <Parameter name="Spatial Dimension" type="int" value="3"/>
+    <Parameter name="Type of Search" type="string" value="Nearest Neighbor"/>  
+    <Parameter name="Num Neighbors" type="int" value="12"/>
+    <ParameterList name="Stratimikos">
+      <Parameter name="Linear Solver Type" type="string" value="Belos"/>
+      <ParameterList name="Linear Solver Types">
+	<ParameterList name="Belos">
+	  <Parameter name="Solver Type" type="string" value="Pseudo Block GMRES"/>
+	  <ParameterList name="Solver Types">
+            <ParameterList name="Pseudo Block GMRES">
+              <Parameter name="Convergence Tolerance" type="double" value="1e-10"/>
+              <Parameter name="Output Frequency" type="int" value="1"/>
+	      <Parameter name="Verbosity" type="int" value="127"/>
+            </ParameterList>
+	  </ParameterList>
+	</ParameterList>	
+      </ParameterList>
+    </ParameterList>
+  </ParameterList>
+</ParameterList>

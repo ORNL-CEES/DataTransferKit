@@ -65,14 +65,45 @@ MovingLeastSquareReconstructionOperator<Basis,DIM>::
 MovingLeastSquareReconstructionOperator(
     const Teuchos::RCP<const TpetraMap>& domain_map,
     const Teuchos::RCP<const TpetraMap>& range_map,
-    const Teuchos::ParameterList& parameters )
+    const Teuchos::ParameterList& parameters )        
     : Base( domain_map, range_map )
     , d_domain_entity_dim( 0 )
     , d_range_entity_dim( 0 )
+    , d_use_knn( false )
+    , d_knn( 0 )
+    , d_radius( 0.0 )
 {
-    // Get the basis radius.
-    DTK_REQUIRE( parameters.isParameter("RBF Radius") );
-    d_radius = parameters.get<double>("RBF Radius");
+    // Determine if we are doing kNN search or radius search.
+    if( parameters.isParameter("Type of Search") )
+    {
+	if ( "Radius" == parameters.get<std::string>("Type of Search") )
+	{
+	    d_use_knn = false;
+	}
+	else if ( "Nearest Neighbor" == parameters.get<std::string>("Type of Search") )
+	{
+	    d_use_knn = true;
+	}
+	else
+	{
+	    // Otherwise we got an invalid search type.
+	    DTK_INSIST( false );
+	}
+    }
+
+    // If we are doing kNN support get the number of neighbors.
+    if( d_use_knn )
+    {
+	DTK_REQUIRE( parameters.isParameter("Num Neighbors") );
+	d_knn = parameters.get<int>("Num Neighbors");
+    }
+    
+    // Otherwise we are doing the radius search so get the basis radius.
+    else
+    {
+	DTK_REQUIRE( parameters.isParameter("RBF Radius") );
+	d_radius = parameters.get<double>("RBF Radius");
+    }
 
     // Get the topological dimension of the domain and range entities. This
     // map will use their centroids for the point cloud.
@@ -172,15 +203,42 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
     }
 
     // Build the basis.
-    Teuchos::RCP<Basis> basis = BP::create( d_radius );
+    Teuchos::RCP<Basis> basis = BP::create();
 
-    // Gather the source centers that are within a d_radius of the target
+    // Calculate an approximate neighborhood distance for the local target
+    // centers. If using kNN, compute an approximation. If doing a radial
+    // search, use the radius. We will use these distances to expand the local
+    // bounding box to ensure we find all of our neighbors in parallel.
+    double target_proximity = 0.0;
+    if ( d_use_knn )
+    {
+	// Get the local bounding box.
+	Teuchos::Tuple<double,6> local_box;
+	range_space->entitySet()->localBoundingBox( local_box );
+
+	// Calculate the largest span of the cardinal directions.
+	target_proximity = local_box[3] - local_box[0];
+	for ( int d = 1; d < DIM; ++d )
+	{
+	    target_proximity = std::max( target_proximity,
+					 local_box[d+3] - local_box[d] );
+	}
+
+	// Take the proximity to be 10% of the largest distance.
+	target_proximity *= 0.1;
+    }
+    else
+    {
+	target_proximity = d_radius;
+    }
+    
+    // Gather the source centers that are in the proximity of the target
     // centers on this proc.
     Teuchos::Array<double> dist_sources;
     CenterDistributor<DIM> distributor( 
-	comm, source_centers(), target_centers(), d_radius, dist_sources );
+	comm, source_centers(), target_centers(), target_proximity, dist_sources );
 
-    // Gather the global ids of the source centers that are within a d_radius of
+    // Gather the global ids of the source centers that are within the proximity of
     // the target centers on this proc.
     Teuchos::Array<GO> dist_source_support_ids( distributor.getNumImports() );
     Teuchos::ArrayView<const GO> source_support_ids_view = source_support_ids();
@@ -188,7 +246,7 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
 
     // Build the source/target pairings.
     SplineInterpolationPairing<DIM> pairings( 
-	dist_sources, target_centers(), d_radius );
+	dist_sources, target_centers(), d_use_knn, d_knn, d_radius );
 
     // Build the interpolation matrix.
     Teuchos::ArrayRCP<SupportId> children_per_parent =
@@ -215,7 +273,7 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
 	    // Build the local interpolation problem. 
 	    LocalMLSProblem<Basis,DIM> local_problem(
 		target_view, pairings.childCenterIds(i),
-		dist_sources, *basis );
+		dist_sources, *basis, pairings.parentSupportRadius(i) );
 
 	    // Get MLS shape function values for this target point.
 	    values = local_problem.shapeFunction();

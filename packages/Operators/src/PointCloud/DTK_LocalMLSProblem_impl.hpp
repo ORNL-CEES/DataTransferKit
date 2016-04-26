@@ -65,7 +65,8 @@ LocalMLSProblem<Basis,DIM>::LocalMLSProblem(
     const Teuchos::ArrayView<const double>& target_center,
     const Teuchos::ArrayView<const unsigned>& source_lids,
     const Teuchos::ArrayView<const double>& source_centers,
-    const Basis& basis )
+    const Basis& basis,
+    const double radius )
     : d_shape_function( source_lids.size() )
 {
     DTK_REQUIRE( 0 == source_centers.size() % DIM );
@@ -86,7 +87,7 @@ LocalMLSProblem<Basis,DIM>::LocalMLSProblem(
 	source_center_view = source_centers(DIM*source_lids[i],DIM);
 	dist = EuclideanDistance<DIM>::distance(
 	    target_center.getRawPtr(), source_center_view.getRawPtr() );
-	phi(i,i) = BP::evaluateValue( basis, dist );
+	phi(i,i) = BP::evaluateValue( basis, radius, dist );
     }
 
     // Make P.

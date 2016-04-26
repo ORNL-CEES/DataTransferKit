@@ -54,9 +54,9 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-WendlandBasis<0>::evaluateValue( const double x ) const
+WendlandBasis<0>::evaluateValue( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double onemx = 1.0 - xval;
     return ( xval < 1.0 ) ? onemx*onemx : 0.0;
 }
@@ -69,9 +69,9 @@ WendlandBasis<0>::evaluateValue( const double x ) const
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-WendlandBasis<0>::evaluateGradient( const double x ) const
+WendlandBasis<0>::evaluateGradient( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     return ( xval < 1.0 ) ? 2.0*xval - 2.0 : 0.0;
 }
 
@@ -83,9 +83,9 @@ WendlandBasis<0>::evaluateGradient( const double x ) const
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-WendlandBasis<2>::evaluateValue( const double x ) const
+WendlandBasis<2>::evaluateValue( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double onemx = 1.0 - xval;
     double onemx2 = onemx*onemx;
     return ( xval < 1.0 ) ? onemx2*onemx2*(4.0*xval + 1.0) : 0.0;
@@ -99,9 +99,9 @@ WendlandBasis<2>::evaluateValue( const double x ) const
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-WendlandBasis<2>::evaluateGradient( const double x ) const
+WendlandBasis<2>::evaluateGradient( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double xmone = xval - 1.0;
     return ( xval < 1.0 ) ? 20.0*xval*xmone*xmone*xmone : 0.0;
 }
@@ -114,9 +114,9 @@ WendlandBasis<2>::evaluateGradient( const double x ) const
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-WendlandBasis<4>::evaluateValue( const double x ) const
+WendlandBasis<4>::evaluateValue( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double onemx = 1.0 - xval;
     double onemx2 = onemx*onemx;
     return ( xval < 1.0 ) ? 
@@ -131,9 +131,9 @@ WendlandBasis<4>::evaluateValue( const double x ) const
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-WendlandBasis<4>::evaluateGradient( const double x ) const
+WendlandBasis<4>::evaluateGradient( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double xmone = xval - 1.0;
     double xmone2 = xmone*xmone;
     return ( xval < 1.0 ) ? 56.0*xval*xmone2*xmone2*xmone*(5.0*xval+1) : 0.0;
@@ -147,9 +147,9 @@ WendlandBasis<4>::evaluateGradient( const double x ) const
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-WendlandBasis<6>::evaluateValue( const double x ) const
+WendlandBasis<6>::evaluateValue( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double onemx = 1.0 - xval;
     double onemx2 = onemx*onemx;
     double onemx4 = onemx2*onemx2;
@@ -166,9 +166,9 @@ WendlandBasis<6>::evaluateValue( const double x ) const
 //---------------------------------------------------------------------------//
 template<>
 inline double 
-WendlandBasis<6>::evaluateGradient( const double x ) const
+WendlandBasis<6>::evaluateGradient( const double radius, const double x ) const
 {
-    double xval = x / d_radius;
+    double xval = x / radius;
     double xmone = xval - 1.0;
     double xmone2 = xmone*xmone;
     double xmone4 = xmone2*xmone2;

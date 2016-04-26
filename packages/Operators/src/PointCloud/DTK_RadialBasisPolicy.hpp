@@ -75,15 +75,17 @@ class RadialBasisPolicy
     typedef RadialBasis spline_basis_type;
 
     //! Creation method.
-    static inline Teuchos::RCP<RadialBasis> create( const double radius )
+    static inline Teuchos::RCP<RadialBasis> create()
     { UndefinedRadialBasisPolicy<RadialBasis>::notDefined(); return Teuchos::null; }
 
     //! Compute the value of the basis at the given value.
-    static inline double evaluateValue( const RadialBasis& basis, const double x )
+    static inline double evaluateValue(
+	const RadialBasis& basis, const double radius, const double x )
     { UndefinedRadialBasisPolicy<RadialBasis>::notDefined(); return 0.0; }
 
     //! Compute the gradient of the basis at the given value.
-    static inline double evaluateGradient( const RadialBasis& basis, const double x )
+    static inline double evaluateGradient(
+	const RadialBasis& basis, const double radius, const double x )
     { UndefinedRadialBasisPolicy<RadialBasis>::notDefined(); return 0.0; }
 };
 

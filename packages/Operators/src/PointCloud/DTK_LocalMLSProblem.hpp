@@ -74,7 +74,8 @@ class LocalMLSProblem
     LocalMLSProblem( const Teuchos::ArrayView<const double>& target_center,
 		     const Teuchos::ArrayView<const unsigned>& source_lids,
 		     const Teuchos::ArrayView<const double>& source_centers,
-		     const Basis& basis );
+		     const Basis& basis,
+		     const double radius );
 
     // Get a view of the local shape function.
     Teuchos::ArrayView<const double> shapeFunction() const

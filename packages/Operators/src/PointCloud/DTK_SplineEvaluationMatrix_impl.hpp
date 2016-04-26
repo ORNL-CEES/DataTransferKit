@@ -104,6 +104,7 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
     Teuchos::ArrayView<const unsigned> target_neighbors;
     double dist = 0.0;
     int ntn = 0;
+    double radius = 0.0;
     for ( unsigned i = 0; i < num_target_centers; ++i )
     {
 	di = DIM*i;
@@ -111,7 +112,8 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
 	// Get the source points neighboring this target point.
 	target_neighbors = target_pairings.childCenterIds( i );
 	ntn = target_neighbors.size();
-
+	radius = target_pairings.parentSupportRadius( i );
+	
 	// Add the local basis contributions.
     	for ( int j = 0; j < ntn; ++j )
     	{
@@ -123,7 +125,7 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
 	    dist = EuclideanDistance<DIM>::distance(
 		&target_centers[di], &dist_source_centers[dj] );
 
-    	    values[j] = BP::evaluateValue( basis, dist );
+    	    values[j] = BP::evaluateValue( basis, radius, dist );
     	}
 
 	d_N->insertGlobalValues( 

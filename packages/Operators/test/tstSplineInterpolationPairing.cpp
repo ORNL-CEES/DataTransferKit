@@ -69,9 +69,15 @@ Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
+// TEST EPSILON
+//---------------------------------------------------------------------------//
+
+const double epsilon = 1.0e-14;
+
+//---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( SplineInterpolationPairing, dim_1_test )
+TEUCHOS_UNIT_TEST( SplineInterpolationPairing, radius_dim_1_test )
 {
     int dim = 1;
     int num_src_points = 10;
@@ -92,7 +98,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, dim_1_test )
     double radius = 1.1;
 
     DataTransferKit::SplineInterpolationPairing<1> pairing( 
-	src_coords(), tgt_coords(), radius );
+	src_coords(), tgt_coords(), false, 0, radius );
     
     Teuchos::ArrayView<const unsigned> view = pairing.childCenterIds( 0 );
     TEST_EQUALITY( 3, view.size() );
@@ -108,10 +114,16 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, dim_1_test )
 	pairing.childrenPerParent();
     TEST_EQUALITY( children_per_parent[0], 3 );
     TEST_EQUALITY( children_per_parent[1], 1 );
+
+    double parent_radius = pairing.parentSupportRadius( 0 );
+    TEST_EQUALITY( parent_radius, radius );
+
+    parent_radius = pairing.parentSupportRadius( 1 );
+    TEST_EQUALITY( parent_radius, radius );
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( SplineInterpolationPairing, dim_2_test )
+TEUCHOS_UNIT_TEST( SplineInterpolationPairing, radius_dim_2_test )
 {
     int dim = 2;
     int num_src_points = 10;
@@ -135,7 +147,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, dim_2_test )
     double radius = 1.1;
 
     DataTransferKit::SplineInterpolationPairing<2> pairing( 
-	src_coords(), tgt_coords(), radius );
+	src_coords(), tgt_coords(), false, 0, radius );
     
     Teuchos::ArrayView<const unsigned> view = pairing.childCenterIds( 0 );
     TEST_EQUALITY( 3, view.size() );
@@ -151,10 +163,16 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, dim_2_test )
 	pairing.childrenPerParent();
     TEST_EQUALITY( children_per_parent[0], 3 );
     TEST_EQUALITY( children_per_parent[1], 1 );
+
+    double parent_radius = pairing.parentSupportRadius( 0 );
+    TEST_EQUALITY( parent_radius, radius );
+
+    parent_radius = pairing.parentSupportRadius( 1 );
+    TEST_EQUALITY( parent_radius, radius );
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( SplineInterpolationPairing, dim_3_test )
+TEUCHOS_UNIT_TEST( SplineInterpolationPairing, radius_dim_3_test )
 {
     int dim = 3;
     int num_src_points = 10;
@@ -181,7 +199,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, dim_3_test )
     double radius = 1.1;
 
     DataTransferKit::SplineInterpolationPairing<3> pairing( 
-	src_coords(), tgt_coords(), radius );
+	src_coords(), tgt_coords(), false, 0, radius );
     
     Teuchos::ArrayView<const unsigned> view = pairing.childCenterIds( 0 );
     TEST_EQUALITY( 3, view.size() );
@@ -197,6 +215,165 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, dim_3_test )
 	pairing.childrenPerParent();
     TEST_EQUALITY( children_per_parent[0], 3 );
     TEST_EQUALITY( children_per_parent[1], 1 );
+
+    double parent_radius = pairing.parentSupportRadius( 0 );
+    TEST_EQUALITY( parent_radius, radius );
+
+    parent_radius = pairing.parentSupportRadius( 1 );
+    TEST_EQUALITY( parent_radius, radius );
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_1_test )
+{
+    int dim = 1;
+    int num_src_points = 10;
+    int num_src_coords = dim*num_src_points;
+
+    Teuchos::Array<double> src_coords(num_src_coords);
+    for ( int i = 0; i < num_src_points; ++i )
+    {
+	src_coords[dim*i] = 1.0*i;
+    }
+
+    int num_tgt_points = 2;
+    int num_tgt_coords = dim*num_tgt_points;
+    Teuchos::Array<double> tgt_coords( num_tgt_coords );
+    tgt_coords[0] = 4.9;
+    tgt_coords[1] = 10.0;
+
+    int knn = 3;
+
+    DataTransferKit::SplineInterpolationPairing<1> pairing( 
+	src_coords(), tgt_coords(), true, knn, 0.0 );
+    
+    Teuchos::ArrayView<const unsigned> view = pairing.childCenterIds( 0 );
+    TEST_EQUALITY( knn, view.size() );
+    TEST_EQUALITY( 5, view[0] );
+    TEST_EQUALITY( 4, view[1] );
+    TEST_EQUALITY( 6, view[2] );
+
+    view = pairing.childCenterIds( 1 );
+    TEST_EQUALITY( knn, view.size() );
+    TEST_EQUALITY( 9, view[0] );
+    TEST_EQUALITY( 8, view[1] );
+    TEST_EQUALITY( 7, view[2] );
+
+    Teuchos::ArrayRCP<DataTransferKit::EntityId> children_per_parent = 
+	pairing.childrenPerParent();
+    TEST_EQUALITY( children_per_parent[0], knn );
+    TEST_EQUALITY( children_per_parent[1], knn );
+
+    double radius = pairing.parentSupportRadius( 0 );
+    TEST_FLOATING_EQUALITY( 1.01*1.1, radius, epsilon );
+
+    radius = pairing.parentSupportRadius( 1 );
+    TEST_FLOATING_EQUALITY( 1.01*3.0, radius, epsilon );
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_2_test )
+{
+    int dim = 2;
+    int num_src_points = 10;
+    int num_src_coords = dim*num_src_points;
+
+    Teuchos::Array<double> src_coords(num_src_coords);
+    for ( int i = 0; i < num_src_points; ++i )
+    {
+	src_coords[dim*i] = 1.0*i;
+	src_coords[dim*i+1] = 1.0;
+    }
+
+    int num_tgt_points = 2;
+    int num_tgt_coords = dim*num_tgt_points;
+    Teuchos::Array<double> tgt_coords( num_tgt_coords );
+    tgt_coords[0] = 4.9;
+    tgt_coords[1] = 1.0;
+    tgt_coords[2] = 10.0;
+    tgt_coords[3] = 1.0;
+
+    int knn = 3;
+
+    DataTransferKit::SplineInterpolationPairing<2> pairing( 
+	src_coords(), tgt_coords(), true, knn, 0.0 );
+    
+    Teuchos::ArrayView<const unsigned> view = pairing.childCenterIds( 0 );
+    TEST_EQUALITY( knn, view.size() );
+    TEST_EQUALITY( 5, view[0] );
+    TEST_EQUALITY( 4, view[1] );
+    TEST_EQUALITY( 6, view[2] );
+
+    view = pairing.childCenterIds( 1 );
+    TEST_EQUALITY( knn, view.size() );
+    TEST_EQUALITY( 9, view[0] );
+    TEST_EQUALITY( 8, view[1] );
+    TEST_EQUALITY( 7, view[2] );
+
+    Teuchos::ArrayRCP<DataTransferKit::EntityId> children_per_parent = 
+	pairing.childrenPerParent();
+    TEST_EQUALITY( children_per_parent[0], knn );
+    TEST_EQUALITY( children_per_parent[1], knn );
+
+    double radius = pairing.parentSupportRadius( 0 );
+    TEST_FLOATING_EQUALITY( 1.01*1.1, radius, epsilon );
+
+    radius = pairing.parentSupportRadius( 1 );
+    TEST_FLOATING_EQUALITY( 1.01*3.0, radius, epsilon );
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_3_test )
+{
+    int dim = 3;
+    int num_src_points = 10;
+    int num_src_coords = dim*num_src_points;
+
+    Teuchos::Array<double> src_coords(num_src_coords);
+    for ( int i = 0; i < num_src_points; ++i )
+    {
+	src_coords[dim*i] = 1.0*i;
+	src_coords[dim*i+1] = 1.0;
+	src_coords[dim*i+2] = 1.0;
+    }
+
+    int num_tgt_points = 2;
+    int num_tgt_coords = dim*num_tgt_points;
+    Teuchos::Array<double> tgt_coords( num_tgt_coords );
+    tgt_coords[0] = 4.9;
+    tgt_coords[1] = 1.0;
+    tgt_coords[2] = 1.0;
+    tgt_coords[3] = 10.0;
+    tgt_coords[4] = 1.0;
+    tgt_coords[5] = 1.0;
+
+    int knn = 3;
+
+    DataTransferKit::SplineInterpolationPairing<3> pairing( 
+	src_coords(), tgt_coords(), true, knn, 0.0 );
+    
+    Teuchos::ArrayView<const unsigned> view = pairing.childCenterIds( 0 );
+    TEST_EQUALITY( knn, view.size() );
+    TEST_EQUALITY( 5, view[0] );
+    TEST_EQUALITY( 4, view[1] );
+    TEST_EQUALITY( 6, view[2] );
+
+    view = pairing.childCenterIds( 1 );
+    TEST_EQUALITY( knn, view.size() );
+    TEST_EQUALITY( 9, view[0] );
+    TEST_EQUALITY( 8, view[1] );
+    TEST_EQUALITY( 7, view[2] );
+
+    Teuchos::ArrayRCP<DataTransferKit::EntityId> children_per_parent = 
+	pairing.childrenPerParent();
+    TEST_EQUALITY( children_per_parent[0], knn );
+    TEST_EQUALITY( children_per_parent[1], knn );
+
+    double radius = pairing.parentSupportRadius( 0 );
+    TEST_FLOATING_EQUALITY( 1.01*1.1, radius, epsilon );
+
+    radius = pairing.parentSupportRadius( 1 );
+    TEST_FLOATING_EQUALITY( 1.01*3.0, radius, epsilon );
 }
 
 //---------------------------------------------------------------------------//

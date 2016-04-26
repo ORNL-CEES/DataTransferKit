@@ -91,12 +91,12 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_1_order_0 )
     Teuchos::Array<double> x2(dim, 0.75);
 
     double radius_1 = 1.0;
-    Teuchos::RCP<BasisType> basis_1 = BP::create( radius_1 );
+    Teuchos::RCP<BasisType> basis_1 = BP::create();
 
     double dist = DataTransferKit::EuclideanDistance<1>::distance( 
 	x1.getRawPtr(), x2.getRawPtr() );
-    double basis_value = BP::evaluateValue( *basis_1, dist );
-    double basis_grad = BP::evaluateGradient( *basis_1, dist );
+    double basis_value = BP::evaluateValue( *basis_1, radius_1, dist );
+    double basis_grad = BP::evaluateGradient( *basis_1, radius_1, dist );
 
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
@@ -111,10 +111,10 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_1_order_0 )
     TEST_EQUALITY( test_grad, basis_grad );
 
     double radius_2 = 0.1;
-    BasisType basis_2( radius_2 );
+    BasisType basis_2;
 
-    basis_value = BP::evaluateValue( basis_2, dist );
-    basis_grad = BP::evaluateGradient( basis_2, dist );
+    basis_value = BP::evaluateValue( basis_2, radius_2, dist );
+    basis_grad = BP::evaluateGradient( basis_2, radius_2, dist );
 
     TEST_EQUALITY( 0.0, basis_value );
     TEST_EQUALITY( 0.0, basis_grad );
@@ -132,12 +132,12 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_2_order_0 )
     Teuchos::Array<double> x2(dim, 0.75);
 
     double radius_1 = 1.0;
-    Teuchos::RCP<BasisType> basis_1 = BP::create( radius_1 );
+    Teuchos::RCP<BasisType> basis_1 = BP::create();
 
     double dist = DataTransferKit::EuclideanDistance<2>::distance( 
 	x1.getRawPtr(), x2.getRawPtr() );
-    double basis_value = BP::evaluateValue( *basis_1, dist );
-    double basis_grad = BP::evaluateGradient( *basis_1, dist );
+    double basis_value = BP::evaluateValue( *basis_1, radius_1, dist );
+    double basis_grad = BP::evaluateGradient( *basis_1, radius_1, dist );
 
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
@@ -152,10 +152,10 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_2_order_0 )
     TEST_EQUALITY( test_grad, basis_grad );
 
     double radius_2 = 0.1;
-    BasisType basis_2( radius_2 );
+    BasisType basis_2;
 
-    basis_value = BP::evaluateValue( basis_2, dist );
-    basis_grad = BP::evaluateGradient( basis_2, dist );
+    basis_value = BP::evaluateValue( basis_2, radius_2, dist );
+    basis_grad = BP::evaluateGradient( basis_2, radius_2, dist );
 
     TEST_EQUALITY( 0.0, basis_value );
     TEST_EQUALITY( 0.0, basis_grad );
@@ -173,12 +173,12 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_3_order_0 )
     Teuchos::Array<double> x2(dim, 0.75);
 
     double radius_1 = 1.0;
-    Teuchos::RCP<BasisType> basis_1 = BP::create( radius_1 );
+    Teuchos::RCP<BasisType> basis_1 = BP::create();
 
     double dist = DataTransferKit::EuclideanDistance<3>::distance( 
 	x1.getRawPtr(), x2.getRawPtr() );
-    double basis_value = BP::evaluateValue( *basis_1, dist );
-    double basis_grad = BP::evaluateGradient( *basis_1, dist );
+    double basis_value = BP::evaluateValue( *basis_1, radius_1, dist );
+    double basis_grad = BP::evaluateGradient( *basis_1, radius_1, dist );
 
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
@@ -193,10 +193,10 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_3_order_0 )
     TEST_EQUALITY( test_grad, basis_grad );
 
     double radius_2 = 0.1;
-    BasisType basis_2( radius_2 );
+    BasisType basis_2;
 
-    basis_value = BP::evaluateValue( basis_2, dist );
-    basis_grad = BP::evaluateGradient( basis_2, dist );
+    basis_value = BP::evaluateValue( basis_2, radius_2, dist );
+    basis_grad = BP::evaluateGradient( basis_2, radius_2, dist );
 
     TEST_EQUALITY( 0.0, basis_value );
     TEST_EQUALITY( 0.0, basis_grad );
@@ -214,12 +214,12 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_1_order_2 )
     Teuchos::Array<double> x2(dim, 0.75);
 
     double radius_1 = 1.0;
-    Teuchos::RCP<BasisType> basis_1 = BP::create( radius_1 );
+    Teuchos::RCP<BasisType> basis_1 = BP::create();
 
     double dist = DataTransferKit::EuclideanDistance<1>::distance( 
 	x1.getRawPtr(), x2.getRawPtr() );
-    double basis_value = BP::evaluateValue( *basis_1, dist );
-    double basis_grad = BP::evaluateGradient( *basis_1, dist );
+    double basis_value = BP::evaluateValue( *basis_1, radius_1, dist );
+    double basis_grad = BP::evaluateGradient( *basis_1, radius_1, dist );
 
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
@@ -234,10 +234,10 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_1_order_2 )
     TEST_EQUALITY( test_grad, basis_grad );
 
     double radius_2 = 0.1;
-    BasisType basis_2( radius_2 );
+    BasisType basis_2;
 
-    basis_value = BP::evaluateValue( basis_2, dist );
-    basis_grad = BP::evaluateGradient( basis_2, dist );
+    basis_value = BP::evaluateValue( basis_2, radius_2, dist );
+    basis_grad = BP::evaluateGradient( basis_2, radius_2, dist );
 
     TEST_EQUALITY( 0.0, basis_value );
     TEST_EQUALITY( 0.0, basis_grad );
@@ -255,12 +255,12 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_2_order_2 )
     Teuchos::Array<double> x2(dim, 0.75);
 
     double radius_1 = 1.0;
-    Teuchos::RCP<BasisType> basis_1 = BP::create( radius_1 );
+    Teuchos::RCP<BasisType> basis_1 = BP::create();
 
     double dist = DataTransferKit::EuclideanDistance<2>::distance( 
 	x1.getRawPtr(), x2.getRawPtr() );
-    double basis_value = BP::evaluateValue( *basis_1, dist );
-    double basis_grad = BP::evaluateGradient( *basis_1, dist );
+    double basis_value = BP::evaluateValue( *basis_1, radius_1, dist );
+    double basis_grad = BP::evaluateGradient( *basis_1, radius_1, dist );
 
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
@@ -275,10 +275,10 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_2_order_2 )
     TEST_EQUALITY( test_grad, basis_grad );
 
     double radius_2 = 0.1;
-    BasisType basis_2( radius_2 );
+    BasisType basis_2;
 
-    basis_value = BP::evaluateValue( basis_2, dist );
-    basis_grad = BP::evaluateGradient( basis_2, dist );
+    basis_value = BP::evaluateValue( basis_2, radius_2, dist );
+    basis_grad = BP::evaluateGradient( basis_2, radius_2, dist );
 
     TEST_EQUALITY( 0.0, basis_value );
     TEST_EQUALITY( 0.0, basis_grad );
@@ -296,12 +296,12 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_3_order_2 )
     Teuchos::Array<double> x2(dim, 0.75);
 
     double radius_1 = 1.0;
-    Teuchos::RCP<BasisType> basis_1 = BP::create( radius_1 );
+    Teuchos::RCP<BasisType> basis_1 = BP::create();
 
     double dist = DataTransferKit::EuclideanDistance<3>::distance( 
 	x1.getRawPtr(), x2.getRawPtr() );
-    double basis_value = BP::evaluateValue( *basis_1, dist );
-    double basis_grad = BP::evaluateGradient( *basis_1, dist );
+    double basis_value = BP::evaluateValue( *basis_1, radius_1, dist );
+    double basis_grad = BP::evaluateGradient( *basis_1, radius_1, dist );
 
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
@@ -316,10 +316,10 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_3_order_2 )
     TEST_EQUALITY( test_grad, basis_grad );
 
     double radius_2 = 0.1;
-    BasisType basis_2( radius_2 );
+    BasisType basis_2;
 
-    basis_value = BP::evaluateValue( basis_2, dist );
-    basis_grad = BP::evaluateGradient( basis_2, dist );
+    basis_value = BP::evaluateValue( basis_2, radius_2, dist );
+    basis_grad = BP::evaluateGradient( basis_2, radius_2, dist );
 
     TEST_EQUALITY( 0.0, basis_value );
     TEST_EQUALITY( 0.0, basis_grad );
@@ -337,12 +337,12 @@ TEUCHOS_UNIT_TEST( BuhmannBasis, buhmann_basis )
     Teuchos::Array<double> x2(dim, 0.75);
 
     double radius_1 = 1.0;
-    Teuchos::RCP<BasisType> basis_1 = BP::create( radius_1 );
+    Teuchos::RCP<BasisType> basis_1 = BP::create();
 
     double dist = DataTransferKit::EuclideanDistance<3>::distance( 
 	x1.getRawPtr(), x2.getRawPtr() );
-    double basis_value = BP::evaluateValue( *basis_1, dist );
-    double basis_grad = BP::evaluateGradient( *basis_1, dist );
+    double basis_value = BP::evaluateValue( *basis_1, radius_1, dist );
+    double basis_grad = BP::evaluateGradient( *basis_1, radius_1, dist );
 
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
@@ -363,10 +363,10 @@ TEUCHOS_UNIT_TEST( BuhmannBasis, buhmann_basis )
     TEST_FLOATING_EQUALITY( test_grad, basis_grad, epsilon );
 
     double radius_2 = 0.1;
-    BasisType basis_2( radius_2 );
+    BasisType basis_2;
 
-    basis_value = BP::evaluateValue( basis_2, dist );
-    basis_grad = BP::evaluateGradient( basis_2, dist );
+    basis_value = BP::evaluateValue( basis_2, radius_2, dist );
+    basis_grad = BP::evaluateGradient( basis_2, radius_2, dist );
 
     TEST_EQUALITY( 0.0, basis_value );
     TEST_EQUALITY( 0.0, basis_grad );
@@ -384,12 +384,12 @@ TEUCHOS_UNIT_TEST( WuBasis, wu_basis_order_2 )
     Teuchos::Array<double> x2(dim, 0.75);
 
     double radius_1 = 1.0;
-    Teuchos::RCP<BasisType> basis_1 = BP::create( radius_1 );
+    Teuchos::RCP<BasisType> basis_1 = BP::create();
 
     double dist = DataTransferKit::EuclideanDistance<3>::distance( 
 	x1.getRawPtr(), x2.getRawPtr() );
-    double basis_value = BP::evaluateValue( *basis_1, dist );
-    double basis_grad = BP::evaluateGradient( *basis_1, dist );
+    double basis_value = BP::evaluateValue( *basis_1, radius_1, dist );
+    double basis_grad = BP::evaluateGradient( *basis_1, radius_1, dist );
 
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
@@ -406,10 +406,10 @@ TEUCHOS_UNIT_TEST( WuBasis, wu_basis_order_2 )
     TEST_FLOATING_EQUALITY( test_grad, basis_grad, epsilon );
 
     double radius_2 = 0.1;
-    BasisType basis_2( radius_2 );
+    BasisType basis_2;
 
-    basis_value = BP::evaluateValue( basis_2, dist );
-    basis_grad = BP::evaluateGradient( basis_2, dist );
+    basis_value = BP::evaluateValue( basis_2, radius_2, dist );
+    basis_grad = BP::evaluateGradient( basis_2, radius_2, dist );
 
     TEST_EQUALITY( 0.0, basis_value );
     TEST_EQUALITY( 0.0, basis_grad );
@@ -427,12 +427,12 @@ TEUCHOS_UNIT_TEST( WuBasis, wu_basis_order_4 )
     Teuchos::Array<double> x2(dim, 0.75);
 
     double radius_1 = 1.0;
-    Teuchos::RCP<BasisType> basis_1 = BP::create( radius_1 );
+    Teuchos::RCP<BasisType> basis_1 = BP::create();
 
     double dist = DataTransferKit::EuclideanDistance<3>::distance( 
 	x1.getRawPtr(), x2.getRawPtr() );
-    double basis_value = BP::evaluateValue( *basis_1, dist );
-    double basis_grad = BP::evaluateGradient( *basis_1, dist );
+    double basis_value = BP::evaluateValue( *basis_1, radius_1, dist );
+    double basis_grad = BP::evaluateGradient( *basis_1, radius_1, dist );
 
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
@@ -450,10 +450,10 @@ TEUCHOS_UNIT_TEST( WuBasis, wu_basis_order_4 )
     TEST_EQUALITY( test_grad, basis_grad );
 
     double radius_2 = 0.1;
-    BasisType basis_2( radius_2 );
+    BasisType basis_2;
 
-    basis_value = BP::evaluateValue( basis_2, dist );
-    basis_grad = BP::evaluateGradient( basis_2, dist );
+    basis_value = BP::evaluateValue( basis_2, radius_2, dist );
+    basis_grad = BP::evaluateGradient( basis_2, radius_2, dist );
 
     TEST_EQUALITY( 0.0, basis_value );
     TEST_EQUALITY( 0.0, basis_grad );
