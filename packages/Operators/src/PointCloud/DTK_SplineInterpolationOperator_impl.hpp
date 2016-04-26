@@ -76,26 +76,41 @@ SplineInterpolationOperator<Basis,DIM>::SplineInterpolationOperator(
     const Teuchos::ParameterList& parameters )
     : Base( domain_map, range_map )
     , d_domain_entity_dim( 0 )
-    , d_range_entity_dim( 0 )      
+    , d_range_entity_dim( 0 )
+    , d_use_knn( false )
     , d_knn( 0 )
     , d_radius( 0.0 )
 {
-    // Determine if we are doing kNN support or radius support.
-    DTK_REQUIRE( parameters.isParameter("Use kNN Support") );
-    d_use_knn = parameters.get<bool>("Use kNN Support");
+    // Determine if we are doing kNN search or radius search.
+    if( parameters.isParameter("Type of Search") )
+    {
+	if ( "Radius" == parameters.get<std::string>("Type of Search") )
+	{
+	    d_use_knn = false;
+	}
+	else if ( "Nearest Neighbor" == parameters.get<std::string>("Type of Search") )
+	{
+	    d_use_knn = true;
+	}
+	else
+	{
+	    // Otherwise we got an invalid search type.
+	    DTK_INSIST( false );
+	}
+    }
 
     // If we are doing kNN support get the number of neighbors.
     if( d_use_knn )
     {
-	DTK_REQUIRE( parameters.isParameter("kNN") );
-	d_knn = parameters.get<int>("kNN");
+	DTK_REQUIRE( parameters.isParameter("Search Num Neighbors") );
+	d_knn = parameters.get<int>("Search Num Neighbors");
     }
     
     // Otherwise we are doing the radius search so get the basis radius.
     else
     {
-	DTK_REQUIRE( parameters.isParameter("RBF Radius") );
-	d_radius = parameters.get<double>("RBF Radius");
+	DTK_REQUIRE( parameters.isParameter("Search Radius") );
+	d_radius = parameters.get<double>("Search Radius");
     }
 
     // Get the topological dimension of the domain and range entities. This
