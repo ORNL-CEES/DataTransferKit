@@ -153,6 +153,9 @@ class SplineInterpolationOperator : virtual public MapOperator
     // Range entity topological dimension. Default is 0 (vertex).
     int d_range_entity_dim;
 
+    // Stratimikos parameter list.
+    Teuchos::RCP<Teuchos::ParameterList> d_stratimikos_list;
+
     // Coupling matrix.
     Teuchos::RCP<const Thyra::LinearOpBase<double> > d_coupling_matrix;
 };

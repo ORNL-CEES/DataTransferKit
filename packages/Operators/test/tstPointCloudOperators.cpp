@@ -32,9 +32,9 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   tstMovingLeastSquare.cpp
+ * \file   tstSplineInterpolation.cpp
  * \author Stuart R. Slattery
- * \brief  MovingLeastSquare tests.
+ * \brief  SplineInterpolation tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -47,11 +47,12 @@
 #include <cstdlib>
 
 #include <DTK_MapOperatorFactory.hpp>
+#include <DTK_WuBasis.hpp>
 #include <DTK_Point.hpp>
 #include <DTK_BasicGeometryManager.hpp>
 #include <DTK_Entity.hpp>
-#include "DTK_EntityCenteredField.hpp"
-#include "DTK_FieldMultiVector.hpp"
+#include <DTK_EntityCenteredField.hpp>
+#include <DTK_FieldMultiVector.hpp>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
@@ -61,12 +62,29 @@
 #include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
 #include "Teuchos_ParameterList.hpp"
+#include "Teuchos_XMLParameterListCoreHelpers.hpp"
+
+#include "BelosTypes.hpp"
 
 //---------------------------------------------------------------------------//
-// Tests.
+// Test epsilon.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_radius_test )
+
+const double epsilon = 1.0e-8;
+
+//---------------------------------------------------------------------------//
+// Test dirver.
+//---------------------------------------------------------------------------//
+void setupAndRunTest( const std::string& input_file,
+		      Teuchos::Array<double>& gold_data,
+		      Teuchos::Array<double>& test_result )
 {
+    // Get the test parameters.
+    Teuchos::RCP<Teuchos::ParameterList> parameters =
+	Teuchos::rcp( new Teuchos::ParameterList() );
+    Teuchos::updateParametersFromXmlFile(
+	input_file, Teuchos::inoutArg(*parameters) );
+
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
 	Teuchos::DefaultComm<int>::getComm();
@@ -76,7 +94,12 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_radius_test )
     const int space_dim = 3;
     int field_dim = 1;
 
-    // Make a set of domain points.
+    // Seed the RNG
+    std::srand( 324903231 );
+
+    // Make a set of domain points. These span 0-1 in y and z and span
+    // comm_rank-comm_rank+1 in x. The value of the field we are transferring
+    // is the x + y + z coordinate of the points.
     int num_points = 10;
     int domain_mult = 100;
     int num_domain_points = num_points * domain_mult;
@@ -86,18 +109,20 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_radius_test )
     Teuchos::ArrayRCP<double> domain_data( field_dim*num_domain_points );
     for ( int i = 0; i < num_domain_points; ++i )
     {
-	point_id = num_domain_points*comm_rank + i + 1;
+	point_id = num_domain_points*comm_rank + i;
 	coords[0] = (double) std::rand() / (double) RAND_MAX + comm_rank;
 	coords[1] = (double) std::rand() / (double) RAND_MAX;
 	coords[2] = (double) std::rand() / (double) RAND_MAX;
 	domain_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
-	domain_data[i] = coords[0];
+	domain_data[i] = coords[0] + coords[1] + coords[2];
     }
 
-    // Make a set of range points.
+    // Make a set of range points. These span 0-1 in y and z and span
+    // comm_rank-inverse_rank+1 in x. The gold data is the expected result of
+    // the interpolation.
     Teuchos::Array<DataTransferKit::Entity> range_points( num_points );
-    Teuchos::ArrayRCP<double> range_data( field_dim*num_points );
-    Teuchos::Array<double> gold_data( num_points );
+    test_result.resize( field_dim*num_points );
+    gold_data.resize( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
 	point_id = num_points*inverse_rank + i + 1;
@@ -105,8 +130,8 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_radius_test )
 	coords[1] = (double) std::rand() / (double) RAND_MAX;
 	coords[2] = (double) std::rand() / (double) RAND_MAX;
 	range_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
-	range_data[i] = 0.0;
-	gold_data[i] = coords[0];
+	test_result[i] = 0.0;
+	gold_data[i] = coords[0] + coords[1] + coords[2];
     }
 
     // Make a manager for the domain geometry.
@@ -130,142 +155,100 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_radius_test )
     // Make a DOF vector for the range.
     Teuchos::RCP<DataTransferKit::Field> range_field =
 	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
-			  range_points(), field_dim, range_data,
+			  range_points(), field_dim, Teuchos::arcpFromArray(test_result),
 			  DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_vector =
 	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
 			  range_field,
 			  range_manager.functionSpace()->entitySet()) );
 
-    // Make a moving least square reconstruction operator.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<std::string>("Map Type", "Point Cloud");
-    Teuchos::ParameterList& cloud_list = parameters->sublist("Point Cloud");
-    cloud_list.set<std::string>("Map Type","Moving Least Square Reconstruction");
-    cloud_list.set<std::string>("Basis Type", "Wu");
-    cloud_list.set<int>("Basis Order",2);
-    cloud_list.set<int>("Spatial Dimension",space_dim);
-    cloud_list.set<bool>("Use kNN Support",false);
-    cloud_list.set<double>("RBF Radius", 0.25);
+    // Create the point cloud operator
     DataTransferKit::MapOperatorFactory factory;
-    Teuchos::RCP<DataTransferKit::MapOperator> mls_op =
+    Teuchos::RCP<DataTransferKit::MapOperator> cloud_op =
 	factory.create( domain_vector->getMap(), range_vector->getMap(), *parameters );
 
     // Setup the operator.
-    mls_op->setup( domain_manager.functionSpace(),
-		   range_manager.functionSpace() );
+    cloud_op->setup( domain_manager.functionSpace(),
+		     range_manager.functionSpace() );
 
     // Apply the operator.
-    mls_op->apply( *domain_vector, *range_vector );
+    cloud_op->apply( *domain_vector, *range_vector );
+}
 
-    // Check the apply.
+//---------------------------------------------------------------------------//
+// Tests.
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_radius_test )
+{
+    // Run the test.
+    Teuchos::Array<double> gold_data;
+    Teuchos::Array<double> test_result;
+    setupAndRunTest(
+	"spline_interpolation_test_radius.xml", gold_data, test_result );
+    
+    // Check the results.
+    TEST_EQUALITY( gold_data.size(), test_result.size() );
+    int num_points = gold_data.size();
     for ( int i = 0; i < num_points; ++i )
     {
-	TEST_FLOATING_EQUALITY( gold_data[i], range_data[i], 1.0e-8 );
+	TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
+    }
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_knn_test )
+{
+    // Run the test.
+    Teuchos::Array<double> gold_data;
+    Teuchos::Array<double> test_result;
+    setupAndRunTest(
+	"spline_interpolation_test_knn.xml", gold_data, test_result );
+    
+    // Check the results.
+    TEST_EQUALITY( gold_data.size(), test_result.size() );
+    int num_points = gold_data.size();
+    for ( int i = 0; i < num_points; ++i )
+    {
+	TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
+    }
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_radius_test )
+{
+    // Run the test.
+    Teuchos::Array<double> gold_data;
+    Teuchos::Array<double> test_result;
+    setupAndRunTest(
+	"mls_test_radius.xml", gold_data, test_result );
+    
+    // Check the results.
+    TEST_EQUALITY( gold_data.size(), test_result.size() );
+    int num_points = gold_data.size();
+    for ( int i = 0; i < num_points; ++i )
+    {
+	TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
     }
 }
 
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_knn_test )
 {
-    // Get the communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::DefaultComm<int>::getComm();
-    int comm_rank = comm->getRank();
-    int comm_size = comm->getSize();
-    int inverse_rank = comm_size - comm_rank - 1;
-    const int space_dim = 3;
-    int field_dim = 1;
-
-    // Make a set of domain points.
-    int num_points = 10;
-    int domain_mult = 100;
-    int num_domain_points = num_points * domain_mult;
-    Teuchos::Array<DataTransferKit::Entity> domain_points( num_domain_points );
-    Teuchos::Array<double> coords( space_dim );
-    DataTransferKit::EntityId point_id = 0;
-    Teuchos::ArrayRCP<double> domain_data( field_dim*num_domain_points );
-    for ( int i = 0; i < num_domain_points; ++i )
-    {
-	point_id = num_domain_points*comm_rank + i + 1;
-	coords[0] = (double) std::rand() / (double) RAND_MAX + comm_rank;
-	coords[1] = (double) std::rand() / (double) RAND_MAX;
-	coords[2] = (double) std::rand() / (double) RAND_MAX;
-	domain_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
-	domain_data[i] = coords[0];
-    }
-
-    // Make a set of range points.
-    Teuchos::Array<DataTransferKit::Entity> range_points( num_points );
-    Teuchos::ArrayRCP<double> range_data( field_dim*num_points );
-    Teuchos::Array<double> gold_data( num_points );
+    // Run the test.
+    Teuchos::Array<double> gold_data;
+    Teuchos::Array<double> test_result;
+    setupAndRunTest(
+	"mls_test_knn.xml", gold_data, test_result );
+    
+    // Check the results.
+    TEST_EQUALITY( gold_data.size(), test_result.size() );
+    int num_points = gold_data.size();
     for ( int i = 0; i < num_points; ++i )
     {
-	point_id = num_points*inverse_rank + i + 1;
-	coords[0] = (double) std::rand() / (double) RAND_MAX + inverse_rank;
-	coords[1] = (double) std::rand() / (double) RAND_MAX;
-	coords[2] = (double) std::rand() / (double) RAND_MAX;
-	range_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
-	range_data[i] = 0.0;
-	gold_data[i] = coords[0];
-    }
-
-    // Make a manager for the domain geometry.
-    DataTransferKit::BasicGeometryManager domain_manager( 
-	comm, space_dim, domain_points() );
-					   
-    // Make a manager for the range geometry.
-    DataTransferKit::BasicGeometryManager range_manager( 
-	comm, space_dim, range_points() );
-
-    // Make a DOF vector for the domain.
-    Teuchos::RCP<DataTransferKit::Field> domain_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
-			  domain_points(), field_dim, domain_data,
-			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_vector =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-			  domain_field,
-			  domain_manager.functionSpace()->entitySet()) );
-
-    // Make a DOF vector for the range.
-    Teuchos::RCP<DataTransferKit::Field> range_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
-			  range_points(), field_dim, range_data,
-			  DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_vector =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-			  range_field,
-			  range_manager.functionSpace()->entitySet()) );
-
-    // Make a moving least square reconstruction operator.
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<std::string>("Map Type", "Point Cloud");
-    Teuchos::ParameterList& cloud_list = parameters->sublist("Point Cloud");
-    cloud_list.set<std::string>("Map Type","Moving Least Square Reconstruction");
-    cloud_list.set<std::string>("Basis Type", "Wu");
-    cloud_list.set<int>("Basis Order",2);
-    cloud_list.set<int>("Spatial Dimension",space_dim);
-    cloud_list.set<bool>("Use kNN Support",true);
-    cloud_list.set<int>("kNN", 20);
-    DataTransferKit::MapOperatorFactory factory;
-    Teuchos::RCP<DataTransferKit::MapOperator> mls_op =
-	factory.create( domain_vector->getMap(), range_vector->getMap(), *parameters );
-
-    // Setup the operator.
-    mls_op->setup( domain_manager.functionSpace(),
-		   range_manager.functionSpace() );
-
-    // Apply the operator.
-    mls_op->apply( *domain_vector, *range_vector );
-
-    // Check the apply.
-    for ( int i = 0; i < num_points; ++i )
-    {
-	TEST_FLOATING_EQUALITY( gold_data[i], range_data[i], 1.0e-8 );
+	TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
     }
 }
 
 //---------------------------------------------------------------------------//
-// end tstMovingLeastSquare.cpp
+// end tstSplineInterpolation.cpp
 //---------------------------------------------------------------------------//

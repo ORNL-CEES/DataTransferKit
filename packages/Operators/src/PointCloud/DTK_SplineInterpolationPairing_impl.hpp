@@ -76,28 +76,27 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
     // Search for pairs
     for ( unsigned i = 0; i < num_parents; ++i )
     {
-	// if kNN do the nearest neighbor search for kNN+1 and calculate a
-	// radius
+	// If kNN do the nearest neighbor search for kNN and calculate a
+	// radius. The radius will be a small fraction larger than the
+	// farthest neighbor. An alternative to this would be to find the
+	// kNN+1 neighbors and use the last neighbor's distance as the
+	// radius. 
 	if ( use_knn )
 	{
 	    // Get the knn neighbors
 	    d_pairings[i] =
-		tree.nnSearch( parent_centers(DIM*i,DIM), num_neighbors + 1 );
+		tree.nnSearch( parent_centers(DIM*i,DIM), num_neighbors );
 
-	    // Get the radius from kNN + 1
+	    // Get the radius from kNN. Make it slightly larger so the last
+	    // neighbor gives a non-zero contribution to the interpolant.
 	    d_radii[i] =
 		EuclideanDistance<DIM>::distance(
 		    parent_centers(DIM*i,DIM).getRawPtr(),
 		    child_centers(DIM*d_pairings[i].back(),DIM).getRawPtr() );
-
-	    // Pop the back of the neighbors to get kNN
-	    if ( d_pairings[i].size() > 0 )
-	    {
-		d_pairings[i].pop_back();
-	    }
+	    d_radii[i] *= 1.01;
 	}
 
-	// otherwise do the radius search
+	// Otherwise do the radius search.
 	else
 	{
 	    d_pairings[i] =
@@ -105,7 +104,7 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
 	    d_radii[i] = radius;
 	}
 
-	// get the size of the support.
+	// Get the size of the support.
 	d_pair_sizes[i] = d_pairings[i].size();
     }
 }

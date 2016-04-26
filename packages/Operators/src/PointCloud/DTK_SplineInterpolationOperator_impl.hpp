@@ -102,15 +102,15 @@ SplineInterpolationOperator<Basis,DIM>::SplineInterpolationOperator(
     // If we are doing kNN support get the number of neighbors.
     if( d_use_knn )
     {
-	DTK_REQUIRE( parameters.isParameter("Search Num Neighbors") );
-	d_knn = parameters.get<int>("Search Num Neighbors");
+	DTK_REQUIRE( parameters.isParameter("Num Neighbors") );
+	d_knn = parameters.get<int>("Num Neighbors");
     }
     
     // Otherwise we are doing the radius search so get the basis radius.
     else
     {
-	DTK_REQUIRE( parameters.isParameter("Search Radius") );
-	d_radius = parameters.get<double>("Search Radius");
+	DTK_REQUIRE( parameters.isParameter("RBF Radius") );
+	d_radius = parameters.get<double>("RBF Radius");
     }
 
     // Get the topological dimension of the domain and range entities. This
@@ -122,6 +122,13 @@ SplineInterpolationOperator<Basis,DIM>::SplineInterpolationOperator(
     if ( parameters.isParameter("Range Entity Dimension") )
     {
 	d_range_entity_dim = parameters.get<int>("Range Entity Dimension");
+    }
+
+    // Get the stratimikos parameters if they exist.
+    if ( parameters.isSublist("Stratimikos") )
+    {
+	d_stratimikos_list = Teuchos::rcp(
+	    new Teuchos::ParameterList(parameters.sublist("Stratimikos")) );
     }
 }
 
@@ -225,19 +232,24 @@ void SplineInterpolationOperator<Basis,DIM>::setupImpl(
     Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > thyra_C =
 	Thyra::add<Scalar>( thyra_PpM, thyra_P_T );
 
+    // If we didnt get stratimikos parameters from the input list, create some
+    // here.
+    if ( Teuchos::is_null(d_stratimikos_list) )
+    {
+	d_stratimikos_list = Teuchos::parameterList("Stratimikos");
+	Teuchos::updateParametersFromXmlString(
+	    "<ParameterList name=\"Stratimikos\">"
+	    "<Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Belos\"/>"
+	    "<Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>"
+	    "</ParameterList>"
+	    ,
+	    d_stratimikos_list.ptr()
+	    );
+    }
+
     // Create the inverse of the composite operator C.
-    Teuchos::RCP<Teuchos::ParameterList> builder_params =
-	Teuchos::parameterList("Stratimikos");
-    Teuchos::updateParametersFromXmlString(
-      "<ParameterList name=\"Stratimikos\">"
-        "<Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Belos\"/>"
-        "<Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>"
-      "</ParameterList>"
-      ,
-      builder_params.ptr()
-      );
     Stratimikos::DefaultLinearSolverBuilder builder;
-    builder.setParameterList( builder_params );
+    builder.setParameterList( d_stratimikos_list );
     Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<Scalar> > factory = 
 	Thyra::createLinearSolveStrategy( builder );
     Teuchos::RCP<const Thyra::LinearOpBase<Scalar> > thyra_C_inv =

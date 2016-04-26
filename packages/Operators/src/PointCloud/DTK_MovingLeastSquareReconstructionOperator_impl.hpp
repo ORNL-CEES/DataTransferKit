@@ -94,15 +94,15 @@ MovingLeastSquareReconstructionOperator(
     // If we are doing kNN support get the number of neighbors.
     if( d_use_knn )
     {
-	DTK_REQUIRE( parameters.isParameter("Search Num Neighbors") );
-	d_knn = parameters.get<int>("Search Num Neighbors");
+	DTK_REQUIRE( parameters.isParameter("Num Neighbors") );
+	d_knn = parameters.get<int>("Num Neighbors");
     }
     
     // Otherwise we are doing the radius search so get the basis radius.
     else
     {
-	DTK_REQUIRE( parameters.isParameter("Search Radius") );
-	d_radius = parameters.get<double>("Search Radius");
+	DTK_REQUIRE( parameters.isParameter("RBF Radius") );
+	d_radius = parameters.get<double>("RBF Radius");
     }
 
     // Get the topological dimension of the domain and range entities. This
@@ -207,7 +207,8 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
 
     // Calculate an approximate neighborhood distance for the local target
     // centers. If using kNN, compute an approximation. If doing a radial
-    // search, use the radius.
+    // search, use the radius. We will use these distances to expand the local
+    // bounding box to ensure we find all of our neighbors in parallel.
     double target_proximity = 0.0;
     if ( d_use_knn )
     {

@@ -265,10 +265,10 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_1_test )
     TEST_EQUALITY( children_per_parent[1], knn );
 
     double radius = pairing.parentSupportRadius( 0 );
-    TEST_FLOATING_EQUALITY( 1.9, radius, epsilon );
+    TEST_FLOATING_EQUALITY( 1.01*1.1, radius, epsilon );
 
     radius = pairing.parentSupportRadius( 1 );
-    TEST_FLOATING_EQUALITY( 4.0, radius, epsilon );
+    TEST_FLOATING_EQUALITY( 1.01*3.0, radius, epsilon );
 }
 
 //---------------------------------------------------------------------------//
@@ -316,10 +316,10 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_2_test )
     TEST_EQUALITY( children_per_parent[1], knn );
 
     double radius = pairing.parentSupportRadius( 0 );
-    TEST_FLOATING_EQUALITY( 1.9, radius, epsilon );
+    TEST_FLOATING_EQUALITY( 1.01*1.1, radius, epsilon );
 
     radius = pairing.parentSupportRadius( 1 );
-    TEST_FLOATING_EQUALITY( 4.0, radius, epsilon );
+    TEST_FLOATING_EQUALITY( 1.01*3.0, radius, epsilon );
 }
 
 //---------------------------------------------------------------------------//
@@ -370,10 +370,10 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_3_test )
     TEST_EQUALITY( children_per_parent[1], knn );
 
     double radius = pairing.parentSupportRadius( 0 );
-    TEST_FLOATING_EQUALITY( 1.9, radius, epsilon );
+    TEST_FLOATING_EQUALITY( 1.01*1.1, radius, epsilon );
 
     radius = pairing.parentSupportRadius( 1 );
-    TEST_FLOATING_EQUALITY( 4.0, radius, epsilon );
+    TEST_FLOATING_EQUALITY( 1.01*3.0, radius, epsilon );
 }
 
 //---------------------------------------------------------------------------//
