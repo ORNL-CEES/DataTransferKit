@@ -90,7 +90,8 @@ class PointCloudOperatorFactory
     enum PointCloudOperatorType
     {
 	SPLINE_INTERPOLATION,
-	MOVING_LEAST_SQUARE
+	MOVING_LEAST_SQUARE,
+        NODE_TO_NODE
     };
 
     // Basis enum.

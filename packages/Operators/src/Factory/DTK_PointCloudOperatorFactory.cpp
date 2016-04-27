@@ -40,6 +40,7 @@
 
 #include "DTK_PointCloudOperatorFactory.hpp"
 #include "DTK_DBC.hpp"
+#include "DTK_NodeToNodeOperator.hpp"
 #include "DTK_SplineInterpolationOperator.hpp"
 #include "DTK_MovingLeastSquareReconstructionOperator.hpp"
 #include "DTK_WendlandBasis.hpp"
@@ -54,6 +55,7 @@ PointCloudOperatorFactory::PointCloudOperatorFactory()
 {
     d_name_map["Spline Interpolation"] = SPLINE_INTERPOLATION;
     d_name_map["Moving Least Square Reconstruction"] = MOVING_LEAST_SQUARE;
+    d_name_map["Node To Node"] = NODE_TO_NODE;
 
     d_basis_map["Wendland"] = WENDLAND;
     d_basis_map["Wu"] = WU;
@@ -89,6 +91,28 @@ PointCloudOperatorFactory::create(
     switch( map_id )
     {
 	// Spline Interpolation.
+	case NODE_TO_NODE:
+	    switch( space_dim )
+	    {
+		case 1:
+                    map = Teuchos::rcp(
+                        new NodeToNodeOperator<1>(
+                            domain_map,range_map,parameters) );
+                    break;
+		case 2:
+                    map = Teuchos::rcp(
+                        new NodeToNodeOperator<2>(
+                            domain_map,range_map,parameters) );
+                    break;
+		case 3:
+                    map = Teuchos::rcp(
+                        new NodeToNodeOperator<3>(
+                            domain_map,range_map,parameters) );
+                    break;
+            }
+            break;
+            
+        // Spline Interpolation.
 	case SPLINE_INTERPOLATION:
 	    switch( space_dim )
 	    {
@@ -102,8 +126,8 @@ PointCloudOperatorFactory::create(
 				    map = Teuchos::rcp(
 					new SplineInterpolationOperator<
 					WendlandBasis<0>,1>(domain_map,
-								   range_map,
-								   parameters) );
+                                                            range_map,
+                                                            parameters) );
 				    break;
 				case 2:
 				    map = Teuchos::rcp(
