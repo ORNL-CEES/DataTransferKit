@@ -79,12 +79,21 @@ PointCloudOperatorFactory::create(
     int space_dim = parameters.get<int>("Spatial Dimension");
 
     // Get the basis type.
-    std::string basis_name = parameters.get<std::string>("Basis Type");
-    DTK_REQUIRE( d_basis_map.count(basis_name) );
-    int basis_id = d_basis_map.find( basis_name )->second;
+    std::string basis_name = "invalid";
+    int basis_id = -1;
+    if ( parameters.isParameter("Basis Type") )
+    {
+        basis_name = parameters.get<std::string>("Basis Type");
+        DTK_REQUIRE( d_basis_map.count(basis_name) );
+        basis_id = d_basis_map.find( basis_name )->second;
+    }
 
     // Get the basis order.
-    int basis_order = parameters.get<int>("Basis Order");
+    int basis_order = -1;
+    if ( parameters.isParameter("Basis Order") )
+    {
+        basis_order = parameters.get<int>("Basis Order");
+    }
     
     // Build the map.
     Teuchos::RCP<MapOperator> map;

@@ -189,7 +189,7 @@ void NodeToNodeOperator<DIM>::setupImpl(
     SplineInterpolationPairing<DIM> pairings( 
 	dist_sources, target_centers(), true, 1, 0.0 );
    
-    // Build the interpolation matrix.
+    // Build the coupling matrix.
     d_coupling_matrix = Teuchos::rcp(
         new Tpetra::CrsMatrix<Scalar,LO,GO>(range_map, 1) );
     Teuchos::Array<GO> indices( 1 );
@@ -206,9 +206,11 @@ void NodeToNodeOperator<DIM>::setupImpl(
             
             // Check that our neighbor node has the same coordinates.
             DTK_CHECK(
-                std::abs( EuclideanDistance<DIM>::distance(
-                              dist_sources(DIM*pairings.childCenterIds(i),DIM).getRawPtr(),
-                              target_centers(DIM*i,DIM)) ) < 1.0e-14 );
+                std::abs(
+                    EuclideanDistance<DIM>::distance(
+                        dist_sources(DIM*pairings.childCenterIds(i)[0],DIM).getRawPtr(),
+                        target_centers(DIM*i,DIM).getRawPtr()) )
+                < 1.0e-14 );
                 
             // Get the id of the domain node
             indices[0] =

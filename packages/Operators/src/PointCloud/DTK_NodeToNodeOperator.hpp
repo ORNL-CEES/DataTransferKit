@@ -123,7 +123,7 @@ class NodeToNodeOperator : virtual public MapOperator
   private:
 
     // Exporter
-    Teuchos::RCP<const Tpetra::CrsMatrix<Scalar,LO,GO> > d_coupling_matrix;
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > d_coupling_matrix;
 };
 
 //---------------------------------------------------------------------------//
