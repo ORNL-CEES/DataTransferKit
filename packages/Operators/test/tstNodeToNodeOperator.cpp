@@ -32,9 +32,9 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   tstPointCloudOperators.cpp
+ * \file   tstSplineInterpolation.cpp
  * \author Stuart R. Slattery
- * \brief  Point cloud operator tests.
+ * \brief  SplineInterpolation tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -47,6 +47,7 @@
 #include <cstdlib>
 
 #include <DTK_MapOperatorFactory.hpp>
+#include <DTK_WuBasis.hpp>
 #include <DTK_Point.hpp>
 #include <DTK_BasicGeometryManager.hpp>
 #include <DTK_Entity.hpp>
@@ -62,6 +63,8 @@
 #include "Teuchos_CommHelpers.hpp"
 #include "Teuchos_ParameterList.hpp"
 #include "Teuchos_XMLParameterListCoreHelpers.hpp"
+
+#include "BelosTypes.hpp"
 
 //---------------------------------------------------------------------------//
 // Test epsilon.
