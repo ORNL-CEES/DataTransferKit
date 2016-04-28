@@ -91,43 +91,15 @@ void NodeToNodeOperator<DIM>::setupImpl(
     bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
     bool nonnull_range = Teuchos::nonnull( range_space->entitySet() );
 
-    // Get an iterator over the domain nodes.
-    EntityIterator domain_iterator;
-    if ( nonnull_domain )
-    {
-	LocalEntityPredicate local_predicate(
-	    domain_space->entitySet()->communicator()->getRank() );	
-	PredicateFunction domain_predicate =
-	    PredicateComposition::And(
-		domain_space->selectFunction(),	local_predicate.getFunction() );
-	domain_iterator =
-	    domain_space->entitySet()->entityIterator( 0, domain_predicate );
-    }
-
     // Extract the source nodes and their ids.
     Teuchos::ArrayRCP<double> source_centers;
     Teuchos::ArrayRCP<GO> source_support_ids;
-    getNodeCoordsAndIds( domain_space, domain_iterator,
-                         source_centers, source_support_ids );
-
-    // Get an iterator over the range nodes.
-    EntityIterator range_iterator;
-    if ( nonnull_range )
-    {
-	LocalEntityPredicate local_predicate(
-	    range_space->entitySet()->communicator()->getRank() );	
-	PredicateFunction range_predicate =
-	    PredicateComposition::And(
-		range_space->selectFunction(), local_predicate.getFunction() );
-	range_iterator =
-	    range_space->entitySet()->entityIterator( 0, range_predicate );
-    }
+    getNodeCoordsAndIds( domain_space, source_centers, source_support_ids );
 
     // Extract the target nodes and their ids.    
     Teuchos::ArrayRCP<double> target_centers;
     Teuchos::ArrayRCP<GO> target_support_ids;
-    getNodeCoordsAndIds( range_space, range_iterator,
-                         target_centers, target_support_ids );
+    getNodeCoordsAndIds( range_space, target_centers, target_support_ids );
     
     // Gather the source centers that are in the proximity of the target
     // centers on this proc.
@@ -152,7 +124,7 @@ void NodeToNodeOperator<DIM>::setupImpl(
     Teuchos::Array<GO> indices( 1 );
     Teuchos::Array<double> values( 1, 1.0 );
     int nn = 0;
-    int local_num_tgt = range_iterator.size();
+    int local_num_tgt = target_support_ids.size();
     for ( int i = 0; i < local_num_tgt; ++i )
     {
 	// If there is no support for this target center then do not build a
@@ -201,10 +173,22 @@ void NodeToNodeOperator<DIM>::applyImpl(
 template<int DIM>
 void NodeToNodeOperator<DIM>::getNodeCoordsAndIds(
     const Teuchos::RCP<FunctionSpace>& space,    
-    EntityIterator iterator,
     Teuchos::ArrayRCP<double>& centers,
     Teuchos::ArrayRCP<GO>& support_ids ) const
 {
+    // Get an iterator over the local nodes.
+    EntityIterator iterator;
+    if ( Teuchos::nonnull(space->entitySet()) )
+    {
+        LocalEntityPredicate local_predicate(
+            space->entitySet()->communicator()->getRank() );	
+        PredicateFunction predicate =
+            PredicateComposition::And(
+                space->selectFunction(),local_predicate.getFunction() );
+        iterator = space->entitySet()->entityIterator( 0, predicate );
+    }
+    
+    // Extract the coordinates and support ids of the nodes.
     int local_num_node = iterator.size();
     centers = Teuchos::ArrayRCP<double>( DIM*local_num_node);
     support_ids = Teuchos::ArrayRCP<GO>( local_num_node );

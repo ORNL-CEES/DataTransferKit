@@ -140,42 +140,16 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
     bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
     bool nonnull_range = Teuchos::nonnull( range_space->entitySet() );
 
-    // Get an iterator over the domain entities.
-    EntityIterator domain_iterator;
-    if ( nonnull_domain )
-    {
-	LocalEntityPredicate local_predicate(
-	    domain_space->entitySet()->communicator()->getRank() );	
-	PredicateFunction domain_predicate =
-	    PredicateComposition::And(
-		domain_space->selectFunction(),	local_predicate.getFunction() );
-	domain_iterator =
-	    domain_space->entitySet()->entityIterator( d_domain_entity_dim, domain_predicate );
-    }
-
     // Extract the source nodes and their ids.
     Teuchos::ArrayRCP<double> source_centers;
     Teuchos::ArrayRCP<GO> source_support_ids;
-    getNodeCoordsAndIds( domain_space, domain_iterator,
+    getNodeCoordsAndIds( domain_space, d_domain_entity_dim,
                          source_centers, source_support_ids );
     
-    // Get an iterator over the range entities.
-    EntityIterator range_iterator;
-    if ( nonnull_range )
-    {
-	LocalEntityPredicate local_predicate(
-	    range_space->entitySet()->communicator()->getRank() );	
-	PredicateFunction range_predicate =
-	    PredicateComposition::And(
-		range_space->selectFunction(), local_predicate.getFunction() );
-	range_iterator =
-	    range_space->entitySet()->entityIterator( d_range_entity_dim, range_predicate );
-    } 
-
     // Extract the target nodes and their ids.    
     Teuchos::ArrayRCP<double> target_centers;
     Teuchos::ArrayRCP<GO> target_support_ids;
-    getNodeCoordsAndIds( range_space, range_iterator,
+    getNodeCoordsAndIds( range_space, d_range_entity_dim,
                          target_centers, target_support_ids );
 
     // Calculate an approximate neighborhood distance for the local target
@@ -237,7 +211,7 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
     Teuchos::ArrayView<const double> values;
     Teuchos::ArrayView<const unsigned> pair_gids;
     int nn = 0;
-    int local_num_tgt = range_iterator.size();    
+    int local_num_tgt = target_support_ids.size();
     for ( int i = 0; i < local_num_tgt; ++i )
     {
 	// If there is no support for this target center then do not build a
@@ -287,11 +261,24 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::applyImpl(
 // Extract node coordinates and ids from an iterator.
 template<class Basis,int DIM>
 void MovingLeastSquareReconstructionOperator<Basis,DIM>::getNodeCoordsAndIds(
-    const Teuchos::RCP<FunctionSpace>& space,    
-    EntityIterator iterator,
+    const Teuchos::RCP<FunctionSpace>& space,
+    const int entity_dim,
     Teuchos::ArrayRCP<double>& centers,
     Teuchos::ArrayRCP<GO>& support_ids ) const
 {
+    // Get an iterator over the local nodes.
+    EntityIterator iterator;
+    if ( Teuchos::nonnull(space->entitySet()) )
+    {
+        LocalEntityPredicate local_predicate(
+            space->entitySet()->communicator()->getRank() );	
+        PredicateFunction predicate =
+            PredicateComposition::And(
+                space->selectFunction(),local_predicate.getFunction() );
+        iterator = space->entitySet()->entityIterator( entity_dim, predicate );
+    }
+    
+    // Extract the coordinates and support ids of the nodes.
     int local_num_node = iterator.size();
     centers = Teuchos::ArrayRCP<double>( DIM*local_num_node);
     support_ids = Teuchos::ArrayRCP<GO>( local_num_node );
