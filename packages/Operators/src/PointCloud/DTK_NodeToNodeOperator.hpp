@@ -119,6 +119,14 @@ class NodeToNodeOperator : virtual public MapOperator
 	Teuchos::ETransp mode = Teuchos::NO_TRANS,
 	double alpha = Teuchos::ScalarTraits<double>::one(),
 	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+
+  private:
+
+    // Extract node coordinates and ids from an iterator.
+    void getNodeCoordsAndIds( const Teuchos::RCP<FunctionSpace>& space,
+                              EntityIterator iterator,
+                              Teuchos::ArrayRCP<double>& centers,
+                              Teuchos::ArrayRCP<GO>& support_ids ) const;
     
   private:
 
