@@ -138,6 +138,14 @@ class SplineInterpolationOperator : virtual public MapOperator
 
   private:
 
+    // Extract node coordinates and ids from an iterator.
+    void getNodeCoordsAndIds( const Teuchos::RCP<FunctionSpace>& space,
+                              EntityIterator iterator,
+                              Teuchos::ArrayRCP<double>& centers,
+                              Teuchos::ArrayRCP<GO>& support_ids ) const;
+    
+  private:
+
     // Flag for search type. True if kNN, false if radius.
     bool d_use_knn;
 
