@@ -32,91 +32,24 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_PointCloudOperatorFactory.hpp
+ * \file   DTK_NodeToNodeOperator.cpp
  * \author Stuart R. Slattery
- * \brief Point cloud map operator factory.
+ * \brief Parallel node to node transfer.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_POINTCLOUDOPERATORFACTORY_HPP
-#define DTK_POINTCLOUDOPERATORFACTORY_HPP
-
-#include <unordered_map>
-
-#include "DTK_MapOperator.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
+#include "DTK_NodeToNodeOperator_impl.hpp"
 
 namespace DataTransferKit
 {
-//---------------------------------------------------------------------------//
-/*!
-  \class PointCloudOperatorFactory
-  \brief Factory for DTK point cloud map operators.
-*/
-//---------------------------------------------------------------------------//
-class PointCloudOperatorFactory
-{
-  public:
-    
-    //! Tpetra Map typedef.
-    typedef typename MapOperator::TpetraMap TpetraMap;
 
-    /*!
-     * \brief Constructor.
-     */
-    PointCloudOperatorFactory();
-    
-    /*!
-     * \brief Creation method.
-     *
-     * \param domain_map Parallel map for domain vectors the created map
-     * should be compatible with.
-     *
-     * \param range_map Parallel map for range vectors the created map should
-     * be compatible with.
-     *
-     * \param parameters Creation parameters.
-     */
-    Teuchos::RCP<MapOperator>
-    create( const Teuchos::RCP<const TpetraMap>& domain_map,
-	    const Teuchos::RCP<const TpetraMap>& range_map,
-	    const Teuchos::ParameterList& parameters );
-
-  private:
-
-    // Operator enum.
-    enum PointCloudOperatorType
-    {
-	SPLINE_INTERPOLATION,
-	MOVING_LEAST_SQUARE,
-        NODE_TO_NODE
-    };
-
-    // Basis enum.
-    enum PointCloudBasisType
-    {
-	WENDLAND,
-	WU,
-	BUHMANN
-    };
-
-    // String name to enum map.
-    std::unordered_map<std::string,int> d_name_map;
-
-    // Basis name to enum map.
-    std::unordered_map<std::string,int> d_basis_map;
-};
-
-//---------------------------------------------------------------------------//
+template class NodeToNodeOperator<1>;
+template class NodeToNodeOperator<2>;
+template class NodeToNodeOperator<3>;
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_POINTCLOUDOPERATORFACTORY_HPP
-
+// end DTK_NodeToNodeOperator.cpp
 //---------------------------------------------------------------------------//
-// end DTK_MapOperator.hpp
-//---------------------------------------------------------------------------//
+

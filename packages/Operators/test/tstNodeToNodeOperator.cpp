@@ -32,9 +32,9 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   tstPointCloudOperators.cpp
+ * \file   tstNodeToNodeOperator.cpp
  * \author Stuart R. Slattery
- * \brief  Point cloud operator tests.
+ * \brief  NodeToNode operator tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -44,7 +44,6 @@
 #include <sstream>
 #include <stdexcept>
 #include <limits>
-#include <cstdlib>
 
 #include <DTK_MapOperatorFactory.hpp>
 #include <DTK_Point.hpp>
@@ -67,7 +66,7 @@
 // Test epsilon.
 //---------------------------------------------------------------------------//
 
-const double epsilon = 1.0e-8;
+const double epsilon = 1.0e-14;
 
 //---------------------------------------------------------------------------//
 // Test dirver.
@@ -91,41 +90,41 @@ void setupAndRunTest( const std::string& input_file,
     const int space_dim = 3;
     int field_dim = 1;
 
-    // Seed the RNG
-    std::srand( 324903231 );
-
     // Make a set of domain points. These span 0-1 in y and z and span
     // comm_rank-comm_rank+1 in x. The value of the field we are transferring
     // is the x + y + z coordinate of the points.
     int num_points = 10;
     int domain_mult = 100;
-    int num_domain_points = num_points * domain_mult;
-    Teuchos::Array<DataTransferKit::Entity> domain_points( num_domain_points );
+    Teuchos::Array<DataTransferKit::Entity> domain_points( num_points );
     Teuchos::Array<double> coords( space_dim );
     DataTransferKit::EntityId point_id = 0;
-    Teuchos::ArrayRCP<double> domain_data( field_dim*num_domain_points );
-    for ( int i = 0; i < num_domain_points; ++i )
+    Teuchos::ArrayRCP<double> domain_data( field_dim*num_points );
+    double coord_val = 0.0;
+    for ( int i = 0; i < num_points; ++i )
     {
-	point_id = num_domain_points*comm_rank + i;
-	coords[0] = (double) std::rand() / (double) RAND_MAX + comm_rank;
-	coords[1] = (double) std::rand() / (double) RAND_MAX;
-	coords[2] = (double) std::rand() / (double) RAND_MAX;
+	point_id = num_points*comm_rank + i;
+        coord_val = static_cast<double>(i) / num_points;
+	coords[0] = coord_val + comm_rank;
+	coords[1] = coord_val;
+	coords[2] = coord_val;
 	domain_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
 	domain_data[i] = coords[0] + coords[1] + coords[2];
     }
 
     // Make a set of range points. These span 0-1 in y and z and span
-    // comm_rank-inverse_rank+1 in x. The gold data is the expected result of
-    // the interpolation.
+    // comm_rank-inverse_rank+1 in x. These are the same points as the domain
+    // but with a different parallel decomposition. The gold data is the
+    // expected result of the interpolation.
     Teuchos::Array<DataTransferKit::Entity> range_points( num_points );
     test_result.resize( field_dim*num_points );
     gold_data.resize( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
 	point_id = num_points*inverse_rank + i + 1;
-	coords[0] = (double) std::rand() / (double) RAND_MAX + inverse_rank;
-	coords[1] = (double) std::rand() / (double) RAND_MAX;
-	coords[2] = (double) std::rand() / (double) RAND_MAX;
+        coord_val = static_cast<double>(i) / num_points;        
+	coords[0] = coord_val + inverse_rank;
+	coords[1] = coord_val;
+	coords[2] = coord_val;
 	range_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
 	test_result[i] = 0.0;
 	gold_data[i] = coords[0] + coords[1] + coords[2];
@@ -175,67 +174,13 @@ void setupAndRunTest( const std::string& input_file,
 //---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_radius_test )
+TEUCHOS_UNIT_TEST( NodeToNodeOperator, node_to_node_test )
 {
     // Run the test.
     Teuchos::Array<double> gold_data;
     Teuchos::Array<double> test_result;
     setupAndRunTest(
-	"spline_interpolation_test_radius.xml", gold_data, test_result );
-    
-    // Check the results.
-    TEST_EQUALITY( gold_data.size(), test_result.size() );
-    int num_points = gold_data.size();
-    for ( int i = 0; i < num_points; ++i )
-    {
-	TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
-    }
-}
-
-//---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_knn_test )
-{
-    // Run the test.
-    Teuchos::Array<double> gold_data;
-    Teuchos::Array<double> test_result;
-    setupAndRunTest(
-	"spline_interpolation_test_knn.xml", gold_data, test_result );
-    
-    // Check the results.
-    TEST_EQUALITY( gold_data.size(), test_result.size() );
-    int num_points = gold_data.size();
-    for ( int i = 0; i < num_points; ++i )
-    {
-	TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
-    }
-}
-
-//---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_radius_test )
-{
-    // Run the test.
-    Teuchos::Array<double> gold_data;
-    Teuchos::Array<double> test_result;
-    setupAndRunTest(
-	"mls_test_radius.xml", gold_data, test_result );
-    
-    // Check the results.
-    TEST_EQUALITY( gold_data.size(), test_result.size() );
-    int num_points = gold_data.size();
-    for ( int i = 0; i < num_points; ++i )
-    {
-	TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
-    }
-}
-
-//---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_knn_test )
-{
-    // Run the test.
-    Teuchos::Array<double> gold_data;
-    Teuchos::Array<double> test_result;
-    setupAndRunTest(
-	"mls_test_knn.xml", gold_data, test_result );
+	"node_to_node_test.xml", gold_data, test_result );
     
     // Check the results.
     TEST_EQUALITY( gold_data.size(), test_result.size() );

@@ -41,6 +41,8 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_LocalMLSProblem_impl.hpp
   ${DIR}/DTK_MovingLeastSquareReconstructionOperator.hpp
   ${DIR}/DTK_MovingLeastSquareReconstructionOperator_impl.hpp
+  ${DIR}/DTK_NodeToNodeOperator.hpp
+  ${DIR}/DTK_NodeToNodeOperator_impl.hpp  
   ${DIR}/DTK_PolynomialMatrix.hpp
   ${DIR}/DTK_RadialBasisPolicy.hpp
   ${DIR}/DTK_SplineCoefficientMatrix.hpp
@@ -62,6 +64,7 @@ APPEND_SET(SOURCES
   ${DIR}/DTK_CloudDomain.cpp  
   ${DIR}/DTK_LocalMLSProblem.cpp
   ${DIR}/DTK_MovingLeastSquareReconstructionOperator.cpp
+  ${DIR}/DTK_NodeToNodeOperator.cpp  
   ${DIR}/DTK_PolynomialMatrix.cpp
   ${DIR}/DTK_SplineCoefficientMatrix.cpp
   ${DIR}/DTK_SplineEvaluationMatrix.cpp

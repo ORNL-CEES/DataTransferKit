@@ -32,40 +32,37 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_SplineInterpolationOperator.hpp
+ * \file   DTK_NodeToNodeOperator.hpp
  * \author Stuart R. Slattery
- * \brief Parallel spline interpolator.
+ * \brief Parallel node-to-node transfer
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_SPLINEINTERPOLATIONOPERATOR_HPP
-#define DTK_SPLINEINTERPOLATIONOPERATOR_HPP
+#ifndef DTK_NODETONODE_HPP
+#define DTK_NODETONODE_HPP
 
 #include "DTK_MapOperator.hpp"
-#include "DTK_RadialBasisPolicy.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
 
-#include <Tpetra_Map.hpp>
-
-#include <Thyra_LinearOpBase.hpp>
+#include <Tpetra_CrsMatrix.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class SplineInterpolationOperator
- * \brief Parallel spline interpolator.
+ * \class NodeToNodeOperator
+ * \brief Parallel moving least square interpolator MapOperator
+ * implementation.
  *
- * The SplineInterpolationOperator is the top-level driver for parallel interpolation
- * problems.
+ * The node-to-node operator is for the node
  */
 //---------------------------------------------------------------------------//
-template<class Basis,int DIM>
-class SplineInterpolationOperator : virtual public MapOperator
+template<int DIM>
+class NodeToNodeOperator : virtual public MapOperator
 {
   public:
 
@@ -78,10 +75,9 @@ class SplineInterpolationOperator : virtual public MapOperator
     typedef typename Root::global_ordinal_type GO;
     typedef typename Base::TpetraMultiVector TpetraMultiVector;
     typedef typename Base::TpetraMap TpetraMap;
-    typedef RadialBasisPolicy<Basis> BP;
     //@}
 
-    /*
+    /*!
      * \brief Constructor.
      *
      * \param domain_map Parallel map for domain vectors this map should be
@@ -90,7 +86,7 @@ class SplineInterpolationOperator : virtual public MapOperator
      * \param range_map Parallel map for range vectors this map should be
      * compatible with.
      */
-    SplineInterpolationOperator(     
+    NodeToNodeOperator(
 	const Teuchos::RCP<const TpetraMap>& domain_map,
 	const Teuchos::RCP<const TpetraMap>& range_map,
 	const Teuchos::ParameterList& parameters );
@@ -123,49 +119,18 @@ class SplineInterpolationOperator : virtual public MapOperator
 	Teuchos::ETransp mode = Teuchos::NO_TRANS,
 	double alpha = Teuchos::ScalarTraits<double>::one(),
 	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
-    
-  private:
-
-    // Build the concrete operators.
-    void buildConcreteOperators(
-	const Teuchos::RCP<FunctionSpace>& domain_space,
-	const Teuchos::RCP<FunctionSpace>& range_space,
-	Teuchos::RCP<const Root>& S,
-	Teuchos::RCP<const Root>& P,
-	Teuchos::RCP<const Root>& M,
-	Teuchos::RCP<const Root>& Q,
-	Teuchos::RCP<const Root>& N ) const;
 
   private:
 
     // Extract node coordinates and ids from an iterator.
     void getNodeCoordsAndIds( const Teuchos::RCP<FunctionSpace>& space,
-                              const int entity_dim,
                               Teuchos::ArrayRCP<double>& centers,
                               Teuchos::ArrayRCP<GO>& support_ids ) const;
     
   private:
 
-    // Flag for search type. True if kNN, false if radius.
-    bool d_use_knn;
-
-    // k-nearest-neighbors for support.
-    int d_knn;
-
-    // Basis radius.
-    double d_radius;
-
-    // Domain entity topological dimension. Default is 0 (vertex).
-    int d_domain_entity_dim;
-
-    // Range entity topological dimension. Default is 0 (vertex).
-    int d_range_entity_dim;
-
-    // Stratimikos parameter list.
-    Teuchos::RCP<Teuchos::ParameterList> d_stratimikos_list;
-
-    // Coupling matrix.
-    Teuchos::RCP<const Thyra::LinearOpBase<double> > d_coupling_matrix;
+    // Exporter
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > d_coupling_matrix;
 };
 
 //---------------------------------------------------------------------------//
@@ -174,9 +139,9 @@ class SplineInterpolationOperator : virtual public MapOperator
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_SPLINEINTERPOLATIONOPERATOR_HPP
+#endif // end DTK_NODETONODE_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_SplineInterpolationOperator.hpp
+// end DTK_NodeToNodeOperator.hpp
 //---------------------------------------------------------------------------//
 
