@@ -16,13 +16,12 @@ TEUCHOS_UNIT_TEST( C_API, create_apply_delete_map )
     *Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(
       teuchos_comm )->getRawMpiComm();
 
-  // let us use INFO format
-  std::string const options = "\n"\
-    "\"Map Type\" \"Spline Interpolation\"\n"\
-    "\"Basis Type\" \"Wendland\"\n"\
-    "\"Basis Order\" 0\n"\
-    "\"RBF Radius\" 0.1\n"\
-    "\n";
+  // Using JSON format
+  std::string const options = "{ "\
+    "\"Map Type\": \"Spline Interpolation\", "\
+    "\"Basis Type\": \"Wendland\", "\
+    "\"Basis Order\": 0, "\
+    "\"RBF Radius\": 0.1 }";
 
   // TODO: fill these
   std::srand(0);
