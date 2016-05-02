@@ -32,86 +32,109 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_PointCloudEntityIterator.hpp
+ * \brief DTK_POD_PointCloudEntitySet.hpp
  * \author Stuart R. Slattery
- * \brief Entity iterator interface.
+ * \brief STK mesh entity set.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_POINTCLOUDENTITYITERATOR_HPP
-#define DTK_POINTCLOUDENTITYITERATOR_HPP
+#ifndef DTK_POD_POINTCLOUDENTITYSET_HPP
+#define DTK_POD_POINTCLOUDENTITYSET_HPP
 
-#include <vector>
 #include <functional>
 
-#include "DTK_EntityIterator.hpp"
+#include "DTK_EntitySet.hpp"
+#include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
+#include "DTK_EntityIterator.hpp"
 
 #include "DTK_C_API.h"
+
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class PointCloudEntityIterator
-  \brief Point cloud mesh entity iterator implementation.
+  \class POD_PointCloudEntitySet
+  \brief STK mesh entity set.
+
+  Entity set implementation for STK.
 */
 //---------------------------------------------------------------------------//
-class PointCloudEntityIterator : public EntityIterator
+class POD_PointCloudEntitySet : public EntitySet
 {
   public:
 
     /*!
-     * \brief Default constructor.
-     */
-    PointCloudEntityIterator();
-
-    /*! 
      * \brief Constructor.
      */
-    PointCloudEntityIterator( const double* cloud_coords,
-                              const EntityId* global_ids,                              
-                              const unsigned num_points,
-                              const int space_dim,
-                              const DTK_Data_layout layout,
-                              const int my_rank,
-                              const PredicateFunction& predicate );
-    /*!
-     * \brief Copy constructor.
-     */
-    PointCloudEntityIterator( const PointCloudEntityIterator& rhs );
+    POD_PointCloudEntitySet(
+        const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+        const double* cloud_coords,
+        const EntityId* global_ids,
+        const unsigned num_points,
+        const int space_dim,
+        const DTK_Data_layout layout );
 
     /*!
-     * \brief Assignment operator.
+     * \brief Get the parallel communicator for the entity set.
+     * \return A reference-counted pointer to the parallel communicator.
      */
-    PointCloudEntityIterator& operator=( const PointCloudEntityIterator& rhs );
+    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const override;
+    //@}
 
-    // Pre-increment operator.
-    EntityIterator& operator++() override;
+    //@{
+    //! Geometric data functions.
+    /*!
+     * \brief Return the largest physical dimension of the entities in the
+     * set.  
+     * \return The physical dimension of the set.
+     */
+    int physicalDimension() const override;
+    //@}
 
-    // Dereference operator.
-    Entity& operator*(void) override;
+    //@{
+    //! Entity access functions.
+    /*!
+     * \brief Given an EntityId, get the entity.
+     * \param entity_id Get the entity with this id.
+     * \param topological_dimension Get the entity with this topological
+     * dimension.
+     * \param entity The entity with the given id.
+     */
+    void getEntity( const EntityId entity_id,
+		    const int topological_dimension,
+		    Entity& entity ) const override;
 
-    // Dereference operator.
-    Entity* operator->(void) override;
+    /*!
+     * \brief Get a iterator of the given entity type that satisfy the given
+     * predicate.
+     * \param topological_dimension The topological dimension of entity to get
+     * an iterator for.
+     * \param predicate The selection predicate.
+     * \return A iterator of entities of the given type.
+     */
+    EntityIterator entityIterator( 
+	const int topological_dimension,
+	const PredicateFunction& predicate ) const override;
 
-    // Equal comparison operator.
-    bool operator==( const EntityIterator& rhs ) const override;
-
-    // Not equal comparison operator.
-    bool operator!=( const EntityIterator& rhs ) const override;
-
-    // An iterator assigned to the first valid element in the iterator.
-    EntityIterator begin() const override;
-
-    // An iterator assigned to the end of all elements under the iterator.
-    EntityIterator end() const override;
-
-    // Create a clone of the iterator. We need this for the copy constructor
-    // and assignment operator to pass along the underlying implementation.
-    std::unique_ptr<EntityIterator> clone() const override;
+    /*!
+     * \brief Given an entity, get the entities of the given topological
+     * dimension that are adjacent to it.
+     */
+    void getAdjacentEntities(
+	const Entity& entity,
+	const int adjacent_dimension,
+	Teuchos::Array<Entity>& adjacent_entities ) const override;
 
   private:
+
+    // Communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
 
     // Point cloud coordinates.
     const double* d_cloud_coords;
@@ -127,23 +150,14 @@ class PointCloudEntityIterator : public EntityIterator
 
     // Layout of the point cloud.
     DTK_Data_layout d_layout;
-
-    // The MPI rank of this iterator.
-    int d_my_rank;
-
-    // Current local id.
-    int d_current_lid;
-    
-    // Current entity.
-    Entity d_current_entity;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
-#endif // end DTK_POINTCLOUDENTITYITERATOR_HPP
+#endif // end DTK_POD_POINTCLOUDENTITYSET_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_PointCloudEntityIterator.hpp
+// end DTK_POD_PointCloudEntitySet.hpp
 //---------------------------------------------------------------------------//

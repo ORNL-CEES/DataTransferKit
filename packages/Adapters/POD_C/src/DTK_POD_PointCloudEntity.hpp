@@ -32,44 +32,52 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_PointCloudEntity.cpp
+ * \file DTK_POD_PointCloudEntity.hpp
  * \author Stuart R. Slattery
- * \brief PointCloudEntity definition
+ * \brief POD_PointCloudEntity declaration.
  */
 //---------------------------------------------------------------------------//
 
-#include <limits>
+#ifndef DTK_POD_POINTCLOUDENTITY_HPP
+#define DTK_POD_POINTCLOUDENTITY_HPP
 
-#include "DTK_DBC.hpp"
-#include "DTK_PointCloudEntity.hpp"
+#include <iostream>
+
+#include "DTK_C_API.h"
+#include "DTK_Entity.hpp"
+#include "DTK_POD_PointCloudEntityImpl.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Default constructor.
-PointCloudEntity::PointCloudEntity( const double* cloud_coords,
-                                    const unsigned num_points,
-                                    const int space_dim,
-                                    const DTK_Data_layout layout,
-                                    const EntityId global_id,         
-                                    const int local_id,
-                                    const int owner_rank )
+/*!
+  \class POD_PointCloudEntity
+  \brief POD_PointCloudEntity interface.
+  
+  POD_PointCloudEntity gives an interface for entities in POD point clouds.
+*/
+//---------------------------------------------------------------------------//
+class POD_PointCloudEntity : public Entity
 {
-    this->b_entity_impl =
-        Teuchos::rcp( new PointCloudEntityImpl(cloud_coords,
-                                               num_points,
-                                               space_dim,
-                                               layout,
-                                               global_id,
-                                               local_id,
-                                               owner_rank ) );
-}
+  public:
+
+    // Default constructor.
+    POD_PointCloudEntity( const double* cloud_coords,
+                          const unsigned num_points,
+                          const int space_dim,
+                          const DTK_Data_layout layout,
+                          const EntityId global_id,
+                          const int local_id,
+                          const int owner_rank );
+};
 
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 
+#endif // end DTK_POD_POINTCLOUDENTITY_HPP
+
 //---------------------------------------------------------------------------//
-// end DTK_PointCloudEntity.cpp
+// end DTK_POD_PointCloudEntity.hpp
 //---------------------------------------------------------------------------//
 

@@ -32,18 +32,18 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_PointCloudEntityImpl.hpp
+ * \brief DTK_POD_PointCloudEntityImpl.hpp
  * \author Stuart R. Slattery
  * \brief Point cloud entity implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_POINTCLOUDENTITYIMPL_HPP
-#define DTK_POINTCLOUDENTITYIMPL_HPP
+#ifndef DTK_POD_POINTCLOUDENTITYIMPL_HPP
+#define DTK_POD_POINTCLOUDENTITYIMPL_HPP
 
 #include "DTK_Types.hpp"
 #include "DTK_EntityImpl.hpp"
-#include "DTK_PointCloudEntityExtraData.hpp"
+#include "DTK_POD_PointCloudEntityExtraData.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -52,24 +52,24 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class PointCloudEntityImpl
+  \class POD_PointCloudEntityImpl
   \brief Geometric entity implementation definition.
 */
 //---------------------------------------------------------------------------//
-class PointCloudEntityImpl : public EntityImpl
+class POD_PointCloudEntityImpl : public EntityImpl
 {
   public:
 
     /*!
      * \brief Constructor.
      */
-    PointCloudEntityImpl( const double* cloud_coords,
-                          const unsigned num_points,
-                          const int space_dim,
-                          const DTK_Data_layout layout,
-                          const EntityId global_id,                          
-                          const int local_id,
-                          const int owner_rank );
+    POD_PointCloudEntityImpl( const double* cloud_coords,
+                              const unsigned num_points,
+                              const int space_dim,
+                              const DTK_Data_layout layout,
+                              const EntityId global_id,                          
+                              const int local_id,
+                              const int owner_rank );
 
     /*!
      * \brief Get the unique global identifier for the entity.
@@ -154,8 +154,8 @@ class PointCloudEntityImpl : public EntityImpl
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_POINTCLOUDENTITYIMPL_HPP
+#endif // end DTK_POD_POINTCLOUDENTITYIMPL_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_PointCloudEntityImpl.hpp
+// end DTK_POD_PointCloudEntityImpl.hpp
 //---------------------------------------------------------------------------//

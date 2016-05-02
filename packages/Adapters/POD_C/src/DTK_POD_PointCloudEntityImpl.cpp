@@ -40,14 +40,14 @@
 
 #include <limits>
 
-#include "DTK_PointCloudEntityImpl.hpp"
+#include "DTK_POD_PointCloudEntityImpl.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-PointCloudEntityImpl::PointCloudEntityImpl(
+POD_PointCloudEntityImpl::POD_PointCloudEntityImpl(
     const double* cloud_coords,
     const unsigned num_points,
     const int space_dim,
@@ -74,35 +74,35 @@ PointCloudEntityImpl::PointCloudEntityImpl(
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-EntityId PointCloudEntityImpl::id() const
+EntityId POD_PointCloudEntityImpl::id() const
 { 
     return d_global_id;
 }
     
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-int PointCloudEntityImpl::ownerRank() const
+int POD_PointCloudEntityImpl::ownerRank() const
 { 
     return d_owner_rank;
 }
 
 //---------------------------------------------------------------------------//
 // Get the topological dimension of the entity.
-int PointCloudEntityImpl::topologicalDimension() const
+int POD_PointCloudEntityImpl::topologicalDimension() const
 {
     return 0;
 }
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-int PointCloudEntityImpl::physicalDimension() const
+int POD_PointCloudEntityImpl::physicalDimension() const
 { 
     return d_offsets.size();
 }
 
 //---------------------------------------------------------------------------//
 // Return the Cartesian bounding box around an entity.
-void PointCloudEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+void POD_PointCloudEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     for ( int d = 0; d < physicalDimension(); ++d )
     {
@@ -119,28 +119,28 @@ void PointCloudEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
-bool PointCloudEntityImpl::inBlock( const int block_id ) const
+bool POD_PointCloudEntityImpl::inBlock( const int block_id ) const
 {
     return false;
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
-bool PointCloudEntityImpl::onBoundary( const int boundary_id ) const
+bool POD_PointCloudEntityImpl::onBoundary( const int boundary_id ) const
 {
     return true;
 }
 
 //---------------------------------------------------------------------------//
 // Get the extra data on the entity.
-Teuchos::RCP<EntityExtraData> PointCloudEntityImpl::extraData() const
+Teuchos::RCP<EntityExtraData> POD_PointCloudEntityImpl::extraData() const
 {
     return Teuchos::null;
 }
 
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
-void PointCloudEntityImpl::describe(
+void POD_PointCloudEntityImpl::describe(
     Teuchos::FancyOStream& out,
     const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
@@ -166,5 +166,5 @@ void PointCloudEntityImpl::describe(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_PointCloudEntityImpl.cpp
+// end DTK_POD_PointCloudEntityImpl.cpp
 //---------------------------------------------------------------------------//
