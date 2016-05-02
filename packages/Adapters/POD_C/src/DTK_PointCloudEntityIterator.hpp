@@ -54,7 +54,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
   \class PointCloudEntityIterator
-  \brief STK mesh entity iterator implementation.
+  \brief Point cloud mesh entity iterator implementation.
 */
 //---------------------------------------------------------------------------//
 class PointCloudEntityIterator : public EntityIterator
