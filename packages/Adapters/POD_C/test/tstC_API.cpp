@@ -15,47 +15,53 @@ TEUCHOS_UNIT_TEST( C_API, create_apply_delete_map )
   MPI_Comm mpi_comm =
     *Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(
       teuchos_comm )->getRawMpiComm();
+  int const comm_rank = teuchos_comm->getRank();
+  int const comm_size = teuchos_comm->getSize();
 
-  // Using JSON format
+  // set options using JSON format
   std::string const options = "{ "\
-    "\"Map Type\": \"Spline Interpolation\", "\
+    "\"Map Type\": \"Moving Least Square Reconstruction\", "\
     "\"Basis Type\": \"Wendland\", "\
-    "\"Basis Order\": 0, "\
-    "\"RBF Radius\": 0.1 }";
+    "\"Basis Order\": 2, "\
+    "\"RBF Radius\": 0.3 }";
 
   // TODO: fill these
-  std::srand(0);
+  std::srand(123*comm_rank);
+  double coord[3];
   int const space_dim = 3;
-  int const field_dim = 1;
-  unsigned const src_num = 100;
+  int const field_dim = 2;
+  unsigned const src_num = 3000;
   std::vector<double> src_coord(space_dim*src_num);
   std::vector<double> src_field(field_dim*src_num);
-  for (unsigned i; i < src_num; ++i)
+  for (unsigned i = 0; i < src_num; ++i)
   {
-    for (unsigned j; j < space_dim; ++j)
-    {
-      // assume data layout is contiguous
-      src_coord[i+j*src_num] = std::rand() / RAND_MAX;
-    }
-    for (unsigned j; j < field_dim; ++j)
-    {
-      // assume data layout is interleaved
-      src_field[i*field_dim+j] = static_cast<double>(j);
-    }
+    coord[0] = (double) std::rand() / (double) RAND_MAX + comm_rank;
+    coord[1] = (double) std::rand() / (double) RAND_MAX;
+    coord[2] = (double) std::rand() / (double) RAND_MAX;
+    // source coordinates data blocked
+    src_coord[i+0*src_num] = coord[0];
+    src_coord[i+1*src_num] = coord[1];
+    src_coord[i+2*src_num] = coord[2];
+    // source field data interleaved
+    src_field[field_dim*i+0] = coord[0];
+    src_field[field_dim*i+1] = coord[2];
   }
   unsigned const tgt_num = 50;
   std::vector<double> tgt_coord(space_dim*tgt_num);
   std::vector<double> tgt_field(field_dim*tgt_num);
-  for (unsigned i; i < tgt_num; ++i)
+  std::vector<double> gold_data(field_dim*tgt_num);
+  for (unsigned i = 0; i < tgt_num; ++i)
   {
-    for (unsigned j; j < space_dim; ++j)
-    {
-      tgt_coord[i+j*tgt_num] = std::rand() / RAND_MAX;
-    }
-    for (unsigned j; j < field_dim; ++j)
-    {
-      tgt_field[i*field_dim+j] = static_cast<double>(j);
-    }
+    coord[0] = (double) std::rand() / (double) RAND_MAX + comm_size - comm_rank - 1;
+    coord[1] = (double) std::rand() / (double) RAND_MAX;
+    coord[2] = (double) std::rand() / (double) RAND_MAX;
+    // target coordinates data interleaved
+    tgt_coord[space_dim*i+0] = coord[0];
+    tgt_coord[space_dim*i+1] = coord[1];
+    tgt_coord[space_dim*i+2] = coord[2];
+    // target field data blocked
+    gold_data[i+tgt_num*0] = coord[0];
+    gold_data[i+tgt_num*1] = coord[2];
   }
   TEST_EQUALITY( src_coord.size(), space_dim * src_num );
   TEST_EQUALITY( tgt_coord.size(), space_dim * tgt_num );
@@ -66,7 +72,7 @@ TEUCHOS_UNIT_TEST( C_API, create_apply_delete_map )
                                      DTK_BLOCKED,
                                      tgt_coord.data(),
                                      tgt_num,
-                                     DTK_BLOCKED,
+                                     DTK_INTERLEAVED,
                                      space_dim,
                                      options.c_str() );
 
@@ -74,11 +80,18 @@ TEUCHOS_UNIT_TEST( C_API, create_apply_delete_map )
                  src_field.data(),
                  DTK_INTERLEAVED,
                  tgt_field.data(),
-                 DTK_INTERLEAVED,
+                 DTK_BLOCKED,
                  field_dim );
 
   DTK_Map_delete( dtk_map );
 
+  double const rel_tol = 1e-8;
+  double const abs_tol = 1e-6;
+  for (unsigned i = 0; i < field_dim*tgt_num; ++i)
+  {
+    TEST_FLOATING_EQUALITY( gold_data[i], tgt_field[i], rel_tol );
+    TEST_COMPARE( std::abs(gold_data[i] - tgt_field[i]), <, abs_tol );
+  }
 }
 
 } // end namespace
