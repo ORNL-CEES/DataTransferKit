@@ -43,7 +43,7 @@
 
 #include "DTK_Types.hpp"
 #include "DTK_EntityImpl.hpp"
-#include "DTK_POD_PointCloudEntityExtraData.hpp"
+#include "DTK_C_API.h"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>

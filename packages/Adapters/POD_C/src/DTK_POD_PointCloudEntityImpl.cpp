@@ -77,7 +77,7 @@ POD_PointCloudEntityImpl::POD_PointCloudEntityImpl(
 double POD_PointCloudEntityImpl::coords( const int dim ) const
 {
     DTK_REQUIRE( dim < physicalDimension() );
-    return d_coords[ d_offsets[dim] ];
+    return d_cloud_coords[ d_offsets[dim] ];
 }
 
 //---------------------------------------------------------------------------//

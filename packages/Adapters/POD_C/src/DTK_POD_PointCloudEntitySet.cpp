@@ -43,7 +43,6 @@
 #include "DTK_POD_PointCloudEntitySet.hpp"
 #include "DTK_POD_PointCloudEntity.hpp"
 #include "DTK_POD_PointCloudEntityIterator.hpp"
-#include "DTK_POD_PointCloudHelpers.hpp"
 #include "DTK_DBC.hpp"
 
 #include <Teuchos_DefaultMpiComm.hpp>
@@ -79,7 +78,7 @@ POD_PointCloudEntitySet::communicator() const
 // Return the largest physical dimension of the entities in the set. 
 int POD_PointCloudEntitySet::physicalDimension() const
 {
-    return d_space_dim
+    return d_space_dim;
 }
 
 //---------------------------------------------------------------------------//
