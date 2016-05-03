@@ -71,6 +71,13 @@ class POD_PointCloudEntityImpl : public EntityImpl
                               const int local_id,
                               const int owner_rank );
 
+    /*
+     * \brief Get the coordinates of the point in a given dimension.
+     */
+    double coords( const int dim ) const;
+
+    //@{
+    //! EntityImpl Interface.
     /*!
      * \brief Get the unique global identifier for the entity.
      * \return A unique global identifier for the entity.
@@ -132,6 +139,7 @@ class POD_PointCloudEntityImpl : public EntityImpl
     void describe(
 	Teuchos::FancyOStream& out,
 	const Teuchos::EVerbosityLevel verb_level ) const override;
+    //@}
 
   private:
 

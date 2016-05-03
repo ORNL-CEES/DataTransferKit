@@ -73,6 +73,14 @@ POD_PointCloudEntityImpl::POD_PointCloudEntityImpl(
 }
 
 //---------------------------------------------------------------------------//
+// Get the coordinates of the point in a given dimension.
+double POD_PointCloudEntityImpl::coords( const int dim ) const
+{
+    DTK_REQUIRE( dim < physicalDimension() );
+    return d_coords[ d_offsets[dim] ];
+}
+
+//---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId POD_PointCloudEntityImpl::id() const
 { 

@@ -69,6 +69,9 @@ class POD_PointCloudEntity : public Entity
                           const EntityId global_id,
                           const int local_id,
                           const int owner_rank );
+
+    // Get the coordinates of the point in a given dimension.
+    double coords( const int dim ) const;
 };
 
 //---------------------------------------------------------------------------//
