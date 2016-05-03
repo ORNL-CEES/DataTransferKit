@@ -40,6 +40,7 @@
 
 #include "DTK_POD_PointCloudLocalMap.hpp"
 #include "DTK_POD_PointCloudEntity.hpp"
+#include "DTK_POD_PointCloudEntityImpl.hpp"
 #include "DTK_DBC.hpp"
 
 namespace DataTransferKit
@@ -66,7 +67,8 @@ void POD_PointCloudLocalMap::centroid(
     for ( int d = 0; d < entity.physicalDimension(); ++d )
     {
         centroid[d] =
-            dynamic_cast<const POD_PointCloudEntity&>(entity).coord(d);
+            Teuchos::rcp_dynamic_cast<POD_PointCloudEntityImpl>(
+                entity.extraData())->coord(d);
     }
 }
 

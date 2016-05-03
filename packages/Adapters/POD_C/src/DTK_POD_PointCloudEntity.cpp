@@ -66,14 +66,6 @@ POD_PointCloudEntity::POD_PointCloudEntity( const double* cloud_coords,
 }
 
 //---------------------------------------------------------------------------//
-// Get the coordinates of the point in a given dimension.
-double POD_PointCloudEntity::coord( const int dim ) const
-{
-    return Teuchos::rcp_dynamic_cast<POD_PointCloudEntityImpl>(
-        this->b_entity_impl)->coord( dim );
-}
-
-//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

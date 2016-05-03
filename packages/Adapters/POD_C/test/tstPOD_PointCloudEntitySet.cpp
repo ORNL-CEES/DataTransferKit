@@ -126,7 +126,6 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntitySet, blocked_test )
 
       TEST_ASSERT( !iterator->inBlock(1) );
       TEST_ASSERT( !iterator->onBoundary(1) );
-      TEST_ASSERT( Teuchos::is_null(iterator->extraData()) );
 
       // Check getting an entity.
       DataTransferKit::Entity entity;
@@ -146,7 +145,6 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntitySet, blocked_test )
 
       TEST_ASSERT( !entity.inBlock(1) );
       TEST_ASSERT( !entity.onBoundary(1) );
-      TEST_ASSERT( Teuchos::is_null(entity.extraData()) );
   }
 }
 
@@ -218,7 +216,6 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntitySet, interleaved_test )
 
       TEST_ASSERT( !iterator->inBlock(1) );
       TEST_ASSERT( !iterator->onBoundary(1) );
-      TEST_ASSERT( Teuchos::is_null(iterator->extraData()) );
 
       // Check getting an entity.
       DataTransferKit::Entity entity;
@@ -238,7 +235,6 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntitySet, interleaved_test )
 
       TEST_ASSERT( !entity.inBlock(1) );
       TEST_ASSERT( !entity.onBoundary(1) );
-      TEST_ASSERT( Teuchos::is_null(entity.extraData()) );
   }
 }
 

@@ -57,6 +57,7 @@ namespace DataTransferKit
 */
 //---------------------------------------------------------------------------//
 class POD_PointCloudEntityImpl : public EntityImpl
+                               , public EntityExtraData
 {
   public:
 

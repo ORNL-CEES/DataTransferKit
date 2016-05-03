@@ -143,7 +143,7 @@ bool POD_PointCloudEntityImpl::onBoundary( const int boundary_id ) const
 // Get the extra data on the entity.
 Teuchos::RCP<EntityExtraData> POD_PointCloudEntityImpl::extraData() const
 {
-    return Teuchos::null;
+    return Teuchos::rcp( const_cast<POD_PointCloudEntityImpl*>(this), false );
 }
 
 //---------------------------------------------------------------------------//

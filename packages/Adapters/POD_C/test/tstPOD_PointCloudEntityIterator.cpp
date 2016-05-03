@@ -120,7 +120,6 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntityIterator, blocked_test )
 
       TEST_ASSERT( !iterator->inBlock(1) );
       TEST_ASSERT( !iterator->onBoundary(1) );
-      TEST_ASSERT( Teuchos::is_null(iterator->extraData()) );
   }
 }
 
@@ -186,7 +185,6 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntityIterator, interleaved_test )
 
       TEST_ASSERT( !iterator->inBlock(1) );
       TEST_ASSERT( !iterator->onBoundary(1) );
-      TEST_ASSERT( Teuchos::is_null(iterator->extraData()) );
   }
 }
 

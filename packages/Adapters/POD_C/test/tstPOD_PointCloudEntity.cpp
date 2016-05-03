@@ -111,11 +111,6 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntity, blocked_test )
 
       TEST_ASSERT( !entity.inBlock(1) );
       TEST_ASSERT( !entity.onBoundary(1) );
-      TEST_ASSERT( Teuchos::is_null(entity.extraData()) );
-
-      TEST_EQUALITY( entity.coord(0), coord[i] );
-      TEST_EQUALITY( entity.coord(1), coord[i + 1*num] );
-      TEST_EQUALITY( entity.coord(2), coord[i + 2*num] );      
   }
 }
 
@@ -172,11 +167,6 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntity, interleaved_test )
 
       TEST_ASSERT( !entity.inBlock(1) );
       TEST_ASSERT( !entity.onBoundary(1) );
-      TEST_ASSERT( Teuchos::is_null(entity.extraData()) );
-
-      TEST_EQUALITY( entity.coord(0), coord[space_dim*i + 0] );
-      TEST_EQUALITY( entity.coord(1), coord[space_dim*i + 1] );
-      TEST_EQUALITY( entity.coord(2), coord[space_dim*i + 2] );
   }
 }
 
