@@ -32,12 +32,12 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file tstPOD_PointCloudEntity.cpp
+ * \file tstPOD_PointCloudEntityIterator.cpp
  * \author Stuart R. Slattery
  * \brief POD_PointCloudEntity unit tests.
  */
 //---------------------------------------------------------------------------//
-#include "DTK_POD_PointCloudEntity.hpp"
+#include "DTK_POD_PointCloudEntityIterator.hpp"
 #include "DTK_POD_Types.hpp"
 
 #include "Teuchos_UnitTestHarness.hpp"
@@ -59,7 +59,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( POD_PointCloudEntity, blocked_test )
+TEUCHOS_UNIT_TEST( POD_PointCloudEntityIterator, blocked_test )
 {
   // get the raw mpi communicator
   Teuchos::RCP<const Teuchos::Comm<int>> teuchos_comm =
@@ -84,24 +84,33 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntity, blocked_test )
       global_ids[i] = num*comm_rank + i;
   }
 
-  // Loop through the point cloud and build entities.
-  for ( unsigned i = 0; i < num; ++i )
-  {
-      DataTransferKit::POD_PointCloudEntity entity( coord.getRawPtr(),
-                                                    num,
-                                                    space_dim,
-                                                    DataTransferKit::BLOCKED,
-                                                    global_ids[i],
-                                                    i,
-                                                    comm_rank );
+  // Build an iterator.
+  auto select_all = [](DataTransferKit::Entity e){ return true; };
+  DataTransferKit::EntityIterator iterator =
+      DataTransferKit::POD_PointCloudEntityIterator( coord.getRawPtr(),
+                                                     global_ids.getRawPtr(),
+                                                     num,
+                                                     space_dim,
+                                                     DataTransferKit::BLOCKED,
+                                                     comm_rank,
+                                                     select_all );
 
-      TEST_EQUALITY( entity.id(), global_ids[i] );
-      TEST_EQUALITY( entity.ownerRank(), comm_rank );
-      TEST_EQUALITY( entity.topologicalDimension(), 0 );
-      TEST_EQUALITY( entity.physicalDimension(), space_dim );
+  // Check the iterator.
+  TEST_EQUALITY( num, iterator.size() );
+  
+  // Loop through the point cloud and check entities.
+  auto begin_it = iterator.begin();
+  auto end_it = iterator.end();
+  unsigned i = 0;
+  for ( iterator = begin_it; iterator != end_it; ++iterator, ++i )
+  {
+      TEST_EQUALITY( iterator->id(), global_ids[i] );
+      TEST_EQUALITY( iterator->ownerRank(), comm_rank );
+      TEST_EQUALITY( iterator->topologicalDimension(), 0 );
+      TEST_EQUALITY( iterator->physicalDimension(), space_dim );
 
       Teuchos::Tuple<double,6> box;
-      entity.boundingBox( box );
+      iterator->boundingBox( box );
       TEST_EQUALITY( box[0], coord[i] );
       TEST_EQUALITY( box[1], coord[i + 1*num] );
       TEST_EQUALITY( box[2], coord[i + 2*num] );      
@@ -109,18 +118,14 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntity, blocked_test )
       TEST_EQUALITY( box[4], coord[i + 1*num] );
       TEST_EQUALITY( box[5], coord[i + 2*num] );
 
-      TEST_ASSERT( !entity.inBlock(1) );
-      TEST_ASSERT( !entity.onBoundary(1) );
-      TEST_ASSERT( Teuchos::is_null(entity.extraData()) );
-
-      TEST_EQUALITY( entity.coord(0), coord[i] );
-      TEST_EQUALITY( entity.coord(1), coord[i + 1*num] );
-      TEST_EQUALITY( entity.coord(2), coord[i + 2*num] );      
+      TEST_ASSERT( !iterator->inBlock(1) );
+      TEST_ASSERT( !iterator->onBoundary(1) );
+      TEST_ASSERT( Teuchos::is_null(iterator->extraData()) );
   }
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( POD_PointCloudEntity, interleaved_test )
+TEUCHOS_UNIT_TEST( POD_PointCloudEntityIterator, interleaved_test )
 {
   // get the raw mpi communicator
   Teuchos::RCP<const Teuchos::Comm<int>> teuchos_comm =
@@ -145,24 +150,33 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntity, interleaved_test )
       global_ids[i] = num*comm_rank + i;
   }
 
-  // Loop through the point cloud and build entities.
-  for ( unsigned i = 0; i < num; ++i )
-  {
-      DataTransferKit::POD_PointCloudEntity entity( coord.getRawPtr(),
-                                                    num,
-                                                    space_dim,
-                                                    DataTransferKit::INTERLEAVED,
-                                                    global_ids[i],
-                                                    i,
-                                                    comm_rank );
+  // Build an iterator.
+  auto select_all = [](DataTransferKit::Entity e){ return true; };
+  DataTransferKit::EntityIterator iterator =
+      DataTransferKit::POD_PointCloudEntityIterator( coord.getRawPtr(),
+                                                     global_ids.getRawPtr(),
+                                                     num,
+                                                     space_dim,
+                                                     DataTransferKit::INTERLEAVED,
+                                                     comm_rank,
+                                                     select_all );
 
-      TEST_EQUALITY( entity.id(), global_ids[i] );
-      TEST_EQUALITY( entity.ownerRank(), comm_rank );
-      TEST_EQUALITY( entity.topologicalDimension(), 0 );
-      TEST_EQUALITY( entity.physicalDimension(), space_dim );
+  // Check the iterator.
+  TEST_EQUALITY( num, iterator.size() );
+  
+  // Loop through the point cloud and check entities.
+  auto begin_it = iterator.begin();
+  auto end_it = iterator.end();
+  unsigned i = 0;
+  for ( iterator = begin_it; iterator != end_it; ++iterator, ++i )
+  {
+      TEST_EQUALITY( iterator->id(), global_ids[i] );
+      TEST_EQUALITY( iterator->ownerRank(), comm_rank );
+      TEST_EQUALITY( iterator->topologicalDimension(), 0 );
+      TEST_EQUALITY( iterator->physicalDimension(), space_dim );
 
       Teuchos::Tuple<double,6> box;
-      entity.boundingBox( box );
+      iterator->boundingBox( box );
       TEST_EQUALITY( box[0], coord[space_dim*i + 0] );
       TEST_EQUALITY( box[1], coord[space_dim*i + 1] );
       TEST_EQUALITY( box[2], coord[space_dim*i + 2] );      
@@ -170,17 +184,13 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntity, interleaved_test )
       TEST_EQUALITY( box[4], coord[space_dim*i + 1] );
       TEST_EQUALITY( box[5], coord[space_dim*i + 2] );      
 
-      TEST_ASSERT( !entity.inBlock(1) );
-      TEST_ASSERT( !entity.onBoundary(1) );
-      TEST_ASSERT( Teuchos::is_null(entity.extraData()) );
-
-      TEST_EQUALITY( entity.coord(0), coord[space_dim*i + 0] );
-      TEST_EQUALITY( entity.coord(1), coord[space_dim*i + 1] );
-      TEST_EQUALITY( entity.coord(2), coord[space_dim*i + 2] );
+      TEST_ASSERT( !iterator->inBlock(1) );
+      TEST_ASSERT( !iterator->onBoundary(1) );
+      TEST_ASSERT( Teuchos::is_null(iterator->extraData()) );
   }
 }
 
 //---------------------------------------------------------------------------//
-// end tstPOD_PointCloudEntity.cpp
+// end tstPOD_PointCloudEntityIterator.cpp
 //---------------------------------------------------------------------------//
 
