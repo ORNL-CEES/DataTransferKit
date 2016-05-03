@@ -68,7 +68,7 @@ EntityCenteredField::EntityCenteredField(
 //---------------------------------------------------------------------------//
 // Entity id constructor.
 EntityCenteredField::EntityCenteredField(
-    const Teuchos::ArrayView<EntityId>& entity_ids,
+    const Teuchos::ArrayView<const EntityId>& entity_ids,
     const int field_dim,
     const Teuchos::ArrayRCP<double>& dof_data,
     const DataLayout layout )
