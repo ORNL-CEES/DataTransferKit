@@ -52,7 +52,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
   \class POD_PointCloudLocalMap
-  \brief STK mesh forward and reverse local map implementation.
+  \brief POD point cloud aforward and reverse local map implementation.
 */
 //---------------------------------------------------------------------------//
 class POD_PointCloudLocalMap : public EntityLocalMap

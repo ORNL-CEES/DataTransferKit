@@ -66,7 +66,7 @@ void POD_PointCloudLocalMap::centroid(
     for ( int d = 0; d < entity.physicalDimension(); ++d )
     {
         centroid[d] =
-            dynamic_cast<const POD_PointCloudEntity&>(entity).coords(d);
+            dynamic_cast<const POD_PointCloudEntity&>(entity).coord(d);
     }
 }
 

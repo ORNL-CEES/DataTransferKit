@@ -34,7 +34,7 @@
 /*!
  * \brief DTK_POD_PointCloudEntitySet.hpp
  * \author Stuart R. Slattery
- * \brief STK mesh entity set.
+ * \brief POD point cloud entity set.
  */
 //---------------------------------------------------------------------------//
 
@@ -48,7 +48,7 @@
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
 
-#include "DTK_C_API.h"
+#include "DTK_POD_Types.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -60,9 +60,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
   \class POD_PointCloudEntitySet
-  \brief STK mesh entity set.
-
-  Entity set implementation for STK.
+  \brief Entity set implementation for point cloud.
 */
 //---------------------------------------------------------------------------//
 class POD_PointCloudEntitySet : public EntitySet
@@ -78,7 +76,7 @@ class POD_PointCloudEntitySet : public EntitySet
         const EntityId* global_ids,
         const unsigned num_points,
         const int space_dim,
-        const DTK_Data_layout layout );
+        const DataLayout layout );
 
     /*!
      * \brief Get the parallel communicator for the entity set.
@@ -149,7 +147,7 @@ class POD_PointCloudEntitySet : public EntitySet
     int d_space_dim;
 
     // Layout of the point cloud.
-    DTK_Data_layout d_layout;
+    DataLayout d_layout;
 };
 
 //---------------------------------------------------------------------------//

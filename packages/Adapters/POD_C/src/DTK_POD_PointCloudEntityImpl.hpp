@@ -43,7 +43,7 @@
 
 #include "DTK_Types.hpp"
 #include "DTK_EntityImpl.hpp"
-#include "DTK_C_API.h"
+#include "DTK_POD_Types.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -66,7 +66,7 @@ class POD_PointCloudEntityImpl : public EntityImpl
     POD_PointCloudEntityImpl( const double* cloud_coords,
                               const unsigned num_points,
                               const int space_dim,
-                              const DTK_Data_layout layout,
+                              const DataLayout layout,
                               const EntityId global_id,                          
                               const int local_id,
                               const int owner_rank );
@@ -74,7 +74,7 @@ class POD_PointCloudEntityImpl : public EntityImpl
     /*
      * \brief Get the coordinates of the point in a given dimension.
      */
-    double coords( const int dim ) const;
+    double coord( const int dim ) const;
 
     //@{
     //! EntityImpl Interface.
@@ -147,7 +147,7 @@ class POD_PointCloudEntityImpl : public EntityImpl
     const double* d_cloud_coords;
 
     // Coordinate offsets.
-    Teuchos::Array<int> d_offsets;
+    Teuchos::Array<std::size_t> d_offsets;
 
     // Global id.
     EntityId d_global_id;

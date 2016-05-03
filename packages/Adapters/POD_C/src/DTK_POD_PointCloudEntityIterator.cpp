@@ -56,7 +56,7 @@ POD_PointCloudEntityIterator::POD_PointCloudEntityIterator(
     const EntityId* global_ids,                              
     const unsigned num_points,
     const int space_dim,
-    const DTK_Data_layout layout,
+    const DataLayout layout,
     const int my_rank,
     const PredicateFunction& predicate )
     : d_cloud_coords( cloud_coords )

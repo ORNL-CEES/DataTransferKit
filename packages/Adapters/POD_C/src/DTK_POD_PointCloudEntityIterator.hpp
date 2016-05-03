@@ -47,7 +47,7 @@
 #include "DTK_EntityIterator.hpp"
 #include "DTK_Entity.hpp"
 
-#include "DTK_C_API.h"
+#include "DTK_POD_Types.hpp"
 
 namespace DataTransferKit
 {
@@ -73,7 +73,7 @@ class POD_PointCloudEntityIterator : public EntityIterator
                                   const EntityId* global_ids,
                                   const unsigned num_points,
                                   const int space_dim,
-                                  const DTK_Data_layout layout,
+                                  const DataLayout layout,
                                   const int my_rank,
                                   const PredicateFunction& predicate );
     /*!
@@ -126,7 +126,7 @@ class POD_PointCloudEntityIterator : public EntityIterator
     int d_space_dim;
 
     // Layout of the point cloud.
-    DTK_Data_layout d_layout;
+    DataLayout d_layout;
 
     // The MPI rank of this iterator.
     int d_my_rank;

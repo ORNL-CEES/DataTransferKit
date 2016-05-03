@@ -9,7 +9,8 @@ APPEND_SET(HEADERS
   DTK_POD_PointCloudEntityImpl.hpp
   DTK_POD_PointCloudEntityIterator.hpp
   DTK_POD_PointCloudEntitySet.hpp
-  DTK_POD_PointCloudLocalMap.hpp  
+  DTK_POD_PointCloudLocalMap.hpp
+  DTK_POD_Types.hpp
   ) 
 
 APPEND_SET(SOURCES

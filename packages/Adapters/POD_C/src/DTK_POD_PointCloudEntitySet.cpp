@@ -34,7 +34,7 @@
 /*!
  * \brief DTK_POD_PointCloudEntitySet.cpp
  * \author Stuart R. Slattery
- * \brief STK mesh entity set.
+ * \brief POD point cloud entity set.
  */
 //---------------------------------------------------------------------------//
 
@@ -57,7 +57,7 @@ POD_PointCloudEntitySet::POD_PointCloudEntitySet(
     const EntityId* global_ids,
     const unsigned num_points,
     const int space_dim,
-    const DTK_Data_layout layout )
+    const DataLayout layout )
     : d_comm( comm )
     , d_cloud_coords( cloud_coords )
     , d_global_ids( global_ids )

@@ -32,52 +32,30 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_POD_PointCloudEntity.cpp
+ * \file DTK_POD_Types.hpp
  * \author Stuart R. Slattery
- * \brief POD_PointCloudEntity definition
+ * \brief POD_Types declaration.
  */
 //---------------------------------------------------------------------------//
 
-#include <limits>
-
-#include "DTK_DBC.hpp"
-#include "DTK_POD_PointCloudEntity.hpp"
+#ifndef DTK_POD_TYPES_HPP
+#define DTK_POD_TYPES_HPP
 
 namespace DataTransferKit
 {
-//---------------------------------------------------------------------------//
-// Default constructor.
-POD_PointCloudEntity::POD_PointCloudEntity( const double* cloud_coords,
-                                            const unsigned num_points,
-                                            const int space_dim,
-                                            const DataLayout layout,
-                                            const EntityId global_id,         
-                                            const int local_id,
-                                            const int owner_rank )
-{
-    this->b_entity_impl =
-        Teuchos::rcp( new POD_PointCloudEntityImpl(cloud_coords,
-                                                   num_points,
-                                                   space_dim,
-                                                   layout,
-                                                   global_id,
-                                                   local_id,
-                                                   owner_rank) );
-}
 
-//---------------------------------------------------------------------------//
-// Get the coordinates of the point in a given dimension.
-double POD_PointCloudEntity::coord( const int dim ) const
+// Blocked/Interleaved enum.
+enum DataLayout
 {
-    return Teuchos::rcp_dynamic_cast<POD_PointCloudEntityImpl>(
-        this->b_entity_impl)->coord( dim );
-}
-
-//---------------------------------------------------------------------------//
+    BLOCKED,
+    INTERLEAVED
+};
 
 } // end namespace DataTransferKit
 
+#endif // end DTK_POD_TYPES_HPP
+
 //---------------------------------------------------------------------------//
-// end DTK_POD_PointCloudEntity.cpp
+// end DTK_POD_Types.hpp
 //---------------------------------------------------------------------------//
 

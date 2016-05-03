@@ -43,9 +43,9 @@
 
 #include <iostream>
 
-#include "DTK_C_API.h"
 #include "DTK_Entity.hpp"
 #include "DTK_POD_PointCloudEntityImpl.hpp"
+#include "DTK_POD_Types.hpp"
 
 namespace DataTransferKit
 {
@@ -65,13 +65,13 @@ class POD_PointCloudEntity : public Entity
     POD_PointCloudEntity( const double* cloud_coords,
                           const unsigned num_points,
                           const int space_dim,
-                          const DTK_Data_layout layout,
+                          const DataLayout layout,
                           const EntityId global_id,
                           const int local_id,
                           const int owner_rank );
 
     // Get the coordinates of the point in a given dimension.
-    double coords( const int dim ) const;
+    double coord( const int dim ) const;
 };
 
 //---------------------------------------------------------------------------//
