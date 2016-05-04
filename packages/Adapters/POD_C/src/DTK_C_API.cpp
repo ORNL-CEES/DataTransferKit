@@ -134,10 +134,6 @@ DTK_Map* DTK_Map_create( MPI_Comm        comm,
                          char const*     options )
 {
     // Parse the options and build the parameter list
-    int comm_rank;
-    MPI_Comm_rank(comm, &comm_rank);
-    if (comm_rank == 0)
-        std::cout << "\nDTK_Map_create called with options:\n" << options << "\n";
     std::stringstream ss;
     ss.str(options);
     boost::property_tree::ptree ptree;
