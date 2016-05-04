@@ -139,15 +139,18 @@ DTK_Map* DTK_Map_create( MPI_Comm        comm,
     boost::property_tree::ptree ptree;
     boost::property_tree::read_json(ss, ptree);
     Teuchos::ParameterList parameters;
-    parameters.set("Map Type",
-                   ptree.get<std::string>("Map Type",
-                                          "Moving Least Square Reconstruction") );
+    std::string const map_type(
+      ptree.get<std::string>("Map Type", "Moving Least Square Reconstruction") );
+    parameters.set("Map Type", map_type);
     parameters.set("Spatial Dimension", space_dim);
-    parameters.set("Basis Type", ptree.get<std::string>("Basis Type",
-                                                        "Wendland"));
-    parameters.set("Basis Order", ptree.get<int>("Basis Order", 2));
-    // TODO: kNN
-    parameters.set("RBF Radius", ptree.get<double>("RBF Radius"));
+    if (map_type.compare("Node To Node") != 0)
+    {
+      parameters.set("Basis Type", ptree.get<std::string>("Basis Type",
+                                                          "Wendland"));
+      parameters.set("Basis Order", ptree.get<int>("Basis Order", 2));
+      // TODO: kNN
+      parameters.set("RBF Radius", ptree.get<double>("RBF Radius"));
+    }
 
     // Wrap the communicator.
     Teuchos::RCP<const Teuchos::Comm<int>> teuchos_comm =
