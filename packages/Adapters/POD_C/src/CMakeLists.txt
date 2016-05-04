@@ -5,10 +5,21 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   DTK_C_API.h
+  DTK_POD_PointCloudEntity.hpp
+  DTK_POD_PointCloudEntityImpl.hpp
+  DTK_POD_PointCloudEntityIterator.hpp
+  DTK_POD_PointCloudEntitySet.hpp
+  DTK_POD_PointCloudLocalMap.hpp
+  DTK_POD_Types.hpp
   ) 
 
 APPEND_SET(SOURCES
   DTK_C_API.cpp
+  DTK_POD_PointCloudEntity.cpp
+  DTK_POD_PointCloudEntityImpl.cpp
+  DTK_POD_PointCloudEntityIterator.cpp
+  DTK_POD_PointCloudEntitySet.cpp
+  DTK_POD_PointCloudLocalMap.cpp  
   ) 
 
 TRIBITS_ADD_LIBRARY(

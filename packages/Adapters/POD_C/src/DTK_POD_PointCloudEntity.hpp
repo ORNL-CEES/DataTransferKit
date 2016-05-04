@@ -31,49 +31,53 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 //---------------------------------------------------------------------------//
-#ifndef DTK_NONAME_H
-#define DTK_NONAME_H
+/*!
+ * \file DTK_POD_PointCloudEntity.hpp
+ * \author Stuart R. Slattery
+ * \brief POD_PointCloudEntity declaration.
+ */
+//---------------------------------------------------------------------------//
 
-#include "mpi.h"
+#ifndef DTK_POD_POINTCLOUDENTITY_HPP
+#define DTK_POD_POINTCLOUDENTITY_HPP
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <iostream>
 
-// Convenience typedef for an opaque pointer
-typedef void DTK_Map;
+#include "DTK_Entity.hpp"
+#include "DTK_POD_PointCloudEntityImpl.hpp"
+#include "DTK_POD_Types.hpp"
 
-// Possible data layouts:
-// * Blocked
-//     X1 X2 ... Xn Y1 Y2 ... Yn
-// * Interleaved
-//     X1 Y1 X2 Y2 ... Xn Yn
-typedef enum data_layout { DTK_BLOCKED, DTK_INTERLEAVED } DTK_Data_layout;
+namespace DataTransferKit
+{
+//---------------------------------------------------------------------------//
+/*!
+  \class POD_PointCloudEntity
+  \brief POD_PointCloudEntity interface.
+  
+  POD_PointCloudEntity gives an interface for entities in POD point clouds.
+*/
+//---------------------------------------------------------------------------//
+class POD_PointCloudEntity : public Entity
+{
+  public:
 
-//----------------------------------------------------------------------------//
-DTK_Map* DTK_Map_create( MPI_Comm        comm,
-                         double const*   src_coord,
-                         unsigned        src_num,
-                         DTK_Data_layout src_layout,
-                         double const*   tgt_coord,
-                         unsigned        tgt_num,
-                         DTK_Data_layout tgt_layout,
-                         int             space_dim,
-                         char const*     options = "" );
+    // Default constructor.
+    POD_PointCloudEntity( const double* cloud_coords,
+                          const unsigned num_points,
+                          const int space_dim,
+                          const DataLayout layout,
+                          const EntityId global_id,
+                          const int local_id,
+                          const int owner_rank );
+};
 
-//----------------------------------------------------------------------------//
-void DTK_Map_apply( DTK_Map*        dtk_map,
-                    double const*   src_field,
-                    DTK_Data_layout src_layout,
-                    double*         tgt_field,
-                    DTK_Data_layout tgt_layout,
-                    int             field_dim );
+//---------------------------------------------------------------------------//
 
-//----------------------------------------------------------------------------//
-void DTK_Map_delete( DTK_Map * dtk_map );
+} // end namespace DataTransferKit
 
-#ifdef __cplusplus
-}
-#endif
+#endif // end DTK_POD_POINTCLOUDENTITY_HPP
 
-#endif // DTK_NONAME_H
+//---------------------------------------------------------------------------//
+// end DTK_POD_PointCloudEntity.hpp
+//---------------------------------------------------------------------------//
+
