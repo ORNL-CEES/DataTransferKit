@@ -195,7 +195,8 @@ void DTK_Map_apply( DTK_Map*        dtk_map,
                     DTK_Data_layout src_layout,
                     double*         tgt_data,
                     DTK_Data_layout tgt_layout,
-                    int             field_dim )
+                    int             field_dim,
+                    bool            transpose )
 {
     // Cast the opaque pointer back to a DTK map operator
     auto map_operator = static_cast<DataTransferKit::MapOperator*>(dtk_map);
@@ -245,7 +246,9 @@ void DTK_Map_apply( DTK_Map*        dtk_map,
         range_map->getComm(), Teuchos::rcpFromRef(tgt_field) );
 
     // Apply the map operator
-    map_operator->apply(domain_vector, range_vector);
+    map_operator->apply( domain_vector,
+                         range_vector,
+                         transpose ? Teuchos::TRANS : Teuchos::NO_TRANS );
 }
 
 //----------------------------------------------------------------------------//

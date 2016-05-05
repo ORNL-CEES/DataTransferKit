@@ -67,7 +67,8 @@ void DTK_Map_apply( DTK_Map*        dtk_map,
                     DTK_Data_layout src_layout,
                     double*         tgt_field,
                     DTK_Data_layout tgt_layout,
-                    int             field_dim );
+                    int             field_dim,
+                    bool            transpose = false );
 
 //----------------------------------------------------------------------------//
 void DTK_Map_delete( DTK_Map * dtk_map );
