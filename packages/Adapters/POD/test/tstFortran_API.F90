@@ -62,4 +62,8 @@ program dtk_fortran_api
 
   call MPI_FINALIZE(ierr)
 
+  if (comm_rank == 0) then
+    print *, "End Result: TEST PASSED", test
+  end if
+
 end program

@@ -59,5 +59,8 @@ int main(int argc, char* argv[])
 
   MPI_Finalize();
 
+  if (comm_rank == 0)
+    printf("End Result: TEST PASSED\n");
+
   return 0;
 }
