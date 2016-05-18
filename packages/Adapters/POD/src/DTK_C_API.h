@@ -34,6 +34,7 @@
 #ifndef DTK_NONAME_H
 #define DTK_NONAME_H
 
+#include "stdbool.h"
 #include "mpi.h"
 
 #ifdef __cplusplus
@@ -59,7 +60,7 @@ DTK_Map* DTK_Map_create( MPI_Comm        comm,
                          unsigned        tgt_num,
                          DTK_Data_layout tgt_layout,
                          int             space_dim,
-                         char const*     options = "" );
+                         char const*     options );
 
 //----------------------------------------------------------------------------//
 void DTK_Map_apply( DTK_Map*        dtk_map,
@@ -68,7 +69,7 @@ void DTK_Map_apply( DTK_Map*        dtk_map,
                     double*         tgt_field,
                     DTK_Data_layout tgt_layout,
                     int             field_dim,
-                    bool            transpose = false );
+                    bool            transpose );
 
 //----------------------------------------------------------------------------//
 void DTK_Map_delete( DTK_Map * dtk_map );

@@ -81,7 +81,8 @@ TEUCHOS_UNIT_TEST( C_API, create_apply_delete_map )
                  DTK_INTERLEAVED,
                  tgt_field.data(),
                  DTK_BLOCKED,
-                 field_dim );
+                 field_dim,
+                 false );
 
   DTK_Map_delete( dtk_map );
 
@@ -162,7 +163,8 @@ TEUCHOS_UNIT_TEST( C_API, node_to_node_map )
                  DTK_INTERLEAVED,
                  tgt_field.data(),
                  DTK_BLOCKED,
-                 field_dim );
+                 field_dim,
+                 false );
 
   DTK_Map_delete( dtk_map );
 
