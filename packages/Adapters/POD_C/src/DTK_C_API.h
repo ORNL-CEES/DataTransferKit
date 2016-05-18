@@ -48,7 +48,7 @@ typedef void DTK_Map;
 //     X1 X2 ... Xn Y1 Y2 ... Yn
 // * Interleaved
 //     X1 Y1 X2 Y2 ... Xn Yn
-typedef enum data_layout { DTK_BLOCKED, DTK_INTERLEAVED } DTK_Data_layout;
+typedef enum data_layout { DTK_BLOCKED=1, DTK_INTERLEAVED=2 } DTK_Data_layout;
 
 //----------------------------------------------------------------------------//
 DTK_Map* DTK_Map_create( MPI_Comm        comm,
