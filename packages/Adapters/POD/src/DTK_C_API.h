@@ -74,6 +74,18 @@ void DTK_Map_apply( DTK_Map*        dtk_map,
 //----------------------------------------------------------------------------//
 void DTK_Map_delete( DTK_Map * dtk_map );
 
+//----------------------------------------------------------------------------//
+DTK_Map* DTK_Map_create_f( MPI_Fint        fint,
+                           double const*   src_coord,
+                           unsigned        src_num,
+                           DTK_Data_layout src_layout,
+                           double const*   tgt_coord,
+                           unsigned        tgt_num,
+                           DTK_Data_layout tgt_layout,
+                           int             space_dim,
+                           char const*     options );
+
+
 #ifdef __cplusplus
 }
 #endif

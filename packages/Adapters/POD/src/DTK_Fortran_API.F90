@@ -9,7 +9,7 @@ module DataTransferKit
 
     function DTK_Map_create(comm, src_coord, src_num, src_layout, &
         tgt_coord, tgt_num, tgt_layout, space_dim, options) result(dtk_map) &
-        bind(C, name="DTK_Map_create")
+        bind(C, name="DTK_Map_create_f")
       use iso_c_binding
       implicit none
       type(c_ptr) :: dtk_map
@@ -46,4 +46,5 @@ module DataTransferKit
     end subroutine DTK_Map_delete
     
   end interface
+
 end module
