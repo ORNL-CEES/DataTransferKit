@@ -21,7 +21,9 @@ cmake \
     -D Netcdf_INCLUDE_DIRS:PATH=${NETCDF_DIR}/include \
     -D Netcdf_LIBRARY_DIRS:PATH=${NETCDF_DIR}/lib \
     -D TPL_ENABLE_MOAB:BOOL=OFF \
-    -D TPL_ENABLE_Libmesh:BOOL=OFF \
+    -D TPL_ENABLE_Libmesh:BOOL=ON \
+    -D Libmesh_INCLUDE_DIRS:PATH=${LIBMESH_DIR}/include \
+    -D Libmesh_LIBRARY_DIRS:PATH=${LIBMESH_DIR}/lib \
     -D Trilinos_ENABLE_CXX11:BOOL=ON \
     -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION:BOOL=ON \
     -D Trilinos_ASSERT_MISSING_PACKAGES:BOOL=OFF \
@@ -53,10 +55,9 @@ cmake \
     -D Trilinos_ENABLE_ThyraEpetraAdapters:BOOL=ON \
     -D Trilinos_ENABLE_ThyraTpetraAdapters:BOOL=ON \
     -D Trilinos_ENABLE_Thyra:BOOL=ON \
-    -D Trilinos_ENABLE_AztecOO:BOOL=ON \
     -D Trilinos_ENABLE_Belos:BOOL=ON \
     -D Trilinos_ENABLE_SEACASExodus:BOOL=ON \
-    -D Trilinos_ENABLE_SEACASIos:BOOL=ON \
+    -D Trilinos_ENABLE_SEACASIoss:BOOL=ON \
     -D Trilinos_ENABLE_SEACASAprepro_lib:BOOL=ON \
     -D Trilinos_ENABLE_SEACAS:BOOL=ON \
     -D Trilinos_ENABLE_Stratimikos:BOOL=ON \
