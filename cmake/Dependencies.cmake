@@ -9,5 +9,6 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     MoabAdapters          packages/Adapters/Moab          SS  OPTIONAL
     LibmeshAdapters       packages/Adapters/Libmesh       SS  OPTIONAL
     ClassicDTKAdapters    packages/Adapters/ClassicDTK    SS  OPTIONAL
-    C_API                 packages/Adapters/POD_C         SS  OPTIONAL
+    C_API                 packages/Adapters/C_API         SS  OPTIONAL
+    Fortran_API           packages/Adapters/Fortran_API   SS  OPTIONAL
   )

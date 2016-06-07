@@ -31,9 +31,10 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 //---------------------------------------------------------------------------//
-#ifndef DTK_NONAME_H
-#define DTK_NONAME_H
+#ifndef DTK_C_API_H
+#define DTK_C_API_H
 
+#include "stdbool.h"
 #include "mpi.h"
 
 #ifdef __cplusplus
@@ -48,7 +49,7 @@ typedef void DTK_Map;
 //     X1 X2 ... Xn Y1 Y2 ... Yn
 // * Interleaved
 //     X1 Y1 X2 Y2 ... Xn Yn
-typedef enum data_layout { DTK_BLOCKED, DTK_INTERLEAVED } DTK_Data_layout;
+typedef enum data_layout { DTK_BLOCKED=1, DTK_INTERLEAVED=2 } DTK_Data_layout;
 
 //----------------------------------------------------------------------------//
 DTK_Map* DTK_Map_create( MPI_Comm        comm,
@@ -59,7 +60,7 @@ DTK_Map* DTK_Map_create( MPI_Comm        comm,
                          unsigned        tgt_num,
                          DTK_Data_layout tgt_layout,
                          int             space_dim,
-                         char const*     options = "" );
+                         char const*     options );
 
 //----------------------------------------------------------------------------//
 void DTK_Map_apply( DTK_Map*        dtk_map,
@@ -68,13 +69,25 @@ void DTK_Map_apply( DTK_Map*        dtk_map,
                     double*         tgt_field,
                     DTK_Data_layout tgt_layout,
                     int             field_dim,
-                    bool            transpose = false );
+                    bool            transpose );
 
 //----------------------------------------------------------------------------//
 void DTK_Map_delete( DTK_Map * dtk_map );
+
+//----------------------------------------------------------------------------//
+DTK_Map* DTK_Map_create_f( MPI_Fint        fint,
+                           double const*   src_coord,
+                           unsigned        src_num,
+                           DTK_Data_layout src_layout,
+                           double const*   tgt_coord,
+                           unsigned        tgt_num,
+                           DTK_Data_layout tgt_layout,
+                           int             space_dim,
+                           char const*     options );
+
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // DTK_NONAME_H
+#endif // DTK_C_API_H

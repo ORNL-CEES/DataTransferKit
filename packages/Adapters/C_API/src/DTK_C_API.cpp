@@ -123,6 +123,25 @@ createFunctionSpace(
 }
 
 //----------------------------------------------------------------------------//
+DTK_Map* DTK_Map_create_f( MPI_Fint        fint,
+                           double const*   src_coord,
+                           unsigned        src_num,
+                           DTK_Data_layout src_layout,
+                           double const*   tgt_coord,
+                           unsigned        tgt_num,
+                           DTK_Data_layout tgt_layout,
+                           int             space_dim,
+                           char const*     options )
+{
+  MPI_Comm comm = MPI_Comm_f2c(fint);
+  return DTK_Map_create(
+      comm,
+      src_coord, src_num, src_layout,
+      tgt_coord, tgt_num, tgt_layout,
+      space_dim, options );
+}
+
+//----------------------------------------------------------------------------//
 DTK_Map* DTK_Map_create( MPI_Comm        comm,
                          double const*   src_coord,
                          unsigned        src_num,
