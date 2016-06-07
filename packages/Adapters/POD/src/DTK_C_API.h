@@ -31,8 +31,8 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 //---------------------------------------------------------------------------//
-#ifndef DTK_NONAME_H
-#define DTK_NONAME_H
+#ifndef DTK_C_API_H
+#define DTK_C_API_H
 
 #include "stdbool.h"
 #include "mpi.h"
@@ -90,4 +90,4 @@ DTK_Map* DTK_Map_create_f( MPI_Fint        fint,
 }
 #endif
 
-#endif // DTK_NONAME_H
+#endif // DTK_C_API_H
