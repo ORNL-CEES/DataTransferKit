@@ -10,6 +10,7 @@ APPEND_SET(HEADERS
   DTK_POD_PointCloudEntitySet.hpp
   DTK_POD_PointCloudLocalMap.hpp
   DTK_POD_Types.hpp
+  DTK_C_API.h
   ) 
 
 APPEND_SET(SOURCES
@@ -18,25 +19,11 @@ APPEND_SET(SOURCES
   DTK_POD_PointCloudEntityIterator.cpp
   DTK_POD_PointCloudEntitySet.cpp
   DTK_POD_PointCloudLocalMap.cpp  
+  DTK_C_API.cpp
   ) 
 
 TRIBITS_ADD_LIBRARY(
-  dtk_pod
+  dtk_c_api
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )
-
-TRIBITS_ADD_LIBRARY(
-  dtk_c_api
-  HEADERS DTK_C_API.h
-  SOURCES DTK_C_API.cpp
-  )
-TARGET_LINK_LIBRARIES(dtk_c_api dtk_pod)
-
-TRIBITS_ADD_LIBRARY(
-  dtk_fortran_api
-  HEADERS ""
-  SOURCES DTK_Fortran_API.F90
-  )
-TARGET_LINK_LIBRARIES(dtk_fortran_api dtk_c_api)
-
