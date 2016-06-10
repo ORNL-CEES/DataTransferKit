@@ -184,6 +184,8 @@ listed in the following table:
 +-----------------------+---------------+---------------------------------------+
 | libMesh               | No            | Required to build libMesh adapters    |
 +-----------------------+---------------+---------------------------------------+
+| Boost                 | No            | Required to build the C/Fortran API   |
++-----------------------+---------------+---------------------------------------+
 
 You can get the most recent Trilinos version at
 <http://trilinos.org/download/>.
