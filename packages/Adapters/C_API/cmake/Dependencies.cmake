@@ -5,5 +5,5 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     DataTransferKitBasicGeometryAdapters
   LIB_REQUIRED_TPLS
     MPI
-    BoostLib
+    Boost
   )
