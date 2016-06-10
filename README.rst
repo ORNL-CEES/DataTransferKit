@@ -37,6 +37,8 @@ DTK is developed and maintained by:
 
 * Damien Lebrun-Grandie <lebrungrandt@ornl.gov>
 
+* Bruno Turcksin <turcksinbr@ornl.gov>  
+
 * Roger Pawlowski <rppawlo@sandia.gov>
 
 * Alex McCaskey <mccaskeyaj@ornl.gov>
