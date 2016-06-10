@@ -72,6 +72,7 @@ DTK has the following packages:
     * Moving least square reconstruction with degenerate geometry
       detection
     * Spline interpolation
+    * Direct node-to-node transfer
 
 **Adapters**
     Client interface adapters for common mesh databases,
@@ -96,6 +97,11 @@ DTK has the following packages:
       deprecated) version 1.0 API using the new 2.0 implementation. See the
       notes below for more details.
 
+    * C Interfaces. Provides basic C interfaces to a subset of DTK algorithms.
+
+    * Fortran Interfaces. Provides basic Fortran interfaces to a subset of DTK
+      algorithms.
+
     Outside of the DTK source code, other applications have
     implementations of the DTK client interfaces in their code base
     that may be used to leverage the DTK services and interoperate
@@ -104,6 +110,8 @@ DTK has the following packages:
 
     * AMP: Advanced Multi-Physics
       <https://rsicc.ornl.gov/codes/ccc/ccc7/ccc-793.html>
+
+    * Albany mulitphysics code <https://github.com/gahansen/Albany>
 
 **Notes on Classic DTK Adapters**
     This can serve as a starting point for migrating from version 1.0 to 2.0
@@ -166,7 +174,7 @@ listed in the following table:
 +-----------------------+---------------+---------------------------------------+
 | TriBITS               | Yes           | Build system provided with Trilinos   |
 +-----------------------+---------------+---------------------------------------+
-| Trilinos              | Yes           | Release 11.14 is required at minimum  |
+| Trilinos              | Yes           | Release 12.0 is required at minimum   |
 +-----------------------+---------------+---------------------------------------+
 | BLAS/LAPACK           | Yes           | Use vendor-specific implementation    |
 +-----------------------+---------------+---------------------------------------+
@@ -177,7 +185,7 @@ listed in the following table:
 | libMesh               | No            | Required to build libMesh adapters    |
 +-----------------------+---------------+---------------------------------------+
 
-You can get the most recent Trilinos version (11.14) at
+You can get the most recent Trilinos version at
 <http://trilinos.org/download/>.
 
 To use build some examples and tests you will need the DTKData
