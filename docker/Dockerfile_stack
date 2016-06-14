@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
         wget \
         git \
         cmake \
+        autoconf \
         lcov \
         valgrind \
         cppcheck \
@@ -92,8 +93,6 @@ RUN export HDF5_VERSION=1.10.0 && \
 
 ENV HDF5_DIR=/opt/hdf5/1.10.0
 
-RUN apt-get update && apt-get install -y m4
-
 # install NETCDF
 RUN export NETCDF_VERSION=4.4.0 && \
     export NETCDF_URL=ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-${NETCDF_VERSION}.tar.gz && \
@@ -148,7 +147,7 @@ RUN export PETSC_VERSION=3.3-p5 && \
     rm -rf ${PETSC_BUILD_DIR} && \
     rm -rf ${PETSC_SOURCE_DIR}
     
-env PETSC_DIR=/opt/petsc/3.3-p5
+ENV PETSC_DIR=/opt/petsc/3.3-p5
 
 # install libmesh
 RUN export LIBMESH_VERSION=0.9.5 && \
@@ -174,8 +173,42 @@ RUN export LIBMESH_VERSION=0.9.5 && \
     rm -rf ${LIBMESH_SOURCE_DIR}
     
     
-env LIBMESH_DIR=/opt/libmesh/0.9.5
+ENV LIBMESH_DIR=/opt/libmesh/0.9.5
 
+# install moab
+RUN export MOAB_VERSION=4.9.1 && \
+    export MOAB_URL=https://bitbucket.org/fathomteam/moab/get/${MOAB_VERSION}.tar.bz2 && \
+    export MOAB_ARCHIVE=${PREFIX}/archive/moab-${MOAB_VERSION}.tar.bz2 && \
+    export MOAB_SOURCE_DIR=${PREFIX}/source/moab/${MOAB_VERSION} && \
+    export MOAB_BUILD_DIR=${PREFIX}/build/moab/${MOAB_VERSION} && \
+    export MOAB_INSTALL_DIR=/opt/moab/${MOAB_VERSION} && \
+    wget --quiet ${MOAB_URL} --output-document=${MOAB_ARCHIVE} && \
+    mkdir -p ${MOAB_SOURCE_DIR} && \
+    tar -xf ${MOAB_ARCHIVE} -C ${MOAB_SOURCE_DIR} --strip-components=1 && \
+    cd ${MOAB_SOURCE_DIR} && \
+    autoreconf -fi && \
+    mkdir -p  ${MOAB_BUILD_DIR} && \
+    cd  ${MOAB_BUILD_DIR} && \
+    ${MOAB_SOURCE_DIR}/configure \
+        --prefix=${MOAB_INSTALL_DIR} \
+        --with-mpi \
+        --with-hdf5=${HDF5_DIR} \
+        --with-netcdf=${NETCDF_DIR} \
+        --enable-optimize \
+        --enable-shared \
+        --disable-static \
+        CC=/usr/bin/mpicc \
+        CXX=/usr/bin/mpicxx \
+        FC=/usr/bin/mpifort \
+        F77=/usr/bin/mpifort \
+        && \
+    make -j${NPROC} && \
+    make install && \
+    rm -rf ${MOAB_ARCHIVE} && \
+    rm -rf ${MOAB_BUILD_DIR} && \
+    rm -rf ${MOAB_SOURCE_DIR}
+    
+ENV MOAB_DIR=/opt/moab/4.9.1
 
 COPY configure_trilinos.sh ${PREFIX}/build/
 
