@@ -42,6 +42,7 @@
 #include "DTK_DBC.hpp"
 
 #include <Tpetra_Distributor.hpp>
+#include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
 {
@@ -271,6 +272,11 @@ void ParallelSearch::search(
 	d_missed_range_entity_ids.resize(
 	    std::distance(d_missed_range_entity_ids.begin(),
 			  missed_range_unique_end) );
+#if HAVE_DTK_DBC
+  unsigned long long int n_entities = d_missed_range_entity_ids.size() +
+    num_import_found;
+  DTK_REQUIRE( n_entities == range_iterator.size() );
+#endif
     }
 }
 
