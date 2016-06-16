@@ -42,7 +42,6 @@
 #include "DTK_DBC.hpp"
 
 #include <Tpetra_Distributor.hpp>
-#include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
 {
@@ -258,20 +257,22 @@ void ParallelSearch::search(
 				   import_found.begin(), import_found.end(),
 				   false_positive_missed.begin() );
 
+  // Create a unique list of missed entities
+	std::sort( import_missed.begin(), import_missed.end() );
+  auto import_missed_unique_end = std::unique(
+      import_missed.begin(), import_missed.end());
+  import_missed.resize(std::distance(import_missed.begin(), import_missed_unique_end));
+
 	// Create a list of missed entities without the false positives.
 	d_missed_range_entity_ids.resize( num_import_missed );
 	auto missed_range_end = std::set_difference( 
 	    import_missed.begin(), import_missed.end(),
 	    false_positive_missed.begin(), false_positive_end,
 	    d_missed_range_entity_ids.begin() );
-
-	// Create a unique list of missed entities without the false positives.
-	std::sort( d_missed_range_entity_ids.begin(), missed_range_end );
-	auto missed_range_unique_end = std::unique(
-	    d_missed_range_entity_ids.begin(), missed_range_end );
 	d_missed_range_entity_ids.resize(
 	    std::distance(d_missed_range_entity_ids.begin(),
-			  missed_range_unique_end) );
+			  missed_range_end) );
+
 #if HAVE_DTK_DBC
   unsigned long long int n_entities = d_missed_range_entity_ids.size() +
     num_import_found;
