@@ -250,8 +250,7 @@ void ParallelSearch::search(
 	// that were found on one process but missed on another.
 	std::sort( import_missed.begin(), import_missed.end() );
 	std::sort( import_found.begin(), import_found.end() );
-	Teuchos::Array<EntityId> false_positive_missed(
-	    import_missed.size() + import_found.size() );
+	Teuchos::Array<EntityId> false_positive_missed( import_missed.size() );
 	auto false_positive_end = 
 	    std::set_intersection( import_missed.begin(), import_missed.end(),
 				   import_found.begin(), import_found.end(),
