@@ -246,12 +246,22 @@ void ParallelSearch::search(
 	    found_range_entity_ids();
 	found_range_dist.doPostsAndWaits( found_view, 1, import_found() );
 
+
+  // Create a unique list of missed entities.
+	std::sort( import_missed.begin(), import_missed.end() );
+  auto import_missed_unique_end = std::unique(
+      import_missed.begin(), import_missed.end());
+  import_missed.resize(std::distance(import_missed.begin(), import_missed_unique_end));
+
+  // Create a unique list of found entities.
+	std::sort( import_found.begin(), import_found.end() );
+  auto import_found_unique_end = std::unique(
+      import_found.begin(), import_found.end());
+  import_found.resize(std::distance(import_found.begin(), import_found_unique_end));
+
 	// Intersect the found and missed entities to determine if there are any
 	// that were found on one process but missed on another.
-	std::sort( import_missed.begin(), import_missed.end() );
-	std::sort( import_found.begin(), import_found.end() );
-	Teuchos::Array<EntityId> false_positive_missed(
-	    import_missed.size() + import_found.size() );
+	Teuchos::Array<EntityId> false_positive_missed( import_missed.size() );
 	auto false_positive_end = 
 	    std::set_intersection( import_missed.begin(), import_missed.end(),
 				   import_found.begin(), import_found.end(),
@@ -263,14 +273,15 @@ void ParallelSearch::search(
 	    import_missed.begin(), import_missed.end(),
 	    false_positive_missed.begin(), false_positive_end,
 	    d_missed_range_entity_ids.begin() );
-
-	// Create a unique list of missed entities without the false positives.
-	std::sort( d_missed_range_entity_ids.begin(), missed_range_end );
-	auto missed_range_unique_end = std::unique(
-	    d_missed_range_entity_ids.begin(), missed_range_end );
 	d_missed_range_entity_ids.resize(
 	    std::distance(d_missed_range_entity_ids.begin(),
-			  missed_range_unique_end) );
+			  missed_range_end) );
+
+#if HAVE_DTK_DBC
+  unsigned long long int n_entities = d_missed_range_entity_ids.size() +
+    import_found.size();
+  DTK_REQUIRE( n_entities == range_iterator.size() );
+#endif
     }
 }
 
