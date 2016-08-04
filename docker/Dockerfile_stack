@@ -67,9 +67,9 @@ ENV BOOST_DIR=/opt/boost/1.61.0
 #ENV LD_LIBRARY_PATH=${BOOST_DIR}/lib:${LD_LIBRARY_PATH}
 
 # install HDF5
-RUN export HDF5_VERSION=1.10.0 && \
+RUN export HDF5_VERSION=1.10.0-patch1 && \
     export HDF5_URL=http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.bz2 && \
-    export HDF5_MD5=355243bda5df386aea25f079d550947b && \
+    export HDF5_MD5=f6d980febe2c35c11670a9b34fa3b487 && \
     export HDF5_ARCHIVE=${PREFIX}/archive/hdf5-${HDF5_VERSION}.tar.bz2 && \
     export HDF5_SOURCE_DIR=${PREFIX}/source/hdf5/${HDF5_VERSION} && \
     export HDF5_BUILD_DIR=${PREFIX}/build/hdf5/${HDF5_VERSION} && \
@@ -91,10 +91,10 @@ RUN export HDF5_VERSION=1.10.0 && \
     rm -rf ${HDF5_BUILD_DIR} && \
     rm -rf ${HDF5_SOURCE_DIR}
 
-ENV HDF5_DIR=/opt/hdf5/1.10.0
+ENV HDF5_DIR=/opt/hdf5/1.10.0-patch1
 
 # install NETCDF
-RUN export NETCDF_VERSION=4.4.0 && \
+RUN export NETCDF_VERSION=4.4.1 && \
     export NETCDF_URL=ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-${NETCDF_VERSION}.tar.gz && \
     export NETCDF_ARCHIVE=${PREFIX}/archive/netcdf-${NETCDF_VERSION}.tar.gz && \
     export NETCDF_SOURCE_DIR=${PREFIX}/source/netcdf/${NETCDF_VERSION} && \
@@ -119,7 +119,7 @@ RUN export NETCDF_VERSION=4.4.0 && \
     rm -rf ${NETCDF_BUILD_DIR} && \
     rm -rf ${NETCDF_SOURCE_DIR}
 
-ENV NETCDF_DIR=/opt/netcdf/4.4.0
+ENV NETCDF_DIR=/opt/netcdf/4.4.1
 
 # install petsc
 RUN export PETSC_VERSION=3.3-p5 && \
@@ -150,7 +150,7 @@ RUN export PETSC_VERSION=3.3-p5 && \
 ENV PETSC_DIR=/opt/petsc/3.3-p5
 
 # install libmesh
-RUN export LIBMESH_VERSION=0.9.5 && \
+RUN export LIBMESH_VERSION=1.0.0 && \
     export LIBMESH_URL=https://github.com/libMesh/libmesh/releases/download/v${LIBMESH_VERSION}/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_ARCHIVE=${PREFIX}/archive/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_SOURCE_DIR=${PREFIX}/source/libmesh/${LIBMESH_VERSION} && \
@@ -173,7 +173,7 @@ RUN export LIBMESH_VERSION=0.9.5 && \
     rm -rf ${LIBMESH_SOURCE_DIR}
     
     
-ENV LIBMESH_DIR=/opt/libmesh/0.9.5
+ENV LIBMESH_DIR=/opt/libmesh/1.0.0
 
 # install moab
 RUN export MOAB_VERSION=4.9.1 && \
