@@ -32,19 +32,16 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_IntrepidEntityIntegrationRule.hpp
+ * \brief DTK_IntrepidIntegrationRule.hpp
  * \author Stuart R. Slattery
  * \brief Intrepid integration rule implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_INTREPIDENTITYINTEGRATIONRULE_HPP
-#define DTK_INTREPIDENTITYINTEGRATIONRULE_HPP
+#ifndef DTK_INTREPIDINTEGRATIONRULE_HPP
+#define DTK_INTREPIDINTEGRATIONRULE_HPP
 
 #include <map>
-
-#include "DTK_Entity.hpp"
-#include "DTK_EntityIntegrationRule.hpp"
 
 #include <Teuchos_Array.hpp>
 
@@ -55,27 +52,27 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class IntrepidEntityIntegrationRule
+  \class IntrepidIntegrationRule
   \brief integration rule interface.
 
-  IntrepidEntityIntegrationRule provides numerical quadrature for entities.
+  IntrepidIntegrationRule provides numerical quadrature for entities.
 */
 //---------------------------------------------------------------------------//
-class IntrepidEntityIntegrationRule
+class IntrepidIntegrationRule
 {
   public:
 
     /*!
-     * \brief Given an entity and an integration order, get its integration
+     * \brief Given an topology and an integration order, get its integration
      * rule. 
      *
-     * \param entity Get the integration rule for this entity.
+     * \param topology Get the integration rule for this topology.
      *
      * \param order Get an integration rule of this order.
      *
      * \param reference_points Return the integration points in the reference
-     * frame of the entity in this array. If there are N integration points of
-     * topological dimension D then this array is of size
+     * frame of the topology in this array. If there are N integration points
+     * of topological dimension D then this array is of size
      * reference_points[N][D].
      *
      * \param weights Return the weights of the integration points in this
@@ -83,7 +80,7 @@ class IntrepidEntityIntegrationRule
      * weights[N].
      */
     void getIntegrationRule(
-	const shards::CellTopology& entity_topo,
+	const shards::CellTopology& topology,
 	const int order,
 	Teuchos::Array<Teuchos::Array<double> >& reference_points,
 	Teuchos::Array<double>& weights ) const override;
@@ -104,8 +101,8 @@ class IntrepidEntityIntegrationRule
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_INTREPIDENTITYINTEGRATIONRULE_HPP
+#endif // end DTK_INTREPIDINTEGRATIONRULE_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_IntrepidEntityIntegrationRule.hpp
+// end DTK_IntrepidIntegrationRule.hpp
 //---------------------------------------------------------------------------//

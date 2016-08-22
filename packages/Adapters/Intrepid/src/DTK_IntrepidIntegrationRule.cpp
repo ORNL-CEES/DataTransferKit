@@ -32,13 +32,13 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_IntrepidEntityIntegrationRule.cpp
+ * \brief DTK_IntrepidIntegrationRule.cpp
  * \author Stuart R. Slattery
  * \brief Intrepid integration rule implementation.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_IntrepidEntityIntegrationRule.hpp"
+#include "DTK_IntrepidIntegrationRule.hpp"
 #include "DTK_IntrepidHelpers.hpp"
 
 #include <Shards_CellTopology.hpp>
@@ -48,16 +48,16 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Given an entity and an integration order, get its integration rule. 
-void IntrepidEntityIntegrationRule::getIntegrationRule(
-    const shards::CellTopology& entity_topo,
+// Given a topology and an integration order, get its integration rule. 
+void IntrepidIntegrationRule::getIntegrationRule(
+    const shards::CellTopology& topology,
     const int order,
     Teuchos::Array<Teuchos::Array<double> >& reference_points,
     Teuchos::Array<double>& weights ) const
 {
     // If we haven't already created a cubature for this topology and order
     // create one.
-    std::pair<unsigned,int> cub_key( entity_topo.getKey(), order );    
+    std::pair<unsigned,int> cub_key( topology.getKey(), order );    
     Teuchos::RCP<Intrepid::Cubature<double> > cub_rule;
     if ( d_cub_rules.count(cub_key) )
     {
@@ -65,7 +65,7 @@ void IntrepidEntityIntegrationRule::getIntegrationRule(
     }
     else
     {
-	cub_rule = d_intrepid_factory.create( entity_topo, order );
+	cub_rule = d_intrepid_factory.create( topology, order );
 	d_cub_rules.emplace( cub_key, cub_rule );
     }
 
@@ -95,5 +95,5 @@ void IntrepidEntityIntegrationRule::getIntegrationRule(
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_IntrepidEntityIntegrationRule.hpp
+// end DTK_IntrepidIntegrationRule.hpp
 //---------------------------------------------------------------------------//
