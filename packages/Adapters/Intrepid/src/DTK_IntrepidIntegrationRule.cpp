@@ -39,7 +39,6 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_IntrepidIntegrationRule.hpp"
-#include "DTK_IntrepidHelpers.hpp"
 
 #include <Shards_CellTopology.hpp>
 

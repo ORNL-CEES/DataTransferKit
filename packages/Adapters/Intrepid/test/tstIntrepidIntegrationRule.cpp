@@ -81,7 +81,7 @@ TEUCHOS_UNIT_TEST( IntrepidIntegrationRule, hex_8_test )
 
     Teuchos::Array<Teuchos::Array<double> > p_2;
     Teuchos::Array<double> w_2;
-    integration_rule.>getIntegrationRule( element_topo, 2, p_2, w_2 );
+    integration_rule.getIntegrationRule( element_topo, 2, p_2, w_2 );
     TEST_EQUALITY( 8, w_2.size() );
     TEST_EQUALITY( 8, p_2.size() );
     for ( int i = 0; i < 8; ++i )

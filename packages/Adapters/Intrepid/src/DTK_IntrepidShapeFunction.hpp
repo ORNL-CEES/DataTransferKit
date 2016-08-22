@@ -32,67 +32,81 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_IntrepidIntegrationRule.hpp
+ * \brief DTK_IntrepidShapeFunction.hpp
  * \author Stuart R. Slattery
- * \brief Intrepid integration rule implementation.
+ * \brief  shape function implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_INTREPIDINTEGRATIONRULE_HPP
-#define DTK_INTREPIDINTEGRATIONRULE_HPP
+#ifndef DTK_INTREPIDSHAPEFUNCTION
+#define DTK_INTREPIDSHAPEFUNCTION
 
-#include <map>
+#include <unordered_map>
 
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
 
-#include <Intrepid_DefaultCubatureFactory.hpp>
-#include <Intrepid_Cubature.hpp>
+#include <Intrepid_Basis.hpp>
+#include <Intrepid_FieldContainer.hpp>
+
+#include <Shards_CellTopology.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class IntrepidIntegrationRule
-  \brief integration rule interface.
-
-  IntrepidIntegrationRule provides numerical quadrature for entities.
+  \class IntrepidShapeFunction
+  \brief Intrepid shape function.
 */
 //---------------------------------------------------------------------------//
-class IntrepidIntegrationRule
+class IntrepidShapeFunction
 {
   public:
 
     /*!
-     * \brief Given an topology and an integration order, get its integration
-     * rule. 
-     *
-     * \param topology Get the integration rule for this topology.
-     *
-     * \param order Get an integration rule of this order.
-     *
-     * \param reference_points Return the integration points in the reference
-     * frame of the topology in this array. If there are N integration points
-     * of topological dimension D then this array is of size
-     * reference_points[N][D].
-     *
-     * \param weights Return the weights of the integration points in this
-     * array. If there are N integration points this array is of size
-     * weights[N].
+     * \brief Given an topology and a reference point, evaluate the shape
+     * function of the topology at that point.
+     * \param topology Evaluate the shape function of this topology.
+     * \param reference_point Evaluate the shape function at this point
+     * given in reference coordinates.
+     * \param values Topology shape function evaluated at the reference
+     * point. 
      */
-    void getIntegrationRule(
+    void evaluateValue( 
 	const shards::CellTopology& topology,
-	const int order,
-	Teuchos::Array<Teuchos::Array<double> >& reference_points,
-	Teuchos::Array<double>& weights ) const;
+	const Teuchos::ArrayView<const double>& reference_point,
+	Teuchos::Array<double> & values ) const;
+
+    /*!
+     * \brief Given an topology and a reference point, evaluate the gradient of
+     * the shape function of the topology at that point.
+     * \param topology Evaluate the shape function of this topology.
+     * \param reference_point Evaluate the shape function at this point
+     * given in reference coordinates.
+     * \param gradients Topology shape function gradients evaluated at the reference
+     * point. Return these ordered with respect to those return by
+     * getSupportIds() such that gradients[N][D] gives the gradient value of the
+     * Nth support location in the Dth spatial dimension.
+     */
+    void evaluateGradient( 
+	const shards::CellTopology& topology,
+	const Teuchos::ArrayView<const double>& reference_point,
+	Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
 
   private:
 
-   // Intrepid cubature factory.
-    mutable Intrepid::DefaultCubatureFactory<double> d_intrepid_factory;
+    // Get the basis of a topology.
+    Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
+    getIntrepidBasis( const shards::CellTopology& topology ) const;
+ 
+  private:
 
-    // Map of already created cubature rules.
-    mutable std::map<std::pair<unsigned,int>,
-		     Teuchos::RCP<Intrepid::Cubature<double> > > d_cub_rules;
+    // Map of already created shape functions.
+    mutable
+    std::unordered_map<unsigned,
+             Teuchos::RCP<
+                 Intrepid::Basis<double,Intrepid::FieldContainer<double>
+                                 > > > d_basis;
 };
 
 //---------------------------------------------------------------------------//
@@ -101,8 +115,8 @@ class IntrepidIntegrationRule
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_INTREPIDINTEGRATIONRULE_HPP
+#endif // end DTK_INTREPIDSHAPEFUNCTION
 
 //---------------------------------------------------------------------------//
-// end DTK_IntrepidIntegrationRule.hpp
+// end DTK_IntrepidShapeFunction.hpp
 //---------------------------------------------------------------------------//
