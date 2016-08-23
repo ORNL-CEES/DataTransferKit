@@ -74,7 +74,7 @@ TEUCHOS_UNIT_TEST( IntrepidShapeFunction, hex_8_test )
     Teuchos::Array<double> values;
     shape_function.evaluateValue( element_topo, ref_point(), values );
     TEST_EQUALITY( values.size(), num_nodes );
-    for ( unsigned n = 0; n < num_nodes; ++n )
+    for ( int n = 0; n < num_nodes; ++n )
     {
 	TEST_EQUALITY( values[n], 1.0 / num_nodes );
     }
@@ -84,7 +84,7 @@ TEUCHOS_UNIT_TEST( IntrepidShapeFunction, hex_8_test )
     shape_function.evaluateValue( element_topo, ref_point(), values );
     TEST_EQUALITY( values.size(), num_nodes );
     TEST_EQUALITY( values[0], 1.0 );
-    for ( unsigned n = 1; n < num_nodes; ++n )
+    for ( int n = 1; n < num_nodes; ++n )
     {
 	TEST_EQUALITY( values[n], 0.0 );
     }    
@@ -94,7 +94,7 @@ TEUCHOS_UNIT_TEST( IntrepidShapeFunction, hex_8_test )
     ref_point.assign( 3, 0.0 );
     shape_function.evaluateGradient( element_topo, ref_point(), grads );
     TEST_EQUALITY( grads.size(), num_nodes );
-    for ( unsigned n = 0; n < num_nodes; ++n )
+    for ( int n = 0; n < num_nodes; ++n )
     {
 	TEST_EQUALITY( Teuchos::as<int>(grads[n].size()), space_dim );
     }
