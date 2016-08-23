@@ -117,6 +117,14 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   STANDARD_PASS_OUTPUT
   )
 
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  L2Projection_test
+  SOURCES tstL2Projection.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  TESTONLYLIBS dtk_hex_test_reference
+  )
+
 ##---------------------------------------------------------------------------##
 # PointCloud tests.
 ##---------------------------------------------------------------------------##
