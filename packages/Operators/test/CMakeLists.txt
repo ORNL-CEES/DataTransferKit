@@ -1,4 +1,31 @@
+##---------------------------------------------------------------------------##
+# Hex mesh reference library for unit testing
+##---------------------------------------------------------------------------##
+SET(SOURCES
+  reference_implementation/DTK_ReferenceHex.cpp
+  reference_implementation/DTK_ReferenceHexImpl.cpp
+  reference_implementation/DTK_ReferenceHexIntegrationRule.cpp
+  reference_implementation/DTK_ReferenceHexLocalMap.cpp
+  reference_implementation/DTK_ReferenceHexMesh.cpp
+  reference_implementation/DTK_ReferenceHexShapeFunction.cpp
+  reference_implementation/DTK_ReferenceNode.cpp
+  reference_implementation/DTK_ReferenceNodeImpl.cpp
+  )
+
+TRIBITS_ADD_LIBRARY(
+  dtk_hex_test_reference
+  SOURCES ${SOURCES}
+  TESTONLY
+  DEPLIBS DataTransferKitUtils DataTransferKitInterface DataTransferKitIntrepidAdapters
+  )
+
+##---------------------------------------------------------------------------##
+# Reference hex implementation tests
+##---------------------------------------------------------------------------##
+
+##---------------------------------------------------------------------------##
 # Search tests.
+##---------------------------------------------------------------------------##
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   CoarseGlobalSearch_test
   SOURCES tstCoarseGlobalSearch.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
@@ -27,7 +54,9 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   STANDARD_PASS_OUTPUT
   )
 
+##---------------------------------------------------------------------------##
 # SharedDomain tests.
+##---------------------------------------------------------------------------##
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   CrsMatrixFill_test
   SOURCES tstCrsMatrixFill.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
@@ -42,7 +71,9 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   STANDARD_PASS_OUTPUT
   )
 
+##---------------------------------------------------------------------------##
 # PointCloud tests.
+##---------------------------------------------------------------------------##
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   RadialBasis_test
   SOURCES tstRadialBasis.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
