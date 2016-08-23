@@ -57,7 +57,7 @@
 #include <Teuchos_ParameterList.hpp>
 #include <Teuchos_XMLParameterListCoreHelpers.hpp>
 
-#include <BelosPseudoBlockGMRESSolMgr.hpp>
+#include <BelosPseudoBlockGmresSolMgr.hpp>
 
 #include <Thyra_TpetraThyraWrappers.hpp>
 #include <Thyra_DefaultMultipliedLinearOp.hpp>
