@@ -75,7 +75,7 @@ class IntrepidShapeFunction
     void evaluateValue( 
 	const shards::CellTopology& topology,
 	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<double> & values ) const;
+	Teuchos::Array<double>& values ) const;
 
     /*!
      * \brief Given an topology and a reference point, evaluate the gradient of

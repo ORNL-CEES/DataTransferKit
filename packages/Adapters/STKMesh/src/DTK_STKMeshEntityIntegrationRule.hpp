@@ -45,11 +45,9 @@
 
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIntegrationRule.hpp"
+#include "DTK_IntrepidIntegrationRule.hpp"
 
 #include <Teuchos_Array.hpp>
-
-#include <Intrepid_DefaultCubatureFactory.hpp>
-#include <Intrepid_Cubature.hpp>
 
 #include <stk_mesh/base/BulkData.hpp>
 
@@ -101,12 +99,8 @@ class STKMeshEntityIntegrationRule : public EntityIntegrationRule
     // STK Mesh.
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
     
-    // Intrepid cubature factory.
-    mutable Intrepid::DefaultCubatureFactory<double> d_intrepid_factory;
-
-    // Map of already created cubature rules.
-    mutable std::map<std::pair<unsigned,int>,
-		     Teuchos::RCP<Intrepid::Cubature<double> > > d_cub_rules;
+    // Intrepid integration rule.
+    mutable IntrepidIntegrationRule d_intrepid_rule;
 };
 
 //---------------------------------------------------------------------------//

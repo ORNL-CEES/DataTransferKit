@@ -40,7 +40,6 @@
 
 #include "DTK_STKMeshNodalShapeFunction.hpp"
 #include "DTK_STKMeshHelpers.hpp"
-#include "DTK_IntrepidBasisFactory.hpp"
 #include "DTK_DBC.hpp"
 
 #include <Shards_CellTopology.hpp>
@@ -96,28 +95,14 @@ void STKMeshNodalShapeFunction::evaluateValue(
     const Teuchos::ArrayView<const double>& reference_point,
     Teuchos::Array<double>& values ) const
 {
-    // Get the basis for the entity.
-    Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
-	basis = getIntrepidBasis( entity );
+    const stk::mesh::Entity& stk_entity = 
+	STKMeshHelpers::extractEntity( entity );
 
-    // Wrap the reference point.
-    Teuchos::Array<int> point_dims(2);
-    point_dims[0] = 1;
-    point_dims[1] = reference_point.size();
-    Intrepid::FieldContainer<double> point_container(
-	point_dims, const_cast<double*>(reference_point.getRawPtr()) );
+    shards::CellTopology entity_topo = 
+	stk::mesh::get_cell_topology(
+	    d_bulk_data->bucket(stk_entity).topology() );
 
-    // Wrap the evaluations.
-    values.resize( basis->getCardinality() );
-    Teuchos::Array<int> value_dims(2);
-    value_dims[0] = basis->getCardinality();
-    value_dims[1] = 1;
-    Intrepid::FieldContainer<double> value_container(
-	value_dims, values.getRawPtr() );
-
-    // Evaluate the basis function.
-    basis->getValues( 
-	value_container, point_container, Intrepid::OPERATOR_VALUE );
+    d_intrepid_shape.evaluateValue( entity_topo, reference_point, values );
 }
 
 //---------------------------------------------------------------------------//
@@ -128,52 +113,15 @@ void STKMeshNodalShapeFunction::evaluateGradient(
 	const Teuchos::ArrayView<const double>& reference_point,
 	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
 {
-    // Get the basis for the entity.
-    Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
-	basis = getIntrepidBasis( entity );
-
-    // Wrap the reference point.
-    int space_dim = reference_point.size();
-    Teuchos::Array<int> point_dims(2);
-    point_dims[0] = 1;
-    point_dims[1] = space_dim;
-    Intrepid::FieldContainer<double> point_container( 
-	point_dims, const_cast<double*>(reference_point.getRawPtr()) );
-
-    // Evaluate the basis function.
-    int cardinality = basis->getCardinality();
-    Intrepid::FieldContainer<double> grad_container( cardinality, 1, space_dim );
-    basis->getValues( 
-	grad_container, point_container, Intrepid::OPERATOR_GRAD );
-
-    // Extract the evaluations.
-    gradients.resize( cardinality );
-    for ( int n = 0; n < cardinality; ++n )
-    {
-	gradients[n].resize( space_dim );
-	for ( int d = 0; d < space_dim; ++d )
-	{
-	    gradients[n][d] = grad_container(n,0,d);
-	}
-    }
-}
-
-//---------------------------------------------------------------------------//
-// Given an entity, get the intrepid basis function.
-Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
-STKMeshNodalShapeFunction::getIntrepidBasis( const Entity& entity ) const
-{
-    // Extract the stk entity.
     const stk::mesh::Entity& stk_entity = 
 	STKMeshHelpers::extractEntity( entity );
 
-    // Get the topology of the entity.
     shards::CellTopology entity_topo = 
 	stk::mesh::get_cell_topology(
 	    d_bulk_data->bucket(stk_entity).topology() );
 
-    // Get the basis.
-    return IntrepidBasisFactory::create( entity_topo );
+    d_intrepid_shape.evaluateGradient( 
+        entity_topo, reference_point, gradients );
 }
 
 //---------------------------------------------------------------------------//

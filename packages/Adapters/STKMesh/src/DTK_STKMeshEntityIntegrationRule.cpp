@@ -43,8 +43,6 @@
 
 #include <Shards_CellTopology.hpp>
 
-#include <Intrepid_FieldContainer.hpp>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -62,45 +60,12 @@ void STKMeshEntityIntegrationRule::getIntegrationRule(
     Teuchos::Array<Teuchos::Array<double> >& reference_points,
     Teuchos::Array<double>& weights ) const
 {
-    // Get entity and topology info.
     const stk::mesh::Entity& stk_entity =
 	STKMeshHelpers::extractEntity( entity );
     shards::CellTopology cell_topo =
 	STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
-    std::pair<unsigned,int> cub_key( cell_topo.getKey(), order );
-
-    // If we haven't already created a cubature for this topology and order
-    // create one.
-    Teuchos::RCP<Intrepid::Cubature<double> > cub_rule;
-    if ( d_cub_rules.count(cub_key) )
-    {
-	cub_rule = d_cub_rules.find( cub_key )->second;
-    }
-    else
-    {
-	cub_rule = d_intrepid_factory.create( cell_topo, order );
-	d_cub_rules.emplace( cub_key, cub_rule );
-    }
-
-    // Get the cubature rule.
-    int num_points = cub_rule->getNumPoints();
-    int cub_dim = cub_rule->getDimension();
-    Intrepid::FieldContainer<double> cub_points( num_points, cub_dim );
-    Intrepid::FieldContainer<double> cub_weights( num_points );
-    cub_rule->getCubature( cub_points, cub_weights );
-
-    // Write the data into the output arrays.
-    reference_points.resize( num_points );
-    weights.resize( num_points );
-    for ( int p = 0; p < num_points; ++p )
-    {
-	weights[p] = cub_weights(p);
-	reference_points[p].resize( cub_dim );
-	for ( int d = 0; d < cub_dim; ++d )
-	{
-	    reference_points[p][d] = cub_points(p,d);
-	}
-    }
+    d_intrepid_rule.getIntegrationRule( 
+        cell_topo, order, reference_points, weights );
 }
 
 //---------------------------------------------------------------------------//
