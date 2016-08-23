@@ -53,6 +53,8 @@ ReferenceHexImpl::ReferenceHexImpl(
     const Teuchos::Array<DataTransferKit::Entity>& nodes )
     : d_extra_data( new ReferenceHexExtraData() )
 {
+    DTK_REQUIRE( 8 == nodes.size() );
+    
     // Get the element id and owner rank.
     d_extra_data->id = id;
     d_extra_data->owner_rank = owner_rank;
@@ -66,13 +68,12 @@ ReferenceHexImpl::ReferenceHexImpl(
 
     // Get the element node coordinates.
     Teuchos::Tuple<double,6> node_bounds;
-    DTK_REQUIRE( 8 == nodes.size() );
     auto& coords = d_extra_data->node_coords;
     coords.resize( 1, 8, 3 );
     for ( int n = 0; n < 8; ++n )
     {
         nodes[n].boundingBox( node_bounds );
-        for ( int d = 0; d < 3; ++n )
+        for ( int d = 0; d < 3; ++d )
         {
             coords(0,n,d) = node_bounds[d];
         }

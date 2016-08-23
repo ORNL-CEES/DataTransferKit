@@ -83,14 +83,14 @@ ReferenceHexMesh::ReferenceHexMesh(
     for ( int p = 0; p < comm_size; ++p )
     {
         if ( p < (z_num_cells % comm_size) ) ++local_z_num_cells[p];
-        DTK_REMEMBER( ++total_z );
+        DTK_REMEMBER( total_z += local_z_num_cells[p] );
     }
     DTK_CHECK( z_num_cells == total_z );
             
     Teuchos::Array<int> z_offsets( comm_size, 0 );
     for ( int p = 1; p < comm_size; ++p )
     {
-        z_offsets[p] += local_z_num_cells[p-1];
+        z_offsets[p] += local_z_num_cells[p-1] + z_offsets[p-1];
     }
 
     // Create an entity set.
@@ -128,7 +128,7 @@ ReferenceHexMesh::ReferenceHexMesh(
                 }
                 
                 // Create the node.
-                ReferenceNode node(
+                DataTransferKit::Entity node = ReferenceNode(
                     node_id, node_owner, x_edges[i], y_edges[j], z_edges[k] );
 
                 // Add it to the entity set.
@@ -171,7 +171,7 @@ ReferenceHexMesh::ReferenceHexMesh(
                 // node 3
                 node_id = (i) + (j+1)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );                
-                entity_set->getEntity( node_id, 0, hex_nodes[4] );
+                entity_set->getEntity( node_id, 0, hex_nodes[3] );
                 
                 // node 4
                 node_id = (i) + (j)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
@@ -194,7 +194,8 @@ ReferenceHexMesh::ReferenceHexMesh(
                 entity_set->getEntity( node_id, 0, hex_nodes[7] );
 
                 // Create the element.
-                ReferenceHex hex( element_id, comm_rank, hex_nodes );
+                DataTransferKit::Entity hex =
+                    ReferenceHex( element_id, comm_rank, hex_nodes );
 
                 // Add the element to the entity set.
                 entity_set->addEntity( hex );

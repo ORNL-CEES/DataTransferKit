@@ -95,7 +95,8 @@ double ReferenceHexLocalMap::measure( const DataTransferKit::Entity& entity ) co
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
 void ReferenceHexLocalMap::centroid( 
-    const DataTransferKit::Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
+    const DataTransferKit::Entity& entity,
+    const Teuchos::ArrayView<double>& centroid ) const
 { 
     DTK_REQUIRE( 3 == entity.topologicalDimension() ||
                  0 == entity.topologicalDimension() );
