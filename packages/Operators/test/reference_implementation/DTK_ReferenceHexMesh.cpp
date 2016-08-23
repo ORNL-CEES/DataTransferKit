@@ -44,7 +44,12 @@
 #include "DTK_ReferenceHexLocalMap.hpp"
 #include "DTK_ReferenceHexShapeFunction.hpp"
 #include "DTK_ReferenceHexIntegrationRule.hpp"
+
+#include <DTK_BasicEntityPredicates.hpp>
+
 #include <DTK_BasicEntitySet.hpp>
+#include <DTK_EntityCenteredField.hpp>
+
 #include <DTK_DBC.hpp>
 
 namespace DataTransferKit
@@ -221,7 +226,37 @@ ReferenceHexMesh::functionSpace() const
 {
     return d_function_space;
 }
-    
+
+//---------------------------------------------------------------------------//
+// Create a nodal field over the locally-owned nodes.
+Teuchos::RCP<DataTransferKit::Field>
+ReferenceHexMesh::nodalField( const int field_dim ) const
+{
+    // Select the locally-owned nodes.
+    DataTransferKit::LocalEntityPredicate pred(
+        d_function_space->entitySet()->communicator()->getRank() );    
+    auto node_it =
+        d_function_space->entitySet()->entityIterator( 0, pred.getFunction() );
+
+    // Extract the node ids.
+    auto nodes_begin = node_it.begin();
+    auto nodes_end = node_it.end();
+    Teuchos::Array<DataTransferKit::EntityId> node_ids;
+    for ( node_it = nodes_begin; node_it != nodes_end; ++node_it )
+    {
+        node_ids.push_back( node_it->id() );
+    }
+
+    // Build the field.
+    Teuchos::ArrayRCP<double> field_data( node_it.size() * field_dim );
+    return Teuchos::rcp(
+        new DataTransferKit::EntityCenteredField(
+            node_ids(),
+            field_dim,
+            field_data,
+            DataTransferKit::EntityCenteredField::BLOCKED) );
+}
+
 //---------------------------------------------------------------------------//
 
 } // end namespace UnitTest

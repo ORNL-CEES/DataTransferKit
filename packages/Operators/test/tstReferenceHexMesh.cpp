@@ -300,6 +300,32 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, mesh_test )
             support_ids[7],
             (i) + (j+1)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes );
     }
+
+    // Check the nodal field.
+    auto field = mesh.nodalField( 3 );
+    auto field_supports = field->getLocalSupportIds();
+    int counter = 0;
+    for ( node_it = nodes_begin; node_it != nodes_end; ++node_it, ++counter )
+    {
+        TEST_EQUALITY( node_it->id(), field_supports[counter] );
+    }
+    for ( node_it = nodes_begin; node_it != nodes_end; ++node_it )
+    {
+        field->writeFieldData( node_it->id(),
+                               0,
+                               node_it->id() + 32.2 );
+        field->writeFieldData( node_it->id(),
+                               1,
+                               node_it->id() + 3.2 );
+    }
+
+    for ( node_it = nodes_begin; node_it != nodes_end; ++node_it )
+    {
+        TEST_EQUALITY( field->readFieldData(node_it->id(),0),
+                       node_it->id() + 32.2 );
+        TEST_EQUALITY( field->readFieldData(node_it->id(),1),
+                       node_it->id() + 3.2 );
+    }    
 }
 
 //---------------------------------------------------------------------------//

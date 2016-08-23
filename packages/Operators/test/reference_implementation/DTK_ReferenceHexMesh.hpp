@@ -42,6 +42,7 @@
 #define DTK_REFERENCEHEXMESH_HPP
 
 #include <DTK_FunctionSpace.hpp>
+#include <DTK_Field.hpp>
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
@@ -76,6 +77,12 @@ class ReferenceHexMesh
      * \brief Get the function space.
      */
     Teuchos::RCP<DataTransferKit::FunctionSpace> functionSpace() const;
+
+    /*!
+     * \brief Create a field over the locally-owned nodes of the mesh.
+     */
+    Teuchos::RCP<DataTransferKit::Field>
+    nodalField( const int field_dim ) const;
     
   private:
 
