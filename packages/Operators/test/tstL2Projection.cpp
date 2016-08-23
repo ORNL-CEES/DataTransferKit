@@ -71,8 +71,6 @@ const double epsilon = 1.0e-7;
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
 {
-    using namespace DataTransferKit;
-
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
 	Teuchos::DefaultComm<int>::getComm();
@@ -83,13 +81,13 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
     double y_max = 5.2;
     double z_max = 8.3;
     
-    // Create a source mesh and field.
+    // Create a target mesh and field.
     int num_sx = 8;
     int num_sy = 8;
     int num_sz = 8;
-    double sx_width = x_max / num_sx;
-    double sy_width = y_max / num_sy;
-    double sz_width = z_max / num_sz;    
+    double sx_width = x_max / (num_sx-1);
+    double sy_width = y_max / (num_sy-1);
+    double sz_width = z_max / (num_sz-1);    
     Teuchos::Array<double> sx( num_sx );
     Teuchos::Array<double> sy( num_sy );
     Teuchos::Array<double> sz( num_sz );
@@ -114,9 +112,9 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
           source_nodes != source_nodes.end();
           ++source_nodes )
     {
-        int k = source_nodes->id() / (num_sx*num_sy);
-        int j = (source_nodes->id() - k*num_sx*num_sy) / num_sx;
-        int i = source_nodes->id() - j*num_sx - k*num_sx*num_sy;
+        unsigned k = source_nodes->id() / (num_sx*num_sy);
+        unsigned j = (source_nodes->id() - k*num_sx*num_sy) / num_sx;
+        unsigned i = source_nodes->id() - j*num_sx - k*num_sx*num_sy;
         TEST_EQUALITY( source_nodes->id(), i + j*num_sx + k*num_sx*num_sy );
 
         double data = sx[i]*data_x + sy[j]*data_y + sz[k]*data_z + 1.0;
@@ -127,9 +125,9 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
     int num_tx = 9;
     int num_ty = 7;
     int num_tz = 7;
-    double tx_width = x_max / num_tx;
-    double ty_width = y_max / num_ty;
-    double tz_width = z_max / num_tz;    
+    double tx_width = x_max / (num_tx-1);
+    double ty_width = y_max / (num_ty-1);
+    double tz_width = z_max / (num_tz-1);    
     Teuchos::Array<double> tx( num_tx );
     Teuchos::Array<double> ty( num_ty );
     Teuchos::Array<double> tz( num_tz );
@@ -150,8 +148,8 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set("Point Inclusion Tolerance",1.0e-6);
     
-    Teuchos::RCP<L2ProjectionOperator> map_op = Teuchos::rcp(
-	new L2ProjectionOperator(
+    Teuchos::RCP<DataTransferKit::L2ProjectionOperator> map_op = Teuchos::rcp(
+	new DataTransferKit::L2ProjectionOperator(
 	    source_vector->getMap(),target_vector->getMap(),*parameters) );
 
     // Setup the map.
@@ -170,9 +168,9 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
           target_nodes != target_nodes.end();
           ++target_nodes )
     {
-        int k = target_nodes->id() / (num_tx*num_ty);
-        int j = (target_nodes->id() - k*num_tx*num_ty) / num_tx;
-        int i = target_nodes->id() - j*num_tx - k*num_tx*num_ty;
+        unsigned k = target_nodes->id() / (num_tx*num_ty);
+        unsigned j = (target_nodes->id() - k*num_tx*num_ty) / num_tx;
+        unsigned i = target_nodes->id() - j*num_tx - k*num_tx*num_ty;
         TEST_EQUALITY( target_nodes->id(), i + j*num_tx + k*num_tx*num_ty );
 
         double gold_data = tx[i]*data_x + ty[j]*data_y + tz[k]*data_z + 1.0;

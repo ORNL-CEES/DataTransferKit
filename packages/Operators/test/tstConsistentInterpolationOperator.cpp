@@ -46,12 +46,15 @@
 #include <algorithm>
 #include <cassert>
 
+#include "reference_implementation/DTK_ReferenceHexMesh.hpp"
+
 #include <DTK_ConsistentInterpolationOperator.hpp>
 #include <DTK_BasicGeometryManager.hpp>
 #include <DTK_EntityCenteredField.hpp>
 #include <DTK_FieldMultiVector.hpp>
 #include <DTK_BoxGeometry.hpp>
 #include <DTK_Point.hpp>
+#include <DTK_BasicEntityPredicates.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
@@ -65,7 +68,124 @@
 #include <Tpetra_Map.hpp>
 
 //---------------------------------------------------------------------------//
+// TEST EPSILON
+//---------------------------------------------------------------------------//
+
+const double epsilon = 1.0e-14;
+
+//---------------------------------------------------------------------------//
 // Tests
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, reference_hex_mesh )
+{
+    // Get the communicator.
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+	Teuchos::DefaultComm<int>::getComm();
+    DataTransferKit::LocalEntityPredicate local_pred( comm->getRank() );
+
+    // Set the global problem bounds.
+    double x_max = 3.1;
+    double y_max = 5.2;
+    double z_max = 8.3;
+    
+    // Create a source mesh and field.
+    int num_sx = 8;
+    int num_sy = 8;
+    int num_sz = 8;
+    double sx_width = x_max / (num_sx-1);
+    double sy_width = y_max / (num_sy-1);
+    double sz_width = z_max / (num_sz-1);    
+    Teuchos::Array<double> sx( num_sx );
+    Teuchos::Array<double> sy( num_sy );
+    Teuchos::Array<double> sz( num_sz );
+    for ( int i = 0; i < num_sx; ++i ) sx[i] = i*sx_width;
+    for ( int i = 0; i < num_sy; ++i ) sy[i] = i*sy_width;
+    for ( int i = 0; i < num_sz; ++i ) sz[i] = i*sz_width;
+
+    DataTransferKit::UnitTest::ReferenceHexMesh source_mesh( comm, sx, sy, sz );
+    auto source_field = source_mesh.nodalField( 1 );
+    Teuchos::RCP<DataTransferKit::FieldMultiVector> source_vector =
+        Teuchos::rcp( new DataTransferKit::FieldMultiVector(comm, source_field) );
+
+    // Put some data on the source field.
+    double data_x = 9.3;
+    double data_y = 2.2;
+    double data_z = 1.33;
+    auto source_nodes = source_mesh.functionSpace()->entitySet()->entityIterator(
+        0, local_pred.getFunction() );
+    auto source_nodes_begin = source_nodes.begin();
+    auto source_nodes_end = source_nodes.end();
+    for ( source_nodes = source_nodes.begin();
+          source_nodes != source_nodes.end();
+          ++source_nodes )
+    {
+        unsigned k = source_nodes->id() / (num_sx*num_sy);
+        unsigned j = (source_nodes->id() - k*num_sx*num_sy) / num_sx;
+        unsigned i = source_nodes->id() - j*num_sx - k*num_sx*num_sy;
+        TEST_EQUALITY( source_nodes->id(), i + j*num_sx + k*num_sx*num_sy );
+
+        double data = sx[i]*data_x + sy[j]*data_y + sz[k]*data_z + 1.0;
+        source_field->writeFieldData( source_nodes->id(), 0, data );
+    }
+
+    // Create a target mesh and field.
+    int num_tx = 9;
+    int num_ty = 7;
+    int num_tz = 7;
+    double tx_width = x_max / (num_tx-1);
+    double ty_width = y_max / (num_ty-1);
+    double tz_width = z_max / (num_tz-1);    
+    Teuchos::Array<double> tx( num_tx );
+    Teuchos::Array<double> ty( num_ty );
+    Teuchos::Array<double> tz( num_tz );
+    for ( int i = 0; i < num_tx; ++i ) tx[i] = i*tx_width;
+    for ( int i = 0; i < num_ty; ++i ) ty[i] = i*ty_width;
+    for ( int i = 0; i < num_tz; ++i ) tz[i] = i*tz_width;
+
+    DataTransferKit::UnitTest::ReferenceHexMesh target_mesh( comm, tx, ty, tz );
+    auto target_field = target_mesh.nodalField( 1 );
+    Teuchos::RCP<DataTransferKit::FieldMultiVector> target_vector =
+        Teuchos::rcp( new DataTransferKit::FieldMultiVector(comm, target_field) );
+    
+    // MAPPING
+    // Create a map.
+    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
+    parameters->sublist("Consistent Interpolation");
+    Teuchos::ParameterList& search_list = parameters->sublist("Search");
+    search_list.set("Point Inclusion Tolerance",1.0e-6);
+    
+    Teuchos::RCP<DataTransferKit::ConsistentInterpolationOperator> map_op = 
+        Teuchos::rcp(
+            new DataTransferKit::ConsistentInterpolationOperator(
+                source_vector->getMap(),target_vector->getMap(),*parameters) );
+
+    // Setup the map.
+    map_op->setup(
+	source_mesh.functionSpace(), target_mesh.functionSpace() );
+
+    // Apply the map.
+    map_op->apply( *source_vector, *target_vector );
+
+    // Check the results of the mapping.
+    auto target_nodes = target_mesh.functionSpace()->entitySet()->entityIterator(
+        0, local_pred.getFunction() );
+    auto target_nodes_begin = target_nodes.begin();
+    auto target_nodes_end = target_nodes.end();
+    for ( target_nodes = target_nodes.begin();
+          target_nodes != target_nodes.end();
+          ++target_nodes )
+    {
+        unsigned k = target_nodes->id() / (num_tx*num_ty);
+        unsigned j = (target_nodes->id() - k*num_tx*num_ty) / num_tx;
+        unsigned i = target_nodes->id() - j*num_tx - k*num_tx*num_ty;
+        TEST_EQUALITY( target_nodes->id(), i + j*num_tx + k*num_tx*num_ty );
+
+        double gold_data = tx[i]*data_x + ty[j]*data_y + tz[k]*data_z + 1.0;
+        double target_data = target_field->readFieldData(target_nodes->id(), 0);
+        TEST_FLOATING_EQUALITY( target_data, gold_data, epsilon );
+    }
+}
+
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
 {
