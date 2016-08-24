@@ -51,7 +51,7 @@
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( ReferenceNode, reference_node )
 {
-    int id = 3242;
+    DataTransferKit::EntityId id = 3242;
     int owner_rank = 16;
     double x = -33.2;
     double y = 147.6;

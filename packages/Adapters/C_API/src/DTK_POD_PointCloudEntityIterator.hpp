@@ -120,7 +120,7 @@ class POD_PointCloudEntityIterator : public EntityIterator
     const EntityId* d_global_ids;
     
     // Number of points in the point cloud.
-    unsigned d_num_points;
+    int d_num_points;
 
     // Spatial dimension of point cloud.
     int d_space_dim;

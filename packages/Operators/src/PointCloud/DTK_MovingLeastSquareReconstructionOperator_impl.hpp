@@ -67,11 +67,11 @@ MovingLeastSquareReconstructionOperator(
     const Teuchos::RCP<const TpetraMap>& range_map,
     const Teuchos::ParameterList& parameters )        
     : Base( domain_map, range_map )
-    , d_domain_entity_dim( 0 )
-    , d_range_entity_dim( 0 )
     , d_use_knn( false )
     , d_knn( 0 )
     , d_radius( 0.0 )
+    , d_domain_entity_dim( 0 )
+    , d_range_entity_dim( 0 )
 {
     // Determine if we are doing kNN search or radius search.
     if( parameters.isParameter("Type of Search") )

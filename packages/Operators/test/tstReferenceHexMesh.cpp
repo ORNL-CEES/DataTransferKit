@@ -69,20 +69,20 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, mesh_test )
     int comm_size = comm->getSize();
     
     // Create the mesh.
-    int x_num_cells = 20;
-    int y_num_cells = 12;
-    int local_z_num_cells = 15;
-    int z_num_cells = local_z_num_cells * comm_size;
+    unsigned x_num_cells = 20;
+    unsigned y_num_cells = 12;
+    unsigned local_z_num_cells = 15;
+    unsigned z_num_cells = local_z_num_cells * comm_size;
 
-    int local_num_cells = x_num_cells*y_num_cells*local_z_num_cells;
-    int global_num_cells = x_num_cells*y_num_cells*z_num_cells;    
+    unsigned local_num_cells = x_num_cells*y_num_cells*local_z_num_cells;
+    unsigned global_num_cells = x_num_cells*y_num_cells*z_num_cells;    
 
-    int x_num_nodes = x_num_cells + 1;
-    int y_num_nodes = y_num_cells + 1;
-    int local_z_num_nodes = local_z_num_cells + 1;
-    int z_num_nodes = z_num_cells + 1;
+    unsigned x_num_nodes = x_num_cells + 1;
+    unsigned y_num_nodes = y_num_cells + 1;
+    unsigned local_z_num_nodes = local_z_num_cells + 1;
+    unsigned z_num_nodes = z_num_cells + 1;
 
-    int local_num_nodes = x_num_nodes*y_num_nodes;
+    unsigned local_num_nodes = x_num_nodes*y_num_nodes;
     if ( comm_rank < comm_size - 1 )
     {
         local_num_nodes *= local_z_num_nodes - 1;
@@ -92,16 +92,16 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, mesh_test )
         local_num_nodes *= local_z_num_nodes;
     }
     
-    int global_num_nodes = x_num_nodes*y_num_nodes*z_num_nodes;
+    unsigned global_num_nodes = x_num_nodes*y_num_nodes*z_num_nodes;
 
     Teuchos::Array<double> x_edges( x_num_nodes );
     Teuchos::Array<double> y_edges( y_num_nodes );
     Teuchos::Array<double> z_edges( z_num_nodes );
 
     double cell_width = 0.1;
-    for ( int i = 0; i < x_num_nodes; ++i ) x_edges[i] = i*cell_width;
-    for ( int i = 0; i < y_num_nodes; ++i ) y_edges[i] = i*cell_width;
-    for ( int i = 0; i < z_num_nodes; ++i ) z_edges[i] = i*cell_width;    
+    for ( unsigned i = 0; i < x_num_nodes; ++i ) x_edges[i] = i*cell_width;
+    for ( unsigned i = 0; i < y_num_nodes; ++i ) y_edges[i] = i*cell_width;
+    for ( unsigned i = 0; i < z_num_nodes; ++i ) z_edges[i] = i*cell_width;    
 
     DataTransferKit::UnitTest::ReferenceHexMesh mesh(
         comm, x_edges, y_edges, z_edges );
@@ -129,13 +129,13 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, mesh_test )
 
     // Check the nodes.
     DataTransferKit::Entity entity;
-    for ( int k = local_z_num_cells*comm_rank;
+    for ( unsigned k = local_z_num_cells*comm_rank;
           k < local_z_num_cells*comm_rank + local_z_num_nodes;
           ++k )
     {
-        for ( int j = 0; j < y_num_nodes; ++j )
+        for ( unsigned j = 0; j < y_num_nodes; ++j )
         {
-            for ( int i = 0; i < x_num_nodes; ++i )
+            for ( unsigned i = 0; i < x_num_nodes; ++i )
             {
                 DataTransferKit::EntityId node_id =
                     i + j*x_num_nodes + k*x_num_nodes*y_num_nodes;
@@ -162,13 +162,13 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, mesh_test )
     }
 
     // Check the cells.
-    for ( int k = local_z_num_cells*comm_rank;
+    for ( unsigned k = local_z_num_cells*comm_rank;
           k < local_z_num_cells*(comm_rank+1);
           ++k )
     {
-        for ( int j = 0; j < y_num_cells; ++j )
+        for ( unsigned j = 0; j < y_num_cells; ++j )
         {
-            for ( int i = 0; i < x_num_cells; ++i )
+            for ( unsigned i = 0; i < x_num_cells; ++i )
             {
                 DataTransferKit::EntityId cell_id =
                     i + j*x_num_cells + k*x_num_cells*y_num_cells;

@@ -81,7 +81,7 @@ TEUCHOS_UNIT_TEST( ReferenceHex, hex_test )
         DataTransferKit::UnitTest::ReferenceNode( comm_rank, 7, 0.0, 1.0, 1.0 );
     
     // Make a hex.
-    int hex_id = 23 + comm_rank;
+    DataTransferKit::EntityId hex_id = 23 + comm_rank;
     DataTransferKit::Entity entity = 
         DataTransferKit::UnitTest::ReferenceHex( hex_id, comm_rank, nodes );
 
