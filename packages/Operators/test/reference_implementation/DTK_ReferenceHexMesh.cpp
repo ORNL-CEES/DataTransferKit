@@ -57,12 +57,114 @@ namespace DataTransferKit
 namespace UnitTest
 {
 //---------------------------------------------------------------------------//
-// Hex mesh constructor.
+// Num cells constructor.
+ReferenceHexMesh::ReferenceHexMesh( 
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+    double x_min,
+    double x_max,
+    const int x_num_cells,
+    double y_min,
+    double y_max,
+    const int y_num_cells,
+    double z_min,
+    double z_max,
+    const int z_num_cells )
+{
+    Teuchos::Array<double> x_edges = 
+        buildEdgeArray( x_min, x_max, x_num_cells );
+    Teuchos::Array<double> y_edges = 
+        buildEdgeArray( y_min, y_max, y_num_cells );
+    Teuchos::Array<double> z_edges = 
+        buildEdgeArray( z_min, z_max, z_num_cells );
+    buildMesh( comm, x_edges, y_edges, z_edges );
+}
+
+//---------------------------------------------------------------------------//
+// Edge array constructor.
 ReferenceHexMesh::ReferenceHexMesh(
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
     const Teuchos::Array<double>& x_edges,
     const Teuchos::Array<double>& y_edges,
     const Teuchos::Array<double>& z_edges)
+{
+    buildMesh( comm, x_edges, y_edges, z_edges );
+}
+
+//---------------------------------------------------------------------------//
+// Get the function space.
+Teuchos::RCP<DataTransferKit::FunctionSpace>
+ReferenceHexMesh::functionSpace() const
+{
+    return d_function_space;
+}
+
+//---------------------------------------------------------------------------//
+// Create a nodal field over the locally-owned nodes.
+Teuchos::RCP<DataTransferKit::Field>
+ReferenceHexMesh::nodalField( const int field_dim ) const
+{
+    // Select the locally-owned nodes.
+    DataTransferKit::LocalEntityPredicate pred(
+        d_function_space->entitySet()->communicator()->getRank() );    
+    auto node_it =
+        d_function_space->entitySet()->entityIterator( 0, pred.getFunction() );
+
+    // Extract the node ids.
+    auto nodes_begin = node_it.begin();
+    auto nodes_end = node_it.end();
+    Teuchos::Array<DataTransferKit::EntityId> node_ids;
+    node_ids.reserve( node_it.size() );
+    for ( node_it = nodes_begin; node_it != nodes_end; ++node_it )
+    {
+        node_ids.push_back( node_it->id() );
+    }
+
+    // Build the field.
+    Teuchos::ArrayRCP<double> field_data( node_it.size() * field_dim );
+    return Teuchos::rcp(
+        new DataTransferKit::EntityCenteredField(
+            node_ids(),
+            field_dim,
+            field_data,
+            DataTransferKit::EntityCenteredField::BLOCKED) );
+}
+
+//---------------------------------------------------------------------------//
+// Create a nodal field over the locally-owned + ghosted nodes.
+Teuchos::RCP<DataTransferKit::Field>
+ReferenceHexMesh::ghostedNodalField( const int field_dim ) const
+{
+    // Select the all the nodes. We inserted every node needed by all the
+    // local hex elements so we will get everything we need here. 
+    auto node_it = d_function_space->entitySet()->entityIterator( 0 );
+
+    // Extract the node ids.
+    auto nodes_begin = node_it.begin();
+    auto nodes_end = node_it.end();
+    Teuchos::Array<DataTransferKit::EntityId> node_ids;
+    node_ids.reserve( node_it.size() );
+    for ( node_it = nodes_begin; node_it != nodes_end; ++node_it )
+    {
+        node_ids.push_back( node_it->id() );
+    }
+
+    // Build the field.
+    Teuchos::ArrayRCP<double> field_data( node_it.size() * field_dim );
+    return Teuchos::rcp(
+        new DataTransferKit::EntityCenteredField(
+            node_ids(),
+            field_dim,
+            field_data,
+            DataTransferKit::EntityCenteredField::BLOCKED) );
+}
+
+//---------------------------------------------------------------------------//
+// Build the mesh.
+void ReferenceHexMesh::buildMesh( 
+    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+    const Teuchos::Array<double>& x_edges,
+    const Teuchos::Array<double>& y_edges,
+    const Teuchos::Array<double>& z_edges )
 {
     // Get comm parameters.
     int comm_rank = comm->getRank();
@@ -159,42 +261,50 @@ ReferenceHexMesh::ReferenceHexMesh(
                 DTK_CHECK( element_id < total_cells );
 
                 // node 0
-                node_id = (i) + (j)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
+                node_id = 
+                    (i) + (j)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );                
                 entity_set->getEntity( node_id, 0, hex_nodes[0] );
 
                 // node 1
-                node_id = (i+1) + (j)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
+                node_id = 
+                    (i+1) + (j)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );                
                 entity_set->getEntity( node_id, 0, hex_nodes[1] );
 
                 // node 2
-                node_id = (i+1) + (j+1)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
+                node_id = 
+                    (i+1) + (j+1)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );                
                 entity_set->getEntity( node_id, 0, hex_nodes[2] );
 
                 // node 3
-                node_id = (i) + (j+1)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
+                node_id = 
+                    (i) + (j+1)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );                
                 entity_set->getEntity( node_id, 0, hex_nodes[3] );
                 
                 // node 4
-                node_id = (i) + (j)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
+                node_id = 
+                    (i) + (j)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );                
                 entity_set->getEntity( node_id, 0, hex_nodes[4] );
 
                 // node 5
-                node_id = (i+1) + (j)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
+                node_id = 
+                    (i+1) + (j)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );                
                 entity_set->getEntity( node_id, 0, hex_nodes[5] );
 
                 // node 6
-                node_id = (i+1) + (j+1)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
+                node_id = 
+                    (i+1) + (j+1)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );                
                 entity_set->getEntity( node_id, 0, hex_nodes[6] );
 
                 // node 7
-                node_id = (i) + (j+1)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
+                node_id = 
+                    (i) + (j+1)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );                
                 entity_set->getEntity( node_id, 0, hex_nodes[7] );
 
@@ -220,41 +330,19 @@ ReferenceHexMesh::ReferenceHexMesh(
 }
 
 //---------------------------------------------------------------------------//
-// Get the function space.
-Teuchos::RCP<DataTransferKit::FunctionSpace>
-ReferenceHexMesh::functionSpace() const
+// Build an edge array.
+Teuchos::Array<double> ReferenceHexMesh::buildEdgeArray( 
+    const double min, const double max, const int num_cells ) const
 {
-    return d_function_space;
-}
-
-//---------------------------------------------------------------------------//
-// Create a nodal field over the locally-owned nodes.
-Teuchos::RCP<DataTransferKit::Field>
-ReferenceHexMesh::nodalField( const int field_dim ) const
-{
-    // Select the locally-owned nodes.
-    DataTransferKit::LocalEntityPredicate pred(
-        d_function_space->entitySet()->communicator()->getRank() );    
-    auto node_it =
-        d_function_space->entitySet()->entityIterator( 0, pred.getFunction() );
-
-    // Extract the node ids.
-    auto nodes_begin = node_it.begin();
-    auto nodes_end = node_it.end();
-    Teuchos::Array<DataTransferKit::EntityId> node_ids;
-    for ( node_it = nodes_begin; node_it != nodes_end; ++node_it )
+    int num_nodes = num_cells + 1;
+    double cell_width = (max - min) / num_cells;
+    Teuchos::Array<double> edges( num_nodes );
+    for ( int n = 0; n < num_nodes; ++n )
     {
-        node_ids.push_back( node_it->id() );
+        edges[n] = min + n * cell_width;
     }
-
-    // Build the field.
-    Teuchos::ArrayRCP<double> field_data( node_it.size() * field_dim );
-    return Teuchos::rcp(
-        new DataTransferKit::EntityCenteredField(
-            node_ids(),
-            field_dim,
-            field_data,
-            DataTransferKit::EntityCenteredField::BLOCKED) );
+    DTK_CHECK( std::abs(edges.back() - max) < 1.0e-6 );
+    return edges;
 }
 
 //---------------------------------------------------------------------------//

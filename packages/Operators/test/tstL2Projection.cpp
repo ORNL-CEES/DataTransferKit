@@ -56,15 +56,122 @@
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ParameterList.hpp>
+
+#include <Tpetra_Import.hpp>
 
 //---------------------------------------------------------------------------//
 // TEST EPSILON
 //---------------------------------------------------------------------------//
 
-const double epsilon = 1.0e-7;
+// Floating point epsilon for checking the transferred field.
+const double field_epsilon = 1.0e-7;
+
+// Floating point epsilon for checking the integrated field.
+const double integral_epsilon = 1.0e-11;
+
+//---------------------------------------------------------------------------//
+// TEST FUNCTION
+//---------------------------------------------------------------------------//
+double testFunction( const Teuchos::ArrayView<double>& coords )
+{
+    return 9.3 * coords[0] + 2.2 * coords[1] + 1.33 * coords[2] + 1.0;
+}
+
+//---------------------------------------------------------------------------//
+// HELPER FUNCTIONS.
+//---------------------------------------------------------------------------//
+// integrate a field over the mesh.
+double integrateField( DataTransferKit::UnitTest::ReferenceHexMesh& mesh,
+                       DataTransferKit::Field& field )
+{
+    // Get the entity set.
+    auto set = mesh.functionSpace()->entitySet();
+
+    // Get the communicator.
+    auto comm = set->communicator();
+
+    // Import the field to a ghosted decomposition so we have access to node
+    // DOFs that are not locally owned.
+    auto ghosted_field = mesh.ghostedNodalField( field.dimension() );
+    Teuchos::RCP<DataTransferKit::FieldMultiVector> vector =
+        Teuchos::rcp( new DataTransferKit::FieldMultiVector(comm, Teuchos::rcpFromRef(field)) );
+    Teuchos::RCP<DataTransferKit::FieldMultiVector> ghosted_vector =
+        Teuchos::rcp( new DataTransferKit::FieldMultiVector(comm, ghosted_field) );
+    Tpetra::Import<DataTransferKit::FieldMultiVector::LO,
+                   DataTransferKit::FieldMultiVector::GO> importer( vector->getMap(),
+                                                                    ghosted_vector->getMap() );
+    ghosted_vector->doImport( *vector, importer, Tpetra::REPLACE );
+    
+    // Get the cells.
+    int space_dim = 3;
+    DataTransferKit::LocalEntityPredicate local_pred( comm->getRank() );
+    auto cells = set->entityIterator( space_dim, local_pred.getFunction() );
+
+    // Get the integration weights and points. All entities are a linear hex
+    // so we can cache this here using the first cell.
+    auto ir = mesh.functionSpace()->integrationRule();
+    Teuchos::Array<Teuchos::Array<double> > points;
+    Teuchos::Array<double> weights;
+    int integration_order = 3;
+    ir->getIntegrationRule( *cells, integration_order, points, weights );
+    int num_points = weights.size();
+
+    // Get the shape function.
+    auto shape = mesh.functionSpace()->shapeFunction();
+    Teuchos::Array<DataTransferKit::SupportId> dofs;
+    Teuchos::Array<double> shape_evals;
+
+    // Get the local map.
+    auto local_map = mesh.functionSpace()->localMap();
+
+    // Calculate the local integral.
+    int num_nodes = 8;
+    double local_integral = 0.0;
+    auto cells_begin = cells.begin();
+    auto cells_end = cells.end();
+    for ( cells = cells_begin; cells != cells_end; ++cells )
+    {
+        // Get the cell dofs.
+        shape->entitySupportIds( *cells, dofs );
+
+        // Add the cell contribution to the integral.
+        double cell_integral = 0.0;
+        for ( int p = 0; p < num_points; ++p )
+        {
+            // Evaluate the basis at the integration point.
+            shape->evaluateValue( *cells, points[p](), shape_evals );
+
+            // Compute the field value at the integration point.
+            double point_value = 0.0;
+            for ( int n = 0; n < num_nodes; ++n )
+            {
+                point_value += shape_evals[n] *
+                               ghosted_field->readFieldData( dofs[n], 0 );
+            }
+
+            // Add to the cell integral.
+            cell_integral += weights[p] * point_value;
+        }
+
+        // Add the cell integral scaled by the cell volume.
+        local_integral += cell_integral * local_map->measure( *cells );
+    }
+
+    // Compute the global integral.
+    double global_integral = 0.0;
+    Teuchos::reduceAll( *comm, 
+                        Teuchos::REDUCE_SUM, 
+                        local_integral, 
+                        Teuchos::ptrFromRef(global_integral) );
+
+    // Return the integral. We divide by 8 because of how intrepid scales the
+    // integration weights.
+    return global_integral / 8.0;
+}
 
 //---------------------------------------------------------------------------//
 // Tests
@@ -77,6 +184,9 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
     DataTransferKit::LocalEntityPredicate local_pred( comm->getRank() );
 
     // Set the global problem bounds.
+    double x_min = 0.0;
+    double y_min = 0.0;
+    double z_min = 0.0;
     double x_max = 3.1;
     double y_max = 5.2;
     double z_max = 8.3;
@@ -85,29 +195,20 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
     int num_sx = 8;
     int num_sy = 8;
     int num_sz = 8;
-    double sx_width = x_max / (num_sx-1);
-    double sy_width = y_max / (num_sy-1);
-    double sz_width = z_max / (num_sz-1);    
-    Teuchos::Array<double> sx( num_sx );
-    Teuchos::Array<double> sy( num_sy );
-    Teuchos::Array<double> sz( num_sz );
-    for ( int i = 0; i < num_sx; ++i ) sx[i] = i*sx_width;
-    for ( int i = 0; i < num_sy; ++i ) sy[i] = i*sy_width;
-    for ( int i = 0; i < num_sz; ++i ) sz[i] = i*sz_width;
 
-    DataTransferKit::UnitTest::ReferenceHexMesh source_mesh( comm, sx, sy, sz );
+    DataTransferKit::UnitTest::ReferenceHexMesh source_mesh( 
+        comm, x_min, x_max, num_sx, y_min, y_max, num_sy, z_min, z_max, num_sz );
     auto source_field = source_mesh.nodalField( 1 );
     Teuchos::RCP<DataTransferKit::FieldMultiVector> source_vector =
         Teuchos::rcp( new DataTransferKit::FieldMultiVector(comm, source_field) );
 
     // Put some data on the source field.
-    double data_x = 9.3;
-    double data_y = 2.2;
-    double data_z = 1.33;
+    auto source_local_map = source_mesh.functionSpace()->localMap();
     auto source_nodes = source_mesh.functionSpace()->entitySet()->entityIterator(
         0, local_pred.getFunction() );
     auto source_nodes_begin = source_nodes.begin();
     auto source_nodes_end = source_nodes.end();
+    Teuchos::Array<double> source_coords( 3 );
     for ( source_nodes = source_nodes.begin();
           source_nodes != source_nodes.end();
           ++source_nodes )
@@ -115,32 +216,23 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
         unsigned k = source_nodes->id() / (num_sx*num_sy);
         unsigned j = (source_nodes->id() - k*num_sx*num_sy) / num_sx;
         unsigned i = source_nodes->id() - j*num_sx - k*num_sx*num_sy;
-        TEST_EQUALITY( source_nodes->id(), i + j*num_sx + k*num_sx*num_sy );
+        
+        source_local_map->centroid( *source_nodes, source_coords() );
 
-        double data = sx[i]*data_x + sy[j]*data_y + sz[k]*data_z + 1.0;
-        source_field->writeFieldData( source_nodes->id(), 0, data );
+        source_field->writeFieldData( 
+            source_nodes->id(), 0, testFunction(source_coords()) );
     }
 
     // Create a source mesh and field.
     int num_tx = 9;
     int num_ty = 7;
     int num_tz = 7;
-    double tx_width = x_max / (num_tx-1);
-    double ty_width = y_max / (num_ty-1);
-    double tz_width = z_max / (num_tz-1);    
-    Teuchos::Array<double> tx( num_tx );
-    Teuchos::Array<double> ty( num_ty );
-    Teuchos::Array<double> tz( num_tz );
-    for ( int i = 0; i < num_tx; ++i ) tx[i] = i*tx_width;
-    for ( int i = 0; i < num_ty; ++i ) ty[i] = i*ty_width;
-    for ( int i = 0; i < num_tz; ++i ) tz[i] = i*tz_width;
-
-    DataTransferKit::UnitTest::ReferenceHexMesh target_mesh( comm, tx, ty, tz );
+    DataTransferKit::UnitTest::ReferenceHexMesh target_mesh( 
+        comm, x_min, x_max, num_tx, y_min, y_max, num_ty, z_min, z_max, num_tz );
     auto target_field = target_mesh.nodalField( 1 );
     Teuchos::RCP<DataTransferKit::FieldMultiVector> target_vector =
         Teuchos::rcp( new DataTransferKit::FieldMultiVector(comm, target_field) );
-    
-    // MAPPING
+
     // Create a map.
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     Teuchos::ParameterList& l2_list = parameters->sublist("L2 Projection");
@@ -164,6 +256,8 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
         0, local_pred.getFunction() );
     auto target_nodes_begin = target_nodes.begin();
     auto target_nodes_end = target_nodes.end();
+    auto target_local_map = target_mesh.functionSpace()->localMap();
+    Teuchos::Array<double> target_coords( 3 );
     for ( target_nodes = target_nodes.begin();
           target_nodes != target_nodes.end();
           ++target_nodes )
@@ -173,10 +267,17 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
         unsigned i = target_nodes->id() - j*num_tx - k*num_tx*num_ty;
         TEST_EQUALITY( target_nodes->id(), i + j*num_tx + k*num_tx*num_ty );
 
-        double gold_data = tx[i]*data_x + ty[j]*data_y + tz[k]*data_z + 1.0;
+        target_local_map->centroid( *target_nodes, target_coords() );
+        double gold_data = testFunction( target_coords() );
         double target_data = target_field->readFieldData(target_nodes->id(), 0);
-        TEST_FLOATING_EQUALITY( target_data, gold_data, epsilon );
+        TEST_FLOATING_EQUALITY( target_data, gold_data, field_epsilon );
     }
+    
+    // Check accurate preservation of the global integral. We are using the
+    // source mesh quadrature so this should be very accurate.
+    double source_integral = integrateField( source_mesh, *source_field );
+    double target_integral = integrateField( target_mesh, *target_field );
+    TEST_FLOATING_EQUALITY( source_integral, target_integral, integral_epsilon );
 }
 
 //---------------------------------------------------------------------------//

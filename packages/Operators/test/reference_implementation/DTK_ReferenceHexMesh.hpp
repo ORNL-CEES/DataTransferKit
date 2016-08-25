@@ -66,7 +66,21 @@ class ReferenceHexMesh
   public:
 
     /*!
-     * \brief Constructor.
+     * \brief Num cells constructor.
+     */
+    ReferenceHexMesh( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+                      double x_min,
+                      double x_max,
+                      const int x_num_cells,
+                      double y_min,
+                      double y_max,
+                      const int y_num_cells,
+                      double z_min,
+                      double z_max,
+                      const int z_num_cells );
+
+    /*!
+     * \brief Edge array constructor.
      */
     ReferenceHexMesh( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
                       const Teuchos::Array<double>& x_edges,
@@ -83,6 +97,25 @@ class ReferenceHexMesh
      */
     Teuchos::RCP<DataTransferKit::Field>
     nodalField( const int field_dim ) const;
+
+    /*!
+     * \brief Create a field over the locally-owned + ghosted nodes of the
+     * mesh.
+     */
+    Teuchos::RCP<DataTransferKit::Field>
+    ghostedNodalField( const int field_dim ) const;
+
+  private:
+
+    // Build the mesh.
+    void buildMesh( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+                    const Teuchos::Array<double>& x_edges,
+                    const Teuchos::Array<double>& y_edges,
+                    const Teuchos::Array<double>& z_edges );
+
+    // Build an edge array.
+    Teuchos::Array<double> buildEdgeArray( 
+        const double min, const double max, const int num_cells ) const;
     
   private:
 

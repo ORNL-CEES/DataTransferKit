@@ -79,10 +79,8 @@ void ReferenceHexShapeFunction::entitySupportIds(
         support_ids.resize( 8 );
         auto& node_ids = Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>(
             entity.extraData())->node_ids;
-        for ( int n = 0; n < 8; ++n )
-        {
-            support_ids[n] = node_ids[n];
-        }
+        DTK_CHECK( 8 == node_ids.size() );
+        std::copy( node_ids.begin(), node_ids.end(), support_ids.begin() );
     }    
 }
 

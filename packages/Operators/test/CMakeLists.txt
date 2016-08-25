@@ -23,40 +23,35 @@ TRIBITS_ADD_LIBRARY(
 ##---------------------------------------------------------------------------##
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceNode_test
-  SOURCES tstReferenceNode.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
-  COMM serial mpi
+  SOURCES tstReferenceNode.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
   TESTONLYLIBS dtk_hex_test_reference
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceHex_test
-  SOURCES tstReferenceHex.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
-  COMM serial mpi
+  SOURCES tstReferenceHex.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
   TESTONLYLIBS dtk_hex_test_reference  
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceHexLocalMap_test
-  SOURCES tstReferenceHexLocalMap.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
-  COMM serial mpi
+  SOURCES tstReferenceHexLocalMap.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
   TESTONLYLIBS dtk_hex_test_reference  
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceHexShapeFunction_test
-  SOURCES tstReferenceHexShapeFunction.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
-  COMM serial mpi
+  SOURCES tstReferenceHexShapeFunction.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
   TESTONLYLIBS dtk_hex_test_reference  
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceHexIntegrationRule_test
-  SOURCES tstReferenceHexIntegrationRule.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
-  COMM serial mpi
+  SOURCES tstReferenceHexIntegrationRule.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
   TESTONLYLIBS dtk_hex_test_reference  
   )

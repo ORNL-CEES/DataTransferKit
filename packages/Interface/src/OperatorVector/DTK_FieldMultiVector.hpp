@@ -70,6 +70,8 @@ class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
 
     //! MultiVector typedef.
     typedef Tpetra::MultiVector<double,int,SupportId> Base;
+    typedef typename Base::local_ordinal_type         LO;
+    typedef typename Base::global_ordinal_type        GO;
 
     /*!
      * \brief Comm constructor. This will allocate the Tpetra vector.

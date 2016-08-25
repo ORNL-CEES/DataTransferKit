@@ -52,23 +52,24 @@ TEUCHOS_UNIT_TEST( ReferenceHexIntegrationRule, hex_test )
 {
     // Create the nodes;
     int num_nodes = 8;
+    int owner_rank = 0;
     Teuchos::Array<DataTransferKit::Entity> nodes( num_nodes );
     nodes[0] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 0, 0.0, 0.0, 0.0 );
+        DataTransferKit::UnitTest::ReferenceNode( 0, owner_rank, 0.0, 0.0, 0.0 );
     nodes[1] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 1, 2.0, 0.0, 0.0 );
+        DataTransferKit::UnitTest::ReferenceNode( 1, owner_rank, 2.0, 0.0, 0.0 );
     nodes[2] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 2, 2.0, 2.0, 0.0 );
+        DataTransferKit::UnitTest::ReferenceNode( 2, owner_rank, 2.0, 2.0, 0.0 );
     nodes[3] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 3, 0.0, 2.0, 0.0 );
+        DataTransferKit::UnitTest::ReferenceNode( 3, owner_rank, 0.0, 2.0, 0.0 );
     nodes[4] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 4, 0.0, 0.0, 2.0 );
+        DataTransferKit::UnitTest::ReferenceNode( 4, owner_rank, 0.0, 0.0, 2.0 );
     nodes[5] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 5, 2.0, 0.0, 2.0 );
+        DataTransferKit::UnitTest::ReferenceNode( 5, owner_rank, 2.0, 0.0, 2.0 );
     nodes[6] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 6, 2.0, 2.0, 2.0 );
+        DataTransferKit::UnitTest::ReferenceNode( 6, owner_rank, 2.0, 2.0, 2.0 );
     nodes[7] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 7, 0.0, 2.0, 2.0 );
+        DataTransferKit::UnitTest::ReferenceNode( 7, owner_rank, 0.0, 2.0, 2.0 );
     
     // Make a hex.
     DataTransferKit::Entity hex = 

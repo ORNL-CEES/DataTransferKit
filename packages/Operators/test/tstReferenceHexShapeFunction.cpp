@@ -87,7 +87,8 @@ TEUCHOS_UNIT_TEST( ReferenceHexShapeFunction, hex_test )
 	TEST_EQUALITY( dof_ids[n], nodes[n].id() );
     }
 
-    // Test the value evaluation for the hex.
+    // Test the value evaluation for the hex at the low corner of the
+    // reference cell.
     Teuchos::Array<double> ref_point( 3, 0.0 );
     Teuchos::Array<double> values;
     shape_function->evaluateValue( hex, ref_point(), values );
@@ -107,7 +108,8 @@ TEUCHOS_UNIT_TEST( ReferenceHexShapeFunction, hex_test )
 	TEST_EQUALITY( values[n], 0.0 );
     }    
 
-    // Test the gradient evaluation for the hex.
+    // Test the gradient evaluation for the hex at the low corner of the
+    // reference cell.
     Teuchos::Array<Teuchos::Array<double> > grads;
     ref_point.assign( 3, 0.0 );
     shape_function->evaluateGradient( hex, ref_point(), grads );
