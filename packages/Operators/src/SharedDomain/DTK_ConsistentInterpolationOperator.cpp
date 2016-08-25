@@ -332,6 +332,13 @@ void ConsistentInterpolationOperator::applyImpl(
 }
 
 //---------------------------------------------------------------------------//
+// Transpose apply option.
+bool ConsistentInterpolationOperator::hasTransposeApplyImpl() const
+{
+    return true;
+}
+
+//---------------------------------------------------------------------------//
 // Return the ids of the range entities that were not mapped during the last
 // setup phase (i.e. those that are guaranteed to not receive data from the
 // transfer). 

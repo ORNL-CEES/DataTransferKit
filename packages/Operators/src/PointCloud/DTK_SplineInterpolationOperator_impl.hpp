@@ -285,6 +285,14 @@ void SplineInterpolationOperator<Basis,DIM>::applyImpl(
 }
 
 //---------------------------------------------------------------------------//
+// Transpose apply option.
+template<class Basis,int DIM>
+bool SplineInterpolationOperator<Basis,DIM>::hasTransposeApplyImpl() const
+{
+    return false;
+}
+
+//---------------------------------------------------------------------------//
 /*!
  * \brief Build the concrete operators.
  */

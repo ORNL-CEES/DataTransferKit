@@ -119,6 +119,11 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
 	Teuchos::ETransp mode = Teuchos::NO_TRANS,
 	double alpha = Teuchos::ScalarTraits<double>::one(),
 	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+
+    /*
+     * \brief Transpose apply option.
+     */
+    bool hasTransposeApplyImpl() const override;
     
   private:
 

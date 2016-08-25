@@ -258,6 +258,15 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::applyImpl(
 }
 
 //---------------------------------------------------------------------------//
+// Transpose apply option.
+template<class Basis,int DIM>
+bool 
+MovingLeastSquareReconstructionOperator<Basis,DIM>::hasTransposeApplyImpl() const
+{
+    return true;
+}
+
+//---------------------------------------------------------------------------//
 // Extract node coordinates and ids from an iterator.
 template<class Basis,int DIM>
 void MovingLeastSquareReconstructionOperator<Basis,DIM>::getNodeCoordsAndIds(

@@ -120,6 +120,11 @@ class NodeToNodeOperator : virtual public MapOperator
 	double alpha = Teuchos::ScalarTraits<double>::one(),
 	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
 
+    /*
+     * \brief Transpose apply option.
+     */
+    bool hasTransposeApplyImpl() const override;
+
   private:
 
     // Extract node coordinates and ids from an iterator.

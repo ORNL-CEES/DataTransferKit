@@ -123,10 +123,13 @@ class MapOperator : public Tpetra::Operator<double,int,SupportId>
 	Teuchos::ETransp mode = Teuchos::NO_TRANS,
 	double alpha = Teuchos::ScalarTraits<double>::one(),
 	double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
-    bool hasTransposeApply() const override { return false; }
+    bool hasTransposeApply() const override;
     //@}
 
   protected:
+
+    //! Tranpose apply option.
+    virtual bool hasTransposeApplyImpl() const = 0;
 
     //! Setup implementation. Subclasses should override.
     virtual void 

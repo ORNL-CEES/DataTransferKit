@@ -204,6 +204,13 @@ void L2ProjectionOperator::applyImpl(
 }
 
 //---------------------------------------------------------------------------//
+// Transpose apply option.
+bool L2ProjectionOperator::hasTransposeApplyImpl() const
+{
+    return false;
+}
+
+//---------------------------------------------------------------------------//
 // Assemble the mass matrix and range integration point set.
 void L2ProjectionOperator::assembleMassMatrix(
     const Teuchos::RCP<FunctionSpace>& range_space,
