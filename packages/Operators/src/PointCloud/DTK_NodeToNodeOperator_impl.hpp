@@ -169,6 +169,14 @@ void NodeToNodeOperator<DIM>::applyImpl(
 }
 
 //---------------------------------------------------------------------------//
+// Transpose apply option.
+template<int DIM>
+bool NodeToNodeOperator<DIM>::hasTransposeApplyImpl() const
+{
+    return true;
+}
+
+//---------------------------------------------------------------------------//
 // Extract node coordinates and ids from an iterator.
 template<int DIM>
 void NodeToNodeOperator<DIM>::getNodeCoordsAndIds(

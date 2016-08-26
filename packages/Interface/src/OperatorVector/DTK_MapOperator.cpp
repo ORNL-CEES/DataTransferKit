@@ -112,6 +112,13 @@ void MapOperator::apply( const TpetraMultiVector& X,
 }
 
 //---------------------------------------------------------------------------//
+// Check if the map has a transpose apply option.n
+bool MapOperator::hasTransposeApply() const
+{
+    return hasTransposeApplyImpl();
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

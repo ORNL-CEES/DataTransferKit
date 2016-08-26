@@ -86,6 +86,13 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  NodeToNodeOperator_test
+  SOURCES tstNodeToNodeOperator.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
   PointCloudOperators_test
   SOURCES tstPointCloudOperators.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
@@ -93,8 +100,8 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  NodeToNodeOperator_test
-  SOURCES tstNodeToNodeOperator.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  VirtualWork_test
+  SOURCES tstVirtualWork.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )
@@ -104,7 +111,7 @@ TRIBITS_COPY_FILES_TO_BINARY_DIR(
   SOURCE_FILES spline_interpolation_test_radius.xml spline_interpolation_test_knn.xml mls_test_radius.xml mls_test_knn.xml
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
   DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  EXEDEPS PointCloudOperators_test
+  EXEDEPS PointCloudOperators_test VirtualWork_test
 )
 
 TRIBITS_COPY_FILES_TO_BINARY_DIR(

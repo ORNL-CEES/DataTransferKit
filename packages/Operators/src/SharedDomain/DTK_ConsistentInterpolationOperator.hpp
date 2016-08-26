@@ -127,6 +127,11 @@ class ConsistentInterpolationOperator : virtual public MapOperator
 	double alpha = Teuchos::ScalarTraits<double>::one(),
 	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
 
+    /*
+     * \brief Transpose apply option.
+     */
+    bool hasTransposeApplyImpl() const override;
+
   private:
 
     // Range entity topological dimension. Default is 0 (vertex).
