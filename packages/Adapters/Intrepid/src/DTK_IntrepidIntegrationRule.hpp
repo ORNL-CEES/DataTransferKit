@@ -32,83 +32,67 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_FieldMultiVector.hpp
+ * \brief DTK_IntrepidIntegrationRule.hpp
  * \author Stuart R. Slattery
- * \brief MultiVector interface.
+ * \brief Intrepid integration rule implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_FIELDMULTIVECTOR_HPP
-#define DTK_FIELDMULTIVECTOR_HPP
+#ifndef DTK_INTREPIDINTEGRATIONRULE_HPP
+#define DTK_INTREPIDINTEGRATIONRULE_HPP
 
-#include "DTK_Types.hpp"
-#include "DTK_Field.hpp"
-#include "DTK_EntitySet.hpp"
+#include <map>
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
+#include <Teuchos_Array.hpp>
 
-#include <Tpetra_MultiVector.hpp>
+#include <Intrepid_DefaultCubatureFactory.hpp>
+#include <Intrepid_Cubature.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class FieldMultiVector
-  \brief MultiVector interface.
+  \class IntrepidIntegrationRule
+  \brief integration rule interface.
 
-  FieldMultiVector provides a Tpetra::MultiVector wrapper around application
-  field data. Client implementations of the Field interface provide read/write
-  access to field data on an entity-by-entity basis. The FieldMultiVector then
-  manages the copying of data between the application and the Tpetra vector
-  using the client implementations for data access.
+  IntrepidIntegrationRule provides numerical quadrature for entities.
 */
 //---------------------------------------------------------------------------//
-class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
+class IntrepidIntegrationRule
 {
   public:
 
-    //! MultiVector typedef.
-    typedef Tpetra::MultiVector<double,int,SupportId> Base;
-    typedef typename Base::local_ordinal_type         LO;
-    typedef typename Base::global_ordinal_type        GO;
-
     /*!
-     * \brief Comm constructor. This will allocate the Tpetra vector.
+     * \brief Given an topology and an integration order, get its integration
+     * rule. 
      *
-     * \param field The field for which we are building a vector.
+     * \param topology Get the integration rule for this topology.
      *
-     * \param global_comm The global communicator over which the field is
-     * defined.
-     */
-    FieldMultiVector(
-	const Teuchos::RCP<const Teuchos::Comm<int> >& global_comm,
-	const Teuchos::RCP<Field>& field );
-    
-    /*!
-     * \brief Entity set constructor. This will allocate the Tpetra vector.
+     * \param order Get an integration rule of this order.
      *
-     * \param field The field for which we are building a vector.
+     * \param reference_points Return the integration points in the reference
+     * frame of the topology in this array. If there are N integration points
+     * of topological dimension D then this array is of size
+     * reference_points[N][D].
      *
-     * \param entity_set The entity set over which the field is defined.
+     * \param weights Return the weights of the integration points in this
+     * array. If there are N integration points this array is of size
+     * weights[N].
      */
-    FieldMultiVector( const Teuchos::RCP<Field>& field,
-		      const Teuchos::RCP<const EntitySet>& entity_set );
-
-    /*!
-     * \brief Pull data from the application and put it in the vector.
-     */
-    void pullDataFromApplication();
-
-    /*!
-     * \brief Push data from the vector into the application.
-     */
-    void pushDataToApplication();
+    void getIntegrationRule(
+	const shards::CellTopology& topology,
+	const int order,
+	Teuchos::Array<Teuchos::Array<double> >& reference_points,
+	Teuchos::Array<double>& weights ) const;
 
   private:
 
-    // The field this multivector is managing.
-    Teuchos::RCP<Field> d_field;
+   // Intrepid cubature factory.
+    mutable Intrepid::DefaultCubatureFactory<double> d_intrepid_factory;
+
+    // Map of already created cubature rules.
+    mutable std::map<std::pair<unsigned,int>,
+		     Teuchos::RCP<Intrepid::Cubature<double> > > d_cub_rules;
 };
 
 //---------------------------------------------------------------------------//
@@ -117,8 +101,8 @@ class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_FIELDMULTIVECTOR_HPP
+#endif // end DTK_INTREPIDINTEGRATIONRULE_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_FieldMultiVector.hpp
+// end DTK_IntrepidIntegrationRule.hpp
 //---------------------------------------------------------------------------//

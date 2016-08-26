@@ -32,102 +32,87 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshNodalShapeFunction.cpp
+ * \brief DTK_ReferenceHexShapeFunction.cpp
  * \author Stuart R. Slattery
- * \brief Nodal shape function implementation for STK mesh.
+ * \brief Reference hex shape function
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_STKMeshNodalShapeFunction.hpp"
-#include "DTK_STKMeshHelpers.hpp"
+#include "DTK_ReferenceHexShapeFunction.hpp"
+#include "DTK_ReferenceHexImpl.hpp"
+#include "DTK_ReferenceNodeImpl.hpp"
 #include "DTK_DBC.hpp"
 
-#include <Shards_CellTopology.hpp>
+#include <Shards_BasicTopologies.hpp>
 
 namespace DataTransferKit
 {
+namespace UnitTest
+{
 //---------------------------------------------------------------------------//
 // Constructor.
-STKMeshNodalShapeFunction::STKMeshNodalShapeFunction(
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
-    : d_bulk_data( bulk_data )
+ReferenceHexShapeFunction::ReferenceHexShapeFunction()
+    : d_topo( shards::getCellTopologyData<shards::Hexahedron<8> >() )    
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
-void STKMeshNodalShapeFunction::entitySupportIds( 
-    const Entity& entity, Teuchos::Array<SupportId>& support_ids ) const
+void ReferenceHexShapeFunction::entitySupportIds( 
+    const DataTransferKit::Entity& entity,
+    Teuchos::Array<DataTransferKit::SupportId>& support_ids ) const
 {
-    // Extract the stk entity.
-    const stk::mesh::Entity& stk_entity = 
-	STKMeshHelpers::extractEntity( entity );
-    const stk::mesh::EntityRank entity_rank =
-	d_bulk_data->entity_rank( stk_entity );
+    DTK_REQUIRE( 3 == entity.topologicalDimension() ||
+                 0 == entity.topologicalDimension() );
 
-    // If the entity is a node, return the id of the node as the support id.
-    if ( stk::topology::NODE_RANK == entity_rank )
+    // Node case.
+    if ( 0 == entity.topologicalDimension() )
     {
-	support_ids.assign( 1, d_bulk_data->identifier(stk_entity) );
+        support_ids.resize( 1 );
+        support_ids[0] = Teuchos::rcp_dynamic_cast<ReferenceNodeExtraData>(
+            entity.extraData())->id;
     }
 
-    // Otherwise get the ids of the nodes supporting the entity.
-    else 
+    // Hex case.
+    else
     {
-	const stk::mesh::Entity* begin = d_bulk_data->begin_nodes( stk_entity );
-	const stk::mesh::Entity* end = d_bulk_data->end_nodes( stk_entity );
-
-	// Extract the node ids as the support ids.
-	int num_nodes = std::distance( begin, end );
-	support_ids.resize( num_nodes );
-	for ( int n = 0; n < num_nodes; ++n )
-	{
-	    support_ids[n] = d_bulk_data->identifier( begin[n] );
-	}
-    }
+        support_ids.resize( 8 );
+        auto& node_ids = Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>(
+            entity.extraData())->node_ids;
+        DTK_CHECK( 8 == node_ids.size() );
+        std::copy( node_ids.begin(), node_ids.end(), support_ids.begin() );
+    }    
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the shape function of the
 // entity at that point.
-void STKMeshNodalShapeFunction::evaluateValue( 
-    const Entity& entity,
+void ReferenceHexShapeFunction::evaluateValue( 
+    const DataTransferKit::Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     Teuchos::Array<double>& values ) const
 {
-    const stk::mesh::Entity& stk_entity = 
-	STKMeshHelpers::extractEntity( entity );
-
-    shards::CellTopology entity_topo = 
-	stk::mesh::get_cell_topology(
-	    d_bulk_data->bucket(stk_entity).topology() );
-
-    d_intrepid_shape.evaluateValue( entity_topo, reference_point, values );
+    DTK_REQUIRE( 3 == entity.topologicalDimension() );
+    d_intrepid_shape.evaluateValue( d_topo, reference_point, values );
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the gradient of the shape
 // function of the entity at that point.
-void STKMeshNodalShapeFunction::evaluateGradient( 
-	const Entity& entity,
+void ReferenceHexShapeFunction::evaluateGradient( 
+	const DataTransferKit::Entity& entity,
 	const Teuchos::ArrayView<const double>& reference_point,
 	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
 {
-    const stk::mesh::Entity& stk_entity = 
-	STKMeshHelpers::extractEntity( entity );
-
-    shards::CellTopology entity_topo = 
-	stk::mesh::get_cell_topology(
-	    d_bulk_data->bucket(stk_entity).topology() );
-
-    d_intrepid_shape.evaluateGradient( 
-        entity_topo, reference_point, gradients );
+    DTK_REQUIRE( 3 == entity.topologicalDimension() );
+    d_intrepid_shape.evaluateGradient( d_topo, reference_point, gradients );
 }
 
 //---------------------------------------------------------------------------//
 
+} // end namespace UnitTest
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshNodalShapeFunction.cpp
+// end DTK_ReferenceHexShapeFunction.cpp
 //---------------------------------------------------------------------------//

@@ -105,7 +105,7 @@ TEUCHOS_UNIT_TEST( CrsMatrix, EveryoneFill )
 
     // Make a map.
     int num_local_elements = 1;
-    int num_global_elements = comm_size * num_local_elements;
+    GO num_global_elements = comm_size * num_local_elements;
     Teuchos::RCP<const Tpetra::Map<LO,GO> > map =
 	Tpetra::createUniformContigMap<LO,GO>( num_global_elements, comm );
 

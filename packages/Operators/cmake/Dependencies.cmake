@@ -10,4 +10,5 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     DataTransferKitInterface
   TEST_REQUIRED_PACKAGES
     DataTransferKitBasicGeometryAdapters
+    DataTransferKitIntrepidAdapters
   )

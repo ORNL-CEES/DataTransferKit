@@ -54,6 +54,8 @@
 
 #include <Tpetra_Distributor.hpp>
 
+#include <BelosPseudoBlockCGSolMgr.hpp>
+
 #include <Thyra_TpetraThyraWrappers.hpp>
 #include <Thyra_DefaultMultipliedLinearOp.hpp>
 #include <Thyra_LinearOpWithSolveFactoryHelpers.hpp>
@@ -160,19 +162,22 @@ void L2ProjectionOperator::setupImpl(
     // method to invert the SPD mass matrix.
     Teuchos::RCP<Teuchos::ParameterList> builder_params =
 	Teuchos::parameterList("Stratimikos");
-    Teuchos::updateParametersFromXmlString(
-	"<ParameterList name=\"Stratimikos\">"
-          "<Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Belos\"/>"
-          "<Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>"
-   	  "<ParameterList name=\"Linear Solver Types\">"
-            "<ParameterList name=\"Belos\">"
-	      "<Parameter name=\"Solver Type\" type=\"string\" value=\"Pseudo Block CG\"/>"
-	    "</ParameterList>"
-	  "</ParameterList>"
-	"</ParameterList>"
-	,
-	builder_params.ptr()
-	);
+
+    builder_params->set( "Linear Solver Type", "Belos" );
+    builder_params->set( "Preconditioner Type", "None" );
+
+    auto& linear_solver_types_list = builder_params->sublist("Linear Solver Types");
+    auto& belos_list = linear_solver_types_list.sublist( "Belos" );
+    belos_list.set( "Solver Type", "Pseudo Block CG" );
+    auto& solver_types_list = belos_list.sublist( "Solver Types" );
+    auto& cg_list = solver_types_list.sublist("Pseudo Block CG");
+    cg_list.set("Convergence Tolerance", 1.0e-10 );
+    cg_list.set("Verbosity",
+                Belos::Errors + Belos::Warnings +
+                Belos::TimingDetails + Belos::FinalSummary +
+                Belos::StatusTestDetails );
+    cg_list.set("Output Frequency", 1 );    
+    
     Stratimikos::DefaultLinearSolverBuilder builder;
     builder.setParameterList( builder_params );
     Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<double> > factory = 

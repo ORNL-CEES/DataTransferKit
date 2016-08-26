@@ -1,4 +1,72 @@
+##---------------------------------------------------------------------------##
+# Hex mesh reference library for unit testing
+##---------------------------------------------------------------------------##
+SET(SOURCES
+  reference_implementation/DTK_ReferenceHex.cpp
+  reference_implementation/DTK_ReferenceHexImpl.cpp
+  reference_implementation/DTK_ReferenceHexIntegrationRule.cpp
+  reference_implementation/DTK_ReferenceHexLocalMap.cpp
+  reference_implementation/DTK_ReferenceHexMesh.cpp
+  reference_implementation/DTK_ReferenceHexShapeFunction.cpp
+  reference_implementation/DTK_ReferenceNode.cpp
+  reference_implementation/DTK_ReferenceNodeImpl.cpp
+  )
+
+TRIBITS_ADD_LIBRARY(
+  dtk_hex_test_reference
+  SOURCES ${SOURCES}
+  TESTONLY
+  )
+
+##---------------------------------------------------------------------------##
+# Reference hex implementation tests
+##---------------------------------------------------------------------------##
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  ReferenceNode_test
+  SOURCES tstReferenceNode.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  STANDARD_PASS_OUTPUT
+  TESTONLYLIBS dtk_hex_test_reference
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  ReferenceHex_test
+  SOURCES tstReferenceHex.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  STANDARD_PASS_OUTPUT
+  TESTONLYLIBS dtk_hex_test_reference  
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  ReferenceHexLocalMap_test
+  SOURCES tstReferenceHexLocalMap.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  STANDARD_PASS_OUTPUT
+  TESTONLYLIBS dtk_hex_test_reference  
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  ReferenceHexShapeFunction_test
+  SOURCES tstReferenceHexShapeFunction.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  STANDARD_PASS_OUTPUT
+  TESTONLYLIBS dtk_hex_test_reference  
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  ReferenceHexIntegrationRule_test
+  SOURCES tstReferenceHexIntegrationRule.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  STANDARD_PASS_OUTPUT
+  TESTONLYLIBS dtk_hex_test_reference  
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  ReferenceHexMesh_test
+  SOURCES tstReferenceHexMesh.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  TESTONLYLIBS dtk_hex_test_reference  
+  )
+
+##---------------------------------------------------------------------------##
 # Search tests.
+##---------------------------------------------------------------------------##
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   CoarseGlobalSearch_test
   SOURCES tstCoarseGlobalSearch.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
@@ -27,7 +95,9 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   STANDARD_PASS_OUTPUT
   )
 
+##---------------------------------------------------------------------------##
 # SharedDomain tests.
+##---------------------------------------------------------------------------##
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   CrsMatrixFill_test
   SOURCES tstCrsMatrixFill.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
@@ -40,9 +110,20 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstConsistentInterpolationOperator.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  TESTONLYLIBS dtk_hex_test_reference  
   )
 
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  L2Projection_test
+  SOURCES tstL2Projection.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  TESTONLYLIBS dtk_hex_test_reference
+  )
+
+##---------------------------------------------------------------------------##
 # PointCloud tests.
+##---------------------------------------------------------------------------##
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   RadialBasis_test
   SOURCES tstRadialBasis.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}

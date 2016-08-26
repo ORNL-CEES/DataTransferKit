@@ -32,85 +32,37 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntityIntegrationRule.hpp
+ * \brief DTK_ReferenceNode.cpp
  * \author Stuart R. Slattery
- * \brief STK mesh integration rule implementation.
+ * \brief Reference node entity.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_STKMESHENTITYINTEGRATIONRULE_HPP
-#define DTK_STKMESHENTITYINTEGRATIONRULE_HPP
-
-#include <map>
-
-#include "DTK_Entity.hpp"
-#include "DTK_EntityIntegrationRule.hpp"
-#include "DTK_IntrepidIntegrationRule.hpp"
-
-#include <Teuchos_Array.hpp>
-
-#include <stk_mesh/base/BulkData.hpp>
+#include "DTK_ReferenceNode.hpp"
+#include "DTK_ReferenceNodeImpl.hpp"
 
 namespace DataTransferKit
 {
-//---------------------------------------------------------------------------//
-/*!
-  \class STKMeshEntityIntegrationRule
-  \brief integration rule interface.
-
-  STKMeshEntityIntegrationRule provides numerical quadrature for entities.
-*/
-//---------------------------------------------------------------------------//
-class STKMeshEntityIntegrationRule : public EntityIntegrationRule
+namespace UnitTest
 {
-  public:
-
-    /*!
-     * \brief Constructor.
-     */
-    STKMeshEntityIntegrationRule(
-	const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
-
-    /*!
-     * \brief Given an entity and an integration order, get its integration
-     * rule. 
-     *
-     * \param entity Get the integration rule for this entity.
-     *
-     * \param order Get an integration rule of this order.
-     *
-     * \param reference_points Return the integration points in the reference
-     * frame of the entity in this array. If there are N integration points of
-     * topological dimension D then this array is of size
-     * reference_points[N][D].
-     *
-     * \param weights Return the weights of the integration points in this
-     * array. If there are N integration points this array is of size
-     * weights[N].
-     */
-    void getIntegrationRule(
-	const Entity& entity,
-	const int order,
-	Teuchos::Array<Teuchos::Array<double> >& reference_points,
-	Teuchos::Array<double>& weights ) const override;
-
-  private:
-
-    // STK Mesh.
-    Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
-    
-    // Intrepid integration rule.
-    mutable IntrepidIntegrationRule d_intrepid_rule;
-};
+//---------------------------------------------------------------------------//
+// Constructor.
+ReferenceNode::ReferenceNode(
+    const int id,
+    const int owner_rank,
+    const double x,
+    const double y,
+    const double z )
+{
+    this->b_entity_impl =
+        Teuchos::rcp( new ReferenceNodeImpl(id,owner_rank,x,y,z) );
+}
 
 //---------------------------------------------------------------------------//
 
+} // end namespace UnitTest
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
-
-#endif // end DTK_STKMESHENTITYINTEGRATIONRULE_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_STKMeshEntityIntegrationRule.hpp
+// end DTK_ReferenceNode.cpp
 //---------------------------------------------------------------------------//

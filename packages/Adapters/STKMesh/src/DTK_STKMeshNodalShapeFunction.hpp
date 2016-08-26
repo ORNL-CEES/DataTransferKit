@@ -43,12 +43,10 @@
 
 #include "DTK_EntityShapeFunction.hpp"
 #include "DTK_Types.hpp"
+#include "DTK_IntrepidShapeFunction.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
-
-#include <Intrepid_Basis.hpp>
-#include <Intrepid_FieldContainer.hpp>
 
 #include <stk_mesh/base/BulkData.hpp>
 
@@ -117,14 +115,11 @@ class STKMeshNodalShapeFunction : public EntityShapeFunction
 
   private:
 
-    // Given an entity, get the intrepid basis function.
-    Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
-    getIntrepidBasis( const Entity& entity ) const;
-
-  private:
-
     // Bulk data for the mesh over which the shape function is defined.
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
+
+    // Intrepid shape function.
+    IntrepidShapeFunction d_intrepid_shape;
 };
 
 //---------------------------------------------------------------------------//

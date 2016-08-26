@@ -57,6 +57,8 @@
 #include <Teuchos_ParameterList.hpp>
 #include <Teuchos_XMLParameterListCoreHelpers.hpp>
 
+#include <BelosPseudoBlockGmresSolMgr.hpp>
+
 #include <Thyra_TpetraThyraWrappers.hpp>
 #include <Thyra_DefaultMultipliedLinearOp.hpp>
 #include <Thyra_DefaultScaledAdjointLinearOp.hpp>
@@ -75,11 +77,11 @@ SplineInterpolationOperator<Basis,DIM>::SplineInterpolationOperator(
     const Teuchos::RCP<const TpetraMap>& range_map,
     const Teuchos::ParameterList& parameters )
     : Base( domain_map, range_map )
-    , d_domain_entity_dim( 0 )
-    , d_range_entity_dim( 0 )
     , d_use_knn( false )
     , d_knn( 0 )
     , d_radius( 0.0 )
+    , d_domain_entity_dim( 0 )
+    , d_range_entity_dim( 0 )
 {
     // Determine if we are doing kNN search or radius search.
     if( parameters.isParameter("Type of Search") )
@@ -237,14 +239,22 @@ void SplineInterpolationOperator<Basis,DIM>::setupImpl(
     if ( Teuchos::is_null(d_stratimikos_list) )
     {
 	d_stratimikos_list = Teuchos::parameterList("Stratimikos");
-	Teuchos::updateParametersFromXmlString(
-	    "<ParameterList name=\"Stratimikos\">"
-	    "<Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Belos\"/>"
-	    "<Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>"
-	    "</ParameterList>"
-	    ,
-	    d_stratimikos_list.ptr()
-	    );
+
+        d_stratimikos_list->set( "Linear Solver Type", "Belos" );
+        d_stratimikos_list->set( "Preconditioner Type", "None" );
+
+        auto& linear_solver_types_list =
+            d_stratimikos_list->sublist("Linear Solver Types");
+        auto& belos_list = linear_solver_types_list.sublist( "Belos" );
+        belos_list.set( "Solver Type", "Pseudo Block GMRES" );
+        auto& solver_types_list = belos_list.sublist( "Solver Types" );
+        auto& gmres_list = solver_types_list.sublist("Pseudo Block GMRES");
+        gmres_list.set("Convergence Tolerance", 1.0e-10 );
+        gmres_list.set("Verbosity",
+                    Belos::Errors + Belos::Warnings +
+                    Belos::TimingDetails + Belos::FinalSummary +
+                    Belos::StatusTestDetails );
+        gmres_list.set("Output Frequency", 1 );
     }
 
     // Create the inverse of the composite operator C.

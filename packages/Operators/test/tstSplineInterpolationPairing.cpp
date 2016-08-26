@@ -242,7 +242,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_1_test )
     tgt_coords[0] = 4.9;
     tgt_coords[1] = 10.0;
 
-    int knn = 3;
+    unsigned knn = 3;
 
     DataTransferKit::SplineInterpolationPairing<1> pairing( 
 	src_coords(), tgt_coords(), true, knn, 0.0 );
@@ -293,7 +293,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_2_test )
     tgt_coords[2] = 10.0;
     tgt_coords[3] = 1.0;
 
-    int knn = 3;
+    unsigned knn = 3;
 
     DataTransferKit::SplineInterpolationPairing<2> pairing( 
 	src_coords(), tgt_coords(), true, knn, 0.0 );
@@ -347,7 +347,7 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_3_test )
     tgt_coords[4] = 1.0;
     tgt_coords[5] = 1.0;
 
-    int knn = 3;
+    unsigned knn = 3;
 
     DataTransferKit::SplineInterpolationPairing<3> pairing( 
 	src_coords(), tgt_coords(), true, knn, 0.0 );

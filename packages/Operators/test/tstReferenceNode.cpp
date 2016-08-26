@@ -32,46 +32,59 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_STKMeshEntityIntegrationRule.cpp
+ * \file tstReferenceNode.cpp
  * \author Stuart R. Slattery
- * \brief STK mesh integration rule implementation.
+ * \brief ReferenceNode unit tests.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_STKMeshEntityIntegrationRule.hpp"
-#include "DTK_STKMeshHelpers.hpp"
+#include "reference_implementation/DTK_ReferenceNode.hpp"
 
-#include <Shards_CellTopology.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
+#include <Teuchos_Tuple.hpp>
+#include <Teuchos_FancyOStream.hpp>
+#include <Teuchos_VerboseObject.hpp>
+#include <Teuchos_RCP.hpp>
 
-namespace DataTransferKit
-{
-//---------------------------------------------------------------------------//
-// Constructor.
-STKMeshEntityIntegrationRule::STKMeshEntityIntegrationRule(
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
-    : d_bulk_data( bulk_data )
-{ /* ... */ }
+#include <iostream>
 
 //---------------------------------------------------------------------------//
-// Given an entity and an integration order, get its integration rule. 
-void STKMeshEntityIntegrationRule::getIntegrationRule(
-    const Entity& entity,
-    const int order,
-    Teuchos::Array<Teuchos::Array<double> >& reference_points,
-    Teuchos::Array<double>& weights ) const
+TEUCHOS_UNIT_TEST( ReferenceNode, reference_node )
 {
-    const stk::mesh::Entity& stk_entity =
-	STKMeshHelpers::extractEntity( entity );
-    shards::CellTopology cell_topo =
-	STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
-    d_intrepid_rule.getIntegrationRule( 
-        cell_topo, order, reference_points, weights );
+    DataTransferKit::EntityId id = 3242;
+    int owner_rank = 16;
+    double x = -33.2;
+    double y = 147.6;
+    double z = 55.9;
+    
+    DataTransferKit::Entity entity =
+        DataTransferKit::UnitTest::ReferenceNode( id, owner_rank, x, y, z );
+
+    TEST_EQUALITY( entity.id(), id );
+    TEST_EQUALITY( entity.ownerRank(), owner_rank );
+    TEST_EQUALITY( entity.topologicalDimension(), 0 );
+    TEST_EQUALITY( entity.physicalDimension(), 3 );
+
+    Teuchos::Tuple<double,6> box;
+    entity.boundingBox( box );
+    TEST_EQUALITY( box[0], x );
+    TEST_EQUALITY( box[1], y );
+    TEST_EQUALITY( box[2], z );
+    TEST_EQUALITY( box[3], x );
+    TEST_EQUALITY( box[4], y );
+    TEST_EQUALITY( box[5], z );
+
+    TEST_ASSERT( !entity.inBlock(0) );
+    TEST_ASSERT( !entity.onBoundary(0) );
+
+    std::cout << entity.description() << std::endl;
+
+    Teuchos::RCP<Teuchos::FancyOStream>
+	fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
+    entity.describe( *fancy_out );
 }
 
 //---------------------------------------------------------------------------//
-
-} // end namespace DataTransferKit
-
+// end tstReferenceNode.cpp
 //---------------------------------------------------------------------------//
-// end DTK_STKMeshEntityIntegrationRule.hpp
-//---------------------------------------------------------------------------//
+

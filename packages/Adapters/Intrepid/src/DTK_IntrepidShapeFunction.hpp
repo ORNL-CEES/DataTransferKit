@@ -32,83 +32,81 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_FieldMultiVector.hpp
+ * \brief DTK_IntrepidShapeFunction.hpp
  * \author Stuart R. Slattery
- * \brief MultiVector interface.
+ * \brief  shape function implementation.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_FIELDMULTIVECTOR_HPP
-#define DTK_FIELDMULTIVECTOR_HPP
+#ifndef DTK_INTREPIDSHAPEFUNCTION
+#define DTK_INTREPIDSHAPEFUNCTION
 
-#include "DTK_Types.hpp"
-#include "DTK_Field.hpp"
-#include "DTK_EntitySet.hpp"
+#include <unordered_map>
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
+#include <Teuchos_Array.hpp>
 
-#include <Tpetra_MultiVector.hpp>
+#include <Intrepid_Basis.hpp>
+#include <Intrepid_FieldContainer.hpp>
+
+#include <Shards_CellTopology.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class FieldMultiVector
-  \brief MultiVector interface.
-
-  FieldMultiVector provides a Tpetra::MultiVector wrapper around application
-  field data. Client implementations of the Field interface provide read/write
-  access to field data on an entity-by-entity basis. The FieldMultiVector then
-  manages the copying of data between the application and the Tpetra vector
-  using the client implementations for data access.
+  \class IntrepidShapeFunction
+  \brief Intrepid shape function.
 */
 //---------------------------------------------------------------------------//
-class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
+class IntrepidShapeFunction
 {
   public:
 
-    //! MultiVector typedef.
-    typedef Tpetra::MultiVector<double,int,SupportId> Base;
-    typedef typename Base::local_ordinal_type         LO;
-    typedef typename Base::global_ordinal_type        GO;
+    /*!
+     * \brief Given an topology and a reference point, evaluate the shape
+     * function of the topology at that point.
+     * \param topology Evaluate the shape function of this topology.
+     * \param reference_point Evaluate the shape function at this point
+     * given in reference coordinates.
+     * \param values Topology shape function evaluated at the reference
+     * point. 
+     */
+    void evaluateValue( 
+	const shards::CellTopology& topology,
+	const Teuchos::ArrayView<const double>& reference_point,
+	Teuchos::Array<double>& values ) const;
 
     /*!
-     * \brief Comm constructor. This will allocate the Tpetra vector.
-     *
-     * \param field The field for which we are building a vector.
-     *
-     * \param global_comm The global communicator over which the field is
-     * defined.
+     * \brief Given an topology and a reference point, evaluate the gradient of
+     * the shape function of the topology at that point.
+     * \param topology Evaluate the shape function of this topology.
+     * \param reference_point Evaluate the shape function at this point
+     * given in reference coordinates.
+     * \param gradients Topology shape function gradients evaluated at the reference
+     * point. Return these ordered with respect to those return by
+     * getSupportIds() such that gradients[N][D] gives the gradient value of the
+     * Nth support location in the Dth spatial dimension.
      */
-    FieldMultiVector(
-	const Teuchos::RCP<const Teuchos::Comm<int> >& global_comm,
-	const Teuchos::RCP<Field>& field );
-    
-    /*!
-     * \brief Entity set constructor. This will allocate the Tpetra vector.
-     *
-     * \param field The field for which we are building a vector.
-     *
-     * \param entity_set The entity set over which the field is defined.
-     */
-    FieldMultiVector( const Teuchos::RCP<Field>& field,
-		      const Teuchos::RCP<const EntitySet>& entity_set );
-
-    /*!
-     * \brief Pull data from the application and put it in the vector.
-     */
-    void pullDataFromApplication();
-
-    /*!
-     * \brief Push data from the vector into the application.
-     */
-    void pushDataToApplication();
+    void evaluateGradient( 
+	const shards::CellTopology& topology,
+	const Teuchos::ArrayView<const double>& reference_point,
+	Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
 
   private:
 
-    // The field this multivector is managing.
-    Teuchos::RCP<Field> d_field;
+    // Get the basis of a topology.
+    Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
+    getIntrepidBasis( const shards::CellTopology& topology ) const;
+ 
+  private:
+
+    // Map of already created shape functions.
+    mutable
+    std::unordered_map<unsigned,
+             Teuchos::RCP<
+                 Intrepid::Basis<double,Intrepid::FieldContainer<double>
+                                 > > > d_basis;
 };
 
 //---------------------------------------------------------------------------//
@@ -117,8 +115,8 @@ class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_FIELDMULTIVECTOR_HPP
+#endif // end DTK_INTREPIDSHAPEFUNCTION
 
 //---------------------------------------------------------------------------//
-// end DTK_FieldMultiVector.hpp
+// end DTK_IntrepidShapeFunction.hpp
 //---------------------------------------------------------------------------//

@@ -30,48 +30,73 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-//---------------------------------------------------------------------------//
+//----------------------------------*-C++-*----------------------------------//
 /*!
- * \brief DTK_STKMeshEntityIntegrationRule.cpp
- * \author Stuart R. Slattery
- * \brief STK mesh integration rule implementation.
+ * \file   tstIntrepidIntegrationRule.cpp
+ * \author Stuart Slattery
+ * \date   Wed May 25 12:36:14 2011
+ * \brief  Integration rule function test.
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_STKMeshEntityIntegrationRule.hpp"
-#include "DTK_STKMeshHelpers.hpp"
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <sstream>
 
-#include <Shards_CellTopology.hpp>
+#include "DTK_IntrepidIntegrationRule.hpp"
 
-namespace DataTransferKit
-{
+#include "Teuchos_UnitTestHarness.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Ptr.hpp"
+#include "Teuchos_Array.hpp"
+#include "Teuchos_ArrayRCP.hpp"
+#include "Teuchos_DefaultComm.hpp"
+#include <Teuchos_DefaultMpiComm.hpp>
+
+#include <Shards_BasicTopologies.hpp>
+
 //---------------------------------------------------------------------------//
-// Constructor.
-STKMeshEntityIntegrationRule::STKMeshEntityIntegrationRule(
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
-    : d_bulk_data( bulk_data )
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-// Given an entity and an integration order, get its integration rule. 
-void STKMeshEntityIntegrationRule::getIntegrationRule(
-    const Entity& entity,
-    const int order,
-    Teuchos::Array<Teuchos::Array<double> >& reference_points,
-    Teuchos::Array<double>& weights ) const
+// Hex-8 test.
+TEUCHOS_UNIT_TEST( IntrepidIntegrationRule, hex_8_test )
 {
-    const stk::mesh::Entity& stk_entity =
-	STKMeshHelpers::extractEntity( entity );
-    shards::CellTopology cell_topo =
-	STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
-    d_intrepid_rule.getIntegrationRule( 
-        cell_topo, order, reference_points, weights );
+    // Create an integration rule.
+    DataTransferKit::IntrepidIntegrationRule integration_rule;
+
+    // Create a cell topology.
+    shards::CellTopology element_topo =
+	shards::getCellTopologyData<shards::Hexahedron<8> >();    
+    
+    // Test the integration rule.
+    Teuchos::Array<Teuchos::Array<double> > p_1;
+    Teuchos::Array<double> w_1;
+    integration_rule.getIntegrationRule( element_topo, 1, p_1, w_1 );
+    TEST_EQUALITY( 1, w_1.size() );
+    TEST_EQUALITY( 1, p_1.size() );
+    TEST_EQUALITY( 3, p_1[0].size() );
+    TEST_EQUALITY( 8.0, w_1[0] );
+    TEST_EQUALITY( 0.0, p_1[0][0] );
+    TEST_EQUALITY( 0.0, p_1[0][1] );
+    TEST_EQUALITY( 0.0, p_1[0][2] );
+
+    Teuchos::Array<Teuchos::Array<double> > p_2;
+    Teuchos::Array<double> w_2;
+    integration_rule.getIntegrationRule( element_topo, 2, p_2, w_2 );
+    TEST_EQUALITY( 8, w_2.size() );
+    TEST_EQUALITY( 8, p_2.size() );
+    for ( int i = 0; i < 8; ++i )
+    {
+	TEST_EQUALITY( w_2[i], 1.0 );
+	TEST_EQUALITY( p_2[i].size(), 3 );
+
+	for ( int d = 0; d < 3; ++d )
+	{
+	    TEST_FLOATING_EQUALITY(
+		std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
+	}
+    }
 }
 
 //---------------------------------------------------------------------------//
-
-} // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-// end DTK_STKMeshEntityIntegrationRule.hpp
+// end of tstIntrepidIntegrationRule.cpp
 //---------------------------------------------------------------------------//
