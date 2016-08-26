@@ -117,6 +117,10 @@ class ReferenceHexMesh
     Teuchos::Array<double> buildEdgeArray( 
         const double min, const double max, const int num_cells ) const;
     
+    // Create a ghosted or locally-owned field.
+    Teuchos::RCP<DataTransferKit::Field>
+    createNodalField( const int field_dim, const bool is_ghosted ) const;
+
   private:
 
     // Function space.

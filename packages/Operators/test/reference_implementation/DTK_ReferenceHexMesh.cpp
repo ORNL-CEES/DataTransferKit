@@ -103,30 +103,7 @@ ReferenceHexMesh::functionSpace() const
 Teuchos::RCP<DataTransferKit::Field>
 ReferenceHexMesh::nodalField( const int field_dim ) const
 {
-    // Select the locally-owned nodes.
-    DataTransferKit::LocalEntityPredicate pred(
-        d_function_space->entitySet()->communicator()->getRank() );    
-    auto node_it =
-        d_function_space->entitySet()->entityIterator( 0, pred.getFunction() );
-
-    // Extract the node ids.
-    auto nodes_begin = node_it.begin();
-    auto nodes_end = node_it.end();
-    Teuchos::Array<DataTransferKit::EntityId> node_ids;
-    node_ids.reserve( node_it.size() );
-    for ( node_it = nodes_begin; node_it != nodes_end; ++node_it )
-    {
-        node_ids.push_back( node_it->id() );
-    }
-
-    // Build the field.
-    Teuchos::ArrayRCP<double> field_data( node_it.size() * field_dim );
-    return Teuchos::rcp(
-        new DataTransferKit::EntityCenteredField(
-            node_ids(),
-            field_dim,
-            field_data,
-            DataTransferKit::EntityCenteredField::BLOCKED) );
+    return createNodalField( field_dim, false );
 }
 
 //---------------------------------------------------------------------------//
@@ -134,28 +111,7 @@ ReferenceHexMesh::nodalField( const int field_dim ) const
 Teuchos::RCP<DataTransferKit::Field>
 ReferenceHexMesh::ghostedNodalField( const int field_dim ) const
 {
-    // Select the all the nodes. We inserted every node needed by all the
-    // local hex elements so we will get everything we need here. 
-    auto node_it = d_function_space->entitySet()->entityIterator( 0 );
-
-    // Extract the node ids.
-    auto nodes_begin = node_it.begin();
-    auto nodes_end = node_it.end();
-    Teuchos::Array<DataTransferKit::EntityId> node_ids;
-    node_ids.reserve( node_it.size() );
-    for ( node_it = nodes_begin; node_it != nodes_end; ++node_it )
-    {
-        node_ids.push_back( node_it->id() );
-    }
-
-    // Build the field.
-    Teuchos::ArrayRCP<double> field_data( node_it.size() * field_dim );
-    return Teuchos::rcp(
-        new DataTransferKit::EntityCenteredField(
-            node_ids(),
-            field_dim,
-            field_data,
-            DataTransferKit::EntityCenteredField::BLOCKED) );
+    return createNodalField( field_dim, true );
 }
 
 //---------------------------------------------------------------------------//
@@ -343,6 +299,45 @@ Teuchos::Array<double> ReferenceHexMesh::buildEdgeArray(
     }
     DTK_CHECK( std::abs(edges.back() - max) < 1.0e-6 );
     return edges;
+}
+
+//---------------------------------------------------------------------------//
+// Create a nodal field over the locally-owned nodes.
+Teuchos::RCP<DataTransferKit::Field>
+ReferenceHexMesh::createNodalField( const int field_dim,
+                                    const bool is_ghosted ) const
+{
+    // Local + ghosted predicate.
+    DataTransferKit::SelectAllPredicate all_pred;
+
+    // Local only predicate.
+    DataTransferKit::LocalEntityPredicate local_pred(
+        d_function_space->entitySet()->communicator()->getRank() );    
+
+    // Select the nodes.
+    DataTransferKit::PredicateFunction select_function =
+        ( is_ghosted ) ? all_pred.getFunction() : local_pred.getFunction();
+    auto node_it =
+        d_function_space->entitySet()->entityIterator( 0, select_function );
+
+    // Extract the node ids.
+    auto nodes_begin = node_it.begin();
+    auto nodes_end = node_it.end();
+    Teuchos::Array<DataTransferKit::EntityId> node_ids;
+    node_ids.reserve( node_it.size() );
+    for ( node_it = nodes_begin; node_it != nodes_end; ++node_it )
+    {
+        node_ids.push_back( node_it->id() );
+    }
+
+    // Build the field.
+    Teuchos::ArrayRCP<double> field_data( node_it.size() * field_dim );
+    return Teuchos::rcp(
+        new DataTransferKit::EntityCenteredField(
+            node_ids(),
+            field_dim,
+            field_data,
+            DataTransferKit::EntityCenteredField::BLOCKED) );
 }
 
 //---------------------------------------------------------------------------//
