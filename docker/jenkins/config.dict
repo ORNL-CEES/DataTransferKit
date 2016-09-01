@@ -1,0 +1,14 @@
+{
+  'image': 'dalg24/dtk-stack',
+  'tag': 'latest',
+  'name': os.getenv("BUILD_TAG"),
+  'cmd': [
+    'sh -xe /scratch/source/dtk/docker/jenkins/build.sh',
+  ],
+  'volumes': [
+    os.getenv("WORKSPACE") + ':/scratch/source/dtk',
+  ],
+  'environment': {
+    'NPROC': '16',
+  },
+}
