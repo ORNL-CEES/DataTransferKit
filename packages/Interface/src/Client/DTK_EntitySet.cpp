@@ -121,10 +121,14 @@ void EntitySet::describe( Teuchos::FancyOStream &out,
 {
     EntityIterator d0_it = entityIterator( 0 );
     EntityIterator d1_it = entityIterator( 1 );
-    EntityIterator d2_it = entityIterator( 2 );
-    EntityIterator d3_it = entityIterator( 3 );
-
-    Teuchos::Tuple<double, 6> local_box;
+    EntityIterator d2_it;
+    if ( this->physicalDimension() >= 2 )
+        d2_it = entityIterator( 2 );
+    EntityIterator d3_it;
+    if ( this->physicalDimension() == 3 )
+        d3_it = entityIterator( 3 );
+    
+    Teuchos::Tuple<double,6> local_box;
     localBoundingBox( local_box );
 
     out << description() << std::endl
