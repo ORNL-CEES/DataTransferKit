@@ -12,6 +12,7 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     STKMesh
   TEST_REQUIRED_PACKAGES
     DataTransferKitOperators
+    DataTransferKitC_API
     STKIO
     STKUnit_tests
   LIB_REQUIRED_TPLS

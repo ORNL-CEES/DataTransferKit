@@ -127,8 +127,8 @@ void EntitySet::describe( Teuchos::FancyOStream &out,
     EntityIterator d3_it;
     if ( this->physicalDimension() == 3 )
         d3_it = entityIterator( 3 );
-    
-    Teuchos::Tuple<double,6> local_box;
+
+    Teuchos::Tuple<double, 6> local_box;
     localBoundingBox( local_box );
 
     out << description() << std::endl
