@@ -58,7 +58,7 @@ namespace DataTransferKit
 /*!
   \class ClassicMeshElementImpl
   \brief ClassicMeshElementImpl interface.
-  
+
   ClassicMeshElementImpl gives an interface for DTK version 1 mesh.
 */
 //---------------------------------------------------------------------------//
@@ -69,9 +69,9 @@ class ClassicMeshElementImpl : public EntityImpl
 
     // Default constructor.
     ClassicMeshElementImpl(
-	const Teuchos::Ptr<ClassicMesh<Mesh> >& mesh,
-	const EntityId global_id,
-	const int block_id );
+        const Teuchos::Ptr<ClassicMesh<Mesh> >& mesh,
+        const EntityId global_id,
+        const int block_id );
 
     //@{
     //! EntityImpl interface.
@@ -80,7 +80,7 @@ class ClassicMeshElementImpl : public EntityImpl
      * \return A unique global identifier for the entity.
      */
     EntityId id() const override;
-    
+
     /*!
      * \brief Get the parallel rank that owns the entity.
      * \return The parallel rank that owns the entity.
@@ -132,15 +132,15 @@ class ClassicMeshElementImpl : public EntityImpl
      * \brief Provide a verbose description of the object.
      */
     void describe(
-	Teuchos::FancyOStream& out,
-	const Teuchos::EVerbosityLevel verb_level ) const override;
+        Teuchos::FancyOStream& out,
+        const Teuchos::EVerbosityLevel verb_level ) const override;
     //@}
 
   private:
 
     // Classic mesh.
     Teuchos::Ptr<ClassicMesh<Mesh> > d_mesh;
-    
+
     // Extra data.
     Teuchos::RCP<ClassicMeshElementExtraData> d_extra_data;
 

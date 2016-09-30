@@ -51,7 +51,7 @@ POD_PointCloudEntity::POD_PointCloudEntity( const double* cloud_coords,
                                             const unsigned num_points,
                                             const int space_dim,
                                             const DataLayout layout,
-                                            const EntityId global_id,         
+                                            const EntityId global_id,
                                             const int local_id,
                                             const int owner_rank )
 {

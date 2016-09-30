@@ -58,10 +58,10 @@ EntityShapeFunction::~EntityShapeFunction()
 
 //---------------------------------------------------------------------------//
 // Evaluate the gradient of the shape function.
-void EntityShapeFunction::evaluateGradient( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
+void EntityShapeFunction::evaluateGradient(
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point,
+        Teuchos::Array<Teuchos::Array<double> >& gradients ) const
 {
     // Default finite difference implementation.
 }

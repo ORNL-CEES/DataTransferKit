@@ -61,7 +61,7 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<class Basis,int DIM>
-LocalMLSProblem<Basis,DIM>::LocalMLSProblem( 
+LocalMLSProblem<Basis,DIM>::LocalMLSProblem(
     const Teuchos::ArrayView<const double>& target_center,
     const Teuchos::ArrayView<const unsigned>& source_lids,
     const Teuchos::ArrayView<const double>& source_centers,
@@ -84,10 +84,10 @@ LocalMLSProblem<Basis,DIM>::LocalMLSProblem(
     double dist = 0.0;
     for ( int i = 0; i < num_sources; ++i )
     {
-	source_center_view = source_centers(DIM*source_lids[i],DIM);
-	dist = EuclideanDistance<DIM>::distance(
-	    target_center.getRawPtr(), source_center_view.getRawPtr() );
-	phi(i,i) = BP::evaluateValue( basis, radius, dist );
+        source_center_view = source_centers(DIM*source_lids[i],DIM);
+        dist = EuclideanDistance<DIM>::distance(
+            target_center.getRawPtr(), source_center_view.getRawPtr() );
+        phi(i,i) = BP::evaluateValue( basis, radius, dist );
     }
 
     // Make P.
@@ -96,8 +96,8 @@ LocalMLSProblem<Basis,DIM>::LocalMLSProblem(
     P.reshape( num_sources, poly_id+1 );
     for ( int i = 0; i < num_sources; ++i )
     {
-	source_center_view = source_centers(DIM*source_lids[i],DIM);
-	P(i,poly_id) = polynomialCoefficient( 0, source_center_view );
+        source_center_view = source_centers(DIM*source_lids[i],DIM);
+        P(i,poly_id) = polynomialCoefficient( 0, source_center_view );
     }
     ++poly_id;
 
@@ -107,29 +107,29 @@ LocalMLSProblem<Basis,DIM>::LocalMLSProblem(
     int total_poly = std::min( num_poly, num_sources );
     for ( int j = 1; j < total_poly; ++j )
     {
-	// Add the next column.
-	P.reshape( num_sources, poly_id+1 );
-	for ( int i = 0; i < num_sources; ++i )
-	{
-	    source_center_view = source_centers(DIM*source_lids[i],DIM);
-	    P(i,poly_id) = polynomialCoefficient( j, source_center_view );
-	}
+        // Add the next column.
+        P.reshape( num_sources, poly_id+1 );
+        for ( int i = 0; i < num_sources; ++i )
+        {
+            source_center_view = source_centers(DIM*source_lids[i],DIM);
+            P(i,poly_id) = polynomialCoefficient( j, source_center_view );
+        }
 
-	// Check for rank deficiency.
-	full_rank = isFullRank( P );
+        // Check for rank deficiency.
+        full_rank = isFullRank( P );
 
-	// If we are full rank, add this coefficient.
-	if ( full_rank )
-	{
-	    poly_ids.push_back( j );
-	    ++poly_id;
-	}
+        // If we are full rank, add this coefficient.
+        if ( full_rank )
+        {
+            poly_ids.push_back( j );
+            ++poly_id;
+        }
 
-	// If we are rank deficient, remove the last column.
-	else
-	{
-	    P.reshape( num_sources, poly_id );
-	}
+        // If we are rank deficient, remove the last column.
+        else
+        {
+            P.reshape( num_sources, poly_id );
+        }
     }
 
     // Make p.
@@ -137,7 +137,7 @@ LocalMLSProblem<Basis,DIM>::LocalMLSProblem(
     target_poly.resize( poly_size );
     for ( int i = 0; i < poly_size; ++i )
     {
-	target_poly(i) = polynomialCoefficient( poly_ids[i], target_center );
+        target_poly(i) = polynomialCoefficient( poly_ids[i], target_center );
     }
 
     // Construct b.
@@ -147,10 +147,10 @@ LocalMLSProblem<Basis,DIM>::LocalMLSProblem(
     // Construct the A matrix.
     Teuchos::SerialDenseMatrix<int,double> A( poly_size, poly_size );
     {
-	// Build A.
-	Teuchos::SerialDenseMatrix<int,double> work( num_sources, poly_size );
-	work.multiply( Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, phi, P, 0.0 );
-	A.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, P, work, 0.0 );
+        // Build A.
+        Teuchos::SerialDenseMatrix<int,double> work( num_sources, poly_size );
+        work.multiply( Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, phi, P, 0.0 );
+        A.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, P, work, 0.0 );
     }
 
     // Apply the inverse of the A matrix to b.
@@ -165,79 +165,79 @@ LocalMLSProblem<Basis,DIM>::LocalMLSProblem(
     Teuchos::Array<int> ipiv( std::min(A.numRows(),A.numCols()) );
     Teuchos::SerialDenseMatrix<int,double> LU_A( A );
     lapack.GETRF( LU_A.numRows(), LU_A.numCols(), LU_A.values(),
-		  LU_A.numRows(), ipiv.getRawPtr(), &info );
+                  LU_A.numRows(), ipiv.getRawPtr(), &info );
     DTK_CHECK( 0 == info );
 
     Teuchos::Array<int> iwork( A.numCols() );
-    lapack.GECON( '1', LU_A.numCols(), LU_A.values(), 
-		  LU_A.numRows(), A.normOne(), &A_rcond, 
-		  work.getRawPtr(), iwork.getRawPtr(), &info );
+    lapack.GECON( '1', LU_A.numCols(), LU_A.values(),
+                  LU_A.numRows(), A.normOne(), &A_rcond,
+                  work.getRawPtr(), iwork.getRawPtr(), &info );
     DTK_CHECK( 0 == info );
 
     // Get the optimal work size.
-    lapack.GELSS( A.numRows(), A.numCols(), b.numCols(), 
-		  A.values(), A.numRows(),
-		  b.values(), b.numRows(), s.values(),
-		  A_rcond, &rank, work.getRawPtr(), -1, &info );
+    lapack.GELSS( A.numRows(), A.numCols(), b.numCols(),
+                  A.values(), A.numRows(),
+                  b.values(), b.numRows(), s.values(),
+                  A_rcond, &rank, work.getRawPtr(), -1, &info );
     DTK_CHECK( 0 == info );
 
     // Apply the inverse of A to b.
     work.resize( work[0] );
-    lapack.GELSS( A.numRows(), A.numCols(), b.numCols(), 
-		  A.values(), A.numRows(),
-		  b.values(), b.numRows(), s.values(),
-		  A_rcond, &rank, work.getRawPtr(), work.size(), &info );
+    lapack.GELSS( A.numRows(), A.numCols(), b.numCols(),
+                  A.values(), A.numRows(),
+                  b.values(), b.numRows(), s.values(),
+                  A_rcond, &rank, work.getRawPtr(), work.size(), &info );
     DTK_CHECK( 0 == info );
 
     // Construct the basis.
     Teuchos::SerialDenseMatrix<int,double> shape_matrix(
-	Teuchos::View, d_shape_function.getRawPtr(), 
-	1, 1, d_shape_function.size() );
-    shape_matrix.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 
-			   1.0, target_poly, b, 0.0 );
+        Teuchos::View, d_shape_function.getRawPtr(),
+        1, 1, d_shape_function.size() );
+    shape_matrix.multiply( Teuchos::TRANS, Teuchos::NO_TRANS,
+                           1.0, target_poly, b, 0.0 );
 }
 
 //---------------------------------------------------------------------------//
 // Get a polynomial coefficient.
 template<class Basis,int DIM>
-double LocalMLSProblem<Basis,DIM>::polynomialCoefficient( 
+double LocalMLSProblem<Basis,DIM>::polynomialCoefficient(
     const int coeff, const Teuchos::ArrayView<const double>& center ) const
 {
     switch( coeff )
     {
-	// Linear.
-	case( 0 ):
-	    return 1.0;
-	    break;
-	case( 1 ):
-	    return center[0];
-	    break;
-	case( 2 ):
-	    return center[1];
-	    break;
-	case( 3 ):
-	    return center[2];
-	    break;
+        // Linear.
+        case( 0 ):
+            return 1.0;
+            break;
+        case( 1 ):
+            return center[0];
+            break;
+        case( 2 ):
+            return center[1];
+            break;
+        case( 3 ):
+            return center[2];
+            break;
 
         // Quadratic
-	case( 4 ):
-	    return center[0]*center[1];
-	    break;
-	case( 5 ):
-	    return center[0]*center[2];
-	    break;
-	case( 6 ):
-	    return center[1]*center[2];
-	    break;
-	case( 7 ):
-	    return center[0]*center[0];
-	    break;
-	case( 8 ):
-	    return center[1]*center[1];
-	    break;
-	case( 9 ):
-	    return center[2]*center[2];
-	    break;
+        case( 4 ):
+            return center[0]*center[1];
+            break;
+        case( 5 ):
+            return center[0]*center[2];
+            break;
+        case( 6 ):
+            return center[1]*center[2];
+            break;
+        case( 7 ):
+            return center[0]*center[0];
+            break;
+        case( 8 ):
+            return center[1]*center[1];
+            break;
+        case( 9 ):
+            return center[2]*center[2];
+            break;
     }
     return 0.0;
 }
@@ -245,7 +245,7 @@ double LocalMLSProblem<Basis,DIM>::polynomialCoefficient(
 //---------------------------------------------------------------------------//
 // Check if a matrix is full rank.
 template<class Basis,int DIM>
-bool LocalMLSProblem<Basis,DIM>::isFullRank( 
+bool LocalMLSProblem<Basis,DIM>::isFullRank(
     const Teuchos::SerialDenseMatrix<int,double>& matrix ) const
 {
     // Copy the matrix.
@@ -253,7 +253,7 @@ bool LocalMLSProblem<Basis,DIM>::isFullRank(
 
     // Determine the full rank.
     int full_rank = std::min( A.numRows(), A.numCols() );
-    
+
     // Compute the singular value decomposition.
     Teuchos::LAPACK<int,double> lapack;
     Teuchos::Array<double> S( full_rank );
@@ -262,30 +262,30 @@ bool LocalMLSProblem<Basis,DIM>::isFullRank(
     Teuchos::Array<double> work( full_rank );
     Teuchos::Array<double> rwork( full_rank );
     int info = 0;
-    lapack.GESVD( 'A', 'A', 
-		  A.numRows(), A.numCols(), A.values(), A.numRows(), 
-		  S.getRawPtr(),
-		  U.values(), U.numRows(),
-		  VT.values(), VT.numRows(),
-		  work.getRawPtr(), -1, rwork.getRawPtr(), &info );
+    lapack.GESVD( 'A', 'A',
+                  A.numRows(), A.numCols(), A.values(), A.numRows(),
+                  S.getRawPtr(),
+                  U.values(), U.numRows(),
+                  VT.values(), VT.numRows(),
+                  work.getRawPtr(), -1, rwork.getRawPtr(), &info );
     DTK_CHECK( 0 == info );
 
     work.resize( work[0] );
     rwork.resize( work.size() );
-    lapack.GESVD( 'A', 'A', 
-		  A.numRows(), A.numCols(), A.values(), A.numRows(), 
-		  S.getRawPtr(),
-		  U.values(), U.numRows(),
-		  VT.values(), VT.numRows(),
-		  work.getRawPtr(), work.size(), rwork.getRawPtr(), &info );
+    lapack.GESVD( 'A', 'A',
+                  A.numRows(), A.numCols(), A.values(), A.numRows(),
+                  S.getRawPtr(),
+                  U.values(), U.numRows(),
+                  VT.values(), VT.numRows(),
+                  work.getRawPtr(), work.size(), rwork.getRawPtr(), &info );
     DTK_CHECK( 0 == info );
 
     // Check the singular values. If they are greater than delta they count.
     double epsilon = std::numeric_limits<double>::epsilon();
     double delta = S[0]*epsilon;
     int rank = std::count_if( S.begin(), S.end(),
-			      [=](double s){ return (s > delta); } );
-    
+                              [=](double s){ return (s > delta); } );
+
     return ( rank == full_rank );
 }
 

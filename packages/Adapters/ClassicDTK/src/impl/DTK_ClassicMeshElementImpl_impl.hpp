@@ -64,7 +64,7 @@ EntityId ClassicMeshElementImpl<Mesh>::id() const
 {
     return d_id;
 }
-    
+
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 template<class Mesh>
@@ -79,38 +79,38 @@ template<class Mesh>
 int ClassicMeshElementImpl<Mesh>::topologicalDimension() const
 {
     DTK_ElementTopology topo =
-	MeshTraits<Mesh>::elementTopology(
-	    *d_mesh->getBlock(d_extra_data->d_block_id) );
+        MeshTraits<Mesh>::elementTopology(
+            *d_mesh->getBlock(d_extra_data->d_block_id) );
     int dim = 0;
     switch ( topo )
     {
-	case DTK_VERTEX:
-	    dim = 0;
-	    break;
-	case DTK_LINE_SEGMENT:
-	    dim = 1;
-	    break;
-	case DTK_TRIANGLE:
-	    dim = 2;
-	    break;
-	case DTK_QUADRILATERAL:
-	    dim = 2;
-	    break;
-	case DTK_TETRAHEDRON:
-	    dim = 3;
-	    break;
-	case DTK_PYRAMID:
-	    dim = 3;
-	    break;
-	case DTK_WEDGE:
-	    dim = 3;
-	    break;
-	case DTK_HEXAHEDRON:
-	    dim = 3;
-	    break;
-	default:
-	    dim = -1;
-	    break;
+        case DTK_VERTEX:
+            dim = 0;
+            break;
+        case DTK_LINE_SEGMENT:
+            dim = 1;
+            break;
+        case DTK_TRIANGLE:
+            dim = 2;
+            break;
+        case DTK_QUADRILATERAL:
+            dim = 2;
+            break;
+        case DTK_TETRAHEDRON:
+            dim = 3;
+            break;
+        case DTK_PYRAMID:
+            dim = 3;
+            break;
+        case DTK_WEDGE:
+            dim = 3;
+            break;
+        case DTK_HEXAHEDRON:
+            dim = 3;
+            break;
+        default:
+            dim = -1;
+            break;
     }
     return dim;
 }
@@ -130,18 +130,18 @@ void ClassicMeshElementImpl<Mesh>::boundingBox(
     Teuchos::Tuple<double,6>& bounds ) const
 {
     Intrepid::FieldContainer<double> coords =
-	d_mesh->getElementNodeCoordinates( d_id, d_extra_data->d_block_id );
+        d_mesh->getElementNodeCoordinates( d_id, d_extra_data->d_block_id );
     int num_nodes = coords.dimension( 1 );
     int space_dim = coords.dimension( 2 );
     double max = std::numeric_limits<double>::max();
     bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
     for ( int n = 0; n < num_nodes; ++n )
     {
-	for ( int d = 0; d < space_dim; ++d )
-	{
-	    bounds[d] = std::min( bounds[d], coords(0,n,d) );
-	    bounds[d+3] = std::max( bounds[d+3], coords(0,n,d) );
-	}
+        for ( int d = 0; d < space_dim; ++d )
+        {
+            bounds[d] = std::min( bounds[d], coords(0,n,d) );
+            bounds[d+3] = std::max( bounds[d+3], coords(0,n,d) );
+        }
     }
 }
 

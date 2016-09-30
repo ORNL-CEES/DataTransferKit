@@ -59,12 +59,12 @@ LibmeshAdjacencies::LibmeshAdjacencies( const Teuchos::RCP<libMesh::MeshBase>& m
     libMesh::MeshBase::element_iterator elem_end = d_mesh->local_elements_end();
     for( auto elem = elem_begin; elem != elem_end; ++elem )
     {
-	d_elem_id_map.emplace( (*elem)->id(), *elem );
-	num_nodes = (*elem)->n_nodes();
-	for ( int n = 0; n < num_nodes; ++n )
-	{
-	    d_node_to_elem_map.emplace( (*elem)->get_node(n), *elem );
-	}
+        d_elem_id_map.emplace( (*elem)->id(), *elem );
+        num_nodes = (*elem)->n_nodes();
+        for ( int n = 0; n < num_nodes; ++n )
+        {
+            d_node_to_elem_map.emplace( (*elem)->get_node(n), *elem );
+        }
     }
 
     // Map nodes to their ids.
@@ -72,7 +72,7 @@ LibmeshAdjacencies::LibmeshAdjacencies( const Teuchos::RCP<libMesh::MeshBase>& m
     libMesh::MeshBase::node_iterator node_end = d_mesh->local_nodes_end();
     for( auto node = node_begin; node != node_end; ++node )
     {
-	d_node_id_map.emplace( (*node)->id(), *node );
+        d_node_id_map.emplace( (*node)->id(), *node );
     }
 }
 
@@ -91,10 +91,10 @@ void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Node,libMesh::Elem>(
     adjacent_entities.resize( num_elem );
     int e = 0;
     for ( auto node_elems = elem_range.first;
-	  node_elems != elem_range.second;
-	  ++node_elems, ++e )
+          node_elems != elem_range.second;
+          ++node_elems, ++e )
     {
-	adjacent_entities[e] = Teuchos::ptr( node_elems->second );
+        adjacent_entities[e] = Teuchos::ptr( node_elems->second );
     }
 }
 
@@ -112,7 +112,7 @@ void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Elem,libMesh::Node>(
     adjacent_entities.resize( num_nodes );
     for ( int n = 0; n < num_nodes; ++n )
     {
-    	adjacent_entities[n] = Teuchos::ptr( entity->get_node(n) );
+            adjacent_entities[n] = Teuchos::ptr( entity->get_node(n) );
     }
 }
 

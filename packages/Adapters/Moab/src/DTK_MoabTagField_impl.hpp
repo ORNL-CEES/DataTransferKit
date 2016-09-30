@@ -68,45 +68,45 @@ MoabTagField<Scalar>::MoabTagField(
 {
     // Get the dimension of the tag.
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->tag_get_length( d_tag, d_tag_dim )
-	);
+        d_moab_mesh->get_moab()->tag_get_length( d_tag, d_tag_dim )
+        );
 
     // Get the entities in the set.
     std::vector<moab::EntityHandle> entities;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, entities );
-	);
-    
+        d_moab_mesh->get_moab()->get_entities_by_handle( d_mesh_set, entities );
+        );
+
     // Get the global ids.
     int num_entities = entities.size();
     if ( 0 < num_entities )
     {
-	// Get the topological dimension of the entities supporting the
-	// field. We assume all entities supporting a field are of the same
-	// type.
-	d_entity_dim = MoabHelpers::getTopologicalDimensionFromMoabType(
-	    d_moab_mesh->get_moab()->type_from_handle(entities[0]) );
+        // Get the topological dimension of the entities supporting the
+        // field. We assume all entities supporting a field are of the same
+        // type.
+        d_entity_dim = MoabHelpers::getTopologicalDimensionFromMoabType(
+            d_moab_mesh->get_moab()->type_from_handle(entities[0]) );
 
-	// Get the global ids of the entities supporting the field.
-	Teuchos::Array<EntityId> global_ids( num_entities );
-	MoabHelpers::getGlobalIds( *d_moab_mesh,
-				   entities.data(),
-				   num_entities,
-				   global_ids.getRawPtr() );
+        // Get the global ids of the entities supporting the field.
+        Teuchos::Array<EntityId> global_ids( num_entities );
+        MoabHelpers::getGlobalIds( *d_moab_mesh,
+                                   entities.data(),
+                                   num_entities,
+                                   global_ids.getRawPtr() );
 
-	// Create locally-owned support ids.
-	int owner_rank = -1;
-	int rank = d_moab_mesh->rank();
-	for ( int n = 0; n < num_entities; ++n )
-	{
-	    DTK_CHECK_ERROR_CODE(
-		d_moab_mesh->get_owner( entities[n], owner_rank )
-		);
-	    if ( rank == owner_rank )
-	    {
-		d_support_ids.push_back( global_ids[n] );
-	    }
-	}
+        // Create locally-owned support ids.
+        int owner_rank = -1;
+        int rank = d_moab_mesh->rank();
+        for ( int n = 0; n < num_entities; ++n )
+        {
+            DTK_CHECK_ERROR_CODE(
+                d_moab_mesh->get_owner( entities[n], owner_rank )
+                );
+            if ( rank == owner_rank )
+            {
+                d_support_ids.push_back( global_ids[n] );
+            }
+        }
     }
 }
 
@@ -132,17 +132,17 @@ MoabTagField<Scalar>::getLocalSupportIds() const
 // field.
 template<class Scalar>
 double MoabTagField<Scalar>::readFieldData( const SupportId support_id,
-					    const int dimension ) const
+                                            const int dimension ) const
 {
     moab::EntityHandle entity =
-	d_set_indexer->getEntityFromGlobalId( support_id, d_entity_dim );
+        d_set_indexer->getEntityFromGlobalId( support_id, d_entity_dim );
     const void* tag_data = 0;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->tag_get_by_ptr( d_tag,
-						 &entity,
-						 1,
-						 &tag_data )
-	);
+        d_moab_mesh->get_moab()->tag_get_by_ptr( d_tag,
+                                                 &entity,
+                                                 1,
+                                                 &tag_data )
+        );
     return static_cast<const Scalar*>(tag_data)[dimension];
 }
 
@@ -151,18 +151,18 @@ double MoabTagField<Scalar>::readFieldData( const SupportId support_id,
 // application field.
 template<class Scalar>
 void MoabTagField<Scalar>::writeFieldData( const SupportId support_id,
-					   const int dimension,
-					   const double data )
+                                           const int dimension,
+                                           const double data )
 {
     moab::EntityHandle entity =
-	d_set_indexer->getEntityFromGlobalId( support_id, d_entity_dim );
+        d_set_indexer->getEntityFromGlobalId( support_id, d_entity_dim );
     const void* tag_data = 0;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->tag_get_by_ptr( d_tag,
-						 &entity,
-						 1,
-						 &tag_data )
-	);
+        d_moab_mesh->get_moab()->tag_get_by_ptr( d_tag,
+                                                 &entity,
+                                                 1,
+                                                 &tag_data )
+        );
     const_cast<Scalar*>(static_cast<const Scalar*>(tag_data))[dimension] = data;
 }
 
@@ -174,13 +174,13 @@ void MoabTagField<Scalar>::finalizeAfterWrite()
     // Get shared ents.
     moab::Range shared_entities;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_shared_entities( -1, shared_entities, -1, false, true )
-	);
+        d_moab_mesh->get_shared_entities( -1, shared_entities, -1, false, true )
+        );
 
     // Exchange the tag.
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->exchange_tags( d_tag, shared_entities )
-	);
+        d_moab_mesh->exchange_tags( d_tag, shared_entities )
+        );
 }
 
 //---------------------------------------------------------------------------//

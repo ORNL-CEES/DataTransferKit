@@ -56,7 +56,7 @@ namespace DataTransferKit
 /*!
  * \class MeshTools
  * \brief A stateless class with tools for operating on single mesh blocks.
- */ 
+ */
 //---------------------------------------------------------------------------//
 template<class Mesh>
 class MeshTools
@@ -72,12 +72,12 @@ class MeshTools
     typedef Teuchos::RCP<const CommType>        RCP_Comm;
     //@}
 
-    // Get a view of the of the mesh vertex global ordinals. 
-    static Teuchos::ArrayRCP<const GlobalOrdinal> 
+    // Get a view of the of the mesh vertex global ordinals.
+    static Teuchos::ArrayRCP<const GlobalOrdinal>
     verticesView( const Mesh& mesh );
 
     // Get a non-const view of the of the mesh vertex global ordinals.
-    static Teuchos::ArrayRCP<GlobalOrdinal> 
+    static Teuchos::ArrayRCP<GlobalOrdinal>
     verticesNonConstView( const Mesh& mesh );
 
     //! Get the number of vertices in a mesh block.
@@ -91,11 +91,11 @@ class MeshTools
     static Teuchos::ArrayRCP<double> coordsNonConstView( const Mesh& mesh );
 
     // Get a view of the of the mesh element global ordinals.
-    static Teuchos::ArrayRCP<const GlobalOrdinal> 
+    static Teuchos::ArrayRCP<const GlobalOrdinal>
     elementsView( const Mesh& mesh );
 
     // Get a non-const view of the of the mesh element global ordinals.
-    static Teuchos::ArrayRCP<GlobalOrdinal> 
+    static Teuchos::ArrayRCP<GlobalOrdinal>
     elementsNonConstView( const Mesh& mesh );
 
     //! Get the number of elements in a mesh block.
@@ -103,28 +103,28 @@ class MeshTools
     { return std::distance( MT::elementsBegin(mesh), MT::elementsEnd(mesh) ); }
 
     // Get a view of the of the mesh element connectivity.
-    static Teuchos::ArrayRCP<const GlobalOrdinal> 
+    static Teuchos::ArrayRCP<const GlobalOrdinal>
     connectivityView( const Mesh& mesh );
 
     // Get a non-const view of the of the mesh element connectivity.
-    static Teuchos::ArrayRCP<GlobalOrdinal> 
+    static Teuchos::ArrayRCP<GlobalOrdinal>
     connectivityNonConstView( const Mesh& mesh );
 
     // Get a view of the of the mesh connectivity permutation list.
-    static Teuchos::ArrayRCP<const int> 
+    static Teuchos::ArrayRCP<const int>
     permutationView( const Mesh& mesh );
 
-    // Get a non-const view of the of the mesh connectivity permutation list. 
-    static Teuchos::ArrayRCP<int> 
+    // Get a non-const view of the of the mesh connectivity permutation list.
+    static Teuchos::ArrayRCP<int>
     permutationNonConstView( const Mesh& mesh );
 
     // Get the local bounding box for a mesh block.
     static BoundingBox localBoundingBox( const Mesh& mesh );
 
     // Get the global bounding box for a mesh block over the given
-    // communicator. 
-    static BoundingBox globalBoundingBox( const Mesh& mesh, 
-					  const RCP_Comm& comm );
+    // communicator.
+    static BoundingBox globalBoundingBox( const Mesh& mesh,
+                                          const RCP_Comm& comm );
 };
 
 //---------------------------------------------------------------------------//

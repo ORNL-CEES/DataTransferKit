@@ -49,7 +49,7 @@ namespace DataTransferKit
   \brief A base class for setting extra data with entities.
 */
 //---------------------------------------------------------------------------//
-BasicGeometryExtraData::BasicGeometryExtraData( 
+BasicGeometryExtraData::BasicGeometryExtraData(
     const BasicGeometryEntityImpl* implementation )
 {
     DTK_REQUIRE( implementation );

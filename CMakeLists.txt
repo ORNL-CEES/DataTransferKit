@@ -24,9 +24,9 @@ TRIBITS_ADD_ETI_INSTANTIATIONS(TpetraCore
 
 SET( DTK_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/DTKData" CACHE INTERNAL "" )
 MESSAGE("DTK_DATA_DIR = '${DTK_DATA_DIR}'")
-FIND_FILE( ${PACKAGE_NAME}_FIND_DTK_DATA_DIR 
-	   cube_mesh.exo
-	   ${DTK_DATA_DIR}/exodus )
+FIND_FILE( ${PACKAGE_NAME}_FIND_DTK_DATA_DIR
+           cube_mesh.exo
+           ${DTK_DATA_DIR}/exodus )
 IF( NOT ${PACKAGE_NAME}_FIND_DTK_DATA_DIR AND DataTransferKit_ENABLE_EXAMPLES )
   IF( DataTransferKit_ENABLE_STKMeshAdapters OR
       DataTransferKit_ENABLE_MoabAdapters OR
@@ -52,7 +52,7 @@ TRIBITS_PACKAGE_DEF()
 TRIBITS_PACKAGE_POSTPROCESS()
 
 ##---------------------------------------------------------------------------##
-## Print the revision number to stdout    
+## Print the revision number to stdout
 ##---------------------------------------------------------------------------##
 
 FIND_PACKAGE(Git)

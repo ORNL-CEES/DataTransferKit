@@ -67,8 +67,8 @@ void ClassicMeshElementLocalMap<Mesh>::setParameters(
     const Teuchos::ParameterList& parameters )
 {
     if ( parameters.isParameter("Point Inclusion Tolerance") )
-    {	    
-	d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
+    {
+        d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
     }
 }
 
@@ -80,12 +80,12 @@ double ClassicMeshElementLocalMap<Mesh>::measure( const Entity& entity ) const
 {
     // Get the block id and topology.
     int block_id = Teuchos::rcp_dynamic_cast<ClassicMeshElementExtraData>(
-	entity.extraData() )->d_block_id;
+        entity.extraData() )->d_block_id;
     shards::CellTopology entity_topo = d_mesh->getBlockTopology( block_id );
 
     // Get the entity coordinates.
     Intrepid::FieldContainer<double> entity_coords =
-	d_mesh->getElementNodeCoordinates( entity.id(), block_id );
+        d_mesh->getElementNodeCoordinates( entity.id(), block_id );
 
     // Compute the measure.
     return IntrepidCellLocalMap::measure( entity_topo, entity_coords );
@@ -94,17 +94,17 @@ double ClassicMeshElementLocalMap<Mesh>::measure( const Entity& entity ) const
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
 template<class Mesh>
-void ClassicMeshElementLocalMap<Mesh>::centroid( 
+void ClassicMeshElementLocalMap<Mesh>::centroid(
     const Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
-{ 
+{
     // Get the block id and topology.
     int block_id = Teuchos::rcp_dynamic_cast<ClassicMeshElementExtraData>(
-	entity.extraData() )->d_block_id;
+        entity.extraData() )->d_block_id;
     shards::CellTopology entity_topo = d_mesh->getBlockTopology( block_id );
 
     // Get the entity coordinates.
     Intrepid::FieldContainer<double> entity_coords =
-	d_mesh->getElementNodeCoordinates( entity.id(), block_id );
+        d_mesh->getElementNodeCoordinates( entity.id(), block_id );
 
     // Compute the centroid of the element.
     IntrepidCellLocalMap::centroid( entity_topo, entity_coords, centroid );
@@ -119,79 +119,79 @@ bool ClassicMeshElementLocalMap<Mesh>::isSafeToMapToReferenceFrame(
     const Teuchos::ArrayView<const double>& physical_point ) const
 {
     return EntityLocalMap::isSafeToMapToReferenceFrame(
-	entity, physical_point );
+        entity, physical_point );
 }
 
 //---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the parameterized
 // point.
 template<class Mesh>
-bool ClassicMeshElementLocalMap<Mesh>::mapToReferenceFrame( 
+bool ClassicMeshElementLocalMap<Mesh>::mapToReferenceFrame(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& physical_point,
     const Teuchos::ArrayView<double>& reference_point ) const
-{ 
+{
     // Get the block id and topology.
     int block_id = Teuchos::rcp_dynamic_cast<ClassicMeshElementExtraData>(
-	entity.extraData() )->d_block_id;
+        entity.extraData() )->d_block_id;
     shards::CellTopology entity_topo = d_mesh->getBlockTopology( block_id );
 
     // Get the entity coordinates.
     Intrepid::FieldContainer<double> entity_coords =
-	d_mesh->getElementNodeCoordinates( entity.id(), block_id );
+        d_mesh->getElementNodeCoordinates( entity.id(), block_id );
 
     // Use the cell to perform the element mapping.
     return IntrepidCellLocalMap::mapToReferenceFrame(
-	entity_topo, entity_coords, physical_point, reference_point );
+        entity_topo, entity_coords, physical_point, reference_point );
 }
 
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
 template<class Mesh>
-bool ClassicMeshElementLocalMap<Mesh>::checkPointInclusion( 
+bool ClassicMeshElementLocalMap<Mesh>::checkPointInclusion(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
     // Get the block id and topology.
     int block_id = Teuchos::rcp_dynamic_cast<ClassicMeshElementExtraData>(
-	entity.extraData() )->d_block_id;
+        entity.extraData() )->d_block_id;
     shards::CellTopology entity_topo = d_mesh->getBlockTopology( block_id );
 
     // Get the entity coordinates.
     Intrepid::FieldContainer<double> entity_coords =
-	d_mesh->getElementNodeCoordinates( entity.id(), block_id );
+        d_mesh->getElementNodeCoordinates( entity.id(), block_id );
 
     // Check point inclusion in the element.
-    return IntrepidCellLocalMap::checkPointInclusion( 
-	entity_topo, reference_point, d_inclusion_tol );
+    return IntrepidCellLocalMap::checkPointInclusion(
+        entity_topo, reference_point, d_inclusion_tol );
 }
 
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
 template<class Mesh>
-void ClassicMeshElementLocalMap<Mesh>::mapToPhysicalFrame( 
+void ClassicMeshElementLocalMap<Mesh>::mapToPhysicalFrame(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& physical_point ) const
 {
     // Get the block id and topology.
     int block_id = Teuchos::rcp_dynamic_cast<ClassicMeshElementExtraData>(
-	entity.extraData() )->d_block_id;
+        entity.extraData() )->d_block_id;
     shards::CellTopology entity_topo = d_mesh->getBlockTopology( block_id );
 
     // Get the entity coordinates.
     Intrepid::FieldContainer<double> entity_coords =
-	d_mesh->getElementNodeCoordinates( entity.id(), block_id );
+        d_mesh->getElementNodeCoordinates( entity.id(), block_id );
 
     // Map from the element.
-    IntrepidCellLocalMap::mapToPhysicalFrame( 
-	entity_topo, entity_coords, reference_point, physical_point );
+    IntrepidCellLocalMap::mapToPhysicalFrame(
+        entity_topo, entity_coords, reference_point, physical_point );
 }
 
 //---------------------------------------------------------------------------//
 // Compute the normal on a face (3D) or edge (2D) at a given reference point.
 template<class Mesh>
-void ClassicMeshElementLocalMap<Mesh>::normalAtReferencePoint( 
+void ClassicMeshElementLocalMap<Mesh>::normalAtReferencePoint(
     const Entity& entity,
     const Entity& parent_entity,
     const Teuchos::ArrayView<const double>& reference_point,

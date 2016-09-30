@@ -55,16 +55,16 @@ namespace DataTransferKit
  */
 //---------------------------------------------------------------------------//
 template<>
-inline double 
+inline double
 WuBasis<2>::evaluateValue( const double radius, const double x ) const
 {
     double xval = x / radius;
     double onemx = 1.0 - xval;
     double onemx2 = onemx*onemx;
     double xp2 = xval*xval;
-    return ( xval < 1.0 ) ? 
-	onemx*onemx2*onemx2*(5.0*xp2*xp2+25.0*xval*xp2+48.0*xp2+40.0*xval+8.0)
-	: 0.0;
+    return ( xval < 1.0 ) ?
+        onemx*onemx2*onemx2*(5.0*xp2*xp2+25.0*xval*xp2+48.0*xp2+40.0*xval+8.0)
+        : 0.0;
 }
 
 //---------------------------------------------------------------------------//
@@ -74,15 +74,15 @@ WuBasis<2>::evaluateValue( const double radius, const double x ) const
  */
 //---------------------------------------------------------------------------//
 template<>
-inline double 
+inline double
 WuBasis<2>::evaluateGradient( const double radius, const double x ) const
 {
     double xval = x / radius;
     double xmone = xval - 1.0;
     double xmone2 = xmone*xmone;
     double xp2 = x*x;
-    return ( xval < 1.0 ) ? 
-	-9.0*xmone2*xmone2*xval*(5.0*xp2*xval+20.0*xp2+29.0*xval+16.0) : 0.0;
+    return ( xval < 1.0 ) ?
+        -9.0*xmone2*xmone2*xval*(5.0*xp2*xval+20.0*xp2+29.0*xval+16.0) : 0.0;
 }
 
 //---------------------------------------------------------------------------//
@@ -92,7 +92,7 @@ WuBasis<2>::evaluateGradient( const double radius, const double x ) const
  */
 //---------------------------------------------------------------------------//
 template<>
-inline double 
+inline double
 WuBasis<4>::evaluateValue( const double radius, const double x ) const
 {
     double xval = x / radius;
@@ -100,9 +100,9 @@ WuBasis<4>::evaluateValue( const double radius, const double x ) const
     double onemx3 = onemx*onemx*onemx;
     double xp2 = xval*xval;
     double xp4 = xp2*xp2;
-    return ( xval < 1.0 ) ? 
-	onemx3*onemx3*
-	(5.0*xp4*xval+30.0*xp4+72.0*xp2*xval+82.0*xp2+36.0*xval+6.0) : 0.0;
+    return ( xval < 1.0 ) ?
+        onemx3*onemx3*
+        (5.0*xp4*xval+30.0*xp4+72.0*xp2*xval+82.0*xp2+36.0*xval+6.0) : 0.0;
 }
 
 //---------------------------------------------------------------------------//
@@ -112,17 +112,17 @@ WuBasis<4>::evaluateValue( const double radius, const double x ) const
  */
 //---------------------------------------------------------------------------//
 template<>
-inline double 
+inline double
 WuBasis<4>::evaluateGradient( const double radius, const double x ) const
 {
     double xval = x / radius;
     double xmone = xval - 1.0;
     double xmone2 = xmone*xmone;
     double xp2 = xval*xval;
-    return ( xval < 1.0 ) ? 
-	11.0*xmone2*xmone2*xmone*xval*
-	(5.0*xp2*xp2+25.0*xp2*xval+48.0*xp2+40.0*xval+8.0)
-	: 0.0;
+    return ( xval < 1.0 ) ?
+        11.0*xmone2*xmone2*xmone*xval*
+        (5.0*xp2*xp2+25.0*xp2*xval+48.0*xp2+40.0*xval+8.0)
+        : 0.0;
 }
 
 //---------------------------------------------------------------------------//

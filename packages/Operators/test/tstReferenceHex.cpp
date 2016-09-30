@@ -59,7 +59,7 @@ TEUCHOS_UNIT_TEST( ReferenceHex, hex_test )
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
         Teuchos::DefaultComm<int>::getComm();
     int comm_rank = comm->getRank();
-    
+
     // Create the nodes;
     int num_nodes = 8;
     Teuchos::Array<DataTransferKit::Entity> nodes( num_nodes );
@@ -79,18 +79,18 @@ TEUCHOS_UNIT_TEST( ReferenceHex, hex_test )
         DataTransferKit::UnitTest::ReferenceNode( comm_rank, 6, 1.0, 1.0, 1.0 );
     nodes[7] =
         DataTransferKit::UnitTest::ReferenceNode( comm_rank, 7, 0.0, 1.0, 1.0 );
-    
+
     // Make a hex.
     DataTransferKit::EntityId hex_id = 23 + comm_rank;
-    DataTransferKit::Entity entity = 
+    DataTransferKit::Entity entity =
         DataTransferKit::UnitTest::ReferenceHex( hex_id, comm_rank, nodes );
 
     // Print out the entity.
     std::cout << entity.description() << std::endl;
     Teuchos::RCP<Teuchos::FancyOStream>
-	fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
+        fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
     entity.describe( *fancy_out );
-    
+
     // Test the entity.
     TEST_EQUALITY( hex_id, entity.id() );
     TEST_EQUALITY( comm_rank, entity.ownerRank() );

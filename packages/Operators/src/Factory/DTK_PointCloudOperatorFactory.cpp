@@ -61,7 +61,7 @@ PointCloudOperatorFactory::PointCloudOperatorFactory()
     d_basis_map["Wu"] = WU;
     d_basis_map["Buhmann"] = BUHMANN;
 }
-    
+
 //---------------------------------------------------------------------------//
 // Creation method.
 Teuchos::RCP<MapOperator>
@@ -94,473 +94,473 @@ PointCloudOperatorFactory::create(
     {
         basis_order = parameters.get<int>("Basis Order");
     }
-    
+
     // Build the map.
     Teuchos::RCP<MapOperator> map;
     switch( map_id )
     {
-	// Spline Interpolation.
-	case NODE_TO_NODE:
-	    switch( space_dim )
-	    {
-		case 1:
+        // Spline Interpolation.
+        case NODE_TO_NODE:
+            switch( space_dim )
+            {
+                case 1:
                     map = Teuchos::rcp(
                         new NodeToNodeOperator<1>(
                             domain_map,range_map,parameters) );
                     break;
-		case 2:
+                case 2:
                     map = Teuchos::rcp(
                         new NodeToNodeOperator<2>(
                             domain_map,range_map,parameters) );
                     break;
-		case 3:
+                case 3:
                     map = Teuchos::rcp(
                         new NodeToNodeOperator<3>(
                             domain_map,range_map,parameters) );
                     break;
             }
             break;
-            
+
         // Spline Interpolation.
-	case SPLINE_INTERPOLATION:
-	    switch( space_dim )
-	    {
-		case 1:
-		    switch( basis_id )
-		    {
-			case WENDLAND:
-			    switch( basis_order )
-			    {
-				case 0:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WendlandBasis<0>,1>(domain_map,
+        case SPLINE_INTERPOLATION:
+            switch( space_dim )
+            {
+                case 1:
+                    switch( basis_id )
+                    {
+                        case WENDLAND:
+                            switch( basis_order )
+                            {
+                                case 0:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WendlandBasis<0>,1>(domain_map,
                                                             range_map,
                                                             parameters) );
-				    break;
-				case 2:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WendlandBasis<2>,1>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 4:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WendlandBasis<4>,1>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 6:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WendlandBasis<6>,1>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-			    }
-			    break;
-			case WU:
-			    switch( basis_order )
-			    {
-				case 2:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WuBasis<2>,1>(domain_map,
-							     range_map,
-							     parameters) );
-				    break;
-				case 4:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WuBasis<4>,1>(domain_map,
-							     range_map,
-							     parameters) );
-				    break;
-			    }
-			    break;
-			case BUHMANN:
-			    switch( basis_order )
-			    {
-				case 3:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					BuhmannBasis<3>,1>(domain_map,
-								  range_map,
-								  parameters) );
-				    break;
-			    }
-			    break;
-		    }
-		    break;
+                                    break;
+                                case 2:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WendlandBasis<2>,1>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 4:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WendlandBasis<4>,1>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 6:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WendlandBasis<6>,1>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                            }
+                            break;
+                        case WU:
+                            switch( basis_order )
+                            {
+                                case 2:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WuBasis<2>,1>(domain_map,
+                                                             range_map,
+                                                             parameters) );
+                                    break;
+                                case 4:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WuBasis<4>,1>(domain_map,
+                                                             range_map,
+                                                             parameters) );
+                                    break;
+                            }
+                            break;
+                        case BUHMANN:
+                            switch( basis_order )
+                            {
+                                case 3:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        BuhmannBasis<3>,1>(domain_map,
+                                                                  range_map,
+                                                                  parameters) );
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
 
-		case 2:
-		    switch( basis_id )
-		    {
-			case WENDLAND:
-			    switch( basis_order )
-			    {
-				case 0:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WendlandBasis<0>,2>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 2:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WendlandBasis<2>,2>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 4:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WendlandBasis<4>,2>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 6:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WendlandBasis<6>,2>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-			    }
-			    break;
-			case WU:
-			    switch( basis_order )
-			    {
-				case 2:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WuBasis<2>,2>(domain_map,
-							     range_map,
-							     parameters) );
-				    break;
-				case 4:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WuBasis<4>,2>(domain_map,
-							     range_map,
-							     parameters) );
-				    break;
-			    }
-			    break;
-			case BUHMANN:
-			    switch( basis_order )
-			    {
-				case 3:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					BuhmannBasis<3>,2>(domain_map,
-								  range_map,
-								  parameters) );
-				    break;
-			    }
-			    break;
-		    }
-		    break;
-
-
-		case 3:
-		    switch( basis_id )
-		    {
-			case WENDLAND:
-			    switch( basis_order )
-			    {
-				case 0:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WendlandBasis<0>,3>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 2:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WendlandBasis<2>,3>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 4:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WendlandBasis<4>,3>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 6:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WendlandBasis<6>,3>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-			    }
-			    break;
-			case WU:
-			    switch( basis_order )
-			    {
-				case 2:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WuBasis<2>,3>(domain_map,
-							     range_map,
-							     parameters) );
-				    break;
-				case 4:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					WuBasis<4>,3>(domain_map,
-							     range_map,
-							     parameters) );
-				    break;
-			    }
-			    break;
-			case BUHMANN:
-			    switch( basis_order )
-			    {
-				case 3:
-				    map = Teuchos::rcp(
-					new SplineInterpolationOperator<
-					BuhmannBasis<3>,3>(domain_map,
-								  range_map,
-								  parameters) );
-				    break;
-			    }
-			    break;
-		    }
-		    break;
-
-	    }
-	    break;
-
-	// Moving least square reconstruction.
-	case MOVING_LEAST_SQUARE:
-	    switch( space_dim )
-	    {
-		case 1:
-		    switch( basis_id )
-		    {
-			case WENDLAND:
-			    switch( basis_order )
-			    {
-				case 0:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WendlandBasis<0>,1>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 2:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WendlandBasis<2>,1>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 4:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WendlandBasis<4>,1>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 6:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WendlandBasis<6>,1>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-			    }
-			    break;
-			case WU:
-			    switch( basis_order )
-			    {
-				case 2:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WuBasis<2>,1>(domain_map,
-							     range_map,
-							     parameters) );
-				    break;
-				case 4:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WuBasis<4>,1>(domain_map,
-							     range_map,
-							     parameters) );
-				    break;
-			    }
-			    break;
-			case BUHMANN:
-			    switch( basis_order )
-			    {
-				case 3:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					BuhmannBasis<3>,1>(domain_map,
-								  range_map,
-								  parameters) );
-				    break;
-			    }
-			    break;
-		    }
-		    break;
-
-		case 2:
-		    switch( basis_id )
-		    {
-			case WENDLAND:
-			    switch( basis_order )
-			    {
-				case 0:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WendlandBasis<0>,2>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 2:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WendlandBasis<2>,2>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 4:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WendlandBasis<4>,2>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 6:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WendlandBasis<6>,2>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-			    }
-			    break;
-			case WU:
-			    switch( basis_order )
-			    {
-				case 2:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WuBasis<2>,2>(domain_map,
-							     range_map,
-							     parameters) );
-				    break;
-				case 4:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WuBasis<4>,2>(domain_map,
-							     range_map,
-							     parameters) );
-				    break;
-			    }
-			    break;
-			case BUHMANN:
-			    switch( basis_order )
-			    {
-				case 3:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					BuhmannBasis<3>,2>(domain_map,
-								  range_map,
-								  parameters) );
-				    break;
-			    }
-			    break;
-		    }
-		    break;
+                case 2:
+                    switch( basis_id )
+                    {
+                        case WENDLAND:
+                            switch( basis_order )
+                            {
+                                case 0:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WendlandBasis<0>,2>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 2:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WendlandBasis<2>,2>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 4:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WendlandBasis<4>,2>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 6:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WendlandBasis<6>,2>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                            }
+                            break;
+                        case WU:
+                            switch( basis_order )
+                            {
+                                case 2:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WuBasis<2>,2>(domain_map,
+                                                             range_map,
+                                                             parameters) );
+                                    break;
+                                case 4:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WuBasis<4>,2>(domain_map,
+                                                             range_map,
+                                                             parameters) );
+                                    break;
+                            }
+                            break;
+                        case BUHMANN:
+                            switch( basis_order )
+                            {
+                                case 3:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        BuhmannBasis<3>,2>(domain_map,
+                                                                  range_map,
+                                                                  parameters) );
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
 
 
-		case 3:
-		    switch( basis_id )
-		    {
-			case WENDLAND:
-			    switch( basis_order )
-			    {
-				case 0:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WendlandBasis<0>,3>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 2:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WendlandBasis<2>,3>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 4:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WendlandBasis<4>,3>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-				case 6:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WendlandBasis<6>,3>(domain_map,
-								   range_map,
-								   parameters) );
-				    break;
-			    }
-			    break;
-			case WU:
-			    switch( basis_order )
-			    {
-				case 2:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WuBasis<2>,3>(domain_map,
-							     range_map,
-							     parameters) );
-				    break;
-				case 4:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					WuBasis<4>,3>(domain_map,
-							     range_map,
-							     parameters) );
-				    break;
-			    }
-			    break;
-			case BUHMANN:
-			    switch( basis_order )
-			    {
-				case 3:
-				    map = Teuchos::rcp(
-					new MovingLeastSquareReconstructionOperator<
-					BuhmannBasis<3>,3>(domain_map,
-								  range_map,
-								  parameters) );
-				    break;
-			    }
-			    break;
-		    }
-		    break;
+                case 3:
+                    switch( basis_id )
+                    {
+                        case WENDLAND:
+                            switch( basis_order )
+                            {
+                                case 0:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WendlandBasis<0>,3>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 2:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WendlandBasis<2>,3>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 4:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WendlandBasis<4>,3>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 6:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WendlandBasis<6>,3>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                            }
+                            break;
+                        case WU:
+                            switch( basis_order )
+                            {
+                                case 2:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WuBasis<2>,3>(domain_map,
+                                                             range_map,
+                                                             parameters) );
+                                    break;
+                                case 4:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        WuBasis<4>,3>(domain_map,
+                                                             range_map,
+                                                             parameters) );
+                                    break;
+                            }
+                            break;
+                        case BUHMANN:
+                            switch( basis_order )
+                            {
+                                case 3:
+                                    map = Teuchos::rcp(
+                                        new SplineInterpolationOperator<
+                                        BuhmannBasis<3>,3>(domain_map,
+                                                                  range_map,
+                                                                  parameters) );
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
 
-	    }
-	    break;
-	    
-	default:
-	    bool map_type_is_valid = false;
-	    DTK_INSIST( map_type_is_valid );
-	    break;
+            }
+            break;
+
+        // Moving least square reconstruction.
+        case MOVING_LEAST_SQUARE:
+            switch( space_dim )
+            {
+                case 1:
+                    switch( basis_id )
+                    {
+                        case WENDLAND:
+                            switch( basis_order )
+                            {
+                                case 0:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WendlandBasis<0>,1>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 2:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WendlandBasis<2>,1>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 4:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WendlandBasis<4>,1>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 6:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WendlandBasis<6>,1>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                            }
+                            break;
+                        case WU:
+                            switch( basis_order )
+                            {
+                                case 2:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WuBasis<2>,1>(domain_map,
+                                                             range_map,
+                                                             parameters) );
+                                    break;
+                                case 4:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WuBasis<4>,1>(domain_map,
+                                                             range_map,
+                                                             parameters) );
+                                    break;
+                            }
+                            break;
+                        case BUHMANN:
+                            switch( basis_order )
+                            {
+                                case 3:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        BuhmannBasis<3>,1>(domain_map,
+                                                                  range_map,
+                                                                  parameters) );
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+
+                case 2:
+                    switch( basis_id )
+                    {
+                        case WENDLAND:
+                            switch( basis_order )
+                            {
+                                case 0:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WendlandBasis<0>,2>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 2:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WendlandBasis<2>,2>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 4:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WendlandBasis<4>,2>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 6:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WendlandBasis<6>,2>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                            }
+                            break;
+                        case WU:
+                            switch( basis_order )
+                            {
+                                case 2:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WuBasis<2>,2>(domain_map,
+                                                             range_map,
+                                                             parameters) );
+                                    break;
+                                case 4:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WuBasis<4>,2>(domain_map,
+                                                             range_map,
+                                                             parameters) );
+                                    break;
+                            }
+                            break;
+                        case BUHMANN:
+                            switch( basis_order )
+                            {
+                                case 3:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        BuhmannBasis<3>,2>(domain_map,
+                                                                  range_map,
+                                                                  parameters) );
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+
+
+                case 3:
+                    switch( basis_id )
+                    {
+                        case WENDLAND:
+                            switch( basis_order )
+                            {
+                                case 0:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WendlandBasis<0>,3>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 2:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WendlandBasis<2>,3>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 4:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WendlandBasis<4>,3>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                                case 6:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WendlandBasis<6>,3>(domain_map,
+                                                                   range_map,
+                                                                   parameters) );
+                                    break;
+                            }
+                            break;
+                        case WU:
+                            switch( basis_order )
+                            {
+                                case 2:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WuBasis<2>,3>(domain_map,
+                                                             range_map,
+                                                             parameters) );
+                                    break;
+                                case 4:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        WuBasis<4>,3>(domain_map,
+                                                             range_map,
+                                                             parameters) );
+                                    break;
+                            }
+                            break;
+                        case BUHMANN:
+                            switch( basis_order )
+                            {
+                                case 3:
+                                    map = Teuchos::rcp(
+                                        new MovingLeastSquareReconstructionOperator<
+                                        BuhmannBasis<3>,3>(domain_map,
+                                                                  range_map,
+                                                                  parameters) );
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+
+            }
+            break;
+
+        default:
+            bool map_type_is_valid = false;
+            DTK_INSIST( map_type_is_valid );
+            break;
     }
 
     DTK_ENSURE( Teuchos::nonnull(map) );

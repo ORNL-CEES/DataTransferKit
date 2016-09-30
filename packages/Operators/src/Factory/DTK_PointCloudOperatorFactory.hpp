@@ -59,7 +59,7 @@ namespace DataTransferKit
 class PointCloudOperatorFactory
 {
   public:
-    
+
     //! Tpetra Map typedef.
     typedef typename MapOperator::TpetraMap TpetraMap;
 
@@ -67,7 +67,7 @@ class PointCloudOperatorFactory
      * \brief Constructor.
      */
     PointCloudOperatorFactory();
-    
+
     /*!
      * \brief Creation method.
      *
@@ -81,25 +81,25 @@ class PointCloudOperatorFactory
      */
     Teuchos::RCP<MapOperator>
     create( const Teuchos::RCP<const TpetraMap>& domain_map,
-	    const Teuchos::RCP<const TpetraMap>& range_map,
-	    const Teuchos::ParameterList& parameters );
+            const Teuchos::RCP<const TpetraMap>& range_map,
+            const Teuchos::ParameterList& parameters );
 
   private:
 
     // Operator enum.
     enum PointCloudOperatorType
     {
-	SPLINE_INTERPOLATION,
-	MOVING_LEAST_SQUARE,
+        SPLINE_INTERPOLATION,
+        MOVING_LEAST_SQUARE,
         NODE_TO_NODE
     };
 
     // Basis enum.
     enum PointCloudBasisType
     {
-	WENDLAND,
-	WU,
-	BUHMANN
+        WENDLAND,
+        WU,
+        BUHMANN
     };
 
     // String name to enum map.

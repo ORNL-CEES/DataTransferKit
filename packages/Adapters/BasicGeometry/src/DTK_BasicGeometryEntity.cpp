@@ -65,7 +65,7 @@ double BasicGeometryEntity::measure() const
 {
     DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
-	this->b_entity_impl)->measure();
+        this->b_entity_impl)->measure();
 }
 
 //---------------------------------------------------------------------------//
@@ -74,52 +74,52 @@ double BasicGeometryEntity::measure() const
  *
  * \return The centroid coordinates.
  */
-void BasicGeometryEntity::centroid( 
+void BasicGeometryEntity::centroid(
     const Teuchos::ArrayView<double>& centroid ) const
 {
     DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
-	this->b_entity_impl)->centroid(centroid);
+        this->b_entity_impl)->centroid(centroid);
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Map a point to the reference space of an entity. Return the
  */
-bool BasicGeometryEntity::mapToReferenceFrame( 
+bool BasicGeometryEntity::mapToReferenceFrame(
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
     DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
-	this->b_entity_impl)->mapToReferenceFrame(point,reference_point);
+        this->b_entity_impl)->mapToReferenceFrame(point,reference_point);
 }
 
 //---------------------------------------------------------------------------//
-/*!  
+/*!
  * \brief Determine if a reference point is in the parameterized space of
  * an entity.
  */
-bool BasicGeometryEntity::checkPointInclusion( 
+bool BasicGeometryEntity::checkPointInclusion(
     const double tolerance,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
     DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
-	this->b_entity_impl)->checkPointInclusion(tolerance,reference_point);
+        this->b_entity_impl)->checkPointInclusion(tolerance,reference_point);
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Map a reference point to the physical space of an entity.
  */
-void BasicGeometryEntity::mapToPhysicalFrame( 
+void BasicGeometryEntity::mapToPhysicalFrame(
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
     DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
-	this->b_entity_impl)->mapToPhysicalFrame(reference_point,point);
+        this->b_entity_impl)->mapToPhysicalFrame(reference_point,point);
 }
 
 //---------------------------------------------------------------------------//

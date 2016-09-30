@@ -11,16 +11,16 @@ APPEND_SET(HEADERS
   DTK_POD_PointCloudLocalMap.hpp
   DTK_POD_Types.hpp
   DTK_C_API.h
-  ) 
+  )
 
 APPEND_SET(SOURCES
   DTK_POD_PointCloudEntity.cpp
   DTK_POD_PointCloudEntityImpl.cpp
   DTK_POD_PointCloudEntityIterator.cpp
   DTK_POD_PointCloudEntitySet.cpp
-  DTK_POD_PointCloudLocalMap.cpp  
+  DTK_POD_PointCloudLocalMap.cpp
   DTK_C_API.cpp
-  ) 
+  )
 
 TRIBITS_ADD_LIBRARY(
   dtk_c_api

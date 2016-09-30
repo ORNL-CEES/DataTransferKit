@@ -87,7 +87,7 @@ class STKMeshEntitySet : public EntitySet
     //! Geometric data functions.
     /*!
      * \brief Return the largest physical dimension of the entities in the
-     * set.  
+     * set.
      * \return The physical dimension of the set.
      */
     int physicalDimension() const override;
@@ -103,8 +103,8 @@ class STKMeshEntitySet : public EntitySet
      * \param entity The entity with the given id.
      */
     void getEntity( const EntityId entity_id,
-		    const int topological_dimension,
-		    Entity& entity ) const override;
+                    const int topological_dimension,
+                    Entity& entity ) const override;
 
     /*!
      * \brief Get a iterator of the given entity type that satisfy the given
@@ -114,18 +114,18 @@ class STKMeshEntitySet : public EntitySet
      * \param predicate The selection predicate.
      * \return A iterator of entities of the given type.
      */
-    EntityIterator entityIterator( 
-	const int topological_dimension,
-	const PredicateFunction& predicate ) const override;
+    EntityIterator entityIterator(
+        const int topological_dimension,
+        const PredicateFunction& predicate ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given topological
      * dimension that are adjacent to it.
      */
     void getAdjacentEntities(
-	const Entity& entity,
-	const int adjacent_dimension,
-	Teuchos::Array<Entity>& adjacent_entities ) const override;
+        const Entity& entity,
+        const int adjacent_dimension,
+        Teuchos::Array<Entity>& adjacent_entities ) const override;
     //@}
 
   private:

@@ -87,12 +87,12 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
      * compatible with.
      */
     MovingLeastSquareReconstructionOperator(
-	const Teuchos::RCP<const TpetraMap>& domain_map,
-	const Teuchos::RCP<const TpetraMap>& range_map,
-	const Teuchos::ParameterList& parameters );
+        const Teuchos::RCP<const TpetraMap>& domain_map,
+        const Teuchos::RCP<const TpetraMap>& range_map,
+        const Teuchos::ParameterList& parameters );
 
   protected:
-    
+
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
@@ -108,23 +108,23 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
      * \param parameters Parameters for the setup.
      */
     void setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
-		    const Teuchos::RCP<FunctionSpace>& range_space ) override;
+                    const Teuchos::RCP<FunctionSpace>& range_space ) override;
 
     /*!
      * \brief Apply the operator.
      */
     void applyImpl(
-	const TpetraMultiVector& X,
-	TpetraMultiVector &Y,
-	Teuchos::ETransp mode = Teuchos::NO_TRANS,
-	double alpha = Teuchos::ScalarTraits<double>::one(),
-	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+        const TpetraMultiVector& X,
+        TpetraMultiVector &Y,
+        Teuchos::ETransp mode = Teuchos::NO_TRANS,
+        double alpha = Teuchos::ScalarTraits<double>::one(),
+        double beta = Teuchos::ScalarTraits<double>::zero()) const override;
 
     /*
      * \brief Transpose apply option.
      */
     bool hasTransposeApplyImpl() const override;
-    
+
   private:
 
     // Extract node coordinates and ids from an iterator.
@@ -132,7 +132,7 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
                               const int entity_dim,
                               Teuchos::ArrayRCP<double>& centers,
                               Teuchos::ArrayRCP<GO>& support_ids ) const;
-    
+
   private:
 
     // Flag for search type. True if kNN, false if radius.
@@ -140,7 +140,7 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
 
     // k-nearest-neighbors for support.
     int d_knn;
-    
+
     // Basis radius for support.
     double d_radius;
 

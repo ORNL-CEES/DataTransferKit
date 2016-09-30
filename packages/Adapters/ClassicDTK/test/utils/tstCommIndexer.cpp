@@ -83,8 +83,8 @@ TEUCHOS_UNIT_TEST( CommIndexer, duplicate_test )
     CommIndexer indexer( global_comm, local_comm );
 
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
-    TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
-		 global_comm->getRank() );
+    TEST_ASSERT( indexer.l2g( local_comm->getRank() ) ==
+                 global_comm->getRank() );
 }
 
 //---------------------------------------------------------------------------//
@@ -101,8 +101,8 @@ TEUCHOS_UNIT_TEST( CommIndexer, split_test )
     CommIndexer indexer( global_comm, local_comm );
 
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
-    TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
-		 global_comm->getRank() );
+    TEST_ASSERT( indexer.l2g( local_comm->getRank() ) ==
+                 global_comm->getRank() );
 }
 
 //---------------------------------------------------------------------------//
@@ -119,8 +119,8 @@ TEUCHOS_UNIT_TEST( CommIndexer, inverse_split_test )
     CommIndexer indexer( global_comm, local_comm );
 
     TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
-    TEST_ASSERT( indexer.l2g( local_comm->getRank() ) == 
-		 global_comm->getRank() );
+    TEST_ASSERT( indexer.l2g( local_comm->getRank() ) ==
+                 global_comm->getRank() );
 }
 
 //---------------------------------------------------------------------------//
@@ -134,28 +134,28 @@ TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
     Teuchos::Array<int> sub_ranks;
     for ( int n = 0; n < global_comm->getSize(); ++n )
     {
-	if ( n % 2 == 0 )
-	{
-	    sub_ranks.push_back(n);
-	}
+        if ( n % 2 == 0 )
+        {
+            sub_ranks.push_back(n);
+        }
     }
-    RCP_Comm local_comm = 
-	global_comm->createSubcommunicator( sub_ranks() );
+    RCP_Comm local_comm =
+        global_comm->createSubcommunicator( sub_ranks() );
 
     CommIndexer indexer( global_comm, local_comm );
 
     if ( global_comm->getRank() % 2 == 0 )
     {
-	TEST_ASSERT( indexer.isValid() );
-	TEST_ASSERT( Teuchos::nonnull(local_comm) );
-    	TEST_EQUALITY( (int) indexer.size(), local_comm->getSize() );
-    	TEST_EQUALITY( indexer.l2g( local_comm->getRank() ), 
-    		       global_comm->getRank() );
+        TEST_ASSERT( indexer.isValid() );
+        TEST_ASSERT( Teuchos::nonnull(local_comm) );
+            TEST_EQUALITY( (int) indexer.size(), local_comm->getSize() );
+            TEST_EQUALITY( indexer.l2g( local_comm->getRank() ),
+                           global_comm->getRank() );
     }
     else
     {
-	TEST_ASSERT( !indexer.isValid() );
-	TEST_ASSERT( Teuchos::is_null(local_comm) );
+        TEST_ASSERT( !indexer.isValid() );
+        TEST_ASSERT( Teuchos::is_null(local_comm) );
     }
     TEST_EQUALITY( indexer.l2g( -32 ), -1 );
 }

@@ -92,17 +92,17 @@ TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
 
     // Create the mesh.
     int space_dim = 3;
     Teuchos::RCP<moab::Interface> moab_mesh = Teuchos::rcp( new moab::Core() );
     Teuchos::RCP<moab::ParallelComm> parallel_mesh =
-	Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
+        Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
 
     // Create the nodes.
     moab::ErrorCode error = moab::MB_SUCCESS;
@@ -159,22 +159,22 @@ TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
     // Make a hex-8.
     moab::EntityHandle hex_entity;
     error = moab_mesh->create_element( moab::MBHEX,
-				       nodes.getRawPtr(),
-				       8,
-				       hex_entity );
+                                       nodes.getRawPtr(),
+                                       8,
+                                       hex_entity );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     // Index the sets in the mesh.
     Teuchos::RCP<DataTransferKit::MoabMeshSetIndexer> set_indexer =
-	Teuchos::rcp( new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
+        Teuchos::rcp( new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
 
     // Create a DTK entity for the hex.
-    DataTransferKit::Entity dtk_entity = DataTransferKit::MoabEntity( 
-	hex_entity, parallel_mesh.ptr(), set_indexer.ptr() );
-    
+    DataTransferKit::Entity dtk_entity = DataTransferKit::MoabEntity(
+        hex_entity, parallel_mesh.ptr(), set_indexer.ptr() );
+
     // Create a local map from the moab mesh.
     Teuchos::RCP<DataTransferKit::EntityLocalMap> local_map =
-	Teuchos::rcp( new DataTransferKit::MoabEntityLocalMap(parallel_mesh) );
+        Teuchos::rcp( new DataTransferKit::MoabEntityLocalMap(parallel_mesh) );
 
     // Test the measure.
     TEST_EQUALITY( local_map->measure(dtk_entity), 8.0 );
@@ -198,22 +198,22 @@ TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
 
     // Test the reference frame safeguard.
     TEST_ASSERT(
-    	local_map->isSafeToMapToReferenceFrame(dtk_entity,good_point()) );
+            local_map->isSafeToMapToReferenceFrame(dtk_entity,good_point()) );
     TEST_ASSERT(
-    	!local_map->isSafeToMapToReferenceFrame(dtk_entity,bad_point()) );
+            !local_map->isSafeToMapToReferenceFrame(dtk_entity,bad_point()) );
 
     // Test the mapping to reference frame.
     Teuchos::Array<double> ref_good_point( space_dim );
-    bool good_map = local_map->mapToReferenceFrame( 
-    	dtk_entity, good_point(), ref_good_point() );
+    bool good_map = local_map->mapToReferenceFrame(
+            dtk_entity, good_point(), ref_good_point() );
     TEST_ASSERT( good_map );
     TEST_FLOATING_EQUALITY( ref_good_point[0], -0.5, epsilon );
     TEST_FLOATING_EQUALITY( ref_good_point[1], 0.5, epsilon );
     TEST_ASSERT( std::abs(ref_good_point[2]) < epsilon );
-			    
+
     Teuchos::Array<double> ref_bad_point( space_dim );
-    bool bad_map = local_map->mapToReferenceFrame( 
-    	dtk_entity, bad_point(), ref_bad_point() );
+    bool bad_map = local_map->mapToReferenceFrame(
+            dtk_entity, bad_point(), ref_bad_point() );
     TEST_ASSERT( !bad_map );
 
     // Test the point inclusion.
@@ -240,13 +240,13 @@ TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
     int num_nodes = 8;
     for ( int n = 0; n < num_nodes; ++n )
     {
-	dtk_node = DataTransferKit::MoabEntity( 
-	    nodes[n], parallel_mesh.ptr(), set_indexer.ptr() );
-	local_map->centroid( dtk_node, point_coords() );
-	moab_mesh->get_coords( &nodes[n], 1, node_coords );
-	TEST_EQUALITY( node_coords[0], point_coords[0] );
-	TEST_EQUALITY( node_coords[1], point_coords[1] );
-	TEST_EQUALITY( node_coords[2], point_coords[2] );
+        dtk_node = DataTransferKit::MoabEntity(
+            nodes[n], parallel_mesh.ptr(), set_indexer.ptr() );
+        local_map->centroid( dtk_node, point_coords() );
+        moab_mesh->get_coords( &nodes[n], 1, node_coords );
+        TEST_EQUALITY( node_coords[0], point_coords[0] );
+        TEST_EQUALITY( node_coords[1], point_coords[1] );
+        TEST_EQUALITY( node_coords[2], point_coords[2] );
     }
 }
 
@@ -256,10 +256,10 @@ TEUCHOS_UNIT_TEST( MoabEntity, quad_4_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
 
     // Create the mesh.
@@ -267,7 +267,7 @@ TEUCHOS_UNIT_TEST( MoabEntity, quad_4_test )
     Teuchos::RCP<moab::Interface> moab_mesh = Teuchos::rcp( new moab::Core() );
     moab_mesh->set_dimension( space_dim );
     Teuchos::RCP<moab::ParallelComm> parallel_mesh =
-	Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
+        Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
 
     // Create the nodes.
     moab::ErrorCode error = moab::MB_SUCCESS;
@@ -296,22 +296,22 @@ TEUCHOS_UNIT_TEST( MoabEntity, quad_4_test )
     // Make a quad-4.
     moab::EntityHandle quad_entity;
     error = moab_mesh->create_element( moab::MBQUAD,
-				       nodes.getRawPtr(),
-				       4,
-				       quad_entity );
+                                       nodes.getRawPtr(),
+                                       4,
+                                       quad_entity );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     // Index the sets in the mesh.
     Teuchos::RCP<DataTransferKit::MoabMeshSetIndexer> set_indexer =
-	Teuchos::rcp( new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
+        Teuchos::rcp( new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
 
     // Create a DTK entity for the quad.
-    DataTransferKit::Entity dtk_entity = DataTransferKit::MoabEntity( 
-	quad_entity, parallel_mesh.ptr(), set_indexer.ptr() );
-    
+    DataTransferKit::Entity dtk_entity = DataTransferKit::MoabEntity(
+        quad_entity, parallel_mesh.ptr(), set_indexer.ptr() );
+
     // Create a local map from the moab mesh.
     Teuchos::RCP<DataTransferKit::EntityLocalMap> local_map =
-	Teuchos::rcp( new DataTransferKit::MoabEntityLocalMap(parallel_mesh) );
+        Teuchos::rcp( new DataTransferKit::MoabEntityLocalMap(parallel_mesh) );
 
     // Test the measure.
     TEST_EQUALITY( local_map->measure(dtk_entity), 4.0 );
@@ -332,21 +332,21 @@ TEUCHOS_UNIT_TEST( MoabEntity, quad_4_test )
 
     // Test the reference frame safeguard.
     TEST_ASSERT(
-    	local_map->isSafeToMapToReferenceFrame(dtk_entity,good_point()) );
+            local_map->isSafeToMapToReferenceFrame(dtk_entity,good_point()) );
     TEST_ASSERT(
-    	!local_map->isSafeToMapToReferenceFrame(dtk_entity,bad_point()) );
+            !local_map->isSafeToMapToReferenceFrame(dtk_entity,bad_point()) );
 
     // Test the mapping to reference frame.
     Teuchos::Array<double> ref_good_point( space_dim );
-    bool good_map = local_map->mapToReferenceFrame( 
-    	dtk_entity, good_point(), ref_good_point() );
+    bool good_map = local_map->mapToReferenceFrame(
+            dtk_entity, good_point(), ref_good_point() );
     TEST_ASSERT( good_map );
     TEST_FLOATING_EQUALITY( ref_good_point[0], -0.5, epsilon );
     TEST_FLOATING_EQUALITY( ref_good_point[1], 0.5, epsilon );
-			    
+
     Teuchos::Array<double> ref_bad_point( space_dim );
-    bool bad_map = local_map->mapToReferenceFrame( 
-    	dtk_entity, bad_point(), ref_bad_point() );
+    bool bad_map = local_map->mapToReferenceFrame(
+            dtk_entity, bad_point(), ref_bad_point() );
     TEST_ASSERT( !bad_map );
 
     // Test the point inclusion.
@@ -371,12 +371,12 @@ TEUCHOS_UNIT_TEST( MoabEntity, quad_4_test )
     int num_nodes = 4;
     for ( int n = 0; n < num_nodes; ++n )
     {
-	dtk_node = DataTransferKit::MoabEntity( 
-	    nodes[n], parallel_mesh.ptr(), set_indexer.ptr() );
-	local_map->centroid( dtk_node, point_coords() );
-	moab_mesh->get_coords( &nodes[n], 1, node_coords );
-	TEST_EQUALITY( node_coords[0], point_coords[0] );
-	TEST_EQUALITY( node_coords[1], point_coords[1] );
+        dtk_node = DataTransferKit::MoabEntity(
+            nodes[n], parallel_mesh.ptr(), set_indexer.ptr() );
+        local_map->centroid( dtk_node, point_coords() );
+        moab_mesh->get_coords( &nodes[n], 1, node_coords );
+        TEST_EQUALITY( node_coords[0], point_coords[0] );
+        TEST_EQUALITY( node_coords[1], point_coords[1] );
     }
 }
 

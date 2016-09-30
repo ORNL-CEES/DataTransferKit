@@ -76,8 +76,8 @@ class LibmeshAdjacencies
     // Get the adjacency of a libmesh geom object.
     template<class FromGeomType, class ToGeomType>
     void getLibmeshAdjacencies(
-	const Teuchos::Ptr<FromGeomType>& entity,
-	Teuchos::Array<Teuchos::Ptr<ToGeomType> >& adjacent_entities ) const;
+        const Teuchos::Ptr<FromGeomType>& entity,
+        Teuchos::Array<Teuchos::Ptr<ToGeomType> >& adjacent_entities ) const;
 
     // Given a node global id get its pointer.
     libMesh::Node* getNodeById( const DataTransferKit::EntityId id ) const;
@@ -86,7 +86,7 @@ class LibmeshAdjacencies
     libMesh::Elem* getElemById( const DataTransferKit::EntityId id ) const;
 
   private:
-    
+
     // libMesh mesh.
     Teuchos::RCP<libMesh::MeshBase> d_mesh;
 

@@ -51,7 +51,7 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-CoarseLocalSearch::CoarseLocalSearch( 
+CoarseLocalSearch::CoarseLocalSearch(
     const EntityIterator& entity_iterator,
     const Teuchos::RCP<EntityLocalMap>& local_map,
     const Teuchos::ParameterList& parameters )
@@ -61,7 +61,7 @@ CoarseLocalSearch::CoarseLocalSearch(
     int num_entity = entity_iterator.size();
     if ( num_entity > 0 )
     {
-	space_dim = entity_iterator.begin()->physicalDimension();
+        space_dim = entity_iterator.begin()->physicalDimension();
     }
     d_entity_centroids.resize( space_dim * num_entity );
 
@@ -71,25 +71,25 @@ CoarseLocalSearch::CoarseLocalSearch(
     EntityIterator end_it = entity_iterator.end();
     int entity_local_id = 0;
     for ( entity_it = begin_it;
-	  entity_it != end_it;
-	  ++entity_it )
+          entity_it != end_it;
+          ++entity_it )
     {
-	local_map->centroid( 
-	    *entity_it, 
-	    d_entity_centroids(space_dim*entity_local_id,space_dim) );
-	d_entity_map.emplace( entity_local_id, *entity_it );
-	++entity_local_id;
+        local_map->centroid(
+            *entity_it,
+            d_entity_centroids(space_dim*entity_local_id,space_dim) );
+        d_entity_map.emplace( entity_local_id, *entity_it );
+        ++entity_local_id;
     }
 
     // Build a static search tree.
     int leaf_size = 20;
     if ( parameters.isParameter("Coarse Local Search Leaf Size") )
     {
-	leaf_size = parameters.get<int>("Coarse Local Search Leaf Size");
+        leaf_size = parameters.get<int>("Coarse Local Search Leaf Size");
     }
     leaf_size = std::min( leaf_size, num_entity );
     d_tree = SearchTreeFactory::createStaticTree(
-	space_dim, d_entity_centroids(), leaf_size );
+        space_dim, d_entity_centroids(), leaf_size );
     DTK_ENSURE( Teuchos::nonnull(d_tree) );
 }
 
@@ -98,31 +98,31 @@ CoarseLocalSearch::CoarseLocalSearch(
  * \brief Find the set of entities a point neighbors.
  */
 void CoarseLocalSearch::search( const Teuchos::ArrayView<const double>& point,
-				const Teuchos::ParameterList& parameters,
-				Teuchos::Array<Entity>& neighbors ) const
+                                const Teuchos::ParameterList& parameters,
+                                Teuchos::Array<Entity>& neighbors ) const
 {
     // Find the leaf of nearest neighbors.
     int num_neighbors = 100;
     if ( parameters.isParameter("Coarse Local Search kNN") )
     {
-	num_neighbors = parameters.get<int>("Coarse Local Search kNN");
+        num_neighbors = parameters.get<int>("Coarse Local Search kNN");
     }
-    num_neighbors = 
-	std::min( num_neighbors, Teuchos::as<int>(d_entity_map.size()) );
-    Teuchos::Array<unsigned> local_neighbors = 
-	d_tree->nnSearch( point, num_neighbors );
+    num_neighbors =
+        std::min( num_neighbors, Teuchos::as<int>(d_entity_map.size()) );
+    Teuchos::Array<unsigned> local_neighbors =
+        d_tree->nnSearch( point, num_neighbors );
 
     // Extract the neighbors.
     neighbors.resize( local_neighbors.size() );
     Teuchos::Array<unsigned>::const_iterator local_it;
     Teuchos::Array<Entity>::iterator entity_it;
     for ( local_it = local_neighbors.begin(),
-	 entity_it = neighbors.begin();
-	  local_it != local_neighbors.end();
-	  ++local_it, ++entity_it )
+         entity_it = neighbors.begin();
+          local_it != local_neighbors.end();
+          ++local_it, ++entity_it )
     {
-	DTK_CHECK( d_entity_map.count(*local_it) );
-	*entity_it = d_entity_map.find(*local_it)->second;
+        DTK_CHECK( d_entity_map.count(*local_it) );
+        *entity_it = d_entity_map.find(*local_it)->second;
     }
 }
 

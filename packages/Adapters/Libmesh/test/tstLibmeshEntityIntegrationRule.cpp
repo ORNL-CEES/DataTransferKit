@@ -72,13 +72,13 @@ TEUCHOS_UNIT_TEST( LibmeshEntityIntegrationRule, hex_8_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::DefaultComm<int>::getComm();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
+        Teuchos::DefaultComm<int>::getComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
-    
+
     // Create the mesh.
     int space_dim = 3;
     const std::string argv_string = "unit_test";
@@ -87,8 +87,8 @@ TEUCHOS_UNIT_TEST( LibmeshEntityIntegrationRule, hex_8_test )
     TEST_ASSERT( libMesh::initialized() );
     TEST_EQUALITY( (int) libmesh_init.comm().rank(), comm->getRank() );
     Teuchos::RCP<libMesh::Mesh> mesh = Teuchos::rcp(
-	new libMesh::Mesh(libmesh_init.comm(),space_dim) );
-    
+        new libMesh::Mesh(libmesh_init.comm(),space_dim) );
+
     // Create the nodes.
     int rank = comm->getRank();
     Teuchos::Array<libMesh::Node*> nodes( 8 );
@@ -97,57 +97,57 @@ TEUCHOS_UNIT_TEST( LibmeshEntityIntegrationRule, hex_8_test )
     node_coords[1] = 0.0;
     node_coords[2] = 0.0;
     nodes[0] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 0, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         0, rank );
+
     node_coords[0] = 1.0;
     node_coords[1] = 0.0;
     node_coords[2] = 0.0;
     nodes[1] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 1, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         1, rank );
+
     node_coords[0] = 1.0;
     node_coords[1] = 1.0;
     node_coords[2] = 0.0;
     nodes[2] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 2, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         2, rank );
+
     node_coords[0] = 0.0;
     node_coords[1] = 1.0;
     node_coords[2] = 0.0;
     nodes[3] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 3, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         3, rank );
+
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
     node_coords[2] = 1.0;
     nodes[4] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 4, rank );
-	
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         4, rank );
+
     node_coords[0] = 1.0;
     node_coords[1] = 0.0;
     node_coords[2] = 1.0;
     nodes[5] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 5, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         5, rank );
+
     node_coords[0] = 1.0;
     node_coords[1] = 1.0;
     node_coords[2] = 1.0;
     nodes[6] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 6, rank );
-	
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         6, rank );
+
     node_coords[0] = 0.0;
     node_coords[1] = 1.0;
     node_coords[2] = 1.0;
     nodes[7] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 7, rank );
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         7, rank );
 
     // Make a hex-8.
     int num_nodes = 8;
@@ -164,13 +164,13 @@ TEUCHOS_UNIT_TEST( LibmeshEntityIntegrationRule, hex_8_test )
 
     // Create a DTK entity for the hex.
     DataTransferKit::Entity dtk_entity =
-    	DataTransferKit::LibmeshEntity<libMesh::Elem>(
-	    Teuchos::ptr(hex_elem), mesh.ptr(), Teuchos::ptrFromRef(adjacencies) );
+            DataTransferKit::LibmeshEntity<libMesh::Elem>(
+            Teuchos::ptr(hex_elem), mesh.ptr(), Teuchos::ptrFromRef(adjacencies) );
 
     // Create an integration rule.
     Teuchos::RCP<DataTransferKit::EntityIntegrationRule> integration_rule =
-	Teuchos::rcp( new DataTransferKit::LibmeshEntityIntegrationRule() );
-    
+        Teuchos::rcp( new DataTransferKit::LibmeshEntityIntegrationRule() );
+
     // Test the integration rule.
     Teuchos::Array<Teuchos::Array<double> > p_1;
     Teuchos::Array<double> w_1;
@@ -190,14 +190,14 @@ TEUCHOS_UNIT_TEST( LibmeshEntityIntegrationRule, hex_8_test )
     TEST_EQUALITY( 8, p_2.size() );
     for ( int i = 0; i < 8; ++i )
     {
-	TEST_EQUALITY( w_2[i], 1.0 );
-	TEST_EQUALITY( p_2[i].size(), 3 );
+        TEST_EQUALITY( w_2[i], 1.0 );
+        TEST_EQUALITY( p_2[i].size(), 3 );
 
-	for ( int d = 0; d < 3; ++d )
-	{
-	    TEST_FLOATING_EQUALITY(
-		std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
-	}
+        for ( int d = 0; d < 3; ++d )
+        {
+            TEST_FLOATING_EQUALITY(
+                std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
+        }
     }
 }
 

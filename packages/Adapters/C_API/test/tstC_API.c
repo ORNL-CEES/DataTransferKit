@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
       src_coord, src_num, DTK_INTERLEAVED,
       tgt_coord, tgt_num, DTK_BLOCKED,
       space_dim, options );
-      
+
   DTK_Map_apply( dtk_map,
       src_field, DTK_INTERLEAVED,
       tgt_field, DTK_INTERLEAVED,

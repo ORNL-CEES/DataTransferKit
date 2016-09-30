@@ -51,7 +51,7 @@ namespace DataTransferKit
 /*!
  * \class CommTools
  * \brief A stateless class with tools for operating on communicators.
- */ 
+ */
 //---------------------------------------------------------------------------//
 class CommTools
 {
@@ -75,20 +75,20 @@ class CommTools
     static void getCommWorld( RCP_Comm& comm_world );
 
     // Check whether two communicators own the same communication space.
-    static bool equal( const RCP_Comm& comm_A, 
+    static bool equal( const RCP_Comm& comm_A,
                        const RCP_Comm& comm_B,
                        const RCP_Comm& comm_global = Teuchos::null );
 
     // Generate the union of two communicators.
-    static void unite( const RCP_Comm& comm_A, 
+    static void unite( const RCP_Comm& comm_A,
                        const RCP_Comm& comm_B,
-		       RCP_Comm& comm_union,
+                       RCP_Comm& comm_union,
                        const RCP_Comm& comm_global = Teuchos::null );
 
     // Generate the intersection of two communicators.
-    static void intersect( const RCP_Comm& comm_A, 
+    static void intersect( const RCP_Comm& comm_A,
                            const RCP_Comm& comm_B,
-			   RCP_Comm& comm_intersection,
+                           RCP_Comm& comm_intersection,
                            const RCP_Comm& comm_global = Teuchos::null );
 };
 

@@ -67,7 +67,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, cell_constructor_test )
         Teuchos::DefaultComm<int>::getComm();
     int comm_rank = comm->getRank();
     int comm_size = comm->getSize();
-    
+
     // Create the mesh.
     unsigned x_num_cells = 20;
     unsigned y_num_cells = 12;
@@ -75,7 +75,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, cell_constructor_test )
     unsigned z_num_cells = local_z_num_cells * comm_size;
 
     unsigned local_num_cells = x_num_cells*y_num_cells*local_z_num_cells;
-    unsigned global_num_cells = x_num_cells*y_num_cells*z_num_cells;    
+    unsigned global_num_cells = x_num_cells*y_num_cells*z_num_cells;
 
     unsigned x_num_nodes = x_num_cells + 1;
     unsigned y_num_nodes = y_num_cells + 1;
@@ -91,7 +91,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, cell_constructor_test )
     {
         local_num_nodes *= local_z_num_nodes;
     }
-    
+
     unsigned global_num_nodes = x_num_nodes*y_num_nodes*z_num_nodes;
 
     double cell_width = 0.1;
@@ -103,7 +103,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, cell_constructor_test )
     double z_max = cell_width*z_num_cells;
 
     DataTransferKit::UnitTest::ReferenceHexMesh mesh(
-        comm, 
+        comm,
         x_min, x_max, x_num_cells,
         y_min, y_max, y_num_cells,
         z_min, z_max, z_num_cells );
@@ -142,7 +142,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, cell_constructor_test )
                 DataTransferKit::EntityId node_id =
                     i + j*x_num_nodes + k*x_num_nodes*y_num_nodes;
                 TEST_ASSERT( node_id < global_num_nodes );
-                
+
                 entity_set->getEntity( node_id, 0, entity );
 
                 entity.boundingBox( box );
@@ -216,7 +216,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, cell_constructor_test )
         int i = node_it->id() - j*x_num_nodes - k*x_num_nodes*y_num_nodes;
         TEST_EQUALITY( node_it->id(),
                        i + j*x_num_nodes + k*x_num_nodes*y_num_nodes );
-        
+
         TEST_EQUALITY( local_map->measure(*node_it), 0.0 );
 
         local_map->centroid( *node_it, node_coords() );
@@ -231,10 +231,10 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, cell_constructor_test )
 
     // Cells
     Teuchos::Array<double> centroid( 3 );
-    Teuchos::Array<double> bad_point( 3, -0.1 );    
+    Teuchos::Array<double> bad_point( 3, -0.1 );
     Teuchos::Array<double> ref_point( 3 );
-    Teuchos::Array<double> bad_ref_point( 3, -1.1 );        
-    Teuchos::Array<double> phys_point( 3 );    
+    Teuchos::Array<double> bad_ref_point( 3, -1.1 );
+    Teuchos::Array<double> phys_point( 3 );
     double volume = cell_width*cell_width*cell_width;
     auto cells_begin = cell_it.begin();
     auto cells_end = cell_it.end();
@@ -247,7 +247,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, cell_constructor_test )
                        i + j*x_num_cells + k*x_num_cells*y_num_cells );
 
         TEST_FLOATING_EQUALITY( local_map->measure(*cell_it), volume, epsilon );
-                
+
         local_map->centroid( *cell_it, centroid() );
         TEST_FLOATING_EQUALITY( centroid[0], cell_width*i+cell_width/2, epsilon );
         TEST_FLOATING_EQUALITY( centroid[1], cell_width*j+cell_width/2, epsilon );
@@ -327,7 +327,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, cell_constructor_test )
                        node_it->id() + 32.2 );
         TEST_EQUALITY( field->readFieldData(node_it->id(),1),
                        node_it->id() + 3.2 );
-    }    
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -338,7 +338,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, edge_constructor_test )
         Teuchos::DefaultComm<int>::getComm();
     int comm_rank = comm->getRank();
     int comm_size = comm->getSize();
-    
+
     // Create the mesh.
     unsigned x_num_cells = 20;
     unsigned y_num_cells = 12;
@@ -346,7 +346,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, edge_constructor_test )
     unsigned z_num_cells = local_z_num_cells * comm_size;
 
     unsigned local_num_cells = x_num_cells*y_num_cells*local_z_num_cells;
-    unsigned global_num_cells = x_num_cells*y_num_cells*z_num_cells;    
+    unsigned global_num_cells = x_num_cells*y_num_cells*z_num_cells;
 
     unsigned x_num_nodes = x_num_cells + 1;
     unsigned y_num_nodes = y_num_cells + 1;
@@ -362,7 +362,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, edge_constructor_test )
     {
         local_num_nodes *= local_z_num_nodes;
     }
-    
+
     unsigned global_num_nodes = x_num_nodes*y_num_nodes*z_num_nodes;
 
     Teuchos::Array<double> x_edges( x_num_nodes );
@@ -372,7 +372,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, edge_constructor_test )
     double cell_width = 0.1;
     for ( unsigned i = 0; i < x_num_nodes; ++i ) x_edges[i] = i*cell_width;
     for ( unsigned i = 0; i < y_num_nodes; ++i ) y_edges[i] = i*cell_width;
-    for ( unsigned i = 0; i < z_num_nodes; ++i ) z_edges[i] = i*cell_width;    
+    for ( unsigned i = 0; i < z_num_nodes; ++i ) z_edges[i] = i*cell_width;
 
     DataTransferKit::UnitTest::ReferenceHexMesh mesh(
         comm, x_edges, y_edges, z_edges );
@@ -411,7 +411,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, edge_constructor_test )
                 DataTransferKit::EntityId node_id =
                     i + j*x_num_nodes + k*x_num_nodes*y_num_nodes;
                 TEST_ASSERT( node_id < global_num_nodes );
-                
+
                 entity_set->getEntity( node_id, 0, entity );
 
                 entity.boundingBox( box );
@@ -485,7 +485,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, edge_constructor_test )
         int i = node_it->id() - j*x_num_nodes - k*x_num_nodes*y_num_nodes;
         TEST_EQUALITY( node_it->id(),
                        i + j*x_num_nodes + k*x_num_nodes*y_num_nodes );
-        
+
         TEST_EQUALITY( local_map->measure(*node_it), 0.0 );
 
         local_map->centroid( *node_it, node_coords() );
@@ -500,10 +500,10 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, edge_constructor_test )
 
     // Cells
     Teuchos::Array<double> centroid( 3 );
-    Teuchos::Array<double> bad_point( 3, -0.1 );    
+    Teuchos::Array<double> bad_point( 3, -0.1 );
     Teuchos::Array<double> ref_point( 3 );
-    Teuchos::Array<double> bad_ref_point( 3, -1.1 );        
-    Teuchos::Array<double> phys_point( 3 );    
+    Teuchos::Array<double> bad_ref_point( 3, -1.1 );
+    Teuchos::Array<double> phys_point( 3 );
     double volume = cell_width*cell_width*cell_width;
     auto cells_begin = cell_it.begin();
     auto cells_end = cell_it.end();
@@ -516,7 +516,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, edge_constructor_test )
                        i + j*x_num_cells + k*x_num_cells*y_num_cells );
 
         TEST_FLOATING_EQUALITY( local_map->measure(*cell_it), volume, epsilon );
-                
+
         local_map->centroid( *cell_it, centroid() );
         TEST_FLOATING_EQUALITY( centroid[0], cell_width*i+cell_width/2, epsilon );
         TEST_FLOATING_EQUALITY( centroid[1], cell_width*j+cell_width/2, epsilon );
@@ -596,7 +596,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, edge_constructor_test )
                        node_it->id() + 32.2 );
         TEST_EQUALITY( field->readFieldData(node_it->id(),1),
                        node_it->id() + 3.2 );
-    }    
+    }
 }
 
 //---------------------------------------------------------------------------//

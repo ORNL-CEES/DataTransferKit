@@ -87,7 +87,7 @@ class STKPartNamePredicate : public STKPartPredicate
   public:
 
     STKPartNamePredicate( const Teuchos::Array<std::string>& part_names,
-			  const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
+                          const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
 };
 
 //---------------------------------------------------------------------------//

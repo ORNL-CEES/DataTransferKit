@@ -69,15 +69,15 @@ class LibmeshEntityImpl : public DataTransferKit::EntityImpl
      * \brief Constructor.
      */
     LibmeshEntityImpl( const Teuchos::Ptr<LibmeshGeom>& libmesh_object,
-		       const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
-		       const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies );
+                       const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
+                       const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies );
 
     /*!
      * \brief Get the unique global identifier for the entity.
      * \return A unique global identifier for the entity.
      */
     DataTransferKit::EntityId id() const override;
-    
+
     /*!
      * \brief Get the parallel rank that owns the entity.
      * \return The parallel rank that owns the entity.
@@ -85,7 +85,7 @@ class LibmeshEntityImpl : public DataTransferKit::EntityImpl
     int ownerRank() const override;
 
     /*!
-     * \brief Return the topological dimension of the entity.  
+     * \brief Return the topological dimension of the entity.
      *
      * \return The topological dimension of the entity. Any parametric
      * coordinates describing the entity will be of this dimension.
@@ -131,8 +131,8 @@ class LibmeshEntityImpl : public DataTransferKit::EntityImpl
      * \brief Provide a verbose description of the object.
      */
     void describe(
-	Teuchos::FancyOStream& out,
-	const Teuchos::EVerbosityLevel verb_level ) const override;
+        Teuchos::FancyOStream& out,
+        const Teuchos::EVerbosityLevel verb_level ) const override;
 
   private:
 

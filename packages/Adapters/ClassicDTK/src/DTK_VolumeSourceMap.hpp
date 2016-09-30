@@ -104,13 +104,13 @@ class VolumeSourceMap
 
     // Constructor.
     VolumeSourceMap( const RCP_Comm& comm,
-		     const int dimension,
-		     bool store_missed_points = false,
-		     const double geometric_tolerance = 1.0e-6 );
+                     const int dimension,
+                     bool store_missed_points = false,
+                     const double geometric_tolerance = 1.0e-6 );
 
     // Generate the volume source map.
-    void setup( const RCP_GeometryManager& source_geometry_manager, 
-		const RCP_CoordFieldManager& target_coord_manager );
+    void setup( const RCP_GeometryManager& source_geometry_manager,
+                const RCP_CoordFieldManager& target_coord_manager );
 
     //@{
     // Get the local indices of the target points that were not mapped.
@@ -121,16 +121,16 @@ class VolumeSourceMap
     // Apply the volume source map by evaluating a function at the target points
     // that were mapped.
     template<class SourceField, class TargetField>
-    void apply( 
-	const Teuchos::RCP<FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
-	Teuchos::RCP<FieldManager<TargetField> >& target_space_manager );
+    void apply(
+        const Teuchos::RCP<FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
+        Teuchos::RCP<FieldManager<TargetField> >& target_space_manager );
 
   private:
 
     // Compute globally unique ordinals for the target points.
-    void computePointOrdinals( 
-	const RCP_CoordFieldManager& target_coord_manager,
-	Teuchos::Array<GlobalOrdinal>& target_ordinals );
+    void computePointOrdinals(
+        const RCP_CoordFieldManager& target_coord_manager,
+        Teuchos::Array<GlobalOrdinal>& target_ordinals );
 
   private:
 

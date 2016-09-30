@@ -72,7 +72,7 @@ class STKMeshEntity : public Entity
      * exists.
      */
     STKMeshEntity( const stk::mesh::Entity& stk_entity,
-		   const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
+                   const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
 };
 
 //---------------------------------------------------------------------------//

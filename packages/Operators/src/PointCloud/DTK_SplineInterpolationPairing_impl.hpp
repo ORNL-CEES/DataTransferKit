@@ -53,7 +53,7 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 template<int DIM>
-SplineInterpolationPairing<DIM>::SplineInterpolationPairing( 
+SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
     const Teuchos::ArrayView<const double>& child_centers,
     const Teuchos::ArrayView<const double>& parent_centers,
     const bool use_knn,
@@ -76,36 +76,36 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
     // Search for pairs
     for ( unsigned i = 0; i < num_parents; ++i )
     {
-	// If kNN do the nearest neighbor search for kNN and calculate a
-	// radius. The radius will be a small fraction larger than the
-	// farthest neighbor. An alternative to this would be to find the
-	// kNN+1 neighbors and use the last neighbor's distance as the
-	// radius. 
-	if ( use_knn )
-	{
-	    // Get the knn neighbors
-	    d_pairings[i] =
-		tree.nnSearch( parent_centers(DIM*i,DIM), num_neighbors );
+        // If kNN do the nearest neighbor search for kNN and calculate a
+        // radius. The radius will be a small fraction larger than the
+        // farthest neighbor. An alternative to this would be to find the
+        // kNN+1 neighbors and use the last neighbor's distance as the
+        // radius.
+        if ( use_knn )
+        {
+            // Get the knn neighbors
+            d_pairings[i] =
+                tree.nnSearch( parent_centers(DIM*i,DIM), num_neighbors );
 
-	    // Get the radius from kNN. Make it slightly larger so the last
-	    // neighbor gives a non-zero contribution to the interpolant.
-	    d_radii[i] =
-		EuclideanDistance<DIM>::distance(
-		    parent_centers(DIM*i,DIM).getRawPtr(),
-		    child_centers(DIM*d_pairings[i].back(),DIM).getRawPtr() );
-	    d_radii[i] *= 1.01;
-	}
+            // Get the radius from kNN. Make it slightly larger so the last
+            // neighbor gives a non-zero contribution to the interpolant.
+            d_radii[i] =
+                EuclideanDistance<DIM>::distance(
+                    parent_centers(DIM*i,DIM).getRawPtr(),
+                    child_centers(DIM*d_pairings[i].back(),DIM).getRawPtr() );
+            d_radii[i] *= 1.01;
+        }
 
-	// Otherwise do the radius search.
-	else
-	{
-	    d_pairings[i] =
-		tree.radiusSearch( parent_centers(DIM*i,DIM), radius );
-	    d_radii[i] = radius;
-	}
+        // Otherwise do the radius search.
+        else
+        {
+            d_pairings[i] =
+                tree.radiusSearch( parent_centers(DIM*i,DIM), radius );
+            d_radii[i] = radius;
+        }
 
-	// Get the size of the support.
-	d_pair_sizes[i] = d_pairings[i].size();
+        // Get the size of the support.
+        d_pair_sizes[i] = d_pairings[i].size();
     }
 }
 
@@ -115,7 +115,7 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
  * within the given radius.
  */
 template<int DIM>
-Teuchos::ArrayView<const unsigned> 
+Teuchos::ArrayView<const unsigned>
 SplineInterpolationPairing<DIM>::childCenterIds(
     const unsigned parent_id ) const
 {

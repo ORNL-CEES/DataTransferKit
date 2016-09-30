@@ -65,14 +65,14 @@ class CylinderGeometryImpl : public BasicGeometryEntityImpl
     CylinderGeometryImpl();
 
     // Constructor.
-    CylinderGeometryImpl( const EntityId global_id, 
-		  const int owner_rank, 
-		  const int block_id,
-		  const double length, 
-		  const double radius,
-		  const double centroid_x, 
-		  const double centroid_y,
-		  const double centroid_z );
+    CylinderGeometryImpl( const EntityId global_id,
+                  const int owner_rank,
+                  const int block_id,
+                  const double length,
+                  const double radius,
+                  const double centroid_x,
+                  const double centroid_y,
+                  const double centroid_z );
 
     //! Get the length of the cylinder.
     double length() const
@@ -84,7 +84,7 @@ class CylinderGeometryImpl : public BasicGeometryEntityImpl
 
     // Get the unique global identifier for the entity.
     EntityId id() const override;
-    
+
     // Get the parallel rank that owns the entity.
     int ownerRank() const override;
 
@@ -109,8 +109,8 @@ class CylinderGeometryImpl : public BasicGeometryEntityImpl
 
     // Provide a verbose description of the object.
     void describe(
-	Teuchos::FancyOStream& out,
-	const Teuchos::EVerbosityLevel verb_level ) const override;
+        Teuchos::FancyOStream& out,
+        const Teuchos::EVerbosityLevel verb_level ) const override;
 
     // Return the entity measure with respect to the parameteric
     double measure() const override;
@@ -120,23 +120,23 @@ class CylinderGeometryImpl : public BasicGeometryEntityImpl
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
-    bool mapToReferenceFrame( 
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const override;
+    bool mapToReferenceFrame(
+        const Teuchos::ArrayView<const double>& point,
+        const Teuchos::ArrayView<double>& reference_point ) const override;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
-    bool checkPointInclusion( 
-	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const override;
+    bool checkPointInclusion(
+        const double tolerance,
+        const Teuchos::ArrayView<const double>& reference_point ) const override;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const override;
+    void mapToPhysicalFrame(
+        const Teuchos::ArrayView<const double>& reference_point,
+        const Teuchos::ArrayView<double>& point ) const override;
 
   private:
-    
+
     // Entity id.
     EntityId d_global_id;
 

@@ -31,7 +31,7 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 //---------------------------------------------------------------------------//
-/*! 
+/*!
  * \file tstBasicEntityPredicates.cpp
  * \author Stuart R. Slattery
  * \brief BasicEntityPredicates unit tests.
@@ -68,12 +68,12 @@ class MyEntityImpl : public DataTransferKit::EntityImpl
   public:
     MyEntityImpl() { /* ... */ }
     MyEntityImpl( const Teuchos::Array<int>& block_ids,
-		  const Teuchos::Array<int>& boundary_ids )
-	: d_block_ids( block_ids )
-	, d_boundary_ids( boundary_ids )
+                  const Teuchos::Array<int>& boundary_ids )
+        : d_block_ids( block_ids )
+        , d_boundary_ids( boundary_ids )
     {
-	std::sort( d_block_ids.begin(), d_block_ids.end() );
-	std::sort( d_boundary_ids.begin(), d_boundary_ids.end() );
+        std::sort( d_block_ids.begin(), d_block_ids.end() );
+        std::sort( d_boundary_ids.begin(), d_boundary_ids.end() );
     }
     DataTransferKit::EntityId id() const { return 0; }
     int ownerRank() const { return 0; }
@@ -82,13 +82,13 @@ class MyEntityImpl : public DataTransferKit::EntityImpl
     void boundingBox( Teuchos::Tuple<double,6>& bounds ) const { }
     bool inBlock( const int block_id ) const
     {
-	return std::binary_search( 
-	    d_block_ids.begin(), d_block_ids.end(), block_id );
+        return std::binary_search(
+            d_block_ids.begin(), d_block_ids.end(), block_id );
     }
     bool onBoundary( const int boundary_id ) const
     {
-	return std::binary_search( 
-	    d_boundary_ids.begin(), d_boundary_ids.end(), boundary_id );
+        return std::binary_search(
+            d_boundary_ids.begin(), d_boundary_ids.end(), boundary_id );
     }
     Teuchos::RCP<DataTransferKit::EntityExtraData> extraData() const
     { return Teuchos::null; }
@@ -102,10 +102,10 @@ class MyEntity : public DataTransferKit::Entity
   public:
     MyEntity() { /* ... */ }
     MyEntity( const Teuchos::Array<int>& block_ids = Teuchos::Array<int>(0),
-	      const Teuchos::Array<int>& boundary_ids = Teuchos::Array<int>(0) )
+              const Teuchos::Array<int>& boundary_ids = Teuchos::Array<int>(0) )
     {
-	this->b_entity_impl = 
-	    Teuchos::rcp( new MyEntityImpl(block_ids,boundary_ids) );
+        this->b_entity_impl =
+            Teuchos::rcp( new MyEntityImpl(block_ids,boundary_ids) );
     }
 };
 
@@ -142,14 +142,14 @@ TEUCHOS_UNIT_TEST( BlockPredicate, block_predicate_test )
     TEST_ASSERT( block_pred_3(p2) );
 
     std::function<bool(Entity)> block_pred_4 =
-	PredicateComposition::And( block_pred_1.getFunction(), 
-				   block_pred_2.getFunction() );
+        PredicateComposition::And( block_pred_1.getFunction(),
+                                   block_pred_2.getFunction() );
     TEST_ASSERT( !block_pred_4(p1) );
     TEST_ASSERT( !block_pred_4(p2) );
 
     std::function<bool(Entity)> block_pred_5 =
-	PredicateComposition::Or( block_pred_1.getFunction(), 
-				  block_pred_2.getFunction() );
+        PredicateComposition::Or( block_pred_1.getFunction(),
+                                  block_pred_2.getFunction() );
     TEST_ASSERT( block_pred_5(p1) );
     TEST_ASSERT( block_pred_5(p2) );
 }
@@ -185,14 +185,14 @@ TEUCHOS_UNIT_TEST( BoundPredicate, bound_predicate_test )
     TEST_ASSERT( bound_pred_3(p2) );
 
     std::function<bool(Entity)> bound_pred_4 =
-	PredicateComposition::And( bound_pred_1.getFunction(),
-				   bound_pred_2.getFunction() );
+        PredicateComposition::And( bound_pred_1.getFunction(),
+                                   bound_pred_2.getFunction() );
     TEST_ASSERT( !bound_pred_4(p1) );
     TEST_ASSERT( !bound_pred_4(p2) );
 
     std::function<bool(Entity)> bound_pred_5 =
-	PredicateComposition::Or( bound_pred_1.getFunction(), 
-				  bound_pred_2.getFunction() );
+        PredicateComposition::Or( bound_pred_1.getFunction(),
+                                  bound_pred_2.getFunction() );
     TEST_ASSERT( bound_pred_5(p1) );
     TEST_ASSERT( bound_pred_5(p2) );
 }

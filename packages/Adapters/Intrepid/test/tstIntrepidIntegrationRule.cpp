@@ -65,8 +65,8 @@ TEUCHOS_UNIT_TEST( IntrepidIntegrationRule, hex_8_test )
 
     // Create a cell topology.
     shards::CellTopology element_topo =
-	shards::getCellTopologyData<shards::Hexahedron<8> >();    
-    
+        shards::getCellTopologyData<shards::Hexahedron<8> >();
+
     // Test the integration rule.
     Teuchos::Array<Teuchos::Array<double> > p_1;
     Teuchos::Array<double> w_1;
@@ -86,14 +86,14 @@ TEUCHOS_UNIT_TEST( IntrepidIntegrationRule, hex_8_test )
     TEST_EQUALITY( 8, p_2.size() );
     for ( int i = 0; i < 8; ++i )
     {
-	TEST_EQUALITY( w_2[i], 1.0 );
-	TEST_EQUALITY( p_2[i].size(), 3 );
+        TEST_EQUALITY( w_2[i], 1.0 );
+        TEST_EQUALITY( p_2[i].size(), 3 );
 
-	for ( int d = 0; d < 3; ++d )
-	{
-	    TEST_FLOATING_EQUALITY(
-		std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
-	}
+        for ( int d = 0; d < 3; ++d )
+        {
+            TEST_FLOATING_EQUALITY(
+                std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
+        }
     }
 }
 

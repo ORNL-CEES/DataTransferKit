@@ -26,14 +26,14 @@ APPEND_SET(HEADERS
   DTK_NonlinearProblemTraits.hpp
   DTK_ProjectionPrimitiveNonlinearProblems.hpp
   DTK_ProjectionPrimitives.hpp
-  ) 
+  )
 
 APPEND_SET(SOURCES
   DTK_IntrepidBasisFactory.cpp
   DTK_IntrepidCell.cpp
   DTK_IntrepidCellLocalMap.cpp
   DTK_IntrepidIntegrationRule.cpp
-  DTK_IntrepidShapeFunction.cpp  
+  DTK_IntrepidShapeFunction.cpp
   DTK_IntrepidSideCell.cpp
   DTK_ProjectionPrimitiveNonlinearProblems.cpp
   DTK_ProjectionPrimitives.cpp

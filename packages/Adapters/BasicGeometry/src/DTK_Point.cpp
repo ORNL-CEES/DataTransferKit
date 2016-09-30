@@ -55,23 +55,23 @@ Point::Point()
 
 //---------------------------------------------------------------------------//
 // Array constructor.
-Point::Point( const EntityId global_id, 
-	      const int owner_rank,
-	      const Teuchos::Array<double>& coordinates,
-	      const Teuchos::Array<int>& block_ids,
-	      const Teuchos::Array<int>& boundary_ids )
+Point::Point( const EntityId global_id,
+              const int owner_rank,
+              const Teuchos::Array<double>& coordinates,
+              const Teuchos::Array<int>& block_ids,
+              const Teuchos::Array<int>& boundary_ids )
 {
-    d_point_impl = Teuchos::rcp( 
-	new PointImpl(global_id,owner_rank,coordinates,		      
-		      block_ids,boundary_ids) ); 
+    d_point_impl = Teuchos::rcp(
+        new PointImpl(global_id,owner_rank,coordinates,
+                      block_ids,boundary_ids) );
     this->b_entity_impl = d_point_impl;
 }
 
 //---------------------------------------------------------------------------//
 // Get the coordinates of the point.
-void Point::getCoordinates( 
+void Point::getCoordinates(
     const Teuchos::ArrayView<double>& coordinates ) const
-{ 
+{
     DTK_REQUIRE( Teuchos::nonnull(d_point_impl) );
     d_point_impl->getCoordinates( coordinates );
 }

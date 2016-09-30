@@ -69,7 +69,7 @@ class IntrepidCellLocalMap
      * \return The measure of the entity.
      */
     static double measure( const shards::CellTopology& entity_topo,
-			   const Intrepid::FieldContainer<double>& entity_coords );
+                           const Intrepid::FieldContainer<double>& entity_coords );
 
     /*!
      * \brief Return the centroid of the entity.
@@ -77,8 +77,8 @@ class IntrepidCellLocalMap
      * be allocated. Assign a view of your centroid to this view.
      */
     static void centroid( const shards::CellTopology& entity_topo,
-			  const Intrepid::FieldContainer<double>& entity_coords,
-			  const Teuchos::ArrayView<double>& centroid );
+                          const Intrepid::FieldContainer<double>& entity_coords,
+                          const Teuchos::ArrayView<double>& centroid );
 
     /*!
      * \brief (Reverse Map) Map a point to the reference space of an
@@ -93,13 +93,13 @@ class IntrepidCellLocalMap
      * procedure.
      * \return Return true if the map to reference frame succeeded.
      */
-    static bool mapToReferenceFrame( 
-	const shards::CellTopology& entity_topo,
-	const Intrepid::FieldContainer<double>& entity_coords,
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point );
+    static bool mapToReferenceFrame(
+        const shards::CellTopology& entity_topo,
+        const Intrepid::FieldContainer<double>& entity_coords,
+        const Teuchos::ArrayView<const double>& point,
+        const Teuchos::ArrayView<double>& reference_point );
 
-    /*!  
+    /*!
      * \brief Determine if a reference point is in the parameterized space of
      * an entity.
      * \param entity Perfrom the mapping for this entity.
@@ -108,25 +108,25 @@ class IntrepidCellLocalMap
      * containing the reference coordinates of the mapped point.
      * \return True if the point is in the reference space, false if not.
      */
-    static bool checkPointInclusion( 
-	const shards::CellTopology& entity_topo,
-	const Teuchos::ArrayView<const double>& reference_point,
-	const double tolerance );
+    static bool checkPointInclusion(
+        const shards::CellTopology& entity_topo,
+        const Teuchos::ArrayView<const double>& reference_point,
+        const double tolerance );
 
     /*!
      * \brief (Forward Map) Map a reference point to the physical space of an
-     * entity. 
+     * entity.
      * \param entity Perfrom the mapping for this entity.
      * \param reference_point A view into an array of size physicalDimension()
      * containing the reference coordinates of the mapped point.
      * \param A view into an array of size physicalDimension() to write
      * the coordinates of physical point.
      */
-    static void mapToPhysicalFrame( 
-	const shards::CellTopology& entity_topo,
-	const Intrepid::FieldContainer<double>& entity_coords,
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point );
+    static void mapToPhysicalFrame(
+        const shards::CellTopology& entity_topo,
+        const Intrepid::FieldContainer<double>& entity_coords,
+        const Teuchos::ArrayView<const double>& reference_point,
+        const Teuchos::ArrayView<double>& point );
 };
 
 //---------------------------------------------------------------------------//

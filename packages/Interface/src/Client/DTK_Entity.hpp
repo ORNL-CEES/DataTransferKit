@@ -101,7 +101,7 @@ class Entity : public Teuchos::Describable
      * \return A unique global identifier for the entity.
      */
     EntityId id() const;
-    
+
     /*!
      * \brief Get the parallel rank that owns the entity.
      *
@@ -163,8 +163,8 @@ class Entity : public Teuchos::Describable
      * \brief Provide a verbose description of the object.
      */
     void describe( Teuchos::FancyOStream& out,
-		   const Teuchos::EVerbosityLevel verb_level =
-		   Teuchos::Describable::verbLevel_default ) const override;
+                   const Teuchos::EVerbosityLevel verb_level =
+                   Teuchos::Describable::verbLevel_default ) const override;
     //@}
 
   protected:

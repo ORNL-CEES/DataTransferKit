@@ -69,8 +69,8 @@ class LibmeshEntity : public DataTransferKit::Entity
      * around.
      */
     LibmeshEntity( const Teuchos::Ptr<LibmeshGeom>& libmesh_object,
-		   const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
-		   const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies );
+                   const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
+                   const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies );
 };
 
 //---------------------------------------------------------------------------//

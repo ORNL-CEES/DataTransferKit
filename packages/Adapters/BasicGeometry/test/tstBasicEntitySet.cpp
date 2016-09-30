@@ -82,8 +82,8 @@ TEUCHOS_UNIT_TEST( BasicEntitySet, basic_entity_set_test )
     using namespace DataTransferKit;
 
     // Get the communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
-	Teuchos::DefaultComm<int>::getComm();
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+        Teuchos::DefaultComm<int>::getComm();
     int comm_rank = comm->getRank();
     int comm_size = comm->getSize();
 
@@ -109,16 +109,16 @@ TEUCHOS_UNIT_TEST( BasicEntitySet, basic_entity_set_test )
 
     // Make a box.
     Entity box_1 = BoxGeometry( 2, comm_rank, 1,
-			std::min(p1[0],p2[0]),
-			std::min(p1[1],p2[1]),
-			std::min(p1[2],p2[2]),
-			std::max(p1[0],p2[0]),
-			std::max(p1[1],p2[1]),
-			std::max(p1[2],p2[2]) );
+                        std::min(p1[0],p2[0]),
+                        std::min(p1[1],p2[1]),
+                        std::min(p1[2],p2[2]),
+                        std::max(p1[0],p2[0]),
+                        std::max(p1[1],p2[1]),
+                        std::max(p1[2],p2[2]) );
 
     // Make an entity set.
-    Teuchos::RCP<EntitySet> entity_set = 
-	Teuchos::rcp( new BasicEntitySet(comm, 3) );
+    Teuchos::RCP<EntitySet> entity_set =
+        Teuchos::rcp( new BasicEntitySet(comm, 3) );
 
     // Add the points and box to the set.
     Teuchos::rcp_dynamic_cast<BasicEntitySet>(entity_set)->addEntity( point_1 );
@@ -145,15 +145,15 @@ TEUCHOS_UNIT_TEST( BasicEntitySet, basic_entity_set_test )
     Entity ge1 = *node_it;
     if ( ge1.id() == 1 )
     {
-	TEST_EQUALITY( ge0.id(), 0 );
+        TEST_EQUALITY( ge0.id(), 0 );
     }
     else if ( ge1.id() == 0 )
     {
-	TEST_EQUALITY( ge0.id(), 1 );
+        TEST_EQUALITY( ge0.id(), 1 );
     }
     else
     {
-	TEST_ASSERT( false );
+        TEST_ASSERT( false );
     }
     Entity entity;
     entity_set->getEntity( 0, 0, entity );

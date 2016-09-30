@@ -84,16 +84,16 @@
 // MOAB error check.
 //---------------------------------------------------------------------------//
 void checkMoabErrorCode(const moab::ErrorCode& ec) {
-	if (moab::MB_SUCCESS != ec) {
-		std::cout << "MOAB ERROR CODE " << ec << std::endl;
-	}
+        if (moab::MB_SUCCESS != ec) {
+                std::cout << "MOAB ERROR CODE " << ec << std::endl;
+        }
 }
 
 //---------------------------------------------------------------------------//
 // Data field function.
 //---------------------------------------------------------------------------//
 double dataFunction(double x, double y, double z) {
-	return std::abs(x) + std::abs(y) + std::abs(z) + 1.0;
+        return std::abs(x) + std::abs(y) + std::abs(z) + 1.0;
 }
 
 //---------------------------------------------------------------------------//
@@ -109,33 +109,33 @@ int main(int argc, char* argv[])
 
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::DefaultComm<int>::getComm();
+        Teuchos::DefaultComm<int>::getComm();
     Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
-	Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >(comm);
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >(comm);
     Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
-	mpi_comm->getRawMpiComm();
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
 
     // Build the parameter list from the xml input.
     Teuchos::RCP<Teuchos::ParameterList> plist = Teuchos::rcp(
-	new Teuchos::ParameterList());
+        new Teuchos::ParameterList());
     Teuchos::updateParametersFromXmlFile("input.xml",
-					 Teuchos::inoutArg(*plist));
+                                         Teuchos::inoutArg(*plist));
 
     // Load the mesh.
     Teuchos::RCP<moab::Interface> source_iface = Teuchos::rcp(new moab::Core());
     std::string meshFileName("proteus_fumex_2d.h5m");
     std::string options = std::string(
-	"PARALLEL=READ_PART;PARTITION=PARALLEL_PARTITION;"
-	"PARALLEL_RESOLVE_SHARED_ENTS;PARTITION_DISTRIBUTE;"
-	"PARALLEL_GHOSTS=3.0.1;");
+        "PARALLEL=READ_PART;PARTITION=PARALLEL_PARTITION;"
+        "PARALLEL_RESOLVE_SHARED_ENTS;PARTITION_DISTRIBUTE;"
+        "PARALLEL_GHOSTS=3.0.1;");
     source_iface->load_file(meshFileName.c_str(), 0, options.c_str());
 
     source_iface->set_dimension(2);
 
     // Get the parallel moab instance.
     Teuchos::RCP<moab::ParallelComm> source_mesh = Teuchos::rcp(
-	moab::ParallelComm::get_pcomm(source_iface.getRawPtr(),0), false );
+        moab::ParallelComm::get_pcomm(source_iface.getRawPtr(),0), false );
 
     // Get the entity set for the source part. Just use the root set for now.
     moab::EntityHandle source_set = source_iface->get_root_set();
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
     // Get the nodes in the source set.
     std::vector<moab::EntityHandle> source_nodes;
     moab::ErrorCode error = source_iface->get_entities_by_type(
-	source_set, moab::MBVERTEX, source_nodes);
+        source_set, moab::MBVERTEX, source_nodes);
     checkMoabErrorCode(error);
     assert(moab::MB_SUCCESS == error);
     int num_source_nodes = source_nodes.size();
@@ -155,8 +155,8 @@ int main(int argc, char* argv[])
     checkMoabErrorCode(error);
     assert(moab::MB_SUCCESS == error);
     error = source_iface->add_entities(source_node_set,
-				       source_nodes.data(),
-				       num_source_nodes);
+                                       source_nodes.data(),
+                                       num_source_nodes);
     checkMoabErrorCode(error);
     assert(moab::MB_SUCCESS == error);
 
@@ -166,9 +166,9 @@ int main(int argc, char* argv[])
     double default_val = 0.0;
     bool created = false;
     error = source_iface->tag_get_handle(source_data_tag_name.c_str(), 1,
-					 moab::MB_TYPE_DOUBLE, source_data_tag,
-					 moab::MB_TAG_DENSE | moab::MB_TAG_CREAT,
-					 static_cast<void*>(&default_val), &created);
+                                         moab::MB_TYPE_DOUBLE, source_data_tag,
+                                         moab::MB_TAG_DENSE | moab::MB_TAG_CREAT,
+                                         static_cast<void*>(&default_val), &created);
     checkMoabErrorCode(error);
     assert(moab::MB_SUCCESS == error);
     assert(created);
@@ -177,16 +177,16 @@ int main(int argc, char* argv[])
     Teuchos::Array<double> source_tag_data(num_source_nodes);
     Teuchos::Array<double> source_coords(2);
     for (int n = 0; n < num_source_nodes; ++n) {
-	error = source_iface->get_coords(&source_nodes[n], 1,
-					 source_coords.getRawPtr());
-	checkMoabErrorCode(error);
-	assert(moab::MB_SUCCESS == error);
-	source_tag_data[n] = dataFunction(source_coords[0], source_coords[1],
-					  0.0);
+        error = source_iface->get_coords(&source_nodes[n], 1,
+                                         source_coords.getRawPtr());
+        checkMoabErrorCode(error);
+        assert(moab::MB_SUCCESS == error);
+        source_tag_data[n] = dataFunction(source_coords[0], source_coords[1],
+                                          0.0);
     }
     error = source_iface->tag_set_data(
-	source_data_tag, source_nodes.data(),
-	num_source_nodes, static_cast<void*>(source_tag_data.getRawPtr()));
+        source_data_tag, source_nodes.data(),
+        num_source_nodes, static_cast<void*>(source_tag_data.getRawPtr()));
     checkMoabErrorCode(error);
     assert(moab::MB_SUCCESS == error);
 
@@ -207,16 +207,16 @@ int main(int argc, char* argv[])
 
     // Create a target mesh.
     Teuchos::RCP<libMesh::Mesh> tgt_mesh = Teuchos::rcp(
-	new libMesh::Mesh(libmesh_init.comm()));
+        new libMesh::Mesh(libmesh_init.comm()));
     tgt_mesh->read("proteus_fumex_2d.exo");
-    
+
     // Make a libmesh system. We will put a first order linear basis on the
     // elements for all subdomains.
     std::string tgt_var_name = "tgt_var";
     std::string tgt_err_name = "tgt_err";
     libMesh::EquationSystems tgt_equation_systems(*tgt_mesh);
     libMesh::System& tgt_system = tgt_equation_systems.add_system<
-	libMesh::ExplicitSystem>("Target System");
+        libMesh::ExplicitSystem>("Target System");
     int tgt_var_id = tgt_system.add_variable(tgt_var_name);
     int tgt_err_id = tgt_system.add_variable(tgt_err_name);
     tgt_equation_systems.init();
@@ -230,20 +230,20 @@ int main(int argc, char* argv[])
 
     // Create a manager for the target set nodes.
     DataTransferKit::LibmeshManager tgt_manager(tgt_mesh,
-						Teuchos::rcpFromRef(tgt_system));
+                                                Teuchos::rcpFromRef(tgt_system));
 
     // Create a solution vector for the source.
     Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId> > src_vector =
-	src_manager.createFieldMultiVector(source_node_set,
-					   source_data_tag);
+        src_manager.createFieldMultiVector(source_node_set,
+                                           source_data_tag);
 
     // Create a solution vector for the target.
     Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId> > tgt_vector =
-	tgt_manager.createFieldMultiVector(tgt_var_name);
+        tgt_manager.createFieldMultiVector(tgt_var_name);
 
     // Print out mesh info.
     Teuchos::RCP<Teuchos::FancyOStream>
-	fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
+        fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
     fancy_out->setShowProcRank( true );
     src_manager.functionSpace()->entitySet()->describe( *fancy_out );
     tgt_manager.functionSpace()->entitySet()->describe( *fancy_out );
@@ -252,8 +252,8 @@ int main(int argc, char* argv[])
     Teuchos::ParameterList& dtk_list = plist->sublist("DataTransferKit");
     DataTransferKit::MapOperatorFactory op_factory;
     Teuchos::RCP<DataTransferKit::MapOperator> map_op =
-	op_factory.create(src_vector->getMap(), tgt_vector->getMap(),
-			  dtk_list);
+        op_factory.create(src_vector->getMap(), tgt_vector->getMap(),
+                          dtk_list);
 
     // Setup the map operator.
     map_op->setup(src_manager.functionSpace(), tgt_manager.functionSpace());
@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
     // Apply the map operator.
     map_op->apply(*src_vector, *tgt_vector);
 
-    
+
     // COMPUTE THE SOLUTION ERROR
     // --------------------------
 
@@ -277,41 +277,41 @@ int main(int argc, char* argv[])
     std::unordered_map<libMesh::dof_id_type, double> tgt_val_map;
     std::unordered_map<libMesh::dof_id_type, double> error_val_map;
     libMesh::Mesh::const_element_iterator elements_begin =
-	tgt_mesh->local_elements_begin();
+        tgt_mesh->local_elements_begin();
     libMesh::Mesh::const_element_iterator elements_end =
-	tgt_mesh->local_elements_end();
+        tgt_mesh->local_elements_end();
     std::vector<libMesh::dof_id_type> elem_dof_ids;
     int elem_n_nodes = 0;
     libMesh::Node* node;
     std::vector<libMesh::dof_id_type> err_dof_ids;
     for (auto element = elements_begin; element != elements_end; ++element) {
-	tgt_system.get_dof_map().dof_indices(*element, elem_dof_ids,
-					     tgt_var_id);
-	tgt_system.get_dof_map().dof_indices(*element, err_dof_ids, tgt_err_id);
-	elem_n_nodes = (*element)->n_nodes();
+        tgt_system.get_dof_map().dof_indices(*element, elem_dof_ids,
+                                             tgt_var_id);
+        tgt_system.get_dof_map().dof_indices(*element, err_dof_ids, tgt_err_id);
+        elem_n_nodes = (*element)->n_nodes();
 
-	for (int n = 0; n < elem_n_nodes; ++n)
-	{
-	    node = (*element)->get_node(n);
-	    if ( comm->getRank() == node->processor_id() )
-	    {
-		gold_value = dataFunction((*node)(0), (*node)(1), (*node)(2));
-		tgt_value = tgt_system.solution->el(elem_dof_ids[n]);
-		tgt_system.solution->set(err_dof_ids[n],
-					 (tgt_value - gold_value) / gold_value);
-		tgt_val_map.emplace(err_dof_ids[n], tgt_value * tgt_value);
-		error_val_map.emplace(err_dof_ids[n],
-				      (tgt_value - gold_value) * (tgt_value - gold_value));
-	    }
-	}
+        for (int n = 0; n < elem_n_nodes; ++n)
+        {
+            node = (*element)->get_node(n);
+            if ( comm->getRank() == node->processor_id() )
+            {
+                gold_value = dataFunction((*node)(0), (*node)(1), (*node)(2));
+                tgt_value = tgt_system.solution->el(elem_dof_ids[n]);
+                tgt_system.solution->set(err_dof_ids[n],
+                                         (tgt_value - gold_value) / gold_value);
+                tgt_val_map.emplace(err_dof_ids[n], tgt_value * tgt_value);
+                error_val_map.emplace(err_dof_ids[n],
+                                      (tgt_value - gold_value) * (tgt_value - gold_value));
+            }
+        }
     }
     tgt_system.solution->close();
     tgt_system.update();
 
     for (auto tval = tgt_val_map.begin(), eval = error_val_map.begin();
-	 tval != tgt_val_map.end(); ++tval, ++eval) {
-	var_l2_norm += tval->second;
-	error_l2_norm += eval->second;
+         tval != tgt_val_map.end(); ++tval, ++eval) {
+        var_l2_norm += tval->second;
+        error_l2_norm += eval->second;
     }
 
     error_l2_norm = std::sqrt(error_l2_norm);
@@ -321,7 +321,7 @@ int main(int argc, char* argv[])
     // SOURCE MESH WRITE
     // -----------------
     error = source_iface->write_file("source_moab_out.h5m", "H5M",
-    				     "PARALLEL=WRITE_PART", &source_set, 1, &source_data_tag, 1);
+                                         "PARALLEL=WRITE_PART", &source_set, 1, &source_data_tag, 1);
     checkMoabErrorCode(error);
     assert(moab::MB_SUCCESS == error);
 
@@ -329,7 +329,7 @@ int main(int argc, char* argv[])
     // -----------------
 
     libMesh::ExodusII_IO(*tgt_mesh).write_equation_systems(
-    	"target_libmesh_out.exo", tgt_equation_systems);
+            "target_libmesh_out.exo", tgt_equation_systems);
 
 }
 

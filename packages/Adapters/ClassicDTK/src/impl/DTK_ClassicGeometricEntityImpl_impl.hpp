@@ -55,7 +55,7 @@ ClassicGeometricEntityImpl<Geometry>::ClassicGeometricEntityImpl(
     , d_owner_rank( owner_rank )
 {
     d_extra_data = Teuchos::rcp(
-	new ClassicGeometricEntityExtraData<Geometry>(geometry) );
+        new ClassicGeometricEntityExtraData<Geometry>(geometry) );
 }
 
 //---------------------------------------------------------------------------//
@@ -65,7 +65,7 @@ EntityId ClassicGeometricEntityImpl<Geometry>::id() const
 {
     return d_id;
 }
-    
+
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 template<class Geometry>
@@ -80,7 +80,7 @@ template<class Geometry>
 int ClassicGeometricEntityImpl<Geometry>::topologicalDimension() const
 {
     return
-	GeometryTraits<Geometry>::dim( *(d_extra_data->d_geometry) );
+        GeometryTraits<Geometry>::dim( *(d_extra_data->d_geometry) );
 }
 
 //---------------------------------------------------------------------------//
@@ -89,7 +89,7 @@ template<class Geometry>
 int ClassicGeometricEntityImpl<Geometry>::physicalDimension() const
 {
     return
-	GeometryTraits<Geometry>::dim( *(d_extra_data->d_geometry) );
+        GeometryTraits<Geometry>::dim( *(d_extra_data->d_geometry) );
 }
 
 //---------------------------------------------------------------------------//
@@ -99,7 +99,7 @@ void ClassicGeometricEntityImpl<Geometry>::boundingBox(
     Teuchos::Tuple<double,6>& bounds ) const
 {
     bounds = GeometryTraits<Geometry>::boundingBox(
-	*(d_extra_data->d_geometry) ).getBounds();
+        *(d_extra_data->d_geometry) ).getBounds();
 }
 
 //---------------------------------------------------------------------------//

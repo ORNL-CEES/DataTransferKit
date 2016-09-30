@@ -23,7 +23,7 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_EntitySet.hpp
   ${DIR}/DTK_EntityShapeFunction.hpp
   ${DIR}/DTK_Types.hpp
-  ) 
+  )
 
 APPEND_SET(SOURCES
   ${DIR}/DTK_Entity.cpp
@@ -41,7 +41,7 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_IntegrationPoint.hpp
   ${DIR}/DTK_IntegrationPointSet.hpp
   ${DIR}/DTK_MapOperator.hpp
-  ) 
+  )
 
 APPEND_SET(SOURCES
   ${DIR}/DTK_BasicEntityPredicates.cpp

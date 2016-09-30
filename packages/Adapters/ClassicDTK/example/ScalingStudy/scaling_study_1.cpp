@@ -41,20 +41,20 @@ class MyMesh
   public:
 
     typedef long int    global_ordinal_type;
-    
-    MyMesh() 
+
+    MyMesh()
     { /* ... */ }
 
     MyMesh( const Teuchos::Array<global_ordinal_type>& vertex_handles,
-	    const Teuchos::Array<double>& coords,
-	    const Teuchos::Array<global_ordinal_type>& element_handles,
-	    const Teuchos::Array<global_ordinal_type>& element_connectivity,
-	    const Teuchos::Array<int>& permutation_list )
-	: d_vertex_handles( vertex_handles )
-	, d_coords( coords )
-	, d_element_handles( element_handles )
-	, d_element_connectivity( element_connectivity )
-	, d_permutation_list( permutation_list )
+            const Teuchos::Array<double>& coords,
+            const Teuchos::Array<global_ordinal_type>& element_handles,
+            const Teuchos::Array<global_ordinal_type>& element_connectivity,
+            const Teuchos::Array<int>& permutation_list )
+        : d_vertex_handles( vertex_handles )
+        , d_coords( coords )
+        , d_element_handles( element_handles )
+        , d_element_connectivity( element_connectivity )
+        , d_permutation_list( permutation_list )
     { /* ... */ }
 
     ~MyMesh()
@@ -78,14 +78,14 @@ class MyMesh
     Teuchos::Array<global_ordinal_type>::const_iterator elementsEnd() const
     { return d_element_handles.end(); }
 
-    Teuchos::Array<global_ordinal_type>::const_iterator 
+    Teuchos::Array<global_ordinal_type>::const_iterator
     connectivityBegin() const
     { return d_element_connectivity.begin(); }
 
-    Teuchos::Array<global_ordinal_type>::const_iterator 
+    Teuchos::Array<global_ordinal_type>::const_iterator
     connectivityEnd() const
     { return d_element_connectivity.end(); }
-    
+
     Teuchos::Array<int>::const_iterator permutationBegin() const
     { return d_permutation_list.begin(); }
 
@@ -114,8 +114,8 @@ class MyField
     typedef Teuchos::Array<double>::const_iterator const_iterator;
 
     MyField( size_type size, int dim )
-	: d_dim( dim )
-	, d_data( size )
+        : d_dim( dim )
+        , d_data( size )
     { /* ... */ }
 
     ~MyField()
@@ -167,15 +167,15 @@ class MeshTraits<MyMesh>
   public:
 
     typedef MyMesh::global_ordinal_type global_ordinal_type;
-    typedef Teuchos::Array<global_ordinal_type>::const_iterator 
+    typedef Teuchos::Array<global_ordinal_type>::const_iterator
     const_vertex_iterator;
-    typedef Teuchos::Array<double>::const_iterator 
+    typedef Teuchos::Array<double>::const_iterator
     const_coordinate_iterator;
-    typedef Teuchos::Array<global_ordinal_type>::const_iterator 
+    typedef Teuchos::Array<global_ordinal_type>::const_iterator
     const_element_iterator;
-    typedef Teuchos::Array<global_ordinal_type>::const_iterator 
+    typedef Teuchos::Array<global_ordinal_type>::const_iterator
     const_connectivity_iterator;
-    typedef Teuchos::Array<int>::const_iterator 
+    typedef Teuchos::Array<int>::const_iterator
     const_permutation_iterator;
 
     static inline int vertexDim( const MyMesh& mesh )
@@ -207,19 +207,19 @@ class MeshTraits<MyMesh>
     static inline const_element_iterator elementsEnd( const MyMesh& mesh )
     { return mesh.elementsEnd(); }
 
-    static inline const_connectivity_iterator 
+    static inline const_connectivity_iterator
     connectivityBegin( const MyMesh& mesh )
     { return mesh.connectivityBegin(); }
 
-    static inline const_connectivity_iterator 
+    static inline const_connectivity_iterator
     connectivityEnd( const MyMesh& mesh )
     { return mesh.connectivityEnd(); }
 
-    static inline const_permutation_iterator 
+    static inline const_permutation_iterator
     permutationBegin( const MyMesh& mesh )
     { return mesh.permutationBegin(); }
 
-    static inline const_permutation_iterator 
+    static inline const_permutation_iterator
     permutationEnd( const MyMesh& mesh )
     { return mesh.permutationEnd(); }
 };
@@ -267,34 +267,34 @@ class MyEvaluator : public DataTransferKit::FieldEvaluator<MyMesh::global_ordina
 {
   public:
 
-    MyEvaluator( const MyMesh& mesh, 
-		 const Teuchos::RCP< const Teuchos::Comm<int> >& comm )
-	: d_mesh( mesh )
-	, d_comm( comm )
+    MyEvaluator( const MyMesh& mesh,
+                 const Teuchos::RCP< const Teuchos::Comm<int> >& comm )
+        : d_mesh( mesh )
+        , d_comm( comm )
     { /* ... */ }
 
     ~MyEvaluator()
     { /* ... */ }
 
-    MyField evaluate( 
-	const Teuchos::ArrayRCP<MyMesh::global_ordinal_type>& elements,
-	const Teuchos::ArrayRCP<double>& coords )
+    MyField evaluate(
+        const Teuchos::ArrayRCP<MyMesh::global_ordinal_type>& elements,
+        const Teuchos::ArrayRCP<double>& coords )
     {
-	MyField evaluated_data( elements.size(), 1 );
-	for ( int n = 0; n < elements.size(); ++n )
-	{
-	    if ( std::find( d_mesh.elementsBegin(),
-			    d_mesh.elementsEnd(),
-			    elements[n] ) != d_mesh.elementsEnd() )
-	    {
-		*(evaluated_data.begin() + n ) = d_comm->getRank() + 1.0;
-	    }
-	    else
-	    {
- 		*(evaluated_data.begin() + n ) = 0.0;
-	    }
-	}
-	return evaluated_data;
+        MyField evaluated_data( elements.size(), 1 );
+        for ( int n = 0; n < elements.size(); ++n )
+        {
+            if ( std::find( d_mesh.elementsBegin(),
+                            d_mesh.elementsEnd(),
+                            elements[n] ) != d_mesh.elementsEnd() )
+            {
+                *(evaluated_data.begin() + n ) = d_comm->getRank() + 1.0;
+            }
+            else
+            {
+                 *(evaluated_data.begin() + n ) = 0.0;
+            }
+        }
+        return evaluated_data;
     }
 
   private:
@@ -316,96 +316,96 @@ Teuchos::RCP<MyMesh> buildMyMesh( int my_rank, int my_size, int edge_length )
     int idx;
     for ( int j = 0; j < edge_length; ++j )
     {
-	for ( int i = 0; i < edge_length; ++i )
-	{
-	    idx = i + j*edge_length;
-	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
-	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_vertices + idx ] = j;
-	    coords[ 2*num_vertices + idx ] = 0.0;
-	}
+        for ( int i = 0; i < edge_length; ++i )
+        {
+            idx = i + j*edge_length;
+            vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
+            coords[ idx ] = i + my_rank*(edge_length-1);
+            coords[ num_vertices + idx ] = j;
+            coords[ 2*num_vertices + idx ] = 0.0;
+        }
     }
     for ( int j = 0; j < edge_length; ++j )
     {
-	for ( int i = 0; i < edge_length; ++i )
-	{
-	    idx = i + j*edge_length + num_vertices / 2;
-	    vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
-	    coords[ idx ] = i + my_rank*(edge_length-1);
-	    coords[ num_vertices + idx ] = j;
-	    coords[ 2*num_vertices + idx ] = 1.0;
-	}
+        for ( int i = 0; i < edge_length; ++i )
+        {
+            idx = i + j*edge_length + num_vertices / 2;
+            vertex_handles[ idx ] = (long int) num_vertices*my_rank + idx;
+            coords[ idx ] = i + my_rank*(edge_length-1);
+            coords[ num_vertices + idx ] = j;
+            coords[ 2*num_vertices + idx ] = 1.0;
+        }
     }
-    
-    // Make the hexahedrons. 
+
+    // Make the hexahedrons.
     int num_elements = (edge_length-1)*(edge_length-1);
     Teuchos::Array<long int> hex_handles( num_elements );
     Teuchos::Array<long int> hex_connectivity( 8*num_elements );
     int elem_idx, vertex_idx;
     for ( int j = 0; j < (edge_length-1); ++j )
     {
-	for ( int i = 0; i < (edge_length-1); ++i )
-	{
-	    vertex_idx = i + j*edge_length;
-	    elem_idx = i + j*(edge_length-1);
+        for ( int i = 0; i < (edge_length-1); ++i )
+        {
+            vertex_idx = i + j*edge_length;
+            elem_idx = i + j*(edge_length-1);
 
-	    hex_handles[elem_idx] = num_elements*my_rank + elem_idx;
+            hex_handles[elem_idx] = num_elements*my_rank + elem_idx;
 
-	    hex_connectivity[elem_idx] 
-		= vertex_handles[vertex_idx];
+            hex_connectivity[elem_idx]
+                = vertex_handles[vertex_idx];
 
-	    hex_connectivity[num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+1];
+            hex_connectivity[num_elements+elem_idx]
+                = vertex_handles[vertex_idx+1];
 
-	    hex_connectivity[2*num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+edge_length+1];
+            hex_connectivity[2*num_elements+elem_idx]
+                = vertex_handles[vertex_idx+edge_length+1];
 
-	    hex_connectivity[3*num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+edge_length];
+            hex_connectivity[3*num_elements+elem_idx]
+                = vertex_handles[vertex_idx+edge_length];
 
-	    hex_connectivity[4*num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+num_vertices/2];
+            hex_connectivity[4*num_elements+elem_idx]
+                = vertex_handles[vertex_idx+num_vertices/2];
 
-	    hex_connectivity[5*num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+num_vertices/2+1];
+            hex_connectivity[5*num_elements+elem_idx]
+                = vertex_handles[vertex_idx+num_vertices/2+1];
 
- 	    hex_connectivity[6*num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+num_vertices/2+edge_length+1];
+             hex_connectivity[6*num_elements+elem_idx]
+                = vertex_handles[vertex_idx+num_vertices/2+edge_length+1];
 
-	    hex_connectivity[7*num_elements+elem_idx] 
-		= vertex_handles[vertex_idx+num_vertices/2+edge_length];
-	}
+            hex_connectivity[7*num_elements+elem_idx]
+                = vertex_handles[vertex_idx+num_vertices/2+edge_length];
+        }
     }
 
     Teuchos::Array<int> permutation_list( 8 );
     for ( int i = 0; i < permutation_list.size(); ++i )
     {
-	permutation_list[i] = i;
+        permutation_list[i] = i;
     }
 
     return Teuchos::rcp(
-	new MyMesh( vertex_handles, coords, hex_handles, hex_connectivity,
-		    permutation_list ) );
+        new MyMesh( vertex_handles, coords, hex_handles, hex_connectivity,
+                    permutation_list ) );
 }
 
 //---------------------------------------------------------------------------//
 // Coordinate field create function.
 //---------------------------------------------------------------------------//
-Teuchos::RCP<MyField> buildCoordinateField( int my_rank, int my_size, 
-					    int num_points, int edge_size )
+Teuchos::RCP<MyField> buildCoordinateField( int my_rank, int my_size,
+                                            int num_points, int edge_size )
 {
     std::srand( my_rank*num_points*2 );
     int point_dim = 3;
-    Teuchos::RCP<MyField> coordinate_field = 
-	Teuchos::rcp( new MyField(num_points*point_dim, point_dim ) );
+    Teuchos::RCP<MyField> coordinate_field =
+        Teuchos::rcp( new MyField(num_points*point_dim, point_dim ) );
 
     for ( int i = 0; i < num_points; ++i )
     {
-	*(coordinate_field->begin() + i) = 
-	    my_size * (edge_size-1) * (double) std::rand() / RAND_MAX;
-	*(coordinate_field->begin() + num_points + i ) = 
-	    (edge_size-1) * (double) std::rand() / RAND_MAX;
-	*(coordinate_field->begin() + 2*num_points + i ) = 0.5;
+        *(coordinate_field->begin() + i) =
+            my_size * (edge_size-1) * (double) std::rand() / RAND_MAX;
+        *(coordinate_field->begin() + num_points + i ) =
+            (edge_size-1) * (double) std::rand() / RAND_MAX;
+        *(coordinate_field->begin() + 2*num_points + i ) = 0.5;
     }
 
     return coordinate_field;
@@ -420,8 +420,8 @@ int main(int argc, char* argv[])
 
     // Setup communication.
     Teuchos::GlobalMPISession mpiSession(&argc,&argv);
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
-	Teuchos::DefaultComm<int>::getComm();
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+        Teuchos::DefaultComm<int>::getComm();
     int my_rank = comm->getRank();
     int my_size = comm->getSize();
 
@@ -429,26 +429,26 @@ int main(int argc, char* argv[])
     int edge_size = 11;
     Teuchos::ArrayRCP<Teuchos::RCP<MyMesh> > mesh_blocks( 1 );
     mesh_blocks[0] = buildMyMesh( my_rank, my_size, edge_size );
-    Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp( 
-	new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
+    Teuchos::RCP< MeshManager<MyMesh> > source_mesh_manager = Teuchos::rcp(
+        new MeshManager<MyMesh>( mesh_blocks, comm, 3 ) );
 
     // Setup target coordinate field.
     int num_points = (edge_size-1)*(edge_size-1);
-    Teuchos::RCP<MyField> target_coords = buildCoordinateField( my_rank, my_size, 
-								num_points, edge_size );
-    Teuchos::RCP< FieldManager<MyField> > target_coord_manager = 
-	Teuchos::rcp( new FieldManager<MyField>( target_coords, comm ) );
+    Teuchos::RCP<MyField> target_coords = buildCoordinateField( my_rank, my_size,
+                                                                num_points, edge_size );
+    Teuchos::RCP< FieldManager<MyField> > target_coord_manager =
+        Teuchos::rcp( new FieldManager<MyField>( target_coords, comm ) );
 
     // Create field evaluator.
-    Teuchos::RCP< FieldEvaluator<MyMesh::global_ordinal_type,MyField> > source_evaluator = 
-    	Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
+    Teuchos::RCP< FieldEvaluator<MyMesh::global_ordinal_type,MyField> > source_evaluator =
+            Teuchos::rcp( new MyEvaluator( *mesh_blocks[0], comm ) );
 
     // Create data target.
     int target_dim = 1;
-    Teuchos::RCP<MyField> target_field = 
-	Teuchos::rcp( new MyField( num_points, target_dim ) );
-    Teuchos::RCP< FieldManager<MyField> > target_space_manager = Teuchos::rcp( 
-	new FieldManager<MyField>( target_field, comm ) );
+    Teuchos::RCP<MyField> target_field =
+        Teuchos::rcp( new MyField( num_points, target_dim ) );
+    Teuchos::RCP< FieldManager<MyField> > target_space_manager = Teuchos::rcp(
+        new FieldManager<MyField>( target_field, comm ) );
 
     // Setup consistent interpolation mapping.
     SharedDomainMap<MyMesh,MyField> shared_domain_map( comm, 3 );
@@ -472,121 +472,121 @@ int main(int argc, char* argv[])
     int local_test_failed = 0;
     for ( long int n = 0; n < target_space_manager->field()->size(); ++n )
     {
-	source_rank = std::floor(target_coord_manager->field()->getData()[n] 
-				 / (edge_size-1));
-    	if ( source_rank+1 != target_space_manager->field()->getData()[n] )
-    	{
-    	    local_test_failed += 1;
-    	}
+        source_rank = std::floor(target_coord_manager->field()->getData()[n]
+                                 / (edge_size-1));
+            if ( source_rank+1 != target_space_manager->field()->getData()[n] )
+            {
+                local_test_failed += 1;
+            }
     }
     comm->barrier();
 
     int global_test_failed;
     Teuchos::reduceAll<int,int>( *comm,
-    				 Teuchos::REDUCE_SUM,
-    				 1,
-    				 &local_test_failed,
-    				 &global_test_failed );
-   
+                                     Teuchos::REDUCE_SUM,
+                                     1,
+                                     &local_test_failed,
+                                     &global_test_failed );
+
     if ( my_rank == 0 )
     {
-    	if ( global_test_failed )
-    	{
-    	    std::cout << std::endl << "TEST FAILURE " 
-		      << global_test_failed << std::endl;
-    	}
-    	else
-    	{
-    	    std::cout << std::endl << "TEST PASSED" << std::endl;
-    	}
+            if ( global_test_failed )
+            {
+                std::cout << std::endl << "TEST FAILURE "
+                      << global_test_failed << std::endl;
+            }
+            else
+            {
+                std::cout << std::endl << "TEST PASSED" << std::endl;
+            }
     }
     comm->barrier();
 
     // Timing.
-    double local_setup_time = 
-    	(double)(setup_end - setup_start) / CLOCKS_PER_SEC;
+    double local_setup_time =
+            (double)(setup_end - setup_start) / CLOCKS_PER_SEC;
 
     double global_min_setup_time;
     Teuchos::reduceAll<int,double>( *comm,
-    				    Teuchos::REDUCE_MIN,
-    				    1,
-    				    &local_setup_time,
-    				    &global_min_setup_time );
+                                        Teuchos::REDUCE_MIN,
+                                        1,
+                                        &local_setup_time,
+                                        &global_min_setup_time );
 
     double global_max_setup_time;
     Teuchos::reduceAll<int,double>( *comm,
-    				    Teuchos::REDUCE_MAX,
-    				    1,
-    				    &local_setup_time,
-    				    &global_max_setup_time );
+                                        Teuchos::REDUCE_MAX,
+                                        1,
+                                        &local_setup_time,
+                                        &global_max_setup_time );
 
     double global_average_setup_time;
     Teuchos::reduceAll<int,double>( *comm,
-    				    Teuchos::REDUCE_SUM,
-    				    1,
-    				    &local_setup_time,
-    				    &global_average_setup_time );
+                                        Teuchos::REDUCE_SUM,
+                                        1,
+                                        &local_setup_time,
+                                        &global_average_setup_time );
     global_average_setup_time /= my_size;
 
-    double local_apply_time = 
-    	(double)(apply_end - apply_start) / CLOCKS_PER_SEC;
+    double local_apply_time =
+            (double)(apply_end - apply_start) / CLOCKS_PER_SEC;
 
     double global_min_apply_time;
     Teuchos::reduceAll<int,double>( *comm,
-    				    Teuchos::REDUCE_MIN,
-    				    1,
-    				    &local_apply_time,
-    				    &global_min_apply_time );
+                                        Teuchos::REDUCE_MIN,
+                                        1,
+                                        &local_apply_time,
+                                        &global_min_apply_time );
 
     double global_max_apply_time;
     Teuchos::reduceAll<int,double>( *comm,
-    				    Teuchos::REDUCE_MAX,
-    				    1,
-    				    &local_apply_time,
-    				    &global_max_apply_time );
+                                        Teuchos::REDUCE_MAX,
+                                        1,
+                                        &local_apply_time,
+                                        &global_max_apply_time );
 
     double global_average_apply_time;
     Teuchos::reduceAll<int,double>( *comm,
-    				    Teuchos::REDUCE_SUM,
-    				    1,
-    				    &local_apply_time,
-    				    &global_average_apply_time );
+                                        Teuchos::REDUCE_SUM,
+                                        1,
+                                        &local_apply_time,
+                                        &global_average_apply_time );
     global_average_apply_time /= my_size;
 
     comm->barrier();
 
     if ( my_rank == 0 )
     {
-    	std::cout << "==================================================" 
-    		  << std::endl;
-    	std::cout << "DTK weak scaling study" << std::endl;
-    	std::cout << "Number of processors:      " << my_size << std::endl;
-    	std::cout << "Local number of elements:  " << (edge_size-1)*(edge_size-1)
-    		  << std::endl;
-    	std::cout << "Local number of points:    " << (edge_size-1)*(edge_size-1)
-    		  << std::endl;
-    	std::cout << "Global number of elements: " << (edge_size-1)*(edge_size-1)*my_size 
-    		  << std::endl;
-    	std::cout << "Global number of points:   " << (edge_size-1)*(edge_size-1)*my_size 
-    		  << std::endl;
-    	std::cout << "--------------------------------------------------"
-    		  << std::endl;
-    	std::cout << "Global min setup time (s):     " 
-    		  << global_min_setup_time << std::endl;
-    	std::cout << "Global max setup time (s):     " 
-    		  << global_max_setup_time << std::endl;
-    	std::cout << "Global average setup time (s): " 
-    		  << global_average_setup_time << std::endl;
-    	std::cout << "--------------------------------------------------"
-    		  << std::endl;
-    	std::cout << "Global min apply time (s):     " 
-    		  << global_min_apply_time << std::endl;
-    	std::cout << "Global max apply time (s):     " 
-    		  << global_max_apply_time << std::endl;
-    	std::cout << "Global average apply time (s): " 
-    		  << global_average_apply_time << std::endl;
-    	std::cout << "==================================================" 
-    		  << std::endl;
+            std::cout << "=================================================="
+                      << std::endl;
+            std::cout << "DTK weak scaling study" << std::endl;
+            std::cout << "Number of processors:      " << my_size << std::endl;
+            std::cout << "Local number of elements:  " << (edge_size-1)*(edge_size-1)
+                      << std::endl;
+            std::cout << "Local number of points:    " << (edge_size-1)*(edge_size-1)
+                      << std::endl;
+            std::cout << "Global number of elements: " << (edge_size-1)*(edge_size-1)*my_size
+                      << std::endl;
+            std::cout << "Global number of points:   " << (edge_size-1)*(edge_size-1)*my_size
+                      << std::endl;
+            std::cout << "--------------------------------------------------"
+                      << std::endl;
+            std::cout << "Global min setup time (s):     "
+                      << global_min_setup_time << std::endl;
+            std::cout << "Global max setup time (s):     "
+                      << global_max_setup_time << std::endl;
+            std::cout << "Global average setup time (s): "
+                      << global_average_setup_time << std::endl;
+            std::cout << "--------------------------------------------------"
+                      << std::endl;
+            std::cout << "Global min apply time (s):     "
+                      << global_min_apply_time << std::endl;
+            std::cout << "Global max apply time (s):     "
+                      << global_max_apply_time << std::endl;
+            std::cout << "Global average apply time (s): "
+                      << global_average_apply_time << std::endl;
+            std::cout << "=================================================="
+                      << std::endl;
     }
 
     comm->barrier();

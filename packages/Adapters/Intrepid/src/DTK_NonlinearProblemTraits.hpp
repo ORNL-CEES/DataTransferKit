@@ -51,10 +51,10 @@ namespace DataTransferKit
 template<typename UndefinedNonlinearProblem>
 struct UndefinedNonlinearProblemTraits
 {
-    static inline UndefinedNonlinearProblem notDefined() 
-    { 
-	return UndefinedNonlinearProblem::
-	    this_type_is_missing_a_specialization(); 
+    static inline UndefinedNonlinearProblem notDefined()
+    {
+        return UndefinedNonlinearProblem::
+            this_type_is_missing_a_specialization();
     }
 };
 
@@ -79,26 +79,26 @@ class NonlinearProblemTraits
     typedef typename MDArray::scalar_type Scalar;
 
     //! Update the state of the nonlinear problem given a new solution vector.
-    static inline void updateState( 
-	NonlinearProblem& problem, const MDArray& u )
-    { 
-	UndefinedNonlinearProblemTraits<NonlinearProblem>::notDefined();
+    static inline void updateState(
+        NonlinearProblem& problem, const MDArray& u )
+    {
+        UndefinedNonlinearProblemTraits<NonlinearProblem>::notDefined();
     }
 
     //! Compute the nonlinear residual given a new solution vector. F must be
     //! allocated.
-    static inline void evaluateResidual( 
-	const NonlinearProblem& problem, const MDArray& u, MDArray& F )
-    { 
-	UndefinedNonlinearProblemTraits<NonlinearProblem>::notDefined();
+    static inline void evaluateResidual(
+        const NonlinearProblem& problem, const MDArray& u, MDArray& F )
+    {
+        UndefinedNonlinearProblemTraits<NonlinearProblem>::notDefined();
     }
 
     //! Compute the Jacobian matrix given a new solution vector. J must be
     //! allocated.
-    static inline void evaluateJacobian( 
-	const NonlinearProblem& problem, const MDArray& u, MDArray& J )
-    { 
-	UndefinedNonlinearProblemTraits<NonlinearProblem>::notDefined();
+    static inline void evaluateJacobian(
+        const NonlinearProblem& problem, const MDArray& u, MDArray& J )
+    {
+        UndefinedNonlinearProblemTraits<NonlinearProblem>::notDefined();
     }
 };
 

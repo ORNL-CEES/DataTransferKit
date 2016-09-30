@@ -54,7 +54,7 @@ ClassicMeshElement<Mesh>::ClassicMeshElement(
     const int block_id )
 {
     this->b_entity_impl = Teuchos::rcp(
-	new ClassicMeshElementImpl<Mesh>(mesh,global_id,block_id) );
+        new ClassicMeshElementImpl<Mesh>(mesh,global_id,block_id) );
 }
 
 //---------------------------------------------------------------------------//

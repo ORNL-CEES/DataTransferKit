@@ -69,12 +69,12 @@ class Cylinder
 
     // Constructor.
     Cylinder( const double length, const double radius,
-	      const double centroid_x, const double centroid_y,
-	      const double centroid_z );
+              const double centroid_x, const double centroid_y,
+              const double centroid_z );
 
     // Determine if a point is in the cylinder within a specified tolerance.
     bool pointInCylinder( const Teuchos::Array<double>& coords,
-			  const double tolerance ) const;
+                          const double tolerance ) const;
 
     //! Get the length of the cylinder.
     double length() const
@@ -94,7 +94,7 @@ class Cylinder
     BoundingBox boundingBox() const;
 
   private:
-    
+
     // Length.
     double d_length;
 
@@ -112,7 +112,7 @@ class Cylinder
 };
 
 //! overload for printing cylinder
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c); 
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c);
 
 //---------------------------------------------------------------------------//
 // GeometryTraits Specialization.
@@ -131,8 +131,8 @@ class GeometryTraits<Cylinder>
     { return cylinder.volume(); }
 
     static inline bool pointInGeometry( const Cylinder& cylinder,
-					const Teuchos::Array<double>& coords,
-					const double tolerance )
+                                        const Teuchos::Array<double>& coords,
+                                        const double tolerance )
     { return cylinder.pointInCylinder( coords, tolerance ); }
 
     static inline BoundingBox boundingBox( const Cylinder& cylinder )

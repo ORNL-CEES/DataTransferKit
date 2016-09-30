@@ -76,7 +76,7 @@ class ReferenceHexIntegrationRule
 
     /*!
      * \brief Given an entity and an integration order, get its integration
-     * rule. 
+     * rule.
      *
      * \param entity Get the integration rule for this entity.
      *
@@ -92,10 +92,10 @@ class ReferenceHexIntegrationRule
      * weights[N].
      */
     void getIntegrationRule(
-	const DataTransferKit::Entity& entity,
-	const int order,
-	Teuchos::Array<Teuchos::Array<double> >& reference_points,
-	Teuchos::Array<double>& weights ) const override;
+        const DataTransferKit::Entity& entity,
+        const int order,
+        Teuchos::Array<Teuchos::Array<double> >& reference_points,
+        Teuchos::Array<double>& weights ) const override;
 
   private:
 

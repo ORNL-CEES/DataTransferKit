@@ -87,12 +87,12 @@ class NodeToNodeOperator : virtual public MapOperator
      * compatible with.
      */
     NodeToNodeOperator(
-	const Teuchos::RCP<const TpetraMap>& domain_map,
-	const Teuchos::RCP<const TpetraMap>& range_map,
-	const Teuchos::ParameterList& parameters );
+        const Teuchos::RCP<const TpetraMap>& domain_map,
+        const Teuchos::RCP<const TpetraMap>& range_map,
+        const Teuchos::ParameterList& parameters );
 
   protected:
-    
+
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
@@ -108,17 +108,17 @@ class NodeToNodeOperator : virtual public MapOperator
      * \param parameters Parameters for the setup.
      */
     void setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
-		    const Teuchos::RCP<FunctionSpace>& range_space ) override;
+                    const Teuchos::RCP<FunctionSpace>& range_space ) override;
 
     /*!
      * \brief Apply the operator.
      */
     void applyImpl(
-	const TpetraMultiVector& X,
-	TpetraMultiVector &Y,
-	Teuchos::ETransp mode = Teuchos::NO_TRANS,
-	double alpha = Teuchos::ScalarTraits<double>::one(),
-	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+        const TpetraMultiVector& X,
+        TpetraMultiVector &Y,
+        Teuchos::ETransp mode = Teuchos::NO_TRANS,
+        double alpha = Teuchos::ScalarTraits<double>::one(),
+        double beta = Teuchos::ScalarTraits<double>::zero()) const override;
 
     /*
      * \brief Transpose apply option.
@@ -131,7 +131,7 @@ class NodeToNodeOperator : virtual public MapOperator
     void getNodeCoordsAndIds( const Teuchos::RCP<FunctionSpace>& space,
                               Teuchos::ArrayRCP<double>& centers,
                               Teuchos::ArrayRCP<GO>& support_ids ) const;
-    
+
   private:
 
     // Exporter

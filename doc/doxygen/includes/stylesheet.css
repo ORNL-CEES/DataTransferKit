@@ -6,49 +6,49 @@ BODY,P,TD,LI {
 
 .H1
 {
-	font-size: 18pt;
-	font-weight: bold;
+        font-size: 18pt;
+        font-weight: bold;
 }
 
 .H2
 {
-	font-size: 110%;
-	font-weight: bold;
+        font-size: 110%;
+        font-weight: bold;
 }
 
 .H3
 {
-	font-size: 12pt;
-	font-weight: bold;
+        font-size: 12pt;
+        font-weight: bold;
 }
 
 .SMALL
 {
-	font-size: 80%;
+        font-size: 80%;
 }
 
 H1
 {
-	text-align: center; 
-	font-size: 18pt;
-	font-weight: bold;
+        text-align: center;
+        font-size: 18pt;
+        font-weight: bold;
 }
 
 H2
 {
-	font-size: 110%;
-	font-weight: bold;
+        font-size: 110%;
+        font-weight: bold;
 }
 
 H3
 {
-	font-size: 12pt;
-	font-weight: bold;
+        font-size: 12pt;
+        font-weight: bold;
 }
 
 SMALL
 {
-	font-size: 80%;
+        font-size: 80%;
 }
 
 CAPTION { font-weight: bold }
@@ -68,29 +68,29 @@ TD.mdname { background-color: #f2f2ff; font-weight: bold; color: #602020; width:
 DIV.groupHeader { margin-left: 16px; margin-top: 12px; margin-bottom: 6px; font-weight: bold }
 DIV.groupText { margin-left: 16px; font-style: italic; font-size: smaller }
 BODY {                   }
-TD.indexkey { 
-   background-color: #eeeeff; 
-   font-weight: bold; 
-   padding-right  : 10px; 
-   padding-top    : 2px; 
-   padding-left   : 10px; 
-   padding-bottom : 2px; 
-   margin-left    : 0px; 
-   margin-right   : 0px; 
-   margin-top     : 2px; 
-   margin-bottom  : 2px  
+TD.indexkey {
+   background-color: #eeeeff;
+   font-weight: bold;
+   padding-right  : 10px;
+   padding-top    : 2px;
+   padding-left   : 10px;
+   padding-bottom : 2px;
+   margin-left    : 0px;
+   margin-right   : 0px;
+   margin-top     : 2px;
+   margin-bottom  : 2px
 }
-TD.indexvalue { 
-   background-color: #eeeeff; 
-   font-style: italic; 
-   padding-right  : 10px; 
-   padding-top    : 2px; 
-   padding-left   : 10px; 
-   padding-bottom : 2px; 
-   margin-left    : 0px; 
-   margin-right   : 0px; 
-   margin-top     : 2px; 
-   margin-bottom  : 2px  
+TD.indexvalue {
+   background-color: #eeeeff;
+   font-style: italic;
+   padding-right  : 10px;
+   padding-top    : 2px;
+   padding-left   : 10px;
+   padding-bottom : 2px;
+   margin-left    : 0px;
+   margin-right   : 0px;
+   margin-top     : 2px;
+   margin-bottom  : 2px
 }
 FONT.keyword       { color: #008000 }
 FONT.keywordtype   { color: #604020 }

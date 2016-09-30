@@ -1,11 +1,11 @@
 <ParameterList name="Moving Least Square Unit Test">
   <Parameter name="Map Type" type="string" value="Point Cloud"/>
   <ParameterList name="Point Cloud">
-    <Parameter name="Map Type" type="string" value="Moving Least Square Reconstruction"/>    
+    <Parameter name="Map Type" type="string" value="Moving Least Square Reconstruction"/>
     <Parameter name="Basis Type" type="string" value="Wendland"/>
     <Parameter name="Basis Order" type="int" value="0"/>
     <Parameter name="Spatial Dimension" type="int" value="3"/>
-    <Parameter name="Type of Search" type="string" value="Nearest Neighbor"/>  
+    <Parameter name="Type of Search" type="string" value="Nearest Neighbor"/>
     <Parameter name="Num Neighbors" type="int" value="12"/>
   </ParameterList>
 </ParameterList>

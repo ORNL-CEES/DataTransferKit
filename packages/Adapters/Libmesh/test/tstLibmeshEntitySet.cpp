@@ -89,12 +89,12 @@ TEUCHOS_UNIT_TEST( LibmeshEntitySet, hex_8_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
-    
+
     // Create the mesh.
     int space_dim = 3;
     const std::string argv_string = "unit_test";
@@ -103,8 +103,8 @@ TEUCHOS_UNIT_TEST( LibmeshEntitySet, hex_8_test )
     TEST_ASSERT( libMesh::initialized() );
     TEST_EQUALITY( (int) libmesh_init.comm().rank(), comm->getRank() );
     Teuchos::RCP<libMesh::Mesh> mesh = Teuchos::rcp(
-	new libMesh::Mesh(libmesh_init.comm(),space_dim) );
-    
+        new libMesh::Mesh(libmesh_init.comm(),space_dim) );
+
     // Create the nodes.
     int rank = comm->getRank();
     Teuchos::Array<libMesh::Node*> nodes( 8 );
@@ -113,57 +113,57 @@ TEUCHOS_UNIT_TEST( LibmeshEntitySet, hex_8_test )
     node_coords[1] = 0.0;
     node_coords[2] = 0.0;
     nodes[0] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 0, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         0, rank );
+
     node_coords[0] = 1.0;
     node_coords[1] = 0.0;
     node_coords[2] = 0.0;
     nodes[1] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 1, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         1, rank );
+
     node_coords[0] = 1.0;
     node_coords[1] = 1.0;
     node_coords[2] = 0.0;
     nodes[2] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 2, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         2, rank );
+
     node_coords[0] = 0.0;
     node_coords[1] = 1.0;
     node_coords[2] = 0.0;
     nodes[3] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 3, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         3, rank );
+
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
     node_coords[2] = 1.0;
     nodes[4] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 4, rank );
-	
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         4, rank );
+
     node_coords[0] = 1.0;
     node_coords[1] = 0.0;
     node_coords[2] = 1.0;
     nodes[5] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 5, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         5, rank );
+
     node_coords[0] = 1.0;
     node_coords[1] = 1.0;
     node_coords[2] = 1.0;
     nodes[6] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 6, rank );
-	
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         6, rank );
+
     node_coords[0] = 0.0;
     node_coords[1] = 1.0;
     node_coords[2] = 1.0;
     nodes[7] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 7, rank );
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         7, rank );
 
     // Make a hex-8.
     libMesh::Elem* hex_elem = mesh->add_elem( new libMesh::Hex8 );
@@ -191,20 +191,20 @@ TEUCHOS_UNIT_TEST( LibmeshEntitySet, hex_8_test )
 
     // Create an entity set.
     Teuchos::RCP<DataTransferKit::EntitySet> entity_set = Teuchos::rcp(
-	new DataTransferKit::LibmeshEntitySet(mesh) );
+        new DataTransferKit::LibmeshEntitySet(mesh) );
 
     // Test the set.
-    Teuchos::RCP<const Teuchos::Comm<int> > set_comm = 
-	entity_set->communicator();
+    Teuchos::RCP<const Teuchos::Comm<int> > set_comm =
+        entity_set->communicator();
     TEST_EQUALITY( set_comm->getRank(), comm->getRank() );
     TEST_EQUALITY( set_comm->getSize(), comm->getSize() );
     TEST_EQUALITY( space_dim, entity_set->physicalDimension() );
 
     // Make an iterator for the hex.
-    std::function<bool(DataTransferKit::Entity)> all_pred = 
-	[=] (DataTransferKit::Entity){return true;};
-    DataTransferKit::EntityIterator volume_iterator = 
-	entity_set->entityIterator( 3, all_pred );
+    std::function<bool(DataTransferKit::Entity)> all_pred =
+        [=] (DataTransferKit::Entity){return true;};
+    DataTransferKit::EntityIterator volume_iterator =
+        entity_set->entityIterator( 3, all_pred );
 
     // Test the volume iterator.
     TEST_EQUALITY( volume_iterator.size(), 1 );
@@ -218,11 +218,11 @@ TEUCHOS_UNIT_TEST( LibmeshEntitySet, hex_8_test )
     TEST_EQUALITY( space_dim, volume_iterator->physicalDimension() );
 
     Teuchos::RCP<DataTransferKit::EntityExtraData> extra_data_1 =
-	volume_iterator->extraData();
+        volume_iterator->extraData();
     TEST_EQUALITY( hex_elem,
-		   Teuchos::rcp_dynamic_cast<
-		   DataTransferKit::LibmeshEntityExtraData<libMesh::Elem> >(
-		       extra_data_1)->d_libmesh_geom.getRawPtr() );
+                   Teuchos::rcp_dynamic_cast<
+                   DataTransferKit::LibmeshEntityExtraData<libMesh::Elem> >(
+                       extra_data_1)->d_libmesh_geom.getRawPtr() );
 
     Teuchos::Tuple<double,6> hex_bounds_1;
     volume_iterator->boundingBox( hex_bounds_1 );
@@ -239,8 +239,8 @@ TEUCHOS_UNIT_TEST( LibmeshEntitySet, hex_8_test )
     TEST_ASSERT( volume_iterator == volume_iterator.end() );
 
     // Make an iterator for the nodes.
-    DataTransferKit::EntityIterator node_iterator = 
-	entity_set->entityIterator( 0, all_pred );
+    DataTransferKit::EntityIterator node_iterator =
+        entity_set->entityIterator( 0, all_pred );
 
     // Test the node iterator.
     unsigned num_nodes = 8;
@@ -251,10 +251,10 @@ TEUCHOS_UNIT_TEST( LibmeshEntitySet, hex_8_test )
     DataTransferKit::EntityIterator node_end = node_iterator.end();
     auto node_id_it = nodes.begin();
     for ( node_iterator = node_begin;
-	  node_iterator != node_end;
-	  ++node_iterator, ++node_id_it )
+          node_iterator != node_end;
+          ++node_iterator, ++node_id_it )
     {
-	TEST_EQUALITY( node_iterator->id(), (*node_id_it)->id() );
+        TEST_EQUALITY( node_iterator->id(), (*node_id_it)->id() );
     }
 
     // Get each entity and check.
@@ -263,35 +263,35 @@ TEUCHOS_UNIT_TEST( LibmeshEntitySet, hex_8_test )
     TEST_EQUALITY( set_hex.id(), hex_elem->id() );
     for ( unsigned i = 0; i < num_nodes; ++i )
     {
-    	DataTransferKit::Entity set_node;
-    	entity_set->getEntity( nodes[i]->id(), 0, set_node );
-    	TEST_EQUALITY( set_node.id(), nodes[i]->id() );
+            DataTransferKit::Entity set_node;
+            entity_set->getEntity( nodes[i]->id(), 0, set_node );
+            TEST_EQUALITY( set_node.id(), nodes[i]->id() );
     }
-    
+
     // Check the adjacency function.
     Teuchos::Array<DataTransferKit::Entity> hex_adjacent_volumes;
     entity_set->getAdjacentEntities( set_hex, 3,
-    				     hex_adjacent_volumes );
+                                         hex_adjacent_volumes );
     TEST_EQUALITY( 0, hex_adjacent_volumes.size() );
 
     Teuchos::Array<DataTransferKit::Entity> hex_adjacent_nodes;
     entity_set->getAdjacentEntities( set_hex, 0,
-    				     hex_adjacent_nodes );
+                                         hex_adjacent_nodes );
     TEST_EQUALITY( num_nodes, hex_adjacent_nodes.size() );
     for ( unsigned i = 0; i < num_nodes; ++i )
     {
-    	TEST_EQUALITY( hex_adjacent_nodes[i].id(),
-    		       nodes[i]->id() );
+            TEST_EQUALITY( hex_adjacent_nodes[i].id(),
+                           nodes[i]->id() );
     }
 
     for ( unsigned i = 0; i < num_nodes; ++i )
     {
-    	Teuchos::Array<DataTransferKit::Entity> node_adjacent_volumes;
-    	entity_set->getAdjacentEntities( hex_adjacent_nodes[i], 3,
-    					 node_adjacent_volumes );
-    	TEST_EQUALITY( 1, node_adjacent_volumes.size() );
-    	TEST_EQUALITY( node_adjacent_volumes[0].id(),
-    		       hex_elem->id() );
+            Teuchos::Array<DataTransferKit::Entity> node_adjacent_volumes;
+            entity_set->getAdjacentEntities( hex_adjacent_nodes[i], 3,
+                                             node_adjacent_volumes );
+            TEST_EQUALITY( 1, node_adjacent_volumes.size() );
+            TEST_EQUALITY( node_adjacent_volumes[0].id(),
+                           hex_elem->id() );
     }
 }
 

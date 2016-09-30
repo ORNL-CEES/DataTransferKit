@@ -61,7 +61,7 @@ class LibmeshEntityExtraData : public DataTransferKit::EntityExtraData
   public:
 
     LibmeshEntityExtraData( const Teuchos::Ptr<LibmeshGeom>& libmesh_geom )
-	: d_libmesh_geom( libmesh_geom )
+        : d_libmesh_geom( libmesh_geom )
     { /* ... */ }
 
     ~LibmeshEntityExtraData() { /* ... */ }

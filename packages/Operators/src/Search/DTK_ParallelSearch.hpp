@@ -79,32 +79,32 @@ class ParallelSearch
      * \brief Constructor.
      */
     ParallelSearch( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-		    const int physical_dimension,
-		    const EntityIterator& domain_iterator,
-		    const Teuchos::RCP<EntityLocalMap>& domain_local_map,
-		    const Teuchos::ParameterList& parameters );
+                    const int physical_dimension,
+                    const EntityIterator& domain_iterator,
+                    const Teuchos::RCP<EntityLocalMap>& domain_local_map,
+                    const Teuchos::ParameterList& parameters );
 
     /*
      * \brief Search the domain with the range entity centroids and construct
      * the graph. This will update the state of the object.
      */
     void search( const EntityIterator& range_iterator,
-		 const Teuchos::RCP<EntityLocalMap>& range_local_map,
-		 const Teuchos::ParameterList& parameters );
+                 const Teuchos::RCP<EntityLocalMap>& range_local_map,
+                 const Teuchos::ParameterList& parameters );
 
     /*!
      * \brief Given a domain entity id on a domain process, get the ids of the
      * range entities that mapped to it.
      */
-    void getRangeEntitiesFromDomain( 
-	const EntityId domain_id, Teuchos::Array<EntityId>& range_ids ) const;
+    void getRangeEntitiesFromDomain(
+        const EntityId domain_id, Teuchos::Array<EntityId>& range_ids ) const;
 
     /*!
      * \brief Given a range entity id on a range process, get the ids of the
      * domain entities that it mapped to.
      */
-    void getDomainEntitiesFromRange( 
-	const EntityId range_id, Teuchos::Array<EntityId>& domain_ids ) const;
+    void getDomainEntitiesFromRange(
+        const EntityId range_id, Teuchos::Array<EntityId>& domain_ids ) const;
 
     /*!
      * \brief Get the owner rank of a given range entity on a domain process.
@@ -120,10 +120,10 @@ class ParallelSearch
      * \brief Get the parametric coordinates of the range entities in the
      * domain entities on a domain process.
      */
-    void rangeParametricCoordinatesInDomain( 
-	const EntityId domain_id,
-	const EntityId range_id,
-	Teuchos::ArrayView<const double>& parametric_coords ) const;
+    void rangeParametricCoordinatesInDomain(
+        const EntityId domain_id,
+        const EntityId range_id,
+        Teuchos::ArrayView<const double>& parametric_coords ) const;
 
     /*!
      * \brief Return the ids of the range entities that were not during the
@@ -173,8 +173,8 @@ class ParallelSearch
     // entities. The first key is the range id, the second key is the domain
     // id.
     std::unordered_map<EntityId,
-		       std::unordered_map<EntityId,Teuchos::Array<double> > 
-		       > d_parametric_coords;
+                       std::unordered_map<EntityId,Teuchos::Array<double> >
+                       > d_parametric_coords;
 
     // Boolean for tracking missed range entities.
     bool d_track_missed_range_entities;

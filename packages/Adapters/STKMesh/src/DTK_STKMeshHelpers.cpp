@@ -55,64 +55,64 @@ namespace DataTransferKit
 const stk::mesh::Entity& STKMeshHelpers::extractEntity( const Entity dtk_entity )
 {
     return Teuchos::rcp_dynamic_cast<STKMeshEntityExtraData>(
-	dtk_entity.extraData() )->d_stk_entity;
+        dtk_entity.extraData() )->d_stk_entity;
 }
 
 //---------------------------------------------------------------------------//
 // Given a topological dimension, get the STK entity rank.
-stk::mesh::EntityRank STKMeshHelpers::getRankFromTopologicalDimension( 
+stk::mesh::EntityRank STKMeshHelpers::getRankFromTopologicalDimension(
     const int topo_dim, const int space_dim )
 {
     stk::mesh::EntityRank stk_rank = stk::topology::INVALID_RANK;
 
     switch( space_dim )
     {
-	case 3:
-	    switch( topo_dim )
-	    {
-		case 0:
-		    stk_rank = stk::topology::NODE_RANK;
-		    break;
-		case 1:
-		    stk_rank = stk::topology::EDGE_RANK;
-		    break;
-		case 2:
-		    stk_rank = stk::topology::FACE_RANK;
-		    break;
-		case 3:
-		    stk_rank = stk::topology::ELEM_RANK;
-		    break;
-		default:
-		    DTK_CHECK( 0 == topo_dim ||
-			       1 == topo_dim ||
-			       2 == topo_dim ||
-			       3 == topo_dim );
-		    break;
-	    }
-	    break;
+        case 3:
+            switch( topo_dim )
+            {
+                case 0:
+                    stk_rank = stk::topology::NODE_RANK;
+                    break;
+                case 1:
+                    stk_rank = stk::topology::EDGE_RANK;
+                    break;
+                case 2:
+                    stk_rank = stk::topology::FACE_RANK;
+                    break;
+                case 3:
+                    stk_rank = stk::topology::ELEM_RANK;
+                    break;
+                default:
+                    DTK_CHECK( 0 == topo_dim ||
+                               1 == topo_dim ||
+                               2 == topo_dim ||
+                               3 == topo_dim );
+                    break;
+            }
+            break;
 
-	case 2:
-	    switch( topo_dim )
-	    {
-		case 0:
-		    stk_rank = stk::topology::NODE_RANK;
-		    break;
-		case 1:
-		    stk_rank = stk::topology::EDGE_RANK;
-		    break;
-		case 2:
-		    stk_rank = stk::topology::ELEM_RANK;
-		    break;
-		default:
-		    DTK_CHECK( 0 == topo_dim ||
-			       1 == topo_dim ||
-			       2 == topo_dim );
-		    break;
-	    }
-	    break;
+        case 2:
+            switch( topo_dim )
+            {
+                case 0:
+                    stk_rank = stk::topology::NODE_RANK;
+                    break;
+                case 1:
+                    stk_rank = stk::topology::EDGE_RANK;
+                    break;
+                case 2:
+                    stk_rank = stk::topology::ELEM_RANK;
+                    break;
+                default:
+                    DTK_CHECK( 0 == topo_dim ||
+                               1 == topo_dim ||
+                               2 == topo_dim );
+                    break;
+            }
+            break;
 
-	default:
-	    stk_rank = stk::topology::NODE_RANK;
+        default:
+            stk_rank = stk::topology::NODE_RANK;
     }
 
     return stk_rank;
@@ -127,53 +127,53 @@ int STKMeshHelpers::getTopologicalDimensionFromRank(
 
     switch( space_dim )
     {
-	case 3:
-	    switch( stk_rank )
-	    {
-		case stk::topology::NODE_RANK:
-		    topo_dim = 0;
-		    break;
-		case stk::topology::EDGE_RANK:
-		    topo_dim = 1;
-		    break;
-		case stk::topology::FACE_RANK:
-		    topo_dim = 2;
-		    break;
-		case stk::topology::ELEM_RANK:
-		    topo_dim = 3;
-		    break;
-		default:
-		    DTK_CHECK( stk::topology::NODE_RANK == stk_rank ||
-			       stk::topology::EDGE_RANK == stk_rank ||
-			       stk::topology::FACE_RANK == stk_rank ||
-			       stk::topology::ELEM_RANK == stk_rank );
-		    break;
-	    }
-	    break;
+        case 3:
+            switch( stk_rank )
+            {
+                case stk::topology::NODE_RANK:
+                    topo_dim = 0;
+                    break;
+                case stk::topology::EDGE_RANK:
+                    topo_dim = 1;
+                    break;
+                case stk::topology::FACE_RANK:
+                    topo_dim = 2;
+                    break;
+                case stk::topology::ELEM_RANK:
+                    topo_dim = 3;
+                    break;
+                default:
+                    DTK_CHECK( stk::topology::NODE_RANK == stk_rank ||
+                               stk::topology::EDGE_RANK == stk_rank ||
+                               stk::topology::FACE_RANK == stk_rank ||
+                               stk::topology::ELEM_RANK == stk_rank );
+                    break;
+            }
+            break;
 
-	case 2:
-	    switch( stk_rank )
-	    {
-		case stk::topology::NODE_RANK:
-		    topo_dim = 0;
-		    break;
-		case stk::topology::EDGE_RANK:
-		    topo_dim = 1;
-		    break;
-		case stk::topology::ELEM_RANK:
-		    topo_dim = 2;
-		    break;
-		default:
-		    DTK_CHECK( stk::topology::NODE_RANK == stk_rank ||
-			       stk::topology::EDGE_RANK == stk_rank ||
-			       stk::topology::ELEM_RANK == stk_rank );
-		    break;
-	    }
-	    break;
+        case 2:
+            switch( stk_rank )
+            {
+                case stk::topology::NODE_RANK:
+                    topo_dim = 0;
+                    break;
+                case stk::topology::EDGE_RANK:
+                    topo_dim = 1;
+                    break;
+                case stk::topology::ELEM_RANK:
+                    topo_dim = 2;
+                    break;
+                default:
+                    DTK_CHECK( stk::topology::NODE_RANK == stk_rank ||
+                               stk::topology::EDGE_RANK == stk_rank ||
+                               stk::topology::ELEM_RANK == stk_rank );
+                    break;
+            }
+            break;
 
-	default:
-	    DTK_CHECK( 3 == space_dim || 2 == space_dim );
-	    break;
+        default:
+            DTK_CHECK( 3 == space_dim || 2 == space_dim );
+            break;
     }
 
     return topo_dim;
@@ -181,49 +181,49 @@ int STKMeshHelpers::getTopologicalDimensionFromRank(
 
 //---------------------------------------------------------------------------//
 // Given a DTK entity, return the corresponding STK entity key.
-stk::mesh::EntityKey 
+stk::mesh::EntityKey
 STKMeshHelpers::getKeyFromEntity( const Entity dtk_entity )
 {
-    return stk::mesh::EntityKey( 
-	getRankFromTopologicalDimension(
-	    dtk_entity.topologicalDimension(),dtk_entity.physicalDimension()),
-	dtk_entity.id() );
+    return stk::mesh::EntityKey(
+        getRankFromTopologicalDimension(
+            dtk_entity.topologicalDimension(),dtk_entity.physicalDimension()),
+        dtk_entity.id() );
 }
 
 //---------------------------------------------------------------------------//
 // Given a STK entity, return its shards topology.
 shards::CellTopology
 STKMeshHelpers::getShardsTopology( const stk::mesh::Entity stk_entity,
-				   const stk::mesh::BulkData& bulk_data )
+                                   const stk::mesh::BulkData& bulk_data )
 {
     return stk::mesh::get_cell_topology(
-	bulk_data.bucket(stk_entity).topology() );
+        bulk_data.bucket(stk_entity).topology() );
 }
 
 //---------------------------------------------------------------------------//
 // Given a set of STK entities, return the coordinates of its nodes in a field
 // container ordered by canonical node order (N,D).
-Intrepid::FieldContainer<double> 
-STKMeshHelpers::getEntityNodeCoordinates( 
+Intrepid::FieldContainer<double>
+STKMeshHelpers::getEntityNodeCoordinates(
     const Teuchos::Array<stk::mesh::Entity>& stk_entities,
     const stk::mesh::BulkData& bulk_data )
 {
     int space_dim = bulk_data.mesh_meta_data().spatial_dimension();
     switch( space_dim )
     {
-	case 3:
-	    return
-		STKMeshHelpers::extractEntityNodeCoordinates<
-		    stk::mesh::Cartesian3d>( stk_entities, bulk_data, space_dim );
-	    break;
-	case 2:
-	    return
-		STKMeshHelpers::extractEntityNodeCoordinates<
-		    stk::mesh::Cartesian2d>( stk_entities, bulk_data, space_dim );
-	    break;
-	default:
-	    DTK_CHECK( 2 == space_dim || 3 == space_dim );
-	    break;
+        case 3:
+            return
+                STKMeshHelpers::extractEntityNodeCoordinates<
+                    stk::mesh::Cartesian3d>( stk_entities, bulk_data, space_dim );
+            break;
+        case 2:
+            return
+                STKMeshHelpers::extractEntityNodeCoordinates<
+                    stk::mesh::Cartesian2d>( stk_entities, bulk_data, space_dim );
+            break;
+        default:
+            DTK_CHECK( 2 == space_dim || 3 == space_dim );
+            break;
     }
     return Intrepid::FieldContainer<double>();
 }

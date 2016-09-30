@@ -69,11 +69,11 @@ class CenterDistributor
 
     // Constructor.
     CenterDistributor(
-	const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-	const Teuchos::ArrayView<const double>& source_centers,
-	const Teuchos::ArrayView<const double>& target_centers,
-	const double radius,
-	Teuchos::Array<double>& target_decomp_source_centers );
+        const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+        const Teuchos::ArrayView<const double>& source_centers,
+        const Teuchos::ArrayView<const double>& target_centers,
+        const double radius,
+        Teuchos::Array<double>& target_decomp_source_centers );
 
     // Get the number of source centers that will be distributed from this
     // process.
@@ -88,15 +88,15 @@ class CenterDistributor
     // Given a set of scalar values at the given source centers in the source
     // decomposition, distribute them to the target decomposition.
     template<class T>
-    void distribute( 
-	const Teuchos::ArrayView<const T>& source_decomp_data,
-	const Teuchos::ArrayView<T>& target_decomp_data ) const;
+    void distribute(
+        const Teuchos::ArrayView<const T>& source_decomp_data,
+        const Teuchos::ArrayView<T>& target_decomp_data ) const;
 
   private:
 
     // Compute the domain of the local set of centers.
     CloudDomain<DIM> localCloudDomain(
-	const Teuchos::ArrayView<const double>& target_centers ) const;
+        const Teuchos::ArrayView<const double>& target_centers ) const;
 
   private:
 

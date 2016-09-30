@@ -50,7 +50,7 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-CoarseGlobalSearch::CoarseGlobalSearch( 
+CoarseGlobalSearch::CoarseGlobalSearch(
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
     const int physical_dimension,
     const EntityIterator& domain_iterator,
@@ -64,15 +64,15 @@ CoarseGlobalSearch::CoarseGlobalSearch(
     // Determine if we are tracking missed range entities.
     if ( parameters.isParameter("Track Missed Range Entities") )
     {
-	d_track_missed_range_entities =
-	    parameters.get<bool>("Track Missed Range Entities");
+        d_track_missed_range_entities =
+            parameters.get<bool>("Track Missed Range Entities");
     }
 
     // Get the point inclusion tolerance.
     if ( parameters.isParameter("Point Inclusion Tolerance") )
-    {	    
-	d_inclusion_tol = 	
-	    parameters.get<double>("Point Inclusion Tolerance");
+    {
+        d_inclusion_tol =
+            parameters.get<double>("Point Inclusion Tolerance");
     }
 
     // Assemble the local domain bounding box.
@@ -83,18 +83,18 @@ CoarseGlobalSearch::CoarseGlobalSearch(
     int comm_size = d_comm->getSize();
     Teuchos::Array<double> all_bounds( 6*comm_size );
     Teuchos::gatherAll<int,double>(
-    	*d_comm, 6, domain_box.getRawPtr(), 
-    	all_bounds.size(), all_bounds.getRawPtr() );
+            *d_comm, 6, domain_box.getRawPtr(),
+            all_bounds.size(), all_bounds.getRawPtr() );
 
     // Extract the bounding boxes.
     d_domain_boxes.resize( comm_size );
     int id = 0;
     for ( int n = 0; n < comm_size; ++n )
     {
-    	id = 6*n;
-    	d_domain_boxes[n] = Teuchos::tuple( 
-    	    all_bounds[id], all_bounds[id+1], all_bounds[id+2],
-    	    all_bounds[id+3], all_bounds[id+4], all_bounds[id+5] );
+            id = 6*n;
+            d_domain_boxes[n] = Teuchos::tuple(
+                all_bounds[id], all_bounds[id+1], all_bounds[id+2],
+                all_bounds[id+3], all_bounds[id+4], all_bounds[id+5] );
     }
 }
 
@@ -102,11 +102,11 @@ CoarseGlobalSearch::CoarseGlobalSearch(
 // Redistribute a set of range entity centroid coordinates with their owner
 // ranks to the owning domain process.
 void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
-				 const Teuchos::RCP<EntityLocalMap>& range_local_map,
-				 const Teuchos::ParameterList& parameters,
-				 Teuchos::Array<EntityId>& range_entity_ids,
-				 Teuchos::Array<int>& range_owner_ranks,
-				 Teuchos::Array<double>& range_centroids ) const
+                                 const Teuchos::RCP<EntityLocalMap>& range_local_map,
+                                 const Teuchos::ParameterList& parameters,
+                                 Teuchos::Array<EntityId>& range_entity_ids,
+                                 Teuchos::Array<int>& range_owner_ranks,
+                                 Teuchos::Array<double>& range_centroids ) const
 {
     // Assemble the local range bounding box.
     Teuchos::Tuple<double,6> range_box;
@@ -118,11 +118,11 @@ void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
     int num_domains = d_domain_boxes.size();
     for ( int n = 0; n < num_domains; ++n )
     {
-	if ( boxesIntersect(range_box,d_domain_boxes[n],d_inclusion_tol) )
-	{
-	    neighbor_ranks.push_back(n);
-	    neighbor_boxes.push_back( d_domain_boxes[n] );
-	}
+        if ( boxesIntersect(range_box,d_domain_boxes[n],d_inclusion_tol) )
+        {
+            neighbor_ranks.push_back(n);
+            neighbor_boxes.push_back( d_domain_boxes[n] );
+        }
     }
 
     // For each local range entity, find the neighbors we should send it to.
@@ -137,32 +137,32 @@ void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
     bool found_entity = false;
     for ( range_it = range_begin; range_it != range_end; ++range_it )
     {
-	// Get the centroid.
-	range_local_map->centroid( *range_it, centroid() );
+        // Get the centroid.
+        range_local_map->centroid( *range_it, centroid() );
 
-	// Check the neighbors.
-	found_entity = false;
-	for ( int n = 0; n < num_neighbors; ++n )
-	{
-	    // If the centroid is in the box, add it to the send list.
-	    if ( pointInBox(centroid(),neighbor_boxes[n],d_inclusion_tol) )
-	    {
-		found_entity = true;
-		send_ids.push_back( range_it->id() );
-		send_ranks.push_back( neighbor_ranks[n] );
-		for ( int d = 0; d < d_space_dim; ++d )
-		{
-		    send_centroids.push_back( centroid[d] );
-		}
-	    }
-	}
+        // Check the neighbors.
+        found_entity = false;
+        for ( int n = 0; n < num_neighbors; ++n )
+        {
+            // If the centroid is in the box, add it to the send list.
+            if ( pointInBox(centroid(),neighbor_boxes[n],d_inclusion_tol) )
+            {
+                found_entity = true;
+                send_ids.push_back( range_it->id() );
+                send_ranks.push_back( neighbor_ranks[n] );
+                for ( int d = 0; d < d_space_dim; ++d )
+                {
+                    send_centroids.push_back( centroid[d] );
+                }
+            }
+        }
 
-	// If we are tracking missed range entities, add the entity to the
-	// list.
-	if ( d_track_missed_range_entities && !found_entity )
-	{
-	    d_missed_range_entity_ids.push_back( range_it->id() );
-	}
+        // If we are tracking missed range entities, add the entity to the
+        // list.
+        if ( d_track_missed_range_entities && !found_entity )
+        {
+            d_missed_range_entity_ids.push_back( range_it->id() );
+        }
     }
     int num_send = send_ranks.size();
     Teuchos::Array<int> range_ranks( num_send, d_comm->getRank() );
@@ -184,15 +184,15 @@ void CoarseGlobalSearch::search( const EntityIterator& range_iterator,
     // Redistribute the range entity centroids.
     range_centroids.resize( d_space_dim*num_range_import );
     Teuchos::ArrayView<const double> send_centroids_view = send_centroids();
-    distributor.doPostsAndWaits( 
-	send_centroids_view, d_space_dim, range_centroids() );
+    distributor.doPostsAndWaits(
+        send_centroids_view, d_space_dim, range_centroids() );
 }
 
 //---------------------------------------------------------------------------//
 // Return the ids of the range entities that were not mapped during the last
 // setup phase (i.e. those that are guaranteed to not receive data from the
-// transfer). 
-Teuchos::ArrayView<const EntityId> 
+// transfer).
+Teuchos::ArrayView<const EntityId>
 CoarseGlobalSearch::getMissedRangeEntityIds() const
 {
     return d_missed_range_entity_ids();
@@ -200,33 +200,33 @@ CoarseGlobalSearch::getMissedRangeEntityIds() const
 
 //---------------------------------------------------------------------------//
 // Assemble the local bounding box around an iterator.
-void CoarseGlobalSearch::assembleBoundingBox( 
+void CoarseGlobalSearch::assembleBoundingBox(
     const EntityIterator& entity_iterator,
     Teuchos::Tuple<double,6>& bounding_box ) const
 {
     if ( entity_iterator.size() > 0 )
     {
-	double max = std::numeric_limits<double>::max();
-	bounding_box = Teuchos::tuple( max, max, max, -max, -max, -max );
-	Teuchos::Tuple<double,6> entity_bounds;
-	EntityIterator entity_begin = entity_iterator.begin();
-	EntityIterator entity_end = entity_iterator.end();
-	EntityIterator entity_it;
-	for ( entity_it = entity_begin; entity_it != entity_end; ++entity_it )
-	{
-	    entity_it->boundingBox( entity_bounds );
-	    for ( int n = 0; n < 3; ++n )
-	    {
-		bounding_box[n] = 
-		    std::min( bounding_box[n], entity_bounds[n] );
-		bounding_box[n+3] = 
-		    std::max( bounding_box[n+3], entity_bounds[n+3] );
-	    }
-	}
+        double max = std::numeric_limits<double>::max();
+        bounding_box = Teuchos::tuple( max, max, max, -max, -max, -max );
+        Teuchos::Tuple<double,6> entity_bounds;
+        EntityIterator entity_begin = entity_iterator.begin();
+        EntityIterator entity_end = entity_iterator.end();
+        EntityIterator entity_it;
+        for ( entity_it = entity_begin; entity_it != entity_end; ++entity_it )
+        {
+            entity_it->boundingBox( entity_bounds );
+            for ( int n = 0; n < 3; ++n )
+            {
+                bounding_box[n] =
+                    std::min( bounding_box[n], entity_bounds[n] );
+                bounding_box[n+3] =
+                    std::max( bounding_box[n+3], entity_bounds[n+3] );
+            }
+        }
     }
     else
     {
-	bounding_box = Teuchos::tuple( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
+        bounding_box = Teuchos::tuple( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
     }
 }
 

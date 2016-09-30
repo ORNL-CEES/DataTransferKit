@@ -55,7 +55,7 @@ namespace DataTransferKit
 template<typename UndefinedGeometryType>
 struct UndefinedGeometryTraits
 {
-    static inline UndefinedGeometryType notDefined() 
+    static inline UndefinedGeometryType notDefined()
     { return UndefinedGeometryType::this_type_is_missing_a_specialization(); }
 };
 
@@ -108,27 +108,27 @@ class GeometryTraits
      * specified tolerance.
      */
     static inline bool pointInGeometry( const GeometryType& geometry,
-					const Teuchos::Array<double>& coords,
-					const double tolerance )
+                                        const Teuchos::Array<double>& coords,
+                                        const double tolerance )
     { UndefinedGeometryTraits<GeometryType>::notDefined(); return 0; }
 
     /*!
      * \brief Return the axis-aligned bounding box around the geometry.
      */
     static inline BoundingBox boundingBox( const GeometryType& geometry )
-    { 
-	UndefinedGeometryTraits<GeometryType>::notDefined();
-	return BoundingBox(); 
+    {
+        UndefinedGeometryTraits<GeometryType>::notDefined();
+        return BoundingBox();
     }
 
     /*!
      * \brief Return the centroid of the geometry.
      */
-    static inline Teuchos::Array<double> 
+    static inline Teuchos::Array<double>
     centroid( const GeometryType& geometry )
-    { 
-	UndefinedGeometryTraits<GeometryType>::notDefined(); 
-	return Teuchos::Array<double>(0);
+    {
+        UndefinedGeometryTraits<GeometryType>::notDefined();
+        return Teuchos::Array<double>(0);
     }
 };
 

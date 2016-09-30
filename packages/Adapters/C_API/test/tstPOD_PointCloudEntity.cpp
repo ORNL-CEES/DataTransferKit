@@ -104,7 +104,7 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntity, blocked_test )
       entity.boundingBox( box );
       TEST_EQUALITY( box[0], coord[i] );
       TEST_EQUALITY( box[1], coord[i + 1*num] );
-      TEST_EQUALITY( box[2], coord[i + 2*num] );      
+      TEST_EQUALITY( box[2], coord[i + 2*num] );
       TEST_EQUALITY( box[3], coord[i] );
       TEST_EQUALITY( box[4], coord[i + 1*num] );
       TEST_EQUALITY( box[5], coord[i + 2*num] );
@@ -160,10 +160,10 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntity, interleaved_test )
       entity.boundingBox( box );
       TEST_EQUALITY( box[0], coord[space_dim*i + 0] );
       TEST_EQUALITY( box[1], coord[space_dim*i + 1] );
-      TEST_EQUALITY( box[2], coord[space_dim*i + 2] );      
+      TEST_EQUALITY( box[2], coord[space_dim*i + 2] );
       TEST_EQUALITY( box[3], coord[space_dim*i + 0] );
       TEST_EQUALITY( box[4], coord[space_dim*i + 1] );
-      TEST_EQUALITY( box[5], coord[space_dim*i + 2] );      
+      TEST_EQUALITY( box[5], coord[space_dim*i + 2] );
 
       TEST_ASSERT( !entity.inBlock(1) );
       TEST_ASSERT( !entity.onBoundary(1) );

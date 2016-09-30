@@ -56,7 +56,7 @@ TEUCHOS_UNIT_TEST( ReferenceNode, reference_node )
     double x = -33.2;
     double y = 147.6;
     double z = 55.9;
-    
+
     DataTransferKit::Entity entity =
         DataTransferKit::UnitTest::ReferenceNode( id, owner_rank, x, y, z );
 
@@ -80,7 +80,7 @@ TEUCHOS_UNIT_TEST( ReferenceNode, reference_node )
     std::cout << entity.description() << std::endl;
 
     Teuchos::RCP<Teuchos::FancyOStream>
-	fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
+        fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
     entity.describe( *fancy_out );
 }
 

@@ -55,7 +55,7 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-IntrepidCell::IntrepidCell( 
+IntrepidCell::IntrepidCell(
     const shards::CellTopology& cell_topology, const unsigned degree )
     : d_topology( cell_topology )
     , d_cub_points(0,0)
@@ -123,21 +123,21 @@ void IntrepidCell::allocateCellState( const MDArray& cell_node_coords )
 void IntrepidCell::updateCellState()
 {
     // Compute the Jacobian.
-    Intrepid::CellTools<Scalar>::setJacobian( 
-	d_jacobian, d_cub_points, d_cell_node_coords, d_topology );
+    Intrepid::CellTools<Scalar>::setJacobian(
+        d_jacobian, d_cub_points, d_cell_node_coords, d_topology );
 
     // Compute the determinant of the Jacobian.
-    Intrepid::CellTools<Scalar>::setJacobianDet( 
-	d_jacobian_det, d_jacobian );
+    Intrepid::CellTools<Scalar>::setJacobianDet(
+        d_jacobian_det, d_jacobian );
 
     // Compute the cell measures.
     Intrepid::FunctionSpaceTools::computeCellMeasure<Scalar>(
-	d_weighted_measures, d_jacobian_det, d_cub_weights );
+        d_weighted_measures, d_jacobian_det, d_cub_weights );
 
     // Compute physical frame integration point coordinates.
-    Intrepid::CellTools<Scalar>::mapToPhysicalFrame( 
-	d_physical_ip_coordinates, d_cub_points, 
-	d_cell_node_coords, d_topology );
+    Intrepid::CellTools<Scalar>::mapToPhysicalFrame(
+        d_physical_ip_coordinates, d_cub_points,
+        d_cell_node_coords, d_topology );
 }
 
 //---------------------------------------------------------------------------//
@@ -146,7 +146,7 @@ void IntrepidCell::updateCellState()
  * physical cells in a single call.
  */
 void IntrepidCell::updateState( IntrepidCell& intrepid_cell,
-				const MDArray& cell_node_coords )
+                                const MDArray& cell_node_coords )
 {
     intrepid_cell.allocateCellState( cell_node_coords );
     intrepid_cell.updateCellState();
@@ -158,12 +158,12 @@ void IntrepidCell::updateState( IntrepidCell& intrepid_cell,
  * them to the reference frame of the cell.
  */
 void IntrepidCell::mapToCellReferenceFrame( const MDArray& physical_coords,
-					    MDArray& reference_coords )    
+                                            MDArray& reference_coords )
 {
     DTK_REQUIRE( 2 == physical_coords.rank() );
     DTK_REQUIRE( 2 == reference_coords.rank() );
-    Intrepid::CellTools<Scalar>::mapToReferenceFrame( 
-	reference_coords, physical_coords, d_cell_node_coords, d_topology, 0 );
+    Intrepid::CellTools<Scalar>::mapToReferenceFrame(
+        reference_coords, physical_coords, d_cell_node_coords, d_topology, 0 );
 }
 
 //---------------------------------------------------------------------------//
@@ -171,23 +171,23 @@ void IntrepidCell::mapToCellReferenceFrame( const MDArray& physical_coords,
  * \brief Given a set of coordinates in the reference frame of the cell, map
  * them to the physical frame.
  */
-void IntrepidCell::mapToCellPhysicalFrame( 
+void IntrepidCell::mapToCellPhysicalFrame(
     const MDArray& parametric_coords, MDArray& physical_coords )
 {
     DTK_REQUIRE( 2 == parametric_coords.rank() );
     DTK_REQUIRE( 3 == physical_coords.rank() );
     DTK_REQUIRE( parametric_coords.dimension(1) ==
-		   Teuchos::as<int>(d_topology.getDimension()) );
+                   Teuchos::as<int>(d_topology.getDimension()) );
     DTK_REQUIRE( physical_coords.dimension(0) ==
-		   d_cell_node_coords.dimension(0) );
+                   d_cell_node_coords.dimension(0) );
     DTK_REQUIRE( physical_coords.dimension(1) ==
-		   parametric_coords.dimension(0) );
+                   parametric_coords.dimension(0) );
     DTK_REQUIRE( physical_coords.dimension(2) ==
-		   Teuchos::as<int>(d_topology.getDimension()) );
+                   Teuchos::as<int>(d_topology.getDimension()) );
 
-    Intrepid::CellTools<Scalar>::mapToPhysicalFrame( 
-	physical_coords, parametric_coords,
-	d_cell_node_coords, d_topology );
+    Intrepid::CellTools<Scalar>::mapToPhysicalFrame(
+        physical_coords, parametric_coords,
+        d_cell_node_coords, d_topology );
 }
 
 //---------------------------------------------------------------------------//
@@ -195,12 +195,12 @@ void IntrepidCell::mapToCellPhysicalFrame(
  * \brief Determine if a point given in parametric coordinates is inside of the
  * reference cell.
  */
-bool IntrepidCell::pointInReferenceCell( 
+bool IntrepidCell::pointInReferenceCell(
     const MDArray& reference_point,
     const double tolerance )
 {
-    return Intrepid::CellTools<Scalar>::checkPointsetInclusion( 
-	reference_point, d_topology, tolerance );
+    return Intrepid::CellTools<Scalar>::checkPointsetInclusion(
+        reference_point, d_topology, tolerance );
 }
 
 //---------------------------------------------------------------------------//
@@ -209,7 +209,7 @@ bool IntrepidCell::pointInReferenceCell(
  * phyiscal cell.
  */
 bool IntrepidCell::pointInPhysicalCell( const MDArray& point,
-					const double tolerance )
+                                        const double tolerance )
 {
     MDArray reference_point( point );
     reference_point.initialize();
@@ -252,11 +252,11 @@ int IntrepidCell::getSpatialDimension() const
 void IntrepidCell::getCellMeasures( MDArray& cell_measures ) const
 {
     DTK_REQUIRE( 1 == cell_measures.rank() );
-    DTK_REQUIRE( cell_measures.dimension(0) == 
-		 d_weighted_measures.dimension(0) );
+    DTK_REQUIRE( cell_measures.dimension(0) ==
+                 d_weighted_measures.dimension(0) );
 
-    MDArray dofs( d_cell_node_coords.dimension(0), 
-		  d_cub_weights.dimension(0) );
+    MDArray dofs( d_cell_node_coords.dimension(0),
+                  d_cub_weights.dimension(0) );
     dofs.initialize( 1.0 );
     integrate( dofs, cell_measures );
 }
@@ -279,8 +279,8 @@ void IntrepidCell::getPhysicalIntegrationCoordinates(
  */
 void IntrepidCell::integrate( const MDArray& dofs, MDArray& integrals ) const
 {
-    Intrepid::FunctionSpaceTools::integrate<Scalar>( 
-	integrals, dofs, d_weighted_measures, Intrepid::COMP_BLAS );
+    Intrepid::FunctionSpaceTools::integrate<Scalar>(
+        integrals, dofs, d_weighted_measures, Intrepid::COMP_BLAS );
 }
 
 //---------------------------------------------------------------------------//

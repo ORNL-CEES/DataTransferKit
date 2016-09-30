@@ -64,7 +64,7 @@ STKMeshEntityIterator::STKMeshEntityIterator(
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-STKMeshEntityIterator::STKMeshEntityIterator( 
+STKMeshEntityIterator::STKMeshEntityIterator(
     const STKMeshEntityIterator& rhs )
     : d_entity_range( rhs.d_entity_range )
     , d_stk_entity_it( rhs.d_stk_entity_it )
@@ -75,13 +75,13 @@ STKMeshEntityIterator::STKMeshEntityIterator(
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-STKMeshEntityIterator& STKMeshEntityIterator::operator=( 
+STKMeshEntityIterator& STKMeshEntityIterator::operator=(
     const STKMeshEntityIterator& rhs )
 {
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
     {
-	return *this;
+        return *this;
     }
     d_entity_range = rhs.d_entity_range;
     d_stk_entity_it = rhs.d_stk_entity_it;
@@ -109,49 +109,49 @@ Entity& STKMeshEntityIterator::operator*(void)
 // Dereference operator.
 Entity* STKMeshEntityIterator::operator->(void)
 {
-    d_current_entity = 
-	STKMeshEntity( *d_stk_entity_it, d_bulk_data );
+    d_current_entity =
+        STKMeshEntity( *d_stk_entity_it, d_bulk_data );
     return &d_current_entity;
 }
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-bool STKMeshEntityIterator::operator==( 
+bool STKMeshEntityIterator::operator==(
     const EntityIterator& rhs ) const
-{ 
-    const STKMeshEntityIterator* rhs_it = 
-	static_cast<const STKMeshEntityIterator*>(&rhs);
-    const STKMeshEntityIterator* rhs_it_impl = 
-	static_cast<const STKMeshEntityIterator*>(rhs_it->b_iterator_impl.get());
+{
+    const STKMeshEntityIterator* rhs_it =
+        static_cast<const STKMeshEntityIterator*>(&rhs);
+    const STKMeshEntityIterator* rhs_it_impl =
+        static_cast<const STKMeshEntityIterator*>(rhs_it->b_iterator_impl.get());
     return ( rhs_it_impl->d_stk_entity_it == d_stk_entity_it );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-bool STKMeshEntityIterator::operator!=( 
+bool STKMeshEntityIterator::operator!=(
     const EntityIterator& rhs ) const
 {
-    const STKMeshEntityIterator* rhs_it = 
-	static_cast<const STKMeshEntityIterator*>(&rhs);
-    const STKMeshEntityIterator* rhs_it_impl = 
-	static_cast<const STKMeshEntityIterator*>(rhs_it->b_iterator_impl.get());
+    const STKMeshEntityIterator* rhs_it =
+        static_cast<const STKMeshEntityIterator*>(&rhs);
+    const STKMeshEntityIterator* rhs_it_impl =
+        static_cast<const STKMeshEntityIterator*>(rhs_it->b_iterator_impl.get());
     return ( rhs_it_impl->d_stk_entity_it != d_stk_entity_it );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the beginning.
 EntityIterator STKMeshEntityIterator::begin() const
-{ 
-    return STKMeshEntityIterator( 
-	d_entity_range, d_bulk_data, this->b_predicate );
+{
+    return STKMeshEntityIterator(
+        d_entity_range, d_bulk_data, this->b_predicate );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the end.
 EntityIterator STKMeshEntityIterator::end() const
 {
-    STKMeshEntityIterator end_it( 
-	d_entity_range, d_bulk_data, this->b_predicate );
+    STKMeshEntityIterator end_it(
+        d_entity_range, d_bulk_data, this->b_predicate );
     end_it.d_stk_entity_it = d_entity_range->d_stk_entities.end();
     return end_it;
 }

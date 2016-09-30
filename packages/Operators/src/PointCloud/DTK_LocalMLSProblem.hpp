@@ -72,20 +72,20 @@ class LocalMLSProblem
 
     // Constructor.
     LocalMLSProblem( const Teuchos::ArrayView<const double>& target_center,
-		     const Teuchos::ArrayView<const unsigned>& source_lids,
-		     const Teuchos::ArrayView<const double>& source_centers,
-		     const Basis& basis,
-		     const double radius );
+                     const Teuchos::ArrayView<const unsigned>& source_lids,
+                     const Teuchos::ArrayView<const double>& source_centers,
+                     const Basis& basis,
+                     const double radius );
 
     // Get a view of the local shape function.
     Teuchos::ArrayView<const double> shapeFunction() const
     { return d_shape_function(); }
 
   private:
-    
+
     // Get a polynomial coefficient.
-    double polynomialCoefficient( 
-	const int coeff, const Teuchos::ArrayView<const double>& center ) const;
+    double polynomialCoefficient(
+        const int coeff, const Teuchos::ArrayView<const double>& center ) const;
 
     // Check if a matrix is full rank.
     bool isFullRank( const Teuchos::SerialDenseMatrix<int,double>& matrix ) const;

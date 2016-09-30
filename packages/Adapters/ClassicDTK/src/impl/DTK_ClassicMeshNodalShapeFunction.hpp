@@ -74,7 +74,7 @@ class ClassicMeshNodalShapeFunction : public EntityShapeFunction
      * \brief Constructor.
      */
     ClassicMeshNodalShapeFunction(
-	const Teuchos::RCP<ClassicMesh<Mesh> >& mesh );
+        const Teuchos::RCP<ClassicMesh<Mesh> >& mesh );
 
     /*!
      * \brief Given an entity, get the ids of the support locations.
@@ -83,7 +83,7 @@ class ClassicMeshNodalShapeFunction : public EntityShapeFunction
      * given entity in this array.
      */
     void entitySupportIds( const Entity& entity,
-			   Teuchos::Array<SupportId>& support_ids ) const override;
+                           Teuchos::Array<SupportId>& support_ids ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -92,12 +92,12 @@ class ClassicMeshNodalShapeFunction : public EntityShapeFunction
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
      * \param values Entity shape function evaluated at the reference
-     * point. 
+     * point.
      */
-    void evaluateValue( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<double> & values ) const override;
+    void evaluateValue(
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point,
+        Teuchos::Array<double> & values ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the gradient of
@@ -110,10 +110,10 @@ class ClassicMeshNodalShapeFunction : public EntityShapeFunction
      * getSupportIds() such that gradients[N][D] gives the gradient value of the
      * Nth support location in the Dth spatial dimension.
      */
-    void evaluateGradient( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const override;
+    void evaluateGradient(
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point,
+        Teuchos::Array<Teuchos::Array<double> >& gradients ) const override;
 
   private:
 

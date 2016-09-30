@@ -24,7 +24,7 @@
   \brief Field Evaluator for the Wave code.
  */
 //---------------------------------------------------------------------------//
-class WaveEvaluator : 
+class WaveEvaluator :
     public DataTransferKit::FieldEvaluator<int,DataTransferKit::FieldContainer<double> >
 {
   public:
@@ -42,7 +42,7 @@ class WaveEvaluator :
 
     // Function evaluator.
     field_type evaluate( const Teuchos::ArrayRCP<int>& elements,
-			 const Teuchos::ArrayRCP<double>& coords );
+                         const Teuchos::ArrayRCP<double>& coords );
 
   private:
 

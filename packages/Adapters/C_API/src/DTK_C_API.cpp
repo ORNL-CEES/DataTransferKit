@@ -46,7 +46,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include <sstream> 
+#include <sstream>
 #include <iostream>
 #include <string>
 
@@ -206,8 +206,8 @@ DTK_Map* DTK_Map_create( MPI_Comm        comm,
                                             tgt_layout,
                                             tgt_num,
                                             space_dim );
-    
-    // Set up the map.  
+
+    // Set up the map.
     map_operator->setup( domain_space, range_space );
 
     // Return an opaque pointer. User is responsible for calling delete_map(...)

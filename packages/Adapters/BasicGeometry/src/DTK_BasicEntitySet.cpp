@@ -65,40 +65,40 @@ BasicEntitySetIterator::BasicEntitySetIterator(
 {
     if ( (d_map->size() > 0) && (d_map_it != d_map->end()) )
     {
-	d_entity = &(d_map_it->second);
+        d_entity = &(d_map_it->second);
     }
     this->b_predicate = predicate;
 }
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-BasicEntitySetIterator::BasicEntitySetIterator( 
+BasicEntitySetIterator::BasicEntitySetIterator(
     const BasicEntitySetIterator& rhs )
     : d_map( rhs.d_map )
     , d_map_it( rhs.d_map_it )
 {
     if ( (d_map->size() > 0)  && (d_map_it != d_map->end()) )
     {
-	d_entity = &(d_map_it->second);
+        d_entity = &(d_map_it->second);
     }
     this->b_predicate = rhs.b_predicate;
 }
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-BasicEntitySetIterator& BasicEntitySetIterator::operator=( 
+BasicEntitySetIterator& BasicEntitySetIterator::operator=(
     const BasicEntitySetIterator& rhs )
 {
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
     {
-	return *this;
+        return *this;
     }
     d_map = rhs.d_map;
     d_map_it = rhs.d_map_it;
     if ( (d_map->size() > 0) && (d_map_it != d_map->end()) )
     {
-	d_entity = &(d_map_it->second);
+        d_entity = &(d_map_it->second);
     }
     return *this;
 }
@@ -130,32 +130,32 @@ Entity* BasicEntitySetIterator::operator->(void)
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-bool BasicEntitySetIterator::operator==( 
+bool BasicEntitySetIterator::operator==(
     const EntityIterator& rhs ) const
-{ 
-    const BasicEntitySetIterator* rhs_vec = 
-	static_cast<const BasicEntitySetIterator*>(&rhs);
-    const BasicEntitySetIterator* rhs_vec_impl = 
-	static_cast<const BasicEntitySetIterator*>(rhs_vec->b_iterator_impl.get());
+{
+    const BasicEntitySetIterator* rhs_vec =
+        static_cast<const BasicEntitySetIterator*>(&rhs);
+    const BasicEntitySetIterator* rhs_vec_impl =
+        static_cast<const BasicEntitySetIterator*>(rhs_vec->b_iterator_impl.get());
     return ( rhs_vec_impl->d_map_it == d_map_it );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-bool BasicEntitySetIterator::operator!=( 
+bool BasicEntitySetIterator::operator!=(
     const EntityIterator& rhs ) const
 {
-    const BasicEntitySetIterator* rhs_vec = 
-	static_cast<const BasicEntitySetIterator*>(&rhs);
-    const BasicEntitySetIterator* rhs_vec_impl = 
-	static_cast<const BasicEntitySetIterator*>(rhs_vec->b_iterator_impl.get());
+    const BasicEntitySetIterator* rhs_vec =
+        static_cast<const BasicEntitySetIterator*>(&rhs);
+    const BasicEntitySetIterator* rhs_vec_impl =
+        static_cast<const BasicEntitySetIterator*>(rhs_vec->b_iterator_impl.get());
     return ( rhs_vec_impl->d_map_it != d_map_it );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the beginning.
 EntityIterator BasicEntitySetIterator::begin() const
-{ 
+{
     return BasicEntitySetIterator( d_map , this->b_predicate );
 }
 
@@ -213,8 +213,8 @@ int BasicEntitySet::physicalDimension() const
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
 void BasicEntitySet::getEntity( const EntityId entity_id,
-				const int topological_dimension,
-				Entity& entity ) const
+                                const int topological_dimension,
+                                Entity& entity ) const
 {
     DTK_CHECK( d_entities[topological_dimension].count(entity_id) );
     entity = d_entities[topological_dimension].find(entity_id)->second;
@@ -222,13 +222,13 @@ void BasicEntitySet::getEntity( const EntityId entity_id,
 
 //---------------------------------------------------------------------------//
 // Get an iterator over a subset of the entity set that satisfies the given
-// predicate. 
+// predicate.
 EntityIterator BasicEntitySet::entityIterator(
     const int topological_dimension,
     const PredicateFunction& predicate ) const
 {
     Teuchos::RCP<std::unordered_map<EntityId,Entity> > map_ptr =
-	Teuchos::rcpFromRef( d_entities[topological_dimension] );
+        Teuchos::rcpFromRef( d_entities[topological_dimension] );
     return BasicEntitySetIterator( map_ptr, predicate );
 }
 

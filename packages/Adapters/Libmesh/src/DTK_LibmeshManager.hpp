@@ -78,10 +78,10 @@ class LibmeshManager : public ClientManager
      * \param libsystem_system Libsystem system.
      *
      * \param entity_type The type of entities in the mesh that will be
-     * mapped. 
+     * mapped.
      */
     LibmeshManager( const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
-		    const Teuchos::RCP<libMesh::System>& libmesh_system );
+                    const Teuchos::RCP<libMesh::System>& libmesh_system );
 
     /*!
      * \brief Subdomain constructor.
@@ -93,12 +93,12 @@ class LibmeshManager : public ClientManager
      * \param subdomain_ids The subdomain ids to map.
      *
      * \param entity_type The type of entities in the mesh that will be
-     * mapped. 
+     * mapped.
      */
     LibmeshManager(
-	const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
-	const Teuchos::RCP<libMesh::System>& libmesh_system,
-	const Teuchos::Array<libMesh::subdomain_id_type>& subdomain_ids );
+        const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
+        const Teuchos::RCP<libMesh::System>& libmesh_system,
+        const Teuchos::Array<libMesh::subdomain_id_type>& subdomain_ids );
 
     /*!
      * \brief Boundary constructor.
@@ -110,16 +110,16 @@ class LibmeshManager : public ClientManager
      * \param boundary_ids The boundary ids to map.
      *
      * \param entity_type The type of entities in the mesh that will be
-     * mapped. 
+     * mapped.
      */
     LibmeshManager(
-	const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
-	const Teuchos::RCP<libMesh::System>& libmesh_system,
-	const Teuchos::Array<libMesh::boundary_id_type>& boundary_ids );
+        const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
+        const Teuchos::RCP<libMesh::System>& libmesh_system,
+        const Teuchos::Array<libMesh::boundary_id_type>& boundary_ids );
 
     /*!
      * \brief Get the function space over which the mesh and its fields are
-     * defined. 
+     * defined.
      */
     Teuchos::RCP<FunctionSpace> functionSpace() const;
 
@@ -167,15 +167,15 @@ class LibmeshManager : public ClientManager
 
     // Build the function space.
     void buildFunctionSpace( const PredicateFunction& pred );
-    
+
   private:
 
     // The mesh.
     Teuchos::RCP<libMesh::MeshBase> d_mesh;
-    
+
     // The system.
     Teuchos::RCP<libMesh::System> d_system;
-    
+
     // The function space over which the mesh and its fields are defined.
     Teuchos::RCP<FunctionSpace> d_function_space;
 };

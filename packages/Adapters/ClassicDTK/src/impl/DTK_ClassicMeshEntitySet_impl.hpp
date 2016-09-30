@@ -71,7 +71,7 @@ ClassicMeshEntitySetIterator<Mesh>::ClassicMeshEntitySetIterator(
     d_element_it = d_mesh->d_element_gids.front().begin();
     if ( d_mesh->d_element_gids.front().end() == d_element_it )
     {
-	moveToNextBlock();
+        moveToNextBlock();
     }
     this->b_predicate = predicate;
 }
@@ -79,7 +79,7 @@ ClassicMeshEntitySetIterator<Mesh>::ClassicMeshEntitySetIterator(
 //---------------------------------------------------------------------------//
 // Copy constructor.
 template<class Mesh>
-ClassicMeshEntitySetIterator<Mesh>::ClassicMeshEntitySetIterator( 
+ClassicMeshEntitySetIterator<Mesh>::ClassicMeshEntitySetIterator(
     const ClassicMeshEntitySetIterator<Mesh>& rhs )
     : d_mesh( rhs.d_mesh )
     , d_current_block( rhs.d_current_block )
@@ -91,13 +91,13 @@ ClassicMeshEntitySetIterator<Mesh>::ClassicMeshEntitySetIterator(
 //---------------------------------------------------------------------------//
 // Assignment operator.
 template<class Mesh>
-ClassicMeshEntitySetIterator<Mesh>& ClassicMeshEntitySetIterator<Mesh>::operator=( 
+ClassicMeshEntitySetIterator<Mesh>& ClassicMeshEntitySetIterator<Mesh>::operator=(
     const ClassicMeshEntitySetIterator<Mesh>& rhs )
 {
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
     {
-	return *this;
+        return *this;
     }
     d_mesh = rhs.d_mesh;
     d_current_block = rhs.d_current_block;
@@ -115,17 +115,17 @@ EntityIterator& ClassicMeshEntitySetIterator<Mesh>::operator++()
 
     if ( d_element_it == d_mesh->d_element_gids[d_current_block].end() )
     {
-	moveToNextBlock();
+        moveToNextBlock();
     }
     else
     {
-	++d_element_it;
-	if ( d_element_it == d_mesh->d_element_gids[d_current_block].end() )
-	{
-	    moveToNextBlock();
-	}
+        ++d_element_it;
+        if ( d_element_it == d_mesh->d_element_gids[d_current_block].end() )
+        {
+            moveToNextBlock();
+        }
     }
-    
+
     return *this;
 }
 
@@ -144,35 +144,35 @@ template<class Mesh>
 Entity* ClassicMeshEntitySetIterator<Mesh>::operator->(void)
 {
     d_entity =
-	ClassicMeshElement<Mesh>( d_mesh.ptr(), *d_element_it, d_current_block );
+        ClassicMeshElement<Mesh>( d_mesh.ptr(), *d_element_it, d_current_block );
     return &d_entity;
 }
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
 template<class Mesh>
-bool ClassicMeshEntitySetIterator<Mesh>::operator==( 
+bool ClassicMeshEntitySetIterator<Mesh>::operator==(
     const EntityIterator& rhs ) const
-{ 
-    const ClassicMeshEntitySetIterator<Mesh>* rhs_vec = 
-	static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(&rhs);
-    const ClassicMeshEntitySetIterator<Mesh>* rhs_vec_impl = 
-	static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(
-	    rhs_vec->b_iterator_impl.get());
+{
+    const ClassicMeshEntitySetIterator<Mesh>* rhs_vec =
+        static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(&rhs);
+    const ClassicMeshEntitySetIterator<Mesh>* rhs_vec_impl =
+        static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(
+            rhs_vec->b_iterator_impl.get());
     return ( rhs_vec_impl->d_element_it == d_element_it );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
 template<class Mesh>
-bool ClassicMeshEntitySetIterator<Mesh>::operator!=( 
+bool ClassicMeshEntitySetIterator<Mesh>::operator!=(
     const EntityIterator& rhs ) const
 {
-    const ClassicMeshEntitySetIterator<Mesh>* rhs_vec = 
-	static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(&rhs);
-    const ClassicMeshEntitySetIterator<Mesh>* rhs_vec_impl = 
-	static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(
-	    rhs_vec->b_iterator_impl.get());
+    const ClassicMeshEntitySetIterator<Mesh>* rhs_vec =
+        static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(&rhs);
+    const ClassicMeshEntitySetIterator<Mesh>* rhs_vec_impl =
+        static_cast<const ClassicMeshEntitySetIterator<Mesh>*>(
+            rhs_vec->b_iterator_impl.get());
     return ( rhs_vec_impl->d_element_it != d_element_it );
 }
 
@@ -180,7 +180,7 @@ bool ClassicMeshEntitySetIterator<Mesh>::operator!=(
 // An iterator assigned to the beginning.
 template<class Mesh>
 EntityIterator ClassicMeshEntitySetIterator<Mesh>::begin() const
-{ 
+{
     return ClassicMeshEntitySetIterator<Mesh>( d_mesh , this->b_predicate );
 }
 
@@ -201,7 +201,7 @@ template<class Mesh>
 std::unique_ptr<EntityIterator> ClassicMeshEntitySetIterator<Mesh>::clone() const
 {
     return std::unique_ptr<EntityIterator>(
-	new ClassicMeshEntitySetIterator<Mesh>(*this) );
+        new ClassicMeshEntitySetIterator<Mesh>(*this) );
 }
 
 //---------------------------------------------------------------------------//
@@ -213,15 +213,15 @@ void ClassicMeshEntitySetIterator<Mesh>::moveToNextBlock()
     ++d_current_block;
     while ( d_current_block < d_mesh->getNumBlocks() )
     {
-	d_element_it = d_mesh->d_element_gids[d_current_block].begin();
-	if ( d_mesh->d_element_gids[d_current_block].end() == d_element_it )
-	{
-	    ++d_current_block;
-	}
-	else
-	{
-	    break;
-	}
+        d_element_it = d_mesh->d_element_gids[d_current_block].begin();
+        if ( d_mesh->d_element_gids[d_current_block].end() == d_element_it )
+        {
+            ++d_current_block;
+        }
+        else
+        {
+            break;
+        }
     }
 }
 
@@ -256,12 +256,12 @@ int ClassicMeshEntitySet<Mesh>::physicalDimension() const
 // Given an EntityId, get the entity.
 template<class Mesh>
 void ClassicMeshEntitySet<Mesh>::getEntity( const EntityId entity_id,
-					    const int topological_dimension,
-					    Entity& entity ) const
+                                            const int topological_dimension,
+                                            Entity& entity ) const
 {
     entity = ClassicMeshElement<Mesh>( d_mesh.ptr(),
-				       entity_id,
-				       d_mesh->elementBlockId(entity_id) );
+                                       entity_id,
+                                       d_mesh->elementBlockId(entity_id) );
 }
 
 //---------------------------------------------------------------------------//

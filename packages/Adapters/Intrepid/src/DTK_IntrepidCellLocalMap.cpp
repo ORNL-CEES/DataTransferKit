@@ -50,8 +50,8 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
-// for a 3D entity, area for 2D, and length for 1D). 
-double IntrepidCellLocalMap::measure( 
+// for a 3D entity, area for 2D, and length for 1D).
+double IntrepidCellLocalMap::measure(
     const shards::CellTopology& entity_topo,
     const Intrepid::FieldContainer<double>& entity_coords )
 {
@@ -60,7 +60,7 @@ double IntrepidCellLocalMap::measure(
 
     // Update thet state of the cell.
     IntrepidCell::updateState( entity_cell, entity_coords );
-    
+
     // Compute the measure of the cell.
     Intrepid::FieldContainer<double> measure(1);
     entity_cell.getCellMeasures( measure );
@@ -69,25 +69,25 @@ double IntrepidCellLocalMap::measure(
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void IntrepidCellLocalMap::centroid( 
+void IntrepidCellLocalMap::centroid(
     const shards::CellTopology& entity_topo,
     const Intrepid::FieldContainer<double>& entity_coords,
     const Teuchos::ArrayView<double>& centroid )
-{ 
+{
     // Get the Intrepid cell corresponding to the entity topology.
     IntrepidCell entity_cell( entity_topo, 1 );
     entity_cell.setCellNodeCoordinates( entity_coords );
 
     // Get the reference center of the cell.
-    Intrepid::FieldContainer<double> 
-	ref_center(1,entity_coords.dimension(2));
+    Intrepid::FieldContainer<double>
+        ref_center(1,entity_coords.dimension(2));
     ProjectionPrimitives::referenceCellCenter( entity_topo, ref_center );
 
     // Map the cell center to the physical frame.
-    Intrepid::FieldContainer<double> 
-	phys_center(1,1,entity_coords.dimension(2));
+    Intrepid::FieldContainer<double>
+        phys_center(1,1,entity_coords.dimension(2));
     entity_cell.mapToCellPhysicalFrame( ref_center, phys_center );
-    
+
     // Extract the centroid coordinates.
     centroid.assign( phys_center.getData()() );
 }
@@ -95,7 +95,7 @@ void IntrepidCellLocalMap::centroid(
 //---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the parameterized
 // point.
-bool IntrepidCellLocalMap::mapToReferenceFrame( 
+bool IntrepidCellLocalMap::mapToReferenceFrame(
     const shards::CellTopology& entity_topo,
     const Intrepid::FieldContainer<double>& entity_coords,
     const Teuchos::ArrayView<const double>& point,
@@ -109,10 +109,10 @@ bool IntrepidCellLocalMap::mapToReferenceFrame(
     Teuchos::Array<int> array_dims(2);
     array_dims[0] = 1;
     array_dims[1] = entity_coords.dimension(2);
-    Intrepid::FieldContainer<double> point_container( 
-	array_dims, const_cast<double*>(point.getRawPtr()) );
-    Intrepid::FieldContainer<double> ref_point_container( 
-	array_dims, reference_point.getRawPtr() );
+    Intrepid::FieldContainer<double> point_container(
+        array_dims, const_cast<double*>(point.getRawPtr()) );
+    Intrepid::FieldContainer<double> ref_point_container(
+        array_dims, reference_point.getRawPtr() );
     entity_cell.mapToCellReferenceFrame( point_container, ref_point_container );
 
     // Return true to indicate successful mapping. Catching Intrepid errors
@@ -122,7 +122,7 @@ bool IntrepidCellLocalMap::mapToReferenceFrame(
 
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
-bool IntrepidCellLocalMap::checkPointInclusion( 
+bool IntrepidCellLocalMap::checkPointInclusion(
     const shards::CellTopology& entity_topo,
     const Teuchos::ArrayView<const double>& reference_point,
     const double tolerance )
@@ -134,14 +134,14 @@ bool IntrepidCellLocalMap::checkPointInclusion(
     Teuchos::Array<int> array_dims(2);
     array_dims[0] = 1;
     array_dims[1] = reference_point.size();
-    Intrepid::FieldContainer<double> ref_point_container( 
-	array_dims, const_cast<double*>(reference_point.getRawPtr()) );
+    Intrepid::FieldContainer<double> ref_point_container(
+        array_dims, const_cast<double*>(reference_point.getRawPtr()) );
     return entity_cell.pointInReferenceCell( ref_point_container, tolerance );
 }
 
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
-void IntrepidCellLocalMap::mapToPhysicalFrame( 
+void IntrepidCellLocalMap::mapToPhysicalFrame(
     const shards::CellTopology& entity_topo,
     const Intrepid::FieldContainer<double>& entity_coords,
     const Teuchos::ArrayView<const double>& reference_point,
@@ -155,14 +155,14 @@ void IntrepidCellLocalMap::mapToPhysicalFrame(
     Teuchos::Array<int> ref_array_dims(2);
     ref_array_dims[0] = 1;
     ref_array_dims[1] = entity_coords.dimension(2);
-    Intrepid::FieldContainer<double> ref_point_container( 
-	ref_array_dims, const_cast<double*>(reference_point.getRawPtr()) );
+    Intrepid::FieldContainer<double> ref_point_container(
+        ref_array_dims, const_cast<double*>(reference_point.getRawPtr()) );
     Teuchos::Array<int> phys_array_dims(3);
     phys_array_dims[0] = 1;
     phys_array_dims[1] = 1;
     phys_array_dims[2] = entity_coords.dimension(2);
-    Intrepid::FieldContainer<double> point_container( 
-	phys_array_dims, point.getRawPtr() );
+    Intrepid::FieldContainer<double> point_container(
+        phys_array_dims, point.getRawPtr() );
     entity_cell.mapToCellPhysicalFrame( ref_point_container, point_container );
 }
 

@@ -31,7 +31,7 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 //---------------------------------------------------------------------------//
-/*! 
+/*!
  * \file tstCoarseLocalSearch.cpp
  * \author Stuart R. Slattery
  * \brief CoarseLocalSearch unit tests.
@@ -69,25 +69,25 @@ TEUCHOS_UNIT_TEST( CoarseLocalSearch, coarse_local_search_test )
 
     // Make an entity set.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::DefaultComm<int>::getComm();
-    Teuchos::RCP<EntitySet> entity_set = 
-	Teuchos::rcp( new BasicEntitySet(comm,3) );
+        Teuchos::DefaultComm<int>::getComm();
+    Teuchos::RCP<EntitySet> entity_set =
+        Teuchos::rcp( new BasicEntitySet(comm,3) );
 
     // Add some boxes to the set.
     int num_boxes = 5;
     for ( int i = 0; i < num_boxes; ++i )
     {
-	Teuchos::rcp_dynamic_cast<BasicEntitySet>(entity_set)->addEntity(
-	    BoxGeometry(i,comm->getRank(),i,0.0,0.0,i,1.0,1.0,i+1) );
+        Teuchos::rcp_dynamic_cast<BasicEntitySet>(entity_set)->addEntity(
+            BoxGeometry(i,comm->getRank(),i,0.0,0.0,i,1.0,1.0,i+1) );
     }
 
     // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    Teuchos::RCP<EntityLocalMap> local_map =
+        Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Get an iterator over all of the boxes.
     EntityIterator all_it = entity_set->entityIterator( 3 );
-    
+
     // Build a coarse local search over the boxes.
     Teuchos::ParameterList plist;
     CoarseLocalSearch coarse_local_search( all_it, local_map, plist );

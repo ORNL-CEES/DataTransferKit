@@ -62,8 +62,8 @@ void ClassicGeometricEntityLocalMap<Geometry>::setParameters(
     const Teuchos::ParameterList& parameters )
 {
     if ( parameters.isParameter("Point Inclusion Tolerance") )
-    {	    
-	d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
+    {
+        d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
     }
 }
 
@@ -74,30 +74,30 @@ template<class Geometry>
 double ClassicGeometricEntityLocalMap<Geometry>::measure( const Entity& entity ) const
 {
     Teuchos::Ptr<Geometry> geometry =
-	Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData<Geometry> >(
-	    entity.extraData())->d_geometry;
+        Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData<Geometry> >(
+            entity.extraData())->d_geometry;
     return GeometryTraits<Geometry>::measure( *geometry );
 }
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
 template<class Geometry>
-void ClassicGeometricEntityLocalMap<Geometry>::centroid( 
+void ClassicGeometricEntityLocalMap<Geometry>::centroid(
     const Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
-{ 
+{
     Teuchos::Ptr<Geometry> geometry =
-	Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData<Geometry> >(
-	    entity.extraData())->d_geometry;
+        Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData<Geometry> >(
+            entity.extraData())->d_geometry;
     centroid.assign(
-	GeometryTraits<Geometry>::centroid( *geometry )()
-	);
+        GeometryTraits<Geometry>::centroid( *geometry )()
+        );
 }
 
 //---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the parameterized
 // point.
 template<class Geometry>
-bool ClassicGeometricEntityLocalMap<Geometry>::mapToReferenceFrame( 
+bool ClassicGeometricEntityLocalMap<Geometry>::mapToReferenceFrame(
     const Entity& ,
     const Teuchos::ArrayView<const double>& physical_point,
     const Teuchos::ArrayView<double>& reference_point ) const
@@ -109,22 +109,22 @@ bool ClassicGeometricEntityLocalMap<Geometry>::mapToReferenceFrame(
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
 template<class Geometry>
-bool ClassicGeometricEntityLocalMap<Geometry>::checkPointInclusion( 
+bool ClassicGeometricEntityLocalMap<Geometry>::checkPointInclusion(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
     Teuchos::Ptr<Geometry> geometry =
-	Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData<Geometry> >(
-	    entity.extraData())->d_geometry;
+        Teuchos::rcp_dynamic_cast<ClassicGeometricEntityExtraData<Geometry> >(
+            entity.extraData())->d_geometry;
     Teuchos::Array<double> coords( reference_point );
     return GeometryTraits<Geometry>::pointInGeometry(
-	*geometry, coords, d_inclusion_tol );
+        *geometry, coords, d_inclusion_tol );
 }
 
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
 template<class Geometry>
-void ClassicGeometricEntityLocalMap<Geometry>::mapToPhysicalFrame( 
+void ClassicGeometricEntityLocalMap<Geometry>::mapToPhysicalFrame(
     const Entity& ,
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& physical_point ) const

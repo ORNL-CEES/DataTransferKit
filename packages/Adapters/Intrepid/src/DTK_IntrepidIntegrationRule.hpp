@@ -64,7 +64,7 @@ class IntrepidIntegrationRule
 
     /*!
      * \brief Given an topology and an integration order, get its integration
-     * rule. 
+     * rule.
      *
      * \param topology Get the integration rule for this topology.
      *
@@ -80,10 +80,10 @@ class IntrepidIntegrationRule
      * weights[N].
      */
     void getIntegrationRule(
-	const shards::CellTopology& topology,
-	const int order,
-	Teuchos::Array<Teuchos::Array<double> >& reference_points,
-	Teuchos::Array<double>& weights ) const;
+        const shards::CellTopology& topology,
+        const int order,
+        Teuchos::Array<Teuchos::Array<double> >& reference_points,
+        Teuchos::Array<double>& weights ) const;
 
   private:
 
@@ -92,7 +92,7 @@ class IntrepidIntegrationRule
 
     // Map of already created cubature rules.
     mutable std::map<std::pair<unsigned,int>,
-		     Teuchos::RCP<Intrepid::Cubature<double> > > d_cub_rules;
+                     Teuchos::RCP<Intrepid::Cubature<double> > > d_cub_rules;
 };
 
 //---------------------------------------------------------------------------//

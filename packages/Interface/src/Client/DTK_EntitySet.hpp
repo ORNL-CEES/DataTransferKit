@@ -92,7 +92,7 @@ class EntitySet : public Teuchos::Describable
     //! Geometric data functions.
     /*!
      * \brief Return the largest physical dimension of the entities in the
-     * set.  
+     * set.
      *
      * \return The physical dimension of the set.
      */
@@ -126,8 +126,8 @@ class EntitySet : public Teuchos::Describable
      * \param entity The entity with the given id.
      */
     virtual void getEntity( const EntityId entity_id,
-			    const int topological_dimension,
-			    Entity& entity ) const = 0;
+                            const int topological_dimension,
+                            Entity& entity ) const = 0;
 
     /*!
      * \brief Get an iterator of the given entity type that satisfies the
@@ -140,9 +140,9 @@ class EntitySet : public Teuchos::Describable
      *
      * \return A iterator of entities of the given type.
      */
-    virtual EntityIterator entityIterator( 
-	const int topological_dimension,
-	const PredicateFunction& predicate = selectAll ) const = 0;
+    virtual EntityIterator entityIterator(
+        const int topological_dimension,
+        const PredicateFunction& predicate = selectAll ) const = 0;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
@@ -151,12 +151,12 @@ class EntitySet : public Teuchos::Describable
      * \param entity Get the adjacencies of this entity.
      *
      * \param adjacent_dimension Get adjacencies of this topological
-     * dimension. 
+     * dimension.
      */
     virtual void getAdjacentEntities(
-	const Entity& entity,
-	const int adjacent_dimension,
-	Teuchos::Array<Entity>& adjacent_entities ) const = 0;
+        const Entity& entity,
+        const int adjacent_dimension,
+        Teuchos::Array<Entity>& adjacent_entities ) const = 0;
     //@}
 
     //@{
@@ -170,9 +170,9 @@ class EntitySet : public Teuchos::Describable
      * \brief Provide a verbose description of the object.
      */
     virtual void describe(
-	Teuchos::FancyOStream& out,
-	const Teuchos::EVerbosityLevel verb_level =
-	Teuchos::Describable::verbLevel_default ) const override;
+        Teuchos::FancyOStream& out,
+        const Teuchos::EVerbosityLevel verb_level =
+        Teuchos::Describable::verbLevel_default ) const override;
     //@}
 
     /*!

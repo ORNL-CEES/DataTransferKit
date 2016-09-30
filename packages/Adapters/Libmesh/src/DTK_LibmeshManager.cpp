@@ -90,7 +90,7 @@ LibmeshManager::LibmeshManager(
 }
 
 //---------------------------------------------------------------------------//
-// Get the function space over which the mesh and its fields are defined. 
+// Get the function space over which the mesh and its fields are defined.
 Teuchos::RCP<FunctionSpace>
 LibmeshManager::functionSpace() const
 {
@@ -102,21 +102,21 @@ LibmeshManager::functionSpace() const
 void LibmeshManager::buildFunctionSpace(
     const PredicateFunction& pred )
 {
-    Teuchos::RCP<EntitySet> entity_set = 
-	Teuchos::rcp( new LibmeshEntitySet(d_mesh) );
-    
+    Teuchos::RCP<EntitySet> entity_set =
+        Teuchos::rcp( new LibmeshEntitySet(d_mesh) );
+
     Teuchos::RCP<EntityLocalMap> local_map =
-	Teuchos::rcp( new LibmeshEntityLocalMap(d_mesh,d_system) );
+        Teuchos::rcp( new LibmeshEntityLocalMap(d_mesh,d_system) );
 
     Teuchos::RCP<EntityShapeFunction> shape_function =
-	Teuchos::rcp( new LibmeshNodalShapeFunction(d_mesh,d_system) );
+        Teuchos::rcp( new LibmeshNodalShapeFunction(d_mesh,d_system) );
 
     Teuchos::RCP<EntityIntegrationRule> integration_rule =
-	Teuchos::rcp( new LibmeshEntityIntegrationRule() );
+        Teuchos::rcp( new LibmeshEntityIntegrationRule() );
 
-    d_function_space = Teuchos::rcp( 
-	new FunctionSpace(
-	    entity_set,local_map,shape_function,integration_rule,pred) );
+    d_function_space = Teuchos::rcp(
+        new FunctionSpace(
+            entity_set,local_map,shape_function,integration_rule,pred) );
 }
 
 //---------------------------------------------------------------------------//
@@ -125,9 +125,9 @@ Teuchos::RCP<FieldMultiVector>
 LibmeshManager::createFieldMultiVector( const std::string& variable_name )
 {
     Teuchos::RCP<Field> field = Teuchos::rcp(
-	new LibmeshVariableField(d_mesh, d_system, variable_name)  );
+        new LibmeshVariableField(d_mesh, d_system, variable_name)  );
     return Teuchos::rcp(
-	new FieldMultiVector(field, d_function_space->entitySet()) );
+        new FieldMultiVector(field, d_function_space->entitySet()) );
 }
 
 //---------------------------------------------------------------------------//
@@ -171,7 +171,7 @@ Teuchos::RCP<Field>
 LibmeshManager::field( const std::string& field_name ) const
 {
     return Teuchos::rcp(
-	new LibmeshVariableField(d_mesh, d_system, field_name)  );
+        new LibmeshVariableField(d_mesh, d_system, field_name)  );
 }
 
 //---------------------------------------------------------------------------//

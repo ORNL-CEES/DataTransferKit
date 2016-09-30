@@ -68,9 +68,9 @@ class BasicEntitySetIterator : public EntityIterator
     BasicEntitySetIterator();
 
     // Constructor.
-    BasicEntitySetIterator( 
-	Teuchos::RCP<std::unordered_map<EntityId,Entity> > map,
-	const PredicateFunction& predicate );
+    BasicEntitySetIterator(
+        Teuchos::RCP<std::unordered_map<EntityId,Entity> > map,
+        const PredicateFunction& predicate );
 
     // Copy constructor.
     BasicEntitySetIterator( const BasicEntitySetIterator& rhs );
@@ -136,7 +136,7 @@ class BasicEntitySet : public EntitySet
      * \brief Constructor.
      */
     BasicEntitySet( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-		    const int physical_dimension );
+                    const int physical_dimension );
 
     /*!
      * \brief Add an entity to the set.
@@ -171,8 +171,8 @@ class BasicEntitySet : public EntitySet
      * \param entity The entity with the given id.
      */
     void getEntity( const EntityId entity_id,
-		    const int topological_dimension,
-		    Entity& entity ) const override;
+                    const int topological_dimension,
+                    Entity& entity ) const override;
 
     /*!
      * \brief Get an iterator over a subset of the entity set that satisfies
@@ -183,26 +183,26 @@ class BasicEntitySet : public EntitySet
      * \return An iterator to the entities that satisfy the predicate.
      */
     EntityIterator entityIterator(
-	const int topological_dimension,
-	const PredicateFunction& predicate = EntitySet::selectAll 
-	) const override;
+        const int topological_dimension,
+        const PredicateFunction& predicate = EntitySet::selectAll
+        ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
      * adjacent to it.
      */
     virtual void getAdjacentEntities(
-	const Entity& entity,
-	const int adjacent_dimension,
-	Teuchos::Array<Entity>& adjacent_entities ) const override;
+        const Entity& entity,
+        const int adjacent_dimension,
+        Teuchos::Array<Entity>& adjacent_entities ) const override;
     //@}
 
   private:
 
     // Given a parametric dimension, get an id-to-entity map.
     std::unordered_map<EntityId,Entity>& getEntityMap(
-	const int parametric_dimension );
-    
+        const int parametric_dimension );
+
   private:
 
     // Parallel communicator.

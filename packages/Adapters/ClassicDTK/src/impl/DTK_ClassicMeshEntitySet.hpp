@@ -77,7 +77,7 @@ class ClassicMeshEntitySetIterator : public EntityIterator
 
     // Constructor.
     ClassicMeshEntitySetIterator( const Teuchos::RCP<ClassicMesh<Mesh> >& mesh,
-				  const PredicateFunction& predicate );
+                                  const PredicateFunction& predicate );
 
     // Copy constructor.
     ClassicMeshEntitySetIterator( const ClassicMeshEntitySetIterator<Mesh>& rhs );
@@ -117,7 +117,7 @@ class ClassicMeshEntitySetIterator : public EntityIterator
 
     // Move the iterator to the valid block or to the end.
     void moveToNextBlock();
-    
+
   private:
 
     // Classic mesh.
@@ -177,8 +177,8 @@ class ClassicMeshEntitySet : public EntitySet
      * \param entity The entity with the given id.
      */
     void getEntity( const EntityId entity_id,
-		    const int topological_dimension,
-		    Entity& entity ) const override;
+                    const int topological_dimension,
+                    Entity& entity ) const override;
 
     /*!
      * \brief Get an iterator over a subset of the entity set that satisfies
@@ -189,18 +189,18 @@ class ClassicMeshEntitySet : public EntitySet
      * \return An iterator to the entities that satisfy the predicate.
      */
     EntityIterator entityIterator(
-	const int topological_dimension,
-	const PredicateFunction& predicate = EntitySet::selectAll 
-	) const override;
+        const int topological_dimension,
+        const PredicateFunction& predicate = EntitySet::selectAll
+        ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
      * adjacent to it.
      */
     virtual void getAdjacentEntities(
-	const Entity& entity,
-	const int adjacent_dimension,
-	Teuchos::Array<Entity>& adjacent_entities ) const override;
+        const Entity& entity,
+        const int adjacent_dimension,
+        Teuchos::Array<Entity>& adjacent_entities ) const override;
     //@}
 
   private:

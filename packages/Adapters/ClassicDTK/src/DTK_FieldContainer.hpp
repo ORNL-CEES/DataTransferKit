@@ -55,7 +55,7 @@ namespace DataTransferKit
 
  The FieldContainer is a default implementation of FieldTraits for clients. Its
  data mimics the structure of FieldTraits with constructor arguments expected
- to have the data layout of a FieldTraits object. 
+ to have the data layout of a FieldTraits object.
  */
 //---------------------------------------------------------------------------//
 template<typename Scalar>
@@ -72,7 +72,7 @@ class FieldContainer
     typedef typename field_type::const_iterator       const_iterator;
 
     //@}
-    
+
     //! Default Constructor.
     FieldContainer()
     { /* ... */ }
@@ -85,9 +85,9 @@ class FieldContainer
      * \param dimension The dimension of the field.
      */
     FieldContainer( const Teuchos::ArrayRCP<Scalar>& data,
-		    const int dimension )
-	: d_data( data )
-	, d_dimension( dimension )
+                    const int dimension )
+        : d_data( data )
+        , d_dimension( dimension )
     { /* ... */ }
 
     //! Get the dimension of the field.
@@ -100,9 +100,9 @@ class FieldContainer
 
     //! Returns if the field is empty.
     bool empty() const
-    { 
-	if ( 0 == d_data.size() ) return true;
-	else return false; 
+    {
+        if ( 0 == d_data.size() ) return true;
+        else return false;
     }
 
     //@{

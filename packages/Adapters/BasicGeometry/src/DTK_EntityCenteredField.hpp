@@ -62,7 +62,7 @@ namespace DataTransferKit
   Field implementation for basic geometry fields over entities. Input data is
   1D but ordered in 2D such that entity 'e' has for dimension 'd' a value of:
 
-  BLOCKED: data[d][e] 
+  BLOCKED: data[d][e]
 
   INTERLEAVED: data[e][d]
 
@@ -76,25 +76,25 @@ class EntityCenteredField : public Field
     //! Blocked/Interleaved data layout enum.
     enum DataLayout
     {
-	BLOCKED,
-	INTERLEAVED
+        BLOCKED,
+        INTERLEAVED
     };
-    
+
     /*!
      * \brief Entity constructor.
      */
     EntityCenteredField( const Teuchos::ArrayView<Entity>& entities,
-			 const int field_dim,
-			 const Teuchos::ArrayRCP<double>& dof_data,
-			 const DataLayout layout );
+                         const int field_dim,
+                         const Teuchos::ArrayRCP<double>& dof_data,
+                         const DataLayout layout );
 
     /*!
      * \brief Entity id constructor.
      */
     EntityCenteredField( const Teuchos::ArrayView<const EntityId>& entity_ids,
-			 const int field_dim,
-			 const Teuchos::ArrayRCP<double>& dof_data,
-			 const DataLayout layout );
+                         const int field_dim,
+                         const Teuchos::ArrayRCP<double>& dof_data,
+                         const DataLayout layout );
 
     /*!
      * \brief Get the dimension of the field.
@@ -111,16 +111,16 @@ class EntityCenteredField : public Field
      * application field.
      */
     double readFieldData( const SupportId support_id,
-			  const int dimension ) const;
+                          const int dimension ) const;
 
     /*!
      * \brief Given a local dof id, dimension, and field value, write data
      * into the application field.
      */
     void writeFieldData( const SupportId support_id,
-			 const int dimension,
-			 const double data );
-    
+                         const int dimension,
+                         const double data );
+
   private:
 
     // The dof ids of the entities over which the field is constructed.
@@ -137,7 +137,7 @@ class EntityCenteredField : public Field
 
     // Field leading dimension.
     int d_lda;
-    
+
     // Dof id to local id map.
     std::unordered_map<SupportId,int> d_id_map;
 };

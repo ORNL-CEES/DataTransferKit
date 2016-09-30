@@ -64,9 +64,9 @@ class SplineProlongationOperator : public Tpetra::Operator<double,int,SupportId>
   public:
 
     // Constructor.
-    SplineProlongationOperator( 
-	const int offset,
-	const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map );
+    SplineProlongationOperator(
+        const int offset,
+        const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map );
 
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
@@ -88,10 +88,10 @@ class SplineProlongationOperator : public Tpetra::Operator<double,int,SupportId>
         (including NaNs) are ignored.
      */
     void apply (const Tpetra::MultiVector<double,int,SupportId> &X,
-		Tpetra::MultiVector<double,int,SupportId> &Y,
-		Teuchos::ETransp mode = Teuchos::NO_TRANS,
-		double alpha = Teuchos::ScalarTraits<double>::one(),
-		double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+                Tpetra::MultiVector<double,int,SupportId> &Y,
+                Teuchos::ETransp mode = Teuchos::NO_TRANS,
+                double alpha = Teuchos::ScalarTraits<double>::one(),
+                double beta = Teuchos::ScalarTraits<double>::zero()) const override;
 
     /// \brief Whether this operator supports applying the transpose or
     /// conjugate transpose.

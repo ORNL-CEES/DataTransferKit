@@ -72,20 +72,20 @@ void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
     Teuchos::Tuple<double,6> entity_bounds;
     for ( int i = 0; i < 4; ++i )
     {
-	dim_it = this->entityIterator( i, select_func );
-	entity_begin = dim_it.begin();
-	entity_end = dim_it.end();
-	for ( entity_it = entity_begin;
-	      entity_it != entity_end;
-	      ++entity_it )
-	{
-	    entity_it->boundingBox( entity_bounds );
-	    for ( int n = 0; n < 3; ++n )
-	    {
-		bounds[n] = std::min( bounds[n], entity_bounds[n] );
-		bounds[n+3] = std::max( bounds[n+3], entity_bounds[n+3] );
-	    }
-	}
+        dim_it = this->entityIterator( i, select_func );
+        entity_begin = dim_it.begin();
+        entity_end = dim_it.end();
+        for ( entity_it = entity_begin;
+              entity_it != entity_end;
+              ++entity_it )
+        {
+            entity_it->boundingBox( entity_bounds );
+            for ( int n = 0; n < 3; ++n )
+            {
+                bounds[n] = std::min( bounds[n], entity_bounds[n] );
+                bounds[n+3] = std::max( bounds[n+3], entity_bounds[n+3] );
+            }
+        }
     }
 }
 
@@ -99,9 +99,9 @@ void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
     Teuchos::Tuple<double,6> local_bounds;
     this->localBoundingBox( local_bounds );
     Teuchos::reduceAll( *(this->communicator()), Teuchos::REDUCE_MIN, 3,
-			&local_bounds[0], &bounds[0] ); 
+                        &local_bounds[0], &bounds[0] );
     Teuchos::reduceAll( *(this->communicator()), Teuchos::REDUCE_MAX, 3,
-			&local_bounds[3], &bounds[3] ); 
+                        &local_bounds[3], &bounds[3] );
 }
 
 //---------------------------------------------------------------------------//
@@ -114,23 +114,23 @@ std::string EntitySet::description() const
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
 void EntitySet::describe( Teuchos::FancyOStream& out,
-			  const Teuchos::EVerbosityLevel /*verb_level*/ ) const
+                          const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
     EntityIterator d0_it = entityIterator( 0 );
     EntityIterator d1_it = entityIterator( 1 );
     EntityIterator d2_it = entityIterator( 2 );
     EntityIterator d3_it = entityIterator( 3 );
-    
+
     Teuchos::Tuple<double,6> local_box;
     localBoundingBox( local_box );
-    
+
     out << description() << std::endl
-	<< "Dimension:          " << physicalDimension() << std::endl
-	<< "Num 0-D entities:   " << d0_it.size() << std::endl
-	<< "Num 1-D entities:   " << d1_it.size() << std::endl
-	<< "Num 2-D entities:   " << d2_it.size() << std::endl
-	<< "Num 3-D entities:   " << d3_it.size() << std::endl
-	<< "Local bounding box: " << local_box << std::endl;
+        << "Dimension:          " << physicalDimension() << std::endl
+        << "Num 0-D entities:   " << d0_it.size() << std::endl
+        << "Num 1-D entities:   " << d1_it.size() << std::endl
+        << "Num 2-D entities:   " << d2_it.size() << std::endl
+        << "Num 3-D entities:   " << d3_it.size() << std::endl
+        << "Local bounding box: " << local_box << std::endl;
 }
 
 //---------------------------------------------------------------------------//

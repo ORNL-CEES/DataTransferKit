@@ -87,10 +87,10 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
 
     // Create meta data.
@@ -104,32 +104,32 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
 
     // Make a coordinate field.
     stk::mesh::Field<double, stk::mesh::Cartesian3d>& coord_field =
-	meta_data.declare_field<
-	stk::mesh::Field<double, stk::mesh::Cartesian3d> >(
-	    stk::topology::NODE_RANK, "coordinates");
+        meta_data.declare_field<
+        stk::mesh::Field<double, stk::mesh::Cartesian3d> >(
+            stk::topology::NODE_RANK, "coordinates");
     meta_data.set_coordinate_field( &coord_field );
     stk::mesh::put_field( coord_field, part_1 );
     meta_data.commit();
 
     // Create bulk data.
     Teuchos::RCP<stk::mesh::BulkData> bulk_data =
-	Teuchos::rcp( new stk::mesh::BulkData(meta_data,raw_comm) );
+        Teuchos::rcp( new stk::mesh::BulkData(meta_data,raw_comm) );
     bulk_data->modification_begin();
 
     // Make a hex-8.
     int comm_rank = comm->getRank();
     stk::mesh::EntityId hex_id = 23 + comm_rank;
-    stk::mesh::Entity hex_entity = 
-	bulk_data->declare_entity( stk::topology::ELEM_RANK, hex_id, part_1 );
+    stk::mesh::Entity hex_entity =
+        bulk_data->declare_entity( stk::topology::ELEM_RANK, hex_id, part_1 );
     int num_nodes = 8;
     Teuchos::Array<stk::mesh::EntityId> node_ids( num_nodes );
     Teuchos::Array<stk::mesh::Entity> nodes( num_nodes );
     for ( int i = 0; i < num_nodes; ++i )
     {
-	node_ids[i] = num_nodes*comm_rank + i + 5;
-	nodes[i] = bulk_data->declare_entity( 
-	    stk::topology::NODE_RANK, node_ids[i], part_1 );
-	bulk_data->declare_relation( hex_entity, nodes[i], i );
+        node_ids[i] = num_nodes*comm_rank + i + 5;
+        nodes[i] = bulk_data->declare_entity(
+            stk::topology::NODE_RANK, node_ids[i], part_1 );
+        bulk_data->declare_relation( hex_entity, nodes[i], i );
     }
     bulk_data->modification_end();
 
@@ -174,14 +174,14 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
     node_coords[0] = 0.0;
     node_coords[1] = 2.0;
     node_coords[2] = 2.0;
-    
+
     // Create a local map from the bulk data.
     Teuchos::RCP<DataTransferKit::EntityLocalMap> local_map =
-	Teuchos::rcp( new DataTransferKit::STKMeshEntityLocalMap(bulk_data) );
+        Teuchos::rcp( new DataTransferKit::STKMeshEntityLocalMap(bulk_data) );
 
     // Create a DTK entity for the hex.
-    DataTransferKit::Entity dtk_entity = 
-	DataTransferKit::STKMeshEntity( hex_entity, bulk_data.ptr() );
+    DataTransferKit::Entity dtk_entity =
+        DataTransferKit::STKMeshEntity( hex_entity, bulk_data.ptr() );
 
     // Test the measure.
     TEST_EQUALITY( local_map->measure(dtk_entity), 8.0 );
@@ -205,22 +205,22 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
 
     // Test the reference frame safeguard.
     TEST_ASSERT(
-    	local_map->isSafeToMapToReferenceFrame(dtk_entity,good_point()) );
+            local_map->isSafeToMapToReferenceFrame(dtk_entity,good_point()) );
     TEST_ASSERT(
-    	!local_map->isSafeToMapToReferenceFrame(dtk_entity,bad_point()) );
+            !local_map->isSafeToMapToReferenceFrame(dtk_entity,bad_point()) );
 
     // Test the mapping to reference frame.
     Teuchos::Array<double> ref_good_point( space_dim );
-    bool good_map = local_map->mapToReferenceFrame( 
-    	dtk_entity, good_point(), ref_good_point() );
+    bool good_map = local_map->mapToReferenceFrame(
+            dtk_entity, good_point(), ref_good_point() );
     TEST_ASSERT( good_map );
     TEST_EQUALITY( ref_good_point[0], -0.5 );
     TEST_EQUALITY( ref_good_point[1], 0.5 );
     TEST_EQUALITY( ref_good_point[2], 0.0 );
-			    
+
     Teuchos::Array<double> ref_bad_point( space_dim );
-    bool bad_map = local_map->mapToReferenceFrame( 
-    	dtk_entity, bad_point(), ref_bad_point() );
+    bool bad_map = local_map->mapToReferenceFrame(
+            dtk_entity, bad_point(), ref_bad_point() );
     TEST_ASSERT( bad_map );
 
     // Test the point inclusion.
@@ -246,12 +246,12 @@ TEUCHOS_UNIT_TEST( STKMeshEntity, hex_8_test )
     Teuchos::Array<double> point_coords(space_dim);
     for ( int n = 0; n < num_nodes; ++n )
     {
-	dtk_node = DataTransferKit::STKMeshEntity( nodes[n], bulk_data.ptr() );
-	local_map->centroid( dtk_node, point_coords() );
-	node_coords = stk::mesh::field_data( coord_field, nodes[n] );
-	TEST_EQUALITY( node_coords[0], point_coords[0] );
-	TEST_EQUALITY( node_coords[1], point_coords[1] );
-	TEST_EQUALITY( node_coords[2], point_coords[2] );
+        dtk_node = DataTransferKit::STKMeshEntity( nodes[n], bulk_data.ptr() );
+        local_map->centroid( dtk_node, point_coords() );
+        node_coords = stk::mesh::field_data( coord_field, nodes[n] );
+        TEST_EQUALITY( node_coords[0], point_coords[0] );
+        TEST_EQUALITY( node_coords[1], point_coords[1] );
+        TEST_EQUALITY( node_coords[2], point_coords[2] );
     }
 }
 

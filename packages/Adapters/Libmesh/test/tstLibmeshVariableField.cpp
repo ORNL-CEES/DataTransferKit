@@ -81,13 +81,13 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, push_pull_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::DefaultComm<int>::getComm();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
+        Teuchos::DefaultComm<int>::getComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
-    
+
     // Create the mesh.
     const std::string argv_string = "unit_test";
     const char* argv_char = argv_string.c_str();
@@ -95,18 +95,18 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, push_pull_test )
     TEST_ASSERT( libMesh::initialized() );
     TEST_EQUALITY( (int) libmesh_init.comm().rank(), comm->getRank() );
     Teuchos::RCP<libMesh::Mesh> mesh = Teuchos::rcp(
-	new libMesh::Mesh(libmesh_init.comm()) );
+        new libMesh::Mesh(libmesh_init.comm()) );
     libMesh::MeshTools::Generation::build_cube( *mesh,
-						4, 4, 4,
-						0.0, 1.0,
-						0.0, 1.0,
-						0.0, 1.0,
-						libMesh::HEX8 );
+                                                4, 4, 4,
+                                                0.0, 1.0,
+                                                0.0, 1.0,
+                                                0.0, 1.0,
+                                                libMesh::HEX8 );
 
     // Parition the mesh.
     libMesh::LinearPartitioner partitioner;
     partitioner.partition( *mesh );
-    
+
     // Check libmesh validity.
     mesh->libmesh_assert_valid_parallel_ids();
 
@@ -115,26 +115,26 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, push_pull_test )
     std::string var_name = "test_var";
     libMesh::EquationSystems equation_systems( *mesh );
     libMesh::ExplicitSystem& system =
-    	equation_systems.add_system<libMesh::ExplicitSystem>("Test System");
+            equation_systems.add_system<libMesh::ExplicitSystem>("Test System");
     int var_id = system.add_variable( var_name );
     equation_systems.init();
-    
+
     // Put some data in the variable.
     int sys_id = system.number();
     libMesh::MeshBase::node_iterator nodes_begin = mesh->local_nodes_begin();
     libMesh::MeshBase::node_iterator nodes_end = mesh->local_nodes_end();
     for ( auto node_it = nodes_begin; node_it != nodes_end; ++node_it )
     {
-	auto dof_id = (*node_it)->dof_number( sys_id, var_id, 0 );
-	system.solution->set( dof_id, (*node_it)->id() );
+        auto dof_id = (*node_it)->dof_number( sys_id, var_id, 0 );
+        system.solution->set( dof_id, (*node_it)->id() );
     }
     system.solution->close();
     system.update();
-    
+
     // Create a vector from the variable over all subdomains.
     DataTransferKit::LibmeshManager manager( mesh, Teuchos::rcpFromRef(system) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > var_vec =
-	manager.createFieldMultiVector( var_name );
+        manager.createFieldMultiVector( var_name );
 
     // Test the vector size.
     unsigned int num_nodes = mesh->n_local_nodes();
@@ -144,27 +144,27 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, push_pull_test )
 
     // Test the variable data and add some.
     Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
-	var_vec)->pullDataFromApplication();
+        var_vec)->pullDataFromApplication();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > var_vec_view =
-    	var_vec->get2dViewNonConst();
+            var_vec->get2dViewNonConst();
     int n = 0;
     for ( auto node_it = nodes_begin; node_it != nodes_end; ++node_it )
     {
-    	TEST_EQUALITY( var_vec_view[0][n], (*node_it)->id() );
-	var_vec_view[0][n] += 1.0;
-	++n;
+            TEST_EQUALITY( var_vec_view[0][n], (*node_it)->id() );
+        var_vec_view[0][n] += 1.0;
+        ++n;
     }
-    
+
     // Push the data back to Libmesh
     Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
-	var_vec)->pushDataToApplication();
+        var_vec)->pushDataToApplication();
 
     // Test the Libmesh variable.
     for ( auto node = nodes_begin; node != nodes_end; ++node )
     {
-	auto dof_id = (*node)->dof_number( sys_id, var_id, 0 );
-	TEST_EQUALITY( system.solution->el(dof_id),
-		       (*node)->id() + 1 );
+        auto dof_id = (*node)->dof_number( sys_id, var_id, 0 );
+        TEST_EQUALITY( system.solution->el(dof_id),
+                       (*node)->id() + 1 );
     }
 }
 
@@ -173,13 +173,13 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, matrix_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::DefaultComm<int>::getComm();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
+        Teuchos::DefaultComm<int>::getComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
-    
+
     // Create the mesh.
     const std::string argv_string = "unit_test";
     const char* argv_char = argv_string.c_str();
@@ -187,18 +187,18 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, matrix_test )
     TEST_ASSERT( libMesh::initialized() );
     TEST_EQUALITY( (int) libmesh_init.comm().rank(), comm->getRank() );
     Teuchos::RCP<libMesh::Mesh> mesh = Teuchos::rcp(
-	new libMesh::Mesh(libmesh_init.comm()) );
+        new libMesh::Mesh(libmesh_init.comm()) );
     libMesh::MeshTools::Generation::build_cube( *mesh,
-						4, 4, 4,
-						0.0, 1.0,
-						0.0, 1.0,
-						0.0, 1.0,
-						libMesh::HEX8 );
+                                                4, 4, 4,
+                                                0.0, 1.0,
+                                                0.0, 1.0,
+                                                0.0, 1.0,
+                                                libMesh::HEX8 );
 
     // Parition the mesh.
     libMesh::LinearPartitioner partitioner;
     partitioner.partition( *mesh );
-    
+
     // Check libmesh validity.
     mesh->libmesh_assert_valid_parallel_ids();
 
@@ -208,65 +208,65 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, matrix_test )
     std::string var_2_name = "test_var_2";
     libMesh::EquationSystems equation_systems( *mesh );
     libMesh::ExplicitSystem& system =
-    	equation_systems.add_system<libMesh::ExplicitSystem>("Test System");
+            equation_systems.add_system<libMesh::ExplicitSystem>("Test System");
     int var_1_id = system.add_variable( var_1_name );
     int var_2_id = system.add_variable( var_2_name );
     equation_systems.init();
-    
+
     // Put some data in the variable.
     int sys_id = system.number();
     libMesh::MeshBase::node_iterator nodes_begin = mesh->local_nodes_begin();
     libMesh::MeshBase::node_iterator nodes_end = mesh->local_nodes_end();
     for ( auto node_it = nodes_begin; node_it != nodes_end; ++node_it )
     {
-	auto dof_id = (*node_it)->dof_number( sys_id, var_1_id, 0 );
-	system.solution->set( dof_id, (*node_it)->id() );
+        auto dof_id = (*node_it)->dof_number( sys_id, var_1_id, 0 );
+        system.solution->set( dof_id, (*node_it)->id() );
     }
     system.solution->close();
     system.update();
-    
+
     // Create a vector from the variable over all subdomains.
     DataTransferKit::LibmeshManager manager( mesh, Teuchos::rcpFromRef(system) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > var_vec_1 =
-	manager.createFieldMultiVector( var_1_name );
+        manager.createFieldMultiVector( var_1_name );
     Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > var_vec_2 =
-	manager.createFieldMultiVector( var_2_name );
+        manager.createFieldMultiVector( var_2_name );
 
     // Create a diagonal matrix.
     Teuchos::RCP<Tpetra::CrsMatrix<double,int,DataTransferKit::SupportId> > matrix =
-	Teuchos::rcp( new Tpetra::CrsMatrix<double,int,DataTransferKit::SupportId>(
-			  var_vec_2->getMap(), 1) );
+        Teuchos::rcp( new Tpetra::CrsMatrix<double,int,DataTransferKit::SupportId>(
+                          var_vec_2->getMap(), 1) );
     Teuchos::Array<DataTransferKit::SupportId> support_ids;
     Teuchos::Array<double> support_vals(1);
     DataTransferKit::Entity entity;
     for ( auto node_it = nodes_begin; node_it != nodes_end; ++node_it )
     {
-	manager.functionSpace()->entitySet()->getEntity(
-	    (*node_it)->id(), 0, entity );
-	manager.functionSpace()->shapeFunction()->entitySupportIds(
-	    entity, support_ids );
-	TEST_EQUALITY( 1, support_ids.size() );
-	TEST_EQUALITY( (*node_it)->id(), support_ids[0] );
-	support_vals[0] = support_ids[0];
-	matrix->insertGlobalValues( support_ids[0],
-				    support_ids(),
-				    support_vals() );
+        manager.functionSpace()->entitySet()->getEntity(
+            (*node_it)->id(), 0, entity );
+        manager.functionSpace()->shapeFunction()->entitySupportIds(
+            entity, support_ids );
+        TEST_EQUALITY( 1, support_ids.size() );
+        TEST_EQUALITY( (*node_it)->id(), support_ids[0] );
+        support_vals[0] = support_ids[0];
+        matrix->insertGlobalValues( support_ids[0],
+                                    support_ids(),
+                                    support_vals() );
     }
     matrix->fillComplete( var_vec_1->getMap(), var_vec_2->getMap() );
-    
+
     // Apply the matrix.
     Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
-	var_vec_1)->pullDataFromApplication();
+        var_vec_1)->pullDataFromApplication();
     matrix->apply( *var_vec_1, *var_vec_2 );
     Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
-	var_vec_2)->pushDataToApplication();
+        var_vec_2)->pushDataToApplication();
 
     // Test the Libmesh variable.
     for ( auto node = nodes_begin; node != nodes_end; ++node )
     {
-	auto dof_id = (*node)->dof_number( sys_id, var_2_id, 0 );
-	TEST_EQUALITY( system.solution->el(dof_id),
-		       (*node)->id() * (*node)->id()  );
+        auto dof_id = (*node)->dof_number( sys_id, var_2_id, 0 );
+        TEST_EQUALITY( system.solution->el(dof_id),
+                       (*node)->id() * (*node)->id()  );
     }
 }
 

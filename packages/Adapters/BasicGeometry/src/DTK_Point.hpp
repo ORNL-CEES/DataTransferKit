@@ -67,11 +67,11 @@ class Point : public BasicGeometryEntity
     Point();
 
     // Array constructor.
-    Point( const EntityId global_id, 
-	   const int owner_rank,
-	   const Teuchos::Array<double>& coordinates,
-	   const Teuchos::Array<int>& block_ids = Teuchos::Array<int>(0),
-	   const Teuchos::Array<int>& boundary_ids = Teuchos::Array<int>(0) );
+    Point( const EntityId global_id,
+           const int owner_rank,
+           const Teuchos::Array<double>& coordinates,
+           const Teuchos::Array<int>& block_ids = Teuchos::Array<int>(0),
+           const Teuchos::Array<int>& boundary_ids = Teuchos::Array<int>(0) );
 
     //@{
     //! Coordinate access functions.

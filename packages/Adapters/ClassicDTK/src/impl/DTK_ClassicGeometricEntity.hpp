@@ -53,7 +53,7 @@ namespace DataTransferKit
 /*!
   \class ClassicGeometricEntity
   \brief ClassicGeometricEntity interface.
-  
+
   ClassicGeometricEntity gives an interface for simple geometries. These objects
   effectivelty define their own EntityLocalMap interface as these functions
   are typically statisfied with analytic expressions for basic geometric
@@ -67,8 +67,8 @@ class ClassicGeometricEntity : public Entity
 
     // Default constructor.
     ClassicGeometricEntity( const Teuchos::Ptr<Geometry>& geometry,
-			    const EntityId global_id,
-			    const int owner_rank );
+                            const EntityId global_id,
+                            const int owner_rank );
 };
 
 //---------------------------------------------------------------------------//

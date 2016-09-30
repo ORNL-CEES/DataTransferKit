@@ -90,10 +90,10 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
 
     // Create meta data.
@@ -111,32 +111,32 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
 
     // Make a coordinate field.
     stk::mesh::Field<double, stk::mesh::Cartesian3d>& coord_field =
-	meta_data.declare_field<
-	stk::mesh::Field<double, stk::mesh::Cartesian3d> >(
-	    stk::topology::NODE_RANK, "coordinates");
+        meta_data.declare_field<
+        stk::mesh::Field<double, stk::mesh::Cartesian3d> >(
+            stk::topology::NODE_RANK, "coordinates");
     meta_data.set_coordinate_field( &coord_field );
     stk::mesh::put_field( coord_field, part_1 );
     meta_data.commit();
 
     // Create bulk data.
     Teuchos::RCP<stk::mesh::BulkData> bulk_data =
-	Teuchos::rcp( new stk::mesh::BulkData(meta_data,raw_comm) );
+        Teuchos::rcp( new stk::mesh::BulkData(meta_data,raw_comm) );
     bulk_data->modification_begin();
 
     // Make a hex-8.
     int comm_rank = comm->getRank();
     stk::mesh::EntityId hex_id = 23 + comm_rank;
-    stk::mesh::Entity hex_entity = 
-	bulk_data->declare_entity( stk::topology::ELEM_RANK, hex_id, part_1 );
+    stk::mesh::Entity hex_entity =
+        bulk_data->declare_entity( stk::topology::ELEM_RANK, hex_id, part_1 );
     int num_nodes = 8;
     Teuchos::Array<stk::mesh::EntityId> node_ids( num_nodes );
     Teuchos::Array<stk::mesh::Entity> nodes( num_nodes );
     for ( int i = 0; i < num_nodes; ++i )
     {
-	node_ids[i] = num_nodes*comm_rank + i + 5;
-	nodes[i] = bulk_data->declare_entity( 
-	    stk::topology::NODE_RANK, node_ids[i], part_1 );
-	bulk_data->declare_relation( hex_entity, nodes[i], i );
+        node_ids[i] = num_nodes*comm_rank + i + 5;
+        nodes[i] = bulk_data->declare_entity(
+            stk::topology::NODE_RANK, node_ids[i], part_1 );
+        bulk_data->declare_relation( hex_entity, nodes[i], i );
     }
     bulk_data->modification_end();
 
@@ -185,16 +185,16 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     // Make a list of hexes.
     unsigned num_hex = 2;
     std::vector<stk::mesh::Entity> hex_entities( num_hex, hex_entity );
-    
+
     // Make an iterator for the hex.
-    std::function<bool(DataTransferKit::Entity)> all_pred = 
-	[=] (DataTransferKit::Entity e){return true;};
+    std::function<bool(DataTransferKit::Entity)> all_pred =
+        [=] (DataTransferKit::Entity e){return true;};
     Teuchos::RCP<DataTransferKit::STKMeshEntityIteratorRange> iterator_range =
-	Teuchos::rcp( new DataTransferKit::STKMeshEntityIteratorRange() );
+        Teuchos::rcp( new DataTransferKit::STKMeshEntityIteratorRange() );
     iterator_range->d_stk_entities = hex_entities;
-    DataTransferKit::EntityIterator entity_iterator = 
-	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data.ptr(), all_pred );
+    DataTransferKit::EntityIterator entity_iterator =
+        DataTransferKit::STKMeshEntityIterator(
+            iterator_range, bulk_data.ptr(), all_pred );
 
     // Test the entity iterator.
     TEST_EQUALITY( entity_iterator.size(), num_hex );
@@ -212,10 +212,10 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     TEST_ASSERT( !entity_iterator->onBoundary(part_2_id) );
 
     Teuchos::RCP<DataTransferKit::EntityExtraData> extra_data_1 =
-	entity_iterator->extraData();
+        entity_iterator->extraData();
     TEST_EQUALITY( hex_entity,
-		   Teuchos::rcp_dynamic_cast<DataTransferKit::STKMeshEntityExtraData>(
-		       extra_data_1)->d_stk_entity );
+                   Teuchos::rcp_dynamic_cast<DataTransferKit::STKMeshEntityExtraData>(
+                       extra_data_1)->d_stk_entity );
 
     Teuchos::Tuple<double,6> hex_bounds_1;
     entity_iterator->boundingBox( hex_bounds_1 );
@@ -240,10 +240,10 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     TEST_ASSERT( !(*entity_iterator).onBoundary(part_2_id) );
 
     Teuchos::RCP<DataTransferKit::EntityExtraData> extra_data_2 =
-	(*entity_iterator).extraData();
+        (*entity_iterator).extraData();
     TEST_EQUALITY( hex_entity,
-		   Teuchos::rcp_dynamic_cast<DataTransferKit::STKMeshEntityExtraData>(
-		       extra_data_2)->d_stk_entity );
+                   Teuchos::rcp_dynamic_cast<DataTransferKit::STKMeshEntityExtraData>(
+                       extra_data_2)->d_stk_entity );
 
     Teuchos::Tuple<double,6> hex_bounds_2;
     (*entity_iterator).boundingBox( hex_bounds_2 );
@@ -263,16 +263,16 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     stk::mesh::Selector select_1( part_1 );
     DataTransferKit::STKSelectorPredicate part_1_pred( select_1 );
     DataTransferKit::EntityIterator part_1_iterator =
-	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data.ptr(), part_1_pred.getFunction() );
+        DataTransferKit::STKMeshEntityIterator(
+            iterator_range, bulk_data.ptr(), part_1_pred.getFunction() );
     TEST_EQUALITY( part_1_iterator.size(), num_hex );
 
     // Make an iterator with a part 2 predicate.
     stk::mesh::Selector select_2( part_2 );
     DataTransferKit::STKSelectorPredicate part_2_pred( select_2 );
     DataTransferKit::EntityIterator part_2_iterator =
-	DataTransferKit::STKMeshEntityIterator(
-	    iterator_range, bulk_data.ptr(), part_2_pred.getFunction() );
+        DataTransferKit::STKMeshEntityIterator(
+            iterator_range, bulk_data.ptr(), part_2_pred.getFunction() );
     TEST_EQUALITY( part_2_iterator.size(), 0 );
 }
 

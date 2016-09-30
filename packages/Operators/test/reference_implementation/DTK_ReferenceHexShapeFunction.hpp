@@ -66,8 +66,8 @@ class ReferenceHexShapeFunction : public DataTransferKit::EntityShapeFunction
     /*!
      * \brief Constructor.
      */
-    ReferenceHexShapeFunction();    
-    
+    ReferenceHexShapeFunction();
+
     /*!
      * \brief Given an entity, get the ids of the support locations.
      * \param entity Get the degrees of freedom for this entity.
@@ -85,12 +85,12 @@ class ReferenceHexShapeFunction : public DataTransferKit::EntityShapeFunction
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
      * \param values Entity shape function evaluated at the reference
-     * point. 
+     * point.
      */
-    void evaluateValue( 
-	const DataTransferKit::Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<double> & values ) const override;
+    void evaluateValue(
+        const DataTransferKit::Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point,
+        Teuchos::Array<double> & values ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the gradient of
@@ -103,16 +103,16 @@ class ReferenceHexShapeFunction : public DataTransferKit::EntityShapeFunction
      * getSupportIds() such that gradients[N][D] gives the gradient value of the
      * Nth support location in the Dth spatial dimension.
      */
-    void evaluateGradient( 
-	const DataTransferKit::Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const override;
+    void evaluateGradient(
+        const DataTransferKit::Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point,
+        Teuchos::Array<Teuchos::Array<double> >& gradients ) const override;
 
   private:
-    
+
     // Hex topology.
     shards::CellTopology d_topo;
-    
+
     // Intrepid shape funciton.
     DataTransferKit::IntrepidShapeFunction d_intrepid_shape;
 };

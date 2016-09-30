@@ -74,8 +74,8 @@ Cylinder::Cylinder()
  * \param centroid_z Centroid Z-coordinate.
  */
 Cylinder::Cylinder( const double length, const double radius,
-		    const double centroid_x, const double centroid_y,
-		    const double centroid_z )
+                    const double centroid_x, const double centroid_y,
+                    const double centroid_z )
     : d_length( length )
     , d_radius( radius )
     , d_centroid_x( centroid_x )
@@ -88,7 +88,7 @@ Cylinder::Cylinder( const double length, const double radius,
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Determine if a point is in the cylinder. 
+ * \brief Determine if a point is in the cylinder.
  *
  * \param coords Cartesian coordinates to check for point inclusion. The
  * coordinates must have a dimension of 3.
@@ -100,20 +100,20 @@ Cylinder::Cylinder( const double length, const double radius,
  * true.
  */
 bool Cylinder::pointInCylinder( const Teuchos::Array<double>& coords,
-				const double tolerance ) const
+                                const double tolerance ) const
 {
     DTK_REQUIRE( coords.size() == 3 );
 
     double distance = std::pow(
-	(d_centroid_x - coords[0])*(d_centroid_x - coords[0]) +
-	(d_centroid_y - coords[1])*(d_centroid_y - coords[1]),
-	0.5 );
+        (d_centroid_x - coords[0])*(d_centroid_x - coords[0]) +
+        (d_centroid_y - coords[1])*(d_centroid_y - coords[1]),
+        0.5 );
 
     if ( distance <= d_radius + tolerance &&
-	 coords[2] >= d_centroid_z - d_length/2 - tolerance &&
-	 coords[2] <= d_centroid_z + d_length/2 + tolerance )
+         coords[2] >= d_centroid_z - d_length/2 - tolerance &&
+         coords[2] <= d_centroid_z + d_length/2 + tolerance )
     {
-	return true;
+        return true;
     }
 
     return false;
@@ -163,11 +163,11 @@ double Cylinder::volume() const
 BoundingBox Cylinder::boundingBox() const
 {
     return BoundingBox( d_centroid_x - d_radius,
-			d_centroid_y - d_radius,
-			d_centroid_z - d_length/2,
-			d_centroid_x + d_radius,
-			d_centroid_y + d_radius,
-			d_centroid_z + d_length/2 );
+                        d_centroid_y - d_radius,
+                        d_centroid_z - d_length/2,
+                        d_centroid_x + d_radius,
+                        d_centroid_y + d_radius,
+                        d_centroid_z + d_length/2 );
 }
 
 //---------------------------------------------------------------------------//

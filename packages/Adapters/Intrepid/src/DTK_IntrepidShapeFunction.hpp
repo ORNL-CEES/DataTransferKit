@@ -70,12 +70,12 @@ class IntrepidShapeFunction
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
      * \param values Topology shape function evaluated at the reference
-     * point. 
+     * point.
      */
-    void evaluateValue( 
-	const shards::CellTopology& topology,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<double>& values ) const;
+    void evaluateValue(
+        const shards::CellTopology& topology,
+        const Teuchos::ArrayView<const double>& reference_point,
+        Teuchos::Array<double>& values ) const;
 
     /*!
      * \brief Given an topology and a reference point, evaluate the gradient of
@@ -88,17 +88,17 @@ class IntrepidShapeFunction
      * getSupportIds() such that gradients[N][D] gives the gradient value of the
      * Nth support location in the Dth spatial dimension.
      */
-    void evaluateGradient( 
-	const shards::CellTopology& topology,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
+    void evaluateGradient(
+        const shards::CellTopology& topology,
+        const Teuchos::ArrayView<const double>& reference_point,
+        Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
 
   private:
 
     // Get the basis of a topology.
     Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
     getIntrepidBasis( const shards::CellTopology& topology ) const;
- 
+
   private:
 
     // Map of already created shape functions.

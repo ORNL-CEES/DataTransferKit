@@ -65,14 +65,14 @@ class StaticSearchTree
     { /* ... */ }
 
     // Perform an n-nearest neighbor search.
-    virtual Teuchos::Array<unsigned> nnSearch( 
-	const Teuchos::ArrayView<const double>& point,
-	const unsigned num_neighbors ) const = 0;
+    virtual Teuchos::Array<unsigned> nnSearch(
+        const Teuchos::ArrayView<const double>& point,
+        const unsigned num_neighbors ) const = 0;
 
     // Perform a nearest neighbor search within a specified radius.
-    virtual Teuchos::Array<unsigned> radiusSearch( 
-	const Teuchos::ArrayView<const double>& point, 
-	const double radius ) const = 0;
+    virtual Teuchos::Array<unsigned> radiusSearch(
+        const Teuchos::ArrayView<const double>& point,
+        const double radius ) const = 0;
 };
 
 //---------------------------------------------------------------------------//
@@ -82,14 +82,14 @@ template<int DIM>
 class PointCloud
 {
   public:
-    
+
     //! Default constructor.
     PointCloud()
     { /* ... */ }
 
     //! Constructor.
     PointCloud( const Teuchos::ArrayView<const double>& points )
-	: d_points( points )
+        : d_points( points )
     { /* ... */ }
 
     //! Destructor.
@@ -101,15 +101,15 @@ class PointCloud
     { return d_points.size() / DIM; }
 
     // Distance between points.
-    double kdtree_distance( 
-	const double *p1, const std::size_t idx_p2, std::size_t size) const;
+    double kdtree_distance(
+        const double *p1, const std::size_t idx_p2, std::size_t size) const;
 
     // Get the point coordinate at the given dimension.
     double kdtree_get_pt( const std::size_t idx, int dim ) const;
 
     //! Default bounding box calculation.
     template <class BBOX>
-    bool kdtree_get_bbox( BBOX& /*bb*/ ) const 
+    bool kdtree_get_bbox( BBOX& /*bb*/ ) const
     { return false; }
 
   private:
@@ -140,21 +140,21 @@ class NanoflannTree : public StaticSearchTree
 
     // Default constructor.
     NanoflannTree( const Teuchos::ArrayView<const double>& points,
-		   const unsigned max_leaf_size );
+                   const unsigned max_leaf_size );
 
     // Destructor.
     ~NanoflannTree()
     { /* ... */ }
 
     // Perform an n-nearest neighbor search.
-    Teuchos::Array<unsigned> nnSearch( 
-	const Teuchos::ArrayView<const double>& point,
-	const unsigned num_neighbors ) const;
+    Teuchos::Array<unsigned> nnSearch(
+        const Teuchos::ArrayView<const double>& point,
+        const unsigned num_neighbors ) const;
 
     // Perform a nearest neighbor search within a specified radius.
-    Teuchos::Array<unsigned> radiusSearch( 
-	const Teuchos::ArrayView<const double>& point, 
-	const double radius ) const;
+    Teuchos::Array<unsigned> radiusSearch(
+        const Teuchos::ArrayView<const double>& point,
+        const double radius ) const;
 
   private:
 

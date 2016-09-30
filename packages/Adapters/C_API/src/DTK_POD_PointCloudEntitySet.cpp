@@ -75,7 +75,7 @@ POD_PointCloudEntitySet::communicator() const
 }
 
 //---------------------------------------------------------------------------//
-// Return the largest physical dimension of the entities in the set. 
+// Return the largest physical dimension of the entities in the set.
 int POD_PointCloudEntitySet::physicalDimension() const
 {
     return d_space_dim;
@@ -91,12 +91,12 @@ void POD_PointCloudEntitySet::getEntity( const EntityId entity_id,
     DTK_REQUIRE( 1 == std::count(&d_global_ids[0],
                                  &d_global_ids[0] + d_num_points,
                                  entity_id) );
-    
+
     int local_id = std::distance( &d_global_ids[0],
                                   std::find(&d_global_ids[0],
                                             &d_global_ids[0] + d_num_points,
                                             entity_id) );
-    
+
     entity = POD_PointCloudEntity( d_cloud_coords,
                                    d_num_points,
                                    d_space_dim,
@@ -108,13 +108,13 @@ void POD_PointCloudEntitySet::getEntity( const EntityId entity_id,
 
 //---------------------------------------------------------------------------//
 // Get an iterator over a subset of the entity set that satisfies the given
-// predicate. 
+// predicate.
 EntityIterator POD_PointCloudEntitySet::entityIterator(
     const int topological_dimension,
     const PredicateFunction& predicate ) const
 {
     EntityIterator iterator;
-    
+
     if ( 0 == topological_dimension )
     {
         iterator = POD_PointCloudEntityIterator( d_cloud_coords,
@@ -131,7 +131,7 @@ EntityIterator POD_PointCloudEntitySet::entityIterator(
 
 //---------------------------------------------------------------------------//
 // Given an entity, get the entities of the given type that are adjacent to
-// it. 
+// it.
 void POD_PointCloudEntitySet::getAdjacentEntities(
     const Entity& entity,
     const int adjacent_dimension,

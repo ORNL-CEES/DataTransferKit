@@ -84,13 +84,13 @@ void setupAndRunTest( const std::string& input_file,
 {
     // Get the test parameters.
     Teuchos::RCP<Teuchos::ParameterList> parameters =
-	Teuchos::rcp( new Teuchos::ParameterList() );
+        Teuchos::rcp( new Teuchos::ParameterList() );
     Teuchos::updateParametersFromXmlFile(
-	input_file, Teuchos::inoutArg(*parameters) );
+        input_file, Teuchos::inoutArg(*parameters) );
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::DefaultComm<int>::getComm();
+        Teuchos::DefaultComm<int>::getComm();
     int comm_rank = comm->getRank();
     int comm_size = comm->getSize();
     int inverse_rank = comm_size - comm_rank - 1;
@@ -110,11 +110,11 @@ void setupAndRunTest( const std::string& input_file,
     Teuchos::ArrayRCP<double> fluid_forces( space_dim*num_points );
     for ( int i = 0; i < num_points; ++i )
     {
-	point_id = num_points*comm_rank + i;
-	coords[0] = (double) std::rand() / (double) RAND_MAX + comm_rank;
-	coords[1] = (double) std::rand() / (double) RAND_MAX;
-	coords[2] = (double) std::rand() / (double) RAND_MAX;
-	fluid_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
+        point_id = num_points*comm_rank + i;
+        coords[0] = (double) std::rand() / (double) RAND_MAX + comm_rank;
+        coords[1] = (double) std::rand() / (double) RAND_MAX;
+        coords[2] = (double) std::rand() / (double) RAND_MAX;
+        fluid_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
 
         for( int d = 0; d < space_dim; ++d )
         {
@@ -130,26 +130,26 @@ void setupAndRunTest( const std::string& input_file,
     Teuchos::ArrayRCP<double> structure_forces( space_dim*num_points );
     for ( int i = 0; i < num_points; ++i )
     {
-	point_id = num_points*inverse_rank + i;
-	coords[0] = (double) std::rand() / (double) RAND_MAX + inverse_rank;
-	coords[1] = (double) std::rand() / (double) RAND_MAX;
-	coords[2] = (double) std::rand() / (double) RAND_MAX;
-	structure_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
+        point_id = num_points*inverse_rank + i;
+        coords[0] = (double) std::rand() / (double) RAND_MAX + inverse_rank;
+        coords[1] = (double) std::rand() / (double) RAND_MAX;
+        coords[2] = (double) std::rand() / (double) RAND_MAX;
+        structure_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
 
         for( int d = 0; d < space_dim; ++d )
         {
-            structure_displacements[num_points*d + i] = 
+            structure_displacements[num_points*d + i] =
                 coords[space_dim-d-1] + 2.0*d;
             structure_forces[num_points*d + i] = 0.0;
         }
     }
 
     // Make a manager for the fluid geometry.
-    DataTransferKit::BasicGeometryManager fluid_manager( 
+    DataTransferKit::BasicGeometryManager fluid_manager(
         comm, space_dim, fluid_points() );
-					   
+
     // Make a manager for the structure geometry.
-    DataTransferKit::BasicGeometryManager structure_manager( 
+    DataTransferKit::BasicGeometryManager structure_manager(
         comm, space_dim, structure_points() );
 
     // Make DOF vectors for the fluid fields.
@@ -157,7 +157,7 @@ void setupAndRunTest( const std::string& input_file,
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
                           fluid_points(), space_dim, fluid_displacements,
                           DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > 
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> >
         fluid_displacements_vector =
         Teuchos::rcp( new DataTransferKit::FieldMultiVector(
                           fluid_displacements_field,
@@ -167,7 +167,7 @@ void setupAndRunTest( const std::string& input_file,
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
                           fluid_points(), space_dim, fluid_forces,
                           DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > 
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> >
         fluid_forces_vector =
         Teuchos::rcp( new DataTransferKit::FieldMultiVector(
                           fluid_forces_field,
@@ -178,7 +178,7 @@ void setupAndRunTest( const std::string& input_file,
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
                           structure_points(), space_dim, structure_displacements,
                           DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > 
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> >
         structure_displacements_vector =
         Teuchos::rcp( new DataTransferKit::FieldMultiVector(
                           structure_displacements_field,
@@ -188,7 +188,7 @@ void setupAndRunTest( const std::string& input_file,
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
                           structure_points(), space_dim, structure_forces,
                           DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > 
+    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> >
         structure_forces_vector =
         Teuchos::rcp( new DataTransferKit::FieldMultiVector(
                           structure_forces_field,
@@ -197,8 +197,8 @@ void setupAndRunTest( const std::string& input_file,
     // Create the point cloud operator to map from the structure to the fluid.
     DataTransferKit::MapOperatorFactory factory;
     Teuchos::RCP<DataTransferKit::MapOperator> cloud_op =
-        factory.create( structure_displacements_vector->getMap(), 
-                        fluid_displacements_vector->getMap(), 
+        factory.create( structure_displacements_vector->getMap(),
+                        fluid_displacements_vector->getMap(),
                         *parameters );
 
     // Setup the operator.
@@ -206,13 +206,13 @@ void setupAndRunTest( const std::string& input_file,
                      fluid_manager.functionSpace() );
 
     // Map the displacements.
-    cloud_op->apply( *structure_displacements_vector, 
-                     *fluid_displacements_vector, 
+    cloud_op->apply( *structure_displacements_vector,
+                     *fluid_displacements_vector,
                      Teuchos::NO_TRANS );
-    
+
     // Map the forces.
-    cloud_op->apply( *fluid_forces_vector, 
-                     *structure_forces_vector, 
+    cloud_op->apply( *fluid_forces_vector,
+                     *structure_forces_vector,
                      Teuchos::TRANS );
 
     // Calculate structure virtual work.
@@ -221,12 +221,12 @@ void setupAndRunTest( const std::string& input_file,
     {
         for ( int d = 0; d < space_dim; ++d )
         {
-            local_structure_virtual_work += 
+            local_structure_virtual_work +=
                 structure_displacements[num_points*d+i] *
                 structure_forces[num_points*d+i];
         }
     }
-    Teuchos::reduceAll( *comm, 
+    Teuchos::reduceAll( *comm,
                         Teuchos::REDUCE_SUM,
                         local_structure_virtual_work,
                         Teuchos::ptrFromRef(structure_virtual_work) );
@@ -237,12 +237,12 @@ void setupAndRunTest( const std::string& input_file,
     {
         for ( int d = 0; d < space_dim; ++d )
         {
-            local_fluid_virtual_work += 
+            local_fluid_virtual_work +=
                 fluid_displacements[num_points*d+i] *
                 fluid_forces[num_points*d+i];
         }
     }
-    Teuchos::reduceAll( *comm, 
+    Teuchos::reduceAll( *comm,
                         Teuchos::REDUCE_SUM,
                         local_fluid_virtual_work,
                         Teuchos::ptrFromRef(fluid_virtual_work) );
@@ -257,11 +257,11 @@ TEUCHOS_UNIT_TEST( VirtualWork, mls_radius_test )
     double structure_virtual_work = 0.0;
     double fluid_virtual_work = 0.0;
     setupAndRunTest(
-	"mls_test_radius.xml", structure_virtual_work, fluid_virtual_work );
-    
+        "mls_test_radius.xml", structure_virtual_work, fluid_virtual_work );
+
     // Check the results.
-    TEST_FLOATING_EQUALITY( fluid_virtual_work, 
-                            structure_virtual_work, 
+    TEST_FLOATING_EQUALITY( fluid_virtual_work,
+                            structure_virtual_work,
                             epsilon );
 }
 
@@ -272,11 +272,11 @@ TEUCHOS_UNIT_TEST( VirtualWork, mls_knn_test )
     double structure_virtual_work = 0.0;
     double fluid_virtual_work = 0.0;
     setupAndRunTest(
-	"mls_test_knn.xml", structure_virtual_work, fluid_virtual_work );
-    
+        "mls_test_knn.xml", structure_virtual_work, fluid_virtual_work );
+
     // Check the results.
-    TEST_FLOATING_EQUALITY( fluid_virtual_work, 
-                            structure_virtual_work, 
+    TEST_FLOATING_EQUALITY( fluid_virtual_work,
+                            structure_virtual_work,
                             epsilon );
 }
 

@@ -79,9 +79,9 @@ class STKMeshManager : public ClientManager
      */
     enum BasisType
     {
-	BASIS_TYPE_GRADIENT
+        BASIS_TYPE_GRADIENT
     };
-    
+
   public:
 
     /*!
@@ -90,12 +90,12 @@ class STKMeshManager : public ClientManager
      * \param bulk_data STK mesh bulk data.
      *
      * \param entity_type The type of entities in the mesh that will be
-     * mapped. 
+     * mapped.
      *
      * \param basis_type The type of basis function space to use.
      */
     STKMeshManager( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-		    const BasisType basis_type = BASIS_TYPE_GRADIENT );
+                    const BasisType basis_type = BASIS_TYPE_GRADIENT );
 
     /*!
      * \brief Part name constructor.
@@ -106,13 +106,13 @@ class STKMeshManager : public ClientManager
      * mapped.
      *
      * \param entity_type The type of entities in the mesh that will be
-     * mapped. 
+     * mapped.
      *
      * \param basis_type The type of basis function space to use.
      */
     STKMeshManager( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-		    const Teuchos::Array<std::string>& part_names,
-		    const BasisType basis_type = BASIS_TYPE_GRADIENT );
+                    const Teuchos::Array<std::string>& part_names,
+                    const BasisType basis_type = BASIS_TYPE_GRADIENT );
 
     /*!
      * \brief Part vector constructor.
@@ -123,13 +123,13 @@ class STKMeshManager : public ClientManager
      * mapped.
      *
      * \param entity_type The type of entities in the mesh that will be
-     * mapped. 
+     * mapped.
      *
      * \param basis_type The type of basis function space to use.
      */
     STKMeshManager( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-		    const stk::mesh::PartVector& parts,
-		    const BasisType basis_type = BASIS_TYPE_GRADIENT );
+                    const stk::mesh::PartVector& parts,
+                    const BasisType basis_type = BASIS_TYPE_GRADIENT );
 
     /*!
      * \brief Selector constructor.
@@ -140,13 +140,13 @@ class STKMeshManager : public ClientManager
      * mapped.
      *
      * \param entity_type The type of entities in the mesh that will be
-     * mapped. 
+     * mapped.
      *
      * \param basis_type The type of basis function space to use.
      */
     STKMeshManager( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-		    const stk::mesh::Selector& selector,
-		    const BasisType basis_type = BASIS_TYPE_GRADIENT );
+                    const stk::mesh::Selector& selector,
+                    const BasisType basis_type = BASIS_TYPE_GRADIENT );
 
     /*!
      * \brief Register a tag with the manager that will be available for
@@ -154,11 +154,11 @@ class STKMeshManager : public ClientManager
      */
     template<class FieldType>
     void registerField( const Teuchos::Ptr<FieldType>& field,
-			const int field_dim );
-    
+                        const int field_dim );
+
     /*!
      * \brief Get the function space over which the mesh and its fields are
-     * defined. 
+     * defined.
      */
     Teuchos::RCP<FunctionSpace> functionSpace() const;
 
@@ -168,7 +168,7 @@ class STKMeshManager : public ClientManager
     template<class FieldType>
     Teuchos::RCP<FieldMultiVector>
     createFieldMultiVector( const Teuchos::Ptr<FieldType>& field,
-			    const int field_dim );
+                            const int field_dim );
 
     //@{
     //! ClientManager interface implementation.
@@ -207,21 +207,21 @@ class STKMeshManager : public ClientManager
   private:
 
     // Create the function space.
-    void createFunctionSpace( 
-	const BasisType basis_type,
-	const PredicateFunction& select_function );
+    void createFunctionSpace(
+        const BasisType basis_type,
+        const PredicateFunction& select_function );
 
   private:
 
     // Bulk data.
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
-    
+
     // The function space over which the mesh and its fields are defined.
     Teuchos::RCP<FunctionSpace> d_function_space;
 
     // Field name to local id indexer.
     std::unordered_map<std::string,int> d_field_indexer;
-    
+
     // Registered fields.
     Teuchos::Array<Teuchos::RCP<Field> > d_fields;
 };
@@ -232,31 +232,31 @@ class STKMeshManager : public ClientManager
 template<class FieldType>
 Teuchos::RCP<FieldMultiVector>
 STKMeshManager::createFieldMultiVector( const Teuchos::Ptr<FieldType>& field,
-					const int field_dim )
+                                        const int field_dim )
 {
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
     DTK_REQUIRE( Teuchos::nonnull(d_function_space) );
-    
+
     Teuchos::RCP<Field> stk_field = Teuchos::rcp(
-	new STKMeshField<double,FieldType>(d_bulk_data,field,field_dim) );
+        new STKMeshField<double,FieldType>(d_bulk_data,field,field_dim) );
     return Teuchos::rcp(
-	new FieldMultiVector(stk_field,d_function_space->entitySet()) );
+        new FieldMultiVector(stk_field,d_function_space->entitySet()) );
 }
 
 //---------------------------------------------------------------------------//
 template<class FieldType>
 void STKMeshManager::registerField( const Teuchos::Ptr<FieldType>& field,
-				    const int field_dim )
+                                    const int field_dim )
 {
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
     DTK_REQUIRE( Teuchos::nonnull(d_function_space) );
 
     d_field_indexer.emplace( field->name(), d_fields.size() );
-    
+
     d_fields.push_back(
-	Teuchos::rcp(
-	    new STKMeshField<double,FieldType>(d_bulk_data,field,field_dim) )
-	);
+        Teuchos::rcp(
+            new STKMeshField<double,FieldType>(d_bulk_data,field,field_dim) )
+        );
 }
 
 //---------------------------------------------------------------------------//

@@ -47,7 +47,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 MapOperator::MapOperator( const Teuchos::RCP<const TpetraMap>& domain_map,
-			  const Teuchos::RCP<const TpetraMap>& range_map )
+                          const Teuchos::RCP<const TpetraMap>& range_map )
     : d_domain_map( domain_map )
     , d_range_map( range_map )
     , d_setup_is_complete( false )
@@ -60,7 +60,7 @@ MapOperator::~MapOperator()
 
 //---------------------------------------------------------------------------//
 // Get the range map.
-Teuchos::RCP<const typename MapOperator::TpetraMap> 
+Teuchos::RCP<const typename MapOperator::TpetraMap>
 MapOperator::getDomainMap() const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_domain_map) );
@@ -69,7 +69,7 @@ MapOperator::getDomainMap() const
 
 //---------------------------------------------------------------------------//
 // Get the domain map.
-Teuchos::RCP<const typename MapOperator::TpetraMap> 
+Teuchos::RCP<const typename MapOperator::TpetraMap>
 MapOperator::getRangeMap() const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_range_map) );
@@ -79,7 +79,7 @@ MapOperator::getRangeMap() const
 //---------------------------------------------------------------------------//
 // Setup the map operator.
 void MapOperator::setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-			 const Teuchos::RCP<FunctionSpace>& range_space )
+                         const Teuchos::RCP<FunctionSpace>& range_space )
 {
     setupImpl( domain_space, range_space );
     d_setup_is_complete = true;
@@ -94,16 +94,16 @@ bool MapOperator::setupIsComplete() const
 //---------------------------------------------------------------------------//
 // Apply the map operator.
 void MapOperator::apply( const TpetraMultiVector& X,
-			 TpetraMultiVector& Y,
-			 Teuchos::ETransp mode,
-			 const double alpha,
-			 const double beta ) const
+                         TpetraMultiVector& Y,
+                         Teuchos::ETransp mode,
+                         const double alpha,
+                         const double beta ) const
 {
     // Pull data from the applications.
     const FieldMultiVector& X_fmv = dynamic_cast<const FieldMultiVector&>( X );
     const_cast<FieldMultiVector&>( X_fmv ).pullDataFromApplication();
     dynamic_cast<FieldMultiVector&>( Y ).pullDataFromApplication();
-    
+
     // Apply the operator.
     applyImpl( X, Y, mode, alpha, beta );
 

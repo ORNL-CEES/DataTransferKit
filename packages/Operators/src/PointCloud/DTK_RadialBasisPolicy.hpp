@@ -53,10 +53,10 @@ namespace DataTransferKit
 template<typename UndefinedRadialBasis>
 struct UndefinedRadialBasisPolicy
 {
-    static inline UndefinedRadialBasis notDefined() 
-    { 
-	return UndefinedRadialBasis::
-	    this_type_is_missing_a_specialization(); 
+    static inline UndefinedRadialBasis notDefined()
+    {
+        return UndefinedRadialBasis::
+            this_type_is_missing_a_specialization();
     }
 };
 
@@ -80,12 +80,12 @@ class RadialBasisPolicy
 
     //! Compute the value of the basis at the given value.
     static inline double evaluateValue(
-	const RadialBasis& basis, const double radius, const double x )
+        const RadialBasis& basis, const double radius, const double x )
     { UndefinedRadialBasisPolicy<RadialBasis>::notDefined(); return 0.0; }
 
     //! Compute the gradient of the basis at the given value.
     static inline double evaluateGradient(
-	const RadialBasis& basis, const double radius, const double x )
+        const RadialBasis& basis, const double radius, const double x )
     { UndefinedRadialBasisPolicy<RadialBasis>::notDefined(); return 0.0; }
 };
 

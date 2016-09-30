@@ -57,12 +57,12 @@ namespace DataTransferKit
  *
  * \param field The field that this object is managing. This field must have
  * FieldTraits.
- * 
+ *
  * \param comm The communicator over which the field is defined.
  */
 template<class FieldType>
-FieldManager<FieldType>::FieldManager( const RCP_Field& field, 
-				   const RCP_Comm& comm )
+FieldManager<FieldType>::FieldManager( const RCP_Field& field,
+                                   const RCP_Comm& comm )
     : d_field( field )
     , d_comm( comm )
 {
@@ -91,8 +91,8 @@ void FieldManager<FieldType>::validate()
     Teuchos::Array<int> local_dims_copy( d_comm->getSize(), 0 );
     local_dims[ d_comm->getRank() ] = FT::dim( *d_field );
     Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
-				 local_dims.size(),
-				 &local_dims[0], &local_dims_copy[0] ); 
+                                 local_dims.size(),
+                                 &local_dims[0], &local_dims_copy[0] );
     Teuchos::Array<int>::iterator unique_bound;
     std::sort( local_dims_copy.begin(), local_dims_copy.end() );
     unique_bound = std::unique( local_dims_copy.begin(), local_dims_copy.end() );
@@ -101,14 +101,14 @@ void FieldManager<FieldType>::validate()
     local_dims_copy.clear();
 
     // Check that the data dimension is the same as the field dimension.
-    typename FT::size_type num_data = std::distance( FT::begin( *d_field ), 
-						     FT::end( *d_field ) );
+    typename FT::size_type num_data = std::distance( FT::begin( *d_field ),
+                                                     FT::end( *d_field ) );
     DTK_REQUIRE( num_data == FT::size( *d_field ) );
     if ( !FT::empty( *d_field ) )
     {
-	DTK_REQUIRE( num_data / FieldTools<FieldType>::dimSize( *d_field ) 
-			  == Teuchos::as<typename FT::size_type>(
-			      FT::dim(*d_field)) );
+        DTK_REQUIRE( num_data / FieldTools<FieldType>::dimSize( *d_field )
+                          == Teuchos::as<typename FT::size_type>(
+                              FT::dim(*d_field)) );
     }
 }
 

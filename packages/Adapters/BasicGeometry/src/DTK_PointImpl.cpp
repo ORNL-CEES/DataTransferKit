@@ -53,11 +53,11 @@ PointImpl::PointImpl()
 
 //---------------------------------------------------------------------------//
 // Array constructor.
-PointImpl::PointImpl( const EntityId global_id, 
-		      const int owner_rank,
-		      const Teuchos::Array<double>& coordinates,
-		      const Teuchos::Array<int>& block_ids,
-		      const Teuchos::Array<int>& boundary_ids )
+PointImpl::PointImpl( const EntityId global_id,
+                      const int owner_rank,
+                      const Teuchos::Array<double>& coordinates,
+                      const Teuchos::Array<int>& block_ids,
+                      const Teuchos::Array<int>& boundary_ids )
     : d_global_id( global_id )
     , d_owner_rank( owner_rank )
     , d_block_ids( block_ids )
@@ -70,9 +70,9 @@ PointImpl::PointImpl( const EntityId global_id,
 
 //---------------------------------------------------------------------------//
 // Get the coordinates of the point.
-void PointImpl::getCoordinates( 
+void PointImpl::getCoordinates(
     const Teuchos::ArrayView<double>& coordinates ) const
-{ 
+{
     coordinates.assign( d_coordinates );
 }
 
@@ -82,7 +82,7 @@ EntityId PointImpl::id() const
 {
     return d_global_id;
 }
-    
+
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 int PointImpl::ownerRank() const
@@ -114,18 +114,18 @@ void PointImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
     int space_dim = coordinates.size();
     if ( 1 == space_dim )
     {
-	bounds = Teuchos::tuple( coordinates[0], -max, -max,
-				 coordinates[0], max, max );
+        bounds = Teuchos::tuple( coordinates[0], -max, -max,
+                                 coordinates[0], max, max );
     }
     else if ( 2 == space_dim )
     {
-	bounds = Teuchos::tuple( coordinates[0], coordinates[1], -max,
-				 coordinates[0], coordinates[1], max );
+        bounds = Teuchos::tuple( coordinates[0], coordinates[1], -max,
+                                 coordinates[0], coordinates[1], max );
     }
     else if ( 3 == space_dim )
     {
-	bounds = Teuchos::tuple( coordinates[0], coordinates[1], coordinates[2], 
-				 coordinates[0], coordinates[1], coordinates[2] );
+        bounds = Teuchos::tuple( coordinates[0], coordinates[1], coordinates[2],
+                                 coordinates[0], coordinates[1], coordinates[2] );
     }
 }
 
@@ -133,16 +133,16 @@ void PointImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 // Determine if an entity is in the block with the given id.
 bool PointImpl::inBlock( const int block_id ) const
 {
-    return std::binary_search( 
-	d_block_ids.begin(), d_block_ids.end(), block_id );
+    return std::binary_search(
+        d_block_ids.begin(), d_block_ids.end(), block_id );
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
 bool PointImpl::onBoundary( const int boundary_id ) const
 {
-    return std::binary_search( 
-	d_boundary_ids.begin(), d_boundary_ids.end(), boundary_id );
+    return std::binary_search(
+        d_boundary_ids.begin(), d_boundary_ids.end(), boundary_id );
 }
 
 //---------------------------------------------------------------------------//
@@ -163,7 +163,7 @@ void PointImpl::describe(
     out << "Coordinates:";
     for ( int d = 0; d < space_dim; ++d )
     {
-	out << " " << coordinates[d];
+        out << " " << coordinates[d];
     }
     out << std::endl;
     out << "---" << std::endl;
@@ -195,7 +195,7 @@ void PointImpl::centroid( const Teuchos::ArrayView<double>& centroid ) const
 /*!
  * \brief Map a point to the reference space of an entity. Return the
  */
-bool PointImpl::mapToReferenceFrame( 
+bool PointImpl::mapToReferenceFrame(
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
@@ -204,12 +204,12 @@ bool PointImpl::mapToReferenceFrame(
 }
 
 //---------------------------------------------------------------------------//
-/*!  
+/*!
  * \brief Determine if a reference point is in the parameterized space of
  * an entity. This is true only if the points are separated by a distance less
  * than the tolerance.
  */
-bool PointImpl::checkPointInclusion( 
+bool PointImpl::checkPointInclusion(
     const double tolerance,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
@@ -220,8 +220,8 @@ bool PointImpl::checkPointInclusion(
     double local_dist = 0.0;
     for ( int d = 0; d < space_dim; ++d )
     {
-	local_dist = coords[d] - reference_point[d];
-	distance += local_dist*local_dist;
+        local_dist = coords[d] - reference_point[d];
+        distance += local_dist*local_dist;
     }
     return ( distance < tolerance*tolerance );
 }
@@ -230,7 +230,7 @@ bool PointImpl::checkPointInclusion(
 /*!
  * \brief Map a reference point to the physical space of an entity.
  */
-void PointImpl::mapToPhysicalFrame( 
+void PointImpl::mapToPhysicalFrame(
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {

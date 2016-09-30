@@ -83,23 +83,23 @@ class ScalarNonlinearProblem
     typedef md_array_type::scalar_type       scalar_type;
 
     ScalarNonlinearProblem( const double a )
-	: d_a( a )
+        : d_a( a )
     { /* ... */ }
 
     ~ScalarNonlinearProblem() { /* ... */ }
 
     void evaluateResidual( const md_array_type& u, md_array_type& F ) const
     {
-	F(0,0) = u(0,0)*u(0,0) + u(0,0) - d_a;
+        F(0,0) = u(0,0)*u(0,0) + u(0,0) - d_a;
     }
 
     void evaluateJacobian( const md_array_type& u, md_array_type& J ) const
     {
-	J(0,0,0) = 2.0*u(0,0) + 1;
+        J(0,0,0) = 2.0*u(0,0) + 1;
     }
 
   private:
-    
+
     double d_a;
 };
 
@@ -115,22 +115,22 @@ class NonlinearProblemTraits<ScalarNonlinearProblem>
     typedef typename nonlinear_problem_type::md_array_type MDArray;
     typedef typename nonlinear_problem_type::scalar_type Scalar;
 
-    static inline void updateState( 
-	ScalarNonlinearProblem& problem, const MDArray& u )
+    static inline void updateState(
+        ScalarNonlinearProblem& problem, const MDArray& u )
     { /* ... */ }
 
     static inline void evaluateResidual( const ScalarNonlinearProblem& problem,
-					 const MDArray& u, 
-					 MDArray& F )
+                                         const MDArray& u,
+                                         MDArray& F )
     {
-	problem.evaluateResidual( u, F );
+        problem.evaluateResidual( u, F );
     }
 
     static inline void evaluateJacobian( const ScalarNonlinearProblem& problem,
-					 const MDArray& u, 
-					 MDArray& J )
+                                         const MDArray& u,
+                                         MDArray& J )
     {
-	problem.evaluateJacobian( u, J );
+        problem.evaluateJacobian( u, J );
     }
 };
 }
@@ -146,28 +146,28 @@ class VectorNonlinearProblem
     typedef md_array_type::scalar_type       scalar_type;
 
     VectorNonlinearProblem( const double a, const double b )
-	: d_a( a )
-	, d_b( b )
+        : d_a( a )
+        , d_b( b )
     { /* ... */ }
 
     ~VectorNonlinearProblem() { /* ... */ }
 
     void evaluateResidual( const md_array_type& u, md_array_type& F ) const
     {
-	F(0,0) = u(0,0)*u(0,0) + u(0,1) - d_a;
-	F(0,1) = u(0,0)*(u(0,1)*u(0,1) - 1.0) - d_b;
+        F(0,0) = u(0,0)*u(0,0) + u(0,1) - d_a;
+        F(0,1) = u(0,0)*(u(0,1)*u(0,1) - 1.0) - d_b;
     }
 
     void evaluateJacobian( const md_array_type& u, md_array_type& J ) const
     {
-	J(0,0,0) = 2.0*u(0,0);
-	J(0,0,1) = 1.0;
-	J(0,1,0) = u(0,1)*u(0,1) - 1.0;
-	J(0,1,1) = 2.0*u(0,0)*u(0,1);
+        J(0,0,0) = 2.0*u(0,0);
+        J(0,0,1) = 1.0;
+        J(0,1,0) = u(0,1)*u(0,1) - 1.0;
+        J(0,1,1) = 2.0*u(0,0)*u(0,1);
     }
 
   private:
-    
+
     double d_a;
     double d_b;
 };
@@ -184,22 +184,22 @@ class NonlinearProblemTraits<VectorNonlinearProblem>
     typedef typename nonlinear_problem_type::md_array_type MDArray;
     typedef typename nonlinear_problem_type::scalar_type Scalar;
 
-    static inline void updateState( 
-	VectorNonlinearProblem& problem, const MDArray& u )
+    static inline void updateState(
+        VectorNonlinearProblem& problem, const MDArray& u )
     { /* ... */ }
 
     static inline void evaluateResidual( const VectorNonlinearProblem& problem,
-					 const MDArray& u, 
-					 MDArray& F )
+                                         const MDArray& u,
+                                         MDArray& F )
     {
-	problem.evaluateResidual( u, F );
+        problem.evaluateResidual( u, F );
     }
 
     static inline void evaluateJacobian( const VectorNonlinearProblem& problem,
-					 const MDArray& u, 
-					 MDArray& J )
+                                         const MDArray& u,
+                                         MDArray& J )
     {
-	problem.evaluateJacobian( u, J );
+        problem.evaluateJacobian( u, J );
     }
 };
 }
@@ -246,7 +246,7 @@ TEUCHOS_UNIT_TEST( NewtonSolver, vector_test )
     solver.solve( u_1, problem_1, tolerance, max_iters );
     TEST_FLOATING_EQUALITY( u_1(0,0)*u_1(0,0) + u_1(0,1), a_1, tolerance );
     TEST_FLOATING_EQUALITY(
-	u_1(0,0)*u_1(0,1)*u_1(0,1) - u_1(0,0), b_1, tolerance );
+        u_1(0,0)*u_1(0,1)*u_1(0,1) - u_1(0,0), b_1, tolerance );
 
     double a_2 = 483.20;
     double b_2 = 0.32;
@@ -255,7 +255,7 @@ TEUCHOS_UNIT_TEST( NewtonSolver, vector_test )
     solver.solve( u_2, problem_2, tolerance, max_iters );
     TEST_FLOATING_EQUALITY( u_2(0,0)*u_2(0,0) + u_2(0,1), a_2, tolerance );
     TEST_FLOATING_EQUALITY(
-	u_2(0,0)*u_2(0,1)*u_2(0,1) - u_2(0,0), b_2, tolerance );
+        u_2(0,0)*u_2(0,1)*u_2(0,1) - u_2(0,0), b_2, tolerance );
 
     double a_3 = 0.00322;
     double b_3 = 1.987;
@@ -264,7 +264,7 @@ TEUCHOS_UNIT_TEST( NewtonSolver, vector_test )
     solver.solve( u_3, problem_3, tolerance, max_iters );
     TEST_FLOATING_EQUALITY( u_3(0,0)*u_3(0,0) + u_3(0,1), a_3, tolerance );
     TEST_FLOATING_EQUALITY(
-	u_3(0,0)*u_3(0,1)*u_3(0,1) - u_3(0,0), b_3, tolerance );
+        u_3(0,0)*u_3(0,1)*u_3(0,1) - u_3(0,0), b_3, tolerance );
 }
 
 //---------------------------------------------------------------------------//

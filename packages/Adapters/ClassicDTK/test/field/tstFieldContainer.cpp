@@ -53,16 +53,16 @@ TEUCHOS_UNIT_TEST( FieldManager, field_manager_test )
     Teuchos::ArrayRCP<double>::iterator data_iterator;
     double value = 0.0;
     for ( data_iterator = my_data.begin(); data_iterator != my_data.end();
-	  ++data_iterator )
+          ++data_iterator )
     {
-	value = 1.0 * std::distance( my_data.begin(), data_iterator );
-	*data_iterator = value;
+        value = 1.0 * std::distance( my_data.begin(), data_iterator );
+        *data_iterator = value;
     }
 
     // Setup field container.
     int field_dimension = 4;
     FieldContainer<double> container( my_data, field_dimension );
-    
+
     // Check the field container.
     TEST_ASSERT( container.dim() == field_dimension );
     TEST_ASSERT( FT::dim( container ) == field_dimension );
@@ -73,20 +73,20 @@ TEUCHOS_UNIT_TEST( FieldManager, field_manager_test )
 
     FieldContainer<double>::iterator container_iterator;
     for ( container_iterator = container.begin();
-	  container_iterator != container.end();
-	  ++container_iterator )
+          container_iterator != container.end();
+          ++container_iterator )
     {
-	value = std::distance( container.begin(), container_iterator );
-	TEST_ASSERT( *container_iterator == value );
+        value = std::distance( container.begin(), container_iterator );
+        TEST_ASSERT( *container_iterator == value );
     }
 
     FT::iterator traits_iterator;
     for ( traits_iterator = FT::begin( container );
-	  traits_iterator != FT::begin( container );
-	  ++traits_iterator )
+          traits_iterator != FT::begin( container );
+          ++traits_iterator )
     {
-	value = std::distance( FT::begin( container ), traits_iterator );
-	TEST_ASSERT( *traits_iterator == value );
+        value = std::distance( FT::begin( container ), traits_iterator );
+        TEST_ASSERT( *traits_iterator == value );
     }
 
     // Build an empty container.

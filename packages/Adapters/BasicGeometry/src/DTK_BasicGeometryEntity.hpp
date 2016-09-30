@@ -56,7 +56,7 @@ namespace DataTransferKit
 /*!
   \class BasicGeometryEntity
   \brief BasicGeometryEntity interface.
-  
+
   BasicGeometryEntity gives an interface for simple geometries. These objects
   effectivelty define their own EntityLocalMap interface as these functions
   are typically statisfied with analytic expressions for basic geometric
@@ -83,20 +83,20 @@ class BasicGeometryEntity : public Entity
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
-    virtual bool mapToReferenceFrame( 
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const;
+    virtual bool mapToReferenceFrame(
+        const Teuchos::ArrayView<const double>& point,
+        const Teuchos::ArrayView<double>& reference_point ) const;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
-    virtual bool checkPointInclusion( 
-	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const;
+    virtual bool checkPointInclusion(
+        const double tolerance,
+        const Teuchos::ArrayView<const double>& reference_point ) const;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
-    virtual void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const;
+    virtual void mapToPhysicalFrame(
+        const Teuchos::ArrayView<const double>& reference_point,
+        const Teuchos::ArrayView<double>& point ) const;
     //@}
 };
 

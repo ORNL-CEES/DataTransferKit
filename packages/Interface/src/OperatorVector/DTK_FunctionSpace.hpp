@@ -68,10 +68,10 @@ class FunctionSpace
      * \brief Constructor.
      */
     FunctionSpace( const Teuchos::RCP<EntitySet>& entity_set,
-		   const Teuchos::RCP<EntityLocalMap>& local_map,
-		   const Teuchos::RCP<EntityShapeFunction>& shape_function,
-		   const Teuchos::RCP<EntityIntegrationRule>& integration_rule,
-		   const PredicateFunction& select_function = selectAll );
+                   const Teuchos::RCP<EntityLocalMap>& local_map,
+                   const Teuchos::RCP<EntityShapeFunction>& shape_function,
+                   const Teuchos::RCP<EntityIntegrationRule>& integration_rule,
+                   const PredicateFunction& select_function = selectAll );
 
     /*!
      * \brief Get the entity set over which the fields are defined.

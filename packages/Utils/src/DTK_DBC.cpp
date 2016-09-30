@@ -55,18 +55,18 @@ namespace DataTransferKit
  * \param cond A string containing the assertion condition that failed.
  *
  * \param field A string containing the file name in which the assertion
- * failed. 
+ * failed.
  *
  * \param line The line number at which the assertion failed.
  *
  * \return DataTransferKitException output.
  */
-std::string DataTransferKitException::generate_output( 
+std::string DataTransferKitException::generate_output(
     const std::string& cond, const std::string& file, const int line ) const
 {
     std::ostringstream output;
     output << "DataTransferKit DataTransferKitException: " << cond << ", failed in " << file
-	   << ", line " << line  << "." << std::endl;
+           << ", line " << line  << "." << std::endl;
     return output.str();
 }
 
@@ -79,12 +79,12 @@ std::string DataTransferKitException::generate_output(
  * \param cond A string containing the assertion condition that failed.
  *
  * \param field A string containing the file name in which the assertion
- * failed. 
+ * failed.
  *
  * \param line The line number at which the assertion failed.
  */
 void throwDataTransferKitException( const std::string& cond, const std::string& file,
-		     const int line )
+                     const int line )
 {
 #ifdef HAVE_TEUCHOS_STACKTRACE
     // If Teuchos stacktrace is turned on, store the stack before we throw so
@@ -101,14 +101,14 @@ void throwDataTransferKitException( const std::string& cond, const std::string& 
  * \param cond A string containing the assertion condition that failed.
  *
  * \param field A string containing the file name in which the assertion
- * failed. 
+ * failed.
  *
  * \param line The line number at which the assertion failed.
  *
  * \param error_code
  */
 void errorCodeFailure( const std::string& cond, const std::string& file,
-		       const int line, const int error_code )
+                       const int line, const int error_code )
 {
 #ifdef HAVE_TEUCHOS_STACKTRACE
     // If Teuchos stacktrace is turned on, store the stack before we throw so
@@ -117,9 +117,9 @@ void errorCodeFailure( const std::string& cond, const std::string& file,
 #endif
     std::ostringstream output_msg;
     output_msg <<  "Error code : " << cond << ", failed in "
-	      << file << ":" << line << std::endl
-	      << "with error code:" << std::endl
-	      << "\"" << error_code << "\"" << std::endl;
+              << file << ":" << line << std::endl
+              << "with error code:" << std::endl
+              << "\"" << error_code << "\"" << std::endl;
     throw DataTransferKitException( output_msg.str() );
 }
 

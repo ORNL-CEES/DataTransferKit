@@ -32,28 +32,28 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceHex_test
   SOURCES tstReferenceHex.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
-  TESTONLYLIBS dtk_hex_test_reference  
+  TESTONLYLIBS dtk_hex_test_reference
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceHexLocalMap_test
   SOURCES tstReferenceHexLocalMap.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
-  TESTONLYLIBS dtk_hex_test_reference  
+  TESTONLYLIBS dtk_hex_test_reference
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceHexShapeFunction_test
   SOURCES tstReferenceHexShapeFunction.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
-  TESTONLYLIBS dtk_hex_test_reference  
+  TESTONLYLIBS dtk_hex_test_reference
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceHexIntegrationRule_test
   SOURCES tstReferenceHexIntegrationRule.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
-  TESTONLYLIBS dtk_hex_test_reference  
+  TESTONLYLIBS dtk_hex_test_reference
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -61,7 +61,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstReferenceHexMesh.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
-  TESTONLYLIBS dtk_hex_test_reference  
+  TESTONLYLIBS dtk_hex_test_reference
   )
 
 ##---------------------------------------------------------------------------##
@@ -110,7 +110,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstConsistentInterpolationOperator.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
-  TESTONLYLIBS dtk_hex_test_reference  
+  TESTONLYLIBS dtk_hex_test_reference
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(

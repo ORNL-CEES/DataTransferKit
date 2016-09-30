@@ -76,17 +76,17 @@ class ClassicMesh
 
     // Constructor.
     ClassicMesh(
-	const Teuchos::RCP<MeshManager<Mesh> >& mesh_manager );
+        const Teuchos::RCP<MeshManager<Mesh> >& mesh_manager );
 
     //! Get the number of mesh blocks.
     int getNumBlocks() const
     { return d_mesh_manager->getNumBlocks(); }
 
-    // Get the local number of elements in the mesh.    
+    // Get the local number of elements in the mesh.
     GlobalOrdinal localNumElements() const
     { return d_mesh_manager->localNumElements(); }
 
-    // Get the global number of elements in the mesh.    
+    // Get the global number of elements in the mesh.
     GlobalOrdinal globalNumElements() const
     { return d_mesh_manager->globalNumElements(); }
 
@@ -101,14 +101,14 @@ class ClassicMesh
     //! Get the shards topology of a block.
     shards::CellTopology getBlockTopology( const int block_id ) const
     { return d_block_topo[block_id]; }
-    
+
     //! Get the physical dimension of the mesh.
     int dim() const
     { return d_mesh_manager->dim(); }
 
     // Given an element id get its block id.
     int elementBlockId( const GlobalOrdinal gid ) const;
-    
+
     // Given a vertex global id and block id, get the local id in the block.
     int vertexLocalId( const GlobalOrdinal gid, const int block_id ) const;
 
@@ -119,7 +119,7 @@ class ClassicMesh
     // element nodes.
     Intrepid::FieldContainer<double>
     getElementNodeCoordinates( const GlobalOrdinal gid,
-			       const int block_id ) const;
+                               const int block_id ) const;
 
     // Get the connectivity of an element.
     Teuchos::Array<SupportId>
@@ -128,7 +128,7 @@ class ClassicMesh
     // Get the coordinates of a single node.
     Teuchos::Array<double>
     getNodeCoordinates( const GlobalOrdinal gid, const int block_id ) const;
-    
+
   public:
 
     // Pointer to element global ids. Public for iterator access.
@@ -138,7 +138,7 @@ class ClassicMesh
 
     // Given a block id create its shards topology.
     shards::CellTopology createBlockTopology( const int block_id ) const;
-    
+
   private:
 
     // Classic mesh manager.
@@ -146,10 +146,10 @@ class ClassicMesh
 
     // Block topologies.
     Teuchos::Array<shards::CellTopology> d_block_topo;
-    
+
     // Element global id to block map.
     std::unordered_map<GlobalOrdinal,int> d_element_block_map;
-    
+
     // Block-wise vertex global-to-local map.
     Teuchos::Array<std::unordered_map<GlobalOrdinal,int> > d_vertex_g2l;
 

@@ -51,11 +51,11 @@ namespace DataTransferKit
 template<class ValueType>
 PredicateComposition::Predicate<ValueType>
 PredicateComposition::And( const Predicate<ValueType>& func_left,
-			   const Predicate<ValueType>& func_right )
+                           const Predicate<ValueType>& func_right )
 {
     return std::bind( std::logical_and<bool>(),
-		      std::bind(func_left,std::placeholders::_1),
-		      std::bind(func_right,std::placeholders::_1) );
+                      std::bind(func_left,std::placeholders::_1),
+                      std::bind(func_right,std::placeholders::_1) );
 }
 
 //---------------------------------------------------------------------------//
@@ -63,11 +63,11 @@ PredicateComposition::And( const Predicate<ValueType>& func_left,
 template<class ValueType>
 PredicateComposition::Predicate<ValueType>
 PredicateComposition::Or( const Predicate<ValueType>& func_left,
-			  const Predicate<ValueType>& func_right )
+                          const Predicate<ValueType>& func_right )
 {
     return std::bind( std::logical_or<bool>(),
-		      std::bind(func_left,std::placeholders::_1),
-		      std::bind(func_right,std::placeholders::_1) );
+                      std::bind(func_left,std::placeholders::_1),
+                      std::bind(func_right,std::placeholders::_1) );
 }
 
 //---------------------------------------------------------------------------//
@@ -78,7 +78,7 @@ PredicateComposition::Predicate<ValueType>
 PredicateComposition::Not( const Predicate<ValueType>& func )
 {
     return std::bind( std::logical_not<bool>(),
-		      std::bind(func,std::placeholders::_1) );
+                      std::bind(func,std::placeholders::_1) );
 }
 
 //---------------------------------------------------------------------------//
@@ -86,11 +86,11 @@ PredicateComposition::Not( const Predicate<ValueType>& func )
 template<class ValueType>
 PredicateComposition::Predicate<ValueType>
 PredicateComposition::AndNot( const Predicate<ValueType>& func_left,
-			      const Predicate<ValueType>& func_right )
+                              const Predicate<ValueType>& func_right )
 {
     return std::bind( std::logical_and<bool>(),
-		      std::bind(func_left,std::placeholders::_1),
-		      std::bind(Not(func_right),std::placeholders::_1) );
+                      std::bind(func_left,std::placeholders::_1),
+                      std::bind(Not(func_right),std::placeholders::_1) );
 }
 
 //---------------------------------------------------------------------------//
@@ -98,11 +98,11 @@ PredicateComposition::AndNot( const Predicate<ValueType>& func_left,
 template<class ValueType>
 PredicateComposition::Predicate<ValueType>
 PredicateComposition::OrNot( const Predicate<ValueType>& func_left,
-			     const Predicate<ValueType>& func_right )
+                             const Predicate<ValueType>& func_right )
 {
     return std::bind( std::logical_or<bool>(),
-		      std::bind(func_left,std::placeholders::_1),
-		      std::bind(Not(func_right),std::placeholders::_1) );
+                      std::bind(func_left,std::placeholders::_1),
+                      std::bind(Not(func_right),std::placeholders::_1) );
 }
 
 //---------------------------------------------------------------------------//

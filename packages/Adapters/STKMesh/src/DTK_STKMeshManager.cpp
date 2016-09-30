@@ -98,7 +98,7 @@ STKMeshManager::STKMeshManager(
 }
 
 //---------------------------------------------------------------------------//
-// Get the function space over which the mesh and its fields are defined. 
+// Get the function space over which the mesh and its fields are defined.
 Teuchos::RCP<FunctionSpace> STKMeshManager::functionSpace() const
 {
     return d_function_space;
@@ -106,37 +106,37 @@ Teuchos::RCP<FunctionSpace> STKMeshManager::functionSpace() const
 
 //---------------------------------------------------------------------------//
 // Create the function space.
-void STKMeshManager::createFunctionSpace( 
+void STKMeshManager::createFunctionSpace(
     const BasisType basis_type,
     const PredicateFunction& select_function )
 {
-    Teuchos::RCP<EntitySet> entity_set = 
-	Teuchos::rcp( new STKMeshEntitySet(d_bulk_data) );
-    
+    Teuchos::RCP<EntitySet> entity_set =
+        Teuchos::rcp( new STKMeshEntitySet(d_bulk_data) );
+
     Teuchos::RCP<EntityLocalMap> local_map =
-	Teuchos::rcp( new STKMeshEntityLocalMap(d_bulk_data) );
+        Teuchos::rcp( new STKMeshEntityLocalMap(d_bulk_data) );
 
     Teuchos::RCP<EntityShapeFunction> shape_function;
     switch( basis_type )
     {
-	case BASIS_TYPE_GRADIENT:
-	    shape_function = 
-		Teuchos::rcp( new STKMeshNodalShapeFunction(d_bulk_data) );
-	    break;
+        case BASIS_TYPE_GRADIENT:
+            shape_function =
+                Teuchos::rcp( new STKMeshNodalShapeFunction(d_bulk_data) );
+            break;
 
-	default:
-	    bool bad_basis_type = true;
-	    DTK_INSIST( !bad_basis_type );
-	    break;
+        default:
+            bool bad_basis_type = true;
+            DTK_INSIST( !bad_basis_type );
+            break;
     }
     DTK_CHECK( Teuchos::nonnull(shape_function) );
 
     Teuchos::RCP<EntityIntegrationRule> integration_rule =
-	Teuchos::rcp( new STKMeshEntityIntegrationRule(d_bulk_data) );
+        Teuchos::rcp( new STKMeshEntityIntegrationRule(d_bulk_data) );
 
-    d_function_space = Teuchos::rcp( 
-	new FunctionSpace(entity_set,local_map,shape_function,
-			  integration_rule,select_function) );
+    d_function_space = Teuchos::rcp(
+        new FunctionSpace(entity_set,local_map,shape_function,
+                          integration_rule,select_function) );
 
     DTK_ENSURE( Teuchos::nonnull(d_function_space) );
 }

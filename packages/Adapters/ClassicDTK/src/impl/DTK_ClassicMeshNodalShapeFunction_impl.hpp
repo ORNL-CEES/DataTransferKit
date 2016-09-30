@@ -61,11 +61,11 @@ ClassicMeshNodalShapeFunction<Mesh>::ClassicMeshNodalShapeFunction(
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
 template<class Mesh>
-void ClassicMeshNodalShapeFunction<Mesh>::entitySupportIds( 
+void ClassicMeshNodalShapeFunction<Mesh>::entitySupportIds(
     const Entity& entity, Teuchos::Array<SupportId>& support_ids ) const
 {
     int block_id = Teuchos::rcp_dynamic_cast<ClassicMeshElementExtraData>(
-	entity.extraData() )->d_block_id;
+        entity.extraData() )->d_block_id;
     support_ids = d_mesh->getElementConnectivity( entity.id(), block_id );
 }
 
@@ -73,21 +73,21 @@ void ClassicMeshNodalShapeFunction<Mesh>::entitySupportIds(
 // Given an entity and a reference point, evaluate the shape function of the
 // entity at that point.
 template<class Mesh>
-void ClassicMeshNodalShapeFunction<Mesh>::evaluateValue( 
+void ClassicMeshNodalShapeFunction<Mesh>::evaluateValue(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     Teuchos::Array<double>& values ) const
 {
     // Get the basis for the entity.
     Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
-	basis = getIntrepidBasis( entity );
+        basis = getIntrepidBasis( entity );
 
     // Wrap the reference point.
     Teuchos::Array<int> point_dims(2);
     point_dims[0] = 1;
     point_dims[1] = reference_point.size();
     Intrepid::FieldContainer<double> point_container(
-	point_dims, const_cast<double*>(reference_point.getRawPtr()) );
+        point_dims, const_cast<double*>(reference_point.getRawPtr()) );
 
     // Wrap the evaluations.
     values.resize( basis->getCardinality() );
@@ -95,49 +95,49 @@ void ClassicMeshNodalShapeFunction<Mesh>::evaluateValue(
     value_dims[0] = basis->getCardinality();
     value_dims[1] = 1;
     Intrepid::FieldContainer<double> value_container(
-	value_dims, values.getRawPtr() );
+        value_dims, values.getRawPtr() );
 
     // Evaluate the basis function.
-    basis->getValues( 
-	value_container, point_container, Intrepid::OPERATOR_VALUE );
+    basis->getValues(
+        value_container, point_container, Intrepid::OPERATOR_VALUE );
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the gradient of the shape
 // function of the entity at that point.
 template<class Mesh>
-void ClassicMeshNodalShapeFunction<Mesh>::evaluateGradient( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
+void ClassicMeshNodalShapeFunction<Mesh>::evaluateGradient(
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point,
+        Teuchos::Array<Teuchos::Array<double> >& gradients ) const
 {
     // Get the basis for the entity.
     Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
-	basis = getIntrepidBasis( entity );
+        basis = getIntrepidBasis( entity );
 
     // Wrap the reference point.
     int space_dim = reference_point.size();
     Teuchos::Array<int> point_dims(2);
     point_dims[0] = 1;
     point_dims[1] = space_dim;
-    Intrepid::FieldContainer<double> point_container( 
-	point_dims, const_cast<double*>(reference_point.getRawPtr()) );
+    Intrepid::FieldContainer<double> point_container(
+        point_dims, const_cast<double*>(reference_point.getRawPtr()) );
 
     // Evaluate the basis function.
     int cardinality = basis->getCardinality();
     Intrepid::FieldContainer<double> grad_container( cardinality, 1, space_dim );
-    basis->getValues( 
-	grad_container, point_container, Intrepid::OPERATOR_GRAD );
+    basis->getValues(
+        grad_container, point_container, Intrepid::OPERATOR_GRAD );
 
     // Extract the evaluations.
     gradients.resize( cardinality );
     for ( int n = 0; n < cardinality; ++n )
     {
-	gradients[n].resize( space_dim );
-	for ( int d = 0; d < space_dim; ++d )
-	{
-	    gradients[n][d] = grad_container(n,0,d);
-	}
+        gradients[n].resize( space_dim );
+        for ( int d = 0; d < space_dim; ++d )
+        {
+            gradients[n][d] = grad_container(n,0,d);
+        }
     }
 }
 
@@ -148,7 +148,7 @@ Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
 ClassicMeshNodalShapeFunction<Mesh>::getIntrepidBasis( const Entity& entity ) const
 {
     int block_id = Teuchos::rcp_dynamic_cast<ClassicMeshElementExtraData>(
-	entity.extraData() )->d_block_id;
+        entity.extraData() )->d_block_id;
     shards::CellTopology entity_topo = d_mesh->getBlockTopology( block_id );
     return IntrepidBasisFactory::create( entity_topo );
 }

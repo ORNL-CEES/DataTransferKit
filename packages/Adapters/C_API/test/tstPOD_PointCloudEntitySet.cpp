@@ -96,13 +96,13 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntitySet, blocked_test )
   // Check the set.
   TEST_EQUALITY( space_dim, entity_set.physicalDimension() );
   TEST_EQUALITY( comm_rank, entity_set.communicator()->getRank() );
-  
+
   // Get an iterator.
   auto iterator = entity_set.entityIterator( 0, select_all );
 
   // Check the iterator.
   TEST_EQUALITY( num, iterator.size() );
-  
+
   // Loop through the iterator and check entities.
   auto begin_it = iterator.begin();
   auto end_it = iterator.end();
@@ -119,7 +119,7 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntitySet, blocked_test )
       iterator->boundingBox( box );
       TEST_EQUALITY( box[0], coord[i] );
       TEST_EQUALITY( box[1], coord[i + 1*num] );
-      TEST_EQUALITY( box[2], coord[i + 2*num] );      
+      TEST_EQUALITY( box[2], coord[i + 2*num] );
       TEST_EQUALITY( box[3], coord[i] );
       TEST_EQUALITY( box[4], coord[i + 1*num] );
       TEST_EQUALITY( box[5], coord[i + 2*num] );
@@ -138,7 +138,7 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntitySet, blocked_test )
       entity.boundingBox( box );
       TEST_EQUALITY( box[0], coord[i] );
       TEST_EQUALITY( box[1], coord[i + 1*num] );
-      TEST_EQUALITY( box[2], coord[i + 2*num] );      
+      TEST_EQUALITY( box[2], coord[i + 2*num] );
       TEST_EQUALITY( box[3], coord[i] );
       TEST_EQUALITY( box[4], coord[i + 1*num] );
       TEST_EQUALITY( box[5], coord[i + 2*num] );
@@ -194,13 +194,13 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntitySet, interleaved_test )
   // Check the set.
   TEST_EQUALITY( space_dim, entity_set.physicalDimension() );
   TEST_EQUALITY( comm_rank, entity_set.communicator()->getRank() );
-                 
+
   // Get an iterator.
   auto iterator = entity_set.entityIterator( 0, select_all );
 
   // Check the iterator.
   TEST_EQUALITY( num, iterator.size() );
-  
+
   // Loop through the point cloud and check entities.
   auto begin_it = iterator.begin();
   auto end_it = iterator.end();
@@ -217,17 +217,17 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntitySet, interleaved_test )
       iterator->boundingBox( box );
       TEST_EQUALITY( box[0], coord[space_dim*i + 0] );
       TEST_EQUALITY( box[1], coord[space_dim*i + 1] );
-      TEST_EQUALITY( box[2], coord[space_dim*i + 2] );      
+      TEST_EQUALITY( box[2], coord[space_dim*i + 2] );
       TEST_EQUALITY( box[3], coord[space_dim*i + 0] );
       TEST_EQUALITY( box[4], coord[space_dim*i + 1] );
-      TEST_EQUALITY( box[5], coord[space_dim*i + 2] );      
+      TEST_EQUALITY( box[5], coord[space_dim*i + 2] );
 
       TEST_ASSERT( !iterator->inBlock(1) );
       TEST_ASSERT( !iterator->onBoundary(1) );
 
       // Check getting an entity.
       DataTransferKit::Entity entity;
-      entity_set.getEntity( global_ids[i], 0, entity );      
+      entity_set.getEntity( global_ids[i], 0, entity );
       TEST_EQUALITY( entity.id(), global_ids[i] );
       TEST_EQUALITY( entity.ownerRank(), comm_rank );
       TEST_EQUALITY( entity.topologicalDimension(), 0 );
@@ -236,10 +236,10 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntitySet, interleaved_test )
       entity.boundingBox( box );
       TEST_EQUALITY( box[0], coord[space_dim*i + 0] );
       TEST_EQUALITY( box[1], coord[space_dim*i + 1] );
-      TEST_EQUALITY( box[2], coord[space_dim*i + 2] );      
+      TEST_EQUALITY( box[2], coord[space_dim*i + 2] );
       TEST_EQUALITY( box[3], coord[space_dim*i + 0] );
       TEST_EQUALITY( box[4], coord[space_dim*i + 1] );
-      TEST_EQUALITY( box[5], coord[space_dim*i + 2] );      
+      TEST_EQUALITY( box[5], coord[space_dim*i + 2] );
 
       TEST_ASSERT( !entity.inBlock(1) );
       TEST_ASSERT( !entity.onBoundary(1) );

@@ -53,7 +53,7 @@ STKMeshEntityIntegrationRule::STKMeshEntityIntegrationRule(
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Given an entity and an integration order, get its integration rule. 
+// Given an entity and an integration order, get its integration rule.
 void STKMeshEntityIntegrationRule::getIntegrationRule(
     const Entity& entity,
     const int order,
@@ -61,10 +61,10 @@ void STKMeshEntityIntegrationRule::getIntegrationRule(
     Teuchos::Array<double>& weights ) const
 {
     const stk::mesh::Entity& stk_entity =
-	STKMeshHelpers::extractEntity( entity );
+        STKMeshHelpers::extractEntity( entity );
     shards::CellTopology cell_topo =
-	STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
-    d_intrepid_rule.getIntegrationRule( 
+        STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
+    d_intrepid_rule.getIntegrationRule(
         cell_topo, order, reference_points, weights );
 }
 

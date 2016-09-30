@@ -53,7 +53,7 @@ namespace DataTransferKit
 /*!
   \class POD_PointCloudEntity
   \brief POD_PointCloudEntity interface.
-  
+
   POD_PointCloudEntity gives an interface for entities in POD point clouds.
 */
 //---------------------------------------------------------------------------//

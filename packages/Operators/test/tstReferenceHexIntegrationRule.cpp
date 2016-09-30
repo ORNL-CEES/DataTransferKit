@@ -70,14 +70,14 @@ TEUCHOS_UNIT_TEST( ReferenceHexIntegrationRule, hex_test )
         DataTransferKit::UnitTest::ReferenceNode( 6, owner_rank, 2.0, 2.0, 2.0 );
     nodes[7] =
         DataTransferKit::UnitTest::ReferenceNode( 7, owner_rank, 0.0, 2.0, 2.0 );
-    
+
     // Make a hex.
-    DataTransferKit::Entity hex = 
+    DataTransferKit::Entity hex =
         DataTransferKit::UnitTest::ReferenceHex( 0, 0, nodes );
-    
+
     // Create a local map from the bulk data.
     Teuchos::RCP<DataTransferKit::EntityIntegrationRule> integration_rule =
-	Teuchos::rcp( new DataTransferKit::UnitTest::ReferenceHexIntegrationRule() );
+        Teuchos::rcp( new DataTransferKit::UnitTest::ReferenceHexIntegrationRule() );
 
     // Test the integration rule.
     Teuchos::Array<Teuchos::Array<double> > p_1;
@@ -98,14 +98,14 @@ TEUCHOS_UNIT_TEST( ReferenceHexIntegrationRule, hex_test )
     TEST_EQUALITY( 8, p_2.size() );
     for ( int i = 0; i < 8; ++i )
     {
-	TEST_EQUALITY( w_2[i], 1.0 );
-	TEST_EQUALITY( p_2[i].size(), 3 );
+        TEST_EQUALITY( w_2[i], 1.0 );
+        TEST_EQUALITY( p_2[i].size(), 3 );
 
-	for ( int d = 0; d < 3; ++d )
-	{
-	    TEST_FLOATING_EQUALITY(
-		std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
-	}
+        for ( int d = 0; d < 3; ++d )
+        {
+            TEST_FLOATING_EQUALITY(
+                std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
+        }
     }
 }
 

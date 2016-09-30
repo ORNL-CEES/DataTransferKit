@@ -46,7 +46,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
-void EntityCenteredShapeFunction::entitySupportIds( 
+void EntityCenteredShapeFunction::entitySupportIds(
     const Entity& entity, Teuchos::Array<SupportId>& support_ids ) const
 {
     // There is one Support for an entity-centered quantity. We will assign the
@@ -57,7 +57,7 @@ void EntityCenteredShapeFunction::entitySupportIds(
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the shape function of the
 // entity at that point.
-void EntityCenteredShapeFunction::evaluateValue( 
+void EntityCenteredShapeFunction::evaluateValue(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     Teuchos::Array<double>& values ) const
@@ -69,7 +69,7 @@ void EntityCenteredShapeFunction::evaluateValue(
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the gradient of the shape
 // function of the entity at that point.
-void EntityCenteredShapeFunction::evaluateGradient( 
+void EntityCenteredShapeFunction::evaluateGradient(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     Teuchos::Array<Teuchos::Array<double> >& gradients ) const

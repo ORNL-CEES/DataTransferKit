@@ -48,7 +48,7 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-MoabMeshSetIndexer::MoabMeshSetIndexer( 
+MoabMeshSetIndexer::MoabMeshSetIndexer(
     const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
     bool create_global_ids )
     : d_gid_map( 4 )
@@ -56,37 +56,37 @@ MoabMeshSetIndexer::MoabMeshSetIndexer(
     // Get the spatial dimension.
     int space_dim = 0;
     DTK_CHECK_ERROR_CODE(
-	moab_mesh->get_moab()->get_dimension( space_dim )
-	);
+        moab_mesh->get_moab()->get_dimension( space_dim )
+        );
 
     // Get the root set.
     moab::EntityHandle root_set = moab_mesh->get_moab()->get_root_set();
-    
+
     // DTK needs unique global ids from MOAB. Assign global ids to the root
     // set if needed.
     if ( create_global_ids )
     {
-	DTK_CHECK_ERROR_CODE(
-	    moab_mesh->assign_global_ids( root_set,
-					  space_dim,
-					  1,
-					  false,
-					  true,
-					  false )
-	    );
+        DTK_CHECK_ERROR_CODE(
+            moab_mesh->assign_global_ids( root_set,
+                                          space_dim,
+                                          1,
+                                          false,
+                                          true,
+                                          false )
+            );
     }
     else
     {
-	DTK_CHECK_ERROR_CODE(
-	    moab_mesh->check_global_ids( root_set,
-					 space_dim,
-					 1,
-					 false,
-					 true,
-					 false )
-	    );
+        DTK_CHECK_ERROR_CODE(
+            moab_mesh->check_global_ids( root_set,
+                                         space_dim,
+                                         1,
+                                         false,
+                                         true,
+                                         false )
+            );
     }
-    
+
     // Index the entity sets.
     int root_index = 0;
     d_handle_to_index_map.emplace( root_set, root_index );
@@ -94,14 +94,14 @@ MoabMeshSetIndexer::MoabMeshSetIndexer(
 
     std::vector<moab::EntityHandle> mesh_sets;
     DTK_CHECK_ERROR_CODE(
-	moab_mesh->get_moab()->get_contained_meshsets( root_set, mesh_sets, 0 )
-	);
+        moab_mesh->get_moab()->get_contained_meshsets( root_set, mesh_sets, 0 )
+        );
 
     int num_sets = mesh_sets.size();
     for ( int i = 0; i < num_sets; ++i )
     {
-	d_handle_to_index_map.emplace( mesh_sets[i], i+1 );
-	d_index_to_handle_map.emplace( i+1, mesh_sets[i] );
+        d_handle_to_index_map.emplace( mesh_sets[i], i+1 );
+        d_index_to_handle_map.emplace( i+1, mesh_sets[i] );
     }
 
     // Map global ids to entities.
@@ -111,34 +111,34 @@ MoabMeshSetIndexer::MoabMeshSetIndexer(
     std::vector<EntityId>::const_iterator gid_it;
     for ( int d = 0; d < space_dim+1; ++d )
     {
-	// Get the dimension entities.
-	dim_entities.clear();
-	DTK_CHECK_ERROR_CODE(
-	    moab_mesh->get_moab()->get_entities_by_dimension(
-		0, d, dim_entities )
-	    );
+        // Get the dimension entities.
+        dim_entities.clear();
+        DTK_CHECK_ERROR_CODE(
+            moab_mesh->get_moab()->get_entities_by_dimension(
+                0, d, dim_entities )
+            );
 
-	// Get the ids.
-	gid_data.resize( dim_entities.size() );
-	MoabHelpers::getGlobalIds( *moab_mesh,
-				   dim_entities.data(),
-				   dim_entities.size(),
-				   gid_data.data() );
+        // Get the ids.
+        gid_data.resize( dim_entities.size() );
+        MoabHelpers::getGlobalIds( *moab_mesh,
+                                   dim_entities.data(),
+                                   dim_entities.size(),
+                                   gid_data.data() );
 
-	// Map the gids to the enties.
-	for ( entity_it = dim_entities.begin(),
-		 gid_it = gid_data.begin();
-	      entity_it != dim_entities.end();
-	      ++entity_it, ++gid_it )
-	{
-	    d_gid_map[d].emplace( *gid_it, *entity_it );
-	}
+        // Map the gids to the enties.
+        for ( entity_it = dim_entities.begin(),
+                 gid_it = gid_data.begin();
+              entity_it != dim_entities.end();
+              ++entity_it, ++gid_it )
+        {
+            d_gid_map[d].emplace( *gid_it, *entity_it );
+        }
     }
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity set handle, get the integer index in the mesh.
-int MoabMeshSetIndexer::getIndexFromMeshSet( 
+int MoabMeshSetIndexer::getIndexFromMeshSet(
     const moab::EntityHandle mesh_set ) const
 {
     DTK_REQUIRE( d_handle_to_index_map.count(mesh_set) );

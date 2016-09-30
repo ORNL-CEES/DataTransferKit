@@ -74,14 +74,14 @@ class ConsistentInterpolationOperator : virtual public MapOperator
     typedef typename Root::global_ordinal_type GO;
     typedef typename Base::TpetraMultiVector TpetraMultiVector;
     typedef typename Base::TpetraMap TpetraMap;
-    
+
     /*!
      * \brief Constructor.
      */
     ConsistentInterpolationOperator(
-	const Teuchos::RCP<const TpetraMap>& domain_map,
-	const Teuchos::RCP<const TpetraMap>& range_map,
-	const Teuchos::ParameterList& parameters );
+        const Teuchos::RCP<const TpetraMap>& domain_map,
+        const Teuchos::RCP<const TpetraMap>& range_map,
+        const Teuchos::ParameterList& parameters );
 
     /*!
      * \brief Return the ids of the range entities that were not mapped during
@@ -115,17 +115,17 @@ class ConsistentInterpolationOperator : virtual public MapOperator
      * \param parameters Parameters for the setup.
      */
     void setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
-		    const Teuchos::RCP<FunctionSpace>& range_space ) override;
+                    const Teuchos::RCP<FunctionSpace>& range_space ) override;
 
     /*!
      * \brief Apply the operator.
      */
     void applyImpl(
-	const TpetraMultiVector& X,
-	TpetraMultiVector &Y,
-	Teuchos::ETransp mode = Teuchos::NO_TRANS,
-	double alpha = Teuchos::ScalarTraits<double>::one(),
-	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+        const TpetraMultiVector& X,
+        TpetraMultiVector &Y,
+        Teuchos::ETransp mode = Teuchos::NO_TRANS,
+        double alpha = Teuchos::ScalarTraits<double>::one(),
+        double beta = Teuchos::ScalarTraits<double>::zero()) const override;
 
     /*
      * \brief Transpose apply option.

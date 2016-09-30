@@ -64,7 +64,7 @@ IntegrationPointSetIterator::IntegrationPointSetIterator(
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-IntegrationPointSetIterator::IntegrationPointSetIterator( 
+IntegrationPointSetIterator::IntegrationPointSetIterator(
     const IntegrationPointSetIterator& rhs )
     : d_points( rhs.d_points )
     , d_points_it( rhs.d_points_it )
@@ -72,12 +72,12 @@ IntegrationPointSetIterator::IntegrationPointSetIterator(
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-IntegrationPointSetIterator& IntegrationPointSetIterator::operator=( 
+IntegrationPointSetIterator& IntegrationPointSetIterator::operator=(
     const IntegrationPointSetIterator& rhs )
 {
     if ( &rhs == this )
     {
-	return *this;
+        return *this;
     }
     d_points = rhs.d_points;
     d_points_it = rhs.d_points_it;
@@ -105,38 +105,38 @@ Entity& IntegrationPointSetIterator::operator*(void)
 Entity* IntegrationPointSetIterator::operator->(void)
 {
     d_current_entity =
-	IntegrationPointEntity( Teuchos::ptrFromRef(*d_points_it) );
+        IntegrationPointEntity( Teuchos::ptrFromRef(*d_points_it) );
     return &d_current_entity;
 }
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-bool IntegrationPointSetIterator::operator==( 
+bool IntegrationPointSetIterator::operator==(
     const EntityIterator& rhs ) const
-{ 
-    const IntegrationPointSetIterator* rhs_vec = 
-	static_cast<const IntegrationPointSetIterator*>(&rhs);
-    const IntegrationPointSetIterator* rhs_vec_impl = 
-	static_cast<const IntegrationPointSetIterator*>(rhs_vec->b_iterator_impl.get());
+{
+    const IntegrationPointSetIterator* rhs_vec =
+        static_cast<const IntegrationPointSetIterator*>(&rhs);
+    const IntegrationPointSetIterator* rhs_vec_impl =
+        static_cast<const IntegrationPointSetIterator*>(rhs_vec->b_iterator_impl.get());
     return ( rhs_vec_impl->d_points_it == d_points_it );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-bool IntegrationPointSetIterator::operator!=( 
+bool IntegrationPointSetIterator::operator!=(
     const EntityIterator& rhs ) const
 {
-    const IntegrationPointSetIterator* rhs_vec = 
-	static_cast<const IntegrationPointSetIterator*>(&rhs);
-    const IntegrationPointSetIterator* rhs_vec_impl = 
-	static_cast<const IntegrationPointSetIterator*>(rhs_vec->b_iterator_impl.get());
+    const IntegrationPointSetIterator* rhs_vec =
+        static_cast<const IntegrationPointSetIterator*>(&rhs);
+    const IntegrationPointSetIterator* rhs_vec_impl =
+        static_cast<const IntegrationPointSetIterator*>(rhs_vec->b_iterator_impl.get());
     return ( rhs_vec_impl->d_points_it != d_points_it );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the beginning.
 EntityIterator IntegrationPointSetIterator::begin() const
-{ 
+{
     return IntegrationPointSetIterator( d_points );
 }
 
@@ -155,7 +155,7 @@ EntityIterator IntegrationPointSetIterator::end() const
 std::unique_ptr<EntityIterator> IntegrationPointSetIterator::clone() const
 {
     return std::unique_ptr<EntityIterator>(
-	new IntegrationPointSetIterator(*this) );
+        new IntegrationPointSetIterator(*this) );
 }
 
 //---------------------------------------------------------------------------//
@@ -173,7 +173,7 @@ void IntegrationPointSet::addPoint( const IntegrationPoint& ip )
 {
     d_points.push_back( ip );
 }
-    
+
 //---------------------------------------------------------------------------//
 // Finalize the point set to construct global ids.
 void IntegrationPointSet::finalize()
@@ -182,14 +182,14 @@ void IntegrationPointSet::finalize()
     EntityId num_local_ip = d_points.size();
     EntityId num_global_ip = 0;
     Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_SUM,
-			num_local_ip, Teuchos::ptrFromRef(num_global_ip) );
+                        num_local_ip, Teuchos::ptrFromRef(num_global_ip) );
     Teuchos::RCP<const Tpetra::Map<int,EntityId> > map =
-	Tpetra::createContigMap<int,EntityId>(num_global_ip,num_local_ip,d_comm);
+        Tpetra::createContigMap<int,EntityId>(num_global_ip,num_local_ip,d_comm);
 
     // Get the starting id for this node.
     DTK_CHECK( map->isContiguous() );
     DTK_CHECK( map->getMaxGlobalIndex() - map->getMinGlobalIndex() + 1 ==
-	       num_local_ip );
+               num_local_ip );
     DTK_CHECK( map->getNodeNumElements() == num_local_ip );
     DTK_CHECK( map->getGlobalNumElements() == num_global_ip );
     d_start_gid = map->getMinGlobalIndex();
@@ -198,7 +198,7 @@ void IntegrationPointSet::finalize()
     Teuchos::ArrayView<const EntityId> ip_gids = map->getNodeElementList();
     for ( EntityId p = 0; p < num_local_ip; ++p )
     {
-	d_points[p].d_gid = ip_gids[p];
+        d_points[p].d_gid = ip_gids[p];
     }
 }
 
@@ -226,18 +226,18 @@ int IntegrationPointSet::globalMaxSupportSize() const
     int local_max = 0;
     if ( d_points.size() > 0 )
     {
-	auto comp = [](const IntegrationPoint& a, const IntegrationPoint& b)
-		    {
-			return (a.d_owner_support_ids.size() <
-				b.d_owner_support_ids.size() );
-		    };
-	local_max = std::max_element( d_points.begin(),
-				      d_points.end(),
-				      comp )->d_owner_support_ids.size();
+        auto comp = [](const IntegrationPoint& a, const IntegrationPoint& b)
+                    {
+                        return (a.d_owner_support_ids.size() <
+                                b.d_owner_support_ids.size() );
+                    };
+        local_max = std::max_element( d_points.begin(),
+                                      d_points.end(),
+                                      comp )->d_owner_support_ids.size();
     }
     int global_max = 0;
     Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_MAX,
-			local_max, Teuchos::ptrFromRef(global_max) );
+                        local_max, Teuchos::ptrFromRef(global_max) );
     return global_max;
 }
 

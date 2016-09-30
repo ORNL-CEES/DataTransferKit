@@ -1,7 +1,7 @@
 TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
   LIB_REQUIRED_PACKAGES
     DataTransferKitInterface
-    Teuchos 
+    Teuchos
     Tpetra
   TEST_REQUIRED_PACKAGES
     DataTransferKitOperators
@@ -9,5 +9,5 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     DataTransferKitMoabAdapters
   LIB_REQUIRED_TPLS
     MPI
-    Libmesh    
+    Libmesh
   )

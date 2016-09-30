@@ -48,12 +48,12 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Comm constructor.
 FieldMultiVector::FieldMultiVector(
-    const Teuchos::RCP<const Teuchos::Comm<int> >& global_comm,    
+    const Teuchos::RCP<const Teuchos::Comm<int> >& global_comm,
     const Teuchos::RCP<Field>& field )
     : Base( Tpetra::createNonContigMap<int,SupportId>(
-		field->getLocalSupportIds(),
-		global_comm ),
-	    field->dimension() )
+                field->getLocalSupportIds(),
+                global_comm ),
+            field->dimension() )
     , d_field( field )
 { /* ... */ }
 
@@ -63,9 +63,9 @@ FieldMultiVector::FieldMultiVector(
     const Teuchos::RCP<Field>& field,
     const Teuchos::RCP<const EntitySet>& entity_set )
     : Base( Tpetra::createNonContigMap<int,SupportId>(
-		field->getLocalSupportIds(),
-		entity_set->communicator()),
-	    field->dimension() )
+                field->getLocalSupportIds(),
+                entity_set->communicator()),
+            field->dimension() )
     , d_field( field )
 { /* ... */ }
 
@@ -74,17 +74,17 @@ FieldMultiVector::FieldMultiVector(
 void FieldMultiVector::pullDataFromApplication()
 {
     Teuchos::ArrayView<const SupportId> field_supports =
-	d_field->getLocalSupportIds();
+        d_field->getLocalSupportIds();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > vector_view =
-	this->get2dViewNonConst();
+        this->get2dViewNonConst();
     int num_supports = field_supports.size();
     int dim = d_field->dimension();
     for ( int n = 0; n < num_supports; ++n )
     {
-	for ( int d = 0; d < dim; ++d )
-	{
-	    vector_view[d][n] = d_field->readFieldData( field_supports[n], d );
-	}
+        for ( int d = 0; d < dim; ++d )
+        {
+            vector_view[d][n] = d_field->readFieldData( field_supports[n], d );
+        }
     }
 }
 
@@ -93,17 +93,17 @@ void FieldMultiVector::pullDataFromApplication()
 void FieldMultiVector::pushDataToApplication()
 {
     Teuchos::ArrayView<const SupportId> field_supports =
-	d_field->getLocalSupportIds();
+        d_field->getLocalSupportIds();
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > vector_view =
-	this->get2dView();
+        this->get2dView();
     int num_supports = field_supports.size();
     int dim = d_field->dimension();
     for ( int n = 0; n < num_supports; ++n )
     {
-	for ( int d = 0; d < dim; ++d )
-	{
-	    d_field->writeFieldData( field_supports[n], d, vector_view[d][n] );
-	}
+        for ( int d = 0; d < dim; ++d )
+        {
+            d_field->writeFieldData( field_supports[n], d, vector_view[d][n] );
+        }
     }
 
     d_field->finalizeAfterWrite();

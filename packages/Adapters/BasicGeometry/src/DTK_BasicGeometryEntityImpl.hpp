@@ -56,7 +56,7 @@ namespace DataTransferKit
 /*!
   \class BasicGeometryEntityImpl
   \brief BasicGeometryEntityImpl interface.
-  
+
   BasicGeometryEntityImpl gives an interface for simple geometries. These objects
   effectivelty define their own EntityImplLocalMap interface as these functions
   are typically statisfied with analytic expressions for basic geometric
@@ -80,7 +80,7 @@ class BasicGeometryEntityImpl : public EntityImpl
      * \return A unique global identifier for the entity.
      */
     virtual EntityId id() const override = 0;
-    
+
     /*!
      * \brief Get the parallel rank that owns the entity.
      * \return The parallel rank that owns the entity.
@@ -133,8 +133,8 @@ class BasicGeometryEntityImpl : public EntityImpl
      * \brief Provide a verbose description of the object.
      */
     virtual void describe(
-	Teuchos::FancyOStream& out,
-	const Teuchos::EVerbosityLevel verb_level ) const override = 0;
+        Teuchos::FancyOStream& out,
+        const Teuchos::EVerbosityLevel verb_level ) const override = 0;
     //@}
 
     //@{
@@ -147,20 +147,20 @@ class BasicGeometryEntityImpl : public EntityImpl
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
-    virtual bool mapToReferenceFrame( 
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const = 0;
+    virtual bool mapToReferenceFrame(
+        const Teuchos::ArrayView<const double>& point,
+        const Teuchos::ArrayView<double>& reference_point ) const = 0;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
-    virtual bool checkPointInclusion( 
-	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const = 0;
+    virtual bool checkPointInclusion(
+        const double tolerance,
+        const Teuchos::ArrayView<const double>& reference_point ) const = 0;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
-    virtual void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const = 0;
+    virtual void mapToPhysicalFrame(
+        const Teuchos::ArrayView<const double>& reference_point,
+        const Teuchos::ArrayView<double>& point ) const = 0;
     //@}
 };
 

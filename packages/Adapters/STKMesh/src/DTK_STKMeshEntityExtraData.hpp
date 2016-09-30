@@ -57,8 +57,8 @@ class STKMeshEntityExtraData : public EntityExtraData
 {
   public:
 
-    STKMeshEntityExtraData( const stk::mesh::Entity stk_entity ) 
-	: d_stk_entity( stk_entity )
+    STKMeshEntityExtraData( const stk::mesh::Entity stk_entity )
+        : d_stk_entity( stk_entity )
     { /* ... */ }
 
     // STK mesh entity.

@@ -69,14 +69,14 @@ TEUCHOS_UNIT_TEST( ReferenceHexShapeFunction, hex_test )
         DataTransferKit::UnitTest::ReferenceNode( 0, 6, 2.0, 2.0, 2.0 );
     nodes[7] =
         DataTransferKit::UnitTest::ReferenceNode( 0, 7, 0.0, 2.0, 2.0 );
-    
+
     // Make a hex.
-    DataTransferKit::Entity hex = 
+    DataTransferKit::Entity hex =
         DataTransferKit::UnitTest::ReferenceHex( 0, 0, nodes );
-    
+
     // Create a shape function.
     Teuchos::RCP<DataTransferKit::EntityShapeFunction> shape_function =
-	Teuchos::rcp( new DataTransferKit::UnitTest::ReferenceHexShapeFunction() );
+        Teuchos::rcp( new DataTransferKit::UnitTest::ReferenceHexShapeFunction() );
 
     // Test the shape function dof ids for the hex.
     Teuchos::Array<DataTransferKit::SupportId> dof_ids;
@@ -84,7 +84,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexShapeFunction, hex_test )
     TEST_EQUALITY( num_nodes, dof_ids.size() );
     for ( int n = 0; n < num_nodes; ++n )
     {
-	TEST_EQUALITY( dof_ids[n], nodes[n].id() );
+        TEST_EQUALITY( dof_ids[n], nodes[n].id() );
     }
 
     // Test the value evaluation for the hex at the low corner of the
@@ -95,7 +95,7 @@ TEUCHOS_UNIT_TEST( ReferenceHexShapeFunction, hex_test )
     TEST_EQUALITY( values.size(), num_nodes );
     for ( int n = 0; n < num_nodes; ++n )
     {
-	TEST_EQUALITY( values[n], 1.0 / num_nodes );
+        TEST_EQUALITY( values[n], 1.0 / num_nodes );
     }
     ref_point[0] = -1.0;
     ref_point[1] = -1.0;
@@ -105,8 +105,8 @@ TEUCHOS_UNIT_TEST( ReferenceHexShapeFunction, hex_test )
     TEST_EQUALITY( values[0], 1.0 );
     for ( int n = 1; n < num_nodes; ++n )
     {
-	TEST_EQUALITY( values[n], 0.0 );
-    }    
+        TEST_EQUALITY( values[n], 0.0 );
+    }
 
     // Test the gradient evaluation for the hex at the low corner of the
     // reference cell.
@@ -116,9 +116,9 @@ TEUCHOS_UNIT_TEST( ReferenceHexShapeFunction, hex_test )
     TEST_EQUALITY( grads.size(), num_nodes );
     for ( int n = 0; n < num_nodes; ++n )
     {
-	TEST_EQUALITY( Teuchos::as<int>(grads[n].size()), 3 );
+        TEST_EQUALITY( Teuchos::as<int>(grads[n].size()), 3 );
     }
-    
+
     TEST_EQUALITY( grads[0][0], -1.0 / num_nodes );
     TEST_EQUALITY( grads[0][1], -1.0 / num_nodes );
     TEST_EQUALITY( grads[0][2], -1.0 / num_nodes );
@@ -154,10 +154,10 @@ TEUCHOS_UNIT_TEST( ReferenceHexShapeFunction, hex_test )
     // Test the shape function dof ids for the nodes.
     for ( int n = 0; n < num_nodes; ++n )
     {
-	dof_ids.clear();
-	shape_function->entitySupportIds( nodes[n], dof_ids );
-	TEST_EQUALITY( dof_ids.size(), 1 );
-	TEST_EQUALITY( dof_ids[0], nodes[n].id() );
+        dof_ids.clear();
+        shape_function->entitySupportIds( nodes[n], dof_ids );
+        TEST_EQUALITY( dof_ids.size(), 1 );
+        TEST_EQUALITY( dof_ids[0], nodes[n].id() );
     }
 }
 

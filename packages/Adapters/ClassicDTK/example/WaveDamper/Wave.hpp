@@ -19,7 +19,7 @@
 class Wave
 {
   private:
-    
+
     Teuchos::RCP<const Teuchos::Comm<int> > comm;
     Teuchos::RCP<std::vector<double> > grid;
     Teuchos::RCP<std::vector<double> > data;
@@ -28,7 +28,7 @@ class Wave
   public:
 
     Wave( Teuchos::RCP<const Teuchos::Comm<int> > _comm,
-	  double x_min, double x_max, int num_x);
+          double x_min, double x_max, int num_x);
 
     ~Wave();
 

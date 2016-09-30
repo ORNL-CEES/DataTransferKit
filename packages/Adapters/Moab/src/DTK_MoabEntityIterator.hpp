@@ -71,14 +71,14 @@ class MoabEntityIterator : public EntityIterator
      */
     MoabEntityIterator();
 
-    /*! 
+    /*!
      * \brief Constructor.
      */
-    MoabEntityIterator( 
-	const Teuchos::RCP<MoabEntityIteratorRange>& entity_range,
-	const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
-	const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer,
-	const PredicateFunction& predicate );
+    MoabEntityIterator(
+        const Teuchos::RCP<MoabEntityIteratorRange>& entity_range,
+        const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
+        const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer,
+        const PredicateFunction& predicate );
 
     /*!
      * \brief Copy constructor.

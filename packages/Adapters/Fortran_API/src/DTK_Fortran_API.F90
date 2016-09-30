@@ -23,7 +23,7 @@ module DataTransferKit
       integer(kind=c_int), value :: space_dim
       character(kind=c_char) :: options(*)
     end function DTK_Map_create
-  
+
     subroutine DTK_Map_apply(dtk_map, src_field, src_layout, tgt_field, &
         tgt_layout, field_dim, apply_transpose) &
         bind(C, name="DTK_Map_apply")
@@ -44,7 +44,7 @@ module DataTransferKit
       implicit none
       type(c_ptr), value :: dtk_map
     end subroutine DTK_Map_delete
-    
+
   end interface
 
 end module

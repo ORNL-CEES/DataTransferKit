@@ -43,7 +43,7 @@ program dtk_fortran_api
 
   apply_transpose = .FALSE.
   options = '{ "Map Type": "Node To Node" }'//c_null_char
-  
+
   dtk_map = DTK_Map_create(MPI_COMM_WORLD, &
       c_loc(src_coord), src_num, DTK_INTERLEAVED, &
       c_loc(tgt_coord), tgt_num, DTK_BLOCKED, &

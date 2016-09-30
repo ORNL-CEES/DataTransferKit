@@ -57,7 +57,7 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
- * \class CoarseLocalSearch 
+ * \class CoarseLocalSearch
  * \brief A CoarseLocalSearch data structure for local entity coarse search.
  */
 //---------------------------------------------------------------------------//
@@ -67,13 +67,13 @@ class CoarseLocalSearch
 
     // Constructor.
     CoarseLocalSearch( const EntityIterator& entity_iterator,
-		       const Teuchos::RCP<EntityLocalMap>& local_map,
-		       const Teuchos::ParameterList& parameters ); 
+                       const Teuchos::RCP<EntityLocalMap>& local_map,
+                       const Teuchos::ParameterList& parameters );
 
     // Find the set of entities a point neighbors.
     void search( const Teuchos::ArrayView<const double>& point,
-		 const Teuchos::ParameterList& parameters,
-		 Teuchos::Array<Entity>& neighbors ) const;
+                 const Teuchos::ParameterList& parameters,
+                 Teuchos::Array<Entity>& neighbors ) const;
 
   private:
 

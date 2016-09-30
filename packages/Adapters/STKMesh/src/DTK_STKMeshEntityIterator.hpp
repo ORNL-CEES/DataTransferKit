@@ -71,13 +71,13 @@ class STKMeshEntityIterator : public EntityIterator
      */
     STKMeshEntityIterator();
 
-    /*! 
+    /*!
      * \brief Constructor.
      */
-    STKMeshEntityIterator( 
-	const Teuchos::RCP<STKMeshEntityIteratorRange>& entity_range,
-	const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data,
-	const PredicateFunction& predicate );
+    STKMeshEntityIterator(
+        const Teuchos::RCP<STKMeshEntityIteratorRange>& entity_range,
+        const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data,
+        const PredicateFunction& predicate );
 
     /*!
      * \brief Copy constructor.

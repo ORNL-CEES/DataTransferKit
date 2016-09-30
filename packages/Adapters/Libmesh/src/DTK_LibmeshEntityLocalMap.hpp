@@ -68,8 +68,8 @@ class LibmeshEntityLocalMap : public DataTransferKit::EntityLocalMap
      * \brief Constructor.
      */
     LibmeshEntityLocalMap(
-	const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
-	const Teuchos::RCP<libMesh::System>& libmesh_system );
+        const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
+        const Teuchos::RCP<libMesh::System>& libmesh_system );
 
     /*
      * \brief Set parameters for mapping.
@@ -91,7 +91,7 @@ class LibmeshEntityLocalMap : public DataTransferKit::EntityLocalMap
      * be allocated. Assign a view of your centroid to this view.
      */
     void centroid( const DataTransferKit::Entity& entity,
-		   const Teuchos::ArrayView<double>& centroid ) const override;
+                   const Teuchos::ArrayView<double>& centroid ) const override;
 
     /*!
      * \brief (Safeguard the reverse map) Perform a safeguard check for
@@ -104,8 +104,8 @@ class LibmeshEntityLocalMap : public DataTransferKit::EntityLocalMap
      * \return Return true if it is safe to map to the reference frame.
      */
     bool isSafeToMapToReferenceFrame(
-	const DataTransferKit::Entity& entity,
-	const Teuchos::ArrayView<const double>& physical_point ) const override;
+        const DataTransferKit::Entity& entity,
+        const Teuchos::ArrayView<const double>& physical_point ) const override;
 
     /*!
      * \brief (Reverse Map) Map a point to the reference space of an
@@ -118,12 +118,12 @@ class LibmeshEntityLocalMap : public DataTransferKit::EntityLocalMap
      * to write the reference coordinates of the mapped point.
      * \return Return true if the map to reference frame succeeded.
      */
-    bool mapToReferenceFrame( 
-	const DataTransferKit::Entity& entity,
-	const Teuchos::ArrayView<const double>& physical_point,
-	const Teuchos::ArrayView<double>& reference_point ) const override;
+    bool mapToReferenceFrame(
+        const DataTransferKit::Entity& entity,
+        const Teuchos::ArrayView<const double>& physical_point,
+        const Teuchos::ArrayView<double>& reference_point ) const override;
 
-    /*!  
+    /*!
      * \brief Determine if a reference point is in the parameterized space of
      * an entity.
      * \param entity Perfrom the mapping for this entity.
@@ -132,23 +132,23 @@ class LibmeshEntityLocalMap : public DataTransferKit::EntityLocalMap
      * containing the reference coordinates of the mapped point.
      * \return True if the point is in the reference space, false if not.
      */
-    bool checkPointInclusion( 
-	const DataTransferKit::Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point ) const override;
+    bool checkPointInclusion(
+        const DataTransferKit::Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point ) const override;
 
     /*!
      * \brief (Forward Map) Map a reference point to the physical space of an
-     * entity. 
+     * entity.
      * \param entity Perfrom the mapping for this entity.
      * \param reference_point A view into an array of size physicalDimension()
      * containing the reference coordinates of the mapped point.
      * \param physical_point A view into an array of size physicalDimension()
      * to write the coordinates of physical point.
      */
-    void mapToPhysicalFrame( 
-	const DataTransferKit::Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& physical_point ) const override;
+    void mapToPhysicalFrame(
+        const DataTransferKit::Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point,
+        const Teuchos::ArrayView<double>& physical_point ) const override;
 
     /*!
      * \brief Compute the normal on a face (3D) or edge (2D) at a given
@@ -162,9 +162,9 @@ class LibmeshEntityLocalMap : public DataTransferKit::EntityLocalMap
      * \param normal A view into an array of size physicalDimension() to write
      * the normal.
      */
-    void normalAtReferencePoint( 
+    void normalAtReferencePoint(
         const DataTransferKit::Entity& entity,
-	const DataTransferKit::Entity& parent_entity,
+        const DataTransferKit::Entity& parent_entity,
         const Teuchos::ArrayView<const double>& reference_point,
         const Teuchos::ArrayView<double>& normal ) const override;
 
@@ -178,7 +178,7 @@ class LibmeshEntityLocalMap : public DataTransferKit::EntityLocalMap
 
     // Newton tolerance.
     double d_newton_tol;
-    
+
     // Point inclusion tolerance.
     double d_inclusion_tol;
 

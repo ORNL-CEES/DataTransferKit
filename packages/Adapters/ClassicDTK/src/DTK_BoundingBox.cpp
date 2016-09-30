@@ -72,7 +72,7 @@ BoundingBox::BoundingBox()
  *
  * \param z_max Maximum z coordinate value in the box.
  */
-BoundingBox::BoundingBox( 
+BoundingBox::BoundingBox(
     const double x_min, const double y_min, const double z_min,
     const double x_max, const double y_max, const double z_max )
     : d_x_min( x_min )
@@ -115,7 +115,7 @@ BoundingBox::~BoundingBox()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Determine if a point is in the box. 
+ * \brief Determine if a point is in the box.
  *
  * \param coords Cartesian coordinates to check for point inclusion. The
  * coordinates must have a dimension between 0 and 3.
@@ -129,35 +129,35 @@ bool BoundingBox::pointInBox( const Teuchos::Array<double>& coords ) const
 
     if ( coords.size() == 1 )
     {
-	if ( coords[0] >= d_x_min &&
-	     coords[0] <= d_x_max )
-	{
-	    return true;
-	}
+        if ( coords[0] >= d_x_min &&
+             coords[0] <= d_x_max )
+        {
+            return true;
+        }
     }
 
     else if ( coords.size() == 2 )
     {
-	if ( coords[0] >= d_x_min &&
-	     coords[1] >= d_y_min &&
-	     coords[0] <= d_x_max &&
-	     coords[1] <= d_y_max )
-	{
-	    return true;
-	}
+        if ( coords[0] >= d_x_min &&
+             coords[1] >= d_y_min &&
+             coords[0] <= d_x_max &&
+             coords[1] <= d_y_max )
+        {
+            return true;
+        }
     }
 
     else if ( coords.size() == 3 )
     {
-	if ( coords[0] >= d_x_min &&
-	     coords[1] >= d_y_min &&
-	     coords[2] >= d_z_min &&
-	     coords[0] <= d_x_max &&
-	     coords[1] <= d_y_max &&
-	     coords[2] <= d_z_max )
-	{
-	    return true;
-	}
+        if ( coords[0] >= d_x_min &&
+             coords[1] >= d_y_min &&
+             coords[2] >= d_z_min &&
+             coords[0] <= d_x_max &&
+             coords[1] <= d_y_max &&
+             coords[2] <= d_z_max )
+        {
+            return true;
+        }
     }
 
     return false;
@@ -181,16 +181,16 @@ double BoundingBox::volume( const int dim ) const
     DTK_REQUIRE( 0 <= dim && dim <= 3 );
 
     if ( dim == 1 )
-    { 
-	return (d_x_max-d_x_min);
+    {
+        return (d_x_max-d_x_min);
     }
     else if ( dim == 2 )
-    { 
-	return (d_x_max-d_x_min)*(d_y_max-d_y_min);
+    {
+        return (d_x_max-d_x_min)*(d_y_max-d_y_min);
     }
     else if ( dim == 3 )
-    { 
-	return (d_x_max-d_x_min)*(d_y_max-d_y_min)*(d_z_max-d_z_min);
+    {
+        return (d_x_max-d_x_min)*(d_y_max-d_y_min)*(d_z_max-d_z_min);
     }
 
     return 0;
@@ -199,7 +199,7 @@ double BoundingBox::volume( const int dim ) const
 //---------------------------------------------------------------------------//
 /*!
  * \brief Static function for box intersection. Return false if they do not
- * intersect. 
+ * intersect.
  *
  * \param box_A Bounding box A.
  *
@@ -213,8 +213,8 @@ double BoundingBox::volume( const int dim ) const
  * \return Return true if the boxes intersect. False if they do not.
  */
 bool BoundingBox::intersectBoxes( const BoundingBox& box_A,
-				  const BoundingBox& box_B,
-				  BoundingBox& intersection)
+                                  const BoundingBox& box_B,
+                                  BoundingBox& intersection)
 {
     Teuchos::Tuple<double,6> bounds_A = box_A.getBounds();
     Teuchos::Tuple<double,6> bounds_B = box_B.getBounds();
@@ -224,71 +224,71 @@ bool BoundingBox::intersectBoxes( const BoundingBox& box_A,
     // Test for no overlap in X.
     if ( bounds_A[0] > bounds_B[3] || bounds_A[3] < bounds_B[0] )
     {
-	return false;
+        return false;
     }
     // Test for no overlap in Y.
     if ( bounds_A[1] > bounds_B[4] || bounds_A[4] < bounds_B[1] )
     {
-	return false;
+        return false;
     }
     // Test for no overlap in Z.
     if ( bounds_A[2] > bounds_B[5] || bounds_A[5] < bounds_B[2] )
     {
-	return false;
+        return false;
     }
 
     // Get overlap in X.
     if ( bounds_A[0] > bounds_B[0] )
     {
-	x_min = bounds_A[0];
+        x_min = bounds_A[0];
     }
     else
     {
-	x_min = bounds_B[0];
+        x_min = bounds_B[0];
     }
     if ( bounds_A[3] > bounds_B[3] )
     {
-	x_max = bounds_B[3];
+        x_max = bounds_B[3];
     }
     else
     {
-	x_max = bounds_A[3];
+        x_max = bounds_A[3];
     }
 
     // Get overlap in Y.
     if ( bounds_A[1] > bounds_B[1] )
     {
-	y_min = bounds_A[1];
+        y_min = bounds_A[1];
     }
     else
     {
-	y_min = bounds_B[1];
+        y_min = bounds_B[1];
     }
     if ( bounds_A[4] > bounds_B[4] )
     {
-	y_max = bounds_B[4];
+        y_max = bounds_B[4];
     }
     else
     {
-	y_max = bounds_A[4];
+        y_max = bounds_A[4];
     }
 
     // Get overlap in Z.
     if ( bounds_A[2] > bounds_B[2] )
     {
-	z_min = bounds_A[2];
+        z_min = bounds_A[2];
     }
     else
     {
-	z_min = bounds_B[2];
+        z_min = bounds_B[2];
     }
     if ( bounds_A[5] > bounds_B[5] )
     {
-	z_max = bounds_B[5];
+        z_max = bounds_B[5];
     }
     else
     {
-	z_max = bounds_A[5];
+        z_max = bounds_A[5];
     }
 
     intersection = BoundingBox( x_min, y_min, z_min, x_max, y_max, z_max );

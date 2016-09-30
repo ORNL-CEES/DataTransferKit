@@ -29,7 +29,7 @@ APPEND_SET(HEADERS
   DTK_CylinderGeometryImpl.hpp
   DTK_Point.hpp
   DTK_PointImpl.hpp
-  ) 
+  )
 
 APPEND_SET(SOURCES
   DTK_BasicEntitySet.cpp

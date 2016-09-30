@@ -66,7 +66,7 @@ class ClientManager
   public:
 
     /*!
-     * \brief Constructor. 
+     * \brief Constructor.
      */
     ClientManager() { /* ... */ }
 

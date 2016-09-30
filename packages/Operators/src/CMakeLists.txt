@@ -7,7 +7,7 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_CoarseLocalSearch.hpp
   ${DIR}/DTK_FineLocalSearch.hpp
   ${DIR}/DTK_ParallelSearch.hpp
-  ) 
+  )
 
 APPEND_SET(SOURCES
   ${DIR}/DTK_CoarseGlobalSearch.cpp
@@ -20,7 +20,7 @@ SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/SharedDomain)
 APPEND_SET(HEADERS
   ${DIR}/DTK_ConsistentInterpolationOperator.hpp
   ${DIR}/DTK_L2ProjectionOperator.hpp
-  ) 
+  )
 
 APPEND_SET(SOURCES
   ${DIR}/DTK_ConsistentInterpolationOperator.cpp
@@ -42,7 +42,7 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_MovingLeastSquareReconstructionOperator.hpp
   ${DIR}/DTK_MovingLeastSquareReconstructionOperator_impl.hpp
   ${DIR}/DTK_NodeToNodeOperator.hpp
-  ${DIR}/DTK_NodeToNodeOperator_impl.hpp  
+  ${DIR}/DTK_NodeToNodeOperator_impl.hpp
   ${DIR}/DTK_PolynomialMatrix.hpp
   ${DIR}/DTK_RadialBasisPolicy.hpp
   ${DIR}/DTK_SplineCoefficientMatrix.hpp
@@ -61,14 +61,14 @@ APPEND_SET(HEADERS
   )
 
 APPEND_SET(SOURCES
-  ${DIR}/DTK_CloudDomain.cpp  
+  ${DIR}/DTK_CloudDomain.cpp
   ${DIR}/DTK_LocalMLSProblem.cpp
   ${DIR}/DTK_MovingLeastSquareReconstructionOperator.cpp
-  ${DIR}/DTK_NodeToNodeOperator.cpp  
+  ${DIR}/DTK_NodeToNodeOperator.cpp
   ${DIR}/DTK_PolynomialMatrix.cpp
   ${DIR}/DTK_SplineCoefficientMatrix.cpp
   ${DIR}/DTK_SplineEvaluationMatrix.cpp
-  ${DIR}/DTK_SplineInterpolationOperator.cpp  
+  ${DIR}/DTK_SplineInterpolationOperator.cpp
   ${DIR}/DTK_SplineInterpolationPairing.cpp
   ${DIR}/DTK_SplineProlongationOperator.cpp
   )
@@ -77,7 +77,7 @@ SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/Factory)
 APPEND_SET(HEADERS
   ${DIR}/DTK_MapOperatorFactory.hpp
   ${DIR}/DTK_PointCloudOperatorFactory.hpp
-  ) 
+  )
 
 APPEND_SET(SOURCES
   ${DIR}/DTK_MapOperatorFactory.cpp

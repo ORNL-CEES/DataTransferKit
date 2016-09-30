@@ -92,7 +92,7 @@ class LibmeshEntitySet : public DataTransferKit::EntitySet
     //! Geometric data functions.
     /*!
      * \brief Return the largest physical dimension of the entities in the
-     * set.  
+     * set.
      * \return The physical dimension of the set.
      */
     int physicalDimension() const override;
@@ -106,8 +106,8 @@ class LibmeshEntitySet : public DataTransferKit::EntitySet
      * \param entity The entity with the given id.
      */
     void getEntity( const DataTransferKit::EntityId entity_id,
-		    const int topological_dimension,
-		    DataTransferKit::Entity& entity ) const override;
+                    const int topological_dimension,
+                    DataTransferKit::Entity& entity ) const override;
 
     /*!
      * \brief Get a iterator of the given entity type that satisfy the given
@@ -116,18 +116,18 @@ class LibmeshEntitySet : public DataTransferKit::EntitySet
      * \param predicate The selection predicate.
      * \return A iterator of entities of the given type.
      */
-    DataTransferKit::EntityIterator entityIterator( 
-	const int topological_dimension,
-	const std::function<bool(DataTransferKit::Entity)>& predicate ) const override;
+    DataTransferKit::EntityIterator entityIterator(
+        const int topological_dimension,
+        const std::function<bool(DataTransferKit::Entity)>& predicate ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
      * adjacent to it.
      */
     void getAdjacentEntities(
-	const DataTransferKit::Entity& entity,
-	const int adjacent_dimension,
-	Teuchos::Array<DataTransferKit::Entity>& adjacent_entities ) const override;
+        const DataTransferKit::Entity& entity,
+        const int adjacent_dimension,
+        Teuchos::Array<DataTransferKit::Entity>& adjacent_entities ) const override;
 
     /*!
      * \brief Provide a one line description of the object.
@@ -141,8 +141,8 @@ class LibmeshEntitySet : public DataTransferKit::EntitySet
     // Get adjacent entities implementation.
     template<class FromGeomType, class ToGeomType>
     void getAdjacentEntitiesImpl(
-	const DataTransferKit::Entity& entity,
-	Teuchos::Array<DataTransferKit::Entity>& adjacent_entities ) const;
+        const DataTransferKit::Entity& entity,
+        Teuchos::Array<DataTransferKit::Entity>& adjacent_entities ) const;
 
   private:
 
@@ -164,20 +164,20 @@ void LibmeshEntitySet::getAdjacentEntitiesImpl(
 {
     Teuchos::Array<Teuchos::Ptr<ToGeomType> > adjacent_libmesh;
     d_adjacencies->getLibmeshAdjacencies(
-	Teuchos::rcp_dynamic_cast<LibmeshEntityExtraData<FromGeomType> >(
-	    entity.extraData())->d_libmesh_geom,
-	adjacent_libmesh );
+        Teuchos::rcp_dynamic_cast<LibmeshEntityExtraData<FromGeomType> >(
+            entity.extraData())->d_libmesh_geom,
+        adjacent_libmesh );
 
     adjacent_entities.resize( adjacent_libmesh.size() );
     typename Teuchos::Array<Teuchos::Ptr<ToGeomType> >::iterator libmesh_it;
     Teuchos::Array<DataTransferKit::Entity>::iterator dtk_it;
     for ( libmesh_it = adjacent_libmesh.begin(),
-	  dtk_it = adjacent_entities.begin();
-	  libmesh_it != adjacent_libmesh.end();
-	  ++libmesh_it, ++dtk_it )
+          dtk_it = adjacent_entities.begin();
+          libmesh_it != adjacent_libmesh.end();
+          ++libmesh_it, ++dtk_it )
     {
-	*dtk_it = LibmeshEntity<ToGeomType>(
-	    *libmesh_it, d_libmesh_mesh.ptr(), d_adjacencies.ptr() );
+        *dtk_it = LibmeshEntity<ToGeomType>(
+            *libmesh_it, d_libmesh_mesh.ptr(), d_adjacencies.ptr() );
     }
 }
 

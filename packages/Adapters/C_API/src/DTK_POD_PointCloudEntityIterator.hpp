@@ -66,7 +66,7 @@ class POD_PointCloudEntityIterator : public EntityIterator
      */
     POD_PointCloudEntityIterator();
 
-    /*! 
+    /*!
      * \brief Constructor.
      */
     POD_PointCloudEntityIterator( const double* cloud_coords,
@@ -118,7 +118,7 @@ class POD_PointCloudEntityIterator : public EntityIterator
 
     // Point global ids.
     const EntityId* d_global_ids;
-    
+
     // Number of points in the point cloud.
     int d_num_points;
 
@@ -133,7 +133,7 @@ class POD_PointCloudEntityIterator : public EntityIterator
 
     // Current local id.
     int d_current_lid;
-    
+
     // Current entity.
     Entity d_current_entity;
 };

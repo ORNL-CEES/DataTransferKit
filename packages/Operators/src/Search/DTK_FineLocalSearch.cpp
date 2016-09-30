@@ -51,7 +51,7 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-FineLocalSearch::FineLocalSearch( 
+FineLocalSearch::FineLocalSearch(
     const Teuchos::RCP<EntityLocalMap>& local_map )
     : d_local_map( local_map )
 { /* ... */ }
@@ -60,7 +60,7 @@ FineLocalSearch::FineLocalSearch(
 /*!
  * \brief Find the set of entities to which a point maps.
  */
-void FineLocalSearch::search( 
+void FineLocalSearch::search(
     const Teuchos::ArrayView<const Entity>& neighbors,
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ParameterList& parameters,
@@ -73,27 +73,27 @@ void FineLocalSearch::search(
     Teuchos::Array<double> ref_point( physical_dim );
     Teuchos::ArrayView<const Entity>::const_iterator neighbor_it;
     for ( neighbor_it = neighbors.begin();
-	  neighbor_it != neighbors.end();
-	  ++neighbor_it )
+          neighbor_it != neighbors.end();
+          ++neighbor_it )
     {
-	DTK_ENSURE( neighbor_it->physicalDimension() == point.size() );
+        DTK_ENSURE( neighbor_it->physicalDimension() == point.size() );
 
-	if ( d_local_map->isSafeToMapToReferenceFrame(*neighbor_it,point) )
-	{
-	    if ( d_local_map->mapToReferenceFrame(
-		     *neighbor_it,point,ref_point()) )
-	    {
-		if ( d_local_map->checkPointInclusion(
-			 *neighbor_it,ref_point()) )
-		{
-		    parents.push_back( *neighbor_it );
-		    for ( int d = 0; d < physical_dim; ++d )
-		    {
-			reference_coordinates.push_back( ref_point[d] );
-		    }
-		}
-	    }
-	}
+        if ( d_local_map->isSafeToMapToReferenceFrame(*neighbor_it,point) )
+        {
+            if ( d_local_map->mapToReferenceFrame(
+                     *neighbor_it,point,ref_point()) )
+            {
+                if ( d_local_map->checkPointInclusion(
+                         *neighbor_it,ref_point()) )
+                {
+                    parents.push_back( *neighbor_it );
+                    for ( int d = 0; d < physical_dim; ++d )
+                    {
+                        reference_coordinates.push_back( ref_point[d] );
+                    }
+                }
+            }
+        }
     }
 }
 

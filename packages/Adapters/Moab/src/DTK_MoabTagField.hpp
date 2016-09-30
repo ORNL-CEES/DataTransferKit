@@ -71,9 +71,9 @@ class MoabTagField : public Field
      * \param tag The tag containing the vector data.
      */
     MoabTagField( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-		  const Teuchos::RCP<MoabMeshSetIndexer> set_indexer,
-		  const moab::EntityHandle& mesh_set,
-		  const moab::Tag& tag );
+                  const Teuchos::RCP<MoabMeshSetIndexer> set_indexer,
+                  const moab::EntityHandle& mesh_set,
+                  const moab::Tag& tag );
 
     /*!
      * \brief Get the dimension of the field.
@@ -90,15 +90,15 @@ class MoabTagField : public Field
      * application field.
      */
     double readFieldData( const SupportId support_id,
-			  const int dimension ) const override;
+                          const int dimension ) const override;
 
     /*!
      * \brief Given a local support id, dimension, and field value, write data
      * into the application field.
      */
     void writeFieldData( const SupportId support_id,
-			 const int dimension,
-			 const double data ) override;
+                         const int dimension,
+                         const double data ) override;
 
     /*!
      * \brief Finalize a field after writing into it.
@@ -124,7 +124,7 @@ class MoabTagField : public Field
 
     // The dimension of the entities supporting the field.
     int d_entity_dim;
-    
+
     // The support ids of the entities over which the field is constructed.
     Teuchos::Array<SupportId> d_support_ids;
 };

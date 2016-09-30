@@ -75,7 +75,7 @@ LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator(
 //---------------------------------------------------------------------------//
 // Copy constructor.
 template<class LibmeshGeomIterator>
-LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator( 
+LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator(
     const LibmeshEntityIterator<LibmeshGeomIterator>& rhs )
     : d_libmesh_iterator( rhs.d_libmesh_iterator )
     , d_libmesh_iterator_begin( rhs.d_libmesh_iterator_begin )
@@ -90,13 +90,13 @@ LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator(
 // Assignment operator.
 template<class LibmeshGeomIterator>
 LibmeshEntityIterator<LibmeshGeomIterator>&
-LibmeshEntityIterator<LibmeshGeomIterator>::operator=( 
+LibmeshEntityIterator<LibmeshGeomIterator>::operator=(
     const LibmeshEntityIterator<LibmeshGeomIterator>& rhs )
 {
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
     {
-	return *this;
+        return *this;
     }
     d_libmesh_iterator = rhs.d_libmesh_iterator;
     d_libmesh_iterator_begin = rhs.d_libmesh_iterator_begin;
@@ -132,37 +132,37 @@ template<class LibmeshGeomIterator>
 Entity*
 LibmeshEntityIterator<LibmeshGeomIterator>::operator->(void)
 {
-    d_current_entity = 
-	LibmeshEntity<
-	    typename std::remove_pointer<
-		typename LibmeshGeomIterator::value_type>::type
-	>( Teuchos::ptr(*d_libmesh_iterator), d_libmesh_mesh, d_adjacencies );
+    d_current_entity =
+        LibmeshEntity<
+            typename std::remove_pointer<
+                typename LibmeshGeomIterator::value_type>::type
+        >( Teuchos::ptr(*d_libmesh_iterator), d_libmesh_mesh, d_adjacencies );
     return &d_current_entity;
 }
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
 template<class LibmeshGeomIterator>
-bool LibmeshEntityIterator<LibmeshGeomIterator>::operator==( 
+bool LibmeshEntityIterator<LibmeshGeomIterator>::operator==(
     const EntityIterator& rhs ) const
-{ 
-    const LibmeshEntityIterator* rhs_it = 
-	static_cast<const LibmeshEntityIterator*>(&rhs);
-    const LibmeshEntityIterator* rhs_it_impl = 
-	static_cast<const LibmeshEntityIterator*>(rhs_it->b_iterator_impl.get());
+{
+    const LibmeshEntityIterator* rhs_it =
+        static_cast<const LibmeshEntityIterator*>(&rhs);
+    const LibmeshEntityIterator* rhs_it_impl =
+        static_cast<const LibmeshEntityIterator*>(rhs_it->b_iterator_impl.get());
     return ( rhs_it_impl->d_libmesh_iterator == d_libmesh_iterator );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
 template<class LibmeshGeomIterator>
-bool LibmeshEntityIterator<LibmeshGeomIterator>::operator!=( 
+bool LibmeshEntityIterator<LibmeshGeomIterator>::operator!=(
     const EntityIterator& rhs ) const
 {
-    const LibmeshEntityIterator* rhs_it = 
-	static_cast<const LibmeshEntityIterator*>(&rhs);
-    const LibmeshEntityIterator* rhs_it_impl = 
-	static_cast<const LibmeshEntityIterator*>(rhs_it->b_iterator_impl.get());
+    const LibmeshEntityIterator* rhs_it =
+        static_cast<const LibmeshEntityIterator*>(&rhs);
+    const LibmeshEntityIterator* rhs_it_impl =
+        static_cast<const LibmeshEntityIterator*>(rhs_it->b_iterator_impl.get());
     return ( rhs_it_impl->d_libmesh_iterator != d_libmesh_iterator );
 }
 
@@ -171,13 +171,13 @@ bool LibmeshEntityIterator<LibmeshGeomIterator>::operator!=(
 template<class LibmeshGeomIterator>
 EntityIterator
 LibmeshEntityIterator<LibmeshGeomIterator>::begin() const
-{ 
+{
     return LibmeshEntityIterator( d_libmesh_iterator_begin,
-				  d_libmesh_iterator_begin,
-				  d_libmesh_iterator_end,
-				  d_libmesh_mesh,
-				  d_adjacencies,
-				  this->b_predicate );
+                                  d_libmesh_iterator_begin,
+                                  d_libmesh_iterator_end,
+                                  d_libmesh_mesh,
+                                  d_adjacencies,
+                                  this->b_predicate );
 }
 
 //---------------------------------------------------------------------------//
@@ -187,11 +187,11 @@ EntityIterator
 LibmeshEntityIterator<LibmeshGeomIterator>::end() const
 {
     return LibmeshEntityIterator( d_libmesh_iterator_end,
-				  d_libmesh_iterator_begin,
-				  d_libmesh_iterator_end,
-				  d_libmesh_mesh,
-				  d_adjacencies,
-				  this->b_predicate );
+                                  d_libmesh_iterator_begin,
+                                  d_libmesh_iterator_end,
+                                  d_libmesh_mesh,
+                                  d_adjacencies,
+                                  this->b_predicate );
 }
 
 //---------------------------------------------------------------------------//

@@ -63,14 +63,14 @@ void ReferenceHexLocalMap::setParameters(
     const Teuchos::ParameterList& parameters )
 {
     if ( parameters.isParameter("Point Inclusion Tolerance") )
-    {	    
-	d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
+    {
+        d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
     }
 }
 
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
-// for a 3D entity, area for 2D, and length for 1D). 
+// for a 3D entity, area for 2D, and length for 1D).
 double ReferenceHexLocalMap::measure( const DataTransferKit::Entity& entity ) const
 {
     DTK_REQUIRE( 3 == entity.topologicalDimension() ||
@@ -94,10 +94,10 @@ double ReferenceHexLocalMap::measure( const DataTransferKit::Entity& entity ) co
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void ReferenceHexLocalMap::centroid( 
+void ReferenceHexLocalMap::centroid(
     const DataTransferKit::Entity& entity,
     const Teuchos::ArrayView<double>& centroid ) const
-{ 
+{
     DTK_REQUIRE( 3 == entity.topologicalDimension() ||
                  0 == entity.topologicalDimension() );
 
@@ -122,7 +122,7 @@ void ReferenceHexLocalMap::centroid(
 //---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the parameterized
 // point.
-bool ReferenceHexLocalMap::mapToReferenceFrame( 
+bool ReferenceHexLocalMap::mapToReferenceFrame(
     const DataTransferKit::Entity& entity,
     const Teuchos::ArrayView<const double>& physical_point,
     const Teuchos::ArrayView<double>& reference_point ) const
@@ -137,7 +137,7 @@ bool ReferenceHexLocalMap::mapToReferenceFrame(
 
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
-bool ReferenceHexLocalMap::checkPointInclusion( 
+bool ReferenceHexLocalMap::checkPointInclusion(
     const DataTransferKit::Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
@@ -151,7 +151,7 @@ bool ReferenceHexLocalMap::checkPointInclusion(
 
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
-void ReferenceHexLocalMap::mapToPhysicalFrame( 
+void ReferenceHexLocalMap::mapToPhysicalFrame(
     const DataTransferKit::Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& physical_point ) const

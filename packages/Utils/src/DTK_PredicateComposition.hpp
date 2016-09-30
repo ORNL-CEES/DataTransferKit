@@ -60,7 +60,7 @@ class PredicateComposition
     //! Predicate alias.
     template<class T>
     using Predicate = std::function<bool(T)>;
-    
+
     /*!
      * \brief Constructor.
      */
@@ -71,13 +71,13 @@ class PredicateComposition
     template<class ValueType>
     static Predicate<ValueType>
     And( const Predicate<ValueType>& func_left,
-	 const Predicate<ValueType>& func_right );
+         const Predicate<ValueType>& func_right );
 
     // Apply an or operation to two predicates to create a new predicate.
     template<class ValueType>
     static Predicate<ValueType>
     Or( const Predicate<ValueType>& func_left,
-	const Predicate<ValueType>& func_right );
+        const Predicate<ValueType>& func_right );
 
     // Apply a not operation to a predicate to create a new
     // predicate.
@@ -89,13 +89,13 @@ class PredicateComposition
     template<class ValueType>
     static Predicate<ValueType>
     AndNot( const Predicate<ValueType>& func_left,
-	    const Predicate<ValueType>& func_right );
+            const Predicate<ValueType>& func_right );
 
     // Apply an OrNot operation to create a new predicate.
     template<class ValueType>
     static Predicate<ValueType>
     OrNot( const Predicate<ValueType>& func_left,
-	   const Predicate<ValueType>& func_right );
+           const Predicate<ValueType>& func_right );
 };
 
 //---------------------------------------------------------------------------//

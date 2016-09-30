@@ -72,7 +72,7 @@ Box::Box()
  *
  * \param z_max Maximum z coordinate value in the box.
  */
-Box::Box( 
+Box::Box(
     const double x_min, const double y_min, const double z_min,
     const double x_max, const double y_max, const double z_max )
     : d_x_min( x_min )
@@ -126,18 +126,18 @@ Box::~Box()
  * the box boundary will return true.
  */
 bool Box::pointInBox( const Teuchos::Array<double>& coords,
-		      const double tolerance ) const
+                      const double tolerance ) const
 {
     DTK_REQUIRE( 3 == coords.size() );
 
     if ( coords[0] >= d_x_min - tolerance &&
-	 coords[1] >= d_y_min - tolerance &&
-	 coords[2] >= d_z_min - tolerance &&
-	 coords[0] <= d_x_max + tolerance &&
-	 coords[1] <= d_y_max + tolerance &&
-	 coords[2] <= d_z_max + tolerance )
+         coords[1] >= d_y_min - tolerance &&
+         coords[2] >= d_z_min - tolerance &&
+         coords[0] <= d_x_max + tolerance &&
+         coords[1] <= d_y_max + tolerance &&
+         coords[2] <= d_z_max + tolerance )
     {
-	return true;
+        return true;
     }
 
     return false;
@@ -192,7 +192,7 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
 {
   Teuchos::Tuple<double,6> bounds = b.getBounds();
 
-  os << "Box: d_x_min=" << bounds[0] 
+  os << "Box: d_x_min=" << bounds[0]
      << ",d_y_min=" << bounds[1]
      << ",d_z_min=" << bounds[2]
      << ",d_x_max=" << bounds[3]
