@@ -247,7 +247,9 @@ of options to configure both Trilinos and DataTransferKit::
     -D TPL_LAPACK_LIBRARIES:STRING="${PATH_TO_LAPACK_LIB}" \
     -D Trilinos_ENABLE_CXX11:BOOL=ON \
     -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
-    -D Trilinos_ASSERT_MISSING_PACKAGES=OFF \
+    -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION:BOOL=ON \
+    -D Tpetra_INST_INT_UNSIGNED_LONG:BOOL=ON \
+    -D Trilinos_ASSERT_MISSING_PACKAGES:BOOL=OFF \
     -D Trilinos_EXTRA_REPOSITORIES="DataTransferKit" \
     -D Trilinos_ENABLE_DataTransferKit:BOOL=ON \
     -D DataTransferKit_ENABLE_DBC:BOOL=ON \
