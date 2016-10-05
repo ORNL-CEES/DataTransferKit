@@ -95,13 +95,20 @@ void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     double max = std::numeric_limits<double>::max();
-    bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
+    bounds = Teuchos::tuple( max, max, max, max, max, max );
+
     Teuchos::Tuple<double,6> local_bounds;
     this->localBoundingBox( local_bounds );
-    Teuchos::reduceAll( *(this->communicator()), Teuchos::REDUCE_MIN, 3,
+    local_bounds[3] *= -1;
+    local_bounds[4] *= -1;
+    local_bounds[5] *= -1;
+
+    Teuchos::reduceAll( *(this->communicator()), Teuchos::REDUCE_MIN, 6,
                         &local_bounds[0], &bounds[0] );
-    Teuchos::reduceAll( *(this->communicator()), Teuchos::REDUCE_MAX, 3,
-                        &local_bounds[3], &bounds[3] );
+
+    bounds[3] *= -1;
+    bounds[4] *= -1;
+    bounds[5] *= -1;
 }
 
 //---------------------------------------------------------------------------//
