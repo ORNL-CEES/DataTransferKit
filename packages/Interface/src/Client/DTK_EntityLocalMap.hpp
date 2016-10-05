@@ -104,8 +104,24 @@ class EntityLocalMap
     /*!
      * \brief (Safeguard the reverse map) Perform a safeguard check for
      * mapping a point to the reference space of an entity using the given
-     * tolerance. Default implementation checks if the physical point is in
-     * the bounding box of the entity.
+     * tolerance.
+     *
+     * Mapping from physical domain to a reference one requires solving a
+     * nonlinear problem. It has been observed (see [1], sections VI.2.1-VI.2.3)
+     * that this nonlinear method may not converge for some points that should
+     * not have been considered in the first place as they are too far. The
+     * method tries to address the issue by providing a way to ignore those
+     * points early in the process. The default implementation checks if the
+     * physical point is in the bounding box of the entity.
+     *
+     * It is recommended that a user calls isSafeToMapToReferenceFrame() before
+     * calling mapToReferenceFrame(). The tolerance is provided by a specific
+     * implementation of the interface.
+     *
+     * [1] Lebrun-Grandie, Damien Thomas (2014). Contact Detection and
+     * Constraints Enforcement for the Simulation of Pellet/Clad
+     * Thermo-Mechanical Contact in Nuclear Fuel Rods. Doctoral dissertation,
+     * Texas A & M University
      *
      * \param entity Perfrom the mapping for this entity.
      *
@@ -190,6 +206,8 @@ class EntityLocalMap
      *
      * \param normal A view into an array of size physicalDimension() to write
      * the normal.
+     *
+     * \throw DataTransferKitException The function throws if a normal cannot be calculated
      */
     virtual void normalAtReferencePoint( 
         const Entity& entity,

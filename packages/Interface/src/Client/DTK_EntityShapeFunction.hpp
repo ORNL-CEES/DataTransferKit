@@ -84,18 +84,18 @@ class EntityShapeFunction
 	Teuchos::Array<SupportId>& support_ids ) const = 0;
 
     /*!
-     * \brief Given an entity and a reference point, evaluate the shape
-     * function of the entity at that point.
+     * \brief Given an entity and a reference point, evaluate shape
+     * functions of the entity at that point.
      *
-     * \param entity Evaluate the shape function of this entity.
+     * \param entity Evaluate shape functions of this entity.
      *
-     * \param reference_point Evaluate the shape function at this point
+     * \param reference_point Evaluate shape functions at this point
      * given in reference coordinates.
      *
-     * \param values Entity shape function evaluated at the reference
-     * point. Return these ordered with respect to those return by
-     * entitySupportIds() such that values[N] gives the shape function value
-     * of the Nth support location of entity.
+     * \param values Entity shape functions evaluated at the reference
+     * point. Return these ordered with respect to those returned by
+     * entitySupportIds() such that values[N] gives the value of a shape
+     * function of the Nth support location of entity.
      */
     virtual void evaluateValue( 
 	const Entity& entity,
