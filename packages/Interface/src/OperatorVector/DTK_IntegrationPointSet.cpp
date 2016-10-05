@@ -180,18 +180,16 @@ void IntegrationPointSet::finalize()
 {
     // Build a globally contiguous ordering of point global ids.
     EntityId num_local_ip = d_points.size();
-    EntityId num_global_ip = 0;
-    Teuchos::reduceAll( *d_comm, Teuchos::REDUCE_SUM,
-                        num_local_ip, Teuchos::ptrFromRef(num_global_ip) );
+
+    EntityId invalid = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const Tpetra::Map<int,EntityId> > map =
-        Tpetra::createContigMap<int,EntityId>(num_global_ip,num_local_ip,d_comm);
+        Tpetra::createContigMap<int,EntityId>(invalid, num_local_ip, d_comm);
 
     // Get the starting id for this node.
     DTK_CHECK( map->isContiguous() );
     DTK_CHECK( map->getMaxGlobalIndex() - map->getMinGlobalIndex() + 1 ==
                num_local_ip );
     DTK_CHECK( map->getNodeNumElements() == num_local_ip );
-    DTK_CHECK( map->getGlobalNumElements() == num_global_ip );
     d_start_gid = map->getMinGlobalIndex();
 
     // Assign global ids to the points.
