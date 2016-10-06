@@ -15,7 +15,7 @@ before_install:
         --volume ${TRAVIS_BUILD_DIR}:/scratch/source/dtk
         --env TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
         --env CTEST_BUILD_NAME="$(curl -s https://raw.githubusercontent.com/ORNL-CEES/Cap/master/docker/get_build_info.sh | bash)"
-        dalg24/dtk-stack
+        dalg24/dtk-stack:new
   - docker ps -a
   - env
   - docker exec test-machine

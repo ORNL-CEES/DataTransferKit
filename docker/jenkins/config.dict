@@ -1,6 +1,6 @@
 {
   'image': 'dalg24/dtk-stack',
-  'tag': 'latest',
+  'tag': 'new',
   'name': os.getenv("BUILD_TAG"),
   'cmd': [
     'sh -xe /scratch/source/dtk/docker/jenkins/build.sh',
