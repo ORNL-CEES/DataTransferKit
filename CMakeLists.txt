@@ -74,6 +74,14 @@ IF(Trilinos_ENABLE_DataTransferKitMoabAdapters)
 ENDIF()
 
 ##---------------------------------------------------------------------------##
+## Check C++ code style using clang-format version 3.9
+##---------------------------------------------------------------------------##
+
+IF(DataTransferKit_ENABLE_ClangFormat)
+    INCLUDE(CodeFormat)
+ENDIF()
+
+##---------------------------------------------------------------------------##
 ## Check that there are no trailing whitespaces or tabs
 ##---------------------------------------------------------------------------##
 
