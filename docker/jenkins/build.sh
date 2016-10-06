@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 
 # number of processes with default value
-: ${NPROC:=2}
+: ${NPROC:=8}
 # append the option flag --allow-run-as-root to mpiexec
-mv /usr/bin/mpiexec /usr/bin/mpiexec.alias
-echo '#!/usr/bin/env bash' > /usr/bin/mpiexc
-echo 'mpiexec.alias --allow-run-as-root "$@"' >> /usr/bin/mpiexec
-chmod +x /usr/bin/mpiexec
+cat > /usr/local/bin/mpiexec <<\EOF
+#!/usr/bin/env bash
+/usr/bin/mpiexec --allow-run-as-root "$@"
+EOF
+chmod +x /usr/local/bin/mpiexec
 # cleanup workspace
 cd ${PREFIX}/source/dtk
 rm -rf build
 mkdir build
 cd build
-# reconfigure trilinos with dtk
-TRILINOS_VERSION=12.4.2
+# configure trilinos with dtk
+TRILINOS_VERSION=12.8.1
 export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_VERSION}
 #export TRILINOS_BUILD_DIR=${PREFIX}/build/trilinos/${TRILINOS_VERSION}
 export TRILINOS_INSTALL_DIR=${PREFIX}/install/trilinos/${TRILINOS_VERSION}
