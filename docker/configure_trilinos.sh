@@ -1,86 +1,47 @@
-#!/usr/bin/env bash
-
+#!/bin/bash
 EXTRA_ARGS=$@
-
-cmake \
-    -D CMAKE_INSTALL_PREFIX:PATH=${TRILINOS_INSTALL_DIR} \
-    -D CMAKE_BUILD_TYPE:STRING=Debug \
-    -D BUILD_SHARED_LIBS:BOOL=ON \
-    -D CMAKE_VERBOSE_MAKEFILE:BOOL=OFF \
-    -D TPL_ENABLE_MPI:BOOL=ON \
-    -D MPI_BASE_DIR:PATH=${MPI_DIR} \
-    -D TPL_ENABLE_BLAS:BOOL=ON \
-    -D TPL_ENABLE_LAPACK:BOOL=ON \
-    -D TPL_ENABLE_Boost:BOOL=ON \
-    -D Boost_INCLUDE_DIRS:PATH=${BOOST_DIR}/include \
-    -D Boost_LIBRARY_DIRS:PATH=${BOOST_DIR}/lib \
-    -D TPL_ENABLE_BoostLib:BOOL=ON \
-    -D BoostLib_INCLUDE_DIRS:PATH=${BOOST_DIR}/include \
-    -D BoostLib_LIBRARY_DIRS:PATH=${BOOST_DIR}/lib \
-    -D TPL_ENABLE_Netcdf:BOOL=ON \
-    -D Netcdf_INCLUDE_DIRS:PATH=${NETCDF_DIR}/include \
-    -D Netcdf_LIBRARY_DIRS:PATH=${NETCDF_DIR}/lib \
-    -D TPL_ENABLE_MOAB:BOOL=OFF \
-    -D TPL_ENABLE_Libmesh:BOOL=ON \
-    -D Libmesh_INCLUDE_DIRS:PATH=${LIBMESH_DIR}/include \
-    -D Libmesh_LIBRARY_DIRS:PATH=${LIBMESH_DIR}/lib \
-    -D TPL_ENABLE_MOAB:BOOL=ON \
-    -D MOAB_INCLUDE_DIRS:PATH=${MOAB_DIR}/include \
-    -D MOAB_LIBRARY_DIRS:PATH=${MOAB_DIR}/lib \
-    -D Trilinos_ENABLE_CXX11:BOOL=ON \
-    -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION:BOOL=ON \
-    -D Trilinos_ASSERT_MISSING_PACKAGES:BOOL=OFF \
-    -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
-    -D Trilinos_ENABLE_Gtest:BOOL=ON \
-    -D Trilinos_ENABLE_ThreadPool:BOOL=ON \
-    -D Trilinos_ENABLE_KokkosCore:BOOL=ON \
-    -D Trilinos_ENABLE_KokkosContainers:BOOL=ON \
-    -D Trilinos_ENABLE_KokkosAlgorithms:BOOL=ON \
-    -D Trilinos_ENABLE_Kokkos:BOOL=ON \
-    -D Trilinos_ENABLE_TeuchosCore:BOOL=ON \
-    -D Trilinos_ENABLE_TeuchosParameterList:BOOL=ON \
-    -D Trilinos_ENABLE_TeuchosComm:BOOL=ON \
-    -D Trilinos_ENABLE_TeuchosNumerics:BOOL=ON \
-    -D Trilinos_ENABLE_TeuchosRemainder:BOOL=ON \
-    -D Trilinos_ENABLE_TeuchosKokkosCompat:BOOL=ON \
-    -D Trilinos_ENABLE_TeuchosKokkosComm:BOOL=ON \
-    -D Trilinos_ENABLE_Teuchos:BOOL=ON \
-    -D Trilinos_ENABLE_RTOp:BOOL=ON \
-    -D Trilinos_ENABLE_Sacado:BOOL=ON \
-    -D Trilinos_ENABLE_Epetra:BOOL=ON \
-    -D Trilinos_ENABLE_Shards:BOOL=ON \
-    -D Trilinos_ENABLE_Triutils:BOOL=ON \
-    -D Trilinos_ENABLE_TpetraClassic:BOOL=ON \
-    -D Trilinos_ENABLE_TpetraKernels:BOOL=ON \
-    -D Trilinos_ENABLE_TpetraCore:BOOL=ON \
-    -D Trilinos_ENABLE_Tpetra:BOOL=ON \
-    -D Trilinos_ENABLE_ThyraCore:BOOL=ON \
-    -D Trilinos_ENABLE_ThyraEpetraAdapters:BOOL=ON \
-    -D Trilinos_ENABLE_ThyraTpetraAdapters:BOOL=ON \
-    -D Trilinos_ENABLE_Thyra:BOOL=ON \
-    -D Trilinos_ENABLE_Belos:BOOL=ON \
-    -D Trilinos_ENABLE_SEACASExodus:BOOL=ON \
-    -D Trilinos_ENABLE_SEACASIoss:BOOL=ON \
-    -D Trilinos_ENABLE_SEACASAprepro_lib:BOOL=ON \
-    -D Trilinos_ENABLE_SEACAS:BOOL=ON \
-    -D Trilinos_ENABLE_Stratimikos:BOOL=ON \
-    -D Trilinos_ENABLE_Intrepid:BOOL=ON \
-    -D Trilinos_ENABLE_STKUtil:BOOL=ON \
-    -D Trilinos_ENABLE_STKTopology:BOOL=ON \
-    -D Trilinos_ENABLE_STKMesh:BOOL=ON \
-    -D Trilinos_ENABLE_STKIO:BOOL=ON \
-    -D Trilinos_ENABLE_STKUnit_test_utils:BOOL=ON \
-    -D Trilinos_ENABLE_STKSearch:BOOL=ON \
-    -D Trilinos_ENABLE_STKTransfer:BOOL=ON \
-    -D Trilinos_ENABLE_STKUnit_tests:BOOL=ON \
-    -D Trilinos_ENABLE_STK:BOOL=ON \
-    -D Trilinos_ENABLE_STKClassic:BOOL=OFF \
-    -D TPL_ENABLE_Matio:BOOL=OFF \
-    -D TPL_ENABLE_GLM:BOOL=OFF \
-    -D Tpetra_INST_COMPLEX_DOUBLE:BOOL=OFF \
-    -D Tpetra_INST_COMPLEX_FLOAT:BOOL=OFF \
-    -D Tpetra_INST_INT_LONG_LONG:BOOL=OFF \
-    -D Tpetra_INST_INT_INT:BOOL=OFF \
-    -D Tpetra_INST_INT_UNSIGNED_LONG:BOOL=ON \
-    ${EXTRA_ARGS} \
-    ${TRILINOS_SOURCE_DIR}
+rm -f  CMakeCache.txt
+rm -rf CMakeFiles/
+ARGS=(
+    -D CMAKE_BUILD_TYPE=Debug
+    -D CMAKE_INSTALL_PREFIX=$TRILINOS_INSTALL_DIR
+    -D BUILD_SHARED_LIBS=ON
+    ### COMPILERS AND FLAGS ###
+    -D CMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -Weffc++"
+    ### TPLs ###
+    -D TPL_ENABLE_MPI=ON
+    -D TPL_ENABLE_BLAS=ON
+    -D TPL_ENABLE_LAPACK=ON
+    -D TPL_ENABLE_Boost=ON
+        -D Boost_INCLUDE_DIRS=$BOOST_DIR/include
+        -D Boost_LIBRARY_DIRS=$BOOST_DIR/lib
+    -D TPL_ENABLE_BoostLib=ON
+        -D BoostLib_INCLUDE_DIRS=$BOOST_DIR/include
+        -D BoostLib_LIBRARY_DIRS=$BOOST_DIR/lib
+    -D TPL_ENABLE_Netcdf=OFF
+        -D Netcdf_INCLUDE_DIRS=$NETCDF_DIR/include
+        -D Netcdf_LIBRARY_DIRS=$NETCDF_DIR/lib
+    -D TPL_ENABLE_Libmesh=ON
+        -D Libmesh_INCLUDE_DIRS=$LIBMESH_DIR/include
+        -D Libmesh_LIBRARY_DIRS=$LIBMESH_DIR/lib
+    -D TPL_ENABLE_MOAB=ON
+        -D MOAB_INCLUDE_DIRS=$MOAB_DIR/include
+        -D MOAB_LIBRARY_DIRS=$MOAB_DIR/lib
+    ### ETI ###
+    -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION=ON
+    ### PACKAGES CONFIGURATION ###
+    -D Trilinos_ENABLE_ALL_PACKAGES=OFF
+    -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF
+    -D Trilinos_ASSERT_MISSING_PACKAGES=OFF
+    -D Trilinos_ENABLE_TESTS=OFF
+    -D Trilinos_ENABLE_EXAMPLES=OFF
+    -D Trilinos_EXTRA_REPOSITORIES="DataTransferKit"
+    -D Trilinos_ENABLE_DataTransferKit=ON
+        -D DataTransferKit_ENABLE_DBC=ON
+        -D DataTransferKit_ENABLE_TESTS=ON
+        -D DataTransferKit_ENABLE_EXAMPLES=OFF
+        -D DataTransferKit_ENABLE_ClangFormat=ON
+    -D Trilinos_ENABLE_Tpetra=ON
+        -D Tpetra_INST_INT_UNSIGNED_LONG=ON
+    )
+cmake "${ARGS[@]}" $EXTRA_ARGS $TRILINOS_SOURCE_DIR
