@@ -22,3 +22,5 @@
 /DTKData
 /doc/browser/doc/html/
 /doc/doxygen/html/
+.ycm_extra_conf.py
+.ycm_extra_conf.pyc
