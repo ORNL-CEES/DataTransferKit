@@ -225,10 +225,6 @@ RUN export TRILINOS_VERSION=12.8.1 && \
     wget --quiet ${TRILINOS_URL} --output-document=${TRILINOS_ARCHIVE} && \
     mkdir -p ${TRILINOS_SOURCE_DIR} && \
     tar -xf ${TRILINOS_ARCHIVE} -C ${TRILINOS_SOURCE_DIR} --strip-components=1 && \
-    export DTK_URL=https://github.com/ORNL-CEES/DataTransferKit.git && \
-    export DTK_SOURCE_DIR=${PREFIX}/source/dtk && \
-    mkdir ${DTK_SOURCE_DIR} && \
-    ln -s ${DTK_SOURCE_DIR} ${TRILINOS_SOURCE_DIR}/DataTransferKit && \
     mkdir -p ${TRILINOS_BUILD_DIR} && \
     rm -rf ${TRILINOS_ARCHIVE}
 

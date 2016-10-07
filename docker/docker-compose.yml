@@ -1,9 +1,9 @@
 version: '2'
 services:
   dtk_dev:
-    image: dalg24/dtk-stack:new
+    image: dtk_nosl
     volumes:
-      - ..:/scratch/source/dtk
+      - ..:/scratch/source/trilinos/12.8.1/DataTransferKit
     environment:
       - TRILINOS_DIR=/scratch/source/trilinos/12.8.1
     container_name: dtk_dev
