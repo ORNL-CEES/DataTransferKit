@@ -2,12 +2,6 @@
 
 # number of processes with default value
 : ${NPROC:=8}
-# append the option flag --allow-run-as-root to mpiexec
-cat > /usr/local/bin/mpiexec <<\EOF
-#!/usr/bin/env bash
-/usr/bin/mpiexec --allow-run-as-root "$@"
-EOF
-chmod +x /usr/local/bin/mpiexec
 # set a few environment variables
 TRILINOS_VERSION=12.8.1
 DTK_SOURCE_DIR=${PREFIX}/source/dtk

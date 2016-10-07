@@ -5,9 +5,11 @@ ARG NPROC=4
 RUN apt-get update && apt-get install -y \
         build-essential \
         gfortran \
-        wget \
-        git \
+        libopenmpi-dev \
         cmake \
+        git \
+        wget \
+        vim \
         autoconf \
         lcov \
         valgrind \
@@ -20,7 +22,6 @@ RUN apt-get update && apt-get install -y \
         libbz2-dev \
         libatlas-base-dev \
         zlib1g-dev \
-        libopenmpi-dev \
         python2.7-dev \
         && \
     echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.9 main" > /etc/apt/sources.list.d/llvm.list && \
@@ -228,5 +229,10 @@ RUN export TRILINOS_VERSION=12.8.1 && \
     export DTK_SOURCE_DIR=${PREFIX}/source/dtk && \
     mkdir ${DTK_SOURCE_DIR} && \
     ln -s ${DTK_SOURCE_DIR} ${TRILINOS_SOURCE_DIR}/DataTransferKit && \
-    mkdir -p ${TRILINOS_BUILD_DIR} \
+    mkdir -p ${TRILINOS_BUILD_DIR} && \
     rm -rf ${TRILINOS_ARCHIVE}
+
+# append the option flag --allow-run-as-root to mpiexec
+RUN echo '#!/usr/bin/env bash' > /usr/local/bin/mpiexec && \
+    echo '/usr/bin/mpiexec --allow-run-as-root "$@"' >> /usr/local/bin/mpiexec && \
+    chmod +x /usr/local/bin/mpiexec
