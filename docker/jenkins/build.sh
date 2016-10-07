@@ -17,4 +17,3 @@ ${TRILINOS_SOURCE_DIR}/DataTransferKit/scripts/docker_configure_cmake.sh
 make -j${NPROC} -i
 # run the unit tests
 ctest -j${NPROC} --no-compress-output -T Test
-

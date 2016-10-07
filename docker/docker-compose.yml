@@ -1,0 +1,10 @@
+version: '2'
+services:
+  dtk_dev:
+    image: dalg24/dtk-stack:new
+    volumes:
+      - ..:/scratch/source/dtk
+    environment:
+      - TRILINOS_DIR=/scratch/source/trilinos/12.8.1
+    container_name: dtk_dev
+    command: tail -f /dev/null
