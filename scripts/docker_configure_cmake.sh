@@ -1,7 +1,5 @@
 #!/bin/bash
 EXTRA_ARGS=$@
-rm -f  CMakeCache.txt
-rm -rf CMakeFiles/
 ARGS=(
     -D CMAKE_BUILD_TYPE=Debug
     -D CMAKE_INSTALL_PREFIX=$TRILINOS_INSTALL_DIR
@@ -35,13 +33,14 @@ ARGS=(
     -D Trilinos_ASSERT_MISSING_PACKAGES=OFF
     -D Trilinos_ENABLE_TESTS=OFF
     -D Trilinos_ENABLE_EXAMPLES=OFF
+    -D Trilinos_ENABLE_Tpetra=ON
+        -D Tpetra_INST_INT_UNSIGNED_LONG=ON
+    ### DTK ###
     -D Trilinos_EXTRA_REPOSITORIES="DataTransferKit"
     -D Trilinos_ENABLE_DataTransferKit=ON
         -D DataTransferKit_ENABLE_DBC=ON
         -D DataTransferKit_ENABLE_TESTS=ON
         -D DataTransferKit_ENABLE_EXAMPLES=OFF
         -D DataTransferKit_ENABLE_ClangFormat=ON
-    -D Trilinos_ENABLE_Tpetra=ON
-        -D Tpetra_INST_INT_UNSIGNED_LONG=ON
     )
 cmake "${ARGS[@]}" $EXTRA_ARGS $TRILINOS_SOURCE_DIR
